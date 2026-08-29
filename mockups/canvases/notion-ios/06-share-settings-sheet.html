@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notion iOS — Share settings sheet</title>
+<style>
+/* ============================================================================
+   NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
+   because the canvas renders each mockup in <iframe srcDoc sandbox="">, which
+   blocks external stylesheets. Keep this block byte-identical across files.)
+   Values sampled from Notion iOS 3x screenshots (393 x 852 pt @3x).
+   ========================================================================= */
+:root{
+  --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --n-bg:#FFFFFF;          /* document / full-screen page                */
+  --n-bg-sheet:#FAF8F6;    /* modal sheet ground (warm off-white)        */
+  --n-bg-card:#FFFFFF;     /* grouped card sitting on a sheet            */
+  --n-scrim:#E0E0E0;       /* app dimmed behind a light sheet            */
+  --n-scrim-strong:#C4C4C4;/* app dimmed behind the AI sheet             */
+  --n-fill:#EAE9E7;        /* search field, segmented track, icon tile   */
+  --n-fill-neutral:#F0F0F0;/* chip / icon button on a white page         */
+  --n-fill-soft:#FDFDFD;   /* raised field on white (search, composer)   */
+  --n-hairline:#E9E8E7;    /* row divider                                */
+  --n-border:#EFEEEC;      /* card + field outline                       */
+  --n-track:#F0EEED;       /* switch track, off                          */
+
+  /* Ink */
+  --n-text:#2C2C2C;        /* titles, primary labels                     */
+  --n-text-body:#2C2C2C;   /* page body copy                             */
+  --n-text-2:#787774;      /* secondary labels, section headers          */
+  --n-text-3:#9B9A97;      /* placeholder, values, out-of-month days     */
+
+  /* Accent */
+  --n-blue:#2784E0;        /* selection, primary button, Done, switches  */
+  --n-red:#E66457;         /* "today" in the date picker                 */
+  --n-yellow-bg:#F7F1DE;   /* Guest badge fill                           */
+  --n-yellow-ink:#402C1B;  /* Guest badge ink                            */
+
+  /* Radius */
+  --n-r-field:10px;  --n-r-card:12px;  --n-r-sheet:14px;
+  --n-r-day:8px;     --n-r-tile:8px;   --n-r-pill:999px;
+
+  /* Type — SF Pro. size/line-height/weight */
+  --n-t-title:700 34px/40px var(--n-font);   /* page title              */
+  --n-t-h2:700 19px/26px var(--n-font);      /* in-page heading         */
+  --n-t-nav:600 17px/22px var(--n-font);     /* sheet nav title         */
+  --n-t-row:400 17px/22px var(--n-font);     /* list row label          */
+  --n-t-rowb:600 17px/22px var(--n-font);    /* list row label, strong  */
+  --n-t-body:400 17px/24px var(--n-font);    /* body copy               */
+  --n-t-sub:400 15px/20px var(--n-font);     /* row subtitle            */
+  --n-t-cap:400 13px/18px var(--n-font);     /* badge / caption         */
+
+  /* Metrics */
+  --n-gutter:20px;       /* default screen gutter                       */
+  --n-gutter-page:20px;  /* document page gutter                        */
+  --n-gutter-card:12px;  /* card inset on a grouped sheet               */
+  --n-row-h:44px;        /* settings row                                */
+  --n-tap:44px;          /* minimum tap target                          */
+  --n-sheet-top:71px;    /* sheet top inset from the device top         */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
+  background:var(--n-bg);outline:1px solid rgba(0,0,0,.10);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28);
+  display:flex;flex-direction:column;color:var(--n-text)}
+.statusbar{height:54px;position:relative;flex:none;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:0 30px 5px}
+.statusbar .time{font:600 16px/1 var(--n-font);width:60px;letter-spacing:.2px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sicons{display:flex;align-items:center;gap:6px}
+.sicons svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:#191918}
+
+.phone{background:var(--n-scrim)}
+.sheet{position:absolute;left:0;right:0;top:var(--n-sheet-top);bottom:0;background:var(--n-bg-sheet);
+  border-radius:var(--n-r-sheet) var(--n-r-sheet) 0 0;overflow:hidden}
+.handle{width:42px;height:5px;border-radius:3px;background:#D6D4D1;margin:6px auto 0}
+.snav{display:flex;align-items:center;justify-content:space-between;height:var(--n-tap);
+  padding:0 var(--n-gutter);margin-top:10px}
+.stitle{font:var(--n-t-nav);color:var(--n-text);letter-spacing:-.2px}
+.help{width:26px;height:26px;color:var(--n-text-3);display:block}
+.help svg{width:26px;height:26px;display:block}
+.done{font:var(--n-t-nav);color:var(--n-blue);letter-spacing:-.2px}
+.seg{display:flex;background:var(--n-fill);border-radius:var(--n-r-field);padding:3px;
+  margin:14px var(--n-gutter) 0}
+.seg div{flex:1;text-align:center;padding:6px 0;font:var(--n-t-nav);color:var(--n-text-2);
+  border-radius:8px;letter-spacing:-.2px}
+.seg .on{background:#fff;color:var(--n-text);box-shadow:0 1px 3px rgba(0,0,0,.10)}
+.invite{display:flex;align-items:center;gap:12px;height:34px;padding:0 14px;margin:12px var(--n-gutter) 0;
+  background:var(--n-fill);border-radius:var(--n-r-field);color:var(--n-text-3)}
+.invite svg{width:20px;height:20px;flex:none}
+.invite span{font:var(--n-t-row);letter-spacing:-.2px}
+.people{padding:10px var(--n-gutter) 14px;border-bottom:1px solid var(--n-hairline)}
+.prow{display:flex;align-items:center;gap:14px;padding:12px 0}
+.av{width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid var(--n-border);
+  display:grid;place-items:center;font:var(--n-t-row);color:var(--n-text-2);flex:none}
+.pt{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.pt b{font:var(--n-t-rowb);color:var(--n-text);letter-spacing:-.2px;white-space:nowrap}
+.pt b em{font-style:normal;font-weight:400;color:var(--n-text-3)}
+.pt i{font:var(--n-t-sub);color:var(--n-text-2);font-style:normal}
+.guest{font:var(--n-t-cap);background:var(--n-yellow-bg);color:var(--n-yellow-ink);
+  padding:1px 6px;border-radius:5px;font-weight:500;vertical-align:2px}
+.pd{width:24px;height:24px;color:var(--n-text-2);flex:none}
+.pd svg{width:24px;height:24px;display:block}
+.ga{font:var(--n-t-row);color:var(--n-text-2);padding:18px var(--n-gutter) 8px;letter-spacing:-.2px}
+.garow{display:flex;align-items:center;gap:14px;padding:6px var(--n-gutter)}
+.tile{width:38px;height:38px;border-radius:var(--n-r-tile);background:var(--n-fill);
+  display:grid;place-items:center;color:#4B4945;flex:none}
+.tile svg{width:21px;height:21px}
+.gat{font:var(--n-t-row);color:var(--n-text);letter-spacing:-.2px}
+.cv{width:17px;height:17px;color:#B6B5B1;display:block}
+.cv svg{width:100%;height:100%;display:block}
+.cta{height:48px;margin:22px var(--n-gutter) 0;border-radius:var(--n-r-field);
+  background:var(--n-blue);color:#fff;display:grid;place-items:center;
+  font:var(--n-t-nav);letter-spacing:-.2px}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="statusbar">
+    <div class="time">9:41</div>
+    <div class="island"></div>
+    <div class="sicons">
+      <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 9.6a2 2 0 0 1 2 1.9l-2 .5-2-.5a2 2 0 0 1 2-1.9Z"/><path d="M8.5 5.6c1.9 0 3.6.7 4.9 1.9l-1.4 1.5a5 5 0 0 0-7 0L3.6 7.5a7 7 0 0 1 4.9-1.9Z"/><path d="M8.5 1.5c3 0 5.7 1.2 7.7 3.1l-1.4 1.5a9 9 0 0 0-12.6 0L.8 4.6a11 11 0 0 1 7.7-3.1Z"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4Z" fill="currentColor" opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="snav">
+      <span class="help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M9.4 9.4a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.2-2.6 4"/><circle cx="12" cy="17.4" r=".95" fill="currentColor" stroke="none"/></svg></span>
+      <span class="stitle">Share settings</span>
+      <span class="done">Done</span>
+    </div>
+
+    <div class="seg"><div class="on">Share</div><div>Publish</div></div>
+
+    <div class="invite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg><span>Invite people, emails, groups...</span></div>
+
+    <div class="people">
+      <div class="prow"><span class="av">A</span><span class="pt"><b>Alex Smith <em>(You)</em></b><i>Full access</i></span><span class="pd"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></span></div>
+      <div class="prow"><span class="av">S</span><span class="pt"><b>samlee.mobbin+1 <span class="guest">Guest</span></b><i>Full access</i></span><span class="pd"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></span></div>
+    </div>
+
+    <div class="ga">General access</div>
+    <div class="garow">
+      <span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4.2" y="10.4" width="15.6" height="10.4" rx="2.6"/><path d="M8 10.4V7.6a4 4 0 0 1 8 0v2.8"/><circle cx="12" cy="15.4" r="1.3" fill="currentColor" stroke="none"/></svg></span>
+      <span class="gat">Only people invited</span>
+      <span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span>
+    </div>
+
+    <div class="cta">Share link</div>
+  </div>
+</div>
+
+</body>
+</html>

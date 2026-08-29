@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notion iOS — Design Tokens</title>
+<style>
+/* ============================================================================
+   NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
+   because the canvas renders each mockup in <iframe srcDoc sandbox="">, which
+   blocks external stylesheets. Keep this block byte-identical across files.)
+   Values sampled from Notion iOS 3x screenshots (393 x 852 pt @3x).
+   ========================================================================= */
+:root{
+  --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --n-bg:#FFFFFF;          /* document / full-screen page                */
+  --n-bg-sheet:#FAF8F6;    /* modal sheet ground (warm off-white)        */
+  --n-bg-card:#FFFFFF;     /* grouped card sitting on a sheet            */
+  --n-scrim:#E0E0E0;       /* app dimmed behind a light sheet            */
+  --n-scrim-strong:#C4C4C4;/* app dimmed behind the AI sheet             */
+  --n-fill:#EAE9E7;        /* search field, segmented track, icon tile   */
+  --n-fill-neutral:#F0F0F0;/* chip / icon button on a white page         */
+  --n-fill-soft:#FDFDFD;   /* raised field on white (search, composer)   */
+  --n-hairline:#E9E8E7;    /* row divider                                */
+  --n-border:#EFEEEC;      /* card + field outline                       */
+  --n-track:#F0EEED;       /* switch track, off                          */
+
+  /* Ink */
+  --n-text:#2C2C2C;        /* titles, primary labels                     */
+  --n-text-body:#2C2C2C;   /* page body copy                             */
+  --n-text-2:#787774;      /* secondary labels, section headers          */
+  --n-text-3:#9B9A97;      /* placeholder, values, out-of-month days     */
+
+  /* Accent */
+  --n-blue:#2784E0;        /* selection, primary button, Done, switches  */
+  --n-red:#E66457;         /* "today" in the date picker                 */
+  --n-yellow-bg:#F7F1DE;   /* Guest badge fill                           */
+  --n-yellow-ink:#402C1B;  /* Guest badge ink                            */
+
+  /* Radius */
+  --n-r-field:10px;  --n-r-card:12px;  --n-r-sheet:14px;
+  --n-r-day:8px;     --n-r-tile:8px;   --n-r-pill:999px;
+
+  /* Type — SF Pro. size/line-height/weight */
+  --n-t-title:700 34px/40px var(--n-font);   /* page title              */
+  --n-t-h2:700 19px/26px var(--n-font);      /* in-page heading         */
+  --n-t-nav:600 17px/22px var(--n-font);     /* sheet nav title         */
+  --n-t-row:400 17px/22px var(--n-font);     /* list row label          */
+  --n-t-rowb:600 17px/22px var(--n-font);    /* list row label, strong  */
+  --n-t-body:400 17px/24px var(--n-font);    /* body copy               */
+  --n-t-sub:400 15px/20px var(--n-font);     /* row subtitle            */
+  --n-t-cap:400 13px/18px var(--n-font);     /* badge / caption         */
+
+  /* Metrics */
+  --n-gutter:20px;       /* default screen gutter                       */
+  --n-gutter-page:20px;  /* document page gutter                        */
+  --n-gutter-card:12px;  /* card inset on a grouped sheet               */
+  --n-row-h:44px;        /* settings row                                */
+  --n-tap:44px;          /* minimum tap target                          */
+  --n-sheet-top:71px;    /* sheet top inset from the device top         */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
+  background:var(--n-bg);outline:1px solid rgba(0,0,0,.10);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28);
+  display:flex;flex-direction:column;color:var(--n-text)}
+.statusbar{height:54px;position:relative;flex:none;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:0 30px 5px}
+.statusbar .time{font:600 16px/1 var(--n-font);width:60px;letter-spacing:.2px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sicons{display:flex;align-items:center;gap:6px}
+.sicons svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:#191918}
+
+body{background:#F3F2F0}
+.sheetcard{width:430px;height:932px;background:#fff;border-radius:20px;padding:16px 24px 14px;
+  border:1px solid var(--n-border);box-shadow:0 18px 44px rgba(29,25,26,.14);overflow:hidden;color:var(--n-text)}
+header{display:flex;gap:14px;align-items:flex-start;padding-bottom:8px;border-bottom:1px solid var(--n-hairline)}
+.brandmark{width:34px;height:34px;flex:none}
+.brandmark .logo{width:34px;height:34px;display:block}
+h1{font:700 19px/24px var(--n-font)}
+header p{font:400 12px/16px var(--n-font);color:var(--n-text-2);margin-top:3px}
+code{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:var(--n-fill);padding:1px 4px;border-radius:4px}
+h2{font:600 11px/14px var(--n-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--n-text-3);margin:7px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:24px;border-radius:6px;border:1px solid rgba(0,0,0,.08)}
+.swm{margin-top:4px;display:flex;flex-direction:column;gap:1px}
+.swm b{font:600 9.5px/12px ui-monospace,Menlo,monospace;color:var(--n-text)}
+.swm i{font:400 9.5px/12px ui-monospace,Menlo,monospace;color:var(--n-text-2);font-style:normal}
+.swm s{font:400 9.5px/12px var(--n-font);color:var(--n-text-3);text-decoration:none}
+.type .tr{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:3px 0;border-bottom:1px solid var(--n-hairline)}
+.type em{font:400 9.5px/12px ui-monospace,Menlo,monospace;color:var(--n-text-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.rad{display:flex;gap:10px}
+.rad>div{text-align:center}
+.rb{width:44px;height:28px;background:var(--n-fill);border:1px solid var(--n-border)}
+.rad em{display:block;margin-top:2px;font:400 9.5px/12px var(--n-font);color:var(--n-text-3);font-style:normal}
+.metrics{margin-top:6px;font:400 10.5px/15px ui-monospace,Menlo,monospace;color:var(--n-text-2)}
+.comps{display:grid;grid-template-columns:132px 1fr;gap:9px;align-items:center}
+.comps .crow{grid-column:1/-1;display:flex;align-items:center;gap:10px}
+.comps .cta{margin-left:auto;width:104px;height:36px;font:600 14px/1 var(--n-font)}
+.seg{display:flex;background:var(--n-fill);border-radius:var(--n-r-field);padding:3px}
+.seg div{flex:1;text-align:center;padding:5px 0;font:600 14px/20px var(--n-font);color:var(--n-text-2);border-radius:8px}
+.seg .on{background:#fff;color:var(--n-text);box-shadow:0 1px 3px rgba(0,0,0,.10)}
+.field{display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;
+  background:var(--n-fill);border-radius:var(--n-r-field);color:var(--n-text-3)}
+.field svg{width:19px;height:19px;flex:none}
+.field span{font:400 14px/20px var(--n-font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow{display:flex;align-items:center;gap:14px}
+.tg{width:51px;height:31px;border-radius:16px;background:var(--n-track);position:relative;flex:none}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;
+  background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.18)}
+.tg.on{background:var(--n-blue)}
+.tg.on::after{left:22px}
+.tile{width:36px;height:36px;border-radius:var(--n-r-tile);background:var(--n-fill);
+  display:grid;place-items:center;color:#4B4945;flex:none}
+.tile svg{width:20px;height:20px}
+.daysq{width:34px;height:34px;border-radius:var(--n-r-day);background:var(--n-blue);color:#fff;
+  display:grid;place-items:center;font:var(--n-t-row)}
+.daycr{width:34px;height:34px;border-radius:50%;background:var(--n-red);color:#fff;
+  display:grid;place-items:center;font:var(--n-t-row)}
+.cta{height:50px;border-radius:var(--n-r-field);background:var(--n-blue);color:#fff;
+  display:grid;place-items:center;font:var(--n-t-nav)}
+</style>
+</head>
+<body>
+
+<div class="sheetcard">
+  <header>
+    <div class="brandmark"><svg class="logo" viewBox="0 0 100 100" fill="none"><path d="M6.017 4.313 61.35.227c6.797-.583 8.543-.19 12.817 2.916l17.663 12.443c2.913 2.14 3.883 2.723 3.883 5.053v68.243c0 4.277-1.553 6.807-6.99 7.193l-64.257 3.89c-4.08.193-6.023-.39-8.16-3.113L3.3 79.94C.967 76.827 0 74.497 0 71.773V11.113c0-3.497 1.553-6.413 6.017-6.8Z" fill="#fff"/><path fill-rule="evenodd" clip-rule="evenodd" d="M61.35.227 6.017 4.313C1.553 4.7 0 7.617 0 11.113v60.66c0 2.724.967 5.054 3.3 8.167l13.007 16.913c2.137 2.723 4.08 3.306 8.16 3.113l64.257-3.89c5.433-.386 6.99-2.916 6.99-7.193V20.64c0-2.21-.873-2.847-3.443-4.733L74.167 3.143C69.894.037 68.147-.356 61.35.227ZM25.92 19.523c-5.247.353-6.437.433-9.417-1.99L8.927 11.507c-.77-.78-.383-1.753 1.557-1.947l53.193-3.887c4.467-.39 6.793 1.167 8.54 2.527l9.123 6.61c.39.197 1.36 1.36.193 1.36l-54.933 3.307-.68.046ZM19.803 88.3V30.367c0-2.53.777-3.697 3.103-3.894L86 22.78c2.14-.193 3.107 1.167 3.107 3.693v57.547c0 2.53-.39 4.67-3.883 4.863l-60.377 3.5c-3.493.194-5.043-.97-5.043-4.083Zm59.6-54.827c.387 1.75 0 3.5-1.75 3.7l-2.91.577V80.52c-2.527 1.36-4.853 2.137-6.797 2.137-3.107 0-3.883-.973-6.21-3.887l-19.03-29.94v28.967l6.02 1.363s0 3.5-4.857 3.5l-13.39.777c-.39-.78 0-2.723 1.357-3.11l3.497-.97V40.99l-4.853-.39c-.39-1.75.58-4.277 3.3-4.474l14.367-.966 19.807 30.327V38.657l-5.047-.58c-.39-2.144 1.163-3.7 3.103-3.89l13.393-.78Z" fill="#000"/></svg></div>
+    <div><h1>Notion iOS — Design Tokens</h1>
+    <p>Sampled from 393 x 852 pt @3x captures. Every mockup in this folder inlines
+    this exact <code>:root</code> block.</p></div>
+  </header>
+
+  <h2>Surface</h2>
+  <div class="grid"><div class="sw"><div class="chip" style="background:#FFFFFF"></div><div class="swm"><b>--n-bg</b><i>#FFFFFF</i><s>page</s></div></div><div class="sw"><div class="chip" style="background:#FAF8F6"></div><div class="swm"><b>--n-bg-sheet</b><i>#FAF8F6</i><s>sheet ground</s></div></div><div class="sw"><div class="chip" style="background:#EAE9E7"></div><div class="swm"><b>--n-fill</b><i>#EAE9E7</i><s>field / track</s></div></div><div class="sw"><div class="chip" style="background:#F0F0F0"></div><div class="swm"><b>--n-fill-neutral</b><i>#F0F0F0</i><s>chip on white</s></div></div><div class="sw"><div class="chip" style="background:#E9E8E7"></div><div class="swm"><b>--n-hairline</b><i>#E9E8E7</i><s>row divider</s></div></div><div class="sw"><div class="chip" style="background:#EFEEEC"></div><div class="swm"><b>--n-border</b><i>#EFEEEC</i><s>card outline</s></div></div><div class="sw"><div class="chip" style="background:#E0E0E0"></div><div class="swm"><b>--n-scrim</b><i>#E0E0E0</i><s>dimmed app</s></div></div><div class="sw"><div class="chip" style="background:#C4C4C4"></div><div class="swm"><b>--n-scrim-strong</b><i>#C4C4C4</i><s>dimmed, AI</s></div></div></div>
+
+  <h2>Ink</h2>
+  <div class="grid"><div class="sw"><div class="chip" style="background:#2C2C2C"></div><div class="swm"><b>--n-text</b><i>#2C2C2C</i><s>titles</s></div></div><div class="sw"><div class="chip" style="background:#2C2C2C"></div><div class="swm"><b>--n-text-body</b><i>#2C2C2C</i><s>body copy</s></div></div><div class="sw"><div class="chip" style="background:#787774"></div><div class="swm"><b>--n-text-2</b><i>#787774</i><s>secondary</s></div></div><div class="sw"><div class="chip" style="background:#9B9A97"></div><div class="swm"><b>--n-text-3</b><i>#9B9A97</i><s>placeholder</s></div></div></div>
+
+  <h2>Accent</h2>
+  <div class="grid"><div class="sw"><div class="chip" style="background:#2784E0"></div><div class="swm"><b>--n-blue</b><i>#2784E0</i><s>primary / on</s></div></div><div class="sw"><div class="chip" style="background:#E66457"></div><div class="swm"><b>--n-red</b><i>#E66457</i><s>today</s></div></div><div class="sw"><div class="chip" style="background:#F7F1DE"></div><div class="swm"><b>--n-yellow-bg</b><i>#F7F1DE</i><s>Guest fill</s></div></div><div class="sw"><div class="chip" style="background:#402C1B"></div><div class="swm"><b>--n-yellow-ink</b><i>#402C1B</i><s>Guest ink</s></div></div></div>
+
+  <h2>Type — SF Pro</h2>
+  <div class="type">
+    <div class="tr"><span style="font:var(--n-t-title)">Meeting</span><em>--n-t-title · 34/40 · 700</em></div>
+    <div class="tr"><span style="font:var(--n-t-h2)">AirPods Overview</span><em>--n-t-h2 · 19/26 · 700</em></div>
+    <div class="tr"><span style="font:var(--n-t-nav)">Share settings</span><em>--n-t-nav · 17/22 · 600</em></div>
+    <div class="tr"><span style="font:var(--n-t-row)">Date format</span><em>--n-t-row · 17/22 · 400</em></div>
+    <div class="tr"><span style="font:var(--n-t-body)">A major leap forward</span><em>--n-t-body · 17/24 · 400</em></div>
+    <div class="tr"><span style="font:var(--n-t-sub);color:var(--n-text-3)">in Private Pages</span><em>--n-t-sub · 15/20 · 400</em></div>
+    <div class="tr"><span style="font:var(--n-t-cap);color:var(--n-yellow-ink);background:var(--n-yellow-bg);padding:1px 5px;border-radius:4px">Guest</span><em>--n-t-cap · 13/18 · 400</em></div>
+  </div>
+
+  <h2>Radius &amp; metrics</h2>
+  <div class="rad">
+    <div><div class="rb" style="border-radius:var(--n-r-tile)"></div><em>tile 8</em></div>
+    <div><div class="rb" style="border-radius:var(--n-r-day)"></div><em>day 8</em></div>
+    <div><div class="rb" style="border-radius:var(--n-r-field)"></div><em>field 10</em></div>
+    <div><div class="rb" style="border-radius:var(--n-r-card)"></div><em>card 12</em></div>
+    <div><div class="rb" style="border-radius:var(--n-r-sheet)"></div><em>sheet 14</em></div>
+    <div><div class="rb" style="border-radius:var(--n-r-pill)"></div><em>pill 999</em></div>
+  </div>
+  <p class="metrics">gutter 20 · page 26 · summary 46 · card 12 · row 44 · tap 44 ·
+     status bar 54 · sheet top 71 · day cell 34 / pitch 44</p>
+
+  <h2>Components</h2>
+  <div class="comps">
+    <div class="seg"><div class="on">Share</div><div>Publish</div></div>
+    <div class="field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg><span>Invite people, emails, groups…</span></div>
+    <div class="crow"><div class="tg"></div><div class="tg on"></div>
+      <div class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="4.2" y="10.4" width="15.6" height="10.4" rx="2.6"/><path d="M8 10.4V7.6a4 4 0 0 1 8 0v2.8"/><circle cx="12" cy="15.4" r="1.3" fill="currentColor" stroke="none"/></svg></div>
+      <div class="daysq">27</div><div class="daycr">28</div>
+      <div class="cta">Share link</div></div>
+  </div>
+</div>
+
+</body>
+</html>

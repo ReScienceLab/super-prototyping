@@ -1,0 +1,122 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Example App — Design tokens</title>
+<style>
+/* ---------------------------------------------------------------------------
+   THE TOKEN BLOCK. Copy this :root byte-identically into every artboard of
+   this board — artboards render in a sandboxed iframe, so there is no shared
+   stylesheet. Generate the files from one script rather than hand-syncing.
+   Every value here must trace to a measurement (see the evidence column).
+--------------------------------------------------------------------------- */
+:root{
+  --x-font:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif;
+  --x-mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --x-bg:#FFFFFF;      --x-bg-alt:#F7F6F4;   --x-fill:#F1EFEC;
+  --x-hairline:#E9E8E7; --x-border:#EFEEEC;
+  --x-text:#23221F;    --x-text-2:#6F6D69;   --x-text-3:#9B9A97;
+  --x-accent:#2784E0;  --x-danger:#E0574A;
+
+  --x-r-field:10px; --x-r-card:12px; --x-r-sheet:14px; --x-r-tile:8px; --x-r-pill:999px;
+
+  --x-t-title:600 22px/28px var(--x-font);
+  --x-t-row:400 17px/22px var(--x-font);
+  --x-t-body:400 15px/20px var(--x-font);
+  --x-t-caption:400 13px/17px var(--x-font);
+
+  --x-gutter:20px; --x-row-h:44px; --x-tap:44px; --x-status-h:54px; --x-sheet-top:71px;
+}
+
+html,body{margin:0;height:100%}
+body{width:478px;height:980px;box-sizing:border-box;padding:22px;
+     background:var(--x-bg);color:var(--x-text);font:var(--x-t-body);
+     display:flex;flex-direction:column;gap:16px;overflow:hidden}
+h1{margin:0;font:var(--x-t-title)}
+p.lede{margin:4px 0 0;font:var(--x-t-caption);color:var(--x-text-2)}
+h2{margin:0 0 8px;font:600 12px/16px var(--x-font);letter-spacing:.06em;
+   text-transform:uppercase;color:var(--x-text-3)}
+section{border-top:1px solid var(--x-hairline);padding-top:12px}
+
+.swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sw b{display:block;height:38px;border-radius:var(--x-r-tile);
+      border:1px solid var(--x-border)}
+.sw code{display:block;margin-top:5px;font:400 11px/14px var(--x-mono);color:var(--x-text)}
+.sw span{display:block;font:400 10px/13px var(--x-font);color:var(--x-text-3)}
+
+.ramp{display:flex;flex-direction:column;gap:9px}
+.ramp div{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.ramp em{font-style:normal;color:var(--x-text)}
+.ramp code{font:400 11px/14px var(--x-mono);color:var(--x-text-3);white-space:nowrap}
+
+.radii{display:flex;gap:10px}
+.radii i{flex:1;height:44px;background:var(--x-fill);border:1px solid var(--x-border);
+         display:flex;align-items:center;justify-content:center;
+         font:400 10px/13px var(--x-mono);color:var(--x-text-2);font-style:normal}
+
+table{width:100%;border-collapse:collapse;font:400 11px/16px var(--x-font)}
+td,th{text-align:left;padding:4px 0;border-bottom:1px solid var(--x-hairline);vertical-align:top}
+th{color:var(--x-text-3);font-weight:600}
+td:first-child{font-family:var(--x-mono);white-space:nowrap;padding-right:10px}
+td:nth-child(2){color:var(--x-text-2);width:100%}
+.metrics{font:400 11px/18px var(--x-mono);color:var(--x-text-2)}
+</style>
+
+<header>
+  <h1>Example App — Design tokens</h1>
+  <p class="lede">Template board. Replace every value with one you measured off the
+  reference, and keep the evidence column honest — a token with no evidence is a guess.</p>
+</header>
+
+<section>
+  <h2>Colour</h2>
+  <div class="swatches">
+    <div class="sw"><b style="background:var(--x-bg)"></b><code>#FFFFFF</code><span>--x-bg</span></div>
+    <div class="sw"><b style="background:var(--x-bg-alt)"></b><code>#F7F6F4</code><span>--x-bg-alt</span></div>
+    <div class="sw"><b style="background:var(--x-fill)"></b><code>#F1EFEC</code><span>--x-fill</span></div>
+    <div class="sw"><b style="background:var(--x-hairline)"></b><code>#E9E8E7</code><span>--x-hairline</span></div>
+    <div class="sw"><b style="background:var(--x-border)"></b><code>#EFEEEC</code><span>--x-border</span></div>
+    <div class="sw"><b style="background:var(--x-text)"></b><code>#23221F</code><span>--x-text</span></div>
+    <div class="sw"><b style="background:var(--x-text-2)"></b><code>#6F6D69</code><span>--x-text-2</span></div>
+    <div class="sw"><b style="background:var(--x-text-3)"></b><code>#9B9A97</code><span>--x-text-3</span></div>
+    <div class="sw"><b style="background:var(--x-accent)"></b><code>#2784E0</code><span>--x-accent</span></div>
+    <div class="sw"><b style="background:var(--x-danger)"></b><code>#E0574A</code><span>--x-danger</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Type</h2>
+  <div class="ramp">
+    <div><em style="font:var(--x-t-title)">Screen title</em><code>--x-t-title 600 22/28</code></div>
+    <div><em style="font:var(--x-t-row)">List row label</em><code>--x-t-row 400 17/22</code></div>
+    <div><em style="font:var(--x-t-body)">Body copy</em><code>--x-t-body 400 15/20</code></div>
+    <div><em style="font:var(--x-t-caption);color:var(--x-text-2)">Caption / footnote</em><code>--x-t-caption 400 13/17</code></div>
+  </div>
+</section>
+
+<section>
+  <h2>Radii</h2>
+  <div class="radii">
+    <i style="border-radius:var(--x-r-tile)">tile 8</i>
+    <i style="border-radius:var(--x-r-field)">field 10</i>
+    <i style="border-radius:var(--x-r-card)">card 12</i>
+    <i style="border-radius:var(--x-r-sheet)">sheet 14</i>
+    <i style="border-radius:var(--x-r-pill)">pill</i>
+  </div>
+</section>
+
+<section>
+  <h2>Evidence</h2>
+  <table>
+    <tr><th>token</th><th>how it was measured</th></tr>
+    <tr><td>--x-bg</td><td>flat-neighbour census, page background, 3 screens</td></tr>
+    <tr><td>--x-hairline</td><td>1pt coverage solve on a list divider, capture scale applied</td></tr>
+    <tr><td>--x-text</td><td>mode of the title glyph core on a native @3x capture</td></tr>
+    <tr><td>--x-accent</td><td>mode of the core of the primary button fill</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Metrics</h2>
+  <p class="metrics">gutter 20 · row 44 · tap 44 · status bar 54 · sheet top inset 71<br>
+  frame 393 × 852pt · artboard 478 × 980px · 1pt = 1px</p>
+</section>

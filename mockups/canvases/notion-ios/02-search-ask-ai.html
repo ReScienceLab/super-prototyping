@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notion iOS — Search / Ask AI</title>
+<style>
+/* ============================================================================
+   NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
+   because the canvas renders each mockup in <iframe srcDoc sandbox="">, which
+   blocks external stylesheets. Keep this block byte-identical across files.)
+   Values sampled from Notion iOS 3x screenshots (393 x 852 pt @3x).
+   ========================================================================= */
+:root{
+  --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --n-bg:#FFFFFF;          /* document / full-screen page                */
+  --n-bg-sheet:#FAF8F6;    /* modal sheet ground (warm off-white)        */
+  --n-bg-card:#FFFFFF;     /* grouped card sitting on a sheet            */
+  --n-scrim:#E0E0E0;       /* app dimmed behind a light sheet            */
+  --n-scrim-strong:#C4C4C4;/* app dimmed behind the AI sheet             */
+  --n-fill:#EAE9E7;        /* search field, segmented track, icon tile   */
+  --n-fill-neutral:#F0F0F0;/* chip / icon button on a white page         */
+  --n-fill-soft:#FDFDFD;   /* raised field on white (search, composer)   */
+  --n-hairline:#E9E8E7;    /* row divider                                */
+  --n-border:#EFEEEC;      /* card + field outline                       */
+  --n-track:#F0EEED;       /* switch track, off                          */
+
+  /* Ink */
+  --n-text:#2C2C2C;        /* titles, primary labels                     */
+  --n-text-body:#2C2C2C;   /* page body copy                             */
+  --n-text-2:#787774;      /* secondary labels, section headers          */
+  --n-text-3:#9B9A97;      /* placeholder, values, out-of-month days     */
+
+  /* Accent */
+  --n-blue:#2784E0;        /* selection, primary button, Done, switches  */
+  --n-red:#E66457;         /* "today" in the date picker                 */
+  --n-yellow-bg:#F7F1DE;   /* Guest badge fill                           */
+  --n-yellow-ink:#402C1B;  /* Guest badge ink                            */
+
+  /* Radius */
+  --n-r-field:10px;  --n-r-card:12px;  --n-r-sheet:14px;
+  --n-r-day:8px;     --n-r-tile:8px;   --n-r-pill:999px;
+
+  /* Type — SF Pro. size/line-height/weight */
+  --n-t-title:700 34px/40px var(--n-font);   /* page title              */
+  --n-t-h2:700 19px/26px var(--n-font);      /* in-page heading         */
+  --n-t-nav:600 17px/22px var(--n-font);     /* sheet nav title         */
+  --n-t-row:400 17px/22px var(--n-font);     /* list row label          */
+  --n-t-rowb:600 17px/22px var(--n-font);    /* list row label, strong  */
+  --n-t-body:400 17px/24px var(--n-font);    /* body copy               */
+  --n-t-sub:400 15px/20px var(--n-font);     /* row subtitle            */
+  --n-t-cap:400 13px/18px var(--n-font);     /* badge / caption         */
+
+  /* Metrics */
+  --n-gutter:20px;       /* default screen gutter                       */
+  --n-gutter-page:20px;  /* document page gutter                        */
+  --n-gutter-card:12px;  /* card inset on a grouped sheet               */
+  --n-row-h:44px;        /* settings row                                */
+  --n-tap:44px;          /* minimum tap target                          */
+  --n-sheet-top:71px;    /* sheet top inset from the device top         */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
+  background:var(--n-bg);outline:1px solid rgba(0,0,0,.10);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28);
+  display:flex;flex-direction:column;color:var(--n-text)}
+.statusbar{height:54px;position:relative;flex:none;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:0 30px 5px}
+.statusbar .time{font:600 16px/1 var(--n-font);width:60px;letter-spacing:.2px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sicons{display:flex;align-items:center;gap:6px}
+.sicons svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:#191918}
+
+.askrow{display:flex;align-items:center;gap:10px;padding:6px 20px 10px;flex:none}
+.aiava{width:30px;height:30px;border-radius:50%;border:1px solid var(--n-border);
+  display:grid;place-items:center;flex:none;color:var(--n-text)}
+.aiava .aiface{width:19px;height:19px}
+.asktext{font:600 17px/22px var(--n-font);color:var(--n-text);letter-spacing:-.2px}
+.list{flex:1;overflow:hidden}
+.sect{font:var(--n-t-row);color:var(--n-text-2);padding:22px 20px 8px}
+.row{display:flex;align-items:center;gap:6px;padding:10px 20px;min-height:60px}
+.emo{width:26px;font-size:21px;line-height:1;text-align:center;flex:none}
+.gly{width:26px;height:26px;flex:none;display:grid;place-items:center;color:#8A8985}
+.gly svg{width:25px;height:25px}
+.rt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rt b{font:var(--n-t-rowb);color:var(--n-text);letter-spacing:-.2px;white-space:nowrap}
+.rt i{font:var(--n-t-sub);color:var(--n-text-3);font-style:normal}
+.bottombar{flex:none;display:flex;align-items:center;gap:8px;padding:12px 20px 20px}
+.searchfield{flex:1;height:44px;border-radius:var(--n-r-pill);background:var(--n-fill-soft);
+  border:1px solid var(--n-border);box-shadow:0 2px 8px rgba(29,25,26,.06);
+  display:flex;align-items:center;gap:10px;padding:0 16px}
+.searchfield .si{width:21px;height:21px;flex:none;color:var(--n-text-2)}
+.searchfield .si svg{width:21px;height:21px;display:block}
+.searchfield .tune{margin-left:auto}
+.searchfield .ph{font:var(--n-t-row);color:var(--n-text-3)}
+.circbtn{width:44px;height:44px;flex:none;border-radius:50%;background:var(--n-fill-soft);
+  border:1px solid var(--n-border);box-shadow:0 2px 8px rgba(29,25,26,.06);
+  display:grid;place-items:center;color:var(--n-text)}
+.circbtn svg{width:21px;height:21px}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="statusbar">
+    <div class="time">9:41</div>
+    <div class="island"></div>
+    <div class="sicons">
+      <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 9.6a2 2 0 0 1 2 1.9l-2 .5-2-.5a2 2 0 0 1 2-1.9Z"/><path d="M8.5 5.6c1.9 0 3.6.7 4.9 1.9l-1.4 1.5a5 5 0 0 0-7 0L3.6 7.5a7 7 0 0 1 4.9-1.9Z"/><path d="M8.5 1.5c3 0 5.7 1.2 7.7 3.1l-1.4 1.5a9 9 0 0 0-12.6 0L.8 4.6a11 11 0 0 1 7.7-3.1Z"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4Z" fill="currentColor" opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <div class="askrow">
+    <div class="aiava"><svg class="aiface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 6.0Q7.55 3.0 10.75 5.85"/><path d="M19.4 6.15C17.75 3.6 14.6 3.4 12.5 6.15L5.45 19.6h6.15"/><circle cx="7.95" cy="8.75" r="1.15" fill="currentColor" stroke="none"/><circle cx="14.55" cy="9.55" r="1.15" fill="currentColor" stroke="none"/></svg></div>
+    <div class="asktext">Ask AI anything in Alex Smith&rsquo;s Space</div>
+  </div>
+
+  <div class="list">
+    <div class="sect">Today</div>
+    <div class="group">
+      <div class="row"><span class="emo">&#129513;</span><span class="rt"><b>UI/UX Notes (2)</b><i>in Private Pages</i></span></div>
+      <div class="row"><span class="emo">&#127912;</span><span class="rt"><b>New page</b><i>in Private Pages</i></span></div>
+      <div class="row"><span class="emo">&#128083;</span><span class="rt"><b>Sidekick</b><i>in Private Pages</i></span></div>
+      <div class="row"><span class="gly"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6 2.8h7.2L19 8.6v12.6H6V2.8Z"/><path d="M13.2 2.8v5.8H19"/><path d="M8.8 12.6h7.4M8.8 15.8h7.4M8.8 19h4.6"/></svg></span><span class="rt"><b>Meeting @May 24, 2026 2:47 PM</b><i>in Private Pages</i></span></div>
+    </div>
+    <div class="sect">This week</div>
+    <div class="group">
+      <div class="row"><span class="emo">&#128075;</span><span class="rt"><b>Welcome to Notion!</b><i>in Private Pages</i></span></div>
+      <div class="row"><span class="gly"><svg viewBox="0 0 24 24" fill="none" stroke="#0F7B3E" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M2.4 6.6 4.4 8.6 8.2 4.4"/><path d="M2.4 15.6l2 2 3.8-4.2"/><path d="M11.4 6.2h10M11.4 10h7.4M11.4 15.4h10M11.4 19.2h7.4"/></svg></span><span class="rt"><b>To Do List</b><i>in Private Pages</i></span></div>
+    </div>
+  </div>
+
+  <div class="bottombar">
+    <div class="searchfield">
+      <span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg></span>
+      <span class="ph">Search or ask AI</span>
+      <span class="si tune"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h18M6 12h12M10 17h4"/></svg></span>
+    </div>
+    <div class="circbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></div>
+  </div>
+</div>
+
+</body>
+</html>

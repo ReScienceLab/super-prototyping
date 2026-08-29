@@ -1,0 +1,10 @@
+{
+  "rows": [
+    { "title": "Foundations", "files": ["00-design-tokens"] },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [{ "file": "01-example-screen", "label": "Home" }]
+    }
+  ]
+}

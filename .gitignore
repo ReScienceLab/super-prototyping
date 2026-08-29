@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+*.local
+*.log
+
+# Scratch output from tools/refkit.py — grids, shots, montages are regenerable.
+shots/
+scratch/
+
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notion iOS — Meeting page</title>
+<style>
+/* ============================================================================
+   NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
+   because the canvas renders each mockup in <iframe srcDoc sandbox="">, which
+   blocks external stylesheets. Keep this block byte-identical across files.)
+   Values sampled from Notion iOS 3x screenshots (393 x 852 pt @3x).
+   ========================================================================= */
+:root{
+  --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --n-bg:#FFFFFF;          /* document / full-screen page                */
+  --n-bg-sheet:#FAF8F6;    /* modal sheet ground (warm off-white)        */
+  --n-bg-card:#FFFFFF;     /* grouped card sitting on a sheet            */
+  --n-scrim:#E0E0E0;       /* app dimmed behind a light sheet            */
+  --n-scrim-strong:#C4C4C4;/* app dimmed behind the AI sheet             */
+  --n-fill:#EAE9E7;        /* search field, segmented track, icon tile   */
+  --n-fill-neutral:#F0F0F0;/* chip / icon button on a white page         */
+  --n-fill-soft:#FDFDFD;   /* raised field on white (search, composer)   */
+  --n-hairline:#E9E8E7;    /* row divider                                */
+  --n-border:#EFEEEC;      /* card + field outline                       */
+  --n-track:#F0EEED;       /* switch track, off                          */
+
+  /* Ink */
+  --n-text:#2C2C2C;        /* titles, primary labels                     */
+  --n-text-body:#2C2C2C;   /* page body copy                             */
+  --n-text-2:#787774;      /* secondary labels, section headers          */
+  --n-text-3:#9B9A97;      /* placeholder, values, out-of-month days     */
+
+  /* Accent */
+  --n-blue:#2784E0;        /* selection, primary button, Done, switches  */
+  --n-red:#E66457;         /* "today" in the date picker                 */
+  --n-yellow-bg:#F7F1DE;   /* Guest badge fill                           */
+  --n-yellow-ink:#402C1B;  /* Guest badge ink                            */
+
+  /* Radius */
+  --n-r-field:10px;  --n-r-card:12px;  --n-r-sheet:14px;
+  --n-r-day:8px;     --n-r-tile:8px;   --n-r-pill:999px;
+
+  /* Type — SF Pro. size/line-height/weight */
+  --n-t-title:700 34px/40px var(--n-font);   /* page title              */
+  --n-t-h2:700 19px/26px var(--n-font);      /* in-page heading         */
+  --n-t-nav:600 17px/22px var(--n-font);     /* sheet nav title         */
+  --n-t-row:400 17px/22px var(--n-font);     /* list row label          */
+  --n-t-rowb:600 17px/22px var(--n-font);    /* list row label, strong  */
+  --n-t-body:400 17px/24px var(--n-font);    /* body copy               */
+  --n-t-sub:400 15px/20px var(--n-font);     /* row subtitle            */
+  --n-t-cap:400 13px/18px var(--n-font);     /* badge / caption         */
+
+  /* Metrics */
+  --n-gutter:20px;       /* default screen gutter                       */
+  --n-gutter-page:20px;  /* document page gutter                        */
+  --n-gutter-card:12px;  /* card inset on a grouped sheet               */
+  --n-row-h:44px;        /* settings row                                */
+  --n-tap:44px;          /* minimum tap target                          */
+  --n-sheet-top:71px;    /* sheet top inset from the device top         */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
+  background:var(--n-bg);outline:1px solid rgba(0,0,0,.10);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28);
+  display:flex;flex-direction:column;color:var(--n-text)}
+.statusbar{height:54px;position:relative;flex:none;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:0 30px 5px}
+.statusbar .time{font:600 16px/1 var(--n-font);width:60px;letter-spacing:.2px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sicons{display:flex;align-items:center;gap:6px}
+.sicons svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:#191918}
+
+.nav{display:flex;align-items:center;gap:18px;padding:8px 26px 4px;flex:none;color:var(--n-text)}
+.nb{width:26px;height:26px;display:block}
+.nb svg{width:26px;height:26px;display:block}
+.nb.dots svg{width:24px;height:24px}
+.sp{flex:1}
+.ptitle{font:var(--n-t-title);letter-spacing:-.9px;color:var(--n-text);padding:14px 26px 0}
+.ptitle span{color:var(--n-text-2)}
+.card{margin:18px 26px 0;border:1px solid var(--n-border);border-radius:var(--n-r-card);
+  background:#fff;overflow:hidden;flex:none}
+.chead{display:flex;align-items:flex-start;gap:8px;padding:14px 40px 14px 16px}
+.cico{width:26px;height:26px;flex:none;color:var(--n-text)}
+.cico svg{width:26px;height:26px;display:block}
+.chead .cv{width:18px;height:18px;flex:none;margin-top:4px;color:var(--n-text-2)}
+.cv svg{width:100%;height:100%;display:block}
+.ctitle{font:700 19px/26px var(--n-font);letter-spacing:-.3px;color:var(--n-text)}
+.ctools{display:flex;align-items:center;justify-content:space-between;padding:14px 46px 2px}
+.chip{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;
+  border-radius:var(--n-r-pill);background:var(--n-fill-neutral);
+  font:600 17px/1 var(--n-font);letter-spacing:-.2px;color:var(--n-text)}
+.chip svg{width:19px;height:19px;display:block}
+.chip .cv{width:17px;height:17px;color:var(--n-text-2)}
+.tunebtn{width:38px;height:38px;border-radius:var(--n-r-tile);background:var(--n-fill-neutral);
+  display:grid;place-items:center;color:#4B4945}
+.tunebtn svg{width:21px;height:21px}
+.cbody{padding:0 46px;flex:1;overflow:hidden}
+.cbody h2{font:var(--n-t-h2);letter-spacing:-.3px;color:var(--n-text);margin:20px 0 4px}
+.cbody ul{list-style:none}
+.cbody li{position:relative;padding:4px 0 4px 31px;font:var(--n-t-body);color:var(--n-text-body);letter-spacing:-.2px}
+.cbody li::before{content:"";position:absolute;left:9px;top:13px;width:6px;height:6px;
+  border-radius:50%;background:var(--n-text-body)}
+.cite{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;
+  border:1px solid #DEDDDA;font:400 11px/1 var(--n-font);color:var(--n-text-2);
+  vertical-align:2px;margin-left:2px}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="statusbar">
+    <div class="time">9:41</div>
+    <div class="island"></div>
+    <div class="sicons">
+      <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 9.6a2 2 0 0 1 2 1.9l-2 .5-2-.5a2 2 0 0 1 2-1.9Z"/><path d="M8.5 5.6c1.9 0 3.6.7 4.9 1.9l-1.4 1.5a5 5 0 0 0-7 0L3.6 7.5a7 7 0 0 1 4.9-1.9Z"/><path d="M8.5 1.5c3 0 5.7 1.2 7.7 3.1l-1.4 1.5a9 9 0 0 0-12.6 0L.8 4.6a11 11 0 0 1 7.7-3.1Z"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4Z" fill="currentColor" opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <div class="nav">
+    <span class="nb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></span>
+    <span class="sp"></span>
+    <span class="nb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 6.6 4-3.6 4 3.6"/><path d="M6 11H4.6A1.6 1.6 0 0 0 3 12.6v7.8A1.6 1.6 0 0 0 4.6 22h14.8a1.6 1.6 0 0 0 1.6-1.6v-7.8A1.6 1.6 0 0 0 19.4 11H18"/></svg></span>
+    <span class="nb dots"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></span>
+  </div>
+
+  <h1 class="ptitle">Meeting <span>@Today<br>12:02&thinsp;PM</span></h1>
+
+  <div class="card">
+    <div class="chead">
+      <span class="cico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="2.8" y="4.6" width="18.4" height="16.6" rx="2.4"/><path d="M2.8 9.6h18.4"/><path d="M7.4 2.8v3.4M16.6 2.8v3.4"/><text x="12" y="18.2" text-anchor="middle" font-family="-apple-system,Helvetica,Arial" font-size="7.4" font-weight="700" fill="currentColor" stroke="none">28</text></svg></span>
+      <span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 7 7 7-7"/></svg></span>
+      <span class="ctitle">iPhone and AirPods Product Announcement</span>
+    </div>
+  </div>
+
+  <div class="ctools">
+      <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M2.4 6.6 4.4 8.6 8.2 4.4"/><path d="M2.4 15.6l2 2 3.8-4.2"/><path d="M11.4 6.2h10M11.4 10h7.4M11.4 15.4h10M11.4 19.2h7.4"/></svg>Summary <span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 7 7 7-7"/></svg></span></span>
+      <span class="tunebtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h18M6 12h12M10 17h4"/></svg></span>
+  </div>
+
+  <div class="cbody">
+      <h2>iPhone</h2>
+      <ul><li>A major leap forward for iPhone was announced, described as "the biggest leap ever" <span class="cite">1</span></li></ul>
+      <h2>AirPods Overview</h2>
+      <ul><li>AirPods are positioned as the best and most popular headphones in the world <span class="cite">1</span></li><li>Feature an iconic design and groundbreaking sound quality that have revolutionized the headphone industry <span class="cite">1</span></li></ul>
+      <h2>AirPods User Experience</h2>
+      <ul><li>Effortless setup process <span class="cite">1</span></li><li>Amazing sound quality <span class="cite">1</span></li></ul>
+  </div>
+</div>
+
+</body>
+</html>

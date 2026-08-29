@@ -1,0 +1,43 @@
+{
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        }
+      ]
+    },
+    {
+      "title": "Notion iOS — replica screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-splash",
+          "label": "Splash"
+        },
+        {
+          "file": "02-search-ask-ai",
+          "label": "Search / Ask AI"
+        },
+        {
+          "file": "03-notion-ai-chat",
+          "label": "Notion AI chat"
+        },
+        {
+          "file": "04-meeting-page",
+          "label": "Meeting page"
+        },
+        {
+          "file": "05-date-sheet",
+          "label": "Date sheet"
+        },
+        {
+          "file": "06-share-settings-sheet",
+          "label": "Share settings sheet"
+        }
+      ]
+    }
+  ]
+}

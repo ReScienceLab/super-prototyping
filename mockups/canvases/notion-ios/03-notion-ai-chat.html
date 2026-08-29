@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notion iOS — Notion AI chat</title>
+<style>
+/* ============================================================================
+   NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
+   because the canvas renders each mockup in <iframe srcDoc sandbox="">, which
+   blocks external stylesheets. Keep this block byte-identical across files.)
+   Values sampled from Notion iOS 3x screenshots (393 x 852 pt @3x).
+   ========================================================================= */
+:root{
+  --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --n-bg:#FFFFFF;          /* document / full-screen page                */
+  --n-bg-sheet:#FAF8F6;    /* modal sheet ground (warm off-white)        */
+  --n-bg-card:#FFFFFF;     /* grouped card sitting on a sheet            */
+  --n-scrim:#E0E0E0;       /* app dimmed behind a light sheet            */
+  --n-scrim-strong:#C4C4C4;/* app dimmed behind the AI sheet             */
+  --n-fill:#EAE9E7;        /* search field, segmented track, icon tile   */
+  --n-fill-neutral:#F0F0F0;/* chip / icon button on a white page         */
+  --n-fill-soft:#FDFDFD;   /* raised field on white (search, composer)   */
+  --n-hairline:#E9E8E7;    /* row divider                                */
+  --n-border:#EFEEEC;      /* card + field outline                       */
+  --n-track:#F0EEED;       /* switch track, off                          */
+
+  /* Ink */
+  --n-text:#2C2C2C;        /* titles, primary labels                     */
+  --n-text-body:#2C2C2C;   /* page body copy                             */
+  --n-text-2:#787774;      /* secondary labels, section headers          */
+  --n-text-3:#9B9A97;      /* placeholder, values, out-of-month days     */
+
+  /* Accent */
+  --n-blue:#2784E0;        /* selection, primary button, Done, switches  */
+  --n-red:#E66457;         /* "today" in the date picker                 */
+  --n-yellow-bg:#F7F1DE;   /* Guest badge fill                           */
+  --n-yellow-ink:#402C1B;  /* Guest badge ink                            */
+
+  /* Radius */
+  --n-r-field:10px;  --n-r-card:12px;  --n-r-sheet:14px;
+  --n-r-day:8px;     --n-r-tile:8px;   --n-r-pill:999px;
+
+  /* Type — SF Pro. size/line-height/weight */
+  --n-t-title:700 34px/40px var(--n-font);   /* page title              */
+  --n-t-h2:700 19px/26px var(--n-font);      /* in-page heading         */
+  --n-t-nav:600 17px/22px var(--n-font);     /* sheet nav title         */
+  --n-t-row:400 17px/22px var(--n-font);     /* list row label          */
+  --n-t-rowb:600 17px/22px var(--n-font);    /* list row label, strong  */
+  --n-t-body:400 17px/24px var(--n-font);    /* body copy               */
+  --n-t-sub:400 15px/20px var(--n-font);     /* row subtitle            */
+  --n-t-cap:400 13px/18px var(--n-font);     /* badge / caption         */
+
+  /* Metrics */
+  --n-gutter:20px;       /* default screen gutter                       */
+  --n-gutter-page:20px;  /* document page gutter                        */
+  --n-gutter-card:12px;  /* card inset on a grouped sheet               */
+  --n-row-h:44px;        /* settings row                                */
+  --n-tap:44px;          /* minimum tap target                          */
+  --n-sheet-top:71px;    /* sheet top inset from the device top         */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
+  background:var(--n-bg);outline:1px solid rgba(0,0,0,.10);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28);
+  display:flex;flex-direction:column;color:var(--n-text)}
+.statusbar{height:54px;position:relative;flex:none;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:0 30px 5px}
+.statusbar .time{font:600 16px/1 var(--n-font);width:60px;letter-spacing:.2px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sicons{display:flex;align-items:center;gap:6px}
+.sicons svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:#191918}
+
+.phone{background:var(--n-scrim-strong)}
+.sheet{position:absolute;left:0;right:0;top:65px;bottom:0;background:var(--n-bg);
+  border-radius:var(--n-r-sheet) var(--n-r-sheet) 0 0;display:flex;flex-direction:column;overflow:hidden}
+.aihdr{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 16px 0;flex:none}
+.cbtn{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--n-border);
+  box-shadow:0 2px 8px rgba(29,25,26,.08);display:grid;place-items:center;color:var(--n-text);flex:none}
+.cbtn svg{width:21px;height:21px}
+.brand{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:-6px}
+.ava{width:64px;height:64px;border-radius:50%;background:#fff;border:1px solid #F1F0EE;
+  box-shadow:0 3px 12px rgba(29,25,26,.10);display:grid;place-items:center;color:var(--n-text)}
+.ava .aiface{width:36px;height:36px}
+.bname{font:var(--n-t-nav);color:var(--n-text);letter-spacing:-.2px}
+.thread{flex:1;padding:26px 16px 0;overflow:hidden}
+.bubble{margin-left:auto;max-width:83%;width:max-content;background:var(--n-bg-sheet);
+  border-radius:20px;padding:13px 20px;font:var(--n-t-row);color:var(--n-text);letter-spacing:-.2px}
+.steps{margin-top:36px}
+.steps-h{display:flex;align-items:center;gap:8px;font:var(--n-t-row);color:var(--n-text-2)}
+.cv{width:18px;height:18px;display:block;color:var(--n-text-3)}
+.cv.sm{width:15px;height:15px}
+.cv svg{width:100%;height:100%;display:block}
+.tl{position:relative;padding:14px 0 0 18px}
+.tl::before{content:"";position:absolute;left:20px;top:24px;bottom:16px;width:1.5px;background:var(--n-hairline)}
+.tli{display:flex;align-items:center;gap:26px;padding:7px 0}
+.dot{width:6px;height:6px;border-radius:50%;background:#D6D5D1;flex:none;position:relative;z-index:1;
+  box-shadow:0 0 0 3px #fff}
+.tlt{display:flex;align-items:center;gap:8px;font:var(--n-t-row);color:var(--n-text-2)}
+.tlt u{text-decoration:underline;text-underline-offset:3px;text-decoration-color:#C9C8C5}
+.ans{margin-top:22px;font:var(--n-t-body);color:var(--n-text);letter-spacing:-.2px;word-break:break-word}
+.ans b{font-weight:700}
+.acts{display:flex;gap:26px;margin-top:22px;color:var(--n-text-2)}
+.acts span{width:22px;height:22px;display:block}
+.acts svg{width:22px;height:22px;display:block}
+.composer{flex:none;padding:12px 16px 22px}
+.cfield{height:48px;border-radius:24px;background:var(--n-fill-soft);border:1px solid var(--n-hairline);
+  box-shadow:0 2px 10px rgba(29,25,26,.06);display:flex;align-items:center;padding:0 18px}
+.cfield .ph{font:var(--n-t-row);color:var(--n-text-3)}
+.cfield .mic{margin-left:auto;width:21px;height:21px;color:var(--n-text-2)}
+.cfield .mic svg{width:21px;height:21px;display:block}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="statusbar">
+    <div class="time">9:41</div>
+    <div class="island"></div>
+    <div class="sicons">
+      <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 9.6a2 2 0 0 1 2 1.9l-2 .5-2-.5a2 2 0 0 1 2-1.9Z"/><path d="M8.5 5.6c1.9 0 3.6.7 4.9 1.9l-1.4 1.5a5 5 0 0 0-7 0L3.6 7.5a7 7 0 0 1 4.9-1.9Z"/><path d="M8.5 1.5c3 0 5.7 1.2 7.7 3.1l-1.4 1.5a9 9 0 0 0-12.6 0L.8 4.6a11 11 0 0 1 7.7-3.1Z"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4Z" fill="currentColor" opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <div class="aihdr">
+      <div class="cbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></div>
+      <div class="brand">
+        <div class="ava"><svg class="aiface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 6.0Q7.55 3.0 10.75 5.85"/><path d="M19.4 6.15C17.75 3.6 14.6 3.4 12.5 6.15L5.45 19.6h6.15"/><circle cx="7.95" cy="8.75" r="1.15" fill="currentColor" stroke="none"/><circle cx="14.55" cy="9.55" r="1.15" fill="currentColor" stroke="none"/></svg></div>
+        <div class="bname">Notion AI</div>
+      </div>
+      <div class="cbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 13.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5.5"/><path d="M16.5 3.5 20.5 7.5 12 16H8v-4l8.5-8.5Z"/></svg></div>
+    </div>
+
+    <div class="thread">
+      <div class="bubble">Create a ui ux note for me</div>
+
+      <div class="steps">
+        <div class="steps-h">2 steps <span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 7 7 7-7"/></svg></span></div>
+        <div class="tl">
+          <div class="tli"><span class="dot"></span><span class="tlt">Thought <span class="cv sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></span></div>
+          <div class="tli"><span class="dot"></span><span class="tlt">Created page &#127912; <u>UI/UX Notes</u></span></div>
+        </div>
+      </div>
+
+      <p class="ans">Done &mdash; I created a <b>UI/UX Notes</b> page for you here: https://www.notion.so/<wbr>587f0f6dce5b47748195448fa5e4bd4c.</p>
+      <p class="ans">Done &mdash; I created a <b>UI/UX Notes</b> page for you here: https://www.notion.so/<wbr>587f0f6dce5b47748195448fa5e4bd4c.</p>
+
+      <div class="acts">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="8.5" y="3.5" width="12" height="12" rx="2.6"/><path d="M15.5 18.2v.9a2.4 2.4 0 0 1-2.4 2.4H5.9a2.4 2.4 0 0 1-2.4-2.4v-7.2a2.4 2.4 0 0 1 2.4-2.4h.9"/></svg></span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M7 10.5 11.4 3c1.6 0 2.6 1 2.6 2.6V9.4h4.6c1.5 0 2.6 1.3 2.3 2.8l-1.3 6.3A2.6 2.6 0 0 1 17 20.6H7"/><rect x="2.4" y="10.2" width="4.6" height="10.4" rx="1.4"/></svg></span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M7 13.5 11.4 21c1.6 0 2.6-1 2.6-2.6v-3.8h4.6c1.5 0 2.6-1.3 2.3-2.8l-1.3-6.3A2.6 2.6 0 0 0 17 3.4H7"/><rect x="2.4" y="3.4" width="4.6" height="10.4" rx="1.4"/></svg></span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 3.5 11.2 9 16.4"/><path d="M3.5 11.2H15a5.5 5.5 0 0 1 5.5 5.5V19"/></svg></span>
+      </div>
+    </div>
+
+    <div class="composer">
+      <div class="cfield"><span class="ph">Ask, search, or make anything...</span>
+        <span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9.2" y="2.6" width="5.6" height="11" rx="2.8"/><path d="M5.5 11.2a6.5 6.5 0 0 0 13 0M12 17.7V21"/></svg></span></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
