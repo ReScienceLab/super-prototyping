@@ -14,7 +14,7 @@ mockups/
   canvases/      one folder per board → one tldraw page; one .html → one shape
   assets/        icons, logos, reference crops that get inlined as data: URIs
 tools/refkit.py  grid / sample / hairline / shoot / montage
-.agents/skills/  the workflow, as four skills (symlinked into .claude/skills/)
+.agents/skills/  the workflow, as three skills (symlinked into .claude/skills/)
 ```
 
 ## Start a project from this repo
@@ -44,7 +44,7 @@ bar carries a force-relayout button — press it after editing a `layout.json`.
 
 ## The workflow
 
-Four skills, in `.agents/skills/` (symlinked from `.claude/skills/`, so
+Three skills, in `.agents/skills/` (symlinked from `.claude/skills/`, so
 Claude Code picks them up automatically):
 
 | Skill | Use it for |
@@ -52,7 +52,6 @@ Claude Code picks them up automatically):
 | **clone-prototype** | Copying a real app's screens. Grid the reference, sample colours *visually*, derive one measured token block, generate the artboards, verify by re-rendering, park the reference underneath. |
 | **new-ui-mock** | Designing new screens with no reference — built on existing tokens, including the empty/loading/error states and side-by-side proposals. |
 | **prototype-canvas** | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
-| **upgrade-tldraw** | Bumping the SDK and repairing the four local extension points against it. |
 
 The rule the whole thing is built around: **every colour and every metric in
 a cloned artboard traces to a measurement.** Grid the reference image, look
