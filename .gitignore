@@ -12,3 +12,6 @@ scratch/
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# Logo/design generation scratch — candidates stay local, only the final asset is committed
+.skill-archive/
