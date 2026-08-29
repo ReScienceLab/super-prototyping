@@ -5,8 +5,8 @@ description: Upgrade the pinned tldraw SDK in canvas/ to a newer upstream releas
 
 # Upgrade tldraw
 
-The canvas is a thin layer on the tldraw SDK: ~1,100 lines in `canvas/src`
-against 27 imported symbols. An upgrade is mostly checking those 27, not
+The canvas is a thin layer on the tldraw SDK: ~700 lines in `canvas/src`
+against ~20 imported symbols. An upgrade is mostly checking those, not
 re-reading the app.
 
 ```bash
@@ -18,18 +18,17 @@ npm outdated
 
 ## What this repo touches
 
-Everything that can break lives in these five surfaces. Nothing else in
+Everything that can break lives in these four surfaces. Nothing else in
 `canvas/src` knows tldraw exists.
 
 | Surface | File | tldraw API |
 |---|---|---|
 | Custom shape | `CanvasFileShapeUtil.tsx` | `BaseBoxShapeUtil`, `RecordProps`, `T`, `HTMLContainer`, `useIsEditing` |
-| Custom shape + tool | `MarkShape.tsx` | `BaseBoxShapeUtil`, `StateNode`, `declare module 'tldraw'` augmentation |
-| UI overrides | `markUi.tsx` | `TLComponents`, `TLUiOverrides`, `TLUiAssetUrlOverrides`, `Default*`, `TldrawUi*`, `useTools`, `useIsToolSelected` |
+| UI overrides | `canvasChrome.tsx` | `TLComponents`, `TLUiAssetUrlOverrides`, `Default*`, `TldrawUi*` |
 | Document bootstrap | `App.tsx` | `Editor`, `createShapeId`, `toRichText`, `TLTextShape`, `TLPageId`, page + shape CRUD |
 | Agent bridge | `agentBridge.ts` | `Editor`, `TLShapeId`, `TLShapePartial` |
 
-The two custom shapes are the fragile ones: `ShapeUtil` is the API tldraw
+`CanvasFileShapeUtil` is the fragile one: `ShapeUtil` is the API tldraw
 reshapes most often between majors, and a props-schema change there also
 invalidates every document already in a browser's IndexedDB.
 
@@ -43,14 +42,14 @@ invalidates every document already in a browser's IndexedDB.
    then run the gate below before taking the next step. Skipping straight to
    the newest release turns three small breakages into one unreadable one.
 3. **Let TypeScript find the breakage.** `npm run build` type-checks the whole
-   app; the 27 symbols above are exactly what it will complain about.
+   app; the symbols above are exactly what it will complain about.
 4. **Fix in place, don't rewrite.** The local extensions are small and
    deliberate — port them to the new API, do not regenerate them from a
    tldraw example.
 5. **Bump `PERSISTENCE_KEY`** in `App.tsx` *only* if a shape's props schema
    changed or tldraw's own store migrations cannot carry old documents
-   forward. It discards every persisted annotation and mark, so it is a last
-   resort, not routine hygiene.
+   forward. It discards every persisted hand-drawn annotation, so it is a
+   last resort, not routine hygiene.
 6. **Commit the `package-lock.json`** with the change. `npm ci` reproducing
    the exact tree is what makes a breakage bisectable.
 
@@ -58,7 +57,7 @@ invalidates every document already in a browser's IndexedDB.
 
 ```bash
 cd "$(git rev-parse --show-toplevel)/canvas"
-npm run lint && npm test && npm run build && npm run test:pty
+npm run lint && npm test && npm run build
 ```
 
 Green is necessary, not sufficient — tldraw breakage is usually visual.
@@ -67,8 +66,7 @@ migration bugs):
 
 - Every board page loads with its frames, headings and captions in place.
 - The toolbar refresh button rebuilds a board cleanly.
-- **Mark — M** activates and drops a numbered pin.
-- Styles panel and terminal toggle; the shell survives the toggle.
+- The styles panel toggles from the toolbar.
 - `window.snapCanvas.describe()` and `dispatch({ op: 'get' })` still answer.
 - Then reload with the *existing* profile and confirm old documents survive.
 

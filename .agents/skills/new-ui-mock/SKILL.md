@@ -1,6 +1,6 @@
 ---
 name: new-ui-mock
-description: Design a new screen, flow or component as a self-contained HTML artboard on the prototype canvas, built from the board's existing design tokens rather than invented values. Covers picking or extending the token block, generating a row of screens from one script, iterating against Mark pins, and verifying by rendering. Use when asked to mock up a new screen or feature, design variants/proposals to compare, extend an existing board with more states, or turn a spec into artboards.
+description: Design a new screen, flow or component as a self-contained HTML artboard on the prototype canvas, built from the board's existing design tokens rather than invented values. Covers picking or extending the token block, generating a row of screens from one script, iterating against annotated screenshots, and verifying by rendering. Use when asked to mock up a new screen or feature, design variants/proposals to compare, extend an existing board with more states, or turn a spec into artboards.
 ---
 
 # New UI Mock
@@ -93,18 +93,18 @@ reads as a matrix.
 
 ---
 
-## 4 — Iterate against Mark pins
+## 4 — Iterate against annotated screenshots
 
-The review loop is: user drops numbered **Mark** pins on the canvas and
-pastes the screenshot.
+The review loop is: the user marks up a screenshot of the canvas — boxes,
+arrows, numbers — and pastes it back.
 
-1. Echo each mark number in your plan before touching anything.
+1. Echo what you read each annotation as, before touching anything.
 2. Change the generator, not the artboard.
 3. Re-run the generator; HMR reloads the shape in place.
 4. Verify that region visually before claiming it is done.
 
-Answer every mark, including the ones you disagree with — say so in a line
-and make the change, or say why you did not and what you did instead.
+Answer every annotation, including the ones you disagree with — say so in a
+line and make the change, or say why you did not and what you did instead.
 
 ---
 

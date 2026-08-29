@@ -9,7 +9,7 @@ canvas as a shape. That is the entire contract — no shape registry, no build
 step, no design tool.
 
 ```
-canvas/          the tldraw app (Vite + React + TypeScript) and an embedded shell
+canvas/          the tldraw app (Vite + React + TypeScript)
 mockups/
   canvases/      one folder per board → one tldraw page; one .html → one shape
   assets/        icons, logos, reference crops that get inlined as data: URIs
@@ -38,13 +38,9 @@ cd canvas
 npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-Open the URL Vite prints; deep-link a board with `?canvas=<slug>`. The canvas
-ships a `Mark` tool for numbered review pins, a styles panel, a force-relayout
-button, and an embedded `/bin/zsh` rooted at the repo.
-
-**Keep it on `127.0.0.1`.** The embedded terminal is an unauthenticated shell
-behind a per-process token and an Origin check — safe on loopback, a remote
-shell the moment it is exposed.
+Open the URL Vite prints; deep-link a board with `?canvas=<slug>`. Alongside
+tldraw's own tools the toolbar carries a styles-panel toggle and a
+force-relayout button — press it after editing a `layout.json`.
 
 ## The workflow
 
@@ -55,8 +51,8 @@ Claude Code picks them up automatically):
 |---|---|
 | **clone-prototype** | Copying a real app's screens. Grid the reference, sample colours *visually*, derive one measured token block, generate the artboards, verify by re-rendering, park the reference underneath. |
 | **new-ui-mock** | Designing new screens with no reference — built on existing tokens, including the empty/loading/error states and side-by-side proposals. |
-| **prototype-canvas** | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, Mark pins, the force-refresh. |
-| **upgrade-tldraw** | Bumping the SDK and repairing the five local extension points against it. |
+| **prototype-canvas** | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
+| **upgrade-tldraw** | Bumping the SDK and repairing the four local extension points against it. |
 
 The rule the whole thing is built around: **every colour and every metric in
 a cloned artboard traces to a measurement.** Grid the reference image, look
@@ -90,7 +86,7 @@ python3 tools/refkit.py montage shots/*.png -o board.png
 ## Verify
 
 ```bash
-cd canvas && npm run lint && npm test && npm run build && npm run test:pty
+cd canvas && npm run lint && npm test && npm run build
 ```
 
 ## Licence

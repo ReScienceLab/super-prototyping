@@ -21,22 +21,18 @@ import {
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
-import { MarkShapeUtil } from "./MarkShape";
 import {
   CanvasChromeContext,
-  markAssetUrls,
-  markTools,
-  markUiComponents,
-  markUiOverrides,
-} from "./markUi";
-import { TerminalPane } from "./TerminalPane";
+  canvasChromeAssetUrls,
+  canvasChromeComponents,
+} from "./canvasChrome";
 
-const shapeUtils = [CanvasFileShapeUtil, MarkShapeUtil];
+const shapeUtils = [CanvasFileShapeUtil];
 
 /**
  * Bump the trailing version when a change would leave documents already in a browser's
  * IndexedDB inconsistent with the new code (a shape's props changing shape, say). Everything
- * persisted under the old key is then simply ignored — annotations and marks included — so
+ * persisted under the old key is then simply ignored — hand-drawn annotations included — so
  * do not bump it for ordinary layout edits, which the force-refresh button already handles.
  */
 const PERSISTENCE_KEY = "super-prototyping-canvas-v2";
@@ -269,7 +265,7 @@ function initializeCanvasLibrary(editor: Editor) {
  * Creation is idempotent — it fills in what's missing but never moves a shape that's already
  * there — so editing layout.json (inserting a file at the front of a row, say) leaves the old
  * shapes at their old positions while the new ones land on top of them. This is the force
- * refresh that clears that drift. Hand-drawn marks and notes are untouched.
+ * refresh that clears that drift. Hand-drawn shapes and notes are untouched.
  */
 function relayoutCanvasLibrary(editor: Editor) {
   const prefixes = [
@@ -305,8 +301,6 @@ function initializeCanvas(editor: Editor) {
 }
 
 export default function App() {
-  const [terminalVisible, setTerminalVisible] = useState(false);
-  const [terminalStarted, setTerminalStarted] = useState(false);
   const [stylesVisible, setStylesVisible] = useState(false);
   const editorRef = useRef<Editor | null>(null);
 
@@ -319,11 +313,6 @@ export default function App() {
   return (
     <CanvasChromeContext.Provider
       value={{
-        terminalVisible,
-        toggleTerminal: () => {
-          setTerminalStarted(true);
-          setTerminalVisible((visible) => !visible);
-        },
         stylesVisible,
         toggleStyles: () => setStylesVisible((visible) => !visible),
         relayoutLibrary: () => {
@@ -331,24 +320,17 @@ export default function App() {
         },
       }}
     >
-      <div
-        className={`app-shell${terminalVisible ? "" : " app-shell--terminal-hidden"}`}
-      >
-        <main className="tldraw__editor" aria-label="Prototype design canvas">
-          <Tldraw
-            assetUrls={markAssetUrls}
-            components={markUiComponents}
-            overrides={markUiOverrides}
-            persistenceKey={PERSISTENCE_KEY}
-            shapeUtils={shapeUtils}
-            tools={markTools}
-            onMount={handleMount}
-          >
-            <AgentBridge />
-          </Tldraw>
-        </main>
-        {terminalStarted ? <TerminalPane hidden={!terminalVisible} /> : null}
-      </div>
+      <main className="tldraw__editor" aria-label="Prototype design canvas">
+        <Tldraw
+          assetUrls={canvasChromeAssetUrls}
+          components={canvasChromeComponents}
+          persistenceKey={PERSISTENCE_KEY}
+          shapeUtils={shapeUtils}
+          onMount={handleMount}
+        >
+          <AgentBridge />
+        </Tldraw>
+      </main>
     </CanvasChromeContext.Provider>
   );
 }

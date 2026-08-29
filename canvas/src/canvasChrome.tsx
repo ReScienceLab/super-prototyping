@@ -5,48 +5,22 @@ import {
   DefaultToolbarContent,
   TldrawUiButton,
   TldrawUiButtonIcon,
-  TldrawUiMenuItem,
-  useIsToolSelected,
-  useTools,
   type TLComponents,
   type TLUiAssetUrlOverrides,
-  type TLUiOverrides,
 } from "tldraw";
-import { MarkTool } from "./MarkShape";
 
 export const CanvasChromeContext = createContext({
-  terminalVisible: false,
-  toggleTerminal: () => {},
   stylesVisible: false,
   toggleStyles: () => {},
   relayoutLibrary: () => {},
 });
 
-export const markTools = [MarkTool];
-
-export const markUiOverrides: TLUiOverrides = {
-  tools(editor, tools) {
-    tools.mark = {
-      id: "mark",
-      icon: "mark-icon",
-      label: "Mark",
-      kbd: "m",
-      onSelect: () => editor.setCurrentTool("mark"),
-    };
-    return tools;
-  },
-};
-
-export const markUiComponents: TLComponents = {
+export const canvasChromeComponents: TLComponents = {
   Toolbar: (props) => {
-    const tools = useTools();
-    const mark = tools.mark;
-    const isSelected = useIsToolSelected(mark);
     const chrome = useContext(CanvasChromeContext);
 
     return (
       <DefaultToolbar {...props}>
-        <TldrawUiMenuItem {...mark} isSelected={isSelected} />
         <TldrawUiButton
           type="tool"
           isActive={chrome.stylesVisible}
@@ -55,15 +29,6 @@ export const markUiComponents: TLComponents = {
           onClick={chrome.toggleStyles}
         >
           <TldrawUiButtonIcon icon="styles-icon" />
-        </TldrawUiButton>
-        <TldrawUiButton
-          type="tool"
-          isActive={chrome.terminalVisible}
-          title={chrome.terminalVisible ? "Hide terminal" : "Show terminal"}
-          aria-pressed={chrome.terminalVisible}
-          onClick={chrome.toggleTerminal}
-        >
-          <TldrawUiButtonIcon icon="terminal-icon" />
         </TldrawUiButton>
         <TldrawUiButton
           type="tool"
@@ -82,11 +47,9 @@ export const markUiComponents: TLComponents = {
   },
 };
 
-export const markAssetUrls: TLUiAssetUrlOverrides = {
+export const canvasChromeAssetUrls: TLUiAssetUrlOverrides = {
   icons: {
-    "mark-icon": "/mark.svg",
     "styles-icon": "/styles.svg",
-    "terminal-icon": "/terminal.svg",
     "refresh-icon": "/refresh.svg",
   },
 };
