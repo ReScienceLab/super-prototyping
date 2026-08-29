@@ -42,7 +42,8 @@ laid out top to bottom:
   reference row readable against the mockup row above it.
 - Files not listed in any row still appear, in a fallback grid below.
 
-After editing `layout.json`, press the **refresh** button in the toolbar.
+After editing `layout.json`, press the **refresh** button in the top bar,
+next to the `…` actions menu.
 Shape creation is idempotent (it never moves a shape that already exists),
 so reordering a row needs that force-relayout to take effect.
 

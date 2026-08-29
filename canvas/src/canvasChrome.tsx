@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import {
+  DefaultActionsMenu,
   DefaultStylePanel,
   DefaultToolbar,
   DefaultToolbarContent,
@@ -16,6 +17,23 @@ export const CanvasChromeContext = createContext({
 });
 
 export const canvasChromeComponents: TLComponents = {
+  /** Force-relayout sits with the other document-level actions in the top bar, not with the drawing tools. */
+  ActionsMenu: (props) => {
+    const chrome = useContext(CanvasChromeContext);
+
+    return (
+      <>
+        <DefaultActionsMenu {...props} />
+        <TldrawUiButton
+          type="icon"
+          title="Force refresh canvas library (fixes overlapping frames after a layout.json edit)"
+          onClick={chrome.relayoutLibrary}
+        >
+          <TldrawUiButtonIcon icon="refresh-icon" />
+        </TldrawUiButton>
+      </>
+    );
+  },
   Toolbar: (props) => {
     const chrome = useContext(CanvasChromeContext);
 
@@ -29,13 +47,6 @@ export const canvasChromeComponents: TLComponents = {
           onClick={chrome.toggleStyles}
         >
           <TldrawUiButtonIcon icon="styles-icon" />
-        </TldrawUiButton>
-        <TldrawUiButton
-          type="tool"
-          title="Force refresh canvas library (fixes overlapping frames after a layout.json edit)"
-          onClick={chrome.relayoutLibrary}
-        >
-          <TldrawUiButtonIcon icon="refresh-icon" />
         </TldrawUiButton>
         <DefaultToolbarContent />
       </DefaultToolbar>

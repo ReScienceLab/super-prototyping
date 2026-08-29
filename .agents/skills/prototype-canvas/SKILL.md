@@ -35,7 +35,8 @@ one shape. Switch with the page menu at the top-left — do not build a
 separate switcher. See `mockups/canvases/README.md` for `layout.json` rows,
 captions, and the 478 × 980 / sandbox constraints every artboard lives under.
 
-**After editing `layout.json`, press the toolbar refresh button.** Shape
+**After editing `layout.json`, press the refresh button in the top bar,
+next to the `…` actions menu.** Shape
 creation is idempotent — it fills in what is missing but never moves a shape
 that already exists — so inserting or reordering a row entry leaves the old
 shape at its old position, overlapping the new one. Force-refresh deletes
@@ -99,4 +100,5 @@ npm run lint && npm test && npm run build
 
 Then, in a fresh browser session: each board page loads with its frames,
 headings and captions; the frames stay independently selectable; the styles
-panel starts hidden and toggles; the refresh button rebuilds a board cleanly.
+panel starts hidden and toggles; the top-bar refresh button rebuilds a board
+cleanly.

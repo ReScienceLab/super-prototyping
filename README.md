@@ -38,9 +38,9 @@ cd canvas
 npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-Open the URL Vite prints; deep-link a board with `?canvas=<slug>`. Alongside
-tldraw's own tools the toolbar carries a styles-panel toggle and a
-force-relayout button — press it after editing a `layout.json`.
+Open the URL Vite prints; deep-link a board with `?canvas=<slug>`. The bottom
+toolbar carries a styles-panel toggle alongside tldraw's own tools; the top
+bar carries a force-relayout button — press it after editing a `layout.json`.
 
 ## The workflow
 

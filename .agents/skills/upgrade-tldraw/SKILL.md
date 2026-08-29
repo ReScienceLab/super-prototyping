@@ -24,7 +24,7 @@ Everything that can break lives in these four surfaces. Nothing else in
 | Surface | File | tldraw API |
 |---|---|---|
 | Custom shape | `CanvasFileShapeUtil.tsx` | `BaseBoxShapeUtil`, `RecordProps`, `T`, `HTMLContainer`, `useIsEditing` |
-| UI overrides | `canvasChrome.tsx` | `TLComponents`, `TLUiAssetUrlOverrides`, `Default*`, `TldrawUi*` |
+| UI overrides | `canvasChrome.tsx` | `TLComponents`, `TLUiAssetUrlOverrides`, `DefaultActionsMenu`, `DefaultToolbar`, `DefaultStylePanel`, `TldrawUi*` |
 | Document bootstrap | `App.tsx` | `Editor`, `createShapeId`, `toRichText`, `TLTextShape`, `TLPageId`, page + shape CRUD |
 | Agent bridge | `agentBridge.ts` | `Editor`, `TLShapeId`, `TLShapePartial` |
 
@@ -65,7 +65,7 @@ Then, in a **fresh browser profile** (an old IndexedDB document masks
 migration bugs):
 
 - Every board page loads with its frames, headings and captions in place.
-- The toolbar refresh button rebuilds a board cleanly.
+- The top-bar refresh button rebuilds a board cleanly.
 - The styles panel toggles from the toolbar.
 - `window.snapCanvas.describe()` and `dispatch({ op: 'get' })` still answer.
 - Then reload with the *existing* profile and confirm old documents survive.
