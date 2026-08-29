@@ -1,3 +1,5 @@
+![super-prototyping](assets/banner.png)
+
 # super-prototyping
 
 A standardized setup for cloning and designing product UI as **self-contained
