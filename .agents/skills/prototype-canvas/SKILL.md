@@ -26,7 +26,9 @@ npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 - Open the exact URL Vite prints. Deep-link a board with `?canvas=<slug>`,
   e.g. `http://127.0.0.1:5173/?canvas=notion-ios`.
 
-The styles panel is hidden by default; toggle it from the toolbar.
+The styles panel is hidden by default; toggle it from the toolbar. Always-snap
+is on by default — set once per browser, so turning it off in tldraw's
+preferences menu sticks.
 
 ## Boards
 

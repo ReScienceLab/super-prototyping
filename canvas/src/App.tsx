@@ -37,6 +37,9 @@ const shapeUtils = [CanvasFileShapeUtil];
  */
 const PERSISTENCE_KEY = "super-prototyping-canvas-v2";
 
+/** Marks that the snap default below has been applied once in this browser. */
+const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
+
 /** Tldraw's own default first page, kept as a free-drawing surface next to the library pages. */
 const SCRATCH_PAGE_NAME = "Scratch";
 
@@ -294,7 +297,23 @@ function applyCanvasFromUrl(editor: Editor) {
   if (page) editor.setCurrentPage(page.id);
 }
 
+/**
+ * Snapping is on by default: every artboard sits on the same column pitch, so a shape dragged
+ * near one should land on its edge rather than one pixel off it. Applied once per browser
+ * rather than on every mount, so turning it back off in tldraw's preferences menu sticks.
+ */
+function applySnapDefault(editor: Editor) {
+  try {
+    if (localStorage.getItem(SNAP_DEFAULT_KEY)) return;
+    localStorage.setItem(SNAP_DEFAULT_KEY, "1");
+  } catch {
+    // Storage unavailable (private mode, blocked cookies) — apply it for this session only.
+  }
+  editor.user.updateUserPreferences({ isSnapMode: true });
+}
+
 function initializeCanvas(editor: Editor) {
+  applySnapDefault(editor);
   initializeCanvasLibrary(editor);
   editor.selectNone();
   requestAnimationFrame(() => editor.zoomToFit());
