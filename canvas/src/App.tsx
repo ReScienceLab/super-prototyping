@@ -17,7 +17,7 @@ import {
 } from "./CanvasFileShapeUtil";
 import {
   type CanvasLibraryFile,
-  humanize,
+  pageNameFor,
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
@@ -39,7 +39,7 @@ const shapeUtils = [CanvasFileShapeUtil, MarkShapeUtil];
  * persisted under the old key is then simply ignored — annotations and marks included — so
  * do not bump it for ordinary layout edits, which the force-refresh button already handles.
  */
-const PERSISTENCE_KEY = "super-prototyping-canvas-v1";
+const PERSISTENCE_KEY = "super-prototyping-canvas-v2";
 
 /** Tldraw's own default first page, kept as a free-drawing surface next to the library pages. */
 const SCRATCH_PAGE_NAME = "Scratch";
@@ -294,7 +294,7 @@ function relayoutCanvasLibrary(editor: Editor) {
 function applyCanvasFromUrl(editor: Editor) {
   const slug = new URLSearchParams(window.location.search).get("canvas");
   if (!slug) return;
-  const page = editor.getPages().find((c) => c.name === humanize(slug));
+  const page = editor.getPages().find((c) => c.name === pageNameFor(slug));
   if (page) editor.setCurrentPage(page.id);
 }
 

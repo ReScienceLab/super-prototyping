@@ -10,7 +10,7 @@ One subfolder per board. Drop `.html` files into `mockups/canvases/<slug>/`
 - Discovery lives in `canvas/src/canvasLibrary.ts` (`import.meta.glob`).
 
 Switch boards with the page menu at the top-left of the canvas. Deep-link a
-board with `?canvas=<slug>`, e.g. `http://localhost:5173/?canvas=example-app`.
+board with `?canvas=<slug>`, e.g. `http://127.0.0.1:5173/?canvas=notion-ios`.
 
 ## layout.json
 
@@ -19,6 +19,7 @@ laid out top to bottom:
 
 ```json
 {
+  "name": "Notion iOS (example)",
   "rows": [
     { "title": "Foundations", "files": ["00-design-tokens"] },
     { "title": "Screens", "numbered": true,
@@ -29,6 +30,9 @@ laid out top to bottom:
 }
 ```
 
+- `name` overrides the page name. Without it the folder slug is humanized,
+  which cannot express casing or punctuation — `notion-ios` becomes
+  "Notion Ios". Set it when the humanized name reads wrong.
 - `files` entries are file names **without** `.html`, either bare (the
   humanized file name becomes the caption) or `{ "file", "label" }`.
 - `numbered: true` prefixes each caption with its 1-based position — never
@@ -54,4 +58,6 @@ Boards render inside `<iframe srcDoc sandbox="">`:
 - iPhone frame is 393 × 852 pt at 1pt = 1px: 54px status bar,
   125 × 36 Dynamic Island, 139 × 5 home indicator.
 
-`example-app/` is a working template: copy the folder, rename it, and edit.
+`notion-ios/` is a finished board to work from: copy its
+`00-design-tokens.html`, replace every value with one you measured, and build
+your screens against it.

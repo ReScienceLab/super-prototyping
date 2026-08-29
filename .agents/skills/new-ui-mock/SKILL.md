@@ -24,7 +24,7 @@ Never invent a palette when the product already has one.
 - **Cloning a real app's look?** Stop and run `clone-prototype` Phase 1–2
   first; come back with a measured token block.
 - **Genuinely new product, nothing to measure?** Start from
-  `mockups/canvases/example-app/00-design-tokens.html`, change the prefix,
+  `mockups/canvases/notion-ios/00-design-tokens.html`, change the prefix,
   and pick deliberately: platform-native stack, a neutral ramp, one accent,
   one danger. Keep the evidence table and write *why* in it ("iOS system
   blue", "brand hex from the logo") — an unexplained hex is a future bug.

@@ -132,8 +132,9 @@ Cover, in this order, with a short prefix per app (`--n-` for Notion):
 - spacing and geometry constants: gutters, row height, tap target, status
   bar, sheet top inset
 
-`mockups/canvases/example-app/00-design-tokens.html` is a working template —
-copy it, change the prefix, replace every value and every evidence row.
+`mockups/canvases/notion-ios/00-design-tokens.html` is a finished one from a
+real run — copy it, change the prefix, replace every value and every evidence
+row.
 
 Build the token board as the **first artboard** of the folder. It is the
 contract: when a screen looks wrong later, this is what you check it against.

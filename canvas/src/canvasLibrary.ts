@@ -35,6 +35,12 @@ export interface CanvasLayoutRow {
 }
 
 export interface CanvasLayoutConfig {
+  /**
+   * Page name override. Without one the folder slug is humanized, which cannot
+   * express casing or punctuation — "notion-ios" becomes "Notion Ios", never
+   * "Notion iOS (example)". Set this when the humanized name reads wrong.
+   */
+  name?: string;
   rows: CanvasLayoutRow[];
 }
 
@@ -47,6 +53,11 @@ export function humanize(slug: string) {
 
 const FILE_PATTERN = /canvases\/([^/]+)\/([^/]+)\.html$/;
 
+/** The tldraw page name for a folder: its layout.json `name`, else the humanized slug. */
+export function pageNameFor(pageSlug: string) {
+  return readCanvasLayout(pageSlug)?.name ?? humanize(pageSlug);
+}
+
 function parse(path: string): CanvasLibraryFile | null {
   const match = FILE_PATTERN.exec(path);
   if (!match) return null;
@@ -54,7 +65,7 @@ function parse(path: string): CanvasLibraryFile | null {
   return {
     path,
     pageSlug,
-    pageName: humanize(pageSlug),
+    pageName: pageNameFor(pageSlug),
     fileName,
     title: humanize(fileName),
   };

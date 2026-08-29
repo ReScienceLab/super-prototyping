@@ -25,15 +25,11 @@ cd my-product-design && rm -rf .git && git init
 cd canvas && npm ci
 ```
 
-Then rename `mockups/canvases/example-app/` to your product, replace its
-token board with measured values, and delete the boards you don't need.
-
-Two boards ship with the repo:
-
-| board | what it is |
-|---|---|
-| `example-app` | Blank template — a token board and one phone screen wired to it. Copy this folder to start. |
-| `notion-ios` | A real run of `clone-prototype`: six Notion iOS screens rebuilt from measured samples, with the evidence for every token. Read this one to see what "done" looks like. |
+One board ships with the repo: **`notion-ios`**, a real run of
+`clone-prototype` — six Notion iOS screens rebuilt from measured samples,
+with the evidence recorded for every token. Read it to see what "done" looks
+like, copy `00-design-tokens.html` as the starting point for your own token
+block, then delete the folder.
 
 ## Run the canvas
 

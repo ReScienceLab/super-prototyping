@@ -25,7 +25,7 @@ npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
   `<meta name="prototyping-repo-root" content="$ROOT">`; otherwise it belongs
   to a different checkout. Pick another free port and keep `--strictPort`.
 - Open the exact URL Vite prints. Deep-link a board with `?canvas=<slug>`,
-  e.g. `http://127.0.0.1:5173/?canvas=example-app`.
+  e.g. `http://127.0.0.1:5173/?canvas=notion-ios`.
 - If startup fails, run `npm run test:pty` and read the Vite output.
 
 The styles panel and terminal are hidden by default; toggle them from the
