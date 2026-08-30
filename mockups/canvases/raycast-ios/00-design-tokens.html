@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Raycast iOS — Design Tokens</title>
+<style>
+/* ============================================================================
+   RAYCAST iOS — DESIGN TOKENS  (single source of truth, inlined byte-identically
+   into every artboard in this folder: the canvas renders each one in
+   <iframe srcDoc sandbox="">, which blocks external stylesheets.)
+   Sampled from eleven 1179 x 2556 captures = 393 x 852 pt @3x.
+   ========================================================================= */
+:root{
+  --rc-font:Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --rc-bg:#FFFFFF;        /* note page + sheet ground                     */
+  --rc-scrim:rgba(0,0,0,.20); /* modal dim over the note                  */
+  --rc-fill:#F6F6F6;      /* chip pill, mic button                        */
+  --rc-fill-2:#F3F3F3;    /* sheet close button                           */
+  --rc-fill-3:#F1F1F1;    /* compose-sheet back button                    */
+  --rc-border:#E4E4E4;    /* Copy button 1pt outline                      */
+  --rc-kb:#E3E5E6;        /* keyboard ground                              */
+  --rc-key:#FFFFFF;       /* keycap                                       */
+  --rc-home:#EFEFEF;      /* home / launcher ground                       */
+  --rc-card:#F7F7F7;      /* composer card, Customize pill                */
+  --rc-field:#FCFBFC;     /* search pill, filter + avatar wells           */
+  --rc-sheet:#F5F5F5;     /* Models sheet ground                          */
+  --rc-hdr-btn:#EEEEEE;   /* Models sheet header circles                  */
+  --rc-row-sel:#EBEBEB;   /* selected row, Models sheet                   */
+  --rc-row-sel-2:rgba(0,0,0,.018); /* selected row over the Presets blur   */
+  --rc-glass:rgba(255,255,255,.82); /* Edit pill, dismiss button          */
+  --rc-add:#F1F6FF;       /* Presets "+" well                             */
+  --rc-veil:rgba(255,255,255,.22);  /* white veil over the Presets blur   */
+
+  /* Ink */
+  --rc-ink:#0A0A0A;       /* titles, body copy, mic + send + Apply fill   */
+  --rc-ink-2:#4B4B4B;     /* Copy label                                   */
+  --rc-ink-3:#474747;     /* chip dismiss circle                          */
+  --rc-ink-4:#9B9B9B;     /* composer placeholder                         */
+  --rc-ink-dis:#A5A5A5;   /* undo / redo, disabled                        */
+  --rc-glyph:#262626;     /* toolbar chevron + overflow dots              */
+  --rc-glyph-2:#3F3F3F;   /* sheet close X                                */
+  --rc-caret:#1E88FF;     /* text caret                                   */
+  --rc-onblack:#FFFFFF;   /* Apply label, send arrow                      */
+  --rc-ink-5:#4D4D4D;     /* composer model name (Ray-1 / Sonar…)         */
+  --rc-ink-6:#484848;     /* empty-state copy                             */
+  --rc-ink-7:#909090;     /* "Favorites" section header                   */
+  --rc-ink-8:#BABABA;     /* "Search Raycast" placeholder                 */
+  --rc-beta:#C9A445;      /* Beta pill stroke + ink                       */
+  --rc-brand:#FF6363;     /* Raycast coral                                */
+
+  /* Radius */
+  --rc-r-sheet:38px; --rc-r-key:5px; --rc-r-kb:18px;
+  --rc-r-thumb:2.5px; --rc-r-pill:999px;
+  --rc-r-card:26px;       /* composer card                                */
+  --rc-r-tile:12px;       /* launcher app tile                            */
+  --rc-r-row:16px;        /* list-row highlight                           */
+  --rc-r-btn:16px;        /* composer dictation button                    */
+
+  /* Type */
+  --rc-t-title:700 27px/33px var(--rc-font);  /* note title              */
+  --rc-t-h1:700 27px/40px var(--rc-font);     /* answer title in sheet   */
+  --rc-t-body:400 17px/21px var(--rc-font);   /* note body               */
+  --rc-t-prose:400 17px/24px var(--rc-font);  /* answer body in sheet    */
+  --rc-t-hdr:400 17px/22px var(--rc-font);    /* sheet header + composer */
+  --rc-t-btn:500 17px/20px var(--rc-font);    /* Copy / Apply            */
+  --rc-t-chip:400 15px/18px var(--rc-font);   /* Full Note chip          */
+  --rc-t-time:600 17px/1 var(--rc-font);      /* status bar clock        */
+  --rc-t-key:400 24px/1 var(--rc-font);       /* keycap letter           */
+  --rc-t-key-s:400 18px/1 var(--rc-font);     /* keycap "123"            */
+  --rc-t-sheet:700 22px/28px var(--rc-font);  /* "Models"                */
+  --rc-t-nav:600 17px/22px var(--rc-font);    /* "Presets" nav title     */
+  --rc-t-tile:400 12px/17px var(--rc-font);   /* tile caption, Favorites */
+  --rc-t-beta:500 11px/14px var(--rc-font);   /* Beta pill               */
+
+  /* Metrics */
+  --rc-gutter:24px;       /* note page gutter                            */
+  --rc-sheet-pad:20px;    /* sheet content gutter                        */
+  --rc-sheet-hpad:16px;   /* sheet header + footer gutter                */
+  --rc-tap:44px;          /* toolbar button                              */
+  --rc-sb:54px;           /* status bar                                  */
+  --rc-sheet-top:402px;   /* answer sheet top inset                      */
+  --rc-sheet-top-2:90px;  /* compose sheet top inset                     */
+  --rc-kb-top:554px;      /* keyboard top                                */
+  --rc-sheet-top-3:397px; /* Models sheet top edge (inset 3, bottom 849)  */
+  --rc-row:64px;          /* Presets row pitch                           */
+  --rc-row-2:51px;        /* Models sheet row pitch                      */
+  --rc-tile:45px;         /* launcher app tile                           */
+  --rc-hdr:44px;          /* home header well / nav button height        */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--rc-font);background:#F3F2F0;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.sheetcard{width:430px;height:932px;background:#fff;border-radius:20px;padding:14px 20px 10px;
+  border:1px solid var(--rc-border);box-shadow:0 18px 44px rgba(29,25,26,.14);
+  overflow:hidden;color:var(--rc-ink)}
+header{display:flex;gap:12px;align-items:flex-start;padding-bottom:7px;
+  border-bottom:1px solid var(--rc-border)}
+.logo{width:30px;height:30px;display:block;flex:none}
+h1{font:700 17px/22px var(--rc-font);letter-spacing:-.2px}
+header p{font:400 11px/14px var(--rc-font);color:var(--rc-ink-2);margin-top:2px}
+code{font-family:ui-monospace,Menlo,monospace;font-size:10px;background:var(--rc-fill);
+  padding:1px 3px;border-radius:4px}
+h2{font:600 9.5px/12px var(--rc-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--rc-ink-4);margin:7px 0 3px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.sw .chip{height:17px;border-radius:5px;border:1px solid rgba(0,0,0,.08)}
+.swm{margin-top:2px;display:flex;flex-direction:column}
+.swm b{font:600 9px/11.5px ui-monospace,Menlo,monospace;color:var(--rc-ink)}
+.swm i{font:400 9px/11.5px ui-monospace,Menlo,monospace;color:var(--rc-ink-2);font-style:normal}
+.swm s{font:400 9px/11.5px var(--rc-font);color:var(--rc-ink-4);text-decoration:none}
+.type .tr{display:flex;align-items:baseline;gap:10px;padding:1px 0;
+  border-bottom:1px solid var(--rc-border)}
+.type .tr>span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.type em{font:400 9px/11.5px ui-monospace,Menlo,monospace;color:var(--rc-ink-4);
+  font-style:normal;white-space:nowrap;flex:none}
+.rad{display:flex;gap:8px;align-items:flex-end}
+.rad>div{text-align:center}
+.rb{width:40px;height:22px;background:var(--rc-fill);border:1px solid var(--rc-border)}
+.rad em{display:block;margin-top:1px;font:400 9px/11.5px var(--rc-font);
+  color:var(--rc-ink-4);font-style:normal}
+.kbg{background:var(--rc-kb);border-radius:8px;padding:5px 6px;display:flex;gap:6px}
+.kcap{width:32.2px;height:43px;background:var(--rc-key);border-radius:var(--rc-r-key);
+  display:grid;place-items:center;font:var(--rc-t-key);padding-bottom:6px}
+.metrics{margin-top:4px;font:400 9.5px/13.5px ui-monospace,Menlo,monospace;color:var(--rc-ink-2)}
+.comps{display:flex;align-items:center;gap:6px}
+.chip-c{height:40px;border-radius:var(--rc-r-pill);background:var(--rc-fill);display:flex;
+  align-items:center;gap:11.3px;padding:0 11px 0 12.6px;flex:none}
+.chip-c .lbl{font:var(--rc-t-chip)}
+.chip-c .x{width:15px;height:15px;border-radius:50%%;background:var(--rc-ink-3);
+  display:grid;place-items:center;flex:none}
+.iconbtn{width:40px;height:40px;border-radius:50%%;display:grid;place-items:center;flex:none}
+.mic{background:var(--rc-fill);color:var(--rc-ink)}
+.send{background:var(--rc-ink);color:var(--rc-onblack)}
+.btn{height:41px;border-radius:var(--rc-r-pill);display:grid;place-items:center;
+  font:var(--rc-t-btn);flex:none}
+.btn.ghost{width:72px;background:var(--rc-bg);border:1px solid var(--rc-border);color:var(--rc-ink-2)}
+.btn.solid{width:76px;background:var(--rc-ink);color:var(--rc-onblack)}
+.sweep{height:2.3px;margin-top:6px;background:linear-gradient(90deg,#FFF 1%%,#F7F7F7 10%%,
+  #E3E3E3 20%%,#DBCFD3 41%%,#D3C4C2 51%%,#DFC2C1 61%%,#E7BEBE 71%%,#F3BAB6 82%%,#F6C4C3 92%%,#F8D1D5 100%%)}
+table{width:100%%;border-collapse:collapse;table-layout:fixed}
+td{font:400 9px/11.5px ui-monospace,Menlo,monospace;padding:.5px 0;
+  border-bottom:1px solid var(--rc-border);vertical-align:top}
+td.t{width:100px;color:var(--rc-ink)}
+td.e{color:var(--rc-ink-4);font-family:var(--rc-font);font-size:9.5px}
+</style>
+</head>
+<body>
+
+<div class="sheetcard">
+  <header>
+    <svg class="logo" viewBox="0 0 100 100"><rect width="100" height="100" rx="23" fill="#FF6363"/><path d="M27 61.5 38.5 50 27 38.5V27h11.5L50 38.5 61.5 27H73v11.5L61.5 50 73 61.5V73H61.5L50 61.5 38.5 73H27Z" fill="none" stroke="#fff" stroke-width="4.4" stroke-linejoin="round"/></svg>
+    <div><h1>Raycast iOS — Design Tokens</h1>
+    <p>Sampled from eleven 393 × 852 pt @3x captures of the “Ask AI”, Models and Presets flows. Every
+    artboard in this folder inlines this exact <code>:root</code> block.</p></div>
+  </header>
+
+  <h2>Surface</h2>
+  <div class="grid"><div class="sw"><div class="chip" style="background:#FFFFFF"></div><div class="swm"><b>--rc-bg</b><i>#FFFFFF</i><s>page / sheet</s></div></div><div class="sw"><div class="chip" style="background:#F6F6F6"></div><div class="swm"><b>--rc-fill</b><i>#F6F6F6</i><s>chip, mic</s></div></div><div class="sw"><div class="chip" style="background:#F3F3F3"></div><div class="swm"><b>--rc-fill-2</b><i>#F3F3F3</i><s>sheet close</s></div></div><div class="sw"><div class="chip" style="background:#F1F1F1"></div><div class="swm"><b>--rc-fill-3</b><i>#F1F1F1</i><s>compose back</s></div></div><div class="sw"><div class="chip" style="background:#E4E4E4"></div><div class="swm"><b>--rc-border</b><i>#E4E4E4</i><s>Copy outline</s></div></div><div class="sw"><div class="chip" style="background:#E3E5E6"></div><div class="swm"><b>--rc-kb</b><i>#E3E5E6</i><s>keyboard ground</s></div></div><div class="sw"><div class="chip" style="background:#FFFFFF"></div><div class="swm"><b>--rc-key</b><i>#FFFFFF</i><s>keycap</s></div></div><div class="sw"><div class="chip" style="background:rgba(0,0,0,.20)"></div><div class="swm"><b>--rc-scrim</b><i>rgba(0,0,0,.20)</i><s>dimmed note</s></div></div><div class="sw"><div class="chip" style="background:#EFEFEF"></div><div class="swm"><b>--rc-home</b><i>#EFEFEF</i><s>launcher ground</s></div></div><div class="sw"><div class="chip" style="background:#F7F7F7"></div><div class="swm"><b>--rc-card</b><i>#F7F7F7</i><s>composer card</s></div></div><div class="sw"><div class="chip" style="background:#FCFBFC"></div><div class="swm"><b>--rc-field</b><i>#FCFBFC</i><s>search well</s></div></div><div class="sw"><div class="chip" style="background:#F5F5F5"></div><div class="swm"><b>--rc-sheet</b><i>#F5F5F5</i><s>Models sheet</s></div></div><div class="sw"><div class="chip" style="background:#EEEEEE"></div><div class="swm"><b>--rc-hdr-btn</b><i>#EEEEEE</i><s>sheet header button</s></div></div><div class="sw"><div class="chip" style="background:#EBEBEB"></div><div class="swm"><b>--rc-row-sel</b><i>#EBEBEB</i><s>selected model row</s></div></div><div class="sw"><div class="chip" style="background:rgba(255,255,255,.82)"></div><div class="swm"><b>--rc-glass</b><i>rgba(255,255,255,.82)</i><s>presets nav pill</s></div></div><div class="sw"><div class="chip" style="background:#F1F6FF"></div><div class="swm"><b>--rc-add</b><i>#F1F6FF</i><s>+ preset button</s></div></div></div>
+
+  <h2>Ink</h2>
+  <div class="grid"><div class="sw"><div class="chip" style="background:#0A0A0A"></div><div class="swm"><b>--rc-ink</b><i>#0A0A0A</i><s>titles, body</s></div></div><div class="sw"><div class="chip" style="background:#4B4B4B"></div><div class="swm"><b>--rc-ink-2</b><i>#4B4B4B</i><s>Copy label</s></div></div><div class="sw"><div class="chip" style="background:#474747"></div><div class="swm"><b>--rc-ink-3</b><i>#474747</i><s>chip ✕, back</s></div></div><div class="sw"><div class="chip" style="background:#9B9B9B"></div><div class="swm"><b>--rc-ink-4</b><i>#9B9B9B</i><s>placeholder</s></div></div><div class="sw"><div class="chip" style="background:#A5A5A5"></div><div class="swm"><b>--rc-ink-dis</b><i>#A5A5A5</i><s>undo / redo</s></div></div><div class="sw"><div class="chip" style="background:#262626"></div><div class="swm"><b>--rc-glyph</b><i>#262626</i><s>toolbar glyphs</s></div></div><div class="sw"><div class="chip" style="background:#3F3F3F"></div><div class="swm"><b>--rc-glyph-2</b><i>#3F3F3F</i><s>close ✕</s></div></div><div class="sw"><div class="chip" style="background:#1E88FF"></div><div class="swm"><b>--rc-caret</b><i>#1E88FF</i><s>text caret</s></div></div><div class="sw"><div class="chip" style="background:#4D4D4D"></div><div class="swm"><b>--rc-ink-5</b><i>#4D4D4D</i><s>model name</s></div></div><div class="sw"><div class="chip" style="background:#484848"></div><div class="swm"><b>--rc-ink-6</b><i>#484848</i><s>empty-state copy</s></div></div><div class="sw"><div class="chip" style="background:#909090"></div><div class="swm"><b>--rc-ink-7</b><i>#909090</i><s>section label</s></div></div><div class="sw"><div class="chip" style="background:#BABABA"></div><div class="swm"><b>--rc-ink-8</b><i>#BABABA</i><s>search placeholder</s></div></div><div class="sw"><div class="chip" style="background:#C9A445"></div><div class="swm"><b>--rc-beta</b><i>#C9A445</i><s>Beta pill</s></div></div><div class="sw"><div class="chip" style="background:#FF6363"></div><div class="swm"><b>--rc-brand</b><i>#FF6363</i><s>Raycast mark</s></div></div></div>
+
+  <h2>Type — Inter / Helvetica Neue (SF Pro in the capture)</h2>
+  <div class="type"><div class="tr"><span style="font:700 27px/29px var(--rc-font);letter-spacing:-.15px">What is the difference</span><em>--rc-t-title 27/33 · --rc-t-h1 27/40 · 700</em></div><div class="tr"><span style="font:var(--rc-t-hdr)">Elaborate this further</span><em>--rc-t-hdr · 17/22 · 400</em></div><div class="tr"><span style="font:var(--rc-t-prose)">In digital design, the difference</span><em>--rc-t-prose · 17/24 · 400</em></div><div class="tr"><span style="font:var(--rc-t-btn)">Apply</span><em>--rc-t-btn · 17/20 · 500</em></div><div class="tr"><span style="font:var(--rc-t-chip)">Full Note</span><em>--rc-t-chip · 15/18 · 400</em></div></div>
+
+  <h2>Radius &amp; metrics</h2>
+  <div class="rad">
+    <div><div class="rb" style="border-radius:var(--rc-r-thumb)"></div><em>thumb 2.5</em></div>
+    <div><div class="rb" style="border-radius:var(--rc-r-key)"></div><em>key 5</em></div>
+    <div><div class="rb" style="border-radius:var(--rc-r-kb)"></div><em>keyboard 18</em></div>
+    <div><div class="rb" style="border-radius:var(--rc-r-sheet)"></div><em>sheet 38</em></div>
+    <div><div class="rb" style="border-radius:var(--rc-r-pill)"></div><em>pill 999</em></div>
+    <div><div class="rb" style="border-radius:var(--rc-r-tile)"></div><em>tile 12</em></div>
+    <div><div class="rb" style="border-radius:var(--rc-r-row)"></div><em>row 16</em></div>
+    <div><div class="rb" style="border-radius:var(--rc-r-card)"></div><em>card 26</em></div>
+  </div>
+  <p class="metrics">gutter 24 · sheet pad 16/20 · tap 44 · status bar 54 · sheet top 90 / 402 (inset 3)
+  · keyboard top 554 · key 32.2 × 43, pitch 54<br>launcher tile 45, pitch 96.25 · presets row 64 · Models sheet top 397 · composer card 369 × 116 at 12 / 693</p>
+
+  <h2>Components</h2>
+  <div class="comps">
+    <div class="chip-c"><svg width="17" height="23" viewBox="0 0 17 23"><rect width="17" height="23" rx="3" fill="#fff"/><rect x="2.4" y="2.4" width="12.2" height=".8" rx=".4" fill="#C4C4C4"/><rect x="2.4" y="4.1" width="11.0" height=".8" rx=".4" fill="#C4C4C4"/><rect x="2.4" y="5.8" width="12.2" height=".8" rx=".4" fill="#C4C4C4"/><rect x="2.4" y="7.5" width="9.4" height=".8" rx=".4" fill="#C4C4C4"/><rect x="2.4" y="9.2" width="12.2" height=".8" rx=".4" fill="#C4C4C4"/><rect x="2.4" y="10.9" width="11.4" height=".8" rx=".4" fill="#C4C4C4"/><rect x="2.4" y="12.6" width="12.2" height=".8" rx=".4" fill="#C4C4C4"/><rect x="2.4" y="14.3" width="10.2" height=".8" rx=".4" fill="#C4C4C4"/><rect x="2.4" y="16.0" width="7.0" height=".8" rx=".4" fill="#C4C4C4"/><rect x="6.9" y="14.2" width="7.4" height="7.4" rx="1.8" fill="#EDEDED" stroke="#F0392B" stroke-width="1.2"/><text x="10.6" y="20.2" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="6.2" fill="#111">T</text></svg><span class="lbl">Full Note</span><span class="x"><svg width="7.6" height="7.6" viewBox="0 0 8 8" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"><path d="M1.2 1.2 6.8 6.8"/><path d="M6.8 1.2 1.2 6.8"/></svg></span></div>
+    <div class="iconbtn mic"><svg width="13" height="17" viewBox="0 0 13 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.6" y="1" width="5.8" height="9.6" rx="2.9"/><path d="M1 8.2a5.5 5.5 0 0 0 11 0"/><path d="M6.5 13.9V16.2"/></svg></div>
+    <div class="iconbtn send"><svg width="19" height="16" viewBox="0 0 19 16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M1.4 8h15.4"/><path d="M10.6 1.8 17.2 8l-6.6 6.2"/></svg></div>
+    <div class="btn ghost">Copy</div>
+    <div class="btn solid">Apply</div>
+  </div>
+  <div class="sweep"></div>
+
+</div>
+
+</body>
+</html>

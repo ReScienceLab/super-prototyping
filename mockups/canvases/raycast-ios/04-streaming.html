@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Raycast iOS — Streaming</title>
+<style>
+/* ============================================================================
+   RAYCAST iOS — ASK AI.  Tokens below are byte-identical in every artboard of
+   this folder (the canvas renders each one in <iframe srcDoc sandbox="">, so
+   there is no shared stylesheet). Edit gen_raycast.py, never these files.
+   Sampled from 393 x 852 pt @3x captures.
+   ========================================================================= */
+:root{
+  --rc-font:Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --rc-bg:#FFFFFF;        /* note page + sheet ground                     */
+  --rc-scrim:rgba(0,0,0,.20); /* modal dim over the note                  */
+  --rc-fill:#F6F6F6;      /* chip pill, mic button                        */
+  --rc-fill-2:#F3F3F3;    /* sheet close button                           */
+  --rc-fill-3:#F1F1F1;    /* compose-sheet back button                    */
+  --rc-border:#E4E4E4;    /* Copy button 1pt outline                      */
+  --rc-kb:#E3E5E6;        /* keyboard ground                              */
+  --rc-key:#FFFFFF;       /* keycap                                       */
+  --rc-home:#EFEFEF;      /* home / launcher ground                       */
+  --rc-card:#F7F7F7;      /* composer card, Customize pill                */
+  --rc-field:#FCFBFC;     /* search pill, filter + avatar wells           */
+  --rc-sheet:#F5F5F5;     /* Models sheet ground                          */
+  --rc-hdr-btn:#EEEEEE;   /* Models sheet header circles                  */
+  --rc-row-sel:#EBEBEB;   /* selected row, Models sheet                   */
+  --rc-row-sel-2:rgba(0,0,0,.018); /* selected row over the Presets blur   */
+  --rc-glass:rgba(255,255,255,.82); /* Edit pill, dismiss button          */
+  --rc-add:#F1F6FF;       /* Presets "+" well                             */
+  --rc-veil:rgba(255,255,255,.22);  /* white veil over the Presets blur   */
+
+  /* Ink */
+  --rc-ink:#0A0A0A;       /* titles, body copy, mic + send + Apply fill   */
+  --rc-ink-2:#4B4B4B;     /* Copy label                                   */
+  --rc-ink-3:#474747;     /* chip dismiss circle                          */
+  --rc-ink-4:#9B9B9B;     /* composer placeholder                         */
+  --rc-ink-dis:#A5A5A5;   /* undo / redo, disabled                        */
+  --rc-glyph:#262626;     /* toolbar chevron + overflow dots              */
+  --rc-glyph-2:#3F3F3F;   /* sheet close X                                */
+  --rc-caret:#1E88FF;     /* text caret                                   */
+  --rc-onblack:#FFFFFF;   /* Apply label, send arrow                      */
+  --rc-ink-5:#4D4D4D;     /* composer model name (Ray-1 / Sonar…)         */
+  --rc-ink-6:#484848;     /* empty-state copy                             */
+  --rc-ink-7:#909090;     /* "Favorites" section header                   */
+  --rc-ink-8:#BABABA;     /* "Search Raycast" placeholder                 */
+  --rc-beta:#C9A445;      /* Beta pill stroke + ink                       */
+  --rc-brand:#FF6363;     /* Raycast coral                                */
+
+  /* Radius */
+  --rc-r-sheet:38px; --rc-r-key:5px; --rc-r-kb:18px;
+  --rc-r-thumb:2.5px; --rc-r-pill:999px;
+  --rc-r-card:26px;       /* composer card                                */
+  --rc-r-tile:12px;       /* launcher app tile                            */
+  --rc-r-row:16px;        /* list-row highlight                           */
+  --rc-r-btn:16px;        /* composer dictation button                    */
+
+  /* Type */
+  --rc-t-title:700 27px/33px var(--rc-font);  /* note title              */
+  --rc-t-h1:700 27px/40px var(--rc-font);     /* answer title in sheet   */
+  --rc-t-body:400 17px/21px var(--rc-font);   /* note body               */
+  --rc-t-prose:400 17px/24px var(--rc-font);  /* answer body in sheet    */
+  --rc-t-hdr:400 17px/22px var(--rc-font);    /* sheet header + composer */
+  --rc-t-btn:500 17px/20px var(--rc-font);    /* Copy / Apply            */
+  --rc-t-chip:400 15px/18px var(--rc-font);   /* Full Note chip          */
+  --rc-t-time:600 17px/1 var(--rc-font);      /* status bar clock        */
+  --rc-t-key:400 24px/1 var(--rc-font);       /* keycap letter           */
+  --rc-t-key-s:400 18px/1 var(--rc-font);     /* keycap "123"            */
+  --rc-t-sheet:700 22px/28px var(--rc-font);  /* "Models"                */
+  --rc-t-nav:600 17px/22px var(--rc-font);    /* "Presets" nav title     */
+  --rc-t-tile:400 12px/17px var(--rc-font);   /* tile caption, Favorites */
+  --rc-t-beta:500 11px/14px var(--rc-font);   /* Beta pill               */
+
+  /* Metrics */
+  --rc-gutter:24px;       /* note page gutter                            */
+  --rc-sheet-pad:20px;    /* sheet content gutter                        */
+  --rc-sheet-hpad:16px;   /* sheet header + footer gutter                */
+  --rc-tap:44px;          /* toolbar button                              */
+  --rc-sb:54px;           /* status bar                                  */
+  --rc-sheet-top:402px;   /* answer sheet top inset                      */
+  --rc-sheet-top-2:90px;  /* compose sheet top inset                     */
+  --rc-kb-top:554px;      /* keyboard top                                */
+  --rc-sheet-top-3:397px; /* Models sheet top edge (inset 3, bottom 849)  */
+  --rc-row:64px;          /* Presets row pitch                           */
+  --rc-row-2:51px;        /* Models sheet row pitch                      */
+  --rc-tile:45px;         /* launcher app tile                           */
+  --rc-hdr:44px;          /* home header well / nav button height        */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--rc-font);background:#fff;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
+  background:var(--rc-bg);outline:1px solid rgba(0,0,0,.10);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28);
+  color:var(--rc-ink)}
+.statusbar{position:absolute;left:0;right:0;top:0;height:var(--rc-sb);z-index:1;
+  display:flex;align-items:flex-end;justify-content:space-between;padding:0 33px 15px 55px}
+.statusbar .time{font:var(--rc-t-time);letter-spacing:.2px;margin-bottom:1.7px}
+.sicons{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.sicons svg{display:block}
+.scrim{position:absolute;inset:0;background:var(--rc-scrim);z-index:2}
+.sheet{position:absolute;background:var(--rc-bg);z-index:3;overflow:hidden}
+
+/* --- launcher / composer, shared by 07-11 ------------------------------- */
+.home{position:absolute;inset:0;background:var(--rc-home)}
+.hdr{position:absolute;left:16px;right:16px;top:59px;height:var(--rc-hdr);display:flex;gap:12px}
+.well{background:var(--rc-field);border-radius:var(--rc-r-pill);height:var(--rc-hdr);flex:none}
+.well.filter{width:44px;display:flex;align-items:center;justify-content:center}
+.well.search{flex:1;display:flex;align-items:center;gap:8px;padding:0 14px;
+  font:var(--rc-t-hdr);color:var(--rc-ink-8)}
+.avatar{width:44.3px;height:44.3px;border-radius:var(--rc-r-pill);flex:none;
+  background:linear-gradient(160deg,#8BA6DF,#7294D8);color:#fff;
+  font:600 15px/44.3px var(--rc-font);text-align:center;letter-spacing:.2px}
+.tiles{position:absolute;left:0;right:0;top:140px;display:flex;padding:0 4px}
+.tiles > div{width:96.25px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.tiles svg{display:block;width:var(--rc-tile);height:var(--rc-tile);border-radius:var(--rc-r-tile)}
+.tiles span{font:var(--rc-t-tile);color:#050505}
+.sect{position:absolute;left:21px;top:247px;font:var(--rc-t-tile);color:var(--rc-ink-7)}
+.favs{position:absolute;left:0;right:0;top:291px;filter:blur(3.4px)}
+.favs .r{display:flex;gap:10px;padding:0 16px;margin-bottom:22.7px;overflow:hidden;height:26px}
+.favs .c{height:26px;border-radius:9px;background:#DEDEDE;display:flex;align-items:center;flex:none;
+  gap:7px;padding:0 11px;font:400 15px/26px var(--rc-font);color:#9A9A9A;white-space:nowrap}
+.favs .c i{width:15px;height:15px;border-radius:4px;background:#C6C6C6;flex:none}
+.empty{position:absolute;left:0;right:0;top:389px;text-align:center;
+  font:400 17px/22px var(--rc-font);color:var(--rc-ink-6)}
+.cust{position:absolute;left:137px;top:450px;width:119px;height:33px;border-radius:var(--rc-r-pill);
+  background:var(--rc-card);display:flex;align-items:center;justify-content:center;gap:7px;
+  font:400 15px/18px var(--rc-font);color:#080808}
+.comp{position:absolute;left:12px;top:693px;width:369px;height:116px;border-radius:var(--rc-r-card);
+  background:var(--rc-card);box-shadow:inset 0 0 0 1px #FDFDFD,0 1px 2px rgba(0,0,0,.05),
+  0 10px 30px rgba(0,0,0,.09)}
+.chip2{position:absolute;left:7.8px;top:7px;height:33px;display:flex;align-items:center;gap:10.3px;
+  padding:0 10.7px 0 9.2px;border-radius:var(--rc-r-pill);background:rgba(255,255,255,.55);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.07);font:400 15px/18px var(--rc-font);color:#030104}
+.chip2 svg{display:block;width:18px;height:18px}
+.model{position:absolute;right:17.3px;top:8px;height:33px;display:flex;align-items:center;
+  gap:10.6px;font:400 15px/18px var(--rc-font);color:var(--rc-ink-5)}
+.clip{position:absolute;left:22.3px;top:74.3px;color:#070707}
+.ph{position:absolute;left:60.7px;top:74px;font:var(--rc-t-hdr);color:var(--rc-ink-4)}
+.dictate{position:absolute;left:281px;top:60px;width:79px;height:48px;border-radius:var(--rc-r-btn);
+  background:#F1F1F1;display:flex;align-items:center;justify-content:center;color:#444144}
+
+/* --- Presets overlay ---------------------------------------------------- */
+.blur{position:absolute;inset:0;overflow:hidden;background:var(--rc-home)}
+.blur .home{filter:blur(26px)}
+.veil{position:absolute;inset:0;background:var(--rc-veil)}
+.veil2{position:absolute;left:0;right:0;top:0;height:140px;background:linear-gradient(
+  rgba(255,255,255,.62) 0 60px,rgba(255,255,255,.30) 98px,rgba(255,255,255,0) 134px)}
+.nav{position:absolute;left:16px;right:16px;top:59px;height:var(--rc-hdr);
+  display:flex;align-items:center;justify-content:space-between}
+.nav .glass{background:var(--rc-glass);border-radius:var(--rc-r-pill);height:var(--rc-hdr);
+  display:flex;align-items:center;justify-content:center;font:var(--rc-t-hdr);color:#131114}
+.nav .edit{width:53px}
+.nav .add{width:43.6px;background:var(--rc-add)}
+.nav .ttl{position:absolute;left:0;right:0;text-align:center;font:var(--rc-t-nav);color:#0F0C0F}
+.list{position:absolute;left:0;right:0;
+  -webkit-mask-image:linear-gradient(#000 0 748px,rgba(0,0,0,.55) 782px,rgba(0,0,0,.25) 820px);
+  mask-image:linear-gradient(#000 0 748px,rgba(0,0,0,.55) 782px,rgba(0,0,0,.25) 820px)}
+.prow.dim{filter:blur(4.6px)}
+.prow{position:relative;height:var(--rc-row);display:flex;align-items:center}
+.prow .sel{position:absolute;left:16px;right:16px;top:4px;height:56px;
+  border-radius:var(--rc-r-row);background:var(--rc-row-sel-2)}
+.prow svg.mk{position:relative;width:20.5px;height:20.5px;margin-left:33.7px;display:block}
+.prow b{position:relative;margin-left:23.3px;font:var(--rc-t-hdr);color:#151515;font-weight:400}
+.prow .ck{position:relative;margin-left:auto;margin-right:29.5px;width:17.5px;height:17.5px;
+  border-radius:var(--rc-r-pill);background:#0C0C0C;display:flex;align-items:center;
+  justify-content:center}
+.dismiss{position:absolute;left:173px;top:770px;width:48px;height:48px;
+  border-radius:var(--rc-r-pill);background:var(--rc-glass);display:flex;align-items:center;
+  justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.note{position:absolute;inset:0;background:var(--rc-bg)}
+.tbar{position:absolute;left:var(--rc-sheet-hpad);right:var(--rc-sheet-hpad);top:59px;height:var(--rc-tap);
+  display:flex;align-items:center;color:var(--rc-glyph)}
+.tbtn{width:var(--rc-tap);height:var(--rc-tap);border-radius:50%;background:var(--rc-fill);
+  display:grid;place-items:center}
+.tbtn.dots{}
+.tgroup{width:96px;height:var(--rc-tap);border-radius:var(--rc-r-pill);background:var(--rc-fill);
+  margin-left:auto;margin-right:12px;display:flex;align-items:center;justify-content:space-around}
+.dis{color:var(--rc-ink-dis);display:grid;place-items:center}
+.ntitle{position:absolute;left:var(--rc-gutter);top:127.3px;font:var(--rc-t-title);letter-spacing:-.15px}
+.nbody{position:absolute;left:var(--rc-gutter);top:231.8px;font:var(--rc-t-body);white-space:nowrap}
+
+.sheet{left:3px;right:3px;top:var(--rc-sheet-top);bottom:0;border-radius:var(--rc-r-sheet) var(--rc-r-sheet) 0 0}
+.shead{position:absolute;left:0;right:0;top:0;height:75px;padding:0 var(--rc-sheet-hpad);
+  display:flex;align-items:center;justify-content:space-between}
+.stitle{font:var(--rc-t-hdr)}
+.closebtn{width:var(--rc-tap);height:var(--rc-tap);border-radius:50%;background:var(--rc-fill-2);
+  display:grid;place-items:center;color:var(--rc-glyph-2)}
+.sweep{position:absolute;left:0;right:0;top:71.3px;height:2.3px;background:linear-gradient(90deg,
+  #FFF 1%,#F7F7F7 10%,#E3E3E3 20%,#DBCFD3 41%,#D3C4C2 51%,#DFC2C1 61%,#E7BEBE 71%,#F3BAB6 82%,#F6C4C3 92%,#F8D1D5 100%)}
+.sweep.faint{opacity:.32}
+.body{position:absolute;left:0;right:0;top:75px;bottom:0;padding:0 var(--rc-sheet-pad)}
+.body h2{font:var(--rc-t-h1);letter-spacing:-.15px;margin-bottom:12.2px}
+.body p{font:var(--rc-t-prose);letter-spacing:-.06px;white-space:nowrap}
+.body p+p{margin-top:13px}
+.regen{position:absolute;left:27px;top:357px;height:41px;display:flex;align-items:center;color:var(--rc-ink)}
+.factions{position:absolute;right:var(--rc-sheet-hpad);top:357px;height:41px;display:flex;align-items:center;gap:12px}
+.btn{height:41px;border-radius:var(--rc-r-pill);display:grid;place-items:center;font:var(--rc-t-btn)}
+.btn.ghost{width:72px;background:var(--rc-bg);border:1px solid var(--rc-border);color:var(--rc-ink-2)}
+.btn.solid{width:76px;background:var(--rc-ink);color:var(--rc-onblack)}
+
+.body{padding-top:23.9px;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent 86%);
+  mask-image:linear-gradient(180deg,#000 70%,transparent 86%)}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="note">
+<div class="statusbar">
+  <div class="time">9:41</div>
+  <div class="sicons">
+    <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
+    <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 9.6a2 2 0 0 1 2 1.9l-2 .5-2-.5a2 2 0 0 1 2-1.9Z"/><path d="M8.5 5.6c1.9 0 3.6.7 4.9 1.9l-1.4 1.5a5 5 0 0 0-7 0L3.6 7.5a7 7 0 0 1 4.9-1.9Z"/><path d="M8.5 1.5c3 0 5.7 1.2 7.7 3.1l-1.4 1.5a9 9 0 0 0-12.6 0L.8 4.6a11 11 0 0 1 7.7-3.1Z"/></svg>
+    <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4Z" fill="currentColor" opacity=".4"/></svg>
+  </div>
+</div>
+  <div class="tbar">
+    <div class="tbtn"><svg width="10" height="15" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1.6 2.2 10 9 18.4"/></svg></div>
+    <div class="tgroup"><span class="dis"><svg width="13" height="15" viewBox="0 0 13 15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 1.1.9 4.6l3.7 2"/><path d="M1.2 4.6h5.3a5.4 5.4 0 0 1 0 10.8H4.1"/></svg></span><span class="dis"><svg width="13" height="15" viewBox="0 0 13 15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 1.1l2.5 3.5-3.7 2"/><path d="M11.8 4.6H6.5a5.4 5.4 0 0 0 0 10.8h2.4"/></svg></span></div>
+    <div class="tbtn dots"><svg width="12" height="4" viewBox="0 0 12 4" fill="currentColor"><circle cx="1.6" cy="2" r="1.6"/><circle cx="6" cy="2" r="1.6"/><circle cx="10.4" cy="2" r="1.6"/></svg></div>
+  </div>
+  <h1 class="ntitle">What is the difference<br>between UI and UX?</h1>
+  <p class="nbody">In digital design, the user interface (UI)<br>
+  focuses on how a product screen or web<br>
+  page looks and functions, while user<br>
+  experience (UX) encompasses the overall<br>
+  interaction and satisfaction a user has with<br>
+  the product or website.</p>
+</div>
+<div class="scrim"></div>
+<div class="sheet">
+    <div class="shead">
+      <div class="stitle">Elaborate this further</div>
+      <div class="closebtn"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M1.4 1.4 13.6 13.6"/><path d="M13.6 1.4 1.4 13.6"/></svg></div>
+    </div>
+    <div class="sweep faint"></div>
+    <div class="body">
+      <h2>What is the difference<br>between UI and UX?</h2>
+      <p>In digital design, the difference between user<br>
+      interface (UI) and user experience (UX) is<br>
+      crucial yet complementary.</p>
+      <p>UI refers specifically to the visual elements of<br>
+      a product or website. It includes the layout,<br>
+      colors, buttons, icons, and typography that a<br>
+      user interacts with. The main goal of UI design<br>
+      is to ensure that the interface is aesthetically<br>
+      pleasing and functions seamlessly. It is about<br>
+      the look and feel, the presentation and the<br>
+      interactivity of a product.</p>
+    </div>
+</div>
+</div>
+</body>
+</html>

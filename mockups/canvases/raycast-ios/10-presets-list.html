@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Raycast iOS — Presets</title>
+<style>
+/* ============================================================================
+   RAYCAST iOS — ASK AI.  Tokens below are byte-identical in every artboard of
+   this folder (the canvas renders each one in <iframe srcDoc sandbox="">, so
+   there is no shared stylesheet). Edit gen_raycast.py, never these files.
+   Sampled from 393 x 852 pt @3x captures.
+   ========================================================================= */
+:root{
+  --rc-font:Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --rc-bg:#FFFFFF;        /* note page + sheet ground                     */
+  --rc-scrim:rgba(0,0,0,.20); /* modal dim over the note                  */
+  --rc-fill:#F6F6F6;      /* chip pill, mic button                        */
+  --rc-fill-2:#F3F3F3;    /* sheet close button                           */
+  --rc-fill-3:#F1F1F1;    /* compose-sheet back button                    */
+  --rc-border:#E4E4E4;    /* Copy button 1pt outline                      */
+  --rc-kb:#E3E5E6;        /* keyboard ground                              */
+  --rc-key:#FFFFFF;       /* keycap                                       */
+  --rc-home:#EFEFEF;      /* home / launcher ground                       */
+  --rc-card:#F7F7F7;      /* composer card, Customize pill                */
+  --rc-field:#FCFBFC;     /* search pill, filter + avatar wells           */
+  --rc-sheet:#F5F5F5;     /* Models sheet ground                          */
+  --rc-hdr-btn:#EEEEEE;   /* Models sheet header circles                  */
+  --rc-row-sel:#EBEBEB;   /* selected row, Models sheet                   */
+  --rc-row-sel-2:rgba(0,0,0,.018); /* selected row over the Presets blur   */
+  --rc-glass:rgba(255,255,255,.82); /* Edit pill, dismiss button          */
+  --rc-add:#F1F6FF;       /* Presets "+" well                             */
+  --rc-veil:rgba(255,255,255,.22);  /* white veil over the Presets blur   */
+
+  /* Ink */
+  --rc-ink:#0A0A0A;       /* titles, body copy, mic + send + Apply fill   */
+  --rc-ink-2:#4B4B4B;     /* Copy label                                   */
+  --rc-ink-3:#474747;     /* chip dismiss circle                          */
+  --rc-ink-4:#9B9B9B;     /* composer placeholder                         */
+  --rc-ink-dis:#A5A5A5;   /* undo / redo, disabled                        */
+  --rc-glyph:#262626;     /* toolbar chevron + overflow dots              */
+  --rc-glyph-2:#3F3F3F;   /* sheet close X                                */
+  --rc-caret:#1E88FF;     /* text caret                                   */
+  --rc-onblack:#FFFFFF;   /* Apply label, send arrow                      */
+  --rc-ink-5:#4D4D4D;     /* composer model name (Ray-1 / Sonar…)         */
+  --rc-ink-6:#484848;     /* empty-state copy                             */
+  --rc-ink-7:#909090;     /* "Favorites" section header                   */
+  --rc-ink-8:#BABABA;     /* "Search Raycast" placeholder                 */
+  --rc-beta:#C9A445;      /* Beta pill stroke + ink                       */
+  --rc-brand:#FF6363;     /* Raycast coral                                */
+
+  /* Radius */
+  --rc-r-sheet:38px; --rc-r-key:5px; --rc-r-kb:18px;
+  --rc-r-thumb:2.5px; --rc-r-pill:999px;
+  --rc-r-card:26px;       /* composer card                                */
+  --rc-r-tile:12px;       /* launcher app tile                            */
+  --rc-r-row:16px;        /* list-row highlight                           */
+  --rc-r-btn:16px;        /* composer dictation button                    */
+
+  /* Type */
+  --rc-t-title:700 27px/33px var(--rc-font);  /* note title              */
+  --rc-t-h1:700 27px/40px var(--rc-font);     /* answer title in sheet   */
+  --rc-t-body:400 17px/21px var(--rc-font);   /* note body               */
+  --rc-t-prose:400 17px/24px var(--rc-font);  /* answer body in sheet    */
+  --rc-t-hdr:400 17px/22px var(--rc-font);    /* sheet header + composer */
+  --rc-t-btn:500 17px/20px var(--rc-font);    /* Copy / Apply            */
+  --rc-t-chip:400 15px/18px var(--rc-font);   /* Full Note chip          */
+  --rc-t-time:600 17px/1 var(--rc-font);      /* status bar clock        */
+  --rc-t-key:400 24px/1 var(--rc-font);       /* keycap letter           */
+  --rc-t-key-s:400 18px/1 var(--rc-font);     /* keycap "123"            */
+  --rc-t-sheet:700 22px/28px var(--rc-font);  /* "Models"                */
+  --rc-t-nav:600 17px/22px var(--rc-font);    /* "Presets" nav title     */
+  --rc-t-tile:400 12px/17px var(--rc-font);   /* tile caption, Favorites */
+  --rc-t-beta:500 11px/14px var(--rc-font);   /* Beta pill               */
+
+  /* Metrics */
+  --rc-gutter:24px;       /* note page gutter                            */
+  --rc-sheet-pad:20px;    /* sheet content gutter                        */
+  --rc-sheet-hpad:16px;   /* sheet header + footer gutter                */
+  --rc-tap:44px;          /* toolbar button                              */
+  --rc-sb:54px;           /* status bar                                  */
+  --rc-sheet-top:402px;   /* answer sheet top inset                      */
+  --rc-sheet-top-2:90px;  /* compose sheet top inset                     */
+  --rc-kb-top:554px;      /* keyboard top                                */
+  --rc-sheet-top-3:397px; /* Models sheet top edge (inset 3, bottom 849)  */
+  --rc-row:64px;          /* Presets row pitch                           */
+  --rc-row-2:51px;        /* Models sheet row pitch                      */
+  --rc-tile:45px;         /* launcher app tile                           */
+  --rc-hdr:44px;          /* home header well / nav button height        */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--rc-font);background:#fff;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
+  background:var(--rc-bg);outline:1px solid rgba(0,0,0,.10);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28);
+  color:var(--rc-ink)}
+.statusbar{position:absolute;left:0;right:0;top:0;height:var(--rc-sb);z-index:1;
+  display:flex;align-items:flex-end;justify-content:space-between;padding:0 33px 15px 55px}
+.statusbar .time{font:var(--rc-t-time);letter-spacing:.2px;margin-bottom:1.7px}
+.sicons{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.sicons svg{display:block}
+.scrim{position:absolute;inset:0;background:var(--rc-scrim);z-index:2}
+.sheet{position:absolute;background:var(--rc-bg);z-index:3;overflow:hidden}
+
+/* --- launcher / composer, shared by 07-11 ------------------------------- */
+.home{position:absolute;inset:0;background:var(--rc-home)}
+.hdr{position:absolute;left:16px;right:16px;top:59px;height:var(--rc-hdr);display:flex;gap:12px}
+.well{background:var(--rc-field);border-radius:var(--rc-r-pill);height:var(--rc-hdr);flex:none}
+.well.filter{width:44px;display:flex;align-items:center;justify-content:center}
+.well.search{flex:1;display:flex;align-items:center;gap:8px;padding:0 14px;
+  font:var(--rc-t-hdr);color:var(--rc-ink-8)}
+.avatar{width:44.3px;height:44.3px;border-radius:var(--rc-r-pill);flex:none;
+  background:linear-gradient(160deg,#8BA6DF,#7294D8);color:#fff;
+  font:600 15px/44.3px var(--rc-font);text-align:center;letter-spacing:.2px}
+.tiles{position:absolute;left:0;right:0;top:140px;display:flex;padding:0 4px}
+.tiles > div{width:96.25px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.tiles svg{display:block;width:var(--rc-tile);height:var(--rc-tile);border-radius:var(--rc-r-tile)}
+.tiles span{font:var(--rc-t-tile);color:#050505}
+.sect{position:absolute;left:21px;top:247px;font:var(--rc-t-tile);color:var(--rc-ink-7)}
+.favs{position:absolute;left:0;right:0;top:291px;filter:blur(3.4px)}
+.favs .r{display:flex;gap:10px;padding:0 16px;margin-bottom:22.7px;overflow:hidden;height:26px}
+.favs .c{height:26px;border-radius:9px;background:#DEDEDE;display:flex;align-items:center;flex:none;
+  gap:7px;padding:0 11px;font:400 15px/26px var(--rc-font);color:#9A9A9A;white-space:nowrap}
+.favs .c i{width:15px;height:15px;border-radius:4px;background:#C6C6C6;flex:none}
+.empty{position:absolute;left:0;right:0;top:389px;text-align:center;
+  font:400 17px/22px var(--rc-font);color:var(--rc-ink-6)}
+.cust{position:absolute;left:137px;top:450px;width:119px;height:33px;border-radius:var(--rc-r-pill);
+  background:var(--rc-card);display:flex;align-items:center;justify-content:center;gap:7px;
+  font:400 15px/18px var(--rc-font);color:#080808}
+.comp{position:absolute;left:12px;top:693px;width:369px;height:116px;border-radius:var(--rc-r-card);
+  background:var(--rc-card);box-shadow:inset 0 0 0 1px #FDFDFD,0 1px 2px rgba(0,0,0,.05),
+  0 10px 30px rgba(0,0,0,.09)}
+.chip2{position:absolute;left:7.8px;top:7px;height:33px;display:flex;align-items:center;gap:10.3px;
+  padding:0 10.7px 0 9.2px;border-radius:var(--rc-r-pill);background:rgba(255,255,255,.55);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.07);font:400 15px/18px var(--rc-font);color:#030104}
+.chip2 svg{display:block;width:18px;height:18px}
+.model{position:absolute;right:17.3px;top:8px;height:33px;display:flex;align-items:center;
+  gap:10.6px;font:400 15px/18px var(--rc-font);color:var(--rc-ink-5)}
+.clip{position:absolute;left:22.3px;top:74.3px;color:#070707}
+.ph{position:absolute;left:60.7px;top:74px;font:var(--rc-t-hdr);color:var(--rc-ink-4)}
+.dictate{position:absolute;left:281px;top:60px;width:79px;height:48px;border-radius:var(--rc-r-btn);
+  background:#F1F1F1;display:flex;align-items:center;justify-content:center;color:#444144}
+
+/* --- Presets overlay ---------------------------------------------------- */
+.blur{position:absolute;inset:0;overflow:hidden;background:var(--rc-home)}
+.blur .home{filter:blur(26px)}
+.veil{position:absolute;inset:0;background:var(--rc-veil)}
+.veil2{position:absolute;left:0;right:0;top:0;height:140px;background:linear-gradient(
+  rgba(255,255,255,.62) 0 60px,rgba(255,255,255,.30) 98px,rgba(255,255,255,0) 134px)}
+.nav{position:absolute;left:16px;right:16px;top:59px;height:var(--rc-hdr);
+  display:flex;align-items:center;justify-content:space-between}
+.nav .glass{background:var(--rc-glass);border-radius:var(--rc-r-pill);height:var(--rc-hdr);
+  display:flex;align-items:center;justify-content:center;font:var(--rc-t-hdr);color:#131114}
+.nav .edit{width:53px}
+.nav .add{width:43.6px;background:var(--rc-add)}
+.nav .ttl{position:absolute;left:0;right:0;text-align:center;font:var(--rc-t-nav);color:#0F0C0F}
+.list{position:absolute;left:0;right:0;
+  -webkit-mask-image:linear-gradient(#000 0 748px,rgba(0,0,0,.55) 782px,rgba(0,0,0,.25) 820px);
+  mask-image:linear-gradient(#000 0 748px,rgba(0,0,0,.55) 782px,rgba(0,0,0,.25) 820px)}
+.prow.dim{filter:blur(4.6px)}
+.prow{position:relative;height:var(--rc-row);display:flex;align-items:center}
+.prow .sel{position:absolute;left:16px;right:16px;top:4px;height:56px;
+  border-radius:var(--rc-r-row);background:var(--rc-row-sel-2)}
+.prow svg.mk{position:relative;width:20.5px;height:20.5px;margin-left:33.7px;display:block}
+.prow b{position:relative;margin-left:23.3px;font:var(--rc-t-hdr);color:#151515;font-weight:400}
+.prow .ck{position:relative;margin-left:auto;margin-right:29.5px;width:17.5px;height:17.5px;
+  border-radius:var(--rc-r-pill);background:#0C0C0C;display:flex;align-items:center;
+  justify-content:center}
+.dismiss{position:absolute;left:173px;top:770px;width:48px;height:48px;
+  border-radius:var(--rc-r-pill);background:var(--rc-glass);display:flex;align-items:center;
+  justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.well.filter{color:#111}
+.well.search svg{color:#B5B5B5;flex:none}
+.cust svg{width:15px;height:11px;color:#101010}
+.tiles svg{border-radius:12px}
+.nav .glass svg{display:block}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="blur"><div class="home">
+  
+  <div class="hdr">
+    <div class="well filter"><svg width="19" height="14" viewBox="0 0 19 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M1 3.6h4.2M9.6 3.6H18"/><path d="M1 10.4h8.4M13.8 10.4H18"/><circle cx="7.4" cy="3.6" r="2.2"/><circle cx="11.6" cy="10.4" r="2.2"/></svg></div>
+    <div class="well search"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6.3" cy="6.3" r="5.1"/><path d="M10.2 10.2 13.8 13.8"/></svg><span>Search Raycast</span></div>
+    <div class="avatar">AS</div>
+  </div>
+  <div class="tiles"><div><svg viewBox="0 0 45 45"><defs><linearGradient id="ai" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A1E1C"/><stop offset=".55" stop-color="#2E1219"/><stop offset="1" stop-color="#180818"/></linearGradient><linearGradient id="aif" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6A34"/><stop offset="1" stop-color="#F03A28"/></linearGradient></defs><rect width="45" height="45" rx="12" fill="url(#ai)"/><g fill="url(#aif)"><path transform="translate(14.5 14.8)" d="M0,-7.6 C0,-2.28 2.28,0 7.6,0 C2.28,0 0,2.28 0,7.6 C0,2.28 -2.28,0 -7.6,0 C-2.28,0 0,-2.28 0,-7.6 Z"/><path transform="translate(25.6 26.4)" d="M0,-12.4 C0,-3.72 3.72,0 12.4,0 C3.72,0 0,3.72 0,12.4 C0,3.72 -3.72,0 -12.4,0 C-3.72,0 0,-3.72 0,-12.4 Z"/></g></svg><span>AI</span></div><div><svg viewBox="0 0 45 45"><rect width="45" height="45" rx="12" fill="#EA5857"/><rect x="10.5" y="10" width="24" height="26" rx="4.5" fill="#B7B7B7" transform="rotate(-11 22.5 23)"/><rect x="12" y="9" width="23" height="26" rx="4.5" fill="#F4F4F4" transform="rotate(7 22.5 23)"/><text x="23.2" y="31.6" text-anchor="middle" fill="#0F0F0F" font-family="Georgia,'Times New Roman',serif" font-size="22" font-weight="700" transform="rotate(7 23.2 23)">T</text></svg><span>Notes</span></div><div><svg viewBox="0 0 45 45"><defs><linearGradient id="ql" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9B7DEE"/><stop offset="1" stop-color="#7358C4"/></linearGradient></defs><rect width="45" height="45" rx="12" fill="url(#ql)"/><path d="M26.4 7.6 9.4 28.2h9.6v9.2l17-20.6h-9.6z" fill="none" stroke="#EDE9FA" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Quicklinks</span></div><div><svg viewBox="0 0 45 45"><defs><linearGradient id="sn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#54AEFB"/><stop offset="1" stop-color="#3A8CEF"/></linearGradient></defs><rect width="45" height="45" rx="12" fill="url(#sn)"/><rect x="6.6" y="6.6" width="31.8" height="31.8" rx="10" fill="#F3F3F3"/><rect x="14" y="12.6" width="12.6" height="3.1" rx="1.55" fill="#7E7E7E"/><rect x="14" y="17.9" width="5.4" height="3.1" rx="1.55" fill="#D2D2D2"/><rect x="21.6" y="17.9" width="17.6" height="3.1" rx="1.55" fill="#3E8FEF"/><rect x="14" y="23.2" width="18.6" height="3.1" rx="1.55" fill="#D2D2D2"/><rect x="35" y="23.2" width="8.2" height="3.1" rx="1.55" fill="#D2D2D2"/><rect x="14" y="28.5" width="9.6" height="3.1" rx="1.55" fill="#3E8FEF"/><rect x="26.4" y="28.5" width="16.8" height="3.1" rx="1.55" fill="#D2D2D2"/><rect x="14" y="33.8" width="15.6" height="3.1" rx="1.55" fill="#D2D2D2"/><rect x="33.4" y="33.8" width="5.4" height="3.1" rx="1.55" fill="#D2D2D2"/></svg><span>Snippets</span></div></div>
+  <div class="sect">Favorites</div>
+  <div class="favs">
+    <div class="r"><div class="c"><i></i>Perplexity</div><div class="c"><i></i>Create Note</div><div class="c"><i></i>Open Cal</div></div>
+    <div class="r"><div class="c"><i></i>Ask AI</div><div class="c"><i></i>Weekly Note</div><div class="c"><i></i>Open Fig</div></div>
+  </div>
+  <div class="empty">Add your favorite commands and content<br>for quicker access</div>
+  <div class="cust"><svg width="19" height="14" viewBox="0 0 19 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M1 3.6h4.2M9.6 3.6H18"/><path d="M1 10.4h8.4M13.8 10.4H18"/><circle cx="7.4" cy="3.6" r="2.2"/><circle cx="11.6" cy="10.4" r="2.2"/></svg><span>Customize</span></div>
+  <div class="comp">
+    <div class="chip2"><svg class="cm" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color:#FF6363"><mask id="rc1"><rect width="24" height="24" fill="#fff"/><rect x="10.84" y="6" width="7.16" height="7.16" fill="#000"/></mask><path mask="url(#rc1)" d="M6.004 15.492v2.504L0 11.992l1.258-1.249Zm2.504 2.504H6.004L12.008 24l1.253-1.253zm14.24-4.747L24 11.997 12.003 0 10.75 1.251 15.491 6h-2.865L9.317 2.692 8.065 3.944l2.06 2.06H8.691v9.31H18v-1.432l2.06 2.06 1.252-1.252-3.312-3.32V8.506ZM6.63 5.372 5.38 6.625l1.342 1.343 1.251-1.253Zm10.655 10.655-1.247 1.251 1.342 1.343 1.253-1.251zM3.944 8.059 2.692 9.31l3.312 3.314v-2.506zm9.936 9.937h-2.504l3.314 3.312 1.25-1.252z"/></svg><span>Raycast AI</span></div>
+    <div class="model"><span>Ray-1</span><svg width="9.4" height="14" viewBox="0 0 10 15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.6 5 2.2l3 3.4"/><path d="M2 9.4 5 12.8l3-3.4"/></svg></div>
+    <div class="clip"><svg width="19" height="19" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 8.6 8.9 14.9a4.1 4.1 0 0 1-5.8-5.8l6.6-6.6a2.7 2.7 0 0 1 3.9 3.9l-6.6 6.6a1.4 1.4 0 0 1-1.9-1.9l6-6"/></svg></div>
+    <div class="ph">Ask Raycast AI…</div>
+    <div class="dictate"><svg width="19" height="14" viewBox="0 0 19 14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M1 5.4v3.2M5.2 1v12M9.5 3.4v7.2M13.8 5.4v3.2M18 6.2v1.6"/></svg></div>
+  </div>
+</div></div>
+<div class="veil"></div>
+<div class="veil2"></div>
+<div class="statusbar">
+  <div class="time">9:41</div>
+  <div class="sicons">
+    <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
+    <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 9.6a2 2 0 0 1 2 1.9l-2 .5-2-.5a2 2 0 0 1 2-1.9Z"/><path d="M8.5 5.6c1.9 0 3.6.7 4.9 1.9l-1.4 1.5a5 5 0 0 0-7 0L3.6 7.5a7 7 0 0 1 4.9-1.9Z"/><path d="M8.5 1.5c3 0 5.7 1.2 7.7 3.1l-1.4 1.5a9 9 0 0 0-12.6 0L.8 4.6a11 11 0 0 1 7.7-3.1Z"/></svg>
+    <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4Z" fill="currentColor" opacity=".4"/></svg>
+  </div>
+</div>
+<div class="nav">
+  <div class="glass edit">Edit</div>
+  <div class="ttl">Presets</div>
+  <div class="glass add"><svg width="12.4" height="12.3" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M6.5 1v11M1 6.5h11"/></svg></div>
+</div>
+<div class="list" style="top:112.2px"><div class="prow"><div class="sel"></div><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#FF6363"><mask id="rc4"><rect width="24" height="24" fill="#fff"/><rect x="10.84" y="6" width="7.16" height="7.16" fill="#000"/></mask><path mask="url(#rc4)" d="M6.004 15.492v2.504L0 11.992l1.258-1.249Zm2.504 2.504H6.004L12.008 24l1.253-1.253zm14.24-4.747L24 11.997 12.003 0 10.75 1.251 15.491 6h-2.865L9.317 2.692 8.065 3.944l2.06 2.06H8.691v9.31H18v-1.432l2.06 2.06 1.252-1.252-3.312-3.32V8.506ZM6.63 5.372 5.38 6.625l1.342 1.343 1.251-1.253Zm10.655 10.655-1.247 1.251 1.342 1.343 1.253-1.251zM3.944 8.059 2.692 9.31l3.312 3.314v-2.506zm9.936 9.937h-2.504l3.314 3.312 1.25-1.252z"/></svg><b>Raycast AI</b><span class="ck"><svg width="9.6" height="7.4" viewBox="0 0 10 8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4.2 3.7 6.9 9 1.4"/></svg></span></div><div class="prow"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#56CE97"><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg><b>ChatGPT</b></div><div class="prow"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#D9825F"><path d="M13.827 3.52h3.603L24 20h-3.603l-6.57-16.48zm-7.258 0h3.767L16.906 20h-3.674l-1.343-3.461H5.017l-1.344 3.46H0L6.57 3.522zm4.132 9.959L8.453 7.687 6.205 13.48H10.7z"></path></svg><b>Claude</b></div><div class="prow"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#4C9DFE"><path d="M23 12.245c0-.905-.075-1.565-.236-2.25h-10.54v4.083h6.186c-.124 1.014-.797 2.542-2.294 3.569l-.021.136 3.332 2.53.23.022C21.779 18.417 23 15.593 23 12.245z"></path><path d="M12.225 23c3.03 0 5.574-.978 7.433-2.665l-3.542-2.688c-.948.648-2.22 1.1-3.891 1.1a6.745 6.745 0 01-6.386-4.572l-.132.011-3.465 2.628-.045.124C4.043 20.531 7.835 23 12.225 23z"></path><path d="M5.84 14.175A6.65 6.65 0 015.463 12c0-.758.138-1.491.361-2.175l-.006-.147-3.508-2.67-.115.054A10.831 10.831 0 001 12c0 1.772.436 3.447 1.197 4.938l3.642-2.763z"></path><path d="M12.225 5.253c2.108 0 3.529.892 4.34 1.638l3.167-3.031C17.787 2.088 15.255 1 12.225 1 7.834 1 4.043 3.469 2.197 7.062l3.63 2.763a6.77 6.77 0 016.398-4.572z"></path></svg><b>Gemini</b></div><div class="prow"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#43D0E6"><path d="M19.785 0v7.272H22.5V17.62h-2.935V24l-7.037-6.194v6.145h-1.091v-6.152L4.392 24v-6.465H1.5V7.188h2.884V0l7.053 6.494V.19h1.09v6.49L19.786 0zm-7.257 9.044v7.319l5.946 5.234V14.44l-5.946-5.397zm-1.099-.08l-5.946 5.398v7.235l5.946-5.234V8.965zm8.136 7.58h1.844V8.349H13.46l6.105 5.54v2.655zm-8.982-8.28H2.59v8.195h1.8v-2.576l6.192-5.62zM5.475 2.476v4.71h5.115l-5.115-4.71zm13.219 0l-5.115 4.71h5.115v-4.71z"></path></svg><b>Perplexity</b></div><div class="prow"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#5A72FA"><path d="M23.748 4.482c-.254-.124-.364.113-.512.234-.051.039-.094.09-.137.136-.372.397-.806.657-1.373.626-.829-.046-1.537.214-2.163.848-.133-.782-.575-1.248-1.247-1.548-.352-.156-.708-.311-.955-.65-.172-.241-.219-.51-.305-.774-.055-.16-.11-.323-.293-.35-.2-.031-.278.136-.356.276-.313.572-.434 1.202-.422 1.84.027 1.436.633 2.58 1.838 3.393.137.093.172.187.129.323-.082.28-.18.552-.266.833-.055.179-.137.217-.329.14a5.526 5.526 0 01-1.736-1.18c-.857-.828-1.631-1.742-2.597-2.458a11.365 11.365 0 00-.689-.471c-.985-.957.13-1.743.388-1.836.27-.098.093-.432-.779-.428-.872.004-1.67.295-2.687.684a3.055 3.055 0 01-.465.137 9.597 9.597 0 00-2.883-.102c-1.885.21-3.39 1.102-4.497 2.623C.082 8.606-.231 10.684.152 12.85c.403 2.284 1.569 4.175 3.36 5.653 1.858 1.533 3.997 2.284 6.438 2.14 1.482-.085 3.133-.284 4.994-1.86.47.234.962.327 1.78.397.63.059 1.236-.03 1.705-.128.735-.156.684-.837.419-.961-2.155-1.004-1.682-.595-2.113-.926 1.096-1.296 2.746-2.642 3.392-7.003.05-.347.007-.565 0-.845-.004-.17.035-.237.23-.256a4.173 4.173 0 001.545-.475c1.396-.763 1.96-2.015 2.093-3.517.02-.23-.004-.467-.247-.588zM11.581 18c-2.089-1.642-3.102-2.183-3.52-2.16-.392.024-.321.471-.235.763.09.288.207.486.371.739.114.167.192.416-.113.603-.673.416-1.842-.14-1.897-.167-1.361-.802-2.5-1.86-3.301-3.307-.774-1.393-1.224-2.887-1.298-4.482-.02-.386.093-.522.477-.592a4.696 4.696 0 011.529-.039c2.132.312 3.946 1.265 5.468 2.774.868.86 1.525 1.887 2.202 2.891.72 1.066 1.494 2.082 2.48 2.914.348.292.625.514.891.677-.802.09-2.14.11-3.054-.614zm1-6.44a.306.306 0 01.415-.287.302.302 0 01.2.288.306.306 0 01-.31.307.303.303 0 01-.304-.308zm3.11 1.596c-.2.081-.399.151-.59.16a1.245 1.245 0 01-.798-.254c-.274-.23-.47-.358-.552-.758a1.73 1.73 0 01.016-.588c.07-.327-.008-.537-.239-.727-.187-.156-.426-.199-.688-.199a.559.559 0 01-.254-.078c-.11-.054-.2-.19-.114-.358.028-.054.16-.186.192-.21.356-.202.767-.136 1.146.016.352.144.618.408 1.001.782.391.451.462.576.685.914.176.265.336.537.445.848.067.195-.019.354-.25.452z"></path></svg><b>DeepSeek</b></div><div class="prow"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#1275ED"><path d="M6.897 4c1.915 0 3.516.932 5.43 3.376l.282-.373c.19-.246.383-.484.58-.71l.313-.35C14.588 4.788 15.792 4 17.225 4c1.273 0 2.469.557 3.491 1.516l.218.213c1.73 1.765 2.917 4.71 3.053 8.026l.011.392.002.25c0 1.501-.28 2.759-.818 3.7l-.14.23-.108.153c-.301.42-.664.758-1.086 1.009l-.265.142-.087.04a3.493 3.493 0 01-.302.118 4.117 4.117 0 01-1.33.208c-.524 0-.996-.067-1.438-.215-.614-.204-1.163-.56-1.726-1.116l-.227-.235c-.753-.812-1.534-1.976-2.493-3.586l-1.43-2.41-.544-.895-1.766 3.13-.343.592C7.597 19.156 6.227 20 4.356 20c-1.21 0-2.205-.42-2.936-1.182l-.168-.184c-.484-.573-.837-1.311-1.043-2.189l-.067-.32a8.69 8.69 0 01-.136-1.288L0 14.468c.002-.745.06-1.49.174-2.23l.1-.573c.298-1.53.828-2.958 1.536-4.157l.209-.34c1.177-1.83 2.789-3.053 4.615-3.16L6.897 4zm-.033 2.615l-.201.01c-.83.083-1.606.673-2.252 1.577l-.138.199-.01.018c-.67 1.017-1.185 2.378-1.456 3.845l-.004.022a12.591 12.591 0 00-.207 2.254l.002.188c.004.18.017.36.04.54l.043.291c.092.503.257.908.486 1.208l.117.137c.303.323.698.492 1.17.492 1.1 0 1.796-.676 3.696-3.641l2.175-3.4.454-.701-.139-.198C9.11 7.3 8.084 6.616 6.864 6.616zm10.196-.552l-.176.007c-.635.048-1.223.359-1.82.933l-.196.198c-.439.462-.887 1.064-1.367 1.807l.266.398c.18.274.362.56.55.858l.293.475 1.396 2.335.695 1.114c.583.926 1.03 1.6 1.408 2.082l.213.262c.282.326.529.54.777.673l.102.05c.227.1.457.138.718.138.176.002.35-.023.518-.073.338-.104.61-.32.813-.637l.095-.163.077-.162c.194-.459.29-1.06.29-1.785l-.006-.449c-.08-2.871-.938-5.372-2.2-6.798l-.176-.189c-.67-.683-1.444-1.074-2.27-1.074z"></path></svg><b>Llama</b></div><div class="prow"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#161316"><path d="M6.469 8.776L16.512 23h-4.464L2.005 8.776H6.47zm-.004 7.9l2.233 3.164L6.467 23H2l4.465-6.324zM22 2.582V23h-3.659V7.764L22 2.582zM22 1l-9.952 14.095-2.233-3.163L17.533 1H22z"></path></svg><b>Grok</b></div><div class="prow"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#6B686C"><path d="M3.428 3.4h3.429v3.428H3.428V3.4zm13.714 0h3.43v3.428h-3.43V3.4z" fill="#B0ADB1"></path><path d="M3.428 6.828h6.857v3.429H3.429V6.828zm10.286 0h6.857v3.429h-6.857V6.828z" fill="#8B888C"></path><path d="M3.428 10.258h17.144v3.428H3.428v-3.428z" fill="#6B686C"></path><path d="M3.428 13.686h3.429v3.428H3.428v-3.428zm6.858 0h3.429v3.428h-3.429v-3.428zm6.856 0h3.43v3.428h-3.43v-3.428z" fill="#4B484C"></path><path d="M0 17.114h10.286v3.429H0v-3.429zm13.714 0H24v3.429H13.714v-3.429z" fill="#2B282C"></path></svg><b>Mistral</b></div><div class="prow"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#2E2B2D"><path d="M1.052 16.916l9.539 2.552a21.007 21.007 0 00.06 2.033l5.956 1.593a11.997 11.997 0 01-5.586.865l-.18-.016-.044-.004-.084-.009-.094-.01a11.605 11.605 0 01-.157-.02l-.107-.014-.11-.016a11.962 11.962 0 01-.32-.051l-.042-.008-.075-.013-.107-.02-.07-.015-.093-.019-.075-.016-.095-.02-.097-.023-.094-.022-.068-.017-.088-.022-.09-.024-.095-.025-.082-.023-.109-.03-.062-.02-.084-.025-.093-.028-.105-.034-.058-.019-.08-.026-.09-.031-.066-.024a6.293 6.293 0 01-.044-.015l-.068-.025-.101-.037-.057-.022-.08-.03-.087-.035-.088-.035-.079-.032-.095-.04-.063-.028-.063-.027a5.655 5.655 0 01-.041-.018l-.066-.03-.103-.047-.052-.024-.096-.046-.062-.03-.084-.04-.086-.044-.093-.047-.052-.027-.103-.055-.057-.03-.058-.032a6.49 6.49 0 01-.046-.026l-.094-.053-.06-.034-.051-.03-.072-.041-.082-.05-.093-.056-.052-.032-.084-.053-.061-.039-.079-.05-.07-.047-.053-.035a7.785 7.785 0 01-.054-.036l-.044-.03-.044-.03a6.066 6.066 0 01-.04-.028l-.057-.04-.076-.054-.069-.05-.074-.054-.056-.042-.076-.057-.076-.059-.086-.067-.045-.035-.064-.052-.074-.06-.089-.073-.046-.039-.046-.039a7.516 7.516 0 01-.043-.037l-.045-.04-.061-.053-.07-.062-.068-.06-.062-.058-.067-.062-.053-.05-.088-.084a13.28 13.28 0 01-.099-.097l-.029-.028-.041-.042-.069-.07-.05-.051-.05-.053a6.457 6.457 0 01-.168-.179l-.08-.088-.062-.07-.071-.08-.042-.049-.053-.062-.058-.068-.046-.056a7.175 7.175 0 01-.027-.033l-.045-.055-.066-.082-.041-.052-.05-.064-.02-.025a11.99 11.99 0 01-1.44-2.402zm-1.02-5.794l11.353 3.037a20.468 20.468 0 00-.469 2.011l10.817 2.894a12.076 12.076 0 01-1.845 2.005L.657 15.923l-.016-.046-.035-.104a11.965 11.965 0 01-.05-.153l-.007-.023a11.896 11.896 0 01-.207-.741l-.03-.126-.018-.08-.021-.097-.018-.081-.018-.09-.017-.084-.018-.094c-.026-.141-.05-.283-.071-.426l-.017-.118-.011-.083-.013-.102a12.01 12.01 0 01-.019-.161l-.005-.047a12.12 12.12 0 01-.034-2.145zm1.593-5.15l11.948 3.196c-.368.605-.705 1.231-1.01 1.875l11.295 3.022c-.142.82-.368 1.612-.668 2.365l-11.55-3.09L.124 10.26l.015-.1.008-.049.01-.067.015-.087.018-.098c.026-.148.056-.295.088-.442l.028-.124.02-.085.024-.097c.022-.09.045-.18.07-.268l.028-.102.023-.083.03-.1.025-.082.03-.096.026-.082.031-.095a11.896 11.896 0 011.01-2.232zm4.442-4.4L17.352 4.59a20.77 20.77 0 00-1.688 1.721l7.823 2.093c.267.852.442 1.744.513 2.665L2.106 5.213l.045-.065.027-.04.04-.055.046-.065.055-.076.054-.072.064-.086.05-.065.057-.073.055-.07.06-.074.055-.069.065-.077.054-.066.066-.077.053-.06.072-.082.053-.06.067-.074.054-.058.073-.078.058-.06.063-.067.168-.17.1-.098.059-.056.076-.071a12.084 12.084 0 012.272-1.677zM12.017 0h.097l.082.001.069.001.054.002.068.002.046.001.076.003.047.002.06.003.054.002.087.005.105.007.144.011.088.007.044.004.077.008.082.008.047.005.102.012.05.006.108.014.081.01.042.006.065.01.207.032.07.012.065.011.14.026.092.018.11.022.046.01.075.016.041.01L14.7.3l.042.01.065.015.049.012.071.017.096.024.112.03.113.03.113.032.05.015.07.02.078.024.073.023.05.016.05.016.076.025.099.033.102.036.048.017.064.023.093.034.11.041.116.045.1.04.047.02.06.024.041.018.063.026.04.018.057.025.11.048.1.046.074.035.075.036.06.028.092.046.091.045.102.052.053.028.049.026.046.024.06.033.041.022.052.029.088.05.106.06.087.051.057.034.053.032.096.059.088.055.098.062.036.024.064.041.084.056.04.027.062.042.062.043.023.017c.054.037.108.075.161.114l.083.06.065.048.056.043.086.065.082.064.04.03.05.041.086.069.079.065.085.071c.712.6 1.353 1.283 1.909 2.031L7.222.994l.062-.027.065-.028.081-.034.086-.035c.113-.045.227-.09.341-.131l.096-.035.093-.033.084-.03.096-.031c.087-.03.176-.058.264-.085l.091-.027.086-.025.102-.03.085-.023.1-.026L9.04.37l.09-.023.091-.022.095-.022.09-.02.098-.021.091-.02.095-.018.092-.018.1-.018.091-.016.098-.017.092-.014.097-.015.092-.013.102-.013.091-.012.105-.012.09-.01.105-.01c.093-.01.186-.018.28-.024l.106-.008.09-.005.11-.006.093-.004.1-.004.097-.002.099-.002.197-.002z"></path></svg><b>Moonshot AI</b></div><div class="prow dim"><svg class="mk" width="20.5" height="20.5" viewBox="0 0 24 24" fill="currentColor" style="color:#6E5BE8"><path d="M12.604 1.34c.393.69.784 1.382 1.174 2.075a.18.18 0 00.157.091h5.552c.174 0 .322.11.446.327l1.454 2.57c.19.337.24.478.024.837-.26.43-.513.864-.76 1.3l-.367.658c-.106.196-.223.28-.04.512l2.652 4.637c.172.301.111.494-.043.77-.437.785-.882 1.564-1.335 2.34-.159.272-.352.375-.68.37-.777-.016-1.552-.01-2.327.016a.099.099 0 00-.081.05 575.097 575.097 0 01-2.705 4.74c-.169.293-.38.363-.725.364-.997.003-2.002.004-3.017.002a.537.537 0 01-.465-.271l-1.335-2.323a.09.09 0 00-.083-.049H4.982c-.285.03-.553-.001-.805-.092l-1.603-2.77a.543.543 0 01-.002-.54l1.207-2.12a.198.198 0 000-.197 550.951 550.951 0 01-1.875-3.272l-.79-1.395c-.16-.31-.173-.496.095-.965.465-.813.927-1.625 1.387-2.436.132-.234.304-.334.584-.335a338.3 338.3 0 012.589-.001.124.124 0 00.107-.063l2.806-4.895a.488.488 0 01.422-.246c.524-.001 1.053 0 1.583-.006L11.704 1c.341-.003.724.032.9.34zm-3.432.403a.06.06 0 00-.052.03L6.254 6.788a.157.157 0 01-.135.078H3.253c-.056 0-.07.025-.041.074l5.81 10.156c.025.042.013.062-.034.063l-2.795.015a.218.218 0 00-.2.116l-1.32 2.31c-.044.078-.021.118.068.118l5.716.008c.046 0 .08.02.104.061l1.403 2.454c.046.081.092.082.139 0l5.006-8.76.783-1.382a.055.055 0 01.096 0l1.424 2.53a.122.122 0 00.107.062l2.763-.02a.04.04 0 00.035-.02.041.041 0 000-.04l-2.9-5.086a.108.108 0 010-.113l.293-.507 1.12-1.977c.024-.041.012-.062-.035-.062H9.2c-.059 0-.073-.026-.043-.077l1.434-2.505a.107.107 0 000-.114L9.225 1.774a.06.06 0 00-.053-.031zm6.29 8.02c.046 0 .058.02.034.06l-.832 1.465-2.613 4.585a.056.056 0 01-.05.029.058.058 0 01-.05-.029L8.498 9.841c-.02-.034-.01-.052.028-.054l.216-.012 6.722-.012z"></path></svg><b>Qwen</b></div></div>
+<div class="dismiss"><svg width="12.6" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M1.2 1.2 12.8 12.8"/><path d="M12.8 1.2 1.2 12.8"/></svg></div>
+</div>
+</body>
+</html>

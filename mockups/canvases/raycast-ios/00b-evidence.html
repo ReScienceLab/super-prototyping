@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Raycast iOS — Token Evidence</title>
+<style>
+/* ============================================================================
+   RAYCAST iOS — DESIGN TOKENS  (single source of truth, inlined byte-identically
+   into every artboard in this folder: the canvas renders each one in
+   <iframe srcDoc sandbox="">, which blocks external stylesheets.)
+   Sampled from eleven 1179 x 2556 captures = 393 x 852 pt @3x.
+   ========================================================================= */
+:root{
+  --rc-font:Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --rc-bg:#FFFFFF;        /* note page + sheet ground                     */
+  --rc-scrim:rgba(0,0,0,.20); /* modal dim over the note                  */
+  --rc-fill:#F6F6F6;      /* chip pill, mic button                        */
+  --rc-fill-2:#F3F3F3;    /* sheet close button                           */
+  --rc-fill-3:#F1F1F1;    /* compose-sheet back button                    */
+  --rc-border:#E4E4E4;    /* Copy button 1pt outline                      */
+  --rc-kb:#E3E5E6;        /* keyboard ground                              */
+  --rc-key:#FFFFFF;       /* keycap                                       */
+  --rc-home:#EFEFEF;      /* home / launcher ground                       */
+  --rc-card:#F7F7F7;      /* composer card, Customize pill                */
+  --rc-field:#FCFBFC;     /* search pill, filter + avatar wells           */
+  --rc-sheet:#F5F5F5;     /* Models sheet ground                          */
+  --rc-hdr-btn:#EEEEEE;   /* Models sheet header circles                  */
+  --rc-row-sel:#EBEBEB;   /* selected row, Models sheet                   */
+  --rc-row-sel-2:rgba(0,0,0,.018); /* selected row over the Presets blur   */
+  --rc-glass:rgba(255,255,255,.82); /* Edit pill, dismiss button          */
+  --rc-add:#F1F6FF;       /* Presets "+" well                             */
+  --rc-veil:rgba(255,255,255,.22);  /* white veil over the Presets blur   */
+
+  /* Ink */
+  --rc-ink:#0A0A0A;       /* titles, body copy, mic + send + Apply fill   */
+  --rc-ink-2:#4B4B4B;     /* Copy label                                   */
+  --rc-ink-3:#474747;     /* chip dismiss circle                          */
+  --rc-ink-4:#9B9B9B;     /* composer placeholder                         */
+  --rc-ink-dis:#A5A5A5;   /* undo / redo, disabled                        */
+  --rc-glyph:#262626;     /* toolbar chevron + overflow dots              */
+  --rc-glyph-2:#3F3F3F;   /* sheet close X                                */
+  --rc-caret:#1E88FF;     /* text caret                                   */
+  --rc-onblack:#FFFFFF;   /* Apply label, send arrow                      */
+  --rc-ink-5:#4D4D4D;     /* composer model name (Ray-1 / Sonar…)         */
+  --rc-ink-6:#484848;     /* empty-state copy                             */
+  --rc-ink-7:#909090;     /* "Favorites" section header                   */
+  --rc-ink-8:#BABABA;     /* "Search Raycast" placeholder                 */
+  --rc-beta:#C9A445;      /* Beta pill stroke + ink                       */
+  --rc-brand:#FF6363;     /* Raycast coral                                */
+
+  /* Radius */
+  --rc-r-sheet:38px; --rc-r-key:5px; --rc-r-kb:18px;
+  --rc-r-thumb:2.5px; --rc-r-pill:999px;
+  --rc-r-card:26px;       /* composer card                                */
+  --rc-r-tile:12px;       /* launcher app tile                            */
+  --rc-r-row:16px;        /* list-row highlight                           */
+  --rc-r-btn:16px;        /* composer dictation button                    */
+
+  /* Type */
+  --rc-t-title:700 27px/33px var(--rc-font);  /* note title              */
+  --rc-t-h1:700 27px/40px var(--rc-font);     /* answer title in sheet   */
+  --rc-t-body:400 17px/21px var(--rc-font);   /* note body               */
+  --rc-t-prose:400 17px/24px var(--rc-font);  /* answer body in sheet    */
+  --rc-t-hdr:400 17px/22px var(--rc-font);    /* sheet header + composer */
+  --rc-t-btn:500 17px/20px var(--rc-font);    /* Copy / Apply            */
+  --rc-t-chip:400 15px/18px var(--rc-font);   /* Full Note chip          */
+  --rc-t-time:600 17px/1 var(--rc-font);      /* status bar clock        */
+  --rc-t-key:400 24px/1 var(--rc-font);       /* keycap letter           */
+  --rc-t-key-s:400 18px/1 var(--rc-font);     /* keycap "123"            */
+  --rc-t-sheet:700 22px/28px var(--rc-font);  /* "Models"                */
+  --rc-t-nav:600 17px/22px var(--rc-font);    /* "Presets" nav title     */
+  --rc-t-tile:400 12px/17px var(--rc-font);   /* tile caption, Favorites */
+  --rc-t-beta:500 11px/14px var(--rc-font);   /* Beta pill               */
+
+  /* Metrics */
+  --rc-gutter:24px;       /* note page gutter                            */
+  --rc-sheet-pad:20px;    /* sheet content gutter                        */
+  --rc-sheet-hpad:16px;   /* sheet header + footer gutter                */
+  --rc-tap:44px;          /* toolbar button                              */
+  --rc-sb:54px;           /* status bar                                  */
+  --rc-sheet-top:402px;   /* answer sheet top inset                      */
+  --rc-sheet-top-2:90px;  /* compose sheet top inset                     */
+  --rc-kb-top:554px;      /* keyboard top                                */
+  --rc-sheet-top-3:397px; /* Models sheet top edge (inset 3, bottom 849)  */
+  --rc-row:64px;          /* Presets row pitch                           */
+  --rc-row-2:51px;        /* Models sheet row pitch                      */
+  --rc-tile:45px;         /* launcher app tile                           */
+  --rc-hdr:44px;          /* home header well / nav button height        */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--rc-font);background:#F3F2F0;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.sheetcard{width:430px;height:932px;background:#fff;border-radius:20px;padding:14px 20px 10px;
+  border:1px solid var(--rc-border);box-shadow:0 18px 44px rgba(29,25,26,.14);
+  overflow:hidden;color:var(--rc-ink)}
+header{display:flex;gap:12px;align-items:flex-start;padding-bottom:7px;
+  border-bottom:1px solid var(--rc-border)}
+.logo{width:30px;height:30px;display:block;flex:none}
+h1{font:700 17px/22px var(--rc-font);letter-spacing:-.2px}
+header p{font:400 11px/14px var(--rc-font);color:var(--rc-ink-2);margin-top:2px}
+code{font-family:ui-monospace,Menlo,monospace;font-size:10px;background:var(--rc-fill);
+  padding:1px 3px;border-radius:4px}
+h2{font:600 9.5px/12px var(--rc-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--rc-ink-4);margin:7px 0 3px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.sw .chip{height:17px;border-radius:5px;border:1px solid rgba(0,0,0,.08)}
+.swm{margin-top:2px;display:flex;flex-direction:column}
+.swm b{font:600 9px/11.5px ui-monospace,Menlo,monospace;color:var(--rc-ink)}
+.swm i{font:400 9px/11.5px ui-monospace,Menlo,monospace;color:var(--rc-ink-2);font-style:normal}
+.swm s{font:400 9px/11.5px var(--rc-font);color:var(--rc-ink-4);text-decoration:none}
+.type .tr{display:flex;align-items:baseline;gap:10px;padding:1px 0;
+  border-bottom:1px solid var(--rc-border)}
+.type .tr>span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.type em{font:400 9px/11.5px ui-monospace,Menlo,monospace;color:var(--rc-ink-4);
+  font-style:normal;white-space:nowrap;flex:none}
+.rad{display:flex;gap:8px;align-items:flex-end}
+.rad>div{text-align:center}
+.rb{width:40px;height:22px;background:var(--rc-fill);border:1px solid var(--rc-border)}
+.rad em{display:block;margin-top:1px;font:400 9px/11.5px var(--rc-font);
+  color:var(--rc-ink-4);font-style:normal}
+.kbg{background:var(--rc-kb);border-radius:8px;padding:5px 6px;display:flex;gap:6px}
+.kcap{width:32.2px;height:43px;background:var(--rc-key);border-radius:var(--rc-r-key);
+  display:grid;place-items:center;font:var(--rc-t-key);padding-bottom:6px}
+.metrics{margin-top:4px;font:400 9.5px/13.5px ui-monospace,Menlo,monospace;color:var(--rc-ink-2)}
+.comps{display:flex;align-items:center;gap:6px}
+.chip-c{height:40px;border-radius:var(--rc-r-pill);background:var(--rc-fill);display:flex;
+  align-items:center;gap:11.3px;padding:0 11px 0 12.6px;flex:none}
+.chip-c .lbl{font:var(--rc-t-chip)}
+.chip-c .x{width:15px;height:15px;border-radius:50%%;background:var(--rc-ink-3);
+  display:grid;place-items:center;flex:none}
+.iconbtn{width:40px;height:40px;border-radius:50%%;display:grid;place-items:center;flex:none}
+.mic{background:var(--rc-fill);color:var(--rc-ink)}
+.send{background:var(--rc-ink);color:var(--rc-onblack)}
+.btn{height:41px;border-radius:var(--rc-r-pill);display:grid;place-items:center;
+  font:var(--rc-t-btn);flex:none}
+.btn.ghost{width:72px;background:var(--rc-bg);border:1px solid var(--rc-border);color:var(--rc-ink-2)}
+.btn.solid{width:76px;background:var(--rc-ink);color:var(--rc-onblack)}
+.sweep{height:2.3px;margin-top:6px;background:linear-gradient(90deg,#FFF 1%%,#F7F7F7 10%%,
+  #E3E3E3 20%%,#DBCFD3 41%%,#D3C4C2 51%%,#DFC2C1 61%%,#E7BEBE 71%%,#F3BAB6 82%%,#F6C4C3 92%%,#F8D1D5 100%%)}
+table{width:100%%;border-collapse:collapse;table-layout:fixed}
+td{font:400 9px/11.5px ui-monospace,Menlo,monospace;padding:.5px 0;
+  border-bottom:1px solid var(--rc-border);vertical-align:top}
+td.t{width:100px;color:var(--rc-ink)}
+td.e{color:var(--rc-ink-4);font-family:var(--rc-font);font-size:9.5px}
+</style>
+</head>
+<body>
+
+<div class="sheetcard">
+  <header>
+    <svg class="logo" viewBox="0 0 100 100"><rect width="100" height="100" rx="23" fill="#FF6363"/><path d="M27 61.5 38.5 50 27 38.5V27h11.5L50 38.5 61.5 27H73v11.5L61.5 50 73 61.5V73H61.5L50 61.5 38.5 73H27Z" fill="none" stroke="#fff" stroke-width="4.4" stroke-linejoin="round"/></svg>
+    <div><h1>Raycast iOS — Token Evidence</h1>
+    <p>Sampled from eleven 393 × 852 pt @3x captures of the “Ask AI”, Models and Presets flows. Nothing becomes a token without a
+    measurement it can be traced back to.</p></div>
+  </header>
+  <h2>Evidence — every token traces to a measurement</h2>
+  <table><tr><td class="t">--rc-scrim</td><td class="e">white page behind the sheet reads 204 → 204 / 0.8 = 255</td></tr><tr><td class="t">--rc-fill</td><td class="e">flat census: chip pill 1936px, mic button 1108px</td></tr><tr><td class="t">--rc-fill-2</td><td class="e">flat census: sheet close button, 2370px</td></tr><tr><td class="t">--rc-fill-3</td><td class="e">flat census: compose back button, 848px</td></tr><tr><td class="t">--rc-border</td><td class="e">1pt coverage solve, Copy pill: 79 deficit / 3px</td></tr><tr><td class="t">--rc-kb</td><td class="e">flat census: keyboard ground, 8344px</td></tr><tr><td class="t">--rc-key</td><td class="e">flat census under every keycap — and no shadow row</td></tr><tr><td class="t">--rc-ink</td><td class="e">darkest-cluster mode 8–10, sheet body @3x</td></tr><tr><td class="t">--rc-ink-2</td><td class="e">Copy label core 75–80</td></tr><tr><td class="t">--rc-ink-4</td><td class="e">“Ask Anything…” placeholder core, 154</td></tr><tr><td class="t">--rc-ink-dis</td><td class="e">undo / redo 132 under the scrim ÷ 0.8 = 165</td></tr><tr><td class="t">--rc-caret</td><td class="e">caret core x16–18 of cp1, mean (30, 133, 230)</td></tr><tr><td class="t">--rc-t-title</td><td class="e">note title cap tops 134.7 / 167.7 → pitch 33</td></tr><tr><td class="t">--rc-t-prose</td><td class="e">sheet body tops 599.3 / 623.0 / 647.0 → pitch 24</td></tr><tr><td class="t">--rc-t-chip</td><td class="e">“Full Note” cap height 10.7, width 58.4 → 15px</td></tr><tr><td class="t">--rc-r-sheet</td><td class="e">radius fit: at dy 15 edge 7.7, at dy 30 → 1.3</td></tr><tr><td class="t">--rc-sheet-top</td><td class="e">answer sheet top edge, cp3–cp6</td></tr><tr><td class="t">--rc-kb-top</td><td class="e">key rows 569 / 623 / 677 / 731 → pitch 54, h 43</td></tr><tr><td class="t">--rc-home</td><td class="e">flat census cp8 y620–680: #EFEFEF, 133 612px</td></tr><tr><td class="t">--rc-card</td><td class="e">flat census composer card cp8: #F7F7F7, 55 198px</td></tr><tr><td class="t">--rc-field</td><td class="e">flat census search well cp8: #FCFBFC, 37 174px</td></tr><tr><td class="t">--rc-sheet</td><td class="e">flat census Models sheet cp7: #F5F5F5, 240 827px</td></tr><tr><td class="t">--rc-hdr-btn</td><td class="e">flat census sheet header button cp7: #EEEEEE, 6 486px</td></tr><tr><td class="t">--rc-row-sel</td><td class="e">selected Auto row #EBEBEB, 125 301px — the next row down is #F5F5F5</td></tr><tr><td class="t">--rc-add</td><td class="e">flat census + button cp10: #F1F6FF, 4 523px</td></tr><tr><td class="t">--rc-glass</td><td class="e">Edit pill core #FEFBFF over a #F1EFF2 backdrop → .82 white</td></tr><tr><td class="t">--rc-beta</td><td class="e">Beta pill glyph, darkest-cluster modes #CDA742 / #C5A65C</td></tr><tr><td class="t">--rc-scrim</td><td class="e">launcher #EFEFEF behind the Models sheet reads #BEBEBE → 1 − 190/239 = .205</td></tr><tr><td class="t">--rc-row</td><td class="e">cp10 mark bands 264.0 / 326.3 / 390.3 / 454.7 / 519.3 → pitch 64</td></tr><tr><td class="t">--rc-sheet-top-3</td><td class="e">sheet edge cp7 col-scan: #B3B3B3 at 396, #F5F5F5 at 397</td></tr><tr><td class="t">--rc-tile</td><td class="e">launcher tiles cp8, 45 wide on a 96.25 pitch (4 across 385)</td></tr></table>
+</div>
+
+</body>
+</html>

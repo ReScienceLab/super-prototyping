@@ -59,6 +59,7 @@ Boards render inside `<iframe srcDoc sandbox="">`:
 - iPhone frame is 393 × 852 pt at 1pt = 1px: 54px status bar,
   125 × 36 Dynamic Island, 139 × 5 home indicator.
 
-`notion-ios/` is a finished board to work from: copy its
+`notion-ios/` and `raycast-ios/` are finished boards to work from: copy a
 `00-design-tokens.html`, replace every value with one you measured, and build
-your screens against it.
+your screens against it. Each folder's `README.md` records what the run
+measured and where the replica knowingly differs from its source.

@@ -15,3 +15,8 @@ scratch/
 
 # Logo/design generation scratch — candidates stay local, only the final asset is committed
 .skill-archive/
+
+# Phase 5 reference boards embed third-party app captures from Mobbin's library,
+# which this repo does not redistribute. They stay local; regenerate them per the
+# clone-prototype skill.
+mockups/canvases/*/ref-*.html

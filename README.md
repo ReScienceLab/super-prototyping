@@ -27,11 +27,12 @@ cd my-product-design && rm -rf .git && git init
 cd canvas && npm ci
 ```
 
-One board ships with the repo: **`notion-ios`**, a real run of
-`clone-prototype` — six Notion iOS screens rebuilt from measured samples,
-with the evidence recorded for every token. Read it to see what "done" looks
-like, copy `00-design-tokens.html` as the starting point for your own token
-block, then delete the folder.
+Two boards ship with the repo, both real `clone-prototype` runs rebuilt from
+measured samples with the evidence recorded for every token:
+**`notion-ios`** (six screens) and **`raycast-ios`** (eleven, across three
+flows, including blurred backdrops and third-party brand marks). Read either
+to see what "done" looks like, copy a `00-design-tokens.html` as the starting
+point for your own token block, then delete the folders.
 
 ## Run the canvas
 

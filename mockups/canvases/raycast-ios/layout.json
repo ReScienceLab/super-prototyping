@@ -1,0 +1,118 @@
+{
+  "name": "Raycast iOS \u2014 Ask AI, models & presets",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Token evidence"
+        }
+      ]
+    },
+    {
+      "title": "Raycast iOS \u2014 replica screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-ask-anything",
+          "label": "Ask Anything"
+        },
+        {
+          "file": "02-prompt-typed",
+          "label": "Prompt typed"
+        },
+        {
+          "file": "03-thinking",
+          "label": "Thinking"
+        },
+        {
+          "file": "04-streaming",
+          "label": "Streaming"
+        },
+        {
+          "file": "05-answer-actions",
+          "label": "Answer + actions"
+        },
+        {
+          "file": "06-answer-scrolled",
+          "label": "Answer scrolled"
+        },
+        {
+          "file": "07-models-sheet",
+          "label": "Models sheet"
+        },
+        {
+          "file": "08-home-composer",
+          "label": "Home + composer"
+        },
+        {
+          "file": "09-presets-opening",
+          "label": "Presets opening"
+        },
+        {
+          "file": "10-presets-list",
+          "label": "Presets"
+        },
+        {
+          "file": "11-home-perplexity",
+          "label": "Home / Perplexity"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth \u2014 captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-ask-anything",
+          "label": "Ask Anything"
+        },
+        {
+          "file": "ref-02-prompt-typed",
+          "label": "Prompt typed"
+        },
+        {
+          "file": "ref-03-thinking",
+          "label": "Thinking"
+        },
+        {
+          "file": "ref-04-streaming",
+          "label": "Streaming"
+        },
+        {
+          "file": "ref-05-answer-actions",
+          "label": "Answer + actions"
+        },
+        {
+          "file": "ref-06-answer-scrolled",
+          "label": "Answer scrolled"
+        },
+        {
+          "file": "ref-07-models-sheet",
+          "label": "Models sheet"
+        },
+        {
+          "file": "ref-08-home-composer",
+          "label": "Home + composer"
+        },
+        {
+          "file": "ref-09-presets-opening",
+          "label": "Presets opening"
+        },
+        {
+          "file": "ref-10-presets-list",
+          "label": "Presets"
+        },
+        {
+          "file": "ref-11-home-perplexity",
+          "label": "Home / Perplexity"
+        }
+      ]
+    }
+  ]
+}
