@@ -29,10 +29,24 @@ from PIL import Image, ImageDraw
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 PHONE_FRAME = "1D191A"          # the shared artboard phone frame's bezel colour
+PHONE_RADIUS = 52               # .phone border-radius, in design pt
+
+
+def _flat(p):
+    """Open as RGB. A cropped phone screen carries transparent 52pt corners;
+    flatten them onto white rather than dropping the alpha and exposing the
+    black bezel they were cut out of."""
+    im = Image.open(p)
+    if "A" not in im.getbands():
+        return im.convert("RGB")
+    im = im.convert("RGBA")
+    bg = Image.new("RGB", im.size, "white")
+    bg.paste(im, mask=im.getchannel("A"))
+    return bg
 
 
 def _rgb(p):
-    return np.asarray(Image.open(p).convert("RGB"), dtype=np.uint8)
+    return np.asarray(_flat(p), dtype=np.uint8)
 
 
 def _hex(c):
@@ -86,7 +100,7 @@ def _runs(f, minfrac):
 
 
 def cmd_grid(a):
-    im = Image.open(a.image).convert("RGB")
+    im = _flat(a.image)
     z = a.zoom
     big = im.resize((im.width * z, im.height * z), Image.NEAREST)
     d = ImageDraw.Draw(big, "RGBA")
@@ -204,7 +218,19 @@ def _crop_phone(im, scale, frame=PHONE_FRAME, tol=24, w=393, h=852):
     cx, cy = (xs.min() + xs.max() + 1) / 2, (ys.min() + ys.max() + 1) / 2
     tw, th = int(round(w * scale)), int(round(h * scale))
     x, y = int(round(cx - tw / 2)), int(round(cy - th / 2))
-    return im.crop((x, y, x + tw, y + th))
+    return _round_corners(im.crop((x, y, x + tw, y + th)), PHONE_RADIUS * scale)
+
+
+def _round_corners(im, r, ss=4):
+    """The .phone box is a rounded rect, so a rectangular crop of it keeps four
+    wedges of bezel. Punch them out — otherwise every montage of a cropped
+    screen shows black corners. Mask built at ss x for a clean edge."""
+    m = Image.new("L", (im.width * ss, im.height * ss), 0)
+    ImageDraw.Draw(m).rounded_rectangle([0, 0, m.width - 1, m.height - 1],
+                                        radius=round(r * ss), fill=255)
+    im = im.convert("RGBA")
+    im.putalpha(m.resize(im.size, Image.LANCZOS))
+    return im
 
 
 def _render(html, png, scale, w, h):
@@ -271,7 +297,7 @@ def cmd_diff(a):
     numbers to back up what you think you saw."""
     mine, ref = _rgb(a.mine), _rgb(a.ref)
     if a.out:
-        ims = [Image.open(p).convert("RGB") for p in (a.mine, a.ref)]
+        ims = [_flat(p) for p in (a.mine, a.ref)]
         ims = [i.resize((max(1, int(i.width * a.height / i.height)), a.height)) for i in ims]
         out = Image.new("RGB", (sum(i.width for i in ims) + a.gap, a.height), "white")
         x = 0
@@ -353,7 +379,7 @@ def cmd_tokens(a):
 
 
 def cmd_montage(a):
-    ims = [Image.open(p).convert("RGB") for g in a.images for p in sorted(glob.glob(g))]
+    ims = [_flat(p) for g in a.images for p in sorted(glob.glob(g))]
     ims = [i.resize((max(1, int(i.width * a.height / i.height)), a.height)) for i in ims]
     out = Image.new("RGB", (sum(i.width for i in ims), a.height), "white")
     x = 0
@@ -414,7 +440,8 @@ def main():
     t.add_argument("--w", type=int, default=478); t.add_argument("--h", type=int, default=980)
     t.add_argument("--scale", type=int, default=2)
     t.add_argument("--crop-phone", action="store_true",
-                   help="cut the 393x852 screen out of the frame, ready to diff")
+                   help="cut the 393x852 screen out of the frame, corners masked "
+                        "to the 52pt radius, ready to diff")
     t.add_argument("--check-overflow", action="store_true",
                    help="fail if a board's content runs past --h")
 

@@ -73,7 +73,21 @@ def test_crop_phone_cuts_the_screen_out_of_the_frame():
     out = R._crop_phone(img(canvas), scale)
     assert out.size == (393 * scale, 852 * scale), out.size
     a = np.asarray(out)
-    assert a.min() == 0xEF and a.max() == 0xEF, (a.min(), a.max())   # no bezel leaked in
+    assert out.mode == "RGBA", out.mode
+    rgb, alpha = a[..., :3], a[..., 3]
+    assert rgb[alpha == 255].min() == 0xEF and rgb[alpha == 255].max() == 0xEF   # no bezel leaked in
+    assert alpha[0, 0] == 0 and alpha[-1, -1] == 0                   # 52pt corners punched out
+    assert alpha[alpha.shape[0] // 2, 0] == 255                      # mid-height edge is screen
+
+
+def test_flat_composites_rounded_corners_onto_white():
+    im = Image.new("RGBA", (8, 8), (0x1D, 0x19, 0x1A, 0))
+    im.putpixel((4, 4), (0xEF, 0xEF, 0xEF, 255))
+    f = os.path.join(tempfile.mkdtemp(), "a.png")
+    im.save(f)
+    a = R._rgb(f)
+    assert tuple(a[0, 0]) == (255, 255, 255), a[0, 0]      # bezel does not come back
+    assert tuple(a[4, 4]) == (0xEF, 0xEF, 0xEF), a[4, 4]
 
 
 def test_crop_phone_returns_none_without_a_frame():

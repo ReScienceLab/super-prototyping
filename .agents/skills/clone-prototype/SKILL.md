@@ -220,7 +220,9 @@ python3 "$REPO/tools/refkit.py" diff mine/07-models-sheet.png refs/cp7.png \
     --pt 3 -o d07.png --regions regions.json
 ```
 
-`--crop-phone` removes the crop step from every iteration. `diff` writes the
+`--crop-phone` removes the crop step from every iteration; it also masks the
+52pt corners, so a cropped screen composites onto any ground without the
+four black wedges of bezel a rectangular crop keeps. `diff` writes the
 side-by-side **and** prints the numbers behind it: with `--regions` (inline
 `{"name": [x0,y0,x1,y1]}`, or a file you write once and reuse for the run) it
 tables mine-vs-ref per region with a Δ column; with no regions it ranks the

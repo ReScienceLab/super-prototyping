@@ -50,13 +50,17 @@ Screen ids from the original run, on
 | 2 | Search / Ask AI | `c119cf0c-6553-47b2-aead-63d060159283` | exact |
 | 3 | Notion AI chat | `24aa4e82-e084-4a67-a9aa-fae4bdf4dc4b` | exact |
 | 4 | Meeting page | `ac829a85-6eb1-4c89-80f2-668d3ca1c1c2` | near — carries a "Summary ready" toast |
-| 5 | Date sheet | `cfca14fb-a833-4bf6-b549-9e646bac5ec9` | near — Date format reads *Relative*, not *Full date* |
+| 5 | Date sheet | `365eabc0-4a33-4d0c-81ee-60ce8a8b5af9` | exact |
 | 6 | Share settings sheet | `80450381-9922-4123-b6d2-b3b624b4c3d9` | exact |
 
-Two of the six had no exact frame in the index after three rounds of
-`exclude_screen_ids`-narrowed searching. Stating that is the point: a
-near-match that goes unlabelled is how a replica quietly drifts from its
-source.
+Screen 4 has no exact frame in the index — every capture of that page carries
+a toast. Stating that is the point: a near-match that goes unlabelled is how a
+replica quietly drifts from its source.
+
+Screen 5 was recorded as a near-match in the original run against
+`cfca14fb-…`, which is a *Link expires* sheet from a different flow. The frame
+above is the exact one, found by pairing each replica with its capture
+side by side — which is what the paired figure in the repo README is for.
 
 ## Attribution
 
