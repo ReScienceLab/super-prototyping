@@ -28,6 +28,11 @@ evidence recorded for every token. Open either with `?canvas=<slug>`.
 
 [![notion-ios](assets/workflow/case-notion.png)](mockups/canvases/notion-ios/README.md)
 
+*Replica on top, source capture directly below it. Only screen 3 still has its
+capture on disk — the @3x Notion AI frame, curated by
+[Mobbin](https://mobbin.com); the other five came off a strip that was not
+kept, and the figure says so rather than quietly showing one row.*
+
 Everything came off a single 0.7634 px/pt strip, which is why the settings
 dividers had to be solved rather than picked: `--n-hairline: #E9E8E7` is a 1pt
 coverage solve, and a naive sample of that same divider reports it far too
@@ -40,8 +45,9 @@ a near-match that goes unlabelled is how a replica quietly drifts.
 
 [![raycast-ios](assets/workflow/case-raycast.png)](mockups/canvases/raycast-ios/README.md)
 
-*The Models sheet and Presets flows; the six "Ask AI" screens are on the same
-board.* This one adds what a strip cannot settle: launcher backdrops blurred
+*Replica on top, source capture directly below it — same crop, same scale, so
+the two rows line up pixel for pixel. The Models sheet and Presets flows; the
+six "Ask AI" screens are on the same board.* This one adds what a strip cannot settle: launcher backdrops blurred
 behind a sheet, third-party brand marks (lobehub static SVGs, simple-icons for
 the Raycast mark), and enough tokens that the evidence table had to move onto
 its own `00b-evidence` board — 478 × 980 clips in silence.
