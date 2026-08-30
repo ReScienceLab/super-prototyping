@@ -19,6 +19,48 @@ tools/refkit.py  measure a reference, render a board, diff the two, audit tokens
 .agents/skills/  the workflow, as three skills (symlinked into .claude/skills/)
 ```
 
+## Two worked examples
+
+Both are real `clone-prototype` runs, rebuilt from measured samples with the
+evidence recorded for every token. Open either with `?canvas=<slug>`.
+
+### `notion-ios` — six screens
+
+[![notion-ios](assets/workflow/case-notion.png)](mockups/canvases/notion-ios/README.md)
+
+Everything came off a single 0.7634 px/pt strip, which is why the settings
+dividers had to be solved rather than picked: `--n-hairline: #E9E8E7` is a 1pt
+coverage solve, and a naive sample of that same divider reports it far too
+light. Two of the six references were near-matches rather than the exact
+frame — a toast on one, a different date format on another — and
+[the board README](mockups/canvases/notion-ios/README.md) says which, because
+a near-match that goes unlabelled is how a replica quietly drifts.
+
+### `raycast-ios` — eleven screens, three flows
+
+[![raycast-ios](assets/workflow/case-raycast.png)](mockups/canvases/raycast-ios/README.md)
+
+*The Models sheet and Presets flows; the six "Ask AI" screens are on the same
+board.* This one adds what a strip cannot settle: launcher backdrops blurred
+behind a sheet, third-party brand marks (lobehub static SVGs, simple-icons for
+the Raycast mark), and enough tokens that the evidence table had to move onto
+its own `00b-evidence` board — 478 × 980 clips in silence.
+
+Verified region by region against the captures:
+
+```
+region                 mine      ref        Δmax
+launcher ground        #EFEFEF   #EFEFEF       0
+composer card          #F7F7F7   #F7F7F7       0
+search well            #FCFBFC   #FCFBFC       0
+mic button             #F1F1F1   #F1F1F1       0
+```
+
+One known difference, stated rather than smoothed over: the presets backdrop
+is desaturated — mean chroma 2.0 against the source's 5.9. A single CSS
+Gaussian under two white veils spreads the launcher's colour blobs but
+bleaches them. Luminance is not the problem; it matches to 0.1.
+
 ## Start a project from this repo
 
 ```bash
@@ -27,8 +69,7 @@ cd my-product-design && rm -rf .git && git init
 cd canvas && npm ci
 ```
 
-Two finished boards ship with it — see [worked
-examples](#two-worked-examples) below. Copy a `00-design-tokens.html` as the
+Both boards above ship with it. Copy a `00-design-tokens.html` as the
 starting point for your own token block, then delete the folders.
 
 ## Run the canvas
@@ -106,48 +147,6 @@ read off the red labels, and the census answers in pt. A solve that lands within
 ~2 of the page background means the rule is invisible at this resolution, which
 usually means the real UI has no divider there — not that the divider is
 `#FAFAFA`.
-
-## Two worked examples
-
-Both are real `clone-prototype` runs, rebuilt from measured samples with the
-evidence recorded for every token. Open either with `?canvas=<slug>`.
-
-### `notion-ios` — six screens
-
-[![notion-ios](assets/workflow/case-notion.png)](mockups/canvases/notion-ios/README.md)
-
-Everything came off a single 0.7634 px/pt strip, which is why the settings
-dividers had to be solved rather than picked: `--n-hairline: #E9E8E7` is a 1pt
-coverage solve, and a naive sample of that same divider reports it far too
-light. Two of the six references were near-matches rather than the exact
-frame — a toast on one, a different date format on another — and
-[the board README](mockups/canvases/notion-ios/README.md) says which, because
-a near-match that goes unlabelled is how a replica quietly drifts.
-
-### `raycast-ios` — eleven screens, three flows
-
-[![raycast-ios](assets/workflow/case-raycast.png)](mockups/canvases/raycast-ios/README.md)
-
-*The Models sheet and Presets flows; the six "Ask AI" screens are on the same
-board.* This one adds what a strip cannot settle: launcher backdrops blurred
-behind a sheet, third-party brand marks (lobehub static SVGs, simple-icons for
-the Raycast mark), and enough tokens that the evidence table had to move onto
-its own `00b-evidence` board — 478 × 980 clips in silence.
-
-Verified region by region against the captures:
-
-```
-region                 mine      ref        Δmax
-launcher ground        #EFEFEF   #EFEFEF       0
-composer card          #F7F7F7   #F7F7F7       0
-search well            #FCFBFC   #FCFBFC       0
-mic button             #F1F1F1   #F1F1F1       0
-```
-
-One known difference, stated rather than smoothed over: the presets backdrop
-is desaturated — mean chroma 2.0 against the source's 5.9. A single CSS
-Gaussian under two white veils spreads the launcher's colour blobs but
-bleaches them. Luminance is not the problem; it matches to 0.1.
 
 ## Constraints on every artboard
 
