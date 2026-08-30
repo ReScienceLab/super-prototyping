@@ -16,6 +16,16 @@ Worth reading in `00-design-tokens.html`: the capture scale (`300 / 393 =
 1pt coverage solve rather than a direct pick — a naive sample of that divider
 reports it far too light.
 
+`--n-font` is measured too, which is newer than the rest of the board:
+`refkit font` on a native @3x capture ranks **SF Pro** first on the page title
+(0.928, next 0.866) and on a body row (0.865, next 0.719) — so the
+`-apple-system` stack is evidence, not the usual assumption.
+
+```bash
+refkit bands ref.png 75 350 500 435 --axis cols --minfrac .01   # word gaps
+refkit font  ref.png 119 118 163.4 143.4 list --pt 3
+```
+
 ## The reference row is not checked in
 
 Phase 5 of `clone-prototype` parks each source capture in its own

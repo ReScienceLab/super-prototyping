@@ -10,6 +10,8 @@
   scan     walk one row/column and collapse it into colour runs — finds an
            edge (sheet top, card inset) to the pixel
   hairline solve a sub-pixel border/divider colour from its ink coverage
+  font     name the type face in a region — renders the word in every candidate
+           and ranks by glyph shape, so it can answer "SF Pro"
   shoot    render mockup HTML with headless Chrome at artboard size
   diff     side-by-side + per-region census of a render against its reference
   tokens   audit a canvas folder: one shared :root, no undefined var()
@@ -25,7 +27,7 @@ Self-check: python3 tools/test_refkit.py
 """
 import argparse, glob, json, os, re, subprocess, sys, tempfile
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 PHONE_FRAME = "1D191A"          # the shared artboard phone frame's bezel colour
@@ -203,6 +205,138 @@ def cmd_hairline(a):
     ink = (bg - band).sum(axis=0) / a.scale
     print(f"bg {_hex(bg)}  scale {a.scale}  band {band.shape[0]}px")
     print(f"solved rule colour: {_hex(np.clip(bg - ink, 0, 255))}")
+
+
+# --- font identification -----------------------------------------------------
+# Closed-set render-and-compare: render the region's word in every candidate
+# face, compare glyph shapes, rank. The published classifiers solve a
+# 3,000-class Google-Fonts problem and structurally cannot return "SF Pro"; a
+# UI clone's candidate set is ~20 faces already on disk, so the small problem
+# is the right one. Measurements behind the choice: docs/font-identification.md.
+FONT_H = 64                                 # normalised cap height, px
+FONT_WEIGHTS = (None, 400, 500, 600, 700)
+FONT_TRACKS = (-0.03, -0.015, 0.0, 0.015)   # ems; iOS tracks tighter than PIL
+SYSTEM_FONTS = {                            # path -> the name you would write
+    "/System/Library/Fonts/SFNS.ttf": "SF Pro",
+    "/System/Library/Fonts/SFCompact.ttf": "SF Compact",
+    "/System/Library/Fonts/SFNSRounded.ttf": "SF Pro Rounded",
+    "/System/Library/Fonts/NewYork.ttf": "New York",
+    "/System/Library/Fonts/Supplemental/Helvetica.ttc": "Helvetica",
+    "/System/Library/Fonts/Supplemental/Arial.ttf": "Arial",
+    "/System/Library/Fonts/Supplemental/Verdana.ttf": "Verdana",
+    "/System/Library/Fonts/Supplemental/Georgia.ttf": "Georgia",
+}
+
+
+def _ink_norm(lum):
+    """Binarise, tight-crop to the ink, rescale to FONT_H keeping the aspect.
+    Both the capture and the render go through this, so the comparison is of
+    letterforms rather than of point size or dark mode."""
+    a = 255 - lum if lum.mean() > 127 else lum
+    a = a > a.max() * 0.4
+    ys, xs = np.nonzero(a)
+    if not len(ys):
+        return None
+    im = Image.fromarray(a[ys.min():ys.max() + 1,
+                           xs.min():xs.max() + 1].astype(np.uint8) * 255)
+    return np.asarray(im.resize((max(1, round(im.width * FONT_H / im.height)),
+                                 FONT_H), Image.LANCZOS)) > 127
+
+
+def _set_axes(f, weight, opsz):
+    """Set the Weight and Optical Size variation axes, leaving the rest at their
+    defaults. Pillow takes the whole vector in axis order, and SF Pro's first
+    axis is Width — passing [700] renders it maximally *expanded*, not bold.
+    False means this face cannot take the requested weight (it is a static
+    file), so the caller skips that pass instead of scoring it twice."""
+    try:
+        axes = f.get_variation_axes()
+    except OSError:
+        return weight is None
+    vals = []
+    for ax in axes:
+        n = (ax["name"] or b"").lower()
+        v = ax["default"]
+        if b"weight" in n and weight:
+            v = weight
+        elif b"optical" in n and opsz:
+            v = opsz
+        vals.append(max(ax["minimum"], min(ax["maximum"], v)))
+    f.set_variation_by_axes(vals)
+    return True
+
+
+def _render_word(word, path, weight, track, opsz=None):
+    f = ImageFont.truetype(path, 128)
+    if not _set_axes(f, weight, opsz):
+        return None
+    dx, bb = track * 128, f.getbbox(word)
+    im = Image.new("L", (int(bb[2] - bb[0] + abs(dx) * len(word)) + 20,
+                         bb[3] - bb[1] + 20), 255)
+    d, x = ImageDraw.Draw(im), 10 - bb[0]
+    for ch in word:                         # one char at a time, so track applies
+        d.text((x, 10 - bb[1]), ch, font=f, fill=0)
+        x += f.getlength(ch) + dx
+    return _ink_norm(np.asarray(im, dtype=float))
+
+
+def _shape_score(a, b):
+    """Shape IoU at a common cap height, discounted by the width mismatch.
+    Stretching to a common width alone throws width away, so a condensed face
+    scores like its normal sibling; padding alone over-punishes tracking drift.
+    The product separates both."""
+    w = min(a.shape[1], b.shape[1])
+    r = [np.asarray(Image.fromarray(x.astype(np.uint8) * 255).resize((w, FONT_H)))
+         > 127 for x in (a, b)]
+    return ((r[0] & r[1]).sum() / max(1, (r[0] | r[1]).sum())
+            * w / max(a.shape[1], b.shape[1]))
+
+
+def _font_candidates(dirs):
+    """The system UI faces that exist here, plus every font in each --fonts dir.
+    The true face has to be in this set — outside it you get the nearest
+    neighbour, exactly as with any classifier."""
+    out = {p: n for p, n in SYSTEM_FONTS.items() if os.path.exists(p)}
+    for d in dirs or []:
+        for p in sorted(glob.glob(os.path.join(d, "*.[to]t[fc]"))):
+            out[p] = os.path.splitext(os.path.basename(p))[0]
+    return out
+
+
+def cmd_font(a):
+    x0, y0, x1, y1 = _box(a)
+    px = _rgb(a.image)[y0:y1, x0:x1]
+    if px.size == 0:
+        sys.exit("empty region")
+    target = _ink_norm(px.mean(2))
+    if target is None:
+        sys.exit("no ink in that region — put the box on the word with `bbox`")
+    cands = _font_candidates(a.fonts)
+    if not cands:
+        sys.exit("no candidate fonts on this machine — pass --fonts DIR")
+    cap = (y1 - y0) / _k(a)                 # design pt, for the optical-size axis
+    ranked = sorted(
+        ((n, max((_shape_score(target, r) for w in FONT_WEIGHTS for t in FONT_TRACKS
+                  if (r := _render_word(a.word, p, w, t, cap)) is not None),
+                 default=0.0))
+         for p, n in cands.items()), key=lambda r: -r[1])
+
+    for name, s in ranked[:a.top]:
+        print(f"  {name:22s} {s:.3f}")
+    margin = ranked[0][1] - (ranked[1][1] if len(ranked) > 1 else 0.0)
+    if margin >= a.margin:
+        print(f"call: {ranked[0][0]}   score {ranked[0][1]:.3f}, margin {margin:.3f}")
+    else:
+        tied = " / ".join(n for n, s in ranked if ranked[0][1] - s < a.margin)
+        print(f"no call: {tied} within {a.margin:g} — indistinguishable at this "
+              "size, or the face is outside the candidate set. Record the family, "
+              "not the cut.")
+    if ranked[0][1] < .80:
+        u = "pt" if a.pt else "px"
+        print(f"weak: top score {ranked[0][1]:.3f} < 0.80, on {cap:.0f}{u} of cap "
+              f"height. Clean renders score .85-.93, so first check the box holds "
+              f"exactly \"{a.word}\" and nothing else — `bands --axis cols` gives "
+              "the word gaps — then re-run on the largest instance of the face.")
 
 
 def _crop_phone(im, scale, frame=PHONE_FRAME, tol=24, w=393, h=852):
@@ -434,6 +568,15 @@ def main():
     h = _region_args(s.add_parser("hairline")); h.set_defaults(fn=cmd_hairline)
     h.add_argument("--bg", required=True, help="background hex, no #")
     h.add_argument("--scale", type=float, required=True, help="capture px per design pt")
+
+    n = _region_args(s.add_parser("font")); n.set_defaults(fn=cmd_font)
+    n.add_argument("word", help="the literal string inside that region")
+    n.add_argument("--fonts", action="append", metavar="DIR",
+                   help="directory of candidate .ttf/.otf/.ttc (repeatable); the "
+                        "system UI faces are always in the set")
+    n.add_argument("--top", type=int, default=5)
+    n.add_argument("--margin", type=float, default=0.05,
+                   help="top-two gap below which this is not a call")
 
     t = s.add_parser("shoot"); t.set_defaults(fn=cmd_shoot)
     t.add_argument("html", nargs="+"); t.add_argument("-o", "--out", required=True)

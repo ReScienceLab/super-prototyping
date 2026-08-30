@@ -131,6 +131,54 @@ def test_tokens_catches_undefined_var_and_evidence_row():
     assert any("var(--x-nope) is not defined" in s for s in p), p
 
 
+def test_ink_norm_inverts_dark_mode_and_crops_to_the_ink():
+    for ground, ink in ((250.0, 10.0), (20.0, 240.0)):     # light, then dark mode
+        a = np.full((80, 120), ground)
+        a[30:50, 40:70] = ink
+        n = R._ink_norm(a)
+        assert n.shape == (R.FONT_H, round(30 * R.FONT_H / 20)), n.shape
+        assert n.all()                          # cropped to the ink, so all of it
+
+
+def test_shape_score_is_1_for_itself_and_punishes_a_condensed_twin():
+    a = np.zeros((R.FONT_H, 40), bool)
+    a[8:56, 4:12] = a[8:56, 28:36] = True       # two stems
+    assert R._shape_score(a, a) == 1.0
+    narrow = np.asarray(Image.fromarray(a.astype("uint8") * 255)
+                        .resize((24, R.FONT_H))) > 127
+    # Same letterform 40% narrower. Stretching to a common width alone would
+    # score these identical — which is how every screenshot matches a condensed
+    # face. The width discount has to bring it down.
+    assert R._shape_score(a, narrow) < .7, R._shape_score(a, narrow)
+
+
+def test_weight_axis_is_set_by_name_not_by_position():
+    # SF Pro's axis order is Width, Optical Size, GRAD, Weight. Passing the
+    # weight positionally sets *Width* to 900 -> clamped to its 150 maximum, so
+    # every weight renders as the same maximally expanded face.
+    f = "/System/Library/Fonts/SFNS.ttf"
+    if not os.path.exists(f):
+        print("     (skipped: no SF Pro on this machine)", end="")
+        return
+    light, bold = (R._render_word("nn", f, w, 0.0, 28) for w in (300, 900))
+    assert bold.mean() > light.mean() * 1.15, (light.mean(), bold.mean())
+
+
+def test_every_candidate_font_identifies_its_own_rendering():
+    cands = R._font_candidates(None)
+    if len(cands) < 2:
+        print("     (skipped: no system fonts on this machine)", end="")
+        return
+    for path, name in cands.items():
+        target = R._render_word("Subscription", path, None, 0.0, 28)
+        ranked = sorted(
+            ((n, max((R._shape_score(target, r)
+                      for w in R.FONT_WEIGHTS for t in R.FONT_TRACKS
+                      if (r := R._render_word("Subscription", q, w, t, 28)) is not None),
+                     default=0.0)) for q, n in cands.items()), key=lambda x: -x[1])
+        assert ranked[0][0] == name, f"{name} -> {ranked[:2]}"
+
+
 if __name__ == "__main__":
     fns = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in fns:

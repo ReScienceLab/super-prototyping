@@ -64,7 +64,11 @@ blurred directly with `filter: blur(4.6px)`.
 - Type is Inter / Helvetica Neue against the capture's SF Pro. Line breaks are
   forced with `<br>` and `white-space: nowrap` so the wraps match the source
   string for string regardless of the substituted face; measured line widths
-  land within ~1.5%.
+  land within ~1.5%. `refkit font` puts a number on how close the substitution
+  is: on `about-01`'s 13pt row label it ranks SF Pro 0.837 against Inter 0.806
+  and reports **no call** — the two are inseparable at that size. It is not a
+  limit of the matcher; the same command on a Notion capture separates the two
+  cleanly, 0.865 to 0.717.
 - **The presets backdrop is desaturated.** `refkit diff` puts mean chroma at
   2.0 against the source's 5.9 — a single CSS Gaussian under two white veils
   spreads the launcher's colour blobs but bleaches them, and below y 560 the

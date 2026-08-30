@@ -75,7 +75,7 @@ Then **read `g04.png` as an image**. Cyan every 10 source px, red and
 labelled every 50. Walk the screen element by element and write down the
 region each one occupies in source coordinates. Only then sample.
 
-### Three measurements, three techniques
+### Colour: four kinds of region, four techniques
 
 **Pass `--pt <scale>` to every region command.** Then you type the same design
 pt you read off the grid and that will end up in the CSS, and the answers come
@@ -119,6 +119,37 @@ Expect a small vocabulary of repeated numbers (16/20/26 gutters, 44 tap
 targets, 8/10/12/14 radii). If every measurement is unique, you are reading
 antialiasing, not layout.
 
+### The type face is measured too
+
+`--n-font` is the one token people guess. Do not — the whole board inherits it.
+
+```bash
+refkit bands IMG 40 410 420 470 --axis cols --minfrac .01   # where the words break
+refkit font  IMG 17.3 139 78.7 152 Libraries --pt 3 \
+             --fonts ./brand-fonts                          # rank the candidates
+```
+
+`font` renders your word in every candidate face and ranks the letterforms at a
+common cap height, searching weight and tracking. The system UI faces are always
+in the set; `--fonts DIR` adds any `.ttf`/`.otf`/`.ttc` you have, and is what you
+need for a brand face. Closed-set matching is the point: the published
+classifiers pick from ~3,000 Google Fonts and **cannot return "SF Pro"** at all
+(`docs/font-identification.md` has the measurements).
+
+Read the verdict line, not just the ranking:
+
+- **call** — one face clears the next by the margin. Write it down with its score.
+- **no call** — the top faces are inside the margin. Either they are
+  indistinguishable at this size (SF Pro vs SF Pro Rounded differ only in corner
+  rounding) or the real face is outside your candidate set. Record the *family*,
+  or go find the font file. Never promote the top row of a no call.
+- **weak** — top score under 0.80. First check the box holds exactly the word
+  you named and nothing else: one clipped leading glyph took a real run from
+  0.93 to 0.49. Then re-run on the largest instance of the same face.
+
+Pick the biggest word on the screen — a title, not a tab label — and confirm on
+a second screen before it becomes a token.
+
 ### Deliverable of this phase
 
 A table with an **evidence** column, one row per token. Anything without
@@ -126,6 +157,7 @@ evidence does not become a token.
 
 | token | value | evidence |
 |---|---|---|
+| `--n-font` | `-apple-system, "SF Pro"…` | `refkit font` on the page title, 0.93 (2nd 0.87) |
 | `--n-text` | `#2C2C2C` | H1 core ink @3x, 3 screens |
 | `--n-hairline` | `#E9E8E7` | 1pt coverage solve, settings dividers |
 | `--n-border` | `#EFEEEC` | card outline solve |
@@ -143,7 +175,8 @@ shared stylesheet — a single generator script is what keeps them in sync.
 
 Cover, in this order, with a short prefix per app (`--n-` for Notion):
 
-- `font` — the real platform stack, never a webfont
+- `font` — the real platform stack, never a webfont, and measured
+  with `refkit font` in Phase 1 rather than assumed
 - colour: backgrounds → fills → hairline/border/track → text ramp → accents
 - radii, one per component class (`field`, `card`, `sheet`, `tile`, `pill`)
 - type: **composite `font:` shorthands**, not separate size/weight vars —
@@ -290,6 +323,9 @@ Then open it: `open "http://127.0.0.1:<port>/?canvas=<slug>"`.
 
 - **Sampling without looking.** Numbers with no element attached land in the
   wrong token. Grid, read, *then* sample.
+- **Naming a face off a box that holds more than the word.** A clipped leading
+  glyph, or a neighbouring word inside the region, quietly halves the score.
+  `bands --axis cols` gives you the word gaps; box one word.
 - **Trusting a downscaled capture for thin ink.** Hairlines, scrims and small
   accents need the coverage solve or a native capture.
 - **Hand-editing a generated artboard.** The next regeneration silently
