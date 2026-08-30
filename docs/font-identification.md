@@ -229,8 +229,8 @@ directory does this and drops the opencv/albumentations dependency).
 
 ## 7. What shipped here
 
-`fontid.py` was folded into `tools/refkit.py` as `refkit font`, which takes a
-region in design pt like every other refkit command instead of a pre-made crop:
+`fontid.py` moved into `tools/refkit.py` as `refkit font`, which takes a
+region in design pt, like every other refkit command, instead of a pre-made crop:
 
 ```bash
 refkit bands ref.png 40 410 420 470 --axis cols --minfrac .01   # word gaps
@@ -241,12 +241,13 @@ Two changes to the matcher on the way in, both from testing against SF Pro:
 
 - **The weight axis is set by name, not by position.** Pillow's
   `set_variation_by_axes` takes the whole axis vector in order, and SF Pro's
-  first axis is *Width* — `set_variation_by_axes([700])` renders it maximally
+  first axis is *Width*. `set_variation_by_axes([700])` renders it maximally
   expanded rather than bold, and every weight in the search comes out
   identical. `tools/test_refkit.py` pins this.
 - **Optical size is driven by the measured cap height.** The region is already
   in design pt, so SF Pro's `opsz` axis gets the real value instead of its 28pt
-  default — the difference between SF Pro Text and SF Pro Display letterforms.
+  default, which is the difference between SF Pro Text and SF Pro Display
+  letterforms.
 
 Re-measured after both fixes, on native @3x captures with the word boxed
 exactly:
@@ -255,15 +256,15 @@ exactly:
 |---|---|---|
 | Notion iOS, page title | `list` | **SF Pro** 0.928, margin 0.062 |
 | Notion iOS, body row | `presentation` | **SF Pro** 0.865, margin 0.146 |
-| Slack iOS, row label, system faces only | `Libraries` | *no call* — SF Compact 0.691 / SF Pro 0.660 |
+| Slack iOS, row label, system faces only | `Libraries` | *no call*, SF Compact 0.691 / SF Pro 0.660 |
 | Slack iOS, same word, +16 Google Fonts | `Libraries` | **Lato** 0.757, margin 0.066 ✅ |
 
 The Slack pair is the behaviour that matters: with Lato outside the candidate
 set the tool returns *no call* rather than the nearest system lookalike, and
-adding the directory of Google Fonts is what turns it into an answer.
+adding the directory of Google Fonts turns it into an answer.
 
 The single failure mode in practice is a box that does not hold exactly the
-word you named — a clipped leading glyph drops the score from 0.93 to 0.49.
+word you named. A clipped leading glyph drops the score from 0.93 to 0.49.
 `refkit font` says so when the top score is under 0.80.
 
 ## 8. Sources

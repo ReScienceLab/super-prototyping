@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""refkit — reference-to-mockup toolkit.
+"""refkit, a reference-to-mockup toolkit.
 
   grid     overlay a labelled measuring grid ON a reference image, so colours
            and metrics can be read VISUALLY (element -> value), not blindly
@@ -7,10 +7,10 @@
   bands    ink-fraction profile -> the bands an element occupies, and the pitch
            between them (row height, baselines, list rhythm)
   bbox     bounding box of the dark (or bright) pixels in a region
-  scan     walk one row/column and collapse it into colour runs — finds an
+  scan     walk one row/column and collapse it into colour runs. Finds an
            edge (sheet top, card inset) to the pixel
   hairline solve a sub-pixel border/divider colour from its ink coverage
-  font     name the type face in a region — renders the word in every candidate
+  font     name the type face in a region. Renders the word in every candidate
            and ranks by glyph shape, so it can answer "SF Pro"
   shoot    render mockup HTML with headless Chrome at artboard size
   diff     side-by-side + per-region census of a render against its reference
@@ -67,8 +67,8 @@ def _box(a):
 
 def _flatsel(px):
     """Pixels equal to all four neighbours: a real fill, not an antialiased
-    edge. Returns None when nothing in the region is flat — which is the normal
-    case for anything smaller than a chip."""
+    edge. Returns None when nothing in the region is flat, which is the
+    normal case for anything smaller than a chip."""
     c = px[1:-1, 1:-1]
     if not c.size:
         return None
@@ -146,7 +146,7 @@ def cmd_sample(a):
 
 def cmd_bands(a):
     """Where the ink actually sits. Row pitch, baselines and list rhythm come
-    off this profile — if every band you measure is a unique number, you are
+    off this profile. If every band you measure is a unique number, you are
     reading antialiasing rather than layout."""
     x0, y0, x1, y1 = _box(a)
     r = _rgb(a.image)[y0:y1, x0:x1].mean(2)
@@ -167,7 +167,7 @@ def cmd_bbox(a):
     r = _rgb(a.image)[y0:y1, x0:x1].mean(2)
     m = (r > a.bright) if a.bright is not None else (r < a.dark)
     if not m.any():
-        sys.exit("nothing matched — check the threshold and the region")
+        sys.exit("nothing matched. Check the threshold and the region")
     ys, xs = np.nonzero(m)
     k = _k(a)
     bx0, by0 = (x0 + xs.min()) / k, (y0 + ys.min()) / k
@@ -177,8 +177,8 @@ def cmd_bbox(a):
 
 
 def cmd_scan(a):
-    """One row or column, collapsed into colour runs: the exact coordinate an
-    edge lands on, without reading 400 identical lines."""
+    """One row or column, collapsed into colour runs. Finds the exact coordinate
+    an edge lands on without reading 400 identical lines."""
     k = _k(a)
     img = _rgb(a.image)
     at, s0, s1 = int(round(a.at * k)), int(round(a.start * k)), int(round(a.end * k))
@@ -210,9 +210,9 @@ def cmd_hairline(a):
 # --- font identification -----------------------------------------------------
 # Closed-set render-and-compare: render the region's word in every candidate
 # face, compare glyph shapes, rank. The published classifiers solve a
-# 3,000-class Google-Fonts problem and structurally cannot return "SF Pro"; a
-# UI clone's candidate set is ~20 faces already on disk, so the small problem
-# is the right one. Measurements behind the choice: docs/font-identification.md.
+# 3,000-class Google-Fonts problem, and "SF Pro" is not one of their classes.
+# A UI clone's candidate set is ~20 faces already on disk, so the small
+# problem is the right one. Measurements behind the choice: docs/font-identification.md.
 FONT_H = 64                                 # normalised cap height, px
 FONT_WEIGHTS = (None, 400, 500, 600, 700)
 FONT_TRACKS = (-0.03, -0.015, 0.0, 0.015)   # ems; iOS tracks tighter than PIL
@@ -246,7 +246,7 @@ def _ink_norm(lum):
 def _set_axes(f, weight, opsz):
     """Set the Weight and Optical Size variation axes, leaving the rest at their
     defaults. Pillow takes the whole vector in axis order, and SF Pro's first
-    axis is Width — passing [700] renders it maximally *expanded*, not bold.
+    axis is Width, so passing [700] renders it at its widest, not bold.
     False means this face cannot take the requested weight (it is a static
     file), so the caller skips that pass instead of scoring it twice."""
     try:
@@ -294,8 +294,8 @@ def _shape_score(a, b):
 
 def _font_candidates(dirs):
     """The system UI faces that exist here, plus every font in each --fonts dir.
-    The true face has to be in this set — outside it you get the nearest
-    neighbour, exactly as with any classifier."""
+    The true face has to be in this set. Outside it you get the nearest
+    neighbour, as with any classifier."""
     out = {p: n for p, n in SYSTEM_FONTS.items() if os.path.exists(p)}
     for d in dirs or []:
         for p in sorted(glob.glob(os.path.join(d, "*.[to]t[fc]"))):
@@ -310,10 +310,10 @@ def cmd_font(a):
         sys.exit("empty region")
     target = _ink_norm(px.mean(2))
     if target is None:
-        sys.exit("no ink in that region — put the box on the word with `bbox`")
+        sys.exit("no ink in that region. Put the box on the word with `bbox`")
     cands = _font_candidates(a.fonts)
     if not cands:
-        sys.exit("no candidate fonts on this machine — pass --fonts DIR")
+        sys.exit("no candidate fonts on this machine. Pass --fonts DIR")
     cap = (y1 - y0) / _k(a)                 # design pt, for the optical-size axis
     ranked = sorted(
         ((n, max((_shape_score(target, r) for w in FONT_WEIGHTS for t in FONT_TRACKS
@@ -328,21 +328,21 @@ def cmd_font(a):
         print(f"call: {ranked[0][0]}   score {ranked[0][1]:.3f}, margin {margin:.3f}")
     else:
         tied = " / ".join(n for n, s in ranked if ranked[0][1] - s < a.margin)
-        print(f"no call: {tied} within {a.margin:g} — indistinguishable at this "
+        print(f"no call: {tied} within {a.margin:g}. Indistinguishable at this "
               "size, or the face is outside the candidate set. Record the family, "
               "not the cut.")
     if ranked[0][1] < .80:
         u = "pt" if a.pt else "px"
         print(f"weak: top score {ranked[0][1]:.3f} < 0.80, on {cap:.0f}{u} of cap "
               f"height. Clean renders score .85-.93, so first check the box holds "
-              f"exactly \"{a.word}\" and nothing else — `bands --axis cols` gives "
-              "the word gaps — then re-run on the largest instance of the face.")
+              f"exactly \"{a.word}\" and nothing else, then re-run on the largest "
+              "instance of the face. `bands --axis cols` gives the word gaps.")
 
 
 def _crop_phone(im, scale, frame=PHONE_FRAME, tol=24, w=393, h=852):
     """Artboards render the phone frame inside a 478 x 980 board; every
     reference is a bare device capture. Find the bezel and cut the screen out,
-    so the two can be compared pixel for pixel."""
+    so diff can compare the two pixel for pixel."""
     a = np.asarray(im.convert("RGB"), dtype=int)
     f = np.array([int(frame[i:i + 2], 16) for i in (0, 2, 4)])
     m = np.abs(a - f).sum(2) < tol
@@ -357,7 +357,7 @@ def _crop_phone(im, scale, frame=PHONE_FRAME, tol=24, w=393, h=852):
 
 def _round_corners(im, r, ss=4):
     """The .phone box is a rounded rect, so a rectangular crop of it keeps four
-    wedges of bezel. Punch them out — otherwise every montage of a cropped
+    wedges of bezel. Punch them out, otherwise every montage of a cropped
     screen shows black corners. Mask built at ss x for a clean edge."""
     m = Image.new("L", (im.width * ss, im.height * ss), 0)
     ImageDraw.Draw(m).rounded_rectangle([0, 0, m.width - 1, m.height - 1],
@@ -376,10 +376,10 @@ def _render(html, png, scale, w, h):
 
 
 def _overflow(html, w, h):
-    """How far the board's content runs past the artboard, in CSS px — asked of
-    the layout engine, not guessed from pixels.
+    """How far the board's content runs past the artboard, in CSS px, asked of
+    the layout engine rather than guessed from pixels.
 
-    A copy of the board with a reporter script appended is what gets measured;
+    The probe measures a copy of the board with a reporter script appended;
     the script is display:none so it cannot move what it reports, and the copy
     lives in a temp dir so a transient file never appears under mockups/. Do
     not do this with a pixel probe: a card's box-shadow tail paints ~60px below
@@ -455,8 +455,8 @@ def cmd_diff(a):
         return
 
     if mine.shape != ref.shape:
-        sys.exit(f"shape mismatch {mine.shape} vs {ref.shape} — "
-                 "shoot with --crop-phone, or pass --regions")
+        sys.exit(f"shape mismatch {mine.shape} vs {ref.shape}. "
+                 "Shoot with --crop-phone, or pass --regions")
     d = np.abs(mine.astype(int) - ref.astype(int)).mean(2)
     prof = d.mean(1)
     band = a.band
@@ -471,8 +471,8 @@ def cmd_diff(a):
 
 
 def _token_problems(folder):
-    """The two invariants the skill states but nothing enforced: one :root
-    block shared byte-identically, and no reference to a token that does not
+    """The two invariants the skill states but nothing enforces: one :root
+    block shared byte for byte, and no reference to a token that does not
     exist (in CSS, or in the evidence table)."""
     problems, blocks, defined = [], {}, set()
     files = sorted(glob.glob(os.path.join(folder, "*.html")))
@@ -591,7 +591,7 @@ def main():
     d = s.add_parser("diff"); d.set_defaults(fn=cmd_diff)
     d.add_argument("mine"); d.add_argument("ref")
     d.add_argument("-o", "--out", default="diff.png", help="side-by-side png ('' to skip)")
-    d.add_argument("--regions", help='{"name": [x0,y0,x1,y1], ...} — inline or a .json path')
+    d.add_argument("--regions", help='{"name": [x0,y0,x1,y1], ...} inline, or a .json path')
     d.add_argument("--pt", type=float, default=None)
     d.add_argument("--height", type=int, default=520)
     d.add_argument("--gap", type=int, default=8)

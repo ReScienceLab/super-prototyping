@@ -1,6 +1,6 @@
-// Auto-discovers the boards dropped under mockups/canvases/<slug>/*.html — one folder per board
+// Auto-discovers the boards dropped under mockups/canvases/<slug>/*.html, one folder per board
 // (a cloned app, a feature round, a design-system sheet). Each folder becomes a tldraw page; each
-// HTML file in it becomes one shape. Add or edit files there — no code change is needed here.
+// HTML file in it becomes one shape. Add or edit files there; nothing here needs to change.
 // `eager: true` keeps the HTML live through Vite HMR, so saving a mockup reloads it on the canvas.
 const rawFiles = import.meta.glob("../../mockups/canvases/*/*.html", {
   eager: true,
@@ -8,7 +8,7 @@ const rawFiles = import.meta.glob("../../mockups/canvases/*/*.html", {
   import: "default",
 }) as Record<string, string>;
 
-// Optional mockups/canvases/<slug>/layout.json alongside the HTML files — declares that board's
+// Optional mockups/canvases/<slug>/layout.json alongside the HTML files declares that board's
 // themed rows, so this tool's code never has to know one board's design content from another's.
 // See CanvasLayoutConfig below for the shape.
 const rawLayouts = import.meta.glob("../../mockups/canvases/*/layout.json", {
@@ -37,7 +37,7 @@ export interface CanvasLayoutRow {
 export interface CanvasLayoutConfig {
   /**
    * Page name override. Without one the folder slug is humanized, which cannot
-   * express casing or punctuation — "notion-ios" becomes "Notion Ios", never
+   * express casing or punctuation: "notion-ios" becomes "Notion Ios", never
    * "Notion iOS (example)". Set this when the humanized name reads wrong.
    */
   name?: string;

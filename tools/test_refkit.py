@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Self-check for refkit's measurement logic — the parts that would silently
+"""Self-check for refkit's measurement logic, the parts that would silently
 return a plausible wrong number. Synthesises its own images; needs no captures.
 
     python3 tools/test_refkit.py
@@ -147,7 +147,7 @@ def test_shape_score_is_1_for_itself_and_punishes_a_condensed_twin():
     narrow = np.asarray(Image.fromarray(a.astype("uint8") * 255)
                         .resize((24, R.FONT_H))) > 127
     # Same letterform 40% narrower. Stretching to a common width alone would
-    # score these identical — which is how every screenshot matches a condensed
+    # score these identical, which is how every screenshot matches a condensed
     # face. The width discount has to bring it down.
     assert R._shape_score(a, narrow) < .7, R._shape_score(a, narrow)
 

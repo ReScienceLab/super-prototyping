@@ -1,5 +1,5 @@
 {
-  "name": "Raycast iOS \u2014 Ask AI, models & presets",
+  "name": "Raycast iOS: Ask AI, models & presets",
   "rows": [
     {
       "title": "Foundations",
@@ -15,7 +15,7 @@
       ]
     },
     {
-      "title": "Raycast iOS \u2014 replica screens",
+      "title": "Raycast iOS replica screens",
       "numbered": true,
       "files": [
         {
@@ -65,7 +65,7 @@
       ]
     },
     {
-      "title": "Source of truth \u2014 captures",
+      "title": "Source of truth: captures",
       "numbered": true,
       "files": [
         {

@@ -32,8 +32,8 @@ const shapeUtils = [CanvasFileShapeUtil];
 /**
  * Bump the trailing version when a change would leave documents already in a browser's
  * IndexedDB inconsistent with the new code (a shape's props changing shape, say). Everything
- * persisted under the old key is then simply ignored — hand-drawn annotations included — so
- * do not bump it for ordinary layout edits, which the force-refresh button already handles.
+ * persisted under the old key is then ignored, hand-drawn annotations included. Do not bump
+ * it for ordinary layout edits; the force-refresh button already handles those.
  */
 const PERSISTENCE_KEY = "super-prototyping-canvas-v2";
 
@@ -114,7 +114,7 @@ function columnX(index: number) {
  * y to start the next row at.
  *
  * Every row starts at x = 0 and uses the same column pitch, so item N of one row always sits
- * directly above item N of the next — that alignment is what lets a reference row be read
+ * directly above item N of the next. That alignment lets you read a reference row
  * against the mockup row above it.
  */
 function layoutRow(
@@ -183,7 +183,7 @@ function layoutRow(
 /**
  * One tldraw page per mockups/canvases/<slug> folder, one shape per HTML file in it. If that
  * folder has a layout.json alongside its HTML files, its rows are laid out top-to-bottom in the
- * declared order — see CanvasLayoutConfig in canvasLibrary.ts. Anything not covered by a row
+ * declared order; see CanvasLayoutConfig in canvasLibrary.ts. Anything not covered by a row
  * still appears, in a fallback grid below, so a file can never be silently hidden.
  */
 function initializeCanvasLibrary(editor: Editor) {
@@ -265,8 +265,8 @@ function initializeCanvasLibrary(editor: Editor) {
  * Deletes every shape the library placed (row shapes, headings, captions, and the fallback
  * grid) on every page, then rebuilds them from the current file list and layout.json.
  *
- * Creation is idempotent — it fills in what's missing but never moves a shape that's already
- * there — so editing layout.json (inserting a file at the front of a row, say) leaves the old
+ * Creation is idempotent. It fills in what's missing but never moves a shape that's already
+ * there, so editing layout.json (inserting a file at the front of a row, say) leaves the old
  * shapes at their old positions while the new ones land on top of them. This is the force
  * refresh that clears that drift. Hand-drawn shapes and notes are untouched.
  */
@@ -307,7 +307,7 @@ function applySnapDefault(editor: Editor) {
     if (localStorage.getItem(SNAP_DEFAULT_KEY)) return;
     localStorage.setItem(SNAP_DEFAULT_KEY, "1");
   } catch {
-    // Storage unavailable (private mode, blocked cookies) — apply it for this session only.
+    // Storage unavailable (private mode, blocked cookies), so apply it for this session only.
   }
   editor.user.updateUserPreferences({ isSnapMode: true });
 }

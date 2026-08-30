@@ -1,7 +1,7 @@
 # Canvases
 
-One subfolder per board. Drop `.html` files into `mockups/canvases/<slug>/`
-— no code change needed anywhere:
+One subfolder per board. Drop `.html` files into `mockups/canvases/<slug>/`,
+no code change needed anywhere:
 
 - Each folder becomes one tldraw page, named after the folder
   (`kebab-case` → `Title Case`), sorted numerically across folders.
@@ -24,18 +24,18 @@ laid out top to bottom:
     { "title": "Foundations", "files": ["00-design-tokens"] },
     { "title": "Screens", "numbered": true,
       "files": [{ "file": "01-example-screen", "label": "Home" }] },
-    { "title": "Source of truth — references", "numbered": true,
+    { "title": "Source of truth: references", "numbered": true,
       "files": [{ "file": "ref-01-home", "label": "Home" }] }
   ]
 }
 ```
 
 - `name` overrides the page name. Without it the folder slug is humanized,
-  which cannot express casing or punctuation — `notion-ios` becomes
+  which cannot express casing or punctuation. `notion-ios` becomes
   "Notion Ios". Set it when the humanized name reads wrong.
 - `files` entries are file names **without** `.html`, either bare (the
   humanized file name becomes the caption) or `{ "file", "label" }`.
-- `numbered: true` prefixes each caption with its 1-based position — never
+- `numbered: true` prefixes each caption with its 1-based position. Never
   hand-number labels, position is computed.
 - Every row starts at x = 0 with the same column pitch, so **item N of one
   row sits directly under item N of the row above**. That is what makes a
@@ -51,11 +51,12 @@ so reordering a row needs that force-relayout to take effect.
 
 Boards render inside `<iframe srcDoc sandbox="">`:
 
-- **Fully self-contained** — no external CSS, JS, fonts or images. Inline
+- **Fully self-contained.** No external CSS, JS, fonts or images. Inline
   the token block in every file; embed images as `data:` URIs; icons are
   inline SVG.
-- **The shape box is 478 × 980** (`CANVAS_FILE_DEFAULT_SIZE`). Overflow is
-  silently clipped — check every fixed-height board after adding a row.
+- **The shape box is 478 × 980** (`CANVAS_FILE_DEFAULT_SIZE`). The iframe
+  clips anything past that box with no warning, so check every fixed-height
+  board after adding a row.
 - iPhone frame is 393 × 852 pt at 1pt = 1px: 54px status bar,
   125 × 36 Dynamic Island, 139 × 5 home indicator.
 
