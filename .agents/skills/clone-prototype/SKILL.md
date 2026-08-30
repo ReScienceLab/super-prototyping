@@ -221,8 +221,8 @@ python3 "$REPO/tools/refkit.py" diff mine/07-models-sheet.png refs/cp7.png \
 ```
 
 `--crop-phone` removes the crop step from every iteration. `diff` writes the
-side-by-side **and** prints the numbers behind it: with `--regions` (a
-`{"name": [x0,y0,x1,y1]}` file you write once and reuse for the whole run) it
+side-by-side **and** prints the numbers behind it: with `--regions` (inline
+`{"name": [x0,y0,x1,y1]}`, or a file you write once and reuse for the run) it
 tables mine-vs-ref per region with a Δ column; with no regions it ranks the
 bands where the two disagree most, which is how you find a defect you have not
 thought to look for yet.

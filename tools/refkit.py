@@ -282,7 +282,8 @@ def cmd_diff(a):
 
     k = _k(a)
     if a.regions:
-        rows = json.load(open(a.regions))
+        rows = (json.loads(a.regions) if a.regions.lstrip().startswith("{")
+                else json.load(open(a.regions)))
         print(f"{'region':<22} {'mine':<9} {'ref':<9} {'Δmax':>5}")
         for name, box in rows.items():
             x0, y0, x1, y1 = [int(round(v * k)) for v in box]
@@ -420,7 +421,7 @@ def main():
     d = s.add_parser("diff"); d.set_defaults(fn=cmd_diff)
     d.add_argument("mine"); d.add_argument("ref")
     d.add_argument("-o", "--out", default="diff.png", help="side-by-side png ('' to skip)")
-    d.add_argument("--regions", help='json {"name": [x0,y0,x1,y1], ...}')
+    d.add_argument("--regions", help='{"name": [x0,y0,x1,y1], ...} — inline or a .json path')
     d.add_argument("--pt", type=float, default=None)
     d.add_argument("--height", type=int, default=520)
     d.add_argument("--gap", type=int, default=8)
