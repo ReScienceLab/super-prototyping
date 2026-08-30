@@ -74,6 +74,39 @@ Never skip ahead — sampling before tokens, tokens before HTML.
 The loop is 1 → 4 → 1: a `diff` that disagrees sends you back to the grid, not to
 the CSS. A correction you have not re-rendered is not a correction.
 
+### Reading a colour off the reference
+
+The grid does not sample anything — it is step one of two. Overlay it, read the
+image, name the element each region belongs to, and *then* run the census over
+that region. Coordinates picked blind produce numbers with no element attached,
+and those are the numbers that end up in the wrong token.
+
+```bash
+refkit grid   p4.png -o g04.png --zoom 3 --minor 10 --major 50   # then LOOK at g04.png
+refkit sample p4.png 92 645 170 668 --pt 3                       # only now, in design pt
+```
+
+[![sampling three regions](assets/workflow/1b-sample.png)](assets/workflow/1b-sample.png)
+
+<sub>Three regions off one crop of the Presets list. Rendered from the board in
+this repo — the source captures are third-party and stay local, but the census
+reads the same either way.</sub>
+
+What you read out of `sample` depends on what you pointed it at:
+
+| pointing at | read | why |
+|---|---|---|
+| page background, card, sheet | **flat fills** | a pixel equal to all four neighbours is a real fill, not an antialiased edge |
+| badge, dot, chip, brand mark | **all pixels**, top entry, on a core-only crop | too small to have a flat interior |
+| text | **ink core** — the darkest few percent | the mode of a text region is its *background*: 94% of that `Mistral` box is `#F2F2F2` |
+| 1pt divider or border | `refkit hairline` instead | a hairline never reaches full coverage in a downscaled capture — solve it from the ink deficit, do not pick it |
+
+`--pt` is what keeps the two halves in the same unit: you type the design pt you
+read off the red labels, and the census answers in pt. A solve that lands within
+~2 of the page background means the rule is invisible at this resolution, which
+usually means the real UI has no divider there — not that the divider is
+`#FAFAFA`.
+
 ## Two worked examples
 
 Both are real `clone-prototype` runs, rebuilt from measured samples with the
