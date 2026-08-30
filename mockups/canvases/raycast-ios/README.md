@@ -65,9 +65,12 @@ blurred directly with `filter: blur(4.6px)`.
   forced with `<br>` and `white-space: nowrap` so the wraps match the source
   string for string regardless of the substituted face; measured line widths
   land within ~1.5%.
-- The presets backdrop runs ~4 levels dark of the source in the band around
-  y 240–320. A single Gaussian cannot match iOS's two-pass blur exactly; the
-  nav strip, the flat ground and the blobs all land within 5 levels.
+- **The presets backdrop is desaturated.** `refkit diff` puts mean chroma at
+  2.0 against the source's 5.9 — a single CSS Gaussian under two white veils
+  spreads the launcher's colour blobs but bleaches them, and below y 560 the
+  replica is effectively neutral where the source still carries a tint.
+  Luminance is not the problem: mean brightness matches to 0.1, and only the
+  y 240–320 band runs measurably dark (−2.5).
 
 ## The reference row is not checked in
 

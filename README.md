@@ -15,7 +15,7 @@ canvas/          the tldraw app (Vite + React + TypeScript)
 mockups/
   canvases/      one folder per board → one tldraw page; one .html → one shape
   assets/        icons, logos, reference crops that get inlined as data: URIs
-tools/refkit.py  grid / sample / hairline / shoot / montage
+tools/refkit.py  measure a reference, render a board, diff the two, audit tokens
 .agents/skills/  the workflow, as three skills (symlinked into .claude/skills/)
 ```
 
@@ -78,11 +78,16 @@ See `mockups/canvases/README.md` for `layout.json` rows and captions.
 `tools/refkit.py` needs `pillow` and `numpy`; `shoot` needs Google Chrome.
 
 ```bash
-python3 tools/refkit.py grid ref.png -o grid.png --zoom 3   # grid overlay to read by eye
-python3 tools/refkit.py sample ref.png 40 120 300 160        # flat-fill colour census
+python3 tools/refkit.py grid ref.png -o grid.png --zoom 3   # overlay to read by eye
+python3 tools/refkit.py sample ref.png 40 120 300 160 --pt 3 # fills, modes, ink core
+python3 tools/refkit.py bands ref.png 30 120 60 780 --pt 3   # ink bands and their pitch
+python3 tools/refkit.py scan ref.png col 196 380 410 --pt 3  # colour runs -> exact edge
 python3 tools/refkit.py hairline ref.png 40 200 300 204 --bg FFFFFF --scale 0.7634
-python3 tools/refkit.py shoot mockups/canvases/my-app/*.html -o shots --scale 2
-python3 tools/refkit.py montage shots/*.png -o board.png
+python3 tools/refkit.py shoot mockups/canvases/my-app/*.html -o mine \
+    --scale 3 --crop-phone --check-overflow                  # render, de-frame, fail if clipped
+python3 tools/refkit.py diff mine/01.png ref.png --pt 3 -o d.png   # side by side + numbers
+python3 tools/refkit.py tokens mockups/canvases/my-app       # one :root, no undefined var()
+python3 tools/test_refkit.py                                 # self-check
 ```
 
 ## Verify
