@@ -112,47 +112,15 @@ Never skip ahead — sampling before tokens, tokens before HTML.
 | Phase | What actually happens | Looks like |
 |---|---|---|
 | **0**<br>Collect<br>references | Save every capture to a scratch dir *first* — image caches rotate mid-task. Record the capture scale once, in px per design pt, and cross-check it against height. A 0.76 px/pt strip cannot settle thin ink, so get one native @3x capture of *any* screen in the same app.<br><br>**Out:** `p1.png … pN.png`, and one number — `300 / 393 = 0.7634`. | <a href="assets/workflow/0-capture-scale.png"><img src="assets/workflow/0-capture-scale.png" width="330"></a><br><sub>One settings row, both scales. The divider survives only one of them.</sub> |
-| **1**<br>Grid,<br>then **look** | `refkit grid` draws a labelled grid onto the pixels; you read it **as an image** and name each element before measuring anything. Then `sample` for fills and ink core, `bands`/`bbox`/`scan` for pitch and edges, `hairline` for the 1pt rules a downscaled capture dilutes.<br><br>**Out:** a token table with an **evidence** column — no evidence, no token. | <a href="assets/workflow/1-grid.png"><img src="assets/workflow/1-grid.png" width="330"></a><br><sub>Cyan every 10pt, red every 50. The preset rows land 64 apart — read, not guessed.</sub> |
+| **1a**<br>Grid,<br>then **look** | `refkit grid p4.png -o g04.png --zoom 3 --minor 10 --major 50` draws a labelled grid onto the pixels — then you read `g04.png` **as an image** and name the element each region belongs to *before* measuring anything. Coordinates picked blind produce numbers with no element attached, and those are the ones that land in the wrong token. Gutters, row pitch, insets and radii come off the same red labels.<br><br>**Out:** a named region list, in design pt. | <a href="assets/workflow/1-grid.png"><img src="assets/workflow/1-grid.png" width="330"></a><br><sub>Cyan every 10pt, red every 50. The preset rows land 64 apart — read, not guessed.</sub> |
+| **1b**<br>Sample,<br>region by<br>region | `refkit sample p4.png 76 646 132 668 --pt 3` runs a census over **one named region**; `--pt` keeps both halves in design pt, so you type the numbers you just read off the red labels. Which line of the census you believe depends on what you pointed at:<br>• page, card, sheet → **flat fills** — a pixel equal to all four neighbours is a real fill, not an antialiased edge<br>• badge, dot, brand mark → **all pixels**, top entry, on a core-only crop; too small to have a flat interior<br>• text → **ink core**, the darkest few percent — the mode of a text region is its *background*: 93% of that `Mistral` box is `#F2F2F2`<br>• pitch, edges, radii → `bands` / `bbox` / `scan`<br>• 1pt divider or border → `refkit hairline` instead; a hairline never reaches full coverage in a downscaled capture, so solve it from the ink deficit rather than picking it. A solve within ~2 of the page background means the real UI has no divider there.<br><br>**Out:** a token table with an **evidence** column — no evidence, no token. | <a href="assets/workflow/1b-sample.png"><img src="assets/workflow/1b-sample.png" width="330"></a><br><sub>Three named regions, three techniques, one crop of the Presets list. The label's own census is 93% background — the ink is the darkest 2%.</sub> |
 | **2**<br>Design<br>system | One `:root` block: font stack, colour ramp, radii per component class, composite `font:` shorthands, geometry constants. Built as the *first* artboard, because it is the contract every screen is checked against.<br><br>**Out:** `00-design-tokens.html`. | <a href="assets/workflow/2-tokens.png"><img src="assets/workflow/2-tokens.png" width="330"></a><br><sub>Every swatch carries its hex and the element it was sampled from.</sub> |
 | **3**<br>One<br>generator | A single `gen_<app>.py` emits every screen, inlining that `:root` byte-identically. Artboards are output, never source — hand-edit one and the next run reverts it.<br><br>**Out:** `NN-<slug>.html` × N, `layout.json`. | <a href="assets/workflow/3-generate.png"><img src="assets/workflow/3-generate.png" width="330"></a><br><sub>Four boards out of one script. 478 × 980 each, self-contained, no shared stylesheet.</sub> |
 | **4**<br>Verify by<br>rendering | `shoot --crop-phone --check-overflow` renders and de-frames, `diff --regions` puts your fill next to the reference's, `tokens` audits the `:root`. Fan the *looking* out — one read-only subagent per screen — and keep a single writer for the generator.<br><br>**Out:** a Δ per region, in numbers. | <a href="assets/workflow/4-diff.png"><img src="assets/workflow/4-diff.png" width="330"></a><br><sub>Two boards, one token apart. Nothing to see; six values to fix.</sub> |
 | **5**<br>Park the<br>reference | Each source capture goes into its own `ref-NN-*.html` as a `data:` URI, listed as a third `layout.json` row **in the same order** as the replicas — rows lay out at `index × (w + gap)`, so item N lands under item N.<br><br>**Out:** every replica sits directly above its source. | <a href="assets/workflow/5-reference-row.png"><img src="assets/workflow/5-reference-row.png" width="330"></a><br><sub>Row 3 sits under row 2, item for item. Ours stays local — the captures are third-party.</sub> |
 
-The loop is 1 → 4 → 1: a `diff` that disagrees sends you back to the grid, not to
-the CSS. A correction you have not re-rendered is not a correction.
-
-### Reading a colour off the reference
-
-The grid does not sample anything — it is step one of two. Overlay it, read the
-image, name the element each region belongs to, and *then* run the census over
-that region. Coordinates picked blind produce numbers with no element attached,
-and those are the numbers that end up in the wrong token.
-
-```bash
-refkit grid   p4.png -o g04.png --zoom 3 --minor 10 --major 50   # then LOOK at g04.png
-refkit sample p4.png 92 645 170 668 --pt 3                       # only now, in design pt
-```
-
-[![sampling three regions](assets/workflow/1b-sample.png)](assets/workflow/1b-sample.png)
-
-<sub>Three regions off one crop of the Presets list. Rendered from the board in
-this repo — the source captures are third-party and stay local, but the census
-reads the same either way.</sub>
-
-What you read out of `sample` depends on what you pointed it at:
-
-| pointing at | read | why |
-|---|---|---|
-| page background, card, sheet | **flat fills** | a pixel equal to all four neighbours is a real fill, not an antialiased edge |
-| badge, dot, chip, brand mark | **all pixels**, top entry, on a core-only crop | too small to have a flat interior |
-| text | **ink core** — the darkest few percent | the mode of a text region is its *background*: 94% of that `Mistral` box is `#F2F2F2` |
-| 1pt divider or border | `refkit hairline` instead | a hairline never reaches full coverage in a downscaled capture — solve it from the ink deficit, do not pick it |
-
-`--pt` is what keeps the two halves in the same unit: you type the design pt you
-read off the red labels, and the census answers in pt. A solve that lands within
-~2 of the page background means the rule is invisible at this resolution, which
-usually means the real UI has no divider there — not that the divider is
-`#FAFAFA`.
+The loop is 1a → 4 → 1a: a `diff` that disagrees sends you back to the grid, not
+to the CSS. A correction you have not re-rendered is not a correction.
 
 ## Constraints on every artboard
 
