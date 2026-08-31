@@ -1,0 +1,50 @@
+{
+  "name": "Apple Photos, iOS: grid, What's New, permissions",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        }
+      ]
+    },
+    {
+      "title": "Apple Photos replica screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-all-photos",
+          "label": "All Photos"
+        },
+        {
+          "file": "02-whats-new",
+          "label": "What's New"
+        },
+        {
+          "file": "03-notifications",
+          "label": "Notifications permission"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Figma renders",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-all-photos",
+          "label": "All Photos"
+        },
+        {
+          "file": "ref-02-whats-new",
+          "label": "What's New"
+        },
+        {
+          "file": "ref-03-notifications",
+          "label": "Notifications permission"
+        }
+      ]
+    }
+  ]
+}

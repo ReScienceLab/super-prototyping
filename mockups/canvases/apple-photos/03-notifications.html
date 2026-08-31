@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Photos - Notifications permission</title>
+<style>
+:root{
+  --ap-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --ap-bg:#FFFFFF;
+  --ap-elevated:#FFFFFF;
+  --ap-black:#000000;
+  --ap-white:#FFFFFF;
+  --ap-scrim:rgba(0,0,0,.20);
+  --ap-material:rgba(255,255,255,.70);
+  --ap-sep:#C7C7CC;
+
+  /* Ink */
+  --ap-ink:#000000;
+  --ap-grey:#8E8E93;
+  --ap-accent:#007BFE;
+
+  /* Radius */
+  --ap-r-alert:13px;
+  --ap-r-btn:14px;
+  --ap-r-island:100px;
+  --ap-r-phone:52px;
+
+  /* Type */
+  --ap-t-lg:700 34px/41px var(--ap-font);
+  --ap-t-nav:590 17px/22px var(--ap-font);
+  --ap-t-body:400 17px/22px var(--ap-font);
+  --ap-t-row:590 15px/20px var(--ap-font);
+  --ap-t-desc:400 15px/20px var(--ap-font);
+  --ap-t-note:400 13px/16px var(--ap-font);
+  --ap-t-tab:590 10px/12px var(--ap-font);
+
+  /* Metrics */
+  --ap-w:393px;
+  --ap-h:852px;
+  --ap-sb:54px;
+  --ap-nav:44px;
+  --ap-tile:129.67px;
+  --ap-gap:2px;
+  --ap-tabbar:83px;
+  --ap-tab:51px;
+  --ap-home:34px;
+  --ap-home-w:140px;
+  --ap-island-w:126px;
+  --ap-island-h:37px;
+  --ap-alert-w:270px;
+  --ap-hair:0.33px;
+  --ap-title-top:77px;
+  --ap-title-bottom:57px;
+  --ap-list-gap:24px;
+  --ap-icon:44px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ap-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+.phone{width:var(--ap-w);height:var(--ap-h);position:relative;flex:none;overflow:hidden;border-radius:var(--ap-r-phone);background:var(--ap-bg);color:var(--ap-ink);outline:1px solid rgba(0,0,0,.10);box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;right:0;top:0;height:var(--ap-sb);z-index:6}
+.sb .t{position:absolute;left:10px;top:18.5px;width:123.5px;height:22px;text-align:center;font:var(--ap-t-nav)}
+.sb .island{position:absolute;left:133.5px;top:11px;width:var(--ap-island-w);height:var(--ap-island-h);border-radius:var(--ap-r-island);background:var(--ap-black)}
+.sb svg{position:absolute;display:block}
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:var(--ap-home-w);height:5px;border-radius:var(--ap-r-island);background:var(--ap-ink)}
+.sheet{position:absolute;left:0;right:0;top:0;height:68px;z-index:4}
+.sheet .bar{height:58px;background:var(--ap-black)}
+.sheet .lip{position:absolute;left:0;top:58px;display:block;width:var(--ap-w);height:20px}
+h1{position:absolute;left:0;right:0;top:145px;height:41px;text-align:center;font:var(--ap-t-lg)}
+.listing{position:absolute;left:32px;top:243px;width:329px;display:flex;flex-direction:column;gap:var(--ap-list-gap)}
+.row{display:flex;align-items:center;gap:12px}
+.row .ic{position:relative;flex:none;width:var(--ap-icon);height:var(--ap-icon);color:var(--ap-accent)}
+.row .ic svg{position:absolute}
+.row .tx{flex:1;min-width:0}
+.row h3{font:var(--ap-t-row)}
+.row p{font:var(--ap-t-desc);color:var(--ap-grey)}
+.cta{position:absolute;left:44px;top:713px;width:305px;height:50px;border-radius:var(--ap-r-btn);background:var(--ap-accent);color:var(--ap-white);display:grid;place-items:center;font:var(--ap-t-nav)}
+.scrim{position:absolute;inset:0;background:var(--ap-scrim);z-index:5}
+.alert{position:absolute;left:61.5px;top:348px;width:var(--ap-alert-w);height:176px;z-index:6;border-radius:var(--ap-r-alert);overflow:hidden;background:var(--ap-material);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px)}
+.alert .c{padding:20px;text-align:center}
+.alert h4{font:var(--ap-t-nav)}
+.alert p{font:var(--ap-t-note)}
+.alert .btns{position:relative;display:flex;height:44px}
+.alert .btns::before{content:"";position:absolute;left:0;right:0;top:0;height:var(--ap-hair);background:var(--ap-sep)}
+.alert .btns::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:var(--ap-hair);background:var(--ap-sep)}
+.alert .btns span{flex:1;display:grid;place-items:center;color:var(--ap-accent);font:var(--ap-t-body)}
+</style>
+<div class="phone"><div class="sheet"><div class="bar"></div><svg class="lip" preserveAspectRatio="none" overflow="visible" style="display: block;" width="393" height="20" viewBox="0 0 393 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bottom Sheet" clip-path="url(#clip0_0_401)">
+<path id="Background" fill-rule="evenodd" clip-rule="evenodd" d="M364 0H393V20C393 14.4772 388.523 10 383 10H373V9C373 4.02944 368.971 0 364 0ZM29 0H0V20C0 14.4772 4.47715 10 10 10H20V9C20 4.02944 24.0294 0 29 0Z" fill="black"/>
+<path id="Bottom Sheet_2" d="M16 9C16 4.02944 20.0294 0 25 0H368C372.971 0 377 4.02944 377 9V10H16V9Z" fill="white"/>
+<path id="Overlay - Change Opacity" opacity="0.15" d="M16 9C16 4.02944 20.0294 0 25 0H368C372.971 0 377 4.02944 377 9V10H16V9Z" fill="black"/>
+</g>
+<defs>
+<clipPath id="clip0_0_401">
+<rect width="393" height="20" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</div><h1>What's New in Photos</h1><div class="listing"><div class="row"><span class="ic"><svg preserveAspectRatio="none" class="" style="left:4.996px;top:9.09px;width:33.997px;height:22.607px" xmlns="http://www.w3.org/2000/svg" viewBox="4.996 9.09 33.997 22.607" fill="currentColor"><path id="&#244;&#128;&#137;&#171;" d="M28.3354 20.4062C25.4302 20.4062 23.0742 17.8306 23.062 14.6934C23.0498 11.5928 25.4302 9.09033 28.3354 9.09033C31.2529 9.09033 33.6089 11.5439 33.6089 14.6689C33.6089 17.8184 31.2407 20.4062 28.3354 20.4062ZM14.2729 20.5039C11.7583 20.5039 9.69531 18.2578 9.69531 15.499C9.68311 12.8013 11.7583 10.5796 14.2729 10.5796C16.812 10.5796 18.8506 12.7646 18.8506 15.4746C18.8506 18.2456 16.7876 20.5039 14.2729 20.5039ZM28.3354 18.563C30.1299 18.563 31.6436 16.8296 31.6436 14.6689C31.6436 12.5449 30.1543 10.9336 28.3354 10.9336C26.5166 10.9336 25.0151 12.5693 25.0273 14.6934C25.0273 16.854 26.5532 18.563 28.3354 18.563ZM14.2729 18.6851C15.7744 18.6851 17.0439 17.2568 17.0439 15.4746C17.0439 13.7534 15.811 12.3984 14.2729 12.3984C12.7593 12.3984 11.5142 13.7778 11.5142 15.499C11.5142 17.2568 12.7715 18.6851 14.2729 18.6851ZM7.47363 31.6978C5.82568 31.6978 4.99561 31.0264 4.99561 29.6714C4.99561 25.6064 9.146 21.8955 14.2607 21.8955C16.2749 21.8955 18.167 22.4326 19.7417 23.4702C19.1924 23.8486 18.7407 24.2759 18.3623 24.7642C17.1782 24.0684 15.7866 23.7021 14.2607 23.7021C10.269 23.7021 6.81445 26.5342 6.81445 29.5615C6.81445 29.7935 6.92432 29.8911 7.18066 29.8911H16.1162C16.0308 30.6357 16.4702 31.3682 17.0562 31.6978H7.47363ZM20.6572 31.6978C18.6309 31.6978 17.6665 31.0874 17.6665 29.7446C17.6665 26.5464 21.707 21.9199 28.3232 21.9199C34.9517 21.9199 38.9922 26.5464 38.9922 29.7446C38.9922 31.0874 38.0278 31.6978 35.9893 31.6978H20.6572ZM20.0713 29.8545H36.5752C36.8926 29.8545 37.0269 29.769 37.0269 29.5127C37.0269 27.5107 33.9263 23.7632 28.3232 23.7632C22.7324 23.7632 19.6318 27.5107 19.6318 29.5127C19.6318 29.769 19.7539 29.8545 20.0713 29.8545Z" fill="currentColor"/></svg></span><span class="tx"><h3>Shared Library</h3><p>Combine photos and videos with the people closest to you and automatically share new photos from<br>Camera.</p></span></div><div class="row"><span class="ic"><svg preserveAspectRatio="none" class="" style="left:5.984px;top:4.891px;width:32.484px;height:31.719px" xmlns="http://www.w3.org/2000/svg" viewBox="5.984 4.891 32.484 31.719" fill="currentColor"><path id="&#244;&#129;&#154;&#138;" d="M10.5938 29.7969C7.53125 29.7969 5.98438 28.25 5.98438 25.2344V9.45312C5.98438 6.42188 7.53125 4.89062 10.5938 4.89062H26.2812C29.3281 4.89062 30.8906 6.45312 30.8906 9.45312V11.7031H33.8594C36.9062 11.7031 38.4688 13.25 38.4688 16.2656V32.0312C38.4688 35.0469 36.9062 36.6094 33.8594 36.6094H18.1719C15.1094 36.6094 13.5625 35.0625 13.5625 32.0312V29.7969H10.5938ZM10.625 27.8594H13.5625V16.2656C13.5625 13.2344 15.1094 11.7031 18.1719 11.7031H28.9531V9.5625C28.9531 7.75 27.9688 6.82812 26.25 6.82812H10.625C8.875 6.82812 7.92188 7.75 7.92188 9.5625V25.125C7.92188 26.9375 8.875 27.8594 10.625 27.8594ZM18.2031 34.6719H33.8281C35.5469 34.6719 36.5312 33.7344 36.5312 31.9375V16.3594C36.5312 14.5625 35.5469 13.625 33.8281 13.625H18.2031C16.4531 13.625 15.5 14.5625 15.5 16.3594V31.9375C15.5 33.7344 16.4531 34.6719 18.2031 34.6719ZM18.7031 20.9062C18.2344 20.9062 17.875 20.5469 17.875 20.0938C17.875 19.6406 18.2344 19.2812 18.7031 19.2812H25.7344C26.0938 17.9375 27.3125 16.9375 28.7656 16.9375C30.2031 16.9375 31.4219 17.9375 31.7812 19.2812H33.3906C33.8125 19.2812 34.1719 19.6406 34.1719 20.0938C34.1719 20.5469 33.8125 20.9062 33.3906 20.9062H31.7656C31.4062 22.2344 30.1875 23.2031 28.7656 23.2031C27.3281 23.2031 26.125 22.2344 25.75 20.9062H18.7031ZM28.7656 21.8125C29.7344 21.8125 30.5 21.0469 30.5 20.0625C30.5 19.0781 29.7344 18.3281 28.7656 18.3281C27.7812 18.3281 27.0312 19.0781 27.0312 20.0625C27.0312 21.0469 27.7812 21.8125 28.7656 21.8125ZM18.6719 29.2812C18.2344 29.2812 17.875 28.9062 17.875 28.4531C17.875 28 18.2344 27.6406 18.6719 27.6406H20.2656C20.625 26.2969 21.8438 25.3125 23.2969 25.3125C24.75 25.3125 25.9688 26.2969 26.3281 27.6406H33.3438C33.8125 27.6406 34.1719 28 34.1719 28.4531C34.1719 28.9062 33.8125 29.2812 33.3438 29.2812H26.3125C25.9375 30.5938 24.7344 31.5625 23.2969 31.5625C21.8594 31.5625 20.6562 30.5938 20.2812 29.2812H18.6719ZM23.2969 30.1719C24.2656 30.1719 25.0312 29.4062 25.0312 28.4219C25.0312 27.4375 24.2656 26.6875 23.2969 26.6875C22.3281 26.6875 21.5625 27.4375 21.5625 28.4219C21.5625 29.4062 22.3281 30.1719 23.2969 30.1719Z" fill="currentColor"/></svg></span><span class="tx"><h3>Copy &amp; Paste Edits</h3><p>Save time by making edits to one photo, then applying the changes to other photos with a tap.</p></span></div><div class="row"><span class="ic"><svg preserveAspectRatio="none" class="" style="left:5.984px;top:4.891px;width:32.484px;height:31.719px" xmlns="http://www.w3.org/2000/svg" viewBox="5.984 4.891 32.484 31.719" fill="currentColor"><path id="&#244;&#128;&#144;&#133;" d="M10.5938 29.7969C7.53125 29.7969 5.98438 28.25 5.98438 25.2344V9.45312C5.98438 6.42188 7.53125 4.89062 10.5938 4.89062H26.2812C29.3281 4.89062 30.8906 6.45312 30.8906 9.45312V11.7031H33.8594C36.9062 11.7031 38.4688 13.25 38.4688 16.2656V32.0312C38.4688 35.0469 36.9062 36.6094 33.8594 36.6094H18.1719C15.1094 36.6094 13.5625 35.0625 13.5625 32.0312V29.7969H10.5938ZM10.625 27.8594H13.5625V16.2656C13.5625 13.2344 15.1094 11.7031 18.1719 11.7031H28.9531V9.5625C28.9531 7.75 27.9688 6.82812 26.25 6.82812H10.625C8.875 6.82812 7.92188 7.75 7.92188 9.5625V25.125C7.92188 26.9375 8.875 27.8594 10.625 27.8594ZM18.2031 34.6719H33.8281C35.5469 34.6719 36.5312 33.7344 36.5312 31.9375V16.3594C36.5312 14.5625 35.5469 13.625 33.8281 13.625H18.2031C16.4531 13.625 15.5 14.5625 15.5 16.3594V31.9375C15.5 33.7344 16.4531 34.6719 18.2031 34.6719Z" fill="currentColor"/></svg></span><span class="tx"><h3>Merge Duplicates</h3><p>Quickly find and merge all your duplicate photos and videos from one central place in the Albums tab.</p></span></div></div><div class="cta">Continue</div><div class="home"></div><div class="scrim"></div><div class="alert"><div class="c"><h4>"Photos" Would Like to Send<br>You Notifications</h4><p>Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.</p></div><div class="btns"><span>Don't Allow</span><span>Allow</span></div></div><div class="sb" style="color:var(--ap-white)"><div class="t">1:47</div><div class="island"></div><svg preserveAspectRatio="none" class="" style="left:282.599px;top:22.108px;width:19.472px;height:12.538px" xmlns="http://www.w3.org/2000/svg" viewBox="305 21 22.396 14.41" fill="currentColor"><path id="Bar Empty" opacity="0.2" d="M324.512 35.4102H326.512C327.035 35.4102 327.384 35.0449 327.384 34.5054V32.7783C327.384 32.2388 327.035 31.8818 326.512 31.8818H324.512C323.989 31.8818 323.64 32.2388 323.64 32.7783V34.5054C323.64 35.0449 323.989 35.4102 324.512 35.4102Z" fill="currentColor"/>
+<path id="Bar #4 Full" d="M324.515 35.4102H326.532C327.047 35.4102 327.396 35.0449 327.396 34.5054V21.9048C327.396 21.3652 327.047 21 326.532 21H324.515C324.001 21 323.644 21.3652 323.644 21.9048V34.5054C323.644 35.0449 324.001 35.4102 324.515 35.4102Z" fill="currentColor"/>
+<path id="Bar Empty_2" opacity="0.2" d="M318.302 35.4102H320.302C320.825 35.4102 321.174 35.0449 321.174 34.5054V32.7783C321.174 32.2388 320.825 31.8818 320.302 31.8818H318.302C317.779 31.8818 317.43 32.2388 317.43 32.7783V34.5054C317.43 35.0449 317.779 35.4102 318.302 35.4102Z" fill="currentColor"/>
+<path id="Bar #3 Full" d="M318.306 35.4102H320.307C320.821 35.4102 321.178 35.0449 321.178 34.5054V25.1836C321.178 24.644 320.821 24.2788 320.307 24.2788H318.306C317.783 24.2788 317.435 24.644 317.435 25.1836V34.5054C317.435 35.0449 317.783 35.4102 318.306 35.4102Z" fill="currentColor"/>
+<path id="Bar Empty_3" opacity="0.2" d="M312.092 35.4102H314.092C314.615 35.4102 314.964 35.0449 314.964 34.5054V32.7783C314.964 32.2388 314.615 31.8818 314.092 31.8818H312.092C311.569 31.8818 311.22 32.2388 311.22 32.7783V34.5054C311.22 35.0449 311.569 35.4102 312.092 35.4102Z" fill="currentColor"/>
+<path id="Bar #2 Full" d="M312.089 35.4102H314.089C314.612 35.4102 314.961 35.0449 314.961 34.5054V28.1885C314.961 27.6489 314.612 27.2837 314.089 27.2837H312.089C311.566 27.2837 311.217 27.6489 311.217 28.1885V34.5054C311.217 35.0449 311.566 35.4102 312.089 35.4102Z" fill="currentColor"/>
+<path id="Bar Empty_4" opacity="0.2" d="M305.872 35.4102H307.872C308.395 35.4102 308.744 35.0449 308.744 34.5054V32.7783C308.744 32.2388 308.395 31.8818 307.872 31.8818H305.872C305.349 31.8818 305 32.2388 305 32.7783V34.5054C305 35.0449 305.349 35.4102 305.872 35.4102Z" fill="currentColor"/>
+<path id="Bar #1 Full" d="M305.872 35.4102H307.872C308.395 35.4102 308.744 35.0449 308.744 34.5054V30.7783C308.744 30.2388 308.395 29.8818 307.872 29.8818H305.872C305.349 29.8818 305 30.2388 305 30.7783V34.5054C305 35.0449 305.349 35.4102 305.872 35.4102Z" fill="currentColor"/></svg><svg preserveAspectRatio="none" class="" style="left:309.077px;top:22.98px;width:16.621px;height:12.004px" xmlns="http://www.w3.org/2000/svg" viewBox="335 22.008 19.114 13.796" fill="currentColor"><path id="Vector" d="M344.555 35.8042C344.738 35.8042 344.896 35.7212 345.219 35.4058L347.245 33.4634C347.369 33.3389 347.403 33.1562 347.286 33.0068C346.747 32.3096 345.726 31.7036 344.555 31.7036C343.352 31.7036 342.331 32.3345 341.791 33.0566C341.708 33.1895 341.741 33.3389 341.874 33.4634L343.891 35.4058C344.215 35.7129 344.373 35.8042 344.555 35.8042ZM339.7 31.2886C339.882 31.4629 340.106 31.438 340.272 31.2554C341.268 30.1514 342.895 29.3462 344.555 29.3545C346.232 29.3462 347.859 30.1763 348.872 31.2803C349.021 31.4546 349.229 31.4463 349.411 31.2803L350.698 30.002C350.831 29.8691 350.848 29.6865 350.723 29.5371C349.47 28.0015 347.145 26.8477 344.555 26.8477C341.966 26.8477 339.641 28.0015 338.388 29.5371C338.263 29.6865 338.272 29.8525 338.413 30.002L339.7 31.2886ZM336.255 27.8189C336.421 27.9766 336.653 27.9766 336.811 27.8106C338.853 25.644 341.542 24.4985 344.555 24.4985C347.585 24.4985 350.291 25.6523 352.317 27.8189C352.466 27.9683 352.69 27.96 352.856 27.8022L354.002 26.6567C354.151 26.5073 354.143 26.3247 354.027 26.1836C352.076 23.7764 348.407 22.0083 344.555 22.0083C340.712 22.0083 337.027 23.7764 335.084 26.1836C334.968 26.3247 334.968 26.5073 335.109 26.6567L336.255 27.8189Z" fill="currentColor"/></svg><svg preserveAspectRatio="none" class="" style="left:332.947px;top:22.98px;width:26.824px;height:12.135px" xmlns="http://www.w3.org/2000/svg" viewBox="362 22.017 30.848 13.938" fill="currentColor"><path id="Outside" opacity="0.4" d="M367.522 35.9548H384.203C386.149 35.9548 387.54 35.7363 388.532 34.7438C389.528 33.7513 389.733 32.3858 389.733 30.4323V27.5391C389.733 25.5856 389.528 24.2134 388.532 23.2242C387.537 22.2318 386.149 22.0166 384.203 22.0166H367.461C365.59 22.0166 364.196 22.2351 363.204 23.2309C362.208 24.2234 362 25.5997 362 27.4702V30.4323C362 32.3858 362.204 33.7546 363.197 34.7438C364.196 35.7363 365.58 35.9548 367.522 35.9548ZM367.239 34.6249C365.973 34.6249 364.833 34.4245 364.171 33.77C363.519 33.1081 363.33 31.9852 363.33 30.7156V27.3138C363.33 25.9927 363.519 24.8566 364.167 24.1947C364.829 23.5294 365.987 23.3432 367.305 23.3432H384.493C385.76 23.3432 386.9 23.5468 387.551 24.198C388.213 24.86 388.403 25.9753 388.403 27.2449V30.7156C388.403 31.9852 388.21 33.1081 387.551 33.77C386.9 34.4279 385.76 34.6249 384.493 34.6249H367.239ZM390.977 31.601C391.772 31.5506 392.848 30.5256 392.848 28.9819C392.848 27.4424 391.772 26.4174 390.977 26.367V31.601Z" fill="currentColor"/>
+<path id="Inside" d="M366.863 33.5219H384.88C385.844 33.5219 386.417 33.3712 386.781 33.0071C387.145 32.6397 387.303 32.0635 387.303 31.0992V26.8687C387.303 25.8977 387.145 25.3282 386.784 24.9608C386.417 24.6001 385.837 24.446 384.88 24.446H366.932C365.903 24.446 365.309 24.5968 364.959 24.9575C364.598 25.3249 364.44 25.9185 364.44 26.9302V31.0992C364.44 32.0735 364.598 32.6397 364.959 33.0071C365.326 33.3678 365.906 33.5219 366.863 33.5219Z" fill="currentColor"/></svg></div></div>
+</html>
