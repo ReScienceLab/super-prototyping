@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Luma iOS — Design Tokens</title>
+<style>
+:root{
+  --l-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Ambient backdrop — a measured 24x52 field per event, upscaled and blurred */
+  --l-bg-a:#918A72;       /* ELSEWHERE field median                      */
+  --l-bg-b:#9B8C7B;       /* Clay Date! field median                     */
+  --l-bg-c:#602A34;       /* Karaoke field median                        */
+
+  /* Fills (white over the backdrop) */
+  --l-fill-btn:rgba(255,255,255,.10);   /* action button                 */
+  --l-fill-card:rgba(255,255,255,.10);  /* invite banner, manage tile    */
+  --l-fill-round:rgba(255,255,255,.075);/* round "more" button           */
+  --l-round-mat:saturate(.5);           /* round "more" button material  */
+  --l-hairline:rgba(255,255,255,.07);   /* section divider, chip outline */
+  --l-scrim-nav:rgba(0,0,0,.47);        /* nav scrim over the nav blur   */
+  --l-nav-blur:blur(60px) saturate(.72);/* nav bar material              */
+  --l-mat-foot:rgba(64,66,70,.415);     /* sticky-footer material, full  */
+
+  /* Ink */
+  --l-ink:#FFFFFF;                      /* titles, body, names           */
+  --l-ink-2:rgba(255,255,255,.6);       /* labels, dates, addresses      */
+  --l-ink-glyph:rgba(255,255,255,.84);  /* button glyph + label, dots    */
+  --l-ink-inv:#000000;                  /* label on a white button       */
+  --l-amber:#F1CD8A;                    /* host-only section headers     */
+  --l-red:#FB7871;                      /* Cancel Event                  */
+  --l-cta:#FFFFFF;                      /* sticky call-to-action fill    */
+
+  /* Radius */
+  --l-r-card:14px;  --l-r-btn:14px;  --l-r-tile:16px;
+  --l-r-pill:999px; --l-r-phone:52px;
+
+  /* Type — SF Pro, Chrome-calibrated against the captures */
+  --l-t-title:600 28px/34px var(--l-font);  /* event title              */
+  --l-t-nav:600 17px/22px var(--l-font);    /* nav bar title            */
+  --l-track-nav:-.16px;                     /* nav title tracking       */
+  --l-t-h2:600 22px/28px var(--l-font);     /* description heading      */
+  --l-t-body:400 17px/24px var(--l-font);   /* description copy         */
+  --l-t-list:400 17px/28px var(--l-font);   /* numbered list item       */
+  --l-t-row:500 17px/22px var(--l-font);    /* venue name, host name    */
+  --l-t-date:400 17px/22px var(--l-font);   /* date line                */
+  --l-t-cta:500 17px/22px var(--l-font);    /* sticky button label      */
+  --l-t-stat:600 20px/24px var(--l-font);   /* guest-stat number        */
+  --l-t-label:500 15px/20px var(--l-font);  /* section header           */
+  --l-t-name:500 15px/20px var(--l-font);   /* invite-banner name       */
+  --l-t-meta:400 15px/20px var(--l-font);   /* address, guest, tile     */
+  --l-t-sub:400 13px/18px var(--l-font);    /* host tagline, stat label */
+  --l-t-chip:500 13px/18px var(--l-font);   /* tag chip                 */
+  --l-t-btn:500 12px/16px var(--l-font);    /* action button label      */
+  --l-t-time:600 17px/22px var(--l-font);   /* status bar clock         */
+
+  /* Metrics */
+  --l-gutter:20px;      /* screen gutter, both sides                    */
+  --l-content:353px;    /* 393 - 2 x gutter                             */
+  --l-status:54px;      /* status bar                                   */
+  --l-nav:110.7px;      /* nav bar bottom edge                          */
+  --l-hero:352px;       /* hero card, 353 x 352                         */
+  --l-map:120px;        /* map card height                              */
+  --l-avatar:32px;      /* guest / host avatar                          */
+  --l-btn-h:54.3px;     /* action button height                         */
+  --l-btn-w:83.675px;   /* action button width (gap 6.1)                */
+  --l-tile:112.33px;    /* manage tile, square, gap 8                   */
+  --l-cta-h:50px;       /* sticky button height                         */
+  --l-rule:24px;        /* section label ink top -> divider             */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+/* No board background: the phone floats on the canvas ground, and its drop shadow
+   lands on whatever the artboard is placed over instead of a cream rectangle. */
+body{font-family:var(--l-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:var(--l-r-phone);overflow:hidden;
+  flex:none;background:#000;color:var(--l-ink);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28)}
+.bg{position:absolute;left:-8%;top:-8%;width:116%;height:116%;
+  background-size:100% 100%;filter:blur(11px)}
+.scroll{position:absolute;inset:0;overflow:hidden}
+.scroll.faded{-webkit-mask-image:linear-gradient(#000 733px,rgba(0,0,0,.105) 798px,transparent 800px);
+  mask-image:linear-gradient(#000 733px,rgba(0,0,0,.105) 798px,transparent 800px)}
+.doc{position:absolute;left:0;width:393px}
+.doc>*{position:absolute;left:20px;width:353px}
+.hero,.map{border-radius:var(--l-r-card);display:block;object-fit:cover}
+.rule{height:1px;background:var(--l-hairline)}
+
+/* type roles */
+.t-title{font:var(--l-t-title)}
+.t-h2{font:var(--l-t-h2)}
+.t-body{font:var(--l-t-body)}
+.t-list{font:var(--l-t-list)}
+.t-row{font:var(--l-t-row)}
+.t-date{font:var(--l-t-date);color:var(--l-ink-2)}
+.t-label{font:var(--l-t-label);color:var(--l-ink-2)}
+.t-meta{font:var(--l-t-meta)}
+.t-sub{font:var(--l-t-sub);color:var(--l-ink-2)}
+.dim{color:var(--l-ink-2)}
+.t-body a{color:inherit;text-decoration:underline;text-underline-offset:.7px;
+  text-decoration-thickness:1px;text-decoration-color:rgba(255,255,255,.36)}
+
+/* section header: label left, optional action right */
+.sect{display:flex;justify-content:space-between;align-items:baseline}
+.sect.amber{color:var(--l-amber)}
+.sect.amber .lk{position:absolute;right:2px;top:2.67px;width:10px;height:14.33px}
+.sect.amber .lk svg{width:100%;height:100%;display:block}
+
+/* action buttons */
+.btns{display:flex;gap:6.1px;height:var(--l-btn-h)}
+.btns>div{width:var(--l-btn-w);height:var(--l-btn-h);border-radius:var(--l-r-btn);
+  background:var(--l-fill-btn);position:relative;color:var(--l-ink-glyph)}
+.btns>div.pri{background:#fff;color:var(--l-ink-inv)}
+.btns .gl{position:absolute;left:50%;top:19.1px;transform:translate(-50%,-50%)}
+.btns .gl svg{width:100%;height:100%;display:block}
+.btns .lb{position:absolute;left:0;right:0;top:30.81px;text-align:center;font:var(--l-t-btn)}
+
+/* rows with an avatar */
+.arow{display:flex;align-items:center;gap:10px}
+.arow img{width:var(--l-avatar);height:var(--l-avatar);border-radius:50%;flex:none;object-fit:cover}
+.arow .nm{font:var(--l-t-row)}
+
+/* weather corner: icon ink box and temperature both placed from measurement */
+.wxi svg{width:100%;height:100%;display:block}
+
+/* tag chip */
+.chip{display:inline-block;width:auto;font:var(--l-t-chip);color:var(--l-ink-2);
+  border:1px solid var(--l-hairline);border-radius:var(--l-r-pill);padding:5px 8.5px}
+
+/* manage tiles */
+.tiles{display:flex;gap:8px}
+.tile{width:var(--l-tile);height:var(--l-tile);border-radius:var(--l-r-tile);
+  background:var(--l-fill-card);padding:13px;position:relative;flex:none}
+.tile .ic{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.11);
+  display:grid;place-items:center}
+.tile .ic span{display:block}
+.tile .ic svg{width:100%;height:100%;display:block}
+.tile .lb{position:absolute;left:13px;right:8px;bottom:13.4px;font:var(--l-t-meta)}
+.tile.dngr .ic{background:rgba(251,120,113,.18);color:var(--l-red)}
+.tile.dngr .lb{color:var(--l-red)}
+
+/* guest stats */
+.stats{display:grid;grid-template-columns:repeat(3,115px);gap:4px}
+.stats b{font:var(--l-t-stat);display:block}
+
+/* chrome */
+.nav{position:absolute;left:0;top:0;width:393px;height:var(--l-nav);
+  background:var(--l-scrim-nav);
+  -webkit-backdrop-filter:var(--l-nav-blur);backdrop-filter:var(--l-nav-blur)}
+.foot{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(rgba(64,66,70,0) 723px,var(--l-mat-foot) 800px)}
+.nav .ttl{position:absolute;left:0;top:77.6px;width:393px;text-align:center;font:var(--l-t-nav);
+  letter-spacing:var(--l-track-nav)}
+.grab{position:absolute;left:176.67px;top:59px;width:40px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,.32)}
+.statusbar{position:absolute;left:0;top:0;width:393px;height:var(--l-status)}
+.statusbar .time{position:absolute;left:0;top:18.2px;width:142.4px;font:var(--l-t-time);
+  display:flex;align-items:center;justify-content:center;gap:3.1px}
+.statusbar .time svg{position:static;width:17.5px;height:17.5px;display:block;flex:none}
+.statusbar svg{position:absolute;display:block;fill:#fff}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+/* the indicator is not white: iOS picks a colour against the wallpaper, measured per screen */
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px}
+.sticky{position:absolute;left:20px;top:748px;width:353px;height:var(--l-cta-h);
+  display:flex;gap:7.3px}
+.sticky .cta{flex:1;height:var(--l-cta-h);border-radius:var(--l-r-pill);background:var(--l-cta);
+  color:var(--l-ink-inv);font:var(--l-t-cta);display:grid;place-items:center}
+.sticky .more{width:50px;height:50px;border-radius:50%;background:var(--l-fill-round);
+  -webkit-backdrop-filter:var(--l-round-mat);backdrop-filter:var(--l-round-mat);
+  display:grid;place-items:center;flex:none;color:var(--l-ink-glyph)}
+.sticky .more svg{width:100%;height:100%;display:block}
+body{background:#EDEBE7;padding:0}
+.board{width:430px;height:932px;background:#1B1815;border-radius:20px;padding:16px 22px 14px;
+  box-shadow:0 18px 44px rgba(29,25,26,.22);overflow:hidden;color:#fff;position:relative}
+.board::before{content:"";position:absolute;inset:0;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAA0CAIAAAAfe2/iAAACb0lEQVR42u2WWc7cMAyDScX3v0BvUKCHa1FguozIPthJnN+Jkz4WqDGDWSx/oWR64ZfPn7A3w+sXAICUr9fPr9++v378kjSE7ZHF1v6rfroDWfLeYH8MBuqfxXZ9gruOjZepVNaXUvu4/hMAXKzcxnrt9srTsR00HN4uUvYyenW2LVlpJZS21tT3Cmzqiq1Vjve4NagTY8m9hP6xAIryPZZnFyZZsmwJVlcVu59suyjfH2eym19btgwZtn0SCQAgUGRhbFugRZgAAfIw8kjiQdHYJNsJmGFi1opTk+6WGUkG6RmoM/65IthBLAGSc1DOQIZRQRGepqZ5agDtJQguntdonlpjBQPzWqPYOY8gGIwgMa+R7xQBYIBBxoxUbN+kVj0ZIBhxqeseBNhKJUgiFpKnPrgFuY2ylL8ZWFhTHUCwptVh53JlvqvHR1EFE0XBMcvMBBBYeOwt84m/qFiyPofcYi5rxLj0oO3MDDjILaycYu7c1zYGEaSqqCJooBAM8xbVzhNb5GmNHhEOA2zEuLCApyC3o2WYtS0bt/OEE312y76yCi52dLtxbZMQCDC0zsKwy8WjElznu7mnPHMjT/rBKray4pJCmjThaEx+BPVXEhSysVuqsWxyzMPwM2NxY5U+KCL4bO63KdsXLQN2Per5xEH7PYJgdykrzSmsm9jhHrFWpnXL7k1F7Yc4Z9tINSN7mRyl1b90AJFb725xH53tA80ALRAGShe4LYi/WLReH15uwsYpl4ezwbegbgmcrV2u6/sBCK6+PN++t8yIgsMOGVfXiDMzuT+Binc3GBC5PAANVD/aRh61/6B/EfQH1C/gI7W2NJEAAAAASUVORK5CYII=) center/100% 100%;
+  filter:blur(24px);opacity:.55}
+.board>*{position:relative}
+header{display:flex;gap:10px;align-items:flex-start;padding-bottom:7px;
+  border-bottom:1px solid rgba(255,255,255,.14)}
+.mark{width:30px;height:30px;border-radius:8px;background:#fff;color:#1B1815;flex:none;
+  display:grid;place-items:center;font:700 17px/1 var(--l-font)}
+h1{font:600 18px/22px var(--l-font)}
+header p{font:400 10.5px/14px var(--l-font);color:rgba(255,255,255,.62);margin-top:2px}
+h2{font:600 9px/12px var(--l-font);letter-spacing:.8px;text-transform:uppercase;
+  color:rgba(255,255,255,.45);margin:3px 0 2px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.sw .chip{height:18px;border-radius:5px;border:1px solid rgba(255,255,255,.14)}
+.swm{margin-top:3px;display:flex;flex-direction:column}
+.swm b{font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.swm i{font:400 8px/11px ui-monospace,Menlo,monospace;color:rgba(255,255,255,.62);font-style:normal;
+  word-break:break-all}
+.swm s{font:400 8.5px/11px var(--l-font);color:rgba(255,255,255,.42);text-decoration:none}
+.type .tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:0 0 1px;border-bottom:1px solid rgba(255,255,255,.08)}
+.type .tr span{white-space:nowrap;overflow:hidden}
+.type em{font:400 8px/11px ui-monospace,Menlo,monospace;color:rgba(255,255,255,.42);
+  font-style:normal;white-space:nowrap;flex:none}
+.rad{display:flex;gap:8px}
+.rad>div{text-align:center}
+.rb{width:40px;height:22px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.14)}
+.rad em{display:block;margin-top:1px;font:400 8.5px/11px var(--l-font);
+  color:rgba(255,255,255,.42);font-style:normal}
+.metrics{margin-top:2px;font:400 8.5px/12px ui-monospace,Menlo,monospace;color:rgba(255,255,255,.62)}
+.comps{height:76px;overflow:hidden}
+.comps>div{display:flex;gap:10px;align-items:center;transform:scale(.66);transform-origin:0 0;
+  width:151.5%}
+.comps .btns{height:54.3px}
+.comps .tile{background:var(--l-fill-card);flex:none}</style>
+</head>
+<body>
+<div class="board"><header><div class="mark">l</div><div><h1>Luma iOS &mdash; Design Tokens</h1><p>Eight 393&times;852&nbsp;pt @3x captures. Every artboard here inlines this <code>:root</code> byte-identically.</p></div></header><h2>Ambient backdrop &mdash; measured 24&times;52 field per event</h2><div class="grid"><div class="sw"><div class="chip" style="background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAA0CAIAAAAfe2/iAAACb0lEQVR42u2WWc7cMAyDScX3v0BvUKCHa1FguozIPthJnN+Jkz4WqDGDWSx/oWR64ZfPn7A3w+sXAICUr9fPr9++v378kjSE7ZHF1v6rfroDWfLeYH8MBuqfxXZ9gruOjZepVNaXUvu4/hMAXKzcxnrt9srTsR00HN4uUvYyenW2LVlpJZS21tT3Cmzqiq1Vjve4NagTY8m9hP6xAIryPZZnFyZZsmwJVlcVu59suyjfH2eym19btgwZtn0SCQAgUGRhbFugRZgAAfIw8kjiQdHYJNsJmGFi1opTk+6WGUkG6RmoM/65IthBLAGSc1DOQIZRQRGepqZ5agDtJQguntdonlpjBQPzWqPYOY8gGIwgMa+R7xQBYIBBxoxUbN+kVj0ZIBhxqeseBNhKJUgiFpKnPrgFuY2ylL8ZWFhTHUCwptVh53JlvqvHR1EFE0XBMcvMBBBYeOwt84m/qFiyPofcYi5rxLj0oO3MDDjILaycYu7c1zYGEaSqqCJooBAM8xbVzhNb5GmNHhEOA2zEuLCApyC3o2WYtS0bt/OEE312y76yCi52dLtxbZMQCDC0zsKwy8WjElznu7mnPHMjT/rBKray4pJCmjThaEx+BPVXEhSysVuqsWxyzMPwM2NxY5U+KCL4bO63KdsXLQN2Per5xEH7PYJgdykrzSmsm9jhHrFWpnXL7k1F7Yc4Z9tINSN7mRyl1b90AJFb725xH53tA80ALRAGShe4LYi/WLReH15uwsYpl4ezwbegbgmcrV2u6/sBCK6+PN++t8yIgsMOGVfXiDMzuT+Binc3GBC5PAANVD/aRh61/6B/EfQH1C/gI7W2NJEAAAAASUVORK5CYII=) center/100% 100%"></div><div class="swm"><b>--l-bg-a</b><i>#918A72</i><s>ELSEWHERE</s></div></div><div class="sw"><div class="chip" style="background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAA0CAIAAAAfe2/iAAACsUlEQVR42u2WTbLjNhCDAYr3P0WWs8jlssmI+LLgj2TLst+8ySZVYblsmiJBdBNC03/++EOSkCT3H7Ra4Gdrf+1//2wt4vxIyEefOp5xAuD0Q2/qX09AnHqVZAHxBIQCJOMDZxQ90q9jOQ8bLCAe2pX1iEtSTbKoHGBzJJAkLUlyATpPrgRdcrwYTiZnQq9ISTVpT0N6ynUgrAzcNKrSLqM+1oA6ErkH6Yxa033rOSJtHO59q292WidXRBHvkao+bIVIV7F/j9F4eWx/Cq3xfoZFKRR/mFaVDzNkLD4R+gyES0zKksUdUOB9piFSs6VS3kBVvxNaS/a4mRRLqtpusSq3jLqD7NAE7sfnTVt5GWO9iQiUxg5RP6/EOxh5k1/weinIhKCG2qPvRjsW2jaXZ171RUQKNKnpqp3Avkv4wuspR0BQk+7fG0IjjrftTKpeXDNvXGfxUmsRpWyaSq2c3uovoUzmtBZYyarzQR4L1ZcaadLAWjlC32oQgu36qwsv/V4RqfOARiG1BdjD+qcCehEJQkbuJWh0GC+t2tnCGBtIBs/BUVIiQ0JZ82eZcOqZ4fyOpInSq1rsPhKNvwbkrCjn8fsCBDb0kN0jWeIIx1kfgsyD1KzTSKTIDxsMFCK7BzUFOXrLSyNFczViSGyUEVgFYd16eqVFu1QsSz6qxqnOnv76ord5c1J6aEGecF9R0LKCJtLveTU+MlLoWC+1zikuhk9wGFZFR+1vdtHmY42mWNIvbxDcr5pkoEygE6NhAAZpx5FsFaugRHtoKMI2s4j7bGz7E5AUuaEFtHUgtATZ1W77MNwqt8dELIfs00toS9MP9wEB2OWFsUmRmvw08t7ghuhqhr3Og3P8HWPxw6nd3EbEJ17S8CPfq+5L/n3NkZA+3qmuKJKK/qX2P9B/Eegf2aCu/D8oVagAAAAASUVORK5CYII=) center/100% 100%"></div><div class="swm"><b>--l-bg-b</b><i>#9B8C7B</i><s>Clay Date!</s></div></div><div class="sw"><div class="chip" style="background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAA0CAIAAAAfe2/iAAACxklEQVR42u2WXa7bOgyEv1GU04d2HV1AF9r93ntsTh9E2Zb/kgJ9KVAFMOyIGpEzJCX9/P4DMBjYPPOl6PF8Pr99LR8flLKzNIANNnVZvAwPLwIZ5YuONjIgahx8WZ8CEQVLLqJo44tWOGGos8xuYoQTshroCtQWg5YltUMcgJqpZClUpII0OLvupyG0AUgrZbEhuDuy2Gj5v85aPRrg2h8SIoSElIsHfTp0nfbe7HgydpAs4b1l/1ANiZshSXJmwNlIJNf5FgchsE34xOvNqJ+UexyhsCOi3ANFuY+MwI6ZWYOWR6CJu+liivFsKxy3QPccGQp2BBPcylKDe7aZzRwRvLCr0+18AfBnzMWBdMNn9bXDtieYI2SHhFS5xKr2JTthBzb857ApFOAKq8YlzYkSMKWCs80XeJ7xVU81DRsPW8zwf6v5MPBgn8f1NCjbHLadWrsVNh/2DqueUBPhC7FnmFCT52k/NmZ1yHvzojQhOlzBy6kweGSDM6j7YZjFJ8IuC9Chgl4DJRYSfsBj45E3zfXd0TIDwKFMer1ecy7uJnVr59itJhrdgrBLk9oExsjuh6Yao1KoC1ztWLSKpQO7ddg8btq0ejjqvLaW0OSpJk5bbHfTyOpqOrEElht4SBRUl0LfkpUhgoniBBUZUjsypeZD88lVYUtvyqTuVCuOUJ7uMcr/e9ovkbrnUbQbzniAenwktbjfLVbv3IFaoTtSVlJsJ0a4b5ICKRjuXnlq1Y2r3rpzcYFjuGFA1ppUyxsVf0eWMpUrsekFb9PcU22FS7KFLCUx6rViJNle+lz0uLWJriVPqzXLdr8idsK8JipDnxJq9STaz8JVG9ubQ9n7ProlQyar30mbm9bZLNs966pnLjatE1XH5jI2VtwSkcfdj108OYrBylA8CszZ5w6xZog6FMirzplLnHlQ+EPjH9DfCPQLZxHywHFzWEUAAAAASUVORK5CYII=) center/100% 100%"></div><div class="swm"><b>--l-bg-c</b><i>#602A34</i><s>Karaoke</s></div></div><div class="sw"><div class="chip" style="background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAA0CAIAAAAfe2/iAAACb0lEQVR42u2WWc7cMAyDScX3v0BvUKCHa1FguozIPthJnN+Jkz4WqDGDWSx/oWR64ZfPn7A3w+sXAICUr9fPr9++v378kjSE7ZHF1v6rfroDWfLeYH8MBuqfxXZ9gruOjZepVNaXUvu4/hMAXKzcxnrt9srTsR00HN4uUvYyenW2LVlpJZS21tT3Cmzqiq1Vjve4NagTY8m9hP6xAIryPZZnFyZZsmwJVlcVu59suyjfH2eym19btgwZtn0SCQAgUGRhbFugRZgAAfIw8kjiQdHYJNsJmGFi1opTk+6WGUkG6RmoM/65IthBLAGSc1DOQIZRQRGepqZ5agDtJQguntdonlpjBQPzWqPYOY8gGIwgMa+R7xQBYIBBxoxUbN+kVj0ZIBhxqeseBNhKJUgiFpKnPrgFuY2ylL8ZWFhTHUCwptVh53JlvqvHR1EFE0XBMcvMBBBYeOwt84m/qFiyPofcYi5rxLj0oO3MDDjILaycYu7c1zYGEaSqqCJooBAM8xbVzhNb5GmNHhEOA2zEuLCApyC3o2WYtS0bt/OEE312y76yCi52dLtxbZMQCDC0zsKwy8WjElznu7mnPHMjT/rBKray4pJCmjThaEx+BPVXEhSysVuqsWxyzMPwM2NxY5U+KCL4bO63KdsXLQN2Per5xEH7PYJgdykrzSmsm9jhHrFWpnXL7k1F7Yc4Z9tINSN7mRyl1b90AJFb725xH53tA80ALRAGShe4LYi/WLReH15uwsYpl4ezwbegbgmcrV2u6/sBCK6+PN++t8yIgsMOGVfXiDMzuT+Binc3GBC5PAANVD/aRh61/6B/EfQH1C/gI7W2NJEAAAAASUVORK5CYII=) center/100% 100%;filter:blur(4px)"></div><div class="swm"><b>blur(11px)</b><i>116% inset</i><s>as rendered</s></div></div></div><h2>Fills over the backdrop</h2><div class="grid"><div class="sw"><div class="chip" style="background:rgba(255,255,255,.10)"></div><div class="swm"><b>--l-fill-btn</b><i>rgba(255,255,255,.10)</i><s>action button</s></div></div><div class="sw"><div class="chip" style="background:rgba(255,255,255,.10)"></div><div class="swm"><b>--l-fill-card</b><i>rgba(255,255,255,.10)</i><s>banner, tile</s></div></div><div class="sw"><div class="chip" style="background:rgba(255,255,255,.075)"></div><div class="swm"><b>--l-fill-round</b><i>rgba(255,255,255,.075)</i><s>round more</s></div></div><div class="sw"><div class="chip" style="background:rgba(255,255,255,.07)"></div><div class="swm"><b>--l-hairline</b><i>rgba(255,255,255,.07)</i><s>divider, chip</s></div></div></div><div class="grid" style="margin-top:6px"><div class="sw"><div class="chip" style="background:#000"></div><div class="swm"><b>--l-scrim-nav</b><i>rgba(0,0,0,.47)</i><s>nav bar</s></div></div><div class="sw"><div class="chip" style="background:#FFFFFF"></div><div class="swm"><b>--l-ink</b><i>#FFFFFF</i><s>title, body</s></div></div><div class="sw"><div class="chip" style="background:rgba(255,255,255,.6)"></div><div class="swm"><b>--l-ink-2</b><i>rgba(255,255,255,.6)</i><s>label, date</s></div></div><div class="sw"><div class="chip" style="background:#FFFFFF"></div><div class="swm"><b>--l-cta</b><i>#FFFFFF</i><s>sticky button</s></div></div></div><div class="grid" style="margin-top:6px"><div class="sw"><div class="chip" style="background:#F1CD8A"></div><div class="swm"><b>--l-amber</b><i>#F1CD8A</i><s>host sections</s></div></div><div class="sw"><div class="chip" style="background:#FB7871"></div><div class="swm"><b>--l-red</b><i>#FB7871</i><s>Cancel Event</s></div></div><div class="sw"><div class="chip" style="background:#000000"></div><div class="swm"><b>--l-ink-inv</b><i>#000000</i><s>on white</s></div></div><div class="sw"><div class="chip" style="background:#404246"></div><div class="swm"><b>--l-mat-foot</b><i>rgba(64,66,70,.415)</i><s>sticky scrim</s></div></div></div><div class="grid" style="margin-top:6px"><div class="sw"><div class="chip" style="background:rgba(255,255,255,.84)"></div><div class="swm"><b>--l-ink-glyph</b><i>rgba(255,255,255,.84)</i><s>glyph, label, dots</s></div></div><div class="sw"><div class="chip" style="background:#4E4A46"></div><div class="swm"><b>--l-round-mat</b><i>saturate(.5)</i><s>round button</s></div></div></div><p class="metrics">--l-nav-blur: blur(60px) saturate(.72) &middot; nav scrim solved per screen .259&ndash;.628</p><h2>Type &mdash; SF Pro</h2><div class="type"><div class="tr"><span style="font:var(--l-t-title);">Karaoke</span><em>--l-t-title &middot; 28/34 &middot; 600</em></div><div class="tr"><span style="font:var(--l-t-h2);">Clay date this Friday!</span><em>--l-t-h2 &middot; 22/28 &middot; 600</em></div><div class="tr"><span style="font:var(--l-t-nav);">ELSEWHERE - Tappan</span><em>--l-t-nav &middot; 17/22 &middot; 600</em></div><div class="tr"><span style="font:var(--l-t-body);">Join us for cocktails as we</span><em>--l-t-body &middot; 17/24 &middot; 400</em></div><div class="tr"><span style="font:var(--l-t-list);">1.&nbsp;&nbsp;Get inspired</span><em>--l-t-list &middot; 17/28 &middot; 400</em></div><div class="tr"><span style="font:var(--l-t-row);">Tappan Collective</span><em>--l-t-row &middot; 17/22 &middot; 500</em></div><div class="tr"><span style="font:var(--l-t-date);color:var(--l-ink-2)">Tomorrow, 6.00 - 8.00 PM</span><em>--l-t-date &middot; 17/22 &middot; 400</em></div><div class="tr"><span style="font:var(--l-t-stat);">12</span><em>--l-t-stat &middot; 20/24 &middot; 600</em></div><div class="tr"><span style="font:var(--l-t-label);color:var(--l-ink-2)">About Event</span><em>--l-t-label &middot; 15/20 &middot; 500</em></div><div class="tr"><span style="font:var(--l-t-meta);">8200 Melrose Ave, Los Angeles</span><em>--l-t-meta &middot; 15/20 &middot; 400</em></div><div class="tr"><span style="font:var(--l-t-chip);"># Arts &amp; Culture</span><em>--l-t-chip &middot; 13/18 &middot; 500</em></div><div class="tr"><span style="font:var(--l-t-sub);color:var(--l-ink-2)">Lover of themed parties!</span><em>--l-t-sub &middot; 13/18 &middot; 400</em></div><div class="tr"><span style="font:var(--l-t-btn);">Register</span><em>--l-t-btn &middot; 12/16 &middot; 500</em></div></div><h2>Radius &amp; metrics</h2><div class="rad"><div><div class="rb" style="border-radius:var(--l-r-card)"></div><em>card 14</em></div><div><div class="rb" style="border-radius:var(--l-r-btn)"></div><em>btn 14</em></div><div><div class="rb" style="border-radius:var(--l-r-tile)"></div><em>tile 16</em></div><div><div class="rb" style="border-radius:var(--l-r-pill)"></div><em>pill 999</em></div><div><div class="rb" style="border-radius:var(--l-r-phone)"></div><em>phone 52</em></div></div><p class="metrics">gutter 20 &middot; content 353 &middot; hero 353&times;352 &middot; map 353&times;120 &middot; avatar 32 &middot; status 54 &middot; nav 110.7<br>action btn 83.675&times;54.3 gap 6.1 &middot; tile 112.33 gap 8 &middot; sticky 353&times;50 @ y748 &middot; label ink &rarr; rule 24</p></div>
+</body>
+</html>

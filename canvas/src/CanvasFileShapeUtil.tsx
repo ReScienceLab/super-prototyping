@@ -36,7 +36,9 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
         width: shape.props.w,
         height: shape.props.h,
         overflow: "hidden",
-        background: "#ecedf3",
+        // Transparent, so a board that declares no background of its own shows the canvas
+        // through rather than a colour picked here. Boards that want a ground paint one.
+        background: "transparent",
       }}
     >
       {html ? (

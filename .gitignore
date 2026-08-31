@@ -20,4 +20,8 @@ scratch/
 # which this repo does not redistribute. They stay local; regenerate them per the
 # clone-prototype skill.
 mockups/canvases/*/ref-*.html
+mockups/canvases/*/refassets.json
 __pycache__/
+
+# git worktrees created by agent sessions
+.claude/worktrees/

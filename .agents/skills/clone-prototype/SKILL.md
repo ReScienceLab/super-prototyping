@@ -7,7 +7,9 @@ description: Clone a real app's screens as pixel-accurate, self-contained HTML a
 
 Six phases, in order. **Never skip ahead.** Tokens before HTML, sampling
 before tokens. Every colour and every metric in the final HTML must trace
-back to a measurement, not to a guess that "looks about right".
+back to a measurement, not to a guess that "looks about right". The one
+thing built out of order is Phase 5's reference row: it needs no
+measurement, so it goes up first (see Phase 5).
 
 Output lands in `mockups/canvases/<slug>/` and the canvas picks it up
 automatically. The `prototype-canvas` skill covers how folders become tldraw
@@ -15,7 +17,7 @@ pages and how `layout.json` rows work. Name the folder for the source,
 e.g. `notion-ios`.
 
 Toolkit: `tools/refkit.py` (grid / sample / bands / bbox / scan / hairline /
-shoot / diff / tokens / montage).
+font / shoot / diff / tokens / batch / ink / crops / montage).
 Needs `pillow` + `numpy`; `shoot` needs Google Chrome. Work in a scratch
 directory, not in the repo.
 
@@ -151,6 +153,13 @@ Read the verdict line, not just the ranking:
 Pick the biggest word on the screen, a title rather than a tab label, and
 confirm on a second screen before it becomes a token.
 
+`font` names the face; calibrate *size* against the engine that ships the
+pixels. PIL renders SFNS about 6% narrower than Chrome renders
+`-apple-system`, so a width matched in PIL is wrong on the board. Check
+sizes on `shoot` output, or you discover the 6% three phases later. And
+read a residual before correcting it: +4.7pt of width over 29 characters of
+nav title is tracking (`letter-spacing:-.16px`), not a size error.
+
 ### Deliverable of this phase
 
 A table with an **evidence** column, one row per token. Anything without
@@ -162,6 +171,20 @@ evidence does not become a token.
 | `--n-text` | `#2C2C2C` | H1 core ink @3x, 3 screens |
 | `--n-hairline` | `#E9E8E7` | 1pt coverage solve, settings dividers |
 | `--n-border` | `#EFEEEC` | card outline solve |
+
+Write the machine half of that table as you measure: `probes.json` in the
+scratch dir, one entry per measurement, `{"id", "img", "cmd", "box"}`.
+Phase 4 replays it against your renders, so every number that justified a
+token is re-checked after the token changes. Without it the evidence
+drifts: one finished run shipped three rows still citing an alpha of `.174`
+after the token had become `.10`, and `refkit tokens` cannot catch that; it
+checks that tokens exist, not that their evidence still agrees with them.
+
+**Every probe box carries a one-line sanity note** proving the window holds
+the element and only it. The window is wrong far more often than the
+measurement is: a probe at `cy=681` for a button row that sits at 564, or a
+box that catches the neighbouring label instead of the glyph, returns a
+confident, plausible number either way.
 
 Re-sample rather than argue. Where the strip and a native capture disagree,
 **the native capture wins.**
@@ -185,12 +208,17 @@ Cover, in this order, with a short prefix per app (`--n-` for Notion):
 - spacing and geometry constants: gutters, row height, tap target, status
   bar, sheet top inset
 
-`mockups/canvases/notion-ios/00-design-tokens.html` is a finished one from a
-real run. Copy it, change the prefix, replace every value and every evidence
-row.
+`mockups/canvases/luma-ios/` is a complete run to copy from: 19 boards (a
+token board, two evidence boards, 8 screens, 8 references), a three-row
+`layout.json`, a committed `gen.py`, and per-screen mean deltas of 3.47 to
+4.50 levels against the captures.
+`mockups/canvases/notion-ios/00-design-tokens.html` is a smaller
+single-board example. Copy one, change the prefix, replace every value and
+every evidence row.
 
-Build the token board as the **first artboard** of the folder. It is the
-contract. When a screen looks wrong later, this is what you check it against.
+Build the token board as the **first generated artboard** of the folder (the
+reference row is already up). It is the contract. When a screen looks wrong
+later, this is what you check it against.
 
 Once the screens exist, `refkit tokens mockups/canvases/<slug>` enforces the two
 invariants this phase rests on: that every board inlines the *same* `:root`, and
@@ -205,10 +233,17 @@ When the evidence table outgrows the 478 × 980 box, split it onto its own
 
 ## Phase 3: one generator, N artboards
 
-Write **one** script (`gen_<app>.py` in the scratch dir) that emits every
-`.html` file. Do not hand-edit the artboards afterwards; edit the generator
-and re-run. That is the only thing that keeps eight files consistent through
-a dozen correction passes.
+Write **one** script that emits every `.html` file, and commit it with the
+boards it produces: `mockups/canvases/<slug>/gen.py`, plus its asset JSON,
+resolving paths relative to `__file__` so
+`python3 mockups/canvases/<slug>/gen.py` regenerates the folder in place
+(`mockups/canvases/luma-ios/gen.py` is the shape). Do not hand-edit the
+artboards afterwards; edit the generator and re-run. That is what keeps
+eight files consistent through a dozen correction passes, and it only
+outlives the session if the generator is in the repo; a scratch-dir
+generator dies with the session and leaves the boards unmaintainable under
+this skill's own rules. **A board with no committed generator is
+unfinished.**
 
 ```python
 TOKENS = ":root{...}"          # from Phase 2, one source of truth
@@ -226,34 +261,56 @@ Hard constraints from the canvas renderer (also in
 - **Artboard box is 478 × 980.** Overflow clips silently. Do not check
   this by eye; `refkit shoot ... --check-overflow` asks the layout engine and
   exits non-zero with the exact px, so a clipped board fails in Phase 3
-  rather than turning up in Phase 4.
+  rather than turning up in Phase 4. It also flags elements clipped inside
+  their own containers; mark a deliberate clip (a fade, a masked hero) with
+  `data-clip-ok`.
 - Phone frame is 393 × 852 pt at 1pt = 1px: 54px status bar, 125 × 36
   Dynamic Island, 139 × 5 home indicator.
+- **No board background on a screen artboard.** Give `body` no `background`
+  at all, so the phone floats on the canvas ground and its drop shadow lands
+  on whatever the board is placed over. A cream or grey field behind the
+  phone paints one opaque rectangle per artboard, and a row of those reads as
+  jarring next to its neighbours. The exceptions are the full-bleed sheets —
+  the token board and the evidence boards — which *are* their background and
+  keep it.
 - Avoid SF Symbols private-use glyphs; they render as tofu without SF Pro
   installed. Inline the SVG, or embed a rasterized symbol as a `data:` URI.
+- **Icon size is not a calibration loop.** Set each SVG's `viewBox` to the
+  measured ink box, in pt, and give the span the same numbers; scale is then
+  1:1 with nothing to converge. The default `preserveAspectRatio`
+  (`xMidYMid meet`) means that when the span's aspect ratio disagrees with
+  the viewBox's, only one axis binds, and a size loop silently converges on
+  the wrong axis and stops improving.
 
 Copy is part of the replica. Transcribe the reference's strings exactly,
 **including where each line wraps**. A title that breaks after "iPhone and"
 instead of "iPhone and AirPods" is a real defect. Force it with explicit
 widths, `<br>`, `&thinsp;` or `<wbr>` rather than hoping the browser agrees.
 
-Add `layout.json` last, grouping the artboards into rows (`Foundations`, then
-the numbered screens).
+`layout.json` already holds the reference row (Phase 5 builds it first). Add
+the `Foundations` row and the numbered-screens row as the boards land.
 
 ---
 
 ## Phase 4: verify by rendering, not by reading
 
 Render at the capture's own scale and cut the screen out of the frame, so
-your render and the reference share one pixel grid and you can compare them
-directly:
+your render and the reference share one pixel grid, then replay Phase 1's
+probes against the renders before anything else:
 
 ```bash
 python3 "$REPO/tools/refkit.py" shoot "$REPO/mockups/canvases/<slug>"/[01]*.html \
     -o mine --scale 3 --crop-phone --check-overflow
+python3 "$REPO/tools/refkit.py" batch probes.json --against mine
 python3 "$REPO/tools/refkit.py" diff mine/07-models-sheet.png refs/cp7.png \
     --pt 3 -o d07.png --regions regions.json
 ```
+
+`batch` re-runs every measurement that justified a token, reference against
+render, in one table. `crops probes.json --against mine -o crops/` writes a
+paired NEAREST-upscaled crop per probe. Size is a numbers problem, shape is
+a picture problem: the crops are what find "too small, too small, and
+rotated 10 degrees" while the numbers read fine.
 
 `--crop-phone` removes the crop step from every iteration; it also masks the
 52pt corners, so a cropped screen composites onto any ground without the
@@ -281,13 +338,22 @@ is not a correction.
 
 Verification is per-screen, read-only and embarrassingly parallel; the
 expensive resource is *attention on images*. Once the boards render, dispatch
-one subagent per screen. Each gets `mine/NN.png`, its reference, and the
-`--regions` file, and returns a defect list with measured deltas. Ten screens
-verify in the time of one.
+one subagent per screen, up to about 8-10 before fan-in costs more than the
+parallel looking saves. Each reviewer gets absolute paths to `mine/NN.png`,
+its reference, `probes.json` and the regions file, tools Bash and Read only,
+and returns `{"screen", "defects": [{"id", "severity", "claim", "probe",
+"box_sanity", "mine", "ref"}], "clean": [...]}`. **A defect without a probe
+is a rumour**: re-run every claimed probe yourself and discard what does not
+reproduce, and reject any probe box missing its sanity line. Reviewers
+report deltas, never token values and never fixes. The rumour rule pays:
+"text leaks past the fade at y798" survived several turns until `refkit ink`
+showed the reference holds the same 8.3 levels of ink there; the real
+difference was the tail, 6.3 vs 1.0 at y800+. Ten screens verify in the
+time of one.
 
 **Only the looking parallelises.** You stay the single writer. Collect every
 defect list, then make the fixes yourself in the one generator. Never let
-subagents edit. Two agents in `gen_<app>.py` will clobber each other, and the
+subagents edit. Two agents in `gen.py` will clobber each other, and the
 next regeneration silently reverts whatever an agent "fixed" in an artboard
 directly.
 
@@ -300,11 +366,17 @@ slightly different greys and a `--x-fill-4` that is two levels off
 
 ## Phase 5: park the reference under the mockup
 
+**Build these boards at the start of the run, not the end.** The captures
+need no measurement and exist at t = 0; embedding them puts the source of
+truth on the canvas within two minutes and gives the user something real to
+look at while the replica is measured. The section sits here because the
+row is only *finished* when every mockup stands over its capture.
+
 The replica is only auditable next to its source. Embed each capture as a
-base64 `data:` URI in its own `ref-NN-<slug>.html`, then add a **third row**
-to `layout.json` listing them **in the same order as the mockup row**. The
-canvas lays rows out at `index * (w + gap)` from x = 0, so item N of row 3
-lands directly under item N of row 2.
+base64 `data:` URI in its own `ref-NN-<slug>.html`, listed as a **third
+row** in `layout.json` **in the same order as the mockup row**. The canvas
+lays rows out at `index * (w + gap)` from x = 0, so item N of row 3 lands
+directly under item N of row 2.
 
 ```json
 { "title": "Source of truth: captures",
@@ -317,7 +389,37 @@ its screen id, and state in your report where a reference is a *near*-match
 rather than the exact frame (a toast, a different scroll position, one row
 label off). Never let a near-match pass as exact.
 
-Then open it: `open "http://127.0.0.1:<port>/?canvas=<slug>"`.
+Three mismatches are by design; name them in the report as expected, not as
+defects: Mobbin composites out the Dynamic Island while the frame spec draws
+it; `--crop-phone` masks the 52pt corners, so crops show rounded corners
+where raw captures are square; and hero, map and avatar bitmaps are crops of
+the capture itself.
+
+**Restart the dev server before you open the canvas.** `canvasLibrary.ts`
+globs `mockups/canvases/*/*.html`, which sits outside the canvas app's Vite
+root, and a running server does not reliably notice a folder created after it
+booted. When it does not, `?canvas=<slug>` matches no page,
+`applyCanvasFromUrl` returns silently, and the canvas opens on whichever
+board tldraw last persisted — right URL, no error, wrong board. A boot is
+~150 ms; do not start debugging artboards you cannot see until you have done
+it.
+
+The server runs under tmux, so restart it there rather than backgrounding it
+from a tool call. Three details, each of which costs a confusing round trip
+when missed: a bare `npm run dev` is blocked by a hook and **the whole shell
+command must start with `tmux`** (a leading `cd` trips the same hook, so pass
+the directory with `-c` and an absolute path); pass **`--host 127.0.0.1`** or
+Vite binds `localhost` only, which resolves to `::1` here and makes every
+`127.0.0.1` request fail with a bare connection error; and read the pane back,
+because `--strictPort` fails loudly rather than drifting to 5174.
+
+```bash
+tmux kill-session -t canvas 2>/dev/null
+tmux new-session -d -s canvas -c "$PWD/canvas" \
+     "npm run dev -- --host 127.0.0.1 --port <port> --strictPort"
+tmux capture-pane -p -t canvas | tail -5      # confirm it bound
+open "http://127.0.0.1:<port>/?canvas=<slug>"
+```
 
 ---
 
@@ -331,11 +433,15 @@ Then open it: `open "http://127.0.0.1:<port>/?canvas=<slug>"`.
 - **Trusting a downscaled capture for thin ink.** Hairlines, scrims and small
   accents need the coverage solve or a native capture.
 - **Hand-editing a generated artboard.** The next regeneration silently
-  reverts it. Edit `gen_<app>.py`.
+  reverts it. Edit `gen.py` and re-run.
 - **Unbalanced `<div>`s after a structural edit.** Count them
   (`grep -o '<div' | wc -l` vs `</div>`) before rendering.
 - **`.replace(old, new, 1)`** when the string occurs twice. Bounded replaces
   are how one of two identical paragraphs stays broken.
+- **A glob that pairs the wrong files.** `glob('mine/0*.png')` swept up
+  `00-design-tokens.png` and shifted every mine-vs-reference pairing by one:
+  true means of 3.5-4.5 levels read as 20-115. When every screen regresses
+  at once, check the pairing before touching a board.
 - **A stray character before a CSS selector** (`; .metrics{...}`) invalidates
   the whole rule with no error. If one block renders in the wrong font, check
   the character in front of its selector.
