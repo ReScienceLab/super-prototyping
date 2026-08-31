@@ -12,6 +12,19 @@ no code change needed anywhere:
 Switch boards with the page menu at the top-left of the canvas. Deep-link a
 board with `?canvas=<slug>`, e.g. `http://127.0.0.1:5173/?canvas=notion-ios`.
 
+## 00-welcome
+
+The bare URL always opens `00-welcome` ("Start here"), whichever page was
+last on screen. It carries the canvas's only clickable shapes, all
+`canvas-link` (`canvas/src/CanvasLinkShapeUtil.tsx`): one card per other
+folder, which opens that folder's page, and a button that opens the repo.
+They are shapes rather than links inside a board because boards render in a
+sandboxed iframe, where a link cannot navigate anything.
+
+The cards come from the folder list, so a new folder shows up as a card
+with no edit here. Its board is also the one board that is not phone-shaped;
+see below.
+
 ## layout.json
 
 Optional, one per folder. It groups the board's files into labelled rows
@@ -56,7 +69,9 @@ Boards render inside `<iframe srcDoc sandbox="">`:
   inline SVG.
 - **The shape box is 478 × 980** (`CANVAS_FILE_DEFAULT_SIZE`). The iframe
   clips anything past that box with no warning, so check every fixed-height
-  board after adding a row.
+  board after adding a row. `00-welcome` is the one exception, a landscape
+  1515 × 660 board (`WELCOME_BOARD_SIZE` in `canvas/src/App.tsx`, which has
+  to match the `body` box in its `gen.py`).
 - iPhone frame is 393 × 852 pt at 1pt = 1px: 54px status bar,
   125 × 36 Dynamic Island, 139 × 5 home indicator.
 
@@ -88,23 +103,23 @@ files sitting in the folder are invisible to the canvas.
 
 ## Examples
 
-- `luma-ios/` — a complete six-phase run and the model to copy: 19 boards
-  in three rows — Foundations (design tokens + two evidence boards), 8
-  replica screens, 8 source captures — with the reference row aligned
-  column-for-column under the mockup row. Per-screen mean absolute delta
-  against the captures is 3.47–4.50 levels (of 255), top 56 pt excluded.
-  Its `gen.py` regenerates everything.
-- `apple-photos/` — three screens of the native Photos app plus a token
+- `luma-ios/`: a complete six-phase run and the model to copy. Its 19
+  boards sit in three rows: Foundations (design tokens + two evidence
+  boards), 8 replica screens, 8 source captures. The reference row is
+  aligned column-for-column under the mockup row. Per-screen mean absolute
+  delta against the captures is 3.47–4.50 levels (of 255), top 56 pt
+  excluded. Its `gen.py` regenerates everything.
+- `apple-photos/`: three screens of the native Photos app plus a token
   board, measured from a Figma source rather than a screenshot, each replica
   sitting above the Figma render of the same screen. Every feature lands
   within a pixel of its reference in both Chromium and WebKit; its
   `README.md` records the two bugs that only the second engine showed.
-- `apple-icons/` — a different kind of board: an asset board. The 43 native
+- `apple-icons/`: a different kind of board, an asset board. The 43 native
   iOS 26 app icons in both the default and the dark appearance, embedded as
   the shipped art rather than redrawn, tiled five across with no chrome.
   Reach for it when a mockup needs a real system icon instead of an
   approximation.
-- `notion-ios/` and `raycast-ios/` — finished boards, but their generators
+- `notion-ios/` and `raycast-ios/`: finished boards, but their generators
   were never committed (see above), so treat their HTML as read-only. Each
   folder's `README.md` records what the run measured and where the replica
   knowingly differs from its source.
