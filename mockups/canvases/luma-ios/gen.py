@@ -664,11 +664,11 @@ col.c1{width:70px}col.c2{width:106px}
 EVIDENCE = [
  ('Face and type &mdash; Chrome-calibrated, &Delta; = render &minus; capture in pt', [
   ('--l-font', 'SF Pro / -apple-system', 'refkit font: "Gallery" .867 (margin .083), "Opening" .914, '
-   '"Karaoke" .871 &mdash; no call inside the SF family, so the platform stack, not a webfont'),
+   '"Karaoke" .871. No call inside the SF family, so the platform stack, not a webfont'),
   ('--l-t-title', '600 28px/34px', 'w +0.7 h +0.0; line pitch 34.0 measured s1 450.7&rarr;484.3'),
   ('--l-t-nav', '600 17px/22px', '17/600 gives w +4.7 h +0.7; 16px was &minus;10.0 wide'),
   ('--l-track-nav', '&minus;.16px', 'the +4.7pt residual over 29 characters of nav title across s2, s3, s5, '
-   's6, s8 &mdash; tracking, not the wrong size'),
+   's6, s8 is tracking rather than the wrong size'),
   ('--l-t-h2', '600 22px/28px', '"Clay date this Friday!" +0.3 / +0.0'),
   ('--l-t-body', '400 17px/24px', '+0.7 / +0.0; pitch 24.0 on s2, s3, s8'),
   ('--l-t-list', '400 17px/28px', '+0.0 / +0.0; pitch 28.3 on s6'),
@@ -709,7 +709,7 @@ EVIDENCE = [
   ('--l-mat-foot', 'rgba(64,66,70,.415)', 'gutters under the sticky bar: family a darkens &minus;25, family c '
    '<i>lightens</i> +6 &rarr; grey material, not a black scrim; fit err 0.87. b has no sticky and no gradient'),
   ('--l-round-mat', 'saturate(.5)', 's8 round button chroma 16.0 against a backdrop chroma of 33.0 at '
-   'matching luminance &mdash; the button desaturates what is behind it, it does not just tint it'),
+   'matching luminance. The button desaturates what is behind it rather than tinting it'),
   ('content fade', 'mask 733&rarr;806px', 'ink-deviation ratio ref/mine 1.026 @728, 0.998 @734, 0.989 @746'),
  ]),
  ('Geometry &mdash; off the labelled grid, confirmed with bbox / scan / bands', [
@@ -728,7 +728,7 @@ EVIDENCE = [
   ('status bar ink', 'measured runs', 'clock x56..87 (46..77 with the arrow), arrow w13.0 h12.7; bars '
    'x282..301.3 w3.33 pitch 5.33 h 4.33/6.67/9.33/12.0 bottom 35.34; wifi x309..325.7; battery fill x335..356.3'),
   ('scroll offsets', '0 / 559.67 / 804.33', 'normalised cross-correlation of the map card across each family; '
-   'b: 0 / 492.0 / 909.33, c: 0 / 636.67. The backdrop is screen-fixed &mdash; s5 and s6 gutters are '
+   'b: 0 / 492.0 / 909.33, c: 0 / 636.67. The backdrop is screen-fixed: s5 and s6 gutters are '
    'pixel-identical, as are s1/s2/s3 and s7/s8'),
  ]),
 ]
@@ -817,32 +817,32 @@ PHASES = [
   'curl -sL &lt;image_url&gt; -o p1.png   # x8, 1179&times;2676'),
  ('1', 'Grid on the image, then LOOK', '47 evidence rows',
   'A labelled grid is drawn onto every capture and read <i>as an image</i>, element by element, before a '
-  'single pixel is sampled. Sampling blind returns numbers with no idea which element they belong to, and '
+  'single pixel is sampled. Sampling blind returns numbers with no element attached, and '
   'those land in the wrong token.',
   'refkit grid s1.png -o g01.png --zoom 3 --minor 10 --major 50\n'
   'refkit sample s1.png 20 566 373 620 --pt 3\n'
   'refkit hairline s8.png 20 700 373 701 --bg 1B1815 --scale 3'),
  ('2', 'Design system before any screen', '50 tokens',
-  'One <code>:root</code> block, inlined byte-identically into all 19 artboards &mdash; they render in '
-  '<code>iframe srcDoc sandbox=""</code>, so there is no shared stylesheet and the generator is what keeps '
+  'One <code>:root</code> block, inlined byte-identically into all 25 artboards. They render in '
+  '<code>iframe srcDoc sandbox=""</code>, so there is no shared stylesheet and the generator keeps '
   'them in sync. Every token traces to a row on the two evidence boards to its left.',
   'refkit tokens mockups/canvases/luma-ios'),
  ('3', 'One generator, N artboards', '19 boards',
-  'A single 793-line script emits 2.58&nbsp;MB of fully self-contained HTML. No artboard is ever hand-edited: '
+  'A single 1,189-line script emits 3.1&nbsp;MB of self-contained HTML. No artboard is ever hand-edited; '
   'the next regeneration would silently revert it. Twelve correction passes went into the script, never into '
   'the output.',
   'python3 mockups/canvases/luma-ios/gen.py'),
  ('4', 'Verify by rendering, not by reading', '&Delta; 3.47&ndash;4.50',
   'Render at the capture’s own scale and cut the screen out of the frame, so replica and reference share '
   'one pixel grid. Then read the side-by-side in order: nothing clipped, line wraps match string for string, '
-  'structure, then colour. The diff table beats the eye &mdash; one defect read as &ldquo;4 levels dark&rdquo; '
+  'structure, then colour. The diff table beats the eye: one defect read as &ldquo;4 levels dark&rdquo; '
   'and measured as a whole backdrop desaturated at matching luminance.',
   'refkit shoot 0*.html -o mine --scale 3 --crop-phone --check-overflow\n'
   'refkit diff mine/s8.png refs/s8.png --pt 3 -o d08.png --regions regions.json'),
  ('5', 'Park the reference underneath', '3 rows',
   'The eight captures go up as their own row, unretouched and with attribution intact, in the same order as '
   'the mockups. Rows are laid out at <code>index &times; (w + gap)</code> from x&nbsp;=&nbsp;0, so item N of row 3 '
-  'lands directly under item N of row 2 and the replica is auditable against its source at a glance.',
+  'lands directly under item N of row 2 and the replica is auditable against its source.',
   'layout.json &rarr; "Source of truth: captures"'),
 ]
 
@@ -850,7 +850,7 @@ RULES = [
  ('Evidence or it is not a token.', 'Anything without a row on 00b/00c did not get into the '
   ':root block. 47 rows, 50 tokens.'),
  ('One writer, many lookers.', 'Verification is per-screen and read-only, so it fans out to '
-  'subagents. Editing never does &mdash; two agents in one generator clobber each other.'),
+  'subagents. Editing never does. Two agents in one generator clobber each other.'),
  ('The generator ships with the boards.', 'gen.py and its assets live in this folder and resolve '
   'paths from __file__, so the run is repeatable after the session that made it is gone.'),
 ]
@@ -1014,7 +1014,7 @@ def rows(cls, items):
 # --- w1: the input ---------------------------------------------------------------------
 write('w1-reference', walk_board(
  'step 1', 'This is all you get',
- 'One capture of the screen to replicate, at the highest resolution available &mdash; here 1179&times;2556, '
+ 'One capture of the screen to replicate, at the highest resolution available, here 1179&times;2556, '
  'so 3.000 capture px per design pt. Every number on the next three boards is read out of these pixels.',
  '<img class="shot" src="%s" width="302" height="655" alt="Luma event screen with its measured regions">'
  % W['overview'] +
@@ -1026,7 +1026,7 @@ write('w1-reference', walk_board(
   ('buttons 20,564&rarr;373,619', 'flat-fill census, and the pitch that gives the button width'),
   ('location 20,634&rarr;373,700', 'the label / divider / row rhythm that repeats down the page'),
  ]),
- 'The boxes are drawn on, not guessed at: each one is the box an evidence row was measured in.'))
+ 'The boxes are drawn on, not guessed at. Each one is the box an evidence row was measured in.'))
 
 # --- w2: grid, then look ---------------------------------------------------------------
 write('w2-grid', walk_board(
@@ -1057,7 +1057,7 @@ write('w2-grid', walk_board(
  '    104.0 ..     105.3   #8D8871   &lt;- backdrop again\n'
  '    109.7 ..     113.0   #91876F</div>'
  '<p class="tip">The button runs 20.0&rarr;103.3, so <b>83.3pt wide</b>, and the next one starts at '
- '109.7 &mdash; a <b>6.4pt gap</b>. Four of those across 353 solve to a width of 83.675 and a gap of '
+ '109.7, a <b>6.4pt gap</b>. Four of those across 353 solve to a width of 83.675 and a gap of '
  '6.1, which is what the token says. No eyeballing, no round number picked because it looked plausible.</p>'
  '<h2>Three commands, three kinds of answer</h2>' +
  rows('rd', [
@@ -1073,13 +1073,13 @@ write('w2-grid', walk_board(
 SPECS = [
  (W['w_title'], 'Title', '600 28px/34px',
   '<code>refkit font</code> ranks the letterforms at a common cap height against every candidate face. '
-  '"Gallery" .867 with a .083 margin, "Opening" .914, "Karaoke" .871 &mdash; a <b>no call</b> inside the '
-  'SF family, which is the honest answer: SF Pro and SF Pro Rounded differ only in corner rounding at '
+  '"Gallery" .867 with a .083 margin, "Opening" .914, "Karaoke" .871. A <b>no call</b> inside the '
+  'SF family is the honest answer: SF Pro and SF Pro Rounded differ only in corner rounding at '
   'this size. So the token is the platform stack, never a webfont.'),
  (W['w_nav'], 'Nav title', '600 17px/22px, &minus;.16px',
   'Rendering at 17/600 came out <b>+4.7pt wide</b> and +0.7 tall. 16px was &minus;10.0 wide, so the size '
   'was right and something else was off. The same +4.7 over 29 characters showed up on s2, s3, s5, s6 and '
-  's8 &mdash; a constant per-character residual, which is tracking, not the wrong size.'),
+  's8. A constant per-character residual is tracking, not the wrong size.'),
  (W['w_body'], 'Date line', '400 17px/22px',
   'Same size as the nav title, one weight down, at 60% ink. The alpha is <i>solved</i> against the '
   'recovered backdrop rather than picked, because there is a photo behind it.'),
@@ -1105,8 +1105,8 @@ write('w3-typography', walk_board(
  '  <b>SF Pro         0.867</b>     SF Pro Rounded 0.784\n'
  '  Verdana        0.642     SF Compact     0.618\n'
  '<b>call</b>: SF Pro   score 0.867, margin 0.083</div>'
- '<p class="note" style="margin-top:5px">Same word, same image. The only change is boxing <i>one word</i> '
- '&mdash; "Gallery" 21.0&rarr;109.0, an 8pt gap, then "Opening". A box holding more than the word you '
+ '<p class="note" style="margin-top:5px">Same word, same image. The only change is boxing <i>one word</i>: '
+ '"Gallery" 21.0&rarr;109.0, an 8pt gap, then "Opening". A box holding more than the word you '
  'named quietly halves the score, and that is how a confident wrong face gets into a token.</p>'
  '<h2>Read the verdict line, not the ranking</h2>' +
  rows('rd', [
@@ -1116,8 +1116,8 @@ write('w3-typography', walk_board(
   ('weak', 'top score under 0.80. The box is wrong, or the specimen is too small. Re-run on the '
    'largest instance of the same face'),
  ]),
- 'The published classifiers pick from ~3,000 Google Fonts and cannot return "SF Pro" at all, which is '
- 'why closed-set matching against the real system faces is the only honest answer here.'))
+ 'The published classifiers pick from ~3,000 Google Fonts and cannot return "SF Pro" at all, so '
+ 'closed-set matching against the real system faces is the only honest answer.'))
 
 # --- w4: foundations -------------------------------------------------------------------
 write('w4-foundations', walk_board(
@@ -1154,7 +1154,7 @@ write('w4-foundations', walk_board(
  '<h2>Then the contract holds itself</h2>' +
  rows('rd', [
   ('refkit tokens', 'every board must inline the byte-identical <code>:root</code>, and nothing may '
-   'reference a token that does not exist &mdash; in the CSS or in the evidence table'),
+   'reference a token that does not exist, in the CSS or in the evidence table'),
   ('--check-overflow', 'asks the layout engine, so a clipped board fails here rather than turning up '
    'on the canvas'),
   ('one generator', 'eight screens stay consistent through a dozen correction passes because no '
