@@ -65,6 +65,28 @@
       ]
     },
     {
+      "title": "Walkthrough: replicating one page",
+      "numbered": true,
+      "files": [
+        {
+          "file": "w1-reference",
+          "label": "The input"
+        },
+        {
+          "file": "w2-grid",
+          "label": "Grid, then look"
+        },
+        {
+          "file": "w3-typography",
+          "label": "Measure the type"
+        },
+        {
+          "file": "w4-foundations",
+          "label": "Into foundations"
+        }
+      ]
+    },
+    {
       "title": "Source of truth: captures",
       "numbered": true,
       "files": [

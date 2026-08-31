@@ -307,7 +307,7 @@ SB_ICONS = (
 # --------------------------------------------------------------- helpers ----
 def statusbar(loc=False):
     return ('<div class="statusbar"><div class="island"></div>'
-            '<div class="time"><span>9.41</span>%s</div>%s</div>'
+            '<div class="time"><span>9:41</span>%s</div>%s</div>'
             % (IC['loc'].replace('<svg ', '<svg style="color:#fff" ') if loc else '', SB_ICONS))
 
 def blk(top, cls, html, left=20, w=353, extra=''):
@@ -343,7 +343,7 @@ def doc_a():
     d = []
     d.append(blk(75.5, 'hero', '', extra='height:352px;background:url(%s) center/cover;' % A['hero_a']))
     d.append(blk(443.4, 't-title', 'ELSEWHERE - Tappan<br>Gallery Opening'))
-    d.append(blk(518.7, 't-date', 'Tomorrow, 6.00&#8239;PM - 8.00&#8239;PM'))
+    d.append(blk(518.7, 't-date', 'Tomorrow, 6:00&#8239;PM - 8:00&#8239;PM'))
     d.append(blk(564.0, 'btns', btns([('Register', 'ticket'), ('Contact', 'mail'),
                                       ('Share', 'share'), ('More', 'more')])))
     d.append(sect(640.6, 'Location', div_top=669.3))
@@ -609,7 +609,7 @@ def token_board():
                   ('body', 'Join us for cocktails as we', '17/24 &middot; 400', ''),
                   ('list', '1.&nbsp;&nbsp;Get inspired', '17/28 &middot; 400', ''),
                   ('row', 'Tappan Collective', '17/22 &middot; 500', ''),
-                  ('date', 'Tomorrow, 6.00 - 8.00 PM', '17/22 &middot; 400', 'color:var(--l-ink-2)'),
+                  ('date', 'Tomorrow, 6:00 - 8:00 PM', '17/22 &middot; 400', 'color:var(--l-ink-2)'),
                   ('stat', '12', '20/24 &middot; 600', ''),
                   ('label', 'About Event', '15/20 &middot; 500', 'color:var(--l-ink-2)'),
                   ('meta', '8200 Melrose Ave, Los Angeles', '15/20 &middot; 400', ''),
@@ -779,7 +779,7 @@ h2{font:600 9px/12px var(--l-font);letter-spacing:.8px;text-transform:uppercase;
 .ph h3{font:600 11.5px/15px var(--l-font);display:flex;justify-content:space-between;gap:8px}
 .ph h3 em{font:400 9px/15px ui-monospace,Menlo,monospace;color:#F1CD8A;font-style:normal;flex:none}
 .ph p{font:400 9px/12px var(--l-font);color:rgba(255,255,255,.74);margin-top:2px}
-.ph .cmd{display:block;margin-top:4px;font:400 7.5px/12px ui-monospace,Menlo,monospace;
+.cmd{display:block;margin-top:4px;font:400 7.5px/12px ui-monospace,Menlo,monospace;
   color:rgba(255,255,255,.52);background:rgba(0,0,0,.24);border-radius:4px;padding:4px 6px;
   white-space:pre-wrap;word-break:break-word}
 .ph p code,.inv code{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:#F1CD8A;
@@ -911,6 +911,8 @@ DIFFS = [
   'rounded corners where the raw capture is square.'),
  ('Hero, map, avatars', 'Photographic content is a crop of the capture, not a redraw. Those regions '
   'measure near-zero by construction and prove nothing.'),
+ ('Time separators', 'The capture writes <code>9.41</code> and <code>6.00&thinsp;PM</code> with a period. '
+  'The replica uses a colon, which is what iOS and Luma actually render.'),
 ]
 
 write('00e-pipeline', proc_board(
@@ -968,6 +970,200 @@ def ref_boards():
 
 ref_boards()
 
+
+# --------------------------------------------------------------------------------------
+# Walkthrough boards: what a replication actually looks like, from the capture you hand
+# over to the tokens that come out. The crops are real refkit output, built by mkwalk.py.
+# --------------------------------------------------------------------------------------
+W = json.load(open(HERE / 'walkassets.json'))
+
+WALK_CSS = PROC_CSS + """
+.shot{display:block;margin:0 auto;border-radius:10px}
+.spec{border-top:1px solid rgba(255,255,255,.07);padding:5px 0 5px}
+.spec.first{border-top:0}
+.spec img{display:block;width:390px;border-radius:5px;background:rgba(0,0,0,.2)}
+.spec .h{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:4px}
+.spec .h b{font:600 11px/14px var(--l-font)}
+.spec .h em{font:400 8.5px/14px ui-monospace,Menlo,monospace;color:#F1CD8A;font-style:normal;flex:none}
+.spec p{font:400 8.5px/11.5px var(--l-font);color:rgba(255,255,255,.7);margin-top:4px}
+.tip{font:400 9px/12.5px var(--l-font);color:rgba(255,255,255,.74);margin-top:5px}
+.tip b{color:#F1CD8A;font-weight:600}
+.rd{display:flex;gap:8px;padding:2.5px 0;border-top:1px solid rgba(255,255,255,.07)}
+.rd b{width:112px;flex:none;font:400 8px/12.5px ui-monospace,Menlo,monospace;color:#F1CD8A}
+.rd i{font:400 9px/12.5px var(--l-font);font-style:normal;color:rgba(255,255,255,.74)}
+.tk{display:flex;gap:8px;padding:2.5px 0;border-top:1px solid rgba(255,255,255,.07);
+  align-items:baseline}
+.tk b{width:74px;flex:none;font:400 8px/13px ui-monospace,Menlo,monospace;color:#F1CD8A}
+.tk s{width:96px;flex:none;text-decoration:none;
+  font:400 8px/13px ui-monospace,Menlo,monospace;color:#fff}
+.tk i{font:400 8.5px/13px var(--l-font);font-style:normal;color:rgba(255,255,255,.6)}
+.pair{display:flex;gap:8px;margin-top:5px}
+.pair figure{flex:1;min-width:0}
+.pair img{display:block;width:100%;height:96px;object-fit:cover;border-radius:5px}
+.pair figcaption{margin-top:3px;font:400 8px/11px var(--l-font);color:rgba(255,255,255,.6)}
+.pair figcaption b{color:#F1CD8A;font-weight:600}"""
+
+def walk_board(sub, title, lede, body, note):
+    html = ('<div class="board"><header><h1>%s <span>%s</span></h1><p>%s</p></header>'
+            % (title, sub, lede) + body + '<p class="note">%s</p></div>' % note)
+    return page('Luma iOS — ' + title, html, WALK_CSS.replace('BGA', A['bg_a']))
+
+def rows(cls, items):
+    return ''.join('<div class="%s"><b>%s</b><i>%s</i></div>' % (cls, a, b) for a, b in items)
+
+# --- w1: the input ---------------------------------------------------------------------
+write('w1-reference', walk_board(
+ 'step 1', 'This is all you get',
+ 'One capture of the screen to replicate, at the highest resolution available &mdash; here 1179&times;2556, '
+ 'so 3.000 capture px per design pt. Every number on the next three boards is read out of these pixels.',
+ '<img class="shot" src="%s" width="302" height="655" alt="Luma event screen with its measured regions">'
+ % W['overview'] +
+ '<h2>The regions, and what each one needs</h2>' +
+ rows('rd', [
+  ('hero 20,75&rarr;373,428', 'bbox for the frame, radius by corner run length'),
+  ('title 20,450&rarr;373,520', 'the biggest words on the screen &rarr; the face, then size and pitch'),
+  ('date 20,528&rarr;262,554', 'a second weight and colour at the same size'),
+  ('buttons 20,564&rarr;373,619', 'flat-fill census, and the pitch that gives the button width'),
+  ('location 20,634&rarr;373,700', 'the label / divider / row rhythm that repeats down the page'),
+ ]),
+ 'The boxes are drawn on, not guessed at: each one is the box an evidence row was measured in.'))
+
+# --- w2: grid, then look ---------------------------------------------------------------
+write('w2-grid', walk_board(
+ 'step 2', 'Grid the pixels, then look',
+ 'Before sampling anything, a labelled grid goes onto the capture and gets read <i>as an image</i>. '
+ 'Cyan every 10pt, red and labelled every 50. Sampling coordinates blind returns numbers with no '
+ 'element attached, and those land in the wrong token.',
+ '<div class="ph first"><div class="b"><div class="cmd">refkit grid s1.png -o g01.png '
+ '--zoom 2 --minor 10 --major 50</div></div></div>'
+ '<img class="shot" src="%s" width="390" height="193" alt="labelled grid over the title block">'
+ % W['grid'] +
+ '<h2>Read straight off the labels</h2>' +
+ rows('rd', [
+  ('x 20 and x 373', 'every text column and every card edge lands on these two &rarr; 20pt gutter, '
+   '353pt content'),
+  ('y 450, y 484', 'the two title lines &rarr; a 34pt line pitch, before knowing the font size'),
+  ('y 528', 'the date line, one 44pt step below the title block'),
+  ('y 564 &rarr; 619', 'the button row is 54.3pt tall, four buttons across 353 with a 6.1 gap'),
+  ('repeat vocabulary', '20 / 44 / 54 keep coming back. If every measurement were unique you would '
+   'be reading antialiasing, not layout'),
+ ]) +
+ '<h2>Then one command turns a red label into an exact edge</h2>'
+ '<div class="cmd">refkit scan s1.png row 592 20 373 --pt 3\n\n'
+ '     20.0 ..      20.3   #F9F5F0\n'
+ '     20.3 ..      21.3   #FFFDFE\n'
+ '     22.0 ..     103.3   #FFFFFF   &lt;- the white Register button\n'
+ '    103.3 ..     103.7   #F8F5E8\n'
+ '    104.0 ..     105.3   #8D8871   &lt;- backdrop again\n'
+ '    109.7 ..     113.0   #91876F</div>'
+ '<p class="tip">The button runs 20.0&rarr;103.3, so <b>83.3pt wide</b>, and the next one starts at '
+ '109.7 &mdash; a <b>6.4pt gap</b>. Four of those across 353 solve to a width of 83.675 and a gap of '
+ '6.1, which is what the token says. No eyeballing, no round number picked because it looked plausible.</p>'
+ '<h2>Three commands, three kinds of answer</h2>' +
+ rows('rd', [
+  ('bands', 'ink bands down a column and the pitch between them &rarr; the real row height. A list '
+   'landing on 62.7 / 62.3 / 64.0 / 61.7 is a <b>64pt row</b>, and the spread is glyph height'),
+  ('bbox', 'the exact box of one element, for hero frames, avatars and cards'),
+  ('scan', 'a row or column collapsed into colour runs &rarr; the edge between two fills, to the pixel'),
+ ]),
+ 'Expect a small vocabulary of repeated numbers. Luma uses 20 / 44 / 54 / 14 / 16 over and over, and '
+ 'that repetition is the check that you are reading layout rather than antialiasing.'))
+
+# --- w3: the type ----------------------------------------------------------------------
+SPECS = [
+ (W['w_title'], 'Title', '600 28px/34px',
+  '<code>refkit font</code> ranks the letterforms at a common cap height against every candidate face. '
+  '"Gallery" .867 with a .083 margin, "Opening" .914, "Karaoke" .871 &mdash; a <b>no call</b> inside the '
+  'SF family, which is the honest answer: SF Pro and SF Pro Rounded differ only in corner rounding at '
+  'this size. So the token is the platform stack, never a webfont.'),
+ (W['w_nav'], 'Nav title', '600 17px/22px, &minus;.16px',
+  'Rendering at 17/600 came out <b>+4.7pt wide</b> and +0.7 tall. 16px was &minus;10.0 wide, so the size '
+  'was right and something else was off. The same +4.7 over 29 characters showed up on s2, s3, s5, s6 and '
+  's8 &mdash; a constant per-character residual, which is tracking, not the wrong size.'),
+ (W['w_body'], 'Date line', '400 17px/22px',
+  'Same size as the nav title, one weight down, at 60% ink. The alpha is <i>solved</i> against the '
+  'recovered backdrop rather than picked, because there is a photo behind it.'),
+ (W['w_label'], 'Section label', '500 15px/20px',
+  'The amber core samples [241.4, 205.3, 134.3] on s6 and [240, 205, 142] on s5 &rarr; <code>#F1CD8A</code>. '
+  '"Host", "About Event", "Guest Stats" and "4 Going" all render within &plusmn;0.3pt at 15/500.'),
+]
+write('w3-typography', walk_board(
+ 'step 3', 'Measure the type, do not name it',
+ 'Four specimens, magnified with nearest-neighbour so the capture\'s own pixel grid stays visible. '
+ '&Delta; below is render minus capture, in pt, after rendering the candidate in Chrome at the same scale.',
+ ''.join(
+  '<div class="spec%s"><div class="h"><b>%s</b><em>%s</em></div>'
+  '<img src="%s" alt="%s specimen"><p>%s</p></div>' % (' first' if i == 0 else '', n, v, src, n, why)
+  for i, (src, n, v, why) in enumerate(SPECS)) +
+ '<h2>What the face check actually prints</h2>'
+ '<div class="cmd">refkit font s1.png 20 450 373 484 Gallery --pt 3   <b>&lt;- the whole line</b>\n'
+ '  SF Compact     0.106     SF Pro        0.097\n'
+ '  SF Pro Rounded 0.091     New York      0.085\n'
+ '<b>weak</b>: top score 0.106 &lt; 0.80. Check the box holds exactly\n'
+ '"Gallery" and nothing else.</div>'
+ '<div class="cmd" style="margin-top:5px">refkit font s1.png <b>20.5 483 109.5 519</b> Gallery --pt 3\n'
+ '  <b>SF Pro         0.867</b>     SF Pro Rounded 0.784\n'
+ '  Verdana        0.642     SF Compact     0.618\n'
+ '<b>call</b>: SF Pro   score 0.867, margin 0.083</div>'
+ '<p class="note" style="margin-top:5px">Same word, same image. The only change is boxing <i>one word</i> '
+ '&mdash; "Gallery" 21.0&rarr;109.0, an 8pt gap, then "Opening". A box holding more than the word you '
+ 'named quietly halves the score, and that is how a confident wrong face gets into a token.</p>'
+ '<h2>Read the verdict line, not the ranking</h2>' +
+ rows('rd', [
+  ('call', 'one face clears the next by the margin. Write it down <i>with</i> its score'),
+  ('no call', 'the top faces are inside the margin: indistinguishable at this size, or the real face is '
+   'outside the set. Record the family; never promote the top row'),
+  ('weak', 'top score under 0.80. The box is wrong, or the specimen is too small. Re-run on the '
+   'largest instance of the same face'),
+ ]),
+ 'The published classifiers pick from ~3,000 Google Fonts and cannot return "SF Pro" at all, which is '
+ 'why closed-set matching against the real system faces is the only honest answer here.'))
+
+# --- w4: foundations -------------------------------------------------------------------
+write('w4-foundations', walk_board(
+ 'step 4', 'Measurements become foundations',
+ 'Every measured pair becomes one composite <code>font:</code> shorthand, not separate size and weight '
+ 'variables. Sixteen of them cover all eight screens; a seventeenth would mean a measurement was wrong.',
+ '<h2>Type scale &mdash; measured &rarr; token</h2>' +
+ ''.join('<div class="tk"><b>%s</b><s>%s</s><i>%s</i></div>' % t for t in [
+  ('--l-t-title', '600 28px/34px', 'pitch 34.0 measured s1 450.7&rarr;484.3'),
+  ('--l-t-nav', '600 17px/22px', 'plus --l-track-nav &minus;.16px'),
+  ('--l-t-h2', '600 22px/28px', '+0.3 / +0.0'),
+  ('--l-t-body', '400 17px/24px', 'pitch 24.0 on s2, s3, s8'),
+  ('--l-t-row', '500 17px/22px', '"1226 University Dr" &minus;0.3'),
+  ('--l-t-date', '400 17px/22px', 'h +0.0 on s1, s4, s7'),
+  ('--l-t-label', '500 15px/20px', '+0.0 on four different labels'),
+  ('--l-t-meta', '400 15px/20px', 'address +0.0 / +0.0'),
+  ('--l-t-sub', '400 13px/18px', '"Lover of themed parties!" +0.3'),
+  ('--l-t-btn', '500 12px/16px', '"Register" +0.0'),
+  ('--l-t-list', '400 17px/28px', 'pitch 28.3 on s6'),
+  ('--l-t-cta', '500 17px/22px', '"Accept Invite" +0.3 / +0.3'),
+  ('--l-t-stat', '600 20px/24px', '"0" +0.0 / +0.0 on s5'),
+  ('--l-t-name', '500 15px/20px', '"Jason Smith" +0.3 / +0.0'),
+  ('--l-t-chip', '500 13px/18px', '"# Arts &amp; Culture" &minus;0.3'),
+  ('--l-t-time', '600 17px/22px', 'status clock ink x56.0..87.0'),
+ ]) +
+ '<h2>Colour needs a different technique per region</h2>'
+ '<div class="pair">'
+ '<figure><img src="%s" alt="button fill"><figcaption><b>Flat fill.</b> A pixel equal to all four '
+ 'neighbours is a real fill, not an antialiased edge. Census those &rarr; '
+ '<code>rgba(255,255,255,.10)</code>.</figcaption></figure>'
+ '<figure><img src="%s" alt="title ink"><figcaption><b>Text ink.</b> The mode of a text region returns '
+ 'its <i>background</i>. Take the extreme few percent instead &rarr; &alpha; 1.000.</figcaption></figure>'
+ '</div>' % (W['c_flat'], W['c_ink']) +
+ '<h2>Then the contract holds itself</h2>' +
+ rows('rd', [
+  ('refkit tokens', 'every board must inline the byte-identical <code>:root</code>, and nothing may '
+   'reference a token that does not exist &mdash; in the CSS or in the evidence table'),
+  ('--check-overflow', 'asks the layout engine, so a clipped board fails here rather than turning up '
+   'on the canvas'),
+  ('one generator', 'eight screens stay consistent through a dozen correction passes because no '
+   'artboard is ever hand-edited'),
+ ]),
+ 'That is the whole chain: capture &rarr; grid &rarr; measurement &rarr; token &rarr; artboard, with '
+ 'every value tracing back to a pixel someone looked at.'))
+
+
 LAYOUT = {
  "name": "Luma iOS",
  "rows": [
@@ -979,6 +1175,11 @@ LAYOUT = {
              {"file": "00e-pipeline", "label": "Files &amp; results"}]},
   {"title": "Luma iOS replica screens", "numbered": True,
    "files": [{"file": n, "label": l} for n, l, _ in SCREENS]},
+  {"title": "Walkthrough: replicating one page", "numbered": True,
+   "files": [{"file": "w1-reference", "label": "The input"},
+             {"file": "w2-grid", "label": "Grid, then look"},
+             {"file": "w3-typography", "label": "Measure the type"},
+             {"file": "w4-foundations", "label": "Into foundations"}]},
   {"title": "Source of truth: captures", "numbered": True,
    "files": [{"file": "ref-" + SCREENS[int(n) - 1][0], "label": label}
              for n, sid, label, note in REFS]},

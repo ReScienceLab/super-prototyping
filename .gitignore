@@ -21,6 +21,9 @@ scratch/
 # clone-prototype skill.
 mockups/canvases/*/ref-*.html
 mockups/canvases/*/refassets.json
+# Same rule for the walkthrough row and its crops: they show the capture itself.
+mockups/canvases/*/w[0-9]-*.html
+mockups/canvases/*/walkassets.json
 __pycache__/
 
 # git worktrees created by agent sessions
