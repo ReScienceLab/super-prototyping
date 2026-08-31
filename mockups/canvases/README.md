@@ -64,3 +64,8 @@ Boards render inside `<iframe srcDoc sandbox="">`:
 `00-design-tokens.html`, replace every value with one you measured, and build
 your screens against it. Each folder's `README.md` records what the run
 measured and where the replica knowingly differs from its source.
+
+`apple-icons/` is a different kind of example: an asset board. The 43 native
+iOS 26 app icons in both the default and the dark appearance, embedded as the
+shipped art rather than redrawn, tiled five across with no chrome. Reach for
+it when a mockup needs a real system icon instead of an approximation.

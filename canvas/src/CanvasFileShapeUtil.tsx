@@ -36,7 +36,6 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
         width: shape.props.w,
         height: shape.props.h,
         overflow: "hidden",
-        background: "#ecedf3",
       }}
     >
       {html ? (
