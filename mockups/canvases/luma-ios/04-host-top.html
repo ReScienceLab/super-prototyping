@@ -67,6 +67,33 @@
   --l-tile:112.33px;    /* manage tile, square, gap 8                   */
   --l-cta-h:50px;       /* sticky button height                         */
   --l-rule:24px;        /* section label ink top -> divider             */
+
+  /* Light mode — home screens. Font, headings (--l-t-h2), card/row titles
+     (--l-t-time, same 600 17/22 composite the status clock already uses),
+     meta lines (--l-t-meta), avatar and radii are the same tokens above. */
+  --l2-bg:#F5F5F7;        /* page background                              */
+  --l2-ink:#131517;       /* heading, event title                         */
+  --l2-ink-2:#6D6F71;     /* Your Events card: organizer, date, location   */
+  --l2-ink-3:#9D9FA1;     /* Nearby row meta, View All, empty-state subtext */
+  --l2-ink-4:#BDBABD;     /* inactive tab-bar icon                        */
+  --l2-amber:#CE961B;     /* second half of a date range, e.g. 6.00 PM     */
+  --l2-green:#43B335;     /* suggested / ticket price                     */
+  --l2-hdr-fill:rgba(245,245,247,.48);  /* sticky header fill               */
+  --l2-hdr-blur:blur(40px) saturate(1.3); /* both materials                 */
+  --l2-tab-fill:rgba(237,237,239,.58); /* tab bar fill, darker than the header */
+  --l2-card:80px;         /* event cover / calendar tile / thumbnail       */
+  --l2-row:126.35px;      /* Your Events card row pitch                   */
+  --l2-t-brand:700 26px/32px var(--l-font); /* "luma" wordmark             */
+  --l2-t-org:400 13px/18px var(--l-font);   /* organizer name on a home row */
+  --l2-t-h2:600 20px/26px var(--l-font);    /* home section heading         */
+  --l2-t-date:500 17px/22px var(--l-font);  /* nearby date label + its bar  */
+  --l2-t-evtitle:500 17px/22px var(--l-font); /* event card + nearby row title */
+  --l2-t-price:400 11.3px/18px var(--l-font); /* ticket price / 'Suggested:' */
+  --l2-t-sub:400 20px/26px var(--l-font);   /* 'From Your Subscriptions'    */
+  --l2-track-sub:.25px;                     /* ... and its tracking          */
+  --l2-dot:10px;          /* organizer avatar dot on a home row            */
+  --l2-mark:16px;         /* organizer mark on a nearby row                */
+  --l2-line:#EBEDEE;      /* hairline between same-date nearby rows        */
 }
 
 *{box-sizing:border-box;margin:0;padding:0}

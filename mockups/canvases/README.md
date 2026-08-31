@@ -103,12 +103,15 @@ files sitting in the folder are invisible to the canvas.
 
 ## Examples
 
-- `luma-ios/`: a complete six-phase run and the model to copy. Its 19
-  boards sit in three rows: Foundations (design tokens + two evidence
-  boards), 8 replica screens, 8 source captures. The reference row is
-  aligned column-for-column under the mockup row. Per-screen mean absolute
-  delta against the captures is 3.47–4.50 levels (of 255), top 56 pt
-  excluded. Its `gen.py` regenerates everything.
+- `luma-ios/`: a complete six-phase run and the model to copy. Its 35
+  boards sit in four rows: Foundations (design tokens, four evidence boards,
+  process, pipeline), 12 replica screens, a 4-board walkthrough of one page,
+  and 12 source captures. Every reference sits column-for-column under its
+  mockup. Per-screen mean absolute delta against the captures, top 56 pt
+  excluded, is 3.47–4.50 levels (of 255) on the eight dark event screens and
+  3.49–6.50 on the four light home screens, where four full-bleed cover
+  photos carry most of what is left. Its `gen.py` regenerates everything.
+  The `ref-*` capture boards are gitignored, so a fresh clone has 23.
 - `apple-photos/`: three screens of the native Photos app plus a token
   board, measured from a Figma source rather than a screenshot, each replica
   sitting above the Figma render of the same screen. Every feature lands

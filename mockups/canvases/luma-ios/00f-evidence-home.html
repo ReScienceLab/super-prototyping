@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Luma iOS — How this board was made</title>
+<title>Luma iOS — Phase 1 evidence home 1 / 2</title>
 <style>
 :root{
   --l-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -205,49 +205,24 @@ body{background:#EDEBE7;padding:24px}
 .board::before{content:"";position:absolute;inset:0;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAA0CAIAAAAfe2/iAAACb0lEQVR42u2WWc7cMAyDScX3v0BvUKCHa1FguozIPthJnN+Jkz4WqDGDWSx/oWR64ZfPn7A3w+sXAICUr9fPr9++v378kjSE7ZHF1v6rfroDWfLeYH8MBuqfxXZ9gruOjZepVNaXUvu4/hMAXKzcxnrt9srTsR00HN4uUvYyenW2LVlpJZS21tT3Cmzqiq1Vjve4NagTY8m9hP6xAIryPZZnFyZZsmwJVlcVu59suyjfH2eym19btgwZtn0SCQAgUGRhbFugRZgAAfIw8kjiQdHYJNsJmGFi1opTk+6WGUkG6RmoM/65IthBLAGSc1DOQIZRQRGepqZ5agDtJQguntdonlpjBQPzWqPYOY8gGIwgMa+R7xQBYIBBxoxUbN+kVj0ZIBhxqeseBNhKJUgiFpKnPrgFuY2ylL8ZWFhTHUCwptVh53JlvqvHR1EFE0XBMcvMBBBYeOwt84m/qFiyPofcYi5rxLj0oO3MDDjILaycYu7c1zYGEaSqqCJooBAM8xbVzhNb5GmNHhEOA2zEuLCApyC3o2WYtS0bt/OEE312y76yCi52dLtxbZMQCDC0zsKwy8WjElznu7mnPHMjT/rBKray4pJCmjThaEx+BPVXEhSysVuqsWxyzMPwM2NxY5U+KCL4bO63KdsXLQN2Per5xEH7PYJgdykrzSmsm9jhHrFWpnXL7k1F7Yc4Z9tINSN7mRyl1b90AJFb725xH53tA80ALRAGShe4LYi/WLReH15uwsYpl4ezwbegbgmcrV2u6/sBCK6+PN++t8yIgsMOGVfXiDMzuT+Binc3GBC5PAANVD/aRh61/6B/EfQH1C/gI7W2NJEAAAAASUVORK5CYII=) center/100% 100%;
   filter:blur(24px);opacity:.55}
 .board>*{position:relative}
-header{padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.14)}
+header{padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,.14)}
 h1{font:600 17px/21px var(--l-font)}
 h1 span{font:400 11px/21px ui-monospace,Menlo,monospace;color:rgba(255,255,255,.38);margin-left:5px}
-header p{font:400 10px/13.5px var(--l-font);color:rgba(255,255,255,.62);margin-top:3px}
+header p{font:400 10px/13px var(--l-font);color:rgba(255,255,255,.62);margin-top:2px}
 h2{font:600 9px/12px var(--l-font);letter-spacing:.8px;text-transform:uppercase;
-  color:rgba(255,255,255,.42);margin:7px 0 4px}
-.ph{display:flex;gap:9px;padding:5px 0;border-top:1px solid rgba(255,255,255,.07)}
-.ph.first{border-top:0}
-.ph .n{width:18px;height:18px;border-radius:50%;flex:none;margin-top:1px;
-  background:rgba(255,255,255,.10);color:#F1CD8A;
-  font:600 9.5px/18px ui-monospace,Menlo,monospace;text-align:center}
-.ph .b{flex:1;min-width:0}
-.ph h3{font:600 11.5px/15px var(--l-font);display:flex;justify-content:space-between;gap:8px}
-.ph h3 em{font:400 9px/15px ui-monospace,Menlo,monospace;color:#F1CD8A;font-style:normal;flex:none}
-.ph p{font:400 9px/12px var(--l-font);color:rgba(255,255,255,.74);margin-top:2px}
-.cmd{display:block;margin-top:4px;font:400 7.5px/12px ui-monospace,Menlo,monospace;
-  color:rgba(255,255,255,.52);background:rgba(0,0,0,.24);border-radius:4px;padding:4px 6px;
-  white-space:pre-wrap;word-break:break-word}
-.ph p code,.inv code{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:#F1CD8A;
-  background:rgba(0,0,0,.24);border-radius:3px;padding:0 3px}
-.inv{font:400 9px/13px var(--l-font);color:rgba(255,255,255,.74);
-  padding:3px 0;border-top:1px solid rgba(255,255,255,.07)}
-.inv b{color:#F1CD8A;font-weight:600;margin-right:4px}
-.fm{display:flex;gap:8px;padding:2.5px 0;border-top:1px solid rgba(255,255,255,.07)}
-.fm b{width:98px;flex:none;font:400 7.5px/13px ui-monospace,Menlo,monospace;color:#F1CD8A;
-  word-break:break-all}
-.fm i{font:400 9px/13px var(--l-font);font-style:normal;color:rgba(255,255,255,.74)}
-.loop{margin-top:3px;font:400 8.5px/16px ui-monospace,Menlo,monospace;
-  color:rgba(255,255,255,.7);background:rgba(0,0,0,.24);border-radius:6px;padding:8px 10px}
-.loop em{font-style:normal;color:#F1CD8A}
-.sc{display:flex;align-items:center;gap:7px;padding:2.5px 0}
-.sc b{width:76px;flex:none;font:400 8.5px/12px var(--l-font);font-weight:400;
-  color:rgba(255,255,255,.74)}
-.sc .bar{flex:1;height:7px;border-radius:3.5px;background:rgba(255,255,255,.09);overflow:hidden}
-.sc .bar i{display:block;height:100%;background:#F1CD8A;opacity:.8}
-.sc s{width:26px;flex:none;text-align:right;text-decoration:none;
-  font:400 8.5px/12px ui-monospace,Menlo,monospace;color:#fff}
-.note{margin-top:9px;font:400 8.5px/12.5px var(--l-font);color:rgba(255,255,255,.5)}</style>
+  color:rgba(255,255,255,.42);margin:8px 0 3px}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{font:600 8px/11px var(--l-font);letter-spacing:.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.34);text-align:left;padding:0 4px 2px 0}
+td{font:400 8.5px/11.5px var(--l-font);color:rgba(255,255,255,.86);padding:1.5px 4px 1.5px 0;
+  border-top:1px solid rgba(255,255,255,.07);vertical-align:top;word-break:break-word}
+td.k,td.v{font-family:ui-monospace,Menlo,monospace;font-size:7.5px;line-height:11.5px}
+td.k{color:#F1CD8A}
+td.v{color:rgba(255,255,255,.72)}
+col.c1{width:70px}col.c2{width:106px}
+.note{margin-top:7px;font:400 8.5px/12px var(--l-font);color:rgba(255,255,255,.5)}</style>
 </head>
 <body>
-<div class="board"><header><h1>How this board was made <span>phases 0&ndash;5</span></h1><p>Every artboard in this page came out of one script. Tokens before HTML, sampling before tokens, and no number that cannot be traced back to a measurement on the captures in row 3.</p></header><div class="ph first"><div class="n">0</div><div class="b"><h3>Collect references<em>8 captures @3x</em></h3><p>Eight Mobbin frames of the Luma event detail screen, saved to the scratch directory before anything else because image caches rotate mid-task. Scale is locked once and reused everywhere: 1179/393 and 2556/852 both give exactly 3.000, so a disagreement over ~1% would have meant a bad crop.</p><div class="cmd">curl -sL &lt;image_url&gt; -o p1.png   # x8, 1179&times;2676</div></div></div><div class="ph"><div class="n">1</div><div class="b"><h3>Grid on the image, then LOOK<em>47 evidence rows</em></h3><p>A labelled grid is drawn onto every capture and read <i>as an image</i>, element by element, before a single pixel is sampled. Sampling blind returns numbers with no element attached, and those land in the wrong token.</p><div class="cmd">refkit grid s1.png -o g01.png --zoom 3 --minor 10 --major 50
-refkit sample s1.png 20 566 373 620 --pt 3
-refkit hairline s8.png 20 700 373 701 --bg 1B1815 --scale 3</div></div></div><div class="ph"><div class="n">2</div><div class="b"><h3>Design system before any screen<em>50 tokens</em></h3><p>One <code>:root</code> block, inlined byte-identically into all 25 artboards. They render in <code>iframe srcDoc sandbox=""</code>, so there is no shared stylesheet and the generator keeps them in sync. Every token traces to a row on the two evidence boards to its left.</p><div class="cmd">refkit tokens mockups/canvases/luma-ios</div></div></div><div class="ph"><div class="n">3</div><div class="b"><h3>One generator, N artboards<em>19 boards</em></h3><p>A single 1,189-line script emits 3.1&nbsp;MB of self-contained HTML. No artboard is ever hand-edited; the next regeneration would silently revert it. Twelve correction passes went into the script, never into the output.</p><div class="cmd">python3 mockups/canvases/luma-ios/gen.py</div></div></div><div class="ph"><div class="n">4</div><div class="b"><h3>Verify by rendering, not by reading<em>&Delta; 3.47&ndash;4.50</em></h3><p>Render at the capture’s own scale and cut the screen out of the frame, so replica and reference share one pixel grid. Then read the side-by-side in order: nothing clipped, line wraps match string for string, structure, then colour. The diff table beats the eye: one defect read as &ldquo;4 levels dark&rdquo; and measured as a whole backdrop desaturated at matching luminance.</p><div class="cmd">refkit shoot 0*.html -o mine --scale 3 --crop-phone --check-overflow
-refkit diff mine/s8.png refs/s8.png --pt 3 -o d08.png --regions regions.json</div></div></div><div class="ph"><div class="n">5</div><div class="b"><h3>Park the reference underneath<em>3 rows</em></h3><p>The eight captures go up as their own row, unretouched and with attribution intact, in the same order as the mockups. Rows are laid out at <code>index &times; (w + gap)</code> from x&nbsp;=&nbsp;0, so item N of row 3 lands directly under item N of row 2 and the replica is auditable against its source.</p><div class="cmd">layout.json &rarr; "Source of truth: captures"</div></div></div><h2>The three rules that kept it consistent</h2><div class="inv"><b>Evidence or it is not a token.</b>Anything without a row on 00b/00c did not get into the :root block. 47 rows, 50 tokens.</div><div class="inv"><b>One writer, many lookers.</b>Verification is per-screen and read-only, so it fans out to subagents. Editing never does. Two agents in one generator clobber each other.</div><div class="inv"><b>The generator ships with the boards.</b>gen.py and its assets live in this folder and resolve paths from __file__, so the run is repeatable after the session that made it is gone.</div><p class="note">The phases run in order with one exception: the reference row needs no measurement and the captures exist at t&nbsp;=&nbsp;0, so those boards go up first and give you something true to look at while the replica is still being measured.</p></div>
+<div class="board"><header><h1>Luma iOS &mdash; Phase 1 evidence <span>home 1 / 2</span></h1><p>Four 393&times;852&nbsp;pt native captures at exactly 3.000&times; (1179/393, 2556/852) once each screenshot&rsquo;s own bottom strip is cropped off. Nothing without a row here became a token.</p></header><h2>Home tab — colour, 11 of the 23 new light-mode tokens</h2><table><col class="c1"><col class="c2"><col><tr><th>token</th><th>value</th><th>evidence</th></tr><tr><td class="k">--l2-bg</td><td class="v">#F5F5F7</td><td>flat-fill census, page background: home-02 #F6F5F8, home-03 #F3F5F7 (native captures agree within ~2 levels)</td></tr><tr><td class="k">--l2-ink</td><td class="v">#131517</td><td>"Your Events" heading ink core, home-02: #101314</td></tr><tr><td class="k">--l2-ink-2</td><td class="v">#6D6F71</td><td>"LUME Studios" event-card location ink core, home-02: exact match</td></tr><tr><td class="k">--l2-ink-3</td><td class="v">#9D9FA1</td><td>"From Your Subscriptions" ink core, home-02: #97999B</td></tr><tr><td class="k">--l2-ink-4</td><td class="v">#BDBABD</td><td>inactive tab-bar heart-glyph stroke, ink core on home-02: #B3B6B5</td></tr><tr><td class="k">--l2-amber</td><td class="v">#CE961B</td><td>"6.00&#8239;PM" (second half of the Publique date range) ink core, home-02: #CC9517</td></tr><tr><td class="k">--l2-green</td><td class="v">#43B335</td><td>"Suggested: US$20" price ink core, home-03: #41B333</td></tr><tr><td class="k">--l2-hdr-fill / --l2-hdr-blur</td><td class="v">rgba(245,245,247,.48) / blur(40px) saturate(1.3)</td><td>the sticky identity header on home-03 (scrolled) shows a soft colour wash bleeding through: green cast [222,223,218] and pink cast [243,226,226] against the flat [243,245,247] page background just below it. A light fill over heavily blurred, saturated content, not a solid bar or a fully transparent one. Neither number is readable off a single pixel, so both were swept: rendering the header band at 3&times; over a grid of radii and alphas and taking the pair that minimises mean absolute delta against all four captures. The surface is smooth and has one minimum, 40&#8239;px at .48, and it is a real one &mdash; 24&#8239;px/.78 costs 10 levels in the band on home-03</td></tr><tr><td class="k">--l2-tab-fill</td><td class="v">rgba(237,237,239,.58)</td><td>the tab bar is a different material from the header, not the same one: over the plain page of home-01 the header leaves the ground untouched (246,245,248 above and below it) while the bar takes it three levels down, 246,245,248 above the rule at 769.3 and 243,243,245 below. Same blur, own fill, swept the same way</td></tr><tr><td class="k">--l2-line</td><td class="v">#EBEDEE</td><td>1pt coverage solve, hairline between same-date nearby rows on home-03: bg #F3F5F7, rule rows 470.3&ndash;470.7pt, solved #EBEDEE</td></tr></table><h2>Home tab — geometry</h2><table><col class="c1"><col class="c2"><col><tr><th>token</th><th>value</th><th>evidence</th></tr><tr><td class="k">--l2-card</td><td class="v">80px</td><td>event-cover / nearby-row thumbnail bbox, home-02: 20,158&rarr;100,238, exactly 80&times;80</td></tr><tr><td class="k">--l2-row</td><td class="v">126.35px</td><td>event-card top-edge pitch, home-02: card 1&rarr;card 2 158&rarr;285pt, 127.0pt measured</td></tr><tr><td class="k">--l2-mark</td><td class="v">16px</td><td>organizer mark on a nearby row, home-03 row 1: bbox 112.0,224.7&rarr;128.0,241.0, 16.0&times;16.3pt</td></tr><tr><td class="k">--l2-dot</td><td class="v">10px</td><td>organizer avatar dot, home-02 row 1: green bbox 9.7&times;10.0pt. The dark screens have no equivalent, so this is home-only geometry</td></tr></table><p class="note">Every token here is new; everything the home tab shares with the dark event-detail screens (radii, gutters, row height, the SF Pro stack) reuses the existing token as-is.</p></div>
 </body>
 </html>

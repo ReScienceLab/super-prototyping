@@ -17,7 +17,7 @@ pages and how `layout.json` rows work. Name the folder for the source,
 e.g. `notion-ios`.
 
 Toolkit: `tools/refkit.py` (grid / sample / bands / bbox / scan / hairline /
-font / shoot / diff / tokens / batch / ink / crops / montage).
+font / shoot / diff / blend / tokens / batch / ink / crops / montage).
 Needs `pillow` + `numpy`; `shoot` needs Google Chrome. Work in a scratch
 directory, not in the repo.
 
@@ -314,7 +314,11 @@ rotated 10 degrees" while the numbers read fine.
 
 `--crop-phone` removes the crop step from every iteration; it also masks the
 52pt corners, so a cropped screen composites onto any ground without the
-four black wedges of bezel a rectangular crop keeps. `diff` writes the
+four black wedges of bezel a rectangular crop keeps. A bare capture has
+square corners full of real content, so `diff` and `blend` score only where
+both images have ink and say what fraction they dropped; without that the
+four wedges quietly add a level or two to every number you publish. `diff`
+writes the
 side-by-side **and** prints the numbers behind it. With `--regions` (inline
 `{"name": [x0,y0,x1,y1]}`, or a file you write once and reuse for the run) it
 tables mine-vs-ref per region with a Δ column; with no regions it ranks the
@@ -333,6 +337,74 @@ Then read the side-by-side image, in this order:
 
 Re-render after every correction pass. A correction you have not re-rendered
 is not a correction.
+
+### Subtract, do not squint
+
+A side-by-side answers "is this the right colour". It is bad at "is this the
+right colour in the wrong place", which is most of what is actually wrong.
+Blend the two instead, the way a difference layer works: your render into
+red, the reference into green and blue. Agreement goes grey, reference-only
+ink goes red, yours goes cyan.
+
+```bash
+python3 "$REPO/tools/refkit.py" blend mine/10-home.png refs/h2.png \
+    --pt 3 --y0 760 --y1 852 --zoom 2 -o tab.png
+```
+
+Every element then reads at a glance. A red edge above a cyan edge is one
+element a point too low. A red halo all the way round is a glyph rendering
+small. An all-red word is a word you did not draw. Six cover crops in the
+luma home run sat a couple of points off their boxes and had each passed a
+side-by-side; the blend showed all six in one look.
+
+`blend` also shifts the reference against your render a capture pixel at a
+time and prints the mean Δ per offset. A clean V centred on zero means the
+band is placed right and whatever Δ is left is colour. A V centred on -1.0
+means a one-point layout drift and no colour problem at all, so chasing it
+through the tokens would have wasted the pass. That probe is what found a
+17.6pt gap that should have been 16.6, on all three of a screen's row breaks
+at once.
+
+### Some values cannot be read off a pixel
+
+A translucent bar over blurred content has no pixel that holds its fill or
+its blur radius: every pixel is a mix of both, plus whatever is behind.
+Sampling harder will not help. Fit instead. Put candidate values through the
+generator, render, score the band against the capture, and walk a grid.
+
+```bash
+for blur in 12 20 28 40 56; do for alpha in .35 .50 .65; do
+    sed -i '' "s/--x-hdr-blur:blur([0-9]*px)/--x-hdr-blur:blur(${blur}px)/" gen.py
+    python3 gen.py && refkit shoot ... && score_the_band
+done; done
+```
+
+Coarse grid, one refinement pass around the minimum, then stop. Luma's tab
+bar went from `blur(24px)` at `.78` to `blur(40px)` at `.48` this way, 45.5
+to 35.0 summed over three screens, with one clean minimum in each axis.
+Record it: "swept, minimum at 40px/.48, and 24px/.78 costs 10 levels" is
+evidence. "Looks about right" is not.
+
+The same fit tells you when two things you assumed were one token are two.
+Luma's tab bar and sticky header share a blur but not a fill: over the plain
+page the header leaves the ground untouched while the bar takes it three
+levels down. No single fill satisfies both, and the sweep says so by
+refusing to settle.
+
+### Call it
+
+Refinement has a floor, and you reach it long before the deltas reach zero.
+Stop when any of these is true:
+
+- the worst remaining bands are ones you cannot fix: the Dynamic Island the
+  capture does not show, a watermark strip, a photograph you re-encoded;
+- a full sweep of a parameter moves the number by less than a level;
+- the blend is grey everywhere except sub-pixel fringing on glyph edges.
+
+Every screen inside roughly 4-7 levels mean absolute delta over the body,
+with no structural defect left in the blend, is a finished run. Write the
+numbers into the folder's README and stop. Another pass there costs a
+session and buys a level.
 
 ### Fan out the looking, not the editing
 
@@ -459,5 +531,26 @@ open "http://127.0.0.1:<port>/?canvas=<slug>"
   2025 iOS capture is the xAI "X" (`xai.svg`). A path that fills a hole it
   should leave open (simple-icons' Raycast) needs an SVG `<mask>`, not a
   different fill rule.
+- **Thresholding luminance to find an element's extent.** A near-white band
+  (243,245,247) on a near-white page (245,245,247) is invisible to any fixed
+  threshold, so the element reads as ending early and you "fix" a layout that
+  was already right. Probe each row against the page gutter beside it, not
+  against an absolute value. This cost two wrong diagnoses in one session: an
+  80pt cover measured as 63.7, and a row top declared 5.3pt late when the
+  layout was inside a point.
+- **Cropping an asset by eye instead of at its measured box.** Take the
+  element's own box (`refkit bbox` gives it) out of the capture at the
+  capture's own scale. Then the capture's rounded corners land under your CSS
+  radius and the art registers 1:1. Every offset cover in the luma home run
+  was a crop carrying a strip of page, not a layout error.
+- **Comparing against a capture you have not trimmed.** Mobbin exports carry
+  a watermark strip below the screen, so a 2676px capture of an 852pt screen
+  is 40pt of someone else's branding. Crop to the device height before
+  `diff`, or it exits on a shape mismatch and you start doubting the render.
+- **Assuming a floating pill because the icons are inset.** Read the gutter
+  columns, x 6 and x 386, straight down through the bar. Luma's tab bar is a
+  full-width material with a hairline at its top edge and the home indicator
+  inside it; the replica drew a 353pt pill and let sharp page content show
+  through the 84pt below it for four screens before anyone measured x 6.
 - **Image caches rotate mid-task.** Save every reference to the scratch dir
   the moment you receive it.
