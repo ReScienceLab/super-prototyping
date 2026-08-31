@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Luma iOS — Phase 1 evidence 2 / 2</title>
+<style>
+:root{
+  --l-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Ambient backdrop — a measured 24x52 field per event, upscaled and blurred */
+  --l-bg-a:#918A72;       /* ELSEWHERE field median                      */
+  --l-bg-b:#9B8C7B;       /* Clay Date! field median                     */
+  --l-bg-c:#602A34;       /* Karaoke field median                        */
+
+  /* Fills (white over the backdrop) */
+  --l-fill-btn:rgba(255,255,255,.10);   /* action button                 */
+  --l-fill-card:rgba(255,255,255,.10);  /* invite banner, manage tile    */
+  --l-fill-round:rgba(255,255,255,.075);/* round "more" button           */
+  --l-round-mat:saturate(.5);           /* round "more" button material  */
+  --l-hairline:rgba(255,255,255,.07);   /* section divider, chip outline */
+  --l-scrim-nav:rgba(0,0,0,.47);        /* nav scrim over the nav blur   */
+  --l-nav-blur:blur(60px) saturate(.72);/* nav bar material              */
+  --l-mat-foot:rgba(64,66,70,.415);     /* sticky-footer material, full  */
+
+  /* Ink */
+  --l-ink:#FFFFFF;                      /* titles, body, names           */
+  --l-ink-2:rgba(255,255,255,.6);       /* labels, dates, addresses      */
+  --l-ink-glyph:rgba(255,255,255,.84);  /* button glyph + label, dots    */
+  --l-ink-inv:#000000;                  /* label on a white button       */
+  --l-amber:#F1CD8A;                    /* host-only section headers     */
+  --l-red:#FB7871;                      /* Cancel Event                  */
+  --l-cta:#FFFFFF;                      /* sticky call-to-action fill    */
+
+  /* Radius */
+  --l-r-card:14px;  --l-r-btn:14px;  --l-r-tile:16px;
+  --l-r-pill:999px; --l-r-phone:52px;
+
+  /* Type — SF Pro, Chrome-calibrated against the captures */
+  --l-t-title:600 28px/34px var(--l-font);  /* event title              */
+  --l-t-nav:600 17px/22px var(--l-font);    /* nav bar title            */
+  --l-track-nav:-.16px;                     /* nav title tracking       */
+  --l-t-h2:600 22px/28px var(--l-font);     /* description heading      */
+  --l-t-body:400 17px/24px var(--l-font);   /* description copy         */
+  --l-t-list:400 17px/28px var(--l-font);   /* numbered list item       */
+  --l-t-row:500 17px/22px var(--l-font);    /* venue name, host name    */
+  --l-t-date:400 17px/22px var(--l-font);   /* date line                */
+  --l-t-cta:500 17px/22px var(--l-font);    /* sticky button label      */
+  --l-t-stat:600 20px/24px var(--l-font);   /* guest-stat number        */
+  --l-t-label:500 15px/20px var(--l-font);  /* section header           */
+  --l-t-name:500 15px/20px var(--l-font);   /* invite-banner name       */
+  --l-t-meta:400 15px/20px var(--l-font);   /* address, guest, tile     */
+  --l-t-sub:400 13px/18px var(--l-font);    /* host tagline, stat label */
+  --l-t-chip:500 13px/18px var(--l-font);   /* tag chip                 */
+  --l-t-btn:500 12px/16px var(--l-font);    /* action button label      */
+  --l-t-time:600 17px/22px var(--l-font);   /* status bar clock         */
+
+  /* Metrics */
+  --l-gutter:20px;      /* screen gutter, both sides                    */
+  --l-content:353px;    /* 393 - 2 x gutter                             */
+  --l-status:54px;      /* status bar                                   */
+  --l-nav:110.7px;      /* nav bar bottom edge                          */
+  --l-hero:352px;       /* hero card, 353 x 352                         */
+  --l-map:120px;        /* map card height                              */
+  --l-avatar:32px;      /* guest / host avatar                          */
+  --l-btn-h:54.3px;     /* action button height                         */
+  --l-btn-w:83.675px;   /* action button width (gap 6.1)                */
+  --l-tile:112.33px;    /* manage tile, square, gap 8                   */
+  --l-cta-h:50px;       /* sticky button height                         */
+  --l-rule:24px;        /* section label ink top -> divider             */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+/* No board background: the phone floats on the canvas ground, and its drop shadow
+   lands on whatever the artboard is placed over instead of a cream rectangle. */
+body{font-family:var(--l-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:var(--l-r-phone);overflow:hidden;
+  flex:none;background:#000;color:var(--l-ink);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28)}
+.bg{position:absolute;left:-8%;top:-8%;width:116%;height:116%;
+  background-size:100% 100%;filter:blur(11px)}
+.scroll{position:absolute;inset:0;overflow:hidden}
+.scroll.faded{-webkit-mask-image:linear-gradient(#000 733px,rgba(0,0,0,.105) 798px,transparent 800px);
+  mask-image:linear-gradient(#000 733px,rgba(0,0,0,.105) 798px,transparent 800px)}
+.doc{position:absolute;left:0;width:393px}
+.doc>*{position:absolute;left:20px;width:353px}
+.hero,.map{border-radius:var(--l-r-card);display:block;object-fit:cover}
+.rule{height:1px;background:var(--l-hairline)}
+
+/* type roles */
+.t-title{font:var(--l-t-title)}
+.t-h2{font:var(--l-t-h2)}
+.t-body{font:var(--l-t-body)}
+.t-list{font:var(--l-t-list)}
+.t-row{font:var(--l-t-row)}
+.t-date{font:var(--l-t-date);color:var(--l-ink-2)}
+.t-label{font:var(--l-t-label);color:var(--l-ink-2)}
+.t-meta{font:var(--l-t-meta)}
+.t-sub{font:var(--l-t-sub);color:var(--l-ink-2)}
+.dim{color:var(--l-ink-2)}
+.t-body a{color:inherit;text-decoration:underline;text-underline-offset:.7px;
+  text-decoration-thickness:1px;text-decoration-color:rgba(255,255,255,.36)}
+
+/* section header: label left, optional action right */
+.sect{display:flex;justify-content:space-between;align-items:baseline}
+.sect.amber{color:var(--l-amber)}
+.sect.amber .lk{position:absolute;right:2px;top:2.67px;width:10px;height:14.33px}
+.sect.amber .lk svg{width:100%;height:100%;display:block}
+
+/* action buttons */
+.btns{display:flex;gap:6.1px;height:var(--l-btn-h)}
+.btns>div{width:var(--l-btn-w);height:var(--l-btn-h);border-radius:var(--l-r-btn);
+  background:var(--l-fill-btn);position:relative;color:var(--l-ink-glyph)}
+.btns>div.pri{background:#fff;color:var(--l-ink-inv)}
+.btns .gl{position:absolute;left:50%;top:19.1px;transform:translate(-50%,-50%)}
+.btns .gl svg{width:100%;height:100%;display:block}
+.btns .lb{position:absolute;left:0;right:0;top:30.81px;text-align:center;font:var(--l-t-btn)}
+
+/* rows with an avatar */
+.arow{display:flex;align-items:center;gap:10px}
+.arow img{width:var(--l-avatar);height:var(--l-avatar);border-radius:50%;flex:none;object-fit:cover}
+.arow .nm{font:var(--l-t-row)}
+
+/* weather corner: icon ink box and temperature both placed from measurement */
+.wxi svg{width:100%;height:100%;display:block}
+
+/* tag chip */
+.chip{display:inline-block;width:auto;font:var(--l-t-chip);color:var(--l-ink-2);
+  border:1px solid var(--l-hairline);border-radius:var(--l-r-pill);padding:5px 8.5px}
+
+/* manage tiles */
+.tiles{display:flex;gap:8px}
+.tile{width:var(--l-tile);height:var(--l-tile);border-radius:var(--l-r-tile);
+  background:var(--l-fill-card);padding:13px;position:relative;flex:none}
+.tile .ic{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.11);
+  display:grid;place-items:center}
+.tile .ic span{display:block}
+.tile .ic svg{width:100%;height:100%;display:block}
+.tile .lb{position:absolute;left:13px;right:8px;bottom:13.4px;font:var(--l-t-meta)}
+.tile.dngr .ic{background:rgba(251,120,113,.18);color:var(--l-red)}
+.tile.dngr .lb{color:var(--l-red)}
+
+/* guest stats */
+.stats{display:grid;grid-template-columns:repeat(3,115px);gap:4px}
+.stats b{font:var(--l-t-stat);display:block}
+
+/* chrome */
+.nav{position:absolute;left:0;top:0;width:393px;height:var(--l-nav);
+  background:var(--l-scrim-nav);
+  -webkit-backdrop-filter:var(--l-nav-blur);backdrop-filter:var(--l-nav-blur)}
+.foot{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(rgba(64,66,70,0) 723px,var(--l-mat-foot) 800px)}
+.nav .ttl{position:absolute;left:0;top:77.6px;width:393px;text-align:center;font:var(--l-t-nav);
+  letter-spacing:var(--l-track-nav)}
+.grab{position:absolute;left:176.67px;top:59px;width:40px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,.32)}
+.statusbar{position:absolute;left:0;top:0;width:393px;height:var(--l-status)}
+.statusbar .time{position:absolute;left:0;top:18.2px;width:142.4px;font:var(--l-t-time);
+  display:flex;align-items:center;justify-content:center;gap:3.1px}
+.statusbar .time svg{position:static;width:17.5px;height:17.5px;display:block;flex:none}
+.statusbar svg{position:absolute;display:block;fill:#fff}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+/* the indicator is not white: iOS picks a colour against the wallpaper, measured per screen */
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px}
+.sticky{position:absolute;left:20px;top:748px;width:353px;height:var(--l-cta-h);
+  display:flex;gap:7.3px}
+.sticky .cta{flex:1;height:var(--l-cta-h);border-radius:var(--l-r-pill);background:var(--l-cta);
+  color:var(--l-ink-inv);font:var(--l-t-cta);display:grid;place-items:center}
+.sticky .more{width:50px;height:50px;border-radius:50%;background:var(--l-fill-round);
+  -webkit-backdrop-filter:var(--l-round-mat);backdrop-filter:var(--l-round-mat);
+  display:grid;place-items:center;flex:none;color:var(--l-ink-glyph)}
+.sticky .more svg{width:100%;height:100%;display:block}
+body{background:#EDEBE7;padding:24px}
+.board{width:430px;height:932px;background:#1B1815;border-radius:20px;padding:15px 20px 12px;
+  box-shadow:0 18px 44px rgba(29,25,26,.22);overflow:hidden;color:#fff;position:relative}
+.board::before{content:"";position:absolute;inset:0;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAA0CAIAAAAfe2/iAAACb0lEQVR42u2WWc7cMAyDScX3v0BvUKCHa1FguozIPthJnN+Jkz4WqDGDWSx/oWR64ZfPn7A3w+sXAICUr9fPr9++v378kjSE7ZHF1v6rfroDWfLeYH8MBuqfxXZ9gruOjZepVNaXUvu4/hMAXKzcxnrt9srTsR00HN4uUvYyenW2LVlpJZS21tT3Cmzqiq1Vjve4NagTY8m9hP6xAIryPZZnFyZZsmwJVlcVu59suyjfH2eym19btgwZtn0SCQAgUGRhbFugRZgAAfIw8kjiQdHYJNsJmGFi1opTk+6WGUkG6RmoM/65IthBLAGSc1DOQIZRQRGepqZ5agDtJQguntdonlpjBQPzWqPYOY8gGIwgMa+R7xQBYIBBxoxUbN+kVj0ZIBhxqeseBNhKJUgiFpKnPrgFuY2ylL8ZWFhTHUCwptVh53JlvqvHR1EFE0XBMcvMBBBYeOwt84m/qFiyPofcYi5rxLj0oO3MDDjILaycYu7c1zYGEaSqqCJooBAM8xbVzhNb5GmNHhEOA2zEuLCApyC3o2WYtS0bt/OEE312y76yCi52dLtxbZMQCDC0zsKwy8WjElznu7mnPHMjT/rBKray4pJCmjThaEx+BPVXEhSysVuqsWxyzMPwM2NxY5U+KCL4bO63KdsXLQN2Per5xEH7PYJgdykrzSmsm9jhHrFWpnXL7k1F7Yc4Z9tINSN7mRyl1b90AJFb725xH53tA80ALRAGShe4LYi/WLReH15uwsYpl4ezwbegbgmcrV2u6/sBCK6+PN++t8yIgsMOGVfXiDMzuT+Binc3GBC5PAANVD/aRh61/6B/EfQH1C/gI7W2NJEAAAAASUVORK5CYII=) center/100% 100%;
+  filter:blur(24px);opacity:.55}
+.board>*{position:relative}
+header{padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,.14)}
+h1{font:600 17px/21px var(--l-font)}
+h1 span{font:400 11px/21px ui-monospace,Menlo,monospace;color:rgba(255,255,255,.38);margin-left:5px}
+header p{font:400 10px/13px var(--l-font);color:rgba(255,255,255,.62);margin-top:2px}
+h2{font:600 9px/12px var(--l-font);letter-spacing:.8px;text-transform:uppercase;
+  color:rgba(255,255,255,.42);margin:8px 0 3px}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{font:600 8px/11px var(--l-font);letter-spacing:.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.34);text-align:left;padding:0 4px 2px 0}
+td{font:400 8.5px/11.5px var(--l-font);color:rgba(255,255,255,.86);padding:1.5px 4px 1.5px 0;
+  border-top:1px solid rgba(255,255,255,.07);vertical-align:top;word-break:break-word}
+td.k,td.v{font-family:ui-monospace,Menlo,monospace;font-size:7.5px;line-height:11.5px}
+td.k{color:#F1CD8A}
+td.v{color:rgba(255,255,255,.72)}
+col.c1{width:70px}col.c2{width:106px}
+.note{margin-top:7px;font:400 8.5px/12px var(--l-font);color:rgba(255,255,255,.5)}</style>
+</head>
+<body>
+<div class="board"><header><h1>Luma iOS &mdash; Phase 1 evidence <span>2 / 2</span></h1><p>Eight 393&times;852&nbsp;pt captures at exactly 3.000&times; (1179/393, 2556/852). Nothing without a row here became a token.</p></header><h2>Materials &mdash; iOS blur, fitted against real Chrome renders</h2><table><col class="c1"><col class="c2"><col><tr><th>token</th><th>value</th><th>evidence</th></tr><tr><td class="k">--l-nav-blur</td><td class="v">blur(60px) saturate(.72)</td><td>s5 and s6 nav bands differ by a uniform ~14 levels with no glyph structure; a white button behind smears ~100pt wide</td></tr><tr><td class="k">--l-scrim-nav</td><td class="v">rgba(0,0,0,.47)</td><td>solved per screen by rendering at &alpha; .30 and .60 and fitting the line: s2 .488, s3 .628, s5 .471, s6 .459, s8 .259; predicted vs ref RGB within &plusmn;3</td></tr><tr><td class="k">--l-mat-foot</td><td class="v">rgba(64,66,70,.415)</td><td>gutters under the sticky bar: family a darkens &minus;25, family c <i>lightens</i> +6 &rarr; grey material, not a black scrim; fit err 0.87. b has no sticky and no gradient</td></tr><tr><td class="k">--l-round-mat</td><td class="v">saturate(.5)</td><td>s8 round button chroma 16.0 against a backdrop chroma of 33.0 at matching luminance. The button desaturates what is behind it rather than tinting it</td></tr><tr><td class="k">content fade</td><td class="v">mask 733&rarr;806px</td><td>ink-deviation ratio ref/mine 1.026 @728, 0.998 @734, 0.989 @746</td></tr></table><h2>Geometry &mdash; off the labelled grid, confirmed with bbox / scan / bands</h2><table><col class="c1"><col class="c2"><col><tr><th>token</th><th>value</th><th>evidence</th></tr><tr><td class="k">--l-gutter / --l-content</td><td class="v">20 / 353</td><td>every text column and card edge lands on 20.0 and 373.0</td></tr><tr><td class="k">--l-status / --l-nav</td><td class="v">54 / 110.7</td><td>nav bottom edge from a column scan on s2, s3, s5, s6, s8</td></tr><tr><td class="k">--l-hero / --l-map</td><td class="v">352 / 120</td><td>hero bbox 20, 75.5 &rarr; 373, 427.5; map card 353&times;120</td></tr><tr><td class="k">--l-r-card / --l-r-tile</td><td class="v">14 / 16</td><td>corner run length on the hero, the map and the manage tiles</td></tr><tr><td class="k">--l-btn-w / --l-btn-h</td><td class="v">83.675 / 54.3</td><td>four buttons, gap 6.1, across 20..373; first is white on ink</td></tr><tr><td class="k">--l-avatar</td><td class="v">32</td><td>x20..52, text column starts 62.7; banner avatar 40 at x36</td></tr><tr><td class="k">--l-tile</td><td class="v">112.33</td><td>gap 8, radius 16, padding 13, 34pt icon circle top-left</td></tr><tr><td class="k">--l-cta-h</td><td class="v">50</td><td>s2/s3 full width 20..373; s8 pill 20..315.7 + 50pt circle 323..373</td></tr><tr><td class="k">--l-rule</td><td class="v">24</td><td>section label ink top &rarr; divider; divider &rarr; row box top +13.07. The amber host sections (Guest Stats, Manage Event) have <i>no</i> divider</td></tr><tr><td class="k">stat columns</td><td class="v">x20 / 139 / 258</td><td>grid 3&times;115 with gap 4</td></tr><tr><td class="k">grabber</td><td class="v">40&times;4 @ y59</td><td>x176.67..216.67, y59..63</td></tr><tr><td class="k">status bar ink</td><td class="v">measured runs</td><td>clock x56..87 (46..77 with the arrow), arrow w13.0 h12.7; bars x282..301.3 w3.33 pitch 5.33 h 4.33/6.67/9.33/12.0 bottom 35.34; wifi x309..325.7; battery fill x335..356.3</td></tr><tr><td class="k">scroll offsets</td><td class="v">0 / 559.67 / 804.33</td><td>normalised cross-correlation of the map card across each family; b: 0 / 492.0 / 909.33, c: 0 / 636.67. The backdrop is screen-fixed: s5 and s6 gutters are pixel-identical, as are s1/s2/s3 and s7/s8</td></tr></table><p class="note">A nav-material fit taken from a PIL Gaussian landed +23 levels off once Chrome rendered it. The working method is to render at two known alphas, fit the line per screen, and solve for the target &mdash; calibrate against the engine that ships the pixels.</p></div>
+</body>
+</html>

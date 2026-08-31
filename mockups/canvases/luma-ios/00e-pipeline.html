@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Luma iOS — What is in this folder</title>
+<style>
+:root{
+  --l-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Ambient backdrop — a measured 24x52 field per event, upscaled and blurred */
+  --l-bg-a:#918A72;       /* ELSEWHERE field median                      */
+  --l-bg-b:#9B8C7B;       /* Clay Date! field median                     */
+  --l-bg-c:#602A34;       /* Karaoke field median                        */
+
+  /* Fills (white over the backdrop) */
+  --l-fill-btn:rgba(255,255,255,.10);   /* action button                 */
+  --l-fill-card:rgba(255,255,255,.10);  /* invite banner, manage tile    */
+  --l-fill-round:rgba(255,255,255,.075);/* round "more" button           */
+  --l-round-mat:saturate(.5);           /* round "more" button material  */
+  --l-hairline:rgba(255,255,255,.07);   /* section divider, chip outline */
+  --l-scrim-nav:rgba(0,0,0,.47);        /* nav scrim over the nav blur   */
+  --l-nav-blur:blur(60px) saturate(.72);/* nav bar material              */
+  --l-mat-foot:rgba(64,66,70,.415);     /* sticky-footer material, full  */
+
+  /* Ink */
+  --l-ink:#FFFFFF;                      /* titles, body, names           */
+  --l-ink-2:rgba(255,255,255,.6);       /* labels, dates, addresses      */
+  --l-ink-glyph:rgba(255,255,255,.84);  /* button glyph + label, dots    */
+  --l-ink-inv:#000000;                  /* label on a white button       */
+  --l-amber:#F1CD8A;                    /* host-only section headers     */
+  --l-red:#FB7871;                      /* Cancel Event                  */
+  --l-cta:#FFFFFF;                      /* sticky call-to-action fill    */
+
+  /* Radius */
+  --l-r-card:14px;  --l-r-btn:14px;  --l-r-tile:16px;
+  --l-r-pill:999px; --l-r-phone:52px;
+
+  /* Type — SF Pro, Chrome-calibrated against the captures */
+  --l-t-title:600 28px/34px var(--l-font);  /* event title              */
+  --l-t-nav:600 17px/22px var(--l-font);    /* nav bar title            */
+  --l-track-nav:-.16px;                     /* nav title tracking       */
+  --l-t-h2:600 22px/28px var(--l-font);     /* description heading      */
+  --l-t-body:400 17px/24px var(--l-font);   /* description copy         */
+  --l-t-list:400 17px/28px var(--l-font);   /* numbered list item       */
+  --l-t-row:500 17px/22px var(--l-font);    /* venue name, host name    */
+  --l-t-date:400 17px/22px var(--l-font);   /* date line                */
+  --l-t-cta:500 17px/22px var(--l-font);    /* sticky button label      */
+  --l-t-stat:600 20px/24px var(--l-font);   /* guest-stat number        */
+  --l-t-label:500 15px/20px var(--l-font);  /* section header           */
+  --l-t-name:500 15px/20px var(--l-font);   /* invite-banner name       */
+  --l-t-meta:400 15px/20px var(--l-font);   /* address, guest, tile     */
+  --l-t-sub:400 13px/18px var(--l-font);    /* host tagline, stat label */
+  --l-t-chip:500 13px/18px var(--l-font);   /* tag chip                 */
+  --l-t-btn:500 12px/16px var(--l-font);    /* action button label      */
+  --l-t-time:600 17px/22px var(--l-font);   /* status bar clock         */
+
+  /* Metrics */
+  --l-gutter:20px;      /* screen gutter, both sides                    */
+  --l-content:353px;    /* 393 - 2 x gutter                             */
+  --l-status:54px;      /* status bar                                   */
+  --l-nav:110.7px;      /* nav bar bottom edge                          */
+  --l-hero:352px;       /* hero card, 353 x 352                         */
+  --l-map:120px;        /* map card height                              */
+  --l-avatar:32px;      /* guest / host avatar                          */
+  --l-btn-h:54.3px;     /* action button height                         */
+  --l-btn-w:83.675px;   /* action button width (gap 6.1)                */
+  --l-tile:112.33px;    /* manage tile, square, gap 8                   */
+  --l-cta-h:50px;       /* sticky button height                         */
+  --l-rule:24px;        /* section label ink top -> divider             */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+/* No board background: the phone floats on the canvas ground, and its drop shadow
+   lands on whatever the artboard is placed over instead of a cream rectangle. */
+body{font-family:var(--l-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:var(--l-r-phone);overflow:hidden;
+  flex:none;background:#000;color:var(--l-ink);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28)}
+.bg{position:absolute;left:-8%;top:-8%;width:116%;height:116%;
+  background-size:100% 100%;filter:blur(11px)}
+.scroll{position:absolute;inset:0;overflow:hidden}
+.scroll.faded{-webkit-mask-image:linear-gradient(#000 733px,rgba(0,0,0,.105) 798px,transparent 800px);
+  mask-image:linear-gradient(#000 733px,rgba(0,0,0,.105) 798px,transparent 800px)}
+.doc{position:absolute;left:0;width:393px}
+.doc>*{position:absolute;left:20px;width:353px}
+.hero,.map{border-radius:var(--l-r-card);display:block;object-fit:cover}
+.rule{height:1px;background:var(--l-hairline)}
+
+/* type roles */
+.t-title{font:var(--l-t-title)}
+.t-h2{font:var(--l-t-h2)}
+.t-body{font:var(--l-t-body)}
+.t-list{font:var(--l-t-list)}
+.t-row{font:var(--l-t-row)}
+.t-date{font:var(--l-t-date);color:var(--l-ink-2)}
+.t-label{font:var(--l-t-label);color:var(--l-ink-2)}
+.t-meta{font:var(--l-t-meta)}
+.t-sub{font:var(--l-t-sub);color:var(--l-ink-2)}
+.dim{color:var(--l-ink-2)}
+.t-body a{color:inherit;text-decoration:underline;text-underline-offset:.7px;
+  text-decoration-thickness:1px;text-decoration-color:rgba(255,255,255,.36)}
+
+/* section header: label left, optional action right */
+.sect{display:flex;justify-content:space-between;align-items:baseline}
+.sect.amber{color:var(--l-amber)}
+.sect.amber .lk{position:absolute;right:2px;top:2.67px;width:10px;height:14.33px}
+.sect.amber .lk svg{width:100%;height:100%;display:block}
+
+/* action buttons */
+.btns{display:flex;gap:6.1px;height:var(--l-btn-h)}
+.btns>div{width:var(--l-btn-w);height:var(--l-btn-h);border-radius:var(--l-r-btn);
+  background:var(--l-fill-btn);position:relative;color:var(--l-ink-glyph)}
+.btns>div.pri{background:#fff;color:var(--l-ink-inv)}
+.btns .gl{position:absolute;left:50%;top:19.1px;transform:translate(-50%,-50%)}
+.btns .gl svg{width:100%;height:100%;display:block}
+.btns .lb{position:absolute;left:0;right:0;top:30.81px;text-align:center;font:var(--l-t-btn)}
+
+/* rows with an avatar */
+.arow{display:flex;align-items:center;gap:10px}
+.arow img{width:var(--l-avatar);height:var(--l-avatar);border-radius:50%;flex:none;object-fit:cover}
+.arow .nm{font:var(--l-t-row)}
+
+/* weather corner: icon ink box and temperature both placed from measurement */
+.wxi svg{width:100%;height:100%;display:block}
+
+/* tag chip */
+.chip{display:inline-block;width:auto;font:var(--l-t-chip);color:var(--l-ink-2);
+  border:1px solid var(--l-hairline);border-radius:var(--l-r-pill);padding:5px 8.5px}
+
+/* manage tiles */
+.tiles{display:flex;gap:8px}
+.tile{width:var(--l-tile);height:var(--l-tile);border-radius:var(--l-r-tile);
+  background:var(--l-fill-card);padding:13px;position:relative;flex:none}
+.tile .ic{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.11);
+  display:grid;place-items:center}
+.tile .ic span{display:block}
+.tile .ic svg{width:100%;height:100%;display:block}
+.tile .lb{position:absolute;left:13px;right:8px;bottom:13.4px;font:var(--l-t-meta)}
+.tile.dngr .ic{background:rgba(251,120,113,.18);color:var(--l-red)}
+.tile.dngr .lb{color:var(--l-red)}
+
+/* guest stats */
+.stats{display:grid;grid-template-columns:repeat(3,115px);gap:4px}
+.stats b{font:var(--l-t-stat);display:block}
+
+/* chrome */
+.nav{position:absolute;left:0;top:0;width:393px;height:var(--l-nav);
+  background:var(--l-scrim-nav);
+  -webkit-backdrop-filter:var(--l-nav-blur);backdrop-filter:var(--l-nav-blur)}
+.foot{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(rgba(64,66,70,0) 723px,var(--l-mat-foot) 800px)}
+.nav .ttl{position:absolute;left:0;top:77.6px;width:393px;text-align:center;font:var(--l-t-nav);
+  letter-spacing:var(--l-track-nav)}
+.grab{position:absolute;left:176.67px;top:59px;width:40px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,.32)}
+.statusbar{position:absolute;left:0;top:0;width:393px;height:var(--l-status)}
+.statusbar .time{position:absolute;left:0;top:18.2px;width:142.4px;font:var(--l-t-time);
+  display:flex;align-items:center;justify-content:center;gap:3.1px}
+.statusbar .time svg{position:static;width:17.5px;height:17.5px;display:block;flex:none}
+.statusbar svg{position:absolute;display:block;fill:#fff}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+/* the indicator is not white: iOS picks a colour against the wallpaper, measured per screen */
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px}
+.sticky{position:absolute;left:20px;top:748px;width:353px;height:var(--l-cta-h);
+  display:flex;gap:7.3px}
+.sticky .cta{flex:1;height:var(--l-cta-h);border-radius:var(--l-r-pill);background:var(--l-cta);
+  color:var(--l-ink-inv);font:var(--l-t-cta);display:grid;place-items:center}
+.sticky .more{width:50px;height:50px;border-radius:50%;background:var(--l-fill-round);
+  -webkit-backdrop-filter:var(--l-round-mat);backdrop-filter:var(--l-round-mat);
+  display:grid;place-items:center;flex:none;color:var(--l-ink-glyph)}
+.sticky .more svg{width:100%;height:100%;display:block}
+body{background:#EDEBE7;padding:24px}
+.board{width:430px;height:932px;background:#1B1815;border-radius:20px;padding:15px 20px 12px;
+  box-shadow:0 18px 44px rgba(29,25,26,.22);overflow:hidden;color:#fff;position:relative}
+.board::before{content:"";position:absolute;inset:0;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAA0CAIAAAAfe2/iAAACb0lEQVR42u2WWc7cMAyDScX3v0BvUKCHa1FguozIPthJnN+Jkz4WqDGDWSx/oWR64ZfPn7A3w+sXAICUr9fPr9++v378kjSE7ZHF1v6rfroDWfLeYH8MBuqfxXZ9gruOjZepVNaXUvu4/hMAXKzcxnrt9srTsR00HN4uUvYyenW2LVlpJZS21tT3Cmzqiq1Vjve4NagTY8m9hP6xAIryPZZnFyZZsmwJVlcVu59suyjfH2eym19btgwZtn0SCQAgUGRhbFugRZgAAfIw8kjiQdHYJNsJmGFi1opTk+6WGUkG6RmoM/65IthBLAGSc1DOQIZRQRGepqZ5agDtJQguntdonlpjBQPzWqPYOY8gGIwgMa+R7xQBYIBBxoxUbN+kVj0ZIBhxqeseBNhKJUgiFpKnPrgFuY2ylL8ZWFhTHUCwptVh53JlvqvHR1EFE0XBMcvMBBBYeOwt84m/qFiyPofcYi5rxLj0oO3MDDjILaycYu7c1zYGEaSqqCJooBAM8xbVzhNb5GmNHhEOA2zEuLCApyC3o2WYtS0bt/OEE312y76yCi52dLtxbZMQCDC0zsKwy8WjElznu7mnPHMjT/rBKray4pJCmjThaEx+BPVXEhSysVuqsWxyzMPwM2NxY5U+KCL4bO63KdsXLQN2Per5xEH7PYJgdykrzSmsm9jhHrFWpnXL7k1F7Yc4Z9tINSN7mRyl1b90AJFb725xH53tA80ALRAGShe4LYi/WLReH15uwsYpl4ezwbegbgmcrV2u6/sBCK6+PN++t8yIgsMOGVfXiDMzuT+Binc3GBC5PAANVD/aRh61/6B/EfQH1C/gI7W2NJEAAAAASUVORK5CYII=) center/100% 100%;
+  filter:blur(24px);opacity:.55}
+.board>*{position:relative}
+header{padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.14)}
+h1{font:600 17px/21px var(--l-font)}
+h1 span{font:400 11px/21px ui-monospace,Menlo,monospace;color:rgba(255,255,255,.38);margin-left:5px}
+header p{font:400 10px/13.5px var(--l-font);color:rgba(255,255,255,.62);margin-top:3px}
+h2{font:600 9px/12px var(--l-font);letter-spacing:.8px;text-transform:uppercase;
+  color:rgba(255,255,255,.42);margin:7px 0 4px}
+.ph{display:flex;gap:9px;padding:5px 0;border-top:1px solid rgba(255,255,255,.07)}
+.ph.first{border-top:0}
+.ph .n{width:18px;height:18px;border-radius:50%;flex:none;margin-top:1px;
+  background:rgba(255,255,255,.10);color:#F1CD8A;
+  font:600 9.5px/18px ui-monospace,Menlo,monospace;text-align:center}
+.ph .b{flex:1;min-width:0}
+.ph h3{font:600 11.5px/15px var(--l-font);display:flex;justify-content:space-between;gap:8px}
+.ph h3 em{font:400 9px/15px ui-monospace,Menlo,monospace;color:#F1CD8A;font-style:normal;flex:none}
+.ph p{font:400 9px/12px var(--l-font);color:rgba(255,255,255,.74);margin-top:2px}
+.cmd{display:block;margin-top:4px;font:400 7.5px/12px ui-monospace,Menlo,monospace;
+  color:rgba(255,255,255,.52);background:rgba(0,0,0,.24);border-radius:4px;padding:4px 6px;
+  white-space:pre-wrap;word-break:break-word}
+.ph p code,.inv code{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:#F1CD8A;
+  background:rgba(0,0,0,.24);border-radius:3px;padding:0 3px}
+.inv{font:400 9px/13px var(--l-font);color:rgba(255,255,255,.74);
+  padding:3px 0;border-top:1px solid rgba(255,255,255,.07)}
+.inv b{color:#F1CD8A;font-weight:600;margin-right:4px}
+.fm{display:flex;gap:8px;padding:2.5px 0;border-top:1px solid rgba(255,255,255,.07)}
+.fm b{width:98px;flex:none;font:400 7.5px/13px ui-monospace,Menlo,monospace;color:#F1CD8A;
+  word-break:break-all}
+.fm i{font:400 9px/13px var(--l-font);font-style:normal;color:rgba(255,255,255,.74)}
+.loop{margin-top:3px;font:400 8.5px/16px ui-monospace,Menlo,monospace;
+  color:rgba(255,255,255,.7);background:rgba(0,0,0,.24);border-radius:6px;padding:8px 10px}
+.loop em{font-style:normal;color:#F1CD8A}
+.sc{display:flex;align-items:center;gap:7px;padding:2.5px 0}
+.sc b{width:76px;flex:none;font:400 8.5px/12px var(--l-font);font-weight:400;
+  color:rgba(255,255,255,.74)}
+.sc .bar{flex:1;height:7px;border-radius:3.5px;background:rgba(255,255,255,.09);overflow:hidden}
+.sc .bar i{display:block;height:100%;background:#F1CD8A;opacity:.8}
+.sc s{width:26px;flex:none;text-align:right;text-decoration:none;
+  font:400 8.5px/12px ui-monospace,Menlo,monospace;color:#fff}
+.note{margin-top:9px;font:400 8.5px/12.5px var(--l-font);color:rgba(255,255,255,.5)}</style>
+</head>
+<body>
+<div class="board"><header><h1>What is in this folder <span>files &amp; results</span></h1><p>The folder is the deliverable and the generator is the source. Anything here that is not gen.py or an asset JSON is output, and can be thrown away and rebuilt.</p></header><div class="fm"><b>gen.py</b><i>793 lines. The only editable source in this folder.</i></div><div class="fm"><b>assets.json</b><i>258&nbsp;KB. Hero, map and avatar bitmaps as data: URIs.</i></div><div class="fm"><b>refassets.json</b><i>1.6&nbsp;MB. The eight source captures, for row 3.</i></div><div class="fm"><b>00*.html</b><i>Tokens, two evidence sheets, and these two process boards.</i></div><div class="fm"><b>01&ndash;08*.html</b><i>The replica screens. 393&times;852&nbsp;pt at 1pt = 1px.</i></div><div class="fm"><b>ref-01&ndash;08*.html</b><i>The captures, unretouched, attribution intact.</i></div><div class="fm"><b>layout.json</b><i>Three rows. Row 3 is column-aligned under row 2.</i></div><h2>The correction loop, run a dozen times</h2><div class="loop">measure the capture &nbsp;<em>&rarr;</em>&nbsp; edit <em>gen.py</em> &nbsp;<em>&rarr;</em>&nbsp; re-run &nbsp;<em>&rarr;</em>&nbsp; shoot at 3&times; &nbsp;<em>&rarr;</em>&nbsp; diff vs capture<br><em>&crarr;</em> back to the top. Never edit a board. A correction you have not re-rendered is not a correction.</div><h2>Mean |&Delta;| per screen &mdash; replica vs capture, 0&ndash;255</h2><div class="sc"><b>1 Guest / top</b><div class="bar"><i style="width:57.8%"></i></div><s>3.47</s></div><div class="sc"><b>2 Guest / location</b><div class="bar"><i style="width:64.8%"></i></div><s>3.89</s></div><div class="sc"><b>3 Guest / about</b><div class="bar"><i style="width:69.3%"></i></div><s>4.16</s></div><div class="sc"><b>4 Host / top</b><div class="bar"><i style="width:58.2%"></i></div><s>3.49</s></div><div class="sc"><b>5 Host / stats</b><div class="bar"><i style="width:64.2%"></i></div><s>3.85</s></div><div class="sc"><b>6 Host / manage</b><div class="bar"><i style="width:69.5%"></i></div><s>4.17</s></div><div class="sc"><b>7 Invited / top</b><div class="bar"><i style="width:59.5%"></i></div><s>3.57</s></div><div class="sc"><b>8 Invited / about</b><div class="bar"><i style="width:75.0%"></i></div><s>4.50</s></div><h2>The toolkit these phases call</h2><div class="fm"><b>refkit grid</b><i>draw a labelled grid so the capture is read with eyes, not sampled blind</i></div><div class="fm"><b>refkit sample</b><i>flat fills, small-element modes and ink cores in one census</i></div><div class="fm"><b>refkit hairline</b><i>recover a 1pt rule&rsquo;s true colour from a downscaled capture</i></div><div class="fm"><b>refkit bands</b><i>ink bands and the pitch between them &rarr; the real row height</i></div><div class="fm"><b>refkit bbox / ink</b><i>an element&rsquo;s box; <code>ink</code> drops a neighbour sharing the window</i></div><div class="fm"><b>refkit scan</b><i>collapse a row or column to colour runs &rarr; the exact edge</i></div><div class="fm"><b>refkit font</b><i>rank candidate faces at a common cap height, from a closed set</i></div><div class="fm"><b>refkit shoot</b><i>render a board, crop the phone, and prove it does not clip</i></div><div class="fm"><b>refkit diff</b><i>the side-by-side <i>and</i> the numbers behind it, per region</i></div><div class="fm"><b>refkit batch</b><i>replay every probe, reference against render, in one process</i></div><div class="fm"><b>refkit tokens</b><i>one shared <code>:root</code>; no <code>var()</code> that was never defined</i></div><h2>Where the replica differs on purpose</h2><div class="inv"><b>Dynamic Island</b>Mobbin composites it out of the capture; the frame spec draws it, so it is present in the replica and absent in the reference.</div><div class="inv"><b>Corner masking</b><code>--crop-phone</code> masks the 52pt corners, so verification crops show rounded corners where the raw capture is square.</div><div class="inv"><b>Hero, map, avatars</b>Photographic content is a crop of the capture, not a redraw. Those regions measure near-zero by construction and prove nothing.</div><div class="inv"><b>Time separators</b>The capture writes <code>9.41</code> and <code>6.00&thinsp;PM</code> with a period. The replica uses a colon, which is what iOS and Luma actually render.</div><p class="note">All eight land between 3.47 and 4.50 levels, mean 3.89, with the top 56&nbsp;pt excluded. That residual is antialiasing and JPEG noise in the source, not layout: the p99 sits at 51&ndash;78 and is concentrated on glyph edges.</p></div>
+</body>
+</html>

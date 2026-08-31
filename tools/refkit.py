@@ -7,8 +7,15 @@
   bands    ink-fraction profile -> the bands an element occupies, and the pitch
            between them (row height, baselines, list rhythm)
   bbox     bounding box of the dark (or bright) pixels in a region
+  ink      bbox of the centred connected components only: the glyph, where
+           `bbox` on the same window would return the neighbouring label too
   scan     walk one row/column and collapse it into colour runs. Finds an
            edge (sheet top, card inset) to the pixel
+  batch    run a probes.json of measurements in one process; --against DIR
+           adds a ref-vs-render delta table with the w/h ratios that make
+           icon sizing converge instead of oscillate
+  crops    per-probe ref|render crop pairs, NEAREST-zoomed. Numbers are good
+           at size and useless at shape; this is the shape check
   hairline solve a sub-pixel border/divider colour from its ink coverage
   font     name the type face in a region. Renders the word in every candidate
            and ranks by glyph shape, so it can answer "SF Pro"
@@ -25,7 +32,7 @@ coordinate comes back in the same unit you asked in.
 Needs: pillow, numpy. Chrome only for `shoot`.
 Self-check: python3 tools/test_refkit.py
 """
-import argparse, glob, json, os, re, subprocess, sys, tempfile
+import argparse, contextlib, glob, io, json, os, re, subprocess, sys, tempfile
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
@@ -34,17 +41,23 @@ PHONE_FRAME = "1D191A"          # the shared artboard phone frame's bezel colour
 PHONE_RADIUS = 52               # .phone border-radius, in design pt
 
 
+_IMG = {}                       # path-keyed: a batch decodes each capture once
+
+
 def _flat(p):
     """Open as RGB. A cropped phone screen carries transparent 52pt corners;
     flatten them onto white rather than dropping the alpha and exposing the
     black bezel they were cut out of."""
+    if p in _IMG:
+        return _IMG[p]
     im = Image.open(p)
-    if "A" not in im.getbands():
-        return im.convert("RGB")
-    im = im.convert("RGBA")
-    bg = Image.new("RGB", im.size, "white")
-    bg.paste(im, mask=im.getchannel("A"))
-    return bg
+    if "A" in im.getbands():
+        im = im.convert("RGBA")
+        bg = Image.new("RGB", im.size, "white")
+        bg.paste(im, mask=im.getchannel("A"))
+        im = bg
+    _IMG[p] = im = im.convert("RGB")
+    return im
 
 
 def _rgb(p):
@@ -176,6 +189,61 @@ def cmd_bbox(a):
           f"   w {bx1-bx0:.1f}  h {by1-by0:.1f}   n {m.sum()}")
 
 
+def _label(m):
+    """4-connected components without scipy: every ink pixel starts as its own
+    id, the max floods until nothing moves. Iterations ~ component diameter,
+    which is nothing on an icon-sized window."""
+    # ponytail: O(diameter) sweeps; per-run accumulate if windows ever get big
+    lab = np.where(m, np.arange(1, m.size + 1, dtype=np.int64).reshape(m.shape), 0)
+    while True:
+        n = lab.copy()
+        n[1:] = np.maximum(n[1:], lab[:-1])
+        n[:-1] = np.maximum(n[:-1], lab[1:])
+        n[:, 1:] = np.maximum(n[:, 1:], lab[:, :-1])
+        n[:, :-1] = np.maximum(n[:, :-1], lab[:, 1:])
+        n[~m] = 0
+        if (n == lab).all():
+            return lab
+        lab = n
+
+
+def cmd_ink(a):
+    """`bbox` on a window that also contains a neighbouring label returns the
+    window. Keeping only the components whose centroid sits near the window
+    centre returns the glyph, which is the number the CSS needs."""
+    k = _k(a)
+    cx, cy, half = a.cx * k, a.cy * k, a.half * k
+    img = _rgb(a.image)
+    x0, y0 = max(0, int(round(cx - half))), max(0, int(round(cy - half)))
+    win = img[y0:int(round(cy + half)), x0:int(round(cx + half))].astype(float).mean(2)
+    if win.size == 0:
+        sys.exit("empty window")
+    bg = np.median(np.concatenate([win[0], win[-1], win[:, 0], win[:, -1]]))
+    d = (bg - win) if a.dark else (win - bg)
+    if d.max() <= 0:
+        sys.exit("no ink in the window. For dark ink on a light fill pass --dark")
+    lab = _label(d > d.max() * 0.5)
+    H, W = lab.shape
+    keep = []
+    for i in [v for v in np.unique(lab) if v]:
+        ys, xs = np.nonzero(lab == i)
+        if len(ys) < a.minpx:
+            continue
+        if abs(ys.mean() - H / 2) > half * .8 or abs(xs.mean() - W / 2) > half * .8:
+            continue
+        keep.append((ys.min(), xs.min(), ys.max(), xs.max(), len(ys)))
+    if not keep:
+        sys.exit(f"no centred component of {a.minpx}+ px. Wrong polarity, or the "
+                 "glyph is fainter than something else in the window")
+    t, l = min(b[0] for b in keep), min(b[1] for b in keep)
+    bm, r = max(b[2] for b in keep), max(b[3] for b in keep)
+    bx0, by0 = (x0 + l) / k, (y0 + t) / k
+    bx1, by1 = (x0 + r + 1) / k, (y0 + bm + 1) / k
+    print(f"x0 {bx0:.1f}  y0 {by0:.1f}  x1 {bx1:.1f}  y1 {by1:.1f}"
+          f"   w {bx1-bx0:.1f}  h {by1-by0:.1f}"
+          f"   n {sum(b[4] for b in keep)}  comps {len(keep)}")
+
+
 def cmd_scan(a):
     """One row or column, collapsed into colour runs. Finds the exact coordinate
     an edge lands on without reading 400 identical lines."""
@@ -232,7 +300,10 @@ def _ink_norm(lum):
     """Binarise, tight-crop to the ink, rescale to FONT_H keeping the aspect.
     Both the capture and the render go through this, so the comparison is of
     letterforms rather than of point size or dark mode."""
-    a = 255 - lum if lum.mean() > 127 else lum
+    # Polarity from the border ring, not the mean: white-on-dark text covering
+    # more than a third of the box pushes the mean over 127 and inverts the mask.
+    bg = np.median(np.concatenate([lum[0], lum[-1], lum[:, 0], lum[:, -1]]))
+    a = np.abs(lum - bg)
     a = a > a.max() * 0.4
     ys, xs = np.nonzero(a)
     if not len(ys):
@@ -375,7 +446,7 @@ def _render(html, png, scale, w, h):
                    check=True, capture_output=True)
 
 
-def _overflow(html, w, h):
+def _overflow(html, w, h, clip_ok=()):
     """How far the board's content runs past the artboard, in CSS px, asked of
     the layout engine rather than guessed from pixels.
 
@@ -384,10 +455,34 @@ def _overflow(html, w, h):
     lives in a temp dir so a transient file never appears under mockups/. Do
     not do this with a pixel probe: a card's box-shadow tail paints ~60px below
     its own bottom edge and reads as overflow that is not there.
+
+    A fitting document is not a fitting board: a fixed-height overflow:hidden
+    box clips its own content internally while the document never grows, so
+    the walk below reports every hidden-overflow element that is cutting more
+    than 1px off its content. Elements that are SUPPOSED to clip stay silent:
+    [data-clip-ok], the .phone frame, the .scroll container, anything in
+    clip_ok, single-line/line-clamp ellipsis truncation, and any element whose
+    bottom edge sits on its phone's bottom edge, because a sheet cropping at
+    the screen bottom is the mock's scroll fold, not a defect.
+
+    -> (px past the artboard, [(label, px clipped), ...]), or None.
     """
     src = open(html, encoding="utf-8").read()
-    probe = ('<script>document.title="RK:"+Math.max('
-             'document.documentElement.scrollHeight,document.body.scrollHeight)</script>')
+    skip = json.dumps(["[data-clip-ok]", ".phone", ".scroll"] + list(clip_ok))
+    probe = ("""<script>(()=>{const skip=%s,bad=[];
+for(const el of document.querySelectorAll("*")){
+ if(skip.some(q=>{try{return el.matches(q)}catch(e){return false}}))continue;
+ const s=getComputedStyle(el),dy=el.scrollHeight-el.clientHeight,dx=el.scrollWidth-el.clientWidth;
+ const ph=el.closest(".phone");
+ const fold=ph&&Math.abs(el.getBoundingClientRect().bottom-ph.getBoundingClientRect().bottom)<4;
+ const oy=s.overflowY==="hidden"&&dy>1&&s.webkitLineClamp==="none"&&!fold;
+ const ox=s.overflowX==="hidden"&&dx>1&&s.textOverflow!=="ellipsis";
+ if(oy||ox)bad.push((el.tagName.toLowerCase()+(el.id?"#"+el.id:"")
+  +(el.classList.length?"."+el.classList[0]:"")).replace(/[^\\w.#-]/g,"")
+  +"+"+Math.max(oy?dy:0,ox?dx:0));}
+document.title="RK:"+Math.max(document.documentElement.scrollHeight,
+ document.body.scrollHeight)+"|"+bad.slice(0,8).join(",")+"|";})()</script>"""
+             % skip)
     fd, tmp = tempfile.mkstemp(suffix=".html")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
@@ -397,8 +492,12 @@ def _overflow(html, w, h):
                              capture_output=True, text=True).stdout
     finally:
         os.remove(tmp)
-    m = re.search(r"RK:(\d+)", out)
-    return max(0, int(m.group(1)) - h) if m else None
+    m = re.search(r"RK:(\d+)\|(.*?)\|", out)
+    if not m:
+        return None
+    clips = [(lab, int(n)) for lab, n in
+             (c.rsplit("+", 1) for c in m.group(2).split(",") if "+" in c)]
+    return max(0, int(m.group(1)) - h), clips
 
 
 def cmd_shoot(a):
@@ -415,15 +514,21 @@ def cmd_shoot(a):
             else:
                 c.save(png); im = c
         if a.check_overflow:
-            n = _overflow(f, a.w, a.h)
-            note += "  (overflow probe failed)" if n is None else (
-                f"  OVERFLOW +{n}px" if n else "  fits")
-            if n:
-                over.append((f, n))
+            r = _overflow(f, a.w, a.h, a.clip_ok)
+            if r is None:
+                note += "  (overflow probe failed)"
+            else:
+                n, clips = r
+                bad = ([f"OVERFLOW +{n}px"] if n else []) + [
+                    f"CLIPS {lab} +{v}px" for lab, v in clips]
+                note += "  " + ("; ".join(bad) if bad else "fits")
+                if bad:
+                    over.append((f, "; ".join(bad)))
         print(png, im.size, note)
     if over:
-        sys.exit(f"{len(over)} board(s) run past the {a.h}px artboard: "
-                 + ", ".join(f"{os.path.basename(f)} +{n}" for f, n in over))
+        sys.exit(f"{len(over)} board(s) overflow the {a.h}px artboard or clip "
+                 "their own content: "
+                 + ", ".join(f"{os.path.basename(f)} {m}" for f, m in over))
 
 
 def cmd_diff(a):
@@ -468,6 +573,175 @@ def cmd_diff(a):
         rh, _, _ = _fill(ref[y:y + 1, :])
         print(f"  y {i/k:7.1f} .. {(i+band)/k:7.1f}   Δ {sc:5.2f}"
               f"   worst row {y/k:7.1f}  {mh} vs {rh}")
+
+
+# --- batch probes ------------------------------------------------------------
+# One probe per shell call spends seconds on the round trip and tens of ms
+# re-decoding the same capture. batch feeds probe rows through the real parser
+# and the real cmd_* functions, so there is no second implementation of any
+# measurement to drift out of agreement with the single-shot commands.
+
+def _probes(path, against):
+    """probes.json rows, image paths resolved (cwd first, then beside the
+    json), each probe's render counterpart resolved from --against."""
+    base = os.path.dirname(os.path.abspath(path))
+    rows = json.load(open(path))
+    for p in rows:
+        if not os.path.isabs(p["img"]) and not os.path.exists(p["img"]):
+            p["img"] = os.path.join(base, p["img"])
+        if against:
+            m = p.get("mine", os.path.basename(p["img"]))
+            p["mine"] = m if os.path.isabs(m) else os.path.join(against, m)
+    return rows
+
+
+def _probe_argv(p, img, pt):
+    """A probe row -> the argv the real subcommand parses. `box` maps onto
+    ink's centre+half window; any other key rides through as a --flag."""
+    cmd, argv = p["cmd"], [p["cmd"], img]
+    if cmd == "scan":
+        argv += [p["axis"], p["at"], p["range"][0], p["range"][1]]
+    elif cmd == "ink" and "box" in p:
+        x0, y0, x1, y1 = p["box"]
+        argv += [(x0 + x1) / 2, (y0 + y1) / 2, max(x1 - x0, y1 - y0) / 2]
+    elif "box" in p:
+        argv += p["box"]
+    for key, v in p.items():
+        if key in ("id", "img", "mine", "cmd", "box", "axis", "at", "range"):
+            continue
+        argv.append("--" + key)
+        if v is not True:
+            argv.append(v)
+    if pt and "pt" not in p:
+        argv += ["--pt", pt]
+    return [str(v) for v in argv]
+
+
+def _run_probe(parser, argv):
+    """-> (captured output, error or None). A probe that dies must not take
+    the other forty with it."""
+    buf = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+            a = parser.parse_args(argv)
+            a.fn(a)
+        return buf.getvalue().strip(), None
+    except SystemExit as e:
+        err = e.code if isinstance(e.code, str) else buf.getvalue().strip()
+        err = err.splitlines()[-1] if err else f"exit {e.code}"
+        return buf.getvalue().strip(), err
+    except Exception as e:
+        return buf.getvalue().strip(), repr(e)
+
+
+_BOXRE = re.compile(r"x0 (-?[\d.]+)\s+y0 (-?[\d.]+)\s+x1 (-?[\d.]+)\s+y1 "
+                    r"(-?[\d.]+)\s+w (-?[\d.]+)\s+h (-?[\d.]+)")
+
+
+def _summ(cmd, out):
+    """One comparable cell per probe -> (text, w, h, rgb, edge); w/h for
+    anything box-shaped, rgb for anything colour-shaped, edge for a scan.
+    A scan collapses to its largest colour step: comparing raw run lists
+    flags every 1-level antialiasing wobble, which is noise, not layout."""
+    m = _BOXRE.search(out)
+    if m:
+        x0, y0, _, _, w, h = map(float, m.groups())
+        return f"{w:.1f}x{h:.1f} @{x0:.1f},{y0:.1f}", w, h, None, None
+    if cmd == "scan":
+        runs = [(float(s), tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)))
+                for s, c in re.findall(r"(-?[\d.]+)\s*\.\.\s*-?[\d.]+\s+(#\w{6})", out)]
+        if len(runs) > 1:
+            i = max(range(1, len(runs)),
+                    key=lambda j: sum(abs(a - b) for a, b in zip(runs[j][1], runs[j - 1][1])))
+            return (f"edge@{runs[i][0]:g} {_hex(runs[i-1][1])}>{_hex(runs[i][1])}",
+                    None, None, None, runs[i][0])
+        return " ".join(out.split())[:30] or "-", None, None, None, None
+    m = re.search(r"#[0-9A-F]{6}", out)
+    if m:
+        return (m.group(0), None, None,
+                tuple(int(m.group(0)[i:i + 2], 16) for i in (1, 3, 5)), None)
+    return " ".join(out.split())[:30] or "-", None, None, None, None
+
+
+def cmd_batch(a):
+    rows, par, errs = _probes(a.probes, a.against), _parser(), []
+    if not a.against:
+        for p in rows:
+            out, err = _run_probe(par, _probe_argv(p, p["img"], a.pt))
+            print(f"-- {p['id']}  ({os.path.basename(p['img'])} {p['cmd']})")
+            if out:
+                print("   " + out.replace("\n", "\n   "))
+            if err:
+                errs.append(p["id"]); print(f"   ERROR: {err}")
+    else:
+        print(f"{'id':<20} {'ref':<30} {'mine':<30} {'Δ':>5} {'dw':>6} {'dh':>6} {'w*':>6} {'h*':>6}")
+        dcs, dws, dhs = [], [], []
+        for p in rows:
+            ref, e1 = _run_probe(par, _probe_argv(p, p["img"], a.pt))
+            my, e2 = _run_probe(par, _probe_argv(p, p["mine"], a.pt))
+            if e1 or e2:
+                errs.append(p["id"])
+                print(f"{p['id']:<20} ERROR: "
+                      + "; ".join(dict.fromkeys(filter(None, (e1, e2)))))
+                continue
+            rt, rw, rh, rc, re_ = _summ(p["cmd"], ref)
+            mt, mw, mh, mc, me = _summ(p["cmd"], my)
+            line = f"{p['id']:<20} {rt:<30} {mt:<30}"
+            if rw is not None and mw is not None:
+                dws.append(rw - mw); dhs.append(rh - mh)
+                line += (f" {'':>5} {rw-mw:>+6.1f} {rh-mh:>+6.1f}"
+                         + (f" {rw/mw:>6.3f}" if mw else f" {'inf':>6}")
+                         + (f" {rh/mh:>6.3f}" if mh else f" {'inf':>6}"))
+            elif rc and mc:
+                d = max(abs(x - y) for x, y in zip(rc, mc))
+                dcs.append(d); line += f" {d:>5d}"
+            elif re_ is not None and me is not None:
+                line += f" {me-re_:>+5.1f}"
+            elif rt != mt:
+                line += "  differs"
+            print(line)
+        if dcs:
+            print(f"\ncolour probes: {len(dcs)}, mean Δmax {sum(dcs)/len(dcs):.1f}, "
+                  f"worst {max(dcs)}")
+        if dws:
+            print(f"box probes: {len(dws)}, mean |dw| {sum(map(abs,dws))/len(dws):.2f}, "
+                  f"mean |dh| {sum(map(abs,dhs))/len(dhs):.2f}")
+    if errs:
+        sys.exit(f"{len(errs)} probe(s) errored: " + ", ".join(errs))
+
+
+def cmd_crops(a):
+    """The delta table is good at size and blind to shape: one icon's numbers
+    said 'one axis is off' while the paired crop showed an undersized body,
+    undersized details and ~10 degrees of rotation at a glance."""
+    rows, errs = _probes(a.probes, a.against), []
+    os.makedirs(a.out, exist_ok=True)
+    k = a.pt or 1.0
+    for p in (r for r in rows if "box" in r):
+        try:
+            b = [int(round(v * k)) for v in p["box"]]
+            # A whole-card box at icon zoom is a 14000px png; cap the pair at
+            # ~2000px a side and keep --zoom for what it is for, icons.
+            z = max(1, min(a.zoom, 2000 // max(1, b[2] - b[0], b[3] - b[1])))
+            ims = [_flat(f).crop(b).resize(((b[2] - b[0]) * z, (b[3] - b[1]) * z),
+                                           Image.NEAREST)
+                   for f in (p["img"], p["mine"])]
+        except Exception as e:
+            errs.append(p["id"]); print(f"{p['id']}: ERROR: {e!r}")
+            continue
+        pad = 14
+        out = Image.new("RGB", (ims[0].width + 2 + ims[1].width,
+                                max(i.height for i in ims) + pad), "white")
+        out.paste(ims[0], (0, pad))
+        out.paste(ims[1], (ims[0].width + 2, pad))
+        d = ImageDraw.Draw(out)
+        d.rectangle([ims[0].width, 0, ims[0].width + 1, out.height], fill=(255, 0, 255))
+        d.text((2, 1), f"{p['id']}  ref | mine", fill=(255, 0, 255))
+        f = os.path.join(a.out, p["id"] + ".png")
+        out.save(f)
+        print(f, out.size)
+    if errs:
+        sys.exit(f"{len(errs)} crop(s) failed: " + ", ".join(errs))
 
 
 def _token_problems(folder):
@@ -533,7 +807,7 @@ def _region_args(sub, pt=True):
     return sub
 
 
-def main():
+def _parser():
     p = argparse.ArgumentParser(prog="refkit", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     s = p.add_subparsers(dest="cmd", required=True)
@@ -557,6 +831,15 @@ def main():
     x.add_argument("--dark", type=float, default=140, help="luminance below this is ink")
     x.add_argument("--bright", type=float, default=None,
                    help="instead match pixels brighter than this (white on grey)")
+
+    i = s.add_parser("ink"); i.set_defaults(fn=cmd_ink)
+    i.add_argument("image")
+    for arg in ("cx", "cy", "half"):
+        i.add_argument(arg, type=float)
+    i.add_argument("--dark", action="store_true", help="dark ink on a light fill")
+    i.add_argument("--minpx", type=int, default=15,
+                   help="ignore components smaller than this, px")
+    i.add_argument("--pt", type=float, default=None)
 
     c = s.add_parser("scan"); c.set_defaults(fn=cmd_scan)
     c.add_argument("image"); c.add_argument("axis", choices=("row", "col"))
@@ -586,7 +869,11 @@ def main():
                    help="cut the 393x852 screen out of the frame, corners masked "
                         "to the 52pt radius, ready to diff")
     t.add_argument("--check-overflow", action="store_true",
-                   help="fail if a board's content runs past --h")
+                   help="fail if a board's content runs past --h, or an "
+                        "overflow:hidden element clips its own content")
+    t.add_argument("--clip-ok", action="append", default=[], metavar="SEL",
+                   help="selector allowed to clip (repeatable); [data-clip-ok], "
+                        ".phone and .scroll always are")
 
     d = s.add_parser("diff"); d.set_defaults(fn=cmd_diff)
     d.add_argument("mine"); d.add_argument("ref")
@@ -606,7 +893,27 @@ def main():
     m.add_argument("images", nargs="+"); m.add_argument("-o", "--out", required=True)
     m.add_argument("--height", type=int, default=520)
 
-    a = p.parse_args()
+    q = s.add_parser("batch"); q.set_defaults(fn=cmd_batch)
+    q.add_argument("probes",
+                   help='probes.json: [{"id","img","cmd","box"|"axis"/"at"/"range",'
+                        ' ...flags}]; paths resolve beside the json')
+    q.add_argument("--against", metavar="DIR",
+                   help='also run each probe on DIR/<probe "mine" or img '
+                        "basename> and print the delta table")
+    q.add_argument("--pt", type=float, default=None,
+                   help="probe coordinates are design pt at this capture scale")
+
+    r = s.add_parser("crops"); r.set_defaults(fn=cmd_crops)
+    r.add_argument("probes"); r.add_argument("--against", required=True, metavar="DIR")
+    r.add_argument("-o", "--out", required=True)
+    r.add_argument("--zoom", type=int, default=6)
+    r.add_argument("--pt", type=float, default=None)
+
+    return p
+
+
+def main():
+    a = _parser().parse_args()
     a.fn(a)
 
 

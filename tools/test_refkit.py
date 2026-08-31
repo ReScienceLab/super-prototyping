@@ -94,6 +94,52 @@ def test_crop_phone_returns_none_without_a_frame():
     assert R._crop_phone(img(np.full((100, 100, 3), 0xF3, int)), 2) is None
 
 
+def test_label_is_4_connected():
+    m = np.array([[1, 0, 0],
+                  [0, 1, 1],
+                  [0, 1, 0]], bool)
+    lab = R._label(m)
+    assert lab[1, 1] == lab[1, 2] == lab[2, 1]       # orthogonal joins
+    assert lab[0, 0] != lab[1, 1]                    # diagonal does not
+    assert lab[0, 1] == 0                            # background stays 0
+
+
+def test_probe_argv_maps_box_scan_and_flags():
+    p = {"id": "e", "img": "x.png", "cmd": "scan", "axis": "col",
+         "at": 196, "range": [95, 130]}
+    assert R._probe_argv(p, "x.png", 3) == \
+        ["scan", "x.png", "col", "196", "95", "130", "--pt", "3"]
+    p = {"id": "g", "img": "x.png", "cmd": "ink", "box": [10, 10, 50, 40],
+         "dark": True, "minpx": 9}
+    argv = R._probe_argv(p, "x.png", None)
+    # box -> centre + half of the long side; True -> a bare flag
+    assert argv == ["ink", "x.png", "30.0", "25.0", "20.0", "--dark", "--minpx", "9"]
+
+
+def test_ink_returns_the_centred_glyph_not_the_neighbour():
+    a = np.full((60, 60, 3), 235, int)
+    a[24:36, 20:28] = 20                   # glyph, two parts, centred
+    a[24:36, 32:40] = 20
+    a[10:13, 25:35] = 20                   # neighbour hugging the window top
+    f = os.path.join(tempfile.mkdtemp(), "g.png")
+    img(a).save(f)
+    argv = R._probe_argv({"id": "g", "img": f, "cmd": "ink",
+                          "box": [10, 10, 50, 50], "dark": True, "minpx": 10}, f, None)
+    out, err = R._run_probe(R._parser(), argv)
+    assert err is None, err
+    # bbox over the same window would say w 20 h 26 (neighbour included)
+    assert "w 20.0  h 12.0" in out and "comps 2" in out, out
+
+
+def test_summ_reads_boxes_and_picks_the_real_edge():
+    t, w, h, rgb, edge = R._summ("ink", "x0 5.0  y0 6.0  x1 21.0  y1 20.0   w 16.0  h 14.0   n 9")
+    assert (w, h) == (16.0, 14.0), (w, h)
+    # the 1-level antialiasing wobble at 63 must lose to the real edge at 75
+    scan = "     60.0 ..  63.0   #848275\n     63.0 ..  75.0   #858275\n     75.0 ..  90.0   #F8F4E1"
+    t, w, h, rgb, edge = R._summ("scan", scan)
+    assert edge == 75.0 and t.startswith("edge@75"), (t, edge)
+
+
 ROOT = ":root{--x-bg:#FFFFFF;--x-ink:#0A0A0A}"
 
 
