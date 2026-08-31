@@ -1,0 +1,63 @@
+# Comparing a render against its capture
+
+Loaded from Phase 4 of `clone-prototype`. Two techniques: subtracting the
+images to find what a side-by-side hides, and fitting the values that no
+pixel holds.
+
+## Subtract, do not squint
+
+A side-by-side answers "is this the right colour". It is bad at "is this the
+right colour in the wrong place", which is most of what is actually wrong.
+Blend the two instead, the way a difference layer works: your render into
+red, the reference into green and blue. Agreement goes grey, reference-only
+ink goes red, yours goes cyan.
+
+```bash
+python3 "$REPO/tools/refkit.py" blend mine/10-home.png refs/h2.png \
+    --pt 3 --y0 760 --y1 852 --zoom 2 -o tab.png
+```
+
+Every element then reads at a glance:
+
+- a red edge above a cyan edge is one element a point too low;
+- a red halo all the way round is a glyph rendering small;
+- an all-red word is a word you did not draw.
+
+Six cover crops in the luma home run sat a couple of points off their boxes
+and had each passed a side-by-side; the blend showed all six in one look.
+
+### The offset probe
+
+`blend` also shifts the reference against your render a capture pixel at a
+time and prints the mean Δ per offset. A clean V centred on zero means the
+band is placed right and whatever Δ is left is colour. A V centred on -1.0
+means a one-point layout drift and no colour problem at all, so chasing it
+through the tokens would have wasted the pass. That probe found a 17.6pt gap
+that should have been 16.6, on all three of a screen's row breaks at once.
+
+## Some values cannot be read off a pixel
+
+A translucent bar over blurred content has no pixel that holds its fill or
+its blur radius: every pixel is a mix of both, plus whatever is behind.
+Sampling harder will not help. Fit instead. Put candidate values through the
+generator, render, score the band against the capture, and walk a grid.
+
+```bash
+for blur in 12 20 28 40 56; do for alpha in .35 .50 .65; do
+    sed -i '' "s/--x-hdr-blur:blur([0-9]*px)/--x-hdr-blur:blur(${blur}px)/" gen.py
+    python3 gen.py && refkit shoot ... && score_the_band
+done; done
+```
+
+Coarse grid, one refinement pass around the minimum, then stop. Luma's tab
+bar went from `blur(24px)` at `.78` to `blur(40px)` at `.48` this way, 45.5
+to 35.0 summed over three screens, with one clean minimum in each axis.
+Record it: "swept, minimum at 40px/.48, and 24px/.78 costs 10 levels" is
+evidence. "Looks about right" is not.
+
+### A sweep that refuses to settle is telling you something
+
+The same fit tells you when two things you assumed were one token are two.
+Luma's tab bar and sticky header share a blur but not a fill: over the plain
+page the header leaves the ground untouched while the bar takes it three
+levels down. No single fill satisfies both, and the sweep says so.

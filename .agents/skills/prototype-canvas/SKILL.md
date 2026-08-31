@@ -1,5 +1,6 @@
 ---
 name: prototype-canvas
+argument-hint: [canvas slug, or a screenshot to act on]
 description: Start and operate the local tldraw design canvas in this repo. Launch the dev server, add or switch boards under mockups/canvases/, drive shapes through the bounded window.snapCanvas bridge, and act on annotated screenshots of the canvas. Use when asked to open/launch the canvas, put a mockup on the canvas, annotate or draw on it, fix overlapping frames after a layout.json edit, or respond to a screenshot of the canvas with notes drawn on it.
 ---
 
@@ -11,20 +12,38 @@ to edit and no code change needed to add a board.
 
 ## Start
 
+The server runs under tmux. A bare `npm run dev` is blocked by a hook, and the
+**whole shell command must start with `tmux`**: a leading `cd` trips the
+same hook, so pass the directory with `-c` and an absolute path.
+
 ```bash
 ROOT="$(git rev-parse --show-toplevel)"
-cd "$ROOT/canvas"
-[ -d node_modules ] || npm ci
-npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
+[ -d "$ROOT/canvas/node_modules" ] || (cd "$ROOT/canvas" && npm ci)
+tmux kill-session -t canvas 2>/dev/null
+tmux new-session -d -s canvas -c "$ROOT/canvas" \
+     "npm run dev -- --host 127.0.0.1 --port 5173 --strictPort"
+tmux capture-pane -p -t canvas | tail -5      # confirm it bound
 ```
 
-- Keep the server bound to `127.0.0.1`. It is a local design tool, not a
-  service to expose.
+- Pass **`--host 127.0.0.1`**, or Vite binds `localhost` only, which resolves
+  to `::1` here and makes every `127.0.0.1` request fail with a bare
+  connection error. Keep it on loopback either way: this is a local design
+  tool, not a service to expose.
+- Read the pane back. `--strictPort` fails loudly rather than drifting to
+  5174, and you want to see which it did.
 - Never reuse a port just because it responds. Its HTML must contain
   `<meta name="prototyping-repo-root" content="$ROOT">`; otherwise it belongs
   to a different checkout. Pick another free port and keep `--strictPort`.
-- Open the exact URL Vite prints. Deep-link a board with `?canvas=<slug>`,
-  e.g. `http://127.0.0.1:5173/?canvas=notion-ios`.
+- Deep-link a board with `?canvas=<slug>`, e.g.
+  `http://127.0.0.1:5173/?canvas=notion-ios`.
+
+**Restart it before you open a folder you just created.** `canvasLibrary.ts`
+globs `mockups/canvases/*/*.html`, which sits outside the canvas app's Vite
+root, and a running server does not reliably notice a folder created after it
+booted. When it does not, `?canvas=<slug>` matches no page,
+`applyCanvasFromUrl` returns silently, and the canvas opens on whichever board
+tldraw last persisted: right URL, no error, wrong board. A boot is ~150 ms; do
+not start debugging artboards you cannot see until you have done it.
 
 The styles panel is hidden by default; toggle it from the toolbar. Always-snap
 is on by default. The setting is per browser, so turning it off in tldraw's

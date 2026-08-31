@@ -1,5 +1,6 @@
 ---
 name: new-ui-mock
+argument-hint: [the screen, flow or component to design]
 description: Design a new screen, flow or component as a self-contained HTML artboard on the prototype canvas, built from the board's existing design tokens rather than invented values. Covers picking or extending the token block, generating a row of screens from one script, iterating against annotated screenshots, and verifying by rendering. Use when asked to mock up a new screen or feature, design variants/proposals to compare, extend an existing board with more states, or turn a spec into artboards.
 ---
 
