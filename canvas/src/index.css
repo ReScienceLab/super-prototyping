@@ -20,3 +20,12 @@ button {
   width: 100%;
   height: 100%;
 }
+
+/*
+ * The welcome board is full-bleed black line work. On tldraw's default near-white ground it
+ * reads as a slab with a hard edge, so the ground goes black under it and the page's own
+ * captions go white to match. App.tsx toggles the class per current page.
+ */
+.tl-container.canvas-welcome-ground {
+  --tl-color-background: #08080a;
+}

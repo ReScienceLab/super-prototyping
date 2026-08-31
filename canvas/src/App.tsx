@@ -5,8 +5,10 @@ import {
   toRichText,
   type Editor,
   type TLPageId,
+  type TLDefaultColorStyle,
   type TLTextShape,
   useEditor,
+  useValue,
 } from "tldraw";
 import "tldraw/tldraw.css";
 import { installAgentBridge } from "./agentBridge";
@@ -15,6 +17,12 @@ import {
   CANVAS_FILE_SHAPE_TYPE,
   CanvasFileShapeUtil,
 } from "./CanvasFileShapeUtil";
+import {
+  CANVAS_LINK_BUTTON_SIZE,
+  CANVAS_LINK_CARD_SIZE,
+  CANVAS_LINK_SHAPE_TYPE,
+  CanvasLinkShapeUtil,
+} from "./CanvasLinkShapeUtil";
 import {
   type CanvasLibraryFile,
   pageNameFor,
@@ -27,7 +35,7 @@ import {
   canvasChromeComponents,
 } from "./canvasChrome";
 
-const shapeUtils = [CanvasFileShapeUtil];
+const shapeUtils = [CanvasFileShapeUtil, CanvasLinkShapeUtil];
 
 /**
  * Bump the trailing version when a change would leave documents already in a browser's
@@ -43,6 +51,28 @@ const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
 /** Tldraw's own default first page, kept as a free-drawing surface next to the library pages. */
 const SCRATCH_PAGE_NAME = "Scratch";
 
+/** The onboarding folder. Sorts first, and the bare URL opens it. */
+const WELCOME_PAGE_SLUG = "00-welcome";
+const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
+
+/**
+ * The one board that is not phone-shaped: a landscape strip as wide as the row of example
+ * cards under it. Keep it in step with the `body` box in 00-welcome/gen.py.
+ */
+const WELCOME_BOARD_SIZE = { w: 1515, h: 660 } as const;
+
+/**
+ * Where the star button sits, in welcome-board coordinates: the empty slot the header leaves
+ * between the identity block and the lede. Keep it in step with `.slot` in 00-welcome/gen.py.
+ */
+const WELCOME_STAR_SLOT = { x: 414, y: 409 } as const;
+
+function boardSize(file: CanvasLibraryFile) {
+  return file.pageSlug === WELCOME_PAGE_SLUG
+    ? WELCOME_BOARD_SIZE
+    : CANVAS_FILE_DEFAULT_SIZE;
+}
+
 const LIBRARY_COLUMNS = 3;
 const LIBRARY_GAP = 80;
 const LIBRARY_LABEL_GAP = 12;
@@ -52,6 +82,22 @@ const LIBRARY_HEADING_HEIGHT = 44;
 function AgentBridge() {
   const editor = useEditor();
   useEffect(() => installAgentBridge(editor), [editor]);
+  return null;
+}
+
+/** Blacks out the canvas under the welcome board, whose art runs to its own edges. */
+function WelcomeGround() {
+  const editor = useEditor();
+  const isWelcome = useValue(
+    "on the welcome page",
+    () => editor.getCurrentPage().name === pageNameFor(WELCOME_PAGE_SLUG),
+    [editor],
+  );
+  useEffect(() => {
+    const container = editor.getContainer();
+    container.classList.toggle("canvas-welcome-ground", isWelcome);
+    return () => container.classList.remove("canvas-welcome-ground");
+  }, [editor, isWelcome]);
   return null;
 }
 
@@ -66,6 +112,7 @@ function createAnnotation(
     w: number;
     size: TLTextShape["props"]["size"];
     align?: TLTextShape["props"]["textAlign"];
+    color?: TLDefaultColorStyle;
     parentId?: TLPageId;
   },
 ) {
@@ -90,6 +137,7 @@ function createAnnotation(
     parentId: annotation.parentId,
     props: {
       autoSize: false,
+      color: annotation.color ?? "black",
       font: "sans",
       richText: toRichText(annotation.text),
       size: annotation.size,
@@ -127,7 +175,12 @@ function layoutRow(
 ) {
   if (!rowFiles.length) return rowTop;
 
-  const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
+  // A row holds one folder's boards, so one size covers it.
+  const size = boardSize(rowFiles[0]);
+  // The welcome board carries its own title and its own caption, so it gets neither.
+  const bare = rowFiles[0].pageSlug === WELCOME_PAGE_SLUG;
+  const rowX = (index: number) => index * (size.w + LIBRARY_GAP);
+  const contentY = bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT;
   const missing = rowFiles.filter((file) => !editor.getShape(fileShapeId(file)));
   if (missing.length) {
     editor.createShapes(
@@ -135,10 +188,10 @@ function layoutRow(
         id: fileShapeId(file),
         type: CANVAS_FILE_SHAPE_TYPE,
         parentId: page.id,
-        x: columnX(rowFiles.indexOf(file)),
+        x: rowX(rowFiles.indexOf(file)),
         y: contentY,
         props: {
-          ...CANVAS_FILE_DEFAULT_SIZE,
+          ...size,
           name: file.title,
           path: file.path,
         },
@@ -146,14 +199,14 @@ function layoutRow(
     );
   }
 
+  if (bare) return contentY + size.h + LIBRARY_GAP;
+
   createAnnotation(editor, {
     id: `canvas-row-heading:${page.id}:${heading}`,
     text: heading,
     x: 0,
     y: rowTop,
-    w:
-      rowFiles.length * CANVAS_FILE_DEFAULT_SIZE.w +
-      (rowFiles.length - 1) * LIBRARY_GAP,
+    w: rowFiles.length * size.w + (rowFiles.length - 1) * LIBRARY_GAP,
     size: "l",
     parentId: page.id,
   });
@@ -162,9 +215,9 @@ function layoutRow(
     createAnnotation(editor, {
       id: `canvas-file-label:${file.path}`,
       text: caption(file, index),
-      x: columnX(index),
-      y: contentY + CANVAS_FILE_DEFAULT_SIZE.h + LIBRARY_LABEL_GAP,
-      w: CANVAS_FILE_DEFAULT_SIZE.w,
+      x: rowX(index),
+      y: contentY + size.h + LIBRARY_LABEL_GAP,
+      w: size.w,
       size: "s",
       align: "middle",
       parentId: page.id,
@@ -172,12 +225,106 @@ function layoutRow(
   });
 
   return (
-    contentY +
-    CANVAS_FILE_DEFAULT_SIZE.h +
-    LIBRARY_LABEL_GAP +
-    LIBRARY_LABEL_HEIGHT +
-    LIBRARY_GAP
+    contentY + size.h + LIBRARY_LABEL_GAP + LIBRARY_LABEL_HEIGHT + LIBRARY_GAP
   );
+}
+
+function linkShapeId(name: string) {
+  return createShapeId(`canvas-link:${name}`);
+}
+
+/**
+ * What the welcome page carries besides its own board: a button that opens the repo, and one
+ * card per other board folder that opens that folder's page. Both are shapes rather than markup
+ * inside the board, because boards render in `<iframe srcDoc sandbox="">` where a link cannot
+ * navigate anything.
+ *
+ * Cover art is the folder's first screen rather than its 00- board, which is a token sheet on
+ * every example and would make five identical-looking cards.
+ */
+function layoutWelcomeExtras(
+  editor: Editor,
+  page: { id: TLPageId },
+  library: CanvasLibraryFile[][],
+  rowTop: number,
+) {
+  const targets = library.filter(
+    (files) => files[0].pageSlug !== WELCOME_PAGE_SLUG,
+  );
+
+  const starId = linkShapeId("star");
+  if (!editor.getShape(starId)) {
+    editor.createShape({
+      id: starId,
+      type: CANVAS_LINK_SHAPE_TYPE,
+      parentId: page.id,
+      ...WELCOME_STAR_SLOT,
+      props: {
+        ...CANVAS_LINK_BUTTON_SIZE,
+        label: "Star on GitHub",
+        page: "",
+        path: "",
+        url: REPO_URL,
+      },
+    });
+  }
+  const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
+  if (!targets.length) return;
+
+  const cardX = (index: number) =>
+    index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
+  const missing = targets.filter(
+    (files) => !editor.getShape(linkShapeId(files[0].pageSlug)),
+  );
+  if (missing.length) {
+    editor.createShapes(
+      missing.map((files) => {
+        const cover =
+          files.find((file) => !file.fileName.startsWith("00")) ?? files[0];
+        return {
+          id: linkShapeId(files[0].pageSlug),
+          type: CANVAS_LINK_SHAPE_TYPE,
+          parentId: page.id,
+          x: cardX(targets.indexOf(files)),
+          y: contentY,
+          props: {
+            ...CANVAS_LINK_CARD_SIZE,
+            label: files[0].pageName,
+            page: files[0].pageName,
+            path: cover.path,
+            url: "",
+          },
+        };
+      }),
+    );
+  }
+
+  createAnnotation(editor, {
+    id: `canvas-row-heading:${page.id}:examples`,
+    text: "Examples: click a card to open its canvas",
+    x: 0,
+    y: contentY - LIBRARY_HEADING_HEIGHT,
+    w:
+      targets.length * CANVAS_LINK_CARD_SIZE.w +
+      (targets.length - 1) * LIBRARY_GAP,
+    size: "l",
+    color: "white",
+    parentId: page.id,
+  });
+
+  targets.forEach((files, index) => {
+    createAnnotation(editor, {
+      id: `canvas-file-label:${files[0].pageSlug}`,
+      text: `${files.length} board${files.length === 1 ? "" : "s"}`,
+      x: cardX(index),
+      y: contentY + CANVAS_LINK_CARD_SIZE.h + LIBRARY_LABEL_GAP,
+      w: CANVAS_LINK_CARD_SIZE.w,
+      size: "s",
+      align: "middle",
+      color: "white",
+      parentId: page.id,
+    });
+  });
 }
 
 /**
@@ -258,6 +405,10 @@ function initializeCanvasLibrary(editor: Editor) {
         }),
       );
     }
+
+    if (files[0].pageSlug === WELCOME_PAGE_SLUG) {
+      layoutWelcomeExtras(editor, page, library, rowTop);
+    }
   }
 }
 
@@ -275,6 +426,7 @@ function relayoutCanvasLibrary(editor: Editor) {
     "shape:canvas-file:",
     "shape:canvas-row-heading:",
     "shape:canvas-file-label:",
+    "shape:canvas-link:",
   ];
   for (const page of editor.getPages()) {
     const staleIds = [...editor.getPageShapeIds(page.id)].filter((id) =>
@@ -289,10 +441,14 @@ function relayoutCanvasLibrary(editor: Editor) {
  * Opens `?canvas=<slug>` (the canvases/<slug> folder name) on the matching page, so a specific
  * round can be linked to or scripted against instead of relying on whichever page tldraw last
  * persisted. `?canvas=scratch` opens the free-drawing page.
+ *
+ * With no slug the bare URL opens the welcome page every time, so that page is the way in:
+ * keep a board open across reloads by deep-linking it, not by leaving it on screen.
  */
 function applyCanvasFromUrl(editor: Editor) {
-  const slug = new URLSearchParams(window.location.search).get("canvas");
-  if (!slug) return;
+  const slug =
+    new URLSearchParams(window.location.search).get("canvas") ??
+    WELCOME_PAGE_SLUG;
   const page = editor.getPages().find((c) => c.name === pageNameFor(slug));
   if (page) editor.setCurrentPage(page.id);
 }
@@ -348,6 +504,7 @@ export default function App() {
           onMount={handleMount}
         >
           <AgentBridge />
+          <WelcomeGround />
         </Tldraw>
       </main>
     </CanvasChromeContext.Provider>
