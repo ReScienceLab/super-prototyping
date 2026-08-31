@@ -85,11 +85,23 @@ going back online.
 The artwork is Apple's, reproduced from the community file for design
 reference. It is not licensed for redistribution as product artwork.
 
+## Regenerating
+
+```bash
+python3 mockups/canvases/apple-photos/gen.py
+```
+
+Rebuilds every board and `layout.json` from `assets/`, byte-identical. The
+boards are output: edit `gen.py`, never the HTML.
+
 ## Reference boards
 
-`ref-01`…`ref-03` are gitignored. They wrap the 393×852 Figma PNG in the same
-phone frame so it lines up with the replica above it. Re-export those three
-nodes at 1× to regenerate them.
+`ref-01`…`ref-03` are gitignored, and so are the `assets/refs/` PNGs behind
+them: they are whole Apple screens, not the component art the rest of
+`assets/` holds. They wrap the 393×852 Figma PNG in the same phone frame so it
+lines up with the replica above it. Re-export those three nodes at 1× into
+`assets/refs/` and `gen.py` picks them up; without them it prints what it
+skipped and builds the other four boards.
 
 [file]: https://www.figma.com/design/XdPVmryWB1QwjI2hK0ozgp/Apple-Photos-%C2%B7-iOS--Community-
 [n1153]: https://www.figma.com/design/XdPVmryWB1QwjI2hK0ozgp/Apple-Photos-%C2%B7-iOS--Community-?node-id=2009-1153

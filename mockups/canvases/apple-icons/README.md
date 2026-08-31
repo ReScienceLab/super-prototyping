@@ -76,6 +76,15 @@ artboard half empty.
 There are no captions. Each `<img>` carries the name in `alt` and `title`, so
 hovering names it.
 
+## Regenerating
+
+```bash
+python3 mockups/canvases/apple-icons/gen.py
+```
+
+Rebuilds both boards and `layout.json` from `assets/` and `assets-dark/`,
+byte-identical. The boards are output: edit `gen.py`, never the HTML.
+
 ## Attribution
 
 The app icons are Apple's, and Apple, iOS, macOS, and the app names shown are
