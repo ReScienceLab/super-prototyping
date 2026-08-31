@@ -44,10 +44,29 @@ three things the file states ambiguously:
    and the 17pt alert title 11px too narrow. There is deliberately no
    `letter-spacing` anywhere in these boards.
 
-Against the renders every feature now lands within one pixel, antialiasing
-included: the grid, the tab bar, the sheet lip, the button, the alert box and
-its 0.33pt dividers, and all eleven lines of listing copy wrap at the same
-words.
+## Two things a Chrome-only check missed
+
+The boards are viewed in whatever browser opens the canvas, so verifying in one
+engine is not verifying.
+
+- **Nothing is left to automatic wrapping.** Every line of listing and alert
+  copy is hard-set with `<br>` at Figma's own break, and the elements that hold
+  it are `white-space:nowrap`. Left to wrap on their own these lines were
+  landing inside their boxes by 1.2pt (the alert title) and 2.2pt (the Shared
+  Library description) -- under a pixel of margin at the tightest, so a
+  renderer that measures a hair wider pushes the alert title onto a third line
+  and shoves its buttons out of the 176pt box.
+- **`--ap-material` is the flattened colour, not a live blur.** WebKit drops
+  `backdrop-filter` here, which left a 70%-white panel with the listing
+  underneath still perfectly legible through it. The material over the dimmed
+  backdrop resolves to `#F0F0F0`, which is exactly what Figma exports, so the
+  board paints that and asks no engine for a blur. The cost is the faint ghost
+  of the text behind, worth about 4 levels of grey on average.
+
+Against the renders every feature now lands within one pixel in **both**
+Chromium and WebKit, antialiasing included: the grid, the tab bar, the sheet
+lip, the button, the alert box and its 0.33pt dividers, and all eleven lines of
+listing copy break at the same words.
 
 ## Assets
 
