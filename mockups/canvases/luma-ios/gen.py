@@ -1413,10 +1413,10 @@ HOME_EVIDENCE = [
    'bar or a fully transparent one. Neither number is readable off a single pixel, so both were '
    'swept: rendering the header band at 3&times; over a grid of radii and alphas and taking the '
    'pair that minimises mean absolute delta against all four captures. The surface is smooth and '
-   'has one minimum, 40&#8239;px at .48, and it is a real one &mdash; 24&#8239;px/.78 costs 10 '
+   'has one minimum, 40&#8239;px at .48, and it is a real one: 24&#8239;px/.78 costs 10 '
    'levels in the band on home-03'),
-  ('--l2-tab-fill', 'rgba(237,237,239,.58)', 'the tab bar is a different material from the header, '
-   'not the same one: over the plain page of home-01 the header leaves the ground untouched '
+  ('--l2-tab-fill', 'rgba(237,237,239,.58)', 'the tab bar is a different material from '
+   'the header: over the plain page of home-01 the header leaves the ground untouched '
    '(246,245,248 above and below it) while the bar takes it three levels down, 246,245,248 above '
    'the rule at 769.3 and 243,243,245 below. Same blur, own fill, swept the same way'),
   ('--l2-line', '#EBEDEE', '1pt coverage solve, hairline between same-date nearby rows on home-03: '
@@ -1450,7 +1450,7 @@ HOME_EVIDENCE = [
   ('--l2-track-sub', '.25px', 'same line: untracked at 20px it renders 212.4pt wide against the '
    'capture&rsquo;s 218.3, and +.25px across its 22 letter gaps gives 217.7'),
   ('--l2-t-brand', '700 26px/32px var(--l-font)', 'refkit font on the "luma" wordmark: SF Pro .845, '
-   'SF Pro Rounded .827 &mdash; no call inside the SF family, so the platform stack stands in for '
+   'SF Pro Rounded .827, no call inside the SF family, so the platform stack stands in for '
    'what is Luma&rsquo;s own custom logotype (disclosed simplification)'),
  ]),
 ]

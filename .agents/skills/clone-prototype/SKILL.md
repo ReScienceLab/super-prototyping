@@ -361,8 +361,8 @@ side-by-side; the blend showed all six in one look.
 time and prints the mean Δ per offset. A clean V centred on zero means the
 band is placed right and whatever Δ is left is colour. A V centred on -1.0
 means a one-point layout drift and no colour problem at all, so chasing it
-through the tokens would have wasted the pass. That probe is what found a
-17.6pt gap that should have been 16.6, on all three of a screen's row breaks
+through the tokens would have wasted the pass. That probe found a 17.6pt
+gap that should have been 16.6, on all three of a screen's row breaks
 at once.
 
 ### Some values cannot be read off a pixel
