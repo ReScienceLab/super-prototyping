@@ -1,0 +1,12 @@
+{
+  "name": "Apple Icons (example)",
+  "rows": [
+    {
+      "title": "Apple system app icons",
+      "files": [
+        { "file": "00-icon-set", "label": "Default appearance" },
+        { "file": "01-icon-set-dark", "label": "Dark appearance" }
+      ]
+    }
+  ]
+}

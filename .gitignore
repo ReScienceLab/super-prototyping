@@ -21,6 +21,7 @@ scratch/
 # clone-prototype skill.
 mockups/canvases/*/ref-*.html
 mockups/canvases/*/refassets.json
+mockups/canvases/*/assets/refs/
 # Same rule for the walkthrough row and its crops: they show the capture itself.
 mockups/canvases/*/w[0-9]-*.html
 mockups/canvases/*/walkassets.json

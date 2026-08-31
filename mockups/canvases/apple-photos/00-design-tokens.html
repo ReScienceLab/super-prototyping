@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Photos - design tokens</title>
+<style>
+:root{
+  --ap-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --ap-bg:#FFFFFF;
+  --ap-elevated:#FFFFFF;
+  --ap-black:#000000;
+  --ap-white:#FFFFFF;
+  --ap-scrim:rgba(0,0,0,.20);
+  --ap-material:#F0F0F0;
+  --ap-sep:#C7C7CC;
+
+  /* Ink */
+  --ap-ink:#000000;
+  --ap-grey:#8E8E93;
+  --ap-accent:#007BFE;
+
+  /* Radius */
+  --ap-r-alert:13px;
+  --ap-r-btn:14px;
+  --ap-r-island:100px;
+  --ap-r-phone:52px;
+
+  /* Type */
+  --ap-t-lg:700 34px/41px var(--ap-font);
+  --ap-t-nav:590 17px/22px var(--ap-font);
+  --ap-t-body:400 17px/22px var(--ap-font);
+  --ap-t-row:590 15px/20px var(--ap-font);
+  --ap-t-desc:400 15px/20px var(--ap-font);
+  --ap-t-note:400 13px/16px var(--ap-font);
+  --ap-t-tab:590 10px/12px var(--ap-font);
+
+  /* Metrics */
+  --ap-w:393px;
+  --ap-h:852px;
+  --ap-sb:54px;
+  --ap-nav:44px;
+  --ap-tile:129.67px;
+  --ap-gap:2px;
+  --ap-tabbar:83px;
+  --ap-tab:51px;
+  --ap-home:34px;
+  --ap-home-w:140px;
+  --ap-island-w:126px;
+  --ap-island-h:37px;
+  --ap-alert-w:270px;
+  --ap-hair:0.33px;
+  --ap-title-top:77px;
+  --ap-title-bottom:57px;
+  --ap-list-gap:24px;
+  --ap-icon:44px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ap-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+body{background:#F3F2F0}
+.sheetcard{width:430px;height:932px;background:#fff;border-radius:20px;padding:14px 20px 10px;border:1px solid rgba(0,0,0,.10);box-shadow:0 18px 44px rgba(29,25,26,.14);overflow:hidden;color:var(--ap-ink)}
+header{display:flex;gap:12px;align-items:flex-start;padding-bottom:6px;border-bottom:1px solid rgba(0,0,0,.10)}
+header h1{font:590 15px/19px var(--ap-font)}
+header p{font:400 9.5px/13px var(--ap-font);color:var(--ap-grey);margin-top:3px}
+.mark{width:28px;height:28px;flex:none;border-radius:7px;background:var(--ap-accent);color:var(--ap-white);position:relative}
+.mark svg{position:absolute;left:4px;top:6px;width:20px;height:16.5px}
+h2{font:600 9.5px/12px var(--ap-font);letter-spacing:.8px;text-transform:uppercase;color:var(--ap-grey);margin:7px 0 3px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.chip{height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.08)}
+.swm b{display:block;font:600 9px/12px ui-monospace,Menlo,monospace}
+.swm i{display:block;font:400 9px/12px ui-monospace,Menlo,monospace;color:var(--ap-grey);font-style:normal}
+.swm s{display:block;font:400 9px/12px var(--ap-font);color:var(--ap-sep);text-decoration:none}
+.tr{display:flex;align-items:baseline;gap:8px;padding:1px 0;border-bottom:1px solid rgba(0,0,0,.08)}
+.tr em{flex:none;width:74px;font:400 9px/12px ui-monospace,Menlo,monospace;color:var(--ap-grey);font-style:normal}
+.tr span{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
+.tr s{flex:none;width:112px;text-align:right;font:400 9px/12px var(--ap-font);color:var(--ap-sep);text-decoration:none}
+.rad{display:flex;gap:12px}
+.rad div{text-align:center}
+.rb{width:46px;height:24px;background:#F2F2F7;border:1px solid rgba(0,0,0,.10)}
+.rad small{font:400 9px/14px ui-monospace,Menlo,monospace;color:var(--ap-grey)}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+td{font:400 9px/10.5px ui-monospace,Menlo,monospace;padding:0;border-bottom:1px solid rgba(0,0,0,.08);vertical-align:top}
+td.t{width:116px}
+td.v{width:70px;color:var(--ap-grey)}
+td.e{color:var(--ap-sep);font-family:var(--ap-font);font-size:9.5px}
+.comp{display:flex;gap:18px;align-items:center;margin-top:4px}
+.cta2{width:160px;height:38px;border-radius:var(--ap-r-btn);background:var(--ap-accent);color:var(--ap-white);display:grid;place-items:center;font:var(--ap-t-nav)}
+.isl{width:63px;height:18.5px;border-radius:var(--ap-r-island);background:var(--ap-black)}
+.hb{width:70px;height:5px;border-radius:var(--ap-r-island);background:var(--ap-ink)}
+.tabdemo{display:flex;gap:22px;align-items:flex-end;color:var(--ap-grey)}
+.tabdemo span{display:flex;flex-direction:column;align-items:center;gap:3px}
+.tabdemo span.on{color:var(--ap-accent)}
+.tabdemo b{font:var(--ap-t-tab)}
+.tabdemo svg{display:block}
+</style>
+<div class="sheetcard">
+<header><div class="mark"><svg preserveAspectRatio="none" class="" style="width:28.705px;height:23.719px" xmlns="http://www.w3.org/2000/svg" viewBox="39.397 7.021 28.705 23.719" fill="currentColor"><path id="&#244;&#128;&#128;&#129;" d="M53.6489 21.5869C54.2853 21.5869 54.8319 21.3548 55.2886 20.8906C55.7528 20.4264 55.9849 19.8687 55.9849 19.2173C55.9849 18.798 55.88 18.4124 55.6704 18.0605C55.4608 17.7012 55.1763 17.4167 54.8169 17.207C54.465 16.9899 54.0757 16.8813 53.6489 16.8813C52.9976 16.8813 52.4435 17.1134 51.9868 17.5776C51.5301 18.0343 51.3018 18.5809 51.3018 19.2173C51.3018 19.8687 51.5301 20.4264 51.9868 20.8906C52.4435 21.3548 52.9976 21.5869 53.6489 21.5869ZM49.1792 28.2466H64.082C64.5687 28.2466 64.943 28.1193 65.2051 27.8647C65.4671 27.6177 65.5981 27.2358 65.5981 26.7192V25.147L61.5552 21.3511C61.353 21.1639 61.1284 21.0216 60.8813 20.9243C60.6343 20.827 60.3797 20.7783 60.1177 20.7783C59.8556 20.7783 59.6048 20.8232 59.3652 20.9131C59.1257 21.0029 58.8973 21.1452 58.6802 21.3398L54.3452 25.1919L52.6045 23.6196C52.4023 23.4325 52.1927 23.2977 51.9756 23.2153C51.7585 23.1255 51.5376 23.0806 51.313 23.0806C51.1034 23.0806 50.8937 23.1255 50.6841 23.2153C50.4744 23.3052 50.2686 23.4325 50.0664 23.5972L47.6631 25.7422V26.7192C47.6631 27.2358 47.7941 27.6177 48.0562 27.8647C48.3182 28.1193 48.6925 28.2466 49.1792 28.2466ZM48.9771 30.7397C47.7342 30.7397 46.7871 30.4178 46.1357 29.7739C45.4919 29.1375 45.1699 28.2017 45.1699 26.9663V16.2412C45.1699 15.0059 45.4919 14.07 46.1357 13.4336C46.7871 12.7897 47.7342 12.4678 48.9771 12.4678H64.2954C65.5308 12.4678 66.4741 12.7897 67.1255 13.4336C67.7769 14.0775 68.1025 15.0133 68.1025 16.2412V26.9663C68.1025 28.2017 67.7769 29.1375 67.1255 29.7739C66.4741 30.4178 65.5308 30.7397 64.2954 30.7397H48.9771ZM48.9771 10.7607C47.8315 10.7607 46.847 10.9816 46.0234 11.4233C45.1999 11.8576 44.5635 12.4865 44.1143 13.3101C43.6725 14.1261 43.4517 15.1032 43.4517 16.2412V25.293H43.1147C41.8944 25.278 40.9697 24.9523 40.3408 24.3159C39.7119 23.672 39.3975 22.7399 39.3975 21.5195V10.7944C39.3975 9.55908 39.7194 8.62321 40.3633 7.98682C41.0146 7.34294 41.9618 7.021 43.2046 7.021H58.5229C59.7284 7.021 60.653 7.32796 61.2969 7.94189C61.9408 8.55583 62.2814 9.45052 62.3188 10.626V10.7607H48.9771Z" fill="currentColor"/></svg></div><div><h1>Apple Photos, iOS: design tokens</h1>
+<p>Read out of the Figma community file "Apple Photos &middot; iOS" in
+393pt mode: variables for the metrics, the file's own type styles for the ramp,
+auto-layout for the boxes. Nothing here was sampled off a screenshot.</p></div></header>
+<h2>Surface</h2><div class="grid"><div><div class="chip" style="background:var(--ap-bg)"></div><div class="swm"><b>bg</b><i>#FFFFFF</i><s>bg/primary-base</s></div></div><div><div class="chip" style="background:var(--ap-elevated)"></div><div class="swm"><b>elevated</b><i>#FFFFFF</i><s>bg/primary-elevated</s></div></div><div><div class="chip" style="background:var(--ap-black)"></div><div class="swm"><b>black</b><i>#000000</i><s>system/black</s></div></div><div><div class="chip" style="background:var(--ap-white)"></div><div class="swm"><b>white</b><i>#FFFFFF</i><s>system/white</s></div></div><div><div class="chip" style="background:var(--ap-scrim)"></div><div class="swm"><b>scrim</b><i>rgba(0,0,0,.20)</i><s>ui/alert-overlay</s></div></div><div><div class="chip" style="background:var(--ap-material)"></div><div class="swm"><b>material</b><i>#F0F0F0</i><s>ui/background-blur, flat</s></div></div><div><div class="chip" style="background:var(--ap-sep)"></div><div class="swm"><b>sep</b><i>#C7C7CC</i><s>system/grey3</s></div></div></div><h2>Ink</h2><div class="grid"><div><div class="chip" style="background:var(--ap-ink)"></div><div class="swm"><b>ink</b><i>#000000</i><s>label/primary</s></div></div><div><div class="chip" style="background:var(--ap-grey)"></div><div class="swm"><b>grey</b><i>#8E8E93</i><s>system/grey</s></div></div><div><div class="chip" style="background:var(--ap-accent)"></div><div class="swm"><b>accent</b><i>#007BFE</i><s>ui/accent</s></div></div></div>
+<h2>Type</h2><div><div class="tr"><em>t-lg</em><span style="font:var(--ap-t-lg)">Bold 34/41</span><s>What's New title</s></div><div class="tr"><em>t-nav</em><span style="font:var(--ap-t-nav)">SemiBold 17/22</span><s>Nav title, alert title</s></div><div class="tr"><em>t-body</em><span style="font:var(--ap-t-body)">Regular 17/22</span><s>Select, alert actions</s></div><div class="tr"><em>t-row</em><span style="font:var(--ap-t-row)">SemiBold 15/20</span><s>Listing row title</s></div><div class="tr"><em>t-desc</em><span style="font:var(--ap-t-desc)">Regular 15/20</span><s>Listing row description</s></div><div class="tr"><em>t-note</em><span style="font:var(--ap-t-note)">Regular 13/16</span><s>Alert body</s></div><div class="tr"><em>t-tab</em><span style="font:var(--ap-t-tab)">SemiBold 10/12</span><s>Tab bar label</s></div></div>
+<h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:var(--ap-r-alert)"></div><small>13px</small></div><div><div class="rb" style="border-radius:var(--ap-r-btn)"></div><small>14px</small></div><div><div class="rb" style="border-radius:var(--ap-r-island)"></div><small>100px</small></div><div><div class="rb" style="border-radius:var(--ap-r-phone)"></div><small>52px</small></div></div>
+<h2>Metrics</h2><table><tr><td class="t">--ap-w</td><td class="v">393px</td><td class="e">screen/width</td></tr><tr><td class="t">--ap-h</td><td class="v">852px</td><td class="e">screen/height</td></tr><tr><td class="t">--ap-sb</td><td class="v">54px</td><td class="e">Status Bar height</td></tr><tr><td class="t">--ap-nav</td><td class="v">44px</td><td class="e">Title and Actions height</td></tr><tr><td class="t">--ap-tile</td><td class="v">129.67px</td><td class="e">photo-grid</td></tr><tr><td class="t">--ap-gap</td><td class="v">2px</td><td class="e">Grid gutter</td></tr><tr><td class="t">--ap-tabbar</td><td class="v">83px</td><td class="e">Bottom frame height</td></tr><tr><td class="t">--ap-tab</td><td class="v">51px</td><td class="e">Tabs height</td></tr><tr><td class="t">--ap-home</td><td class="v">34px</td><td class="e">Home Bar frame</td></tr><tr><td class="t">--ap-home-w</td><td class="v">140px</td><td class="e">homebar/width</td></tr><tr><td class="t">--ap-island-w</td><td class="v">126px</td><td class="e">Dynamic Island hole</td></tr><tr><td class="t">--ap-island-h</td><td class="v">37px</td><td class="e">Dynamic Island hole</td></tr><tr><td class="t">--ap-alert-w</td><td class="v">270px</td><td class="e">Alert box width</td></tr><tr><td class="t">--ap-hair</td><td class="v">0.33px</td><td class="e">Alert dividers</td></tr><tr><td class="t">--ap-title-top</td><td class="v">77px</td><td class="e">whats-new-title-top</td></tr><tr><td class="t">--ap-title-bottom</td><td class="v">57px</td><td class="e">whats-new-title-bottom</td></tr><tr><td class="t">--ap-list-gap</td><td class="v">24px</td><td class="e">whats-new-arguments-between-v</td></tr><tr><td class="t">--ap-icon</td><td class="v">44px</td><td class="e">Listing icon frame</td></tr></table>
+<h2>Components</h2>
+<div class="comp"><div class="cta2">Continue</div><div class="isl"></div><div class="hb"></div></div>
+<div class="comp"><div class="tabdemo"><span class="on"><svg preserveAspectRatio="none" class="" style="width:28.705px;height:23.719px" xmlns="http://www.w3.org/2000/svg" viewBox="39.397 7.021 28.705 23.719" fill="currentColor"><path id="&#244;&#128;&#128;&#129;" d="M53.6489 21.5869C54.2853 21.5869 54.8319 21.3548 55.2886 20.8906C55.7528 20.4264 55.9849 19.8687 55.9849 19.2173C55.9849 18.798 55.88 18.4124 55.6704 18.0605C55.4608 17.7012 55.1763 17.4167 54.8169 17.207C54.465 16.9899 54.0757 16.8813 53.6489 16.8813C52.9976 16.8813 52.4435 17.1134 51.9868 17.5776C51.5301 18.0343 51.3018 18.5809 51.3018 19.2173C51.3018 19.8687 51.5301 20.4264 51.9868 20.8906C52.4435 21.3548 52.9976 21.5869 53.6489 21.5869ZM49.1792 28.2466H64.082C64.5687 28.2466 64.943 28.1193 65.2051 27.8647C65.4671 27.6177 65.5981 27.2358 65.5981 26.7192V25.147L61.5552 21.3511C61.353 21.1639 61.1284 21.0216 60.8813 20.9243C60.6343 20.827 60.3797 20.7783 60.1177 20.7783C59.8556 20.7783 59.6048 20.8232 59.3652 20.9131C59.1257 21.0029 58.8973 21.1452 58.6802 21.3398L54.3452 25.1919L52.6045 23.6196C52.4023 23.4325 52.1927 23.2977 51.9756 23.2153C51.7585 23.1255 51.5376 23.0806 51.313 23.0806C51.1034 23.0806 50.8937 23.1255 50.6841 23.2153C50.4744 23.3052 50.2686 23.4325 50.0664 23.5972L47.6631 25.7422V26.7192C47.6631 27.2358 47.7941 27.6177 48.0562 27.8647C48.3182 28.1193 48.6925 28.2466 49.1792 28.2466ZM48.9771 30.7397C47.7342 30.7397 46.7871 30.4178 46.1357 29.7739C45.4919 29.1375 45.1699 28.2017 45.1699 26.9663V16.2412C45.1699 15.0059 45.4919 14.07 46.1357 13.4336C46.7871 12.7897 47.7342 12.4678 48.9771 12.4678H64.2954C65.5308 12.4678 66.4741 12.7897 67.1255 13.4336C67.7769 14.0775 68.1025 15.0133 68.1025 16.2412V26.9663C68.1025 28.2017 67.7769 29.1375 67.1255 29.7739C66.4741 30.4178 65.5308 30.7397 64.2954 30.7397H48.9771ZM48.9771 10.7607C47.8315 10.7607 46.847 10.9816 46.0234 11.4233C45.1999 11.8576 44.5635 12.4865 44.1143 13.3101C43.6725 14.1261 43.4517 15.1032 43.4517 16.2412V25.293H43.1147C41.8944 25.278 40.9697 24.9523 40.3408 24.3159C39.7119 23.672 39.3975 22.7399 39.3975 21.5195V10.7944C39.3975 9.55908 39.7194 8.62321 40.3633 7.98682C41.0146 7.34294 41.9618 7.021 43.2046 7.021H58.5229C59.7284 7.021 60.653 7.32796 61.2969 7.94189C61.9408 8.55583 62.2814 9.45052 62.3188 10.626V10.7607H48.9771Z" fill="currentColor"/></svg><b>All Photos</b></span><span class=""><svg preserveAspectRatio="none" class="" style="width:21.18px;height:21.169px" xmlns="http://www.w3.org/2000/svg" viewBox="150.66 8.324 21.18 21.169" fill="currentColor"><path id="&#244;&#128;&#128;&#129;_2" d="M154.467 29.4932C153.224 29.4932 152.277 29.1712 151.625 28.5273C150.982 27.891 150.66 26.9588 150.66 25.731V12.0859C150.66 10.8581 150.982 9.92594 151.625 9.28955C152.277 8.64567 153.224 8.32373 154.467 8.32373H168.033C169.276 8.32373 170.219 8.64567 170.863 9.28955C171.515 9.92594 171.84 10.8581 171.84 12.0859V25.731C171.84 26.9588 171.515 27.891 170.863 28.5273C170.219 29.1712 169.276 29.4932 168.033 29.4932H154.467ZM156.073 11.6479C155.631 11.6479 155.257 11.8089 154.95 12.1309C154.65 12.4453 154.5 12.8496 154.5 13.3438C154.5 13.7406 154.59 14.1112 154.77 14.4556C154.957 14.8 155.189 15.1219 155.466 15.4214C155.751 15.7134 156.039 15.9717 156.331 16.1963C156.631 16.4209 156.885 16.6081 157.095 16.7578C157.147 16.7878 157.2 16.8177 157.252 16.8477C157.312 16.8701 157.361 16.8813 157.398 16.8813C157.45 16.8813 157.503 16.8701 157.555 16.8477C157.608 16.8177 157.656 16.7878 157.701 16.7578C157.918 16.623 158.173 16.4434 158.465 16.2188C158.757 15.9941 159.041 15.7358 159.318 15.4438C159.595 15.1444 159.824 14.8187 160.003 14.4668C160.191 14.1149 160.284 13.7406 160.284 13.3438C160.284 12.8496 160.134 12.4453 159.835 12.1309C159.535 11.8089 159.157 11.6479 158.701 11.6479C158.401 11.6479 158.139 11.7303 157.915 11.895C157.697 12.0522 157.521 12.2469 157.387 12.479C157.267 12.2469 157.095 12.0522 156.87 11.895C156.646 11.7303 156.38 11.6479 156.073 11.6479ZM155.264 21.8789H166.259C166.468 21.8789 166.644 21.8078 166.787 21.6655C166.929 21.5233 167 21.3436 167 21.1265C167 20.9168 166.929 20.7409 166.787 20.5986C166.644 20.4564 166.468 20.3853 166.259 20.3853H155.264C155.047 20.3853 154.864 20.4564 154.714 20.5986C154.572 20.7409 154.5 20.9168 154.5 21.1265C154.5 21.3436 154.572 21.5233 154.714 21.6655C154.864 21.8078 155.047 21.8789 155.264 21.8789ZM155.264 25.7422H163.496C163.721 25.7422 163.904 25.6711 164.046 25.5288C164.189 25.3866 164.26 25.2106 164.26 25.001C164.26 24.7913 164.189 24.6117 164.046 24.4619C163.904 24.3122 163.721 24.2373 163.496 24.2373H155.264C155.047 24.2373 154.864 24.3122 154.714 24.4619C154.572 24.6117 154.5 24.7913 154.5 25.001C154.5 25.2106 154.572 25.3866 154.714 25.5288C154.864 25.6711 155.047 25.7422 155.264 25.7422Z" fill="currentColor"/></svg><b>For You</b></span><span class=""><svg preserveAspectRatio="none" class="" style="width:20.238px;height:26.987px" xmlns="http://www.w3.org/2000/svg" viewBox="258.631 5.415 20.238 26.987" fill="currentColor"><path id="&#244;&#128;&#128;&#129;_3" d="M262.438 32.4019C261.196 32.4019 260.249 32.0799 259.597 31.436C258.953 30.7996 258.631 29.8638 258.631 28.6284V15.938C258.631 14.7026 258.953 13.7668 259.597 13.1304C260.249 12.4865 261.196 12.1646 262.438 12.1646H275.062C276.304 12.1646 277.248 12.4865 277.892 13.1304C278.543 13.7668 278.869 14.7026 278.869 15.938V28.6284C278.869 29.8563 278.554 30.7922 277.925 31.436C277.304 32.0799 276.432 32.4019 275.309 32.4019H262.438ZM261.136 10.4014C261.211 9.84733 261.402 9.41683 261.708 9.10986C262.023 8.8029 262.495 8.64941 263.124 8.64941H274.23C274.867 8.64941 275.339 8.8029 275.646 9.10986C275.96 9.41683 276.155 9.84733 276.229 10.4014H261.136ZM263.045 7.03223C263.09 6.50814 263.266 6.10758 263.573 5.83057C263.887 5.55355 264.325 5.41504 264.887 5.41504H272.479C273.04 5.41504 273.474 5.55355 273.781 5.83057C274.096 6.10758 274.275 6.50814 274.32 7.03223H263.045Z" fill="currentColor"/></svg><b>Albums</b></span><span class=""><svg preserveAspectRatio="none" class="" style="width:22.348px;height:22.54px" xmlns="http://www.w3.org/2000/svg" viewBox="365.076 7.627 22.348 22.54" fill="currentColor"><path id="&#244;&#128;&#128;&#129;_4" d="M365.076 16.8926C365.076 15.6198 365.315 14.4219 365.794 13.2988C366.274 12.1758 366.94 11.1912 367.793 10.3452C368.647 9.4917 369.632 8.82536 370.747 8.34619C371.87 7.86702 373.072 7.62744 374.352 7.62744C375.632 7.62744 376.83 7.86702 377.946 8.34619C379.069 8.82536 380.057 9.4917 380.911 10.3452C381.764 11.1912 382.431 12.1758 382.91 13.2988C383.389 14.4219 383.628 15.6198 383.628 16.8926C383.628 17.8509 383.486 18.7643 383.202 19.6328C382.925 20.5013 382.535 21.2987 382.034 22.0249L386.874 26.8877C387.054 27.0749 387.188 27.2808 387.278 27.5054C387.376 27.7375 387.424 27.9845 387.424 28.2466C387.424 28.606 387.342 28.9316 387.177 29.2236C387.013 29.5156 386.788 29.744 386.503 29.9087C386.219 30.0809 385.889 30.167 385.515 30.167C385.261 30.167 385.014 30.1221 384.774 30.0322C384.534 29.9424 384.321 29.8039 384.134 29.6167L379.249 24.7314C378.545 25.1807 377.777 25.5363 376.946 25.7983C376.123 26.0529 375.258 26.1802 374.352 26.1802C373.072 26.1802 371.87 25.9406 370.747 25.4614C369.632 24.9823 368.647 24.3159 367.793 23.4624C366.94 22.6089 366.274 21.6206 365.794 20.4976C365.315 19.3745 365.076 18.1729 365.076 16.8926ZM367.805 16.8926C367.805 17.7985 367.973 18.6483 368.31 19.4419C368.654 20.228 369.126 20.9206 369.725 21.5195C370.324 22.1185 371.017 22.5902 371.803 22.9346C372.596 23.2715 373.446 23.4399 374.352 23.4399C375.258 23.4399 376.104 23.2715 376.89 22.9346C377.684 22.5902 378.38 22.1185 378.979 21.5195C379.578 20.9206 380.046 20.228 380.383 19.4419C380.727 18.6483 380.899 17.7985 380.899 16.8926C380.899 15.9941 380.727 15.1519 380.383 14.3657C380.046 13.5721 379.578 12.8758 378.979 12.2769C378.38 11.6704 377.684 11.1987 376.89 10.8618C376.104 10.5249 375.258 10.3564 374.352 10.3564C373.446 10.3564 372.596 10.5249 371.803 10.8618C371.017 11.1987 370.324 11.6704 369.725 12.2769C369.126 12.8758 368.654 13.5721 368.31 14.3657C367.973 15.1519 367.805 15.9941 367.805 16.8926Z" fill="currentColor"/></svg><b>Search</b></span></div></div>
+</div>
+</html>

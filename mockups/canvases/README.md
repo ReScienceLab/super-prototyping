@@ -94,6 +94,16 @@ files sitting in the folder are invisible to the canvas.
   column-for-column under the mockup row. Per-screen mean absolute delta
   against the captures is 3.47–4.50 levels (of 255), top 56 pt excluded.
   Its `gen.py` regenerates everything.
+- `apple-photos/` — three screens of the native Photos app plus a token
+  board, measured from a Figma source rather than a screenshot, each replica
+  sitting above the Figma render of the same screen. Every feature lands
+  within a pixel of its reference in both Chromium and WebKit; its
+  `README.md` records the two bugs that only the second engine showed.
+- `apple-icons/` — a different kind of board: an asset board. The 43 native
+  iOS 26 app icons in both the default and the dark appearance, embedded as
+  the shipped art rather than redrawn, tiled five across with no chrome.
+  Reach for it when a mockup needs a real system icon instead of an
+  approximation.
 - `notion-ios/` and `raycast-ios/` — finished boards, but their generators
   were never committed (see above), so treat their HTML as read-only. Each
   folder's `README.md` records what the run measured and where the replica

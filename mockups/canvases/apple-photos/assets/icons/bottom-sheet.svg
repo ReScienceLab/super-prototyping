@@ -1,0 +1,12 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="393" height="20" viewBox="0 0 393 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bottom Sheet" clip-path="url(#clip0_0_401)">
+<path id="Background" fill-rule="evenodd" clip-rule="evenodd" d="M364 0H393V20C393 14.4772 388.523 10 383 10H373V9C373 4.02944 368.971 0 364 0ZM29 0H0V20C0 14.4772 4.47715 10 10 10H20V9C20 4.02944 24.0294 0 29 0Z" fill="black"/>
+<path id="Bottom Sheet_2" d="M16 9C16 4.02944 20.0294 0 25 0H368C372.971 0 377 4.02944 377 9V10H16V9Z" fill="white"/>
+<path id="Overlay - Change Opacity" opacity="0.15" d="M16 9C16 4.02944 20.0294 0 25 0H368C372.971 0 377 4.02944 377 9V10H16V9Z" fill="black"/>
+</g>
+<defs>
+<clipPath id="clip0_0_401">
+<rect width="393" height="20" fill="white"/>
+</clipPath>
+</defs>
+</svg>
