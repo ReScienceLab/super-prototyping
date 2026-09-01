@@ -14,15 +14,16 @@ path in here resolves against __file__.
 
 Change, in this order:
 
-    NAME     the page name on the canvas.
-    P        the token prefix, one to three letters ("n" -> --n-bg).
-    TOKENS   every row: the value *and* the evidence. The :root block and the
-             evidence table are both generated from this one list, so a value
-             cannot drift from the evidence behind it and a token cannot ship
-             without one. A row you cannot defend is not a token; delete it.
-    SCREENS  one entry per screen, each returning body HTML.
-    REFS     one entry per capture, in the same order as SCREENS, so the
-             canvas parks each reference directly under its mockup.
+    NAME       the board's name, printed on the boards themselves.
+    PAGE_NAME  the canvas page name; drop the "(example) " prefix.
+    P          the token prefix, one to three letters ("n" -> --n-bg).
+    TOKENS     every row: the value *and* the evidence. The :root block and the
+               evidence table are both generated from this one list, so a value
+               cannot drift from the evidence behind it and a token cannot ship
+               without one. A row you cannot defend is not a token; delete it.
+    SCREENS    one entry per screen, each returning body HTML.
+    REFS       one entry per capture, in the same order as SCREENS, so the
+               canvas parks each reference directly under its mockup.
 
 Already measured, and not to be re-derived per board: the 393 x 852 pt phone
 at 1pt = 1px -- iPhone 14 Pro / 15 / 15 Pro / 16, per Apple's HIG layout
@@ -52,6 +53,9 @@ OUT = Path(__file__).resolve().parent
 A = json.load(open(OUT / "assets.json"))   # the device shell, as a data: URI
 
 NAME = "Templates"
+# The canvas page name. This folder ships as an example, hence the prefix; a real board
+# is just its NAME.
+PAGE_NAME = "(example) " + NAME
 P = "x"          # token prefix: --x-bg, --x-ink, --x-t-row
 
 # ---------------------------------------------------------------- tokens ----
@@ -437,7 +441,7 @@ for _model, _row in SHELLS:
         write(name, shell_board(key, label, model))
 
 LAYOUT = {
- "name": NAME,
+ "name": PAGE_NAME,
  "rows": [
   {"title": "Foundations",
    "files": [{"file": "00-design-tokens", "label": "Design tokens"}]

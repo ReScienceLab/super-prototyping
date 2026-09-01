@@ -1018,7 +1018,7 @@ def layout(refs):
                  for n, l, _ in SCREENS if "ref-%s%s" % (pre, n) in refs]
         if files:
             rows.append({"title": title, "numbered": True, "files": files})
-    return {"name": "Apple Calendar (example)", "rows": rows}
+    return {"name": "(example) Apple Calendar", "rows": rows}
 
 
 def main():

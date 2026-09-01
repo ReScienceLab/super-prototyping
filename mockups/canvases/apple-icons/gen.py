@@ -124,7 +124,7 @@ BOARDS = [
 ]
 
 LAYOUT = """{
-  "name": "Apple Icons (example)",
+  "name": "(example) Apple Icons",
   "rows": [
     {
       "title": "Apple system app icons",

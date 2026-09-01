@@ -33,7 +33,7 @@ laid out top to bottom:
 
 ```json
 {
-  "name": "Notion iOS (example)",
+  "name": "(example) Notion iOS",
   "rows": [
     { "title": "Foundations", "files": ["00-design-tokens"] },
     { "title": "Screens", "numbered": true,
@@ -48,7 +48,9 @@ laid out top to bottom:
   which cannot express casing or punctuation. `notion-ios` becomes
   "Notion Ios". Set it when the humanized name reads wrong. A page is tied to
   its folder, not to its name, so changing it renames the page you already
-  have open rather than starting a second one.
+  have open rather than starting a second one. Every folder shipped with the
+  repo is an example and is named `(example) …`; a board of your own is not,
+  which is how the two tell apart in the page menu.
 - `files` entries are file names **without** `.html`, either bare (the
   humanized file name becomes the caption) or `{ "file", "label" }`.
 - `numbered: true` prefixes each caption with its 1-based position. Never

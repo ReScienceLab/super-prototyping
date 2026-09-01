@@ -26,7 +26,7 @@ declare module "tldraw" {
       h: number;
       /** Title bar text on a card, the whole label on a button. */
       label: string;
-      /** Name of the tldraw page this opens, when it opens one. */
+      /** Folder slug (page.meta.canvasSlug) of the page this opens, when it opens one. */
       page: string;
       /** Board rendered as cover art. With one it is a card, without one a button. */
       path: string;
@@ -184,7 +184,7 @@ export class CanvasLinkShapeUtil extends BaseBoxShapeUtil<CanvasLinkShape> {
     }
     const page = this.editor
       .getPages()
-      .find((candidate) => candidate.name === shape.props.page);
+      .find((candidate) => candidate.meta.canvasSlug === shape.props.page);
     // Deferred because this click is still being handled, and the rest of that handler would
     // select a shape that is no longer on the current page. Clearing the selection rather than
     // skipping it leaves the card unselected for when the user comes back.

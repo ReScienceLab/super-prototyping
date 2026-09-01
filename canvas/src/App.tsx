@@ -22,6 +22,7 @@ import {
   CANVAS_LINK_BUTTON_SIZE,
   CANVAS_LINK_CARD_SIZE,
   CANVAS_LINK_SHAPE_TYPE,
+  type CanvasLinkShape,
   CanvasLinkShapeUtil,
 } from "./CanvasLinkShapeUtil";
 import {
@@ -282,30 +283,39 @@ function layoutWelcomeExtras(
 
   const cardX = (index: number) =>
     index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
-  const missing = targets.filter(
-    (files) => !editor.getShape(linkShapeId(files[0].pageSlug)),
-  );
-  if (missing.length) {
-    editor.createShapes(
-      missing.map((files) => {
-        const cover =
-          files.find((file) => !file.fileName.startsWith("00")) ?? files[0];
-        return {
-          id: linkShapeId(files[0].pageSlug),
-          type: CANVAS_LINK_SHAPE_TYPE,
-          parentId: page.id,
-          x: cardX(targets.indexOf(files)),
-          y: contentY,
-          props: {
-            ...CANVAS_LINK_CARD_SIZE,
-            label: files[0].pageName,
-            page: files[0].pageName,
-            path: cover.path,
-            url: "",
-          },
-        };
-      }),
-    );
+  const cards = targets.map((files, index) => {
+    const cover =
+      files.find((file) => !file.fileName.startsWith("00")) ?? files[0];
+    return {
+      id: linkShapeId(files[0].pageSlug),
+      type: CANVAS_LINK_SHAPE_TYPE,
+      parentId: page.id,
+      x: cardX(index),
+      y: contentY,
+      props: {
+        ...CANVAS_LINK_CARD_SIZE,
+        label: files[0].pageName,
+        page: files[0].pageSlug,
+        path: cover.path,
+        url: "",
+      },
+    };
+  });
+  const missing = cards.filter((card) => !editor.getShape(card.id));
+  if (missing.length) editor.createShapes(missing);
+
+  // A card that is already there keeps its position, but not a caption the folder has since
+  // renamed: the label is the page name, so a rename would otherwise show on the page menu and
+  // not on the card pointing at it.
+  for (const card of cards) {
+    const shape = editor.getShape<CanvasLinkShape>(card.id);
+    if (shape && shape.props.label !== card.props.label) {
+      editor.updateShape({
+        id: card.id,
+        type: card.type,
+        props: { label: card.props.label, page: card.props.page },
+      });
+    }
   }
 
   createAnnotation(editor, {

@@ -411,7 +411,7 @@ def ref_board(title, png):
 # ---------------------------------------------------------------- write
 
 LAYOUT = {
-    "name": "Apple Photos, iOS: grid, What's New, permissions",
+    "name": "(example) Apple Photos, iOS: grid, What's New, permissions",
     "rows": [
         {"title": "Foundations",
          "files": [{"file": "00-design-tokens", "label": "Design tokens"}]},

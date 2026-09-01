@@ -1673,7 +1673,7 @@ write('w4-foundations', walk_board(
 
 
 LAYOUT = {
- "name": "Luma iOS",
+ "name": "(example) Luma iOS",
  "rows": [
   {"title": "Foundations",
    "files": [{"file": "00-design-tokens", "label": "Design tokens"},

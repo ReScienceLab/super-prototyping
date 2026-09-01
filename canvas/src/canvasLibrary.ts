@@ -38,7 +38,9 @@ export interface CanvasLayoutConfig {
   /**
    * Page name override. Without one the folder slug is humanized, which cannot
    * express casing or punctuation: "notion-ios" becomes "Notion Ios", never
-   * "Notion iOS (example)". Set this when the humanized name reads wrong.
+   * "(example) Notion iOS". Set this when the humanized name reads wrong. Every
+   * folder shipped with the repo is an example, and says so as a "(example) "
+   * prefix, so a board of your own stands out from them in the page menu.
    */
   name?: string;
   rows: CanvasLayoutRow[];
