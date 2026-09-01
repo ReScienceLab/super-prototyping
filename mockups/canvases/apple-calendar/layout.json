@@ -1,0 +1,198 @@
+{
+  "name": "Apple Calendar (example)",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00e-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens: light",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-today-events",
+          "label": "Today, with events"
+        },
+        {
+          "file": "02-today-empty",
+          "label": "Today, empty"
+        },
+        {
+          "file": "03-month",
+          "label": "Month"
+        },
+        {
+          "file": "04-whats-new",
+          "label": "What's New"
+        },
+        {
+          "file": "05-location-permission",
+          "label": "Location permission"
+        },
+        {
+          "file": "06-notifications-permission",
+          "label": "Notifications permission"
+        },
+        {
+          "file": "07-new-event",
+          "label": "New Event"
+        },
+        {
+          "file": "08-event-details",
+          "label": "Event details"
+        },
+        {
+          "file": "09-video-call",
+          "label": "Event details, video call"
+        }
+      ]
+    },
+    {
+      "title": "Screens: dark",
+      "numbered": true,
+      "files": [
+        {
+          "file": "d01-today-events",
+          "label": "Today, with events"
+        },
+        {
+          "file": "d02-today-empty",
+          "label": "Today, empty"
+        },
+        {
+          "file": "d03-month",
+          "label": "Month"
+        },
+        {
+          "file": "d04-whats-new",
+          "label": "What's New"
+        },
+        {
+          "file": "d05-location-permission",
+          "label": "Location permission"
+        },
+        {
+          "file": "d06-notifications-permission",
+          "label": "Notifications permission"
+        },
+        {
+          "file": "d07-new-event",
+          "label": "New Event"
+        },
+        {
+          "file": "d08-event-details",
+          "label": "Event details"
+        },
+        {
+          "file": "d09-video-call",
+          "label": "Event details, video call"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Figma export, light",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-today-events",
+          "label": "Today, with events"
+        },
+        {
+          "file": "ref-02-today-empty",
+          "label": "Today, empty"
+        },
+        {
+          "file": "ref-03-month",
+          "label": "Month"
+        },
+        {
+          "file": "ref-04-whats-new",
+          "label": "What's New"
+        },
+        {
+          "file": "ref-05-location-permission",
+          "label": "Location permission"
+        },
+        {
+          "file": "ref-06-notifications-permission",
+          "label": "Notifications permission"
+        },
+        {
+          "file": "ref-07-new-event",
+          "label": "New Event"
+        },
+        {
+          "file": "ref-08-event-details",
+          "label": "Event details"
+        },
+        {
+          "file": "ref-09-video-call",
+          "label": "Event details, video call"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Figma export, dark",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-d01-today-events",
+          "label": "Today, with events"
+        },
+        {
+          "file": "ref-d02-today-empty",
+          "label": "Today, empty"
+        },
+        {
+          "file": "ref-d03-month",
+          "label": "Month"
+        },
+        {
+          "file": "ref-d04-whats-new",
+          "label": "What's New"
+        },
+        {
+          "file": "ref-d05-location-permission",
+          "label": "Location permission"
+        },
+        {
+          "file": "ref-d06-notifications-permission",
+          "label": "Notifications permission"
+        },
+        {
+          "file": "ref-d07-new-event",
+          "label": "New Event"
+        },
+        {
+          "file": "ref-d08-event-details",
+          "label": "Event details"
+        },
+        {
+          "file": "ref-d09-video-call",
+          "label": "Event details, video call"
+        }
+      ]
+    }
+  ]
+}

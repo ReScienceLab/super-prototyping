@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Calendar - Today, with events</title>
+<style>
+:root{
+  --ac-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --ac-bg:#FFFFFF;
+  --ac-black:#000000;
+  --ac-white:#FFFFFF;
+  --ac-sep:#C7C7CC;
+  --ac-event-bg:rgba(27,173,248,.20);
+  --ac-event-bd:#1BADF8;
+  --ac-blur:rgba(255,255,255,.70);
+  --ac-sheet:#D9D9D9;
+  --ac-scrim:rgba(0,0,0,.20);
+  --ac-modal:#FFFFFF;
+  --ac-group:#F2F2F7;
+  --ac-fill:#EEEEEF;
+  --ac-btn:#E6E6EB;
+  --ac-card:#FFFFFF;
+  --ac-elev:#F2F2F7;
+  --ac-kbd:#D0D3DA;
+  --ac-key:#FFFFFF;
+  --ac-key2:#A9AFBC;
+  --ac-key-bd:#6C6C71;
+
+  /* Ink */
+  --ac-ink:#000000;
+  --ac-grey:#8E8E93;
+  --ac-grey2:#8A8A8E;
+  --ac-hint:#C5C5C7;
+  --ac-dim:#BCBCC1;
+  --ac-red:#FF382B;
+  --ac-blue:#007BFE;
+  --ac-event-ink:#106895;
+
+  /* Radius */
+  --ac-r-phone:52px;
+  --ac-r-pill:100px;
+  --ac-r-event:5px;
+  --ac-r-sheet:10px;
+  --ac-r-btn:14px;
+  --ac-r-alert:13px;
+  --ac-r-card:10px;
+  --ac-r-field:6px;
+
+  /* Type */
+  --ac-t-r11:400 11px/13px var(--ac-font);
+  --ac-t-r13:400 13px/16px var(--ac-font);
+  --ac-t-r15:400 15px/20px var(--ac-font);
+  --ac-t-r15-22:400 15px/22px var(--ac-font);
+  --ac-t-r16:400 16px/21px var(--ac-font);
+  --ac-t-r17:400 17px/22px var(--ac-font);
+  --ac-t-r18:400 18px/23px var(--ac-font);
+  --ac-t-r22:400 22px/28px var(--ac-font);
+  --ac-t-b8:590 8px/10px var(--ac-font);
+  --ac-t-b10:590 10px/12px var(--ac-font);
+  --ac-t-b11:590 11px/13px var(--ac-font);
+  --ac-t-b13:590 13px/16px var(--ac-font);
+  --ac-t-b15:590 15px/20px var(--ac-font);
+  --ac-t-b17:590 17px/22px var(--ac-font);
+  --ac-t-b18:590 18px/23px var(--ac-font);
+  --ac-t-b20:590 20px/25px var(--ac-font);
+  --ac-t-b22:700 22px/28px var(--ac-font);
+  --ac-t-b34:700 34px/41px var(--ac-font);
+
+  /* Metrics */
+  --ac-w:393px;
+  --ac-h:852px;
+  --ac-sb:54px;
+  --ac-nav:44px;
+  --ac-margin:16px;
+  --ac-gutter:20px;
+  --ac-home:34px;
+  --ac-home-w:140px;
+  --ac-island-w:126px;
+  --ac-island-h:37px;
+  --ac-hour:50px;
+  --ac-timecol:52px;
+  --ac-day:35px;
+  --ac-hair:0.33px;
+  --ac-rule:0.66px;
+  --ac-daycut:579px;
+}
+.dark{
+  --ac-bg:#000000;
+  --ac-sep:#464649;
+  --ac-event-bg:rgba(27,173,248,.28);
+  --ac-blur:rgba(40,40,42,.94);
+  --ac-sheet:#18181A;
+  --ac-scrim:rgba(0,0,0,.502);
+  --ac-modal:#1C1C1E;
+  --ac-group:#1C1C1E;
+  --ac-fill:#48484D;
+  --ac-btn:#28282A;
+  --ac-card:#3A3A3C;
+  --ac-elev:#2C2C2E;
+  --ac-kbd:#29292A;
+  --ac-key:#696969;
+  --ac-key2:#3F3F40;
+  --ac-key-bd:#000000;
+  --ac-ink:#FFFFFF;
+  --ac-grey2:#8E8E93;
+  --ac-hint:#6F6F74;
+  --ac-dim:#65656A;
+  --ac-red:#FE4336;
+  --ac-event-ink:#1BADF8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ac-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+.phone{width:var(--ac-w);height:var(--ac-h);position:relative;flex:none;overflow:hidden;border-radius:var(--ac-r-phone);background:var(--ac-bg);color:var(--ac-ink);outline:1px solid rgba(0,0,0,.10);box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;right:0;top:0;height:var(--ac-sb);z-index:8}
+.sb .t{position:absolute;left:10px;top:18.5px;width:123.5px;height:22px;text-align:center;font:var(--ac-t-b17)}
+.sb .island{position:absolute;left:133.5px;top:11px;width:var(--ac-island-w);height:var(--ac-island-h);border-radius:var(--ac-r-pill);background:var(--ac-black)}
+.sb svg{position:absolute;display:block}
+.home{position:absolute;left:50%;bottom:8px;z-index:7;transform:translateX(-50%);width:var(--ac-home-w);height:5px;border-radius:var(--ac-r-pill);background:var(--ac-ink)}
+.hd{position:absolute;left:0;top:0;width:var(--ac-w);height:186px;background:var(--ac-bg);z-index:6}
+.hd svg{position:absolute;display:block;color:var(--ac-red)}
+.hd .back{position:absolute;left:33px;top:65px;font:var(--ac-t-r17);color:var(--ac-red);white-space:nowrap}
+.hd .rule{position:absolute;left:0;top:186px;width:var(--ac-w);height:var(--ac-hair);background:var(--ac-sep)}
+.wk{position:absolute;top:98px;width:var(--ac-day);height:56px}
+.wk s{display:block;height:12px;margin-top:2px;text-align:center;font:var(--ac-t-b10);text-decoration:none;color:var(--ac-grey)}
+.wk b{display:flex;align-items:center;justify-content:center;margin-top:7px;width:var(--ac-day);height:var(--ac-day);padding-bottom:1px;border-radius:var(--ac-r-pill);font:var(--ac-t-r18)}
+.wk.on b{background:var(--ac-red);color:var(--ac-white);font:var(--ac-t-b18)}
+.wk.off s,.wk.off b{color:var(--ac-grey)}
+.today{position:absolute;top:154px;height:21px;font:var(--ac-t-r16);white-space:nowrap}
+.ft{position:absolute;left:0;top:769px;width:var(--ac-w);height:83px;z-index:6;background:var(--ac-bg)}
+.ft.mat{background:var(--ac-blur);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px)}
+.ft a{position:absolute;top:16px;height:22px;text-align:center;font:var(--ac-t-r17);color:var(--ac-red)}
+.ft hr{position:absolute;left:0;top:-0.67px;width:var(--ac-w);height:var(--ac-hair);border:0;background:var(--ac-sep)}
+
+.de{position:absolute;left:0;top:190px;width:var(--ac-w);height:var(--ac-daycut);z-index:1}
+.de s{position:absolute;left:0;width:47px;height:13px;text-align:right;font:var(--ac-t-b11);color:var(--ac-grey);text-decoration:none}
+.de i{position:absolute;left:var(--ac-timecol);width:341px;height:var(--ac-rule);background:var(--ac-sep);font-style:normal}
+.ev{position:absolute;left:55px;width:336px;border-radius:var(--ac-r-event);background:var(--ac-event-bg);z-index:3}
+.ev i{position:absolute;left:0;top:0;width:3px;height:100%;border-radius:var(--ac-r-event);background:var(--ac-event-bd)}
+.ev b{position:absolute;left:6px;font:var(--ac-t-b13);color:var(--ac-event-ink);white-space:nowrap}
+.now{position:absolute;left:0;top:490px;width:var(--ac-w);height:1px;z-index:4;color:var(--ac-red)}
+.now s{left:6px;top:-5.5px;width:auto;height:12px;text-align:left;font:var(--ac-t-b10);color:inherit;white-space:nowrap}
+.now u{position:absolute;top:0;height:1px;background:currentColor;text-decoration:none}
+.now em{position:absolute;left:54px;top:-3px;width:7px;height:7px;border-radius:var(--ac-r-pill);background:currentColor;border:.5px solid var(--ac-white)}
+</style>
+<div class="phone"><div class="de"><s style="top:0px">12 AM</s><i style="top:6.17px"></i><s style="top:50px">1 AM</s><i style="top:56.17px"></i><s style="top:100px">2 AM</s><i style="top:106.17px"></i><s style="top:150px">3 AM</s><i style="top:156.17px"></i><s style="top:200px">4 AM</s><i style="top:206.17px"></i><s style="top:250px">5 AM</s><i style="top:256.17px"></i><s style="top:300px">6 AM</s><i style="top:306.17px"></i><s style="top:350px">7 AM</s><i style="top:356.17px"></i><s style="top:400px">8 AM</s><i style="top:406.17px"></i><s style="top:450px">9 AM</s><i style="top:456.17px"></i><s style="top:500px">10 AM</s><i style="top:506.17px"></i><s style="top:550px">11 AM</s><i style="top:556.17px"></i><div class="ev" style="top:334px;height:21px"><i></i><b style="top:2.5px">Feed Minerva 🐱</b></div><div class="ev" style="top:408px;height:171px"><i></i><b style="top:3px">Work 🧑‍💻</b></div><div class="now"><s>9:41 AM</s><u style="left:49px;width:5px"></u><em></em><u style="left:61px;width:332px"></u></div></div><div class="hd"><svg preserveAspectRatio="none" class="" style="left:13.289px;top:66.598px;width:11.247px;height:19.293px" xmlns="http://www.w3.org/2000/svg" width="11.247" height="19.2929" viewBox="13.2891 66.5977 11.247 19.2929" fill="currentColor"><path d="M13.2891 76.2441C13.2962 76.0221 13.3392 75.818 13.418 75.6318C13.5039 75.4456 13.6328 75.2666 13.8047 75.0947L22.0762 67.0059C22.3483 66.7337 22.6813 66.5977 23.0752 66.5977C23.3473 66.5977 23.5908 66.6621 23.8057 66.791C24.0277 66.9199 24.2031 67.0954 24.332 67.3174C24.4681 67.5322 24.5361 67.7721 24.5361 68.0371C24.5361 68.4382 24.3857 68.7891 24.085 69.0898L16.7266 76.2441L24.085 83.3984C24.3857 83.7064 24.5361 84.0573 24.5361 84.4512C24.5361 84.7233 24.4681 84.9668 24.332 85.1816C24.2031 85.3965 24.0277 85.5684 23.8057 85.6973C23.5908 85.8262 23.3473 85.8906 23.0752 85.8906C22.6813 85.8906 22.3483 85.7546 22.0762 85.4824L13.8047 77.3936C13.6257 77.2217 13.4932 77.0426 13.4072 76.8564C13.3285 76.6631 13.2891 76.459 13.2891 76.2441Z" />
+</svg><svg preserveAspectRatio="none" class="" style="left:239.672px;top:68.413px;width:21.645px;height:15.694px" xmlns="http://www.w3.org/2000/svg" width="21.645" height="15.6943" viewBox="239.672 68.4131 21.645 15.6943" fill="currentColor"><g>
+<path d="M245.773 70.626C245.53 70.626 245.322 70.5436 245.15 70.3789C244.986 70.2142 244.903 70.0101 244.903 69.7666C244.903 69.5231 244.986 69.319 245.15 69.1543C245.322 68.9824 245.53 68.8965 245.773 68.8965H260.447C260.691 68.8965 260.895 68.9824 261.06 69.1543C261.231 69.319 261.317 69.5231 261.317 69.7666C261.317 70.0101 261.231 70.2142 261.06 70.3789C260.895 70.5436 260.691 70.626 260.447 70.626H245.773ZM245.773 77.125C245.53 77.125 245.322 77.0426 245.15 76.8779C244.986 76.7061 244.903 76.4984 244.903 76.2549C244.903 76.0114 244.986 75.8073 245.15 75.6426C245.322 75.4779 245.53 75.3955 245.773 75.3955H260.447C260.691 75.3955 260.895 75.4779 261.06 75.6426C261.231 75.8073 261.317 76.0114 261.317 76.2549C261.317 76.4984 261.231 76.7061 261.06 76.8779C260.895 77.0426 260.691 77.125 260.447 77.125H245.773ZM245.773 83.6133C245.53 83.6133 245.322 83.5309 245.15 83.3662C244.986 83.2015 244.903 82.9974 244.903 82.7539C244.903 82.5104 244.986 82.3063 245.15 82.1416C245.322 81.9697 245.53 81.8838 245.773 81.8838H260.447C260.691 81.8838 260.895 81.9697 261.06 82.1416C261.231 82.3063 261.317 82.5104 261.317 82.7539C261.317 82.9974 261.231 83.2015 261.06 83.3662C260.895 83.5309 260.691 83.6133 260.447 83.6133H245.773ZM241.025 71.1094C240.653 71.1094 240.334 70.9805 240.069 70.7227C239.804 70.4577 239.672 70.139 239.672 69.7666C239.672 69.387 239.804 69.0684 240.069 68.8105C240.334 68.5456 240.653 68.4131 241.025 68.4131C241.398 68.4131 241.716 68.5456 241.981 68.8105C242.246 69.0684 242.379 69.387 242.379 69.7666C242.379 70.139 242.246 70.4577 241.981 70.7227C241.716 70.9805 241.398 71.1094 241.025 71.1094ZM241.025 77.6084C240.653 77.6084 240.334 77.4759 240.069 77.2109C239.804 76.946 239.672 76.6273 239.672 76.2549C239.672 75.8825 239.804 75.5638 240.069 75.2988C240.334 75.0339 240.653 74.9014 241.025 74.9014C241.398 74.9014 241.716 75.0339 241.981 75.2988C242.246 75.5638 242.379 75.8825 242.379 76.2549C242.379 76.6273 242.246 76.946 241.981 77.2109C241.716 77.4759 241.398 77.6084 241.025 77.6084ZM241.025 84.1074C240.653 84.1074 240.334 83.9749 240.069 83.71C239.804 83.445 239.672 83.1263 239.672 82.7539C239.672 82.3743 239.804 82.0557 240.069 81.7979C240.334 81.5329 240.653 81.4004 241.025 81.4004C241.398 81.4004 241.716 81.5329 241.981 81.7979C242.246 82.0557 242.379 82.3743 242.379 82.7539C242.379 83.1263 242.246 83.445 241.981 83.71C241.716 83.9749 241.398 84.1074 241.025 84.1074Z" />
+</g>
+</svg><svg preserveAspectRatio="none" class="" style="left:295.005px;top:65.652px;width:20.99px;height:21.194px" xmlns="http://www.w3.org/2000/svg" width="20.99" height="21.1944" viewBox="295.005 65.6523 20.99 21.1944" fill="currentColor"><g>
+<path d="M295.005 74.2246C295.005 73.043 295.227 71.9365 295.671 70.9053C296.115 69.8669 296.731 68.9538 297.519 68.166C298.306 67.3783 299.216 66.7624 300.247 66.3184C301.285 65.8743 302.396 65.6523 303.577 65.6523C304.759 65.6523 305.865 65.8743 306.896 66.3184C307.935 66.7624 308.848 67.3783 309.636 68.166C310.424 68.9538 311.039 69.8669 311.483 70.9053C311.927 71.9365 312.149 73.043 312.149 74.2246C312.149 75.2057 311.992 76.1367 311.677 77.0176C311.369 77.8984 310.939 78.6969 310.388 79.4131L315.641 84.6982C315.755 84.8128 315.841 84.9453 315.898 85.0957C315.963 85.2461 315.995 85.4072 315.995 85.5791C315.995 85.8154 315.941 86.0303 315.834 86.2236C315.734 86.417 315.59 86.5674 315.404 86.6748C315.218 86.7894 315.003 86.8467 314.76 86.8467C314.588 86.8467 314.423 86.8145 314.266 86.75C314.115 86.6927 313.976 86.6032 313.847 86.4814L308.562 81.1855C307.86 81.6868 307.086 82.0807 306.241 82.3672C305.396 82.6536 304.508 82.7969 303.577 82.7969C302.396 82.7969 301.285 82.5749 300.247 82.1309C299.216 81.6868 298.306 81.071 297.519 80.2832C296.731 79.4954 296.115 78.5859 295.671 77.5547C295.227 76.5163 295.005 75.4062 295.005 74.2246ZM296.842 74.2246C296.842 75.1556 297.014 76.0293 297.357 76.8457C297.708 77.6549 298.192 78.3675 298.808 78.9834C299.431 79.5993 300.147 80.0827 300.956 80.4336C301.772 80.7845 302.646 80.96 303.577 80.96C304.508 80.96 305.378 80.7845 306.188 80.4336C307.004 80.0827 307.72 79.5993 308.336 78.9834C308.952 78.3675 309.435 77.6549 309.786 76.8457C310.137 76.0293 310.312 75.1556 310.312 74.2246C310.312 73.2936 310.137 72.4235 309.786 71.6143C309.435 70.7979 308.952 70.0817 308.336 69.4658C307.72 68.8428 307.004 68.3594 306.188 68.0156C305.378 67.6647 304.508 67.4893 303.577 67.4893C302.646 67.4893 301.772 67.6647 300.956 68.0156C300.147 68.3594 299.431 68.8428 298.808 69.4658C298.192 70.0817 297.708 70.7979 297.357 71.6143C297.014 72.4235 296.842 73.2936 296.842 74.2246Z" />
+</g>
+</svg><svg preserveAspectRatio="none" class="" style="left:351.638px;top:67.382px;width:17.724px;height:17.725px" xmlns="http://www.w3.org/2000/svg" width="17.724" height="17.7246" viewBox="351.638 67.3818 17.724 17.7246" fill="currentColor"><g>
+<path d="M351.638 76.2441C351.638 75.9792 351.731 75.7536 351.917 75.5674C352.11 75.374 352.336 75.2773 352.594 75.2773H359.544V68.3379C359.544 68.0801 359.637 67.8581 359.823 67.6719C360.009 67.4785 360.235 67.3818 360.5 67.3818C360.765 67.3818 360.991 67.4785 361.177 67.6719C361.37 67.8581 361.467 68.0801 361.467 68.3379V75.2773H368.406C368.664 75.2773 368.886 75.374 369.072 75.5674C369.266 75.7536 369.362 75.9792 369.362 76.2441C369.362 76.5091 369.266 76.7347 369.072 76.9209C368.886 77.1071 368.664 77.2002 368.406 77.2002H361.467V84.1504C361.467 84.4082 361.37 84.6302 361.177 84.8164C360.991 85.0098 360.765 85.1064 360.5 85.1064C360.235 85.1064 360.009 85.0098 359.823 84.8164C359.637 84.6302 359.544 84.4082 359.544 84.1504V77.2002H352.594C352.336 77.2002 352.11 77.1071 351.917 76.9209C351.731 76.7347 351.638 76.5091 351.638 76.2441Z" />
+</g>
+</svg><div class="back">July</div><div class="wk off" style="left:20px"><s>S</s><b>16</b></div><div class="wk " style="left:73px"><s>M</s><b>17</b></div><div class="wk " style="left:126px"><s>T</s><b>18</b></div><div class="wk " style="left:179px"><s>W</s><b>19</b></div><div class="wk " style="left:232px"><s>T</s><b>20</b></div><div class="wk on" style="left:285px"><s>F</s><b>21</b></div><div class="wk off" style="left:338px"><s>S</s><b>23</b></div><div class="today" style="left:122.5px;width:45px">Friday</div><div class="today" style="left:177.5px;width:93px">21 July 2023</div><div class="rule"></div></div><div class="ft"><hr><a style="left:16px;width:47px">Today</a><a style="left:158px;width:78px">Calendars</a><a style="left:335px;width:42px">Inbox</a><div class="home"></div></div><div class="sb"><div class="t">1:47</div><div class="island"></div><svg preserveAspectRatio="none" class="" style="left:282.598px;top:22.109px;width:19.474px;height:12.531px" xmlns="http://www.w3.org/2000/svg" width="19.474" height="12.5307" viewBox="282.598 22.1086 19.474 12.5307" fill="currentColor"><g>
+<g>
+<g>
+<g>
+<path opacity="0.2" d="M299.564 34.6392H301.304C301.759 34.6392 302.062 34.3215 302.062 33.8524V32.3506C302.062 31.8814 301.759 31.571 301.304 31.571H299.564C299.11 31.571 298.807 31.8814 298.807 32.3506V33.8524C298.807 34.3215 299.11 34.6392 299.564 34.6392Z" />
+<path d="M299.567 34.6393H301.321C301.769 34.6393 302.072 34.3216 302.072 33.8525V22.8954C302.072 22.4262 301.769 22.1086 301.321 22.1086H299.567C299.12 22.1086 298.81 22.4262 298.81 22.8954V33.8525C298.81 34.3216 299.12 34.6393 299.567 34.6393Z" />
+<path opacity="0.2" d="M294.164 34.6392H295.904C296.359 34.6392 296.662 34.3215 296.662 33.8524V32.3506C296.662 31.8814 296.359 31.571 295.904 31.571H294.164C293.71 31.571 293.406 31.8814 293.406 32.3506V33.8524C293.406 34.3215 293.71 34.6392 294.164 34.6392Z" />
+<path d="M294.168 34.6392H295.908C296.355 34.6392 296.666 34.3215 296.666 33.8524V25.7465C296.666 25.2773 296.355 24.9597 295.908 24.9597H294.168C293.714 24.9597 293.411 25.2773 293.411 25.7465V33.8524C293.411 34.3215 293.714 34.6392 294.168 34.6392Z" />
+<path opacity="0.2" d="M288.764 34.6392H290.504C290.959 34.6392 291.262 34.3215 291.262 33.8524V32.3506C291.262 31.8814 290.959 31.571 290.504 31.571H288.764C288.31 31.571 288.006 31.8814 288.006 32.3506V33.8524C288.006 34.3215 288.31 34.6392 288.764 34.6392Z" />
+<path d="M288.762 34.6393H290.502C290.956 34.6393 291.259 34.3216 291.259 33.8525V28.3595C291.259 27.8904 290.956 27.5728 290.502 27.5728H288.762C288.307 27.5728 288.004 27.8904 288.004 28.3595V33.8525C288.004 34.3216 288.307 34.6393 288.762 34.6393Z" />
+<path opacity="0.2" d="M283.356 34.6392H285.095C285.55 34.6392 285.853 34.3215 285.853 33.8524V32.3506C285.853 31.8814 285.55 31.571 285.095 31.571H283.356C282.901 31.571 282.598 31.8814 282.598 32.3506V33.8524C282.598 34.3215 282.901 34.6392 283.356 34.6392Z" />
+<path d="M283.356 34.6393H285.095C285.55 34.6393 285.853 34.3216 285.853 33.8525V30.6116C285.853 30.1424 285.55 29.832 285.095 29.832H283.356C282.901 29.832 282.598 30.1424 282.598 30.6116V33.8525C282.598 34.3216 282.901 34.6393 283.356 34.6393Z" />
+</g>
+</g>
+</g>
+</g>
+</svg><svg preserveAspectRatio="none" class="" style="left:309.076px;top:22.986px;width:16.621px;height:11.996px" xmlns="http://www.w3.org/2000/svg" width="16.6209" height="11.9964" viewBox="309.076 22.9856 16.6209 11.9964" fill="currentColor"><g>
+<g>
+<g>
+<g>
+<path d="M317.385 34.982C317.544 34.982 317.681 34.9099 317.963 34.6356L319.724 32.9466C319.832 32.8383 319.861 32.6794 319.76 32.5495C319.291 31.9432 318.403 31.4163 317.385 31.4163C316.339 31.4163 315.451 31.9649 314.982 32.5928C314.909 32.7084 314.938 32.8383 315.054 32.9466L316.808 34.6356C317.089 34.9026 317.226 34.982 317.385 34.982ZM313.163 31.0554C313.321 31.207 313.516 31.1853 313.661 31.0265C314.527 30.0665 315.942 29.3664 317.385 29.3736C318.843 29.3664 320.258 30.0882 321.139 31.0482C321.268 31.1998 321.449 31.1925 321.608 31.0482L322.726 29.9366C322.842 29.8211 322.856 29.6623 322.748 29.5324C321.658 28.197 319.637 27.1937 317.385 27.1937C315.133 27.1937 313.112 28.197 312.022 29.5324C311.914 29.6623 311.921 29.8067 312.044 29.9366L313.163 31.0554ZM310.167 28.0382C310.311 28.1754 310.514 28.1754 310.651 28.031C312.426 26.1471 314.765 25.151 317.385 25.151C320.02 25.151 322.373 26.1543 324.134 28.0382C324.264 28.1682 324.459 28.161 324.603 28.0238L325.599 27.0277C325.729 26.8978 325.722 26.739 325.621 26.6163C323.925 24.523 320.734 22.9856 317.385 22.9856C314.043 22.9856 310.838 24.523 309.149 26.6163C309.048 26.739 309.048 26.8978 309.171 27.0277L310.167 28.0382Z" />
+</g>
+</g>
+</g>
+</g>
+</svg><svg preserveAspectRatio="none" class="" style="left:332.946px;top:22.993px;width:26.824px;height:12.12px" xmlns="http://www.w3.org/2000/svg" width="26.824" height="12.1201" viewBox="332.946 22.9927 26.824 12.1201" fill="currentColor"><g>
+<g>
+<g>
+<g>
+<path opacity="0.4" d="M337.748 35.1128H352.252C353.945 35.1128 355.154 34.9228 356.017 34.0598C356.883 33.1967 357.061 32.0093 357.061 30.3106V27.7948C357.061 26.0961 356.883 24.9029 356.017 24.0428C355.151 23.1798 353.945 22.9927 352.252 22.9927H337.694C336.067 22.9927 334.855 23.1827 333.992 24.0486C333.126 24.9116 332.946 26.1084 332.946 27.7349V30.3106C332.946 32.0093 333.123 33.1996 333.986 34.0598C334.855 34.9228 336.058 35.1128 337.748 35.1128ZM337.501 33.9564C336.4 33.9564 335.409 33.7821 334.833 33.213C334.267 32.6374 334.102 31.6611 334.102 30.557V27.5989C334.102 26.4502 334.267 25.4623 334.83 24.8867C335.406 24.3082 336.412 24.1462 337.558 24.1462H352.505C353.606 24.1462 354.598 24.3233 355.164 24.8896C355.74 25.4652 355.904 26.435 355.904 27.539V30.557C355.904 31.6611 355.737 32.6374 355.164 33.213C354.598 33.7851 353.606 33.9564 352.505 33.9564H337.501ZM358.143 31.3269C358.835 31.2831 359.77 30.3918 359.77 29.0495C359.77 27.7107 358.835 26.8194 358.143 26.7756V31.3269Z" />
+<path d="M337.174 32.9973H352.842C353.68 32.9973 354.178 32.8663 354.494 32.5497C354.811 32.2302 354.948 31.7291 354.948 30.8906V27.2119C354.948 26.3676 354.811 25.8723 354.497 25.5528C354.178 25.2392 353.674 25.1052 352.842 25.1052H337.234C336.339 25.1052 335.823 25.2363 335.519 25.5499C335.205 25.8694 335.068 26.3856 335.068 27.2653V30.8906C335.068 31.7378 335.205 32.2302 335.519 32.5497C335.838 32.8633 336.342 32.9973 337.174 32.9973Z" />
+</g>
+</g>
+</g>
+</g>
+</svg></div></div>
+</html>

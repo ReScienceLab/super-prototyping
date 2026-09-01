@@ -117,6 +117,16 @@ files sitting in the folder are invisible to the canvas.
   sitting above the Figma render of the same screen. Every feature lands
   within a pixel of its reference in both Chromium and WebKit; its
   `README.md` records the two bugs that only the second engine showed.
+- `apple-calendar/`: the largest Figma-sourced run, nine screens in both
+  appearances. 41 boards in five rows: foundations (a token board and four
+  evidence boards for 70 tokens), the nine light replicas, the nine dark ones,
+  and the file's own PNG export of each, column-for-column underneath. One
+  generator emits both appearances of a screen from one builder. Mean absolute
+  delta against those exports is 0.44-1.58 levels (of 255); what is left is
+  antialiasing, not geometry. Its `README.md` records the two defects that only
+  measurement found, and `iconkit.py` shows how to get an SF Symbol out of a
+  Figma file at all. The 18 `ref-*` boards are gitignored, so a fresh clone
+  has 23.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

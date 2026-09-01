@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Calendar - Evidence 2/4</title>
+<style>
+:root{
+  --ac-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --ac-bg:#FFFFFF;
+  --ac-black:#000000;
+  --ac-white:#FFFFFF;
+  --ac-sep:#C7C7CC;
+  --ac-event-bg:rgba(27,173,248,.20);
+  --ac-event-bd:#1BADF8;
+  --ac-blur:rgba(255,255,255,.70);
+  --ac-sheet:#D9D9D9;
+  --ac-scrim:rgba(0,0,0,.20);
+  --ac-modal:#FFFFFF;
+  --ac-group:#F2F2F7;
+  --ac-fill:#EEEEEF;
+  --ac-btn:#E6E6EB;
+  --ac-card:#FFFFFF;
+  --ac-elev:#F2F2F7;
+  --ac-kbd:#D0D3DA;
+  --ac-key:#FFFFFF;
+  --ac-key2:#A9AFBC;
+  --ac-key-bd:#6C6C71;
+
+  /* Ink */
+  --ac-ink:#000000;
+  --ac-grey:#8E8E93;
+  --ac-grey2:#8A8A8E;
+  --ac-hint:#C5C5C7;
+  --ac-dim:#BCBCC1;
+  --ac-red:#FF382B;
+  --ac-blue:#007BFE;
+  --ac-event-ink:#106895;
+
+  /* Radius */
+  --ac-r-phone:52px;
+  --ac-r-pill:100px;
+  --ac-r-event:5px;
+  --ac-r-sheet:10px;
+  --ac-r-btn:14px;
+  --ac-r-alert:13px;
+  --ac-r-card:10px;
+  --ac-r-field:6px;
+
+  /* Type */
+  --ac-t-r11:400 11px/13px var(--ac-font);
+  --ac-t-r13:400 13px/16px var(--ac-font);
+  --ac-t-r15:400 15px/20px var(--ac-font);
+  --ac-t-r15-22:400 15px/22px var(--ac-font);
+  --ac-t-r16:400 16px/21px var(--ac-font);
+  --ac-t-r17:400 17px/22px var(--ac-font);
+  --ac-t-r18:400 18px/23px var(--ac-font);
+  --ac-t-r22:400 22px/28px var(--ac-font);
+  --ac-t-b8:590 8px/10px var(--ac-font);
+  --ac-t-b10:590 10px/12px var(--ac-font);
+  --ac-t-b11:590 11px/13px var(--ac-font);
+  --ac-t-b13:590 13px/16px var(--ac-font);
+  --ac-t-b15:590 15px/20px var(--ac-font);
+  --ac-t-b17:590 17px/22px var(--ac-font);
+  --ac-t-b18:590 18px/23px var(--ac-font);
+  --ac-t-b20:590 20px/25px var(--ac-font);
+  --ac-t-b22:700 22px/28px var(--ac-font);
+  --ac-t-b34:700 34px/41px var(--ac-font);
+
+  /* Metrics */
+  --ac-w:393px;
+  --ac-h:852px;
+  --ac-sb:54px;
+  --ac-nav:44px;
+  --ac-margin:16px;
+  --ac-gutter:20px;
+  --ac-home:34px;
+  --ac-home-w:140px;
+  --ac-island-w:126px;
+  --ac-island-h:37px;
+  --ac-hour:50px;
+  --ac-timecol:52px;
+  --ac-day:35px;
+  --ac-hair:0.33px;
+  --ac-rule:0.66px;
+  --ac-daycut:579px;
+}
+.dark{
+  --ac-bg:#000000;
+  --ac-sep:#464649;
+  --ac-event-bg:rgba(27,173,248,.28);
+  --ac-blur:rgba(40,40,42,.94);
+  --ac-sheet:#18181A;
+  --ac-scrim:rgba(0,0,0,.502);
+  --ac-modal:#1C1C1E;
+  --ac-group:#1C1C1E;
+  --ac-fill:#48484D;
+  --ac-btn:#28282A;
+  --ac-card:#3A3A3C;
+  --ac-elev:#2C2C2E;
+  --ac-kbd:#29292A;
+  --ac-key:#696969;
+  --ac-key2:#3F3F40;
+  --ac-key-bd:#000000;
+  --ac-ink:#FFFFFF;
+  --ac-grey2:#8E8E93;
+  --ac-hint:#6F6F74;
+  --ac-dim:#65656A;
+  --ac-red:#FE4336;
+  --ac-event-ink:#1BADF8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ac-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+body{padding:0;background:var(--ac-bg);color:var(--ac-ink)}
+.sh8{width:478px;height:980px;padding:22px 24px;overflow:hidden}
+h1{font:var(--ac-t-b20)}
+header p{font:var(--ac-t-r13);color:var(--ac-grey);margin:2px 0 12px}
+h2{font:var(--ac-t-b10);text-transform:uppercase;color:var(--ac-grey);margin:13px 0 6px}
+.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.sw .ch{height:24px;border-radius:5px;border:0.5px solid var(--ac-sep);display:flex;overflow:hidden}
+.sw .ch span{flex:1}
+.sw b{display:block;margin-top:3px;font:590 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--ac-grey);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd{display:flex;gap:10px}
+.rd div{text-align:center}
+.rd .b{width:46px;height:26px;background:var(--ac-fill);border:0.5px solid var(--ac-sep)}
+.rd em{display:block;margin-top:3px;font:400 8.5px/11px var(--ac-font);color:var(--ac-grey);font-style:normal}
+.ty{columns:2;column-gap:18px}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:1px;border-bottom:0.5px solid var(--ac-sep);break-inside:avoid}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--ac-grey);font-style:normal;white-space:nowrap;flex:none}
+.mt{columns:3;column-gap:14px;font:400 9px/13.5px ui-monospace,Menlo,monospace;color:var(--ac-grey2)}
+.ev div{padding:3px 0;border-bottom:0.5px solid var(--ac-sep)}
+.ev b{font:590 8.5px/12px ui-monospace,Menlo,monospace;color:var(--ac-blue)}
+.ev i{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:var(--ac-grey2);font-style:normal}
+.ev p{font:var(--ac-t-b8);font-weight:400;color:var(--ac-grey)}
+</style>
+<div class="sh8"><header><h1>Evidence 2/4</h1><p>Token, then its light value and its dark override, then where the value came from. A token with no evidence is a guess.</p></header><div class="ev"><div><b>--ac-grey</b> <i>#8E8E93</i><p>Figma variable system/grey, one value in both themes</p></div><div><b>--ac-grey2</b> <i>#8A8A8E / #8E8E93</i><p>Figma variable label/secondary #3C3C4399 over white; the dark frames use system/grey instead</p></div><div><b>--ac-hint</b> <i>#C5C5C7 / #6F6F74</i><p>Figma variable label/tertiary over bg/tertiary-elevated (#3C3C434D on #FFFFFF, #EBEBF54D on #3A3A3C); ink core of the Title placeholder, 07 / d07</p></div><div><b>--ac-dim</b> <i>#BCBCC1 / #65656A</i><p>ink core of the dimmed Add button, 07 / d07 at 2x. Figma's own label/quarternary composites lighter than this; the render is what is copied</p></div><div><b>--ac-red</b> <i>#FF382B / #FE4336</i><p>Figma variable system/red, light and dark</p></div><div><b>--ac-blue</b> <i>#007BFE</i><p>Figma variable ui/accent</p></div><div><b>--ac-event-ink</b> <i>#106895 / #1BADF8</i><p>Figma variable app-calendar/event-title; the dark frames use app-calendar/event, the border colour, as the title colour</p></div><div><b>--ac-r-phone</b> <i>52px</i><p>circular stand-in for the 55pt continuous display corner; refkit --crop-phone masks the same 52, so mask and frame agree</p></div><div><b>--ac-r-pill</b> <i>100px</i><p>Figma corner radius on the Dynamic Island, the home bar, the day circle and the toggle: a number larger than the box, i.e. fully round</p></div><div><b>--ac-r-event</b> <i>5px</i><p>Figma corner radius on an event block in Day Events</p></div><div><b>--ac-r-sheet</b> <i>10px</i><p>Figma corner radius on the presented sheet and on the stacked edge behind it</p></div><div><b>--ac-r-btn</b> <i>14px</i><p>Figma corner radius on the Continue button and on the Join / share buttons</p></div><div><b>--ac-r-alert</b> <i>13px</i><p>Figma corner radius on the permission alert</p></div><div><b>--ac-r-card</b> <i>10px</i><p>Figma corner radius on a form card and on a detail card</p></div><div><b>--ac-r-field</b> <i>6px</i><p>Figma corner radius on the Starts / Ends date and time pills</p></div><div><b>--ac-t-r11</b> <i>400 11px/13px var(--ac-font)</i><p>Figma type style Regular/11pt</p></div><div><b>--ac-t-r13</b> <i>400 13px/16px var(--ac-font)</i><p>Figma type style Regular/13pt</p></div><div><b>--ac-t-r15</b> <i>400 15px/20px var(--ac-font)</i><p>Figma type style Regular/15pt</p></div><div><b>--ac-t-r15-22</b> <i>400 15px/22px var(--ac-font)</i><p>Regular/15pt set in a 22pt line box: the event-details summary, whose two lines measure 22 apart on ref-08</p></div><div><b>--ac-t-r16</b> <i>400 16px/21px var(--ac-font)</i><p>Figma type style Regular/16pt</p></div><div><b>--ac-t-r17</b> <i>400 17px/22px var(--ac-font)</i><p>Figma type style Regular/17pt</p></div></div></div>
+</html>
