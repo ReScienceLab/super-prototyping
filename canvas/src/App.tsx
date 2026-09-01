@@ -25,7 +25,6 @@ import {
 } from "./CanvasLinkShapeUtil";
 import {
   type CanvasLibraryFile,
-  pageNameFor,
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
@@ -99,7 +98,7 @@ function WelcomeGround() {
   const editor = useEditor();
   const isWelcome = useValue(
     "on the welcome page",
-    () => editor.getCurrentPage().name === pageNameFor(WELCOME_PAGE_SLUG),
+    () => editor.getCurrentPage().meta.canvasSlug === WELCOME_PAGE_SLUG,
     [editor],
   );
   useEffect(() => {
@@ -341,6 +340,10 @@ function layoutWelcomeExtras(
  * folder has a layout.json alongside its HTML files, its rows are laid out top-to-bottom in the
  * declared order; see CanvasLayoutConfig in canvasLibrary.ts. Anything not covered by a row
  * still appears, in a fallback grid below, so a file can never be silently hidden.
+ *
+ * A page is tied to its folder by the slug stamped in page.meta, not by its name, so renaming a
+ * folder's layout.json `name` renames the page someone already has open (annotations and all)
+ * instead of building a second one beside it.
  */
 function initializeCanvasLibrary(editor: Editor) {
   const library = readCanvasLibrary();
@@ -349,13 +352,24 @@ function initializeCanvasLibrary(editor: Editor) {
   const libraryPages = new Set<TLPageId>();
 
   for (const files of library) {
-    const pageName = files[0].pageName;
-    let page = editor.getPages().find((c) => c.name === pageName);
+    const { pageSlug, pageName } = files[0];
+    const bySlug = () =>
+      editor.getPages().find((c) => c.meta.canvasSlug === pageSlug);
+    let page =
+      bySlug() ??
+      editor.getPages().find((c) => c.name === pageName && !c.meta.canvasSlug);
     if (!page) {
-      editor.createPage({ name: pageName });
-      page = editor.getPages().find((c) => c.name === pageName);
+      editor.createPage({ name: pageName, meta: { canvasSlug: pageSlug } });
+      page = bySlug();
     }
     if (!page) continue;
+    if (page.meta.canvasSlug !== pageSlug) {
+      editor.updatePage({
+        id: page.id,
+        meta: { ...page.meta, canvasSlug: pageSlug },
+      });
+    }
+    if (page.name !== pageName) editor.renamePage(page.id, pageName);
     libraryPages.add(page.id);
 
     const placed = new Set<string>();
@@ -474,7 +488,7 @@ function applyCanvasFromUrl(editor: Editor) {
   const slug =
     new URLSearchParams(window.location.search).get("canvas") ??
     WELCOME_PAGE_SLUG;
-  const page = editor.getPages().find((c) => c.name === pageNameFor(slug));
+  const page = editor.getPages().find((c) => c.meta.canvasSlug === slug);
   if (page) editor.setCurrentPage(page.id);
 }
 

@@ -45,9 +45,9 @@ laid out top to bottom:
 
 - `name` overrides the page name. Without it the folder slug is humanized,
   which cannot express casing or punctuation. `notion-ios` becomes
-  "Notion Ios". Set it when the humanized name reads wrong. Pages are matched
-  by name, so changing it moves the boards to a new page; the old one is
-  deleted on the next load, unless something was drawn on it.
+  "Notion Ios". Set it when the humanized name reads wrong. A page is tied to
+  its folder, not to its name, so changing it renames the page you already
+  have open rather than starting a second one.
 - `files` entries are file names **without** `.html`, either bare (the
   humanized file name becomes the caption) or `{ "file", "label" }`.
 - `numbered: true` prefixes each caption with its 1-based position. Never
