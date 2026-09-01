@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Templates - Evidence</title>
+<style>
+:root{
+  /* Font */
+  --x-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --x-bg:#FFFFFF;
+  --x-card:#F6F6F7;
+  --x-scrim:rgba(0,0,0,.20);
+
+  /* Line */
+  --x-hairline:#E4E4E6;
+  --x-border:#D9D9DC;
+
+  /* Ink */
+  --x-ink:#111113;
+  --x-ink-2:#6B6B70;
+  --x-ink-3:#9B9BA1;
+  --x-ink-inv:#FFFFFF;
+
+  /* Accent */
+  --x-accent:#007AFF;
+  --x-danger:#FF3B30;
+
+  /* Radius */
+  --x-r-field:10px;
+  --x-r-card:14px;
+  --x-r-sheet:20px;
+  --x-r-pill:999px;
+  --x-r-phone:52px;
+
+  /* Type */
+  --x-t-title:700 28px/34px var(--x-font);
+  --x-t-head:600 17px/22px var(--x-font);
+  --x-t-row:400 17px/22px var(--x-font);
+  --x-t-note:400 13px/16px var(--x-font);
+  --x-t-time:590 17px/22px var(--x-font);
+
+  /* Metrics */
+  --x-w:393px;
+  --x-h:852px;
+  --x-status:54px;
+  --x-gutter:20px;
+  --x-row:44px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--x-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--x-w);height:var(--x-h);
+  border-radius:var(--x-r-phone);overflow:hidden;background:var(--x-bg);color:var(--x-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--x-w);height:var(--x-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--x-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--x-bg);color:var(--x-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:var(--x-t-head);margin-bottom:2px}
+header p{font:var(--x-t-note);color:var(--x-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--x-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--x-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--x-border)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--x-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--x-card);border:1px solid var(--x-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--x-font);
+  color:var(--x-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--x-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--x-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--x-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--x-hairline);font:400 8.5px/11px var(--x-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--x-accent)}
+td.v{color:var(--x-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--x-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--x-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">PLACEHOLDER - platform stack; confirm with refkit font on the largest title</td></tr><tr><td class="t">--x-bg</td><td class="v">#FFFFFF</td><td class="e">PLACEHOLDER - flat-fill census, page background</td></tr><tr><td class="t">--x-card</td><td class="v">#F6F6F7</td><td class="e">PLACEHOLDER - flat-fill census inside a card</td></tr><tr><td class="t">--x-scrim</td><td class="v">rgba(0,0,0,.20)</td><td class="e">PLACEHOLDER - native capture over a photo</td></tr><tr><td class="t">--x-hairline</td><td class="v">#E4E4E6</td><td class="e">PLACEHOLDER - refkit hairline solve, list divider</td></tr><tr><td class="t">--x-border</td><td class="v">#D9D9DC</td><td class="e">PLACEHOLDER - refkit hairline solve, card outline</td></tr><tr><td class="t">--x-ink</td><td class="v">#111113</td><td class="e">PLACEHOLDER - ink core of a title, darkest 2%</td></tr><tr><td class="t">--x-ink-2</td><td class="v">#6B6B70</td><td class="e">PLACEHOLDER - ink core of a subtitle</td></tr><tr><td class="t">--x-ink-3</td><td class="v">#9B9BA1</td><td class="e">PLACEHOLDER - ink core of a caption</td></tr><tr><td class="t">--x-ink-inv</td><td class="v">#FFFFFF</td><td class="e">PLACEHOLDER - ink core on the accent fill</td></tr><tr><td class="t">--x-accent</td><td class="v">#007AFF</td><td class="e">PLACEHOLDER - mode of a button core</td></tr><tr><td class="t">--x-danger</td><td class="v">#FF3B30</td><td class="e">PLACEHOLDER - mode of a destructive label core</td></tr><tr><td class="t">--x-r-field</td><td class="v">10px</td><td class="e">PLACEHOLDER - refkit bbox on a search field corner</td></tr><tr><td class="t">--x-r-card</td><td class="v">14px</td><td class="e">PLACEHOLDER - refkit bbox on a card corner</td></tr><tr><td class="t">--x-r-sheet</td><td class="v">20px</td><td class="e">PLACEHOLDER - refkit bbox on the sheet corner</td></tr><tr><td class="t">--x-r-pill</td><td class="v">999px</td><td class="e">by construction, not measured</td></tr><tr><td class="t">--x-r-phone</td><td class="v">52px</td><td class="e">iPhone 15/16 display corner, 1pt = 1px</td></tr><tr><td class="t">--x-t-title</td><td class="v">700 28px/34px var(--x-font)</td><td class="e">PLACEHOLDER - refkit bands on the title</td></tr><tr><td class="t">--x-t-head</td><td class="v">600 17px/22px var(--x-font)</td><td class="e">PLACEHOLDER - refkit bands on a section header</td></tr><tr><td class="t">--x-t-row</td><td class="v">400 17px/22px var(--x-font)</td><td class="e">PLACEHOLDER - refkit bands on a list row</td></tr><tr><td class="t">--x-t-note</td><td class="v">400 13px/16px var(--x-font)</td><td class="e">PLACEHOLDER - refkit bands on a caption</td></tr><tr><td class="t">--x-t-time</td><td class="v">590 17px/22px var(--x-font)</td><td class="e">iOS status bar clock</td></tr><tr><td class="t">--x-w</td><td class="v">393px</td><td class="e">iPhone 15/16 logical width</td></tr><tr><td class="t">--x-h</td><td class="v">852px</td><td class="e">iPhone 15/16 logical height</td></tr><tr><td class="t">--x-status</td><td class="v">54px</td><td class="e">iOS status bar, Dynamic Island devices</td></tr><tr><td class="t">--x-gutter</td><td class="v">20px</td><td class="e">PLACEHOLDER - refkit scan on the left inset</td></tr><tr><td class="t">--x-row</td><td class="v">44px</td><td class="e">PLACEHOLDER - refkit bands pitch on the list</td></tr></table></div>
+</body>
+</html>

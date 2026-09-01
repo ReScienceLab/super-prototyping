@@ -1,0 +1,38 @@
+{
+  "name": "Templates",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-screen",
+          "label": "Screen"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-screen",
+          "label": "Screen"
+        }
+      ]
+    }
+  ]
+}

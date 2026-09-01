@@ -117,6 +117,13 @@ files sitting in the folder are invisible to the canvas.
   sitting above the Figma render of the same screen. Every feature lands
   within a pixel of its reference in both Chromium and WebKit; its
   `README.md` records the two bugs that only the second engine showed.
+- `templates/`: the starting point, not a finished board. The four boards
+  every run produces (design tokens, evidence, one phone screen, one parked
+  reference) with placeholder values, generated from one list of tokens so
+  the `:root` block and the evidence table cannot drift apart. It carries
+  the parts that are the same on every board and nothing else: the 393 x 852
+  frame, the 52pt corners and bezel, the 54pt status bar with its island and
+  three glyphs, the home indicator. Copy the folder to start.
 - `apple-icons/`: a different kind of board, an asset board. The 43 native
   iOS 26 app icons in both the default and the dark appearance, embedded as
   the shipped art rather than redrawn, tiled five across with no chrome.
@@ -127,5 +134,13 @@ files sitting in the folder are invisible to the canvas.
   folder's `README.md` records what the run measured and where the replica
   knowingly differs from its source.
 
-To start a new board: copy a `00-design-tokens.html`, replace every value
-with one you measured, and build your screens against it.
+To start a new board, copy the `templates/` folder and run its generator:
+
+```bash
+cp -r mockups/canvases/templates mockups/canvases/<slug>
+python3 mockups/canvases/<slug>/gen.py
+```
+
+That hands you the four boards a run always produces, wired together and
+already passing `refkit tokens`. Then replace every placeholder with a value
+you measured.

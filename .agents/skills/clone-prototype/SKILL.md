@@ -192,9 +192,12 @@ Cover, in this order, with a short prefix per app (`--n-` for Notion):
 token board, two evidence boards, 8 screens, 8 references), a three-row
 `layout.json`, a committed `gen.py`, and per-screen mean deltas of 3.47 to
 4.50 levels against the captures.
-`mockups/canvases/notion-ios/00-design-tokens.html` is a smaller
-single-board example. Copy one, change the prefix, replace every value and
-every evidence row.
+Start from the skeleton rather than a finished board:
+`cp -r mockups/canvases/templates mockups/canvases/<slug>`. Its `gen.py`
+builds the `:root` block *and* the evidence table from one `TOKENS` list, so
+a value cannot drift from the evidence behind it and a token cannot ship
+without one. Change `NAME` and the prefix, then replace every placeholder row
+with something you measured.
 
 Build the token board as the **first generated artboard** of the folder (the
 reference row is already up). It is the contract. When a screen looks wrong
@@ -217,7 +220,8 @@ Write **one** script that emits every `.html` file, and commit it with the
 boards it produces: `mockups/canvases/<slug>/gen.py`, plus its asset JSON,
 resolving paths relative to `__file__` so
 `python3 mockups/canvases/<slug>/gen.py` regenerates the folder in place
-(`mockups/canvases/luma-ios/gen.py` is the shape). Do not hand-edit the
+(`mockups/canvases/templates/gen.py` is the skeleton,
+`mockups/canvases/luma-ios/gen.py` a finished one). Do not hand-edit the
 artboards afterwards; edit the generator and re-run. That is what keeps
 eight files consistent through a dozen correction passes, and it only
 outlives the session if the generator is in the repo; a scratch-dir
