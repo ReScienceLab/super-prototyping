@@ -21,10 +21,6 @@
         {
           "file": "01-screen",
           "label": "Screen"
-        },
-        {
-          "file": "02-device-frame",
-          "label": "Device frame"
         }
       ]
     },
@@ -35,6 +31,44 @@
         {
           "file": "ref-01-screen",
           "label": "Screen"
+        }
+      ]
+    },
+    {
+      "title": "Device shells: iPhone 17 Pro art, 393 x 852 pt window",
+      "files": [
+        {
+          "file": "02-device-cosmic-orange",
+          "label": "Cosmic orange"
+        },
+        {
+          "file": "03-device-deep-blue",
+          "label": "Deep blue"
+        },
+        {
+          "file": "04-device-silver",
+          "label": "Silver"
+        }
+      ]
+    },
+    {
+      "title": "Device shells: iPhone 16 Pro art, 393 x 852 pt window",
+      "files": [
+        {
+          "file": "05-device-blue-titanium",
+          "label": "Blue titanium"
+        },
+        {
+          "file": "06-device-natural-titanium",
+          "label": "Natural titanium"
+        },
+        {
+          "file": "07-device-white-titanium",
+          "label": "White titanium"
+        },
+        {
+          "file": "08-device-desert-titanium",
+          "label": "Desert titanium"
         }
       ]
     }
