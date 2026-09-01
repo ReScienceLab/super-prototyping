@@ -23,6 +23,14 @@
         {
           "file": "00e-pipeline",
           "label": "Files &amp; results"
+        },
+        {
+          "file": "00f-evidence-home",
+          "label": "Evidence: home colour"
+        },
+        {
+          "file": "00g-evidence-home",
+          "label": "Evidence: home type"
         }
       ]
     },
@@ -61,6 +69,22 @@
         {
           "file": "08-invited-about",
           "label": "Invited / about"
+        },
+        {
+          "file": "09-home-empty",
+          "label": "Home / empty"
+        },
+        {
+          "file": "10-home-events",
+          "label": "Home / events"
+        },
+        {
+          "file": "11-home-nearby",
+          "label": "Home / nearby"
+        },
+        {
+          "file": "12-home-later",
+          "label": "Home / later"
         }
       ]
     },
@@ -121,6 +145,22 @@
         {
           "file": "ref-08-invited-about",
           "label": "Invited / about"
+        },
+        {
+          "file": "ref-09-home-empty",
+          "label": "Home / empty"
+        },
+        {
+          "file": "ref-10-home-events",
+          "label": "Home / events"
+        },
+        {
+          "file": "ref-11-home-nearby",
+          "label": "Home / nearby"
+        },
+        {
+          "file": "ref-12-home-later",
+          "label": "Home / later"
         }
       ]
     }

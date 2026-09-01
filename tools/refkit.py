@@ -563,16 +563,82 @@ def cmd_diff(a):
         sys.exit(f"shape mismatch {mine.shape} vs {ref.shape}. "
                  "Shoot with --crop-phone, or pass --regions")
     d = np.abs(mine.astype(int) - ref.astype(int)).mean(2)
-    prof = d.mean(1)
+    # A --crop-phone render carries the 52pt corners as alpha 0 over leftover
+    # bezel; a bare capture has square corners full of real content. Comparing
+    # the two wedges is comparing black to a screenshot, which quietly adds a
+    # couple of levels to every number. Score only where both images have ink.
+    keep = _opaque(a.mine) & _opaque(a.ref)
+    if keep.shape != d.shape:
+        keep = np.ones(d.shape, bool)
+    if not keep.all():
+        print(f"({(~keep).sum() / keep.size:.1%} of the frame is masked in one "
+              "input and excluded)")
+    n = keep.sum(1).clip(1)
+    prof = (d * keep).sum(1) / n
     band = a.band
     scores = [(prof[i:i + band].mean(), i) for i in range(0, len(prof), band)]
-    print(f"mean Δ {d.mean():.2f}   worst {band}px bands (mine vs ref):")
+    print(f"mean Δ {d[keep].mean():.2f}   worst {band}px bands (mine vs ref):")
     for sc, i in sorted(scores, reverse=True)[:a.top]:
         y = i + int(np.argmax(prof[i:i + band]))
         mh, _, _ = _fill(mine[y:y + 1, :])
         rh, _, _ = _fill(ref[y:y + 1, :])
         print(f"  y {i/k:7.1f} .. {(i+band)/k:7.1f}   Δ {sc:5.2f}"
               f"   worst row {y/k:7.1f}  {mh} vs {rh}")
+
+
+def _opaque(path):
+    """True where the image has ink. Everything is opaque unless a --crop-phone
+    render punched its rounded corners out."""
+    im = Image.open(path)
+    if im.mode not in ("RGBA", "LA", "P"):
+        return np.ones((im.height, im.width), bool)
+    return np.asarray(im.convert("RGBA"))[..., 3] > 0
+
+
+def cmd_blend(a):
+    """Subtract one render from the other and look at what is left, the way you
+    would with a difference layer in an image editor. Two screens that agree go
+    grey; where they disagree the ink separates by source, red for the
+    reference, cyan for yours. It answers the question a side-by-side cannot:
+    is this element the wrong colour, or the right colour in the wrong place."""
+    mine, ref = _rgb(a.mine), _rgb(a.ref)
+    if mine.shape != ref.shape:
+        sys.exit(f"shape mismatch {mine.shape} vs {ref.shape}. Shoot with --crop-phone")
+    k = _k(a)
+    y0, y1 = (int(round(v * k)) for v in (a.y0, a.y1 if a.y1 else mine.shape[0] / k))
+    x0, x1 = (int(round(v * k)) for v in (a.x0, a.x1 if a.x1 else mine.shape[1] / k))
+    # Every shift has to read the same rows out of both images, so the scored
+    # window is inset by the probe distance at both ends.
+    p = int(round(a.probe * k))
+    y0, y1 = max(y0, p), min(y1, mine.shape[0] - p)
+    m = mine[y0:y1, x0:x1].astype(int).mean(2)
+    keep = (_opaque(a.mine) & _opaque(a.ref))[y0:y1, x0:x1]
+
+    # A band that is uniformly "off" is usually not off in colour at all, it is
+    # the same ink one or two points from where it belongs. Shifting one image
+    # against the other says which, before you go looking for the wrong token.
+    print(f"{'dy pt':>6} {'mean Δ':>7}")
+    best = (None, 0.0)
+    for sh in range(-p, p + 1):
+        v = np.abs(m - ref[y0 + sh:y1 + sh, x0:x1].astype(int).mean(2))[keep].mean()
+        mark = "   <-- best" if best[0] is None or v < best[0] else ""
+        print(f"{sh / k:6.2f} {v:7.2f}{mark}")
+        if best[0] is None or v < best[0]:
+            best = (v, sh / k)
+    if abs(best[1]) >= 1 / k:
+        print(f"\nbest alignment is {best[1]:+.2f}pt, not 0: the band is displaced, "
+              "not miscoloured")
+
+    sh = int(round((a.dy if a.dy is not None else best[1]) * k))
+    r = ref[y0 + sh:y1 + sh, x0:x1].astype(int).mean(2)
+    out = np.dstack([m, r, r]).clip(0, 255).astype(np.uint8)
+    out[~keep] = 128     # masked in one input; neutral, so it reads as "no answer"
+    im = Image.fromarray(out)
+    if a.zoom != 1:
+        im = im.resize((int(im.width * a.zoom), int(im.height * a.zoom)), Image.NEAREST)
+    im.save(a.out)
+    print(f"\n{a.out}  {im.size}   red = reference only, cyan = yours only, "
+          f"grey = agreed   (dy {sh / k:+.2f}pt)")
 
 
 # --- batch probes ------------------------------------------------------------
@@ -885,6 +951,18 @@ def _parser():
     d.add_argument("--tol", type=int, default=3, help="per-channel Δ that counts as a match")
     d.add_argument("--band", type=int, default=40)
     d.add_argument("--top", type=int, default=6)
+
+    z = s.add_parser("blend"); z.set_defaults(fn=cmd_blend)
+    z.add_argument("mine"); z.add_argument("ref")
+    z.add_argument("--y0", type=float, default=0); z.add_argument("--y1", type=float, default=0)
+    z.add_argument("--x0", type=float, default=0); z.add_argument("--x1", type=float, default=0)
+    z.add_argument("--pt", type=float, default=None)
+    z.add_argument("-o", "--out", default="blend.png")
+    z.add_argument("--zoom", type=float, default=1)
+    z.add_argument("--dy", type=float, default=None,
+                   help="shift ref by this many pt (default: whichever shift scores best)")
+    z.add_argument("--probe", type=float, default=3,
+                   help="pt to search either side when looking for a displacement")
 
     k = s.add_parser("tokens"); k.set_defaults(fn=cmd_tokens)
     k.add_argument("folder")

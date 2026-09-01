@@ -16,6 +16,15 @@ refassets.json the full source captures for the reference row.
 import json, pathlib
 
 HERE = pathlib.Path(__file__).resolve().parent
+# Cover art is cropped out of the captures in refassets.json at the cover's own
+# measured 80x80 pt box, 3 px per pt, x 20->100. Cropping the box itself (rather
+# than eyeballing a region around it) is what makes the art register with the
+# reference; the capture's own rounded corners then land under the CSS radius.
+#   home-03 (h3): nb1 219.7, nb2 361.7, nb3 486.7, nb9 599.7, nb10 712.3
+#   home-04 (h4): nb7 676.3
+# nb10's bottom 23.6 pt sits under the tab-bar material in the capture and is not
+# recoverable anywhere else, so that strip carries the capture's own tint and the
+# replica's tab bar tints it a second time.
 A = json.load(open(HERE / 'assets.json'))
 OUT = HERE
 
@@ -83,6 +92,33 @@ TOKENS = """:root{
   --l-tile:112.33px;    /* manage tile, square, gap 8                   */
   --l-cta-h:50px;       /* sticky button height                         */
   --l-rule:24px;        /* section label ink top -> divider             */
+
+  /* Light mode — home screens. Font, headings (--l-t-h2), card/row titles
+     (--l-t-time, same 600 17/22 composite the status clock already uses),
+     meta lines (--l-t-meta), avatar and radii are the same tokens above. */
+  --l2-bg:#F5F5F7;        /* page background                              */
+  --l2-ink:#131517;       /* heading, event title                         */
+  --l2-ink-2:#6D6F71;     /* Your Events card: organizer, date, location   */
+  --l2-ink-3:#9D9FA1;     /* Nearby row meta, View All, empty-state subtext */
+  --l2-ink-4:#BDBABD;     /* inactive tab-bar icon                        */
+  --l2-amber:#CE961B;     /* second half of a date range, e.g. 6.00 PM     */
+  --l2-green:#43B335;     /* suggested / ticket price                     */
+  --l2-hdr-fill:rgba(245,245,247,.48);  /* sticky header fill               */
+  --l2-hdr-blur:blur(40px) saturate(1.3); /* both materials                 */
+  --l2-tab-fill:rgba(237,237,239,.58); /* tab bar fill, darker than the header */
+  --l2-card:80px;         /* event cover / calendar tile / thumbnail       */
+  --l2-row:126.35px;      /* Your Events card row pitch                   */
+  --l2-t-brand:700 26px/32px var(--l-font); /* "luma" wordmark             */
+  --l2-t-org:400 13px/18px var(--l-font);   /* organizer name on a home row */
+  --l2-t-h2:600 20px/26px var(--l-font);    /* home section heading         */
+  --l2-t-date:500 17px/22px var(--l-font);  /* nearby date label + its bar  */
+  --l2-t-evtitle:500 17px/22px var(--l-font); /* event card + nearby row title */
+  --l2-t-price:400 11.3px/18px var(--l-font); /* ticket price / 'Suggested:' */
+  --l2-t-sub:400 20px/26px var(--l-font);   /* 'From Your Subscriptions'    */
+  --l2-track-sub:.25px;                     /* ... and its tracking          */
+  --l2-dot:10px;          /* organizer avatar dot on a home row            */
+  --l2-mark:16px;         /* organizer mark on a nearby row                */
+  --l2-line:#EBEDEE;      /* hairline between same-date nearby rows        */
 }"""
 
 # ------------------------------------------------------------------ base ----
@@ -262,6 +298,47 @@ IC = {
                '<path d="M.6 10.5 12 17.6l11.4-7.1v6.1A3.4 3.4 0 0 1 20 20H4a3.4 3.4 0 0 1-3.4-3.4v-6.1Z"/>',
                '0 0 24 20'),
  'loc': f('<path d="M21.4 3.2 3.6 10.4c-.7.3-.6 1.3.1 1.45l7.35 1.5 1.5 7.35c.15.7 1.15.8 1.45.1L21.4 3.2Z"/>'),
+
+ # -- home screens (light mode) --------------------------------------------
+ # settings gear: a circle plus eight short ticks, the same construction as
+ # 'sun' above with a bigger hub and thicker ticks so it reads as teeth
+ 'gear': s('<circle cx="12" cy="12" r="7"/><path d="M12 1.4v2.8M12 17.8v2.8M1.4 12h2.8M17.8 12h2.8'
+           'M4.55 4.55l1.98 1.98M15.47 15.47l1.98 1.98M19.45 4.55l-1.98 1.98M6.53 15.47l-1.98 1.98"/>',
+           '0 0 24 24', 2.6),
+ # four-point sparkle, the wordmark accent (same shape as the two sparkles in 'moon')
+ 'spark': f('<path d="M4.5 0Q4.8 3.6 9 3.9Q4.8 4.2 4.5 9.3Q4.2 4.2 0 3.9Q4.2 3.6 4.5 0Z"/>', '0 0 9 9.3'),
+ # filled house with a smile knocked out of the base, tab bar (active); the
+ # same knocked-out-smile motif the chat bubble below repeats
+ 'tab-home': f('<path fill-rule="evenodd" d="M12 0 23 10V19A3 3 0 0 1 20 22H4A3 3 0 0 1 1 19V10Z'
+               'M7.5 13.5Q12 18.5 16.5 13.5Q12 16 7.5 13.5Z"/>', '0 0 24 22'),
+ # circle with a diamond needle, tab bar (explore)
+ 'tab-compass': s('<circle cx="12" cy="12" r="10.6"/><path d="M12 6.4 15 12 12 17.6 9 12Z"/>',
+                  '0 0 24 22.9', 1.7),
+ # circle with a plus, tab bar (create)
+ 'tab-plus': s('<circle cx="12" cy="12" r="10.6"/><path d="M12 7v10M7 12h10"/>', '0 0 24 22.9', 1.7),
+ # outline heart, tab bar (likes)
+ 'tab-heart': s('<path d="M12 20.2 2.8 11.4a5.6 5.6 0 0 1 8.1-7.7l1.1 1.1 1.1-1.1a5.6 5.6 0 0 1 8.1 7.7Z"/>',
+                '0 0 24 21.7', 1.7),
+ # rounded speech bubble with a tail and the same smile motif as tab-home
+ 'tab-chat': s('<path d="M2 11a9 9 0 1 1 4.4 7.7L2 20l1.3-4.3A9 9 0 0 1 2 11Z"/>'
+               '<path d="M8 12Q12 15.3 16 12"/>', '0 0 24 23', 1.7),
+ # map pin, home meta line: ref home-03 row 1 is a ringed pin, 11.3x14.3pt, not
+ # the filled navigation arrow 'loc' the dark event screens use
+ 'pin': s('<path d="M9.5 23C15.2 16.6 18 12.9 18 9.5a8.5 8.5 0 1 0-17 0C1 12.9 3.8 16.6 9.5 23Z"/>'
+          '<circle cx="9.5" cy="9.3" r="2.7"/>', '0 0 19 24', 1.7),
+ # price tag: a rounded bar on the 45deg diagonal with a dot near its head,
+ # ref home-03 8.0x7.7pt in front of every nearby-row price
+ 'tag': s('<rect x="1.2" y="8.2" width="21.6" height="7.6" rx="3.8" '
+          'transform="rotate(-45 12 12)"/><circle cx="15.4" cy="8.6" r="1.15"/>',
+          '0 0 24 24', 1.9),
+ # small clock, event/row meta line
+ 'clock': s('<circle cx="12" cy="12" r="10"/><path d="M12 6.5V12l4 2.3"/>', '0 0 24 24', 2.0),
+ # small chevrons for "View All >" and "Nearby Events v"
+ 'chev-r': s('<path d="M2 1 9 8 2 15"/>', '0 0 11 16', 2.2),
+ 'chev-d': s('<path d="M1 2 8 9 15 2"/>', '0 0 16 11', 2.2),
+ # rounded calendar outline, empty-state placeholder
+ 'e-ticket': '<svg viewBox="0 0 63 63" fill="none"><rect x="2.2" y="2.2" width="58.6" height="58.6" rx="16" fill="#F7F5F8" stroke="#EDEBEF" stroke-width="1" transform="rotate(8 31.5 31.5)"/><g transform="rotate(-8 31.5 31.5)"><rect x="2.2" y="2.2" width="58.6" height="58.6" rx="16" fill="#F6F3F7" stroke="#ECEAEE" stroke-width="1" transform="rotate(0 31.5 31.5)"/><g stroke="#C4C1C5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 17.0h17.3M21.4 44.6h17.3"/><path d="M20.4 21.4h19.3a3.5 3.5 0 0 1 3.5 3.5v3.5a2.6 2.6 0 0 0 0 5.2v3.5a3.5 3.5 0 0 1-3.5 3.5H20.4a3.5 3.5 0 0 1-3.5-3.5v-3.5a2.6 2.6 0 0 0 0-5.2v-3.5a3.5 3.5 0 0 1 3.5-3.5Z" fill="#EFECF0"/><path d="M35.3 21.4v19.2" stroke-width="1.6" stroke-dasharray="3.2 3.4"/><path d="m22.6 34.9 2.6 2.7 5-6.1"/></g></g></svg>',
+ 'e-cal': '<svg viewBox="0 0 63 63" fill="none"><rect x="2.2" y="2.2" width="58.6" height="58.6" rx="16" fill="#F7F5F8" stroke="#EDEBEF" stroke-width="1" transform="rotate(-8 31.5 31.5)"/><g transform="rotate(8 31.5 31.5)"><rect x="2.2" y="2.2" width="58.6" height="58.6" rx="16" fill="#F6F3F7" stroke="#ECEAEE" stroke-width="1" transform="rotate(0 31.5 31.5)"/><g stroke="#C4C1C5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M24.8 16.3v4.2M36.5 16.3v4.2"/><path d="M22.2 19.45h18.6a4.5 4.5 0 0 1 4.5 4.5v9.45c0 5.6-4.4 10.15-10 10.15H22.2a4.5 4.5 0 0 1-4.5-4.5V23.95a4.5 4.5 0 0 1 4.5-4.5Z" fill="#EFECF0"/><path d="M17.7 27.2h27.6"/><path d="M45.3 33.4c-5.6 0-10 4.55-10 10.15"/><path d="M21.9 31.4h6M21.6 35.5h9.2" stroke-width="1.8"/><path d="M21.4 39.1h.6M24.9 39.1h.6" stroke-width="1.8"/></g></g></svg>',
 }
 
 # Measured reference ink boxes, in pt. Action buttons: s1 y-band 576..591, s4 541..557.
@@ -733,16 +810,17 @@ EVIDENCE = [
  ]),
 ]
 
-def evidence_board(sub, sections, note):
+def evidence_board(sub, sections, note, lede=None):
     rows = []
     for head, items in sections:
         rows.append('<h2>%s</h2><table><col class="c1"><col class="c2"><col>'
                     '<tr><th>token</th><th>value</th><th>evidence</th></tr>' % head)
         rows += ['<tr><td class="k">%s</td><td class="v">%s</td><td>%s</td></tr>' % r for r in items]
         rows.append('</table>')
+    lede = lede or ('Eight 393&times;852&nbsp;pt captures at exactly 3.000&times; (1179/393, 2556/852). '
+                     'Nothing without a row here became a token.')
     body = ('<div class="board"><header><h1>Luma iOS &mdash; Phase 1 evidence <span>%s</span></h1>'
-            '<p>Eight 393&times;852&nbsp;pt captures at exactly 3.000&times; (1179/393, 2556/852). '
-            'Nothing without a row here became a token.</p></header>' % sub + ''.join(rows) +
+            '<p>%s</p></header>' % (sub, lede) + ''.join(rows) +
             '<p class="note">%s</p></div>' % note)
     return page('Luma iOS — Phase 1 evidence ' + sub, body, EV_CSS.replace('BGA', A['bg_a']))
 
@@ -958,17 +1036,447 @@ REFS = [
  ('08', 'event-detail-invited-02', 'Invited / about',  'exact frame'),
 ]
 
-def ref_boards():
+def ref_boards(screens=SCREENS, refs=REFS, rkey=None, source=None):
     R = json.load(open(HERE / 'refassets.json'))
-    for n, sid, label, note in REFS:
+    rkey = rkey or (lambda n: 'p' + str(int(n)))
+    source = source or 'Mobbin, Luma iOS'
+    for i, (n, sid, label, note) in enumerate(refs):
         body = ('<div class="rboard"><h1>%s &mdash; reference</h1>'
-                '<p>%s.png &middot; Mobbin, Luma iOS &middot; 1179&times;2676 @3x &middot; %s</p>'
+                '<p>%s.png &middot; %s &middot; 1179&times;2676 @3x &middot; %s</p>'
                 '<div class="shot"><img src="%s" alt="%s"></div></div>'
-                % (label, sid, note, R['p' + str(int(n))], sid))
-        write('ref-' + SCREENS[int(n) - 1][0],
+                % (label, sid, source, note, R[rkey(n)], sid))
+        write('ref-' + screens[i][0],
               page('Luma iOS \u2014 reference %s' % n, body, REF_CSS))
 
 ref_boards()
+
+
+# ============================================================ home screens ==
+# Four more boards: the Luma iOS home tab (empty, populated, and two scroll
+# states through "Nearby Events"). Same measured-token discipline as the
+# eight event-detail screens above; the light-mode tokens sit in the same
+# TOKENS block, and their evidence is on 00f / 00g-evidence-home.
+
+HOME_CSS = """
+.phone.light{background:var(--l2-bg);color:var(--l2-ink)}
+.phone.light .statusbar svg{fill:var(--l2-ink)}
+.hmat{background:var(--l2-hdr-fill);-webkit-backdrop-filter:var(--l2-hdr-blur);
+  backdrop-filter:var(--l2-hdr-blur)}
+.hhdr{position:absolute;left:0;top:0;width:393px;height:103px}
+/* the separator is a scroll state, not a fixed part of the bar: absent on
+   home-01/02 at rest, present on home-03/04 at y 102.7 once rows pass under */
+.hhdr.sep{border-bottom:1px solid var(--l2-line)}
+.hhdr img{position:absolute;left:20px;top:64px;width:32px;height:32px;border-radius:50%;
+  object-fit:cover}
+.hhdr .wm{position:absolute;left:60px;top:65px;font:var(--l2-t-brand);display:flex;gap:2px}
+.hhdr .wm i{width:9px;height:9.3px;margin-top:1px;display:block}
+.hhdr .wm i svg{width:100%;height:100%;display:block}
+.hhdr .gr{position:absolute;left:355px;top:71px;width:18px;height:18px}
+.hhdr .gr svg{width:100%;height:100%;display:block}
+.hdate{position:absolute;left:0;top:103px;width:393px;height:41px}
+.hdate>span{position:absolute;left:20px;top:8.7px;font:var(--l2-t-date)}
+/* sticky 'Nearby Events / From Your Subscriptions' section header, same 0/30
+   pitch as the in-flow hrow()+t-meta pair it stands in for (home-03.png) */
+.hnear{position:absolute;left:0;top:103px;width:393px;height:69px}
+.hnear>*{position:absolute;left:20px;width:353px}
+/* a full-width bar, not a floating pill: the material runs edge to edge from its
+   own hairline down to the screen bottom, with the home indicator inside it. The
+   two gutter columns of home-01, x 6 and x 386, carry no content behind the bar
+   and read 246,245,248 down to 768.7, the rule's core 228 at 769.3, then a flat
+   243,243,245 material all the way to 852. */
+.htab{position:absolute;left:0;top:769px;width:393px;height:83px;
+  border-top:1px solid var(--l2-line);
+  display:flex;justify-content:center;align-items:flex-start}
+/* the bar carries the same blur as the sticky header but its own, darker fill:
+   over the plain page the header leaves the ground untouched while the bar
+   takes it 3 levels down (home-01, 246,245,248 above the rule, 243,243,245
+   below). Two classes so the override does not depend on rule order. */
+.htab.hmat{background:var(--l2-tab-fill)}
+/* five equal 71.5pt slots, the block centred. Measured icon centres on home-01
+   are 53.67 / 125.00 / 196.67 / 268.17 / 339.83, an even 71.54 pitch. Spacing
+   the glyph boxes instead (space-around) drifts 1.3pt by the middle tab,
+   because the five glyphs are not the same width. */
+.htab i{flex:0 0 71.5px;height:47.4px;color:var(--l2-ink-4);
+  display:flex;align-items:center;justify-content:center}
+.htab i.on{color:var(--l2-ink)}
+.htab i b{display:block}
+.htab i svg{width:100%;height:100%;display:block}
+.hrow{display:flex;justify-content:space-between;align-items:baseline;font:var(--l2-t-h2);
+  color:var(--l2-ink)}
+.hrow b{display:flex;align-items:center;gap:4px;font:var(--l-t-row);font-weight:400;
+  color:var(--l2-ink-3)}
+.hrow.tight{justify-content:flex-start;gap:8px}
+.hrow b svg{width:100%;height:100%;display:block}
+.t-sub{font:var(--l2-t-sub);letter-spacing:var(--l2-track-sub);color:var(--l2-ink-3)}
+.t-evtitle{font:var(--l2-t-evtitle);color:var(--l2-ink)}
+.mi{width:15px;height:15px;display:inline-block;vertical-align:-3.4px;margin-right:6.2px}
+.tg{width:9px;height:9px;display:inline-block;vertical-align:-1px;margin-right:3.3px}
+.tg svg{width:100%;height:100%;display:block}
+.mi svg{width:100%;height:100%;display:block}
+.t-date2{font:var(--l2-t-date);color:var(--l2-ink)}
+.od{width:var(--l2-dot);height:var(--l2-dot);border-radius:50%;display:inline-flex;
+  align-items:center;justify-content:center;flex:none;color:#fff;font:600 6px/1 var(--l-font);
+  vertical-align:2px;margin-right:7px}
+.od.mark{width:var(--l2-mark);height:var(--l2-mark);border-radius:4px;
+  font:600 9px/1 var(--l-font);vertical-align:-4px;margin-right:9.7px}
+.t-org{font:var(--l2-t-org)}
+.orgline{display:flex;justify-content:space-between;color:var(--l2-ink-3)}
+.orgline .od{margin-right:6px}
+.ctile{border-radius:var(--l-r-tile);background-size:cover;background-position:center}
+.ecov{overflow:hidden}
+.hdiv{height:1px;background:var(--l2-line)}
+.eempty{display:flex;align-items:center;justify-content:center;gap:16px;
+  height:63px;color:var(--l2-ink-3)}
+.eempty .ic{flex:none;width:63px;height:63px}
+.eempty .ic svg{width:100%;height:100%;display:block}
+.eempty b{display:block;font:var(--l-t-row);color:var(--l2-ink);margin-bottom:4px}
+.eempty p{font:var(--l-t-meta)}
+"""
+
+def micon(name):
+    return '<span class="mi">%s</span>' % IC[name]
+
+def orgdot(color, letter='', shape='circle', big=False):
+    cls = 'od mark' if big else 'od'
+    br = '50%' if shape == 'circle' else ('4px' if big else '5px')
+    return '<span class="%s" style="background:%s;border-radius:%s">%s</span>' % (cls, color, br, letter)
+
+def hrow(top, label, chev=None, chev_w=0, chev_h=0, right_label=None):
+    if not chev:
+        html = '<span>%s</span>' % label
+    else:
+        chip = ('<span style="width:%.2fpx;height:%.2fpx;display:inline-block;vertical-align:-2px">%s</span>'
+                % (chev_w, chev_h, IC[chev]))
+        html = '<span>%s</span><b>%s%s</b>' % (label, (right_label + '&nbsp;') if right_label else '', chip)
+    # 'Nearby Events <chev>' keeps its chevron beside the words; only the rows
+    # carrying a 'View All' label push their right half out to the margin (home-02)
+    return blk(top, 'hrow' if right_label else 'hrow tight', html)
+
+def date_grey(grey):
+    # ' / Thursday' after the bold date, on the in-flow label and on the sticky
+    # bar alike. The reference sets the separator wider than a plain word space
+    # on both sides: ink gaps 6.4 before the slash and 6.6 after, against 4.0/4.7
+    # for a bare space at this size. Pad the slash rather than swap in a wider
+    # space character, so the amount stays measurable.
+    return (' <span style="color:var(--l2-ink-3);font-weight:400">'
+            '<span style="padding:0 1.6px 0 2.4px">/</span> %s</span>' % grey)
+
+def date_label(top, bold, grey):
+    return blk(top, 't-date2', bold + (date_grey(grey) if grey else ''))
+
+def event_card(top, img, org_color, org_letter, org_name, title, date_html=None, loc_text=None):
+    # the guest's RSVP status ('Going'/'Invited'/'Hosting') is a plain white bold label
+    # baked into the bottom-left of each cover crop itself (asset.json), not drawn here
+    d = [blk(top, 'ecov', '', w=80, extra='height:var(--l2-card);border-radius:var(--l-r-card);'
+             'background:url(%s) center/cover' % img)]
+    # the card's organizer dot is inset 2.7 past the text column the title uses
+    d.append(blk(top - 1.0, 't-org', orgdot(org_color, org_letter) + org_name, left=114.7, w=258.3,
+                 extra='color:var(--l2-ink-2)'))
+    d.append(blk(top + 24.35, 't-evtitle', title, left=112, w=261))
+    if date_html:
+        d.append(blk(top + 52.05, 't-meta', micon('clock') + date_html, left=112, w=261,
+                     extra='color:var(--l2-ink-2)'))
+    if loc_text:
+        d.append(blk(top + 75.85, 't-meta', micon('pin') + loc_text, left=112, w=261,
+                     extra='color:var(--l2-ink-2)'))
+    return ''.join(d)
+
+def nearby_row(top, img, org=None, price=None, title=None, title_lines=1, meta=None,
+                org_color=None, org_shape='square', org_letter=''):
+    d = [blk(top, 'ecov', '', w=80, extra='height:var(--l2-card);border-radius:var(--l-r-card);'
+             'background:url(%s) center/cover' % img)]
+    y = 4.0 if title_lines == 1 else 0.0
+    if org or price:
+        icon = orgdot(org_color, org_letter, org_shape, big=True) if org_color else ''
+        org_span = ('<span style="min-width:0;overflow:hidden;white-space:nowrap;'
+                     'text-overflow:ellipsis">%s</span>' % org) if org else ''
+        left_html = ('<span style="display:flex;align-items:center;min-width:0">%s%s</span>'
+                      % (icon, org_span))
+        right_html = (('<span style="flex:none;margin-left:8px;font:var(--l2-t-price);'
+                       'color:var(--l2-green)">'
+                       '<span class="tg">%s</span>%s</span>' % (IC['tag'], price))
+                      if price else '')
+        d.append(blk(top + y, 'orgline t-org', left_html + right_html, left=112, w=261))
+        y += 23.75
+    if title:
+        d.append(blk(top + y, 't-evtitle', title, left=112, w=261))
+        y += (title_lines - 1) * 22.0 + 27.2
+    if meta:
+        # no trailing margin on the last chip: 14px of it past "Los Angeles, Califo..."
+        # was enough to wrap a line the reference keeps on one
+        chips = ''.join('<span%s>%s%s</span>'
+                         % ('' if i == len(meta) - 1 else ' style="margin-right:11.7px"',
+                            micon(ic) if ic else '', tx)
+                         for i, (ic, tx) in enumerate(meta))
+        d.append(blk(top + y, 't-meta', chips, left=112, w=261, extra='color:var(--l2-ink-3)'))
+    return ''.join(d)
+
+def cal_tile(top, x, img):
+    return blk(top, 'ctile', '', left=x, w=80, extra='height:var(--l2-card);background-image:url(%s)' % img)
+
+def empty_block(top, icon, head, sub):
+    # icon + text is one row centred in the content width, not left-aligned: the two
+    # reference rows start at x 26.0 and 21.3 because their longest line differs
+    return blk(top, 'eempty', '<span class="ic">%s</span>'
+               '<div><b>%s</b><p>%s</p></div>' % (IC[icon], head, sub))
+
+TABS = [('tab-home', 24.0, 22.0, True), ('tab-compass', 24.3, 23.3, False),
+        ('tab-plus', 24.7, 23.3, False), ('tab-heart', 22.0, 21.7, False),
+        ('tab-chat', 23.7, 23.0, False)]
+
+def home_hdr(sep=False):
+    return ('<div class="hhdr hmat%s">' % (' sep' if sep else '')
+            + '<img src="%s">' % A['home_avatar']
+            + '<div class="wm">luma<i>%s</i></div>' % IC['spark']
+            + '<div class="gr">%s</div>' % IC['gear']
+            + '</div>')
+
+def home_date(bold, grey):
+    return '<div class="hdate hmat"><span>%s%s</span></div>' % (bold, date_grey(grey))
+
+def home_near():
+    # same hrow()+t-sub pair as the in-flow 'Nearby Events' section header
+    # (doc_home), pinned under .hhdr once the page scrolls past it. The pinned
+    # heading sits 1.0pt lower than the in-flow one (ink 121.7 on home-03 against
+    # 696.3-relative 120.7 on home-02); the in-flow copy behind it is under 78%
+    # material and 24px of blur, so the 1pt of overlap does not read
+    return ('<div class="hnear hmat">' + hrow(13.0, 'Nearby Events', 'chev-d', 13, 9.3)
+            + blk(38.8, 't-sub', 'From Your Subscriptions') + '</div>')
+
+def home_tab():
+    return ('<div class="htab hmat">' + ''.join(
+        '<i class="%s"><b style="width:%.2fpx;height:%.2fpx">%s</b></i>'
+        % ('on' if on else '', w, h, IC[ic]) for ic, w, h, on in TABS) + '</div>')
+
+def home_screen(doc_html, doc_h, scroll, hb, date=None, near=False):
+    parts = ['<div class="phone light">',
+             '<div class="scroll"><div class="doc" style="top:%.2fpx;height:%dpx">%s</div></div>'
+             % (-scroll, doc_h, doc_html),
+             home_hdr(scroll > 0)]
+    if date:
+        parts.append(home_date(*date))
+    if near:
+        parts.append(home_near())
+    parts.append(home_tab())
+    parts.append(statusbar(False))
+    parts.append('<div class="homebar" style="background:%s"></div></div>' % hb)
+    return ''.join(parts)
+
+# ------------------------------------------------------------ home content --
+ROW_PITCH = 126.35
+
+def doc_home_empty():
+    # positions and line wraps read off g_empty1.png (home-01.png, crop y150-400):
+    # icon+heading+subtext sit in a row, not a centered stack, and each subtext
+    # wraps after "will" / "you'll"
+    d = [hrow(113.7, 'Your Events', 'chev-r', 8, 13, 'View All'),
+         empty_block(153.3, 'e-ticket', 'No Upcoming Events',
+                     'Events you are hosting or going to will<br>show up here.'),
+         hrow(247, 'Your Calendars'),
+         empty_block(289.7, 'e-cal', 'No Calendars',
+                     "When you subscribe to calendars, you&rsquo;ll<br>see them here.")]
+    return ''.join(d), 500
+
+def doc_home():
+    d = []
+    y = 113.0
+    d.append(hrow(y, 'Your Events', 'chev-r', 8, 13, 'View All'))
+    y = 157.7
+    d.append(event_card(y, A['home_ev1'], '#0E8650', 'P', 'Publique', 'Publique In NYC',
+              'Today, 3.00&#8239;PM &middot; <span style="color:var(--l2-amber)">6.00&#8239;PM GMT-4</span>',
+              'LUME Studios'))
+    y += ROW_PITCH
+    d.append(event_card(y, A['home_ev2'], '#D4C3FF', 'J', 'Jason Smith', 'Karaoke',
+              'Tomorrow, 7.00&#8239;AM', '633 Rose Ave'))
+    y += ROW_PITCH
+    d.append(event_card(y, A['home_ev3'], '#66635D', 'A', 'Alex Smith', 'Clay Date!',
+              '29 Jun, 11.00&#8239;AM', '1226 University Dr'))
+    y += 80 + 47.3
+    d.append(hrow(y, 'Your Calendars', 'chev-r', 8, 13, 'View All'))
+    y += 39
+    for i, t in enumerate((A['home_tile1'], A['home_tile2'], A['home_tile3'], A['home_tile4'])):
+        d.append(cal_tile(y, 20 + i * 91, t))
+    y += 80 + 34
+    d.append(hrow(y, 'Nearby Events', 'chev-d', 13, 9.3))
+    y += 25.7
+    d.append(blk(y, 't-sub', 'From Your Subscriptions'))
+    y += 40.7
+
+    # org avatars below are flat colour swatches standing in for the source's photo
+    # logos/art (measured median colour of each icon on home-03/04.png); people
+    # (Micah) get a circle, brands/venues (Art Boutique, moss, ...) get a square
+    nearby1 = y
+    d.append(date_label(y, 'Tomorrow', 'Friday')); y += 38
+    d.append(nearby_row(y, A['home_nb1'], 'Art Boutique @ M...', 'Suggested: US$20',
+              'Sip + Paint Fridays', 1, [('clock', '4.00&#8239;PM'), ('pin', 'Mulberry Row')],
+              org_color='#D3A9B6'))
+    y += 80 + 24.2
+
+    # same-date rows (Tomorrow / Saturday) run on as one list with a hairline
+    # between them, not a fresh date_label each time — confirmed on home-03.png
+    d.append(date_label(y, 'Tomorrow', 'Saturday')); y += 38
+    d.append(nearby_row(y, A['home_nb2'], 'HER HOUSE OF HORRORS', 'US$25',
+              'DOLLHOUSE OF HORROR<br>FILM FESTIVAL', 2,
+              [('clock', '10.00&#8239;AM'), ('pin', 'Los Angeles, Califo&hellip;')],
+              org_color='#1C2A0E'))
+    y += 92 + 16
+    # hairline to the next cover's top edge is 16.6 on all three breaks: home-03
+    # puts the rules at 470.3 / 583.0 / 695.7 and the covers under them at
+    # 486.7 / 599.7 / 712.3
+    d.append(blk(y, 'hdiv', '', left=112, w=261)); y += 16.6
+    d.append(nearby_row(y, A['home_nb3'], 'moss', 'US$33', 'reiki + sound bath', 1,
+              [('clock', '10.30&#8239;AM'), ('pin', 'moss')], org_color='#4F6919'))
+    y += 80 + 16
+    d.append(blk(y, 'hdiv', '', left=112, w=261)); y += 16.6
+    d.append(nearby_row(y, A['home_nb9'], 'Artskool Schedule', 'US$60',
+              'Oil Painting Class - Florals', 1,
+              [('clock', '3.00&#8239;PM'), ('pin', '1286 W Sunset Blvd')], org_color='#F4C6CE'))
+    y += 80 + 16
+    d.append(blk(y, 'hdiv', '', left=112, w=261)); y += 16.6
+    d.append(nearby_row(y, A['home_nb10'], 'Micah Clasper-Torch', None,
+              'Punch Needle Fashion: LA Book<br>Launch Party', 2,
+              org_color='#C9B79E', org_shape='circle', org_letter='M'))
+    y += 92 + 24.7
+
+    nearby2 = y
+    d.append(date_label(y, '12 July', 'Saturday')); y += 38
+    # only the meta line and a 0.3pt descender sliver of the title clear the bar
+    # on home-04 (y 143.3-143.7, x 139.7-224.3), so the organizer and the title
+    # string are not recoverable from the capture; the cover art is the source of
+    # 'magic mind' and the cover's own median colour stands in for its mark
+    d.append(nearby_row(y, A['home_nb8'], 'magic mind', None,
+              'magic mind: yoga + sound bath', 1,
+              [('clock', '11.00&#8239;AM'), ('pin', 'moss')], org_color='#5A4E47',
+              org_shape='square'))
+    y += 80 + 24.2
+
+    d.append(date_label(y, '17 July', 'Thursday')); y += 38
+    d.append(nearby_row(y, A['home_nb4'], 'moss', 'US$33',
+              'mana: a ritual for<br>intentional creation', 2,
+              [('clock', '6.00&#8239;PM'), ('pin', 'moss')], org_color='#4F6919'))
+    y += 92 + 24.7
+
+    d.append(date_label(y, '18 July', 'Friday')); y += 38
+    d.append(nearby_row(y, A['home_nb5'], 'moss', 'US$33', 'moss meditation + movement', 1,
+              [('clock', '8.00&#8239;AM'), ('pin', 'moss')], org_color='#4F6919'))
+    y += 80 + 24.2
+
+    d.append(date_label(y, '27 July', 'Sunday')); y += 38
+    d.append(nearby_row(y, A['home_nb6'], 'moss', 'US$65', 'soldering ring making workshop', 1,
+              [('clock', '2.00&#8239;PM'), ('pin', 'moss')], org_color='#4F6919'))
+    y += 80 + 24.2
+
+    d.append(date_label(y, '12 August', 'Tuesday')); y += 38
+    d.append(nearby_row(y, A['home_nb7'], 'moss', 'US$33', 's.a.b.s. club- august', 1,
+              [('clock', '5.30&#8239;PM'), ('pin', 'moss')], org_color='#4F6919'))
+    y += 80 + 60
+
+    return ''.join(d), int(y), nearby1, nearby2
+
+HOME_BODY, HOME_H, NEARBY1, NEARBY2 = doc_home()
+EMPTY_BODY, EMPTY_H = doc_home_empty()
+
+HOME_SCREENS = [
+ ('09-home-empty',  'Home / empty',   dict(doc_html=EMPTY_BODY, doc_h=EMPTY_H, scroll=0, hb='#030003')),
+ ('10-home-events', 'Home / events',  dict(doc_html=HOME_BODY, doc_h=HOME_H, scroll=0, hb='#030003')),
+ # scroll=NEARBY1-181.7 lands the in-flow 'Nearby Events' hrow + subtitle exactly
+ # under the sticky .hnear copy of them (103-172), and the first row's cover at
+ # y 219.7, where home-03 has it
+ ('11-home-nearby', 'Home / nearby',  dict(doc_html=HOME_BODY, doc_h=HOME_H, scroll=NEARBY1 - 181.7,
+                                            hb='#030003', near=True)),
+ # scroll=NEARBY2-57 hides the in-flow '12 July / Saturday' label behind the header
+ # and cuts the row's cover at the sticky .hdate bar's lower edge, as on home-04:
+ # cover 95-175, its top 48.7pt behind the bar, meta line clear at 154.3
+ ('12-home-later',  'Home / later',   dict(doc_html=HOME_BODY, doc_h=HOME_H, scroll=NEARBY2 - 57.0,
+                                            hb='#030003', date=('12 July', 'Saturday'))),
+]
+
+for name, label, kw in HOME_SCREENS:
+    write(name, page('Luma iOS — ' + label, home_screen(**kw), HOME_CSS))
+
+# ------------------------------------------------------- home evidence / refs --
+HOME_EVIDENCE = [
+ ('Home tab — colour, 11 of the 23 new light-mode tokens', [
+  ('--l2-bg', '#F5F5F7', 'flat-fill census, page background: home-02 #F6F5F8, home-03 #F3F5F7 '
+   '(native captures agree within ~2 levels)'),
+  ('--l2-ink', '#131517', '"Your Events" heading ink core, home-02: #101314'),
+  ('--l2-ink-2', '#6D6F71', '"LUME Studios" event-card location ink core, home-02: exact match'),
+  ('--l2-ink-3', '#9D9FA1', '"From Your Subscriptions" ink core, home-02: #97999B'),
+  ('--l2-ink-4', '#BDBABD', 'inactive tab-bar heart-glyph stroke, ink core on home-02: #B3B6B5'),
+  ('--l2-amber', '#CE961B', '"6.00&#8239;PM" (second half of the Publique date range) ink core, '
+   'home-02: #CC9517'),
+  ('--l2-green', '#43B335', '"Suggested: US$20" price ink core, home-03: #41B333'),
+  ('--l2-hdr-fill / --l2-hdr-blur', 'rgba(245,245,247,.48) / blur(40px) saturate(1.3)',
+   'the sticky identity header on home-03 (scrolled) shows a soft colour wash bleeding through: '
+   'green cast [222,223,218] and pink cast [243,226,226] against the flat [243,245,247] page '
+   'background just below it. A light fill over heavily blurred, saturated content, not a solid '
+   'bar or a fully transparent one. Neither number is readable off a single pixel, so both were '
+   'swept: rendering the header band at 3&times; over a grid of radii and alphas and taking the '
+   'pair that minimises mean absolute delta against all four captures. The surface is smooth and '
+   'has one minimum, 40&#8239;px at .48, and it is a real one: 24&#8239;px/.78 costs 10 '
+   'levels in the band on home-03'),
+  ('--l2-tab-fill', 'rgba(237,237,239,.58)', 'the tab bar is a different material from '
+   'the header: over the plain page of home-01 the header leaves the ground untouched '
+   '(246,245,248 above and below it) while the bar takes it three levels down, 246,245,248 above '
+   'the rule at 769.3 and 243,243,245 below. Same blur, own fill, swept the same way'),
+  ('--l2-line', '#EBEDEE', '1pt coverage solve, hairline between same-date nearby rows on home-03: '
+   'bg #F3F5F7, rule rows 470.3&ndash;470.7pt, solved #EBEDEE'),
+ ]),
+ ('Home tab — geometry', [
+  ('--l2-card', '80px', 'event-cover / nearby-row thumbnail bbox, home-02: 20,158&rarr;100,238, '
+   'exactly 80&times;80'),
+  ('--l2-row', '126.35px', 'event-card top-edge pitch, home-02: card 1&rarr;card 2 158&rarr;285pt, '
+   '127.0pt measured'),
+  ('--l2-mark', '16px', 'organizer mark on a nearby row, home-03 row 1: bbox '
+   '112.0,224.7&rarr;128.0,241.0, 16.0&times;16.3pt'),
+  ('--l2-dot', '10px', 'organizer avatar dot, home-02 row 1: green bbox 9.7&times;10.0pt. The dark screens have no equivalent, so this is home-only geometry'),
+ ]),
+ ('Home tab — type', [
+  ('--l2-t-org', '400 13px/18px var(--l-font)', 'organizer line on home-02 row 1 (&ldquo;Publique&rdquo;): ascender-to-descender 12.0pt measured, against 13.7pt when the line reused --l-t-meta at 15px. The event title above it measures 16.0pt in both, so the row pitch was right and only this line was oversized'),
+  ('--l2-t-h2', '600 20px/26px var(--l-font)', '&ldquo;Your Events&rdquo; section heading on '
+   'home-02: ink band 120.0&ndash;134.3pt, word extents 20.7&rarr;127.7pt'),
+  ('--l2-t-date', '500 17px/22px var(--l-font)', 'the nearby date label and its sticky bar, '
+   '&ldquo;17 July&rdquo; on home-04. At 600 every word ran wide; at 500 all five glyph runs land '
+   'within 0.3pt of the capture (21.0 / 28.3 / 42.0 / 51.3 / 61.3 &rarr; 73.3, widths identical). '
+   'Cap height is 12.0pt at either weight, so the defect was weight and not size'),
+  ('--l2-t-evtitle', '500 17px/22px var(--l-font)', 'event-card and nearby-row titles measure the '
+   'same 500 as the date label on home-02 and home-03. Its own token rather than the dark screens&rsquo; '
+   '--l-t-time, which is 600 and has to stay that way for the status-bar clock'),
+  ('--l2-t-price', '400 11.3px/18px var(--l-font)', '&ldquo;Suggested: US$20&rdquo; on home-03 row 1: '
+   'tag glyph 260.0&rarr;267.3, label 272.3&rarr;332.0, price 336.7&rarr;372.0. At 13px the group '
+   'overran and pushed the organizer name&rsquo;s ellipsis two glyphs early; at 11.3px both land'),
+  ('--l2-t-sub', '400 20px/26px var(--l-font)', '&ldquo;From Your Subscriptions&rdquo; on home-02, '
+   'ink 21.7&rarr;240.0pt'),
+  ('--l2-track-sub', '.25px', 'same line: untracked at 20px it renders 212.4pt wide against the '
+   'capture&rsquo;s 218.3, and +.25px across its 22 letter gaps gives 217.7'),
+  ('--l2-t-brand', '700 26px/32px var(--l-font)', 'refkit font on the "luma" wordmark: SF Pro .845, '
+   'SF Pro Rounded .827, no call inside the SF family, so the platform stack stands in for '
+   'what is Luma&rsquo;s own custom logotype (disclosed simplification)'),
+ ]),
+]
+
+write('00f-evidence-home', evidence_board('home 1 / 2', HOME_EVIDENCE[:2],
+      'Every token here is new; everything the home tab shares with the dark event-detail screens '
+      '(radii, gutters, row height, the SF Pro stack) reuses the existing token as-is.',
+      lede=('Four 393&times;852&nbsp;pt native captures at exactly 3.000&times; (1179/393, 2556/852) '
+            'once each screenshot&rsquo;s own bottom strip is cropped off. Nothing without a row '
+            'here became a token.')))
+write('00g-evidence-home', evidence_board('home 2 / 2', HOME_EVIDENCE[2:],
+      lede='The same four home captures as board 1 / 2.',
+      note='Type was fitted the same way as on the dark screens: render the candidate at 3&times; and match '
+      'the capture&rsquo;s per-word ink runs, which separate glyph width (weight, size) from the gaps '
+      'between words (tracking, markup) in a way a bounding box cannot.'))
+
+HOME_REFS = [
+ ('09', 'home-01', 'Home / empty',  'exact frame'),
+ ('10', 'home-02', 'Home / events', 'exact frame'),
+ ('11', 'home-03', 'Home / nearby', 'exact frame'),
+ ('12', 'home-04', 'Home / later',  'exact frame'),
+]
+
+ref_boards(HOME_SCREENS, HOME_REFS, rkey=lambda n: 'h' + str(int(n) - 8),
+           source='native capture, Luma iOS')
+
 
 
 # --------------------------------------------------------------------------------------
@@ -1172,9 +1680,12 @@ LAYOUT = {
              {"file": "00b-evidence", "label": "Evidence 1/2"},
              {"file": "00c-evidence", "label": "Evidence 2/2"},
              {"file": "00d-process", "label": "How it was made"},
-             {"file": "00e-pipeline", "label": "Files &amp; results"}]},
+             {"file": "00e-pipeline", "label": "Files &amp; results"},
+             {"file": "00f-evidence-home", "label": "Evidence: home colour"},
+             {"file": "00g-evidence-home", "label": "Evidence: home type"}]},
   {"title": "Luma iOS replica screens", "numbered": True,
-   "files": [{"file": n, "label": l} for n, l, _ in SCREENS]},
+   "files": [{"file": n, "label": l} for n, l, _ in SCREENS] +
+            [{"file": n, "label": l} for n, l, _ in HOME_SCREENS]},
   {"title": "Walkthrough: replicating one page", "numbered": True,
    "files": [{"file": "w1-reference", "label": "The input"},
              {"file": "w2-grid", "label": "Grid, then look"},
@@ -1182,7 +1693,9 @@ LAYOUT = {
              {"file": "w4-foundations", "label": "Into foundations"}]},
   {"title": "Source of truth: captures", "numbered": True,
    "files": [{"file": "ref-" + SCREENS[int(n) - 1][0], "label": label}
-             for n, sid, label, note in REFS]},
+             for n, sid, label, note in REFS] +
+            [{"file": "ref-" + hs[0], "label": label}
+             for hs, (n, sid, label, note) in zip(HOME_SCREENS, HOME_REFS)]},
  ],
 }
 (OUT / 'layout.json').write_text(json.dumps(LAYOUT, indent=2) + '\n')

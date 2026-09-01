@@ -1,5 +1,6 @@
 ---
 name: clone-prototype
+argument-hint: [reference screenshots, or the app and screens to clone]
 description: Clone a real app's screens as pixel-accurate, self-contained HTML artboards on the prototype canvas. Overlay a grid on the reference and sample colours visually, derive one measured design-token block, generate one HTML file per screen from a single script, verify by re-rendering, and park the reference underneath its mockup. Use when asked to 100% copy / clone an app's UI, rebuild screens from screenshots or Mobbin, extract a design system from reference images, or check a mockup against its reference.
 ---
 
@@ -17,7 +18,7 @@ pages and how `layout.json` rows work. Name the folder for the source,
 e.g. `notion-ios`.
 
 Toolkit: `tools/refkit.py` (grid / sample / bands / bbox / scan / hairline /
-font / shoot / diff / tokens / batch / ink / crops / montage).
+font / shoot / diff / blend / tokens / batch / ink / crops / montage).
 Needs `pillow` + `numpy`; `shoot` needs Google Chrome. Work in a scratch
 directory, not in the repo.
 
@@ -131,34 +132,14 @@ refkit font  IMG 17.3 139 78.7 152 Libraries --pt 3 \
              --fonts ./brand-fonts                          # rank the candidates
 ```
 
-`font` renders your word in every candidate face and ranks the letterforms at a
-common cap height, searching weight and tracking. The system UI faces are always
-in the set; `--fonts DIR` adds any `.ttf`/`.otf`/`.ttc` you have, and is what you
-need for a brand face. Closed-set matching is the point. The published
-classifiers pick from ~3,000 Google Fonts and **cannot return "SF Pro"** at all
-(`docs/font-identification.md` has the measurements).
+Box exactly one word, the biggest on the screen, a title rather than a tab
+label, and confirm on a second screen before it becomes a token. Read the
+**verdict** line rather than the top row: a "no call" means the ranking
+cannot separate the top faces, and promoting its winner invents a fact.
 
-Read the verdict line, not just the ranking:
-
-- **call.** One face clears the next by the margin. Write it down with its
-  score.
-- **no call.** The top faces are inside the margin. Either they are
-  indistinguishable at this size (SF Pro vs SF Pro Rounded differ only in
-  corner rounding) or the real face is outside your candidate set. Record the
-  *family*, or go find the font file. Never promote the top row of a no call.
-- **weak.** Top score under 0.80. First check the box holds exactly the word
-  you named and nothing else. One clipped leading glyph took a real run from
-  0.93 to 0.49. Then re-run on the largest instance of the same face.
-
-Pick the biggest word on the screen, a title rather than a tab label, and
-confirm on a second screen before it becomes a token.
-
-`font` names the face; calibrate *size* against the engine that ships the
-pixels. PIL renders SFNS about 6% narrower than Chrome renders
-`-apple-system`, so a width matched in PIL is wrong on the board. Check
-sizes on `shoot` output, or you discover the 6% three phases later. And
-read a residual before correcting it: +4.7pt of width over 29 characters of
-nav title is tracking (`letter-spacing:-.16px`), not a size error.
+[`references/typeface.md`](references/typeface.md) covers the three verdicts,
+brand faces outside the candidate set, and why a width matched in PIL is 6%
+wrong on the board.
 
 ### Deliverable of this phase
 
@@ -314,7 +295,11 @@ rotated 10 degrees" while the numbers read fine.
 
 `--crop-phone` removes the crop step from every iteration; it also masks the
 52pt corners, so a cropped screen composites onto any ground without the
-four black wedges of bezel a rectangular crop keeps. `diff` writes the
+four black wedges of bezel a rectangular crop keeps. A bare capture has
+square corners full of real content, so `diff` and `blend` score only where
+both images have ink and say what fraction they dropped; without that the
+four wedges quietly add a level or two to every number you publish. `diff`
+writes the
 side-by-side **and** prints the numbers behind it. With `--regions` (inline
 `{"name": [x0,y0,x1,y1]}`, or a file you write once and reuse for the run) it
 tables mine-vs-ref per region with a Δ column; with no regions it ranks the
@@ -333,6 +318,45 @@ Then read the side-by-side image, in this order:
 
 Re-render after every correction pass. A correction you have not re-rendered
 is not a correction.
+
+### Subtract, and fit what you cannot sample
+
+A side-by-side answers "is this the right colour". It is bad at "is this the
+right colour in the wrong place", which is most of what is actually wrong.
+Blend the two instead, the way a difference layer works: your render into
+red, the reference into green and blue. Agreement goes grey, reference-only
+ink goes red, yours goes cyan, and a red edge above a cyan edge is one
+element sitting a point too low.
+
+```bash
+python3 "$REPO/tools/refkit.py" blend mine/10-home.png refs/h2.png \
+    --pt 3 --y0 760 --y1 852 --zoom 2 -o tab.png
+```
+
+A material is the other half of this. A translucent bar over blurred content
+has no pixel holding its fill or its blur radius, so it has to be fitted by
+sweeping the generator over a grid, not sampled. Record the sweep as
+evidence: "minimum at 40px/.48, and 24px/.78 costs 10 levels".
+
+[`references/comparing.md`](references/comparing.md) has both in full: how to
+read red and cyan edges, how `blend`'s offset probe separates a placement
+error from a colour one, and how to run a sweep and read one that refuses to
+settle.
+
+### Call it
+
+Refinement has a floor, and you reach it long before the deltas reach zero.
+Stop when any of these is true:
+
+- the worst remaining bands are ones you cannot fix: the Dynamic Island the
+  capture does not show, a watermark strip, a photograph you re-encoded;
+- a full sweep of a parameter moves the number by less than a level;
+- the blend is grey everywhere except sub-pixel fringing on glyph edges.
+
+Every screen inside roughly 4-7 levels mean absolute delta over the body,
+with no structural defect left in the blend, is a finished run. Write the
+numbers into the folder's README and stop. Another pass there costs a
+session and buys a level.
 
 ### Fan out the looking, not the editing
 
@@ -396,28 +420,14 @@ where raw captures are square; and hero, map and avatar bitmaps are crops of
 the capture itself.
 
 **Restart the dev server before you open the canvas.** `canvasLibrary.ts`
-globs `mockups/canvases/*/*.html`, which sits outside the canvas app's Vite
-root, and a running server does not reliably notice a folder created after it
-booted. When it does not, `?canvas=<slug>` matches no page,
-`applyCanvasFromUrl` returns silently, and the canvas opens on whichever
-board tldraw last persisted — right URL, no error, wrong board. A boot is
-~150 ms; do not start debugging artboards you cannot see until you have done
-it.
-
-The server runs under tmux, so restart it there rather than backgrounding it
-from a tool call. Three details, each of which costs a confusing round trip
-when missed: a bare `npm run dev` is blocked by a hook and **the whole shell
-command must start with `tmux`** (a leading `cd` trips the same hook, so pass
-the directory with `-c` and an absolute path); pass **`--host 127.0.0.1`** or
-Vite binds `localhost` only, which resolves to `::1` here and makes every
-`127.0.0.1` request fail with a bare connection error; and read the pane back,
-because `--strictPort` fails loudly rather than drifting to 5174.
+globs outside the canvas app's Vite root, so a running server does not
+reliably notice a folder created after it booted, and `?canvas=<slug>` then
+opens whichever board tldraw last persisted: right URL, no error, wrong
+board. The `prototype-canvas` skill has the tmux invocation and the two flags
+it needs; a boot is ~150 ms, so do it before debugging artboards you cannot
+see.
 
 ```bash
-tmux kill-session -t canvas 2>/dev/null
-tmux new-session -d -s canvas -c "$PWD/canvas" \
-     "npm run dev -- --host 127.0.0.1 --port <port> --strictPort"
-tmux capture-pane -p -t canvas | tail -5      # confirm it bound
 open "http://127.0.0.1:<port>/?canvas=<slug>"
 ```
 
@@ -451,13 +461,29 @@ open "http://127.0.0.1:<port>/?canvas=<slug>"
 - **Measuring a render's height in pixels.** A card's `box-shadow` paints ~60px
   below its own bottom edge, so a pixel probe reports overflow that is not
   there. Ask the layout engine (`--check-overflow` does).
-- **Brand marks.** Third-party logos come from
-  `https://unpkg.com/@lobehub/icons-static-svg@latest/icons/<name>.svg` (24×24,
-  `currentColor`). Strip the `<svg>` wrapper and the `<title>`, and recolour
-  from a sample off the capture. Check the glyph against the capture before
-  trusting the file name: lobehub's `grok` is the swirl, while the mark in a
-  2025 iOS capture is the xAI "X" (`xai.svg`). A path that fills a hole it
-  should leave open (simple-icons' Raycast) needs an SVG `<mask>`, not a
-  different fill rule.
+- **Redrawing a third-party logo by hand.** Pull the real one; see
+  [`references/brand-marks.md`](references/brand-marks.md) for the source, and
+  for why you check the glyph against the capture before trusting a file name.
+- **Thresholding luminance to find an element's extent.** A near-white band
+  (243,245,247) on a near-white page (245,245,247) is invisible to any fixed
+  threshold, so the element reads as ending early and you "fix" a layout that
+  was already right. Probe each row against the page gutter beside it, not
+  against an absolute value. This cost two wrong diagnoses in one session: an
+  80pt cover measured as 63.7, and a row top declared 5.3pt late when the
+  layout was inside a point.
+- **Cropping an asset by eye instead of at its measured box.** Take the
+  element's own box (`refkit bbox` gives it) out of the capture at the
+  capture's own scale. Then the capture's rounded corners land under your CSS
+  radius and the art registers 1:1. Every offset cover in the luma home run
+  was a crop carrying a strip of page, not a layout error.
+- **Comparing against a capture you have not trimmed.** Mobbin exports carry
+  a watermark strip below the screen, so a 2676px capture of an 852pt screen
+  is 40pt of someone else's branding. Crop to the device height before
+  `diff`, or it exits on a shape mismatch and you start doubting the render.
+- **Assuming a floating pill because the icons are inset.** Read the gutter
+  columns, x 6 and x 386, straight down through the bar. Luma's tab bar is a
+  full-width material with a hairline at its top edge and the home indicator
+  inside it; the replica drew a 353pt pill and let sharp page content show
+  through the 84pt below it for four screens before anyone measured x 6.
 - **Image caches rotate mid-task.** Save every reference to the scratch dir
   the moment you receive it.
