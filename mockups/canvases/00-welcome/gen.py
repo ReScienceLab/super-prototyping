@@ -2,10 +2,11 @@
 """Emit the welcome board. Artboards are output, never source: edit this file,
 not the HTML. Sources are the repo's own assets/banner.png and assets/icon.png.
 
-This is the one board that is not phone-shaped: a 1515 x 660 landscape
-strip, sized to the row of five example cards under it on the canvas
-(5 x 239 + 4 x 80 gutters = 1515). The same size lives in
-canvas/src/App.tsx as WELCOME_BOARD_SIZE; keep the two in step.
+This is the one board that is not phone-shaped: a landscape strip as wide
+as the row of example cards under it on the canvas, one card per other
+folder. Add a folder and the row grows, so raise CARDS below and copy the
+printed size into canvas/src/App.tsx as WELCOME_BOARD_SIZE; keep the
+two in step.
 
 Everything clickable on this page is a canvas shape, not markup in here. The
 canvas renders boards in <iframe srcDoc sandbox="">, where a link cannot
@@ -18,7 +19,12 @@ OUT = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(OUT, "..", "..", "..", "assets")
 REPO = "github.com/ReScienceLab/super-prototyping"
 
-BANNER_W = 2200         # 1.45x the 1515px display width; the art is soft line work
+CARDS = 7               # one example card per mockups/canvases folder, minus this one
+W = CARDS * 239 + (CARDS - 1) * 80      # card pitch on the canvas: 239 wide, 80 gutter
+BANNER_H = W // 4       # the banner crop's own 4:1 aspect, so nothing stretches
+H = BANNER_H + 281      # 281 is what the header, the heading and the skill row need
+
+BANNER_W = 2304         # the source's full width; past this there is no more detail
 BANNER_CROP = (0, 72, 2304, 648)   # 4:1 out of the 3:1 source, trimming dead black
 MARK_PX = 96            # 2x the 48px display size
 
@@ -46,7 +52,7 @@ def mark_uri():
 # value in the onboarding is the star on the button shape outside this board.
 # The ramp below is spaced for legibility at this size rather than borrowed
 # from a palette.
-TOKENS = """:root{
+TOKENS = f""":root{{
   --w-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
   --w-mono:ui-monospace,Menlo,"SF Mono",monospace;
 
@@ -59,9 +65,9 @@ TOKENS = """:root{
 
   --w-pad:30px;
   --w-gutter:24px;
-  --w-banner-h:379px;     /* 1515 / 4, the cropped banner's aspect */
+  --w-banner-h:{BANNER_H}px;     /* the board width / 4, the crop's own aspect */
   --w-radius:10px;
-}"""
+}}"""
 
 RUN = "cd canvas &amp;&amp; npm run dev"
 
@@ -82,13 +88,13 @@ def board():
 {TOKENS}
 
 *{{box-sizing:border-box;margin:0;padding:0}}
-body{{width:1515px;height:660px;overflow:hidden;
+body{{width:{W}px;height:{H}px;overflow:hidden;
   background:var(--w-ground);color:var(--w-ink);
   font-family:var(--w-font);-webkit-font-smoothing:antialiased}}
 
 /* Full bleed. The art is line work on black and the board's ground is black,
    so the strip has no edge to frame. */
-.banner{{display:block;width:1515px;height:var(--w-banner-h)}}
+.banner{{display:block;width:{W}px;height:var(--w-banner-h)}}
 
 main{{padding:var(--w-pad)}}
 
@@ -178,7 +184,8 @@ if __name__ == "__main__":
     p = os.path.join(OUT, "00-welcome.html")
     with open(p, "w") as f:
         f.write(board())
-    print("%-24s %6d KB" % ("00-welcome.html", os.path.getsize(p) // 1024))
+    print("%-24s %6d KB   %d x %d, %d cards" %
+          ("00-welcome.html", os.path.getsize(p) // 1024, W, H, CARDS))
     with open(os.path.join(OUT, "layout.json"), "w") as f:
         f.write(LAYOUT)
     print("layout.json")

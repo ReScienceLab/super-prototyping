@@ -70,7 +70,7 @@ Boards render inside `<iframe srcDoc sandbox="">`:
 - **The shape box is 478 × 980** (`CANVAS_FILE_DEFAULT_SIZE`). The iframe
   clips anything past that box with no warning, so check every fixed-height
   board after adding a row. `00-welcome` is the one exception, a landscape
-  1515 × 660 board (`WELCOME_BOARD_SIZE` in `canvas/src/App.tsx`, which has
+  2153 × 819 board (`WELCOME_BOARD_SIZE` in `canvas/src/App.tsx`, which has
   to match the `body` box in its `gen.py`).
 - iPhone frame is 393 × 852 pt at 1pt = 1px: 54px status bar,
   125 × 36 Dynamic Island, 139 × 5 home indicator.

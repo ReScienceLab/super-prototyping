@@ -59,13 +59,13 @@ const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
  * The one board that is not phone-shaped: a landscape strip as wide as the row of example
  * cards under it. Keep it in step with the `body` box in 00-welcome/gen.py.
  */
-const WELCOME_BOARD_SIZE = { w: 1515, h: 660 } as const;
+const WELCOME_BOARD_SIZE = { w: 2153, h: 819 } as const;
 
 /**
  * Where the star button sits, in welcome-board coordinates: the empty slot the header leaves
  * between the identity block and the lede. Keep it in step with `.slot` in 00-welcome/gen.py.
  */
-const WELCOME_STAR_SLOT = { x: 414, y: 409 } as const;
+const WELCOME_STAR_SLOT = { x: 414, y: 568 } as const;
 
 function boardSize(file: CanvasLibraryFile) {
   return file.pageSlug === WELCOME_PAGE_SLUG
