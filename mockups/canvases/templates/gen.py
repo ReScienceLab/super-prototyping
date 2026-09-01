@@ -28,7 +28,10 @@ Already measured, and not to be re-derived per board: the 393 x 852 pt phone
 at 1pt = 1px -- iPhone 14 Pro / 15 / 15 Pro / 16, per Apple's HIG layout
 table -- its 52pt corners and bezel, the 54pt status bar with its 125 x 36
 island at top 11, the three status glyphs, the 139 x 5 home indicator at
-bottom 8, and the device shell the 02 board wraps that screen in.
+bottom 8, and the three device shells the 02-04 boards wrap that screen in.
+Those shells are iPhone 17 Pro art in Apple's three finishes; the screen they
+frame was drawn at 390 x 844 and is scaled here to 393 x 852. See the comment
+above SHELLS for why, and for the numbers each board states on its face.
 
 The 52pt corner is a circular stand-in, not the device's own number. Apple
 publishes no display radius anywhere; UIScreen._displayCornerRadius reports
@@ -162,9 +165,10 @@ SB_ICONS = (
  '<path d="M26.1 4.3c.9.7.9 3 0 3.7V4.3Z" fill-opacity=".38"/></svg>')
 
 
-def statusbar(colour="var(--x-ink)", time="9:41"):
-    return ('<div class="sb" style="color:%s"><div class="island"></div>'
-            '<div class="time">%s</div>%s</div>' % (colour, time, SB_ICONS))
+def statusbar(colour="var(--x-ink)", time="9:41", island=True):
+    """island=False for the shell boards: the art draws its own camera housing."""
+    return ('<div class="sb" style="color:%s">%s<div class="time">%s</div>%s</div>'
+            % (colour, '<div class="island"></div>' if island else "", time, SB_ICONS))
 
 
 def home(colour="var(--x-ink)"):
@@ -271,7 +275,7 @@ SCREEN_CSS = """.pad{position:absolute;left:var(--x-gutter);right:var(--x-gutter
 .r span{font:var(--x-t-note);color:var(--x-ink-3)}"""
 
 
-def screen_body():
+def screen_body(island=True):
     """Replace me. An empty screen, to prove the frame and the tokens are wired.
 
     Body only, no frame, so the same screen can go in the CSS bezel or the
@@ -281,7 +285,7 @@ def screen_body():
             '<div class="r">First row<span>Detail</span></div>'
             '<div class="r">Second row<span>Detail</span></div>'
             '<div class="r">Third row<span>Detail</span></div></div>%s'
-            % (statusbar(), home()))
+            % (statusbar(island=island), home()))
 
 
 def demo():
@@ -289,42 +293,73 @@ def demo():
                 '<div class="phone">%s</div>' % screen_body(), SCREEN_CSS)
 
 
-# ------------------------------------------------------ the device shell ----
-# The same screen inside a shell traced from a Figma community file ("iPhone
-# 16 / 17 Free Mockup"). The art is decorative; the geometry under it is not.
-# Measured off the export at 2x, where 6 px = 1 pt:
+# ----------------------------------------------------- the device shells ----
+# The same screen inside the three iPhone 17 Pro colourways of a Figma
+# community file ("iPhone 16 / 17 Free Mockup"): cosmic orange, deep blue and
+# silver, which are exactly the three finishes Apple ships. The art is
+# decorative; the geometry under it is not. Measured off the exports at 2x,
+# where 6 px = 1 pt, and confirmed against the file's own node metadata:
 #
 #   art 1300 x 2642 units, screen window at (65, 55) sized 1170 x 2532
-#   window corner radius 164 units = 54.67 pt, and a true circle: rmse 0.59 px
-#   over 303 rows, so no squircle correction is earned at this size
+#   window corner 164 units = 54.67 pt, and a true circle: rmse 0.59 px over
+#   303 rows, so no squircle correction is earned at this size
+#   camera node 370 x 108 units = 123.33 x 36.00 pt at top 13.33, centred
 #
-# 1170 x 2532 px at @3x is 390 x 844 pt, which is iPhone 12/13/14 Pro geometry
-# and not the 393 x 852 this repo is built on, whatever the file is labelled.
-# So the art is scaled until its window is exactly 393 x 852 and every screen
-# here drops in unchanged: a 0.18% non-uniform stretch of decoration. The
-# shell is drawn *over* the screen, so its bezel masks the screen's corners
-# and the two cannot disagree about where the phone ends.
-DEVICE_CSS = """body{padding:24px 20px}
+# WHICH PHONE THIS IS. The art is an iPhone 17 Pro -- the three colourways are
+# Apple's own, and the camera plateau is the 17 Pro's. Its *screen artboard* is
+# not: 1170 x 2532 px at @3x is 390 x 844 pt, the iPhone 12/13/14 size, while a
+# real 17 Pro is 1206 x 2622 px = 402 x 874 pt. The designer drew a 17 Pro
+# around a screen frame that was never resized. So the window here is scaled to
+# exactly 393 x 852, the size this repo is built on, and every screen drops in
+# unchanged: a 0.18% non-uniform stretch of decoration. Each board states all
+# three numbers on its face. Rendering at a true 402 x 874 would be more
+# faithful to the device and would break every screen in this repo.
+#
+# The shell is drawn *over* the screen, so its bezel masks the screen's corners
+# and the two cannot disagree about where the phone ends. Everything inside the
+# window is punched to alpha *except* the Dynamic Island, which is hardware and
+# stays: eroded 2px first, so the pill's rim -- anti-aliased against the art's
+# own wallpaper -- cannot fringe onto the screen underneath. That island is
+# 124.3 x 36.3 pt at top 13.5 once scaled, against the 125 x 36 at top 11 the
+# CSS frame draws. It sits where the art's camera housing is, not where we
+# would put it.
+SHELL_W, SHELL_H = 436.67, 889.01
+
+DEVICE_CSS = """body{padding:20px 20px 0;display:block}
+.wrap{display:flex;flex-direction:column;align-items:center}
 .device{position:relative;flex:none;width:436.67px;height:889.01px}
 .dscreen{position:absolute;left:21.83px;top:18.51px;width:var(--x-w);height:var(--x-h);
   border-radius:55.09px;overflow:hidden;background:var(--x-bg);color:var(--x-ink)}
-.dshell{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}"""
+.dshell{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.cap{margin-top:11px;width:436.67px;text-align:center;font:var(--x-t-note);color:var(--x-ink-3)}
+.cap b{font:var(--x-t-note);font-weight:600;color:var(--x-ink)}"""
+
+# (file, label, assets.json key, the colourway's name in the Figma file)
+SHELLS = [("02-device-cosmic-orange", "Cosmic orange", "cosmic-orange", "cosmic orange"),
+          ("03-device-deep-blue",     "Deep blue",     "deep-blue",     "deep blue"),
+          ("04-device-silver",        "Silver",        "silver",        "silver")]
+
+MODEL = "iPhone 17 Pro"
 
 
-def device(body):
-    """Wrap screen body HTML in the shell. Same body as a .phone board."""
-    return ('<div class="device"><div class="dscreen">%s</div>'
-            '<img class="dshell" alt="iPhone shell" src="%s"></div>'
-            % (body, A["shell"]))
+def device(body, key, colour):
+    return ('<div class="wrap"><div class="device">'
+            '<div class="dscreen">%s</div>'
+            '<img class="dshell" alt="%s iPhone shell" src="%s"></div>'
+            '<p class="cap"><b>%s</b> &middot; %s<br>'
+            'Art is a 17 Pro; its screen artboard is 390 &times; 844 pt. Shown here '
+            'at 393 &times; 852 so this repo&rsquo;s screens drop in. '
+            'A real 17 Pro is 402 &times; 874.</p></div>'
+            % (body, colour, A[key], MODEL, colour))
 
 
-def device_board():
-    return page(NAME + " - Device frame", device(screen_body()),
+def shell_board(key, colour):
+    return page(NAME + " - device: " + colour,
+                device(screen_body(island=False), key, colour),
                 SCREEN_CSS + "\n" + DEVICE_CSS)
 
 
-SCREENS = [("01-screen", "Screen", demo),
-           ("02-device-frame", "Device frame", device_board)]
+SCREENS = [("01-screen", "Screen", demo)]
 
 # ------------------------------------------------- Phase 5: the reference ----
 # Each capture, unretouched and with its attribution watermark intact, on its
@@ -372,6 +407,8 @@ for name, _, fn in SCREENS:
     write(name, fn())
 for name, html in ref_boards():
     write(name, html)
+for name, _, key, colour in SHELLS:
+    write(name, shell_board(key, colour))
 
 LAYOUT = {
  "name": NAME,
@@ -385,6 +422,8 @@ LAYOUT = {
   # one pitch, so item N here lands column-for-column under item N up there.
   {"title": "Source of truth: captures", "numbered": True,
    "files": [{"file": "ref-" + n, "label": l} for n, l, _ in REFS]},
+  {"title": "Device shells: " + MODEL + " art, 393 x 852 pt window",
+   "files": [{"file": n, "label": l} for n, l, _, _ in SHELLS]},
  ],
 }
 (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2) + "\n")

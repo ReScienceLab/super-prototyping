@@ -123,9 +123,11 @@ files sitting in the folder are invisible to the canvas.
   the `:root` block and the evidence table cannot drift apart. It carries
   the parts that are the same on every board and nothing else: the 393 x 852
   frame, the 52pt corners and bezel, the 54pt status bar with its island and
-  three glyphs, the home indicator. A fifth board drops that same screen into
-  a photoreal device shell traced from a Figma community mockup, for when a
-  mock has to be shown to someone outside the team. Copy the folder to start.
+  three glyphs, the home indicator. Three more boards drop that same screen
+  into a photoreal iPhone 17 Pro shell -- cosmic orange, deep blue, silver,
+  from a Figma community mockup -- for when a mock has to be shown to someone
+  outside the team. Each states on its face which phone it is and how its
+  393 x 852 window relates to a real 17 Pro. Copy the folder to start.
 - `apple-icons/`: a different kind of board, an asset board. The 43 native
   iOS 26 app icons in both the default and the dark appearance, embedded as
   the shipped art rather than redrawn, tiled five across with no chrome.
