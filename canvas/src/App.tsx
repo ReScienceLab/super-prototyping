@@ -48,6 +48,18 @@ const PERSISTENCE_KEY = "super-prototyping-canvas-v2";
 /** Marks that the snap default below has been applied once in this browser. */
 const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
 
+/**
+ * Tldraw persists the page menu's drag-resized list height per origin, and its resize handle is
+ * a 1px strip above "Create new page". One stray drag leaves the menu two rows tall for good,
+ * which reads as "the other boards are gone" rather than as a scrolled list. Clearing it on load
+ * makes the menu open tall enough for every page; dragging still works within the session.
+ */
+try {
+  localStorage.removeItem("tldraw_page_menu_list_height");
+} catch {
+  // Storage unavailable (private mode, blocked cookies), so the menu keeps whatever it has.
+}
+
 /** Tldraw's own default first page, kept as a free-drawing surface next to the library pages. */
 const SCRATCH_PAGE_NAME = "Scratch";
 
