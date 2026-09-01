@@ -4,7 +4,8 @@ One subfolder per board. Drop `.html` files into `mockups/canvases/<slug>/`,
 no code change needed anywhere:
 
 - Each folder becomes one tldraw page, named after the folder
-  (`kebab-case` → `Title Case`), sorted numerically across folders.
+  (`kebab-case` → `Title Case`). Folders sort numerically, and the page menu
+  is put in that same order, so a `00-` prefix is what puts a page on top.
 - Each `.html` file in it becomes one shape on that page.
 - Files sort numerically by name, so prefix them `00-`, `01-`, `02-` …
 - Discovery lives in `canvas/src/canvasLibrary.ts` (`import.meta.glob`).

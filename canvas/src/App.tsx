@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Tldraw,
   createShapeId,
+  getIndices,
   toRichText,
   type Editor,
   type TLPageId,
@@ -433,6 +434,31 @@ function initializeCanvasLibrary(editor: Editor) {
   }
 
   pruneEmptyOrphanPages(editor, libraryPages);
+  orderPagesByLibrary(editor, libraryPages);
+}
+
+/**
+ * The page menu lists pages by their index, which is creation order until something sets it:
+ * the menu ends up in whatever order this browser happened to build its pages in, which is not
+ * the order of anything else. Sort it into the library's own order, so the menu, the welcome
+ * board's row of cards and the folder listing all read the same top to bottom.
+ *
+ * Pages that are not library pages keep their relative order, below the boards.
+ */
+function orderPagesByLibrary(editor: Editor, libraryPages: Set<TLPageId>) {
+  const ordered = [
+    ...libraryPages,
+    ...editor
+      .getPages()
+      .filter((page) => !libraryPages.has(page.id))
+      .map((page) => page.id),
+  ];
+  const indices = getIndices(ordered.length);
+  ordered.forEach((id, position) => {
+    if (editor.getPage(id)?.index !== indices[position]) {
+      editor.updatePage({ id, index: indices[position] });
+    }
+  });
 }
 
 /**
