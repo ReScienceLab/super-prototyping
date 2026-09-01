@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Calendar - Evidence 1/4</title>
+<style>
+:root{
+  --ac-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --ac-bg:#FFFFFF;
+  --ac-black:#000000;
+  --ac-white:#FFFFFF;
+  --ac-sep:#C7C7CC;
+  --ac-event-bg:rgba(27,173,248,.20);
+  --ac-event-bd:#1BADF8;
+  --ac-blur:rgba(255,255,255,.70);
+  --ac-sheet:#D9D9D9;
+  --ac-scrim:rgba(0,0,0,.20);
+  --ac-modal:#FFFFFF;
+  --ac-group:#F2F2F7;
+  --ac-fill:#EEEEEF;
+  --ac-btn:#E6E6EB;
+  --ac-card:#FFFFFF;
+  --ac-elev:#F2F2F7;
+  --ac-kbd:#D0D3DA;
+  --ac-key:#FFFFFF;
+  --ac-key2:#A9AFBC;
+  --ac-key-bd:#6C6C71;
+
+  /* Ink */
+  --ac-ink:#000000;
+  --ac-grey:#8E8E93;
+  --ac-grey2:#8A8A8E;
+  --ac-hint:#C5C5C7;
+  --ac-dim:#BCBCC1;
+  --ac-red:#FF382B;
+  --ac-blue:#007BFE;
+  --ac-event-ink:#106895;
+
+  /* Radius */
+  --ac-r-phone:52px;
+  --ac-r-pill:100px;
+  --ac-r-event:5px;
+  --ac-r-sheet:10px;
+  --ac-r-btn:14px;
+  --ac-r-alert:13px;
+  --ac-r-card:10px;
+  --ac-r-field:6px;
+
+  /* Type */
+  --ac-t-r11:400 11px/13px var(--ac-font);
+  --ac-t-r13:400 13px/16px var(--ac-font);
+  --ac-t-r15:400 15px/20px var(--ac-font);
+  --ac-t-r15-22:400 15px/22px var(--ac-font);
+  --ac-t-r16:400 16px/21px var(--ac-font);
+  --ac-t-r17:400 17px/22px var(--ac-font);
+  --ac-t-r18:400 18px/23px var(--ac-font);
+  --ac-t-r22:400 22px/28px var(--ac-font);
+  --ac-t-b8:590 8px/10px var(--ac-font);
+  --ac-t-b10:590 10px/12px var(--ac-font);
+  --ac-t-b11:590 11px/13px var(--ac-font);
+  --ac-t-b13:590 13px/16px var(--ac-font);
+  --ac-t-b15:590 15px/20px var(--ac-font);
+  --ac-t-b17:590 17px/22px var(--ac-font);
+  --ac-t-b18:590 18px/23px var(--ac-font);
+  --ac-t-b20:590 20px/25px var(--ac-font);
+  --ac-t-b22:700 22px/28px var(--ac-font);
+  --ac-t-b34:700 34px/41px var(--ac-font);
+
+  /* Metrics */
+  --ac-w:393px;
+  --ac-h:852px;
+  --ac-sb:54px;
+  --ac-nav:44px;
+  --ac-margin:16px;
+  --ac-gutter:20px;
+  --ac-home:34px;
+  --ac-home-w:140px;
+  --ac-island-w:126px;
+  --ac-island-h:37px;
+  --ac-hour:50px;
+  --ac-timecol:52px;
+  --ac-day:35px;
+  --ac-hair:0.33px;
+  --ac-rule:0.66px;
+  --ac-daycut:579px;
+}
+.dark{
+  --ac-bg:#000000;
+  --ac-sep:#464649;
+  --ac-event-bg:rgba(27,173,248,.28);
+  --ac-blur:rgba(40,40,42,.94);
+  --ac-sheet:#18181A;
+  --ac-scrim:rgba(0,0,0,.502);
+  --ac-modal:#1C1C1E;
+  --ac-group:#1C1C1E;
+  --ac-fill:#48484D;
+  --ac-btn:#28282A;
+  --ac-card:#3A3A3C;
+  --ac-elev:#2C2C2E;
+  --ac-kbd:#29292A;
+  --ac-key:#696969;
+  --ac-key2:#3F3F40;
+  --ac-key-bd:#000000;
+  --ac-ink:#FFFFFF;
+  --ac-grey2:#8E8E93;
+  --ac-hint:#6F6F74;
+  --ac-dim:#65656A;
+  --ac-red:#FE4336;
+  --ac-event-ink:#1BADF8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ac-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+body{padding:0;background:var(--ac-bg);color:var(--ac-ink)}
+.sh8{width:478px;height:980px;padding:22px 24px;overflow:hidden}
+h1{font:var(--ac-t-b20)}
+header p{font:var(--ac-t-r13);color:var(--ac-grey);margin:2px 0 12px}
+h2{font:var(--ac-t-b10);text-transform:uppercase;color:var(--ac-grey);margin:13px 0 6px}
+.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.sw .ch{height:24px;border-radius:5px;border:0.5px solid var(--ac-sep);display:flex;overflow:hidden}
+.sw .ch span{flex:1}
+.sw b{display:block;margin-top:3px;font:590 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--ac-grey);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd{display:flex;gap:10px}
+.rd div{text-align:center}
+.rd .b{width:46px;height:26px;background:var(--ac-fill);border:0.5px solid var(--ac-sep)}
+.rd em{display:block;margin-top:3px;font:400 8.5px/11px var(--ac-font);color:var(--ac-grey);font-style:normal}
+.ty{columns:2;column-gap:18px}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:1px;border-bottom:0.5px solid var(--ac-sep);break-inside:avoid}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--ac-grey);font-style:normal;white-space:nowrap;flex:none}
+.mt{columns:3;column-gap:14px;font:400 9px/13.5px ui-monospace,Menlo,monospace;color:var(--ac-grey2)}
+.ev div{padding:3px 0;border-bottom:0.5px solid var(--ac-sep)}
+.ev b{font:590 8.5px/12px ui-monospace,Menlo,monospace;color:var(--ac-blue)}
+.ev i{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:var(--ac-grey2);font-style:normal}
+.ev p{font:var(--ac-t-b8);font-weight:400;color:var(--ac-grey)}
+</style>
+<div class="sh8"><header><h1>Evidence 1/4</h1><p>Token, then its light value and its dark override, then where the value came from. A token with no evidence is a guess.</p></header><div class="ev"><div><b>--ac-font</b> <i>-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</i><p>every type style in the file is Font(family: "SF Pro"); this is the platform stack that resolves to it on macOS and iOS</p></div><div><b>--ac-bg</b> <i>#FFFFFF / #000000</i><p>Figma variable bg/primary-base; the dark frames fill with system/black</p></div><div><b>--ac-black</b> <i>#000000</i><p>Figma variable system/black: the Dynamic Island, the sheet's own header</p></div><div><b>--ac-white</b> <i>#FFFFFF</i><p>Figma variable system/white: the ring around the now-dot, light in both themes</p></div><div><b>--ac-sep</b> <i>#C7C7CC / #464649</i><p>Figma variable system/grey3, light and dark</p></div><div><b>--ac-event-bg</b> <i>rgba(27,173,248,.20) / rgba(27,173,248,.28)</i><p>Figma variable app-calendar/event-bg #1BADF833; the dark frames raise the alpha, solved from the fill over black on ref-d01 at 2x</p></div><div><b>--ac-event-bd</b> <i>#1BADF8</i><p>Figma variable app-calendar/event-border, one value in both themes</p></div><div><b>--ac-blur</b> <i>rgba(255,255,255,.70) / rgba(40,40,42,.94)</i><p>Figma variable ui/background-blur #FFFFFFB2; the dark month header is the same material, solved from ref-d03 at 2x</p></div><div><b>--ac-sheet</b> <i>#D9D9D9 / #18181A</i><p>flat-fill census on the stacked-sheet edge above the modal, ref-04 / ref-d04</p></div><div><b>--ac-scrim</b> <i>rgba(0,0,0,.20) / rgba(0,0,0,.502)</i><p>Figma variable ui/alert-overlay #00000033; the dark frames dim twice as hard (#00000080), solved from the white status-bar clock, which renders 127 on ref-d05 where it is 255 on ref-d01</p></div><div><b>--ac-modal</b> <i>#FFFFFF / #1C1C1E</i><p>Figma variable bg/primary-elevated, light and dark</p></div><div><b>--ac-group</b> <i>#F2F2F7 / #1C1C1E</i><p>Figma variable grouped-bg/primary-elevated; dark from a flat-fill census on the mini day card, ref-d08</p></div><div><b>--ac-fill</b> <i>#EEEEEF / #48484D</i><p>Figma variable fill/tertiary over bg/tertiary-elevated: #7676801F on #FFFFFF, #7676803D on #3A3A3C</p></div><div><b>--ac-btn</b> <i>#E6E6EB / #28282A</i><p>Figma variable system/grey5; dark from a flat-fill census on the alert buttons, ref-d05</p></div><div><b>--ac-card</b> <i>#FFFFFF / #3A3A3C</i><p>Figma variable bg/tertiary-elevated, light and dark</p></div><div><b>--ac-elev</b> <i>#F2F2F7 / #2C2C2E</i><p>Figma variable bg/secondary-elevated, light and dark: the ground a modal sheet uses, which is not the plain-page grey</p></div><div><b>--ac-kbd</b> <i>#D0D3DA / #29292A</i><p>Figma variable keyboard/bg; the dark one is #28282AF0, so it is sampled composited off ref-d07</p></div><div><b>--ac-key</b> <i>#FFFFFF / #696969</i><p>Figma variable keyboard/key-bg; dark #FFFFFF4D over keyboard/bg</p></div><div><b>--ac-key2</b> <i>#A9AFBC / #3F3F40</i><p>Figma variable keyboard/return-bg; dark #FFFFFF1A over keyboard/bg</p></div><div><b>--ac-key-bd</b> <i>#6C6C71 / #000000</i><p>Figma variable keyboard/key-border, light and dark; it paints one point *below* the 42pt key box, not around it</p></div><div><b>--ac-ink</b> <i>#000000 / #FFFFFF</i><p>Figma variable label/primary, light and dark</p></div></div></div>
+</html>
