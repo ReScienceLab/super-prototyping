@@ -60,9 +60,6 @@ try {
   // Storage unavailable (private mode, blocked cookies), so the menu keeps whatever it has.
 }
 
-/** Tldraw's own default first page, kept as a free-drawing surface next to the library pages. */
-const SCRATCH_PAGE_NAME = "Scratch";
-
 /** The onboarding folder. Sorts first, and the bare URL opens it. */
 const WELCOME_PAGE_SLUG = "00-welcome";
 const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
@@ -349,10 +346,7 @@ function initializeCanvasLibrary(editor: Editor) {
   const library = readCanvasLibrary();
   if (!library.length) return;
 
-  const startingPages = editor.getPages();
-  if (startingPages.length === 1 && startingPages[0].name === "Page 1") {
-    editor.renamePage(startingPages[0].id, SCRATCH_PAGE_NAME);
-  }
+  const libraryPages = new Set<TLPageId>();
 
   for (const files of library) {
     const pageName = files[0].pageName;
@@ -362,6 +356,7 @@ function initializeCanvasLibrary(editor: Editor) {
       page = editor.getPages().find((c) => c.name === pageName);
     }
     if (!page) continue;
+    libraryPages.add(page.id);
 
     const placed = new Set<string>();
     let rowTop = 0;
@@ -422,6 +417,24 @@ function initializeCanvasLibrary(editor: Editor) {
       layoutWelcomeExtras(editor, page, library, rowTop);
     }
   }
+
+  pruneEmptyOrphanPages(editor, libraryPages);
+}
+
+/**
+ * Pages the library did not just fill, so the page menu lists the boards and nothing else.
+ * They accumulate on their own: tldraw's default "Page 1", the page left behind whenever a
+ * folder's layout.json `name` changes (pages are matched by name, so the new name creates a
+ * new page), and a second page of the same name created by a tab that mounted concurrently.
+ *
+ * Only ever deletes a page with nothing on it, so a page someone drew on survives its folder.
+ */
+function pruneEmptyOrphanPages(editor: Editor, libraryPages: Set<TLPageId>) {
+  for (const page of editor.getPages()) {
+    if (libraryPages.has(page.id)) continue;
+    if (editor.getPageShapeIds(page.id).size) continue;
+    if (editor.getPages().length > 1) editor.deletePage(page.id);
+  }
 }
 
 /**
@@ -452,7 +465,7 @@ function relayoutCanvasLibrary(editor: Editor) {
 /**
  * Opens `?canvas=<slug>` (the canvases/<slug> folder name) on the matching page, so a specific
  * round can be linked to or scripted against instead of relying on whichever page tldraw last
- * persisted. `?canvas=scratch` opens the free-drawing page.
+ * persisted.
  *
  * With no slug the bare URL opens the welcome page every time, so that page is the way in:
  * keep a board open across reloads by deep-linking it, not by leaving it on screen.
