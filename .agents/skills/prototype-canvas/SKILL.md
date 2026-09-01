@@ -1,6 +1,5 @@
 ---
 name: prototype-canvas
-argument-hint: [canvas slug, or a screenshot to act on]
 description: Start and operate the local tldraw design canvas in this repo. Launch the dev server, add or switch boards under mockups/canvases/, drive shapes through the bounded window.snapCanvas bridge, and act on annotated screenshots of the canvas. Use when asked to open/launch the canvas, put a mockup on the canvas, annotate or draw on it, fix overlapping frames after a layout.json edit, or respond to a screenshot of the canvas with notes drawn on it.
 ---
 
