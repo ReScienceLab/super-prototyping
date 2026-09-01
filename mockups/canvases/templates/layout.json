@@ -21,6 +21,10 @@
         {
           "file": "01-screen",
           "label": "Screen"
+        },
+        {
+          "file": "02-device-frame",
+          "label": "Device frame"
         }
       ]
     },

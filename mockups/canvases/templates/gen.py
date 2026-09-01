@@ -3,7 +3,8 @@
 Open it on the canvas to see the four boards a clone run always produces --
 design tokens, the evidence table, one phone screen, one parked reference --
 built from placeholder values so the shapes are visible before anything has
-been measured. To start a real board, copy the folder and edit this file:
+been measured, plus that same screen dropped into a photoreal device shell.
+To start a real board, copy the folder and edit this file:
 
     cp -r mockups/canvases/templates mockups/canvases/<slug>
     python3 mockups/canvases/<slug>/gen.py
@@ -24,9 +25,16 @@ Change, in this order:
              canvas parks each reference directly under its mockup.
 
 Already measured, and not to be re-derived per board: the 393 x 852 pt phone
-at 1pt = 1px, its 52pt corners and bezel, the 54pt status bar with its
-125 x 36 island at top 11, the three status glyphs, and the 139 x 5 home
-indicator at bottom 8.
+at 1pt = 1px -- iPhone 14 Pro / 15 / 15 Pro / 16, per Apple's HIG layout
+table -- its 52pt corners and bezel, the 54pt status bar with its 125 x 36
+island at top 11, the three status glyphs, the 139 x 5 home indicator at
+bottom 8, and the device shell the 02 board wraps that screen in.
+
+The 52pt corner is a circular stand-in, not the device's own number. Apple
+publishes no display radius anywhere; UIScreen._displayCornerRadius reports
+55.0 pt on every 393 x 852 device, and that corner is continuous
+(CALayerCornerCurve), which border-radius cannot draw. refkit's --crop-phone
+masks the same 52, so the mask and the frame agree.
 
 Both the status bar and the home indicator take a colour, because iOS picks
 one against the wallpaper. Measure it per screen; white is a guess.
@@ -37,6 +45,7 @@ import base64, json
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent
+A = json.load(open(OUT / "assets.json"))   # the device shell, as a data: URI
 
 NAME = "Templates"
 P = "x"          # token prefix: --x-bg, --x-ink, --x-t-row
@@ -71,7 +80,7 @@ TOKENS = [
  ("Radius", "r-card",    "14px",            "PLACEHOLDER - refkit bbox on a card corner"),
  ("Radius", "r-sheet",   "20px",            "PLACEHOLDER - refkit bbox on the sheet corner"),
  ("Radius", "r-pill",    "999px",           "by construction, not measured"),
- ("Radius", "r-phone",   "52px",            "iPhone 15/16 display corner, 1pt = 1px"),
+ ("Radius", "r-phone",   "52px",            "circular stand-in for the 55pt continuous display corner"),
 
  ("Type", "t-title",     "700 28px/34px var(--x-font)", "PLACEHOLDER - refkit bands on the title"),
  ("Type", "t-head",      "600 17px/22px var(--x-font)", "PLACEHOLDER - refkit bands on a section header"),
@@ -254,24 +263,68 @@ def evidence_boards():
 
 
 # --------------------------------------------------------------- screens ----
-def demo():
-    """Replace me. An empty phone, to prove the frame and the tokens are wired."""
-    body = ('<div class="phone">%s'
-            '<div class="pad"><h1>Screen title</h1>'
-            '<div class="r">First row<span>Detail</span></div>'
-            '<div class="r">Second row<span>Detail</span></div>'
-            '<div class="r">Third row<span>Detail</span></div></div>'
-            '%s</div>' % (statusbar(), home()))
-    css = """.pad{position:absolute;left:var(--x-gutter);right:var(--x-gutter);
+SCREEN_CSS = """.pad{position:absolute;left:var(--x-gutter);right:var(--x-gutter);
   top:calc(var(--x-status) + 10px)}
 .pad h1{font:var(--x-t-title);margin-bottom:14px}
 .r{height:var(--x-row);display:flex;align-items:center;justify-content:space-between;
   font:var(--x-t-row);border-bottom:1px solid var(--x-hairline)}
 .r span{font:var(--x-t-note);color:var(--x-ink-3)}"""
-    return page(NAME + " - Screen", body, css)
 
 
-SCREENS = [("01-screen", "Screen", demo)]
+def screen_body():
+    """Replace me. An empty screen, to prove the frame and the tokens are wired.
+
+    Body only, no frame, so the same screen can go in the CSS bezel or the
+    photoreal shell without being written twice.
+    """
+    return ('%s<div class="pad"><h1>Screen title</h1>'
+            '<div class="r">First row<span>Detail</span></div>'
+            '<div class="r">Second row<span>Detail</span></div>'
+            '<div class="r">Third row<span>Detail</span></div></div>%s'
+            % (statusbar(), home()))
+
+
+def demo():
+    return page(NAME + " - Screen",
+                '<div class="phone">%s</div>' % screen_body(), SCREEN_CSS)
+
+
+# ------------------------------------------------------ the device shell ----
+# The same screen inside a shell traced from a Figma community file ("iPhone
+# 16 / 17 Free Mockup"). The art is decorative; the geometry under it is not.
+# Measured off the export at 2x, where 6 px = 1 pt:
+#
+#   art 1300 x 2642 units, screen window at (65, 55) sized 1170 x 2532
+#   window corner radius 164 units = 54.67 pt, and a true circle: rmse 0.59 px
+#   over 303 rows, so no squircle correction is earned at this size
+#
+# 1170 x 2532 px at @3x is 390 x 844 pt, which is iPhone 12/13/14 Pro geometry
+# and not the 393 x 852 this repo is built on, whatever the file is labelled.
+# So the art is scaled until its window is exactly 393 x 852 and every screen
+# here drops in unchanged: a 0.18% non-uniform stretch of decoration. The
+# shell is drawn *over* the screen, so its bezel masks the screen's corners
+# and the two cannot disagree about where the phone ends.
+DEVICE_CSS = """body{padding:24px 20px}
+.device{position:relative;flex:none;width:436.67px;height:889.01px}
+.dscreen{position:absolute;left:21.83px;top:18.51px;width:var(--x-w);height:var(--x-h);
+  border-radius:55.09px;overflow:hidden;background:var(--x-bg);color:var(--x-ink)}
+.dshell{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}"""
+
+
+def device(body):
+    """Wrap screen body HTML in the shell. Same body as a .phone board."""
+    return ('<div class="device"><div class="dscreen">%s</div>'
+            '<img class="dshell" alt="iPhone shell" src="%s"></div>'
+            % (body, A["shell"]))
+
+
+def device_board():
+    return page(NAME + " - Device frame", device(screen_body()),
+                SCREEN_CSS + "\n" + DEVICE_CSS)
+
+
+SCREENS = [("01-screen", "Screen", demo),
+           ("02-device-frame", "Device frame", device_board)]
 
 # ------------------------------------------------- Phase 5: the reference ----
 # Each capture, unretouched and with its attribution watermark intact, on its
