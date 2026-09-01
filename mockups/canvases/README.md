@@ -132,6 +132,15 @@ files sitting in the folder are invisible to the canvas.
   measurement found, and `iconkit.py` shows how to get an SF Symbol out of a
   Figma file at all. The 18 `ref-*` boards are gitignored, so a fresh clone
   has 23.
+- `apple-settings/`: the same method as `apple-calendar` at a size worth
+  copying from. Three screens of iOS Settings in both appearances, 15 boards in
+  five rows: a token board and two evidence boards for 37 tokens, the three
+  light replicas, the three dark ones, and the file's own PNG export of each
+  underneath. Nine of the tokens are all that dark changes. Mean absolute delta
+  against those exports is 0.17-0.76 levels (of 255). Its `README.md` records
+  what measurement found and the community file's own defects, including the
+  two rows that render the literal word "Text" and are transcribed that way.
+  The six `ref-*` boards are gitignored, so a fresh clone has 9.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

@@ -1,0 +1,94 @@
+{
+  "name": "(example) Apple Settings",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens: light",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-settings",
+          "label": "Settings"
+        },
+        {
+          "file": "02-developer",
+          "label": "Developer"
+        },
+        {
+          "file": "03-display-zoom",
+          "label": "Display Zoom"
+        }
+      ]
+    },
+    {
+      "title": "Screens: dark",
+      "numbered": true,
+      "files": [
+        {
+          "file": "d01-settings",
+          "label": "Settings"
+        },
+        {
+          "file": "d02-developer",
+          "label": "Developer"
+        },
+        {
+          "file": "d03-display-zoom",
+          "label": "Display Zoom"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Figma export, light",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-settings",
+          "label": "Settings"
+        },
+        {
+          "file": "ref-02-developer",
+          "label": "Developer"
+        },
+        {
+          "file": "ref-03-display-zoom",
+          "label": "Display Zoom"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Figma export, dark",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-d01-settings",
+          "label": "Settings"
+        },
+        {
+          "file": "ref-d02-developer",
+          "label": "Developer"
+        },
+        {
+          "file": "ref-d03-display-zoom",
+          "label": "Display Zoom"
+        }
+      ]
+    }
+  ]
+}
