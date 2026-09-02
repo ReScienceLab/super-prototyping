@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Duolingo - Evidence 2/2</title>
+<style>
+:root{
+  /* Font */
+  --d-font:ui-rounded,"SF Pro Rounded","Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --d-bg:#FFFFFF;
+  --d-panel:#F7F7F7;
+  --d-scrim:rgba(0,0,0,.396);
+  --d-chip:#E2F2FF;
+  --d-chip-2:#E5E5E5;
+
+  /* Line */
+  --d-rule:#E3E3E3;
+  --d-border:#E5E5E5;
+  --d-border-2:#E7E7E7;
+  --d-grab:#B1B1B1;
+
+  /* Ink */
+  --d-ink:#4B4B4B;
+  --d-ink-2:#AFAFAF;
+  --d-ink-3:#9D9D9D;
+  --d-ink-inv:#FFFFFF;
+  --d-ink-inv-2:rgba(255,255,255,.72);
+
+  /* Unit */
+  --d-u-green:#59CC01;
+  --d-u-green-d:#45A302;
+  --d-u-red:#FF4C4B;
+  --d-u-red-d:#CC3B3C;
+  --d-u-blue:#1DB1F8;
+  --d-u-blue-d:#1590C9;
+  --d-u-sky:#53ADF0;
+  --d-u-sky-d:#428CBD;
+  --d-u-purple:#C385F7;
+  --d-u-purple-d:#9D6BC5;
+
+  /* Accent */
+  --d-blue:#1DB1F8;
+  --d-btn:#14B2F5;
+  --d-btn-d:#0F9AD7;
+  --d-cta:#53ADF0;
+  --d-cta-d:#4395D3;
+  --d-orange:#F89402;
+  --d-pink:#CE91B1;
+  --d-magenta:#B84B8C;
+
+  /* Radius */
+  --d-r-card:13.5px;
+  --d-r-btn:10px;
+  --d-r-sheet:16px;
+  --d-r-tile:24px;
+  --d-r-pill:999px;
+  --d-r-phone:52px;
+
+  /* Type */
+  --d-t-time:590 17.6px/22px var(--d-font);
+  --d-t-count:700 15.6px/20px var(--d-font);
+  --d-t-kicker:800 11.7px/16px var(--d-font);
+  --d-t-unit:800 19.4px/24px var(--d-font);
+  --d-t-title:800 22.9px/29px var(--d-font);
+  --d-t-title-2:800 22.9px/32px var(--d-font);
+  --d-t-body:500 19.3px/23.2px var(--d-font);
+  --d-t-btn:800 15.0px/20px var(--d-font);
+  --d-t-link:800 15.6px/20px var(--d-font);
+  --d-t-label:600 19.8px/22px var(--d-font);
+  --d-t-chip:800 13.5px/18px var(--d-font);
+
+  /* Metrics */
+  --d-w:393px;
+  --d-h:852px;
+  --d-status:54px;
+  --d-gutter:15.6px;
+  --d-card-x:24.1px;
+  --d-card-w:344.8px;
+  --d-card-y:111px;
+  --d-tabs-y:756.6px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--d-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--d-w);height:var(--d-h);
+  border-radius:var(--d-r-phone);overflow:hidden;background:var(--d-bg);color:var(--d-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.phone>*{position:absolute}
+img.a{display:block;z-index:2}
+.sb{left:0;top:0;width:var(--d-w);height:var(--d-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.3px;text-align:center;
+  font:var(--d-t-time)}
+body{padding:0;background:var(--d-bg);color:var(--d-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--d-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--d-font);color:var(--d-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--d-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--d-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--d-rule)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--d-ink-2);font-style:normal;word-break:break-all}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:12px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:#F3F3F3;border:1px solid var(--d-rule)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--d-font);
+  color:var(--d-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--d-rule)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--d-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--d-ink)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--d-rule);font:400 8.5px/11px var(--d-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--d-blue)}
+td.v{color:var(--d-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--d-ink-2)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 2/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--d-r-btn</td><td class="v">10px</td><td class="e">same fit on the 07 sheet button: 10.25, rms 0.38</td></tr><tr><td class="t">--d-r-sheet</td><td class="v">16px</td><td class="e">same fit on both sheet tops: 16.00 / 17.25</td></tr><tr><td class="t">--d-r-tile</td><td class="v">24px</td><td class="e">08 trophy tile, five-point corner solve from x 266.8</td></tr><tr><td class="t">--d-r-pill</td><td class="v">999px</td><td class="e">by construction, not measured</td></tr><tr><td class="t">--d-r-phone</td><td class="v">52px</td><td class="e">circular stand-in for the 55pt continuous display corner</td></tr><tr><td class="t">--d-t-time</td><td class="v">590 17.6px/22px var(--d-font)</td><td class="e">9:41 clock; cap 12.9pt and 32.6pt wide on the render, both exact</td></tr><tr><td class="t">--d-t-count</td><td class="v">700 15.6px/20px var(--d-font)</td><td class="e">cap 11.6pt; 700 not 800, and -.74px tracking, from '635' at 26.8pt wide</td></tr><tr><td class="t">--d-t-kicker</td><td class="v">800 11.7px/16px var(--d-font)</td><td class="e">cap 10.7pt, ink top 129.6; 1.76px tracking sets it to the measured 137.4pt</td></tr><tr><td class="t">--d-t-unit</td><td class="v">800 19.4px/24px var(--d-font)</td><td class="e">cap 14.3pt; the 2-line card is exactly 24.0pt taller, so line-height is 24; -.43px tracking lands 'Order food and drink' on 179.3pt</td></tr><tr><td class="t">--d-t-title</td><td class="v">800 22.9px/29px var(--d-font)</td><td class="e">cap 17.0pt, 08 ink tops 572.5/601.5/630.0; -.25px tracking, line 2 = 350.6pt</td></tr><tr><td class="t">--d-t-title-2</td><td class="v">800 22.9px/32px var(--d-font)</td><td class="e">same cap and tracking on 07, whose two ink tops are 455.4 and 487.3</td></tr><tr><td class="t">--d-t-body</td><td class="v">500 19.3px/23.2px var(--d-font)</td><td class="e">cap 13.8pt on the 'L' of 'Learn', ink tops 618.9 and 642.1; +.55px tracking sets line 1 to 312.3pt</td></tr><tr><td class="t">--d-t-btn</td><td class="v">800 15.0px/20px var(--d-font)</td><td class="e">cap 11.2pt; CONTINUE 76.3pt and SEND CONGRATS 127.1pt, both within 2%</td></tr><tr><td class="t">--d-t-link</td><td class="v">800 15.6px/20px var(--d-font)</td><td class="e">cap 11.6pt, 87.0pt wide on NO THANKS; ink top 770.5 on both sheets</td></tr><tr><td class="t">--d-t-label</td><td class="v">600 19.8px/22px var(--d-font)</td><td class="e">the 06 divider label, 600 not 800; ink 14.3pt tall, 177.5pt wide</td></tr><tr><td class="t">--d-t-chip</td><td class="v">800 13.5px/18px var(--d-font)</td><td class="e">cap 10.3pt on UP NEXT</td></tr><tr><td class="t">--d-w</td><td class="v">393px</td><td class="e">iPhone 15/16 logical width</td></tr><tr><td class="t">--d-h</td><td class="v">852px</td><td class="e">iPhone 15/16 logical height</td></tr><tr><td class="t">--d-status</td><td class="v">54px</td><td class="e">iOS status bar; no Dynamic Island and no home indicator in any capture</td></tr><tr><td class="t">--d-gutter</td><td class="v">15.6px</td><td class="e">sheet and CTA buttons run x 15.6 to 377.4</td></tr><tr><td class="t">--d-card-x</td><td class="v">24.1px</td><td class="e">unit header left edge, row scan at y 150</td></tr><tr><td class="t">--d-card-w</td><td class="v">344.8px</td><td class="e">unit header 24.1 to 368.9</td></tr><tr><td class="t">--d-card-y</td><td class="v">111px</td><td class="e">unit header top, from the corner fit</td></tr><tr><td class="t">--d-tabs-y</td><td class="v">756.6px</td><td class="e">top of the 2.2pt tab-bar rule</td></tr></table></div>
+</body>
+</html>

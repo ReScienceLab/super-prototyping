@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Duolingo - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --d-font:ui-rounded,"SF Pro Rounded","Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --d-bg:#FFFFFF;
+  --d-panel:#F7F7F7;
+  --d-scrim:rgba(0,0,0,.396);
+  --d-chip:#E2F2FF;
+  --d-chip-2:#E5E5E5;
+
+  /* Line */
+  --d-rule:#E3E3E3;
+  --d-border:#E5E5E5;
+  --d-border-2:#E7E7E7;
+  --d-grab:#B1B1B1;
+
+  /* Ink */
+  --d-ink:#4B4B4B;
+  --d-ink-2:#AFAFAF;
+  --d-ink-3:#9D9D9D;
+  --d-ink-inv:#FFFFFF;
+  --d-ink-inv-2:rgba(255,255,255,.72);
+
+  /* Unit */
+  --d-u-green:#59CC01;
+  --d-u-green-d:#45A302;
+  --d-u-red:#FF4C4B;
+  --d-u-red-d:#CC3B3C;
+  --d-u-blue:#1DB1F8;
+  --d-u-blue-d:#1590C9;
+  --d-u-sky:#53ADF0;
+  --d-u-sky-d:#428CBD;
+  --d-u-purple:#C385F7;
+  --d-u-purple-d:#9D6BC5;
+
+  /* Accent */
+  --d-blue:#1DB1F8;
+  --d-btn:#14B2F5;
+  --d-btn-d:#0F9AD7;
+  --d-cta:#53ADF0;
+  --d-cta-d:#4395D3;
+  --d-orange:#F89402;
+  --d-pink:#CE91B1;
+  --d-magenta:#B84B8C;
+
+  /* Radius */
+  --d-r-card:13.5px;
+  --d-r-btn:10px;
+  --d-r-sheet:16px;
+  --d-r-tile:24px;
+  --d-r-pill:999px;
+  --d-r-phone:52px;
+
+  /* Type */
+  --d-t-time:590 17.6px/22px var(--d-font);
+  --d-t-count:700 15.6px/20px var(--d-font);
+  --d-t-kicker:800 11.7px/16px var(--d-font);
+  --d-t-unit:800 19.4px/24px var(--d-font);
+  --d-t-title:800 22.9px/29px var(--d-font);
+  --d-t-title-2:800 22.9px/32px var(--d-font);
+  --d-t-body:500 19.3px/23.2px var(--d-font);
+  --d-t-btn:800 15.0px/20px var(--d-font);
+  --d-t-link:800 15.6px/20px var(--d-font);
+  --d-t-label:600 19.8px/22px var(--d-font);
+  --d-t-chip:800 13.5px/18px var(--d-font);
+
+  /* Metrics */
+  --d-w:393px;
+  --d-h:852px;
+  --d-status:54px;
+  --d-gutter:15.6px;
+  --d-card-x:24.1px;
+  --d-card-w:344.8px;
+  --d-card-y:111px;
+  --d-tabs-y:756.6px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--d-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--d-w);height:var(--d-h);
+  border-radius:var(--d-r-phone);overflow:hidden;background:var(--d-bg);color:var(--d-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.phone>*{position:absolute}
+img.a{display:block;z-index:2}
+.sb{left:0;top:0;width:var(--d-w);height:var(--d-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.3px;text-align:center;
+  font:var(--d-t-time)}
+body{padding:0;background:var(--d-bg);color:var(--d-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--d-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--d-font);color:var(--d-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--d-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--d-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--d-rule)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--d-ink-2);font-style:normal;word-break:break-all}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:12px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:#F3F3F3;border:1px solid var(--d-rule)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--d-font);
+  color:var(--d-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--d-rule)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--d-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--d-ink)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--d-rule);font:400 8.5px/11px var(--d-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--d-blue)}
+td.v{color:var(--d-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--d-ink-2)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Duolingo</h1><p>Eight Mobbin captures, 881 &times; 1910 after the watermark trim, 2.2417 px per pt.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--d-bg)"></div><b>--d-bg</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--d-panel)"></div><b>--d-panel</b><i>#F7F7F7</i></div><div class="sw"><div class="chip" style="background:var(--d-scrim)"></div><b>--d-scrim</b><i>rgba(0,0,0,.396)</i></div><div class="sw"><div class="chip" style="background:var(--d-chip)"></div><b>--d-chip</b><i>#E2F2FF</i></div><div class="sw"><div class="chip" style="background:var(--d-chip-2)"></div><b>--d-chip-2</b><i>#E5E5E5</i></div><div class="sw"><div class="chip" style="background:var(--d-rule)"></div><b>--d-rule</b><i>#E3E3E3</i></div><div class="sw"><div class="chip" style="background:var(--d-border)"></div><b>--d-border</b><i>#E5E5E5</i></div><div class="sw"><div class="chip" style="background:var(--d-border-2)"></div><b>--d-border-2</b><i>#E7E7E7</i></div><div class="sw"><div class="chip" style="background:var(--d-grab)"></div><b>--d-grab</b><i>#B1B1B1</i></div><div class="sw"><div class="chip" style="background:var(--d-ink)"></div><b>--d-ink</b><i>#4B4B4B</i></div><div class="sw"><div class="chip" style="background:var(--d-ink-2)"></div><b>--d-ink-2</b><i>#AFAFAF</i></div><div class="sw"><div class="chip" style="background:var(--d-ink-3)"></div><b>--d-ink-3</b><i>#9D9D9D</i></div><div class="sw"><div class="chip" style="background:var(--d-ink-inv)"></div><b>--d-ink-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--d-ink-inv-2)"></div><b>--d-ink-inv-2</b><i>rgba(255,255,255,.72)</i></div><div class="sw"><div class="chip" style="background:var(--d-u-green)"></div><b>--d-u-green</b><i>#59CC01</i></div><div class="sw"><div class="chip" style="background:var(--d-u-green-d)"></div><b>--d-u-green-d</b><i>#45A302</i></div><div class="sw"><div class="chip" style="background:var(--d-u-red)"></div><b>--d-u-red</b><i>#FF4C4B</i></div><div class="sw"><div class="chip" style="background:var(--d-u-red-d)"></div><b>--d-u-red-d</b><i>#CC3B3C</i></div><div class="sw"><div class="chip" style="background:var(--d-u-blue)"></div><b>--d-u-blue</b><i>#1DB1F8</i></div><div class="sw"><div class="chip" style="background:var(--d-u-blue-d)"></div><b>--d-u-blue-d</b><i>#1590C9</i></div><div class="sw"><div class="chip" style="background:var(--d-u-sky)"></div><b>--d-u-sky</b><i>#53ADF0</i></div><div class="sw"><div class="chip" style="background:var(--d-u-sky-d)"></div><b>--d-u-sky-d</b><i>#428CBD</i></div><div class="sw"><div class="chip" style="background:var(--d-u-purple)"></div><b>--d-u-purple</b><i>#C385F7</i></div><div class="sw"><div class="chip" style="background:var(--d-u-purple-d)"></div><b>--d-u-purple-d</b><i>#9D6BC5</i></div><div class="sw"><div class="chip" style="background:var(--d-blue)"></div><b>--d-blue</b><i>#1DB1F8</i></div><div class="sw"><div class="chip" style="background:var(--d-btn)"></div><b>--d-btn</b><i>#14B2F5</i></div><div class="sw"><div class="chip" style="background:var(--d-btn-d)"></div><b>--d-btn-d</b><i>#0F9AD7</i></div><div class="sw"><div class="chip" style="background:var(--d-cta)"></div><b>--d-cta</b><i>#53ADF0</i></div><div class="sw"><div class="chip" style="background:var(--d-cta-d)"></div><b>--d-cta-d</b><i>#4395D3</i></div><div class="sw"><div class="chip" style="background:var(--d-orange)"></div><b>--d-orange</b><i>#F89402</i></div><div class="sw"><div class="chip" style="background:var(--d-pink)"></div><b>--d-pink</b><i>#CE91B1</i></div><div class="sw"><div class="chip" style="background:var(--d-magenta)"></div><b>--d-magenta</b><i>#B84B8C</i></div></div><div class="foot"><div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:13.5px"></div><em>13.5px</em></div><div><div class="rb" style="border-radius:10px"></div><em>10px</em></div><div><div class="rb" style="border-radius:16px"></div><em>16px</em></div><div><div class="rb" style="border-radius:24px"></div><em>24px</em></div><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div></div></div><div><h2>Metrics</h2><div class="met">--d-w: 393px<br>--d-h: 852px<br>--d-status: 54px<br>--d-gutter: 15.6px<br>--d-card-x: 24.1px<br>--d-card-w: 344.8px<br>--d-card-y: 111px<br>--d-tabs-y: 756.6px</div></div></div><h2>Type</h2><div class="tr"><span style="font:var(--d-t-time);line-height:1.1">Discuss destinations</span><em>--d-t-time &middot; 590 17.6px/22px</em></div><div class="tr"><span style="font:var(--d-t-count);line-height:1.1">Discuss destinations</span><em>--d-t-count &middot; 700 15.6px/20px</em></div><div class="tr"><span style="font:var(--d-t-kicker);line-height:1.1">Discuss destinations</span><em>--d-t-kicker &middot; 800 11.7px/16px</em></div><div class="tr"><span style="font:var(--d-t-unit);line-height:1.1">Discuss destinations</span><em>--d-t-unit &middot; 800 19.4px/24px</em></div><div class="tr"><span style="font:var(--d-t-title);line-height:1.1">Discuss destinations</span><em>--d-t-title &middot; 800 22.9px/29px</em></div><div class="tr"><span style="font:var(--d-t-title-2);line-height:1.1">Discuss destinations</span><em>--d-t-title-2 &middot; 800 22.9px/32px</em></div><div class="tr"><span style="font:var(--d-t-body);line-height:1.1">Discuss destinations</span><em>--d-t-body &middot; 500 19.3px/23.2px</em></div><div class="tr"><span style="font:var(--d-t-btn);line-height:1.1">Discuss destinations</span><em>--d-t-btn &middot; 800 15.0px/20px</em></div><div class="tr"><span style="font:var(--d-t-link);line-height:1.1">Discuss destinations</span><em>--d-t-link &middot; 800 15.6px/20px</em></div><div class="tr"><span style="font:var(--d-t-label);line-height:1.1">Discuss destinations</span><em>--d-t-label &middot; 600 19.8px/22px</em></div><div class="tr"><span style="font:var(--d-t-chip);line-height:1.1">Discuss destinations</span><em>--d-t-chip &middot; 800 13.5px/18px</em></div></div>
+</body>
+</html>
