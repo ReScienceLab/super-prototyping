@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Wallet - Evidence 1/2</title>
+<style>
+:root{
+  --aw-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --aw-bg:#FFFFFF;
+  --aw-black:#000000;
+  --aw-white:#FFFFFF;
+  --aw-sep:rgba(60,60,67,.3608);
+  --aw-blur:rgba(255,255,255,.698);
+  --aw-promo:#C7BCA9;
+  --aw-promo2:#B19F8E;
+
+  /* Ink */
+  --aw-ink:#000000;
+  --aw-blue:#007BFE;
+
+  /* Radius */
+  --aw-r-phone:52px;
+  --aw-r-card:11px;
+  --aw-r-promo:14px;
+  --aw-r-pill:100px;
+
+  /* Type */
+  --aw-t-b15:590 15px/20px var(--aw-font);
+  --aw-t-r17:400 17px/22px var(--aw-font);
+  --aw-t-b17:590 17px/22px var(--aw-font);
+  --aw-t-b28:700 28px/34px var(--aw-font);
+  --aw-t-b34:700 34px/41px var(--aw-font);
+
+  /* Metrics */
+  --aw-w:393px;
+  --aw-h:852px;
+  --aw-sb:54px;
+  --aw-header:167px;
+  --aw-btn:34px;
+  --aw-margin:17px;
+  --aw-pad:21px;
+  --aw-card-w:359px;
+  --aw-card-h:226px;
+  --aw-card-pitch:49px;
+  --aw-illo-w:351px;
+  --aw-illo-h:234px;
+  --aw-promo-h:454px;
+  --aw-band:78px;
+  --aw-home:34px;
+  --aw-home-w:140px;
+  --aw-foot-w:430px;
+  --aw-island-w:126px;
+  --aw-island-h:37px;
+
+  --awt-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --awt-bg:#FFFFFF;
+  --awt-black:#000000;
+  --awt-white:#FFFFFF;
+  --awt-pass-green:#579B52;
+  --awt-pass-blue:#1287FF;
+  --awt-key-mask:#D8D8D8;
+
+  /* Ink */
+  --awt-gold:#F7E6C0;
+  --awt-num:#1D1D1F;
+  --awt-hnr:rgba(60,60,67,.6);
+  --awt-symbol:#F5F5F7;
+
+  /* Radius */
+  --awt-r-phone:42px;
+  --awt-r-pass:17.6px;
+  --awt-r-key:11px;
+  --awt-r-qr:5px;
+  --awt-r-pill:100px;
+
+  /* Type */
+  --awt-t-m12:510 12px/16px var(--awt-font);
+  --awt-t-r14:400 14px/21px var(--awt-font);
+  --awt-t-b15:590 15px/20px var(--awt-font);
+  --awt-t-r17:400 17px/22px var(--awt-font);
+  --awt-t-b17:590 17px/22px var(--awt-font);
+  --awt-t-r20:400 20px/24px var(--awt-font);
+  --awt-t-b20:590 20px/24px var(--awt-font);
+  --awt-t-r22:400 22px/28px var(--awt-font);
+  --awt-t-r40:400 40px/41px var(--awt-font);
+  --awt-ls-14:.19px;
+  --awt-ls-17:.45px;
+  --awt-ls-20:.45px;
+  --awt-ls-22:.3px;
+
+  /* Metrics */
+  --awt-w:390px;
+  --awt-h:844px;
+  --awt-sb:48px;
+  --awt-nav:91px;
+  --awt-pass-w:358px;
+  --awt-pass-h:502px;
+  --awt-key-h:225px;
+  --awt-pass-x:16px;
+  --awt-pass-y:108px;
+  --awt-home-w:134px;
+}
+.dark{
+  --aw-bg:#000000;
+  --aw-sep:rgba(84,84,88,.651);
+  --aw-blur:rgba(40,40,42,.941);
+  --aw-ink:#FFFFFF;
+  --aw-blue:#0385FF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--aw-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+body{padding:0;background:var(--aw-bg);color:var(--aw-ink)}
+.sh8{width:478px;height:980px;padding:22px 24px;overflow:hidden}
+h1{font:590 20px/25px var(--aw-font)}
+header p{font:400 13px/16px var(--aw-font);color:#8E8E93;margin:2px 0 12px}
+h2{font:590 10px/12px var(--aw-font);text-transform:uppercase;color:#8E8E93;margin:13px 0 6px}
+.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.sw .ch{height:24px;border-radius:5px;border:0.5px solid #C7C7CC;display:flex;overflow:hidden}
+.sw .ch span{flex:1}
+.sw b{display:block;margin-top:3px;font:590 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:#8E8E93;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd{display:flex;gap:10px}
+.rd div{text-align:center}
+.rd .b{width:46px;height:26px;background:var(--aw-promo);border:0.5px solid #C7C7CC}
+.rd em{display:block;margin-top:3px;font:400 8.5px/11px var(--aw-font);color:#8E8E93;font-style:normal}
+.ty .tr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:2px;border-bottom:0.5px solid #C7C7CC}
+.ty .tr span{white-space:nowrap;overflow:hidden}
+.ty .tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:#8E8E93;font-style:normal;white-space:nowrap;flex:none}
+.mt{columns:3;column-gap:14px;font:400 9px/13.5px ui-monospace,Menlo,monospace;color:#8E8E93}
+.ev div{padding:3px 0;border-bottom:0.5px solid #C7C7CC}
+.ev b{font:590 8.5px/12px ui-monospace,Menlo,monospace;color:var(--aw-blue)}
+.ev i{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:#8E8E93;font-style:normal}
+.ev p{font:400 8px/11px var(--aw-font);color:#8E8E93}
+</style>
+<div class="sh8"><header><h1>Evidence 1/2</h1><p>Token, then its light value and its dark override, then where the value came from. A token with no evidence is a guess.</p></header><div class="ev"><div><b>--aw-font</b> <i>-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</i><p>every type style in the file is Font(family: "SF Pro"); this is the platform stack that resolves to it on macOS and iOS</p></div><div><b>--aw-bg</b> <i>#FFFFFF / #000000</i><p>Figma variable bg/primary-base: the page, and (because it is the exact inverse of label/primary) the glyph inside an action button</p></div><div><b>--aw-black</b> <i>#000000</i><p>Figma variable system/black: the Dynamic Island, one value in both themes, which is why the island is invisible on the dark boards</p></div><div><b>--aw-white</b> <i>#FFFFFF</i><p>Figma variable system/white: the promo headline, its body copy and the GET pill. They stay white in dark because the card under them does not change</p></div><div><b>--aw-sep</b> <i>rgba(60,60,67,.3608) / rgba(84,84,88,.651)</i><p>Figma variable separator/non-opaque #3C3C435C / #545458A6: the 1pt inside border on every pass. Over the white Apple pass it renders #B9B9BB / #909092, which is what ref-01 and ref-d01 sample at 2x</p></div><div><b>--aw-blur</b> <i>rgba(255,255,255,.698) / rgba(40,40,42,.941)</i><p>Figma variable ui/background-blur #FFFFFFB2 / #28282AF0, behind Material Blur (BACKGROUND_BLUR radius 50). Over the page it renders #FFFFFF / #262627 in the footer band, which is what ref-01 and ref-d01 sample at 2x; in light it is therefore invisible</p></div><div><b>--aw-promo</b> <i>#C7BCA9</i><p>raw hex on the Get Started card, not a published variable and not redefined in dark: ref-02 and ref-d02 both sample #C7BCA9 at 2x</p></div><div><b>--aw-promo2</b> <i>#B19F8E</i><p>raw hex on the card's bottom band, likewise one value in both themes</p></div><div><b>--aw-ink</b> <i>#000000 / #FFFFFF</i><p>Figma variable label/primary: the Wallet title, the clock, the action buttons, and the home indicator at 60%</p></div><div><b>--aw-blue</b> <i>#007BFE / #0385FF</i><p>Figma variable ui/accent: the GET label, the only accent on either screen</p></div><div><b>--aw-r-phone</b> <i>52px</i><p>the repo's frame convention, not a value in the file: its screens are square-cornered 393 x 852 artboards</p></div><div><b>--aw-r-card</b> <i>11px</i><p>Figma variable app-wallet/card-corner: every pass</p></div><div><b>--aw-r-promo</b> <i>14px</i><p>Figma corner radius on the Get Started card, which also clips its illustration and its bottom band</p></div><div><b>--aw-r-pill</b> <i>100px</i><p>Figma corner radius on the Dynamic Island, the home indicator, the two action buttons and the GET pill</p></div><div><b>--aw-t-b15</b> <i>590 15px/20px var(--aw-font)</i><p>Figma type style SemiBold/15pt: the GET label</p></div><div><b>--aw-t-r17</b> <i>400 17px/22px var(--aw-font)</i><p>Figma type style Regular/17pt: the promo body copy</p></div><div><b>--aw-t-b17</b> <i>590 17px/22px var(--aw-font)</i><p>Figma type style SemiBold/17pt: the status-bar clock</p></div><div><b>--aw-t-b28</b> <i>700 28px/34px var(--aw-font)</i><p>Figma type style Bold/28pt: the promo headline</p></div><div><b>--aw-t-b34</b> <i>700 34px/41px var(--aw-font)</i><p>Figma type style Bold/34pt: the Wallet title</p></div><div><b>--aw-w</b> <i>393px</i><p>Figma variable screen/width in the 393 mode</p></div><div><b>--aw-h</b> <i>852px</i><p>Figma variable screen/height in the 393 mode</p></div></div></div>
+</html>

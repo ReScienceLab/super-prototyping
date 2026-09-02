@@ -1,0 +1,130 @@
+{
+  "name": "(example) Apple Wallet",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens: app"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-design-tokens",
+          "label": "Design tokens: passes"
+        },
+        {
+          "file": "00e-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00f-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens: light",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-cards",
+          "label": "Cards"
+        },
+        {
+          "file": "02-get-started",
+          "label": "Get Started"
+        },
+        {
+          "file": "03-boarding-pass",
+          "label": "Boarding Pass"
+        },
+        {
+          "file": "04-store-card",
+          "label": "Store Card"
+        },
+        {
+          "file": "05-key-a",
+          "label": "Home Key"
+        },
+        {
+          "file": "06-key-b",
+          "label": "Car Key"
+        },
+        {
+          "file": "07-key-c",
+          "label": "Hotel Key"
+        }
+      ]
+    },
+    {
+      "title": "Screens: dark",
+      "numbered": true,
+      "files": [
+        {
+          "file": "d01-cards",
+          "label": "Cards"
+        },
+        {
+          "file": "d02-get-started",
+          "label": "Get Started"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Figma export, light",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-cards",
+          "label": "Cards"
+        },
+        {
+          "file": "ref-02-get-started",
+          "label": "Get Started"
+        },
+        {
+          "file": "ref-03-boarding-pass",
+          "label": "Boarding Pass"
+        },
+        {
+          "file": "ref-04-store-card",
+          "label": "Store Card"
+        },
+        {
+          "file": "ref-05-key-a",
+          "label": "Home Key"
+        },
+        {
+          "file": "ref-06-key-b",
+          "label": "Car Key"
+        },
+        {
+          "file": "ref-07-key-c",
+          "label": "Hotel Key"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Figma export, dark",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-d01-cards",
+          "label": "Cards"
+        },
+        {
+          "file": "ref-d02-get-started",
+          "label": "Get Started"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Wallet Templates - Evidence 1/2</title>
+<style>
+:root{
+  --aw-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --aw-bg:#FFFFFF;
+  --aw-black:#000000;
+  --aw-white:#FFFFFF;
+  --aw-sep:rgba(60,60,67,.3608);
+  --aw-blur:rgba(255,255,255,.698);
+  --aw-promo:#C7BCA9;
+  --aw-promo2:#B19F8E;
+
+  /* Ink */
+  --aw-ink:#000000;
+  --aw-blue:#007BFE;
+
+  /* Radius */
+  --aw-r-phone:52px;
+  --aw-r-card:11px;
+  --aw-r-promo:14px;
+  --aw-r-pill:100px;
+
+  /* Type */
+  --aw-t-b15:590 15px/20px var(--aw-font);
+  --aw-t-r17:400 17px/22px var(--aw-font);
+  --aw-t-b17:590 17px/22px var(--aw-font);
+  --aw-t-b28:700 28px/34px var(--aw-font);
+  --aw-t-b34:700 34px/41px var(--aw-font);
+
+  /* Metrics */
+  --aw-w:393px;
+  --aw-h:852px;
+  --aw-sb:54px;
+  --aw-header:167px;
+  --aw-btn:34px;
+  --aw-margin:17px;
+  --aw-pad:21px;
+  --aw-card-w:359px;
+  --aw-card-h:226px;
+  --aw-card-pitch:49px;
+  --aw-illo-w:351px;
+  --aw-illo-h:234px;
+  --aw-promo-h:454px;
+  --aw-band:78px;
+  --aw-home:34px;
+  --aw-home-w:140px;
+  --aw-foot-w:430px;
+  --aw-island-w:126px;
+  --aw-island-h:37px;
+
+  --awt-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --awt-bg:#FFFFFF;
+  --awt-black:#000000;
+  --awt-white:#FFFFFF;
+  --awt-pass-green:#579B52;
+  --awt-pass-blue:#1287FF;
+  --awt-key-mask:#D8D8D8;
+
+  /* Ink */
+  --awt-gold:#F7E6C0;
+  --awt-num:#1D1D1F;
+  --awt-hnr:rgba(60,60,67,.6);
+  --awt-symbol:#F5F5F7;
+
+  /* Radius */
+  --awt-r-phone:42px;
+  --awt-r-pass:17.6px;
+  --awt-r-key:11px;
+  --awt-r-qr:5px;
+  --awt-r-pill:100px;
+
+  /* Type */
+  --awt-t-m12:510 12px/16px var(--awt-font);
+  --awt-t-r14:400 14px/21px var(--awt-font);
+  --awt-t-b15:590 15px/20px var(--awt-font);
+  --awt-t-r17:400 17px/22px var(--awt-font);
+  --awt-t-b17:590 17px/22px var(--awt-font);
+  --awt-t-r20:400 20px/24px var(--awt-font);
+  --awt-t-b20:590 20px/24px var(--awt-font);
+  --awt-t-r22:400 22px/28px var(--awt-font);
+  --awt-t-r40:400 40px/41px var(--awt-font);
+  --awt-ls-14:.19px;
+  --awt-ls-17:.45px;
+  --awt-ls-20:.45px;
+  --awt-ls-22:.3px;
+
+  /* Metrics */
+  --awt-w:390px;
+  --awt-h:844px;
+  --awt-sb:48px;
+  --awt-nav:91px;
+  --awt-pass-w:358px;
+  --awt-pass-h:502px;
+  --awt-key-h:225px;
+  --awt-pass-x:16px;
+  --awt-pass-y:108px;
+  --awt-home-w:134px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--awt-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+body{padding:0;background:var(--awt-bg);color:var(--awt-black)}
+.sh8{width:478px;height:980px;padding:22px 24px;overflow:hidden}
+h1{font:590 20px/25px var(--awt-font)}
+header p{font:400 13px/16px var(--awt-font);color:#8E8E93;margin:2px 0 12px}
+h2{font:590 10px/12px var(--awt-font);text-transform:uppercase;color:#8E8E93;margin:13px 0 6px}
+.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.sw .ch{height:24px;border-radius:5px;border:0.5px solid #C7C7CC;overflow:hidden}
+.sw b{display:block;margin-top:3px;font:590 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:#8E8E93;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd{display:flex;gap:10px}
+.rd div{text-align:center}
+.rd .b{width:52px;height:44px;background:var(--awt-pass-blue);border:0.5px solid #C7C7CC}
+.rd em{display:block;margin-top:3px;font:400 8.5px/11px var(--awt-font);color:#8E8E93;font-style:normal}
+.ty .tr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:2px;border-bottom:0.5px solid #C7C7CC}
+.ty .tr span{white-space:nowrap}
+.ty .tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:#8E8E93;font-style:normal;white-space:nowrap;flex:none}
+.mt{columns:3;column-gap:14px;font:400 9px/13.5px ui-monospace,Menlo,monospace;color:#8E8E93}
+.ev div{padding:3px 0;border-bottom:0.5px solid #C7C7CC}
+.ev b{font:590 8.5px/12px ui-monospace,Menlo,monospace;color:var(--awt-pass-blue)}
+.ev i{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:#8E8E93;font-style:normal}
+.ev p{font:400 8px/11px var(--awt-font);color:#8E8E93}
+</style>
+<div class="sh8"><header><h1>Evidence 1/2</h1><p>Token, then its value, then where the value came from. A token with no evidence is a guess.</p></header><div class="ev"><div><b>--awt-font</b> <i>-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</i><p>every type style in the file is Font(family: "SF Pro"); this is the platform stack that resolves to it on macOS and iOS</p></div><div><b>--awt-bg</b> <i>#FFFFFF</i><p>the page under every one of the five frames, and the barcode background on both scannable passes</p></div><div><b>--awt-black</b> <i>#000000</i><p>the Display Shape, the status-bar glyphs, Done, the ellipsis and the home indicator. No opacity on any of them, which the 2x export confirms</p></div><div><b>--awt-white</b> <i>#FFFFFF</i><p>every string on a pass: company name, field labels and values on the coupon and the keys, and both barcode grounds</p></div><div><b>--awt-pass-green</b> <i>#579B52</i><p>fill on the Flight Pass Card Background path; 2x samples [87,155,82]</p></div><div><b>--awt-pass-blue</b> <i>#1287FF</i><p>fill on the Coupon Card Background path; 2x samples #1287FF flat</p></div><div><b>--awt-key-mask</b> <i>#D8D8D8</i><p>bg-[#d8d8d8] on the Key Background mask, under a cover photo on all three key passes, so it is never visible; kept because the file states it</p></div><div><b>--awt-gold</b> <i>#F7E6C0</i><p>raw hex on every Field label of the boarding pass (GATE, SAN FRANCISCO, SCHEDULED, ...). The coupon and the keys use white for the same slot</p></div><div><b>--awt-num</b> <i>#1D1D1F</i><p>raw hex on the coupon's barcode number, the one string on any of the five frames that is not white or black</p></div><div><b>--awt-hnr</b> <i>rgba(60,60,67,.6)</i><p>raw rgba on the Hold Near Reader label; it sits on a white page, so 2x reads the composite #767680</p></div><div><b>--awt-symbol</b> <i>#F5F5F7</i><p>fill on the Flight Symbol path -- not white, and the only near-white on the boarding pass that is not #FFFFFF</p></div><div><b>--awt-r-phone</b> <i>42px</i><p>the Display Shape's own corner, solved off the 2x export: black reaches x 38.5 at y 0, 5.5 at y 20 and 1.5 at y 30, which is a plain r=42 circle</p></div><div><b>--awt-r-pass</b> <i>17.6px</i><p>corner radius on the Flight Pass and Coupon Card Background paths</p></div><div><b>--awt-r-key</b> <i>11px</i><p>corner radius on the Key Background mask</p></div><div><b>--awt-r-qr</b> <i>5px</i><p>corner radius on both barcode backgrounds. The file states it on the coupon's; the boarding pass's own corner profile, solved off 2x, is the same circle (inset 3.24pt at 0.43 below the top edge)</p></div><div><b>--awt-r-pill</b> <i>100px</i><p>corner radius on the home indicator</p></div><div><b>--awt-t-m12</b> <i>510 12px/16px var(--awt-font)</i><p>Figma Medium/12pt: every Field label on all five frames</p></div><div><b>--awt-t-r14</b> <i>400 14px/21px var(--awt-font)</i><p>Figma Regular/14pt: the coupon's barcode number</p></div><div><b>--awt-t-b15</b> <i>590 15px/20px var(--awt-font)</i><p>Figma SemiBold/15pt on Time, at the file's auto line height; 20px is the round line box that lands its baseline on the 2x export's 29.25</p></div><div><b>--awt-t-r17</b> <i>400 17px/22px var(--awt-font)</i><p>Figma Regular/17pt: Field - Small values</p></div><div><b>--awt-t-b17</b> <i>590 17px/22px var(--awt-font)</i><p>Figma SemiBold/17pt: the Done button</p></div></div></div>
+</html>
