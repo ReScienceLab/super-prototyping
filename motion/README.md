@@ -105,5 +105,7 @@ differently depending on which worker got it.
 Rendered assets appear on the canvas's **Motion** page, films then templates,
 each playing in a loop at 478pt wide — the artboards' own column pitch, so a
 video lines up with the boards it was made from. Deep-link it with
-`?canvas=motion`. An asset that has never been rendered is not there; the canvas
+`?canvas=motion`. The welcome board carries the same renders as a third row of
+cards under its examples, so the first thing anyone opens shows the boards
+moving. An asset that has never been rendered is in neither place; the canvas
 plays mp4s, not compositions. See `canvas/src/motionLibrary.ts`.

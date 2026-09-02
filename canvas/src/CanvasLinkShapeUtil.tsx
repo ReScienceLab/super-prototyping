@@ -10,11 +10,12 @@ import { canvasFileHtml } from "./canvasLibrary";
 
 export const CANVAS_LINK_SHAPE_TYPE = "canvas-link" as const;
 
-const TITLE_HEIGHT = 40;
+/** The card's title bar, and the part of its height that is not cover art. */
+export const CANVAS_LINK_TITLE_HEIGHT = 40;
 /** Cards are half a board wide, so a row of them fits under the welcome board. */
 export const CANVAS_LINK_CARD_SIZE = {
   w: CANVAS_FILE_DEFAULT_SIZE.w / 2,
-  h: CANVAS_FILE_DEFAULT_SIZE.h / 2 + TITLE_HEIGHT,
+  h: CANVAS_FILE_DEFAULT_SIZE.h / 2 + CANVAS_LINK_TITLE_HEIGHT,
 } as const;
 /** Sized to the slot the welcome board's header leaves for it. */
 export const CANVAS_LINK_BUTTON_SIZE = { w: 260, h: 48 } as const;
@@ -28,7 +29,7 @@ declare module "tldraw" {
       label: string;
       /** Folder slug (page.meta.canvasSlug) of the page this opens, when it opens one. */
       page: string;
-      /** Board rendered as cover art. With one it is a card, without one a button. */
+      /** Cover art: a board's path, or a rendered mp4's URL. Without one it is a button. */
       path: string;
       /** External address this opens in a new tab, when it opens one. */
       url: string;
@@ -98,13 +99,39 @@ function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
     );
   }
 
+  // A motion asset's cover is the render itself, because a still of a video is not what the
+  // card is offering. The card stays the click target, so the video never takes the pointer.
+  const isVideo = path.endsWith(".mp4");
+
   return (
     <HTMLContainer style={{ ...frame, display: "flex", flexDirection: "column" }}>
       {/* Some boards paint no ground of their own (apple-icons, luma-ios) and would
           otherwise show the card's dark panel through the artboard. They sit on white
-          everywhere else, so white here makes every cover read the same. */}
-      <div style={{ flex: 1, overflow: "hidden", background: "#FFFFFF" }}>
-        {html ? (
+          everywhere else, so white here makes every cover read the same. Video keeps the
+          dark panel: a composition renders to its own edges and paints its own ground. */}
+      <div
+        style={{
+          flex: 1,
+          overflow: "hidden",
+          background: isVideo ? GROUND : "#FFFFFF",
+        }}
+      >
+        {isVideo ? (
+          <video
+            src={path}
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "block",
+              objectFit: "contain",
+              pointerEvents: "none",
+            }}
+          />
+        ) : html ? (
           <iframe
             title={label}
             srcDoc={html}
@@ -124,7 +151,7 @@ function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
       </div>
       <div
         style={{
-          height: TITLE_HEIGHT,
+          height: CANVAS_LINK_TITLE_HEIGHT,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",

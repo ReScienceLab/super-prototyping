@@ -22,6 +22,7 @@ import {
   CANVAS_LINK_BUTTON_SIZE,
   CANVAS_LINK_CARD_SIZE,
   CANVAS_LINK_SHAPE_TYPE,
+  CANVAS_LINK_TITLE_HEIGHT,
   type CanvasLinkShape,
   CanvasLinkShapeUtil,
 } from "./CanvasLinkShapeUtil";
@@ -38,6 +39,7 @@ import {
   MOTION_PAGE_NAME,
   MOTION_PAGE_SLUG,
   MOTION_PREVIEW_WIDTH,
+  type MotionMeta,
   durationSeconds,
   readMotionLibrary,
 } from "./motionLibrary";
@@ -268,7 +270,7 @@ function linkShapeId(name: string) {
  *
  * Cover art is the folder's first screen rather than its 00- board, which is a token sheet on
  * every example and would make five identical-looking cards. The cards sit in two rows, Apple's
- * own apps and everything else.
+ * own apps and everything else, with the rendered motion assets in a third below them.
  */
 function layoutWelcomeExtras(
   editor: Editor,
@@ -390,6 +392,101 @@ function layoutWelcomeExtras(
       LIBRARY_LABEL_HEIGHT +
       LIBRARY_GAP;
   }
+
+  layoutWelcomeMotionRow(editor, page, top);
+}
+
+/**
+ * The third row: what the boards look like once they move. Same column pitch as the cards above
+ * it, so the two rows line up, but each card is only as tall as its composition's aspect —
+ * cropping a landscape render into a phone-shaped card throws most of the frame away.
+ *
+ * Clicking one opens the Motion page, where the same render plays at full width.
+ */
+function layoutWelcomeMotionRow(
+  editor: Editor,
+  page: { id: TLPageId },
+  rowTop: number,
+) {
+  const assets = readMotionLibrary();
+  if (!assets.length) return;
+
+  const cardHeight = (meta: MotionMeta) =>
+    Math.round((CANVAS_LINK_CARD_SIZE.w * meta.height) / meta.width) +
+    CANVAS_LINK_TITLE_HEIGHT;
+  const cardX = (index: number) =>
+    index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
+  const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
+
+  const cards = assets.map((asset, index) => ({
+    id: linkShapeId(`motion/${asset.slug}`),
+    type: CANVAS_LINK_SHAPE_TYPE,
+    parentId: page.id,
+    x: cardX(index),
+    y: contentY,
+    props: {
+      w: CANVAS_LINK_CARD_SIZE.w,
+      h: cardHeight(asset.meta),
+      label: asset.title,
+      page: MOTION_PAGE_SLUG,
+      path: asset.src,
+      url: "",
+    },
+  }));
+  const missing = cards.filter((card) => !editor.getShape(card.id));
+  if (missing.length) editor.createShapes(missing);
+
+  // Vite hashes the served mp4, so a re-render changes the URL and a card already on the canvas
+  // would keep playing the old file at the old aspect.
+  for (const card of cards) {
+    const shape = editor.getShape<CanvasLinkShape>(card.id);
+    if (!shape) continue;
+    if (
+      shape.props.path !== card.props.path ||
+      shape.props.h !== card.props.h ||
+      shape.props.label !== card.props.label
+    ) {
+      editor.updateShape({
+        id: card.id,
+        type: card.type,
+        props: {
+          path: card.props.path,
+          h: card.props.h,
+          label: card.props.label,
+        },
+      });
+    }
+  }
+
+  const title = "Motion: the same boards, moving. Click a card to open the Motion canvas";
+  createAnnotation(editor, {
+    id: `canvas-row-heading:${page.id}:${title}`,
+    text: title,
+    x: 0,
+    y: rowTop,
+    // At least three columns wide whatever the row holds, so a one-card row's heading sets on a
+    // single line instead of wrapping down over the card under it.
+    w:
+      Math.max(assets.length, 3) * CANVAS_LINK_CARD_SIZE.w +
+      (Math.max(assets.length, 3) - 1) * LIBRARY_GAP,
+    size: "l",
+    color: "white",
+    parentId: page.id,
+  });
+
+  assets.forEach((asset, index) => {
+    createAnnotation(editor, {
+      id: `canvas-file-label:motion/${asset.slug}`,
+      text: `${durationSeconds(asset.meta).toFixed(1)}s · ${asset.meta.width}×${asset.meta.height}`,
+      x: cardX(index),
+      y: contentY + cardHeight(asset.meta) + LIBRARY_LABEL_GAP,
+      w: CANVAS_LINK_CARD_SIZE.w,
+      size: "s",
+      align: "middle",
+      color: "white",
+      parentId: page.id,
+    });
+  });
 }
 
 /**

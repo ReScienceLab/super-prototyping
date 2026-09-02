@@ -120,7 +120,8 @@ Chrome Headless Shell, so Bun buys it nothing. Same discovery contract as the
 boards — drop a folder into `motion/src/templates/<slug>/` (a reusable effect,
 driven by props) or `motion/src/films/<slug>/` (one finished cut for one
 product) and it becomes a composition, with no registry to update. Rendered
-assets appear on the canvas's **Motion** page. See `motion/README.md`.
+assets appear on the canvas's **Motion** page, and as a row of cards on the
+welcome board. See `motion/README.md`.
 
 The measurement rule applies to time as well as colour: `tools/motionkit.py`
 reads per-frame motion off a reference clip, so a friction constant or a hold
