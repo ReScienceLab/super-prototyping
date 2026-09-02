@@ -18,7 +18,7 @@ e.g. `notion-ios`.
 
 Toolkit: `tools/refkit.py` (grid / sample / bands / bbox / scan / hairline /
 font / shoot / diff / blend / tokens / batch / ink / crops / key /
-montage).
+montage), plus `tools/artgen.py` for the rare asset that has to be drawn.
 Needs `pillow` + `numpy`; `shoot` needs Google Chrome. Work in a scratch
 directory, not in the repo.
 
@@ -254,7 +254,9 @@ pieces of art, and per-screen mean deltas of 1.32 to 2.93, the best
 screenshot-sourced numbers in the repo. Every picture on it is a crop of the
 capture at a measured box, which is most of why. Its `README.md` carries the
 experiment that settled crop against generate, the stand-in face whose cap
-ratio is not SF Pro's, and two defects that produced no error message.
+ratio is not SF Pro's, and two defects that produced no error message. Board
+`00e-art-gen` is the generation result, kept as evidence beside the crops it
+loses to.
 
 Start from the skeleton rather than a finished board:
 `cp -r mockups/canvases/templates mockups/canvases/<slug>`. Its `gen.py`
@@ -357,20 +359,22 @@ character with a different head-to-body ratio and the props moved.
 So **generate only pixels the capture does not contain**, name those assets
 in the folder README, and give each one a probe like any other measurement.
 
-When you do have to generate, it is a four-step procedure, not a prompt.
-Feed the model either the measured crop or the whole capture; ask for the
-subject on a **flat key colour**, because `gpt-image-2` has no transparent
-background and its idea of a white ground is not keyable (548 distinct
-colours in the border, 40% of the figure's own pixels above the threshold, so
-the key eats the eyes and the teeth); cut it out with `refkit key`, which
-checks the ground is flat, unpremultiplies the edge spill and fits the result
-to the pt box you measured; then probe it. Budget `--quality medium` and 40 s
-per asset: a `high` edit dies at 61 s on the network, every time.
+When you do have to generate, the thing that decides the result is the
+input's **layout**, not the prompt: pack the assets into a grid, each in its
+own cell at the size and position it must come back at, and the model
+upscales in place instead of composing. That took this repo's set from 18.41
+to **3.96** mean delta, with every cell returning at scale 0.99-1.00. Density
+is free (77 assets in one call beat 6), but the asset's native size in the
+capture is not: under about 128px, colour does not survive the redraw, so
+small icons stay CSS or inline SVG. `tools/artgen.py` runs the whole loop,
+including keying the cells back out, solving the fit and scoring each asset
+against the crop it came from.
 
-[`references/assets.md`](references/assets.md) has all four steps with the
-prompt wording and the numbers, plus the decision table, the
+[`references/assets.md`](references/assets.md) has the decision table, the
 `crops.json`/`cut()`/`art()` shape, and why `assets/art/` is committed while
-`assets/refs/` is not.
+`assets/refs/` is not; [`references/generating.md`](references/generating.md)
+is the generation procedure end to end, with the key-colour, alpha-ramp and
+fit-sign traps that each cost a run.
 
 ### Model the line box once, then place by ink
 
@@ -616,7 +620,20 @@ list of screens:
 
 - **Which assets are generated rather than cropped**, if any, with the probe
   that says how close each one lands. A reader assumes the artwork is the
-  source's until told otherwise.
+  source's until told otherwise. Keep those deltas in a manifest the
+  generator reads, next to `crops.json` and in the same shape, holding the
+  shipped Δ *and* the runs behind it, so "it scored 3.88" can be read as
+  "any run of this lands near 4.5" rather than as one lucky draw:
+
+  ```json
+  "03-char": {"delta": 3.88, "from": "white/high", "scale": 1.0,
+              "dx": 0, "dy": 0, "runs": [4.31, 4.28, 5.81, 3.88]}
+  ```
+
+  If the generated set is not what the screens ship, it still belongs on a
+  board of its own, including the part that failed. A negative result you
+  measured is cheaper for the next reader than the experiment they will
+  otherwise repeat.
 
 **`mockups/canvases/<slug>/.gitignore`.** Whole app screens are not component
 art. Ignore `ref-*.html` and `assets/refs/`, and say in the README how many
@@ -680,6 +697,27 @@ python3 tools/refkit.py tokens mockups/canvases/<slug>
   reference is exact; a redraw of the same thing scores 38.53 levels against
   it and quietly becomes the largest error on the screen. Reach for
   `gpt-image` only for pixels no capture holds, and probe the result.
+- **Generating one asset at a time, or generating a small one at all.** When
+  you do have to draw something, a single asset in a single call is the worst
+  version of the method: it composes rather than copies, and no prompt wording
+  recovers what the input's geometry would have given for free. Pack the set
+  into one grid at target size and position (18.41 → 3.96), and leave anything
+  under ~128px of capture as CSS or SVG, because at that size the shape comes
+  back and the colour does not. See
+  [`references/generating.md`](references/generating.md).
+- **Reusing a threshold that was measured on a different asset.** `refkit key
+  --hi 110` is not a constant; it was set just below one character's closest
+  pixel to magenta. On an icon whose own colour sits 83 from the ground, the
+  same 110 keys the *artwork* to partial alpha, the unpremultiply divides by
+  it, and grey comes back. That asset scored 48 and the drawing was fine.
+  Any threshold named after a measurement has to be re-derived per asset, and
+  a printed warning when the art is close to the key is cheaper than the
+  re-run.
+- **An unquoted `$VAR` of ids in zsh.** zsh does not word-split unquoted
+  parameters, so `cmd $IDS` passes all 77 ids as one argument and you get
+  `OSError: File name too long` rather than a usage error. `${=IDS}` splits.
+  This one is free if it crashes before the API call and expensive if it does
+  not.
 - **A stand-in face whose cap ratio is not SF Pro's.** Sizes derived as
   `cap ÷ 0.714` are ~6% wrong the moment the board ships a rounded or a
   brand-adjacent stack; one run measured 0.762em. `ct()`'s K moves with it

@@ -2,9 +2,8 @@
 
 Eight screens of the Duolingo iOS app, six of the learning path and two of
 the modal sheets that interrupt it, rebuilt from Mobbin captures, plus the
-token board, the two evidence boards and the art board behind them. 12
-boards, and 8 more
-that park each capture under its replica.
+token board, the two evidence boards and the two art boards behind them. 13
+boards, and 8 more that park each capture under its replica.
 
 | # | Board | What it shows |
 | --- | --- | --- |
@@ -15,6 +14,7 @@ that park each capture under its replica.
 | 07 | `streak-freeze` | Streak freeze sheet |
 | 08 | `league-promo` | League promotion sheet |
 | 00d | `art` | Every crop, and each screen with its chrome removed |
+| 00e | `art-gen` | The same art regenerated, and what that costs |
 
 ## How close it lands
 
@@ -48,29 +48,43 @@ cut from `assets/refs/NN.png` at a measured pt box, written to
 asset therefore cannot drift from where it was measured, and its pixels are
 the reference's pixels.
 
-**This was tested against the alternative, not assumed.** Cropping the
-campfire character out of 03 at its measured box scores a mean delta of
-**0** against the reference, by construction. Handing the same crop to
+**This was tested against the alternative, not assumed**, and then tested
+again properly. Cropping the campfire character out of 03 at its measured box
+scores a mean delta of **0**, by construction. Handing the same crop to
 `gpt-image-2` as an edit and asking for a faithful reproduction scores
-**38.53**: the model returns something recognisably the same character with
-a different head-to-body ratio, a redrawn hairline, a resized marshmallow
-and the campfire moved. It is a good drawing and a bad measurement. Doing the
-generation properly closes about half of that and no more: asked for the same
-character on a flat magenta ground, cut out with `refkit key` and fitted back
-to the same pt box, it scores **18.41**. That is the number in the workflow
-figure in the repo README, and it is still the wrong tool for a picture the
-capture already contains.
+**38.53**: the model returns something recognisably the same character with a
+different head-to-body ratio, a redrawn hairline, a resized marshmallow and
+the campfire moved. It is a good drawing and a bad measurement.
 
-So the rule this run settled: **generate art only where the pixels do not
-exist in the capture.** In this clone there is no such case, and nothing on
-these boards is generated. Two practical limits, if a future run does need
-it: `gpt-image-2` has no transparent background (that needs `gpt-image-1.5`,
-which the `gpt-image` skill does not wrap), so generate on a flat key colour
-and cut it out with `refkit key`; and image calls on this machine hit a hard
-~60 s network cap. `--quality high` edits die at 61 s with an SSL
-record-layer failure, which makes `medium` the ceiling rather than a
-compromise. Two `medium` edits on this asset returned in 41.8 s and 41.6 s,
-so budget 40 s per asset.
+Doing the generation carefully, one asset at a time on a key colour and
+fitted back to the same box, closes about half of that and no more: **18.41**.
+That is the number in the workflow figure in the repo README, and it is not
+the ceiling. **Packing all six characters into one grid, each in its own cell
+at the size and position it has to come back at, scores 3.96**, because the
+model then upscales in place rather than composing. Board `00e-art-gen`
+carries the six pairs, the four independent runs behind them and the icon
+result that failed. `tools/artgen.py` reruns the whole thing;
+`.claude/skills/clone-prototype/references/generating.md` is the writeup.
+
+Three things worth carrying out of it:
+
+- **The grid does not care how full it is.** 77 assets in one call scored
+  12.97 on the same six icons that scored 14.56 with six assets in the call.
+  What predicts the score is the asset's own native size in the capture: 3.42
+  at 256-400px, 10.57 at 0-64px. Under about 128px the shape survives and the
+  colour does not, so icons stay CSS or SVG.
+- **It is repeatable, not lucky.** Four independent returns of the same six
+  scored 4.29 / 4.77 / 4.50 / 4.67, and every cell came back at scale
+  0.99-1.00 with an offset of at most 1px. Best-of-four is the 3.96.
+- **`--quality medium` lands within 0.3 of `high`.** There is no 60s network
+  cap: a 3072 x 2048 `high` edit returned in 114s and a 3040 x 2432 one in
+  about three minutes. An earlier note in this file claimed otherwise and was
+  wrong.
+
+**None of that changes the rule.** A crop scores 0 and a generation scores 4,
+so `assets/art/` stays the crops, `assets/art-gen/` is evidence, and the eight
+screens are built from the crops alone. Generate only where the pixels do not
+exist in the capture. In this clone there is no such case.
 
 ## What the file said, and what the renders corrected
 
@@ -173,6 +187,9 @@ Phase-4 loop is one script.
 
 - `art/`: 128 PNGs, each a crop of a capture at the box named in
   `crops.json`. **Committed**: without it the boards have no artwork.
+- `art-gen/`: the six regenerated characters at 3x their measured box, plus
+  the three figures on `00e`. **Committed**, and not used by any screen.
+  `art-gen.json` holds a delta per asset and the four runs behind it.
 - `refs/`: the 8 captures, 881 × 1910. **Gitignored**, along with the
   `ref-*.html` boards built from them: they are whole app screens, not
   component art.

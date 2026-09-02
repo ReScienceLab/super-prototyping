@@ -23,6 +23,10 @@ REFS_DIR = OUT / "assets" / "refs"
 ART_DIR = OUT / "assets" / "art"
 CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
          if not k.startswith("_")}
+GEN_DIR = OUT / "assets" / "art-gen"
+GEN = json.loads((OUT / "art-gen.json").read_text())
+GEN_RUNS = GEN["_runs"]
+GEN_ART = {k: v for k, v in GEN.items() if not k.startswith("_")}
 SCALE = 2.2417                                   # capture px per design pt
 
 NAME = "Duolingo"
@@ -378,7 +382,8 @@ def art_board():
         '<div class="sheet"><header><h1>Art assets</h1>'
         '<p>%d crops, cut from the captures at the pt boxes in '
         '<code>crops.json</code> and placed back at the same numbers. '
-        'Nothing on these boards is generated.</p></header>'
+        'Nothing on these boards is generated; 00e is what it costs when '
+        'something has to be.</p></header>'
         '<p class="rule">every screen with its chrome removed, so what is left '
         'is exactly what is an image</p>'
         '<div class="minis">%s</div>'
@@ -386,6 +391,78 @@ def art_board():
         '<div class="cs">%s</div></div>'
         % (len(CROPS), minis, sheet_),
         ART_BOARD_CSS + "\n" + art_classes())
+
+
+# ------------------------------------------------------- generated board ----
+# The counterpart to 00d: what happens when the art is *drawn* instead of cut.
+# Every number here is in art-gen.json, written by tools/artgen.py.
+GEN_CSS = SHEET + """
+.rule{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--x-ink-2);
+  margin:-10px 0 11px}
+.flow{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+.flow img{width:200px;border:1px solid var(--x-rule);border-radius:5px;display:block}
+.flow span{font:600 17px/1 var(--x-font);color:var(--x-ink-2)}
+.pairs{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:4px}
+.pairs figure{border:1px solid var(--x-rule);border-radius:5px;overflow:hidden;
+  background:#FCFCFC}
+.pairs img{display:block;width:100%;height:56px;object-fit:contain;
+  background:#FCFCFC}
+.pairs img+img{border-top:1px solid var(--x-rule)}
+.pairs figcaption{font:600 7.5px/12px ui-monospace,Menlo,monospace;
+  color:var(--x-ink-2);text-align:center;border-top:1px solid var(--x-rule);
+  background:#FFF}
+.pairs b{color:var(--x-ink)}
+.wide{width:100%;border:1px solid var(--x-rule);border-radius:5px;display:block}
+table.ev th{text-align:left;padding:0 6px 3px 0;border-bottom:1px solid var(--x-rule);
+  font:600 8px/11px ui-monospace,Menlo,monospace;color:var(--x-ink-2)}
+table.ev th+th,table.ev td.n{text-align:right;font-variant-numeric:tabular-nums}
+table.ev td.n{font-family:ui-monospace,Menlo,monospace}
+h2+.rule{margin-top:0}
+"""
+
+
+def _gen_uri(name):
+    f = GEN_DIR / name
+    return ("data:image/png;base64," + base64.b64encode(f.read_bytes()).decode()
+            if f.exists() else "")
+
+
+def gen_board():
+    pairs = "".join(
+        '<figure><img src="%s" alt=""><img src="%s" alt="">'
+        '<figcaption>%s <b>%.2f</b></figcaption></figure>'
+        % (_uri(c), _gen_uri(c + ".png"), c, GEN_ART[c]["delta"]) for c in GEN_ART)
+    head = "".join("<th>%s</th>" % r for r in GEN_RUNS)
+    rows = "".join(
+        "<tr><td class=\"t\">%s</td>%s<td class=\"n\"><b>%.2f</b></td></tr>"
+        % (c, "".join('<td class="n">%.2f</td>' % d for d in v["runs"]), v["delta"])
+        for c, v in GEN_ART.items())
+    mean = sum(v["delta"] for v in GEN_ART.values()) / len(GEN_ART)
+    return page(
+        NAME + " - Generated art",
+        '<div class="sheet"><header><h1>Generated art</h1>'
+        '<p>The same six illustrations redrawn by <code>gpt-image-2</code> at 3x '
+        'the measured box, for the case where a crop is not available. Mean '
+        '&Delta; %.2f against the crops; a crop is 0.</p></header>'
+        '<p class="rule">the input is already the answer\u2019s geometry, so the '
+        'model upscales in place instead of composing</p>'
+        '<div class="flow"><img src="%s" alt="anchor grid">'
+        '<span>&rarr;</span><img src="%s" alt="what came back"></div>'
+        '<h2>Crop above, redrawn below</h2>'
+        '<div class="pairs">%s</div>'
+        '<h2>Four independent returns</h2>'
+        '<table class="ev"><tr><th>asset</th>%s<th>shipped</th></tr>%s</table>'
+        '<h2>What it will not do: small art</h2>'
+        '<p class="rule">the same method on 77 icons in one call, crop above, '
+        'redrawn below, best to worst with each &Delta; under it \u2014 mean 10.5, '
+        'and packing 77 cells into one call is not why: '
+        'six of them alone scored 14.6. Below about 128px of capture there is not '
+        'enough there to redraw, so icons stay CSS or SVG.</p>'
+        '<img class="wide" src="%s" alt="icons, crop above and redrawn below">'
+        '</div>'
+        % (mean, _gen_uri("_anchor.png"), _gen_uri("_return.png"), pairs, head, rows,
+           _gen_uri("_icons.png")),
+        GEN_CSS)
 
 
 # -------------------------------------------------------------- screens ----
@@ -593,7 +670,8 @@ def layout(names):
              "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
                       + [{"file": n, "label": "Evidence"}
                          for n, _ in evidence_boards()]
-                      + [{"file": "00d-art", "label": "Art assets"}]},
+                      + [{"file": "00d-art", "label": "Art assets"},
+                         {"file": "00e-art-gen", "label": "Generated art"}]},
             {"title": "Screens", "numbered": True,
              "files": [{"file": s, "label": l} for s, l, _ in SCREENS]}]
     refs = [{"file": "ref-" + s, "label": l}
@@ -607,7 +685,8 @@ def layout(names):
 def main():
     cut()
     files = dict([("00-design-tokens", token_board()),
-                  ("00d-art", art_board())]
+                  ("00d-art", art_board()),
+                  ("00e-art-gen", gen_board())]
                  + list(evidence_boards())
                  + [(s, fn()) for s, _, fn in SCREENS]
                  + list(ref_boards()))
