@@ -177,7 +177,7 @@ body{font-family:var(--as-font);background:#fff;-webkit-font-smoothing:antialias
 
 PHONE = """.phone{width:var(--as-w);height:var(--as-h);position:relative;flex:none;overflow:hidden;border-radius:var(--as-r-phone);background:var(--as-bg);color:var(--as-ink);outline:1px solid rgba(0,0,0,.10);box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
 .sb{position:absolute;left:0;right:0;top:0;height:var(--as-sb);z-index:8}
-.sb .t{position:absolute;left:10px;top:18.5px;width:123.5px;height:22px;text-align:center;font:var(--as-t-b17)}
+.sb .t{position:absolute;left:10px;top:18px;width:123.5px;height:22px;text-align:center;font:var(--as-t-b17)}
 .sb .island{position:absolute;left:133.5px;top:11px;width:var(--as-island-w);height:var(--as-island-h);border-radius:var(--as-r-pill);background:var(--as-black)}
 .sb svg{position:absolute;display:block}
 .home{position:absolute;left:50%;bottom:8px;z-index:7;transform:translateX(-50%);width:var(--as-home-w);height:5px;border-radius:var(--as-r-pill);background:var(--as-ink)}"""

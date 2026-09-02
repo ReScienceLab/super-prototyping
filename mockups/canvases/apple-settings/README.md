@@ -22,9 +22,9 @@ crop, in levels of 255:
 
 | Screen | light | dark |
 | --- | --- | --- |
-| Settings | 0.42 | 0.51 |
-| Developer | 0.74 | 0.76 |
-| Display Zoom | 0.17 | 0.31 |
+| Settings | 0.39 | 0.49 |
+| Developer | 0.71 | 0.74 |
+| Display Zoom | 0.15 | 0.28 |
 
 What is left is antialiasing, not geometry.
 
@@ -78,6 +78,12 @@ everything else on this screen put together. The 13pt strings do not want it:
 shifting the section headers, the section help and the sign-in subtitle the
 same way cost Developer 0.6 of a level back. Rects are never shifted.
 `apple-calendar` found the same half point at 17pt.
+
+The clock was the one string here that did not get it. Its Figma top is 18.5,
+this folder shipped it at 18.5, and it rendered half a point low in all six
+boards; `apple-wallet` measured it and caught the miss. Every number in the
+table above is with the corrected clock, which is worth 0.02 to 0.03 a board.
+`apple-calendar` had the same miss and is fixed too.
 
 **Only one of the two nav bars has a material.** Developer's Page Title paints
 `ui/background-blur` and a 0.33pt rule at its bottom edge; Display Zoom's
