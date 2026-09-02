@@ -27,15 +27,15 @@ crop, in levels of 255:
 
 | Screen | light | dark |
 | --- | --- | --- |
-| Today, with events | 0.99 | 1.23 |
-| Today, empty | 0.97 | 1.24 |
-| Month | 1.17 | 1.23 |
-| What's New | 0.81 | 0.79 |
-| Location permission | 1.58 | 1.35 |
-| Notifications permission | 1.42 | 1.24 |
-| New Event | 0.53 | 0.96 |
-| Event details | 0.44 | 0.59 |
-| Event details, video call | 0.56 | 0.66 |
+| Today, with events | 0.96 | 1.21 |
+| Today, empty | 0.95 | 1.22 |
+| Month | 1.15 | 1.21 |
+| What's New | 0.78 | 0.76 |
+| Location permission | 1.56 | 1.34 |
+| Notifications permission | 1.40 | 1.23 |
+| New Event | 0.51 | 0.94 |
+| Event details | 0.42 | 0.57 |
+| Event details, video call | 0.53 | 0.63 |
 
 What is left is antialiasing, not geometry. A 2D shift search over
 dx, dy ∈ [−1, +1] pt in quarter-point steps finds no screen that improves at
@@ -110,6 +110,12 @@ are not. The What's New sheet is the clearest case: its Continue button rect
 matches to the pixel, while every string on the board wanted −0.5. Applying it
 to the four text elements and leaving the button rect alone took that pair
 from 2.17 / 2.11 to 0.81 / 0.79.
+
+The status-bar clock was the one string that missed it. Its Figma top is 18.5,
+this folder shipped it at 18.5, and it rendered half a point low on all 18
+boards until `apple-wallet` measured the same clock and caught it. Every number
+in the table above is with the corrected clock, worth 0.02 to 0.03 a board.
+`apple-settings` had the same miss and is fixed too.
 
 **There is no `letter-spacing` anywhere, on purpose.** The type styles carry
 tracking (+0.4 at 34pt, −0.43 at 17, −0.26 at 22, +0.12 at 10) and the

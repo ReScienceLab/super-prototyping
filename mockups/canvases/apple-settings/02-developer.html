@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Settings - Developer</title>
+<style>
+:root{
+  --as-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --as-bg:#F2F2F7;
+  --as-card:#FFFFFF;
+  --as-black:#000000;
+  --as-white:#FFFFFF;
+  --as-sep:#C7C7CC;
+  --as-track:rgba(118,118,128,.1216);
+  --as-blur:rgba(255,255,255,.698);
+
+  /* Ink */
+  --as-ink:#000000;
+  --as-grey:#8E8E93;
+  --as-grey2:#AFB0B4;
+  --as-blue:#007BFE;
+  --as-green:#31C859;
+
+  /* Radius */
+  --as-r-phone:52px;
+  --as-r-card:10px;
+  --as-r-logo:6px;
+  --as-r-pill:100px;
+
+  /* Type */
+  --as-t-r13:400 13px/16px var(--as-font);
+  --as-t-r17:400 17px/22px var(--as-font);
+  --as-t-b17:590 17px/22px var(--as-font);
+  --as-t-b34:700 34px/41px var(--as-font);
+
+  /* Metrics */
+  --as-w:393px;
+  --as-h:852px;
+  --as-sb:54px;
+  --as-nav:44px;
+  --as-margin:16px;
+  --as-gutter:20px;
+  --as-logo:29px;
+  --as-rowgap:35px;
+  --as-toggle-w:51px;
+  --as-toggle-h:31px;
+  --as-knob:27px;
+  --as-home:34px;
+  --as-home-w:140px;
+  --as-island-w:126px;
+  --as-island-h:37px;
+  --as-hair:0.33px;
+}
+.dark{
+  --as-bg:#000000;
+  --as-card:#1C1C1E;
+  --as-sep:#464649;
+  --as-track:rgba(118,118,128,.2392);
+  --as-blur:rgba(40,40,42,.941);
+  --as-ink:#FFFFFF;
+  --as-grey2:#636366;
+  --as-blue:#0385FF;
+  --as-green:#2DD257;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--as-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+.phone{width:var(--as-w);height:var(--as-h);position:relative;flex:none;overflow:hidden;border-radius:var(--as-r-phone);background:var(--as-bg);color:var(--as-ink);outline:1px solid rgba(0,0,0,.10);box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;right:0;top:0;height:var(--as-sb);z-index:8}
+.sb .t{position:absolute;left:10px;top:18px;width:123.5px;height:22px;text-align:center;font:var(--as-t-b17)}
+.sb .island{position:absolute;left:133.5px;top:11px;width:var(--as-island-w);height:var(--as-island-h);border-radius:var(--as-r-pill);background:var(--as-black)}
+.sb svg{position:absolute;display:block}
+.home{position:absolute;left:50%;bottom:8px;z-index:7;transform:translateX(-50%);width:var(--as-home-w);height:5px;border-radius:var(--as-r-pill);background:var(--as-ink)}
+.card{position:absolute;left:var(--as-margin);width:361px;border-radius:var(--as-r-card);background:var(--as-card)}
+.row{position:absolute;left:0;right:0;height:var(--as-nav)}
+.row .lb{position:absolute;left:var(--as-gutter);top:10.5px;font:var(--as-t-r17);white-space:nowrap}
+.row .lb.ac{color:var(--as-blue)}
+.row .lg{position:absolute;left:var(--as-gutter);top:7.5px;width:var(--as-logo);height:var(--as-logo);border-radius:var(--as-r-logo);object-fit:cover;display:block}
+.row .dv{position:absolute;left:var(--as-gutter);right:0;bottom:0;height:var(--as-hair);background:var(--as-sep)}
+.row.logo .lb,.row.logo .dv{left:64px}
+.row svg{position:absolute;display:block;color:var(--as-sep)}
+.row svg.ck{color:var(--as-blue)}
+.tg{position:absolute;right:var(--as-gutter);top:6.5px;width:var(--as-toggle-w);height:var(--as-toggle-h);border-radius:var(--as-r-pill);background:var(--as-track)}
+.tg.on{background:var(--as-green)}
+.tg i{position:absolute;left:2px;top:2px;width:var(--as-knob);height:var(--as-knob);border-radius:var(--as-r-pill);background:var(--as-white);box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06)}
+.tg.on i{left:22px}.nav{position:absolute;left:0;top:0;width:var(--as-w);height:98px;z-index:6}
+.nav .mat{position:absolute;inset:0;background:var(--as-blur);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px)}
+.nav .rule{position:absolute;left:0;right:0;bottom:0;height:var(--as-hair);background:var(--as-sep)}
+.nav .tt{position:absolute;left:0;right:0;top:64.5px;text-align:center;font:var(--as-t-b17)}
+.sl{position:absolute;left:36px;height:16px;font:var(--as-t-r13);text-transform:uppercase;color:var(--as-grey)}
+.sh{position:absolute;left:36px;width:321px;font:var(--as-t-r13);color:var(--as-grey)}
+</style>
+<div class="phone"><div class="nav"><div class="mat"></div><div class="sb"><div class="t">1:47</div><div class="island"></div><svg preserveAspectRatio="none" class="" style="left:282.598px;top:22.109px;width:19.474px;height:12.531px" xmlns="http://www.w3.org/2000/svg" width="19.474" height="12.5307" viewBox="282.598 22.1086 19.474 12.5307" fill="currentColor"><g>
+<g>
+<g>
+<g>
+<path opacity="0.2" d="M299.564 34.6392H301.304C301.759 34.6392 302.062 34.3215 302.062 33.8524V32.3506C302.062 31.8814 301.759 31.571 301.304 31.571H299.564C299.11 31.571 298.807 31.8814 298.807 32.3506V33.8524C298.807 34.3215 299.11 34.6392 299.564 34.6392Z" />
+<path d="M299.567 34.6393H301.321C301.769 34.6393 302.072 34.3216 302.072 33.8525V22.8954C302.072 22.4262 301.769 22.1086 301.321 22.1086H299.567C299.12 22.1086 298.81 22.4262 298.81 22.8954V33.8525C298.81 34.3216 299.12 34.6393 299.567 34.6393Z" />
+<path opacity="0.2" d="M294.164 34.6392H295.904C296.359 34.6392 296.662 34.3215 296.662 33.8524V32.3506C296.662 31.8814 296.359 31.571 295.904 31.571H294.164C293.71 31.571 293.406 31.8814 293.406 32.3506V33.8524C293.406 34.3215 293.71 34.6392 294.164 34.6392Z" />
+<path d="M294.168 34.6392H295.908C296.355 34.6392 296.666 34.3215 296.666 33.8524V25.7465C296.666 25.2773 296.355 24.9597 295.908 24.9597H294.168C293.714 24.9597 293.411 25.2773 293.411 25.7465V33.8524C293.411 34.3215 293.714 34.6392 294.168 34.6392Z" />
+<path opacity="0.2" d="M288.764 34.6392H290.504C290.959 34.6392 291.262 34.3215 291.262 33.8524V32.3506C291.262 31.8814 290.959 31.571 290.504 31.571H288.764C288.31 31.571 288.006 31.8814 288.006 32.3506V33.8524C288.006 34.3215 288.31 34.6392 288.764 34.6392Z" />
+<path d="M288.762 34.6393H290.502C290.956 34.6393 291.259 34.3216 291.259 33.8525V28.3595C291.259 27.8904 290.956 27.5728 290.502 27.5728H288.762C288.307 27.5728 288.004 27.8904 288.004 28.3595V33.8525C288.004 34.3216 288.307 34.6393 288.762 34.6393Z" />
+<path opacity="0.2" d="M283.356 34.6392H285.095C285.55 34.6392 285.853 34.3215 285.853 33.8524V32.3506C285.853 31.8814 285.55 31.571 285.095 31.571H283.356C282.901 31.571 282.598 31.8814 282.598 32.3506V33.8524C282.598 34.3215 282.901 34.6392 283.356 34.6392Z" />
+<path d="M283.356 34.6393H285.095C285.55 34.6393 285.853 34.3216 285.853 33.8525V30.6116C285.853 30.1424 285.55 29.832 285.095 29.832H283.356C282.901 29.832 282.598 30.1424 282.598 30.6116V33.8525C282.598 34.3216 282.901 34.6393 283.356 34.6393Z" />
+</g>
+</g>
+</g>
+</g>
+</svg><svg preserveAspectRatio="none" class="" style="left:309.076px;top:22.986px;width:16.621px;height:11.996px" xmlns="http://www.w3.org/2000/svg" width="16.6209" height="11.9964" viewBox="309.076 22.9856 16.6209 11.9964" fill="currentColor"><g>
+<g>
+<g>
+<g>
+<path d="M317.385 34.982C317.544 34.982 317.681 34.9099 317.963 34.6356L319.724 32.9466C319.832 32.8383 319.861 32.6794 319.76 32.5495C319.291 31.9432 318.403 31.4163 317.385 31.4163C316.339 31.4163 315.451 31.9649 314.982 32.5928C314.909 32.7084 314.938 32.8383 315.054 32.9466L316.808 34.6356C317.089 34.9026 317.226 34.982 317.385 34.982ZM313.163 31.0554C313.321 31.207 313.516 31.1853 313.661 31.0265C314.527 30.0665 315.942 29.3664 317.385 29.3736C318.843 29.3664 320.258 30.0882 321.139 31.0482C321.268 31.1998 321.449 31.1925 321.608 31.0482L322.726 29.9366C322.842 29.8211 322.856 29.6623 322.748 29.5324C321.658 28.197 319.637 27.1937 317.385 27.1937C315.133 27.1937 313.112 28.197 312.022 29.5324C311.914 29.6623 311.921 29.8067 312.044 29.9366L313.163 31.0554ZM310.167 28.0382C310.311 28.1754 310.514 28.1754 310.651 28.031C312.426 26.1471 314.765 25.151 317.385 25.151C320.02 25.151 322.373 26.1543 324.134 28.0382C324.264 28.1682 324.459 28.161 324.603 28.0238L325.599 27.0277C325.729 26.8978 325.722 26.739 325.621 26.6163C323.925 24.523 320.734 22.9856 317.385 22.9856C314.043 22.9856 310.838 24.523 309.149 26.6163C309.048 26.739 309.048 26.8978 309.171 27.0277L310.167 28.0382Z" />
+</g>
+</g>
+</g>
+</g>
+</svg><svg preserveAspectRatio="none" class="" style="left:332.946px;top:22.993px;width:26.824px;height:12.12px" xmlns="http://www.w3.org/2000/svg" width="26.824" height="12.1201" viewBox="332.946 22.9927 26.824 12.1201" fill="currentColor"><g>
+<g>
+<g>
+<g>
+<path opacity="0.4" d="M337.748 35.1128H352.252C353.945 35.1128 355.154 34.9228 356.017 34.0598C356.883 33.1967 357.061 32.0093 357.061 30.3106V27.7948C357.061 26.0961 356.883 24.9029 356.017 24.0428C355.151 23.1798 353.945 22.9927 352.252 22.9927H337.694C336.067 22.9927 334.855 23.1827 333.992 24.0486C333.126 24.9116 332.946 26.1084 332.946 27.7349V30.3106C332.946 32.0093 333.123 33.1996 333.986 34.0598C334.855 34.9228 336.058 35.1128 337.748 35.1128ZM337.501 33.9564C336.4 33.9564 335.409 33.7821 334.833 33.213C334.267 32.6374 334.102 31.6611 334.102 30.557V27.5989C334.102 26.4502 334.267 25.4623 334.83 24.8867C335.406 24.3082 336.412 24.1462 337.558 24.1462H352.505C353.606 24.1462 354.598 24.3233 355.164 24.8896C355.74 25.4652 355.904 26.435 355.904 27.539V30.557C355.904 31.6611 355.737 32.6374 355.164 33.213C354.598 33.7851 353.606 33.9564 352.505 33.9564H337.501ZM358.143 31.3269C358.835 31.2831 359.77 30.3918 359.77 29.0495C359.77 27.7107 358.835 26.8194 358.143 26.7756V31.3269Z" />
+<path d="M337.174 32.9973H352.842C353.68 32.9973 354.178 32.8663 354.494 32.5497C354.811 32.2302 354.948 31.7291 354.948 30.8906V27.2119C354.948 26.3676 354.811 25.8723 354.497 25.5528C354.178 25.2392 353.674 25.1052 352.842 25.1052H337.234C336.339 25.1052 335.823 25.2363 335.519 25.5499C335.205 25.8694 335.068 26.3856 335.068 27.2653V30.8906C335.068 31.7378 335.205 32.2302 335.519 32.5497C335.838 32.8633 336.342 32.9973 337.174 32.9973Z" />
+</g>
+</g>
+</g>
+</g>
+</svg></div><div class="tt">Developer</div><div class="rule"></div></div><div class="sl" style="top:120px">Paired devices</div><div class="card" style="top:142px;height:44px"><div class="row" style="top:0px"><div class="lb ac">Text</div></div></div><div class="sh" style="top:192px">Removing trusted computers will delete all of the records of computers that you have paired with previously.</div><div class="sl" style="top:260px">UI automation</div><div class="card" style="top:282px;height:44px"><div class="row" style="top:0px"><div class="lb">Enable UI Automation</div><div class="tg on"><i></i></div></div></div><div class="sl" style="top:361px">State restoration testing</div><div class="card" style="top:383px;height:44px"><div class="row" style="top:0px"><div class="lb">Fast App Termination</div><div class="tg"><i></i></div></div></div><div class="sh" style="top:433px">Terminate instead of suspending apps when backgrounded to force apps to be relaunched when they are foregrounded.</div><div class="sl" style="top:501px">Waltter testing</div><div class="card" style="top:523px;height:176px"><div class="row" style="top:0px"><div class="lb">Additional Logging</div><div class="tg"><i></i></div><div class="dv"></div></div><div class="row" style="top:44px"><div class="lb">Allow HTTP Services</div><div class="tg"><i></i></div><div class="dv"></div></div><div class="row" style="top:88px"><div class="lb">Disable Rate Limiting</div><div class="tg"><i></i></div><div class="dv"></div></div><div class="row" style="top:132px"><div class="lb">NFC Pass Key Optional</div><div class="tg"><i></i></div></div></div><div class="sl" style="top:734px">Media services testing</div><div class="card" style="top:756px;height:88px"><div class="row" style="top:0px"><div class="lb">AirPlay Suggestions</div><svg preserveAspectRatio="none" class="" style="left:332.841px;top:15.426px;width:7.157px;height:12.277px" xmlns="http://www.w3.org/2000/svg" width="7.15698" height="12.277" viewBox="348.841 270.426 7.15698 12.277" fill="currentColor"><path d="M355.998 276.564C355.998 276.701 355.971 276.831 355.916 276.954C355.866 277.073 355.784 277.187 355.67 277.296L350.413 282.443C350.235 282.617 350.019 282.703 349.764 282.703C349.6 282.703 349.447 282.662 349.306 282.58C349.164 282.498 349.05 282.389 348.964 282.252C348.882 282.115 348.841 281.96 348.841 281.787C348.841 281.536 348.937 281.313 349.128 281.117L353.811 276.564L349.128 272.012C348.937 271.82 348.841 271.597 348.841 271.342C348.841 271.173 348.882 271.021 348.964 270.884C349.05 270.743 349.164 270.631 349.306 270.549C349.447 270.467 349.6 270.426 349.764 270.426C350.019 270.426 350.235 270.512 350.413 270.686L355.67 275.833C355.779 275.942 355.861 276.056 355.916 276.175C355.971 276.293 355.998 276.423 355.998 276.564Z" />
+</svg><div class="dv"></div></div><div class="row" style="top:44px"><div class="lb ac">Text</div></div></div><div class="sl" style="top:879px">News testing</div><div class="card" style="top:901px;height:44px"><div class="row" style="top:0px"><div class="lb">Reset Local Data on Next Launch</div></div></div><div class="home"></div></div>
+</html>

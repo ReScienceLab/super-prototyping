@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Wallet Templates - Evidence 2/2</title>
+<style>
+:root{
+  --aw-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --aw-bg:#FFFFFF;
+  --aw-black:#000000;
+  --aw-white:#FFFFFF;
+  --aw-sep:rgba(60,60,67,.3608);
+  --aw-blur:rgba(255,255,255,.698);
+  --aw-promo:#C7BCA9;
+  --aw-promo2:#B19F8E;
+
+  /* Ink */
+  --aw-ink:#000000;
+  --aw-blue:#007BFE;
+
+  /* Radius */
+  --aw-r-phone:52px;
+  --aw-r-card:11px;
+  --aw-r-promo:14px;
+  --aw-r-pill:100px;
+
+  /* Type */
+  --aw-t-b15:590 15px/20px var(--aw-font);
+  --aw-t-r17:400 17px/22px var(--aw-font);
+  --aw-t-b17:590 17px/22px var(--aw-font);
+  --aw-t-b28:700 28px/34px var(--aw-font);
+  --aw-t-b34:700 34px/41px var(--aw-font);
+
+  /* Metrics */
+  --aw-w:393px;
+  --aw-h:852px;
+  --aw-sb:54px;
+  --aw-header:167px;
+  --aw-btn:34px;
+  --aw-margin:17px;
+  --aw-pad:21px;
+  --aw-card-w:359px;
+  --aw-card-h:226px;
+  --aw-card-pitch:49px;
+  --aw-illo-w:351px;
+  --aw-illo-h:234px;
+  --aw-promo-h:454px;
+  --aw-band:78px;
+  --aw-home:34px;
+  --aw-home-w:140px;
+  --aw-foot-w:430px;
+  --aw-island-w:126px;
+  --aw-island-h:37px;
+
+  --awt-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --awt-bg:#FFFFFF;
+  --awt-black:#000000;
+  --awt-white:#FFFFFF;
+  --awt-pass-green:#579B52;
+  --awt-pass-blue:#1287FF;
+  --awt-key-mask:#D8D8D8;
+
+  /* Ink */
+  --awt-gold:#F7E6C0;
+  --awt-num:#1D1D1F;
+  --awt-hnr:rgba(60,60,67,.6);
+  --awt-symbol:#F5F5F7;
+
+  /* Radius */
+  --awt-r-phone:42px;
+  --awt-r-pass:17.6px;
+  --awt-r-key:11px;
+  --awt-r-qr:5px;
+  --awt-r-pill:100px;
+
+  /* Type */
+  --awt-t-m12:510 12px/16px var(--awt-font);
+  --awt-t-r14:400 14px/21px var(--awt-font);
+  --awt-t-b15:590 15px/20px var(--awt-font);
+  --awt-t-r17:400 17px/22px var(--awt-font);
+  --awt-t-b17:590 17px/22px var(--awt-font);
+  --awt-t-r20:400 20px/24px var(--awt-font);
+  --awt-t-b20:590 20px/24px var(--awt-font);
+  --awt-t-r22:400 22px/28px var(--awt-font);
+  --awt-t-r40:400 40px/41px var(--awt-font);
+  --awt-ls-14:.19px;
+  --awt-ls-17:.45px;
+  --awt-ls-20:.45px;
+  --awt-ls-22:.3px;
+
+  /* Metrics */
+  --awt-w:390px;
+  --awt-h:844px;
+  --awt-sb:48px;
+  --awt-nav:91px;
+  --awt-pass-w:358px;
+  --awt-pass-h:502px;
+  --awt-key-h:225px;
+  --awt-pass-x:16px;
+  --awt-pass-y:108px;
+  --awt-home-w:134px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--awt-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+body{padding:0;background:var(--awt-bg);color:var(--awt-black)}
+.sh8{width:478px;height:980px;padding:22px 24px;overflow:hidden}
+h1{font:590 20px/25px var(--awt-font)}
+header p{font:400 13px/16px var(--awt-font);color:#8E8E93;margin:2px 0 12px}
+h2{font:590 10px/12px var(--awt-font);text-transform:uppercase;color:#8E8E93;margin:13px 0 6px}
+.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.sw .ch{height:24px;border-radius:5px;border:0.5px solid #C7C7CC;overflow:hidden}
+.sw b{display:block;margin-top:3px;font:590 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:#8E8E93;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd{display:flex;gap:10px}
+.rd div{text-align:center}
+.rd .b{width:52px;height:44px;background:var(--awt-pass-blue);border:0.5px solid #C7C7CC}
+.rd em{display:block;margin-top:3px;font:400 8.5px/11px var(--awt-font);color:#8E8E93;font-style:normal}
+.ty .tr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:2px;border-bottom:0.5px solid #C7C7CC}
+.ty .tr span{white-space:nowrap}
+.ty .tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:#8E8E93;font-style:normal;white-space:nowrap;flex:none}
+.mt{columns:3;column-gap:14px;font:400 9px/13.5px ui-monospace,Menlo,monospace;color:#8E8E93}
+.ev div{padding:3px 0;border-bottom:0.5px solid #C7C7CC}
+.ev b{font:590 8.5px/12px ui-monospace,Menlo,monospace;color:var(--awt-pass-blue)}
+.ev i{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:#8E8E93;font-style:normal}
+.ev p{font:400 8px/11px var(--awt-font);color:#8E8E93}
+</style>
+<div class="sh8"><header><h1>Evidence 2/2</h1><p>Token, then its value, then where the value came from. A token with no evidence is a guess.</p></header><div class="ev"><div><b>--awt-t-r20</b> <i>400 20px/24px var(--awt-font)</i><p>Figma Regular/20pt: the Hold Near Reader label</p></div><div><b>--awt-t-b20</b> <i>590 20px/24px var(--awt-font)</i><p>Figma SemiBold/20pt: every Company Name</p></div><div><b>--awt-t-r22</b> <i>400 22px/28px var(--awt-font)</i><p>Figma Regular/22pt: Field - Medium values (GATE 62, SEP 23 - OCT 1)</p></div><div><b>--awt-t-r40</b> <i>400 40px/41px var(--awt-font)</i><p>Figma Regular/40pt uppercase: Field - Primary values (SFO, LGA)</p></div><div><b>--awt-ls-14</b> <i>.19px</i><p>tracking. Figma's SF Pro sets 14pt .19pt/char wider than Chrome does; solved off the coupon's 14-digit barcode number (mine 111.5, ref 114.0)</p></div><div><b>--awt-ls-17</b> <i>.45px</i><p>tracking at 17pt, solved off the coupon's 31-character message (mine 237.5, ref 251.0, 30 gaps) and confirmed on LIZ CHETELAT</p></div><div><b>--awt-ls-20</b> <i>.45px</i><p>tracking at 20pt, solved off Downtown San Francisco (21 gaps, 9.5pt short) and Beachfront Suites (16 gaps, 7.5pt short)</p></div><div><b>--awt-ls-22</b> <i>.3px</i><p>tracking at 22pt, solved off SEP 23 - OCT 1 (13 gaps, 3.5pt short). 12pt and 40pt need none: their strings already measure to the pixel</p></div><div><b>--awt-w</b> <i>390px</i><p>node box of every one of the five frames</p></div><div><b>--awt-h</b> <i>844px</i><p>node box of every one of the five frames</p></div><div><b>--awt-sb</b> <i>48px</i><p>node box of the Status Bar frame</p></div><div><b>--awt-nav</b> <i>91px</i><p>node box of the Navigation Bar frame</p></div><div><b>--awt-pass-w</b> <i>358px</i><p>node box of the Flight Pass, the Coupon and the Key Background</p></div><div><b>--awt-pass-h</b> <i>502px</i><p>node box of the Flight Pass and the Coupon</p></div><div><b>--awt-key-h</b> <i>225px</i><p>node box of the Key Background: inset 51.99% from the bottom of a 502pt Key, so a key pass is the same width as a full pass and 277 shorter</p></div><div><b>--awt-pass-x</b> <i>16px</i><p>node box: 16 either side of 358 in a 390 frame</p></div><div><b>--awt-pass-y</b> <i>108px</i><p>node box: the top of every pass, 48 of status bar plus a 60pt gap</p></div><div><b>--awt-home-w</b> <i>134px</i><p>node box of the home indicator bar</p></div></div></div>
+</html>

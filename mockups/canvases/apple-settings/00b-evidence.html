@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Settings - Evidence 1/2</title>
+<style>
+:root{
+  --as-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --as-bg:#F2F2F7;
+  --as-card:#FFFFFF;
+  --as-black:#000000;
+  --as-white:#FFFFFF;
+  --as-sep:#C7C7CC;
+  --as-track:rgba(118,118,128,.1216);
+  --as-blur:rgba(255,255,255,.698);
+
+  /* Ink */
+  --as-ink:#000000;
+  --as-grey:#8E8E93;
+  --as-grey2:#AFB0B4;
+  --as-blue:#007BFE;
+  --as-green:#31C859;
+
+  /* Radius */
+  --as-r-phone:52px;
+  --as-r-card:10px;
+  --as-r-logo:6px;
+  --as-r-pill:100px;
+
+  /* Type */
+  --as-t-r13:400 13px/16px var(--as-font);
+  --as-t-r17:400 17px/22px var(--as-font);
+  --as-t-b17:590 17px/22px var(--as-font);
+  --as-t-b34:700 34px/41px var(--as-font);
+
+  /* Metrics */
+  --as-w:393px;
+  --as-h:852px;
+  --as-sb:54px;
+  --as-nav:44px;
+  --as-margin:16px;
+  --as-gutter:20px;
+  --as-logo:29px;
+  --as-rowgap:35px;
+  --as-toggle-w:51px;
+  --as-toggle-h:31px;
+  --as-knob:27px;
+  --as-home:34px;
+  --as-home-w:140px;
+  --as-island-w:126px;
+  --as-island-h:37px;
+  --as-hair:0.33px;
+}
+.dark{
+  --as-bg:#000000;
+  --as-card:#1C1C1E;
+  --as-sep:#464649;
+  --as-track:rgba(118,118,128,.2392);
+  --as-blur:rgba(40,40,42,.941);
+  --as-ink:#FFFFFF;
+  --as-grey2:#636366;
+  --as-blue:#0385FF;
+  --as-green:#2DD257;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--as-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+body{padding:0;background:var(--as-card);color:var(--as-ink)}
+.sh8{width:478px;height:980px;padding:22px 24px;overflow:hidden}
+h1{font:590 20px/25px var(--as-font)}
+header p{font:var(--as-t-r13);color:var(--as-grey);margin:2px 0 12px}
+h2{font:590 10px/12px var(--as-font);text-transform:uppercase;color:var(--as-grey);margin:13px 0 6px}
+.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.sw .ch{height:24px;border-radius:5px;border:0.5px solid var(--as-sep);display:flex;overflow:hidden}
+.sw .ch span{flex:1}
+.sw b{display:block;margin-top:3px;font:590 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--as-grey);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd{display:flex;gap:10px}
+.rd div{text-align:center}
+.rd .b{width:46px;height:26px;background:var(--as-bg);border:0.5px solid var(--as-sep)}
+.rd em{display:block;margin-top:3px;font:400 8.5px/11px var(--as-font);color:var(--as-grey);font-style:normal}
+.ty .tr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:2px;border-bottom:0.5px solid var(--as-sep)}
+.ty .tr span{white-space:nowrap;overflow:hidden}
+.ty .tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--as-grey);font-style:normal;white-space:nowrap;flex:none}
+.mt{columns:3;column-gap:14px;font:400 9px/13.5px ui-monospace,Menlo,monospace;color:var(--as-grey)}
+.ev div{padding:3px 0;border-bottom:0.5px solid var(--as-sep)}
+.ev b{font:590 8.5px/12px ui-monospace,Menlo,monospace;color:var(--as-blue)}
+.ev i{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:var(--as-grey);font-style:normal}
+.ev p{font:400 8px/11px var(--as-font);color:var(--as-grey)}
+</style>
+<div class="sh8"><header><h1>Evidence 1/2</h1><p>Token, then its light value and its dark override, then where the value came from. A token with no evidence is a guess.</p></header><div class="ev"><div><b>--as-font</b> <i>-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</i><p>every type style in the file is Font(family: "SF Pro"); this is the platform stack that resolves to it on macOS and iOS</p></div><div><b>--as-bg</b> <i>#F2F2F7 / #000000</i><p>Figma variable grouped-bg/primary-base: the ground a grouped list sits on</p></div><div><b>--as-card</b> <i>#FFFFFF / #1C1C1E</i><p>Figma variable bg/primary-elevated: every list card</p></div><div><b>--as-black</b> <i>#000000</i><p>Figma variable system/black: the Dynamic Island, one value in both themes (which is why the island is invisible on the dark boards)</p></div><div><b>--as-white</b> <i>#FFFFFF</i><p>Figma variable system/white: the toggle knob, light in both themes</p></div><div><b>--as-sep</b> <i>#C7C7CC / #464649</i><p>Figma variable system/grey3: row dividers and the nav rule</p></div><div><b>--as-track</b> <i>rgba(118,118,128,.1216) / rgba(118,118,128,.2392)</i><p>Figma variable fill/tertiary #7676801F / #7676803D: the off toggle track. Over the card it renders #EEEEEF / #313136, which is what ref-02 and ref-d02 sample at 2x</p></div><div><b>--as-blur</b> <i>rgba(255,255,255,.698) / rgba(40,40,42,.941)</i><p>Figma variable ui/background-blur #FFFFFFB2 / #28282AF0, behind Material Blur (BACKGROUND_BLUR radius 50). Over the page ground it renders #FBFBFC / #262627, which is what the Developer nav band samples at 2x</p></div><div><b>--as-ink</b> <i>#000000 / #FFFFFF</i><p>Figma variable label/primary: row labels, the large title, the clock, the home indicator</p></div><div><b>--as-grey</b> <i>#8E8E93</i><p>Figma variable system/grey: section headers and section help text, one value in both themes (confirmed on ref-d02)</p></div><div><b>--as-grey2</b> <i>#AFB0B4 / #636366</i><p>Figma variable system/grey2: the sign-in avatar glyph</p></div><div><b>--as-blue</b> <i>#007BFE / #0385FF</i><p>Figma variable ui/accent: the sign-in link, the action rows, the checkmark</p></div><div><b>--as-green</b> <i>#31C859 / #2DD257</i><p>Figma variable system/green: the on toggle track</p></div><div><b>--as-r-phone</b> <i>52px</i><p>the repo's frame convention, not a value in the file: its screens are square-cornered 393 x 852 artboards</p></div><div><b>--as-r-card</b> <i>10px</i><p>Figma corner radius on every list card</p></div><div><b>--as-r-logo</b> <i>6px</i><p>Figma corner radius on the 29pt app icon in a list row</p></div><div><b>--as-r-pill</b> <i>100px</i><p>Figma corner radius on the Dynamic Island, the home indicator, the toggle and its knob</p></div><div><b>--as-t-r13</b> <i>400 13px/16px var(--as-font)</i><p>Figma type style Regular/13pt; Uppercase/13pt is the same style with text-transform on top</p></div><div><b>--as-t-r17</b> <i>400 17px/22px var(--as-font)</i><p>Figma type style Regular/17pt: every row label</p></div><div><b>--as-t-b17</b> <i>590 17px/22px var(--as-font)</i><p>Figma type style SemiBold/17pt: the nav title and the status-bar clock</p></div><div><b>--as-t-b34</b> <i>700 34px/41px var(--as-font)</i><p>Figma type style Bold/34pt: the large Settings title</p></div></div></div>
+</html>

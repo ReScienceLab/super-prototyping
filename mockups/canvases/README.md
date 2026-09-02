@@ -18,7 +18,8 @@ board with `?canvas=<slug>`, e.g. `http://127.0.0.1:5173/?canvas=notion-ios`.
 The bare URL always opens `00-welcome` ("Start here"), whichever page was
 last on screen. It carries the canvas's only clickable shapes, all
 `canvas-link` (`canvas/src/CanvasLinkShapeUtil.tsx`): one card per other
-folder, which opens that folder's page, and a button that opens the repo.
+folder, which opens that folder's page, in two rows (Apple's own apps, then
+everything else), and a button that opens the repo.
 They are shapes rather than links inside a board because boards render in a
 sandboxed iframe, where a link cannot navigate anything.
 
@@ -100,7 +101,10 @@ python3 mockups/canvases/<slug>/gen.py
 ```
 
 regenerates the folder in place, byte-identical. A folder whose boards
-cannot be regenerated is incomplete.
+cannot be regenerated is incomplete. A folder built from more than one source
+may split the measurements across further modules that `gen.py` imports
+(`apple-wallet` has two, one per Figma file), but the entry point stays
+`gen.py`.
 
 This is safe for discovery: `import.meta.glob` in `canvasLibrary.ts`
 matches only `*.html` (plus `layout.json`), so `gen.py` and its asset
@@ -127,11 +131,34 @@ files sitting in the folder are invisible to the canvas.
   evidence boards for 70 tokens), the nine light replicas, the nine dark ones,
   and the file's own PNG export of each, column-for-column underneath. One
   generator emits both appearances of a screen from one builder. Mean absolute
-  delta against those exports is 0.44-1.58 levels (of 255); what is left is
+  delta against those exports is 0.42-1.56 levels (of 255); what is left is
   antialiasing, not geometry. Its `README.md` records the two defects that only
   measurement found, and `iconkit.py` shows how to get an SF Symbol out of a
   Figma file at all. The 18 `ref-*` boards are gitignored, so a fresh clone
   has 23.
+- `apple-settings/`: the same method as `apple-calendar` at a size worth
+  copying from. Three screens of iOS Settings in both appearances, 15 boards in
+  five rows: a token board and two evidence boards for 37 tokens, the three
+  light replicas, the three dark ones, and the file's own PNG export of each
+  underneath. Nine of the tokens are all that dark changes. Mean absolute delta
+  against those exports is 0.15-0.74 levels (of 255). Its `README.md` records
+  what measurement found and the community file's own defects, including the
+  two rows that render the literal word "Text" and are transcribed that way.
+  The six `ref-*` boards are gitignored, so a fresh clone has 9.
+- `apple-wallet/`: two Figma files on one page, because they are the same
+  app. Two screens of the iOS Wallet app in both appearances, and five pass
+  templates from a second file: a boarding pass, a store card and three key
+  passes. 15 boards in five rows, a token board and two evidence boards per
+  source file (38 tokens and 39, two prefixes in one shared `:root`), then the
+  seven light replicas, the two dark ones, and the file's own PNG export of
+  each underneath. Mean absolute delta against those exports is 0.23-1.86
+  levels (of 255). `gen.py` is a driver: `screens.py` and `passes.py` hold the
+  two runs and know nothing about each other. Its `README.md` records the
+  community file's off-centre home indicator, the measured per-size
+  `letter-spacing` that no earlier run needed, and the doubled QR layers. The
+  passes are a 390 x 844 notched frame, so `--crop-phone` needs them at
+  `--phone-size 390x844 --phone-radius 42`. The nine `ref-*` boards are
+  gitignored, so a fresh clone has 15.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

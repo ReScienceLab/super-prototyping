@@ -250,7 +250,8 @@ function linkShapeId(name: string) {
  * navigate anything.
  *
  * Cover art is the folder's first screen rather than its 00- board, which is a token sheet on
- * every example and would make five identical-looking cards.
+ * every example and would make five identical-looking cards. The cards sit in two rows, Apple's
+ * own apps and everything else.
  */
 function layoutWelcomeExtras(
   editor: Editor,
@@ -278,72 +279,100 @@ function layoutWelcomeExtras(
       },
     });
   }
-  const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
   if (!targets.length) return;
+
+  // Two rows, because ten cards in one row read as a list of ten unrelated things: Apple's own
+  // apps first, then everything else. A card's id is its slug, so a folder that changes group
+  // moves on the next force refresh rather than turning into a second card.
+  const isApple = (files: CanvasLibraryFile[]) =>
+    files[0].pageSlug.startsWith("apple-");
+  const groups = [
+    {
+      title: "Examples: Apple's own apps. Click a card to open its canvas",
+      targets: targets.filter(isApple),
+    },
+    {
+      title: "Examples: everything else",
+      targets: targets.filter((files) => !isApple(files)),
+    },
+  ];
 
   const cardX = (index: number) =>
     index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
-  const cards = targets.map((files, index) => {
-    const cover =
-      files.find((file) => !file.fileName.startsWith("00")) ?? files[0];
-    return {
-      id: linkShapeId(files[0].pageSlug),
-      type: CANVAS_LINK_SHAPE_TYPE,
-      parentId: page.id,
-      x: cardX(index),
-      y: contentY,
-      props: {
-        ...CANVAS_LINK_CARD_SIZE,
-        label: files[0].pageName,
-        page: files[0].pageSlug,
-        path: cover.path,
-        url: "",
-      },
-    };
-  });
-  const missing = cards.filter((card) => !editor.getShape(card.id));
-  if (missing.length) editor.createShapes(missing);
 
-  // A card that is already there keeps its position, but not a caption the folder has since
-  // renamed: the label is the page name, so a rename would otherwise show on the page menu and
-  // not on the card pointing at it.
-  for (const card of cards) {
-    const shape = editor.getShape<CanvasLinkShape>(card.id);
-    if (shape && shape.props.label !== card.props.label) {
-      editor.updateShape({
-        id: card.id,
-        type: card.type,
-        props: { label: card.props.label, page: card.props.page },
-      });
+  let top = rowTop;
+  for (const group of groups) {
+    if (!group.targets.length) continue;
+    const contentY = top + LIBRARY_HEADING_HEIGHT;
+    const cards = group.targets.map((files, index) => {
+      const cover =
+        files.find((file) => !file.fileName.startsWith("00")) ?? files[0];
+      return {
+        id: linkShapeId(files[0].pageSlug),
+        type: CANVAS_LINK_SHAPE_TYPE,
+        parentId: page.id,
+        x: cardX(index),
+        y: contentY,
+        props: {
+          ...CANVAS_LINK_CARD_SIZE,
+          label: files[0].pageName,
+          page: files[0].pageSlug,
+          path: cover.path,
+          url: "",
+        },
+      };
+    });
+    const missing = cards.filter((card) => !editor.getShape(card.id));
+    if (missing.length) editor.createShapes(missing);
+
+    // A card that is already there keeps its position, but not a caption the folder has since
+    // renamed: the label is the page name, so a rename would otherwise show on the page menu and
+    // not on the card pointing at it.
+    for (const card of cards) {
+      const shape = editor.getShape<CanvasLinkShape>(card.id);
+      if (shape && shape.props.label !== card.props.label) {
+        editor.updateShape({
+          id: card.id,
+          type: card.type,
+          props: { label: card.props.label, page: card.props.page },
+        });
+      }
     }
-  }
 
-  createAnnotation(editor, {
-    id: `canvas-row-heading:${page.id}:examples`,
-    text: "Examples: click a card to open its canvas",
-    x: 0,
-    y: contentY - LIBRARY_HEADING_HEIGHT,
-    w:
-      targets.length * CANVAS_LINK_CARD_SIZE.w +
-      (targets.length - 1) * LIBRARY_GAP,
-    size: "l",
-    color: "white",
-    parentId: page.id,
-  });
-
-  targets.forEach((files, index) => {
     createAnnotation(editor, {
-      id: `canvas-file-label:${files[0].pageSlug}`,
-      text: `${files.length} board${files.length === 1 ? "" : "s"}`,
-      x: cardX(index),
-      y: contentY + CANVAS_LINK_CARD_SIZE.h + LIBRARY_LABEL_GAP,
-      w: CANVAS_LINK_CARD_SIZE.w,
-      size: "s",
-      align: "middle",
+      id: `canvas-row-heading:${page.id}:${group.title}`,
+      text: group.title,
+      x: 0,
+      y: top,
+      w:
+        group.targets.length * CANVAS_LINK_CARD_SIZE.w +
+        (group.targets.length - 1) * LIBRARY_GAP,
+      size: "l",
       color: "white",
       parentId: page.id,
     });
-  });
+
+    group.targets.forEach((files, index) => {
+      createAnnotation(editor, {
+        id: `canvas-file-label:${files[0].pageSlug}`,
+        text: `${files.length} board${files.length === 1 ? "" : "s"}`,
+        x: cardX(index),
+        y: contentY + CANVAS_LINK_CARD_SIZE.h + LIBRARY_LABEL_GAP,
+        w: CANVAS_LINK_CARD_SIZE.w,
+        size: "s",
+        align: "middle",
+        color: "white",
+        parentId: page.id,
+      });
+    });
+
+    top =
+      contentY +
+      CANVAS_LINK_CARD_SIZE.h +
+      LIBRARY_LABEL_GAP +
+      LIBRARY_LABEL_HEIGHT +
+      LIBRARY_GAP;
+  }
 }
 
 /**

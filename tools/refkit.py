@@ -410,7 +410,7 @@ def cmd_font(a):
               "instance of the face. `bands --axis cols` gives the word gaps.")
 
 
-def _crop_phone(im, scale, frame=PHONE_FRAME, tol=24, w=393, h=852):
+def _crop_phone(im, scale, frame=PHONE_FRAME, tol=24, w=393, h=852, r=PHONE_RADIUS):
     """Artboards render the phone frame inside a 478 x 980 board; every
     reference is a bare device capture. Find the bezel and cut the screen out,
     so diff can compare the two pixel for pixel."""
@@ -423,7 +423,7 @@ def _crop_phone(im, scale, frame=PHONE_FRAME, tol=24, w=393, h=852):
     cx, cy = (xs.min() + xs.max() + 1) / 2, (ys.min() + ys.max() + 1) / 2
     tw, th = int(round(w * scale)), int(round(h * scale))
     x, y = int(round(cx - tw / 2)), int(round(cy - th / 2))
-    return _round_corners(im.crop((x, y, x + tw, y + th)), PHONE_RADIUS * scale)
+    return _round_corners(im.crop((x, y, x + tw, y + th)), r * scale)
 
 
 def _round_corners(im, r, ss=4):
@@ -508,7 +508,8 @@ def cmd_shoot(a):
         _render(f, png, a.scale, a.w, a.h)
         im, note = Image.open(png), ""
         if a.crop_phone:
-            c = _crop_phone(im, a.scale)
+            pw, ph = (int(v) for v in a.phone_size.lower().split("x"))
+            c = _crop_phone(im, a.scale, w=pw, h=ph, r=a.phone_radius)
             if c is None:
                 note += "  (no phone frame found, left uncropped)"
             else:
@@ -934,6 +935,11 @@ def _parser():
     t.add_argument("--crop-phone", action="store_true",
                    help="cut the 393x852 screen out of the frame, corners masked "
                         "to the 52pt radius, ready to diff")
+    t.add_argument("--phone-size", default="393x852", metavar="WxH",
+                   help="what --crop-phone cuts out, in design pt, for a board "
+                        "whose frame is not the 393x852 default")
+    t.add_argument("--phone-radius", type=float, default=PHONE_RADIUS,
+                   help="corner radius --crop-phone masks to, in design pt")
     t.add_argument("--check-overflow", action="store_true",
                    help="fail if a board's content runs past --h, or an "
                         "overflow:hidden element clips its own content")

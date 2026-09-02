@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Apple Settings - Evidence 2/2</title>
+<style>
+:root{
+  --as-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --as-bg:#F2F2F7;
+  --as-card:#FFFFFF;
+  --as-black:#000000;
+  --as-white:#FFFFFF;
+  --as-sep:#C7C7CC;
+  --as-track:rgba(118,118,128,.1216);
+  --as-blur:rgba(255,255,255,.698);
+
+  /* Ink */
+  --as-ink:#000000;
+  --as-grey:#8E8E93;
+  --as-grey2:#AFB0B4;
+  --as-blue:#007BFE;
+  --as-green:#31C859;
+
+  /* Radius */
+  --as-r-phone:52px;
+  --as-r-card:10px;
+  --as-r-logo:6px;
+  --as-r-pill:100px;
+
+  /* Type */
+  --as-t-r13:400 13px/16px var(--as-font);
+  --as-t-r17:400 17px/22px var(--as-font);
+  --as-t-b17:590 17px/22px var(--as-font);
+  --as-t-b34:700 34px/41px var(--as-font);
+
+  /* Metrics */
+  --as-w:393px;
+  --as-h:852px;
+  --as-sb:54px;
+  --as-nav:44px;
+  --as-margin:16px;
+  --as-gutter:20px;
+  --as-logo:29px;
+  --as-rowgap:35px;
+  --as-toggle-w:51px;
+  --as-toggle-h:31px;
+  --as-knob:27px;
+  --as-home:34px;
+  --as-home-w:140px;
+  --as-island-w:126px;
+  --as-island-h:37px;
+  --as-hair:0.33px;
+}
+.dark{
+  --as-bg:#000000;
+  --as-card:#1C1C1E;
+  --as-sep:#464649;
+  --as-track:rgba(118,118,128,.2392);
+  --as-blur:rgba(40,40,42,.941);
+  --as-ink:#FFFFFF;
+  --as-grey2:#636366;
+  --as-blue:#0385FF;
+  --as-green:#2DD257;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--as-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}
+body{padding:0;background:var(--as-card);color:var(--as-ink)}
+.sh8{width:478px;height:980px;padding:22px 24px;overflow:hidden}
+h1{font:590 20px/25px var(--as-font)}
+header p{font:var(--as-t-r13);color:var(--as-grey);margin:2px 0 12px}
+h2{font:590 10px/12px var(--as-font);text-transform:uppercase;color:var(--as-grey);margin:13px 0 6px}
+.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.sw .ch{height:24px;border-radius:5px;border:0.5px solid var(--as-sep);display:flex;overflow:hidden}
+.sw .ch span{flex:1}
+.sw b{display:block;margin-top:3px;font:590 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--as-grey);font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd{display:flex;gap:10px}
+.rd div{text-align:center}
+.rd .b{width:46px;height:26px;background:var(--as-bg);border:0.5px solid var(--as-sep)}
+.rd em{display:block;margin-top:3px;font:400 8.5px/11px var(--as-font);color:var(--as-grey);font-style:normal}
+.ty .tr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-bottom:2px;border-bottom:0.5px solid var(--as-sep)}
+.ty .tr span{white-space:nowrap;overflow:hidden}
+.ty .tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--as-grey);font-style:normal;white-space:nowrap;flex:none}
+.mt{columns:3;column-gap:14px;font:400 9px/13.5px ui-monospace,Menlo,monospace;color:var(--as-grey)}
+.ev div{padding:3px 0;border-bottom:0.5px solid var(--as-sep)}
+.ev b{font:590 8.5px/12px ui-monospace,Menlo,monospace;color:var(--as-blue)}
+.ev i{font:400 8.5px/12px ui-monospace,Menlo,monospace;color:var(--as-grey);font-style:normal}
+.ev p{font:400 8px/11px var(--as-font);color:var(--as-grey)}
+</style>
+<div class="sh8"><header><h1>Evidence 2/2</h1><p>Token, then its light value and its dark override, then where the value came from. A token with no evidence is a guess.</p></header><div class="ev"><div><b>--as-w</b> <i>393px</i><p>Figma variable screen/width in the 393 mode</p></div><div><b>--as-h</b> <i>852px</i><p>Figma variable screen/height in the 393 mode</p></div><div><b>--as-sb</b> <i>54px</i><p>node box of the Status Bar frame</p></div><div><b>--as-nav</b> <i>44px</i><p>node box of Title and Actions, which is also the list row height and the tap target</p></div><div><b>--as-margin</b> <i>16px</i><p>Figma variable listing/margin: the inset of every card from the frame</p></div><div><b>--as-gutter</b> <i>20px</i><p>node box padding on Content inside a row, a section header and a card</p></div><div><b>--as-logo</b> <i>29px</i><p>node box of the app icon in a list row</p></div><div><b>--as-rowgap</b> <i>35px</i><p>gap on the Sections flex column: the space between two cards</p></div><div><b>--as-toggle-w</b> <i>51px</i><p>node box of the Toggle component</p></div><div><b>--as-toggle-h</b> <i>31px</i><p>node box of the Toggle component</p></div><div><b>--as-knob</b> <i>27px</i><p>node box of the Knob: the 31pt toggle with its 2pt padding</p></div><div><b>--as-home</b> <i>34px</i><p>node box of the Home Bar frame</p></div><div><b>--as-home-w</b> <i>140px</i><p>Figma variable homebar/width in the 393 mode (it is 154 in the 430 mode)</p></div><div><b>--as-island-w</b> <i>126px</i><p>node box of the Dynamic Island</p></div><div><b>--as-island-h</b> <i>37px</i><p>node box of the Dynamic Island</p></div><div><b>--as-hair</b> <i>0.33px</i><p>stroke weight on every divider and on the nav rule</p></div></div></div>
+</html>
