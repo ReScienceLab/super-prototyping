@@ -143,6 +143,31 @@ def test_summ_reads_boxes_and_picks_the_real_edge():
 ROOT = ":root{--x-bg:#FFFFFF;--x-ink:#0A0A0A}"
 
 
+def test_key_alpha_holds_the_interior_and_ramps_only_the_edge():
+    # Magenta ground, an opaque MID-TONE body (the case a Euclidean full-range
+    # key leaves ~25% transparent), and one column of half-covered edge.
+    K = np.array([255, 0, 255], float)
+    a = np.tile(K, (30, 30, 1))
+    body = np.array([150, 100, 60], float)               # opaque brown
+    a[8:22, 8:21] = body
+    a[8:22, 21] = 0.5 * body + 0.5 * K                    # half-covered edge
+    alpha, _ = R._key_alpha(a, K, tol=45, hi=110)
+    assert alpha[0, 0] == 0, alpha[0, 0]                  # ground gone
+    assert alpha[15, 10] == 1, alpha[15, 10]              # interior opaque
+    assert 0 < alpha[15, 21] < 1, alpha[15, 21]           # edge partial
+    A = alpha[..., None]
+    F = np.clip(np.where(A > 0, (a - (1 - A) * K) / np.maximum(A, 1e-6), 0), 0, 255)
+    assert abs(F[15, 10] - body).max() < 1e-6, F[15, 10]  # interior untouched
+    assert F[15, 21][1] > a[15, 21][1], F[15, 21]         # spill pulled off the edge
+
+
+def test_key_border_check_rejects_a_ground_that_is_not_the_key():
+    a = np.full((30, 30, 3), 250, float)                 # the model's "white"
+    _, d = R._key_alpha(a, np.array([255, 0, 255], float), tol=45, hi=110)
+    b = np.concatenate([d[:5].ravel(), d[-5:].ravel(), d[:, :5].ravel(), d[:, -5:].ravel()])
+    assert b.mean() > 45, b.mean()                       # cmd_key exits here
+
+
 def _folder(files):
     d = tempfile.mkdtemp()
     for name, body in files.items():
@@ -223,6 +248,30 @@ def test_every_candidate_font_identifies_its_own_rendering():
                       if (r := R._render_word("Subscription", q, w, t, 28)) is not None),
                      default=0.0)) for q, n in cands.items()), key=lambda x: -x[1])
         assert ranked[0][0] == name, f"{name} -> {ranked[:2]}"
+
+
+def test_grow_box_keeps_the_pale_edge_and_drops_the_neighbour():
+    """The 08-avatar bug: a threshold that finds the dark body stops at the
+    pale ears, and a padded window that catches a neighbour must not annex it.
+    """
+    a = np.full((60, 60, 3), 255, float)
+    a[20:40, 20:40] = (40, 40, 40)        # body: any threshold finds this
+    a[26:34, 14:20] = (250, 246, 240)     # left ear: 9 levels off white
+    a[26:34, 40:46] = (250, 246, 240)     # right ear
+    a[5:12, 5:12] = (0, 0, 200)           # an unrelated neighbour in the window
+    seed = (20, 20, 40, 40)
+    box, ground, edge = R._grow_box(a.astype("uint8"), seed, tol=4)
+    assert tuple(ground) == (255, 255, 255), ground
+    assert box == (14, 20, 46, 40), box    # ears in, neighbour out
+    assert edge == "", edge
+
+    # a neighbour that actually touches gets annexed, and the box then runs
+    # into the window edge, which is the report that says do not trust it
+    a[0:21, 8:12] = (0, 0, 200)
+    a[17:21, 8:22] = (0, 0, 200)
+    box, _, edge = R._grow_box(a.astype("uint8"), seed, tol=4)
+    assert box[:2] == (5, 0), box     # the whole neighbour came with it
+    assert edge == "T", edge
 
 
 if __name__ == "__main__":

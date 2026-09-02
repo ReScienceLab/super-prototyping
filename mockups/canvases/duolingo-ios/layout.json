@@ -1,0 +1,102 @@
+{
+  "name": "(example) Duolingo",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-art",
+          "label": "Art assets"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-path-green",
+          "label": "Path: green"
+        },
+        {
+          "file": "02-path-red",
+          "label": "Path: red"
+        },
+        {
+          "file": "03-path-blue",
+          "label": "Path: blue"
+        },
+        {
+          "file": "04-section-done",
+          "label": "Section complete"
+        },
+        {
+          "file": "05-section-next",
+          "label": "Up next: locked"
+        },
+        {
+          "file": "06-jump-here",
+          "label": "Jump here"
+        },
+        {
+          "file": "07-streak-freeze",
+          "label": "Streak freeze"
+        },
+        {
+          "file": "08-league-promo",
+          "label": "League promotion"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-path-green",
+          "label": "Path: green"
+        },
+        {
+          "file": "ref-02-path-red",
+          "label": "Path: red"
+        },
+        {
+          "file": "ref-03-path-blue",
+          "label": "Path: blue"
+        },
+        {
+          "file": "ref-04-section-done",
+          "label": "Section complete"
+        },
+        {
+          "file": "ref-05-section-next",
+          "label": "Up next: locked"
+        },
+        {
+          "file": "ref-06-jump-here",
+          "label": "Jump here"
+        },
+        {
+          "file": "ref-07-streak-freeze",
+          "label": "Streak freeze"
+        },
+        {
+          "file": "ref-08-league-promo",
+          "label": "League promotion"
+        }
+      ]
+    }
+  ]
+}

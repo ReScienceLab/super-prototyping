@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Duolingo - Evidence 1/2</title>
+<style>
+:root{
+  /* Font */
+  --d-font:ui-rounded,"SF Pro Rounded","Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --d-bg:#FFFFFF;
+  --d-panel:#F7F7F7;
+  --d-scrim:rgba(0,0,0,.396);
+  --d-chip:#E2F2FF;
+  --d-chip-2:#E5E5E5;
+
+  /* Line */
+  --d-rule:#E3E3E3;
+  --d-border:#E5E5E5;
+  --d-border-2:#E7E7E7;
+  --d-grab:#B1B1B1;
+
+  /* Ink */
+  --d-ink:#4B4B4B;
+  --d-ink-2:#AFAFAF;
+  --d-ink-3:#9D9D9D;
+  --d-ink-inv:#FFFFFF;
+  --d-ink-inv-2:rgba(255,255,255,.72);
+
+  /* Unit */
+  --d-u-green:#59CC01;
+  --d-u-green-d:#45A302;
+  --d-u-red:#FF4C4B;
+  --d-u-red-d:#CC3B3C;
+  --d-u-blue:#1DB1F8;
+  --d-u-blue-d:#1590C9;
+  --d-u-sky:#53ADF0;
+  --d-u-sky-d:#428CBD;
+  --d-u-purple:#C385F7;
+  --d-u-purple-d:#9D6BC5;
+
+  /* Accent */
+  --d-blue:#1DB1F8;
+  --d-btn:#14B2F5;
+  --d-btn-d:#0F9AD7;
+  --d-cta:#53ADF0;
+  --d-cta-d:#4395D3;
+  --d-orange:#F89402;
+  --d-pink:#CE91B1;
+  --d-magenta:#B84B8C;
+
+  /* Radius */
+  --d-r-card:13.5px;
+  --d-r-btn:10px;
+  --d-r-sheet:16px;
+  --d-r-tile:24px;
+  --d-r-pill:999px;
+  --d-r-phone:52px;
+
+  /* Type */
+  --d-t-time:590 17.6px/22px var(--d-font);
+  --d-t-count:700 15.6px/20px var(--d-font);
+  --d-t-kicker:800 11.7px/16px var(--d-font);
+  --d-t-unit:800 19.4px/24px var(--d-font);
+  --d-t-title:800 22.9px/29px var(--d-font);
+  --d-t-title-2:800 22.9px/32px var(--d-font);
+  --d-t-body:500 19.3px/23.2px var(--d-font);
+  --d-t-btn:800 15.0px/20px var(--d-font);
+  --d-t-link:800 15.6px/20px var(--d-font);
+  --d-t-label:600 19.8px/22px var(--d-font);
+  --d-t-chip:800 13.5px/18px var(--d-font);
+
+  /* Metrics */
+  --d-w:393px;
+  --d-h:852px;
+  --d-status:54px;
+  --d-gutter:15.6px;
+  --d-card-x:24.1px;
+  --d-card-w:344.8px;
+  --d-card-y:111px;
+  --d-tabs-y:756.6px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--d-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--d-w);height:var(--d-h);
+  border-radius:var(--d-r-phone);overflow:hidden;background:var(--d-bg);color:var(--d-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.phone>*{position:absolute}
+img.a{display:block;z-index:2}
+.sb{left:0;top:0;width:var(--d-w);height:var(--d-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.3px;text-align:center;
+  font:var(--d-t-time)}
+body{padding:0;background:var(--d-bg);color:var(--d-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--d-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--d-font);color:var(--d-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--d-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--d-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--d-rule)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--d-ink-2);font-style:normal;word-break:break-all}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:12px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:#F3F3F3;border:1px solid var(--d-rule)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--d-font);
+  color:var(--d-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--d-rule)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--d-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--d-ink)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--d-rule);font:400 8.5px/11px var(--d-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--d-blue)}
+td.v{color:var(--d-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--d-ink-2)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 1/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--d-font</td><td class="v">ui-rounded,"SF Pro Rounded","Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif</td><td class="e">refkit font on "Order" = weak (0.353, SF Compact); Feather Bold is outside the candidate set, so this is a declared stand-in. Its cap sits at 0.762em, not SF Pro's 0.714, so every size below is a cap match on the render</td></tr><tr><td class="t">--d-bg</td><td class="v">#FFFFFF</td><td class="e">flat-fill census, page ground, all six path screens</td></tr><tr><td class="t">--d-panel</td><td class="v">#F7F7F7</td><td class="e">05 locked panel, column scan at x 8, y 504.4-756.0</td></tr><tr><td class="t">--d-scrim</td><td class="v">rgba(0,0,0,.396)</td><td class="e">page white reads 154/255 behind both sheets: 1 - 154/255 = .396</td></tr><tr><td class="t">--d-chip</td><td class="v">#E2F2FF</td><td class="e">flat census, 04 UP NEXT pill, 1476 px</td></tr><tr><td class="t">--d-chip-2</td><td class="v">#E5E5E5</td><td class="e">flat census, 05 UP NEXT pill, 2891 px</td></tr><tr><td class="t">--d-rule</td><td class="v">#E3E3E3</td><td class="e">direct read at y 757.6 (tab-bar rule) and y 246.9 (06 section rules)</td></tr><tr><td class="t">--d-border</td><td class="v">#E5E5E5</td><td class="e">04 UP NEXT rule, column scan y 501.7-503.5</td></tr><tr><td class="t">--d-border-2</td><td class="v">#E7E7E7</td><td class="e">08 trophy tile ring, row scan y 407, 2.2pt wide</td></tr><tr><td class="t">--d-grab</td><td class="v">#B1B1B1</td><td class="e">sheet drag handle, column scan at x 196 on both sheets</td></tr><tr><td class="t">--d-ink</td><td class="v">#4B4B4B</td><td class="e">flat census: 07 title 99 px, 04 'Section 2' 85 px</td></tr><tr><td class="t">--d-ink-2</td><td class="v">#AFAFAF</td><td class="e">flat census, 05 'Section 3' 89 px, and its UP NEXT pill</td></tr><tr><td class="t">--d-ink-3</td><td class="v">#9D9D9D</td><td class="e">flat census, 06 section-divider label, 4 px (thin)</td></tr><tr><td class="t">--d-ink-inv</td><td class="v">#FFFFFF</td><td class="e">brightest core of the unit title on green, #FCFEFA</td></tr><tr><td class="t">--d-ink-inv-2</td><td class="v">rgba(255,255,255,.72)</td><td class="e">kicker core #CBF1B0 over #59CC01 solves to alpha .69</td></tr><tr><td class="t">--d-u-green</td><td class="v">#59CC01</td><td class="e">flat census, 01 header fill, 16704 px</td></tr><tr><td class="t">--d-u-green-d</td><td class="v">#45A302</td><td class="e">mean of the 2pt lip band, y 184-186</td></tr><tr><td class="t">--d-u-red</td><td class="v">#FF4C4B</td><td class="e">flat census, 02 header fill, 16759 px</td></tr><tr><td class="t">--d-u-red-d</td><td class="v">#CC3B3C</td><td class="e">mean of the 2pt lip band, y 184-186</td></tr><tr><td class="t">--d-u-blue</td><td class="v">#1DB1F8</td><td class="e">flat census, 03 header fill, 16482 px</td></tr><tr><td class="t">--d-u-blue-d</td><td class="v">#1590C9</td><td class="e">column scan at x 60, y 207.4-209.7</td></tr><tr><td class="t">--d-u-sky</td><td class="v">#53ADF0</td><td class="e">flat census, 06 header fill, 14988 px</td></tr><tr><td class="t">--d-u-sky-d</td><td class="v">#428CBD</td><td class="e">column scan at x 60, y 207.4-210.1</td></tr><tr><td class="t">--d-u-purple</td><td class="v">#C385F7</td><td class="e">flat census, 04 and 05 header fills, 15980/16606 px</td></tr><tr><td class="t">--d-u-purple-d</td><td class="v">#9D6BC5</td><td class="e">mean of the 2pt lip band, y 184-186</td></tr><tr><td class="t">--d-blue</td><td class="v">#1DB1F8</td><td class="e">= u-blue; the 16px link and count glyphs read #17ABDA-#1DA3DA, diluted</td></tr><tr><td class="t">--d-btn</td><td class="v">#14B2F5</td><td class="e">flat census, both sheet primary buttons, 14357 px</td></tr><tr><td class="t">--d-btn-d</td><td class="v">#0F9AD7</td><td class="e">mean of the 4.1pt button lip, 2420 px</td></tr><tr><td class="t">--d-cta</td><td class="v">#53ADF0</td><td class="e">flat census, 04 CONTINUE body, 19723 px at 99.7%; also 05/06's washed counts</td></tr><tr><td class="t">--d-cta-d</td><td class="v">#4395D3</td><td class="e">column scan, 04 CONTINUE lip, y 728.6-732.7</td></tr><tr><td class="t">--d-orange</td><td class="v">#F89402</td><td class="e">darkest 8% of the 01 streak count, peak #F29403</td></tr><tr><td class="t">--d-pink</td><td class="v">#CE91B1</td><td class="e">darkest 8% of the 03 energy count, peak #CF8DAF</td></tr><tr><td class="t">--d-magenta</td><td class="v">#B84B8C</td><td class="e">darkest 8% of the 06 JUMP HERE? tooltip label</td></tr><tr><td class="t">--d-r-card</td><td class="v">13.5px</td><td class="e">least-squares corner fit, 01/02/03 headers: 13.25/13.50/13.50, rms 0.20</td></tr></table></div>
+</body>
+</html>
