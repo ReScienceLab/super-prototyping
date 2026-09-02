@@ -17,7 +17,8 @@ pages and how `layout.json` rows work. Name the folder for the source,
 e.g. `notion-ios`.
 
 Toolkit: `tools/refkit.py` (grid / sample / bands / bbox / scan / hairline /
-font / shoot / diff / blend / tokens / batch / ink / crops / montage).
+font / shoot / diff / blend / tokens / batch / ink / crops / key /
+montage), plus `tools/artgen.py` for the rare asset that has to be drawn.
 Needs `pillow` + `numpy`; `shoot` needs Google Chrome. Work in a scratch
 directory, not in the repo.
 
@@ -142,8 +143,19 @@ labels. Three commands turn "about 64" into a number you can defend:
 ```bash
 refkit bands IMG 30 120 60 780 --pt 3 --thr 170   # ink bands + the pitch between them
 refkit bbox  IMG 16 690 380 810 --pt 3            # an element's exact box
+refkit bbox  IMG 16 690 380 810 --pt 3 --grow     # ...grown to the ink it touches
 refkit scan  IMG col 196 380 410 --pt 3           # colour runs -> the exact edge
 ```
+
+**Use `--grow` for anything you are going to crop.** Plain `bbox` thresholds
+luminance, so it stops at the first low-contrast edge and reports a confident
+number for the rest: pale skin on white is under any threshold that does not
+also take the page. `--grow` asks the other question, how far does the thing
+I am pointing at go, by labelling the ink in a padded window and keeping only
+the components the box already sits on. It prints the ground it inferred and
+which window sides the answer ran into; a side listed there means the
+component escaped `--pad` and probably merged with a neighbour, so widen the
+seed or shrink the padding rather than believing it.
 
 `bands` prints a pitch column: a list whose rows land on 62.7 / 62.3 / 64.0 /
 61.7 / 64.7 is a **64pt row**, and the spread is glyph height, not layout.
@@ -197,6 +209,12 @@ drifts: one finished run shipped three rows still citing an alpha of `.174`
 after the token had become `.10`, and `refkit tokens` cannot catch that; it
 checks that tokens exist, not that their evidence still agrees with them.
 
+Two things `batch` will not tell you. It compares the **first colour a probe
+prints**, and `sample` prints its flat-fill census first, so an ink probe
+needs `--only ink` or it silently compares two backgrounds and reports a
+perfect Δ 0. And a key starting with `_` in a probe is ignored, which is
+where the sanity note below lives.
+
 **Every probe box carries a one-line sanity note** proving the window holds
 the element and only it. The window is wrong far more often than the
 measurement is: a probe at `cy=681` for a button row that sits at 564, or a
@@ -229,6 +247,17 @@ Cover, in this order, with a short prefix per app (`--n-` for Notion):
 token board, two evidence boards, 8 screens, 8 references), a three-row
 `layout.json`, a committed `gen.py`, and per-screen mean deltas of 3.47 to
 4.50 levels against the captures.
+
+`mockups/canvases/duolingo-ios/` is the second complete run, and the one to
+read when the screens are mostly illustration: 58 tokens, 8 screens, 128
+pieces of art, and per-screen mean deltas of 1.32 to 2.93, the best
+screenshot-sourced numbers in the repo. Every picture on it is a crop of the
+capture at a measured box, which is most of why. Its `README.md` carries the
+experiment that settled crop against generate, the stand-in face whose cap
+ratio is not SF Pro's, and two defects that produced no error message. Board
+`00e-art-gen` is the generation result, kept as evidence beside the crops it
+loses to.
+
 Start from the skeleton rather than a finished board:
 `cp -r mockups/canvases/templates mockups/canvases/<slug>`. Its `gen.py`
 builds the `:root` block *and* the evidence table from one `TOKENS` list, so
@@ -258,7 +287,9 @@ boards it produces: `mockups/canvases/<slug>/gen.py`, plus its asset JSON,
 resolving paths relative to `__file__` so
 `python3 mockups/canvases/<slug>/gen.py` regenerates the folder in place
 (`mockups/canvases/templates/gen.py` is the skeleton,
-`mockups/canvases/luma-ios/gen.py` a finished one). Do not hand-edit the
+`mockups/canvases/luma-ios/gen.py` a finished one, and
+`mockups/canvases/duolingo-ios/gen.py` a finished one that also cuts and
+places its own artwork from a `crops.json`). Do not hand-edit the
 artboards afterwards; edit the generator and re-run. That is what keeps
 eight files consistent through a dozen correction passes, and it only
 outlives the session if the generator is in the repo; a scratch-dir
@@ -314,6 +345,37 @@ container the capture shows holding one, and two measured rules collide.
 Widen the container and record why; never shrink the type to make a measured
 width hold. Claude's user bubble measures 302.6 and ships at 316.
 
+### Artwork: crop it, do not draw it and do not generate it
+
+A screen that is mostly illustration is not mostly work. **Every picture on
+the capture is cropped out of the capture at its own measured box**, keyed by
+id in a `crops.json` the generator reads, cut to `assets/art/<id>.png` and
+placed back by an `art()` helper at the same numbers. The asset then cannot
+drift from where it was measured, and its pixels are the reference's own.
+
+The rule and the arithmetic behind it: a crop scores **0** by construction,
+and the same crop redrawn by `gpt-image-2` scores **38.53**, the same
+character with a different head-to-body ratio and the props moved.
+So **generate only pixels the capture does not contain**, name those assets
+in the folder README, and give each one a probe like any other measurement.
+
+When you do have to generate, the thing that decides the result is the
+input's **layout**, not the prompt: pack the assets into a grid, each in its
+own cell at the size and position it must come back at, and the model
+upscales in place instead of composing. That took this repo's set from 18.41
+to **3.96** mean delta, with every cell returning at scale 0.99-1.00. Density
+is free (77 assets in one call beat 6), but the asset's native size in the
+capture is not: under about 128px, colour does not survive the redraw, so
+small icons stay CSS or inline SVG. `tools/artgen.py` runs the whole loop,
+including keying the cells back out, solving the fit and scoring each asset
+against the crop it came from.
+
+[`references/assets.md`](references/assets.md) has the decision table, the
+`crops.json`/`cut()`/`art()` shape, and why `assets/art/` is committed while
+`assets/refs/` is not; [`references/generating.md`](references/generating.md)
+is the generation procedure end to end, with the key-colour, alpha-ramp and
+fit-sign traps that each cost a run.
+
 ### Model the line box once, then place by ink
 
 A screen carrying real prose is a dozen placements of the same few numbers,
@@ -362,6 +424,13 @@ python3 "$REPO/tools/refkit.py" batch probes.json --against mine
 python3 "$REPO/tools/refkit.py" diff mine/07-models-sheet.png refs/cp7.png \
     --pt 3 -o d07.png --regions regions.json
 ```
+
+**`--scale` takes an integer, and your capture's scale is not one.** A
+2.2417 px/pt capture against a 3× render is a shape mismatch and `diff`
+refuses it. Shoot at the nearest integer and downscale each render to the
+capture's own pixel size (Pillow, LANCZOS) before diffing. Put the whole
+chain, regenerate to shoot to downscale to diff all N, in one scratch script
+on the first iteration; you will run it thirty times.
 
 `batch` re-runs every measurement that justified a token, reference against
 render, in one table. `crops probes.json --against mine -o crops/` writes a
@@ -549,9 +618,29 @@ list of screens:
   standing in for text you could not see, a fitted material, a gradient
   rebuilt from stops.
 
+- **Which assets are generated rather than cropped**, if any, with the probe
+  that says how close each one lands. A reader assumes the artwork is the
+  source's until told otherwise. Keep those deltas in a manifest the
+  generator reads, next to `crops.json` and in the same shape, holding the
+  shipped Δ *and* the runs behind it, so "it scored 3.88" can be read as
+  "any run of this lands near 4.5" rather than as one lucky draw:
+
+  ```json
+  "03-char": {"delta": 3.88, "from": "white/high", "scale": 1.0,
+              "dx": 0, "dy": 0, "runs": [4.31, 4.28, 5.81, 3.88]}
+  ```
+
+  If the generated set is not what the screens ship, it still belongs on a
+  board of its own, including the part that failed. A negative result you
+  measured is cheaper for the next reader than the experiment they will
+  otherwise repeat.
+
 **`mockups/canvases/<slug>/.gitignore`.** Whole app screens are not component
 art. Ignore `ref-*.html` and `assets/refs/`, and say in the README how many
-boards a fresh clone builds without them.
+boards a fresh clone builds without them. **`assets/art/` is the exception
+and stays committed**: cropped component art is what the boards are made of,
+and without it a fresh clone renders empty frames. Say that in the file, in a
+comment, because the surrounding rule points the other way.
 
 **A bullet in `mockups/canvases/README.md`**, under Examples: board count,
 row structure, the delta range, and the one thing this folder teaches that
@@ -604,11 +693,59 @@ python3 tools/refkit.py tokens mockups/canvases/<slug>
   against an absolute value. This cost two wrong diagnoses in one session: an
   80pt cover measured as 63.7, and a row top declared 5.3pt late when the
   layout was inside a point.
+- **Generating an asset the capture already contains.** A crop of the
+  reference is exact; a redraw of the same thing scores 38.53 levels against
+  it and quietly becomes the largest error on the screen. Reach for
+  `gpt-image` only for pixels no capture holds, and probe the result.
+- **Generating one asset at a time, or generating a small one at all.** When
+  you do have to draw something, a single asset in a single call is the worst
+  version of the method: it composes rather than copies, and no prompt wording
+  recovers what the input's geometry would have given for free. Pack the set
+  into one grid at target size and position (18.41 → 3.96), and leave anything
+  under ~128px of capture as CSS or SVG, because at that size the shape comes
+  back and the colour does not. See
+  [`references/generating.md`](references/generating.md).
+- **Reusing a threshold that was measured on a different asset.** `refkit key
+  --hi 110` is not a constant; it was set just below one character's closest
+  pixel to magenta. On an icon whose own colour sits 83 from the ground, the
+  same 110 keys the *artwork* to partial alpha, the unpremultiply divides by
+  it, and grey comes back. That asset scored 48 and the drawing was fine.
+  Any threshold named after a measurement has to be re-derived per asset, and
+  a printed warning when the art is close to the key is cheaper than the
+  re-run.
+- **An unquoted `$VAR` of ids in zsh.** zsh does not word-split unquoted
+  parameters, so `cmd $IDS` passes all 77 ids as one argument and you get
+  `OSError: File name too long` rather than a usage error. `${=IDS}` splits.
+  This one is free if it crashes before the API call and expensive if it does
+  not.
+- **A stand-in face whose cap ratio is not SF Pro's.** Sizes derived as
+  `cap ÷ 0.714` are ~6% wrong the moment the board ships a rounded or a
+  brand-adjacent stack; one run measured 0.762em. `ct()`'s K moves with it
+  (0.115, not 0.2708). K solves in closed form from two renders,
+  `K_needed = K_used − (ref_ink − mine_ink) / fs`, which is worth doing,
+  because guessing its sign is a coin flip and the wrong guess pushes text
+  clean out of the measurement window, where it reads as a clipped glyph
+  rather than as a bad constant.
+- **A `z-index` painting over text that is perfectly correct.** A card or
+  sheet body at `z-index:1` covers every sibling left at `z-index:auto`, with
+  no error and no clipping warning, and the screens whose text vanished can
+  even *improve* in the diff. Colour, font shorthand and overflow all look
+  fine; reading the **generated CSS** is what finds it.
+- **Drawing the frame the templates draw instead of the frame the capture
+  shows.** Check for the Dynamic Island and the home indicator on every
+  capture before trusting either. A rendered island over captures that have
+  none put a 103-level band across the top of eight screens. While you are
+  there, check the status bar is *one* status bar: two capture sessions in one
+  set can carry different cellular glyphs, 9pt apart.
 - **Cropping an asset by eye instead of at its measured box.** Take the
-  element's own box (`refkit bbox` gives it) out of the capture at the
+  element's own box (`refkit bbox --grow` gives it) out of the capture at the
   capture's own scale. Then the capture's rounded corners land under your CSS
   radius and the art registers 1:1. Every offset cover in the luma home run
-  was a crop carrying a strip of page, not a layout error.
+  was a crop carrying a strip of page, not a layout error. The other half of
+  this is a box that is too *small*: plain `bbox` cut both ears off the
+  duolingo avatar and a whole-frame delta moved by 0.04 levels, because a
+  clipped ear is a few hundred pixels of 1.7 million. Nothing but looking at
+  the crop, or `--grow`, finds that.
 - **Comparing against a capture you have not trimmed.** Mobbin exports carry
   a watermark strip below the screen, so a 2676px capture of an 852pt screen
   is 40pt of someone else's branding. Crop to the device height before

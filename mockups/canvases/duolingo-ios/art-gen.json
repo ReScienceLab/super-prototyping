@@ -1,0 +1,88 @@
+{
+ "_": "Six crops redrawn by gpt-image-2 from a geometry-anchored grid, then keyed, fitted back to the same pt box and scored against the crop they came from. `runs` is that asset's mean delta in each of four independent returns, in `_runs` order; `delta` is the one that shipped, at 3x the measured box. A crop scores 0 by construction, so these are a resolution-independent copy of the art, not a replacement for it. Rebuild with tools/artgen.py.",
+ "_runs": [
+  "key/high",
+  "key/high again",
+  "key/medium",
+  "white/high"
+ ],
+ "_sup": 3,
+ "03-char": {
+  "delta": 3.88,
+  "from": "white/high",
+  "scale": 1.0,
+  "dx": 0,
+  "dy": 0,
+  "runs": [
+   4.31,
+   4.28,
+   5.81,
+   3.88
+  ]
+ },
+ "08-avatar": {
+  "delta": 3.47,
+  "from": "key/high",
+  "scale": 1.0,
+  "dx": 0,
+  "dy": 0,
+  "runs": [
+   3.47,
+   4.33,
+   3.71,
+   4.24
+  ]
+ },
+ "02-char": {
+  "delta": 3.74,
+  "from": "white/high",
+  "scale": 1.0,
+  "dx": 0,
+  "dy": 0,
+  "runs": [
+   4.42,
+   4.54,
+   4.42,
+   3.74
+  ]
+ },
+ "06-char": {
+  "delta": 2.15,
+  "from": "key/high",
+  "scale": 1.0,
+  "dx": 0,
+  "dy": -1,
+  "runs": [
+   2.15,
+   2.89,
+   2.51,
+   2.61
+  ]
+ },
+ "07-freeze": {
+  "delta": 4.13,
+  "from": "key/high again",
+  "scale": 0.99,
+  "dx": 0,
+  "dy": 0,
+  "runs": [
+   4.4,
+   4.13,
+   4.16,
+   4.58
+  ]
+ },
+ "01-duo": {
+  "delta": 6.36,
+  "from": "key/medium",
+  "scale": 0.99,
+  "dx": 0,
+  "dy": 0,
+  "runs": [
+   6.96,
+   8.44,
+   6.36,
+   8.94
+  ]
+ }
+}

@@ -61,3 +61,24 @@ The same fit tells you when two things you assumed were one token are two.
 Luma's tab bar and sticky header share a blur but not a fill: over the plain
 page the header leaves the ground untouched while the bar takes it three
 levels down. No single fill satisfies both, and the sweep says so.
+
+## Normalise before you believe a gap
+
+A mean Δ over an asset's box is not comparable between assets of different
+ink density. A big sparse illustration is mostly empty pixels that agree
+perfectly, so its mean is flattered; a 40px icon is nearly all ink, so its
+mean is the ink's error with nothing to dilute it. Comparing the two
+straight, as if the number meant the same thing on both, is how a scoring
+artifact gets promoted to a finding.
+
+Divide by the ink fraction and look again. In the run that generated one set
+of characters and one set of icons, the whole-box means were 3.96 and 10.5,
+and the obvious conclusion was that icons redraw badly. Ink-normalised they
+were 5.55 and 17.41. The gap was real, and it was *wider* than the raw
+numbers said. Either way the check is two lines and it decides whether the
+next hour goes into a fix or into nothing.
+
+The same rule applies to whole screens: a screen that is 70% flat page
+ground and a screen that is dense type do not have comparable whole-frame
+deltas, which is why the per-screen table in a folder README needs the
+sentence explaining its own spread.
