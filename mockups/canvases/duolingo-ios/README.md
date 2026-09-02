@@ -2,7 +2,8 @@
 
 Eight screens of the Duolingo iOS app, six of the learning path and two of
 the modal sheets that interrupt it, rebuilt from Mobbin captures, plus the
-token board and the two evidence boards behind them. 11 boards, and 8 more
+token board, the two evidence boards and the art board behind them. 12
+boards, and 8 more
 that park each capture under its replica.
 
 | # | Board | What it shows |
@@ -13,6 +14,7 @@ that park each capture under its replica.
 | 06 | `jump-here` | The "JUMP HERE?" tooltip and the section divider |
 | 07 | `streak-freeze` | Streak freeze sheet |
 | 08 | `league-promo` | League promotion sheet |
+| 00d | `art` | Every crop, and each screen with its chrome removed |
 
 ## How close it lands
 
@@ -21,10 +23,10 @@ in levels of 255:
 
 | Screen | Δ | Screen | Δ |
 | --- | --- | --- | --- |
-| 01 Path, green | 1.41 | 05 Up next, locked | 1.82 |
-| 02 Path, red | 1.47 | 06 Jump here | 1.36 |
-| 03 Path, blue | 2.44 | 07 Streak freeze | 2.60 |
-| 04 Section complete | 2.38 | 08 League promotion | 2.97 |
+| 01 Path, green | 1.41 | 05 Up next, locked | 1.83 |
+| 02 Path, red | 1.47 | 06 Jump here | 1.32 |
+| 03 Path, blue | 2.38 | 07 Streak freeze | 2.59 |
+| 04 Section complete | 2.38 | 08 League promotion | 2.93 |
 
 All eight beat `luma-ios`' 3.47–4.50, and the reason is structural rather
 than careful: **Duolingo's screens are mostly illustration, and every piece
@@ -103,10 +105,10 @@ them into one wrong glyph.
 **`--x-cta` is `#53ADF0`, not `#55ADEF`.** A two-level correction found by
 the probe replay, not by eye.
 
-## Two bugs that produced no error message
+## Three bugs that produced no error message
 
-Worth writing down because both looked like measurement problems and neither
-was.
+Worth writing down because all three looked like measurement problems and
+none was.
 
 **`z-index` silently painted over five text classes.** `.pill` and
 `.sheetbody` sit at `z-index:1`; the titles, links, the "641" counter and
@@ -114,6 +116,24 @@ the UP NEXT label were at `z-index:auto` and simply never appeared. The HTML
 was correct, the colours were correct, and 07 and 08 *improved* in the diff
 when the text was invisible. Reading the generated CSS is what found it;
 reading the generator would not have.
+
+**`refkit bbox` stops at the first low-contrast edge, so four crop boxes cut
+their own art.** The avatar on 08 lost both ears: they are pale skin on
+white, under the threshold, so the box came back 10.7pt narrow on each side
+and `cut()` and `art()` then agreed with each other about the wrong number.
+The ice shards on `07-freeze` lost their tips the same way. The other two
+were the reverse mistake, a box reused where it did not apply: `03-guide` and
+`06-guide` inherited screen 01's numbers, but those two screens carry
+two-line unit headers, so the real guidebook icon sits 11.6pt lower and the
+crop took half of it plus a band of flat header.
+
+None of that shows in a whole-frame delta, because a clipped ear is a few
+hundred pixels of 1.7 million. What finds it is growing the box rather than
+thresholding it: label the ink in a padded window and keep only the
+components the current box already touches, so a neighbouring element cannot
+drag the box outwards. The four corrections took the set from 1.36-2.97 to
+1.32-2.93, which is the point: the number barely moved and the picture was
+visibly wrong.
 
 **The 06 divider label was overridden to the wrong token.** Its call site
 solved its box top from `TS("t-label")` but then set `font:var(--x-t-link)`

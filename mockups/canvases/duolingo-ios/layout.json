@@ -15,6 +15,10 @@
         {
           "file": "00c-evidence",
           "label": "Evidence"
+        },
+        {
+          "file": "00d-art",
+          "label": "Art assets"
         }
       ]
     },

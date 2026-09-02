@@ -59,7 +59,11 @@ Three things that go wrong:
   `pt × scale`. A crop taken at 1× is a soft, wrong-sized asset that then
   gets "fixed" by scaling the `<img>`, which hides the error.
 - **A crop carrying a strip of page** registers off under its own CSS radius.
-  Take `refkit bbox`'s box, not a hand-drawn one.
+  Take `refkit bbox --grow`'s box, not a hand-drawn one and not plain
+  `bbox`'s: a threshold stops at the first low-contrast edge, so an asset with
+  a pale rim comes back clipped, and `cut()` and `art()` then agree with each
+  other about the wrong number. Four of `duolingo-ios`' 128 crops were wrong
+  this way and the whole-frame deltas barely moved.
 - **Commit `assets/art/`, gitignore `assets/refs/`.** The crops are component
   art and the boards are dead without them; the captures are whole app
   screens. Say so in the folder's `.gitignore`, because the opposite is the

@@ -143,8 +143,19 @@ labels. Three commands turn "about 64" into a number you can defend:
 ```bash
 refkit bands IMG 30 120 60 780 --pt 3 --thr 170   # ink bands + the pitch between them
 refkit bbox  IMG 16 690 380 810 --pt 3            # an element's exact box
+refkit bbox  IMG 16 690 380 810 --pt 3 --grow     # ...grown to the ink it touches
 refkit scan  IMG col 196 380 410 --pt 3           # colour runs -> the exact edge
 ```
+
+**Use `--grow` for anything you are going to crop.** Plain `bbox` thresholds
+luminance, so it stops at the first low-contrast edge and reports a confident
+number for the rest: pale skin on white is under any threshold that does not
+also take the page. `--grow` asks the other question, how far does the thing
+I am pointing at go, by labelling the ink in a padded window and keeping only
+the components the box already sits on. It prints the ground it inferred and
+which window sides the answer ran into; a side listed there means the
+component escaped `--pad` and probably merged with a neighbour, so widen the
+seed or shrink the padding rather than believing it.
 
 `bands` prints a pitch column: a list whose rows land on 62.7 / 62.3 / 64.0 /
 61.7 / 64.7 is a **64pt row**, and the spread is glyph height, not layout.
@@ -239,7 +250,7 @@ token board, two evidence boards, 8 screens, 8 references), a three-row
 
 `mockups/canvases/duolingo-ios/` is the second complete run, and the one to
 read when the screens are mostly illustration: 58 tokens, 8 screens, 128
-pieces of art, and per-screen mean deltas of 1.36 to 2.97, the best
+pieces of art, and per-screen mean deltas of 1.32 to 2.93, the best
 screenshot-sourced numbers in the repo. Every picture on it is a crop of the
 capture at a measured box, which is most of why. Its `README.md` carries the
 experiment that settled crop against generate, the stand-in face whose cap
@@ -689,10 +700,14 @@ python3 tools/refkit.py tokens mockups/canvases/<slug>
   there, check the status bar is *one* status bar: two capture sessions in one
   set can carry different cellular glyphs, 9pt apart.
 - **Cropping an asset by eye instead of at its measured box.** Take the
-  element's own box (`refkit bbox` gives it) out of the capture at the
+  element's own box (`refkit bbox --grow` gives it) out of the capture at the
   capture's own scale. Then the capture's rounded corners land under your CSS
   radius and the art registers 1:1. Every offset cover in the luma home run
-  was a crop carrying a strip of page, not a layout error.
+  was a crop carrying a strip of page, not a layout error. The other half of
+  this is a box that is too *small*: plain `bbox` cut both ears off the
+  duolingo avatar and a whole-frame delta moved by 0.04 levels, because a
+  clipped ear is a few hundred pixels of 1.7 million. Nothing but looking at
+  the crop, or `--grow`, finds that.
 - **Comparing against a capture you have not trimmed.** Mobbin exports carry
   a watermark strip below the screen, so a 2676px capture of an 852pt screen
   is 40pt of someone else's branding. Crop to the device height before

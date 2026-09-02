@@ -315,6 +315,79 @@ def evidence_boards():
                     '<p>One row per token. A token with no evidence is a guess.</p>'
                     '</header><table class="ev">%s</table></div>' % (of, rows), SHEET))
 
+# ----------------------------------------------------------- art board ----
+# The board that answers "which of this is a picture?". Every crop is declared
+# once as a background-image class and used twice: at its measured pt box on a
+# scaled-down phone, and again in the contact sheet. Two <img> copies instead
+# would embed 128 data URIs twice and double a 2 MB board.
+MINI_W = 103.0
+MINI_S = MINI_W / 393.0
+CS_COLS = 13
+
+ART_BOARD_CSS = SHEET + """
+.rule{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--x-ink-2);
+  margin:-10px 0 13px}
+.minis{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:2px}
+.mini{position:relative;width:%.1fpx;height:%.1fpx;overflow:hidden;
+  border-radius:7px;border:1px solid var(--x-rule);background:var(--x-bg)}
+.mini .in{position:absolute;left:0;top:0;width:393px;height:852px;
+  transform:scale(%.5f);transform-origin:0 0}
+.mini em{position:absolute;left:4px;bottom:3px;font-style:normal;
+  font:600 7.5px/10px ui-monospace,Menlo,monospace;color:var(--x-ink-2);
+  background:rgba(255,255,255,.9);padding:1px 3px;border-radius:3px}
+b.i{display:block;background-repeat:no-repeat}
+.mini b.i{position:absolute;background-size:100%% 100%%}
+.cs{display:grid;grid-template-columns:repeat(%d,1fr);gap:3px}
+.cs b.i{height:31px;border:1px solid var(--x-rule);border-radius:3px;
+  background-color:#FCFCFC;background-size:contain;background-position:center}
+""" % (MINI_W, round(852 * MINI_S, 1), MINI_S, CS_COLS)
+
+
+def art_classes():
+    """One background-image rule per crop, so each data URI is embedded once."""
+    return "".join(".i-%s{background-image:url(%s)}" % (c, _uri(c))
+                   for c in CROPS if _uri(c))
+
+
+def tile(cid, style=""):
+    return '<b class="i i-%s"%s></b>' % (cid, ' style="%s"' % style if style else "")
+
+
+def mini(ref, label):
+    """One screen scaled down, carrying its art and nothing else."""
+    ids = [c for c in CROPS if c.startswith(ref + "-")]
+    if ref not in ("07", "08"):            # 07/08 carry the bar inside *-bg
+        ids.insert(0, "sb-right" if ref == "01" else "sb2-right")
+    inner = "".join(
+        tile(c, "left:%.1fpx;top:%.1fpx;width:%.1fpx;height:%.1fpx"
+                % (CROPS[c][1], CROPS[c][2],
+                   CROPS[c][3] - CROPS[c][1], CROPS[c][4] - CROPS[c][2]))
+        for c in ids)
+    # data-clip-ok: .in keeps its 393x852 layout box under the transform,
+    # so the overflow check sees a clip that is not one.
+    return ('<div class="mini" data-clip-ok><div class="in">%s</div>'
+            '<em>%s &middot; %d</em></div>'
+            % (inner, label, len(ids)))
+
+
+def art_board():
+    minis = "".join(mini(s[:2], s[:2]) for s, _, _ in SCREENS)
+    sheet_ = "".join(tile(c) for c in CROPS if _uri(c))
+    return page(
+        NAME + " - Art assets",
+        '<div class="sheet"><header><h1>Art assets</h1>'
+        '<p>%d crops, cut from the captures at the pt boxes in '
+        '<code>crops.json</code> and placed back at the same numbers. '
+        'Nothing on these boards is generated.</p></header>'
+        '<p class="rule">every screen with its chrome removed, so what is left '
+        'is exactly what is an image</p>'
+        '<div class="minis">%s</div>'
+        '<h2>Every crop, in manifest order</h2>'
+        '<div class="cs">%s</div></div>'
+        % (len(CROPS), minis, sheet_),
+        ART_BOARD_CSS + "\n" + art_classes())
+
+
 # -------------------------------------------------------------- screens ----
 SCREEN = """.card{left:var(--x-card-x);top:var(--x-card-y);width:var(--x-card-w);
   border-radius:var(--x-r-card);z-index:1}
@@ -519,7 +592,8 @@ def layout(names):
     rows = [{"title": "Foundations",
              "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
                       + [{"file": n, "label": "Evidence"}
-                         for n, _ in evidence_boards()]},
+                         for n, _ in evidence_boards()]
+                      + [{"file": "00d-art", "label": "Art assets"}]},
             {"title": "Screens", "numbered": True,
              "files": [{"file": s, "label": l} for s, l, _ in SCREENS]}]
     refs = [{"file": "ref-" + s, "label": l}
@@ -532,7 +606,8 @@ def layout(names):
 
 def main():
     cut()
-    files = dict([("00-design-tokens", token_board())]
+    files = dict([("00-design-tokens", token_board()),
+                  ("00d-art", art_board())]
                  + list(evidence_boards())
                  + [(s, fn()) for s, _, fn in SCREENS]
                  + list(ref_boards()))

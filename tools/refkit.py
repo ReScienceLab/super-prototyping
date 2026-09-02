@@ -6,7 +6,9 @@
   sample   colour census of a region: true fills, small-element modes, ink core
   bands    ink-fraction profile -> the bands an element occupies, and the pitch
            between them (row height, baselines, list rhythm)
-  bbox     bounding box of the dark (or bright) pixels in a region
+  bbox     bounding box of the dark (or bright) pixels in a region.
+           --grow instead grows the box to the ink it actually touches, which
+           is the one to use for a crop: a threshold stops at a pale edge
   ink      bbox of the centred connected components only: the glyph, where
            `bbox` on the same window would return the neighbouring label too
   scan     walk one row/column and collapse it into colour runs. Finds an
@@ -180,14 +182,74 @@ def cmd_bands(a):
         prev = lo
 
 
+def _grow_box(px, seed, tol):
+    """Grow a seed box to the ink it actually touches -> (box, ground, edge).
+
+    A luminance threshold answers "which pixels here are ink", and stops at
+    the first low-contrast edge: pale skin on white is under any threshold
+    that does not also take the page, so a box measured that way cuts the
+    ears off the figure and reports a confident number for the rest. This
+    asks the other question, "how far does the thing I am pointing at go",
+    by labelling the ink in a padded window and keeping only the components
+    the seed already sits on, so a neighbouring element cannot drag the box
+    outwards while a 1-level edge still can.
+
+    The ground is the modal colour of the window's 1px ring rather than an
+    argument, because the ring is background by construction whenever the
+    padding is real, and hardcoding white gets a header wrong.
+
+    `edge` is the sides where the result runs into the window: there the
+    component escaped the padding, which usually means it merged with a
+    neighbour, and the answer is not to be trusted.
+    """
+    ring = np.concatenate([px[0], px[-1], px[:, 0], px[:, -1]]).astype(int)
+    key = (ring[:, 0] << 16) | (ring[:, 1] << 8) | ring[:, 2]
+    vals, cnt = np.unique(key, return_counts=True)
+    g = int(vals[cnt.argmax()])
+    ground = np.array([(g >> 16) & 255, (g >> 8) & 255, g & 255], float)
+    m = np.abs(px.astype(float) - ground).max(-1) > tol
+    lab = _label(m)
+    sx0, sy0, sx1, sy1 = seed
+    keep = np.unique(lab[sy0:sy1, sx0:sx1])
+    keep = keep[keep > 0]
+    if not keep.size:
+        return None, ground, ""
+    ys, xs = np.nonzero(np.isin(lab, keep))
+    box = (xs.min(), ys.min(), xs.max() + 1, ys.max() + 1)
+    edge = "".join(n for n, hit in
+                   (("L", box[0] == 0), ("T", box[1] == 0),
+                    ("R", box[2] == px.shape[1]), ("B", box[3] == px.shape[0])) if hit)
+    return box, ground, edge
+
+
 def cmd_bbox(a):
     x0, y0, x1, y1 = _box(a)
-    r = _rgb(a.image)[y0:y1, x0:x1].mean(2)
+    px = _rgb(a.image)
+    k = _k(a)
+    if a.grow:
+        pad = int(round(a.pad * k))
+        wx0, wy0 = max(0, x0 - pad), max(0, y0 - pad)
+        wx1, wy1 = min(px.shape[1], x1 + pad), min(px.shape[0], y1 + pad)
+        box, ground, edge = _grow_box(
+            px[wy0:wy1, wx0:wx1], (x0 - wx0, y0 - wy0, x1 - wx0, y1 - wy0), a.tol)
+        if box is None:
+            sys.exit("nothing but ground inside the box. Check the region")
+        bx0, by0 = (wx0 + box[0]) / k, (wy0 + box[1]) / k
+        bx1, by1 = (wx0 + box[2]) / k, (wy0 + box[3]) / k
+        print(f"x0 {bx0:.1f}  y0 {by0:.1f}  x1 {bx1:.1f}  y1 {by1:.1f}"
+              f"   w {bx1-bx0:.1f}  h {by1-by0:.1f}   ground {_hex(ground)}"
+              f"   grow L{x0/k-bx0:+.1f} T{y0/k-by0:+.1f} "
+              f"R{bx1-x1/k:+.1f} B{by1-y1/k:+.1f}")
+        if edge:
+            print(f"  ! runs into the {edge} window edge: the component escaped "
+                  f"--pad {a.pad:g}, so it has probably merged with a neighbour. "
+                  f"Widen --pad, or distrust those sides.")
+        return
+    r = px[y0:y1, x0:x1].mean(2)
     m = (r > a.bright) if a.bright is not None else (r < a.dark)
     if not m.any():
         sys.exit("nothing matched. Check the threshold and the region")
     ys, xs = np.nonzero(m)
-    k = _k(a)
     bx0, by0 = (x0 + xs.min()) / k, (y0 + ys.min()) / k
     bx1, by1 = (x0 + xs.max() + 1) / k, (y0 + ys.max() + 1) / k
     print(f"x0 {bx0:.1f}  y0 {by0:.1f}  x1 {bx1:.1f}  y1 {by1:.1f}"
@@ -972,6 +1034,15 @@ def _parser():
     x.add_argument("--dark", type=float, default=140, help="luminance below this is ink")
     x.add_argument("--bright", type=float, default=None,
                    help="instead match pixels brighter than this (white on grey)")
+    x.add_argument("--grow", action="store_true",
+                   help="grow the box to the ink it touches instead of thresholding "
+                        "it; finds the pale edges a luminance cut drops")
+    x.add_argument("--pad", type=float, default=22.0,
+                   help="--grow: how far outside the box to look, in the same "
+                        "units as the box")
+    x.add_argument("--tol", type=float, default=8.0,
+                   help="--grow: per-channel distance from the ground that counts "
+                        "as ink")
 
     i = s.add_parser("ink"); i.set_defaults(fn=cmd_ink)
     i.add_argument("image")

@@ -250,6 +250,30 @@ def test_every_candidate_font_identifies_its_own_rendering():
         assert ranked[0][0] == name, f"{name} -> {ranked[:2]}"
 
 
+def test_grow_box_keeps_the_pale_edge_and_drops_the_neighbour():
+    """The 08-avatar bug: a threshold that finds the dark body stops at the
+    pale ears, and a padded window that catches a neighbour must not annex it.
+    """
+    a = np.full((60, 60, 3), 255, float)
+    a[20:40, 20:40] = (40, 40, 40)        # body: any threshold finds this
+    a[26:34, 14:20] = (250, 246, 240)     # left ear: 9 levels off white
+    a[26:34, 40:46] = (250, 246, 240)     # right ear
+    a[5:12, 5:12] = (0, 0, 200)           # an unrelated neighbour in the window
+    seed = (20, 20, 40, 40)
+    box, ground, edge = R._grow_box(a.astype("uint8"), seed, tol=4)
+    assert tuple(ground) == (255, 255, 255), ground
+    assert box == (14, 20, 46, 40), box    # ears in, neighbour out
+    assert edge == "", edge
+
+    # a neighbour that actually touches gets annexed, and the box then runs
+    # into the window edge, which is the report that says do not trust it
+    a[0:21, 8:12] = (0, 0, 200)
+    a[17:21, 8:22] = (0, 0, 200)
+    box, _, edge = R._grow_box(a.astype("uint8"), seed, tol=4)
+    assert box[:2] == (5, 0), box     # the whole neighbour came with it
+    assert edge == "T", edge
+
+
 if __name__ == "__main__":
     fns = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in fns:

@@ -77,7 +77,7 @@ the two rows line up pixel for pixel. Six screens of the learning path and the
 two modal sheets.*
 
 This is the run to read when the screens carry more illustration than chrome.
-Mean absolute delta against the captures is **1.36 to 2.97 levels of 255**,
+Mean absolute delta against the captures is **1.32 to 2.93 levels of 255**,
 the best screenshot-sourced numbers here, and the reason is a rule rather than
 effort: all 128 pieces of art are **crops of the captures at measured boxes**,
 keyed in a `crops.json` that `gen.py` both cuts from and places by. A crop is
@@ -89,10 +89,10 @@ drawing, useless measurement.
 
 ```
 screen              Δ     screen               Δ
-01 path green    1.41     05 up next        1.82
-02 path red      1.47     06 jump here      1.36
-03 path blue     2.44     07 streak freeze  2.60
-04 section done  2.38     08 league promo   2.97
+01 path green    1.41     05 up next        1.83
+02 path red      1.47     06 jump here      1.32
+03 path blue     2.38     07 streak freeze  2.59
+04 section done  2.38     08 league promo   2.93
 ```
 
 Two things the renders corrected that the capture alone would not have. The

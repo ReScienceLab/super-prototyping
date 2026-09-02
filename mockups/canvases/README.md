@@ -174,10 +174,11 @@ files sitting in the folder are invisible to the canvas.
   prose. The 15 `ref-*` boards are gitignored, so a fresh clone has 18.
 - `duolingo-ios/`: the run to read when the source screens are mostly
   illustration. Eight screens of the Duolingo iOS app, six of the learning
-  path and two of the modal sheets, 11 boards in three rows: a token board and
-  two evidence boards for 58 tokens, the eight replicas, and the Mobbin
+  path and two of the modal sheets, 12 boards in three rows: a token board,
+  two evidence boards for 58 tokens, an art board that shows every crop and
+  each screen with its chrome removed, the eight replicas, and the Mobbin
   capture of each column-for-column underneath. Mean absolute delta against
-  those captures is 1.36-2.97 levels (of 255), the best screenshot-sourced
+  those captures is 1.32-2.93 levels (of 255), the best screenshot-sourced
   numbers in the repo, because all 128 illustrations are **crops of the
   captures at measured boxes** rather than redrawn art. Its `README.md`
   records the experiment behind that choice - the same crop redrawn by
@@ -185,7 +186,7 @@ files sitting in the folder are invisible to the canvas.
   0.762em rather than SF Pro's 0.714, the two different status bars in one
   capture set, and the `z-index` that painted over five text classes without
   an error. `assets/art/` is committed; the eight `ref-*` boards are
-  gitignored, so a fresh clone has 11.
+  gitignored, so a fresh clone has 12.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so
