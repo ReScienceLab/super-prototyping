@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Claude iOS - Evidence 2/2</title>
+<style>
+:root{
+  /* Font */
+  --c-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --c-serif:Georgia,"Iowan Old Style",Charter,"Times New Roman",serif;
+
+  /* Surface */
+  --c-bg:#FBF9F5;
+  --c-card:#FBFAF7;
+  --c-fill:#EFEEE6;
+  --c-raised:#FEFCFB;
+  --c-white:#FFFFFF;
+  --c-kbd:#E3E3E5;
+  --c-scrim:rgba(0,0,0,.20);
+
+  /* Line */
+  --c-hairline:#C8C6C2;
+  --c-border:#E3E2DE;
+
+  /* Ink */
+  --c-ink:#12100F;
+  --c-ink-2:#44423E;
+  --c-ink-3:#767470;
+  --c-ink-4:#ABAAA6;
+  --c-ink-inv:#FFFFFF;
+  --c-placeholder:#73736E;
+
+  /* Accent */
+  --c-accent:#D97757;
+  --c-send:#CB6442;
+  --c-switch:#2C83DA;
+
+  /* Voice */
+  --c-v-blue-1:#B6C9DE;
+  --c-v-blue-2:#ACC3DD;
+  --c-v-warm-1:#E9AD98;
+  --c-v-warm-2:#EAA087;
+  --c-v-deep-1:#C0C9D8;
+  --c-v-deep-2:#B8C2D5;
+  --c-voice-ink:#76797C;
+
+  /* Radius */
+  --c-r-comp:24px;
+  --c-r-bubble:13px;
+  --c-r-card:14px;
+  --c-r-sheet:47px;
+  --c-r-key:5px;
+  --c-r-pill:999px;
+  --c-r-phone:52px;
+
+  /* Type */
+  --c-t-nav:400 18px/22px var(--c-serif);
+  --c-t-body:400 18px/24px var(--c-font);
+  --c-t-cap:400 15.5px/20px var(--c-font);
+  --c-t-note:400 13px/16.7px var(--c-font);
+  --c-t-key:400 22px/43px var(--c-font);
+  --c-t-serif:400 17.8px/25.5px var(--c-serif);
+  --c-t-h1:700 29px/36.3px var(--c-serif);
+  --c-t-h2:700 25px/31px var(--c-serif);
+  --c-t-hero:400 29.3px/36.3px var(--c-serif);
+  --c-t-list:700 25.5px/31px var(--c-serif);
+  --c-t-time:590 17px/22px var(--c-font);
+
+  /* Metrics */
+  --c-w:393px;
+  --c-h:852px;
+  --c-status:54px;
+  --c-nav:103px;
+  --c-gutter:16px;
+  --c-pad:21.3px;
+  --c-comp-w:369px;
+  --c-tap:44px;
+  --c-kbd-top:545px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--c-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--c-w);height:var(--c-h);
+  border-radius:var(--c-r-phone);overflow:hidden;background:var(--c-bg);color:var(--c-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--c-w);height:var(--c-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--c-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+
+body{padding:0;background:var(--c-bg);color:var(--c-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 19px/24px var(--c-font);margin-bottom:2px}
+header p{font:var(--c-t-note);color:var(--c-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--c-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--c-ink-3);margin:10px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.sw2 .chip2{height:22px;border-radius:6px;border:1px solid var(--c-border)}
+.sw2 b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw2 i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--c-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:38px;height:22px;background:var(--c-fill);border:1px solid var(--c-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--c-font);
+  color:var(--c-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:1px;border-bottom:1px solid var(--c-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--c-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--c-ink-2);columns:2;column-gap:18px}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--c-hairline);font:400 8.5px/11px var(--c-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--c-accent);white-space:nowrap}
+td.v{color:var(--c-ink-2);max-width:126px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+td.e{color:var(--c-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 2/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--c-r-sheet</td><td class="v">47px</td><td class="e">circular fit to 12 samples along the sheet&rsquo;s bottom and left edges</td></tr><tr><td class="t">--c-r-key</td><td class="v">5px</td><td class="e">keyboard key corner, 3x capture</td></tr><tr><td class="t">--c-r-pill</td><td class="v">999px</td><td class="e">by construction, not measured</td></tr><tr><td class="t">--c-r-phone</td><td class="v">52px</td><td class="e">circular stand-in for the 55pt continuous display corner</td></tr><tr><td class="t">--c-t-nav</td><td class="v">400 18px/22px var(--c-serif)</td><td class="e">the model name is serif, not sans: cap 12.7 and ink width 85.6 on &ldquo;Sonnet 4.5&rdquo;, and Georgia at 18px measures 85.0</td></tr><tr><td class="t">--c-t-body</td><td class="v">400 18px/24px var(--c-font)</td><td class="e">cap 12.7 on bubble text and the composer placeholder</td></tr><tr><td class="t">--c-t-cap</td><td class="v">400 15.5px/20px var(--c-font)</td><td class="e">cap 11.0 on &ldquo;Ready and listening&rdquo;</td></tr><tr><td class="t">--c-t-note</td><td class="v">400 13px/16.7px var(--c-font)</td><td class="e">bands pitch 16.7 on the two disclaimer lines</td></tr><tr><td class="t">--c-t-key</td><td class="v">400 22px/43px var(--c-font)</td><td class="e">key glyph box 11 x 17.3 at (19, 584)</td></tr><tr><td class="t">--c-t-serif</td><td class="v">400 17.8px/25.5px var(--c-serif)</td><td class="e">cap 12.3, bands pitch 25.5 over 5 answer screens</td></tr><tr><td class="t">--c-t-h1</td><td class="v">700 29px/36.3px var(--c-serif)</td><td class="e">cap 20.3 on &ldquo;7-Day Healthy Meal Plan&rdquo;</td></tr><tr><td class="t">--c-t-h2</td><td class="v">700 25px/31px var(--c-serif)</td><td class="e">cap 17.3 on &ldquo;Day 1&rdquo; and &ldquo;Content Issues&rdquo;</td></tr><tr><td class="t">--c-t-hero</td><td class="v">400 29.3px/36.3px var(--c-serif)</td><td class="e">cap 20.3, bands pitch 36.3 on the home headline</td></tr><tr><td class="t">--c-t-list</td><td class="v">700 25.5px/31px var(--c-serif)</td><td class="e">cap 17.7, bands pitch 31 on the voice transcript</td></tr><tr><td class="t">--c-t-time</td><td class="v">590 17px/22px var(--c-font)</td><td class="e">iOS status bar clock</td></tr><tr><td class="t">--c-w</td><td class="v">393px</td><td class="e">iPhone 15/16 logical width</td></tr><tr><td class="t">--c-h</td><td class="v">852px</td><td class="e">iPhone 15/16 logical height</td></tr><tr><td class="t">--c-status</td><td class="v">54px</td><td class="e">iOS status bar, and where the nav band starts</td></tr><tr><td class="t">--c-nav</td><td class="v">103px</td><td class="e">nav circles at top 59, 44 tall: 59 + 44 = 103</td></tr><tr><td class="t">--c-gutter</td><td class="v">16px</td><td class="e">scan to the left nav circle, x 16..60</td></tr><tr><td class="t">--c-pad</td><td class="v">21.3px</td><td class="e">scan to the left edge of every serif answer line</td></tr><tr><td class="t">--c-comp-w</td><td class="v">369px</td><td class="e">scan across the composer, x 12..381</td></tr><tr><td class="t">--c-tap</td><td class="v">44px</td><td class="e">bbox of the nav circles, 44 x 44</td></tr><tr><td class="t">--c-kbd-top</td><td class="v">545px</td><td class="e">scan down to the keyboard ground on 01, 09 and 14</td></tr></table></div>
+</body>
+</html>
