@@ -11,16 +11,16 @@ to edit and no code change needed to add a board.
 
 ## Start
 
-The server runs under tmux. A bare `npm run dev` is blocked by a hook, and the
+The server runs under tmux. A bare `bun run dev` is blocked by a hook, and the
 **whole shell command must start with `tmux`**: a leading `cd` trips the
 same hook, so pass the directory with `-c` and an absolute path.
 
 ```bash
 ROOT="$(git rev-parse --show-toplevel)"
-[ -d "$ROOT/canvas/node_modules" ] || (cd "$ROOT/canvas" && npm ci)
+[ -d "$ROOT/canvas/node_modules" ] || (cd "$ROOT/canvas" && bun install --frozen-lockfile)
 tmux kill-session -t canvas 2>/dev/null
 tmux new-session -d -s canvas -c "$ROOT/canvas" \
-     "npm run dev -- --host 127.0.0.1 --port 5173 --strictPort"
+     "bun run dev -- --host 127.0.0.1 --port 5173 --strictPort"
 tmux capture-pane -p -t canvas | tail -5      # confirm it bound
 ```
 
@@ -115,7 +115,7 @@ layout drift is what the refresh button is for.
 
 ```bash
 cd "$(git rev-parse --show-toplevel)/canvas"
-npm run lint && npm test && npm run build
+bun run lint && bun run test && bun run build
 ```
 
 Then, in a fresh browser session: each board page loads with its frames,

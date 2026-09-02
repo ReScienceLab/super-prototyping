@@ -72,7 +72,7 @@ bleaches them. Luminance is not the problem; it matches to 0.1.
 ```bash
 git clone --depth 1 https://github.com/ReScienceLab/super-prototyping.git my-product-design
 cd my-product-design && rm -rf .git && git init
-cd canvas && npm ci
+cd canvas && bun install --frozen-lockfile
 ```
 
 Both boards above ship with it. Copy a `00-design-tokens.html` as the
@@ -82,7 +82,7 @@ starting point for your own token block, then delete the folders.
 
 ```bash
 cd canvas
-npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
+bun run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
 Open the URL Vite prints; deep-link a board with `?canvas=<slug>`. The bottom
@@ -157,7 +157,7 @@ python3 tools/test_refkit.py                                 # self-check
 ## Verify
 
 ```bash
-cd canvas && npm run lint && npm test && npm run build
+cd canvas && bun run lint && bun run test && bun run build
 ```
 
 ## Licence
