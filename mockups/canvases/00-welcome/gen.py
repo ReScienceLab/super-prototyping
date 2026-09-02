@@ -69,8 +69,6 @@ TOKENS = f""":root{{
   --w-radius:10px;
 }}"""
 
-RUN = "cd canvas &amp;&amp; npm run dev"
-
 
 def board():
     return f"""<!DOCTYPE html>
