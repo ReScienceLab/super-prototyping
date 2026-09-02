@@ -27,7 +27,7 @@ motion consumes mockups.
 | what it is   | a reusable motion effect             | one finished cut for one product  |
 | content      | comes in as props                    | baked in                          |
 | grows by     | accumulating effects                 | accumulating launches             |
-| example      | `spatial-gallery`                    | none yet                          |
+| example      | 16 of them, `src/templates/`         | none yet                          |
 
 A template is the thing worth having a library of: it takes `cards`, `motion`,
 geometry, and does not care whose photos those are. A film picks a template (or
@@ -37,6 +37,27 @@ mirrors `mockups/canvases/templates/` against a real board folder.
 The test, when it is not obvious: **would a second product reuse this without
 editing the TSX?** If yes it is a template and the product-specific parts belong
 in props. If the answer needs a "well, if you changed…", it is a film.
+
+## The Delphi set
+
+`src/templates/` currently holds sixteen: `spatial-gallery`, plus fifteen taken
+off one 68-second brand film, one motion effect each.
+
+| | |
+|--|--|
+| ground     | `mesh-gradient` |
+| type       | `count-up`, `word-cascade`, `text-marker`, `word-swap`, `word-grid` |
+| spheres    | `orb-bloom`, `bokeh-orbit`, `particle-form`, `depth-flythrough` |
+| camera     | `card-stack`, `focus-pull`, `lens-reveal` |
+| chrome     | `pill-expand`, `logo-outro` |
+
+They are built to be cut together, which is what puts `durationInFrames` in
+props on every one of them: inside a `<Sequence>`, `useVideoConfig()` still
+reports the *composition's* length, so a template that reads its length from
+there stretches wrong the moment it is placed in a cut. `src/lib/README.md`
+carries that contract, the palette provenance, and what is and is not
+reproduced from the reference; each template's own README carries its
+measurements.
 
 ## What an asset folder holds
 
@@ -56,7 +77,7 @@ not `staticFile`d: `staticFile` resolves against `../mockups`, which is for the
 boards and photos motion consumes, not for an asset's own files. Code two assets
 share moves to `src/lib/`, which `require.context` does not look in — only
 `<bucket>/<slug>/index.tsx` becomes a composition, so a shared module is a shared
-module and not an empty entry in the studio sidebar.
+module and not an empty entry in the studio sidebar. See `src/lib/README.md`.
 
 `index.tsx` exports exactly three things:
 
@@ -105,6 +126,9 @@ constant that "feels about right" is how a replica quietly stops being one.
 python3 tools/motionkit.py probe ref.mp4                    # the four meta.json numbers
 python3 tools/motionkit.py flow ref.mp4 --out motion.txt    # per-frame px/frame, pan axis
 python3 tools/motionkit.py sheet ref.mp4 --out sheet.png    # labelled contact sheet
+python3 tools/motionkit.py sheet ref.mp4 --from 1140 --to 1320   # one shot of it
+python3 tools/motionkit.py swatch ref.mp4 1180 --grid 16x9  # the gradient, as hex
+python3 tools/motionkit.py swatch ref.mp4 2040 --crop 600:130:1150:880
 python3 tools/motionkit.py compare ref.mp4 out/x.mp4        # side by side, one clip
 python3 tools/motionkit.py selftest
 ```
@@ -125,6 +149,13 @@ Every value a composition draws must be a pure function of `useCurrentFrame()`:
 no CSS transitions or keyframes, no `requestAnimationFrame`, no timers, no
 unseeded random. A frame that depends on the frame before it will render
 differently depending on which worker got it.
+
+Fonts are the same problem one level down. `@remotion/google-fonts` holds the
+render open until the file is actually in, which a `<link>` tag does not — a
+`<link>` renders the first frames in the fallback face and nobody notices until
+the mp4 is on the canvas. `src/lib/fonts.ts` loads the two faces the set uses
+and **pins the weights and the subset**: left unpinned, Inter alone fires 126
+requests at the head of every render.
 
 ## On the canvas
 

@@ -123,9 +123,19 @@ product) and it becomes a composition, with no registry to update. `./render.sh
 assets appear on the canvas's **Motion** page, and as a row of cards on the
 welcome board. See `motion/README.md`.
 
+`motion/src/templates/` holds sixteen so far: `spatial-gallery`, plus fifteen motion
+effects taken one at a time off a single 68-second brand film — a mesh
+gradient, five type effects, four sphere effects, three camera moves, two
+chrome effects. They are built to be cut together rather than watched alone,
+so each one that has a length takes `durationInFrames` as a prop and settles
+well before its own last frame. `motion/src/lib/README.md` carries that contract and the
+provenance of every colour in the set.
+
 The measurement rule applies to time as well as colour: `tools/motionkit.py`
-reads per-frame motion off a reference clip, so a friction constant or a hold
-comes off the source rather than out of the air.
+reads per-frame motion off a reference clip, `swatch` reads its palette off one
+frame, and `sheet --from/--to` cuts a contact sheet down to one shot — so a
+friction constant, a hold or a hex comes off the source rather than out of the
+air.
 
 The rule the whole thing is built around: **every colour and every metric in
 a cloned artboard traces to a measurement.** Grid the reference image, look

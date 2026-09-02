@@ -12,6 +12,11 @@ a motion asset's timings can be measured from its reference instead of eyeballed
            decay. Prints px/frame and the running total, in source pixels
   sheet    labelled contact sheet, N frames evenly spaced. The frame numbers are
            the point: they turn "it settles about here" into "it settles at f76"
+           `--from/--to` narrows it to one shot, which is how you go from "the
+           gradient moves" to forty frames you can fit a curve to
+  swatch   the colours off one frame, as hex. `--grid WxH` area-averages the
+           whole frame into cells (the shape of a gradient), `--crop W:H:X:Y`
+           censuses one region at full resolution (the exact hex of a chip)
   compare  reference and render side by side in one clip, same height, so the
            two can be scrubbed against each other rather than remembered
 
@@ -145,7 +150,11 @@ def cmd_flow(a):
 
 def cmd_sheet(a):
     w, h, _, n = probe(a.video)
-    indices = [round(i * (n - 1) / max(1, a.count - 1)) for i in range(a.count)]
+    lo = max(0, a.start)
+    hi = min(n - 1, a.end if a.end is not None else n - 1)
+    if lo >= hi:
+        sys.exit(f"motionkit: --from {a.start} is not before --to {hi}")
+    indices = [round(lo + i * (hi - lo) / max(1, a.count - 1)) for i in range(a.count)]
     frames, _ = read_gray_rgb(a.video, a.width)
     tw = frames[0].width
     th = frames[0].height
@@ -164,6 +173,45 @@ def cmd_sheet(a):
         draw.text((x + 4, y + th + 2), f"f{idx}", fill="#eee", font=font)
     sheet.save(a.out)
     print(f"{a.out}  {sheet.width}x{sheet.height}  frames {indices}")
+
+
+def cmd_swatch(a):
+    """Colours off one frame: a hex grid of the whole frame, or a crop's census.
+
+    The grid answers "what is the gradient made of" -- an area-averaged NxM
+    downsample is exactly the set of stops a CSS gradient needs. The crop
+    answers "what colour is that button", where an average would just report
+    the button blended with the page behind it, so it prints a census instead
+    and the fill is whichever colour holds the most pixels.
+    """
+    vf = [f"select='eq(n,{a.frame})'"]
+    if a.crop:
+        vf.append(f"crop={a.crop}")
+    if not a.crop:
+        cols, rows = (int(v) for v in a.grid.split("x"))
+        vf.append(f"scale={cols}:{rows}:flags=area")
+    raw = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", a.video, "-vf", ",".join(vf),
+         "-frames:v", "1", "-pix_fmt", "rgb24", "-f", "rawvideo", "-"],
+        capture_output=True, check=True,
+    ).stdout
+    if not raw:
+        sys.exit(f"motionkit: no frame {a.frame} in {a.video}")
+    if a.crop:
+        px = np.frombuffer(raw, np.uint8).reshape(-1, 3)
+        colours, counts = np.unique(px, axis=0, return_counts=True)
+        print(f"f{a.frame} crop {a.crop}  {len(px)} px")
+        for i in np.argsort(-counts)[: a.top]:
+            print(f"  {hexof(colours[i])}  {100 * counts[i] / len(px):5.1f}%")
+        return
+    px = np.frombuffer(raw, np.uint8).reshape(rows, cols, 3)
+    print(f"f{a.frame}  {cols}x{rows} area-average")
+    for row in px:
+        print("  " + " ".join(hexof(p) for p in row))
+
+
+def hexof(rgb):
+    return "#%02x%02x%02x" % tuple(int(v) for v in rgb)
 
 
 def read_gray_rgb(path, width):
@@ -202,6 +250,9 @@ def cmd_selftest(_):
         got = shift(base, moved)
         assert got == (dx, dy), f"shift said {got}, expected {(dx, dy)}"
     print("ok: phase correlation recovers known shifts")
+    for rgb, want in (((0, 0, 0), "#000000"), ((255, 196, 161), "#ffc4a1")):
+        assert hexof(np.array(rgb)) == want, f"hexof said {hexof(np.array(rgb))}"
+    print("ok: swatch reports the hex a stylesheet would take")
 
 
 def main():
@@ -230,6 +281,19 @@ def main():
     h.add_argument("--count", type=int, default=10)
     h.add_argument("--cols", type=int, default=5)
     h.add_argument("--width", type=int, default=320, help="tile width")
+    h.add_argument("--from", type=int, default=0, dest="start",
+                   help="first frame of the range (default: the whole clip)")
+    h.add_argument("--to", type=int, default=None, dest="end",
+                   help="last frame of the range")
+
+    v = s.add_parser("swatch", help="colours off one frame, as hex")
+    v.set_defaults(fn=cmd_swatch)
+    v.add_argument("video")
+    v.add_argument("frame", type=int)
+    v.add_argument("--grid", default="16x9",
+                   help="area-average the whole frame to this many cells")
+    v.add_argument("--crop", help="W:H:X:Y; census this region instead of the grid")
+    v.add_argument("--top", type=int, default=6, help="census rows to print")
 
     c = s.add_parser("compare", help="reference | render, side by side")
     c.set_defaults(fn=cmd_compare)
