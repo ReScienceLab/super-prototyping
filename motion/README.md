@@ -5,8 +5,13 @@ One subfolder per asset. Drop a folder into `motion/src/templates/<slug>/` or
 
 - Each folder becomes one Remotion composition, its id the folder name.
 - Discovery lives in `src/Root.tsx` (`require.context`). There is no registry.
-- `npx remotion studio` scrubs them all; `npx remotion render <slug> <path>`
-  exports one.
+- `npx remotion studio` scrubs them all; `./render.sh <slug>` exports one.
+
+Name the folder in kebab-case, and name it something no other folder is called:
+the folder name is the composition id, and Remotion's ids are global, so
+`films/spatial-gallery/` and `templates/spatial-gallery/` collide even though
+they sit in different buckets. `Root.tsx` throws on that pair rather than
+rendering whichever one it enumerated last.
 
 This is the video half of what `canvas/` does for the artboards, and it reads
 the same source: `remotion.config.ts` points the public dir at `../mockups`, so
@@ -29,17 +34,29 @@ geometry, and does not care whose photos those are. A film picks a template (or
 writes its own scene), points it at one product's boards, and is done. The split
 mirrors `mockups/canvases/templates/` against a real board folder.
 
+The test, when it is not obvious: **would a second product reuse this without
+editing the TSX?** If yes it is a template and the product-specific parts belong
+in props. If the answer needs a "well, if you changed…", it is a film.
+
 ## What an asset folder holds
 
 ```
 motion/src/templates/spatial-gallery/
   index.tsx        Component, meta, defaultProps  <- the whole contract
-  meta.json        fps, width, height, durationInFrames
+  meta.json        fps, width, height, durationInFrames, and an optional name
   motion.ts        supporting modules, as many as it needs
   README.md        what it replicates, the numbers it hits, deviations
+  assets/          images and fonts this asset alone uses
   out/<slug>.mp4   the render, committed
-  reference/       the evidence: BRIEF.md, motion.txt, flow.py
+  reference/       the evidence: BRIEF.md, motion.txt
 ```
+
+Anything under `assets/` is imported (`import photo from "./assets/photo.jpg"`),
+not `staticFile`d: `staticFile` resolves against `../mockups`, which is for the
+boards and photos motion consumes, not for an asset's own files. Code two assets
+share moves to `src/lib/`, which `require.context` does not look in — only
+`<bucket>/<slug>/index.tsx` becomes a composition, so a shared module is a shared
+module and not an empty entry in the studio sidebar.
 
 `index.tsx` exports exactly three things:
 
@@ -52,20 +69,29 @@ export const defaultProps: SpatialGalleryProps = { ... };  // templates only
 `meta.json` is a JSON sidecar rather than a field in the TSX so that two
 different bundlers can both read it: rspack builds the compositions, and Vite
 builds the canvas, which needs the box to size the preview. `motionkit probe`
-prints it in exactly this shape.
+prints it in exactly this shape. Its one optional field is `name`, the caption
+the canvas shows: without it the slug is humanized, which cannot express casing
+or punctuation — `luma-ios-launch` reads as "Luma Ios Launch".
 
 ## Rendering
 
 ```bash
 cd motion
-npx remotion studio                                              # scrub everything
-npx remotion render spatial-gallery src/templates/spatial-gallery/out/spatial-gallery.mp4
+npx remotion studio      # scrub everything
+./render.sh <slug>       # one asset, to its own out/<slug>.mp4
+./render.sh              # every asset
 ```
 
-The mp4 in `out/` is committed. It is the only way to see an asset without
-running the project, it is what the canvas plays, and it is what makes a diff
-reviewable. Re-render it whenever the composition changes; a stale render is
-worse than none.
+`render.sh` derives the output path from the slug rather than taking one, because
+a render written anywhere else is a render the canvas does not show.
+
+The mp4 in `out/` is committed, and it is a **preview, not a deliverable**: CRF 28
+rather than Remotion's default 18, sized to loop on a canvas next to three others.
+It is the only way to see an asset without running the project, it is what the
+canvas plays, and it is what makes a diff reviewable. Anyone who needs a master
+re-renders the composition at whatever they are exporting for — that takes seconds
+and keeps a few megabytes per revision out of the history. Re-render whenever the
+composition changes; a stale render is worse than none.
 
 ## Every timing traces to a measurement
 
@@ -107,5 +133,13 @@ each playing in a loop at 478pt wide — the artboards' own column pitch, so a
 video lines up with the boards it was made from. Deep-link it with
 `?canvas=motion`. The welcome board carries the same renders as a third row of
 cards under its examples, so the first thing anyone opens shows the boards
-moving. An asset that has never been rendered is in neither place; the canvas
-plays mp4s, not compositions. See `canvas/src/motionLibrary.ts`.
+moving.
+
+Both places wrap at four across: the welcome board is exactly four cards wide and
+its row stops there, saying how many more are on the Motion page, and the Motion
+page runs each bucket down in rows of four. So the tenth asset costs nothing —
+it lands in the second row of its bucket and the welcome board's heading counts
+one higher.
+
+An asset that has never been rendered is in neither place; the canvas plays mp4s,
+not compositions. See `canvas/src/motionLibrary.ts`.

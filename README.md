@@ -119,7 +119,8 @@ video. `motion/` stays on npm — Remotion bundles with rspack and ships its own
 Chrome Headless Shell, so Bun buys it nothing. Same discovery contract as the
 boards — drop a folder into `motion/src/templates/<slug>/` (a reusable effect,
 driven by props) or `motion/src/films/<slug>/` (one finished cut for one
-product) and it becomes a composition, with no registry to update. Rendered
+product) and it becomes a composition, with no registry to update. `./render.sh
+<slug>` exports it to its own `out/`, which is where the canvas looks: rendered
 assets appear on the canvas's **Motion** page, and as a row of cards on the
 welcome board. See `motion/README.md`.
 

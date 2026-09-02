@@ -4,7 +4,9 @@ import {
   T,
   type RecordProps,
   type TLShape,
+  useEditor,
   useIsEditing,
+  useValue,
 } from "tldraw";
 
 export const MOTION_FILE_SHAPE_TYPE = "motion-file" as const;
@@ -33,6 +35,16 @@ export type MotionFileShape = TLShape<typeof MOTION_FILE_SHAPE_TYPE>;
 // oxlint-disable-next-line react/only-export-components
 function MotionFile({ shape }: { shape: MotionFileShape }) {
   const isEditing = useIsEditing(shape.id);
+  const editor = useEditor();
+  // tldraw culls a shape by hiding it, not by unmounting it, and a `display: none` <video> keeps
+  // its decoder running: a page of them costs the same off-screen as on. Dropping the element
+  // while culled is what makes this page scale past a handful of renders. The <video> remounts
+  // on the way back, so playback restarts from the first frame — a loop, so nothing is lost.
+  const isCulled = useValue(
+    "culled",
+    () => editor.getCulledShapes().has(shape.id),
+    [editor, shape.id],
+  );
 
   return (
     <HTMLContainer
@@ -43,22 +55,24 @@ function MotionFile({ shape }: { shape: MotionFileShape }) {
         background: "transparent",
       }}
     >
-      <video
-        title={shape.props.name}
-        src={shape.props.src}
-        autoPlay
-        loop
-        muted
-        playsInline
-        controls={isEditing}
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "block",
-          objectFit: "contain",
-          pointerEvents: isEditing ? "auto" : "none",
-        }}
-      />
+      {isCulled ? null : (
+        <video
+          title={shape.props.name}
+          src={shape.props.src}
+          autoPlay
+          loop
+          muted
+          playsInline
+          controls={isEditing}
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "block",
+            objectFit: "contain",
+            pointerEvents: isEditing ? "auto" : "none",
+          }}
+        />
+      )}
     </HTMLContainer>
   );
 }

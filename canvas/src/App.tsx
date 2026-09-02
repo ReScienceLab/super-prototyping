@@ -39,6 +39,8 @@ import {
   MOTION_PAGE_NAME,
   MOTION_PAGE_SLUG,
   MOTION_PREVIEW_WIDTH,
+  MOTION_ROW_LENGTH,
+  type MotionLibraryFile,
   type MotionMeta,
   durationSeconds,
   readMotionLibrary,
@@ -397,6 +399,15 @@ function layoutWelcomeExtras(
 }
 
 /**
+ * A motion heading spans its row, and never fewer than three columns: a heading given only one
+ * card's width wraps onto three lines and sets them down over the video it is naming.
+ */
+function motionHeadingWidth(columns: number) {
+  const span = Math.max(columns, 3);
+  return span * MOTION_PREVIEW_WIDTH + (span - 1) * LIBRARY_GAP;
+}
+
+/**
  * The third row: what the boards look like once they move. A card is a full 478 wide, the
  * artboards' own column pitch and twice the example cards above it — a render is the one thing
  * on this board with motion in it, and at half width there is nothing to see. Its height is its
@@ -410,14 +421,17 @@ function layoutWelcomeMotionRow(
   page: { id: TLPageId },
   rowTop: number,
 ) {
-  const assets = readMotionLibrary();
-  if (!assets.length) return;
+  const library = readMotionLibrary();
+  if (!library.length) return;
+  // One row, never two: this strip sits under the welcome board and anything wider than the
+  // board makes zoom-to-fit shrink the whole page to read it. The rest are one click away.
+  const assets = library.slice(0, MOTION_ROW_LENGTH);
+  const overflow = library.length - assets.length;
 
   const cardHeight = (meta: MotionMeta) =>
     Math.round((MOTION_PREVIEW_WIDTH * meta.height) / meta.width) +
     CANVAS_LINK_TITLE_HEIGHT;
-  const cardX = (index: number) =>
-    index * (MOTION_PREVIEW_WIDTH + LIBRARY_GAP);
+  const cardX = (index: number) => index * (MOTION_PREVIEW_WIDTH + LIBRARY_GAP);
   const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
 
   const cards = assets.map((asset, index) => ({
@@ -462,18 +476,17 @@ function layoutWelcomeMotionRow(
     }
   }
 
-  // The row above already says to click a card, so this one only has to name itself.
-  const title = "Motion: the same boards, moving";
+  // The row above already says to click a card, so this one only has to name itself — and,
+  // once there are more renders than fit, say where the ones it is not showing went.
+  const title = overflow
+    ? `Motion: the same boards, moving — and ${overflow} more on the Motion page`
+    : "Motion: the same boards, moving";
   createAnnotation(editor, {
     id: `canvas-row-heading:${page.id}:${title}`,
     text: title,
     x: 0,
     y: rowTop,
-    // At least three columns wide whatever the row holds, so a one-card row's heading sets on a
-    // single line instead of wrapping down over the card under it.
-    w:
-      Math.max(assets.length, 3) * MOTION_PREVIEW_WIDTH +
-      (Math.max(assets.length, 3) - 1) * LIBRARY_GAP,
+    w: motionHeadingWidth(assets.length),
     size: "l",
     color: "white",
     parentId: page.id,
@@ -537,17 +550,31 @@ function layoutMotionPage(editor: Editor, libraryPages: Set<TLPageId>) {
   for (const group of groups) {
     const row = assets.filter((asset) => asset.bucket === group.bucket);
     if (!row.length) continue;
-    const contentY = top + LIBRARY_HEADING_HEIGHT;
-    const rowHeight = Math.max(
-      ...row.map((asset) => previewHeight(asset.meta)),
-    );
 
-    const shapes = row.map((asset, index) => ({
+    // A bucket wraps at MOTION_ROW_LENGTH rather than running off to the right, so the page
+    // stays about as wide as the board pages beside it however many renders accumulate. Each
+    // line is as tall as its own tallest video: a portrait cut next to a landscape one should
+    // not push a whole bucket down to portrait height.
+    const placed: { asset: MotionLibraryFile; x: number; y: number }[] = [];
+    let lineY = top + LIBRARY_HEADING_HEIGHT;
+    for (let start = 0; start < row.length; start += MOTION_ROW_LENGTH) {
+      const line = row.slice(start, start + MOTION_ROW_LENGTH);
+      line.forEach((asset, column) =>
+        placed.push({ asset, x: previewX(column), y: lineY }),
+      );
+      lineY +=
+        Math.max(...line.map((asset) => previewHeight(asset.meta))) +
+        LIBRARY_LABEL_GAP +
+        LIBRARY_LABEL_HEIGHT +
+        LIBRARY_GAP;
+    }
+
+    const shapes = placed.map(({ asset, x, y }) => ({
       id: createShapeId(`motion-file:${asset.bucket}/${asset.slug}`),
       type: MOTION_FILE_SHAPE_TYPE,
       parentId: page.id,
-      x: previewX(index),
-      y: contentY,
+      x,
+      y,
       props: {
         w: MOTION_PREVIEW_WIDTH,
         h: previewHeight(asset.meta),
@@ -578,34 +605,25 @@ function layoutMotionPage(editor: Editor, libraryPages: Set<TLPageId>) {
       text: group.title,
       x: 0,
       y: top,
-      // At least three columns wide whatever the row holds, so a one-asset row's heading sets
-      // on a single line instead of wrapping down over the video under it.
-      w:
-        Math.max(row.length, 3) * MOTION_PREVIEW_WIDTH +
-        (Math.max(row.length, 3) - 1) * LIBRARY_GAP,
+      w: motionHeadingWidth(Math.min(row.length, MOTION_ROW_LENGTH)),
       size: "l",
       parentId: page.id,
     });
 
-    row.forEach((asset, index) => {
+    for (const { asset, x, y } of placed) {
       createAnnotation(editor, {
         id: `canvas-file-label:motion/${asset.bucket}/${asset.slug}`,
         text: `${asset.title} · ${durationSeconds(asset.meta).toFixed(1)}s · ${asset.meta.width}×${asset.meta.height}`,
-        x: previewX(index),
-        y: contentY + previewHeight(asset.meta) + LIBRARY_LABEL_GAP,
+        x,
+        y: y + previewHeight(asset.meta) + LIBRARY_LABEL_GAP,
         w: MOTION_PREVIEW_WIDTH,
         size: "s",
         align: "middle",
         parentId: page.id,
       });
-    });
+    }
 
-    top =
-      contentY +
-      rowHeight +
-      LIBRARY_LABEL_GAP +
-      LIBRARY_LABEL_HEIGHT +
-      LIBRARY_GAP;
+    top = lineY;
   }
 }
 

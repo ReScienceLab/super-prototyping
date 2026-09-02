@@ -33,6 +33,11 @@ __pycache__/
 # A motion asset's reference/ keeps the measurements taken off a third-party clip
 # (BRIEF.md, motion.txt, the script that produced them), never the clip itself or
 # frames pulled out of it. Same rule as the ref-*.html boards above.
-motion/src/*/*/reference/*.mp4
-motion/src/*/*/reference/*.mov
-motion/src/*/*/reference/frames/
+#
+# Written as an allowlist rather than a list of video extensions, because the point
+# is that a third-party clip never lands in a commit, and the next reference dropped
+# in here will be a .webm or a .gif or a .zip nobody thought to add to a denylist.
+motion/src/*/*/reference/**
+!motion/src/*/*/reference/*.md
+!motion/src/*/*/reference/*.txt
+!motion/src/*/*/reference/*.py

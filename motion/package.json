@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "remotion studio",
-    "render": "remotion render",
+    "render": "./render.sh",
     "compositions": "remotion compositions",
     "lint": "tsc"
   },
