@@ -2,45 +2,61 @@
 
 # super-prototyping
 
-A standardized setup for cloning and designing product UI as **self-contained
-HTML artboards on a local tldraw canvas**, with the agent skills that drive
-the whole workflow.
+A workspace for rebuilding and designing product UI as **self-contained HTML
+artboards on a local tldraw canvas**, with the measuring toolkit and the agent
+skills that drive the work.
 
-Drop an `.html` file into `mockups/canvases/<board>/` and it shows up on the
-canvas as a shape. That is the entire contract: no shape registry, no build
-step, no design tool.
+The point of it is a replica you can defend. Every colour and every metric on a
+cloned board traces back to a measurement of the source capture, and the
+capture itself is parked on the canvas directly under the replica, so the two
+are one glance apart rather than one memory apart.
 
-```
-canvas/          the tldraw app (Vite + React + TypeScript)
-mockups/
-  canvases/      one folder per board → one tldraw page; one .html → one shape
-  assets/        icons, logos, reference crops that get inlined as data: URIs
-tools/refkit.py  measure a reference, render a board, diff the two, audit tokens
-.agents/skills/  the workflow, as three skills (symlinked into .claude/skills/)
-```
+How you use it: clone the repo, start the canvas, then hand Claude Code your
+screenshots and ask for the `clone-prototype` skill. It grids the capture,
+samples it region by region, writes one measured token block, generates every
+board from a single `gen.py`, then re-renders those boards and diffs them
+against the capture until the numbers hold. `new-ui-mock` does the same for
+screens that have no reference to measure. Both write `.html` files into
+`mockups/canvases/<board>/`, and the canvas picks them up as shapes with no
+registry, no build step and no design tool.
 
-## Three worked examples
+## Five worked examples
 
-All three are real `clone-prototype` runs, rebuilt from measured samples with
+All five are real `clone-prototype` runs, rebuilt from measured samples with
 the evidence recorded for every token. Open any of them with
 `?canvas=<slug>`.
+
+### `duolingo-ios`, eight screens that are mostly picture
+
+[![duolingo-ios](assets/workflow/case-duolingo.png)](mockups/canvases/duolingo-ios/README.md)
+
+*Replica on top, its source capture directly below it. The captures are
+cropped to the same 393 × 852 screen and masked to the same 52pt corner
+radius, so the two rows line up pixel for pixel. Six screens of the learning
+path and the two modal sheets.*
+
+### `luma-ios`, twelve screens and the process behind them
+
+[![luma-ios](assets/workflow/case-luma.png)](mockups/canvases/luma-ios/)
+
+*Six of the twelve. The replica draws a Dynamic Island the capture does not
+have: the source composites it out, the iOS frame spec draws it, and this run
+keeps the frame and excludes the top 56pt from its numbers.*
 
 ### `notion-ios`, six screens
 
 [![notion-ios](assets/workflow/case-notion.png)](mockups/canvases/notion-ios/README.md)
 
-*Replica on top, its source capture directly below it. @3x frames from
-[Mobbin](https://mobbin.com)'s Notion iOS library, cropped to the same 393 × 852
-screen and masked to the same 52pt corner radius, so the two rows line up
-pixel for pixel.*
+*Replica on top, its source capture directly below it. @3x captures, same
+crop and same scale.*
 
-Everything came off a single 0.7634 px/pt strip, which is why the settings
-dividers had to be solved rather than picked: `--n-hairline: #E9E8E7` is a 1pt
-coverage solve, and a naive sample of that same divider reports it far too
-light. One of the six references is a near-match rather than the exact frame,
-since every capture of the meeting page carries a "Summary ready" toast.
-[The board README](mockups/canvases/notion-ios/README.md) says which, because
-a near-match that goes unlabelled is how a replica quietly drifts.
+### `claude-ios`, fifteen screens across four flows
+
+[![claude-ios](assets/workflow/case-claude.png)](mockups/canvases/claude-ios/README.md)
+
+*Six of the fifteen. Home, a streaming answer, voice mode, an artifact card,
+the Add to Chat sheet and a photo answer. The serif answer column is set in
+Georgia standing in for Tiempos, matched on cap height and about 11% wider.*
 
 ### `raycast-ios`, eleven screens across three flows
 
@@ -48,59 +64,7 @@ a near-match that goes unlabelled is how a replica quietly drifts.
 
 *Replica on top, source capture directly below it. Same crop, same scale, so
 the two rows line up pixel for pixel. The Models sheet and Presets flows; the
-six "Ask AI" screens are on the same board.* This one adds what a strip cannot settle: launcher backdrops blurred
-behind a sheet, third-party brand marks (lobehub static SVGs, simple-icons for
-the Raycast mark), and enough tokens that the evidence table had to move onto
-its own `00b-evidence` board, because 478 × 980 clips in silence.
-
-Verified region by region against the captures:
-
-```
-region                 mine      ref        Δmax
-launcher ground        #EFEFEF   #EFEFEF       0
-composer card          #F7F7F7   #F7F7F7       0
-search well            #FCFBFC   #FCFBFC       0
-mic button             #F1F1F1   #F1F1F1       0
-```
-
-One known difference, stated rather than smoothed over: the presets backdrop
-is desaturated, mean chroma 2.0 against the source's 5.9. A single CSS
-Gaussian under two white veils spreads the launcher's colour blobs but
-bleaches them. Luminance is not the problem; it matches to 0.1.
-
-### `duolingo-ios`, eight screens that are mostly picture
-
-[![duolingo-ios](assets/workflow/case-duolingo.png)](mockups/canvases/duolingo-ios/README.md)
-
-*Replica on top, source capture directly below it. Same crop, same scale, so
-the two rows line up pixel for pixel. Six screens of the learning path and the
-two modal sheets.*
-
-This is the run to read when the screens carry more illustration than chrome.
-Mean absolute delta against the captures is **1.32 to 2.93 levels of 255**,
-the best screenshot-sourced numbers here, and the reason is a rule rather than
-effort: all 128 pieces of art are **crops of the captures at measured boxes**,
-keyed in a `crops.json` that `gen.py` both cuts from and places by. A crop is
-the reference's own pixels, so it scores 0; the same crop redrawn by
-`gpt-image-2` scores 38.53, or 18.41 with the generation done properly, on a
-flat key colour and fitted back to the same box. Either way it is the same
-character with a different head-to-body ratio and the props moved. Good
-drawing, useless measurement.
-
-```
-screen              Δ     screen               Δ
-01 path green    1.41     05 up next        1.83
-02 path red      1.47     06 jump here      1.32
-03 path blue     2.38     07 streak freeze  2.59
-04 section done  2.38     08 league promo   2.93
-```
-
-Two things the renders corrected that the capture alone would not have. The
-stand-in face sets its caps at 0.762em where SF Pro sits at 0.714, so every
-size derived from a measured cap height was 6% too large until it was measured
-on the render instead. And the eight captures carry **two different status
-bars**, one cluster starting 9.4pt left of the other, which reads as noise
-until you plot it.
+six "Ask AI" screens are on the same board.*
 
 ## Start a project from this repo
 
@@ -110,7 +74,7 @@ cd my-product-design && rm -rf .git && git init
 cd canvas && bun install --frozen-lockfile
 ```
 
-All three boards above ship with it. Copy a `00-design-tokens.html` as the
+All five ship with it. Copy a `00-design-tokens.html` as the
 starting point for your own token block, then delete the folders.
 
 ## Run the canvas
