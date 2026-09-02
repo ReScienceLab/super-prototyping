@@ -17,6 +17,7 @@ mockups/
   assets/        icons, logos, reference crops that get inlined as data: URIs
 tools/refkit.py  measure a reference, render a board, diff the two, audit tokens
 .agents/skills/  the workflow, as three skills (symlinked into .claude/skills/)
+.claude/skills/  those three, plus Remotion's official skills, vendored
 ```
 
 ## Two worked examples
@@ -99,6 +100,18 @@ Claude Code picks them up):
 | **clone-prototype** | Copying a real app's screens. Grid the reference, sample colours *visually*, name the type face, derive one measured token block, generate the artboards, verify by re-rendering, park the reference underneath. |
 | **new-ui-mock** | Designing new screens with no reference, built on existing tokens, including the empty/loading/error states and side-by-side proposals. |
 | **prototype-canvas** | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
+
+### Motion
+
+Artboards are still frames. To put them in motion, [Remotion](https://www.remotion.dev)'s
+own skills are vendored in `.claude/skills/remotion-*`, pinned by
+`skills-lock.json`. `/remotion-create` scaffolds the project,
+`/remotion-markup` writes the animation, `/remotion-render` exports it; start
+at `/remotion-best-practices` if you are not sure which. They are upstream's,
+not ours — update them with `npx skills update`, do not hand-edit them.
+
+Remotion is free for individuals and companies of up to three people; larger
+ones need a licence from [remotion.pro](https://www.remotion.pro/license).
 
 The rule the whole thing is built around: **every colour and every metric in
 a cloned artboard traces to a measurement.** Grid the reference image, look
