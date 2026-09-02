@@ -143,6 +143,31 @@ def test_summ_reads_boxes_and_picks_the_real_edge():
 ROOT = ":root{--x-bg:#FFFFFF;--x-ink:#0A0A0A}"
 
 
+def test_key_alpha_holds_the_interior_and_ramps_only_the_edge():
+    # Magenta ground, an opaque MID-TONE body (the case a Euclidean full-range
+    # key leaves ~25% transparent), and one column of half-covered edge.
+    K = np.array([255, 0, 255], float)
+    a = np.tile(K, (30, 30, 1))
+    body = np.array([150, 100, 60], float)               # opaque brown
+    a[8:22, 8:21] = body
+    a[8:22, 21] = 0.5 * body + 0.5 * K                    # half-covered edge
+    alpha, _ = R._key_alpha(a, K, tol=45, hi=110)
+    assert alpha[0, 0] == 0, alpha[0, 0]                  # ground gone
+    assert alpha[15, 10] == 1, alpha[15, 10]              # interior opaque
+    assert 0 < alpha[15, 21] < 1, alpha[15, 21]           # edge partial
+    A = alpha[..., None]
+    F = np.clip(np.where(A > 0, (a - (1 - A) * K) / np.maximum(A, 1e-6), 0), 0, 255)
+    assert abs(F[15, 10] - body).max() < 1e-6, F[15, 10]  # interior untouched
+    assert F[15, 21][1] > a[15, 21][1], F[15, 21]         # spill pulled off the edge
+
+
+def test_key_border_check_rejects_a_ground_that_is_not_the_key():
+    a = np.full((30, 30, 3), 250, float)                 # the model's "white"
+    _, d = R._key_alpha(a, np.array([255, 0, 255], float), tol=45, hi=110)
+    b = np.concatenate([d[:5].ravel(), d[-5:].ravel(), d[:, :5].ravel(), d[:, -5:].ravel()])
+    assert b.mean() > 45, b.mean()                       # cmd_key exits here
+
+
 def _folder(files):
     d = tempfile.mkdtemp()
     for name, body in files.items():

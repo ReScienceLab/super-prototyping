@@ -16,6 +16,8 @@
            icon sizing converge instead of oscillate
   crops    per-probe ref|render crop pairs, NEAREST-zoomed. Numbers are good
            at size and useless at shape; this is the shape check
+  key      chroma-key a generated asset off its flat ground, unpremultiply
+           the edge spill, trim, and fit it to the measured box
   hairline solve a sub-pixel border/divider colour from its ink coverage
   font     name the type face in a region. Renders the word in every candidate
            and ranks by glyph shape, so it can answer "SF Pro"
@@ -141,7 +143,8 @@ def cmd_sample(a):
     if px.size == 0:
         sys.exit("empty region")
     flat = _flatsel(px)
-    for label, sel in (("flat fills", flat), ("all pixels", px.reshape(-1, 3))):
+    pairs = (("flat fills", flat), ("all pixels", px.reshape(-1, 3)))
+    for label, sel in (pairs if a.only != "ink" else ()):
         if sel is None or len(sel) == 0:
             print(f"{label}: none (region too small / all antialiased)")
             continue
@@ -152,6 +155,8 @@ def cmd_sample(a):
             print(f"  {_hex(vals[i])}  {counts[i]:6d}  {100*counts[i]/len(sel):5.1f}%")
     # Text has no flat interior at any realistic size; its true ink is the mean
     # of the darkest few percent, not the mode (which returns the background).
+    if a.only == "flat":
+        return
     v = px.reshape(-1, 3)
     n = max(1, int(len(v) * a.ink / 100))
     print(f"ink core (darkest {a.ink}%): {_hex(v[v.mean(1).argsort()[:n]].mean(0))}")
@@ -664,7 +669,9 @@ def _probes(path, against):
 
 def _probe_argv(p, img, pt):
     """A probe row -> the argv the real subcommand parses. `box` maps onto
-    ink's centre+half window; any other key rides through as a --flag."""
+    ink's centre+half window; a key starting with `_` is a comment, which is
+    where a probe's sanity note lives; any other key rides through as a
+    --flag."""
     cmd, argv = p["cmd"], [p["cmd"], img]
     if cmd == "scan":
         argv += [p["axis"], p["at"], p["range"][0], p["range"][1]]
@@ -674,7 +681,8 @@ def _probe_argv(p, img, pt):
     elif "box" in p:
         argv += p["box"]
     for key, v in p.items():
-        if key in ("id", "img", "mine", "cmd", "box", "axis", "at", "range"):
+        if key.startswith("_") or key in ("id", "img", "mine", "cmd", "box",
+                                          "axis", "at", "range"):
             continue
         argv.append("--" + key)
         if v is not True:
@@ -811,6 +819,68 @@ def cmd_crops(a):
         sys.exit(f"{len(errs)} crop(s) failed: " + ", ".join(errs))
 
 
+def _key_alpha(px, ground, tol, hi):
+    """Chroma key -> (alpha 0..1, per-pixel distance from the key).
+
+    Distance is per-channel max, not Euclidean. Against a saturated key the
+    two disagree exactly where it matters: `C = A*F + (1-A)*K` bounds
+    `A >= |C_c - K_c| / 255` on every channel, so the max channel is the one
+    carrying the coverage, and a Euclidean radius mixes it back into the two
+    channels that carry none.
+
+    Alpha then ramps over `tol .. hi` rather than over the full 0..255. The
+    bound above is a LOWER bound: it is tight on an edge pixel, and too small
+    on an opaque mid-tone interior, which a full-range ramp leaves 25%
+    transparent. `hi` is the distance at which a pixel is certainly artwork.
+    Measured on the duolingo campfire, the closest real art pixel to magenta
+    sits at 115 and 99% of the art is past 162, so the default clears the
+    interior with room and still leaves a two-pixel ramp on the edge.
+
+    Keying on WHITE fails at a level no alpha rule fixes: white is not
+    exclusive to the ground, so the eyes and the teeth key out with it."""
+    d = np.abs(px.astype(float) - np.array(ground, float)).max(-1)
+    return np.clip((d - tol) / max(hi - tol, 1e-6), 0, 1), d
+
+
+def cmd_key(a):
+    """Cut a generated asset off its ground. The unpremultiply is the point:
+    a soft edge pixel is C = A*F + (1-A)*K, so keying alone leaves every edge
+    tinted with the key colour. Solving back for F removes that spill in the
+    same pass."""
+    px = _rgb(a.image).astype(float)
+    K = np.array([int(a.ground[i:i + 2], 16) for i in (0, 2, 4)], float)
+    alpha, d = _key_alpha(px, K, a.tol, a.hi)
+
+    b = a.border
+    edge = np.concatenate([d[:b].ravel(), d[-b:].ravel(),
+                           d[:, :b].ravel(), d[:, -b:].ravel()])
+    print(f"ground #{a.ground.upper()}: border distance mean {edge.mean():.1f} "
+          f"max {edge.max():.1f}   keyed {1 - alpha.mean():.1%} of the frame")
+    if edge.mean() > a.tol:
+        sys.exit(f"the border is {edge.mean():.0f} from the key colour, past "
+                 f"--tol {a.tol}. The model did not paint the ground you asked "
+                 "for; restate the hex and 'completely flat, no gradient, no "
+                 "shadow' and generate again rather than raising --tol")
+
+    A = alpha[..., None]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        F = np.where(A > 0, (px - (1 - A) * K) / np.maximum(A, 1e-6), 0)
+    out = np.concatenate([np.clip(F, 0, 255), alpha[..., None] * 255], -1)
+    im = Image.fromarray(out.astype("uint8"), "RGBA")
+
+    bbox = im.getchannel("A").point(lambda v: 255 * (v > 8)).getbbox()
+    if not bbox:
+        sys.exit("nothing survived the key: the whole frame is the ground")
+    im = im.crop(bbox)
+    print(f"ink box {bbox}  -> {im.size}")
+    if a.box:
+        w, h = (int(round(v * _k(a))) for v in a.box)
+        im = im.resize((w, h), Image.LANCZOS)
+        print(f"fitted to the measured box: {im.size}")
+    im.save(a.out)
+    print(a.out)
+
+
 def _token_problems(folder):
     """The two invariants the skill states but nothing enforces: one :root
     block shared byte for byte, and no reference to a token that does not
@@ -888,6 +958,10 @@ def _parser():
     v = _region_args(s.add_parser("sample")); v.set_defaults(fn=cmd_sample)
     v.add_argument("--top", type=int, default=6)
     v.add_argument("--ink", type=float, default=2.0, help="ink-core percentile")
+    v.add_argument("--only", choices=("all", "ink", "flat"), default="all",
+                   help="print one section only. `batch` reads the first colour "
+                        "a probe prints, so an ink probe needs --only ink or it "
+                        "silently compares the background instead")
 
     b = _region_args(s.add_parser("bands")); b.set_defaults(fn=cmd_bands)
     b.add_argument("--axis", choices=("rows", "cols"), default="rows")
@@ -992,6 +1066,23 @@ def _parser():
     r.add_argument("-o", "--out", required=True)
     r.add_argument("--zoom", type=int, default=6)
     r.add_argument("--pt", type=float, default=None)
+
+    y = s.add_parser("key"); y.set_defaults(fn=cmd_key)
+    y.add_argument("image"); y.add_argument("-o", "--out", required=True)
+    y.add_argument("--ground", default="FF00FF",
+                   help="the flat colour the asset was generated on (default "
+                        "magenta). Must be a colour the artwork does not contain")
+    y.add_argument("--tol", type=float, default=45.0,
+                   help="noise floor: how far a pixel may sit from --ground "
+                        "and still count as ground, per channel")
+    y.add_argument("--border", type=int, default=30,
+                   help="border band, in px, used to check the ground is flat")
+    y.add_argument("--box", type=float, nargs=2, metavar=("W", "H"),
+                   help="resize to the measured box, in design pt with --pt")
+    y.add_argument("--hi", type=float, default=110.0,
+                   help="distance at which a pixel is certainly artwork, so "
+                        "alpha ramps over --tol .. --hi and interiors go opaque")
+    y.add_argument("--pt", type=float, default=None)
 
     return p
 
