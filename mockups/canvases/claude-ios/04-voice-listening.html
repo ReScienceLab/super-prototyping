@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Claude iOS - Voice, listening</title>
+<style>
+:root{
+  /* Font */
+  --c-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --c-serif:Georgia,"Iowan Old Style",Charter,"Times New Roman",serif;
+
+  /* Surface */
+  --c-bg:#FBF9F5;
+  --c-card:#FBFAF7;
+  --c-fill:#EFEEE6;
+  --c-raised:#FEFCFB;
+  --c-white:#FFFFFF;
+  --c-kbd:#E3E3E5;
+  --c-scrim:rgba(0,0,0,.20);
+
+  /* Line */
+  --c-hairline:#C8C6C2;
+  --c-border:#E3E2DE;
+
+  /* Ink */
+  --c-ink:#12100F;
+  --c-ink-2:#44423E;
+  --c-ink-3:#767470;
+  --c-ink-4:#ABAAA6;
+  --c-ink-inv:#FFFFFF;
+  --c-placeholder:#73736E;
+
+  /* Accent */
+  --c-accent:#D97757;
+  --c-send:#CB6442;
+  --c-switch:#2C83DA;
+
+  /* Voice */
+  --c-v-blue-1:#B6C9DE;
+  --c-v-blue-2:#ACC3DD;
+  --c-v-warm-1:#E9AD98;
+  --c-v-warm-2:#EAA087;
+  --c-v-deep-1:#C0C9D8;
+  --c-v-deep-2:#B8C2D5;
+  --c-voice-ink:#76797C;
+
+  /* Radius */
+  --c-r-comp:24px;
+  --c-r-bubble:13px;
+  --c-r-card:14px;
+  --c-r-sheet:47px;
+  --c-r-key:5px;
+  --c-r-pill:999px;
+  --c-r-phone:52px;
+
+  /* Type */
+  --c-t-nav:400 18px/22px var(--c-serif);
+  --c-t-body:400 18px/24px var(--c-font);
+  --c-t-cap:400 15.5px/20px var(--c-font);
+  --c-t-note:400 13px/16.7px var(--c-font);
+  --c-t-key:400 22px/43px var(--c-font);
+  --c-t-serif:400 17.8px/25.5px var(--c-serif);
+  --c-t-h1:700 29px/36.3px var(--c-serif);
+  --c-t-h2:700 25px/31px var(--c-serif);
+  --c-t-hero:400 29.3px/36.3px var(--c-serif);
+  --c-t-list:700 25.5px/31px var(--c-serif);
+  --c-t-time:590 17px/22px var(--c-font);
+
+  /* Metrics */
+  --c-w:393px;
+  --c-h:852px;
+  --c-status:54px;
+  --c-nav:103px;
+  --c-gutter:16px;
+  --c-pad:21.3px;
+  --c-comp-w:369px;
+  --c-tap:44px;
+  --c-kbd-top:545px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--c-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--c-w);height:var(--c-h);
+  border-radius:var(--c-r-phone);overflow:hidden;background:var(--c-bg);color:var(--c-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--c-w);height:var(--c-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--c-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+
+/* nav: two 44pt circles at top 59, the model name centred, its chevron beside it */
+.nav{position:absolute;left:0;top:0;width:var(--c-w);height:var(--c-nav);z-index:5}
+.nbtn{position:absolute;top:59px;width:var(--c-tap);height:var(--c-tap);border-radius:22px;
+  background:var(--c-raised);display:flex;align-items:center;justify-content:center}
+.nbtn.l{left:var(--c-gutter)}
+.nbtn.r{left:333px}
+.ntitle{position:absolute;left:0;top:68.13px;width:var(--c-w);text-align:center;
+  font:var(--c-t-nav)}
+.nchev{position:absolute;left:241.1px;top:66.7px}
+.nslid{position:absolute;left:348.3px;top:68px}
+/* the menu mark: three 1.7pt lines on a 5.15 pitch, 16 / 16 / 7.4 long */
+.menu{position:absolute;left:14px;top:16px;width:16px;height:12px}
+.menu i{position:absolute;left:0;height:1.7px;border-radius:1px;background:currentColor}
+
+/* home: the mark, then the two-line greeting. Both sit on the midpoint of the
+   space between the nav and the composer, plus 4pt, which is one formula
+   across all five home screens: star_top = (103 + comp_top) / 2 - 61.35. */
+.hero{position:absolute;left:0;width:var(--c-w);text-align:center;z-index:1}
+.hero svg{margin:0 auto}
+.hero .hl{margin-top:12.34px;font:var(--c-t-hero)}
+
+/* composer: 369 wide at left 12, bottom-anchored. A blur material with a soft
+   shadow above and below it. Text ink lands 76.7 above the card's bottom edge
+   and the 36pt button row 7 above it, on every one of the fifteen. */
+.comp{position:absolute;left:12px;width:var(--c-comp-w);border-radius:var(--c-r-comp);
+  background:var(--c-card);z-index:4;
+  box-shadow:0 -8px 22px rgba(66,52,36,.055),0 12px 26px rgba(66,52,36,.075)}
+.comp .txt{position:absolute;left:14px;right:14px;bottom:60.6px;height:24px;
+  font:var(--c-t-body);white-space:nowrap;overflow:hidden}
+.comp .caret{display:inline-block;width:1.7px;height:21px;background:var(--c-ink);
+  vertical-align:-4.5px;margin-left:1px}
+.comp .btns{position:absolute;left:8px;right:8px;bottom:7px;height:36px}
+.cbtn{position:absolute;top:0;width:36px;height:36px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center}
+.cbtn.plus{left:0}
+.cbtn.mic{left:271.2px}
+.cbtn.act{left:317px}
+.stop{width:14px;height:14px;border-radius:3px;background:#fff}
+/* the attachment: 80pt square, 8.3 in from the card's left, 6.3 down from its top */
+.att{position:absolute;left:8.3px;top:6.3px;width:80px;height:80px}
+.att .in{width:80px;height:80px;border-radius:var(--c-r-card);overflow:hidden;
+  background:var(--c-white)}
+.att img,.doc img{width:100%;height:100%;display:block;object-fit:cover}
+.attx{position:absolute;left:48px;top:5.7px;width:26px;height:26px;border-radius:13px;
+  background:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 4px rgba(66,52,36,.16)}
+/* the attached-file card: 96 in the sent bubble, scaled to 80 on the composer */
+.doc{width:96px;height:96px;padding:4.2px 9.7px 9px;display:flex;flex-direction:column;
+  justify-content:space-between;background:var(--c-white);
+  border-radius:var(--c-r-card);overflow:hidden}
+.doc b{font:500 12.3px/16.7px var(--c-font);color:var(--c-ink)}
+.doc i{align-self:flex-start;font:600 11px/17px var(--c-font);font-style:normal;
+  color:var(--c-ink-2);border:.7px solid var(--c-border);border-radius:6px;padding:0 5.5px}
+.att .doc{transform:scale(.8333);transform-origin:0 0}
+
+/* conversation */
+.chat{position:absolute;left:0;width:var(--c-w);z-index:1}
+.bub{margin:0 16px 0 auto;width:max-content;max-width:316px;background:var(--c-fill);
+  border-radius:var(--c-r-bubble);height:49px;padding:11.13px 16px 0;
+  font:var(--c-t-body)}
+.sent{margin:0 16px 8px auto;width:96px;height:96px}
+
+/* the answer. Serif, 17.8/25.5, left edge 21.3, every wrap forced with <br> so
+   a substituted face cannot re-break a line the capture broke elsewhere. */
+.ans{position:absolute;left:var(--c-pad);width:358px;font:var(--c-t-serif);z-index:1}
+.ans h1{font:var(--c-t-h1);letter-spacing:-.045em}
+.ans h2{font:var(--c-t-h2);letter-spacing:-.045em}
+.ans>*+*{margin-top:8.4px}
+.ans>p+h2,.ans>ul+h2,.ans>ol+h2{margin-top:5.7px}
+.ans>h1+p,.ans>h2+p,.ans>h2+ol,.ans>h2+ul{margin-top:10.3px}
+.ans>h1+h2{margin-top:8.25px}
+.ans ol,.ans ul{list-style:none}
+.ans li{position:relative}
+.ans li+li{margin-top:8.2px}
+.ans ol li{padding-left:29.3px}
+.ans ul li{padding-left:39.7px}
+.ans .m{position:absolute;left:0;width:22px;text-align:right}
+.ans ul .m{left:22px;width:8px;text-align:center}
+
+/* the thinking mark: the same asterisk at 25.3, one line under the bubble */
+.tstar{position:absolute;left:20px;z-index:1}
+/* below the composer the answer keeps scrolling under a vibrancy veil:
+   ink #0D0B09 reads #C6C4C2 and the ground #FCFAF6 reads #F6F4F2, which
+   solves to rgba(245,243,240,.80) over both. */
+.tail{position:absolute;left:0;bottom:0;width:var(--c-w);height:35px;
+  background:rgba(245,243,240,.8);z-index:2}
+
+/* the scroll-to-latest chip: 36 across, centred, 50 above the composer */
+.chip{position:absolute;left:178.5px;top:668px;width:36px;height:36px;border-radius:18px;
+  background:#FEFDFB;display:flex;align-items:center;justify-content:center;z-index:3;
+  box-shadow:0 2px 12px rgba(66,52,36,.11)}
+/* voice mode: a full-bleed gradient, a caption, and the 287 x 88 capsule */
+.vgrad{position:absolute;inset:0;z-index:0}
+.veil{position:absolute;left:0;right:0;top:545px;bottom:0;
+  -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,0) 0,#000 100px);
+          mask-image:linear-gradient(180deg,rgba(0,0,0,0) 0,#000 100px)}
+.vcap{position:absolute;left:0;top:638.25px;width:var(--c-w);text-align:center;
+  font:var(--c-t-cap);color:var(--c-voice-ink);z-index:2}
+.pill{position:absolute;left:53px;top:692.15px;width:287.5px;height:88px;border-radius:44px;z-index:2}
+.pill>div{position:absolute;top:6.1px;width:75.7px;height:75.7px;border-radius:37.85px;
+  display:flex;align-items:center;justify-content:center}
+.pill .a{left:6.05px;background:#FEFEFE}
+.pill .b{left:106px;background:#151314}
+.pill .c{left:206px;background:#FEFEFE}
+/* the middle glyph is an outline square on 05, a filled arrow elsewhere */
+.stopo{width:14.7px;height:14.4px;border-radius:3.4px;border:1.8px solid #fff}
+.vlist{position:absolute;left:25.3px;top:118.84px;width:352px;
+  font:var(--c-t-list);z-index:2}
+.vlist div+div{margin-top:24px}</style>
+</head>
+<body>
+<div class="phone"><div class="sb" style="color:var(--c-ink)"><div class="time">9:41</div><svg style="left:282px;top:23.34px;width:19.33px;height:12px" viewBox="0 0 19.33 12"><rect x="0" y="7.67" width="3.33" height="4.33" rx="1.05"/><rect x="5.33" y="5.33" width="3.33" height="6.67" rx="1.05"/><rect x="10.67" y="2.67" width="3.33" height="9.33" rx="1.05"/><rect x="16" y="0" width="3.33" height="12" rx="1.05"/></svg><svg preserveAspectRatio="none" viewBox="335 22.008 19.114 13.796" style="left:309px;top:23px;width:16.62px;height:12.3px"><path d="M344.555 35.8042C344.738 35.8042 344.896 35.7212 345.219 35.4058L347.245 33.4634C347.369 33.3389 347.403 33.1562 347.286 33.0068C346.747 32.3096 345.726 31.7036 344.555 31.7036C343.352 31.7036 342.331 32.3345 341.791 33.0566C341.708 33.1895 341.741 33.3389 341.874 33.4634L343.891 35.4058C344.215 35.7129 344.373 35.8042 344.555 35.8042ZM339.7 31.2886C339.882 31.4629 340.106 31.438 340.272 31.2554C341.268 30.1514 342.895 29.3462 344.555 29.3545C346.232 29.3462 347.859 30.1763 348.872 31.2803C349.021 31.4546 349.229 31.4463 349.411 31.2803L350.698 30.002C350.831 29.8691 350.848 29.6865 350.723 29.5371C349.47 28.0015 347.145 26.8477 344.555 26.8477C341.966 26.8477 339.641 28.0015 338.388 29.5371C338.263 29.6865 338.272 29.8525 338.413 30.002L339.7 31.2886ZM336.255 27.8189C336.421 27.9766 336.653 27.9766 336.811 27.8106C338.853 25.644 341.542 24.4985 344.555 24.4985C347.585 24.4985 350.291 25.6523 352.317 27.8189C352.466 27.9683 352.69 27.96 352.856 27.8022L354.002 26.6567C354.151 26.5073 354.143 26.3247 354.027 26.1836C352.076 23.7764 348.407 22.0083 344.555 22.0083C340.712 22.0083 337.027 23.7764 335.084 26.1836C334.968 26.3247 334.968 26.5073 335.109 26.6567L336.255 27.8189Z"/></svg><svg style="left:333px;top:23px;width:27.3px;height:12.7px" viewBox="0 0 27.3 12.7"><rect x=".6" y=".6" width="24.1" height="11.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".38"/><rect x="2" y="2" width="21.3" height="8.7" rx="2.6"/><path d="M26.1 4.3c.9.7.9 3 0 3.7V4.3Z" fill-opacity=".38"/></svg></div><div class="nav"><div class="nslid"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M3 6h18M3 12h18M3 18h18M15.5 3.4v5.2M9 9.4v5.2M6.2 15.4v5.2"/></svg></div></div><div class="vgrad" style="background:linear-gradient(180deg,var(--c-bg) 545px,#FCFAF6 555px,#FBFAF7 570px,#F6F6F6 590px,#EDEFF3 610px,#E2E7EF 630px,#D8E1EA 650px,#CAD8E5 670px,#BECDE0 685px,#ACC1D7 740px,#A0B9D8 810px,#A4BAD7 852px)"><div class="veil" style="background:linear-gradient(90deg,rgba(255,255,255,0.135) 0.0%,rgba(255,255,255,0.127) 1.5%,rgba(255,255,255,0.093) 5.1%,rgba(255,255,255,0.053) 10.2%,rgba(255,255,255,0.019) 15.3%,rgba(255,255,255,0.000) 28.0%,rgba(255,255,255,0.024) 49.9%,rgba(255,255,255,0.063) 61.1%,rgba(255,255,255,0.070) 71.2%,rgba(255,255,255,0.104) 81.4%,rgba(255,255,255,0.171) 89.1%,rgba(255,255,255,0.241) 95.4%,rgba(255,255,255,0.295) 100.0%)"></div></div><div class="vcap" style="color:var(--c-voice-ink)">Ready and listening</div><div class="pill" style="background:#E2E5ED"><div class="a"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M12 4.5v15M4.5 12h15"/></svg></div><div class="b"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M12 20V5M5.2 11.8 12 5l6.8 6.8"/></svg></div><div class="c"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#141414" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M6 6l12 12M18 6L6 18"/></svg></div></div></div>
+</body>
+</html>

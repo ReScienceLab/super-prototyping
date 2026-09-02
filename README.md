@@ -73,7 +73,7 @@ bleaches them. Luminance is not the problem; it matches to 0.1.
 ```bash
 git clone --depth 1 https://github.com/ReScienceLab/super-prototyping.git my-product-design
 cd my-product-design && rm -rf .git && git init
-cd canvas && npm ci
+cd canvas && bun install --frozen-lockfile
 ```
 
 Both boards above ship with it. Copy a `00-design-tokens.html` as the
@@ -83,7 +83,7 @@ starting point for your own token block, then delete the folders.
 
 ```bash
 cd canvas
-npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
+bun run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
 Open the URL Vite prints; deep-link a board with `?canvas=<slug>`. The bottom
@@ -113,13 +113,14 @@ not ours — update them with `npx skills update`, do not hand-edit them.
 Remotion is free for individuals and companies of up to three people; larger
 ones need a licence from [remotion.pro](https://www.remotion.pro/license).
 
-The videos themselves live in `motion/`, a sibling of `canvas/`: both are npm
-projects that consume `mockups/`, one rendering it as tldraw shapes and the
-other as video. Same discovery contract as the boards — drop a folder into
-`motion/src/templates/<slug>/` (a reusable effect, driven by props) or
-`motion/src/films/<slug>/` (one finished cut for one product) and it becomes a
-composition, with no registry to update. Rendered assets appear on the canvas's
-**Motion** page. See `motion/README.md`.
+The videos themselves live in `motion/`, a sibling of `canvas/`: two projects
+that consume `mockups/`, one rendering it as tldraw shapes and the other as
+video. `motion/` stays on npm — Remotion bundles with rspack and ships its own
+Chrome Headless Shell, so Bun buys it nothing. Same discovery contract as the
+boards — drop a folder into `motion/src/templates/<slug>/` (a reusable effect,
+driven by props) or `motion/src/films/<slug>/` (one finished cut for one
+product) and it becomes a composition, with no registry to update. Rendered
+assets appear on the canvas's **Motion** page. See `motion/README.md`.
 
 The measurement rule applies to time as well as colour: `tools/motionkit.py`
 reads per-frame motion off a reference clip, so a friction constant or a hold
@@ -193,7 +194,7 @@ python3 tools/motionkit.py selftest                           # self-check
 ## Verify
 
 ```bash
-cd canvas && npm run lint && npm test && npm run build
+cd canvas && bun run lint && bun run test && bun run build
 ```
 
 ## Licence

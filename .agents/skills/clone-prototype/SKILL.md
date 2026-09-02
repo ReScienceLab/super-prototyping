@@ -5,7 +5,7 @@ description: Clone a real app's screens as pixel-accurate, self-contained HTML a
 
 # Clone prototype
 
-Six phases, in order. **Never skip ahead.** Tokens before HTML, sampling
+Seven phases, in order. **Never skip ahead.** Tokens before HTML, sampling
 before tokens. Every colour and every metric in the final HTML must trace
 back to a measurement, not to a guess that "looks about right". The one
 thing built out of order is Phase 5's reference row: it needs no
@@ -50,6 +50,27 @@ capped by it.
   e.g. 1179 × 2556) settles ink, scrim and accent values that a downscaled
   strip cannot. It does not have to be one of the screens you are cloning.
 
+### Check the colour space before you sample anything
+
+A capture straight off a device is often **untagged Display P3**, and every
+tool in this kit reads raw bytes. Sampled as-is, a P3 capture and an sRGB one
+of the same screen disagree by 5-10 levels on any saturated colour, and
+nothing about either looks wrong on its own. Convert to sRGB first, and
+convert the whole set, so one token cannot end up averaging two spaces.
+
+The test is cheap and it is the only thing that finds this: **sample one
+element that appears in every capture** (a brand mark, an accent button, the
+page ground) and compare across batches. Values that split into two clusters
+are two colour spaces, not two colours. The `claude-ios` run had captures
+01-07 in sRGB and 08-15 untagged P3; the same brand orange read `#E07A54` on
+one half and `#D97757` on the other, and the page ground split with it. One
+`sips`/Pillow conversion pass up front collapses both.
+
+Two oranges may still survive the conversion, and then they are real: that
+run kept `#D97757` for the star mark and `#CB6442` for the send button, on
+the same screen. Convert first, *then* decide what is one token and what is
+two.
+
 Record the capture scale once, in **capture px per design pt**, and reuse it
 everywhere:
 
@@ -90,11 +111,23 @@ the stylesheet, which is where transcription errors get in.
 | Small element (badge, dot, chip, glyph) | mode of the core; no flat interior exists at this size | same command on a core-only crop → read **all pixels**, take the top entry |
 | Text ink | mean of the darkest few percent; the mode of any text region returns its *background* | same command → read **ink core** |
 | 1pt hairline, divider, card border | coverage solve; a 1pt rule never reaches its true colour in a downscaled capture | `refkit hairline IMG x0 y0 x1 y1 --bg FFFFFF --scale 0.7634` |
+| Gradient, wash, glow | stop list along one axis; a wash has no flat interior to census and no single value to hold | `refkit scan IMG col 110 545 852 --pt 3` → read the runs as CSS stops |
 
 The coverage solve sums the ink deficit across the band and divides by the
 capture scale, recovering the full-coverage colour a naive pick reports far
 too light. **Use the scale of the image you are sampling.** A 3× crop of a
 0.7634 strip is `0.7634 × 3 = 2.29`.
+
+**A gradient is not a colour, and two flat tokens will not fake it.** Walk
+one column through it with `scan`, take the runs as stops, and write them
+into the generator as a `linear-gradient` with explicit px positions. A
+second axis is a second scan, layered as a masked overlay rather than folded
+into the first. Claude's voice screens are a vertical ramp down x = 110 plus
+a horizontal white veil masked in over 100px; sampled as two flat tokens,
+those screens sat 28-38 levels off across their lower half, and the ramp took
+the best of them to 3.61 whole-frame. Keep the ramp's two endpoints as
+tokens, because that is what an evidence row can hold, but the stops belong
+in the builder.
 
 A solve that lands within ~2 of the page background means the rule is
 invisible at this resolution, which usually means the real UI has **no
@@ -136,9 +169,13 @@ label, and confirm on a second screen before it becomes a token. Read the
 **verdict** line rather than the top row: a "no call" means the ranking
 cannot separate the top faces, and promoting its winner invents a fact.
 
+A no call has a bill and it arrives in Phase 3: the stand-in you pick almost
+never sets to the same width as the face it replaces. Measure that ratio now,
+with `refkit bbox` on one string in both, and put it in the evidence table.
+
 [`references/typeface.md`](references/typeface.md) covers the three verdicts,
-brand faces outside the candidate set, and why a width matched in PIL is 6%
-wrong on the board.
+brand faces outside the candidate set, why a width matched in PIL is 6% wrong
+on the board, and what a stand-in's width ratio predicts about Phase 4.
 
 ### Deliverable of this phase
 
@@ -254,8 +291,8 @@ Hard constraints from the canvas renderer (also in
   at all, so the phone floats on the canvas ground and its drop shadow lands
   on whatever the board is placed over. A cream or grey field behind the
   phone paints one opaque rectangle per artboard, and a row of those reads as
-  jarring next to its neighbours. The exceptions are the full-bleed sheets —
-  the token board and the evidence boards — which *are* their background and
+  jarring next to its neighbours. The exceptions are the full-bleed sheets,
+  the token board and the evidence boards, which *are* their background and
   keep it.
 - Avoid SF Symbols private-use glyphs; they render as tofu without SF Pro
   installed. Inline the SVG, or embed a rasterized symbol as a `data:` URI.
@@ -270,6 +307,42 @@ Copy is part of the replica. Transcribe the reference's strings exactly,
 **including where each line wraps**. A title that breaks after "iPhone and"
 instead of "iPhone and AirPods" is a real defect. Force it with explicit
 widths, `<br>`, `&thinsp;` or `<wbr>` rather than hoping the browser agrees.
+
+**When a substituted face fights a measured width, the wrap wins.** A
+stand-in that sets wider pushes a string onto a second line inside a
+container the capture shows holding one, and two measured rules collide.
+Widen the container and record why; never shrink the type to make a measured
+width hold. Claude's user bubble measures 302.6 and ships at 316.
+
+### Model the line box once, then place by ink
+
+A screen carrying real prose is a dozen placements of the same few numbers,
+so measure the block model once with `bands` and let the generator solve the
+rest: the line box per level, the margin between each pair of block types,
+and the offset from a line box's top to the ink inside it. Then write the
+builder to take an **ink top** and solve back to the box, so every call site
+is a number read straight off the grid rather than one derived by hand.
+
+```python
+K = {"sans": 0.2708, "serif": 0.2240}      # SF Pro, Georgia: cap top within the line
+def ct(ink, fs, lh, face="sans"):          # the box top that puts ink where you want it
+    return ink - ((lh - fs) / 2 + K[face] * fs)
+```
+
+Claude's answer column is one such model: h1 29/36.3, h2 25/31, body
+17.8/25.5, margins of 8.4 generic, 5.7 into a heading, 10.3 out of one, 8.2
+between list items. Measured once, it placed five long screens to within
+0.5pt. The alternative is a hand-tuned `top` per paragraph, which drifts the
+moment any string above it changes.
+
+**Never let content you invented carry a measured element into position.**
+Where a composer, a fade or a scroll edge hides part of a block, the hidden
+span is not on the capture and cannot be transcribed. Filling it with
+plausible prose so that the flow pushes the visible remainder down makes that
+remainder's position an invention, and it will read as measurement to
+everyone after you. Place what you can see as its own absolutely-positioned
+block on its own measured ink top, and treat the gap as a line *count* or as
+nothing at all. Say so in the folder README.
 
 `layout.json` already holds the reference row (Phase 5 builds it first). Add
 the `Foundations` row and the numbered-screens row as the boards land.
@@ -356,10 +429,27 @@ Stop when any of these is true:
 - a full sweep of a parameter moves the number by less than a level;
 - the blend is grey everywhere except sub-pixel fringing on glyph edges.
 
-Every screen inside roughly 4-7 levels mean absolute delta over the body,
-with no structural defect left in the blend, is a finished run. Write the
-numbers into the folder's README and stop. Another pass there costs a
-session and buys a level.
+What counts as inside depends on the source, and on one substitution:
+
+| Source | Expected mean absolute delta |
+|---|---|
+| Figma export, real type styles | 0.2-1.9 |
+| Screen capture, faces you could name | 3-7 |
+| Screen capture, a brand face you had to stand in for | 3-7 on chrome, 10-25 on the screens carrying prose |
+
+A screen at 23 is not automatically broken. Before treating a number as a
+defect, ask **where** the delta sits: `--regions` on a body-text screen that
+scores 17 overall and 3 on its chrome is a face-width result, and no amount
+of geometry work will move it. `claude-ios` reads 3.4-7.1 on its nine
+chrome-led screens and 10.0-23.2 on the six carrying serif prose, from one
+substitution, with the whole set structurally clean. Tuning positions to
+chase that second column moves correct elements off their measured
+coordinates.
+
+Any screen inside its row of that table, with no structural defect left in
+the blend, is a finished run. Write the numbers into the folder's README,
+state the substitution beside them, and stop. Another pass costs a session
+and buys a level.
 
 ### Fan out the looking, not the editing
 
@@ -436,6 +526,46 @@ open "http://127.0.0.1:<port>/?canvas=<slug>"
 
 ---
 
+## Phase 6: the folder documents itself
+
+A board nobody can audit in six months is not finished, and the canvas shows
+pixels rather than reasoning. Three files, all of them small:
+
+**`mockups/canvases/<slug>/README.md`.** Copy the shape from
+`mockups/canvases/apple-settings/README.md`. What it has to carry, past a
+list of screens:
+
+- **How close it lands**: the per-screen delta table from Phase 4, with the
+  crop and the units named, and one sentence explaining the spread rather
+  than apologising for it.
+- **Every substitution and its consequence**: the faces you could not name,
+  the width ratio, the containers you widened because of it.
+- **What the source itself gets wrong.** A capture is a state of a real app,
+  and some of those states are defects: a partial markdown stream that runs
+  two labels together, a component left on its unfilled default, a missing
+  Dynamic Island. Transcribed faithfully, they look like *your* bugs. Name
+  them as the source's.
+- **Anything a reader would otherwise mistake for measurement**: line counts
+  standing in for text you could not see, a fitted material, a gradient
+  rebuilt from stops.
+
+**`mockups/canvases/<slug>/.gitignore`.** Whole app screens are not component
+art. Ignore `ref-*.html` and `assets/refs/`, and say in the README how many
+boards a fresh clone builds without them.
+
+**A bullet in `mockups/canvases/README.md`**, under Examples: board count,
+row structure, the delta range, and the one thing this folder teaches that
+the others do not.
+
+Then check the run is reproducible from what you committed:
+
+```bash
+python3 mockups/canvases/<slug>/gen.py            # byte-identical, no scratch dir
+python3 tools/refkit.py tokens mockups/canvases/<slug>
+```
+
+---
+
 ## Pitfalls
 
 - **Sampling without looking.** Numbers with no element attached land in the
@@ -488,5 +618,14 @@ open "http://127.0.0.1:<port>/?canvas=<slug>"
   full-width material with a hairline at its top edge and the home indicator
   inside it; the replica drew a 353pt pill and let sharp page content show
   through the 84pt below it for four screens before anyone measured x 6.
+- **A re-shoot that silently did not happen.** "A correction you have not
+  re-rendered is not a correction" has no teeth if the render command failed
+  and you did not notice. Two ways it happens: a zsh brace-glob
+  (`{05,11,15}-*.html`) aborts the whole command when any one branch matches
+  nothing, and a relative `tools/refkit.py` resolves to nothing after a cwd
+  change. Both exit non-zero and both look like success if stderr went to
+  `/dev/null`. **Re-shoot the whole folder, never a subset.** 18 boards is a
+  few seconds and it cannot be mis-globbed. And never send a render's stderr
+  to `/dev/null`; put warning filters inside the script instead.
 - **Image caches rotate mid-task.** Save every reference to the scratch dir
   the moment you receive it.

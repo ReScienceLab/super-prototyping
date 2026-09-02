@@ -159,6 +159,19 @@ files sitting in the folder are invisible to the canvas.
   passes are a 390 x 844 notched frame, so `--crop-phone` needs them at
   `--phone-size 390x844 --phone-radius 42`. The nine `ref-*` boards are
   gitignored, so a fresh clone has 15.
+- `claude-ios/`: the largest screenshot-sourced run, and the one to read
+  when the source is captures rather than a Figma file. Fifteen screens of the
+  Claude iOS app across four flows, 33 boards in three rows: a token board and
+  two evidence boards for 54 tokens, the fifteen replicas, and the Mobbin
+  capture of each column-for-column underneath. Mean absolute delta against
+  those captures is 3.4-6.9 levels (of 255) on the nine chrome-led screens and
+  10.0-23.2 on the six carried by serif body text, where substituting Georgia
+  for Anthropic's Tiempos sets about 11% wide. Its `README.md` records why: the
+  two brand faces no closed-set matcher can return, the two colour spaces the
+  captures arrived in, the voice gradient that needed a sampled ramp rather
+  than two tokens, and the vibrancy veil under the composer, where the lines
+  the composer hides are placed as a measured line count instead of invented
+  prose. The 15 `ref-*` boards are gitignored, so a fresh clone has 18.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so
