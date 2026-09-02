@@ -16,8 +16,8 @@ mockups/
   canvases/      one folder per board → one tldraw page; one .html → one shape
   assets/        icons, logos, reference crops that get inlined as data: URIs
 tools/refkit.py  measure a reference, render a board, diff the two, audit tokens
-.agents/skills/  the workflow, as three skills (symlinked into .claude/skills/)
-.claude/skills/  those three, plus Remotion's official skills, vendored
+.agents/skills/  the workflow as three skills, plus Remotion's twelve official
+                 ones, vendored (all symlinked into .claude/skills/)
 ```
 
 ## Two worked examples
@@ -104,7 +104,7 @@ Claude Code picks them up):
 ### Motion
 
 Artboards are still frames. To put them in motion, [Remotion](https://www.remotion.dev)'s
-own skills are vendored in `.claude/skills/remotion-*`, pinned by
+own skills are vendored in `.agents/skills/remotion-*`, pinned by
 `skills-lock.json`. `/remotion-create` scaffolds the project,
 `/remotion-markup` writes the animation, `/remotion-render` exports it; start
 at `/remotion-best-practices` if you are not sure which. They are upstream's,
