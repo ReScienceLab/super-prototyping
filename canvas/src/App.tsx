@@ -31,12 +31,27 @@ import {
   readCanvasLibrary,
 } from "./canvasLibrary";
 import {
+  MOTION_FILE_SHAPE_TYPE,
+  MotionFileShapeUtil,
+} from "./MotionFileShapeUtil";
+import {
+  MOTION_PAGE_NAME,
+  MOTION_PAGE_SLUG,
+  MOTION_PREVIEW_WIDTH,
+  durationSeconds,
+  readMotionLibrary,
+} from "./motionLibrary";
+import {
   CanvasChromeContext,
   canvasChromeAssetUrls,
   canvasChromeComponents,
 } from "./canvasChrome";
 
-const shapeUtils = [CanvasFileShapeUtil, CanvasLinkShapeUtil];
+const shapeUtils = [
+  CanvasFileShapeUtil,
+  CanvasLinkShapeUtil,
+  MotionFileShapeUtil,
+];
 
 /**
  * Bump the trailing version when a change would leave documents already in a browser's
@@ -191,7 +206,9 @@ function layoutRow(
   const bare = rowFiles[0].pageSlug === WELCOME_PAGE_SLUG;
   const rowX = (index: number) => index * (size.w + LIBRARY_GAP);
   const contentY = bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT;
-  const missing = rowFiles.filter((file) => !editor.getShape(fileShapeId(file)));
+  const missing = rowFiles.filter(
+    (file) => !editor.getShape(fileShapeId(file)),
+  );
   if (missing.length) {
     editor.createShapes(
       missing.map((file) => ({
@@ -376,6 +393,121 @@ function layoutWelcomeExtras(
 }
 
 /**
+ * The one page that is not a board folder: every rendered composition under motion/src, in two
+ * rows — the finished films, then the reusable templates. It is a page of its own rather than a
+ * row on a board's page because a video is not a board: it is the output of one, and it is what
+ * motion/ builds out of the whole of mockups/.
+ *
+ * Only rendered assets show up, because the mp4 in an asset's out/ is what the canvas can play.
+ * An asset added but never rendered is absent here until `npx remotion render <slug>` runs.
+ */
+function layoutMotionPage(editor: Editor, libraryPages: Set<TLPageId>) {
+  const assets = readMotionLibrary();
+  if (!assets.length) return;
+
+  const bySlug = () =>
+    editor.getPages().find((c) => c.meta.canvasSlug === MOTION_PAGE_SLUG);
+  if (!bySlug()) {
+    editor.createPage({
+      name: MOTION_PAGE_NAME,
+      meta: { canvasSlug: MOTION_PAGE_SLUG },
+    });
+  }
+  const page = bySlug();
+  if (!page) return;
+  if (page.name !== MOTION_PAGE_NAME)
+    editor.renamePage(page.id, MOTION_PAGE_NAME);
+  libraryPages.add(page.id);
+
+  const groups = [
+    { bucket: "films", title: "Films: one finished cut for one product" },
+    { bucket: "templates", title: "Templates: reusable, driven by props" },
+  ];
+
+  // Every preview is the same width, so a video sits on the same column pitch as an artboard;
+  // the height follows the composition's own aspect, so nothing is letterboxed or stretched.
+  const previewHeight = (meta: { width: number; height: number }) =>
+    Math.round((MOTION_PREVIEW_WIDTH * meta.height) / meta.width);
+  const previewX = (index: number) =>
+    index * (MOTION_PREVIEW_WIDTH + LIBRARY_GAP);
+
+  let top = 0;
+  for (const group of groups) {
+    const row = assets.filter((asset) => asset.bucket === group.bucket);
+    if (!row.length) continue;
+    const contentY = top + LIBRARY_HEADING_HEIGHT;
+    const rowHeight = Math.max(
+      ...row.map((asset) => previewHeight(asset.meta)),
+    );
+
+    const shapes = row.map((asset, index) => ({
+      id: createShapeId(`motion-file:${asset.bucket}/${asset.slug}`),
+      type: MOTION_FILE_SHAPE_TYPE,
+      parentId: page.id,
+      x: previewX(index),
+      y: contentY,
+      props: {
+        w: MOTION_PREVIEW_WIDTH,
+        h: previewHeight(asset.meta),
+        name: asset.title,
+        src: asset.src,
+      },
+    }));
+    const missing = shapes.filter((shape) => !editor.getShape(shape.id));
+    if (missing.length) editor.createShapes(missing);
+
+    // A re-render can change the served URL (Vite hashes it) or the composition's box, and the
+    // shape already on the canvas would keep playing the old file at the old aspect.
+    for (const shape of shapes) {
+      const existing = editor.getShape(shape.id);
+      if (!existing) continue;
+      const props = existing.props as { src: string; h: number };
+      if (props.src !== shape.props.src || props.h !== shape.props.h) {
+        editor.updateShape({
+          id: shape.id,
+          type: shape.type,
+          props: { src: shape.props.src, h: shape.props.h },
+        });
+      }
+    }
+
+    createAnnotation(editor, {
+      id: `canvas-row-heading:${page.id}:${group.title}`,
+      text: group.title,
+      x: 0,
+      y: top,
+      // At least three columns wide whatever the row holds, so a one-asset row's heading sets
+      // on a single line instead of wrapping down over the video under it.
+      w:
+        Math.max(row.length, 3) * MOTION_PREVIEW_WIDTH +
+        (Math.max(row.length, 3) - 1) * LIBRARY_GAP,
+      size: "l",
+      parentId: page.id,
+    });
+
+    row.forEach((asset, index) => {
+      createAnnotation(editor, {
+        id: `canvas-file-label:motion/${asset.bucket}/${asset.slug}`,
+        text: `${asset.title} · ${durationSeconds(asset.meta).toFixed(1)}s · ${asset.meta.width}×${asset.meta.height}`,
+        x: previewX(index),
+        y: contentY + previewHeight(asset.meta) + LIBRARY_LABEL_GAP,
+        w: MOTION_PREVIEW_WIDTH,
+        size: "s",
+        align: "middle",
+        parentId: page.id,
+      });
+    });
+
+    top =
+      contentY +
+      rowHeight +
+      LIBRARY_LABEL_GAP +
+      LIBRARY_LABEL_HEIGHT +
+      LIBRARY_GAP;
+  }
+}
+
+/**
  * One tldraw page per mockups/canvases/<slug> folder, one shape per HTML file in it. If that
  * folder has a layout.json alongside its HTML files, its rows are laid out top-to-bottom in the
  * declared order; see CanvasLayoutConfig in canvasLibrary.ts. Anything not covered by a row
@@ -472,6 +604,7 @@ function initializeCanvasLibrary(editor: Editor) {
     }
   }
 
+  layoutMotionPage(editor, libraryPages);
   pruneEmptyOrphanPages(editor, libraryPages);
   orderPagesByLibrary(editor, libraryPages);
 }
@@ -531,6 +664,7 @@ function relayoutCanvasLibrary(editor: Editor) {
     "shape:canvas-row-heading:",
     "shape:canvas-file-label:",
     "shape:canvas-link:",
+    "shape:motion-file:",
   ];
   for (const page of editor.getPages()) {
     const staleIds = [...editor.getPageShapeIds(page.id)].filter((id) =>

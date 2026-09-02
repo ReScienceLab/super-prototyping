@@ -113,6 +113,18 @@ not ours — update them with `npx skills update`, do not hand-edit them.
 Remotion is free for individuals and companies of up to three people; larger
 ones need a licence from [remotion.pro](https://www.remotion.pro/license).
 
+The videos themselves live in `motion/`, a sibling of `canvas/`: both are npm
+projects that consume `mockups/`, one rendering it as tldraw shapes and the
+other as video. Same discovery contract as the boards — drop a folder into
+`motion/src/templates/<slug>/` (a reusable effect, driven by props) or
+`motion/src/films/<slug>/` (one finished cut for one product) and it becomes a
+composition, with no registry to update. Rendered assets appear on the canvas's
+**Motion** page. See `motion/README.md`.
+
+The measurement rule applies to time as well as colour: `tools/motionkit.py`
+reads per-frame motion off a reference clip, so a friction constant or a hold
+comes off the source rather than out of the air.
+
 The rule the whole thing is built around: **every colour and every metric in
 a cloned artboard traces to a measurement.** Grid the reference image, look
 at it, name the element, *then* write the token. Values that "look about
@@ -165,6 +177,17 @@ python3 tools/refkit.py shoot mockups/canvases/my-app/*.html -o mine \
 python3 tools/refkit.py diff mine/01.png ref.png --pt 3 -o d.png   # side by side + numbers
 python3 tools/refkit.py tokens mockups/canvases/my-app       # one :root, no undefined var()
 python3 tools/test_refkit.py                                 # self-check
+```
+
+`tools/motionkit.py` is the same idea for a reference *clip*. Needs `pillow`,
+`numpy` and `ffmpeg`.
+
+```bash
+python3 tools/motionkit.py probe ref.mp4                     # the meta.json numbers
+python3 tools/motionkit.py flow ref.mp4 --out motion.txt      # px/frame, peaks, pan axis
+python3 tools/motionkit.py sheet ref.mp4 --out sheet.png      # labelled contact sheet
+python3 tools/motionkit.py compare ref.mp4 out/mine.mp4       # side by side, one clip
+python3 tools/motionkit.py selftest                           # self-check
 ```
 
 ## Verify

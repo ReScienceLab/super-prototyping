@@ -29,3 +29,10 @@ __pycache__/
 
 # git worktrees created by agent sessions
 .claude/worktrees/
+
+# A motion asset's reference/ keeps the measurements taken off a third-party clip
+# (BRIEF.md, motion.txt, the script that produced them), never the clip itself or
+# frames pulled out of it. Same rule as the ref-*.html boards above.
+motion/src/*/*/reference/*.mp4
+motion/src/*/*/reference/*.mov
+motion/src/*/*/reference/frames/
