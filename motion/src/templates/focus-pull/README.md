@@ -9,7 +9,7 @@ on screen.
 
 ## Reference
 
-f1360-f1390, "Your digital mind" / "is born".
+f1372-f1400, "Your digital mind" / "is born".
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.
 

@@ -8,10 +8,14 @@ import { enter, useDuration } from "../../lib/timing";
 /*
  * Bokeh orbit: a ring of out-of-focus spheres turning around a word.
  *
- * Reference: f860-920, "Chaos" on the dark ground with a broken ring of pale
+ * Reference: f268-312, "Chaos" on the dark ground with a broken ring of pale
  * defocused beads around it. The ring is not flat — the beads at the top of the
  * circle are smaller and softer than the ones at the bottom, i.e. it is tilted
  * away from the camera, and the ones on the near half pass in FRONT of the word.
+ *
+ * It is also much bigger than the frame: at f280 the beads run off the left and
+ * right edges and off the top, so what you see is an arc, not a circle. A ring
+ * that fits inside the frame reads as a bead necklace hung around the word.
  *
  * That front/behind split is the only thing this template really has to get
  * right, and it is done by rendering the ring twice with the word between the
@@ -133,12 +137,12 @@ export const Component = BokehOrbit;
 
 export const defaultProps: BokehOrbitProps = {
   word: "Chaos",
-  count: 22,
-  radius: 0.42,
+  count: 48,
+  radius: 0.9,
   tilt: 0.85,
   period: 260,
-  bead: 0.075,
-  blur: 26,
+  bead: 0.13,
+  blur: 34,
   seed: "chaos",
   fadeFrames: 18,
   size: 0.13,

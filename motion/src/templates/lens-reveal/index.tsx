@@ -8,7 +8,7 @@ import { enter, useDuration } from "../../lib/timing";
  * Lens reveal: a tilted oval aperture with a bright rim opens out of nothing
  * and swallows the frame, with a caption sitting inside it.
  *
- * Reference: f1610-1660 — a white lens shape over a portrait, tipped maybe 20
+ * Reference: f1640-1700 — a white lens shape over a portrait, tipped maybe 20
  * degrees off horizontal, growing until its rim runs off every edge and the
  * shot behind it is simply the shot.
  *
@@ -22,6 +22,10 @@ import { enter, useDuration } from "../../lib/timing";
  * clipping primitive Chrome composites on the GPU at 1080p without a per-frame
  * raster, and this shot is 90 frames of nothing but a growing ellipse.
  */
+
+/** How much bigger than the frame the rotated layer is drawn. sec(18deg) +
+ * tan(18deg) is about 1.38 for a 16:9 box; 1.5 covers any tilt this shot uses. */
+const COVER = 1.5;
 
 export type LensRevealProps = {
   durationInFrames?: number;
@@ -81,14 +85,17 @@ export const LensReveal: React.FC<LensRevealProps> = ({
   return (
     <AbsoluteFill style={{ background, overflow: "hidden" }}>
       {/* The revealed layer, clipped to the aperture. `rotate` on a wrapper
-          rather than inside `ellipse()`, which takes no angle. The radii are
-          allowed past 100% — that is how the aperture runs off the edges at the
-          end of the shot without anything having to be scaled up to let it. */}
-      <AbsoluteFill style={{ transform: `rotate(${tilt}deg)` }}>
+          rather than inside `ellipse()`, which takes no angle. `scale(COVER)`
+          with the radii divided back out is not a no-op: a full-frame box
+          rotated 18 degrees no longer covers the frame's own corners, so
+          without it the end of the reveal is a wash with four dark triangles
+          in it. The scale grows the box, the division keeps the aperture the
+          same size on screen. */}
+      <AbsoluteFill style={{ transform: `rotate(${tilt}deg) scale(${COVER})` }}>
         <AbsoluteFill
           style={{
             background: reveal,
-            clipPath: `ellipse(${w}% ${h}% at 50% 50%)`,
+            clipPath: `ellipse(${w / COVER}% ${h / COVER}% at 50% 50%)`,
           }}
         />
       </AbsoluteFill>

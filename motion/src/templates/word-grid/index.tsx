@@ -7,7 +7,7 @@ import { enter, useDuration } from "../../lib/timing";
 
 /*
  * Word grid: one word tiled across the frame, the cells lighting up in a
- * scattered order rather than a sweep. Reference: f1740-1800, "everything" set
+ * scattered order rather than a sweep. Reference: f1875-1920, "everything" set
  * italic on the gradient, low contrast, filling the frame.
  *
  * The scatter has to be seeded, not random: Remotion renders frames out of

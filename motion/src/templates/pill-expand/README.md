@@ -9,8 +9,8 @@ goes soft.
 
 ## Reference
 
-Two places, same mechanic: f1090-f1120 ("1 New insight" -> a "Behavioral Edge"
-card over the blurred paragraph) and f1830-f1870 ("1 new notification" -> a
+Two places, same mechanic: f1088-f1150 ("1 New insight" -> a "Behavioral Edge"
+card over the blurred paragraph) and f1690-f1780 ("1 new notification" -> a
 card with two buttons).
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.

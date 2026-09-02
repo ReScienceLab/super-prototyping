@@ -8,7 +8,7 @@ import { arrive, enter, stagger, useDuration } from "../../lib/timing";
  * Logo outro: the end card. A mark, a line under it, a call to action, each
  * arriving on the same entrance, one after another, and then it holds.
  *
- * Reference: f1990-2052 (the last two seconds) on the flat bone ground, which
+ * Reference: f1930-2052 (the last four seconds) on the flat bone ground, which
  * is 99.7% of the pixels in f1990 — no gradient at all in the last shot, which
  * is the point of it after sixty seconds of gradient.
  *

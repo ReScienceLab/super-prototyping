@@ -9,7 +9,7 @@ same entrance one after another, and then it holds.
 
 ## Reference
 
-f1990-f2052, the last two seconds.
+f1930-f2052, the last four seconds.
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.
 

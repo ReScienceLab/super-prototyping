@@ -9,7 +9,7 @@ front of it.
 
 ## Reference
 
-f860-f920, "Chaos" on the dark ground.
+f268-f312, "Chaos" on the dark ground.
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.
 
@@ -18,18 +18,22 @@ what is substituted, and how to reproduce any number below.
 - **260 frames per turn** — slow enough that a 90-frame shot sees about a
   third of a rotation.
 - The near half is roughly a third as defocused as the far half.
+- **The ring is bigger than the frame.** At f280 the beads run off the left and
+  right edges and off the top, so what is on screen is an arc, not a circle. A
+  ring that fits inside the frame reads as a necklace hung around the word,
+  which is what `radius: 0.42` gave before it was measured.
 
 ## Props
 
 | prop       | default |
 |------------|---------|
 | word       | "Chaos" |
-| count      | 22      |
-| radius     | 0.42    |
+| count      | 48      |
+| radius     | 0.9     |
 | tilt       | 0.85    |
 | period     | 260     |
-| bead       | 0.075   |
-| blur       | 26      |
+| bead       | 0.13    |
+| blur       | 34      |
 | seed       | "chaos" |
 | fadeFrames | 18      |
 | size       | 0.13    |

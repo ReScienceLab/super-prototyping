@@ -15,9 +15,10 @@ import { arrive, enter, stagger, useDuration } from "../../lib/timing";
  * deader, shot. So an unarrived unit is not rendered at all.
  *
  * `unit` is what makes this one template rather than three: the reference does
- * the same entrance per letter on a single word (f176-242), per word on a
- * sentence (f20-36), and per line on a display block ("Your digital mind / is
- * born", f1330-1400). Same curve, same blur, different granularity.
+ * the same entrance per letter on a single word ("Gone", f188-212), per word on
+ * a sentence ("You've got knowledge", f14-38), and per line on a display block
+ * ("So you never miss the conversation / that could change", f1789-1870). Same
+ * curve, same blur, different granularity.
  */
 
 export type WordCascadeProps = {

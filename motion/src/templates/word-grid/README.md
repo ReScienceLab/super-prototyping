@@ -9,7 +9,7 @@ rather than a sweep.
 
 ## Reference
 
-f1740-f1800, "everything" set italic on the gradient, low contrast, filling
+f1875-f1920, "everything" set italic on the gradient, low contrast, filling
 the frame.
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.

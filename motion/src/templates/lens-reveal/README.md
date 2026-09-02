@@ -9,7 +9,7 @@ frame, with a caption inside it.
 
 ## Reference
 
-f1610-f1660 — a white lens shape over a portrait, tipped about 18 deg off
+f1640-f1700 — a white lens shape over a portrait, tipped about 18 deg off
 horizontal, growing until its rim runs off every edge.
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.
@@ -45,6 +45,12 @@ passes in; left out, the composition's own length is used so the template stays
 scrubbable on its own. See `src/lib/README.md`.
 
 ## Deviations
+
+The rotated layer is drawn 1.5x the frame with its clip radii divided back
+out. That is not a no-op: a full-frame box rotated 18 degrees no longer covers
+the frame's own corners, so without it the end of the reveal is a wash with
+four dark triangles in it. The scale grows the box, the division keeps the
+aperture the same size on screen.
 
 The rim is why this is not just a `clip-path` animation: the aperture is drawn
 twice, as an oval carrying the rim in a large `box-shadow` spread and as the

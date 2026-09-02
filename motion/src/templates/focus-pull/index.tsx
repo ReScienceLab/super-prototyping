@@ -9,7 +9,7 @@ import { enter, useDuration } from "../../lib/timing";
  * Focus pull: two planes of type, one near and one far, and the focus racks
  * from one to the other while both stay on screen.
  *
- * Reference: f1360-1390 — "Your digital mind is born" is sharp against a soft
+ * Reference: f1372-1400 — "Your digital mind is born" is sharp against a soft
  * background, and over about 16 frames the near line goes to mush while what
  * was behind it resolves. It is the cheapest way in the film to move attention
  * without moving the camera or cutting.

@@ -9,7 +9,7 @@ densest at its edge.
 
 ## Reference
 
-f1330-f1400, beside "Your digital mind / is born" — a standing figure
+f1352-f1400, beside "Your digital mind / is born" — a standing figure
 assembling itself out of white specks.
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.
@@ -18,6 +18,8 @@ what is substituted, and how to reproduce any number below.
   leaves as the first ones are landing.
 - Dense along the silhouette, sparse through the middle, which is what tells
   you it is a shape made of dots and not a cloud (`rim`).
+- The figure is about **0.55 of the frame height and a third as wide**, left of
+  centre with the type beside it — narrow and tight, not a wide loose cloud.
 - A particle in flight is soft and dim and resolves as it lands, so the shape
   sharpens into existence rather than sliding into place fully formed.
 
@@ -25,17 +27,17 @@ what is substituted, and how to reproduce any number below.
 
 | prop      | default                        |
 |-----------|--------------------------------|
-| count     | 520                            |
+| count     | 560                            |
 | seed      | "born"                         |
 | travel    | 34                             |
 | spread    | 46                             |
-| scatter   | 0.42                           |
-| scale     | 0.84                           |
-| aspect    | 0.5                            |
+| scatter   | 0.34                           |
+| scale     | 0.58                           |
+| aspect    | 0.42                           |
 | harmonics | 0.22                           |
-| rim       | 0.45                           |
-| dot       | 6                              |
-| x         | 0.27                           |
+| rim       | 0.35                           |
+| dot       | 5                              |
+| x         | 0.38                           |
 | y         | 0.52                           |
 | color     | PAPER                          |
 | gradient  | { ...MESH, base: GRADIENT[2] } |

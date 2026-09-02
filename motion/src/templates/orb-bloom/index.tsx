@@ -1,18 +1,28 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Easing, random, useCurrentFrame } from "remotion";
 import { GRADIENT, PAPER } from "../../lib/palette";
 import { Gradient, type GradientProps, MESH } from "../../lib/Gradient";
 import { Orb } from "../../lib/Orb";
 import { SERIF } from "../../lib/fonts";
-import { arrive, enter, stagger, useDuration } from "../../lib/timing";
+import { enter, stagger, useDuration } from "../../lib/timing";
 
 /*
  * Orb bloom: a single warm sphere swells out of the ground until it overruns
  * the frame, and a row of small chips lands across it as it arrives.
  *
- * Reference: f1450-1520. The orb goes from roughly a tenth of the frame height
- * to about 1.4x it — it is meant to overrun the top and bottom edges, which is
- * why `to` is greater than 1 and nothing clips it back.
+ * Reference: f1283-1340, "piece by piece". The shot is a hard cut off the end
+ * of the count-up at f1280, and the sphere is ALREADY bigger than the frame on
+ * the first frame of it — what f1283-1340 shows is the back half of a bloom,
+ * with the bright rim sweeping across and off. The template plays the whole
+ * bloom because a template needs a head; see the README.
+ *
+ * What the shot does pin down is the two ends. `to` has to be at least 2.05:
+ * the frame's diagonal is 2.04 frame heights, so a smaller sphere leaves the
+ * corners showing and reads as a ball on a background rather than as the shot.
+ * 1.4 clears the top and bottom only. And the chips do not just hold — they
+ * arrive over three frames each (f1284, f1286, f1291), sit in a flat row for
+ * about forty, and then leave upward and outward at different rates over the
+ * last ten, which is where the film cuts.
  *
  * The bloom and the defocus run on ONE progress value, not two: the orb is
  * heavily blurred while it is small and resolves as it lands, which is what
@@ -34,6 +44,11 @@ export type OrbBloomProps = {
   chipAt: number;
   chipStep: number;
   chipFrames: number;
+  /** frame the chips start leaving */
+  exitAt: number;
+  exitFrames: number;
+  /** how far a chip travels leaving, as a fraction of frame height */
+  exit: number;
   size: number;
   color: string;
   gradient: GradientProps;
@@ -49,6 +64,9 @@ export const OrbBloom: React.FC<OrbBloomProps> = ({
   chipAt,
   chipStep,
   chipFrames,
+  exitAt,
+  exitFrames,
+  exit,
   size,
   color,
   gradient,
@@ -79,32 +97,43 @@ export const OrbBloom: React.FC<OrbBloomProps> = ({
           color,
         }}
       >
-        {chips.map((chip, i) => (
-          <span
-            key={chip + i}
-            style={{
-              ...arrive(
-                stagger(frame, i, {
-                  at: chipAt,
-                  step: chipStep,
-                  frames: chipFrames,
-                }),
-                10,
-                12,
-              ),
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5em",
-              // The chips are offset vertically as well as staggered in time: a
-              // flat row of three reads as a caption, the reference reads as
-              // debris suspended in front of the sphere.
-              marginTop: `${(i % 2 ? 1 : -1) * 6}vh`,
-            }}
-          >
-            <Orb size={22} />
-            {chip}
-          </span>
-        ))}
+        {chips.map((chip, i) => {
+          const landed = stagger(frame, i, {
+            at: chipAt,
+            step: chipStep,
+            frames: chipFrames,
+          });
+          // The tail. The reference's chips hold a flat row for most of the
+          // shot and then leave upward and outward at different rates over
+          // about ten frames — which is the shot's cut point, and the reason
+          // this template has an end state and not just a hold.
+          const away = enter(
+            frame,
+            exitAt,
+            exitFrames,
+            Easing.in(Easing.cubic),
+          );
+          const dx = (random(`chip-x-${i}`) - 0.5) * 2 * exit * 0.5;
+          const dy = -exit * (0.6 + 0.8 * random(`chip-y-${i}`));
+          return (
+            <span
+              key={chip + i}
+              style={{
+                opacity: landed * (1 - away),
+                filter: `blur(${(1 - landed) * 10}px)`,
+                transform:
+                  `translate(${dx * away * 1080}px, ` +
+                  `${(1 - landed) * 12 + dy * away * 1080}px)`,
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5em",
+              }}
+            >
+              <Orb size={22} />
+              {chip}
+            </span>
+          );
+        })}
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -116,13 +145,16 @@ export const Component = OrbBloom;
 export const defaultProps: OrbBloomProps = {
   chips: ["piece", "by", "piece"],
   from: 0.1,
-  to: 1.4,
+  to: 2.05,
   bloomFrames: 62,
   blur: 60,
   chipAt: 10,
-  chipStep: 6,
+  chipStep: 3,
   chipFrames: 14,
-  size: 0.036,
+  exitAt: 66,
+  exitFrames: 12,
+  exit: 0.5,
+  size: 0.045,
   color: PAPER,
   gradient: { ...MESH, base: GRADIENT[3] },
 };

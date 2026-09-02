@@ -8,8 +8,8 @@ import { enter, useDuration } from "../../lib/timing";
  * Pill expand: a small notification pill grows into a full card, and whatever
  * was behind it goes soft.
  *
- * Reference: two places, f1090-1120 ("1 New insight" -> a "Behavioral Edge"
- * card over the blurred paragraph) and f1830-1870 ("1 new notification" -> a
+ * Reference: two places, f1088-1150 ("1 New insight" -> a "Behavioral Edge"
+ * card over the blurred paragraph) and f1690-1780 ("1 new notification" -> a
  * card with two buttons). Same mechanic, so one template: the pill's label
  * leaves, the box grows, the card's contents land.
  *

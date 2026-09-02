@@ -8,7 +8,7 @@ import { enter, useDuration } from "../../lib/timing";
  * Card stack: a row of tall cards standing edge-on in perspective, drifting
  * past the camera, with a line of type sitting in front of them.
  *
- * Reference: f420-500 — a fan of warm rectangles receding to the right, most of
+ * Reference: f38-95 — a fan of warm rectangles receding to the right, most of
  * them out of focus, one near the middle sharp, "people want" over the top. It
  * reads as a shelf of screens being walked past.
  *

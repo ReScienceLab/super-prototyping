@@ -9,9 +9,9 @@ focus and slightly low and settling.
 
 ## Reference
 
-Three shots, same mechanic at three granularities: per word f20-f36 ("You've
-got knowledge"), per letter f176-f242, per line f1330-f1400 ("Your digital
-mind / is born").
+Three shots, same mechanic at three granularities: per word f14-f38 ("You've
+got knowledge"), per letter f188-f212 ("Gone"), per line f1789-f1870 ("So you
+never miss the conversation / that could change").
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.
 

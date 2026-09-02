@@ -9,7 +9,7 @@ with a line of type in front of them.
 
 ## Reference
 
-f420-f500 — a fan of warm rectangles receding, most out of focus, one near the
+f38-f95 — a fan of warm rectangles receding, most out of focus, one near the
 middle sharp, "people want" over the top.
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.
