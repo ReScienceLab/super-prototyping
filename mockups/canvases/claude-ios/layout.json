@@ -1,0 +1,154 @@
+{
+  "name": "(example) Claude iOS",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-home-typed",
+          "label": "Home, typed"
+        },
+        {
+          "file": "02-sent",
+          "label": "Question sent"
+        },
+        {
+          "file": "03-streaming",
+          "label": "Answer streaming"
+        },
+        {
+          "file": "04-voice-listening",
+          "label": "Voice, listening"
+        },
+        {
+          "file": "05-voice-warm",
+          "label": "Voice, interrupt"
+        },
+        {
+          "file": "06-voice-deep",
+          "label": "Voice, listening 2"
+        },
+        {
+          "file": "07-artifact",
+          "label": "Artifact card"
+        },
+        {
+          "file": "08-home",
+          "label": "Home, empty"
+        },
+        {
+          "file": "09-file-typed",
+          "label": "File attached"
+        },
+        {
+          "file": "10-file-sent",
+          "label": "File sent"
+        },
+        {
+          "file": "11-file-answer",
+          "label": "File answer"
+        },
+        {
+          "file": "12-add-sheet",
+          "label": "Add to Chat"
+        },
+        {
+          "file": "13-photo-attached",
+          "label": "Photo attached"
+        },
+        {
+          "file": "14-photo-typed",
+          "label": "Photo, typed"
+        },
+        {
+          "file": "15-photo-answer",
+          "label": "Photo answer"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-home-typed",
+          "label": "Home, typed"
+        },
+        {
+          "file": "ref-02-sent",
+          "label": "Question sent"
+        },
+        {
+          "file": "ref-03-streaming",
+          "label": "Answer streaming"
+        },
+        {
+          "file": "ref-04-voice-listening",
+          "label": "Voice, listening"
+        },
+        {
+          "file": "ref-05-voice-warm",
+          "label": "Voice, interrupt"
+        },
+        {
+          "file": "ref-06-voice-deep",
+          "label": "Voice, listening 2"
+        },
+        {
+          "file": "ref-07-artifact",
+          "label": "Artifact card"
+        },
+        {
+          "file": "ref-08-home",
+          "label": "Home, empty"
+        },
+        {
+          "file": "ref-09-file-typed",
+          "label": "File attached"
+        },
+        {
+          "file": "ref-10-file-sent",
+          "label": "File sent"
+        },
+        {
+          "file": "ref-11-file-answer",
+          "label": "File answer"
+        },
+        {
+          "file": "ref-12-add-sheet",
+          "label": "Add to Chat"
+        },
+        {
+          "file": "ref-13-photo-attached",
+          "label": "Photo attached"
+        },
+        {
+          "file": "ref-14-photo-typed",
+          "label": "Photo, typed"
+        },
+        {
+          "file": "ref-15-photo-answer",
+          "label": "Photo answer"
+        }
+      ]
+    }
+  ]
+}
