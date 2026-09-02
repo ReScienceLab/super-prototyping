@@ -397,11 +397,13 @@ function layoutWelcomeExtras(
 }
 
 /**
- * The third row: what the boards look like once they move. Same column pitch as the cards above
- * it, so the two rows line up, but each card is only as tall as its composition's aspect —
- * cropping a landscape render into a phone-shaped card throws most of the frame away.
+ * The third row: what the boards look like once they move. A card is a full 478 wide, the
+ * artboards' own column pitch and twice the example cards above it — a render is the one thing
+ * on this board with motion in it, and at half width there is nothing to see. Its height is its
+ * composition's aspect, because cropping a landscape render into a phone-shaped card throws
+ * most of the frame away.
  *
- * Clicking one opens the Motion page, where the same render plays at full width.
+ * Clicking one opens the Motion page, where the same render plays at the same width.
  */
 function layoutWelcomeMotionRow(
   editor: Editor,
@@ -412,10 +414,10 @@ function layoutWelcomeMotionRow(
   if (!assets.length) return;
 
   const cardHeight = (meta: MotionMeta) =>
-    Math.round((CANVAS_LINK_CARD_SIZE.w * meta.height) / meta.width) +
+    Math.round((MOTION_PREVIEW_WIDTH * meta.height) / meta.width) +
     CANVAS_LINK_TITLE_HEIGHT;
   const cardX = (index: number) =>
-    index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
+    index * (MOTION_PREVIEW_WIDTH + LIBRARY_GAP);
   const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
 
   const cards = assets.map((asset, index) => ({
@@ -425,7 +427,7 @@ function layoutWelcomeMotionRow(
     x: cardX(index),
     y: contentY,
     props: {
-      w: CANVAS_LINK_CARD_SIZE.w,
+      w: MOTION_PREVIEW_WIDTH,
       h: cardHeight(asset.meta),
       label: asset.title,
       page: MOTION_PAGE_SLUG,
@@ -437,12 +439,13 @@ function layoutWelcomeMotionRow(
   if (missing.length) editor.createShapes(missing);
 
   // Vite hashes the served mp4, so a re-render changes the URL and a card already on the canvas
-  // would keep playing the old file at the old aspect.
+  // would keep playing the old file at the old box.
   for (const card of cards) {
     const shape = editor.getShape<CanvasLinkShape>(card.id);
     if (!shape) continue;
     if (
       shape.props.path !== card.props.path ||
+      shape.props.w !== card.props.w ||
       shape.props.h !== card.props.h ||
       shape.props.label !== card.props.label
     ) {
@@ -451,6 +454,7 @@ function layoutWelcomeMotionRow(
         type: card.type,
         props: {
           path: card.props.path,
+          w: card.props.w,
           h: card.props.h,
           label: card.props.label,
         },
@@ -458,7 +462,8 @@ function layoutWelcomeMotionRow(
     }
   }
 
-  const title = "Motion: the same boards, moving. Click a card to open the Motion canvas";
+  // The row above already says to click a card, so this one only has to name itself.
+  const title = "Motion: the same boards, moving";
   createAnnotation(editor, {
     id: `canvas-row-heading:${page.id}:${title}`,
     text: title,
@@ -467,7 +472,7 @@ function layoutWelcomeMotionRow(
     // At least three columns wide whatever the row holds, so a one-card row's heading sets on a
     // single line instead of wrapping down over the card under it.
     w:
-      Math.max(assets.length, 3) * CANVAS_LINK_CARD_SIZE.w +
+      Math.max(assets.length, 3) * MOTION_PREVIEW_WIDTH +
       (Math.max(assets.length, 3) - 1) * LIBRARY_GAP,
     size: "l",
     color: "white",
@@ -480,7 +485,7 @@ function layoutWelcomeMotionRow(
       text: `${durationSeconds(asset.meta).toFixed(1)}s · ${asset.meta.width}×${asset.meta.height}`,
       x: cardX(index),
       y: contentY + cardHeight(asset.meta) + LIBRARY_LABEL_GAP,
-      w: CANVAS_LINK_CARD_SIZE.w,
+      w: MOTION_PREVIEW_WIDTH,
       size: "s",
       align: "middle",
       color: "white",
