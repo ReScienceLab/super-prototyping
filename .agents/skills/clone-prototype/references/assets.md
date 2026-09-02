@@ -18,9 +18,11 @@ the whole argument, and it has a number behind it. In the `duolingo-ios` run
 the campfire character was cut from capture 03 at its measured box, which
 scores a mean delta of **0** because those are the reference's own pixels.
 The same crop handed to `gpt-image-2` as an edit, prompted for a faithful
-reproduction, scored **38.53**. It is recognisably the same character, with
-a different head-to-body ratio, a redrawn hairline, a resized marshmallow and
-the campfire moved. Good drawing, useless measurement.
+reproduction, scored **38.53** on the first attempt and **18.41** once it was
+generated on a key colour, cut out and fitted back to the same box, which is
+the whole of the procedure below done properly. Both are recognisably the same
+character, with a different head-to-body ratio, a redrawn hairline, a resized
+marshmallow and the campfire moved. Good drawing, useless measurement.
 
 So: generate only where the pixels do not exist, and say in the folder README
 which assets were generated and why.
@@ -80,7 +82,7 @@ GPT=~/.claude/skills/gpt-image/scripts/gptimage.py
 #    it, and nothing else to drift towards. Use it for a variant of something
 #    the capture already shows: a second colourway, another pose, an
 #    unobscured version of a mascot the sheet cuts off.
-python3 "$GPT" -p "PROMPT" -i assets/art/06-char.png -o gen.png \
+python3 "$GPT" -p "PROMPT" -i assets/art/03-char.png -o gen.png \
     --size square --quality medium
 
 # B: the whole screen in. The model sees the surrounding style, so a set of
@@ -88,7 +90,7 @@ python3 "$GPT" -p "PROMPT" -i assets/art/06-char.png -o gen.png \
 #    when you need several pieces at once, or when the thing you want only
 #    makes sense in context. Costs more input tokens and gives the model more
 #    to wander into; name the element and its position explicitly.
-python3 "$GPT" -p "PROMPT" -i assets/refs/06.png -o gen.png \
+python3 "$GPT" -p "PROMPT" -i assets/refs/03.png -o gen.png \
     --size square --quality medium
 ```
 
@@ -118,8 +120,11 @@ distinct colours** in the border band, and **40% of the pixels inside the
 figure** were above the luminance threshold that removes the ground. Keyed, the
 character comes back with its eyes and its teeth punched out and the model's
 soft shadow still attached as a translucent disc. The same character generated
-on `#FF00FF` came back with a border averaging **5.6 levels** from the key,
-worst pixel 33, and keys cleanly on the first try.
+on `#FF00FF` keys cleanly on the first try. Two runs of it came back with a
+border averaging **5.6 and 19.3 levels** from the key, worst pixel 33 and 37,
+which is the other reason the flatness check in step 3 exists: how flat the
+ground comes back varies run to run, and you want to be told rather than to
+ship a haze.
 
 Pick a key the artwork genuinely does not contain, and say so in the prompt.
 Magenta is the usual choice; use `#00FF00` if the asset is pink.
@@ -127,14 +132,14 @@ Magenta is the usual choice; use `#00FF00` if the asset is pink.
 ### 3. Key, unpremultiply, and fit to the measured box
 
 ```bash
-python3 "$REPO/tools/refkit.py" key gen.png -o assets/art/06-char.png \
-    --ground FF00FF --box 109.7 165.9 --pt 2.2417
+python3 "$REPO/tools/refkit.py" key gen.png -o assets/art/03-char.png \
+    --ground FF00FF --box 116.4 170.9 --pt 2.2417
 ```
 
 ```
-ground #FF00FF: border distance mean 5.6 max 33.0   keyed 71.1% of the frame
-ink box (191, 65, 849, 956)  -> (658, 891)
-fitted to the measured box: (246, 372)
+ground #FF00FF: border distance mean 19.3 max 37.0   keyed 71.2% of the frame
+ink box (177, 38, 833, 978)  -> (656, 940)
+fitted to the measured box: (261, 383)
 ```
 
 It does three things a threshold alone does not. It **checks the ground is
@@ -158,11 +163,11 @@ the hex and the "completely flat" sentence and generate again. Do not raise
 A generated asset is a claim, so it gets a probe: composite it and the true
 crop on the same ground and difference them.
 
-The campfire character, generated from its own crop, keyed and fitted, scores
-a mean **21.49 levels** against the crop it was made from. That is the good
-case, with the reference in the model's context and the geometry solved back
-to the measured box, and it is still twenty times worse than the **0** a crop
-scores. Put the number in the folder README beside the asset. If it is worse
+The campfire character, generated from `assets/art/03-char.png`, keyed and
+fitted back to that same box, scores a mean **18.41 levels** against it. That
+is the good case: the exact asset in the model's context and the geometry
+solved back to the measured box, and it is still nowhere near the **0** a crop
+scores by construction. Put the number in the folder README beside the asset. If it is worse
 than the chrome around it, say so, or the next reader will conclude the layout
 is off.
 

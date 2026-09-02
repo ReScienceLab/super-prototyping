@@ -19,10 +19,11 @@ tools/refkit.py  measure a reference, render a board, diff the two, audit tokens
 .agents/skills/  the workflow, as three skills (symlinked into .claude/skills/)
 ```
 
-## Two worked examples
+## Three worked examples
 
-Both are real `clone-prototype` runs, rebuilt from measured samples with the
-evidence recorded for every token. Open either with `?canvas=<slug>`.
+All three are real `clone-prototype` runs, rebuilt from measured samples with
+the evidence recorded for every token. Open any of them with
+`?canvas=<slug>`.
 
 ### `notion-ios`, six screens
 
@@ -67,6 +68,40 @@ is desaturated, mean chroma 2.0 against the source's 5.9. A single CSS
 Gaussian under two white veils spreads the launcher's colour blobs but
 bleaches them. Luminance is not the problem; it matches to 0.1.
 
+### `duolingo-ios`, eight screens that are mostly picture
+
+[![duolingo-ios](assets/workflow/case-duolingo.png)](mockups/canvases/duolingo-ios/README.md)
+
+*Replica on top, source capture directly below it. Same crop, same scale, so
+the two rows line up pixel for pixel. Six screens of the learning path and the
+two modal sheets.*
+
+This is the run to read when the screens carry more illustration than chrome.
+Mean absolute delta against the captures is **1.36 to 2.97 levels of 255**,
+the best screenshot-sourced numbers here, and the reason is a rule rather than
+effort: all 128 pieces of art are **crops of the captures at measured boxes**,
+keyed in a `crops.json` that `gen.py` both cuts from and places by. A crop is
+the reference's own pixels, so it scores 0; the same crop redrawn by
+`gpt-image-2` scores 38.53, or 18.41 with the generation done properly, on a
+flat key colour and fitted back to the same box. Either way it is the same
+character with a different head-to-body ratio and the props moved. Good
+drawing, useless measurement.
+
+```
+screen              Δ     screen               Δ
+01 path green    1.41     05 up next        1.82
+02 path red      1.47     06 jump here      1.36
+03 path blue     2.44     07 streak freeze  2.60
+04 section done  2.38     08 league promo   2.97
+```
+
+Two things the renders corrected that the capture alone would not have. The
+stand-in face sets its caps at 0.762em where SF Pro sits at 0.714, so every
+size derived from a measured cap height was 6% too large until it was measured
+on the render instead. And the eight captures carry **two different status
+bars**, one cluster starting 9.4pt left of the other, which reads as noise
+until you plot it.
+
 ## Start a project from this repo
 
 ```bash
@@ -75,7 +110,7 @@ cd my-product-design && rm -rf .git && git init
 cd canvas && bun install --frozen-lockfile
 ```
 
-Both boards above ship with it. Copy a `00-design-tokens.html` as the
+All three boards above ship with it. Copy a `00-design-tokens.html` as the
 starting point for your own token block, then delete the folders.
 
 ## Run the canvas
@@ -116,7 +151,8 @@ Never skip ahead. Sampling before tokens, tokens before HTML.
 | **1b**<br>Sample,<br>region by<br>region | `refkit sample p4.png 76 646 132 668 --pt 3` runs a census over **one named region**; `--pt` keeps both halves in design pt, so you type the numbers you just read off the red labels. Which line of the census you believe depends on what you pointed at:<br>• page, card, sheet → **flat fills**. A pixel equal to all four neighbours is a real fill, not an antialiased edge<br>• badge, dot, brand mark → **all pixels**, top entry, on a core-only crop; too small to have a flat interior<br>• text → **ink core**, the darkest few percent. The mode of a text region is its *background*: 93% of that `Mistral` box is `#F2F2F2`<br>• pitch, edges, radii → `bands` / `bbox` / `scan`<br>• 1pt divider or border → `refkit hairline` instead; a hairline never reaches full coverage in a downscaled capture, so solve it from the ink deficit rather than picking it. A solve within ~2 of the page background means the real UI has no divider there.<br><br>**Out:** a token table with an **evidence** column. No evidence, no token. | <a href="assets/workflow/1b-sample.png"><img src="assets/workflow/1b-sample.png" width="330"></a><br><sub>Three named regions, three techniques, one crop of the Presets list. The label's own census is 93% background. The ink is the darkest 2%.</sub> |
 | **1c**<br>Name the<br>face | `refkit font ref.png 17.3 139 78.7 152 Libraries --pt 3 --fonts brand/` renders that word in every candidate face and ranks the glyph shapes at a common cap height. A closed set of ~20 faces already on disk is the right problem: the published classifiers solve a 3,000-class Google-Fonts one and so structurally cannot answer *SF Pro*. Under a 0.05 top-two margin it reports **no call** rather than naming a lookalike.<br><br>**Out:** the one token nothing else could measure: `--x-font`, with evidence. [Why not a model.](docs/font-identification.md) | <a href="assets/workflow/1c-font.png"><img src="assets/workflow/1c-font.png" width="330"></a><br><sub>One word, two candidate sets. Slack ships Lato, which is not a system face, so the left column refuses, and `--fonts` turns it into an answer.</sub> |
 | **2**<br>Design<br>system | One `:root` block: the measured font stack, colour ramp, radii per component class, composite `font:` shorthands, geometry constants. Built as the *first* artboard, because it is the contract every screen is checked against.<br><br>**Out:** `00-design-tokens.html`. | <a href="assets/workflow/2-tokens.png"><img src="assets/workflow/2-tokens.png" width="330"></a><br><sub>Every swatch carries its hex and the element it was sampled from.</sub> |
-| **3**<br>One<br>generator | A single `gen.py` emits every screen, inlining that `:root` byte-identically. Artboards are output, never source. Hand-edit one and the next run reverts it.<br><br>**Out:** `NN-<slug>.html` × N, `layout.json`. | <a href="assets/workflow/3-generate.png"><img src="assets/workflow/3-generate.png" width="330"></a><br><sub>Four boards out of one script. 478 × 980 each, self-contained, no shared stylesheet.</sub> |
+| **3a**<br>One<br>generator | A single `gen.py` emits every screen, inlining that `:root` byte-identically. Artboards are output, never source. Hand-edit one and the next run reverts it.<br><br>**Out:** `NN-<slug>.html` × N, `layout.json`. | <a href="assets/workflow/3-generate.png"><img src="assets/workflow/3-generate.png" width="330"></a><br><sub>Four boards out of one script. 478 × 980 each, self-contained, no shared stylesheet.</sub> |
+| **3b**<br>Source the<br>artwork | Every picture already on the capture is **cropped out of the capture at its own measured box**, keyed by id in a `crops.json` the generator reads: `cut()` writes `assets/art/<id>.png`, `art()` places the `<img>` back at the same pt numbers, so an asset cannot drift from where it was measured and a box correction is one edit rather than two. A crop is the reference's own pixels, so it scores **Δ 0** by construction, and that is the whole argument for preferring it. Generate only what no capture contains. `gpt-image-2` has no transparent background and its idea of a white ground is not keyable, so ask for the subject on a flat key colour and cut it out with `refkit key`, which checks the ground really is flat, unpremultiplies the edge spill and fits the result to the same pt box. Then probe it like any other measurement.<br><br>**Out:** `crops.json` and a committed `assets/art/`. | <a href="assets/workflow/3b-artwork.png"><img src="assets/workflow/3b-artwork.png" width="330"></a><br><sub>One asset, three ways to get it. Generated from the crop itself, keyed and fitted back to the same box, it is a good drawing and a bad measurement.</sub> |
 | **4**<br>Verify by<br>rendering | `shoot --crop-phone --check-overflow` renders and de-frames, `diff --regions` puts your fill next to the reference's, `tokens` audits the `:root`. Fan the *looking* out, one read-only subagent per screen, and keep a single writer for the generator.<br><br>**Out:** a Δ per region, in numbers. | <a href="assets/workflow/4-diff.png"><img src="assets/workflow/4-diff.png" width="330"></a><br><sub>Two boards, one token apart. Nothing to see; six values to fix.</sub> |
 | **5**<br>Park the<br>reference | Each source capture goes into its own `ref-NN-*.html` as a `data:` URI, listed as a third `layout.json` row **in the same order** as the replicas. Rows lay out at `index × (w + gap)`, so item N lands under item N.<br><br>**Out:** every replica sits directly above its source. | <a href="assets/workflow/5-reference-row.png"><img src="assets/workflow/5-reference-row.png" width="330"></a><br><sub>Both rows as the canvas renders them. The reference artboard is the raw capture plus its attribution line. No bezel, nothing redrawn.</sub> |
 

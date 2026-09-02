@@ -52,16 +52,23 @@ campfire character out of 03 at its measured box scores a mean delta of
 `gpt-image-2` as an edit and asking for a faithful reproduction scores
 **38.53**: the model returns something recognisably the same character with
 a different head-to-body ratio, a redrawn hairline, a resized marshmallow
-and the campfire moved. It is a good drawing and a bad measurement.
+and the campfire moved. It is a good drawing and a bad measurement. Doing the
+generation properly closes about half of that and no more: asked for the same
+character on a flat magenta ground, cut out with `refkit key` and fitted back
+to the same pt box, it scores **18.41**. That is the number in the workflow
+figure in the repo README, and it is still the wrong tool for a picture the
+capture already contains.
 
 So the rule this run settled: **generate art only where the pixels do not
 exist in the capture.** In this clone there is no such case, and nothing on
 these boards is generated. Two practical limits, if a future run does need
 it: `gpt-image-2` has no transparent background (that needs `gpt-image-1.5`,
-which the `gpt-image` skill does not wrap), and image calls on this machine
-hit a hard ~60 s network cap. `--quality high` edits die at 61 s with an SSL
-record-layer failure; `--quality medium` with `stream=True` and partial
-images returns in about 42 s.
+which the `gpt-image` skill does not wrap), so generate on a flat key colour
+and cut it out with `refkit key`; and image calls on this machine hit a hard
+~60 s network cap. `--quality high` edits die at 61 s with an SSL
+record-layer failure, which makes `medium` the ceiling rather than a
+compromise. Two `medium` edits on this asset returned in 41.8 s and 41.6 s,
+so budget 40 s per asset.
 
 ## What the file said, and what the renders corrected
 
