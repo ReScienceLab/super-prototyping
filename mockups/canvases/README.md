@@ -265,8 +265,9 @@ its asset files sitting in the folder are invisible to the canvas.
   rather than on width or height** (which found three weights that both fits
   had left wrong, at ratios of 0.891 to 1.193), and charging the leftover
   width as per-string tracking. It also records that PIL's width fit is 11.6%
-  off the browser's on the same string. `assets/art/` is committed; the five
-  `ref-*` boards are gitignored, so a fresh clone has 8.
+  off the browser's on the same string. `assets/art/` is committed, and so
+  are the five `ref-*` boards, the one folder here that ships its captures so
+  the hosted canvas shows them; a fresh clone has 13.
 - `snapaction-ios/`: the run to read when the screens are almost entirely
   type. Six screens of SnapAction, five dark and one light sheet, rebuilt from
   the captures inside its Figma file. 11 boards in four rows: a landscape

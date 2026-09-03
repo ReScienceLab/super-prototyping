@@ -22,6 +22,9 @@ scratch/
 mockups/canvases/*/ref-*.html
 mockups/canvases/*/refassets.json
 mockups/canvases/*/assets/refs/
+# spotify-ios is the exception: prototyping.rescience.com is built from the checkout, so
+# its captures sit under the replicas on the hosted page only as committed boards.
+!mockups/canvases/spotify-ios/ref-*.html
 # Same rule for the walkthrough row and its crops: they show the capture itself.
 mockups/canvases/*/w[0-9]-*.html
 mockups/canvases/*/walkassets.json
