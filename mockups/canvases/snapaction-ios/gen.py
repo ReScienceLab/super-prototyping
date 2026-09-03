@@ -322,14 +322,25 @@ def tc(tok, ink, cx, body, w=300.0, **kw):
 # -------------------------------------------------------------- chrome ----
 # Two frames on one ring. 956 + 2*12 = 980 fills the artboard exactly, so the
 # body centres rather than pads and no board carries a drop shadow.
+#
+# The 430 x 932 frame does not: it leaves 12px of ground above and below, and
+# next to an xl board in the same row it reads as a smaller phone rather than
+# as a different device. It is only 2.5% smaller, and the two devices share an
+# aspect ratio to within a pixel (430/932 = .4614, 440/956 = .4603), so the
+# small frame is scaled up to the tall one's height for display: 932 x
+# 956/932 = 956, and its outer ring lands at 465 x 980 against the xl's 464 x
+# 980. Display only. Every coordinate inside the phone is still the pt it was
+# measured at, so a re-diff of 03-06 wants
+# `--phone-size 441x956 --phone-radius 63.6` to cut the screen back out.
 BASE = """*{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--x-font);-webkit-font-smoothing:antialiased;
   display:flex;align-items:center;justify-content:center;width:478px;height:980px}"""
 
 PHONE = """.phone{position:relative;flex:none;width:var(--x-w);height:var(--x-h);
   border-radius:var(--x-r-phone);overflow:hidden;background:var(--x-bg);color:var(--x-ink);
-  box-shadow:0 0 0 10.5px #1D191A,0 0 0 12px #3A3735}
-.phone.xl{width:var(--x-w-xl);height:var(--x-h-xl);border-radius:var(--x-r-phone-xl)}
+  box-shadow:0 0 0 10.5px #1D191A,0 0 0 12px #3A3735;transform:scale(1.02575)}
+.phone.xl{width:var(--x-w-xl);height:var(--x-h-xl);border-radius:var(--x-r-phone-xl);
+  transform:none}
 .phone>*{position:absolute}
 img.a{display:block;z-index:2}
 .t{white-space:nowrap;z-index:3}

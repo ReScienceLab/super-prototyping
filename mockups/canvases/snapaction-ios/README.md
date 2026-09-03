@@ -23,6 +23,16 @@ it is the Figma node's own partial render, covering design pt x 0 to 380.5 and
 y 168.75 to 932 at 2.1656 px per pt. Each board draws the frame its capture
 came from.
 
+The 430 x 932 frame is scaled up by 2.5% for display, and only for display.
+956 + 2 x 12 of ring fills the 980px artboard exactly; 932 + 24 leaves 12px of
+ground top and bottom, and beside an xl board in the same row that reads as a
+smaller phone rather than as a different device. The two share an aspect ratio
+to within a pixel (430/932 = .4614, 440/956 = .4603), so `.phone` carries
+`transform:scale(956/932)` and the small ring lands at 465 x 980 against the
+xl's 464 x 980. Every coordinate inside the phone is still the pt it was
+measured at; a re-diff of 03 to 06 wants `--phone-size 441x956
+--phone-radius 63.6` to cut the screen back out.
+
 ## How close it lands
 
 Mean absolute delta against the captures, whole frame inside the phone's
