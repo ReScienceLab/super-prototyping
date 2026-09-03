@@ -2,6 +2,15 @@
   "name": "(example) SnapAction iOS",
   "rows": [
     {
+      "title": "The app this replicates, which is ours",
+      "files": [
+        {
+          "file": "00a-product",
+          "label": "SnapAction"
+        }
+      ]
+    },
+    {
       "title": "Foundations",
       "files": [
         {

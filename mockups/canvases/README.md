@@ -192,10 +192,11 @@ files sitting in the folder are invisible to the canvas.
   gitignored, so a fresh clone has 13.
 - `snapaction-ios/`: the run to read when the screens are almost entirely
   type. Six screens of SnapAction, five dark and one light sheet, rebuilt from
-  the captures inside its Figma file. 10 boards in three rows: a token board,
-  three evidence boards for 88 tokens, the six replicas, and the capture of
-  each column-for-column underneath. Mean absolute delta against those captures
-  is 1.29-2.34 levels (of 255) on the five device screens, better than any
+  the captures inside its Figma file. 11 boards in four rows: the product
+  board, a token board, three evidence boards for 88 tokens, the six replicas,
+  and the capture of each column-for-column underneath. Mean absolute delta
+  against those captures is 1.29-2.34 levels (of 255) on the five device
+  screens, better than any
   other screenshot-sourced run here and reached without cropped artwork
   carrying it. Its `README.md` records how: `ct()` models the line box, and the
   residual one constant still misses is measured per token and does not follow

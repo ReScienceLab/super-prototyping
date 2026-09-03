@@ -1,7 +1,7 @@
 # SnapAction, iOS
 
 Six screens of SnapAction, rebuilt from the captures inside its Figma file,
-plus the token board and the three evidence boards behind them. 10 boards,
+plus the token board and the three evidence boards behind them. 11 boards,
 and 6 more that park each capture under its replica.
 
 | # | Board | What it shows |
@@ -14,6 +14,7 @@ and 6 more that park each capture under its replica.
 | 06 | `view-resource` | The light meeting sheet over a LinkedIn thread |
 | 00 | `design-tokens` | 88 tokens |
 | 00b-00d | `evidence` | The measurement behind every one of them |
+| 00a | `product` | The app itself: App Store copy, icon, two QR codes |
 
 Two device sizes, not one. Captures 01 and 02 are 1320 x 2868 for a 440 x 956
 frame (iPhone 16 Pro Max, 3.359 px per design pt); 03 to 05 are 1290 x 2796
@@ -254,17 +255,34 @@ is a real entry in `en.lproj/Localizable.strings`, format strings included:
 
 Net effect on the five dark screens: 8.88 to 8.63.
 
+## The one board that is not a replica
+
+`00a-product` is not measured against anything, because there is nothing to
+measure it against: SnapAction is ReScience Lab's own app, and this board is
+the product rather than a copy of it. The copy and the icon are the App Store
+listing's, the facts come from the iTunes lookup, and the two QR codes are
+built from the URLs and decoded back to prove they carry them.
+
+Its foot is the exception. `snapaction.ai` ships its palette as `oklch()`
+custom properties, and converting them to sRGB says the site and the app do
+not share one: the site's `--app-blue` is `#0071F4` where `DSPalette.accent`
+is `#4A74FF`, and its `--surface-dark` is `#101214` where the app's canvas is
+true black. That is a real drift between a product and the page selling it,
+and it is the sort of thing the rest of this folder exists to find.
+
 ## Assets
 
 `assets/` holds what the boards embed, so they rebuild offline.
 
-- `art/`: 77 PNGs. 74 are crops of a capture at the box named in
+- `art/`: 80 PNGs. 74 are crops of a capture at the box named in
   `crops.json`, cut by `gen.py` and placed back by `art()` at the same
-  numbers, so an asset cannot drift from where it was measured. The other
-  three are 06's, and they are not crops: capture 06 stops at x 380.5 and
-  y 168.75, so the thread, the avatar and the app icon come from the Figma
-  node's own exported assets and are committed as-is. **Committed**: without
-  it the boards have no artwork.
+  numbers, so an asset cannot drift from where it was measured. Three are
+  06's, and they are not crops: capture 06 stops at x 380.5 and y 168.75, so
+  the thread, the avatar and the app icon come from the Figma node's own
+  exported assets and are committed as-is. The last three are `00a`'s: the
+  App Store icon at 264px, and two QR codes generated with `segno` and
+  decoded back with Vision to check they carry the URLs printed under them.
+  **Committed**: without it the boards have no artwork.
 - `refs/`: the 6 captures. **Gitignored**, along with the `ref-*.html` boards
   built from them: they are whole app screens, not component art.
 

@@ -1008,6 +1008,111 @@ def evidence_boards():
                     SHEET))
 
 
+# ---------------------------------------------------------- the product ----
+# Not a replica of anything, and the only board here that is not measured
+# against a capture. SnapAction is ReScience Lab's own app, so this one is the
+# thing itself: the App Store listing's own copy and icon, and two QR codes
+# built from the URLs and decoded back with Vision to prove they carry them.
+# The foot of it is the one measurement on the board. snapaction.ai publishes
+# its palette as oklch custom properties; converted to sRGB they are not the
+# app's, and a marketing site drifting from the product it sells is exactly
+# the kind of thing the rest of this folder exists to catch.
+PROMO_CSS = """body{padding:0;background:var(--x-bg);color:var(--x-ink)}
+.pr{width:478px;height:980px;padding:34px 32px;overflow:hidden;
+  display:flex;flex-direction:column}
+.pr .hd{display:flex;gap:16px;align-items:center}
+.pr .hd img{width:92px;height:92px;border-radius:20.7px;flex:none;
+  border:1px solid var(--x-line)}
+.pr h1{font:700 27px/30px var(--x-font);letter-spacing:-.5px}
+.pr .hd p{font:500 14px/19px var(--x-font);color:var(--x-ink-3);margin-top:2px}
+.pr .hd em{display:block;font:400 11px/15px var(--x-font);color:var(--x-ink-4);
+  font-style:normal;margin-top:3px}
+.pr .tag{font:700 31px/37px var(--x-font);letter-spacing:-.8px;margin-top:30px}
+.pr .tag i{display:block;color:var(--x-ink-4);font-style:normal}
+.pr .lead{font:400 13px/19px var(--x-font);color:var(--x-ink-3);margin-top:16px}
+.pr .quote{background:var(--x-card);border:1px solid var(--x-line);
+  border-radius:var(--x-r-card);padding:15px 17px;margin-top:18px;
+  font:500 15px/22px var(--x-font);color:var(--x-ink-2)}
+.pr .quote b{color:var(--x-ink);font-weight:600}
+.pr .kinds{display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
+.pr .kinds span{font:600 12px/16px var(--x-font);padding:4px 11px;
+  border-radius:var(--x-r-pill);background:var(--x-chip);color:var(--x-ink-3)}
+.pr .facts{margin-top:20px;font:400 11px/16px ui-monospace,Menlo,monospace;
+  color:var(--x-ink-4)}
+.pr .ways{margin-top:22px}
+.pr .ways h2,.pr .note h2{font:600 9px/12px var(--x-font);letter-spacing:.8px;
+  text-transform:uppercase;color:var(--x-ink-4);margin-bottom:8px}
+.pr .ways div{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pr .ways span{font:500 12px/16px var(--x-font);color:var(--x-ink-2);
+  background:var(--x-card);border:1px solid var(--x-line);
+  border-radius:10px;padding:7px 11px}
+.pr .qr{display:flex;gap:12px;margin-top:22px}
+.pr .qr .card{flex:1;padding:13px;text-align:center}
+.pr .qr img{width:92px;height:92px;background:#FFF;padding:5px;
+  border-radius:8px;image-rendering:pixelated}
+.pr .qr b{display:block;font:600 13px/17px var(--x-font);color:var(--x-ink);
+  margin-top:9px}
+.pr .qr u{display:block;text-decoration:none;margin-top:3px;
+  font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--x-blue)}
+.pr .note{margin-top:auto;padding-top:20px;border-top:1px solid var(--x-line)}
+.pr .note p{font:400 10.5px/15px var(--x-font);color:var(--x-ink-3)}
+.pr .note code{font:400 10px/15px ui-monospace,Menlo,monospace;color:var(--x-ink-2)}"""
+
+# Site token -> sRGB, app token -> sRGB. The left column is snapaction.ai's own
+# --custom-properties, read out of its stylesheet and converted from oklch.
+SITE_VS_APP = [("--app-blue", "oklch(.57 .22 255)", "#0071F4", "DSPalette.accent", "#4A74FF"),
+               ("--surface-dark", "oklch(.18 .006 260)", "#101214", "DSPalette.canvas", "#000000")]
+
+KINDS = [("Events", "green"), ("Meetings", "blue"), ("Travel", "amber"),
+         ("Bookings", ""), ("To-dos", "")]
+
+KIND_CSS = {"green": "background:var(--x-green-bg);color:var(--x-green-2)",
+            "blue": "background:var(--x-blue-bg);color:var(--x-blue)",
+            "amber": "background:var(--x-amber-bg);color:var(--x-amber)",
+            "": ""}
+
+
+def product_board():
+    kinds = "".join('<span%s>%s</span>'
+                    % (' style="%s"' % KIND_CSS[k] if k else "", n)
+                    for n, k in KINDS)
+    qr = "".join(
+        '<div class="card"><img src="%s" alt="%s"><b>%s</b><u>%s</u></div>'
+        % (_uri(cid), alt, alt, shown)
+        for cid, alt, shown in
+        [("promo-qr-app", "App Store", "apps.apple.com/app/id6759501517"),
+         ("promo-qr-site", "Website", "snapaction.ai")])
+    ways = "".join("<span>%s</span>" % w for w in
+                   ("Action Button", "Control Center",
+                    "Back Tap", "Siri and Shortcuts"))
+    note = " ".join(
+        "<code>%s</code> is %s, %s, against the app's <code>%s</code> at %s."
+        % (n, ok, hexa, app, apphex) for n, ok, hexa, app, apphex in SITE_VS_APP)
+    return page(
+        NAME + " - the product",
+        '<div class="pr">'
+        '<div class="hd"><img src="%s" alt="SnapAction">'
+        '<div><h1>SnapAction</h1><p>Screenshot AI</p>'
+        '<em>ReScience Lab Inc. &middot; Productivity</em></div></div>'
+        '<div class="tag">Snap now, act later.<i>Never miss a thing.</i></div>'
+        '<p class="lead">You screenshot things so you will not forget them. A '
+        'flight at 6:40am. A dentist appointment. A talk that closes '
+        'registration Friday. A coupon that expires Sunday. Then the folder '
+        'fills up, and you never open it again.</p>'
+        '<div class="quote">SnapAction <b>reads the time inside the picture</b>. '
+        'Then the picture comes back to find you, before that time runs out.</div>'
+        '<div class="kinds">%s</div>'
+        '<div class="facts">Free &middot; 30 scans a month &middot; iOS 17.0+ '
+        '&middot; v1.14.0</div>'
+        '<div class="ways"><h2>Scan without opening the app</h2><div>%s</div></div>'
+        '<div class="qr">%s</div>'
+        '<div class="note"><h2>One measurement, since it is that kind of folder'
+        '</h2><p>The marketing site does not share the app\'s palette. %s</p>'
+        '</div></div>' % (_uri("promo-icon"), kinds, ways, qr, note),
+        PROMO_CSS)
+
+
+
 # ------------------------------------------------------- reference row ----
 # Each capture at its own design size, so a reference sits column-for-column
 # under the mockup it was measured from. 06 is the odd one: the Figma render
@@ -1040,7 +1145,9 @@ def ref_boards():
 
 # ----------------------------------------------------------------- main ----
 def layout(names):
-    rows = [{"title": "Foundations",
+    rows = [{"title": "The app this replicates, which is ours",
+             "files": [{"file": "00a-product", "label": "SnapAction"}]},
+            {"title": "Foundations",
              "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
                       + [{"file": n, "label": "Evidence"}
                          for n, _ in evidence_boards()]},
@@ -1056,7 +1163,8 @@ def layout(names):
 
 def main():
     cut()
-    files = dict([("00-design-tokens", token_board())]
+    files = dict([("00a-product", product_board()),
+                  ("00-design-tokens", token_board())]
                  + list(evidence_boards())
                  + [(s, fn()) for s, _, fn in SCREENS]
                  + list(ref_boards()))
