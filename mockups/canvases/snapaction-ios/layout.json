@@ -1,5 +1,13 @@
 {
   "name": "(example) SnapAction iOS",
+  "cover": "00-launch-light",
+  "coverBox": [
+    18.46,
+    12.0,
+    441.07,
+    956.0
+  ],
+  "order": -1,
   "rows": [
     {
       "title": "The app this replicates, which is ours",
@@ -19,6 +27,19 @@
         {
           "label": "Download on the App Store",
           "url": "https://apps.apple.com/app/id6759501517"
+        }
+      ]
+    },
+    {
+      "title": "Launch, replicated from the app's source, not a capture",
+      "files": [
+        {
+          "file": "00-launch-light",
+          "label": "Light"
+        },
+        {
+          "file": "00-launch-dark",
+          "label": "Dark"
         }
       ]
     },

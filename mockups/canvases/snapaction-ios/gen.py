@@ -204,6 +204,10 @@ TOKENS = [
  ("Type", "t-p5",     "700 16.8px/22px var(--x-font)",   'render fit: "PKX" 32.7, which 17px sets to 33.0'),
  ("Type", "t-p5-row", "500 15.05px/20px var(--x-font)",
   'render fit over 05: at 15px the whole detail sheet sets 0.3% narrow'),
+ ("Type", "t-brand",   "600 30px/34.95px var(--x-font)",
+  "the one type token with no capture behind it: BrandLockup sets the wordmark "
+  "at .system(size: 30, weight: .semibold), and 34.95 is SF Pro's own line "
+  "height, 1.165 * 30"),
 
  ("Metrics", "w",       "430px",  "iPhone 15 Plus / 16 Plus logical width, captures 03-06"),
  ("Metrics", "h",       "932px",  "iPhone 15 Plus / 16 Plus logical height"),
@@ -304,6 +308,7 @@ FIT = {
     "t-big":    (TAB + ";letter-spacing:-0.8px", -1.6, 0.90),
     "t-date":   (TAB, 0.0, 0.38),
     "t-body":   ("", 0.0, 0.33),
+    "t-brand":  ("letter-spacing:0.5px", 0.0, 1.75),
     "t-code":   ("", 0.0, 0.33),
     "t-code-2": ("", 0.0, 0.33),
     "t-day":    ("", 0.0, 0.33),
@@ -453,6 +458,104 @@ def backbtn(x, y):
                'style="stroke:var(--x-ink-btn)" stroke-width="3.0" '
                'stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>'
                % (x, y)))
+
+
+# ------------------------------------------------------------- launch ----
+# The one screen with no capture behind it, because it is ours: the source is
+# the source. LaunchBrandView.swift paints Color(.systemBackground) and one
+# BrandLockup, and brings it in with
+#     withAnimation(.easeOut(duration: 0.3)) { appeared = true }
+# over opacity 0 -> 1 and scaleEffect 0.98 -> 1; RootFlowView then cross-fades
+# the whole state out with .easeInOut(duration: 0.2) when restoreSession()
+# returns. These two boards are the state that animation rests at, held still
+# in both appearances; the timings are in the README.
+#
+# Two boards because the lockup is Color(.label) on Color(.systemBackground)
+# and nothing else, so the whole screen is one system colour pair inverted,
+# which is why the source reaches for the monochrome symbol rather than the
+# full-colour ProductLogo. Both halves of the pair are already tokens: label
+# light is --x-bg and systemBackground light is --x-l-bg, the same two hexes
+# the dark board uses the other way round.
+#
+# SnapActionLogoSymbol.symbolset, group Regular-S, lifted out of its
+# matrix(1 0 0 1 1404.51 696) so the local origin is the baseline at the left
+# margin. The template's guides put Baseline-S at y 696 and Capline-S at
+# 625.541, so one unit is one pt at point size 100 and the cap height is
+# 70.459; left-margin-Regular-S 1404.51 to right-margin-Regular-S 1495.18
+# makes the advance 90.67. Black-S and Ultralight-S are the same 3433
+# characters of path at a different x, so the mark does not vary with weight
+# and Regular-S stands in for .semibold.
+MARK = [
+ "M 49.95,-67.717 C 50.185,-69.45 51.782,-70.665 53.516,-70.43 C 55.249,-70.194"
+ " 56.464,-68.598 56.229,-66.864 L 54.861,-56.789 C 54.626,-55.056 53.029,"
+ "-53.841 51.296,-54.076 C 49.562,-54.312 48.347,-55.908 48.583,-57.642 L 49.95,"
+ "-67.717 Z",
+ "M 76.685,-46.206 C 78.419,-46.441 80.015,-45.227 80.25,-43.493 C 80.486,"
+ "-41.759 79.271,-40.163 77.537,-39.928 L 67.462,-38.56 C 65.729,-38.325 64.132,"
+ "-39.539 63.897,-41.273 C 63.662,-43.007 64.876,-44.603 66.61,-44.839 L 76.685,"
+ "-46.206 Z",
+ "M 68.598,-62.941 C 69.835,-64.178 71.841,-64.178 73.078,-62.941 C 74.315,"
+ "-61.704 74.315,-59.698 73.078,-58.461 L 62.687,-48.069 C 61.449,-46.832"
+ " 59.444,-46.832 58.206,-48.069 C 56.969,-49.306 56.969,-51.312 58.206,-52.55"
+ " L 68.598,-62.941 Z",
+ "M 10.391,-11.785 L 10.391,-21.606 C 10.391,-23.356 11.809,-24.775 13.559,"
+ "-24.775 C 15.308,-24.775 16.727,-23.356 16.727,-21.606 L 16.727,-11.785 C"
+ " 16.727,-8.776 19.166,-6.336 22.176,-6.336 L 31.997,-6.336 C 33.747,-6.336"
+ " 35.165,-4.918 35.165,-3.168 C 35.165,-1.418 33.747,-0 31.997,-0 L 22.176,-0 C"
+ " 15.667,-0 10.391,-5.276 10.391,-11.785 Z M 66.91,-11.785 L 66.91,-21.606 C"
+ " 66.91,-23.356 68.328,-24.775 70.078,-24.775 C 71.827,-24.775 73.246,-23.356"
+ " 73.246,-21.606 L 73.246,-11.785 C 73.246,-5.276 67.969,-0 61.46,-0 L 51.639,"
+ "-0 C 49.889,-0 48.471,-1.418 48.471,-3.168 C 48.471,-4.918 49.889,-6.336"
+ " 51.639,-6.336 L 61.46,-6.336 C 64.47,-6.336 66.91,-8.776 66.91,-11.785 Z M"
+ " 10.391,-41.249 L 10.391,-51.07 C 10.391,-57.579 15.667,-62.855 22.176,-62.855"
+ " L 31.997,-62.855 C 33.747,-62.855 35.165,-61.437 35.165,-59.687 C 35.165,"
+ "-57.937 33.747,-56.519 31.997,-56.519 L 22.176,-56.519 C 19.166,-56.519"
+ " 16.727,-54.079 16.727,-51.07 L 16.727,-41.249 C 16.727,-39.499 15.308,-38.081"
+ " 13.559,-38.081 C 11.809,-38.081 10.391,-39.499 10.391,-41.249 Z",
+]
+MARK_ADV, MARK_CAP = 90.67, 70.459        # advance and cap height at size 100
+SF_ASC, SF_LH = 0.952, 1.165              # SF Pro ascent and line height, /em
+LOGO_PT, WORD_PT = 40.0, 30.0             # BrandLockup's two defaults
+SAFE_T, SAFE_B = 59.0, 34.0               # 430 x 932 safe-area insets
+
+# HStack(.center) aligns the two frames, and a frame's centre sits
+# (ascent - lineHeight/2) * size above its baseline, so the mark's baseline
+# lands (0.3695 * 10) = 3.7pt below the wordmark's. That drops the mark's
+# 28.18pt of ink onto the wordmark's 21.14pt cap box to within 0.17pt of
+# centre, and the residual is under 0.2 for every published SF Pro metric
+# pair, so "the mark's ink is optically centred on the caps" is the safe way
+# to read it.
+_CY = SAFE_T + (932.0 - SAFE_T - SAFE_B) / 2          # 478.5, safe-area centre
+_K = SF_ASC - SF_LH / 2                               # frame centre over baseline
+_LK_H = SF_LH * LOGO_PT                               # the lockup frame, 46.6
+_LK_T = _CY - _LK_H / 2
+_MARK_W, _MARK_H = MARK_ADV * LOGO_PT / 100, MARK_CAP * LOGO_PT / 100
+_MARK_T = _CY + _K * LOGO_PT - _MARK_H                # ink top, absolute
+# ...and the wordmark by its cap row, less the lift the FIT table carries for
+# it: ct()'s single K is a fit over 10-21px runs and at 30px it lands the box
+# 1.75 high. Measured off the render itself, on the flat feet of the A in
+# "Action" against the mark's own baseline edge, which is the one horizontal
+# in the lockup whose y is known by construction.
+_WORD_T = (ct(_CY + _K * WORD_PT - MARK_CAP * WORD_PT / 100, *ty("t-brand"))
+           - fit("t-brand")[2])
+
+CSS_LAUNCH = """.phone.lt{background:var(--x-l-bg)}
+.lk{position:absolute;left:0;right:0;top:%.2fpx;height:%.2fpx;display:flex;
+  align-items:flex-start;justify-content:center;gap:%.1fpx;color:var(--x-white)}
+.phone.lt .lk{color:var(--x-bg)}
+.mk{flex:none;margin-top:%.2fpx;fill:currentColor}
+.wm{flex:none;margin-top:%.2fpx;font:var(--x-t-brand);%s;color:currentColor;
+  margin-right:-.5px}""" % (_LK_T, _LK_H, LOGO_PT * 0.3, _MARK_T - _LK_T,
+                           _WORD_T - _LK_T, fit("t-brand")[0])
+
+def body_launch():
+    """Launch. No status bar: UILaunchScreen is an empty dict, so the frame
+    the OS paints has nothing on it, and the one element that would be here
+    is system chrome for which there is no light-appearance capture."""
+    return ('<div class="lk"><svg class="mk" viewBox="0 %g %g %g" width="%.3f" '
+            'height="%.3f">%s</svg><div class="wm">SnapAction</div></div>'
+            % (-MARK_CAP, MARK_ADV, MARK_CAP, _MARK_W, _MARK_H,
+               "".join('<path d="%s"/>' % d for d in MARK)))
 
 
 def addpill(x, y):
@@ -985,6 +1088,11 @@ SCREENS = [
     ("06-view-resource",   "View resource",   lambda: screen("View resource", "l", body06(), CSS06)),
 ]
 
+LAUNCH = [("00-launch-light", "Light",
+           lambda: screen("Launch, light", "lt", body_launch(), CSS_LAUNCH)),
+          ("00-launch-dark", "Dark",
+           lambda: screen("Launch, dark", "", body_launch(), CSS_LAUNCH))]
+
 
 # --------------------------------------------------- foundations boards ----
 SHEET = """body{padding:0;background:var(--x-bg);color:var(--x-ink)}
@@ -992,7 +1100,7 @@ SHEET = """body{padding:0;background:var(--x-bg);color:var(--x-ink)}
 h1{font:600 17px/22px var(--x-font);margin-bottom:2px}
 header p{font:400 11px/15px var(--x-font);color:var(--x-ink-3);margin-bottom:9px}
 h2{font:600 9px/12px var(--x-font);letter-spacing:.8px;text-transform:uppercase;
-  color:var(--x-ink-3);margin:9px 0 4px}
+  color:var(--x-ink-3);margin:7px 0 4px}
 .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
 .sw .chip{height:20px;border-radius:5px;border:1px solid var(--x-line)}
 .sw b{display:block;margin-top:2px;font:600 8px/10px ui-monospace,Menlo,monospace}
@@ -1237,11 +1345,23 @@ def ref_boards():
 
 
 # ----------------------------------------------------------------- main ----
+# A welcome card crops to the phone, so the canvas needs the phone's box in the
+# artboard. This folder's cover is the launch board, which wears the plain .phone
+# rather than the .xl the wide captures use: 430 x 932 under its own scale, centred
+# by the body's flex. Both numbers are read back off the CSS so they cannot drift.
+_S = float(PHONE.split("transform:scale(")[1].split(")")[0])
+_TV = {name: value for _, name, value, _ in TOKENS}
+_CW, _CH = float(_TV["w"][:-2]) * _S, float(_TV["h"][:-2]) * _S
+COVER_BOX = [round(v, 2) for v in ((478 - _CW) / 2, (980 - _CH) / 2, _CW, _CH)]
+
+
 def layout(names):
     rows = [{"title": "The app this replicates, which is ours",
              "files": [{"file": "00a-product", "label": "SnapAction",
                         "w": PROMO_W, "h": PROMO_H}],
              "links": PROMO_LINKS},
+            {"title": "Launch, replicated from the app's source, not a capture",
+             "files": [{"file": s, "label": l} for s, l, _ in LAUNCH]},
             {"title": "Foundations",
              "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
                       + [{"file": n, "label": "Evidence"}
@@ -1253,7 +1373,11 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: the Figma file's captures",
                      "numbered": True, "files": refs})
-    return {"name": PAGE_NAME, "rows": rows}
+    # The launch board is the cover because it is the app's own front door, and the
+    # light one because the welcome page's card sits on a dark ground. Ahead of every
+    # other folder for the same reason: this is the one app here that is ours.
+    return {"name": PAGE_NAME, "cover": LAUNCH[0][0], "coverBox": COVER_BOX,
+            "order": -1, "rows": rows}
 
 
 def main():
@@ -1261,7 +1385,7 @@ def main():
     files = dict([("00a-product", product_board()),
                   ("00-design-tokens", token_board())]
                  + list(evidence_boards())
-                 + [(s, fn()) for s, _, fn in SCREENS]
+                 + [(s, fn()) for s, _, fn in LAUNCH + SCREENS]
                  + list(ref_boards()))
     for stale in OUT.glob("00[b-z]-evidence.html"):   # the page count moves
         if stale.stem not in files:                      # when the evidence does

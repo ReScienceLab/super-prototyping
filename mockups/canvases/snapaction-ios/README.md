@@ -1,7 +1,8 @@
 # SnapAction, iOS
 
 Six screens of SnapAction, rebuilt from the captures inside its Figma file,
-plus the token board and the three evidence boards behind them. 11 boards,
+plus the token board and the three evidence boards behind them, plus the
+launch screen, which has no capture because it did not need one. 13 boards,
 and 6 more that park each capture under its replica.
 
 | # | Board | What it shows |
@@ -12,7 +13,8 @@ and 6 more that park each capture under its replica.
 | 04 | `collection` | A saved collection: two photos, tag chips, tab bar |
 | 05 | `resource-detail` | Flight detail, caught mid-scroll |
 | 06 | `view-resource` | The light meeting sheet over a LinkedIn thread |
-| 00 | `design-tokens` | 88 tokens |
+| 00 | `launch-light` / `launch-dark` | The launch lockup, both appearances |
+| 00 | `design-tokens` | 89 tokens |
 | 00b-00d | `evidence` | The measurement behind every one of them |
 | 00a | `product` | The app itself, as a 2152 x 460 banner rather than a phone |
 
@@ -286,6 +288,56 @@ not share one: the site's `--app-blue` is `#0071F4` where `DSPalette.accent`
 is `#4A74FF`, and its `--surface-dark` is `#101214` where the app's canvas is
 true black. That is a real drift between a product and the page selling it,
 and it is the sort of thing the rest of this folder exists to find.
+
+## The two boards with no capture behind them
+
+Every other screen here is measured against a picture of the real app. The
+launch screen is not, because it did not have to be: it is 60 lines of
+`LaunchBrandView.swift` and one symbol from the asset catalogue, and reading
+those is more exact than measuring a screenshot of them.
+
+The lockup is `Image("SnapActionLogoSymbol")` at `.system(size: 40, weight:
+.semibold)` and `Text("SnapAction")` at 30 with `kerning(0.5)`, in an
+`HStack(spacing: logoSize * 0.3)`, all of it `Color(.label)` on
+`Color(.systemBackground)`. That is one system colour pair and nothing else,
+which is why there are two boards and why the source reaches for the
+monochrome symbol rather than the full-colour `ProductLogo`: the mark has to
+invert. Both halves of the pair are already tokens here, used the other way
+round: `label` light is `--x-bg` and `systemBackground` light is `--x-l-bg`.
+
+The mark is the `Regular-S` group of `SnapActionLogoSymbol.svg`, lifted out
+of its `matrix(1 0 0 1 1404.51 696)` so the local origin is the baseline at
+the left margin. The template's guides put `Baseline-S` at y 696 and
+`Capline-S` at 625.541, so one SVG unit is one pt at point size 100, the cap
+height is 70.459 and the advance, margin to margin, is 90.67. `Black-S` and
+`Ultralight-S` are the same 3433 characters of path data at a different x, so
+the mark does not vary with weight and `Regular-S` stands in for `.semibold`
+exactly.
+
+Vertically, `HStack(.center)` aligns the two *frames*, and a frame's centre
+sits `(ascent - lineHeight / 2) * size` above its baseline, so the mark's
+baseline lands 3.70pt below the wordmark's. `ct()`'s single K is a fit over
+10-21px runs and at 30px it puts the box 1.75pt high, which is the lift the
+`FIT` table carries for `t-brand`; it was measured on the render itself, on
+the flat feet of the A in "Action" against the mark's own baseline edge,
+which is the one horizontal in the lockup whose y is known by construction.
+After it, the mark's baseline sits 3.90 below the wordmark's against a target
+of 3.70, and the 0.20 is inside the 0.24pt quantisation of reading a 2x shot.
+
+There is no status bar on either board. `Info.plist` sets `UILaunchScreen` to
+an empty dict, so the frame the OS paints before the app's own is this
+background with nothing on it, and the one element that would sit up there is
+system chrome for which this folder has no light-appearance capture.
+
+What the boards do not show is the motion, which is in the source and worth
+recording: `withAnimation(.easeOut(duration: 0.3))` brings the lockup in over
+`opacity 0 -> 1` and `scaleEffect 0.98 -> 1`, as one `compositingGroup()`;
+`RootFlowView` then cross-fades the whole state out with
+`.easeInOut(duration: 0.2)` once `restoreSession()` returns.
+`accessibilityReduceMotion` drops the scale and keeps the fade. Both curves
+are `CAMediaTimingFunction` presets, whose control points are CSS's own
+`ease-out` and `ease-in-out` to the digit, so a board that wanted to play it
+would need no approximation. These two hold the state it rests at.
 
 ## Assets
 
