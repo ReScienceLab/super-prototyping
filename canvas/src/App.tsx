@@ -66,18 +66,10 @@ try {
 const WELCOME_PAGE_SLUG = "00-welcome";
 
 /**
- * The one board that is not phone-shaped: a landscape strip as wide as the row of example
- * cards under it. Keep it in step with the `body` box in 00-welcome/gen.py.
- */
-const WELCOME_BOARD_SIZE = { w: 2153, h: 819 } as const;
-
-/**
- * The artboard box, which is 478 x 980 unless something says otherwise: the welcome board is
- * a landscape strip, and any row of a layout.json may declare its own `w`/`h` for a board that
- * is not phone-shaped either.
+ * The artboard box, which is 478 x 980 unless the folder's layout.json declares its own `w`/`h`
+ * for that file, as 00-welcome does for its landscape strip.
  */
 function boardSize(file: CanvasLibraryFile) {
-  if (file.pageSlug === WELCOME_PAGE_SLUG) return WELCOME_BOARD_SIZE;
   for (const row of readCanvasLayout(file.pageSlug)?.rows ?? []) {
     for (const entry of row.files) {
       if (typeof entry === "string" || entry.file !== file.fileName) continue;

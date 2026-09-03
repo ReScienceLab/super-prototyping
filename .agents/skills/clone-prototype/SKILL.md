@@ -19,8 +19,8 @@ e.g. `notion-ios`.
 Toolkit: `tools/refkit.py` (grid / sample / bands / bbox / scan / hairline /
 font / shoot / diff / blend / tokens / batch / ink / crops / key /
 montage), plus `tools/artgen.py` for the rare asset that has to be drawn.
-Needs `pillow` + `numpy`; `shoot` needs Google Chrome. Work in a scratch
-directory, not in the repo.
+Needs `pillow` + `numpy`; `shoot` needs Google Chrome. Work in
+`mockups/canvases/<slug>/scratch/`, which is gitignored at any depth.
 
 ```bash
 REPO="$(git rev-parse --show-toplevel)"
@@ -202,7 +202,7 @@ evidence does not become a token.
 | `--n-border` | `#EFEEEC` | card outline solve |
 
 Write the machine half of that table as you measure: `probes.json` in the
-scratch dir, one entry per measurement, `{"id", "img", "cmd", "box"}`.
+canvas folder, committed with the boards, one entry per measurement, `{"id", "img", "cmd", "box"}`.
 Phase 4 replays it against your renders, so every number that justified a
 token is re-checked after the token changes. Without it the evidence
 drifts: one finished run shipped three rows still citing an alpha of `.174`
@@ -635,12 +635,13 @@ list of screens:
   measured is cheaper for the next reader than the experiment they will
   otherwise repeat.
 
-**`mockups/canvases/<slug>/.gitignore`.** Whole app screens are not component
-art. Ignore `ref-*.html` and `assets/refs/`, and say in the README how many
-boards a fresh clone builds without them. **`assets/art/` is the exception
+**No folder-level `.gitignore`.** Whole app screens are not component art,
+and the root `.gitignore` already keeps `ref-*.html`, `assets/refs/` and
+`scratch/` out of every canvas folder. Say in the README how many boards a
+fresh clone builds without the captures. **`assets/art/` is the exception
 and stays committed**: cropped component art is what the boards are made of,
-and without it a fresh clone renders empty frames. Say that in the file, in a
-comment, because the surrounding rule points the other way.
+and without it a fresh clone renders empty frames. Say that in the README,
+because the surrounding rule points the other way.
 
 **A bullet in `mockups/canvases/README.md`**, under Examples: board count,
 row structure, the delta range, and the one thing this folder teaches that

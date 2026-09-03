@@ -1,4 +1,0 @@
-# Whole app screens, not component art: the captures and the boards built
-# from them stay local. gen.py builds the other 18 boards without them.
-ref-*.html
-assets/refs/

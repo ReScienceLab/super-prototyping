@@ -8,9 +8,8 @@ has the whole width to itself.
 
 This is the one board that is not phone-shaped: a landscape strip as wide
 as the row of example cards under it on the canvas, one card per other
-folder. Add a folder and the row grows, so raise CARDS below and copy the
-printed size into canvas/src/App.tsx as WELCOME_BOARD_SIZE; keep the
-two in step.
+folder. Add a folder and the row grows, so raise CARDS below and re-run.
+It writes the size into layout.json as w/h, which is what the canvas reads.
 
 Everything clickable on this page is a canvas shape, not markup in here. The
 canvas renders boards in <iframe srcDoc sandbox="">, where a link cannot
@@ -170,11 +169,11 @@ LAYOUT = """{
   "rows": [
     {
       "title": "super-prototyping",
-      "files": [{ "file": "00-welcome", "label": "What this is" }]
+      "files": [{ "file": "00-welcome", "label": "What this is", "w": %d, "h": %d }]
     }
   ]
 }
-"""
+""" % (W, H)
 
 if __name__ == "__main__":
     p = os.path.join(OUT, "00-welcome.html")
