@@ -64,19 +64,12 @@ try {
 
 /** The onboarding folder. Sorts first, and the bare URL opens it. */
 const WELCOME_PAGE_SLUG = "00-welcome";
-const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
 
 /**
  * The one board that is not phone-shaped: a landscape strip as wide as the row of example
  * cards under it. Keep it in step with the `body` box in 00-welcome/gen.py.
  */
 const WELCOME_BOARD_SIZE = { w: 2153, h: 819 } as const;
-
-/**
- * Where the star button sits, in welcome-board coordinates: the empty slot the header leaves
- * between the identity block and the lede. Keep it in step with `.slot` in 00-welcome/gen.py.
- */
-const WELCOME_STAR_SLOT = { x: 414, y: 568 } as const;
 
 /**
  * The artboard box, which is 478 x 980 unless something says otherwise: the welcome board is
@@ -142,10 +135,15 @@ function createAnnotation(
 
   const existing = editor.getShape<TLTextShape>(id);
   if (existing?.type === "text") {
+    // Position too, not only the copy: a caption belongs to the shape above it, so when the
+    // row it labels is reordered or resized, an annotation left where it was labels the
+    // wrong card. It is placed by the layout on every pass, the way the cards are.
     editor.updateShape<TLTextShape>({
       id,
       type: "text",
-      props: { richText: toRichText(annotation.text) },
+      x: annotation.x,
+      y: annotation.y,
+      props: { richText: toRichText(annotation.text), w: annotation.w },
     });
     return;
   }
@@ -297,54 +295,64 @@ function layoutWelcomeExtras(
   library: CanvasLibraryFile[][],
   rowTop: number,
 ) {
-  const targets = library.filter(
-    (files) => files[0].pageSlug !== WELCOME_PAGE_SLUG,
-  );
+  const targets = library
+    .filter((files) => files[0].pageSlug !== WELCOME_PAGE_SLUG)
+    // Slug order otherwise, which is what a folder that says nothing gets. Sort
+    // is stable, so `order` only moves the folders that ask to be moved.
+    .sort(
+      (a, b) =>
+        (readCanvasLayout(a[0].pageSlug)?.order ?? 0) -
+        (readCanvasLayout(b[0].pageSlug)?.order ?? 0),
+    );
 
+  // The repo CTA used to be a shape parked in the welcome board's header. It is chrome now
+  // (canvasChrome.tsx, SharePanel), so a canvas saved before that still has to lose its copy.
   const starId = linkShapeId("star");
-  if (!editor.getShape(starId)) {
-    editor.createShape({
-      id: starId,
-      type: CANVAS_LINK_SHAPE_TYPE,
-      parentId: page.id,
-      ...WELCOME_STAR_SLOT,
-      props: {
-        ...CANVAS_LINK_BUTTON_SIZE,
-        label: "Star on GitHub",
-        page: "",
-        path: "",
-        url: REPO_URL,
-      },
-    });
-  }
+  if (editor.getShape(starId)) editor.deleteShape(starId);
   if (!targets.length) return;
 
-  // Two rows, because ten cards in one row read as a list of ten unrelated things: Apple's own
-  // apps first, then everything else. A card's id is its slug, so a folder that changes group
-  // moves on the next force refresh rather than turning into a second card.
-  const isApple = (files: CanvasLibraryFile[]) =>
-    files[0].pageSlug.startsWith("apple-");
+  // Two rows, because twelve cards in one row read as a list of twelve unrelated things: the
+  // apps this repo cloned first, Apple's own second. A card's id is its slug, so a folder that
+  // changes group moves on the next force refresh rather than turning into a second card.
+  // The top row is the cloned apps. Apple's own, and the empty folder you copy to start one,
+  // are the row under it: neither is an app someone came here to look at.
+  const isSecondRow = (files: CanvasLibraryFile[]) =>
+    files[0].pageSlug.startsWith("apple-") || files[0].pageSlug === "templates";
   const groups = [
     {
-      title: "Examples: Apple's own apps. Click a card to open its canvas",
-      targets: targets.filter(isApple),
+      title: "Examples: iOS apps. Click a card to open its canvas",
+      targets: targets.filter((files) => !isSecondRow(files)),
     },
     {
-      title: "Examples: everything else",
-      targets: targets.filter((files) => !isApple(files)),
+      title: "Examples: Apple's own apps, and the empty folder to copy",
+      targets: targets.filter(isSecondRow),
     },
   ];
+
+  // Headings are keyed by row, not by their own text: keyed by text, renaming one left the old
+  // shape sitting on the canvas next to the new one. Anything else here is such a straggler.
+  const headings = groups.map(
+    (_, index) => `canvas-row-heading:${page.id}:${index}`,
+  );
+  const kept = new Set(headings.map((id) => createShapeId(id)));
+  const orphans = [...editor.getPageShapeIds(page.id)].filter(
+    (id) => id.startsWith("shape:canvas-row-heading:") && !kept.has(id),
+  );
+  if (orphans.length) editor.deleteShapes(orphans);
 
   const cardX = (index: number) =>
     index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
 
   let top = rowTop;
-  for (const group of groups) {
+  for (const [index, group] of groups.entries()) {
     if (!group.targets.length) continue;
     const contentY = top + LIBRARY_HEADING_HEIGHT;
     const cards = group.targets.map((files, index) => {
+      const named = readCanvasLayout(files[0].pageSlug)?.cover;
       const cover =
-        files.find((file) => !file.fileName.startsWith("00")) ?? files[0];
+        files.find((file) => file.fileName === named) ??
+        files.find((file) => !file.fileName.startsWith("00")) ??
+        files[0];
       return {
         id: linkShapeId(files[0].pageSlug),
         type: CANVAS_LINK_SHAPE_TYPE,
@@ -363,22 +371,32 @@ function layoutWelcomeExtras(
     const missing = cards.filter((card) => !editor.getShape(card.id));
     if (missing.length) editor.createShapes(missing);
 
-    // A card that is already there keeps its position, but not a caption the folder has since
-    // renamed: the label is the page name, so a rename would otherwise show on the page menu and
-    // not on the card pointing at it.
+    // A card that is already there is laid out again anyway, position included: the row it
+    // belongs to, the label, the cover its layout.json names and the card size this build
+    // draws are all computed here, and a stale one of those would show on the card and
+    // nowhere else. The caption under it moves with it, so the two cannot disagree.
     for (const card of cards) {
       const shape = editor.getShape<CanvasLinkShape>(card.id);
-      if (shape && shape.props.label !== card.props.label) {
+      const stale =
+        shape &&
+        (shape.x !== card.x ||
+          shape.y !== card.y ||
+          (["label", "path", "w", "h"] as const).some(
+            (key) => shape.props[key] !== card.props[key],
+          ));
+      if (stale) {
         editor.updateShape({
           id: card.id,
           type: card.type,
-          props: { label: card.props.label, page: card.props.page },
+          x: card.x,
+          y: card.y,
+          props: { ...card.props },
         });
       }
     }
 
     createAnnotation(editor, {
-      id: `canvas-row-heading:${page.id}:${group.title}`,
+      id: headings[index],
       text: group.title,
       x: 0,
       y: top,
@@ -390,10 +408,14 @@ function layoutWelcomeExtras(
       parentId: page.id,
     });
 
+    // The card is the device alone, so the caption under it carries the name as well as the
+    // count; it is the only place either of them is written on this page.
     group.targets.forEach((files, index) => {
       createAnnotation(editor, {
         id: `canvas-file-label:${files[0].pageSlug}`,
-        text: `${files.length} board${files.length === 1 ? "" : "s"}`,
+        text: `${files[0].pageName}\n${files.length} board${
+          files.length === 1 ? "" : "s"
+        }`,
         x: cardX(index),
         y: contentY + CANVAS_LINK_CARD_SIZE.h + LIBRARY_LABEL_GAP,
         w: CANVAS_LINK_CARD_SIZE.w,
@@ -408,7 +430,7 @@ function layoutWelcomeExtras(
       contentY +
       CANVAS_LINK_CARD_SIZE.h +
       LIBRARY_LABEL_GAP +
-      LIBRARY_LABEL_HEIGHT +
+      LIBRARY_LABEL_HEIGHT * 2 +   // the card's caption is two lines, name over count
       LIBRARY_GAP;
   }
 }

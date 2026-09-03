@@ -2,6 +2,10 @@
 """Emit the welcome board. Artboards are output, never source: edit this file,
 not the HTML. Sources are the repo's own assets/banner.png and assets/icon.png.
 
+Only /clone-prototype is on the board. The other two skills were a three-up
+row here and are not shown for now, so the one people are meant to run first
+has the whole width to itself.
+
 This is the one board that is not phone-shaped: a landscape strip as wide
 as the row of example cards under it on the canvas, one card per other
 folder. Add a folder and the row grows, so raise CARDS below and copy the
@@ -10,8 +14,10 @@ two in step.
 
 Everything clickable on this page is a canvas shape, not markup in here. The
 canvas renders boards in <iframe srcDoc sandbox="">, where a link cannot
-navigate anything, so the example cards and the star button are drawn by
-canvas/src/CanvasLinkShapeUtil.tsx instead."""
+navigate anything, so the example cards are drawn by
+canvas/src/CanvasLinkShapeUtil.tsx instead. The repo CTA is not on this board
+at all: it is pinned to the viewport's top-right corner as tldraw chrome, in
+canvas/src/canvasChrome.tsx."""
 import base64, io, os
 from PIL import Image
 
@@ -22,11 +28,16 @@ REPO = "github.com/ReScienceLab/super-prototyping"
 CARDS = 7               # one example card per mockups/canvases folder, minus this one
 W = CARDS * 239 + (CARDS - 1) * 80      # card pitch on the canvas: 239 wide, 80 gutter
 BANNER_H = W // 4       # the banner crop's own 4:1 aspect, so nothing stretches
-H = BANNER_H + 281      # 281 is what the header, the heading and the skill row need
+H = BANNER_H + 281      # 281 is what the header, the heading and the skill card need,
+                        # 263 of it content and 18 of slack under the card
 
 BANNER_W = 2304         # the source's full width; past this there is no more detail
 BANNER_CROP = (0, 72, 2304, 648)   # 4:1 out of the 3:1 source, trimming dead black
 MARK_PX = 96            # 2x the 48px display size
+
+# What the lede had when the header still held the star button's 260px slot, kept so its
+# lines break where they were measured to break. The freed space trails at the right edge.
+LEDE_W = W - 2 * 30 - 360 - 24 - 260 - 24
 
 
 def uri(image, fmt, **opts):
@@ -48,10 +59,8 @@ def mark_uri():
     return uri(im.resize((MARK_PX, MARK_PX), Image.LANCZOS), "PNG", optimize=True)
 
 
-# The banner is white line work on black, so the board is too. The one warm
-# value in the onboarding is the star on the button shape outside this board.
-# The ramp below is spaced for legibility at this size rather than borrowed
-# from a palette.
+# The banner is white line work on black, so the board is too. The ramp below
+# is spaced for legibility at this size rather than borrowed from a palette.
 TOKENS = f""":root{{
   --w-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
   --w-mono:ui-monospace,Menlo,"SF Mono",monospace;
@@ -99,27 +108,28 @@ main{{padding:var(--w-pad)}}
 header{{display:flex;align-items:center;gap:24px;padding-bottom:26px}}
 .mark{{display:flex;align-items:center;gap:14px;flex:none;width:360px}}
 
-/* Left empty on purpose. The star button is a canvas shape parked here because a
-   link inside this sandboxed iframe cannot navigate anything. Its box lives in
-   canvas/src/App.tsx as WELCOME_STAR_SLOT; keep the two in step. */
-.slot{{flex:none;width:260px;height:48px}}
 .mark img{{width:48px;height:48px;border-radius:12px;border:1px solid var(--w-edge)}}
 h1{{font:700 24px/28px var(--w-font);letter-spacing:-.3px}}
 .url{{font:400 12px/16px var(--w-mono);color:var(--w-muted)}}
 
-.lede{{font:400 14px/21px var(--w-font);color:var(--w-muted);
+.lede{{flex:none;width:{LEDE_W}px;font:400 14px/21px var(--w-font);color:var(--w-muted);
   border-left:1px solid var(--w-edge);padding-left:24px}}
 .lede b{{color:var(--w-ink);font-weight:600}}
 
 h2{{font:600 10px/13px var(--w-font);letter-spacing:1.3px;text-transform:uppercase;
   color:var(--w-dim);padding-bottom:12px}}
 
-.skills{{display:grid;grid-template-columns:repeat(3, 1fr);gap:var(--w-gutter)}}
-.skill{{background:var(--w-panel);border:1px solid var(--w-edge);border-radius:var(--w-radius);
-  padding:22px 24px}}
-.skill b{{display:block;font:600 15px/22px var(--w-mono);color:var(--w-ink);
-  padding-bottom:8px}}
-.skill span{{font:400 13px/20px var(--w-font);color:var(--w-muted)}}
+/* The one skill on the board, so it is the full width. Everything on this page is
+   white line work on black and the card keeps to that: no colour. The moving light on
+   this canvas belongs to the two CTAs pinned top-right, and only to them. */
+.skill{{display:flex;align-items:center;gap:30px;
+  padding:34px 36px;border-radius:14px;
+  background:linear-gradient(180deg,#17171C,#0C0C10);
+  border:1px solid #3A3A46;
+  box-shadow:0 12px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.10)}}
+.skill b{{flex:none;font:700 30px/36px var(--w-mono);color:#FFFFFF;letter-spacing:-.5px}}
+.skill span{{font:400 15px/22px var(--w-font);color:var(--w-muted);
+  border-left:1px solid var(--w-edge);padding-left:30px}}
 
 code{{font:400 12.5px/20px var(--w-mono);color:var(--w-ink)}}
 </style>
@@ -137,28 +147,16 @@ code{{font:400 12.5px/20px var(--w-mono);color:var(--w-ink)}}
         <p class="url">{REPO}</p>
       </div>
     </div>
-    <div class="slot"></div>
     <p class="lede">Clone and design product UI as <b>self-contained HTML artboards</b> on a
     local tldraw canvas. Drop an <code>.html</code> file into a folder and it shows up here
     as a shape.</p>
   </header>
 
-  <h2>Three skills, one workflow</h2>
-  <div class="skills">
-    <div class="skill">
-      <b>/clone-prototype</b>
-      <span>Copy a real app's screens. Grid the capture, sample it by eye, name the type
-      face, then generate.</span>
-    </div>
-    <div class="skill">
-      <b>/new-ui-mock</b>
-      <span>Design new screens with no reference, on tokens that already exist, empty and
-      error states included.</span>
-    </div>
-    <div class="skill">
-      <b>/prototype-canvas</b>
-      <span>Run and operate this canvas: folders, layout.json rows, the force refresh.</span>
-    </div>
+  <h2>Start with this skill</h2>
+  <div class="skill">
+    <b>/clone-prototype</b>
+    <span>Copy a real app's screens. Grid the capture, sample it by eye, name the type face,
+    then generate.</span>
   </div>
 </main>
 

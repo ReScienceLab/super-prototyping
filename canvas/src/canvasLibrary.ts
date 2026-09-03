@@ -16,6 +16,15 @@ const rawLayouts = import.meta.glob("../../mockups/canvases/*/layout.json", {
   import: "default",
 }) as Record<string, CanvasLayoutConfig>;
 
+// Optional mockups/canvases/<slug>/icon.png, the app's own mark, badged on that folder's
+// welcome card. `?url` so Vite emits the file and hands back its address, rather than inlining
+// a 30-90 kB icon into the bundle as base64.
+const rawIcons = import.meta.glob("../../mockups/canvases/*/icon.png", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>;
+
 export interface CanvasLibraryFile {
   path: string;
   pageSlug: string;
@@ -61,6 +70,21 @@ export interface CanvasLayoutConfig {
    * prefix, so a board of your own stands out from them in the page menu.
    */
   name?: string;
+  /**
+   * Board that stands in for this folder on the welcome page, by file name,
+   * e.g. "00-launch-light". Without one the cover is the folder's first board
+   * that is not a 00- sheet, which is a token board on most of them.
+   */
+  cover?: string;
+  /** Welcome-row sort key; lower sorts first, default 0, ties keep slug order. */
+  order?: number;
+  /**
+   * The part of the cover board a welcome card shows, `[x, y, w, h]` in board px.
+   * Default is the phone frame every folder here draws at the same place, so cards
+   * crop to the mockup instead of framing it in artboard margin. Declare one for a
+   * board that is not a phone, e.g. a full-bleed sheet: `[0, 0, 478, 980]`.
+   */
+  coverBox?: [number, number, number, number];
   rows: CanvasLayoutRow[];
 }
 
@@ -102,6 +126,16 @@ export function readCanvasLayout(
 ): CanvasLayoutConfig | undefined {
   for (const [path, config] of Object.entries(rawLayouts)) {
     if (LAYOUT_PATTERN.exec(path)?.[1] === pageSlug) return config;
+  }
+  return undefined;
+}
+
+const ICON_PATTERN = /canvases\/([^/]+)\/icon\.png$/;
+
+/** This folder's app icon, if it dropped one next to its HTML files. */
+export function canvasIconUrl(pageSlug: string) {
+  for (const [path, url] of Object.entries(rawIcons)) {
+    if (ICON_PATTERN.exec(path)?.[1] === pageSlug) return url;
   }
   return undefined;
 }

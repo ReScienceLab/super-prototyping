@@ -41,27 +41,28 @@ main{padding:var(--w-pad)}
 header{display:flex;align-items:center;gap:24px;padding-bottom:26px}
 .mark{display:flex;align-items:center;gap:14px;flex:none;width:360px}
 
-/* Left empty on purpose. The star button is a canvas shape parked here because a
-   link inside this sandboxed iframe cannot navigate anything. Its box lives in
-   canvas/src/App.tsx as WELCOME_STAR_SLOT; keep the two in step. */
-.slot{flex:none;width:260px;height:48px}
 .mark img{width:48px;height:48px;border-radius:12px;border:1px solid var(--w-edge)}
 h1{font:700 24px/28px var(--w-font);letter-spacing:-.3px}
 .url{font:400 12px/16px var(--w-mono);color:var(--w-muted)}
 
-.lede{font:400 14px/21px var(--w-font);color:var(--w-muted);
+.lede{flex:none;width:1425px;font:400 14px/21px var(--w-font);color:var(--w-muted);
   border-left:1px solid var(--w-edge);padding-left:24px}
 .lede b{color:var(--w-ink);font-weight:600}
 
 h2{font:600 10px/13px var(--w-font);letter-spacing:1.3px;text-transform:uppercase;
   color:var(--w-dim);padding-bottom:12px}
 
-.skills{display:grid;grid-template-columns:repeat(3, 1fr);gap:var(--w-gutter)}
-.skill{background:var(--w-panel);border:1px solid var(--w-edge);border-radius:var(--w-radius);
-  padding:22px 24px}
-.skill b{display:block;font:600 15px/22px var(--w-mono);color:var(--w-ink);
-  padding-bottom:8px}
-.skill span{font:400 13px/20px var(--w-font);color:var(--w-muted)}
+/* The one skill on the board, so it is the full width. Everything on this page is
+   white line work on black and the card keeps to that: no colour. The moving light on
+   this canvas belongs to the two CTAs pinned top-right, and only to them. */
+.skill{display:flex;align-items:center;gap:30px;
+  padding:34px 36px;border-radius:14px;
+  background:linear-gradient(180deg,#17171C,#0C0C10);
+  border:1px solid #3A3A46;
+  box-shadow:0 12px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.10)}
+.skill b{flex:none;font:700 30px/36px var(--w-mono);color:#FFFFFF;letter-spacing:-.5px}
+.skill span{font:400 15px/22px var(--w-font);color:var(--w-muted);
+  border-left:1px solid var(--w-edge);padding-left:30px}
 
 code{font:400 12.5px/20px var(--w-mono);color:var(--w-ink)}
 </style>
@@ -79,28 +80,16 @@ code{font:400 12.5px/20px var(--w-mono);color:var(--w-ink)}
         <p class="url">github.com/ReScienceLab/super-prototyping</p>
       </div>
     </div>
-    <div class="slot"></div>
     <p class="lede">Clone and design product UI as <b>self-contained HTML artboards</b> on a
     local tldraw canvas. Drop an <code>.html</code> file into a folder and it shows up here
     as a shape.</p>
   </header>
 
-  <h2>Three skills, one workflow</h2>
-  <div class="skills">
-    <div class="skill">
-      <b>/clone-prototype</b>
-      <span>Copy a real app's screens. Grid the capture, sample it by eye, name the type
-      face, then generate.</span>
-    </div>
-    <div class="skill">
-      <b>/new-ui-mock</b>
-      <span>Design new screens with no reference, on tokens that already exist, empty and
-      error states included.</span>
-    </div>
-    <div class="skill">
-      <b>/prototype-canvas</b>
-      <span>Run and operate this canvas: folders, layout.json rows, the force refresh.</span>
-    </div>
+  <h2>Start with this skill</h2>
+  <div class="skill">
+    <b>/clone-prototype</b>
+    <span>Copy a real app's screens. Grid the capture, sample it by eye, name the type face,
+    then generate.</span>
   </div>
 </main>
 

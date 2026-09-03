@@ -29,3 +29,48 @@ button {
 .tl-container.canvas-welcome-ground {
   --tl-color-background: #08080a;
 }
+
+/*
+ * The two top-right CTAs (canvasChrome.tsx). A shimmer sweeps across each one every few
+ * seconds: they are the only things on the canvas asking for something, so they get the only
+ * motion on it. The second is offset so the pair does not flash in lockstep. Each pill's own
+ * fill, border and glow stay inline over there, next to the copy they belong to.
+ */
+.canvas-cta {
+  position: relative;
+  overflow: hidden;
+}
+
+.canvas-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 62%
+  );
+  animation: canvas-cta-shimmer 4s ease-in-out infinite;
+}
+
+.canvas-cta + .canvas-cta::after {
+  animation-delay: 0.7s;
+}
+
+@keyframes canvas-cta-shimmer {
+  0%,
+  55% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas-cta::after {
+    animation: none;
+  }
+}

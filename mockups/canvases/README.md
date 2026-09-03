@@ -24,8 +24,21 @@ They are shapes rather than links inside a board because boards render in a
 sandboxed iframe, where a link cannot navigate anything.
 
 The cards come from the folder list, so a new folder shows up as a card
-with no edit here. Its board is also the one board that is not phone-shaped;
-see below.
+with no edit here. This page's own board is also the one board that is not
+phone-shaped; see below.
+
+A card is the device and nothing else: the cover board is cropped to its
+`coverBox` and fitted into one phone case the card draws itself, so folders
+that each drew their phone a little differently come out at one size, and
+the folder name and board count are the caption under it.
+
+Drop the app's own icon in the folder as `icon.png` and the card wears it,
+tilted, on the device's bottom-left corner, so a row of cards is readable as
+apps before any of the covers are. 256 x 256, transparent outside the iOS
+squircle; the ones here came from the App Store's own artwork
+(`itunes.apple.com/lookup?id=<track id>`, `artworkUrl512`, masked) or, for
+Apple's system apps, out of `apple-icons/assets/`. Each carries its source in
+a PNG `Source` text chunk. A folder with no `icon.png` simply shows none.
 
 ## layout.json
 
@@ -53,6 +66,17 @@ laid out top to bottom:
   have open rather than starting a second one. Every folder shipped with the
   repo is an example and is named `(example) …`; a board of your own is not,
   which is how the two tell apart in the page menu.
+- `cover` names the board that stands in for the folder on the welcome page,
+  e.g. `"00-launch-light"`. Without one the card shows the first board that is
+  not a `00-` sheet, which is the right guess for most folders and the wrong
+  one where the front door is a `00-` board.
+- `order` sorts the folder's card on the welcome page: lower first, default 0,
+  and folders that say nothing keep slug order.
+- `coverBox` is the part of the cover board the card shows, `[x, y, w, h]` in
+  board px. The default is the phone frame every folder here draws at the same
+  place, `[46, 24, 393, 852]`, so a card crops to the mockup rather than
+  framing it in artboard margin. Declare one for a phone drawn somewhere else,
+  or for a cover that is not a phone at all: `[0, 0, 478, 980]`.
 - `files` entries are file names **without** `.html`, either bare (the
   humanized file name becomes the caption) or `{ "file", "label" }`.
 - `numbered: true` prefixes each caption with its 1-based position. Never
@@ -115,8 +139,8 @@ may split the measurements across further modules that `gen.py` imports
 `gen.py`.
 
 This is safe for discovery: `import.meta.glob` in `canvasLibrary.ts`
-matches only `*.html` (plus `layout.json`), so `gen.py` and its asset
-files sitting in the folder are invisible to the canvas.
+matches only `*.html` (plus `layout.json` and `icon.png`), so `gen.py` and
+its asset files sitting in the folder are invisible to the canvas.
 
 ## Examples
 
