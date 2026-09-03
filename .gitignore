@@ -20,10 +20,12 @@ scratch/
 # which this repo does not redistribute. They stay local; regenerate them per the
 # clone-prototype skill.
 mockups/canvases/*/ref-*.html
+mockups/canvases/*/thumbs/ref-*.webp
 mockups/canvases/*/refassets.json
 mockups/canvases/*/assets/refs/
 # Same rule for the walkthrough row and its crops: they show the capture itself.
 mockups/canvases/*/w[0-9]-*.html
+mockups/canvases/*/thumbs/w[0-9]-*.webp
 mockups/canvases/*/walkassets.json
 __pycache__/
 

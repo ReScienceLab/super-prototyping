@@ -651,6 +651,7 @@ Then check the run is reproducible from what you committed:
 
 ```bash
 python3 mockups/canvases/<slug>/gen.py            # byte-identical, no scratch dir
+python3 tools/refkit.py thumbs mockups/canvases/<slug>   # the canvas draws these while a board is small
 python3 tools/refkit.py tokens mockups/canvases/<slug>
 ```
 
