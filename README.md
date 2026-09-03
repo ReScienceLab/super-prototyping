@@ -25,7 +25,8 @@ registry, no build step and no design tool.
 Five of the ten app folders in `mockups/canvases/`. That folder's own
 `README.md` lists them all. Each is a real `clone-prototype` run, rebuilt
 from measured samples with the evidence recorded for every token. Open any
-of them with `?canvas=<slug>`.
+of them with `?canvas=<slug>`; the address follows whichever page is open, so
+the URL in the bar is always the link to share.
 
 ### `duolingo-ios`, eight screens that are mostly picture
 
