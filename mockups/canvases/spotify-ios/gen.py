@@ -44,7 +44,7 @@ CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
 SCALE = 2.24173                                  # capture px per design pt
 
 NAME = "Spotify"
-PAGE_NAME = NAME
+PAGE_NAME = "(example) " + NAME + " iOS"
 P = "s"          # token prefix: --s-bg, --s-ink, --s-t-h1
 
 # ---------------------------------------------------------------- tokens ----
