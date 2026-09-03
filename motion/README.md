@@ -1,0 +1,191 @@
+# Motion
+
+One subfolder per asset. Drop a folder into `motion/src/templates/<slug>/` or
+`motion/src/films/<slug>/`, no code change needed anywhere:
+
+- Each folder becomes one Remotion composition, its id the folder name.
+- Discovery lives in `src/Root.tsx` (`require.context`). There is no registry.
+- `npx remotion studio` scrubs them all; `./render.sh <slug>` exports one.
+
+Name the folder in kebab-case, and name it something no other folder is called:
+the folder name is the composition id, and Remotion's ids are global, so
+`films/spatial-gallery/` and `templates/spatial-gallery/` collide even though
+they sit in different buckets. `Root.tsx` throws on that pair rather than
+rendering whichever one it enumerated last.
+
+This is the video half of what `canvas/` does for the artboards, and it reads
+the same source: `remotion.config.ts` points the public dir at `../mockups`, so
+a composition reaches a board with `staticFile("canvases/luma-ios/01-guest-top.html")`
+and a photo with `staticFile("canvases/apple-photos/assets/photos/01-minerva-1.jpg")`.
+That is why `motion/` is a sibling of `mockups/` and not a folder inside it:
+motion consumes mockups.
+
+## The two buckets
+
+|              | `templates/`                         | `films/`                          |
+|--------------|--------------------------------------|-----------------------------------|
+| what it is   | a reusable motion effect             | one finished cut for one product  |
+| content      | comes in as props                    | baked in                          |
+| grows by     | accumulating effects                 | accumulating launches             |
+| example      | 16 of them, `src/templates/`         | `src/films/brand-film/`           |
+
+A template is the thing worth having a library of: it takes `cards`, `motion`,
+geometry, and does not care whose photos those are. A film picks a template (or
+writes its own scene), points it at one product's boards, and is done. The split
+mirrors `mockups/canvases/templates/` against a real board folder.
+
+The test, when it is not obvious: **would a second product reuse this without
+editing the TSX?** If yes it is a template and the product-specific parts belong
+in props. If the answer needs a "well, if you changed…", it is a film.
+
+`films/brand-film/` is the fifteen Delphi templates cut back into one 43-second
+piece, and it is why they have the interface they have: it overrides exactly one
+prop per shot, `durationInFrames`. Its README carries the shot list and what
+happened when the cut was measured against the source it came from.
+
+## The Delphi set
+
+`src/templates/` currently holds sixteen: `spatial-gallery`, plus fifteen taken
+off one 68-second brand film, one motion effect each.
+
+| | |
+|--|--|
+| ground     | `mesh-gradient` |
+| type       | `count-up`, `word-cascade`, `text-marker`, `word-swap`, `word-grid` |
+| spheres    | `orb-bloom`, `bokeh-orbit`, `particle-form`, `depth-flythrough` |
+| camera     | `card-stack`, `focus-pull`, `lens-reveal` |
+| chrome     | `pill-expand`, `logo-outro` |
+
+They are built to be cut together, which is what puts `durationInFrames` in
+props on every one of them: inside a `<Sequence>`, `useVideoConfig()` still
+reports the *composition's* length, so a template that reads its length from
+there stretches wrong the moment it is placed in a cut. `src/lib/README.md`
+carries that contract, the palette provenance, and what is and is not
+reproduced from the reference; each template's own README carries its
+measurements.
+
+## What an asset folder holds
+
+```
+motion/src/templates/spatial-gallery/
+  index.tsx        Component, meta, defaultProps  <- the whole contract
+  meta.json        fps, width, height, durationInFrames, and an optional name
+  motion.ts        supporting modules, as many as it needs
+  README.md        what it replicates, the numbers it hits, deviations
+  assets/          images and fonts this asset alone uses
+  out/<slug>.mp4   the render, committed
+  reference/       the evidence: BRIEF.md, motion.txt
+```
+
+Anything under `assets/` is imported (`import photo from "./assets/photo.jpg"`),
+not `staticFile`d: `staticFile` resolves against `../mockups`, which is for the
+boards and photos motion consumes, not for an asset's own files. Code two assets
+share moves to `src/lib/`, which `require.context` does not look in — only
+`<bucket>/<slug>/index.tsx` becomes a composition, so a shared module is a shared
+module and not an empty entry in the studio sidebar. See `src/lib/README.md`.
+
+`index.tsx` exports exactly three things:
+
+```tsx
+export { default as meta } from "./meta.json";
+export const Component = SpatialGallery;
+export const defaultProps: SpatialGalleryProps = { ... };  // templates only
+```
+
+`meta.json` is a JSON sidecar rather than a field in the TSX so that two
+different bundlers can both read it: rspack builds the compositions, and Vite
+builds the canvas, which needs the box to size the preview. `motionkit probe`
+prints it in exactly this shape. Its one optional field is `name`, the caption
+the canvas shows: without it the slug is humanized, which cannot express casing
+or punctuation — `luma-ios-launch` reads as "Luma Ios Launch".
+
+## Rendering
+
+```bash
+cd motion
+npx remotion studio      # scrub everything
+./render.sh <slug>       # one asset, to its own out/<slug>.mp4
+./render.sh              # every asset
+```
+
+`render.sh` derives the output path from the slug rather than taking one, because
+a render written anywhere else is a render the canvas does not show.
+
+The mp4 in `out/` is committed, and it is a **preview, not a deliverable**: CRF 28
+rather than Remotion's default 18, sized to loop on a canvas next to three others.
+It is the only way to see an asset without running the project, it is what the
+canvas plays, and it is what makes a diff reviewable. Anyone who needs a master
+re-renders the composition at whatever they are exporting for — that takes seconds
+and keeps a few megabytes per revision out of the history. Re-render whenever the
+composition changes; a stale render is worse than none.
+
+## Every timing traces to a measurement
+
+The repo's rule for artboards — *every colour and every metric traces to a
+measurement* — applies here to time. A duration, an easing curve or a friction
+constant that "feels about right" is how a replica quietly stops being one.
+
+`tools/motionkit.py` is the motion half of `refkit.py`:
+
+```bash
+python3 tools/motionkit.py probe ref.mp4                    # the four meta.json numbers
+python3 tools/motionkit.py flow ref.mp4 --out motion.txt    # per-frame px/frame, pan axis
+python3 tools/motionkit.py sheet ref.mp4 --out sheet.png    # labelled contact sheet
+python3 tools/motionkit.py sheet ref.mp4 --from 1140 --to 1320   # one shot of it
+python3 tools/motionkit.py swatch ref.mp4 1180 --grid 16x9  # the gradient, as hex
+python3 tools/motionkit.py swatch ref.mp4 2040 --crop 600:130:1150:880
+python3 tools/motionkit.py extent ref.mp4 1220             # how big the type is, 0-1
+python3 tools/motionkit.py extent out/x.mp4 40 --band 0.15,0.35,0.85,0.65
+python3 tools/motionkit.py compare ref.mp4 out/x.mp4        # side by side, one clip
+python3 tools/motionkit.py selftest
+```
+
+`extent` is the one that caught the most: it reports the box the drawn marks
+sit in as a fraction of the frame, by subtracting a wide blur from the frame —
+type and hard chrome survive that, gradients and bokeh do not. Measured at the
+same `--width`, a 2880-wide reference and a 1920-wide render give directly
+comparable numbers, which is how twelve templates in `films/brand-film` turned
+out to have been authored between 1.3x and 2.4x too small. A side-by-side will
+not show you this; both clips fill their own frame.
+
+`flow` is the one that earns its keep: it separates a continuous pan from a
+flick-and-coast, and reads friction off the decay. `spatial-gallery` looks like
+a slow camera move and is in fact two momentum flicks with a dead hold between
+them, which is a thing you measure, not a thing you notice.
+
+An asset's `reference/` keeps that evidence next to the code: **the measurements
+are committed, the third-party clip they came from is not** — the same split
+`.gitignore` already makes for `ref-*.html` boards.
+
+## Determinism
+
+Remotion renders frames statelessly and out of order across parallel workers.
+Every value a composition draws must be a pure function of `useCurrentFrame()`:
+no CSS transitions or keyframes, no `requestAnimationFrame`, no timers, no
+unseeded random. A frame that depends on the frame before it will render
+differently depending on which worker got it.
+
+Fonts are the same problem one level down. `@remotion/google-fonts` holds the
+render open until the file is actually in, which a `<link>` tag does not — a
+`<link>` renders the first frames in the fallback face and nobody notices until
+the mp4 is on the canvas. `src/lib/fonts.ts` loads the two faces the set uses
+and **pins the weights and the subset**: left unpinned, Inter alone fires 126
+requests at the head of every render.
+
+## On the canvas
+
+Rendered assets appear on the canvas's **Motion** page, films then templates,
+each playing in a loop at 478pt wide — the artboards' own column pitch, so a
+video lines up with the boards it was made from. Deep-link it with
+`?canvas=motion`. The welcome board carries the same renders as a third row of
+cards under its examples, so the first thing anyone opens shows the boards
+moving.
+
+Both places wrap at four across: the welcome board is exactly four cards wide and
+its row stops there, saying how many more are on the Motion page, and the Motion
+page runs each bucket down in rows of four. So the tenth asset costs nothing —
+it lands in the second row of its bucket and the welcome board's heading counts
+one higher.
+
+An asset that has never been rendered is in neither place; the canvas plays mp4s,
+not compositions. See `canvas/src/motionLibrary.ts`.

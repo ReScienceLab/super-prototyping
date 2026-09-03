@@ -90,14 +90,52 @@ bar carries a force-relayout button. Press it after editing a `layout.json`.
 
 ## The workflow
 
-Three skills, in `.agents/skills/` (symlinked from `.claude/skills/`, so
-Claude Code picks them up):
+Three skills of our own, in `.agents/skills/` (symlinked from `.claude/skills/`,
+so Claude Code picks them up), plus Remotion's twelve official ones vendored
+alongside them — see Motion below:
 
 | Skill | Use it for |
 |---|---|
 | **clone-prototype** | Copying a real app's screens. Grid the reference, sample colours *visually*, name the type face, derive one measured token block, generate the artboards, verify by re-rendering, park the reference underneath. |
 | **new-ui-mock** | Designing new screens with no reference, built on existing tokens, including the empty/loading/error states and side-by-side proposals. |
 | **prototype-canvas** | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
+
+### Motion
+
+Artboards are still frames. To put them in motion, [Remotion](https://www.remotion.dev)'s
+own skills are vendored in `.agents/skills/remotion-*`, pinned by
+`skills-lock.json`. `/remotion-create` scaffolds the project,
+`/remotion-markup` writes the animation, `/remotion-render` exports it; start
+at `/remotion-best-practices` if you are not sure which. They are upstream's,
+not ours — update them with `npx skills update`, do not hand-edit them.
+
+Remotion is free for individuals and companies of up to three people; larger
+ones need a licence from [remotion.pro](https://www.remotion.pro/license).
+
+The videos themselves live in `motion/`, a sibling of `canvas/`: two projects
+that consume `mockups/`, one rendering it as tldraw shapes and the other as
+video. `motion/` stays on npm — Remotion bundles with rspack and ships its own
+Chrome Headless Shell, so Bun buys it nothing. Same discovery contract as the
+boards — drop a folder into `motion/src/templates/<slug>/` (a reusable effect,
+driven by props) or `motion/src/films/<slug>/` (one finished cut for one
+product) and it becomes a composition, with no registry to update. `./render.sh
+<slug>` exports it to its own `out/`, which is where the canvas looks: rendered
+assets appear on the canvas's **Motion** page, and as a row of cards on the
+welcome board. See `motion/README.md`.
+
+`motion/src/templates/` holds sixteen so far: `spatial-gallery`, plus fifteen motion
+effects taken one at a time off a single 68-second brand film — a mesh
+gradient, five type effects, four sphere effects, three camera moves, two
+chrome effects. They are built to be cut together rather than watched alone,
+so each one that has a length takes `durationInFrames` as a prop and settles
+well before its own last frame. `motion/src/lib/README.md` carries that contract and the
+provenance of every colour in the set.
+
+The measurement rule applies to time as well as colour: `tools/motionkit.py`
+reads per-frame motion off a reference clip, `swatch` reads its palette off one
+frame, and `sheet --from/--to` cuts a contact sheet down to one shot — so a
+friction constant, a hold or a hex comes off the source rather than out of the
+air.
 
 The rule the whole thing is built around: **every colour and every metric in
 a cloned artboard traces to a measurement.** Grid the reference image, look
@@ -152,6 +190,17 @@ python3 tools/refkit.py shoot mockups/canvases/my-app/*.html -o mine \
 python3 tools/refkit.py diff mine/01.png ref.png --pt 3 -o d.png   # side by side + numbers
 python3 tools/refkit.py tokens mockups/canvases/my-app       # one :root, no undefined var()
 python3 tools/test_refkit.py                                 # self-check
+```
+
+`tools/motionkit.py` is the same idea for a reference *clip*. Needs `pillow`,
+`numpy` and `ffmpeg`.
+
+```bash
+python3 tools/motionkit.py probe ref.mp4                     # the meta.json numbers
+python3 tools/motionkit.py flow ref.mp4 --out motion.txt      # px/frame, peaks, pan axis
+python3 tools/motionkit.py sheet ref.mp4 --out sheet.png      # labelled contact sheet
+python3 tools/motionkit.py compare ref.mp4 out/mine.mp4       # side by side, one clip
+python3 tools/motionkit.py selftest                           # self-check
 ```
 
 ## Verify

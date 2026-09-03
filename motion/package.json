@@ -1,0 +1,24 @@
+{
+  "name": "motion",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "./render.sh",
+    "compositions": "remotion compositions",
+    "lint": "tsc"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.520",
+    "@remotion/google-fonts": "4.0.520",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.520"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "typescript": "5.9.3"
+  }
+}

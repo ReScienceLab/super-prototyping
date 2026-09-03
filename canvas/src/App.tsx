@@ -22,6 +22,7 @@ import {
   CANVAS_LINK_BUTTON_SIZE,
   CANVAS_LINK_CARD_SIZE,
   CANVAS_LINK_SHAPE_TYPE,
+  CANVAS_LINK_TITLE_HEIGHT,
   type CanvasLinkShape,
   CanvasLinkShapeUtil,
 } from "./CanvasLinkShapeUtil";
@@ -31,12 +32,30 @@ import {
   readCanvasLibrary,
 } from "./canvasLibrary";
 import {
+  MOTION_FILE_SHAPE_TYPE,
+  MotionFileShapeUtil,
+} from "./MotionFileShapeUtil";
+import {
+  MOTION_PAGE_NAME,
+  MOTION_PAGE_SLUG,
+  MOTION_PREVIEW_WIDTH,
+  MOTION_ROW_LENGTH,
+  type MotionLibraryFile,
+  type MotionMeta,
+  durationSeconds,
+  readMotionLibrary,
+} from "./motionLibrary";
+import {
   CanvasChromeContext,
   canvasChromeAssetUrls,
   canvasChromeComponents,
 } from "./canvasChrome";
 
-const shapeUtils = [CanvasFileShapeUtil, CanvasLinkShapeUtil];
+const shapeUtils = [
+  CanvasFileShapeUtil,
+  CanvasLinkShapeUtil,
+  MotionFileShapeUtil,
+];
 
 /**
  * Bump the trailing version when a change would leave documents already in a browser's
@@ -191,7 +210,9 @@ function layoutRow(
   const bare = rowFiles[0].pageSlug === WELCOME_PAGE_SLUG;
   const rowX = (index: number) => index * (size.w + LIBRARY_GAP);
   const contentY = bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT;
-  const missing = rowFiles.filter((file) => !editor.getShape(fileShapeId(file)));
+  const missing = rowFiles.filter(
+    (file) => !editor.getShape(fileShapeId(file)),
+  );
   if (missing.length) {
     editor.createShapes(
       missing.map((file) => ({
@@ -251,7 +272,7 @@ function linkShapeId(name: string) {
  *
  * Cover art is the folder's first screen rather than its 00- board, which is a token sheet on
  * every example and would make five identical-looking cards. The cards sit in two rows, Apple's
- * own apps and everything else.
+ * own apps and everything else, with the rendered motion assets in a third below them.
  */
 function layoutWelcomeExtras(
   editor: Editor,
@@ -373,6 +394,237 @@ function layoutWelcomeExtras(
       LIBRARY_LABEL_HEIGHT +
       LIBRARY_GAP;
   }
+
+  layoutWelcomeMotionRow(editor, page, top);
+}
+
+/**
+ * A motion heading spans its row, and never fewer than three columns: a heading given only one
+ * card's width wraps onto three lines and sets them down over the video it is naming.
+ */
+function motionHeadingWidth(columns: number) {
+  const span = Math.max(columns, 3);
+  return span * MOTION_PREVIEW_WIDTH + (span - 1) * LIBRARY_GAP;
+}
+
+/**
+ * The third row: what the boards look like once they move. A card is a full 478 wide, the
+ * artboards' own column pitch and twice the example cards above it — a render is the one thing
+ * on this board with motion in it, and at half width there is nothing to see. Its height is its
+ * composition's aspect, because cropping a landscape render into a phone-shaped card throws
+ * most of the frame away.
+ *
+ * Clicking one opens the Motion page, where the same render plays at the same width.
+ */
+function layoutWelcomeMotionRow(
+  editor: Editor,
+  page: { id: TLPageId },
+  rowTop: number,
+) {
+  const library = readMotionLibrary();
+  if (!library.length) return;
+  // One row, never two: this strip sits under the welcome board and anything wider than the
+  // board makes zoom-to-fit shrink the whole page to read it. The rest are one click away.
+  const assets = library.slice(0, MOTION_ROW_LENGTH);
+  const overflow = library.length - assets.length;
+
+  const cardHeight = (meta: MotionMeta) =>
+    Math.round((MOTION_PREVIEW_WIDTH * meta.height) / meta.width) +
+    CANVAS_LINK_TITLE_HEIGHT;
+  const cardX = (index: number) => index * (MOTION_PREVIEW_WIDTH + LIBRARY_GAP);
+  const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
+
+  const cards = assets.map((asset, index) => ({
+    id: linkShapeId(`motion/${asset.slug}`),
+    type: CANVAS_LINK_SHAPE_TYPE,
+    parentId: page.id,
+    x: cardX(index),
+    y: contentY,
+    props: {
+      w: MOTION_PREVIEW_WIDTH,
+      h: cardHeight(asset.meta),
+      label: asset.title,
+      page: MOTION_PAGE_SLUG,
+      path: asset.src,
+      url: "",
+    },
+  }));
+  const missing = cards.filter((card) => !editor.getShape(card.id));
+  if (missing.length) editor.createShapes(missing);
+
+  // Vite hashes the served mp4, so a re-render changes the URL and a card already on the canvas
+  // would keep playing the old file at the old box.
+  for (const card of cards) {
+    const shape = editor.getShape<CanvasLinkShape>(card.id);
+    if (!shape) continue;
+    if (
+      shape.props.path !== card.props.path ||
+      shape.props.w !== card.props.w ||
+      shape.props.h !== card.props.h ||
+      shape.props.label !== card.props.label
+    ) {
+      editor.updateShape({
+        id: card.id,
+        type: card.type,
+        props: {
+          path: card.props.path,
+          w: card.props.w,
+          h: card.props.h,
+          label: card.props.label,
+        },
+      });
+    }
+  }
+
+  // The row above already says to click a card, so this one only has to name itself — and,
+  // once there are more renders than fit, say where the ones it is not showing went.
+  const title = overflow
+    ? `Motion: the same boards, moving — and ${overflow} more on the Motion page`
+    : "Motion: the same boards, moving";
+  createAnnotation(editor, {
+    id: `canvas-row-heading:${page.id}:${title}`,
+    text: title,
+    x: 0,
+    y: rowTop,
+    w: motionHeadingWidth(assets.length),
+    size: "l",
+    color: "white",
+    parentId: page.id,
+  });
+
+  assets.forEach((asset, index) => {
+    createAnnotation(editor, {
+      id: `canvas-file-label:motion/${asset.slug}`,
+      text: `${durationSeconds(asset.meta).toFixed(1)}s · ${asset.meta.width}×${asset.meta.height}`,
+      x: cardX(index),
+      y: contentY + cardHeight(asset.meta) + LIBRARY_LABEL_GAP,
+      w: MOTION_PREVIEW_WIDTH,
+      size: "s",
+      align: "middle",
+      color: "white",
+      parentId: page.id,
+    });
+  });
+}
+
+/**
+ * The one page that is not a board folder: every rendered composition under motion/src, in two
+ * rows — the finished films, then the reusable templates. It is a page of its own rather than a
+ * row on a board's page because a video is not a board: it is the output of one, and it is what
+ * motion/ builds out of the whole of mockups/.
+ *
+ * Only rendered assets show up, because the mp4 in an asset's out/ is what the canvas can play.
+ * An asset added but never rendered is absent here until `npx remotion render <slug>` runs.
+ */
+function layoutMotionPage(editor: Editor, libraryPages: Set<TLPageId>) {
+  const assets = readMotionLibrary();
+  if (!assets.length) return;
+
+  const bySlug = () =>
+    editor.getPages().find((c) => c.meta.canvasSlug === MOTION_PAGE_SLUG);
+  if (!bySlug()) {
+    editor.createPage({
+      name: MOTION_PAGE_NAME,
+      meta: { canvasSlug: MOTION_PAGE_SLUG },
+    });
+  }
+  const page = bySlug();
+  if (!page) return;
+  if (page.name !== MOTION_PAGE_NAME)
+    editor.renamePage(page.id, MOTION_PAGE_NAME);
+  libraryPages.add(page.id);
+
+  const groups = [
+    { bucket: "films", title: "Films: one finished cut for one product" },
+    { bucket: "templates", title: "Templates: reusable, driven by props" },
+  ];
+
+  // Every preview is the same width, so a video sits on the same column pitch as an artboard;
+  // the height follows the composition's own aspect, so nothing is letterboxed or stretched.
+  const previewHeight = (meta: { width: number; height: number }) =>
+    Math.round((MOTION_PREVIEW_WIDTH * meta.height) / meta.width);
+  const previewX = (index: number) =>
+    index * (MOTION_PREVIEW_WIDTH + LIBRARY_GAP);
+
+  let top = 0;
+  for (const group of groups) {
+    const row = assets.filter((asset) => asset.bucket === group.bucket);
+    if (!row.length) continue;
+
+    // A bucket wraps at MOTION_ROW_LENGTH rather than running off to the right, so the page
+    // stays about as wide as the board pages beside it however many renders accumulate. Each
+    // line is as tall as its own tallest video: a portrait cut next to a landscape one should
+    // not push a whole bucket down to portrait height.
+    const placed: { asset: MotionLibraryFile; x: number; y: number }[] = [];
+    let lineY = top + LIBRARY_HEADING_HEIGHT;
+    for (let start = 0; start < row.length; start += MOTION_ROW_LENGTH) {
+      const line = row.slice(start, start + MOTION_ROW_LENGTH);
+      line.forEach((asset, column) =>
+        placed.push({ asset, x: previewX(column), y: lineY }),
+      );
+      lineY +=
+        Math.max(...line.map((asset) => previewHeight(asset.meta))) +
+        LIBRARY_LABEL_GAP +
+        LIBRARY_LABEL_HEIGHT +
+        LIBRARY_GAP;
+    }
+
+    const shapes = placed.map(({ asset, x, y }) => ({
+      id: createShapeId(`motion-file:${asset.bucket}/${asset.slug}`),
+      type: MOTION_FILE_SHAPE_TYPE,
+      parentId: page.id,
+      x,
+      y,
+      props: {
+        w: MOTION_PREVIEW_WIDTH,
+        h: previewHeight(asset.meta),
+        name: asset.title,
+        src: asset.src,
+      },
+    }));
+    const missing = shapes.filter((shape) => !editor.getShape(shape.id));
+    if (missing.length) editor.createShapes(missing);
+
+    // A re-render can change the served URL (Vite hashes it) or the composition's box, and the
+    // shape already on the canvas would keep playing the old file at the old aspect.
+    for (const shape of shapes) {
+      const existing = editor.getShape(shape.id);
+      if (!existing) continue;
+      const props = existing.props as { src: string; h: number };
+      if (props.src !== shape.props.src || props.h !== shape.props.h) {
+        editor.updateShape({
+          id: shape.id,
+          type: shape.type,
+          props: { src: shape.props.src, h: shape.props.h },
+        });
+      }
+    }
+
+    createAnnotation(editor, {
+      id: `canvas-row-heading:${page.id}:${group.title}`,
+      text: group.title,
+      x: 0,
+      y: top,
+      w: motionHeadingWidth(Math.min(row.length, MOTION_ROW_LENGTH)),
+      size: "l",
+      parentId: page.id,
+    });
+
+    for (const { asset, x, y } of placed) {
+      createAnnotation(editor, {
+        id: `canvas-file-label:motion/${asset.bucket}/${asset.slug}`,
+        text: `${asset.title} · ${durationSeconds(asset.meta).toFixed(1)}s · ${asset.meta.width}×${asset.meta.height}`,
+        x,
+        y: y + previewHeight(asset.meta) + LIBRARY_LABEL_GAP,
+        w: MOTION_PREVIEW_WIDTH,
+        size: "s",
+        align: "middle",
+        parentId: page.id,
+      });
+    }
+
+    top = lineY;
+  }
 }
 
 /**
@@ -472,6 +724,7 @@ function initializeCanvasLibrary(editor: Editor) {
     }
   }
 
+  layoutMotionPage(editor, libraryPages);
   pruneEmptyOrphanPages(editor, libraryPages);
   orderPagesByLibrary(editor, libraryPages);
 }
@@ -531,6 +784,7 @@ function relayoutCanvasLibrary(editor: Editor) {
     "shape:canvas-row-heading:",
     "shape:canvas-file-label:",
     "shape:canvas-link:",
+    "shape:motion-file:",
   ];
   for (const page of editor.getPages()) {
     const staleIds = [...editor.getPageShapeIds(page.id)].filter((id) =>
