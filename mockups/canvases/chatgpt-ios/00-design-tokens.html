@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ChatGPT iOS - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --g-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+
+  /* Surface */
+  --g-bg:#FFFFFF;
+  --g-card:#FAFAFA;
+  --g-chip:#F7F7F7;
+  --g-sheet:#EFECF0;
+  --g-dark:#030003;
+  --g-dark-2:#2F2C2F;
+  --g-fab:#242424;
+  --g-web-btn:#0D0D0D;
+  --g-disabled:#A1A0A3;
+  --g-close:#C5C5C7;
+  --g-fade:#F3F3F3;
+  --g-scrim:rgba(20,5,20,.20);
+
+  /* Line */
+  --g-field:#DFDFDF;
+  --g-pill:#E0E0E0;
+  --g-hair:#E8E8E8;
+
+  /* Ink */
+  --g-ink:#000000;
+  --g-ink-web:#0D0D0D;
+  --g-sub:#5F5F5F;
+  --g-sub-web:#676767;
+  --g-mute:#868686;
+  --g-place:#909090;
+  --g-tab:#8B8B8C;
+  --g-legal:#8A8A8A;
+
+  /* Accent */
+  --g-blue:#5953B8;
+
+  /* Radius */
+  --g-r-phone:52px;
+  --g-r-field:12px;
+  --g-r-card:16px;
+  --g-r-sheet:48.5px;
+  --g-r-pill:999px;
+
+  /* Type */
+  --g-t-time:600 15px/20px var(--g-font);
+  --g-t-h1:600 34px/40px var(--g-font);
+  --g-t-wall:600 33px/40px var(--g-font);
+  --g-t-h2:500 28px/33px var(--g-font);
+  --g-t-h3:500 22px/28px var(--g-font);
+  --g-t-side:600 22px/28px var(--g-font);
+  --g-t-body:400 17px/22px var(--g-font);
+  --g-t-row:400 17px/22px var(--g-font);
+  --g-t-btn:600 17px/22px var(--g-font);
+  --g-t-emph:500 17px/22px var(--g-font);
+  --g-t-nav:600 17px/22px var(--g-font);
+  --g-t-card:600 15px/20px var(--g-font);
+  --g-t-cards:400 15px/20px var(--g-font);
+  --g-t-web:400 16px/21px var(--g-font);
+  --g-t-webbtn:600 17.6px/22px var(--g-font);
+  --g-t-webcta:500 17px/22px var(--g-font);
+  --g-t-webact:500 16px/22px var(--g-font);
+  --g-t-sheeth:600 26.75px/32.5px var(--g-font);
+  --g-t-sheet:400 15.25px/20.5px var(--g-font);
+  --g-t-sheetbtn:600 16px/21px var(--g-font);
+  --g-t-weblegal:400 12.8px/17px var(--g-font);
+  --g-t-webh:400 22px/28px var(--g-font);
+  --g-t-proj:400 28px/34px var(--g-font);
+  --g-t-tab:600 15px/20px var(--g-font);
+  --g-t-lbl:400 12px/16px var(--g-font);
+
+  /* Metrics */
+  --g-w:393px;
+  --g-h:852px;
+  --g-status:54px;
+  --g-gutter:24px;
+  --g-content:345px;
+  --g-sheet-top:59px;
+  --g-field-h:54.8px;
+  --g-btn-web:53.8px;
+  --g-btn-h:47.5px;
+  --g-row:48px;
+  --g-comp-h:47.2px;
+  --g-comp-x:30.5px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--g-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--g-w);height:var(--g-h);
+  border-radius:var(--g-r-phone);overflow:hidden;background:var(--g-bg);color:var(--g-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--g-w);height:var(--g-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--g-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:#FFF;color:var(--g-ink)}
+.sheet{width:478px;height:980px;padding:20px 20px 12px;overflow:hidden}
+h1{font:600 17px/22px var(--g-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--g-font);color:var(--g-sub);margin-bottom:10px}
+h2{font:600 9px/12px var(--g-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--g-sub);margin:7px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.sw .chip{height:22px;border-radius:5px;border:1px solid var(--g-hair)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--g-sub);font-style:normal;word-break:break-all}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:6px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--g-card);border:1px solid var(--g-hair)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--g-font);
+  color:var(--g-sub);font-style:normal;text-align:center}
+.ty{column-count:2;column-gap:16px}
+.tr{break-inside:avoid;padding-bottom:0;margin-bottom:0;
+  border-bottom:1px solid var(--g-hair)}
+.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1.05}
+.tr em{display:block;font:400 8px/10px ui-monospace,Menlo,monospace;
+  color:var(--g-sub);font-style:normal;white-space:nowrap}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--g-ink);
+  column-count:2;column-gap:18px}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--g-hair);font:400 8.5px/11px var(--g-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--g-blue)}
+td.v{color:var(--g-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--g-sub)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>ChatGPT iOS</h1><p>25 Mobbin captures, 882 &times; 1911 after the watermark trim, 2.2443 px per pt. Two apps in one: 05-12 are an OpenAI web view on #0D0D0D, the rest is native on #030003 &mdash; and four type ladders, because the web sizes reach past the sheet into 04 and 13, and 16 is a ladder of its own.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--g-bg)"></div><b>--g-bg</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--g-card)"></div><b>--g-card</b><i>#FAFAFA</i></div><div class="sw"><div class="chip" style="background:var(--g-chip)"></div><b>--g-chip</b><i>#F7F7F7</i></div><div class="sw"><div class="chip" style="background:var(--g-sheet)"></div><b>--g-sheet</b><i>#EFECF0</i></div><div class="sw"><div class="chip" style="background:var(--g-dark)"></div><b>--g-dark</b><i>#030003</i></div><div class="sw"><div class="chip" style="background:var(--g-dark-2)"></div><b>--g-dark-2</b><i>#2F2C2F</i></div><div class="sw"><div class="chip" style="background:var(--g-fab)"></div><b>--g-fab</b><i>#242424</i></div><div class="sw"><div class="chip" style="background:var(--g-web-btn)"></div><b>--g-web-btn</b><i>#0D0D0D</i></div><div class="sw"><div class="chip" style="background:var(--g-disabled)"></div><b>--g-disabled</b><i>#A1A0A3</i></div><div class="sw"><div class="chip" style="background:var(--g-close)"></div><b>--g-close</b><i>#C5C5C7</i></div><div class="sw"><div class="chip" style="background:var(--g-fade)"></div><b>--g-fade</b><i>#F3F3F3</i></div><div class="sw"><div class="chip" style="background:var(--g-scrim)"></div><b>--g-scrim</b><i>rgba(20,5,20,.20)</i></div><div class="sw"><div class="chip" style="background:var(--g-field)"></div><b>--g-field</b><i>#DFDFDF</i></div><div class="sw"><div class="chip" style="background:var(--g-pill)"></div><b>--g-pill</b><i>#E0E0E0</i></div><div class="sw"><div class="chip" style="background:var(--g-hair)"></div><b>--g-hair</b><i>#E8E8E8</i></div><div class="sw"><div class="chip" style="background:var(--g-ink)"></div><b>--g-ink</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--g-ink-web)"></div><b>--g-ink-web</b><i>#0D0D0D</i></div><div class="sw"><div class="chip" style="background:var(--g-sub)"></div><b>--g-sub</b><i>#5F5F5F</i></div><div class="sw"><div class="chip" style="background:var(--g-sub-web)"></div><b>--g-sub-web</b><i>#676767</i></div><div class="sw"><div class="chip" style="background:var(--g-mute)"></div><b>--g-mute</b><i>#868686</i></div><div class="sw"><div class="chip" style="background:var(--g-place)"></div><b>--g-place</b><i>#909090</i></div><div class="sw"><div class="chip" style="background:var(--g-tab)"></div><b>--g-tab</b><i>#8B8B8C</i></div><div class="sw"><div class="chip" style="background:var(--g-legal)"></div><b>--g-legal</b><i>#8A8A8A</i></div><div class="sw"><div class="chip" style="background:var(--g-blue)"></div><b>--g-blue</b><i>#5953B8</i></div></div><div class="foot"><div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:12px"></div><em>12px</em></div><div><div class="rb" style="border-radius:16px"></div><em>16px</em></div><div><div class="rb" style="border-radius:48.5px"></div><em>48.5px</em></div><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div></div></div><div><h2>Metrics</h2><div class="met">--g-w: 393px<br>--g-h: 852px<br>--g-status: 54px<br>--g-gutter: 24px<br>--g-content: 345px<br>--g-sheet-top: 59px<br>--g-field-h: 54.8px<br>--g-btn-web: 53.8px<br>--g-btn-h: 47.5px<br>--g-row: 48px<br>--g-comp-h: 47.2px<br>--g-comp-x: 30.5px</div></div></div><h2>Type</h2><div class="ty"><div class="tr"><span style="font:var(--g-t-time)">Prototype</span><em>--g-t-time &middot; 600 15px/20px</em></div><div class="tr"><span style="font:var(--g-t-h1)">Prototype</span><em>--g-t-h1 &middot; 600 34px/40px</em></div><div class="tr"><span style="font:var(--g-t-wall)">Prototype</span><em>--g-t-wall &middot; 600 33px/40px</em></div><div class="tr"><span style="font:var(--g-t-h2)">Prototype</span><em>--g-t-h2 &middot; 500 28px/33px</em></div><div class="tr"><span style="font:var(--g-t-h3)">Prototype</span><em>--g-t-h3 &middot; 500 22px/28px</em></div><div class="tr"><span style="font:var(--g-t-side)">Prototype</span><em>--g-t-side &middot; 600 22px/28px</em></div><div class="tr"><span style="font:var(--g-t-body)">Prototype</span><em>--g-t-body &middot; 400 17px/22px</em></div><div class="tr"><span style="font:var(--g-t-row)">Prototype</span><em>--g-t-row &middot; 400 17px/22px</em></div><div class="tr"><span style="font:var(--g-t-btn)">Prototype</span><em>--g-t-btn &middot; 600 17px/22px</em></div><div class="tr"><span style="font:var(--g-t-emph)">Prototype</span><em>--g-t-emph &middot; 500 17px/22px</em></div><div class="tr"><span style="font:var(--g-t-nav)">Prototype</span><em>--g-t-nav &middot; 600 17px/22px</em></div><div class="tr"><span style="font:var(--g-t-card)">Prototype</span><em>--g-t-card &middot; 600 15px/20px</em></div><div class="tr"><span style="font:var(--g-t-cards)">Prototype</span><em>--g-t-cards &middot; 400 15px/20px</em></div><div class="tr"><span style="font:var(--g-t-web)">Prototype</span><em>--g-t-web &middot; 400 16px/21px</em></div><div class="tr"><span style="font:var(--g-t-webbtn)">Prototype</span><em>--g-t-webbtn &middot; 600 17.6px/22px</em></div><div class="tr"><span style="font:var(--g-t-webcta)">Prototype</span><em>--g-t-webcta &middot; 500 17px/22px</em></div><div class="tr"><span style="font:var(--g-t-webact)">Prototype</span><em>--g-t-webact &middot; 500 16px/22px</em></div><div class="tr"><span style="font:var(--g-t-sheeth)">Prototype</span><em>--g-t-sheeth &middot; 600 26.75px/32.5px</em></div><div class="tr"><span style="font:var(--g-t-sheet)">Prototype</span><em>--g-t-sheet &middot; 400 15.25px/20.5px</em></div><div class="tr"><span style="font:var(--g-t-sheetbtn)">Prototype</span><em>--g-t-sheetbtn &middot; 600 16px/21px</em></div><div class="tr"><span style="font:var(--g-t-weblegal)">Prototype</span><em>--g-t-weblegal &middot; 400 12.8px/17px</em></div><div class="tr"><span style="font:var(--g-t-webh)">Prototype</span><em>--g-t-webh &middot; 400 22px/28px</em></div><div class="tr"><span style="font:var(--g-t-proj)">Prototype</span><em>--g-t-proj &middot; 400 28px/34px</em></div><div class="tr"><span style="font:var(--g-t-tab)">Prototype</span><em>--g-t-tab &middot; 600 15px/20px</em></div><div class="tr"><span style="font:var(--g-t-lbl)">Prototype</span><em>--g-t-lbl &middot; 400 12px/16px</em></div></div></div>
+</body>
+</html>

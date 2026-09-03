@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ChatGPT iOS - Evidence 2/3</title>
+<style>
+:root{
+  /* Font */
+  --g-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+
+  /* Surface */
+  --g-bg:#FFFFFF;
+  --g-card:#FAFAFA;
+  --g-chip:#F7F7F7;
+  --g-sheet:#EFECF0;
+  --g-dark:#030003;
+  --g-dark-2:#2F2C2F;
+  --g-fab:#242424;
+  --g-web-btn:#0D0D0D;
+  --g-disabled:#A1A0A3;
+  --g-close:#C5C5C7;
+  --g-fade:#F3F3F3;
+  --g-scrim:rgba(20,5,20,.20);
+
+  /* Line */
+  --g-field:#DFDFDF;
+  --g-pill:#E0E0E0;
+  --g-hair:#E8E8E8;
+
+  /* Ink */
+  --g-ink:#000000;
+  --g-ink-web:#0D0D0D;
+  --g-sub:#5F5F5F;
+  --g-sub-web:#676767;
+  --g-mute:#868686;
+  --g-place:#909090;
+  --g-tab:#8B8B8C;
+  --g-legal:#8A8A8A;
+
+  /* Accent */
+  --g-blue:#5953B8;
+
+  /* Radius */
+  --g-r-phone:52px;
+  --g-r-field:12px;
+  --g-r-card:16px;
+  --g-r-sheet:48.5px;
+  --g-r-pill:999px;
+
+  /* Type */
+  --g-t-time:600 15px/20px var(--g-font);
+  --g-t-h1:600 34px/40px var(--g-font);
+  --g-t-wall:600 33px/40px var(--g-font);
+  --g-t-h2:500 28px/33px var(--g-font);
+  --g-t-h3:500 22px/28px var(--g-font);
+  --g-t-side:600 22px/28px var(--g-font);
+  --g-t-body:400 17px/22px var(--g-font);
+  --g-t-row:400 17px/22px var(--g-font);
+  --g-t-btn:600 17px/22px var(--g-font);
+  --g-t-emph:500 17px/22px var(--g-font);
+  --g-t-nav:600 17px/22px var(--g-font);
+  --g-t-card:600 15px/20px var(--g-font);
+  --g-t-cards:400 15px/20px var(--g-font);
+  --g-t-web:400 16px/21px var(--g-font);
+  --g-t-webbtn:600 17.6px/22px var(--g-font);
+  --g-t-webcta:500 17px/22px var(--g-font);
+  --g-t-webact:500 16px/22px var(--g-font);
+  --g-t-sheeth:600 26.75px/32.5px var(--g-font);
+  --g-t-sheet:400 15.25px/20.5px var(--g-font);
+  --g-t-sheetbtn:600 16px/21px var(--g-font);
+  --g-t-weblegal:400 12.8px/17px var(--g-font);
+  --g-t-webh:400 22px/28px var(--g-font);
+  --g-t-proj:400 28px/34px var(--g-font);
+  --g-t-tab:600 15px/20px var(--g-font);
+  --g-t-lbl:400 12px/16px var(--g-font);
+
+  /* Metrics */
+  --g-w:393px;
+  --g-h:852px;
+  --g-status:54px;
+  --g-gutter:24px;
+  --g-content:345px;
+  --g-sheet-top:59px;
+  --g-field-h:54.8px;
+  --g-btn-web:53.8px;
+  --g-btn-h:47.5px;
+  --g-row:48px;
+  --g-comp-h:47.2px;
+  --g-comp-x:30.5px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--g-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--g-w);height:var(--g-h);
+  border-radius:var(--g-r-phone);overflow:hidden;background:var(--g-bg);color:var(--g-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--g-w);height:var(--g-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--g-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:#FFF;color:var(--g-ink)}
+.sheet{width:478px;height:980px;padding:20px 20px 12px;overflow:hidden}
+h1{font:600 17px/22px var(--g-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--g-font);color:var(--g-sub);margin-bottom:10px}
+h2{font:600 9px/12px var(--g-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--g-sub);margin:7px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.sw .chip{height:22px;border-radius:5px;border:1px solid var(--g-hair)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--g-sub);font-style:normal;word-break:break-all}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:6px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--g-card);border:1px solid var(--g-hair)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--g-font);
+  color:var(--g-sub);font-style:normal;text-align:center}
+.ty{column-count:2;column-gap:16px}
+.tr{break-inside:avoid;padding-bottom:0;margin-bottom:0;
+  border-bottom:1px solid var(--g-hair)}
+.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1.05}
+.tr em{display:block;font:400 8px/10px ui-monospace,Menlo,monospace;
+  color:var(--g-sub);font-style:normal;white-space:nowrap}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--g-ink);
+  column-count:2;column-gap:18px}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--g-hair);font:400 8.5px/11px var(--g-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--g-blue)}
+td.v{color:var(--g-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--g-sub)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 2/3</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--g-blue</td><td class="v">#5953B8</td><td class="e">16 Upgrade label #494496 divided by the 0.816 scrim: unscrimmed value</td></tr><tr><td class="t">--g-r-phone</td><td class="v">52px</td><td class="e">iPhone 14 Pro/15/16 display corner, this repo's stand-in</td></tr><tr><td class="t">--g-r-field</td><td class="v">12px</td><td class="e">05 field corner, refkit scan on the top-left</td></tr><tr><td class="t">--g-r-card</td><td class="v">16px</td><td class="e">17 carousel card corner</td></tr><tr><td class="t">--g-r-sheet</td><td class="v">48.5px</td><td class="e">16 bottom-left corner, 13 subpixel edges from 4 to 40pt above the sheet floor, least-squares on a circle: r 48.5 at 0.30 rms. The top corners read 37 by the same fit, but there the edge being found is the hero's own soft top, not the mask</td></tr><tr><td class="t">--g-r-pill</td><td class="v">999px</td><td class="e">every button and pill in the app is fully round</td></tr><tr><td class="t">--g-t-time</td><td class="v">600 15px/20px var(--g-font)</td><td class="e">iOS status bar clock</td></tr><tr><td class="t">--g-t-h1</td><td class="v">600 34px/40px var(--g-font)</td><td class="e">02 title ink 118.5-144.4: cap 25.8 / 0.7165</td></tr><tr><td class="t">--g-t-wall</td><td class="v">600 33px/40px var(--g-font)</td><td class="e">04 title sets 236.6 x 23.6 where the same 34px that is exact on 02's 326.2 renders it 242.2 x 25.0; 33px scales width and cap height onto both</td></tr><tr><td class="t">--g-t-h2</td><td class="v">500 28px/33px var(--g-font)</td><td class="e">15 title sets 302.1 and 164.9 over its two lines and 12 combinations hold both: width cannot separate 500/28 from 600/27.4. Ink mass can. The ref's line 1 counts 9255 px under 128 where 600/27.4 renders 10567, 14% heavy, and a board sweep bottoms out flat from 450 to 550 (14 2.85-2.87, 15 3.79-3.81) against 600's 2.95/3.89. 500 is the real weight inside that floor</td></tr><tr><td class="t">--g-t-h3</td><td class="v">500 22px/28px var(--g-font)</td><td class="e">13 title sets 148.4 x 20.1 and 20's 293.6 x 20.1; 500 22px returns 148.4 x 20.1, where 600 overshoots both by 2.3%</td></tr><tr><td class="t">--g-t-side</td><td class="v">600 22px/28px var(--g-font)</td><td class="e">23 'ChatGPT' sets 90.0 x 16.0; 600 22px returns 89.6 x 16.0, 700 91.3 x 16.5</td></tr><tr><td class="t">--g-t-body</td><td class="v">400 17px/22px var(--g-font)</td><td class="e">02 subtitle 176.9-215.7 over two lines: leading 22.4</td></tr><tr><td class="t">--g-t-row</td><td class="v">400 17px/22px var(--g-font)</td><td class="e">19 menu label ink 725.8-742.3; sidebar rows</td></tr><tr><td class="t">--g-t-btn</td><td class="v">600 17px/22px var(--g-font)</td><td class="e">02 and 04 button labels</td></tr><tr><td class="t">--g-t-emph</td><td class="v">500 17px/22px var(--g-font)</td><td class="e">25 "Give ChatGPT more context", ink 342.6-356.0, 215.2 wide over 4317 px</td></tr><tr><td class="t">--g-t-nav</td><td class="v">600 17px/22px var(--g-font)</td><td class="e">19 nav title ink 74.4-87.8, width 69.9</td></tr><tr><td class="t">--g-t-card</td><td class="v">600 15px/20px var(--g-font)</td><td class="e">17 card title ink 695.1-711.1: 0.962em with ascender and descender</td></tr><tr><td class="t">--g-t-cards</td><td class="v">400 15px/20px var(--g-font)</td><td class="e">17 card sub ink 716.5-730.7</td></tr><tr><td class="t">--g-t-web</td><td class="v">400 16px/21px var(--g-font)</td><td class="e">06 sub line 1 sets 319.0 and the field value 231.3; 16px returns 319.9/231.7</td></tr><tr><td class="t">--g-t-webbtn</td><td class="v">600 17.6px/22px var(--g-font)</td><td class="e">06 'Continue with Google' sets 175.6; 17.6px semibold returns 175.6 exactly</td></tr><tr><td class="t">--g-t-webcta</td><td class="v">500 17px/22px var(--g-font)</td><td class="e">05 Continue label sets 68.6 x 12.9; 500 17px returns 68.6 x 12.9</td></tr><tr><td class="t">--g-t-webact</td><td class="v">500 16px/22px var(--g-font)</td><td class="e">the web ladder's tappable weight, and four strings on two screens agree on it to the tenth: 13 sets 'Turn on notifications' 151.1, 'Maybe later' 85.6 and 'ChatGPT' 65.1, 09 sets 'Resend email' 96.7, where 500 16px returns 151.1 / 85.6 / 65.5 / 96.7 and t-btn's 600 17px overshoots every one by 7.3-8.1%. 23's 'Projects' and 20's 'Try it' stay on t-btn: those measure 63.3 and 37.9 against my 63.7 and 39.2, so the native screens are not this</td></tr><tr><td class="t">--g-t-sheeth</td><td class="v">600 26.75px/32.5px var(--g-font)</td><td class="e">16 title sets 197.4 and 217.4 over its two lines, where 15's title at the same 27px renders 1.3% narrow; the sheet is its own ladder, half a px under t-h2</td></tr></table></div>
+</body>
+</html>

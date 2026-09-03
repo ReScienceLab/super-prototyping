@@ -249,6 +249,26 @@ its asset files sitting in the folder are invisible to the canvas.
   read 14.5 against a specified 18 continuous and CSS 18px turned out to be
   both truer and better. The six `ref-*` boards are gitignored, so a fresh
   clone has 10.
+- `chatgpt-ios/`: the largest screenshot-sourced run in the repo, and the one
+  to read for a long flow. Twenty-five screens of the ChatGPT iOS app - cold
+  start through account creation and onboarding, the signed-in home and its
+  composer, two full-screen announcements, the sidebar in three states and a
+  project's two tabs. 29 boards in three rows: a token board and three
+  evidence boards for 67 tokens, the 25 replicas, and the Mobbin capture of
+  each column-for-column underneath. Mean absolute delta against those
+  captures is 0.03-4.38 levels (of 255), mean 2.22. Its `README.md` records
+  the four separate type ladders the app carries - the app's whole-pixel
+  sizes, the OAuth web view's fractional ones and its own darker ink and
+  lighter grey, the announcement sheets, the project screens - and the two
+  methods that found the nine defects a whole-frame delta hid: a worst-40pt-
+  block report, and a threshold-free stroke-coverage solve that settled two
+  close icons drawn as one. It also records why the residue on the two
+  type-heavy boards is irreducible (OpenAI Sans is a `refkit font` no call and
+  the stand-in's cap-height-to-width ratio is higher, so matching a width
+  leaves the caps tall), that ink mass decides a font weight on dark text and
+  is worthless on grey, and that a blur which monotonically improves a band is
+  hiding a content defect rather than an antialiasing one. The 25 `ref-*`
+  boards are gitignored, so a fresh clone has 29.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

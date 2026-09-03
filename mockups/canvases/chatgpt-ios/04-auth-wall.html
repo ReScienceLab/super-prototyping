@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ChatGPT iOS - Auth wall</title>
+<style>
+:root{
+  /* Font */
+  --g-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+
+  /* Surface */
+  --g-bg:#FFFFFF;
+  --g-card:#FAFAFA;
+  --g-chip:#F7F7F7;
+  --g-sheet:#EFECF0;
+  --g-dark:#030003;
+  --g-dark-2:#2F2C2F;
+  --g-fab:#242424;
+  --g-web-btn:#0D0D0D;
+  --g-disabled:#A1A0A3;
+  --g-close:#C5C5C7;
+  --g-fade:#F3F3F3;
+  --g-scrim:rgba(20,5,20,.20);
+
+  /* Line */
+  --g-field:#DFDFDF;
+  --g-pill:#E0E0E0;
+  --g-hair:#E8E8E8;
+
+  /* Ink */
+  --g-ink:#000000;
+  --g-ink-web:#0D0D0D;
+  --g-sub:#5F5F5F;
+  --g-sub-web:#676767;
+  --g-mute:#868686;
+  --g-place:#909090;
+  --g-tab:#8B8B8C;
+  --g-legal:#8A8A8A;
+
+  /* Accent */
+  --g-blue:#5953B8;
+
+  /* Radius */
+  --g-r-phone:52px;
+  --g-r-field:12px;
+  --g-r-card:16px;
+  --g-r-sheet:48.5px;
+  --g-r-pill:999px;
+
+  /* Type */
+  --g-t-time:600 15px/20px var(--g-font);
+  --g-t-h1:600 34px/40px var(--g-font);
+  --g-t-wall:600 33px/40px var(--g-font);
+  --g-t-h2:500 28px/33px var(--g-font);
+  --g-t-h3:500 22px/28px var(--g-font);
+  --g-t-side:600 22px/28px var(--g-font);
+  --g-t-body:400 17px/22px var(--g-font);
+  --g-t-row:400 17px/22px var(--g-font);
+  --g-t-btn:600 17px/22px var(--g-font);
+  --g-t-emph:500 17px/22px var(--g-font);
+  --g-t-nav:600 17px/22px var(--g-font);
+  --g-t-card:600 15px/20px var(--g-font);
+  --g-t-cards:400 15px/20px var(--g-font);
+  --g-t-web:400 16px/21px var(--g-font);
+  --g-t-webbtn:600 17.6px/22px var(--g-font);
+  --g-t-webcta:500 17px/22px var(--g-font);
+  --g-t-webact:500 16px/22px var(--g-font);
+  --g-t-sheeth:600 26.75px/32.5px var(--g-font);
+  --g-t-sheet:400 15.25px/20.5px var(--g-font);
+  --g-t-sheetbtn:600 16px/21px var(--g-font);
+  --g-t-weblegal:400 12.8px/17px var(--g-font);
+  --g-t-webh:400 22px/28px var(--g-font);
+  --g-t-proj:400 28px/34px var(--g-font);
+  --g-t-tab:600 15px/20px var(--g-font);
+  --g-t-lbl:400 12px/16px var(--g-font);
+
+  /* Metrics */
+  --g-w:393px;
+  --g-h:852px;
+  --g-status:54px;
+  --g-gutter:24px;
+  --g-content:345px;
+  --g-sheet-top:59px;
+  --g-field-h:54.8px;
+  --g-btn-web:53.8px;
+  --g-btn-h:47.5px;
+  --g-row:48px;
+  --g-comp-h:47.2px;
+  --g-comp-x:30.5px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--g-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--g-w);height:var(--g-h);
+  border-radius:var(--g-r-phone);overflow:hidden;background:var(--g-bg);color:var(--g-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--g-w);height:var(--g-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--g-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+.t,.b,.i,.a{position:absolute}
+.i{display:block;fill:none}
+.a{display:block;object-fit:cover}
+.t{white-space:nowrap}
+.w{white-space:normal}
+u{text-underline-offset:2px}</style>
+</head>
+<body>
+<div class="phone"><div class="sb" style="color:var(--g-ink)"><div class="island"></div><div class="time">9:41</div><svg style="left:282px;top:23.34px;width:19.33px;height:12px" viewBox="0 0 19.33 12"><rect x="0" y="7.67" width="3.33" height="4.33" rx="1.05"/><rect x="5.33" y="5.33" width="3.33" height="6.67" rx="1.05"/><rect x="10.67" y="2.67" width="3.33" height="9.33" rx="1.05"/><rect x="16" y="0" width="3.33" height="12" rx="1.05"/></svg><svg preserveAspectRatio="none" viewBox="335 22.008 19.114 13.796" style="left:309px;top:23px;width:16.62px;height:12.3px"><path d="M344.555 35.8042C344.738 35.8042 344.896 35.7212 345.219 35.4058L347.245 33.4634C347.369 33.3389 347.403 33.1562 347.286 33.0068C346.747 32.3096 345.726 31.7036 344.555 31.7036C343.352 31.7036 342.331 32.3345 341.791 33.0566C341.708 33.1895 341.741 33.3389 341.874 33.4634L343.891 35.4058C344.215 35.7129 344.373 35.8042 344.555 35.8042ZM339.7 31.2886C339.882 31.4629 340.106 31.438 340.272 31.2554C341.268 30.1514 342.895 29.3462 344.555 29.3545C346.232 29.3462 347.859 30.1763 348.872 31.2803C349.021 31.4546 349.229 31.4463 349.411 31.2803L350.698 30.002C350.831 29.8691 350.848 29.6865 350.723 29.5371C349.47 28.0015 347.145 26.8477 344.555 26.8477C341.966 26.8477 339.641 28.0015 338.388 29.5371C338.263 29.6865 338.272 29.8525 338.413 30.002L339.7 31.2886ZM336.255 27.8189C336.421 27.9766 336.653 27.9766 336.811 27.8106C338.853 25.644 341.542 24.4985 344.555 24.4985C347.585 24.4985 350.291 25.6523 352.317 27.8189C352.466 27.9683 352.69 27.96 352.856 27.8022L354.002 26.6567C354.151 26.5073 354.143 26.3247 354.027 26.1836C352.076 23.7764 348.407 22.0083 344.555 22.0083C340.712 22.0083 337.027 23.7764 335.084 26.1836C334.968 26.3247 334.968 26.5073 335.109 26.6567L336.255 27.8189Z"/></svg><svg style="left:333px;top:23px;width:27.3px;height:12.7px" viewBox="0 0 27.3 12.7"><rect x=".6" y=".6" width="24.1" height="11.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".38"/><rect x="2" y="2" width="21.3" height="8.7" rx="2.6"/><path d="M26.1 4.3c.9.7.9 3 0 3.7V4.3Z" fill-opacity=".38"/></svg></div><div class="b" style="left:334.2px;top:85.1px;width:32.5px;height:32.5px;border-radius:50%;background:var(--g-close)"></div><svg class="i" viewBox="0 0 13.6 13.6" style="left:343.5px;top:94.9px;width:13.60px;height:13.60px;color:var(--g-ink)"><path d="M1.08 1.08L12.52 12.52M12.52 1.08L1.08 12.52" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.16"/></svg><div class="t" style="left:60.00px;top:291.00px;font:var(--g-t-wall)">Let’s brainstorm</div><div class="b" style="left:302.9px;top:295.7px;width:31.6px;height:31.6px;border-radius:50%;background:var(--g-ink)"></div><div class="b" style="left:0.0px;top:565.9px;width:393.0px;height:286.1px;background:var(--g-dark);border-radius:28px 28px 0 0"></div><div class="b" style="left:24.5px;top:589.9px;width:344.4px;height:47.5px;border-radius:14px;background:#FFF"></div><div class="t" style="left:121.50px;top:602.63px;font:var(--g-t-webbtn);color:var(--g-ink)">Continue with Apple</div><img class="a" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAhCAIAAABIlSz3AAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAEeklEQVR42p1WSUszSxStqu5KTEzna3GKQ9CI4BBeNOAEKg4biYriIi7cuBZciODKH+DGlfgnRMSFuhMEBUcEx3ZA1EQcEI0tZjBd3dVvUb5OUPmM75BFUX3vqdu37jkdqOs6+Ct0XYcQsgUAAEKo63ooFEpPT8c85nguOZgHP0FVVYyxwXVycrK8vHx/f+/3+z3/eL45/O+glFJKVaLKsjwzM9Pd3Z2VldXc3Ly+vq5p2qfglOh0XY9EIrOzs/X19VarFQDQ398fDAbZSb+jY1hdXfX5fBzHAQCys7OnpqZisZhxmIGfe0cpjUQiu7u7R0dHlFKTydTY2NjV1WU2m1k3k4MRSAEvLy+SJMmyzPN8W1vbyMiIy+X6RJTqzUIIw+FwPB53u9319fUDAwNer5dq9NOIfASzCdBUDXGIEPL4+Hhzc3N3d0cUItiFgoICl8uFEJIk6f39XRTFSCRydXUVDAYtFovT6aysrHQ4HKIosmLhRzup/iK/bG1tzc3NbW9vv729xWIxu91eUFBQV1dXU1NjsVgCgcD29rYkSU9PT9FoFABgsVjy8/O7urr8fn95efnH3CmKEgqFpqen6+rqLBaL8Y7sQI7jMjMzc3NzzWZz8iZbIIQyMjKGh4cDgcDHoLy9vc3MzHi9XowxGwWMMVsjhFhO4u4Q+krqdrsXFxcVRQEqUTc3N3t7ezmOY/kGWNrXHQMmkwkAUFRUNDExcXl5SSlFRCUHBwfHx8fgl9B1ncm5p6env7+/sLAQQsgHg8HV1VVZlsHvQSn1er19fX3GGPLPz88XFxevr6/JTvWjazFgjJubm91ut+FjiBASj8cJIankJzcOAJCenu5wOARBMNSGVFU1HC1hDClTp6WlsSv6hWa/Bc/zhBBZluPxeGKMeJ5nD35LByGMRqOBQCAcDiforFarKIrMbRK7Ovr2lxzDrHhjY2NnZycajSqKous6EkWxpKTEZrP9j/eFEJ6fn8/Ozp6enmKMVVXlJicnHx4e1tbWIpFIIg7A5JzEAEH960fm6urq6enJ5XIJgoA4xBUXFzudzt+WhjFmEiaELC0tjY6O7u7uIsQht9vt8XiMx9/a7FeFEUJYsKqq7+/voVDoY1BEUWxsbMzLy0uFyOiArus8zyOENE3TNK2lpaWqqgoBAOx2e0tLS2trqyAImqalqH9WF6WU47jKykqfzyf+ERHTgNPp9Pl8paWlhuWlUh37zgqC0NnZ2dTUhDgE6H8IhULj4+OFhYUcx5lMJtYXwziTpWoYKkLIZDJ1dHQcHx8rikIpTdBRSiVJGhoays/PZ0SGfVutVpvNZjabDX81jLqhoWF+fp5xUUr55PrLy8sHBwcVRVlYWHh8fIQQlpSUlJWVVVRUZGVlhcPh29vb/f39w8NDTdNsNltVVdXY2Fh7ezvPf/BASmkyYywWu729XVlZOTs7s1qtHo+ntrbW4XCYzWb2P0ySpL29vevr65ycnNbW1urqaoyx0QT4rR0ZDogx/iRnTdXiSpwQYrfbvyrnX37V6tVz/XeUAAAAAElFTkSuQmCC" alt="" style="left:103.8px;top:606.3px;width:11.6px;height:14.7px"><div class="b" style="left:24.5px;top:649.7px;width:344.4px;height:47.5px;border-radius:14px;background:var(--g-dark-2)"></div><div class="t" style="left:120.20px;top:662.43px;font:var(--g-t-webbtn);color:#FFF">Continue with Google</div><img class="a" src="data:image/png;base64,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" alt="" style="left:95.6px;top:665.2px;width:17.6px;height:17.6px"><div class="b" style="left:24.5px;top:709.8px;width:344.4px;height:47.5px;border-radius:14px;background:var(--g-dark-2)"></div><div class="t" style="left:24.50px;top:722.53px;font:var(--g-t-webbtn);color:#FFF;width:344.4px;text-align:center">Sign up</div><div class="b" style="left:24.5px;top:769.5px;width:344.4px;height:47.5px;border-radius:14px;border:1px solid var(--g-dark-2)"></div><div class="t" style="left:24.50px;top:782.23px;font:var(--g-t-webbtn);color:#FFF;width:344.4px;text-align:center">Log in</div><div class="home" style="color:#FFF"></div></div>
+</body>
+</html>

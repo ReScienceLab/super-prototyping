@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ChatGPT iOS - Evidence 1/3</title>
+<style>
+:root{
+  /* Font */
+  --g-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+
+  /* Surface */
+  --g-bg:#FFFFFF;
+  --g-card:#FAFAFA;
+  --g-chip:#F7F7F7;
+  --g-sheet:#EFECF0;
+  --g-dark:#030003;
+  --g-dark-2:#2F2C2F;
+  --g-fab:#242424;
+  --g-web-btn:#0D0D0D;
+  --g-disabled:#A1A0A3;
+  --g-close:#C5C5C7;
+  --g-fade:#F3F3F3;
+  --g-scrim:rgba(20,5,20,.20);
+
+  /* Line */
+  --g-field:#DFDFDF;
+  --g-pill:#E0E0E0;
+  --g-hair:#E8E8E8;
+
+  /* Ink */
+  --g-ink:#000000;
+  --g-ink-web:#0D0D0D;
+  --g-sub:#5F5F5F;
+  --g-sub-web:#676767;
+  --g-mute:#868686;
+  --g-place:#909090;
+  --g-tab:#8B8B8C;
+  --g-legal:#8A8A8A;
+
+  /* Accent */
+  --g-blue:#5953B8;
+
+  /* Radius */
+  --g-r-phone:52px;
+  --g-r-field:12px;
+  --g-r-card:16px;
+  --g-r-sheet:48.5px;
+  --g-r-pill:999px;
+
+  /* Type */
+  --g-t-time:600 15px/20px var(--g-font);
+  --g-t-h1:600 34px/40px var(--g-font);
+  --g-t-wall:600 33px/40px var(--g-font);
+  --g-t-h2:500 28px/33px var(--g-font);
+  --g-t-h3:500 22px/28px var(--g-font);
+  --g-t-side:600 22px/28px var(--g-font);
+  --g-t-body:400 17px/22px var(--g-font);
+  --g-t-row:400 17px/22px var(--g-font);
+  --g-t-btn:600 17px/22px var(--g-font);
+  --g-t-emph:500 17px/22px var(--g-font);
+  --g-t-nav:600 17px/22px var(--g-font);
+  --g-t-card:600 15px/20px var(--g-font);
+  --g-t-cards:400 15px/20px var(--g-font);
+  --g-t-web:400 16px/21px var(--g-font);
+  --g-t-webbtn:600 17.6px/22px var(--g-font);
+  --g-t-webcta:500 17px/22px var(--g-font);
+  --g-t-webact:500 16px/22px var(--g-font);
+  --g-t-sheeth:600 26.75px/32.5px var(--g-font);
+  --g-t-sheet:400 15.25px/20.5px var(--g-font);
+  --g-t-sheetbtn:600 16px/21px var(--g-font);
+  --g-t-weblegal:400 12.8px/17px var(--g-font);
+  --g-t-webh:400 22px/28px var(--g-font);
+  --g-t-proj:400 28px/34px var(--g-font);
+  --g-t-tab:600 15px/20px var(--g-font);
+  --g-t-lbl:400 12px/16px var(--g-font);
+
+  /* Metrics */
+  --g-w:393px;
+  --g-h:852px;
+  --g-status:54px;
+  --g-gutter:24px;
+  --g-content:345px;
+  --g-sheet-top:59px;
+  --g-field-h:54.8px;
+  --g-btn-web:53.8px;
+  --g-btn-h:47.5px;
+  --g-row:48px;
+  --g-comp-h:47.2px;
+  --g-comp-x:30.5px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--g-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--g-w);height:var(--g-h);
+  border-radius:var(--g-r-phone);overflow:hidden;background:var(--g-bg);color:var(--g-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--g-w);height:var(--g-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--g-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:#FFF;color:var(--g-ink)}
+.sheet{width:478px;height:980px;padding:20px 20px 12px;overflow:hidden}
+h1{font:600 17px/22px var(--g-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--g-font);color:var(--g-sub);margin-bottom:10px}
+h2{font:600 9px/12px var(--g-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--g-sub);margin:7px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.sw .chip{height:22px;border-radius:5px;border:1px solid var(--g-hair)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--g-sub);font-style:normal;word-break:break-all}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:6px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--g-card);border:1px solid var(--g-hair)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--g-font);
+  color:var(--g-sub);font-style:normal;text-align:center}
+.ty{column-count:2;column-gap:16px}
+.tr{break-inside:avoid;padding-bottom:0;margin-bottom:0;
+  border-bottom:1px solid var(--g-hair)}
+.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1.05}
+.tr em{display:block;font:400 8px/10px ui-monospace,Menlo,monospace;
+  color:var(--g-sub);font-style:normal;white-space:nowrap}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--g-ink);
+  column-count:2;column-gap:18px}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--g-hair);font:400 8.5px/11px var(--g-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--g-blue)}
+td.v{color:var(--g-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--g-sub)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 1/3</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--g-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif</td><td class="e">refkit font: no call. OpenAI Sans is outside the candidate set; stand-in cap 0.7165 vs ~0.735, +2.7-3.0% wide at 34px, 1.00x at 17px</td></tr><tr><td class="t">--g-bg</td><td class="v">#FFFFFF</td><td class="e">flat-fill census, page ground, all 25 captures</td></tr><tr><td class="t">--g-card</td><td class="v">#FAFAFA</td><td class="e">17 row y690 crosses card 1 at #FCFBFC, the 16pt gap at #FEFEFE and card 2 at #FAFAFA; 18's y700 census reads #FBF8FB. The neutral of that spread</td></tr><tr><td class="t">--g-chip</td><td class="v">#F7F7F7</td><td class="e">25 row y215, the selected Sources tab pill</td></tr><tr><td class="t">--g-sheet</td><td class="v">#EFECF0</td><td class="e">16 col x30, memory sheet body below the hero</td></tr><tr><td class="t">--g-dark</td><td class="v">#030003</td><td class="e">04 col x196 sheet ground; 02 Continue core. Native black, chroma noise</td></tr><tr><td class="t">--g-dark-2</td><td class="v">#2F2C2F</td><td class="e">04 col x196, the Google button inside the black sheet</td></tr><tr><td class="t">--g-fab</td><td class="v">#242424</td><td class="e">21 col x300, the Chat button, y 770.9-821.2. 23 censuses the same pill at #282528, four levels up and tinted with it; that capture is the noisier of the two -- its page white breaks into 18446 exact pixels where 21 has 21983 -- so the clean board sets the token</td></tr><tr><td class="t">--g-web-btn</td><td class="v">#0D0D0D</td><td class="e">06/08/09/10/12 col x196 button core, reads #0E0E10. Web view, not native</td></tr><tr><td class="t">--g-disabled</td><td class="v">#A1A0A3</td><td class="e">07 and 11 col x196, Continue before the form validates</td></tr><tr><td class="t">--g-close</td><td class="v">#C5C5C7</td><td class="e">04 close disc, row y101 either side of the X; the disc's left crescent censuses #C6C6C6 and #C5C5C5 in almost equal share around it</td></tr><tr><td class="t">--g-fade</td><td class="v">#F3F3F3</td><td class="e">24 col 196: white to 720.1, F8F8F8 to 770.0, F3F3F3 at the composer line</td></tr><tr><td class="t">--g-scrim</td><td class="v">rgba(20,5,20,.20)</td><td class="e">05-12 col strip above the sheet reads #D0CDD0 over white and 16's scrimmed home screen averages 207,204,207: the dim is tinted, not neutral black</td></tr><tr><td class="t">--g-field</td><td class="v">#DFDFDF</td><td class="e">05 edges across the email field: #DCDCDC #DDDDDD #DEDEDE #E4E4E4</td></tr><tr><td class="t">--g-pill</td><td class="v">#E0E0E0</td><td class="e">06 coverage solve on the Apple pill's top rule: #DDDDDD-#DFDFDF depending on the band. A 1pt rule this pale is under the diff's noise either way</td></tr><tr><td class="t">--g-hair</td><td class="v">#E8E8E8</td><td class="e">13 row y250 crosses the card's left rule at 23.5-24.4 reading #E3E3E3. No coverage solve here: the card's own shadow sits outside the rule and a solve would count it as ink, returning #CBC8CF</td></tr><tr><td class="t">--g-ink</td><td class="v">#000000</td><td class="e">02 title ink core, darkest 8%; reads #030003</td></tr><tr><td class="t">--g-ink-web</td><td class="v">#0D0D0D</td><td class="e">05 sheet title ink core: #0A0A0A at the darkest 2%, #121212 at 8%. The web view's black sits between them and censuses flat as #0E0E10 on 06's button</td></tr><tr><td class="t">--g-sub</td><td class="v">#5F5F5F</td><td class="e">20's three body lines, darkest 8%: #5D5D5D. Native only: the web view's subtitle looks like the same grey and is not, see sub-web</td></tr><tr><td class="t">--g-sub-web</td><td class="v">#676767</td><td class="e">the web view's subtitle, five boards inside a level of each other at the darkest 6-8%: 05 #676667, 06 #676666, 07 #696868, 09 #666666, 10 #666666, where --g-sub renders the same runs #595959. 20's native body, which is what set --g-sub, reads #5E5E5E against my #5B5B5B on the same census</td></tr><tr><td class="t">--g-mute</td><td class="v">#868686</td><td class="e">02 feature body line 1, darkest 8%: #858585. All three lines at once read four levels light, because the interline white is inside the 8%. Also 21's empty state, #848484-#878787 across three screens</td></tr><tr><td class="t">--g-place</td><td class="v">#909090</td><td class="e">17 'Ask ChatGPT' and 05 'Email' placeholder cores, #8F8F8F-#929192</td></tr><tr><td class="t">--g-tab</td><td class="v">#8B8B8C</td><td class="e">24 row y215, the unselected Sources label</td></tr><tr><td class="t">--g-legal</td><td class="v">#8A8A8A</td><td class="e">02 legal ink core, darkest 12% of (36,776)-(200,790); 11 reads 969696</td></tr></table></div>
+</body>
+</html>
