@@ -291,7 +291,7 @@ and it is the sort of thing the rest of this folder exists to find.
 
 `assets/` holds what the boards embed, so they rebuild offline.
 
-- `art/`: 80 PNGs. 74 are crops of a capture at the box named in
+- `art/`: 79 PNGs. 73 are crops of a capture at the box named in
   `crops.json`, cut by `gen.py` and placed back by `art()` at the same
   numbers, so an asset cannot drift from where it was measured. Three are
   06's, and they are not crops: capture 06 stops at x 380.5 and y 168.75, so
@@ -307,12 +307,19 @@ Nothing on these boards is generated. Chrome is CSS: cards, pills, chips,
 rules, the tab bar, the action bar, the status bar clock, every glyph that is
 not a photograph.
 
-Two of those crops need more than a box. A round button's box is a square, so
+One of them should never have been a crop. 03's back button is the only
+header button that is not a 44pt circle, so the 44pt box cut both ends off a
+52 x 44 pill; `backbtn()` draws it instead, out of `--x-card`, `--x-line-4`
+and `--x-ink-btn`, none of them new. It is chrome, and the rule above already
+said chrome is CSS. Drawn it scores 2.44 mean delta over the button's own
+52 x 44, against 5.17 for the crop that was cutting it: a crop only wins while
+its box is right.
+
+Two of the remaining crops need more than a box. A round button's box is a square, so
 its corners carry whatever the capture had behind the button; on 03 and 04
-that is the blurred scroll wash, and the square of it read as a patch that
-made the back button look clipped flat on one side. `ROUND` in `gen.py` names
-the six header buttons and `art()` clips them to the circle they were
-measured around. The wash itself is worse: it does not stop where a crop
+that is the blurred scroll wash, and the square of it read as a patch behind
+the button. `ROUND` in `gen.py` names the five circular header buttons and
+`art()` clips them to the circle they were measured around. The wash itself is worse: it does not stop where a crop
 does, and the board's ground under it is flat black, so a hard cut lands as a
 lighter rectangle with visible edges. `FADE` names the three wash bands and
 the sides to ramp the alpha out on, so the band meets the ground instead of

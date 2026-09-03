@@ -41,7 +41,7 @@ CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
 FADE = {"03-blur": ("tb", 8.0), "04-blur1": ("b", 10.0), "04-blur2": ("lrtb", 8.0)}
 
 # Crops of a round button, clipped to the circle they were measured around.
-ROUND = {"01-hbl", "01-hbr", "03-hbl", "03-hbr", "04-hbl", "04-hbr"}
+ROUND = {"01-hbl", "01-hbr", "03-hbr", "04-hbl", "04-hbr"}
 
 
 def cut():
@@ -437,6 +437,24 @@ def statusbar(cluster, clock, ink, x, bell=False):
             + (art("g-bell") if bell else "") + art(cluster))
 
 
+def backbtn(x, y):
+    """03's back button, drawn rather than cropped. The other five header
+    buttons are 44pt circles; this one is a 52 x 44 pill, so the 44pt box it
+    was cropped at cut both ends off it. Width profile against a pill of
+    radius h/2: 17.4/28.4/34.7/42.7/47.7/50.6 predicted at y 59.5..75.5,
+    17.0/28.7/35.0/43.0/48.0/50.7 measured. The rim solves to 51 over the 24
+    fill on both the top and the left edge, which is --x-line-4, the same 1pt
+    system material as 02's action bar. The chevron centreline runs
+    (48,74)-(41,81)-(48,88) absolute, 3pt round cap and join, which renders an
+    ink box of 9.75 x 16.57 against the capture's 9.67 x 16.67."""
+    return (pill(x, y, 52.0, 44.0, "card", "border:1px solid var(--x-line-4)")
+            + ('<svg viewBox="0 0 52 44" width="52" height="44" style="position:'
+               'absolute;left:%.1fpx;top:%.1fpx;z-index:3"><path d="M28 15L21 22l7 7" '
+               'style="stroke:var(--x-ink-btn)" stroke-width="3.0" '
+               'stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>'
+               % (x, y)))
+
+
 def addpill(x, y):
     """+ Add. Offsets solved once on 01 card 1 and reused on all five."""
     return (pill(x, y, 60.3, 20.3, "blue-bg")
@@ -660,7 +678,7 @@ def body03():
         return tc("t-sub", ink, 214.85, "GMT+8", c="ink-3")
     return "".join([
         statusbar("sb-b", "17:38", 22.0, 48.7, bell=True),
-        art("03-hbl"), art("03-hbr"), art("03-blur"),
+        backbtn(20.0, 59.0), art("03-hbr"), art("03-blur"),
         tl("t-nav", 74.7, 157.7, "Jul 14", c="ink"),
         tl("t-nav-2", 74.7, 210.0, "Tuesday", c="ink-4"),
 
