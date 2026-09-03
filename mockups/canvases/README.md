@@ -249,6 +249,24 @@ its asset files sitting in the folder are invisible to the canvas.
   painted over five text classes without an error. `assets/art/` and
   `assets/art-gen/` are committed; the eight `ref-*` boards are
   gitignored, so a fresh clone has 13.
+- `spotify-ios/`: the run to read when the brand face is unavailable and the
+  screens are mostly type. Five screens of the Spotify iOS app - the home
+  feed at two scroll positions, two full-screen promo modals and the Spotify
+  Codes sheet - in 8 boards across three rows: a token board, two evidence
+  boards for 52 tokens, an art board for 19 crops, the five replicas, and the
+  capture of each column-for-column underneath. Mean absolute delta is
+  3.38-6.71 levels (of 255), and the spread *is* the type bill: every ink box
+  on every screen lands within 1.8pt of its capture, so what the number scores
+  is glyph shape, not placement. `refkit font` returns **no call** here -
+  three probes pick three winners, all weak - because the real face is Spotify
+  Mix, a Circular derivative in no candidate set. Its `README.md` records the
+  width bill that picked SF Pro over the ranking's winner, and the two
+  techniques that came out of paying it: **fitting type size on stroke mass
+  rather than on width or height** (which found three weights that both fits
+  had left wrong, at ratios of 0.891 to 1.193), and charging the leftover
+  width as per-string tracking. It also records that PIL's width fit is 11.6%
+  off the browser's on the same string. `assets/art/` is committed; the five
+  `ref-*` boards are gitignored, so a fresh clone has 8.
 - `snapaction-ios/`: the run to read when the screens are almost entirely
   type. Six screens of SnapAction, five dark and one light sheet, rebuilt from
   the captures inside its Figma file. 11 boards in four rows: a landscape
