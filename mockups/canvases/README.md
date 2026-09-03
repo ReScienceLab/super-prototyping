@@ -232,6 +232,17 @@ canvas.
   passes are a 390 x 844 notched frame, so `--crop-phone` needs them at
   `--phone-size 390x844 --phone-radius 42`. The nine `ref-*` boards are
   gitignored, so a fresh clone has 15.
+- `apple-home-lock/`: the iOS 17 home and lock screens from the community
+  file "Apple Home and Lock Screen · iOS", 16 boards in three rows: a token
+  board and an evidence board for 59 tokens, seven screens (home and lock in
+  both appearances, then the home screen in Spanish, Chinese and French), and
+  the file's own 3× export under each. Mean absolute delta against the four
+  393-wide exports is 1.49–1.97 levels (of 255); the three localized exports
+  are 430-wide instances, placed for reading and not diffed. Its `README.md`
+  records what the file leaves unsaid: the home frame sits under the status
+  bar, the date and time add to the wallpaper instead of covering it, and
+  the text is the variable SF Pro with optical sizing. The seven `ref-*`
+  boards are gitignored, so a fresh clone has 9.
 - `claude-ios/`: the largest screenshot-sourced run, and the one to read
   when the source is captures rather than a Figma file. Fifteen screens of the
   Claude iOS app across four flows, 33 boards in three rows: a token board and

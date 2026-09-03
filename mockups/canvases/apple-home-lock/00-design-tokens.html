@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Apple Home & Lock Screen - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --hs-font:"SF Pro",-apple-system,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif;
+  --hs-font-round:"SF Pro Rounded",ui-rounded,-apple-system,sans-serif;
+
+  /* Surface */
+  --hs-widget:#FFFFFF;
+  --hs-widget-dark:#1C1C1E;
+  --hs-glass:rgba(255,255,255,.3);
+  --hs-glass-dark:rgba(0,0,0,.3);
+  --hs-island:#000000;
+  --hs-event-bg:rgba(27,173,248,.2);
+  --hs-event-bg-dark:#1C445B;
+  --hs-lock-btn:rgba(0,0,0,.26);
+  --hs-dragbar:rgba(127,127,127,.5);
+
+  /* Line */
+  --hs-grey3:#C7C7CC;
+  --hs-grey3-dark:#464649;
+  --hs-event-bar:#1BADF8;
+
+  /* Ink */
+  --hs-ink:#000000;
+  --hs-ink-dark:#FFFFFF;
+  --hs-white:#FFFFFF;
+  --hs-lock-ink:rgba(255,255,255,.8);
+  --hs-blue:#007BFE;
+  --hs-blue-dark:#0385FF;
+  --hs-red:#FF382B;
+  --hs-red-dark:#FE4336;
+  --hs-event-title:#106895;
+  --hs-event-time:#168AC6;
+  --hs-event-ink-dark:#1BADF8;
+
+  /* Radius */
+  --hs-r-widget:22px;
+  --hs-r-widget-lg:23px;
+  --hs-r-app:13px;
+  --hs-r-glass:40px;
+  --hs-r-event:4px;
+  --hs-r-phone:52px;
+
+  /* Type */
+  --hs-t-label:400 12px/16px var(--hs-font);
+  --hs-t-search:590 12px/16px var(--hs-font);
+  --hs-t-time:590 18px/23px var(--hs-font);
+  --hs-t-widget-title:590 15px/22px var(--hs-font-round);
+  --hs-t-count:590 22px/26px var(--hs-font-round);
+  --hs-t-row:400 13px/19px var(--hs-font-round);
+  --hs-t-emoji:400 17px/20px var(--hs-font);
+  --hs-t-cal-day:590 13px/16px var(--hs-font);
+  --hs-t-cal-date:400 34px/41px var(--hs-font);
+  --hs-t-event-title:590 15px/20px var(--hs-font);
+  --hs-t-event-time:400 14px/19px var(--hs-font);
+  --hs-t-lock-date:510 22px/28px var(--hs-font);
+  --hs-t-lock-time:590 100px/119px var(--hs-font);
+
+  /* Metrics */
+  --hs-w:393px;
+  --hs-h:852px;
+  --hs-status:54px;
+  --hs-top:90px;
+  --hs-between:38px;
+  --hs-widget-margin:27.5px;
+  --hs-app-margin:31px;
+  --hs-app:60px;
+  --hs-dock-h:98px;
+  --hs-dock-margin:12px;
+  --hs-dock-pad:22px;
+  --hs-search-w:77px;
+  --hs-btn:50px;
+  --hs-homebar:140px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--hs-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.dark{--hs-widget:var(--hs-widget-dark);--hs-glass:var(--hs-glass-dark);--hs-grey3:var(--hs-grey3-dark);
+  --hs-ink:var(--hs-ink-dark);--hs-blue:var(--hs-blue-dark);--hs-red:var(--hs-red-dark);
+  --hs-event-bg:var(--hs-event-bg-dark);--hs-event-title:var(--hs-event-ink-dark);--hs-event-time:var(--hs-event-ink-dark)}
+.phone{position:relative;flex:none;width:var(--hs-w);height:var(--hs-h);
+  border-radius:var(--hs-r-phone);overflow:hidden;background:#000;color:var(--hs-white);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.wp,.a{position:absolute;display:block}
+.wp{left:0;top:0;width:var(--hs-w);height:var(--hs-h)}
+.sb{position:absolute;left:0;top:0;width:var(--hs-w);height:var(--hs-status);z-index:6}
+.sb .time{position:absolute;left:10px;top:18px;width:142px;text-align:center;
+  font:var(--hs-t-time);letter-spacing:-.44px;color:var(--hs-white);font-variant-numeric:tabular-nums}
+.sb .island{position:absolute;top:11px;width:126px;height:37px;border-radius:20px;background:var(--hs-island)}
+.sb svg{position:absolute;display:block;overflow:visible}
+body{padding:0;background:#fff;color:#000}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--hs-font);margin-bottom:2px}
+header p{font:400 12px/16px var(--hs-font);color:#8a8a8e;margin-bottom:14px}
+h2{font:600 9px/12px var(--hs-font);letter-spacing:.8px;text-transform:uppercase;color:#8a8a8e;margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid #d9d9dc;
+  background-image:linear-gradient(45deg,#ddd 25%,transparent 25%,transparent 75%,#ddd 75%),
+  linear-gradient(45deg,#ddd 25%,transparent 25%,transparent 75%,#ddd 75%);background-size:8px 8px;background-position:0 0,4px 4px}
+.sw .chip i{display:block;height:100%;border-radius:5px}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i.v{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:#8a8a8e;font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:#f2f2f7;border:1px solid #d9d9dc}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--hs-font);color:#8a8a8e;font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-bottom:2px;border-bottom:1px solid #e5e5ea}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:#8a8a8e;font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:#3a3a3c;column-count:2}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;border-bottom:1px solid #e5e5ea;font:400 8.5px/11px var(--hs-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--hs-blue)}
+td.v{color:#3a3a3c;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:#6d6d72}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Apple Home & Lock Screen</h1><p>Figma community file ftV2wtqJaMqjnFaf8SS1Ve, node 6:389. Every value is a Figma variable or style re-checked by a probe on the file&rsquo;s 3&times; exports; the dark values are the same names under <code>.dark</code>.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip"><i style="background:var(--hs-widget)"></i></div><b>--hs-widget</b><i class="v">#FFFFFF</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-widget-dark)"></i></div><b>--hs-widget-dark</b><i class="v">#1C1C1E</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-glass)"></i></div><b>--hs-glass</b><i class="v">rgba(255,255,255,.3)</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-glass-dark)"></i></div><b>--hs-glass-dark</b><i class="v">rgba(0,0,0,.3)</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-island)"></i></div><b>--hs-island</b><i class="v">#000000</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-event-bg)"></i></div><b>--hs-event-bg</b><i class="v">rgba(27,173,248,.2)</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-event-bg-dark)"></i></div><b>--hs-event-bg-dark</b><i class="v">#1C445B</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-lock-btn)"></i></div><b>--hs-lock-btn</b><i class="v">rgba(0,0,0,.26)</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-dragbar)"></i></div><b>--hs-dragbar</b><i class="v">rgba(127,127,127,.5)</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-grey3)"></i></div><b>--hs-grey3</b><i class="v">#C7C7CC</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-grey3-dark)"></i></div><b>--hs-grey3-dark</b><i class="v">#464649</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-event-bar)"></i></div><b>--hs-event-bar</b><i class="v">#1BADF8</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-ink)"></i></div><b>--hs-ink</b><i class="v">#000000</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-ink-dark)"></i></div><b>--hs-ink-dark</b><i class="v">#FFFFFF</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-white)"></i></div><b>--hs-white</b><i class="v">#FFFFFF</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-lock-ink)"></i></div><b>--hs-lock-ink</b><i class="v">rgba(255,255,255,.8)</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-blue)"></i></div><b>--hs-blue</b><i class="v">#007BFE</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-blue-dark)"></i></div><b>--hs-blue-dark</b><i class="v">#0385FF</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-red)"></i></div><b>--hs-red</b><i class="v">#FF382B</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-red-dark)"></i></div><b>--hs-red-dark</b><i class="v">#FE4336</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-event-title)"></i></div><b>--hs-event-title</b><i class="v">#106895</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-event-time)"></i></div><b>--hs-event-time</b><i class="v">#168AC6</i></div><div class="sw"><div class="chip"><i style="background:var(--hs-event-ink-dark)"></i></div><b>--hs-event-ink-dark</b><i class="v">#1BADF8</i></div></div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:22px"></div><em>22px</em></div><div><div class="rb" style="border-radius:23px"></div><em>23px</em></div><div><div class="rb" style="border-radius:13px"></div><em>13px</em></div><div><div class="rb" style="border-radius:40px"></div><em>40px</em></div><div><div class="rb" style="border-radius:4px"></div><em>4px</em></div></div><h2>Type</h2><div class="tr"><span style="font:var(--hs-t-label)">Minerva Dinner 26</span><em>--hs-t-label &middot; 400 12px/16px</em></div><div class="tr"><span style="font:var(--hs-t-search)">Minerva Dinner 26</span><em>--hs-t-search &middot; 590 12px/16px</em></div><div class="tr"><span style="font:var(--hs-t-time)">Minerva Dinner 26</span><em>--hs-t-time &middot; 590 18px/23px</em></div><div class="tr"><span style="font:var(--hs-t-widget-title)">Minerva Dinner 26</span><em>--hs-t-widget-title &middot; 590 15px/22px</em></div><div class="tr"><span style="font:var(--hs-t-count)">Minerva Dinner 26</span><em>--hs-t-count &middot; 590 22px/26px</em></div><div class="tr"><span style="font:var(--hs-t-row)">Minerva Dinner 26</span><em>--hs-t-row &middot; 400 13px/19px</em></div><div class="tr"><span style="font:var(--hs-t-emoji)">Minerva Dinner 26</span><em>--hs-t-emoji &middot; 400 17px/20px</em></div><div class="tr"><span style="font:var(--hs-t-cal-day)">Minerva Dinner 26</span><em>--hs-t-cal-day &middot; 590 13px/16px</em></div><div class="tr"><span style="font:var(--hs-t-cal-date)">Minerva Dinner 26</span><em>--hs-t-cal-date &middot; 400 34px/41px</em></div><div class="tr"><span style="font:var(--hs-t-event-title)">Minerva Dinner 26</span><em>--hs-t-event-title &middot; 590 15px/20px</em></div><div class="tr"><span style="font:var(--hs-t-event-time)">Minerva Dinner 26</span><em>--hs-t-event-time &middot; 400 14px/19px</em></div><div class="tr"><span style="font:var(--hs-t-lock-date)">Minerva Dinner 26</span><em>--hs-t-lock-date &middot; 510 22px/28px</em></div><div class="tr"><span style="font:var(--hs-t-lock-time)">1:47</span><em>--hs-t-lock-time &middot; 590 100px/119px</em></div><h2>Metrics</h2><div class="met">--hs-w: 393px<br>--hs-h: 852px<br>--hs-status: 54px<br>--hs-top: 90px<br>--hs-between: 38px<br>--hs-widget-margin: 27.5px<br>--hs-app-margin: 31px<br>--hs-app: 60px<br>--hs-dock-h: 98px<br>--hs-dock-margin: 12px<br>--hs-dock-pad: 22px<br>--hs-search-w: 77px<br>--hs-btn: 50px<br>--hs-homebar: 140px</div></div>
+</body>
+</html>
