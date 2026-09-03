@@ -159,17 +159,6 @@ may split the measurements across further modules that `gen.py` imports
 (`apple-wallet` has two, one per Figma file), but the entry point stays
 `gen.py`.
 
-After it, `python3 tools/refkit.py thumbs mockups/canvases/<slug>` rewrites
-`thumbs/`, one WebP per board at half size, and is committed with the boards.
-The canvas draws a board from its thumbnail while the board is small on
-screen (under half zoom, or off screen) and swaps the live document in only
-once the board is drawn larger than that, so a page of thirty boards opens as
-thirty small images rather than thirty documents (`docs/2026-09-03-board-
-thumbnails.md`). A stale thumbnail shows the old board until it is rewritten.
-A board with no thumbnail is always live, so a folder that skipped the step
-still works; it just costs what it did before. Thumbnails of `ref-*` and
-`w[0-9]-*` boards are ignored by git along with the boards.
-
 Generators come in two lineages, and the only difference is the `page()`
 helper's signature. The Figma-sourced runs, `apple-photos`, `apple-calendar`
 and `apple-settings`, use `page(title, css, body)`. The screenshot-sourced
@@ -179,9 +168,8 @@ anything from another folder or from `tools/`, so copying one folder gets
 you a complete generator.
 
 This is safe for discovery: `import.meta.glob` in `canvasLibrary.ts`
-matches only `*.html` (plus `layout.json`, `icon.png` and `thumbs/*.webp`),
-so `gen.py` and its asset files sitting in the folder are invisible to the
-canvas.
+matches only `*.html` (plus `layout.json` and `icon.png`), so `gen.py` and
+its asset files sitting in the folder are invisible to the canvas.
 
 ## Examples
 
@@ -355,7 +343,6 @@ To start a new board, copy the `templates/` folder and run its generator:
 ```bash
 cp -r mockups/canvases/templates mockups/canvases/<slug>
 python3 mockups/canvases/<slug>/gen.py
-python3 tools/refkit.py thumbs mockups/canvases/<slug>
 ```
 
 That hands you the four boards a run always produces, wired together and
