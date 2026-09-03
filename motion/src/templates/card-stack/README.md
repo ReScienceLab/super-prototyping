@@ -21,9 +21,18 @@ strip at x 0.31-0.37 and a row at y 0.62-0.68:
 
 - **The cards come up from below the frame, left to right.** The row's
   x-extent grows 0.24 -> 0.47 -> 0.70 -> 0.88 -> 1.0 of W at f40/42/44/46/48
-  — about one card per 1.5 frames (`step`). The sharp card's top goes 0.540
+  — about one card per frame (`step`). The sharp card's top goes 0.540
   -> 0.468 -> 0.454 -> 0.449 -> 0.451 of H at f51/57/61/65/69, an ease-out
-  that is at rest by f65 (`riseFrames` 24, `top` 0.45).
+  that is at rest by f65 (`riseFrames` 20, `top` 0.45).
+
+  Timed against the row rather than one card: the median of the row's whole
+  top edge travels from below the frame to its rest at 0.459 of H, so
+  normalising it gives a fraction travelled that compares directly between two
+  clips of different sizes. The reference is at 0.68 / 0.85 / 0.94 / 0.98 /
+  1.00 of the way at +6, +10, +14, +17 and +19 of its shot. `riseFrames` 24
+  with `step` 1.5 rendered 0.59 / 0.74 / 0.88 / 0.91 / 0.96 — behind through
+  the whole middle and five frames late to settle. 20 and 1.0 render 0.67 /
+  0.85 / 0.93 / 0.99 / 1.00.
 - **The row settles in from the right at the same time**, and then stops:
   the sharp card's left edge goes 0.345 -> 0.305 -> 0.289 -> 0.280 -> 0.278
   of W at f51/57/61/65/69 and its half-scale neighbour 0.731 -> 0.698 over
@@ -71,11 +80,11 @@ strip at x 0.31-0.37 and a row at y 0.62-0.68:
 | top         | 0.45                                                          |
 | slide       | 330                                                           |
 | slideFrames | 31                                                            |
-| riseFrames  | 24                                                            |
-| step        | 1.5                                                           |
+| riseFrames  | 20                                                            |
+| step        | 1.0                                                           |
 | leaveFrames | 12                                                            |
 | focus       | 3                                                             |
-| blur        | 7                                                             |
+| blur        | 34                                                            |
 | cardWidth   | 640                                                           |
 | cardHeight  | 1550                                                          |
 | seed        | "shelf"                                                       |
@@ -103,6 +112,37 @@ neither survives the strip measurement above.
 Still approximate: the reference's right side is denser than its left (four
 cards in 0.4 of W against two), which one pitch cannot do, so the sharp card
 sits at 0.336-0.631 of W here against 0.278-0.608; its top edge slants 0.01
-of H over 0.21 of W against the reference's 0.05, because the perspective
-origin sits at mid-height and the reference camera's is lower; and the
-reference shot is 44 frames, so at 95 the row holds for about 45.
+of H over 0.21 of W against the reference's 0.05; and the reference shot is
+44 frames, so at 95 the row holds for about 45.
+
+**The keystone is the one that resisted a fit, and six sweeps went at it.**
+The card row reads as flat rectangles against the reference's leaning fan, and
+`turn`, `perspective`, `cardWidth`, `count`, `gapRatio` and `perspectiveOrigin`
+were each swept against it. Every one of them traded coverage for lean: `turn`
+past -34 narrows the cards, `perspective` below 1100 recedes them, `cardWidth`
+widens the gaps along with the cards because `gapRatio` scales off it, `count`
+only refills what the recession took, and dropping the camera below mid-height
+sinks the whole row — 0.463 to 0.604 of H at `perspectiveOrigin` 78%, which
+empties the top of the frame and was most of what the area readings were
+reacting to.
+
+The camera one looked like it had landed. Putting the row back with `top` gave
+area 0.566 against the reference's 0.522, the row's top edge at 0.480 against
+0.469, and a top-edge slope of 0.374 against 0.367 — and it rendered a sharp
+card towering over its neighbours to 0.05 of H. `top` moves every card in the
+layout plane, but the projection only drags the cards that have receded; the
+sharp one is at z=0, in the projection plane, where `perspectiveOrigin` cannot
+touch it. So the compensation applied to six cards and not the seventh.
+
+Two things were wrong underneath all six. The slope metric — mean |dy/dx| along
+the row's top edge, dropping steps over 4 px per column — was counting the soft
+transitions between neighbouring cards as lean, which is why the reference read
+0.367 and nothing could reach it. And the reference's card tops at f61 are
+0.444, 0.452, 0.454, 0.483, 0.500, 0.556 of H against its sharp card's 0.451:
+scattered about a common level, not fanned up or down from one. There is no
+systematic lean in that row for a camera height to match. What is left is per
+card, and the sharp card's own 0.05-against-0.01 needs the whole row pushed off
+z=0 so that card keystones too — not a camera move. Left alone rather than
+fitted, because a knob added to chase a broken metric is worse than the gap.
+
+What did fit, on the same frames: `blur` and the rise clock, both above.

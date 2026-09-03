@@ -1,8 +1,9 @@
 # brand-film
 
-The fifteen templates of the Delphi set, cut back into one continuous piece.
+Fourteen of the fifteen templates of the Delphi set, cut back into one
+continuous piece.
 
-1920x1080, 30 fps, 1296 frames (43.2 s).
+1920x1080, 30 fps, 1224 frames (40.8 s).
 
     ./render.sh brand-film
 
@@ -10,7 +11,7 @@ The fifteen templates of the Delphi set, cut back into one continuous piece.
 colour, no copy. The only prop the cut overrides is `durationInFrames`, and
 that single override is the composability claim the whole set was built to
 make: a template that read its length from `useVideoConfig()` would time itself
-against the film's 1296 frames while occupying 84 of them.
+against the film's 1224 frames while occupying 84 of them.
 
 Nothing dissolves. Every template opens settled and settles again well before
 its own last frame, so the shots butt straight together. A cross-fade anywhere
@@ -26,21 +27,20 @@ lengths would truncate half the set.
 
 | from | shot               | frames | reference   |                                        |
 |-----:|--------------------|-------:|-------------|----------------------------------------|
-|    0 | `mesh-gradient`    |     72 | —           | the ground, before anything is on it   |
-|   72 | `word-cascade`     |     90 | f14-f38     | "You've got knowledge"                 |
-|  162 | `card-stack`       |     95 | f38-f80     | "people want"                          |
-|  257 | `word-swap`        |     66 | f213-f228   | "Your notes?" -> "Your answers?"       |
-|  323 | `bokeh-orbit`      |     80 | f268-f306   | "Chaos"                                |
-|  403 | `text-marker`      |     78 | f1056-f1072 |                                        |
-|  481 | `pill-expand`      |     84 | f1088-f1150 | 8 frames of paragraph, then the card   |
-|  565 | `count-up`         |     92 | f1172-f1280 | 74% -> 100%                            |
-|  657 | `orb-bloom`        |     84 | f1283-f1340 | "piece by piece"                       |
-|  741 | `particle-form`    |    100 | f1352-f1400 |                                        |
-|  841 | `focus-pull`       |     72 | f1372-f1400 | "Your digital mind / is born"          |
-|  913 | `depth-flythrough` |    105 | f1476-f1595 |                                        |
-| 1018 | `lens-reveal`      |     84 | f1640-f1700 | "whatever you want"                    |
-| 1102 | `word-grid`        |     84 | f1875-f1920 | "everything"                           |
-| 1186 | `logo-outro`       |    110 | f1930-f2052 |                                        |
+|    0 | `word-cascade`     |     90 | f14-f38     | "You've got knowledge"                 |
+|   90 | `card-stack`       |     95 | f38-f80     | "people want"                          |
+|  185 | `word-swap`        |     66 | f213-f228   | "Your notes?" -> "Your answers?"       |
+|  251 | `bokeh-orbit`      |     80 | f268-f306   | "Chaos"                                |
+|  331 | `text-marker`      |     78 | f1056-f1072 |                                        |
+|  409 | `pill-expand`      |     84 | f1088-f1150 | 8 frames of paragraph, then the card   |
+|  493 | `count-up`         |     92 | f1172-f1280 | 74% -> 100%                            |
+|  585 | `orb-bloom`        |     84 | f1283-f1340 | "piece by piece"                       |
+|  669 | `particle-form`    |    100 | f1352-f1400 |                                        |
+|  769 | `focus-pull`       |     72 | f1372-f1400 | "Your digital mind / is born"          |
+|  841 | `depth-flythrough` |    105 | f1476-f1595 |                                        |
+|  946 | `lens-reveal`      |     84 | f1640-f1700 | "whatever you want"                    |
+| 1030 | `word-grid`        |     84 | f1875-f1920 | "everything"                           |
+| 1114 | `logo-outro`       |    110 | f1930-f2052 |                                        |
 
 The start column is derived in `index.tsx`, not typed: a hand-kept `from` is
 one edit away from a one-frame overlap or hole, and neither is visible in a
@@ -49,7 +49,7 @@ still. `meta.json` is checked against the same sum at module load.
 ## Comparing it against the source
 
 `motionkit compare` is the wrong instrument here — it expects a frame-aligned
-pair, and this is 43.2 s against the source's 68.4 s in a different shot order.
+pair, and this is 40.8 s against the source's 68.4 s in a different shot order.
 The comparison that means anything is per shot, and it is two measurements.
 
 **One settled frame from each side, side by side.** Which frame is in the table
@@ -60,7 +60,7 @@ side-by-side does not tell you: both clips fill their own frame, and one is
 2880 wide and the other 1920.
 
     python3 tools/motionkit.py extent 7481_0.mp4 32
-    python3 tools/motionkit.py extent src/films/brand-film/out/brand-film.mp4 135
+    python3 tools/motionkit.py extent src/films/brand-film/out/brand-film.mp4 63
 
 `extent` subtracts a wide Gaussian from the frame and boxes what survives, so
 type and hard chrome register and gradients and bokeh do not. Measured at the
@@ -81,22 +81,22 @@ its numbers usable:
 - Its 2nd/98th percentile trim, which is there so one stray bead does not set
   the box, clips the outer dots of anything sparse.
 
-So six of the fifteen shots are not in the table at all, and the reason is
+So five of the fourteen shots are not in the table at all, and the reason is
 written next to each rather than a number that means nothing.
 
 ### What it said
 
 | shot               | ref f | ours |  ref w x h  | ours w x h  |  w   |  h   |
 |--------------------|------:|-----:|-------------|-------------|-----:|-----:|
-| `word-cascade`     |    32 |  135 | 0.515 0.457 | 0.501 0.494 | 0.97 | 1.08 |
-| `bokeh-orbit`      |   295 |  363 | 0.416 0.207 | 0.372 0.219 | 0.89 | 1.06 |
-| `text-marker`      |  1068 |  458 | 0.627 0.322 | 0.627 0.328 | 1.00 | 1.02 |
-| `count-up`         |  1250 |  629 | 0.899 0.554 | 0.934 0.552 | 1.04 | 1.00 |
-| `orb-bloom`        |  1310 |  687 | 0.720 0.959 | 0.765 0.915 | 1.06 | 0.95 |
-| `focus-pull`       |  1380 |  881 | 0.417 0.431 | 0.420 0.443 | 1.01 | 1.03 |
-| `depth-flythrough` |  1540 |  964 | 0.757 0.483 | 0.766 0.494 | 1.01 | 1.02 |
-| `word-grid`        |  1910 | 1161 | 0.840 0.850 | 0.850 0.881 | 1.01 | 1.04 |
-| `logo-outro`       |  2030 | 1263 | 0.299 0.378 | 0.310 0.372 | 1.04 | 0.98 |
+| `word-cascade`     |    32 |   63 | 0.515 0.457 | 0.501 0.494 | 0.97 | 1.08 |
+| `bokeh-orbit`      |   295 |  291 | 0.416 0.207 | 0.372 0.219 | 0.89 | 1.06 |
+| `text-marker`      |  1068 |  386 | 0.627 0.322 | 0.627 0.328 | 1.00 | 1.02 |
+| `count-up`         |  1250 |  557 | 0.899 0.554 | 0.934 0.552 | 1.04 | 1.00 |
+| `orb-bloom`        |  1310 |  615 | 0.720 0.959 | 0.765 0.915 | 1.06 | 0.95 |
+| `focus-pull`       |  1380 |  809 | 0.417 0.431 | 0.420 0.443 | 1.01 | 1.03 |
+| `depth-flythrough` |  1540 |  892 | 0.757 0.483 | 0.766 0.494 | 1.01 | 1.02 |
+| `word-grid`        |  1910 | 1089 | 0.840 0.850 | 0.850 0.881 | 1.01 | 1.04 |
+| `logo-outro`       |  2030 | 1191 | 0.299 0.378 | 0.310 0.372 | 1.04 | 0.98 |
 
 `bokeh-orbit` is banded to `0.25,0.34,0.75,0.58` (the word, not the ring, whose
 beads run off the frame edge in both) and `focus-pull` to `0.50,0.15,1.00,0.90`

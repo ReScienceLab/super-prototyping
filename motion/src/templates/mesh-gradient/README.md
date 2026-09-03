@@ -1,8 +1,13 @@
 # mesh-gradient
 
-The warm ground the reference film puts under its opening shots: a crimson
-vertical ramp with a hard diagonal light band sliding across it and easing to
-a stop.
+The ground under the reference film's crimson second half: a vertical ramp
+with a hard diagonal light band sliding across it and easing to a stop.
+
+Not the opening. Every measurement in this file comes off f1172-f1280, and the
+film's opening shots stand on `word-cascade`'s own cocoa radial, which is a
+different ground entirely. This template says so because it once opened
+`brand-film` for 72 frames on the strength of that first sentence, which put
+the brightest frame of the piece where the source has its darkest.
 
 1920x1080, 30 fps, 120 frames.
 

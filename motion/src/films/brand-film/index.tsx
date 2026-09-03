@@ -1,9 +1,15 @@
 import React from "react";
-import { Sequence } from "remotion";
+import {
+  AbsoluteFill,
+  Easing,
+  Sequence,
+  useCurrentFrame,
+} from "remotion";
+
+import { enter } from "../../lib/timing";
 
 import meta from "./meta.json";
 
-import * as meshGradient from "../../templates/mesh-gradient";
 import * as wordCascade from "../../templates/word-cascade";
 import * as cardStack from "../../templates/card-stack";
 import * as wordSwap from "../../templates/word-swap";
@@ -37,6 +43,18 @@ import * as logoOutro from "../../templates/logo-outro";
  *     and opens on a settled state, so shots butt straight against each other
  *     with nothing hiding the seam. A cross-fade here would be covering for a
  *     template that does not end, and none of them need it.
+ *
+ * THE ONE THING HERE THAT IS NOT A SHOT is the fade up from black, below. It
+ * is in this file because it belongs to the film and not to any template: the
+ * reference opens on a black frame and rises into `word-cascade`'s ground, and
+ * a template that faded up on its own could only ever be the first shot of a
+ * cut. `mesh-gradient` is the template that is NOT in this cut, for the
+ * matching reason -- it is a ground, and the reference never holds on a bare
+ * one. It used to open the film for 72 frames, which put the brightest frame
+ * of the whole piece where the source has its darkest, and it was the wrong
+ * ground besides: `mesh-gradient` is fitted on f1172-f1280, the crimson second
+ * half, while the opening's ground is `word-cascade`'s own cocoa radial. It is
+ * still exercised everywhere the crimson shots draw it.
  *
  * THE ORDER IS THE SOURCE FILM'S OWN, by first reference frame — f14 through
  * f2052. The reference cuts to live footage and product UI between these, and
@@ -79,7 +97,6 @@ type Shot = [asset: Asset, frames: number];
  * `depth-flythrough`, `logo-outro`) the room the reference gives them.
  */
 const CUT: Shot[] = [
-  [meshGradient, 72], //     the ground, before anything is on it
   [wordCascade, 90], //      f14-f38    "You've got knowledge"
   [cardStack, 95], //        f38-f80    "people want"
   [wordSwap, 66], //         f213-f228  "Your notes?" -> "Your answers?"
@@ -119,6 +136,27 @@ if (meta.durationInFrames !== LENGTH) {
   );
 }
 
+/**
+ * The fade up from black. Mean luma of the reference's opening, over the
+ * settled ground at f24: 0.00 / 0.10 / 0.41 / 0.85 / 1.00 at f0, f6, f12, f18
+ * and f24. An ease-in-out cubic over 24 frames gives 0.00 / 0.06 / 0.50 /
+ * 0.94 / 1.00, worst gap 0.09.
+ */
+const FADE = 24;
+
+const OpenFromBlack: React.FC = () => {
+  const frame = useCurrentFrame();
+  if (frame >= FADE) return null;
+  return (
+    <AbsoluteFill
+      style={{
+        background: "#000",
+        opacity: 1 - enter(frame, 0, FADE, Easing.inOut(Easing.cubic)),
+      }}
+    />
+  );
+};
+
 export const BrandFilm: React.FC = () => (
   <>
     {CUT.map(([{ Component, defaultProps }, frames], i) => {
@@ -129,6 +167,7 @@ export const BrandFilm: React.FC = () => (
         </Sequence>
       );
     })}
+    <OpenFromBlack />
   </>
 );
 

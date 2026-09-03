@@ -221,11 +221,25 @@ export const defaultProps: CardStackProps = {
   top: 0.45,
   slide: 330,
   slideFrames: 31,
-  riseFrames: 24,
-  step: 1.5,
+  // The rise, read off the median of the card row's own top edge. That median
+  // travels from below the frame to its rest at 0.459 of H, so normalising it
+  // gives a fraction travelled that compares directly across the two clips'
+  // different sizes. The reference is 0.68 / 0.85 / 0.94 / 0.98 / 1.00 of the
+  // way at +6, +10, +14, +17 and +19 of its shot; 24 and 1.5 rendered 0.59 /
+  // 0.74 / 0.88 / 0.91 / 0.96, behind through the whole middle and five frames
+  // late to settle. 20 and 1.0 render 0.67 / 0.85 / 0.93 / 0.99 / 1.00 -- one
+  // hundredth at every sample.
+  riseFrames: 20,
+  step: 1.0,
   leaveFrames: 12,
   focus: 3,
-  blur: 7,
+  // Defocus, fitted on a 38-row band at 0.72-0.79 of H where the row is all
+  // card in both clips. Counting the pixels along it that step more than 4
+  // luma finds edges: the reference has 11, which is the sharp card's two and
+  // little else, because everything off focus is far enough out to have no
+  // edge at all. 7 rendered 35 of them -- every card in the row hard-edged --
+  // and 20, 26, 30, 34 render 35, 22, 15, 10.
+  blur: 34,
   cardWidth: 640,
   cardHeight: 1550,
   seed: "shelf",
