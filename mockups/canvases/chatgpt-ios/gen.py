@@ -54,7 +54,7 @@ CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
 SCALE = 2.244275                                  # capture px per design pt
 
 NAME = "ChatGPT iOS"
-PAGE_NAME = NAME
+PAGE_NAME = "(example) " + NAME
 P = "g"          # token prefix: --g-bg, --g-ink, --g-t-row
 
 # ---------------------------------------------------------------- tokens ----
