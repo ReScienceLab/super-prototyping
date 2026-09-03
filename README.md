@@ -22,9 +22,10 @@ registry, no build step and no design tool.
 
 ## Five worked examples
 
-All five are real `clone-prototype` runs, rebuilt from measured samples with
-the evidence recorded for every token. Open any of them with
-`?canvas=<slug>`.
+Five of the ten app folders in `mockups/canvases/`. That folder's own
+`README.md` lists them all. Each is a real `clone-prototype` run, rebuilt
+from measured samples with the evidence recorded for every token. Open any
+of them with `?canvas=<slug>`.
 
 ### `duolingo-ios`, eight screens that are mostly picture
 
@@ -74,8 +75,13 @@ cd my-product-design && rm -rf .git && git init
 cd canvas && bun install --frozen-lockfile
 ```
 
-All five ship with it. Copy a `00-design-tokens.html` as the
-starting point for your own token block, then delete the folders.
+Every folder under `mockups/canvases/` ships with it. Start your own from
+`templates/`, then delete the example folders you do not need:
+
+```bash
+cp -r mockups/canvases/templates mockups/canvases/<slug>
+python3 mockups/canvases/<slug>/gen.py
+```
 
 ## Run the canvas
 

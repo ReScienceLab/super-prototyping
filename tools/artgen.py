@@ -22,6 +22,7 @@ independent. See the clone-prototype skill's references/generating.md.
 """
 import argparse
 import json
+import os
 import pathlib
 import subprocess
 import sys
@@ -30,7 +31,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
-GPT = pathlib.Path.home() / ".claude/skills/gpt-image/scripts/gptimage.py"
+GPT = pathlib.Path(os.environ.get("GPTIMAGE", pathlib.Path.home() / ".claude/skills/gpt-image/scripts/gptimage.py"))
 KEY = (255, 0, 255)
 WHITE = (255, 255, 255)
 
