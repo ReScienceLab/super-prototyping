@@ -3,7 +3,7 @@
   "rows": [
     {
       "title": "super-prototyping",
-      "files": [{ "file": "00-welcome", "label": "What this is" }]
+      "files": [{ "file": "00-welcome", "label": "What this is", "w": 2153, "h": 819 }]
     }
   ]
 }
