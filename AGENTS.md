@@ -24,7 +24,8 @@ Rules inside a canvas folder:
   measurement evidence behind the tokens.
 - Never commit `ref-*.html` or `assets/refs/`. They hold third-party
   captures, the root `.gitignore` already excludes them, and the
-  clone-prototype skill rebuilds them.
+  clone-prototype skill rebuilds them. `spotify-ios` is the one exception:
+  its five `ref-*` boards are committed so the hosted canvas shows them.
 - Put everything else a run makes in `scratch/`. The root `.gitignore`
   ignores it at any depth. Do not use the repo root or a dot directory.
 - Give every folder a `README.md`. Do not give any folder a `.gitignore`.
