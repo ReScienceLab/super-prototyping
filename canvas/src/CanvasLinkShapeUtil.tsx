@@ -1,8 +1,10 @@
 import {
   BaseBoxShapeUtil,
+  type Editor,
   HTMLContainer,
   T,
   type RecordProps,
+  type TLEventInfo,
   type TLShape,
 } from "tldraw";
 import { CANVAS_FILE_DEFAULT_SIZE } from "./CanvasFileShapeUtil";
@@ -96,6 +98,9 @@ function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
     SCREEN.h,
   );
 
+  // `pointerEvents: "all"` is for the cursor alone: tldraw draws shapes with pointer-events off
+  // and does its own hit-testing on the canvas, which these events still bubble up to. A shape
+  // that never receives the pointer cannot show a hand over itself.
   const frame = {
     width: w,
     height: h,
@@ -104,6 +109,7 @@ function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
     background: GROUND,
     border: EDGE,
     cursor: "pointer",
+    pointerEvents: "all",
   } as const;
 
   if (!path) {
@@ -139,6 +145,7 @@ function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
         alignItems: "center",
         justifyContent: "center",
         cursor: "pointer",
+        pointerEvents: "all",
         position: "relative",
       }}
     >
@@ -206,12 +213,61 @@ function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
 }
 
 /**
+ * Click handling for locked links. The library creates every card and button locked, like the
+ * boards, so a reader cannot drag one while trying to pan. tldraw treats a pointer that lands on
+ * a locked shape as one that landed on the canvas, though, so a locked shape's `onClick` never
+ * runs. This watches the editor's own pointer events instead: a press and a release over the
+ * same locked link, with no drag and no pinch in between, is a click, and runs that link's
+ * `onClick`. Links that are not locked keep tldraw's own handling, so nothing fires twice.
+ */
+export function installLockedLinkClicks(editor: Editor) {
+  const linkUnderPointer = () =>
+    editor.getShapeAtPoint(editor.inputs.getCurrentPagePoint(), {
+      hitInside: true,
+      hitLocked: true,
+      renderingOnly: true,
+      filter: (shape) => shape.type === CANVAS_LINK_SHAPE_TYPE && shape.isLocked,
+    }) as CanvasLinkShape | undefined;
+
+  let pressed: CanvasLinkShape | undefined;
+  const onEvent = (info: TLEventInfo) => {
+    if (info.type !== "pointer") {
+      // Two fingers arriving, or a wheel, in the middle of a press: a zoom, not a click.
+      if (info.type === "pinch" || info.type === "wheel") pressed = undefined;
+      return;
+    }
+    if (info.name === "pointer_down") {
+      // Only the select tool follows links, as with tldraw's own `onClick`; a click with the
+      // pen or the eraser over a card is a stroke or an erase, not a navigation.
+      pressed =
+        info.button === 0 &&
+        editor.getCurrentToolId() === "select" &&
+        !editor.menus.hasAnyOpenMenus()
+          ? linkUnderPointer()
+          : undefined;
+      return;
+    }
+    if (info.name !== "pointer_up") return;
+    const target = pressed;
+    pressed = undefined;
+    if (!target || editor.inputs.getIsDragging()) return;
+    if (linkUnderPointer()?.id !== target.id) return;
+    editor.getShapeUtil<CanvasLinkShape>(target).onClick?.(target);
+  };
+
+  editor.on("event", onEvent);
+  return () => {
+    editor.off("event", onEvent);
+  };
+}
+
+/**
  * A clickable card or button on the welcome page: `page` switches to another board's page,
  * `url` opens an address in a new tab. Boards themselves render in `<iframe srcDoc sandbox="">`,
  * where a link cannot navigate anything, so anything clickable has to be a shape out here.
  *
- * Defining `onClick` also stops tldraw selecting the shape on pointer down, so a single
- * click follows the link instead of putting a selection box around it.
+ * The shape is locked on the canvas (App.tsx, LIBRARY_SHAPE_PREFIXES), so clicks reach
+ * `onClick` through `installLockedLinkClicks` rather than through tldraw's select tool.
  */
 export class CanvasLinkShapeUtil extends BaseBoxShapeUtil<CanvasLinkShape> {
   static override type = CANVAS_LINK_SHAPE_TYPE;

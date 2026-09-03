@@ -6,6 +6,7 @@ import {
   toRichText,
   type Editor,
   type TLPageId,
+  type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
   useEditor,
@@ -24,6 +25,7 @@ import {
   CANVAS_LINK_SHAPE_TYPE,
   type CanvasLinkShape,
   CanvasLinkShapeUtil,
+  installLockedLinkClicks,
 } from "./CanvasLinkShapeUtil";
 import {
   type CanvasLayoutLink,
@@ -85,9 +87,41 @@ const LIBRARY_LABEL_GAP = 12;
 const LIBRARY_LABEL_HEIGHT = 28;
 const LIBRARY_HEADING_HEIGHT = 44;
 
+/**
+ * Id prefixes of everything the library places: boards, row headings, captions, and the cards
+ * and buttons that open things. They are all created locked, and `lockLibraryShapes` locks any
+ * that a browser persisted before that was so. Locked, a shape cannot be selected, so a reader
+ * who means to pinch or scroll cannot drag a board out of its row by accident; the camera is the
+ * only thing that moves. The layout is declared in layout.json, so a board is never repositioned
+ * by hand anyway. Anything a person draws on top stays unlocked and editable.
+ */
+const LIBRARY_SHAPE_PREFIXES = [
+  "shape:canvas-file:",
+  "shape:canvas-row-heading:",
+  "shape:canvas-file-label:",
+  "shape:canvas-link:",
+];
+
+function isLibraryShapeId(id: string) {
+  return LIBRARY_SHAPE_PREFIXES.some((prefix) => id.startsWith(prefix));
+}
+
+/** Deletes library shapes, which are locked and would otherwise be skipped by `deleteShapes`. */
+function deleteLibraryShapes(editor: Editor, ids: TLShapeId[]) {
+  if (!ids.length) return;
+  editor.run(() => editor.deleteShapes(ids), { ignoreShapeLock: true });
+}
+
 function AgentBridge() {
   const editor = useEditor();
   useEffect(() => installAgentBridge(editor), [editor]);
+  return null;
+}
+
+/** Cards and buttons are locked like everything else the library places; this keeps them clickable. */
+function LockedLinkClicks() {
+  const editor = useEditor();
+  useEffect(() => installLockedLinkClicks(editor), [editor]);
   return null;
 }
 
@@ -135,6 +169,7 @@ function createAnnotation(
       type: "text",
       x: annotation.x,
       y: annotation.y,
+      isLocked: true,
       props: { richText: toRichText(annotation.text), w: annotation.w },
     });
     return;
@@ -146,6 +181,7 @@ function createAnnotation(
     x: annotation.x,
     y: annotation.y,
     parentId: annotation.parentId,
+    isLocked: true,
     props: {
       autoSize: false,
       color: annotation.color ?? "black",
@@ -202,6 +238,7 @@ function layoutRow(
         parentId: page.id,
         x: rowX(rowFiles.indexOf(file)),
         y: contentY,
+        isLocked: true,
         props: {
           ...size,
           name: file.title,
@@ -230,6 +267,7 @@ function layoutRow(
         parentId: page.id,
         x: index * (CANVAS_LINK_BUTTON_SIZE.w + LIBRARY_LABEL_GAP),
         y: linksY,
+        isLocked: true,
         props: {
           ...CANVAS_LINK_BUTTON_SIZE,
           label: link.label,
@@ -300,7 +338,7 @@ function layoutWelcomeExtras(
   // The repo CTA used to be a shape parked in the welcome board's header. It is chrome now
   // (canvasChrome.tsx, SharePanel), so a canvas saved before that still has to lose its copy.
   const starId = linkShapeId("star");
-  if (editor.getShape(starId)) editor.deleteShape(starId);
+  if (editor.getShape(starId)) deleteLibraryShapes(editor, [starId]);
   if (!targets.length) return;
 
   // Two rows, because twelve cards in one row read as a list of twelve unrelated things: the
@@ -330,7 +368,7 @@ function layoutWelcomeExtras(
   const orphans = [...editor.getPageShapeIds(page.id)].filter(
     (id) => id.startsWith("shape:canvas-row-heading:") && !kept.has(id),
   );
-  if (orphans.length) editor.deleteShapes(orphans);
+  deleteLibraryShapes(editor, orphans);
 
   const cardX = (index: number) =>
     index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
@@ -351,6 +389,7 @@ function layoutWelcomeExtras(
         parentId: page.id,
         x: cardX(index),
         y: contentY,
+        isLocked: true,
         props: {
           ...CANVAS_LINK_CARD_SIZE,
           label: files[0].pageName,
@@ -382,6 +421,7 @@ function layoutWelcomeExtras(
           type: card.type,
           x: card.x,
           y: card.y,
+          isLocked: true,
           props: { ...card.props },
         });
       }
@@ -505,6 +545,7 @@ function initializeCanvasLibrary(editor: Editor) {
             id: fileShapeId(file),
             type: CANVAS_FILE_SHAPE_TYPE,
             parentId: page.id,
+            isLocked: true,
             x: columnX(index % LIBRARY_COLUMNS),
             y:
               rowTop +
@@ -525,8 +566,26 @@ function initializeCanvasLibrary(editor: Editor) {
     }
   }
 
+  lockLibraryShapes(editor);
   pruneEmptyOrphanPages(editor, libraryPages);
   orderPagesByLibrary(editor, libraryPages);
+}
+
+/**
+ * Locks every library shape that is not locked yet. New ones are created locked; this is for
+ * shapes a browser persisted before they were, and for any unlocked with "Unlock all" to be
+ * nudged in the meantime. They lock again on the next load, so the layout is not left movable
+ * for the next reader by accident.
+ */
+function lockLibraryShapes(editor: Editor) {
+  const unlocked = editor
+    .getPages()
+    .flatMap((page) => [...editor.getPageShapeIds(page.id)])
+    .filter(isLibraryShapeId)
+    .map((id) => editor.getShape(id))
+    .filter((shape) => shape && !shape.isLocked)
+    .map((shape) => ({ id: shape!.id, type: shape!.type, isLocked: true }));
+  if (unlocked.length) editor.updateShapes(unlocked);
 }
 
 /**
@@ -579,17 +638,11 @@ function pruneEmptyOrphanPages(editor: Editor, libraryPages: Set<TLPageId>) {
  * refresh that clears that drift. Hand-drawn shapes and notes are untouched.
  */
 function relayoutCanvasLibrary(editor: Editor) {
-  const prefixes = [
-    "shape:canvas-file:",
-    "shape:canvas-row-heading:",
-    "shape:canvas-file-label:",
-    "shape:canvas-link:",
-  ];
   for (const page of editor.getPages()) {
-    const staleIds = [...editor.getPageShapeIds(page.id)].filter((id) =>
-      prefixes.some((prefix) => id.startsWith(prefix)),
+    deleteLibraryShapes(
+      editor,
+      [...editor.getPageShapeIds(page.id)].filter(isLibraryShapeId),
     );
-    if (staleIds.length) editor.deleteShapes(staleIds);
   }
   initializeCanvasLibrary(editor);
 }
@@ -661,6 +714,7 @@ export default function App() {
           onMount={handleMount}
         >
           <AgentBridge />
+          <LockedLinkClicks />
           <WelcomeGround />
         </Tldraw>
       </main>
