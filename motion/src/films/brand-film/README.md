@@ -32,7 +32,7 @@ lengths would truncate half the set.
 |  257 | `word-swap`        |     66 | f213-f228   | "Your notes?" -> "Your answers?"       |
 |  323 | `bokeh-orbit`      |     80 | f268-f306   | "Chaos"                                |
 |  403 | `text-marker`      |     78 | f1056-f1072 |                                        |
-|  481 | `pill-expand`      |     84 | f1088-f1150 | same paragraph, now behind a card      |
+|  481 | `pill-expand`      |     84 | f1088-f1150 | 8 frames of paragraph, then the card   |
 |  565 | `count-up`         |     92 | f1172-f1280 | 74% -> 100%                            |
 |  657 | `orb-bloom`        |     84 | f1283-f1340 | "piece by piece"                       |
 |  741 | `particle-form`    |    100 | f1352-f1400 |                                        |
@@ -81,7 +81,7 @@ its numbers usable:
 - Its 2nd/98th percentile trim, which is there so one stray bead does not set
   the box, clips the outer dots of anything sparse.
 
-So five of the fifteen shots are not in the table at all, and the reason is
+So six of the fifteen shots are not in the table at all, and the reason is
 written next to each rather than a number that means nothing.
 
 ### What it said
@@ -91,7 +91,6 @@ written next to each rather than a number that means nothing.
 | `word-cascade`     |    32 |  135 | 0.515 0.457 | 0.501 0.494 | 0.97 | 1.08 |
 | `bokeh-orbit`      |   295 |  363 | 0.416 0.207 | 0.372 0.219 | 0.89 | 1.06 |
 | `text-marker`      |  1068 |  458 | 0.627 0.322 | 0.627 0.328 | 1.00 | 1.02 |
-| `pill-expand`      |  1140 |  533 | 0.684 0.387 | 0.631 0.393 | 0.92 | 1.02 |
 | `count-up`         |  1250 |  629 | 0.899 0.554 | 0.934 0.552 | 1.04 | 1.00 |
 | `orb-bloom`        |  1310 |  687 | 0.720 0.959 | 0.765 0.915 | 1.06 | 0.95 |
 | `focus-pull`       |  1380 |  881 | 0.417 0.431 | 0.420 0.443 | 1.01 | 1.03 |
@@ -103,12 +102,9 @@ written next to each rather than a number that means nothing.
 beads run off the frame edge in both) and `focus-pull` to `0.50,0.15,1.00,0.90`
 (the block, on a frame where it is still sharp).
 
-The two rows that are not 1.0 either way are both the instrument, not the
-render. `bokeh-orbit`'s 0.89 is the blur inflating a small box: our word is
-0.372 against the 0.378 the props were fitted to by the other method, which is
-1.6%. `pill-expand`'s 0.92 is the paragraph left of the card, which is inside
-the reference's box and outside ours by a few pixels of drift; the card itself
-is 821 px wide in both, measured directly.
+The one row that is not 1.0 either way is the instrument, not the render:
+`bokeh-orbit`'s 0.89 is the blur inflating a small box, and our word is 0.372
+against the 0.378 the props were fitted to by the other method, which is 1.6%.
 
 Not measured, and why:
 
@@ -121,6 +117,17 @@ Not measured, and why:
   against.
 - `lens-reveal` reveals live footage in the reference and a rendered stand-in
   here, so the two frames are not the same picture.
+- `pill-expand` boxes the paragraph *behind* the card rather than the card. It
+  read 0.92, and 0.89 once its pair was corrected: this template's offsets run
+  from `at`, the frame the pill arrives, and the cut opens it on eight frames
+  of bare ground, so film frame 481 is f1080 and not f1088. Neither number is
+  about the card. On a frame with the paragraph and no card the two clips read
+  0.646 and 0.627 W; the card itself, masked on `min(rgb) > 246`, is 409 px of
+  960 in the reference against ours at 410, and tracks within 3 px at every
+  sample of its twenty-five-frame open. What f1140 adds over the paragraph is
+  0.02 W of blur residual each side -- extent subtracting a 24 px Gaussian
+  from a backdrop already blurred 5.8 px, where the reference's carries grain
+  and ours does not.
 - `word-swap` is on a different word in each clip at any given frame, so a
   whole-line box measures the word list. Banding it to the orb only moved the
   problem -- the orb is a soft gradient with no ink edge, and the band read

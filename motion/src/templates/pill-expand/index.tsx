@@ -24,7 +24,9 @@ import { enter, useDuration } from "../../lib/timing";
  *            0.54, 0.67, 0.79, 0.92 of the run: an ease-in-out cubic.
  *   +33..36  the pill label is gone (its black ink goes 10800 px to 0 in
  *            three frames).
- *   +41..45  the body lands, +45..49 the title lands, opacity only.
+ *   +41..52  the title and body land together, opacity only, on an
+ *            ease-out quad: 0.18, 0.46, 0.73, 0.93, 0.97 of the way at
+ *            +42 to +50.
  *   +62..    holds. The card then drifts left from about +77, which a
  *            template that has to settle does not do.
  *
@@ -59,7 +61,7 @@ export type PillExpandProps = {
   /** frames after `at` that the pill label goes, and how long it takes */
   labelAt: number;
   labelFrames: number;
-  /** frames after `at` that the body lands; the title follows by `bodyFrames` */
+  /** frames after `at` that the title and body land, and how long they take */
   typeAt: number;
   typeFrames: number;
   /** px of defocus on `behind` once the pill is in, and frames to get there */
@@ -118,13 +120,15 @@ export const PillExpand: React.FC<PillExpandProps> = ({
   const popped = enter(frame, at, popFrames);
   const open = enter(frame, at + openAt, frames, Easing.inOut(Easing.cubic));
   const label = 1 - enter(frame, at + labelAt, labelFrames);
-  // The title leads the body by two frames. Counting ink under luma 160 in
-  // each half of the reference card: at +42 the title half is at 2927 px of a
-  // settled 8357 and the body half at 554 of 12150, so 35% against 5%; by +44
-  // they are level. An earlier pass had this the other way round, which is
-  // what left the open card blank for five frames.
-  const titleIn = enter(frame, at + typeAt, typeFrames);
-  const bodyIn = enter(frame, at + typeAt + 2, typeFrames);
+  // Title and body land together, on an ease-out quad. Mean luma of each half
+  // of the reference card, normalised between the empty card at +40 and the
+  // settled one at +60, runs 0.18 / 0.46 / 0.73 / 0.93 / 0.97 at +42 to +50
+  // for the title and 0.11 / 0.37 / 0.68 / 0.90 / 0.95 for the body: half a
+  // frame apart, which is finer than this template can express. Two earlier
+  // passes split them, in opposite directions, off an ink count under luma
+  // 160 -- but a count crosses a threshold, it does not ramp, so it reported
+  // 35% against 5% where the luma says 18% against 11%.
+  const type = enter(frame, at + typeAt, typeFrames, Easing.out(Easing.quad));
   const soft = enter(frame, at, blurFrames);
 
   const lerp = (a: number, b: number) => interpolate(open, [0, 1], [a, b]);
@@ -243,7 +247,7 @@ export const PillExpand: React.FC<PillExpandProps> = ({
           <div style={{ display: "grid", gap: "3.2vh" }}>
             <div
               style={{
-                opacity: titleIn,
+                opacity: type,
                 // f1140: ink 61 px tall (5.8vh), strokes 0.117 em, #524640.
                 fontSize: "5.8vh",
                 fontWeight: 600,
@@ -255,7 +259,7 @@ export const PillExpand: React.FC<PillExpandProps> = ({
             </div>
             <div
               style={{
-                opacity: bodyIn,
+                opacity: type,
                 // f1140: two lines 42 px tall (4vh) on a 59 px pitch (1.38),
                 // strokes 0.10 em, #757172; the first line is 697 px wide.
                 fontSize: "4vh",
@@ -268,7 +272,7 @@ export const PillExpand: React.FC<PillExpandProps> = ({
             {actions.length ? (
               <div
                 style={{
-                  opacity: bodyIn,
+                  opacity: type,
                   display: "flex",
                   gap: "1.4vh",
                   justifyContent: "center",
@@ -336,7 +340,7 @@ export const defaultProps: PillExpandProps = {
   // empty from +38 to +40 (21 and 36 px of title ink), the title starts at
   // +41, and both halves are settled by +50.
   typeAt: 41,
-  typeFrames: 9,
+  typeFrames: 11,
   // 5.8 px sigma on the 2880 clip, ~10 px true once the estimator is
   // calibrated on known blurs of f1086; 6.7 at 1920.
   backdropBlur: 6.7,
