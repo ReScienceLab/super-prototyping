@@ -1,0 +1,86 @@
+{
+  "name": "(example) SnapAction iOS",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-timeline",
+          "label": "Timeline"
+        },
+        {
+          "file": "02-batch-select",
+          "label": "Batch select"
+        },
+        {
+          "file": "03-agenda",
+          "label": "Agenda"
+        },
+        {
+          "file": "04-collection",
+          "label": "Collection"
+        },
+        {
+          "file": "05-resource-detail",
+          "label": "Resource detail"
+        },
+        {
+          "file": "06-view-resource",
+          "label": "View resource"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: the Figma file's captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-timeline",
+          "label": "Timeline"
+        },
+        {
+          "file": "ref-02-batch-select",
+          "label": "Batch select"
+        },
+        {
+          "file": "ref-03-agenda",
+          "label": "Agenda"
+        },
+        {
+          "file": "ref-04-collection",
+          "label": "Collection"
+        },
+        {
+          "file": "ref-05-resource-detail",
+          "label": "Resource detail"
+        },
+        {
+          "file": "ref-06-view-resource",
+          "label": "View resource"
+        }
+      ]
+    }
+  ]
+}

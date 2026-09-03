@@ -1,0 +1,697 @@
+[
+ {
+  "id": "bg",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   302.5,
+   380,
+   311
+  ],
+  "only": "flat",
+  "_": "01: the 12pt gap between card 1 (ends 300.7) and card 2 (starts 312.7), inside both card x-edges",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 3; run with --pt 3. Screens 01-05 only: capture 06 is a partial render at 2.165 with a y offset, so its probes live in probes6.json."
+ },
+ {
+  "id": "card",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   70,
+   255,
+   300,
+   296
+  ],
+  "only": "flat",
+  "_": "01 card 1 interior: below the title (ends 249), left of the 17:10 at x 350, above the card bottom 300.7"
+ },
+ {
+  "id": "card-sel",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   150,
+   341,
+   280,
+   364
+  ],
+  "only": "flat",
+  "_": "02 card 1 interior: below the second airport line (ends 353.4 at x<120 and x>300), above the card bottom 366.3"
+ },
+ {
+  "id": "chip",
+  "img": "assets/refs/04.png",
+  "cmd": "sample",
+  "box": [
+   220.5,
+   797.5,
+   332,
+   814
+  ],
+  "only": "flat",
+  "_": "04 card B second chip, x 218.8-333.9 y 795.7-816; the third chip is under the FAB (x 362-410), so it cannot be the probe"
+ },
+ {
+  "id": "blue-bg",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   347,
+   194,
+   404,
+   210
+  ],
+  "only": "flat",
+  "_": "01 card 1 + Add pill, x 345.5-405.8 y 192-212.3, inset past the pill's own antialiased rim"
+ },
+ {
+  "id": "green-bg",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   332,
+   194,
+   404,
+   210
+  ],
+  "only": "flat",
+  "_": "02 card 1 Added pill, x 330.6-406 y 192-212.3, same inset"
+ },
+ {
+  "id": "art-bg",
+  "img": "assets/refs/04.png",
+  "cmd": "sample",
+  "box": [
+   190,
+   444.5,
+   246,
+   461
+  ],
+  "only": "flat",
+  "_": "04 card A Article chip, x 188.5-247.5 y 442.7-463"
+ },
+ {
+  "id": "amber-bg",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   326,
+   812.5,
+   370,
+   829
+  ],
+  "only": "flat",
+  "_": "01 last card 5-days pill, x 324.2-384.6 y 810.7-831, stopped at 370 because the FAB starts at 372"
+ },
+ {
+  "id": "detail",
+  "img": "assets/refs/05.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   455,
+   400,
+   476
+  ],
+  "only": "flat",
+  "_": "05 detail card, right of the Depart row (ends 277.3) and above the 479.7 rule"
+ },
+ {
+  "id": "bar",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   155,
+   895,
+   182,
+   900
+  ],
+  "only": "flat",
+  "_": "02 floating action bar over the page ground: the gap between the mail glyph (ends 152.3) and the star (starts 184.3), below card 4 which ends at 889.7. Over a card the same fill censuses #181818, which is what makes it translucent"
+ },
+ {
+  "id": "white",
+  "img": "assets/refs/04.png",
+  "cmd": "sample",
+  "box": [
+   372,
+   781,
+   400,
+   786
+  ],
+  "only": "flat",
+  "_": "04 FAB, circle x 362-410 y 778-826, above the plus arm which starts at 787"
+ },
+ {
+  "id": "line",
+  "img": "assets/refs/03.png",
+  "cmd": "hairline",
+  "box": [
+   155,
+   362.5,
+   275,
+   368
+  ],
+  "bg": "191919",
+  "scale": 3,
+  "_": "03 card 2 duration rule at y 365 on card fill, not the card outline: a rule with the same fill on both sides is what the coverage solve assumes"
+ },
+ {
+  "id": "line-2",
+  "img": "assets/refs/02.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 175,
+  "range": [
+   262,
+   290
+  ],
+  "_": "02 card 1 flight path: col 175 crosses the dash row at y 274"
+ },
+ {
+  "id": "line-pill",
+  "img": "assets/refs/02.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 84,
+  "range": [
+   14,
+   32
+  ],
+  "_": "02 Select All pill x 20.5-122.5 y 62.5-105.5: row 84 is its vertical middle, so the left border sits at 20.5 rather than round a corner. The pill's outline is --x-line; a 1pt rule never reaches its own value in a capture, so the colour here is the naive read and the token comes from the coverage solve."
+ },
+ {
+  "id": "line-4",
+  "img": "assets/refs/02.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 890,
+  "range": [
+   110,
+   126
+  ],
+  "_": "02 action bar: row 890 crosses its left border at x 116.5, clear of the mail glyph at 131.7"
+ },
+ {
+  "id": "hair",
+  "img": "assets/refs/05.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   585,
+   596
+  ],
+  "_": "05 list rule at y 590.7, between the Website and Carrier rows"
+ },
+ {
+  "id": "hair-2",
+  "img": "assets/refs/05.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   474,
+   486
+  ],
+  "_": "05 rule inside the detail card at y 479.7, between Depart and Arrive"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   18.7,
+   142,
+   143,
+   158
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "01 day header 'Today Aug 16', ink top 140.3 left 18.7 w 124.3; --bright because on this UI the ink is the light pixels"
+ },
+ {
+  "id": "ink-2",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   66.7,
+   231,
+   240,
+   245
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "01 card 1 title 'Confirm the hotel booking', ink top 229 left 66.7"
+ },
+ {
+  "id": "ink-3",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   339,
+   409,
+   405,
+   421
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "01 card 2 meta 'Marina Bay', ink right edge 405, top 407.7, w 65.7"
+ },
+ {
+  "id": "ink-4",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   151,
+   142,
+   216,
+   158
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "01 day header grey half 'Sunday', ink top 140.3 left 151 w 64.3, right of 'Today Aug 16' which ends at 143"
+ },
+ {
+  "id": "ink-5",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   59,
+   907,
+   90,
+   918
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "01 inactive tab label 'Home', ink top 906.3 left 59"
+ },
+ {
+  "id": "ink-btn",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   36,
+   70,
+   88,
+   86
+  ],
+  "only": "ink",
+  "bright": true,
+  "ink": 0.5,
+  "_": "02 Select All label inside the header pill x 20.5-122.5, so the box holds glyphs and pill fill only"
+ },
+ {
+  "id": "blue",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   372,
+   197,
+   394,
+   210
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "01 card 1 + Add label, ink top 197.3 left 372.9, right of the + glyph which ends at 366"
+ },
+ {
+  "id": "blue-2",
+  "img": "assets/refs/02.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 270,
+  "range": [
+   14,
+   26
+  ],
+  "_": "02 card 1 is the selected one: row 270 crosses its 2pt border at x 18"
+ },
+ {
+  "id": "green",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   357,
+   197,
+   392,
+   210
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "02 card 1 Added label, ink top 197.3 left 358, right of the check glyph which ends at 351"
+ },
+ {
+  "id": "green-2",
+  "img": "assets/refs/04.png",
+  "cmd": "sample",
+  "box": [
+   198,
+   446,
+   240,
+   459
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "04 card A Article chip label, ink top 447.7 left 198.7, inside the chip x 188.5-247.5"
+ },
+ {
+  "id": "amber",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   295,
+   435,
+   398,
+   448
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "01 card 2 Register pill label, ink top 435.7 left 295.7, right of the flag glyph which ends at 288.7"
+ },
+ {
+  "id": "red",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   56,
+   920,
+   240,
+   935
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "02 last card overdue date, ink top 922.3 left 56.7"
+ },
+ {
+  "id": "t-time",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   56,
+   23,
+   110,
+   42
+  ],
+  "bright": 90,
+  "_": "01 status bar clock '09:41', ink top 26 left 60.3, w 45.4; nothing else is in the left third of the bar"
+ },
+ {
+  "id": "t-nav",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   184,
+   75,
+   256,
+   93
+  ],
+  "bright": 90,
+  "_": "01 nav title 'Timeline', centred on 220 at ink top 77.3, w 66.3; the two header buttons are past x 376"
+ },
+ {
+  "id": "t-btn",
+  "img": "assets/refs/02.png",
+  "cmd": "bbox",
+  "box": [
+   362,
+   76,
+   406,
+   94
+  ],
+  "bright": 90,
+  "_": "02 header button label 'Done', centred in the pill x 348.2-419.5 at ink top 78.3, w 38"
+ },
+ {
+  "id": "t-nav-2",
+  "img": "assets/refs/03.png",
+  "cmd": "bbox",
+  "box": [
+   206,
+   72,
+   278,
+   92
+  ],
+  "bright": 90,
+  "_": "03 nav subtitle 'Tuesday', ink top 74.7 left 210, w 62.6; 'Jul 14' ends at 200"
+ },
+ {
+  "id": "t-day",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   16,
+   138,
+   146,
+   158
+  ],
+  "bright": 90,
+  "_": "01 day header 'Today Aug 16', ink top 140.3 left 18.7, w 124.3; 'Sunday' starts at 151"
+ },
+ {
+  "id": "t-day-2",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   148,
+   138,
+   218,
+   158
+  ],
+  "bright": 60,
+  "_": "01 day header 'Sunday', ink top 140.3 left 151, w 64.3; grey, so a lower threshold than the white half"
+ },
+ {
+  "id": "t-date",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   54,
+   194,
+   140,
+   212
+  ],
+  "bright": 80,
+  "_": "01 card 1 date 'Sun, Aug 16', ink top 197 left 56.7, w 80.6; the + Add pill starts at 345.5"
+ },
+ {
+  "id": "t-title",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   64,
+   227,
+   290,
+   247
+  ],
+  "bright": 80,
+  "_": "01 card 1 title 'Confirm the hotel booking', ink top 229 left 66.7; the ring glyph starts at 384"
+ },
+ {
+  "id": "t-big",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   346,
+   261,
+   408,
+   283
+  ],
+  "bright": 90,
+  "_": "01 card 1 time '17:10', ink top 264 left 350, w 55.3"
+ },
+ {
+  "id": "t-pill",
+  "img": "assets/refs/02.png",
+  "cmd": "bbox",
+  "box": [
+   284,
+   855,
+   398,
+   872
+  ],
+  "bright": 70,
+  "_": "02 card 4 'Register by Aug 19', ink top 858 left 286.7, w 108; the flag glyph ends at 279.3"
+ },
+ {
+  "id": "t-meta",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   336,
+   405,
+   408,
+   422
+  ],
+  "bright": 60,
+  "_": "01 card 2 'Marina Bay', ink right edge 405 top 407.7, w 65.7; the pin glyph ends at 332.3"
+ },
+ {
+  "id": "t-sub",
+  "img": "assets/refs/04.png",
+  "cmd": "bbox",
+  "box": [
+   54,
+   446,
+   186,
+   462
+  ],
+  "bright": 55,
+  "_": "04 card A 'sebastianraschka.com', ink top 448 left 56.7, w 124.3; the favicon ends at 50"
+ },
+ {
+  "id": "t-chip",
+  "img": "assets/refs/02.png",
+  "cmd": "bbox",
+  "box": [
+   177,
+   644,
+   264,
+   661
+  ],
+  "bright": 60,
+  "_": "02 card 3 duration chip 'All day - 8 days', ink top 647.3 left 179.7, w 80.3, inside the chip x 170.3-269.7"
+ },
+ {
+  "id": "t-tab",
+  "img": "assets/refs/04.png",
+  "cmd": "bbox",
+  "box": [
+   186,
+   879,
+   244,
+   895
+  ],
+  "bright": 90,
+  "_": "04 active tab label 'Collection', ink top 882.3 left 189.3, w 51.3; it is the white one"
+ },
+ {
+  "id": "t-body",
+  "img": "assets/refs/04.png",
+  "cmd": "bbox",
+  "box": [
+   32,
+   401,
+   398,
+   417
+  ],
+  "bright": 60,
+  "_": "04 card A description line 1, ink top 403 left 34.3, inside the card x 18-412"
+ },
+ {
+  "id": "t-code",
+  "img": "assets/refs/02.png",
+  "cmd": "bbox",
+  "box": [
+   32,
+   303,
+   64,
+   320
+  ],
+  "bright": 90,
+  "_": "02 card 1 origin code 'PKX', ink top 306.3 left 35, w 25"
+ },
+ {
+  "id": "t-code-2",
+  "img": "assets/refs/02.png",
+  "cmd": "bbox",
+  "box": [
+   344,
+   228,
+   400,
+   245
+  ],
+  "bright": 80,
+  "_": "02 card 1 PNR 'NDK7JZ', ink right edge 395.3 top 231, w 47.3; the tick glyph ends at 339.3"
+ },
+ {
+  "id": "t-place",
+  "img": "assets/refs/02.png",
+  "cmd": "bbox",
+  "box": [
+   298,
+   320,
+   408,
+   336
+  ],
+  "bright": 60,
+  "_": "02 card 1 'Singapore Changi', ink right edge 405 top 322.7, w 103.7; the left column ends at 140"
+ },
+ {
+  "id": "t-p5",
+  "img": "assets/refs/05.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   400,
+   58,
+   420
+  ],
+  "bright": 90,
+  "_": "05 hero code 'PKX', ink top 403 left 23.3, w 32.7; the arrow starts at 62"
+ },
+ {
+  "id": "t-p5-row",
+  "img": "assets/refs/05.png",
+  "cmd": "bbox",
+  "box": [
+   70,
+   448,
+   282,
+   467
+  ],
+  "bright": 90,
+  "_": "05 'Depart - Sun, Aug 2 - 9:00 AM', ink top 450.7 left 73.3, w 204; the plane glyph ends at 58.7"
+ },
+ {
+  "id": "gutter",
+  "img": "assets/refs/01.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 250,
+  "range": [
+   12,
+   26
+  ],
+  "_": "01 card 1 left edge at x 18: row 250 sits between the title and the tile, crossing only the border"
+ },
+ {
+  "id": "cal",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   31,
+   192,
+   52,
+   213
+  ],
+  "bright": 60,
+  "_": "01 card 1 calendar glyph, crops.json says x 34-49 y 194.7-209.7; the date text starts at 56.7"
+ },
+ {
+  "id": "tile",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   30,
+   220,
+   62,
+   251
+  ],
+  "bright": 40,
+  "_": "01 card 1 leading tile, crops.json says x 34-58 y 223.3-247.3; the title starts at 66.7"
+ },
+ {
+  "id": "pill",
+  "img": "assets/refs/01.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 350,
+  "range": [
+   805,
+   815
+  ],
+  "_": "01 last card 5-days pill, x 324.2-384.6 y 810.7-831: col 350 crosses the top edge at 810.7. Kept to that edge alone - the label's ink reaches x 350, so a longer range scores a glyph stroke instead of the pill."
+ }
+]

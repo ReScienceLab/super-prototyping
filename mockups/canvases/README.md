@@ -190,6 +190,32 @@ files sitting in the folder are invisible to the canvas.
   painted over five text classes without an error. `assets/art/` and
   `assets/art-gen/` are committed; the eight `ref-*` boards are
   gitignored, so a fresh clone has 13.
+- `snapaction-ios/`: the run to read when the screens are almost entirely
+  type. Six screens of SnapAction, five dark and one light sheet, rebuilt from
+  the captures inside its Figma file. 10 boards in three rows: a token board,
+  three evidence boards for 88 tokens, the six replicas, and the capture of
+  each column-for-column underneath. Mean absolute delta against those captures
+  is 1.29-2.34 levels (of 255) on the five device screens, better than any
+  other screenshot-sourced run here and reached without cropped artwork
+  carrying it. Its `README.md` records how: `ct()` models the line box, and the
+  residual one constant still misses is measured per token and does not follow
+  the size, so `t-code` at 13px wants its run 0.33pt higher while `t-meta` at
+  12.65px wants its own 0.23pt lower. It also records the `font:` shorthand
+  that silently resets `font-variant-numeric`, the probe showing Chrome does
+  not snap text to whole pixels, the token that a coverage solve dissolved back
+  into `--x-line`, and the Lanczos ringing that made four ink probes read 14 to
+  22 levels off with nothing wrong on the board. The sixth screen sits at 5.82
+  because 77% of its error is one 645px source asset resampled twice, and no
+  higher-resolution original exists. It is also the one run whose source app
+  could be read afterwards, so its README carries the only measurement-against-
+  ground-truth audit in the repo: 17 of 28 sampled colours are a named
+  `DSPalette` token to the level, three more are composites whose arithmetic
+  lands exactly, five are system material the app has no token for, and the
+  measured type sizes beat the source's own nominal point sizes 13 times out of
+  14. The one real error it caught was a corner radius, where a circular fit
+  read 14.5 against a specified 18 continuous and CSS 18px turned out to be
+  both truer and better. The six `ref-*` boards are gitignored, so a fresh
+  clone has 10.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so
