@@ -1,4 +1,0 @@
-# The app captures and the reference boards built from them stay local.
-# gen.py builds every other board without them.
-ref-*.html
-assets/refs/
