@@ -6,7 +6,7 @@ import {
   type TLShape,
 } from "tldraw";
 import { CANVAS_FILE_DEFAULT_SIZE } from "./CanvasFileShapeUtil";
-import { canvasFileHtml, canvasIconUrl, readCanvasLayout } from "./canvasLibrary";
+import { canvasIconUrl, readCanvasLayout, useCanvasFileHtml } from "./canvasLibrary";
 
 export const CANVAS_LINK_SHAPE_TYPE = "canvas-link" as const;
 
@@ -88,7 +88,7 @@ export function fitCover(
 // oxlint-disable-next-line react/only-export-components
 function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
   const { w, h, label, page, path } = shape.props;
-  const html = canvasFileHtml.get(path);
+  const html = useCanvasFileHtml(path);
   const icon = canvasIconUrl(page);
   const cover = fitCover(
     readCanvasLayout(page)?.coverBox ?? DEFAULT_COVER_BOX,

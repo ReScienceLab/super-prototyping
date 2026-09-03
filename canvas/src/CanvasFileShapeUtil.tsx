@@ -6,7 +6,7 @@ import {
   type TLShape,
   useIsEditing,
 } from "tldraw";
-import { canvasFileHtml } from "./canvasLibrary";
+import { hasCanvasFile, useCanvasFileHtml } from "./canvasLibrary";
 
 export const CANVAS_FILE_SHAPE_TYPE = "canvas-file" as const;
 // Matches the v1.14+ phone mockups' own canvas: .phone{430x932} + body{padding:24px}.
@@ -28,7 +28,7 @@ export type CanvasFileShape = TLShape<typeof CANVAS_FILE_SHAPE_TYPE>;
 // oxlint-disable-next-line react/only-export-components
 function CanvasFile({ shape }: { shape: CanvasFileShape }) {
   const isEditing = useIsEditing(shape.id);
-  const html = canvasFileHtml.get(shape.props.path);
+  const html = useCanvasFileHtml(shape.props.path);
 
   return (
     <HTMLContainer
@@ -54,7 +54,9 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
             pointerEvents: isEditing ? "auto" : "none",
           }}
         />
-      ) : (
+      ) : hasCanvasFile(shape.props.path) ? null : (
+        // A board that exists but is not in yet renders nothing, so the frame fills in when its
+        // chunk arrives rather than flashing an error first.
         <div style={{ padding: 16, font: "13px sans-serif", color: "#a33" }}>
           Missing source: {shape.props.path}
         </div>

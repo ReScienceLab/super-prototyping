@@ -1,12 +1,16 @@
+import { useEffect, useState } from "react";
+
 // Auto-discovers the boards dropped under mockups/canvases/<slug>/*.html, one folder per board
 // (a cloned app, a feature round, a design-system sheet). Each folder becomes a tldraw page; each
 // HTML file in it becomes one shape. Add or edit files there; nothing here needs to change.
-// `eager: true` keeps the HTML live through Vite HMR, so saving a mockup reloads it on the canvas.
-const rawFiles = import.meta.glob("../../mockups/canvases/*/*.html", {
-  eager: true,
+// Each file is its own lazy module, fetched the first time a shape on screen asks for it, so
+// opening the welcome page pulls a dozen covers rather than every board in the repo (the full
+// set is 25 MB of HTML, which a phone should not download to look at one page). Vite still
+// reloads the page when a mockup is saved, so the edit shows up on the canvas the same as before.
+const fileLoaders = import.meta.glob("../../mockups/canvases/*/*.html", {
   query: "?raw",
   import: "default",
-}) as Record<string, string>;
+}) as Record<string, () => Promise<string>>;
 
 // Optional mockups/canvases/<slug>/layout.json alongside the HTML files declares that board's
 // themed rows, so this tool's code never has to know one board's design content from another's.
@@ -115,8 +119,57 @@ function parse(path: string): CanvasLibraryFile | null {
   };
 }
 
-/** path -> raw HTML, read by CanvasFileShapeUtil at render time. */
-export const canvasFileHtml = new Map(Object.entries(rawFiles));
+/** path -> raw HTML for every file fetched so far. Filled by loadCanvasFileHtml. */
+export const canvasFileHtml = new Map<string, string>();
+const canvasFileLoads = new Map<string, Promise<string | undefined>>();
+
+/** Whether a discovered board exists at this path, loaded or not. */
+export function hasCanvasFile(path: string) {
+  return path in fileLoaders;
+}
+
+/** Fetches a board's HTML once and caches it; resolves undefined for a path that is not a board. */
+export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
+  const cached = canvasFileHtml.get(path);
+  if (cached !== undefined) return Promise.resolve(cached);
+  const loader = fileLoaders[path];
+  if (!loader) return Promise.resolve(undefined);
+  let load = canvasFileLoads.get(path);
+  if (!load) {
+    load = loader().then((html) => {
+      canvasFileHtml.set(path, html);
+      canvasFileLoads.delete(path);
+      return html;
+    });
+    canvasFileLoads.set(path, load);
+  }
+  return load;
+}
+
+/**
+ * A rendering shape's board HTML: undefined until its chunk arrives, then the string. tldraw only
+ * mounts components for shapes near the viewport, so this is what makes a page cost its own
+ * boards and nothing else.
+ */
+export function useCanvasFileHtml(path: string): string | undefined {
+  const [html, setHtml] = useState(() => canvasFileHtml.get(path));
+  useEffect(() => {
+    let live = true;
+    const cached = canvasFileHtml.get(path);
+    if (cached !== undefined) {
+      setHtml(cached);
+      return;
+    }
+    setHtml(undefined);
+    loadCanvasFileHtml(path).then((loaded) => {
+      if (live) setHtml(loaded);
+    });
+    return () => {
+      live = false;
+    };
+  }, [path]);
+  return html;
+}
 
 const LAYOUT_PATTERN = /canvases\/([^/]+)\/layout\.json$/;
 
@@ -143,7 +196,7 @@ export function canvasIconUrl(pageSlug: string) {
 /** Every discovered board, grouped by page and sorted by filename within it. */
 export function readCanvasLibrary(): CanvasLibraryFile[][] {
   const byPage = new Map<string, CanvasLibraryFile[]>();
-  for (const path of Object.keys(rawFiles)) {
+  for (const path of Object.keys(fileLoaders)) {
     const file = parse(path);
     if (!file) continue;
     const list = byPage.get(file.pageSlug) ?? [];
