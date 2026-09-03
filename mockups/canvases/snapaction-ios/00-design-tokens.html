@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SnapAction - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --sa-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --sa-bg:#000000;
+  --sa-card:#191919;
+  --sa-card-sel:#1E2230;
+  --sa-chip:#232323;
+  --sa-blue-bg:#1E2A47;
+  --sa-green-bg:#173626;
+  --sa-art-bg:#1E2F24;
+  --sa-amber-bg:#3C2A18;
+  --sa-detail:#1C1C1E;
+  --sa-bar:rgba(26,26,26,0.70);
+  --sa-white:#FFFFFF;
+
+  /* Line */
+  --sa-line:#2A2A2A;
+  --sa-line-2:#4E4E4E;
+  --sa-line-4:#343434;
+  --sa-hair:#323235;
+  --sa-hair-2:#3D3D41;
+  --sa-scroll:#7F7F7F;
+
+  /* Ink */
+  --sa-ink:#F7F6F2;
+  --sa-ink-2:#DEDCD6;
+  --sa-ink-3:#A9A6A0;
+  --sa-ink-4:#8A8781;
+  --sa-ink-5:#8E8E93;
+  --sa-ink-btn:#F3F3F3;
+
+  /* Accent */
+  --sa-blue:#6E92FF;
+  --sa-blue-2:#4A74FF;
+  --sa-green:#5BD68A;
+  --sa-green-2:#8FDCA8;
+  --sa-amber:#F0A468;
+  --sa-red:#FF7A6E;
+
+  /* Radius */
+  --sa-r-card:18px;
+  --sa-r-pill:999px;
+  --sa-r-phone:55px;
+  --sa-r-phone-xl:62px;
+
+  /* Type */
+  --sa-t-time:590 18px/18px var(--sa-font);
+  --sa-t-nav:600 17px/22px var(--sa-font);
+  --sa-t-btn:600 16px/20px var(--sa-font);
+  --sa-t-nav-2:400 17px/22px var(--sa-font);
+  --sa-t-day:700 20px/24px var(--sa-font);
+  --sa-t-day-2:400 20px/24px var(--sa-font);
+  --sa-t-date:600 14px/18px var(--sa-font);
+  --sa-t-title:600 14.95px/20px var(--sa-font);
+  --sa-t-big:700 21.5px/26px var(--sa-font);
+  --sa-t-pill:600 12px/16px var(--sa-font);
+  --sa-t-meta:400 12.65px/17px var(--sa-font);
+  --sa-t-sub:400 12px/16px var(--sa-font);
+  --sa-t-chip:400 11.3px/15px var(--sa-font);
+  --sa-t-tag:400 12.2px/16px var(--sa-font);
+  --sa-t-tag-2:500 12.2px/16px var(--sa-font);
+  --sa-t-tab:600 10.6px/13px var(--sa-font);
+  --sa-t-body:400 13px/18.7px var(--sa-font);
+  --sa-t-code:600 13px/17px var(--sa-font);
+  --sa-t-code-2:600 12px/16px var(--sa-font);
+  --sa-t-place:400 12.5px/15.4px var(--sa-font);
+  --sa-t-p5:700 16.8px/22px var(--sa-font);
+  --sa-t-p5-row:500 15.05px/20px var(--sa-font);
+  --sa-t-brand:600 30px/34.95px var(--sa-font);
+
+  /* Metrics */
+  --sa-w:430px;
+  --sa-h:932px;
+  --sa-w-xl:440px;
+  --sa-h-xl:956px;
+  --sa-gutter:18px;
+  --sa-pill:20.3px;
+  --sa-tile:24px;
+  --sa-cal:15px;
+
+  /* 06 light */
+  --sa-l-bg:#FFFFFF;
+  --sa-l-panel:#F7F7F9;
+  --sa-l-line:#E5E7EB;
+  --sa-l-ink:#111827;
+  --sa-l-ink-2:#374151;
+  --sa-l-ink-3:#6B7280;
+  --sa-l-ink-4:#9CA3AF;
+  --sa-l-blue:#007AFF;
+  --sa-l-cta:#1791FF;
+  --sa-l-link:#007BFE;
+  --sa-l-badge:#8CDEA5;
+  --sa-l-badge-ink:#0D401A;
+  --sa-t-l-title:700 14px/20px var(--sa-font);
+  --sa-t-l-link:400 12px/16px var(--sa-font);
+  --sa-t-l-desc:400 12px/18px var(--sa-font);
+  --sa-t-l-row:400 13.2px/18px var(--sa-font);
+  --sa-t-l-cta:600 15.9px/20px var(--sa-font);
+  --sa-t-l-menu:400 18px/18px var(--sa-font);
+  --sa-t-i-badge:600 9px/11px var(--sa-font);
+  --sa-t-i-line:500 12px/14px var(--sa-font);
+  --sa-t-i-cta:500 14px/17px var(--sa-font);
+  --sa-r-thumb:24px;
+  --sa-r-panel:10px;
+  --sa-r-island:42px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sa-font);-webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;width:478px;height:980px}
+.phone{position:relative;flex:none;width:var(--sa-w);height:var(--sa-h);
+  border-radius:var(--sa-r-phone);overflow:hidden;background:var(--sa-bg);color:var(--sa-ink);
+  box-shadow:0 0 0 10.5px #1D191A,0 0 0 12px #3A3735;transform:scale(1.02575)}
+.phone.xl{width:var(--sa-w-xl);height:var(--sa-h-xl);border-radius:var(--sa-r-phone-xl);
+  transform:none}
+.phone>*{position:absolute}
+img.a{display:block;z-index:2}
+img.a.rd{border-radius:50%}
+.t{white-space:nowrap;z-index:3}
+.card{background:var(--sa-card);border:1px solid var(--sa-line);border-radius:var(--sa-r-card)}
+.card.sel{background:var(--sa-card-sel);border:2px solid var(--sa-blue-2)}
+.sh{z-index:1}
+.pill{border-radius:var(--sa-r-pill)}
+.fab{background:var(--sa-white);border-radius:50%;z-index:5}
+body{padding:0;background:var(--sa-bg);color:var(--sa-ink)}
+.sheet{width:478px;height:980px;padding:16px;overflow:hidden}
+h1{font:600 17px/22px var(--sa-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--sa-font);color:var(--sa-ink-3);margin-bottom:9px}
+h2{font:600 9px/12px var(--sa-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--sa-ink-3);margin:7px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.sw .chip{height:20px;border-radius:5px;border:1px solid var(--sa-line)}
+.sw b{display:block;margin-top:2px;font:600 8px/10px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 7.5px/10px ui-monospace,Menlo,monospace;
+  color:var(--sa-ink-4);font-style:normal}
+.foot{display:flex;gap:26px;align-items:flex-start;margin-top:10px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:8px}
+.rb{width:38px;height:24px;background:var(--sa-card);border:1px solid var(--sa-line-2)}
+.rad em{display:block;margin-top:2px;font:400 8px/11px var(--sa-font);
+  color:var(--sa-ink-4);font-style:normal;text-align:center}
+.ty{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  padding-bottom:1px;border-bottom:1px solid var(--sa-line)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 7.5px/10px ui-monospace,Menlo,monospace;color:var(--sa-ink-4);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--sa-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--sa-line);font:400 8.5px/11px var(--sa-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--sa-blue)}
+td.v{color:var(--sa-ink);max-width:132px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--sa-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>SnapAction</h1><p>Six App Store frames from one Figma file, five of them device captures at 3.0 px per pt, one a partial render of the node itself. 89 tokens.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--sa-bg)"></div><b>bg</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--sa-card)"></div><b>card</b><i>#191919</i></div><div class="sw"><div class="chip" style="background:var(--sa-card-sel)"></div><b>card-sel</b><i>#1E2230</i></div><div class="sw"><div class="chip" style="background:var(--sa-chip)"></div><b>chip</b><i>#232323</i></div><div class="sw"><div class="chip" style="background:var(--sa-blue-bg)"></div><b>blue-bg</b><i>#1E2A47</i></div><div class="sw"><div class="chip" style="background:var(--sa-green-bg)"></div><b>green-bg</b><i>#173626</i></div><div class="sw"><div class="chip" style="background:var(--sa-art-bg)"></div><b>art-bg</b><i>#1E2F24</i></div><div class="sw"><div class="chip" style="background:var(--sa-amber-bg)"></div><b>amber-bg</b><i>#3C2A18</i></div><div class="sw"><div class="chip" style="background:var(--sa-detail)"></div><b>detail</b><i>#1C1C1E</i></div><div class="sw"><div class="chip" style="background:var(--sa-white)"></div><b>white</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--sa-line)"></div><b>line</b><i>#2A2A2A</i></div><div class="sw"><div class="chip" style="background:var(--sa-line-2)"></div><b>line-2</b><i>#4E4E4E</i></div><div class="sw"><div class="chip" style="background:var(--sa-line-4)"></div><b>line-4</b><i>#343434</i></div><div class="sw"><div class="chip" style="background:var(--sa-hair)"></div><b>hair</b><i>#323235</i></div><div class="sw"><div class="chip" style="background:var(--sa-hair-2)"></div><b>hair-2</b><i>#3D3D41</i></div><div class="sw"><div class="chip" style="background:var(--sa-scroll)"></div><b>scroll</b><i>#7F7F7F</i></div><div class="sw"><div class="chip" style="background:var(--sa-ink)"></div><b>ink</b><i>#F7F6F2</i></div><div class="sw"><div class="chip" style="background:var(--sa-ink-2)"></div><b>ink-2</b><i>#DEDCD6</i></div><div class="sw"><div class="chip" style="background:var(--sa-ink-3)"></div><b>ink-3</b><i>#A9A6A0</i></div><div class="sw"><div class="chip" style="background:var(--sa-ink-4)"></div><b>ink-4</b><i>#8A8781</i></div><div class="sw"><div class="chip" style="background:var(--sa-ink-5)"></div><b>ink-5</b><i>#8E8E93</i></div><div class="sw"><div class="chip" style="background:var(--sa-ink-btn)"></div><b>ink-btn</b><i>#F3F3F3</i></div><div class="sw"><div class="chip" style="background:var(--sa-blue)"></div><b>blue</b><i>#6E92FF</i></div><div class="sw"><div class="chip" style="background:var(--sa-blue-2)"></div><b>blue-2</b><i>#4A74FF</i></div><div class="sw"><div class="chip" style="background:var(--sa-green)"></div><b>green</b><i>#5BD68A</i></div><div class="sw"><div class="chip" style="background:var(--sa-green-2)"></div><b>green-2</b><i>#8FDCA8</i></div><div class="sw"><div class="chip" style="background:var(--sa-amber)"></div><b>amber</b><i>#F0A468</i></div><div class="sw"><div class="chip" style="background:var(--sa-red)"></div><b>red</b><i>#FF7A6E</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-bg)"></div><b>l-bg</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-panel)"></div><b>l-panel</b><i>#F7F7F9</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-line)"></div><b>l-line</b><i>#E5E7EB</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-ink)"></div><b>l-ink</b><i>#111827</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-ink-2)"></div><b>l-ink-2</b><i>#374151</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-ink-3)"></div><b>l-ink-3</b><i>#6B7280</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-ink-4)"></div><b>l-ink-4</b><i>#9CA3AF</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-blue)"></div><b>l-blue</b><i>#007AFF</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-cta)"></div><b>l-cta</b><i>#1791FF</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-link)"></div><b>l-link</b><i>#007BFE</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-badge)"></div><b>l-badge</b><i>#8CDEA5</i></div><div class="sw"><div class="chip" style="background:var(--sa-l-badge-ink)"></div><b>l-badge-ink</b><i>#0D401A</i></div></div><div class="foot"><div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:18px"></div><em>18px</em></div><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div><div><div class="rb" style="border-radius:24px"></div><em>24px</em></div><div><div class="rb" style="border-radius:10px"></div><em>10px</em></div><div><div class="rb" style="border-radius:42px"></div><em>42px</em></div></div></div><div><h2>Metrics</h2><div class="met">--sa-bar: rgba(26,26,26,0.70)<br>--sa-w: 430px<br>--sa-h: 932px<br>--sa-w-xl: 440px<br>--sa-h-xl: 956px<br>--sa-gutter: 18px<br>--sa-pill: 20.3px<br>--sa-tile: 24px<br>--sa-cal: 15px</div></div></div><h2>Type</h2><div class="ty"><div class="tr"><span style="font:var(--sa-t-time);line-height:1.15">Sun, Aug 16</span><em>t-time</em></div><div class="tr"><span style="font:var(--sa-t-nav);line-height:1.15">Sun, Aug 16</span><em>t-nav</em></div><div class="tr"><span style="font:var(--sa-t-btn);line-height:1.15">Sun, Aug 16</span><em>t-btn</em></div><div class="tr"><span style="font:var(--sa-t-nav-2);line-height:1.15">Sun, Aug 16</span><em>t-nav-2</em></div><div class="tr"><span style="font:var(--sa-t-day);line-height:1.15">Sun, Aug 16</span><em>t-day</em></div><div class="tr"><span style="font:var(--sa-t-day-2);line-height:1.15">Sun, Aug 16</span><em>t-day-2</em></div><div class="tr"><span style="font:var(--sa-t-date);line-height:1.15">Sun, Aug 16</span><em>t-date</em></div><div class="tr"><span style="font:var(--sa-t-title);line-height:1.15">Sun, Aug 16</span><em>t-title</em></div><div class="tr"><span style="font:var(--sa-t-big);line-height:1.15">Sun, Aug 16</span><em>t-big</em></div><div class="tr"><span style="font:var(--sa-t-pill);line-height:1.15">Sun, Aug 16</span><em>t-pill</em></div><div class="tr"><span style="font:var(--sa-t-meta);line-height:1.15">Sun, Aug 16</span><em>t-meta</em></div><div class="tr"><span style="font:var(--sa-t-sub);line-height:1.15">Sun, Aug 16</span><em>t-sub</em></div><div class="tr"><span style="font:var(--sa-t-chip);line-height:1.15">Sun, Aug 16</span><em>t-chip</em></div><div class="tr"><span style="font:var(--sa-t-tag);line-height:1.15">Sun, Aug 16</span><em>t-tag</em></div><div class="tr"><span style="font:var(--sa-t-tag-2);line-height:1.15">Sun, Aug 16</span><em>t-tag-2</em></div><div class="tr"><span style="font:var(--sa-t-tab);line-height:1.15">Sun, Aug 16</span><em>t-tab</em></div><div class="tr"><span style="font:var(--sa-t-body);line-height:1.15">Sun, Aug 16</span><em>t-body</em></div><div class="tr"><span style="font:var(--sa-t-code);line-height:1.15">Sun, Aug 16</span><em>t-code</em></div><div class="tr"><span style="font:var(--sa-t-code-2);line-height:1.15">Sun, Aug 16</span><em>t-code-2</em></div><div class="tr"><span style="font:var(--sa-t-place);line-height:1.15">Sun, Aug 16</span><em>t-place</em></div><div class="tr"><span style="font:var(--sa-t-p5);line-height:1.15">Sun, Aug 16</span><em>t-p5</em></div><div class="tr"><span style="font:var(--sa-t-p5-row);line-height:1.15">Sun, Aug 16</span><em>t-p5-row</em></div><div class="tr"><span style="font:var(--sa-t-brand);line-height:1.15">Sun, Aug 16</span><em>t-brand</em></div><div class="tr"><span style="font:var(--sa-t-l-title);line-height:1.15">Sun, Aug 16</span><em>t-l-title</em></div><div class="tr"><span style="font:var(--sa-t-l-link);line-height:1.15">Sun, Aug 16</span><em>t-l-link</em></div><div class="tr"><span style="font:var(--sa-t-l-desc);line-height:1.15">Sun, Aug 16</span><em>t-l-desc</em></div><div class="tr"><span style="font:var(--sa-t-l-row);line-height:1.15">Sun, Aug 16</span><em>t-l-row</em></div><div class="tr"><span style="font:var(--sa-t-l-cta);line-height:1.15">Sun, Aug 16</span><em>t-l-cta</em></div><div class="tr"><span style="font:var(--sa-t-l-menu);line-height:1.15">Sun, Aug 16</span><em>t-l-menu</em></div><div class="tr"><span style="font:var(--sa-t-i-badge);line-height:1.15">Sun, Aug 16</span><em>t-i-badge</em></div><div class="tr"><span style="font:var(--sa-t-i-line);line-height:1.15">Sun, Aug 16</span><em>t-i-line</em></div><div class="tr"><span style="font:var(--sa-t-i-cta);line-height:1.15">Sun, Aug 16</span><em>t-i-cta</em></div></div></div>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SnapAction - Evidence 2/3</title>
+<style>
+:root{
+  /* Font */
+  --sa-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --sa-bg:#000000;
+  --sa-card:#191919;
+  --sa-card-sel:#1E2230;
+  --sa-chip:#232323;
+  --sa-blue-bg:#1E2A47;
+  --sa-green-bg:#173626;
+  --sa-art-bg:#1E2F24;
+  --sa-amber-bg:#3C2A18;
+  --sa-detail:#1C1C1E;
+  --sa-bar:rgba(26,26,26,0.70);
+  --sa-white:#FFFFFF;
+
+  /* Line */
+  --sa-line:#2A2A2A;
+  --sa-line-2:#4E4E4E;
+  --sa-line-4:#343434;
+  --sa-hair:#323235;
+  --sa-hair-2:#3D3D41;
+  --sa-scroll:#7F7F7F;
+
+  /* Ink */
+  --sa-ink:#F7F6F2;
+  --sa-ink-2:#DEDCD6;
+  --sa-ink-3:#A9A6A0;
+  --sa-ink-4:#8A8781;
+  --sa-ink-5:#8E8E93;
+  --sa-ink-btn:#F3F3F3;
+
+  /* Accent */
+  --sa-blue:#6E92FF;
+  --sa-blue-2:#4A74FF;
+  --sa-green:#5BD68A;
+  --sa-green-2:#8FDCA8;
+  --sa-amber:#F0A468;
+  --sa-red:#FF7A6E;
+
+  /* Radius */
+  --sa-r-card:18px;
+  --sa-r-pill:999px;
+  --sa-r-phone:55px;
+  --sa-r-phone-xl:62px;
+
+  /* Type */
+  --sa-t-time:590 18px/18px var(--sa-font);
+  --sa-t-nav:600 17px/22px var(--sa-font);
+  --sa-t-btn:600 16px/20px var(--sa-font);
+  --sa-t-nav-2:400 17px/22px var(--sa-font);
+  --sa-t-day:700 20px/24px var(--sa-font);
+  --sa-t-day-2:400 20px/24px var(--sa-font);
+  --sa-t-date:600 14px/18px var(--sa-font);
+  --sa-t-title:600 14.95px/20px var(--sa-font);
+  --sa-t-big:700 21.5px/26px var(--sa-font);
+  --sa-t-pill:600 12px/16px var(--sa-font);
+  --sa-t-meta:400 12.65px/17px var(--sa-font);
+  --sa-t-sub:400 12px/16px var(--sa-font);
+  --sa-t-chip:400 11.3px/15px var(--sa-font);
+  --sa-t-tag:400 12.2px/16px var(--sa-font);
+  --sa-t-tag-2:500 12.2px/16px var(--sa-font);
+  --sa-t-tab:600 10.6px/13px var(--sa-font);
+  --sa-t-body:400 13px/18.7px var(--sa-font);
+  --sa-t-code:600 13px/17px var(--sa-font);
+  --sa-t-code-2:600 12px/16px var(--sa-font);
+  --sa-t-place:400 12.5px/15.4px var(--sa-font);
+  --sa-t-p5:700 16.8px/22px var(--sa-font);
+  --sa-t-p5-row:500 15.05px/20px var(--sa-font);
+  --sa-t-brand:600 30px/34.95px var(--sa-font);
+
+  /* Metrics */
+  --sa-w:430px;
+  --sa-h:932px;
+  --sa-w-xl:440px;
+  --sa-h-xl:956px;
+  --sa-gutter:18px;
+  --sa-pill:20.3px;
+  --sa-tile:24px;
+  --sa-cal:15px;
+
+  /* 06 light */
+  --sa-l-bg:#FFFFFF;
+  --sa-l-panel:#F7F7F9;
+  --sa-l-line:#E5E7EB;
+  --sa-l-ink:#111827;
+  --sa-l-ink-2:#374151;
+  --sa-l-ink-3:#6B7280;
+  --sa-l-ink-4:#9CA3AF;
+  --sa-l-blue:#007AFF;
+  --sa-l-cta:#1791FF;
+  --sa-l-link:#007BFE;
+  --sa-l-badge:#8CDEA5;
+  --sa-l-badge-ink:#0D401A;
+  --sa-t-l-title:700 14px/20px var(--sa-font);
+  --sa-t-l-link:400 12px/16px var(--sa-font);
+  --sa-t-l-desc:400 12px/18px var(--sa-font);
+  --sa-t-l-row:400 13.2px/18px var(--sa-font);
+  --sa-t-l-cta:600 15.9px/20px var(--sa-font);
+  --sa-t-l-menu:400 18px/18px var(--sa-font);
+  --sa-t-i-badge:600 9px/11px var(--sa-font);
+  --sa-t-i-line:500 12px/14px var(--sa-font);
+  --sa-t-i-cta:500 14px/17px var(--sa-font);
+  --sa-r-thumb:24px;
+  --sa-r-panel:10px;
+  --sa-r-island:42px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sa-font);-webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;width:478px;height:980px}
+.phone{position:relative;flex:none;width:var(--sa-w);height:var(--sa-h);
+  border-radius:var(--sa-r-phone);overflow:hidden;background:var(--sa-bg);color:var(--sa-ink);
+  box-shadow:0 0 0 10.5px #1D191A,0 0 0 12px #3A3735;transform:scale(1.02575)}
+.phone.xl{width:var(--sa-w-xl);height:var(--sa-h-xl);border-radius:var(--sa-r-phone-xl);
+  transform:none}
+.phone>*{position:absolute}
+img.a{display:block;z-index:2}
+img.a.rd{border-radius:50%}
+.t{white-space:nowrap;z-index:3}
+.card{background:var(--sa-card);border:1px solid var(--sa-line);border-radius:var(--sa-r-card)}
+.card.sel{background:var(--sa-card-sel);border:2px solid var(--sa-blue-2)}
+.sh{z-index:1}
+.pill{border-radius:var(--sa-r-pill)}
+.fab{background:var(--sa-white);border-radius:50%;z-index:5}
+body{padding:0;background:var(--sa-bg);color:var(--sa-ink)}
+.sheet{width:478px;height:980px;padding:16px;overflow:hidden}
+h1{font:600 17px/22px var(--sa-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--sa-font);color:var(--sa-ink-3);margin-bottom:9px}
+h2{font:600 9px/12px var(--sa-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--sa-ink-3);margin:7px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.sw .chip{height:20px;border-radius:5px;border:1px solid var(--sa-line)}
+.sw b{display:block;margin-top:2px;font:600 8px/10px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 7.5px/10px ui-monospace,Menlo,monospace;
+  color:var(--sa-ink-4);font-style:normal}
+.foot{display:flex;gap:26px;align-items:flex-start;margin-top:10px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:8px}
+.rb{width:38px;height:24px;background:var(--sa-card);border:1px solid var(--sa-line-2)}
+.rad em{display:block;margin-top:2px;font:400 8px/11px var(--sa-font);
+  color:var(--sa-ink-4);font-style:normal;text-align:center}
+.ty{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  padding-bottom:1px;border-bottom:1px solid var(--sa-line)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 7.5px/10px ui-monospace,Menlo,monospace;color:var(--sa-ink-4);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--sa-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--sa-line);font:400 8.5px/11px var(--sa-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--sa-blue)}
+td.v{color:var(--sa-ink);max-width:132px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--sa-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 2/3</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--sa-ink-btn</td><td class="v">#F3F3F3</td><td class="e">brightest 0.5% of the 02 Select All label; the nav title on the same screen reads #F7F6F2, so this is a second ink. Four levels off DSPalette.ink dark #F4F3EF, which is near enough to say the button is system material rather than the token</td></tr><tr><td class="t">--sa-blue</td><td class="v">#6E92FF</td><td class="e">DSPalette.actionBlue, dark, and the same hex as link and pinned: one value, three names. The mode of the + Add label core agrees exactly</td></tr><tr><td class="t">--sa-blue-2</td><td class="v">#4A74FF</td><td class="e">DSPalette.accent, dark, which cardSurface strokes at DSStroke.selection = 2pt when selected; scan row 270 on 02 returned that value on a 2pt border</td></tr><tr><td class="t">--sa-green</td><td class="v">#5BD68A</td><td class="e">DSPalette.success, dark; the mode of the Added label core agrees exactly</td></tr><tr><td class="t">--sa-green-2</td><td class="v">#8FDCA8</td><td class="e">DSTypeBadge article text, dark; the mode of the 04 Article chip label core agrees exactly</td></tr><tr><td class="t">--sa-amber</td><td class="v">#F0A468</td><td class="e">DSPalette.pending, dark, which is also the website badge text; the mode of the 01 Register pill border and label core agrees exactly</td></tr><tr><td class="t">--sa-red</td><td class="v">#FF7A6E</td><td class="e">DSPalette.alert, dark; the mode of the 02 overdue date core agrees exactly</td></tr><tr><td class="t">--sa-r-card</td><td class="v">18px</td><td class="e">DSRadius.card = 18, style .continuous, on every time card and on the 05 detail card. A circular fit on four 01 corners said 14.5 and it is wrong: 18px takes the four card screens from 1.58/2.28/2.38/1.36 to 1.54/2.15/2.34/1.33. The 05 fit had already landed on 18</td></tr><tr><td class="t">--sa-r-pill</td><td class="v">999px</td><td class="e">by construction: every pill measures h/2. The source asks for DSTimeCard.actionChipRadius = 8 continuous, whose shoulder runs 1.53*8 = 12.2pt in from each corner and so overruns a 20.3pt chip; setting 8px costs 0.04</td></tr><tr><td class="t">--sa-r-phone</td><td class="v">55px</td><td class="e">circular stand-in for the 430x932 continuous display corner</td></tr><tr><td class="t">--sa-r-phone-xl</td><td class="v">62px</td><td class="e">circular stand-in for the 440x956 continuous display corner</td></tr><tr><td class="t">--sa-t-time</td><td class="v">590 18px/18px</td><td class="e">rendered-width fit: "09:41" 45.4 -> 45.7</td></tr><tr><td class="t">--sa-t-nav</td><td class="v">600 17px/22px</td><td class="e">rendered-width fit: "Timeline" 66.3 -> 66.7</td></tr><tr><td class="t">--sa-t-btn</td><td class="v">600 16px/20px</td><td class="e">rendered-width fit: "Done" 38.0 -> 38.0, cap 12.0 -> 12.0</td></tr><tr><td class="t">--sa-t-nav-2</td><td class="v">400 17px/22px</td><td class="e">rendered-width fit: "Tuesday" 62.6 -> 63.0</td></tr><tr><td class="t">--sa-t-day</td><td class="v">700 20px/24px</td><td class="e">rendered-width fit: "Today Aug 16" 124.3 -> 124.7</td></tr><tr><td class="t">--sa-t-day-2</td><td class="v">400 20px/24px</td><td class="e">rendered-width fit: "Sunday" 64.3 -> 64.7</td></tr><tr><td class="t">--sa-t-date</td><td class="v">600 14px/18px</td><td class="e">rendered-width fit: "Sun, Aug 16" 80.6 -> 79.0</td></tr><tr><td class="t">--sa-t-title</td><td class="v">600 14.95px/20px</td><td class="e">render fit over 01/02/03: at 15px every title sets 0.3% wide</td></tr><tr><td class="t">--sa-t-big</td><td class="v">700 21.5px/26px</td><td class="e">tabular figures, tracking -0.8px: "17:10" 55.3 -> 55.3, "Aug 3" 54.4 -> 54.3</td></tr><tr><td class="t">--sa-t-pill</td><td class="v">600 12px/16px</td><td class="e">rendered-width fit: "Register by Aug 19" 108.0 -> 109.0</td></tr><tr><td class="t">--sa-t-meta</td><td class="v">400 12.65px/17px</td><td class="e">render fit over 01/02/03: at 13px every meta line sets ~2.5% wide</td></tr><tr><td class="t">--sa-t-sub</td><td class="v">400 12px/16px</td><td class="e">rendered-width fit: "sebastianraschka.com" 124.3 -> 124.7</td></tr><tr><td class="t">--sa-t-chip</td><td class="v">400 11.3px/15px</td><td class="e">render fit over 02: at 11.5px "All day &middot; 8 days" sets 81.7 against 80.3 and "45 mins" 42.7 against 42.0, the same 1.7% on both</td></tr><tr><td class="t">--sa-t-tag</td><td class="v">400 12.2px/16px</td><td class="e">04's saved-article tags are not the duration chip: "amazon-science" measures 94.0 and 11.5px sets 88.7, so the tag runs 6% larger</td></tr><tr><td class="t">--sa-t-tag-2</td><td class="v">500 12.2px/16px</td><td class="e">the green Article tag sets 38.0 on both cards, 9% over the grey tags beside it at the same size, which weight and not size accounts for</td></tr><tr><td class="t">--sa-t-tab</td><td class="v">600 10.6px/13px</td><td class="e">render fit over 01/04: at 10px both tab rows set 6% narrow</td></tr><tr><td class="t">--sa-t-body</td><td class="v">400 13px/18.7px</td><td class="e">refkit bands pitch on the 04 description: 18.7</td></tr><tr><td class="t">--sa-t-code</td><td class="v">600 13px/17px</td><td class="e">rendered-width fit: "PKX" 25.0 -> 25.3, cap 9.4 -> 9.3</td></tr><tr><td class="t">--sa-t-code-2</td><td class="v">600 12px/16px</td><td class="e">Font.dsMetaInteractive = .caption.semibold = 12/600; the rendered-width fit had said 12.5 ("NDK7JZ" 47.3 -> 47.7) and 12 scores 0.02 better</td></tr><tr><td class="t">--sa-t-place</td><td class="v">400 12.5px/15.4px</td><td class="e">rendered-width fit: "Singapore Changi" 103.7 -> 102.3; bands pitch 15.4</td></tr><tr><td class="t">--sa-t-p5</td><td class="v">700 16.8px/22px</td><td class="e">render fit: "PKX" 32.7, which 17px sets to 33.0</td></tr><tr><td class="t">--sa-t-p5-row</td><td class="v">500 15.05px/20px</td><td class="e">render fit over 05: at 15px the whole detail sheet sets 0.3% narrow</td></tr></table></div>
+</body>
+</html>

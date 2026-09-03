@@ -1,0 +1,4 @@
+# Whole app screens, not component art: the six captures and the reference
+# boards built from them. assets/art/ is the opposite case and is committed.
+assets/refs/
+ref-*.html

@@ -1,0 +1,128 @@
+{
+  "name": "(example) SnapAction iOS",
+  "cover": "06-view-resource",
+  "coverBox": [
+    18.46,
+    12.0,
+    441.07,
+    956.0
+  ],
+  "order": -1,
+  "rows": [
+    {
+      "title": "The app this replicates, which is ours",
+      "files": [
+        {
+          "file": "00a-product",
+          "label": "SnapAction",
+          "w": 2152,
+          "h": 460
+        }
+      ],
+      "links": [
+        {
+          "label": "snapaction.ai",
+          "url": "https://snapaction.ai/"
+        },
+        {
+          "label": "Download on the App Store",
+          "url": "https://apps.apple.com/app/id6759501517"
+        }
+      ]
+    },
+    {
+      "title": "Launch, replicated from the app's source, not a capture",
+      "files": [
+        {
+          "file": "00-launch-light",
+          "label": "Light"
+        },
+        {
+          "file": "00-launch-dark",
+          "label": "Dark"
+        }
+      ]
+    },
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-timeline",
+          "label": "Timeline"
+        },
+        {
+          "file": "02-batch-select",
+          "label": "Batch select"
+        },
+        {
+          "file": "03-agenda",
+          "label": "Agenda"
+        },
+        {
+          "file": "04-collection",
+          "label": "Collection"
+        },
+        {
+          "file": "05-resource-detail",
+          "label": "Resource detail"
+        },
+        {
+          "file": "06-view-resource",
+          "label": "View resource"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: the Figma file's captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-timeline",
+          "label": "Timeline"
+        },
+        {
+          "file": "ref-02-batch-select",
+          "label": "Batch select"
+        },
+        {
+          "file": "ref-03-agenda",
+          "label": "Agenda"
+        },
+        {
+          "file": "ref-04-collection",
+          "label": "Collection"
+        },
+        {
+          "file": "ref-05-resource-detail",
+          "label": "Resource detail"
+        },
+        {
+          "file": "ref-06-view-resource",
+          "label": "View resource"
+        }
+      ]
+    }
+  ]
+}

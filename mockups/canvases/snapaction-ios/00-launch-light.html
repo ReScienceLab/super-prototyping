@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SnapAction - Launch, light</title>
+<style>
+:root{
+  /* Font */
+  --sa-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --sa-bg:#000000;
+  --sa-card:#191919;
+  --sa-card-sel:#1E2230;
+  --sa-chip:#232323;
+  --sa-blue-bg:#1E2A47;
+  --sa-green-bg:#173626;
+  --sa-art-bg:#1E2F24;
+  --sa-amber-bg:#3C2A18;
+  --sa-detail:#1C1C1E;
+  --sa-bar:rgba(26,26,26,0.70);
+  --sa-white:#FFFFFF;
+
+  /* Line */
+  --sa-line:#2A2A2A;
+  --sa-line-2:#4E4E4E;
+  --sa-line-4:#343434;
+  --sa-hair:#323235;
+  --sa-hair-2:#3D3D41;
+  --sa-scroll:#7F7F7F;
+
+  /* Ink */
+  --sa-ink:#F7F6F2;
+  --sa-ink-2:#DEDCD6;
+  --sa-ink-3:#A9A6A0;
+  --sa-ink-4:#8A8781;
+  --sa-ink-5:#8E8E93;
+  --sa-ink-btn:#F3F3F3;
+
+  /* Accent */
+  --sa-blue:#6E92FF;
+  --sa-blue-2:#4A74FF;
+  --sa-green:#5BD68A;
+  --sa-green-2:#8FDCA8;
+  --sa-amber:#F0A468;
+  --sa-red:#FF7A6E;
+
+  /* Radius */
+  --sa-r-card:18px;
+  --sa-r-pill:999px;
+  --sa-r-phone:55px;
+  --sa-r-phone-xl:62px;
+
+  /* Type */
+  --sa-t-time:590 18px/18px var(--sa-font);
+  --sa-t-nav:600 17px/22px var(--sa-font);
+  --sa-t-btn:600 16px/20px var(--sa-font);
+  --sa-t-nav-2:400 17px/22px var(--sa-font);
+  --sa-t-day:700 20px/24px var(--sa-font);
+  --sa-t-day-2:400 20px/24px var(--sa-font);
+  --sa-t-date:600 14px/18px var(--sa-font);
+  --sa-t-title:600 14.95px/20px var(--sa-font);
+  --sa-t-big:700 21.5px/26px var(--sa-font);
+  --sa-t-pill:600 12px/16px var(--sa-font);
+  --sa-t-meta:400 12.65px/17px var(--sa-font);
+  --sa-t-sub:400 12px/16px var(--sa-font);
+  --sa-t-chip:400 11.3px/15px var(--sa-font);
+  --sa-t-tag:400 12.2px/16px var(--sa-font);
+  --sa-t-tag-2:500 12.2px/16px var(--sa-font);
+  --sa-t-tab:600 10.6px/13px var(--sa-font);
+  --sa-t-body:400 13px/18.7px var(--sa-font);
+  --sa-t-code:600 13px/17px var(--sa-font);
+  --sa-t-code-2:600 12px/16px var(--sa-font);
+  --sa-t-place:400 12.5px/15.4px var(--sa-font);
+  --sa-t-p5:700 16.8px/22px var(--sa-font);
+  --sa-t-p5-row:500 15.05px/20px var(--sa-font);
+  --sa-t-brand:600 30px/34.95px var(--sa-font);
+
+  /* Metrics */
+  --sa-w:430px;
+  --sa-h:932px;
+  --sa-w-xl:440px;
+  --sa-h-xl:956px;
+  --sa-gutter:18px;
+  --sa-pill:20.3px;
+  --sa-tile:24px;
+  --sa-cal:15px;
+
+  /* 06 light */
+  --sa-l-bg:#FFFFFF;
+  --sa-l-panel:#F7F7F9;
+  --sa-l-line:#E5E7EB;
+  --sa-l-ink:#111827;
+  --sa-l-ink-2:#374151;
+  --sa-l-ink-3:#6B7280;
+  --sa-l-ink-4:#9CA3AF;
+  --sa-l-blue:#007AFF;
+  --sa-l-cta:#1791FF;
+  --sa-l-link:#007BFE;
+  --sa-l-badge:#8CDEA5;
+  --sa-l-badge-ink:#0D401A;
+  --sa-t-l-title:700 14px/20px var(--sa-font);
+  --sa-t-l-link:400 12px/16px var(--sa-font);
+  --sa-t-l-desc:400 12px/18px var(--sa-font);
+  --sa-t-l-row:400 13.2px/18px var(--sa-font);
+  --sa-t-l-cta:600 15.9px/20px var(--sa-font);
+  --sa-t-l-menu:400 18px/18px var(--sa-font);
+  --sa-t-i-badge:600 9px/11px var(--sa-font);
+  --sa-t-i-line:500 12px/14px var(--sa-font);
+  --sa-t-i-cta:500 14px/17px var(--sa-font);
+  --sa-r-thumb:24px;
+  --sa-r-panel:10px;
+  --sa-r-island:42px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sa-font);-webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;width:478px;height:980px}
+.phone{position:relative;flex:none;width:var(--sa-w);height:var(--sa-h);
+  border-radius:var(--sa-r-phone);overflow:hidden;background:var(--sa-bg);color:var(--sa-ink);
+  box-shadow:0 0 0 10.5px #1D191A,0 0 0 12px #3A3735;transform:scale(1.02575)}
+.phone.xl{width:var(--sa-w-xl);height:var(--sa-h-xl);border-radius:var(--sa-r-phone-xl);
+  transform:none}
+.phone>*{position:absolute}
+img.a{display:block;z-index:2}
+img.a.rd{border-radius:50%}
+.t{white-space:nowrap;z-index:3}
+.card{background:var(--sa-card);border:1px solid var(--sa-line);border-radius:var(--sa-r-card)}
+.card.sel{background:var(--sa-card-sel);border:2px solid var(--sa-blue-2)}
+.sh{z-index:1}
+.pill{border-radius:var(--sa-r-pill)}
+.fab{background:var(--sa-white);border-radius:50%;z-index:5}
+.phone.lt{background:var(--sa-l-bg)}
+.lk{position:absolute;left:0;right:0;top:455.20px;height:46.60px;display:flex;
+  align-items:flex-start;justify-content:center;gap:12.0px;color:var(--sa-white)}
+.phone.lt .lk{color:var(--sa-bg)}
+.mk{flex:none;margin-top:9.90px;fill:currentColor}
+.wm{flex:none;margin-top:5.57px;font:var(--sa-t-brand);letter-spacing:0.5px;color:currentColor;
+  margin-right:-.5px}</style>
+</head>
+<body>
+<div class="phone lt"><div class="lk"><svg class="mk" viewBox="0 -70.459 90.67 70.459" width="36.268" height="28.184"><path d="M 49.95,-67.717 C 50.185,-69.45 51.782,-70.665 53.516,-70.43 C 55.249,-70.194 56.464,-68.598 56.229,-66.864 L 54.861,-56.789 C 54.626,-55.056 53.029,-53.841 51.296,-54.076 C 49.562,-54.312 48.347,-55.908 48.583,-57.642 L 49.95,-67.717 Z"/><path d="M 76.685,-46.206 C 78.419,-46.441 80.015,-45.227 80.25,-43.493 C 80.486,-41.759 79.271,-40.163 77.537,-39.928 L 67.462,-38.56 C 65.729,-38.325 64.132,-39.539 63.897,-41.273 C 63.662,-43.007 64.876,-44.603 66.61,-44.839 L 76.685,-46.206 Z"/><path d="M 68.598,-62.941 C 69.835,-64.178 71.841,-64.178 73.078,-62.941 C 74.315,-61.704 74.315,-59.698 73.078,-58.461 L 62.687,-48.069 C 61.449,-46.832 59.444,-46.832 58.206,-48.069 C 56.969,-49.306 56.969,-51.312 58.206,-52.55 L 68.598,-62.941 Z"/><path d="M 10.391,-11.785 L 10.391,-21.606 C 10.391,-23.356 11.809,-24.775 13.559,-24.775 C 15.308,-24.775 16.727,-23.356 16.727,-21.606 L 16.727,-11.785 C 16.727,-8.776 19.166,-6.336 22.176,-6.336 L 31.997,-6.336 C 33.747,-6.336 35.165,-4.918 35.165,-3.168 C 35.165,-1.418 33.747,-0 31.997,-0 L 22.176,-0 C 15.667,-0 10.391,-5.276 10.391,-11.785 Z M 66.91,-11.785 L 66.91,-21.606 C 66.91,-23.356 68.328,-24.775 70.078,-24.775 C 71.827,-24.775 73.246,-23.356 73.246,-21.606 L 73.246,-11.785 C 73.246,-5.276 67.969,-0 61.46,-0 L 51.639,-0 C 49.889,-0 48.471,-1.418 48.471,-3.168 C 48.471,-4.918 49.889,-6.336 51.639,-6.336 L 61.46,-6.336 C 64.47,-6.336 66.91,-8.776 66.91,-11.785 Z M 10.391,-41.249 L 10.391,-51.07 C 10.391,-57.579 15.667,-62.855 22.176,-62.855 L 31.997,-62.855 C 33.747,-62.855 35.165,-61.437 35.165,-59.687 C 35.165,-57.937 33.747,-56.519 31.997,-56.519 L 22.176,-56.519 C 19.166,-56.519 16.727,-54.079 16.727,-51.07 L 16.727,-41.249 C 16.727,-39.499 15.308,-38.081 13.559,-38.081 C 11.809,-38.081 10.391,-39.499 10.391,-41.249 Z"/></svg><div class="wm">SnapAction</div></div></div>
+</body>
+</html>

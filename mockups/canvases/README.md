@@ -24,8 +24,21 @@ They are shapes rather than links inside a board because boards render in a
 sandboxed iframe, where a link cannot navigate anything.
 
 The cards come from the folder list, so a new folder shows up as a card
-with no edit here. Its board is also the one board that is not phone-shaped;
-see below.
+with no edit here. This page's own board is also the one board that is not
+phone-shaped; see below.
+
+A card is the device and nothing else: the cover board is cropped to its
+`coverBox` and fitted into one phone case the card draws itself, so folders
+that each drew their phone a little differently come out at one size, and
+the folder name and board count are the caption under it.
+
+Drop the app's own icon in the folder as `icon.png` and the card wears it,
+tilted, on the device's bottom-left corner, so a row of cards is readable as
+apps before any of the covers are. 256 x 256, transparent outside the iOS
+squircle; the ones here came from the App Store's own artwork
+(`itunes.apple.com/lookup?id=<track id>`, `artworkUrl512`, masked) or, for
+Apple's system apps, out of `apple-icons/assets/`. Each carries its source in
+a PNG `Source` text chunk. A folder with no `icon.png` simply shows none.
 
 ## layout.json
 
@@ -38,7 +51,8 @@ laid out top to bottom:
   "rows": [
     { "title": "Foundations", "files": ["00-design-tokens"] },
     { "title": "Screens", "numbered": true,
-      "files": [{ "file": "01-example-screen", "label": "Home" }] },
+      "files": [{ "file": "01-example-screen", "label": "Home" }],
+      "links": [{ "label": "example.com", "url": "https://example.com" }] },
     { "title": "Source of truth: references", "numbered": true,
       "files": [{ "file": "ref-01-home", "label": "Home" }] }
   ]
@@ -52,10 +66,28 @@ laid out top to bottom:
   have open rather than starting a second one. Every folder shipped with the
   repo is an example and is named `(example) …`; a board of your own is not,
   which is how the two tell apart in the page menu.
+- `cover` names the board that stands in for the folder on the welcome page,
+  e.g. `"00-launch-light"`. Without one the card shows the first board that is
+  not a `00-` sheet, which is the right guess for most folders and the wrong
+  one where the front door is a `00-` board.
+- `order` sorts the folder's card on the welcome page: lower first, default 0,
+  and folders that say nothing keep slug order.
+- `coverBox` is the part of the cover board the card shows, `[x, y, w, h]` in
+  board px. The default is the phone frame every folder here draws at the same
+  place, `[46, 24, 393, 852]`, so a card crops to the mockup rather than
+  framing it in artboard margin. Declare one for a phone drawn somewhere else,
+  or for a cover that is not a phone at all: `[0, 0, 478, 980]`.
 - `files` entries are file names **without** `.html`, either bare (the
   humanized file name becomes the caption) or `{ "file", "label" }`.
 - `numbered: true` prefixes each caption with its 1-based position. Never
   hand-number labels, position is computed.
+- `{ "file", "label", "w", "h" }` overrides the 478 x 980 artboard for a board
+  that is not phone-shaped, a landscape banner say. A row is laid out at its
+  first file's size, so give every file in the row the same one.
+- `"links": [{ "label", "url" }]` puts buttons under the row that open an
+  address in a new tab. A board renders in `<iframe srcDoc sandbox="">`, where
+  a link can navigate nothing, so anything clickable has to be a shape out
+  here rather than markup in the board.
 - Every row starts at x = 0 with the same column pitch, so **item N of one
   row sits directly under item N of the row above**. That is what makes a
   reference row readable against the mockup row above it.
@@ -107,8 +139,8 @@ may split the measurements across further modules that `gen.py` imports
 `gen.py`.
 
 This is safe for discovery: `import.meta.glob` in `canvasLibrary.ts`
-matches only `*.html` (plus `layout.json`), so `gen.py` and its asset
-files sitting in the folder are invisible to the canvas.
+matches only `*.html` (plus `layout.json` and `icon.png`), so `gen.py` and
+its asset files sitting in the folder are invisible to the canvas.
 
 ## Examples
 
@@ -190,6 +222,33 @@ files sitting in the folder are invisible to the canvas.
   painted over five text classes without an error. `assets/art/` and
   `assets/art-gen/` are committed; the eight `ref-*` boards are
   gitignored, so a fresh clone has 13.
+- `snapaction-ios/`: the run to read when the screens are almost entirely
+  type. Six screens of SnapAction, five dark and one light sheet, rebuilt from
+  the captures inside its Figma file. 11 boards in four rows: a landscape
+  product banner with its two links, a token board, three evidence boards for
+  88 tokens, the six replicas, and the capture of each column-for-column
+  underneath. Mean absolute delta against those captures is 1.29-2.34 levels
+  (of 255) on the five device screens, better than any other
+  screenshot-sourced run here and reached without cropped artwork carrying
+  it. Its `README.md` records how: `ct()` models the line box, and the
+  residual one constant still misses is measured per token and does not follow
+  the size, so `t-code` at 13px wants its run 0.33pt higher while `t-meta` at
+  12.65px wants its own 0.23pt lower. It also records the `font:` shorthand
+  that silently resets `font-variant-numeric`, the probe showing Chrome does
+  not snap text to whole pixels, the token that a coverage solve dissolved back
+  into `--x-line`, and the Lanczos ringing that made four ink probes read 14 to
+  22 levels off with nothing wrong on the board. The sixth screen sits at 5.82
+  because 77% of its error is one 645px source asset resampled twice, and no
+  higher-resolution original exists. It is also the one run whose source app
+  could be read afterwards, so its README carries the only measurement-against-
+  ground-truth audit in the repo: 17 of 28 sampled colours are a named
+  `DSPalette` token to the level, three more are composites whose arithmetic
+  lands exactly, five are system material the app has no token for, and the
+  measured type sizes beat the source's own nominal point sizes 13 times out of
+  14. The one real error it caught was a corner radius, where a circular fit
+  read 14.5 against a specified 18 continuous and CSS 18px turned out to be
+  both truer and better. The six `ref-*` boards are gitignored, so a fresh
+  clone has 10.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

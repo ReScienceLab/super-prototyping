@@ -1,0 +1,182 @@
+[
+ {
+  "_": "Screen 06's probes. Capture 06 is a partial render: it covers design pt x 0-380.5, y 168.75-932 at 2.16557 px/pt, so pt does not map onto it by one scale and these boxes are raw capture px. Run without --pt. The Dynamic Island (pt y 8-135.3) is above the capture's first row, so l-blue, l-badge, l-badge-ink and the three t-i-* sizes have no probe here: their evidence is the Figma node.",
+  "id": "l-bg",
+  "img": "assets/refs/06.png",
+  "cmd": "sample",
+  "box": [
+   25,
+   300,
+   125,
+   700
+  ],
+  "only": "flat"
+ },
+ {
+  "id": "l-panel",
+  "img": "assets/refs/06.png",
+  "cmd": "sample",
+  "box": [
+   50,
+   970,
+   790,
+   993
+  ],
+  "only": "flat",
+  "_": "Info Container, pt y 614-932, above the title ink at pt 635.4"
+ },
+ {
+  "id": "l-cta",
+  "img": "assets/refs/06.png",
+  "cmd": "sample",
+  "box": [
+   90,
+   1466,
+   300,
+   1527
+  ],
+  "only": "flat",
+  "_": "Add to Calendar button, pt x 21-409 y 835.2-883.5, left of the label which starts at pt 155.2"
+ },
+ {
+  "id": "l-line",
+  "img": "assets/refs/06.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 433,
+  "range": [
+   1316,
+   1329
+  ],
+  "_": "the rule between the Start and End rows, pt y 779.2, at pt x 200"
+ },
+ {
+  "id": "l-ink",
+  "img": "assets/refs/06.png",
+  "cmd": "sample",
+  "box": [
+   169,
+   1009,
+   562,
+   1037
+  ],
+  "only": "ink",
+  "_": "title 'Intro Call with Sarah Miller', pt ink x 79-258.2 y 635.4-646.5; the overflow glyph sits at pt 380.9"
+ },
+ {
+  "id": "l-ink-2",
+  "img": "assets/refs/06.png",
+  "cmd": "sample",
+  "box": [
+   68,
+   1130,
+   820,
+   1160
+  ],
+  "only": "ink",
+  "_": "description line 1, pt ink left 31 top ~691.6, w 348.2"
+ },
+ {
+  "id": "l-ink-3",
+  "img": "assets/refs/06.png",
+  "cmd": "sample",
+  "box": [
+   107,
+   1263,
+   172,
+   1293
+  ],
+  "only": "ink",
+  "_": "the 'Start' label, pt ink left 50 top ~753.2 w 28.6; its value starts at pt 264.7"
+ },
+ {
+  "id": "l-ink-4",
+  "img": "assets/refs/06.png",
+  "cmd": "sample",
+  "box": [
+   795,
+   1262,
+   820,
+   1296
+  ],
+  "only": "ink",
+  "_": "the Start row chevron, pt x 368-376; the row value ends at pt 362.6"
+ },
+ {
+  "id": "l-link",
+  "img": "assets/refs/06.png",
+  "cmd": "sample",
+  "box": [
+   171,
+   1058,
+   600,
+   1085
+  ],
+  "only": "ink",
+  "_": "the meeting link, pt ink left 79 top ~658.4"
+ },
+ {
+  "id": "t-l-title",
+  "img": "assets/refs/06.png",
+  "cmd": "bbox",
+  "box": [
+   169,
+   1005,
+   565,
+   1040
+  ],
+  "dark": 140,
+  "_": "same title; dark ink on a light panel, so --dark rather than the dark UI's --bright"
+ },
+ {
+  "id": "t-l-link",
+  "img": "assets/refs/06.png",
+  "cmd": "bbox",
+  "box": [
+   169,
+   1055,
+   600,
+   1088
+  ],
+  "dark": 160
+ },
+ {
+  "id": "t-l-desc",
+  "img": "assets/refs/06.png",
+  "cmd": "bbox",
+  "box": [
+   66,
+   1128,
+   824,
+   1162
+  ],
+  "dark": 150,
+  "_": "description line 1 only: line 2's ink starts at pt 705.2, py 1161"
+ },
+ {
+  "id": "t-l-row",
+  "img": "assets/refs/06.png",
+  "cmd": "bbox",
+  "box": [
+   571,
+   1262,
+   790,
+   1295
+  ],
+  "dark": 140,
+  "_": "the Start row value 'Thu, Jul 3 14:00', pt ink left 264.7 w 97.9; the chevron starts at pt 368"
+ },
+ {
+  "id": "t-l-cta",
+  "img": "assets/refs/06.png",
+  "cmd": "bbox",
+  "box": [
+   334,
+   1477,
+   596,
+   1515
+  ],
+  "bright": 150,
+  "_": "'Add to Calendar', white on the blue button, so --bright"
+ }
+]
