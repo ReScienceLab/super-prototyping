@@ -161,7 +161,12 @@ def cmd_sample(a):
         return
     v = px.reshape(-1, 3)
     n = max(1, int(len(v) * a.ink / 100))
-    print(f"ink core (darkest {a.ink}%): {_hex(v[v.mean(1).argsort()[:n]].mean(0))}")
+    # On a dark UI the ink is the brightest pixels, not the darkest, and the
+    # darkest percentile returns the background: same trap, opposite polarity.
+    order = v.mean(1).argsort()
+    end = "brightest" if a.bright else "darkest"
+    sel = order[-n:] if a.bright else order[:n]
+    print(f"ink core ({end} {a.ink}%): {_hex(v[sel].mean(0))}")
 
 
 def cmd_bands(a):
@@ -338,8 +343,10 @@ def cmd_hairline(a):
     axis = 0 if (y1 - y0) <= (x1 - x0) else 1     # sum across the thin axis
     band = px.mean(axis=1 - axis)                 # average along the rule
     ink = (bg - band).sum(axis=0) / a.scale
-    print(f"bg {_hex(bg)}  scale {a.scale}  band {band.shape[0]}px")
+    # Solved value first: `batch` compares the first colour a probe prints,
+    # and the bg echo is a flag, not a measurement.
     print(f"solved rule colour: {_hex(np.clip(bg - ink, 0, 255))}")
+    print(f"bg {_hex(bg)}  scale {a.scale}  band {band.shape[0]}px")
 
 
 # --- font identification -----------------------------------------------------
@@ -1024,6 +1031,9 @@ def _parser():
                    help="print one section only. `batch` reads the first colour "
                         "a probe prints, so an ink probe needs --only ink or it "
                         "silently compares the background instead")
+    v.add_argument("--bright", action="store_true",
+                   help="take the brightest percentile as the ink core, for a "
+                        "dark UI where the text is lighter than its background")
 
     b = _region_args(s.add_parser("bands")); b.set_defaults(fn=cmd_bands)
     b.add_argument("--axis", choices=("rows", "cols"), default="rows")
