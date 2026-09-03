@@ -1441,7 +1441,9 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: Mobbin captures",
                      "numbered": True, "files": refs})
-    return {"name": PAGE_NAME, "rows": rows}
+    # The welcome card shows 23: the home boards are white to the composer and
+    # read as blank at card size, the sidebar is the one screen with the app on it.
+    return {"name": PAGE_NAME, "cover": "23-sidebar-full", "rows": rows}
 
 
 def main():
