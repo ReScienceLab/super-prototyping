@@ -1346,9 +1346,9 @@ def ref_boards():
 
 # ----------------------------------------------------------------- main ----
 # A welcome card crops to the phone, so the canvas needs the phone's box in the
-# artboard. This folder's cover is the launch board, which wears the plain .phone
-# rather than the .xl the wide captures use: 430 x 932 under its own scale, centred
-# by the body's flex. Both numbers are read back off the CSS so they cannot drift.
+# artboard. This folder's cover wears the plain .phone rather than the .xl the wide
+# captures use: 430 x 932 under its own scale, centred by the body's flex. Both
+# numbers are read back off the CSS so they cannot drift.
 _S = float(PHONE.split("transform:scale(")[1].split(")")[0])
 _TV = {name: value for _, name, value, _ in TOKENS}
 _CW, _CH = float(_TV["w"][:-2]) * _S, float(_TV["h"][:-2]) * _S
@@ -1373,10 +1373,11 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: the Figma file's captures",
                      "numbered": True, "files": refs})
-    # The launch board is the cover because it is the app's own front door, and the
-    # light one because the welcome page's card sits on a dark ground. Ahead of every
-    # other folder for the same reason: this is the one app here that is ours.
-    return {"name": PAGE_NAME, "cover": LAUNCH[0][0], "coverBox": COVER_BOX,
+    # 06 is the cover: the launch board is the app's front door but it is a wordmark on
+    # an empty screen, and a card that shows one is indistinguishable from a card that
+    # failed to load. Ahead of every other folder, because this is the one app here
+    # that is ours.
+    return {"name": PAGE_NAME, "cover": SCREENS[-1][0], "coverBox": COVER_BOX,
             "order": -1, "rows": rows}
 
 
