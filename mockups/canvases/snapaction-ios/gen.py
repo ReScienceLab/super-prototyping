@@ -32,6 +32,17 @@ SCALE = 3.0            # capture px per design pt: 1320/440 and 2868/956 both
 CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
          if not k.startswith("_")}
 
+# The blurred scroll wash behind a status bar or header does not stop where its
+# crop does, and the board's ground under it is flat black. Cut hard, the band
+# lands as a lighter rectangle with visible edges; sides -> pt here ramps the
+# alpha out so the wash meets the ground instead. Only for the wash bands: an
+# ink crop is tightened to its glyphs instead, which is the same fix done by
+# measurement.
+FADE = {"03-blur": ("tb", 8.0), "04-blur1": ("b", 10.0), "04-blur2": ("lrtb", 8.0)}
+
+# Crops of a round button, clipped to the circle they were measured around.
+ROUND = {"01-hbl", "01-hbr", "03-hbl", "03-hbr", "04-hbl", "04-hbr"}
+
 
 def cut():
     """Refresh assets/art/ from assets/refs/ at the boxes in crops.json."""
@@ -47,9 +58,39 @@ def cut():
         if ref not in src:
             src[ref] = Image.open(f).convert("RGB")
         box = tuple(round(v * SCALE) for v in (x0, y0, x1, y1))
-        src[ref].crop(box).save(ART_DIR / (cid + ".png"), optimize=True)
+        im = src[ref].crop(box)
+        if cid in FADE:
+            im = _fade(im, *FADE[cid])
+        im.save(ART_DIR / (cid + ".png"), optimize=True)
         n += 1
     print("%-24s %6d crops" % ("assets/art/", n))
+
+
+def _fade(im, sides, pt):
+    """Ramp the alpha to 0 over `pt` design pt on each named side (l/r/t/b).
+    Multiplying the two axes rather than painting one over the other is what
+    makes a corner take the smaller of its two ramps."""
+    import numpy as np
+    from PIL import Image
+    px = max(1, round(pt * SCALE))
+    w, h = im.size
+
+    def ramp(n):
+        a = np.ones(n)
+        if s0 in sides:
+            a[:px] = np.minimum(a[:px], np.arange(px) / px)
+        if s1 in sides:
+            a[-px:] = np.minimum(a[-px:], np.arange(px)[::-1] / px)
+        return a
+
+    m = np.ones((h, w))
+    s0, s1 = "l", "r"
+    m *= ramp(w)[None, :]
+    s0, s1 = "t", "b"
+    m *= ramp(h)[:, None]
+    out = im.convert("RGBA")
+    out.putalpha(Image.fromarray((m * 255).round().astype("uint8"), "L"))
+    return out
 
 
 def _uri(cid):
@@ -62,9 +103,10 @@ def art(cid, x=None, y=None, z=None):
     """One <img>, placed at the box it was measured from (or at x/y, for the
     art that is reused on more than one row)."""
     _, x0, y0, x1, y1 = CROPS[cid]
-    return ('<img class="a" src="%s" alt="" style="left:%.1fpx;top:%.1fpx;'
+    return ('<img class="a%s" src="%s" alt="" style="left:%.1fpx;top:%.1fpx;'
             'width:%.1fpx;height:%.1fpx%s">'
-            % (_uri(cid), x0 if x is None else x, y0 if y is None else y,
+            % (" rd" if cid in ROUND else "",
+               _uri(cid), x0 if x is None else x, y0 if y is None else y,
                x1 - x0, y1 - y0, ";z-index:%d" % z if z else ""))
 
 
@@ -343,6 +385,7 @@ PHONE = """.phone{position:relative;flex:none;width:var(--x-w);height:var(--x-h)
   transform:none}
 .phone>*{position:absolute}
 img.a{display:block;z-index:2}
+img.a.rd{border-radius:50%}
 .t{white-space:nowrap;z-index:3}
 .card{background:var(--x-card);border:1px solid var(--x-line);border-radius:var(--x-r-card)}
 .card.sel{background:var(--x-card-sel);border:2px solid var(--x-blue-2)}

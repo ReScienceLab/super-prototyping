@@ -307,6 +307,20 @@ Nothing on these boards is generated. Chrome is CSS: cards, pills, chips,
 rules, the tab bar, the action bar, the status bar clock, every glyph that is
 not a photograph.
 
+Two of those crops need more than a box. A round button's box is a square, so
+its corners carry whatever the capture had behind the button; on 03 and 04
+that is the blurred scroll wash, and the square of it read as a patch that
+made the back button look clipped flat on one side. `ROUND` in `gen.py` names
+the six header buttons and `art()` clips them to the circle they were
+measured around. The wash itself is worse: it does not stop where a crop
+does, and the board's ground under it is flat black, so a hard cut lands as a
+lighter rectangle with visible edges. `FADE` names the three wash bands and
+the sides to ramp the alpha out on, so the band meets the ground instead of
+ending at it. An *ink* crop sitting on the wash gets neither: `sb-c` was
+98 x 21 around an 87 x 15 cluster, and the 9.3pt of wash padding its left was
+the rectangle. Tightening the box to the ink is the same fix by measurement,
+and it is the one to reach for first.
+
 ## Regenerating
 
 ```bash
