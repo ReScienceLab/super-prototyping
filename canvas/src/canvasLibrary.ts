@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 // Auto-discovers the boards dropped under mockups/canvases/<slug>/*.html, one folder per board
 // (a cloned app, a feature round, a design-system sheet). Each folder becomes a tldraw page; each
 // HTML file in it becomes one shape. Add or edit files there; nothing here needs to change.
-// Each file is its own lazy module, fetched the first time a shape on screen asks for it, so
-// opening the welcome page pulls a dozen covers rather than every board in the repo (the full
-// set is 25 MB of HTML, which a phone should not download to look at one page). Vite still
+// Each file is its own lazy module, fetched the first time a shape draws it live (see
+// useBoardLive in BoardMedia.tsx), so opening a page pulls its thumbnails and the few
+// boards big enough on screen to need their document, rather than every board in the repo (the
+// full set is 25 MB of HTML, which a phone should not download to look at one page). Vite still
 // reloads the page when a mockup is saved, so the edit shows up on the canvas the same as before.
 const fileLoaders = import.meta.glob("../../mockups/canvases/*/*.html", {
   query: "?raw",
@@ -28,6 +29,29 @@ const rawIcons = import.meta.glob("../../mockups/canvases/*/icon.png", {
   query: "?url",
   import: "default",
 }) as Record<string, string>;
+
+// Optional mockups/canvases/<slug>/thumbs/<board>.webp, the board at THUMB_SCALE, written by
+// `python3 tools/refkit.py thumbs mockups/canvases/<slug>` after gen.py. A shape draws it in
+// place of the live board while the board is small on screen; a board without one is always
+// live. `?url` for the same reason as the icons.
+const rawThumbs = import.meta.glob("../../mockups/canvases/*/thumbs/*.webp", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>;
+
+/** Thumbnail px per board px. tools/refkit.py THUMB_SCALE writes them at this; keep the two equal. */
+export const THUMB_SCALE = 0.5;
+
+/** A board's thumbnail module path: `<slug>/<board>.html` -> `<slug>/thumbs/<board>.webp`. */
+export function thumbPathFor(path: string) {
+  return path.replace(/\/([^/]+)\.html$/, "/thumbs/$1.webp");
+}
+
+/** The address of a board's thumbnail, or undefined when refkit has not written one. */
+export function canvasThumbUrl(path: string): string | undefined {
+  return rawThumbs[thumbPathFor(path)];
+}
 
 export interface CanvasLibraryFile {
   path: string;
@@ -147,20 +171,21 @@ export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
 }
 
 /**
- * A rendering shape's board HTML: undefined until its chunk arrives, then the string. tldraw only
- * mounts components for shapes near the viewport, so this is what makes a page cost its own
- * boards and nothing else.
+ * A rendering shape's board HTML: undefined until its chunk arrives, then the string. Pass
+ * undefined while the shape does not need the document (it is drawing the thumbnail) and
+ * nothing is fetched; that is what makes a page cost the boards it shows live and nothing else.
  */
-export function useCanvasFileHtml(path: string): string | undefined {
-  const [html, setHtml] = useState(() => canvasFileHtml.get(path));
+export function useCanvasFileHtml(path: string | undefined): string | undefined {
+  const [html, setHtml] = useState(() => (path ? canvasFileHtml.get(path) : undefined));
   useEffect(() => {
     let live = true;
-    const cached = canvasFileHtml.get(path);
+    const cached = path ? canvasFileHtml.get(path) : undefined;
     if (cached !== undefined) {
       setHtml(cached);
       return;
     }
     setHtml(undefined);
+    if (!path) return;
     loadCanvasFileHtml(path).then((loaded) => {
       if (live) setHtml(loaded);
     });

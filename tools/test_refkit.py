@@ -274,6 +274,19 @@ def test_grow_box_keeps_the_pale_edge_and_drops_the_neighbour():
     assert edge == "T", edge
 
 
+def test_board_sizes_reads_only_the_overrides():
+    """thumbs must be shot at the board's own size: the two wide boards in the
+    repo declare w/h on their layout.json entry, every other entry is the
+    478x980 artboard, and a folder without a layout has no overrides."""
+    import json, os, tempfile
+    with tempfile.TemporaryDirectory() as d:
+        json.dump({"rows": [{"files": [{"file": "00-welcome", "w": 2153, "h": 819},
+                                       "01-home", {"file": "02-chat", "label": "Chat"}]}]},
+                  open(os.path.join(d, "layout.json"), "w"))
+        assert R._board_sizes(d) == {"00-welcome": (2153, 819)}
+        assert R._board_sizes(os.path.join(d, "nope")) == {}
+
+
 if __name__ == "__main__":
     fns = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in fns:

@@ -15,9 +15,12 @@ phone, not only on the laptop it was built on.
 ## What changed
 
 - `canvas/src/canvasLibrary.ts` globs the boards lazily. Each file is its own chunk, fetched
-  the first time a shape on screen asks for it through `useCanvasFileHtml`. tldraw only mounts
-  shapes near the viewport, so a page costs its own boards and nothing else: the welcome page
-  fetches 13 covers, the SnapAction page fetches its 13 boards (2.8 MB) instead of all 25 MB.
+  the first time a shape asks for it through `useCanvasFileHtml`, so a page costs its own
+  boards and nothing else: the welcome page fetches 13 covers, the SnapAction page fetches
+  its 13 boards (2.8 MB) instead of all 25 MB. (This note first claimed tldraw mounts only the
+  shapes near the viewport. It does not: every shape on the page mounts, culling only hides
+  the off-screen ones, so this change bounded the download and not the parse. The parse is
+  the subject of `2026-09-03-board-thumbnails.md`.)
 - The per-folder `advancedChunks` grouping in `vite.config.ts` is gone; per-file chunks fall
   out of the dynamic imports. `server.fs.allow` now includes the repo root, because the boards
   sit outside the Vite root and the eager glob was the only thing that had let the dev server
