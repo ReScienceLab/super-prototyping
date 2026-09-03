@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { COCOA, ORANGE, PAPER } from "../../lib/palette";
 import { SANS, SERIF } from "../../lib/fonts";
-import { arrive, enter, stagger, useDuration } from "../../lib/timing";
+import { arrive, enter, leave, stagger, useDuration } from "../../lib/timing";
 
 /*
  * Word cascade: a sentence assembling itself a piece at a time, each piece
@@ -19,6 +19,13 @@ import { arrive, enter, stagger, useDuration } from "../../lib/timing";
  * a sentence ("You've got knowledge", f14-38), and per line on a display block
  * ("So you never miss the conversation / that could change", f1789-1870). Same
  * curve, same blur, different granularity.
+ *
+ * The block does not push in: its width is 0.518 of W at every frame from f25
+ * to f31 (extent). What it does do is leave — from f33 the whole block shrinks,
+ * blurs and fades, 0.977 -> 0.956 -> 0.926 -> 0.890 -> 0.832 -> 0.756 of its
+ * width at f34-f39, accelerating, and it is gone by f40. That is an ease-in
+ * cubic over 7 frames to about 0.6 with the opacity going to zero on the same
+ * curve, and it is what `leaveFrames` does at the end of the shot.
  */
 
 export type WordCascadeProps = {
@@ -41,8 +48,10 @@ export type WordCascadeProps = {
   face: "serif" | "sans";
   /** type size as a fraction of the frame height */
   size: number;
-  /** the block's push-in across the whole shot */
+  /** the block's push-in across the whole shot; 1 is none */
   scaleFrom: number;
+  /** frames the block takes to shrink and fade out at the end; 0 holds */
+  leaveFrames: number;
   color: string;
   accentColor: string;
   background: string;
@@ -61,6 +70,7 @@ export const WordCascade: React.FC<WordCascadeProps> = ({
   face,
   size,
   scaleFrom,
+  leaveFrames,
   color,
   accentColor,
   background,
@@ -84,6 +94,10 @@ export const WordCascade: React.FC<WordCascadeProps> = ({
   );
 
   const push = scaleFrom + (1 - scaleFrom) * enter(frame, 0, duration);
+  // Gone eight frames before the end, so a cut lands on the empty ground.
+  const held = leaveFrames
+    ? leave(frame, duration - leaveFrames - 8, leaveFrames)
+    : 1;
 
   return (
     <AbsoluteFill
@@ -100,7 +114,9 @@ export const WordCascade: React.FC<WordCascadeProps> = ({
           lineHeight: 1.12,
           textAlign: "center",
           color,
-          transform: `scale(${push})`,
+          opacity: held,
+          filter: `blur(${(1 - held) * blur}px)`,
+          transform: `scale(${push * (0.6 + 0.4 * held)})`,
         }}
       >
         {laid.map((units, l) => {
@@ -114,7 +130,10 @@ export const WordCascade: React.FC<WordCascadeProps> = ({
                 justifyContent: "center",
                 // A word gap has to be a real gap: the pieces are separate
                 // elements, so the space between them went away with the split.
-                gap: unit === "word" ? "0.26em" : 0,
+                // 0.024 of W ink to ink between "You've" and "got" at f32.
+                // 0.26em rendered 0.044 and 0.17em 0.033: the e and the g
+                // carry 0.009 of W of side bearing between them.
+                gap: unit === "word" ? "0.105em" : 0,
                 whiteSpace: "pre",
               }}
             >
@@ -122,9 +141,14 @@ export const WordCascade: React.FC<WordCascadeProps> = ({
                 <span
                   key={i}
                   style={{
-                    ...arrive(stagger(frame, i, { at, step, frames }), blur, rise),
+                    ...arrive(
+                      stagger(frame, i, { at, step, frames }),
+                      blur,
+                      rise,
+                    ),
                     display: "inline-block",
-                    color: accent && piece.includes(accent) ? accentColor : color,
+                    color:
+                      accent && piece.includes(accent) ? accentColor : color,
                   }}
                 >
                   {piece}
@@ -152,8 +176,14 @@ export const defaultProps: WordCascadeProps = {
   accent: "",
   face: "serif",
   size: 0.247,
-  scaleFrom: 0.9,
+  scaleFrom: 1,
+  leaveFrames: 7,
   color: PAPER,
   accentColor: ORANGE,
-  background: COCOA,
+  // The floor glow under every shot on the dark ground. vprof f33 at x
+  // 0.0-0.1: flat COCOA down to 0.63 of H, then #2a1807 #351d0a #44250e
+  // #593114 #643617 at 0.70/0.78/0.85/0.93/1.0; #75401c at the bottom centre
+  // and #623616 at the bottom corners (9x18 grid) — one ramp, brightest at
+  // the bottom centre, only a little dimmer at the corners.
+  background: `radial-gradient(ellipse 200% 33% at 50% 100%, #75401c, ${COCOA})`,
 };

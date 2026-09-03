@@ -81,16 +81,16 @@ type Shot = [asset: Asset, frames: number];
 const CUT: Shot[] = [
   [meshGradient, 72], //     the ground, before anything is on it
   [wordCascade, 90], //      f14-f38    "You've got knowledge"
-  [cardStack, 95], //        f38-f95    "people want"
+  [cardStack, 95], //        f38-f80    "people want"
   [wordSwap, 66], //         f213-f228  "Your notes?" -> "Your answers?"
-  [bokehOrbit, 80], //       f268-f312  "Chaos"
+  [bokehOrbit, 80], //       f268-f306  "Chaos"
   [textMarker, 78], //       f1056-f1072
   [pillExpand, 84], //       f1088-f1150  same paragraph, now behind a card
   [countUp, 92], //          f1172-f1280  74% -> 100%
   [orbBloom, 84], //         f1283-f1340  "piece by piece"
   [particleForm, 100], //    f1352-f1400
   [focusPull, 72], //        f1372-f1400  "Your digital mind / is born"
-  [depthFlythrough, 105], // f1470-f1595
+  [depthFlythrough, 105], // f1476-f1595
   [lensReveal, 84], //       f1640-f1700  "whatever you want"
   [wordGrid, 84], //         f1875-f1920  "everything"
   [logoOutro, 110], //       f1930-f2052

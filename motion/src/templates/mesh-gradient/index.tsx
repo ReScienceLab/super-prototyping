@@ -14,4 +14,7 @@ import { Gradient, type GradientProps, MESH } from "../../lib/Gradient";
 
 export { default as meta } from "./meta.json";
 export const Component = Gradient;
+// Nothing to override any more. The measured ramp and the empty blob list
+// started here, as this folder's correction to `MESH`; once the film showed
+// that every shot importing `MESH` wanted them too, they moved into the lib.
 export const defaultProps: GradientProps = MESH;

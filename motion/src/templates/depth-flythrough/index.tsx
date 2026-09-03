@@ -1,205 +1,245 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { BONE, INK, ORANGE, PAPER } from "../../lib/palette";
+import { AbsoluteFill, Easing, useCurrentFrame } from "remotion";
+import { BONE, ORANGE } from "../../lib/palette";
 import { Orb } from "../../lib/Orb";
 import { SANS } from "../../lib/fonts";
-import { useDuration } from "../../lib/timing";
+import { arrive, enter, useDuration } from "../../lib/timing";
 
 /*
- * Depth flythrough: a queue of spheres strung out along the z axis with the
- * camera walking forward past them, each one growing, swinging out to the left
- * and off the edge of the frame.
+ * Depth flythrough: a line of spheres receding to a vanishing point right of
+ * centre, the camera creeping toward them, and a conversation pinned to the
+ * front sphere. When an exchange is over the camera walks up one sphere.
  *
- * Reference: f1470-1595. Measured off f1480/f1500/f1520/f1545:
+ * Reference: f1470-1595. Measured per frame off f1474-1588 (front orb radius in
+ * frame heights, bubble boxes as fractions of the frame):
  *
- *   - The orbs are on ONE STRAIGHT LINE that passes to the LEFT of the camera,
- *     and they converge on a vanishing point at about x 0.56, y 0.50. They do
- *     not scatter. That line is the whole shot: it is what makes a handful of
- *     circles read as a corridor.
- *   - The nearest orb sits at about x 0.28, about 0.4 of the frame height
- *     across, and each one back is about 0.63 the size of the one in front —
- *     which is a uniform z spacing seen through a perspective divide, not a
- *     ratio anyone chose.
- *   - Centre-to-centre spacing down the chain is about one near-orb radius, so
- *     consecutive spheres overlap by half and the far tail packs into a smear.
- *   - A bubble hangs to the RIGHT of its orb, about a near-orb radius clear of
- *     it, and is roughly one and a half orbs wide. Two on screen at once stack
- *     either side of the line: the question above it, the answer below.
- *   - Orbs leave by the left edge, not by swelling through the lens. By the
- *     time one is dropped it is most of a frame height across and mostly out.
- *
- * The projection is the real perspective divide, `focal / z`, in both axes: it
- * sets the size AND the swing out to the left, off one camera position. A lerp
- * between two sizes makes the far orbs approach at the same rate as the near
- * ones and the shot goes flat.
+ *   - The camera barely moves. The front orb is r 0.206 at f1489 and 0.239 at
+ *     f1546: 16% in 57 frames, which through a perspective divide is the camera
+ *     covering 0.14 of its distance to that orb — 0.0024 per frame. This
+ *     template used to run at 0.032 and put a fresh orb through the lens every
+ *     20 frames; the reference never lets one past that way.
+ *   - What moves the shot is the conversation. Each exchange belongs to one
+ *     orb. When it is done the camera either walks one slot (f1510-1518: the
+ *     front orb grows x1.4, goes pale and is gone in 8 frames while the chain
+ *     steps up and the next orb lands at r 0.207, the same size the first one
+ *     started at) or pushes in without passing anything (f1548-1549: the front
+ *     orb goes r 0.239 -> 0.279, x1.17, in one frame and stays).
+ *   - The bubbles scale with THEIR orb, not with the camera: Q2 is 0.409 of the
+ *     frame wide at f1522 and 0.599 at f1549 (x1.46) while its orb went
+ *     r 0.216 -> 0.279 (x1.29); they grow more than the orb through a push, so
+ *     they sit nearer the camera than it. Not modelled: they take the orb's
+ *     scale here. Their column's left edge is 1.02 - 0.555 * scale
+ *     (f1504: 0.46 at scale 1.05; f1546: 0.41 at 1.1; f1583: 0.18 at 1.5): a
+ *     column anchored just off the right edge, scaling about that anchor.
+ *   - A lone bubble sits centred on y 0.5 (f1546: 0.439-0.561). When its reply
+ *     lands the pair is centred on the gap between them (f1498: 0.450 / 0.524;
+ *     f1585: 0.456 / 0.533), the first lifting to make room.
  */
+
+export type Message = {
+  text: string;
+  /** the accent bubble (a question) rather than the pale one */
+  ask: boolean;
+  /** which orb, front to back at frame 0, this belongs to */
+  orb: number;
+  /** frame it lands; negative means it is there when the shot opens */
+  at: number;
+};
+
+export type Push = {
+  at: number;
+  frames: number;
+  /** z the camera covers, in units of the front orb's distance at frame 0 */
+  z: number;
+  /** orbs this move walks past; they fade out over it instead of swelling */
+  pass: number;
+};
 
 export type DepthFlythroughProps = {
   durationInFrames?: number;
-  /** one label per orb; "" for a bare orb */
-  labels: string[];
-  /** z gap between consecutive orbs, in the same units as `focal` */
+  messages: Message[];
+  /** the camera's moves; `gap` here walks the chain up one orb */
+  pushes: Push[];
+  orbs: number;
+  /** z between consecutive orbs; the front one starts at z = 1 */
   gap: number;
-  /** z units the camera covers per frame */
+  /** z the camera creeps per frame between pushes */
   speed: number;
-  /** the perspective constant: bigger is a longer lens, flatter depth */
-  focal: number;
   /** x the chain converges on, as a fraction of frame width */
   vanish: number;
-  /** how far left of the camera the line of orbs runs, in frame widths at z = focal */
+  /** how far left of `vanish` the front orb sits at z = 1, in frame widths */
   offset: number;
-  /** z the camera drops an orb at; this is what sets how big the nearest gets */
-  near: number;
-  /** z distance in front of the camera that is in focus */
-  focus: number;
-  /** px of defocus per z unit away from the focal plane */
-  blur: number;
-  /** orb diameter at z = focal, in px */
+  /** front orb diameter at z = 1, px */
   orb: number;
+  /** the orb's surface, a CSS background; the shared Orb is the f1300 sphere */
+  sphere: string;
+  /** px of softness every orb carries; the reference has no hard edge anywhere */
+  soft: number;
+  /** px of defocus per z unit behind the front orb */
+  blur: number;
+  /** frames a reply takes to land and its question to lift */
+  frames: number;
+  /** bubble type size at scale 1, px */
   size: number;
   color: string;
   bubble: string;
   accent: string;
+  accentText: string;
   background: string;
 };
 
+/**
+ * An orb being walked past fades rather than swelling through the lens:
+ * f1513-1517 has it at r 0.246 -> 0.293 (x1.4, not x5) going pale, and it is
+ * gone by f1518. Its size is capped at this z. The fade is tied to the walk,
+ * not to z: after the push at f1548 the front orb sits at about z 0.74 to the
+ * end of the shot, solid, which is closer than the walked one ever got.
+ */
+const PASS = 0.7;
+
 export const DepthFlythrough: React.FC<DepthFlythroughProps> = ({
   durationInFrames,
-  labels,
+  messages,
+  pushes,
+  orbs,
   gap,
   speed,
-  focal,
   vanish,
   offset,
-  near,
-  focus,
-  blur,
   orb,
+  sphere,
+  soft,
+  blur,
+  frames,
   size,
   color,
   bubble,
   accent,
+  accentText,
   background,
 }) => {
   const frame = useCurrentFrame();
-  const duration = useDuration(durationInFrames);
-  // Half a gap back, so frame 0 lands mid-cycle instead of on the near plane
-  // with an orb fading in across half the frame. A template opens settled.
-  const camera = frame * speed - gap * 0.5;
+  useDuration(durationInFrames);
 
-  // How far down the row you can see. Off `focus` rather than off `gap`,
-  // because it is a property of the lens and the haze, not of the spacing:
-  // tied to `gap` it shrinks every time the row is packed tighter, and packing
-  // the row tighter is exactly how the reference gets its overlapping crowd.
-  const far = focus * 2.2;
+  let camera = frame * speed;
+  // Orb index -> what is left of it, for the orbs a walk passes. Pushes are
+  // in time order, so the orbs they pass are the front ones in that order.
+  // Ease-in: the bubbles hold until the last frames of the walk (f1517-1518).
+  const passing = new Map<number, number>();
+  for (const p of pushes) {
+    const t = enter(frame, p.at, p.frames, Easing.in(Easing.quad));
+    camera += p.z * t;
+    for (let j = 0; j < p.pass; j++) passing.set(passing.size, 1 - t);
+  }
 
-  // The row is as long as the shot needs, not as long as `labels` happens to
-  // be: the camera covers `duration * speed` and `far` more has to still be in
-  // front of it on the last frame, or the film ends walking into an empty
-  // room. Labels repeat around the row, which is also what lets one template
-  // take a two-second cut and a ten-second one.
-  const count = Math.ceil((duration * speed + far) / gap);
-
-  const shots = [...Array(count)]
+  const shots = [...Array(orbs)]
     .map((_, i) => {
-      const z = (i + 1) * gap - camera;
-      // Past the camera, or so far off it is a sub-pixel speck. Dropping them
-      // rather than rendering them at scale ~0 keeps the DOM to a dozen nodes.
-      // `near` is the measurement, not a clipping plane for its own sake: it
-      // decides how big the biggest orb in frame gets (`orb * focal / near`),
-      // and it is set where the reference's nearest orb has swung far enough
-      // left to be mostly out of frame anyway.
-      if (z < near || z > far) return null;
-      const k = focal / z;
+      const z = 1 + i * gap - camera;
+      const opacity = passing.get(i) ?? 1;
+      if (z <= 0 || opacity <= 0) return null;
+      const k = 1 / (passing.has(i) ? Math.max(z, PASS) : z);
       return {
         i,
-        // Depth culls the text before it culls the orb. Below about 20px of
-        // type a bubble is litter rather than distance — the reference never
-        // shows a third one, however many spheres are on screen.
-        label: size * k >= 20 ? labels[i % labels.length] : "",
-        k,
-        // The bubble stops growing before the orb does. A sphere 1.4 frame
-        // heights across is a wash of colour off the left edge and reads fine;
-        // a sentence at that scale is a grey smear across the whole frame.
-        bk: Math.min(k, 2.4),
-        // Which side of the conversation this one is. Off the label's index and
-        // not the orb's: the labelled orbs are every other one, so `i % 2` puts
-        // every single bubble on the same side and the alternation never fires.
-        answer: Math.floor(i / 2) % 2 === 1,
-        // Painter's algorithm: far orbs must be painted first. React renders in
-        // array order, so sorting the array IS the z-sort.
         z,
-        // The same divide as the size. One line of orbs offset to the left of
-        // the camera axis: the near end swings wide, the far end piles onto the
-        // vanishing point.
+        k,
+        // The same divide as the size: one line of orbs left of the camera
+        // axis, the near end swung wide, the far end piled on the vanishing
+        // point.
         x: vanish - offset * k,
-        blur: Math.abs(z - focus) * blur,
-        // Fade the last stretch out over half a gap rather than letting an orb
-        // vanish mid-frame at full opacity, which pops.
-        opacity: Math.min(1, (z - near) / (gap * 0.5)),
+        opacity,
+        blur: soft + Math.max(0, z - 1) * blur,
       };
     })
     .filter((s): s is NonNullable<typeof s> => s !== null)
+    // Painter's algorithm: React renders in array order, so the sort is the
+    // z-sort.
     .sort((a, b) => b.z - a.z);
 
   return (
     <AbsoluteFill style={{ background, fontFamily: SANS }}>
       {shots.map((s) => (
-        <div
+        <Orb
           key={s.i}
+          size={orb * s.k}
+          blur={s.blur}
+          opacity={s.opacity}
           style={{
             position: "absolute",
             left: `${s.x * 100}%`,
             top: "50%",
-            display: "flex",
-            alignItems: "center",
-            // An absolutely positioned box with no width shrink-wraps to the
-            // room left of the frame's right edge, so a near orb 800px across
-            // leaves the bubble beside it a hundred pixels and its text comes
-            // out one word per line. `max-content` sizes the row to the row.
-            width: "max-content",
-            gap: orb * s.k * 0.25,
-            // The ORB's centre goes on `x`, not the row's: a row centred on `x`
-            // would kink the chain sideways at every orb that carries a label,
-            // by half a bubble.
-            transform: `translate(${(-orb * s.k) / 2}px, -50%)`,
-            filter: s.blur ? `blur(${s.blur}px)` : undefined,
-            opacity: s.opacity,
-            whiteSpace: "nowrap",
+            transform: "translate(-50%, -50%)",
+            background: sphere,
           }}
-        >
-          <Orb size={orb * s.k} />
-          {s.label ? (
-            <span
+        />
+      ))}
+
+      {shots.map((s) => {
+        const own = messages.filter((m) => m.orb === s.i && frame >= m.at);
+        if (own.length === 0) return null;
+        const [first, second] = own;
+        // The reply landing is what lifts the question: both run on one clock.
+        const p = second ? enter(frame, second.at, frames) : 0;
+        const pill = (m: Message): React.CSSProperties => ({
+          position: "absolute",
+          left: m.ask ? "2.5em" : 0,
+          fontSize: size,
+          // Line pitch 39px and a one-line bubble 88px at f1489 / f1522, both
+          // at scale 1: 1.2 and 0.73em of padding at 33px. Horizontal padding
+          // is not measured. Q2 wraps to two lines inside 786px at scale
+          // 1.05 (f1522), 22.7em.
+          lineHeight: 1.2,
+          padding: "0.73em 0.9em",
+          borderRadius: "1.2em",
+          maxWidth: "22.7em",
+          width: "max-content",
+          background: m.ask ? accent : bubble,
+          color: m.ask ? accentText : color,
+        });
+        return (
+          <div
+            key={`chat-${s.i}`}
+            style={{
+              position: "absolute",
+              right: "-2%",
+              width: "55.5%",
+              top: "50%",
+              height: 0,
+              transformOrigin: "right center",
+              transform: `scale(${s.k})`,
+              opacity: s.opacity,
+            }}
+          >
+            <div
               style={{
-                fontSize: size * s.bk,
-                lineHeight: 1.35,
-                // In em, so the padding scales once with the type. In px * k it
-                // scales twice, and the near bubble comes out all padding.
-                padding: "0.55em 0.9em",
-                borderRadius: 26 * s.bk,
-                // A bubble has to wrap, or a long line walks off the frame the
-                // moment its orb gets close. The parent sets `nowrap` to keep
-                // the orb and the bubble on one line; the bubble overrides it.
-                maxWidth: 300 * s.bk,
-                whiteSpace: "normal",
-                display: "inline-block",
-                // Stacked either side of the line of orbs, as the reference
-                // stacks a question over its answer. Off the orb's scale, not
-                // the clamped one: this is clearance from the sphere.
-                transform: `translateY(${(s.answer ? 1 : -1) * orb * s.k * 0.2}px)`,
-                // Alternating fills: the reference answers in the accent and
-                // asks in the pale bubble, which is what makes a row of orbs
-                // read as a conversation rather than as decoration.
-                background: s.answer ? accent : bubble,
-                color: s.answer ? PAPER : color,
+                ...pill(first),
+                ...arrive(enter(frame, first.at, frames), 12, 16),
+                bottom: 0,
+                // Alone: hangs half its own height below the centre line, so
+                // it is centred. Paired: its bottom edge sits half a gap
+                // above it, the gap being 0.029 of the frame at f1504 and
+                // 0.049 at f1560 (both at scale 1), 1.2em. Percent in a
+                // translate is of the element itself, which is what lets
+                // this not know the bubble's height.
+                transform: `translateY(calc(${(1 - p) * 50}% - ${p * 0.6}em))`,
               }}
             >
-              {s.label}
-            </span>
-          ) : null}
-        </div>
-      ))}
+              {first.text}
+            </div>
+            {second ? (
+              <div
+                style={{
+                  ...pill(second),
+                  ...arrive(p, 12, 16),
+                  top: 0,
+                  transform: `translateY(calc(0.6em + ${(1 - p) * 16}px))`,
+                }}
+              >
+                {second.text}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
     </AbsoluteFill>
   );
 };
@@ -208,33 +248,67 @@ export { default as meta } from "./meta.json";
 export const Component = DepthFlythrough;
 
 export const defaultProps: DepthFlythroughProps = {
-  // Every other one bare. The reference's chain is denser than its conversation
-  // is: most of what recedes down the corridor is spheres, and only the two or
-  // three near the camera are carrying anything to read.
-  labels: [
-    "Hi, what do you want to know?",
-    "",
-    "How do I read a balance sheet?",
-    "",
-    "Start with what it owes.",
-    "",
-    "And then?",
-    "",
-    "Then what it owns, and the gap.",
-    "",
+  // Two exchanges, one orb each, on the reference's clock with frame 0 at
+  // f1489 (the shot's own settle-in, f1470-1489, is not reproduced: a template
+  // opens settled). The first pair is already there when the shot opens.
+  messages: [
+    { text: "Hi, what do you want to know?", ask: false, orb: 0, at: -20 },
+    { text: "How do I read a balance sheet?", ask: true, orb: 0, at: -12 },
+    {
+      text: "And how do I tell if a company is actually healthy?",
+      ask: true,
+      orb: 1,
+      at: 28,
+    },
+    {
+      text: "Start with what it owes, then what it owns, and the gap between.",
+      ask: false,
+      orb: 1,
+      at: 60,
+    },
   ],
-  gap: 0.63,
-  speed: 0.032,
-  focal: 2.2,
+  // f1510-1518: walk up one orb. f1548-1549: push in and stay; r 0.239 ->
+  // 0.279 is x1.17, which from z 0.86 is 0.125. (0.2 rendered r 0.319.)
+  pushes: [
+    { at: 21, frames: 8, z: 0.6, pass: 1 },
+    { at: 58, frames: 1, z: 0.125, pass: 0 },
+  ],
+  orbs: 6,
+  // Each orb back is 0.63 the size of the one in front (f1508: r 0.21, 0.13,
+  // 0.08), which is 1 / (1 + gap) with the front orb at z = 1.
+  gap: 0.6,
+  speed: 0.0024,
+  // The front orb's centre is at x 0.29 (f1489) and the chain converges on
+  // x 0.56; the second orb lands on 0.39 and the third on 0.44 with these two.
   vanish: 0.56,
-  offset: 0.135,
-  near: 0.55,
-  focus: 2.6,
-  blur: 3.4,
-  orb: 210,
-  size: 21,
-  color: INK,
-  bubble: "#ffffff",
+  offset: 0.27,
+  // r 0.206 of the frame height at f1489.
+  orb: 445,
+  // This shot's sphere is not the shared Orb's orange: at f1504 its disc mean
+  // is #df6f67 against the Orb's #ed7540, pink-white in the upper left
+  // (#de9893) going to deep red at the lower right (#cb2936) with an orange
+  // rim light on that edge (#ed5e42). Sampled along that axis, with the
+  // stops at their distance from a point 35% in from the top left.
+  sphere:
+    "radial-gradient(circle at 35% 35%, #e8a09b, #e5928f 25%, #dc6b64 45%, " +
+    "#cb2936 65%, #ed5e42 75%)",
+  // Edge transition of about 14px at 1920 on the f1504 crop.
+  soft: 5,
+  blur: 6,
+  // f1486-1498 for the lift, f1549-1555 for a reply's fade.
+  frames: 12,
+  // The glyph run of a line with a descender is 33px at f1489 and f1522
+  // (both at 1920, scale 1.0 / 1.05), which for Inter's cap height plus
+  // descender (0.97em) is 33-34px. With the 39px pitch and 0.73em padding
+  // a one-line bubble is 88px (f1489: 0.081 of the frame) and a two-line one
+  // 127px (f1522: 133px at 1.05). 38 was the same 88px at 1.3 / 0.5em and
+  // put two lines at 137.
+  size: 33,
+  // Measured off the bubbles at f1504: pale fill #fafafa with #3d251a text
+  // (warmer and lighter than INK), accent fill #ef4a06 with #fff9e8 text.
+  color: "#3d251a",
+  bubble: "#fafafa",
   accent: ORANGE,
+  accentText: "#fff9e8",
   background: BONE,
 };

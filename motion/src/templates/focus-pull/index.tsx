@@ -1,105 +1,121 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { GRADIENT, PAPER } from "../../lib/palette";
-import { Gradient, type GradientProps, MESH } from "../../lib/Gradient";
+import { AbsoluteFill, Easing, useCurrentFrame } from "remotion";
+import { PAPER } from "../../lib/palette";
+import { DIM, Gradient, type GradientProps } from "../../lib/Gradient";
 import { SERIF } from "../../lib/fonts";
 import { enter, useDuration } from "../../lib/timing";
 
 /*
- * Focus pull: two planes of type, one near and one far, and the focus racks
- * from one to the other while both stay on screen.
+ * Focus pull: a block of type holds sharp, then the camera pushes through it.
+ * It swells, goes soft top line first, and is gone before the push ends,
+ * leaving the ground alone for the cut.
  *
- * Reference: f1372-1400 — "Your digital mind is born" is sharp against a soft
- * background, and over about 16 frames the near line goes to mush while what
- * was behind it resolves. It is the cheapest way in the film to move attention
- * without moving the camera or cutting.
+ * Reference: f1372-1400 — "Your / digital mind / is born", one white block
+ * (#ffffff at f1380) right of centre beside the particle figure, held sharp
+ * until f1387 and pushed through over f1387-1400. Measured per frame off
+ * f1380-1400 against the empty f1400:
  *
- * Two details separate a rack focus from a crossfade, and both are here:
+ *   - Both halves of the block scale the same amount about the frame centre:
+ *     1.11 / 1.19 / 1.30 / 1.38 / 1.49 at f1390 / 92 / 94 / 95 / 96, which is
+ *     1 + 0.65 * p^1.5 over 13 frames. A constant-speed dolly is 1/(1 - vt),
+ *     and over this short a move that is t^1.5 to within the measurement.
+ *   - The top two lines lose their bright core within two frames (luminance
+ *     > 215 gone at f1389); "is born" keeps its four frames longer (gone at
+ *     f1394). The defocus is not one filter on the block.
+ *   - Light does not simply blur away: the excess over the empty frame rises
+ *     to x2.0 at f1395 with the growth, then falls 0.95 / 0.90 / 0.75 / 0.48 /
+ *     0 over f1396-1400. The last five frames are an ease-in fade on top of
+ *     the blur. By f1400 the block is gone -- though not the frame: f1400
+ *     still carries the block's bloom and a bright glyph of the shot after it,
+ *     so it is not a clean plate of this shot's ground.
  *
- * - Neither plane's opacity changes. A plane going out of focus keeps all its
- *   light, it just stops being legible. Fading it out reads as a dissolve.
- * - The near plane also scales, very slightly (`breathe`). A real lens changes
- *   magnification as it racks, and without it the shot looks like a Gaussian
- *   blur being turned up on a still, which is exactly what it is.
+ * What this used to be was a two-plane rack focus with a peach far plane; the
+ * reference has one plane, one colour, and a push. See the README.
  */
 
 export type FocusPullProps = {
   durationInFrames?: number;
-  /** the plane that starts sharp; newlines are hard breaks */
-  near: string;
-  /** the plane that ends sharp */
-  far: string;
-  /** frame the rack starts */
+  /** the block; newlines are hard breaks. Lines go soft top to bottom. */
+  text: string;
+  /** frame the push starts; the block holds sharp until then */
   at: number;
-  /** frames the rack takes. 16 in the reference. */
+  /** frames the push takes; the block is gone at the end of it */
   frames: number;
-  /** px of defocus a plane carries when it is not the subject */
+  /** how much bigger the block is by the end of the push, as a fraction */
+  zoom: number;
+  /** px of defocus a line carries by the end */
   blur: number;
-  /** how much the near plane grows as it goes soft, as a fraction */
-  breathe: number;
-  /** px the far plane sits below the near one */
-  offset: number;
-  nearSize: number;
-  farSize: number;
+  /** frames the last line stays sharp after the lines above it have started to go */
+  lag: number;
+  /** frames of opacity fade at the end of the push */
+  fade: number;
+  /** the block's centre, as fractions of the frame */
+  x: number;
+  y: number;
+  size: number;
+  /** line-height, as a multiple of `size` */
+  leading: number;
   color: string;
-  farColor: string;
   gradient: GradientProps;
 };
 
 export const FocusPull: React.FC<FocusPullProps> = ({
   durationInFrames,
-  near,
-  far,
+  text,
   at,
   frames,
+  zoom,
   blur,
-  breathe,
-  offset,
-  nearSize,
-  farSize,
+  lag,
+  fade,
+  x,
+  y,
+  size,
+  leading,
   color,
-  farColor,
   gradient,
 }) => {
   const frame = useCurrentFrame();
   useDuration(durationInFrames);
-  const rack = enter(frame, at, frames);
+  const lines = text.split("\n");
+  const push = enter(frame, at, frames, Easing.poly(1.5));
+  const gone = enter(frame, at + frames - fade, fade, Easing.in(Easing.quad));
 
   return (
     <AbsoluteFill>
       <Gradient {...gradient} />
+      {/* The push scales about the frame centre, not the block: f1390-1396
+          has the block's near and far edges growing by the same factor. */}
       <AbsoluteFill
         style={{
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: SERIF,
-          textAlign: "center",
-          whiteSpace: "pre-line",
+          transform: `scale(${1 + zoom * push})`,
+          opacity: 1 - gone,
         }}
       >
         <div
           style={{
             position: "absolute",
-            transform: `translateY(${offset}px)`,
-            fontSize: `${farSize * 100}vh`,
-            lineHeight: 1.1,
-            color: farColor,
-            filter: `blur(${(1 - rack) * blur}px)`,
-          }}
-        >
-          {far}
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            fontSize: `${nearSize * 100}vh`,
-            lineHeight: 1.1,
+            left: `${x * 100}%`,
+            top: `${y * 100}%`,
+            transform: "translate(-50%, -50%)",
+            // Absolutely positioned, the block's width is what is left of
+            // the frame right of `x`; the lines must not wrap into it.
+            whiteSpace: "nowrap",
+            fontFamily: SERIF,
+            fontSize: `${size * 100}vh`,
+            lineHeight: leading,
             color,
-            filter: `blur(${rack * blur}px)`,
-            transform: `scale(${1 + rack * breathe})`,
           }}
         >
-          {near}
+          {lines.map((line, i) => {
+            const last = i === lines.length - 1;
+            const soft = enter(frame, at + (last ? lag : 0), frames - lag);
+            return (
+              <div key={i} style={{ filter: `blur(${soft * blur}px)` }}>
+                {line}
+              </div>
+            );
+          })}
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
@@ -110,16 +126,30 @@ export { default as meta } from "./meta.json";
 export const Component = FocusPull;
 
 export const defaultProps: FocusPullProps = {
-  near: "Your\ndigital mind",
-  far: "is born",
-  at: 22,
-  frames: 16,
-  blur: 14,
-  breathe: 0.06,
-  offset: 424,
-  nearSize: 0.29,
-  farSize: 0.256,
+  text: "Your\ndigital mind\nis born",
+  // f1387 on the f1372 -> frame 0 clock the cut uses is frame 15; the push
+  // sits at 53 so the block holds for most of the shot and the empty tail
+  // after it (f1400, six frames here) is what the cut lands on. See README.
+  at: 53,
+  frames: 13,
+  zoom: 0.65,
+  // Luminance > 215 is gone two frames in: the ease-out default on `enter`
+  // puts 40% of this on by then, which is more than a stroke width.
+  blur: 60,
+  lag: 4,
+  fade: 5,
+  // The block is right of centre beside the particle figure, x 0.503-0.927
+  // and y 0.305-0.704 at f1380 (extent at 1920): ink centre (0.715, 0.505).
+  // This face's box centre is its ink centre: y 0.47 rendered 0.272-0.672.
+  x: 0.715,
+  y: 0.505,
+  // The block is 0.424 wide by 0.399 tall at f1380 (extent at 1920) and the
+  // lines are pitched 0.136 apart (tops at 0.298 / 0.431 / 0.570). At 0.16,
+  // which matches "Your"'s cap height, this narrower face rendered 0.356 by
+  // 0.367; 0.18 puts both within 5%.
+  size: 0.18,
+  leading: 0.85,
   color: PAPER,
-  farColor: GRADIENT[7],
-  gradient: MESH,
+  // The dimmer, flatter ground of f1344-f1400; see DIM in lib/Gradient.tsx.
+  gradient: DIM,
 };

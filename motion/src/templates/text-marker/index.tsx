@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Easing, useCurrentFrame } from "remotion";
 import { BONE, INK, ORANGE } from "../../lib/palette";
 import { SANS } from "../../lib/fonts";
 import { enter, useDuration } from "../../lib/timing";
@@ -8,12 +8,14 @@ import { enter, useDuration } from "../../lib/timing";
  * Text marker: a highlight or a strike-through wiping across one run of a
  * paragraph, left to right, the way a person draws it.
  *
- * Measured off the reference at f1056-f1072 — a sliver at the left of the run
- * on f1056, the full run covered by f1072. **16 frames**, and the run stays
- * marked afterwards. The two variants are the same wipe with a different box
- * height and vertical placement, which is why they are one template: swapping
- * `variant` is a one-word edit, and having built both you would only ever
- * change them together.
+ * Measured off the reference at f1056-f1070 by the fill's column span on the
+ * marked line: 0% at f1057, 4.5% f1058, 12.8% f1060, 39.4% f1061, 54.7% f1063,
+ * 76.1% f1064, 93.1% f1067, 100% f1070. **14 frames, ease-in-out** — slow off
+ * the left, fast through the middle, slow into the right edge — and the run
+ * stays marked afterwards. The two variants are the same wipe with a different
+ * box height and vertical placement, which is why they are one template:
+ * swapping `variant` is a one-word edit, and having built both you would only
+ * ever change them together.
  *
  * The wipe is a scaleX from the left edge, not a width animation: a width
  * animation reflows the paragraph on every frame, and at 30fps you can see the
@@ -29,7 +31,7 @@ export type TextMarkerProps = {
   variant: "highlight" | "strike";
   /** frame the wipe starts */
   at: number;
-  /** frames the wipe takes. 16 in the reference. */
+  /** frames the wipe takes. 14 in the reference. */
   frames: number;
   markColor: string;
   /** the run's own colour once marked; "" leaves it alone */
@@ -54,7 +56,10 @@ export const TextMarker: React.FC<TextMarkerProps> = ({
 }) => {
   const frame = useCurrentFrame();
   useDuration(durationInFrames);
-  const wipe = enter(frame, at, frames);
+  // Ease-in-out quad, not the default ease-out: the reference is at 13% two
+  // frames in and 55% at the midpoint (f1060, f1063), which an ease-out cubic
+  // would have at 40% and 88%.
+  const wipe = enter(frame, at, frames, Easing.inOut(Easing.quad));
 
   return (
     <AbsoluteFill
@@ -120,7 +125,15 @@ export const TextMarker: React.FC<TextMarkerProps> = ({
                         style={{
                           position: "absolute",
                           left: 0,
+                          // Span the inline's box and centre in it, rather than
+                          // `top: 0`: this copy is a block with its own 1.5
+                          // line box, and pinned to the top its glyphs sat half
+                          // a leading below the ink copy's. The dark ink showing
+                          // under the offset made the run read bold.
                           top: 0,
+                          bottom: 0,
+                          display: "flex",
+                          alignItems: "center",
                           whiteSpace: "pre",
                           color: markTextColor,
                           clipPath: `inset(-0.5em ${(1 - wipe) * 100}% -0.5em -0.2em)`,
@@ -148,13 +161,14 @@ export const defaultProps: TextMarkerProps = {
   text:
     "I love that finance is a mirror.\n" +
     "It reflects human behavior, fear, greed, discipline,\n" +
-    "all in real time. Mastering it isn't just about money,\n" +
-    "it's about mastering yourself.",
-  mark: "it's about mastering yourself",
+    "all in real time. Mastering it isn’t just about money,\n" +
+    "it’s about mastering yourself.",
+  mark: "it’s about mastering yourself",
   variant: "highlight",
   at: 12,
-  frames: 16,
-  markColor: "#f6c0a6",
+  frames: 14,
+  // Crop census of the fill at f1064, f1075 and f1080; #efbead at f1086.
+  markColor: "#f0bead",
   markTextColor: ORANGE,
   size: 0.052,
   color: INK,

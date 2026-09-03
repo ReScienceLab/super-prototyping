@@ -10,7 +10,7 @@ never turns into an empty entry in the studio sidebar.
 | `palette.ts`  | the reference film's colours, each with the frame it came off     |
 | `fonts.ts`    | the two faces, and the substitution note                          |
 | `timing.ts`   | `useDuration`, `enter`, `leave`, `arrive`, `stagger`              |
-| `Gradient.tsx`| the warm mesh ground with the diagonal light band                 |
+| `Gradient.tsx`| the warm ground: `MESH` with its band, `DIM` without one          |
 | `Orb.tsx`     | the film's soft warm sphere                                       |
 
 ## The reference
