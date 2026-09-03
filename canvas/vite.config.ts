@@ -25,32 +25,18 @@ function repoRootMeta(): Plugin {
   };
 }
 
-/**
- * One chunk per board folder. Every board's HTML is inlined as a string, and the biggest
- * folders run to several MB each; in one bundle they push past the 25 MiB per-file limit
- * Cloudflare Pages enforces, so each `mockups/canvases/<slug>/` becomes its own `board-<slug>`
- * chunk instead.
- */
-const BOARD_FOLDER = /\/mockups\/canvases\/([^/]+)\//;
-
 export default defineConfig({
   plugins: [react(), repoRootMeta()],
+  server: {
+    // The boards sit one level up from this app. The eager glob used to pull every file into
+    // the module graph at startup, which is what let the dev server hand them out; now that
+    // they load on demand the folder has to be allowed outright.
+    fs: { allow: [repoRoot] },
+  },
   build: {
-    chunkSizeWarningLimit: 8_000,
-    rolldownOptions: {
-      output: {
-        advancedChunks: {
-          groups: [
-            {
-              name: (id) => {
-                const slug = BOARD_FOLDER.exec(id)?.[1];
-                return slug ? `board-${slug}` : undefined;
-              },
-              test: BOARD_FOLDER,
-            },
-          ],
-        },
-      },
-    },
+    // Every board under mockups/canvases is its own lazy chunk (canvasLibrary.ts), fetched when
+    // a shape first shows it. The largest single board is a few MB of inlined images, which is
+    // the size of the thing and not a bundling mistake, so the warning starts above it.
+    chunkSizeWarningLimit: 4_000,
   },
 });
