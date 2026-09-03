@@ -241,7 +241,10 @@ DARK = _dark()
 BASE = """*{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--ac-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}"""
 
-PHONE = """.phone{width:var(--ac-w);height:var(--ac-h);position:relative;flex:none;overflow:hidden;border-radius:var(--ac-r-phone);background:var(--ac-bg);color:var(--ac-ink);outline:1px solid rgba(0,0,0,.10);box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+# translateZ(0) composites the frame itself. Safari on iPhone clips composited children (blur,
+# backdrop-filter) of a non-composited ancestor with a plain rectangle, so the screen painted
+# square past the bezel's corners; a composited frame clips them with its own rounded mask.
+PHONE = """.phone{width:var(--ac-w);height:var(--ac-h);position:relative;flex:none;overflow:hidden;border-radius:var(--ac-r-phone);background:var(--ac-bg);color:var(--ac-ink);transform:translateZ(0);outline:1px solid rgba(0,0,0,.10);box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
 .sb{position:absolute;left:0;right:0;top:0;height:var(--ac-sb);z-index:8}
 .sb .t{position:absolute;left:10px;top:18px;width:123.5px;height:22px;text-align:center;font:var(--ac-t-b17)}
 .sb .island{position:absolute;left:133.5px;top:11px;width:var(--ac-island-w);height:var(--ac-island-h);border-radius:var(--ac-r-pill);background:var(--ac-black)}
