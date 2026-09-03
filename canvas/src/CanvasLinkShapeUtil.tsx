@@ -65,7 +65,7 @@ const STAR = (
 
 // oxlint-disable-next-line react/only-export-components
 function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
-  const { w, h, label, path } = shape.props;
+  const { w, h, label, path, url } = shape.props;
   const html = canvasFileHtml.get(path);
 
   const frame = {
@@ -79,6 +79,9 @@ function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
   } as const;
 
   if (!path) {
+    // The repo button is the one that asks for something, so it is the one that gets the mark
+    // and the star. Every other button is its label and the arrow that says it leaves the page.
+    const isRepo = url.startsWith("https://github.com/");
     return (
       <HTMLContainer
         style={{
@@ -91,9 +94,9 @@ function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
           color: INK,
         }}
       >
-        {GITHUB}
+        {isRepo ? GITHUB : null}
         <span>{label}</span>
-        {STAR}
+        {isRepo ? STAR : <span style={{ color: MUTED }}>&#8599;</span>}
       </HTMLContainer>
     );
   }

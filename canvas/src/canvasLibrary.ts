@@ -24,14 +24,32 @@ export interface CanvasLibraryFile {
   title: string;
 }
 
-/** A row's file, either by name alone (uses that file's humanized title) or with a label override. */
-export type CanvasLayoutFileEntry = string | { file: string; label?: string };
+/**
+ * A row's file, either by name alone (uses that file's humanized title) or with a label
+ * override. `w`/`h` override the 478 x 980 artboard for a board that is not phone-shaped,
+ * a landscape banner say; a row is laid out at its first file's size, so give every file
+ * in the row the same one.
+ */
+export type CanvasLayoutFileEntry =
+  | string
+  | { file: string; label?: string; w?: number; h?: number };
+
+/** A button under a row that opens an address in a new tab. */
+export interface CanvasLayoutLink {
+  label: string;
+  url: string;
+}
 
 export interface CanvasLayoutRow {
   title: string;
   files: CanvasLayoutFileEntry[];
   /** Prefix each caption with its 1-based position in `files`, e.g. "3 · Referral". */
   numbered?: boolean;
+  /**
+   * Buttons under this row's boards. Boards render in `<iframe srcDoc sandbox="">`, where a
+   * link cannot navigate anything, so anything clickable has to be a shape out here.
+   */
+  links?: CanvasLayoutLink[];
 }
 
 export interface CanvasLayoutConfig {

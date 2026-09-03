@@ -14,7 +14,7 @@ and 6 more that park each capture under its replica.
 | 06 | `view-resource` | The light meeting sheet over a LinkedIn thread |
 | 00 | `design-tokens` | 88 tokens |
 | 00b-00d | `evidence` | The measurement behind every one of them |
-| 00a | `product` | The app itself: App Store copy, icon, two QR codes |
+| 00a | `product` | The app itself, as a 2152 x 460 banner rather than a phone |
 
 Two device sizes, not one. Captures 01 and 02 are 1320 x 2868 for a 440 x 956
 frame (iPhone 16 Pro Max, 3.359 px per design pt); 03 to 05 are 1290 x 2796
@@ -262,6 +262,13 @@ measure it against: SnapAction is ReScience Lab's own app, and this board is
 the product rather than a copy of it. The copy and the icon are the App Store
 listing's, the facts come from the iTunes lookup, and the two QR codes are
 built from the URLs and decoded back to prove they carry them.
+
+It is the one board here that is not phone-shaped: a 2152 x 460 banner, that
+width being `4 x 478 + 3 x 80` so it spans the foundations row underneath it
+exactly. `layout.json` carries the size, and the two buttons under it, because
+a board renders in `<iframe srcDoc sandbox="">` and a link in the markup could
+navigate nothing; the clickable part has to be a shape on the canvas. Its two
+QR codes say the same two addresses for anyone reading a screenshot.
 
 Its foot is the exception. `snapaction.ai` ships its palette as `oklch()`
 custom properties, and converting them to sRGB says the site and the app do

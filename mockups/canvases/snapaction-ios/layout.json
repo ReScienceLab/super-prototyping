@@ -6,7 +6,19 @@
       "files": [
         {
           "file": "00a-product",
-          "label": "SnapAction"
+          "label": "SnapAction",
+          "w": 2152,
+          "h": 460
+        }
+      ],
+      "links": [
+        {
+          "label": "snapaction.ai",
+          "url": "https://snapaction.ai/"
+        },
+        {
+          "label": "Download on the App Store",
+          "url": "https://apps.apple.com/app/id6759501517"
         }
       ]
     },

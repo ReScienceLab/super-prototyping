@@ -38,7 +38,8 @@ laid out top to bottom:
   "rows": [
     { "title": "Foundations", "files": ["00-design-tokens"] },
     { "title": "Screens", "numbered": true,
-      "files": [{ "file": "01-example-screen", "label": "Home" }] },
+      "files": [{ "file": "01-example-screen", "label": "Home" }],
+      "links": [{ "label": "example.com", "url": "https://example.com" }] },
     { "title": "Source of truth: references", "numbered": true,
       "files": [{ "file": "ref-01-home", "label": "Home" }] }
   ]
@@ -56,6 +57,13 @@ laid out top to bottom:
   humanized file name becomes the caption) or `{ "file", "label" }`.
 - `numbered: true` prefixes each caption with its 1-based position. Never
   hand-number labels, position is computed.
+- `{ "file", "label", "w", "h" }` overrides the 478 x 980 artboard for a board
+  that is not phone-shaped, a landscape banner say. A row is laid out at its
+  first file's size, so give every file in the row the same one.
+- `"links": [{ "label", "url" }]` puts buttons under the row that open an
+  address in a new tab. A board renders in `<iframe srcDoc sandbox="">`, where
+  a link can navigate nothing, so anything clickable has to be a shape out
+  here rather than markup in the board.
 - Every row starts at x = 0 with the same column pitch, so **item N of one
   row sits directly under item N of the row above**. That is what makes a
   reference row readable against the mockup row above it.
@@ -192,13 +200,13 @@ files sitting in the folder are invisible to the canvas.
   gitignored, so a fresh clone has 13.
 - `snapaction-ios/`: the run to read when the screens are almost entirely
   type. Six screens of SnapAction, five dark and one light sheet, rebuilt from
-  the captures inside its Figma file. 11 boards in four rows: the product
-  board, a token board, three evidence boards for 88 tokens, the six replicas,
-  and the capture of each column-for-column underneath. Mean absolute delta
-  against those captures is 1.29-2.34 levels (of 255) on the five device
-  screens, better than any
-  other screenshot-sourced run here and reached without cropped artwork
-  carrying it. Its `README.md` records how: `ct()` models the line box, and the
+  the captures inside its Figma file. 11 boards in four rows: a landscape
+  product banner with its two links, a token board, three evidence boards for
+  88 tokens, the six replicas, and the capture of each column-for-column
+  underneath. Mean absolute delta against those captures is 1.29-2.34 levels
+  (of 255) on the five device screens, better than any other
+  screenshot-sourced run here and reached without cropped artwork carrying
+  it. Its `README.md` records how: `ct()` models the line box, and the
   residual one constant still misses is measured per token and does not follow
   the size, so `t-code` at 13px wants its run 0.33pt higher while `t-meta` at
   12.65px wants its own 0.23pt lower. It also records the `font:` shorthand

@@ -26,6 +26,7 @@ import {
   CanvasLinkShapeUtil,
 } from "./CanvasLinkShapeUtil";
 import {
+  type CanvasLayoutLink,
   type CanvasLibraryFile,
   readCanvasLayout,
   readCanvasLibrary,
@@ -77,10 +78,20 @@ const WELCOME_BOARD_SIZE = { w: 2153, h: 819 } as const;
  */
 const WELCOME_STAR_SLOT = { x: 414, y: 568 } as const;
 
+/**
+ * The artboard box, which is 478 x 980 unless something says otherwise: the welcome board is
+ * a landscape strip, and any row of a layout.json may declare its own `w`/`h` for a board that
+ * is not phone-shaped either.
+ */
 function boardSize(file: CanvasLibraryFile) {
-  return file.pageSlug === WELCOME_PAGE_SLUG
-    ? WELCOME_BOARD_SIZE
-    : CANVAS_FILE_DEFAULT_SIZE;
+  if (file.pageSlug === WELCOME_PAGE_SLUG) return WELCOME_BOARD_SIZE;
+  for (const row of readCanvasLayout(file.pageSlug)?.rows ?? []) {
+    for (const entry of row.files) {
+      if (typeof entry === "string" || entry.file !== file.fileName) continue;
+      if (entry.w && entry.h) return { w: entry.w, h: entry.h };
+    }
+  }
+  return CANVAS_FILE_DEFAULT_SIZE;
 }
 
 const LIBRARY_COLUMNS = 3;
@@ -182,6 +193,7 @@ function layoutRow(
   rowTop: number,
   heading: string,
   caption: (file: CanvasLibraryFile, index: number) => string,
+  links: CanvasLayoutLink[] = [],
 ) {
   if (!rowFiles.length) return rowTop;
 
@@ -211,6 +223,34 @@ function layoutRow(
 
   if (bare) return contentY + size.h + LIBRARY_GAP;
 
+  // Buttons sit between the boards and their captions, so the caption stays the bottom line
+  // of the row whether or not it has any.
+  const linksY = contentY + size.h + LIBRARY_LABEL_GAP;
+  const linksH = links.length
+    ? CANVAS_LINK_BUTTON_SIZE.h + LIBRARY_LABEL_GAP
+    : 0;
+  const missingLinks = links
+    .map((link, index) => ({ link, index }))
+    .filter(({ link }) => !editor.getShape(linkShapeId(link.url)));
+  if (missingLinks.length) {
+    editor.createShapes(
+      missingLinks.map(({ link, index }) => ({
+        id: linkShapeId(link.url),
+        type: CANVAS_LINK_SHAPE_TYPE,
+        parentId: page.id,
+        x: index * (CANVAS_LINK_BUTTON_SIZE.w + LIBRARY_LABEL_GAP),
+        y: linksY,
+        props: {
+          ...CANVAS_LINK_BUTTON_SIZE,
+          label: link.label,
+          page: "",
+          path: "",
+          url: link.url,
+        },
+      })),
+    );
+  }
+
   createAnnotation(editor, {
     id: `canvas-row-heading:${page.id}:${heading}`,
     text: heading,
@@ -226,7 +266,7 @@ function layoutRow(
       id: `canvas-file-label:${file.path}`,
       text: caption(file, index),
       x: rowX(index),
-      y: contentY + size.h + LIBRARY_LABEL_GAP,
+      y: linksY + linksH,
       w: size.w,
       size: "s",
       align: "middle",
@@ -234,9 +274,7 @@ function layoutRow(
     });
   });
 
-  return (
-    contentY + size.h + LIBRARY_LABEL_GAP + LIBRARY_LABEL_HEIGHT + LIBRARY_GAP
-  );
+  return linksY + linksH + LIBRARY_LABEL_HEIGHT + LIBRARY_GAP;
 }
 
 function linkShapeId(name: string) {
@@ -437,6 +475,7 @@ function initializeCanvasLibrary(editor: Editor) {
           const caption = rowFiles[index].label ?? file.title;
           return row.numbered ? `${index + 1} · ${caption}` : caption;
         },
+        row.links,
       );
     }
 
