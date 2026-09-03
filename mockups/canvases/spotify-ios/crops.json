@@ -1,0 +1,32 @@
+{
+  "_": "Art cut from assets/refs/NN.png at measured pt boxes, 2.24173 capture px per design pt. gen.py writes assets/art/<id>.png and places each <img> at its own box, so an asset can never drift from where it was measured. Chrome (chips, cards, buttons, type, tab bar, both modals) is CSS.",
+
+  "_home": "01 and 04 are the same scroll position with a different chip row: max |delta| below y=115 is 26 levels, mean 0.98, so one crop set cut from 04 serves both. The station and mix cards are album artwork; the two track thumbs are album artwork under the bottom fade, so they carry the fade with them and are placed above the fade overlay.",
+
+  "st1": ["04",  17.9, 170.0, 162.6, 315.0],
+  "st2": ["04", 183.0, 170.0, 327.7, 315.0],
+  "st3": ["04", 348.1, 170.0, 393.0, 315.0],
+  "mx1": ["04",  17.9, 430.0, 162.6, 575.0],
+  "mx2": ["04", 183.0, 430.0, 327.7, 575.0],
+  "mx3": ["04", 348.1, 430.0, 393.0, 575.0],
+  "th1": ["04",  16.2, 710.3,  64.4, 758.3],
+  "th2": ["04",  16.2, 772.5,  64.4, 820.5],
+
+  "_02": "The Jam modal's own illustration, plus the dimmed home screen behind it in four pieces that surround the modal rect exactly (29.5,182.5)-(363.5,668.8). At a black scrim of alpha .802 the backdrop's true colours cannot be recovered: one byte of capture becomes five bytes of source, so a rebuild would invent precision the capture does not hold. The modal itself -- the subject of the screen -- is entirely CSS.",
+
+  "02-illus": ["02", 108.7, 221.0, 285.3, 370.4],
+  "02-bg-t":  ["02",   0.0,  54.0, 393.0, 182.5],
+  "02-bg-l":  ["02",   0.0, 182.5,  29.5, 668.8],
+  "02-bg-r":  ["02", 363.5, 182.5, 393.0, 668.8],
+  "02-bg-b":  ["02",   0.0, 668.8, 393.0, 852.0],
+
+  "03-illus": ["03", 152.1, 222.3, 242.2, 364.2],
+
+  "_05": "The Codes modal's album collage, plus the dimmed Search screen behind it in four pieces surrounding the modal rect (46.2,233.5)-(346.8,613.7). The backdrop is the Search screen at opacity .115 over #111111, where one byte of capture is 8.7 bytes of source.",
+
+  "05-collage": ["05",  80.6, 260.1, 312.1, 417.8],
+  "05-bg-t":   ["05",   0.0,  54.0, 393.0, 233.5],
+  "05-bg-l":   ["05",   0.0, 233.5,  46.2, 613.7],
+  "05-bg-r":   ["05", 346.8, 233.5, 393.0, 613.7],
+  "05-bg-b":   ["05",   0.0, 613.7, 393.0, 852.0]
+}

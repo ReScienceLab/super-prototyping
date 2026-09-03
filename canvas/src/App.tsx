@@ -3,9 +3,11 @@ import {
   Tldraw,
   createShapeId,
   getIndices,
+  react,
   toRichText,
   type Editor,
   type TLPageId,
+  type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
   useEditor,
@@ -13,6 +15,7 @@ import {
 } from "tldraw";
 import "tldraw/tldraw.css";
 import { installAgentBridge } from "./agentBridge";
+import { WELCOME_PAGE_SLUG, slugFromUrl, urlForSlug } from "./canvasUrl";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
   CANVAS_FILE_SHAPE_TYPE,
@@ -24,6 +27,7 @@ import {
   CANVAS_LINK_SHAPE_TYPE,
   type CanvasLinkShape,
   CanvasLinkShapeUtil,
+  installLockedLinkClicks,
 } from "./CanvasLinkShapeUtil";
 import {
   type CanvasLayoutLink,
@@ -63,21 +67,12 @@ try {
 }
 
 /** The onboarding folder. Sorts first, and the bare URL opens it. */
-const WELCOME_PAGE_SLUG = "00-welcome";
 
 /**
- * The one board that is not phone-shaped: a landscape strip as wide as the row of example
- * cards under it. Keep it in step with the `body` box in 00-welcome/gen.py.
- */
-const WELCOME_BOARD_SIZE = { w: 2153, h: 819 } as const;
-
-/**
- * The artboard box, which is 478 x 980 unless something says otherwise: the welcome board is
- * a landscape strip, and any row of a layout.json may declare its own `w`/`h` for a board that
- * is not phone-shaped either.
+ * The artboard box, which is 478 x 980 unless the folder's layout.json declares its own `w`/`h`
+ * for that file, as 00-welcome does for its landscape strip.
  */
 function boardSize(file: CanvasLibraryFile) {
-  if (file.pageSlug === WELCOME_PAGE_SLUG) return WELCOME_BOARD_SIZE;
   for (const row of readCanvasLayout(file.pageSlug)?.rows ?? []) {
     for (const entry of row.files) {
       if (typeof entry === "string" || entry.file !== file.fileName) continue;
@@ -93,9 +88,41 @@ const LIBRARY_LABEL_GAP = 12;
 const LIBRARY_LABEL_HEIGHT = 28;
 const LIBRARY_HEADING_HEIGHT = 44;
 
+/**
+ * Id prefixes of everything the library places: boards, row headings, captions, and the cards
+ * and buttons that open things. They are all created locked, and `lockLibraryShapes` locks any
+ * that a browser persisted before that was so. Locked, a shape cannot be selected, so a reader
+ * who means to pinch or scroll cannot drag a board out of its row by accident; the camera is the
+ * only thing that moves. The layout is declared in layout.json, so a board is never repositioned
+ * by hand anyway. Anything a person draws on top stays unlocked and editable.
+ */
+const LIBRARY_SHAPE_PREFIXES = [
+  "shape:canvas-file:",
+  "shape:canvas-row-heading:",
+  "shape:canvas-file-label:",
+  "shape:canvas-link:",
+];
+
+function isLibraryShapeId(id: string) {
+  return LIBRARY_SHAPE_PREFIXES.some((prefix) => id.startsWith(prefix));
+}
+
+/** Deletes library shapes, which are locked and would otherwise be skipped by `deleteShapes`. */
+function deleteLibraryShapes(editor: Editor, ids: TLShapeId[]) {
+  if (!ids.length) return;
+  editor.run(() => editor.deleteShapes(ids), { ignoreShapeLock: true });
+}
+
 function AgentBridge() {
   const editor = useEditor();
   useEffect(() => installAgentBridge(editor), [editor]);
+  return null;
+}
+
+/** Cards and buttons are locked like everything else the library places; this keeps them clickable. */
+function LockedLinkClicks() {
+  const editor = useEditor();
+  useEffect(() => installLockedLinkClicks(editor), [editor]);
   return null;
 }
 
@@ -143,6 +170,7 @@ function createAnnotation(
       type: "text",
       x: annotation.x,
       y: annotation.y,
+      isLocked: true,
       props: { richText: toRichText(annotation.text), w: annotation.w },
     });
     return;
@@ -154,6 +182,7 @@ function createAnnotation(
     x: annotation.x,
     y: annotation.y,
     parentId: annotation.parentId,
+    isLocked: true,
     props: {
       autoSize: false,
       color: annotation.color ?? "black",
@@ -210,6 +239,7 @@ function layoutRow(
         parentId: page.id,
         x: rowX(rowFiles.indexOf(file)),
         y: contentY,
+        isLocked: true,
         props: {
           ...size,
           name: file.title,
@@ -238,6 +268,7 @@ function layoutRow(
         parentId: page.id,
         x: index * (CANVAS_LINK_BUTTON_SIZE.w + LIBRARY_LABEL_GAP),
         y: linksY,
+        isLocked: true,
         props: {
           ...CANVAS_LINK_BUTTON_SIZE,
           label: link.label,
@@ -308,7 +339,7 @@ function layoutWelcomeExtras(
   // The repo CTA used to be a shape parked in the welcome board's header. It is chrome now
   // (canvasChrome.tsx, SharePanel), so a canvas saved before that still has to lose its copy.
   const starId = linkShapeId("star");
-  if (editor.getShape(starId)) editor.deleteShape(starId);
+  if (editor.getShape(starId)) deleteLibraryShapes(editor, [starId]);
   if (!targets.length) return;
 
   // Two rows, because twelve cards in one row read as a list of twelve unrelated things: the
@@ -338,7 +369,7 @@ function layoutWelcomeExtras(
   const orphans = [...editor.getPageShapeIds(page.id)].filter(
     (id) => id.startsWith("shape:canvas-row-heading:") && !kept.has(id),
   );
-  if (orphans.length) editor.deleteShapes(orphans);
+  deleteLibraryShapes(editor, orphans);
 
   const cardX = (index: number) =>
     index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
@@ -359,6 +390,7 @@ function layoutWelcomeExtras(
         parentId: page.id,
         x: cardX(index),
         y: contentY,
+        isLocked: true,
         props: {
           ...CANVAS_LINK_CARD_SIZE,
           label: files[0].pageName,
@@ -390,6 +422,7 @@ function layoutWelcomeExtras(
           type: card.type,
           x: card.x,
           y: card.y,
+          isLocked: true,
           props: { ...card.props },
         });
       }
@@ -513,6 +546,7 @@ function initializeCanvasLibrary(editor: Editor) {
             id: fileShapeId(file),
             type: CANVAS_FILE_SHAPE_TYPE,
             parentId: page.id,
+            isLocked: true,
             x: columnX(index % LIBRARY_COLUMNS),
             y:
               rowTop +
@@ -533,8 +567,26 @@ function initializeCanvasLibrary(editor: Editor) {
     }
   }
 
+  lockLibraryShapes(editor);
   pruneEmptyOrphanPages(editor, libraryPages);
   orderPagesByLibrary(editor, libraryPages);
+}
+
+/**
+ * Locks every library shape that is not locked yet. New ones are created locked; this is for
+ * shapes a browser persisted before they were, and for any unlocked with "Unlock all" to be
+ * nudged in the meantime. They lock again on the next load, so the layout is not left movable
+ * for the next reader by accident.
+ */
+function lockLibraryShapes(editor: Editor) {
+  const unlocked = editor
+    .getPages()
+    .flatMap((page) => [...editor.getPageShapeIds(page.id)])
+    .filter(isLibraryShapeId)
+    .map((id) => editor.getShape(id))
+    .filter((shape) => shape && !shape.isLocked)
+    .map((shape) => ({ id: shape!.id, type: shape!.type, isLocked: true }));
+  if (unlocked.length) editor.updateShapes(unlocked);
 }
 
 /**
@@ -587,35 +639,54 @@ function pruneEmptyOrphanPages(editor: Editor, libraryPages: Set<TLPageId>) {
  * refresh that clears that drift. Hand-drawn shapes and notes are untouched.
  */
 function relayoutCanvasLibrary(editor: Editor) {
-  const prefixes = [
-    "shape:canvas-file:",
-    "shape:canvas-row-heading:",
-    "shape:canvas-file-label:",
-    "shape:canvas-link:",
-  ];
   for (const page of editor.getPages()) {
-    const staleIds = [...editor.getPageShapeIds(page.id)].filter((id) =>
-      prefixes.some((prefix) => id.startsWith(prefix)),
+    deleteLibraryShapes(
+      editor,
+      [...editor.getPageShapeIds(page.id)].filter(isLibraryShapeId),
     );
-    if (staleIds.length) editor.deleteShapes(staleIds);
   }
   initializeCanvasLibrary(editor);
 }
 
 /**
- * Opens `?canvas=<slug>` (the canvases/<slug> folder name) on the matching page, so a specific
- * round can be linked to or scripted against instead of relying on whichever page tldraw last
- * persisted.
- *
- * With no slug the bare URL opens the welcome page every time, so that page is the way in:
- * keep a board open across reloads by deep-linking it, not by leaving it on screen.
+ * Opens the page the address names (canvasUrl.ts): `?canvas=<slug>` for a board, the bare URL
+ * for the welcome page. So a specific round can be linked to or scripted against instead of
+ * relying on whichever page tldraw last persisted, and the bare URL is always the way in: keep
+ * a board open across reloads by deep-linking it, not by leaving it on screen.
  */
 function applyCanvasFromUrl(editor: Editor) {
-  const slug =
-    new URLSearchParams(window.location.search).get("canvas") ??
-    WELCOME_PAGE_SLUG;
+  const slug = slugFromUrl(window.location.href);
   const page = editor.getPages().find((c) => c.meta.canvasSlug === slug);
   if (page) editor.setCurrentPage(page.id);
+}
+
+/**
+ * Keeps the address on the page being looked at, so whatever is on screen can be shared by
+ * copying the URL. Each page change (a welcome card, tldraw's page menu) pushes a history
+ * entry, so Back returns to the previous board and, from a board, to the welcome page; a
+ * popstate opens the page that entry names. Installed after applyCanvasFromUrl so the first
+ * run finds the address already applied and only corrects it, without a new entry, when it
+ * named no folder. Pages tldraw persisted but no folder claims have no slug and leave the
+ * address as it is.
+ */
+function installCanvasUrlSync(editor: Editor) {
+  let first = true;
+  const stopSync = react("canvas page in the address", () => {
+    const slug = editor.getCurrentPage().meta.canvasSlug;
+    const push = !first;
+    first = false;
+    if (typeof slug !== "string") return;
+    const href = urlForSlug(window.location.href, slug);
+    if (href === window.location.href) return;
+    if (push) window.history.pushState(null, "", href);
+    else window.history.replaceState(null, "", href);
+  });
+  const onPopState = () => applyCanvasFromUrl(editor);
+  window.addEventListener("popstate", onPopState);
+  return () => {
+    stopSync();
+    window.removeEventListener("popstate", onPopState);
+  };
 }
 
 /**
@@ -648,6 +719,7 @@ export default function App() {
     editorRef.current = editor;
     initializeCanvas(editor);
     applyCanvasFromUrl(editor);
+    return installCanvasUrlSync(editor);
   }
 
   return (
@@ -669,6 +741,7 @@ export default function App() {
           onMount={handleMount}
         >
           <AgentBridge />
+          <LockedLinkClicks />
           <WelcomeGround />
         </Tldraw>
       </main>

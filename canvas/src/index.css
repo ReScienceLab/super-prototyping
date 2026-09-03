@@ -31,14 +31,32 @@ button {
 }
 
 /*
- * The two top-right CTAs (canvasChrome.tsx). A shimmer sweeps across each one every few
- * seconds: they are the only things on the canvas asking for something, so they get the only
- * motion on it. The second is offset so the pair does not flash in lockstep. Each pill's own
- * fill, border and glow stay inline over there, next to the copy they belong to.
+ * The two top-right CTAs (canvasChrome.tsx). The pill is one shape shared by both; each one's
+ * fill, border and glow stay inline over there, next to the copy they belong to. A shimmer
+ * sweeps across each one every few seconds: they are the only things on the canvas asking for
+ * something, so they get the only motion on it. The second is offset so the pair does not
+ * flash in lockstep.
  */
+.canvas-cta-group {
+  display: flex;
+  gap: 10px;
+  margin: 10px 12px 0 0;
+}
+
 .canvas-cta {
   position: relative;
   overflow: hidden;
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 46px;
+  padding: 0 20px;
+  border-radius: 12px;
+  color: #ffffff;
+  font: 700 15px/18px Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .canvas-cta::after {
@@ -57,6 +75,28 @@ button {
 
 .canvas-cta + .canvas-cta::after {
   animation-delay: 0.7s;
+}
+
+/*
+ * On a phone the two pills with their labels are wider than the screen, and the second one
+ * was cut off at the right edge. Down to the marks alone they fit beside the page menu and
+ * still read: the app's own icon and the star.
+ */
+@media (max-width: 720px) {
+  .canvas-cta-group {
+    gap: 8px;
+    margin: 8px 8px 0 0;
+  }
+
+  .canvas-cta {
+    height: 40px;
+    padding: 0 12px;
+  }
+
+  .canvas-cta__label,
+  .canvas-cta__arrow {
+    display: none;
+  }
 }
 
 @keyframes canvas-cta-shimmer {

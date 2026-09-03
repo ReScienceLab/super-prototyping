@@ -126,8 +126,11 @@ BASE = """*{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--x-font);-webkit-font-smoothing:antialiased;
   display:flex;justify-content:center;padding:24px}"""
 
+# translateZ(0) composites the frame itself. Safari on iPhone clips composited children (blur,
+# backdrop-filter) of a non-composited ancestor with a plain rectangle, so the screen painted
+# square past the bezel's corners; a composited frame clips them with its own rounded mask.
 PHONE = """.phone{position:relative;flex:none;width:var(--x-w);height:var(--x-h);
-  border-radius:var(--x-r-phone);overflow:hidden;background:var(--x-bg);color:var(--x-ink);
+  border-radius:var(--x-r-phone);overflow:hidden;background:var(--x-bg);color:var(--x-ink);transform:translateZ(0);
   box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
 .sb{position:absolute;left:0;top:0;width:var(--x-w);height:var(--x-status);z-index:6}
 .sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--x-t-time)}

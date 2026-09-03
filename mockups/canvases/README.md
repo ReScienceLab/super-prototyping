@@ -10,6 +10,15 @@ no code change needed anywhere:
 - Files sort numerically by name, so prefix them `00-`, `01-`, `02-` …
 - Discovery lives in `canvas/src/canvasLibrary.ts` (`import.meta.glob`).
 
+A folder is an unzipped Sketch file: `layout.json` plays `document.json` and
+`meta.json`, `icon.png` plays `previews/preview.png`, `assets/` plays
+`images/`, and the numbered boards are the pages. `probes.json`,
+`crops.json` and `assets.json` are the measurement evidence. Commit them
+with the boards. Everything a run makes on the way, grids, shots, montages,
+candidate boards, goes in `<slug>/scratch/`. The root `.gitignore` ignores
+`scratch/` at any depth, and `assets/refs/` too, which is where third-party
+captures go. No folder needs a `.gitignore` of its own.
+
 Switch boards with the page menu at the top-left of the canvas. Deep-link a
 board with `?canvas=<slug>`, e.g. `http://127.0.0.1:5173/?canvas=notion-ios`.
 
@@ -108,10 +117,20 @@ Boards render inside `<iframe srcDoc sandbox="">`:
 - **The shape box is 478 × 980** (`CANVAS_FILE_DEFAULT_SIZE`). The iframe
   clips anything past that box with no warning, so check every fixed-height
   board after adding a row. `00-welcome` is the one exception, a landscape
-  2153 × 819 board (`WELCOME_BOARD_SIZE` in `canvas/src/App.tsx`, which has
-  to match the `body` box in its `gen.py`).
+  2153 × 819 board. Its `gen.py` writes that size into `layout.json` as
+  `w`/`h`, which is how any board declares a box of its own.
 - iPhone frame is 393 × 852 pt at 1pt = 1px: 54px status bar,
   125 × 36 Dynamic Island, 139 × 5 home indicator.
+
+Mockup HTML routinely has single lines of 100KB–2MB of embedded base64. To
+splice a large blob into an existing artboard without pulling it through an
+agent's context, locate the target line with `grep -n` on a distinguishing
+class or attribute (never on the blob line itself), then read/replace that
+one line with a short Python script
+(`base64.b64encode(open(path,'rb').read())`) run from the shell. Never
+`cat`/`echo` a blob into a tool call. Prefer real product assets (the actual
+icon, the actual logo, a rasterized system symbol) over hand-drawn
+approximations.
 
 ## Ship the generator with the boards
 
@@ -137,6 +156,14 @@ cannot be regenerated is incomplete. A folder built from more than one source
 may split the measurements across further modules that `gen.py` imports
 (`apple-wallet` has two, one per Figma file), but the entry point stays
 `gen.py`.
+
+Generators come in two lineages, and the only difference is the `page()`
+helper's signature. The Figma-sourced runs, `apple-photos`, `apple-calendar`
+and `apple-settings`, use `page(title, css, body)`. The screenshot-sourced
+runs and `templates/` use `page(title, body, extra_css="")`. Copy whichever
+matches your source. There is no shared library, and no `gen.py` imports
+anything from another folder or from `tools/`, so copying one folder gets
+you a complete generator.
 
 This is safe for discovery: `import.meta.glob` in `canvasLibrary.ts`
 matches only `*.html` (plus `layout.json` and `icon.png`), so `gen.py` and
@@ -222,6 +249,24 @@ its asset files sitting in the folder are invisible to the canvas.
   painted over five text classes without an error. `assets/art/` and
   `assets/art-gen/` are committed; the eight `ref-*` boards are
   gitignored, so a fresh clone has 13.
+- `spotify-ios/`: the run to read when the brand face is unavailable and the
+  screens are mostly type. Five screens of the Spotify iOS app - the home
+  feed at two scroll positions, two full-screen promo modals and the Spotify
+  Codes sheet - in 8 boards across three rows: a token board, two evidence
+  boards for 52 tokens, an art board for 19 crops, the five replicas, and the
+  capture of each column-for-column underneath. Mean absolute delta is
+  3.38-6.71 levels (of 255), and the spread *is* the type bill: every ink box
+  on every screen lands within 1.8pt of its capture, so what the number scores
+  is glyph shape, not placement. `refkit font` returns **no call** here -
+  three probes pick three winners, all weak - because the real face is Spotify
+  Mix, a Circular derivative in no candidate set. Its `README.md` records the
+  width bill that picked SF Pro over the ranking's winner, and the two
+  techniques that came out of paying it: **fitting type size on stroke mass
+  rather than on width or height** (which found three weights that both fits
+  had left wrong, at ratios of 0.891 to 1.193), and charging the leftover
+  width as per-string tracking. It also records that PIL's width fit is 11.6%
+  off the browser's on the same string. `assets/art/` is committed; the five
+  `ref-*` boards are gitignored, so a fresh clone has 8.
 - `snapaction-ios/`: the run to read when the screens are almost entirely
   type. Six screens of SnapAction, five dark and one light sheet, rebuilt from
   the captures inside its Figma file. 11 boards in four rows: a landscape
