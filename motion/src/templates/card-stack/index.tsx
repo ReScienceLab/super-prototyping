@@ -71,6 +71,11 @@ export const CardStack: React.FC<CardStackProps> = ({
   // stops being a camera move and starts being a slideshow — so this one runs
   // on the shot length rather than on a fixed number of frames.
   const drift = enter(frame, 0, slideFrames || duration, (t) => t);
+  // How much key light a card is standing in. The reference's sharp
+  // card samples #b4a08b, a washed tan; the ones either side of it stay
+  // at the ramp's own #ab6116. One light across the row, not eight
+  // different cards.
+  const lit = (i: number) => Math.max(0, 1 - Math.abs(i - focus) / 2);
 
   return (
     <AbsoluteFill style={{ background, overflow: "hidden" }}>
@@ -101,11 +106,13 @@ export const CardStack: React.FC<CardStackProps> = ({
                 // row is uneven the way a real shelf is, but the same unevenness
                 // on every worker.
                 background:
+                  `linear-gradient(rgba(180,160,139,${lit(i)}), ` +
+                  `rgba(180,160,139,${lit(i)})), ` +
                   `linear-gradient(160deg, ${GRADIENT[5]}, ` +
                   `${GRADIENT[Math.floor(random(`${seed}-${i}`) * 4) + 2]})`,
                 transform:
                   `translateZ(${-i * depth}px) ` +
-                  `translateY(${(random(`${seed}-y-${i}`) - 0.5) * 120}px) ` +
+                  `translateY(${(random(`${seed}-y-${i}`) - 0.5) * 163}px) ` +
                   `rotateY(${turn}deg)`,
                 filter: `blur(${Math.abs(i - focus) * blur}px)`,
                 opacity: 0.94,
@@ -136,17 +143,17 @@ export const defaultProps: CardStackProps = {
   text: "people want",
   count: 8,
   perspective: 1100,
-  depth: 200,
+  depth: 272,
   gapRatio: 0.08,
   turn: -26,
-  slide: 900,
+  slide: 1224,
   slideFrames: 0,
   focus: 3,
   blur: 7,
-  cardWidth: 460,
-  cardHeight: 880,
+  cardWidth: 625,
+  cardHeight: 1550,
   seed: "shelf",
-  size: 0.055,
+  size: 0.075,
   color: PAPER,
   background: COCOA,
 };

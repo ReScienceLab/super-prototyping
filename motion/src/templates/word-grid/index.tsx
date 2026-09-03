@@ -114,7 +114,7 @@ export const defaultProps: WordGridProps = {
   rise: 18,
   opacity: 0.72,
   italic: true,
-  size: 0.05,
+  size: 0.077,
   color: GRADIENT[7],
   gradient: MESH,
 };

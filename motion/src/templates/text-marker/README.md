@@ -30,7 +30,7 @@ what is substituted, and how to reproduce any number below.
 | frames        | 16                              |
 | markColor     | "#f6c0a6"                       |
 | markTextColor | ORANGE                          |
-| size          | 0.038                           |
+| size          | 0.052                           |
 | color         | INK                             |
 | background    | BONE                            |
 

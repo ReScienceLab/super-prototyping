@@ -108,7 +108,7 @@ export const defaultProps: CountUpProps = {
   suffix: "%",
   label: "Mind quality",
   countFrames: 68,
-  size: 0.86,
+  size: 0.7,
   scaleFrom: 0.75,
   veil: 0.33,
   gradient: MESH,

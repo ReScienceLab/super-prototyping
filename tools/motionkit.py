@@ -17,6 +17,10 @@ a motion asset's timings can be measured from its reference instead of eyeballed
   swatch   the colours off one frame, as hex. `--grid WxH` area-averages the
            whole frame into cells (the shape of a gradient), `--crop W:H:X:Y`
            censuses one region at full resolution (the exact hex of a chip)
+  extent   how big the drawn thing is, as a fraction of the frame. Scale is
+           what a side-by-side will not tell you: two clips at different native
+           widths fill the same screen and are not the same size. `--band`
+           narrows it to one region, for type sitting inside other artwork
   compare  reference and render side by side in one clip, same height, so the
            two can be scrubbed against each other rather than remembered
 
@@ -28,7 +32,7 @@ Self-check: python3 tools/motionkit.py selftest
 """
 import argparse, json, subprocess, sys
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 LABEL_FONT = "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
 
@@ -228,6 +232,71 @@ def read_gray_rgb(path, width):
     return [Image.fromarray(f) for f in arr], 1.0 / scale
 
 
+def inkbox(im, radius=24, thresh=12, pct=2):
+    """The box the drawn marks sit in, as (x0, y0, x1, y1) fractions of `im`.
+
+    Ink is what a wide blur cannot follow: subtract a Gaussian of the image
+    from the image and type, rules and hard chrome survive, while gradients
+    and bokeh -- which are nothing but low frequency -- fall to zero. That is
+    the whole trick, and it is why this works on a frame whose background is
+    a moving mesh gradient. Percentiles rather than min/max so one stray
+    antialiased pixel in a corner does not get to set the box.
+    """
+    a = np.asarray(im.convert("L"), np.float32)
+    blur = np.asarray(im.convert("L").filter(ImageFilter.GaussianBlur(radius)),
+                      np.float32)
+    m = np.abs(a - blur) > thresh
+    if m.sum() < 40:
+        return None
+    ys, xs = np.where(m)
+    x0, x1 = np.percentile(xs, [pct, 100 - pct])
+    y0, y1 = np.percentile(ys, [pct, 100 - pct])
+    h, w = a.shape
+    return x0 / w, y0 / h, x1 / w, y1 / h
+
+
+def read_frame(path, frame, width):
+    """One frame, greyscale, resampled to `width`. Same decode as read_gray."""
+    w, h, _, _ = probe(path)
+    dw, dh = width, max(2, round(h * width / w))
+    raw = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", path,
+         "-vf", f"select='eq(n,{frame})',scale={dw}:{dh}",
+         "-frames:v", "1", "-pix_fmt", "gray", "-f", "rawvideo", "-"],
+        capture_output=True, check=True,
+    ).stdout
+    if not raw:
+        sys.exit(f"motionkit: no frame {frame} in {path}")
+    return Image.fromarray(np.frombuffer(raw, np.uint8).reshape(dh, dw))
+
+
+def cmd_extent(a):
+    """Ink extent off one frame, as fractions of the whole frame.
+
+    Both clips get measured at the same `--width`, so a fraction from a 2880
+    reference and a fraction from a 1920 render are the same measurement and
+    their ratio is how far off the render's scale is.
+    """
+    im = read_frame(a.video, a.frame, a.width)
+    fw, fh = im.size
+    ox, oy = 0.0, 0.0
+    if a.band:
+        bx0, by0, bx1, by1 = (float(v) for v in a.band.split(","))
+        im = im.crop((round(bx0 * fw), round(by0 * fh),
+                      round(bx1 * fw), round(by1 * fh)))
+        ox, oy = bx0, by0
+    box = inkbox(im, a.radius, a.threshold)
+    if box is None:
+        sys.exit(f"motionkit: f{a.frame} has no ink above threshold {a.threshold}")
+    sx, sy = im.size[0] / fw, im.size[1] / fh
+    x0, y0, x1, y1 = box
+    x0, x1 = ox + x0 * sx, ox + x1 * sx
+    y0, y1 = oy + y0 * sy, oy + y1 * sy
+    band = f"  band {a.band}" if a.band else ""
+    print(f"f{a.frame}  x {x0:.3f}-{x1:.3f}  y {y0:.3f}-{y1:.3f}"
+          f"   w {x1 - x0:.3f}  h {y1 - y0:.3f}{band}")
+
+
 def cmd_compare(a):
     _, h, _, _ = probe(a.reference)
     subprocess.run(
@@ -253,6 +322,21 @@ def cmd_selftest(_):
     for rgb, want in (((0, 0, 0), "#000000"), ((255, 196, 161), "#ffc4a1")):
         assert hexof(np.array(rgb)) == want, f"hexof said {hexof(np.array(rgb))}"
     print("ok: swatch reports the hex a stylesheet would take")
+    # A bar of ink on a ground that ramps across the whole frame: the ramp is
+    # exactly the low frequency `extent` has to ignore, and the bar is exactly
+    # the mark it has to find. The box comes back a blur radius loose on every
+    # side -- subtracting a blur haloes the thing it subtracts -- so the test
+    # is that it contains the bar and overshoots by no more than that. Both
+    # clips carry the same halo, which is why the ratio of two extents is
+    # still the ratio of two marks.
+    g = np.tile(np.linspace(0, 255, 960, dtype=np.uint8), (540, 1))
+    g[216:324, 240:720] = 0
+    box, slack = inkbox(Image.fromarray(g)), 36
+    for got, want, give in ((box[0], 0.25, -slack / 960), (box[2], 0.75, slack / 960),
+                            (box[1], 0.40, -slack / 540), (box[3], 0.60, slack / 540)):
+        assert min(want, want + give) <= got <= max(want, want + give), \
+            f"extent said {got:.3f} for an edge at {want}"
+    print("ok: extent finds the mark and not the gradient under it")
 
 
 def main():
@@ -294,6 +378,18 @@ def main():
                    help="area-average the whole frame to this many cells")
     v.add_argument("--crop", help="W:H:X:Y; census this region instead of the grid")
     v.add_argument("--top", type=int, default=6, help="census rows to print")
+
+    e = s.add_parser("extent", help="how big the drawn thing is, 0-1 of frame")
+    e.set_defaults(fn=cmd_extent)
+    e.add_argument("video")
+    e.add_argument("frame", type=int)
+    e.add_argument("--width", type=int, default=960,
+                   help="measure at this width; use the same one for both clips")
+    e.add_argument("--band", help="x0,y0,x1,y1 in 0-1; measure only this region")
+    e.add_argument("--radius", type=int, default=24,
+                   help="blur radius: what counts as background")
+    e.add_argument("--threshold", type=int, default=12,
+                   help="luma difference from the blur that counts as ink")
 
     c = s.add_parser("compare", help="reference | render, side by side")
     c.set_defaults(fn=cmd_compare)

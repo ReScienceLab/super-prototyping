@@ -33,10 +33,10 @@ what is substituted, and how to reproduce any number below.
 | spread    | 46                             |
 | scatter   | 0.34                           |
 | scale     | 0.58                           |
-| aspect    | 0.42                           |
+| aspect    | 0.62                           |
 | harmonics | 0.22                           |
 | rim       | 0.35                           |
-| dot       | 5                              |
+| dot       | 7                              |
 | x         | 0.38                           |
 | y         | 0.52                           |
 | color     | PAPER                          |

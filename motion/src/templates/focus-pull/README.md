@@ -31,9 +31,9 @@ what is substituted, and how to reproduce any number below.
 | frames   | 16                   |
 | blur     | 14                   |
 | breathe  | 0.06                 |
-| offset   | 190                  |
-| nearSize | 0.13                 |
-| farSize  | 0.115                |
+| offset   | 424                  |
+| nearSize | 0.29                 |
+| farSize  | 0.256                |
 | color    | PAPER                |
 | farColor | GRADIENT[7]          |
 | gradient | MESH                 |

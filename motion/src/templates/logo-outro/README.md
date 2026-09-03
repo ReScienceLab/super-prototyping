@@ -33,8 +33,8 @@ what is substituted, and how to reproduce any number below.
 | blur        | 14                         |
 | rise        | 16                         |
 | scaleFrom   | 0.94                       |
-| markSize    | 0.062                      |
-| taglineSize | 0.03                       |
+| markSize    | 0.107                      |
+| taglineSize | 0.052                      |
 | color       | INK                        |
 | accent      | ORANGE                     |
 | accentText  | PAPER                      |

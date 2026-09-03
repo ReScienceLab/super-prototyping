@@ -151,7 +151,7 @@ export const defaultProps: WordCascadeProps = {
   rise: 14,
   accent: "",
   face: "serif",
-  size: 0.19,
+  size: 0.247,
   scaleFrom: 0.9,
   color: PAPER,
   accentColor: ORANGE,

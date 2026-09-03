@@ -84,7 +84,7 @@ export const LogoOutro: React.FC<LogoOutroProps> = ({
         style={{
           display: "grid",
           justifyItems: "center",
-          gap: "3.4vh",
+          gap: "5.8vh",
           textAlign: "center",
         }}
       >
@@ -111,10 +111,10 @@ export const LogoOutro: React.FC<LogoOutroProps> = ({
         <div
           style={{
             ...arrive(line(2), blur, rise),
-            marginTop: "1.4vh",
-            fontSize: "2vh",
+            marginTop: "2.4vh",
+            fontSize: "3.4vh",
             fontWeight: 500,
-            padding: "1.5vh 2.6vh",
+            padding: "2.6vh 4.5vh",
             borderRadius: 999,
             background: accent,
             color: accentText,
@@ -140,8 +140,8 @@ export const defaultProps: LogoOutroProps = {
   blur: 14,
   rise: 16,
   scaleFrom: 0.94,
-  markSize: 0.062,
-  taglineSize: 0.03,
+  markSize: 0.107,
+  taglineSize: 0.052,
   color: INK,
   accent: ORANGE,
   accentText: PAPER,

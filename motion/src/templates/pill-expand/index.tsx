@@ -101,10 +101,10 @@ export const PillExpand: React.FC<PillExpandProps> = ({
         style={{
           alignItems: "center",
           justifyContent: "center",
-          fontSize: "3.4vh",
+          fontSize: "5.2vh",
           lineHeight: 1.6,
           textAlign: "center",
-          maxWidth: "60%",
+          maxWidth: "90%",
           margin: "0 auto",
           whiteSpace: "pre-line",
           // The backdrop's blur tracks the box, so the paragraph is softest
@@ -128,8 +128,8 @@ export const PillExpand: React.FC<PillExpandProps> = ({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: "1.4vh",
-          padding: "0 3vh",
+          gap: "1.9vh",
+          padding: "0 4vh",
           textAlign: "center",
           overflow: "hidden",
         }}
@@ -139,7 +139,7 @@ export const PillExpand: React.FC<PillExpandProps> = ({
             style={{
               position: "absolute",
               opacity: label,
-              fontSize: "2.1vh",
+              fontSize: "2.8vh",
               fontWeight: 500,
               whiteSpace: "nowrap",
               display: "flex",
@@ -149,12 +149,12 @@ export const PillExpand: React.FC<PillExpandProps> = ({
           >
             <span
               style={{
-                width: "2.1vh",
-                height: "2.1vh",
+                width: "2.8vh",
+                height: "2.8vh",
                 borderRadius: "50%",
                 background: accent,
                 color: PAPER,
-                fontSize: "1.3vh",
+                fontSize: "1.75vh",
                 display: "grid",
                 placeItems: "center",
               }}
@@ -165,27 +165,27 @@ export const PillExpand: React.FC<PillExpandProps> = ({
           </span>
         ) : null}
 
-        <div style={{ opacity: content, display: "grid", gap: "1.4vh" }}>
-          <div style={{ fontSize: "3.2vh", fontWeight: 500 }}>{title}</div>
-          <div style={{ fontSize: "2vh", lineHeight: 1.5, opacity: 0.72 }}>
+        <div style={{ opacity: content, display: "grid", gap: "1.9vh" }}>
+          <div style={{ fontSize: "4.3vh", fontWeight: 500 }}>{title}</div>
+          <div style={{ fontSize: "2.7vh", lineHeight: 1.5, opacity: 0.72 }}>
             {body}
           </div>
           {actions.length ? (
             <div
               style={{
                 display: "flex",
-                gap: "1vh",
+                gap: "1.35vh",
                 justifyContent: "center",
-                marginTop: "0.6vh",
+                marginTop: "0.8vh",
               }}
             >
               {actions.map((action, i) => (
                 <span
                   key={action}
                   style={{
-                    fontSize: "1.8vh",
+                    fontSize: "2.4vh",
                     fontWeight: 500,
-                    padding: "1vh 1.8vh",
+                    padding: "1.35vh 2.4vh",
                     borderRadius: 999,
                     background: i === 0 ? accent : "rgba(34,19,4,0.07)",
                     color: i === 0 ? PAPER : color,
@@ -221,11 +221,11 @@ export const defaultProps: PillExpandProps = {
   bodyAt: 14,
   bodyFrames: 14,
   backdropBlur: 7,
-  pillWidth: 260,
-  pillHeight: 62,
-  cardWidth: 560,
-  cardHeight: 260,
-  cardRadius: 34,
+  pillWidth: 351,
+  pillHeight: 84,
+  cardWidth: 756,
+  cardHeight: 351,
+  cardRadius: 46,
   color: INK,
   card: "#ffffff",
   accent: ORANGE,

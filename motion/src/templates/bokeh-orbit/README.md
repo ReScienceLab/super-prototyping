@@ -36,7 +36,7 @@ what is substituted, and how to reproduce any number below.
 | blur       | 34      |
 | seed       | "chaos" |
 | fadeFrames | 18      |
-| size       | 0.13    |
+| size       | 0.3     |
 | color      | PAPER   |
 | background | COCOA   |
 

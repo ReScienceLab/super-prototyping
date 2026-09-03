@@ -153,7 +153,7 @@ export const defaultProps: LensRevealProps = {
   rimColor: "rgba(255,255,255,0.9)",
   captionAt: 34,
   captionFrames: 16,
-  size: 0.055,
+  size: 0.075,
   color: PAPER,
   background: COCOA,
 };

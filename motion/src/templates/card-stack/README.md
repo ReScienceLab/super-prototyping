@@ -28,17 +28,17 @@ what is substituted, and how to reproduce any number below.
 | text        | "people want" |
 | count       | 8             |
 | perspective | 1100          |
-| depth       | 200           |
+| depth       | 272           |
 | gapRatio    | 0.08          |
 | turn        | -26           |
-| slide       | 900           |
+| slide       | 1224          |
 | slideFrames | 0             |
 | focus       | 3             |
 | blur        | 7             |
-| cardWidth   | 460           |
-| cardHeight  | 880           |
+| cardWidth   | 625           |
+| cardHeight  | 1550          |
 | seed        | "shelf"       |
-| size        | 0.055         |
+| size        | 0.075         |
 | color       | PAPER         |
 | background  | COCOA         |
 

@@ -90,10 +90,9 @@ export const OrbBloom: React.FC<OrbBloomProps> = ({
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
-          gap: "6vw",
+          gap: "2.6em",
           fontFamily: SERIF,
-          fontStyle: "italic",
-          fontSize: `${size * 100}vh`,
+                  fontSize: `${size * 100}vh`,
           color,
         }}
       >
@@ -129,7 +128,16 @@ export const OrbBloom: React.FC<OrbBloomProps> = ({
                 gap: "0.5em",
               }}
             >
-              <Orb size={22} />
+              <span
+                style={{
+                  width: size * 560,
+                  height: size * 560,
+                  borderRadius: "50%",
+                  background: color,
+                  opacity: 0.85,
+                  flex: "none",
+                }}
+              />
               {chip}
             </span>
           );
@@ -154,7 +162,7 @@ export const defaultProps: OrbBloomProps = {
   exitAt: 66,
   exitFrames: 12,
   exit: 0.5,
-  size: 0.045,
+  size: 0.09,
   color: PAPER,
   gradient: { ...MESH, base: GRADIENT[3] },
 };

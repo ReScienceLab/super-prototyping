@@ -38,11 +38,11 @@ what is substituted, and how to reproduce any number below.
 | bodyAt       | 14                                             |
 | bodyFrames   | 14                                             |
 | backdropBlur | 7                                              |
-| pillWidth    | 260                                            |
-| pillHeight   | 62                                             |
-| cardWidth    | 560                                            |
-| cardHeight   | 260                                            |
-| cardRadius   | 34                                             |
+| pillWidth    | 351                                            |
+| pillHeight   | 84                                             |
+| cardWidth    | 756                                            |
+| cardHeight   | 351                                            |
+| cardRadius   | 46                                             |
 | color        | INK                                            |
 | card         | "#ffffff"                                      |
 | accent       | ORANGE                                         |

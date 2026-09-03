@@ -71,7 +71,7 @@ export const TextMarker: React.FC<TextMarkerProps> = ({
           fontSize: `${size * 100}vh`,
           lineHeight: 1.5,
           textAlign: "center",
-          maxWidth: "62%",
+          maxWidth: "90%",
           fontWeight: 400,
           letterSpacing: "-0.01em",
         }}
@@ -156,7 +156,7 @@ export const defaultProps: TextMarkerProps = {
   frames: 16,
   markColor: "#f6c0a6",
   markTextColor: ORANGE,
-  size: 0.038,
+  size: 0.052,
   color: INK,
   background: BONE,
 };

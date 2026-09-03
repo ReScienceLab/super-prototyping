@@ -27,7 +27,7 @@ motion consumes mockups.
 | what it is   | a reusable motion effect             | one finished cut for one product  |
 | content      | comes in as props                    | baked in                          |
 | grows by     | accumulating effects                 | accumulating launches             |
-| example      | 16 of them, `src/templates/`         | none yet                          |
+| example      | 16 of them, `src/templates/`         | `src/films/brand-film/`           |
 
 A template is the thing worth having a library of: it takes `cards`, `motion`,
 geometry, and does not care whose photos those are. A film picks a template (or
@@ -37,6 +37,11 @@ mirrors `mockups/canvases/templates/` against a real board folder.
 The test, when it is not obvious: **would a second product reuse this without
 editing the TSX?** If yes it is a template and the product-specific parts belong
 in props. If the answer needs a "well, if you changed…", it is a film.
+
+`films/brand-film/` is the fifteen Delphi templates cut back into one 43-second
+piece, and it is why they have the interface they have: it overrides exactly one
+prop per shot, `durationInFrames`. Its README carries the shot list and what
+happened when the cut was measured against the source it came from.
 
 ## The Delphi set
 
@@ -129,9 +134,19 @@ python3 tools/motionkit.py sheet ref.mp4 --out sheet.png    # labelled contact s
 python3 tools/motionkit.py sheet ref.mp4 --from 1140 --to 1320   # one shot of it
 python3 tools/motionkit.py swatch ref.mp4 1180 --grid 16x9  # the gradient, as hex
 python3 tools/motionkit.py swatch ref.mp4 2040 --crop 600:130:1150:880
+python3 tools/motionkit.py extent ref.mp4 1220             # how big the type is, 0-1
+python3 tools/motionkit.py extent out/x.mp4 40 --band 0.15,0.35,0.85,0.65
 python3 tools/motionkit.py compare ref.mp4 out/x.mp4        # side by side, one clip
 python3 tools/motionkit.py selftest
 ```
+
+`extent` is the one that caught the most: it reports the box the drawn marks
+sit in as a fraction of the frame, by subtracting a wide blur from the frame —
+type and hard chrome survive that, gradients and bokeh do not. Measured at the
+same `--width`, a 2880-wide reference and a 1920-wide render give directly
+comparable numbers, which is how twelve templates in `films/brand-film` turned
+out to have been authored between 1.3x and 2.4x too small. A side-by-side will
+not show you this; both clips fill their own frame.
 
 `flow` is the one that earns its keep: it separates a continuous pan from a
 flick-and-coast, and reads friction off the decay. `spatial-gallery` looks like

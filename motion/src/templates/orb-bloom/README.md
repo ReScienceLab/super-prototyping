@@ -40,7 +40,7 @@ what is substituted, and how to reproduce any number below.
 | exitAt      | 66                             |
 | exitFrames  | 12                             |
 | exit        | 0.5                            |
-| size        | 0.045                          |
+| size        | 0.09                           |
 | color       | PAPER                          |
 | gradient    | { ...MESH, base: GRADIENT[3] } |
 
