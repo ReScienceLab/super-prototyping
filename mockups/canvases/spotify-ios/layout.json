@@ -1,0 +1,79 @@
+{
+  "name": "Spotify",
+  "cover": "04-home",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-art",
+          "label": "Art assets"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-home-chips",
+          "label": "Home, rail scrolled"
+        },
+        {
+          "file": "02-jam",
+          "label": "Jam invitation"
+        },
+        {
+          "file": "03-live-events",
+          "label": "Live events"
+        },
+        {
+          "file": "04-home",
+          "label": "Home"
+        },
+        {
+          "file": "05-codes",
+          "label": "Spotify Codes"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-home-chips",
+          "label": "Home, rail scrolled"
+        },
+        {
+          "file": "ref-02-jam",
+          "label": "Jam invitation"
+        },
+        {
+          "file": "ref-03-live-events",
+          "label": "Live events"
+        },
+        {
+          "file": "ref-04-home",
+          "label": "Home"
+        },
+        {
+          "file": "ref-05-codes",
+          "label": "Spotify Codes"
+        }
+      ]
+    }
+  ]
+}

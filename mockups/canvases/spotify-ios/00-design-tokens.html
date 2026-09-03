@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spotify - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --s-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --s-bg:#111111;
+  --s-bg-deep:#030003;
+  --s-chip:#333333;
+  --s-chip-sel-line:#EBECE9;
+  --s-jam-top:#121212;
+  --s-jam-bot:#8A0C56;
+  --s-codes-top:#A2C6A8;
+  --s-codes-mid:#526859;
+  --s-codes-bot:#151716;
+
+  /* Ink */
+  --s-ink:#FFFFFF;
+  --s-ink-2:#BABABA;
+  --s-ink-3:#B6B6B6;
+  --s-ink-on-accent:#000000;
+  --s-ink-fine:#DE97C3;
+  --s-dot:#575457;
+
+  /* Accent */
+  --s-green:#1ED860;
+  --s-avatar:#19E78D;
+  --s-purple:#8500EA;
+  --s-pink:#F237A6;
+
+  /* Radius */
+  --s-r-card:4px;
+  --s-r-modal:4px;
+  --s-r-promo:8px;
+  --s-r-codes:0px;
+  --s-r-pill:999px;
+
+  /* Type */
+  --s-t-h1:700 24px/30px var(--s-font);
+  --s-t-h1-promo:600 25px/31.2px var(--s-font);
+  --s-t-h2:700 24px/31px var(--s-font);
+  --s-t-title:700 32px/34px var(--s-font);
+  --s-t-modal-h:700 24px/28px var(--s-font);
+  --s-t-body:400 16px/20px var(--s-font);
+  --s-t-body-sm:400 13px/18px var(--s-font);
+  --s-t-row:400 16px/20px var(--s-font);
+  --s-t-sub:400 13px/18px var(--s-font);
+  --s-t-caption:400 13px/17px var(--s-font);
+  --s-t-chip:500 13px/17px var(--s-font);
+  --s-t-btn:700 16px/20px var(--s-font);
+  --s-t-btn-caps:700 13px/17px var(--s-font);
+  --s-t-dismiss:700 15px/20px var(--s-font);
+  --s-t-tab:500 11px/14px var(--s-font);
+  --s-t-time:590 17px/22px var(--s-font);
+
+  /* Metrics */
+  --s-w:393px;
+  --s-h:852px;
+  --s-status:54px;
+  --s-gutter:16px;
+  --s-rail:17.9px;
+  --s-card:144.7px;
+  --s-pitch:165.1px;
+  --s-thumb:48px;
+  --s-row:62.2px;
+  --s-tab:98.25px;
+  --s-chip-h:32px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--s-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+img.a{position:absolute;display:block}
+.phone{position:relative;flex:none;width:var(--s-w);height:var(--s-h);
+  border-radius:52px;overflow:hidden;background:var(--s-bg);color:var(--s-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--s-w);height:var(--s-status);z-index:8}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--s-t-time)}
+.sb svg{position:absolute;display:block;fill:currentColor}
+.t{position:absolute;white-space:nowrap}
+body{padding:0;background:var(--s-bg);color:var(--s-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--s-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--s-font);color:var(--s-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--s-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--s-ink-3);margin:9px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.sw .chip{height:22px;border-radius:6px;border:1px solid #2A2A2A}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--s-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--s-chip);border:1px solid #3F3F3F}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--s-font);
+  color:var(--s-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid #262626}
+.tr span{white-space:nowrap}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--s-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{columns:2;font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--s-ink-2)}
+.met div{break-inside:avoid}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid #262626;font:400 8.5px/11px var(--s-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--s-green);white-space:nowrap}
+td.v{color:var(--s-ink-2);max-width:118px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+td.e{color:var(--s-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Spotify &mdash; design tokens</h1><p>Every value is a measurement off one of the five captures. The evidence board carries the probe behind each one.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--s-bg)"></div><b>--s-bg</b><i>#111111</i></div><div class="sw"><div class="chip" style="background:var(--s-bg-deep)"></div><b>--s-bg-deep</b><i>#030003</i></div><div class="sw"><div class="chip" style="background:var(--s-chip)"></div><b>--s-chip</b><i>#333333</i></div><div class="sw"><div class="chip" style="background:var(--s-chip-sel-line)"></div><b>--s-chip-sel-line</b><i>#EBECE9</i></div><div class="sw"><div class="chip" style="background:var(--s-jam-top)"></div><b>--s-jam-top</b><i>#121212</i></div><div class="sw"><div class="chip" style="background:var(--s-jam-bot)"></div><b>--s-jam-bot</b><i>#8A0C56</i></div><div class="sw"><div class="chip" style="background:var(--s-codes-top)"></div><b>--s-codes-top</b><i>#A2C6A8</i></div><div class="sw"><div class="chip" style="background:var(--s-codes-mid)"></div><b>--s-codes-mid</b><i>#526859</i></div><div class="sw"><div class="chip" style="background:var(--s-codes-bot)"></div><b>--s-codes-bot</b><i>#151716</i></div><div class="sw"><div class="chip" style="background:var(--s-ink)"></div><b>--s-ink</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--s-ink-2)"></div><b>--s-ink-2</b><i>#BABABA</i></div><div class="sw"><div class="chip" style="background:var(--s-ink-3)"></div><b>--s-ink-3</b><i>#B6B6B6</i></div><div class="sw"><div class="chip" style="background:var(--s-ink-on-accent)"></div><b>--s-ink-on-accent</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--s-ink-fine)"></div><b>--s-ink-fine</b><i>#DE97C3</i></div><div class="sw"><div class="chip" style="background:var(--s-dot)"></div><b>--s-dot</b><i>#575457</i></div><div class="sw"><div class="chip" style="background:var(--s-green)"></div><b>--s-green</b><i>#1ED860</i></div><div class="sw"><div class="chip" style="background:var(--s-avatar)"></div><b>--s-avatar</b><i>#19E78D</i></div><div class="sw"><div class="chip" style="background:var(--s-purple)"></div><b>--s-purple</b><i>#8500EA</i></div><div class="sw"><div class="chip" style="background:var(--s-pink)"></div><b>--s-pink</b><i>#F237A6</i></div></div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:4px"></div><em>4px</em></div><div><div class="rb" style="border-radius:4px"></div><em>4px</em></div><div><div class="rb" style="border-radius:8px"></div><em>8px</em></div><div><div class="rb" style="border-radius:0px"></div><em>0px</em></div><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div></div><h2>Type</h2><div class="tr"><span style="font:var(--s-t-h1)">Jams</span><em>--s-t-h1 &middot; 700 24px/30px</em></div><div class="tr"><span style="font:var(--s-t-h1-promo)">Jams</span><em>--s-t-h1-promo &middot; 600 25px/31.2px</em></div><div class="tr"><span style="font:var(--s-t-h2)">Jams</span><em>--s-t-h2 &middot; 700 24px/31px</em></div><div class="tr"><span style="font:var(--s-t-title)">Jams</span><em>--s-t-title &middot; 700 32px/34px</em></div><div class="tr"><span style="font:var(--s-t-modal-h)">Jams</span><em>--s-t-modal-h &middot; 700 24px/28px</em></div><div class="tr"><span style="font:var(--s-t-body)">Kick up some Jams</span><em>--s-t-body &middot; 400 16px/20px</em></div><div class="tr"><span style="font:var(--s-t-body-sm)">Kick up some Jams</span><em>--s-t-body-sm &middot; 400 13px/18px</em></div><div class="tr"><span style="font:var(--s-t-row)">Kick up some Jams</span><em>--s-t-row &middot; 400 16px/20px</em></div><div class="tr"><span style="font:var(--s-t-sub)">Kick up some Jams</span><em>--s-t-sub &middot; 400 13px/18px</em></div><div class="tr"><span style="font:var(--s-t-caption)">Kick up some Jams</span><em>--s-t-caption &middot; 400 13px/17px</em></div><div class="tr"><span style="font:var(--s-t-chip)">Kick up some Jams</span><em>--s-t-chip &middot; 500 13px/17px</em></div><div class="tr"><span style="font:var(--s-t-btn)">Kick up some Jams</span><em>--s-t-btn &middot; 700 16px/20px</em></div><div class="tr"><span style="font:var(--s-t-btn-caps)">Kick up some Jams</span><em>--s-t-btn-caps &middot; 700 13px/17px</em></div><div class="tr"><span style="font:var(--s-t-dismiss)">Kick up some Jams</span><em>--s-t-dismiss &middot; 700 15px/20px</em></div><div class="tr"><span style="font:var(--s-t-tab)">Kick up some Jams</span><em>--s-t-tab &middot; 500 11px/14px</em></div><div class="tr"><span style="font:var(--s-t-time)">Kick up some Jams</span><em>--s-t-time &middot; 590 17px/22px</em></div><h2>Metrics</h2><div class="met"><div>--s-w: 393px</div><div>--s-h: 852px</div><div>--s-status: 54px</div><div>--s-gutter: 16px</div><div>--s-rail: 17.9px</div><div>--s-card: 144.7px</div><div>--s-pitch: 165.1px</div><div>--s-thumb: 48px</div><div>--s-row: 62.2px</div><div>--s-tab: 98.25px</div><div>--s-chip-h: 32px</div></div></div>
+</body>
+</html>

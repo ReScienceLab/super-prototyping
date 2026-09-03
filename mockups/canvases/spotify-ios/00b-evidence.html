@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spotify - Evidence 1/2</title>
+<style>
+:root{
+  /* Font */
+  --s-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --s-bg:#111111;
+  --s-bg-deep:#030003;
+  --s-chip:#333333;
+  --s-chip-sel-line:#EBECE9;
+  --s-jam-top:#121212;
+  --s-jam-bot:#8A0C56;
+  --s-codes-top:#A2C6A8;
+  --s-codes-mid:#526859;
+  --s-codes-bot:#151716;
+
+  /* Ink */
+  --s-ink:#FFFFFF;
+  --s-ink-2:#BABABA;
+  --s-ink-3:#B6B6B6;
+  --s-ink-on-accent:#000000;
+  --s-ink-fine:#DE97C3;
+  --s-dot:#575457;
+
+  /* Accent */
+  --s-green:#1ED860;
+  --s-avatar:#19E78D;
+  --s-purple:#8500EA;
+  --s-pink:#F237A6;
+
+  /* Radius */
+  --s-r-card:4px;
+  --s-r-modal:4px;
+  --s-r-promo:8px;
+  --s-r-codes:0px;
+  --s-r-pill:999px;
+
+  /* Type */
+  --s-t-h1:700 24px/30px var(--s-font);
+  --s-t-h1-promo:600 25px/31.2px var(--s-font);
+  --s-t-h2:700 24px/31px var(--s-font);
+  --s-t-title:700 32px/34px var(--s-font);
+  --s-t-modal-h:700 24px/28px var(--s-font);
+  --s-t-body:400 16px/20px var(--s-font);
+  --s-t-body-sm:400 13px/18px var(--s-font);
+  --s-t-row:400 16px/20px var(--s-font);
+  --s-t-sub:400 13px/18px var(--s-font);
+  --s-t-caption:400 13px/17px var(--s-font);
+  --s-t-chip:500 13px/17px var(--s-font);
+  --s-t-btn:700 16px/20px var(--s-font);
+  --s-t-btn-caps:700 13px/17px var(--s-font);
+  --s-t-dismiss:700 15px/20px var(--s-font);
+  --s-t-tab:500 11px/14px var(--s-font);
+  --s-t-time:590 17px/22px var(--s-font);
+
+  /* Metrics */
+  --s-w:393px;
+  --s-h:852px;
+  --s-status:54px;
+  --s-gutter:16px;
+  --s-rail:17.9px;
+  --s-card:144.7px;
+  --s-pitch:165.1px;
+  --s-thumb:48px;
+  --s-row:62.2px;
+  --s-tab:98.25px;
+  --s-chip-h:32px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--s-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+img.a{position:absolute;display:block}
+.phone{position:relative;flex:none;width:var(--s-w);height:var(--s-h);
+  border-radius:52px;overflow:hidden;background:var(--s-bg);color:var(--s-ink);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--s-w);height:var(--s-status);z-index:8}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--s-t-time)}
+.sb svg{position:absolute;display:block;fill:currentColor}
+.t{position:absolute;white-space:nowrap}
+body{padding:0;background:var(--s-bg);color:var(--s-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--s-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--s-font);color:var(--s-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--s-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--s-ink-3);margin:9px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.sw .chip{height:22px;border-radius:6px;border:1px solid #2A2A2A}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--s-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--s-chip);border:1px solid #3F3F3F}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--s-font);
+  color:var(--s-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid #262626}
+.tr span{white-space:nowrap}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--s-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{columns:2;font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--s-ink-2)}
+.met div{break-inside:avoid}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid #262626;font:400 8.5px/11px var(--s-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--s-green);white-space:nowrap}
+td.v{color:var(--s-ink-2);max-width:118px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+td.e{color:var(--s-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 1/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--s-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font: no call, all weak (SF Compact .737 / SF Pro .701 / Avenir Next .743). Face is Spotify Mix, outside the set. SF Pro stands in: at matched cap height it sets 1.010 and 0.980 of the captures' ink width on &quot;Recommended Stations&quot; and &quot;Kick up some Jams.&quot;</td></tr><tr><td class="t">--s-bg</td><td class="v">#111111</td><td class="e">flat-fill census, 04 ground x200-380 y600-640, 73% of pixels</td></tr><tr><td class="t">--s-bg-deep</td><td class="v">#030003</td><td class="e">flat-fill census, 03 ground x20-90 y700-760, 100% of pixels</td></tr><tr><td class="t">--s-chip</td><td class="v">#333333</td><td class="e">flat-fill census, 04 Podcasts chip interior, 65%; same value inside the selected Wrapped chip, 73%</td></tr><tr><td class="t">--s-chip-sel-line</td><td class="v">#EBECE9</td><td class="e">colour scan across the Wrapped chip's left edge at y91: two capture px at #EBECE9 over a 1.3pt run, so the ring is not pure white</td></tr><tr><td class="t">--s-jam-top</td><td class="v">#121212</td><td class="e">flat-fill census, 02 modal x180-215 y190-210; flat from the modal top to 59.5% of its height</td></tr><tr><td class="t">--s-jam-bot</td><td class="v">#8A0C56</td><td class="e">flat-fill census, 02 modal x150-250 y655-665, the ramp's bottom stop</td></tr><tr><td class="t">--s-codes-top</td><td class="v">#A2C6A8</td><td class="e">flat-fill census, 05 modal x150-250 y236-244, 100%; flat to 30% of height</td></tr><tr><td class="t">--s-codes-mid</td><td class="v">#526859</td><td class="e">column median at 05 y475, the ramp's measured mid stop at 63.5%</td></tr><tr><td class="t">--s-codes-bot</td><td class="v">#151716</td><td class="e">column median at 05 y595 extrapolated to the modal foot at y613.7</td></tr><tr><td class="t">--s-ink</td><td class="v">#FFFFFF</td><td class="e">brightest plateau x40, 04 H1 / 03 H1 / 02 title / 03 button label</td></tr><tr><td class="t">--s-ink-2</td><td class="v">#BABABA</td><td class="e">brightest plateau, 04 station subtitle x24 and the &quot;Jump into a session&quot; line x15</td></tr><tr><td class="t">--s-ink-3</td><td class="v">#B6B6B6</td><td class="e">brightest plateau, 04 inactive tab labels; 4 levels under ink-2 and stroke-limited at 11px, kept separate rather than averaged</td></tr><tr><td class="t">--s-ink-on-accent</td><td class="v">#000000</td><td class="e">mode of the core, 02 &quot;Try it now&quot; #000300 / #000200 and the 04 avatar letter #000E00</td></tr><tr><td class="t">--s-ink-fine</td><td class="v">#DE97C3</td><td class="e">brightest plateau n=120, 02 fine print over the magenta ramp. Not a white-alpha blend: solving R and G for alpha gives .75 and .57</td></tr><tr><td class="t">--s-dot</td><td class="v">#575457</td><td class="e">brightest plateau x23, 03 inactive page dots</td></tr><tr><td class="t">--s-green</td><td class="v">#1ED860</td><td class="e">flat-fill census, 04 All chip 60% and the 02 Try-it-now button 71%</td></tr><tr><td class="t">--s-avatar</td><td class="v">#19E78D</td><td class="e">mode of the core, 04 account circle</td></tr><tr><td class="t">--s-purple</td><td class="v">#8500EA</td><td class="e">flat-fill census, 03 first card, 100% of pixels</td></tr><tr><td class="t">--s-pink</td><td class="v">#F237A6</td><td class="e">flat-fill census, 03 second card, 88%</td></tr><tr><td class="t">--s-r-card</td><td class="v">4px</td><td class="e">corner-inset fit, 04 station card: 1.35 / 0.46 at dy 1 / 2 against a circle's 1.35 / 0.54</td></tr><tr><td class="t">--s-r-modal</td><td class="v">4px</td><td class="e">corner-inset fit, 02 modal bottom-left against the scrim: 1.01 / 1.01 at dy 1 / 2</td></tr><tr><td class="t">--s-r-promo</td><td class="v">8px</td><td class="e">corner-inset fit, 03 card: 2.69 / 0.91 at dy 2 / 4 against a circle's 2.70 / 1.07</td></tr><tr><td class="t">--s-r-codes</td><td class="v">0px</td><td class="e">corner-inset fit, 05 modal: inset 0.01 at dy 0.5. The modal is square</td></tr><tr><td class="t">--s-r-pill</td><td class="v">999px</td><td class="e">04 chip corner: inset 5.37 at dy 4 against a 16px circle's 5.42, and the chip is 32 tall, so the radius is half the height</td></tr><tr><td class="t">--s-t-h1</td><td class="v">700 24px/30px var(--s-font)</td><td class="e">04 &quot;Recommended Stations&quot;, ink 253.4 x 17.8, height fit 23.8px. Weight from stroke mass against the capture, which no width or height fit sees: w600 renders 0.916 and 0.891 of it on the two headings, w700 1.011 and 0.986</td></tr><tr><td class="t">--s-t-h1-promo</td><td class="v">600 25px/31.2px var(--s-font)</td><td class="e">03 &quot;Get the best live&quot;, ink 173.0 x 18.3: width fit 24.6px, height fit 24.8px; line pitch 89.7 -> 120.9</td></tr><tr><td class="t">--s-t-h2</td><td class="v">700 24px/31px var(--s-font)</td><td class="e">03 card head, line pitch 385.7 / 416.7 / 447.7; height fit 23.4-25.0px at w700 on &quot;artists live&quot; and &quot;See your&quot;</td></tr><tr><td class="t">--s-t-title</td><td class="v">700 32px/34px var(--s-font)</td><td class="e">02 &quot;Kick up some Jams.&quot;, ink 283.7 x 30.3: width fit 32.0px, height fit 33.2px at w700</td></tr><tr><td class="t">--s-t-modal-h</td><td class="v">700 24px/28px var(--s-font)</td><td class="e">05 &quot;Spotify Codes&quot;, ink 147.2 x 22.8: height fit 24.9px at w700. Width fit is 22.1px -- SF Pro sets this string 8.6% wide</td></tr></table></div>
+</body>
+</html>
