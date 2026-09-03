@@ -3,6 +3,7 @@ import {
   Tldraw,
   createShapeId,
   getIndices,
+  react,
   toRichText,
   type Editor,
   type TLPageId,
@@ -14,6 +15,7 @@ import {
 } from "tldraw";
 import "tldraw/tldraw.css";
 import { installAgentBridge } from "./agentBridge";
+import { WELCOME_PAGE_SLUG, slugFromUrl, urlForSlug } from "./canvasUrl";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
   CANVAS_FILE_SHAPE_TYPE,
@@ -65,7 +67,6 @@ try {
 }
 
 /** The onboarding folder. Sorts first, and the bare URL opens it. */
-const WELCOME_PAGE_SLUG = "00-welcome";
 
 /**
  * The artboard box, which is 478 x 980 unless the folder's layout.json declares its own `w`/`h`
@@ -648,19 +649,44 @@ function relayoutCanvasLibrary(editor: Editor) {
 }
 
 /**
- * Opens `?canvas=<slug>` (the canvases/<slug> folder name) on the matching page, so a specific
- * round can be linked to or scripted against instead of relying on whichever page tldraw last
- * persisted.
- *
- * With no slug the bare URL opens the welcome page every time, so that page is the way in:
- * keep a board open across reloads by deep-linking it, not by leaving it on screen.
+ * Opens the page the address names (canvasUrl.ts): `?canvas=<slug>` for a board, the bare URL
+ * for the welcome page. So a specific round can be linked to or scripted against instead of
+ * relying on whichever page tldraw last persisted, and the bare URL is always the way in: keep
+ * a board open across reloads by deep-linking it, not by leaving it on screen.
  */
 function applyCanvasFromUrl(editor: Editor) {
-  const slug =
-    new URLSearchParams(window.location.search).get("canvas") ??
-    WELCOME_PAGE_SLUG;
+  const slug = slugFromUrl(window.location.href);
   const page = editor.getPages().find((c) => c.meta.canvasSlug === slug);
   if (page) editor.setCurrentPage(page.id);
+}
+
+/**
+ * Keeps the address on the page being looked at, so whatever is on screen can be shared by
+ * copying the URL. Each page change (a welcome card, tldraw's page menu) pushes a history
+ * entry, so Back returns to the previous board and, from a board, to the welcome page; a
+ * popstate opens the page that entry names. Installed after applyCanvasFromUrl so the first
+ * run finds the address already applied and only corrects it, without a new entry, when it
+ * named no folder. Pages tldraw persisted but no folder claims have no slug and leave the
+ * address as it is.
+ */
+function installCanvasUrlSync(editor: Editor) {
+  let first = true;
+  const stopSync = react("canvas page in the address", () => {
+    const slug = editor.getCurrentPage().meta.canvasSlug;
+    const push = !first;
+    first = false;
+    if (typeof slug !== "string") return;
+    const href = urlForSlug(window.location.href, slug);
+    if (href === window.location.href) return;
+    if (push) window.history.pushState(null, "", href);
+    else window.history.replaceState(null, "", href);
+  });
+  const onPopState = () => applyCanvasFromUrl(editor);
+  window.addEventListener("popstate", onPopState);
+  return () => {
+    stopSync();
+    window.removeEventListener("popstate", onPopState);
+  };
 }
 
 /**
@@ -693,6 +719,7 @@ export default function App() {
     editorRef.current = editor;
     initializeCanvas(editor);
     applyCanvasFromUrl(editor);
+    return installCanvasUrlSync(editor);
   }
 
   return (
