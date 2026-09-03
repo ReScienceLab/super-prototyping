@@ -8,11 +8,16 @@ import { arrive, enter, leave, stagger, useDuration } from "../../lib/timing";
  * Word cascade: a sentence assembling itself a piece at a time, each piece
  * arriving out of focus and settling.
  *
- * The part that is easy to get wrong: a piece that has not arrived yet takes up
- * NO SPACE. The reference centres "You've" alone at f20, then re-centres
- * "You've got" as a pair at f24 — the line shifts left as it grows. Reserving
- * the final width and fading pieces in gives a completely different, much
- * deader, shot. So an unarrived unit is not rendered at all.
+ * The part that is easy to get wrong: where the line sits while it is still
+ * short. The reference reserves the finished line's width from the first word
+ * — "You've" holds its left edge at 0.263 of W from f17 to f31 while "got"
+ * arrives to its right at f21 — and what moves is the whole BLOCK, once,
+ * upward: its top runs 0.400 -> 0.294 of H over f18-f31 as the second line's
+ * room opens beneath the first. So every unit is laid out from frame 0 (an
+ * unarrived one is merely invisible), and the block starts centred on its
+ * first line and lifts to centred on the whole. This file used to lay out
+ * only the arrived units, which re-centred the flex row in a single frame
+ * each time one joined: 163 px sideways at f10, 150 px up at f14.
  *
  * `unit` is what makes this one template rather than three: the reference does
  * the same entrance per letter on a single word ("Gone", f188-212), per word on
@@ -39,6 +44,10 @@ export type WordCascadeProps = {
   frames: number;
   /** frame the first unit starts */
   at: number;
+  /** frame the block starts lifting from centred on its first line to centred */
+  liftAt: number;
+  /** frames the lift takes; ease-out cubic */
+  liftFrames: number;
   /** px of blur a unit starts with */
   blur: number;
   /** px a unit rises through as it arrives */
@@ -64,6 +73,8 @@ export const WordCascade: React.FC<WordCascadeProps> = ({
   step,
   frames,
   at,
+  liftAt,
+  liftFrames,
   blur,
   rise,
   accent,
@@ -94,6 +105,14 @@ export const WordCascade: React.FC<WordCascadeProps> = ({
   );
 
   const push = scaleFrom + (1 - scaleFrom) * enter(frame, 0, duration);
+  // The block starts centred on its first line and lifts to centred on all of
+  // them: the reference's block top runs 0.400 -> 0.294 of H over f18-f31,
+  // decelerating — 0.26 / 0.41 / 0.49 / 0.58 / 0.68 / 0.75 / 0.82 / 0.88 /
+  // 0.91 / 0.92 / 0.96 / 0.98 / 1.00 of the way at f19-f31. Ease-out cubic
+  // over 16 frames fits that to rmse 0.033 (ease-out quad over 12: 0.046).
+  // Half a line box per line below the first: lineHeight 1.12, so 0.56em.
+  const lift = enter(frame, liftAt, liftFrames);
+  const drop = (1 - lift) * (lines.length - 1) * 0.56;
   // Gone eight frames before the end, so a cut lands on the empty ground.
   const held = leaveFrames
     ? leave(frame, duration - leaveFrames - 8, leaveFrames)
@@ -116,47 +135,42 @@ export const WordCascade: React.FC<WordCascadeProps> = ({
           color,
           opacity: held,
           filter: `blur(${(1 - held) * blur}px)`,
-          transform: `scale(${push * (0.6 + 0.4 * held)})`,
+          transform: `translateY(${drop}em) scale(${push * (0.6 + 0.4 * held)})`,
         }}
       >
-        {laid.map((units, l) => {
-          const shown = units.filter(({ i }) => frame >= at + i * step);
-          if (!shown.length) return null;
-          return (
-            <div
-              key={l}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                // A word gap has to be a real gap: the pieces are separate
-                // elements, so the space between them went away with the split.
-                // 0.024 of W ink to ink between "You've" and "got" at f32.
-                // 0.26em rendered 0.044 and 0.17em 0.033: the e and the g
-                // carry 0.009 of W of side bearing between them.
-                gap: unit === "word" ? "0.105em" : 0,
-                whiteSpace: "pre",
-              }}
-            >
-              {shown.map(({ piece, i }) => (
-                <span
-                  key={i}
-                  style={{
-                    ...arrive(
-                      stagger(frame, i, { at, step, frames }),
-                      blur,
-                      rise,
-                    ),
-                    display: "inline-block",
-                    color:
-                      accent && piece.includes(accent) ? accentColor : color,
-                  }}
-                >
-                  {piece}
-                </span>
-              ))}
-            </div>
-          );
-        })}
+        {laid.map((units, l) => (
+          <div
+            key={l}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              // A word gap has to be a real gap: the pieces are separate
+              // elements, so the space between them went away with the split.
+              // 0.024 of W ink to ink between "You've" and "got" at f32.
+              // 0.26em rendered 0.044 and 0.17em 0.033: the e and the g
+              // carry 0.009 of W of side bearing between them.
+              gap: unit === "word" ? "0.105em" : 0,
+              whiteSpace: "pre",
+            }}
+          >
+            {units.map(({ piece, i }) => (
+              <span
+                key={i}
+                style={{
+                  ...arrive(
+                    stagger(frame, i, { at, step, frames }),
+                    blur,
+                    rise,
+                  ),
+                  display: "inline-block",
+                  color: accent && piece.includes(accent) ? accentColor : color,
+                }}
+              >
+                {piece}
+              </span>
+            ))}
+          </div>
+        ))}
       </div>
     </AbsoluteFill>
   );
@@ -171,6 +185,11 @@ export const defaultProps: WordCascadeProps = {
   step: 4,
   frames: 8,
   at: 6,
+  // The reference's lift starts at f18, four frames after "You've" starts
+  // arriving (f14) and one after it first shows ink (f17); with `at` 6 that is
+  // 10, and ours first shows ink at 9.
+  liftAt: 10,
+  liftFrames: 16,
   blur: 18,
   rise: 14,
   accent: "",

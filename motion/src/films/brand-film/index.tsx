@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  AbsoluteFill,
-  Easing,
-  Sequence,
-  useCurrentFrame,
-} from "remotion";
+import { AbsoluteFill, Easing, Sequence, useCurrentFrame } from "remotion";
 
 import { enter } from "../../lib/timing";
 
@@ -37,12 +32,14 @@ import * as logoOutro from "../../templates/logo-outro";
  *
  *   - Inside a <Sequence>, `useVideoConfig().durationInFrames` still reports
  *     the FILM's length, not the shot's. A template that read it there would
- *     time itself against 1296 frames while occupying 84. `useDuration(prop)`
+ *     time itself against 1147 frames while occupying 84. `useDuration(prop)`
  *     is what makes the same file work in the studio on its own and in a cut.
- *   - Nothing dissolves. Every template settles well before its own last frame
- *     and opens on a settled state, so shots butt straight against each other
- *     with nothing hiding the seam. A cross-fade here would be covering for a
- *     template that does not end, and none of them need it.
+ *   - The joins are the film's, not the templates'. Every template still opens
+ *     settled and settles before its own last frame; where the source joins
+ *     two shots with a cross-dissolve, the cut overlaps them by that many
+ *     frames and fades the incoming one in over the outgoing one's own tail.
+ *     No template knows it is being dissolved. Where the source cuts, so does
+ *     this — the dissolve is never covering for a template that does not end.
  *
  * THE ONE THING HERE THAT IS NOT A SHOT is the fade up from black, below. It
  * is in this file because it belongs to the film and not to any template: the
@@ -58,7 +55,7 @@ import * as logoOutro from "../../templates/logo-outro";
  *
  * THE ORDER IS THE SOURCE FILM'S OWN, by first reference frame — f14 through
  * f2052. The reference cuts to live footage and product UI between these, and
- * none of that is here, so this is the film's animated spine at about 43s
+ * none of that is here, so this is the film's animated spine at 38.2s
  * against the original's 68.4s. It is not a frame-for-frame reproduction and
  * could not be; see ./README.md.
  *
@@ -81,8 +78,13 @@ type Asset = {
   defaultProps: Record<string, unknown>;
 };
 
-/** A shot: a template folder and how long it holds the screen. */
-type Shot = [asset: Asset, frames: number];
+/**
+ * A shot: a template folder, how long it holds the screen, and how many of its
+ * first frames overlap the previous shot's last — a cross-dissolve, the
+ * incoming shot fading in over the outgoing one on the film's one curve (the
+ * fade-up's ease-in-out cubic). 0, or left out, butts the two together.
+ */
+type Shot = [asset: Asset, frames: number, dissolve?: number];
 
 /**
  * The cut. Source order, by the first frame of each template's reference
@@ -95,31 +97,53 @@ type Shot = [asset: Asset, frames: number];
  * the source's lengths would truncate half the set. These are paced to let
  * each effect finish and to give the three long ones (`count-up`,
  * `depth-flythrough`, `logo-outro`) the room the reference gives them.
+ *
+ * The dissolves are the source's, measured as mean luma across each of its
+ * joins — linear in a cross-fade's opacity, so the normalised luma IS the
+ * curve — and fitted for length and easing; the fits are in ./README.md.
+ * Where the source joins two of these shots directly the number is that
+ * join's; where it cuts to footage between them, the nearest join of the
+ * same kind:
+ *
+ *   card-stack -> word-swap          15  f140-f154, card-stack's own fade out
+ *   bokeh-orbit -> text-marker       10  no join in the source; dark to bone
+ *                                        is f1467-f1477
+ *   count-up -> orb-bloom            10  f1274-f1283, the numeral defocuses out
+ *   orb-bloom -> particle-form        8  f1336-f1344, ground to red, sphere out
+ *   focus-pull -> depth-flythrough   10  f1467-f1477, into depth-flythrough
+ *   depth-flythrough -> lens-reveal   9  f1586-f1595, out of depth-flythrough
+ *   lens-reveal -> word-grid         15  f1776-f1795, footage into the crimson
+ *
+ * The other six joins stay cuts. pill-expand -> count-up is the source's one
+ * hard cut (f1172, luma 238 -> 136; ours 240 -> 135), and the other five were
+ * already continuous — under 9 luma of change across the seam, about what one
+ * frame of `card-stack`'s push-in moves.
  */
 const CUT: Shot[] = [
-  [wordCascade, 90], //      f14-f38    "You've got knowledge"
-  [cardStack, 95], //        f38-f80    "people want"
-  [wordSwap, 66], //         f213-f228  "Your notes?" -> "Your answers?"
-  [bokehOrbit, 80], //       f268-f306  "Chaos"
-  [textMarker, 78], //       f1056-f1072
-  [pillExpand, 84], //       f1088-f1150  same paragraph, now behind a card
-  [countUp, 92], //          f1172-f1280  74% -> 100%
-  [orbBloom, 84], //         f1283-f1340  "piece by piece"
-  [particleForm, 100], //    f1352-f1400
-  [focusPull, 72], //        f1372-f1400  "Your digital mind / is born"
-  [depthFlythrough, 105], // f1476-f1595
-  [lensReveal, 84], //       f1640-f1700  "whatever you want"
-  [wordGrid, 84], //         f1875-f1920  "everything"
-  [logoOutro, 110], //       f1930-f2052
+  [wordCascade, 90], //          f14-f38    "You've got knowledge"
+  [cardStack, 95], //            f38-f80    "people want"
+  [wordSwap, 66, 15], //         f213-f228  "Your notes?" -> "Your answers?"
+  [bokehOrbit, 80], //           f268-f306  "Chaos"
+  [textMarker, 78, 10], //       f1056-f1072
+  [pillExpand, 84], //           f1088-f1150  same paragraph, now behind a card
+  [countUp, 92], //              f1172-f1280  74% -> 100%
+  [orbBloom, 84, 10], //         f1283-f1340  "piece by piece"
+  [particleForm, 100, 8], //     f1352-f1400
+  [focusPull, 72], //            f1372-f1400  "Your digital mind / is born"
+  [depthFlythrough, 105, 10], // f1476-f1595
+  [lensReveal, 84, 9], //        f1640-f1700  "whatever you want"
+  [wordGrid, 84, 15], //         f1875-f1920  "everything"
+  [logoOutro, 110], //           f1930-f2052
 ];
 
 /**
  * Running start frames. Derived rather than written down: a hand-kept `from`
  * column is one edit away from a one-frame overlap or a one-frame hole, and
- * neither is visible in a still.
+ * neither is visible in a still. A dissolve is the one overlap that is meant:
+ * the next shot starts that many frames before this one ends.
  */
 const starts = CUT.reduce<number[]>(
-  (at, [, frames], i) => [...at, at[i] + frames],
+  (at, [, frames], i) => [...at, at[i] + frames - (CUT[i + 1]?.[2] ?? 0)],
   [0],
 );
 
@@ -157,19 +181,37 @@ const OpenFromBlack: React.FC = () => {
   );
 };
 
-export const BrandFilm: React.FC = () => (
-  <>
-    {CUT.map(([{ Component, defaultProps }, frames], i) => {
-      const Shot = Component as React.FC<Record<string, unknown>>;
-      return (
-        <Sequence key={i} from={starts[i]} durationInFrames={frames}>
-          <Shot {...defaultProps} durationInFrames={frames} />
-        </Sequence>
-      );
-    })}
-    <OpenFromBlack />
-  </>
-);
+export const BrandFilm: React.FC = () => {
+  const frame = useCurrentFrame();
+  return (
+    <>
+      {CUT.map(([{ Component, defaultProps }, frames, dissolve = 0], i) => {
+        const Shot = Component as React.FC<Record<string, unknown>>;
+        return (
+          <Sequence key={i} from={starts[i]} durationInFrames={frames}>
+            <AbsoluteFill
+              style={{
+                // A later shot is later in the DOM, so the incoming one is on
+                // top and fades in over the outgoing one's tail.
+                opacity: dissolve
+                  ? enter(
+                      frame,
+                      starts[i],
+                      dissolve,
+                      Easing.inOut(Easing.cubic),
+                    )
+                  : 1,
+              }}
+            >
+              <Shot {...defaultProps} durationInFrames={frames} />
+            </AbsoluteFill>
+          </Sequence>
+        );
+      })}
+      <OpenFromBlack />
+    </>
+  );
+};
 
 export { meta };
 export const Component = BrandFilm;
