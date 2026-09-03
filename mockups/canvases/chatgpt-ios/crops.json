@@ -1,0 +1,20 @@
+{
+  "_": "Art cut from assets/refs/NN.png at measured pt boxes, 2.244275 px/pt. gen.py writes assets/art/<id>.png and places each <img> back at the same box, so an asset can never drift from where it was measured. Everything else on these boards -- cards, buttons, fields, sheets, rules, type, icons -- is CSS or inline SVG.",
+  "_rule": "Crop what the capture already contains; draw only what it does not. A crop scores 0 against its own source by construction.",
+
+  "01-mark":    ["01", 177.3, 406.4, 217.0, 445.1],
+  "05-logo":    ["05", 179.1, 137.2, 215.2, 172.9],
+  "05-google":  ["05",  95.4, 529.3, 112.8, 546.7],
+  "04-google":  ["04",  95.6, 665.2, 113.2, 682.8],
+  "05-apple":   ["05", 103.8, 589.9, 115.4, 604.6],
+  "13-appicon": ["13",  46.4, 225.3,  90.9, 269.8],
+  "16-hero":    ["16",   7.8, 341.7, 385.3, 514.4],
+  "20-tiles":   ["20",   0.0, 279.8, 393.0, 371.2],
+  "21-avatar":  ["21", 340.4,  66.4, 369.4,  95.4],
+  "23-avatar":  ["23", 340.4,  66.4, 369.4,  95.4],
+  "23-grpav":   ["23", 343.1, 726.7, 367.6, 751.2],
+  "23-recipe":  ["23",  27.2, 335.1,  45.4, 356.5],
+  "23-uiux":    ["23",  26.7, 383.2,  46.8, 403.2],
+  "24-proj":    ["24",  25.4, 139.0,  54.4, 168.0],
+  "25-cluster": ["25", 138.0, 282.0, 258.0, 328.0]
+}

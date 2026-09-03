@@ -1,0 +1,239 @@
+{
+  "name": "ChatGPT iOS",
+  "cover": "23-sidebar-full",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-splash",
+          "label": "Splash"
+        },
+        {
+          "file": "02-welcome",
+          "label": "Welcome"
+        },
+        {
+          "file": "03-home-signed-out",
+          "label": "Home, signed out"
+        },
+        {
+          "file": "04-auth-wall",
+          "label": "Auth wall"
+        },
+        {
+          "file": "05-login-sheet",
+          "label": "Log in or sign up"
+        },
+        {
+          "file": "06-login-email",
+          "label": "Email entered"
+        },
+        {
+          "file": "07-create-account",
+          "label": "Create account"
+        },
+        {
+          "file": "08-create-account-valid",
+          "label": "Password valid"
+        },
+        {
+          "file": "09-check-inbox",
+          "label": "Check inbox"
+        },
+        {
+          "file": "10-check-inbox-code",
+          "label": "Code entered"
+        },
+        {
+          "file": "11-age",
+          "label": "How old are you?"
+        },
+        {
+          "file": "12-age-filled",
+          "label": "Age filled"
+        },
+        {
+          "file": "13-notifications",
+          "label": "Notifications"
+        },
+        {
+          "file": "14-use-case",
+          "label": "Use case"
+        },
+        {
+          "file": "15-use-case-selected",
+          "label": "Use case selected"
+        },
+        {
+          "file": "16-memory-sheet",
+          "label": "Memory announcement"
+        },
+        {
+          "file": "17-home-empty",
+          "label": "Home, empty"
+        },
+        {
+          "file": "18-home-carousel",
+          "label": "Home, carousel"
+        },
+        {
+          "file": "19-composer-menu",
+          "label": "Composer menu"
+        },
+        {
+          "file": "20-image-whats-new",
+          "label": "Image announcement"
+        },
+        {
+          "file": "21-sidebar-empty",
+          "label": "Sidebar, empty"
+        },
+        {
+          "file": "22-sidebar-loading",
+          "label": "Sidebar, loading"
+        },
+        {
+          "file": "23-sidebar-full",
+          "label": "Sidebar, full"
+        },
+        {
+          "file": "24-project-chats",
+          "label": "Project chats"
+        },
+        {
+          "file": "25-project-sources",
+          "label": "Project sources"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-splash",
+          "label": "Splash"
+        },
+        {
+          "file": "ref-02-welcome",
+          "label": "Welcome"
+        },
+        {
+          "file": "ref-03-home-signed-out",
+          "label": "Home, signed out"
+        },
+        {
+          "file": "ref-04-auth-wall",
+          "label": "Auth wall"
+        },
+        {
+          "file": "ref-05-login-sheet",
+          "label": "Log in or sign up"
+        },
+        {
+          "file": "ref-06-login-email",
+          "label": "Email entered"
+        },
+        {
+          "file": "ref-07-create-account",
+          "label": "Create account"
+        },
+        {
+          "file": "ref-08-create-account-valid",
+          "label": "Password valid"
+        },
+        {
+          "file": "ref-09-check-inbox",
+          "label": "Check inbox"
+        },
+        {
+          "file": "ref-10-check-inbox-code",
+          "label": "Code entered"
+        },
+        {
+          "file": "ref-11-age",
+          "label": "How old are you?"
+        },
+        {
+          "file": "ref-12-age-filled",
+          "label": "Age filled"
+        },
+        {
+          "file": "ref-13-notifications",
+          "label": "Notifications"
+        },
+        {
+          "file": "ref-14-use-case",
+          "label": "Use case"
+        },
+        {
+          "file": "ref-15-use-case-selected",
+          "label": "Use case selected"
+        },
+        {
+          "file": "ref-16-memory-sheet",
+          "label": "Memory announcement"
+        },
+        {
+          "file": "ref-17-home-empty",
+          "label": "Home, empty"
+        },
+        {
+          "file": "ref-18-home-carousel",
+          "label": "Home, carousel"
+        },
+        {
+          "file": "ref-19-composer-menu",
+          "label": "Composer menu"
+        },
+        {
+          "file": "ref-20-image-whats-new",
+          "label": "Image announcement"
+        },
+        {
+          "file": "ref-21-sidebar-empty",
+          "label": "Sidebar, empty"
+        },
+        {
+          "file": "ref-22-sidebar-loading",
+          "label": "Sidebar, loading"
+        },
+        {
+          "file": "ref-23-sidebar-full",
+          "label": "Sidebar, full"
+        },
+        {
+          "file": "ref-24-project-chats",
+          "label": "Project chats"
+        },
+        {
+          "file": "ref-25-project-sources",
+          "label": "Project sources"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,481 @@
+[
+ {
+  "id": "bg",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   150,
+   62,
+   370,
+   108
+  ],
+  "only": "flat",
+  "mine": "02-welcome.png",
+  "_": "02 between the status bar (ends 54) and the title ink (top 118.5), right of nothing: pure page ground",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.244275; run with --pt 2.244275. --against wants a directory of my own renders resized to the capture's 882x1911, which is what /tmp/cgpt/rd.py writes; every probe names its own file there."
+ },
+ {
+  "id": "card",
+  "img": "assets/refs/18.png",
+  "cmd": "sample",
+  "box": [
+   170,
+   734,
+   374,
+   743
+  ],
+  "only": "flat",
+  "mine": "18-home-carousel.png",
+  "_": "18 card 2 interior (x 158.2-380.1, y 682.6-745.0), below the sub ink (top 716.5, 15px) and above the card's own bottom"
+ },
+ {
+  "id": "chip",
+  "img": "assets/refs/25.png",
+  "cmd": "sample",
+  "box": [
+   101,
+   207,
+   112,
+   227
+  ],
+  "only": "flat",
+  "mine": "25-project-sources.png",
+  "_": "25 Sources pill (98.5-213.0, 201.0-233.0), left of the label ink which starts at 114.5"
+ },
+ {
+  "id": "sheet",
+  "img": "assets/refs/16.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   546,
+   90,
+   604
+  ],
+  "only": "flat",
+  "mine": "16-memory-sheet.png",
+  "_": "16 sheet ground between the two title lines, left of the centred title ink (line 1 is 197.4 wide about 196.75, so 98 is its left edge). Above 517 the ghosted hero washes the ground and below 605 the body copy sits in it: this 60x58 window is the only clean sheet on the board."
+ },
+ {
+  "id": "dark",
+  "img": "assets/refs/04.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   571,
+   350,
+   586
+  ],
+  "only": "flat",
+  "mine": "04-auth-wall.png",
+  "_": "04 black sheet between its top edge (565.9) and the first pill (589.9)"
+ },
+ {
+  "id": "dark-2",
+  "img": "assets/refs/04.png",
+  "cmd": "sample",
+  "box": [
+   32,
+   660,
+   88,
+   688
+  ],
+  "only": "flat",
+  "mine": "04-auth-wall.png",
+  "_": "04 Google pill (24.5-368.9, 649.7-697.2), left of the Google mark which starts at 95.6"
+ },
+ {
+  "id": "fab",
+  "img": "assets/refs/21.png",
+  "cmd": "sample",
+  "box": [
+   342,
+   782,
+   360,
+   810
+  ],
+  "only": "flat",
+  "mine": "21-sidebar-empty.png",
+  "_": "21 Chat pill (253.4-363.4, 770.6-821.4), right of the 'Chat' label ink"
+ },
+ {
+  "id": "web-btn",
+  "img": "assets/refs/06.png",
+  "cmd": "sample",
+  "box": [
+   35,
+   393,
+   118,
+   424
+  ],
+  "only": "flat",
+  "mine": "06-login-email.png",
+  "_": "06 Continue button (24.5-368.9, 381.9-435.3), left of the centred label"
+ },
+ {
+  "id": "disabled",
+  "img": "assets/refs/07.png",
+  "cmd": "sample",
+  "box": [
+   35,
+   440,
+   118,
+   470
+  ],
+  "only": "flat",
+  "mine": "07-create-account.png",
+  "_": "07 Continue before validation (24.5-368.9, 428.6-482.0), left of the centred label"
+ },
+ {
+  "id": "close",
+  "img": "assets/refs/04.png",
+  "cmd": "sample",
+  "box": [
+   335.5,
+   96,
+   342,
+   107
+  ],
+  "only": "flat",
+  "mine": "04-auth-wall.png",
+  "_": "04 close disc (334.2-366.7, 85.1-117.6), the left crescent, clear of the 13pt X that starts at 343.9. The census splits #C6C6C6/#C5C5C5 either side of the token's #C5C5C7."
+ },
+ {
+  "id": "fade",
+  "img": "assets/refs/24.png",
+  "cmd": "scan",
+  "mine": "24-project-chats.png",
+  "_": "24 down the composer's centre column, stopping at the pill's top edge (773.5): the fade's whole ramp, whose last stop is the token",
+  "axis": "col",
+  "at": 196,
+  "range": [
+   700,
+   775
+  ]
+ },
+ {
+  "id": "scrim",
+  "img": "assets/refs/16.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   180,
+   340,
+   320
+  ],
+  "only": "flat",
+  "mine": "16-memory-sheet.png",
+  "_": "16 scrimmed home screen above the sheet (342.2): blank white behind the scrim, clear of the nav row and the blurred cards"
+ },
+ {
+  "id": "field",
+  "img": "assets/refs/05.png",
+  "cmd": "hairline",
+  "box": [
+   60,
+   300,
+   300,
+   304
+  ],
+  "bg": "FFFFFF",
+  "scale": "2.244275",
+  "mine": "05-login-sheet.png",
+  "_": "05 email field top rule at y 301.9, sampled across the middle of the span so the 12pt corners are excluded"
+ },
+ {
+  "id": "pill",
+  "img": "assets/refs/06.png",
+  "cmd": "hairline",
+  "box": [
+   60,
+   572,
+   300,
+   576
+  ],
+  "bg": "FFFFFF",
+  "scale": "2.244275",
+  "mine": "06-login-email.png",
+  "_": "06 Apple provider pill top rule at y 573.6, mid-span, clear of the 999px corners"
+ },
+ {
+  "id": "hair",
+  "img": "assets/refs/13.png",
+  "cmd": "hairline",
+  "box": [
+   60,
+   208,
+   320,
+   212
+  ],
+  "bg": "FFFFFF",
+  "scale": "2.244275",
+  "mine": "13-notifications.png",
+  "_": "13 front notification card top rule at y 209.6, mid-span between its 23.6 and 369.4 edges. The back card's top rule is under the front card and never renders."
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   24.5,
+   117,
+   352,
+   146
+  ],
+  "only": "ink",
+  "mine": "02-welcome.png",
+  "_": "02 'Welcome to ChatGPT', the largest native ink on the set: 34px, box 24.5-350.7 x 118.5-145; darkest 8%, the percentile the token was solved at",
+  "ink": "8"
+ },
+ {
+  "id": "ink-web",
+  "img": "assets/refs/05.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   194,
+   293,
+   219
+  ],
+  "only": "ink",
+  "mine": "05-login-sheet.png",
+  "_": "05 'Log in or sign up' at 22px, the web view's heading ink, centred in 393 at ink top 195.6; darkest 8%, the percentile the token was solved at",
+  "ink": "8"
+ },
+ {
+  "id": "sub",
+  "img": "assets/refs/20.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   435,
+   353,
+   500
+  ],
+  "only": "ink",
+  "mine": "20-image-whats-new.png",
+  "_": "20 the three-line body under the hero, ink top 436.2 on a 22pt pitch; darkest 8%, the percentile the token was solved at",
+  "ink": "8"
+ },
+ {
+  "id": "mute",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   78.9,
+   281,
+   345,
+   300
+  ],
+  "only": "ink",
+  "mine": "02-welcome.png",
+  "_": "02 first feature body, LINE 1 only (ink top 281.6, 17px on a 21 pitch): all three lines together put the interline white inside the darkest 8% and read four levels light; darkest 8% of the one line",
+  "ink": "8"
+ },
+ {
+  "id": "place",
+  "img": "assets/refs/05.png",
+  "cmd": "sample",
+  "box": [
+   36,
+   319,
+   82,
+   339
+  ],
+  "only": "ink",
+  "mine": "05-login-sheet.png",
+  "_": "05 'Email' placeholder inside the empty field, ink top 321.3. A five-glyph run in a 46x20 window needs the darkest 2%: at 8% the window is more field than ink and reads #959595",
+  "ink": "2"
+ },
+ {
+  "id": "tab",
+  "img": "assets/refs/24.png",
+  "cmd": "sample",
+  "box": [
+   113,
+   207,
+   176,
+   227
+  ],
+  "only": "ink",
+  "mine": "24-project-chats.png",
+  "_": "24 unselected 'Sources' label at 15px, ink top 210.3, outside the Chats pill which ends at 63.7; darkest 8%, the percentile the token was solved at",
+  "ink": "8"
+ },
+ {
+  "id": "legal",
+  "img": "assets/refs/02.png",
+  "cmd": "sample",
+  "box": [
+   36,
+   776,
+   200,
+   790
+  ],
+  "only": "ink",
+  "ink": "12",
+  "mine": "02-welcome.png",
+  "_": "02 legal line 1, the darkest 12% of the window the token cites"
+ },
+ {
+  "id": "blue",
+  "img": "assets/refs/16.png",
+  "cmd": "sample",
+  "box": [
+   113,
+   73,
+   176,
+   93
+  ],
+  "only": "ink",
+  "ink": "8",
+  "mine": "16-memory-sheet.png",
+  "_": "16 Upgrade label, ink top 74.4 at 17px; this reads the SCRIMMED value #494496, which the token divides by 0.816"
+ },
+ {
+  "id": "h1-02",
+  "img": "assets/refs/02.png",
+  "cmd": "bbox",
+  "box": [
+   24,
+   116,
+   360,
+   148
+  ],
+  "grow": true,
+  "mine": "02-welcome.png",
+  "_": "02 title ink, the width that fixes t-h1 at 34px: one line, nothing else in the window"
+ },
+ {
+  "id": "h1-04",
+  "img": "assets/refs/04.png",
+  "cmd": "bbox",
+  "box": [
+   58,
+   296,
+   300,
+   326
+  ],
+  "grow": true,
+  "mine": "04-auth-wall.png",
+  "_": "04 title ink, the width that forces t-wall to 33px rather than 02's 34px"
+ },
+ {
+  "id": "h2-15",
+  "img": "assets/refs/15.png",
+  "cmd": "bbox",
+  "box": [
+   40,
+   104,
+   353,
+   140
+  ],
+  "mine": "15-use-case-selected.png",
+  "_": "15 title line 1 only. The window is tight and --grow is off on purpose: grown, the reference's line 1 runs into line 2 and reports 32.1 tall against a real 24.5, which is what made this probe look like a defect. Boxed tightly both sides read 302 x 24.5 at 110.1, and the leading between the two lines is 33.9"
+ },
+ {
+  "id": "sheeth-16",
+  "img": "assets/refs/16.png",
+  "cmd": "bbox",
+  "box": [
+   40,
+   540,
+   353,
+   570
+  ],
+  "grow": true,
+  "mine": "16-memory-sheet.png",
+  "_": "16 sheet title line 1 only ('Introducing new,'), above line 2 at ink top 575"
+ },
+ {
+  "id": "btn-web-h",
+  "img": "assets/refs/06.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 196,
+  "range": [
+   370,
+   445
+  ],
+  "mine": "06-login-email.png",
+  "_": "06 down the button's centre column: the two edges give the web view's 53.4pt button, against 47.5 on 04. Read the pair, not the single number the replay prints -- scan reports the FIRST edge it finds, and the reference finds the button's floor at 435.5 where my render finds its ceiling at 382, two faces of one box measured at 381.9 + 53.4"
+ },
+ {
+  "id": "btn-h",
+  "img": "assets/refs/04.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 40,
+  "range": [
+   640,
+   706
+  ],
+  "mine": "04-auth-wall.png",
+  "_": "04 down the Google pill's left inset, clear of the mark and label: the pill edges at 649.7 and 697.2. As with btn-web-h the replay compares one edge each, and the two sides land on opposite ones"
+ },
+ {
+  "id": "sheet-top",
+  "img": "assets/refs/05.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 196,
+  "range": [
+   50,
+   80
+  ],
+  "mine": "05-login-sheet.png",
+  "_": "05 down x 196 across the scrim/sheet boundary: the scrim ends 58.8 and the sheet white starts 59.3. Starts at 50, not 40: my board draws the Dynamic Island the capture composites out, and it reaches y 49"
+ },
+ {
+  "id": "card-box",
+  "img": "assets/refs/17.png",
+  "cmd": "scan",
+  "mine": "17-home-empty.png",
+  "_": "17 across the card row at y 690: bbox --grow cannot find this box because #FAFAFA on #FFFFFF is under any luminance threshold that does not also take the page, so the edges come off a colour scan instead. On my own render the two runs are 2 levels apart and scan's threshold merges them, so this probe reads the reference only",
+  "axis": "row",
+  "at": 690,
+  "range": [
+   0,
+   250
+  ]
+ },
+ {
+  "id": "sheet-l",
+  "img": "assets/refs/16.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 600,
+  "range": [
+   0,
+   30
+  ],
+  "mine": "16-memory-sheet.png",
+  "_": "16 across the sheet's left edge at y 600, below the hero and above the copy: the scrim gives way at 7.75, not at the 21.4 this board was first built to. Same edge at rows 560/650/700/760 to within 0.03pt."
+ },
+ {
+  "id": "sheet-r",
+  "img": "assets/refs/16.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 600,
+  "range": [
+   365,
+   393
+  ],
+  "mine": "16-memory-sheet.png",
+  "_": "16 across the sheet's right edge at y 600: 385.26, so the sheet is 377.5 wide and inset 7.75/7.74 -- symmetric, which is why a 26.8pt error in the width still looked centred."
+ },
+ {
+  "id": "sheet-bot",
+  "img": "assets/refs/16.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 196,
+  "range": [
+   825,
+   852
+  ],
+  "mine": "16-memory-sheet.png",
+  "_": "16 down the sheet's centre column through its floor at 843.0, clear of the 'Not now' ink which ends at 800. The replay's -12.4 is the same first-edge artefact: the reference's first transition in the window is the floor, mine is the shadow above it"
+ }
+]
