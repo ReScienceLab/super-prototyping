@@ -628,10 +628,16 @@ ICONS = {
    'a2.6 2.6 0 012.6-2.6H9"%s stroke-width="1.9"/>'
    '<path d="M13.7 1.2l4.1 4.1L9.2 13.9l-4.6.5.5-4.6z"%s stroke-width="1.9"/>'
    % (S_, S_)),
- "chatbub": (21.0, 18.0,
-   '<path d="M1 6.1a4 4 0 014-4h6.4a4 4 0 014 4v3.6a4 4 0 01-4 4H7.6L3.4 17v-3.3'
-   'H5a4 4 0 01-4-4z"%s stroke-width="1.7"/>'
-   '<path d="M15.4 5.2h.6a4 4 0 014 4v3.6"%s stroke-width="1.7"/>' % (S_, S_)),
+ # Two bubbles, 24 x 20.5 with 1 unit = 1pt at the 24 empty state. Each is a
+ # 12.9 x 11.7 box with 5.85 corners, so a circle stretched 1.2pt, and one corner
+ # pulled out to a point: the arc holds to 35deg on the side and 25deg on the
+ # base. The back one stops 1.5pt short of the front one at both ends, round
+ # caps. Stroke 2.05: the flats read 2.0 to 2.1 on the capture.
+ "chats": (24.0, 20.5,
+   '<path d="M1.8 18.6l.9-2.5A5.85 5.85 0 017.45 6.9h1.2a5.85 5.85 0 015.85 5.85'
+   'A5.85 5.85 0 018.65 18.6h-1.2a5.85 5.85 0 01-2.45-.55z"%s stroke-width="2.05"/>'
+   '<path d="M11.05 3.25a5.85 5.85 0 014.1-1.65h1a5.85 5.85 0 015.85 5.85'
+   'a5.85 5.85 0 01-1.1 3.35l1.1 2.5-3.8-.65"%s stroke-width="2.05"/>' % (S_, S_)),
  "sparkle": (14.0, 14.0,
    '<path d="M7 0c.7 4.1 2.2 5.6 6.3 6.3H14v1.4h-.7C9.2 8.4 7.7 9.9 7 14'
    'c-.7-4.1-2.2-5.6-6.3-6.3H0V6.3h.7C4.8 5.6 6.3 4.1 7 0z" fill="currentColor"/>'),
@@ -1271,7 +1277,7 @@ def project(active):
 def s24():
     return screen("Project, chats tab",
         project("Chats")
-        + ico("chatbub", 185.8, 290.1, 21.4, "var(--x-mute)")
+        + ico("chats", 184.7, 289.0, 24, "var(--x-mute)")
         + txc(322.2, "Project chats will appear here", "t-body", "var(--x-mute)")
         + fade() + composer_b("Message UI UX"))
 
