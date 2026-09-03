@@ -1,6 +1,0 @@
-# Whole app screens, not component art: the five captures and the reference
-# boards built from them stay local. gen.py builds the other 8 boards without
-# them. assets/art/ IS committed -- every piece of it is a measured crop, and
-# without it the screens have no artwork at all.
-assets/refs/
-ref-*.html
