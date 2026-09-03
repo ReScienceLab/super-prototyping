@@ -9,11 +9,23 @@ it: it swells, goes soft top line first, and is gone before the push ends.
 
 ## Reference
 
-f1372-f1400, "Your / digital mind / is born" in one white block beside the
-particle figure, held sharp until f1387 and pushed through over f1387-1400.
+f1345-f1400, "Your / digital mind / is born" in one white block beside the
+particle figure: it fades up over f1345-f1372, holds sharp until f1387, and is
+pushed through over f1387-1400.
 The source clip is not committed; see `src/lib/README.md` for what is measured,
 what is substituted, and how to reproduce any number below.
 
+- **It fades up; it is not simply there.** This file used to say the shot
+  began at f1372, which is where the *push* was measured from, and the
+  template opened at full strength. Mean excess over the block box's own
+  per-frame median — the median is the ground under the type, which drifts by
+  more across this range than the thin type contributes, so a plain box mean
+  measures the ground and not the block — is flat to f1344, then 0.01 / 0.06 /
+  0.15 / 0.25 / 0.34 / 0.43 / 0.53 / 0.62 / 0.76 / 0.87 / 1.00 of its final at
+  f1345 / 47 / 49 / 51 / 53 / 55 / 57 / 60 / 65 / 68 / 72. A straight line at
+  0.045 a frame: `fadeIn`, 22 frames, linear. The block's own area is flat
+  over f1358-f1367 while the light still climbs, so this is opacity and not
+  the block growing in.
 - **One plane, one colour, one push.** The block scales about the frame
   centre by 1.11 / 1.19 / 1.30 / 1.38 / 1.49 at f1390 / 92 / 94 / 95 / 96,
   which is `1 + 0.65 * p^1.5` over 13 frames.
@@ -54,9 +66,16 @@ scrubbable on its own. See `src/lib/README.md`.
 fade; the reference has one plane, one colour, and a push. `near`, `far`,
 `breathe`, `offset`, `nearSize`, `farSize` and `farColor` are gone.
 
-The push starts at 53 rather than the reference's 15 on the cut's clock, so
+The push starts at 53 rather than the reference's 42 on the cut's clock, so
 the block holds for most of the shot and the empty tail is what the cut lands
-on; the reference carries the block in from the particle shot before f1372.
+on.
+
+**`gradient` is nullable.** In the source this block shares its frame with
+`particle-form`'s figure, and both templates draw the same `DIM` ground, so
+whichever is on top must not repaint it. `null` draws none and leaves the shot
+transparent, which is what lets `brand-film` stack the two rather than cut
+between them; see that film's README under *The layer*. Alone, the template
+keeps its ground and is unaffected.
 
 The face is narrower than the reference's: 0.18 matches the block's height
 and width within 5%, but "Your" alone is 0.149 wide against 0.181 (f1380).

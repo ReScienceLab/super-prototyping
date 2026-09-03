@@ -10,10 +10,24 @@ import { enter, useDuration } from "../../lib/timing";
  * It swells, goes soft top line first, and is gone before the push ends,
  * leaving the ground alone for the cut.
  *
- * Reference: f1372-1400 — "Your / digital mind / is born", one white block
+ * Reference: f1345-1400 — "Your / digital mind / is born", one white block
  * (#ffffff at f1380) right of centre beside the particle figure, held sharp
  * until f1387 and pushed through over f1387-1400. Measured per frame off
  * f1380-1400 against the empty f1400:
+ *
+ * The block FADES UP; it is not simply there. This file used to say the shot
+ * began at f1372, which is where the push segment was measured from, and it
+ * opened with the type already at full strength. Laid over `particle-form` in
+ * the cut, where the ground no longer changes under it, that read as the type
+ * popping into a still frame in one frame. Mean excess over the block box's
+ * own per-frame median -- the median is the ground under the type, which
+ * drifts by more across this range than the type itself contributes, so a
+ * plain mean of the box measures the ground and not the block -- is flat to
+ * f1344, then 0.01 / 0.06 / 0.15 / 0.25 / 0.34 / 0.43 / 0.53 / 0.62 / 0.76 /
+ * 0.87 / 1.00 of its final at f1345 / 47 / 49 / 51 / 53 / 55 / 57 / 60 / 65 /
+ * 68 / 72. That is a straight line at 0.045 a frame: 22 frames, linear, which
+ * is `fadeIn`. Its own area is flat over f1358-1367 while the light is still
+ * climbing, so the ramp is opacity and not the block growing.
  *
  *   - Both halves of the block scale the same amount about the frame centre:
  *     1.11 / 1.19 / 1.30 / 1.38 / 1.49 at f1390 / 92 / 94 / 95 / 96, which is
@@ -49,6 +63,8 @@ export type FocusPullProps = {
   lag: number;
   /** frames of opacity fade at the end of the push */
   fade: number;
+  /** frames the block fades up over at the head of the shot; 0 opens settled */
+  fadeIn: number;
   /** the block's centre, as fractions of the frame */
   x: number;
   y: number;
@@ -56,7 +72,13 @@ export type FocusPullProps = {
   /** line-height, as a multiple of `size` */
   leading: number;
   color: string;
-  gradient: GradientProps;
+  /**
+   * The ground. `null` draws none and leaves the shot transparent, which
+   * is what lets a cut lay it over another shot: in the reference this
+   * type block shares its frame with `particle-form`'s figure, and the two
+   * draw the same `DIM` ground, so the one on top must not repaint it.
+   */
+  gradient: GradientProps | null;
 };
 
 export const FocusPull: React.FC<FocusPullProps> = ({
@@ -68,6 +90,7 @@ export const FocusPull: React.FC<FocusPullProps> = ({
   blur,
   lag,
   fade,
+  fadeIn,
   x,
   y,
   size,
@@ -80,16 +103,18 @@ export const FocusPull: React.FC<FocusPullProps> = ({
   const lines = text.split("\n");
   const push = enter(frame, at, frames, Easing.poly(1.5));
   const gone = enter(frame, at + frames - fade, fade, Easing.in(Easing.quad));
+  // Linear, because the reference's is: see the header.
+  const up = fadeIn ? enter(frame, 0, fadeIn, Easing.linear) : 1;
 
   return (
     <AbsoluteFill>
-      <Gradient {...gradient} />
+      {gradient && <Gradient {...gradient} />}
       {/* The push scales about the frame centre, not the block: f1390-1396
           has the block's near and far edges growing by the same factor. */}
       <AbsoluteFill
         style={{
           transform: `scale(${1 + zoom * push})`,
-          opacity: 1 - gone,
+          opacity: up * (1 - gone),
         }}
       >
         <div
@@ -138,6 +163,7 @@ export const defaultProps: FocusPullProps = {
   blur: 60,
   lag: 4,
   fade: 5,
+  fadeIn: 22,
   // The block is right of centre beside the particle figure, x 0.503-0.927
   // and y 0.305-0.704 at f1380 (extent at 1920): ink centre (0.715, 0.505).
   // This face's box centre is its ink centre: y 0.47 rendered 0.272-0.672.

@@ -3,7 +3,7 @@
 Fourteen of the fifteen templates of the Delphi set, cut back into one
 continuous piece.
 
-1920x1080, 30 fps, 1147 frames (38.2 s).
+1920x1080, 30 fps, 1055 frames (35.2 s).
 
     ./render.sh brand-film
 
@@ -11,7 +11,7 @@ continuous piece.
 colour, no copy. The only prop the cut overrides is `durationInFrames`, and
 that single override is the composability claim the whole set was built to
 make: a template that read its length from `useVideoConfig()` would time itself
-against the film's 1147 frames while occupying 84 of them.
+against the film's 1055 frames while occupying 84 of them.
 
 The joins are the film's, not the templates'. Every template opens settled
 and settles again before its own last frame; where the source joins two shots
@@ -39,15 +39,16 @@ lengths would truncate half the set.
 |  384 | `pill-expand`      |     84 |         | f1088-f1150 | 8 frames of paragraph, then the card |
 |  468 | `count-up`         |     92 |         | f1172-f1280 | 74% -> 100%                          |
 |  550 | `orb-bloom`        |     84 |      10 | f1283-f1340 | "piece by piece"                     |
-|  626 | `particle-form`    |    100 |       8 | f1352-f1400 |                                      |
-|  726 | `focus-pull`       |     72 |         | f1372-f1400 | "Your digital mind / is born"        |
-|  788 | `depth-flythrough` |    105 |      10 | f1476-f1595 |                                      |
-|  884 | `lens-reveal`      |     84 |       9 | f1640-f1700 | "whatever you want"                  |
-|  953 | `word-grid`        |     84 |      15 | f1875-f1920 | "everything"                         |
-| 1037 | `logo-outro`       |    110 |         | f1930-f2052 |                                      |
+|  626 | `particle-form`    |     80 |       8 | f1341-f1400 |                                      |
+|  634 | `focus-pull`       |     72 |      72 | f1345-f1400 | "Your digital mind / is born"        |
+|  696 | `depth-flythrough` |    105 |      10 | f1476-f1595 |                                      |
+|  792 | `lens-reveal`      |     84 |       9 | f1640-f1700 | "whatever you want"                  |
+|  861 | `word-grid`        |     84 |      15 | f1875-f1920 | "everything"                         |
+|  945 | `logo-outro`       |    110 |         | f1930-f2052 |                                      |
 
 "In over" is how many of the shot's first frames overlap the previous shot's
-last — a cross-dissolve, the incoming shot fading in on top. The start column
+last — a cross-dissolve, the incoming shot fading in on top. `focus-pull`
+overlaps its whole length, which is not a dissolve; see *The layer* below. The start column
 is derived in `index.tsx`, not typed: a hand-kept `from` is one edit away from
 a one-frame overlap or hole, and neither is visible in a still. `meta.json` is
 checked against the same sum at module load.
@@ -65,29 +66,29 @@ single step inside the dissolve:
 | join                                | frame | before | after | in over |
 |-------------------------------------|------:|-------:|------:|--------:|
 | `bokeh-orbit` -> `text-marker`      |   306 |  209.3 |  51.6 |      10 |
-| `depth-flythrough` -> `lens-reveal` |   884 |  165.3 |  49.3 |       9 |
-| `focus-pull` -> `depth-flythrough`  |   788 |  138.3 |  33.7 |      10 |
+| `depth-flythrough` -> `lens-reveal` |   792 |  165.3 |  49.3 |       9 |
+| `focus-pull` -> `depth-flythrough`  |   696 |  138.3 |  33.7 |      10 |
 | `pill-expand` -> `count-up`         |   468 |  106.2 | 106.2 |         |
-| `lens-reveal` -> `word-grid`        |   953 |   80.7 |  14.8 |      15 |
+| `lens-reveal` -> `word-grid`        |   861 |   80.7 |  14.8 |      15 |
 | `count-up` -> `orb-bloom`           |   550 |   68.7 |  24.3 |      10 |
 | `orb-bloom` -> `particle-form`      |   626 |   38.0 |  11.1 |       8 |
 | `card-stack` -> `word-swap`         |   170 |   29.5 |  14.0 |      15 |
 | `word-cascade` -> `card-stack`      |    90 |    8.4 |   8.4 |         |
 | `word-swap` -> `bokeh-orbit`        |   236 |    7.2 |   7.2 |         |
-| `particle-form` -> `focus-pull`     |   726 |    6.9 |   6.9 |         |
-| `word-grid` -> `logo-outro`         |  1037 |    0.7 |   0.7 |         |
+| `word-grid` -> `logo-outro`         |   945 |    0.7 |   0.7 |         |
 | `text-marker` -> `pill-expand`      |   384 |    0.0 |   0.0 |         |
 
 For scale, the source's own dissolves peak at 44 per frame (f1467-f1477, dark
 to bone) and 49 (f1586-f1595, bone to dark), and its one hard cut steps 103.
 `pill-expand` -> `count-up` is that cut — f1172, luma 238 -> 136 against ours
 240 -> 135 — and stays one. The five under 9 were already continuous: 8.4 is
-about what one frame of `card-stack`'s push-in moves. The scene detector now
-finds five events: the hard cut at 1.00, a pair at 0.26 / 0.20 at the
-mid-point of the film's widest dissolve (`bokeh-orbit`'s 25 to
-`text-marker`'s 235; the source's f1467 join has the same shape and peaks at
-44 to our 52), and a pair at 0.24 / 0.22 that is not a join at all — see the
-last item below.
+about what one frame of `card-stack`'s push-in moves. The scene detector at 0.3 now
+finds one event in ours, the hard cut, which is what it finds in the source.
+At 0.2 it finds five: the cut at 1.00, a pair at 0.26 / 0.20 at the mid-point
+of the film's widest dissolve (`bokeh-orbit`'s 25 to `text-marker`'s 235; the
+source's f1467 join has the same shape and peaks at 44 to our 52), and a pair
+at 0.24 / 0.22 that is not a join at all — see the last item under *Not
+fitted*.
 
 **How the lengths were fitted.** Mean luma over a cross-fade of two stills is
 linear in the fade's opacity, so the normalised luma across a source join *is*
@@ -136,10 +137,60 @@ pills, and the source dissolves out of the same motion.
   template's `frames` 7 against a slower source, and it is left as found.
 - *Two long holds are the source's.* `lens-reveal` holds 70 static frames
   after its reveal; the source holds a near-still (under 1 luma per frame)
-  from f1695 to f1775, 80 frames. `particle-form` holds its figure for 84
+  from f1695 to f1775, 80 frames. `particle-form` holds its figure for 80
   frames where the source's particles drift for 48 (f1352-f1400, 2-13 per
   frame) and then hold 30 on bare ground; the template holds by design (its
   README says why) and was left.
+
+## The layer
+
+One pair of shots is not joined at all — it is stacked. In the source the
+particle figure and the "Your / digital mind / is born" block share the frame:
+f1380 carries 3.77% ink left of 0.45 W and 5.78% right of it, at once. Cut in
+sequence they never met. At our old f690 the right of the frame was empty and
+at f760 the left was, which is the fault the film was reported for.
+
+`focus-pull` therefore overlaps its whole 72 frames, and a fourth slot on the
+shot marks the overlap as a layer rather than a dissolve: it composites at
+full opacity, and the cut passes it `gradient: null` so the shot on top does
+not repaint the `DIM` ground both templates draw. Nothing else about either
+template changed — `focus-pull` gained a nullable ground, which is a prop, not
+a behaviour.
+
+Two things had to be measured to place it.
+
+**When each arrives.** Mean luma over a box does not answer this: the type
+covers well under half its box, and the ground under it drifts by more across
+these frames than the type contributes, so a plain box mean measures the
+ground. Mean *excess* over the box's own per-frame median does — the median is
+the ground, and excess light is linear in opacity where an ink count over a
+fixed threshold crosses a step. As a fraction of its own final, the figure is
+0.00 at f1341 and climbs from f1342; the type is 0.00 through f1344 and climbs
+from f1345. Four frames apart, not the twenty the first placement assumed —
+that number came from `focus-pull`'s own header, which had recorded f1372, the
+frame the *push* segment was measured from, as the start of the shot.
+
+`particle-form` starts its dots at frame 4 of its own run, so 80 frames with
+an overlap of 72 puts the type at frame 8 of the figure's run: four frames
+later, both running out together at frame 80. The type is gone by frame 66 of
+its own run, so the shot's last six frames are the figure alone, which is what
+the dissolve into `depth-flythrough` lands on — as in the source, where the
+figure survives the block by four frames.
+
+**How it arrives.** Opening at full strength over a shot whose ground no
+longer moves reads as a pop, and measured it was one: 0.00 to 1.00 of final in
+a single frame. The source ramps — 0.01 / 0.06 / 0.15 / 0.25 / 0.34 / 0.43 /
+0.53 / 0.62 / 0.76 / 0.87 / 1.00 at f1345 / 47 / 49 / 51 / 53 / 55 / 57 / 60 /
+65 / 68 / 72, a straight line at 0.045 a frame. That is `focus-pull`'s
+`fadeIn`, 22 frames, linear, and it is the template's, not the film's. The
+block's own area is flat over f1358-f1367 while the light is still climbing,
+so the ramp is opacity and not the block growing in.
+
+**Still off:** our figure holds flat once its fade lands, where the source's
+keeps growing — 3.51% to 4.93% of the left half over f1376-f1389 — and then
+decays with the push instead of surviving it at a constant size. That is
+`particle-form`'s documented hold, listed under *Not fitted* above, and this
+pass did not change it.
 
 ## Comparing it against the source
 
@@ -188,10 +239,10 @@ written next to each rather than a number that means nothing.
 | `text-marker`      |  1068 |  361 | 0.627 0.322 | 0.626 0.328 | 1.00 | 1.02 |
 | `count-up`         |  1250 |  532 | 0.899 0.554 | 0.934 0.552 | 1.04 | 1.00 |
 | `orb-bloom`        |  1310 |  580 | 0.720 0.959 | 0.765 0.918 | 1.06 | 0.96 |
-| `focus-pull`       |  1380 |  766 | 0.417 0.431 | 0.420 0.443 | 1.01 | 1.03 |
-| `depth-flythrough` |  1540 |  839 | 0.757 0.483 | 0.766 0.494 | 1.01 | 1.02 |
-| `word-grid`        |  1910 | 1012 | 0.840 0.850 | 0.850 0.881 | 1.01 | 1.04 |
-| `logo-outro`       |  2030 | 1114 | 0.299 0.378 | 0.310 0.372 | 1.04 | 0.98 |
+| `focus-pull`       |  1380 |  674 | 0.417 0.431 | 0.420 0.441 | 1.01 | 1.02 |
+| `depth-flythrough` |  1540 |  747 | 0.757 0.483 | 0.766 0.494 | 1.01 | 1.02 |
+| `word-grid`        |  1910 |  920 | 0.840 0.850 | 0.850 0.881 | 1.01 | 1.04 |
+| `logo-outro`       |  2030 | 1022 | 0.299 0.378 | 0.310 0.372 | 1.04 | 0.98 |
 
 `bokeh-orbit` is banded to `0.25,0.34,0.75,0.58` (the word, not the ring, whose
 beads run off the frame edge in both) and `focus-pull` to `0.50,0.15,1.00,0.90`

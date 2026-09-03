@@ -27,12 +27,13 @@ import * as logoOutro from "../../templates/logo-outro";
  *
  * WHAT THIS FILE CONTAINS is a shot list and nothing else. No animation, no
  * easing, no colour, no copy. Every shot is a template with its own defaults;
- * the only thing the cut overrides is `durationInFrames`, and that one
- * override is the whole composability claim, made once and checkable:
+ * the only thing the cut overrides is `durationInFrames` -- and, for the one
+ * layered shot, the ground it must not repaint. That override is the whole
+ * composability claim, made once and checkable:
  *
  *   - Inside a <Sequence>, `useVideoConfig().durationInFrames` still reports
  *     the FILM's length, not the shot's. A template that read it there would
- *     time itself against 1147 frames while occupying 84. `useDuration(prop)`
+ *     time itself against 1055 frames while occupying 84. `useDuration(prop)`
  *     is what makes the same file work in the studio on its own and in a cut.
  *   - The joins are the film's, not the templates'. Every template still opens
  *     settled and settles before its own last frame; where the source joins
@@ -40,6 +41,11 @@ import * as logoOutro from "../../templates/logo-outro";
  *     frames and fades the incoming one in over the outgoing one's own tail.
  *     No template knows it is being dissolved. Where the source cuts, so does
  *     this — the dissolve is never covering for a template that does not end.
+ *   - Where the source holds two of these effects in one frame, the cut lays
+ *     one over the other rather than playing them in turn. That costs the
+ *     template on top one prop — a ground it can be told not to draw — and it
+ *     is the only prop besides `durationInFrames` the cut sets. It is not a
+ *     transition: both shots are whole, and both play their own clock.
  *
  * THE ONE THING HERE THAT IS NOT A SHOT is the fade up from black, below. It
  * is in this file because it belongs to the film and not to any template: the
@@ -83,8 +89,20 @@ type Asset = {
  * first frames overlap the previous shot's last — a cross-dissolve, the
  * incoming shot fading in over the outgoing one on the film's one curve (the
  * fade-up's ease-in-out cubic). 0, or left out, butts the two together.
+ *
+ * `layer` spends that same overlap differently: the shot arrives at full
+ * opacity and with no ground of its own, so it composites ON TOP of the shot
+ * underneath instead of replacing it. It is for the one place the source puts
+ * two of our templates in the frame at the same time — see `focus-pull` in
+ * the cut. It needs the template to accept a null ground; only `focus-pull`
+ * does, because it is the only one that needs to.
  */
-type Shot = [asset: Asset, frames: number, dissolve?: number];
+type Shot = [
+  asset: Asset,
+  frames: number,
+  overlap?: number,
+  layer?: boolean,
+];
 
 /**
  * The cut. Source order, by the first frame of each template's reference
@@ -128,8 +146,24 @@ const CUT: Shot[] = [
   [pillExpand, 84], //           f1088-f1150  same paragraph, now behind a card
   [countUp, 92], //              f1172-f1280  74% -> 100%
   [orbBloom, 84, 10], //         f1283-f1340  "piece by piece"
-  [particleForm, 100, 8], //     f1352-f1400
-  [focusPull, 72], //            f1372-f1400  "Your digital mind / is born"
+  [particleForm, 80, 8], //      f1341-f1400  the figure, under the type
+  // Not a cut but a layer: in the source the figure and this type block share
+  // the frame, and both templates say so in their own headers -- "beside the
+  // type", "beside the particle figure". Cut in sequence they never met: at
+  // our f690 the right of the frame was empty and at f760 the left was, where
+  // the reference's f1380 carries 3.77% ink on the left and 5.78% on the right
+  // at once.
+  //
+  // They also start together, four frames apart, rather than one landing
+  // before the other begins. Excess light over each box's own median, as a
+  // fraction of its final: the figure is 0.00 at f1341 and climbs from f1342,
+  // the type is 0.00 through f1344 and climbs from f1345. `particle-form`
+  // starts its dots at frame 4 of its own run, so an overlap of 72 out of 80
+  // starts this one at frame 8 -- four frames later, and the two then run out
+  // together at frame 80. The type is gone by frame 66 of its own run, so the
+  // last six frames of the shot are the figure alone, which is what the next
+  // dissolve lands on.
+  [focusPull, 72, 72, true], //  f1345-f1400  "Your digital mind / is born"
   [depthFlythrough, 105, 10], // f1476-f1595
   [lensReveal, 84, 9], //        f1640-f1700  "whatever you want"
   [wordGrid, 84, 15], //         f1875-f1920  "everything"
@@ -185,25 +219,31 @@ export const BrandFilm: React.FC = () => {
   const frame = useCurrentFrame();
   return (
     <>
-      {CUT.map(([{ Component, defaultProps }, frames, dissolve = 0], i) => {
+      {CUT.map(([{ Component, defaultProps }, frames, overlap = 0, layer], i) => {
         const Shot = Component as React.FC<Record<string, unknown>>;
         return (
           <Sequence key={i} from={starts[i]} durationInFrames={frames}>
             <AbsoluteFill
               style={{
                 // A later shot is later in the DOM, so the incoming one is on
-                // top and fades in over the outgoing one's tail.
-                opacity: dissolve
-                  ? enter(
-                      frame,
-                      starts[i],
-                      dissolve,
-                      Easing.inOut(Easing.cubic),
-                    )
-                  : 1,
+                // top and fades in over the outgoing one's tail. A layered
+                // shot is on top too, but arrives whole.
+                opacity:
+                  overlap && !layer
+                    ? enter(
+                        frame,
+                        starts[i],
+                        overlap,
+                        Easing.inOut(Easing.cubic),
+                      )
+                    : 1,
               }}
             >
-              <Shot {...defaultProps} durationInFrames={frames} />
+              <Shot
+                {...defaultProps}
+                durationInFrames={frames}
+                {...(layer ? { gradient: null } : {})}
+              />
             </AbsoluteFill>
           </Sequence>
         );
