@@ -326,15 +326,9 @@ function layoutWelcomeExtras(
   library: CanvasLibraryFile[][],
   rowTop: number,
 ) {
-  const targets = library
-    .filter((files) => files[0].pageSlug !== WELCOME_PAGE_SLUG)
-    // Slug order otherwise, which is what a folder that says nothing gets. Sort
-    // is stable, so `order` only moves the folders that ask to be moved.
-    .sort(
-      (a, b) =>
-        (readCanvasLayout(a[0].pageSlug)?.order ?? 0) -
-        (readCanvasLayout(b[0].pageSlug)?.order ?? 0),
-    );
+  const targets = library.filter(
+    (files) => files[0].pageSlug !== WELCOME_PAGE_SLUG,
+  );
 
   // The repo CTA used to be a shape parked in the welcome board's header. It is chrome now
   // (canvasChrome.tsx, SharePanel), so a canvas saved before that still has to lose its copy.

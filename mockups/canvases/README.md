@@ -6,6 +6,7 @@ no code change needed anywhere:
 - Each folder becomes one tldraw page, named after the folder
   (`kebab-case` → `Title Case`). Folders sort numerically, and the page menu
   is put in that same order, so a `00-` prefix is what puts a page on top.
+  `order` in `layout.json` moves a folder without renaming it.
 - Each `.html` file in it becomes one shape on that page.
 - Files sort numerically by name, so prefix them `00-`, `01-`, `02-` …
 - Discovery lives in `canvas/src/canvasLibrary.ts` (`import.meta.glob`).
@@ -79,8 +80,9 @@ laid out top to bottom:
   e.g. `"00-launch-light"`. Without one the card shows the first board that is
   not a `00-` sheet, which is the right guess for most folders and the wrong
   one where the front door is a `00-` board.
-- `order` sorts the folder's card on the welcome page: lower first, default 0,
-  and folders that say nothing keep slug order.
+- `order` sorts the folder in the page menu and on the welcome page: lower
+  first, default 0, and folders that say nothing keep slug order. The welcome
+  page stays on top whatever it says.
 - `coverBox` is the part of the cover board the card shows, `[x, y, w, h]` in
   board px. The default is the phone frame every folder here draws at the same
   place, `[46, 24, 393, 852]`, so a card crops to the mockup rather than

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 
 // Auto-discovers the boards dropped under mockups/canvases/<slug>/*.html, one folder per board
 // (a cloned app, a feature round, a design-system sheet). Each folder becomes a tldraw page; each
@@ -104,7 +105,10 @@ export interface CanvasLayoutConfig {
    * that is not a 00- sheet, which is a token board on most of them.
    */
   cover?: string;
-  /** Welcome-row sort key; lower sorts first, default 0, ties keep slug order. */
+  /**
+   * Where the folder sits in the page menu and the welcome row: lower first, default 0,
+   * ties keep slug order. The welcome page stays on top whatever anyone declares.
+   */
   order?: number;
   /**
    * The part of the cover board a welcome card shows, `[x, y, w, h]` in board px.
@@ -233,8 +237,12 @@ export function readCanvasLibrary(): CanvasLibraryFile[][] {
       a.fileName.localeCompare(b.fileName, undefined, { numeric: true }),
     );
   }
-  // numeric: true so 02- sorts before 10-, and v1.9 before v1.13.
+  // numeric: true so 02- sorts before 10-, and v1.9 before v1.13. Then `order`: sort is
+  // stable, so it only moves the folders that ask to be moved.
+  const rank = (slug: string) =>
+    slug === WELCOME_PAGE_SLUG ? -Infinity : (readCanvasLayout(slug)?.order ?? 0);
   return [...byPage.entries()]
     .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+    .sort(([a], [b]) => rank(a) - rank(b))
     .map(([, files]) => files);
 }
