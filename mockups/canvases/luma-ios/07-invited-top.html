@@ -101,8 +101,12 @@
    lands on whatever the artboard is placed over instead of a cream rectangle. */
 body{font-family:var(--l-font);-webkit-font-smoothing:antialiased;
   display:flex;justify-content:center;padding:24px}
+/* translateZ(0) composites the frame itself. Its children are composited anyway (the blurred
+   .bg, the backdrop-filter nav), and Safari on iPhone clips composited children of a
+   non-composited ancestor with a plain rectangle: at some zoom levels the screen painted
+   square past the bezel's corners. A composited frame clips them with its own rounded mask. */
 .phone{width:393px;height:852px;position:relative;border-radius:var(--l-r-phone);overflow:hidden;
-  flex:none;background:#000;color:var(--l-ink);
+  flex:none;background:#000;color:var(--l-ink);transform:translateZ(0);
   box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28)}
 .bg{position:absolute;left:-8%;top:-8%;width:116%;height:116%;
   background-size:100% 100%;filter:blur(11px)}
