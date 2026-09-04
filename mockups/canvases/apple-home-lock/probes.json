@@ -1,0 +1,767 @@
+[
+ {
+  "id": "widget-bg",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   150,
+   166,
+   180,
+   196
+  ],
+  "only": "flat",
+  "_": "Reminders card (27.5..185.5 x 90..248, Figma y+54 for the status bar): right of the row labels (end <=130), between the dotted dividers at y159 and y198; card fill only",
+  "_head": "Phase 1 measurements, replayable. Every box is design pt on the Figma 3x exports in assets/refs (1179x2556 for the four 393 screens); run with --pt 3. --against wants a directory of my own renders at the same 1179x2556 (refkit shoot --scale 3 --crop-phone), one file per `mine`. Ink probes carry --only ink (batch compares the first colour printed). Home-screen boxes are Figma y+54: the Apps frame sits under the status bar."
+ },
+ {
+  "id": "widget-title",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   43,
+   99,
+   130,
+   123
+  ],
+  "only": "ink",
+  "_": "'Reminders' title, SF Rounded semibold 15px at (43.5,100): blue ink on the white card, the '73' starts at x145"
+ },
+ {
+  "id": "widget-count",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   143,
+   96,
+   170,
+   125
+  ],
+  "only": "ink",
+  "_": "'73' 22px right-aligned to 168.5 (card right 17), top 97: black ink on white"
+ },
+ {
+  "id": "radio",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   42,
+   129,
+   65,
+   153
+  ],
+  "only": "ink",
+  "_": "first radio ring 22x22 at (42.5,130), 1.5pt grey stroke: the ink core is the stroke; the emoji starts x75.5"
+ },
+ {
+  "id": "divider",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   45,
+   158,
+   165,
+   161
+  ],
+  "only": "ink",
+  "ink": "20",
+  "_": "dotted divider 126x1 at (42.5,159): 2x1 dots on a 3pt pitch, so the darkest 20% is the dot centres"
+ },
+ {
+  "id": "cal-day",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   211,
+   103,
+   300,
+   121
+  ],
+  "only": "ink",
+  "_": "'MONDAY' 13px at (211.5,104) on the Calendar card (195.5..365.5 x 90..260): red ink on white"
+ },
+ {
+  "id": "cal-date",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   211,
+   118,
+   255,
+   159
+  ],
+  "only": "ink",
+  "_": "'26' 34px at (211.5,118): black ink on white"
+ },
+ {
+  "id": "event-bg",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   330,
+   166,
+   347,
+   196
+  ],
+  "only": "flat",
+  "_": "Minerva Dinner details box (219.5..349.5 x 163..199): right of the title ink (ends 328), inside the box; tinted flat fill only"
+ },
+ {
+  "id": "event-title",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   222,
+   164,
+   330,
+   182
+  ],
+  "only": "ink",
+  "_": "'Minerva Dinner' 15px semibold at (223.5,163), first line only"
+ },
+ {
+  "id": "event-time",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   222,
+   182,
+   300,
+   200
+  ],
+  "only": "ink",
+  "_": "'5:00-5:30PM' 14px at (223.5,180), second line only"
+ },
+ {
+  "id": "event-bar",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   212,
+   165,
+   215,
+   197
+  ],
+  "only": "all",
+  "_": "the 4pt event bar (211.5..215.5 x 163..199), core only: mode is the bar colour"
+ },
+ {
+  "id": "app-label",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   31,
+   362,
+   91,
+   378
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "'FaceTime' 12px label under the first icon (icon 31..91 x 298..358, label 362..378): white ink, brightest percentile"
+ },
+ {
+  "id": "widget-label",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   252,
+   150,
+   268
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "'Reminders' 12px label under the widget (252..268): white ink on the wallpaper"
+ },
+ {
+  "id": "dock-in",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   14,
+   780,
+   30,
+   800
+  ],
+  "only": "all",
+  "_": "dock glass (12..381 x 742..840) left padding, icons start x34: glass over wallpaper, the alpha solve's inside term"
+ },
+ {
+  "id": "dock-out",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   0,
+   780,
+   10,
+   800
+  ],
+  "only": "all",
+  "_": "wallpaper just left of the dock at the same y: the alpha solve's outside term"
+ },
+ {
+  "id": "search-in",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   226,
+   694,
+   233,
+   716
+  ],
+  "only": "all",
+  "_": "search pill (158..235 x 690..720) right padding, the 'Search' ink ends 224: glass over wallpaper"
+ },
+ {
+  "id": "search-out",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   240,
+   694,
+   250,
+   716
+  ],
+  "only": "all",
+  "_": "wallpaper right of the pill at the same y"
+ },
+ {
+  "id": "island",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   165,
+   15,
+   255,
+   45
+  ],
+  "only": "flat",
+  "_": "Dynamic Island black fill: the export's 430 bar has it at 152..278, the board's 393 bar at 133.5..259.5; the window sits inside both"
+ },
+ {
+  "id": "sb-time",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "sample",
+  "box": [
+   50,
+   18,
+   102,
+   41
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "status time '1:47' white ink: 18px centred at x81 in the export's 430 bar, 17px centred at 71.75 on the board's 393 bar; the window holds both"
+ },
+ {
+  "id": "widget-box",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   80,
+   192,
+   250
+  ],
+  "bright": "200",
+  "_": "Reminders card, the only bright thing in the window (status time is above 80, the label starts 252): expect 27.5,90 -> 185.5,248"
+ },
+ {
+  "id": "cal-box",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "bbox",
+  "box": [
+   190,
+   80,
+   368,
+   262
+  ],
+  "bright": "215",
+  "_": "Calendar card; the orange wallpaper at the right edge stays under luminance 215, the label starts 264: expect 195.5,90 -> 365.5,260"
+ },
+ {
+  "id": "dock-col",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 108,
+  "range": [
+   730,
+   852
+  ],
+  "_": "column between the Maps (ends 94) and Safari (starts 122.3) icons: the run boundaries are the dock's top (742) and bottom (840)"
+ },
+ {
+  "id": "search-col",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 230,
+  "range": [
+   680,
+   730
+  ],
+  "_": "column through the search pill's right padding: run boundaries at 690 and 720"
+ },
+ {
+  "id": "widget-bg-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   150,
+   166,
+   180,
+   196
+  ],
+  "only": "flat",
+  "_": "same window as widget-bg on the dark export: the elevated dark card fill"
+ },
+ {
+  "id": "radio-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   42,
+   129,
+   65,
+   153
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "first radio ring on the dark card: the stroke is lighter than the card, so the brightest percentile is the stroke"
+ },
+ {
+  "id": "widget-count-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   143,
+   96,
+   170,
+   125
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "'73' on the dark card: white ink"
+ },
+ {
+  "id": "widget-title-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   43,
+   99,
+   130,
+   123
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "'Reminders' title on the dark card: same blue as light?"
+ },
+ {
+  "id": "cal-day-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   211,
+   103,
+   300,
+   121
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "'MONDAY' on the dark card: red ink, brightest percentile"
+ },
+ {
+  "id": "cal-date-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   211,
+   118,
+   255,
+   159
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "'26' on the dark card: white ink"
+ },
+ {
+  "id": "event-bg-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   330,
+   166,
+   347,
+   196
+  ],
+  "only": "flat",
+  "_": "event details fill on the dark card: the 20% blue over #1c1c1e"
+ },
+ {
+  "id": "event-title-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   222,
+   164,
+   330,
+   182
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "'Minerva Dinner' on the dark card: brightest percentile, still #106895?"
+ },
+ {
+  "id": "event-time-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   222,
+   182,
+   300,
+   200
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "event time on the dark card"
+ },
+ {
+  "id": "dock-in-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   14,
+   780,
+   30,
+   800
+  ],
+  "only": "all",
+  "_": "dark dock glass over the dark wallpaper, inside term"
+ },
+ {
+  "id": "dock-out-dark",
+  "img": "assets/refs/home-dark.png",
+  "mine": "02-home-dark.png",
+  "cmd": "sample",
+  "box": [
+   0,
+   780,
+   10,
+   800
+  ],
+  "only": "all",
+  "_": "dark wallpaper left of the dock, outside term"
+ },
+ {
+  "id": "lock-date",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "sample",
+  "box": [
+   108,
+   78,
+   286,
+   102
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "'Sunday, March 10' 22px medium centred in 393 at y75..103: 80% white over the dark wallpaper, brightest percentile is the composite"
+ },
+ {
+  "id": "lock-date-box",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   72,
+   295,
+   106
+  ],
+  "bright": "170",
+  "_": "date ink box, one line, nothing else bright in the window"
+ },
+ {
+  "id": "lock-time-box",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "bbox",
+  "box": [
+   90,
+   108,
+   305,
+   225
+  ],
+  "bright": "170",
+  "_": "'1:47' 100px semibold ink box, window starting under the date's descenders (end 106): cap top to baseline, the red lobe at the right stays under 170"
+ },
+ {
+  "id": "flash-in",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "sample",
+  "box": [
+   50,
+   772,
+   58,
+   782
+  ],
+  "only": "all",
+  "_": "flashlight disc (46..96 x 752..802, centre 71,777) left of its glyph (62.5..79.5): the 26% black over wallpaper, inside term"
+ },
+ {
+  "id": "flash-out",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   772,
+   42,
+   782
+  ],
+  "only": "all",
+  "_": "wallpaper left of the flashlight disc at the same y, outside term"
+ },
+ {
+  "id": "camera-in",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   772,
+   307,
+   782
+  ],
+  "only": "all",
+  "_": "camera disc (297..347, centre 322,777) left of its glyph (308.5..335.5): inside term"
+ },
+ {
+  "id": "camera-out",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "sample",
+  "box": [
+   350,
+   772,
+   362,
+   782
+  ],
+  "only": "all",
+  "_": "wallpaper right of the camera disc at the same y, outside term"
+ },
+ {
+  "id": "homebar-box",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   832,
+   300,
+   850
+  ],
+  "bright": "200",
+  "_": "home bar 140x5 white, bottom 8: expect 126.5,839 -> 266.5,844"
+ },
+ {
+  "id": "flash-glyph-box",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "bbox",
+  "box": [
+   52,
+   756,
+   90,
+   798
+  ],
+  "bright": "200",
+  "_": "flashlight.off.fill white glyph inside its disc: expect 62.5,762.5 -> 79.5,791.5"
+ },
+ {
+  "id": "camera-glyph-box",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "bbox",
+  "box": [
+   303,
+   756,
+   341,
+   798
+  ],
+  "bright": "200",
+  "_": "camera.fill white glyph inside its disc: expect 308.5,765.5 -> 335.5,788.5"
+ },
+ {
+  "id": "dragbar-in",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   42.5,
+   342,
+   44.8
+  ],
+  "only": "all",
+  "_": "lock drag bar body: dragbar-col reads it at y 42.3..45.0, x 297.3..344.7; the window stays inside both"
+ },
+ {
+  "id": "dragbar-out",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   46,
+   342,
+   49
+  ],
+  "only": "all",
+  "_": "wallpaper 1pt under the drag bar (bar ends at 45.0; its antialiased last row would tint a window starting at 45)"
+ },
+ {
+  "id": "dragbar-col",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 321,
+  "range": [
+   36,
+   50
+  ],
+  "_": "column through the drag bar centre: the wallpaper run breaks at 42.3 and resumes at 45.0"
+ },
+ {
+  "id": "island-lock",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "sample",
+  "box": [
+   140,
+   15,
+   250,
+   45
+  ],
+  "only": "flat",
+  "_": "Dynamic Island 126x37 at (133.5,11) on the lock 393 bar: black fill only"
+ },
+ {
+  "id": "sb-icons-box",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "bbox",
+  "box": [
+   272,
+   16,
+   368,
+   38
+  ],
+  "bright": "200",
+  "_": "lock status icons (cellular 23.5, wifi 20, battery 31.3, gap 3 at y18) white on the dark wallpaper: expect 282.6,20.6 -> 359.8,33.6"
+ },
+ {
+  "id": "icons-col",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 61,
+  "range": [
+   290,
+   660
+  ],
+  "_": "column through the centre of app column 1 (icons 31..91): run boundaries at the tile edges of FaceTime, Health, Podcasts, Translate, expect 298/358, 396/456, 494/554, 592/652"
+ },
+ {
+  "id": "ls-cell-box",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "bbox",
+  "box": [
+   278,
+   15,
+   306,
+   40
+  ],
+  "bright": "200",
+  "_": "lock cellular glyph: Figma box 23.48x20 at (280.86,18), glyph 19.47x12.54 at (282.6,20.6)"
+ },
+ {
+  "id": "ls-wifi-box",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "bbox",
+  "box": [
+   306,
+   15,
+   328,
+   40
+  ],
+  "bright": "200",
+  "_": "lock wifi glyph: Figma box 20x20 at (307.34,18), glyph 16.62x12.00 at (309.1,21.5)"
+ },
+ {
+  "id": "ls-batt-box",
+  "img": "assets/refs/lock-light.png",
+  "mine": "03-lock-light.png",
+  "cmd": "bbox",
+  "box": [
+   328,
+   15,
+   368,
+   40
+  ],
+  "bright": "200",
+  "_": "lock battery: Figma box 31.3x20 at (330.34,18), glyph 26.82x12.13 at (332.95,21.5); only the solid body passes 200"
+ },
+ {
+  "id": "search-glyph-box",
+  "img": "assets/refs/home-light.png",
+  "mine": "01-home-light.png",
+  "cmd": "bbox",
+  "box": [
+   166,
+   695,
+   182,
+   716
+  ],
+  "bright": "235",
+  "_": "magnifyingglass in the search pill (Figma 11x15 at 169,697): white on the pill glass (luminance ~205), so 235 keeps the glass out; the 'S' starts at x182"
+ }
+]
