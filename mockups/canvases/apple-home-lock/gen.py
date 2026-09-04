@@ -67,6 +67,38 @@ def art(cid):
             % (uri(ART_DIR / (cid + ".png")), x0, y0, x1 - x0, y1 - y0))
 
 
+def icon():
+    """icon.png, the welcome card's sticker: the file's iOS 17 wallpaper in the
+    256px squircle the other Apple folders use (superellipse r .30, n 2.5, the
+    fit to apple-calendar's mask) with the version number in SF Pro Display Bold.
+    Keeps the committed file when Pillow or the font is missing."""
+    try:
+        from PIL import Image, ImageDraw, ImageFont                # noqa: local dep
+        import numpy as np
+    except ImportError:
+        return
+    font = next((p for p in (Path("/Library/Fonts/SF-Pro-Display-Bold.otf"),
+                             Path.home() / "Library/Fonts/SF-Pro-Display-Bold.otf") if p.exists()), None)
+    if font is None:
+        print("icon.png kept: SF Pro Display Bold not installed")
+        return
+    N, ss, n = 256, 4, 2.5
+    R = .30 * N * ss
+    yy, xx = np.mgrid[0:N * ss, 0:N * ss] + .5
+    dx = np.clip(np.maximum(R - xx, xx - (N * ss - R)), 0, None)
+    dy = np.clip(np.maximum(R - yy, yy - (N * ss - R)), 0, None)
+    mask = ((dx / R) ** n + (dy / R) ** n <= 1).reshape(N, ss, N, ss).mean((1, 3))
+    wp = Image.open(ASSETS / "wp-light.webp").convert("RGB")
+    w, cy = wp.width, 1600                                        # the red / purple / cyan swirl
+    im = wp.crop((0, cy - w // 2, w, cy + w // 2)).resize((N, N), Image.LANCZOS)
+    f = ImageFont.truetype(str(font), 176)
+    l, t, r, b = f.getbbox("17")
+    ImageDraw.Draw(im).text((N / 2 - (l + r) / 2, N / 2 - (t + b) / 2), "17", font=f, fill="white")
+    im.putalpha(Image.fromarray(np.round(mask * 255).astype(np.uint8)))
+    im.save(OUT / "icon.png")
+    print("icon.png", im.size)
+
+
 # ---------------------------------------------------------------- tokens ----
 # (group, name, value, evidence). Probe ids refer to probes.json, replayed on
 # the exports and on the renders with `refkit batch`. Figma names are the
@@ -479,6 +511,7 @@ def ref_boards():
 # ------------------------------------------------------------------ run ----
 if __name__ == "__main__":
     cut()
+    icon()
     write("00-design-tokens", token_board())
     for name, html in evidence_boards():
         write(name, html)

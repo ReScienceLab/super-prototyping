@@ -85,6 +85,9 @@ The three that do not read 0–2 are noise, kept with their notes:
 - `logo-*.webp`: the 18 app icons at 180 × 180, q90, 49 KB in all.
 - `sb-*.svg`: the wifi and battery glyphs from the file's SVG export, one
   pair per status bar variant.
+- `icon.png`: the welcome card's sticker, built by `gen.py` from a square of
+  the wallpaper and a white 17 in SF Pro Display Bold, in the 256 px squircle
+  the other Apple folders use.
 - `art/`: the flashlight, camera and search glyphs, keyed out of the exports
   at the boxes in `crops.json` (`gen.py` solves alpha against the disc
   behind each one) and placed back at the same numbers.
