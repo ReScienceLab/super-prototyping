@@ -6,7 +6,16 @@ import { enter, leave } from "../../lib/timing";
 
 import meta from "./meta.json";
 import { ACCENT, DONE, GROUND, INK, INSET, MONO, MUTE, SUBTLE } from "./data";
-import { End, Face, Generate, Measure, Sample, TwoRows, Verify } from "./shots";
+import {
+  End,
+  Face,
+  Generate,
+  Measure,
+  OVERLAP,
+  Sample,
+  TwoRows,
+  Verify,
+} from "./shots";
 
 /*
  * Promo reel: what this repo does, in ten seconds, on one worked example.
@@ -26,11 +35,19 @@ import { End, Face, Generate, Measure, Sample, TwoRows, Verify } from "./shots";
  * edit a token, and the next render of this film shows the edit. It costs a
  * few seconds of load per shot and it is worth them.
  *
- * The shots do not overlap. `brand-film` cross-dissolves because its source
- * does; here each shot fades its own last frames out and the next arrives on
- * the same white ground, which is a dip and not a mix. Overlapping two shots
- * that both carry small type would put two sets of numbers on one frame at a
- * point where the reel is asking to be read.
+ * The shots overlap by exactly `OVERLAP`, and no more. This started as a dip —
+ * each shot fading to nothing inside its own slot, the next arriving on empty
+ * ground — on the argument that overlapping two shots of small type would put
+ * two sets of numbers on one frame where the reel is asking to be read. The
+ * argument was right about the type and wrong about the join: what it actually
+ * produced was eight frames of blank white page between every pair of shots,
+ * which is more abrupt than a dissolve and not less.
+ *
+ * So the slots in the cut below are unchanged and each shot's <Sequence> now
+ * runs `OVERLAP` frames past its own, spending them getting out of the way.
+ * The type problem is handled where it lives — in `useOutro`, which clears the
+ * outgoing shot in the first third of its fade, so nothing dense is ever more
+ * than a few percent visible under the shot that replaced it.
  */
 
 /** slug, frames. Sums to `meta.durationInFrames`; the check below says so. */
@@ -76,6 +93,14 @@ const Chrome: React.FC = () => {
   const shot = starts.filter((s) => frame >= s).length - 1;
   const off = leave(frame, starts[STAMPS.length - 1] - 6, 10);
   const up = enter(frame, 4, 16);
+  // The stamp is the one thing on screen that changes its text without moving,
+  // so it changes on its own beat rather than flicking over on the cut frame:
+  // out across the eight frames before the join, back in across the eight
+  // after. Under a dissolve a hard swap here is the last edge that still reads
+  // as a cut.
+  const start = starts[Math.max(0, shot)];
+  const next = starts[shot + 1] ?? meta.durationInFrames;
+  const swap = Math.min(enter(frame, start, 8), leave(frame, next - 8, 8));
   return (
     <AbsoluteFill style={{ opacity: off * up, pointerEvents: "none" }}>
       <div
@@ -102,6 +127,7 @@ const Chrome: React.FC = () => {
           letterSpacing: "0.18em",
           color: MUTE,
           textTransform: "uppercase",
+          opacity: swap,
         }}
       >
         {STAMPS[Math.max(0, shot)]}
@@ -139,7 +165,13 @@ export const PromoReel: React.FC = () => (
       }}
     />
     {CUT.map(([Shot, frames], i) => (
-      <Sequence key={i} from={starts[i]} durationInFrames={frames}>
+      <Sequence
+        key={i}
+        from={starts[i]}
+        // Past its slot, not past the film: the last shot has nothing to hand
+        // over to and ends where the composition does.
+        durationInFrames={frames + (i < CUT.length - 1 ? OVERLAP : 0)}
+      >
         <Shot frames={frames} />
       </Sequence>
     ))}

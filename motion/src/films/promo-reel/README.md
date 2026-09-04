@@ -50,12 +50,29 @@ edit a token, and the next render of this film shows the edit. It costs a few
 seconds of load per shot and it is worth them. A bare `<iframe>` would not do
 — `<IFrame>` is what holds the render open until the board is in.
 
-**The shots do not overlap.** `brand-film` cross-dissolves because its source
-does; here each shot fades its own last frames out and the next arrives on the
-same black ground, which is a dip and not a mix. Overlapping two shots that
-both carry small type would put two sets of numbers on one frame at a point
-where the reel is asking to be read. For the same reason every shot's last
-element settles at least six frames before that shot's fade begins.
+**The shots overlap by twelve frames, and by no more.** This began as a dip —
+each shot fading to nothing inside its own slot, the next arriving on empty
+ground — on the argument that overlapping two shots of small type would put
+two sets of numbers on one frame where the reel is asking to be read. The
+argument was right about the type and wrong about the join: what it produced
+was eight frames of blank white page between every pair of shots, which is
+more abrupt than a dissolve and not less.
+
+The slots in the table above are unchanged; each shot's `<Sequence>` simply
+runs `OVERLAP` frames past its own and spends them getting out of the way. The
+type problem is handled in `useJoin`, in `shots.tsx`, which keeps the two apart
+in time rather than dissolving them evenly: the outgoing shot eases *out*, so
+it is under a tenth six frames past the cut, and the incoming one waits those
+six frames before it starts. They cross at roughly 8% against 40%, which reads
+as one shot replacing another rather than as two sentences on one line — every
+shot writes its heading at the same 96, 92, so an even dissolve there is the
+one thing that cannot work. The outgoing shot also shrinks very slightly, so
+it goes behind rather than dissolving in place.
+
+Every shot's last element still settles at least six frames before its fade
+begins, and its first now rises rather than appearing — under a dip a shot
+with no entrance of its own had nothing to punch through, and three of them
+did not have one.
 
 **Every number is in `data.ts`,** copied from that folder's two evidence
 boards and its README — the tokens, the three probes and how each was taken,

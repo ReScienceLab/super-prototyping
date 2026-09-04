@@ -134,6 +134,48 @@ const Over: React.FC<{ scale: number; children: React.ReactNode }> = ({
 );
 
 // ---------------------------------------------------------------------------
+// How a shot leaves
+
+/** How far a shot's <Sequence> runs past its own slot in the cut. */
+export const OVERLAP = 12;
+
+/**
+ * How a shot arrives and how it leaves, which under an overlap is one problem
+ * and not two.
+ *
+ * The film used to dip: each shot faded to nothing inside its own slot and the
+ * next arrived on empty ground. On black that was a beat; on white it is a
+ * flash of blank page between every pair of shots, and it reads as a cut. So a
+ * shot now starts leaving two frames before its slot ends and takes twelve
+ * more to finish, over the top of the shot that has already begun.
+ *
+ * That only works if the two are kept apart in time, because every shot writes
+ * its heading at the same 96, 92 — dissolve them evenly and the join is two
+ * sentences on one line. So the fall is deliberately not `leave()`, which
+ * eases *in* and therefore holds near full opacity until the last moment: this
+ * eases out and is under a tenth by six frames past the cut. The rise waits
+ * those six frames out before it starts. What each crosses the other at is
+ * roughly 8% against 40%, which reads as one shot replacing another.
+ *
+ * The rise is also what makes the three shots that never had an entrance of
+ * their own — Sample's board, Face's headline, Generate's token block — stop
+ * punching through the shot they are replacing. Under a dip nothing was there
+ * to punch through, so the omission never showed.
+ *
+ * The shrink is the last part: the outgoing shot goes behind rather than
+ * dissolving in place, so the join is not two flat images piled on each other.
+ */
+const useJoin = (frames: number): React.CSSProperties => {
+  const frame = useCurrentFrame();
+  const out = 1 - enter(frame, frames - 2, OVERLAP + 2);
+  const in_ = enter(frame, 4, 14);
+  return {
+    opacity: out * in_,
+    transform: `scale(${0.985 + 0.015 * out})`,
+  };
+};
+
+// ---------------------------------------------------------------------------
 // Shared chrome
 
 const Label: React.FC<{
@@ -212,7 +254,7 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
   const land = enter(frame, 0, 16);
   // The grid draws top down, the way `refkit grid` writes it out.
   const sweep = enter(frame, 4, 22, Easing.inOut(Easing.cubic));
-  const out = leave(frame, frames - 8, 8);
+  const out = useJoin(frames);
   const [bx, by, bw, bh] = EVIDENCE[0].box;
   const pin = enter(frame, 18, 10);
 
@@ -256,7 +298,7 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
   }
 
   return (
-    <AbsoluteFill style={{ opacity: out }}>
+    <AbsoluteFill style={out}>
       <Heading phase="1a · grid" line="Grid the capture, then look at it." />
       <div
         style={{
@@ -350,14 +392,14 @@ const ROWS_X = 700;
 export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
   const s = 0.62;
-  const out = leave(frame, frames - 8, 8);
+  const out = useJoin(frames);
   // The overlay is in screen pt, the rows are in frame px: the leader has to
   // cross between them, so its far end is the row's x brought back through
   // the board's own placement.
   const reach = (ROWS_X - 168 - PHONE.bezel * s) / s;
 
   return (
-    <AbsoluteFill style={{ opacity: out }}>
+    <AbsoluteFill style={out}>
       <Heading
         phase="1b · sample"
         line="One region, one technique, one token."
@@ -485,7 +527,7 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
 
 export const Face: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
-  const out = leave(frame, frames - 8, 8);
+  const out = useJoin(frames);
   // Candidates flick past at 4 frames each until the run settles.
   const cycling = frame < 20;
   const which = Math.floor(frame / 4) % CANDIDATES.length;
@@ -495,7 +537,7 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
   const fallback = enter(frame, 28, 12);
 
   return (
-    <AbsoluteFill style={{ opacity: out }}>
+    <AbsoluteFill style={out}>
       <Heading
         phase="1c · the face"
         line="Rank it against a closed set, or refuse."
@@ -617,13 +659,13 @@ const ROOT = `:root{
 
 export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
-  const out = leave(frame, frames - 8, 8);
+  const out = useJoin(frames);
   const scroll = interpolate(frame, [0, frames], [0, ROOT.length * 30 - 420], {
     extrapolateRight: "clamp",
   });
 
   return (
-    <AbsoluteFill style={{ opacity: out }}>
+    <AbsoluteFill style={out}>
       <Heading
         phase="2 · 3 · generate"
         line="One token block. One generator. Eight boards."
@@ -709,11 +751,11 @@ export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
 
 export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
-  const out = leave(frame, frames - 8, 8);
+  const out = useJoin(frames);
   const worst = Math.max(...DELTAS.map((row) => row.d));
 
   return (
-    <AbsoluteFill style={{ opacity: out }}>
+    <AbsoluteFill style={out}>
       <Heading
         phase="4 · verify"
         line="Re-render it, and diff it against the capture."
@@ -810,12 +852,12 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
 
 export const TwoRows: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
-  const out = leave(frame, frames - 10, 10);
+  const out = useJoin(frames);
   const in_ = enter(frame, 0, 26, Easing.out(Easing.quad));
 
   return (
     <AbsoluteFill
-      style={{ opacity: out, alignItems: "center", justifyContent: "center" }}
+      style={{ ...out, alignItems: "center", justifyContent: "center" }}
     >
       <div
         style={{
@@ -864,9 +906,11 @@ export const TwoRows: React.FC<{ frames: number }> = ({ frames }) => {
 
 export const End: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
-  const up = enter(frame, 0, 18);
-  const rule = enter(frame, 8, 20, Easing.inOut(Easing.cubic));
-  const tail = enter(frame, 14, 16);
+  // Six frames of head, like every other shot's rise, so the wordmark is not
+  // coming up through the tail of the figure that precedes it.
+  const up = enter(frame, 6, 16);
+  const rule = enter(frame, 12, 18, Easing.inOut(Easing.cubic));
+  const tail = enter(frame, 17, 14);
   // The film ends on the ground it opened on rather than fading to nothing.
   const hold = leave(frame, frames - 6, 6);
 
