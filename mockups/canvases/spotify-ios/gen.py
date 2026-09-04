@@ -362,16 +362,20 @@ def txt(s, x, cap_top, font, colour="var(--x-ink)", size=0, lh=0,
 HOME_CSS = """.chip{position:absolute;top:75px;height:var(--x-chip-h);
   border-radius:var(--x-r-pill);background:var(--x-chip);font:var(--x-t-chip);
   color:var(--x-ink);display:flex;align-items:center;justify-content:center}
-.chip.sel{box-shadow:inset 0 0 0 1.3px var(--x-chip-sel-line)}
+/* The selected label is bold: 04 Wrapped stems 2.26pt against 1.18 on Music. */
+.chip.sel{box-shadow:inset 0 0 0 1.3px var(--x-chip-sel-line);font-weight:700}
 .chip.on{background:var(--x-green);color:var(--x-ink-on-accent)}
 .av{position:absolute;left:16.1px;top:75px;width:32.1px;height:32.1px;z-index:3;
   border-radius:50%;background:var(--x-avatar);color:var(--x-ink-on-accent);
-  font:var(--x-t-chip);display:flex;align-items:center;justify-content:center}
-/* The circle sits on the ground with a 2.6pt ring of ground around it, so
-   the chips scrolling under it on 01 stay clear. A ::before halo cannot do
-   this: .av is its own stacking context, so a z-index:-1 child paints over
-   the element's background rather than behind it. */
-.av{box-shadow:0 0 0 2.6px var(--x-bg)}
+  font:var(--x-t-chip);font-size:18px;display:flex;align-items:center;justify-content:center}
+/* 18px: the letter is 12.5pt cap and 11.6 wide on 04, the chip weight at 13px is 9.0. */
+/* The circle sits on a ground block that hides the rail to its left and
+   fades it in on its right: on 01 the chip ring and fill both ramp from
+   ground at 48.0pt to full at 59.9pt, and 04's All chip starts sharp at
+   59.8pt. Its own element, above the chips and below .av, because a
+   z-index:-1 child of .av would paint over the circle, not behind it. */
+.av-ground{position:absolute;left:0;top:75px;width:60px;height:var(--x-chip-h);
+  z-index:2;background:linear-gradient(90deg,var(--x-bg) 48px,rgba(17,17,17,0) 60px)}
 .card{position:absolute;border-radius:var(--x-r-card);overflow:hidden}
 .card img{position:absolute;left:0;top:0;display:block}
 .thumb{position:absolute;width:var(--x-thumb);height:var(--x-thumb);
@@ -410,7 +414,7 @@ TABS = [("home", "Home", True), ("search", "Search", False),
         ("library", "Your Library", False), ("create", "Create", False)]
 
 # (label, left, width). 04 has the rail at rest; 01 has it scrolled, with the
-# account circle pinned over the Wrapped chip on its own ground disc.
+# account circle pinned over the Wrapped chip on its ground block.
 CHIPS_04 = [("All", 59.8, 48.2, "on"), ("Wrapped", 115.5, 90.1, "sel"),
             ("Music", 213.7, 65.6, ""), ("Podcasts", 287.7, 85.7, ""),
             ("Audiobooks", 381.4, 103.9, "")]
@@ -459,7 +463,7 @@ def home_body(chips, pinned):
         out.append('<div class="chip %s" style="left:%.1fpx;width:%.1fpx">%s</div>'
                    % (cls, x, w, label))
     if pinned:
-        out.append('<div class="av">A</div>')
+        out.append('<div class="av-ground"></div><div class="av">A</div>')
     out.append(txt("Recommended Stations", 16.0, 128.7, "t-h1", "var(--x-ink)", 24, 30,
                    track=-.55))
     out.append(_shelf(STATIONS, 170.0, 329.1))

@@ -141,3 +141,12 @@ python3 tools/refkit.py tokens mockups/canvases/spotify-ios
 anywhere. Never hand-edit the artboards. `cut()` refreshes `assets/art/`
 from `assets/refs/`, which is gitignored — without the refs the generator
 still rebuilds every board from the committed art.
+
+The five `ref-*` boards are committed, unlike every other folder's, so the
+hosted canvas at prototyping.rescience.com shows each capture under its
+replica. `assets/refs/` is not. To rebuild it from Mobbin's 1179 × 2676
+downloads, resize each to 881 wide and crop to 1909 rows (852pt, which drops
+the attribution strip): `home-05 → 01`, `home-02 → 02`, `home-03 → 03`,
+`home-04 → 04`, `home-01 → 05`. Those refs are resampled, so `cut()` re-cuts
+the art from them within 3 levels of the committed crops. Restore
+`assets/art/` from git after a run unless re-cutting is the point.
