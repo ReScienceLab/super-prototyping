@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Apple Home & Lock Screen - Evidence</title>
+<style>
+:root{
+  /* Font */
+  --hs-font:"SF Pro",-apple-system,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif;
+  --hs-font-round:"SF Pro Rounded",ui-rounded,-apple-system,sans-serif;
+
+  /* Surface */
+  --hs-widget:#FFFFFF;
+  --hs-widget-dark:#1C1C1E;
+  --hs-glass:rgba(255,255,255,.3);
+  --hs-glass-dark:rgba(0,0,0,.3);
+  --hs-island:#000000;
+  --hs-event-bg:rgba(27,173,248,.2);
+  --hs-event-bg-dark:#1C445B;
+  --hs-lock-btn:rgba(0,0,0,.26);
+  --hs-dragbar:rgba(127,127,127,.5);
+
+  /* Line */
+  --hs-grey3:#C7C7CC;
+  --hs-grey3-dark:#464649;
+  --hs-event-bar:#1BADF8;
+
+  /* Ink */
+  --hs-ink:#000000;
+  --hs-ink-dark:#FFFFFF;
+  --hs-white:#FFFFFF;
+  --hs-lock-ink:rgba(255,255,255,.8);
+  --hs-blue:#007BFE;
+  --hs-blue-dark:#0385FF;
+  --hs-red:#FF382B;
+  --hs-red-dark:#FE4336;
+  --hs-event-title:#106895;
+  --hs-event-time:#168AC6;
+  --hs-event-ink-dark:#1BADF8;
+
+  /* Radius */
+  --hs-r-widget:22px;
+  --hs-r-widget-lg:23px;
+  --hs-r-app:13px;
+  --hs-r-glass:40px;
+  --hs-r-event:4px;
+  --hs-r-phone:52px;
+
+  /* Type */
+  --hs-t-label:400 12px/16px var(--hs-font);
+  --hs-t-search:590 12px/16px var(--hs-font);
+  --hs-t-time:590 17px/22px var(--hs-font);
+  --hs-t-widget-title:590 15px/22px var(--hs-font-round);
+  --hs-t-count:590 22px/26px var(--hs-font-round);
+  --hs-t-row:400 13px/19px var(--hs-font-round);
+  --hs-t-emoji:400 17px/20px var(--hs-font);
+  --hs-t-cal-day:590 13px/16px var(--hs-font);
+  --hs-t-cal-date:400 34px/41px var(--hs-font);
+  --hs-t-event-title:590 15px/20px var(--hs-font);
+  --hs-t-event-time:400 14px/19px var(--hs-font);
+  --hs-t-lock-date:510 22px/28px var(--hs-font);
+  --hs-t-lock-time:590 100px/119px var(--hs-font);
+
+  /* Metrics */
+  --hs-w:393px;
+  --hs-h:852px;
+  --hs-status:54px;
+  --hs-top:90px;
+  --hs-between:38px;
+  --hs-widget-margin:27.5px;
+  --hs-app-margin:31px;
+  --hs-app:60px;
+  --hs-dock-h:98px;
+  --hs-dock-margin:12px;
+  --hs-dock-pad:22px;
+  --hs-search-w:77px;
+  --hs-btn:50px;
+  --hs-homebar:140px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--hs-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.dark{--hs-widget:var(--hs-widget-dark);--hs-glass:var(--hs-glass-dark);--hs-grey3:var(--hs-grey3-dark);
+  --hs-ink:var(--hs-ink-dark);--hs-blue:var(--hs-blue-dark);--hs-red:var(--hs-red-dark);
+  --hs-event-bg:var(--hs-event-bg-dark);--hs-event-title:var(--hs-event-ink-dark);--hs-event-time:var(--hs-event-ink-dark)}
+.phone{position:relative;flex:none;width:var(--hs-w);height:var(--hs-h);
+  border-radius:var(--hs-r-phone);overflow:hidden;background:#000;color:var(--hs-white);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.wp,.a{position:absolute;display:block}
+.wp{left:0;top:0;width:var(--hs-w);height:var(--hs-h)}
+.sb{position:absolute;left:0;top:0;width:var(--hs-w);height:var(--hs-status);z-index:6}
+.sb .time{position:absolute;left:10px;top:18px;width:123.5px;text-align:center;font:var(--hs-t-time);color:var(--hs-white)}
+.sb .island{position:absolute;left:133.5px;top:11px;width:126px;height:37px;border-radius:20px;background:var(--hs-island)}
+.sb svg{position:absolute;display:block;overflow:visible}
+body{padding:0;background:#fff;color:#000}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--hs-font);margin-bottom:2px}
+header p{font:400 12px/16px var(--hs-font);color:#8a8a8e;margin-bottom:14px}
+h2{font:600 9px/12px var(--hs-font);letter-spacing:.8px;text-transform:uppercase;color:#8a8a8e;margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid #d9d9dc;
+  background-image:linear-gradient(45deg,#ddd 25%,transparent 25%,transparent 75%,#ddd 75%),
+  linear-gradient(45deg,#ddd 25%,transparent 25%,transparent 75%,#ddd 75%);background-size:8px 8px;background-position:0 0,4px 4px}
+.sw .chip i{display:block;height:100%;border-radius:5px}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i.v{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:#8a8a8e;font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:#f2f2f7;border:1px solid #d9d9dc}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--hs-font);color:#8a8a8e;font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-bottom:2px;border-bottom:1px solid #e5e5ea}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:#8a8a8e;font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:#3a3a3c;column-count:2}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;border-bottom:1px solid #e5e5ea;font:400 8.5px/11px var(--hs-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--hs-blue)}
+td.v{color:#3a3a3c;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:#6d6d72}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence</h1><p>One row per token: the Figma name, then the probe in probes.json that re-measured it on the export.</p></header><table class="ev"><tr><td class="t">--hs-font</td><td class="v">"SF Pro",-apple-system,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif</td><td class="e">Figma family SF Pro, the variable face (wdth 100): with Chrome's optical sizing it sets 'Sunday, March 10' 170.3 wide against 170.7, 'Shortcuts' 53.7 against 53.3 and the 100px time 175.0 against 174.7; SF Pro Display alone misses the date by 5.4, SF Pro Text by 13.6; refkit font on the 100px time: SF Pro .836</td></tr><tr><td class="t">--hs-font-round</td><td class="v">"SF Pro Rounded",ui-rounded,-apple-system,sans-serif</td><td class="e">Figma family SF Pro Rounded on the Reminders widget; refkit font is a no call at 15px (every face within .05)</td></tr><tr><td class="t">--hs-widget</td><td class="v">#FFFFFF</td><td class="e">bg/primary-elevated; widget-bg flat census 100%</td></tr><tr><td class="t">--hs-widget-dark</td><td class="v">#1C1C1E</td><td class="e">bg/primary-elevated, dark; widget-bg-dark flat census 100%</td></tr><tr><td class="t">--hs-glass</td><td class="v">rgba(255,255,255,.3)</td><td class="e">dock-bg #ffffff4d; dock-in/dock-out and search-in/search-out solve .26-.35 through the backdrop blur</td></tr><tr><td class="t">--hs-glass-dark</td><td class="v">rgba(0,0,0,.3)</td><td class="e">dock-bg dark; dock-in-dark/dock-out-dark solve .26/.28/.30 per channel</td></tr><tr><td class="t">--hs-island</td><td class="v">#000000</td><td class="e">island and island-lock flat census 100%</td></tr><tr><td class="t">--hs-event-bg</td><td class="v">rgba(27,173,248,.2)</td><td class="e">Figma event fill; event-bg census #D1EFFE is .2 of #1BADF8 over white</td></tr><tr><td class="t">--hs-event-bg-dark</td><td class="v">#1C445B</td><td class="e">event-bg-dark census: .28 of #1BADF8 over #1C1C1E, so the dark file does not reuse the light alpha</td></tr><tr><td class="t">--hs-lock-btn</td><td class="v">rgba(0,0,0,.26)</td><td class="e">Figma; flash-in/flash-out solve .31/.23/.25, camera-in/camera-out .28/.27/.26</td></tr><tr><td class="t">--hs-dragbar</td><td class="v">rgba(127,127,127,.5)</td><td class="e">Figma drag bar: this at luminosity, then #C2C2C2 at overlay; dragbar-in composite #D94652 over #85040C reproduces both</td></tr><tr><td class="t">--hs-grey3</td><td class="v">#C7C7CC</td><td class="e">system/grey3; radio ink core #C7C7CC, divider dot centres #D0D0D4 at the 20% percentile</td></tr><tr><td class="t">--hs-grey3-dark</td><td class="v">#464649</td><td class="e">system/grey3 dark; radio-dark brightest 2% #464649</td></tr><tr><td class="t">--hs-event-bar</td><td class="v">#1BADF8</td><td class="e">event-bar mode 100%</td></tr><tr><td class="t">--hs-ink</td><td class="v">#000000</td><td class="e">label/primary; widget-count and cal-date ink core #000000</td></tr><tr><td class="t">--hs-ink-dark</td><td class="v">#FFFFFF</td><td class="e">label/primary dark; widget-count-dark and cal-date-dark brightest 2% #FFFFFF</td></tr><tr><td class="t">--hs-white</td><td class="v">#FFFFFF</td><td class="e">system/white; app-label, widget-label, sb-time brightest 2% #FFFFFF</td></tr><tr><td class="t">--hs-lock-ink</td><td class="v">rgba(255,255,255,.8)</td><td class="e">Figma date and time fill; lock-date brightest 2% #FFCFEB is .8 white added to the wallpaper (204 + backdrop, clipped), where a normal composite reads #DDCCD1, so the text blends plus-lighter</td></tr><tr><td class="t">--hs-blue</td><td class="v">#007BFE</td><td class="e">system/blue; widget-title ink core #007BFE</td></tr><tr><td class="t">--hs-blue-dark</td><td class="v">#0385FF</td><td class="e">widget-title-dark brightest 2% #0385FF</td></tr><tr><td class="t">--hs-red</td><td class="v">#FF382B</td><td class="e">system/red; cal-day ink core #FF382B</td></tr><tr><td class="t">--hs-red-dark</td><td class="v">#FE4336</td><td class="e">cal-day-dark brightest 2% #FE4336</td></tr><tr><td class="t">--hs-event-title</td><td class="v">#106895</td><td class="e">event-title ink core #106895</td></tr><tr><td class="t">--hs-event-time</td><td class="v">#168AC6</td><td class="e">event-time ink core #168AC6</td></tr><tr><td class="t">--hs-event-ink-dark</td><td class="v">#1BADF8</td><td class="e">event-title-dark and event-time-dark brightest 2% #1BADF8</td></tr><tr><td class="t">--hs-r-widget</td><td class="v">22px</td><td class="e">Figma Reminders 158x158 r22; widget-box (27.7,90)-(185.3,248)</td></tr><tr><td class="t">--hs-r-widget-lg</td><td class="v">23px</td><td class="e">Figma Calendar 170x170 r23; cal-box (195.7,90)-(365.3,260)</td></tr><tr><td class="t">--hs-r-app</td><td class="v">13px</td><td class="e">app-corner-radius; icons-col tile edges 298/358, 396/456, 494/554, 592/652</td></tr><tr><td class="t">--hs-r-glass</td><td class="v">40px</td><td class="e">Figma dock and search radius; dock-col 742..840, search-col 690..720</td></tr><tr><td class="t">--hs-r-event</td><td class="v">4px</td><td class="e">Figma event details radius</td></tr><tr><td class="t">--hs-r-phone</td><td class="v">52px</td><td class="e">circular stand-in for the 55pt continuous display corner; refkit --crop-phone masks the same 52</td></tr><tr><td class="t">--hs-t-label</td><td class="v">400 12px/16px var(--hs-font)</td><td class="e">Figma SF Pro Regular 12/16 on every app and widget label, and the PM run</td></tr><tr><td class="t">--hs-t-search</td><td class="v">590 12px/16px var(--hs-font)</td><td class="e">Figma SF Pro Semibold 12/16 'Search'</td></tr><tr><td class="t">--hs-t-time</td><td class="v">590 17px/22px var(--hs-font)</td><td class="e">the 393 bar's SemiBold 17/22, what every other canvas sets (apple-calendar t-b17, Figma style SemiBold/17pt); the file's home frames carry the 430 bar, whose time is 18/23 (cap 12.7 = .705 x 18) centred at x81</td></tr><tr><td class="t">--hs-t-widget-title</td><td class="v">590 15px/22px var(--hs-font-round)</td><td class="e">Figma SF Pro Rounded Semibold 15/22 ls .42</td></tr><tr><td class="t">--hs-t-count</td><td class="v">590 22px/26px var(--hs-font-round)</td><td class="e">Figma Rounded Semibold 22, leading normal = 1.19</td></tr><tr><td class="t">--hs-t-row</td><td class="v">400 13px/19px var(--hs-font-round)</td><td class="e">Figma Rounded Regular 13/19 ls .5 on the reminder rows</td></tr><tr><td class="t">--hs-t-emoji</td><td class="v">400 17px/20px var(--hs-font)</td><td class="e">Figma 17/20 emoji run before each reminder</td></tr><tr><td class="t">--hs-t-cal-day</td><td class="v">590 13px/16px var(--hs-font)</td><td class="e">Figma Semibold 13/16 ls -.08, uppercase</td></tr><tr><td class="t">--hs-t-cal-date</td><td class="v">400 34px/41px var(--hs-font)</td><td class="e">Figma Regular 34/41 ls .4</td></tr><tr><td class="t">--hs-t-event-title</td><td class="v">590 15px/20px var(--hs-font)</td><td class="e">Figma Semibold 15/20 ls -.23, margin-bottom -3</td></tr><tr><td class="t">--hs-t-event-time</td><td class="v">400 14px/19px var(--hs-font)</td><td class="e">Figma Regular 14/19 ls -.15</td></tr><tr><td class="t">--hs-t-lock-date</td><td class="v">510 22px/28px var(--hs-font)</td><td class="e">Figma Medium 22/28 ls -.26; lock-date-box cap top 81.3 = line top 75 + 6.3</td></tr><tr><td class="t">--hs-t-lock-time</td><td class="v">590 100px/119px var(--hs-font)</td><td class="e">Figma Semibold 100 leading normal ls -1.65; lock-time-box cap 120.7..191 (70.3 = .703 x 100) puts the line top at 96</td></tr><tr><td class="t">--hs-w</td><td class="v">393px</td><td class="e">iPhone 15 logical width; exports are 1179 wide at 3x</td></tr><tr><td class="t">--hs-h</td><td class="v">852px</td><td class="e">iPhone 15 logical height</td></tr><tr><td class="t">--hs-status</td><td class="v">54px</td><td class="e">status bar; the Apps frame starts under it</td></tr><tr><td class="t">--hs-top</td><td class="v">90px</td><td class="e">grid-above 36 under the 54 status bar; widget-box and cal-box y0 90</td></tr><tr><td class="t">--hs-between</td><td class="v">38px</td><td class="e">grid-between; Calendar bottom 260 to row 1 at 298, 358 to 396 (icons-col)</td></tr><tr><td class="t">--hs-widget-margin</td><td class="v">27.5px</td><td class="e">row-widget-margin; widget-box x0 27.7</td></tr><tr><td class="t">--hs-app-margin</td><td class="v">31px</td><td class="e">row-app-margin; icons at x 31/121.33/211.67/302</td></tr><tr><td class="t">--hs-app</td><td class="v">60px</td><td class="e">app-size; icons-col tiles 60 tall</td></tr><tr><td class="t">--hs-dock-h</td><td class="v">98px</td><td class="e">dock-height; dock-col 742..840</td></tr><tr><td class="t">--hs-dock-margin</td><td class="v">12px</td><td class="e">dock-margin, 852 - 12 - 98 = 742</td></tr><tr><td class="t">--hs-dock-pad</td><td class="v">22px</td><td class="e">dock-padding-h; dock icons at x 34/122.33/210.67/299</td></tr><tr><td class="t">--hs-search-w</td><td class="v">77px</td><td class="e">Figma search 77x30 at (158,690); search-col 690..720</td></tr><tr><td class="t">--hs-btn</td><td class="v">50px</td><td class="e">Figma 50x50 discs, flashlight-margin 46 and 16 from the bottom</td></tr><tr><td class="t">--hs-homebar</td><td class="v">140px</td><td class="e">homebar; homebar-box (126.3,839)-(266.7,844)</td></tr></table></div>
+</body>
+</html>

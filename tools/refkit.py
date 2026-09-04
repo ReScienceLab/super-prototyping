@@ -24,8 +24,6 @@
   font     name the type face in a region. Renders the word in every candidate
            and ranks by glyph shape, so it can answer "SF Pro"
   shoot    render mockup HTML with headless Chrome at artboard size
-  thumbs   write <folder>/thumbs/<board>.webp at half size, what the canvas
-           draws for a board while it is small on screen
   diff     side-by-side + per-region census of a render against its reference
   tokens   audit a canvas folder: one shared :root, no undefined var()
   montage  lay images side by side for an A/B compare
@@ -35,7 +33,7 @@ per design pt) to give them in design pt instead, so they match the numbers you
 read off `grid` and the numbers that end up in the CSS. Every reported
 coordinate comes back in the same unit you asked in.
 
-Needs: pillow, numpy. Chrome only for `shoot` and `thumbs`.
+Needs: pillow, numpy. Chrome only for `shoot`.
 Self-check: python3 tools/test_refkit.py
 """
 import argparse, contextlib, glob, io, json, os, re, subprocess, sys, tempfile
@@ -514,12 +512,10 @@ def _round_corners(im, r, ss=4):
     return im
 
 
-def _render(html, png, scale, w, h, bg=None):
-    """bg: RRGGBBAA behind the document; "00000000" keeps a transparent board transparent."""
+def _render(html, png, scale, w, h):
     subprocess.run([CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
                     f"--force-device-scale-factor={scale}",
                     f"--window-size={w},{h}", f"--screenshot={png}",
-                    *([f"--default-background-color={bg}"] if bg else []),
                     "file://" + os.path.abspath(html)],
                    check=True, capture_output=True)
 
@@ -576,49 +572,6 @@ document.title="RK:"+Math.max(document.documentElement.scrollHeight,
     clips = [(lab, int(n)) for lab, n in
              (c.rsplit("+", 1) for c in m.group(2).split(",") if "+" in c)]
     return max(0, int(m.group(1)) - h), clips
-
-
-THUMB_SCALE = 0.5   # canvas/src/canvasLibrary.ts THUMB_SCALE reads the files this writes; keep them equal
-ARTBOARD = (478, 980)
-
-
-def _board_sizes(folder):
-    """board stem -> (w, h) for every layout.json entry that overrides the artboard size."""
-    try:
-        rows = json.load(open(os.path.join(folder, "layout.json"), encoding="utf-8")).get("rows", [])
-    except FileNotFoundError:
-        return {}
-    return {e["file"]: (int(e["w"]), int(e["h"])) for r in rows for e in r.get("files", [])
-            if isinstance(e, dict) and "w" in e and "h" in e}
-
-
-def cmd_thumbs(a):
-    """One WebP per board at THUMB_SCALE, transparent where the board is, so the
-    canvas can draw a board that is small on screen from a bitmap instead of a
-    live document. Run it after gen.py; a stale thumb shows the old board.
-    Thumbs of boards that no longer exist are removed. Lossy at quality 90: a
-    quarter the bytes of PNG, and at half size the difference is not visible."""
-    for folder in a.folder:
-        folder = folder.rstrip("/")
-        out = os.path.join(folder, "thumbs")
-        os.makedirs(out, exist_ok=True)
-        sizes = _board_sizes(folder)
-        boards = sorted(glob.glob(os.path.join(folder, "*.html")))
-        stems = {os.path.splitext(os.path.basename(f))[0] for f in boards}
-        for stale in sorted(glob.glob(os.path.join(out, "*.webp"))):
-            if os.path.splitext(os.path.basename(stale))[0] not in stems:
-                os.remove(stale); print("removed", stale)
-        for f in boards:
-            stem = os.path.splitext(os.path.basename(f))[0]
-            w, h = sizes.get(stem, ARTBOARD)
-            webp = os.path.join(out, stem + ".webp")
-            with tempfile.TemporaryDirectory() as tmp:
-                png = os.path.join(tmp, "shot.png")
-                _render(f, png, 1, w, h, bg="00000000")
-                im = Image.open(png).convert("RGBA")
-            im = im.resize((round(w * THUMB_SCALE), round(h * THUMB_SCALE)), Image.LANCZOS)
-            im.save(webp, quality=90)
-            print(f"{webp}  {im.size[0]}x{im.size[1]}  {os.path.getsize(webp) // 1024}K")
 
 
 def cmd_shoot(a):
@@ -1130,9 +1083,6 @@ def _parser():
     n.add_argument("--margin", type=float, default=0.05,
                    help="top-two gap below which this is not a call")
 
-    u = s.add_parser("thumbs", help="write <folder>/thumbs/<board>.webp at half size; "
-                     "run after gen.py, the canvas draws them while a board is small")
-    u.set_defaults(fn=cmd_thumbs); u.add_argument("folder", nargs="+")
     t = s.add_parser("shoot"); t.set_defaults(fn=cmd_shoot)
     t.add_argument("html", nargs="+"); t.add_argument("-o", "--out", required=True)
     t.add_argument("--w", type=int, default=478); t.add_argument("--h", type=int, default=980)

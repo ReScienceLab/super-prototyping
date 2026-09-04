@@ -1,0 +1,87 @@
+{
+  "name": "(example) Apple Home & Lock Screen",
+  "cover": "01-home-light",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-home-light",
+          "label": "Home, light"
+        },
+        {
+          "file": "02-home-dark",
+          "label": "Home, dark"
+        },
+        {
+          "file": "03-lock-light",
+          "label": "Lock, light"
+        },
+        {
+          "file": "04-lock-dark",
+          "label": "Lock, dark"
+        },
+        {
+          "file": "05-home-es",
+          "label": "Home, Spanish"
+        },
+        {
+          "file": "06-home-zh",
+          "label": "Home, Chinese"
+        },
+        {
+          "file": "07-home-fr",
+          "label": "Home, French"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Figma exports",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-home-light",
+          "label": "Home, light"
+        },
+        {
+          "file": "ref-02-home-dark",
+          "label": "Home, dark"
+        },
+        {
+          "file": "ref-03-lock-light",
+          "label": "Lock, light"
+        },
+        {
+          "file": "ref-04-lock-dark",
+          "label": "Lock, dark"
+        },
+        {
+          "file": "ref-05-home-es",
+          "label": "Home, Spanish"
+        },
+        {
+          "file": "ref-06-home-zh",
+          "label": "Home, Chinese"
+        },
+        {
+          "file": "ref-07-home-fr",
+          "label": "Home, French"
+        }
+      ]
+    }
+  ]
+}

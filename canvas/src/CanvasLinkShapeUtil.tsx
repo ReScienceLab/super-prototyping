@@ -7,9 +7,8 @@ import {
   type TLEventInfo,
   type TLShape,
 } from "tldraw";
-import { BoardMedia, useBoardLive } from "./BoardMedia";
 import { CANVAS_FILE_DEFAULT_SIZE } from "./CanvasFileShapeUtil";
-import { canvasIconUrl, canvasThumbUrl, readCanvasLayout } from "./canvasLibrary";
+import { canvasIconUrl, readCanvasLayout, useCanvasFileHtml } from "./canvasLibrary";
 
 export const CANVAS_LINK_SHAPE_TYPE = "canvas-link" as const;
 
@@ -91,14 +90,13 @@ export function fitCover(
 // oxlint-disable-next-line react/only-export-components
 function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
   const { w, h, label, page, path } = shape.props;
+  const html = useCanvasFileHtml(path);
   const icon = canvasIconUrl(page);
   const cover = fitCover(
     readCanvasLayout(page)?.coverBox ?? DEFAULT_COVER_BOX,
     SCREEN.w,
     SCREEN.h,
   );
-  const thumb = canvasThumbUrl(path);
-  const live = useBoardLive(shape.id, cover.scale, thumb !== undefined);
 
   // `pointerEvents: "all"` is for the cursor alone: tldraw draws shapes with pointer-events off
   // and does its own hit-testing on the canvas, which these events still bubble up to. A shape
@@ -167,25 +165,26 @@ function CanvasLink({ shape }: { shape: CanvasLinkShape }) {
                       0 ${24 * SHELL_SCALE}px ${60 * SHELL_SCALE}px rgba(29,25,26,.28)`,
         }}
       >
-        <BoardMedia
-          path={path}
-          thumb={thumb}
-          title={label}
-          live={live}
-          style={{
-            width: CANVAS_FILE_DEFAULT_SIZE.w,
-            height: CANVAS_FILE_DEFAULT_SIZE.h,
-            border: 0,
-            display: "block",
-            position: "absolute",
-            // The card is the click target; its cover never takes the pointer.
-            pointerEvents: "none",
-            left: cover.left,
-            top: cover.top,
-            transform: `scale(${cover.scale})`,
-            transformOrigin: "top left",
-          }}
-        />
+        {html ? (
+          <iframe
+            title={label}
+            srcDoc={html}
+            sandbox=""
+            style={{
+              width: CANVAS_FILE_DEFAULT_SIZE.w,
+              height: CANVAS_FILE_DEFAULT_SIZE.h,
+              border: 0,
+              display: "block",
+              position: "absolute",
+              // The card is the click target; its cover never takes the pointer.
+              pointerEvents: "none",
+              left: cover.left,
+              top: cover.top,
+              transform: `scale(${cover.scale})`,
+              transformOrigin: "top left",
+            }}
+          />
+        ) : null}
       </div>
       {icon ? (
         // The app's own mark, dropped on the device's bottom-left corner and tilted, so a row of

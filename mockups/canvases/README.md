@@ -159,17 +159,6 @@ may split the measurements across further modules that `gen.py` imports
 (`apple-wallet` has two, one per Figma file), but the entry point stays
 `gen.py`.
 
-After it, `python3 tools/refkit.py thumbs mockups/canvases/<slug>` rewrites
-`thumbs/`, one WebP per board at half size, and is committed with the boards.
-The canvas draws a board from its thumbnail while the board is small on
-screen (under half zoom, or off screen) and swaps the live document in only
-once the board is drawn larger than that, so a page of thirty boards opens as
-thirty small images rather than thirty documents (`docs/2026-09-03-board-
-thumbnails.md`). A stale thumbnail shows the old board until it is rewritten.
-A board with no thumbnail is always live, so a folder that skipped the step
-still works; it just costs what it did before. Thumbnails of `ref-*` and
-`w[0-9]-*` boards are ignored by git along with the boards.
-
 Generators come in two lineages, and the only difference is the `page()`
 helper's signature. The Figma-sourced runs, `apple-photos`, `apple-calendar`
 and `apple-settings`, use `page(title, css, body)`. The screenshot-sourced
@@ -179,9 +168,8 @@ anything from another folder or from `tools/`, so copying one folder gets
 you a complete generator.
 
 This is safe for discovery: `import.meta.glob` in `canvasLibrary.ts`
-matches only `*.html` (plus `layout.json`, `icon.png` and `thumbs/*.webp`),
-so `gen.py` and its asset files sitting in the folder are invisible to the
-canvas.
+matches only `*.html` (plus `layout.json` and `icon.png`), so `gen.py` and
+its asset files sitting in the folder are invisible to the canvas.
 
 ## Examples
 
@@ -232,6 +220,19 @@ canvas.
   passes are a 390 x 844 notched frame, so `--crop-phone` needs them at
   `--phone-size 390x844 --phone-radius 42`. The nine `ref-*` boards are
   gitignored, so a fresh clone has 15.
+- `apple-home-lock/`: the iOS 17 home and lock screens from the community
+  file "Apple Home and Lock Screen · iOS", 16 boards in three rows: a token
+  board and an evidence board for 59 tokens, seven screens (home and lock in
+  both appearances, then the home screen in Spanish, Chinese and French), and
+  the file's own 3× export under each. Mean absolute delta against the four
+  393-wide exports is 1.49–2.61 levels (of 255), the home boards' share
+  sitting in the status bar, where the file's 430 variant is replaced by the
+  393 bar the other canvases use; the three localized exports
+  are 430-wide instances, placed for reading and not diffed. Its `README.md`
+  records what the file leaves unsaid: the home frame sits under the status
+  bar, the date and time add to the wallpaper instead of covering it, and
+  the text is the variable SF Pro with optical sizing. The seven `ref-*`
+  boards are gitignored, so a fresh clone has 9.
 - `claude-ios/`: the largest screenshot-sourced run, and the one to read
   when the source is captures rather than a Figma file. Fifteen screens of the
   Claude iOS app across four flows, 33 boards in three rows: a token board and
@@ -355,7 +356,6 @@ To start a new board, copy the `templates/` folder and run its generator:
 ```bash
 cp -r mockups/canvases/templates mockups/canvases/<slug>
 python3 mockups/canvases/<slug>/gen.py
-python3 tools/refkit.py thumbs mockups/canvases/<slug>
 ```
 
 That hands you the four boards a run always produces, wired together and

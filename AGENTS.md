@@ -11,19 +11,15 @@ folder with `cp -r mockups/canvases/templates mockups/canvases/<slug>`.
 `.agents/skills/` holds `clone-prototype`, `new-ui-mock` and
 `prototype-canvas`. The entries in `.claude/skills/` are symlinks to them.
 
-`tools/` holds `refkit.py`, which measures, shoots, diffs, checks tokens and
-writes thumbnails,
+`tools/` holds `refkit.py`, which measures, shoots, diffs and checks tokens,
 and `artgen.py`, for the rare asset that has to be drawn.
 
 Rules inside a canvas folder:
 
 - `gen.py` is the only source of truth. The `NN-*.html` boards are its
   output. Edit the generator and re-run, never the HTML.
-- Commit `layout.json`, `icon.png`, `thumbs/` and `assets/`. `gen.py`
-  inlines the images in `assets/` as `data:` URIs.
-- After `gen.py`, run `python3 tools/refkit.py thumbs mockups/canvases/<slug>`.
-  The canvas draws `thumbs/` while a board is small on screen, and a stale
-  one shows the old board.
+- Commit `layout.json`, `icon.png` and `assets/`. `gen.py` inlines the
+  images in `assets/` as `data:` URIs.
 - Commit `probes.json`, `crops.json` and `assets.json`. They are the
   measurement evidence behind the tokens.
 - Never commit `ref-*.html` or `assets/refs/`. They hold third-party

@@ -2,6 +2,18 @@
 
 2026-09-03. Opening a page with many boards stuttered for its first second or two.
 
+## Reverted, later the same day
+
+The thumbnail swap is out again: `canvas/src/BoardMedia.tsx`, `refkit thumbs`, the committed
+`thumbs/` folders and the rules about them. A board re-mounted its document whenever a gesture
+ended with it across the 0.5 threshold (a welcome card at about 0.87), so moving around a page
+re-parsed and repainted boards at the end of every pan or zoom, and the swap itself was visible:
+the thumbnail scaled up is a blur of the board, and the document snapping in over it reads as a
+refresh. Page transitions came out unnatural and the canvas felt like it reloaded on every move.
+Boards are live from the moment they mount, as they were before this note. The measurements
+below stay as the record of what was tried; the on-demand fetching of
+`2026-09-03-boards-load-on-demand.md` stays in place.
+
 ## What was wrong
 
 - A page opens with `zoomToFit`, so every board is in view, and every board mounted its
