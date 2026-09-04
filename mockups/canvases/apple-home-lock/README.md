@@ -103,7 +103,6 @@ python3 tools/refkit.py batch mockups/canvases/apple-home-lock/probes.json \
 python3 tools/refkit.py diff mockups/canvases/apple-home-lock/scratch/shots/01-home-light.png \
   mockups/canvases/apple-home-lock/assets/refs/home-light.png --pt 3
 python3 tools/refkit.py tokens mockups/canvases/apple-home-lock
-python3 tools/refkit.py thumbs mockups/canvases/apple-home-lock
 ```
 
 `assets/refs/` holds the exports (`home-light`, `home-dark`, `lock-light`,
