@@ -5,7 +5,7 @@ import { SANS } from "../../lib/fonts";
 import { enter, leave } from "../../lib/timing";
 
 import meta from "./meta.json";
-import { GLOW, GROUND, HAZE, MINOR, MONO, MUTE } from "./data";
+import { ACCENT, DONE, GROUND, INK, INSET, MONO, MUTE, SUBTLE } from "./data";
 import { End, Face, Generate, Measure, Sample, TwoRows, Verify } from "./shots";
 
 /*
@@ -28,7 +28,7 @@ import { End, Face, Generate, Measure, Sample, TwoRows, Verify } from "./shots";
  *
  * The shots do not overlap. `brand-film` cross-dissolves because its source
  * does; here each shot fades its own last frames out and the next arrives on
- * the same black ground, which is a dip and not a mix. Overlapping two shots
+ * the same white ground, which is a dip and not a mix. Overlapping two shots
  * that both carry small type would put two sets of numbers on one frame at a
  * point where the reel is asking to be read.
  */
@@ -87,7 +87,7 @@ const Chrome: React.FC = () => {
           fontSize: 19,
           fontWeight: 500,
           letterSpacing: "0.02em",
-          color: GLOW,
+          color: INK,
         }}
       >
         super-prototyping
@@ -113,14 +113,14 @@ const Chrome: React.FC = () => {
           right: 0,
           bottom: 0,
           height: 2,
-          background: "rgba(255,255,255,.07)",
+          background: INSET,
         }}
       >
         <div
           style={{
             width: `${(frame / meta.durationInFrames) * 100}%`,
             height: "100%",
-            background: `linear-gradient(90deg, ${HAZE}, ${MINOR})`,
+            background: `linear-gradient(90deg, ${DONE}, ${ACCENT})`,
           }}
         />
       </div>
@@ -130,10 +130,12 @@ const Chrome: React.FC = () => {
 
 export const PromoReel: React.FC = () => (
   <AbsoluteFill style={{ background: GROUND }}>
-    {/* The logo's ground: black, with the light coming from behind the art. */}
+    {/* GitHub's own ground: white, with the faintest wash under the header
+        the way a repo page sits under its nav. Nothing else — a light theme
+        that reaches for a gradient stops looking like a light theme. */}
     <AbsoluteFill
       style={{
-        background: `radial-gradient(58% 46% at 50% 44%, ${HAZE}1f, transparent 70%)`,
+        background: `linear-gradient(180deg, ${SUBTLE}, ${GROUND} 32%)`,
       }}
     />
     {CUT.map(([Shot, frames], i) => (

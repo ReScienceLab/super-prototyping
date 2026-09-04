@@ -27,6 +27,20 @@ off one token block, re-render and diff, park the reference under the replica.
 `meta.durationInFrames`, so the table above and the file cannot drift apart
 without the render failing first.
 
+## Colour
+
+Primer, GitHub's light theme, by its own token names — see the block at the
+top of `data.ts`. White ground, `fg.default` for ink, one `accent.fg` blue for
+everything the film points with, one `danger.fg` red for the single refusal.
+Boards are Primer cards: a hairline border and a soft resting shadow, no glow.
+
+Two colours are not the theme's and must not be normalised into it. `MINOR`
+and `MAJOR` are cyan and red because `refkit grid` draws cyan every 10pt and
+red every 50, and the grid the `Measure` shot lays over the phone is that
+grid; they are only ever drawn over a board, never over the film's ground.
+`DUO_GREEN` is `--d-u-green`, measured off the capture — it is the example's
+own colour, and the delta bars carry it for that reason.
+
 ## Three things here are deliberate
 
 **The phone is not a screenshot.** Every board on screen is the artboard's own

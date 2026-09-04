@@ -16,19 +16,21 @@ import {
   BOARDS,
   CANDIDATES,
   DELTAS,
+  ACCENT,
+  BORDER,
+  DANGER,
   DUO_GREEN,
   EVIDENCE,
   FONT_SCORE,
   FONT_TOP,
-  GLOW,
   GROUND,
-  HAZE,
+  INK,
+  INSET,
   MAJOR,
   MEAN_DELTA,
   MINOR,
   MONO,
   MUTE,
-  PAPER,
 } from "./data";
 
 /*
@@ -74,8 +76,10 @@ const Board: React.FC<{
       height: PHONE.h * scale,
       overflow: "hidden",
       borderRadius: 52 * scale,
-      // The logo's own treatment: a white-edged panel lit on black.
-      boxShadow: `0 0 0 1px rgba(255,255,255,.18), 0 0 ${90 * scale}px rgba(185,167,255,.22), 0 ${24 * scale}px ${70 * scale}px rgba(0,0,0,.6)`,
+      // A Primer card: one hairline border and a soft resting shadow. The
+      // dark theme lit this panel from behind; on white there is nothing to
+      // light, and a glow would only fog the board's own edge.
+      boxShadow: `0 0 0 1px ${BORDER}, 0 ${10 * scale}px ${30 * scale}px rgba(31,35,40,.10)`,
       ...style,
     }}
   >
@@ -180,7 +184,7 @@ const Heading: React.FC<{ phase: string; line: string; at?: number }> = ({
         transform: `translateY(${(1 - up) * 14}px)`,
       }}
     >
-      <Label size={16} color={MINOR} track={0.22}>
+      <Label size={16} color={ACCENT} track={0.22}>
         {phase.toUpperCase()}
       </Label>
       <div
@@ -189,7 +193,7 @@ const Heading: React.FC<{ phase: string; line: string; at?: number }> = ({
           fontSize: 42,
           fontWeight: 600,
           letterSpacing: "-0.02em",
-          color: PAPER,
+          color: INK,
           marginTop: 12,
         }}
       >
@@ -225,9 +229,9 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
         y2={y}
         stroke={major ? MAJOR : MINOR}
         strokeWidth={major ? 0.9 : 0.5}
-        // Over the board's white ground rather than a dark one: at the 0.22
-        // that reads on black this grid is invisible on the phone, which is
-        // the only place it is drawn.
+        // The grid is only ever drawn over the board's white screen, never
+        // over the film's ground, so it is tuned for white: at the 0.22 that
+        // reads on black it is invisible on the phone.
         opacity={major ? 0.85 : 0.45}
       />,
     );
@@ -243,9 +247,9 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
         x2={x}
         stroke={major ? MAJOR : MINOR}
         strokeWidth={major ? 0.9 : 0.5}
-        // Over the board's white ground rather than a dark one: at the 0.22
-        // that reads on black this grid is invisible on the phone, which is
-        // the only place it is drawn.
+        // The grid is only ever drawn over the board's white screen, never
+        // over the film's ground, so it is tuned for white: at the 0.22 that
+        // reads on black it is invisible on the phone.
         opacity={major ? 0.85 : 0.45}
       />,
     );
@@ -276,7 +280,9 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
             width={bw}
             height={bh}
             fill="none"
-            stroke={GLOW}
+            // On the unit header's green fill, so the ground colour is what
+            // reads: this one line is white because of what is under it.
+            stroke={GROUND}
             strokeWidth={1.6}
             strokeDasharray={`${bw + bh} ${bw + bh}`}
             strokeDashoffset={(1 - pin) * 2 * (bw + bh)}
@@ -295,7 +301,7 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
           transform: `translateX(${(1 - pin) * -18}px)`,
         }}
       >
-        <Label size={17} color={MINOR} track={0.2}>
+        <Label size={17} color={ACCENT} track={0.2}>
           UNIT HEADER
         </Label>
         <div style={{ marginTop: 20, display: "grid", gap: 20 }}>
@@ -318,7 +324,7 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
               </Label>
               <Label
                 size={26}
-                color={PAPER}
+                color={INK}
                 weight={700}
                 style={{ width: 132 }}
               >
@@ -368,7 +374,7 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
                   y={y}
                   width={w}
                   height={h}
-                  fill={MINOR}
+                  fill={ACCENT}
                   opacity={0.14 * on}
                 />
                 <rect
@@ -377,7 +383,7 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
                   width={w}
                   height={h}
                   fill="none"
-                  stroke={MINOR}
+                  stroke={ACCENT}
                   strokeWidth={1.4}
                 />
                 {/* The leader runs to the row that carries this probe. */}
@@ -386,9 +392,9 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
                   y1={y + h / 2}
                   x2={reach}
                   y2={y + h / 2}
-                  stroke={MINOR}
+                  stroke={ACCENT}
                   strokeWidth={1}
-                  opacity={0.35}
+                  opacity={0.5}
                 />
               </g>
             );
@@ -425,8 +431,8 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
                   flex: "none",
                   background: swatch ?? "transparent",
                   border: swatch
-                    ? "1px solid rgba(255,255,255,.22)"
-                    : `2px solid ${MINOR}`,
+                    ? `1px solid ${BORDER}`
+                    : `2px solid ${ACCENT}`,
                   // The radius probe has no colour to show, so its chip shows
                   // the thing it did measure: one 13.5pt corner, square
                   // everywhere else so the arc is the only thing in it.
@@ -438,7 +444,7 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
                 <div
                   style={{ display: "flex", alignItems: "baseline", gap: 16 }}
                 >
-                  <Label size={21} color={PAPER} weight={700}>
+                  <Label size={21} color={INK} weight={700}>
                     {value}
                   </Label>
                   <Label size={18} color={MUTE}>
@@ -447,7 +453,7 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
                 </div>
                 <Label
                   size={16}
-                  color={MINOR}
+                  color={ACCENT}
                   track={0.01}
                   style={{ marginTop: 6 }}
                 >
@@ -463,7 +469,7 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
             fontFamily: SANS,
             fontSize: 26,
             fontWeight: 500,
-            color: PAPER,
+            color: INK,
             opacity: enter(frame, 32, 12),
           }}
         >
@@ -502,13 +508,13 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
             fontWeight: 800,
             fontSize: 96,
             letterSpacing: "-0.02em",
-            color: PAPER,
+            color: INK,
             height: 130,
           }}
         >
           Order food and drink
         </div>
-        <Label size={17} color={cycling ? MINOR : MUTE} track={0.18}>
+        <Label size={17} color={cycling ? ACCENT : MUTE} track={0.18}>
           {(cycling ? face : "ui-rounded").toUpperCase()}
         </Label>
 
@@ -518,7 +524,7 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
             style={{
               height: 10,
               borderRadius: 999,
-              background: "rgba(255,255,255,.08)",
+              background: INSET,
               overflow: "hidden",
             }}
           >
@@ -526,7 +532,7 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
               style={{
                 width: `${bar * 100}%`,
                 height: "100%",
-                background: `linear-gradient(90deg, ${MINOR}, ${MAJOR})`,
+                background: `linear-gradient(90deg, ${ACCENT}, ${DANGER})`,
               }}
             />
           </div>
@@ -538,11 +544,11 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
               marginTop: 20,
             }}
           >
-            <Label size={40} color={PAPER} weight={700} track={0}>
+            <Label size={40} color={INK} weight={700} track={0}>
               {bar.toFixed(3)}
             </Label>
             <div style={{ opacity: verdict }}>
-              <Label size={22} color={MAJOR} weight={700} track={0.16}>
+              <Label size={22} color={DANGER} weight={700} track={0.16}>
                 NO CALL
               </Label>
             </div>
@@ -562,11 +568,11 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
             marginTop: 44,
             opacity: fallback,
             transform: `translateY(${(1 - fallback) * 14}px)`,
-            borderLeft: `2px solid ${MINOR}`,
+            borderLeft: `2px solid ${ACCENT}`,
             paddingLeft: 22,
           }}
         >
-          <Label size={22} color={PAPER} weight={500} track={0.01}>
+          <Label size={22} color={INK} weight={500} track={0.01}>
             --d-font: ui-rounded — a declared stand-in
           </Label>
           <Label size={17} color={MUTE} track={0.01} style={{ marginTop: 8 }}>
@@ -642,7 +648,7 @@ export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
             <Label
               key={i}
               size={19}
-              color={line.includes("#") ? PAPER : MUTE}
+              color={line.includes("#") ? INK : MUTE}
               track={0}
               style={{ lineHeight: "30px" }}
             >
@@ -735,7 +741,7 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
                   flex: 1,
                   height: 8,
                   borderRadius: 999,
-                  background: "rgba(255,255,255,.07)",
+                  background: INSET,
                 }}
               >
                 <div
@@ -750,7 +756,7 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
               </div>
               <Label
                 size={20}
-                color={PAPER}
+                color={INK}
                 weight={500}
                 track={0}
                 style={{ width: 62 }}
@@ -769,14 +775,14 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
             fontSize: 172,
             fontWeight: 600,
             letterSpacing: "-0.05em",
-            color: PAPER,
+            color: INK,
             lineHeight: 1,
             opacity: enter(frame, 10, 14),
           }}
         >
           {(enter(frame, 10, 16) * MEAN_DELTA).toFixed(2)}
         </div>
-        <Label size={19} color={MINOR} track={0.14} style={{ marginTop: 18 }}>
+        <Label size={19} color={ACCENT} track={0.14} style={{ marginTop: 18 }}>
           MEAN Δ, OF 255 LEVELS
         </Label>
         <div
@@ -822,7 +828,17 @@ export const TwoRows: React.FC<{ frames: number }> = ({ frames }) => {
         {/* 2930 x 1532, so 1700 wide is 889 tall and the figure's own white
             ground leaves a band top and bottom for the film's type. Any wider
             and the line below sits on the artwork and cannot be read. */}
-        <Img src={comparison} style={{ width: 1700, display: "block" }} />
+        <Img
+          src={comparison}
+          // The figure's own ground is white, which on a white film would
+          // leave it with no edge at all. Primer's border is that edge.
+          style={{
+            width: 1700,
+            display: "block",
+            border: `1px solid ${BORDER}`,
+            borderRadius: 6,
+          }}
+        />
       </div>
       <div
         style={{
@@ -834,7 +850,7 @@ export const TwoRows: React.FC<{ frames: number }> = ({ frames }) => {
           fontSize: 30,
           fontWeight: 500,
           letterSpacing: "-0.01em",
-          color: PAPER,
+          color: INK,
         }}
       >
         Every replica sits directly above its source.
@@ -860,7 +876,6 @@ export const End: React.FC<{ frames: number }> = ({ frames }) => {
         opacity: hold,
         alignItems: "center",
         justifyContent: "center",
-        background: GROUND,
       }}
     >
       <div
@@ -869,10 +884,9 @@ export const End: React.FC<{ frames: number }> = ({ frames }) => {
           fontSize: 96,
           fontWeight: 600,
           letterSpacing: "-0.045em",
-          color: PAPER,
+          color: INK,
           opacity: up,
           filter: `blur(${(1 - up) * 10}px)`,
-          textShadow: `0 0 90px ${HAZE}55`,
         }}
       >
         super-prototyping
@@ -881,7 +895,7 @@ export const End: React.FC<{ frames: number }> = ({ frames }) => {
         style={{
           width: 760 * rule,
           height: 1,
-          background: `linear-gradient(90deg, transparent, ${GLOW}55, transparent)`,
+          background: `linear-gradient(90deg, transparent, ${BORDER}, transparent)`,
           margin: "34px 0 30px",
         }}
       />
@@ -899,7 +913,7 @@ export const End: React.FC<{ frames: number }> = ({ frames }) => {
       </div>
       <Label
         size={18}
-        color={MINOR}
+        color={ACCENT}
         track={0.06}
         style={{ marginTop: 40, opacity: tail }}
       >

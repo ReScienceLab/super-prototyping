@@ -24,23 +24,29 @@ export const MONO = loadMono("normal", {
 }).fontFamily;
 
 /**
- * The palette is the repo's own logo, read off `assets/super-prototyping-logo.png`:
- * artboards as white-edged panels glowing on pure black, over a lit grid. So
- * the ground is black, the boards glow white, and the only other ink is the
- * measurement itself.
+ * GitHub's light theme, Primer's own tokens under their own names. The reel is
+ * about reading a repository — a token block, a diff, a folder of evidence —
+ * so it is set on the ground that material is normally read on: white, one
+ * blue for everything the film points with, one red for the single refusal.
  *
- * `MINOR` and `MAJOR` are not decoration: `refkit grid` draws cyan every 10pt
- * and red every 50, and the grid this reel lays over the phone is that grid.
+ * `MINOR` and `MAJOR` are the exception and are not decoration: `refkit grid`
+ * draws cyan every 10pt and red every 50, and the grid this reel lays over the
+ * phone is that grid. They are the tool's colours rather than the theme's, and
+ * they are only ever drawn over a board.
  */
-export const GROUND = "#07080a";
-export const GLOW = "#ffffff";
-export const HAZE = "#b9a7ff"; // the lilac fringe on the logo's lit edges
+export const GROUND = "#ffffff"; // canvas.default
+export const SUBTLE = "#f6f8fa"; // canvas.subtle
+export const INSET = "#eaeef2"; // the ground of a track or a well
+export const BORDER = "#d1d9e0"; // border.default
+export const INK = "#1f2328"; // fg.default
+export const MUTE = "#59636e"; // fg.muted
+export const ACCENT = "#0969da"; // accent.fg — every eyebrow, rule and callout
+export const DANGER = "#d1242f"; // danger.fg — the one refusal
+export const DONE = "#8250df"; // done.fg — the far end of the progress rule
 export const MINOR = "#22d3ee"; // refkit grid, every 10pt
 export const MAJOR = "#ff4757"; // refkit grid, every 50pt
-export const PAPER = "#e9edf2";
-export const MUTE = "#767f8c";
 
-/** The one screen the reel measures. Its own header green, for the accent. */
+/** The one screen the reel measures, in its own green. */
 export const DUO_GREEN = "#59CC01";
 
 /** The eight boards, in the order `layout.json` lays them out. */
