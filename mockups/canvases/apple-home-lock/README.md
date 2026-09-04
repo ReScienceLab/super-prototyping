@@ -4,7 +4,7 @@ The iOS 17 home and lock screens, cloned from the Figma community file
 "Apple Home and Lock Screen · iOS" (file key `ftV2wtqJaMqjnFaf8SS1Ve`,
 node `6:389`, the Overview page). The source is a design file, so the
 references are the file's own 3× exports and every token is a Figma value
-re-checked by a probe on those exports (`probes.json`, 58 entries).
+re-checked by a probe on those exports (`probes.json`, 54 entries).
 
 Nodes: `6:436` home light, `6:437` home dark, `6:456` lock light, `6:458`
 lock dark, `6:440` / `6:441` / `6:442` the home screen in Spanish, Chinese
@@ -28,35 +28,37 @@ whole frame, phone corners masked:
 
 | board | export | mean Δ (of 255) | worst 40 px band |
 |---|---|---|---|
-| 01 home light | 6:436, 1179 × 2556 | 1.97 | y 173–187, Δ 11.8: the Walk row and the first event's time, glyph antialiasing |
-| 02 home dark | 6:437 | 1.83 | the same rows, Δ 8.4 |
+| 01 home light | 6:436, 1179 × 2556 | 2.61 | y 27–40, Δ 29.5: the island, which the export's 430 bar puts 18.5 pt further right |
+| 02 home dark | 6:437 | 2.48 | the same band, Δ 29.8 |
 | 03 lock light | 6:456 | 1.49 | y 133–147, Δ 9.8: the clock's digits |
 | 04 lock dark | 6:458 | 1.49 | y 133–147, Δ 9.8 |
 | 05–07 | 6:440–6:442, 1290 × 2796 | not diffed | a 430-wide instance is not the board's frame |
 
+Below the status bar the home boards read as before; the next band is the
+reminder and event rows at Δ 11.8. The bar is the one deliberate departure
+from the file, explained below.
+
 Probe replay (`refkit batch probes.json --against scratch/shots --pt 3`):
-38 colour probes, mean Δmax 1.3; 16 box probes, mean |dw| 0.22 pt, |dh| 0.21.
-The three that do not read 0–2 are noise, kept with their notes:
+38 colour probes, mean Δmax 1.3; 12 box probes, mean |dw| 0.16 pt, |dh| 0.14;
+4 scans. The two that do not read 0–2 are noise, kept with their notes:
 
 - `search-out` Δ 14 and `divider` Δ 9: `sample` reports a census mode, and a
   10 × 22 pt window inside a wallpaper gradient has no stable mode. The window
   means agree (125.5 / 227.8 / 252.4 against 125.6 / 227.5 / 252.0).
-- `hs-batt-box` reads 1.6 pt taller on the render at thresholds 200, 230 and
-  250, while the sampled rows through the battery agree pixel for pixel
-  (outline 201/104/104, fill white on the same rows). A threshold artefact on
-  the antialiased top of the fill.
-
 ## What the file leaves unsaid
 
 - **The home frame sits under the status bar.** Every top-anchored y in the
   Figma context is 54 short of the export: the first probe pass returned
   wallpaper ink for every widget window until all home windows moved +54.
-- **The home screens carry the 430 status bar.** The file drops its
-  "15 Pro Max" variant into the 393 frames, left-aligned: island 126 × 37 at
-  x 152, the time in a 142-wide box at x 10, icon boxes at 303 / 333 / 359.
-  The lock uses the 393 variant (island at 133.5, icons 1.5 pt lower than
-  the file's 18). Both are built from the file's own wifi and battery SVGs
-  plus four rects at its cellular insets.
+- **The home frames carry the 430 status bar.** The file drops its
+  "15 Pro Max" variant into the 393 home frames, left-aligned: island
+  126 × 37 at x 152, an 18 px time centred at x 81, icon boxes at 303 / 333 /
+  359. The lock frames use the 393 variant (island at 133.5, icons at 282.6 /
+  309.1 / 332.9). The boards set the 393 bar on every screen, the one the
+  other canvases use, so the row lines up on the welcome page; the home
+  exports differ from the boards in that band, which is the residual in the
+  top 54 pt of 01, 02 and 05–07. Both bars are built from the file's own wifi
+  and battery SVGs plus four rects at its cellular insets.
 - **The date and time add to the wallpaper.** The fill is
   `rgba(255,255,255,.8)`, but the export's brightest date pixels are
   `#FFCFEB`, which is 204 plus the backdrop, clipped; a normal composite
@@ -68,8 +70,8 @@ The three that do not read 0–2 are noise, kept with their notes:
 - **"SF Pro" is the variable face.** With Chrome's optical sizing it sets
   the date 170.3 wide against 170.7, "Shortcuts" 53.7 against 53.3 and the
   100 px clock 175.0 against 174.7. Static SF Pro Display misses the date by
-  5.4, SF Pro Text by 13.6. The 18 px status time uses tabular figures
-  (34.7 against 33.7; proportional sets 32.3).
+  5.4, SF Pro Text by 13.6. The status time is the 393 bar's SemiBold 17,
+  as on the other canvases.
 - **Dark is not the light alpha.** The dark event background `#1C445B` is
   .28 of `#1BADF8` over `#1C1C1E`, not the light board's .2.
 - **The strings are transcribed as the file has them.** The Chinese export
@@ -83,8 +85,8 @@ The three that do not read 0–2 are noise, kept with their notes:
   at WebP q88, 35 / 31 KB, mean delta 0.64 / 0.63 against the PNG. Home and
   lock share one image per appearance.
 - `logo-*.webp`: the 18 app icons at 180 × 180, q90, 49 KB in all.
-- `sb-*.svg`: the wifi and battery glyphs from the file's SVG export, one
-  pair per status bar variant.
+- `sb-*.svg`: the wifi and battery glyphs from the file's SVG export of the
+  393 bar.
 - `icon.png`: the welcome card's sticker, built by `gen.py` from a square of
   the wallpaper and a white 17 in SF Pro Display Bold, in the 256 px squircle
   the other Apple folders use.

@@ -247,13 +247,13 @@
   "mine": "01-home-light.png",
   "cmd": "sample",
   "box": [
-   160,
+   165,
    15,
-   270,
+   255,
    45
   ],
   "only": "flat",
-  "_": "Dynamic Island 126x37 at (152,11) on the home 430-variant bar: black fill only"
+  "_": "Dynamic Island black fill: the export's 430 bar has it at 152..278, the board's 393 bar at 133.5..259.5; the window sits inside both"
  },
  {
   "id": "sb-time",
@@ -261,14 +261,14 @@
   "mine": "01-home-light.png",
   "cmd": "sample",
   "box": [
-   60,
+   50,
    18,
    102,
    41
   ],
   "only": "ink",
   "bright": true,
-  "_": "status time '1:47' 18px centred at x81 (Left Area 142 wide, px10), y18..41: white ink on the wallpaper"
+  "_": "status time '1:47' white ink: 18px centred at x81 in the export's 430 bar, 17px centred at 71.75 on the board's 393 bar; the window holds both"
  },
  {
   "id": "widget-box",
@@ -707,62 +707,6 @@
    660
   ],
   "_": "column through the centre of app column 1 (icons 31..91): run boundaries at the tile edges of FaceTime, Health, Podcasts, Translate, expect 298/358, 396/456, 494/554, 592/652"
- },
- {
-  "id": "hs-time-box",
-  "img": "assets/refs/home-light.png",
-  "mine": "01-home-light.png",
-  "cmd": "bbox",
-  "box": [
-   55,
-   14,
-   110,
-   46
-  ],
-  "bright": "200",
-  "_": "home status time '1:47' ink box (430-variant bar, Left Area centred x81): nothing else bright in the window"
- },
- {
-  "id": "hs-cell-box",
-  "img": "assets/refs/home-light.png",
-  "mine": "01-home-light.png",
-  "cmd": "bbox",
-  "box": [
-   300,
-   14,
-   332,
-   46
-  ],
-  "bright": "200",
-  "_": "home cellular glyph: Figma box 27x23 at (303,18), glyph 22.39x14.42 at (305,21)"
- },
- {
-  "id": "hs-wifi-box",
-  "img": "assets/refs/home-light.png",
-  "mine": "01-home-light.png",
-  "cmd": "bbox",
-  "box": [
-   332,
-   14,
-   357,
-   46
-  ],
-  "bright": "200",
-  "_": "home wifi glyph: Figma box 23x23 at (333,18), glyph 19.11x13.80 at (335,22)"
- },
- {
-  "id": "hs-batt-box",
-  "img": "assets/refs/home-light.png",
-  "mine": "01-home-light.png",
-  "cmd": "bbox",
-  "box": [
-   357,
-   23,
-   388,
-   36
-  ],
-  "bright": 230,
-  "_": "home battery fill only (the .4 outline stays under the threshold); the window keeps clear of the render's 52pt phone corner, whose bezel and the white board behind it would otherwise enter at the top right; threshold 230 so the .4 outline over the red wallpaper (max channel about 196) cannot cross it on an antialiased row"
  },
  {
   "id": "ls-cell-box",

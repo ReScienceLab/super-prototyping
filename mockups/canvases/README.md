@@ -225,7 +225,9 @@ its asset files sitting in the folder are invisible to the canvas.
   board and an evidence board for 59 tokens, seven screens (home and lock in
   both appearances, then the home screen in Spanish, Chinese and French), and
   the file's own 3× export under each. Mean absolute delta against the four
-  393-wide exports is 1.49–1.97 levels (of 255); the three localized exports
+  393-wide exports is 1.49–2.61 levels (of 255), the home boards' share
+  sitting in the status bar, where the file's 430 variant is replaced by the
+  393 bar the other canvases use; the three localized exports
   are 430-wide instances, placed for reading and not diffed. Its `README.md`
   records what the file leaves unsaid: the home frame sits under the status
   bar, the date and time add to the wallpaper instead of covering it, and

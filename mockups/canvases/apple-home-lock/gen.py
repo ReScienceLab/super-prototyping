@@ -144,7 +144,7 @@ TOKENS = [
 
  ("Type", "t-label",        "400 12px/16px var(--x-font)",        "Figma SF Pro Regular 12/16 on every app and widget label, and the PM run"),
  ("Type", "t-search",       "590 12px/16px var(--x-font)",        "Figma SF Pro Semibold 12/16 'Search'"),
- ("Type", "t-time",         "590 18px/23px var(--x-font)",        "Figma SF Pro Semibold 18/23 ls -.44; hs-time-box cap 23.3..36 (12.7 = .705 x 18) and ink 33.7 wide, which tabular figures set at 34.7 and proportional ones at 32.3"),
+ ("Type", "t-time",         "590 17px/22px var(--x-font)",        "the 393 bar's SemiBold 17/22, what every other canvas sets (apple-calendar t-b17, Figma style SemiBold/17pt); the file's home frames carry the 430 bar, whose time is 18/23 (cap 12.7 = .705 x 18) centred at x81"),
  ("Type", "t-widget-title", "590 15px/22px var(--x-font-round)",  "Figma SF Pro Rounded Semibold 15/22 ls .42"),
  ("Type", "t-count",        "590 22px/26px var(--x-font-round)",  "Figma Rounded Semibold 22, leading normal = 1.19"),
  ("Type", "t-row",          "400 13px/19px var(--x-font-round)",  "Figma Rounded Regular 13/19 ls .5 on the reminder rows"),
@@ -200,9 +200,8 @@ PHONE = """.phone{position:relative;flex:none;width:var(--x-w);height:var(--x-h)
 .wp,.a{position:absolute;display:block}
 .wp{left:0;top:0;width:var(--x-w);height:var(--x-h)}
 .sb{position:absolute;left:0;top:0;width:var(--x-w);height:var(--x-status);z-index:6}
-.sb .time{position:absolute;left:10px;top:18px;width:142px;text-align:center;
-  font:var(--x-t-time);letter-spacing:-.44px;color:var(--x-white);font-variant-numeric:tabular-nums}
-.sb .island{position:absolute;top:11px;width:126px;height:37px;border-radius:20px;background:var(--x-island)}
+.sb .time{position:absolute;left:10px;top:18px;width:123.5px;text-align:center;font:var(--x-t-time);color:var(--x-white)}
+.sb .island{position:absolute;left:133.5px;top:11px;width:126px;height:37px;border-radius:20px;background:var(--x-island)}
 .sb svg{position:absolute;display:block;overflow:visible}"""
 
 
@@ -222,23 +221,17 @@ def _bars(left, top, w, h, bw, rx, heights):
                        % (x, h - bh, bw, bh, rx) for x, bh in zip(xs, heights))))
 
 
-def sb_home(time):
-    """The 430 '15 Pro Max' bar the file drops into its 393 frames, left-aligned:
-    island at 152, icons at their 430 boxes (probes hs-cell-box, hs-wifi-box,
-    hs-batt-box)."""
-    return ('<div class="sb"><div class="island" style="left:152px"></div>'
-            '<div class="time">%s</div>%s%s%s</div>'
-            % (time, _bars(305, 21, 22.39, 14.41, 3.744, .9, [5.528, 8.127, 11.131, 14.41]),
-               _svg("wifi-430", 335, 22), _svg("battery-430", 362, 22)))
-
-
-def sb_lock():
-    """The 393 '15 Pro' bar: island at 133.5, the time at opacity 0 in the file,
-    icons 1.5 lower than the home bar's (ls-cell-box, ls-wifi-box, ls-batt-box)
-    lock_body adds the drag bar 23 under their top, outside .sb so its blend
-    modes see the wallpaper."""
-    return ('<div class="sb"><div class="island" style="left:133.5px"></div>%s%s%s</div>'
-            % (_bars(282.6, 22.1, 19.47, 12.53, 3.255, .78, [4.807, 7.067, 9.679, 12.53]),
+def sb(time=None):
+    """The 393 '15 Pro' bar every canvas here uses: island at 133.5, icons at the
+    boxes the file's lock frames give them (probes ls-cell-box, ls-wifi-box,
+    ls-batt-box). The file's home frames carry the 430 'Pro Max' bar instead,
+    left-aligned (island at 152, icons at 305/335/362, an 18px time centred at
+    81); the boards keep one bar so the row lines up with the other canvases.
+    The lock passes no time: it is at opacity 0 in the file. lock_body adds the
+    drag bar outside .sb so its blend modes see the wallpaper."""
+    return ('<div class="sb"><div class="island"></div>%s%s%s%s</div>'
+            % ('<div class="time">%s</div>' % time if time else "",
+               _bars(282.6, 22.1, 19.47, 12.53, 3.255, .78, [4.807, 7.067, 9.679, 12.53]),
                _svg("wifi-393", 309.1, 23), _svg("battery-393", 332.95, 23)))
 
 
@@ -441,7 +434,7 @@ def home_body(wallpaper, locale="en", dark=False):
                    for app, x in zip(DOCK, DOCK_X))
     return ('<div class="phone%s"><img class="wp" alt="" src="%s">%s%s%s'
             '<div class="glass search"><span>%s</span></div>%s<div class="glass dock"></div>%s</div>'
-            % (" dark" if dark else "", uri(ASSETS / wallpaper), sb_home("1:47"), widgets(L), grid,
+            % (" dark" if dark else "", uri(ASSETS / wallpaper), sb("1:47"), widgets(L), grid,
                L["search"], art("search"), dock))
 
 
@@ -451,7 +444,7 @@ def lock_body(wallpaper):
             '<div class="ldate">Sunday, March 10</div><div class="ltime">1:47</div>'
             '<div class="lbtn" style="left:46px"></div><div class="lbtn" style="left:297px"></div>%s%s'
             '<div class="hbar"></div></div>'
-            % (uri(ASSETS / wallpaper), sb_lock(), art("flashlight"), art("camera")))
+            % (uri(ASSETS / wallpaper), sb(), art("flashlight"), art("camera")))
 
 
 def home(wallpaper, locale="en", dark=False):
