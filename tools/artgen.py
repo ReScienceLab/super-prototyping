@@ -12,7 +12,7 @@ the model is upscaling in place rather than composing. Every cell then returns a
 scale 1.00 with an offset of a pixel or less, so there is nothing left to
 register, and the same six assets score 2.2 to 6.9.
 
-    python3 tools/artgen.py --art mockups/canvases/<slug>/assets/art \
+    artgen --art mockups/canvases/<slug>/assets/art \
         --out gen 03-char 08-avatar 02-char 06-char 07-freeze 01-duo
 
 Repeat --sheet to score several returns and keep, per asset, whichever grid drew
@@ -30,7 +30,10 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw
 
-REPO = pathlib.Path(__file__).resolve().parent.parent
+# refkit sits next to this file both ways round: tools/refkit.py in a checkout,
+# refkit.py in site-packages when the wheel is installed. sys.executable rather than
+# "python3" because the installed interpreter is the one holding pillow and numpy.
+REFKIT = pathlib.Path(__file__).resolve().parent / "refkit.py"
 GPT = pathlib.Path(os.environ.get("GPTIMAGE", pathlib.Path.home() / ".claude/skills/gpt-image/scripts/gptimage.py"))
 KEY = (255, 0, 255)
 WHITE = (255, 255, 255)
@@ -237,7 +240,7 @@ def main():
             keyed = out / "_keyed.png"
             g = ground_of(Image.open(cut))
             tol, hi = ramp(ref, g)
-            k = subprocess.run(["python3", str(REPO / "tools/refkit.py"), "key", str(cut),
+            k = subprocess.run([sys.executable, str(REFKIT), "key", str(cut),
                                 "-o", str(keyed), "--ground", g, "--border", "12",
                                 "--tol", str(tol), "--hi", str(hi)],
                                capture_output=True, text=True)

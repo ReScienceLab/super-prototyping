@@ -34,7 +34,7 @@ read off `grid` and the numbers that end up in the CSS. Every reported
 coordinate comes back in the same unit you asked in.
 
 Needs: pillow, numpy. Chrome only for `shoot`.
-Self-check: python3 tools/test_refkit.py
+Self-check: python3 tools/test_refkit.py (from a checkout; not shipped in the wheel)
 """
 import argparse, contextlib, glob, io, json, os, re, subprocess, sys, tempfile
 import numpy as np
