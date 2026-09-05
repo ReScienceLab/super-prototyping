@@ -7,12 +7,14 @@ import { enter, leave } from "../../lib/timing";
 import meta from "./meta.json";
 import { ACCENT, DONE, GROUND, INK, INSET, MONO, MUTE, SUBTLE } from "./data";
 import {
+  Art,
   End,
   Face,
   Generate,
   Measure,
   OVERLAP,
   Sample,
+  System,
   TwoRows,
   Verify,
 } from "./shots";
@@ -23,10 +25,11 @@ import {
  * The example is `mockups/canvases/duolingo-ios` — eight screens cloned off a
  * capture — and the reel walks its phases in the order the clone actually ran
  * them: grid the capture, sample it region by region, try to name the face,
- * generate the boards from one token block, re-render and diff, park the
- * reference under the replica.
+ * collapse what was measured into one block, cut the artwork out of the
+ * capture, generate the boards from the two of those, re-render and diff, park
+ * the reference under the replica.
  *
- * It is pitched at someone who has never seen this repo. Six numbered steps,
+ * It is pitched at someone who has never seen this repo. Eight numbered steps,
  * one plain sentence each, and only the handful of measurements that carry a
  * step — the techniques that took them, the token names they land in and the
  * per-screen deltas are all still in `data.ts`, which is where a reader who
@@ -55,14 +58,15 @@ import {
  * outgoing shot in the first third of its fade, so nothing dense is ever more
  * than a few percent visible under the shot that replaced it.
  *
- * Four of the six joins are not dissolves at all. Screen 01 is in shot 1 and
- * again in shot 2; shot 3's headline is one line off that screen's green card;
- * shot 4's list opens on the stand-in shot 3 settled for; and shot 4's eight
- * boards are shot 5's eight rows. Each of those is carried rather than cut —
- * see the block above `useJoin` in `shots.tsx`, which is also the reason five
- * of the seven shots return two <AbsoluteFill>s instead of one. Reordering the
- * cut below breaks all four, and nothing here will say so: the shots will
- * simply go back to being slides.
+ * Six of the eight joins are not dissolves at all. Screen 01 runs from shot 1
+ * to shot 6 without a cut in it — held, gridded, probed, parked beside the
+ * block, cut up, then flown into the strip; shot 3's headline is one line off
+ * that screen's green card; shot 4's block opens on the stand-in shot 3
+ * settled for; and shot 6's eight boards are shot 7's eight rows. Each of
+ * those is carried rather than cut — see the block above `useJoin` in
+ * `shots.tsx`, which is also the reason most of the shots return two
+ * <AbsoluteFill>s instead of one. Reordering the cut below breaks all six, and
+ * nothing here will say so: the shots will simply go back to being slides.
  */
 
 /** slug, frames. Sums to `meta.durationInFrames`; the check below says so. */
@@ -70,6 +74,8 @@ const CUT = [
   [Measure, 66],
   [Sample, 52],
   [Face, 46],
+  [System, 46],
+  [Art, 54],
   [Generate, 46],
   [Verify, 42],
   [TwoRows, 32],
@@ -97,12 +103,14 @@ if (LENGTH !== meta.durationInFrames) {
  * phase each step belongs to is named in the README's cut table.
  */
 const STAMPS = [
-  "step 1 of 6",
-  "step 2 of 6",
-  "step 3 of 6",
-  "step 4 of 6",
-  "step 5 of 6",
-  "step 6 of 6",
+  "step 1 of 8",
+  "step 2 of 8",
+  "step 3 of 8",
+  "step 4 of 8",
+  "step 5 of 8",
+  "step 6 of 8",
+  "step 7 of 8",
+  "step 8 of 8",
   "",
 ] as const;
 

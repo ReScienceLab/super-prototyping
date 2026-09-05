@@ -127,10 +127,39 @@ export const FONT_SCORE = 0.353;
  * `mockups/canvases/duolingo-ios/00-design-tokens.html`, and every value here
  * is that board’s, unrounded.
  */
+/**
+ * Six of screen 01's crops, each with the box it was cut at — verbatim from
+ * `mockups/canvases/duolingo-ios/crops.json`, design pt on the 393x852 screen,
+ * [x1, y1, x2, y2]. `gen.py` cuts at 2.2417 px/pt and places every <img> back
+ * at its own box, so an asset cannot drift from where it was measured.
+ *
+ * Six of the 128 because these are the six that read at any size the film can
+ * show them; the rest are icons, and the canvas keeps icons in CSS for the
+ * same reason — the grid scores 3.42 on art 256-400px native and 10.57 below
+ * 64px, so small art is the one place generation is clearly worse than a path.
+ *
+ * The shot's claim is `art-gen.json`'s: asked to redraw exactly these, the
+ * best run scores 3.96 mean delta, a careful one-at-a-time run 18.41, and a
+ * naive edit 38.53. A cut scores 0 by construction. So the crops ship, the
+ * generations stay evidence, and the rule is: generate only where the pixels
+ * do not exist in the capture. In this clone there is no such case.
+ */
+export const CROPS = [
+  { id: "01-flag", box: [25.4, 72.3, 54.9, 95.5] },
+  { id: "01-chest", box: [161.5, 190.0, 231.5, 248.9] },
+  { id: "01-n1", box: [207.9, 265.4, 279.3, 331.4] },
+  { id: "01-duo", box: [57.5, 345.3, 141.0, 431.8] },
+  { id: "01-stars", box: [66.0, 449.2, 130.7, 474.2] },
+  { id: "01-badge", box: [157.9, 629.9, 235.1, 742.7] },
+] as const;
+
+/** Everything in `assets/art/`. All of it cut; none of it drawn. */
+export const ART_COUNT = 128;
+
 export const RECIPE = [
   // First, because it is literally the first line of that board's `:root` —
   // and because the shot before this one ends on the refusal that put it
-  // there. The list opens on the stand-in the tool declared.
+  // there. The block opens on the stand-in the tool declared.
   ["typeface", "ui-rounded"],
   ["background", "#FFFFFF"],
   ["panel", "#F7F7F7"],

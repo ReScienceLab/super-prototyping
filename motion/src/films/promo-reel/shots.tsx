@@ -13,8 +13,10 @@ import { SANS } from "../../lib/fonts";
 import { enter, leave, stagger } from "../../lib/timing";
 import comparison from "../../../../assets/workflow/case-duolingo.png";
 import {
+  ART_COUNT,
   BOARDS,
   CANDIDATES,
+  CROPS,
   DELTAS,
   ACCENT,
   BORDER,
@@ -34,7 +36,7 @@ import {
 } from "./data";
 
 /*
- * The reel's seven shots. Each is a plain component with no length of its own
+ * The reel's nine shots. Each is a plain component with no length of its own
  * beyond the props it is given: `index.tsx` puts each in a <Sequence>, so
  * `useCurrentFrame()` here already counts from the shot's first frame.
  *
@@ -157,20 +159,21 @@ export const OVERLAP = 12;
  * those six frames out before it starts. What each crosses the other at is
  * roughly 8% against 40%, which reads as one shot replacing another.
  *
- * The rise is also what makes the three shots that never had an entrance of
- * their own — Sample's board, Face's headline, Generate's token block — stop
- * punching through the shot they are replacing. Under a dip nothing was there
- * to punch through, so the omission never showed.
+ * The rise is also what makes the shots that never had an entrance of their
+ * own — Sample's board, Face's headline, System's token block — stop punching
+ * through the shot they are replacing. Under a dip nothing was there to punch
+ * through, so the omission never showed.
  *
  * The shrink is the last part: the outgoing shot goes behind rather than
  * dissolving in place, so the join is not two flat images piled on each other.
  *
- * `carry` is the exception, and the rest of this file turns on it. Four joins
- * here are not two pictures at all but one object seen twice — screen 01 is in
- * shot 1 and again in shot 2, the words on its green card become shot 3's
- * headline, the stand-in shot 3 settles on heads shot 4's list, and the eight
- * boards shot 4 lines up are the eight rows shot 5 measures. Dissolve those and
- * the film is seven unrelated slides. So the shot on the far side of a join
+ * `carry` is the exception, and the rest of this file turns on it. Six of the
+ * eight joins here are not two pictures at all but one object seen twice —
+ * screen 01 runs unbroken from shot 1 to shot 6, the words on its green card
+ * become shot 3's headline, the stand-in shot 3 settles on heads shot 4's
+ * block, and the eight boards shot 6 lines up are the eight rows shot 7
+ * measures. Dissolve those and the film is nine unrelated slides. So the shot
+ * on the far side of a join
  * renders the object where the near side left it and carries it on, in a layer
  * that skips the fade it would otherwise be caught by: `"out"` for the side
  * handing over, `"in"` for the side taking it. Two identical objects at
@@ -180,10 +183,7 @@ const fall = (frame: number, frames: number) =>
   1 - enter(frame, frames - 2, OVERLAP + 2);
 const rise = (frame: number) => enter(frame, 4, 14);
 
-const useJoin = (
-  frames: number,
-  carry?: "in" | "out",
-): React.CSSProperties => {
+const useJoin = (frames: number, carry?: "in" | "out"): React.CSSProperties => {
   const frame = useCurrentFrame();
   const out = carry === "out" ? 1 : fall(frame, frames);
   const in_ = carry === "in" ? 1 : rise(frame);
@@ -202,15 +202,15 @@ const useJoin = (
  *
  * Both sides run the same ramp on their own clocks: a join opens two frames
  * before a slot ends, so the shot taking over picks it up two frames in. That
- * is the `+ 2` in `Sample`, `Face` and `Verify` below, and it is why these
+ * is the `+ 2` in `Sample`, `Face`, `Art` and `Verify` below, and it is why these
  * numbers are here rather than inside the shots that use them.
  */
 const CARRY = (frame: number, frames: number) =>
   enter(frame, frames - 2, OVERLAP + 2, Easing.inOut(Easing.cubic));
 
 /**
- * Screen 01, at each of the three places the film puts it: centre frame to
- * open on, off to the left where `Measure` grids it, smaller again where
+ * Screen 01, at the first three of the five places the film puts it: centre
+ * frame to open on, off to the left where `Measure` grids it, smaller where
  * `Sample` probes it. It is one object for the first third of the reel and
  * never cuts — the film opens on the thing it is about, then moves it aside
  * to make room for what it has to say about it.
@@ -238,8 +238,19 @@ const between = (a: typeof HERO, b: typeof HERO, t: number) => ({
  */
 const CARD_LINE = { x: 24.1 + 16.6, y: 111 + 36.2, size: 19.4, lh: 24 / 19.4 };
 
-/** The eight boards as `Generate` lines them up, and as `Verify` files them. */
-const STRIP = { x: 596, y: 400, step: PHONE.w * 0.33 + 14, s: 0.33 };
+/**
+ * Screen 01's last two legs. `System` parks it beside the block that describes
+ * it, `Art` takes it over and cuts it up, and `Generate` flies it from there
+ * into the first slot of the strip. Five placements, no cut in any of them.
+ */
+const SYS_BOARD = { x: 1500, y: 250, s: 0.48 };
+const ART_BOARD = { x: 150, y: 200, s: 0.78 };
+
+/**
+ * The eight boards as `Generate` lines them up, and as `Verify` files them.
+ * Centred: 8 x 138 + 7 x 14 = 1202, so x = (1920 - 1202) / 2.
+ */
+const STRIP = { x: 359, y: 372, step: PHONE.w * 0.33 + 14, s: 0.33 };
 const FILE = { x: 96, y: 322, h: 56, s: 0.055 };
 
 // ---------------------------------------------------------------------------
@@ -415,58 +426,58 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
       </AbsoluteFill>
 
       <AbsoluteFill style={out}>
-      {/* Held back until the phone starts moving out of its way — for the
+        {/* Held back until the phone starts moving out of its way — for the
           first three quarters of a second the screen is the only thing on
           screen, which is what "start with a real app screen" means. And not
           before 30: the heading's line runs to about x 1016 at top 92, and the
           board is still high enough to cross it until the walk is half done. */}
-      <Heading
-        phase="measure"
-        line="Start with a real app screen, and measure it."
-        at={30}
-      />
+        <Heading
+          phase="measure"
+          line="Start with a real app screen, and measure it."
+          at={30}
+        />
 
-      {/* Three numbers off the grid, in design pt. The techniques that took
+        {/* Three numbers off the grid, in design pt. The techniques that took
           them are in `data.ts` and on the canvas's own evidence board; on
           screen they would be three more lines to read in a second and a half,
           and the shot's job is only to show that a ruler went on first. */}
-      <div
-        style={{
-          position: "absolute",
-          left: 900,
-          top: 396,
-          opacity: pin,
-          transform: `translateX(${(1 - pin) * -18}px)`,
-        }}
-      >
-        <Label size={17} color={ACCENT} track={0.2}>
-          THE GREEN CARD
-        </Label>
-        <div style={{ marginTop: 22, display: "grid", gap: 22 }}>
-          {[
-            ["how far from the left", "24.1pt"],
-            ["how wide", "344.8pt"],
-            ["how far down", "111pt"],
-          ].map(([what, value], i) => (
-            <div
-              key={what}
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: 24,
-                opacity: stagger(frame, i, { at: 44, step: 3, frames: 8 }),
-              }}
-            >
-              <Label size={21} color={MUTE} style={{ width: 330 }}>
-                {what}
-              </Label>
-              <Label size={28} color={INK} weight={700}>
-                {value}
-              </Label>
-            </div>
-          ))}
+        <div
+          style={{
+            position: "absolute",
+            left: 900,
+            top: 396,
+            opacity: pin,
+            transform: `translateX(${(1 - pin) * -18}px)`,
+          }}
+        >
+          <Label size={17} color={ACCENT} track={0.2}>
+            THE GREEN CARD
+          </Label>
+          <div style={{ marginTop: 22, display: "grid", gap: 22 }}>
+            {[
+              ["how far from the left", "24.1pt"],
+              ["how wide", "344.8pt"],
+              ["how far down", "111pt"],
+            ].map(([what, value], i) => (
+              <div
+                key={what}
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: 24,
+                  opacity: stagger(frame, i, { at: 44, step: 3, frames: 8 }),
+                }}
+              >
+                <Label size={21} color={MUTE} style={{ width: 330 }}>
+                  {what}
+                </Label>
+                <Label size={28} color={INK} weight={700}>
+                  {value}
+                </Label>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
       </AbsoluteFill>
     </>
   );
@@ -501,126 +512,126 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
   return (
     <>
       <AbsoluteFill style={held}>
-      <div style={{ position: "absolute", left: b.x, top: b.y }}>
-        <Board slug={BOARDS[0]} scale={b.s} />
-        <Over scale={b.s}>
-          {EVIDENCE.map(({ box: [x, y, w, h] }, i) => {
-            const on = stagger(frame, i, { at: 2, step: 9, frames: 10 });
-            return (
-              <g key={i} opacity={on}>
-                <rect
-                  x={x}
-                  y={y}
-                  width={w}
-                  height={h}
-                  fill={ACCENT}
-                  opacity={0.14 * on}
-                />
-                <rect
-                  x={x}
-                  y={y}
-                  width={w}
-                  height={h}
-                  fill="none"
-                  stroke={ACCENT}
-                  strokeWidth={1.4}
-                />
-                {/* The leader runs to the row that carries this probe. */}
-                <line
-                  x1={x + w}
-                  y1={y + h / 2}
-                  x2={reach}
-                  y2={y + h / 2}
-                  stroke={ACCENT}
-                  strokeWidth={1}
-                  opacity={0.5}
-                />
-              </g>
-            );
-          })}
-        </Over>
-      </div>
+        <div style={{ position: "absolute", left: b.x, top: b.y }}>
+          <Board slug={BOARDS[0]} scale={b.s} />
+          <Over scale={b.s}>
+            {EVIDENCE.map(({ box: [x, y, w, h] }, i) => {
+              const on = stagger(frame, i, { at: 2, step: 9, frames: 10 });
+              return (
+                <g key={i} opacity={on}>
+                  <rect
+                    x={x}
+                    y={y}
+                    width={w}
+                    height={h}
+                    fill={ACCENT}
+                    opacity={0.14 * on}
+                  />
+                  <rect
+                    x={x}
+                    y={y}
+                    width={w}
+                    height={h}
+                    fill="none"
+                    stroke={ACCENT}
+                    strokeWidth={1.4}
+                  />
+                  {/* The leader runs to the row that carries this probe. */}
+                  <line
+                    x1={x + w}
+                    y1={y + h / 2}
+                    x2={reach}
+                    y2={y + h / 2}
+                    stroke={ACCENT}
+                    strokeWidth={1}
+                    opacity={0.5}
+                  />
+                </g>
+              );
+            })}
+          </Over>
+        </div>
       </AbsoluteFill>
 
       <AbsoluteFill style={out}>
-      <Heading
-        phase="sample"
-        line="Read every colour and corner off the pixels."
-      />
-      <div
-        style={{
-          position: "absolute",
-          left: ROWS_X,
-          top: 342,
-          display: "grid",
-          gap: 40,
-        }}
-      >
-        {EVIDENCE.map(({ name, value, note, swatch }, i) => {
-          const on = stagger(frame, i, { at: 5, step: 9, frames: 12 });
-          return (
-            <div
-              key={name}
-              style={{
-                opacity: on,
-                transform: `translateX(${(1 - on) * -22}px)`,
-                display: "flex",
-                alignItems: "center",
-                gap: 22,
-              }}
-            >
-              <div
-                style={{
-                  width: 46,
-                  height: 46,
-                  flex: "none",
-                  background: swatch ?? "transparent",
-                  border: swatch
-                    ? `1px solid ${BORDER}`
-                    : `2px solid ${ACCENT}`,
-                  // The radius probe has no colour to show, so its chip shows
-                  // the thing it did measure: one 13.5pt corner, square
-                  // everywhere else so the arc is the only thing in it.
-                  borderRadius: swatch ? 10 : 0,
-                  borderTopLeftRadius: swatch ? 10 : 13.5,
-                }}
-              />
-              <div>
-                <div
-                  style={{ display: "flex", alignItems: "baseline", gap: 16 }}
-                >
-                  <Label size={22} color={INK} weight={700}>
-                    {value}
-                  </Label>
-                  <Label size={19} color={MUTE}>
-                    {name}
-                  </Label>
-                </div>
-                <Label
-                  size={16}
-                  color={ACCENT}
-                  track={0.01}
-                  style={{ marginTop: 6 }}
-                >
-                  {note}
-                </Label>
-              </div>
-            </div>
-          );
-        })}
+        <Heading
+          phase="sample"
+          line="Read every colour and corner off the pixels."
+        />
         <div
           style={{
-            marginTop: 36,
-            fontFamily: SANS,
-            fontSize: 26,
-            fontWeight: 500,
-            color: INK,
-            opacity: enter(frame, 32, 12),
+            position: "absolute",
+            left: ROWS_X,
+            top: 342,
+            display: "grid",
+            gap: 40,
           }}
         >
-          If it wasn&apos;t measured, it&apos;s a guess.
+          {EVIDENCE.map(({ name, value, note, swatch }, i) => {
+            const on = stagger(frame, i, { at: 5, step: 9, frames: 12 });
+            return (
+              <div
+                key={name}
+                style={{
+                  opacity: on,
+                  transform: `translateX(${(1 - on) * -22}px)`,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 22,
+                }}
+              >
+                <div
+                  style={{
+                    width: 46,
+                    height: 46,
+                    flex: "none",
+                    background: swatch ?? "transparent",
+                    border: swatch
+                      ? `1px solid ${BORDER}`
+                      : `2px solid ${ACCENT}`,
+                    // The radius probe has no colour to show, so its chip shows
+                    // the thing it did measure: one 13.5pt corner, square
+                    // everywhere else so the arc is the only thing in it.
+                    borderRadius: swatch ? 10 : 0,
+                    borderTopLeftRadius: swatch ? 10 : 13.5,
+                  }}
+                />
+                <div>
+                  <div
+                    style={{ display: "flex", alignItems: "baseline", gap: 16 }}
+                  >
+                    <Label size={22} color={INK} weight={700}>
+                      {value}
+                    </Label>
+                    <Label size={19} color={MUTE}>
+                      {name}
+                    </Label>
+                  </div>
+                  <Label
+                    size={16}
+                    color={ACCENT}
+                    track={0.01}
+                    style={{ marginTop: 6 }}
+                  >
+                    {note}
+                  </Label>
+                </div>
+              </div>
+            );
+          })}
+          <div
+            style={{
+              marginTop: 36,
+              fontFamily: SANS,
+              fontSize: 26,
+              fontWeight: 500,
+              color: INK,
+              opacity: enter(frame, 32, 12),
+            }}
+          >
+            If it wasn&apos;t measured, it&apos;s a guess.
+          </div>
         </div>
-      </div>
       </AbsoluteFill>
     </>
   );
@@ -684,111 +695,406 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
       </AbsoluteFill>
 
       <AbsoluteFill style={out}>
-      <Heading
-        phase="typeface"
-        line="Name the typeface, or admit you can't."
-      />
+        <Heading
+          phase="typeface"
+          line="Name the typeface, or admit you can't."
+        />
 
-      <div style={{ position: "absolute", left: 96, top: 466 }}>
-        <Label size={17} color={cycling ? ACCENT : MUTE} track={0.18}>
-          {(cycling ? face : "ui-rounded").toUpperCase()}
-        </Label>
+        <div style={{ position: "absolute", left: 96, top: 466 }}>
+          <Label size={17} color={cycling ? ACCENT : MUTE} track={0.18}>
+            {(cycling ? face : "ui-rounded").toUpperCase()}
+          </Label>
 
-        {/* The bar is `FONT_SCORE` and the number is never printed: what this
+          {/* The bar is `FONT_SCORE` and the number is never printed: what this
             shot has to land is that the tool can decline, and a viewer who has
             not been told what a glyph-shape score is cannot read 0.353 as
             low. A short bar under "how sure" they can. */}
-        <div style={{ marginTop: 58, width: 1150 }}>
-          <Label
-            size={17}
-            color={ACCENT}
-            track={0.18}
-            style={{ marginBottom: 18 }}
-          >
-            HOW SURE THE MATCH IS
-          </Label>
-          <div
-            style={{
-              height: 10,
-              borderRadius: 999,
-              background: INSET,
-              overflow: "hidden",
-            }}
-          >
+          <div style={{ marginTop: 58, width: 1150 }}>
+            <Label
+              size={17}
+              color={ACCENT}
+              track={0.18}
+              style={{ marginBottom: 18 }}
+            >
+              HOW SURE THE MATCH IS
+            </Label>
             <div
               style={{
-                width: `${bar * 100}%`,
-                height: "100%",
-                background: `linear-gradient(90deg, ${ACCENT}, ${DANGER})`,
+                height: 10,
+                borderRadius: 999,
+                background: INSET,
+                overflow: "hidden",
               }}
-            />
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 20,
-              marginTop: 20,
-            }}
-          >
-            <div style={{ opacity: verdict }}>
-              <Label size={26} color={DANGER} weight={700} track={0.16}>
-                TOO CLOSE TO CALL
+            >
+              <div
+                style={{
+                  width: `${bar * 100}%`,
+                  height: "100%",
+                  background: `linear-gradient(90deg, ${ACCENT}, ${DANGER})`,
+                }}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: 20,
+                marginTop: 20,
+              }}
+            >
+              <div style={{ opacity: verdict }}>
+                <Label size={26} color={DANGER} weight={700} track={0.16}>
+                  TOO CLOSE TO CALL
+                </Label>
+              </div>
+              <Label
+                size={19}
+                color={MUTE}
+                track={0.01}
+                style={{ opacity: verdict }}
+              >
+                the top two scored almost the same, so it refuses to pick one
               </Label>
             </div>
-            <Label
-              size={19}
-              color={MUTE}
-              track={0.01}
-              style={{ opacity: verdict }}
-            >
-              the top two scored almost the same, so it refuses to pick one
+          </div>
+
+          <div
+            style={{
+              marginTop: 44,
+              opacity: fallback,
+              transform: `translateY(${(1 - fallback) * 14}px)`,
+              borderLeft: `2px solid ${ACCENT}`,
+              paddingLeft: 22,
+            }}
+          >
+            <Label size={23} color={INK} weight={500} track={0.01}>
+              So the clone uses a stand-in — and says that it did.
+            </Label>
+            <Label size={18} color={MUTE} track={0.01} style={{ marginTop: 8 }}>
+              an unlabelled guess is what makes a clone untrustworthy
             </Label>
           </div>
         </div>
-
-        <div
-          style={{
-            marginTop: 44,
-            opacity: fallback,
-            transform: `translateY(${(1 - fallback) * 14}px)`,
-            borderLeft: `2px solid ${ACCENT}`,
-            paddingLeft: 22,
-          }}
-        >
-          <Label size={23} color={INK} weight={500} track={0.01}>
-            So the clone uses a stand-in — and says that it did.
-          </Label>
-          <Label size={18} color={MUTE} track={0.01} style={{ marginTop: 8 }}>
-            an unlabelled guess is what makes a clone untrustworthy
-          </Label>
-        </div>
-      </div>
       </AbsoluteFill>
     </>
   );
 };
 
 // ---------------------------------------------------------------------------
-// 4 · One token block, one generator
+// 4 · The design system
 
-/** Line height of one row of the recipe, and so how far the block scrolls. */
-const ROW = 34;
+/* The block splits the way a design system does: the face, then the colours,
+   then the measurements. Split by what the value *is* rather than by index, so
+   adding a colour to `RECIPE` puts it in the swatches without touching this. */
+const COLOURS = RECIPE.filter(([, value]) => value.startsWith("#"));
+const SIZES = RECIPE.filter(
+  ([what, value]) => what !== "typeface" && !value.startsWith("#"),
+);
+
+export const System: React.FC<{ frames: number }> = ({ frames }) => {
+  const frame = useCurrentFrame();
+  const out = useJoin(frames);
+  const held = useJoin(frames, "out");
+  const top = enter(frame, 2, 12);
+  // The board walks on into `Art`, which cuts it up. Everything this block
+  // describes is chrome; the next shot is about the part that is not.
+  const b = between(SYS_BOARD, ART_BOARD, CARRY(frame, frames));
+
+  return (
+    <>
+      <AbsoluteFill style={out}>
+        <Heading
+          phase="design system"
+          line="One block of colours and sizes, shared by all eight screens."
+        />
+
+        {/* The face heads the block because it heads the board's own `:root`,
+            and because the shot before this one ends on the stand-in that put
+            it there. It is the only thing the tool declared rather than read,
+            which is why it gets its own rule and not a swatch. */}
+        <div
+          style={{
+            position: "absolute",
+            left: 96,
+            top: 268,
+            width: 764,
+            opacity: top,
+            transform: `translateY(${(1 - top) * 12}px)`,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+            }}
+          >
+            <Label size={22} color={MUTE} track={0.01}>
+              {RECIPE[0][0]}
+            </Label>
+            <Label size={22} color={INK} track={0}>
+              {RECIPE[0][1]}
+            </Label>
+          </div>
+          <div style={{ height: 1, background: BORDER, marginTop: 14 }} />
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            left: 96,
+            top: 340,
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 176px)",
+            gap: "28px 20px",
+          }}
+        >
+          {COLOURS.map(([name, hex], i) => {
+            const on = stagger(frame, i, { at: 6, step: 1, frames: 12 });
+            return (
+              <div
+                key={name}
+                style={{
+                  opacity: on,
+                  transform: `translateY(${(1 - on) * 12}px)`,
+                }}
+              >
+                {/* Inset hairline rather than a border, so #FFFFFF still reads
+                    as a swatch on white ground and the chip stays 176 wide. */}
+                <div
+                  style={{
+                    width: 176,
+                    height: 72,
+                    borderRadius: 8,
+                    background: hex,
+                    boxShadow: `inset 0 0 0 1px ${BORDER}`,
+                  }}
+                />
+                <Label
+                  size={14}
+                  color={INK}
+                  track={0.01}
+                  style={{ marginTop: 10 }}
+                >
+                  {name}
+                </Label>
+                <Label
+                  size={14}
+                  color={MUTE}
+                  track={0.02}
+                  style={{ marginTop: 3 }}
+                >
+                  {hex}
+                </Label>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ position: "absolute", left: 940, top: 340, width: 440 }}>
+          {SIZES.map(([what, value], i) => {
+            const on = stagger(frame, i, { at: 14, step: 1, frames: 12 });
+            return (
+              <div
+                key={what}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  height: 44,
+                  opacity: on,
+                  transform: `translateY(${(1 - on) * 10}px)`,
+                }}
+              >
+                <Label size={18} color={MUTE} track={0.01}>
+                  {what}
+                </Label>
+                <Label size={18} color={INK} track={0}>
+                  {value}
+                </Label>
+              </div>
+            );
+          })}
+        </div>
+
+        <Label
+          size={17}
+          color={MUTE}
+          track={0.02}
+          style={{
+            position: "absolute",
+            left: 96,
+            top: 800,
+            opacity: enter(frame, 28, 10),
+          }}
+        >
+          nothing here was chosen — every value was read off the screenshot
+        </Label>
+      </AbsoluteFill>
+
+      <AbsoluteFill style={held}>
+        <div style={{ position: "absolute", left: b.x, top: b.y }}>
+          <Board slug={BOARDS[0]} scale={b.s} />
+        </div>
+      </AbsoluteFill>
+    </>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// 5 · The artwork, cut rather than drawn
+
+/** px per design pt once a crop is off the board, and where the row sits. */
+const CROP_ZOOM = 1.55;
+const CROPS_X = 660;
+
+export const Art: React.FC<{ frames: number }> = ({ frames }) => {
+  const frame = useCurrentFrame();
+  const out = useJoin(frames);
+  const b = between(
+    SYS_BOARD,
+    ART_BOARD,
+    enter(frame + 2, 0, OVERLAP + 2, Easing.inOut(Easing.cubic)),
+  );
+  // Carried on both sides: handed in by `System` mid-walk, handed out to
+  // `Generate`, which flies it into the strip. So no fade in either direction
+  // — it just stops on the frame the next shot starts drawing it.
+  const handed = frame < frames ? 1 : 0;
+  const marks = leave(frame, 40, 10);
+
+  return (
+    <>
+      <AbsoluteFill style={out}>
+        <Heading
+          phase="artwork"
+          line="The pictures are cut out of the screenshot, not redrawn."
+          at={14}
+        />
+
+        {/* The same six boxes, off the board and at 1.55x. Bottom-aligned
+            rather than centred, because their heights are the measurement and
+            a common baseline is the only alignment that does not hide it. */}
+        <div
+          style={{
+            position: "absolute",
+            left: CROPS_X,
+            top: 300,
+            height: 186,
+            display: "flex",
+            alignItems: "flex-end",
+            gap: 26,
+          }}
+        >
+          {CROPS.map(({ id, box }, i) => {
+            const on = stagger(frame, i, { at: 20, step: 2, frames: 12 });
+            return (
+              <Img
+                key={id}
+                src={staticFile(`canvases/duolingo-ios/assets/art/${id}.png`)}
+                style={{
+                  display: "block",
+                  width: (box[2] - box[0]) * CROP_ZOOM,
+                  height: (box[3] - box[1]) * CROP_ZOOM,
+                  opacity: on,
+                  transform: `translateY(${(1 - on) * 20}px)`,
+                }}
+              />
+            );
+          })}
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            left: CROPS_X,
+            top: 540,
+            opacity: enter(frame, 26, 14),
+          }}
+        >
+          <div
+            style={{
+              fontFamily: SANS,
+              fontSize: 104,
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: INK,
+              lineHeight: 1,
+            }}
+          >
+            {ART_COUNT}
+          </div>
+          <Label size={16} color={MUTE} track={0.18} style={{ marginTop: 16 }}>
+            PIECES, EACH CUT AT THE SIZE IT WAS MEASURED
+          </Label>
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            left: CROPS_X,
+            top: 724,
+            width: 780,
+            fontFamily: SANS,
+            fontSize: 24,
+            lineHeight: 1.5,
+            color: MUTE,
+            opacity: enter(frame, 36, 10),
+          }}
+        >
+          Cut out, they are the original&rsquo;s own pixels. Asked to redraw
+          them, the best attempt still moves things.
+        </div>
+      </AbsoluteFill>
+
+      <AbsoluteFill style={{ opacity: handed }}>
+        <div style={{ position: "absolute", left: b.x, top: b.y }}>
+          <Board slug={BOARDS[0]} scale={b.s} />
+          {/* Boxes in the screen's own pt, straight out of `crops.json`, so
+              what is outlined here is exactly what was cut — the film draws
+              the measurement rather than an illustration of it. */}
+          {marks > 0 && (
+            <Over scale={b.s}>
+              {/* Off the board well before the handover, not on the shot's own
+                ramp: this layer does not fade with the shot — `Generate` flies
+                the same board into the strip — so a box still 90% up on the
+                last frame would pop off on the cut. It has also done its job by
+                then, and a generated screen with measuring marks still on it
+                would be claiming something the next shot does not mean. */}
+              <g opacity={marks}>
+                {CROPS.map(({ id, box }, i) => (
+                  <rect
+                    key={id}
+                    x={box[0]}
+                    y={box[1]}
+                    width={box[2] - box[0]}
+                    height={box[3] - box[1]}
+                    rx={2}
+                    fill="none"
+                    stroke={ACCENT}
+                    strokeWidth={1.6}
+                    opacity={stagger(frame, i, { at: 16, step: 2, frames: 10 })}
+                  />
+                ))}
+              </g>
+            </Over>
+          )}
+        </div>
+      </AbsoluteFill>
+    </>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// 6 · One generator
 
 export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
   const out = useJoin(frames);
-  // Starting 70px down so the first line — `typeface  ui-rounded`, the
-  // stand-in the shot before just settled on — is clear of the mask's top
-  // fade on frame one. It is the head of the list because it is the first
-  // line of the board's own `:root`, and it is what carries the last shot
-  // into this one.
-  const scroll = interpolate(
-    frame,
-    [0, frames],
-    [-70, RECIPE.length * ROW - 420],
-    { extrapolateRight: "clamp" },
-  );
+  // Board 01 is not new here. It is the one the last three shots have been
+  // holding, flying into the first slot of the strip while the other seven
+  // arrive behind it — which is the whole claim of the shot: one screen's
+  // worth of measurement, and then all eight off the same two inputs.
+  const fly = enter(frame, 0, 18, Easing.inOut(Easing.cubic));
   // The strip is handed to `Verify`, which flies these same eight boards into
   // its eight rows. This copy stops dead on the frame that one appears, at
   // identical geometry, so there is never a second strip under the flight.
@@ -797,86 +1103,46 @@ export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
   return (
     <>
       <AbsoluteFill style={out}>
-      <Heading
-        phase="build"
-        line="Every measurement goes into one list."
-      />
+        <Heading
+          phase="build"
+          line="One script turns those two things into eight screens."
+        />
 
-      <div
-        style={{
-          position: "absolute",
-          left: 96,
-          top: 296,
-          width: 430,
-          height: 520,
-          overflow: "hidden",
-          maskImage:
-            "linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent)",
-          WebkitMaskImage:
-            "linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent)",
-        }}
-      >
-        {/* The real block is CSS custom properties — `--d-u-green-d:#45A302`.
-            Read at this size and this speed by someone who has not seen one
-            before, that is a wall of punctuation; under the film's own names
-            for the same values it is a recipe, which is all the shot claims it
-            is. The names are in `data.ts` beside the board they came off. */}
-        <div style={{ transform: `translateY(${-scroll}px)` }}>
-          {RECIPE.map(([what, value]) => (
-            <div
-              key={what}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-                height: ROW,
-              }}
-            >
-              <Label size={19} color={MUTE} track={0.01}>
-                {what}
-              </Label>
-              <Label size={19} color={INK} track={0}>
-                {value}
-              </Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Label
-        size={17}
-        color={MUTE}
-        track={0.02}
-        style={{
-          position: "absolute",
-          left: 596,
-          top: 730,
-          opacity: enter(frame, 24, 10),
-        }}
-      >
-        one script reads the list and builds all eight screens
-      </Label>
+        <Label
+          size={17}
+          color={MUTE}
+          track={0.02}
+          style={{
+            position: "absolute",
+            left: STRIP.x,
+            top: 706,
+            opacity: enter(frame, 28, 10),
+          }}
+        >
+          one script reads the block, places the cut-outs, writes all eight
+        </Label>
       </AbsoluteFill>
 
       {/* Every board inlines that block byte-identically: artboards are output,
           never source, so a hand-edit to one is reverted by the next run. */}
       <AbsoluteFill style={{ opacity: handed }}>
         {BOARDS.map((slug, i) => {
-          const on = stagger(frame, i, { at: 2, step: 3, frames: 14 });
+          const seat = { x: STRIP.x + i * STRIP.step, y: STRIP.y, s: STRIP.s };
+          const p = i === 0 ? between(ART_BOARD, seat, fly) : seat;
+          const on =
+            i === 0 ? 1 : stagger(frame, i - 1, { at: 8, step: 3, frames: 14 });
           return (
             <div
               key={slug}
               style={{
                 position: "absolute",
-                left: STRIP.x + i * STRIP.step,
-                top: STRIP.y,
+                left: p.x,
+                top: p.y,
                 opacity: on,
                 transform: `translateY(${(1 - on) * 34}px)`,
               }}
             >
-              {/* 0.33 is what puts all eight inside the frame beside the
-                  token block: 8 x 138 + 7 x 14 = 1202, from x 596. */}
-              <Board slug={slug} scale={STRIP.s} />
+              <Board slug={slug} scale={p.s} />
             </div>
           );
         })}
@@ -886,7 +1152,7 @@ export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
 };
 
 // ---------------------------------------------------------------------------
-// 5 · Verify by rendering
+// 7 · Verify by rendering
 
 export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
@@ -904,97 +1170,97 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
   return (
     <>
       <AbsoluteFill style={out}>
-      <Heading
-        phase="check"
-        line="Build it back, and compare it to the original."
-      />
+        <Heading
+          phase="check"
+          line="Build it back, and compare it to the original."
+        />
 
-      <div style={{ position: "absolute", left: 96, top: 322, width: 880 }}>
-        {DELTAS.map(({ screen, d }, i) => {
-          const on = stagger(frame, i, { at: 8, step: 2, frames: 12 });
-          return (
-            <div
-              key={screen}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 16,
-                height: FILE.h,
-                opacity: on,
-              }}
-            >
-              {/* The board that flew in sits here. It is drawn in its own
-                  layer, because it is still arriving while this row fades up
-                  and the two cannot share an opacity. */}
-              <div style={{ width: PHONE.w * FILE.s, flex: "none" }} />
-              <Label size={18} color={MUTE} style={{ width: 240 }}>
-                {screen}
-              </Label>
+        <div style={{ position: "absolute", left: 96, top: 322, width: 880 }}>
+          {DELTAS.map(({ screen, d }, i) => {
+            const on = stagger(frame, i, { at: 8, step: 2, frames: 12 });
+            return (
               <div
+                key={screen}
                 style={{
-                  flex: 1,
-                  height: 8,
-                  borderRadius: 999,
-                  background: INSET,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 16,
+                  height: FILE.h,
+                  opacity: on,
                 }}
               >
+                {/* The board that flew in sits here. It is drawn in its own
+                  layer, because it is still arriving while this row fades up
+                  and the two cannot share an opacity. */}
+                <div style={{ width: PHONE.w * FILE.s, flex: "none" }} />
+                <Label size={18} color={MUTE} style={{ width: 240 }}>
+                  {screen}
+                </Label>
                 <div
                   style={{
-                    width: `${(on * d * 100) / worst}%`,
-                    height: "100%",
+                    flex: 1,
+                    height: 8,
                     borderRadius: 999,
-                    background: DUO_GREEN,
-                    opacity: 0.85,
+                    background: INSET,
                   }}
-                />
+                >
+                  <div
+                    style={{
+                      width: `${(on * d * 100) / worst}%`,
+                      height: "100%",
+                      borderRadius: 999,
+                      background: DUO_GREEN,
+                      opacity: 0.85,
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div style={{ position: "absolute", left: 1130, top: 376 }}>
-        <div
-          style={{
-            fontFamily: SANS,
-            fontSize: 172,
-            fontWeight: 600,
-            letterSpacing: "-0.05em",
-            color: INK,
-            lineHeight: 1,
-            opacity: enter(frame, 16, 14),
-          }}
-        >
-          {(enter(frame, 16, 16) * MEAN_DELTA).toFixed(2)}
+            );
+          })}
         </div>
-        <Label
-          size={19}
-          color={ACCENT}
-          track={0.14}
-          style={{ marginTop: 18, opacity: enter(frame, 16, 14) }}
-        >
-          AVERAGE DIFFERENCE
-        </Label>
-        {/* The bars carry the same eight numbers and no longer print them: one
+
+        <div style={{ position: "absolute", left: 1130, top: 376 }}>
+          <div
+            style={{
+              fontFamily: SANS,
+              fontSize: 172,
+              fontWeight: 600,
+              letterSpacing: "-0.05em",
+              color: INK,
+              lineHeight: 1,
+              opacity: enter(frame, 16, 14),
+            }}
+          >
+            {(enter(frame, 16, 16) * MEAN_DELTA).toFixed(2)}
+          </div>
+          <Label
+            size={19}
+            color={ACCENT}
+            track={0.14}
+            style={{ marginTop: 18, opacity: enter(frame, 16, 14) }}
+          >
+            AVERAGE DIFFERENCE
+          </Label>
+          {/* The bars carry the same eight numbers and no longer print them: one
             figure is the claim, and eight more only make it harder to read.
             This line is what turns the one figure into a size a viewer can
             picture — without it, 2.04 of nothing is not a result. */}
-        <div
-          style={{
-            marginTop: 30,
-            width: 420,
-            opacity: enter(frame, 26, 8),
-            fontFamily: SANS,
-            fontSize: 24,
-            fontWeight: 400,
-            lineHeight: 1.45,
-            color: MUTE,
-          }}
-        >
-          per pixel, on a scale where 0 is identical and 255 is black against
-          white
+          <div
+            style={{
+              marginTop: 30,
+              width: 420,
+              opacity: enter(frame, 26, 8),
+              fontFamily: SANS,
+              fontSize: 24,
+              fontWeight: 400,
+              lineHeight: 1.45,
+              color: MUTE,
+            }}
+          >
+            per pixel, on a scale where 0 is identical and 255 is black against
+            white
+          </div>
         </div>
-      </div>
       </AbsoluteFill>
 
       <AbsoluteFill style={held}>
@@ -1003,7 +1269,11 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
             key={slug}
             style={{
               position: "absolute",
-              left: interpolate(land, [0, 1], [STRIP.x + i * STRIP.step, FILE.x]),
+              left: interpolate(
+                land,
+                [0, 1],
+                [STRIP.x + i * STRIP.step, FILE.x],
+              ),
               top: interpolate(land, [0, 1], [STRIP.y, seat(i)]),
             }}
           >
