@@ -50,6 +50,23 @@ Then run the `clone-prototype` skill (measured from your own captures) or
 the right to capture, record the measurements behind every token, and ship
 with a `README.md` that says what was measured and what was excluded.
 
+## Repository automation
+
+Everything under `.github/`:
+
+- `CODEOWNERS`: who is asked to review pull requests, by path.
+- `dependabot.yml`: weekly dependency updates for `canvas/` (bun) and for any
+  GitHub Actions workflows.
+- `pull_request_template.md`: the checklist every pull request starts with.
+- `ISSUE_TEMPLATE/`: bug and feature forms, plus links to private
+  vulnerability reporting and the hosted canvas.
+
+Branch and tag protection, secret scanning, CodeQL and Actions permissions are
+repository settings, not files; see `SECURITY.md`.
+
+`.github/` is the one folder without a `README.md`: GitHub renders
+`.github/README.md` in place of the root README on the repository page.
+
 ## Decisions
 
 A decision worth rereading goes in `docs/YYYY-MM-DD-slug.md`.
