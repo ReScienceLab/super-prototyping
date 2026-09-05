@@ -52,5 +52,7 @@ Rules inside a canvas folder:
 - Put everything else a run makes in `scratch/`. The root `.gitignore`
   ignores it at any depth. Do not use the repo root or a dot directory.
 - Give every folder a `README.md`. Do not give any folder a `.gitignore`.
+  Except `.github/`: GitHub shows `.github/README.md` instead of the root
+  README, so its guide lives in `CONTRIBUTING.md`.
 
 A decision worth rereading goes in `docs/YYYY-MM-DD-slug.md`.
