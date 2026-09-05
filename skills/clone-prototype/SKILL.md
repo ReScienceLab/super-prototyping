@@ -430,13 +430,11 @@ it; `--crop-phone` masks the 52pt corners, so crops show rounded corners
 where raw captures are square; and hero, map and avatar bitmaps are crops of
 the capture itself.
 
-**Restart the dev server before you open the canvas.** `canvasLibrary.ts`
-globs outside the canvas app's Vite root, so a running server does not
-reliably notice a folder created after it booted, and `?canvas=<slug>` then
-opens whichever board tldraw last persisted: right URL, no error, wrong
-board. The `prototype-canvas` skill has the tmux invocation and the two flags
-it needs; a boot is ~150 ms, so do it before debugging artboards you cannot
-see.
+**Open the board as soon as its first HTML file lands.** The dev server
+watches the boards directory and picks up a folder created after it booted,
+so there is nothing to restart. If `?canvas=<slug>` opens the wrong board
+anyway — right URL, no error — the folder holds no `.html` file yet, and an
+empty folder is not a board.
 
 ```bash
 open "http://127.0.0.1:<port>/?canvas=<slug>"
