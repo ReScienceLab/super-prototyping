@@ -114,3 +114,64 @@ button {
     animation: none;
   }
 }
+
+/*
+ * The no-boards notice (EmptyLibraryNotice in App.tsx). It names the directory the canvas
+ * resolved, because an empty grid and a canvas pointed at the wrong folder look identical.
+ * pointer-events stay off the panel so it can never sit between a cursor and the toolbar; only
+ * the two things worth copying — the path and the command — take the pointer back.
+ */
+.canvas-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 32px;
+  pointer-events: none;
+  text-align: center;
+  color: #3c3c43;
+  font: 400 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+.canvas-empty__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1c1c1e;
+}
+
+.canvas-empty__body {
+  margin: 0;
+  max-width: 46ch;
+}
+
+.canvas-empty__path,
+.canvas-empty__cmd {
+  pointer-events: all;
+  user-select: text;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.canvas-empty__path {
+  display: block;
+  margin: 8px auto;
+  padding: 6px 10px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.canvas-empty__cmd {
+  margin: 0;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-x: auto;
+  max-width: 100%;
+}

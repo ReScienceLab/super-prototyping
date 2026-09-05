@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "super-prototyping-tools"
+version = "1.0.0"
+description = "refkit and artgen: measure a reference capture, shoot mockups, and diff the two"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+dependencies = [
+    "pillow>=10.0",
+    "numpy>=1.24",
+]
+
+# The skills invoke these by name, never by path. That is what lets one
+# SKILL.md read identically under Claude Code, Codex, Hermes and Pi: none of
+# them expose a plugin-root variable to a shell, so a path-based invocation
+# would need four different spellings.
+[project.scripts]
+refkit = "refkit:main"
+artgen = "artgen:main"
+sp-canvas = "sp_canvas:main"
+
+[project.urls]
+Homepage = "https://prototyping.rescience.com"
+Repository = "https://github.com/ReScienceLab/super-prototyping"
+
+[tool.hatch.build.targets.wheel]
+# Flat modules, not a package: refkit.py and artgen.py sit directly in tools/.
+include = ["refkit.py", "artgen.py", "sp_canvas.py"]

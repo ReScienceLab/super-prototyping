@@ -1,0 +1,37 @@
+{
+  "name": "super-prototyping",
+  "owner": {
+    "name": "ReScience Lab",
+    "url": "https://github.com/ReScienceLab"
+  },
+  "metadata": {
+    "description": "Design and clone product UI as measured HTML artboards on a tldraw canvas",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "super-prototyping",
+      "source": "./",
+      "version": "1.0.0",
+      "displayName": "Super Prototyping",
+      "description": "Clone a real app's screens from screenshots by measurement, design new screens from measured tokens, and run the tldraw canvas that shows them. Ships refkit (measure/shoot/diff) and the canvas app.",
+      "author": {
+        "name": "ReScience Lab",
+        "url": "https://github.com/ReScienceLab"
+      },
+      "homepage": "https://prototyping.rescience.com",
+      "repository": "https://github.com/ReScienceLab/super-prototyping",
+      "license": "Apache-2.0",
+      "category": "Design",
+      "keywords": [
+        "design",
+        "ui",
+        "prototyping",
+        "tldraw",
+        "mockups",
+        "screenshots",
+        "design-tokens"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 ---
 name: new-ui-mock
 description: Design a new screen, flow or component as a self-contained HTML artboard on the prototype canvas, built from the board's existing design tokens rather than invented values. Covers picking or extending the token block, generating a row of screens from one script, iterating against annotated screenshots, and verifying by rendering. Use when asked to mock up a new screen or feature, design variants/proposals to compare, extend an existing board with more states, or turn a spec into artboards.
+license: Apache-2.0
+compatibility: Requires python3 and the refkit command from super-prototyping-tools. Google Chrome for refkit shoot.
 ---
 
 # New UI mock
@@ -9,8 +11,21 @@ For work with **no reference screenshot to copy**. If there is one, use
 `clone-prototype` instead. Measurement beats invention every time.
 
 Everything renders on the canvas from `mockups/canvases/<slug>/`; see
-`prototype-canvas` for running it and `mockups/canvases/README.md` for the
+`prototype-canvas` for running it, and its `references/layout.md` for the
 folder and `layout.json` rules.
+
+The plugin ships the template folder and every worked example. `sp-canvas`
+and `refkit` are separate — the plugin cannot run an installer of its own, so
+if they are not on PATH: `uv tool install
+"git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
+`sp-canvas root` then prints where the plugin landed:
+
+```bash
+KIT="$(sp-canvas root)"
+mkdir -p mockups/canvases                       # first board in a project
+cp -r "$KIT/mockups/canvases/templates" mockups/canvases/<slug>
+python3 mockups/canvases/<slug>/gen.py
+```
 
 ---
 
@@ -23,10 +38,10 @@ Never invent a palette when the product already has one.
   has no shared stylesheet.
 - **Cloning a real app's look?** Stop and run `clone-prototype` Phase 1 and
   Phase 2 first; come back with a measured token block.
-- **Genuinely new product, nothing to measure?** Copy
-  `mockups/canvases/templates/`, change `NAME` and the prefix,
-  and pick deliberately: platform-native stack, a neutral ramp, one accent,
-  one danger. Keep the evidence table and write *why* in it ("iOS system
+- **Genuinely new product, nothing to measure?** Copy the shipped template
+  folder, change `NAME` and the prefix, and pick deliberately: a
+  platform-native stack, a neutral ramp, one accent, one danger. Keep the
+  evidence table and write *why* in it ("iOS system
   blue", "brand hex from the logo"). An unexplained hex is a future bug.
 
 A new token is a decision, not a convenience. If a screen needs a colour or a
@@ -111,9 +126,8 @@ line and make the change, or say why you did not and what you did instead.
 ## 5. Verify by rendering
 
 ```bash
-REPO="$(git rev-parse --show-toplevel)"
-python3 "$REPO/tools/refkit.py" shoot "$REPO/mockups/canvases/<slug>"/*.html -o shots --scale 2
-python3 "$REPO/tools/refkit.py" montage shots/*.png -o board.png --height 520
+refkit shoot mockups/canvases/<slug>/*.html -o shots --scale 2
+refkit montage shots/*.png -o board.png --height 520
 ```
 
 Read the montage. Check, in order: nothing clipped; text wraps where you

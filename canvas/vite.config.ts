@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
@@ -10,6 +12,41 @@ import { defineConfig, type Plugin } from "vite";
  * build machine's filesystem.
  */
 const repoRoot = fileURLToPath(new URL("..", import.meta.url)).replace(/\/$/, "");
+
+/**
+ * Where the boards live. Defaults to this checkout's own folder, so the repo and the hosted
+ * build behave exactly as they always have with no environment set.
+ *
+ * The canvas app ships inside the plugin, which is installed outside the user's project, while
+ * their boards stay in their project. `PROTOTYPING_CANVASES_DIR` is what joins the two — the
+ * plugin holds the code, the user holds the data, and an upgrade replaces one without touching
+ * the other.
+ */
+const defaultCanvasesDir = path.resolve(repoRoot, "mockups/canvases");
+const canvasesDir = path.resolve(
+  process.env.PROTOTYPING_CANVASES_DIR || defaultCanvasesDir,
+);
+
+/**
+ * Suffix for the tldraw persistence key, so two projects do not share one document.
+ *
+ * The store is keyed by origin plus persistence key, and every canvas runs on 127.0.0.1. Stop
+ * project A and start project B on the same port and B opened A's shapes: same slug, same file
+ * name, same seeded shape id. A's pages that B has no folder for survived too, because pruning
+ * only removes empty ones.
+ *
+ * Empty for this checkout's own boards, and in a build, so the repo and the hosted canvas keep
+ * the document they already have. Anything else gets its own namespace.
+ */
+const canvasesNamespace = (() => {
+  if (canvasesDir === defaultCanvasesDir) return "";
+  // djb2 over the path. It only has to be stable and short — this is a namespace, not a digest,
+  // and a collision would need two board directories to hash alike on one machine.
+  let h = 5381;
+  for (let i = 0; i < canvasesDir.length; i++)
+    h = ((h * 33) ^ canvasesDir.charCodeAt(i)) >>> 0;
+  return `:${h.toString(36)}`;
+})();
 
 function repoRootMeta(): Plugin {
   return {
@@ -25,18 +62,211 @@ function repoRootMeta(): Plugin {
   };
 }
 
+const VIRTUAL_ID = "virtual:canvases";
+const RESOLVED_ID = "\0virtual:canvases";
+
+/**
+ * A path or key, as a JavaScript string literal for the generated module.
+ *
+ * `JSON.stringify` alone is what CodeQL calls improper sanitization for code construction
+ * (js/bad-code-sanitization): it leaves U+2028 and U+2029 raw, which are legal inside an
+ * ES2019+ string but not inside an ES5 one or an inline `<script>`, and it leaves `<`
+ * raw, so a generated string containing `</script>` would end the block early if this
+ * module were ever inlined into HTML. Board folder names come off the filesystem, and a
+ * board folder is a thing people copy from other repos, so escape rather than argue.
+ */
+const jsString = (value: string) =>
+  JSON.stringify(value)
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029")
+    .replace(/</g, "\\u003c");
+
+/** The historical key for a board, kept whatever directory it was actually read from. */
+const keyFor = (slug: string, file: string) => `../../mockups/canvases/${slug}/${file}`;
+
+interface Board {
+  slug: string;
+  html: string[];
+  layout: boolean;
+  icon: boolean;
+}
+
+/**
+ * `#` and `?` are legal in a filename but are a fragment and a query in a URL, and no encoding
+ * survives the round trip (Vite decodes with decodeURI, which leaves both alone). A board named
+ * this way would load the SPA's own index.html instead of itself and render blank forever, so it
+ * is dropped with a warning that says what to do about it.
+ */
+function urlSafe(name: string, what: string) {
+  if (!/[#?]/.test(name)) return true;
+  console.warn(`[canvases] skipping ${what} "${name}": # and ? cannot appear in a board's name`);
+  return false;
+}
+
+/** One folder per board, one HTML file per screen. Missing layout.json / icon.png are normal. */
+function scan(dir: string): Board[] {
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((e) => e.isDirectory() || e.isSymbolicLink())
+    .map((e) => e.name)
+    // `import.meta.glob` skipped dot-prefixed folders (`dot: false`) and the discovery set has
+    // to match it exactly, or an upgrade changes which boards exist.
+    .filter((slug) => !slug.startsWith("."))
+    .filter((slug) => urlSafe(slug, "board folder"))
+    .sort()
+    .map((slug) => {
+      const folder = path.join(dir, slug);
+      // `throwIfNoEntry: false` because a dangling symlink here used to throw out of load(), and
+      // then *every* board 500s rather than the one bad entry being skipped.
+      if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) return null;
+      let names: string[];
+      try {
+        names = fs.readdirSync(folder);
+      } catch {
+        return null; // unreadable folder: skip it, do not take the whole canvas down
+      }
+      // Must resolve to a real file. A *directory* named `foo.html` would otherwise be listed as
+      // a board and its import would resolve to index.html, leaving a permanently blank shape.
+      const isFile = (name: string) =>
+        fs.statSync(path.join(folder, name), { throwIfNoEntry: false })?.isFile() ?? false;
+      return {
+        slug,
+        html: names
+          // dot-files for the same reason the dot-folders above are skipped: `import.meta.glob`
+          // used `dot: false`, and the discovery set has to keep matching it.
+          .filter((f) => !f.startsWith(".") && f.endsWith(".html") && isFile(f))
+          .filter((f) => urlSafe(f, "board"))
+          .sort(),
+        layout: fs.existsSync(path.join(folder, "layout.json")),
+        icon: fs.existsSync(path.join(folder, "icon.png")),
+      };
+    })
+    .filter((b): b is Board => b !== null && b.html.length > 0);
+}
+
+/**
+ * Serves the board source as a generated module.
+ *
+ * `import.meta.glob` is itself only a Vite codegen macro, so generating the same three maps by
+ * hand costs nothing downstream and buys a directory that can be chosen at run time.
+ */
+function canvasesSource(): Plugin {
+  let isBuild = false;
+
+  return {
+    name: "prototyping-canvases",
+
+    config(_, { command }) {
+      isBuild = command === "build";
+    },
+
+    resolveId(id) {
+      return id === VIRTUAL_ID ? RESOLVED_ID : null;
+    },
+
+    load(id) {
+      if (id !== RESOLVED_ID) return null;
+
+      const boards = scan(canvasesDir);
+      // Dev serves files outside the project root through /@fs; a build resolves the absolute
+      // path itself and emits the asset.
+      //
+      // encodeURI, not encodeURIComponent: Vite decodes the request path with decodeURI, so only
+      // an encoding decodeURI reverses survives the round trip. That is also why `#` and `?` in a
+      // name cannot be encoded away at all, and are dropped at scan time instead.
+      const spec = (p: string, query = "") =>
+        jsString(isBuild ? `${p}${query}` : `/@fs${encodeURI(p)}${query}`);
+
+      const imports: string[] = [];
+      const loaders: string[] = [];
+      const layouts: string[] = [];
+      const icons: string[] = [];
+
+      boards.forEach((board, i) => {
+        const folder = path.join(canvasesDir, board.slug);
+
+        for (const file of board.html) {
+          const from = spec(path.join(folder, file), "?raw");
+          loaders.push(
+            `  ${jsString(keyFor(board.slug, file))}: () => import(${from}).then((m) => m.default),`,
+          );
+        }
+        if (board.layout) {
+          imports.push(`import __layout${i} from ${spec(path.join(folder, "layout.json"))};`);
+          layouts.push(`  ${jsString(keyFor(board.slug, "layout.json"))}: __layout${i},`);
+        }
+        if (board.icon) {
+          imports.push(`import __icon${i} from ${spec(path.join(folder, "icon.png"), "?url")};`);
+          icons.push(`  ${jsString(keyFor(board.slug, "icon.png"))}: __icon${i},`);
+        }
+      });
+
+      return [
+        `// generated by the prototyping-canvases plugin${isBuild ? "" : ` from ${canvasesDir}`}`,
+        ...imports,
+        // Empty in a build. The bundle is public — the hosted canvas ships it — and this is the
+        // build machine's filesystem, which is exactly why repoRootMeta stays dev-only too. The
+        // empty-state notice drops the path when it has none.
+        `export const canvasesDir = ${jsString(isBuild ? "" : canvasesDir)};`,
+        `export const canvasesNamespace = ${jsString(isBuild ? "" : canvasesNamespace)};`,
+        `export const fileLoaders = {\n${loaders.join("\n")}\n};`,
+        `export const rawLayouts = {\n${layouts.join("\n")}\n};`,
+        `export const rawIcons = {\n${icons.join("\n")}\n};`,
+      ].join("\n");
+    },
+
+    configureServer(server) {
+      // Editing a board already reloads, because the file is in the module graph once fetched.
+      // Adding or deleting one changes the *set* of boards, which only this module knows, so it
+      // has to be rebuilt and the page reloaded.
+      //
+      // Create the folder first. Watching a path that does not exist registers nothing — chokidar
+      // does not watch a parent for its creation — and a brand new project is exactly the case
+      // where the first board folder appears while the server is already up.
+      fs.mkdirSync(canvasesDir, { recursive: true });
+      server.watcher.add(canvasesDir);
+
+      const inside = (p: string) => p.startsWith(canvasesDir + path.sep);
+      const structural = (file: string) =>
+        inside(file) && /(\.html|layout\.json|icon\.png)$/.test(file);
+
+      const rebuild = () => {
+        const mod = server.moduleGraph.getModuleById(RESOLVED_ID);
+        if (mod) server.moduleGraph.invalidateModule(mod);
+        server.ws.send({ type: "full-reload" });
+      };
+
+      const onFile = (file: string) => {
+        if (structural(file)) rebuild();
+      };
+      // A board folder appearing or vanishing changes the set even though no file event names a
+      // board file. Scoped to the boards directory: the watcher also sees `dist/` being written
+      // during a build, which is nothing to do with us.
+      const onDir = (dir: string) => {
+        if (inside(dir)) rebuild();
+      };
+
+      server.watcher.on("add", onFile);
+      server.watcher.on("unlink", onFile);
+      server.watcher.on("addDir", onDir);
+      server.watcher.on("unlinkDir", onDir);
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), repoRootMeta()],
+  plugins: [react(), repoRootMeta(), canvasesSource()],
   server: {
-    // The boards sit one level up from this app. The eager glob used to pull every file into
-    // the module graph at startup, which is what let the dev server hand them out; now that
-    // they load on demand the folder has to be allowed outright.
-    fs: { allow: [repoRoot] },
+    // The boards sit outside this app's root — one level up by default, anywhere at all when
+    // PROTOTYPING_CANVASES_DIR points elsewhere. They load on demand rather than being pulled
+    // into the module graph at startup, so the folder has to be allowed outright.
+    fs: { allow: [repoRoot, canvasesDir] },
   },
   build: {
-    // Every board under mockups/canvases is its own lazy chunk (canvasLibrary.ts), fetched when
-    // a shape first shows it. The largest single board is a few MB of inlined images, which is
-    // the size of the thing and not a bundling mistake, so the warning starts above it.
+    // Every board is its own lazy chunk (canvasLibrary.ts), fetched when a shape first shows it.
+    // The largest single board is a few MB of inlined images, which is the size of the thing and
+    // not a bundling mistake, so the warning starts above it.
     chunkSizeWarningLimit: 4_000,
   },
 });

@@ -2,17 +2,18 @@
 
 # super-prototyping
 
-A workspace for rebuilding and designing product UI as **self-contained HTML
-artboards on a local tldraw canvas**, with the measuring toolkit and the agent
-skills that drive the work.
+An agent plugin for rebuilding and designing product UI as **self-contained
+HTML artboards on a local tldraw canvas**, with the measuring toolkit and the
+agent skills that drive the work. Install it into any project; your boards stay
+in your project and the plugin upgrades around them.
 
 The point of it is a replica you can defend. Every colour and every metric on a
 cloned board traces back to a measurement of the source capture, and the
 capture itself is parked on the canvas directly under the replica, so the two
 are one glance apart rather than one memory apart.
 
-How you use it: clone the repo, start the canvas, then hand Claude Code your
-screenshots and ask for the `clone-prototype` skill. It grids the capture,
+How you use it: install the plugin, start the canvas, then hand Claude Code
+your screenshots and ask for the `clone-prototype` skill. It grids the capture,
 samples it region by region, writes one measured token block, generates every
 board from a single `gen.py`, then re-renders those boards and diffs them
 against the capture until the numbers hold. `new-ui-mock` does the same for
@@ -22,7 +23,7 @@ registry, no build step and no design tool.
 
 ## Five worked examples
 
-Five of the ten app folders in `mockups/canvases/`. That folder's own
+Five of the fourteen app folders in `mockups/canvases/`. That folder's own
 `README.md` lists them all. Each is a real `clone-prototype` run, rebuilt
 from measured samples with the evidence recorded for every token. Open any
 of them with `?canvas=<slug>`; the address follows whichever page is open, so
@@ -68,37 +69,73 @@ Georgia standing in for Tiempos, matched on cap height and about 11% wider.*
 the two rows line up pixel for pixel. The Models sheet and Presets flows; the
 six "Ask AI" screens are on the same board.*
 
-## Start a project from this repo
+## Install
 
-```bash
-git clone --depth 1 https://github.com/ReScienceLab/super-prototyping.git my-product-design
-cd my-product-design && rm -rf .git && git init
-cd canvas && bun install --frozen-lockfile
+**Claude Code.** Two commands, from inside any project:
+
+```
+/plugin marketplace add ReScienceLab/super-prototyping
+/plugin install super-prototyping@super-prototyping
 ```
 
-Every folder under `mockups/canvases/` ships with it. Start your own from
-`templates/`, then delete the example folders you do not need:
+Then install the toolkit the skills call, once per machine:
 
 ```bash
-cp -r mockups/canvases/templates mockups/canvases/<slug>
+uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
+```
+
+`/plugin update super-prototyping` picks up a new release; re-run the `uv tool
+install` line with `--force` to move the toolkit with it.
+
+**Codex, or anything else that reads a skills directory.** Clone once, then
+link:
+
+```bash
+git clone https://github.com/ReScienceLab/super-prototyping.git ~/.super-prototyping
+~/.super-prototyping/scripts/install-skills.sh
+```
+
+It installs the toolkit and symlinks `skills/*` into every product skill root
+it finds (`~/.codex/skills`, `~/.hermes/skills`, `~/.pi/agent/skills`). The
+skills are links, not copies, so `git pull` in that checkout updates every
+product at once. The toolkit is a copy, so re-run the script after a pull to
+move `refkit`, `artgen` and `sp-canvas` with it. `--list` shows what it would
+do and changes nothing.
+
+## Start a project
+
+Your project holds boards and nothing else — no canvas app, no toolkit, no
+skills to keep in step:
+
+```bash
+mkdir -p my-product-design/mockups/canvases && cd my-product-design
+cp -r "$(sp-canvas root)/mockups/canvases/templates" mockups/canvases/<slug>
 python3 mockups/canvases/<slug>/gen.py
 ```
+
+`sp-canvas root` prints wherever the plugin landed. Every worked example above
+is in there to copy from too.
 
 ## Run the canvas
 
 ```bash
-cd canvas
-bun run dev -- --host 127.0.0.1 --port 5173 --strictPort
+sp-canvas start
 ```
 
-Open the URL Vite prints; deep-link a board with `?canvas=<slug>`. The bottom
-toolbar carries a styles-panel toggle alongside tldraw's own tools; the top
-bar carries a force-relayout button. Press it after editing a `layout.json`.
+It finds the bundled canvas app, installs its dependencies on first run, boots
+it on 127.0.0.1:5173 against `./mockups/canvases`, and prints the address.
+`--canvases DIR` points it somewhere else, `--port N` moves it, `sp-canvas
+status` and `sp-canvas stop` do what they say.
+
+Deep-link a board with `?canvas=<slug>`. The bottom toolbar carries a
+styles-panel toggle alongside tldraw's own tools; the top bar carries a
+force-relayout button. Press it after editing a `layout.json`. A board folder
+added after boot appears on its own.
 
 ## The workflow
 
-Three skills, in `.agents/skills/` (symlinked from `.claude/skills/`, so
-Claude Code picks them up):
+Three skills, in `skills/` (which `.claude/skills/` and `.agents/skills/`
+symlink to, so this checkout loads what an install does):
 
 | Skill | Use it for |
 |---|---|
@@ -123,7 +160,7 @@ Never skip ahead. Sampling before tokens, tokens before HTML.
 | **1c**<br>Name the<br>face | `refkit font ref.png 17.3 139 78.7 152 Libraries --pt 3 --fonts brand/` renders that word in every candidate face and ranks the glyph shapes at a common cap height. A closed set of ~20 faces already on disk is the right problem: the published classifiers solve a 3,000-class Google-Fonts one and so structurally cannot answer *SF Pro*. Under a 0.05 top-two margin it reports **no call** rather than naming a lookalike.<br><br>**Out:** the one token nothing else could measure: `--x-font`, with evidence. [Why not a model.](docs/font-identification.md) | <a href="assets/workflow/1c-font.png"><img src="assets/workflow/1c-font.png" width="330"></a><br><sub>One word, two candidate sets. Slack ships Lato, which is not a system face, so the left column refuses, and `--fonts` turns it into an answer.</sub> |
 | **2**<br>Design<br>system | One `:root` block: the measured font stack, colour ramp, radii per component class, composite `font:` shorthands, geometry constants. Built as the *first* artboard, because it is the contract every screen is checked against.<br><br>**Out:** `00-design-tokens.html`. | <a href="assets/workflow/2-tokens.png"><img src="assets/workflow/2-tokens.png" width="330"></a><br><sub>Every swatch carries its hex and the element it was sampled from.</sub> |
 | **3a**<br>One<br>generator | A single `gen.py` emits every screen, inlining that `:root` byte-identically. Artboards are output, never source. Hand-edit one and the next run reverts it.<br><br>**Out:** `NN-<slug>.html` × N, `layout.json`. | <a href="assets/workflow/3-generate.png"><img src="assets/workflow/3-generate.png" width="330"></a><br><sub>Four boards out of one script. 478 × 980 each, self-contained, no shared stylesheet.</sub> |
-| **3b**<br>Source the<br>artwork | Every picture already on the capture is **cropped out of the capture at its own measured box**, keyed by id in a `crops.json` the generator reads: `cut()` writes `assets/art/<id>.png`, `art()` places the `<img>` back at the same pt numbers, so an asset cannot drift from where it was measured and a box correction is one edit rather than two. A crop is the reference's own pixels, so it scores **Δ 0** by construction, and that is the whole argument for preferring it. Generate only what no capture contains, and when you do, hand the model the answer's geometry: pack the assets into a grid, each in its own cell at the size and position it must come back at, so it upscales in place instead of composing. That is worth 18.41 &rarr; **3.96** on the same six assets. `tools/artgen.py` runs it end to end and scores each asset against the crop it came from. Density is free (77 assets in one call beat 6); native size is not, so anything under ~128px stays CSS or SVG.<br><br>**Out:** `crops.json` and a committed `assets/art/`. | <a href="assets/workflow/3b-artwork.png"><img src="assets/workflow/3b-artwork.png" width="330"></a><br><sub>One asset, four ways to get it. Generated alone it is a good drawing and a bad measurement; generated in a grid it is 4.6&times; closer and still not the crop.</sub> |
+| **3b**<br>Source the<br>artwork | Every picture already on the capture is **cropped out of the capture at its own measured box**, keyed by id in a `crops.json` the generator reads: `cut()` writes `assets/art/<id>.png`, `art()` places the `<img>` back at the same pt numbers, so an asset cannot drift from where it was measured and a box correction is one edit rather than two. A crop is the reference's own pixels, so it scores **Δ 0** by construction, and that is the whole argument for preferring it. Generate only what no capture contains, and when you do, hand the model the answer's geometry: pack the assets into a grid, each in its own cell at the size and position it must come back at, so it upscales in place instead of composing. That is worth 18.41 &rarr; **3.96** on the same six assets. `artgen` runs it end to end and scores each asset against the crop it came from. Density is free (77 assets in one call beat 6); native size is not, so anything under ~128px stays CSS or SVG.<br><br>**Out:** `crops.json` and a committed `assets/art/`. | <a href="assets/workflow/3b-artwork.png"><img src="assets/workflow/3b-artwork.png" width="330"></a><br><sub>One asset, four ways to get it. Generated alone it is a good drawing and a bad measurement; generated in a grid it is 4.6&times; closer and still not the crop.</sub> |
 | **4**<br>Verify by<br>rendering | `shoot --crop-phone --check-overflow` renders and de-frames, `diff --regions` puts your fill next to the reference's, `tokens` audits the `:root`. Fan the *looking* out, one read-only subagent per screen, and keep a single writer for the generator.<br><br>**Out:** a Δ per region, in numbers. | <a href="assets/workflow/4-diff.png"><img src="assets/workflow/4-diff.png" width="330"></a><br><sub>Two boards, one token apart. Nothing to see; six values to fix.</sub> |
 | **5**<br>Park the<br>reference | Each source capture goes into its own `ref-NN-*.html` as a `data:` URI, listed as a third `layout.json` row **in the same order** as the replicas. Rows lay out at `index × (w + gap)`, so item N lands under item N.<br><br>**Out:** every replica sits directly above its source. | <a href="assets/workflow/5-reference-row.png"><img src="assets/workflow/5-reference-row.png" width="330"></a><br><sub>Both rows as the canvas renders them. The reference artboard is the raw capture plus its attribution line. No bezel, nothing redrawn.</sub> |
 
@@ -140,32 +177,39 @@ Boards render in `<iframe srcDoc sandbox="">`:
 - iPhone frame is 393 × 852 pt at 1pt = 1px (54px status bar, 125 × 36
   Dynamic Island, 139 × 5 home indicator).
 
-See `mockups/canvases/README.md` for `layout.json` rows and captions.
+See `skills/prototype-canvas/references/layout.md` for `layout.json` rows and
+captions.
 
 ## Toolkit
 
-`tools/refkit.py` needs `pillow` and `numpy`; `shoot` needs Google Chrome.
+`refkit`, `artgen` and `sp-canvas` install together as
+`super-prototyping-tools`. `shoot` additionally needs Google Chrome.
 
 ```bash
-python3 tools/refkit.py grid ref.png -o grid.png --zoom 3   # overlay to read by eye
-python3 tools/refkit.py sample ref.png 40 120 300 160 --pt 3 # fills, modes, ink core
-python3 tools/refkit.py bands ref.png 30 120 60 780 --pt 3   # ink bands and their pitch
-python3 tools/refkit.py scan ref.png col 196 380 410 --pt 3  # colour runs -> exact edge
-python3 tools/refkit.py hairline ref.png 40 200 300 204 --bg FFFFFF --scale 0.7634
-python3 tools/refkit.py font ref.png 17 139 79 152 Libraries --pt 3 \
-    --fonts ./brand-fonts                                   # name the type face
-python3 tools/refkit.py shoot mockups/canvases/my-app/*.html -o mine \
-    --scale 3 --crop-phone --check-overflow                  # render, de-frame, fail if clipped
-python3 tools/refkit.py diff mine/01.png ref.png --pt 3 -o d.png   # side by side + numbers
-python3 tools/refkit.py tokens mockups/canvases/my-app       # one :root, no undefined var()
-python3 tools/test_refkit.py                                 # self-check
+refkit grid ref.png -o grid.png --zoom 3          # overlay to read by eye
+refkit sample ref.png 40 120 300 160 --pt 3       # fills, modes, ink core
+refkit bands ref.png 30 120 60 780 --pt 3         # ink bands and their pitch
+refkit scan ref.png col 196 380 410 --pt 3        # colour runs -> exact edge
+refkit hairline ref.png 40 200 300 204 --bg FFFFFF --scale 0.7634
+refkit font ref.png 17 139 79 152 Libraries --pt 3 \
+    --fonts ./brand-fonts                         # name the type face
+refkit shoot mockups/canvases/my-app/*.html -o mine \
+    --scale 3 --crop-phone --check-overflow       # render, de-frame, fail if clipped
+refkit diff mine/01.png ref.png --pt 3 -o d.png   # side by side + numbers
+refkit tokens mockups/canvases/my-app             # one :root, no undefined var()
+refkit --version                                  # which release you are on
 ```
 
-## Verify
+## Working on the plugin itself
 
 ```bash
 cd canvas && bun run lint && bun run test && bun run build
+uv run --with pillow --with numpy python tools/test_refkit.py
+scripts/bump-version.sh --check      # every manifest agrees on one version
 ```
+
+Releasing: `scripts/bump-version.sh <version>`, commit, then tag
+`super-prototyping--v<version>`.
 
 ## Licence
 

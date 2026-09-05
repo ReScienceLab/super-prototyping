@@ -35,6 +35,7 @@ import {
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
+import { canvasesDir, canvasesNamespace } from "virtual:canvases";
 import {
   CanvasChromeContext,
   canvasChromeAssetUrls,
@@ -48,8 +49,12 @@ const shapeUtils = [CanvasFileShapeUtil, CanvasLinkShapeUtil];
  * IndexedDB inconsistent with the new code (a shape's props changing shape, say). Everything
  * persisted under the old key is then ignored, hand-drawn annotations included. Do not bump
  * it for ordinary layout edits; the force-refresh button already handles those.
+ *
+ * The namespace is per boards directory, and empty for this checkout's own: every canvas runs
+ * on 127.0.0.1, so without it a second project started on the same port opens the first one's
+ * document. See `canvasesNamespace` in vite.config.ts.
  */
-const PERSISTENCE_KEY = "super-prototyping-canvas-v2";
+const PERSISTENCE_KEY = `super-prototyping-canvas-v2${canvasesNamespace}`;
 
 /** Marks that the snap default below has been applied once in this browser. */
 const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
@@ -140,6 +145,47 @@ function WelcomeGround() {
     return () => container.classList.remove("canvas-welcome-ground");
   }, [editor, isWelcome]);
   return null;
+}
+
+/**
+ * A path as a single shell word. A boards directory is chosen by whoever ran `sp-canvas`, so it
+ * can hold a space, and the command below is meant to be copied and run as it stands.
+ */
+const shellQuote = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`;
+
+/**
+ * What a project with no boards yet sees, which is otherwise an empty grey grid with no way to
+ * tell a misdirected canvas from an empty one. The directory is the whole point of the notice:
+ * `sp-canvas start` resolves it from --canvases, PROTOTYPING_CANVASES_DIR or the current
+ * directory, and until now the answer only existed in the dev server's environment.
+ *
+ * The library is a build-time constant, so this is a plain check rather than a subscription; the
+ * dev server full-reloads the page when the first board folder appears.
+ */
+function EmptyLibraryNotice() {
+  if (readCanvasLibrary().length) return null;
+  // Empty in a production build, which does not ship the build machine's paths. The notice still
+  // has something worth saying without it, so it degrades rather than disappearing.
+  const target = canvasesDir || "mockups/canvases";
+  return (
+    <div className="canvas-empty" role="status">
+      <h1 className="canvas-empty__title">No boards here yet</h1>
+      <p className="canvas-empty__body">
+        {canvasesDir ? "This canvas is showing" : "This canvas has no boards in it."}
+        {canvasesDir && <code className="canvas-empty__path">{canvasesDir}</code>}
+        Every subfolder with <code>.html</code> files in it becomes a page, and
+        one appears here on its own the moment it is written — no restart.
+      </p>
+      <p className="canvas-empty__body">
+        Ask for a board with the <strong>clone-prototype</strong> or{" "}
+        <strong>new-ui-mock</strong> skill, or copy the folder skeleton
+        yourself:
+      </p>
+      <pre className="canvas-empty__cmd">
+        {`mkdir -p ${shellQuote(target)}\ncp -r "$(sp-canvas root)/mockups/canvases/templates" \\\n  ${shellQuote(`${target}/my-app`)}`}
+      </pre>
+    </div>
+  );
 }
 
 /** Creates the text shape if it isn't there yet, otherwise only refreshes its copy. */
@@ -737,6 +783,7 @@ export default function App() {
           <AgentBridge />
           <LockedLinkClicks />
           <WelcomeGround />
+          <EmptyLibraryNotice />
         </Tldraw>
       </main>
     </CanvasChromeContext.Provider>

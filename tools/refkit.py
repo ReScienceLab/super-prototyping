@@ -34,7 +34,7 @@ read off `grid` and the numbers that end up in the CSS. Every reported
 coordinate comes back in the same unit you asked in.
 
 Needs: pillow, numpy. Chrome only for `shoot`.
-Self-check: python3 tools/test_refkit.py
+Self-check: python3 tools/test_refkit.py (from a checkout; not shipped in the wheel)
 """
 import argparse, contextlib, glob, io, json, os, re, subprocess, sys, tempfile
 import numpy as np
@@ -1013,9 +1013,24 @@ def _region_args(sub, pt=True):
     return sub
 
 
+def _version():
+    """The installed plugin's version, or "dev" when run straight from a checkout.
+
+    Skills are shipped inside a versioned plugin, so `refkit --version` is what
+    settles "which release is actually on this machine" when a skill and the
+    toolkit disagree.
+    """
+    try:
+        from importlib.metadata import PackageNotFoundError, version
+        return version("super-prototyping-tools")
+    except (ImportError, PackageNotFoundError):
+        return "dev (running from a source checkout)"
+
+
 def _parser():
     p = argparse.ArgumentParser(prog="refkit", description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--version", action="version", version=f"refkit {_version()}")
     s = p.add_subparsers(dest="cmd", required=True)
 
     g = s.add_parser("grid"); g.set_defaults(fn=cmd_grid)
