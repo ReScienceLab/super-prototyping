@@ -24,10 +24,11 @@ declare module "virtual:canvases" {
   /** Each folder's icon.png as an emitted asset URL, eager: read during render. */
   export const rawIcons: Record<string, string>;
   /**
-   * Absolute path the boards were actually read from. EmptyLibraryNotice in App.tsx shows it
-   * to a project that has no boards yet, because "which directory is this canvas showing" is
-   * the first question when a board is missing, and the answer is otherwise only in the dev
-   * server's own environment.
+   * Absolute path the boards were actually read from, and `""` in a production build — the
+   * bundle is public and this is the build machine's filesystem. EmptyLibraryNotice in App.tsx
+   * shows it to a project that has no boards yet, because "which directory is this canvas
+   * showing" is the first question when a board is missing, and the answer is otherwise only in
+   * the dev server's own environment.
    */
   export const canvasesDir: string;
 }

@@ -154,12 +154,15 @@ function WelcomeGround() {
  */
 function EmptyLibraryNotice() {
   if (readCanvasLibrary().length) return null;
+  // Empty in a production build, which does not ship the build machine's paths. The notice still
+  // has something worth saying without it, so it degrades rather than disappearing.
+  const target = canvasesDir || "mockups/canvases";
   return (
     <div className="canvas-empty" role="status">
       <h1 className="canvas-empty__title">No boards here yet</h1>
       <p className="canvas-empty__body">
-        This canvas is showing
-        <code className="canvas-empty__path">{canvasesDir}</code>
+        {canvasesDir ? "This canvas is showing" : "This canvas has no boards in it."}
+        {canvasesDir && <code className="canvas-empty__path">{canvasesDir}</code>}
         Every subfolder with <code>.html</code> files in it becomes a page, and
         one appears here on its own the moment it is written — no restart.
       </p>
@@ -169,7 +172,7 @@ function EmptyLibraryNotice() {
         yourself:
       </p>
       <pre className="canvas-empty__cmd">
-        {`cp -r "$(sp-canvas root)/mockups/canvases/templates" \\\n  ${canvasesDir}/my-app`}
+        {`cp -r "$(sp-canvas root)/mockups/canvases/templates" \\\n  ${target}/my-app`}
       </pre>
     </div>
   );

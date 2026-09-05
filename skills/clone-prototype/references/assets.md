@@ -65,9 +65,9 @@ Three things that go wrong:
   this way and the whole-frame deltas barely moved.
 - **Commit `assets/art/`, gitignore `assets/refs/`.** The crops are component
   art and the boards are dead without them; the captures are whole app
-  screens. Say so in the folder's `.gitignore`, because the opposite is the
-  usual convention for a screenshot-sourced folder and the next person will
-  assume it.
+  screens. Say so in the folder's `README.md` — never a folder-level
+  `.gitignore` — because the opposite is the usual convention for a
+  screenshot-sourced folder and the next person will assume it.
 
 ## Generating, when you have to
 

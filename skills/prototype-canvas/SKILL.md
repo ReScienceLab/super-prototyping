@@ -21,6 +21,10 @@ plugin replaces the app and never touches a board you wrote.
 sp-canvas start
 ```
 
+Not found? `sp-canvas` installs separately from the plugin, which cannot run
+an installer of its own: `uv tool install
+"git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
+
 That is the whole thing. It finds the bundled app, installs its dependencies
 on first run, boots the dev server on 127.0.0.1:5173, waits for the port to
 actually bind, and prints the address.

@@ -13,6 +13,13 @@ and nothing else needs changing:
 - Discovery is the `prototyping-canvases` plugin in the app's
   `vite.config.ts`, which scans the boards directory and generates the index.
 
+Two things the scanner will not do. A folder or file whose name contains `#`
+or `?` is skipped with a warning: both are URL punctuation, no encoding
+survives the round trip, and such a board would silently render blank. And a
+symlink in the boards directory is followed, which is how you point the canvas
+at boards living somewhere else — but it also reaches outside the directory
+the dev server is otherwise confined to, so only link at something you trust.
+
 A folder is an unzipped Sketch file: `layout.json` plays `document.json` and
 `meta.json`, `icon.png` plays `previews/preview.png`, `assets/` plays
 `images/`, and the numbered boards are the pages. `probes.json`, `crops.json`

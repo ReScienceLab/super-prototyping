@@ -18,17 +18,11 @@ Phase 6. Past a list of screens, past what the canvas already shows:
 
 - **Which assets are generated rather than cropped**, if any, with the probe
   that says how close each one lands. A reader assumes the artwork is the
-  source's until told otherwise. Keep those deltas in a manifest the
-  generator reads, next to `crops.json` and in the same shape, holding the
-  shipped Δ *and* the runs behind it, so "it scored 3.88" can be read as
-  "any run of this lands near 4.5" rather than as one lucky draw:
-
-  ```json
-  "03-char": {"delta": 3.88, "from": "white/high", "scale": 1.0,
-              "dx": 0, "dy": 0, "runs": [4.31, 4.28, 5.81, 3.88]}
-  ```
-
-  If the generated set is not what the screens ship, it still belongs on a
-  board of its own, including the part that failed. A negative result you
+  source's until told otherwise. Keep those deltas in a manifest the generator
+  reads, next to `crops.json` and in the same shape, holding the shipped Δ
+  *and* the runs behind it, so "it scored 3.88" reads as "any run of this lands
+  near 4.5" rather than as one lucky draw — `generating.md` has the entry
+  shape. If the generated set is not what the screens ship, it still belongs
+  on a board of its own, including the part that failed. A negative result you
   measured is cheaper for the next reader than the experiment they will
   otherwise repeat.

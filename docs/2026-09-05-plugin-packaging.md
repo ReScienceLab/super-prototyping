@@ -66,11 +66,14 @@ everywhere.
 
 `sp-canvas root` closes the remaining gap: a skill that needs the *kit* (the
 folder template, a worked example) asks for it. It searches
-`SUPER_PROTOTYPING_ROOT`, then `~/.claude/plugins/cache/*/super-prototyping/*`
-newest-first, then the per-product skill symlinks, then the current git
-checkout, and validates each candidate by reading `canvas/package.json`. It
-prints only the path on stdout so `KIT="$(sp-canvas root)"` works; the search
-trace goes to stderr behind `-v`.
+`SUPER_PROTOTYPING_ROOT`, then the `installPath` Claude Code records in
+`~/.claude/plugins/installed_plugins.json`, then
+`~/.claude/plugins/cache/*/super-prototyping/*` sorted by version (not by
+mtime: two directories can share one, and then the older release wins at
+random), then the per-product skill symlinks, then the current git checkout —
+validating each candidate by reading `canvas/package.json`. It prints only the
+path on stdout so `KIT="$(sp-canvas root)"` works; the search trace goes to
+stderr behind `-v`.
 
 ## What the layout looks like now
 
@@ -84,8 +87,9 @@ trace goes to stderr behind `-v`.
   entry rather than a restructure.
 - `.version-bump.json` lists every file holding the version and
   `scripts/bump-version.sh` moves them together. Four manifests drifting apart
-  is the failure mode that makes "which version am I on" unanswerable, and
-  `--check` in CI answers it.
+  is the failure mode that makes "which version am I on" unanswerable;
+  `--check` answers it, and is a release-time step rather than a CI job — this
+  repo has no workflows.
 - `scripts/install-skills.sh` covers products with no marketplace by symlinking
   `skills/*` into their skill roots. Links, not copies: one `git pull` updates
   every product, and there is no forked copy to drift.

@@ -127,11 +127,18 @@ export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
   if (!loader) return Promise.resolve(undefined);
   let load = canvasFileLoads.get(path);
   if (!load) {
-    load = loader().then((html) => {
-      canvasFileHtml.set(path, html);
-      canvasFileLoads.delete(path);
-      return html;
-    });
+    load = loader()
+      .then((html) => {
+        canvasFileHtml.set(path, html);
+        return html;
+      })
+      // A chunk can fail to arrive — a board deleted between discovery and first render, a
+      // dev-server restart mid-flight. Without this the rejected promise stays in the map and
+      // the shape is blank for good, because every later call hands back the same rejection.
+      .catch(() => undefined)
+      .finally(() => {
+        canvasFileLoads.delete(path);
+      });
     canvasFileLoads.set(path, load);
   }
   return load;

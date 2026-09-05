@@ -10,8 +10,9 @@ python3 mockups/canvases/<slug>/gen.py
 
 That emits the four boards every run produces, wired together and already
 passing `refkit tokens`: design tokens, an evidence table, one phone screen
-and one parked reference. The parked reference is `ref-01-screen.html`, and
-the root `.gitignore` keeps it out of git like every `ref-*` board. Tokens
+and one parked reference. The parked reference is `ref-01-screen.html`, which
+your project's root `.gitignore` needs a `ref-*.html` rule to keep out of git
+— clone-prototype's intro adds it. Tokens
 and the evidence table come from one list in `gen.py`, so they cannot drift
 apart. Replace every placeholder with a value you measured.
 

@@ -21,11 +21,26 @@ e.g. `notion-ios`.
 Toolkit: `refkit` (grid / sample / bands / bbox / scan / hairline / font /
 shoot / diff / blend / tokens / batch / ink / crops / key / montage), plus
 `artgen` for the rare asset that has to be drawn. Both are commands on your
-PATH, installed with this plugin; `shoot` additionally needs Google Chrome.
-Work in `mockups/canvases/<slug>/scratch/`, which is gitignored at any depth.
+PATH; `shoot` additionally needs Google Chrome.
 
 ```bash
 refkit --help
+```
+
+Not found? The plugin cannot install it. Once per machine:
+
+```bash
+uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
+```
+
+**Before Phase 1, check the project ignores what a run produces**, once per
+project: a run writes third-party captures into `ref-*.html` and
+`assets/refs/`, and committing those is hard to undo. Work in
+`mockups/canvases/<slug>/scratch/`, which the third rule covers at any depth:
+
+```bash
+grep -qs 'ref-\*.html' .gitignore ||
+  printf 'ref-*.html\nassets/refs/\nscratch/\n' >> .gitignore
 ```
 
 Worked examples ship with the plugin, alongside the folder skeleton this
@@ -169,7 +184,7 @@ Cover, in this order, with a short prefix per app (`--n-` for Notion):
   bar, sheet top inset
 
 `$KIT/mockups/canvases/luma-ios/` is a complete run to copy from: 19 boards (a
-token board, two evidence boards, 8 screens, 8 references), a three-row
+token board, two evidence boards, 8 screens, 8 references), a four-row
 `layout.json`, a committed `gen.py`, and per-screen mean deltas of 3.47 to
 4.50 levels against the captures.
 
@@ -230,8 +245,8 @@ def page(title, extra_css, body): ...          # TOKENS + BASE + extra_css + bod
 def write(name, html): ...
 ```
 
-Hard constraints from the canvas renderer (also in
-`mockups/canvases/README.md`):
+Hard constraints from the canvas renderer (also in `prototype-canvas`'s
+`references/layout.md`):
 
 - **Fully self-contained.** The iframe is `sandbox=""`. No external CSS,
   JS, fonts or images. Every image is a `data:` URI; icons are inline SVG.
@@ -456,10 +471,10 @@ consequence, the defects that are the source's rather than yours, and which
 assets were generated rather than cropped.
 
 **No folder-level `.gitignore`.** `ref-*.html`, `assets/refs/` and `scratch/`
-belong in the project's root `.gitignore`, once, not in a rule per board
-folder. Say in the README how many boards a fresh clone builds without the
-captures. **`assets/art/` is the exception
-and stays committed**: cropped component art is what the boards are made of,
+go in the project's root `.gitignore`, once (the intro adds them), not in a
+rule per board folder. Say in the README how many boards a fresh clone builds
+without the captures. **`assets/art/` is the exception and stays committed**:
+cropped component art is what the boards are made of,
 and without it a fresh clone renders empty frames. Say that in the README,
 because the surrounding rule points the other way.
 

@@ -15,7 +15,7 @@ Boards default to ./mockups/canvases under the current directory. Override with
 --canvases or PROTOTYPING_CANVASES_DIR. The app itself is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer.
 """
-import argparse, glob, json, os, re, shutil, signal, subprocess, sys, time
+import argparse, glob, json, os, re, shlex, shutil, signal, subprocess, sys, time
 from pathlib import Path
 
 DEFAULT_PORT = 5173
@@ -24,6 +24,12 @@ DEFAULT_PORT = 5173
 # starting the second one killed the first, silently and with a zero exit code.
 def _session(port):
     return f"canvas-{port}"
+
+
+# tmux `-t name` falls back to *prefix* matching when nothing matches exactly, so `-t canvas-54`
+# happily kills canvas-5411. The `=` prefix demands an exact name.
+def _target(port):
+    return f"={_session(port)}"
 
 
 def _pidfile(port):
@@ -154,6 +160,12 @@ def cmd_start(a):
     if not boards.is_dir():
         print(f"note: {boards} does not exist yet — the canvas will open empty.")
         print("      Start a board with the clone-prototype or new-ui-mock skill.")
+    # Create it here rather than leaving it to the dev server. The server creates it too (it has
+    # to watch it), but a failure there is a stack trace inside a tmux pane that has already gone.
+    try:
+        boards.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        raise SystemExit(f"error: cannot create the boards directory {boards}\n  {e}")
 
     if not (app / "node_modules").is_dir():
         if not shutil.which("bun"):
@@ -179,15 +191,25 @@ def cmd_start(a):
     if shutil.which("tmux"):
         # Only ever our own session for this port; the port is free or we would have exited
         # above, so anything still named this is a leftover of ours.
-        subprocess.run(["tmux", "kill-session", "-t", session],
+        subprocess.run(["tmux", "kill-session", "-t", _target(a.port)],
                        stderr=subprocess.DEVNULL)
         # A new session inherits the tmux *server's* environment, not this shell's, so a bun
-        # installed after that server started would not be found. Pass PATH through with -e.
+        # installed after that server started would not be found. The env goes inline through
+        # `env` rather than through `new-session -e`, which needs tmux 3.2 (Ubuntu 20.04 ships
+        # 3.0a, and an unknown flag there would surface as a bare CalledProcessError).
+        #
+        # The trailing sleep keeps the pane alive after the server exits. Without it a server
+        # that dies at boot takes its session with it, and the `capture-pane` command printed
+        # below — the only way to see why — reports "session not found".
+        inline = " ".join([
+            "env",
+            f"PROTOTYPING_CANVASES_DIR={shlex.quote(str(boards))}",
+            f"PATH={shlex.quote(os.environ.get('PATH', ''))}",
+            shlex.join(cmd),
+        ])
         subprocess.run(
             ["tmux", "new-session", "-d", "-s", session, "-c", str(app),
-             "-e", f"PROTOTYPING_CANVASES_DIR={boards}",
-             "-e", f"PATH={os.environ.get('PATH', '')}",
-             " ".join(cmd)],
+             f"{inline}; echo; echo '--- canvas exited'; sleep 3600"],
             check=True,
         )
         how = f"tmux session '{session}' — read it with: tmux capture-pane -p -t {session}"
@@ -214,6 +236,21 @@ def cmd_start(a):
           f"e.g. http://127.0.0.1:{a.port}/?canvas=notion-ios")
 
 
+def _is_our_server(pid, port):
+    """Whether this pid is still the canvas we started on this port.
+
+    The pidfile lives in $HOME and outlives reboots, and pids get recycled. Without this check
+    `stop` sends SIGTERM to whatever process inherited the number — someone else's editor, a
+    build, anything.
+    """
+    try:
+        out = subprocess.run(["ps", "-o", "command=", "-p", str(pid)],
+                             capture_output=True, text=True).stdout
+    except OSError:
+        return False
+    return f"--port {port}" in out and ("vite" in out or "bun" in out)
+
+
 def cmd_stop(a):
     """Stop the canvas on this port, and nothing else.
 
@@ -224,7 +261,7 @@ def cmd_stop(a):
     stopped = False
 
     if shutil.which("tmux"):
-        stopped = subprocess.run(["tmux", "kill-session", "-t", session],
+        stopped = subprocess.run(["tmux", "kill-session", "-t", _target(a.port)],
                                  stderr=subprocess.DEVNULL).returncode == 0
         if stopped:
             print(f"stopped tmux session '{session}'")
@@ -233,13 +270,21 @@ def cmd_stop(a):
     if pidfile.exists():
         try:
             pid = int(pidfile.read_text().strip())
-            os.kill(pid, signal.SIGTERM)
-            print(f"stopped background process {pid}")
-            stopped = True
-        except (ValueError, ProcessLookupError):
-            pass          # gone already; the stale pidfile is the only trace
-        except PermissionError:
-            print(f"error: process in {pidfile} is not yours to stop", file=sys.stderr)
+        except ValueError:
+            pid = None    # unreadable pidfile; the only thing to do is drop it
+        if pid is None or not _is_our_server(pid, a.port):
+            if pid is not None:
+                print(f"note: pid {pid} is not this canvas any more — left alone, "
+                      f"stale pidfile removed")
+        else:
+            try:
+                os.kill(pid, signal.SIGTERM)
+                print(f"stopped background process {pid}")
+                stopped = True
+            except ProcessLookupError:
+                pass      # gone between the check and the signal
+            except PermissionError:
+                print(f"error: process in {pidfile} is not yours to stop", file=sys.stderr)
         pidfile.unlink(missing_ok=True)
 
     if not stopped:
