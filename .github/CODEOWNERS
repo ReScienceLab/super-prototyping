@@ -1,0 +1,7 @@
+# Pull requests that touch these paths request a review from the owner
+# automatically. The last matching line wins.
+*                     @Jing-yilin
+/canvas/              @Jing-yilin
+/.agents/skills/      @Jing-yilin
+/tools/               @Jing-yilin
+/.github/             @Jing-yilin

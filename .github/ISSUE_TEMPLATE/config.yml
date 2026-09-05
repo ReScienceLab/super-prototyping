@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/ReScienceLab/super-prototyping/security/advisories/new
+    about: Please use private vulnerability reporting instead of a public issue.
+  - name: Hosted canvas
+    url: https://prototyping.rescience.com
+    about: Open the example canvases in the browser before filing a rendering bug.
