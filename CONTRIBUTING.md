@@ -27,9 +27,7 @@ registry to edit and no build step per board.
 
 - **`gen.py` is the only source of truth** for a canvas folder. Edit the
   generator and re-run it. Never hand-edit the `NN-*.html` boards.
-- **Regenerate thumbnails** after `gen.py`:
-  `python3 tools/refkit.py thumbs mockups/canvases/<slug>`.
-- **Commit the evidence**: `layout.json`, `icon.png`, `thumbs/`, `assets/`,
+- **Commit the evidence**: `layout.json`, `icon.png`, `assets/`,
   `probes.json`, `crops.json`, `assets.json`.
 - **Never commit third-party captures.** `ref-*.html` and `assets/refs/` are
   ignored by git for a reason. Do not work around the ignore.
@@ -64,8 +62,8 @@ Everything under `.github/`:
 Branch and tag protection, secret scanning, CodeQL and Actions permissions are
 repository settings, not files; see `SECURITY.md`.
 
-`.github/` is the one folder without a `README.md`: GitHub renders
-`.github/README.md` in place of the root README on the repository page.
+`.github/` must not get a `README.md`: GitHub renders `.github/README.md` in
+place of the root README on the repository page.
 
 ## Decisions
 
