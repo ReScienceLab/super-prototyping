@@ -23,6 +23,10 @@ declare module "virtual:canvases" {
   export const rawLayouts: Record<string, CanvasLayoutConfig>;
   /** Each folder's icon.png as an emitted asset URL, eager: read during render. */
   export const rawIcons: Record<string, string>;
-  /** Absolute path the boards were read from, for the "no boards found" message. */
+  /**
+   * Absolute path the boards were actually read from. Nothing renders it today; it is here
+   * because "which directory is this canvas showing" is the first question when a board is
+   * missing, and the answer is otherwise only in the dev server's own environment.
+   */
   export const canvasesDir: string;
 }

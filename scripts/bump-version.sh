@@ -59,7 +59,9 @@ def read_toml_version(text, parts):
     # against the literal line rather than a TOML parser so the file's comments,
     # ordering and formatting survive a bump untouched.
     assert parts == ["project", "version"], parts
-    m = re.search(r'(?m)^\s*version\s*=\s*"([^"]+)"', text)
+    # Anchored to [project] so a version line in some other table cannot be picked up.
+    section = re.search(r"(?ms)^\[project\]\s*$(.*?)(?=^\[|\Z)", text)
+    m = re.search(r'(?m)^\s*version\s*=\s*"([^"]+)"', section.group(1) if section else "")
     return m.group(1) if m else None
 
 def write_toml_version(text, parts, value):
@@ -77,9 +79,11 @@ for entry in spec["files"]:
     label = f'{entry["path"]}:{entry["field"]}'
 
     if not path.exists():
-        # tools/pyproject.toml is created in a later phase; a listed-but-absent
-        # file is a warning, never a silent skip.
-        print(f"  ! {label} — file missing, skipped")
+        # A listed file that is not there means the manifest was renamed or deleted and
+        # .version-bump.json was not updated. Failing here is the whole point: otherwise
+        # --check reports "all N files agree" while quietly checking N-1 of them.
+        print(f"  ! {label} — file missing")
+        failures.append(f"{entry['path']} is listed in .version-bump.json but does not exist")
         continue
 
     text = path.read_text()
@@ -105,6 +109,12 @@ for entry in spec["files"]:
         set_in(data, parts, version)
         path.write_text(json.dumps(data, indent=2) + "\n")
     print(f"  → {label}  {current} → {version}")
+
+if failures:
+    print("", file=sys.stderr)
+    for problem in failures:
+        print(f"error: {problem}", file=sys.stderr)
+    sys.exit(1)
 
 if mode == "check":
     distinct = sorted(set(seen.values()))

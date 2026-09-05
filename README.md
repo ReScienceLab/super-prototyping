@@ -23,7 +23,7 @@ registry, no build step and no design tool.
 
 ## Five worked examples
 
-Five of the ten app folders in `mockups/canvases/`. That folder's own
+Five of the fourteen app folders in `mockups/canvases/`. That folder's own
 `README.md` lists them all. Each is a real `clone-prototype` run, rebuilt
 from measured samples with the evidence recorded for every token. Open any
 of them with `?canvas=<slug>`; the address follows whichever page is open, so
@@ -96,9 +96,11 @@ git clone https://github.com/ReScienceLab/super-prototyping.git ~/.super-prototy
 ```
 
 It installs the toolkit and symlinks `skills/*` into every product skill root
-it finds (`~/.codex/skills`, `~/.hermes/skills`, `~/.pi/agent/skills`). Links,
-not copies, so `git pull` in that checkout updates every product at once.
-`--list` shows what it would do and changes nothing.
+it finds (`~/.codex/skills`, `~/.hermes/skills`, `~/.pi/agent/skills`). The
+skills are links, not copies, so `git pull` in that checkout updates every
+product at once. The toolkit is a copy, so re-run the script after a pull to
+move `refkit`, `artgen` and `sp-canvas` with it. `--list` shows what it would
+do and changes nothing.
 
 ## Start a project
 

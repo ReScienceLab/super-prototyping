@@ -461,4 +461,4 @@ LAYOUT = {
 }
 (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2) + "\n")
 print("layout.json", len(LAYOUT["rows"]), "rows")
-print("\nnext: python3 tools/refkit.py tokens", OUT)
+print("\nnext: refkit tokens", OUT)

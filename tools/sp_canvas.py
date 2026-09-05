@@ -2,7 +2,7 @@
 """sp-canvas, the launcher for the tldraw board canvas.
 
   start    boot the dev server against a folder of boards, print its address
-  stop     kill it
+  stop     kill the one on that port, and only that one
   status   say whether it is up, and on what
   root     print the plugin root it resolved (-v: and where it looked)
 
@@ -15,11 +15,23 @@ Boards default to ./mockups/canvases under the current directory. Override with
 --canvases or PROTOTYPING_CANVASES_DIR. The app itself is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer.
 """
-import argparse, glob, json, os, shutil, subprocess, sys, time
+import argparse, glob, json, os, re, shutil, signal, subprocess, sys, time
 from pathlib import Path
 
-SESSION = "canvas"
 DEFAULT_PORT = 5173
+
+# Per-port names, because two projects run two canvases. A fixed session name meant
+# starting the second one killed the first, silently and with a zero exit code.
+def _session(port):
+    return f"canvas-{port}"
+
+
+def _pidfile(port):
+    return Path.home() / f".super-prototyping-canvas-{port}.pid"
+
+
+def _logfile(port):
+    return Path.home() / f".super-prototyping-canvas-{port}.log"
 
 
 # --- finding the canvas app --------------------------------------------------
@@ -35,13 +47,25 @@ def _candidates():
     if env:
         yield "SUPER_PROTOTYPING_ROOT", Path(env).expanduser()
 
-    # Claude Code caches plugins per version; take the newest by mtime.
-    cache = sorted(
-        glob.glob(str(Path.home() / ".claude/plugins/cache/*/super-prototyping/*")),
-        key=lambda p: os.path.getmtime(p),
-        reverse=True,
-    )
-    for path in cache:
+    # Claude Code records where it put each plugin. That is authoritative, so read it before
+    # guessing from the cache layout.
+    manifest = Path.home() / ".claude/plugins/installed_plugins.json"
+    try:
+        entries = json.loads(manifest.read_text()).get("plugins", {})
+        for key, installs in entries.items():
+            if key.split("@")[0] != "super-prototyping":
+                continue
+            for install in installs:
+                if install.get("installPath"):
+                    yield "Claude Code plugin manifest", Path(install["installPath"])
+    except (OSError, ValueError, AttributeError):
+        pass
+
+    # Failing that, the cache holds one directory per installed version, and old ones are not
+    # cleaned up. Sort by version, not by mtime: two directories can share an mtime, and then
+    # mtime order is arbitrary and can hand back the older release.
+    cache = glob.glob(str(Path.home() / ".claude/plugins/cache/*/super-prototyping/*"))
+    for path in sorted(cache, key=lambda p: _version_key(Path(p).name), reverse=True):
         yield "Claude Code plugin cache", Path(path)
 
     # The other products hold a symlink per skill, pointing back into the
@@ -65,6 +89,12 @@ def _candidates():
             yield "current git checkout", Path(top)
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
+
+
+def _version_key(name: str):
+    """Sortable form of a version directory name; anything unparseable sorts oldest."""
+    parts = re.findall(r"\d+", name)
+    return tuple(int(n) for n in parts) if parts else (-1,)
 
 
 def _is_canvas_app(root: Path) -> bool:
@@ -145,21 +175,29 @@ def cmd_start(a):
     cmd = ["bun", "run", "dev", "--", "--host", "127.0.0.1",
            "--port", str(a.port), "--strictPort"]
 
+    session = _session(a.port)
     if shutil.which("tmux"):
-        subprocess.run(["tmux", "kill-session", "-t", SESSION],
+        # Only ever our own session for this port; the port is free or we would have exited
+        # above, so anything still named this is a leftover of ours.
+        subprocess.run(["tmux", "kill-session", "-t", session],
                        stderr=subprocess.DEVNULL)
+        # A new session inherits the tmux *server's* environment, not this shell's, so a bun
+        # installed after that server started would not be found. Pass PATH through with -e.
         subprocess.run(
-            ["tmux", "new-session", "-d", "-s", SESSION, "-c", str(app),
-             "-e", f"PROTOTYPING_CANVASES_DIR={boards}", " ".join(cmd)],
+            ["tmux", "new-session", "-d", "-s", session, "-c", str(app),
+             "-e", f"PROTOTYPING_CANVASES_DIR={boards}",
+             "-e", f"PATH={os.environ.get('PATH', '')}",
+             " ".join(cmd)],
             check=True,
         )
-        how = f"tmux session '{SESSION}' — read it with: tmux capture-pane -p -t {SESSION}"
+        how = f"tmux session '{session}' — read it with: tmux capture-pane -p -t {session}"
     else:
-        log = Path.home() / ".super-prototyping-canvas.log"
+        log = _logfile(a.port)
         with open(log, "wb") as fh:
-            subprocess.Popen(cmd, cwd=app, env=env, stdout=fh, stderr=fh,
-                             start_new_session=True)
-        how = f"background process — log at {log}"
+            proc = subprocess.Popen(cmd, cwd=app, env=env, stdout=fh, stderr=fh,
+                                    start_new_session=True)
+        _pidfile(a.port).write_text(f"{proc.pid}\n")
+        how = f"background process {proc.pid} — log at {log}"
 
     for _ in range(60):
         if _port_answers(a.port):
@@ -177,13 +215,37 @@ def cmd_start(a):
 
 
 def cmd_stop(a):
+    """Stop the canvas on this port, and nothing else.
+
+    Never a pattern kill: `pkill -f vite` matches every Vite dev server on the machine,
+    including ones belonging to other projects and other people's work.
+    """
+    session = _session(a.port)
+    stopped = False
+
     if shutil.which("tmux"):
-        done = subprocess.run(["tmux", "kill-session", "-t", SESSION],
-                              stderr=subprocess.DEVNULL).returncode == 0
-        print(f"stopped tmux session '{SESSION}'" if done else "no canvas session was running")
-    else:
-        subprocess.run(["pkill", "-f", "vite.*--strictPort"], stderr=subprocess.DEVNULL)
-        print("sent a stop to any background canvas")
+        stopped = subprocess.run(["tmux", "kill-session", "-t", session],
+                                 stderr=subprocess.DEVNULL).returncode == 0
+        if stopped:
+            print(f"stopped tmux session '{session}'")
+
+    pidfile = _pidfile(a.port)
+    if pidfile.exists():
+        try:
+            pid = int(pidfile.read_text().strip())
+            os.kill(pid, signal.SIGTERM)
+            print(f"stopped background process {pid}")
+            stopped = True
+        except (ValueError, ProcessLookupError):
+            pass          # gone already; the stale pidfile is the only trace
+        except PermissionError:
+            print(f"error: process in {pidfile} is not yours to stop", file=sys.stderr)
+        pidfile.unlink(missing_ok=True)
+
+    if not stopped:
+        print(f"no canvas of ours was running on port {a.port}")
+        if _port_answers(a.port):
+            print(f"  (something else is answering on {a.port} — left alone)")
 
 
 def cmd_status(a):
@@ -191,6 +253,7 @@ def cmd_status(a):
     print(f"port {a.port}: {'answering' if up else 'silent'}")
     if up:
         print(f"  http://127.0.0.1:{a.port}/")
+    print(f"session  {_session(a.port)}")
     print(f"boards would be {_canvases_dir(a.canvases)}")
 
 

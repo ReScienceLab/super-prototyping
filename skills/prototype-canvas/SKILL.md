@@ -30,7 +30,10 @@ actually bind, and prints the address.
 - **Port** with `--port N`. A port that already answers is never reused: it
   may be another project's canvas, so `start` refuses rather than showing you
   the wrong boards.
-- `sp-canvas status` says whether it is up; `sp-canvas stop` kills it.
+- **Two projects can run two canvases.** Everything is keyed by port — the
+  session name, the log, the pidfile — so a second `start` on a free port
+  leaves the first one alone. `stop` and `status` take `--port` for the same
+  reason, and `stop` only ever kills the canvas it started.
 - `sp-canvas root` prints which copy of the app it found — and with `-v`,
   everywhere it looked. The first thing to run when the canvas is not what
   you expected.

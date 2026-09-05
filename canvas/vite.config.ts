@@ -60,6 +60,9 @@ function scan(dir: string): Board[] {
     .readdirSync(dir, { withFileTypes: true })
     .filter((e) => e.isDirectory() || e.isSymbolicLink())
     .map((e) => e.name)
+    // `import.meta.glob` skipped dot-prefixed folders (`dot: false`) and the discovery set has
+    // to match it exactly, or an upgrade changes which boards exist.
+    .filter((slug) => !slug.startsWith("."))
     .sort()
     .map((slug) => {
       const folder = path.join(dir, slug);
@@ -140,23 +143,37 @@ function canvasesSource(): Plugin {
       // Editing a board already reloads, because the file is in the module graph once fetched.
       // Adding or deleting one changes the *set* of boards, which only this module knows, so it
       // has to be rebuilt and the page reloaded.
+      //
+      // Create the folder first. Watching a path that does not exist registers nothing — chokidar
+      // does not watch a parent for its creation — and a brand new project is exactly the case
+      // where the first board folder appears while the server is already up.
+      fs.mkdirSync(canvasesDir, { recursive: true });
       server.watcher.add(canvasesDir);
 
+      const inside = (p: string) => p.startsWith(canvasesDir + path.sep);
       const structural = (file: string) =>
-        file.startsWith(canvasesDir + path.sep) &&
-        /(\.html|layout\.json|icon\.png)$/.test(file);
+        inside(file) && /(\.html|layout\.json|icon\.png)$/.test(file);
 
-      const refresh = (file: string) => {
-        if (!structural(file)) return;
+      const rebuild = () => {
         const mod = server.moduleGraph.getModuleById(RESOLVED_ID);
         if (mod) server.moduleGraph.invalidateModule(mod);
         server.ws.send({ type: "full-reload" });
       };
 
-      server.watcher.on("add", refresh);
-      server.watcher.on("unlink", refresh);
-      server.watcher.on("addDir", () => refresh(path.join(canvasesDir, "x.html")));
-      server.watcher.on("unlinkDir", () => refresh(path.join(canvasesDir, "x.html")));
+      const onFile = (file: string) => {
+        if (structural(file)) rebuild();
+      };
+      // A board folder appearing or vanishing changes the set even though no file event names a
+      // board file. Scoped to the boards directory: the watcher also sees `dist/` being written
+      // during a build, which is nothing to do with us.
+      const onDir = (dir: string) => {
+        if (inside(dir)) rebuild();
+      };
+
+      server.watcher.on("add", onFile);
+      server.watcher.on("unlink", onFile);
+      server.watcher.on("addDir", onDir);
+      server.watcher.on("unlinkDir", onDir);
     },
   };
 }

@@ -15,7 +15,8 @@
 # Codex, Hermes and Pi read the same SKILL.md directories but have no
 # marketplace, so this links `skills/` into each of their skill roots. Links,
 # not copies: `git pull` in this checkout then updates every product at once,
-# and there is no forked copy to drift.
+# and there is no forked copy to drift. The toolkit is a real install rather
+# than a link, so re-run this after a pull to move it too.
 #
 set -euo pipefail
 
