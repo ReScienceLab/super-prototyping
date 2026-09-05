@@ -3,7 +3,7 @@
 What this repo does, in ten seconds, on one worked example: the eight-screen
 Duolingo iOS clone under `mockups/canvases/duolingo-ios/`.
 
-1920x1080, 30 fps, 420 frames (14.0 s). English throughout.
+1920x1080, 30 fps, 428 frames (14.3 s). English throughout.
 
     ./render.sh promo-reel
 
@@ -22,13 +22,13 @@ are in the table below and nowhere in the film.
 |-----:|------------|-------:|--------------|--------------|---------------------------------------------------------|
 |    0 | `Measure`  |     66 | step 1, measure  | 1a, grid   | screen 01 centre frame, then aside and under the grid    |
 |   66 | `Sample`   |     52 | step 2, sample   | 1b, sample | three probe boxes, each with how it was read             |
-|  118 | `Face`     |     46 | step 3, typeface | 1c, face   | the card's own headline at 96px, then the refusal        |
-|  164 | `System`   |     46 | step 4, system   | 2, tokens  | the face, twelve swatches, nine measurements             |
-|  210 | `Art`      |     54 | step 5, artwork  | 3b, source | six `crops.json` boxes, then the six PNGs off the board  |
-|  264 | `Generate` |     46 | step 6, build    | 3a, one gen| board 01 flying into a strip the other seven join        |
-|  310 | `Verify`   |     42 | step 7, check    | 4, verify  | eight per-screen deltas, and their mean                  |
-|  352 | `TwoRows`  |     32 | step 8           | 5, park it | `assets/workflow/case-duolingo.png`                      |
-|  384 | `End`      |     36 |                  |            | wordmark and the line the repo opens with                |
+|  118 | `Face`     |     54 | step 3, typeface | 1c, face   | the card's own headline at 96px, then the two cap ratios |
+|  172 | `System`   |     46 | step 4, system   | 2, tokens  | the face, twelve swatches, nine measurements             |
+|  218 | `Art`      |     54 | step 5, artwork  | 3b, source | six `crops.json` boxes, then the six PNGs off the board  |
+|  272 | `Generate` |     46 | step 6, build    | 3a, one gen| board 01 flying into a strip the other seven join        |
+|  318 | `Verify`   |     42 | step 7, check    | 4, verify  | eight per-screen deltas, and their mean                  |
+|  360 | `TwoRows`  |     32 | step 8           | 5, park it | `assets/workflow/case-duolingo.png`                      |
+|  392 | `End`      |     36 |                  |            | wordmark and the line the repo opens with                |
 
 `index.tsx` throws at import if those lengths do not sum to
 `meta.durationInFrames`, so the table above and the file cannot drift apart
@@ -86,7 +86,7 @@ the shots stopped the film flashing white between them, but it left every join
 a dissolve, and a dissolve between two unrelated frames is what makes nine
 shots read as nine slides. Most of these joins were never two frames.
 
-Screen 01 is on screen continuously from frame 0 to frame 282 — six shots, five
+Screen 01 is on screen continuously from frame 0 to frame 290 — six shots, five
 placements, no cut in any of them. It arrives centre frame at 0.95, walks left
 to be gridded, walks smaller to be probed, sits out shot 3 while its own
 headline is on screen instead, comes back at 0.48 beside the block that
@@ -139,8 +139,9 @@ is worse than not showing it, because a film that looks like it is proving
 something without being legible is exactly the thing this repo is against. So
 each step keeps one or two measurements with a plain gloss and drops the rest:
 `Measure` shows three sizes and not the scans that took them, `Sample` names
-what was read rather than the token it lands in, `Face` draws the score as a
-bar and never prints it, `System` shows the `:root` block under the film's own
+what was read rather than the token it lands in, `Face` shows the two cap
+ratios and not the match score behind them, `System` shows the `:root` block
+under the film's own
 names for its values, `Art` shows the count and none of the four scores behind
 it, and `Verify` prints one mean instead of nine numbers. Every dropped value
 is still in `data.ts`, one comment away from the board it came off.

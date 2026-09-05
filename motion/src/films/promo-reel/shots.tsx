@@ -16,6 +16,7 @@ import {
   ART_COUNT,
   BOARDS,
   CANDIDATES,
+  CAP,
   CROPS,
   DELTAS,
   ACCENT,
@@ -23,7 +24,6 @@ import {
   DANGER,
   DUO_GREEN,
   EVIDENCE,
-  FONT_SCORE,
   GROUND,
   INK,
   INSET,
@@ -663,9 +663,9 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
   const cycling = frame >= 12 && frame < 22;
   const which = Math.floor((frame - 12) / 2) % CANDIDATES.length;
   const face = cycling ? CANDIDATES[which] : CANDIDATES[0];
-  const bar = enter(frame, 12, 14) * FONT_SCORE;
-  const verdict = enter(frame, 24, 8);
-  const fallback = enter(frame, 28, 10);
+  const how = enter(frame, 18, 10);
+  const cost = enter(frame, 30, 10);
+  const fallback = enter(frame, 36, 10);
 
   return (
     <>
@@ -705,62 +705,87 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
             {(cycling ? face : "ui-rounded").toUpperCase()}
           </Label>
 
-          {/* The bar is `FONT_SCORE` and the number is never printed: what this
-            shot has to land is that the tool can decline, and a viewer who has
-            not been told what a glyph-shape score is cannot read 0.353 as
-            low. A short bar under "how sure" they can. */}
-          <div style={{ marginTop: 58, width: 1150 }}>
-            <Label
-              size={17}
-              color={ACCENT}
-              track={0.18}
-              style={{ marginBottom: 18 }}
-            >
-              HOW SURE THE MATCH IS
+          {/* `FONT_SCORE` is never drawn. What the step produces is a size,
+            not a score, and a size is read off two numbers — so those are what
+            is on screen, and the failed match is what explains why they
+            differ. 0.353 stays in `data.ts`, where it can be read. */}
+          <div style={{ marginTop: 54, opacity: how }}>
+            <Label size={17} color={ACCENT} track={0.18}>
+              HOW A SIZE IS READ
             </Label>
             <div
               style={{
-                height: 10,
-                borderRadius: 999,
-                background: INSET,
-                overflow: "hidden",
+                fontFamily: SANS,
+                fontSize: 25,
+                color: INK,
+                marginTop: 16,
               }}
             >
-              <div
-                style={{
-                  width: `${bar * 100}%`,
-                  height: "100%",
-                  background: `linear-gradient(90deg, ${ACCENT}, ${DANGER})`,
-                }}
-              />
+              The height of a capital letter, divided by how tall capitals are
+              in the face you set it in.
             </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: 20,
-                marginTop: 20,
-              }}
-            >
-              <div style={{ opacity: verdict }}>
-                <Label size={26} color={DANGER} weight={700} track={0.16}>
-                  TOO CLOSE TO CALL
-                </Label>
-              </div>
-              <Label
-                size={19}
-                color={MUTE}
-                track={0.01}
-                style={{ opacity: verdict }}
-              >
-                the top two scored almost the same, so it refuses to pick one
-              </Label>
-            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 96, marginTop: 40 }}>
+            {[
+              [CAP.assumed, "ASSUMED, FROM ANOTHER FACE", MUTE],
+              [CAP.measured, "MEASURED, ON THIS ONE", INK],
+            ].map(([value, what, colour], i) => {
+              const on = stagger(frame, i, { at: 22, step: 5, frames: 12 });
+              return (
+                <div
+                  key={what}
+                  style={{
+                    opacity: on,
+                    transform: `translateY(${(1 - on) * 14}px)`,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: MONO,
+                      fontSize: 58,
+                      fontWeight: 500,
+                      letterSpacing: "-0.02em",
+                      color: colour,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {value}
+                  </div>
+                  <Label
+                    size={15}
+                    color={MUTE}
+                    track={0.16}
+                    style={{ marginTop: 14 }}
+                  >
+                    {what}
+                  </Label>
+                </div>
+              );
+            })}
           </div>
 
           <div
             style={{
-              marginTop: 44,
+              display: "flex",
+              alignItems: "baseline",
+              gap: 18,
+              marginTop: 34,
+              opacity: cost,
+            }}
+          >
+            <Label size={22} color={DANGER} weight={700} track={0.14}>
+              EVERY SIZE {CAP.error} TOO LARGE
+            </Label>
+            <Label size={18} color={MUTE} track={0.01}>
+              until the face itself was measured, on a render rather than the
+              capture
+            </Label>
+          </div>
+
+          <div
+            style={{
+              marginTop: 38,
               opacity: fallback,
               transform: `translateY(${(1 - fallback) * 14}px)`,
               borderLeft: `2px solid ${ACCENT}`,

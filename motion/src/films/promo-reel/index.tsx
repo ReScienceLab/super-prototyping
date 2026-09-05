@@ -73,7 +73,7 @@ import {
 const CUT = [
   [Measure, 66],
   [Sample, 52],
-  [Face, 46],
+  [Face, 54],
   [System, 46],
   [Art, 54],
   [Generate, 46],

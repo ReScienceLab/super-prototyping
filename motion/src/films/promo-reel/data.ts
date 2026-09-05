@@ -110,6 +110,25 @@ export const EVIDENCE = [
  * The reel draws `FONT_SCORE` as a bar and never prints it. What a newcomer
  * needs from this shot is that the tool can decline, not what it declined at.
  */
+/**
+ * How a type size is actually read: measure the height of a capital letter in
+ * the capture, and divide by how tall capitals are in the face you are setting
+ * it in. Phase 1 divided by SF Pro's 0.714 and every size came out about 6%
+ * too large. The stand-in's own ratio, measured on the render in Phase 4, is
+ * 0.762em, and every size in the token table is now a cap match against that.
+ *
+ * Which is the reason the failed match matters rather than a footnote to it:
+ * you cannot read a size off a screenshot without knowing the face, so the
+ * shot that admits it could not name one has to say what it cost. Straight out
+ * of `mockups/canvases/duolingo-ios/README.md`, "What the file said, and what
+ * the renders corrected".
+ */
+export const CAP = {
+  assumed: "0.714",
+  measured: "0.762",
+  error: "6%",
+} as const;
+
 export const CANDIDATES = [
   "ui-rounded",
   "Helvetica Neue",
