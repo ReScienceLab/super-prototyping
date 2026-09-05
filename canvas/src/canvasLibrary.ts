@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 
 // Auto-discovers the boards dropped under mockups/canvases/<slug>/*.html, one folder per board
@@ -153,26 +153,23 @@ export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
 /**
  * A rendering shape's board HTML: undefined until its chunk arrives, then the string. Every shape
  * on the page mounts (culling only hides the off-screen ones), so a page fetches its own boards
- * and nothing else.
+ * and nothing else. The cache is the source of truth and state is only a re-render tick, so a
+ * shape whose path changes reads the new path's HTML on the same render instead of showing the
+ * old board for a frame.
  */
 export function useCanvasFileHtml(path: string): string | undefined {
-  const [html, setHtml] = useState(() => canvasFileHtml.get(path));
+  const [, rerender] = useReducer((n: number) => n + 1, 0);
   useEffect(() => {
+    if (canvasFileHtml.has(path)) return;
     let live = true;
-    const cached = canvasFileHtml.get(path);
-    if (cached !== undefined) {
-      setHtml(cached);
-      return;
-    }
-    setHtml(undefined);
-    loadCanvasFileHtml(path).then((loaded) => {
-      if (live) setHtml(loaded);
+    loadCanvasFileHtml(path).then(() => {
+      if (live) rerender();
     });
     return () => {
       live = false;
     };
   }, [path]);
-  return html;
+  return canvasFileHtml.get(path);
 }
 
 const LAYOUT_PATTERN = /canvases\/([^/]+)\/layout\.json$/;
