@@ -9,7 +9,9 @@ no code change needed anywhere:
   `order` in `layout.json` moves a folder without renaming it.
 - Each `.html` file in it becomes one shape on that page.
 - Files sort numerically by name, so prefix them `00-`, `01-`, `02-` …
-- Discovery lives in `canvas/src/canvasLibrary.ts` (`import.meta.glob`).
+- Discovery is the `prototyping-canvases` plugin in `canvas/vite.config.ts`,
+  which scans `PROTOTYPING_CANVASES_DIR` (this folder by default) and
+  generates the index `canvas/src/canvasLibrary.ts` reads.
 
 A folder is an unzipped Sketch file: `layout.json` plays `document.json` and
 `meta.json`, `icon.png` plays `previews/preview.png`, `assets/` plays
@@ -167,9 +169,9 @@ matches your source. There is no shared library, and no `gen.py` imports
 anything from another folder or from `tools/`, so copying one folder gets
 you a complete generator.
 
-This is safe for discovery: `import.meta.glob` in `canvasLibrary.ts`
-matches only `*.html` (plus `layout.json` and `icon.png`), so `gen.py` and
-its asset files sitting in the folder are invisible to the canvas.
+This is safe for discovery: the canvas indexes only `*.html` (plus
+`layout.json` and `icon.png`), so `gen.py` and its asset files sitting in the
+folder are invisible to it.
 
 ## Examples
 

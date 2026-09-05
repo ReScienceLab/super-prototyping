@@ -71,8 +71,8 @@ Three things that go wrong:
 
 ## Generating, when you have to
 
-[`references/generating.md`](generating.md) is the procedure, measured end to
-end, with `tools/artgen.py` running it. Four things from it that decide
+[`generating.md`](generating.md) is the procedure, measured end to
+end, with `artgen` running it. Four things from it that decide
 whether generating is worth attempting at all:
 
 - **Pack the assets into a grid at the size and position they must come back

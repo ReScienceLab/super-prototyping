@@ -1,0 +1,23 @@
+{
+  "name": "super-prototyping",
+  "version": "1.0.0",
+  "description": "Rebuild and design product UI as self-contained HTML artboards on a local tldraw canvas. Clone a real app from screenshots by measurement, design new screens from measured tokens, and drive the canvas that shows them.",
+  "author": {
+    "name": "ReScience Lab",
+    "url": "https://github.com/ReScienceLab"
+  },
+  "homepage": "https://prototyping.rescience.com",
+  "repository": "https://github.com/ReScienceLab/super-prototyping",
+  "license": "Apache-2.0",
+  "keywords": [
+    "design",
+    "ui",
+    "prototyping",
+    "tldraw",
+    "mockups",
+    "screenshots",
+    "design-tokens",
+    "html"
+  ],
+  "skills": "./skills/"
+}

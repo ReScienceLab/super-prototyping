@@ -1,6 +1,8 @@
 ---
 name: clone-prototype
 description: Clone a real app's screens as pixel-accurate, self-contained HTML artboards on the prototype canvas. Overlay a grid on the reference and sample colours visually, derive one measured design-token block, generate one HTML file per screen from a single script, verify by re-rendering, and park the reference underneath its mockup. Use when asked to 100% copy / clone an app's UI, rebuild screens from screenshots or Mobbin, extract a design system from reference images, or check a mockup against its reference.
+license: Apache-2.0
+compatibility: Requires the refkit and artgen commands from super-prototyping-tools, plus Google Chrome for the shoot subcommand. Reference captures are supplied by you; nothing is fetched.
 ---
 
 # Clone prototype
@@ -16,15 +18,23 @@ automatically. The `prototype-canvas` skill covers how folders become tldraw
 pages and how `layout.json` rows work. Name the folder for the source,
 e.g. `notion-ios`.
 
-Toolkit: `tools/refkit.py` (grid / sample / bands / bbox / scan / hairline /
-font / shoot / diff / blend / tokens / batch / ink / crops / key /
-montage), plus `tools/artgen.py` for the rare asset that has to be drawn.
-Needs `pillow` + `numpy`; `shoot` needs Google Chrome. Work in
-`mockups/canvases/<slug>/scratch/`, which is gitignored at any depth.
+Toolkit: `refkit` (grid / sample / bands / bbox / scan / hairline / font /
+shoot / diff / blend / tokens / batch / ink / crops / key / montage), plus
+`artgen` for the rare asset that has to be drawn. Both are commands on your
+PATH, installed with this plugin; `shoot` additionally needs Google Chrome.
+Work in `mockups/canvases/<slug>/scratch/`, which is gitignored at any depth.
 
 ```bash
-REPO="$(git rev-parse --show-toplevel)"
-python3 "$REPO/tools/refkit.py" --help
+refkit --help
+```
+
+Worked examples ship with the plugin, alongside the folder skeleton this
+skill copies. They live wherever the plugin is installed, not in your
+project, so address them through the kit root:
+
+```bash
+KIT="$(sp-canvas root)"
+ls "$KIT/mockups/canvases"
 ```
 
 ---
@@ -92,102 +102,17 @@ numbers with no idea which UI element they belong to, and those numbers end
 up in the wrong token.
 
 ```bash
-python3 "$REPO/tools/refkit.py" grid p4.png -o g04.png --zoom 3 --minor 10 --major 50
+refkit grid p4.png -o g04.png --zoom 3 --minor 10 --major 50
 ```
 
 Then **read `g04.png` as an image**. Cyan every 10 source px, red and
 labelled every 50. Walk the screen element by element and write down the
 region each one occupies in source coordinates. Only then sample.
 
-### Four kinds of colour region, four techniques
-
-**Pass `--pt <scale>` to every region command.** Then the design pt you read
-off the grid is the pt you type and the pt that ends up in the CSS, and the
-answers come back in pt too. No mental arithmetic between the capture and
-the stylesheet, which is where transcription errors get in.
-
-| What | Technique | Command |
-|---|---|---|
-| Large flat fill (page bg, card, sheet) | flat-neighbour census; a pixel equal to all four neighbours is a real fill, not an antialiased edge | `refkit sample IMG x0 y0 x1 y1 --pt 3` → read **flat fills** |
-| Small element (badge, dot, chip, glyph) | mode of the core; no flat interior exists at this size | same command on a core-only crop → read **all pixels**, take the top entry |
-| Text ink | mean of the darkest few percent; the mode of any text region returns its *background* | same command → read **ink core** |
-| 1pt hairline, divider, card border | coverage solve; a 1pt rule never reaches its true colour in a downscaled capture | `refkit hairline IMG x0 y0 x1 y1 --bg FFFFFF --scale 0.7634` |
-| Gradient, wash, glow | stop list along one axis; a wash has no flat interior to census and no single value to hold | `refkit scan IMG col 110 545 852 --pt 3` → read the runs as CSS stops |
-
-The coverage solve sums the ink deficit across the band and divides by the
-capture scale, recovering the full-coverage colour a naive pick reports far
-too light. **Use the scale of the image you are sampling.** A 3× crop of a
-0.7634 strip is `0.7634 × 3 = 2.29`.
-
-**A gradient is not a colour, and two flat tokens will not fake it.** Walk
-one column through it with `scan`, take the runs as stops, and write them
-into the generator as a `linear-gradient` with explicit px positions. A
-second axis is a second scan, layered as a masked overlay rather than folded
-into the first. Claude's voice screens are a vertical ramp down x = 110 plus
-a horizontal white veil masked in over 100px; sampled as two flat tokens,
-those screens sat 28-38 levels off across their lower half, and the ramp took
-the best of them to 3.61 whole-frame. Keep the ramp's two endpoints as
-tokens, because that is what an evidence row can hold, but the stops belong
-in the builder.
-
-A solve that lands within ~2 of the page background means the rule is
-invisible at this resolution, which usually means the real UI has **no
-divider there**, not that the divider is `#FAFAFA`. Check a native capture
-before inventing one.
-
-### Metrics come off the same grid
-
-Read gutters, row heights, insets, corner radii and type sizes off the red
-labels. Three commands turn "about 64" into a number you can defend:
-
-```bash
-refkit bands IMG 30 120 60 780 --pt 3 --thr 170   # ink bands + the pitch between them
-refkit bbox  IMG 16 690 380 810 --pt 3            # an element's exact box
-refkit bbox  IMG 16 690 380 810 --pt 3 --grow     # ...grown to the ink it touches
-refkit scan  IMG col 196 380 410 --pt 3           # colour runs -> the exact edge
-```
-
-**Use `--grow` for anything you are going to crop.** Plain `bbox` thresholds
-luminance, so it stops at the first low-contrast edge and reports a confident
-number for the rest: pale skin on white is under any threshold that does not
-also take the page. `--grow` asks the other question, how far does the thing
-I am pointing at go, by labelling the ink in a padded window and keeping only
-the components the box already sits on. It prints the ground it inferred and
-which window sides the answer ran into; a side listed there means the
-component escaped `--pad` and probably merged with a neighbour, so widen the
-seed or shrink the padding rather than believing it.
-
-`bands` prints a pitch column: a list whose rows land on 62.7 / 62.3 / 64.0 /
-61.7 / 64.7 is a **64pt row**, and the spread is glyph height, not layout.
-`scan` collapses a row or column into colour runs, so a sheet edge reads as
-`#B3B3B3 .. 396.0` then `#F5F5F5 from 397.0`, to the pixel, in one line.
-
-Expect a small vocabulary of repeated numbers (16/20/26 gutters, 44 tap
-targets, 8/10/12/14 radii). If every measurement is unique, you are reading
-antialiasing, not layout.
-
-### Measure the type face too
-
-`--n-font` is the one token people guess. Do not. The whole board inherits it.
-
-```bash
-refkit bands IMG 40 410 420 470 --axis cols --minfrac .01   # where the words break
-refkit font  IMG 17.3 139 78.7 152 Libraries --pt 3 \
-             --fonts ./brand-fonts                          # rank the candidates
-```
-
-Box exactly one word, the biggest on the screen, a title rather than a tab
-label, and confirm on a second screen before it becomes a token. Read the
-**verdict** line rather than the top row: a "no call" means the ranking
-cannot separate the top faces, and promoting its winner invents a fact.
-
-A no call has a bill and it arrives in Phase 3: the stand-in you pick almost
-never sets to the same width as the face it replaces. Measure that ratio now,
-with `refkit bbox` on one string in both, and put it in the evidence table.
-
-[`references/typeface.md`](references/typeface.md) covers the three verdicts,
-brand faces outside the candidate set, why a width matched in PIL is 6% wrong
-on the board, and what a stand-in's width ratio predicts about Phase 4.
+[`references/measuring.md`](references/measuring.md) is the technique: the
+four kinds of colour region and the command each one needs, how gutters, row
+heights and radii come off the same grid, and how to measure the type face
+instead of guessing it. Read it before you sample anything.
 
 ### Deliverable of this phase
 
@@ -243,13 +168,13 @@ Cover, in this order, with a short prefix per app (`--n-` for Notion):
 - spacing and geometry constants: gutters, row height, tap target, status
   bar, sheet top inset
 
-`mockups/canvases/luma-ios/` is a complete run to copy from: 19 boards (a
+`$KIT/mockups/canvases/luma-ios/` is a complete run to copy from: 19 boards (a
 token board, two evidence boards, 8 screens, 8 references), a three-row
 `layout.json`, a committed `gen.py`, and per-screen mean deltas of 3.47 to
 4.50 levels against the captures.
 
-`mockups/canvases/duolingo-ios/` is the second complete run, and the one to
-read when the screens are mostly illustration: 58 tokens, 8 screens, 128
+`$KIT/mockups/canvases/duolingo-ios/` is the second complete run, and the one
+to read when the screens are mostly illustration: 58 tokens, 8 screens, 128
 pieces of art, and per-screen mean deltas of 1.32 to 2.93, the best
 screenshot-sourced numbers in the repo. Every picture on it is a crop of the
 capture at a measured box, which is most of why. Its `README.md` carries the
@@ -259,7 +184,7 @@ ratio is not SF Pro's, and two defects that produced no error message. Board
 loses to.
 
 Start from the skeleton rather than a finished board:
-`cp -r mockups/canvases/templates mockups/canvases/<slug>`. Its `gen.py`
+`cp -r "$KIT/mockups/canvases/templates" mockups/canvases/<slug>`. Its `gen.py`
 builds the `:root` block *and* the evidence table from one `TOKENS` list, so
 a value cannot drift from the evidence behind it and a token cannot ship
 without one. Change `NAME` and the prefix, then replace every placeholder row
@@ -286,9 +211,9 @@ Write **one** script that emits every `.html` file, and commit it with the
 boards it produces: `mockups/canvases/<slug>/gen.py`, plus its asset JSON,
 resolving paths relative to `__file__` so
 `python3 mockups/canvases/<slug>/gen.py` regenerates the folder in place
-(`mockups/canvases/templates/gen.py` is the skeleton,
-`mockups/canvases/luma-ios/gen.py` a finished one, and
-`mockups/canvases/duolingo-ios/gen.py` a finished one that also cuts and
+(`$KIT/mockups/canvases/templates/gen.py` is the skeleton,
+`$KIT/mockups/canvases/luma-ios/gen.py` a finished one, and
+`$KIT/mockups/canvases/duolingo-ios/gen.py` a finished one that also cuts and
 places its own artwork from a `crops.json`). Do not hand-edit the
 artboards afterwards; edit the generator and re-run. That is what keeps
 eight files consistent through a dozen correction passes, and it only
@@ -366,7 +291,7 @@ upscales in place instead of composing. That took this repo's set from 18.41
 to **3.96** mean delta, with every cell returning at scale 0.99-1.00. Density
 is free (77 assets in one call beat 6), but the asset's native size in the
 capture is not: under about 128px, colour does not survive the redraw, so
-small icons stay CSS or inline SVG. `tools/artgen.py` runs the whole loop,
+small icons stay CSS or inline SVG. `artgen` runs the whole loop,
 including keying the cells back out, solving the fit and scoring each asset
 against the crop it came from.
 
@@ -418,10 +343,10 @@ your render and the reference share one pixel grid, then replay Phase 1's
 probes against the renders before anything else:
 
 ```bash
-python3 "$REPO/tools/refkit.py" shoot "$REPO/mockups/canvases/<slug>"/[01]*.html \
+refkit shoot mockups/canvases/<slug>/[01]*.html \
     -o mine --scale 3 --crop-phone --check-overflow
-python3 "$REPO/tools/refkit.py" batch probes.json --against mine
-python3 "$REPO/tools/refkit.py" diff mine/07-models-sheet.png refs/cp7.png \
+refkit batch probes.json --against mine
+refkit diff mine/07-models-sheet.png refs/cp7.png \
     --pt 3 -o d07.png --regions regions.json
 ```
 
@@ -464,89 +389,13 @@ Then read the side-by-side image, in this order:
 Re-render after every correction pass. A correction you have not re-rendered
 is not a correction.
 
-### Subtract, and fit what you cannot sample
+### Going deeper
 
-A side-by-side answers "is this the right colour". It is bad at "is this the
-right colour in the wrong place", which is most of what is actually wrong.
-Blend the two instead, the way a difference layer works: your render into
-red, the reference into green and blue. Agreement goes grey, reference-only
-ink goes red, yours goes cyan, and a red edge above a cyan edge is one
-element sitting a point too low.
-
-```bash
-python3 "$REPO/tools/refkit.py" blend mine/10-home.png refs/h2.png \
-    --pt 3 --y0 760 --y1 852 --zoom 2 -o tab.png
-```
-
-A material is the other half of this. A translucent bar over blurred content
-has no pixel holding its fill or its blur radius, so it has to be fitted by
-sweeping the generator over a grid, not sampled. Record the sweep as
-evidence: "minimum at 40px/.48, and 24px/.78 costs 10 levels".
-
-[`references/comparing.md`](references/comparing.md) has both in full: how to
-read red and cyan edges, how `blend`'s offset probe separates a placement
-error from a colour one, and how to run a sweep and read one that refuses to
-settle.
-
-### Call it
-
-Refinement has a floor, and you reach it long before the deltas reach zero.
-Stop when any of these is true:
-
-- the worst remaining bands are ones you cannot fix: the Dynamic Island the
-  capture does not show, a watermark strip, a photograph you re-encoded;
-- a full sweep of a parameter moves the number by less than a level;
-- the blend is grey everywhere except sub-pixel fringing on glyph edges.
-
-What counts as inside depends on the source, and on one substitution:
-
-| Source | Expected mean absolute delta |
-|---|---|
-| Figma export, real type styles | 0.2-1.9 |
-| Screen capture, faces you could name | 3-7 |
-| Screen capture, a brand face you had to stand in for | 3-7 on chrome, 10-25 on the screens carrying prose |
-
-A screen at 23 is not automatically broken. Before treating a number as a
-defect, ask **where** the delta sits: `--regions` on a body-text screen that
-scores 17 overall and 3 on its chrome is a face-width result, and no amount
-of geometry work will move it. `claude-ios` reads 3.4-7.1 on its nine
-chrome-led screens and 10.0-23.2 on the six carrying serif prose, from one
-substitution, with the whole set structurally clean. Tuning positions to
-chase that second column moves correct elements off their measured
-coordinates.
-
-Any screen inside its row of that table, with no structural defect left in
-the blend, is a finished run. Write the numbers into the folder's README,
-state the substitution beside them, and stop. Another pass costs a session
-and buys a level.
-
-### Fan out the looking, not the editing
-
-Verification is per-screen, read-only and embarrassingly parallel; the
-expensive resource is *attention on images*. Once the boards render, dispatch
-one subagent per screen, up to about 8-10 before fan-in costs more than the
-parallel looking saves. Each reviewer gets absolute paths to `mine/NN.png`,
-its reference, `probes.json` and the regions file, tools Bash and Read only,
-and returns `{"screen", "defects": [{"id", "severity", "claim", "probe",
-"box_sanity", "mine", "ref"}], "clean": [...]}`. **A defect without a probe
-is a rumour**: re-run every claimed probe yourself and discard what does not
-reproduce, and reject any probe box missing its sanity line. Reviewers
-report deltas, never token values and never fixes. The rumour rule pays:
-"text leaks past the fade at y798" survived several turns until `refkit ink`
-showed the reference holds the same 8.3 levels of ink there; the real
-difference was the tail, 6.3 vs 1.0 at y800+. Ten screens verify in the
-time of one.
-
-**Only the looking parallelises.** You stay the single writer. Collect every
-defect list, then make the fixes yourself in the one generator. Never let
-subagents edit. Two agents in `gen.py` will clobber each other, and the
-next regeneration silently reverts whatever an agent "fixed" in an artboard
-directly.
-
-Do **not** fan out Phase 1 or Phase 2. Token decisions need one eye and one
-vocabulary; five agents sampling five screens independently return five
-slightly different greys and a `--x-fill-4` that is two levels off
-`--x-fill-3`.
+[`references/comparing.md`](references/comparing.md) covers subtraction (the
+blend that finds "right colour, wrong place"), the offset probe that
+separates placement error from colour error, fitting a material you cannot
+sample, when a run is actually done, and how to fan out the looking without
+fanning out the editing.
 
 ---
 
@@ -601,169 +450,37 @@ A board nobody can audit in six months is not finished, and the canvas shows
 pixels rather than reasoning. Three files, all of them small:
 
 **`mockups/canvases/<slug>/README.md`.** Copy the shape from
-`mockups/canvases/apple-settings/README.md`. What it has to carry, past a
-list of screens:
+`$KIT/mockups/canvases/apple-settings/README.md`.
 
-- **How close it lands**: the per-screen delta table from Phase 4, with the
-  crop and the units named, and one sentence explaining the spread rather
-  than apologising for it.
-- **Every substitution and its consequence**: the faces you could not name,
-  the width ratio, the containers you widened because of it.
-- **What the source itself gets wrong.** A capture is a state of a real app,
-  and some of those states are defects: a partial markdown stream that runs
-  two labels together, a component left on its unfilled default, a missing
-  Dynamic Island. Transcribed faithfully, they look like *your* bugs. Name
-  them as the source's.
-- **Anything a reader would otherwise mistake for measurement**: line counts
-  standing in for text you could not see, a fitted material, a gradient
-  rebuilt from stops.
+[`references/documenting.md`](references/documenting.md) lists what it has to
+carry past a list of screens: the delta table, every substitution and its
+consequence, the defects that are the source's rather than yours, and which
+assets were generated rather than cropped.
 
-- **Which assets are generated rather than cropped**, if any, with the probe
-  that says how close each one lands. A reader assumes the artwork is the
-  source's until told otherwise. Keep those deltas in a manifest the
-  generator reads, next to `crops.json` and in the same shape, holding the
-  shipped Δ *and* the runs behind it, so "it scored 3.88" can be read as
-  "any run of this lands near 4.5" rather than as one lucky draw:
-
-  ```json
-  "03-char": {"delta": 3.88, "from": "white/high", "scale": 1.0,
-              "dx": 0, "dy": 0, "runs": [4.31, 4.28, 5.81, 3.88]}
-  ```
-
-  If the generated set is not what the screens ship, it still belongs on a
-  board of its own, including the part that failed. A negative result you
-  measured is cheaper for the next reader than the experiment they will
-  otherwise repeat.
-
-**No folder-level `.gitignore`.** Whole app screens are not component art,
-and the root `.gitignore` already keeps `ref-*.html`, `assets/refs/` and
-`scratch/` out of every canvas folder. Say in the README how many boards a
-fresh clone builds without the captures. **`assets/art/` is the exception
+**No folder-level `.gitignore`.** `ref-*.html`, `assets/refs/` and `scratch/`
+belong in the project's root `.gitignore`, once, not in a rule per board
+folder. Say in the README how many boards a fresh clone builds without the
+captures. **`assets/art/` is the exception
 and stays committed**: cropped component art is what the boards are made of,
 and without it a fresh clone renders empty frames. Say that in the README,
 because the surrounding rule points the other way.
 
-**A bullet in `mockups/canvases/README.md`**, under Examples: board count,
-row structure, the delta range, and the one thing this folder teaches that
-the others do not.
+**A bullet in the boards directory's own `README.md`**, if it has one: board
+count, row structure, the delta range, and the one thing this folder teaches
+that the others do not.
 
 Then check the run is reproducible from what you committed:
 
 ```bash
 python3 mockups/canvases/<slug>/gen.py            # byte-identical, no scratch dir
-python3 tools/refkit.py tokens mockups/canvases/<slug>
+refkit tokens mockups/canvases/<slug>
 ```
 
 ---
 
 ## Pitfalls
 
-- **Sampling without looking.** Numbers with no element attached land in the
-  wrong token. Grid, read, *then* sample.
-- **Naming a face off a box that holds more than the word.** A clipped leading
-  glyph, or a neighbouring word inside the region, quietly halves the score.
-  `bands --axis cols` gives you the word gaps; box one word.
-- **Trusting a downscaled capture for thin ink.** Hairlines, scrims and small
-  accents need the coverage solve or a native capture.
-- **Hand-editing a generated artboard.** The next regeneration silently
-  reverts it. Edit `gen.py` and re-run.
-- **Unbalanced `<div>`s after a structural edit.** Count them
-  (`grep -o '<div' | wc -l` vs `</div>`) before rendering.
-- **`.replace(old, new, 1)`** when the string occurs twice. Bounded replaces
-  are how one of two identical paragraphs stays broken.
-- **A glob that pairs the wrong files.** `glob('mine/0*.png')` swept up
-  `00-design-tokens.png` and shifted every mine-vs-reference pairing by one:
-  true means of 3.5-4.5 levels read as 20-115. When every screen regresses
-  at once, check the pairing before touching a board.
-- **A stray character before a CSS selector** (`; .metrics{...}`) invalidates
-  the whole rule with no error. If one block renders in the wrong font, check
-  the character in front of its selector.
-- **Overflow after adding a row** to a fixed-size board. Tighten the padding
-  or switch a stacked flex column to a grid; do not just let it clip. Run
-  `shoot --check-overflow` after any board grows.
-- **Measuring a render's height in pixels.** A card's `box-shadow` paints ~60px
-  below its own bottom edge, so a pixel probe reports overflow that is not
-  there. Ask the layout engine (`--check-overflow` does).
-- **Redrawing a third-party logo by hand.** Pull the real one; see
-  [`references/brand-marks.md`](references/brand-marks.md) for the source, and
-  for why you check the glyph against the capture before trusting a file name.
-- **Thresholding luminance to find an element's extent.** A near-white band
-  (243,245,247) on a near-white page (245,245,247) is invisible to any fixed
-  threshold, so the element reads as ending early and you "fix" a layout that
-  was already right. Probe each row against the page gutter beside it, not
-  against an absolute value. This cost two wrong diagnoses in one session: an
-  80pt cover measured as 63.7, and a row top declared 5.3pt late when the
-  layout was inside a point.
-- **Generating an asset the capture already contains.** A crop of the
-  reference is exact; a redraw of the same thing scores 38.53 levels against
-  it and quietly becomes the largest error on the screen. Reach for
-  `gpt-image` only for pixels no capture holds, and probe the result.
-- **Generating one asset at a time, or generating a small one at all.** When
-  you do have to draw something, a single asset in a single call is the worst
-  version of the method: it composes rather than copies, and no prompt wording
-  recovers what the input's geometry would have given for free. Pack the set
-  into one grid at target size and position (18.41 → 3.96), and leave anything
-  under ~128px of capture as CSS or SVG, because at that size the shape comes
-  back and the colour does not. See
-  [`references/generating.md`](references/generating.md).
-- **Reusing a threshold that was measured on a different asset.** `refkit key
-  --hi 110` is not a constant; it was set just below one character's closest
-  pixel to magenta. On an icon whose own colour sits 83 from the ground, the
-  same 110 keys the *artwork* to partial alpha, the unpremultiply divides by
-  it, and grey comes back. That asset scored 48 and the drawing was fine.
-  Any threshold named after a measurement has to be re-derived per asset, and
-  a printed warning when the art is close to the key is cheaper than the
-  re-run.
-- **An unquoted `$VAR` of ids in zsh.** zsh does not word-split unquoted
-  parameters, so `cmd $IDS` passes all 77 ids as one argument and you get
-  `OSError: File name too long` rather than a usage error. `${=IDS}` splits.
-  This one is free if it crashes before the API call and expensive if it does
-  not.
-- **A stand-in face whose cap ratio is not SF Pro's.** Sizes derived as
-  `cap ÷ 0.714` are ~6% wrong the moment the board ships a rounded or a
-  brand-adjacent stack; one run measured 0.762em. `ct()`'s K moves with it
-  (0.115, not 0.2708). K solves in closed form from two renders,
-  `K_needed = K_used − (ref_ink − mine_ink) / fs`, which is worth doing,
-  because guessing its sign is a coin flip and the wrong guess pushes text
-  clean out of the measurement window, where it reads as a clipped glyph
-  rather than as a bad constant.
-- **A `z-index` painting over text that is perfectly correct.** A card or
-  sheet body at `z-index:1` covers every sibling left at `z-index:auto`, with
-  no error and no clipping warning, and the screens whose text vanished can
-  even *improve* in the diff. Colour, font shorthand and overflow all look
-  fine; reading the **generated CSS** is what finds it.
-- **Drawing the frame the templates draw instead of the frame the capture
-  shows.** Check for the Dynamic Island and the home indicator on every
-  capture before trusting either. A rendered island over captures that have
-  none put a 103-level band across the top of eight screens. While you are
-  there, check the status bar is *one* status bar: two capture sessions in one
-  set can carry different cellular glyphs, 9pt apart.
-- **Cropping an asset by eye instead of at its measured box.** Take the
-  element's own box (`refkit bbox --grow` gives it) out of the capture at the
-  capture's own scale. Then the capture's rounded corners land under your CSS
-  radius and the art registers 1:1. Every offset cover in the luma home run
-  was a crop carrying a strip of page, not a layout error. The other half of
-  this is a box that is too *small*: plain `bbox` cut both ears off the
-  duolingo avatar and a whole-frame delta moved by 0.04 levels, because a
-  clipped ear is a few hundred pixels of 1.7 million. Nothing but looking at
-  the crop, or `--grow`, finds that.
-- **Comparing against a capture you have not trimmed.** Mobbin exports carry
-  a watermark strip below the screen, so a 2676px capture of an 852pt screen
-  is 40pt of someone else's branding. Crop to the device height before
-  `diff`, or it exits on a shape mismatch and you start doubting the render.
-- **Assuming a floating pill because the icons are inset.** Read the gutter
-  columns, x 6 and x 386, straight down through the bar. Luma's tab bar is a
-  full-width material with a hairline at its top edge and the home indicator
-  inside it; the replica drew a 353pt pill and let sharp page content show
-  through the 84pt below it for four screens before anyone measured x 6.
-- **A re-shoot that silently did not happen.** "A correction you have not
-  re-rendered is not a correction" has no teeth if the render command failed
-  and you did not notice. Two ways it happens: a zsh brace-glob
-  (`{05,11,15}-*.html`) aborts the whole command when any one branch matches
-  nothing, and a relative `tools/refkit.py` resolves to nothing after a cwd
-  change. Both exit non-zero and both look like success if stderr went to
-  `/dev/null`. **Re-shoot the whole folder, never a subset.** 18 boards is a
-  few seconds and it cannot be mis-globbed. And never send a render's stderr
-  to `/dev/null`; put warning filters inside the script instead.
-- **Image caches rotate mid-task.** Save every reference to the scratch dir
-  the moment you receive it.
+[`references/pitfalls.md`](references/pitfalls.md) collects every trap that
+has cost a real run time: colour-space surprises, probe windows that miss,
+caches that rotate, and the shell mistakes that corrupt a board. Read it
+before Phase 1, and again whenever a number will not converge.

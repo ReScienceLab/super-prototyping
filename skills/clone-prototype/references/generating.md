@@ -3,7 +3,7 @@
 Loaded from `assets.md` when Phase 3 hits the one case that justifies
 generating: **the pixels you need are not on any capture.** Everything here
 is measured on the `duolingo-ios` set, six illustrations plus a 77-icon
-control, and every number is reproducible with `tools/artgen.py`.
+control, and every number is reproducible with `artgen`.
 
 A crop still scores **0** by construction. This is what to do when there is
 nothing to crop.
@@ -33,7 +33,7 @@ number of retries.
 ## Run it
 
 ```bash
-python3 tools/artgen.py \
+artgen \
     --art  mockups/canvases/<slug>/assets/art \
     --out  gen/ \
     03-char 08-avatar 02-char 06-char 07-freeze 01-duo \
