@@ -164,16 +164,65 @@ export const OVERLAP = 12;
  *
  * The shrink is the last part: the outgoing shot goes behind rather than
  * dissolving in place, so the join is not two flat images piled on each other.
+ *
+ * `carry` is the exception, and the rest of this file turns on it. Four joins
+ * here are not two pictures at all but one object seen twice — screen 01 is in
+ * shot 1 and again in shot 2, the words on its green card become shot 3's
+ * headline, the stand-in shot 3 settles on heads shot 4's list, and the eight
+ * boards shot 4 lines up are the eight rows shot 5 measures. Dissolve those and
+ * the film is seven unrelated slides. So the shot on the far side of a join
+ * renders the object where the near side left it and carries it on, in a layer
+ * that skips the fade it would otherwise be caught by: `"out"` for the side
+ * handing over, `"in"` for the side taking it. Two identical objects at
+ * identical geometry, one handed to the other, read as one object.
  */
-const useJoin = (frames: number): React.CSSProperties => {
+const fall = (frame: number, frames: number) =>
+  1 - enter(frame, frames - 2, OVERLAP + 2);
+const rise = (frame: number) => enter(frame, 4, 14);
+
+const useJoin = (
+  frames: number,
+  carry?: "in" | "out",
+): React.CSSProperties => {
   const frame = useCurrentFrame();
-  const out = 1 - enter(frame, frames - 2, OVERLAP + 2);
-  const in_ = enter(frame, 4, 14);
+  const out = carry === "out" ? 1 : fall(frame, frames);
+  const in_ = carry === "in" ? 1 : rise(frame);
   return {
     opacity: out * in_,
-    transform: `scale(${0.985 + 0.015 * out})`,
+    // A carried layer never shrinks. The shrink is there to put a dissolving
+    // shot behind the one replacing it, and this layer is not dissolving —
+    // it is the thing the two shots have in common, and a 1.5% wobble in it
+    // is exactly what gives the handover away.
+    transform: carry ? undefined : `scale(${0.985 + 0.015 * out})`,
   };
 };
+
+/**
+ * Where the carried things are, on both sides of each join.
+ *
+ * Both sides run the same ramp on their own clocks: a join opens two frames
+ * before a slot ends, so the shot taking over picks it up two frames in. That
+ * is the `+ 2` in `Sample`, `Face` and `Verify` below, and it is why these
+ * numbers are here rather than inside the shots that use them.
+ */
+const CARRY = (frame: number, frames: number) =>
+  enter(frame, frames - 2, OVERLAP + 2, Easing.inOut(Easing.cubic));
+
+/** Screen 01: where `Measure` holds it, and where `Sample` takes it. */
+const HELD_A = { x: 250, y: 202, s: 0.78 };
+const HELD_B = { x: 168, y: 232, s: 0.62 };
+
+/**
+ * "Order food and drink" on that board, in screen pt. The card is at
+ * (--d-card-x, --d-card-y) and `.card .u` sits 16.6, 36.2 inside it, set in
+ * --d-t-unit — `800 19.4px/24px`. `Face` grows this one line into its 96px
+ * headline, so these are the numbers the headline starts from.
+ */
+const CARD_LINE = { x: 24.1 + 16.6, y: 111 + 36.2, size: 19.4, lh: 24 / 19.4 };
+
+/** The eight boards as `Generate` lines them up, and as `Verify` files them. */
+const STRIP = { x: 596, y: 400, step: PHONE.w * 0.33 + 14, s: 0.33 };
+const FILE = { x: 96, y: 322, h: 56, s: 0.055 };
 
 // ---------------------------------------------------------------------------
 // Shared chrome
@@ -250,13 +299,23 @@ const Heading: React.FC<{ phase: string; line: string; at?: number }> = ({
 
 export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
-  const s = 0.78;
   const land = enter(frame, 0, 16);
   // The grid draws top down, the way `refkit grid` writes it out.
   const sweep = enter(frame, 4, 22, Easing.inOut(Easing.cubic));
   const out = useJoin(frames);
-  const [bx, by, bw, bh] = EVIDENCE[0].box;
+  const held = useJoin(frames, "out");
+  const [px, py, pw, ph] = EVIDENCE[0].box;
   const pin = enter(frame, 18, 10);
+  // The board does not fade out with the rest of the shot — it walks to where
+  // `Sample` wants it, and `Sample` keeps walking it from there. Everything
+  // drawn *over* it belongs to this shot alone, so that fades on the normal
+  // ramp.
+  const go = CARRY(frame, frames);
+  const b = {
+    x: HELD_A.x + (HELD_B.x - HELD_A.x) * go,
+    y: HELD_A.y + (HELD_B.y - HELD_A.y) * go,
+    s: HELD_A.s + (HELD_B.s - HELD_A.s) * go,
+  };
 
   const lines: React.ReactNode[] = [];
   for (let y = 0; y <= SCREEN.h; y += 10) {
@@ -298,43 +357,52 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
   }
 
   return (
-    <AbsoluteFill style={out}>
+    <>
+      <AbsoluteFill style={held}>
+        <div
+          style={{
+            position: "absolute",
+            left: b.x,
+            top: b.y,
+            opacity: land,
+            filter: `blur(${(1 - land) * 18}px)`,
+            transform: `translateY(${(1 - land) * 42}px)`,
+          }}
+        >
+          <Board slug={BOARDS[0]} scale={b.s} />
+          <Over scale={b.s}>
+            <g opacity={fall(frame, frames)}>
+              {lines}
+              {/* The one box the next shot will sample: it is drawn here
+                  first, because a coordinate picked before the element is
+                  named is a number with nothing attached to it. The next shot
+                  redraws it in its own blue as this one goes — same board,
+                  same place, so the box is handed over rather than cut to. */}
+              <rect
+                x={px}
+                y={py}
+                width={pw}
+                height={ph}
+                fill="none"
+                // On the unit header's green fill, so the ground colour is
+                // what reads: this one line is white because of what is
+                // under it.
+                stroke={GROUND}
+                strokeWidth={1.6}
+                strokeDasharray={`${pw + ph} ${pw + ph}`}
+                strokeDashoffset={(1 - pin) * 2 * (pw + ph)}
+                opacity={pin}
+              />
+            </g>
+          </Over>
+        </div>
+      </AbsoluteFill>
+
+      <AbsoluteFill style={out}>
       <Heading
         phase="measure"
         line="Start with a real app screen, and measure it."
       />
-      <div
-        style={{
-          position: "absolute",
-          left: 250,
-          top: 202,
-          opacity: land,
-          filter: `blur(${(1 - land) * 18}px)`,
-          transform: `translateY(${(1 - land) * 42}px)`,
-        }}
-      >
-        <Board slug={BOARDS[0]} scale={s} />
-        <Over scale={s}>
-          {lines}
-          {/* The one box the next shot will sample: it is drawn here first,
-              because a coordinate picked before the element is named is a
-              number with nothing attached to it. */}
-          <rect
-            x={bx}
-            y={by}
-            width={bw}
-            height={bh}
-            fill="none"
-            // On the unit header's green fill, so the ground colour is what
-            // reads: this one line is white because of what is under it.
-            stroke={GROUND}
-            strokeWidth={1.6}
-            strokeDasharray={`${bw + bh} ${bw + bh}`}
-            strokeDashoffset={(1 - pin) * 2 * (bw + bh)}
-            opacity={pin}
-          />
-        </Over>
-      </div>
 
       {/* Three numbers off the grid, in design pt. The techniques that took
           them are in `data.ts` and on the canvas's own evidence board; on
@@ -377,7 +445,8 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
           ))}
         </div>
       </div>
-    </AbsoluteFill>
+      </AbsoluteFill>
+    </>
   );
 };
 
@@ -389,22 +458,31 @@ const ROWS_X = 700;
 
 export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
-  const s = 0.62;
   const out = useJoin(frames);
+  const held = useJoin(frames, "in");
+  // Picking up the walk `Measure` started, two frames in because that is how
+  // far past its own slot the previous shot runs. The `+ 2` on this clock and
+  // the `frames - 2` on that one are the same instant, so the board is at
+  // byte-identical geometry on the last frame of one and the first of the
+  // next, and the cut lands on nothing at all.
+  const go = enter(frame + 2, 0, OVERLAP + 2, Easing.inOut(Easing.cubic));
+  const b = {
+    x: HELD_A.x + (HELD_B.x - HELD_A.x) * go,
+    y: HELD_A.y + (HELD_B.y - HELD_A.y) * go,
+    s: HELD_A.s + (HELD_B.s - HELD_A.s) * go,
+  };
   // The overlay is in screen pt, the rows are in frame px: the leader has to
   // cross between them, so its far end is the row's x brought back through
-  // the board's own placement.
-  const reach = (ROWS_X - 168 - PHONE.bezel * s) / s;
+  // the board's own placement — which is still moving for the first half
+  // second, so this follows it rather than assuming where it landed.
+  const reach = (ROWS_X - b.x - PHONE.bezel * b.s) / b.s;
 
   return (
-    <AbsoluteFill style={out}>
-      <Heading
-        phase="sample"
-        line="Read every colour and corner off the pixels."
-      />
-      <div style={{ position: "absolute", left: 168, top: 232 }}>
-        <Board slug={BOARDS[0]} scale={s} />
-        <Over scale={s}>
+    <>
+      <AbsoluteFill style={held}>
+      <div style={{ position: "absolute", left: b.x, top: b.y }}>
+        <Board slug={BOARDS[0]} scale={b.s} />
+        <Over scale={b.s}>
           {EVIDENCE.map(({ box: [x, y, w, h] }, i) => {
             const on = stagger(frame, i, { at: 2, step: 9, frames: 10 });
             return (
@@ -441,7 +519,13 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
           })}
         </Over>
       </div>
+      </AbsoluteFill>
 
+      <AbsoluteFill style={out}>
+      <Heading
+        phase="sample"
+        line="Read every colour and corner off the pixels."
+      />
       <div
         style={{
           position: "absolute",
@@ -516,7 +600,8 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
           If it wasn&apos;t measured, it&apos;s a guess.
         </div>
       </div>
-    </AbsoluteFill>
+      </AbsoluteFill>
+    </>
   );
 };
 
@@ -526,34 +611,64 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
 export const Face: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
   const out = useJoin(frames);
-  // Candidates flick past at 4 frames each until the run settles.
-  const cycling = frame < 20;
-  const which = Math.floor(frame / 4) % CANDIDATES.length;
+  const held = useJoin(frames, "in");
+  // This shot's headline is one line off the board the last two shots held:
+  // `.card .u`, "Order food and drink", the biggest piece of type on screen
+  // 01. So it does not fade in on the ground — it is already on the card at
+  // the size the card sets, and it grows out of there to 96px while the board
+  // goes. Same string, same family, same words: the shot after "read the
+  // pixels" is "now name the type", and this is the type it read.
+  const grow = enter(frame, 0, 12, Easing.inOut(Easing.cubic));
+  const from = {
+    x: HELD_B.x + (PHONE.bezel + CARD_LINE.x) * HELD_B.s,
+    y: HELD_B.y + (PHONE.bezel + CARD_LINE.y) * HELD_B.s,
+    k: (CARD_LINE.size * HELD_B.s) / 96,
+  };
+  // Candidates flick past once the headline has arrived — cycling through them
+  // while it is still growing would throw away the one thing the match-move
+  // buys, which is that the first frame of this shot is the last frame of the
+  // one before it.
+  const cycling = frame >= 12 && frame < 22;
+  const which = Math.floor((frame - 12) / 2) % CANDIDATES.length;
   const face = cycling ? CANDIDATES[which] : CANDIDATES[0];
-  const bar = enter(frame, 4, 16) * FONT_SCORE;
-  const verdict = enter(frame, 22, 8);
-  const fallback = enter(frame, 28, 12);
+  const bar = enter(frame, 12, 14) * FONT_SCORE;
+  const verdict = enter(frame, 24, 8);
+  const fallback = enter(frame, 28, 10);
 
   return (
-    <AbsoluteFill style={out}>
+    <>
+      <AbsoluteFill style={held}>
+        <div
+          style={{
+            position: "absolute",
+            left: 96,
+            top: 336,
+            fontFamily: `${face}, sans-serif`,
+            fontWeight: 800,
+            fontSize: 96,
+            // The card sets 19.4/24, so the headline has to be set on the same
+            // ratio or the two line boxes only line up at one scale.
+            lineHeight: CARD_LINE.lh,
+            letterSpacing: "-0.0222em",
+            color: INK,
+            transformOrigin: "left top",
+            transform:
+              `translate(${(1 - grow) * (from.x - 96)}px, ` +
+              `${(1 - grow) * (from.y - 336)}px) ` +
+              `scale(${from.k + (1 - from.k) * grow})`,
+          }}
+        >
+          Order food and drink
+        </div>
+      </AbsoluteFill>
+
+      <AbsoluteFill style={out}>
       <Heading
         phase="typeface"
         line="Name the typeface, or admit you can't."
       />
 
-      <div style={{ position: "absolute", left: 96, top: 336 }}>
-        <div
-          style={{
-            fontFamily: `${face}, sans-serif`,
-            fontWeight: 800,
-            fontSize: 96,
-            letterSpacing: "-0.02em",
-            color: INK,
-            height: 130,
-          }}
-        >
-          Order food and drink
-        </div>
+      <div style={{ position: "absolute", left: 96, top: 466 }}>
         <Label size={17} color={cycling ? ACCENT : MUTE} track={0.18}>
           {(cycling ? face : "ui-rounded").toUpperCase()}
         </Label>
@@ -628,7 +743,8 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
           </Label>
         </div>
       </div>
-    </AbsoluteFill>
+      </AbsoluteFill>
+    </>
   );
 };
 
@@ -641,15 +757,25 @@ const ROW = 34;
 export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
   const out = useJoin(frames);
+  // Starting 70px down so the first line — `typeface  ui-rounded`, the
+  // stand-in the shot before just settled on — is clear of the mask's top
+  // fade on frame one. It is the head of the list because it is the first
+  // line of the board's own `:root`, and it is what carries the last shot
+  // into this one.
   const scroll = interpolate(
     frame,
     [0, frames],
-    [0, RECIPE.length * ROW - 420],
+    [-70, RECIPE.length * ROW - 420],
     { extrapolateRight: "clamp" },
   );
+  // The strip is handed to `Verify`, which flies these same eight boards into
+  // its eight rows. This copy stops dead on the frame that one appears, at
+  // identical geometry, so there is never a second strip under the flight.
+  const handed = frame < frames ? 1 : 0;
 
   return (
-    <AbsoluteFill style={out}>
+    <>
+      <AbsoluteFill style={out}>
       <Heading
         phase="build"
         line="Every measurement goes into one list."
@@ -696,34 +822,6 @@ export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
         </div>
       </div>
 
-      {/* Every board inlines that block byte-identically: artboards are output,
-          never source, so a hand-edit to one is reverted by the next run. */}
-      <div
-        style={{
-          position: "absolute",
-          left: 596,
-          top: 400,
-          display: "flex",
-          gap: 14,
-        }}
-      >
-        {BOARDS.map((slug, i) => {
-          const on = stagger(frame, i, { at: 2, step: 3, frames: 14 });
-          return (
-            <div
-              key={slug}
-              style={{
-                opacity: on,
-                transform: `translateY(${(1 - on) * 34}px)`,
-              }}
-            >
-              {/* 0.33 is what puts all eight inside the frame beside the
-                  token block: 8 x 138 + 7 x 14 = 1202, from x 596. */}
-              <Board slug={slug} scale={0.33} />
-            </div>
-          );
-        })}
-      </div>
       <Label
         size={17}
         color={MUTE}
@@ -737,7 +835,32 @@ export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
       >
         one script reads the list and builds all eight screens
       </Label>
-    </AbsoluteFill>
+      </AbsoluteFill>
+
+      {/* Every board inlines that block byte-identically: artboards are output,
+          never source, so a hand-edit to one is reverted by the next run. */}
+      <AbsoluteFill style={{ opacity: handed }}>
+        {BOARDS.map((slug, i) => {
+          const on = stagger(frame, i, { at: 2, step: 3, frames: 14 });
+          return (
+            <div
+              key={slug}
+              style={{
+                position: "absolute",
+                left: STRIP.x + i * STRIP.step,
+                top: STRIP.y,
+                opacity: on,
+                transform: `translateY(${(1 - on) * 34}px)`,
+              }}
+            >
+              {/* 0.33 is what puts all eight inside the frame beside the
+                  token block: 8 x 138 + 7 x 14 = 1202, from x 596. */}
+              <Board slug={slug} scale={STRIP.s} />
+            </div>
+          );
+        })}
+      </AbsoluteFill>
+    </>
   );
 };
 
@@ -747,10 +870,19 @@ export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
 export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
   const out = useJoin(frames);
+  const held = useJoin(frames, "in");
   const worst = Math.max(...DELTAS.map((row) => row.d));
+  // The eight boards the last shot lined up are the eight rows this one
+  // measures, so they arrive as that strip and file themselves into the rows
+  // rather than being cut away and replaced by their own names. The rows wait
+  // for them: nothing under the flight until each board has somewhere to land.
+  const land = enter(frame, 0, 18, Easing.inOut(Easing.cubic));
+  const seat = (i: number) =>
+    FILE.y + i * FILE.h + (FILE.h - PHONE.h * FILE.s) / 2;
 
   return (
-    <AbsoluteFill style={out}>
+    <>
+      <AbsoluteFill style={out}>
       <Heading
         phase="check"
         line="Build it back, and compare it to the original."
@@ -758,19 +890,23 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
 
       <div style={{ position: "absolute", left: 96, top: 322, width: 880 }}>
         {DELTAS.map(({ screen, d }, i) => {
-          const on = stagger(frame, i, { at: 2, step: 2, frames: 12 });
+          const on = stagger(frame, i, { at: 8, step: 2, frames: 12 });
           return (
             <div
               key={screen}
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 20,
-                height: 56,
+                gap: 16,
+                height: FILE.h,
                 opacity: on,
               }}
             >
-              <Label size={18} color={MUTE} style={{ width: 250 }}>
+              {/* The board that flew in sits here. It is drawn in its own
+                  layer, because it is still arriving while this row fades up
+                  and the two cannot share an opacity. */}
+              <div style={{ width: PHONE.w * FILE.s, flex: "none" }} />
+              <Label size={18} color={MUTE} style={{ width: 240 }}>
                 {screen}
               </Label>
               <div
@@ -805,12 +941,17 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
             letterSpacing: "-0.05em",
             color: INK,
             lineHeight: 1,
-            opacity: enter(frame, 10, 14),
+            opacity: enter(frame, 16, 14),
           }}
         >
-          {(enter(frame, 10, 16) * MEAN_DELTA).toFixed(2)}
+          {(enter(frame, 16, 16) * MEAN_DELTA).toFixed(2)}
         </div>
-        <Label size={19} color={ACCENT} track={0.14} style={{ marginTop: 18 }}>
+        <Label
+          size={19}
+          color={ACCENT}
+          track={0.14}
+          style={{ marginTop: 18, opacity: enter(frame, 16, 14) }}
+        >
           AVERAGE DIFFERENCE
         </Label>
         {/* The bars carry the same eight numbers and no longer print them: one
@@ -821,7 +962,7 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
           style={{
             marginTop: 30,
             width: 420,
-            opacity: enter(frame, 20, 8),
+            opacity: enter(frame, 26, 8),
             fontFamily: SANS,
             fontSize: 24,
             fontWeight: 400,
@@ -833,7 +974,26 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
           white
         </div>
       </div>
-    </AbsoluteFill>
+      </AbsoluteFill>
+
+      <AbsoluteFill style={held}>
+        {BOARDS.map((slug, i) => (
+          <div
+            key={slug}
+            style={{
+              position: "absolute",
+              left: interpolate(land, [0, 1], [STRIP.x + i * STRIP.step, FILE.x]),
+              top: interpolate(land, [0, 1], [STRIP.y, seat(i)]),
+            }}
+          >
+            <Board
+              slug={slug}
+              scale={interpolate(land, [0, 1], [STRIP.s, FILE.s])}
+            />
+          </div>
+        ))}
+      </AbsoluteFill>
+    </>
   );
 };
 

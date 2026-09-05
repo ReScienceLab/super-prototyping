@@ -33,7 +33,7 @@ import {
  * wants them goes next. Nothing on screen is rounded or invented for the edit;
  * there is simply less of it.
  *
- * TWO THINGS HERE ARE DELIBERATE AND EASY TO UNDO BY ACCIDENT.
+ * THREE THINGS HERE ARE DELIBERATE AND EASY TO UNDO BY ACCIDENT.
  *
  * The phone is not a screenshot. Every board on screen is the artboard's own
  * HTML in an <IFrame>, served out of `mockups/` because that is this project's
@@ -54,6 +54,15 @@ import {
  * The type problem is handled where it lives — in `useJoin`, which clears the
  * outgoing shot in the first third of its fade, so nothing dense is ever more
  * than a few percent visible under the shot that replaced it.
+ *
+ * Four of the six joins are not dissolves at all. Screen 01 is in shot 1 and
+ * again in shot 2; shot 3's headline is one line off that screen's green card;
+ * shot 4's list opens on the stand-in shot 3 settled for; and shot 4's eight
+ * boards are shot 5's eight rows. Each of those is carried rather than cut —
+ * see the block above `useJoin` in `shots.tsx`, which is also the reason five
+ * of the seven shots return two <AbsoluteFill>s instead of one. Reordering the
+ * cut below breaks all four, and nothing here will say so: the shots will
+ * simply go back to being slides.
  */
 
 /** slug, frames. Sums to `meta.durationInFrames`; the check below says so. */

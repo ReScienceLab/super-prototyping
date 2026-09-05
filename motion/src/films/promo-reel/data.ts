@@ -128,6 +128,10 @@ export const FONT_SCORE = 0.353;
  * is that board’s, unrounded.
  */
 export const RECIPE = [
+  // First, because it is literally the first line of that board's `:root` —
+  // and because the shot before this one ends on the refusal that put it
+  // there. The list opens on the stand-in the tool declared.
+  ["typeface", "ui-rounded"],
   ["background", "#FFFFFF"],
   ["panel", "#F7F7F7"],
   ["hairline", "#E3E3E3"],

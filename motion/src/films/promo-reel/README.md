@@ -21,7 +21,7 @@ in the table below and nowhere in the film.
 |-----:|------------|-------:|--------------|--------------|---------------------------------------------------------|
 |    0 | `Measure`  |     46 | step 1, measure  | 1a, grid   | screen 01 under the refkit grid, three sizes read off it |
 |   46 | `Sample`   |     52 | step 2, sample   | 1b, sample | three probe boxes, each with how it was read             |
-|   98 | `Face`     |     46 | step 3, typeface | 1c, face   | the candidate list cycling, then the refusal             |
+|   98 | `Face`     |     46 | step 3, typeface | 1c, face   | the card's own headline at 96px, then the refusal        |
 |  144 | `Generate` |     46 | step 4, build    | 2 and 3    | the measured values scrolling beside all eight boards    |
 |  190 | `Verify`   |     42 | step 5, check    | 4, verify  | eight per-screen deltas, and their mean                  |
 |  232 | `TwoRows`  |     32 | step 6           | 5, park it | `assets/workflow/case-duolingo.png`                      |
@@ -45,7 +45,7 @@ grid; they are only ever drawn over a board, never over the film's ground.
 `DUO_GREEN` is `--d-u-green`, measured off the capture — it is the example's
 own colour, and the delta bars carry it for that reason.
 
-## Three things here are deliberate
+## Four things here are deliberate
 
 **The phone is not a screenshot.** Every board on screen is the artboard's own
 HTML in an `<IFrame>`, served out of `mockups/` because that is this project's
@@ -77,6 +77,40 @@ Every shot's last element still settles at least six frames before its fade
 begins, and its first now rises rather than appearing — under a dip a shot
 with no entrance of its own had nothing to punch through, and three of them
 did not have one.
+
+**Four of the six joins are the same object, not two pictures.** Overlapping
+the shots stopped the film flashing white between them, but it left every join
+a dissolve, and a dissolve between two unrelated frames is what makes seven
+shots read as seven slides. Three of these joins were never two frames: shots
+1 and 2 both hold screen 01; shot 3's headline is `.card .u` on that screen —
+"Order food and drink", the largest piece of type on it — at 96px instead of
+19.4; and the eight boards shot 4 lines up are the eight rows shot 5 measures.
+The fourth is a sentence rather than a picture: shot 3 ends on the stand-in the
+tool declared, and `RECIPE` opens on `typeface  ui-rounded`, which is where it
+opens in the board's own `:root` too.
+
+So on each of those the object moves instead of cross-fading. The shot taking
+over renders it where the shot handing it over left it, and both run the same
+ramp on their own clocks: a shot's `<Sequence>` opens `OVERLAP` frames before
+its slot ends, and the join starts two frames before that, so the incoming shot
+picks the motion up at `frame + 2` and the two agree to the pixel on the frame
+they share. `Verify`'s strip and `Generate`'s were measured at 0.38 MSE across
+the handover frame, which is the h.264 noise floor and not a seam.
+
+The mechanism is `useJoin(frames, "in" | "out")` in `shots.tsx`. A carried
+layer skips the fade on the side it is being handed across — and skips the
+shrink in both directions, because the shrink exists to put a *dissolving* shot
+behind the one replacing it, and a 1.5% wobble is exactly what gives a
+match-move away. That splits five of the seven shots into two `AbsoluteFill`s:
+the carried object in one, everything that belongs to the shot alone in the
+other. `Generate` also stops drawing its strip on the exact frame `Verify`
+starts drawing it, so the flight never has a ghost under it.
+
+Two joins are left as dissolves on purpose. `Verify` to `TwoRows` and `TwoRows`
+to `End` have no honest object in common — the comparison figure is a bitmap
+whose top row would need 0.80 horizontally against 1.04 vertically to line up
+with the strip, and a match-move that has to stretch to land is a worse lie
+than a cut.
 
 **Every number is in `data.ts`, and most of them stay there.** The file holds
 what the clone measured, copied from that folder's two evidence boards and its
