@@ -24,8 +24,14 @@ import {
  * capture — and the reel walks its phases in the order the clone actually ran
  * them: grid the capture, sample it region by region, try to name the face,
  * generate the boards from one token block, re-render and diff, park the
- * reference under the replica. Every number the reel puts on screen is in
- * `data.ts`, copied from that folder's evidence boards and README.
+ * reference under the replica.
+ *
+ * It is pitched at someone who has never seen this repo. Six numbered steps,
+ * one plain sentence each, and only the handful of measurements that carry a
+ * step — the techniques that took them, the token names they land in and the
+ * per-screen deltas are all still in `data.ts`, which is where a reader who
+ * wants them goes next. Nothing on screen is rounded or invented for the edit;
+ * there is simply less of it.
  *
  * TWO THINGS HERE ARE DELIBERATE AND EASY TO UNDO BY ACCIDENT.
  *
@@ -45,7 +51,7 @@ import {
  *
  * So the slots in the cut below are unchanged and each shot's <Sequence> now
  * runs `OVERLAP` frames past its own, spending them getting out of the way.
- * The type problem is handled where it lives — in `useOutro`, which clears the
+ * The type problem is handled where it lives — in `useJoin`, which clears the
  * outgoing shot in the first third of its fade, so nothing dense is ever more
  * than a few percent visible under the shot that replaced it.
  */
@@ -71,15 +77,23 @@ if (LENGTH !== meta.durationInFrames) {
   );
 }
 
-/** The phase stamp each shot flies, top right. Kept out of the shots so the
- *  chrome moves as one thing and the shots stay about their own content. */
+/**
+ * The stamp each shot flies, top right. Kept out of the shots so the chrome
+ * moves as one thing and the shots stay about their own content.
+ *
+ * These used to be the skill's own phase numbers — `collect · grid · 1a`,
+ * `the face · 1c`. They are the right names in `clone-prototype` and the wrong
+ * ones here: a viewer meeting this repo for the first time cannot tell whether
+ * `1c` is the third of three or the third of thirty. A count they can. The
+ * phase each step belongs to is named in the README's cut table.
+ */
 const STAMPS = [
-  "collect · grid · 1a",
-  "sample · 1b",
-  "the face · 1c",
-  "generate · 2 · 3",
-  "verify · 4",
-  "park it · 5",
+  "step 1 of 6",
+  "step 2 of 6",
+  "step 3 of 6",
+  "step 4 of 6",
+  "step 5 of 6",
+  "step 6 of 6",
   "",
 ] as const;
 

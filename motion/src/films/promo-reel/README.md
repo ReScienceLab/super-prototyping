@@ -11,17 +11,21 @@ Seven shots, in the order the clone actually ran its phases — grid the
 capture, sample it region by region, try to name the face, generate the boards
 off one token block, re-render and diff, park the reference under the replica.
 
+It is pitched at someone who has never seen this repo. On screen those are six
+numbered steps in plain English; the phase names the skill uses for them are
+in the table below and nowhere in the film.
+
 ## The cut
 
-| from | shot       | frames | phase          | what is on screen                                        |
-|-----:|------------|-------:|----------------|----------------------------------------------------------|
-|    0 | `Measure`  |     46 | 1a, grid       | screen 01 under the refkit grid, three tokens read off it |
-|   46 | `Sample`   |     52 | 1b, sample     | three probe boxes, each with the technique that took it   |
-|   98 | `Face`     |     46 | 1c, the face   | the candidate list cycling, then the refusal              |
-|  144 | `Generate` |     46 | 2 and 3        | the `:root` block scrolling beside all eight boards       |
-|  190 | `Verify`   |     42 | 4, verify      | eight per-screen deltas, and their mean                   |
-|  232 | `TwoRows`  |     32 | 5, park it     | `assets/workflow/case-duolingo.png`                       |
-|  264 | `End`      |     36 |                | wordmark and the line the repo opens with                 |
+| from | shot       | frames | on screen as | phase        | what is on screen                                       |
+|-----:|------------|-------:|--------------|--------------|---------------------------------------------------------|
+|    0 | `Measure`  |     46 | step 1, measure  | 1a, grid   | screen 01 under the refkit grid, three sizes read off it |
+|   46 | `Sample`   |     52 | step 2, sample   | 1b, sample | three probe boxes, each with how it was read             |
+|   98 | `Face`     |     46 | step 3, typeface | 1c, face   | the candidate list cycling, then the refusal             |
+|  144 | `Generate` |     46 | step 4, build    | 2 and 3    | the measured values scrolling beside all eight boards    |
+|  190 | `Verify`   |     42 | step 5, check    | 4, verify  | eight per-screen deltas, and their mean                  |
+|  232 | `TwoRows`  |     32 | step 6           | 5, park it | `assets/workflow/case-duolingo.png`                      |
+|  264 | `End`      |     36 |                  |            | wordmark and the line the repo opens with                |
 
 `index.tsx` throws at import if those lengths do not sum to
 `meta.durationInFrames`, so the table above and the file cannot drift apart
@@ -74,11 +78,25 @@ begins, and its first now rises rather than appearing — under a dip a shot
 with no entrance of its own had nothing to punch through, and three of them
 did not have one.
 
-**Every number is in `data.ts`,** copied from that folder's two evidence
-boards and its README — the tokens, the three probes and how each was taken,
-the refusal score, the eight deltas. Nothing is rounded for the edit or
-written to fit a line. If a value looks wrong on screen it is wrong in the
-clone, and `data.ts` is where to start.
+**Every number is in `data.ts`, and most of them stay there.** The file holds
+what the clone measured, copied from that folder's two evidence boards and its
+README — the tokens, the three probes and the technique each was taken with,
+the refusal score, the eight deltas. Nothing in it is rounded for the edit or
+written to fit a line, and if a value looks wrong on screen it is wrong in the
+clone.
+
+What reaches the screen is a subset, and deliberately a small one. Ten seconds
+is not enough to teach anyone what a least-squares corner fit is, and a viewer
+who cannot read `--d-r-card 13.5pt · rms 0.20` reads it as decoration — which
+is worse than not showing it, because a film that looks like it is proving
+something without being legible is exactly the thing this repo is against. So
+each step keeps one or two measurements with a plain gloss and drops the rest:
+`Measure` shows three sizes and not the scans that took them, `Sample` names
+what was read rather than the token it lands in, `Face` draws the score as a
+bar and never prints it, `Generate` shows the `:root` block under the film's
+own names for its values, and `Verify` prints one mean instead of nine numbers.
+Every dropped value is still in `data.ts`, one comment away from the board it
+came off.
 
 ## One caveat, on this machine
 
@@ -87,7 +105,9 @@ Bold, which is not on this machine and not in any candidate list, so
 `refkit font` scored 0.353 and refused to name a lookalike. Headless Chrome
 has no `ui-rounded` either and falls back to a grotesk — but it falls back the
 same way when it renders the boards themselves, so the type in this film is
-the type the boards have here. The `Face` shot says as much on screen.
+the type the boards have here. The `Face` shot says on screen that a stand-in
+was declared; it does not go into which grotesk then stood in for the stand-in,
+and at this length it should not.
 
 ## Assets
 

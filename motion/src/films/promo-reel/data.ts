@@ -63,32 +63,38 @@ export const BOARDS = [
 
 /**
  * Phase 1b, three probes taken off screen 01 alone, so the boxes the reel
- * draws are the boxes the numbers came from. The technique differs per region
- * and that is the shot: a flat fill is a census over its own pixels, a corner
- * is a least-squares fit, a 2pt rule is a scan across it.
+ * draws are the boxes the numbers came from.
+ *
+ * `name` and `note` are the film's words, not the tool's: on screen this is
+ * three things a newcomer can point at — a fill, a corner, a rule — and how
+ * each was read. The tokens they land in are `--d-u-green`, `--d-r-card` and
+ * `--d-rule`, and the techniques are a flat census over 16,704 px, a
+ * least-squares corner fit at rms 0.20, and a column scan at y 757.6. Those
+ * belong on the evidence board in `mockups/canvases/duolingo-ios/`, which is
+ * where a reader who wants them should end up.
  *
  * `box` is in design pt on the 393 x 852 screen, which is also the unit every
  * token is written in.
  */
 export const EVIDENCE = [
   {
-    token: "--d-u-green",
+    name: "the green in the header",
     value: "#59CC01",
-    how: "flat census · unit header fill · 16,704 px",
+    note: "read off every pixel of the fill",
     swatch: "#59CC01",
     box: [24.1, 111, 344.8, 76] as const,
   },
   {
-    token: "--d-r-card",
+    name: "how round the corners are",
     value: "13.5pt",
-    how: "least-squares corner fit · rms 0.20",
+    note: "fitted to the curve, not eyeballed",
     swatch: null,
     box: [24.1, 111, 34, 34] as const,
   },
   {
-    token: "--d-rule",
+    name: "the hairline under the tabs",
     value: "#E3E3E3",
-    how: "column scan · tab-bar rule at y 757.6",
+    note: "scanned all the way across the row",
     swatch: "#E3E3E3",
     box: [0, 756.6, 393, 2.2] as const,
   },
@@ -98,9 +104,11 @@ export const EVIDENCE = [
  * Phase 1c. `refkit font` ranks a word's glyph shapes against a closed set of
  * faces already on disk; under a 0.05 top-two margin it reports no call rather
  * than naming a lookalike. Duolingo sets Feather Bold, which is not on this
- * machine and not in any candidate list, so the run scored 0.353 and refused —
- * and the board ships a declared stand-in whose cap ratio was then measured on
- * the render rather than assumed from SF Pro's.
+ * machine and not in any candidate list, so the run scored 0.353 against a top
+ * scorer of SF Compact and refused — and the board ships a declared stand-in.
+ *
+ * The reel draws `FONT_SCORE` as a bar and never prints it. What a newcomer
+ * needs from this shot is that the tool can decline, not what it declined at.
  */
 export const CANDIDATES = [
   "ui-rounded",
@@ -110,7 +118,38 @@ export const CANDIDATES = [
   "Courier New",
 ] as const;
 export const FONT_SCORE = 0.353;
-export const FONT_TOP = "SF Compact";
+
+/**
+ * Phase 2, the measured `:root` every board inlines — under the names the
+ * film uses for it rather than its own. A beginner reading `--d-u-green-d`
+ * learns nothing; reading "darker green  #45A302" beside a board that is
+ * mostly green learns what a token is. The real names are one file away, in
+ * `mockups/canvases/duolingo-ios/00-design-tokens.html`, and every value here
+ * is that board’s, unrounded.
+ */
+export const RECIPE = [
+  ["background", "#FFFFFF"],
+  ["panel", "#F7F7F7"],
+  ["hairline", "#E3E3E3"],
+  ["text", "#4B4B4B"],
+  ["faint text", "#AFAFAF"],
+  ["green", "#59CC01"],
+  ["darker green", "#45A302"],
+  ["red", "#FF4C4B"],
+  ["blue", "#1DB1F8"],
+  ["purple", "#C385F7"],
+  ["button blue", "#53ADF0"],
+  ["orange", "#F89402"],
+  ["card corner", "13.5pt"],
+  ["button corner", "10pt"],
+  ["tile corner", "24pt"],
+  ["unit heading", "19.4pt"],
+  ["screen title", "22.9pt"],
+  ["body text", "19.3pt"],
+  ["card starts at", "24.1pt"],
+  ["card width", "344.8pt"],
+  ["tab bar at", "756.6pt"],
+] as const;
 
 /**
  * Phase 4. Mean absolute delta against the capture, whole 393 x 852 frame,

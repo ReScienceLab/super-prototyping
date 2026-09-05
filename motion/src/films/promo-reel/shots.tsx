@@ -22,7 +22,6 @@ import {
   DUO_GREEN,
   EVIDENCE,
   FONT_SCORE,
-  FONT_TOP,
   GROUND,
   INK,
   INSET,
@@ -30,6 +29,7 @@ import {
   MEAN_DELTA,
   MINOR,
   MONO,
+  RECIPE,
   MUTE,
 } from "./data";
 
@@ -299,7 +299,10 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
 
   return (
     <AbsoluteFill style={out}>
-      <Heading phase="1a · grid" line="Grid the capture, then look at it." />
+      <Heading
+        phase="measure"
+        line="Start with a real app screen, and measure it."
+      />
       <div
         style={{
           position: "absolute",
@@ -333,7 +336,10 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
         </Over>
       </div>
 
-      {/* Read off the red labels, in design pt, before anything is measured. */}
+      {/* Three numbers off the grid, in design pt. The techniques that took
+          them are in `data.ts` and on the canvas's own evidence board; on
+          screen they would be three more lines to read in a second and a half,
+          and the shot's job is only to show that a ruler went on first. */}
       <div
         style={{
           position: "absolute",
@@ -344,36 +350,28 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
         }}
       >
         <Label size={17} color={ACCENT} track={0.2}>
-          UNIT HEADER
+          THE GREEN CARD
         </Label>
-        <div style={{ marginTop: 20, display: "grid", gap: 20 }}>
+        <div style={{ marginTop: 22, display: "grid", gap: 22 }}>
           {[
-            ["--d-card-x", "24.1pt", "row scan at y 150"],
-            ["--d-card-w", "344.8pt", "24.1 → 368.9"],
-            ["--d-card-y", "111pt", "from the corner fit"],
-          ].map(([token, value, how], i) => (
+            ["how far from the left", "24.1pt"],
+            ["how wide", "344.8pt"],
+            ["how far down", "111pt"],
+          ].map(([what, value], i) => (
             <div
-              key={token}
+              key={what}
               style={{
                 display: "flex",
                 alignItems: "baseline",
-                gap: 18,
+                gap: 24,
                 opacity: stagger(frame, i, { at: 22, step: 3, frames: 8 }),
               }}
             >
-              <Label size={23} color={MUTE} style={{ width: 172 }}>
-                {token}
+              <Label size={21} color={MUTE} style={{ width: 330 }}>
+                {what}
               </Label>
-              <Label
-                size={26}
-                color={INK}
-                weight={700}
-                style={{ width: 132 }}
-              >
+              <Label size={28} color={INK} weight={700}>
                 {value}
-              </Label>
-              <Label size={16} color={MUTE} track={0.01}>
-                {how}
               </Label>
             </div>
           ))}
@@ -401,8 +399,8 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
   return (
     <AbsoluteFill style={out}>
       <Heading
-        phase="1b · sample"
-        line="One region, one technique, one token."
+        phase="sample"
+        line="Read every colour and corner off the pixels."
       />
       <div style={{ position: "absolute", left: 168, top: 232 }}>
         <Board slug={BOARDS[0]} scale={s} />
@@ -453,11 +451,11 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
           gap: 40,
         }}
       >
-        {EVIDENCE.map(({ token, value, how, swatch }, i) => {
+        {EVIDENCE.map(({ name, value, note, swatch }, i) => {
           const on = stagger(frame, i, { at: 5, step: 9, frames: 12 });
           return (
             <div
-              key={token}
+              key={name}
               style={{
                 opacity: on,
                 transform: `translateX(${(1 - on) * -22}px)`,
@@ -486,11 +484,11 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
                 <div
                   style={{ display: "flex", alignItems: "baseline", gap: 16 }}
                 >
-                  <Label size={21} color={INK} weight={700}>
+                  <Label size={22} color={INK} weight={700}>
                     {value}
                   </Label>
-                  <Label size={18} color={MUTE}>
-                    {token}
+                  <Label size={19} color={MUTE}>
+                    {name}
                   </Label>
                 </div>
                 <Label
@@ -499,7 +497,7 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
                   track={0.01}
                   style={{ marginTop: 6 }}
                 >
-                  {how}
+                  {note}
                 </Label>
               </div>
             </div>
@@ -515,7 +513,7 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
             opacity: enter(frame, 32, 12),
           }}
         >
-          A token with no evidence is a guess.
+          If it wasn&apos;t measured, it&apos;s a guess.
         </div>
       </div>
     </AbsoluteFill>
@@ -539,8 +537,8 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
   return (
     <AbsoluteFill style={out}>
       <Heading
-        phase="1c · the face"
-        line="Rank it against a closed set, or refuse."
+        phase="typeface"
+        line="Name the typeface, or admit you can't."
       />
 
       <div style={{ position: "absolute", left: 96, top: 336 }}>
@@ -560,8 +558,19 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
           {(cycling ? face : "ui-rounded").toUpperCase()}
         </Label>
 
-        {/* The score, and the 0.05 margin under which the tool says no call. */}
+        {/* The bar is `FONT_SCORE` and the number is never printed: what this
+            shot has to land is that the tool can decline, and a viewer who has
+            not been told what a glyph-shape score is cannot read 0.353 as
+            low. A short bar under "how sure" they can. */}
         <div style={{ marginTop: 58, width: 1150 }}>
+          <Label
+            size={17}
+            color={ACCENT}
+            track={0.18}
+            style={{ marginBottom: 18 }}
+          >
+            HOW SURE THE MATCH IS
+          </Label>
           <div
             style={{
               height: 10,
@@ -586,21 +595,18 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
               marginTop: 20,
             }}
           >
-            <Label size={40} color={INK} weight={700} track={0}>
-              {bar.toFixed(3)}
-            </Label>
             <div style={{ opacity: verdict }}>
-              <Label size={22} color={DANGER} weight={700} track={0.16}>
-                NO CALL
+              <Label size={26} color={DANGER} weight={700} track={0.16}>
+                TOO CLOSE TO CALL
               </Label>
             </div>
             <Label
-              size={17}
+              size={19}
               color={MUTE}
               track={0.01}
               style={{ opacity: verdict }}
             >
-              top scorer {FONT_TOP} at {FONT_SCORE} · the top two sit inside 0.05
+              the top two scored almost the same, so it refuses to pick one
             </Label>
           </div>
         </div>
@@ -614,12 +620,11 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
             paddingLeft: 22,
           }}
         >
-          <Label size={22} color={INK} weight={500} track={0.01}>
-            --d-font: ui-rounded — a declared stand-in
+          <Label size={23} color={INK} weight={500} track={0.01}>
+            So the clone uses a stand-in — and says that it did.
           </Label>
-          <Label size={17} color={MUTE} track={0.01} style={{ marginTop: 8 }}>
-            its cap sits at 0.762em, not SF Pro&apos;s 0.714, so every size is
-            re-fitted on the render
+          <Label size={18} color={MUTE} track={0.01} style={{ marginTop: 8 }}>
+            an unlabelled guess is what makes a clone untrustworthy
           </Label>
         </div>
       </div>
@@ -630,45 +635,24 @@ export const Face: React.FC<{ frames: number }> = ({ frames }) => {
 // ---------------------------------------------------------------------------
 // 4 · One token block, one generator
 
-/** The measured `:root`, trimmed to what reads at this size and this speed. */
-const ROOT = `:root{
-  --d-font:ui-rounded,"SF Pro Rounded"…
-  --d-bg:#FFFFFF;
-  --d-panel:#F7F7F7;
-  --d-scrim:rgba(0,0,0,.396);
-  --d-rule:#E3E3E3;
-  --d-ink:#4B4B4B;
-  --d-ink-2:#AFAFAF;
-  --d-u-green:#59CC01;
-  --d-u-green-d:#45A302;
-  --d-u-red:#FF4C4B;
-  --d-u-blue:#1DB1F8;
-  --d-u-purple:#C385F7;
-  --d-cta:#53ADF0;
-  --d-orange:#F89402;
-  --d-r-card:13.5px;
-  --d-r-btn:10px;
-  --d-r-tile:24px;
-  --d-t-unit:800 19.4px/24px;
-  --d-t-title:800 22.9px/29px;
-  --d-t-body:500 19.3px/23.2px;
-  --d-card-x:24.1px;
-  --d-card-w:344.8px;
-  --d-tabs-y:756.6px;
-}`.split("\n");
+/** Line height of one row of the recipe, and so how far the block scrolls. */
+const ROW = 34;
 
 export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
   const out = useJoin(frames);
-  const scroll = interpolate(frame, [0, frames], [0, ROOT.length * 30 - 420], {
-    extrapolateRight: "clamp",
-  });
+  const scroll = interpolate(
+    frame,
+    [0, frames],
+    [0, RECIPE.length * ROW - 420],
+    { extrapolateRight: "clamp" },
+  );
 
   return (
     <AbsoluteFill style={out}>
       <Heading
-        phase="2 · 3 · generate"
-        line="One token block. One generator. Eight boards."
+        phase="build"
+        line="Every measurement goes into one list."
       />
 
       <div
@@ -685,17 +669,29 @@ export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
             "linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent)",
         }}
       >
+        {/* The real block is CSS custom properties — `--d-u-green-d:#45A302`.
+            Read at this size and this speed by someone who has not seen one
+            before, that is a wall of punctuation; under the film's own names
+            for the same values it is a recipe, which is all the shot claims it
+            is. The names are in `data.ts` beside the board they came off. */}
         <div style={{ transform: `translateY(${-scroll}px)` }}>
-          {ROOT.map((line, i) => (
-            <Label
-              key={i}
-              size={19}
-              color={line.includes("#") ? INK : MUTE}
-              track={0}
-              style={{ lineHeight: "30px" }}
+          {RECIPE.map(([what, value]) => (
+            <div
+              key={what}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+                height: ROW,
+              }}
             >
-              {line}
-            </Label>
+              <Label size={19} color={MUTE} track={0.01}>
+                {what}
+              </Label>
+              <Label size={19} color={INK} track={0}>
+                {value}
+              </Label>
+            </div>
           ))}
         </div>
       </div>
@@ -739,8 +735,7 @@ export const Generate: React.FC<{ frames: number }> = ({ frames }) => {
           opacity: enter(frame, 24, 10),
         }}
       >
-        gen.py — 128 illustrations, every one cropped out of the capture at its
-        own measured box
+        one script reads the list and builds all eight screens
       </Label>
     </AbsoluteFill>
   );
@@ -757,8 +752,8 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
   return (
     <AbsoluteFill style={out}>
       <Heading
-        phase="4 · verify"
-        line="Re-render it, and diff it against the capture."
+        phase="check"
+        line="Build it back, and compare it to the original."
       />
 
       <div style={{ position: "absolute", left: 96, top: 322, width: 880 }}>
@@ -775,7 +770,7 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
                 opacity: on,
               }}
             >
-              <Label size={17} color={MUTE} style={{ width: 250 }}>
+              <Label size={18} color={MUTE} style={{ width: 250 }}>
                 {screen}
               </Label>
               <div
@@ -796,15 +791,6 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
                   }}
                 />
               </div>
-              <Label
-                size={20}
-                color={INK}
-                weight={500}
-                track={0}
-                style={{ width: 62 }}
-              >
-                {(on * d).toFixed(2)}
-              </Label>
             </div>
           );
         })}
@@ -825,22 +811,26 @@ export const Verify: React.FC<{ frames: number }> = ({ frames }) => {
           {(enter(frame, 10, 16) * MEAN_DELTA).toFixed(2)}
         </div>
         <Label size={19} color={ACCENT} track={0.14} style={{ marginTop: 18 }}>
-          MEAN Δ, OF 255 LEVELS
+          AVERAGE DIFFERENCE
         </Label>
+        {/* The bars carry the same eight numbers and no longer print them: one
+            figure is the claim, and eight more only make it harder to read.
+            This line is what turns the one figure into a size a viewer can
+            picture — without it, 2.04 of nothing is not a result. */}
         <div
           style={{
-            marginTop: 34,
+            marginTop: 30,
+            width: 420,
             opacity: enter(frame, 20, 8),
-            display: "grid",
-            gap: 10,
+            fontFamily: SANS,
+            fontSize: 24,
+            fontWeight: 400,
+            lineHeight: 1.45,
+            color: MUTE,
           }}
         >
-          <Label size={17} color={MUTE} track={0.01}>
-            13 colour probes replayed · mean Δmax 0.5
-          </Label>
-          <Label size={17} color={MUTE} track={0.01}>
-            16 box probes · mean |dw| 0.98pt, |dh| 0.38pt
-          </Label>
+          per pixel, on a scale where 0 is identical and 255 is black against
+          white
         </div>
       </div>
     </AbsoluteFill>
@@ -895,7 +885,7 @@ export const TwoRows: React.FC<{ frames: number }> = ({ frames }) => {
           color: INK,
         }}
       >
-        Every replica sits directly above its source.
+        Ours on top. The original underneath.
       </div>
     </AbsoluteFill>
   );
@@ -952,8 +942,7 @@ export const End: React.FC<{ frames: number }> = ({ frames }) => {
           opacity: tail,
         }}
       >
-        Every colour and every metric in a cloned artboard traces to a
-        measurement.
+        Nothing is guessed. Every colour and every size was measured.
       </div>
       <Label
         size={18}
