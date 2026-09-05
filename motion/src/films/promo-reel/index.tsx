@@ -67,7 +67,7 @@ import {
 
 /** slug, frames. Sums to `meta.durationInFrames`; the check below says so. */
 const CUT = [
-  [Measure, 46],
+  [Measure, 66],
   [Sample, 52],
   [Face, 46],
   [Generate, 46],

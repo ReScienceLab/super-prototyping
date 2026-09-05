@@ -208,9 +208,27 @@ const useJoin = (
 const CARRY = (frame: number, frames: number) =>
   enter(frame, frames - 2, OVERLAP + 2, Easing.inOut(Easing.cubic));
 
-/** Screen 01: where `Measure` holds it, and where `Sample` takes it. */
+/**
+ * Screen 01, at each of the three places the film puts it: centre frame to
+ * open on, off to the left where `Measure` grids it, smaller again where
+ * `Sample` probes it. It is one object for the first third of the reel and
+ * never cuts — the film opens on the thing it is about, then moves it aside
+ * to make room for what it has to say about it.
+ */
+const HERO = {
+  x: (1920 - PHONE.w * 0.95) / 2,
+  y: (1080 - PHONE.h * 0.95) / 2,
+  s: 0.95,
+};
 const HELD_A = { x: 250, y: 202, s: 0.78 };
 const HELD_B = { x: 168, y: 232, s: 0.62 };
+
+/** One placement to the next. Nests, so a board can be mid-leg on two legs. */
+const between = (a: typeof HERO, b: typeof HERO, t: number) => ({
+  x: a.x + (b.x - a.x) * t,
+  y: a.y + (b.y - a.y) * t,
+  s: a.s + (b.s - a.s) * t,
+});
 
 /**
  * "Order food and drink" on that board, in screen pt. The card is at
@@ -300,22 +318,20 @@ const Heading: React.FC<{ phase: string; line: string; at?: number }> = ({
 export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
   const frame = useCurrentFrame();
   const land = enter(frame, 0, 16);
-  // The grid draws top down, the way `refkit grid` writes it out.
-  const sweep = enter(frame, 4, 22, Easing.inOut(Easing.cubic));
+  // The grid draws top down, the way `refkit grid` writes it out. It starts
+  // before the walk has finished, so the ruler comes down onto the board while
+  // the board is still settling rather than after it has parked.
+  const sweep = enter(frame, 28, 22, Easing.inOut(Easing.cubic));
   const out = useJoin(frames);
   const held = useJoin(frames, "out");
   const [px, py, pw, ph] = EVIDENCE[0].box;
-  const pin = enter(frame, 18, 10);
-  // The board does not fade out with the rest of the shot — it walks to where
-  // `Sample` wants it, and `Sample` keeps walking it from there. Everything
-  // drawn *over* it belongs to this shot alone, so that fades on the normal
-  // ramp.
+  const pin = enter(frame, 42, 10);
+  // Three legs, and the board fades on none of them. It arrives centre frame,
+  // walks left to make room for the heading and the readout, and then keeps
+  // walking into `Sample`, which picks the last leg up on its own clock.
+  const walk = enter(frame, 22, 16, Easing.inOut(Easing.cubic));
   const go = CARRY(frame, frames);
-  const b = {
-    x: HELD_A.x + (HELD_B.x - HELD_A.x) * go,
-    y: HELD_A.y + (HELD_B.y - HELD_A.y) * go,
-    s: HELD_A.s + (HELD_B.s - HELD_A.s) * go,
-  };
+  const b = between(between(HERO, HELD_A, walk), HELD_B, go);
 
   const lines: React.ReactNode[] = [];
   for (let y = 0; y <= SCREEN.h; y += 10) {
@@ -399,9 +415,15 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
       </AbsoluteFill>
 
       <AbsoluteFill style={out}>
+      {/* Held back until the phone starts moving out of its way — for the
+          first three quarters of a second the screen is the only thing on
+          screen, which is what "start with a real app screen" means. And not
+          before 30: the heading's line runs to about x 1016 at top 92, and the
+          board is still high enough to cross it until the walk is half done. */}
       <Heading
         phase="measure"
         line="Start with a real app screen, and measure it."
+        at={30}
       />
 
       {/* Three numbers off the grid, in design pt. The techniques that took
@@ -432,7 +454,7 @@ export const Measure: React.FC<{ frames: number }> = ({ frames }) => {
                 display: "flex",
                 alignItems: "baseline",
                 gap: 24,
-                opacity: stagger(frame, i, { at: 22, step: 3, frames: 8 }),
+                opacity: stagger(frame, i, { at: 44, step: 3, frames: 8 }),
               }}
             >
               <Label size={21} color={MUTE} style={{ width: 330 }}>
@@ -465,12 +487,11 @@ export const Sample: React.FC<{ frames: number }> = ({ frames }) => {
   // the `frames - 2` on that one are the same instant, so the board is at
   // byte-identical geometry on the last frame of one and the first of the
   // next, and the cut lands on nothing at all.
-  const go = enter(frame + 2, 0, OVERLAP + 2, Easing.inOut(Easing.cubic));
-  const b = {
-    x: HELD_A.x + (HELD_B.x - HELD_A.x) * go,
-    y: HELD_A.y + (HELD_B.y - HELD_A.y) * go,
-    s: HELD_A.s + (HELD_B.s - HELD_A.s) * go,
-  };
+  const b = between(
+    HELD_A,
+    HELD_B,
+    enter(frame + 2, 0, OVERLAP + 2, Easing.inOut(Easing.cubic)),
+  );
   // The overlay is in screen pt, the rows are in frame px: the leader has to
   // cross between them, so its far end is the row's x brought back through
   // the board's own placement — which is still moving for the first half

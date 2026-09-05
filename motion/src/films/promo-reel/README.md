@@ -3,7 +3,7 @@
 What this repo does, in ten seconds, on one worked example: the eight-screen
 Duolingo iOS clone under `mockups/canvases/duolingo-ios/`.
 
-1920x1080, 30 fps, 300 frames (10.0 s). English throughout.
+1920x1080, 30 fps, 320 frames (10.7 s). English throughout.
 
     ./render.sh promo-reel
 
@@ -19,13 +19,13 @@ in the table below and nowhere in the film.
 
 | from | shot       | frames | on screen as | phase        | what is on screen                                       |
 |-----:|------------|-------:|--------------|--------------|---------------------------------------------------------|
-|    0 | `Measure`  |     46 | step 1, measure  | 1a, grid   | screen 01 under the refkit grid, three sizes read off it |
-|   46 | `Sample`   |     52 | step 2, sample   | 1b, sample | three probe boxes, each with how it was read             |
-|   98 | `Face`     |     46 | step 3, typeface | 1c, face   | the card's own headline at 96px, then the refusal        |
-|  144 | `Generate` |     46 | step 4, build    | 2 and 3    | the measured values scrolling beside all eight boards    |
-|  190 | `Verify`   |     42 | step 5, check    | 4, verify  | eight per-screen deltas, and their mean                  |
-|  232 | `TwoRows`  |     32 | step 6           | 5, park it | `assets/workflow/case-duolingo.png`                      |
-|  264 | `End`      |     36 |                  |            | wordmark and the line the repo opens with                |
+|    0 | `Measure`  |     66 | step 1, measure  | 1a, grid   | screen 01 centre frame, then aside and under the grid    |
+|   66 | `Sample`   |     52 | step 2, sample   | 1b, sample | three probe boxes, each with how it was read             |
+|  118 | `Face`     |     46 | step 3, typeface | 1c, face   | the card's own headline at 96px, then the refusal        |
+|  164 | `Generate` |     46 | step 4, build    | 2 and 3    | the measured values scrolling beside all eight boards    |
+|  210 | `Verify`   |     42 | step 5, check    | 4, verify  | eight per-screen deltas, and their mean                  |
+|  252 | `TwoRows`  |     32 | step 6           | 5, park it | `assets/workflow/case-duolingo.png`                      |
+|  284 | `End`      |     36 |                  |            | wordmark and the line the repo opens with                |
 
 `index.tsx` throws at import if those lengths do not sum to
 `meta.durationInFrames`, so the table above and the file cannot drift apart
@@ -82,7 +82,10 @@ did not have one.
 the shots stopped the film flashing white between them, but it left every join
 a dissolve, and a dissolve between two unrelated frames is what makes seven
 shots read as seven slides. Three of these joins were never two frames: shots
-1 and 2 both hold screen 01; shot 3's headline is `.card .u` on that screen —
+1 and 2 both hold screen 01 — which is also why shot 1 opens on it centre
+frame, at 0.95, and walks it left rather than starting it parked: the film's
+first second is the thing the film is about, and it is one continuous object
+from there until the type comes off it; shot 3's headline is `.card .u` on that screen —
 "Order food and drink", the largest piece of type on it — at 96px instead of
 19.4; and the eight boards shot 4 lines up are the eight rows shot 5 measures.
 The fourth is a sentence rather than a picture: shot 3 ends on the stand-in the
