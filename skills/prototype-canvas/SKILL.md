@@ -42,6 +42,10 @@ actually bind, and prints the address.
 
 Keep it on loopback. This is a local design tool, not a service to expose.
 
+A project with no boards yet opens on a notice naming the directory the
+canvas resolved, rather than an empty grid: an empty boards folder and a canvas
+pointed at the wrong one look identical otherwise.
+
 **A folder created after boot appears on its own.** The dev server watches the
 boards directory and rebuilds its index when a board folder or file is added
 or removed. Content edits reload through HMR as always. If a `?canvas=<slug>`

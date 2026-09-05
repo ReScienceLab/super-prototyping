@@ -35,6 +35,7 @@ import {
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
+import { canvasesDir } from "virtual:canvases";
 import {
   CanvasChromeContext,
   canvasChromeAssetUrls,
@@ -140,6 +141,38 @@ function WelcomeGround() {
     return () => container.classList.remove("canvas-welcome-ground");
   }, [editor, isWelcome]);
   return null;
+}
+
+/**
+ * What a project with no boards yet sees, which is otherwise an empty grey grid with no way to
+ * tell a misdirected canvas from an empty one. The directory is the whole point of the notice:
+ * `sp-canvas start` resolves it from --canvases, PROTOTYPING_CANVASES_DIR or the current
+ * directory, and until now the answer only existed in the dev server's environment.
+ *
+ * The library is a build-time constant, so this is a plain check rather than a subscription; the
+ * dev server full-reloads the page when the first board folder appears.
+ */
+function EmptyLibraryNotice() {
+  if (readCanvasLibrary().length) return null;
+  return (
+    <div className="canvas-empty" role="status">
+      <h1 className="canvas-empty__title">No boards here yet</h1>
+      <p className="canvas-empty__body">
+        This canvas is showing
+        <code className="canvas-empty__path">{canvasesDir}</code>
+        Every subfolder with <code>.html</code> files in it becomes a page, and
+        one appears here on its own the moment it is written — no restart.
+      </p>
+      <p className="canvas-empty__body">
+        Ask for a board with the <strong>clone-prototype</strong> or{" "}
+        <strong>new-ui-mock</strong> skill, or copy the folder skeleton
+        yourself:
+      </p>
+      <pre className="canvas-empty__cmd">
+        {`cp -r "$(sp-canvas root)/mockups/canvases/templates" \\\n  ${canvasesDir}/my-app`}
+      </pre>
+    </div>
+  );
 }
 
 /** Creates the text shape if it isn't there yet, otherwise only refreshes its copy. */
@@ -737,6 +770,7 @@ export default function App() {
           <AgentBridge />
           <LockedLinkClicks />
           <WelcomeGround />
+          <EmptyLibraryNotice />
         </Tldraw>
       </main>
     </CanvasChromeContext.Provider>
