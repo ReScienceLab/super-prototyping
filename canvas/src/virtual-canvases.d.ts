@@ -31,4 +31,12 @@ declare module "virtual:canvases" {
    * the dev server's own environment.
    */
   export const canvasesDir: string;
+
+  /**
+   * Suffix that keeps two projects' documents apart, `":<hash>"` or `""`. Every canvas runs on
+   * 127.0.0.1, so the origin cannot tell them apart and the persistence key has to. Empty for
+   * this checkout's own boards, and in a build, so the repo and the hosted canvas keep the
+   * document they already have. App.tsx appends it to PERSISTENCE_KEY.
+   */
+  export const canvasesNamespace: string;
 }

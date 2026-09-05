@@ -22,9 +22,31 @@ const repoRoot = fileURLToPath(new URL("..", import.meta.url)).replace(/\/$/, ""
  * plugin holds the code, the user holds the data, and an upgrade replaces one without touching
  * the other.
  */
+const defaultCanvasesDir = path.resolve(repoRoot, "mockups/canvases");
 const canvasesDir = path.resolve(
-  process.env.PROTOTYPING_CANVASES_DIR || path.join(repoRoot, "mockups/canvases"),
+  process.env.PROTOTYPING_CANVASES_DIR || defaultCanvasesDir,
 );
+
+/**
+ * Suffix for the tldraw persistence key, so two projects do not share one document.
+ *
+ * The store is keyed by origin plus persistence key, and every canvas runs on 127.0.0.1. Stop
+ * project A and start project B on the same port and B opened A's shapes: same slug, same file
+ * name, same seeded shape id. A's pages that B has no folder for survived too, because pruning
+ * only removes empty ones.
+ *
+ * Empty for this checkout's own boards, and in a build, so the repo and the hosted canvas keep
+ * the document they already have. Anything else gets its own namespace.
+ */
+const canvasesNamespace = (() => {
+  if (canvasesDir === defaultCanvasesDir) return "";
+  // djb2 over the path. It only has to be stable and short — this is a namespace, not a digest,
+  // and a collision would need two board directories to hash alike on one machine.
+  let h = 5381;
+  for (let i = 0; i < canvasesDir.length; i++)
+    h = ((h * 33) ^ canvasesDir.charCodeAt(i)) >>> 0;
+  return `:${h.toString(36)}`;
+})();
 
 function repoRootMeta(): Plugin {
   return {
@@ -187,6 +209,7 @@ function canvasesSource(): Plugin {
         // build machine's filesystem, which is exactly why repoRootMeta stays dev-only too. The
         // empty-state notice drops the path when it has none.
         `export const canvasesDir = ${jsString(isBuild ? "" : canvasesDir)};`,
+        `export const canvasesNamespace = ${jsString(isBuild ? "" : canvasesNamespace)};`,
         `export const fileLoaders = {\n${loaders.join("\n")}\n};`,
         `export const rawLayouts = {\n${layouts.join("\n")}\n};`,
         `export const rawIcons = {\n${icons.join("\n")}\n};`,

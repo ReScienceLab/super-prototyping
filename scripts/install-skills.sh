@@ -111,12 +111,23 @@ link_skills() {
   [ "$any" = 1 ] || say "  (no non-Claude products found — nothing to link)"
 }
 
+# The skills are worth linking even when the toolkit will not install — they are the part that
+# does not depend on it, and a half-install you can see beats none. But the exit status has to
+# say so, or a script that runs this treats an unusable install as done.
+tools_ok=1
 case "$MODE" in
-  tools) install_tools ;;
-  *)     install_tools || true; link_skills ;;
+  tools) install_tools || tools_ok=0 ;;
+  *)     install_tools || tools_ok=0; link_skills ;;
 esac
 
 step "done"
 say "Claude Code installs from the marketplace instead:"
 say "  /plugin marketplace add ReScienceLab/super-prototyping"
 say "  /plugin install super-prototyping@super-prototyping"
+
+if [ "$tools_ok" = 0 ]; then
+  say ""
+  say "! the toolkit did not install. The skills call refkit, artgen and sp-canvas by"
+  say "  name, so they will not run until it does."
+  exit 1
+fi

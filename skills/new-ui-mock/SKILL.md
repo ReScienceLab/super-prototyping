@@ -22,6 +22,7 @@ if they are not on PATH: `uv tool install
 
 ```bash
 KIT="$(sp-canvas root)"
+mkdir -p mockups/canvases                       # first board in a project
 cp -r "$KIT/mockups/canvases/templates" mockups/canvases/<slug>
 python3 mockups/canvases/<slug>/gen.py
 ```

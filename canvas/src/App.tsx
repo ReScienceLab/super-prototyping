@@ -35,7 +35,7 @@ import {
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
-import { canvasesDir } from "virtual:canvases";
+import { canvasesDir, canvasesNamespace } from "virtual:canvases";
 import {
   CanvasChromeContext,
   canvasChromeAssetUrls,
@@ -49,8 +49,12 @@ const shapeUtils = [CanvasFileShapeUtil, CanvasLinkShapeUtil];
  * IndexedDB inconsistent with the new code (a shape's props changing shape, say). Everything
  * persisted under the old key is then ignored, hand-drawn annotations included. Do not bump
  * it for ordinary layout edits; the force-refresh button already handles those.
+ *
+ * The namespace is per boards directory, and empty for this checkout's own: every canvas runs
+ * on 127.0.0.1, so without it a second project started on the same port opens the first one's
+ * document. See `canvasesNamespace` in vite.config.ts.
  */
-const PERSISTENCE_KEY = "super-prototyping-canvas-v2";
+const PERSISTENCE_KEY = `super-prototyping-canvas-v2${canvasesNamespace}`;
 
 /** Marks that the snap default below has been applied once in this browser. */
 const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
@@ -144,6 +148,12 @@ function WelcomeGround() {
 }
 
 /**
+ * A path as a single shell word. A boards directory is chosen by whoever ran `sp-canvas`, so it
+ * can hold a space, and the command below is meant to be copied and run as it stands.
+ */
+const shellQuote = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`;
+
+/**
  * What a project with no boards yet sees, which is otherwise an empty grey grid with no way to
  * tell a misdirected canvas from an empty one. The directory is the whole point of the notice:
  * `sp-canvas start` resolves it from --canvases, PROTOTYPING_CANVASES_DIR or the current
@@ -172,7 +182,7 @@ function EmptyLibraryNotice() {
         yourself:
       </p>
       <pre className="canvas-empty__cmd">
-        {`cp -r "$(sp-canvas root)/mockups/canvases/templates" \\\n  ${target}/my-app`}
+        {`mkdir -p ${shellQuote(target)}\ncp -r "$(sp-canvas root)/mockups/canvases/templates" \\\n  ${shellQuote(`${target}/my-app`)}`}
       </pre>
     </div>
   );

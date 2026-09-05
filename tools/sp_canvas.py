@@ -98,9 +98,21 @@ def _candidates():
 
 
 def _version_key(name: str):
-    """Sortable form of a version directory name; anything unparseable sorts oldest."""
-    parts = re.findall(r"\d+", name)
-    return tuple(int(n) for n in parts) if parts else (-1,)
+    """Sortable form of a version directory name, highest = newest.
+
+    Semver precedence, not "every number in the name is another component": a prerelease
+    ranks *below* the release it leads to, and scanning digits made 1.0.0-beta.1 into
+    (1, 0, 0, 1), which beat 1.0.0. bump-version.sh accepts prereleases, so the cache
+    really can hold both. Anything unparseable sorts oldest.
+    """
+    m = re.match(r"v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+](.*))?$", name)
+    if not m:
+        return (-1,)
+    release = tuple(int(p or 0) for p in m.group(1, 2, 3))
+    pre = m.group(4)
+    # 0 for a prerelease and 1 for the release, so 1.0.0 outranks every 1.0.0-* ; between two
+    # prereleases the trailing numbers decide.
+    return release + ((0, tuple(int(n) for n in re.findall(r"\d+", pre))) if pre else (1, ()))
 
 
 def _is_canvas_app(root: Path) -> bool:

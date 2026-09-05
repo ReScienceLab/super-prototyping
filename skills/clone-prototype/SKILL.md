@@ -198,12 +198,12 @@ ratio is not SF Pro's, and two defects that produced no error message. Board
 `00e-art-gen` is the generation result, kept as evidence beside the crops it
 loses to.
 
-Start from the skeleton rather than a finished board:
-`cp -r "$KIT/mockups/canvases/templates" mockups/canvases/<slug>`. Its `gen.py`
-builds the `:root` block *and* the evidence table from one `TOKENS` list, so
-a value cannot drift from the evidence behind it and a token cannot ship
-without one. Change `NAME` and the prefix, then replace every placeholder row
-with something you measured.
+Start from the skeleton rather than a finished board: `mkdir -p
+mockups/canvases && cp -r "$KIT/mockups/canvases/templates"
+mockups/canvases/<slug>`. Its `gen.py` builds the `:root` block *and* the
+evidence table from one `TOKENS` list, so a value cannot drift from the
+evidence behind it and a token cannot ship without one. Change `NAME` and the
+prefix, then replace every placeholder row with something you measured.
 
 Build the token board as the **first generated artboard** of the folder (the
 reference row is already up). It is the contract. When a screen looks wrong
