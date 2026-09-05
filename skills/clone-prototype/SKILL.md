@@ -36,16 +36,17 @@ uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirect
 **Before Phase 1, check the project ignores what a run produces**, once per
 project: a run writes third-party captures into `ref-*.html` and
 `assets/refs/`, and committing those is hard to undo. Work in
-`mockups/canvases/<slug>/scratch/`, which the third rule covers at any depth:
+`mockups/canvases/<slug>/scratch/`. Each rule is checked on its own, and the
+`**/` matters — a pattern with a slash in the middle only matches at the root:
 
 ```bash
-grep -qs 'ref-\*.html' .gitignore ||
-  printf 'ref-*.html\nassets/refs/\nscratch/\n' >> .gitignore
+for p in 'ref-*.html' '**/assets/refs/' 'scratch/'; do
+  grep -qxF "$p" .gitignore 2>/dev/null || echo "$p" >> .gitignore
+done
 ```
 
-Worked examples ship with the plugin, alongside the folder skeleton this
-skill copies. They live wherever the plugin is installed, not in your
-project, so address them through the kit root:
+Worked examples and the folder skeleton ship with the plugin, which is
+installed outside your project. Address them through the kit root:
 
 ```bash
 KIT="$(sp-canvas root)"
@@ -92,10 +93,9 @@ are two colour spaces, not two colours. The `claude-ios` run had captures
 one half and `#D97757` on the other, and the page ground split with it. One
 `sips`/Pillow conversion pass up front collapses both.
 
-Two oranges may still survive the conversion, and then they are real: that
-run kept `#D97757` for the star mark and `#CB6442` for the send button, on
-the same screen. Convert first, *then* decide what is one token and what is
-two.
+Two oranges may still survive the conversion, and then they are real: that run
+kept `#D97757` for the star mark and `#CB6442` for the send button, on the same
+screen. Convert first, *then* decide what is one token and what is two.
 
 Record the capture scale once, in **capture px per design pt**, and reuse it
 everywhere:
@@ -474,9 +474,9 @@ assets were generated rather than cropped.
 go in the project's root `.gitignore`, once (the intro adds them), not in a
 rule per board folder. Say in the README how many boards a fresh clone builds
 without the captures. **`assets/art/` is the exception and stays committed**:
-cropped component art is what the boards are made of,
-and without it a fresh clone renders empty frames. Say that in the README,
-because the surrounding rule points the other way.
+cropped component art is what the boards are made of, and without it a fresh
+clone renders empty frames. Say that in the README too, because the rule
+above points the other way.
 
 **A bullet in the boards directory's own `README.md`**, if it has one: board
 count, row structure, the delta range, and the one thing this folder teaches
