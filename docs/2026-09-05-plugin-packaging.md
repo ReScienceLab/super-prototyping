@@ -88,8 +88,8 @@ stderr behind `-v`.
 - `.version-bump.json` lists every file holding the version and
   `scripts/bump-version.sh` moves them together. Four manifests drifting apart
   is the failure mode that makes "which version am I on" unanswerable;
-  `--check` answers it, and is a release-time step rather than a CI job — this
-  repo has no workflows.
+  `--check` answers it. Run it before a release: the repo defines no workflow
+  of its own to run it for you.
 - `scripts/install-skills.sh` covers products with no marketplace by symlinking
   `skills/*` into their skill roots. Links, not copies: one `git pull` updates
   every product, and there is no forked copy to drift.
