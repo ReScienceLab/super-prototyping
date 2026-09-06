@@ -23,8 +23,21 @@ if they are not on PATH: `uv tool install
 ```bash
 KIT="$(sp-canvas root)"
 mkdir -p mockups/canvases                       # first board in a project
-cp -r "$KIT/mockups/canvases/templates" mockups/canvases/<slug>
-python3 mockups/canvases/<slug>/gen.py
+B=mockups/canvases/<slug>
+cp -r "$KIT/mockups/canvases/templates" "$B"
+python3 "$B/gen.py"
+```
+
+Everything a run derives goes under `$B/scratch/`: shots, montages, candidate
+boards. A `-o` without a directory writes into whatever the current directory
+happens to be, which is the user's project root as often as not. The
+template's parked reference is `ref-01-screen.html`, and that stays out of
+git too. Once per project:
+
+```bash
+for p in 'ref-*.html' '**/assets/refs/' 'scratch/'; do
+  grep -qxF "$p" .gitignore 2>/dev/null || echo "$p" >> .gitignore
+done
 ```
 
 ---
@@ -126,8 +139,8 @@ line and make the change, or say why you did not and what you did instead.
 ## 5. Verify by rendering
 
 ```bash
-refkit shoot mockups/canvases/<slug>/*.html -o shots --scale 2
-refkit montage shots/*.png -o board.png --height 520
+refkit shoot "$B"/*.html -o "$B/scratch/shots" --scale 2
+refkit montage "$B"/scratch/shots/*.png -o "$B/scratch/board.png" --height 520
 ```
 
 Read the montage. Check, in order: nothing clipped; text wraps where you

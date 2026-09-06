@@ -45,6 +45,15 @@ for p in 'ref-*.html' '**/assets/refs/' 'scratch/'; do
 done
 ```
 
+Then name the board folder once and address everything through it: captures
+under `$B/assets/refs/`, everything a run derives under `$B/scratch/`. A `-o`
+without a directory writes into whatever the current directory happens to be,
+which is the user's project root as often as not:
+
+```bash
+B=mockups/canvases/<slug>
+```
+
 Worked examples and the folder skeleton ship with the plugin, which is
 installed outside your project. Address them through the kit root:
 
@@ -52,6 +61,10 @@ installed outside your project. Address them through the kit root:
 KIT="$(sp-canvas root)"
 ls "$KIT/mockups/canvases"
 ```
+
+A folder this skill names but that listing does not show means the plugin was
+installed sparsely, which is supported. Work from `templates` and carry on;
+nothing here needs an example to be present.
 
 ---
 
@@ -62,8 +75,8 @@ capped by it.
 
 - **The user's own screenshot** is usually the authority on *which* screens
   and *which* scroll state. Save each one as its own crop (`p1.png … pN.png`)
-  before doing anything else. Image caches rotate and the attachment will
-  disappear mid-task.
+  in `$B/assets/refs/` before doing anything else. Image caches rotate and
+  the attachment will disappear mid-task.
 - **Mobbin MCP** (`mcp__mobbin__search_screens`, `search_flows`), when
   available. Run one search per screen, `platform: "ios"`, and keep
   `task_intent` **identical** across every call in the run. Describe the
@@ -117,7 +130,8 @@ numbers with no idea which UI element they belong to, and those numbers end
 up in the wrong token.
 
 ```bash
-refkit grid p4.png -o g04.png --zoom 3 --minor 10 --major 50
+refkit grid "$B/assets/refs/p4.png" \
+    -o "$B/scratch/g04.png" --zoom 3 --minor 10 --major 50
 ```
 
 Then **read `g04.png` as an image**. Cyan every 10 source px, red and
@@ -199,11 +213,11 @@ ratio is not SF Pro's, and two defects that produced no error message. Board
 loses to.
 
 Start from the skeleton rather than a finished board: `mkdir -p
-mockups/canvases && cp -r "$KIT/mockups/canvases/templates"
-mockups/canvases/<slug>`. Its `gen.py` builds the `:root` block *and* the
-evidence table from one `TOKENS` list, so a value cannot drift from the
-evidence behind it and a token cannot ship without one. Change `NAME` and the
-prefix, then replace every placeholder row with something you measured.
+mockups/canvases && cp -r "$KIT/mockups/canvases/templates" "$B"`. Its
+`gen.py` builds the `:root` block *and* the evidence table from one `TOKENS`
+list, so a value cannot drift from the evidence behind it and a token cannot
+ship without one. Change `NAME` and the prefix, then replace every
+placeholder row with something you measured.
 
 Build the token board as the **first generated artboard** of the folder (the
 reference row is already up). It is the contract. When a screen looks wrong
@@ -358,11 +372,11 @@ your render and the reference share one pixel grid, then replay Phase 1's
 probes against the renders before anything else:
 
 ```bash
-refkit shoot mockups/canvases/<slug>/[01]*.html \
-    -o mine --scale 3 --crop-phone --check-overflow
-refkit batch probes.json --against mine
-refkit diff mine/07-models-sheet.png refs/cp7.png \
-    --pt 3 -o d07.png --regions regions.json
+refkit shoot "$B"/[01]*.html \
+    -o "$B/scratch/mine" --scale 3 --crop-phone --check-overflow
+refkit batch probes.json --against "$B/scratch/mine"
+refkit diff "$B/scratch/mine/07-models-sheet.png" "$B/assets/refs/cp7.png" \
+    --pt 3 -o "$B/scratch/d07.png" --regions regions.json
 ```
 
 **`--scale` takes an integer, and your capture's scale is not one.** A
