@@ -14,8 +14,8 @@ red, the reference into green and blue. Agreement goes grey, reference-only
 ink goes red, yours goes cyan.
 
 ```bash
-refkit blend mine/10-home.png refs/h2.png \
-    --pt 3 --y0 760 --y1 852 --zoom 2 -o tab.png
+refkit blend "$B/scratch/mine/10-home.png" "$B/assets/refs/h2.png" \
+    --pt 3 --y0 760 --y1 852 --zoom 2 -o "$B/scratch/tab.png"
 ```
 
 Every element then reads at a glance:

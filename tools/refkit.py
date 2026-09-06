@@ -118,6 +118,18 @@ def _runs(f, minfrac):
     return out
 
 
+def _save(im, path, **kw):
+    """Write an image, making the parent directory first.
+
+    Every -o here is a path the caller chose, and the skills point them at
+    <board>/scratch/. mkdir -p is what keeps that one flag from being two
+    commands."""
+    d = os.path.dirname(path)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    im.save(path, **kw)
+
+
 def cmd_grid(a):
     im = _flat(a.image)
     z = a.zoom
@@ -133,7 +145,7 @@ def cmd_grid(a):
     for y in range(0, im.height, a.major):
         d.line([(0, y * z), (big.width, y * z)], fill=(255, 0, 0, 190))
         d.text((2, y * z + 2), str(y), fill=(255, 0, 0, 255))
-    big.save(a.out)
+    _save(big, a.out)
     print(f"{a.out}  {big.size}  src {im.size}  minor {a.minor}px  major {a.major}px  zoom {z}x")
     print("Now READ this image with the Read tool. Label every colour you sample "
           "with the UI element it belongs to before writing it into a token.")
@@ -617,7 +629,7 @@ def cmd_diff(a):
         x = 0
         for i in ims:
             out.paste(i, (x, 0)); x += i.width + a.gap
-        out.save(a.out)
+        _save(out, a.out)
         print(f"{a.out}  {out.size}   left = mine, right = ref\n")
 
     k = _k(a)
@@ -711,7 +723,7 @@ def cmd_blend(a):
     im = Image.fromarray(out)
     if a.zoom != 1:
         im = im.resize((int(im.width * a.zoom), int(im.height * a.zoom)), Image.NEAREST)
-    im.save(a.out)
+    _save(im, a.out)
     print(f"\n{a.out}  {im.size}   red = reference only, cyan = yours only, "
           f"grey = agreed   (dy {sh / k:+.2f}pt)")
 
@@ -946,7 +958,7 @@ def cmd_key(a):
         w, h = (int(round(v * _k(a))) for v in a.box)
         im = im.resize((w, h), Image.LANCZOS)
         print(f"fitted to the measured box: {im.size}")
-    im.save(a.out)
+    _save(im, a.out)
     print(a.out)
 
 
@@ -999,7 +1011,7 @@ def cmd_montage(a):
     x = 0
     for i in ims:
         out.paste(i, (x, 0)); x += i.width
-    out.save(a.out)
+    _save(out, a.out)
     print(a.out, out.size)
 
 
@@ -1119,7 +1131,8 @@ def _parser():
 
     d = s.add_parser("diff"); d.set_defaults(fn=cmd_diff)
     d.add_argument("mine"); d.add_argument("ref")
-    d.add_argument("-o", "--out", default="diff.png", help="side-by-side png ('' to skip)")
+    d.add_argument("-o", "--out", required=True,
+                   help="side-by-side png; -o '' to skip writing one")
     d.add_argument("--regions", help='{"name": [x0,y0,x1,y1], ...} inline, or a .json path')
     d.add_argument("--pt", type=float, default=None)
     d.add_argument("--height", type=int, default=520)
@@ -1133,7 +1146,7 @@ def _parser():
     z.add_argument("--y0", type=float, default=0); z.add_argument("--y1", type=float, default=0)
     z.add_argument("--x0", type=float, default=0); z.add_argument("--x1", type=float, default=0)
     z.add_argument("--pt", type=float, default=None)
-    z.add_argument("-o", "--out", default="blend.png")
+    z.add_argument("-o", "--out", required=True)
     z.add_argument("--zoom", type=float, default=1)
     z.add_argument("--dy", type=float, default=None,
                    help="shift ref by this many pt (default: whichever shift scores best)")

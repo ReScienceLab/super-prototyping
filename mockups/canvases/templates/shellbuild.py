@@ -1,9 +1,14 @@
 """Turn a 2x Figma export of the mockup frame into an alpha-punched shell.
 
-    python3 shellbuild.py export.png shell.png
+    python3 shellbuild.py export.png shell.webp
 
 then base64 the result into assets.json under the key gen.py expects. The
-source is the Figma community file "iPhone 16 / 17 Free Mockup",
+shell is lossless WebP. gen.py inlines seven of these into seven boards, and
+a copy of this folder is where every new canvas starts, so every new folder
+inherits seven of them. Lossless keeps the punched alpha edge exact, and
+WebP halves the file against PNG.
+
+The source is the Figma community file "iPhone 16 / 17 Free Mockup",
 bqWOZpJAPlI8sF35bFP9Cv, exported at scale 2 -- one frame per colourway, and
 the layer names lie about which colour that is (see gen.py):
 
@@ -66,7 +71,7 @@ def build(src, dst):
     rgb = np.divide(sm[..., :3], np.where(al[..., None] > 0, al[..., None] / 255.0, 1))
     Image.fromarray(np.concatenate(
         [np.clip(rgb, 0, 255), al[..., None]], 2).round().astype(np.uint8),
-        "RGBA").save(dst)
+        "RGBA").save(dst, lossless=True, method=6, exact=True)
 
 
 if __name__ == "__main__":
