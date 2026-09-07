@@ -239,6 +239,54 @@ button {
   background: #f5f5f5;
 }
 
+/* The selected layer's own image, between the layers list and the properties under it.
+   Shrinkable, not fixed: a layers list dragged tall would otherwise clip it against the rail. */
+.sp-asset-view {
+  flex: 0 1 168px;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  /* No top border: `.sp-layers` already draws one above it. */
+  border-bottom: 1px solid var(--sp-line);
+}
+
+.sp-asset-view img {
+  flex: 1;
+  min-height: 0;
+  object-fit: contain;
+  padding: 8px 12px 4px;
+  /* Checkerboard: most of these are cut-outs with alpha, and alpha over a flat ground is a
+     shape you cannot tell from a white one. */
+  background-image:
+    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%),
+    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 6px 6px;
+  background-origin: content-box;
+  background-clip: content-box;
+}
+
+/* Two lines in the rail: 280px will not hold a path and its dimensions side by side. */
+.sp-asset-view figcaption {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px 8px;
+}
+
+.sp-asset-view-n {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-asset-view-d {
+  color: var(--sp-text-2);
+  font-family: var(--sp-mono);
+}
+
 .sp-board {
   flex: 0 0 auto;
   transform-origin: center;
@@ -250,6 +298,68 @@ button {
   bottom: 10px;
   color: var(--sp-text-2);
   pointer-events: none;
+}
+
+.sp-collapse {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--sp-text-2);
+  background: #ffffff;
+  box-shadow: 0 0 0 1px var(--sp-line);
+}
+
+.sp-collapse:hover {
+  color: var(--sp-text);
+}
+
+/* Dividers. The hit area is wider than the line, which is the whole reason for ::after. */
+.sp-grip {
+  position: relative;
+  flex: none;
+  z-index: 1;
+  background: transparent;
+  touch-action: none;
+}
+
+.sp-grip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.sp-grip:hover::after,
+.sp-grip:active::after {
+  background: var(--sp-accent);
+}
+
+.sp-grip--x {
+  width: 5px;
+  margin: 0 -2px;
+  cursor: col-resize;
+}
+
+.sp-grip--x::after {
+  left: 2px;
+  right: 2px;
+}
+
+.sp-grip--y {
+  height: 5px;
+  margin: -2px 0;
+  cursor: row-resize;
+}
+
+.sp-grip--y::after {
+  top: 2px;
+  bottom: 2px;
 }
 
 /* Rail */
@@ -391,7 +501,6 @@ button {
 /* Layers */
 .sp-layers {
   flex: none;
-  height: 240px;
   overflow: auto;
   border-bottom: 1px solid var(--sp-line);
 }

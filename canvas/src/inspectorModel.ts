@@ -169,3 +169,58 @@ export const VISIBLE_PROPS = new Set([
   "fill",
   "stroke",
 ]);
+
+/**
+ * The image a selected layer draws, if it draws one. `uses` already carries the node indices
+ * behind every row — it is what the Assets tab highlights with — so the selection needs no
+ * second index of its own.
+ */
+export const assetForNode = (rows: AssetRow[], node: number | null): AssetRow | null =>
+  node === null ? null : (rows.find((a) => a.uses.includes(node)) ?? null);
+
+/* --- Panel geometry ---------------------------------------------------------------------- */
+
+/** Starting sizes. Every one of them is a drag away from something else. */
+export const PANEL_W = 736;
+export const RAIL_W = 280;
+
+/**
+ * How tall the layers list opens: a share of the window rather than a constant, because the
+ * boards here run to 24 layers and a fixed 240px showed nine of them on every screen size. Held
+ * off both ends — a short window still owes the properties below it room, and on a tall one a
+ * list past ~34 rows is scrolled, not read.
+ */
+export const initialLayersH = (viewport: number) => clamp(Math.round(viewport * 0.45), 200, 560);
+
+/** Drag limits, so a divider cannot swallow the thing on the other side of it. */
+const PANEL_MIN = 360;
+const RAIL_GAP = 280; // canvas left visible beside the panel
+const RAIL_MIN = 200;
+const STAGE_MIN = 240; // preview left visible beside the rail
+const LAYERS_MIN = 72;
+const LAYERS_GAP = 120; // properties left visible under the layers
+
+export const clamp = (v: number, lo: number, hi: number) =>
+  // lo wins a crossover: on a viewport too small for both bounds, a divider pinned to the
+  // minimum is usable, one pinned to a negative maximum is not.
+  Math.max(lo, Math.min(v, hi));
+
+/**
+ * Where a divider lands. The panel and the rail are both docked right, so their left edges
+ * resize them and a leftward drag — a negative dx — makes them wider. The layers list is above
+ * its divider, so it follows dy directly.
+ */
+export const nextPanelW = (start: number, dx: number, viewport: number) =>
+  clamp(start - dx, PANEL_MIN, viewport - RAIL_GAP);
+
+export const nextRailW = (start: number, dx: number, panelW: number) =>
+  clamp(start - dx, RAIL_MIN, panelW - STAGE_MIN);
+
+export const nextLayersH = (start: number, dy: number, viewport: number) =>
+  clamp(start + dy, LAYERS_MIN, viewport - LAYERS_GAP);
+
+/** Contain, never past 1:1 — a board blown up past its own pixels is blurrier, not bigger. */
+export const fitScale = (stage: { w: number; h: number }, board: { w: number; h: number }) => {
+  const pad = 32;
+  return Math.max(0.05, Math.min(1, (stage.w - pad) / board.w, (stage.h - pad) / board.h));
+};

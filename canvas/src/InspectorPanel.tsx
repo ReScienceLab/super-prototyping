@@ -15,13 +15,21 @@ import {
 import { installInspectorClicks } from "./inspectorClicks";
 import {
   type AssetRow,
+  PANEL_W,
+  RAIL_W,
   VISIBLE_PROPS,
+  assetForNode,
   assetRows,
+  fitScale,
   formatBytes,
+  initialLayersH,
   isColorValue,
   layerKind,
   layerName,
   layerSelector,
+  nextLayersH,
+  nextPanelW,
+  nextRailW,
   tokenGroups,
   tokenVia,
 } from "./inspectorModel";
@@ -33,16 +41,38 @@ import {
  * what the canvas's own sandboxed frames cannot.
  */
 
-export const INSPECTOR_WIDTH = 736;
-const RAIL_WIDTH = 280;
-
 /**
- * A constant for now. Fit-to-height from the stage is the obvious replacement — at 85% a phone
- * board overflows a 768px-tall window and wastes space on a tall one, and a landscape evidence
- * board overflows either way — but how the stage should cope with a non-phone board is not
- * decided, so the number stays until it is.
+ * A divider drag. `from` is read at pointerdown, so the handler works off the value the drag
+ * started at rather than accumulating rounding error, and `apply` gets that value with the
+ * pointer delta along one axis.
+ *
+ * Pointer capture is the whole trick: the preview is an iframe, and without capture the first
+ * move over it delivers the event to the frame's document instead, which ends the drag the
+ * moment the pointer crosses into the board.
  */
-const PREVIEW_SCALE = 0.85;
+function divider(
+  axis: "x" | "y",
+  from: () => number,
+  apply: (start: number, delta: number) => void,
+) {
+  return (e: React.PointerEvent<HTMLElement>) => {
+    e.preventDefault();
+    const el = e.currentTarget;
+    const origin = axis === "x" ? e.clientX : e.clientY;
+    const start = from();
+    el.setPointerCapture(e.pointerId);
+    const move = (m: PointerEvent) =>
+      apply(start, (axis === "x" ? m.clientX : m.clientY) - origin);
+    const up = () => {
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerup", up);
+      el.removeEventListener("pointercancel", up);
+    };
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
+  };
+}
 
 type Tab = "inspect" | "assets" | "tokens";
 
@@ -77,6 +107,46 @@ export function InspectorPanel({
   const [bindings, setBindings] = useState<SpBindings | null>(null);
   const [tab, setTab] = useState<Tab>("inspect");
   const [focusToken, setFocusToken] = useState<string | null>(null);
+  const [panelW, setPanelW] = useState(PANEL_W);
+  const [railW, setRailW] = useState(RAIL_W);
+  const [layersH, setLayersH] = useState(() => initialLayersH(window.innerHeight));
+  const [railOpen, setRailOpen] = useState(true);
+  const stage = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const { w: boardW, h: boardH } = size;
+
+  /**
+   * App's own comment has said "Escape or × to close" since the panel landed, but nothing bound
+   * the key. It matters more now: collapsing the rail takes the × with it, so without this a
+   * collapsed panel has no way out but expanding it again.
+   */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  /**
+   * The board is scaled to fit the stage rather than pinned at a constant, because every one of
+   * the three controls below changes how much stage there is. Contain, never past 1:1 — a phone
+   * board blown up past its own pixels is a blurrier board, not a bigger one — and a landscape
+   * evidence board fits by width and leaves the height alone.
+   */
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const fit = () => {
+      setScale(fitScale({ w: el.clientWidth, h: el.clientHeight }, { w: boardW, h: boardH }));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+    // Not `size`: App builds that object fresh every render, so depending on it would tear the
+    // observer down and rebuild it on each one.
+  }, [boardW, boardH]);
 
   const slug = /canvases\/([^/]+)\//.exec(path)?.[1] ?? "";
   const names = useMemo(() => readCanvasAssetNames(slug), [slug]);
@@ -129,6 +199,7 @@ export function InspectorPanel({
   }, [assets]);
 
   const node = data && sel !== null ? data.nodes[sel] : undefined;
+  const selAsset = assetForNode(assets, sel);
   const usedTokens = data ? data.tokens.filter((t) => t.usedBy.length).length : 0;
 
   const jumpToToken = (token: string) => {
@@ -137,11 +208,21 @@ export function InspectorPanel({
   };
 
   return (
-    <aside className="sp-panel" style={{ width: INSPECTOR_WIDTH }}>
-      <div className="sp-stage">
+    <aside className="sp-panel" style={{ width: panelW }}>
+      {/* The panel is docked right, so its left edge is the one that resizes it: drag left, wider. */}
+      <div
+        className="sp-grip sp-grip--x"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize inspector"
+        onPointerDown={divider("x", () => panelW, (w0, dx) =>
+          setPanelW(nextPanelW(w0, dx, window.innerWidth)),
+        )}
+      />
+      <div className="sp-stage" ref={stage}>
         <div
           className="sp-board"
-          style={{ width: size.w, height: size.h, transform: `scale(${PREVIEW_SCALE})` }}
+          style={{ width: size.w, height: size.h, transform: `scale(${scale})` }}
         >
           {/*
             Mounted only once the HTML is here, and keyed by path so a different board is a
@@ -157,17 +238,43 @@ export function InspectorPanel({
               title={name}
               srcDoc={srcDoc}
               sandbox="allow-scripts"
-              onLoad={() =>
-                frame.current?.contentWindow?.postMessage({ type: "sp:hello" }, "*")
-              }
+              onLoad={() => frame.current?.contentWindow?.postMessage({ type: "sp:hello" }, "*")}
               style={{ width: size.w, height: size.h, border: 0, display: "block" }}
             />
           ) : null}
         </div>
-        <span className="sp-zoom">{Math.round(PREVIEW_SCALE * 100)}%</span>
+        <span className="sp-zoom">{Math.round(scale * 100)}%</span>
+        {/*
+          Lives on the stage, not in the rail, so that collapsing the rail does not also hide the
+          only way back. Escape still closes the whole inspector either way.
+        */}
+        <button
+          type="button"
+          className="sp-collapse"
+          aria-expanded={railOpen}
+          title={railOpen ? "Hide details" : "Show details"}
+          aria-label={railOpen ? "Hide details" : "Show details"}
+          onClick={() => setRailOpen((v) => !v)}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <path d={railOpen ? "M7.5 2l4 4-4 4M4.5 2l-4 4 4 4" : "M2 2l4 4-4 4M7.5 2l4 4-4 4"} />
+          </svg>
+        </button>
       </div>
 
-      <div className="sp-rail" style={{ width: RAIL_WIDTH }}>
+      {railOpen ? (
+        <div
+          className="sp-grip sp-grip--x"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize details"
+          onPointerDown={divider("x", () => railW, (w0, dx) =>
+            setRailW(nextRailW(w0, dx, panelW)),
+          )}
+        />
+      ) : null}
+
+      <div className="sp-rail" style={{ width: railW, display: railOpen ? undefined : "none" }}>
         <header className="sp-head">
           <span className="sp-head-name" title={path}>
             {name}
@@ -200,12 +307,37 @@ export function InspectorPanel({
           <section className="sp-tab">
             <Layers
               nodes={data?.nodes ?? []}
+              height={layersH}
               sel={sel}
               hov={hov}
               names={assetNameByNode}
               onSelect={setSel}
               onHover={setHov}
             />
+            {/* The list was a fixed 240px, which is why a 24-layer board could not be read. */}
+            <div
+              className="sp-grip sp-grip--y"
+              role="separator"
+              aria-orientation="horizontal"
+              aria-label="Resize layers"
+              onPointerDown={divider("y", () => layersH, (h0, dy) =>
+                setLayersH(nextLayersH(h0, dy, window.innerHeight)),
+              )}
+            />
+            {/* The image the selected layer draws, on its own, pinned under the row that named it. */}
+            {selAsset ? (
+              <figure className="sp-asset-view">
+                <img src={selAsset.uri} alt={selAsset.name} />
+                <figcaption>
+                  <span className="sp-asset-view-n" title={selAsset.name}>
+                    {selAsset.name}
+                  </span>
+                  <span className="sp-asset-view-d">
+                    {selAsset.w} × {selAsset.h} · {formatBytes(selAsset.bytes)}
+                  </span>
+                </figcaption>
+              </figure>
+            ) : null}
             <div className="sp-props">
               {node ? (
                 <Properties
@@ -283,6 +415,7 @@ function LayerIcon({ kind }: { kind: ReturnType<typeof layerKind> }) {
  */
 function Layers({
   nodes,
+  height,
   sel,
   hov,
   names,
@@ -290,6 +423,7 @@ function Layers({
   onHover,
 }: {
   nodes: SpNode[];
+  height: number;
   sel: number | null;
   hov: number | null;
   names: Map<number, string>;
@@ -302,7 +436,7 @@ function Layers({
     list.current?.querySelector(`[data-i="${sel}"]`)?.scrollIntoView({ block: "nearest" });
   }, [sel]);
   return (
-    <div className="sp-layers" ref={list} onMouseLeave={() => onHover(null)}>
+    <div className="sp-layers" style={{ height }} ref={list} onMouseLeave={() => onHover(null)}>
       <div className="sp-sh">
         <span className="sp-sh-t">Layers</span>
         <span className="sp-sh-s">{Math.max(0, nodes.length - 1)}</span>

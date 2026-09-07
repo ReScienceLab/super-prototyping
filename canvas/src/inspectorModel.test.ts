@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { SpAsset, SpNode, SpToken } from "./inspectorAgent";
+import type { AssetRow } from "./inspectorModel";
 import {
+  assetForNode,
   assetRows,
+  fitScale,
+  initialLayersH,
+  nextLayersH,
+  nextPanelW,
+  nextRailW,
   formatBytes,
   isColorValue,
   layerKind,
@@ -154,5 +161,63 @@ describe("isColorValue", () => {
     expect(isColorValue("#F0A468")).toBe(true);
     expect(isColorValue("rgba(0,0,0,.5)")).toBe(true);
     expect(isColorValue("590 18px/18px -apple-system")).toBe(false);
+  });
+});
+
+describe("panel geometry", () => {
+  it("widens the panel when its left edge is dragged left", () => {
+    expect(nextPanelW(736, -100, 1600)).toBe(836);
+    expect(nextPanelW(736, 100, 1600)).toBe(636);
+  });
+
+  it("keeps the canvas and the preview from being dragged away entirely", () => {
+    expect(nextPanelW(736, -9999, 1600)).toBe(1320); // viewport - 280
+    expect(nextPanelW(736, 9999, 1600)).toBe(360);
+    expect(nextRailW(280, -9999, 736)).toBe(496); // panel - 240
+    expect(nextRailW(280, 9999, 736)).toBe(200);
+  });
+
+  it("prefers the minimum when a small viewport crosses the two bounds", () => {
+    // 300 - 280 = 20, below the 360 minimum: a pinned-open panel beats a negative one.
+    expect(nextPanelW(736, 0, 300)).toBe(360);
+  });
+
+  it("opens the layers list on a share of the window, held off both ends", () => {
+    expect(initialLayersH(1127)).toBe(507); // the 24-layer board, ~20 rows visible
+    expect(initialLayersH(700)).toBe(315);
+    expect(initialLayersH(360)).toBe(200); // floor: properties keep their room
+    expect(initialLayersH(2000)).toBe(560); // ceiling: past this you scroll either way
+  });
+
+  it("grows the layers list downward, which is the drag the fixed 240px needed", () => {
+    expect(nextLayersH(240, 160, 1000)).toBe(400);
+    expect(nextLayersH(240, -9999, 1000)).toBe(72);
+    expect(nextLayersH(240, 9999, 1000)).toBe(880); // viewport - 120
+  });
+
+  it("contains the board in the stage and never enlarges past 1:1", () => {
+    // A phone board in a roomy stage: capped, not blown up.
+    expect(fitScale({ w: 900, h: 1200 }, { w: 393, h: 852 })).toBe(1);
+    // Height-bound: (852 - 32) / 852.
+    expect(fitScale({ w: 900, h: 852 }, { w: 393, h: 852 })).toBeCloseTo(820 / 852, 6);
+    // A landscape evidence board fits by width.
+    expect(fitScale({ w: 432, h: 900 }, { w: 1200, h: 400 })).toBeCloseTo(400 / 1200, 6);
+  });
+});
+
+describe("assetForNode", () => {
+  const rows = [
+    { key: "a", uses: [3, 4] },
+    { key: "b", uses: [9] },
+  ] as unknown as AssetRow[];
+
+  it("finds the image a selected layer draws", () => {
+    expect(assetForNode(rows, 4)?.key).toBe("a");
+    expect(assetForNode(rows, 9)?.key).toBe("b");
+  });
+
+  it("is null for no selection and for a layer that draws nothing", () => {
+    expect(assetForNode(rows, null)).toBeNull();
+    expect(assetForNode(rows, 7)).toBeNull();
   });
 });
