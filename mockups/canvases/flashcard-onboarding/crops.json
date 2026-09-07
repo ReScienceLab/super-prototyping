@@ -1,0 +1,52 @@
+{
+ "_": "Art cut from assets/refs/cN.png at measured pt boxes, 1.337 px per pt. gen.py writes assets/art/<id>.png and places each <img> back at its own box, so an asset cannot drift from where it was measured. Everything else on these screens -- the type, the nav track, both pills, the arrows, the two buttons, the status bar clock -- is CSS.",
+ "01-hero": [
+  "c1",
+  13.5,
+  56.2,
+  378.5,
+  530.5
+ ],
+ "02-hero": [
+  "c2",
+  13.5,
+  56.2,
+  378.5,
+  530.5
+ ],
+ "03-hero": [
+  "c3",
+  13.5,
+  56.2,
+  378.5,
+  530.5
+ ],
+ "01-path": [
+  "c1",
+  97.2,
+  768.7,
+  295.5,
+  825.5
+ ],
+ "02-path": [
+  "c2",
+  97.2,
+  768.7,
+  295.5,
+  825.5
+ ],
+ "03-path": [
+  "c3",
+  97.2,
+  768.7,
+  295.5,
+  825.5
+ ],
+ "04-cup": [
+  "c4",
+  58.0,
+  172.0,
+  340.0,
+  408.0
+ ]
+}

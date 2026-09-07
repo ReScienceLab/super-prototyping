@@ -273,6 +273,28 @@ folder are invisible to it.
   painted over five text classes without an error. `assets/art/` and
   `assets/art-gen/` are committed; the eight `ref-*` boards are
   gitignored, so a fresh clone has 13.
+- `flashcard-onboarding/`: the run to read when the only source is a **screen
+  recording**. Four onboarding screens of a flashcard app, from a clip posted
+  on X, in 13 boards across three rows: a token board, three evidence boards
+  for 28 tokens, an art board for 7 crops, the four replicas, and the video
+  frame behind each one column-for-column underneath. Mean absolute delta is
+  6.17-7.05 levels (of 255), two to four times `duolingo-ios`', and the gap is
+  the medium: at 1.337 capture px per design pt a glyph is three pixels tall
+  through an H.264 encoder, so a sharp render scores an error the geometry
+  does not contain - the cropped hero art sits at 1.0-3.5 while the type zone
+  sits at 7.7-14.2 with every string inside 1.5pt of its reference box. Its
+  `README.md` carries the three findings that cost the most:
+  **`letter-spacing` inherits as a computed length**, so an `em` set on `body`
+  reaches a 36px title as body's own -0.4px and tracks it at a third of the
+  intent, which reads exactly like a display size that wants its own value;
+  the whole design is tracked at a single **-.025em**, proved by character
+  count rather than by width, which is also what told SF Pro from SF Pro
+  Rounded; and **LANCZOS undershoot** in the downscale step, which read as a
+  20-level ink-core error until the resample became an area average. It also
+  prices the one deliberate deviation - the source's phone frame is a mockup
+  asset, with a 118 x 4.5 home indicator at bottom 2.5 - at exactly 1.00 delta
+  per screen. `assets/art/` is committed; the four `ref-*` boards are
+  gitignored, so a fresh clone has 9.
 - `spotify-ios/`: the run to read when the brand face is unavailable and the
   screens are mostly type. Five screens of the Spotify iOS app - the home
   feed at two scroll positions, two full-screen promo modals and the Spotify
