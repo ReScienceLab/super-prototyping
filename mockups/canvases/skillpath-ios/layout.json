@@ -1,0 +1,114 @@
+{
+  "name": "(example) Skill Path",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens 1/6"
+        },
+        {
+          "file": "00b-design-tokens",
+          "label": "Design tokens 2/6"
+        },
+        {
+          "file": "00c-design-tokens",
+          "label": "Design tokens 3/6"
+        },
+        {
+          "file": "00d-design-tokens",
+          "label": "Design tokens 4/6"
+        },
+        {
+          "file": "00e-design-tokens",
+          "label": "Design tokens 5/6"
+        },
+        {
+          "file": "00f-design-tokens",
+          "label": "Design tokens 6/6"
+        },
+        {
+          "file": "00g-evidence",
+          "label": "Evidence 1/7"
+        },
+        {
+          "file": "00h-evidence",
+          "label": "Evidence 2/7"
+        },
+        {
+          "file": "00i-evidence",
+          "label": "Evidence 3/7"
+        },
+        {
+          "file": "00j-evidence",
+          "label": "Evidence 4/7"
+        },
+        {
+          "file": "00k-evidence",
+          "label": "Evidence 5/7"
+        },
+        {
+          "file": "00l-evidence",
+          "label": "Evidence 6/7"
+        },
+        {
+          "file": "00m-evidence",
+          "label": "Evidence 7/7"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-home",
+          "label": "Home"
+        },
+        {
+          "file": "02-home-quest-done",
+          "label": "Home, one cleared"
+        },
+        {
+          "file": "03-path",
+          "label": "Skill Path"
+        },
+        {
+          "file": "04-path-scrolled",
+          "label": "Skill Path scrolled"
+        },
+        {
+          "file": "05-lesson-sheet",
+          "label": "Lesson sheet"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-home",
+          "label": "Home"
+        },
+        {
+          "file": "ref-02-home-quest-done",
+          "label": "Home, one cleared"
+        },
+        {
+          "file": "ref-03-path",
+          "label": "Skill Path"
+        },
+        {
+          "file": "ref-04-path-scrolled",
+          "label": "Skill Path scrolled"
+        },
+        {
+          "file": "ref-05-lesson-sheet",
+          "label": "Lesson sheet"
+        }
+      ]
+    }
+  ]
+}

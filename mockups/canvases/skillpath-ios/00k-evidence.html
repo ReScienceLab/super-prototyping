@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Skill Path - Evidence 5/7</title>
+<style>
+:root{
+  /* Font */
+  --sp-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --sp-sheet:#FDFDFD;
+  --sp-strip:#F5F9FC;
+  --sp-level:#E6F7EF;
+  --sp-sky-1:#9DCDE8;
+  --sp-sky-2:#94C6E2;
+  --sp-sky-3:#90C3E2;
+  --sp-day-on:#E2E9F5;
+  --sp-chip:rgba(255,255,255,.40);
+  --sp-chip-on:#F6FAFD;
+  --sp-node:#FCFEFF;
+  --sp-node-off:#BDD6E4;
+  --sp-cta:#5B8BA8;
+  --sp-cta-lip:#43708C;
+  --sp-scrim:rgba(26,60,74,.415);
+
+  /* Line */
+  --sp-dash:#CFDDE9;
+  --sp-ring:#DDE3EA;
+  --sp-card-edge:#F8F9FB;
+
+  /* Ink */
+  --sp-ink:#0E1114;
+  --sp-ink-2:#575757;
+  --sp-ink-3:#8B959E;
+  --sp-ink-4:#B9BBC1;
+  --sp-ink-sub:#A4A9AF;
+  --sp-ink-sky:#22323E;
+  --sp-ink-sky-2:#255471;
+  --sp-ink-sky-3:#6795B3;
+  --sp-ink-inv:#FDFDFD;
+  --sp-ink-hdr:rgba(253,253,253,.72);
+
+  /* Accent */
+  --sp-green:#16BE70;
+  --sp-green-2:#29BA76;
+  --sp-green-pale:#D7FFEE;
+  --sp-track-off:#C5ECD7;
+  --sp-xp:#3FBE84;
+  --sp-tab-on:#E3EDF3;
+  --sp-tab-on-ink:#9FB2BF;
+  --sp-tab-off-ink:#4E4E4E;
+  --sp-play:#5F8AA4;
+  --sp-gem:#B23BD8;
+  --sp-lock:#80A4BB;
+
+  /* Radius */
+  --sp-r-card:28px;
+  --sp-r-level:24px;
+  --sp-r-row:22px;
+  --sp-r-cta:20px;
+  --sp-r-pill:999px;
+  --sp-r-phone:55px;
+
+  /* Type */
+  --sp-t-hero:700 31.5px/38.4px var(--sp-font);
+  --sp-t-title:700 24.5px/29.9px var(--sp-font);
+  --sp-t-h1:700 17.5px/21.3px var(--sp-font);
+  --sp-t-sect:700 17px/20.7px var(--sp-font);
+  --sp-t-h2:700 24.5px/29.9px var(--sp-font);
+  --sp-t-greet:700 20px/24.4px var(--sp-font);
+  --sp-t-count:700 16px/19.5px var(--sp-font);
+  --sp-t-node:600 16.6px/20.3px var(--sp-font);
+  --sp-t-row:600 15.5px/18.9px var(--sp-font);
+  --sp-t-chipname:600 15px/18.3px var(--sp-font);
+  --sp-t-cta:700 15px/18.3px var(--sp-font);
+  --sp-t-body:500 15px/18.3px var(--sp-font);
+  --sp-t-meta:500 13.5px/16.5px var(--sp-font);
+  --sp-t-date:400 15.5px/18.9px var(--sp-font);
+  --sp-t-sub:400 13px/15.9px var(--sp-font);
+  --sp-t-cap:600 11.7px/14.3px var(--sp-font);
+  --sp-t-tab:500 12px/14.6px var(--sp-font);
+  --sp-t-day:500 11px/13.4px var(--sp-font);
+  --sp-t-count2:600 10.7px/13.1px var(--sp-font);
+  --sp-t-chip:600 9.3px/11.3px var(--sp-font);
+  --sp-t-time:590 17px/22px var(--sp-font);
+
+  /* Metrics */
+  --sp-w:402px;
+  --sp-h:874px;
+  --sp-status:54px;
+  --sp-gutter:20px;
+  --sp-row:85.2px;
+  --sp-road:37px;
+  --sp-bend:39px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sp-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+img.a{position:absolute;display:block}
+.phone{position:relative;flex:none;width:var(--sp-w);height:var(--sp-h);
+  border-radius:var(--sp-r-phone);overflow:hidden;background:var(--sp-sheet);color:var(--sp-ink);
+  transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--sp-w);height:var(--sp-status);z-index:9}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--sp-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+.w{flex:none;width:430px}
+h1{font:600 15px/1.4 var(--sp-font);color:var(--sp-ink);margin:0 0 4px 2px}
+p.cap{font:12px/1.5 var(--sp-font);color:#8B959E;margin:0 0 12px 2px}
+table{border-collapse:collapse;background:var(--sp-sheet);border-radius:14px;
+  overflow:hidden;box-shadow:0 8px 30px rgba(40,64,80,.12);
+  width:430px;table-layout:fixed}
+td{padding:7px 12px;border-top:1px solid #EEF1F4;overflow-wrap:anywhere}
+tr:first-child td{border-top:0}
+code{font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace}
+table{font:13px/1.55 var(--sp-font)}
+td{vertical-align:top}
+td:first-child{width:126px}</style>
+</head>
+<body>
+<div class="w"><h1>Evidence 5/7</h1><p class="cap">One row per token, and what it was measured on. A token with no evidence is a guess.</p><table><tr><td><code>--sp-r-pill</code></td><td>by construction, not measured</td></tr><tr><td><code>--sp-r-phone</code></td><td>circular stand-in for the 17 Pro's continuous display corner; refkit --crop-phone masks the same number</td></tr><tr><td><code>--sp-t-hero</code></td><td>probe t-hero, c2 "3 Days": ref ink 96.8 pt wide, board 96.8</td></tr><tr><td><code>--sp-t-title</code></td><td>probe t-title, c4 "Skill Path": ref 100.5, board 100.5</td></tr><tr><td><code>--sp-t-h1</code></td><td>probe t-h1, c2 "Level 4": ref 54.9, board 55.8, +1.6%</td></tr><tr><td><code>--sp-t-sect</code></td><td>probe t-sect, c2 "Today’s Quest": ref 112.6, board 112.6. Half a point smaller than h1, and the two do not merge: forcing this run to 17.5 costs c1 and c2 0.10 and 0.15</td></tr><tr><td><code>--sp-t-h2</code></td><td>probe t-h2, c5 "Barrier Repair": ref 153.7, board 150.9. The width asks for 25px and the frame does not: 25px costs c5 0.31, so the -1.8% stands</td></tr><tr><td><code>--sp-t-greet</code></td><td>probe t-greet, c2 "Welcome Back": ref 134.9, board 134.0</td></tr><tr><td><code>--sp-t-count</code></td><td>probe t-count, c2 "235" in the gem pill: ref 27.9, board 28.9. A wider box takes the pill border with it, so this one was settled on a zoom pair as well, scratch/p_gem.png</td></tr><tr><td><code>--sp-t-node</code></td><td>probe t-node, c4 "Under-Eye Care": ref 120.2, board 120.2</td></tr></table></div>
+</body>
+</html>

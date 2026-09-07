@@ -1,0 +1,817 @@
+[
+ {
+  "id": "sheet",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   150,
+   440,
+   250,
+   460
+  ],
+  "pt": 1.0745,
+  "only": "flat",
+  "_": "c2 quest sheet between the section head (ends 510) is above and row 1 (starts 517): an empty band of the sheet, inside both gutters. Reads the H.264 white plateau, not 255",
+  "_head": "Phase 1's measurements, replayable. The recording zooms, so every row carries its own \"pt\": c1 1.01194, c2 1.07450, c3 1.01490, c4 1.01490, c5 1.07985. Boxes are design pt on a 402x874 frame. Run with --against scratch/mine after refkit shoot + scratch/rs.py. The status bar has no probe: it is the repo's standard chrome, not the source's."
+ },
+ {
+  "id": "strip",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   222,
+   242,
+   252,
+   292
+  ],
+  "pt": 1.0745,
+  "only": "flat",
+  "_": "c2 weekday strip between the Thu and Fri columns: no glyph, no check disc"
+ },
+ {
+  "id": "level",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   340,
+   260,
+   360
+  ],
+  "pt": 1.0745,
+  "only": "flat",
+  "_": "c2 level card interior, right of Level 4 (ends 119) and above the track (starts 386)"
+ },
+ {
+  "id": "sky-1",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   66,
+   120,
+   74
+  ],
+  "pt": 1.0149,
+  "only": "flat",
+  "_": "c4 sky left of the island (starts 138.5) and above the Skill Path cap (68.5)"
+ },
+ {
+  "id": "sky-2",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   2,
+   300,
+   19,
+   310
+  ],
+  "pt": 1.0745,
+  "only": "flat",
+  "_": "c2 home sky in the 8pt gap below the streak card (ends 296) and above the level card (334), left of both card edges (20.5). The home sky is a wash, so this is the mode of its flats, not a 100% census"
+ },
+ {
+  "id": "sky-3",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   300,
+   60,
+   320
+  ],
+  "pt": 1.0149,
+  "only": "flat",
+  "_": "c4 path sky left of the road (verticals start x 80)"
+ },
+ {
+  "id": "day-on",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   47,
+   263,
+   59,
+   271
+  ],
+  "pt": 1.0745,
+  "only": "all",
+  "_": "c2 Mon check disc core. Mode of all pixels: a 20pt disc in a 1.07x frame has no flat interior"
+ },
+ {
+  "id": "chip-on",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   144,
+   112,
+   153,
+   140
+  ],
+  "pt": 1.0149,
+  "only": "flat",
+  "_": "c4 active Skincare chip, right of its label (ends 141.5) and inside the pill's right edge"
+ },
+ {
+  "id": "node",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   50,
+   420,
+   60,
+   450
+  ],
+  "pt": 1.0149,
+  "only": "all",
+  "_": "c4 Barrier Repair node body, left of the play triangle (starts 55 by ink) -- mode, not census"
+ },
+ {
+  "id": "node-off",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   158,
+   565,
+   178,
+   575
+  ],
+  "pt": 1.0149,
+  "only": "flat",
+  "_": "c4 locked Weekly Exfoliation node, left of the keyhole (163-171)"
+ },
+ {
+  "id": "cta",
+  "img": "assets/refs/c5.png",
+  "cmd": "sample",
+  "box": [
+   150,
+   770,
+   250,
+   790
+  ],
+  "pt": 1.07985,
+  "only": "flat",
+  "_": "c5 START LESSON button, above the cap top (788) is wrong -- this band is the button fill left of the label's first glyph at x 142.6"
+ },
+ {
+  "id": "dash",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   97,
+   566,
+   100,
+   572
+  ],
+  "pt": 1.0149,
+  "only": "all",
+  "_": "c4 road centre dash, one dash core between the x 80-117 verticals"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   47,
+   181,
+   143,
+   209
+  ],
+  "pt": 1.0745,
+  "only": "ink",
+  "ink": 15,
+  "_": "c2 3 Days. Darkest 15%: the token is #0E1114 against a measured #060606 core, because a 31.5px cap in a 1.07x frame overshoots dark on its stems"
+ },
+ {
+  "id": "ink-2",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   270,
+   469,
+   358,
+   482
+  ],
+  "pt": 1.0745,
+  "only": "ink",
+  "_": "c2 1/5 completed, the quest counter"
+ },
+ {
+  "id": "ink-3",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   46,
+   157,
+   153,
+   168
+  ],
+  "pt": 1.0745,
+  "only": "ink",
+  "_": "c2 CURRENT STREAK, the all-caps label"
+ },
+ {
+  "id": "ink-4",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   38,
+   496,
+   195,
+   510
+  ],
+  "pt": 1.0745,
+  "only": "ink",
+  "_": "c2 Quests resets at midnight, the section subhead"
+ },
+ {
+  "id": "ink-sub",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   78,
+   549,
+   380,
+   563
+  ],
+  "pt": 1.0745,
+  "only": "ink",
+  "_": "c2 quest row 1 subtitle"
+ },
+ {
+  "id": "ink-sky",
+  "img": "assets/refs/c5.png",
+  "cmd": "sample",
+  "box": [
+   101,
+   690,
+   256,
+   712
+  ],
+  "pt": 1.07985,
+  "only": "ink",
+  "_": "c5 Barrier Repair, the sheet title"
+ },
+ {
+  "id": "ink-sky-2",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   277,
+   310,
+   292
+  ],
+  "pt": 1.0149,
+  "only": "ink",
+  "_": "c4 Under-Eye Care, an unlocked node label on sky"
+ },
+ {
+  "id": "ink-hdr",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   22,
+   68,
+   90,
+   84
+  ],
+  "pt": 1.0745,
+  "only": "ink",
+  "bright": true,
+  "_": "c2 Hi, James: light type on the sky, so the ink core is the BRIGHTEST percentile. #CFF0FF over the #9BCBE6 ground solves to white at 72%"
+ },
+ {
+  "id": "green",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   38,
+   386,
+   42,
+   397
+  ],
+  "pt": 1.0745,
+  "only": "all",
+  "_": "c2 level-node core, the filled node under Level 4"
+ },
+ {
+  "id": "green-2",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   82,
+   388,
+   98,
+   394
+  ],
+  "pt": 1.0745,
+  "only": "all",
+  "_": "c2 level track, a filled span between two nodes"
+ },
+ {
+  "id": "green-pale",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   269,
+   385,
+   275,
+   397
+  ],
+  "pt": 1.0745,
+  "only": "all",
+  "_": "c2 locked level node"
+ },
+ {
+  "id": "track-off",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   312,
+   388,
+   333,
+   394
+  ],
+  "pt": 1.0745,
+  "only": "all",
+  "_": "c2 unfilled level track, right of the last filled node"
+ },
+ {
+  "id": "gem",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   153,
+   574,
+   170,
+   585
+  ],
+  "pt": 1.0745,
+  "only": "ink",
+  "_": "c2 +2 gem chip label on quest row 1. This probe is the worst colour miss in the file and it is expected: a 10px magenta glyph is two pixels wide in a 1.07x video frame, so the capture never reaches the ink and its darkest 2% comes back desaturated (#8D6898) while the board reaches the token exactly"
+ },
+ {
+  "id": "lock",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   163,
+   586,
+   171,
+   598
+  ],
+  "pt": 1.0149,
+  "only": "all",
+  "_": "c4 keyhole glyph on the locked node"
+ },
+ {
+  "id": "tab-on-ink",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   140,
+   832,
+   178,
+   843
+  ],
+  "pt": 1.0149,
+  "only": "ink",
+  "_": "c4 active Path tab label"
+ },
+ {
+  "id": "tab-off-ink",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   56,
+   807,
+   80,
+   826
+  ],
+  "pt": 1.0149,
+  "only": "ink",
+  "_": "c4 inactive Home tab icon stroke"
+ },
+ {
+  "id": "play",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   55,
+   428,
+   78,
+   450
+  ],
+  "pt": 1.0149,
+  "only": "ink",
+  "_": "c4 Barrier Repair play triangle"
+ },
+ {
+  "id": "t-hero",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   44,
+   176,
+   160,
+   214
+  ],
+  "pt": 1.0745,
+  "_": "c2 \"3 Days\" -- 31.5px. Box clears the card edge at x 20.5 and the flame art above"
+ },
+ {
+  "id": "t-title",
+  "img": "assets/refs/c4.png",
+  "cmd": "bbox",
+  "box": [
+   18,
+   66,
+   170,
+   100
+  ],
+  "pt": 1.0149,
+  "bright": 225,
+  "_": "c4 \"Skill Path\" -- 25px, white on sky, so a bright cut"
+ },
+ {
+  "id": "t-h1",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   338,
+   124,
+   362
+  ],
+  "pt": 1.0745,
+  "_": "c2 \"Level 4\" -- 17.5px. Left edge clears the crown art that ends at 58"
+ },
+ {
+  "id": "t-sect",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   35,
+   458,
+   158,
+   482
+  ],
+  "pt": 1.0745,
+  "_": "c2 \"Today\u2019s Quest\" -- 17px, the one run that does not take h1"
+ },
+ {
+  "id": "t-h2",
+  "img": "assets/refs/c5.png",
+  "cmd": "bbox",
+  "box": [
+   98,
+   684,
+   264,
+   716
+  ],
+  "pt": 1.07985,
+  "_": "c5 \"Barrier Repair\" -- 24.5px on the lesson sheet"
+ },
+ {
+  "id": "t-greet",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   86,
+   172,
+   112
+  ],
+  "pt": 1.0745,
+  "bright": 225,
+  "_": "c2 \"Welcome Back\" -- 19.5px, white on sky"
+ },
+ {
+  "id": "t-count",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   284,
+   82,
+   318,
+   100
+  ],
+  "pt": 1.0745,
+  "bright": 225,
+  "_": "c2 \"235\" inside the gem pill. The pill border contaminates a wider box, so this one is cut to the numerals and the size was confirmed by eye on scratch/p_gem.png"
+ },
+ {
+  "id": "t-node",
+  "img": "assets/refs/c4.png",
+  "cmd": "bbox",
+  "box": [
+   180,
+   270,
+   380,
+   290
+  ],
+  "pt": 1.0149,
+  "_": "c4 \"Under-Eye Care\" -- 17px, the node label the size was fitted on"
+ },
+ {
+  "id": "t-row",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   75,
+   518,
+   300,
+   540
+  ],
+  "pt": 1.0745,
+  "_": "c2 quest row 1 title -- 15.5px"
+ },
+ {
+  "id": "t-chipname",
+  "img": "assets/refs/c4.png",
+  "cmd": "bbox",
+  "box": [
+   278,
+   106,
+   380,
+   134
+  ],
+  "pt": 1.0149,
+  "_": "c4 \"Oral Posture\" -- 15px, the widest chip label"
+ },
+ {
+  "id": "t-cta",
+  "img": "assets/refs/c5.png",
+  "cmd": "bbox",
+  "box": [
+   136,
+   780,
+   272,
+   802
+  ],
+  "pt": 1.07985,
+  "bright": 225,
+  "_": "c5 \"START LESSON\" -- 15px at .045em; the width is what set the tracking"
+ },
+ {
+  "id": "t-body",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   66,
+   96,
+   86
+  ],
+  "pt": 1.0745,
+  "bright": 225,
+  "_": "c2 \"Hi, James\" -- 15px, white on sky"
+ },
+ {
+  "id": "t-meta",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   300,
+   342,
+   382,
+   364
+  ],
+  "pt": 1.0745,
+  "dark": 200,
+  "_": "c2 \"95/120 XP\" -- 13.5px"
+ },
+ {
+  "id": "t-date",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   192,
+   260,
+   216,
+   278
+  ],
+  "pt": 1.0745,
+  "dark": 200,
+  "_": "c2 the Thu numeral \"12\" -- 15.5px, the bold selected day"
+ },
+ {
+  "id": "t-sub",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   75,
+   542,
+   380,
+   566
+  ],
+  "pt": 1.0745,
+  "dark": 210,
+  "_": "c2 quest row 1 subtitle -- 13px, kept at the size it was measured at"
+ },
+ {
+  "id": "t-cap",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   43,
+   152,
+   160,
+   172
+  ],
+  "pt": 1.0745,
+  "dark": 200,
+  "_": "c2 \"CURRENT STREAK\" -- 12px. A cap-height read said 14px and set it 18% too wide"
+ },
+ {
+  "id": "t-tab",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   45,
+   830,
+   86,
+   846
+  ],
+  "pt": 1.0745,
+  "dark": 200,
+  "_": "c2 the \"Home\" tab label -- 12px. The four labels band at 49.3-81.9, 144.3-168.5, 232.7-261.5 and 313.6-363.0; Home is the one no neighbour can leak into"
+ },
+ {
+  "id": "t-day",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   42,
+   242,
+   66,
+   258
+  ],
+  "pt": 1.0745,
+  "dark": 200,
+  "_": "c2 \"Mon\" -- 11px; exact at the size chosen"
+ },
+ {
+  "id": "t-count2",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   282,
+   464,
+   364,
+   486
+  ],
+  "pt": 1.0745,
+  "dark": 200,
+  "_": "c2 \"1/5 completed\" -- 11px. 14px was 26% too wide"
+ },
+ {
+  "id": "t-chip",
+  "img": "assets/refs/c2.png",
+  "cmd": "bbox",
+  "box": [
+   88,
+   573,
+   134,
+   587
+  ],
+  "pt": 1.0745,
+  "dark": 200,
+  "_": "c2 the \"+25 XP\" chip on quest row 1 -- 10px"
+ },
+ {
+  "id": "c1-sheet",
+  "img": "assets/refs/c1.png",
+  "cmd": "sample",
+  "box": [
+   150,
+   440,
+   250,
+   460
+  ],
+  "pt": 1.01194,
+  "only": "flat",
+  "_": "c1 quest sheet, the same empty band as the `sheet` probe reads on c2"
+ },
+ {
+  "id": "t-count2-c1",
+  "img": "assets/refs/c1.png",
+  "cmd": "bbox",
+  "box": [
+   274,
+   464,
+   364,
+   486
+  ],
+  "pt": 1.01194,
+  "dark": 200,
+  "_": "c1 \"0/5 completed\" -- the same run as t-count2, one quest earlier"
+ },
+ {
+  "id": "c3-sky",
+  "img": "assets/refs/c3.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   300,
+   60,
+   320
+  ],
+  "pt": 1.0149,
+  "only": "flat",
+  "_": "c3 path sky, the same band the `sky-3` probe reads on c4. The scroll moves the road, not the sky"
+ },
+ {
+  "id": "c3-road-l",
+  "img": "assets/refs/c3.png",
+  "cmd": "scan",
+  "pt": 1.0149,
+  "axis": "row",
+  "at": 400,
+  "range": [
+   68,
+   96
+  ],
+  "_": "c3 row at y 400: sky, then the road left vertical. c3 is c4 scrolled by -184.3, so this is c4's y 584.3 and the road is in the same x band"
+ },
+ {
+  "id": "gutter-l",
+  "img": "assets/refs/c2.png",
+  "cmd": "scan",
+  "pt": 1.0745,
+  "axis": "row",
+  "at": 200,
+  "range": [
+   10,
+   40
+  ],
+  "_": "c2 row through the streak card, left gutter: sky then card at 20.5"
+ },
+ {
+  "id": "gutter-r",
+  "img": "assets/refs/c2.png",
+  "cmd": "scan",
+  "pt": 1.0745,
+  "axis": "row",
+  "at": 200,
+  "range": [
+   360,
+   402
+  ],
+  "_": "c2 same row, right edge of the streak card at 382.5 on a 402 pt frame"
+ },
+ {
+  "id": "road-l",
+  "img": "assets/refs/c4.png",
+  "cmd": "scan",
+  "pt": 1.0149,
+  "axis": "row",
+  "at": 320,
+  "range": [
+   70,
+   96
+  ],
+  "_": "c4 row between bends at y 320: sky, then the road left vertical at x 79.7. The evidence row says 80-117, and this is the 80"
+ },
+ {
+  "id": "cta-lip",
+  "img": "assets/refs/c5.png",
+  "cmd": "scan",
+  "pt": 1.07985,
+  "axis": "col",
+  "at": 200,
+  "range": [
+   810,
+   835
+  ],
+  "_": "c5 column through the button: fill, then the darker bottom lip, then the sheet"
+ },
+ {
+  "id": "sheet-top",
+  "img": "assets/refs/c5.png",
+  "cmd": "scan",
+  "pt": 1.07985,
+  "axis": "col",
+  "at": 30,
+  "range": [
+   600,
+   680
+  ],
+  "_": "c5 column left of the play triangle: scrim, then the sheet's top edge"
+ },
+ {
+  "id": "tabbar-top",
+  "img": "assets/refs/c2.png",
+  "cmd": "scan",
+  "pt": 1.0745,
+  "axis": "col",
+  "at": 110,
+  "range": [
+   780,
+   830
+  ],
+  "_": "c2 column between the Home and Progress tabs: page, then the tab bar"
+ }
+]

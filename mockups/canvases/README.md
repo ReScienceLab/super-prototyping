@@ -361,6 +361,33 @@ folder are invisible to it.
   is worthless on grey, and that a blur which monotonically improves a band is
   hiding a content defect rather than an antialiasing one. The 25 `ref-*`
   boards are gitignored, so a fresh clone has 29.
+- `skillpath-ios/`: the run to read when the source is a **zooming** screen
+  recording, so there is no such thing as *the* capture scale. Five screens of
+  an unnamed gamified self-improvement app, from a clip posted on X, in 23
+  boards across three rows: six token boards and seven evidence boards for 73
+  tokens, the five replicas, and the video frame behind each one
+  column-for-column underneath. Those foundation boards are plural for a
+  reason worth borrowing: 73 rows is 4000px of table in a 980px artboard, and
+  `refkit shoot --check-overflow` only says so when you leave `--crop-phone`
+  off, and never says so at all about a table running off the *side*. Mean
+  absolute delta is 5.88-9.04 levels (of 255). Its `README.md` records the
+  three things that decided those numbers. **The device is 402 x 874, not the
+  393 x 852 the rest of this repo uses** - an iPhone 17 Pro - and it was found
+  by scale agreement, where solving each frame's screen-inner rect against 402
+  x 874 makes its width and height scales agree to 0.07% against 0.34% for the
+  smaller frame. **The clip zooms, so every frame carries its own px-per-pt**
+  (1.01194 to 1.07985) and every one of the 59 rows in `probes.json` carries
+  its own `"pt"`, which is what `refkit batch` needs to replay them all in one
+  pass. And **the renderer's cap metrics are not the face's**: a probe of
+  eight font stacks came back byte-identical, so the boards are set in the
+  platform fallback, whose cap is 0.733 em and sits 0.350 x font-size below
+  the line box rather than SF Pro's 0.245 - inverting the nominal relation
+  instead of the measured one put every run on the board low by 3.3pt at
+  31.5px and cost 1.50 delta on the busiest screen. All 20 type sizes are
+  fitted on ink width against a named probe rather than on cap height, which a
+  video frame inflates by 1-2pt; `CURRENT STREAK` read as 14px that way and
+  set 18% wide. `assets/art/` is committed for its 17 crops; the five `ref-*`
+  boards are gitignored, so a fresh clone has 18.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so
