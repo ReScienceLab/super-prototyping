@@ -15,7 +15,7 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // opening the welcome page pulls a dozen covers rather than every board (the full set is 25 MB of
 // HTML, which a phone should not download to look at one page). Vite still reloads the page when a
 // mockup is saved. `rawLayouts` and `rawIcons` stay eager because they are read during render.
-import { fileLoaders, rawLayouts, rawIcons } from "virtual:canvases";
+import { fileLoaders, rawLayouts, rawIcons, rawAssetNames } from "virtual:canvases";
 
 export interface CanvasLibraryFile {
   path: string;
@@ -176,6 +176,15 @@ export function readCanvasLayout(
     if (LAYOUT_PATTERN.exec(path)?.[1] === pageSlug) return config;
   }
   return undefined;
+}
+
+/**
+ * This folder's inlined images by payload key, if it committed the files they came from: the
+ * inspector's Assets tab joins a board's data: URIs against it to put a file name next to each
+ * one. Undefined for a folder with no `assets/`, `assets-dark/` or `assets.json`.
+ */
+export function readCanvasAssetNames(pageSlug: string) {
+  return rawAssetNames[pageSlug];
 }
 
 const ICON_PATTERN = /canvases\/([^/]+)\/icon\.png$/;

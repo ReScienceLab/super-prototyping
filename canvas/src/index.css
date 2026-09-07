@@ -175,3 +175,685 @@ button {
   overflow-x: auto;
   max-width: 100%;
 }
+
+/* ---- The inspector panel (InspectorPanel.tsx) ------------------------------------------- */
+
+/*
+ * The panel is a flex sibling of the editor rather than an overlay, so tldraw's own viewport
+ * shrinks with it: its ResizeObserver re-measures, and zoom-to-fit, the toolbar and every
+ * screen-space calculation keep working against the space actually left over. Whether it
+ * should float instead is still open; the squeeze is what was measured.
+ */
+.canvas-shell {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-shell > .tldraw__editor {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+.sp-panel {
+  --sp-line: #e6e6e6;
+  --sp-text: #1e1e1e;
+  --sp-text-2: #7a7a7a;
+  --sp-field: #f5f5f5;
+  --sp-hover: #f5f5f5;
+  --sp-sel: #e5f4ff;
+  --sp-accent: #0d99ff;
+  --sp-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  display: flex;
+  flex: 0 0 auto;
+  height: 100%;
+  border-left: 1px solid var(--sp-line);
+  background: #ffffff;
+  color: var(--sp-text);
+  font: 400 11px/16px Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.sp-panel button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: default;
+  text-align: left;
+}
+
+/* Preview */
+.sp-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+/* The selected layer's own image, between the layers list and the properties under it.
+   Shrinkable, not fixed: a layers list dragged tall would otherwise clip it against the rail. */
+.sp-asset-view {
+  flex: 0 1 168px;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* No top border: `.sp-layers` already draws one above it. */
+  border-bottom: 1px solid var(--sp-line);
+}
+
+.sp-asset-view img {
+  flex: 1;
+  min-height: 0;
+  object-fit: contain;
+  padding: 8px 12px 4px;
+  /* Checkerboard: most of these are cut-outs with alpha, and alpha over a flat ground is a
+     shape you cannot tell from a white one. */
+  background-image:
+    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%),
+    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 6px 6px;
+  background-origin: content-box;
+  background-clip: content-box;
+}
+
+/* Two lines in the rail: 280px will not hold a path and its dimensions side by side. */
+.sp-asset-view figcaption {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px 8px;
+}
+
+.sp-asset-view-n {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-asset-view-d {
+  color: var(--sp-text-2);
+  font-family: var(--sp-mono);
+}
+
+.sp-board {
+  flex: 0 0 auto;
+  transform-origin: center;
+}
+
+.sp-zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  color: var(--sp-text-2);
+  pointer-events: none;
+}
+
+.sp-collapse {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--sp-text-2);
+  background: #ffffff;
+  box-shadow: 0 0 0 1px var(--sp-line);
+}
+
+.sp-collapse:hover {
+  color: var(--sp-text);
+}
+
+/* Dividers. The hit area is wider than the line, which is the whole reason for ::after. */
+.sp-grip {
+  position: relative;
+  flex: none;
+  z-index: 1;
+  background: transparent;
+  touch-action: none;
+}
+
+.sp-grip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.sp-grip:hover::after,
+.sp-grip:active::after,
+.sp-grip:focus-visible::after {
+  background: var(--sp-accent);
+}
+
+.sp-grip:focus-visible {
+  outline: none;
+}
+
+.sp-grip--x {
+  width: 5px;
+  margin: 0 -2px;
+  cursor: col-resize;
+}
+
+.sp-grip--x::after {
+  left: 2px;
+  right: 2px;
+}
+
+.sp-grip--y {
+  height: 5px;
+  margin: -2px 0;
+  cursor: row-resize;
+}
+
+.sp-grip--y::after {
+  top: 2px;
+  bottom: 2px;
+}
+
+/* Rail */
+.sp-rail {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-left: 1px solid var(--sp-line);
+  overflow: hidden;
+}
+
+.sp-head {
+  flex: none;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 12px;
+  border-bottom: 1px solid var(--sp-line);
+}
+
+.sp-head-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-head-dim {
+  margin-left: auto;
+  color: var(--sp-text-2);
+  white-space: nowrap;
+}
+
+.sp-head-x {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  color: var(--sp-text-2);
+}
+
+.sp-head-x:hover {
+  background: var(--sp-hover);
+  color: var(--sp-text);
+}
+
+.sp-tabs {
+  flex: none;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--sp-line);
+}
+
+.sp-tabs button {
+  height: 32px;
+  padding: 0 8px;
+  color: var(--sp-text-2);
+  font-weight: 500;
+}
+
+.sp-tabs button.on {
+  color: var(--sp-text);
+  font-weight: 600;
+}
+
+.sp-tab {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+
+/* Section headings, shared by every tab */
+.sp-sh {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-sh--pad,
+.sp-sh--group {
+  height: 28px;
+  padding: 4px 12px 0;
+}
+
+.sp-sh--group {
+  color: var(--sp-text-2);
+  font-weight: 500;
+}
+
+.sp-sh-t {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-sh-s {
+  margin-left: auto;
+  flex: none;
+  color: var(--sp-text-2);
+  font-family: var(--sp-mono);
+  white-space: nowrap;
+}
+
+.sp-sec {
+  padding: 8px 12px 12px;
+  border-bottom: 1px solid var(--sp-line);
+}
+
+.sp-sec:last-child {
+  border-bottom: 0;
+}
+
+.sp-empty,
+.sp-hint {
+  padding: 12px;
+  color: var(--sp-text-2);
+}
+
+.sp-hint {
+  padding: 8px 0 0;
+}
+
+.sp-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+/* Layers */
+.sp-layers {
+  flex: none;
+  overflow: auto;
+  border-bottom: 1px solid var(--sp-line);
+}
+
+.sp-layers .sp-sh {
+  height: 28px;
+  padding: 4px 12px 0;
+}
+
+.sp-layer {
+  width: 100%;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.sp-layer svg {
+  flex: none;
+  color: var(--sp-text-2);
+}
+
+.sp-layer.hov {
+  background: var(--sp-hover);
+}
+
+.sp-layer.on {
+  background: var(--sp-sel);
+}
+
+.sp-layer-n {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-layer-d {
+  margin-left: auto;
+  flex: none;
+  color: var(--sp-text-2);
+}
+
+/* Properties */
+.sp-props {
+  flex: 1;
+  /* Not 0: flex splits a shortfall by basis, and against the asset figure's 168 the properties'
+     own basis of 0 takes none of it — they would be squeezed to nothing before the image gave up
+     a pixel. A floor is what stops that. */
+  min-height: 64px;
+  overflow: auto;
+}
+
+.sp-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sp-field {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  border-radius: 5px;
+  background: var(--sp-field);
+}
+
+.sp-field span {
+  flex: none;
+  width: 8px;
+  color: var(--sp-text-2);
+}
+
+.sp-field b {
+  font-weight: 400;
+}
+
+.sp-row {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-k {
+  flex: none;
+  width: 88px;
+  color: var(--sp-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-v {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-family: var(--sp-mono);
+  color: var(--sp-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-v.plain {
+  color: var(--sp-text);
+}
+
+.sp-vv {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sp-src {
+  height: 24px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sp-text-2);
+  font-family: var(--sp-mono);
+}
+
+.sp-src-l {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-link {
+  flex: none;
+  color: var(--sp-accent);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.sp-sub {
+  height: 20px;
+  line-height: 20px;
+  margin-top: -4px;
+  padding-left: 96px;
+  font-family: var(--sp-mono);
+  color: var(--sp-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-longs {
+  height: auto;
+  line-height: 16px;
+  margin-top: 0;
+  white-space: normal;
+}
+
+.sp-state {
+  padding: 0 0 4px 96px;
+  line-height: 16px;
+  color: #b25d00;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-state.overridden {
+  color: #c0392b;
+}
+
+.sp-decl.overridden .sp-k {
+  text-decoration: line-through;
+}
+
+.sp-pill {
+  height: 20px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 6px 0 4px;
+  border-radius: 4px;
+  background: #efefef;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sp-pill.plain {
+  padding-left: 6px;
+}
+
+.sp-pill.lost {
+  text-decoration: line-through;
+  color: var(--sp-text-2);
+}
+
+.sp-pill:hover {
+  background: #e4e4e4;
+}
+
+.sp-sw {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.sp-sw--none {
+  box-shadow: none;
+}
+
+/* Assets */
+.sp-asset {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+}
+
+.sp-asset.hov {
+  background: var(--sp-hover);
+}
+
+.sp-asset.on {
+  background: var(--sp-sel);
+}
+
+.sp-th {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: #1c1c1e;
+  overflow: hidden;
+}
+
+.sp-th img {
+  max-width: 28px;
+  max-height: 28px;
+  object-fit: contain;
+}
+
+.sp-asset-n {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-asset-n i {
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-asset-n small {
+  flex: none;
+  font-size: 9px;
+  line-height: 12px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: #efefef;
+  color: var(--sp-text-2);
+}
+
+.sp-asset-d {
+  margin-left: auto;
+  flex: none;
+  color: var(--sp-text-2);
+  white-space: nowrap;
+}
+
+/* Tokens */
+.sp-token {
+  padding: 0 12px;
+}
+
+.sp-token.unused {
+  opacity: 0.45;
+}
+
+.sp-token.on,
+.sp-token.focus {
+  background: var(--sp-sel);
+}
+
+.sp-token-row {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-token-n {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-token-v {
+  margin-left: auto;
+  flex: none;
+  max-width: 120px;
+  font-family: var(--sp-mono);
+  color: var(--sp-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-token-u {
+  flex: none;
+  min-width: 26px;
+  text-align: right;
+  color: var(--sp-text-2);
+  font-family: var(--sp-mono);
+}
+
+.sp-token-u:not(:disabled) {
+  color: var(--sp-accent);
+  cursor: pointer;
+}
+
+.sp-token-note {
+  margin: -4px 0 4px 20px;
+  line-height: 16px;
+  color: var(--sp-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-token-note code {
+  font-family: var(--sp-mono);
+}

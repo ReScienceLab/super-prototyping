@@ -22,8 +22,13 @@ the dev server is otherwise confined to, so only link at something you trust.
 
 A folder is an unzipped Sketch file: `layout.json` plays `document.json` and
 `meta.json`, `icon.png` plays `previews/preview.png`, `assets/` plays
-`images/`, and the numbered boards are the pages. `probes.json`, `crops.json`
-and `assets.json` are the measurement evidence — commit them with the boards.
+`images/`, and the numbered boards are the pages. `probes.json` and `crops.json`
+are the measurement evidence — commit them with the boards. `assets.json`,
+where a folder has one, is a `name → data URI` map of pre-encoded images the
+generator inlines; commit it too, it is the only copy of those images. The
+canvas's inspector names a board's images by content, from `assets/` first
+and `assets.json` second, and falls back to the image's `alt` when a
+generator re-encoded it.
 Everything a run makes on the way (grids, shots, montages, candidate boards)
 goes in `<slug>/scratch/`, which should be gitignored at any depth, along with
 `assets/refs/` where third-party captures go.

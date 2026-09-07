@@ -28,7 +28,8 @@ registry to edit and no build step per board.
 - **`gen.py` is the only source of truth** for a canvas folder. Edit the
   generator and re-run it. Never hand-edit the `NN-*.html` boards.
 - **Commit the evidence**: `layout.json`, `icon.png`, `assets/`,
-  `probes.json`, `crops.json`, `assets.json`.
+  `probes.json`, `crops.json` — and `assets.json` where a folder has one:
+  a `name → data URI` map of pre-encoded images the generator inlines.
 - **Never commit third-party captures.** `ref-*.html` and `assets/refs/` are
   ignored by git for a reason. Do not work around the ignore.
 - **Scratch output goes in `scratch/`** inside the folder, never in the repo

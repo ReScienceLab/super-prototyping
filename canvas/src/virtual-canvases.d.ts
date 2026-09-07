@@ -24,6 +24,13 @@ declare module "virtual:canvases" {
   /** Each folder's icon.png as an emitted asset URL, eager: read during render. */
   export const rawIcons: Record<string, string>;
   /**
+   * Per folder slug, `"<payload length>:<fnv1a>"` of a data: URI's base64 payload -> the file
+   * in that folder it was inlined from. Built from `assets/**`, `assets-dark/**` and
+   * `assets.json`, so it needs no attribute in the HTML and no regeneration; eager because it
+   * is small (about 60 bytes per asset) and read while a panel renders.
+   */
+  export const rawAssetNames: Record<string, Record<string, { name: string; bytes: number }>>;
+  /**
    * Absolute path the boards were actually read from, and `""` in a production build — the
    * bundle is public and this is the build machine's filesystem. EmptyLibraryNotice in App.tsx
    * shows it to a project that has no boards yet, because "which directory is this canvas

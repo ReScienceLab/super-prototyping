@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Tldraw,
   createShapeId,
@@ -19,8 +19,10 @@ import { WELCOME_PAGE_SLUG, slugFromUrl, urlForSlug } from "./canvasUrl";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
   CANVAS_FILE_SHAPE_TYPE,
+  type CanvasFileShape,
   CanvasFileShapeUtil,
 } from "./CanvasFileShapeUtil";
+import { InspectorClicks, InspectorPanel } from "./InspectorPanel";
 import {
   CANVAS_LINK_BUTTON_SIZE,
   CANVAS_LINK_CARD_SIZE,
@@ -753,7 +755,21 @@ function initializeCanvas(editor: Editor) {
 
 export default function App() {
   const [stylesVisible, setStylesVisible] = useState(false);
+  /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
+  const [inspecting, setInspecting] = useState<{
+    path: string;
+    name: string;
+    w: number;
+    h: number;
+  } | null>(null);
   const editorRef = useRef<Editor | null>(null);
+
+  // Stable, so the panel's Escape listener is not torn down and rebound on every App render.
+  const onCloseInspector = useCallback(() => setInspecting(null), []);
+  const onPick = useCallback((shape: CanvasFileShape) => {
+    const { path, name, w, h } = shape.props;
+    setInspecting({ path, name, w, h });
+  }, []);
 
   function handleMount(editor: Editor) {
     editorRef.current = editor;
@@ -772,20 +788,34 @@ export default function App() {
         },
       }}
     >
-      <main className="tldraw__editor" aria-label="Prototype design canvas">
-        <Tldraw
-          assetUrls={canvasChromeAssetUrls}
-          components={canvasChromeComponents}
-          persistenceKey={PERSISTENCE_KEY}
-          shapeUtils={shapeUtils}
-          onMount={handleMount}
-        >
-          <AgentBridge />
-          <LockedLinkClicks />
-          <WelcomeGround />
-          <EmptyLibraryNotice />
-        </Tldraw>
-      </main>
+      <div className="canvas-shell">
+        <main className="tldraw__editor" aria-label="Prototype design canvas">
+          <Tldraw
+            assetUrls={canvasChromeAssetUrls}
+            components={canvasChromeComponents}
+            persistenceKey={PERSISTENCE_KEY}
+            shapeUtils={shapeUtils}
+            onMount={handleMount}
+          >
+            <AgentBridge />
+            <LockedLinkClicks />
+            <InspectorClicks onPick={onPick} />
+            <WelcomeGround />
+            <EmptyLibraryNotice />
+          </Tldraw>
+        </main>
+        {inspecting ? (
+          // Keyed by path: a different board is a fresh panel, with its own selection and
+          // report, rather than one that resets its state in an effect.
+          <InspectorPanel
+            key={inspecting.path}
+            path={inspecting.path}
+            name={inspecting.name}
+            size={{ w: inspecting.w, h: inspecting.h }}
+            onClose={onCloseInspector}
+          />
+        ) : null}
+      </div>
     </CanvasChromeContext.Provider>
   );
 }
