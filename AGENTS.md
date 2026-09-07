@@ -43,8 +43,13 @@ Rules inside a canvas folder:
   output. Edit the generator and re-run, never the HTML.
 - Commit `layout.json`, `icon.png` and `assets/`. `gen.py` inlines the
   images in `assets/` as `data:` URIs.
-- Commit `probes.json`, `crops.json` and `assets.json`. They are the
-  measurement evidence behind the tokens.
+- Commit `probes.json` and `crops.json`. They are the measurement evidence
+  behind the tokens.
+- Commit `assets.json` where a folder has one (three do). It is a
+  `name → data URI` map of pre-encoded images the generator inlines, not
+  evidence. The canvas's inspector names a board's images by content, from
+  `assets/` first and `assets.json` second, so a re-encoded image that
+  matches neither falls back to its `alt`.
 - Never commit `ref-*.html` or `assets/refs/`. They hold third-party
   captures, the root `.gitignore` already excludes them, and the
   clone-prototype skill rebuilds them. `spotify-ios` is the one exception:
