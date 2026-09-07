@@ -764,6 +764,8 @@ export default function App() {
   } | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
+  // Stable, so the panel's Escape listener is not torn down and rebound on every App render.
+  const onCloseInspector = useCallback(() => setInspecting(null), []);
   const onPick = useCallback((shape: CanvasFileShape) => {
     const { path, name, w, h } = shape.props;
     setInspecting({ path, name, w, h });
@@ -810,7 +812,7 @@ export default function App() {
             path={inspecting.path}
             name={inspecting.name}
             size={{ w: inspecting.w, h: inspecting.h }}
-            onClose={() => setInspecting(null)}
+            onClose={onCloseInspector}
           />
         ) : null}
       </div>

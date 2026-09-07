@@ -24,19 +24,22 @@ import {
   formatBytes,
   initialLayersH,
   isColorValue,
+  layersBounds,
   layerKind,
   layerName,
   layerSelector,
   nextLayersH,
   nextPanelW,
   nextRailW,
+  panelBounds,
+  railBounds,
   tokenGroups,
   tokenVia,
 } from "./inspectorModel";
 
 /**
- * The docked inspector: a large preview of the clicked board on the left, a fixed rail on the
- * right with layers and properties, the board's images, and its design tokens. The board is
+ * The docked inspector: a large preview of the clicked board on the left, a resizable and
+ * collapsible rail on the right with layers and properties, the board's images, and its design tokens. The board is
  * loaded a second time into a scripted frame (inspectorAgent.ts), which is how the panel reads
  * what the canvas's own sandboxed frames cannot.
  */
@@ -56,14 +59,21 @@ function divider(
   apply: (start: number, delta: number) => void,
 ) {
   return (e: React.PointerEvent<HTMLElement>) => {
+    // Left button only, and only one pointer at a time: a second finger on the same grip would
+    // otherwise run two drags off two origins and thrash the pane between them, and a right
+    // button drag can lose its pointerup to the context menu and leave the listener bound.
+    if (e.button !== 0 || !e.isPrimary) return;
     e.preventDefault();
     const el = e.currentTarget;
     const origin = axis === "x" ? e.clientX : e.clientY;
     const start = from();
     el.setPointerCapture(e.pointerId);
-    const move = (m: PointerEvent) =>
+    const move = (m: PointerEvent) => {
+      if (m.pointerId !== e.pointerId) return;
       apply(start, (axis === "x" ? m.clientX : m.clientY) - origin);
-    const up = () => {
+    };
+    const up = (m: PointerEvent) => {
+      if (m.pointerId !== e.pointerId) return;
       el.removeEventListener("pointermove", move);
       el.removeEventListener("pointerup", up);
       el.removeEventListener("pointercancel", up);
@@ -71,6 +81,21 @@ function divider(
     el.addEventListener("pointermove", move);
     el.addEventListener("pointerup", up);
     el.addEventListener("pointercancel", up);
+  };
+}
+
+/** The same move by arrow key, so a focused grip does what its label says it does. */
+function dividerKeys(
+  axis: "x" | "y",
+  from: () => number,
+  apply: (start: number, delta: number) => void,
+) {
+  const [less, more] = axis === "x" ? ["ArrowLeft", "ArrowRight"] : ["ArrowUp", "ArrowDown"];
+  return (e: React.KeyboardEvent<HTMLElement>) => {
+    const step = e.key === less ? -1 : e.key === more ? 1 : 0;
+    if (!step) return;
+    e.preventDefault();
+    apply(from(), step * (e.shiftKey ? 64 : 8));
   };
 }
 
@@ -110,23 +135,17 @@ export function InspectorPanel({
   const [panelW, setPanelW] = useState(PANEL_W);
   const [railW, setRailW] = useState(RAIL_W);
   const [layersH, setLayersH] = useState(() => initialLayersH(window.innerHeight));
+  const [win, setWin] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
   const [railOpen, setRailOpen] = useState(true);
   const stage = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onResize = () => setWin({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
   const [scale, setScale] = useState(1);
   const { w: boardW, h: boardH } = size;
-
-  /**
-   * App's own comment has said "Escape or × to close" since the panel landed, but nothing bound
-   * the key. It matters more now: collapsing the rail takes the × with it, so without this a
-   * collapsed panel has no way out but expanding it again.
-   */
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
 
   /**
    * The board is scaled to fit the stage rather than pinned at a constant, because every one of
@@ -180,10 +199,11 @@ export function InspectorPanel({
     frame.current?.contentWindow?.postMessage({ type: "sp:hover", i: hov }, "*");
   }, [hov]);
 
-  // Escape clears the selection, and with nothing selected closes the panel.
+  // Escape clears the selection, and with nothing selected closes the panel. `defaultPrevented`
+  // skips the ones a tldraw menu or a Radix layer has already dismissed itself on.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
+      if (event.key !== "Escape" || event.defaultPrevented) return;
       if (sel !== null) setSel(null);
       else onClose();
     };
@@ -200,6 +220,25 @@ export function InspectorPanel({
 
   const node = data && sel !== null ? data.nodes[sel] : undefined;
   const selAsset = assetForNode(assets, sel);
+
+  // Clamped here, not only where they are set: see the note on `nextPanelW`. The raw state is
+  // what a drag started from, these are what is rendered and what the next drag reads back.
+  const panel = nextPanelW(panelW, 0, win.w);
+  const rail = nextRailW(railW, 0, panel);
+  const layers = nextLayersH(layersH, 0, win.h);
+
+  const setPanel = {
+    from: () => panel,
+    apply: (w0: number, dx: number) => setPanelW(nextPanelW(w0, dx, win.w)),
+  };
+  const setRail = {
+    from: () => rail,
+    apply: (w0: number, dx: number) => setRailW(nextRailW(w0, dx, panel)),
+  };
+  const setLayers = {
+    from: () => layers,
+    apply: (h0: number, dy: number) => setLayersH(nextLayersH(h0, dy, win.h)),
+  };
   const usedTokens = data ? data.tokens.filter((t) => t.usedBy.length).length : 0;
 
   const jumpToToken = (token: string) => {
@@ -208,16 +247,19 @@ export function InspectorPanel({
   };
 
   return (
-    <aside className="sp-panel" style={{ width: panelW }}>
+    <aside className="sp-panel" style={{ width: panel }}>
       {/* The panel is docked right, so its left edge is the one that resizes it: drag left, wider. */}
       <div
         className="sp-grip sp-grip--x"
         role="separator"
         aria-orientation="vertical"
         aria-label="Resize inspector"
-        onPointerDown={divider("x", () => panelW, (w0, dx) =>
-          setPanelW(nextPanelW(w0, dx, window.innerWidth)),
-        )}
+        aria-valuenow={panel}
+        aria-valuemin={panelBounds(win.w)[0]}
+        aria-valuemax={panelBounds(win.w)[1]}
+        tabIndex={0}
+        onPointerDown={divider("x", setPanel.from, setPanel.apply)}
+        onKeyDown={dividerKeys("x", setPanel.from, setPanel.apply)}
       />
       <div className="sp-stage" ref={stage}>
         <div
@@ -246,7 +288,8 @@ export function InspectorPanel({
         <span className="sp-zoom">{Math.round(scale * 100)}%</span>
         {/*
           Lives on the stage, not in the rail, so that collapsing the rail does not also hide the
-          only way back. Escape still closes the whole inspector either way.
+          only way back — Escape does not help here, because clicking the preview moves focus into
+          the frame and the agent forwards no keys.
         */}
         <button
           type="button"
@@ -268,13 +311,16 @@ export function InspectorPanel({
           role="separator"
           aria-orientation="vertical"
           aria-label="Resize details"
-          onPointerDown={divider("x", () => railW, (w0, dx) =>
-            setRailW(nextRailW(w0, dx, panelW)),
-          )}
+          aria-valuenow={rail}
+          aria-valuemin={railBounds(panel)[0]}
+          aria-valuemax={railBounds(panel)[1]}
+          tabIndex={0}
+          onPointerDown={divider("x", setRail.from, setRail.apply)}
+          onKeyDown={dividerKeys("x", setRail.from, setRail.apply)}
         />
       ) : null}
 
-      <div className="sp-rail" style={{ width: railW, display: railOpen ? undefined : "none" }}>
+      <div className="sp-rail" style={{ width: rail, display: railOpen ? undefined : "none" }}>
         <header className="sp-head">
           <span className="sp-head-name" title={path}>
             {name}
@@ -307,7 +353,7 @@ export function InspectorPanel({
           <section className="sp-tab">
             <Layers
               nodes={data?.nodes ?? []}
-              height={layersH}
+              height={layers}
               sel={sel}
               hov={hov}
               names={assetNameByNode}
@@ -320,9 +366,12 @@ export function InspectorPanel({
               role="separator"
               aria-orientation="horizontal"
               aria-label="Resize layers"
-              onPointerDown={divider("y", () => layersH, (h0, dy) =>
-                setLayersH(nextLayersH(h0, dy, window.innerHeight)),
-              )}
+              aria-valuenow={layers}
+              aria-valuemin={layersBounds(win.h)[0]}
+              aria-valuemax={layersBounds(win.h)[1]}
+              tabIndex={0}
+              onPointerDown={divider("y", setLayers.from, setLayers.apply)}
+              onKeyDown={dividerKeys("y", setLayers.from, setLayers.apply)}
             />
             {/* The image the selected layer draws, on its own, pinned under the row that named it. */}
             {selAsset ? (

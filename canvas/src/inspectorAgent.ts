@@ -335,7 +335,10 @@ var hi=overlay('box-shadow:0 0 0 1.5px #0d99ff'),hov=overlay('box-shadow:0 0 0 1
 function fmt(n){return String(Math.round(n*100)/100);}
 function place(d,el){if(!el){d.style.display='none';return null;}var r=el.getBoundingClientRect();
   d.style.display='block';d.style.left=r.left+'px';d.style.top=r.top+'px';d.style.width=r.width+'px';d.style.height=r.height+'px';return r;}
-function at(i){return i===null||i===undefined?null:root.querySelector('[data-sp="'+i+'"]');}
+/* els[i], not a querySelector: root is index 0 and carries its own data-sp, but querySelector
+   searches descendants only, so selecting the root row highlighted nothing and never sent
+   bindings — its Styles section sat on "resolving..." for good. */
+function at(i){return i===null||i===undefined?null:(els[i]||null);}
 var selEl=null;
 function select(i){selEl=at(i);var r=place(hi,selEl);
   if(r){badge.style.display='block';badge.textContent=fmt(r.width)+' × '+fmt(r.height);badge.style.left=(r.left+r.width/2)+'px';badge.style.top=(r.bottom+4)+'px';}

@@ -196,28 +196,51 @@ export const initialLayersH = (viewport: number) => clamp(Math.round(viewport * 
 const PANEL_MIN = 360;
 const RAIL_GAP = 280; // canvas left visible beside the panel
 const RAIL_MIN = 200;
-const STAGE_MIN = 240; // preview left visible beside the rail
+const STAGE_MIN = 240; // preview asked for beside the rail; the rail's own minimum wins under it
 const LAYERS_MIN = 72;
-const LAYERS_GAP = 120; // properties left visible under the layers
+const LAYERS_GAP = 200; // room under the layers for the selected asset and the properties
 
 export const clamp = (v: number, lo: number, hi: number) =>
   // lo wins a crossover: on a viewport too small for both bounds, a divider pinned to the
-  // minimum is usable, one pinned to a negative maximum is not.
+  // minimum is usable, one pinned to a negative maximum is not. That crossover is reachable at
+  // the panel minimum, where 360 cannot hold RAIL_MIN + STAGE_MIN and the rail keeps its 200.
   Math.max(lo, Math.min(v, hi));
+
+/**
+ * What each divider may range over. Exported because the bounds are also what the grips report
+ * to a screen reader and what an arrow key steps within, not only what a drag is clamped to.
+ */
+export const panelBounds = (viewport: number): [number, number] => [
+  PANEL_MIN,
+  Math.max(PANEL_MIN, viewport - RAIL_GAP),
+];
+export const railBounds = (panelW: number): [number, number] => [
+  RAIL_MIN,
+  Math.max(RAIL_MIN, panelW - STAGE_MIN),
+];
+export const layersBounds = (viewport: number): [number, number] => [
+  LAYERS_MIN,
+  Math.max(LAYERS_MIN, viewport - LAYERS_GAP),
+];
 
 /**
  * Where a divider lands. The panel and the rail are both docked right, so their left edges
  * resize them and a leftward drag — a negative dx — makes them wider. The layers list is above
  * its divider, so it follows dy directly.
+ *
+ * Every one of these is applied at render as well as at drag time, with a zero delta. A bound
+ * moves when the window resizes or when the divider on the other side of it is dragged, and a
+ * value only clamped where it was set outlives its own bound: a layers list dragged tall in a
+ * tall window put its grip below the rail's bottom edge, where nothing could reach it again.
  */
 export const nextPanelW = (start: number, dx: number, viewport: number) =>
-  clamp(start - dx, PANEL_MIN, viewport - RAIL_GAP);
+  clamp(start - dx, ...panelBounds(viewport));
 
 export const nextRailW = (start: number, dx: number, panelW: number) =>
-  clamp(start - dx, RAIL_MIN, panelW - STAGE_MIN);
+  clamp(start - dx, ...railBounds(panelW));
 
 export const nextLayersH = (start: number, dy: number, viewport: number) =>
-  clamp(start + dy, LAYERS_MIN, viewport - LAYERS_GAP);
+  clamp(start + dy, ...layersBounds(viewport));
 
 /** Contain, never past 1:1 — a board blown up past its own pixels is blurrier, not bigger. */
 export const fitScale = (stage: { w: number; h: number }, board: { w: number; h: number }) => {

@@ -247,6 +247,7 @@ button {
   margin: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   /* No top border: `.sp-layers` already draws one above it. */
   border-bottom: 1px solid var(--sp-line);
 }
@@ -336,8 +337,13 @@ button {
 }
 
 .sp-grip:hover::after,
-.sp-grip:active::after {
+.sp-grip:active::after,
+.sp-grip:focus-visible::after {
   background: var(--sp-accent);
+}
+
+.sp-grip:focus-visible {
+  outline: none;
 }
 
 .sp-grip--x {
@@ -547,7 +553,10 @@ button {
 /* Properties */
 .sp-props {
   flex: 1;
-  min-height: 0;
+  /* Not 0: flex splits a shortfall by basis, and against the asset figure's 168 the properties'
+     own basis of 0 takes none of it — they would be squeezed to nothing before the image gave up
+     a pixel. A floor is what stops that. */
+  min-height: 64px;
   overflow: auto;
 }
 

@@ -6,9 +6,12 @@ import {
   assetRows,
   fitScale,
   initialLayersH,
+  layersBounds,
   nextLayersH,
   nextPanelW,
   nextRailW,
+  panelBounds,
+  railBounds,
   formatBytes,
   isColorValue,
   layerKind,
@@ -192,7 +195,28 @@ describe("panel geometry", () => {
   it("grows the layers list downward, which is the drag the fixed 240px needed", () => {
     expect(nextLayersH(240, 160, 1000)).toBe(400);
     expect(nextLayersH(240, -9999, 1000)).toBe(72);
-    expect(nextLayersH(240, 9999, 1000)).toBe(880); // viewport - 120
+    expect(nextLayersH(240, 9999, 1000)).toBe(800); // viewport - 200
+  });
+
+  it("re-clamps a value whose bound has since moved, which is what render does", () => {
+    // A rail dragged wide, then the panel dragged to its minimum: the stage keeps a strip.
+    const panel = nextPanelW(736, 9999, 1600);
+    expect(nextRailW(496, 0, panel)).toBe(200);
+    expect(panel - nextRailW(496, 0, panel)).toBe(160);
+    // A panel dragged wide, then the window shrunk under it.
+    expect(nextPanelW(1320, 0, 900)).toBe(620);
+    // A layers list dragged tall, then the window shrunk: the grip stays inside the rail.
+    expect(nextLayersH(880, 0, 900)).toBe(700);
+    expect(nextLayersH(880, 0, 900)).toBeLessThan(900);
+  });
+
+  it("reports the same bounds it clamps to, which is what the grips announce", () => {
+    expect(panelBounds(1600)).toEqual([360, 1320]);
+    expect(railBounds(736)).toEqual([200, 496]);
+    expect(layersBounds(1000)).toEqual([72, 800]);
+    // Crossed bounds collapse onto the minimum rather than inverting.
+    expect(panelBounds(300)).toEqual([360, 360]);
+    expect(railBounds(360)).toEqual([200, 200]);
   });
 
   it("contains the board in the stage and never enlarges past 1:1", () => {
@@ -219,5 +243,10 @@ describe("assetForNode", () => {
   it("is null for no selection and for a layer that draws nothing", () => {
     expect(assetForNode(rows, null)).toBeNull();
     expect(assetForNode(rows, 7)).toBeNull();
+  });
+
+  it("takes the first row when one layer draws two images, as the layer name does", () => {
+    const both = [{ key: "bg", uses: [2] }, { key: "fg", uses: [2] }] as unknown as AssetRow[];
+    expect(assetForNode(both, 2)?.key).toBe("bg");
   });
 });

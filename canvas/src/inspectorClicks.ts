@@ -12,13 +12,19 @@ export function installInspectorClicks(
   editor: Editor,
   onPick: (shape: CanvasFileShape) => void,
 ) {
-  const boardUnderPointer = () =>
-    editor.getShapeAtPoint(editor.inputs.getCurrentPagePoint(), {
+  /**
+   * The topmost shape must *be* a board. A `filter` here instead would search past anything drawn
+   * over one, so every click on an unlocked note or arrow sitting on a board would also open the
+   * inspector and squeeze the canvas out from under the thing being edited.
+   */
+  const boardUnderPointer = () => {
+    const hit = editor.getShapeAtPoint(editor.inputs.getCurrentPagePoint(), {
       hitInside: true,
       hitLocked: true,
       renderingOnly: true,
-      filter: (shape) => shape.type === CANVAS_FILE_SHAPE_TYPE,
-    }) as CanvasFileShape | undefined;
+    });
+    return hit?.type === CANVAS_FILE_SHAPE_TYPE ? (hit as CanvasFileShape) : undefined;
+  };
 
   let pressed: CanvasFileShape | undefined;
   const onEvent = (info: TLEventInfo) => {
