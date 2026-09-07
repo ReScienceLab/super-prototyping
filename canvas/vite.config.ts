@@ -81,14 +81,95 @@ const jsString = (value: string) =>
     .replace(/\u2029/g, "\\u2029")
     .replace(/</g, "\\u003c");
 
+/** Any JSON-serialisable value as a JavaScript literal, escaped the same way. */
+const jsLiteral = (value: unknown) =>
+  JSON.stringify(value)
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029")
+    .replace(/</g, "\\u003c");
+
 /** The historical key for a board, kept whatever directory it was actually read from. */
 const keyFor = (slug: string, file: string) => `../../mockups/canvases/${slug}/${file}`;
+
+const ASSET_MIME = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"]);
+
+/**
+ * FNV-1a 32 over a string's code units, base 36. The inspector's agent runs the same function
+ * over the base64 payload of each data: URI inside the board, and joins on `length:hash`. A
+ * plain hash rather than SHA because the agent runs in a sandboxed frame with no `crypto.subtle`
+ * in every deployment, and this does 3 MB in about 12 ms.
+ */
+function fnv1a(s: string) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0;
+  return h.toString(36);
+}
+
+interface AssetName {
+  /** Path inside the board folder, `assets/art/hero.png`, or `assets.json#key`. */
+  name: string;
+  /** Decoded size, i.e. the file's own byte count. */
+  bytes: number;
+}
+
+/**
+ * `length:hash` of the base64 payload -> the source file, for every image a folder's generator
+ * could have inlined: `assets/**`, `assets-dark/**` and the values of `assets.json`. `refs/` is
+ * skipped because it holds third-party captures that are never committed. A generator that
+ * re-encodes on the way (a PIL resize) produces bytes that match nothing here, and the
+ * inspector then falls back to the image's alt text.
+ */
+function assetIndex(folder: string): Record<string, AssetName> {
+  const out: Record<string, AssetName> = {};
+  const add = (payload: string, name: string, bytes: number) => {
+    const key = `${payload.length}:${fnv1a(payload)}`;
+    if (!(key in out)) out[key] = { name, bytes };
+  };
+  const walk = (dir: string, rel: string) => {
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (e.name.startsWith(".")) continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name !== "refs") walk(p, `${rel}${e.name}/`);
+        continue;
+      }
+      if (!ASSET_MIME.has(path.extname(e.name).toLowerCase())) continue;
+      const buf = fs.readFileSync(p);
+      add(buf.toString("base64"), rel + e.name, buf.length);
+    }
+  };
+  for (const sub of ["assets", "assets-dark"]) walk(path.join(folder, sub), `${sub}/`);
+  const json = path.join(folder, "assets.json");
+  if (fs.existsSync(json)) {
+    try {
+      const map: unknown = JSON.parse(fs.readFileSync(json, "utf8"));
+      if (map && typeof map === "object") {
+        for (const [key, v] of Object.entries(map)) {
+          if (typeof v !== "string" || !v.startsWith("data:")) continue;
+          const payload = v.slice(v.indexOf(",") + 1);
+          const pad = payload.endsWith("==") ? 2 : payload.endsWith("=") ? 1 : 0;
+          add(payload, `assets.json#${key}`, Math.floor((payload.length * 3) / 4) - pad);
+        }
+      }
+    } catch {
+      // a malformed assets.json names nothing; the boards still render
+    }
+  }
+  return out;
+}
 
 interface Board {
   slug: string;
   html: string[];
   layout: boolean;
   icon: boolean;
+  assets: Record<string, AssetName>;
 }
 
 /**
@@ -140,6 +221,7 @@ function scan(dir: string): Board[] {
           .sort(),
         layout: fs.existsSync(path.join(folder, "layout.json")),
         icon: fs.existsSync(path.join(folder, "icon.png")),
+        assets: assetIndex(folder),
       };
     })
     .filter((b): b is Board => b !== null && b.html.length > 0);
@@ -182,6 +264,7 @@ function canvasesSource(): Plugin {
       const loaders: string[] = [];
       const layouts: string[] = [];
       const icons: string[] = [];
+      const assets: string[] = [];
 
       boards.forEach((board, i) => {
         const folder = path.join(canvasesDir, board.slug);
@@ -200,6 +283,9 @@ function canvasesSource(): Plugin {
           imports.push(`import __icon${i} from ${spec(path.join(folder, "icon.png"), "?url")};`);
           icons.push(`  ${jsString(keyFor(board.slug, "icon.png"))}: __icon${i},`);
         }
+        if (Object.keys(board.assets).length) {
+          assets.push(`  ${jsString(board.slug)}: ${jsLiteral(board.assets)},`);
+        }
       });
 
       return [
@@ -213,6 +299,7 @@ function canvasesSource(): Plugin {
         `export const fileLoaders = {\n${loaders.join("\n")}\n};`,
         `export const rawLayouts = {\n${layouts.join("\n")}\n};`,
         `export const rawIcons = {\n${icons.join("\n")}\n};`,
+        `export const rawAssetNames = {\n${assets.join("\n")}\n};`,
       ].join("\n");
     },
 
@@ -229,7 +316,9 @@ function canvasesSource(): Plugin {
 
       const inside = (p: string) => p.startsWith(canvasesDir + path.sep);
       const structural = (file: string) =>
-        inside(file) && /(\.html|layout\.json|icon\.png)$/.test(file);
+        inside(file) &&
+        (/(\.html|layout\.json|icon\.png|assets\.json)$/.test(file) ||
+          /\/assets(-dark)?\//.test(file));
 
       const rebuild = () => {
         const mod = server.moduleGraph.getModuleById(RESOLVED_ID);
@@ -249,6 +338,11 @@ function canvasesSource(): Plugin {
 
       server.watcher.on("add", onFile);
       server.watcher.on("unlink", onFile);
+      // An asset edited in place keeps its name and changes its hash, so the index is stale
+      // until the module is rebuilt. Board HTML edits already reload through the module graph.
+      server.watcher.on("change", (file) => {
+        if (inside(file) && /\/assets(-dark)?\/|assets\.json$/.test(file)) rebuild();
+      });
       server.watcher.on("addDir", onDir);
       server.watcher.on("unlinkDir", onDir);
     },
