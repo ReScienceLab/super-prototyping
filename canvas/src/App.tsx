@@ -91,14 +91,20 @@ const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
  * the hook rebuilds the store whenever it changes.
  */
 /**
- * The tldraw license, inlined from the build environment (see vite.config.ts for the two names
- * accepted). Commenting is a licensed feature: without a key `CanvasComments` renders nothing in
- * production. Not in development — tldraw reads the *runtime* host for that, and localhost, a
- * loopback address and any plain-http origin all get every feature. So a built bundle served from
- * 127.0.0.1 cannot tell you whether the deployed site will have commenting; only the deploy can.
+ * The tldraw license, inlined at build time from the Pages project's own environment (it is set on
+ * super-prototyping, production and preview both). Commenting is a licensed feature: with no key
+ * `CanvasComments` renders nothing at all in production, so the hosted canvas would offer a comment
+ * tool that does nothing.
+ *
+ * Not in development, and that is the trap: tldraw decides "development" from the *runtime* host,
+ * so localhost, any loopback address and any plain-http origin get every feature unlicensed. A
+ * production build served from 127.0.0.1 therefore cannot tell you whether the deployed site has
+ * commenting. Only the deploy can.
+ *
+ * The key today is an evaluation license, which grants every feature and expires on 2026-12-12 with
+ * no grace period. On that date commenting goes dark again unless it has been replaced.
  */
-const TLDRAW_LICENSE_KEY: string | undefined =
-  import.meta.env.VITE_TLDRAW_LICENSE_KEY ?? import.meta.env.TLDRAW_LICENSE_KEY;
+const TLDRAW_LICENSE_KEY: string | undefined = import.meta.env.VITE_TLDRAW_LICENSE_KEY;
 
 const storeOptions = {
   persistenceKey: PERSISTENCE_KEY,

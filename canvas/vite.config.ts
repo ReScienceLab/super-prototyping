@@ -541,11 +541,6 @@ function canvasesSource(): Plugin {
 
 export default defineConfig({
   plugins: [react(), repoRootMeta(), canvasesSource()],
-  // The tldraw license key is set in the host's build environment, under whichever of the two
-  // obvious names it was given there. A license key is meant to ship in the client bundle — it is
-  // checked against the domain serving it — so widening the prefix leaks nothing a visitor could
-  // not already read.
-  envPrefix: ["VITE_", "TLDRAW_"],
   server: {
     // The boards sit outside this app's root — one level up by default, anywhere at all when
     // PROTOTYPING_CANVASES_DIR points elsewhere. They load on demand rather than being pulled
