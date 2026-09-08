@@ -1,6 +1,8 @@
-// The address of a page. A board is `?canvas=<slug>`, the canvases/<slug> folder name; the
-// welcome page is the bare URL, so the way in stays the shortest link there is. Anything else
-// in the query string is left alone.
+// The address of what is on screen. A page is `?canvas=<slug>`, the canvases/<slug> folder
+// name; the welcome page is the bare URL, so the way in stays the shortest link there is. A
+// board of that page is the hash, `?canvas=<slug>#<file>` for canvases/<slug>/<file>.html: the
+// board open in the inspector, and what a link to one board points at. Anything else in the
+// query string is left alone.
 
 export const WELCOME_PAGE_SLUG = "00-welcome";
 
@@ -11,10 +13,28 @@ export function slugFromUrl(href: string) {
   return new URL(href).searchParams.get(CANVAS_PARAM) ?? WELCOME_PAGE_SLUG;
 }
 
-/** The address for a page slug, built on `href` so the origin, path and other parameters stay. */
-export function urlForSlug(href: string, slug: string) {
+/**
+ * The board an address opens, by file name: its hash, else nothing. The hash is typed by hand,
+ * so a broken escape in it is a board that does not exist, not an error.
+ */
+export function boardFromUrl(href: string) {
+  const { hash } = new URL(href);
+  if (!hash) return undefined;
+  try {
+    return decodeURIComponent(hash.slice(1));
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The address for a page slug and, if one is open, a board of it, built on `href` so the
+ * origin, path and other parameters stay.
+ */
+export function urlForSlug(href: string, slug: string, board?: string) {
   const url = new URL(href);
   if (slug === WELCOME_PAGE_SLUG) url.searchParams.delete(CANVAS_PARAM);
   else url.searchParams.set(CANVAS_PARAM, slug);
+  url.hash = board ? encodeURIComponent(board) : "";
   return url.href;
 }

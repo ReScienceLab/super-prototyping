@@ -33,8 +33,10 @@ candidate boards, goes in `<slug>/scratch/`. The root `.gitignore` ignores
 `scratch/` at any depth, and `assets/refs/` too, which is where third-party
 captures go. No folder needs a `.gitignore` of its own.
 
-Switch boards with the page menu at the top-left of the canvas. Deep-link a
-board with `?canvas=<slug>`, e.g. `http://127.0.0.1:5173/?canvas=notion-ios`.
+Switch pages with the page menu at the top-left of the canvas. Deep-link a
+page with `?canvas=<slug>`, e.g. `http://127.0.0.1:5173/?canvas=notion-ios`,
+and one board of it with `#<file>` after that, e.g.
+`?canvas=notion-ios#02-search-ask-ai`.
 
 ## 00-welcome
 

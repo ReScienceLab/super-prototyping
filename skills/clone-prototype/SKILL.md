@@ -461,13 +461,16 @@ the capture itself.
 
 **Open the board as soon as its first HTML file lands.** The dev server
 watches the boards directory and picks up a folder created after it booted,
-so there is nothing to restart. If `?canvas=<slug>` opens the wrong board
+so there is nothing to restart. If `?canvas=<slug>` opens the wrong page
 anyway — right URL, no error — the folder holds no `.html` file yet, and an
 empty folder is not a board.
 
 ```bash
 open "http://127.0.0.1:<port>/?canvas=<slug>"
 ```
+
+`#<file>` after that opens one board in the inspector, with the camera on
+it: `?canvas=<slug>#03-home` is the link to give for one screen.
 
 ---
 
