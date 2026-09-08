@@ -5,6 +5,9 @@ body,
   height: 100%;
   margin: 0;
   overflow: hidden;
+  /* Nothing here scrolls, so any leftover horizontal overscroll is the browser's back gesture —
+     which is what a two-finger pan turns into anywhere tldraw does not get the wheel first. */
+  overscroll-behavior: none;
 }
 
 body {
