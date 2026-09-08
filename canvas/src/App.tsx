@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Tldraw,
   createShapeId,
@@ -15,7 +15,7 @@ import {
 } from "tldraw";
 import "tldraw/tldraw.css";
 import { installAgentBridge } from "./agentBridge";
-import { WELCOME_PAGE_SLUG, slugFromUrl, urlForSlug } from "./canvasUrl";
+import { WELCOME_PAGE_SLUG, boardFromUrl, slugFromUrl, urlForSlug } from "./canvasUrl";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
   CANVAS_FILE_SHAPE_TYPE,
@@ -691,43 +691,92 @@ function relayoutCanvasLibrary(editor: Editor) {
 }
 
 /**
- * Opens the page the address names (canvasUrl.ts): `?canvas=<slug>` for a board, the bare URL
- * for the welcome page. So a specific round can be linked to or scripted against instead of
+ * Opens what the address names (canvasUrl.ts): the page, `?canvas=<slug>` or the bare URL for
+ * the welcome page, and after the hash a board of it, `#<file>`, which opens in the inspector.
+ * So a specific round, or one board in it, can be linked to or scripted against instead of
  * relying on whichever page tldraw last persisted, and the bare URL is always the way in: keep
- * a board open across reloads by deep-linking it, not by leaving it on screen.
+ * a board open across reloads by deep-linking it, not by leaving it on screen. A board the
+ * address names that is not on that page closes the inspector, so what is on screen never
+ * contradicts the address. Returns the board opened, if any.
  */
-function applyCanvasFromUrl(editor: Editor) {
+function applyCanvasFromUrl(
+  editor: Editor,
+  show: (file: CanvasLibraryFile | null) => void,
+) {
   const slug = slugFromUrl(window.location.href);
   const page = editor.getPages().find((c) => c.meta.canvasSlug === slug);
   if (page) editor.setCurrentPage(page.id);
+  const board = boardFromUrl(window.location.href);
+  const file =
+    readCanvasLibrary()
+      .flat()
+      .find((c) => c.pageSlug === slug && c.fileName === board) ?? null;
+  show(file);
+  return file;
 }
 
 /**
- * Keeps the address on the page being looked at, so whatever is on screen can be shared by
- * copying the URL. Each page change (a welcome card, tldraw's page menu) pushes a history
- * entry, so Back returns to the previous board and, from a board, to the welcome page; a
- * popstate opens the page that entry names. Installed after applyCanvasFromUrl so the first
- * run finds the address already applied and only corrects it, without a new entry, when it
- * named no folder. Pages tldraw persisted but no folder claims have no slug and leave the
- * address as it is.
+ * Keeps the address on what is being looked at, so whatever is on screen can be shared by
+ * copying the URL: the page, and the board open in the inspector when it is one of that page's
+ * (an inspector left open across a page change names a board of the other page, which the
+ * address then leaves out). The address is derived from those two whenever either changes,
+ * never edited in place, so the two writers cannot disagree: the page is watched here, and
+ * App calls `write` when the inspector opens or closes.
+ *
+ * Each change pushes a history entry, so Back returns to the previous board and, from a board,
+ * to its page and the welcome page; a popstate applies the entry it lands on. Applying an
+ * address is the one time the page changes without the address needing to follow, so the
+ * watcher stands down for it and `apply` corrects the address once, without an entry, for a
+ * page or board it named that does not exist. Pages tldraw persisted but no folder claims have
+ * no slug and leave the address as it is.
  */
-function installCanvasUrlSync(editor: Editor) {
-  let first = true;
-  const stopSync = react("canvas page in the address", () => {
+function installCanvasUrlSync(
+  editor: Editor,
+  inspected: () => CanvasLibraryFile | null,
+  show: (file: CanvasLibraryFile | null) => void,
+) {
+  const write = (push: boolean) => {
     const slug = editor.getCurrentPage().meta.canvasSlug;
-    const push = !first;
-    first = false;
     if (typeof slug !== "string") return;
-    const href = urlForSlug(window.location.href, slug);
+    const file = inspected();
+    const board = file?.pageSlug === slug ? file.fileName : undefined;
+    const href = urlForSlug(window.location.href, slug, board);
     if (href === window.location.href) return;
     if (push) window.history.pushState(null, "", href);
     else window.history.replaceState(null, "", href);
+  };
+
+  let applying = false;
+  const apply = () => {
+    applying = true;
+    let file: CanvasLibraryFile | null;
+    try {
+      file = applyCanvasFromUrl(editor, show);
+    } finally {
+      applying = false;
+    }
+    write(false);
+    return file;
+  };
+
+  // The first run is the subscription; `apply` writes the address right after it.
+  let first = true;
+  const stopSync = react("canvas page in the address", () => {
+    editor.getCurrentPageId();
+    if (first || applying) {
+      first = false;
+      return;
+    }
+    write(true);
   });
-  const onPopState = () => applyCanvasFromUrl(editor);
-  window.addEventListener("popstate", onPopState);
-  return () => {
-    stopSync();
-    window.removeEventListener("popstate", onPopState);
+  window.addEventListener("popstate", apply);
+  return {
+    apply,
+    write,
+    uninstall: () => {
+      stopSync();
+      window.removeEventListener("popstate", apply);
+    },
   };
 }
 
@@ -750,32 +799,74 @@ function initializeCanvas(editor: Editor) {
   applySnapDefault(editor);
   initializeCanvasLibrary(editor);
   editor.selectNone();
-  requestAnimationFrame(() => editor.zoomToFit());
 }
+
+/** Distance from the viewport's edge to the board the address named, in screen px. */
+const BOARD_ZOOM_INSET = 80;
 
 export default function App() {
   const [stylesVisible, setStylesVisible] = useState(false);
   /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
-  const [inspecting, setInspecting] = useState<{
-    path: string;
-    name: string;
-    w: number;
-    h: number;
-  } | null>(null);
+  const [inspecting, setInspecting] = useState<CanvasLibraryFile | null>(null);
   const editorRef = useRef<Editor | null>(null);
+  /** The same board, for the address writer, which runs outside React. */
+  const inspected = useRef<CanvasLibraryFile | null>(null);
+  /** Writes the address from the page and the inspector; installed with the editor. */
+  const writeUrl = useRef<(push: boolean) => void>(() => {});
+  /** A board the address named, for the camera to go to once the inspector is beside it. */
+  const zoomTo = useRef<CanvasLibraryFile | null>(null);
 
-  // Stable, so the panel's Escape listener is not torn down and rebound on every App render.
-  const onCloseInspector = useCallback(() => setInspecting(null), []);
-  const onPick = useCallback((shape: CanvasFileShape) => {
-    const { path, name, w, h } = shape.props;
-    setInspecting({ path, name, w, h });
+  /**
+   * Opens a board in the inspector, or closes it. A pick or a close is a new address; applying
+   * an address is not, and passes `push: false`.
+   */
+  const show = useCallback((file: CanvasLibraryFile | null, push: boolean) => {
+    inspected.current = file;
+    setInspecting(file);
+    if (push) writeUrl.current(true);
   }, []);
+  const onCloseInspector = useCallback(() => show(null, true), [show]);
+  const onPick = useCallback(
+    (shape: CanvasFileShape) => {
+      const file = readCanvasLibrary()
+        .flat()
+        .find((c) => c.path === shape.props.path);
+      if (file) show(file, true);
+    },
+    [show],
+  );
+
+  // The camera goes to a board the address named, after the inspector has taken its share of
+  // the window: a layout effect, so the panel is in the DOM, and the viewport measured here
+  // because tldraw measures it on a throttled resize observer, up to 200ms behind, which would
+  // fit the board to the canvas width the panel just took. Every `show` from an address is a
+  // fresh library object, so the effect runs even for the board already open.
+  useLayoutEffect(() => {
+    const editor = editorRef.current;
+    const file = zoomTo.current;
+    zoomTo.current = null;
+    if (!editor || !file) return;
+    const bounds = editor.getShapePageBounds(fileShapeId(file));
+    if (!bounds) return;
+    editor.updateViewportScreenBounds(editor.getContainer());
+    editor.zoomToBounds(bounds, { inset: BOARD_ZOOM_INSET });
+  }, [inspecting]);
 
   function handleMount(editor: Editor) {
     editorRef.current = editor;
     initializeCanvas(editor);
-    applyCanvasFromUrl(editor);
-    return installCanvasUrlSync(editor);
+    const sync = installCanvasUrlSync(
+      editor,
+      () => inspected.current,
+      (file) => {
+        zoomTo.current = file;
+        show(file, false);
+      },
+    );
+    writeUrl.current = sync.write;
+    // The address names a board, or the whole page is the view.
+    if (!sync.apply()) requestAnimationFrame(() => editor.zoomToFit());
+    return sync.uninstall;
   }
 
   return (
@@ -810,8 +901,8 @@ export default function App() {
           <InspectorPanel
             key={inspecting.path}
             path={inspecting.path}
-            name={inspecting.name}
-            size={{ w: inspecting.w, h: inspecting.h }}
+            name={inspecting.title}
+            size={boardSize(inspecting)}
             onClose={onCloseInspector}
           />
         ) : null}

@@ -469,6 +469,9 @@ empty folder is not a board.
 open "http://127.0.0.1:<port>/?canvas=<slug>"
 ```
 
+`#<file>` after that opens one board in the inspector, with the camera on
+it: `?canvas=<slug>#03-home` is the link to give for one screen.
+
 ---
 
 ## Phase 6: the folder documents itself

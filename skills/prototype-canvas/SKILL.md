@@ -41,8 +41,11 @@ actually bind, and prints the address.
 - `sp-canvas root` prints which copy of the app it found — and with `-v`,
   everywhere it looked. The first thing to run when the canvas is not what
   you expected.
-- Deep-link a board with `?canvas=<slug>`, e.g.
-  `http://127.0.0.1:5173/?canvas=notion-ios`.
+- Deep-link a page with `?canvas=<slug>`, e.g.
+  `http://127.0.0.1:5173/?canvas=notion-ios`, and one board of it with
+  `#<file>` after that, e.g. `?canvas=notion-ios#02-search-ask-ai`: it opens
+  in the inspector with the camera on it. Give the board link when pointing
+  at one screen.
 
 Keep it on loopback. This is a local design tool, not a service to expose.
 

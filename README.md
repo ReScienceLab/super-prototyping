@@ -26,8 +26,9 @@ registry, no build step and no design tool.
 Five of the fourteen app folders in `mockups/canvases/`. That folder's own
 `README.md` lists them all. Each is a real `clone-prototype` run, rebuilt
 from measured samples with the evidence recorded for every token. Open any
-of them with `?canvas=<slug>`; the address follows whichever page is open, so
-the URL in the bar is always the link to share.
+of them with `?canvas=<slug>`, and one board of it with
+`?canvas=<slug>#<file>`. The address follows whatever is open, the page and
+the board in the inspector, so the URL in the bar is always the link to share.
 
 ### `duolingo-ios`, eight screens that are mostly picture
 
@@ -154,7 +155,9 @@ it on 127.0.0.1:5173 against `./mockups/canvases`, and prints the address.
 `--canvases DIR` points it somewhere else, `--port N` moves it, `sp-canvas
 status` and `sp-canvas stop` do what they say.
 
-Deep-link a board with `?canvas=<slug>`. The bottom toolbar carries a
+Deep-link a page with `?canvas=<slug>`, and one board of it with
+`?canvas=<slug>#<file>`: it opens in the inspector with the camera on it, and
+clicking any board writes that link into the address bar. The bottom toolbar carries a
 styles-panel toggle alongside tldraw's own tools; the top bar carries a
 force-relayout button. Press it after editing a `layout.json`. A board folder
 added after boot appears on its own.
