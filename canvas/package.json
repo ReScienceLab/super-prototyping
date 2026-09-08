@@ -11,15 +11,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tldraw/commenting": "^5.3.2",
+    "@tldraw/commenting": "^5.4.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "tldraw": "^5.3.2"
+    "tldraw": "^5.4.0"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
+    "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "oxlint": "^1.81.0",
     "typescript": "~7.0.2",
