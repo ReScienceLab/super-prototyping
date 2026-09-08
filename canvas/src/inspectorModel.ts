@@ -4,8 +4,11 @@
  */
 import type { SpAsset, SpGroup, SpNode, SpToken, SpTokenKind } from "./inspectorAgent";
 
-/** Where an asset's name came from, so a fallback is never passed off as a file name. */
-export type AssetNameSource = "file" | "alt" | "none";
+/**
+ * Where an asset's name came from, so a fallback is never passed off as a file name: `alt` is an
+ * image's own, `label` is a vector's guess from the class or the caption beside it.
+ */
+export type AssetNameSource = "file" | "alt" | "label" | "none";
 
 export interface AssetRow {
   key: string;
@@ -15,15 +18,18 @@ export interface AssetRow {
   w: number;
   h: number;
   mime: string;
-  via: "img" | "css";
+  via: SpAsset["via"];
   uri: string;
+  /** The standalone markup of a vector; what Copy SVG hands out. */
+  svg?: string;
   uses: number[];
 }
 
 /**
  * Joins the board's images against the folder's committed files by content. A generator that
  * re-encodes (a PIL resize) produces bytes that match nothing, so the image's alt text is the
- * fallback, and after that its format and size.
+ * fallback, and after that its format and size. A vector joins on its geometry, and falls back
+ * to the label the agent guessed for it.
  */
 export function assetRows(
   assets: SpAsset[],
@@ -31,19 +37,22 @@ export function assetRows(
 ): AssetRow[] {
   return assets.map((a) => {
     const hit = names?.[a.key];
-    const format = a.mime.replace(/^image\//, "") || "image";
+    const vector = a.via === "svg";
+    const format = a.mime.replace(/^image\//, "").replace(/\+xml$/, "") || "image";
     const name = hit ? hit.name : a.alt || `${format} ${a.w}×${a.h}`;
     return {
       key: a.key,
       name,
-      source: hit ? "file" : a.alt ? "alt" : "none",
-      // A base64 payload decodes to three bytes per four characters, less any padding.
-      bytes: hit ? hit.bytes : Math.floor((a.chars * 3) / 4),
+      source: hit ? "file" : !a.alt ? "none" : vector ? "label" : "alt",
+      // A base64 payload decodes to three bytes per four characters, less any padding; a vector
+      // is its own text.
+      bytes: hit ? hit.bytes : vector ? a.chars : Math.floor((a.chars * 3) / 4),
       w: a.w,
       h: a.h,
       mime: a.mime,
       via: a.via,
       uri: a.uri,
+      svg: a.svg,
       uses: a.uses,
     };
   });
@@ -55,11 +64,11 @@ export function formatBytes(n: number) {
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export type LayerKind = "frame" | "image" | "text" | "box";
+export type LayerKind = "frame" | "image" | "vector" | "text" | "box";
 
 export function layerKind(node: SpNode): LayerKind {
   if (node.i === 0) return "frame";
-  if (node.img) return "image";
+  if (node.img) return node.tag === "svg" ? "vector" : "image";
   if (node.text) return "text";
   return "box";
 }

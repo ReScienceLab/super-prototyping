@@ -54,6 +54,39 @@ describe("assetRows", () => {
     expect(row.source).toBe("none");
     expect(row.bytes).toBe(300);
   });
+
+  const vector = (over: Partial<SpAsset>) =>
+    asset({
+      key: "svg:k1",
+      via: "svg",
+      mime: "image/svg+xml",
+      uri: "data:image/svg+xml;charset=utf-8,%3Csvg%2F%3E",
+      svg: "<svg/>",
+      chars: 6,
+      w: 28.705,
+      h: 23.719,
+      ...over,
+    });
+
+  it("names a vector from the folder's icon by geometry key, and carries its markup", () => {
+    const [row] = assetRows([vector({})], { "svg:k1": { name: "assets/icons/tab-photos.svg", bytes: 2100 } });
+    expect(row.name).toBe("assets/icons/tab-photos.svg");
+    expect(row.source).toBe("file");
+    expect(row.svg).toBe("<svg/>");
+  });
+
+  it("names a fileless vector from the label the agent guessed, marked as a guess", () => {
+    const [row] = assetRows([vector({ alt: "All Photos" })], {});
+    expect(row.name).toBe("All Photos");
+    expect(row.source).toBe("label");
+    expect(row.bytes).toBe(6);
+  });
+
+  it("falls back to svg and its viewBox size", () => {
+    const [row] = assetRows([vector({})], undefined);
+    expect(row.name).toBe("svg 28.705×23.719");
+    expect(row.source).toBe("none");
+  });
 });
 
 describe("formatBytes", () => {
@@ -90,6 +123,7 @@ describe("layers", () => {
   it("classifies the row's icon", () => {
     expect(layerKind(node({ i: 0 }))).toBe("frame");
     expect(layerKind(node({ img: true, text: "x" }))).toBe("image");
+    expect(layerKind(node({ tag: "svg", img: true }))).toBe("vector");
     expect(layerKind(node({ text: "x" }))).toBe("text");
     expect(layerKind(node({}))).toBe("box");
   });

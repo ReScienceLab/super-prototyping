@@ -284,8 +284,22 @@ button {
 }
 
 .sp-asset-view-d {
+  display: flex;
+  align-items: baseline;
   color: var(--sp-text-2);
   font-family: var(--sp-mono);
+}
+
+.sp-copy {
+  margin-left: auto;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-family: inherit;
+  color: var(--sp-accent);
+}
+
+.sp-copy:hover {
+  background: var(--sp-hover);
 }
 
 .sp-board {
@@ -759,6 +773,17 @@ button {
   max-width: 28px;
   max-height: 28px;
   object-fit: contain;
+}
+
+/* A vector is drawn in whatever colour the board gave it, black included, so its thumb takes
+   the checkerboard the selected view uses rather than the dark ground the photos sit on. */
+.sp-th.svg {
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%),
+    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
 }
 
 .sp-asset-n {
