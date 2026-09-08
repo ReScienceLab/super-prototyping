@@ -294,7 +294,7 @@ export const canvasChromeComponents: TLComponents = {
           createPortal(
             <TldrawUiButton
               type="icon"
-              title="Close (Esc)"
+              title="Close"
               className="canvas-composer-close"
               onClick={() => editor.setCurrentTool("select")}
             >

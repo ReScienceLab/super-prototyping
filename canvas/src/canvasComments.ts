@@ -213,7 +213,12 @@ export function nearestBoard(editor: Editor, pageId: TLPageId, point: { x: numbe
 function installCommentTargetHint(editor: Editor) {
   const container = editor.getContainer();
   const update = () => {
-    if (editor.getCurrentToolId() !== "comment") return;
+    // Not a bare return: a tool change emits nothing, so this is the only pass that gets to drop
+    // the attribute the last hover set — otherwise the filled cursor shows again on the next entry.
+    if (editor.getCurrentToolId() !== "comment") {
+      container.removeAttribute("data-comment-target");
+      return;
+    }
     // ponytail: every board on the page, per pointer move. A page holds tens of them, so the
     // scan costs less than the cache that would keep it correct.
     const id = nearestBoard(
@@ -369,6 +374,16 @@ export function installCanvasComments(editor: Editor) {
     );
   };
 
+  // The same rule, over what the files already hold: a note written before its board existed —
+  // or from a tab predating this — is linked on the next load rather than left pinned to a page
+  // coordinate the next layout.json edit would strand it at. Threads already anchored to a shape,
+  // and ones dropped out in open canvas, are left exactly as they are.
+  //
+  // Before the baseline below, and before the listener: this is derived from the file every load,
+  // not an edit to it. Taking it as an edit would have a hosted visitor who touched nothing write
+  // the board into their browser, and every later deploy of that board would then be invisible.
+  anchorToNearbyBoard(editor, wanted);
+
   // What is on disk already, so the first real edit only writes the board it touched.
   const written = bodies();
 
@@ -420,12 +435,6 @@ export function installCanvasComments(editor: Editor) {
     },
     { source: "user", scope: "document" },
   );
-
-  // The same rule, over what the files already hold: a note written before its board existed —
-  // or from a tab predating this — is linked on the next load rather than left pinned to a page
-  // coordinate the next layout.json edit would strand it at. Threads already anchored to a shape,
-  // and ones dropped out in open canvas, are left exactly as they are.
-  anchorToNearbyBoard(editor, wanted);
 
   const disposeHint = installCommentTargetHint(editor);
 
