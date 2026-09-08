@@ -41,7 +41,7 @@ declare module "virtual:canvases" {
   export const canvasesDir: string;
 
   /**
-   * Each folder's comments.json, keyed by slug — the canvas's own comments, which live with the
+   * Each folder's comments.json, keyed by slug: the canvas's own comments, which live with the
    * boards in Git rather than in a sync server. Inlined rather than imported, so writing one back
    * (canvasComments.ts posts to `/__sp/comments`) does not reload the page through the module
    * graph while its composer is still open. Missing for a folder nobody has commented on.

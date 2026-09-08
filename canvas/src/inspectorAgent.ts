@@ -314,9 +314,9 @@ function addAsset(i,uri,via,el){var c=uri.indexOf(','),payload=uri.slice(c+1),k=
 
 /* An inline <svg> is an asset too, keyed by its geometry rather than its bytes: the generators'
    icon() writes class, style and preserveAspectRatio into the root tag on the way in, so the
-   board's markup is never the file's. The copy handed out stands alone — the colours the cascade
-   supplied (currentColor, var(), a fill from a stylesheet) are written in, and xmlns is added
-   where a literal icon had none — so an <img> in the parent draws it and Figma accepts it. */
+   board's markup is never the file's. The copy handed out is self-contained: the colours the
+   cascade supplied (currentColor, var(), a fill from a stylesheet) are written in, and xmlns is
+   added where a literal icon had none, so an <img> in the parent draws it and Figma accepts it. */
 function addSvg(i,el){
   if(!el.querySelector('path,rect,circle,ellipse,line,polygon,polyline,text,image,use'))return;
   var c=el.cloneNode(true),cs=getComputedStyle(el),inner=c.querySelectorAll('[data-sp]'),n;
@@ -345,7 +345,7 @@ function addSvg(i,el){
 /* No board writes a title on its icons, so with no file to name one the name is a guess from
    context: the accessible name if there is one; else a class, when it is a word (logo, aiface)
    and not a generator's abbreviation (i, mk); else a caption, which is the one short leaf of text
-   beside the icon within two ancestors — the span under a tab icon, the label in a chip. A clock,
+   beside the icon within two ancestors, the span under a tab icon or the label in a chip. A clock,
    a keyboard row, a whole composer or a screen of text is not a caption: the icon stays nameless.
    ponytail: two ancestors and one leaf sibling is the ceiling; a <title> in the svg beats it. */
 function svgLabel(el){var t=el.querySelector('title'),c=(el.getAttribute('class')||'').split(/\s+/)[0],p=el.parentElement,d,k,n,s,one;
@@ -426,7 +426,7 @@ document.addEventListener('mouseleave',function(){lastHover=null;hover(null);par
 
 /**
  * The whole tag, as spliced into a board. Exported for the tests and the Playwright sweeps. The
- * signature function rides along as its own source: it has no outer references, so the text is
+ * signature function goes in as its own source: it has no outer references, so the text is
  * the same function whether the bundle was minified or not.
  */
 export const AGENT =

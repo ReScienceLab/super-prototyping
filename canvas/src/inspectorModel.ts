@@ -11,6 +11,10 @@ import type { SpAsset, SpBox, SpGroup, SpNode, SpToken, SpTokenKind } from "./in
  */
 export type AssetNameSource = "file" | "alt" | "label" | "none";
 
+/** Class names, skipping the falsy ones. Here rather than in either panel file: both draw with
+ *  it, and a component module cannot export it without costing fast refresh. */
+export const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(" ");
+
 export interface AssetRow {
   key: string;
   name: string;
@@ -262,8 +266,8 @@ export const fitScale = (stage: { w: number; h: number }, board: { w: number; h:
 
 /**
  * Where a comment thread points on a board, when it is that board's thread at all. Normalized
- * (0–1) within the artboard, and left unclamped: a pin dropped in the margin beside the mockup
- * belongs to it — that is what anchors it to the board through a layout.json reflow — but the
+ * (0 to 1) within the artboard, and left unclamped: a pin dropped in the margin beside the mockup
+ * belongs to it, which is what anchors it to the board through a layout.json reflow, but the
  * preview only draws the ones that land on the board itself.
  */
 export interface BoardPin {

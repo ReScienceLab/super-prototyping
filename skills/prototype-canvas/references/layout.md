@@ -28,7 +28,7 @@ where a folder has one, is a `name → data URI` map of pre-encoded images the
 generator inlines; commit it too, it is the only copy of those images. The
 canvas's inspector names a board's images by content, from `assets/` first
 and `assets.json` second, and falls back to the image's `alt` when a
-generator re-encoded it. An inline `<svg>` is named the same way from
+generator re-encoded it. It names an inline `<svg>` the same way from
 `assets/icons/`, by its geometry rather than its bytes, so keep each icon
 as a file there and inline it through a helper in `gen.py`.
 Everything a run makes on the way (grids, shots, montages, candidate boards)
@@ -85,12 +85,12 @@ out top to bottom:
   first file's size, so give every file in the row the same one.
 - `status` is how far along a board is: `exploring`, `outdated`, or `live`.
   `live` is the default and draws nothing; the other two draw a coloured tab
-  above the board — amber for exploring, grey for outdated. Declare it once at
-  the top level for a folder that is one round of exploration, and per file
+  above the board, amber for exploring and grey for outdated. Declare it once
+  at the top level for a folder that is one round of exploration, and per file
   (`{ "file", "label", "status": "outdated" }`) for a board that differs,
   including back to `"live"` to drop a tab the folder would otherwise give it.
-  The status control at the top left of the inspector writes this field, so a
-  board can be restatused by clicking it rather than by editing this file.
+  The status control at the top left of the inspector writes this field, so
+  clicking it changes a board's status without editing this file.
   It is a tldraw shape the layout places, not markup in the
   board, so a board keeps no record of its own status and does not need
   regenerating when that status changes. A row reserves the tab's height for all

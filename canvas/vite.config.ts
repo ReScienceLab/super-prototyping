@@ -247,7 +247,6 @@ function scan(dir: string): Board[] {
  * `import.meta.glob` is itself only a Vite codegen macro, so generating the same three maps by
  * hand costs nothing downstream and buys a directory that can be chosen at run time.
  */
-
 function canvasesSource(): Plugin {
   let isBuild = false;
 
@@ -336,7 +335,7 @@ function canvasesSource(): Plugin {
         // away the tldraw document, the open panel and the viewport, to change one word.
         //
         // Self-accepting stops that walk. This module is re-executed with the new JSON while the
-        // page stays up, and announces its fresh layouts — importers hold the *old* module's
+        // page stays up, and announces its fresh layouts. Importers hold the *old* module's
         // bindings, so the new data has to be handed over rather than read. canvasLibrary.ts
         // listens, and is the only reader. Fires on first execution too, before anything is
         // listening, which is the same no-op as any event with no handler.
@@ -422,8 +421,8 @@ function canvasesSource(): Plugin {
         server.ws.send({ type: "full-reload" });
       };
 
-      // Canvas comments, written back into the board folder so they travel with it in Git —
-      // this is a repo-local review tool, not a synced document, and a comment on a mockup is
+      // Canvas comments, written back into the board folder so they travel with it in Git.
+      // This is a repo-local review tool, not a synced document, and a comment on a mockup is
       // only worth anything next to the mockup it is about. Dev server only, like the two
       // endpoints around it.
       server.middlewares.use("/__sp/comments", (req, res, next) => {
@@ -466,8 +465,8 @@ function canvasesSource(): Plugin {
       });
 
       // Cloning a canvas, from the button in the top bar: the folder copied whole under the name
-      // the dialog asked for. Dev server only, like the status write and for the same reason —
-      // a built canvas is static files with no folder behind them.
+      // the dialog asked for. Dev server only, like the status write and for the same reason. A
+      // built canvas is static files with no folder behind them.
       server.middlewares.use("/__sp/clone-canvas", (req, res, next) => {
         if (req.method !== "POST") return next();
         let body = "";

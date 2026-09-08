@@ -40,7 +40,7 @@ describe("svgSignature", () => {
     expect(svgSignature(u.replace("#a", "#b"))).not.toBe(svgSignature(u));
   });
 
-  it("rides in the agent as its own source, so the frame keys a vector as the index does", () => {
+  it("is in the agent as its own source, so the frame keys a vector as the index does", () => {
     expect(AGENT).toContain("<script>var svgSignature=function");
     expect(AGENT).toContain("svg:'+fnv(svgSignature(");
   });

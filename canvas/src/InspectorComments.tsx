@@ -23,25 +23,22 @@ import {
 } from "@tldraw/commenting";
 import { ASK_COMMENT_USER, CanvasChromeContext } from "./canvasChrome";
 import { resolveAuthor } from "./canvasComments";
-import { boardPin, type BoardPin } from "./inspectorModel";
+import { boardPin, cx, type BoardPin } from "./inspectorModel";
 
 /**
  * The board's comments, in the inspector: the same threads the canvas pins, listed under the
- * preview and drawn on it at the spot they mark. They are the same records either way — one board
- * folder's `comments.json` — so a note written here appears on the canvas and goes into Git with
+ * preview and drawn on it at the spot they mark. They are the same records either way, one board
+ * folder's `comments.json`, so a note written here appears on the canvas and goes into Git with
  * the board, and one written out on the canvas is here when the board is opened.
  *
  * The panel renders outside `<Tldraw>`, so none of this can reach `useEditor` or the toolkit's
  * comment components (they want the UI context for tooltips and translations). The editor arrives
- * through `CanvasChromeContext` instead, and the rest is the panel's own chrome — which is what
+ * through `CanvasChromeContext` instead, and the rest is the panel's own chrome, which is what
  * it should look like anyway, next to the layers list rather than out on the canvas.
  *
- * Writing needs the dev server a plugin install runs, because that is what puts a comment in the
- * repo. A built canvas has no repo behind it, so there the composer and the per-comment actions
- * are gone and the committed threads are left to read.
+ * Where a write goes is decided in canvasComments.ts: the board's folder against a dev server,
+ * this browser on a built canvas. The composer and the per-comment actions are the same in both.
  */
-
-const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(" ");
 
 /** A thread on this board, and where it points at it. */
 export interface BoardThread {
@@ -67,8 +64,8 @@ const openedBy = (thread: TLCommentThread) => resolveAuthor(thread.createdBy);
 const when = (at: number) => formatRelativeTime(new Date(at).toISOString());
 
 /**
- * The pins, over the preview. Positioned in the artboard's own coordinates — the anchor is a
- * fraction of the board, and the board is drawn at its own size — then counter-scaled, so a pin
+ * The pins, over the preview. Positioned in the artboard's own coordinates, since the anchor is a
+ * fraction of the board and the board is drawn at its own size, then counter-scaled, so a pin
  * is the same size whether the preview is at 100% or fitted to a third of that.
  */
 export function BoardPins({
@@ -200,7 +197,7 @@ function Thread({
   const author = openedBy(thread);
 
   // The last comment takes its thread with it: what would be left is a pin with nothing behind
-  // it. Any other one is just a message leaving the conversation.
+  // it. Any other one is a message leaving the conversation.
   const remove = (comment: TLComment) => {
     if (comments.length > 1) return deleteComment(editor, comment);
     onOpen(null);
@@ -287,7 +284,7 @@ function Thread({
   );
 }
 
-/** One comment: its words, and — for whoever wrote them — the two things they can do to them. */
+/** One comment: its words, and for whoever wrote them, the two things they can do to them. */
 function Comment({
   editor,
   comment,
@@ -341,7 +338,7 @@ function Comment({
 }
 
 /**
- * The field. Plain text, because that is what the whole panel is — the canvas composer is a rich
+ * The field. Plain text, because that is what the whole panel is. The canvas composer is a rich
  * text editor, and a note typed here reads the same in both.
  */
 function Composer({

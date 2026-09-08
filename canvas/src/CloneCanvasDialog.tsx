@@ -25,8 +25,8 @@ export function CloneCanvasDialog({ slug, onClose }: TLUiDialogProps & { slug: s
   const [error, setError] = useState("");
   const [cloning, setCloning] = useState(false);
   const folder = canvasSlug(name);
-  // Empty in a production build, which does not ship the build machine's paths — the same
-  // fallback the no-boards notice uses, so the sentence still says where boards live.
+  // Empty in a production build, which does not ship the build machine's paths, so this falls
+  // back to what the no-boards notice uses and the sentence still says where boards live.
   const dir = canvasesDir || "mockups/canvases";
 
   const clone = () => {
@@ -35,7 +35,7 @@ export function CloneCanvasDialog({ slug, onClose }: TLUiDialogProps & { slug: s
     setError("");
     cloneCanvas(slug, name.trim()).then(
       // A new folder is a new page, and a page only exists once the index has been rebuilt, so
-      // the clone is opened by navigating to it — that load is the rebuild.
+      // the clone is opened by navigating to it. That load is the rebuild.
       (created) => window.location.assign(urlForSlug(window.location.href, created)),
       (reason: Error) => {
         setError(reason.message);
@@ -60,7 +60,7 @@ export function CloneCanvasDialog({ slug, onClose }: TLUiDialogProps & { slug: s
           onComplete={clone}
         />
         {/* The destination written out as a path, because a clone copies a real folder in the
-            project — this is not a page that lives only in the canvas. */}
+            project. This is not a page that lives only in the canvas. */}
         <div className="canvas-clone-hint">
           Copies every board of <b>{slug}</b> into a new folder on disk:
           <code className="canvas-clone-path">

@@ -53,7 +53,7 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
             display: "block",
             pointerEvents: isEditing ? "auto" : "none",
             // Safari routes a wheel to an iframe's own scrolling area whatever pointer-events
-            // says, so a two-finger pan over a board did nothing there — and a horizontal one
+            // says, so a two-finger pan over a board did nothing there, and a horizontal one
             // chained out to the browser's back gesture. Behind its container it is not a scroll
             // target, and the pan reaches tldraw wherever the cursor is. tldraw's own embed shape
             // carries this same line: <https://stackoverflow.com/a/49150908>.

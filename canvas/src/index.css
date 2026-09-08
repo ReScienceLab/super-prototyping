@@ -5,7 +5,7 @@ body,
   height: 100%;
   margin: 0;
   overflow: hidden;
-  /* Nothing here scrolls, so any leftover horizontal overscroll is the browser's back gesture —
+  /* Nothing here scrolls, so any leftover horizontal overscroll is the browser's back gesture,
      which is what a two-finger pan turns into anywhere tldraw does not get the wheel first. */
   overscroll-behavior: none;
 }
@@ -119,7 +119,7 @@ button {
 }
 
 /*
- * The name field in the clone dialog (CloneCanvasDialog.tsx). tldraw's input is chromeless —
+ * The name field in the clone dialog (CloneCanvasDialog.tsx). tldraw's input is chromeless, since
  * everywhere it ships, the row or menu around it already draws the edge. A dialog body draws
  * none, so an unstyled field reads as a line of placeholder text rather than somewhere to type.
  */
@@ -137,7 +137,7 @@ input.canvas-clone-name:focus {
 /* The comment cursor while a click here would attach the note to the mockup under it: the same
    bubble tldraw ships, filled with the selection blue instead of white. The attribute is set by
    installCommentTargetHint in canvasComments.ts, and the variable is otherwise only read while
-   the comment tool is up — so a stale attribute cannot show a cursor nobody asked for. */
+   the comment tool is up, so a stale attribute cannot show a cursor nobody asked for. */
 .tl-container[data-comment-target] {
   --tl-cursor-comment:
     url("data:image/svg+xml,<svg height='32' width='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'><defs><filter id='shadow' y='-40%' x='-40%' width='180px' height='180%' color-interpolation-filters='sRGB'><feDropShadow dx='1' dy='1' stdDeviation='1.2' flood-opacity='.5'/></filter></defs><g filter='url(%23shadow)'><path d='M5 19.5 L5 11 A8 8 0 0 1 13 3 A8 8 0 0 1 21 11 A8 8 0 0 1 13 19 Z' fill='hsl(214, 84%, 56%)' stroke='white' stroke-width='1.5' stroke-linejoin='round'/></g></svg>")
@@ -173,7 +173,7 @@ input.canvas-clone-name:focus {
   color: var(--tl-color-text-1);
 }
 
-/* The path is what the hint is for — cloning writes a folder into the project — so it is set
+/* The path is what the hint is for, since cloning writes a folder into the project, so it is set
    apart from the sentence introducing it rather than running on from it. */
 .canvas-clone-path {
   display: block;
@@ -279,7 +279,7 @@ input.canvas-clone-name:focus {
 /*
   Geist, at the published values of the steps this panel uses: 100-300 are component
   backgrounds, 400 a border, 700 a solid fill or a dot, 900-1000 text. They are spelled out
-  rather than imported because the canvas ships as a plugin — there is no design-system
+  rather than imported because the canvas ships as a plugin, and there is no design-system
   package on the other side of an install.
 */
 .sp-panel {
@@ -568,9 +568,9 @@ input.canvas-clone-name:focus {
 }
 
 /* Status. Top-left of the stage, and the badge is the control: click it for the menu. Geist's
-   subtle badge — tinted ground, a step-400 rule, step-900 text — because at 100% beside a single
-   board a solid fill out-shouts the board it labels. The tab out on the canvas is the same
-   status drawn solid, which is what a page read at 34% needs instead. */
+   subtle badge, tinted ground with a step-400 rule and step-900 text, because at 100% beside a
+   single board a solid fill competes with the board it labels. The tab out on the canvas is the
+   same status drawn solid, which is what a page read at 34% needs instead. */
 .sp-status-wrap {
   position: absolute;
   top: 10px;
@@ -661,7 +661,7 @@ button.sp-status:focus-visible {
 }
 
 /* Blue, not green: green is Geist's health colour, and this is not a check that passed. Blue is
-   what Vercel marks the deployment that is actually serving. */
+   what Vercel marks the deployment that is serving. */
 .sp-status--live {
   --bg: var(--ds-blue-100);
   --bg-2: var(--ds-blue-200);
@@ -1394,9 +1394,10 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   cursor: pointer;
 }
 
-/* The dismiss on the placement composer (ComposerCloseButton in canvasChrome.tsx). A cross on the
-   bubble's top-right corner, outside the 300px field rather than crowding it. Two classes deep
-   because tldraw.css loads after this file and .tlui-button sizes its own buttons. */
+/* The dismiss on the placement composer, which InFrontOfTheCanvas in canvasChrome.tsx portals
+   into it. A cross on the bubble's top-right corner, outside the 300px field rather than
+   crowding it. Two classes deep because tldraw.css loads after this file and .tlui-button sizes
+   its own buttons. */
 .tlui-cmt-canvas-composer .canvas-composer-close {
   position: absolute;
   top: -10px;

@@ -11,13 +11,13 @@ import { CANVAS_FILE_SHAPE_TYPE, type CanvasFileShape } from "./CanvasFileShapeU
 // Comments live in the board folder, as `<slug>/comments.json`, and go into Git with the boards.
 // That is the whole design decision: this canvas serves one repo, has no login and no sync
 // server, and a note on a mockup is only worth keeping next to the mockup it is about. So the
-// file is the source of truth and the tldraw store is a working copy of it — loaded over
-// whatever IndexedDB had, written back on every change.
+// file is the source of truth and the tldraw store is a working copy of it, loaded over
+// whatever IndexedDB had and written back on every change.
 //
 // Two things the records cannot carry into the file. Page ids are minted per browser (App.tsx
 // asks tldraw to create the page, tldraw hands out the id), so the folder slug plays that role
 // and the page id is re-attached on load. Author ids are made up here rather than issued by
-// anything, so each file also carries the names of the people in it — that is what turns an id
+// anything, so each file also carries the names of the people in it. That is what turns an id
 // back into a name in someone else's checkout.
 
 /** A board folder's comments.json. `records` carry no `pageId`: the folder is the page. */
@@ -30,10 +30,10 @@ export interface CommentsFile {
 type FileCommentRecord = Omit<TLCommentRecord, "pageId">;
 
 /**
- * Where a changed board's comments go. Against a dev server — what a plugin install runs — into
- * the board's folder as comments.json, so a review travels with the boards in Git. A built canvas
- * is static files with no repo behind them, so there they stay in this browser: the hosted canvas
- * gives commenting to try, not a place a review lands.
+ * Where a changed board's comments go. Against a dev server, which is what a plugin install runs,
+ * into the board's folder as comments.json, so a review travels with the boards in Git. A built
+ * canvas is static files with no repo behind them, so there they stay in this browser: the hosted
+ * canvas gives commenting to try, not a place a review lands.
  */
 const LOCAL_KEY = "super-prototyping-comments";
 
@@ -65,7 +65,8 @@ const USER_KEY = "super-prototyping-comment-user";
 
 const COMMENT_TYPES = new Set(["comment-thread", "comment", "comment-reaction"]);
 
-const isComment = (record: { typeName: string }) => COMMENT_TYPES.has(record.typeName);
+const isComment = (record: { typeName: string }): record is TLCommentRecord =>
+  COMMENT_TYPES.has(record.typeName);
 
 /**
  * Every comment record in the store. The comment types are registered records rather than part
@@ -99,7 +100,7 @@ export const GITHUB_PATH =
 
 /**
  * The login in whatever was typed: a handle, an `@handle`, or a pasted profile URL. Null when it
- * is not a GitHub username — GitHub's own rule, alphanumerics and single inner hyphens, 39 max.
+ * is not a GitHub username by GitHub's own rule, alphanumerics and single inner hyphens, 39 max.
  */
 export function githubLogin(input: string): string | null {
   const login = input
@@ -112,9 +113,9 @@ export function githubLogin(input: string): string | null {
 
 /**
  * The identity a login gives, avatar included. There is no account here and no directory, so the
- * handle is both the id and the display name — the one thing everyone reviewing this repo already
- * has, and the one that means the same in a pull request. The avatar needs no API: github.com
- * redirects `<login>.png` to it, which is also a URL worth reading in the committed JSON.
+ * handle is both the id and the display name. It is the one thing everyone reviewing this repo
+ * already has, and the one that means the same in a pull request. The avatar needs no API:
+ * github.com redirects `<login>.png` to it, which is also a URL worth reading in the committed JSON.
  */
 function githubUser(login: string): CommentUser {
   return {
@@ -125,10 +126,10 @@ function githubUser(login: string): CommentUser {
 }
 
 /**
- * Who a typed handle is, or null if GitHub will not serve an avatar for it — which catches the
+ * Who a typed handle is, or null if GitHub will not serve an avatar for it, which catches the
  * typo before it is committed and confirms the one thing this needs in the same request.
- * `api.github.com` answers the same question, but it rate-limits an unauthenticated caller hard
- * enough to 403 every check away, and a 403 is not a "no such user".
+ * `api.github.com` answers the same question, but it rate-limits an unauthenticated caller so
+ * hard that checks come back 403, and a 403 is not a "no such user".
  */
 export async function resolveGithubUser(input: string): Promise<CommentUser | null> {
   const login = githubLogin(input);
@@ -158,7 +159,7 @@ export function writeCommentUser(user: CommentUser) {
   try {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   } catch {
-    // A browser refusing storage still gets to comment; it just asks for the handle again later.
+    // A browser refusing storage still gets to comment; it asks for the handle again later.
   }
 }
 
@@ -173,7 +174,7 @@ export function distanceToBox(
 }
 
 /**
- * How far outside a board a comment still belongs to it, in page units — one column gap
+ * How far outside a board a comment still belongs to it, in page units: one column gap
  * (LIBRARY_GAP in App.tsx), so a note dropped in the margin beside a mockup attaches to it while
  * one dropped out in open canvas stays where it was put. Nearest board wins, so the gap between
  * two boards splits down the middle rather than being ambiguous.
@@ -203,7 +204,7 @@ export function nearestBoard(editor: Editor, pageId: TLPageId, point: { x: numbe
 /**
  * What a click would do, while the comment tool is up: the board the note would attach to gets
  * tldraw's own hint outline, and the bubble cursor fills in (index.css keys off the attribute).
- * Out in open canvas both go quiet, which is the honest answer — the note would stay a point.
+ * Out in open canvas neither shows, because the note would stay a point.
  *
  * On `event` rather than a pointer handler because the tool clears the hint on every move: its
  * hit-test looks straight through the boards, which are locked, so it finds nothing where
@@ -214,7 +215,7 @@ function installCommentTargetHint(editor: Editor) {
   const container = editor.getContainer();
   const update = () => {
     // Not a bare return: a tool change emits nothing, so this is the only pass that gets to drop
-    // the attribute the last hover set — otherwise the filled cursor shows again on the next entry.
+    // the attribute the last hover set. Otherwise the filled cursor shows again on the next entry.
     if (editor.getCurrentToolId() !== "comment") {
       container.removeAttribute("data-comment-target");
       return;
@@ -239,7 +240,7 @@ function installCommentTargetHint(editor: Editor) {
 /**
  * Re-anchor a freshly placed thread onto the board beside it. A shape anchor is a normalized
  * offset within the board's own bounds, unclamped both when it is recorded and when it is drawn,
- * so a pin in the margin keeps exactly the spot it was dropped on *and* rides the board when a
+ * so a pin in the margin keeps the spot it was dropped on *and* moves with the board when a
  * layout.json edit reflows the page. That is the point of doing this at all: the boards move, and
  * the notes about them should move with them.
  */
@@ -249,8 +250,8 @@ function anchorToNearbyBoard(editor: Editor, records: { typeName: string }[]) {
     if (record.typeName !== "comment-thread") continue;
     const thread = record as unknown as Extract<TLCommentRecord, { typeName: "comment-thread" }>;
     const anchor = thread.anchor;
-    // Anything but a bare point was resolved deliberately — by the tool's own hit-test, or by
-    // someone dragging the pin — and is left alone.
+    // Anything but a bare point was resolved deliberately, by the tool's own hit-test or by
+    // someone dragging the pin, and is left alone.
     if (anchor.type !== "point") continue;
     const shapeId = nearestBoard(editor, thread.pageId, anchor);
     if (!shapeId) continue;
@@ -261,9 +262,9 @@ function anchorToNearbyBoard(editor: Editor, records: { typeName: string }[]) {
 
 /**
  * The board a thread is linked to, or undefined for one left out in open canvas. The shape anchor
- * *is* the link — the comment tool records one for a comment placed on a mockup, and the function
- * above writes one for a comment placed beside it — so this only reads it back, for the surfaces
- * that show which mockup a note is about.
+ * *is* the link: the comment tool records one for a comment placed on a mockup, and the function
+ * above writes one for a comment placed beside it. So this only reads it back, for the parts of
+ * the UI that show which mockup a note is about.
  */
 export function linkedBoard(editor: Editor, anchor: TLCommentAnchor): CanvasFileShape | undefined {
   if (anchor.type !== "shape") return undefined;
@@ -273,7 +274,7 @@ export function linkedBoard(editor: Editor, anchor: TLCommentAnchor): CanvasFile
 
 /** The records of one board, as they go into Git: no page id, no tombstones, sorted by id. */
 export function commentsFileFor(records: TLCommentRecord[]): CommentsFile {
-  // Soft-deletes are left for a sync server to prune, and there is no server — so a delete drops
+  // Soft-deletes are left for a sync server to prune, and there is no server, so a delete drops
   // the record from the file here, and the next load takes it out of the store.
   const threads = new Set(
     records.filter((r) => r.typeName === "comment-thread" && !r.isDeleted).map((r) => r.id),
@@ -347,7 +348,7 @@ export function installCanvasComments(editor: Editor) {
     .map((record) => record.id);
 
   // As a remote change: this is not the user's own edit, it does not belong on their undo stack,
-  // and the listener below ignores it — so loading the file does not write it straight back.
+  // and the listener below ignores it, so loading the file does not write it straight back.
   editor.store.mergeRemoteChanges(() => {
     if (stale.length) editor.store.remove(stale as unknown as TLRecord["id"][]);
     if (wanted.length) editor.store.put(wanted as unknown as TLRecord[]);
@@ -374,8 +375,8 @@ export function installCanvasComments(editor: Editor) {
     );
   };
 
-  // The same rule, over what the files already hold: a note written before its board existed —
-  // or from a tab predating this — is linked on the next load rather than left pinned to a page
+  // The same rule, over what the files already hold: a note written before its board existed, or
+  // from a tab predating this, is linked on the next load rather than left pinned to a page
   // coordinate the next layout.json edit would strand it at. Threads already anchored to a shape,
   // and ones dropped out in open canvas, are left exactly as they are.
   //
@@ -409,7 +410,7 @@ export function installCanvasComments(editor: Editor) {
         localStorage.setItem(LOCAL_KEY, JSON.stringify(localFiles));
       } catch {
         // Storage full or refused. The comment stays on screen for this session and is lost on
-        // reload — the same deal every other thing this canvas keeps in the browser gets.
+        // reload, the same as everything else this canvas keeps in the browser.
       }
     }
   };
@@ -417,8 +418,8 @@ export function installCanvasComments(editor: Editor) {
   const dispose = editor.store.listen(
     ({ changes }) => {
       // Placed, not only created: a pin dragged onto a board arrives here as an update, and as a
-      // bare point just like a new comment does — the comment tool's own hit-test looks straight
-      // through the boards, which are locked shapes. Same rule for both, so the same call.
+      // bare point just like a new comment does, because the comment tool's own hit-test looks
+      // straight through the boards, which are locked shapes. Same rule for both, so the same call.
       const placed = [
         ...Object.values(changes.added),
         ...Object.values(changes.updated).map(([, next]) => next),

@@ -84,13 +84,6 @@ const PERSISTENCE_KEY = `super-prototyping-canvas-v2${canvasesNamespace}`;
 const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
 
 /**
- * The store, built here rather than by `<Tldraw persistenceKey>`, because the comment record
- * types have to be registered on it and that component takes no `records` option. `useLocalStore`
- * is the hook it would have called itself, so IndexedDB persistence is unchanged — see
- * tldraw-local-store.d.ts. Module scope, so the options object keeps its identity across renders:
- * the hook rebuilds the store whenever it changes.
- */
-/**
  * The tldraw license, inlined at build time from the Pages project's own environment (it is set on
  * super-prototyping, production and preview both). Commenting is a licensed feature: with no key
  * `CanvasComments` renders nothing at all in production, so the hosted canvas would offer a comment
@@ -102,10 +95,17 @@ const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
  * commenting. Only the deploy can.
  *
  * The key today is an evaluation license, which grants every feature and expires on 2026-12-12 with
- * no grace period. On that date commenting goes dark again unless it has been replaced.
+ * no grace period. On that date commenting stops working again unless the key has been replaced.
  */
 const TLDRAW_LICENSE_KEY: string | undefined = import.meta.env.VITE_TLDRAW_LICENSE_KEY;
 
+/**
+ * The store, built here rather than by `<Tldraw persistenceKey>`, because the comment record
+ * types have to be registered on it and that component takes no `records` option. `useLocalStore`
+ * is the hook it would have called itself, so IndexedDB persistence is unchanged, see
+ * tldraw-local-store.d.ts. Module scope, so the options object keeps its identity across renders:
+ * the hook rebuilds the store whenever it changes.
+ */
 const storeOptions = {
   persistenceKey: PERSISTENCE_KEY,
   // The same set `<Tldraw>` merges for itself; the schema has to know every type the document
@@ -763,7 +763,7 @@ function pruneEmptyOrphanPages(editor: Editor, libraryPages: Set<TLPageId>) {
   for (const page of editor.getPages()) {
     if (libraryPages.has(page.id)) continue;
     // The boards are gone with the folder, so the shapes the library put here are all that is
-    // keeping the page alive — and nothing else ever reclaims them, because every other sweep
+    // keeping the page alive, and nothing else ever reclaims them, because every other sweep
     // walks the pages the library just filled. Without this, renaming or deleting a folder
     // leaves a page of dead boards behind for good.
     deleteLibraryShapes(
@@ -776,10 +776,10 @@ function pruneEmptyOrphanPages(editor: Editor, libraryPages: Set<TLPageId>) {
 }
 
 /**
- * Whether anything a person would actually see is left on a page.
+ * Whether anything a person would see is left on a page.
  *
  * Text shapes with no text do not count. Clicking the text tool on the canvas and then clicking
- * away leaves one behind — zero-width, nothing rendered — and the page it sits on cannot be told
+ * away leaves one behind, zero-width and rendering nothing, and the page it sits on cannot be told
  * from an empty one by looking at it. Counting those as content kept a folder's page in the menu
  * forever over a shape nobody knew they had made.
  */

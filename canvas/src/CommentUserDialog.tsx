@@ -19,8 +19,8 @@ import {
 } from "./canvasComments";
 
 /**
- * Asking who is commenting. There is no account here and there is not going to be one — the
- * canvas serves one repo on 127.0.0.1 — but a comment with no name on it is not worth much in a
+ * Asking who is commenting. There is no account here and there is not going to be one, since the
+ * canvas serves one repo on 127.0.0.1, but a comment with no name on it is not worth much in a
  * review, so a GitHub handle is asked for once and remembered in this browser. The handle rather
  * than a free-typed name because it is what a pull request will call the same person, and because
  * it comes with a face: GitHub serves the avatar for a login without being asked for a token.
@@ -36,7 +36,7 @@ export function CommentUserDialog({
 
   // A field called "GitHub username" is exactly what a password manager offers to fill, and an
   // offer to sign in is the one thing this dialog is not. Each manager reads its own opt-out
-  // attribute, and TldrawUiInput passes none of them through — so set them on the element it
+  // attribute, and TldrawUiInput passes none of them through, so set them on the element it
   // hands back. `name` matters too: managers match on it before they read anything else.
   useEffect(() => {
     const el = input.current;
@@ -63,7 +63,7 @@ export function CommentUserDialog({
     const user = await resolveGithubUser(handle);
     setChecking(false);
     if (!user) {
-      setFailed(`No GitHub avatar for “${handle.trim()}” — check the spelling.`);
+      setFailed(`No GitHub avatar for “${handle.trim()}”. Check the spelling.`);
       return;
     }
     writeCommentUser(user);

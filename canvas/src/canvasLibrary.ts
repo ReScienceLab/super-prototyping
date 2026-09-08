@@ -26,8 +26,8 @@ export interface CanvasLibraryFile {
 }
 
 /**
- * How far along a board is. `live` is the default — it matches the version being shipped —
- * and it is the one status that draws no tab on the canvas: most boards on a finished page
+ * How far along a board is. `live` is the default, the version being shipped, and it is the
+ * one status that draws no tab on the canvas: most boards on a finished page
  * are live, and a tab on every one of them would say nothing while costing 134px of every
  * row. The other two draw a coloured tab above the board.
  *
@@ -172,7 +172,7 @@ export function boardStatusForPath(path: string): CanvasBoardStatus {
 
 /**
  * The status a tab is drawn for, or undefined for the ones that draw none. `live` is the
- * default and the majority, so it stays silent on the canvas and speaks only in the inspector,
+ * default and the majority, so it draws nothing on the canvas and shows only in the inspector,
  * where there is one board on screen and the badge is also the control that changes it.
  */
 export function boardTabStatusForPath(path: string) {
@@ -183,7 +183,8 @@ export function boardTabStatusForPath(path: string) {
 /**
  * Writes a board's status into its folder's layout.json, through the dev server (vite.config.ts).
  * The server edits the one entry as text rather than reparsing the file, so hand formatting and
- * key order survive; the write then lands in the module graph and reloads the page.
+ * key order survive; it then sends the edited layout back over HMR (`sp:board-status`, below), and
+ * the canvas repaints without a reload.
  *
  * Only the dev server can write. A built canvas is static files on a host with no repo behind
  * them, which is why the badge is not a button there.
@@ -201,7 +202,7 @@ export async function writeBoardStatus(path: string, status: CanvasBoardStatus) 
 
 /**
  * Copies a canvas folder under a new name, through the dev server (vite.config.ts), and answers
- * the slug it ended up with — the typed name is what the page is called, the slug is what the
+ * the slug it ended up with. The typed name is what the page is called, the slug is what the
  * folder is called, and only the server knows the second one is free.
  *
  * Dev server only, like writeBoardStatus and for the same reason.
@@ -277,8 +278,8 @@ const LAYOUT_PATTERN = /canvases\/([^/]+)\/layout\.json$/;
 
 /**
  * Window event fired once `layouts` holds an edit. The canvas lays itself out again on it
- * (App.tsx) and the inspector re-reads the board's status (InspectorPanel.tsx) — between them,
- * everything a layout.json change can move.
+ * (App.tsx) and the inspector re-reads the board's status (InspectorPanel.tsx). Between them,
+ * that is everything a layout.json change can move.
  */
 export const LAYOUT_CHANGED = "sp:layout";
 

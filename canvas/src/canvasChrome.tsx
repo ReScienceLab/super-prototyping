@@ -39,7 +39,7 @@ const COMMENT_USER_DIALOG = "comment-user";
 
 /**
  * Ask for the commenter's identity from outside the tldraw UI context. `useDialogs` is only
- * available under `<Tldraw>`, and the inspector panel is a sibling of it — so the panel raises
+ * available under `<Tldraw>`, and the inspector panel is a sibling of it, so the panel raises
  * this and the comments layer, which is inside, opens the one dialog there is.
  */
 export const ASK_COMMENT_USER = "sp:ask-comment-user";
@@ -57,12 +57,12 @@ export const CanvasChromeContext = createContext({
 
 /**
  * The comment tool, plus the one thing this canvas adds to a thread: the link it carries to the
- * mockup it is about. Every comment placed on a board — or in the margin beside one — is anchored
- * to that board's shape, which is what makes the note ride the mockup when a layout.json edit
+ * mockup it is about. Every comment placed on a board, or in the margin beside one, is anchored
+ * to that board's shape, which is what moves the note with the mockup when a layout.json edit
  * moves it. The header shows that link, and follows it: clicking opens the board in the inspector.
  *
- * Everywhere, built canvas included. Where the comment goes differs — a dev server writes it into
- * the board's folder, a hosted canvas keeps it in the browser (canvasComments.ts) — but the tool
+ * Everywhere, built canvas included. Where the comment goes differs, a dev server writes it into
+ * the board's folder and a hosted canvas keeps it in the browser (canvasComments.ts), but the tool
  * and the thread are the same, so someone trying the hosted canvas sees what commenting is like.
  */
 export const canvasCommentTools = [
@@ -80,7 +80,7 @@ export const canvasCommentTools = [
         return (
           <TldrawUiButton
             type="icon"
-            title={`Linked to ${board.props.name} — open it`}
+            title={`Linked to ${board.props.name}. Click to open it`}
             onClick={() => chrome.inspectBoard(board)}
           >
             <TldrawUiButtonIcon icon="link" />
@@ -191,7 +191,7 @@ export const canvasChromeComponents: TLComponents = {
   },
   /**
    * The right button carries what the toolbar used to: commenting, and the relayout. The bottom
-   * toolbar is gone (Toolbar below) because a canvas of boards is read, not drawn on — but a
+   * toolbar is gone (Toolbar below) because a canvas of boards is read, not drawn on, but a
    * comment is the one mark someone does want to make, and it should be under the cursor rather
    * than in a bar at the other end of the screen.
    */
@@ -226,9 +226,9 @@ export const canvasChromeComponents: TLComponents = {
    *  the top bar and the right button. Keyboard shortcuts still reach the ones tldraw ships. */
   Toolbar: null,
   /**
-   * The comments layer: pins, thread popovers and the composer the comment tool opens. Everything
-   * about where they are stored — the board folder, Git, the pin snapping onto the mockup beside
-   * it — is canvasComments.ts; this is only the surface.
+   * The comments layer: pins, thread popovers and the composer the comment tool opens. Where they
+   * are stored, in the board folder and in Git, and how a pin snaps onto the mockup beside it, is
+   * all canvasComments.ts; this is only the UI.
    */
   InFrontOfTheCanvas: () => {
     const chrome = useContext(CanvasChromeContext);
@@ -240,7 +240,7 @@ export const canvasChromeComponents: TLComponents = {
     const [composer, setComposer] = useState<Element | null>(null);
 
     // A dismiss for the placement composer, which the toolkit gives no slot on. Picking the
-    // comment tool by accident — a stray `c`, a right-click menu misread — leaves a bubble open
+    // comment tool by accident, a stray `c` or a right-click menu misread, leaves a bubble open
     // whose only ways out are Escape and a click into empty canvas, neither of which is on screen.
     // The composer is a direct child of the editor's portal host, so watching that one node's
     // child list finds it, at a querySelector per popover.
@@ -260,8 +260,8 @@ export const canvasChromeComponents: TLComponents = {
       addDialog({
         id: COMMENT_USER_DIALOG,
         component: (dialog) => <CommentUserDialog {...dialog} onSave={chrome.setCommentUser} />,
-        // Only when they closed it without giving a name — saving one should leave them in the
-        // tool they just picked. Read back rather than trusting the value this effect captured.
+        // Only when they closed it without giving a name, since saving one should leave them in
+        // the tool they just picked. Read back rather than trusting the value this effect captured.
         onClose: () => {
           if (!readCommentUser()) editor.setCurrentTool("select");
         },
@@ -287,8 +287,8 @@ export const canvasChromeComponents: TLComponents = {
           currentUserId={chrome.commentUser?.id ?? null}
           resolveAuthor={resolveAuthor}
         />
-        {/* Out of the tool, not just out of the bubble — Escape closes only the bubble and leaves
-            the next click placing another one, which is not what an accidental comment wants. The
+        {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
+            next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}
         {composer &&
           createPortal(

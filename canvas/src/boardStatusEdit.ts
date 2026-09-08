@@ -1,7 +1,7 @@
 /**
  * The writes the canvas makes back into a project: a board's `status`, set from the badge on the
  * inspector's stage, and a cloned folder's name. They live here rather than in vite.config.ts so
- * they can be tested as what they are — pure string edits — without standing a dev server up
+ * they can be tested as what they are, pure string edits, without standing a dev server up
  * around them.
  */
 
@@ -11,24 +11,23 @@ export const SAFE_NAME = /^[\w.-]+$/;
 /** The vocabulary the endpoint accepts, mirroring `CanvasBoardStatus`. */
 export const BOARD_STATUSES = ["exploring", "outdated", "live"];
 
-
 /**
  * layout.json with one board's `status` set, edited as text.
  *
- * As text, and never through JSON.parse + JSON.stringify: these files are hand-formatted — one
- * board per line, rows ordered to read like a walkthrough — and a round-trip through the parser
+ * As text, and never through JSON.parse + JSON.stringify: these files are hand-formatted, one
+ * board per line and rows ordered to read like a walkthrough, and a round-trip through the parser
  * would reformat every line of a file that belongs to whoever installed the plugin.
  *
  * A board appears in a row's `files` either as a bare `"name"`, which has to grow into an object
  * to carry anything, or as an object already holding `"file": "name"`. Entries never nest, so
  * `[^{}]*` is enough to find the one that names this board. Returns null when the layout does
- * not mention the board at all — one discovered on disk that no row ever listed.
+ * not mention the board at all, one discovered on disk that no row ever listed.
  */
 export function withBoardStatus(source: string, file: string, status: string) {
   const name = file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const STATUS = /"status"\s*:\s*"[^"]*"/;
-  // What a board that says nothing already is. Setting one to this writes no `status` at all —
-  // the shorthand the folder is written in, and what undoing a change has to get back to.
+  // What a board that says nothing already is. Setting one to this writes no `status` at all,
+  // which is the shorthand the folder is written in, and what undoing a change has to get back to.
   let folderDefault = "live";
   try {
     folderDefault = JSON.parse(source).status ?? "live";
@@ -61,7 +60,7 @@ export function withBoardStatus(source: string, file: string, status: string) {
   }
 
   // A bare string entry. It only ever appears inside an array, so it is preceded by `[` or `,`
-  // and followed by `,` or `]` — which is what keeps this off `"cover": "name"` and off a
+  // and followed by `,` or `]`, which is what keeps this off `"cover": "name"` and off a
   // `"label"` that happens to read the same.
   const bare = new RegExp(`([[,]\\s*)"${name}"(\\s*[,\\]])`);
   const found = bare.exec(source);
@@ -75,7 +74,6 @@ export function withBoardStatus(source: string, file: string, status: string) {
     source.slice(found.index + found[0].length)
   );
 }
-
 
 /**
  * The folder name a typed canvas name becomes. ASCII only: a slug is also the `?canvas=`
@@ -117,8 +115,13 @@ export function withCanvasName(source: string, name: string) {
       while (++i < source.length && source[i] !== '"') if (source[i] === "\\") i++;
     }
   }
-  // A layout that named nothing — the page was going by its humanized slug. Write the key at the
-  // front, where a layout that has one puts it.
+  // A layout that named nothing, so the page was going by its humanized slug. Write the key at
+  // the front, where a layout that has one puts it.
   const empty = /^\s*\{\s*\}\s*$/.test(source);
-  return source.replace("{", empty ? `{\n  "name": ${value}\n` : `{\n  "name": ${value},`);
+  const at = source.indexOf("{");
+  if (at < 0) return source;
+  // Spliced rather than `replace`: a replacement string reads `$&` and friends as patterns, and
+  // a canvas can be named anything.
+  const key = empty ? `\n  "name": ${value}\n` : `\n  "name": ${value},`;
+  return source.slice(0, at + 1) + key + source.slice(at + 1);
 }

@@ -146,6 +146,11 @@ describe('withCanvasName', () => {
     expect(JSON.parse(after).name).toBe('Page')
   })
 
+  it('writes a name that looks like a replacement pattern as itself', () => {
+    const after = withCanvasName(PLAIN, 'A $& B')
+    expect(JSON.parse(after).name).toBe('A $& B')
+  })
+
   it('leaves a hand-formatted layout otherwise byte-identical', () => {
     const after = withCanvasName(LAYOUT, 'Cloned')
     expect(JSON.parse(after)).toEqual({ ...JSON.parse(LAYOUT), name: 'Cloned' })

@@ -35,6 +35,7 @@ import {
   formatBytes,
   initialLayersH,
   isColorValue,
+  cx,
   layersBounds,
   layerKind,
   layerName,
@@ -53,10 +54,10 @@ import {
  * Panel state that outlives the board it was set on.
  *
  * The panel is keyed by path, so clicking a different board mounts a fresh one. That is right for
- * the selection and the report, which are about the board — and wrong for how the panel is
- * arranged, which is about the person: collapsing the rail or dragging it narrower only to have
- * the next board undo it is the panel arguing with the user. Kept in sessionStorage, next to the
- * board the inspector had open, so a reload does not undo it either.
+ * the selection and the report, which are about the board, and wrong for how the panel is
+ * arranged, which is about the person: a rail collapsed or dragged narrower should stay that way
+ * for the next board. Kept in sessionStorage, next to the board the inspector had open, so a
+ * reload does not undo it either.
  */
 function useStickyPanelState<T>(key: string, initial: T) {
   const [value, setValue] = useState<T>(() => {
@@ -83,7 +84,7 @@ const UNDO_MS = 10_000;
 /**
  * The board's status, top-left of the stage, where the badge is also the control that sets it.
  *
- * On the stage rather than in the rail so it stays with the board when the rail is collapsed —
+ * On the stage rather than in the rail so it stays with the board when the rail is collapsed,
  * and it is the only place a status can be changed: the coloured tab above a board out on the
  * canvas is a read-only echo of the same value in layout.json.
  *
@@ -98,7 +99,8 @@ function BoardStatus({ path }: { path: string }) {
   const [undo, setUndo] = useState<{ back: CanvasBoardStatus } | null>(null);
 
   // Anywhere outside closes it, including the board: the preview is an iframe, so a click that
-  // lands in it never reaches this document, which is why the frame is watched separately.
+  // lands in it never reaches this document as a pointerdown, but it does take the window's
+  // focus, which is what `blur` catches.
   useEffect(() => {
     if (!open) return;
     const close = () => setOpen(false);
@@ -131,14 +133,14 @@ function BoardStatus({ path }: { path: string }) {
     if (next === status) return;
     const previous = status;
     // Optimistic, so the badge answers the click at once rather than at the end of a round trip
-    // through the file. The write comes back over HMR and the effect above confirms it — or the
+    // through the file. The write comes back over HMR and the effect above confirms it, or the
     // failure notice below says it never landed.
     setStatus(next);
     const ok = await writeBoardStatus(path, next);
     setFailed(!ok);
-    // A status click edits a file in the user's repo, and nothing else on the canvas undoes it —
-    // tldraw's history knows only about shapes. So the way back is offered here, briefly, rather
-    // than left to be typed back into layout.json by hand.
+    // A status click edits a file in the user's repo, and nothing else on the canvas undoes it,
+    // because tldraw's history knows only about shapes. So the way back is offered here, briefly,
+    // rather than left to be typed back into layout.json by hand.
     setUndo(ok ? { back: previous } : null);
   };
 
@@ -162,14 +164,14 @@ function BoardStatus({ path }: { path: string }) {
 
   return (
     // The menu is dismissed by any pointerdown on the window, so the control has to keep its own
-    // out of that — otherwise opening it closes it in the same gesture.
+    // out of that. Otherwise opening it closes it in the same gesture.
     <div className="sp-status-wrap" onPointerDown={(event) => event.stopPropagation()}>
       <button
         type="button"
         className={`sp-status sp-status--${status}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        title={`Status: ${BOARD_STATUS_LABEL[status]} — click to change`}
+        title={`Status: ${BOARD_STATUS_LABEL[status]}. Click to change`}
         onClick={() => setOpen((v) => !v)}
       >
         {badge}
@@ -286,8 +288,6 @@ function dividerKeys(
 type Tab = "inspect" | "assets" | "tokens";
 
 const fmt = (n: number) => String(Math.round(n * 100) / 100);
-const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(" ");
-
 /** Wiring component: lives inside <Tldraw> so it can reach the editor. */
 export function InspectorClicks({ onPick }: { onPick: (shape: CanvasFileShape) => void }) {
   const editor = useEditor();
@@ -646,7 +646,7 @@ export function InspectorPanel({
   );
 }
 
-/** The vector asset, to the clipboard: the markup as it stands alone, for Figma or another gen.py. */
+/** The vector asset, to the clipboard: the standalone markup, for Figma or another gen.py. */
 function CopySvg({ svg }: { svg: string }) {
   const [copied, setCopied] = useState(false);
   useEffect(() => {
