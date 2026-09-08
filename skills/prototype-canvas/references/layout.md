@@ -91,7 +91,7 @@ out top to bottom:
   including back to `"live"` to drop a tab the folder would otherwise give it.
   The status control at the top left of the inspector writes this field, so a
   board can be restatused by clicking it rather than by editing this file.
-  Like the flow arrow it is a tldraw shape the layout places, not markup in the
+  It is a tldraw shape the layout places, not markup in the
   board, so a board keeps no record of its own status and does not need
   regenerating when that status changes. A row reserves the tab's height for all
   of its boards as soon as one of them carries a tab, which is what keeps item N

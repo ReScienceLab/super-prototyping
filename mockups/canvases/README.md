@@ -76,6 +76,7 @@ laid out top to bottom:
 ```json
 {
   "name": "(example) Notion iOS",
+  "status": "exploring",
   "rows": [
     { "title": "Foundations", "files": ["00-design-tokens"] },
     { "title": "Screens", "numbered": true,
@@ -113,6 +114,19 @@ laid out top to bottom:
 - `{ "file", "label", "w", "h" }` overrides the 478 x 980 artboard for a board
   that is not phone-shaped, a landscape banner say. A row is laid out at its
   first file's size, so give every file in the row the same one.
+- `status` is how far along a board is: `exploring`, `outdated`, or `live`.
+  `live` is the default and draws nothing; the other two draw a coloured tab
+  above the board — amber for exploring, grey for outdated. Declare it once at
+  the top level for a folder that is one round of exploration, and per file
+  (`{ "file", "label", "status": "outdated" }`) for a board that differs,
+  including back to `"live"` to drop a tab the folder would otherwise give it.
+  The status control at the top left of the inspector writes this field, so a
+  board can be restatused by clicking it rather than by editing this file. It
+  is a tldraw shape the layout places, not markup in the board, so a board
+  keeps no record of its own status and does not need regenerating when that
+  status changes. A row reserves the tab's height for all of its boards as soon
+  as one of them carries a tab, which is what keeps item N of one row aligned
+  with item N of the next.
 - `"links": [{ "label", "url" }]` puts buttons under the row that open an
   address in a new tab. A board renders in `<iframe srcDoc sandbox="">`, where
   a link can navigate nothing, so anything clickable has to be a shape out
