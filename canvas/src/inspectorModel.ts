@@ -2,7 +2,8 @@
  * What the inspector panel derives from an agent report before drawing it. Pure functions, so
  * the joins and fallbacks are testable without a frame.
  */
-import type { SpAsset, SpGroup, SpNode, SpToken, SpTokenKind } from "./inspectorAgent";
+import type { TLCommentAnchor, TLShapeId } from "tldraw";
+import type { SpAsset, SpBox, SpGroup, SpNode, SpToken, SpTokenKind } from "./inspectorAgent";
 
 /**
  * Where an asset's name came from, so a fallback is never passed off as a file name: `alt` is an
@@ -193,7 +194,7 @@ export const assetForNode = (rows: AssetRow[], node: number | null): AssetRow | 
 
 /** Starting sizes. Every one of them is a drag away from something else. */
 export const PANEL_W = 736;
-export const RAIL_W = 280;
+export const RAIL_W = 300;
 
 /**
  * How tall the layers list opens: a share of the window rather than a constant, because the
@@ -258,3 +259,30 @@ export const fitScale = (stage: { w: number; h: number }, board: { w: number; h:
   const pad = 32;
   return Math.max(0.05, Math.min(1, (stage.w - pad) / board.w, (stage.h - pad) / board.h));
 };
+
+/**
+ * Where a comment thread points on a board, when it is that board's thread at all. Normalized
+ * (0–1) within the artboard, and left unclamped: a pin dropped in the margin beside the mockup
+ * belongs to it — that is what anchors it to the board through a layout.json reflow — but the
+ * preview only draws the ones that land on the board itself.
+ */
+export interface BoardPin {
+  x: number;
+  y: number;
+  inside: boolean;
+}
+
+export function boardPin(anchor: TLCommentAnchor, shapeId: TLShapeId): BoardPin | null {
+  if (anchor.type !== "shape" || anchor.shapeId !== shapeId) return null;
+  const inside = anchor.x >= 0 && anchor.x <= 1 && anchor.y >= 0 && anchor.y <= 1;
+  return { x: anchor.x, y: anchor.y, inside };
+}
+
+/**
+ * Where a comment written in the panel is pinned: on the middle of the selected layer, so a note
+ * about one button lands on that button, and on the middle of the board when nothing is selected.
+ */
+export function newBoardPin(box: SpBox | null | undefined, board: { w: number; h: number }) {
+  if (!box) return { x: 0.5, y: 0.5 };
+  return { x: (box.x + box.w / 2) / board.w, y: (box.y + box.h / 2) / board.h };
+}

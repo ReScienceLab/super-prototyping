@@ -15,6 +15,7 @@
  * every shape in an existing document.
  */
 declare module "virtual:canvases" {
+  import type { CommentsFile } from "./canvasComments";
   import type { CanvasLayoutConfig } from "./canvasLibrary";
 
   /** Board HTML, one lazy chunk per file, fetched when a shape first shows it. */
@@ -38,6 +39,14 @@ declare module "virtual:canvases" {
    * the dev server's own environment.
    */
   export const canvasesDir: string;
+
+  /**
+   * Each folder's comments.json, keyed by slug — the canvas's own comments, which live with the
+   * boards in Git rather than in a sync server. Inlined rather than imported, so writing one back
+   * (canvasComments.ts posts to `/__sp/comments`) does not reload the page through the module
+   * graph while its composer is still open. Missing for a folder nobody has commented on.
+   */
+  export const rawComments: Record<string, CommentsFile>;
 
   /**
    * Suffix that keeps two projects' documents apart, `":<hash>"` or `""`. Every canvas runs on
