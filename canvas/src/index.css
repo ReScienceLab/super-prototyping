@@ -471,12 +471,16 @@ input.canvas-clone-name:focus {
   pointer-events: none;
 }
 
+/* The rail's collapse handle, a lozenge straddling its divider. It was a 26px chip in the top
+   right of the preview, where it covered the board it was meant to help read. */
 .sp-collapse {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 26px;
-  height: 26px;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -489,6 +493,24 @@ input.canvas-clone-name:focus {
 
 .sp-collapse:hover {
   color: var(--sp-text);
+  background: var(--sp-hover);
+}
+
+/* Shut, the divider resizes nothing: no col-resize cursor, no accent line under the pointer. */
+.sp-grip--shut {
+  cursor: default;
+}
+
+.sp-grip--shut:hover::after {
+  background: transparent;
+}
+
+/* Its right edge then hangs 2px past the panel, and the panel is against the window's edge, so
+   a centred handle would lose half of itself off-screen. */
+.sp-grip--shut .sp-collapse {
+  left: auto;
+  right: 4px;
+  transform: translateY(-50%);
 }
 
 /* Dividers. The hit area is wider than the line, which is the whole reason for ::after. */
