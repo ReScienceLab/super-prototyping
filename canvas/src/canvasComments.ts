@@ -326,7 +326,10 @@ export function installCanvasComments(editor: Editor) {
     }
   };
 
-  const dispose = editor.store.listen(
+  // Only against a dev server, which is what a plugin install runs: the POST above is the only
+  // way a comment reaches the repo, and a built canvas is static files with nothing behind them.
+  // So there the folders' comments load, and the store is never written back.
+  const dispose = !import.meta.env.DEV ? () => {} : editor.store.listen(
     ({ changes }) => {
       // Placed, not only created: a pin dragged onto a board arrives here as an update, and as a
       // bare point just like a new comment does — the comment tool's own hit-test looks straight

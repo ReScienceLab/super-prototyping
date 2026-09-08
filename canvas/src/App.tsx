@@ -19,7 +19,6 @@ import {
   useLocalStore,
   useValue,
 } from "tldraw";
-import { commentToolOverrides } from "@tldraw/commenting";
 import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
 import { installAgentBridge } from "./agentBridge";
@@ -59,6 +58,7 @@ import {
   CanvasChromeContext,
   canvasChromeAssetUrls,
   canvasChromeComponents,
+  canvasCommentOverrides,
   canvasCommentTools,
 } from "./canvasChrome";
 
@@ -1017,7 +1017,7 @@ export default function App() {
             store={store}
             shapeUtils={shapeUtils}
             tools={canvasCommentTools}
-            overrides={commentToolOverrides}
+            overrides={canvasCommentOverrides}
             onMount={handleMount}
           >
             <AgentBridge />

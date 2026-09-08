@@ -35,6 +35,10 @@ import { boardPin, type BoardPin } from "./inspectorModel";
  * comment components (they want the UI context for tooltips and translations). The editor arrives
  * through `CanvasChromeContext` instead, and the rest is the panel's own chrome — which is what
  * it should look like anyway, next to the layers list rather than out on the canvas.
+ *
+ * Writing needs the dev server a plugin install runs, because that is what puts a comment in the
+ * repo. A built canvas has no repo behind it, so there the composer and the per-comment actions
+ * are gone and the committed threads are left to read.
  */
 
 const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(" ");
@@ -169,10 +173,12 @@ export function BoardComments({
           <div className="sp-empty">No comments on this board.</div>
         )}
       </div>
-      <Composer
-        placeholder={pinAt.x === 0.5 && pinAt.y === 0.5 ? "Comment on this board…" : "Comment on the selected layer…"}
-        onPost={post}
-      />
+      {import.meta.env.DEV ? (
+        <Composer
+          placeholder={pinAt.x === 0.5 && pinAt.y === 0.5 ? "Comment on this board…" : "Comment on the selected layer…"}
+          onPost={post}
+        />
+      ) : null}
     </section>
   );
 }
@@ -253,30 +259,34 @@ function Thread({
               />
             </div>
           ))}
-          <div className="sp-note-actions">
-            <button
-              type="button"
-              onClick={() =>
-                me && (thread.resolved ? reopenThread(editor, thread) : resolveThread(editor, thread, me.id))
-              }
-              disabled={!me}
-            >
-              {thread.resolved ? "Reopen" : "Resolve"}
-            </button>
-            {/* Deleting is the one thing that takes someone else's words out of Git. */}
-            {me?.id === thread.createdBy ? (
-              <button
-                type="button"
-                onClick={() => {
-                  onOpen(null);
-                  deleteThread(editor, thread);
-                }}
-              >
-                Delete thread
-              </button>
-            ) : null}
-          </div>
-          <Composer placeholder="Reply…" onPost={reply} />
+          {import.meta.env.DEV ? (
+            <>
+              <div className="sp-note-actions">
+                <button
+                  type="button"
+                  onClick={() =>
+                    me && (thread.resolved ? reopenThread(editor, thread) : resolveThread(editor, thread, me.id))
+                  }
+                  disabled={!me}
+                >
+                  {thread.resolved ? "Reopen" : "Resolve"}
+                </button>
+                {/* Deleting is the one thing that takes someone else's words out of Git. */}
+                {me?.id === thread.createdBy ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpen(null);
+                      deleteThread(editor, thread);
+                    }}
+                  >
+                    Delete thread
+                  </button>
+                ) : null}
+              </div>
+              <Composer placeholder="Reply…" onPost={reply} />
+            </>
+          ) : null}
         </>
       ) : null}
     </article>
@@ -322,7 +332,7 @@ function Comment({
     <>
       <p className={cx("sp-note-body", clamp && "sp-note-body--clamp")}>{text}</p>
       {/* Someone else's words are theirs to change, here as on the canvas. */}
-      {actions && me?.id === comment.authorId ? (
+      {actions && import.meta.env.DEV && me?.id === comment.authorId ? (
         <div className="sp-note-actions">
           <button type="button" onClick={() => setEditing(true)}>
             Edit

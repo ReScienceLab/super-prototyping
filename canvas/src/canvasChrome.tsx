@@ -13,7 +13,7 @@ import {
   useEditor,
   useValue,
 } from "tldraw";
-import { CanvasComments, CommentTool } from "@tldraw/commenting";
+import { CanvasComments, CommentTool, commentToolOverrides } from "@tldraw/commenting";
 import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
 import { linkedBoard, readCommentUser, resolveAuthor, type CommentUser } from "./canvasComments";
@@ -55,8 +55,12 @@ export const CanvasChromeContext = createContext({
  * mockup it is about. Every comment placed on a board — or in the margin beside one — is anchored
  * to that board's shape, which is what makes the note ride the mockup when a layout.json edit
  * moves it. The header shows that link, and follows it: clicking opens the board in the inspector.
+ *
+ * Only where there is a dev server to post to, which is what a plugin install runs: a comment
+ * reaches the repo through it, and a built canvas is static files on a host with no repo behind
+ * them. There the committed threads are read and drawn, and that is all.
  */
-export const canvasCommentTools = [
+export const canvasCommentTools = import.meta.env.DEV ? [
   CommentTool.configure({
     components: {
       ThreadActions: ({ thread }) => {
@@ -80,7 +84,10 @@ export const canvasCommentTools = [
       },
     },
   }),
-];
+] : [];
+
+/** The toolbar entry for that tool, so it is not offered where the tool is not registered. */
+export const canvasCommentOverrides = import.meta.env.DEV ? commentToolOverrides : {};
 
 export const canvasChromeComponents: TLComponents = {
   /**
@@ -154,7 +161,7 @@ export const canvasChromeComponents: TLComponents = {
         <DefaultActionsMenu {...props} />
         {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
             a page someone added by hand. */}
-        {slug && slug !== WELCOME_PAGE_SLUG && (
+        {import.meta.env.DEV && slug && slug !== WELCOME_PAGE_SLUG && (
           <TldrawUiButton
             type="icon"
             title="Clone this canvas into a new one"
@@ -176,29 +183,31 @@ export const canvasChromeComponents: TLComponents = {
         </TldrawUiButton>
         {/* The only account there is: the GitHub handle posted comments are signed with, wearing
             that account's avatar once there is one. Sits here rather than behind the comment tool
-            so it can be corrected after the fact. */}
-        <TldrawUiButton
-          type="icon"
-          title={
-            chrome.commentUser
-              ? `Commenting as ${chrome.commentUser.name} — click to change`
-              : "Set the GitHub handle your comments are signed with"
-          }
-          onClick={() =>
-            addDialog({
-              id: COMMENT_USER_DIALOG,
-              component: (dialog) => (
-                <CommentUserDialog {...dialog} onSave={chrome.setCommentUser} />
-              ),
-            })
-          }
-        >
-          {chrome.commentUser ? (
-            <img className="canvas-me" src={chrome.commentUser.image} alt="" />
-          ) : (
-            <TldrawUiButtonIcon icon="comment" />
-          )}
-        </TldrawUiButton>
+            so it can be corrected after the fact — where there is anything to sign, that is. */}
+        {import.meta.env.DEV && (
+          <TldrawUiButton
+            type="icon"
+            title={
+              chrome.commentUser
+                ? `Commenting as ${chrome.commentUser.name} — click to change`
+                : "Set the GitHub handle your comments are signed with"
+            }
+            onClick={() =>
+              addDialog({
+                id: COMMENT_USER_DIALOG,
+                component: (dialog) => (
+                  <CommentUserDialog {...dialog} onSave={chrome.setCommentUser} />
+                ),
+              })
+            }
+          >
+            {chrome.commentUser ? (
+              <img className="canvas-me" src={chrome.commentUser.image} alt="" />
+            ) : (
+              <TldrawUiButtonIcon icon="comment" />
+            )}
+          </TldrawUiButton>
+        )}
       </>
     );
   },
@@ -260,7 +269,9 @@ export const canvasChromeComponents: TLComponents = {
 
     return (
       <CanvasComments
-        currentUserId={chrome.commentUser?.id ?? null}
+        // No identity, no composer, no reply, no edit: the toolkit's own read-only mode, and what
+        // a built canvas gets, where none of those could be saved anyway.
+        currentUserId={import.meta.env.DEV ? (chrome.commentUser?.id ?? null) : null}
         resolveAuthor={resolveAuthor}
       />
     );
