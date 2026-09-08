@@ -1,0 +1,408 @@
+[
+ {
+  "id": "bg",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   700,
+   360,
+   760
+  ],
+  "only": "flat",
+  "_": "page ground on 04, between the Login button (ends 678.6) and the legal block (starts 769.6), inside the 12.7/365.5 button column: no ink, no art",
+  "_head": "Phase 1 measurements, replayable. Every box is design pt on the 525 x 1140 screen crops in assets/refs, cut out of a 1080 x 1350 video frame; run with --pt 1.337. --against wants a directory of my own renders at the same 525 x 1140 (refkit shoot --scale 3 --crop-phone, then LANCZOS down to 525 x 1140 -- scratch/verify.sh does both), one file per `mine`. Ink probes carry --only ink, because batch compares the first colour a probe prints and sample prints its flat census first."
+ },
+ {
+  "id": "card",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   182,
+   280,
+   196
+  ],
+  "only": "flat",
+  "_": "the warm panel behind the trophy, x 97.4..285.9 by the row-185 scan; this band is above the cup's rim (the art starts at y 200) and inside the panel"
+ },
+ {
+  "id": "track",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "sample",
+  "box": [
+   110,
+   772,
+   135,
+   785
+  ],
+  "only": "flat",
+  "_": "nav track between the back pill (ends 97.2) and the path crop (starts 97.2 but its ink starts later), above the wavy path at 787.4"
+ },
+ {
+  "id": "pill-off",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   800,
+   90,
+   820
+  ],
+  "only": "flat",
+  "_": "inside the disabled back pill (12.7..97.2 x 768.7..825.5), below the arrow (ends 804.8) and inside the cap on both sides"
+ },
+ {
+  "id": "hairline",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   623.3,
+   300,
+   624.4
+  ],
+  "only": "flat",
+  "_": "the Login button's top outline only: the button spans 623.1..679.2 and this band is the core of its 1.5pt stroke, clear of the label at 643.2"
+ },
+ {
+  "id": "ink-title",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "sample",
+  "box": [
+   50,
+   646,
+   344,
+   672
+  ],
+  "only": "ink",
+  "_": "title line 2 'One Card at a Time', ascender top 645.5 to baseline 672.4, x 47.9..344.1: the only ink in the band"
+ },
+ {
+  "id": "ink-eyebrow",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "sample",
+  "box": [
+   130,
+   573,
+   262,
+   585
+  ],
+  "only": "ink",
+  "_": "'SMART LEARNING' cap band 573.7..584.9, x 133.1..258.8, all-caps so the band bottom is the baseline"
+ },
+ {
+  "id": "ink-legal-bold",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "sample",
+  "box": [
+   245,
+   769,
+   320,
+   783
+  ],
+  "only": "ink",
+  "_": "'Terms of Use' inside legal line 1 (56.1..335.8): the bold run, right of 'you agree to our' and left of the trailing 'and'"
+ },
+ {
+  "id": "ink-mid",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "sample",
+  "box": [
+   166,
+   642,
+   213,
+   662
+  ],
+  "only": "ink",
+  "_": "the 'Login' label, bbox 166.8..211.7 x 643.2..661.2, on the white secondary button; nothing else is in that band"
+ },
+ {
+  "id": "ink-2-sub",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "sample",
+  "box": [
+   59,
+   688,
+   333,
+   702
+  ],
+  "only": "ink",
+  "_": "subtitle line 1 'Explore different categories and build your', bbox 59.8..332.8 x 688.1..702.3"
+ },
+ {
+  "id": "ink-2-legal",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "sample",
+  "box": [
+   56,
+   769,
+   220,
+   783
+  ],
+  "only": "ink",
+  "_": "the grey run 'By continuing, you agree to our' at the head of legal line 1, stopping before the bold 'Terms of Use' at x 235"
+ },
+ {
+  "id": "ink-inv-arrow",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "sample",
+  "box": [
+   329,
+   792,
+   345,
+   803
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "inside the next arrow's ink box (327.6..346.3 x 790.6..804.8), inset by 1.5pt so the probe misses the antialiased edge against the black pill"
+ },
+ {
+  "id": "accent-path",
+  "img": "assets/refs/c3.png",
+  "mine": "c3.png",
+  "cmd": "sample",
+  "box": [
+   139,
+   792,
+   157,
+   799
+  ],
+  "only": "flat",
+  "_": "a straight run of the amber path on 03, between the first node and the bend; the path is ~5pt thick here, which is 7px at 1.337 px/pt, enough for a flat census where a 25pt node is not"
+ },
+ {
+  "id": "hero-left",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 300,
+  "range": [
+   0,
+   30
+  ],
+  "_": "row 300 is inside the hero card (56.2..530.5) and clear of every illustrated object; the first transition is the card's left edge"
+ },
+ {
+  "id": "hero-right",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 300,
+  "range": [
+   368,
+   386
+  ],
+  "_": "same row, the card's right edge back to the page ground; the range stops at 386 because the 52pt bezel corner is black inside a rectangular crop and would win the scan"
+ },
+ {
+  "id": "hero-top",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   48,
+   68
+  ],
+  "_": "column 200 is under the Dynamic Island, so the scan starts below it at y 48 and the first transition off #FAFAFA is the card's top edge"
+ },
+ {
+  "id": "hero-bottom",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   520,
+   542
+  ],
+  "_": "same column, the card's bottom edge; the eyebrow does not start until 573.7"
+ },
+ {
+  "id": "nav-next-top",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 336,
+  "range": [
+   762,
+   790
+  ],
+  "_": "column 336 is the next pill's horizontal centre (295.5..378.5), so this reads the pill's top edge and the gradient ramp under it, not a cap"
+ },
+ {
+  "id": "nav-pill-left",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 797,
+  "range": [
+   6,
+   40
+  ],
+  "_": "row 797 is the pills' vertical centre (768.7..825.5), so the back pill's left edge is at its widest here. The range starts at 6 to clear the bezel corner and stops at 40, short of the arrow, which would give the scan a second edge to pick from"
+ },
+ {
+  "id": "nav-pill-right",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 797,
+  "range": [
+   285,
+   300
+  ],
+  "_": "same row, the next pill's left edge at 295.5"
+ },
+ {
+  "id": "type-bands",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "bands",
+  "box": [
+   14,
+   555,
+   379,
+   735
+  ],
+  "_": "the whole type block on 01, from below the hero card (ends 530.5) to above the nav (starts 768.7): eyebrow, two title lines, two subtitle lines"
+ },
+ {
+  "id": "type-bands-04",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "bands",
+  "box": [
+   14,
+   465,
+   379,
+   540
+  ],
+  "_": "title and subtitle on 04, between the cup art (ends 402.4) and the Create Account button (starts 560.5)"
+ },
+ {
+  "id": "legal-bands",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "bands",
+  "box": [
+   40,
+   760,
+   360,
+   806
+  ],
+  "_": "the two legal lines on 04, below the Login button (ends 678.6) and above the home indicator"
+ },
+ {
+  "id": "title-cap-04",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "bbox",
+  "box": [
+   45,
+   468,
+   71,
+   512
+  ],
+  "_": "the 'R' of 'Ready to Master It?' alone -- a flat cap, so its height is cap height with no round overshoot; the 'e' beside it starts at x 71"
+ },
+ {
+  "id": "sub-cap",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "bbox",
+  "box": [
+   59,
+   685,
+   72,
+   705
+  ],
+  "_": "the 'E' of 'Explore' alone, another flat cap; 'x' starts at x 74.8. Read it as a size ratio, not a size: a #7E7E7E glyph thresholded dark loses its own antialiasing, so the render returns 9.7 where the geometry is 10.6 and the blurrier capture returns 11.2"
+ },
+ {
+  "id": "btn-label",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   570,
+   280,
+   610
+  ],
+  "bright": 60,
+  "_": "'Create Account', white on the black button, so this matches bright pixels; the box is inside the button (560.5..616.6) on all four sides"
+ },
+ {
+  "id": "btn1-edges",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 40,
+  "range": [
+   550,
+   700
+  ],
+  "_": "column 40 is inside both buttons (12.7..365.5) and left of both labels (Create Account starts at 123.4), so it reads four clean edges"
+ },
+ {
+  "id": "btn-right",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 651,
+  "range": [
+   355,
+   386
+  ],
+  "_": "row 651 is the Login button's vertical centre; its right edge at 365.5 is 27.5 from the screen edge while its left edge is 12.7 -- the source's own asymmetry, kept. Range stops short of the bezel"
+ },
+ {
+  "id": "sb-time",
+  "img": "assets/refs/c1.png",
+  "mine": "c1.png",
+  "cmd": "bbox",
+  "box": [
+   24,
+   16,
+   80,
+   40
+  ],
+  "_": "'9:41' alone: the box starts at x 24 to clear the screen's 52pt corner, which is bezel black inside a rectangular crop, and ends before the location arrow at 83.0. It is a measurement of the source only. The boards carry the repo's standard status bar, whose clock sits 10.5pt right and 3.0pt lower, so the render's digits run past x 80 and batch reports a short width for a window that clips them, not for a narrow clock"
+ },
+ {
+  "id": "cup-panel",
+  "img": "assets/refs/c4.png",
+  "mine": "c4.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 185,
+  "range": [
+   60,
+   340
+  ],
+  "_": "row 185 crosses the warm panel behind the trophy above the cup's rim; the handles do not reach this high"
+ }
+]

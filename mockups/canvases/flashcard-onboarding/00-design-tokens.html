@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flashcard Onboarding - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --f-font:system-ui,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --f-tracking:-.025em;
+
+  /* Surface */
+  --f-bg:#FFFFFF;
+  --f-card:#FDFAF4;
+  --f-track:#F4F4F4;
+  --f-pill-off:#C1C1C1;
+
+  /* Line */
+  --f-hairline:#EFEFEF;
+
+  /* Ink */
+  --f-ink:#000000;
+  --f-ink-mid:#3A3A3A;
+  --f-ink-2:#7E7E7E;
+  --f-ink-inv:#FFFFFF;
+
+  /* Accent */
+  --f-accent:#F39D05;
+
+  /* Fill */
+  --f-pill-dark:linear-gradient(180deg,#8A8A8A 0,#3C3C3C 6.8px,#141414 15.7px,#0F0F0F 30px,#090909 41px,#040404 100%);
+  --f-pill-grey:linear-gradient(180deg,#DADADA 0,#D2D2D2 4.5px,#C4C4C4 9.8px,#C1C1C1 30px,#C1C1C1 100%);
+  --f-btn-dark:linear-gradient(180deg,#8A8A8A 0,#3C3C3C 5px,#000000 12px,#000000 100%);
+
+  /* Radius */
+  --f-r-pill:999px;
+  --f-r-phone:52px;
+
+  /* Type */
+  --f-t-eyebrow:600 15px/18px var(--f-font);
+  --f-t-title:700 36px/42.3px var(--f-font);
+  --f-t-sub:400 15px/18.7px var(--f-font);
+  --f-t-btn:600 20px/24px var(--f-font);
+  --f-t-legal:400 13px/17.2px var(--f-font);
+  --f-t-time:590 17px/22px var(--f-font);
+
+  /* Metrics */
+  --f-w:393px;
+  --f-h:852px;
+  --f-status:54px;
+  --f-nav-y:768.7px;
+  --f-nav-h:56.8px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--f-w);height:var(--f-h);
+  border-radius:var(--f-r-phone);overflow:hidden;background:var(--f-bg);color:var(--f-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--f-w);height:var(--f-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;
+  font:var(--f-t-time)}
+.sb svg{position:absolute;display:block;fill:currentColor}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+img.a{position:absolute;display:block}
+body{padding:0;background:var(--f-bg);color:var(--f-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--f-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--f-font);color:var(--f-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--f-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--f-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--f-hairline)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--f-ink-2);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--f-card);border:1px solid var(--f-hairline)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--f-font);
+  color:var(--f-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--f-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--f-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--f-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--f-hairline);font:400 8.5px/11px var(--f-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--f-accent);white-space:nowrap}
+td.v{color:var(--f-ink-mid);max-width:132px;word-break:break-all}
+td.e{color:var(--f-ink-2)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Flashcard Onboarding</h1><p>Four onboarding screens, measured off a 1080 &times; 1350 video at 1.337 capture px per design pt. Every value below is a measurement; the row that justifies it is on 00b, and the probe that produced it is in <code>probes.json</code>.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--f-bg)"></div><b>--f-bg</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--f-card)"></div><b>--f-card</b><i>#FDFAF4</i></div><div class="sw"><div class="chip" style="background:var(--f-track)"></div><b>--f-track</b><i>#F4F4F4</i></div><div class="sw"><div class="chip" style="background:var(--f-pill-off)"></div><b>--f-pill-off</b><i>#C1C1C1</i></div><div class="sw"><div class="chip" style="background:var(--f-hairline)"></div><b>--f-hairline</b><i>#EFEFEF</i></div><div class="sw"><div class="chip" style="background:var(--f-ink)"></div><b>--f-ink</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--f-ink-mid)"></div><b>--f-ink-mid</b><i>#3A3A3A</i></div><div class="sw"><div class="chip" style="background:var(--f-ink-2)"></div><b>--f-ink-2</b><i>#7E7E7E</i></div><div class="sw"><div class="chip" style="background:var(--f-ink-inv)"></div><b>--f-ink-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--f-accent)"></div><b>--f-accent</b><i>#F39D05</i></div><div class="sw"><div class="chip" style="background:var(--f-pill-dark)"></div><b>--f-pill-dark</b><i>linear-gradient(180deg,#8A8A8A 0,#3C3C3C 6.8px,#141414 15.7px,#0F0F0F 30px,#090909 41px,#040404 100%)</i></div><div class="sw"><div class="chip" style="background:var(--f-pill-grey)"></div><b>--f-pill-grey</b><i>linear-gradient(180deg,#DADADA 0,#D2D2D2 4.5px,#C4C4C4 9.8px,#C1C1C1 30px,#C1C1C1 100%)</i></div><div class="sw"><div class="chip" style="background:var(--f-btn-dark)"></div><b>--f-btn-dark</b><i>linear-gradient(180deg,#8A8A8A 0,#3C3C3C 5px,#000000 12px,#000000 100%)</i></div></div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div></div><h2>Type</h2><div class="tr"><span style="font:var(--f-t-eyebrow)">Grumpy wizards</span><em>--f-t-eyebrow &middot; 600 15px/18px</em></div><div class="tr"><span style="font:var(--f-t-title)">Grumpy wizards</span><em>--f-t-title &middot; 700 36px/42.3px</em></div><div class="tr"><span style="font:var(--f-t-sub)">Grumpy wizards</span><em>--f-t-sub &middot; 400 15px/18.7px</em></div><div class="tr"><span style="font:var(--f-t-btn)">Grumpy wizards</span><em>--f-t-btn &middot; 600 20px/24px</em></div><div class="tr"><span style="font:var(--f-t-legal)">Grumpy wizards</span><em>--f-t-legal &middot; 400 13px/17.2px</em></div><div class="tr"><span style="font:var(--f-t-time)">Grumpy wizards</span><em>--f-t-time &middot; 590 17px/22px</em></div><h2>Metrics</h2><div class="met">--f-w: 393px<br>--f-h: 852px<br>--f-status: 54px<br>--f-nav-y: 768.7px<br>--f-nav-h: 56.8px</div></div>
+</body>
+</html>

@@ -1,0 +1,74 @@
+{
+  "name": "(example) Flashcard Onboarding",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00e-art",
+          "label": "Art assets"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-learn",
+          "label": "Learn"
+        },
+        {
+          "file": "02-challenges",
+          "label": "Challenges"
+        },
+        {
+          "file": "03-rankings",
+          "label": "Rankings"
+        },
+        {
+          "file": "04-master",
+          "label": "Master"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: video frames",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-learn",
+          "label": "Learn"
+        },
+        {
+          "file": "ref-02-challenges",
+          "label": "Challenges"
+        },
+        {
+          "file": "ref-03-rankings",
+          "label": "Rankings"
+        },
+        {
+          "file": "ref-04-master",
+          "label": "Master"
+        }
+      ]
+    }
+  ]
+}

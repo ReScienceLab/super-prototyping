@@ -279,6 +279,28 @@ folder are invisible to it.
   painted over five text classes without an error. `assets/art/` and
   `assets/art-gen/` are committed; the eight `ref-*` boards are
   gitignored, so a fresh clone has 13.
+- `flashcard-onboarding/`: the run to read when the only source is a **screen
+  recording**. Four onboarding screens of a flashcard app, from a clip posted
+  on X, in 13 boards across three rows: a token board, three evidence boards
+  for 28 tokens, an art board for 7 crops, the four replicas, and the video
+  frame behind each one column-for-column underneath. Mean absolute delta is
+  6.17-7.05 levels (of 255), two to four times `duolingo-ios`', and the gap is
+  the medium: at 1.337 capture px per design pt a glyph is three pixels tall
+  through an H.264 encoder, so a sharp render scores an error the geometry
+  does not contain - the cropped hero art sits at 1.0-3.5 while the type zone
+  sits at 7.7-14.2 with every string inside 1.5pt of its reference box. Its
+  `README.md` carries the three findings that cost the most:
+  **`letter-spacing` inherits as a computed length**, so an `em` set on `body`
+  reaches a 36px title as body's own -0.4px and tracks it at a third of the
+  intent, which reads exactly like a display size that wants its own value;
+  the whole design is tracked at a single **-.025em**, proved by character
+  count rather than by width, which is also what told SF Pro from SF Pro
+  Rounded; and **LANCZOS undershoot** in the downscale step, which read as a
+  20-level ink-core error until the resample became an area average. It also
+  prices the one deliberate deviation - the source's phone frame is a mockup
+  asset, with a 118 x 4.5 home indicator at bottom 2.5 - at exactly 1.00 delta
+  per screen. `assets/art/` is committed; the four `ref-*` boards are
+  gitignored, so a fresh clone has 9.
 - `spotify-ios/`: the run to read when the brand face is unavailable and the
   screens are mostly type. Five screens of the Spotify iOS app - the home
   feed at two scroll positions, two full-screen promo modals and the Spotify
@@ -345,6 +367,33 @@ folder are invisible to it.
   is worthless on grey, and that a blur which monotonically improves a band is
   hiding a content defect rather than an antialiasing one. The 25 `ref-*`
   boards are gitignored, so a fresh clone has 29.
+- `skillpath-ios/`: the run to read when the source is a **zooming** screen
+  recording, so there is no such thing as *the* capture scale. Five screens of
+  an unnamed gamified self-improvement app, from a clip posted on X, in 23
+  boards across three rows: six token boards and seven evidence boards for 73
+  tokens, the five replicas, and the video frame behind each one
+  column-for-column underneath. Those foundation boards are plural for a
+  reason worth borrowing: 73 rows is 4000px of table in a 980px artboard, and
+  `refkit shoot --check-overflow` only says so when you leave `--crop-phone`
+  off, and never says so at all about a table running off the *side*. Mean
+  absolute delta is 5.88-9.04 levels (of 255). Its `README.md` records the
+  three things that decided those numbers. **The device is 402 x 874, not the
+  393 x 852 the rest of this repo uses** - an iPhone 17 Pro - and it was found
+  by scale agreement, where solving each frame's screen-inner rect against 402
+  x 874 makes its width and height scales agree to 0.07% against 0.34% for the
+  smaller frame. **The clip zooms, so every frame carries its own px-per-pt**
+  (1.01194 to 1.07985) and every one of the 59 rows in `probes.json` carries
+  its own `"pt"`, which is what `refkit batch` needs to replay them all in one
+  pass. And **the renderer's cap metrics are not the face's**: a probe of
+  eight font stacks came back byte-identical, so the boards are set in the
+  platform fallback, whose cap is 0.733 em and sits 0.350 x font-size below
+  the line box rather than SF Pro's 0.245 - inverting the nominal relation
+  instead of the measured one put every run on the board low by 3.3pt at
+  31.5px and cost 1.50 delta on the busiest screen. All 20 type sizes are
+  fitted on ink width against a named probe rather than on cap height, which a
+  video frame inflates by 1-2pt; `CURRENT STREAK` read as 14px that way and
+  set 18% wide. `assets/art/` is committed for its 17 crops; the five `ref-*`
+  boards are gitignored, so a fresh clone has 18.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

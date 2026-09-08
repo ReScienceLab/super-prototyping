@@ -1,0 +1,124 @@
+{
+  "_": "Art cut from assets/refs/cN.png at measured pt boxes; each capture has its own scale (SCALES in gen.py) because the source is a zooming screen recording, not a still. gen.py writes assets/art/<id>.png and places each <img> back at its own box, so an asset cannot drift from where it was measured. Chrome -- cards, pills, buttons, the road, type -- is CSS.",
+  "_note": "Every box carries its own background, because every one of them is placed back at the pt it was cut from, over ground the generator paints to the same token. A tight alpha cut-out would only add a matte line.",
+  "medal": [
+    "c2",
+    298.0,
+    147.0,
+    360.0,
+    220.0
+  ],
+  "avatar": [
+    "c2",
+    341.0,
+    72.0,
+    385.0,
+    118.0
+  ],
+  "gem-hdr": [
+    "c2",
+    263.5,
+    87.5,
+    282.5,
+    102.0
+  ],
+  "crown": [
+    "c2",
+    30.0,
+    346.0,
+    55.0,
+    367.0
+  ],
+  "bolt-lv": [
+    "c2",
+    291.0,
+    350.0,
+    304.0,
+    365.0
+  ],
+  "bolt-chip": [
+    "c2",
+    77.0,
+    573.0,
+    89.5,
+    586.0
+  ],
+  "gem-chip": [
+    "c2",
+    135.0,
+    571.0,
+    152.0,
+    584.0
+  ],
+  "ic-dumbbell": [
+    "c2",
+    35.7,
+    521.6,
+    69.7,
+    555.6
+  ],
+  "ic-mewing": [
+    "c2",
+    35.7,
+    606.8,
+    69.7,
+    640.8
+  ],
+  "ic-skincare": [
+    "c2",
+    35.7,
+    692.0,
+    69.7,
+    726.0
+  ],
+  "ic-razor": [
+    "c2",
+    35.7,
+    777.2,
+    69.7,
+    794.0
+  ],
+  "chip-skincare": [
+    "c4",
+    58.0,
+    110.0,
+    80.0,
+    144.0
+  ],
+  "chip-hair": [
+    "c4",
+    172.0,
+    110.0,
+    198.0,
+    144.0
+  ],
+  "chip-oral": [
+    "c4",
+    258.0,
+    110.0,
+    284.0,
+    144.0
+  ],
+  "cloud-l": [
+    "c4",
+    2.0,
+    548.0,
+    80.0,
+    630.0
+  ],
+  "lock": [
+    "c4",
+    155.0,
+    572.0,
+    182.0,
+    606.0
+  ],
+  "home-clouds": [
+    "c2",
+    2.0,
+    296.0,
+    400.0,
+    313.0
+  ],
+  "_note2": "home-clouds and cloud-l are the two photographic cloud washes; the lesson sheet's scalloped top is not a crop, because its measured boundary fits five circles whose centres all land on y 705 and a crop there would carry the scrimmed road behind it."
+}
