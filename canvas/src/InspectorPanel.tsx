@@ -382,7 +382,10 @@ export function InspectorPanel({
                     {selAsset.name}
                   </span>
                   <span className="sp-asset-view-d">
-                    {selAsset.w} × {selAsset.h} · {formatBytes(selAsset.bytes)}
+                    {selAsset.via === "svg"
+                      ? `${fmt(selAsset.w)} × ${fmt(selAsset.h)} · svg`
+                      : `${selAsset.w} × ${selAsset.h} · ${formatBytes(selAsset.bytes)}`}
+                    {selAsset.svg ? <CopySvg key={selAsset.key} svg={selAsset.svg} /> : null}
                   </span>
                 </figcaption>
               </figure>
@@ -401,7 +404,7 @@ export function InspectorPanel({
                   name={name}
                   path={path}
                   data={data}
-                  assets={assets.length}
+                  assets={assets}
                   usedTokens={usedTokens}
                 />
               ) : (
@@ -430,7 +433,34 @@ export function InspectorPanel({
   );
 }
 
+/** The vector asset, to the clipboard: the markup as it stands alone, for Figma or another gen.py. */
+function CopySvg({ svg }: { svg: string }) {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const t = setTimeout(() => setCopied(false), 1500);
+    return () => clearTimeout(t);
+  }, [copied]);
+  return (
+    <button
+      type="button"
+      className="sp-copy"
+      onClick={() => void navigator.clipboard.writeText(svg).then(() => setCopied(true))}
+    >
+      {copied ? "Copied" : "Copy SVG"}
+    </button>
+  );
+}
+
 function LayerIcon({ kind }: { kind: ReturnType<typeof layerKind> }) {
+  if (kind === "vector")
+    return (
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+        <path d="M2.5 9.5C2.5 4.5 7.5 7.5 9.5 2.5" />
+        <circle cx="2.5" cy="9.5" r="1.2" fill="currentColor" stroke="none" />
+        <circle cx="9.5" cy="2.5" r="1.2" fill="currentColor" stroke="none" />
+      </svg>
+    );
   if (kind === "text")
     return (
       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
@@ -484,13 +514,16 @@ function Layers({
     if (sel === null) return;
     list.current?.querySelector(`[data-i="${sel}"]`)?.scrollIntoView({ block: "nearest" });
   }, [sel]);
+  // An icon is one layer: the paths inside an svg stay indexed (the Tokens tab counts uses on
+  // them) but are not listed.
+  const rows = nodes.filter((n) => !n.inSvg);
   return (
     <div className="sp-layers" style={{ height }} ref={list} onMouseLeave={() => onHover(null)}>
       <div className="sp-sh">
         <span className="sp-sh-t">Layers</span>
-        <span className="sp-sh-s">{Math.max(0, nodes.length - 1)}</span>
+        <span className="sp-sh-s">{Math.max(0, rows.length - 1)}</span>
       </div>
-      {nodes.map((n) => (
+      {rows.map((n) => (
         <button
           key={n.i}
           type="button"
@@ -524,11 +557,12 @@ function Summary({
   name: string;
   path: string;
   data: SpReady;
-  assets: number;
+  assets: AssetRow[];
   usedTokens: number;
 }) {
   const file = path.slice(path.lastIndexOf("/") + 1);
   const root = data.nodes[0];
+  const vectors = assets.filter((a) => a.via === "svg").length;
   return (
     <div className="sp-sec">
       <div className="sp-sh">
@@ -536,8 +570,9 @@ function Summary({
         <span className="sp-sh-s">{file}</span>
       </div>
       <Row k="Frame" v={root?.box ? `${fmt(root.box.w)} × ${fmt(root.box.h)}` : "–"} />
-      <Row k="Layers" v={String(Math.max(0, data.nodes.length - 1))} />
-      <Row k="Images" v={String(assets)} />
+      <Row k="Layers" v={String(Math.max(0, data.nodes.filter((n) => !n.inSvg).length - 1))} />
+      <Row k="Images" v={String(assets.length - vectors)} />
+      <Row k="Vectors" v={String(vectors)} />
       <Row k="Tokens" v={`${usedTokens} used of ${data.tokens.length}`} />
       <div className="sp-hint">Click a layer, or an element in the preview.</div>
     </div>
@@ -770,7 +805,7 @@ function Assets({
   onSelect: (i: number) => void;
   onHover: (i: number | null) => void;
 }) {
-  if (!rows.length) return <div className="sp-empty">No images on this board.</div>;
+  if (!rows.length) return <div className="sp-empty">No images or vectors on this board.</div>;
   return (
     <div className="sp-scroll" onMouseLeave={() => onHover(null)}>
       <div className="sp-sh sp-sh--pad">
@@ -785,19 +820,19 @@ function Assets({
             key={a.key}
             type="button"
             className={cx("sp-asset", on && "on", hovered && "hov")}
-            title={`${a.name}\n${a.mime} · ${formatBytes(a.bytes)} · ${a.via === "css" ? "background" : "img"}`}
+            title={`${a.name}\n${a.mime} · ${formatBytes(a.bytes)} · ${a.via === "css" ? "background" : a.via}`}
             onClick={() => onSelect(a.uses[0])}
             onMouseEnter={() => onHover(a.uses[0])}
           >
-            <span className="sp-th">
+            <span className={cx("sp-th", a.via === "svg" && "svg")}>
               <img src={a.uri} alt="" />
             </span>
             <span className="sp-asset-n">
               {a.source === "file" ? a.name : <i>{a.name}</i>}
-              {a.source === "alt" ? <small>alt</small> : null}
+              {a.source === "alt" || a.source === "label" ? <small>{a.source}</small> : null}
             </span>
             <span className="sp-asset-d">
-              {a.w && a.h ? `${a.w} × ${a.h}` : formatBytes(a.bytes)}
+              {a.w && a.h ? `${fmt(a.w)} × ${fmt(a.h)}` : formatBytes(a.bytes)}
               {a.uses.length > 1 ? ` · ×${a.uses.length}` : ""}
             </span>
           </button>

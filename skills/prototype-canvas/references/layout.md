@@ -28,7 +28,9 @@ where a folder has one, is a `name → data URI` map of pre-encoded images the
 generator inlines; commit it too, it is the only copy of those images. The
 canvas's inspector names a board's images by content, from `assets/` first
 and `assets.json` second, and falls back to the image's `alt` when a
-generator re-encoded it.
+generator re-encoded it. An inline `<svg>` is named the same way from
+`assets/icons/`, by its geometry rather than its bytes, so keep each icon
+as a file there and inline it through a helper in `gen.py`.
 Everything a run makes on the way (grids, shots, montages, candidate boards)
 goes in `<slug>/scratch/`, which should be gitignored at any depth, along with
 `assets/refs/` where third-party captures go.
@@ -100,7 +102,8 @@ Boards render inside `<iframe srcDoc sandbox="">`:
 
 - **Fully self-contained.** No external CSS, JS, fonts or images. Inline the
   token block in every file; embed images as `data:` URIs; icons are inline
-  SVG. A sandboxed iframe has no shared stylesheet, so the `:root` block is
+  SVG, each kept as `assets/icons/<name>.svg` so the inspector can name it.
+  A sandboxed iframe has no shared stylesheet, so the `:root` block is
   copied byte-identically into every board rather than imported.
 - **The shape box is 478 × 980** (`CANVAS_FILE_DEFAULT_SIZE`). The iframe
   clips anything past that box with no warning, so check every fixed-height

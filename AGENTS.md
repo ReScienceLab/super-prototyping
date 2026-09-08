@@ -49,7 +49,9 @@ Rules inside a canvas folder:
   `name → data URI` map of pre-encoded images the generator inlines, not
   evidence. The canvas's inspector names a board's images by content, from
   `assets/` first and `assets.json` second, so a re-encoded image that
-  matches neither falls back to its `alt`.
+  matches neither falls back to its `alt`. An inline `<svg>` is named the
+  same way from `assets/icons/`, by its geometry rather than its bytes, and
+  handed back as a vector asset.
 - Never commit `ref-*.html` or `assets/refs/`. They hold third-party
   captures, the root `.gitignore` already excludes them, and the
   clone-prototype skill rebuilds them. `spotify-ios` is the one exception:

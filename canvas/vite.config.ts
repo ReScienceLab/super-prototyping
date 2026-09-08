@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
+import { svgSignature } from "./src/svgSignature.ts";
 
 /**
  * Repo root — vite.config.ts sits in canvas/, one level below it. It is published into the page
@@ -117,14 +118,17 @@ interface AssetName {
  * could have inlined: `assets/**`, `assets-dark/**` and the values of `assets.json`. `refs/` is
  * skipped because it holds third-party captures that are never committed. A generator that
  * re-encodes on the way (a PIL resize) produces bytes that match nothing here, and the
- * inspector then falls back to the image's alt text.
+ * inspector then falls back to the image's alt text. An `.svg` file is indexed twice: by its
+ * bytes like any image, and as `svg:hash` of its geometry, which is how an inline `<svg>` on a
+ * board is keyed, since the generator rewrote its root tag on the way in.
  */
 function assetIndex(folder: string): Record<string, AssetName> {
   const out: Record<string, AssetName> = {};
-  const add = (payload: string, name: string, bytes: number) => {
-    const key = `${payload.length}:${fnv1a(payload)}`;
+  const add = (key: string, name: string, bytes: number) => {
     if (!(key in out)) out[key] = { name, bytes };
   };
+  const addPayload = (payload: string, name: string, bytes: number) =>
+    add(`${payload.length}:${fnv1a(payload)}`, name, bytes);
   const walk = (dir: string, rel: string) => {
     let entries: fs.Dirent[];
     try {
@@ -141,7 +145,9 @@ function assetIndex(folder: string): Record<string, AssetName> {
       }
       if (!ASSET_MIME.has(path.extname(e.name).toLowerCase())) continue;
       const buf = fs.readFileSync(p);
-      add(buf.toString("base64"), rel + e.name, buf.length);
+      addPayload(buf.toString("base64"), rel + e.name, buf.length);
+      if (e.name.toLowerCase().endsWith(".svg"))
+        add(`svg:${fnv1a(svgSignature(buf.toString("utf8")))}`, rel + e.name, buf.length);
     }
   };
   for (const sub of ["assets", "assets-dark"]) walk(path.join(folder, sub), `${sub}/`);
@@ -154,7 +160,7 @@ function assetIndex(folder: string): Record<string, AssetName> {
           if (typeof v !== "string" || !v.startsWith("data:")) continue;
           const payload = v.slice(v.indexOf(",") + 1);
           const pad = payload.endsWith("==") ? 2 : payload.endsWith("=") ? 1 : 0;
-          add(payload, `assets.json#${key}`, Math.floor((payload.length * 3) / 4) - pad);
+          addPayload(payload, `assets.json#${key}`, Math.floor((payload.length * 3) / 4) - pad);
         }
       }
     } catch {

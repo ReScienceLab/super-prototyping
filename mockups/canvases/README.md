@@ -28,7 +28,10 @@ A folder is an unzipped Sketch file: `layout.json` plays `document.json` and
 pre-encoded images the generator inlines; commit it too, it is the only
 copy of those images. The canvas's inspector names a board's images by
 content, from `assets/` first and `assets.json` second, and falls back to
-the image's `alt` when a generator re-encoded it. Everything a run makes on the way, grids, shots, montages,
+the image's `alt` when a generator re-encoded it. An inline `<svg>` is
+named the same way from `assets/icons/`, by its geometry rather than its
+bytes, so keep each icon as a file there and inline it through a helper in
+`gen.py`. Everything a run makes on the way, grids, shots, montages,
 candidate boards, goes in `<slug>/scratch/`. The root `.gitignore` ignores
 `scratch/` at any depth, and `assets/refs/` too, which is where third-party
 captures go. No folder needs a `.gitignore` of its own.
@@ -130,7 +133,8 @@ Boards render inside `<iframe srcDoc sandbox="">`:
 
 - **Fully self-contained.** No external CSS, JS, fonts or images. Inline
   the token block in every file; embed images as `data:` URIs; icons are
-  inline SVG.
+  inline SVG, each kept as `assets/icons/<name>.svg` so the inspector can
+  name it.
 - **The shape box is 478 × 980** (`CANVAS_FILE_DEFAULT_SIZE`). The iframe
   clips anything past that box with no warning, so check every fixed-height
   board after adding a row. `00-welcome` is the one exception, a landscape
