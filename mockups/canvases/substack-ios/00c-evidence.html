@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Substack iOS - Evidence 2/2</title>
+<style>
+:root{
+  /* Font */
+  --s-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --s-bg:#FFFFFF;
+  --s-card:#FDFDFD;
+  --s-fill:#EFEFEF;
+  --s-tint:rgba(0,0,0,.075);
+  --s-glass:rgba(255,255,255,.66);
+  --s-peach:#FEDFC3;
+  --s-grad-a:#FDFDFD;
+  --s-grad-b:#E7E7E7;
+  --s-band:#D6D6D6;
+
+  /* Line */
+  --s-hairline:#C7C7C7;
+  --s-border:#DDDDDD;
+
+  /* Ink */
+  --s-ink:#373737;
+  --s-ink-2:#787878;
+  --s-ink-inv:#FFFFFF;
+  --s-link:#097FC6;
+
+  /* Accent */
+  --s-accent:#FF5800;
+
+  /* Radius */
+  --s-r-card:12px;
+  --s-r-tile:8px;
+  --s-r-pill:999px;
+  --s-r-phone:52px;
+
+  /* Type */
+  --s-t-body:400 15px/20px var(--s-font);
+  --s-t-name:600 15px/20px var(--s-font);
+  --s-t-toast:700 14.5px/19.33px var(--s-font);
+  --s-t-meta:400 10.5px/14px var(--s-font);
+  --s-t-sub:500 10.5px/14px var(--s-font);
+  --s-t-tile:400 11px/14px var(--s-font);
+  --s-t-badge:600 11.5px/14px var(--s-font);
+  --s-t-small:400 13px/17px var(--s-font);
+  --s-t-label:600 13px/17px var(--s-font);
+  --s-t-pub:700 13px/17px var(--s-font);
+  --s-t-help:400 14px/19px var(--s-font);
+  --s-t-btn:500 14px/19px var(--s-font);
+  --s-t-head:600 20.5px/25px var(--s-font);
+  --s-t-share:600 21.5px/26px var(--s-font);
+  --s-t-time:590 16.75px/22px var(--s-font);
+
+  /* Metrics */
+  --s-w:393px;
+  --s-h:852px;
+  --s-status:54px;
+  --s-gutter:16px;
+  --s-avatar:40px;
+  --s-tab:62.33px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--s-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--s-w);height:var(--s-h);
+  border-radius:var(--s-r-phone);overflow:hidden;background:var(--s-bg);color:var(--s-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--s-w);height:var(--s-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--s-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--s-bg);color:var(--s-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:var(--s-t-label);margin-bottom:2px}
+header p{font:var(--s-t-small);color:var(--s-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--s-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--s-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--s-border)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--s-ink-2);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--s-fill);border:1px solid var(--s-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--s-font);
+  color:var(--s-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--s-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--s-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--s-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--s-hairline);font:400 8.5px/11px var(--s-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--s-accent)}
+td.v{color:var(--s-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--s-ink-2)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 2/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--s-avatar</td><td class="v">40px</td><td class="e">refkit bbox on a note avatar, c1 y272.67</td></tr><tr><td class="t">--s-tab</td><td class="v">62.33px</td><td class="e">refkit scan col through the pill on c6, y768..831</td></tr></table></div>
+</body>
+</html>

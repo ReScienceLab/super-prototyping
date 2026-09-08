@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Substack iOS - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --s-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --s-bg:#FFFFFF;
+  --s-card:#FDFDFD;
+  --s-fill:#EFEFEF;
+  --s-tint:rgba(0,0,0,.075);
+  --s-glass:rgba(255,255,255,.66);
+  --s-peach:#FEDFC3;
+  --s-grad-a:#FDFDFD;
+  --s-grad-b:#E7E7E7;
+  --s-band:#D6D6D6;
+
+  /* Line */
+  --s-hairline:#C7C7C7;
+  --s-border:#DDDDDD;
+
+  /* Ink */
+  --s-ink:#373737;
+  --s-ink-2:#787878;
+  --s-ink-inv:#FFFFFF;
+  --s-link:#097FC6;
+
+  /* Accent */
+  --s-accent:#FF5800;
+
+  /* Radius */
+  --s-r-card:12px;
+  --s-r-tile:8px;
+  --s-r-pill:999px;
+  --s-r-phone:52px;
+
+  /* Type */
+  --s-t-body:400 15px/20px var(--s-font);
+  --s-t-name:600 15px/20px var(--s-font);
+  --s-t-toast:700 14.5px/19.33px var(--s-font);
+  --s-t-meta:400 10.5px/14px var(--s-font);
+  --s-t-sub:500 10.5px/14px var(--s-font);
+  --s-t-tile:400 11px/14px var(--s-font);
+  --s-t-badge:600 11.5px/14px var(--s-font);
+  --s-t-small:400 13px/17px var(--s-font);
+  --s-t-label:600 13px/17px var(--s-font);
+  --s-t-pub:700 13px/17px var(--s-font);
+  --s-t-help:400 14px/19px var(--s-font);
+  --s-t-btn:500 14px/19px var(--s-font);
+  --s-t-head:600 20.5px/25px var(--s-font);
+  --s-t-share:600 21.5px/26px var(--s-font);
+  --s-t-time:590 16.75px/22px var(--s-font);
+
+  /* Metrics */
+  --s-w:393px;
+  --s-h:852px;
+  --s-status:54px;
+  --s-gutter:16px;
+  --s-avatar:40px;
+  --s-tab:62.33px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--s-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--s-w);height:var(--s-h);
+  border-radius:var(--s-r-phone);overflow:hidden;background:var(--s-bg);color:var(--s-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--s-w);height:var(--s-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--s-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--s-bg);color:var(--s-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:var(--s-t-label);margin-bottom:2px}
+header p{font:var(--s-t-small);color:var(--s-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--s-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--s-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--s-border)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--s-ink-2);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--s-fill);border:1px solid var(--s-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--s-font);
+  color:var(--s-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--s-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--s-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--s-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--s-hairline);font:400 8.5px/11px var(--s-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--s-accent)}
+td.v{color:var(--s-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--s-ink-2)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Substack iOS</h1><p>Read off seven captures of the home feed at 3 capture px to the design pt. Colour comes from the sRGB conversions, never the untagged P3 originals.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--s-bg)"></div><b>--s-bg</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--s-card)"></div><b>--s-card</b><i>#FDFDFD</i></div><div class="sw"><div class="chip" style="background:var(--s-fill)"></div><b>--s-fill</b><i>#EFEFEF</i></div><div class="sw"><div class="chip" style="background:var(--s-tint)"></div><b>--s-tint</b><i>rgba(0,0,0,.075)</i></div><div class="sw"><div class="chip" style="background:var(--s-glass)"></div><b>--s-glass</b><i>rgba(255,255,255,.66)</i></div><div class="sw"><div class="chip" style="background:var(--s-peach)"></div><b>--s-peach</b><i>#FEDFC3</i></div><div class="sw"><div class="chip" style="background:var(--s-grad-a)"></div><b>--s-grad-a</b><i>#FDFDFD</i></div><div class="sw"><div class="chip" style="background:var(--s-grad-b)"></div><b>--s-grad-b</b><i>#E7E7E7</i></div><div class="sw"><div class="chip" style="background:var(--s-band)"></div><b>--s-band</b><i>#D6D6D6</i></div><div class="sw"><div class="chip" style="background:var(--s-hairline)"></div><b>--s-hairline</b><i>#C7C7C7</i></div><div class="sw"><div class="chip" style="background:var(--s-border)"></div><b>--s-border</b><i>#DDDDDD</i></div><div class="sw"><div class="chip" style="background:var(--s-ink)"></div><b>--s-ink</b><i>#373737</i></div><div class="sw"><div class="chip" style="background:var(--s-ink-2)"></div><b>--s-ink-2</b><i>#787878</i></div><div class="sw"><div class="chip" style="background:var(--s-ink-inv)"></div><b>--s-ink-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--s-link)"></div><b>--s-link</b><i>#097FC6</i></div><div class="sw"><div class="chip" style="background:var(--s-accent)"></div><b>--s-accent</b><i>#FF5800</i></div></div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:12px"></div><em>12px</em></div><div><div class="rb" style="border-radius:8px"></div><em>8px</em></div><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div></div><h2>Type</h2><div class="tr"><span style="font:var(--s-t-body)">Grumpy wizards</span><em>--s-t-body &middot; 400 15px/20px</em></div><div class="tr"><span style="font:var(--s-t-name)">Grumpy wizards</span><em>--s-t-name &middot; 600 15px/20px</em></div><div class="tr"><span style="font:var(--s-t-toast)">Grumpy wizards</span><em>--s-t-toast &middot; 700 14.5px/19.33px</em></div><div class="tr"><span style="font:var(--s-t-meta)">Grumpy wizards</span><em>--s-t-meta &middot; 400 10.5px/14px</em></div><div class="tr"><span style="font:var(--s-t-sub)">Grumpy wizards</span><em>--s-t-sub &middot; 500 10.5px/14px</em></div><div class="tr"><span style="font:var(--s-t-tile)">Grumpy wizards</span><em>--s-t-tile &middot; 400 11px/14px</em></div><div class="tr"><span style="font:var(--s-t-badge)">Grumpy wizards</span><em>--s-t-badge &middot; 600 11.5px/14px</em></div><div class="tr"><span style="font:var(--s-t-small)">Grumpy wizards</span><em>--s-t-small &middot; 400 13px/17px</em></div><div class="tr"><span style="font:var(--s-t-label)">Grumpy wizards</span><em>--s-t-label &middot; 600 13px/17px</em></div><div class="tr"><span style="font:var(--s-t-pub)">Grumpy wizards</span><em>--s-t-pub &middot; 700 13px/17px</em></div><div class="tr"><span style="font:var(--s-t-help)">Grumpy wizards</span><em>--s-t-help &middot; 400 14px/19px</em></div><div class="tr"><span style="font:var(--s-t-btn)">Grumpy wizards</span><em>--s-t-btn &middot; 500 14px/19px</em></div><div class="tr"><span style="font:var(--s-t-head)">Grumpy wizards</span><em>--s-t-head &middot; 600 20.5px/25px</em></div><div class="tr"><span style="font:var(--s-t-share)">Grumpy wizards</span><em>--s-t-share &middot; 600 21.5px/26px</em></div><div class="tr"><span style="font:var(--s-t-time)">Grumpy wizards</span><em>--s-t-time &middot; 590 16.75px/22px</em></div><h2>Metrics</h2><div class="met">--s-w: 393px<br>--s-h: 852px<br>--s-status: 54px<br>--s-gutter: 16px<br>--s-avatar: 40px<br>--s-tab: 62.33px</div></div>
+</body>
+</html>
