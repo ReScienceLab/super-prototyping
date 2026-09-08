@@ -18,6 +18,14 @@ describe('canvas URLs', () => {
     expect(boardFromUrl(root + '#00-welcome')).toBe('00-welcome')
     expect(boardFromUrl(root + '?canvas=luma-ios')).toBeUndefined()
     expect(boardFromUrl(root + '?canvas=luma-ios#')).toBeUndefined()
+    expect(boardFromUrl(root + '?canvas=luma-ios#%')).toBeUndefined()
+    expect(boardFromUrl(root + '?canvas=luma-ios#%E0%A4%A')).toBeUndefined()
+  })
+
+  it('round-trips a file name the hash would otherwise mangle', () => {
+    for (const name of ['03 event', '100%-width', 'a#b?c']) {
+      expect(boardFromUrl(urlForSlug(root, 'luma-ios', name))).toBe(name)
+    }
   })
 
   it('writes a page as ?canvas= and the welcome page as the bare URL', () => {

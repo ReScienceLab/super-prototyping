@@ -823,7 +823,10 @@ export default function App() {
   const show = useCallback((file: CanvasLibraryFile | null, push: boolean) => {
     inspected.current = file;
     setInspecting(file);
-    if (push) writeUrl.current(true);
+    if (push) {
+      zoomTo.current = null; // the reader's own pick or close, so no address is left to zoom to
+      writeUrl.current(true);
+    }
   }, []);
   const onCloseInspector = useCallback(() => show(null, true), [show]);
   const onPick = useCallback(

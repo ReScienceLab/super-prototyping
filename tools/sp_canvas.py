@@ -244,8 +244,8 @@ def cmd_start(a):
     print(f"boards   {boards}")
     print(f"app      {app}")
     print(f"running  {how}")
-    print(f"\nDeep-link one board with ?canvas=<slug>, "
-          f"e.g. http://127.0.0.1:{a.port}/?canvas=notion-ios")
+    print(f"\nDeep-link a page with ?canvas=<slug>, one board of it with #<file>, "
+          f"e.g. http://127.0.0.1:{a.port}/?canvas=notion-ios#01-splash")
 
 
 def _is_our_server(pid, port):

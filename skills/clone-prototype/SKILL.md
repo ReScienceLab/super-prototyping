@@ -461,7 +461,7 @@ the capture itself.
 
 **Open the board as soon as its first HTML file lands.** The dev server
 watches the boards directory and picks up a folder created after it booted,
-so there is nothing to restart. If `?canvas=<slug>` opens the wrong board
+so there is nothing to restart. If `?canvas=<slug>` opens the wrong page
 anyway — right URL, no error — the folder holds no `.html` file yet, and an
 empty folder is not a board.
 

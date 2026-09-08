@@ -13,10 +13,18 @@ export function slugFromUrl(href: string) {
   return new URL(href).searchParams.get(CANVAS_PARAM) ?? WELCOME_PAGE_SLUG;
 }
 
-/** The board an address opens, by file name: its hash, else nothing. */
+/**
+ * The board an address opens, by file name: its hash, else nothing. The hash is typed by hand,
+ * so a broken escape in it is a board that does not exist, not an error.
+ */
 export function boardFromUrl(href: string) {
   const { hash } = new URL(href);
-  return hash ? decodeURIComponent(hash.slice(1)) : undefined;
+  if (!hash) return undefined;
+  try {
+    return decodeURIComponent(hash.slice(1));
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -27,6 +35,6 @@ export function urlForSlug(href: string, slug: string, board?: string) {
   const url = new URL(href);
   if (slug === WELCOME_PAGE_SLUG) url.searchParams.delete(CANVAS_PARAM);
   else url.searchParams.set(CANVAS_PARAM, slug);
-  url.hash = board ?? "";
+  url.hash = board ? encodeURIComponent(board) : "";
   return url.href;
 }
