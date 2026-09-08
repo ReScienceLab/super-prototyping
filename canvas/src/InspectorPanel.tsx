@@ -570,7 +570,7 @@ function Summary({
         <span className="sp-sh-s">{file}</span>
       </div>
       <Row k="Frame" v={root?.box ? `${fmt(root.box.w)} × ${fmt(root.box.h)}` : "–"} />
-      <Row k="Layers" v={String(Math.max(0, data.nodes.length - 1))} />
+      <Row k="Layers" v={String(Math.max(0, data.nodes.filter((n) => !n.inSvg).length - 1))} />
       <Row k="Images" v={String(assets.length - vectors)} />
       <Row k="Vectors" v={String(vectors)} />
       <Row k="Tokens" v={`${usedTokens} used of ${data.tokens.length}`} />

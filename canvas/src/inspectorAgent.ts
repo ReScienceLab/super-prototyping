@@ -325,6 +325,13 @@ function addSvg(i,el){
   if(!c.hasAttribute('xmlns'))c.setAttribute('xmlns','http://www.w3.org/2000/svg');
   if(!c.hasAttribute('fill'))c.setAttribute('fill',cs.fill);
   if(!c.hasAttribute('stroke'))c.setAttribute('stroke',cs.stroke);
+  /* A stylesheet rule on a child (apple-wallet's .ds path{fill:…}) leaves the copy: write a child's
+     computed fill/stroke in where it differs from its parent's and no attribute carries it.
+     ponytail: fill and stroke only; opacity or a dasharray from a stylesheet is lost. */
+  var src=el.querySelectorAll('*'),dst=c.querySelectorAll('*'),j,s,ps;
+  for(j=0;j<src.length;j++){s=getComputedStyle(src[j]);ps=getComputedStyle(src[j].parentNode);
+    if(!dst[j].hasAttribute('fill')&&s.fill!==ps.fill)dst[j].setAttribute('fill',s.fill);
+    if(!dst[j].hasAttribute('stroke')&&s.stroke!==ps.stroke)dst[j].setAttribute('stroke',s.stroke);}
   var svg=c.outerHTML.replace(/currentColor/gi,cs.color)
     .replace(/var\(\s*(--[\w-]+)[^)]*\)/g,function(m,p){return cs.getPropertyValue(p).replace(/^\s+|\s+$/g,'')||m;});
   /* One row per glyph and colour: the geometry key joins the file, and the colours after it keep

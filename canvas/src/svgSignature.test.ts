@@ -26,8 +26,18 @@ describe("svgSignature", () => {
   it("reads every shape element, in order, with its own attributes", () => {
     const a = '<svg viewBox="0 0 4 4"><rect x="1" y="1" width="2" height="2"/><circle cx="2" cy="2" r="1"/></svg>';
     const b = '<svg viewBox="0 0 4 4"><circle cx="2" cy="2" r="1"/><rect x="1" y="1" width="2" height="2"/></svg>';
-    expect(svgSignature(a)).toBe("0 0 4 4 rect||1|1|2|2|||||||||| circle||||||1|||2|2|||||");
+    expect(svgSignature(a)).toBe("0 0 4 4 rect||1|1|2|2|||||||||||||| circle||||||1|||2|2|||||||||");
     expect(svgSignature(a)).not.toBe(svgSignature(b));
+  });
+
+  it("tells apart a transform, a text's string and a use's reference, which draw differently", () => {
+    const t = '<svg viewBox="0 0 4 4"><path d="M0 0h4"/></svg>';
+    expect(svgSignature(t.replace("<path", '<path transform="rotate(90)"'))).not.toBe(svgSignature(t));
+    const s = '<svg viewBox="0 0 4 4"><text x="1" y="3">A</text></svg>';
+    expect(svgSignature(s.replace(">A<", ">B<"))).not.toBe(svgSignature(s));
+    expect(svgSignature(s.replace(">A<", ">\n  A\n<"))).toBe(svgSignature(s));
+    const u = '<svg viewBox="0 0 4 4"><use href="#a"/></svg>';
+    expect(svgSignature(u.replace("#a", "#b"))).not.toBe(svgSignature(u));
   });
 
   it("rides in the agent as its own source, so the frame keys a vector as the index does", () => {

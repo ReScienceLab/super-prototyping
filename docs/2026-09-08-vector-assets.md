@@ -24,7 +24,8 @@ Measured over the 180 committed boards before deciding (`scratch/svg_census.py`)
 - **Bytes cannot be the key, so geometry is.** Each generator's `icon()` writes `class`, `style`
   and `preserveAspectRatio` into the root tag, so a board's markup is never the file's bytes.
   `svgSignature.ts` reads the viewBox and every `path`/`rect`/`circle`/`ellipse`/`line`/
-  `polygon`/`polyline` with its shape attributes in a fixed order, whitespace collapsed, and
+  `polygon`/`polyline`/`text`/`image`/`use` with its shape attributes, transform and reference,
+  and a text's own string, in a fixed order, whitespace collapsed, and
   `svg:<fnv1a>` of that is the file's key. A row's key adds the root's computed colours after it,
   so a red and a black instance of one glyph, as on `raycast-ios/07-models-sheet`, are two rows
   that join to one file and each copy their own colour. It reads markup rather than a DOM so the
@@ -34,7 +35,8 @@ Measured over the 180 committed boards before deciding (`scratch/svg_census.py`)
   nothing, the one filter-only definitions block on `chatgpt-ios/16-memory-sheet`, is no asset.
 - **The copy stands alone.** The agent strips what the generator and the agent itself injected,
   adds `xmlns` where a literal icon had none, writes the root's computed `fill` and `stroke` in
-  where the markup left them to the cascade, and substitutes `currentColor` and every `var()` with
+  where the markup left them to the cascade, and a child's where a stylesheet rule set it apart
+  from its parent (apple-wallet's `.ds path`), and substitutes `currentColor` and every `var()` with
   the values the board resolved. That string is the preview, as an inert
   `<img src="data:image/svg+xml,…">` in the parent, never live DOM, which matters on a hosted
   canvas where a board is a pull request away; and it is what **Copy SVG** puts on the
