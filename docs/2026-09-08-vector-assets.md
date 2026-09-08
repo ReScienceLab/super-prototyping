@@ -33,13 +33,13 @@ Measured over the 180 committed boards before deciding (`scratch/svg_census.py`)
   `toString()`, which is why it is written with no reference outside its own body. The index adds
   the key beside the byte key it already had for every `.svg` under `assets/`. An svg that draws
   nothing, the one filter-only definitions block on `chatgpt-ios/16-memory-sheet`, is no asset.
-- **The copy stands alone.** The agent strips what the generator and the agent itself injected,
+- **The copy is self-contained.** The agent strips what the generator and the agent itself injected,
   adds `xmlns` where a literal icon had none, writes the root's computed `fill` and `stroke` in
   where the markup left them to the cascade, and a child's where a stylesheet rule set it apart
   from its parent (apple-wallet's `.ds path`), and substitutes `currentColor` and every `var()` with
   the values the board resolved. That string is the preview, as an inert
   `<img src="data:image/svg+xml,…">` in the parent, never live DOM, which matters on a hosted
-  canvas where a board is a pull request away; and it is what **Copy SVG** puts on the
+  canvas, where any pull request can add a board; and it is what **Copy SVG** puts on the
   clipboard, for Figma or another `gen.py`.
 - **A name comes from the file, else from context, else nowhere.** No board writes a title on an
   icon. With no file the agent takes an `aria-label` or `<title>` if one ever appears, else a class

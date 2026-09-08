@@ -5,6 +5,9 @@ body,
   height: 100%;
   margin: 0;
   overflow: hidden;
+  /* Nothing here scrolls, so any leftover horizontal overscroll is the browser's back gesture,
+     which is what a two-finger pan turns into anywhere tldraw does not get the wheel first. */
+  overscroll-behavior: none;
 }
 
 body {
@@ -116,6 +119,83 @@ button {
 }
 
 /*
+ * The name field in the clone dialog (CloneCanvasDialog.tsx). tldraw's input is chromeless, since
+ * everywhere it ships, the row or menu around it already draws the edge. A dialog body draws
+ * none, so an unstyled field reads as a line of placeholder text rather than somewhere to type.
+ */
+/* Tag-qualified so it outranks .tlui-input, which zeroes the border and the left padding. */
+input.canvas-clone-name {
+  padding-left: var(--tl-space-4);
+  border: 1px solid var(--tl-color-low-border);
+  border-radius: var(--tl-radius-2);
+}
+
+input.canvas-clone-name:focus {
+  border-color: var(--tl-color-selected);
+}
+
+/* The comment cursor while a click here would attach the note to the mockup under it: the same
+   bubble tldraw ships, filled with the selection blue instead of white. The attribute is set by
+   installCommentTargetHint in canvasComments.ts, and the variable is otherwise only read while
+   the comment tool is up, so a stale attribute cannot show a cursor nobody asked for. */
+.tl-container[data-comment-target] {
+  --tl-cursor-comment:
+    url("data:image/svg+xml,<svg height='32' width='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'><defs><filter id='shadow' y='-40%' x='-40%' width='180px' height='180%' color-interpolation-filters='sRGB'><feDropShadow dx='1' dy='1' stdDeviation='1.2' flood-opacity='.5'/></filter></defs><g filter='url(%23shadow)'><path d='M5 19.5 L5 11 A8 8 0 0 1 13 3 A8 8 0 0 1 21 11 A8 8 0 0 1 13 19 Z' fill='hsl(214, 84%, 56%)' stroke='white' stroke-width='1.5' stroke-linejoin='round'/></g></svg>")
+      5 19,
+    crosshair;
+}
+
+/* The handle field: the border sits on the input's row rather than the input, so the GitHub mark
+   tldraw lays out beside the text is inside it. */
+.canvas-gh-field .tlui-input__wrapper {
+  padding-left: var(--tl-space-4);
+  border: 1px solid var(--tl-color-low-border);
+  border-radius: var(--tl-radius-2);
+}
+
+.canvas-gh-field:focus-within .tlui-input__wrapper {
+  border-color: var(--tl-color-selected);
+}
+
+.canvas-gh-field svg {
+  flex-shrink: 0;
+  fill: var(--tl-color-text-3);
+}
+
+.canvas-clone-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--tl-color-text-3);
+}
+
+/* The half of the sentence that decides whether someone types a name at all. */
+.canvas-clone-hint strong {
+  color: var(--tl-color-text-1);
+}
+
+/* The path is what the hint is for, since cloning writes a folder into the project, so it is set
+   apart from the sentence introducing it rather than running on from it. */
+.canvas-clone-path {
+  display: block;
+  margin-top: 4px;
+  padding: 5px 7px;
+  border-radius: var(--tl-radius-1);
+  background: var(--tl-color-muted-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* An absolute path is longer than the dialog is wide, and it is only useful unabbreviated. */
+  overflow-wrap: anywhere;
+}
+
+.canvas-clone-path b {
+  color: var(--tl-color-text-1);
+}
+
+.canvas-clone-hint__error {
+  margin-top: 4px;
+  color: var(--tl-color-warning);
+}
+
+/*
  * The no-boards notice (EmptyLibraryNotice in App.tsx). It names the directory the canvas
  * resolved, because an empty grid and a canvas pointed at the wrong folder look identical.
  * pointer-events stay off the panel so it can never sit between a cursor and the toolbar; only
@@ -196,22 +276,53 @@ button {
   min-width: 0;
 }
 
+/*
+  Geist, at the published values of the steps this panel uses: 100-300 are component
+  backgrounds, 400 a border, 700 a solid fill or a dot, 900-1000 text. They are spelled out
+  rather than imported because the canvas ships as a plugin, and there is no design-system
+  package on the other side of an install.
+*/
 .sp-panel {
-  --sp-line: #e6e6e6;
-  --sp-text: #1e1e1e;
-  --sp-text-2: #7a7a7a;
-  --sp-field: #f5f5f5;
-  --sp-hover: #f5f5f5;
-  --sp-sel: #e5f4ff;
-  --sp-accent: #0d99ff;
-  --sp-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --ds-gray-100: #f2f2f2;
+  --ds-gray-200: #ebebeb;
+  --ds-gray-300: #e6e6e6;
+  --ds-gray-400: #ebebeb;
+  --ds-gray-700: #8f8f8f;
+  --ds-gray-900: #4d4d4d;
+  --ds-gray-1000: #171717;
+  --ds-blue-100: #f0f7ff;
+  --ds-blue-200: #ebf5ff;
+  --ds-blue-300: #e0f0ff;
+  --ds-blue-400: #cce6ff;
+  --ds-blue-700: #0072f5;
+  --ds-blue-900: #0068d6;
+  --ds-amber-100: #fff6e6;
+  --ds-amber-200: #fff4d6;
+  --ds-amber-300: #fef0cd;
+  --ds-amber-400: #ffdd8f;
+  --ds-amber-700: #ffb224;
+  --ds-amber-900: #a35200;
+  --ds-shadow-menu:
+    0 0 0 1px #00000014, 0 1px 1px #00000005, 0 4px 8px -4px #0000000a,
+    0 16px 24px -8px #0000000f;
+  --ds-focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px var(--ds-blue-700);
+
+  --sp-line: var(--ds-gray-400);
+  --sp-text: var(--ds-gray-1000);
+  --sp-text-2: var(--ds-gray-700);
+  --sp-field: #fafafa;
+  --sp-hover: var(--ds-gray-100);
+  --sp-sel: var(--ds-blue-100);
+  --sp-accent: var(--ds-blue-700);
+  --sp-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
   display: flex;
   flex: 0 0 auto;
   height: 100%;
   border-left: 1px solid var(--sp-line);
   background: #ffffff;
   color: var(--sp-text);
-  font: 400 11px/16px Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font: 400 12px/16px Geist, Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   user-select: none;
@@ -227,11 +338,19 @@ button {
   text-align: left;
 }
 
-/* Preview */
+/* Preview: the board, and the comments on it underneath */
+.sp-preview {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .sp-stage {
   position: relative;
   flex: 1 1 auto;
   min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -303,8 +422,45 @@ button {
 }
 
 .sp-board {
+  position: relative;
   flex: 0 0 auto;
   transform-origin: center;
+}
+
+/* Pins. The wrapper is a zero-size point at the anchor's fraction of the board, so the pin needs
+   no arithmetic to be placed; the pin then counter-scales off that point, which is why it is a
+   second element and why its origin is the corner it hangs from. */
+.sp-pin-at {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.sp-panel .sp-pin {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px 11px 11px 2px;
+  transform-origin: 0 100%;
+  color: #ffffff;
+  background: var(--sp-accent);
+  box-shadow: 0 1px 4px #00000040;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sp-panel .sp-pin--done {
+  background: var(--ds-gray-700);
+}
+
+.sp-panel .sp-pin.on {
+  box-shadow: 0 0 0 2px #ffffff, 0 1px 4px #00000040;
 }
 
 .sp-zoom {
@@ -317,17 +473,18 @@ button {
 
 .sp-collapse {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 24px;
-  height: 24px;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--sp-text-2);
   background: #ffffff;
   box-shadow: 0 0 0 1px var(--sp-line);
+  cursor: pointer;
 }
 
 .sp-collapse:hover {
@@ -403,10 +560,183 @@ button {
 }
 
 .sp-head-name {
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Status. Top-left of the stage, and the badge is the control: click it for the menu. Geist's
+   subtle badge, tinted ground with a step-400 rule and step-900 text, because at 100% beside a
+   single board a solid fill competes with the board it labels. The tab out on the canvas is the
+   same status drawn solid, which is what a page read at 34% needs instead. */
+.sp-status-wrap {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Next to the badge, for ten seconds after a click. Neutral rather than coloured: it is not a
+   fourth status, and it has to read the same whichever of the three it sits beside. */
+.sp-status-undo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--ds-gray-400);
+  border-radius: 9999px;
+  background: #fff;
+  color: var(--ds-gray-1000);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px #ffffffa8;
+  transition: background 0.12s ease;
+}
+
+.sp-status-undo:hover {
+  background: var(--ds-gray-100);
+}
+
+.sp-status-undo:focus-visible {
+  outline: none;
+  box-shadow: var(--ds-focus-ring);
+}
+
+.sp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 8px 0 10px;
+  border: 1px solid var(--bd);
+  border-radius: 9999px;
+  background: var(--bg);
+  color: var(--fg);
+  font-weight: 500;
+  /* Against a board that may be any colour at all, not a drop shadow. */
+  box-shadow: 0 0 0 1px #ffffffa8;
+  transition: background 0.12s ease;
+}
+
+button.sp-status {
+  cursor: pointer;
+}
+
+button.sp-status:hover {
+  background: var(--bg-2);
+}
+
+button.sp-status[aria-expanded="true"] {
+  background: var(--bg-3);
+}
+
+button.sp-status:focus-visible {
+  outline: none;
+  box-shadow: var(--ds-focus-ring);
+}
+
+.sp-status--exploring {
+  --bg: var(--ds-amber-100);
+  --bg-2: var(--ds-amber-200);
+  --bg-3: var(--ds-amber-300);
+  --bd: var(--ds-amber-400);
+  --fg: var(--ds-amber-900);
+  --dot: var(--ds-amber-700);
+}
+
+.sp-status--outdated {
+  --bg: var(--ds-gray-100);
+  --bg-2: var(--ds-gray-200);
+  --bg-3: var(--ds-gray-300);
+  --bd: var(--ds-gray-400);
+  --fg: var(--ds-gray-900);
+  --dot: var(--ds-gray-700);
+}
+
+/* Blue, not green: green is Geist's health colour, and this is not a check that passed. Blue is
+   what Vercel marks the deployment that is serving. */
+.sp-status--live {
+  --bg: var(--ds-blue-100);
+  --bg-2: var(--ds-blue-200);
+  --bg-3: var(--ds-blue-300);
+  --bd: var(--ds-blue-400);
+  --fg: var(--ds-blue-900);
+  --dot: var(--ds-blue-700);
+}
+
+.sp-status-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dot);
+}
+
+.sp-status-chev {
+  flex: none;
+  opacity: 0.6;
+  transition: transform 0.15s ease;
+}
+
+button.sp-status[aria-expanded="true"] .sp-status-chev {
+  transform: rotate(180deg);
+}
+
+.sp-menu {
+  position: absolute;
+  top: 32px;
+  left: 0;
+  width: 196px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: var(--ds-shadow-menu);
+}
+
+.sp-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sp-menu-row:hover {
+  background: var(--sp-hover);
+}
+
+.sp-menu-ck {
+  flex: none;
+  margin-left: auto;
+  color: var(--sp-text-2);
+}
+
+/* Says which file the click is about to edit, because it edits a file in the user's repo. */
+.sp-menu-foot {
+  margin: 6px -6px 0;
+  padding: 7px 14px 1px;
+  border-top: 1px solid var(--sp-line);
+  color: var(--sp-text-2);
+}
+
+.sp-menu-foot code {
+  font-family: var(--sp-mono);
+}
+
+.sp-status-err {
+  display: block;
+  margin-top: 6px;
+  color: #cb2a2f;
 }
 
 .sp-head-dim {
@@ -421,8 +751,9 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 5px;
+  border-radius: 6px;
   color: var(--sp-text-2);
+  cursor: pointer;
 }
 
 .sp-head-x:hover {
@@ -440,15 +771,22 @@ button {
 }
 
 .sp-tabs button {
-  height: 32px;
-  padding: 0 8px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
   color: var(--sp-text-2);
   font-weight: 500;
+  cursor: pointer;
+}
+
+.sp-tabs button:hover {
+  background: var(--sp-hover);
+  color: var(--sp-text);
 }
 
 .sp-tabs button.on {
+  background: var(--sp-hover);
   color: var(--sp-text);
-  font-weight: 600;
 }
 
 .sp-tab {
@@ -551,6 +889,11 @@ button {
 
 .sp-layer.on {
   background: var(--sp-sel);
+  color: var(--ds-blue-900);
+}
+
+.sp-layer.on svg {
+  color: inherit;
 }
 
 .sp-layer-n {
@@ -582,12 +925,13 @@ button {
 }
 
 .sp-field {
-  height: 24px;
+  height: 28px;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 0 8px;
-  border-radius: 5px;
+  border: 1px solid var(--sp-line);
+  border-radius: 6px;
   background: var(--sp-field);
 }
 
@@ -881,4 +1225,193 @@ button {
 
 .sp-token-note code {
   font-family: var(--sp-mono);
+}
+
+/* Comments, under the preview */
+.sp-notes {
+  flex: 0 0 auto;
+  max-height: 45%;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-top: 1px solid var(--sp-line);
+}
+
+.sp-notes-list {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.sp-note {
+  padding: 2px 12px 8px;
+  border-bottom: 1px solid var(--sp-line);
+}
+
+.sp-note--done {
+  color: var(--sp-text-2);
+}
+
+.sp-panel .sp-note-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 24px;
+  cursor: pointer;
+}
+
+.sp-note-n {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #ffffff;
+  background: var(--sp-accent);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* A thread anchored beside the board rather than on it: numbered like the rest, but there is no
+   pin out on the preview for that number to match. */
+.sp-note-n--off {
+  color: var(--sp-text-2);
+  background: var(--ds-gray-300);
+}
+
+.sp-note-av {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--ds-gray-300);
+}
+
+.sp-note-who {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-note-when {
+  flex: none;
+  color: var(--sp-text-2);
+}
+
+.sp-note-count {
+  margin-left: auto;
+  flex: none;
+  color: var(--sp-text-2);
+  font-family: var(--sp-mono);
+}
+
+.sp-note-body {
+  margin: 0;
+  padding-left: 22px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.sp-note-body--clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.sp-note-reply {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-top: 6px;
+}
+
+.sp-note-reply .sp-note-body,
+.sp-note-reply .sp-note-actions,
+.sp-note-reply .sp-note-new {
+  flex-basis: 100%;
+  padding-left: 0;
+}
+
+.sp-note-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 6px 0 0;
+}
+
+.sp-note-actions button {
+  color: var(--sp-text-2);
+  cursor: pointer;
+}
+
+.sp-note-actions button:hover:enabled {
+  color: var(--sp-accent);
+}
+
+.sp-note-new {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--sp-line);
+}
+
+.sp-note-new textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: 88px;
+  padding: 4px 6px;
+  border: 1px solid var(--sp-line);
+  border-radius: 6px;
+  background: var(--sp-field);
+  color: inherit;
+  font: inherit;
+  resize: none;
+  field-sizing: content;
+  user-select: text;
+}
+
+.sp-note-new textarea:focus {
+  outline: none;
+  border-color: var(--sp-accent);
+}
+
+.sp-panel .sp-note-send {
+  flex: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #ffffff;
+  background: var(--sp-accent);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* The dismiss on the placement composer, which InFrontOfTheCanvas in canvasChrome.tsx portals
+   into it. A cross on the bubble's top-right corner, outside the 300px field rather than
+   crowding it. Two classes deep because tldraw.css loads after this file and .tlui-button sizes
+   its own buttons. */
+.tlui-cmt-canvas-composer .canvas-composer-close {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  color: var(--tl-color-text-1);
+  background: var(--tl-color-panel);
+  box-shadow: var(--tl-shadow-2);
+}
+.tlui-cmt-canvas-composer .canvas-composer-close:hover {
+  background: var(--tl-color-muted-2);
 }

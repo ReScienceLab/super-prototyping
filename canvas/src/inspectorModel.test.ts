@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
+import type { TLCommentAnchor, TLShapeId } from "tldraw";
 import type { SpAsset, SpNode, SpToken } from "./inspectorAgent";
 import type { AssetRow } from "./inspectorModel";
 import {
   assetForNode,
   assetRows,
+  boardPin,
+  newBoardPin,
   fitScale,
   initialLayersH,
   layersBounds,
@@ -285,5 +288,39 @@ describe("assetForNode", () => {
   it("takes the first row when one layer draws two images, as the layer name does", () => {
     const both = [{ key: "bg", uses: [2] }, { key: "fg", uses: [2] }] as unknown as AssetRow[];
     expect(assetForNode(both, 2)?.key).toBe("bg");
+  });
+});
+
+describe("boardPin", () => {
+  const shapeId = "shape:board" as TLShapeId;
+  const at = (x: number, y: number, id = shapeId): TLCommentAnchor => ({
+    type: "shape",
+    shapeId: id,
+    x,
+    y,
+    isPrecise: true,
+  });
+
+  it("is null for a thread anchored to another board, or to no board at all", () => {
+    expect(boardPin(at(0.5, 0.5, "shape:other" as TLShapeId), shapeId)).toBeNull();
+    expect(boardPin({ type: "point", x: 10, y: 20 }, shapeId)).toBeNull();
+  });
+
+  it("keeps a thread dropped beside the board, and says it is not on it", () => {
+    expect(boardPin(at(0.25, 0.75), shapeId)).toEqual({ x: 0.25, y: 0.75, inside: true });
+    expect(boardPin(at(-0.1, 0.5), shapeId)).toEqual({ x: -0.1, y: 0.5, inside: false });
+    expect(boardPin(at(0.5, 1.4), shapeId)).toEqual({ x: 0.5, y: 1.4, inside: false });
+  });
+});
+
+describe("newBoardPin", () => {
+  const board = { w: 400, h: 1000 };
+
+  it("pins to the middle of the board when nothing is selected", () => {
+    expect(newBoardPin(null, board)).toEqual({ x: 0.5, y: 0.5 });
+  });
+
+  it("pins to the middle of the selected layer", () => {
+    expect(newBoardPin({ x: 100, y: 200, w: 200, h: 100 }, board)).toEqual({ x: 0.5, y: 0.25 });
   });
 });
