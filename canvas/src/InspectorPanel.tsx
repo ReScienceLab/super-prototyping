@@ -433,6 +433,20 @@ export function InspectorPanel({
   };
   const usedTokens = data ? data.tokens.filter((t) => t.usedBy.length).length : 0;
 
+  const railGrip: React.HTMLAttributes<HTMLDivElement> = railOpen
+    ? {
+        role: "separator",
+        "aria-orientation": "vertical",
+        "aria-label": "Resize details",
+        "aria-valuenow": rail,
+        "aria-valuemin": railBounds(panel)[0],
+        "aria-valuemax": railBounds(panel)[1],
+        tabIndex: 0,
+        onPointerDown: divider("x", setRail.from, setRail.apply),
+        onKeyDown: dividerKeys("x", setRail.from, setRail.apply),
+      }
+    : {};
+
   const jumpToToken = (token: string) => {
     setTab("tokens");
     setFocusToken(token);
@@ -489,23 +503,6 @@ export function InspectorPanel({
           </div>
           <BoardStatus path={path} />
           <span className="sp-zoom">{Math.round(scale * 100)}%</span>
-          {/*
-            Lives on the stage, not in the rail, so that collapsing the rail does not also hide the
-            only way back — Escape does not help here, because clicking the preview moves focus into
-            the frame and the agent forwards no keys.
-          */}
-          <button
-            type="button"
-            className="sp-collapse"
-            aria-expanded={railOpen}
-            title={railOpen ? "Hide details" : "Show details"}
-            aria-label={railOpen ? "Hide details" : "Show details"}
-            onClick={() => setRailOpen((v) => !v)}
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
-              <path d={railOpen ? "M7.5 2l4 4-4 4M4.5 2l-4 4 4 4" : "M2 2l4 4-4 4M7.5 2l4 4-4 4"} />
-            </svg>
-          </button>
         </div>
         {editor ? (
           <BoardComments
@@ -518,20 +515,38 @@ export function InspectorPanel({
         ) : null}
       </div>
 
-      {railOpen ? (
-        <div
-          className="sp-grip sp-grip--x"
-          role="separator"
-          aria-orientation="vertical"
-          aria-label="Resize details"
-          aria-valuenow={rail}
-          aria-valuemin={railBounds(panel)[0]}
-          aria-valuemax={railBounds(panel)[1]}
-          tabIndex={0}
-          onPointerDown={divider("x", setRail.from, setRail.apply)}
-          onKeyDown={dividerKeys("x", setRail.from, setRail.apply)}
-        />
-      ) : null}
+      {/*
+        The rail's divider carries the collapse handle: the seam is where the fold happens, and a
+        handle on it costs the preview nothing. The grip itself stays mounted when the rail is
+        shut — the handle is then the only way back, because Escape does not help here: clicking
+        the preview moves focus into the frame and the agent forwards no keys. Shut, it is only a
+        perch, so it drops the separator role and the drag with the pane they would resize.
+      */}
+      <div className={cx("sp-grip", "sp-grip--x", !railOpen && "sp-grip--shut")} {...railGrip}>
+        <button
+          type="button"
+          className="sp-collapse"
+          aria-expanded={railOpen}
+          title={railOpen ? "Hide details" : "Show details"}
+          aria-label={railOpen ? "Hide details" : "Show details"}
+          // Sitting on the divider, the press that opens the rail must not also start a drag.
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => setRailOpen((v) => !v)}
+        >
+          <svg
+            width="9"
+            height="9"
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d={railOpen ? "M4 2l4 4-4 4" : "M8 2l-4 4 4 4"} />
+          </svg>
+        </button>
+      </div>
 
       <div className="sp-rail" style={{ width: rail, display: railOpen ? undefined : "none" }}>
         <header className="sp-head">
