@@ -90,6 +90,16 @@ const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
  * tldraw-local-store.d.ts. Module scope, so the options object keeps its identity across renders:
  * the hook rebuilds the store whenever it changes.
  */
+/**
+ * The tldraw license, inlined from the build environment (see vite.config.ts for the two names
+ * accepted). Commenting is a licensed feature: without a key `CanvasComments` renders nothing in
+ * production. Not in development — tldraw reads the *runtime* host for that, and localhost, a
+ * loopback address and any plain-http origin all get every feature. So a built bundle served from
+ * 127.0.0.1 cannot tell you whether the deployed site will have commenting; only the deploy can.
+ */
+const TLDRAW_LICENSE_KEY: string | undefined =
+  import.meta.env.VITE_TLDRAW_LICENSE_KEY ?? import.meta.env.TLDRAW_LICENSE_KEY;
+
 const storeOptions = {
   persistenceKey: PERSISTENCE_KEY,
   // The same set `<Tldraw>` merges for itself; the schema has to know every type the document
@@ -1015,6 +1025,7 @@ export default function App() {
             shapeUtils={shapeUtils}
             tools={canvasCommentTools}
             overrides={canvasCommentOverrides}
+            licenseKey={TLDRAW_LICENSE_KEY}
             onMount={handleMount}
           >
             <AgentBridge />
