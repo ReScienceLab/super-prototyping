@@ -8,28 +8,38 @@ HTML.
 What is drawn and what is cropped is decided once, in crops.json, and the rule
 there is the same one chatgpt-ios uses: crop what the capture already contains,
 draw only what it does not. There is a third case here, and it is the better
-one: fetch. A publication's tile and a person's avatar are that publisher's own
-file, pulled off Substack into assets/logos/ and assets/avatars/ at full
-resolution and masked here -- the capture holds 215 px of a logo that ships at
-1904, and 120 px of an avatar that ships at 2477. Nine tiles and nine avatars
-are fetched; those two folders' SOURCES notes say where each came from.
+one: fetch. A publication's tile, a person's avatar and a post's cover are that
+publisher's own file, pulled off Substack into assets/logos/, assets/avatars/
+and assets/photos/ at full resolution and placed here -- the capture holds
+215 px of a logo that ships at 1904, 120 px of an avatar that ships at 2477, and
+a cover under the scrim the card lays over it. Nine tiles, nine avatars and four
+covers are fetched; each of those folders' SOURCES notes says where every file
+came from.
 
 Fetching costs score and is still right. A crop is the capture's own pixels put
 back where they were cut from, so it scores zero against the capture by
 construction and cancels its own misregistration on the way. A real file has to
 be placed, sized and resampled, and it lands two or three levels of grey off a
-lossy 3x screenshot of the app's own resample -- s5 pays 0.03 for av-5. What it
-buys is an asset that is what it claims to be and holds up at any zoom, which is
-the point of the exercise; scratch/facefit.py is what keeps that cost honest,
-fitting each circle to the artwork rather than trusting the box crops.json
-measured off the feed.
+lossy 3x screenshot of the app's own resample -- s5 pays 0.03 for av-5, and the
+four covers pay 0.28 of the seven-screen mean between them. That last one is
+worth being precise about: over a cover the mean error is 1.3 to 2.2 levels
+while the signed error is under half a level, so none of it is tone or placement
+and all of it is detail finer than the eye reads at 1x, the difference between
+the file the publisher uploaded and the bytes Substack's CDN handed the app.
+What fetching buys is an asset that is what it claims to be and holds up at any
+zoom, which is the point of the exercise; scratch/facefit.py and
+scratch/wherefrom.py are what keep the cost honest, fitting each circle and each
+cover to the artwork rather than trusting the box crops.json measured off the
+feed.
 
 What is left as a crop is what could not be identified or fetched: seven note
 avatars whose authors nobody could name, the capture account's own photo (me,
-th-4, share-7), the photos and the article cards whose titles Substack bakes
-into the image server-side, the "substack" wordmark, and three publications this
-repo has not put a name to. The header, the tab bar, the compose button, the
-note bodies, the buttons, the rules and every icon are CSS and inline SVG.
+th-4, share-7), one note photo that is a frame of a video, the type block at the
+foot of each article card -- type the capture states only as ink, sitting on a
+photograph that is fetched and drawn under it -- the "substack" wordmark, and
+three publications this repo has not put a name to. The header, the tab bar, the
+compose button, the note bodies, the buttons, the rules and every icon are CSS
+and inline SVG.
 
 Three things about this feed are worth knowing before reading the code:
 
@@ -425,36 +435,77 @@ def face(cid, x, y, size=40.0):
                round(y * SCALE) / SCALE, px / SCALE, px / SCALE))
 
 
-# A note's picture, likewise the poster's own file rather than a crop. It is
-# cut to the box the board draws it at, because a data: URI of a 2000px original
-# would be most of a board's weight for pixels no screen ever shows.
-def _photocut(f, w, h):
-    """That picture, cover-fitted to w x h device px."""
+# A card is a photograph with a card drawn on top of it, and the photograph is
+# the publisher's own file in assets/photos/, not a crop. Three numbers place
+# it, and all three are measured rather than assumed.
+#
+# The scale is not in doubt: scratch/wherefrom.py looks for a patch of the
+# capture in the file at every plausible size, and on all four cards the answer
+# is the card's own 361pt across, to the device pixel. Which row of the file the
+# card's top corner lands on is a different number every time -- 16 on one, 171
+# on another -- so Substack is keeping a crop per post and there is no rule to
+# find, only a measurement to take.
+#
+# Under the photograph the app puts a flat ground and over it a linear ramp to
+# that same colour. scratch/scrim.py pairs every pixel of the capture with the
+# pixel of the file beneath it and solves capture = photo*(1-a) + ground*a,
+# dropping the pixels that turn out to be type or a button. Fit each card on its
+# own and the four ramps land within 2pt of each other, so they are one ramp and
+# it is fitted once across all four; only the ground is per card, and it is not
+# the file's average, its median or any darkening of either -- card-5's file
+# averages white and its card is navy. That is a colour Substack picked, not one
+# computed here.
+SCRIM = (0.12, 180.85)                       # clear at the card's corner, solid
+COVERS = {          # card box, the file row under its top corner, the ground
+    "card-2":  ((16.0, 374.67, 361.0, 284.66), 171, "#493E2C"),
+    "card-5":  ((16.0, 209.33, 361.0, 284.34), 33, "#1A4C68"),
+    "card-7":  ((16.0, 485.33, 361.0, 283.67), 33, "#212524"),
+    "photo-6": ((16.0, 607.67, 361.0, 244.33), 16, "#4F3E26"),
+}
+
+
+def _covercut(f, w, dy, h):
+    """The file at w device px across, from row dy, as far as it reaches.
+
+    Cut rather than clipped in CSS: a data: URI of the 3840px original would be
+    most of a board's weight for pixels no screen ever shows, and half these
+    files run out before the card's foot anyway."""
     from PIL import Image                                    # noqa: local dep
-    cid = "shot-%s-%dx%d" % (f.stem, w, h)
+    cid = "cover-" + f.stem
     if cid not in _FACES:
         ART_DIR.mkdir(parents=True, exist_ok=True)
         im = Image.open(f).convert("RGB")
-        k = min(im.width / w, im.height / h)                 # cover
-        bw, bh = w * k, h * k
-        im.resize((w, h), Image.LANCZOS,
-                  box=((im.width - bw) / 2, (im.height - bh) / 2,
-                       (im.width + bw) / 2, (im.height + bh) / 2)
-                  ).save(ART_DIR / (cid + ".png"), optimize=True)
+        fh = round(w * im.height / im.width)
+        (im.resize((w, fh), Image.LANCZOS)
+           .crop((0, dy, w, min(dy + h, fh)))
+           .save(ART_DIR / (cid + ".png"), optimize=True))
         _FACES[cid] = True
-    return cid
+    return cid, min(h, round(w * Image.open(f).height / Image.open(f).width) - dy)
 
 
-def photo(cid, x, y, w, h, extra=""):
-    """One picture in a note. Still a crop where the original was not found."""
+def cover(cid):
+    """One card's picture: the ground, the publisher's file, the ramp over it.
+
+    Three flat elements and no wrapper, because the boards are one absolutely
+    positioned layer and a clip would need a box that owns the others. The file
+    is cut to the window instead, so the ramp's own rounded corners are the only
+    ones the card needs -- where the picture stops short of the foot, the ramp
+    is already solid there and the ground is what shows."""
+    (x, y, w, h), dy, ground = COVERS[cid]
+    r0, r1 = SCRIM
     f = PHOTO_DIR / (cid + ".png")
     if not f.exists():
         return art(cid)
-    px, py = round(w * SCALE), round(h * SCALE)
-    return ('<img class="a" src="%s" alt="%s" style="left:%.2fpx;top:%.2fpx;'
-            'width:%.2fpx;height:%.2fpx;border-radius:var(--x-r-card)%s">'
-            % (_uri(_photocut(f, px, py)), cid, round(x * SCALE) / SCALE,
-               round(y * SCALE) / SCALE, px / SCALE, py / SCALE, extra))
+    rad = "border-radius:var(--x-r-card)"
+    cut, ch = _covercut(f, round(w * SCALE), dy, round(h * SCALE))
+    clear = "rgba(%d,%d,%d,0)" % tuple(int(ground[i:i + 2], 16)
+                                       for i in (1, 3, 5))
+    return (box(x, y, w, h, "%s;background:%s" % (rad, ground))
+            + '<img class="a" src="%s" alt="%s" style="left:%.2fpx;top:%.2fpx;'
+              'width:%.2fpx;height:%.2fpx;%s">'
+              % (_uri(cut), cid, x, y, w, ch / SCALE, rad)
+            + box(x, y, w, h, "%s;background:linear-gradient(%s %.2fpx,%s %.2fpx)"
+                  % (rad, clear, r0, ground, r1)))
 
 
 def _uri(cid):
@@ -946,7 +997,7 @@ def s01():
               (402.00, "Tools:"),
               (430.00, "Figma, Weavy Claude Code, Framer"),
               (458.33, "<a>See more</a>")]),
-        photo("photo-1", 16, 482.33, 361, 205.67),
+        art("photo-1"),
         actions(701.33, ("225", "4", "15", None)),
         band(731.67),
         attribution(751.67, "Ileana liked"),
@@ -968,7 +1019,7 @@ def s02():
         body([(302.33, "Just be honest with yourself, and you'll see changes"),
               (322.33, "in yourself."),
               (350.33, "Happy reading")]),
-        art("card-2"),
+        cover("card-2"), art("card-2t"),
         actions(672.00, ("30", None, "1", None)),
         band(702.33),
         note(723.33, "av-2b", "Ali Abdaal", "May 22"),
@@ -1065,7 +1116,7 @@ def s05():
         header(behind(62.0, 80.40, ("184", "24", "50", None), 112.0, "#B7B7B7")),
         clock_row(132),
         note(156, "av-5", "System Design Roadmap", "May 7, 2025", "tag", True, -0.33),
-        art("card-5"),
+        cover("card-5"), art("card-5t"),
         actions(507.00, ("55", None, "16", None)),
         band(537.33),
         tx(16, 561.00, "People to follow", "t-head"),
@@ -1098,10 +1149,12 @@ def s06():
               (542.67, "<i>to understand you and more from understanding</i>"),
               (562.67, "<i>yourself so deeply that misunderstandings no</i>"),
               (582.67, "<i>longer destroy you.</i>")], 32.0, 0.67),
-        art("photo-6"),
-        # The capture bakes the translucent tab bar into this photo. Repaint the
-        # band it covers with the photo's own colour (#3F321F..#362B1B, median of
-        # the rows just above and below), or the CSS material composites twice.
+        cover("photo-6"), art("photo-6t"),
+        # The note's own photograph is drawn and clean, but the type over its
+        # foot is a crop and the capture bakes the translucent tab bar into that
+        # crop. Repaint the band it covers with the photo's own colour
+        # (#3F321F..#362B1B, median of the rows just above and below), or the
+        # CSS material composites twice.
         box(21, 768.67, 281, 62.33, "border-radius:31.17px;z-index:2;"
             "background:linear-gradient(#3F321F,#362B1B)"),
         box(310, 769, 62, 62, "border-radius:50%;z-index:2;"
@@ -1128,7 +1181,7 @@ def s07():
         txc(39.67, 313.66, 316.66, "Share now", "t-btn", "var(--x-accent)"),
         clock_row(407.67),
         note(430.67, "av-7", "Dr. Dominic Ng", "Nov 18", "tag", True, 0.67, ay=1.00),
-        art("card-7"),
+        cover("card-7"), art("card-7t"),
         actions(782.33, ("128", None, "9", None)),
         band(812.33),
         art("av-7b"),

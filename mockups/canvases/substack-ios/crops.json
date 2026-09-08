@@ -1,7 +1,7 @@
 {
  "_": "Art cut from assets/refs/cN.png at measured pt boxes, 3.0 capture px per design pt (1179 px across a 393 pt screen). gen.py writes assets/art/<id>.png and places each <img> back at the same box, so an asset can never drift from where it was measured. Everything else on these boards -- header, tab bar, FAB, cards, buttons, rules, type, icons -- is CSS or inline SVG.",
  "_rule": "Crop what the capture already contains; draw only what it does not. A crop scores 0 against its own source by construction.",
- "_baked": "An article card is one crop: photo, scrim and title together. Substack bakes that type onto the image server-side -- it is part of the picture, not a label over it -- so splitting it would mean redrawing type the capture already has, at a face this repo cannot name.",
+ "_baked": "A card's cover is NOT baked with its title. The cover ships clean -- assets/photos/ holds the publisher's own file for all four, and gen.py draws each at the scale and offset scratch/wherefrom.py found it at, over the ground and under the ramp scratch/scrim.py solved. What is still cut is the type block, the foot of the card from just above the publication chip down: card-2t, card-5t, card-7t, photo-6t. Those are type the capture already contains, at faces and sizes it states only as ink, so the rule above applies to them and not to the photograph behind them.",
  "_tile": "A publication tile is NOT cropped. Each one is that publication's own logo, pulled off Substack by scratch/logos.py into assets/logos/ and masked into the tile squircle by gen.py -- the capture has 215 px of a file that ships at up to 1904. The three tile-* boxes below are the exceptions: three publications this repo could not identify, so their tiles stay crops until it can. tile-4a is the half tile the left edge of screen 4 cuts.",
  "_face": "An avatar is not cropped either where the person or publication could be named. It is their own file, pulled off Substack into assets/avatars/ and masked into a circle by gen.py -- the capture holds 120 px of a picture that ships at up to 2477. assets/avatars/SOURCES.md says where each came from, and scratch/facefit.py fits each circle's box to the artwork rather than to the feed: a crop cancels its own misregistration, because it goes back at the box it was cut from, and a drawn circle does not. The av-* boxes still below are the ones nobody could put a name to. me, th-4 and share-7 are the capture account's own photo, published nowhere this repo could find.",
  "_top": "The band between the status bar and the first sharp row is not cropped either. It is the tail of the note the feed has just scrolled past -- an action row and a separator -- still drawn, under a real backdrop-filter. A Gaussian spreads ink without moving it, so scratch/actrow.py reads every icon's centre of mass back out of the blur, and scratch/edge.py solves the blur radius and the white tint a row at a time.",
@@ -124,10 +124,10 @@
   377.0,
   688.0
  ],
- "card-2": [
+ "card-2t": [
   "2",
   16.0,
-  374.67,
+  524.67,
   377.0,
   659.33
  ],
@@ -166,24 +166,24 @@
   393.0,
   852.0
  ],
- "card-5": [
+ "card-5t": [
   "5",
   16.0,
-  209.33,
+  359.33,
   377.0,
   493.67
  ],
- "photo-6": [
+ "photo-6t": [
   "6",
   16.0,
-  607.67,
+  757.67,
   377.0,
   852.0
  ],
- "card-7": [
+ "card-7t": [
   "7",
   16.0,
-  485.33,
+  635.33,
   377.0,
   769.0
  ],
