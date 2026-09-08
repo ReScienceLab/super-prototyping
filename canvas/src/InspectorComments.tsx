@@ -173,12 +173,10 @@ export function BoardComments({
           <div className="sp-empty">No comments on this board.</div>
         )}
       </div>
-      {import.meta.env.DEV ? (
-        <Composer
-          placeholder={pinAt.x === 0.5 && pinAt.y === 0.5 ? "Comment on this board…" : "Comment on the selected layer…"}
-          onPost={post}
-        />
-      ) : null}
+      <Composer
+        placeholder={pinAt.x === 0.5 && pinAt.y === 0.5 ? "Comment on this board…" : "Comment on the selected layer…"}
+        onPost={post}
+      />
     </section>
   );
 }
@@ -259,34 +257,30 @@ function Thread({
               />
             </div>
           ))}
-          {import.meta.env.DEV ? (
-            <>
-              <div className="sp-note-actions">
-                <button
-                  type="button"
-                  onClick={() =>
-                    me && (thread.resolved ? reopenThread(editor, thread) : resolveThread(editor, thread, me.id))
-                  }
-                  disabled={!me}
-                >
-                  {thread.resolved ? "Reopen" : "Resolve"}
-                </button>
-                {/* Deleting is the one thing that takes someone else's words out of Git. */}
-                {me?.id === thread.createdBy ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onOpen(null);
-                      deleteThread(editor, thread);
-                    }}
-                  >
-                    Delete thread
-                  </button>
-                ) : null}
-              </div>
-              <Composer placeholder="Reply…" onPost={reply} />
-            </>
-          ) : null}
+          <div className="sp-note-actions">
+            <button
+              type="button"
+              onClick={() =>
+                me && (thread.resolved ? reopenThread(editor, thread) : resolveThread(editor, thread, me.id))
+              }
+              disabled={!me}
+            >
+              {thread.resolved ? "Reopen" : "Resolve"}
+            </button>
+            {/* Deleting is the one thing that takes someone else's words away. */}
+            {me?.id === thread.createdBy ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onOpen(null);
+                  deleteThread(editor, thread);
+                }}
+              >
+                Delete thread
+              </button>
+            ) : null}
+          </div>
+          <Composer placeholder="Reply…" onPost={reply} />
         </>
       ) : null}
     </article>
@@ -332,7 +326,7 @@ function Comment({
     <>
       <p className={cx("sp-note-body", clamp && "sp-note-body--clamp")}>{text}</p>
       {/* Someone else's words are theirs to change, here as on the canvas. */}
-      {actions && import.meta.env.DEV && me?.id === comment.authorId ? (
+      {actions && me?.id === comment.authorId ? (
         <div className="sp-note-actions">
           <button type="button" onClick={() => setEditing(true)}>
             Edit

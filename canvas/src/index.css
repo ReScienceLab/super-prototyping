@@ -131,10 +131,43 @@ input.canvas-clone-name:focus {
   border-color: var(--tl-color-selected);
 }
 
+/* The comment cursor while a click here would attach the note to the mockup under it: the same
+   bubble tldraw ships, filled with the selection blue instead of white. The attribute is set by
+   installCommentTargetHint in canvasComments.ts, and the variable is otherwise only read while
+   the comment tool is up — so a stale attribute cannot show a cursor nobody asked for. */
+.tl-container[data-comment-target] {
+  --tl-cursor-comment:
+    url("data:image/svg+xml,<svg height='32' width='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'><defs><filter id='shadow' y='-40%' x='-40%' width='180px' height='180%' color-interpolation-filters='sRGB'><feDropShadow dx='1' dy='1' stdDeviation='1.2' flood-opacity='.5'/></filter></defs><g filter='url(%23shadow)'><path d='M5 19.5 L5 11 A8 8 0 0 1 13 3 A8 8 0 0 1 21 11 A8 8 0 0 1 13 19 Z' fill='hsl(214, 84%, 56%)' stroke='white' stroke-width='1.5' stroke-linejoin='round'/></g></svg>")
+      5 19,
+    crosshair;
+}
+
+/* The handle field: the border sits on the input's row rather than the input, so the GitHub mark
+   tldraw lays out beside the text is inside it. */
+.canvas-gh-field .tlui-input__wrapper {
+  padding-left: var(--tl-space-4);
+  border: 1px solid var(--tl-color-low-border);
+  border-radius: var(--tl-radius-2);
+}
+
+.canvas-gh-field:focus-within .tlui-input__wrapper {
+  border-color: var(--tl-color-selected);
+}
+
+.canvas-gh-field svg {
+  flex-shrink: 0;
+  fill: var(--tl-color-text-3);
+}
+
 .canvas-clone-hint {
   font-size: 12px;
   line-height: 1.5;
   color: var(--tl-color-text-3);
+}
+
+/* The half of the sentence that decides whether someone types a name at all. */
+.canvas-clone-hint strong {
+  color: var(--tl-color-text-1);
 }
 
 /* The path is what the hint is for — cloning writes a folder into the project — so it is set
@@ -157,15 +190,6 @@ input.canvas-clone-name:focus {
 .canvas-clone-hint__error {
   margin-top: 4px;
   color: var(--tl-color-warning);
-}
-
-/* Who this browser comments as, in the top bar: their GitHub avatar, which is also the button
-   that changes the handle. Sized like the icons beside it. */
-.canvas-me {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--tl-color-muted-2);
 }
 
 /*
@@ -1365,4 +1389,25 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   background: var(--sp-accent);
   font-weight: 500;
   cursor: pointer;
+}
+
+/* The dismiss on the placement composer (ComposerCloseButton in canvasChrome.tsx). A cross on the
+   bubble's top-right corner, outside the 300px field rather than crowding it. Two classes deep
+   because tldraw.css loads after this file and .tlui-button sizes its own buttons. */
+.tlui-cmt-canvas-composer .canvas-composer-close {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  color: var(--tl-color-text-1);
+  background: var(--tl-color-panel);
+  box-shadow: var(--tl-shadow-2);
+}
+.tlui-cmt-canvas-composer .canvas-composer-close:hover {
+  background: var(--tl-color-muted-2);
 }

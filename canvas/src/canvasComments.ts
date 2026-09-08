@@ -29,6 +29,31 @@ export interface CommentsFile {
 
 type FileCommentRecord = Omit<TLCommentRecord, "pageId">;
 
+/**
+ * Where a changed board's comments go. Against a dev server — what a plugin install runs — into
+ * the board's folder as comments.json, so a review travels with the boards in Git. A built canvas
+ * is static files with no repo behind them, so there they stay in this browser: the hosted canvas
+ * gives commenting to try, not a place a review lands.
+ */
+const LOCAL_KEY = "super-prototyping-comments";
+
+/** The boards this browser has commented on, whole files, keyed by slug. Empty on a dev server. */
+const localFiles: Record<string, CommentsFile> = (() => {
+  if (import.meta.env.DEV) return {};
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_KEY) ?? "{}") as Record<string, CommentsFile>;
+  } catch {
+    return {};
+  }
+})();
+
+/**
+ * What this canvas shows: the committed files, with this browser's own written over them board by
+ * board. A board only appears in `localFiles` once someone here has changed it, so every other
+ * board keeps following the repo.
+ */
+const commentFiles: Record<string, CommentsFile> = { ...rawComments, ...localFiles };
+
 /** Who this browser posts as. No login: a GitHub handle typed once, kept in localStorage. */
 export interface CommentUser {
   id: string;
@@ -55,7 +80,7 @@ const allComments = (editor: Editor) =>
  * user's own name, which re-renders the layer through the identity state in App.tsx anyway.
  */
 const authors = new Map<string, CommentAuthor>();
-for (const file of Object.values(rawComments)) {
+for (const file of Object.values(commentFiles)) {
   for (const [id, author] of Object.entries<CommentAuthor>(file.authors ?? {}))
     authors.set(id, author);
 }
@@ -67,6 +92,10 @@ for (const file of Object.values(rawComments)) {
 export function resolveAuthor(id: string): CommentAuthor {
   return authors.get(id) ?? githubUser(id.replace(/^user:/, ""));
 }
+
+/** GitHub's mark, drawn wherever this canvas asks for or shows a GitHub handle. */
+export const GITHUB_PATH =
+  "M12 0c6.63 0 12 5.276 12 11.79-.001 5.067-3.29 9.567-8.175 11.187-.6.118-.825-.25-.825-.56 0-.398.015-1.665.015-3.242 0-1.105-.375-1.813-.81-2.181 2.67-.295 5.475-1.297 5.475-5.822 0-1.297-.465-2.344-1.23-3.169.12-.295.54-1.503-.12-3.125 0 0-1.005-.324-3.3 1.209a11.32 11.32 0 00-3-.398c-1.02 0-2.04.133-3 .398-2.295-1.518-3.3-1.209-3.3-1.209-.66 1.622-.24 2.83-.12 3.125-.765.825-1.23 1.887-1.23 3.169 0 4.51 2.79 5.527 5.46 5.822-.345.294-.66.81-.765 1.577-.69.31-2.415.81-3.495-.973-.225-.354-.9-1.223-1.845-1.209-1.005.015-.405.56.015.781.51.28 1.095 1.327 1.23 1.666.24.663 1.02 1.93 4.035 1.385 0 .988.015 1.916.015 2.196 0 .31-.225.664-.825.56C3.303 21.374-.003 16.867 0 11.791 0 5.276 5.37 0 12 0z";
 
 /**
  * The login in whatever was typed: a handle, an `@handle`, or a pasted profile URL. Null when it
@@ -172,6 +201,37 @@ export function nearestBoard(editor: Editor, pageId: TLPageId, point: { x: numbe
 }
 
 /**
+ * What a click would do, while the comment tool is up: the board the note would attach to gets
+ * tldraw's own hint outline, and the bubble cursor fills in (index.css keys off the attribute).
+ * Out in open canvas both go quiet, which is the honest answer — the note would stay a point.
+ *
+ * On `event` rather than a pointer handler because the tool clears the hint on every move: its
+ * hit-test looks straight through the boards, which are locked, so it finds nothing where
+ * `nearestBoard` finds something. The editor emits `event` after the state chart has run, which
+ * is the one place the answer sticks.
+ */
+function installCommentTargetHint(editor: Editor) {
+  const container = editor.getContainer();
+  const update = () => {
+    if (editor.getCurrentToolId() !== "comment") return;
+    // ponytail: every board on the page, per pointer move. A page holds tens of them, so the
+    // scan costs less than the cache that would keep it correct.
+    const id = nearestBoard(
+      editor,
+      editor.getCurrentPageId(),
+      editor.inputs.getCurrentPagePoint(),
+    );
+    editor.setHintingShapes(id ? [id] : []);
+    container.toggleAttribute("data-comment-target", !!id);
+  };
+  editor.on("event", update);
+  return () => {
+    editor.off("event", update);
+    container.removeAttribute("data-comment-target");
+  };
+}
+
+/**
  * Re-anchor a freshly placed thread onto the board beside it. A shape anchor is a normalized
  * offset within the board's own bounds, unclamped both when it is recorded and when it is drawn,
  * so a pin in the margin keeps exactly the spot it was dropped on *and* rides the board when a
@@ -266,7 +326,7 @@ export function installCanvasComments(editor: Editor) {
   const pageIds = boardPages(editor);
 
   const wanted: TLCommentRecord[] = [];
-  for (const [slug, file] of Object.entries(rawComments)) {
+  for (const [slug, file] of Object.entries(commentFiles)) {
     const pageId = pageIds.get(slug);
     // A folder the canvas is not showing keeps its comments in its file, untouched, rather than
     // having them deleted by a canvas that cannot see them.
@@ -318,18 +378,28 @@ export function installCanvasComments(editor: Editor) {
     for (const [slug, body] of bodies()) {
       if (written.get(slug) === body) continue;
       written.set(slug, body);
-      void fetch("/__sp/comments", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ slug, file: body ? JSON.parse(body) : null }),
-      });
+      const file = body ? (JSON.parse(body) as CommentsFile) : null;
+      if (import.meta.env.DEV) {
+        void fetch("/__sp/comments", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ slug, file }),
+        });
+        continue;
+      }
+      // An emptied board is kept as an empty file rather than dropped: dropping it would let the
+      // committed comments back in on the next load, which is not what deleting them meant.
+      localFiles[slug] = file ?? { authors: {}, records: [] };
+      try {
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(localFiles));
+      } catch {
+        // Storage full or refused. The comment stays on screen for this session and is lost on
+        // reload — the same deal every other thing this canvas keeps in the browser gets.
+      }
     }
   };
 
-  // Only against a dev server, which is what a plugin install runs: the POST above is the only
-  // way a comment reaches the repo, and a built canvas is static files with nothing behind them.
-  // So there the folders' comments load, and the store is never written back.
-  const dispose = !import.meta.env.DEV ? () => {} : editor.store.listen(
+  const dispose = editor.store.listen(
     ({ changes }) => {
       // Placed, not only created: a pin dragged onto a board arrives here as an update, and as a
       // bare point just like a new comment does — the comment tool's own hit-test looks straight
@@ -357,8 +427,11 @@ export function installCanvasComments(editor: Editor) {
   // and ones dropped out in open canvas, are left exactly as they are.
   anchorToNearbyBoard(editor, wanted);
 
+  const disposeHint = installCommentTargetHint(editor);
+
   return () => {
     dispose();
+    disposeHint();
     clearTimeout(pending);
   };
 }

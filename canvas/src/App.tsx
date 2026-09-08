@@ -910,7 +910,6 @@ function initializeCanvas(editor: Editor) {
 const BOARD_ZOOM_INSET = 80;
 
 export default function App() {
-  const [stylesVisible, setStylesVisible] = useState(false);
   /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
   const [inspecting, setInspecting] = useState<CanvasLibraryFile | null>(null);
   const [commentUser, setCommentUser] = useState(readCommentUser);
@@ -998,8 +997,6 @@ export default function App() {
   return (
     <CanvasChromeContext.Provider
       value={{
-        stylesVisible,
-        toggleStyles: () => setStylesVisible((visible) => !visible),
         relayoutLibrary: () => {
           if (editor) relayoutCanvasLibrary(editor);
         },

@@ -1,22 +1,32 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   DefaultActionsMenu,
-  DefaultStylePanel,
-  DefaultToolbar,
-  DefaultToolbarContent,
+  DefaultContextMenu,
+  DefaultContextMenuContent,
   TldrawUiButton,
   TldrawUiButtonIcon,
+  TldrawUiIcon,
   type Editor,
   type TLComponents,
   type TLUiAssetUrlOverrides,
+  TldrawUiMenuGroup,
+  TldrawUiMenuItem,
   useDialogs,
   useEditor,
+  useEditorPortalHost,
   useValue,
 } from "tldraw";
 import { CanvasComments, CommentTool, commentToolOverrides } from "@tldraw/commenting";
 import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
-import { linkedBoard, readCommentUser, resolveAuthor, type CommentUser } from "./canvasComments";
+import {
+  GITHUB_PATH,
+  linkedBoard,
+  readCommentUser,
+  resolveAuthor,
+  type CommentUser,
+} from "./canvasComments";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 
@@ -24,7 +34,7 @@ const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
 /** The app the snapaction-ios boards are cloned from: its own site, not the App Store listing. */
 const SNAPACTION_URL = "https://snapaction.ai/";
 
-/** One dialog, whether it was opened by the button or by picking the tool without a name. */
+/** One dialog, whether the comment tool raised it or the inspector's composer did. */
 const COMMENT_USER_DIALOG = "comment-user";
 
 /**
@@ -34,12 +44,7 @@ const COMMENT_USER_DIALOG = "comment-user";
  */
 export const ASK_COMMENT_USER = "sp:ask-comment-user";
 
-const GITHUB_PATH =
-  "M12 0c6.63 0 12 5.276 12 11.79-.001 5.067-3.29 9.567-8.175 11.187-.6.118-.825-.25-.825-.56 0-.398.015-1.665.015-3.242 0-1.105-.375-1.813-.81-2.181 2.67-.295 5.475-1.297 5.475-5.822 0-1.297-.465-2.344-1.23-3.169.12-.295.54-1.503-.12-3.125 0 0-1.005-.324-3.3 1.209a11.32 11.32 0 00-3-.398c-1.02 0-2.04.133-3 .398-2.295-1.518-3.3-1.209-3.3-1.209-.66 1.622-.24 2.83-.12 3.125-.765.825-1.23 1.887-1.23 3.169 0 4.51 2.79 5.527 5.46 5.822-.345.294-.66.81-.765 1.577-.69.31-2.415.81-3.495-.973-.225-.354-.9-1.223-1.845-1.209-1.005.015-.405.56.015.781.51.28 1.095 1.327 1.23 1.666.24.663 1.02 1.93 4.035 1.385 0 .988.015 1.916.015 2.196 0 .31-.225.664-.825.56C3.303 21.374-.003 16.867 0 11.791 0 5.276 5.37 0 12 0z";
-
 export const CanvasChromeContext = createContext({
-  stylesVisible: false,
-  toggleStyles: () => {},
   relayoutLibrary: () => {},
   /** The mounted editor, for the parts of the app that render outside `<Tldraw>`. */
   editor: null as Editor | null,
@@ -56,11 +61,11 @@ export const CanvasChromeContext = createContext({
  * to that board's shape, which is what makes the note ride the mockup when a layout.json edit
  * moves it. The header shows that link, and follows it: clicking opens the board in the inspector.
  *
- * Only where there is a dev server to post to, which is what a plugin install runs: a comment
- * reaches the repo through it, and a built canvas is static files on a host with no repo behind
- * them. There the committed threads are read and drawn, and that is all.
+ * Everywhere, built canvas included. Where the comment goes differs — a dev server writes it into
+ * the board's folder, a hosted canvas keeps it in the browser (canvasComments.ts) — but the tool
+ * and the thread are the same, so someone trying the hosted canvas sees what commenting is like.
  */
-export const canvasCommentTools = import.meta.env.DEV ? [
+export const canvasCommentTools = [
   CommentTool.configure({
     components: {
       ThreadActions: ({ thread }) => {
@@ -84,10 +89,10 @@ export const canvasCommentTools = import.meta.env.DEV ? [
       },
     },
   }),
-] : [];
+];
 
-/** The toolbar entry for that tool, so it is not offered where the tool is not registered. */
-export const canvasCommentOverrides = import.meta.env.DEV ? commentToolOverrides : {};
+/** The toolbar entry for that tool. */
+export const canvasCommentOverrides = commentToolOverrides;
 
 export const canvasChromeComponents: TLComponents = {
   /**
@@ -181,54 +186,45 @@ export const canvasChromeComponents: TLComponents = {
         >
           <TldrawUiButtonIcon icon="refresh-icon" />
         </TldrawUiButton>
-        {/* The only account there is: the GitHub handle posted comments are signed with, wearing
-            that account's avatar once there is one. Sits here rather than behind the comment tool
-            so it can be corrected after the fact — where there is anything to sign, that is. */}
-        {import.meta.env.DEV && (
-          <TldrawUiButton
-            type="icon"
-            title={
-              chrome.commentUser
-                ? `Commenting as ${chrome.commentUser.name} — click to change`
-                : "Set the GitHub handle your comments are signed with"
-            }
-            onClick={() =>
-              addDialog({
-                id: COMMENT_USER_DIALOG,
-                component: (dialog) => (
-                  <CommentUserDialog {...dialog} onSave={chrome.setCommentUser} />
-                ),
-              })
-            }
-          >
-            {chrome.commentUser ? (
-              <img className="canvas-me" src={chrome.commentUser.image} alt="" />
-            ) : (
-              <TldrawUiButtonIcon icon="comment" />
-            )}
-          </TldrawUiButton>
-        )}
       </>
     );
   },
-  Toolbar: (props) => {
+  /**
+   * The right button carries what the toolbar used to: commenting, and the relayout. The bottom
+   * toolbar is gone (Toolbar below) because a canvas of boards is read, not drawn on — but a
+   * comment is the one mark someone does want to make, and it should be under the cursor rather
+   * than in a bar at the other end of the screen.
+   */
+  ContextMenu: (props) => {
     const chrome = useContext(CanvasChromeContext);
+    const editor = useEditor();
 
     return (
-      <DefaultToolbar {...props}>
-        <TldrawUiButton
-          type="tool"
-          isActive={chrome.stylesVisible}
-          title={chrome.stylesVisible ? "Hide styles" : "Show styles"}
-          aria-pressed={chrome.stylesVisible}
-          onClick={chrome.toggleStyles}
-        >
-          <TldrawUiButtonIcon icon="styles-icon" />
-        </TldrawUiButton>
-        <DefaultToolbarContent />
-      </DefaultToolbar>
+      <DefaultContextMenu {...props}>
+        <TldrawUiMenuGroup id="canvas">
+          <TldrawUiMenuItem
+            id="comment"
+            label="Comment"
+            icon="comment"
+            kbd="c"
+            onSelect={() => {
+              editor.setCurrentTool("comment");
+            }}
+          />
+          <TldrawUiMenuItem
+            id="relayout"
+            label="Force refresh"
+            icon="refresh-icon"
+            onSelect={chrome.relayoutLibrary}
+          />
+        </TldrawUiMenuGroup>
+        <DefaultContextMenuContent />
+      </DefaultContextMenu>
     );
   },
+  /** No drawing tools: the boards are the content, and the tools that are not for drawing are in
+   *  the top bar and the right button. Keyboard shortcuts still reach the ones tldraw ships. */
+  Toolbar: null,
   /**
    * The comments layer: pins, thread popovers and the composer the comment tool opens. Everything
    * about where they are stored — the board folder, Git, the pin snapping onto the mockup beside
@@ -240,6 +236,22 @@ export const canvasChromeComponents: TLComponents = {
     const { addDialog } = useDialogs();
     const tool = useValue("tool", () => editor.getCurrentToolId(), [editor]);
     const setCommentUser = chrome.setCommentUser;
+    const host = useEditorPortalHost();
+    const [composer, setComposer] = useState<Element | null>(null);
+
+    // A dismiss for the placement composer, which the toolkit gives no slot on. Picking the
+    // comment tool by accident — a stray `c`, a right-click menu misread — leaves a bubble open
+    // whose only ways out are Escape and a click into empty canvas, neither of which is on screen.
+    // The composer is a direct child of the editor's portal host, so watching that one node's
+    // child list finds it, at a querySelector per popover.
+    useEffect(() => {
+      if (!host) return;
+      const find = () => setComposer(host.querySelector(".tlui-cmt-canvas-composer"));
+      find();
+      const observer = new MutationObserver(find);
+      observer.observe(host, { childList: true });
+      return () => observer.disconnect();
+    }, [host]);
 
     // An anonymous viewer gets no composer, so picking the comment tool without a name would do
     // nothing at all. Ask for one instead, and drop back to select if they would rather not.
@@ -268,23 +280,36 @@ export const canvasChromeComponents: TLComponents = {
     }, [addDialog, setCommentUser]);
 
     return (
-      <CanvasComments
-        // No identity, no composer, no reply, no edit: the toolkit's own read-only mode, and what
-        // a built canvas gets, where none of those could be saved anyway.
-        currentUserId={import.meta.env.DEV ? (chrome.commentUser?.id ?? null) : null}
-        resolveAuthor={resolveAuthor}
-      />
+      <>
+        <CanvasComments
+          // Null until a handle is typed: the toolkit's own read-only mode, which is what an
+          // anonymous viewer gets until the dialog above has an answer.
+          currentUserId={chrome.commentUser?.id ?? null}
+          resolveAuthor={resolveAuthor}
+        />
+        {/* Out of the tool, not just out of the bubble — Escape closes only the bubble and leaves
+            the next click placing another one, which is not what an accidental comment wants. The
+            draft is kept either way, so a real comment interrupted here is there next time. */}
+        {composer &&
+          createPortal(
+            <TldrawUiButton
+              type="icon"
+              title="Close (Esc)"
+              className="canvas-composer-close"
+              onClick={() => editor.setCurrentTool("select")}
+            >
+              <TldrawUiIcon icon="cross-2" label="Close" small />
+            </TldrawUiButton>,
+            composer,
+          )}
+      </>
     );
   },
-  StylePanel: (props) => {
-    const chrome = useContext(CanvasChromeContext);
-    return chrome.stylesVisible ? <DefaultStylePanel {...props} /> : null;
-  },
+  StylePanel: null,
 };
 
 export const canvasChromeAssetUrls: TLUiAssetUrlOverrides = {
   icons: {
-    "styles-icon": "/styles.svg",
     "clone-icon": "/clone.svg",
     "refresh-icon": "/refresh.svg",
   },
