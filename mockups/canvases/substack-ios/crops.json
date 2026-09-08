@@ -1,51 +1,197 @@
 {
-  "_": "Art cut from assets/refs/cN.png at measured pt boxes, 3.0 capture px per design pt (1179 px across a 393 pt screen). gen.py writes assets/art/<id>.png and places each <img> back at the same box, so an asset can never drift from where it was measured. Everything else on these boards -- header, tab bar, FAB, cards, buttons, rules, type, icons -- is CSS or inline SVG.",
-  "_rule": "Crop what the capture already contains; draw only what it does not. A crop scores 0 against its own source by construction.",
-  "_baked": "An article card is one crop: photo, scrim and title together. Substack bakes that type onto the image server-side -- it is part of the picture, not a label over it -- so splitting it would mean redrawing type the capture already has, at a face this repo cannot name. The publication tile rows are one crop per screen for the same reason: the unread ring, the LIVE badge and the half-tile at the right edge come along for free, and only the labels under them are type.",
-  "_top": "top-5/6/7 is the band between the status bar and the first sharp row: the header's own material blurring whatever the feed had scrolled behind it. It is content, not chrome, and no CSS filter can blur pixels the board does not have -- so it is cropped whole, and the logo button and header avatar are drawn back over it, opaque, exactly where they sit on every other screen.",
-
-  "logo":     ["1",  27.00,  68.00,  49.00,  94.50],
-  "me":       ["1", 328.67,  59.00, 373.00, 103.34],
-  "tag":      ["3", 318.67, 251.50, 377.00, 263.50],
-  "check":    ["3", 174.33, 249.00, 191.00, 265.67],
-  "check-o":  ["6", 320.33, 306.67, 335.33, 321.67],
-
-  "tiles-1":  ["1",   0.00, 108.00, 393.00, 200.00],
-  "tiles-2":  ["2",   0.00, 108.00, 393.00, 200.00],
-  "tiles-3":  ["3",   0.00, 108.00, 393.00, 202.00],
-  "tiles-4":  ["4",   0.00, 219.00, 393.00, 302.00],
-
-  "av-1":     ["1",  16.00, 272.67,  56.00, 312.67],
-  "av-1b":    ["1",  16.00, 775.33,  56.00, 815.33],
-  "av-2":     ["2",  16.00, 249.00,  56.00, 289.00],
-  "av-2b":    ["2",  16.00, 723.33,  56.00, 763.33],
-  "av-3a":    ["3",  16.00, 249.00,  56.00, 289.00],
-  "av-3b":    ["3",  16.00, 485.33,  56.00, 525.33],
-  "av-3c":    ["3",  16.00, 733.33,  56.00, 773.33],
-  "av-4":     ["4",  16.00, 352.00,  56.00, 392.00],
-  "av-5":     ["5",  16.00, 156.00,  56.00, 196.00],
-  "av-6":     ["6",  16.00, 450.00,  56.00, 490.00],
-  "av-7":     ["7",  16.00, 430.67,  56.00, 470.67],
-  "av-7b":    ["7",  16.00, 832.00,  56.00, 852.00],
-
-  "photo-1":  ["1",  16.00, 482.33, 377.00, 688.00],
-  "card-2":   ["2",  16.00, 374.67, 377.00, 659.33],
-  "card-2b":  ["2",  16.00, 838.00, 377.00, 852.00],
-  "toast-2":  ["2",  16.00, 698.00,  68.00, 750.00],
-  "th-4":     ["4",  28.00, 152.00,  68.00, 192.00],
-  "doc-4a":   ["4",  16.00, 506.00, 229.00, 852.00],
-  "doc-4b":   ["4", 237.00, 506.00, 393.00, 852.00],
-  "card-5":   ["5",  16.00, 209.33, 377.00, 493.67],
-  "photo-6":  ["6",  16.00, 607.67, 377.00, 852.00],
-  "card-7":   ["7",  16.00, 485.33, 377.00, 769.00],
-  "share-7":  ["7", 168.00, 153.33, 229.34, 213.34],
-
-  "pf-5a":    ["5",  47.00, 617.00, 152.00, 722.00],
-  "pf-5b":    ["5", 219.00, 617.00, 324.00, 722.00],
-  "pf-6a":    ["6",  47.00, 192.00, 152.00, 297.00],
-  "pf-6b":    ["6", 219.00, 192.00, 324.00, 297.00],
-
-  "top-5":    ["5",   0.00,  54.00, 393.00, 130.00],
-  "top-6":    ["6",   0.00,  54.00, 393.00, 132.00],
-  "top-7":    ["7",   0.00,  54.00, 393.00, 124.00]
+ "_": "Art cut from assets/refs/cN.png at measured pt boxes, 3.0 capture px per design pt (1179 px across a 393 pt screen). gen.py writes assets/art/<id>.png and places each <img> back at the same box, so an asset can never drift from where it was measured. Everything else on these boards -- header, tab bar, FAB, cards, buttons, rules, type, icons -- is CSS or inline SVG.",
+ "_rule": "Crop what the capture already contains; draw only what it does not. A crop scores 0 against its own source by construction.",
+ "_baked": "An article card is one crop: photo, scrim and title together. Substack bakes that type onto the image server-side -- it is part of the picture, not a label over it -- so splitting it would mean redrawing type the capture already has, at a face this repo cannot name.",
+ "_tile": "A publication tile is NOT cropped. Each one is that publication's own logo, pulled off Substack by scratch/logos.py into assets/logos/ and masked into the tile squircle by gen.py -- the capture has 215 px of a file that ships at up to 1904. The three tile-* boxes below are the exceptions: three publications this repo could not identify, so their tiles stay crops until it can. tile-4a is the half tile the left edge of screen 4 cuts.",
+ "_face": "An avatar is not cropped either where the person or publication could be named. It is their own file, pulled off Substack into assets/avatars/ and masked into a circle by gen.py -- the capture holds 120 px of a picture that ships at up to 2477. assets/avatars/SOURCES.md says where each came from, and scratch/facefit.py fits each circle's box to the artwork rather than to the feed: a crop cancels its own misregistration, because it goes back at the box it was cut from, and a drawn circle does not. The av-* boxes still below are the ones nobody could put a name to. me, th-4 and share-7 are the capture account's own photo, published nowhere this repo could find.",
+ "_top": "The band between the status bar and the first sharp row is not cropped either. It is the tail of the note the feed has just scrolled past -- an action row and a separator -- still drawn, under a real backdrop-filter. A Gaussian spreads ink without moving it, so scratch/actrow.py reads every icon's centre of mass back out of the blur, and scratch/edge.py solves the blur radius and the white tint a row at a time.",
+ "logo": [
+  "1",
+  27.0,
+  68.0,
+  49.0,
+  94.5
+ ],
+ "me": [
+  "1",
+  328.67,
+  59.0,
+  373.0,
+  103.34
+ ],
+ "tag": [
+  "3",
+  318.67,
+  251.5,
+  377.0,
+  263.5
+ ],
+ "check": [
+  "3",
+  174.33,
+  249.0,
+  191.0,
+  265.67
+ ],
+ "check-o": [
+  "6",
+  320.33,
+  306.67,
+  335.33,
+  321.67
+ ],
+ "tile-the-anthro": [
+  "1",
+  15.91,
+  124.94,
+  87.74,
+  196.77
+ ],
+ "tile-2e": [
+  "2",
+  367.91,
+  124.94,
+  393.0,
+  196.77
+ ],
+ "tile-ux-ai": [
+  "4",
+  40.91,
+  227.58,
+  112.74,
+  299.41
+ ],
+ "tile-4a": [
+  "4",
+  0.0,
+  227.58,
+  24.74,
+  299.41
+ ],
+ "av-1b": [
+  "1",
+  16.0,
+  775.33,
+  56.0,
+  815.33
+ ],
+ "av-2": [
+  "2",
+  16.0,
+  249.0,
+  56.0,
+  289.0
+ ],
+ "av-2b": [
+  "2",
+  16.0,
+  723.33,
+  56.0,
+  763.33
+ ],
+ "av-3b": [
+  "3",
+  16.0,
+  485.33,
+  56.0,
+  525.33
+ ],
+ "av-3c": [
+  "3",
+  16.0,
+  733.33,
+  56.0,
+  773.33
+ ],
+ "av-6": [
+  "6",
+  16.0,
+  450.0,
+  56.0,
+  490.0
+ ],
+ "av-7b": [
+  "7",
+  16.0,
+  832.0,
+  56.0,
+  852.0
+ ],
+ "photo-1": [
+  "1",
+  16.0,
+  482.33,
+  377.0,
+  688.0
+ ],
+ "card-2": [
+  "2",
+  16.0,
+  374.67,
+  377.0,
+  659.33
+ ],
+ "card-2b": [
+  "2",
+  16.0,
+  838.0,
+  377.0,
+  852.0
+ ],
+ "toast-2": [
+  "2",
+  16.0,
+  698.0,
+  68.0,
+  750.0
+ ],
+ "th-4": [
+  "4",
+  28.0,
+  152.0,
+  68.0,
+  192.0
+ ],
+ "doc-4a": [
+  "4",
+  16.0,
+  506.0,
+  229.0,
+  852.0
+ ],
+ "doc-4b": [
+  "4",
+  237.0,
+  506.0,
+  393.0,
+  852.0
+ ],
+ "card-5": [
+  "5",
+  16.0,
+  209.33,
+  377.0,
+  493.67
+ ],
+ "photo-6": [
+  "6",
+  16.0,
+  607.67,
+  377.0,
+  852.0
+ ],
+ "card-7": [
+  "7",
+  16.0,
+  485.33,
+  377.0,
+  769.0
+ ],
+ "share-7": [
+  "7",
+  168.0,
+  153.33,
+  229.34,
+  213.34
+ ]
 }

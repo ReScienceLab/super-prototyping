@@ -26,15 +26,21 @@ window described below:
 
 | Screen | Δ | Screen | Δ |
 | --- | --- | --- | --- |
-| 01 Note in the feed | 1.64 | 05 From the archives | 2.94 |
-| 02 Keep reading toast | 1.80 | 06 People to follow | 2.50 |
-| 03 Three notes | 2.60 | 07 Share your profile | 1.35 |
-| 04 Just published | 1.72 | **Mean** | **2.08** |
+| 01 Note in the feed | 1.86 | 05 From the archives | 3.08 |
+| 02 Keep reading toast | 2.09 | 06 People to follow | 2.66 |
+| 03 Three notes | 3.02 | 07 Share your profile | 1.57 |
+| 04 Just published | 1.87 | **Mean** | **2.31** |
 
 The two worst are 05, whose tab bar sits over a row of orange Follow buttons,
-and 03, whose third note is the one the pill hides almost entirely. Nothing
-here is over 3. The material is the ceiling, and it is a stated approximation
-rather than a defect — see below.
+and 03, whose third note is the one the pill hides almost entirely. The
+material is the ceiling on both, and it is a stated approximation rather than
+a defect — see below.
+
+An earlier pass scored 2.08 on the same window, and it scored it by cropping
+eighteen logos and avatars straight out of the captures. Those are fetched
+files now, and the score went *up* by a quarter of a level because a crop
+cannot lose against the image it was cut from. What the crops were buying was
+the score, not the replica — see **The third case: fetch**.
 
 ## The score window, and the three things Mobbin did to the export
 
@@ -62,7 +68,7 @@ accent and eat about 0.07 of delta on those two screens.
 > Crop what the capture already contains; draw only what it does not. A crop
 > scores 0 against its own source by construction.
 
-`crops.json` is 39 boxes in design pt. `gen.py` cuts them out of
+`crops.json` is 27 boxes in design pt. `gen.py` cuts them out of
 `assets/refs/cN.png` into `assets/art/<id>.png` and places each `<img>` back
 at the same box, so an asset can never drift from where it was measured.
 Everything else — header, tab bar, FAB, cards, buttons, rules, type, icons —
@@ -73,17 +79,59 @@ Two consequences worth stating, because both look like laziness and are not:
 **An article card is one crop**, photo and scrim and title together. Substack
 bakes that type onto the image server-side; it is part of the picture, not a
 label over it. Splitting it would mean redrawing type the capture already
-has, at a face this repo cannot name. The publication tile rows are one crop
-per screen for the same reason — the unread ring, the LIVE badge and the
-half-tile running off the right edge come along for free, and only the labels
-under them are type.
+has, at a face this repo cannot name.
 
-**The blurred header band is a crop too.** On 05, 06 and 07 the band between
-the status bar and the first sharp row is the header's own material blurring
-whatever the feed had scrolled behind it. That is *content*, and no CSS
-filter can blur pixels the board does not have. So `top-5/6/7` is cropped
-whole and the logo button and header avatar are drawn back over it, opaque,
-exactly where they sit on every other screen.
+**A crop is the one thing that cannot be measured wrong.** Cut at a box and
+put back at the same box, it carries its own misregistration with it and the
+error cancels; a third of a point out at the top of a note is a third of a
+point out in both directions and invisible in the diff. Nothing drawn or
+fetched gets that for free, which is why every fetched asset below had to be
+re-fitted to the artwork rather than inheriting the box the crop used.
+
+## The third case: fetch
+
+A publication tile and an avatar are not the app's artwork. They belong to the
+publication and to the person, and Substack still serves them. So eighteen of
+them are not cropped: `scratch/logos.py` and two agent passes pulled them into
+`assets/logos/` and `assets/avatars/`, and `gen.py` masks each one here.
+
+The route is the same for all of them. A publication homepage carries a
+`logo_url`; a profile page at `substack.com/@handle` carries an `og:image`.
+Both point at `substackcdn.com/image/fetch/<transforms>/<percent-encoded
+original>` — **percent-decode the last path segment** and the S3 original is
+behind it, up to 1904 px for a logo and 2477 for an avatar, against the 215 and
+120 px the capture holds.
+
+Three things had to be measured before any of it beat the crops it replaced.
+
+**A tile is 72pt, not the 71.83 its edges average.** A bitmap gets whole device
+pixels, so the size that matters is the one it lands on. `scratch/logofit.py`
+cuts each of the eight identified flat tiles at 215 and at 216 device px and
+differences both against the capture: 216 wins on every single logo, mean |d|
+8.35 down to 5.55. A third of a pixel of scale is a third of a pixel of
+misregistration everywhere inside the mask.
+
+**Chrome floors an image box to a whole device pixel.** At 3× every tile's left
+landed on .73 of one, so the browser dropped each tile a quarter point left of
+where the pitch put it and its edge came out hard where the capture's is a
+ramp. Snapping x, y and size to `round(v*3)/3` costs .09pt of position and buys
+back a third of the tile row's error — `scratch/tilefit.py` before and after.
+Every fetched asset is snapped the same way.
+
+**A fetched circle has to be fitted to the artwork, not to the crop's box.**
+`scratch/facefit.py` composites each avatar onto white over a sweep of offset
+and diameter and differences it against the capture. It reads 40.00pt for a
+note avatar and 102.00 for a people card — 306 device px, whole again — and it
+finds three of the five note avatars a device pixel or three below the box
+`crops.json` measured, which is why `note()` has an `ay`. It also sweeps the
+crop scale: z = 1.00 wins on all nine, so the centre square is the right cut
+and Substack applies no inset of its own.
+
+What is left as a crop is what nobody could name: seven note avatars, three
+publications (`the-anthro`, `2e`, `ux-ai`) and the half tile the left edge of
+screen 04 cuts. The header avatar is a fourth case — `me`, `th-4` and
+`share-7` are the same portrait, the account that took the capture, published
+nowhere this repo could find.
 
 ## Liquid Glass is fitted, not solved
 
@@ -231,9 +279,17 @@ no near-match can pass as exact.
 
 ## Assets
 
-`assets/art/` is 39 crops, cut by `gen.py` from `assets/refs/` at the boxes in
-`crops.json` and inlined as `data:` URIs, so the boards render offline in the
-canvas's `sandbox=""` iframe. Every icon is inline SVG.
+`assets/art/` is 27 crops, cut by `gen.py` from `assets/refs/` at the boxes in
+`crops.json`, plus the tile and circle cuts it derives from the two folders
+below. All of it is inlined as `data:` URIs, so the boards render offline in
+the canvas's `sandbox=""` iframe. Every icon is inline SVG.
+
+`assets/logos/` is nine publication logos and `assets/avatars/` is nine
+avatars, each the publisher's own file off Substack at full resolution. Each
+folder's `SOURCES.md` names every file and the page it came from, with the
+original's URL wherever that page still serves the same file —
+`scratch/logosources.py` re-resolves and differences all nine logos, and two
+publications have changed their logo since the capture.
 
 `assets/refs/` holds the seven captures twice — `pN.png` as they came from
 Mobbin, `cN.png` converted from the untagged Display P3 they exported in to

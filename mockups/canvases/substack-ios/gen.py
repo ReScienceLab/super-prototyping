@@ -7,11 +7,29 @@ HTML.
 
 What is drawn and what is cropped is decided once, in crops.json, and the rule
 there is the same one chatgpt-ios uses: crop what the capture already contains,
-draw only what it does not. So the photos, the article cards whose titles
-Substack bakes into the image server-side, the publication tile rows, the
-avatars and the "substack" wordmark come out of assets/refs/ at the boxes they
-were measured at; the header, the tab bar, the compose button, the note bodies,
-the buttons, the rules and every icon are CSS and inline SVG.
+draw only what it does not. There is a third case here, and it is the better
+one: fetch. A publication's tile and a person's avatar are that publisher's own
+file, pulled off Substack into assets/logos/ and assets/avatars/ at full
+resolution and masked here -- the capture holds 215 px of a logo that ships at
+1904, and 120 px of an avatar that ships at 2477. Nine tiles and nine avatars
+are fetched; those two folders' SOURCES notes say where each came from.
+
+Fetching costs score and is still right. A crop is the capture's own pixels put
+back where they were cut from, so it scores zero against the capture by
+construction and cancels its own misregistration on the way. A real file has to
+be placed, sized and resampled, and it lands two or three levels of grey off a
+lossy 3x screenshot of the app's own resample -- s5 pays 0.03 for av-5. What it
+buys is an asset that is what it claims to be and holds up at any zoom, which is
+the point of the exercise; scratch/facefit.py is what keeps that cost honest,
+fitting each circle to the artwork rather than trusting the box crops.json
+measured off the feed.
+
+What is left as a crop is what could not be identified or fetched: seven note
+avatars whose authors nobody could name, the capture account's own photo (me,
+th-4, share-7), the photos and the article cards whose titles Substack bakes
+into the image server-side, the "substack" wordmark, and three publications this
+repo has not put a name to. The header, the tab bar, the compose button, the
+note bodies, the buttons, the rules and every icon are CSS and inline SVG.
 
 Three things about this feed are worth knowing before reading the code:
 
@@ -33,12 +51,16 @@ ascender higher than a cap. tx() below closes that gap from a measured table.
 """
 import base64
 import json
+import math
 import re
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent
 REFS_DIR = OUT / "assets" / "refs"
 ART_DIR = OUT / "assets" / "art"
+LOGO_DIR = OUT / "assets" / "logos"
+FACE_DIR = OUT / "assets" / "avatars"
+PHOTO_DIR = OUT / "assets" / "photos"
 CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
          if not k.startswith("_")}
 SCALE = 3.0                       # capture px per design pt: 1179 / 393
@@ -81,6 +103,7 @@ TOKENS = [
  ("Ink", "link",       "#097FC6", "ink core of week.wild.plus/athens-26, c1 y353"),
 
  ("Accent", "accent",  "#FF5800", "flat-fill census, the compose button, c1"),
+ ("Accent", "live",    "#FF4850", "flat-fill census, the LIVE pill on c3 x38.67..65.33"),
 
  ("Radius", "r-card",  "12px",  "inset profile of the card corner, c4 / c1 photo / c7 button"),
  ("Radius", "r-tile",  "8px",   "inset profile of the people-card corner, c6"),
@@ -94,6 +117,7 @@ TOKENS = [
  ("Type", "t-sub",   "500 10.5px/14px var(--x-font)",   "refkit bands on Subscribe, c1"),
  ("Type", "t-tile",  "400 11px/14px var(--x-font)",     "fit 11.00, Big Think c1, Just published c4, the people-card sub c6"),
  ("Type", "t-badge", "600 11.5px/14px var(--x-font)",   "8.3pt of digit height in the bell badge, c5"),
+ ("Type", "t-live",  "700 9px/12px var(--x-font)",      "fit 9.00 on 6.33pt of cap height, the LIVE pill c3 y191..197.33"),
  ("Type", "t-small", "400 13px/17px var(--x-font)",     "fit 13.00, Ileana liked and the counts, c1"),
  ("Type", "t-label", "600 13px/17px var(--x-font)",     "fit 13.00, The Hidden Cost of, c4"),
  ("Type", "t-pub",   "700 13px/17px var(--x-font)",     "fit 13.00 at 700 on three names, c5/c6"),
@@ -300,6 +324,139 @@ def cut():
     print("%-26s %8d crops" % ("assets/art/", n))
 
 
+# A publication tile is that publication's own logo in an iOS squircle. The
+# shape is a superellipse, |x|^n + |y|^n = 1. A tile on the white feed is the
+# only ink in its column, so the .5 crossing of its coverage is its own edge:
+# scratch/tilebox.py reads 71.83pt across six flat-fill tiles, and
+# scratch/sqfit.py sweeps the exponent against that alpha -- 2.80 (mean |d| 4.2
+# of 255) against 4.6 at 2.66 and 18.9 for the best plain rounded rect, which is
+# what rules a circular corner out. The logos are the publications' own files,
+# pulled from Substack by scratch/logos.py, not cut out of the capture: the
+# capture has 215px of a tile whose source file ships at up to 1904.
+#
+# 72, not the 71.83 those crossings average: a tile is a bitmap and the raster
+# gives it whole device pixels, so the size that matters is the one it lands on.
+# scratch/logofit.py cuts each of the eight identified flat tiles at 215 and at
+# 216 device px and differences both against the capture -- 216 wins on every
+# single logo, 8.35 mean |d| down to 5.55, because a third of a pixel of scale
+# is a third of a pixel of misregistration everywhere inside the mask.
+TILE = 72.0
+TILE_N = 2.80
+
+
+def _squircle(px, ss=4):
+    """The tile's alpha mask, drawn at ss x and boxed down for the edge."""
+    from PIL import Image, ImageDraw                        # noqa: local dep
+    k = px * ss
+    r = k / 2.0
+    pts = []
+    for i in range(720):
+        a = math.pi * i / 360.0
+        c, s = math.cos(a), math.sin(a)
+        pts.append((r + math.copysign(abs(c) ** (2.0 / TILE_N), c) * r,
+                    r + math.copysign(abs(s) ** (2.0 / TILE_N), s) * r))
+    m = Image.new("L", (k, k), 0)
+    ImageDraw.Draw(m).polygon(pts, fill=255)
+    return m.resize((px, px), Image.LANCZOS)
+
+
+def tilecut():
+    """Mask every publication logo into the tile squircle, at capture scale."""
+    if not LOGO_DIR.exists():
+        return
+    from PIL import Image                                    # noqa: local dep
+    ART_DIR.mkdir(parents=True, exist_ok=True)
+    px = round(TILE * SCALE)
+    mask, n = _squircle(px), 0
+    for f in sorted(LOGO_DIR.glob("*.png")):
+        im = Image.open(f).convert("RGB")
+        s = min(im.size)                                     # centre square
+        im = im.crop(((im.width - s) // 2, (im.height - s) // 2,
+                      (im.width + s) // 2, (im.height + s) // 2))
+        im = im.resize((px, px), Image.LANCZOS)
+        im.putalpha(mask)
+        im.save(ART_DIR / ("tile-" + f.stem + ".png"), optimize=True)
+        n += 1
+    print("%-26s %8d tiles" % ("assets/art/tile-*", n))
+
+
+# An avatar is a person's or a publication's own picture, fetched from Substack
+# into assets/avatars/ and named in that folder's SOURCES.md -- only the circle
+# around it is ours. Each is cut at the size its own board draws it, a note's
+# author at 40pt and a People-to-follow card's at 105, so nothing is resampled
+# twice on the way to the screen.
+_FACES = {}
+
+
+def _facecut(f, px):
+    """That picture's centre square, under a circle, at px across."""
+    from PIL import Image, ImageDraw                        # noqa: local dep
+    cid = "face-%s-%d" % (f.stem, px)
+    out = ART_DIR / (cid + ".png")
+    if cid not in _FACES:
+        ART_DIR.mkdir(parents=True, exist_ok=True)
+        k = px * 4
+        mask = Image.new("L", (k, k), 0)
+        ImageDraw.Draw(mask).ellipse((0, 0, k - 1, k - 1), fill=255)
+        im = Image.open(f).convert("RGB")
+        d = min(im.size)
+        im = im.resize((px, px), Image.LANCZOS,
+                       box=((im.width - d) / 2, (im.height - d) / 2,
+                            (im.width + d) / 2, (im.height + d) / 2))
+        im.putalpha(mask.resize((px, px), Image.LANCZOS))
+        im.save(out, optimize=True)
+        _FACES[cid] = True
+    return cid
+
+
+def face(cid, x, y, size=40.0):
+    """One avatar. Still a crop where the person could not be identified.
+
+    Snapped to whole device pixels for the same reason a tile is: the raster
+    floors an image box, so a box asking for a fraction gets a hard edge a
+    fraction early instead of the capture's soft one."""
+    f = FACE_DIR / (cid + ".png")
+    if not f.exists():
+        return art(cid)                     # nobody found: back on its own box
+    px = round(size * SCALE)
+    return ('<img class="a" src="%s" alt="%s" style="left:%.2fpx;top:%.2fpx;'
+            'width:%.2fpx;height:%.2fpx">'
+            % (_uri(_facecut(f, px)), cid, round(x * SCALE) / SCALE,
+               round(y * SCALE) / SCALE, px / SCALE, px / SCALE))
+
+
+# A note's picture, likewise the poster's own file rather than a crop. It is
+# cut to the box the board draws it at, because a data: URI of a 2000px original
+# would be most of a board's weight for pixels no screen ever shows.
+def _photocut(f, w, h):
+    """That picture, cover-fitted to w x h device px."""
+    from PIL import Image                                    # noqa: local dep
+    cid = "shot-%s-%dx%d" % (f.stem, w, h)
+    if cid not in _FACES:
+        ART_DIR.mkdir(parents=True, exist_ok=True)
+        im = Image.open(f).convert("RGB")
+        k = min(im.width / w, im.height / h)                 # cover
+        bw, bh = w * k, h * k
+        im.resize((w, h), Image.LANCZOS,
+                  box=((im.width - bw) / 2, (im.height - bh) / 2,
+                       (im.width + bw) / 2, (im.height + bh) / 2)
+                  ).save(ART_DIR / (cid + ".png"), optimize=True)
+        _FACES[cid] = True
+    return cid
+
+
+def photo(cid, x, y, w, h, extra=""):
+    """One picture in a note. Still a crop where the original was not found."""
+    f = PHOTO_DIR / (cid + ".png")
+    if not f.exists():
+        return art(cid)
+    px, py = round(w * SCALE), round(h * SCALE)
+    return ('<img class="a" src="%s" alt="%s" style="left:%.2fpx;top:%.2fpx;'
+            'width:%.2fpx;height:%.2fpx;border-radius:var(--x-r-card)%s">'
+            % (_uri(_photocut(f, px, py)), cid, round(x * SCALE) / SCALE,
+               round(y * SCALE) / SCALE, px / SCALE, py / SCALE, extra))
+
+
 def _uri(cid):
     f = ART_DIR / (cid + ".png")
     return ("data:image/png;base64," + base64.b64encode(f.read_bytes()).decode()
@@ -390,10 +547,53 @@ def sk(w, h, d, sw=1.7, col="currentColor", x=None, y=None, z=None):
 # ---------------------------------------------------------------- chrome ----
 # The header is the same 54pt band on every screen: the wordmark in a 44pt hit
 # area at the left inset, the reader's own avatar at the right. On a scrolled
-# screen it is a blur over whatever the feed had reached, so the blurred band
-# comes out of the capture and these two are drawn back on top of it.
-def header(top=None):
-    return (art(top) if top else "") + art("logo") + art("me")
+# screen the wordmark gains a white disc, and iOS's scroll-edge blur runs over
+# whatever the feed had reached -- so `behind` is that feed content, still drawn,
+# and the blur is a real backdrop-filter over it rather than a picture of one.
+HDR_DISC = (37.83, 80.83, 43.67)      # centre and diameter, all three captures
+
+
+def header(under=""):
+    if not under:
+        return art("logo") + art("me")
+    disc = box(HDR_DISC[0] - HDR_DISC[2] / 2, HDR_DISC[1] - HDR_DISC[2] / 2,
+               HDR_DISC[2], HDR_DISC[2], "background:#FFF;border-radius:50%")
+    return under + hdrglass() + disc + art("logo") + art("me")
+
+
+# A scrolled header is not a photograph of a blur. It is the tail of the note
+# the feed has just passed, still there, seen through the blur -- and a Gaussian
+# spreads ink without moving it, so scratch/actrow.py reads that tail straight
+# back off the capture: every icon keeps its centre of mass, so the action row's
+# y, the gaps its counts push open and the separator under it are all measurable
+# to a third of a point. The one thing that is not is the heart count, which the
+# disc covers; its string is a stand-in fitted to the gap it holds open.
+def behind(card_bot, act_y, counts, band_y, card, edge=16.0):
+    return (box(16, -40, 361, card_bot + 40,
+                "background:%s;border-radius:0 0 %.2fpx %.2fpx" % (card, edge, edge))
+            + actions(act_y, counts)
+            + box(0, band_y, 393, 4, "background:var(--x-band)"))
+
+
+# The blur itself, fitted rather than guessed: scratch/edge.py shoots the band
+# with the glass off and solves blur_s(mine)*(1-a) + 255a = ref one row at a
+# time, sweeping s and least-squaring a. Over y70..126 that reads s = 4.5pt and
+# a = .50, flat -- iOS ramps this effect on some surfaces, but here one radius
+# fits the whole band, and the separator at its foot is soft because 4.5pt is
+# already enough to soften a 4pt bar. It stops at 128: the solve puts a at 0
+# from 128 down.
+HDR_H, HDR_BLUR, HDR_TINT = 128.0, 4.5, 0.50
+
+
+def hdrglass():
+    """iOS's scroll-edge effect: one backdrop-filter, faded out at its foot."""
+    fade = "linear-gradient(#000 78%,rgba(0,0,0,0))"
+    return (box(0, 0, 393, HDR_H,
+                "backdrop-filter:blur(%.2fpx);-webkit-backdrop-filter:blur(%.2fpx);"
+                "-webkit-mask-image:%s;mask-image:%s" % (HDR_BLUR, HDR_BLUR, fade, fade))
+            + box(0, 0, 393, HDR_H,
+                  "background:linear-gradient(rgba(255,255,255,%.2f) 78%%,"
+                  "rgba(255,255,255,0))" % HDR_TINT))
 
 
 def divider(y):
@@ -405,9 +605,92 @@ def band(y):
     return box(0, y, 393, 4, "background:var(--x-fill)")
 
 
-def tiles(cid, labels, ink_top, first=52.17, pitch=88.0):
-    """One publication row: the tiles as cropped, the labels as type."""
-    return art(cid) + "".join(
+# A tile's left edge sits 36.26pt left of the centre its label is set on --
+# scratch/tilebox.py, again off the .5 crossing. The label is the fitted number,
+# so it stays the anchor and the tile hangs off it.
+TILE_DX = 36.26
+
+
+def tile(slug, x, y):
+    return ('<img class="a" src="%s" alt="%s" style="left:%.2fpx;top:%.2fpx;'
+            'width:%.2fpx;height:%.2fpx">'
+            % (_uri("tile-" + slug), slug, x, y, TILE, TILE))
+
+
+def _sqpath(size, seg=48):
+    """The tile squircle as one SVG path, so CSS never has to approximate it.
+
+    border-radius draws an ellipse quadrant and a superellipse is not one, which
+    is the whole reason the mask is rasterised rather than styled."""
+    r = size / 2.0
+    d = []
+    for i in range(seg * 4 + 1):
+        t = math.pi * i / (seg * 2.0)
+        c, sn = math.cos(t), math.sin(t)
+        d.append("%s%.2f %.2f" % ("M" if i == 0 else "L",
+                                  r + math.copysign(abs(c) ** (2.0 / TILE_N), c) * r,
+                                  r + math.copysign(abs(sn) ** (2.0 / TILE_N), sn) * r))
+    return " ".join(d) + "Z"
+
+
+def seeall(x, y):
+    """The row's last tile is a control, not a publication: nine dots on fill."""
+    d, g = 5.33, 2.17
+    o = (TILE - 20.33) / 2
+    dots = "".join(
+        '<circle cx="%.2f" cy="%.2f" r="%.2f"/>'
+        % (o + d / 2 + (d + g) * c, 25.5 + d / 2 + (d + g) * r, d / 2)
+        for r in range(3) for c in range(3))
+    return svg(TILE, TILE,
+               '<path d="%s" fill="var(--x-fill)"/>' % _sqpath(TILE)
+               + '<g fill="#383838">%s</g>' % dots, "", x, y)
+
+
+def tiledot(x, y):
+    """A publication with something unread wears a 14pt dot at its top right."""
+    return box(x + TILE - 14.67, y + 1.33, 14, 14,
+               "background:var(--x-accent);border-radius:50%")
+
+
+# The pill a publication wears while it is broadcasting: 26.67 x 12pt at
+# x38.67 y188 on c3, so 22.76 and 63.06 in from its tile's own corner. The
+# white ring is what lets it read on a logo of any colour.
+def livebadge(x, y):
+    return ('<div class="live" style="left:%.2fpx;top:%.2fpx">LIVE</div>'
+            % (x + 22.76, y + 63.06))
+
+
+def tiles(slugs, labels, ink_top, first=52.17, pitch=88.0, top=124.94,
+          dots=(), live=()):
+    """One publication row.
+
+    Each tile is that publication's own logo, masked into the squircle -- the
+    capture has 215px of a file that ships at up to 1904. Only the labels, the
+    unread dots and the See all control are ours. Three publications resisted
+    identification; those tiles are still crops, and crops.json names them."""
+    out = []
+    # A tile is a bitmap, and the raster floors an image box to a whole device
+    # pixel: at 3x every tile's left lands on .73 of one, so the browser drops it
+    # a quarter point left of where TILE_DX puts it and its edge comes out hard
+    # where the capture's is a ramp. Snapping to the nearest device pixel instead
+    # of the one below costs .09pt and buys back a third of the tile row's error
+    # -- scratch/tilefit.py before and after.
+    top = round(top * SCALE) / SCALE
+    for i, slug in enumerate(slugs):
+        x = round((first + pitch * i - TILE_DX) * SCALE) / SCALE
+        if slug == "see-all":
+            out.append(seeall(x, top))
+        elif "tile-" + slug in CROPS:      # a publication still unidentified
+            # max(x, 0): the one clipped tile was cut at the screen edge, so
+            # its crop starts there rather than at the tile's own left.
+            out.append(art("tile-" + slug, max(x, 0.0), top))
+        else:
+            out.append(tile(slug, x, top))
+        if i in dots:
+            out.append(tiledot(x, top))
+        if i in live:
+            out.append(livebadge(x, top))
+    return "".join(out) + "".join(
         txc(first + pitch * i - 44, 88, ink_top, s, "t-tile")
         for i, s in enumerate(labels) if s)
 
@@ -494,14 +777,21 @@ def check(size=15, cid="check", va=None, ml=4.19):
             % (_uri(cid), d, d, ml, CHECK_VA[size] if va is None else va))
 
 
-def note(y, av, name, meta, mark="tag", ticked=False, dy=0.0):
+def note(y, av, name, meta, mark="tag", ticked=False, dy=0.0, ay=0.0):
     """One note's header block, anchored on the top of its 40pt avatar.
 
     `dy` moves the two type rows only. The avatar is a crop and sits on its
     measured box; the name beside it is not always the same distance below
     that box, and scratch/shift.py reads the difference off each note.
+
+    `ay` moves the avatar only, and exists because a fetched file is not a
+    crop. A crop cancels its own misregistration -- cut at the box and pasted
+    back at the box, a third of a point of error goes back where it came from.
+    Draw the circle ourselves and that error is visible, so a fetched avatar
+    takes the box scratch/facefit.py fits to the artwork instead of the one
+    crops.json measured off the feed.
     """
-    out = [art(av, 16, y),
+    out = [face(av, 16, y + ay),
            tx(64, y + 2.0 + dy, name + (check() if ticked else ""), "t-name"),
            tx(64, y + 28.2 + dy,
               '%s <span class="d">&middot;</span> <span class="sb2">Subscribe</span>' % meta,
@@ -617,6 +907,12 @@ b{font-weight:600;letter-spacing:-.03px}
 .pill{left:21px;top:768.67px;width:281px;height:62.33px;border-radius:31.17px}
 .srch{left:310px;top:769px;width:62px;height:62px;border-radius:50%}
 .pill~.i,.srch~.i{z-index:5}
+.live{position:absolute;width:26.67px;height:12px;border-radius:3.5px;
+  /* Substack's badge face is narrower than the UI one: at the size its cap
+     height fits, LIVE sets 1pt wide, so the tracking carries the difference. */
+  background:var(--x-live);box-shadow:0 0 0 1.33px #FFF;letter-spacing:-.35px;
+  display:flex;align-items:center;justify-content:center;
+  font:var(--x-t-live);color:var(--x-ink-inv)}
 .bdg{position:absolute;z-index:5;border-radius:50%;background:var(--x-accent);
   display:flex;align-items:center;justify-content:center;
   font:var(--x-t-badge);color:var(--x-ink-inv)}
@@ -637,18 +933,20 @@ def s01():
     """A note in the feed, one publication tile row above it."""
     return screen("Note in the feed", "".join([
         header(),
-        tiles("tiles-1", ["The Anthro…", "Big Think", "UX/UI Hub",
-                          "Claude Cow…", "AI First Desi…"], 208.5),
+        tiles(["the-anthro", "big-think", "uxui-hub", "claude-cow",
+                "ai-first-design"],
+              ["The Anthro…", "Big Think", "UX/UI Hub",
+               "Claude Cow…", "AI First Desi…"], 208.5),
         divider(233),
         attribution(249.34, "Ileana liked"),
-        note(272.67, "av-1", "Evangeline", "May 19", "menu"),
+        note(272.67, "av-1", "Evangeline", "May 19", "menu", ay=0.33),
         body([(326.00, "This week’s Art x Design x AI coding Inspiration:"),
               (354.00, "The process behind <a>week.wild.plus/athens-26</a>"),
               (374.00, "captured on: <a>wild.as/labs/building-wild-week-athens</a>"),
               (402.00, "Tools:"),
               (430.00, "Figma, Weavy Claude Code, Framer"),
               (458.33, "<a>See more</a>")]),
-        art("photo-1"),
+        photo("photo-1", 16, 482.33, 361, 205.67),
         actions(701.33, ("225", "4", "15", None)),
         band(731.67),
         attribution(751.67, "Ileana liked"),
@@ -662,8 +960,9 @@ def s02():
     """The Keep reading toast, resting over the next note."""
     return screen("Keep reading toast", "".join([
         header(),
-        tiles("tiles-2", ["The Anthro…", "System Des…", "UX Psychol…",
-                          "UX/UI Hub", "The Anthro…"], 208.5),
+        tiles(["the-anthro", "system-design", "ux-psychology", "uxui-hub", "2e"],
+              ["The Anthro…", "System Des…", "UX Psychol…",
+               "UX/UI Hub", "The"], 208.5, dots=(1,)),
         divider(233),
         note(249, "av-2", "Tushar", "4d", dy=0.33),
         body([(302.33, "Just be honest with yourself, and you'll see changes"),
@@ -694,10 +993,13 @@ def s03():
     """Three notes in a row, two of them long."""
     return screen("Three notes", "".join([
         header(),
-        tiles("tiles-3", ["Aarron Walter", "The Anthro…", "Design Better",
-                          "System Des…", "UX Psychol…"], 208.5),
+        tiles(["aarron-walter", "the-anthro", "design-better", "system-design",
+                "ux-psychology"],
+              ["Aarron Walter", "The Anthro…", "Design Better",
+               "System Des…", "UX Psychol…"], 208.5, dots=(1, 2, 3),
+              live=(0,)),
         divider(233),
-        note(249, "av-3a", "Stoic Wisdoms", "May 18", "tag", True),
+        note(249, "av-3a", "Stoic Wisdoms", "May 18", "tag", True, ay=0.33),
         body([(302.33, "<b><i>People are addicted to potential.</i></b>"),
               (330.33, "They love talking about what they <i>could</i> do, what"),
               (350.33, "they <i>might</i> achieve, who they <i>will</i> become."),
@@ -743,8 +1045,10 @@ def s04():
         box(312, 156.67, 53.33, 31.67,
             "border-radius:var(--x-r-tile);background:var(--x-peach)"),
         txc(312, 53.33, 167.0, "Share", "t-label", "var(--x-accent)"),
-        tiles("tiles-4", ["Strategic Thi", "UX + AI", "Bestfolios.c…",
-                          "AI First Desi…", "See all"], 311.0, -10.83),
+        tiles(["4a", "ux-ai", "bestfolios", "ai-first-design", "see-all"],
+              ["Strategic Thi", "UX + AI", "Bestfolios.c…",
+               "AI First Desi…", "See all"], 311.0, -10.83, top=227.58,
+              dots=(0,)),
         divider(335.67),
         note(352, "av-4", "AI Engineering Insider", "2d", dy=-0.33),
         body([(405.00, "<b>Preview:</b>"),
@@ -758,7 +1062,7 @@ def s04():
 def s05():
     """An archive resurfacing, and the first row of People to follow."""
     return screen("From the archives", "".join([
-        header("top-5"),
+        header(behind(62.0, 80.40, ("184", "24", "50", None), 112.0, "#B7B7B7")),
         clock_row(132),
         note(156, "av-5", "System Design Roadmap", "May 7, 2025", "tag", True, -0.33),
         art("card-5"),
@@ -776,7 +1080,7 @@ def s05():
 def s06():
     """People to follow at the top of the viewport, a quoted note under it."""
     return screen("People to follow", "".join([
-        header("top-6"),
+        header(behind(68.20, 81.50, ("2.4K", "1.6K", "33K", None), 112.0, "#B8B8B8")),
         tx(16, 136.00, "People to follow", "t-head"),
         tx(335, 139.0, "See all", "t-label", "var(--x-accent)"),
         people(180.33, [("pf-6a", "Study English with…", "Study English with Sarah", False),
@@ -811,7 +1115,7 @@ def s07():
         box(0, 124, 393, 264,
             "background:linear-gradient(var(--x-grad-a),var(--x-grad-b))"),
         box(0, 388, 393, 4, "background:var(--x-band)"),
-        header("top-7"),
+        header(behind(59.00, 70.60, ("144", "101", "1.1K", None), 104.0, "#CDCDCD")),
         box(16, 130, 361, 238,
             "border-radius:var(--x-r-card);background:var(--x-bg);"
             "box-shadow:0 8px 24px rgba(0,0,0,.06)"),
@@ -823,7 +1127,7 @@ def s07():
             "border-radius:var(--x-r-card);background:var(--x-peach)"),
         txc(39.67, 313.66, 316.66, "Share now", "t-btn", "var(--x-accent)"),
         clock_row(407.67),
-        note(430.67, "av-7", "Dr. Dominic Ng", "Nov 18", "tag", True, 0.67),
+        note(430.67, "av-7", "Dr. Dominic Ng", "Nov 18", "tag", True, 0.67, ay=1.00),
         art("card-7"),
         actions(782.33, ("128", None, "9", None)),
         band(812.33),
@@ -843,7 +1147,10 @@ def people(top, cards):
         out.append(box(x, top, 165, 229.67, "border-radius:var(--x-r-tile);"
                                             "border:0.6px solid var(--x-border)"))
         if cid:
-            out.append(art(cid, x + 31, top + 11.67))
+            # 101.89pt at +31.56/+11.88 on the card -- the 0.5 crossing of
+            # c5's first card, the one avatar that is a flat disc all the way
+            # to its rim and so reads as an edge rather than as a picture.
+            out.append(face(cid, x + 31.56, top + 11.88, 101.89))
         out.append(sk(10.67, 10.67, "M1 1L9.67 9.67 M9.67 1L1 9.67", 1.6,
                       "var(--x-ink)", x + 139.67, top + 14.67))
         # The label column is the button's 141pt, not the card's 165: it is what
@@ -932,6 +1239,7 @@ def layout(files):
 
 def main():
     cut()
+    tilecut()
     files = dict([("00-design-tokens", token_board())]
                  + list(evidence_boards())
                  + [(s, fn()) for s, _, fn in SCREENS]
