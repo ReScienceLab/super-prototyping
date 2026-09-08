@@ -158,8 +158,15 @@ function BoardStatus({ path }: { path: string }) {
     </>
   );
 
+  // Away from the dev server there is no file to write a status back to, so the badge is only a
+  // label — but it keeps the wrapper, which is what holds it in the stage's top left. Without it
+  // the badge is a plain flex child of the stage and rides along beside the board, centred.
   if (!import.meta.env.DEV) {
-    return <span className={`sp-status sp-status--${status}`}>{badge}</span>;
+    return (
+      <div className="sp-status-wrap">
+        <span className={`sp-status sp-status--${status}`}>{badge}</span>
+      </div>
+    );
   }
 
   return (
