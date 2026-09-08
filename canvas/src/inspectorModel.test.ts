@@ -57,7 +57,7 @@ describe("assetRows", () => {
 
   const vector = (over: Partial<SpAsset>) =>
     asset({
-      key: "svg:k1",
+      key: "svg:k1:c1",
       via: "svg",
       mime: "image/svg+xml",
       uri: "data:image/svg+xml;charset=utf-8,%3Csvg%2F%3E",
@@ -69,7 +69,10 @@ describe("assetRows", () => {
     });
 
   it("names a vector from the folder's icon by geometry key, and carries its markup", () => {
-    const [row] = assetRows([vector({})], { "svg:k1": { name: "assets/icons/tab-photos.svg", bytes: 2100 } });
+    const names = { "svg:k1": { name: "assets/icons/tab-photos.svg", bytes: 2100 } };
+    const [row, other] = assetRows([vector({}), vector({ key: "svg:k1:c2", svg: "<svg fill='red'/>" })], names);
+    expect(other.name).toBe("assets/icons/tab-photos.svg");
+    expect(other.svg).toBe("<svg fill='red'/>");
     expect(row.name).toBe("assets/icons/tab-photos.svg");
     expect(row.source).toBe("file");
     expect(row.svg).toBe("<svg/>");

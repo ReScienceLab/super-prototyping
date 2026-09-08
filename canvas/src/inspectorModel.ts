@@ -36,8 +36,10 @@ export function assetRows(
   names: Record<string, { name: string; bytes: number }> | undefined,
 ): AssetRow[] {
   return assets.map((a) => {
-    const hit = names?.[a.key];
     const vector = a.via === "svg";
+    // A vector's key is its geometry key and then the colours it was drawn in; the file joins on
+    // the geometry alone, so a red and a black instance of one glyph are two rows with one name.
+    const hit = names?.[vector ? a.key.slice(0, a.key.lastIndexOf(":")) : a.key];
     const format = a.mime.replace(/^image\//, "").replace(/\+xml$/, "") || "image";
     const name = hit ? hit.name : a.alt || `${format} ${a.w}×${a.h}`;
     return {

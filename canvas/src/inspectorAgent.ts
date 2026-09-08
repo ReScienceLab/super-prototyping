@@ -318,6 +318,7 @@ function addAsset(i,uri,via,el){var c=uri.indexOf(','),payload=uri.slice(c+1),k=
    supplied (currentColor, var(), a fill from a stylesheet) are written in, and xmlns is added
    where a literal icon had none — so an <img> in the parent draws it and Figma accepts it. */
 function addSvg(i,el){
+  if(!el.querySelector('path,rect,circle,ellipse,line,polygon,polyline,text,image,use'))return;
   var c=el.cloneNode(true),cs=getComputedStyle(el),inner=c.querySelectorAll('[data-sp]'),n;
   for(n=0;n<inner.length;n++)inner[n].removeAttribute('data-sp');
   c.removeAttribute('data-sp');c.removeAttribute('style');c.removeAttribute('class');c.removeAttribute('preserveAspectRatio');
@@ -326,7 +327,10 @@ function addSvg(i,el){
   if(!c.hasAttribute('stroke'))c.setAttribute('stroke',cs.stroke);
   var svg=c.outerHTML.replace(/currentColor/gi,cs.color)
     .replace(/var\(\s*(--[\w-]+)[^)]*\)/g,function(m,p){return cs.getPropertyValue(p).replace(/^\s+|\s+$/g,'')||m;});
-  var k='svg:'+fnv(svgSignature(svg)),a=byKey[k];
+  /* One row per glyph and colour: the geometry key joins the file, and the colours after it keep
+     a red and a black instance of the same glyph apart, so what a row shows is what it copies.
+     ponytail: the root's computed colours; a colour that differs only in a child's var() collapses. */
+  var k='svg:'+fnv(svgSignature(svg))+':'+fnv(cs.fill+'|'+cs.stroke+'|'+cs.color),a=byKey[k];
   if(!a){var vb=(el.getAttribute('viewBox')||'').split(/[\s,]+/);
     a=byKey[k]={key:k,uri:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),via:'svg',mime:'image/svg+xml',
       chars:svg.length,w:+vb[2]||0,h:+vb[3]||0,alt:svgLabel(el),svg:svg,uses:[]};assets.push(a);}
