@@ -158,9 +158,12 @@ it, and the master scores 0.6 worse.
 What is left as a crop is what nobody could name or could not be had: seven
 note avatars, three publications (`the-anthro`, `2e`, `ux-ai`), the half tile
 the left edge of screen 04 cuts, and `photo-1`, whose note is a video and whose
-capture holds a frame of it. The header avatar is a fourth case — `me`, `th-4`
-and `share-7` are the same portrait, the account that took the capture,
-published nowhere this repo could find.
+capture holds a frame of it. The header avatar is a fourth case. `me`, `th-4` and
+`share-7` are one portrait at the three sizes the app draws it, and the
+account behind it is one the captures never name: screen 04's *Just published*
+card gives only the post's title, screen 07's sheet is *Share your profile*
+with no handle on it, and that title resolves to a different publication whose
+avatar is a wordmark. Three crops, then, one per size.
 
 ## Liquid Glass is fitted, not solved
 
