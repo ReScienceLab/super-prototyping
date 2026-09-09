@@ -5,9 +5,9 @@ default, or wherever `PROTOTYPING_CANVASES_DIR` points). Drop `.html` files in
 and nothing else needs changing:
 
 - Each folder becomes one tldraw page, named after the folder
-  (`kebab-case` → `Title Case`). Folders sort numerically, so a `00-` prefix
-  puts a page on top. `order` in `layout.json` moves a folder without
-  renaming it.
+  (`kebab-case` → `Title Case`). Folders sort numerically and the page menu
+  is put in that same order, so a `00-` prefix is what puts a page on top.
+  `order` in `layout.json` moves a folder without renaming it.
 - Each `.html` file in it becomes one shape on that page.
 - Files sort numerically by name, so prefix them `00-`, `01-`, `02-` …
 - Discovery is the `prototyping-canvases` plugin in the app's

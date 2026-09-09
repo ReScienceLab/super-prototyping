@@ -36,8 +36,9 @@ run it with `--check` before releasing.
 Data, this repo's own:
 
 `mockups/canvases/<slug>/` is one folder per app canvas. The conventions and
-the `layout.json` schema are in `mockups/canvases/README.md`, and portably in
-`skills/prototype-canvas/references/layout.md` — keep the two in step. Start a
+the `layout.json` schema are in `skills/prototype-canvas/references/layout.md`,
+which is the copy that ships inside the plugin and therefore the one to edit;
+`mockups/canvases/README.md` covers only what is true of this repo. Start a
 new folder with `cp -r mockups/canvases/templates mockups/canvases/<slug>`.
 
 Rules inside a canvas folder:
@@ -61,8 +62,11 @@ Rules inside a canvas folder:
   its five `ref-*` boards are committed so the hosted canvas shows them.
 - Put everything else a run makes in `scratch/`. The root `.gitignore`
   ignores it at any depth. Do not use the repo root or a dot directory.
-- Give every folder a `README.md`. Do not give any folder a `.gitignore`.
-  Except `.github/`: GitHub shows `.github/README.md` instead of the root
-  README, so its guide lives in `CONTRIBUTING.md`.
+- Give every canvas folder a `README.md`: it carries the evidence, and
+  `skills/clone-prototype/references/documenting.md` says what has to be in
+  it. Elsewhere, add a document only when someone would otherwise go looking
+  for one. Do not give any folder a `.gitignore`, and note that `.github/`
+  gets no README either: GitHub would show it instead of the root one, so its
+  guide lives in `CONTRIBUTING.md`.
 
 A decision worth rereading goes in `docs/YYYY-MM-DD-slug.md`.

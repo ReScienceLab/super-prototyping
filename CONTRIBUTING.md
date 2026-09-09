@@ -1,8 +1,9 @@
 # Contributing
 
 Thanks for helping. This file covers the mechanics; `CLAUDE.md` and
-`mockups/canvases/README.md` cover the conventions inside a canvas folder in
-detail, and the pull request template repeats the ones that matter most.
+`skills/prototype-canvas/references/layout.md` cover the conventions inside a
+canvas folder in detail, and the pull request template repeats the ones that
+matter most.
 
 ## Setup
 
@@ -34,7 +35,10 @@ registry to edit and no build step per board.
   ignored by git for a reason. Do not work around the ignore.
 - **Scratch output goes in `scratch/`** inside the folder, never in the repo
   root or a dot directory.
-- **Every folder has a `README.md`. No folder has its own `.gitignore`.**
+- **Every canvas folder has a `README.md`**, carrying the evidence
+  `skills/clone-prototype/references/documenting.md` asks for. Elsewhere a new
+  document needs a reader who would go looking for it. **No folder has its own
+  `.gitignore`.**
 - **Viewer changes** in `canvas/` need `bun test` and `bun run build` to pass.
   Add a test next to the module you touched.
 

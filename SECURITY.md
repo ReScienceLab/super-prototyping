@@ -17,7 +17,7 @@ unless you prefer otherwise.
 ## Scope
 
 - The `canvas/` viewer (the code behind https://prototyping.rescience.com).
-- The measuring tools in `tools/` and the agent skills in `.agents/skills/`.
+- The measuring tools in `tools/` and the agent skills in `skills/`.
 - The generators (`gen.py`) and boards under `mockups/canvases/`.
 
 Boards render inside sandboxed `<iframe srcdoc>` shapes. A report that shows a

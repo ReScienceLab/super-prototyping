@@ -1,6 +1,8 @@
 <!-- Written 2026-09-07 after building the inspector panel design as a throwaway spike on
 canvas/ and driving it in a real browser. Kept because sections 3 and 5 are the parts a
-future implementation will otherwise rediscover the hard way. Nothing here shipped yet. -->
+future implementation will otherwise rediscover the hard way. The panel shipped the next
+day; what it became is in 2026-09-08-vector-assets.md and 2026-09-08-canvas-comments.md,
+and this note is kept as the spike that preceded it rather than as a description of it. -->
 
 # Inspecting a board from the canvas: what a spike found
 
