@@ -4,7 +4,8 @@
   start    boot the dev server against a folder of boards, print its address
   stop     kill the one on that port, and only that one
   status   say whether it is up, and on what
-  root     print the plugin root it resolved (-v: and where it looked)
+  root     print the plugin root it resolved (-v: where it looked, and the
+           release each half is on)
 
 The canvas app ships inside the plugin, which is installed outside your
 project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
@@ -46,8 +47,8 @@ def _candidates():
     """Every place a canvas app could be, most explicit first.
 
     Yields (label, path). No product exposes its plugin root to a shell in a way
-    all four of Claude Code, Codex, Hermes and Pi agree on, so the app is found
-    rather than addressed.
+    Claude Code, Codex, CodeBuddy, Hermes, Pi and Trae agree on, so the app is
+    found rather than addressed.
     """
     env = os.environ.get("SUPER_PROTOTYPING_ROOT")
     if env:
@@ -69,17 +70,37 @@ def _candidates():
 
     # Failing that, the cache holds one directory per installed version, and old ones are not
     # cleaned up. Sort by version, not by mtime: two directories can share an mtime, and then
-    # mtime order is arbitrary and can hand back the older release.
-    cache = glob.glob(str(Path.home() / ".claude/plugins/cache/*/super-prototyping/*"))
-    for path in sorted(cache, key=lambda p: _version_key(Path(p).name), reverse=True):
-        yield "Claude Code plugin cache", Path(path)
+    # mtime order is arbitrary and can hand back the older release. Codex and CodeBuddy cache
+    # the same way under their own homes, so the same pick works for all three.
+    for label, pattern in (
+        ("Claude Code plugin cache", ".claude/plugins/cache/*/super-prototyping/*"),
+        ("Codex plugin cache",       ".codex/plugins/cache/*/super-prototyping/*"),
+        ("CodeBuddy plugin cache",   ".codebuddy/plugins/cache/*/super-prototyping/*"),
+    ):
+        found = glob.glob(str(Path.home() / pattern))
+        for path in sorted(found, key=lambda p: _version_key(Path(p).name), reverse=True):
+            yield label, Path(path)
 
-    # The other products hold a symlink per skill, pointing back into the
-    # checkout: <root>/skills/prototype-canvas -> up two levels is <root>.
+    # Hermes and Pi clone the repo whole rather than keeping a copy per version: Hermes into
+    # its plugins directory, flat or one category level deep, Pi into a git package keyed by
+    # host and repo path.
+    for label, pattern in (
+        ("Hermes plugin", ".hermes/plugins/super-prototyping"),
+        ("Hermes plugin", ".hermes/plugins/*/super-prototyping"),
+        ("Pi git package", ".pi/agent/git/*/ReScienceLab/super-prototyping"),
+    ):
+        for path in sorted(glob.glob(str(Path.home() / pattern))):
+            yield label, Path(path)
+
+    # Everything else holds a symlink per skill, pointing back into the checkout:
+    # <root>/skills/prototype-canvas -> up two levels is <root>.
     for label, root in (
         ("Codex CLI", "~/.codex/skills"),
+        ("CodeBuddy", "~/.codebuddy/skills"),
         ("Hermes", "~/.hermes/skills"),
         ("Pi", "~/.pi/agent/skills"),
+        ("Trae", "~/.trae/skills"),
+        ("Trae CN", "~/.trae-cn/skills"),
     ):
         link = Path(root).expanduser() / "prototype-canvas"
         if link.is_symlink():
@@ -105,7 +126,11 @@ def _version_key(name: str):
     (1, 0, 0, 1), which beat 1.0.0. bump-version.sh accepts prereleases, so the cache
     really can hold both. Anything unparseable sorts oldest.
     """
-    m = re.match(r"v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+](.*))?$", name)
+    # The separator is optional because the two halves spell a prerelease differently:
+    # the manifests carry semver's 1.1.0-rc.1 and hatchling normalises the wheel to
+    # PEP 440's 1.1.0rc1. Both have to land on the same key or every prerelease
+    # install reports drift against itself.
+    m = re.match(r"v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+._]?([A-Za-z][0-9A-Za-z.+-]*))?$", name)
     if not m:
         return (-1,)
     release = tuple(int(p or 0) for p in m.group(1, 2, 3))
@@ -113,6 +138,57 @@ def _version_key(name: str):
     # 0 for a prerelease and 1 for the release, so 1.0.0 outranks every 1.0.0-* ; between two
     # prereleases the trailing numbers decide.
     return release + ((0, tuple(int(n) for n in re.findall(r"\d+", pre))) if pre else (1, ()))
+
+
+# The release tag this repo cuts, and what `claude plugin tag` produces. Kept in step with
+# .version-bump.json, because the note below hands the user a URL built from it.
+TAG_PREFIX = "super-prototyping--v"
+
+
+def _toolkit_version():
+    """The version of the toolkit this process runs from, or None from a source checkout."""
+    try:
+        from importlib.metadata import PackageNotFoundError, version
+        return version("super-prototyping-tools")
+    except (ImportError, PackageNotFoundError):
+        return None
+
+
+def _plugin_version(root: Path):
+    """The version of the plugin the canvas app came out of, or None if it has no manifest."""
+    try:
+        return json.loads((root / ".claude-plugin/plugin.json").read_text()).get("version")
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def skew(root: Path):
+    """(plugin, toolkit) when the two halves disagree on the release, else None.
+
+    They install separately — `/plugin install` for the skills and the canvas, `uv tool
+    install` for refkit, artgen and this — so updating one and forgetting the other is the
+    ordinary mistake. Unchecked it surfaces much later, as a skill calling a flag this
+    refkit does not have. An unknown version on either side is not a disagreement: a
+    checkout has no release number to compare.
+    """
+    plugin, toolkit = _plugin_version(root), _toolkit_version()
+    if not (plugin and toolkit):
+        return None
+    # Compared as versions, not as strings: see _version_key on the two spellings.
+    return (plugin, toolkit) if _version_key(plugin) != _version_key(toolkit) else None
+
+
+def skew_fix(plugin, toolkit):
+    """The one command that closes the gap, whichever half is behind.
+
+    Which way round matters: telling someone whose toolkit is ahead to `uv tool install`
+    the plugin's older tag is a downgrade, and to a tag that need not even exist yet.
+    """
+    if _version_key(toolkit) > _version_key(plugin):
+        return ("/plugin update super-prototyping   (Claude Code; or codex plugin add, "
+                "codebuddy plugin install, hermes plugins update, npx skills update)")
+    return ('uv tool install --force "git+https://github.com/ReScienceLab/'
+            f'super-prototyping@{TAG_PREFIX}{plugin}#subdirectory=tools"')
 
 
 def _is_canvas_app(root: Path) -> bool:
@@ -244,6 +320,13 @@ def cmd_start(a):
     print(f"boards   {boards}")
     print(f"app      {app}")
     print(f"running  {how}")
+
+    versions = skew(root)
+    if versions:
+        plugin, toolkit = versions
+        print(f"\nnote: the plugin is {plugin}, the toolkit is {toolkit}. "
+              f"Move the older one up:\n      {skew_fix(*versions)}")
+
     print(f"\nDeep-link a page with ?canvas=<slug>, one board of it with #<file>, "
           f"e.g. http://127.0.0.1:{a.port}/?canvas=notion-ios#01-splash")
 
@@ -316,13 +399,21 @@ def cmd_status(a):
 
 def cmd_root(a):
     """Just the path, so it can be captured: KIT="$(sp-canvas root)"."""
-    print(resolve_root(verbose=a.verbose))
+    root = resolve_root(verbose=a.verbose)
+    print(root)
+    if a.verbose:
+        # On stderr, like the search itself, so `$(sp-canvas root -v)` is still the path.
+        print(f"  plugin  {_plugin_version(root) or 'unversioned (a checkout)'}", file=sys.stderr)
+        print(f"  toolkit {_toolkit_version() or 'dev (running from a source checkout)'}",
+              file=sys.stderr)
 
 
 def main():
     p = argparse.ArgumentParser(
         prog="sp-canvas", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--version", action="version",
+                   version=f"sp-canvas {_toolkit_version() or 'dev (running from a source checkout)'}")
     s = p.add_subparsers(dest="cmd", required=True)
 
     def add(name, fn, ports=True, canvases=True):

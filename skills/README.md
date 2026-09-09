@@ -17,6 +17,9 @@ Rules for editing one:
   `description` under 1024 characters and free of `<` or `>`.
 - Keep `SKILL.md` under ~500 lines. Depth goes in `references/`, behind a
   two-line pointer that says what is in there and when to read it.
+- **This file gets no frontmatter.** Pi walks `skills/` recursively and counts
+  a top-level `.md` as a skill when it carries frontmatter with a
+  `description`, so adding one here would install a fourth skill.
 - **Never write a path to this repo.** A skill runs inside someone else's
   project. Call the tools by name (`refkit`, `artgen`, `sp-canvas`), and when
   a skill needs a file that ships with the plugin, reach it through

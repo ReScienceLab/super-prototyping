@@ -1,8 +1,9 @@
 # Contributing
 
 Thanks for helping. This file covers the mechanics; `CLAUDE.md` and
-`mockups/canvases/README.md` cover the conventions inside a canvas folder in
-detail, and the pull request template repeats the ones that matter most.
+`skills/prototype-canvas/references/layout.md` cover the conventions inside a
+canvas folder in detail, and the pull request template repeats the ones that
+matter most.
 
 ## Setup
 
@@ -34,7 +35,10 @@ registry to edit and no build step per board.
   ignored by git for a reason. Do not work around the ignore.
 - **Scratch output goes in `scratch/`** inside the folder, never in the repo
   root or a dot directory.
-- **Every folder has a `README.md`. No folder has its own `.gitignore`.**
+- **Every canvas folder has a `README.md`**, carrying the evidence
+  `skills/clone-prototype/references/documenting.md` asks for. Elsewhere a new
+  document needs a reader who would go looking for it. **No folder has its own
+  `.gitignore`.**
 - **Viewer changes** in `canvas/` need `bun test` and `bun run build` to pass.
   Add a test next to the module you touched.
 
@@ -53,6 +57,13 @@ with a `README.md` that says what was measured and what was excluded.
 
 Everything under `.github/`:
 
+- `workflows/validate.yml`: the gates, on every pull request — the manifests
+  agree and validate, the canvas lints, tests and builds, and the toolkit's
+  tests pass. Run the same commands locally from the root README.
+- `workflows/release.yml`: dispatch it with a version and it opens the release
+  PR; merging that PR tags `super-prototyping--v<version>` and cuts the GitHub
+  Release from the matching `RELEASE-NOTES.md` section. It is in two halves
+  because branch protection means CI cannot push to `main`.
 - `CODEOWNERS`: who is asked to review pull requests, by path.
 - `dependabot.yml`: weekly dependency updates for `canvas/` (bun) and for any
   GitHub Actions workflows.
@@ -65,6 +76,55 @@ repository settings, not files; see `SECURITY.md`.
 
 `.github/` must not get a `README.md`: GitHub renders `.github/README.md` in
 place of the root README on the repository page.
+
+## Cutting a release
+
+A merge to `main` reaches nobody. Every product resolves this plugin's version
+from its manifest and caches the install under it, Claude Code at
+`~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` and Codex and
+CodeBuddy at their own equivalents, so an install only moves when the version
+does. The version is the cache key, not bookkeeping.
+`docs/2026-09-09-plugin-release-mechanism.md` is the long form of why.
+
+**What the number means.** Semver, read from the user's side. Patch: a fix that
+changes no instruction a skill gives. Minor: a new skill, a new `refkit`
+subcommand, a canvas feature. Major: a board, `layout.json` or command-line
+change that makes an existing project's folders wrong. The plugin and the
+toolkit share one number and are released together, because a skill from one
+release calls a command from the other.
+
+**The steps.**
+
+1. Write the release's section in `RELEASE-NOTES.md` under `## Unreleased`,
+   grouped as it already is. Say what a user sees, not what a commit did.
+2. Run the gates locally (the block in the root README). The workflow runs them
+   again; failing them here is faster.
+3. Actions → **Release** → *Run workflow*, with the new version. It re-runs the
+   gates, runs `scripts/bump-version.sh <version>`, and opens a
+   `release/<version>` pull request. It stops there deliberately: "Protect main"
+   requires a pull request and nothing bypasses it.
+4. On that PR, rename `## Unreleased` to `## v<version>` and open a fresh empty
+   `## Unreleased` above it. The tag job reads exactly that heading.
+5. Merge. The push to `main` tags `super-prototyping--v<version>` through
+   `claude plugin tag` and cuts the GitHub Release from that notes section.
+
+**Then check the release exists**, because everything downstream keys off the
+tag: the tag on the Releases page, `/plugin update super-prototyping` in Claude
+Code, and `uv tool install --force
+"git+https://github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>#subdirectory=tools"`.
+
+**When a step fails.** The tag job runs only when the push moved the version
+forward and no tag names it yet, so a re-run, an unrelated push to `main`, and
+a revert of the release pull request all leave the tags alone. Dispatching a
+version whose branch already exists replays the bump on top of that branch
+rather than force-pushing over it, so the notes written at step 4 survive. If
+the workflow cannot open the pull request, the branch is already pushed and
+nothing is lost: open it by hand from
+`main...release/<version>`, and turn on Settings → Actions → General → "Allow
+GitHub Actions to create and approve pull requests", which is what it needed.
+The whole thing is doable by hand too. Run `scripts/bump-version.sh <version>`,
+open a pull request, then `claude plugin tag . --push -m 'super-prototyping %s'`
+after it merges; the workflow is that sequence with the gates in front of it.
 
 ## Decisions
 

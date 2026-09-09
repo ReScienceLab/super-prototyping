@@ -1,0 +1,21 @@
+{
+  "$comment": "The catalogue Codex reads. Without it Codex falls back to .claude-plugin/marketplace.json, which works but is a manifest written for another product; this one carries the fields only Codex has.",
+  "name": "super-prototyping",
+  "interface": {
+    "displayName": "Super Prototyping"
+  },
+  "plugins": [
+    {
+      "name": "super-prototyping",
+      "source": {
+        "source": "url",
+        "url": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Design"
+    }
+  ]
+}

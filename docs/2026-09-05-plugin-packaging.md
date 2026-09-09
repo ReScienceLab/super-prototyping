@@ -5,6 +5,11 @@ inside it. That makes every user a fork: their boards and our code sit in one
 tree, so there is no upgrade path that does not risk their work. This note
 records what changed and why the split falls where it does.
 
+Two sentences below have since been overtaken. The repo now runs its own
+workflows (`docs/2026-09-09-plugin-release-mechanism.md`) and ships a manifest
+for four products rather than two (`docs/2026-09-09-multi-product-install.md`).
+The split itself is unchanged.
+
 ## The rule
 
 **The plugin ships code. A user's project holds only data.**

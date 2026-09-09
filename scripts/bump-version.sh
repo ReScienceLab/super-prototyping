@@ -5,11 +5,12 @@
 #   scripts/bump-version.sh 1.1.0
 #   scripts/bump-version.sh --check          # verify every file already agrees
 #
-# A plugin's version lives in five places (see .version-bump.json): the Claude
-# Code manifest, twice inside the marketplace catalogue, the Codex manifest, and
-# the Python toolkit. Bumping them by hand is how a release ends up
-# half-versioned, with `/plugin update` reporting one number and `refkit
-# --version` another. This is the only supported way to change them.
+# A plugin's version lives in seven places (see .version-bump.json): the
+# portable manifest at the root, the Claude Code manifest, twice inside the
+# marketplace catalogue, the Codex and CodeBuddy manifests, and the Python
+# toolkit. Bumping them by hand is how a release ends up half-versioned, with
+# `/plugin update` reporting one number and `refkit --version` another. This is
+# the only supported way to change them.
 #
 set -euo pipefail
 
@@ -71,7 +72,9 @@ def write_toml_version(text, parts, value):
         raise SystemExit("error: no `version = \"...\"` line to rewrite")
     return new
 
-seen, failures = {}, []
+# Read every file before writing any of them. A bump that stops halfway leaves the
+# tree half-versioned, which is the one state this script exists to make impossible.
+seen, failures, planned = {}, [], []
 
 for entry in spec["files"]:
     path  = root / entry["path"]
@@ -94,27 +97,27 @@ for entry in spec["files"]:
         current = get_in(json.loads(text), parts)
 
     seen[label] = current
-
-    if mode == "check":
-        continue
-
-    if current == version:
-        print(f"  = {label} already {version}")
-        continue
-
-    if path.suffix == ".toml":
-        path.write_text(write_toml_version(text, parts, version))
-    else:
-        data = json.loads(text)
-        set_in(data, parts, version)
-        path.write_text(json.dumps(data, indent=2) + "\n")
-    print(f"  → {label}  {current} → {version}")
+    planned.append((path, parts, label, text, current))
 
 if failures:
     print("", file=sys.stderr)
     for problem in failures:
         print(f"error: {problem}", file=sys.stderr)
+    print("error: nothing was written", file=sys.stderr)
     sys.exit(1)
+
+if mode == "set":
+    for path, parts, label, text, current in planned:
+        if current == version:
+            print(f"  = {label} already {version}")
+            continue
+        if path.suffix == ".toml":
+            path.write_text(write_toml_version(text, parts, version))
+        else:
+            data = json.loads(text)
+            set_in(data, parts, version)
+            path.write_text(json.dumps(data, indent=2) + "\n")
+        print(f"  → {label}  {current} → {version}")
 
 if mode == "check":
     distinct = sorted(set(seen.values()))
@@ -127,6 +130,8 @@ if mode == "check":
     print(f"\nall {len(seen)} files agree on {distinct[0]}")
 else:
     print(f"\nbumped {len(seen)} files to {version}")
-    print(f"next: git commit -am 'release {version}' "
-          f"&& git tag {spec['tagPrefix']}{version}")
+    # The tag is not cut here: .github/workflows/release.yml cuts it once the bump
+    # is on main, with `claude plugin tag` re-checking these same files first.
+    print(f"next: commit as 'release {version}' and open a PR — merging it tags "
+          f"{spec['tagPrefix']}{version}")
 PY

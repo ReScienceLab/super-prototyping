@@ -25,16 +25,20 @@ commands on PATH. The skills invoke them by name, never by path: no agent
 product exposes its plugin root to a shell, so a path-based invocation would
 need a different spelling per product.
 
-`.claude-plugin/` and `.codex-plugin/` are the per-product manifests, and
-`scripts/install-skills.sh` links the skills into products that read a skills
-directory. `scripts/bump-version.sh` moves every version in `.version-bump.json`
-at once; run it with `--check` before releasing.
+`.claude-plugin/`, `.codex-plugin/` and `.codebuddy-plugin/` are the per-product
+manifests, and the root `plugin.json` is the portable Agent Plugins v1 one that
+Hermes reads. All four describe the same `skills/` tree — a manifest per
+product, never a skill per product. `scripts/install-skills.sh` links the skills
+into products that read a skills directory instead.
+`scripts/bump-version.sh` moves every version in `.version-bump.json` at once;
+run it with `--check` before releasing.
 
 Data, this repo's own:
 
 `mockups/canvases/<slug>/` is one folder per app canvas. The conventions and
-the `layout.json` schema are in `mockups/canvases/README.md`, and portably in
-`skills/prototype-canvas/references/layout.md` — keep the two in step. Start a
+the `layout.json` schema are in `skills/prototype-canvas/references/layout.md`,
+which is the copy that ships inside the plugin and therefore the one to edit;
+`mockups/canvases/README.md` covers only what is true of this repo. Start a
 new folder with `cp -r mockups/canvases/templates mockups/canvases/<slug>`.
 
 Rules inside a canvas folder:
@@ -58,8 +62,21 @@ Rules inside a canvas folder:
   its five `ref-*` boards are committed so the hosted canvas shows them.
 - Put everything else a run makes in `scratch/`. The root `.gitignore`
   ignores it at any depth. Do not use the repo root or a dot directory.
-- Give every folder a `README.md`. Do not give any folder a `.gitignore`.
-  Except `.github/`: GitHub shows `.github/README.md` instead of the root
-  README, so its guide lives in `CONTRIBUTING.md`.
+- Give every canvas folder a `README.md`: it carries the evidence, and
+  `skills/clone-prototype/references/documenting.md` says what has to be in
+  it. Elsewhere, add a document only when someone would otherwise go looking
+  for one. Do not give any folder a `.gitignore`, and note that `.github/`
+  gets no README either: GitHub would show it instead of the root one, so its
+  guide lives in `CONTRIBUTING.md`.
+
+What to leave out:
+
+- Inline a helper that has one call site. A name read once costs a jump and
+  buys nothing.
+- Do not add configuration, an extension point or generic machinery for a case
+  that has not happened. The second real case is what shows the general
+  version its shape.
+- Do not write a fallback for a state that should be impossible. Let it fail
+  loudly, so the state gets reported instead of absorbed.
 
 A decision worth rereading goes in `docs/YYYY-MM-DD-slug.md`.
