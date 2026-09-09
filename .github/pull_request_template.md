@@ -8,4 +8,5 @@
 - [ ] If a canvas folder changed: `gen.py` was edited and re-run, and the `NN-*.html` boards were not hand-edited.
 - [ ] If a canvas folder changed: `layout.json`, `probes.json`, `crops.json` and `assets.json` are committed alongside the boards.
 - [ ] Every new canvas folder has a `README.md` and no folder has its own `.gitignore`.
+- [ ] If a user would see this change: it has a line under `## Unreleased` in `RELEASE-NOTES.md`.
 - [ ] If `canvas/` changed: `bun test` and `bun run build` pass in `canvas/`.
