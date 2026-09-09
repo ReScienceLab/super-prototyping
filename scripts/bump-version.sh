@@ -74,7 +74,9 @@ def write_toml_version(text, parts, value):
 
 # Read every file before writing any of them. A bump that stops halfway leaves the
 # tree half-versioned, which is the one state this script exists to make impossible.
-seen, failures, planned = {}, [], []
+# Keyed by path, because the marketplace catalogue holds two of these fields and one
+# read per field would mean each write starting from the text before the other's.
+seen, failures, planned = {}, [], {}
 
 for entry in spec["files"]:
     path  = root / entry["path"]
@@ -89,7 +91,9 @@ for entry in spec["files"]:
         failures.append(f"{entry['path']} is listed in .version-bump.json but does not exist")
         continue
 
-    text = path.read_text()
+    if path not in planned:
+        planned[path] = (path.read_text(), [])
+    text, fields = planned[path]
 
     if path.suffix == ".toml":
         current = read_toml_version(text, parts)
@@ -97,7 +101,7 @@ for entry in spec["files"]:
         current = get_in(json.loads(text), parts)
 
     seen[label] = current
-    planned.append((path, parts, label, text, current))
+    fields.append((parts, label, current))
 
 if failures:
     print("", file=sys.stderr)
@@ -107,17 +111,22 @@ if failures:
     sys.exit(1)
 
 if mode == "set":
-    for path, parts, label, text, current in planned:
-        if current == version:
-            print(f"  = {label} already {version}")
-            continue
-        if path.suffix == ".toml":
-            path.write_text(write_toml_version(text, parts, version))
-        else:
-            data = json.loads(text)
-            set_in(data, parts, version)
-            path.write_text(json.dumps(data, indent=2) + "\n")
-        print(f"  → {label}  {current} → {version}")
+    # Every field of a file is applied to one text, which is then written once.
+    for path, (text, fields) in planned.items():
+        updated = text
+        for parts, label, current in fields:
+            if current == version:
+                print(f"  = {label} already {version}")
+                continue
+            if path.suffix == ".toml":
+                updated = write_toml_version(updated, parts, version)
+            else:
+                data = json.loads(updated)
+                set_in(data, parts, version)
+                updated = json.dumps(data, indent=2) + "\n"
+            print(f"  → {label}  {current} → {version}")
+        if updated != text:
+            path.write_text(updated)
 
 if mode == "check":
     distinct = sorted(set(seen.values()))
