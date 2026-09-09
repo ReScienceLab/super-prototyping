@@ -86,7 +86,7 @@ TOKENS = """/* =================================================================
   --n-gutter-card:12px;  /* card inset on a grouped sheet               */
   --n-row-h:44px;        /* settings row                                */
   --n-tap:44px;          /* minimum tap target                          */
-  --n-sheet-top:71px;    /* sheet top inset from the device top         */
+  --n-sheet-top:68px;    /* sheet top inset from the device top         */
 }"""
 
 # The bezel, the status bar and the home indicator are this repo's framing,
@@ -477,7 +477,7 @@ CSS_05 = """
 .phone{background:var(--n-scrim)}
 .sheet{position:absolute;left:0;right:0;top:var(--n-sheet-top);bottom:0;background:var(--n-bg-sheet);
   border-radius:var(--n-r-sheet) var(--n-r-sheet) 0 0;overflow:hidden}
-.handle{width:42px;height:5px;border-radius:3px;background:#D6D4D1;margin:6px auto 0}
+.handle{width:38px;height:5px;border-radius:3px;background:#E7E5E3;margin:7px auto 0}
 .snav{display:flex;align-items:center;justify-content:space-between;height:var(--n-tap);
   padding:0 var(--n-gutter);margin-top:8px}
 .stitle{font:var(--n-t-nav);color:var(--n-text);letter-spacing:-.2px}
@@ -557,7 +557,7 @@ CSS_06 = """
 .phone{background:var(--n-scrim)}
 .sheet{position:absolute;left:0;right:0;top:var(--n-sheet-top);bottom:0;background:var(--n-bg-sheet);
   border-radius:var(--n-r-sheet) var(--n-r-sheet) 0 0;overflow:hidden}
-.handle{width:42px;height:5px;border-radius:3px;background:#D6D4D1;margin:6px auto 0}
+.handle{width:38px;height:5px;border-radius:3px;background:#E7E5E3;margin:7px auto 0}
 .snav{display:flex;align-items:center;justify-content:space-between;height:var(--n-tap);
   padding:0 var(--n-gutter);margin-top:10px}
 .stitle{font:var(--n-t-nav);color:var(--n-text);letter-spacing:-.2px}
