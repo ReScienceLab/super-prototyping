@@ -39,6 +39,8 @@ registry to edit and no build step per board.
   `skills/clone-prototype/references/documenting.md` asks for. Elsewhere a new
   document needs a reader who would go looking for it. **No folder has its own
   `.gitignore`.**
+- **A user-visible change adds its line** to `## Unreleased` in
+  `RELEASE-NOTES.md`, in the same pull request that makes it.
 - **Viewer changes** in `canvas/` need `bun test` and `bun run build` to pass.
   Add a test next to the module you touched.
 
@@ -95,8 +97,10 @@ release calls a command from the other.
 
 **The steps.**
 
-1. Write the release's section in `RELEASE-NOTES.md` under `## Unreleased`,
-   grouped as it already is. Say what a user sees, not what a commit did.
+1. Read what is under `## Unreleased` in `RELEASE-NOTES.md` and group it the
+   way the released sections are. Every pull request should have left its line
+   there already; anything missing has to be reconstructed from the log, which
+   is the one part of a release that cannot be done well late.
 2. Run the gates locally (the block in the root README). The workflow runs them
    again; failing them here is faster.
 3. Actions → **Release** → *Run workflow*, with the new version. It re-runs the

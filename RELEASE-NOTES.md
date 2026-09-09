@@ -5,6 +5,13 @@ someone using the plugin, not what changed in the tree. One `## v<version>`
 section per release: `.github/workflows/release.yml` reads the section matching
 the version being tagged and makes it the GitHub Release body.
 
+A pull request that changes what a user sees adds its line to `## Unreleased`
+as part of the change. Leaving it until the release means writing it from
+memory, which is how a release ends up summarising commits rather than itself.
+A `## v<version>` section is finished once its tag exists: the GitHub Release
+was cut from that text, so editing the file afterwards changes nothing anyone
+has been shown.
+
 Update with `/plugin update super-prototyping` (Claude Code), or the equivalent
 for your product, which README's install table lists. Then move the toolkit with
 the `uv tool install` line in the README. The plugin and the
