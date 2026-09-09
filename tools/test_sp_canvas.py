@@ -41,6 +41,20 @@ def test_skew_is_only_reported_when_both_halves_name_a_release():
     assert with_toolkit("1.1.0", lambda: C.skew(plugin_root(None))) is None
 
 
+def test_the_fix_moves_whichever_half_is_behind():
+    # The plugin is ahead: pin the toolkit to the plugin's tag.
+    fix = C.skew_fix("1.1.0", "1.0.0")
+    assert "uv tool install" in fix and f"{C.TAG_PREFIX}1.1.0" in fix
+    # The toolkit is ahead, which the uv line would *downgrade* — and to a tag that need
+    # not exist. Update the plugin instead.
+    assert "/plugin update" in C.skew_fix("1.0.0", "1.1.0")
+
+
+def test_the_tag_prefix_matches_the_one_the_release_actually_cuts():
+    spec = json.loads((Path(__file__).resolve().parent.parent / ".version-bump.json").read_text())
+    assert C.TAG_PREFIX == spec["tagPrefix"]
+
+
 def test_the_newest_cached_release_wins_and_a_prerelease_ranks_below_it():
     names = ["1.0.0", "1.10.0", "1.2.0", "1.10.0-beta.2", "not-a-version"]
     assert sorted(names, key=C._version_key, reverse=True)[0] == "1.10.0"

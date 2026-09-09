@@ -151,6 +151,18 @@ def skew(root: Path):
     return (plugin, toolkit) if plugin and toolkit and plugin != toolkit else None
 
 
+def skew_fix(plugin, toolkit):
+    """The one command that closes the gap, whichever half is behind.
+
+    Which way round matters: telling someone whose toolkit is ahead to `uv tool install`
+    the plugin's older tag is a downgrade, and to a tag that need not even exist yet.
+    """
+    if _version_key(toolkit) > _version_key(plugin):
+        return "/plugin update super-prototyping   (in Claude Code; codex plugin add, in Codex)"
+    return ('uv tool install --force "git+https://github.com/ReScienceLab/'
+            f'super-prototyping@{TAG_PREFIX}{plugin}#subdirectory=tools"')
+
+
 def _is_canvas_app(root: Path) -> bool:
     pkg = root / "canvas" / "package.json"
     try:
@@ -284,9 +296,8 @@ def cmd_start(a):
     versions = skew(root)
     if versions:
         plugin, toolkit = versions
-        print(f"\nnote: the plugin is {plugin}, the toolkit is {toolkit}. Move the toolkit to match:\n"
-              f'      uv tool install --force "git+https://github.com/ReScienceLab/'
-              f'super-prototyping@{TAG_PREFIX}{plugin}#subdirectory=tools"')
+        print(f"\nnote: the plugin is {plugin}, the toolkit is {toolkit}. "
+              f"Move the older one up:\n      {skew_fix(*versions)}")
 
     print(f"\nDeep-link a page with ?canvas=<slug>, one board of it with #<file>, "
           f"e.g. http://127.0.0.1:{a.port}/?canvas=notion-ios#01-splash")

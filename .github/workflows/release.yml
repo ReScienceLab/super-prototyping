@@ -11,9 +11,17 @@ name: Release
 #      the second half: it tags super-prototyping--v<version> and cuts the
 #      GitHub Release from the matching RELEASE-NOTES.md section.
 #
-# Nothing tags a commit that is not on main, and re-running the second half on
-# an already-tagged version is a no-op — the tag ruleset forbids moving a tag,
-# so the job checks before it creates one.
+# Nothing tags a commit that is not on main, and the second half only acts when
+# the version actually changed in that push: the tag ruleset forbids moving a
+# tag, and an edit to plugin.json that is not a release must not cut one.
+#
+# Two settings this depends on, neither of them a file in the repo: "Allow
+# GitHub Actions to create and approve pull requests" must be on, or the first
+# job pushes its branch and then fails to open the PR; and a PR opened by
+# GITHUB_TOKEN does not itself trigger `pull_request` workflows, so the release
+# PR shows no Validate run. That is deliberate — `gates` ran on the commit
+# being released, the bump touches only version strings, and `claude plugin
+# tag` validates again before tagging.
 
 on:
   workflow_dispatch:
@@ -37,12 +45,14 @@ concurrency:
 jobs:
   gates:
     name: Gates
-    if: github.event_name == 'workflow_dispatch'
+    # A release is cut from main, so dispatching from a branch would bump a tree
+    # nobody reviewed and open a PR carrying every commit on it.
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/validate.yml
 
   prepare:
     name: Prepare the release PR
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     needs: gates
     runs-on: ubuntu-latest
     permissions:
@@ -52,8 +62,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Bump every manifest
+        env:
+          VERSION: ${{ inputs.version }}
         run: |
-          scripts/bump-version.sh "${{ inputs.version }}"
+          scripts/bump-version.sh "$VERSION"
           scripts/bump-version.sh --check
 
       - name: Open the release PR
@@ -70,7 +82,13 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -c "release/$VERSION"
           git commit -am "release $VERSION"
-          git push --set-upstream origin "release/$VERSION"
+          # --force-with-lease so a dispatch that failed after the push (see the
+          # header) can simply be re-run rather than needing the branch deleted.
+          git push --force-with-lease --set-upstream origin "release/$VERSION"
+          if [ -n "$(gh pr list --head "release/$VERSION" --state open --json number --jq '.[].number')" ]; then
+            echo "a PR for release/$VERSION is already open — pushed the new bump to it"
+            exit 0
+          fi
           # The tag and the notes come after the merge; this PR is only the bump.
           gh pr create --base main --title "release $VERSION" --body "$(cat <<BODY
           Version bump only — \`scripts/bump-version.sh $VERSION\`.
@@ -82,7 +100,10 @@ jobs:
           Users are on the old version until this merges: the version string is the
           cache key \`/plugin update\` and \`codex plugin marketplace upgrade\` compare.
           BODY
-          )"
+          )" || {
+            echo "::error::could not open the PR. The branch release/$VERSION is pushed, so nothing is lost — open it by hand at https://github.com/${{ github.repository }}/compare/main...release/$VERSION, and check that Settings → Actions → General → 'Allow GitHub Actions to create and approve pull requests' is on."
+            exit 1
+          }
 
   tag:
     name: Tag and release
@@ -95,18 +116,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Read the version, and stop if it is already tagged
+      # The trigger only says plugin.json was touched, which any edit does. A
+      # release is the narrower thing: the version *changed* in this push, and no
+      # tag names it yet. Renaming a field or adding a keyword must not cut a
+      # release of whatever version happens to be sitting in the file.
+      - name: Read the version, and stop unless this push released it
         id: v
+        env:
+          BEFORE: ${{ github.event.before }}
         run: |
           set -euo pipefail
-          version=$(python3 -c 'import json;print(json.load(open(".claude-plugin/plugin.json"))["version"])')
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          if git rev-parse -q --verify "refs/tags/super-prototyping--v$version" > /dev/null; then
+          read_version() { python3 -c 'import json,sys;print(json.load(sys.stdin)["version"])'; }
+          version=$(read_version < .claude-plugin/plugin.json)
+          fresh=true
+
+          if ! git cat-file -e "$BEFORE:.claude-plugin/plugin.json" 2> /dev/null; then
+            echo "no plugin.json at $BEFORE — nothing to compare against, so nothing to tag"
+            fresh=false
+          elif [ "$(git show "$BEFORE:.claude-plugin/plugin.json" | read_version)" = "$version" ]; then
+            echo "plugin.json changed but the version did not ($version) — not a release"
+            fresh=false
+          elif git rev-parse -q --verify "refs/tags/super-prototyping--v$version" > /dev/null; then
             echo "super-prototyping--v$version already exists — nothing to do"
-            echo "fresh=false" >> "$GITHUB_OUTPUT"
+            fresh=false
           else
-            echo "fresh=true" >> "$GITHUB_OUTPUT"
+            echo "this push released $version"
           fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "fresh=$fresh" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4
         if: steps.v.outputs.fresh == 'true'
@@ -134,18 +172,25 @@ jobs:
           VERSION: ${{ steps.v.outputs.version }}
         run: |
           set -euo pipefail
-          # The section for this version, up to the next one. Written for a person
-          # deciding whether to update, which no commit log gives you.
+          # The section for this version, up to the next heading of any kind. The
+          # heading must match exactly: a prefix match would hand `1.1.0` the notes
+          # written under `## v1.1.0-rc.1`.
           awk -v want="## v$VERSION" '
-            index($0, want) == 1 { on = 1; next }
-            on && /^## v/ { exit }
+            $0 == want { on = 1; next }
+            on && /^## / { exit }
             on { print }
           ' RELEASE-NOTES.md > notes.md
+          # A version with a suffix is a prerelease; GitHub should not offer it as
+          # the latest release.
+          case "$VERSION" in
+            *-*) prerelease=--prerelease ;;
+            *)   prerelease= ;;
+          esac
           if [ -s notes.md ]; then
-            gh release create "super-prototyping--v$VERSION" \
+            gh release create "super-prototyping--v$VERSION" $prerelease \
               --title "super-prototyping $VERSION" --notes-file notes.md
           else
             echo "::warning::RELEASE-NOTES.md has no '## v$VERSION' section — falling back to generated notes"
-            gh release create "super-prototyping--v$VERSION" \
+            gh release create "super-prototyping--v$VERSION" $prerelease \
               --title "super-prototyping $VERSION" --generate-notes
           fi

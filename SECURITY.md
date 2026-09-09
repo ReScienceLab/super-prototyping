@@ -27,13 +27,21 @@ it reproduces are not security issues.
 
 ## Supported versions
 
-Only the `main` branch is supported. There are no tagged releases yet.
+Only the latest release is supported, and `main` between releases. Releases are
+tagged `super-prototyping--v<version>` and listed under Releases; the version
+in the manifests is what an install of any product compares against, so an
+older cached version gets no fixes.
 
 ## What the repository already does
 
 - `main` requires a pull request; force pushes and deletion are blocked.
   Tags cannot be deleted or overwritten.
 - Secret scanning with push protection is on, so credentials cannot be pushed.
+- Actions run with a read-only `GITHUB_TOKEN` by default; the release workflow
+  requests `contents: write` and `pull-requests: write` for its own jobs only.
+  It also needs "Allow GitHub Actions to create and approve pull requests" —
+  without it the release stops after pushing its branch, which is a safe place
+  to stop.
 - Dependabot opens pull requests for vulnerable and outdated dependencies.
 - CodeQL scans JavaScript, TypeScript and Python on every pull request.
 - Third-party captures (`ref-*.html`, `assets/refs/`) are ignored by git and

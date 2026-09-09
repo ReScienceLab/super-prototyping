@@ -2,8 +2,9 @@
 
 Two release-and-install scripts. Neither is needed to *use* the plugin.
 
-**`install-skills.sh`** links `skills/*` into the skill roots of products that
-have no marketplace — Codex, Hermes, Pi — and installs the Python toolkit that
+**`install-skills.sh`** links `skills/*` into the skill roots of products
+installing without a marketplace — Hermes, Pi, and a Codex older than the
+`codex plugin` commands — and installs the Python toolkit that
 puts `refkit`, `artgen` and `sp-canvas` on PATH. Links, not copies, so one
 `git pull` in this checkout updates every product at once. `--list` shows what
 it would do and changes nothing; `--tools-only` skips the linking. Claude Code

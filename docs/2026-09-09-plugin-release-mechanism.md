@@ -188,6 +188,18 @@ skills are read by agents and whose canvas app is built on the user's machine.
    Python tests in `tools/`. And a `release.yml` on `workflow_dispatch` taking
    the version, running the same gates, then bump, commit, tag, release. The
    ordering gotcha is the whole reason to script it.
+
+   *What shipped is that in two halves.* "Protect main" requires a pull request
+   and lists no bypass actors, so no workflow can push the bump to main: the
+   dispatch runs the gates, bumps and opens a release PR, and merging that PR
+   is what fires the tag-and-release job. Tag *creation* is allowed by the tag
+   ruleset, which is why the second half can finish the job. Two consequences
+   worth knowing: a PR opened by `GITHUB_TOKEN` triggers no `pull_request`
+   workflows, so the release PR carries no Validate run of its own (the gates
+   ran on the commit being released, and `claude plugin tag` validates again);
+   and the tag job has to check that the version actually *changed* in the
+   push, or any later edit to `plugin.json` would cut a release of whatever
+   number is sitting in it.
 4. **Pin the toolkit to the release.** `uv` accepts a ref in the same URL. The
    syntax was resolved for real today against `@main`; the tag form works once
    a tag exists, which is what item 1 is for:
@@ -260,7 +272,10 @@ catalogue it used as `.claude-plugin/marketplace.json` and lists one plugin,
 which `codex plugin add super-prototyping@super-prototyping` installs as
 `1.0.0`; adding `obra/superpowers`, which does ship one, reports
 `.agents/plugins/marketplace.json` and installs `6.3.0` into
-`plugins/cache/superpowers-dev/superpowers/6.3.0`. The fallback order
+`plugins/cache/superpowers-dev/superpowers/6.3.0`; and the
+`.agents/plugins/marketplace.json` this repo now ships was probed the same way,
+which is how we know Codex reads it in preference and installs `1.0.0` from it.
+The fallback order
 `.agents/plugins/marketplace.json`, `.agents/plugins/api_marketplace.json`,
 `.claude-plugin/marketplace.json`, `.cursor-plugin/marketplace.json` is in the
 0.145.0 binary. One caveat that cost an hour: `codex plugin add` fails against

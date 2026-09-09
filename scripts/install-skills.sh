@@ -12,8 +12,9 @@
 #   /plugin marketplace add ReScienceLab/super-prototyping
 #   /plugin install super-prototyping@super-prototyping
 #
-# Codex, Hermes and Pi read the same SKILL.md directories but have no
-# marketplace, so this links `skills/` into each of their skill roots. Links,
+# Codex has plugin commands of its own now (`codex plugin marketplace add`),
+# but Hermes and Pi read the same SKILL.md directories with no marketplace to
+# install from, so this links `skills/` into each of their skill roots. Links,
 # not copies: `git pull` in this checkout then updates every product at once,
 # and there is no forked copy to drift. The toolkit is a real install rather
 # than a link, so re-run this after a pull to move it too.
