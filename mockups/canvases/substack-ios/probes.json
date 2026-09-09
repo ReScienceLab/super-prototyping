@@ -1,0 +1,326 @@
+[
+ {
+  "id": "bg",
+  "img": "assets/refs/c1.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   236,
+   380,
+   246
+  ],
+  "only": "flat",
+  "mine": "01-note.png",
+  "_": "c1 between the divider under the tile row (233) and the first attribution's ink (249.3), right of the tile labels: page ground, #FFFFFF at 100%",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/cN.png, the Nth Mobbin capture converted from the untagged Display P3 it exported in to sRGB (scratch/srgb.py) -- reading a colour off the raw pN.png puts every hue about 8% out. --against wants scratch/shot, which scratch/win.py fills with the seven boards rendered at 3x with --crop-phone; every probe names its own file there."
+ },
+ {
+  "id": "card",
+  "img": "assets/refs/c2.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   738,
+   275,
+   746
+  ],
+  "only": "flat",
+  "mine": "02-keep-reading.png",
+  "_": "c2 interior of the Keep reading toast, below its title ink and left of the chevron. #FDFDFD at 91% -- the card is one level off the page, not a tint"
+ },
+ {
+  "id": "fill",
+  "img": "assets/refs/c1.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   732.5,
+   300,
+   735
+  ],
+  "only": "flat",
+  "mine": "01-note.png",
+  "_": "c1 the 4pt band that separates two notes, clear of both bodies"
+ },
+ {
+  "id": "fill-pill",
+  "img": "assets/refs/c4.png",
+  "cmd": "sample",
+  "box": [
+   262,
+   158,
+   298,
+   164
+  ],
+  "only": "flat",
+  "mine": "04-just-published.png",
+  "_": "c4 the Stats pill, above its label ink (167.3): the same #EFEFEF as the band"
+ },
+ {
+  "id": "tint",
+  "img": "assets/refs/c3.png",
+  "cmd": "sample",
+  "box": [
+   28,
+   782,
+   48,
+   818
+  ],
+  "only": "flat",
+  "mine": "03-notes.png",
+  "_": "c3 the selected tab's oval, left of the home icon (x51). #ECECEC over white: 18/255 darker than the glass beside it, so the oval is a scrim, not a fill"
+ },
+ {
+  "id": "tint-photo",
+  "img": "assets/refs/c6.png",
+  "cmd": "sample",
+  "box": [
+   28,
+   782,
+   48,
+   818
+  ],
+  "only": "flat",
+  "mine": "06-people-to-follow.png",
+  "_": "c6 the same oval over the photo, #AB9E8B against the glass's #C4B9AA -- 25 levels, not 18. A scrim reads deeper on a dark ground; a flat fill would not"
+ },
+ {
+  "id": "glass",
+  "img": "assets/refs/c3.png",
+  "cmd": "sample",
+  "box": [
+   110,
+   772,
+   190,
+   777
+  ],
+  "only": "flat",
+  "mine": "03-notes.png",
+  "_": "c3 the pill's top strip, 3-8pt in from its edge and above the icons (789), between the oval and the inbox. #FEFEFE: over white the material is white"
+ },
+ {
+  "id": "glass-photo",
+  "img": "assets/refs/c6.png",
+  "cmd": "sample",
+  "box": [
+   110,
+   772,
+   190,
+   777
+  ],
+  "only": "flat",
+  "mine": "06-people-to-follow.png",
+  "_": "c6 the same strip over the photo, #C4B9AA. The pair is what --x-glass is fitted to, and no single alpha satisfies both -- see README"
+ },
+ {
+  "id": "peach",
+  "img": "assets/refs/c7.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   303,
+   120,
+   312
+  ],
+  "only": "flat",
+  "mine": "07-share-your-profile.png",
+  "_": "c7 the Share now button, left of its label ink"
+ },
+ {
+  "id": "grad-a",
+  "img": "assets/refs/c7.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   112,
+   360,
+   124
+  ],
+  "only": "flat",
+  "mine": "07-share-your-profile.png",
+  "_": "c7 the head of the share-profile ground, above the card (125.3). #FDFDFD"
+ },
+ {
+  "id": "grad-b",
+  "img": "assets/refs/c7.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   385.33,
+   360,
+   386.33
+  ],
+  "only": "flat",
+  "mine": "07-share-your-profile.png",
+  "_": "c7 the darkest row of the same ground. It bottoms out at #E7E7E7 over 385.33..386.33 and lightens back to #E5E5E5 for the last four subpixel rows before the band: the ramp's foot, not its last row"
+ },
+ {
+  "id": "band",
+  "img": "assets/refs/c7.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   388.67,
+   360,
+   391.33
+  ],
+  "only": "flat",
+  "mine": "07-share-your-profile.png",
+  "_": "c7 the 4pt band under the share ground, y388..392"
+ },
+ {
+  "id": "hairline",
+  "img": "assets/refs/c1.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   233,
+   300,
+   233.33
+  ],
+  "only": "flat",
+  "mine": "01-note.png",
+  "_": "c1 one device row under the tile labels: the feed divider, #C7C7C7 at 100%"
+ },
+ {
+  "id": "border",
+  "img": "assets/refs/c4.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 190,
+  "range": [
+   133,
+   139
+  ],
+  "tol": 1,
+  "mine": "04-just-published.png",
+  "_": "c4 down through the just-published card's top edge. The 0.6pt hairline spreads over four subpixel rows, 240/224/229/242 against a #FDFDFD ground: 27 pt-units of darkness, about #D2D2D2 at 0.6pt. The token keeps #DDDDDD, which is what the card scores best at once its drop shadow is in the picture too"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/c7.png",
+  "cmd": "sample",
+  "box": [
+   124.33,
+   235,
+   127,
+   249
+  ],
+  "only": "flat",
+  "mine": "07-share-your-profile.png",
+  "_": "c7 the stem of the h in Share your profile, 21.5/600 -- the one place a stem is wide enough to have a core. #373737 at 100%"
+ },
+ {
+  "id": "ink-2",
+  "img": "assets/refs/c7.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   265,
+   335,
+   278
+  ],
+  "only": "ink",
+  "mine": "07-share-your-profile.png",
+  "_": "c7 the help line under it, 14/400. No stem at that size reaches its fill: the darkest 2% is #727272 where the census mode over the whole line is #787878. The token is the mode; this probe is the antialiased floor, and --against compares floor to floor"
+ },
+ {
+  "id": "ink-inv",
+  "img": "assets/refs/c6.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   378,
+   140,
+   391
+  ],
+  "only": "ink",
+  "mine": "06-people-to-follow.png",
+  "bright": true,
+  "_": "c6 Follow on the accent fill, read with --bright: #FFFEFD"
+ },
+ {
+  "id": "link",
+  "img": "assets/refs/c1.png",
+  "cmd": "sample",
+  "box": [
+   152,
+   353,
+   375,
+   367
+  ],
+  "only": "ink",
+  "mine": "01-note.png",
+  "_": "c1 week.wild.plus/athens-26, the only blue run in the set that is type and not a photograph. Ink core #097FC6; the token rounds to #0077BE"
+ },
+ {
+  "id": "accent",
+  "img": "assets/refs/c1.png",
+  "cmd": "sample",
+  "box": [
+   325,
+   710,
+   357,
+   740
+  ],
+  "only": "flat",
+  "mine": "01-note.png",
+  "_": "c1 the compose button's interior, left of its plus glyph. #FF5800 at 97%. c6 and c7 read #F44B00 for the same button -- a Mobbin export difference, present in the raw p6/p7 before any colour conversion, not a second orange"
+ },
+ {
+  "id": "gutter",
+  "img": "assets/refs/c1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 327,
+  "range": [
+   10,
+   30
+  ],
+  "tol": 1,
+  "mine": "01-note.png",
+  "_": "c1 across the crossbar of the T in This week's: white to 16.3, ink from 16.7. Every body line, tile label and avatar starts at x16"
+ },
+ {
+  "id": "avatar",
+  "img": "assets/refs/c1.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 36,
+  "range": [
+   268,
+   318
+  ],
+  "tol": 1,
+  "mine": "01-note.png",
+  "_": "c1 down through the first note's avatar: white to 272.3, image from 272.67. With the row scan below it that is a 40pt circle at x16, y272.67"
+ },
+ {
+  "id": "avatar-x",
+  "img": "assets/refs/c1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 292.67,
+  "range": [
+   10,
+   62
+  ],
+  "tol": 1,
+  "mine": "01-note.png",
+  "_": "c1 across the same avatar at its vertical centre: white to 15.7, image from 16.0"
+ },
+ {
+  "id": "tab",
+  "img": "assets/refs/c6.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 150,
+  "range": [
+   762,
+   838
+  ],
+  "tol": 1,
+  "mine": "06-people-to-follow.png",
+  "_": "c6 down through the tab pill, the one capture whose material sits on a dark photo and therefore has a readable edge: 768.0 to 831.0, 62.33pt tall. Not the 54 an SF tab bar would be"
+ }
+]

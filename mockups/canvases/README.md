@@ -363,6 +363,35 @@ folder are invisible to it.
   is worthless on grey, and that a blur which monotonically improves a band is
   hiding a content defect rather than an antialiasing one. The 25 `ref-*`
   boards are gitignored, so a fresh clone has 29.
+- `substack-ios/`: the run to read when a translucent bar sits over content
+  the board does not control. Seven screens of the Substack iOS home feed - a
+  note, the Keep reading toast, three notes in a row, your own just-published
+  post, an archive resurfacing, People to follow, and the share-your-profile
+  sheet. 10 boards in three rows: a token board and two evidence boards for 50
+  tokens, the seven replicas, and the Mobbin capture of each parked underneath.
+  Mean absolute delta against those captures is 1.82-4.33 levels (of 255), mean
+  3.13, and the number is that high on purpose: every logo, avatar, cover
+  photograph and page of the document screen 04's note attaches is the
+  publisher's own file fetched off Substack rather than a crop, the type over
+  those covers is set rather than pasted, and a crop cannot lose against the
+  image it was cut from. Its
+  `README.md` records the two probes that show iOS 26's Liquid Glass is not a
+  linear alpha blend - the same tab oval darkens its material by 18
+  levels over white and 25 over a photograph, so no single black alpha
+  satisfies both - and the 2-D sweep that fitted one anyway. It also records
+  that the blur behind the material is 4px and not the 16 a smear suggests,
+  because the capture keeps crisp edges on the orange buttons under it; that
+  the scroll edge is two different effects, a white wash on five screens and a
+  black fade on the two whose ground is a photograph; that an article card is
+  cut in two, the cover fetched and drawn under a scrim fitted by solving
+  `captured = photo*(1-a) + ground*a` and the type block at its foot left as a
+  crop, while a scrolled header band stays a crop for the harder reason that no
+  CSS filter can blur pixels the board does not have; and that a note's name is
+  not a fixed distance below its avatar, so `note()` takes a `dy` that moves
+  the two type rows and never the measured crop - eleven of those, each a third
+  or two thirds of a point, were worth more than the blur fit and the compose
+  glyph together. The seven `ref-*` boards are gitignored, so a fresh clone
+  has 10.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

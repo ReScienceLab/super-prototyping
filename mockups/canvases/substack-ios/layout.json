@@ -1,0 +1,90 @@
+{
+  "name": "(example) Substack iOS",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-note",
+          "label": "Note in the feed"
+        },
+        {
+          "file": "02-keep-reading",
+          "label": "Keep reading toast"
+        },
+        {
+          "file": "03-notes",
+          "label": "Three notes"
+        },
+        {
+          "file": "04-just-published",
+          "label": "Just published"
+        },
+        {
+          "file": "05-from-the-archives",
+          "label": "From the archives"
+        },
+        {
+          "file": "06-people-to-follow",
+          "label": "People to follow"
+        },
+        {
+          "file": "07-share-your-profile",
+          "label": "Share your profile"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-note",
+          "label": "Note in the feed"
+        },
+        {
+          "file": "ref-02-keep-reading",
+          "label": "Keep reading toast"
+        },
+        {
+          "file": "ref-03-notes",
+          "label": "Three notes"
+        },
+        {
+          "file": "ref-04-just-published",
+          "label": "Just published"
+        },
+        {
+          "file": "ref-05-from-the-archives",
+          "label": "From the archives"
+        },
+        {
+          "file": "ref-06-people-to-follow",
+          "label": "People to follow"
+        },
+        {
+          "file": "ref-07-share-your-profile",
+          "label": "Share your profile"
+        }
+      ]
+    }
+  ]
+}
