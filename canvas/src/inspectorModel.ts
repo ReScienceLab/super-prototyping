@@ -2,10 +2,18 @@
  * What the inspector panel derives from an agent report before drawing it. Pure functions, so
  * the joins and fallbacks are testable without a frame.
  */
-import type { SpAsset, SpGroup, SpNode, SpToken, SpTokenKind } from "./inspectorAgent";
+import type { TLCommentAnchor, TLShapeId } from "tldraw";
+import type { SpAsset, SpBox, SpGroup, SpNode, SpToken, SpTokenKind } from "./inspectorAgent";
 
-/** Where an asset's name came from, so a fallback is never passed off as a file name. */
-export type AssetNameSource = "file" | "alt" | "none";
+/**
+ * Where an asset's name came from, so a fallback is never passed off as a file name: `alt` is an
+ * image's own, `label` is a vector's guess from the class or the caption beside it.
+ */
+export type AssetNameSource = "file" | "alt" | "label" | "none";
+
+/** Class names, skipping the falsy ones. Here rather than in either panel file: both draw with
+ *  it, and a component module cannot export it without costing fast refresh. */
+export const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(" ");
 
 export interface AssetRow {
   key: string;
@@ -15,35 +23,43 @@ export interface AssetRow {
   w: number;
   h: number;
   mime: string;
-  via: "img" | "css";
+  via: SpAsset["via"];
   uri: string;
+  /** The standalone markup of a vector; what Copy SVG hands out. */
+  svg?: string;
   uses: number[];
 }
 
 /**
  * Joins the board's images against the folder's committed files by content. A generator that
  * re-encodes (a PIL resize) produces bytes that match nothing, so the image's alt text is the
- * fallback, and after that its format and size.
+ * fallback, and after that its format and size. A vector joins on its geometry, and falls back
+ * to the label the agent guessed for it.
  */
 export function assetRows(
   assets: SpAsset[],
   names: Record<string, { name: string; bytes: number }> | undefined,
 ): AssetRow[] {
   return assets.map((a) => {
-    const hit = names?.[a.key];
-    const format = a.mime.replace(/^image\//, "") || "image";
+    const vector = a.via === "svg";
+    // A vector's key is its geometry key and then the colours it was drawn in; the file joins on
+    // the geometry alone, so a red and a black instance of one glyph are two rows with one name.
+    const hit = names?.[vector ? a.key.slice(0, a.key.lastIndexOf(":")) : a.key];
+    const format = a.mime.replace(/^image\//, "").replace(/\+xml$/, "") || "image";
     const name = hit ? hit.name : a.alt || `${format} ${a.w}×${a.h}`;
     return {
       key: a.key,
       name,
-      source: hit ? "file" : a.alt ? "alt" : "none",
-      // A base64 payload decodes to three bytes per four characters, less any padding.
-      bytes: hit ? hit.bytes : Math.floor((a.chars * 3) / 4),
+      source: hit ? "file" : !a.alt ? "none" : vector ? "label" : "alt",
+      // A base64 payload decodes to three bytes per four characters, less any padding; a vector
+      // is its own text.
+      bytes: hit ? hit.bytes : vector ? a.chars : Math.floor((a.chars * 3) / 4),
       w: a.w,
       h: a.h,
       mime: a.mime,
       via: a.via,
       uri: a.uri,
+      svg: a.svg,
       uses: a.uses,
     };
   });
@@ -55,11 +71,11 @@ export function formatBytes(n: number) {
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export type LayerKind = "frame" | "image" | "text" | "box";
+export type LayerKind = "frame" | "image" | "vector" | "text" | "box";
 
 export function layerKind(node: SpNode): LayerKind {
   if (node.i === 0) return "frame";
-  if (node.img) return "image";
+  if (node.img) return node.tag === "svg" ? "vector" : "image";
   if (node.text) return "text";
   return "box";
 }
@@ -182,7 +198,7 @@ export const assetForNode = (rows: AssetRow[], node: number | null): AssetRow | 
 
 /** Starting sizes. Every one of them is a drag away from something else. */
 export const PANEL_W = 736;
-export const RAIL_W = 280;
+export const RAIL_W = 300;
 
 /**
  * How tall the layers list opens: a share of the window rather than a constant, because the
@@ -247,3 +263,30 @@ export const fitScale = (stage: { w: number; h: number }, board: { w: number; h:
   const pad = 32;
   return Math.max(0.05, Math.min(1, (stage.w - pad) / board.w, (stage.h - pad) / board.h));
 };
+
+/**
+ * Where a comment thread points on a board, when it is that board's thread at all. Normalized
+ * (0 to 1) within the artboard, and left unclamped: a pin dropped in the margin beside the mockup
+ * belongs to it, which is what anchors it to the board through a layout.json reflow, but the
+ * preview only draws the ones that land on the board itself.
+ */
+export interface BoardPin {
+  x: number;
+  y: number;
+  inside: boolean;
+}
+
+export function boardPin(anchor: TLCommentAnchor, shapeId: TLShapeId): BoardPin | null {
+  if (anchor.type !== "shape" || anchor.shapeId !== shapeId) return null;
+  const inside = anchor.x >= 0 && anchor.x <= 1 && anchor.y >= 0 && anchor.y <= 1;
+  return { x: anchor.x, y: anchor.y, inside };
+}
+
+/**
+ * Where a comment written in the panel is pinned: on the middle of the selected layer, so a note
+ * about one button lands on that button, and on the middle of the board when nothing is selected.
+ */
+export function newBoardPin(box: SpBox | null | undefined, board: { w: number; h: number }) {
+  if (!box) return { x: 0.5, y: 0.5 };
+  return { x: (box.x + box.w / 2) / board.w, y: (box.y + box.h / 2) / board.h };
+}

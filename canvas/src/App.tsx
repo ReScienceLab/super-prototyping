@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Tldraw,
+  commentSchemaRecords,
   createShapeId,
+  defaultAssetUtils,
+  defaultBindingUtils,
+  defaultShapeUtils,
   getIndices,
   react,
+  renderPlaintextFromRichText,
   toRichText,
   type Editor,
   type TLPageId,
@@ -11,9 +16,11 @@ import {
   type TLDefaultColorStyle,
   type TLTextShape,
   useEditor,
+  useLocalStore,
   useValue,
 } from "tldraw";
 import "tldraw/tldraw.css";
+import "@tldraw/commenting/commenting.css";
 import { installAgentBridge } from "./agentBridge";
 import { WELCOME_PAGE_SLUG, boardFromUrl, slugFromUrl, urlForSlug } from "./canvasUrl";
 import {
@@ -23,6 +30,12 @@ import {
   CanvasFileShapeUtil,
 } from "./CanvasFileShapeUtil";
 import { InspectorClicks, InspectorPanel } from "./InspectorPanel";
+import {
+  CANVAS_STATUS_BANNER_GAP,
+  CANVAS_STATUS_BANNER_HEIGHT,
+  CANVAS_STATUS_BANNER_SHAPE_TYPE,
+  CanvasStatusBannerShapeUtil,
+} from "./CanvasStatusBannerShapeUtil";
 import {
   CANVAS_LINK_BUTTON_SIZE,
   CANVAS_LINK_CARD_SIZE,
@@ -34,17 +47,26 @@ import {
 import {
   type CanvasLayoutLink,
   type CanvasLibraryFile,
+  LAYOUT_CHANGED,
+  boardTabStatusForPath,
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
 import { canvasesDir, canvasesNamespace } from "virtual:canvases";
+import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasChromeContext,
   canvasChromeAssetUrls,
   canvasChromeComponents,
+  canvasCommentOverrides,
+  canvasCommentTools,
 } from "./canvasChrome";
 
-const shapeUtils = [CanvasFileShapeUtil, CanvasLinkShapeUtil];
+const shapeUtils = [
+  CanvasFileShapeUtil,
+  CanvasLinkShapeUtil,
+  CanvasStatusBannerShapeUtil,
+];
 
 /**
  * Bump the trailing version when a change would leave documents already in a browser's
@@ -60,6 +82,39 @@ const PERSISTENCE_KEY = `super-prototyping-canvas-v2${canvasesNamespace}`;
 
 /** Marks that the snap default below has been applied once in this browser. */
 const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
+
+/**
+ * The tldraw license, inlined at build time from the Pages project's own environment (it is set on
+ * super-prototyping, production and preview both). Commenting is a licensed feature: with no key
+ * `CanvasComments` renders nothing at all in production, so the hosted canvas would offer a comment
+ * tool that does nothing.
+ *
+ * Not in development, and that is the trap: tldraw decides "development" from the *runtime* host,
+ * so localhost, any loopback address and any plain-http origin get every feature unlicensed. A
+ * production build served from 127.0.0.1 therefore cannot tell you whether the deployed site has
+ * commenting. Only the deploy can.
+ *
+ * The key today is an evaluation license, which grants every feature and expires on 2026-12-12 with
+ * no grace period. On that date commenting stops working again unless the key has been replaced.
+ */
+const TLDRAW_LICENSE_KEY: string | undefined = import.meta.env.VITE_TLDRAW_LICENSE_KEY;
+
+/**
+ * The store, built here rather than by `<Tldraw persistenceKey>`, because the comment record
+ * types have to be registered on it and that component takes no `records` option. `useLocalStore`
+ * is the hook it would have called itself, so IndexedDB persistence is unchanged, see
+ * tldraw-local-store.d.ts. Module scope, so the options object keeps its identity across renders:
+ * the hook rebuilds the store whenever it changes.
+ */
+const storeOptions = {
+  persistenceKey: PERSISTENCE_KEY,
+  // The same set `<Tldraw>` merges for itself; the schema has to know every type the document
+  // can hold, hand-drawn annotations included.
+  shapeUtils: [...defaultShapeUtils, ...shapeUtils],
+  bindingUtils: defaultBindingUtils,
+  assetUtils: defaultAssetUtils,
+  records: commentSchemaRecords,
+};
 
 /**
  * Tldraw persists the page menu's drag-resized list height per origin, and its resize handle is
@@ -108,6 +163,7 @@ const LIBRARY_SHAPE_PREFIXES = [
   "shape:canvas-row-heading:",
   "shape:canvas-file-label:",
   "shape:canvas-link:",
+  "shape:canvas-status-banner:",
 ];
 
 function isLibraryShapeId(id: string) {
@@ -247,6 +303,11 @@ function fileShapeId(file: CanvasLibraryFile) {
   return createShapeId(`canvas-file:${file.path}`);
 }
 
+/** The status tab above this board, when it has one. */
+function statusBannerShapeId(file: CanvasLibraryFile) {
+  return createShapeId(`canvas-status-banner:${file.path}`);
+}
+
 function columnX(index: number) {
   return index * (CANVAS_FILE_DEFAULT_SIZE.w + LIBRARY_GAP);
 }
@@ -277,7 +338,15 @@ function layoutRow(
   // The welcome board carries its own title and its own caption, so it gets neither.
   const bare = rowFiles[0].pageSlug === WELCOME_PAGE_SLUG;
   const rowX = (index: number) => index * (size.w + LIBRARY_GAP);
-  const contentY = bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT;
+  // A status tab sits above its board, not inside it, so the row reserves the height once for
+  // all of its boards. Reserving per row rather than per board keeps item N of one row aligned
+  // with item N of the next even where only one board in the row carries a tab.
+  const rowStatuses = rowFiles.map((file) => boardTabStatusForPath(file.path));
+  const statusH = rowStatuses.some(Boolean)
+    ? CANVAS_STATUS_BANNER_HEIGHT + CANVAS_STATUS_BANNER_GAP
+    : 0;
+  const contentY =
+    (bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT) + statusH;
   const missing = rowFiles.filter((file) => !editor.getShape(fileShapeId(file)));
   if (missing.length) {
     editor.createShapes(
@@ -294,6 +363,33 @@ function layoutRow(
           path: file.path,
         },
       })),
+    );
+  }
+
+  // Idempotent like the boards above: only tabs not on the canvas yet are created, so a
+  // reload never moves one. A status changed in layout.json lands on the next force refresh.
+  const missingBanners = rowFiles.filter(
+    (file, index) =>
+      rowStatuses[index] && !editor.getShape(statusBannerShapeId(file)),
+  );
+  if (missingBanners.length) {
+    editor.createShapes(
+      missingBanners.map((file) => {
+        const index = rowFiles.indexOf(file);
+        return {
+          id: statusBannerShapeId(file),
+          type: CANVAS_STATUS_BANNER_SHAPE_TYPE,
+          parentId: page.id,
+          x: rowX(index),
+          y: contentY - statusH,
+          isLocked: true,
+          props: {
+            w: size.w,
+            h: CANVAS_STATUS_BANNER_HEIGHT,
+            status: rowStatuses[index]!,
+          },
+        };
+      }),
     );
   }
 
@@ -666,9 +762,34 @@ function orderPagesByLibrary(editor: Editor, libraryPages: Set<TLPageId>) {
 function pruneEmptyOrphanPages(editor: Editor, libraryPages: Set<TLPageId>) {
   for (const page of editor.getPages()) {
     if (libraryPages.has(page.id)) continue;
-    if (editor.getPageShapeIds(page.id).size) continue;
+    // The boards are gone with the folder, so the shapes the library put here are all that is
+    // keeping the page alive, and nothing else ever reclaims them, because every other sweep
+    // walks the pages the library just filled. Without this, renaming or deleting a folder
+    // leaves a page of dead boards behind for good.
+    deleteLibraryShapes(
+      editor,
+      [...editor.getPageShapeIds(page.id)].filter(isLibraryShapeId),
+    );
+    if (drawnOn(editor, page.id)) continue;
     if (editor.getPages().length > 1) editor.deletePage(page.id);
   }
+}
+
+/**
+ * Whether anything a person would see is left on a page.
+ *
+ * Text shapes with no text do not count. Clicking the text tool on the canvas and then clicking
+ * away leaves one behind, zero-width and rendering nothing, and the page it sits on cannot be told
+ * from an empty one by looking at it. Counting those as content kept a folder's page in the menu
+ * forever over a shape nobody knew they had made.
+ */
+function drawnOn(editor: Editor, pageId: TLPageId) {
+  return [...editor.getPageShapeIds(pageId)].some((id) => {
+    const shape = editor.getShape(id);
+    if (shape?.type !== "text") return true;
+    const { richText } = (shape as TLTextShape).props;
+    return renderPlaintextFromRichText(editor, richText).trim() !== "";
+  });
 }
 
 /**
@@ -805,16 +926,29 @@ function initializeCanvas(editor: Editor) {
 const BOARD_ZOOM_INSET = 80;
 
 export default function App() {
-  const [stylesVisible, setStylesVisible] = useState(false);
   /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
   const [inspecting, setInspecting] = useState<CanvasLibraryFile | null>(null);
-  const editorRef = useRef<Editor | null>(null);
+  const [commentUser, setCommentUser] = useState(readCommentUser);
+  /** State rather than a ref: the inspector panel renders outside `<Tldraw>` and needs it. */
+  const [editor, setEditor] = useState<Editor | null>(null);
+  const store = useLocalStore(storeOptions);
   /** The same board, for the address writer, which runs outside React. */
   const inspected = useRef<CanvasLibraryFile | null>(null);
   /** Writes the address from the page and the inspector; installed with the editor. */
   const writeUrl = useRef<(push: boolean) => void>(() => {});
   /** A board the address named, for the camera to go to once the inspector is beside it. */
   const zoomTo = useRef<CanvasLibraryFile | null>(null);
+
+  // A layout.json edit moves boards: a row reserves the height of a status tab for all of its
+  // boards, so a status appearing or disappearing reflows the row. Creation is idempotent and
+  // never moves a shape that is already there, so only the force refresh catches up. This is
+  // what the status control used to get from a full page reload.
+  useEffect(() => {
+    if (!editor) return;
+    const relayout = () => relayoutCanvasLibrary(editor);
+    window.addEventListener(LAYOUT_CHANGED, relayout);
+    return () => window.removeEventListener(LAYOUT_CHANGED, relayout);
+  }, [editor]);
 
   /**
    * Opens a board in the inspector, or closes it. A pick or a close is a new address; applying
@@ -845,7 +979,6 @@ export default function App() {
   // fit the board to the canvas width the panel just took. Every `show` from an address is a
   // fresh library object, so the effect runs even for the board already open.
   useLayoutEffect(() => {
-    const editor = editorRef.current;
     const file = zoomTo.current;
     zoomTo.current = null;
     if (!editor || !file) return;
@@ -853,11 +986,13 @@ export default function App() {
     if (!bounds) return;
     editor.updateViewportScreenBounds(editor.getContainer());
     editor.zoomToBounds(bounds, { inset: BOARD_ZOOM_INSET });
-  }, [inspecting]);
+  }, [inspecting, editor]);
 
   function handleMount(editor: Editor) {
-    editorRef.current = editor;
+    setEditor(editor);
     initializeCanvas(editor);
+    // After the library, which is what creates the pages the comments are keyed to.
+    const disposeComments = installCanvasComments(editor);
     const sync = installCanvasUrlSync(
       editor,
       () => inspected.current,
@@ -869,17 +1004,22 @@ export default function App() {
     writeUrl.current = sync.write;
     // The address names a board, or the whole page is the view.
     if (!sync.apply()) requestAnimationFrame(() => editor.zoomToFit());
-    return sync.uninstall;
+    return () => {
+      disposeComments();
+      sync.uninstall();
+    };
   }
 
   return (
     <CanvasChromeContext.Provider
       value={{
-        stylesVisible,
-        toggleStyles: () => setStylesVisible((visible) => !visible),
         relayoutLibrary: () => {
-          if (editorRef.current) relayoutCanvasLibrary(editorRef.current);
+          if (editor) relayoutCanvasLibrary(editor);
         },
+        editor,
+        commentUser,
+        setCommentUser,
+        inspectBoard: onPick,
       }}
     >
       <div className="canvas-shell">
@@ -887,8 +1027,11 @@ export default function App() {
           <Tldraw
             assetUrls={canvasChromeAssetUrls}
             components={canvasChromeComponents}
-            persistenceKey={PERSISTENCE_KEY}
+            store={store}
             shapeUtils={shapeUtils}
+            tools={canvasCommentTools}
+            overrides={canvasCommentOverrides}
+            licenseKey={TLDRAW_LICENSE_KEY}
             onMount={handleMount}
           >
             <AgentBridge />

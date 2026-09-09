@@ -52,6 +52,12 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
             border: 0,
             display: "block",
             pointerEvents: isEditing ? "auto" : "none",
+            // Safari routes a wheel to an iframe's own scrolling area whatever pointer-events
+            // says, so a two-finger pan over a board did nothing there, and a horizontal one
+            // chained out to the browser's back gesture. Behind its container it is not a scroll
+            // target, and the pan reaches tldraw wherever the cursor is. tldraw's own embed shape
+            // carries this same line: <https://stackoverflow.com/a/49150908>.
+            zIndex: isEditing ? undefined : -1,
           }}
         />
       ) : hasCanvasFile(shape.props.path) ? null : (
@@ -83,10 +89,6 @@ export class CanvasFileShapeUtil extends BaseBoxShapeUtil<CanvasFileShape> {
   }
 
   override canResize() {
-    return true;
-  }
-
-  override canScroll() {
     return true;
   }
 

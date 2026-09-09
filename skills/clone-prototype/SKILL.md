@@ -264,6 +264,10 @@ Hard constraints from the canvas renderer (also in `prototype-canvas`'s
 
 - **Fully self-contained.** The iframe is `sandbox=""`. No external CSS,
   JS, fonts or images. Every image is a `data:` URI; icons are inline SVG.
+  Keep each icon as `assets/icons/<name>.svg` and inline it through a
+  helper in `gen.py`: the canvas's inspector names an inline `<svg>` from
+  that folder by its geometry, and hands it back as a vector asset. A glyph
+  written as a literal in `gen.py` gets no name.
 - **Artboard box is 478 × 980.** Overflow clips silently. Do not check
   this by eye; `refkit shoot ... --check-overflow` asks the layout engine and
   exits non-zero with the exact px, so a clipped board fails in Phase 3

@@ -26,14 +26,49 @@ export interface CanvasLibraryFile {
 }
 
 /**
+ * How far along a board is. `live` is the default, the version being shipped, and it is the
+ * one status that draws no tab on the canvas: most boards on a finished page
+ * are live, and a tab on every one of them would say nothing while costing 134px of every
+ * row. The other two draw a coloured tab above the board.
+ *
+ * It is a tldraw shape the layout places, not markup in the board, so a board keeps no record
+ * of its own status and survives being regenerated when that status changes.
+ */
+export type CanvasBoardStatus = "exploring" | "outdated" | "live";
+
+/** The default: what a board is when neither its entry nor its folder says otherwise. */
+export const DEFAULT_BOARD_STATUS: CanvasBoardStatus = "live";
+
+/** Title Case for the badge and the menu, per Geist's own Badge copy rule. */
+export const BOARD_STATUS_LABEL: Record<CanvasBoardStatus, string> = {
+  exploring: "Exploring",
+  outdated: "Outdated",
+  live: "Live",
+};
+
+/** In menu order: what you are exploring, what it replaced, what shipped. */
+export const BOARD_STATUSES = Object.keys(
+  BOARD_STATUS_LABEL,
+) as CanvasBoardStatus[];
+
+/**
  * A row's file, either by name alone (uses that file's humanized title) or with a label
  * override. `w`/`h` override the 478 x 980 artboard for a board that is not phone-shaped,
  * a landscape banner say; a row is laid out at its first file's size, so give every file
  * in the row the same one.
+ *
+ * `status` overrides the folder's own `status` for this one board, including back to
+ * `live` to drop a tab the folder would otherwise give it.
  */
 export type CanvasLayoutFileEntry =
   | string
-  | { file: string; label?: string; w?: number; h?: number };
+  | {
+      file: string;
+      label?: string;
+      w?: number;
+      h?: number;
+      status?: CanvasBoardStatus;
+    };
 
 /** A button under a row that opens an address in a new tab. */
 export interface CanvasLayoutLink {
@@ -80,6 +115,12 @@ export interface CanvasLayoutConfig {
    * board that is not a phone, e.g. a full-bleed sheet: `[0, 0, 478, 980]`.
    */
   coverBox?: [number, number, number, number];
+  /**
+   * The status every board in this folder has unless its own entry says otherwise: the
+   * useful default on a folder that is one round of exploration, where saying it 70 times
+   * would be 70 chances to leave one board saying something else.
+   */
+  status?: CanvasBoardStatus;
   rows: CanvasLayoutRow[];
 }
 
@@ -108,6 +149,73 @@ function parse(path: string): CanvasLibraryFile | null {
     fileName,
     title: humanize(fileName),
   };
+}
+
+/**
+ * A board's status: its own entry's in layout.json, else its folder's, else `live`. Read from
+ * the layout by file name the same way the artboard size override is, so the board itself
+ * carries no record of it.
+ */
+export function boardStatusForPath(path: string): CanvasBoardStatus {
+  const file = parse(path);
+  if (!file) return DEFAULT_BOARD_STATUS;
+  const layout = readCanvasLayout(file.pageSlug);
+  let status = layout?.status;
+  for (const row of layout?.rows ?? []) {
+    for (const entry of row.files) {
+      if (typeof entry === "string" || entry.file !== file.fileName) continue;
+      if (entry.status) status = entry.status;
+    }
+  }
+  return status ?? DEFAULT_BOARD_STATUS;
+}
+
+/**
+ * The status a tab is drawn for, or undefined for the ones that draw none. `live` is the
+ * default and the majority, so it draws nothing on the canvas and shows only in the inspector,
+ * where there is one board on screen and the badge is also the control that changes it.
+ */
+export function boardTabStatusForPath(path: string) {
+  const status = boardStatusForPath(path);
+  return status === DEFAULT_BOARD_STATUS ? undefined : status;
+}
+
+/**
+ * Writes a board's status into its folder's layout.json, through the dev server (vite.config.ts).
+ * The server edits the one entry as text rather than reparsing the file, so hand formatting and
+ * key order survive; it then sends the edited layout back over HMR (`sp:board-status`, below), and
+ * the canvas repaints without a reload.
+ *
+ * Only the dev server can write. A built canvas is static files on a host with no repo behind
+ * them, which is why the badge is not a button there.
+ */
+export async function writeBoardStatus(path: string, status: CanvasBoardStatus) {
+  const file = parse(path);
+  if (!file) return false;
+  const response = await fetch("/__sp/board-status", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ slug: file.pageSlug, file: file.fileName, status }),
+  });
+  return response.ok;
+}
+
+/**
+ * Copies a canvas folder under a new name, through the dev server (vite.config.ts), and answers
+ * the slug it ended up with. The typed name is what the page is called, the slug is what the
+ * folder is called, and only the server knows the second one is free.
+ *
+ * Dev server only, like writeBoardStatus and for the same reason.
+ */
+export async function cloneCanvas(slug: string, name: string) {
+  const response = await fetch("/__sp/clone-canvas", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ slug, name }),
+  });
+  const body = await response.text();
+  if (!response.ok) throw new Error(body);
+  return JSON.parse(body).slug as string;
 }
 
 /** path -> raw HTML for every file fetched so far. Filled by loadCanvasFileHtml. */
@@ -168,11 +276,51 @@ export function useCanvasFileHtml(path: string): string | undefined {
 
 const LAYOUT_PATTERN = /canvases\/([^/]+)\/layout\.json$/;
 
+/**
+ * Window event fired once `layouts` holds an edit. The canvas lays itself out again on it
+ * (App.tsx) and the inspector re-reads the board's status (InspectorPanel.tsx). Between them,
+ * that is everything a layout.json change can move.
+ */
+export const LAYOUT_CHANGED = "sp:layout";
+
+/**
+ * The layouts. Starts as the generated module's own map and is replaced wholesale when that
+ * module re-executes, so a layout.json edit repaints the canvas instead of reloading the page.
+ * Callers read through readCanvasLayout rather than holding this, which is what lets it be
+ * swapped underneath them.
+ */
+let layouts: Record<string, CanvasLayoutConfig> = rawLayouts;
+
+if (import.meta.hot) {
+  // The status endpoint sends the layout.json it has just written, rather than leaving the page
+  // to hear about the write from the file watcher: the boards live outside the app's root, where
+  // the watcher misses changes, and a missed one meant the status only took effect on the next
+  // reload.
+  import.meta.hot.on(
+    "sp:board-status",
+    ({ slug, layout }: { slug: string; layout: CanvasLayoutConfig }) => {
+      const key = Object.keys(layouts).find((path) => LAYOUT_PATTERN.exec(path)?.[1] === slug);
+      if (!key) return;
+      layouts = { ...layouts, [key]: layout };
+      window.dispatchEvent(new Event(LAYOUT_CHANGED));
+    },
+  );
+
+  // The other way a layout.json changes is someone editing it. When the watcher does see that,
+  // virtual:canvases re-executes and hands its fresh layouts over here, because this module keeps
+  // the bindings of the *old* copy of it and would otherwise go on reading the layouts the page
+  // started with.
+  window.addEventListener("sp:canvases", (event) => {
+    layouts = (event as CustomEvent<Record<string, CanvasLayoutConfig>>).detail;
+    window.dispatchEvent(new Event(LAYOUT_CHANGED));
+  });
+}
+
 /** This board's layout.json, if it dropped one next to its HTML files. */
 export function readCanvasLayout(
   pageSlug: string,
 ): CanvasLayoutConfig | undefined {
-  for (const [path, config] of Object.entries(rawLayouts)) {
+  for (const [path, config] of Object.entries(layouts)) {
     if (LAYOUT_PATTERN.exec(path)?.[1] === pageSlug) return config;
   }
   return undefined;

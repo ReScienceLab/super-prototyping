@@ -10,8 +10,10 @@
  * The script is ES5 and lives in a `String.raw` literal, so a regex backslash is written once.
  * Two rules keep it embeddable: no backtick and no `${` anywhere in it (inspectorAgent.test.ts
  * checks), and the closing `</script>` is assembled in injectAgent so the literal never holds
- * one.
+ * one. `svgSignature.ts` is the one piece of it written elsewhere: its source is spliced in ahead
+ * of the body, so the frame signs a vector exactly as the build-time index does.
  */
+import { svgSignature } from "./svgSignature";
 
 export interface SpBox {
   x: number;
@@ -30,24 +32,33 @@ export interface SpNode {
   alt: string;
   depth: number;
   parent: number;
-  /** Whether an image asset is drawn here, as `<img>` or as a CSS background. */
+  /** Whether an asset is drawn here: an `<img>`, a CSS background or an inline `<svg>`. */
   img: boolean;
+  /** Inside an `<svg>`: a path, a group, a gradient stop. The layers list hides these. */
+  inSvg?: boolean;
   /** Relative to the root, in board px. Null only before layout. */
   box: SpBox | null;
 }
 
 /** One distinct image on the board, keyed the way the build-time index keys the folder's files. */
 export interface SpAsset {
-  /** `"<payload length>:<fnv1a>"` of the base64 payload; joins against rawAssetNames. */
+  /**
+   * `"<payload length>:<fnv1a>"` of the base64 payload, or `"svg:<fnv1a>"` of an inline vector's
+   * geometry signature; joins against rawAssetNames.
+   */
   key: string;
   uri: string;
-  via: "img" | "css";
+  via: "img" | "css" | "svg";
   mime: string;
-  /** Payload length in characters. */
+  /** Payload length in characters; for a vector, the standalone markup's. */
   chars: number;
+  /** For a vector, the viewBox size in board units. */
   w: number;
   h: number;
+  /** The `alt`; for a vector, its accessible name, class or the caption beside it. */
   alt: string;
+  /** A vector on its own: cascade colours written in, xmlns added. What Copy SVG hands out. */
+  svg?: string;
   /** Node indices that draw it. */
   uses: number[];
 }
@@ -280,11 +291,12 @@ window.__spTokens=T;
 var els=[root],nodes=[],i;
 Array.prototype.forEach.call(root.querySelectorAll('*'),function(el){if(el.tagName==='STYLE'||el.tagName==='SCRIPT')return;els.push(el);});
 for(i=0;i<els.length;i++)els[i].setAttribute('data-sp',i);
+function inSvg(el){var p=el.parentElement;return !!(p&&p.closest('svg'));}
 for(i=0;i<els.length;i++){var el=els[i],p=el.parentElement,up=-1;
   while(i>0&&p){var ps=p.getAttribute('data-sp');if(ps!==null){up=+ps;break;}p=p.parentElement;}
   nodes.push({i:i,tag:el.tagName.toLowerCase(),cls:el.getAttribute('class')||'',
     text:el.children.length?'':(el.textContent||'').replace(/\s+/g,' ').replace(/^\s+|\s+$/g,'').slice(0,60),
-    alt:el.getAttribute('alt')||'',depth:up>=0?nodes[up].depth+1:0,parent:up,img:false,box:null});}
+    alt:el.getAttribute('alt')||'',depth:up>=0?nodes[up].depth+1:0,parent:up,img:false,inSvg:inSvg(el),box:null});}
 function box(el){var r=el.getBoundingClientRect(),o=root.getBoundingClientRect();
   return{x:+(r.left-o.left).toFixed(2),y:+(r.top-o.top).toFixed(2),w:+r.width.toFixed(2),h:+r.height.toFixed(2)};}
 
@@ -300,12 +312,60 @@ function addAsset(i,uri,via,el){var c=uri.indexOf(','),payload=uri.slice(c+1),k=
   if(via==='img'){if(el.naturalWidth){a.w=el.naturalWidth;a.h=el.naturalHeight;}if(!a.alt)a.alt=el.getAttribute('alt')||'';}
   if(a.uses.indexOf(i)<0)a.uses.push(i);nodes[i].img=true;}
 
+/* An inline <svg> is an asset too, keyed by its geometry rather than its bytes: the generators'
+   icon() writes class, style and preserveAspectRatio into the root tag on the way in, so the
+   board's markup is never the file's. The copy handed out is self-contained: the colours the
+   cascade supplied (currentColor, var(), a fill from a stylesheet) are written in, and xmlns is
+   added where a literal icon had none, so an <img> in the parent draws it and Figma accepts it. */
+function addSvg(i,el){
+  if(!el.querySelector('path,rect,circle,ellipse,line,polygon,polyline,text,image,use'))return;
+  var c=el.cloneNode(true),cs=getComputedStyle(el),inner=c.querySelectorAll('[data-sp]'),n;
+  for(n=0;n<inner.length;n++)inner[n].removeAttribute('data-sp');
+  c.removeAttribute('data-sp');c.removeAttribute('style');c.removeAttribute('class');c.removeAttribute('preserveAspectRatio');
+  if(!c.hasAttribute('xmlns'))c.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  if(!c.hasAttribute('fill'))c.setAttribute('fill',cs.fill);
+  if(!c.hasAttribute('stroke'))c.setAttribute('stroke',cs.stroke);
+  /* A stylesheet rule on a child (apple-wallet's .ds path{fill:…}) leaves the copy: write a child's
+     computed fill/stroke in where it differs from its parent's and no attribute carries it.
+     ponytail: fill and stroke only; opacity or a dasharray from a stylesheet is lost. */
+  var src=el.querySelectorAll('*'),dst=c.querySelectorAll('*'),j,s,ps;
+  for(j=0;j<src.length;j++){s=getComputedStyle(src[j]);ps=getComputedStyle(src[j].parentNode);
+    if(!dst[j].hasAttribute('fill')&&s.fill!==ps.fill)dst[j].setAttribute('fill',s.fill);
+    if(!dst[j].hasAttribute('stroke')&&s.stroke!==ps.stroke)dst[j].setAttribute('stroke',s.stroke);}
+  var svg=c.outerHTML.replace(/currentColor/gi,cs.color)
+    .replace(/var\(\s*(--[\w-]+)[^)]*\)/g,function(m,p){return cs.getPropertyValue(p).replace(/^\s+|\s+$/g,'')||m;});
+  /* One row per glyph and colour: the geometry key joins the file, and the colours after it keep
+     a red and a black instance of the same glyph apart, so what a row shows is what it copies.
+     ponytail: the root's computed colours; a colour that differs only in a child's var() collapses. */
+  var k='svg:'+fnv(svgSignature(svg))+':'+fnv(cs.fill+'|'+cs.stroke+'|'+cs.color),a=byKey[k];
+  if(!a){var vb=(el.getAttribute('viewBox')||'').split(/[\s,]+/);
+    a=byKey[k]={key:k,uri:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),via:'svg',mime:'image/svg+xml',
+      chars:svg.length,w:+vb[2]||0,h:+vb[3]||0,alt:svgLabel(el),svg:svg,uses:[]};assets.push(a);}
+  if(a.uses.indexOf(i)<0)a.uses.push(i);nodes[i].img=true;}
+/* No board writes a title on its icons, so with no file to name one the name is a guess from
+   context: the accessible name if there is one; else a class, when it is a word (logo, aiface)
+   and not a generator's abbreviation (i, mk); else a caption, which is the one short leaf of text
+   beside the icon within two ancestors, the span under a tab icon or the label in a chip. A clock,
+   a keyboard row, a whole composer or a screen of text is not a caption: the icon stays nameless.
+   ponytail: two ancestors and one leaf sibling is the ceiling; a <title> in the svg beats it. */
+function svgLabel(el){var t=el.querySelector('title'),c=(el.getAttribute('class')||'').split(/\s+/)[0],p=el.parentElement,d,k,n,s,one;
+  if(el.getAttribute('aria-label'))return el.getAttribute('aria-label');
+  if(t&&t.textContent)return t.textContent.replace(/^\s+|\s+$/g,'');
+  if(c.length>=3)return c;
+  for(d=0;p&&d<2;d++,p=p.parentElement){one=null;
+    for(k=0;k<p.childNodes.length;k++){n=p.childNodes[k];if(n.nodeType===1?(n.contains(el)||n.children.length):n.nodeType!==3)continue;
+      s=(n.textContent||'').replace(/\s+/g,' ').replace(/^\s+|\s+$/g,'');if(!s)continue;
+      if(one!==null||s.length>40||!/[a-z]/i.test(s)){one=false;break;}one=s;}
+    if(one)return one;}
+  return '';}
+
 /* Every box is read after layout. A script at the end of the body runs at readyState
    'interactive', before the first layout pass and before the data: URIs have decoded, so
    measuring here reports 0x0 for every element on every board. */
 function measure(){
   for(var i=0;i<els.length;i++){var el=els[i];nodes[i].box=box(el);
     if(el.tagName==='IMG'){var src=el.getAttribute('src')||'';if(src.indexOf('data:')===0)addAsset(i,src,'img',el);}
+    else if(el.tagName==='svg'&&!nodes[i].inSvg)addSvg(i,el);
     var bg=getComputedStyle(el).backgroundImage;
     if(bg&&bg.indexOf('data:')>=0){var re=/url\("?(data:image[^")]+)"?\)/g,m;while((m=re.exec(bg)))addAsset(i,m[1],'css',el);}}}
 
@@ -356,15 +416,21 @@ addEventListener('message',function(e){var d=e.data;if(!d||typeof d!=='object')r
   else if(d.type==='sp:sel')select(d.i);
   else if(d.type==='sp:hover')hover(d.i);});
 
-function pick(e){var el=e.target&&e.target.closest?e.target.closest('[data-sp]'):null;return el?+el.getAttribute('data-sp'):null;}
+/* A click on a path is a click on its icon: the layers list shows the svg as one layer. */
+function pick(e){var el=e.target&&e.target.closest?e.target.closest('[data-sp]'):null;if(el&&el.closest('svg'))el=el.closest('svg');return el?+el.getAttribute('data-sp'):null;}
 var lastHover=null;
 document.addEventListener('click',function(e){var i=pick(e);if(i===null)return;e.preventDefault();parent.postMessage({type:'sp:pick',i:i},'*');},true);
 document.addEventListener('mousemove',function(e){var i=pick(e);if(i===lastHover)return;lastHover=i;hover(i);parent.postMessage({type:'sp:hover',i:i},'*');},true);
 document.addEventListener('mouseleave',function(){lastHover=null;hover(null);parent.postMessage({type:'sp:hover',i:null},'*');},true);
 })();`;
 
-/** The whole tag, as spliced into a board. Exported for the tests and the Playwright sweeps. */
-export const AGENT = "<script>" + AGENT_BODY + "</" + "script>";
+/**
+ * The whole tag, as spliced into a board. Exported for the tests and the Playwright sweeps. The
+ * signature function goes in as its own source: it has no outer references, so the text is
+ * the same function whether the bundle was minified or not.
+ */
+export const AGENT =
+  "<script>var svgSignature=" + svgSignature.toString() + ";" + AGENT_BODY + "</" + "script>";
 
 /**
  * Not every board has a `</body>`: the apple-* generators emit none, so those get the agent
