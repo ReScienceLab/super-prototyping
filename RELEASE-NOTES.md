@@ -70,7 +70,17 @@ Everything below is on `main` and reaches no install until a version is cut.
 
 ## v1.0.0
 
-2026-09-05, the release that packaged this repo as a plugin: code ships,
-a project's boards stay put, and `sp-canvas` joins the two. It was never
-tagged — the machinery for that is in the section above — so an install made
-before the next release reports `1.0.0` whatever it holds.
+2026-09-05, the release that packaged this repo as a plugin. The plugin ships
+code and a project keeps only its own boards, so installing it does not drop
+this repo's example canvases into your project. Installing is two halves: your
+product's own plugin command for the skills and the canvas, and one
+`uv tool install` for `refkit`, `artgen` and `sp-canvas`. `sp-canvas` starts
+the canvas against whichever boards directory it is pointed at, and the canvas
+keys its saved state per project, so two projects do not share a camera or a
+comment. Declaring the marketplace with `sparsePaths` installs only the
+directories you name, for anyone who wants the canvas and the toolkit without
+the worked examples.
+
+Tagged after the fact, at `0286f19`, where that work ended. Nine pull requests
+landed on `main` between then and the tag being cut, so this tag holds the
+packaging and not the canvas work that followed it.
