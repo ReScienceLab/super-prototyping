@@ -12,6 +12,7 @@ import {
   withBoardStatus,
   withCanvasName,
 } from "./src/boardStatusEdit.ts";
+import { boardChangeKind, boardSetSignature, boardSlug } from "./src/boardWatch.ts";
 
 /**
  * Repo root — vite.config.ts sits in canvas/, one level below it. It is published into the page
@@ -373,14 +374,14 @@ function canvasesSource(): Plugin {
             if (after === null) return send(404, "board is not in layout.json");
             if (after !== before) {
               fs.writeFileSync(layoutPath, after);
-              // Hand the edited layout to the page directly instead of waiting for the file
-              // watcher to notice the write. The boards live outside the app's root, where the
-              // watcher misses changes, and a missed one meant the status only took effect on
-              // the next reload. canvasLibrary.ts listens.
+              // Hand the edited layout to the page directly rather than leaving it to hear about
+              // its own write from the watcher, which answers a batch and not a keystroke: a
+              // badge that lags a fifth of a second behind the click reads as a badge that did
+              // not take. canvasLibrary.ts listens.
               server.hot.send("sp:board-status", { slug, layout: JSON.parse(after) });
-              // The same missed event leaves the transformed layout.json cached as it was when
-              // the server started, so drop it by hand or the *next* page load would serve the
-              // status back stale and undo what the click just did.
+              // And drop the transformed layout.json by hand for the same reason, or the *next*
+              // page load, if it beats the watcher, would serve the status back stale and undo
+              // what the click just did.
               for (const mod of server.moduleGraph.getModulesByFile(layoutPath) ?? []) {
                 server.moduleGraph.invalidateModule(mod);
               }
@@ -392,21 +393,10 @@ function canvasesSource(): Plugin {
         });
       });
 
-      // Editing a board already reloads, because the file is in the module graph once fetched.
-      // Adding or deleting one changes the *set* of boards, which only this module knows, so it
-      // has to be rebuilt and the page reloaded.
-      //
-      // Create the folder first. Watching a path that does not exist registers nothing — chokidar
-      // does not watch a parent for its creation — and a brand new project is exactly the case
+      // The boards are watched at the bottom of this hook. Create the folder first: watching a
+      // path that does not exist registers nothing, and a brand new project is exactly the case
       // where the first board folder appears while the server is already up.
       fs.mkdirSync(canvasesDir, { recursive: true });
-      server.watcher.add(canvasesDir);
-
-      const inside = (p: string) => p.startsWith(canvasesDir + path.sep);
-      const structural = (file: string) =>
-        inside(file) &&
-        (/(\.html|layout\.json|icon\.png|assets\.json)$/.test(file) ||
-          /\/assets(-dark)?\//.test(file));
 
       // The generated index, dropped so the next request for it runs the scan again. Whoever
       // asks for that request is the caller's business: the watcher reloads the open page,
@@ -515,25 +505,143 @@ function canvasesSource(): Plugin {
         });
       });
 
-      const onFile = (file: string) => {
-        if (structural(file)) rebuild();
-      };
-      // A board folder appearing or vanishing changes the set even though no file event names a
-      // board file. Scoped to the boards directory: the watcher also sees `dist/` being written
-      // during a build, which is nothing to do with us.
-      const onDir = (dir: string) => {
-        if (inside(dir)) rebuild();
+      // Every module Vite transformed from this file, dropped, so the next request for it reads
+      // the file again. The same call the status endpoint above makes, and it is effective for a
+      // board exactly as it is for a layout.json.
+      const invalidateFile = (file: string) => {
+        for (const mod of server.moduleGraph.getModulesByFile(file) ?? []) {
+          server.moduleGraph.invalidateModule(mod);
+        }
       };
 
-      server.watcher.on("add", onFile);
-      server.watcher.on("unlink", onFile);
-      // An asset edited in place keeps its name and changes its hash, so the index is stale
-      // until the module is rebuilt. Board HTML edits already reload through the module graph.
-      server.watcher.on("change", (file) => {
-        if (inside(file) && /\/assets(-dark)?\/|assets\.json$/.test(file)) rebuild();
-      });
-      server.watcher.on("addDir", onDir);
-      server.watcher.on("unlinkDir", onDir);
+      const list = (dir: string) => {
+        try {
+          return fs.readdirSync(dir);
+        } catch {
+          return []; // unreadable or gone: it signs as empty rather than throwing out of a watch
+        }
+      };
+      let signature = boardSetSignature(canvasesDir, list);
+
+      /**
+       * One settled batch of writes, answered once.
+       *
+       * The set of boards first, because a board added, removed or renamed makes the generated
+       * index wrong about which boards exist, and a reload is the only thing that fixes that.
+       * Otherwise the batch is read file by file, and a board is reloaded while a layout is
+       * handed over live — the distinction the canvas has always drawn, now drawn for a write
+       * from anywhere rather than only for one the endpoints made themselves.
+       */
+      const settle = (files: string[]) => {
+        const now = boardSetSignature(canvasesDir, list);
+        if (now !== signature) {
+          signature = now;
+          rebuild();
+          return;
+        }
+        let dropIndex = false;
+        let reload = false;
+        const layouts = new Set<string>();
+        for (const file of files) {
+          switch (boardChangeKind(canvasesDir, file)) {
+            case "board":
+              // A reload rather than an HMR update: the page keeps every board it has fetched in
+              // a Map (canvasLibrary.ts), and re-executing the generated module hands over fresh
+              // layouts, never fresh HTML. The tldraw document is in IndexedDB and survives the
+              // reload; the viewport is what it costs, which is why only a board edit spends it.
+              invalidateFile(file);
+              reload = true;
+              break;
+            case "assets":
+              // An image edited in place keeps its name and changes its hash, so the index that
+              // names a board's images by content is stale until it is generated again.
+              invalidateFile(file);
+              dropIndex = true;
+              reload = true;
+              break;
+            case "layout":
+              invalidateFile(file);
+              layouts.add(file);
+              break;
+            case "comments":
+              // No reload: comments.json is written by the endpoint above on every post, and the
+              // page that posted already holds the record. Dropping the index is only so the
+              // *next* load reads the file rather than the scan the server did at startup.
+              dropIndex = true;
+              break;
+          }
+        }
+        for (const file of layouts) {
+          // The same message the status endpoint sends, for the same reason: a layout.json is
+          // read on every render, and a reload to change one word would throw away the tldraw
+          // viewport and the open panel. canvasLibrary.ts listens.
+          try {
+            const layout = JSON.parse(fs.readFileSync(file, "utf8"));
+            server.hot.send("sp:board-status", { slug: boardSlug(canvasesDir, file), layout });
+          } catch {
+            // Half-written or malformed: the next write brings a whole one, and the page keeps
+            // the layout it has until then.
+          }
+        }
+        if (dropIndex) invalidateIndex();
+        if (reload) server.ws.send({ type: "full-reload" });
+      };
+
+      // A generator writes a folder of boards over a second or two, and a save can arrive as
+      // more than one event. Batched on the trailing edge, so a run answers with one reload
+      // once it is done rather than one per file while it is still writing.
+      const queued = new Set<string>();
+      let batch: ReturnType<typeof setTimeout> | undefined;
+      const queue = (file: string) => {
+        queued.add(file);
+        clearTimeout(batch);
+        batch = setTimeout(() => {
+          const files = [...queued];
+          queued.clear();
+          try {
+            settle(files);
+          } catch (error) {
+            server.config.logger.error(`[canvases] ${error}`);
+          }
+        }, 120);
+        // Never a reason to hold the process open: a pending reload for a server on its way down
+        // has nobody left to send it to.
+        batch.unref?.();
+      };
+
+      // The boards are watched here, directly, rather than through `server.watcher`.
+      //
+      // `server.watcher` watches the app's root, and the boards are always outside it — one level
+      // up for this checkout, anywhere at all under PROTOTYPING_CANVASES_DIR. `.add()` for a path
+      // outside the root is accepted and can then register nothing at all (issue #52), silently:
+      // no event ever arrives, the transformed module for a board stays as it was read at
+      // startup, and the server serves that board for the rest of its life however often the file
+      // is rewritten. That is unrecoverable from the browser, because the ETag never changes
+      // either, and it is the one failure a design tool must not have.
+      //
+      // Recursive fs.watch is supported on macOS and Windows, and on Linux since Node 20. Older
+      // Linux throws ERR_FEATURE_UNAVAILABLE_ON_PLATFORM, and there `server.watcher` is still
+      // better than nothing: it watches inotify-style, and the boards are usually in the same
+      // tree as the app.
+      try {
+        const watcher = fs.watch(canvasesDir, { recursive: true }, (_event, name) => {
+          if (name) queue(path.resolve(canvasesDir, name.toString()));
+        });
+        watcher.on("error", (error) => {
+          server.config.logger.error(`[canvases] watch of ${canvasesDir} failed: ${error}`);
+        });
+        watcher.unref();
+        server.httpServer?.once("close", () => watcher.close());
+      } catch (error) {
+        server.config.logger.warn(
+          `[canvases] recursive watch of ${canvasesDir} is unavailable (${error}); ` +
+            `falling back to Vite's watcher, which may miss boards outside the app's root`,
+        );
+        server.watcher.add(canvasesDir);
+        for (const event of ["add", "unlink", "change", "addDir", "unlinkDir"] as const) {
+          server.watcher.on(event, queue);
+        }
+      }
     },
   };
 }

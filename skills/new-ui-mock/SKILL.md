@@ -128,7 +128,7 @@ and numbers, then pastes it back.
 
 1. Echo what you read each annotation as, before touching anything.
 2. Change the generator, not the artboard.
-3. Re-run the generator; HMR reloads the shape in place.
+3. Re-run the generator; the canvas reloads onto the new board.
 4. Verify that region visually before claiming it is done.
 
 Answer every annotation, including the ones you disagree with. Say so in a
