@@ -120,6 +120,22 @@ SB = """  <div class="statusbar">
 """
 
 
+# Every modal sheet in this app is the same chrome: the page dimmed to a flat
+# scrim, a rounded ground pulled down from the top of the device, a grabber
+# and a centred nav title. `%d` is the nav's top margin, the one thing that
+# moves between sheets.
+SHEET = """
+
+.phone{background:var(--n-scrim)}
+.sheet{position:absolute;left:0;right:0;top:var(--n-sheet-top);bottom:0;background:var(--n-bg-sheet);
+  border-radius:var(--n-r-sheet) var(--n-r-sheet) 0 0;overflow:hidden}
+.handle{width:38px;height:5px;border-radius:3px;background:#E7E5E3;margin:7px auto 0}
+.snav{display:flex;align-items:center;justify-content:space-between;height:var(--n-tap);
+  padding:0 var(--n-gutter);margin-top:%dpx}
+.stitle{font:var(--n-t-nav);color:var(--n-text);letter-spacing:-.2px}
+"""
+
+
 # ---------------------------------------------------------- 00-design-tokens ---
 CSS_00 = """
 
@@ -472,16 +488,7 @@ BODY_04 = """
 
 
 # ------------------------------------------------------------- 05-date-sheet ---
-CSS_05 = """
-
-.phone{background:var(--n-scrim)}
-.sheet{position:absolute;left:0;right:0;top:var(--n-sheet-top);bottom:0;background:var(--n-bg-sheet);
-  border-radius:var(--n-r-sheet) var(--n-r-sheet) 0 0;overflow:hidden}
-.handle{width:38px;height:5px;border-radius:3px;background:#E7E5E3;margin:7px auto 0}
-.snav{display:flex;align-items:center;justify-content:space-between;height:var(--n-tap);
-  padding:0 var(--n-gutter);margin-top:8px}
-.stitle{font:var(--n-t-nav);color:var(--n-text);letter-spacing:-.2px}
-.help{width:26px;height:26px;color:var(--n-text-3);display:block}
+CSS_05 = SHEET % 7 + """.help{width:26px;height:26px;color:var(--n-text-3);display:block}
 .help svg{width:26px;height:26px;display:block}
 .help.ghost{visibility:hidden}
 .card{background:var(--n-bg-card);border-radius:var(--n-r-card);margin:0 var(--n-gutter-card) 12px}
@@ -552,16 +559,7 @@ BODY_05 = """
 
 
 # --------------------------------------------------- 06-share-settings-sheet ---
-CSS_06 = """
-
-.phone{background:var(--n-scrim)}
-.sheet{position:absolute;left:0;right:0;top:var(--n-sheet-top);bottom:0;background:var(--n-bg-sheet);
-  border-radius:var(--n-r-sheet) var(--n-r-sheet) 0 0;overflow:hidden}
-.handle{width:38px;height:5px;border-radius:3px;background:#E7E5E3;margin:7px auto 0}
-.snav{display:flex;align-items:center;justify-content:space-between;height:var(--n-tap);
-  padding:0 var(--n-gutter);margin-top:10px}
-.stitle{font:var(--n-t-nav);color:var(--n-text);letter-spacing:-.2px}
-.help{width:26px;height:26px;color:var(--n-text-3);display:block}
+CSS_06 = SHEET % 10 + """.help{width:26px;height:26px;color:var(--n-text-3);display:block}
 .help svg{width:26px;height:26px;display:block}
 .done{font:var(--n-t-nav);color:var(--n-blue);letter-spacing:-.2px}
 .seg{display:flex;background:var(--n-fill);border-radius:var(--n-r-field);padding:3px;
@@ -631,6 +629,274 @@ BODY_06 = """
 </div>"""
 
 
+# ------------------------------------------------------------- row glyphs ---
+I_DB = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">'
+        '<ellipse cx="12" cy="5.6" rx="8.2" ry="3.3"/>'
+        '<path d="M3.8 5.6v6.2c0 1.8 3.7 3.3 8.2 3.3s8.2-1.5 8.2-3.3V5.6"/>'
+        '<path d="M3.8 11.8v6.2c0 1.8 3.7 3.3 8.2 3.3s8.2-1.5 8.2-3.3v-6.2"/></svg>')
+I_PLUS = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '
+          'stroke-linecap="round"><path d="M12 3.4v17.2M3.4 12h17.2"/></svg>')
+I_HELP = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" '
+          'stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/>'
+          '<path d="M9.2 9.2a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4.3"/>'
+          '<circle cx="12" cy="17.8" r="1" fill="currentColor" stroke="none"/></svg>')
+I_DOTS = ('<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="4" cy="12" r="1.9"/>'
+          '<circle cx="12" cy="12" r="1.9"/><circle cx="20" cy="12" r="1.9"/></svg>')
+I_BACK = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
+          'stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 4-8 8 8 8"/></svg>')
+I_DOWN = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" '
+          'stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 7 7 7-7"/></svg>')
+# drawn to the edge of its box: in the captures this glyph is 21pt across in a
+# 44pt circle, where a 24-box icon at nominal size would only reach 15.
+I_SEARCH = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+            'stroke-linecap="round"><circle cx="9.8" cy="9.8" r="8"/>'
+            '<path d="m15.6 15.6 6.4 6.4"/></svg>')
+
+
+# -------------------------------------------------- 07-manage-data-sources ---
+# p1 and p3 are one screen before and after a source is added, so 09 reuses
+# 07's CSS unchanged and only grows a row.
+CSS_07 = SHEET % 7 + """
+.snav{padding:0 18px}
+.back{width:21px;height:21px;color:var(--n-text);display:block}
+.back svg{width:21px;height:21px;display:block}
+.back.ghost{visibility:hidden}
+.hdr{font:var(--n-t-sub);color:var(--n-text-2);letter-spacing:-.1px;padding:13px 20px 9px 33px}
+.card + .hdr{padding-top:15.4px}
+.card{background:var(--n-bg-card);border-radius:var(--n-r-card);margin:0 16px}
+.card + .card{margin-top:17px}
+.drow{display:flex;align-items:center;height:var(--n-row-h);padding:0 22px 0 17px}
+.drow + .drow{border-top:1px solid #EEEEEC}
+.di{width:18px;height:18px;flex:none;color:#84837F;margin-right:10px}
+.di svg{width:18px;height:18px;display:block}
+.dl{font:var(--n-t-row);color:var(--n-text)}
+.dl.mut{color:var(--n-text-2)}
+.dv{font:var(--n-t-row);color:var(--n-text-3);margin-left:auto}
+.dots{width:18px;height:18px;flex:none;color:#878786;margin-left:11px;display:block}
+.dots svg{width:18px;height:18px;display:block}
+"""
+
+
+def manage(sources):
+    """The Manage data sources sheet. `sources` is one row per data source."""
+    rows = "".join(
+        '      <div class="drow"><span class="di">%s</span><span class="dl">%s</span>'
+        '<span class="dv">1 view</span><span class="dots">%s</span></div>\n'
+        % (I_DB, name, I_DOTS) for name in sources)
+    return """
+<div class="phone">
+  <!--sb-->
+
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="snav">
+      <span class="back">%s</span>
+      <span class="stitle">Manage data sources</span>
+      <span class="back ghost"></span>
+    </div>
+
+    <div class="hdr">Source</div>
+    <div class="card">
+%s      <div class="drow"><span class="di">%s</span><span class="dl mut">Add data source</span></div>
+    </div>
+
+    <div class="hdr">Linked</div>
+    <div class="card">
+      <div class="drow"><span class="di">%s</span><span class="dl mut">Link existing data source</span></div>
+    </div>
+    <div class="card">
+      <div class="drow"><span class="di">%s</span><span class="dl mut">Learn about data sources</span></div>
+    </div>
+  </div>
+</div>""" % (I_BACK, rows, I_PLUS, I_PLUS, I_HELP)
+
+
+BODY_07 = manage(["Need to do"])
+
+
+# ------------------------------------------------------ 08-new-data-source ---
+# A shorter sheet than 07: no back affordance, and its rows are 16px on 56.5,
+# not 17px on 44.
+CSS_08 = SHEET % 7 + """
+.snav{justify-content:center}
+.card{background:var(--n-bg-card);border-radius:var(--n-r-card);margin:15px 16px 0}
+.card + .card{margin-top:17px}
+.nrow{display:flex;align-items:center;height:56.5px;padding:0 4px 0 14px}
+.nrow + .nrow{border-top:1px solid #F0F0F0}
+.nrow.short{height:48px}
+.tile{width:32px;height:32px;border-radius:var(--n-r-tile);background:var(--n-track);
+  display:grid;place-items:center;flex:none;color:var(--n-text-2)}
+.tile svg{width:14px;height:14px;display:block}
+.ni{width:16px;height:16px;flex:none;margin:0 8px;color:#4A4A47}
+.ni svg{width:16px;height:16px;display:block}
+.nl{font:400 16px/22px var(--n-font);color:var(--n-text);margin-left:10px}
+"""
+
+BODY_08 = """
+<div class="phone">
+  <!--sb-->
+
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="snav">
+      <span class="stitle">New data source</span>
+    </div>
+
+    <div class="card">
+      <div class="nrow"><span class="tile">%s</span><span class="nl">New empty data source</span></div>
+      <div class="nrow"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.6v14.6M6.2 11.8 12 17.6l5.8-5.8"/><path d="M3.4 21.4h17.2"/></svg></span><span class="nl">Import CSV</span></div>
+    </div>
+
+    <div class="card">
+      <div class="nrow short"><span class="ni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 18.8 18.8 5.2"/><path d="M7.5 5.2h11.3v11.3"/></svg></span><span class="nl">Link to existing data source</span></div>
+    </div>
+  </div>
+</div>""" % I_PLUS
+
+
+# ---------------------------------------------- 09-manage-data-sources-two ---
+CSS_09 = CSS_07
+BODY_09 = manage(["Need to do", "New data source"])
+
+
+# ----------------------------------------------------- 10-to-do-list-table ---
+CSS_10 = """
+
+.pnav{height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;margin-top:8px}
+.pnav .g{width:21px;height:21px;color:var(--n-text);display:block}
+.pnav .g svg{width:100%;height:100%;display:block}
+.pnav .r{display:flex;align-items:center;gap:21px}
+.pnav .g.sh{width:24px;height:24px}
+.doc{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.h1{font:var(--n-t-title);color:#232323;letter-spacing:-.1px;padding:4px 20px 0 26px;flex:none}
+.bul{list-style:none;padding:24px 20px 0 35px;flex:none}
+.bul li{position:relative;font:var(--n-t-body);color:#212121;letter-spacing:-.1px;
+  padding-left:22px;margin-bottom:6px}
+.bul li::before{content:"";position:absolute;left:0;top:9.7px;width:6.5px;height:6.5px;
+  border-radius:50%;background:#212121}
+.dbt{display:flex;align-items:center;gap:9.5px;flex:none;padding:6px 20px 0 26.4px;
+  font:700 24px/32px var(--n-font);color:#D8D8D8;letter-spacing:-.41px}
+.dbt .cv{width:15px;height:15px;color:#82827F;flex:none;display:block}
+.dbt .cv svg{width:100%;height:100%;display:block}
+
+.tbar{display:flex;align-items:center;height:36px;flex:none;margin:12px 30px 0 26px}
+.chip{display:flex;align-items:center;height:36px;border-radius:var(--n-r-pill);
+  background:#F3F3F3;padding:0 11.5px 0 12px;color:#222}
+.chip .gl{width:17px;height:17px;display:block}
+.chip .gl svg{width:100%;height:100%;display:block}
+.chip b{font:400 15px/20px var(--n-font);letter-spacing:-.2px;margin:0 9px}
+.chip .cv{width:12px;height:12px;color:#5B5B58;display:block}
+.chip .cv svg{width:100%;height:100%;display:block}
+.tbi{width:17px;height:17px;color:#80807B;display:block;margin-left:15px}
+.tbi.gap{margin-left:auto}
+.tbi svg{width:100%;height:100%;display:block}
+.newbtn{display:flex;align-items:stretch;width:60px;height:32px;flex:none;margin-left:15px;
+  border-radius:8px;background:#4380D7;overflow:hidden}
+.newbtn span{flex:1;display:grid;place-items:center;color:#fff}
+.newbtn span + span{flex:0 0 27px;border-left:1px solid #3A73C3}
+.newbtn svg{width:15px;height:15px;display:block;stroke-width:2.6}
+
+/* The table is wider than the gutter allows and scrolls sideways in the app;
+   here it is simply clipped, which is what the capture shows. */
+.tbl{width:361px;flex:none;margin:1px 0 0 26px;overflow:hidden}
+.th,.tr{display:flex;align-items:stretch;border-bottom:1px solid #EFEFEE}
+.th{height:37px}
+.tr{height:45px}
+.c1{width:280.2px;flex:none;border-right:1px solid #F0F0EF;display:flex;align-items:center}
+.c2{flex:none;width:110px;display:flex;align-items:center;padding-left:4px}
+.th .c1{padding-left:7px;border-right:none}
+.tr .c1{padding-left:9.7px}
+.th .aa,.th .cn,.th .ap{font:400 15px/20px var(--n-font);color:#959594;letter-spacing:-.2px}
+.th .aa{font-weight:700;font-size:16px;margin-right:5px}
+.th .ap{color:#81827F;white-space:nowrap}
+.tr .np{font:var(--n-t-row);color:#949492}
+.pl{width:15px;height:15px;flex:none;margin-right:9px;color:#949492;display:block}
+.pl svg{width:100%;height:100%;display:block;stroke-width:2.2}
+.th .pl{width:17px;height:17px;color:#81827F;margin-right:5.5px}
+
+.bottombar{flex:none;display:flex;align-items:center;gap:14px;padding:0 18px 35.8px}
+.circbtn{width:44px;height:44px;flex:none;border-radius:50%;background:var(--n-fill-soft);
+  border:1px solid var(--n-border);
+  box-shadow:0 2px 8px rgba(29,25,26,.06),0 6px 30px rgba(29,25,26,.08);
+  display:grid;place-items:center;color:var(--n-text)}
+.circbtn svg{width:23px;height:23px;display:block}
+.askbar{flex:1;height:44px;border-radius:var(--n-r-pill);background:var(--n-fill-soft);
+  border:1px solid var(--n-border);
+  box-shadow:0 2px 8px rgba(29,25,26,.06),0 6px 30px rgba(29,25,26,.08);
+  display:flex;align-items:center;padding:0 14px 0 7px}
+.aiava{width:33px;height:33px;border-radius:50%;border:1px solid #F2F2F2;position:relative;
+  display:grid;place-items:center;flex:none;color:var(--n-text)}
+.aiava .aiface{width:21px;height:21px}
+.hat{position:absolute;left:calc(50% + 1.7px);top:-11px;width:29.5px;height:17.5px;
+  transform:translateX(-50%) rotate(-5deg)}
+.askbar .ph{font:var(--n-t-row);color:var(--n-text-2);
+  margin-left:8px}
+.mic{width:19px;height:21px;color:#81827E;margin-left:auto;display:block}
+"""
+
+BULLETS = ["Finish work presentation", "Buy new house plants", "Go grocery",
+           "Pay utility bills", "Respond to client email"]
+
+BODY_10 = """
+<div class="phone">
+  <!--sb-->
+
+  <div class="pnav">
+    <span class="g">%s</span>
+    <span class="r">
+      <span class="g sh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.4V15"/><path d="m7.6 6.8 4.4-4.4 4.4 4.4"/><path d="M5.2 12.4v7.4a1.8 1.8 0 0 0 1.8 1.8h10a1.8 1.8 0 0 0 1.8-1.8v-7.4"/></svg></span>
+      <span class="g">%s</span>
+    </span>
+  </div>
+
+  <div class="doc">
+    <div class="h1">To do list</div>
+    <ul class="bul">
+%s    </ul>
+
+    <div class="dbt">New data source<span class="cv">%s</span></div>
+
+    <div class="tbar">
+      <span class="chip">
+        <span class="gl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="1.6" y="3.6" width="20.8" height="16.8" rx="2.6"/><path d="M1.6 9.2h20.8M1.6 14.8h20.8M8.6 9.2v11.2"/></svg></span>
+        <b>Table</b>
+        <span class="cv">%s</span>
+      </span>
+      <span class="tbi gap">%s</span>
+      <span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 6h20M5.5 12h13M9.5 18h5"/></svg></span>
+      <span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8h11.5M19.5 8H22M2 16h2.5M10.5 16H22"/><circle cx="16.5" cy="8" r="2.8"/><circle cx="7.5" cy="16" r="2.8"/></svg></span>
+      <span class="newbtn"><span>%s</span><span>%s</span></span>
+    </div>
+
+    <div class="tbl">
+      <div class="th">
+        <span class="c1"><span class="aa">Aa</span><span class="cn">Name</span></span>
+        <span class="c2"><span class="pl">%s</span><span class="ap">Add property</span></span>
+      </div>
+      <div class="tr"><span class="c1"><span class="pl">%s</span><span class="np">New page</span></span><span class="c2"></span></div>
+      <div class="tr"><span class="c1"></span><span class="c2"></span></div>
+      <div class="tr"><span class="c1"></span><span class="c2"></span></div>
+    </div>
+  </div>
+
+  <div class="bottombar">
+    <div class="circbtn">%s</div>
+    <div class="askbar">
+      <span class="aiava">
+        <svg class="hat" viewBox="0 0 40 24" fill="none" stroke="#241F1D" stroke-width="1.7" stroke-linejoin="round"><path d="M8.6 16.8C8.6 8.6 12.6 3.4 20 3.4s11.4 5.2 11.4 13.4z" fill="#E5573F"/><path d="M2.6 19.4c0-1.7 7.8-3.2 17.4-3.2s17.4 1.5 17.4 3.2-7.8 3.4-17.4 3.4S2.6 21.1 2.6 19.4Z" fill="#E5573F"/><path d="m20 10.6 2.9 2.1-1.1 3.4h-3.6l-1.1-3.4z" fill="#F0A93A" stroke-width="1.2"/></svg>
+        <svg class="aiface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 6.0Q7.55 3.0 10.75 5.85"/><path d="M19.4 6.15C17.75 3.6 14.6 3.4 12.5 6.15L5.45 19.6h6.15"/><circle cx="7.95" cy="8.75" r="1.15" fill="currentColor" stroke="none"/><circle cx="14.55" cy="9.55" r="1.15" fill="currentColor" stroke="none"/></svg>
+      </span>
+      <span class="ph">Ask AI</span>
+      <span class="mic"><svg viewBox="0 0 22 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="7.4" y="1.5" width="7.2" height="12.4" rx="3.6"/><path d="M3.2 11.6a7.8 7.8 0 0 0 15.6 0"/><path d="M11 19.4v3.1"/></svg></span>
+    </div>
+    <div class="circbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.1v6.2a2.2 2.2 0 0 1-2.2 2.2H4.7a2.2 2.2 0 0 1-2.2-2.2V5.6a2.2 2.2 0 0 1 2.2-2.2h6.3"/><path d="M17.3 1.9 22 6.6 12.5 16.1H7.8V11.4Z"/></svg></div>
+  </div>
+</div>""" % (I_BACK, I_DOTS, "".join("      <li>%s</li>\n" % b for b in BULLETS),
+             I_DOWN, I_DOWN, I_SEARCH, I_PLUS, I_DOWN, I_PLUS, I_PLUS, I_SEARCH)
+
+
+
 # ------------------------------------------------------------------- boards ---
 BOARDS = [
     ("00-design-tokens", "Notion iOS — Design Tokens", CSS_00, BODY_00),
@@ -640,6 +906,10 @@ BOARDS = [
     ("04-meeting-page", "Notion iOS — Meeting page", CSS_04, BODY_04),
     ("05-date-sheet", "Notion iOS — Date sheet", CSS_05, BODY_05),
     ("06-share-settings-sheet", "Notion iOS — Share settings sheet", CSS_06, BODY_06),
+    ("07-manage-data-sources", "Notion iOS — Manage data sources", CSS_07, BODY_07),
+    ("08-new-data-source", "Notion iOS — New data source", CSS_08, BODY_08),
+    ("09-manage-data-sources-two", "Notion iOS — Manage data sources, two", CSS_09, BODY_09),
+    ("10-to-do-list-table", "Notion iOS — To do list with a table", CSS_10, BODY_10),
 ]
 
 if __name__ == "__main__":

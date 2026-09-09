@@ -40,6 +40,28 @@
           "label": "Share settings sheet"
         }
       ]
+    },
+    {
+      "title": "Flow: adding a new data source",
+      "numbered": true,
+      "files": [
+        {
+          "file": "07-manage-data-sources",
+          "label": "Manage data sources"
+        },
+        {
+          "file": "08-new-data-source",
+          "label": "New data source"
+        },
+        {
+          "file": "09-manage-data-sources-two",
+          "label": "Manage data sources, two"
+        },
+        {
+          "file": "10-to-do-list-table",
+          "label": "To do list with a table"
+        }
+      ]
     }
   ]
 }
