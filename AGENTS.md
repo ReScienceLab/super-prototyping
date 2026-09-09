@@ -69,4 +69,14 @@ Rules inside a canvas folder:
   gets no README either: GitHub would show it instead of the root one, so its
   guide lives in `CONTRIBUTING.md`.
 
+What to leave out:
+
+- Inline a helper that has one call site. A name read once costs a jump and
+  buys nothing.
+- Do not add configuration, an extension point or generic machinery for a case
+  that has not happened. The second real case is what shows the general
+  version its shape.
+- Do not write a fallback for a state that should be impossible. Let it fail
+  loudly, so the state gets reported instead of absorbed.
+
 A decision worth rereading goes in `docs/YYYY-MM-DD-slug.md`.

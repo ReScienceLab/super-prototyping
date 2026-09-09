@@ -57,6 +57,13 @@ to inject a bootstrap prompt. This plugin's skills are invoked by name like any
 other skill, so the convention `skills/` directory is the whole integration and
 a TypeScript extension would be code to maintain for nothing.
 
+**A root `package.json`.** Pi's `installGit` runs `npm install` at the package
+root whenever it finds one there, so a `pi` manifest would buy a listing on
+pi.dev and charge every Pi install an npm step. Without it the install is a
+clone and a checkout, which is also the shape of its cost: full history, no
+sparse or shallow option, and the reconcile step in `pi update` wipes untracked
+files in that clone, so nobody should edit inside it.
+
 ## What the version buys, per product
 
 Claude Code, Codex and CodeBuddy each cache under
