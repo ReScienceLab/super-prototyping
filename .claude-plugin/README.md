@@ -12,5 +12,6 @@ It is deliberately not `strict: false`. `plugin.json` stays the single
 definition, and a second plugin later is one added entry here rather than a
 restructure.
 
-Both versions, plus `.codex-plugin/plugin.json` and `tools/pyproject.toml`,
-move together through `scripts/bump-version.sh`. Never edit a version by hand.
+Both versions move together with every other one through
+`scripts/bump-version.sh`. `.version-bump.json` is the list. Never edit a
+version by hand.
