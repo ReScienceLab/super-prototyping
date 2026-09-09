@@ -293,9 +293,9 @@ let layouts: Record<string, CanvasLayoutConfig> = rawLayouts;
 
 if (import.meta.hot) {
   // The status endpoint sends the layout.json it has just written, rather than leaving the page
-  // to hear about the write from the file watcher: the boards live outside the app's root, where
-  // the watcher misses changes, and a missed one meant the status only took effect on the next
-  // reload.
+  // to hear about the write from the file watcher: the watcher answers a settled batch of writes
+  // and would have the badge lag the click it answers. The watcher sends this same message for a
+  // layout.json edited by hand, so a status set twice over lands twice, identically.
   import.meta.hot.on(
     "sp:board-status",
     ({ slug, layout }: { slug: string; layout: CanvasLayoutConfig }) => {
@@ -306,10 +306,11 @@ if (import.meta.hot) {
     },
   );
 
-  // The other way a layout.json changes is someone editing it. When the watcher does see that,
-  // virtual:canvases re-executes and hands its fresh layouts over here, because this module keeps
-  // the bindings of the *old* copy of it and would otherwise go on reading the layouts the page
-  // started with.
+  // And whenever virtual:canvases re-executes for any other reason, it hands its fresh layouts
+  // over here, because this module keeps the bindings of the *old* copy of it and would otherwise
+  // go on reading the layouts the page started with. That is Vite's own HMR update, which reaches
+  // a layout.json only where the boards happen to sit inside the app's root; the message above is
+  // what carries an edit in every other case.
   window.addEventListener("sp:canvases", (event) => {
     layouts = (event as CustomEvent<Record<string, CanvasLayoutConfig>>).detail;
     window.dispatchEvent(new Event(LAYOUT_CHANGED));

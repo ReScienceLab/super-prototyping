@@ -55,9 +55,10 @@ pointed at the wrong one look identical otherwise.
 
 **A folder created after boot appears on its own.** The dev server watches the
 boards directory and rebuilds its index when a board folder or file is added
-or removed. Content edits reload through HMR as always. If a `?canvas=<slug>`
-link still matches no page, the folder has no `.html` file in it yet — an
-empty folder is not a board.
+or removed. Rewriting a board reloads the page onto the new version, so a
+generator can be re-run with the canvas open. If a `?canvas=<slug>` link still
+matches no page, the folder has no `.html` file in it yet — an empty folder is
+not a board.
 
 The styles panel is hidden by default; toggle it from the toolbar. Always-snap
 is on by default. The setting is per browser, so turning it off in tldraw's
@@ -77,7 +78,7 @@ reordering a row entry leaves the old shape at its old position, overlapping
 the new one. Force-refresh deletes every `canvas-file` /
 `canvas-row-heading` / `canvas-file-label` shape on all pages and rebuilds
 them from the current files. Content-only edits to a placed file do **not**
-need it; Vite HMR updates that iframe's `srcDoc` live.
+need it: the dev server reloads the canvas onto the rewritten board.
 
 ## Drive the canvas
 
@@ -114,7 +115,7 @@ tools or any image annotator.
    it as ("box 2: tighten the card gap") before touching anything.
 2. Read the surrounding UI and the HTML source before editing.
 3. Make the smallest source change that satisfies it.
-4. Let HMR reload, then verify the same region visually.
+4. Let the canvas reload, then verify the same region visually.
 
 Do not build an annotation-to-agent protocol. The screenshot is the bridge.
 
