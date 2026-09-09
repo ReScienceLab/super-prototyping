@@ -126,7 +126,11 @@ def _version_key(name: str):
     (1, 0, 0, 1), which beat 1.0.0. bump-version.sh accepts prereleases, so the cache
     really can hold both. Anything unparseable sorts oldest.
     """
-    m = re.match(r"v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+](.*))?$", name)
+    # The separator is optional because the two halves spell a prerelease differently:
+    # the manifests carry semver's 1.1.0-rc.1 and hatchling normalises the wheel to
+    # PEP 440's 1.1.0rc1. Both have to land on the same key or every prerelease
+    # install reports drift against itself.
+    m = re.match(r"v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[-+._]?([A-Za-z][0-9A-Za-z.+-]*))?$", name)
     if not m:
         return (-1,)
     release = tuple(int(p or 0) for p in m.group(1, 2, 3))
@@ -154,7 +158,7 @@ def _plugin_version(root: Path):
     """The version of the plugin the canvas app came out of, or None if it has no manifest."""
     try:
         return json.loads((root / ".claude-plugin/plugin.json").read_text()).get("version")
-    except (OSError, ValueError):
+    except (OSError, ValueError, AttributeError):
         return None
 
 
@@ -168,7 +172,10 @@ def skew(root: Path):
     checkout has no release number to compare.
     """
     plugin, toolkit = _plugin_version(root), _toolkit_version()
-    return (plugin, toolkit) if plugin and toolkit and plugin != toolkit else None
+    if not (plugin and toolkit):
+        return None
+    # Compared as versions, not as strings: see _version_key on the two spellings.
+    return (plugin, toolkit) if _version_key(plugin) != _version_key(toolkit) else None
 
 
 def skew_fix(plugin, toolkit):

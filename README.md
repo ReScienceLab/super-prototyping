@@ -84,7 +84,7 @@ The **toolkit** the skills call by name is one more command, once per machine.
 | **Hermes** | `hermes plugins install ReScienceLab/super-prototyping --enable` |
 | **Pi** | `pi install git:github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>` |
 | **Trae**, and anything else that reads `SKILL.md` | `npx skills add ReScienceLab/super-prototyping` |
-| Any of the above, from a clone you control | `scripts/install-skills.sh` |
+| Any of those except Claude Code, from a clone you control | `scripts/install-skills.sh` |
 
 Then the toolkit, whichever product you came from:
 

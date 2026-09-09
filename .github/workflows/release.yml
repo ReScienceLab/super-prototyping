@@ -19,9 +19,10 @@ name: Release
 # GitHub Actions to create and approve pull requests" must be on, or the first
 # job pushes its branch and then fails to open the PR; and a PR opened by
 # GITHUB_TOKEN does not itself trigger `pull_request` workflows, so the release
-# PR shows no Validate run. That is deliberate: `gates` ran on the commit
-# being released, the bump touches only version strings, and `claude plugin
-# tag` validates again before tagging.
+# PR shows no Validate run until a person pushes to it, which step 4 of the
+# release asks for anyway. Either way it is covered: `gates` ran on the commit
+# being released, the bump touches only version strings, and the tag job
+# re-checks every manifest before `claude plugin tag` runs.
 
 on:
   workflow_dispatch:
@@ -38,10 +39,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: release
-  cancel-in-progress: false
-
 jobs:
   gates:
     name: Gates
@@ -52,6 +49,11 @@ jobs:
 
   prepare:
     name: Prepare the release PR
+    # A group per half. Sharing one lets a push queue behind a dispatch and then be
+    # cancelled by the next push, which would drop a version on the floor untagged.
+    concurrency:
+      group: release-prepare
+      cancel-in-progress: false
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     needs: gates
     runs-on: ubuntu-latest
@@ -80,11 +82,29 @@ jobs:
           fi
           git config user.name  'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git switch -c "release/$VERSION"
-          git commit -am "release $VERSION"
-          # --force-with-lease so a dispatch that failed after the push (see the
-          # header) can be re-run rather than needing the branch deleted.
-          git push --force-with-lease --set-upstream origin "release/$VERSION"
+
+          # A re-dispatch of the same version must not discard the release notes
+          # someone has already written on the branch, so the bump is replayed on
+          # top of what is there. A lease cannot protect that: actions/checkout
+          # maps only the branch it checked out, so --force-with-lease finds no
+          # remote-tracking ref for release/<version>, reads the lease as "must
+          # not exist", and rejects the push whenever the branch is already up.
+          if git ls-remote --exit-code --heads origin "release/$VERSION" > /dev/null 2>&1; then
+            git fetch --depth 1 origin "release/$VERSION"
+            git checkout -f -B "release/$VERSION" FETCH_HEAD
+            scripts/bump-version.sh "$VERSION"
+            scripts/bump-version.sh --check
+            if git diff --quiet; then
+              echo "release/$VERSION is already at $VERSION; leaving the branch as it is"
+            else
+              git commit -am "release $VERSION"
+              git push origin "release/$VERSION"
+            fi
+          else
+            git switch -c "release/$VERSION"
+            git commit -am "release $VERSION"
+            git push --set-upstream origin "release/$VERSION"
+          fi
           if [ -n "$(gh pr list --head "release/$VERSION" --state open --json number --jq '.[].number')" ]; then
             echo "a PR for release/$VERSION is already open; pushed the new bump to it"
             exit 0
@@ -107,6 +127,9 @@ jobs:
 
   tag:
     name: Tag and release
+    concurrency:
+      group: release-tag
+      cancel-in-progress: false
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -127,14 +150,36 @@ jobs:
         run: |
           set -euo pipefail
           read_version() { python3 -c 'import json,sys;print(json.load(sys.stdin)["version"])'; }
+          # Semver precedence, which `sort -V` does not implement: it ranks 1.1.0-rc.1
+          # above 1.1.0, so the ordinary rc-to-final release would read as a downgrade
+          # and a real downgrade would read as a release. A version neither side can
+          # parse exits 2 here, which counts as "did not move forward" and is not tagged.
+          newer() {
+            python3 -c 'import re, sys
+          def key(v):
+              m = re.match(r"(\d+)\.(\d+)\.(\d+)(?:-(.+))?$", v)
+              if not m:
+                  sys.exit(2)
+              pre = m.group(4)
+              rel = tuple(int(x) for x in m.group(1, 2, 3))
+              return rel + ((0, tuple(int(n) for n in re.findall(r"\d+", pre))) if pre else (1, ()))
+          sys.exit(0 if key(sys.argv[2]) > key(sys.argv[1]) else 1)' "$1" "$2"
+          }
           version=$(read_version < .claude-plugin/plugin.json)
           fresh=true
 
           if ! git cat-file -e "$BEFORE:.claude-plugin/plugin.json" 2> /dev/null; then
             echo "no plugin.json at $BEFORE, so there is nothing to compare against and nothing to tag"
             fresh=false
-          elif [ "$(git show "$BEFORE:.claude-plugin/plugin.json" | read_version)" = "$version" ]; then
+          elif before=$(git show "$BEFORE:.claude-plugin/plugin.json" | read_version); [ "$before" = "$version" ]; then
             echo "plugin.json changed but the version did not ($version), so this is not a release"
+            fresh=false
+          elif ! newer "$before" "$version"; then
+            # Reverting the release PR restores the old number on a tree that still
+            # holds the new code, and the tag ruleset forbids moving a tag once it is
+            # cut. So a version that does not move forward is a revert, not a release,
+            # and tagging it would be unfixable.
+            echo "the version did not move forward ($before to $version), so this is not a release"
             fresh=false
           elif git rev-parse -q --verify "refs/tags/super-prototyping--v$version" > /dev/null; then
             echo "super-prototyping--v$version already exists, so there is nothing to do"
@@ -153,7 +198,19 @@ jobs:
 
       - name: Install Claude Code
         if: steps.v.outputs.fresh == 'true'
-        run: npm install -g @anthropic-ai/claude-code
+        # Unpinned, so the version that tagged a release is worth having in the log:
+        # the tag format and what --strict rejects are both its to change.
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude --version
+
+      # `claude plugin tag` reads .claude-plugin/plugin.json and the marketplace entry
+      # and nothing else, so without this the root, Codex, CodeBuddy and pyproject
+      # versions are unchecked at the moment of tagging: exactly the half-versioned
+      # release scripts/bump-version.sh exists to prevent.
+      - name: Every manifest still agrees
+        if: steps.v.outputs.fresh == 'true'
+        run: scripts/bump-version.sh --check
 
       # `claude plugin tag` is the tool's own spelling of this repo's tag: it
       # validates the plugin, checks plugin.json and the marketplace entry agree on
@@ -176,6 +233,7 @@ jobs:
           # heading must match exactly: a prefix match would hand `1.1.0` the notes
           # written under `## v1.1.0-rc.1`.
           awk -v want="## v$VERSION" '
+            { sub(/\r$/, ""); sub(/[ \t]+$/, "") }
             $0 == want { on = 1; next }
             on && /^## / { exit }
             on { print }
@@ -186,7 +244,8 @@ jobs:
             *-*) prerelease=--prerelease ;;
             *)   prerelease= ;;
           esac
-          if [ -s notes.md ]; then
+          # -s would pass a section that is nothing but blank lines.
+          if grep -q '[^[:space:]]' notes.md; then
             gh release create "super-prototyping--v$VERSION" $prerelease \
               --title "super-prototyping $VERSION" --notes-file notes.md
           else

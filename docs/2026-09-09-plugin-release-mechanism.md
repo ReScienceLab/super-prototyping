@@ -54,7 +54,7 @@ There are exactly two coherent contracts, and the choice is ours:
 
 ## Where we are today
 
-- `scripts/bump-version.sh` already moves all five version fields at once and
+- `scripts/bump-version.sh` already moves all seven version fields at once and
   has a `--check` mode; `.version-bump.json` lists them, and `tagPrefix` is
   `super-prototyping--v`.
 - That prefix is not arbitrary: `claude plugin tag` (CLI 2.1.263) creates

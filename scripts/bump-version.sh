@@ -72,7 +72,9 @@ def write_toml_version(text, parts, value):
         raise SystemExit("error: no `version = \"...\"` line to rewrite")
     return new
 
-seen, failures = {}, []
+# Read every file before writing any of them. A bump that stops halfway leaves the
+# tree half-versioned, which is the one state this script exists to make impossible.
+seen, failures, planned = {}, [], []
 
 for entry in spec["files"]:
     path  = root / entry["path"]
@@ -95,27 +97,27 @@ for entry in spec["files"]:
         current = get_in(json.loads(text), parts)
 
     seen[label] = current
-
-    if mode == "check":
-        continue
-
-    if current == version:
-        print(f"  = {label} already {version}")
-        continue
-
-    if path.suffix == ".toml":
-        path.write_text(write_toml_version(text, parts, version))
-    else:
-        data = json.loads(text)
-        set_in(data, parts, version)
-        path.write_text(json.dumps(data, indent=2) + "\n")
-    print(f"  → {label}  {current} → {version}")
+    planned.append((path, parts, label, text, current))
 
 if failures:
     print("", file=sys.stderr)
     for problem in failures:
         print(f"error: {problem}", file=sys.stderr)
+    print("error: nothing was written", file=sys.stderr)
     sys.exit(1)
+
+if mode == "set":
+    for path, parts, label, text, current in planned:
+        if current == version:
+            print(f"  = {label} already {version}")
+            continue
+        if path.suffix == ".toml":
+            path.write_text(write_toml_version(text, parts, version))
+        else:
+            data = json.loads(text)
+            set_in(data, parts, version)
+            path.write_text(json.dumps(data, indent=2) + "\n")
+        print(f"  → {label}  {current} → {version}")
 
 if mode == "check":
     distinct = sorted(set(seen.values()))

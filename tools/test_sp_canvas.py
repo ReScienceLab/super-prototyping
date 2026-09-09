@@ -42,6 +42,15 @@ def test_skew_is_only_reported_when_both_halves_name_a_release():
     assert with_toolkit("1.1.0", lambda: C.skew(plugin_root(None))) is None
 
 
+def test_a_prerelease_does_not_report_drift_against_itself():
+    # The manifests carry semver and the built wheel carries PEP 440, so one release
+    # is spelled two ways. Compared as strings, every prerelease install would open
+    # with a note telling the user to reinstall what they already have.
+    root = plugin_root("1.1.0-rc.1")
+    assert with_toolkit("1.1.0rc1", lambda: C.skew(root)) is None
+    assert with_toolkit("1.1.0", lambda: C.skew(root)) == ("1.1.0-rc.1", "1.1.0")
+
+
 def test_the_fix_moves_whichever_half_is_behind():
     # The plugin is ahead: pin the toolkit to the plugin's tag.
     fix = C.skew_fix("1.1.0", "1.0.0")

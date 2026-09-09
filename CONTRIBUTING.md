@@ -113,10 +113,13 @@ tag: the tag on the Releases page, `/plugin update super-prototyping` in Claude
 Code, and `uv tool install --force
 "git+https://github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>#subdirectory=tools"`.
 
-**When a step fails.** The tag job only runs when the push actually changed the
-version and no such tag exists, so a re-run or an unrelated push to `main`
-cannot tag twice. If the workflow cannot open the pull request, the branch is
-already pushed and nothing is lost: open it by hand from
+**When a step fails.** The tag job runs only when the push moved the version
+forward and no tag names it yet, so a re-run, an unrelated push to `main`, and
+a revert of the release pull request all leave the tags alone. Dispatching a
+version whose branch already exists replays the bump on top of that branch
+rather than force-pushing over it, so the notes written at step 4 survive. If
+the workflow cannot open the pull request, the branch is already pushed and
+nothing is lost: open it by hand from
 `main...release/<version>`, and turn on Settings → Actions → General → "Allow
 GitHub Actions to create and approve pull requests", which is what it needed.
 The whole thing is doable by hand too. Run `scripts/bump-version.sh <version>`,
