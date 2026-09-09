@@ -249,9 +249,12 @@ Deliberately not doing:
   install cannot do well, but it adds a second release surface and a name to
   own. Revisit if users ask; the tagged git URL covers the need.
 - **Not adopting release-please / semantic-release.** They exist to derive
-  versions from conventional commits and generate changelogs; we have five
-  files in one repo and a script that already moves them, and the notes worth
+  versions from conventional commits and generate changelogs; we have a handful
+  of files in one repo and a script that already moves them, and the notes worth
   writing are not commit subjects.
+
+Which products that version actually reaches, and which file each of them reads
+to find it, is the companion note: `docs/2026-09-09-multi-product-install.md`.
 
 ## Checked
 

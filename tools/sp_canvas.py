@@ -47,8 +47,8 @@ def _candidates():
     """Every place a canvas app could be, most explicit first.
 
     Yields (label, path). No product exposes its plugin root to a shell in a way
-    all four of Claude Code, Codex, Hermes and Pi agree on, so the app is found
-    rather than addressed.
+    Claude Code, Codex, CodeBuddy, Hermes, Pi and Trae agree on, so the app is
+    found rather than addressed.
     """
     env = os.environ.get("SUPER_PROTOTYPING_ROOT")
     if env:
@@ -70,17 +70,37 @@ def _candidates():
 
     # Failing that, the cache holds one directory per installed version, and old ones are not
     # cleaned up. Sort by version, not by mtime: two directories can share an mtime, and then
-    # mtime order is arbitrary and can hand back the older release.
-    cache = glob.glob(str(Path.home() / ".claude/plugins/cache/*/super-prototyping/*"))
-    for path in sorted(cache, key=lambda p: _version_key(Path(p).name), reverse=True):
-        yield "Claude Code plugin cache", Path(path)
+    # mtime order is arbitrary and can hand back the older release. Codex and CodeBuddy cache
+    # the same way under their own homes, so the same pick works for all three.
+    for label, pattern in (
+        ("Claude Code plugin cache", ".claude/plugins/cache/*/super-prototyping/*"),
+        ("Codex plugin cache",       ".codex/plugins/cache/*/super-prototyping/*"),
+        ("CodeBuddy plugin cache",   ".codebuddy/plugins/cache/*/super-prototyping/*"),
+    ):
+        found = glob.glob(str(Path.home() / pattern))
+        for path in sorted(found, key=lambda p: _version_key(Path(p).name), reverse=True):
+            yield label, Path(path)
 
-    # The other products hold a symlink per skill, pointing back into the
-    # checkout: <root>/skills/prototype-canvas -> up two levels is <root>.
+    # Hermes and Pi clone the repo whole rather than keeping a copy per version: Hermes into
+    # its plugins directory, flat or one category level deep, Pi into a git package keyed by
+    # host and repo path.
+    for label, pattern in (
+        ("Hermes plugin", ".hermes/plugins/super-prototyping"),
+        ("Hermes plugin", ".hermes/plugins/*/super-prototyping"),
+        ("Pi git package", ".pi/agent/git/*/ReScienceLab/super-prototyping"),
+    ):
+        for path in sorted(glob.glob(str(Path.home() / pattern))):
+            yield label, Path(path)
+
+    # Everything else holds a symlink per skill, pointing back into the checkout:
+    # <root>/skills/prototype-canvas -> up two levels is <root>.
     for label, root in (
         ("Codex CLI", "~/.codex/skills"),
+        ("CodeBuddy", "~/.codebuddy/skills"),
         ("Hermes", "~/.hermes/skills"),
         ("Pi", "~/.pi/agent/skills"),
+        ("Trae", "~/.trae/skills"),
+        ("Trae CN", "~/.trae-cn/skills"),
     ):
         link = Path(root).expanduser() / "prototype-canvas"
         if link.is_symlink():
@@ -158,7 +178,8 @@ def skew_fix(plugin, toolkit):
     the plugin's older tag is a downgrade, and to a tag that need not even exist yet.
     """
     if _version_key(toolkit) > _version_key(plugin):
-        return "/plugin update super-prototyping   (in Claude Code; codex plugin add, in Codex)"
+        return ("/plugin update super-prototyping   (Claude Code; or codex plugin add, "
+                "codebuddy plugin install, hermes plugins update, npx skills update)")
     return ('uv tool install --force "git+https://github.com/ReScienceLab/'
             f'super-prototyping@{TAG_PREFIX}{plugin}#subdirectory=tools"')
 

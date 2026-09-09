@@ -1,9 +1,11 @@
 {
   "files": [
+    { "path": "plugin.json", "field": "version" },
     { "path": ".claude-plugin/plugin.json", "field": "version" },
     { "path": ".claude-plugin/marketplace.json", "field": "metadata.version" },
     { "path": ".claude-plugin/marketplace.json", "field": "plugins.0.version" },
     { "path": ".codex-plugin/plugin.json", "field": "version" },
+    { "path": ".codebuddy-plugin/plugin.json", "field": "version" },
     { "path": "tools/pyproject.toml", "field": "project.version" }
   ],
   "tagPrefix": "super-prototyping--v"

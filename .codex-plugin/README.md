@@ -10,7 +10,7 @@ Codex does have a marketplace, as of `codex-cli` 0.145:
 `plugins/cache/<marketplace>/<plugin>/<version>/`, keyed by the version in this
 manifest. The catalogue it reads is `.agents/plugins/marketplace.json`.
 `scripts/install-skills.sh` is still there for a Codex too old for the plugin
-commands, and for Hermes and Pi: it symlinks each `skills/*` into their skill
-roots.
+commands, and for products that have no such command at all: it symlinks each
+`skills/*` into their skill roots.
 
 Its version moves with the others through `scripts/bump-version.sh`.

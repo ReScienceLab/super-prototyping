@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Install the super-prototyping skills and toolkit for agent products that have
-# no plugin marketplace of their own.
+# Install the super-prototyping skills and toolkit into every agent product on
+# this machine that reads a skills directory.
 #
 #   scripts/install-skills.sh              # toolkit + every product found
 #   scripts/install-skills.sh --tools-only # just refkit and artgen
@@ -12,12 +12,15 @@
 #   /plugin marketplace add ReScienceLab/super-prototyping
 #   /plugin install super-prototyping@super-prototyping
 #
-# Codex has plugin commands of its own now (`codex plugin marketplace add`),
-# but Hermes and Pi read the same SKILL.md directories with no marketplace to
-# install from, so this links `skills/` into each of their skill roots. Links,
-# not copies: `git pull` in this checkout then updates every product at once,
-# and there is no forked copy to drift. The toolkit is a real install rather
-# than a link, so re-run this after a pull to move it too.
+# Claude Code, Codex, CodeBuddy/WorkBuddy, Hermes and Pi each have an install
+# command of their own — README's install table has them, and they are the
+# better route because they carry a version. This script is for everything else
+# that reads a SKILL.md directory, Trae above all, and for a product whose
+# release is too old for its own plugin commands. It links `skills/` into every
+# skill root it finds. Links, not copies: `git pull` in this checkout then
+# updates every product at once, and there is no forked copy to drift. The
+# toolkit is a real install rather than a link, so re-run this after a pull to
+# move it too.
 #
 set -euo pipefail
 
@@ -28,7 +31,7 @@ MODE=all
 case "${1-}" in
   --tools-only) MODE=tools ;;
   --list)       MODE=list ;;
-  --help|-h)    sed -n '3,19p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  --help|-h)    sed -n '3,23p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
   "")           ;;
   *)            echo "error: unknown option '$1' (try --help)" >&2; exit 2 ;;
 esac
@@ -63,17 +66,21 @@ install_tools() {
 }
 
 # --- the skills --------------------------------------------------------------
-# One row per product: label, skill root. Codex follows symlinks by design and
-# scans from the working directory up to the repo root; Hermes and Pi read
-# their own home directories.
+# One row per product: label, skill root. Every path here is the product's own
+# documented user-level skills directory, and `npx skills` writes to the same
+# ones — Trae CN is a separate install of Trae with a separate home, which is
+# why it gets its own row.
 
 link_skills() {
   step "skills"
   local any=0
   local products=(
     "Codex CLI|$HOME/.codex/skills"
+    "CodeBuddy|$HOME/.codebuddy/skills"
     "Hermes|$HOME/.hermes/skills"
     "Pi|$HOME/.pi/agent/skills"
+    "Trae|$HOME/.trae/skills"
+    "Trae CN|$HOME/.trae-cn/skills"
   )
 
   for row in "${products[@]}"; do

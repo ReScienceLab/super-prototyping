@@ -5,9 +5,9 @@ someone using the plugin, not what changed in the tree. One `## v<version>`
 section per release: `.github/workflows/release.yml` reads the section matching
 the version being tagged and makes it the GitHub Release body.
 
-Update with `/plugin update super-prototyping` (Claude Code) or
-`codex plugin marketplace upgrade` then `codex plugin add` (Codex), and move the
-toolkit with the `uv tool install` line in the README. The plugin and the
+Update with `/plugin update super-prototyping` (Claude Code), or the equivalent
+for your product, which README's install table lists. Then move the toolkit with
+the `uv tool install` line in the README. The plugin and the
 toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 ## Unreleased
@@ -43,6 +43,15 @@ Everything below is on `main` and reaches no install until a version is cut.
   `codex plugin marketplace add ReScienceLab/super-prototyping` then
   `codex plugin add super-prototyping@super-prototyping`. The repo now also
   ships the catalogue Codex prefers, so it reads a manifest meant for it.
+- **Six products install it with their own command**, each from a manifest
+  written for it: Claude Code, Codex, WorkBuddy/CodeBuddy
+  (`.codebuddy-plugin/plugin.json`), Hermes (a root `plugin.json` in the
+  portable Agent Plugins v1 format), Pi (`pi install git:…`, which reads
+  `skills/` with no manifest at all), and `npx skills add` for Trae and the
+  rest. One skills tree behind all of them.
+- **`install-skills.sh` covers the products that have no install command.** It
+  now links into CodeBuddy, Trae and Trae CN as well as Codex, Hermes and Pi,
+  and it says which of them it found.
 - **The plugin and the toolkit say when they have drifted.** `sp-canvas start`
   prints the `uv tool install` line that moves the toolkit to the plugin's
   version, and `sp-canvas --version` and `sp-canvas root -v` answer "which
@@ -55,6 +64,9 @@ Everything below is on `main` and reaches no install until a version is cut.
   `super-prototyping--v<version>` and cuts the GitHub Release from this file.
 - **Validate** runs the manifests, the canvas (lint, test, build) and the
   toolkit tests on every pull request.
+- The procedure, including what the version number means and what to do when a
+  step fails, is "Cutting a release" in `CONTRIBUTING.md`. This file is the log
+  it publishes from.
 
 ## v1.0.0
 

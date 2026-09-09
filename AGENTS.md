@@ -25,10 +25,13 @@ commands on PATH. The skills invoke them by name, never by path: no agent
 product exposes its plugin root to a shell, so a path-based invocation would
 need a different spelling per product.
 
-`.claude-plugin/` and `.codex-plugin/` are the per-product manifests, and
-`scripts/install-skills.sh` links the skills into products that read a skills
-directory. `scripts/bump-version.sh` moves every version in `.version-bump.json`
-at once; run it with `--check` before releasing.
+`.claude-plugin/`, `.codex-plugin/` and `.codebuddy-plugin/` are the per-product
+manifests, and the root `plugin.json` is the portable Agent Plugins v1 one that
+Hermes reads. All four describe the same `skills/` tree — a manifest per
+product, never a skill per product. `scripts/install-skills.sh` links the skills
+into products that read a skills directory instead.
+`scripts/bump-version.sh` moves every version in `.version-bump.json` at once;
+run it with `--check` before releasing.
 
 Data, this repo's own:
 

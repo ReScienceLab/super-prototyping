@@ -72,24 +72,42 @@ six "Ask AI" screens are on the same board.*
 
 ## Install
 
-**Claude Code.** Two commands, from inside any project:
+It installs in two halves, in every product. The **plugin** holds the three
+skills and the canvas app, and comes from your product's own install command.
+The **toolkit** the skills call by name is one more command, once per machine.
 
-```
-/plugin marketplace add ReScienceLab/super-prototyping
-/plugin install super-prototyping@super-prototyping
-```
+| Your agent | Install the plugin |
+|---|---|
+| **Claude Code** | `/plugin marketplace add ReScienceLab/super-prototyping`<br>`/plugin install super-prototyping@super-prototyping` |
+| **Codex** | `codex plugin marketplace add ReScienceLab/super-prototyping`<br>`codex plugin add super-prototyping@super-prototyping` |
+| **WorkBuddy / CodeBuddy** | `codebuddy plugin marketplace add ReScienceLab/super-prototyping`<br>`codebuddy plugin install super-prototyping --scope user` |
+| **Hermes** | `hermes plugins install ReScienceLab/super-prototyping --enable` |
+| **Pi** | `pi install git:github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>` |
+| **Trae**, and anything else that reads `SKILL.md` | `npx skills add ReScienceLab/super-prototyping` |
+| Any of the above, from a clone you control | `scripts/install-skills.sh` |
 
-Then install the toolkit the skills call, once per machine:
+Then the toolkit, whichever product you came from:
 
 ```bash
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
 ```
 
-`/plugin update super-prototyping` picks up a new release; re-run the `uv tool
-install` line with `--force` to move the toolkit with it. Both halves carry the
-same version, and `sp-canvas start` prints the line to run when they drift
-apart. To hold the toolkit at a release rather than at the default branch, name
-that release's tag — they are listed under
+One skills tree, a thin manifest per product, so a skill is never forked to be
+ported: `.claude-plugin/` for Claude Code, `.codex-plugin/` plus the
+`.agents/plugins/marketplace.json` catalogue for Codex, `.codebuddy-plugin/` for
+WorkBuddy, and a root `plugin.json` in the portable
+[Agent Plugins v1](https://agent-plugins.org/specification) format, which is what
+Hermes installs. Pi and `npx skills` read `skills/*/SKILL.md` directly and need
+no manifest at all.
+
+`/plugin update super-prototyping` picks up a new release. The others are
+`codex plugin add` again, `codebuddy plugin install` again, `hermes plugins
+update super-prototyping`, `npx skills update`, and for Pi another `pi install`
+naming the new tag, since Pi pins the ref you gave it and never moves it on its
+own. Re-run the `uv tool install` line with `--force` to move the toolkit too.
+Both halves carry the same version, and `sp-canvas start` prints the line to run
+when they drift apart. To hold the toolkit at a release rather than at the
+default branch, name that release's tag. They are listed under
 [Releases](https://github.com/ReScienceLab/super-prototyping/releases):
 
 ```bash
@@ -122,34 +140,36 @@ Measured at 6.7 MB installed, against 151 MB. Add
 `mockups/canvases/duolingo-ios` to that list to keep the one example
 `clone-prototype` reads most, or drop the key entirely to get everything.
 
-**Codex.** The same two steps, from the CLI:
+**Per product, the parts worth knowing.** `codex plugin marketplace upgrade`
+refreshes the catalogue before `codex plugin add` moves you to the new version.
+Codex has the sparse field too, spelled `--sparse`, but as of 0.145 a plugin
+cannot be installed from a marketplace added with it. The install re-clones the
+sparse snapshot and git cannot read the objects that were left out, so the small
+install above is Claude Code's for now. Hermes leaves an installed plugin
+disabled until you say otherwise, which is what `--enable` is for; it also takes
+this repo as a skill tap (`hermes skills tap add
+ReScienceLab/super-prototyping`) if you want the skills without the plugin. Pi
+pins whatever ref you install, so name a release tag rather than a branch. `npx
+skills add` asks which agents and whether to install globally, and knows Trae,
+Trae CN, CodeBuddy, Hermes, Pi and Codex by name; `-a trae -g` answers both
+questions up front.
 
-```bash
-codex plugin marketplace add ReScienceLab/super-prototyping
-codex plugin add super-prototyping@super-prototyping
-```
-
-`codex plugin marketplace upgrade` refreshes the catalogue and `codex plugin
-add` again moves to the new version. Codex has the sparse field too, spelled
-`--sparse`, but as of 0.145 a plugin cannot be installed from a marketplace
-added with it — the install re-clones the sparse snapshot and git cannot read
-the objects that were left out — so the small install above is Claude Code's
-for now.
-
-**Anything else that reads a skills directory** — Hermes, Pi, or a Codex
-without the plugin commands. Clone once, then link:
+**No install command, or you want one checkout behind all of them.** Clone
+once, then link:
 
 ```bash
 git clone https://github.com/ReScienceLab/super-prototyping.git ~/.super-prototyping
 ~/.super-prototyping/scripts/install-skills.sh
 ```
 
-It installs the toolkit and symlinks `skills/*` into every product skill root
-it finds (`~/.codex/skills`, `~/.hermes/skills`, `~/.pi/agent/skills`). The
-skills are links, not copies, so `git pull` in that checkout updates every
-product at once. The toolkit is a copy, so re-run the script after a pull to
-move `refkit`, `artgen` and `sp-canvas` with it. `--list` shows what it would
-do and changes nothing.
+It installs the toolkit and symlinks `skills/*` into every product skill root it
+finds (`~/.codex/skills`, `~/.codebuddy/skills`, `~/.hermes/skills`,
+`~/.pi/agent/skills`, `~/.trae/skills`, `~/.trae-cn/skills`). The skills are
+links, not copies, so `git pull` in that checkout updates every product at once.
+The toolkit is a copy, so re-run the script after a pull to move `refkit`,
+`artgen` and `sp-canvas` with it. `--list` shows what it would do and changes
+nothing. What it cannot give you is a version. A linked checkout is whatever you
+last pulled, where a marketplace install is a release.
 
 ## Start a project
 
@@ -271,6 +291,8 @@ manifest with `scripts/bump-version.sh`, and opens a release PR, because
 "Protect main" wants a pull request and nothing bypasses it. Write that
 version's section in `RELEASE-NOTES.md`, then merge: the tag
 `super-prototyping--v<version>` and the GitHub Release follow from the merge.
+The whole procedure, including what to do when a step fails, is under "Cutting a
+release" in `CONTRIBUTING.md`.
 
 ## Licence
 

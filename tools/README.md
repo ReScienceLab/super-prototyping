@@ -17,9 +17,9 @@ Three command-line tools, packaged so the skills can call them by name.
 The skills that use them ship inside a plugin, and a plugin is installed
 outside the user's repository. `python3 "$(git rev-parse --show-toplevel)/tools/refkit.py"`
 resolves to the *user's* git root, where there is no `tools/`. No agent
-product exposes its plugin root as a shell variable that all four of Claude
-Code, Codex, Hermes and Pi agree on, so a path-based invocation would need
-four spellings and would still break outside a git repository.
+product exposes its plugin root as a shell variable that Claude Code, Codex,
+CodeBuddy, Hermes, Pi and Trae agree on, so a path-based invocation would need
+a spelling per product and would still break outside a git repository.
 
 Installing them puts `refkit`, `artgen` and `sp-canvas` on `PATH`, and every
 skill reads the same in every product:

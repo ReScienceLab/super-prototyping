@@ -39,16 +39,36 @@ jobs:
       - name: Validate the plugin manifest
         run: claude plugin validate .claude-plugin/plugin.json --strict
 
-      # Codex reads .agents/plugins/marketplace.json and .codex-plugin/plugin.json,
-      # and `claude plugin validate` has no opinion about either. Parsing is the most
-      # this can check without a Codex CLI on the runner; a broken one there means
-      # `codex plugin add` fails at install time, with nothing upstream to catch it.
+      # Four other products read four other files, and `claude plugin validate` has
+      # no opinion about any of them. Parsing is the most this can check without
+      # each product's CLI on the runner; a broken one means that product's install
+      # fails, with nothing upstream to catch it.
       - name: Parse the manifests Claude Code does not read
         run: |
-          for f in .codex-plugin/plugin.json .agents/plugins/marketplace.json .version-bump.json; do
+          for f in plugin.json .codex-plugin/plugin.json .codebuddy-plugin/plugin.json \
+                   .agents/plugins/marketplace.json .version-bump.json; do
             echo "parsing $f"
             python3 -m json.tool "$f" > /dev/null
           done
+
+      # The portable manifest is schema'd, and its two required fields are the two
+      # a hand-edit is most likely to drop. `name` also has to match the other
+      # manifests, or a product installs a plugin under a name nothing else uses.
+      - name: The portable manifest is Agent Plugins v1
+        run: |
+          python3 - <<'PY'
+          import json
+
+          portable = json.load(open("plugin.json"))
+          claude = json.load(open(".claude-plugin/plugin.json"))
+
+          schema = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+          assert portable.get("$schema") == schema, portable.get("$schema")
+          assert portable.get("name") == claude["name"], portable.get("name")
+          # Skills are discovered from skills/*/SKILL.md; the schema forbids the key.
+          assert "skills" not in portable
+          print("plugin.json is a v1.0.0 manifest for", portable["name"])
+          PY
 
       # The version is the cache key an install compares against, so two manifests
       # disagreeing means half the install updates and half does not.
