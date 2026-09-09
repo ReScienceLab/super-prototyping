@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "super-prototyping-tools"
-version = "1.1.0"
+version = "1.1.1"
 description = "refkit and artgen: measure a reference capture, shoot mockups, and diff the two"
 readme = "README.md"
 requires-python = ">=3.10"
