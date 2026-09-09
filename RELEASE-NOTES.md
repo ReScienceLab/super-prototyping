@@ -21,6 +21,10 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **A two-finger pan over a board pans the canvas.** It used to send the browser
+  back a page instead, because a wheel event inside a board's iframe never
+  reaches the canvas and so never gets stopped.
+
 ## v1.1.0
 
 2026-09-09. The canvas became something a review can point at, and the plugin
