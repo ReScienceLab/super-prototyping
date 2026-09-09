@@ -351,10 +351,11 @@ folder are invisible to it.
   post, an archive resurfacing, People to follow, and the share-your-profile
   sheet. 10 boards in three rows: a token board and two evidence boards for 42
   tokens, the seven replicas, and the Mobbin capture of each parked underneath.
-  Mean absolute delta against those captures is 1.86-3.52 levels (of 255), mean
-  2.59, and the number is that high on purpose: every logo, avatar and cover
-  photograph is the publisher's own file fetched off Substack rather than a
-  crop, and a crop cannot lose against the image it was cut from. Its
+  Mean absolute delta against those captures is 1.86-3.60 levels (of 255), mean
+  2.84, and the number is that high on purpose: every logo, avatar, cover
+  photograph and page of the document screen 04's note attaches is the
+  publisher's own file fetched off Substack rather than a crop, and a crop
+  cannot lose against the image it was cut from. Its
   `README.md` records the two probes that show iOS 26's Liquid Glass is not a
   linear alpha blend - the same tab oval darkens its material by 18
   levels over white and 25 over a photograph, so no single black alpha

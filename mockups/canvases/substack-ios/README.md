@@ -29,19 +29,20 @@ window described below:
 | 01 Note in the feed | 1.86 | 05 From the archives | 3.52 |
 | 02 Keep reading toast | 2.57 | 06 People to follow | 3.10 |
 | 03 Three notes | 3.02 | 07 Share your profile | 2.18 |
-| 04 Just published | 1.87 | **Mean** | **2.59** |
+| 04 Just published | 3.60 | **Mean** | **2.84** |
 
-The two worst are 05, whose tab bar sits over a row of orange Follow buttons,
-and 03, whose third note is the one the pill hides almost entirely. The
-material is the ceiling on both, and it is a stated approximation rather than
-a defect — see below.
+The two worst are 04, whose note attaches a document and draws two pages of it
+at a 2× downscale, and 05, whose tab bar sits over a row of orange Follow
+buttons. The material is the ceiling on both, and it is a stated approximation
+rather than a defect — see below.
 
-The number has gone up twice on purpose. The first pass scored 2.08 by cropping
-eighteen logos and avatars straight out of the captures; the second replaced
-the four cover photographs with the publishers' own files, which cost another
-0.28. Both times the score rose because a crop cannot lose against the image it
-was cut from. What the crops were buying was the score, not the replica — see
-**The third case: fetch**.
+The number has gone up three times on purpose. The first pass scored 2.08 by
+cropping eighteen logos and avatars straight out of the captures; the second
+replaced the four cover photographs with the publishers' own files, at 0.28;
+the third replaced screen 04's two document pages with theirs, at 0.25 — nearly
+all of it on that one screen, 1.87 to 3.60. Every time the score rose because a
+crop cannot lose against the image it was cut from. What the crops were buying
+was the score, not the replica — see **The third case: fetch**.
 
 ## The score window, and the three things Mobbin did to the export
 
@@ -69,7 +70,7 @@ accent and eat about 0.07 of delta on those two screens.
 > Crop what the capture already contains; draw only what it does not. A crop
 > scores 0 against its own source by construction.
 
-`crops.json` is 27 boxes in design pt. `gen.py` cuts them out of
+`crops.json` is 26 boxes in design pt. `gen.py` cuts them out of
 `assets/refs/cN.png` into `assets/art/<id>.png` and places each `<img>` back
 at the same box, so an asset can never drift from where it was measured.
 Everything else — header, tab bar, FAB, cards, buttons, rules, type, icons —
@@ -95,7 +96,7 @@ re-fitted to the artwork rather than inheriting the box the crop used.
 
 A publication tile, an avatar and a post's cover photograph are not the app's
 artwork. They belong to the publication, to the person and to the publisher,
-and Substack still serves all three. So twenty-two of them are not cropped:
+and Substack still serves all three. So twenty-four of them are not cropped:
 `scratch/logos.py` and two agent passes pulled them into `assets/logos/`,
 `assets/avatars/` and `assets/photos/`, and `gen.py` masks or places each one
 here.
@@ -154,6 +155,36 @@ file the publisher uploaded and the bytes Substack's CDN handed the app. Where
 the two can be told apart the closer one wins: card-7's cover is the 1080px
 og:image rendition the post itself references, not the Unsplash master behind
 it, and the master scores 0.6 worse.
+
+**A page of a document is a cover with the width taken out of the token set.**
+The note on screen 04 attaches five pages and the feed lays the first two out in
+a carousel 300pt tall. Height is the only thing the layout picks: each page keeps
+its own 1241×1754, so 900 device px tall is 637 across and there is no round
+number to read off an edge. `scratch/docfit.py` template-matches both files into
+the capture at that size and finds them at corr 0.98 and 0.89 with their own
+first row on the box, at x 16.00pt and x 236.33pt — an 8pt gap — so nothing is
+cropped or centred, and the corner is the 12pt `--x-r-card` the cards already
+use. A ±1.5px subpixel sweep says 0,0 wins decisively over every neighbour.
+
+That one costs 0.25 of the mean and nearly all of it lands on screen 04: |d| 3.78
+over the cover page and 8.94 over the contents page, against signed +0.09 and
++2.18. The shape says what it is — `scratch/doc-diff.png` is a symmetric edge
+outline and nothing else, which is 4pt type resampled 2:1 rather than tone or
+placement, and `scratch/doc-z.png` is the pair at 1× and they cannot be told
+apart. Nor is there a better resample to find: `scratch/docrend.py` sweeps five
+filters against every CDN rendition from `w_1456` down to `w_424` (all of which
+resolve to the same 1241px native, since `c_limit` will not upscale),
+`scratch/docmip.py` adds mipmap chains, and one pass let Chrome do the downscale
+itself. Every one of them lands within 0.2 of Lanczos, and Chrome's cost 1.1MB
+of board to get there.
+
+The second page runs off the right edge of the screen, and the raster cuts it
+rather than CSS: the phone has `overflow:hidden`, a board is one flat layer with
+no wrapper to clip against, and the cut also keeps 470 device px of file out of a
+`data:` URI that nothing would ever show. Only its left corners are rounded —
+a radius on the right would round an edge that isn't there. Neither page is
+lifted above the scroll wash the way a crop is, because the fade into the tab bar
+is real here and a drawn page has none of its own to double.
 
 What is left as a crop is what nobody could name or could not be had: seven
 note avatars, three publications (`the-anthro`, `2e`, `ux-ai`), the half tile
@@ -311,14 +342,14 @@ no near-match can pass as exact.
 
 ## Assets
 
-`assets/art/` is 27 crops, cut by `gen.py` from `assets/refs/` at the boxes in
+`assets/art/` is 26 crops, cut by `gen.py` from `assets/refs/` at the boxes in
 `crops.json`, plus the tile, circle and cover cuts it derives from the three
 folders below. All of it is inlined as `data:` URIs, so the boards render
 offline in the canvas's `sandbox=""` iframe. Every icon is inline SVG.
 
 `assets/logos/` is nine publication logos, `assets/avatars/` is nine avatars
-and `assets/photos/` is the four cover photographs, each the publisher's own
-file off Substack at full resolution. Each folder's `SOURCES.md` names every
+and `assets/photos/` is the four cover photographs and the two document pages,
+each the publisher's own file off Substack at full resolution. Each folder's `SOURCES.md` names every
 file and the page it came from, with the original's URL wherever that page
 still serves the same file — `scratch/logosources.py` re-resolves and
 differences all nine logos, and two publications have changed their logo since

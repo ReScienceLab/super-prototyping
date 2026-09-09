@@ -2,6 +2,7 @@
  "_": "Art cut from assets/refs/cN.png at measured pt boxes, 3.0 capture px per design pt (1179 px across a 393 pt screen). gen.py writes assets/art/<id>.png and places each <img> back at the same box, so an asset can never drift from where it was measured. Everything else on these boards -- header, tab bar, FAB, cards, buttons, rules, type, icons -- is CSS or inline SVG.",
  "_rule": "Crop what the capture already contains; draw only what it does not. A crop scores 0 against its own source by construction.",
  "_baked": "A card's cover is NOT baked with its title. The cover ships clean -- assets/photos/ holds the publisher's own file for all four, and gen.py draws each at the scale and offset scratch/wherefrom.py found it at, over the ground and under the ramp scratch/scrim.py solved. What is still cut is the type block, the foot of the card from just above the publication chip down: card-2t, card-5t, card-7t, photo-6t. Those are type the capture already contains, at faces and sizes it states only as ink, so the rule above applies to them and not to the photograph behind them.",
+ "_doc": "The two document pages on screen 4 are not cropped either. The note attaches five, the feed lays the first two out in a carousel 300pt tall, and assets/photos/doc-4a.jpeg and doc-4b.jpeg are the publisher's own files -- scratch/docfit.py finds each of them 637 device px across, its own first row on the box, at x 16.00 and x 236.33. link-4 below is what is left under them: from 806pt down, the note's drive.google.com line and the corner of a third page, both of them already behind the tab bar's glass in the capture.",
  "_tile": "A publication tile is NOT cropped. Each one is that publication's own logo, pulled off Substack by scratch/logos.py into assets/logos/ and masked into the tile squircle by gen.py -- the capture has 215 px of a file that ships at up to 1904. The three tile-* boxes below are the exceptions: three publications this repo could not identify, so their tiles stay crops until it can. tile-4a is the half tile the left edge of screen 4 cuts.",
  "_face": "An avatar is not cropped either where the person or publication could be named. It is their own file, pulled off Substack into assets/avatars/ and masked into a circle by gen.py -- the capture holds 120 px of a picture that ships at up to 2477. assets/avatars/SOURCES.md says where each came from, and scratch/facefit.py fits each circle's box to the artwork rather than to the feed: a crop cancels its own misregistration, because it goes back at the box it was cut from, and a drawn circle does not. The av-* boxes still below are the ones nobody could put a name to. me, th-4 and share-7 are the capture account's own photo at the three sizes the app draws it; nothing in the seven captures names that account, so it stays three crops -- see README.md.",
  "_top": "The band between the status bar and the first sharp row is not cropped either. It is the tail of the note the feed has just scrolled past -- an action row and a separator -- still drawn, under a real backdrop-filter. A Gaussian spreads ink without moving it, so scratch/actrow.py reads every icon's centre of mass back out of the blur, and scratch/edge.py solves the blur radius and the white tint a row at a time.",
@@ -152,17 +153,10 @@
   68.0,
   192.0
  ],
- "doc-4a": [
+ "link-4": [
   "4",
   16.0,
-  506.0,
-  229.0,
-  852.0
- ],
- "doc-4b": [
-  "4",
-  237.0,
-  506.0,
+  806.0,
   393.0,
   852.0
  ],

@@ -12,20 +12,24 @@ one: fetch. A publication's tile, a person's avatar and a post's cover are that
 publisher's own file, pulled off Substack into assets/logos/, assets/avatars/
 and assets/photos/ at full resolution and placed here -- the capture holds
 215 px of a logo that ships at 1904, 120 px of an avatar that ships at 2477, and
-a cover under the scrim the card lays over it. Nine tiles, nine avatars and four
-covers are fetched; each of those folders' SOURCES notes says where every file
-came from.
+a cover under the scrim the card lays over it. Nine tiles, nine avatars, four
+covers and the two document pages screen 4's note attaches are fetched; each of
+those folders' SOURCES notes says where every file came from.
 
 Fetching costs score and is still right. A crop is the capture's own pixels put
 back where they were cut from, so it scores zero against the capture by
 construction and cancels its own misregistration on the way. A real file has to
 be placed, sized and resampled, and it lands two or three levels of grey off a
 lossy 3x screenshot of the app's own resample -- s5 pays 0.03 for av-5, and the
-four covers pay 0.28 of the seven-screen mean between them. That last one is
-worth being precise about: over a cover the mean error is 1.3 to 2.2 levels
-while the signed error is under half a level, so none of it is tone or placement
-and all of it is detail finer than the eye reads at 1x, the difference between
-the file the publisher uploaded and the bytes Substack's CDN handed the app.
+four covers pay 0.28 of the seven-screen mean between them, the two document
+pages another 0.25. Those two are worth being precise about: over a cover the
+mean error is 1.3 to 2.2 levels while the signed error is under half a level, so
+none of it is tone or placement and all of it is detail finer than the eye reads
+at 1x, the difference between the file the publisher uploaded and the bytes
+Substack's CDN handed the app. Over the document pages it is 3.78 and 8.94
+against signed +0.09 and +2.18 -- same shape, more of it, because those pages
+are 4pt type at a 2:1 downscale and no filter, CDN rendition or mipmap chain
+beats Lanczos by more than 0.2 (scratch/docrend.py, scratch/docmip.py).
 What fetching buys is an asset that is what it claims to be and holds up at any
 zoom, which is the point of the exercise; scratch/facefit.py and
 scratch/wherefrom.py are what keep the cost honest, fitting each circle and each
@@ -464,20 +468,21 @@ COVERS = {          # card box, the file row under its top corner, the ground
 }
 
 
-def _covercut(f, w, dy, h):
+def _covercut(f, w, dy, h, vw=None, pre="cover-"):
     """The file at w device px across, from row dy, as far as it reaches.
 
     Cut rather than clipped in CSS: a data: URI of the 3840px original would be
     most of a board's weight for pixels no screen ever shows, and half these
-    files run out before the card's foot anyway."""
+    files run out before the card's foot anyway. vw cuts the width the same
+    way, for the document page that runs off the right edge of the screen."""
     from PIL import Image                                    # noqa: local dep
-    cid = "cover-" + f.stem
+    cid = pre + f.stem
     if cid not in _FACES:
         ART_DIR.mkdir(parents=True, exist_ok=True)
         im = Image.open(f).convert("RGB")
         fh = round(w * im.height / im.width)
         (im.resize((w, fh), Image.LANCZOS)
-           .crop((0, dy, w, min(dy + h, fh)))
+           .crop((0, dy, vw or w, min(dy + h, fh)))
            .save(ART_DIR / (cid + ".png"), optimize=True))
         _FACES[cid] = True
     return cid, min(h, round(w * Image.open(f).height / Image.open(f).width) - dy)
@@ -506,6 +511,45 @@ def cover(cid):
               % (_uri(cut), cid, x, y, w, ch / SCALE, rad)
             + box(x, y, w, h, "%s;background:linear-gradient(%s %.2fpx,%s %.2fpx)"
                   % (rad, clear, r0, ground, r1)))
+
+
+# The note on screen 4 attaches five pages of a document and the feed lays the
+# first two out in a carousel 300pt tall. Each page keeps its own aspect, so the
+# width is a consequence rather than a token: 1241x1754 at 900 device px tall is
+# 636.8 across and the raster lands it on 637. scratch/docfit.py finds both
+# pages at exactly that size with their own first row on the box below, so
+# nothing here is cropped or centred -- the page is simply drawn whole, and the
+# second one runs off the right edge of the screen.
+DOCS = {          # the box in device px -- left, top, width, height -- and how
+    "doc-4a": (48, 1518, 637, 900, 637),          # much of the width is on screen
+    "doc-4b": (709, 1518, 637, 900, 470),
+}
+
+
+def doc(cid):
+    """One page of the note's attached document, at the carousel's height.
+
+    Kept in device px and divided down rather than written in pt, because the
+    width is not a token: it is 900 device px tall at the file's own 1241x1754,
+    which is 637 across, and 637/3 has no two-decimal spelling. scratch/docfit.py
+    finds both pages at exactly that size with their own first row on the box
+    below, so nothing here is cropped or centred -- the page is drawn whole, and
+    the second one runs off the right edge of the screen.
+
+    Not lifted above wash() the way a crop is: the scroll edge really does fade
+    this page into the tab bar, and a drawn page has no fade of its own to
+    double. The page that runs off the screen keeps only its left corners --
+    the raster clips the rest, and a radius there would round a cut edge."""
+    x, y, w, h, vis = DOCS[cid]
+    f = PHOTO_DIR / (cid + ".jpeg")
+    if not f.exists():
+        return art(cid)
+    r = "var(--x-r-card)"
+    cut, _ = _covercut(f, w, 0, h, vis, "page-")
+    return ('<img class="a" src="%s" alt="%s" style="left:%.4fpx;top:%.4fpx;'
+            'width:%.4fpx;height:%.4fpx;border-radius:%s">'
+            % (_uri(cut), cid, x / SCALE, y / SCALE, vis / SCALE, h / SCALE,
+               r if vis == w else "%s 0 0 %s" % (r, r)))
 
 
 def _uri(cid):
@@ -1106,7 +1150,7 @@ def s04():
               (433.00, "<b>The complete system-design playbook for Senior</b>"),
               (453.00, "<b>and Staff AI engineering interviews.</b>"),
               (481.00, "You can fine-tune a model and ship a… <a>See more</a>")], 16.33),
-        art("doc-4a"), art("doc-4b"),
+        doc("doc-4a"), doc("doc-4b"), art("link-4"),
         wash(), fab(), tabbar()]))
 
 
