@@ -12,9 +12,11 @@ one: fetch. A publication's tile, a person's avatar and a post's cover are that
 publisher's own file, pulled off Substack into assets/logos/, assets/avatars/
 and assets/photos/ at full resolution and placed here -- the capture holds
 215 px of a logo that ships at 1904, 120 px of an avatar that ships at 2477, and
-a cover under the scrim the card lays over it. Nine tiles, nine avatars, four
-covers and the two document pages screen 4's note attaches are fetched; each of
-those folders' SOURCES notes says where every file came from.
+a cover under the scrim the card lays over it. Twelve publication logos, nine
+avatars, four covers and the two document pages screen 4's note attaches are
+fetched; each of those folders' SOURCES notes says where every file came from.
+A logo is cut twice, at 72pt for a tile row and 20pt for the chip on a link
+card -- nine are worn on tiles, four on cards, one of them on both.
 
 Fetching costs score and is still right. A crop is the capture's own pixels put
 back where they were cut from, so it scores zero against the capture by
@@ -38,10 +40,8 @@ feed.
 
 What is left as a crop is what could not be identified or fetched: seven note
 avatars whose authors nobody could name, the capture account's own photo (me,
-th-4, share-7), one note photo that is a frame of a video, the type block at the
-foot of each article card -- type the capture states only as ink, sitting on a
-photograph that is fetched and drawn under it -- the "substack" wordmark, and
-three publications this repo has not put a name to. The header, the tab bar, the
+th-4, share-7), one note photo that is a frame of a video, and the "substack"
+wordmark. The header, the tab bar, the
 compose button, the note bodies, the buttons, the rules and every icon are CSS
 and inline SVG.
 
@@ -55,8 +55,9 @@ the two measured gaps, not as four columns.
 
 The tab bar is translucent and the feed runs underneath it. Everything the
 capture shows through that blur is drawn: the note under the pill on screen 1,
-the one under the toast on screen 2, "winnie" at the bottom of screen 7. Where
-the blur makes a string genuinely illegible, README.md says so.
+the one under the toast on screen 2, the link card screen 6's note points at,
+"winnie" at the bottom of screen 7. Where the blur makes a string genuinely
+illegible, README.md says so.
 
 Type is placed by ink, not by line box. A capture gives the top row of a line's
 ink; CSS wants the top of its line box, and the distance between them depends on
@@ -107,6 +108,10 @@ TOKENS = [
  ("Surface", "grad-a", "#FDFDFD", "refkit scan col, top of the share-profile ground, c7 y124"),
  ("Surface", "grad-b", "#E7E7E7", "refkit scan col, foot of the same ground, c7 y388"),
  ("Surface", "band",   "#D6D6D6", "flat-fill census, the 4pt band under it, c7 y388..392"),
+ ("Surface", "plate",  "rgba(255,255,255,.18)",
+  "the bookmark plate over two different cards: #4A3F2E -> #6A6255 and "
+  "#1A4C69 -> #4B6B80, which is .18 of white on the first to a level and "
+  "within 8 on the second -- a scrim, not a fill"),
 
  ("Line", "hairline",  "#C7C7C7", "one device row under the tile labels, c1 y233"),
  ("Line", "border",    "#DDDDDD", "refkit scan col through the just-published card edge, c4 y136.7"),
@@ -115,12 +120,19 @@ TOKENS = [
  ("Ink", "ink-2",      "#787878", "mode of the ink core, the help line under it, c7"),
  ("Ink", "ink-inv",    "#FFFFFF", "mode of the ink core, Follow on the accent fill, c6"),
  ("Ink", "link",       "#097FC6", "ink core of week.wild.plus/athens-26, c1 y353"),
+ ("Ink", "ink-dim",    "rgba(255,255,255,.6)",
+  "ink core of the publication line and the subtitle on the three plated "
+  "link cards; "
+  "c7's neutral ground reads .592 of white on every channel"),
+ ("Ink", "ink-mark",   "rgba(255,255,255,.78)",
+  "ink core of the bookmark stroke over the plate solved above, c2 and c5"),
 
  ("Accent", "accent",  "#FF5800", "flat-fill census, the compose button, c1"),
  ("Accent", "live",    "#FF4850", "flat-fill census, the LIVE pill on c3 x38.67..65.33"),
 
  ("Radius", "r-card",  "12px",  "inset profile of the card corner, c4 / c1 photo / c7 button"),
  ("Radius", "r-tile",  "8px",   "inset profile of the people-card corner, c6"),
+ ("Radius", "r-plate", "10px",  "inset profile of the bookmark plate corner, c2 and c5"),
  ("Radius", "r-pill",  "999px", "by construction, not measured"),
  ("Radius", "r-phone", "52px",  "circular stand-in for the 55pt continuous display corner"),
 
@@ -137,6 +149,8 @@ TOKENS = [
  ("Type", "t-pub",   "700 13px/17px var(--x-font)",     "fit 13.00 at 700 on three names, c5/c6"),
  ("Type", "t-help",  "400 14px/19px var(--x-font)",     "fit 14.00, the share help line, c7"),
  ("Type", "t-btn",   "500 14px/19px var(--x-font)",     "fit 14.00, Share now, c7"),
+ ("Type", "t-caps",  "600 11px/14px var(--x-font)",     "fit 11.00 at 600 on the three publication lines the tab bar leaves whole, scratch/capsfit.py"),
+ ("Type", "t-card",  "700 16.5px/24.17px var(--x-font)","fit 16.50 at 700 on five link-card title lines, scratch/fit.py"),
  ("Type", "t-head",  "600 20.5px/25px var(--x-font)",   "fit 20.50, People to follow, c6"),
  ("Type", "t-share", "600 21.5px/26px var(--x-font)",   "fit 21.50, Share your profile, c7"),
  ("Type", "t-time",  "590 16.75px/22px var(--x-font)",  "iOS status bar clock"),
@@ -357,41 +371,82 @@ def cut():
 TILE = 72.0
 TILE_N = 2.80
 
+# Every cutter below writes each asset once a run and remembers it here.
+_FACES = {}
+
+# A tile row and a link card wear the same logo in the same shape at two sizes,
+# 72pt and 20pt. Three publications in assets/logos/ are only ever worn small --
+# the ones whose posts screens 2, 6 and 7 quote -- so cutting them at 72 too
+# would commit an asset no board asks for.
+CHIP = 20.0
+CHIP_ONLY = {"the-improvement-journal", "brain-health-decoded",
+             "words-i-keep-inside"}
+_SQ = {}
+
 
 def _squircle(px, ss=4):
     """The tile's alpha mask, drawn at ss x and boxed down for the edge."""
     from PIL import Image, ImageDraw                        # noqa: local dep
-    k = px * ss
-    r = k / 2.0
-    pts = []
-    for i in range(720):
-        a = math.pi * i / 360.0
-        c, s = math.cos(a), math.sin(a)
-        pts.append((r + math.copysign(abs(c) ** (2.0 / TILE_N), c) * r,
-                    r + math.copysign(abs(s) ** (2.0 / TILE_N), s) * r))
-    m = Image.new("L", (k, k), 0)
-    ImageDraw.Draw(m).polygon(pts, fill=255)
-    return m.resize((px, px), Image.LANCZOS)
+    if px not in _SQ:
+        k = px * ss
+        r = k / 2.0
+        pts = []
+        for i in range(720):
+            a = math.pi * i / 360.0
+            c, s = math.cos(a), math.sin(a)
+            pts.append((r + math.copysign(abs(c) ** (2.0 / TILE_N), c) * r,
+                        r + math.copysign(abs(s) ** (2.0 / TILE_N), s) * r))
+        m = Image.new("L", (k, k), 0)
+        ImageDraw.Draw(m).polygon(pts, fill=255)
+        _SQ[px] = m.resize((px, px), Image.LANCZOS)
+    return _SQ[px]
+
+
+def _logocut(f, px, pre="tile-"):
+    """That logo's centre square, on white, under the squircle, at px across."""
+    from PIL import Image                                    # noqa: local dep
+    cid = pre + f.stem
+    if cid not in _FACES:
+        ART_DIR.mkdir(parents=True, exist_ok=True)
+        im = Image.open(f)
+        # A logo that ships on a transparent ground is drawn for a white one --
+        # The Improvement Journal's mark is black on nothing. convert("RGB")
+        # alone would put that black on black.
+        if im.mode in ("RGBA", "LA", "P"):
+            im = im.convert("RGBA")
+            im = Image.alpha_composite(Image.new("RGBA", im.size, "white"), im)
+        im = im.convert("RGB")
+        d = min(im.size)
+        im = im.resize((px, px), Image.LANCZOS,
+                       box=((im.width - d) / 2, (im.height - d) / 2,
+                            (im.width + d) / 2, (im.height + d) / 2))
+        im.putalpha(_squircle(px))
+        im.save(ART_DIR / (cid + ".png"), optimize=True)
+        _FACES[cid] = True
+    return cid
 
 
 def tilecut():
     """Mask every publication logo into the tile squircle, at capture scale."""
     if not LOGO_DIR.exists():
         return
-    from PIL import Image                                    # noqa: local dep
-    ART_DIR.mkdir(parents=True, exist_ok=True)
-    px = round(TILE * SCALE)
-    mask, n = _squircle(px), 0
+    px, n = round(TILE * SCALE), 0
     for f in sorted(LOGO_DIR.glob("*.png")):
-        im = Image.open(f).convert("RGB")
-        s = min(im.size)                                     # centre square
-        im = im.crop(((im.width - s) // 2, (im.height - s) // 2,
-                      (im.width + s) // 2, (im.height + s) // 2))
-        im = im.resize((px, px), Image.LANCZOS)
-        im.putalpha(mask)
-        im.save(ART_DIR / ("tile-" + f.stem + ".png"), optimize=True)
+        if f.stem in CHIP_ONLY:
+            continue
+        _logocut(f, px)
         n += 1
     print("%-26s %8d tiles" % ("assets/art/tile-*", n))
+
+
+def chip(slug, x, y):
+    """The 20pt logo a link card wears, on the same box rule a tile uses."""
+    px = round(CHIP * SCALE)
+    return ('<img class="a" src="%s" alt="%s" style="left:%.2fpx;top:%.2fpx;'
+            'width:%.2fpx;height:%.2fpx">'
+            % (_uri(_logocut(LOGO_DIR / (slug + ".png"), px, "chip-")), slug,
+               round(x * SCALE) / SCALE, round(y * SCALE) / SCALE,
+               px / SCALE, px / SCALE))
 
 
 # An avatar is a person's or a publication's own picture, fetched from Substack
@@ -399,7 +454,6 @@ def tilecut():
 # around it is ours. Each is cut at the size its own board draws it, a note's
 # author at 40pt and a People-to-follow card's at 105, so nothing is resampled
 # twice on the way to the screen.
-_FACES = {}
 
 
 def _facecut(f, px):
@@ -511,6 +565,74 @@ def cover(cid):
               % (_uri(cut), cid, x, y, w, ch / SCALE, rad)
             + box(x, y, w, h, "%s;background:linear-gradient(%s %.2fpx,%s %.2fpx)"
                   % (rad, clear, r0, ground, r1)))
+
+
+
+# The card a note points at, and the one thing on these boards that stayed a
+# picture longest: a publication's logo at 20pt, its name in caps, the post
+# title, and on three of the four a subtitle under that. Every y below is an
+# ink top read off the capture by scratch/cardtype.py -- refkit bands cuts at a
+# dark threshold, which is the whole card here, so that one thresholds the other
+# way round, a row above its own ground. The faces are fits to a width:
+# scratch/capsfit.py for the caps line, which is the only run with two unknowns,
+# and scratch/fit.py for the twelve runs under it.
+#
+# Screen 6's card is the same construct on a note's photograph rather than in a
+# card, and it is why the boards can reuse one tab bar: with the type drawn, the
+# glass over it is the real backdrop-filter and not a capture of one.
+CHIP_DY = 5.66              # the caps ink sits this far below the chip's top
+PLATE = (325.0, 36.0, 52.67)   # left, side, and the top above the card's foot
+DIM = "var(--x-ink-dim)"
+INV = "var(--x-ink-inv)"
+
+# The bookmark. 10.33 x 16.33 of stroke at 1.5, r1.75 on the top corners and the
+# notch apex 11.00 down, all four read off the plate on c2 and c5 at 12x.
+MARK = ("M0.75 2.50A1.75 1.75 0 0 1 2.50 0.75H7.83A1.75 1.75 0 0 1 9.58 2.50"
+        "V15.58L5.17 11.00L0.75 15.58Z")
+
+LINKCARDS = {          # caps ink top, the logo, the name, the runs, a plate?
+ "card-2": (533.00, "the-improvement-journal", "THE IMPROVEMENT JOURNAL", (
+     (560.67, "t-card",  INV, "An hour a day is all you need."),
+     (590.00, "t-small", DIM, "or 3600 seconds."),
+     (613.67, "t-small", INV, "You’re Already Following a Routine, You Just"),
+     (629.34, "t-small", INV, "Didn’t Design It.")), True),
+ "card-5": (367.66, "system-design", "SYSTEM DESIGN INTERVIEW ROADMAP", (
+     (395.33, "t-card",  INV, "Indexing Strategies: B-Trees, Hash"),
+     (419.66, "t-card",  INV, "Tables, and R-Trees"),
+     # A straight quote and a plain hyphen, both checked at 12x, and a literal
+     # " in the markup: kink() classifies an entity character by character and
+     # would place the line off the wrong glyph.
+     (448.66, "t-small", DIM, 'Issue #24 of "System Design Interview'),
+     (464.33, "t-small", DIM, 'Roadmap" - Part II: Data Storage')), True),
+ "card-7": (643.33, "brain-health-decoded", "BRAIN HEALTH, DECODED", (
+     (671.00, "t-card",  INV, "How to Trick Your Brain into Doing"),
+     (695.00, "t-card",  INV, "Difficult Things"),
+     (724.66, "t-small", DIM, "A Neuroscientist’s 7 Proven Ways to Get"),
+     (740.33, "t-small", DIM, "Yourself to Do What Matters")), True),
+ # One line, and the tab bar covers all but its ascenders and the d of its last
+ # word. What fixes it is the source: substack.com/@solennne/note/c-270926302
+ # links one post, and its own descenders land on x143 and x229 where the
+ # capture's are, so the string is the post's and not a reading of a blur.
+ "photo-6": (766.00, "words-i-keep-inside", "WORDS I KEEP INSIDE", (
+     (817.67, "t-card", INV, "how to be okay with being disliked"),), False),
+}
+
+
+def linkcard(cid):
+    """The type over a cover: chip, publication, title, subtitle, bookmark."""
+    anchor, slug, caps, runs, plated = LINKCARDS[cid]
+    out = [chip(slug, 32.0, anchor - CHIP_DY),
+           tx(60.0, anchor, caps, "t-caps", DIM)]
+    out += [tx(32.0, top, s, tk, col) for top, tk, col, s in runs]
+    if plated:
+        (x, y, w, h), _, _ = COVERS[cid]
+        px, side, up = PLATE
+        py = y + h - up
+        out.append(box(px, py, side, side, "background:var(--x-plate);"
+                                           "border-radius:var(--x-r-plate)"))
+        out.append(sk(10.33, 16.33, MARK, 1.5, "var(--x-ink-mark)",
+                      px + (side - 10.33) / 2, py + (side - 16.33) / 2))
+    return "".join(out)
 
 
 # The note on screen 4 attaches five pages of a document and the feed lays the
@@ -649,11 +771,14 @@ HDR_DISC = (37.83, 80.83, 43.67)      # centre and diameter, all three captures
 
 
 def header(under=""):
+    # The reader's avatar is a circle, and the crop is the square it was cut
+    # from -- rounding it here is what keeps its corners off the header.
+    me = art("me", x=328.8333, extra=";border-radius:50%")
     if not under:
-        return art("logo") + art("me")
+        return art("logo") + me
     disc = box(HDR_DISC[0] - HDR_DISC[2] / 2, HDR_DISC[1] - HDR_DISC[2] / 2,
                HDR_DISC[2], HDR_DISC[2], "background:#FFF;border-radius:50%")
-    return under + hdrglass() + disc + art("logo") + art("me")
+    return under + hdrglass() + disc + art("logo") + me
 
 
 # A scrolled header is not a photograph of a blur. It is the tail of the note
@@ -947,7 +1072,7 @@ def tabbar(badge_=""):
     )
 
 
-WASH_TOP = 760.0
+WASH_TOP = 726.0
 
 # iOS's scroll-edge effect: a black ramp under the floating tab bar. Measured
 # on the left gutter of c5 and c6, where the ground is plain white all the way
@@ -960,15 +1085,27 @@ def fade():
                "rgba(0,0,0,.243) 61%,rgba(0,0,0,.26) 74%,rgba(0,0,0,.26))")
 
 
-# The same effect where the ground is light: white, and invisible in the
-# gutters, so it is fitted on the ink instead. A per-row least-squares solve of
-# mine*(1-a) + 255a = ref over x16..377 puts a at .84 by 832 and .89 by 838 on
-# c1, the one screen whose last body line down there is type rather than a crop.
-# Held flat past 838 -- that is outside the score window and unverified.
+# The same effect where the ground is light: white, and invisible in the white
+# gutters, so it has to be fitted on something dark. The foot of screen 7's link
+# card is the only dark thing under it, and it was a crop until this commit --
+# with the type drawn, its ground is a known flat #212524 and scratch/washfit.py
+# solves ground*(1-a) + 255a = ref a row at a time straight down its left
+# gutter: nothing until 726, then .044 by 740, .091 by 750, .181 by 760 and
+# .284 by 768, the last row before the card's foot. Four of those are stops
+# below and two are not -- a stop is the end of a straight segment, so the one
+# that fits the rows around it is not the reading taken at it. washfit.py
+# prints the render's own alpha beside the capture's, and the two agree to .008
+# at every row but 768, where the ramp is steepest and the foot is a pixel
+# away. Past that foot the screen is white again and the ramp is invisible, so
+# the two stops that close it are still c1's ink -- .84 by 832 and .89 by 838
+# -- and the straight run between 768 and 832 is interpolation, not measurement.
 def wash():
     return box(0, WASH_TOP, 393, 852 - WASH_TOP,
                "z-index:1;background:linear-gradient(rgba(255,255,255,0),"
-               "rgba(255,255,255,.9) 84.78%,rgba(255,255,255,.9))")
+               "rgba(255,255,255,.044) 11.11%,rgba(255,255,255,.090) 19.05%,"
+               "rgba(255,255,255,.172) 26.98%,rgba(255,255,255,.257) 33.33%,"
+               "rgba(255,255,255,.84) 84.13%,rgba(255,255,255,.89) 88.89%,"
+               "rgba(255,255,255,.89))")
 
 
 def badge(cx, cy, d, n=""):
@@ -1063,7 +1200,7 @@ def s02():
         body([(302.33, "Just be honest with yourself, and you'll see changes"),
               (322.33, "in yourself."),
               (350.33, "Happy reading")]),
-        cover("card-2"), art("card-2t"),
+        cover("card-2"), linkcard("card-2"),
         actions(672.00, ("30", None, "1", None)),
         band(702.33),
         note(723.33, "av-2b", "Ali Abdaal", "May 22"),
@@ -1160,7 +1297,7 @@ def s05():
         header(behind(62.0, 80.40, ("184", "24", "50", None), 112.0, "#B7B7B7")),
         clock_row(132),
         note(156, "av-5", "System Design Roadmap", "May 7, 2025", "tag", True, -0.33),
-        cover("card-5"), art("card-5t"),
+        cover("card-5"), linkcard("card-5"),
         actions(507.00, ("55", None, "16", None)),
         band(537.33),
         tx(16, 561.00, "People to follow", "t-head"),
@@ -1193,16 +1330,7 @@ def s06():
               (542.67, "<i>to understand you and more from understanding</i>"),
               (562.67, "<i>yourself so deeply that misunderstandings no</i>"),
               (582.67, "<i>longer destroy you.</i>")], 32.0, 0.67),
-        cover("photo-6"), art("photo-6t"),
-        # The note's own photograph is drawn and clean, but the type over its
-        # foot is a crop and the capture bakes the translucent tab bar into that
-        # crop. Repaint the band it covers with the photo's own colour
-        # (#3F321F..#362B1B, median of the rows just above and below), or the
-        # CSS material composites twice.
-        box(21, 768.67, 281, 62.33, "border-radius:31.17px;z-index:2;"
-            "background:linear-gradient(#3F321F,#362B1B)"),
-        box(310, 769, 62, 62, "border-radius:50%;z-index:2;"
-            "background:linear-gradient(#3F321F,#362B1B)"),
+        cover("photo-6"), linkcard("photo-6"),
         fade(), fab(), tabbar()]))
 
 
@@ -1225,7 +1353,7 @@ def s07():
         txc(39.67, 313.66, 316.66, "Share now", "t-btn", "var(--x-accent)"),
         clock_row(407.67),
         note(430.67, "av-7", "Dr. Dominic Ng", "Nov 18", "tag", True, 0.67, ay=1.00),
-        cover("card-7"), art("card-7t"),
+        cover("card-7"), linkcard("card-7"),
         actions(782.33, ("128", None, "9", None)),
         band(812.33),
         art("av-7b"),

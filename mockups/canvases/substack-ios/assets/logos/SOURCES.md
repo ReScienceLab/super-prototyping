@@ -1,9 +1,11 @@
 # Sources
 
-Each tile is the publication's own file, not a crop. The slug is
-the label the feed prints; the handle beside it is whose file it
-is. scratch/logos.py fetches a logo_url, scratch/logosources.py
-re-resolves and verifies every line below.
+Each logo is the publication's own file, not a crop, and gen.py
+cuts it twice: 72pt for a tile row and 20pt for the chip on a
+link card. The slug is the label the feed prints; the handle
+beside it is whose file it is. scratch/logos.py fetches a
+logo_url, scratch/logosources.py re-resolves and verifies every
+line below.
 
 aarron-walter — Aarron Walter — https://aarronwalter.substack.com/ — its profile has changed since the capture; the committed file is the one the capture shows
 ai-first-design — AI First Design (ADPList) — https://adplist.substack.com/ — https://substack-post-media.s3.amazonaws.com/public/images/00d9165c-42d6-4fda-bce5-bd44361d5206_750x750.png
@@ -14,3 +16,6 @@ design-better — Design Better — https://aarronwalter.substack.com/ — https
 system-design — System Design Roadmap — https://systemdr.substack.com/ — https://substack-post-media.s3.amazonaws.com/public/images/9fd573e1-44ca-4a06-be42-264560574975_500x500.png
 ux-psychology — UX Psychology — https://uxpsychology.substack.com/ — https://substack-post-media.s3.amazonaws.com/public/images/0181ccd7-ac99-43f8-98d0-22485247fdab_958x958.png
 uxui-hub — UX/UI Hub — https://uxuihub.substack.com/ — https://substack-post-media.s3.amazonaws.com/public/images/fc30e90d-fa03-474e-a086-76ee75dc6d92_500x500.png
+the-improvement-journal — The Improvement Journal — https://improvebypathsofstoicism.substack.com/ — https://substack-post-media.s3.amazonaws.com/public/images/e9fb9f69-298b-4918-b871-44e5fa5f0ff5_500x500.png
+brain-health-decoded — Brain Health, Decoded — https://brainhealthdecoded.substack.com/ — https://substack-post-media.s3.amazonaws.com/public/images/299d2eec-0d03-4bf0-b8bd-ad29700ea60d_1024x1024.png
+words-i-keep-inside — words i keep inside — https://wordsikeepinside.substack.com/ — https://substack-post-media.s3.amazonaws.com/public/images/30ebee66-5a31-492a-baf1-54bbecaa667a_490x490.png

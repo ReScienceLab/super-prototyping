@@ -26,23 +26,31 @@ window described below:
 
 | Screen | Δ | Screen | Δ |
 | --- | --- | --- | --- |
-| 01 Note in the feed | 1.86 | 05 From the archives | 3.52 |
-| 02 Keep reading toast | 2.57 | 06 People to follow | 3.10 |
-| 03 Three notes | 3.02 | 07 Share your profile | 2.18 |
-| 04 Just published | 3.60 | **Mean** | **2.84** |
+| 01 Note in the feed | 1.82 | 05 From the archives | 4.33 |
+| 02 Keep reading toast | 3.38 | 06 People to follow | 2.97 |
+| 03 Three notes | 2.96 | 07 Share your profile | 2.91 |
+| 04 Just published | 3.55 | **Mean** | **3.13** |
 
-The two worst are 04, whose note attaches a document and draws two pages of it
-at a 2× downscale, and 05, whose tab bar sits over a row of orange Follow
-buttons. The material is the ceiling on both, and it is a stated approximation
-rather than a defect — see below.
+The two worst are 05, whose tab bar sits over a row of orange Follow buttons
+and whose link card is now drawn rather than pasted, and 04, whose note
+attaches a document and draws two pages of it at a 2× downscale. The material
+is the ceiling on both, and it is a stated approximation rather than a defect —
+see below.
 
-The number has gone up three times on purpose. The first pass scored 2.08 by
+The number has gone up four times on purpose. The first pass scored 2.08 by
 cropping eighteen logos and avatars straight out of the captures; the second
 replaced the four cover photographs with the publishers' own files, at 0.28;
 the third replaced screen 04's two document pages with theirs, at 0.25 — nearly
-all of it on that one screen, 1.87 to 3.60. Every time the score rose because a
-crop cannot lose against the image it was cut from. What the crops were buying
-was the score, not the replica — see **The third case: fetch**.
+all of it on that one screen, 1.87 to 3.60. The fourth drew the type on the
+four link cards instead of pasting it, at 0.29, and most of that is 02 and 05.
+Every time the score rose because a crop cannot lose against the image it was
+cut from. What the crops were buying was the score, not the replica — see
+**The third case: fetch**.
+
+Drawing the type paid for something the score does not see. Screen 06's card
+sits under the tab bar, so its crop was a picture of that bar; with the card
+drawn, `tabbar()` is the only tab bar on the boards and the glass over it is a
+real `backdrop-filter` rather than a capture of one.
 
 ## The score window, and the three things Mobbin did to the export
 
@@ -70,7 +78,7 @@ accent and eat about 0.07 of delta on those two screens.
 > Crop what the capture already contains; draw only what it does not. A crop
 > scores 0 against its own source by construction.
 
-`crops.json` is 26 boxes in design pt. `gen.py` cuts them out of
+`crops.json` is 22 boxes in design pt. `gen.py` cuts them out of
 `assets/refs/cN.png` into `assets/art/<id>.png` and places each `<img>` back
 at the same box, so an asset can never drift from where it was measured.
 Everything else — header, tab bar, FAB, cards, buttons, rules, type, icons —
@@ -78,12 +86,14 @@ is CSS or inline SVG.
 
 Two consequences worth stating, because both look like laziness and are not:
 
-**An article card is cut in two.** The photograph is fetched and drawn, with
-the card's ground under it and the card's scrim over it; the type block at its
-foot stays a crop, because that is type the capture states only as ink, at a
-face this repo cannot name. Substack does not bake the title into the cover —
-the cover ships clean — so the two halves are two different problems and are
-solved separately.
+**An article card is cut in two.** Substack does not bake the title into the
+cover — the cover ships clean — so the two halves are two different problems.
+The photograph is fetched and drawn, with the card's ground under it and the
+card's scrim over it. The type over it is set: the publication's 20pt logo out
+of `assets/logos/`, its name in caps, and the post's own title and subtitle,
+each run placed by the ink top `scratch/cardtype.py` read off the capture and
+each string taken from the post the note links rather than from a reading of
+the ink. `gen.py`'s `LINKCARDS` holds all four.
 
 **A crop is the one thing that cannot be measured wrong.** Cut at a box and
 put back at the same box, it carries its own misregistration with it and the
@@ -96,7 +106,7 @@ re-fitted to the artwork rather than inheriting the box the crop used.
 
 A publication tile, an avatar and a post's cover photograph are not the app's
 artwork. They belong to the publication, to the person and to the publisher,
-and Substack still serves all three. So twenty-four of them are not cropped:
+and Substack still serves all three. So twenty-seven of them are not cropped:
 `scratch/logos.py` and two agent passes pulled them into `assets/logos/`,
 `assets/avatars/` and `assets/photos/`, and `gen.py` masks or places each one
 here.
@@ -194,7 +204,12 @@ capture holds a frame of it. The header avatar is a fourth case. `me`, `th-4` an
 account behind it is one the captures never name: screen 04's *Just published*
 card gives only the post's title, screen 07's sheet is *Share your profile*
 with no handle on it, and that title resolves to a different publication whose
-avatar is a wordmark. Three crops, then, one per size.
+avatar is a wordmark. Three crops, then, one per size. `me` is the one of the
+three that moves: `th-4` and `share-7` each sit at the one box they were cut
+from, so their corners carry the right background with them, but `me` is
+placed on seven different headers — over white on the unscrolled ones and over
+`hdrglass()` on the rest — so its corners have to go. `header()` rounds it in
+CSS, which is worth about 0.03 on every screen.
 
 ## Liquid Glass is fitted, not solved
 
@@ -233,25 +248,33 @@ Follow buttons keeping crisp vertical edges through the material — the
 capture is barely blurred. `blur(16px)` smeared them into a gradient;
 `blur(4px)` scores 15.16 against 16's 15.22 and 24's 15.35, and looks right.
 
-**06's tab bar had to be repainted before the material could go over it.**
-The capture bakes the translucent bar into the photograph. Compositing CSS
-glass on top of that would composite it twice, so the band the bar covers is
-repainted with the photo's own colour — `#3F321F..#362B1B`, the median of the
-rows just above and below — and the material goes over that.
+**06's tab bar was the last baked one, and drawing its card removed it.**
+Screen 06's link card sits under the bar, so cropping the card cropped the bar
+with it, and the board had to repaint the band with the photo's own colour
+before CSS glass could go over it without compositing the bar twice. With the
+card's type set instead, the crop is gone and so are the two repaint boxes:
+`tabbar()`, `fab()` and the scroll edge are the only bottom chrome on all
+seven boards, and every one of them is a real `backdrop-filter` over real
+content.
 
 ## The scroll edge is two different effects
 
 iOS fades content into the tab bar, and the direction depends on the ground.
 
-- **`wash()`**, white, on five screens: a ramp from α0 at y760 to α.9 at 838,
-  held flat past it. Fitted on the ink, not the gutter, where it is invisible:
-  a per-row least-squares solve of `mine*(1-a) + 255a = ref` over x16..377 on
-  c1, the one screen whose last body line down there is type rather than a
-  crop, puts a at .84 by 832 and .89 by 838.
+- **`wash()`**, white, on five screens: a ramp from α0 at y726 to α.89 at 838,
+  held flat past it. White on white leaves no trace in the gutters, so it has
+  to be read off something dark, and the only dark thing under it is the foot
+  of 07's link card — which stopped being a crop when the card's type was
+  drawn. Its ground is now a flat `#212524` the generator itself puts down, so
+  `scratch/washfit.py` solves `ground*(1-a) + 255a = ref` a row at a time down
+  the card's left gutter: nothing until 726, then .044 by 740, .091 by 750,
+  .181 by 760 and .284 by 768, the last row before the foot. Below the card the
+  screen is white again and the ramp is invisible, so the two stops that close
+  it are still c1's ink, .84 by 832 and .89 by 838.
 - **`fade()`**, black, on 05 and 06, where the ground under the bar is a
   photograph: six stops from α0 at y730 to α.26 at 820.
 
-Crops that dip below y760 are lifted above the wash by `art()`, or the wash
+Crops that dip below the wash's top are lifted above it by `art()`, or the wash
 would fog art the capture shows sharp.
 
 ## Type is placed by its ink, not its box
@@ -342,18 +365,21 @@ no near-match can pass as exact.
 
 ## Assets
 
-`assets/art/` is 26 crops, cut by `gen.py` from `assets/refs/` at the boxes in
-`crops.json`, plus the tile, circle and cover cuts it derives from the three
-folders below. All of it is inlined as `data:` URIs, so the boards render
-offline in the canvas's `sandbox=""` iframe. Every icon is inline SVG.
+`assets/art/` is 22 crops, cut by `gen.py` from `assets/refs/` at the boxes in
+`crops.json`, plus the 28 tile, chip, circle, cover and page cuts it derives
+from the three folders below. All of it is inlined as `data:` URIs, so the
+boards render offline in the canvas's `sandbox=""` iframe. Every icon is
+inline SVG.
 
-`assets/logos/` is nine publication logos, `assets/avatars/` is nine avatars
+`assets/logos/` is twelve publication logos, `assets/avatars/` is nine avatars
 and `assets/photos/` is the four cover photographs and the two document pages,
-each the publisher's own file off Substack at full resolution. Each folder's `SOURCES.md` names every
-file and the page it came from, with the original's URL wherever that page
-still serves the same file — `scratch/logosources.py` re-resolves and
-differences all nine logos, and two publications have changed their logo since
-the capture.
+each the publisher's own file off Substack at full resolution. A logo is cut
+twice, at 72pt for a tile row and 20pt for the chip on a link card; nine are
+worn on tiles, four on cards, one of them on both. Each folder's `SOURCES.md`
+names every file and the page it came from, with the original's URL wherever
+that page still serves the same file — `scratch/logosources.py` re-resolves and
+differences all twelve logos, and two publications have changed their logo
+since the capture.
 
 `assets/refs/` holds the seven captures twice — `pN.png` as they came from
 Mobbin, `cN.png` converted from the untagged Display P3 they exported in to
