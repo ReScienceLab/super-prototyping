@@ -4,7 +4,8 @@
   start    boot the dev server against a folder of boards, print its address
   stop     kill the one on that port, and only that one
   status   say whether it is up, and on what
-  root     print the plugin root it resolved (-v: and where it looked)
+  root     print the plugin root it resolved (-v: where it looked, and the
+           release each half is on)
 
 The canvas app ships inside the plugin, which is installed outside your
 project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
@@ -113,6 +114,41 @@ def _version_key(name: str):
     # 0 for a prerelease and 1 for the release, so 1.0.0 outranks every 1.0.0-* ; between two
     # prereleases the trailing numbers decide.
     return release + ((0, tuple(int(n) for n in re.findall(r"\d+", pre))) if pre else (1, ()))
+
+
+# The release tag this repo cuts, and what `claude plugin tag` produces. Kept in step with
+# .version-bump.json, because the note below hands the user a URL built from it.
+TAG_PREFIX = "super-prototyping--v"
+
+
+def _toolkit_version():
+    """The version of the toolkit this process runs from, or None from a source checkout."""
+    try:
+        from importlib.metadata import PackageNotFoundError, version
+        return version("super-prototyping-tools")
+    except (ImportError, PackageNotFoundError):
+        return None
+
+
+def _plugin_version(root: Path):
+    """The version of the plugin the canvas app came out of, or None if it has no manifest."""
+    try:
+        return json.loads((root / ".claude-plugin/plugin.json").read_text()).get("version")
+    except (OSError, ValueError):
+        return None
+
+
+def skew(root: Path):
+    """(plugin, toolkit) when the two halves disagree on the release, else None.
+
+    They install separately — `/plugin install` for the skills and the canvas, `uv tool
+    install` for refkit, artgen and this — so updating one and forgetting the other is the
+    ordinary mistake. Unchecked it surfaces much later, as a skill calling a flag this
+    refkit does not have. An unknown version on either side is not a disagreement: a
+    checkout has no release number to compare.
+    """
+    plugin, toolkit = _plugin_version(root), _toolkit_version()
+    return (plugin, toolkit) if plugin and toolkit and plugin != toolkit else None
 
 
 def _is_canvas_app(root: Path) -> bool:
@@ -244,6 +280,14 @@ def cmd_start(a):
     print(f"boards   {boards}")
     print(f"app      {app}")
     print(f"running  {how}")
+
+    versions = skew(root)
+    if versions:
+        plugin, toolkit = versions
+        print(f"\nnote: the plugin is {plugin}, the toolkit is {toolkit}. Move the toolkit to match:\n"
+              f'      uv tool install --force "git+https://github.com/ReScienceLab/'
+              f'super-prototyping@{TAG_PREFIX}{plugin}#subdirectory=tools"')
+
     print(f"\nDeep-link a page with ?canvas=<slug>, one board of it with #<file>, "
           f"e.g. http://127.0.0.1:{a.port}/?canvas=notion-ios#01-splash")
 
@@ -316,13 +360,21 @@ def cmd_status(a):
 
 def cmd_root(a):
     """Just the path, so it can be captured: KIT="$(sp-canvas root)"."""
-    print(resolve_root(verbose=a.verbose))
+    root = resolve_root(verbose=a.verbose)
+    print(root)
+    if a.verbose:
+        # On stderr, like the search itself, so `$(sp-canvas root -v)` is still the path.
+        print(f"  plugin  {_plugin_version(root) or 'unversioned (a checkout)'}", file=sys.stderr)
+        print(f"  toolkit {_toolkit_version() or 'dev (running from a source checkout)'}",
+              file=sys.stderr)
 
 
 def main():
     p = argparse.ArgumentParser(
         prog="sp-canvas", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--version", action="version",
+                   version=f"sp-canvas {_toolkit_version() or 'dev (running from a source checkout)'}")
     s = p.add_subparsers(dest="cmd", required=True)
 
     def add(name, fn, ports=True, canvases=True):

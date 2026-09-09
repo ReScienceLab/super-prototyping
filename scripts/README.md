@@ -20,5 +20,10 @@ time one of them is edited by hand.
 ```bash
 scripts/bump-version.sh --check
 scripts/bump-version.sh 1.1.0
-git commit -am "release 1.1.0" && git tag super-prototyping--v1.1.0
 ```
+
+Nobody has to run the bump by hand, though: dispatching the **Release**
+workflow with a version runs it on a branch and opens the release PR, and
+merging that PR tags `super-prototyping--v1.1.0` and cuts the release from
+`RELEASE-NOTES.md`. Bumping locally is for seeing the diff before asking for
+it.

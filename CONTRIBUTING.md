@@ -53,6 +53,13 @@ with a `README.md` that says what was measured and what was excluded.
 
 Everything under `.github/`:
 
+- `workflows/validate.yml`: the gates, on every pull request — the manifests
+  agree and validate, the canvas lints, tests and builds, and the toolkit's
+  tests pass. Run the same commands locally from the root README.
+- `workflows/release.yml`: dispatch it with a version and it opens the release
+  PR; merging that PR tags `super-prototyping--v<version>` and cuts the GitHub
+  Release from the matching `RELEASE-NOTES.md` section. It is in two halves
+  because branch protection means CI cannot push to `main`.
 - `CODEOWNERS`: who is asked to review pull requests, by path.
 - `dependabot.yml`: weekly dependency updates for `canvas/` (bun) and for any
   GitHub Actions workflows.

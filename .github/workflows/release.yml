@@ -1,0 +1,151 @@
+name: Release
+
+# A release is a version string, because the version is the cache key both
+# Claude Code and Codex compare against an install: merging to main ships
+# nothing until the number moves. This runs in two halves, because the "Protect
+# main" ruleset requires a pull request and no actor bypasses it.
+#
+#   1. Dispatch this workflow with a version. It runs the gates, bumps every
+#      manifest with scripts/bump-version.sh, and opens a release PR.
+#   2. Merging that PR changes .claude-plugin/plugin.json on main, which fires
+#      the second half: it tags super-prototyping--v<version> and cuts the
+#      GitHub Release from the matching RELEASE-NOTES.md section.
+#
+# Nothing tags a commit that is not on main, and re-running the second half on
+# an already-tagged version is a no-op — the tag ruleset forbids moving a tag,
+# so the job checks before it creates one.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version, e.g. 1.1.0'
+        required: true
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - '.claude-plugin/plugin.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  gates:
+    name: Gates
+    if: github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/validate.yml
+
+  prepare:
+    name: Prepare the release PR
+    if: github.event_name == 'workflow_dispatch'
+    needs: gates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump every manifest
+        run: |
+          scripts/bump-version.sh "${{ inputs.version }}"
+          scripts/bump-version.sh --check
+
+      - name: Open the release PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "::error::every manifest is already at $VERSION — nothing to release"
+            exit 1
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "release/$VERSION"
+          git commit -am "release $VERSION"
+          git push --set-upstream origin "release/$VERSION"
+          # The tag and the notes come after the merge; this PR is only the bump.
+          gh pr create --base main --title "release $VERSION" --body "$(cat <<BODY
+          Version bump only — \`scripts/bump-version.sh $VERSION\`.
+
+          Merging this tags \`super-prototyping--v$VERSION\` and cuts the GitHub
+          Release from the \`## v$VERSION\` section of \`RELEASE-NOTES.md\`, so write
+          that section before merging if it is not in yet.
+
+          Users are on the old version until this merges: the version string is the
+          cache key \`/plugin update\` and \`codex plugin marketplace upgrade\` compare.
+          BODY
+          )"
+
+  tag:
+    name: Tag and release
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read the version, and stop if it is already tagged
+        id: v
+        run: |
+          set -euo pipefail
+          version=$(python3 -c 'import json;print(json.load(open(".claude-plugin/plugin.json"))["version"])')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/super-prototyping--v$version" > /dev/null; then
+            echo "super-prototyping--v$version already exists — nothing to do"
+            echo "fresh=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "fresh=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.v.outputs.fresh == 'true'
+        with:
+          node-version: "22"
+
+      - name: Install Claude Code
+        if: steps.v.outputs.fresh == 'true'
+        run: npm install -g @anthropic-ai/claude-code
+
+      # `claude plugin tag` is the tool's own spelling of this repo's tag: it
+      # validates the plugin, checks plugin.json and the marketplace entry agree on
+      # the version, and refuses a dirty tree.
+      - name: Tag
+        if: steps.v.outputs.fresh == 'true'
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          claude plugin tag . --push -m 'super-prototyping %s'
+
+      - name: Cut the GitHub Release
+        if: steps.v.outputs.fresh == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          set -euo pipefail
+          # The section for this version, up to the next one. Written for a person
+          # deciding whether to update, which no commit log gives you.
+          awk -v want="## v$VERSION" '
+            index($0, want) == 1 { on = 1; next }
+            on && /^## v/ { exit }
+            on { print }
+          ' RELEASE-NOTES.md > notes.md
+          if [ -s notes.md ]; then
+            gh release create "super-prototyping--v$VERSION" \
+              --title "super-prototyping $VERSION" --notes-file notes.md
+          else
+            echo "::warning::RELEASE-NOTES.md has no '## v$VERSION' section — falling back to generated notes"
+            gh release create "super-prototyping--v$VERSION" \
+              --title "super-prototyping $VERSION" --generate-notes
+          fi

@@ -86,7 +86,15 @@ uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirect
 ```
 
 `/plugin update super-prototyping` picks up a new release; re-run the `uv tool
-install` line with `--force` to move the toolkit with it.
+install` line with `--force` to move the toolkit with it. Both halves carry the
+same version, and `sp-canvas start` prints the line to run when they drift
+apart. To hold the toolkit at a release rather than at the default branch, name
+that release's tag — they are listed under
+[Releases](https://github.com/ReScienceLab/super-prototyping/releases):
+
+```bash
+uv tool install --force "git+https://github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>#subdirectory=tools"
+```
 
 **A smaller install.** The full one is about 151 MB, because this repo is also
 the workspace whose fourteen worked example boards the skills read, and a
@@ -113,10 +121,23 @@ clones just those directories, cone mode:
 Measured at 6.7 MB installed, against 151 MB. Add
 `mockups/canvases/duolingo-ios` to that list to keep the one example
 `clone-prototype` reads most, or drop the key entirely to get everything.
-Codex has the same field, spelled `sparse_paths`.
 
-**Codex, or anything else that reads a skills directory.** Clone once, then
-link:
+**Codex.** The same two steps, from the CLI:
+
+```bash
+codex plugin marketplace add ReScienceLab/super-prototyping
+codex plugin add super-prototyping@super-prototyping
+```
+
+`codex plugin marketplace upgrade` refreshes the catalogue and `codex plugin
+add` again moves to the new version. Codex has the sparse field too, spelled
+`--sparse`, but as of 0.145 a plugin cannot be installed from a marketplace
+added with it — the install re-clones the sparse snapshot and git cannot read
+the objects that were left out — so the small install above is Claude Code's
+for now.
+
+**Anything else that reads a skills directory** — Hermes, Pi, or a Codex
+without the plugin commands. Clone once, then link:
 
 ```bash
 git clone https://github.com/ReScienceLab/super-prototyping.git ~/.super-prototyping
@@ -235,11 +256,21 @@ refkit --version                                  # which release you are on
 ```bash
 cd canvas && bun run lint && bun run test && bun run build
 uv run --with pillow --with numpy python tools/test_refkit.py
+uv run python tools/test_sp_canvas.py
 scripts/bump-version.sh --check      # every manifest agrees on one version
+claude plugin validate . --strict    # and the manifests are what they claim
 ```
 
-Releasing: `scripts/bump-version.sh <version>`, commit, then tag
-`super-prototyping--v<version>`.
+The **Validate** workflow runs all of that on every pull request.
+
+**Releasing.** The version is not bookkeeping: it is the cache key that
+`/plugin update` and `codex plugin marketplace upgrade` compare against an
+install, so commits on main reach nobody until it moves. Dispatch the
+**Release** workflow with the new version — it runs the gates, moves every
+manifest with `scripts/bump-version.sh`, and opens a release PR, because
+"Protect main" wants a pull request and nothing bypasses it. Write that
+version's section in `RELEASE-NOTES.md`, then merge: the tag
+`super-prototyping--v<version>` and the GitHub Release follow from the merge.
 
 ## Licence
 

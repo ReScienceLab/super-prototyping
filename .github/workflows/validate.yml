@@ -1,0 +1,97 @@
+name: Validate
+
+# The gates a release has to pass. Nothing here needs a secret, so it runs on
+# every pull request; `release.yml` calls this same file before it prepares one,
+# which is why `workflow_call` is in the trigger list.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manifests:
+    name: Manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      # --strict fails on warnings: an unrecognised field is how a manifest silently
+      # ships half its components (`mcpServer` for `mcpServers` validates as an
+      # unknown key and loads nothing).
+      - name: Validate the marketplace manifest
+        run: claude plugin validate . --strict
+
+      - name: Validate the plugin manifest
+        run: claude plugin validate .claude-plugin/plugin.json --strict
+
+      # Codex reads .agents/plugins/marketplace.json and .codex-plugin/plugin.json,
+      # and `claude plugin validate` has no opinion about either. Parsing is the most
+      # this can check without a Codex CLI on the runner; a broken one there means
+      # `codex plugin add` fails at install time, with nothing upstream to catch it.
+      - name: Parse the manifests Claude Code does not read
+        run: |
+          for f in .codex-plugin/plugin.json .agents/plugins/marketplace.json .version-bump.json; do
+            echo "parsing $f"
+            python3 -m json.tool "$f" > /dev/null
+          done
+
+      # The version is the cache key an install compares against, so two manifests
+      # disagreeing means half the install updates and half does not.
+      - name: Every manifest agrees on one version
+        run: scripts/bump-version.sh --check
+
+      - name: Shell scripts parse
+        run: |
+          bash -n scripts/bump-version.sh
+          bash -n scripts/install-skills.sh
+
+  canvas:
+    name: Canvas
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: canvas
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run test
+      - run: bun run build
+
+  tools:
+    name: Toolkit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@v5
+
+      # The same two lines the README gives for running these locally.
+      - run: uv run --with pillow --with numpy python tools/test_refkit.py
+      - run: uv run python tools/test_sp_canvas.py
+
+      # The skills call these by name, so a syntax error in one is a broken install
+      # rather than a broken test.
+      - run: uv run python -m compileall -q tools

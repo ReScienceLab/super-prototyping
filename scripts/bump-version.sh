@@ -127,6 +127,8 @@ if mode == "check":
     print(f"\nall {len(seen)} files agree on {distinct[0]}")
 else:
     print(f"\nbumped {len(seen)} files to {version}")
-    print(f"next: git commit -am 'release {version}' "
-          f"&& git tag {spec['tagPrefix']}{version}")
+    # The tag is not cut here: .github/workflows/release.yml cuts it once the bump
+    # is on main, with `claude plugin tag` re-checking these same files first.
+    print(f"next: commit as 'release {version}' and open a PR — merging it tags "
+          f"{spec['tagPrefix']}{version}")
 PY
