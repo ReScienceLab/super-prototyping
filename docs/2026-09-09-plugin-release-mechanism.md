@@ -2,10 +2,9 @@
 
 2026-09-09. The repo has been installable as a plugin since 2026-09-05, but it
 has never been *released*: no tag, no GitHub Release, no CI, and every manifest
-still says `1.0.0`. This note is the survey behind the fix — how Claude Code
-and Codex actually decide that an installed plugin is out of date, what the
-plugins people install do about it, and the smallest mechanism that fits this
-repo.
+still says `1.0.0`. This note is the survey behind the fix: how Claude Code and
+Codex actually decide that an installed plugin is out of date, what the plugins
+people install do about it, and the smallest mechanism that fits this repo.
 
 The headline finding is not a missing nicety. **Anyone who installed this
 plugin can never receive an update, no matter how many commits land on main.**
@@ -33,10 +32,10 @@ session which already loaded it keeps working.
 
 We declare `1.0.0` in three fields at once (`.claude-plugin/marketplace.json`
 at both `metadata.version` and `plugins[0].version`, and
-`.claude-plugin/plugin.json`). So `plugin.json` pins — the entry would pin
-anyway if it did not — the cache key never moves, and `/plugin update
-super-prototyping` reports success while copying nothing. The README's line —
-"`/plugin update super-prototyping` picks up a new release" — is only true
+`.claude-plugin/plugin.json`). So `plugin.json` pins the version, the entry
+would pin it anyway if it did not, the cache key never moves, and `/plugin
+update super-prototyping` reports success while copying nothing. The README's
+line, "`/plugin update super-prototyping` picks up a new release", is only true
 once the number moves, and it never has.
 
 This is a well-worn trap, not a subtlety we invented: `everything-claude-code`
@@ -68,7 +67,7 @@ There are exactly two coherent contracts, and the choice is ours:
 - `claude plugin validate <path> --strict` passes on both manifests today.
   Nothing runs it.
 - `git tag` is empty, `gh release list` is empty, and `.github/` holds only
-  `CODEOWNERS`, `dependabot.yml`, issue templates and a PR template — no
+  `CODEOWNERS`, `dependabot.yml`, issue templates and a PR template, with no
   workflows. CodeQL runs through GitHub's default setup and the canvas deploys
   through the Cloudflare Pages integration, so neither is a workflow file, and
   neither runs `bun run lint`, `bun run test`, `bun run build` or the Python
@@ -76,8 +75,8 @@ There are exactly two coherent contracts, and the choice is ours:
 - The toolkit is installed with an unpinned git URL:
   `uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
   It always takes the default branch's HEAD, so the plugin (pinned at a
-  version) and the toolkit (floating on main) can be arbitrarily far apart —
-  and `tools/pyproject.toml` is the fifth file `bump-version.sh` moves, so the
+  version) and the toolkit (floating on main) can be arbitrarily far apart.
+  `tools/pyproject.toml` is one of the files `bump-version.sh` moves, so the
   version it reports is a release number that no install path actually selects.
 - The Codex path in the README is a `git clone` plus `scripts/install-skills.sh`
   symlinks, with `git pull` as the upgrade. That predates Codex having plugins
@@ -87,8 +86,8 @@ There are exactly two coherent contracts, and the choice is ours:
   `codex plugin marketplace upgrade`. It looks for a catalogue at
   `<repo-root>/.agents/plugins/marketplace.json` and falls back to
   `.claude-plugin/marketplace.json`, then `.cursor-plugin/marketplace.json`, so
-  this repo is *already* installable that way through the Claude manifest —
-  probed today, `codex plugin add super-prototyping@super-prototyping` installs
+  this repo is *already* installable that way through the Claude manifest.
+  Probed today, `codex plugin add super-prototyping@super-prototyping` installs
   `1.0.0` with all three skills. Nothing tells a user so: the README still
   sends them to `git clone`.
 
@@ -112,9 +111,9 @@ a **sha**, and only two of them name a *tag* (`v1.5.5` and
 `greptile--v1.2.3`); the rest ride `main`, `master` or nothing at all. Second,
 the marketplace, not the plugin author, does the moving: a nightly workflow
 (`bump-plugin-shas.yml`, 07:23 UTC, capped at 60 entries a run) compares each
-entry's pinned sha against upstream HEAD — or, for the fourteen entries listed
+entry's pinned sha against upstream HEAD (or, for the fourteen entries listed
 `releases-only` in `.github/bump-tracking.json`, against the latest published
-release tag — validates the plugin at the new sha with `claude plugin
+release tag), validates the plugin at the new sha with `claude plugin
 validate`, and opens one PR per entry, which is how a failing entry stays
 isolated instead of holding up the batch. `validate-plugins.yml` and
 `scan-plugins.yml` are the required checks. Renames are handled by a top-level
@@ -124,22 +123,23 @@ The implication for us is direct: we are a *self-hosted, single-plugin*
 marketplace, so there is no nightly bot upstream of us. We are both halves,
 and whatever they automate we do by hand or not at all.
 
-**`obra/superpowers`** (v6.3.0) is the closest sibling — same shape as this
-repo, one skills library published to many agent products
+**`obra/superpowers`** (v6.3.0) is the closest sibling, the same shape as this
+repo: one skills library published to many agent products
 (`.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, `.devin-plugin`,
 `.hermes-plugin`, `.kimi-plugin`, `gemini-extension.json`), and it is where our
 `.version-bump.json` and `scripts/bump-version.sh` came from. Its marketplace
 entry carries `"version": "6.3.0"` with `"source": "./"`, like ours minus our
-`metadata.version` — so the pinned contract, bumped every release. It keeps a
+`metadata.version`, so the pinned contract, bumped every release. It keeps a
 `RELEASE-NOTES.md` written for humans ("Worktree removal no longer destroys
 untracked files"), cuts a GitHub Release per version, and has **no CI workflows at all**: `.github/`
 holds funding and templates only. Its `.version-bump.json` has one thing ours
-lacks — an `audit` block that greps the tree for stray version strings the
-spec does not cover.
+lacks: an `audit` block that greps the tree for stray version strings the spec
+does not cover.
 
 **`greptileai/claude-plugin`** tags `greptile--v1.2.3` and cuts a GitHub
 Release for each, i.e. the literal output of `claude plugin tag`, and the
-official marketplace pins that tag *and* its sha — one of the two. Worth
+official marketplace pins that tag *and* its sha, one of only two entries so
+pinned. Worth
 knowing that the tag in the entry is downstream of the marketplace's own
 `releases-only` list as much as of greptile's convention: the bot follows
 releases for those fourteen, so an author who cuts releases gets pinned to
@@ -156,7 +156,7 @@ in the manifest, freshness handled upstream.
 
 **`wshobson/agents`** publishes 94 plugins, every one with an explicit
 `version`, plus `validate.yml` (JSON, manifests, hooks) and `code-quality.yml`
-(ruff/ty). No releases, no tags — the versions in the manifests are the whole
+(ruff/ty). No releases, no tags; the versions in the manifests are the whole
 release mechanism.
 
 The pattern across all of them: **an explicit version in the manifest is the
@@ -197,7 +197,7 @@ skills are read by agents and whose canvas app is built on the user's machine.
    worth knowing: a PR opened by `GITHUB_TOKEN` triggers no `pull_request`
    workflows, so the release PR carries no Validate run of its own (the gates
    ran on the commit being released, and `claude plugin tag` validates again);
-   and the tag job has to check that the version actually *changed* in the
+   and the tag job has to check that the version *changed* in the
    push, or any later edit to `plugin.json` would cut a release of whatever
    number is sitting in it.
 4. **Pin the toolkit to the release.** `uv` accepts a ref in the same URL. The
@@ -223,7 +223,7 @@ skills are read by agents and whose canvas app is built on the user's machine.
    `codex plugin marketplace upgrade`. Adding `.agents/plugins/marketplace.json`
    is then not what makes it possible but what stops Codex reading a manifest
    written for a different product: the file Codex prefers carries the fields
-   only it has. Superpowers' is the shape to copy — a marketplace `name`, an
+   only it has. Superpowers' is the shape to copy: a marketplace `name`, an
    `interface.displayName`, and one plugin with `name`, a
    `{"source": "url", "url": "./"}` source, a `policy` block and a `category`.
    It carries no version; Codex caches to
@@ -253,7 +253,7 @@ Deliberately not doing:
   of files in one repo and a script that already moves them, and the notes worth
   writing are not commit subjects.
 
-Which products that version actually reaches, and which file each of them reads
+Which products that version reaches, and which file each of them reads
 to find it, is the companion note: `docs/2026-09-09-multi-product-install.md`.
 
 ## Checked

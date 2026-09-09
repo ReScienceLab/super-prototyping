@@ -19,7 +19,7 @@ name: Release
 # GitHub Actions to create and approve pull requests" must be on, or the first
 # job pushes its branch and then fails to open the PR; and a PR opened by
 # GITHUB_TOKEN does not itself trigger `pull_request` workflows, so the release
-# PR shows no Validate run. That is deliberate — `gates` ran on the commit
+# PR shows no Validate run. That is deliberate: `gates` ran on the commit
 # being released, the bump touches only version strings, and `claude plugin
 # tag` validates again before tagging.
 
@@ -75,7 +75,7 @@ jobs:
         run: |
           set -euo pipefail
           if git diff --quiet; then
-            echo "::error::every manifest is already at $VERSION — nothing to release"
+            echo "::error::every manifest is already at $VERSION, so there is nothing to release"
             exit 1
           fi
           git config user.name  'github-actions[bot]'
@@ -83,15 +83,15 @@ jobs:
           git switch -c "release/$VERSION"
           git commit -am "release $VERSION"
           # --force-with-lease so a dispatch that failed after the push (see the
-          # header) can simply be re-run rather than needing the branch deleted.
+          # header) can be re-run rather than needing the branch deleted.
           git push --force-with-lease --set-upstream origin "release/$VERSION"
           if [ -n "$(gh pr list --head "release/$VERSION" --state open --json number --jq '.[].number')" ]; then
-            echo "a PR for release/$VERSION is already open — pushed the new bump to it"
+            echo "a PR for release/$VERSION is already open; pushed the new bump to it"
             exit 0
           fi
           # The tag and the notes come after the merge; this PR is only the bump.
           gh pr create --base main --title "release $VERSION" --body "$(cat <<BODY
-          Version bump only — \`scripts/bump-version.sh $VERSION\`.
+          Version bump only: \`scripts/bump-version.sh $VERSION\`.
 
           Merging this tags \`super-prototyping--v$VERSION\` and cuts the GitHub
           Release from the \`## v$VERSION\` section of \`RELEASE-NOTES.md\`, so write
@@ -101,7 +101,7 @@ jobs:
           cache key \`/plugin update\` and \`codex plugin marketplace upgrade\` compare.
           BODY
           )" || {
-            echo "::error::could not open the PR. The branch release/$VERSION is pushed, so nothing is lost — open it by hand at https://github.com/${{ github.repository }}/compare/main...release/$VERSION, and check that Settings → Actions → General → 'Allow GitHub Actions to create and approve pull requests' is on."
+            echo "::error::could not open the PR. The branch release/$VERSION is pushed, so nothing is lost. Open it by hand at https://github.com/${{ github.repository }}/compare/main...release/$VERSION, and check that Settings → Actions → General → 'Allow GitHub Actions to create and approve pull requests' is on."
             exit 1
           }
 
@@ -131,13 +131,13 @@ jobs:
           fresh=true
 
           if ! git cat-file -e "$BEFORE:.claude-plugin/plugin.json" 2> /dev/null; then
-            echo "no plugin.json at $BEFORE — nothing to compare against, so nothing to tag"
+            echo "no plugin.json at $BEFORE, so there is nothing to compare against and nothing to tag"
             fresh=false
           elif [ "$(git show "$BEFORE:.claude-plugin/plugin.json" | read_version)" = "$version" ]; then
-            echo "plugin.json changed but the version did not ($version) — not a release"
+            echo "plugin.json changed but the version did not ($version), so this is not a release"
             fresh=false
           elif git rev-parse -q --verify "refs/tags/super-prototyping--v$version" > /dev/null; then
-            echo "super-prototyping--v$version already exists — nothing to do"
+            echo "super-prototyping--v$version already exists, so there is nothing to do"
             fresh=false
           else
             echo "this push released $version"
@@ -190,7 +190,7 @@ jobs:
             gh release create "super-prototyping--v$VERSION" $prerelease \
               --title "super-prototyping $VERSION" --notes-file notes.md
           else
-            echo "::warning::RELEASE-NOTES.md has no '## v$VERSION' section — falling back to generated notes"
+            echo "::warning::RELEASE-NOTES.md has no '## v$VERSION' section; falling back to generated notes"
             gh release create "super-prototyping--v$VERSION" $prerelease \
               --title "super-prototyping $VERSION" --generate-notes
           fi
