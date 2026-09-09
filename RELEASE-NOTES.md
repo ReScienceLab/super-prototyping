@@ -21,6 +21,11 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.1.0
+
+2026-09-09. The canvas became something a review can point at, and the plugin
+became something six products can install and one workflow can release.
+
 ### The canvas
 
 - **An inspector panel.** Select a board and read its layers: the image behind
