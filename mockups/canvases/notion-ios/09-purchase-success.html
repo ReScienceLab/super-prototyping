@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notion iOS — Purchase success</title>
+<style>
+/* ============================================================================
+   NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
+   because the canvas renders each mockup in <iframe srcDoc sandbox="">, which
+   blocks external stylesheets. Keep this block byte-identical across files.)
+   Values sampled from Notion iOS 3x screenshots (393 x 852 pt @3x).
+   ========================================================================= */
+:root{
+  --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --n-bg:#FFFFFF;          /* document / full-screen page                */
+  --n-bg-sheet:#FAF8F6;    /* modal sheet ground (warm off-white)        */
+  --n-bg-card:#FFFFFF;     /* grouped card sitting on a sheet            */
+  --n-scrim:#E0E0E0;       /* app dimmed behind a light sheet            */
+  --n-scrim-strong:#C4C4C4;/* app dimmed behind the AI sheet             */
+  --n-fill:#EAE9E7;        /* search field, segmented track, icon tile   */
+  --n-fill-neutral:#F0F0F0;/* chip / icon button on a white page         */
+  --n-fill-soft:#FDFDFD;   /* raised field on white (search, composer)   */
+  --n-hairline:#E9E8E7;    /* row divider                                */
+  --n-border:#EFEEEC;      /* card + field outline                       */
+  --n-track:#F0EEED;       /* switch track, off                          */
+
+  /* Ink */
+  --n-text:#2C2C2C;        /* titles, primary labels                     */
+  --n-text-body:#2C2C2C;   /* page body copy                             */
+  --n-text-2:#787774;      /* secondary labels, section headers          */
+  --n-text-3:#9B9A97;      /* placeholder, values, out-of-month days     */
+
+  /* Accent */
+  --n-blue:#2784E0;        /* selection, primary button, Done, switches  */
+  --n-red:#E66457;         /* "today" in the date picker                 */
+  --n-yellow-bg:#F7F1DE;   /* Guest badge fill                           */
+  --n-yellow-ink:#402C1B;  /* Guest badge ink                            */
+
+  /* Radius */
+  --n-r-field:10px;  --n-r-card:12px;  --n-r-sheet:14px;
+  --n-r-day:8px;     --n-r-tile:8px;   --n-r-pill:999px;
+
+  /* Type — SF Pro. size/line-height/weight */
+  --n-t-title:700 34px/40px var(--n-font);   /* page title              */
+  --n-t-h2:700 19px/26px var(--n-font);      /* in-page heading         */
+  --n-t-nav:600 17px/22px var(--n-font);     /* sheet nav title         */
+  --n-t-row:400 17px/22px var(--n-font);     /* list row label          */
+  --n-t-rowb:600 17px/22px var(--n-font);    /* list row label, strong  */
+  --n-t-body:400 17px/24px var(--n-font);    /* body copy               */
+  --n-t-sub:400 15px/20px var(--n-font);     /* row subtitle            */
+  --n-t-cap:400 13px/18px var(--n-font);     /* badge / caption         */
+
+  /* Metrics */
+  --n-gutter:20px;       /* default screen gutter                       */
+  --n-gutter-page:20px;  /* document page gutter                        */
+  --n-gutter-card:12px;  /* card inset on a grouped sheet               */
+  --n-row-h:44px;        /* settings row                                */
+  --n-tap:44px;          /* minimum tap target                          */
+  --n-sheet-top:71px;    /* sheet top inset from the device top         */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
+  background:var(--n-bg);outline:1px solid rgba(0,0,0,.10);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28);
+  display:flex;flex-direction:column;color:var(--n-text)}
+.statusbar{height:54px;position:relative;flex:none;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:0 30px 5px}
+.statusbar .time{font:600 16px/1 var(--n-font);width:60px;letter-spacing:.2px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sicons{display:flex;align-items:center;gap:6px}
+.sicons svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:#191918}
+
+/* Board-local values. The paywall is a StoreKit-style sheet that sits 13pt
+   higher than the app's own sheets and uses a lighter blue than --n-blue;
+   sampled off the paywall captures and kept out of the shared block. */
+.phone{background:#F2F2F2;
+  --pw-sheet-top:58px;--pw-blue:#4A86E0;--pw-blue-ink:#3B7DDB;--pw-blue-sub:#5C90DC;
+  --pw-sel-bg:#E4F0FD;--pw-track:#EDEDED;--pw-line:#E4E4E4;--pw-link:#8E8E8E;--pw-ios-blue:#3478F6}
+.sheet{position:absolute;left:0;right:0;top:var(--pw-sheet-top);bottom:0;background:#fff;
+  border-radius:var(--n-r-sheet) var(--n-r-sheet) 0 0;overflow:hidden}
+.handle{width:36px;height:5px;border-radius:3px;background:#D1D1D1;margin:6px auto 0}
+.close{position:absolute;top:29px;right:22px;width:24px;height:24px;color:#6E6E6E}
+.close svg{width:24px;height:24px;display:block}
+.seg{display:flex;background:var(--pw-track);border-radius:var(--n-r-pill);padding:2px;
+  margin:52px var(--n-gutter) 0;height:34px}
+.seg div{flex:1;display:grid;place-items:center;font:var(--n-t-row);color:var(--n-text);
+  border-radius:var(--n-r-pill);letter-spacing:-.2px}
+.seg .on{background:#fff;font:var(--n-t-nav);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
+.ttl{font:700 28px/34px var(--n-font);letter-spacing:-.4px;text-align:center;margin-top:30px;color:var(--n-text)}
+.limit{display:block;width:max-content;margin:6px auto 0;height:27px;padding:0 12px;
+  border-radius:var(--n-r-pill);background:var(--n-fill);font:500 16px/27px var(--n-font);
+  color:var(--n-text);letter-spacing:-.2px}
+.hero{position:relative;height:292px;overflow:hidden;
+  background:linear-gradient(#fff 0%,#FBFBFB 30%,#F4F4F4 100%)}
+.fcard{position:absolute;left:71px;top:33px;width:251px;height:250px;border-radius:var(--n-r-card);
+  background:#fff;box-shadow:0 8px 30px rgba(0,0,0,.05);padding:19px 6px 0 20px}
+.frow{display:flex;gap:9px;align-items:flex-start;margin-bottom:16px}
+.frow svg{width:16px;height:16px;flex:none;margin-top:3px;color:var(--pw-blue)}
+.frow b{font:var(--n-t-row);color:var(--n-text);letter-spacing:-.2px;display:block}
+.frow b.ai{color:var(--pw-blue)}
+.frow i{display:block;font:400 15px/22px var(--n-font);color:var(--n-text-2);font-style:normal;letter-spacing:-.25px}
+.frow.more b{color:var(--n-text-3)}
+.spark{position:absolute;left:54px;top:15px;width:28px;height:34px;color:#1E1E1E}
+.cat{position:absolute;left:285px;top:187px;width:81px;height:101px;color:#1E1E1E}
+.prices{display:flex;gap:7px;margin:23px 16px 0}
+.price{flex:1;height:75px;border-radius:var(--n-r-field);border:1px solid var(--pw-line);
+  padding:14px 0 0 16px;background:#fff}
+.price b{display:block;font:700 26px/30px var(--n-font);letter-spacing:-.5px;color:var(--n-text)}
+.price i{display:block;font:400 16px/20px var(--n-font);font-style:normal;color:var(--n-text-2);margin-top:1px}
+.price.on{border:2px solid var(--pw-blue);background:var(--pw-sel-bg);padding:13px 0 0 15px}
+.price.on b{color:var(--pw-blue-ink)}
+.price.on i{color:var(--pw-blue-sub)}
+.cta{height:48px;margin:25px 16px 0;border-radius:8px;background:var(--pw-blue);color:#fff;
+  display:grid;place-items:center;font:var(--n-t-nav);letter-spacing:-.2px}
+.cta svg{width:24px;height:24px;display:block}
+.links{margin-top:34px;text-align:center}
+.links a{display:block;font:400 17px/23.5px var(--n-font);color:var(--pw-link);letter-spacing:-.2px;
+  text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.2);border-radius:52px}
+.alert{position:absolute;left:38px;top:362px;width:317px;height:151px;border-radius:18px;
+  background:rgba(250,250,250,.94);box-shadow:0 12px 40px rgba(0,0,0,.18);padding:20px 30px 0}
+.alert h3{font:700 20px/26px var(--n-font);letter-spacing:-.3px;color:#1C1C1E}
+.alert p{font:400 17px/22px var(--n-font);color:#4E4E52;letter-spacing:-.2px;margin-top:3px}
+.ok{position:absolute;left:15px;right:15px;bottom:16px;height:44px;border-radius:var(--n-r-pill);
+  background:var(--pw-ios-blue);color:#fff;display:grid;place-items:center;font:var(--n-t-nav);letter-spacing:-.2px}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="statusbar">
+    <div class="time">9:41</div>
+    <div class="island"></div>
+    <div class="sicons">
+      <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 9.6a2 2 0 0 1 2 1.9l-2 .5-2-.5a2 2 0 0 1 2-1.9Z"/><path d="M8.5 5.6c1.9 0 3.6.7 4.9 1.9l-1.4 1.5a5 5 0 0 0-7 0L3.6 7.5a7 7 0 0 1 4.9-1.9Z"/><path d="M8.5 1.5c3 0 5.7 1.2 7.7 3.1l-1.4 1.5a9 9 0 0 0-12.6 0L.8 4.6a11 11 0 0 1 7.7-3.1Z"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4Z" fill="currentColor" opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <div class="handle"></div>
+    <span class="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 5l14 14M19 5 5 19"/></svg></span>
+    <div class="seg"><div>Plus</div><div class="on">Plus &amp; AI</div></div>
+    <div class="ttl">Plus &amp; Notion AI</div>
+    <span class="limit">1 member limit</span>
+
+    <div class="hero">
+      <svg class="spark" viewBox="0 0 28 34" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 31.5 10.5 24.5"/><path d="M8.5 17 15 9.5"/><path d="M22 2.5 25 12.5"/></svg>
+      <div class="fcard">
+        <div class="frow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2.2 8.6 3.6 4.2L13.8 3.2"/></svg><span><b class="ai">Notion AI</b><i>Including Agent, Enterprise search, and AI meeting notes</i></span></div>
+        <div class="frow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2.2 8.6 3.6 4.2L13.8 3.2"/></svg><b>Unlimited file uploads</b></div>
+        <div class="frow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2.2 8.6 3.6 4.2L13.8 3.2"/></svg><b>View data with charts</b></div>
+        <div class="frow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2.2 8.6 3.6 4.2L13.8 3.2"/></svg><b>Site customizations</b></div>
+        <div class="frow more"><svg viewBox="0 0 16 16"></svg><b>and more...</b></div>
+      </div>
+      <svg class="cat" viewBox="0 0 90 112" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 15 C 9 22, 9 38, 20 45 C 29 50, 41 49, 47 41 C 53 33, 51 21, 45 16"/>
+      <path d="M17 15 12 2 26 10"/><path d="M36 10 45 1 47 16"/>
+      <path d="M22 26 q3.5 -4 7 0"/><path d="M35 24 q3.5 -4 7 0"/>
+      <path d="M29 32 l2.5 2.5 2.5 -2.5"/><path d="M27.5 37 q2 3 4 0 q2 3 4 0"/>
+      <path d="M4 28 15 30.5"/><path d="M4 35 15 33.5"/>
+      <path d="M46 29 60 24.5"/><path d="M47 33.5 62 33"/><path d="M46 37.5 60 41"/>
+      <path d="M22 46 20 102"/><path d="M28 48 27 102"/>
+      <path d="M36 48 38 102"/><path d="M42 45 45 102"/>
+      <path d="M17 104 v6"/><path d="M21.5 103 v7.5"/><path d="M26 104 v6"/>
+      <path d="M35 104 v6"/><path d="M39.5 103 v7.5"/><path d="M44 104 v6"/>
+      <path d="M52 104 C 60 92, 63 74, 63 60 C 63 51, 74 51, 74 60 C 74 74, 71 92, 62 108"/>
+    </svg>
+    </div>
+
+    <div class="prices">
+      <div class="price"><b>S$ 299.98</b><i>per year</i></div>
+      <div class="price on"><b>S$ 29.98</b><i>per month</i></div>
+    </div>
+
+    <div class="cta"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5" stroke="rgba(255,255,255,.35)"/><path d="M12 2.5a9.5 9.5 0 0 1 9.5 9.5" stroke="#fff"/><path d="M21.5 12a9.5 9.5 0 0 1-2.8 6.7" stroke="rgba(255,255,255,.7)"/></svg></div>
+
+    <div class="links">
+      <a>Restore subscription</a>
+      <a>Terms of service</a>
+      <a>Privacy policy</a>
+    </div>
+  </div>
+
+  <div class="scrim"></div>
+  <div class="alert">
+    <h3>You’re all set</h3>
+    <p>Your purchase was successful.</p>
+    <div class="ok">OK</div>
+  </div>
+</div>
+
+</body>
+</html>
