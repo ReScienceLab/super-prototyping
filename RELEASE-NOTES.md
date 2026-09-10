@@ -21,6 +21,15 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **The `notion-ios` example canvas gains nine screens and a generator.** The
+  four-screen flow for adding a data source to a database, and the five-screen
+  flow for adding an account, both measured against native @3x captures. The
+  folder's boards were hand-written HTML before, so a token could not be
+  changed in one place; `gen.py` is now the only source of truth for all
+  sixteen. Two tokens moved with the re-measurement: the sheet inset is 68
+  rather than 71, and the type stack names SF Pro's Text cut outright, since
+  `-apple-system` resolves to the Display cut and renders about 4% narrow.
+
 ## v1.1.1
 
 2026-09-09, one fix.
