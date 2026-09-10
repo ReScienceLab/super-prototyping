@@ -53,6 +53,33 @@ Board 10's table is *clipped*, not scrolled — 361pt wide with `overflow:hidden
 which is what the capture shows. `refkit shoot --clip-ok .tbl` is what keeps
 the overflow check quiet about it.
 
+## The Ask AI bar's icons
+
+Board 10's floating bar carries four glyphs, and three of them are Notion's
+own, lifted from the sprite notion.com ships: `magnifyingGlass`, `aiFace` and
+`microphoneFill`. They sit in `assets/icons/`, which is also where the canvas
+inspector looks to name an inline `<svg>` and hand it back as a vector asset.
+
+Two things the site's copies do not give:
+
+- **The mic's capsule is an outline, not a fill.** `microphoneFill`'s arc, stem
+  and base bar land on the capture as shipped once the glyph is 25.3px; its
+  capsule does not. The capture's is a 1.58pt-walled outline, outer 5.884 x
+  9.505 units, proportionally wider than Notion's filled one. `bar-mic` records
+  the result: same 14.0 x 20.0 box, same position, ink within 0.15%.
+- **The compose glyph is not published**, so it is traced off capture 04. An
+  open rounded square whose two edges stop 7.95 short of the corner, a 45deg
+  pencil running 16.26 along its own axis, and a *round* dot 2.24 across
+  sitting 1.65 clear of the pencil's cap. The first draft drew that dot as a
+  capsule along the pencil's axis, which read as a nib touching the shaft.
+
+One bar metric moved with them: the compose button sat 0.45pt left of the
+capture's, so `.bottombar`'s right padding is 17.77, not 18, and `.askbar`'s is
+10.53 so the mic stays put.
+
+The mascot's helmet is still hand-drawn. notion.com does not ship that one
+either, and `helmet` in `probes.json` is still 0.7 x 1.0 out.
+
 ## The reference row is not checked in
 
 Phase 5 of `clone-prototype` parks each source capture in its own

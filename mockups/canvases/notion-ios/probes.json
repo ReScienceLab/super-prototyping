@@ -5,7 +5,10 @@
     "cmd": "scan",
     "axis": "col",
     "at": 60,
-    "range": [55, 90],
+    "range": [
+      55,
+      90
+    ],
     "mine": "09-manage-data-sources-two.png",
     "_": "p3 down a column left of the grabber: the scrim gives way to the sheet at 68, not the 71 the folder shipped with. Five captures agree, so --n-sheet-top moved and 05/06 moved with it",
     "_head": "The measurements behind this folder's tokens, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture of the adding-a-new-data-source flow with its 120px bottom banner cropped off -- the refs are third-party and are not committed, so rebuild them before replaying. --against wants a directory holding the boards rendered at 3x with --crop-phone; every probe names its own file there."
@@ -14,7 +17,12 @@
     "id": "grabber",
     "img": "assets/refs/p2.png",
     "cmd": "bbox",
-    "box": [165, 72, 230, 85],
+    "box": [
+      165,
+      72,
+      230,
+      85
+    ],
     "dark": 240,
     "mine": "08-new-data-source.png",
     "_": "p2 the sheet's grabber, far paler than a default luminance cut: 38 x 5 at #E7E5E3, 7 below the sheet's top edge"
@@ -23,7 +31,12 @@
     "id": "nav-title",
     "img": "assets/refs/p1.png",
     "cmd": "bbox",
-    "box": [90, 95, 305, 122],
+    "box": [
+      90,
+      95,
+      305,
+      122
+    ],
     "mine": "07-manage-data-sources.png",
     "_": "p1 'Manage data sources'. 160.3pt wide here, 165 at --n-t-nav's 17px: the captures of this flow read about 16.4px, but 06's nav title reads a true 17 and four other boards share the token, so the 4.7pt is left standing rather than forked"
   },
@@ -31,7 +44,12 @@
     "id": "back",
     "img": "assets/refs/p1.png",
     "cmd": "bbox",
-    "box": [10, 95, 40, 122],
+    "box": [
+      10,
+      95,
+      40,
+      122
+    ],
     "mine": "07-manage-data-sources.png",
     "_": "p1 the back chevron, ink from 23.7. The sheet nav's own gutter is 18, two in from the page gutter the shared sheet chrome uses"
   },
@@ -41,7 +59,10 @@
     "cmd": "scan",
     "axis": "row",
     "at": 195,
-    "range": [0, 30],
+    "range": [
+      0,
+      30
+    ],
     "mine": "07-manage-data-sources.png",
     "_": "p1 across the first card, level with its label and clear of the corner radius: the ground gives way to the card at 16, so the card is inset 16 a side and every padding measured off the screen edge is 16 too many inside it"
   },
@@ -51,7 +72,10 @@
     "cmd": "scan",
     "axis": "col",
     "at": 196.5,
-    "range": [160, 290],
+    "range": [
+      160,
+      290
+    ],
     "mine": "07-manage-data-sources.png",
     "_": "p1 down the card's centre: the divider between the two rows at 217, which puts --n-row-h's 45 on the first row"
   },
@@ -59,7 +83,12 @@
     "id": "row-icon",
     "img": "assets/refs/p1.png",
     "cmd": "bbox",
-    "box": [28, 183, 54, 206],
+    "box": [
+      28,
+      183,
+      54,
+      206
+    ],
     "mine": "07-manage-data-sources.png",
     "_": "p1 the data-source glyph. 13.3 x 14.7 of ink, which an 18px box gives and the 16px box first tried did not -- size the box to the ink, not to the icon"
   },
@@ -67,7 +96,12 @@
     "id": "row-label",
     "img": "assets/refs/p1.png",
     "cmd": "bbox",
-    "box": [56, 183, 170, 206],
+    "box": [
+      56,
+      183,
+      170,
+      206
+    ],
     "mine": "07-manage-data-sources.png",
     "_": "p1 'Need to do' at 82pt. That is 17px with no tracking; the -.2px the other row labels carry made it 2% narrow"
   },
@@ -75,7 +109,12 @@
     "id": "row-value",
     "img": "assets/refs/p1.png",
     "cmd": "bbox",
-    "box": [296, 183, 335, 206],
+    "box": [
+      296,
+      183,
+      335,
+      206
+    ],
     "dark": 200,
     "mine": "07-manage-data-sources.png",
     "_": "p1 '1 view', #B0B0AF and too pale for a default cut. Ends 26.7 wide against 24.3 at 17px: the trailing value reads a shade larger than the row label beside it, and is left on the shared token"
@@ -84,7 +123,12 @@
     "id": "row-dots",
     "img": "assets/refs/p1.png",
     "cmd": "bbox",
-    "box": [334, 186, 362, 204],
+    "box": [
+      334,
+      186,
+      362,
+      204
+    ],
     "mine": "07-manage-data-sources.png",
     "_": "p1 the row's overflow dots: 14.7pt of ink, an 18px box, 11 clear of the value"
   },
@@ -94,7 +138,10 @@
     "cmd": "scan",
     "axis": "row",
     "at": 175,
-    "range": [20, 34],
+    "range": [
+      20,
+      34
+    ],
     "mine": "08-new-data-source.png",
     "_": "p2 across the first row: the tinted tile's left edge at 30, so the tile starts 14 into the card"
   },
@@ -102,7 +149,12 @@
     "id": "tile-label",
     "img": "assets/refs/p2.png",
     "cmd": "bbox",
-    "box": [70, 158, 260, 182],
+    "box": [
+      70,
+      158,
+      260,
+      182
+    ],
     "mine": "08-new-data-source.png",
     "_": "p2 'New empty data source' at 170pt. 16px, a size below the 17px row label on p1 -- the sheets are not the same row"
   },
@@ -110,7 +162,12 @@
     "id": "h1",
     "img": "assets/refs/p4.png",
     "cmd": "bbox",
-    "box": [18, 164, 260, 202],
+    "box": [
+      18,
+      164,
+      260,
+      202
+    ],
     "mine": "10-to-do-list-table.png",
     "_": "p4 'To do list' at 205.7pt: --n-t-title with -.1px, not the -.8px a cap-height reading suggested"
   },
@@ -118,7 +175,12 @@
     "id": "db-title",
     "img": "assets/refs/p4.png",
     "cmd": "bbox",
-    "box": [18, 334, 212, 362],
+    "box": [
+      18,
+      334,
+      212,
+      362
+    ],
     "dark": 230,
     "mine": "10-to-do-list-table.png",
     "_": "p4 the placeholder database title, 179.3pt from 27.7 and pale enough (#D4D4D4) that a default cut misses it entirely: 24px/700 with -.41px"
@@ -127,7 +189,12 @@
     "id": "db-chevron",
     "img": "assets/refs/p4.png",
     "cmd": "bbox",
-    "box": [213, 336, 238, 358],
+    "box": [
+      213,
+      336,
+      238,
+      358
+    ],
     "mine": "10-to-do-list-table.png",
     "_": "p4 the disclosure chevron beside that title. #80807E: the title is greyed out, the chevron is not, and drawing both in the title's grey read wrong"
   },
@@ -135,7 +202,12 @@
     "id": "chip",
     "img": "assets/refs/p4.png",
     "cmd": "bbox",
-    "box": [24, 372, 124, 412],
+    "box": [
+      24,
+      372,
+      124,
+      412
+    ],
     "grow": true,
     "mine": "10-to-do-list-table.png",
     "_": "p4 the Table view pill: 105.7 x 36 from 26, #F3F3F3"
@@ -144,7 +216,12 @@
     "id": "blue-btn",
     "img": "assets/refs/p4.png",
     "cmd": "bbox",
-    "box": [298, 370, 368, 414],
+    "box": [
+      298,
+      370,
+      368,
+      414
+    ],
     "mine": "10-to-do-list-table.png",
     "_": "p4 the new-row button: 60 x 32 at 303,376, split by a divider into a plus and a chevron half"
   },
@@ -152,7 +229,12 @@
     "id": "blue-fill",
     "img": "assets/refs/p4.png",
     "cmd": "sample",
-    "box": [345, 380, 352, 392],
+    "box": [
+      345,
+      380,
+      352,
+      392
+    ],
     "only": "flat",
     "mine": "10-to-do-list-table.png",
     "_": "p4 inside the button's chevron half, clear of the glyph: #4380D7"
@@ -163,7 +245,10 @@
     "cmd": "scan",
     "axis": "col",
     "at": 150,
-    "range": [440, 460],
+    "range": [
+      440,
+      460
+    ],
     "mine": "10-to-do-list-table.png",
     "_": "p4 the first row divider at 447, which puts the header's top at 410 and every 45pt row under it"
   },
@@ -173,7 +258,10 @@
     "cmd": "scan",
     "axis": "row",
     "at": 500,
-    "range": [280, 330],
+    "range": [
+      280,
+      330
+    ],
     "mine": "10-to-do-list-table.png",
     "_": "p4 the column rule at 305, present under the header and not through it. The table is 361 wide and simply clipped at the gutter -- in the app it scrolls sideways"
   },
@@ -181,25 +269,54 @@
     "id": "bar-search",
     "img": "assets/refs/p4.png",
     "cmd": "bbox",
-    "box": [10, 775, 55, 815],
+    "box": [
+      10,
+      775,
+      55,
+      815
+    ],
     "dark": 150,
     "mine": "10-to-do-list-table.png",
-    "_": "p4 the search glyph in the floating bar, ink 784..805: the bar sits 35.8 off the bottom, not 37"
+    "_": "p4 the search glyph in the floating bar, ink 784..805: the bar sits 35.8 off the bottom, not 37. Notion's own magnifyingGlass at 26.7px puts the ring within .03 of the capture; only its handle runs .66 short"
+  },
+  {
+    "id": "bar-mic",
+    "img": "assets/refs/p4.png",
+    "cmd": "bbox",
+    "box": [
+      283,
+      781,
+      303,
+      806
+    ],
+    "dark": 190,
+    "mine": "10-to-do-list-table.png",
+    "_": "p4 the mic inside the Ask AI field, 13.7 x 19.7 at 25.3px. Notion's microphoneFill arc, stem and base bar, but the capsule is drawn as an outline: walls 1.6, outer 5.9 x 9.5 units"
   },
   {
     "id": "bar-compose",
     "img": "assets/refs/p4.png",
     "cmd": "bbox",
-    "box": [335, 775, 383, 815],
+    "box": [
+      335,
+      775,
+      383,
+      815
+    ],
     "dark": 150,
     "mine": "10-to-do-list-table.png",
-    "_": "p4 the compose glyph at the other end of the bar, 20.7 square"
+    "_": "p4 the compose glyph at the other end of the bar, 20.7 square. Traced here: the square's two edges stop 7.95 short, the pencil runs 16.26 along its axis and the dot is round, 2.2 across, 1.65 clear of the pencil's cap"
   },
   {
     "id": "bar-ph",
     "img": "assets/refs/p4.png",
     "cmd": "bbox",
-    "box": [118, 780, 220, 810],
+    "box": [
+      118,
+      780,
+      220,
+      810
+    ],
     "dark": 200,
     "mine": "10-to-do-list-table.png",
     "_": "p4 'Ask AI' at 45.7pt: --n-t-row with no tracking, one size up from the 16px first tried"
@@ -208,7 +325,12 @@
     "id": "bar-shadow",
     "img": "assets/refs/p4.png",
     "cmd": "sample",
-    "box": [150, 820, 250, 824],
+    "box": [
+      150,
+      820,
+      250,
+      824
+    ],
     "only": "flat",
     "mine": "10-to-do-list-table.png",
     "_": "p4 under the floating bar: #F7F7F7, eight off the page. A tight 8px shadow leaves this at #FDFDFD, so the bar casts a wide ambient one as well"
@@ -217,7 +339,12 @@
     "id": "helmet",
     "img": "assets/refs/p4.png",
     "cmd": "bbox",
-    "box": [82, 766, 122, 790],
+    "box": [
+      82,
+      766,
+      122,
+      790
+    ],
     "dark": 210,
     "mine": "10-to-do-list-table.png",
     "_": "p4 the mascot's helmet, 24 x 13.7 and overlapping the avatar's top edge by 11"

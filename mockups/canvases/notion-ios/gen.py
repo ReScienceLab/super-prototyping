@@ -31,6 +31,16 @@ def write(name, title, css, body):
     print("%-28s %6d B" % (name + ".html", len((OUT / (name + ".html")).read_bytes())))
 
 
+def icon(name, cls=""):
+    """Inline assets/icons/<name>.svg. The boards render in a sandboxed iframe,
+    so every glyph travels with them; the canvas inspector reads them back out
+    of assets/icons/ by geometry. The four in the Ask AI bar are Notion's own:
+    magnifying-glass, ai-face and microphone are lifted from notion.com, and
+    compose, which the site does not ship, is traced off capture 04."""
+    svg = (OUT / "assets" / "icons" / (name + ".svg")).read_text().strip()
+    return svg.replace("<svg ", '<svg class="%s" ' % cls, 1) if cls else svg
+
+
 # ------------------------------------------------------------------ tokens ---
 TOKENS = """/* ============================================================================
    NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
@@ -815,24 +825,26 @@ CSS_10 = """
 .pl svg{width:100%;height:100%;display:block;stroke-width:2.2}
 .th .pl{width:17px;height:17px;color:#81827F;margin-right:5.5px}
 
-.bottombar{flex:none;display:flex;align-items:center;gap:14px;padding:0 18px 35.8px}
+.bottombar{flex:none;display:flex;align-items:center;gap:14px;padding:0 17.77px 35.8px 18px}
 .circbtn{width:44px;height:44px;flex:none;border-radius:50%;background:var(--n-fill-soft);
   border:1px solid var(--n-border);
   box-shadow:0 2px 8px rgba(29,25,26,.06),0 6px 30px rgba(29,25,26,.08);
   display:grid;place-items:center;color:var(--n-text)}
-.circbtn svg{width:23px;height:23px;display:block}
+.circbtn svg{width:22.2px;height:22.2px;display:block}
+.circbtn.sr svg{width:26.7px;height:26.7px}
 .askbar{flex:1;height:44px;border-radius:var(--n-r-pill);background:var(--n-fill-soft);
   border:1px solid var(--n-border);
   box-shadow:0 2px 8px rgba(29,25,26,.06),0 6px 30px rgba(29,25,26,.08);
-  display:flex;align-items:center;padding:0 14px 0 7px}
+  display:flex;align-items:center;padding:0 10.53px 0 7px}
 .aiava{width:33px;height:33px;border-radius:50%;border:1px solid #F2F2F2;position:relative;
   display:grid;place-items:center;flex:none;color:var(--n-text)}
-.aiava .aiface{width:21px;height:21px}
+.aiava .aiface{width:25.6px;height:25.6px;display:block}
 .hat{position:absolute;left:calc(50% + 1.7px);top:-11px;width:29.5px;height:17.5px;
   transform:translateX(-50%) rotate(-5deg)}
 .askbar .ph{font:var(--n-t-row);color:var(--n-text-2);
   margin-left:8px}
-.mic{width:19px;height:21px;color:#81827E;margin-left:auto;display:block}
+.mic{width:25.3px;height:25.3px;color:#81827E;margin-left:auto;display:block}
+.mic svg{width:100%;height:100%;display:block}
 """
 
 BULLETS = ["Finish work presentation", "Buy new house plants", "Go grocery",
@@ -881,19 +893,21 @@ BODY_10 = """
   </div>
 
   <div class="bottombar">
-    <div class="circbtn">%s</div>
+    <div class="circbtn sr">%s</div>
     <div class="askbar">
       <span class="aiava">
         <svg class="hat" viewBox="0 0 40 24" fill="none" stroke="#241F1D" stroke-width="1.7" stroke-linejoin="round"><path d="M8.6 16.8C8.6 8.6 12.6 3.4 20 3.4s11.4 5.2 11.4 13.4z" fill="#E5573F"/><path d="M2.6 19.4c0-1.7 7.8-3.2 17.4-3.2s17.4 1.5 17.4 3.2-7.8 3.4-17.4 3.4S2.6 21.1 2.6 19.4Z" fill="#E5573F"/><path d="m20 10.6 2.9 2.1-1.1 3.4h-3.6l-1.1-3.4z" fill="#F0A93A" stroke-width="1.2"/></svg>
-        <svg class="aiface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 6.0Q7.55 3.0 10.75 5.85"/><path d="M19.4 6.15C17.75 3.6 14.6 3.4 12.5 6.15L5.45 19.6h6.15"/><circle cx="7.95" cy="8.75" r="1.15" fill="currentColor" stroke="none"/><circle cx="14.55" cy="9.55" r="1.15" fill="currentColor" stroke="none"/></svg>
+        %s
       </span>
       <span class="ph">Ask AI</span>
-      <span class="mic"><svg viewBox="0 0 22 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="7.4" y="1.5" width="7.2" height="12.4" rx="3.6"/><path d="M3.2 11.6a7.8 7.8 0 0 0 15.6 0"/><path d="M11 19.4v3.1"/></svg></span>
+      <span class="mic">%s</span>
     </div>
-    <div class="circbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.1v6.2a2.2 2.2 0 0 1-2.2 2.2H4.7a2.2 2.2 0 0 1-2.2-2.2V5.6a2.2 2.2 0 0 1 2.2-2.2h6.3"/><path d="M17.3 1.9 22 6.6 12.5 16.1H7.8V11.4Z"/></svg></div>
+    <div class="circbtn">%s</div>
   </div>
 </div>""" % (I_BACK, I_DOTS, "".join("      <li>%s</li>\n" % b for b in BULLETS),
-             I_DOWN, I_DOWN, I_SEARCH, I_PLUS, I_DOWN, I_PLUS, I_PLUS, I_SEARCH)
+             I_DOWN, I_DOWN, I_SEARCH, I_PLUS, I_DOWN, I_PLUS, I_PLUS,
+             icon("magnifying-glass"), icon("ai-face", "aiface"),
+             icon("microphone"), icon("compose"))
 
 
 
