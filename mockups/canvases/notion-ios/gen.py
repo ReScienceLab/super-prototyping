@@ -1035,7 +1035,10 @@ BODY_15 = account(EMAIL % TYPED + CODE % '<span>QGuM7E</span>'
 # All ten palettes return the same geometry and differ only in `fill`, so one
 # copy per icon is stored, carrying the `gray` fill, and 17 recolours it.
 NAMES = json.loads((OUT / "icon-names.json").read_text())   # slug -> Notion's name
-SLUGS = sorted(NAMES)
+# By Notion's name, which is what 16 says it orders by and what it shows on
+# hover. Sorting the slugs is not the same order: `ArrowsHorizontal` files
+# under `arrows-` after `arrow-southeast`, but under `Arrows` before it.
+SLUGS = sorted(NAMES, key=lambda s: NAMES[s].lower())
 
 # 40 x 22 is the near-square factorisation of 880 that fills a landscape board
 # -- 44 x 20 is wider and shallower and leaves the height half empty -- and it
@@ -1098,19 +1101,24 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 
 
 # ------------------------------------------------------------- 16-icon-set ---
+# The glyphs arrive as currentColor, so the sheet has to name a colour or they
+# inherit the body's ink and the board shows a gray Notion never served. It
+# names the `gray` palette, the one the stored bytes came down in.
 CSS_16 = SHEETS + """.all{display:grid;margin-top:14px;justify-content:center;
-  grid-template-columns:repeat(%d,%dpx);grid-auto-rows:%dpx}
-.all svg{display:block;margin:%gpx}""" % (COLS, CELL, CELL, (CELL - GLYPH) / 2)
+  grid-template-columns:repeat(%d,%dpx);grid-auto-rows:%dpx;color:%s}
+.all svg{display:block;margin:%gpx}""" % (
+    COLS, CELL, CELL, PALETTES[0][1], (CELL - GLYPH) / 2)
 
 BODY_16 = ("""<header>
   <h1>Notion Icons</h1>
   <p>All %d glyphs Notion serves, %d &times; %d, alphabetical by Notion&rsquo;s own
-  name. Each is a single path on a 20 &times; 20 viewBox, drawn here at %dpx.
+  name. Each is a single path on a 20 &times; 20 viewBox, drawn here at %dpx in
+  the <code>gray</code> palette&rsquo;s %s, the fill the endpoint sent them in.
   Hover one on the canvas for its name.</p>
 </header>
 <div class="all">%s</div>
 <footer>%s</footer>"""
-           % (len(SLUGS), COLS, ROWS, GLYPH,
+           % (len(SLUGS), COLS, ROWS, GLYPH, PALETTES[0][1],
               "".join(glyph(s, GLYPH) for s in SLUGS), CREDIT))
 
 
