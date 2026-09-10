@@ -1,8 +1,9 @@
-"""Emit mockups/canvases/notion-ios/ from measurements of ten Mobbin captures.
+"""Emit mockups/canvases/notion-ios/ from measurements of fifteen Mobbin captures.
 
-Ten screens of Notion iOS: the splash, search and the AI chat, a meeting page,
-the date and share sheets, and the four-screen flow that adds a data source to
-a database. The measurements behind the tokens are in probes.json.
+Fifteen screens of Notion iOS: the splash, search and the AI chat, a meeting
+page, the date and share sheets, the four-screen flow that adds a data source
+to a database, and the five-screen flow that adds an account. The measurements
+behind the tokens are in probes.json.
 
     python3 mockups/canvases/notion-ios/gen.py
 
@@ -50,6 +51,10 @@ TOKENS = """/* =================================================================
    ========================================================================= */
 :root{
   --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --n-font-text:"SF Pro Text",var(--n-font);  /* the Text optical cut, named    */
+                                              /* outright: a browser gives      */
+                                              /* -apple-system the Display cut, */
+                                              /* 4% narrower                    */
 
   /* Surface */
   --n-bg:#FFFFFF;          /* document / full-screen page                */
@@ -911,6 +916,103 @@ BODY_10 = """
 
 
 
+# ------------------------------------------------- 11..15-add-an-account ---
+# Five captures of one screen in five states, so they are one function. The
+# sheet has no nav row: a centred title and subtitle sit straight on the
+# ground, then six provider buttons, then however much of the sign-up form the
+# state has reached. Captures 04 and 05 are the same content scrolled 81pt up,
+# which is why `.acc.up` moves the title by that much and fades what is left
+# of the subtitle under the sheet's top edge. The type is --n-font-text, not
+# --n-font: the captures are set in SF Pro's Text cut, and -apple-system
+# resolves to the Display cut, 4% narrower.
+CSS_ACC = SHEET % 7 + """.acc{position:absolute;inset:0;overflow:hidden;padding:0 16.5px}
+.acc.up{-webkit-mask-image:linear-gradient(#0000 17px,#000 52px);
+  mask-image:linear-gradient(#0000 17px,#000 52px)}
+.acc.up .atitle{margin-top:-44.6px}
+.atitle{font:700 21px/28px var(--n-font-text);letter-spacing:-.5px;text-align:center;margin-top:36.4px}
+.asub{font:400 22px/26px var(--n-font-text);letter-spacing:-.45px;text-align:center;
+  color:var(--n-text-3);margin-top:-1px}
+.plist{margin-top:30.8px}
+.prow{position:relative;display:flex;align-items:center;height:48px;margin-bottom:12px;
+  border:1px solid #E5E3E1;border-radius:var(--n-r-card)}
+.pi{width:24px;height:24px;margin-left:9.5px;color:#262623;flex:none}
+.pi svg{width:24px;height:24px;display:block}
+.pl{position:absolute;left:0;right:0;text-align:center;font:400 17px/1 var(--n-font-text);
+  letter-spacing:-.3px;color:#262623}
+.rule{height:1px;background:#E5E3E1;margin-top:19.7px}
+.flabel{font:400 15px/20px var(--n-font-text);color:var(--n-text-2);margin-top:19.9px}
+.flabel.v2{margin-top:17.7px}
+.field{display:flex;align-items:center;height:42px;padding:0 16.3px;margin:7.1px -1px 0;
+  border:1px solid #E5E3E1;border-radius:var(--n-r-field);
+  font:400 15px/1 var(--n-font-text);letter-spacing:-.25px;color:#262623}
+.field.mono{height:40px;margin-top:3.1px;padding-left:10px;letter-spacing:0;
+  font:400 15px/1 ui-monospace,"SF Mono",Menlo,monospace}
+.ph{color:#A8A6A5}
+.clear{width:15.3px;height:15.3px;margin-left:auto;flex:none}
+.clear svg{width:15.3px;height:15.3px;display:block}
+.hint{font:400 12px/16px var(--n-font-text);color:var(--n-text-3);margin-top:7.2px}
+.cta{height:40px;display:grid;place-items:center;margin-top:23.8px;border-radius:var(--n-r-field);
+  background:var(--n-blue);font:600 17px/1 var(--n-font-text);letter-spacing:-.3px;color:#fff}
+.resend{text-align:center;font:400 17px/22px var(--n-font-text);letter-spacing:-.45px;
+  color:var(--n-text-2);margin-top:13.6px}
+.resend.link{font:400 14px/20px var(--n-font-text);letter-spacing:-.15px;
+  color:var(--n-blue);margin-top:12.6px}
+"""
+
+PROVIDERS = (("google", "Google"), ("apple", "Apple"), ("microsoft", "Microsoft"),
+             ("passkey", "Passkey"), ("sso", "SSO"), ("envelope", "Email"))
+
+# Everything below the six providers. Nothing on capture 01; the email field
+# from 02 on; the verification code as well from 04 on.
+EMAIL = """      <div class="rule"></div>
+      <div class="flabel">Work email</div>
+      <div class="field">%s</div>
+      <div class="hint">Use an organization email to easily collaborate with teammates</div>
+"""
+CLEAR = ('<span class="clear"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#ADAAA5"/>'
+         '<path d="m8.7 8.7 6.6 6.6m0-6.6-6.6 6.6" stroke="#FAF8F6" stroke-width="2" '
+         'stroke-linecap="round"/></svg></span>')
+TYPED = '<span>samlee.mobbin+1@gmail.com</span>' + CLEAR
+CONTINUE = '      <div class="cta">Continue</div>\n'
+CODE = """      <div class="flabel v2">Verification code</div>
+      <div class="field mono">%s</div>
+      <div class="hint">We sent a code to your inbox</div>
+""" + CONTINUE
+
+
+def account(form, up=""):
+    """One capture of the add-an-account sheet. `form` is the HTML below the
+    six provider buttons; `up` is " up" for the two scrolled captures."""
+    rows = "".join(
+        '        <div class="prow"><span class="pi">%s</span><span class="pl">%s</span></div>\n'
+        % (icon(name), label) for name, label in PROVIDERS)
+    return """
+<div class="phone">
+  <!--sb-->
+
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="acc%s">
+      <div class="atitle">Add an account</div>
+      <div class="asub">Use an existing account,<br>or sign up with a new email</div>
+      <div class="plist">
+%s      </div>
+%s    </div>
+  </div>
+</div>""" % (up, rows, form)
+
+
+BODY_11 = account("")
+BODY_12 = account(EMAIL % '<span class="ph">Enter your email address...</span>' + CONTINUE)
+BODY_13 = account(EMAIL % TYPED + CONTINUE)
+BODY_14 = account(EMAIL % TYPED + CODE % '<span class="ph">Enter code</span>'
+                  + '      <div class="resend">Resend in 28s</div>\n', " up")
+BODY_15 = account(EMAIL % TYPED + CODE % '<span>QGuM7E</span>'
+                  + '      <div class="resend link">Resend verification code</div>\n', " up")
+
+
+
+
 # ------------------------------------------------------------------- boards ---
 BOARDS = [
     ("00-design-tokens", "Notion iOS — Design Tokens", CSS_00, BODY_00),
@@ -924,6 +1026,11 @@ BOARDS = [
     ("08-new-data-source", "Notion iOS — New data source", CSS_08, BODY_08),
     ("09-manage-data-sources-two", "Notion iOS — Manage data sources, two", CSS_09, BODY_09),
     ("10-to-do-list-table", "Notion iOS — To do list with a table", CSS_10, BODY_10),
+    ("11-add-an-account", "Notion iOS — Add an account", CSS_ACC, BODY_11),
+    ("12-add-an-account-email", "Notion iOS — Add an account, work email", CSS_ACC, BODY_12),
+    ("13-add-an-account-email-filled", "Notion iOS — Add an account, email typed", CSS_ACC, BODY_13),
+    ("14-add-an-account-code", "Notion iOS — Add an account, verification code", CSS_ACC, BODY_14),
+    ("15-add-an-account-code-filled", "Notion iOS — Add an account, code typed", CSS_ACC, BODY_15),
 ]
 
 if __name__ == "__main__":

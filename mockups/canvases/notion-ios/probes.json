@@ -348,5 +348,242 @@
     "dark": 210,
     "mine": "10-to-do-list-table.png",
     "_": "p4 the mascot's helmet, 24 x 13.7 and overlapping the avatar's top edge by 11"
+  },
+  {
+    "id": "acc-title",
+    "img": "assets/refs/a1.png",
+    "cmd": "bbox",
+    "box": [
+      60,
+      100,
+      340,
+      132
+    ],
+    "dark": 200,
+    "mine": "11-add-an-account.png",
+    "_": "a1 'Add an account' 155.3 x 16.3, centred at 110. 21px/700 -- 22px overshoots by 9. Only the Text cut of SF Pro is this wide: headless Chrome gives -apple-system the Display cut, 4% narrower, so the sheet names \"SF Pro Text\" outright"
+  },
+  {
+    "id": "acc-sub",
+    "img": "assets/refs/a1.png",
+    "cmd": "bbox",
+    "box": [
+      40,
+      158,
+      360,
+      186
+    ],
+    "dark": 215,
+    "mine": "11-add-an-account.png",
+    "_": "a1 the subtitle's second line, 266.0 wide at 161.7 with 26 between the two lines: 22px with -.45 tracking, one size up from the title's 21"
+  },
+  {
+    "id": "acc-btn",
+    "img": "assets/refs/a1.png",
+    "cmd": "bbox",
+    "mine": "11-add-an-account.png",
+    "_": "a1 the first provider button: 360 x 48 at 214, 12 below the next. Outline only -- a 1px #E5E3E1 border over the sheet's own ground, no fill of its own",
+    "box": [
+      10,
+      208,
+      383,
+      268
+    ],
+    "dark": 238
+  },
+  {
+    "id": "acc-label",
+    "img": "assets/refs/a1.png",
+    "cmd": "bbox",
+    "box": [
+      150,
+      462,
+      250,
+      495
+    ],
+    "dark": 200,
+    "mine": "11-add-an-account.png",
+    "_": "a1 'SSO', the one label with no ascender or descender: 32.7 x 12.7, so 17px with -.3 tracking"
+  },
+  {
+    "id": "acc-ms",
+    "img": "assets/refs/a1.png",
+    "cmd": "sample",
+    "box": [
+      31,
+      350,
+      36,
+      355
+    ],
+    "mine": "11-add-an-account.png",
+    "_": "a1 the Microsoft mark's top-left quadrant, #F25022: the brand palette unchanged, four 9.5 squares with a 0.87 gutter on a 20 x 20 grid"
+  },
+  {
+    "id": "acc-rule",
+    "img": "assets/refs/a2.png",
+    "cmd": "bbox",
+    "box": [
+      10,
+      575,
+      383,
+      590
+    ],
+    "dark": 238,
+    "mine": "12-add-an-account-email.png",
+    "_": "a2 the divider above the form: 360 x 1 of #E5E3E1 at 582, the same hairline as the button borders"
+  },
+  {
+    "id": "acc-flabel",
+    "img": "assets/refs/a2.png",
+    "cmd": "bbox",
+    "box": [
+      10,
+      598,
+      200,
+      626
+    ],
+    "dark": 200,
+    "mine": "12-add-an-account-email.png",
+    "_": "a2 'Work email' 76.0 x 11.7 at 606.7: 15px, untracked"
+  },
+  {
+    "id": "acc-field",
+    "img": "assets/refs/a2.png",
+    "cmd": "bbox",
+    "box": [
+      10,
+      624,
+      383,
+      678
+    ],
+    "dark": 238,
+    "mine": "12-add-an-account-email.png",
+    "_": "a2 the email field: 42 tall from 630, its border out to 15.7 and 377.7 -- a pt wider each side than the buttons above it"
+  },
+  {
+    "id": "acc-ph",
+    "img": "assets/refs/a2.png",
+    "cmd": "bbox",
+    "box": [
+      25,
+      640,
+      340,
+      666
+    ],
+    "dark": 215,
+    "mine": "12-add-an-account-email.png",
+    "_": "a2 'Enter your email address...' 179.7 wide from 33.7: 15px with -.25 tracking, 16.3 in from the field's edge"
+  },
+  {
+    "id": "acc-hint",
+    "img": "assets/refs/a2.png",
+    "cmd": "bbox",
+    "box": [
+      10,
+      676,
+      383,
+      700
+    ],
+    "dark": 215,
+    "mine": "12-add-an-account-email.png",
+    "_": "a2 the helper line, 354.0 on one line. 12px -- at the 16px its 11.3 ink height first suggested it wraps, because this line has no ascender to measure"
+  },
+  {
+    "id": "acc-cta",
+    "img": "assets/refs/a2.png",
+    "cmd": "sample",
+    "box": [
+      100,
+      730,
+      300,
+      750
+    ],
+    "only": "flat",
+    "mine": "12-add-an-account-email.png",
+    "_": "a2 inside Continue: #2383E2, --n-blue, on a 40-tall button from 719"
+  },
+  {
+    "id": "acc-clear",
+    "img": "assets/refs/a3.png",
+    "cmd": "bbox",
+    "box": [
+      338,
+      638,
+      368,
+      664
+    ],
+    "dark": 200,
+    "mine": "13-add-an-account-email-filled.png",
+    "_": "a3 the clear button once the field has text: a 15.3 disc of #ADAAA5 at 345.3, its glyph knocked out in the sheet's own colour"
+  },
+  {
+    "id": "acc-scroll",
+    "img": "assets/refs/a4.png",
+    "cmd": "bbox",
+    "box": [
+      10,
+      495,
+      383,
+      510
+    ],
+    "dark": 238,
+    "mine": "14-add-an-account-code.png",
+    "_": "a4 the same divider at 501, so 04 and 05 are 02's content scrolled 81 up. Everything above is gone but the subtitle's last line, faded out under the sheet's top edge"
+  },
+  {
+    "id": "acc-code",
+    "img": "assets/refs/a4.png",
+    "cmd": "bbox",
+    "box": [
+      10,
+      650,
+      383,
+      700
+    ],
+    "dark": 238,
+    "mine": "14-add-an-account-code.png",
+    "_": "a4 the code field: 40 tall from 655, two shorter than the email field above it"
+  },
+  {
+    "id": "acc-entercode",
+    "img": "assets/refs/a4.png",
+    "cmd": "bbox",
+    "box": [
+      20,
+      662,
+      200,
+      690
+    ],
+    "dark": 215,
+    "mine": "14-add-an-account-code.png",
+    "_": "a4 'Enter code' 88.3 wide: 15px monospace, the one field the app sets in SF Mono"
+  },
+  {
+    "id": "acc-resend",
+    "img": "assets/refs/a4.png",
+    "cmd": "bbox",
+    "box": [
+      100,
+      792,
+      300,
+      820
+    ],
+    "dark": 215,
+    "mine": "14-add-an-account-code.png",
+    "_": "a4 'Resend in 28s' 105.7 x 13.0: 17px, the largest text below the buttons"
+  },
+  {
+    "id": "acc-resend-link",
+    "img": "assets/refs/a5.png",
+    "cmd": "bbox",
+    "box": [
+      100,
+      790,
+      300,
+      818
+    ],
+    "dark": 215,
+    "mine": "15-add-an-account-code-filled.png",
+    "_": "a5 the countdown replaced by a link, 157.7 x 11.0 and two sizes smaller at 14px -- the state change is not a recolour"
   }
 ]

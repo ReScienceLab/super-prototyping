@@ -62,6 +62,32 @@
           "label": "To do list with a table"
         }
       ]
+    },
+    {
+      "title": "Flow: adding an account",
+      "numbered": true,
+      "files": [
+        {
+          "file": "11-add-an-account",
+          "label": "Add an account"
+        },
+        {
+          "file": "12-add-an-account-email",
+          "label": "Work email"
+        },
+        {
+          "file": "13-add-an-account-email-filled",
+          "label": "Email typed"
+        },
+        {
+          "file": "14-add-an-account-code",
+          "label": "Verification code"
+        },
+        {
+          "file": "15-add-an-account-code-filled",
+          "label": "Code typed"
+        }
+      ]
     }
   ]
 }
