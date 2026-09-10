@@ -1,16 +1,20 @@
 # Notion iOS, a worked example
 
 A real run of the `clone-prototype` skill, kept as the reference for what a
-finished board looks like. One measured token block plus nine replica screens,
-every colour and metric traced to a sample off the source capture.
+finished board looks like. One measured token block plus fifteen replica
+screens, every colour and metric traced to a sample off the source capture.
 
-Open it with `?canvas=notion-ios`.
+Open it with `?canvas=notion-ios`, or a single board with
+`?canvas=notion-ios#07-manage-data-sources`.
 
 | file | what it is |
 |---|---|
-| `00-design-tokens.html` | The contract. Swatches, type ramp, radii, metrics, and the evidence for each value. Inlined byte-identically into all nine screens. |
+| `gen.py` | The source of truth. Every `NN-*.html` here is its output; edit the generator and re-run, never the HTML. |
+| `00-design-tokens.html` | The contract. Swatches, type ramp, radii, metrics, and the evidence for each value. Inlined byte-identically into all fifteen screens. |
 | `01-splash` … `06-share-settings-sheet` | The screens. 393 × 852 pt frames on 478 × 980 artboards, fully self-contained. |
-| `07-plan-plus-ai-monthly` … `09-purchase-success` | The in-app purchase sheet: Plus & AI with the monthly and the yearly price selected, then the StoreKit "You're all set" alert over it. |
+| `07-manage-data-sources` … `10-to-do-list-table` | The *adding a new data source* flow, added later against four more captures. |
+| `11-add-an-account` … `15-add-an-account-code-filled` | The *adding an account* flow, five states of one sheet, against five more captures. |
+| `probes.json` | The measurements behind the tokens, replayable with `refkit batch probes.json --against <shots> --pt 3`. |
 
 Two things in `00-design-tokens.html` are worth reading. The capture scale
 (`300 / 393 = 0.7634 px/pt`) is recorded there, and `--n-hairline: #E9E8E7`
@@ -27,73 +31,162 @@ refkit bands ref.png 75 350 500 435 --axis cols --minfrac .01   # word gaps
 refkit font  ref.png 119 118 163.4 143.4 list --pt 3
 ```
 
-## The purchase sheet, 07 to 09
+## What the data-source flow changed
 
-Three screens added later from 881 × 1910 Mobbin captures
-(`881 / 393 = 2.2417 px/pt`), measured with `refkit bbox` and row and column
-scans, then shot at 3×, resampled to capture scale and diffed against the
-capture until every text run, edge and glyph box agreed within 0.5 pt. A
-generator in the run's `scratch/` composes them from the token block of `06`,
-inlined byte-for-byte, and places each text run by its cap top; as with 01
-to 06, treat the HTML as its output. What they add on top of the token block,
-and why it stays out of it:
+The four screens were added against native @3x captures (`1179 / 393 = 3.0`
+px/pt exactly), which are sharper than the 0.7634 px/pt captures the first six
+came from. Three things came out of the re-measurement; the first two are token
+changes, so 05 and 06 moved with them:
 
-- **The sheet sits at 58.9 pt** with a 38 pt corner over the app dimmed to
-  `#C6C6C6`, not the 71 pt and `--n-r-sheet` the app's own sheets use: this
-  is a StoreKit-style page sheet. Handle 36 × 4.5 at 5.3, close glyph 12 pt
-  at (351.3, 92.8).
-- **The status bar is the stock one.** The captures show a 17 pt semibold
-  "9:41" with its cap top at 22.8 pt and the icon group spanning
-  281.9–360.4, where the shared block sets a 16 px clock 12 pt lower. These
-  three boards place it by hand; 01 to 06 are left as they were.
-- **The Dynamic Island is kept.** The captures have none, which the skill
-  treats as a capture artefact, and 01 to 06 all show one, so the three
-  boards keep it. It is the one deliberate deviation, and it is all of the
-  diff above 54 pt.
-- **Three blues, none of them `--n-blue`.** Check marks and "Notion AI" are
-  `#4E7AB0`; the selected price card is a 2 pt `#487ED0` border on
-  `#E7F3FF` with its figures in `#467AB9` and `#4E7BB8`; the subscribe
-  button is `#4380D7`; the alert's OK is iOS system blue `#367CEF`.
-- **The segmented control has no pill shadow.** 353 × 31.7 at 122.1 with a
-  1.8 pt inset on `#EBEBEB`, and the grey runs unchanged right up to the
-  white pill's edge on every side. The labels sit 0.85 pt off their cells'
-  centres, away from the divide.
-- **The feature card is taller than its window.** A 249.8 × 300 white card
-  at (71.8, 285.5) with 22 pt corners and a three-layer shadow (`#ECECEC`
-  at the edge, `#F6F6F6` 10 pt out, `#FAFAFA` at 40), inside a window from
-  250.3 to 540 whose last 40 pt fade linearly to white. A black stroke of
-  the cat ramps from 0 to 253 between y 500 and 538 in the capture, and the
-  replica's does the same.
-- **The cat and the sparkles are generated, not drawn.** Both are crops of
-  the capture in `assets/art/` (198 × 250 and 77 × 88 px), redrawn by
-  `gpt-image-2` through `artgen` in one two-cell, white-ground,
-  geometry-anchored grid at high quality, keyed, and shipped at 3× the
-  measured box as `assets/cat.png` and `assets/spark.png`. `art-gen.json`
-  has the scores: cat 13.97 and sparkles 10.9 against the crop's 0, both
-  over artgen's 8.0 default, and a second independent return did no better
-  (14.56, 11.12). Thin black line art on white scores worse than the filled
-  characters that default was set on. The head, the whiskers and the
-  overlap with the card's edge land on the capture's boxes; the hind leg
-  ends 4 pt higher than the capture's. The two returns cost about US$0.50.
-- **Price cards** 178 × 75 at 567.5 with a 1 pt `#E4E4E4` border, figures
-  21.5 px bold, sub-labels 13 px. **Subscribe** 361.5 × 50.4 at 665.5,
-  8 pt corners, 15 px semibold. **Links** 13 px `#9A9A98`, underlined, on a
-  23.7 pt pitch from 754.3.
-- **The success state** is the monthly board under a 20 % black scrim. The
-  button grows to 54.4 pt while it spins and the links move 4 pt down with
-  it; a 24 pt ring spinner replaces the label; the alert is 318.7 × 152.2
-  at (37.3, 362.3) with 30 pt corners, 70 % white over a 30 px blur and a
-  `0 10 30` shadow at 12 %, its title 17 px semibold and its OK pill
-  286.9 × 48.5.
+- `--n-sheet-top` is **68**, not the 71 the folder shipped with. Five separate
+  captures agree.
+- The grabber is 38 × 5, `#E7E5E3`, 7 below the sheet's top edge.
+- Card padding is **card-relative**. `.drow`'s 17pt left padding applies inside
+  a card that is already inset 16, so a padding read off the screen edge lands
+  everything 16pt right. This was the single biggest error in the first draft.
 
-Mean absolute delta against the captures, whole phone crop, in levels of
-255, and the same below the 54 pt status bar:
+Two deltas are knowingly left standing, both recorded in `probes.json`:
+`--n-t-nav`'s 17px renders about 4.7pt wider than these captures' nav titles,
+but 06's title reads a true 17 and four boards share the token; and the `1 view`
+row value reads a shade larger than the 17px row label beside it.
 
-| board | whole | below 54 pt |
-| --- | --- | --- |
-| 07 monthly | 5.08 | 2.63 |
-| 08 yearly | 5.29 | 2.86 |
-| 09 success | 4.31 | 2.25 |
+Board 10's table is *clipped*, not scrolled — 361pt wide with `overflow:hidden`,
+which is what the capture shows. `refkit shoot --clip-ok .tbl` is what keeps
+the overflow check quiet about it.
+
+## The Ask AI bar's icons
+
+Board 10's floating bar carries four glyphs, and three of them are Notion's
+own, lifted from the sprite notion.com ships: `magnifyingGlass`, `aiFace` and
+`microphoneFill`. They sit in `assets/icons/`, which is also where the canvas
+inspector looks to name an inline `<svg>` and hand it back as a vector asset.
+
+Two things the site's copies do not give:
+
+- **The mic's capsule is an outline, not a fill.** `microphoneFill`'s arc, stem
+  and base bar land on the capture as shipped once the glyph is 25.3px; its
+  capsule does not. The capture's is a 1.58pt-walled outline, outer 5.884 x
+  9.505 units, proportionally wider than Notion's filled one. `bar-mic` records
+  the result: same 14.0 x 20.0 box, same position, ink within 0.15%.
+- **The compose glyph is not published**, so it is traced off capture 04. An
+  open rounded square whose two edges stop 7.95 short of the corner, a 45deg
+  pencil running 16.26 along its own axis, and a *round* dot 2.24 across
+  sitting 1.65 clear of the pencil's cap. The first draft drew that dot as a
+  capsule along the pencil's axis, which read as a nib touching the shaft.
+
+One bar metric moved with them: the compose button sat 0.45pt left of the
+capture's, so `.bottombar`'s right padding is 17.77, not 18, and `.askbar`'s is
+10.53 so the mic stays put.
+
+The mascot's helmet is still hand-drawn. notion.com does not ship that one
+either, and `helmet` in `probes.json` is still 0.7 x 1.0 out.
+
+## What the account flow changed
+
+Five captures of one sheet in five states: the six providers, then the email
+field, then the code field, with 04 and 05 the same content scrolled 81pt up.
+Adding them turned up one thing the first ten boards had absorbed silently.
+
+**`--n-font` resolves to the wrong optical cut.** SF Pro ships a Text cut and a
+Display cut, and a browser hands `-apple-system` the Display one, which is
+about 4% narrower. Every string on this sheet came out short against the
+capture until the stack named `"SF Pro Text"` outright, so the token block now
+carries `--n-font-text` and the sheet uses it. The first ten boards stay on
+`--n-font`: their tracking was tuned against the Display cut, and switching
+them costs a re-measure (`nav-title` alone goes 12pt wide). `refkit batch`
+holds them at a mean `|dw|` of 0.41.
+
+The other lesson is that **ink height is a poor way to guess a font size.**
+The helper line under the email field reads 11.3 tall, which suggested 16px and
+made the line wrap; measured by *width* it is 354.0 on one line, which is 12px.
+Nothing in that string has an ascender to measure. The sizes that came out of
+width, all of them in `probes.json`:
+
+| what | size |
+|---|---|
+| `Add an account` | 21px / 700, tracking −.5 |
+| `Use an existing account,` | 22px, tracking −.45, 26 between lines |
+| provider labels | 17px, tracking −.3 |
+| `Work email` | 15px |
+| field text and placeholder | 15px, tracking −.25 |
+| the code field | 15px SF Mono, 6pt less left padding than the field above it |
+| helper lines | 12px |
+| `Resend in 28s` | 17px |
+| `Resend verification code` | 14px, and blue — the state change is not a recolour |
+
+Six provider glyphs sit in `assets/icons/`, each normalised to a 24-unit
+viewBox so one rule sizes them all. `apple.svg` is Notion's own `appleLogo`
+path, scaled by its measured ink box; Google and Microsoft are the brand marks
+at their published palettes; `passkey`, `sso` and `envelope` are traced off the
+captures by connected component, since Notion does not publish them.
+
+The fade at the top of 04 and 05 is a mask, fitted to the capture's own ramp:
+alpha runs 0 to 1 over 17 to 52pt from the sheet's top edge, which puts the
+faded subtitle remnant within five grey levels of the capture the whole way
+down.
+
+## How close it lands
+
+Screens 7–15, each against its own capture cropped to `(0, 0, 1179, 2556)` and
+rendered with `refkit shoot --scale 3 --crop-phone`, so both sides are the same
+393 × 852 pt screen at 3 px/pt. Mean absolute delta in levels of 255:
+
+| # | screen | whole frame | below the status bar |
+|---|---|---|---|
+| 7 | Manage data sources | 5.20 | 1.91 |
+| 8 | New data source | 4.82 | 1.49 |
+| 9 | Manage data sources, two | 5.62 | 2.35 |
+| 10 | To do list with a table | 6.55 | 2.84 |
+| 11 | Add an account | 4.67 | 1.33 |
+| 12 | Work email | 5.28 | 1.99 |
+| 13 | Email typed | 5.28 | 1.99 |
+| 14 | Verification code | 5.08 | 1.77 |
+| 15 | Code typed | 5.07 | 1.77 |
+
+**Whole-frame mean 5.37, worst 6.55. Below the status bar, mean 1.94, worst
+2.84.** The gap between the two columns is one thing, and it is this repo's
+framing rather than a miss: the top 60pt band scores 51.9 on eight of the nine
+boards and 59.2 on board 10, near enough to a constant, because every board
+here draws a Dynamic Island and none of the captures has one. The left column
+is `refkit diff <render> <capture>`; the right is the same measure over
+`y >= 180px`, which is where the app's own content starts.
+
+What is left below that band is glyph antialiasing and the two deltas named
+below. Board 10 is worst of the nine because it carries the most type and the
+only clipped table; board 11 is best because it is a sheet of six outlined
+buttons on a flat ground.
+
+`refkit batch probes.json --against <shots> --pt 3` replays all 43 probes
+against the renders: **33 box probes at a mean |dw| of 0.41pt and |dh| of
+0.18**, and 4 colour probes at a mean Δmax of 1.8. Per screen:
+
+| # | screen | box probes | mean \|dw\| | mean \|dh\| | worst |
+|---|---|---|---|---|---|
+| 7 | Manage data sources | 6 | 1.05 | 0.27 | 4.7 |
+| 8 | New data source | 2 | 0.00 | 0.30 | 0.6 |
+| 9 | Manage data sources, two | edge probe only | | | 1.0 |
+| 10 | To do list with a table | 10 | 0.54 | 0.30 | 1.7 |
+| 11 | Add an account | 4 | 0.20 | 0.07 | 0.4 |
+| 12 | Work email | 5 | 0.12 | 0.06 | 0.3 |
+| 13 | Email typed | 1 | 0.00 | 0.00 | 0.0 |
+| 14 | Verification code | 4 | 0.07 | 0.00 | 0.3 |
+| 15 | Code typed | 1 | 0.00 | 0.00 | 0.0 |
+
+Screen 7 carries the spread on its own, and all of it is `nav-title`: 4.7pt,
+the standing `--n-t-nav` delta described above. Drop that one probe and 7 reads
+a mean |dw| of 0.32. Screen 9's only probe is the `sheet-top` column scan, which
+lands 1.0 off for a reason that is not a disagreement about the value: all eight
+captures with a sheet in them ramp from the scrim to the sheet ground across
+68.0 → 69.0, and the boards draw that boundary as a hard edge at 68. `refkit
+scan <capture> col 60 55 90 --pt 3` reads the same #D4D4D4 band on every one of
+them, which is also why `--n-sheet-top` moved to 68 with five captures behind
+it.
+
+Two colour deltas are worth naming. `acc-cta`, the Continue button, reads
+`#2280DE` on capture a2 against the board's `--n-blue` of `#2784E0`, a Δmax of
+5 and the worst colour delta in the folder — the token was measured off the
+first six screens and four boards share it, so it stays. `bar-shadow` is 1 off,
+and the rest are exact.
 
 ## The reference row is not checked in
 
@@ -117,9 +210,15 @@ locally, then add the row back:
     { "file": "ref-04-meeting-page", "label": "Meeting page" },
     { "file": "ref-05-date-sheet", "label": "Date sheet" },
     { "file": "ref-06-share-settings-sheet", "label": "Share settings sheet" },
-    { "file": "ref-07-plan-plus-ai-monthly", "label": "Plan sheet, monthly" },
-    { "file": "ref-08-plan-plus-ai-yearly", "label": "Plan sheet, yearly" },
-    { "file": "ref-09-purchase-success", "label": "Purchase success" }
+    { "file": "ref-07-manage-data-sources", "label": "Manage data sources" },
+    { "file": "ref-08-new-data-source", "label": "New data source" },
+    { "file": "ref-09-manage-data-sources-two", "label": "Manage data sources, two" },
+    { "file": "ref-10-to-do-list-table", "label": "To do list with a table" },
+    { "file": "ref-11-add-an-account", "label": "Add an account" },
+    { "file": "ref-12-add-an-account-email", "label": "Work email" },
+    { "file": "ref-13-add-an-account-email-filled", "label": "Email typed" },
+    { "file": "ref-14-add-an-account-code", "label": "Verification code" },
+    { "file": "ref-15-add-an-account-code-filled", "label": "Code typed" }
   ] }
 ```
 
@@ -134,14 +233,6 @@ Screen ids from the original run, on
 | 4 | Meeting page | `ac829a85-6eb1-4c89-80f2-668d3ca1c1c2` | near, carries a "Summary ready" toast |
 | 5 | Date sheet | `365eabc0-4a33-4d0c-81ee-60ce8a8b5af9` | exact |
 | 6 | Share settings sheet | `80450381-9922-4123-b6d2-b3b624b4c3d9` | exact |
-| 7 | Plan sheet, monthly | not recorded | exact |
-| 8 | Plan sheet, yearly | not recorded | exact |
-| 9 | Purchase success | not recorded | exact |
-
-Screens 7 to 9 came in as captures supplied directly, with the Mobbin footer
-still on them, so no screen id was recorded. They are the same Notion iOS
-app entry; re-find them by their on-screen strings ("Plus & Notion AI",
-"You're all set").
 
 Screen 4 has no exact frame in the index. Every capture of that page carries
 a toast. Stating that is the point. A near-match that goes unlabelled is how
@@ -151,6 +242,28 @@ Screen 5 was recorded as a near-match in the original run against
 `cfca14fb-…`, which is a *Link expires* sheet from a different flow. The
 frame above is the exact one, found by pairing each replica with its capture
 side by side, which is what the paired figure in the repo README is for.
+
+Screens 7–15 came from flow exports rather than the per-screen index, so they
+have file names instead of ids. All nine are exact matches:
+
+| # | screen | source |
+|---|---|---|
+| 7 | Manage data sources | `adding-a-new-data-source-01.png` |
+| 8 | New data source | `adding-a-new-data-source-02.png` |
+| 9 | Manage data sources, two | `adding-a-new-data-source-03.png` |
+| 10 | To do list with a table | `adding-a-new-data-source-04.png` |
+| 11 | Add an account | `adding-an-account-01.png` |
+| 12 | Work email | `adding-an-account-02.png` |
+| 13 | Email typed | `adding-an-account-03.png` |
+| 14 | Verification code | `adding-an-account-04.png` |
+| 15 | Code typed | `adding-an-account-05.png` |
+
+Those exports are 1179 × 2676 and carry a 120px Mobbin banner at the **bottom**.
+Crop to `(0, 0, 1179, 2556)` before measuring anything off them.
+
+None of the captures shows a Dynamic Island; Mobbin shoots on a device without
+one. Every board in this repo draws one anyway, so the frame keeps it. That is
+this repo's framing, not a property of the app.
 
 ## Attribution
 

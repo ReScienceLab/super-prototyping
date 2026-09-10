@@ -12,6 +12,10 @@
    ========================================================================= */
 :root{
   --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --n-font-text:"SF Pro Text",var(--n-font);  /* the Text optical cut, named    */
+                                              /* outright: a browser gives      */
+                                              /* -apple-system the Display cut, */
+                                              /* 4% narrower                    */
 
   /* Surface */
   --n-bg:#FFFFFF;          /* document / full-screen page                */
@@ -58,7 +62,7 @@
   --n-gutter-card:12px;  /* card inset on a grouped sheet               */
   --n-row-h:44px;        /* settings row                                */
   --n-tap:44px;          /* minimum tap target                          */
-  --n-sheet-top:71px;    /* sheet top inset from the device top         */
+  --n-sheet-top:68px;    /* sheet top inset from the device top         */
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -171,7 +175,7 @@ h2{font:600 11px/14px var(--n-font);letter-spacing:.8px;text-transform:uppercase
     <div><div class="rb" style="border-radius:var(--n-r-pill)"></div><em>pill 999</em></div>
   </div>
   <p class="metrics">gutter 20 · page 26 · summary 46 · card 12 · row 44 · tap 44 ·
-     status bar 54 · sheet top 71 · day cell 34 / pitch 44</p>
+     status bar 54 · sheet top 68 · day cell 34 / pitch 44</p>
 
   <h2>Components</h2>
   <div class="comps">

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notion iOS — To do list with a table</title>
+<style>
+/* ============================================================================
+   NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
+   because the canvas renders each mockup in <iframe srcDoc sandbox="">, which
+   blocks external stylesheets. Keep this block byte-identical across files.)
+   Values sampled from Notion iOS 3x screenshots (393 x 852 pt @3x).
+   ========================================================================= */
+:root{
+  --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --n-font-text:"SF Pro Text",var(--n-font);  /* the Text optical cut, named    */
+                                              /* outright: a browser gives      */
+                                              /* -apple-system the Display cut, */
+                                              /* 4% narrower                    */
+
+  /* Surface */
+  --n-bg:#FFFFFF;          /* document / full-screen page                */
+  --n-bg-sheet:#FAF8F6;    /* modal sheet ground (warm off-white)        */
+  --n-bg-card:#FFFFFF;     /* grouped card sitting on a sheet            */
+  --n-scrim:#E0E0E0;       /* app dimmed behind a light sheet            */
+  --n-scrim-strong:#C4C4C4;/* app dimmed behind the AI sheet             */
+  --n-fill:#EAE9E7;        /* search field, segmented track, icon tile   */
+  --n-fill-neutral:#F0F0F0;/* chip / icon button on a white page         */
+  --n-fill-soft:#FDFDFD;   /* raised field on white (search, composer)   */
+  --n-hairline:#E9E8E7;    /* row divider                                */
+  --n-border:#EFEEEC;      /* card + field outline                       */
+  --n-track:#F0EEED;       /* switch track, off                          */
+
+  /* Ink */
+  --n-text:#2C2C2C;        /* titles, primary labels                     */
+  --n-text-body:#2C2C2C;   /* page body copy                             */
+  --n-text-2:#787774;      /* secondary labels, section headers          */
+  --n-text-3:#9B9A97;      /* placeholder, values, out-of-month days     */
+
+  /* Accent */
+  --n-blue:#2784E0;        /* selection, primary button, Done, switches  */
+  --n-red:#E66457;         /* "today" in the date picker                 */
+  --n-yellow-bg:#F7F1DE;   /* Guest badge fill                           */
+  --n-yellow-ink:#402C1B;  /* Guest badge ink                            */
+
+  /* Radius */
+  --n-r-field:10px;  --n-r-card:12px;  --n-r-sheet:14px;
+  --n-r-day:8px;     --n-r-tile:8px;   --n-r-pill:999px;
+
+  /* Type — SF Pro. size/line-height/weight */
+  --n-t-title:700 34px/40px var(--n-font);   /* page title              */
+  --n-t-h2:700 19px/26px var(--n-font);      /* in-page heading         */
+  --n-t-nav:600 17px/22px var(--n-font);     /* sheet nav title         */
+  --n-t-row:400 17px/22px var(--n-font);     /* list row label          */
+  --n-t-rowb:600 17px/22px var(--n-font);    /* list row label, strong  */
+  --n-t-body:400 17px/24px var(--n-font);    /* body copy               */
+  --n-t-sub:400 15px/20px var(--n-font);     /* row subtitle            */
+  --n-t-cap:400 13px/18px var(--n-font);     /* badge / caption         */
+
+  /* Metrics */
+  --n-gutter:20px;       /* default screen gutter                       */
+  --n-gutter-page:20px;  /* document page gutter                        */
+  --n-gutter-card:12px;  /* card inset on a grouped sheet               */
+  --n-row-h:44px;        /* settings row                                */
+  --n-tap:44px;          /* minimum tap target                          */
+  --n-sheet-top:68px;    /* sheet top inset from the device top         */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
+  background:var(--n-bg);outline:1px solid rgba(0,0,0,.10);
+  box-shadow:0 0 0 11px #1D191A, 0 0 0 12.5px #3A3735, 0 24px 60px rgba(29,25,26,.28);
+  display:flex;flex-direction:column;color:var(--n-text)}
+.statusbar{height:54px;position:relative;flex:none;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:0 30px 5px}
+.statusbar .time{font:600 16px/1 var(--n-font);width:60px;letter-spacing:.2px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sicons{display:flex;align-items:center;gap:6px}
+.sicons svg{display:block}
+.homebar{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:#191918}
+
+.pnav{height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;margin-top:8px}
+.pnav .g{width:21px;height:21px;color:var(--n-text);display:block}
+.pnav .g svg{width:100%;height:100%;display:block}
+.pnav .r{display:flex;align-items:center;gap:21px}
+.pnav .g.sh{width:24px;height:24px}
+.doc{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.h1{font:var(--n-t-title);color:#232323;letter-spacing:-.1px;padding:4px 20px 0 26px;flex:none}
+.bul{list-style:none;padding:24px 20px 0 35px;flex:none}
+.bul li{position:relative;font:var(--n-t-body);color:#212121;letter-spacing:-.1px;
+  padding-left:22px;margin-bottom:6px}
+.bul li::before{content:"";position:absolute;left:0;top:9.7px;width:6.5px;height:6.5px;
+  border-radius:50%;background:#212121}
+.dbt{display:flex;align-items:center;gap:9.5px;flex:none;padding:6px 20px 0 26.4px;
+  font:700 24px/32px var(--n-font);color:#D8D8D8;letter-spacing:-.41px}
+.dbt .cv{width:15px;height:15px;color:#82827F;flex:none;display:block}
+.dbt .cv svg{width:100%;height:100%;display:block}
+
+.tbar{display:flex;align-items:center;height:36px;flex:none;margin:12px 30px 0 26px}
+.chip{display:flex;align-items:center;height:36px;border-radius:var(--n-r-pill);
+  background:#F3F3F3;padding:0 11.5px 0 12px;color:#222}
+.chip .gl{width:17px;height:17px;display:block}
+.chip .gl svg{width:100%;height:100%;display:block}
+.chip b{font:400 15px/20px var(--n-font);letter-spacing:-.2px;margin:0 9px}
+.chip .cv{width:12px;height:12px;color:#5B5B58;display:block}
+.chip .cv svg{width:100%;height:100%;display:block}
+.tbi{width:17px;height:17px;color:#80807B;display:block;margin-left:15px}
+.tbi.gap{margin-left:auto}
+.tbi svg{width:100%;height:100%;display:block}
+.newbtn{display:flex;align-items:stretch;width:60px;height:32px;flex:none;margin-left:15px;
+  border-radius:8px;background:#4380D7;overflow:hidden}
+.newbtn span{flex:1;display:grid;place-items:center;color:#fff}
+.newbtn span + span{flex:0 0 27px;border-left:1px solid #3A73C3}
+.newbtn svg{width:15px;height:15px;display:block;stroke-width:2.6}
+
+/* The table is wider than the gutter allows and scrolls sideways in the app;
+   here it is simply clipped, which is what the capture shows. */
+.tbl{width:361px;flex:none;margin:1px 0 0 26px;overflow:hidden}
+.th,.tr{display:flex;align-items:stretch;border-bottom:1px solid #EFEFEE}
+.th{height:37px}
+.tr{height:45px}
+.c1{width:280.2px;flex:none;border-right:1px solid #F0F0EF;display:flex;align-items:center}
+.c2{flex:none;width:110px;display:flex;align-items:center;padding-left:4px}
+.th .c1{padding-left:7px;border-right:none}
+.tr .c1{padding-left:9.7px}
+.th .aa,.th .cn,.th .ap{font:400 15px/20px var(--n-font);color:#959594;letter-spacing:-.2px}
+.th .aa{font-weight:700;font-size:16px;margin-right:5px}
+.th .ap{color:#81827F;white-space:nowrap}
+.tr .np{font:var(--n-t-row);color:#949492}
+.pl{width:15px;height:15px;flex:none;margin-right:9px;color:#949492;display:block}
+.pl svg{width:100%;height:100%;display:block;stroke-width:2.2}
+.th .pl{width:17px;height:17px;color:#81827F;margin-right:5.5px}
+
+.bottombar{flex:none;display:flex;align-items:center;gap:14px;padding:0 17.77px 35.8px 18px}
+.circbtn{width:44px;height:44px;flex:none;border-radius:50%;background:var(--n-fill-soft);
+  border:1px solid var(--n-border);
+  box-shadow:0 2px 8px rgba(29,25,26,.06),0 6px 30px rgba(29,25,26,.08);
+  display:grid;place-items:center;color:var(--n-text)}
+.circbtn svg{width:22.2px;height:22.2px;display:block}
+.circbtn.sr svg{width:26.7px;height:26.7px}
+.askbar{flex:1;height:44px;border-radius:var(--n-r-pill);background:var(--n-fill-soft);
+  border:1px solid var(--n-border);
+  box-shadow:0 2px 8px rgba(29,25,26,.06),0 6px 30px rgba(29,25,26,.08);
+  display:flex;align-items:center;padding:0 10.53px 0 7px}
+.aiava{width:33px;height:33px;border-radius:50%;border:1px solid #F2F2F2;position:relative;
+  display:grid;place-items:center;flex:none;color:var(--n-text)}
+.aiava .aiface{width:25.6px;height:25.6px;display:block}
+.hat{position:absolute;left:calc(50% + 1.7px);top:-11px;width:29.5px;height:17.5px;
+  transform:translateX(-50%) rotate(-5deg)}
+.askbar .ph{font:var(--n-t-row);color:var(--n-text-2);
+  margin-left:8px}
+.mic{width:25.3px;height:25.3px;color:#81827E;margin-left:auto;display:block}
+.mic svg{width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="statusbar">
+    <div class="time">9:41</div>
+    <div class="island"></div>
+    <div class="sicons">
+      <svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="6" rx="1"/><rect x="10" y="2.5" width="3" height="8.5" rx="1"/><rect x="15" y="0" width="3" height="11" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 9.6a2 2 0 0 1 2 1.9l-2 .5-2-.5a2 2 0 0 1 2-1.9Z"/><path d="M8.5 5.6c1.9 0 3.6.7 4.9 1.9l-1.4 1.5a5 5 0 0 0-7 0L3.6 7.5a7 7 0 0 1 4.9-1.9Z"/><path d="M8.5 1.5c3 0 5.7 1.2 7.7 3.1l-1.4 1.5a9 9 0 0 0-12.6 0L.8 4.6a11 11 0 0 1 7.7-3.1Z"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4Z" fill="currentColor" opacity=".4"/></svg>
+    </div>
+  </div>
+
+  <div class="pnav">
+    <span class="g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 4-8 8 8 8"/></svg></span>
+    <span class="r">
+      <span class="g sh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.4V15"/><path d="m7.6 6.8 4.4-4.4 4.4 4.4"/><path d="M5.2 12.4v7.4a1.8 1.8 0 0 0 1.8 1.8h10a1.8 1.8 0 0 0 1.8-1.8v-7.4"/></svg></span>
+      <span class="g"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="4" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="20" cy="12" r="1.9"/></svg></span>
+    </span>
+  </div>
+
+  <div class="doc">
+    <div class="h1">To do list</div>
+    <ul class="bul">
+      <li>Finish work presentation</li>
+      <li>Buy new house plants</li>
+      <li>Go grocery</li>
+      <li>Pay utility bills</li>
+      <li>Respond to client email</li>
+    </ul>
+
+    <div class="dbt">New data source<span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 7 7 7-7"/></svg></span></div>
+
+    <div class="tbar">
+      <span class="chip">
+        <span class="gl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="1.6" y="3.6" width="20.8" height="16.8" rx="2.6"/><path d="M1.6 9.2h20.8M1.6 14.8h20.8M8.6 9.2v11.2"/></svg></span>
+        <b>Table</b>
+        <span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 7 7 7-7"/></svg></span>
+      </span>
+      <span class="tbi gap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9.8" cy="9.8" r="8"/><path d="m15.6 15.6 6.4 6.4"/></svg></span>
+      <span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 6h20M5.5 12h13M9.5 18h5"/></svg></span>
+      <span class="tbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8h11.5M19.5 8H22M2 16h2.5M10.5 16H22"/><circle cx="16.5" cy="8" r="2.8"/><circle cx="7.5" cy="16" r="2.8"/></svg></span>
+      <span class="newbtn"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3.4v17.2M3.4 12h17.2"/></svg></span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 9 7 7 7-7"/></svg></span></span>
+    </div>
+
+    <div class="tbl">
+      <div class="th">
+        <span class="c1"><span class="aa">Aa</span><span class="cn">Name</span></span>
+        <span class="c2"><span class="pl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3.4v17.2M3.4 12h17.2"/></svg></span><span class="ap">Add property</span></span>
+      </div>
+      <div class="tr"><span class="c1"><span class="pl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3.4v17.2M3.4 12h17.2"/></svg></span><span class="np">New page</span></span><span class="c2"></span></div>
+      <div class="tr"><span class="c1"></span><span class="c2"></span></div>
+      <div class="tr"><span class="c1"></span><span class="c2"></span></div>
+    </div>
+  </div>
+
+  <div class="bottombar">
+    <div class="circbtn sr"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M8.875 2.625a6.25 6.25 0 1 0 3.955 11.09l3.983 3.982a.625.625 0 1 0 .884-.884l-3.983-3.982a6.25 6.25 0 0 0-4.84-10.205m-5 6.25a5 5 0 1 1 10 0 5 5 0 0 1-10 0"/></svg></div>
+    <div class="askbar">
+      <span class="aiava">
+        <svg class="hat" viewBox="0 0 40 24" fill="none" stroke="#241F1D" stroke-width="1.7" stroke-linejoin="round"><path d="M8.6 16.8C8.6 8.6 12.6 3.4 20 3.4s11.4 5.2 11.4 13.4z" fill="#E5573F"/><path d="M2.6 19.4c0-1.7 7.8-3.2 17.4-3.2s17.4 1.5 17.4 3.2-7.8 3.4-17.4 3.4S2.6 21.1 2.6 19.4Z" fill="#E5573F"/><path d="m20 10.6 2.9 2.1-1.1 3.4h-3.6l-1.1-3.4z" fill="#F0A93A" stroke-width="1.2"/></svg>
+        <svg class="aiface" viewBox="0 0 20 20" fill="currentColor"><path d="M12.758 9.976a1.178 1.178 0 1 0 .377-2.326 1.178 1.178 0 0 0-.377 2.326M6.547 8.97a1.178 1.178 0 1 0 .377-2.327 1.178 1.178 0 0 0-.377 2.326"/><path d="M10.573 5.554a3.917 3.917 0 0 1 6.743.035.625.625 0 1 1-1.08.63 2.667 2.667 0 0 0-4.591-.023l-5.398 9.015 4.192.68a.625.625 0 0 1-.2 1.233l-5.102-.827a.625.625 0 0 1-.436-.938zM4.36 3.517a3.92 3.92 0 0 1 5.572.356.625.625 0 1 1-.945.818 2.67 2.67 0 0 0-3.795-.243.625.625 0 1 1-.833-.931"/></svg>
+      </span>
+      <span class="ph">Ask AI</span>
+      <span class="mic"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M5.604 10.891a.625.625 0 1 0-1.028.71 6.58 6.58 0 0 0 4.799 2.82v1.929H5.95a.625.625 0 1 0 0 1.25h8.1a.625.625 0 0 0 0-1.25h-3.425v-1.93a6.58 6.58 0 0 0 4.799-2.818.625.625 0 1 0-1.029-.71A5.33 5.33 0 0 1 10 13.2a5.33 5.33 0 0 1-4.396-2.309"/><rect x="7.683" y="2.475" width="4.634" height="8.255" rx="2.317" fill="none" stroke="currentColor" stroke-width="1.25"/></svg></span>
+    </div>
+    <div class="circbtn"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11.1 1.5H5a3.7 3.7 0 0 0-3.7 3.7v9.6a3.7 3.7 0 0 0 3.7 3.7h9.6a3.7 3.7 0 0 0 3.7-3.7V8.8" stroke-width="1.67"/><path d="M6.04 13.75 6.675 11.625 15.36 2.94a1.055 1.055 0 0 1 1.49 1.49L8.165 13.115Z" fill="currentColor" stroke="none"/><circle cx="18.56" cy="1.59" r="1.01" fill="currentColor" stroke="none"/></svg></div>
+  </div>
+</div>
+
+</body>
+</html>
