@@ -88,6 +88,29 @@
           "label": "Code typed"
         }
       ]
+    },
+    {
+      "title": "Notion's own icon system, 880 glyphs from notion.so/icons",
+      "files": [
+        {
+          "file": "16-icon-set",
+          "label": "The full set, 40 \u00d7 22",
+          "w": 1416,
+          "h": 900
+        },
+        {
+          "file": "17-icon-palette",
+          "label": "One geometry, ten palettes",
+          "w": 1416,
+          "h": 900
+        }
+      ],
+      "links": [
+        {
+          "label": "notion.so/icons/star_blue.svg",
+          "url": "https://www.notion.so/icons/star_blue.svg"
+        }
+      ]
     }
   ]
 }

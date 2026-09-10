@@ -14,6 +14,8 @@ Open it with `?canvas=notion-ios`, or a single board with
 | `01-splash` … `06-share-settings-sheet` | The screens. 393 × 852 pt frames on 478 × 980 artboards, fully self-contained. |
 | `07-manage-data-sources` … `10-to-do-list-table` | The *adding a new data source* flow, added later against four more captures. |
 | `11-add-an-account` … `15-add-an-account-code-filled` | The *adding an account* flow, five states of one sheet, against five more captures. |
+| `16-icon-set`, `17-icon-palette` | Contact sheets, not screens. Notion's own 880-glyph icon set on 1416 × 900 artboards. |
+| `icon-names.json` | `slug → Notion's own name` for those 880, which is what board 16 puts on hover. |
 | `probes.json` | The measurements behind the tokens, replayable with `refkit batch probes.json --against <shots> --pt 3`. |
 
 Two things in `00-design-tokens.html` are worth reading. The capture scale
@@ -80,6 +82,69 @@ capture's, so `.bottombar`'s right padding is 17.77, not 18, and `.askbar`'s is
 
 The mascot's helmet is still hand-drawn. notion.com does not ship that one
 either, and `helmet` in `probes.json` is still 0.7 x 1.0 out.
+
+## Notion's own icon system
+
+Boards 16 and 17 are contact sheets, not screens. They hold the whole of
+Notion's classic page-icon set, the one its icon picker offers.
+
+Nothing here was reverse-engineered. Every glyph is served publicly:
+
+```
+https://www.notion.so/icons/<slug>_<palette>.svg
+```
+
+`slug` is the kebab-case of the name Notion itself uses, and digits stay
+attached to the word they follow: `ArchBridge` -> `arch-bridge`, `AlienPixel`
+-> `alien-pixel`, `Die1` -> `die1`. The endpoint has no listing, so the names
+came out of Notion's own web bundle, where they are an exported array,
+`NotionIconNames`, in `chunks/2tyhqood3-31r.js`. It has 883 entries. Three of
+them (`chevron-left`, `chevron-right`, `one-two-three`) are UI glyphs the
+endpoint does not serve — a true 404, not a slug that needs guessing at — so
+880 are checked in under `assets/icons/notion/`.
+
+The subfolder is not cosmetic. Three of the 880 are named `apple`, `compose`
+and `microphone`, which are already taken by the Ask AI bar's icons in
+`assets/icons/`. The canvas walks `assets/` recursively and keys a vector
+asset by its geometry, so `assets/icons/notion/apple.svg` and
+`assets/icons/apple.svg` are two different assets with two different names,
+and both still get named on hover.
+
+`icon-names.json` maps each slug back to Notion's own PascalCase name. That is
+what board 16 puts in `aria-label` and `title`, so hovering a cell on the
+canvas gives the name rather than the slug.
+
+Each icon is a **single path on a 20 × 20 viewBox** — no groups, no strokes,
+no clip paths. Board 16 draws all 880 at 22px in a 34px cell, 40 × 22, which
+is the near-square factorisation of 880 that fills a landscape artboard with
+no ragged last row.
+
+Board 17 is the finding worth keeping: the endpoint serves ten palettes, and
+**the path is byte-identical across all ten. Only `fill` moves.**
+
+| palette | fill | palette | fill |
+|---|---|---|---|
+| gray | `#55534E` | green | `#448361` |
+| lightgray | `#A6A299` | blue | `#337ea9` |
+| brown | `#9F6B53` | purple | `#9065B0` |
+| orange | `#d9730d` | pink | `#C14C8A` |
+| yellow | `#CB912F` | red | `#D44C47` |
+
+So one copy per icon is stored, carrying the `gray` fill exactly as Notion
+sends it, and `glyph()` rewrites that one `fill` to `currentColor` on the way
+into a board. Board 17 then sets the colour once per row. 880 files, not 8,800.
+
+There is a second, newer family — `IllustratedIconNames`, 224 camelCase names
+in `chunks/2167rp_lo3xs-.js`, multi-colour and served off a different path.
+Not fetched; noted so the next person does not read the 880 as the whole
+picture.
+
+**Why not pull these out of the iOS app.** Unpacking the IPA is the obvious
+route and it is the worse one. `Assets.car` holds rasterised @2x/@3x PNGs, so
+the vectors are already gone, and Notion's page body is a WebView whose icons
+never reach the asset catalog at all — `acextract` would return the native
+shell's assets and none of these. The public endpoint gives better artwork for
+less work.
 
 ## What the account flow changed
 
@@ -271,3 +336,12 @@ Notion is a trademark of Notion Labs, Inc. This board is an unaffiliated
 design study, kept as a worked example of the measurement workflow. It is not
 a Notion product, not endorsed by Notion, and the replica HTML is not meant to
 be shipped as a user-facing interface.
+
+The 880 SVGs under `assets/icons/notion/` are Notion's artwork, unretouched.
+Notion publishes **no licence** for this icon set and sells none, so there is
+no fee that would clear it: the set simply is not offered for use outside
+Notion. Its brand guidelines cover the logo, not an icon library. Reading the
+set to study a system is one thing; shipping it in a product is another, and
+this folder does the first only. For the second, Phosphor (MIT) and Solar
+(CC BY 4.0, attribution required) reach the same thin-line, rounded, single-
+colour look with licences that permit it.

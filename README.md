@@ -47,7 +47,7 @@ path and the two modal sheets.*
 have: the source composites it out, the iOS frame spec draws it, and this run
 keeps the frame and excludes the top 56pt from its numbers.*
 
-### `notion-ios`, six screens
+### `notion-ios`, fifteen screens and Notion's icon set
 
 [![notion-ios](assets/workflow/case-notion.webp)](mockups/canvases/notion-ios/README.md)
 

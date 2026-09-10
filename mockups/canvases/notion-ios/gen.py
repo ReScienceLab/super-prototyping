@@ -5,6 +5,9 @@ page, the date and share sheets, the four-screen flow that adds a data source
 to a database, and the five-screen flow that adds an account. The measurements
 behind the tokens are in probes.json.
 
+Two more boards, 16 and 17, are contact sheets rather than screens: the 880
+glyphs of Notion's own icon system, and the ten palettes it serves each one in.
+
     python3 mockups/canvases/notion-ios/gen.py
 
 The NN-*.html artboards are output. Edit this file, never the HTML.
@@ -13,6 +16,8 @@ The captures show no Dynamic Island -- Mobbin shoots on a device that has none
 -- but every board in this repo draws one, so the frame keeps it. It is this
 repo's framing, not a property of the app.
 """
+import json
+import re
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent
@@ -1013,6 +1018,133 @@ BODY_15 = account(EMAIL % TYPED + CODE % '<span>QGuM7E</span>'
 
 
 
+# -------------------------------------------------------------- icon sheets ---
+# Notion's own icon system, the 883 glyphs its page-icon picker offers. The
+# names are an exported array in Notion's web bundle, `NotionIconNames`, and
+# each one is served as a single-path SVG on a 20 x 20 viewBox at
+#
+#     https://www.notion.so/icons/<slug>_<palette>.svg
+#
+# where `slug` is the kebab-case of the name (`ArchBridge` -> `arch-bridge`,
+# digits stay attached: `Die1` -> `die1`). Three of the 883 (`chevron-left`,
+# `chevron-right`, `one-two-three`) are UI glyphs the endpoint does not serve,
+# so 880 land in assets/icons/notion/ -- a subfolder because three of their
+# names, apple, compose and microphone, are already taken by the Ask AI bar's
+# icons alongside them.
+#
+# All ten palettes return the same geometry and differ only in `fill`, so one
+# copy per icon is stored, carrying the `gray` fill, and 17 recolours it.
+NAMES = json.loads((OUT / "icon-names.json").read_text())   # slug -> Notion's name
+SLUGS = sorted(NAMES)
+
+# 40 x 22 is the near-square factorisation of 880 that fills a landscape board
+# -- 44 x 20 is wider and shallower and leaves the height half empty -- and it
+# has no remainder, so the sheet ends on a full row.
+COLS, ROWS = 40, 22
+assert COLS * ROWS == len(SLUGS), (COLS * ROWS, len(SLUGS))
+CELL, GLYPH, IPAD = 34, 22, 28
+IW = IPAD * 2 + COLS * CELL          # 1416
+IH = 900
+
+# The ten palettes in the picker's own order, with the fill each one returns.
+# Read off https://www.notion.so/icons/star_<palette>.svg, one at a time.
+PALETTES = [
+    ("gray", "#55534E"), ("lightgray", "#A6A299"), ("brown", "#9F6B53"),
+    ("orange", "#d9730d"), ("yellow", "#CB912F"), ("green", "#448361"),
+    ("blue", "#337ea9"), ("purple", "#9065B0"), ("pink", "#C14C8A"),
+    ("red", "#D44C47"),
+]
+
+# One row of glyphs to carry the palette board, hand-picked for shapes that
+# read at 30px rather than sampled, so its ten rows differ only in colour.
+SAMPLE = ["home", "star", "rocket", "heart", "clock", "calendar", "bookmark",
+          "camera", "cloud", "compass", "gear", "flag", "key", "lock", "map",
+          "megaphone", "pencil", "search", "target", "trophy", "globe",
+          "book", "pen", "zoom-in"]
+_absent = [s for s in SAMPLE if s not in NAMES]
+assert not _absent, _absent
+
+
+def glyph(slug, px):
+    """One of Notion's icons, inline, at `px` square. Notion bakes the palette
+    into the path's `fill`; that becomes `currentColor` so a board sets the
+    colour once on an ancestor. The name travels as the accessible one and as
+    the canvas's hover title."""
+    svg = re.sub(r'fill="#[0-9a-fA-F]{6}"', 'fill="currentColor"',
+                 (OUT / "assets" / "icons" / "notion" / (slug + ".svg")).read_text())
+    return svg.replace("<svg ", '<svg width="%g" height="%g" role="img" '
+                       'aria-label="%s" title="%s" '
+                       % (px, px, NAMES[slug], NAMES[slug]), 1)
+
+
+CREDIT = ("Notion Icons, 880 of the 883 in Notion&rsquo;s own NotionIconNames, from "
+          "www.notion.so/icons. Notion is a trademark of Notion Labs, Inc. "
+          "Unaffiliated design study; these glyphs carry no public licence and are "
+          "not cleared to ship in a product &mdash; for that, Phosphor (MIT) or "
+          "Solar (CC BY 4.0) reach the same look.")
+
+# These two boards are contact sheets, not screens: they drop the phone frame
+# BASE draws and take the whole artboard.
+SHEETS = """
+
+body{width:%dpx;height:%dpx;padding:%dpx;display:flex;flex-direction:column;
+  background:var(--n-bg);color:var(--n-text)}
+h1{font:var(--n-t-h2)}
+header p{font:var(--n-t-cap);color:var(--n-text-2);margin-top:2px}
+footer{margin-top:auto;padding-top:10px;color:var(--n-text-3);
+  font:400 9px/12px ui-monospace,Menlo,monospace}
+code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+""" % (IW, IH, IPAD)
+
+
+# ------------------------------------------------------------- 16-icon-set ---
+CSS_16 = SHEETS + """.all{display:grid;margin-top:14px;justify-content:center;
+  grid-template-columns:repeat(%d,%dpx);grid-auto-rows:%dpx}
+.all svg{display:block;margin:%gpx}""" % (COLS, CELL, CELL, (CELL - GLYPH) / 2)
+
+BODY_16 = ("""<header>
+  <h1>Notion Icons</h1>
+  <p>All %d glyphs Notion serves, %d &times; %d, alphabetical by Notion&rsquo;s own
+  name. Each is a single path on a 20 &times; 20 viewBox, drawn here at %dpx.
+  Hover one on the canvas for its name.</p>
+</header>
+<div class="all">%s</div>
+<footer>%s</footer>"""
+           % (len(SLUGS), COLS, ROWS, GLYPH,
+              "".join(glyph(s, GLYPH) for s in SLUGS), CREDIT))
+
+
+# --------------------------------------------------------- 17-icon-palette ---
+CSS_17 = SHEETS + """.pal{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+.pal .row{display:flex;align-items:center;gap:18px;height:66px;padding:0 14px;
+  border-radius:var(--n-r-card);background:var(--n-bg-sheet)}
+.pal .meta{flex:none;width:150px}
+.pal .meta b{display:block;font:var(--n-t-rowb)}
+.pal .meta i{display:block;font-style:normal;color:var(--n-text-2);
+  font:400 11px/15px ui-monospace,Menlo,monospace}
+.pal .chip{flex:none;width:30px;height:30px;border-radius:var(--n-r-tile);
+  background:currentColor}
+.pal .glyphs{display:flex;gap:12px}
+.pal .glyphs svg{display:block}"""
+
+BODY_17 = ("""<header>
+  <h1>One geometry, ten palettes</h1>
+  <p>Notion serves every glyph in %d colours at
+  <code>/icons/&lt;slug&gt;_&lt;palette&gt;.svg</code>. The path is byte-identical
+  across all of them &mdash; only <code>fill</code> moves &mdash; so this folder
+  stores one copy per icon and recolours it, exactly as the endpoint does.</p>
+</header>
+<div class="pal">%s</div>
+<footer>%s</footer>"""
+           % (len(PALETTES),
+              "".join('<div class="row" style="color:%s">'
+                      '<div class="meta"><b>%s</b><i>%s</i></div>'
+                      '<div class="chip"></div><div class="glyphs">%s</div></div>'
+                      % (hexv, name, hexv, "".join(glyph(s, 30) for s in SAMPLE))
+                      for name, hexv in PALETTES), CREDIT))
+
+
+
 # ------------------------------------------------------------------- boards ---
 BOARDS = [
     ("00-design-tokens", "Notion iOS — Design Tokens", CSS_00, BODY_00),
@@ -1031,6 +1163,8 @@ BOARDS = [
     ("13-add-an-account-email-filled", "Notion iOS — Add an account, email typed", CSS_ACC, BODY_13),
     ("14-add-an-account-code", "Notion iOS — Add an account, verification code", CSS_ACC, BODY_14),
     ("15-add-an-account-code-filled", "Notion iOS — Add an account, code typed", CSS_ACC, BODY_15),
+    ("16-icon-set", "Notion Icons — the full set", CSS_16, BODY_16),
+    ("17-icon-palette", "Notion Icons — the ten palettes", CSS_17, BODY_17),
 ]
 
 if __name__ == "__main__":
