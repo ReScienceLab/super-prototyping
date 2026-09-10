@@ -88,6 +88,24 @@
           "label": "Code typed"
         }
       ]
+    },
+    {
+      "title": "Flow: the purchase sheet",
+      "numbered": true,
+      "files": [
+        {
+          "file": "16-plan-plus-ai-monthly",
+          "label": "Plan sheet, monthly"
+        },
+        {
+          "file": "17-plan-plus-ai-yearly",
+          "label": "Plan sheet, yearly"
+        },
+        {
+          "file": "18-purchase-success",
+          "label": "Purchase success"
+        }
+      ]
     }
   ]
 }

@@ -1,7 +1,7 @@
 # Notion iOS, a worked example
 
 A real run of the `clone-prototype` skill, kept as the reference for what a
-finished board looks like. One measured token block plus fifteen replica
+finished board looks like. One measured token block plus eighteen replica
 screens, every colour and metric traced to a sample off the source capture.
 
 Open it with `?canvas=notion-ios`, or a single board with
@@ -10,10 +10,11 @@ Open it with `?canvas=notion-ios`, or a single board with
 | file | what it is |
 |---|---|
 | `gen.py` | The source of truth. Every `NN-*.html` here is its output; edit the generator and re-run, never the HTML. |
-| `00-design-tokens.html` | The contract. Swatches, type ramp, radii, metrics, and the evidence for each value. Inlined byte-identically into all fifteen screens. |
+| `00-design-tokens.html` | The contract. Swatches, type ramp, radii, metrics, and the evidence for each value. Inlined byte-identically into all eighteen screens. |
 | `01-splash` … `06-share-settings-sheet` | The screens. 393 × 852 pt frames on 478 × 980 artboards, fully self-contained. |
 | `07-manage-data-sources` … `10-to-do-list-table` | The *adding a new data source* flow, added later against four more captures. |
 | `11-add-an-account` … `15-add-an-account-code-filled` | The *adding an account* flow, five states of one sheet, against five more captures. |
+| `16-plan-plus-ai-monthly` … `18-purchase-success` | The *Plus & Notion AI purchase sheet*, Apple's paywall over the dimmed app, against three more captures. |
 | `probes.json` | The measurements behind the tokens, replayable with `refkit batch probes.json --against <shots> --pt 3`. |
 
 Two things in `00-design-tokens.html` are worth reading. The capture scale
@@ -125,11 +126,58 @@ alpha runs 0 to 1 over 17 to 52pt from the sheet's top edge, which puts the
 faded subtitle remnant within five grey levels of the capture the whole way
 down.
 
+## The purchase sheet, 16 to 18
+
+Three captures of the in-app Plus & AI paywall: the monthly price selected,
+the yearly, and the monthly sheet dimmed under the StoreKit "You're all set"
+alert with the subscribe button spinning. This is Apple's sheet rather than
+one of the app's own, and almost nothing on it is a token:
+
+- **The sheet sits at 58.9, not `--n-sheet-top`'s 68**, with a 38pt corner
+  and a 36 × 4.5 `#C4C4C4` grabber 5.3 below the edge. The app dims to
+  `#C6C6C6` behind it, and to `#9E9E9E` once the alert's scrim is on top.
+- **The status bar is the stock 17pt one.** The shared block sets a 16px
+  clock 12pt lower, so the three boards carry their own bar: clock at 54,
+  cap top 22.8, and the signal, wifi and battery drawn to the capture's
+  19.7, 18.8 and 27.2 widths. The battery's outline and nub are black at
+  .5 and .55 over the grey, which is where `pw-status-icons` lands.
+- **Four blues, none of them `--n-blue`.** The feature card's checks and
+  `Notion AI` are `#4E7AB0`; the selected price card is a 2pt `#487ED0`
+  border on `#E7F3FF`, its price `#467AB9`; the subscribe button is
+  `#4380D7`; the alert's OK pill is `#367CEF`.
+- The segmented control's white pill has **no shadow**, and its label goes
+  from 400 to 600 when selected; the track is `#EBEBEB`, 31.7 tall, 1.8 inset.
+- The feature card is **taller than its window**. It is 249.8 × 300 with a
+  three-layer shadow, drawn inside a 289.7 tall hero and clipped by a 40pt
+  linear fade to white. `refkit shoot --clip-ok div.hero` is what keeps the
+  overflow check quiet about it.
+- While it spins, the subscribe button is **54.4 tall rather than 50.4**, and
+  the three links under it move 4pt down with it. The ring is 24pt, a 2.3
+  stroke, `#CFDCE8` with a `#2E3A36` arc.
+- The alert is 318.7 × 152.2 at (37.3, 362.3) with a 30pt corner: white at
+  .7 over a 30px blur, an inset 1px white line at .6, and the title, body
+  and OK pill 29.5 in from its edge.
+
+Text is placed by cap top throughout. `cap(size, lh)` in `gen.py` turns a
+measured cap top into a CSS `top` for SF Pro, so a value in the generator is
+the number read off the capture, not a number tuned until it looked right.
+
+**The cat and the sparkles are generated, not cropped.** They are the
+folder's first `artgen` assets: `gpt-image-2` redraws of the capture's crops
+in `assets/art/`, keyed and shipped at 3× the measured box as `assets/cat.png`
+and `assets/spark.png`. `art-gen.json` records the scores against the crop:
+cat 13.97, sparkles 10.9, with a second independent return at 14.56 and 11.12
+that did not beat the first. The one visible cost is the cat's hind leg, which
+ends about 4pt higher than the capture's; `pw-cat` records it. A crop would
+have scored 0, and the redraw was the brief.
+
 ## How close it lands
 
 Screens 7–15, each against its own capture cropped to `(0, 0, 1179, 2556)` and
 rendered with `refkit shoot --scale 3 --crop-phone`, so both sides are the same
-393 × 852 pt screen at 3 px/pt. Mean absolute delta in levels of 255:
+393 × 852 pt screen at 3 px/pt. Screens 16–18 the same way, except that their
+captures are 2.2417 px/pt, so the render is resampled down to the capture
+rather than the capture up. Mean absolute delta in levels of 255:
 
 | # | screen | whole frame | below the status bar |
 |---|---|---|---|
@@ -142,23 +190,30 @@ rendered with `refkit shoot --scale 3 --crop-phone`, so both sides are the same
 | 13 | Email typed | 5.28 | 1.99 |
 | 14 | Verification code | 5.08 | 1.77 |
 | 15 | Code typed | 5.07 | 1.77 |
+| 16 | Plan sheet, monthly | 5.02 | 2.61 |
+| 17 | Plan sheet, yearly | 5.23 | 2.83 |
+| 18 | Purchase success | 4.27 | 2.26 |
 
-**Whole-frame mean 5.37, worst 6.55. Below the status bar, mean 1.94, worst
+**Whole-frame mean 5.17, worst 6.55. Below the status bar, mean 2.10, worst
 2.84.** The gap between the two columns is one thing, and it is this repo's
-framing rather than a miss: the top 60pt band scores 51.9 on eight of the nine
-boards and 59.2 on board 10, near enough to a constant, because every board
-here draws a Dynamic Island and none of the captures has one. The left column
+framing rather than a miss: the top 60pt band scores 51.9 on eight of the first
+nine boards and 59.2 on board 10, near enough to a constant, because every
+board here draws a Dynamic Island and none of the captures has one. On 16–18
+the same band reads 37.0, 37.0 and 30.8, lower only because the island sits on
+a dimmed grey rather than white. The left column
 is `refkit diff <render> <capture>`; the right is the same measure over
 `y >= 180px`, which is where the app's own content starts.
 
 What is left below that band is glyph antialiasing and the two deltas named
 below. Board 10 is worst of the nine because it carries the most type and the
 only clipped table; board 11 is best because it is a sheet of six outlined
-buttons on a flat ground.
+buttons on a flat ground. The purchase sheet's three sit higher below the bar
+than the account flow's because their captures are softer, 2.24 px/pt against
+3, so every glyph edge disagrees by a little more.
 
-`refkit batch probes.json --against <shots> --pt 3` replays all 43 probes
-against the renders: **33 box probes at a mean |dw| of 0.41pt and |dh| of
-0.18**, and 4 colour probes at a mean Δmax of 1.8. Per screen:
+`refkit batch probes.json --against <shots> --pt 3` replays all 62 probes
+against the renders: **50 box probes at a mean |dw| of 0.38pt and |dh| of
+0.32**, and 4 colour probes at a mean Δmax of 1.8. Per screen:
 
 | # | screen | box probes | mean \|dw\| | mean \|dh\| | worst |
 |---|---|---|---|---|---|
@@ -171,6 +226,9 @@ against the renders: **33 box probes at a mean |dw| of 0.41pt and |dh| of
 | 13 | Email typed | 1 | 0.00 | 0.00 | 0.0 |
 | 14 | Verification code | 4 | 0.07 | 0.00 | 0.3 |
 | 15 | Code typed | 1 | 0.00 | 0.00 | 0.0 |
+| 16 | Plan sheet, monthly | 13 | 0.35 | 0.65 | 3.6 |
+| 17 | Plan sheet, yearly | 16's probes, the other card selected | | | |
+| 18 | Purchase success | 4 | 0.22 | 0.42 | 1.0 |
 
 Screen 7 carries the spread on its own, and all of it is `nav-title`: 4.7pt,
 the standing `--n-t-nav` delta described above. Drop that one probe and 7 reads
@@ -181,6 +239,13 @@ captures with a sheet in them ramp from the scrim to the sheet ground across
 scan <capture> col 60 55 90 --pt 3` reads the same #D4D4D4 band on every one of
 them, which is also why `--n-sheet-top` moved to 68 with five captures behind
 it.
+
+Screen 16 carries two of its own. `pw-cat` is 3.6pt short in height, the
+generated cat's hind leg, described above. `pw-price-selected` reads the
+selected card 1.7 taller on the capture than on the render, and about 1.3 of
+that is the resample: the capture's 2pt border, blown up from 2.24 to 3 px/pt,
+spreads a third of a point past each edge, and the probe's threshold of 235 is
+loose enough to count it. Everything else on the sheet is within half a point.
 
 Two colour deltas are worth naming. `acc-cta`, the Continue button, reads
 `#2280DE` on capture a2 against the board's `--n-blue` of `#2784E0`, a Δmax of
@@ -218,7 +283,10 @@ locally, then add the row back:
     { "file": "ref-12-add-an-account-email", "label": "Work email" },
     { "file": "ref-13-add-an-account-email-filled", "label": "Email typed" },
     { "file": "ref-14-add-an-account-code", "label": "Verification code" },
-    { "file": "ref-15-add-an-account-code-filled", "label": "Code typed" }
+    { "file": "ref-15-add-an-account-code-filled", "label": "Code typed" },
+    { "file": "ref-16-plan-plus-ai-monthly", "label": "Plan sheet, monthly" },
+    { "file": "ref-17-plan-plus-ai-yearly", "label": "Plan sheet, yearly" },
+    { "file": "ref-18-purchase-success", "label": "Purchase success" }
   ] }
 ```
 
@@ -260,6 +328,20 @@ have file names instead of ids. All nine are exact matches:
 
 Those exports are 1179 × 2676 and carry a 120px Mobbin banner at the **bottom**.
 Crop to `(0, 0, 1179, 2556)` before measuring anything off them.
+
+Screens 16–18 came in as three Mobbin captures supplied with the request, so
+they have neither an id nor an export file name. They are 881 × 2000 with a
+90px banner at the bottom: crop to `(0, 0, 881, 1910)`, which is 393 × 852 pt
+at **2.2417 px/pt**, and pass that as `--pt` to every `refkit` call. For
+`probes.json` they are resampled to 1179 × 2556 (`assets/refs/s1.png` to
+`s3.png`) so the whole file replays at `--pt 3`; the resample blurs an edge by
+about a third of a point, which is most of `pw-price-selected`'s height delta.
+
+| # | screen | source |
+|---|---|---|
+| 16 | Plan sheet, monthly | supplied capture, `Plus & AI` tab, monthly selected |
+| 17 | Plan sheet, yearly | supplied capture, yearly selected |
+| 18 | Purchase success | supplied capture, the alert over 16 |
 
 None of the captures shows a Dynamic Island; Mobbin shoots on a device without
 one. Every board in this repo draws one anyway, so the frame keeps it. That is
