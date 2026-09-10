@@ -11,7 +11,7 @@
     ],
     "mine": "09-manage-data-sources-two.png",
     "_": "p3 down a column left of the grabber: the scrim gives way to the sheet at 68, not the 71 the folder shipped with. Five captures agree, so --n-sheet-top moved and 05/06 moved with it",
-    "_head": "The measurements behind this folder's tokens, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture of the adding-a-new-data-source flow with its 120px bottom banner cropped off -- the refs are third-party and are not committed, so rebuild them before replaying. --against wants a directory holding the boards rendered at 3x with --crop-phone; every probe names its own file there."
+    "_head": "The measurements behind this folder's tokens, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture of the adding-a-new-data-source flow with its 120px bottom banner cropped off -- the refs are third-party and are not committed, so rebuild them before replaying. --against wants a directory holding the boards rendered at 3x with --crop-phone; every probe names its own file there. `img` sN.png is the Nth of the three purchase-sheet captures, supplied with the request at 881 x 2000 with a 90px bottom banner, cropped to 881 x 1910 and resampled to 1179 x 2556 so the same --pt 3 applies; measure the originals at --pt 2.2417."
   },
   {
     "id": "grabber",
@@ -585,5 +585,265 @@
     "dark": 215,
     "mine": "15-add-an-account-code-filled.png",
     "_": "a5 the countdown replaced by a link, 157.7 x 11.0 and two sizes smaller at 14px -- the state change is not a recolour"
+  },
+  {
+    "id": "pw-sheet-top",
+    "img": "assets/refs/s1.png",
+    "cmd": "scan",
+    "axis": "col",
+    "at": 30,
+    "range": [
+      40,
+      80
+    ],
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 down a column left of the grabber: the dimmed app (#C6C6C6) gives way to the white sheet at 58.9, not the 68 the app's own sheets use, and the corner is 38 rather than --n-r-sheet"
+  },
+  {
+    "id": "pw-status-time",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      20,
+      10,
+      100,
+      45
+    ],
+    "dark": 120,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 the clock: 32.1 x 12.9 with its cap top at 22.8, which is the stock 17pt semibold bar and 12pt higher than the shared block sets it"
+  },
+  {
+    "id": "pw-status-icons",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      270,
+      10,
+      380,
+      45
+    ],
+    "dark": 120,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 the signal, wifi and battery group: 78.5 wide from 281.9, same 12.9 tall as the clock"
+  },
+  {
+    "id": "pw-seg",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      10,
+      118,
+      383,
+      160
+    ],
+    "dark": 245,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 the segmented control's grey track: 352.9 x 31.7 at (20.1, 122.2), #EBEBEB, and no shadow under the white pill"
+  },
+  {
+    "id": "pw-seg-label",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      250,
+      128,
+      320,
+      150
+    ],
+    "dark": 215,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 'Plus & AI' in the selected pill: 53.5 x 10.3 with its cap top at 132.9, 13px semibold"
+  },
+  {
+    "id": "pw-title",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      60,
+      180,
+      335,
+      220
+    ],
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 'Plus & Notion AI': 199 wide, cap top 191.4, 27px bold with .1px tracking"
+  },
+  {
+    "id": "pw-limit",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      120,
+      229,
+      270,
+      249
+    ],
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 '1 member limit' inside its #E8E8E8 pill: 89.2 wide, cap top 233.3, 13px medium"
+  },
+  {
+    "id": "pw-card-edge",
+    "img": "assets/refs/s1.png",
+    "cmd": "scan",
+    "axis": "row",
+    "at": 400,
+    "range": [
+      40,
+      80
+    ],
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 across the feature card's left edge at 400: the shadow darkens to #ECECEC over the last 2pt and the white card starts at 71.8"
+  },
+  {
+    "id": "pw-notion-ai",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      112,
+      302,
+      200,
+      326
+    ],
+    "dark": 215,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 the card's first row, 'Notion AI' in #4E7AB0: 60.2 wide, cap top 309.6, 15px"
+  },
+  {
+    "id": "pw-price-left",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      25,
+      585,
+      150,
+      612
+    ],
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 'S$ 299.98' on the unselected card: 104.4 x 18.3 at (33.0, 587.9), 21.5px bold"
+  },
+  {
+    "id": "pw-price-selected",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      195,
+      560,
+      385,
+      650
+    ],
+    "dark": 235,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 the selected price card as one box, border and #E7F3FF fill together: 178 x 75 at (199.5, 567.5) with a 2pt #487ED0 border"
+  },
+  {
+    "id": "pw-cta",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      10,
+      660,
+      385,
+      730
+    ],
+    "dark": 200,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 the subscribe button: 361.5 x 50.4 at (16, 665.6), #4380D7, 8pt corners"
+  },
+  {
+    "id": "pw-cta-label",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      60,
+      678,
+      340,
+      704
+    ],
+    "bright": 200,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 'Subscribe for S$ 29.98 / month': 221.3 wide, cap top 684.7, 15px semibold"
+  },
+  {
+    "id": "pw-links",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      120,
+      748,
+      275,
+      770
+    ],
+    "dark": 215,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 'Restore subscription' with its underline: 125.4 x 12, cap top 754.3; the two below repeat on a 23.7 pitch"
+  },
+  {
+    "id": "pw-cat",
+    "img": "assets/refs/s1.png",
+    "cmd": "bbox",
+    "box": [
+      270,
+      420,
+      385,
+      548
+    ],
+    "dark": 200,
+    "mine": "16-plan-plus-ai-monthly.png",
+    "_": "s1 the cat's ink, generated rather than cropped: head and card overlap land on the capture's 81.2 x 96.4 at (284.2, 438.5); the hind leg ends 4pt higher"
+  },
+  {
+    "id": "pw-cta-spinning",
+    "img": "assets/refs/s3.png",
+    "cmd": "bbox",
+    "box": [
+      10,
+      660,
+      385,
+      730
+    ],
+    "dark": 150,
+    "mine": "18-purchase-success.png",
+    "_": "s3 the same button while it spins: 54.4 tall, not 50.4, and the links move 4pt down with it"
+  },
+  {
+    "id": "pw-spinner",
+    "img": "assets/refs/s3.png",
+    "cmd": "bbox",
+    "box": [
+      175,
+      672,
+      220,
+      712
+    ],
+    "bright": 140,
+    "mine": "18-purchase-success.png",
+    "_": "s3 the light part of the ring: 24.1 wide at (184.7, 683.0), so a 24pt ring with a 2.3 stroke"
+  },
+  {
+    "id": "pw-alert-title",
+    "img": "assets/refs/s3.png",
+    "cmd": "bbox",
+    "box": [
+      40,
+      380,
+      350,
+      408
+    ],
+    "mine": "18-purchase-success.png",
+    "_": "s3 'You're all set': 100.8 x 12.9 at (67.4, 388.1), 17px semibold, no tracking"
+  },
+  {
+    "id": "pw-alert-ok",
+    "img": "assets/refs/s3.png",
+    "cmd": "bbox",
+    "box": [
+      150,
+      460,
+      250,
+      490
+    ],
+    "bright": 200,
+    "mine": "18-purchase-success.png",
+    "_": "s3 'OK' on the #367CEF pill: 22.8 x 12.5 with its cap top at 468.8"
   }
 ]

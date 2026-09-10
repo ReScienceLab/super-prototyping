@@ -29,6 +29,13 @@ Everything below is on `main` and reaches no install until a version is cut.
   sixteen. Two tokens moved with the re-measurement: the sheet inset is 68
   rather than 71, and the type stack names SF Pro's Text cut outright, since
   `-apple-system` resolves to the Display cut and renders about 4% narrow.
+- **And three more: the Plus & Notion AI purchase sheet.** Monthly selected,
+  yearly selected, and the StoreKit "You're all set" alert over the dimmed
+  sheet with the subscribe button spinning. The sheet is Apple's paywall
+  rather than one of the app's own, so its metrics sit in a board-local block
+  after the shared tokens. The cat and the sparkle strokes on the feature card
+  are the folder's first `artgen` assets: `gpt-image-2` redraws of the
+  capture's crops, keyed and scored in `art-gen.json`.
 
 ## v1.1.1
 

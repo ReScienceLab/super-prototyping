@@ -38,18 +38,6 @@
         {
           "file": "06-share-settings-sheet",
           "label": "Share settings sheet"
-        },
-        {
-          "file": "07-plan-plus-ai-monthly",
-          "label": "Plan sheet, monthly"
-        },
-        {
-          "file": "08-plan-plus-ai-yearly",
-          "label": "Plan sheet, yearly"
-        },
-        {
-          "file": "09-purchase-success",
-          "label": "Purchase success"
         }
       ]
     },
@@ -98,6 +86,24 @@
         {
           "file": "15-add-an-account-code-filled",
           "label": "Code typed"
+        }
+      ]
+    },
+    {
+      "title": "Flow: the purchase sheet",
+      "numbered": true,
+      "files": [
+        {
+          "file": "16-plan-plus-ai-monthly",
+          "label": "Plan sheet, monthly"
+        },
+        {
+          "file": "17-plan-plus-ai-yearly",
+          "label": "Plan sheet, yearly"
+        },
+        {
+          "file": "18-purchase-success",
+          "label": "Purchase success"
         }
       ]
     }

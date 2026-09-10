@@ -1,9 +1,10 @@
-"""Emit mockups/canvases/notion-ios/ from measurements of fifteen Mobbin captures.
+"""Emit mockups/canvases/notion-ios/ from measurements of eighteen Mobbin captures.
 
-Fifteen screens of Notion iOS: the splash, search and the AI chat, a meeting
+Eighteen screens of Notion iOS: the splash, search and the AI chat, a meeting
 page, the date and share sheets, the four-screen flow that adds a data source
-to a database, and the five-screen flow that adds an account. The measurements
-behind the tokens are in probes.json.
+to a database, the five-screen flow that adds an account, and the Plus & AI
+purchase sheet in three states. The measurements behind the tokens are in
+probes.json.
 
     python3 mockups/canvases/notion-ios/gen.py
 
@@ -1011,6 +1012,185 @@ BODY_15 = account(EMAIL % TYPED + CODE % '<span>QGuM7E</span>'
                   + '      <div class="resend link">Resend verification code</div>\n', " up")
 
 
+# ------------------------------------------------- 16-18 the purchase sheet ---
+# Three Mobbin captures of the Plus & AI paywall at 881 x 1910, so 2.2417 px
+# per pt; every number below is a pt read off them with refkit (README: "The
+# purchase sheet, 16 to 18"). Text is placed by its cap top: top = cap_top -
+# cap(size, line_height), with SF's ascent 0.952em and cap height 0.705em.
+# The cat and the sparkles are gpt-image-2 redraws of the capture's crops
+# (assets/art/), scored in art-gen.json.
+import base64
+
+
+def cap(size, lh):
+    return (lh - 1.165 * size) / 2 + 0.247 * size - 0.5
+
+
+def png(name):
+    b = (OUT / "assets" / (name + ".png")).read_bytes()
+    return "data:image/png;base64," + base64.b64encode(b).decode()
+
+
+SHEET = 58.9
+CARD_TOP = 285.5
+
+CSS_PW = """
+
+/* Board-local values, all read off the paywall captures (README: "The purchase
+   sheet, 16 to 18"). The paywall is a StoreKit-style page sheet: it sits at 59pt with a
+   38pt corner over a dimmed #C6C6C6 app, and its blues are not --n-blue. */
+.phone{background:#C6C6C6}
+/* The capture's status bar is the stock iOS one, 17pt semibold with its cap
+   top at 23.2pt; the shared block sits it lower, so place it by hand here. */
+.statusbar{display:block;padding:0;color:#000}
+.statusbar .time{position:absolute;left:54px;top:%(time_top)spx;width:auto;font:600 17px/22px var(--n-font);letter-spacing:0}
+.sicons{position:absolute;left:282.3px;top:22.8px;width:78.5px;height:12.9px;display:block}
+.sicons svg{position:absolute}
+.sheet{position:absolute;left:0;right:0;top:%(sheet)spx;bottom:0;background:#fff;
+  border-radius:38px 38px 0 0;overflow:hidden}
+.sheet>*{position:absolute}
+.handle{left:178.5px;top:5.3px;width:36px;height:4.5px;border-radius:2.5px;background:#C4C4C4}
+.close{left:351.3px;top:%(close_top)spx;width:12px;height:12px;color:#7C7C7C}
+.close svg{display:block;width:12px;height:12px}
+.seg{left:20px;top:%(seg_top)spx;width:353px;height:31.7px;box-sizing:border-box;padding:1.8px;
+  display:flex;border-radius:var(--n-r-pill);background:#EBEBEB}
+.seg div{flex:1;display:grid;place-items:center;position:relative;padding-bottom:.4px;border-radius:14.05px;
+  font:400 13px/16px var(--n-font);color:#000}
+/* The labels sit 0.9pt off their cells' centres, away from the divide. */
+.seg div:first-child{left:-.85px}.seg div:last-child{left:.9px}
+/* The capture shows no shadow under the selected pill: the grey is the same
+   #EBEBEB right up to its edge on every side. */
+.seg .on{background:#fff;font-weight:600;letter-spacing:-.1px}
+.ttl{left:0;right:0;top:%(ttl_top)spx;text-align:center;font:700 27px/34px var(--n-font);
+  letter-spacing:.1px;color:var(--n-text)}
+.limit{left:50%%;transform:translateX(-50%%);top:%(limit_top)spx;height:24px;padding:0 8.7px;
+  border-radius:var(--n-r-pill);background:#E8E8E8;font:500 13px/22px var(--n-font);
+  color:#282828;white-space:nowrap}
+/* The feature card is taller than the window that shows it: the window fades
+   to white over its last 40pt (a black stroke in the capture ramps linearly
+   from 500 to 540), taking the card, its shadow and the cat's legs with it. */
+.hero{left:0;right:0;top:%(hero_top)spx;height:%(hero_h)spx;overflow:hidden}
+.fcard{position:absolute;left:71.8px;top:%(card_top)spx;width:249.8px;height:300px;border-radius:22px;
+  background:#fff;box-shadow:0 0 4px rgba(0,0,0,.14),0 6px 24px rgba(0,0,0,.08),0 16px 80px rgba(0,0,0,.06)}
+.fcard>*{position:absolute;left:44.6px;margin:0;white-space:nowrap}
+.fcard svg{left:21.6px;width:12.8px;height:12.8px;color:#4E7AB0}
+.fcard .ai{left:43.7px;top:%(ai_top)spx;font:400 15px/20px var(--n-font);color:#4E7AB0;letter-spacing:-.1px}
+.fcard .sub{left:43.3px;top:%(sub_top)spx;width:190px;white-space:normal;font:400 13px/15.6px var(--n-font);
+  color:var(--n-text-2)}
+.fcard .row{font:400 15px/20px var(--n-font);color:var(--n-text)}
+.fcard .more{top:%(more_top)spx;font:400 15px/20px var(--n-font);color:var(--n-text-3)}
+.art{position:absolute;display:block}
+.spark{left:%(spark_l)spx;top:%(spark_t)spx;width:%(spark_w)spx;height:%(spark_h)spx}
+.cat{left:%(cat_l)spx;top:%(cat_t)spx;width:%(cat_w)spx;height:%(cat_h)spx}
+.fade{position:absolute;left:0;right:0;bottom:0;height:40px;
+  background:linear-gradient(rgba(255,255,255,0),#fff)}
+.price{top:%(price_top)spx;width:178px;height:75px;box-sizing:border-box;border:1px solid #E4E4E4;
+  border-radius:var(--n-r-field);background:#fff}
+.price.l{left:15.5px}.price.r{left:199.5px}
+.price b,.price i{position:absolute;left:15.6px;white-space:nowrap;font-style:normal}
+.price b{top:%(pb_top)spx;font:700 21.5px/26px var(--n-font);letter-spacing:0;color:var(--n-text)}
+.price i{top:%(pi_top)spx;font:400 13px/16px var(--n-font);color:var(--n-text-2)}
+.price.on{border:2px solid #487ED0;background:#E7F3FF}
+.price.on b,.price.on i{left:15.5px;margin-top:-1.4px}
+.price.on i{margin-top:-1px}
+.price.on b{color:#467AB9}.price.on i{color:#4E7BB8}
+.cta{left:16px;top:%(cta_top)spx;width:361.5px;height:50.4px;border-radius:8px;background:#4380D7;
+  color:#fff;text-align:center;font:600 15px/50px var(--n-font);letter-spacing:-.03px}
+.cta svg{position:absolute;left:166px;top:12.5px;width:30px;height:30px;display:block}
+.links{left:0;right:0;top:%(links_top)spx;text-align:center}
+.links a{display:block;font:400 13px/23.7px var(--n-font);color:#9A9A98;
+  text-decoration:underline;text-underline-offset:1.2px;text-decoration-thickness:1px}
+""" % dict(
+    sheet=SHEET, time_top=round(22.5 - cap(17, 22), 2),
+    close_top=round(92.8 - SHEET, 1),
+    seg_top=round(122.1 - SHEET, 1),
+    ttl_top=round(191.9 - SHEET - cap(27, 34), 1),
+    limit_top=round(227.0 - SHEET, 1),
+    hero_top=round(250.3 - SHEET, 1),
+    hero_h=round(540 - 250.3, 1),
+    card_top=round(CARD_TOP - 250.3, 1),
+    ai_top=round(309.6 - CARD_TOP - cap(15, 20), 2),
+    sub_top=round(327.0 - CARD_TOP - cap(13, 15.6), 2),
+    more_top=round(492.9 - CARD_TOP - cap(15, 20), 2),
+    # crop boxes of assets/art/*.png in capture px, over 2.2417 px/pt
+    spark_l=52.65, spark_t=round(266.8 - 250.3, 2), spark_w=30.4, spark_h=36.5,
+    cat_l=round(628 / 2.2417 - 0.1, 2), cat_t=round(976 / 2.2417 - 250.3 + 1.7, 2),
+    cat_w=round(198 / 2.2417 + 0.6, 2), cat_h=round(250 / 2.2417 + 2.5, 2),
+    price_top=round(567.5 - SHEET, 1),
+    pb_top=round(587.9 - 567.5 - 1 - cap(21.5, 26) + 1.0, 2),
+    pi_top=round(613.4 - 567.5 - 1 - cap(13, 16) - 0.5, 2),
+    cta_top=round(665.5 - SHEET, 1),
+    links_top=round(754.3 - SHEET - cap(13, 23.7), 2),
+)
+
+CSS_PW_OK = """
+/* Success: the button grows to 54.4pt while it spins and the links move down
+   with it; then a 20%% black scrim over the whole screen and a frosted alert. */
+.cta{height:54.4px}.links{top:%(links_top)spx}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.2);border-radius:52px}
+.alert{position:absolute;left:37.3px;top:362.3px;width:318.7px;height:152.2px;border-radius:30px;
+  background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.6),0 10px 30px rgba(0,0,0,.12)}
+.alert h3,.alert p{position:absolute;left:29.5px;margin:0;white-space:nowrap}
+.alert h3{top:%(h_top)spx;font:600 17px/22px var(--n-font);color:#000;letter-spacing:0}
+.alert p{top:%(p_top)spx;font:400 15px/20px var(--n-font);color:#505050;letter-spacing:0}
+.ok{position:absolute;left:16.2px;top:88.3px;width:286.9px;height:48.5px;border-radius:24.25px;
+  background:#367CEF;color:#fff;text-align:center;font:600 17px/48.5px var(--n-font)}
+""" % dict(h_top=round(388.1 - 362.3 - cap(17, 22), 2), p_top=round(415.4 - 362.3 - cap(15, 20), 2),
+            links_top=round(758.4 - SHEET - cap(13, 23.7), 2))
+
+STATUS = """  <div class="statusbar">
+    <div class="time">9:41</div>
+    <div class="island"></div>
+    <div class="sicons">
+      <svg style="left:0;top:0;width:19.7px;height:12.5px" viewBox="0 0 19.7 12.5" fill="currentColor"><rect x="0" y="8" width="3.6" height="4.5" rx="1"/><rect x="5.4" y="5.4" width="3.6" height="7.1" rx="1"/><rect x="10.7" y="2.7" width="3.6" height="9.8" rx="1"/><rect x="16.1" y="0" width="3.6" height="12.5" rx="1"/></svg>
+      <svg style="left:25.9px;top:-1.8px;width:18.8px;height:14.3px" viewBox="0 0 17 12" preserveAspectRatio="none" fill="currentColor"><path d="M8.5 9.6a2 2 0 0 1 2 1.9l-2 .5-2-.5a2 2 0 0 1 2-1.9Z"/><path d="M8.5 5.6c1.9 0 3.6.7 4.9 1.9l-1.4 1.5a5 5 0 0 0-7 0L3.6 7.5a7 7 0 0 1 4.9-1.9Z"/><path d="M8.5 1.5c3 0 5.7 1.2 7.7 3.1l-1.4 1.5a9 9 0 0 0-12.6 0L.8 4.6a11 11 0 0 1 7.7-3.1Z"/></svg>
+      <svg style="left:51.3px;top:0;width:27.2px;height:12.9px" viewBox="0 0 27.2 12.9"><rect x=".5" y=".5" width="24" height="11.9" rx="3.8" fill="none" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="21" height="8.9" rx="2.3" fill="currentColor"/><path d="M25.9 4.4v3.6a1.8 1.8 0 0 0 0-3.6Z" fill="currentColor" opacity=".55"/></svg>
+    </div>
+  </div>
+"""
+
+CHECK = ('<svg style="top:%spx" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" '
+         'stroke-linecap="round" stroke-linejoin="round"><path d="M1 7.2 4.8 11.4 12 1.2"/></svg>')
+
+def row(cap_top, text):
+    top = round(cap_top - CARD_TOP - cap(15, 20), 2)
+    return '        %s<b class="row" style="top:%spx">%s</b>\n' % (CHECK % round(cap_top - CARD_TOP - 0.6, 2), top, text)
+
+SPINNER = ('<svg viewBox="0 0 30 30" fill="none" stroke-width="2.3" stroke-linecap="round">'
+           '<circle cx="15" cy="15" r="11" stroke="#CFDCE8"/>'
+           '<path d="M4.4 12.3A11 11 0 0 1 20.5 5.5" stroke="#2E3A36"/></svg>')
+
+def paywall(sel, cta, success=False):
+    body = '<div class="phone">\n' + STATUS + '\n  <div class="sheet">\n'
+    body += '    <div class="handle"></div>\n'
+    body += ('    <span class="close"><svg viewBox="0 0 12 12" stroke="currentColor" stroke-width="1.5" '
+             'stroke-linecap="round"><path d="M.6 .6 11.4 11.4M11.4 .6 .6 11.4"/></svg></span>\n')
+    body += '    <div class="seg"><div>Plus</div><div class="on">Plus &amp; AI</div></div>\n'
+    body += '    <div class="ttl">Plus &amp; Notion AI</div>\n'
+    body += '    <span class="limit">1 member limit</span>\n\n'
+    body += '    <div class="hero">\n      <div class="fcard">\n'
+    body += '        %s<b class="ai">Notion AI</b>\n' % (CHECK % round(310.0 - CARD_TOP - 0.6, 2))
+    body += '        <p class="sub">Including Agent, Enterprise search, and AI meeting notes</p>\n'
+    body += row(379.2, "Unlimited file uploads")
+    body += row(417.1, "View data with charts")
+    body += row(454.8, "Site customizations")
+    body += '        <b class="more">and more...</b>\n'
+    body += '      </div>\n'
+    body += '      <img class="art spark" alt="three sparkle strokes" src="%s">\n' % png("spark")
+    body += '      <img class="art cat" alt="line-drawn cat" src="%s">\n' % png("cat")
+    body += '      <div class="fade"></div>\n    </div>\n\n'
+    body += '    <div class="price l%s"><b>S$ 299.98</b><i>per year</i></div>\n' % (" on" if sel == "l" else "")
+    body += '    <div class="price r%s"><b>S$ 29.98</b><i>per month</i></div>\n' % (" on" if sel == "r" else "")
+    body += '    <div class="cta">%s</div>\n' % (SPINNER if success else cta)
+    body += '    <div class="links"><a>Restore subscription</a><a>Terms of service</a><a>Privacy policy</a></div>\n'
+    body += '  </div>\n'
+    if success:
+        body += ('  <div class="scrim"></div>\n  <div class="alert"><h3>You’re all set</h3>'
+                 '<p>Your purchase was successful.</p><div class="ok">OK</div></div>\n')
+    body += '</div>\n'
+    return body
+
 
 
 # ------------------------------------------------------------------- boards ---
@@ -1031,6 +1211,12 @@ BOARDS = [
     ("13-add-an-account-email-filled", "Notion iOS — Add an account, email typed", CSS_ACC, BODY_13),
     ("14-add-an-account-code", "Notion iOS — Add an account, verification code", CSS_ACC, BODY_14),
     ("15-add-an-account-code-filled", "Notion iOS — Add an account, code typed", CSS_ACC, BODY_15),
+    ("16-plan-plus-ai-monthly", "Notion iOS — Plan sheet, Plus & AI, monthly", CSS_PW,
+     paywall("r", "Subscribe for S$ 29.98 / month")),
+    ("17-plan-plus-ai-yearly", "Notion iOS — Plan sheet, Plus & AI, yearly", CSS_PW,
+     paywall("l", "Subscribe for S$ 299.98 / year")),
+    ("18-purchase-success", "Notion iOS — Purchase success", CSS_PW + CSS_PW_OK,
+     paywall("r", "", success=True)),
 ]
 
 if __name__ == "__main__":
