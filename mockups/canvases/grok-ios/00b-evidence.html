@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 1/5</title>
+<title>Grok iOS - Evidence 1/6</title>
 <style>
 :root{
   /* Font */
@@ -14,6 +14,11 @@
   --k-well:#E5E5E5;
   --k-dim:#CBCBCB;
   --k-sheet:#F6F6F6;
+  --k-illo-frame:#AAAAAA;
+  --k-illo-screen:#FAFAFA;
+  --k-illo-tile:#DDDDDD;
+  --k-illo-scrim:rgba(0,0,0,.12);
+  --k-illo-grabber:#CCCCCC;
   --k-night:#010101;
   --k-skip:#121212;
   --k-material:rgba(255,255,255,.067);
@@ -38,6 +43,8 @@
   --k-plan-line:rgba(255,255,255,.17);
   --k-composer-shadow:rgba(0,0,0,.12);
   --k-composer-line:#FFFFFF;
+  --k-illo-card-shadow:rgba(0,0,0,.24);
+  --k-illo-sheet-shadow:rgba(0,0,0,.12);
 
   /* Ink */
   --k-ink:#000000;
@@ -52,6 +59,8 @@
   --k-field-ink:#6A6A6B;
   --k-card-ink:#262627;
   --k-para-ink:#53584E;
+  --k-illo-label:#333333;
+  --k-illo-sub:#5A5A5A;
   --k-dim-inv:#CCCCCC;
   --k-new-ink:#FB630A;
 
@@ -60,6 +69,10 @@
   --k-r-widget:27px;
   --k-r-card:26px;
   --k-r-sheet:30px;
+  --k-r-illo:53.5px;
+  --k-r-illo-tile:14.3px;
+  --k-r-illo-sheet:26.8px;
+  --k-r-illo-card:22px;
   --k-r-sheet-v:35px;
   --k-r-feat:32px;
   --k-r-price:18px;
@@ -100,6 +113,10 @@
   --k-t-key:400 22px/28px var(--k-font);
   --k-t-key-sm:400 18px/22px var(--k-font);
   --k-t-new:500 13px/16px var(--k-font);
+  --k-t-illo-label:500 11.5px/14px var(--k-font);
+  --k-t-illo-title:600 21.25px/26px var(--k-font);
+  --k-t-illo-sub:400 11.25px/15px var(--k-font);
+  --k-t-illo-pill:600 15.5px/20px var(--k-font);
 
   /* Metrics */
   --k-w:393px;
@@ -114,6 +131,7 @@
   --k-disc:40px;
   --k-w-max:430px;
   --k-h-max:932px;
+  --k-illo-stroke:10px;
   --k-status-max:59px;
 }
 
@@ -133,17 +151,17 @@ body{font-family:var(--k-font);-webkit-font-smoothing:antialiased;
 .home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
   width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
 body{padding:0;background:#FFF;color:var(--k-ink)}
-.sheet{width:478px;height:980px;padding:20px 20px 12px;overflow:hidden}
+.sheet{width:478px;height:980px;padding:14px 20px 8px;overflow:hidden}
 h1{font:600 17px/22px var(--k-font);margin-bottom:2px}
-header p{font:400 11px/15px var(--k-font);color:var(--k-foot);margin-bottom:6px}
+header p{font:400 10.5px/13.5px var(--k-font);color:var(--k-foot);margin-bottom:4px}
 h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
-  color:var(--k-foot);margin:7px 0 4px}
+  color:var(--k-foot);margin:5px 0 3px}
 .grid{column-count:2;column-gap:12px}
-.sw{display:flex;align-items:center;gap:5px;height:12px;break-inside:avoid;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:5px;height:10.5px;break-inside:avoid;white-space:nowrap}
 .sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--k-well);background-color:#888}
-.sw b{font:600 7.5px/12px ui-monospace,Menlo,monospace}
-.sw i{font:400 7.5px/12px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
-.foot{display:flex;gap:28px;align-items:flex-start;margin-top:6px}
+.sw b{font:600 7.5px/10.5px ui-monospace,Menlo,monospace}
+.sw i{font:400 7.5px/10.5px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:4px}
 .foot h2{margin-top:0}
 .rad{display:flex;gap:6px;flex-wrap:wrap;width:250px}
 .rb{width:36px;height:22px;background:var(--k-sheet);border:1px solid var(--k-well)}
@@ -151,10 +169,10 @@ h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
   color:var(--k-foot);font-style:normal;text-align:center}
 .ty{column-count:3;column-gap:12px}
 .tr{break-inside:avoid;border-bottom:1px solid var(--k-well)}
-.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1.05}
-.tr em{display:block;font:400 8px/10px ui-monospace,Menlo,monospace;
+.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1}
+.tr em{display:block;font:400 7px/9px ui-monospace,Menlo,monospace;
   color:var(--k-foot);font-style:normal;white-space:nowrap}
-.met{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--k-ink);white-space:nowrap}
+.met{font:400 8px/9.5px ui-monospace,Menlo,monospace;color:var(--k-ink);white-space:nowrap}
 table.ev{width:100%;border-collapse:collapse}
 table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
   border-bottom:1px solid var(--k-well);font:400 8.5px/11px var(--k-font)}
@@ -164,6 +182,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 1/5</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font on 02 'Widget', 05 'SuperGrok' and 'Unlock the full power of Grok': SF Pro top on all three, weak call each time. The platform face</td></tr><tr><td class="t">--k-ground</td><td class="v">#D5D5D5</td><td class="e">01 flat census left of the widget (x 0-20, y 100-240): #D5D5D5 100%</td></tr><tr><td class="t">--k-card</td><td class="v">#FFFFFF</td><td class="e">01 widget body, col x68 y 80.7-94.5; 02 card interior, row y300 x 60-340</td></tr><tr><td class="t">--k-well</td><td class="v">#E5E5E5</td><td class="e">01 pill and both circles: row y125 x 39-172 and row y196 x 39-100 flat #E5E5E5</td></tr><tr><td class="t">--k-dim</td><td class="v">#CBCBCB</td><td class="e">02/03 the band above the sheet, y 0-58.9 flat #CBCBCB: the dimmed parent</td></tr><tr><td class="t">--k-sheet</td><td class="v">#F6F6F6</td><td class="e">02/03 col x100 from 59.0 down and row y700 outside the card: #F6F6F6</td></tr><tr><td class="t">--k-night</td><td class="v">#010101</td><td class="e">05 flat census x 20-372 at y 718-728 and y 822-838, above the CTA and below the footer: #010101 on 73% and 100% of the flats. The band between the feature card and the plan group is not flat (#171717-#1D1D1D, the smoke's tail) and stays in the crop</td></tr><tr><td class="t">--k-skip</td><td class="v">#121212</td><td class="e">05 row y83 across the Skip pill 316.1-371.8 reads #111111, col x344 68-98.4 reads #141414; the mean</td></tr><tr><td class="t">--k-material</td><td class="v">rgba(255,255,255,.067)</td><td class="e">05 feature card censuses #131313 at y 203-213, 264-276 and 500-518 and #111111 at y 384-396, over a ground of #000000-#030303 outside it: (19-2)/253 = .067 white. At its top edge it reads #333033 with the smoke behind it, so a fill would be wrong and a material is right</td></tr><tr><td class="t">--k-disc</td><td class="v">rgba(255,255,255,.17)</td><td class="e">05 icon discs solved against the patched frame i5 over a ring r 11-18.5 around each glyph: alpha .185/.183/.167/.165/.182 on the five rows</td></tr><tr><td class="t">--k-price</td><td class="v">#131313</td><td class="e">05 census x 30-190 y 695-715, the blank of the Monthly side of the plan group: #131313 on 99.8% of the flats</td></tr><tr><td class="t">--k-plan-lo</td><td class="v">#282828</td><td class="e">05 Yearly card, bottom-left blank x 212-228 y 700-712: #282828 on 99.8% of the flats. The card is a diagonal ramp, not a fill: its four corners census 45/52/40/45 mean level (TL/TR/BL/BR)</td></tr><tr><td class="t">--k-plan-hi</td><td class="v">#333536</td><td class="e">05 Yearly card, top-right blank x 340-358 y 626-636: #333536 on 72% of the flats; the light end of the ramp, laid to top right in the builder</td></tr><tr><td class="t">--k-free-bg</td><td class="v">#341A0E</td><td class="e">05 FREE badge interior, rows 643-648 x 134-140: #321B10 #371B10 #33170C</td></tr><tr><td class="t">--k-scrim-btn</td><td class="v">rgba(0,0,0,.32)</td><td class="e">04 X and grid buttons solved against the patched frame i4 over a ring r 9-20: black at .325 (sd .02) and .320; the close disc on the sheet .28</td></tr><tr><td class="t">--k-glass</td><td class="v">rgba(255,255,255,.09)</td><td class="e">04 side-stack discs solved against the patched frame i4 over a ring r 10-14.5: white at .089 and .090 over sky, .037 over the cloud where the ground is too bright to resolve</td></tr><tr><td class="t">--k-grabber</td><td class="v">rgba(255,255,255,.35)</td><td class="e">04 grabber #8B7467 over the patched sheet #412A1C at y 410-412: white at .39/.35/.33 per channel</td></tr><tr><td class="t">--k-rec</td><td class="v">#F09540</td><td class="e">04 the recording dot inside the island, x 215.0-220.8 y 26.8-32.6: #F09540 #F29442 #F09444</td></tr><tr><td class="t">--k-page</td><td class="v">#FFFFFF</td><td class="e">06 flat census x 20-410 y 560-760, 07 x 20-410 y 150-360, 09 x 20-410 y 400-440: #FFFFFF on 100% of the flats</td></tr><tr><td class="t">--k-chip</td><td class="v">#F5F5F5</td><td class="e">07 suggestion chips, row y 735 x 15-55 and row y 770 x 165-295: #F5F5F5</td></tr><tr><td class="t">--k-composer</td><td class="v">#FBFBFB</td><td class="e">07 composer interior census x 40-280 y 825-845: #FBFBFB</td></tr><tr><td class="t">--k-ctl</td><td class="v">#F1F1F1</td><td class="e">07 the + disc (centre 37.2, 863.9), the Auto pill x 59.7-134.3 and the mic disc x 283-315.7: cores #F1F1F1</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 1/6</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font on 02 'Widget', 05 'SuperGrok' and 'Unlock the full power of Grok': SF Pro top on all three, weak call each time. The platform face</td></tr><tr><td class="t">--k-ground</td><td class="v">#D5D5D5</td><td class="e">01 flat census left of the widget (x 0-20, y 100-240): #D5D5D5 100%</td></tr><tr><td class="t">--k-card</td><td class="v">#FFFFFF</td><td class="e">01 widget body, col x68 y 80.7-94.5; 02 card interior, row y300 x 60-340; 02 the drawn sheet x 221-311 y 339-352 #FFFFFF on 100% of the flats</td></tr><tr><td class="t">--k-well</td><td class="v">#E5E5E5</td><td class="e">01 pill and both circles: row y125 x 39-172 and row y196 x 39-100 flat #E5E5E5; 02 the drawn widget's pill x 150-163 y 437-472 #E5E5E5 100%</td></tr><tr><td class="t">--k-dim</td><td class="v">#CBCBCB</td><td class="e">02/03 the band above the sheet, y 0-58.9 flat #CBCBCB: the dimmed parent</td></tr><tr><td class="t">--k-sheet</td><td class="v">#F6F6F6</td><td class="e">02/03 col x100 from 59.0 down and row y700 outside the card: #F6F6F6</td></tr><tr><td class="t">--k-illo-frame</td><td class="v">#AAAAAA</td><td class="e">02/03 the guide illustration's phone: frame col x 49.7 y 316-428 and island x 163-230 y 232-247 flat #AAAAAA on 100% of the flats</td></tr><tr><td class="t">--k-illo-screen</td><td class="v">#FAFAFA</td><td class="e">03 inside the drawn frame, x 132-257 y 258-272: #FAFAFA, five under the card, on 100% of the flats</td></tr><tr><td class="t">--k-illo-tile</td><td class="v">#DDDDDD</td><td class="e">03 tile core x 83-119 y 290-330: #DDDDDD on 99.5% of the flats</td></tr><tr><td class="t">--k-illo-scrim</td><td class="v">rgba(0,0,0,.12)</td><td class="e">02 the drawn screen under its sheet: #FAFAFA reads #DBDBDB at col x87 y 218-278 and #DDDDDD at col x200 y 252-274, (250-219..221)/250 = .116-.124; the island still reads #A9A9A9, so the scrim lies under it</td></tr><tr><td class="t">--k-illo-grabber</td><td class="v">#CCCCCC</td><td class="e">02 sheet grabber x 183.8-209.2 y 302.4-306.0: mode #CCCCCC, flat #CDCDCD</td></tr><tr><td class="t">--k-night</td><td class="v">#010101</td><td class="e">05 flat census x 20-372 at y 718-728 and y 822-838, above the CTA and below the footer: #010101 on 73% and 100% of the flats. The band between the feature card and the plan group is not flat (#171717-#1D1D1D, the smoke's tail) and stays in the crop</td></tr><tr><td class="t">--k-skip</td><td class="v">#121212</td><td class="e">05 row y83 across the Skip pill 316.1-371.8 reads #111111, col x344 68-98.4 reads #141414; the mean</td></tr><tr><td class="t">--k-material</td><td class="v">rgba(255,255,255,.067)</td><td class="e">05 feature card censuses #131313 at y 203-213, 264-276 and 500-518 and #111111 at y 384-396, over a ground of #000000-#030303 outside it: (19-2)/253 = .067 white. At its top edge it reads #333033 with the smoke behind it, so a fill would be wrong and a material is right</td></tr><tr><td class="t">--k-disc</td><td class="v">rgba(255,255,255,.17)</td><td class="e">05 icon discs solved against the patched frame i5 over a ring r 11-18.5 around each glyph: alpha .185/.183/.167/.165/.182 on the five rows</td></tr><tr><td class="t">--k-price</td><td class="v">#131313</td><td class="e">05 census x 30-190 y 695-715, the blank of the Monthly side of the plan group: #131313 on 99.8% of the flats</td></tr><tr><td class="t">--k-plan-lo</td><td class="v">#282828</td><td class="e">05 Yearly card, bottom-left blank x 212-228 y 700-712: #282828 on 99.8% of the flats. The card is a diagonal ramp, not a fill: its four corners census 45/52/40/45 mean level (TL/TR/BL/BR)</td></tr><tr><td class="t">--k-plan-hi</td><td class="v">#333536</td><td class="e">05 Yearly card, top-right blank x 340-358 y 626-636: #333536 on 72% of the flats; the light end of the ramp, laid to top right in the builder</td></tr><tr><td class="t">--k-free-bg</td><td class="v">#341A0E</td><td class="e">05 FREE badge interior, rows 643-648 x 134-140: #321B10 #371B10 #33170C</td></tr><tr><td class="t">--k-scrim-btn</td><td class="v">rgba(0,0,0,.32)</td><td class="e">04 X and grid buttons solved against the patched frame i4 over a ring r 9-20: black at .325 (sd .02) and .320; the close disc on the sheet .28</td></tr><tr><td class="t">--k-glass</td><td class="v">rgba(255,255,255,.09)</td><td class="e">04 side-stack discs solved against the patched frame i4 over a ring r 10-14.5: white at .089 and .090 over sky, .037 over the cloud where the ground is too bright to resolve</td></tr><tr><td class="t">--k-grabber</td><td class="v">rgba(255,255,255,.35)</td><td class="e">04 grabber #8B7467 over the patched sheet #412A1C at y 410-412: white at .39/.35/.33 per channel</td></tr></table></div>
 </body>
 </html>

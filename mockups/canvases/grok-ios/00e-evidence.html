@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 4/5</title>
+<title>Grok iOS - Evidence 4/6</title>
 <style>
 :root{
   /* Font */
@@ -14,6 +14,11 @@
   --k-well:#E5E5E5;
   --k-dim:#CBCBCB;
   --k-sheet:#F6F6F6;
+  --k-illo-frame:#AAAAAA;
+  --k-illo-screen:#FAFAFA;
+  --k-illo-tile:#DDDDDD;
+  --k-illo-scrim:rgba(0,0,0,.12);
+  --k-illo-grabber:#CCCCCC;
   --k-night:#010101;
   --k-skip:#121212;
   --k-material:rgba(255,255,255,.067);
@@ -38,6 +43,8 @@
   --k-plan-line:rgba(255,255,255,.17);
   --k-composer-shadow:rgba(0,0,0,.12);
   --k-composer-line:#FFFFFF;
+  --k-illo-card-shadow:rgba(0,0,0,.24);
+  --k-illo-sheet-shadow:rgba(0,0,0,.12);
 
   /* Ink */
   --k-ink:#000000;
@@ -52,6 +59,8 @@
   --k-field-ink:#6A6A6B;
   --k-card-ink:#262627;
   --k-para-ink:#53584E;
+  --k-illo-label:#333333;
+  --k-illo-sub:#5A5A5A;
   --k-dim-inv:#CCCCCC;
   --k-new-ink:#FB630A;
 
@@ -60,6 +69,10 @@
   --k-r-widget:27px;
   --k-r-card:26px;
   --k-r-sheet:30px;
+  --k-r-illo:53.5px;
+  --k-r-illo-tile:14.3px;
+  --k-r-illo-sheet:26.8px;
+  --k-r-illo-card:22px;
   --k-r-sheet-v:35px;
   --k-r-feat:32px;
   --k-r-price:18px;
@@ -100,6 +113,10 @@
   --k-t-key:400 22px/28px var(--k-font);
   --k-t-key-sm:400 18px/22px var(--k-font);
   --k-t-new:500 13px/16px var(--k-font);
+  --k-t-illo-label:500 11.5px/14px var(--k-font);
+  --k-t-illo-title:600 21.25px/26px var(--k-font);
+  --k-t-illo-sub:400 11.25px/15px var(--k-font);
+  --k-t-illo-pill:600 15.5px/20px var(--k-font);
 
   /* Metrics */
   --k-w:393px;
@@ -114,6 +131,7 @@
   --k-disc:40px;
   --k-w-max:430px;
   --k-h-max:932px;
+  --k-illo-stroke:10px;
   --k-status-max:59px;
 }
 
@@ -133,17 +151,17 @@ body{font-family:var(--k-font);-webkit-font-smoothing:antialiased;
 .home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
   width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
 body{padding:0;background:#FFF;color:var(--k-ink)}
-.sheet{width:478px;height:980px;padding:20px 20px 12px;overflow:hidden}
+.sheet{width:478px;height:980px;padding:14px 20px 8px;overflow:hidden}
 h1{font:600 17px/22px var(--k-font);margin-bottom:2px}
-header p{font:400 11px/15px var(--k-font);color:var(--k-foot);margin-bottom:6px}
+header p{font:400 10.5px/13.5px var(--k-font);color:var(--k-foot);margin-bottom:4px}
 h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
-  color:var(--k-foot);margin:7px 0 4px}
+  color:var(--k-foot);margin:5px 0 3px}
 .grid{column-count:2;column-gap:12px}
-.sw{display:flex;align-items:center;gap:5px;height:12px;break-inside:avoid;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:5px;height:10.5px;break-inside:avoid;white-space:nowrap}
 .sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--k-well);background-color:#888}
-.sw b{font:600 7.5px/12px ui-monospace,Menlo,monospace}
-.sw i{font:400 7.5px/12px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
-.foot{display:flex;gap:28px;align-items:flex-start;margin-top:6px}
+.sw b{font:600 7.5px/10.5px ui-monospace,Menlo,monospace}
+.sw i{font:400 7.5px/10.5px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:4px}
 .foot h2{margin-top:0}
 .rad{display:flex;gap:6px;flex-wrap:wrap;width:250px}
 .rb{width:36px;height:22px;background:var(--k-sheet);border:1px solid var(--k-well)}
@@ -151,10 +169,10 @@ h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
   color:var(--k-foot);font-style:normal;text-align:center}
 .ty{column-count:3;column-gap:12px}
 .tr{break-inside:avoid;border-bottom:1px solid var(--k-well)}
-.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1.05}
-.tr em{display:block;font:400 8px/10px ui-monospace,Menlo,monospace;
+.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1}
+.tr em{display:block;font:400 7px/9px ui-monospace,Menlo,monospace;
   color:var(--k-foot);font-style:normal;white-space:nowrap}
-.met{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--k-ink);white-space:nowrap}
+.met{font:400 8px/9.5px ui-monospace,Menlo,monospace;color:var(--k-ink);white-space:nowrap}
 table.ev{width:100%;border-collapse:collapse}
 table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
   border-bottom:1px solid var(--k-well);font:400 8.5px/11px var(--k-font)}
@@ -164,6 +182,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 4/5</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-t-price</td><td class="v">700 20px/26px var(--k-font)</td><td class="e">05 '300' digits 14.7 tall, '30' 15.2, which reads as 21px bold, but '$300' runs 215.8-265.3 (49.5) and '$30' 42.1-80.9 (38.8), which 21px sets 52.2 and 40.6, 5% wide, and the whole string 17.0 tall against 21px's 18.7. 20px carries the width</td></tr><tr><td class="t">--k-t-free</td><td class="v">700 12.5px/14px var(--k-font)</td><td class="e">05 FREE 29.4 x 8.9; 12px bold sets 28.7 x 8.3, 12.5px 29.7 x 8.7, 13px 30.7 x 9.0</td></tr><tr><td class="t">--k-t-title</td><td class="v">600 22px/28px var(--k-font)</td><td class="e">06 'Updates to our Terms of Service and' 358.3 x 20.3 on a 28 pitch; 22px semibold sets 359.3 x 20.3</td></tr><tr><td class="t">--k-t-copy</td><td class="v">400 15px/20px var(--k-font)</td><td class="e">06 body line 1 359.3 x 13.7 on a 20 pitch; 15px sets 359.3 x 13.7</td></tr><tr><td class="t">--k-t-link</td><td class="v">400 17.5px/22px var(--k-font)</td><td class="e">06 'Sign out' 64.7 wide; 17px sets 63.0, 17.5px 64.9</td></tr><tr><td class="t">--k-t-hdr</td><td class="v">500 22px/28px var(--k-font)</td><td class="e">07-09 'SuperGrok' 104.0 x 20 (x 57-161, boxed clear of the mark's tail); 22px medium sets 100.3 on the board and 103.9 with .45px tracking</td></tr><tr><td class="t">--k-t-chip</td><td class="v">500 15px/20px var(--k-font)</td><td class="e">07 'Create Bot' and 'Try Finance' at 15px medium to the tenth; 09 'Video' 39.3 x 11.3 the same</td></tr><tr><td class="t">--k-t-ctl</td><td class="v">400 14px/18px var(--k-font)</td><td class="e">07 'Auto' in the model pill: 14px regular to the tenth</td></tr><tr><td class="t">--k-t-speak</td><td class="v">600 14.5px/18px var(--k-font)</td><td class="e">07 'Speak' 42.3 x 13.7 (bright threshold 160 keeps the pill edge out); 15px semibold sets 43.7, 14.5px 42.3</td></tr><tr><td class="t">--k-t-btn</td><td class="v">600 16.5px/22px var(--k-font)</td><td class="e">08/09 'Continue' 69.0 wide and 08 'Try it now' 75.3; 17px semibold sets 71.0 and 76.7, 16.5px 69.0 and 74.5</td></tr><tr><td class="t">--k-t-card</td><td class="v">400 22px/25px var(--k-font)</td><td class="e">08 'Add precise start and end' 241.7 x 19.7, 24.7 to the second line; 22px regular</td></tr><tr><td class="t">--k-t-h3</td><td class="v">600 18.9px/24px var(--k-font)</td><td class="e">08 'Shape your scene, start to finish' 281.0 x 18.0; 19px semibold sets 282.7 on the board, 18.9px 281.2</td></tr><tr><td class="t">--k-t-para</td><td class="v">400 16.15px/21px var(--k-font)</td><td class="e">08 'Choose your first and last frames, or create' 314.0 wide and 'seamless loops. Every video now follows your' 330.7, on a 21.2 pitch; 16px sets 311.3 and 327.7, .9% narrow on both, 16.15px closes it</td></tr><tr><td class="t">--k-t-field</td><td class="v">400 16.3px/22px var(--k-font)</td><td class="e">09 'Type to make video' 142.3 wide (x 29-171.3); 17px sets 146.7, 16.5px on the board 144.0, 16.3px 142.3</td></tr><tr><td class="t">--k-t-opt</td><td class="v">400 16px/20px var(--k-font)</td><td class="e">09 '720p' 35.7, '6s' 16.3, 'Auto' 32.0 wide; 16px sets 36.0, 16.7, 32.7</td></tr><tr><td class="t">--k-t-key</td><td class="v">400 22px/28px var(--k-font)</td><td class="e">09 'W' 18 x 16 on key rows 56 apart; 22px regular sets 19 x 15.7</td></tr><tr><td class="t">--k-t-key-sm</td><td class="v">400 18px/22px var(--k-font)</td><td class="e">09 '123' 27.0 x 13.3 at 18px regular to the tenth; the '@' key is 17 x 17.7, which is the 22px t-key, and '#' 10.3 x 10.3 is a lighter glyph than either size of the face draws</td></tr><tr><td class="t">--k-t-new</td><td class="v">500 13px/16px var(--k-font)</td><td class="e">08 'NEW' 28.0 x 9.3; 13px medium sets 28.3 x 9.3</td></tr><tr><td class="t">--k-w</td><td class="v">393px</td><td class="e">iPhone 14 Pro/15/16 logical width</td></tr><tr><td class="t">--k-h</td><td class="v">852px</td><td class="e">iPhone 14 Pro/15/16 logical height</td></tr><tr><td class="t">--k-status</td><td class="v">54px</td><td class="e">iOS status bar, Dynamic Island devices</td></tr><tr><td class="t">--k-gutter</td><td class="v">16px</td><td class="e">02 card x 16.1-376.8; 04 buttons x 16.3 and 333.2-377</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 4/6</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-r-pill</td><td class="v">999px</td><td class="e">01 pill 61.6 tall, 05 Skip 31.4, FREE 27.7 and CTA 56: all fully round (CTA inset 19.5 at 1.5 down fits r 28)</td></tr><tr><td class="t">--k-t-time</td><td class="v">600 15px/20px var(--k-font)</td><td class="e">iOS status bar clock</td></tr><tr><td class="t">--k-t-widget</td><td class="v">600 19.5px/24px var(--k-font)</td><td class="e">01 'Grok' 42.4 wide, G 14.3 tall with overshoot; 20px sets 43.3 x 15.0 and 19.5px 42.2 x 14.6</td></tr><tr><td class="t">--k-t-h</td><td class="v">600 17px/22px var(--k-font)</td><td class="e">02 'Widget' 55.8 wide, 'Home Screen Widget' 166.4 wide, both 16.1 cap-to-descender: 17px; 05 CTA 'Upgrade to SuperGrok' 177.1 wide at the same</td></tr><tr><td class="t">--k-t-body</td><td class="v">400 17px/22px var(--k-font)</td><td class="e">02/03 body pitch 21.9, F cap to g descender 15.6, line 1 315.8 wide on both boards; 17px sets it 315.8</td></tr><tr><td class="t">--k-t-feat</td><td class="v">400 17.5px/22px var(--k-font)</td><td class="e">05 'Longer conversations in Chat' 224.8 wide and 'Skip' 32.6: 17px sets 219.3 and 31.3, 17.5px 225.3 and 32.3. Same cap as t-body, wider set</td></tr><tr><td class="t">--k-t-row</td><td class="v">400 16.5px/21px var(--k-font)</td><td class="e">04 'Select Audio Device' 147.7 x 12.9, 'Microphone Selection' 161.0 x 15.2: 17px sets 150.3/163.3, 16px 143.3/155.7, 16.5px 147.0/159.0</td></tr><tr><td class="t">--k-t-sheet</td><td class="v">600 16px/21px var(--k-font)</td><td class="e">04 'Voice Settings' V cap 11.6 and 108.4 wide: one size under the nav</td></tr><tr><td class="t">--k-t-h1</td><td class="v">500 40.5px/50px var(--k-font)</td><td class="e">05 'SuperGrok' 194.0 x 36.1 from S top to p foot with 10332 ink px; swept in the board: 42px regular with .5px tracking hits the width but sets 37.5 tall with 9116 ink px, 40.5px medium with .6px tracking sets 194.0 x 36.1 with 10053 and halves the title band's delta (16.5 to 10.9)</td></tr><tr><td class="t">--k-t-h2</td><td class="v">600 20px/25px var(--k-font)</td><td class="e">05 'Unlock the full power of Grok' U cap 14.3, 263.2 wide</td></tr><tr><td class="t">--k-t-sub</td><td class="v">400 13.25px/18px var(--k-font)</td><td class="e">05 feature subtitles W cap 9.4, pitch 21.8 under the title; footer T cap 9.4. Widths disagree on the size: 13px sets the two long subtitles 2.1% narrow (211.0 for 215.5, 230.2 for 235.5) and the footer 1.2% narrow, while '$25 /month' 67.8 x 12.5 is what 13px sets. 13.25px splits it</td></tr><tr><td class="t">--k-t-plan</td><td class="v">600 15px/20px var(--k-font)</td><td class="e">05 'Monthly' M cap 10.3, 'Yearly' Y cap 10.7</td></tr><tr><td class="t">--k-t-unit</td><td class="v">400 15.4px/20px var(--k-font)</td><td class="e">05 '/month' 11.2 tall (slash to h ascender), '/year' 13.8 (to y descender); '/month' runs 85.0-133.6 (48.6) and '/year' 270.7-305.0 (34.3), which 15px sets 47.3 and 33.5, 2.5% narrow</td></tr><tr><td class="t">--k-t-price</td><td class="v">700 20px/26px var(--k-font)</td><td class="e">05 '300' digits 14.7 tall, '30' 15.2, which reads as 21px bold, but '$300' runs 215.8-265.3 (49.5) and '$30' 42.1-80.9 (38.8), which 21px sets 52.2 and 40.6, 5% wide, and the whole string 17.0 tall against 21px's 18.7. 20px carries the width</td></tr><tr><td class="t">--k-t-free</td><td class="v">700 12.5px/14px var(--k-font)</td><td class="e">05 FREE 29.4 x 8.9; 12px bold sets 28.7 x 8.3, 12.5px 29.7 x 8.7, 13px 30.7 x 9.0</td></tr><tr><td class="t">--k-t-title</td><td class="v">600 22px/28px var(--k-font)</td><td class="e">06 'Updates to our Terms of Service and' 358.3 x 20.3 on a 28 pitch; 22px semibold sets 359.3 x 20.3</td></tr><tr><td class="t">--k-t-copy</td><td class="v">400 15px/20px var(--k-font)</td><td class="e">06 body line 1 359.3 x 13.7 on a 20 pitch; 15px sets 359.3 x 13.7</td></tr><tr><td class="t">--k-t-link</td><td class="v">400 17.5px/22px var(--k-font)</td><td class="e">06 'Sign out' 64.7 wide; 17px sets 63.0, 17.5px 64.9</td></tr><tr><td class="t">--k-t-hdr</td><td class="v">500 22px/28px var(--k-font)</td><td class="e">07-09 'SuperGrok' 104.0 x 20 (x 57-161, boxed clear of the mark's tail); 22px medium sets 100.3 on the board and 103.9 with .45px tracking</td></tr><tr><td class="t">--k-t-chip</td><td class="v">500 15px/20px var(--k-font)</td><td class="e">07 'Create Bot' and 'Try Finance' at 15px medium to the tenth; 09 'Video' 39.3 x 11.3 the same</td></tr><tr><td class="t">--k-t-ctl</td><td class="v">400 14px/18px var(--k-font)</td><td class="e">07 'Auto' in the model pill: 14px regular to the tenth</td></tr><tr><td class="t">--k-t-speak</td><td class="v">600 14.5px/18px var(--k-font)</td><td class="e">07 'Speak' 42.3 x 13.7 (bright threshold 160 keeps the pill edge out); 15px semibold sets 43.7, 14.5px 42.3</td></tr></table></div>
 </body>
 </html>

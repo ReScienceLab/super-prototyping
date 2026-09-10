@@ -229,16 +229,17 @@ declares a box other than the default 478 x 980.
   of the Grok iOS app - the Home Screen widget, two pages of the widget
   guide, the Voice Settings sheet over the 3D companion scene, the SuperGrok
   paywall, the Terms update, the SuperGrok home with its composer, and the
-  video maker as a sheet and with the keyboard up. Fifteen boards in three
-  rows: a token board and five evidence boards for 97 tokens, the nine
+  video maker as a sheet and with the keyboard up. Sixteen boards in three
+  rows: a token board and six evidence boards for 114 tokens, the nine
   replicas, and the capture of each parked underneath. The first five are
   Mobbin captures of a 393pt phone at 2.2417 px/pt; the last four are native
   1290 x 2796 captures of a 430pt phone at exactly 3 px/pt, rendered and
   scored on their own grid with the template's status bar in place of the
-  capture's. Mean absolute delta is 0.26-1.00 on the four Mobbin screens that
-  are mostly crops, 5.75 on the paywall (eighteen lines of white type over an
-  inpainted hero), and 0.75-1.97 on the four native ones. Every icon, 31 of
-  them, is a crop of the capture at its measured ink box rather than a
+  capture's. Mean absolute delta is 0.26-1.42 on the four Mobbin screens that
+  are mostly crops or a drawn illustration, 5.75 on the paywall (eighteen
+  lines of white type over an inpainted hero), and 0.75-1.97 on the four
+  native ones. Every icon, 34 of them, is a crop of the capture at its
+  measured ink box rather than a
   drawing, because a crop scores 0 by construction and most of the glyphs are
   SF Symbols whose outlines cannot be redistributed; the folder has no
   `assets/icons/`. Its `README.md` records the inpainting that clears the
@@ -248,7 +249,11 @@ declares a box other than the default 478 x 980.
   by sweep, and the type sizes that are not on the iOS ladder because the
   widths said so - including a title that measured as 400 at 42px by width
   and turned out to be 500 at 40.5px by ink mass, which halved its band's
-  delta. The nine `ref-*` boards are gitignored, so a fresh clone has 15.
+  delta. The widget guide's
+  illustration is the one picture that is drawn rather than cropped: a phone
+  in CSS on 03, and on 02 a sheet over it with the widget card as a flat
+  rectangle under one fitted `matrix3d`. The nine `ref-*` boards are
+  gitignored, so a fresh clone has 16.
 - `substack-ios/`: the run to read when a translucent bar sits over content
   the board does not control. Seven screens of the Substack iOS home feed - a
   note, the Keep reading toast, three notes in a row, your own just-published

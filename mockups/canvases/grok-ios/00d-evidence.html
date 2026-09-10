@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 3/5</title>
+<title>Grok iOS - Evidence 3/6</title>
 <style>
 :root{
   /* Font */
@@ -14,6 +14,11 @@
   --k-well:#E5E5E5;
   --k-dim:#CBCBCB;
   --k-sheet:#F6F6F6;
+  --k-illo-frame:#AAAAAA;
+  --k-illo-screen:#FAFAFA;
+  --k-illo-tile:#DDDDDD;
+  --k-illo-scrim:rgba(0,0,0,.12);
+  --k-illo-grabber:#CCCCCC;
   --k-night:#010101;
   --k-skip:#121212;
   --k-material:rgba(255,255,255,.067);
@@ -38,6 +43,8 @@
   --k-plan-line:rgba(255,255,255,.17);
   --k-composer-shadow:rgba(0,0,0,.12);
   --k-composer-line:#FFFFFF;
+  --k-illo-card-shadow:rgba(0,0,0,.24);
+  --k-illo-sheet-shadow:rgba(0,0,0,.12);
 
   /* Ink */
   --k-ink:#000000;
@@ -52,6 +59,8 @@
   --k-field-ink:#6A6A6B;
   --k-card-ink:#262627;
   --k-para-ink:#53584E;
+  --k-illo-label:#333333;
+  --k-illo-sub:#5A5A5A;
   --k-dim-inv:#CCCCCC;
   --k-new-ink:#FB630A;
 
@@ -60,6 +69,10 @@
   --k-r-widget:27px;
   --k-r-card:26px;
   --k-r-sheet:30px;
+  --k-r-illo:53.5px;
+  --k-r-illo-tile:14.3px;
+  --k-r-illo-sheet:26.8px;
+  --k-r-illo-card:22px;
   --k-r-sheet-v:35px;
   --k-r-feat:32px;
   --k-r-price:18px;
@@ -100,6 +113,10 @@
   --k-t-key:400 22px/28px var(--k-font);
   --k-t-key-sm:400 18px/22px var(--k-font);
   --k-t-new:500 13px/16px var(--k-font);
+  --k-t-illo-label:500 11.5px/14px var(--k-font);
+  --k-t-illo-title:600 21.25px/26px var(--k-font);
+  --k-t-illo-sub:400 11.25px/15px var(--k-font);
+  --k-t-illo-pill:600 15.5px/20px var(--k-font);
 
   /* Metrics */
   --k-w:393px;
@@ -114,6 +131,7 @@
   --k-disc:40px;
   --k-w-max:430px;
   --k-h-max:932px;
+  --k-illo-stroke:10px;
   --k-status-max:59px;
 }
 
@@ -133,17 +151,17 @@ body{font-family:var(--k-font);-webkit-font-smoothing:antialiased;
 .home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
   width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
 body{padding:0;background:#FFF;color:var(--k-ink)}
-.sheet{width:478px;height:980px;padding:20px 20px 12px;overflow:hidden}
+.sheet{width:478px;height:980px;padding:14px 20px 8px;overflow:hidden}
 h1{font:600 17px/22px var(--k-font);margin-bottom:2px}
-header p{font:400 11px/15px var(--k-font);color:var(--k-foot);margin-bottom:6px}
+header p{font:400 10.5px/13.5px var(--k-font);color:var(--k-foot);margin-bottom:4px}
 h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
-  color:var(--k-foot);margin:7px 0 4px}
+  color:var(--k-foot);margin:5px 0 3px}
 .grid{column-count:2;column-gap:12px}
-.sw{display:flex;align-items:center;gap:5px;height:12px;break-inside:avoid;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:5px;height:10.5px;break-inside:avoid;white-space:nowrap}
 .sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--k-well);background-color:#888}
-.sw b{font:600 7.5px/12px ui-monospace,Menlo,monospace}
-.sw i{font:400 7.5px/12px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
-.foot{display:flex;gap:28px;align-items:flex-start;margin-top:6px}
+.sw b{font:600 7.5px/10.5px ui-monospace,Menlo,monospace}
+.sw i{font:400 7.5px/10.5px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:4px}
 .foot h2{margin-top:0}
 .rad{display:flex;gap:6px;flex-wrap:wrap;width:250px}
 .rb{width:36px;height:22px;background:var(--k-sheet);border:1px solid var(--k-well)}
@@ -151,10 +169,10 @@ h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
   color:var(--k-foot);font-style:normal;text-align:center}
 .ty{column-count:3;column-gap:12px}
 .tr{break-inside:avoid;border-bottom:1px solid var(--k-well)}
-.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1.05}
-.tr em{display:block;font:400 8px/10px ui-monospace,Menlo,monospace;
+.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1}
+.tr em{display:block;font:400 7px/9px ui-monospace,Menlo,monospace;
   color:var(--k-foot);font-style:normal;white-space:nowrap}
-.met{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--k-ink);white-space:nowrap}
+.met{font:400 8px/9.5px ui-monospace,Menlo,monospace;color:var(--k-ink);white-space:nowrap}
 table.ev{width:100%;border-collapse:collapse}
 table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
   border-bottom:1px solid var(--k-well);font:400 8.5px/11px var(--k-font)}
@@ -164,6 +182,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 3/5</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-r-card</td><td class="v">26px</td><td class="e">02 card corner insets 16.2/12.2/8.6/5.1/2.4 at 2/4/7/11/16 down: r 26</td></tr><tr><td class="t">--k-r-sheet</td><td class="v">30px</td><td class="e">02 sheet corner insets 20.5/13.8/8.5/4.5 at 2.1/5.1/9.1/14.1 down: r 30</td></tr><tr><td class="t">--k-r-sheet-v</td><td class="v">35px</td><td class="e">04 sheet corner insets 20.9/15.1/10.2/6.2/2.7 at 3.4/6.4/10.4/15.4/21.4 down from 403.6, left edge 8.5: r 35</td></tr><tr><td class="t">--k-r-feat</td><td class="v">32px</td><td class="e">05 feature card insets 14.9/10.5/6.9/3.8/1.7 at 5/8/12/17/23 down: r 32</td></tr><tr><td class="t">--k-r-price</td><td class="v">18px</td><td class="e">05 plan group insets 10.9/7.3/4.2/1.7 at 1.6/3.6/6.6/10.6 down: r 18</td></tr><tr><td class="t">--k-r-plan</td><td class="v">15px</td><td class="e">05 Yearly card insets 7.3/4.5/2.2/0.8 at 2.4/4.4/7.4/11.4 down: r 15</td></tr><tr><td class="t">--k-r-chip</td><td class="v">24px</td><td class="e">07 chip corner insets 17.3/14.0/12.0/9.0/6.0/3.0/1.0 at 1/2/3/5/8/12/17 down from 727.3, left edge 11: r 24 on a 51.7 tall chip</td></tr><tr><td class="t">--k-r-composer</td><td class="v">20px</td><td class="e">07 composer corner insets 16.7/13.0/10.3/7.0/2.7 at 1/2/3/5/8 down from 793.3, left edge 12.3: r 20</td></tr><tr><td class="t">--k-r-tip</td><td class="v">14px</td><td class="e">07 tooltip corner insets 9.7/7.7/6.0/4.0/1.7 at 1/2/3/5/8 down from 773, left edge 215.3: r 14</td></tr><tr><td class="t">--k-r-pill</td><td class="v">999px</td><td class="e">01 pill 61.6 tall, 05 Skip 31.4, FREE 27.7 and CTA 56: all fully round (CTA inset 19.5 at 1.5 down fits r 28)</td></tr><tr><td class="t">--k-t-time</td><td class="v">600 15px/20px var(--k-font)</td><td class="e">iOS status bar clock</td></tr><tr><td class="t">--k-t-widget</td><td class="v">600 19.5px/24px var(--k-font)</td><td class="e">01 'Grok' 42.4 wide, G 14.3 tall with overshoot; 20px sets 43.3 x 15.0 and 19.5px 42.2 x 14.6</td></tr><tr><td class="t">--k-t-h</td><td class="v">600 17px/22px var(--k-font)</td><td class="e">02 'Widget' 55.8 wide, 'Home Screen Widget' 166.4 wide, both 16.1 cap-to-descender: 17px; 05 CTA 'Upgrade to SuperGrok' 177.1 wide at the same</td></tr><tr><td class="t">--k-t-body</td><td class="v">400 17px/22px var(--k-font)</td><td class="e">02/03 body pitch 21.9, F cap to g descender 15.6, line 1 315.8 wide on both boards; 17px sets it 315.8</td></tr><tr><td class="t">--k-t-feat</td><td class="v">400 17.5px/22px var(--k-font)</td><td class="e">05 'Longer conversations in Chat' 224.8 wide and 'Skip' 32.6: 17px sets 219.3 and 31.3, 17.5px 225.3 and 32.3. Same cap as t-body, wider set</td></tr><tr><td class="t">--k-t-row</td><td class="v">400 16.5px/21px var(--k-font)</td><td class="e">04 'Select Audio Device' 147.7 x 12.9, 'Microphone Selection' 161.0 x 15.2: 17px sets 150.3/163.3, 16px 143.3/155.7, 16.5px 147.0/159.0</td></tr><tr><td class="t">--k-t-sheet</td><td class="v">600 16px/21px var(--k-font)</td><td class="e">04 'Voice Settings' V cap 11.6 and 108.4 wide: one size under the nav</td></tr><tr><td class="t">--k-t-h1</td><td class="v">500 40.5px/50px var(--k-font)</td><td class="e">05 'SuperGrok' 194.0 x 36.1 from S top to p foot with 10332 ink px; swept in the board: 42px regular with .5px tracking hits the width but sets 37.5 tall with 9116 ink px, 40.5px medium with .6px tracking sets 194.0 x 36.1 with 10053 and halves the title band's delta (16.5 to 10.9)</td></tr><tr><td class="t">--k-t-h2</td><td class="v">600 20px/25px var(--k-font)</td><td class="e">05 'Unlock the full power of Grok' U cap 14.3, 263.2 wide</td></tr><tr><td class="t">--k-t-sub</td><td class="v">400 13.25px/18px var(--k-font)</td><td class="e">05 feature subtitles W cap 9.4, pitch 21.8 under the title; footer T cap 9.4. Widths disagree on the size: 13px sets the two long subtitles 2.1% narrow (211.0 for 215.5, 230.2 for 235.5) and the footer 1.2% narrow, while '$25 /month' 67.8 x 12.5 is what 13px sets. 13.25px splits it</td></tr><tr><td class="t">--k-t-plan</td><td class="v">600 15px/20px var(--k-font)</td><td class="e">05 'Monthly' M cap 10.3, 'Yearly' Y cap 10.7</td></tr><tr><td class="t">--k-t-unit</td><td class="v">400 15.4px/20px var(--k-font)</td><td class="e">05 '/month' 11.2 tall (slash to h ascender), '/year' 13.8 (to y descender); '/month' runs 85.0-133.6 (48.6) and '/year' 270.7-305.0 (34.3), which 15px sets 47.3 and 33.5, 2.5% narrow</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 3/6</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-field-ink</td><td class="v">#6A6A6B</td><td class="e">09 'Type to make video' ink core x 29-171 y 527-544</td></tr><tr><td class="t">--k-card-ink</td><td class="v">#262627</td><td class="e">08 card title ink core x 90-340 y 578-628</td></tr><tr><td class="t">--k-para-ink</td><td class="v">#53584E</td><td class="e">08 body ink core x 26-362 y 759-821: a green-grey, not the page grey</td></tr><tr><td class="t">--k-illo-label</td><td class="v">#333333</td><td class="e">02 'Grok' beside the drawn app icon, x 98-124 y 321-330: ink core #333333</td></tr><tr><td class="t">--k-illo-sub</td><td class="v">#5A5A5A</td><td class="e">02 'Quickly start a new chat with Grok.' x 104-289 y 388-398: ink core #5A5A5A; the title above it (x 174-219 y 361-377) and the pill's 'Grok' (x 192-227 y 450-465) core #000000 and #080808, the ink token</td></tr><tr><td class="t">--k-dim-inv</td><td class="v">#CCCCCC</td><td class="e">08 'Continue' label under the sheet's scrim: white at .8, which is what the page ground reads there (#CCCCCC against #FFFFFF on 09); 07's watermark mark is the same value</td></tr><tr><td class="t">--k-new-ink</td><td class="v">#FB630A</td><td class="e">08 NEW ink core x 43-72 y 687-697, an R-B > 90 mask against the #8B6D5A badge</td></tr><tr><td class="t">--k-r-phone</td><td class="v">52px</td><td class="e">iPhone 14 Pro/15/16 display corner, this repo's stand-in</td></tr><tr><td class="t">--k-r-widget</td><td class="v">27px</td><td class="e">01 widget corner insets 21.3/12.4/8.4/2.1 at 0.7/3.7/6.7/15.7 down: r 27</td></tr><tr><td class="t">--k-r-card</td><td class="v">26px</td><td class="e">02 card corner insets 16.2/12.2/8.6/5.1/2.4 at 2/4/7/11/16 down: r 26</td></tr><tr><td class="t">--k-r-sheet</td><td class="v">30px</td><td class="e">02 sheet corner insets 20.5/13.8/8.5/4.5 at 2.1/5.1/9.1/14.1 down: r 30</td></tr><tr><td class="t">--k-r-illo</td><td class="v">53.5px</td><td class="e">03 frame outer arc, leftmost frame pixel 28.5/13.8/5.4pt in at 8/21.4/39.3pt down from 205.9: a 53.5pt circle; the inner arc (32.6/22.8/14.7 at 7.4/16.3/34.1 down from 215.5) is 42.4, the stroke less</td></tr><tr><td class="t">--k-r-illo-tile</td><td class="v">14.3px</td><td class="e">03 tile corner insets 10.7/6.2/3.6/0.9pt at 0.2/2/4.7/9.1 down from 278.4: r 14.3</td></tr><tr><td class="t">--k-r-illo-sheet</td><td class="v">26.8px</td><td class="e">02 drawn sheet corner: row y300, 1pt under the top edge at 299.1, white begins at 76.9 against a sheet edge of 55.9: the inset of a 26.8 radius</td></tr><tr><td class="t">--k-r-illo-card</td><td class="v">22px</td><td class="e">02 the widget card's left edge leaves its fitted line 23pt below the top-left corner and the top edge 25pt right of it, at a local scale of .80 down and 1.09 across: 22 in the card's own plane</td></tr><tr><td class="t">--k-r-sheet-v</td><td class="v">35px</td><td class="e">04 sheet corner insets 20.9/15.1/10.2/6.2/2.7 at 3.4/6.4/10.4/15.4/21.4 down from 403.6, left edge 8.5: r 35</td></tr><tr><td class="t">--k-r-feat</td><td class="v">32px</td><td class="e">05 feature card insets 14.9/10.5/6.9/3.8/1.7 at 5/8/12/17/23 down: r 32</td></tr><tr><td class="t">--k-r-price</td><td class="v">18px</td><td class="e">05 plan group insets 10.9/7.3/4.2/1.7 at 1.6/3.6/6.6/10.6 down: r 18</td></tr><tr><td class="t">--k-r-plan</td><td class="v">15px</td><td class="e">05 Yearly card insets 7.3/4.5/2.2/0.8 at 2.4/4.4/7.4/11.4 down: r 15</td></tr><tr><td class="t">--k-r-chip</td><td class="v">24px</td><td class="e">07 chip corner insets 17.3/14.0/12.0/9.0/6.0/3.0/1.0 at 1/2/3/5/8/12/17 down from 727.3, left edge 11: r 24 on a 51.7 tall chip</td></tr><tr><td class="t">--k-r-composer</td><td class="v">20px</td><td class="e">07 composer corner insets 16.7/13.0/10.3/7.0/2.7 at 1/2/3/5/8 down from 793.3, left edge 12.3: r 20</td></tr><tr><td class="t">--k-r-tip</td><td class="v">14px</td><td class="e">07 tooltip corner insets 9.7/7.7/6.0/4.0/1.7 at 1/2/3/5/8 down from 773, left edge 215.3: r 14</td></tr></table></div>
 </body>
 </html>

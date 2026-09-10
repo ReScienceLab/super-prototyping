@@ -38,8 +38,8 @@ own four edges), so the pixels are the capture's and the chrome on top is CSS.
 05's card is not patched: its 6.7% white material is un-applied inside the
 card box and re-applied by the CSS card, which is exact by construction.
 
-EVERY ICON IS A CROP, NOT A DRAWING. Thirty-one glyphs on these screens are SF
-Symbols or the Grok mark, and a hand-drawn approximation of an SF Symbol is
+EVERY ICON IS A CROP, NOT A DRAWING. Thirty-four glyphs on these screens are SF
+Symbols, the Grok mark or its app icon, and a hand-drawn approximation of an SF Symbol is
 visibly not the symbol at any zoom. Each one is cut from its capture at its
 measured ink box plus a point of ground (crops.json, the `-ic-` ids) and put
 back at the same numbers, so it is the capture's own pixels and scores zero
@@ -82,14 +82,29 @@ TOKENS = [
  ("Surface", "ground",   "#D5D5D5",
   "01 flat census left of the widget (x 0-20, y 100-240): #D5D5D5 100%"),
  ("Surface", "card",     "#FFFFFF",
-  "01 widget body, col x68 y 80.7-94.5; 02 card interior, row y300 x 60-340"),
+  "01 widget body, col x68 y 80.7-94.5; 02 card interior, row y300 x 60-340; "
+  "02 the drawn sheet x 221-311 y 339-352 #FFFFFF on 100% of the flats"),
  ("Surface", "well",     "#E5E5E5",
   "01 pill and both circles: row y125 x 39-172 and row y196 x 39-100 flat "
-  "#E5E5E5"),
+  "#E5E5E5; 02 the drawn widget's pill x 150-163 y 437-472 #E5E5E5 100%"),
  ("Surface", "dim",      "#CBCBCB",
   "02/03 the band above the sheet, y 0-58.9 flat #CBCBCB: the dimmed parent"),
  ("Surface", "sheet",    "#F6F6F6",
   "02/03 col x100 from 59.0 down and row y700 outside the card: #F6F6F6"),
+ ("Surface", "illo-frame", "#AAAAAA",
+  "02/03 the guide illustration's phone: frame col x 49.7 y 316-428 and "
+  "island x 163-230 y 232-247 flat #AAAAAA on 100% of the flats"),
+ ("Surface", "illo-screen", "#FAFAFA",
+  "03 inside the drawn frame, x 132-257 y 258-272: #FAFAFA, five under the "
+  "card, on 100% of the flats"),
+ ("Surface", "illo-tile", "#DDDDDD",
+  "03 tile core x 83-119 y 290-330: #DDDDDD on 99.5% of the flats"),
+ ("Surface", "illo-scrim", "rgba(0,0,0,.12)",
+  "02 the drawn screen under its sheet: #FAFAFA reads #DBDBDB at col x87 y "
+  "218-278 and #DDDDDD at col x200 y 252-274, (250-219..221)/250 = .116-.124; "
+  "the island still reads #A9A9A9, so the scrim lies under it"),
+ ("Surface", "illo-grabber", "#CCCCCC",
+  "02 sheet grabber x 183.8-209.2 y 302.4-306.0: mode #CCCCCC, flat #CDCDCD"),
  ("Surface", "night",    "#010101",
   "05 flat census x 20-372 at y 718-728 and y 822-838, above the CTA and "
   "below the footer: #010101 on 73% and 100% of the flats. The band between "
@@ -165,6 +180,18 @@ TOKENS = [
  ("Line", "composer-line", "#FFFFFF",
   "07 col x 200 at y 793.3-794.3 reads #FFFFFF, one pt over the #FBFBFB "
   "card interior and above the #F8F8F8 halo outside it: a 1pt white edge"),
+ ("Line", "illo-card-shadow", "rgba(0,0,0,.24)",
+  "02 the drawn widget card's halo: col x 176.8 climbs #FCFBFC to #E9E9E9 "
+  "over the 21pt above its top edge, row y 455 #F9F9F9 to #E5E5E5 over the "
+  "20.5pt left of it, row y 473 #E2E2E2 to #FEFEFE over 20pt to the right: "
+  "22-29 levels at the edge. One box-shadow swept dy 0-8 / blur 14-44 / "
+  "alpha .12-.30 over the 25pt above the card: minimum .85 at 4px 28px "
+  ".24, 0 28px .18 costs .1, 4px 20px .18 costs 2.6"),
+ ("Line", "illo-sheet-shadow", "rgba(0,0,0,.12)",
+  "02 above the drawn sheet's top edge 299.1, col x200: #DDDDDD to 274.6, "
+  "#DADADA to 285.3, #D7D7D7 to 292.4, #D4D4D4 to 298.7, nine levels over "
+  "46pt on top of the scrim. One box-shadow swept blur 12-56 / alpha "
+  ".05-.20 over that band: minimum 1.51 at 24px / .12, 40px / .08 costs .2"),
 
  ("Ink", "ink",      "#000000",
   "01 'Grok' and icon core; 02/03 body ink core #010101; 05 CTA label"),
@@ -194,6 +221,12 @@ TOKENS = [
   "08 card title ink core x 90-340 y 578-628"),
  ("Ink", "para-ink",    "#53584E",
   "08 body ink core x 26-362 y 759-821: a green-grey, not the page grey"),
+ ("Ink", "illo-label",  "#333333",
+  "02 'Grok' beside the drawn app icon, x 98-124 y 321-330: ink core #333333"),
+ ("Ink", "illo-sub",    "#5A5A5A",
+  "02 'Quickly start a new chat with Grok.' x 104-289 y 388-398: ink core "
+  "#5A5A5A; the title above it (x 174-219 y 361-377) and the pill's 'Grok' "
+  "(x 192-227 y 450-465) core #000000 and #080808, the ink token"),
  ("Ink", "dim-inv",     "#CCCCCC",
   "08 'Continue' label under the sheet's scrim: white at .8, which is what "
   "the page ground reads there (#CCCCCC against #FFFFFF on 09); 07's "
@@ -209,6 +242,20 @@ TOKENS = [
   "02 card corner insets 16.2/12.2/8.6/5.1/2.4 at 2/4/7/11/16 down: r 26"),
  ("Radius", "r-sheet",  "30px",
   "02 sheet corner insets 20.5/13.8/8.5/4.5 at 2.1/5.1/9.1/14.1 down: r 30"),
+ ("Radius", "r-illo", "53.5px",
+  "03 frame outer arc, leftmost frame pixel 28.5/13.8/5.4pt in at 8/21.4/"
+  "39.3pt down from 205.9: a 53.5pt circle; the inner arc (32.6/22.8/14.7 at "
+  "7.4/16.3/34.1 down from 215.5) is 42.4, the stroke less"),
+ ("Radius", "r-illo-tile", "14.3px",
+  "03 tile corner insets 10.7/6.2/3.6/0.9pt at 0.2/2/4.7/9.1 down from "
+  "278.4: r 14.3"),
+ ("Radius", "r-illo-sheet", "26.8px",
+  "02 drawn sheet corner: row y300, 1pt under the top edge at 299.1, white "
+  "begins at 76.9 against a sheet edge of 55.9: the inset of a 26.8 radius"),
+ ("Radius", "r-illo-card", "22px",
+  "02 the widget card's left edge leaves its fitted line 23pt below the "
+  "top-left corner and the top edge 25pt right of it, at a local scale of "
+  ".80 down and 1.09 across: 22 in the card's own plane"),
  ("Radius", "r-sheet-v", "35px",
   "04 sheet corner insets 20.9/15.1/10.2/6.2/2.7 at 3.4/6.4/10.4/15.4/21.4 "
   "down from 403.6, left edge 8.5: r 35"),
@@ -319,6 +366,24 @@ TOKENS = [
   "size of the face draws"),
  ("Type", "t-new",    "500 13px/16px var(--x-font)",
   "08 'NEW' 28.0 x 9.3; 13px medium sets 28.3 x 9.3"),
+ ("Type", "t-illo-label", "500 11.5px/14px var(--x-font)",
+  "02 'Grok' beside the app icon: ink 25.9 x 8.9; the stack sets 600 12px "
+  "to 27.3 x 9.3 and 11.5px to 26.2 x 8.9. Weight and size swept over the "
+  "word's box: 500 11.5px 7.9, 600 11.5px 13.4, 400 11.5px 10.1"),
+ ("Type", "t-illo-title", "600 21.25px/26px var(--x-font)",
+  "02 sheet title 'Grok': ink 44.6 x 16.1; 700 21px sets 46.3 x 15.7, 22px "
+  "48.7 x 16.3, 600 22px 47.3 x 16.3. Swept over the word's box: 600 "
+  "21.25px 7.9, 600 21px 8.7, 500 21.5px 9.1, 700 21px 11.2, 700 22px 16.7"),
+ ("Type", "t-illo-sub", "400 11.25px/15px var(--x-font)",
+  "02 'Quickly start a new chat with Grok.': ink 184.7 x 10.7; 400 11.5px "
+  "sets 188.7 x 10.7, 12px 195.7 x 11.3. Swept over the line's box in .05 "
+  "steps: 11.25px 11.3, 11.2px 11.8, 11.3px 13.4, 11.5px 19.8"),
+ ("Type", "t-illo-pill", "600 15.5px/20px var(--x-font)",
+  "02 'Grok' in the widget pill, unprojected into the card's plane: ink "
+  "35.0 x 12.2; 600 16px sets 35.3 x 12.3, and projected back reads 34.8 "
+  "x 13.8 against the capture's 34.3 x 15.2, a taller face. Swept over "
+  "the word's box: 15.5px 27.9, 15px 28.3, 16px 34.7, 16.5px 40.1. Set in "
+  "the card's flat coordinates, before its matrix3d"),
 
  ("Metrics", "w",         "393px",  "iPhone 14 Pro/15/16 logical width"),
  ("Metrics", "h",         "852px",  "iPhone 14 Pro/15/16 logical height"),
@@ -336,6 +401,9 @@ TOKENS = [
  ("Metrics", "w-max",     "430px",
   "iPhone Pro Max logical width: cp6-cp9 are 1290 x 2796 at 3 px/pt"),
  ("Metrics", "h-max",     "932px",  "iPhone Pro Max logical height"),
+ ("Metrics", "illo-stroke", "10px",
+  "03 the drawn frame's stroke: 10.0pt at the sides (x 45.8-55.8), 9.6 at "
+  "the top (y 205.9-215.5); one border"),
  ("Metrics", "status-max", "59px",
   "iOS status bar on the 430pt devices: clock ink 22.7-36, island 11.3-48; "
   "the height the template bar covers on 06-09"),
@@ -595,7 +663,8 @@ TY = {"t-time": (15, 20), "t-widget": (19.5, 24), "t-h": (17, 22), "t-body": (17
       "t-link": (17.5, 22), "t-hdr": (22, 28), "t-chip": (15, 20), "t-ctl": (14, 18),
       "t-speak": (14.5, 18), "t-btn": (16.5, 22), "t-card": (22, 25), "t-h3": (18.9, 24),
       "t-para": (16.15, 21), "t-field": (16.3, 22), "t-opt": (16, 20), "t-key": (22, 28),
-      "t-key-sm": (18, 22), "t-new": (13, 16)}
+      "t-key-sm": (18, 22), "t-new": (13, 16), "t-illo-label": (11.5, 14),
+      "t-illo-title": (21.25, 26), "t-illo-sub": (11.25, 15), "t-illo-pill": (15.5, 20)}
 
 
 def boxtop(ink_top, tk):
@@ -616,9 +685,9 @@ def txc(ink_top, s, tk="t-body", col=None, x=0.0, w=393.0, extra=""):
     return tx(x, ink_top, s, tk, col, w, ";text-align:center" + extra)
 
 
-def box(x, y, w, h, style="", cls="b", inner=""):
-    return ('<div class="%s" style="left:%.1fpx;top:%.1fpx;width:%.1fpx;'
-            'height:%.1fpx;%s">%s</div>' % (cls, x, y, w, h, style, inner))
+def box(x, y, w, h, style="", cls="b", inner="", attrs=""):
+    return ('<div class="%s"%s style="left:%.1fpx;top:%.1fpx;width:%.1fpx;'
+            'height:%.1fpx;%s">%s</div>' % (cls, attrs, x, y, w, h, style, inner))
 
 
 def circle(x, y, d, style=""):
@@ -677,7 +746,71 @@ def s01():
 # 16.1-376.8 x 137.0-665.4, the phone illustration cropped, two body lines on
 # a 21.9 pitch at 548.6 and 570.5, and four page dots on a 16 pitch centred at
 # y 641.45 with the active one a 12pt sparkle cut from the capture.
-def guide(n, title, l1, l2, active):
+# The guide illustration is a drawing of a phone, and it is drawn: a frame
+# with one border, a pill, ten rounded squares, four side buttons, all
+# fading out through a mask whose stops are the capture's own fade profile
+# (the frame column reads 170/172/176/182/186/194/205/217/226/235/245/249/251
+# at 8px steps from y 470.9, i.e. opacity 1 -> .04 over 44pt). Origin 43,205.
+ILLO_MASK = ("-webkit-mask-image:linear-gradient(#000 265.9px,rgba(0,0,0,.93) 273px,"
+             "rgba(0,0,0,.81) 280.1px,rgba(0,0,0,.59) 287.3px,rgba(0,0,0,.34) 294.4px,"
+             "rgba(0,0,0,.12) 301.6px,rgba(0,0,0,.05) 308.7px,rgba(0,0,0,.04) 310px)")
+ILLO_TILES = [(x, y) for y in (73.4, 139.0, 204.5) for x in (30.1, 95.0, 159.9, 225.1)][:10]
+
+
+def illo_phone(inner="", scrim=False):
+    fr = "background:var(--x-illo-frame)"
+    body = (box(2.8, 0.9, 301.6, 330.0,
+                "box-sizing:border-box;border:var(--x-illo-stroke) solid var(--x-illo-frame);"
+                "border-radius:var(--x-r-illo);background:var(--x-illo-screen)")
+            + "".join(box(x, y, 52.2, 52.2, "border-radius:var(--x-r-illo-tile);"
+                          "background:var(--x-illo-tile)") for x, y in ILLO_TILES)
+            + (box(12.8, 10.9, 281.6, 320.0, "border-radius:43.5px 43.5px 0 0;"
+                   "background:var(--x-illo-scrim)") if scrim else "")
+            + box(110.0, 21.6, 87.0, 25.0, "border-radius:12.5px;" + fr)
+            + box(1.0, 130.9, 1.8, 28.3, fr) + box(1.0, 180.9, 1.8, 46.6, fr)
+            + box(1.0, 239.8, 1.8, 45.3, fr) + box(304.4, 197.6, 1.9, 73.2, fr)
+            + inner)
+    return box(43.0, 205.0, 307.0, 310.0, "overflow:hidden;" + ILLO_MASK, inner=body,
+               attrs=" data-clip-ok")
+
+
+# 02's widget card is a flat 130 x 90.9 rectangle seen in perspective. Its
+# four edges were fitted to the capture (top y = .1355x + 436.67, bottom
+# y = .0908x + 641.72, left x = -.0402y + 212.67, right x = .0364y + 459.80
+# in capture px of the illustration crop) and the corners they meet at,
+# (86.6,206.5) (213.3,223.7) (216.3,305.9) (83.1,293.8) in pt from the
+# illustration's origin, fix the homography below. The flat aspect is the
+# one that makes the pill's 'Grok' set at the platform face's own aspect
+# (2.86 wide per ink height); the pill's caps unproject to circles at any
+# aspect from 1.1 to 1.4, so they cannot decide it. The pill and its label
+# are the capture's edges unprojected through the same matrix: pill u
+# .0707-.9388, v .1124-.7353; ink u .480-.749, v .358-.492.
+ILLO_CARD = ("transform-origin:0 0;transform:matrix3d(1.08765,0.250679,0,0.000530578,"
+             "-0.084579,0.797395,0,-0.000553983,0,0,1,0,86.5763,206.522,0,1)")
+
+
+def illo_sheet():
+    """02: the add-widget sheet drawn over the phone, origin 43,205."""
+    sheet = "border-radius:var(--x-r-illo-sheet) var(--x-r-illo-sheet) 0 0;"
+    ghost = "background:var(--x-well);filter:blur(1.5px)"
+    pill = box(9.19, 10.22, 112.85, 56.63, "border-radius:var(--x-r-pill);"
+               "background:var(--x-well)",
+               inner=tx(53.21, 22.35, "Grok", "t-illo-pill", col="var(--x-ink)"))
+    return (box(12.8, 10.9, 281.6, 319.1, "overflow:hidden;border-radius:43.5px 43.5px 0 0",
+                inner=box(0, 83.2, 281.6, 236.0, sheet + "box-shadow:0 0 24px var(--x-illo-sheet-shadow)"))
+            + box(12.8, 94.1, 281.6, 236.0, sheet + "background:var(--x-card)")
+            + box(140.8, 97.4, 25.4, 3.6, "border-radius:1.8px;background:var(--x-illo-grabber)")
+            + tx(55.1, 116.2, "Grok", "t-illo-label", col="var(--x-illo-label)")
+            + txc(155.9, "Grok", "t-illo-title", col="var(--x-ink)", x=12.8, w=281.6)
+            + txc(182.7, "Quickly start a new chat with Grok.", "t-illo-sub",
+                  col="var(--x-illo-sub)", x=12.8, w=281.6)
+            + circle(100.6, 283.5, 42.0, ghost) + circle(165.3, 287.5, 31.3, ghost)
+            + box(0, 0, 130.0, 90.91, ILLO_CARD + ";border-radius:var(--x-r-illo-card);"
+                  "background:var(--x-card);box-shadow:0 4px 28px var(--x-illo-card-shadow)",
+                  inner=pill))
+
+
+def guide(n, title, l1, l2, active, illo):
     dots = ""
     for i in range(4):
         cx = 172.5 + 16 * i
@@ -690,7 +823,7 @@ def guide(n, title, l1, l2, active):
         + txc(91.5, "Widget", "t-h")
         + box(16.1, 137.0, 360.7, 528.4, "border-radius:var(--x-r-card);background:var(--x-card)")
         + txc(161.5, "Home Screen Widget", "t-h", x=16.1, w=360.7)
-        + art("%02d-illo" % n)
+        + illo
         + txc(548.6, l1, "t-body", x=16.1, w=360.7)
         + txc(570.5, l2, "t-body", x=16.1, w=360.7)
         + dots,
@@ -700,13 +833,15 @@ def guide(n, title, l1, l2, active):
 def s02():
     return guide(2, "Widget guide, step 4",
                  "Find Grok in the list, choose a widget size,",
-                 "then tap Add Widget.", 3)
+                 "then tap Add Widget.", 3,
+                 illo_phone(illo_sheet(), scrim=True) + art("02-ic-app")
+                 + art("02-ic-close") + art("02-ic-mark"))
 
 
 def s03():
     return guide(3, "Widget guide, step 1",
                  "From the Home Screen, touch and hold an",
-                 "empty area until the apps jiggle.", 0)
+                 "empty area until the apps jiggle.", 0, illo_phone())
 
 
 # -------------------------------------------------------------------- 04 ----
@@ -915,17 +1050,17 @@ SCREENS = [
 
 # ------------------------------------------------------ tokens + evidence ----
 SHEET = """body{padding:0;background:#FFF;color:var(--x-ink)}
-.sheet{width:478px;height:980px;padding:20px 20px 12px;overflow:hidden}
+.sheet{width:478px;height:980px;padding:14px 20px 8px;overflow:hidden}
 h1{font:600 17px/22px var(--x-font);margin-bottom:2px}
-header p{font:400 11px/15px var(--x-font);color:var(--x-foot);margin-bottom:6px}
+header p{font:400 10.5px/13.5px var(--x-font);color:var(--x-foot);margin-bottom:4px}
 h2{font:600 9px/12px var(--x-font);letter-spacing:.8px;text-transform:uppercase;
-  color:var(--x-foot);margin:7px 0 4px}
+  color:var(--x-foot);margin:5px 0 3px}
 .grid{column-count:2;column-gap:12px}
-.sw{display:flex;align-items:center;gap:5px;height:12px;break-inside:avoid;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:5px;height:10.5px;break-inside:avoid;white-space:nowrap}
 .sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--x-well);background-color:#888}
-.sw b{font:600 7.5px/12px ui-monospace,Menlo,monospace}
-.sw i{font:400 7.5px/12px ui-monospace,Menlo,monospace;color:var(--x-foot);font-style:normal}
-.foot{display:flex;gap:28px;align-items:flex-start;margin-top:6px}
+.sw b{font:600 7.5px/10.5px ui-monospace,Menlo,monospace}
+.sw i{font:400 7.5px/10.5px ui-monospace,Menlo,monospace;color:var(--x-foot);font-style:normal}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:4px}
 .foot h2{margin-top:0}
 .rad{display:flex;gap:6px;flex-wrap:wrap;width:250px}
 .rb{width:36px;height:22px;background:var(--x-sheet);border:1px solid var(--x-well)}
@@ -933,10 +1068,10 @@ h2{font:600 9px/12px var(--x-font);letter-spacing:.8px;text-transform:uppercase;
   color:var(--x-foot);font-style:normal;text-align:center}
 .ty{column-count:3;column-gap:12px}
 .tr{break-inside:avoid;border-bottom:1px solid var(--x-well)}
-.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1.05}
-.tr em{display:block;font:400 8px/10px ui-monospace,Menlo,monospace;
+.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1}
+.tr em{display:block;font:400 7px/9px ui-monospace,Menlo,monospace;
   color:var(--x-foot);font-style:normal;white-space:nowrap}
-.met{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--x-ink);white-space:nowrap}
+.met{font:400 8px/9.5px ui-monospace,Menlo,monospace;color:var(--x-ink);white-space:nowrap}
 table.ev{width:100%;border-collapse:collapse}
 table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
   border-bottom:1px solid var(--x-well);font:400 8.5px/11px var(--x-font)}
@@ -965,14 +1100,11 @@ def token_board():
     met = "<br>".join("--x-%s: %s" % (n, v) for _, n, v, _ in _of("Metrics"))
     return page(NAME + " - Design Tokens",
                 '<div class="sheet"><header><h1>%s</h1>'
-                '<p>Five Mobbin captures, 881 &times; 1910 after the footer trim, '
-                '2.2417 px per pt, and four native 1290 &times; 2796 captures of a '
-                '430 &times; 932 device at 3 px per pt. One face (SF Pro, the platform&rsquo;s), one type '
+                '<p>Five Mobbin captures at 2.2417 px per pt and four native '
+                '1290 &times; 2796 captures at 3 px per pt. One face (SF Pro), one type '
                 'ladder on 12/13/15/16/17/20/21/39, three apps&rsquo; worth of surface: '
-                'the widget gallery and guide on light greys, the voice sheet and '
-                'paywall on black and blurred photograph, the home and video composer '
-                'on white. Translucent surfaces are '
-                'materials, not fills, because the ground under them is not flat.</p>'
+                'light greys, black and blurred photograph, white. Translucent surfaces '
+                'are materials, not fills, because the ground under them is not flat.</p>'
                 '</header>'
                 '<h2>Colour</h2><div class="grid">%s</div>'
                 '<div class="foot"><div><h2>Radius</h2>'

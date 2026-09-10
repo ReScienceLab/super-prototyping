@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 2/5</title>
+<title>Grok iOS - Evidence 2/6</title>
 <style>
 :root{
   /* Font */
@@ -14,6 +14,11 @@
   --k-well:#E5E5E5;
   --k-dim:#CBCBCB;
   --k-sheet:#F6F6F6;
+  --k-illo-frame:#AAAAAA;
+  --k-illo-screen:#FAFAFA;
+  --k-illo-tile:#DDDDDD;
+  --k-illo-scrim:rgba(0,0,0,.12);
+  --k-illo-grabber:#CCCCCC;
   --k-night:#010101;
   --k-skip:#121212;
   --k-material:rgba(255,255,255,.067);
@@ -38,6 +43,8 @@
   --k-plan-line:rgba(255,255,255,.17);
   --k-composer-shadow:rgba(0,0,0,.12);
   --k-composer-line:#FFFFFF;
+  --k-illo-card-shadow:rgba(0,0,0,.24);
+  --k-illo-sheet-shadow:rgba(0,0,0,.12);
 
   /* Ink */
   --k-ink:#000000;
@@ -52,6 +59,8 @@
   --k-field-ink:#6A6A6B;
   --k-card-ink:#262627;
   --k-para-ink:#53584E;
+  --k-illo-label:#333333;
+  --k-illo-sub:#5A5A5A;
   --k-dim-inv:#CCCCCC;
   --k-new-ink:#FB630A;
 
@@ -60,6 +69,10 @@
   --k-r-widget:27px;
   --k-r-card:26px;
   --k-r-sheet:30px;
+  --k-r-illo:53.5px;
+  --k-r-illo-tile:14.3px;
+  --k-r-illo-sheet:26.8px;
+  --k-r-illo-card:22px;
   --k-r-sheet-v:35px;
   --k-r-feat:32px;
   --k-r-price:18px;
@@ -100,6 +113,10 @@
   --k-t-key:400 22px/28px var(--k-font);
   --k-t-key-sm:400 18px/22px var(--k-font);
   --k-t-new:500 13px/16px var(--k-font);
+  --k-t-illo-label:500 11.5px/14px var(--k-font);
+  --k-t-illo-title:600 21.25px/26px var(--k-font);
+  --k-t-illo-sub:400 11.25px/15px var(--k-font);
+  --k-t-illo-pill:600 15.5px/20px var(--k-font);
 
   /* Metrics */
   --k-w:393px;
@@ -114,6 +131,7 @@
   --k-disc:40px;
   --k-w-max:430px;
   --k-h-max:932px;
+  --k-illo-stroke:10px;
   --k-status-max:59px;
 }
 
@@ -133,17 +151,17 @@ body{font-family:var(--k-font);-webkit-font-smoothing:antialiased;
 .home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
   width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
 body{padding:0;background:#FFF;color:var(--k-ink)}
-.sheet{width:478px;height:980px;padding:20px 20px 12px;overflow:hidden}
+.sheet{width:478px;height:980px;padding:14px 20px 8px;overflow:hidden}
 h1{font:600 17px/22px var(--k-font);margin-bottom:2px}
-header p{font:400 11px/15px var(--k-font);color:var(--k-foot);margin-bottom:6px}
+header p{font:400 10.5px/13.5px var(--k-font);color:var(--k-foot);margin-bottom:4px}
 h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
-  color:var(--k-foot);margin:7px 0 4px}
+  color:var(--k-foot);margin:5px 0 3px}
 .grid{column-count:2;column-gap:12px}
-.sw{display:flex;align-items:center;gap:5px;height:12px;break-inside:avoid;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:5px;height:10.5px;break-inside:avoid;white-space:nowrap}
 .sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--k-well);background-color:#888}
-.sw b{font:600 7.5px/12px ui-monospace,Menlo,monospace}
-.sw i{font:400 7.5px/12px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
-.foot{display:flex;gap:28px;align-items:flex-start;margin-top:6px}
+.sw b{font:600 7.5px/10.5px ui-monospace,Menlo,monospace}
+.sw i{font:400 7.5px/10.5px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:4px}
 .foot h2{margin-top:0}
 .rad{display:flex;gap:6px;flex-wrap:wrap;width:250px}
 .rb{width:36px;height:22px;background:var(--k-sheet);border:1px solid var(--k-well)}
@@ -151,10 +169,10 @@ h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
   color:var(--k-foot);font-style:normal;text-align:center}
 .ty{column-count:3;column-gap:12px}
 .tr{break-inside:avoid;border-bottom:1px solid var(--k-well)}
-.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1.05}
-.tr em{display:block;font:400 8px/10px ui-monospace,Menlo,monospace;
+.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1}
+.tr em{display:block;font:400 7px/9px ui-monospace,Menlo,monospace;
   color:var(--k-foot);font-style:normal;white-space:nowrap}
-.met{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--k-ink);white-space:nowrap}
+.met{font:400 8px/9.5px ui-monospace,Menlo,monospace;color:var(--k-ink);white-space:nowrap}
 table.ev{width:100%;border-collapse:collapse}
 table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
   border-bottom:1px solid var(--k-well);font:400 8.5px/11px var(--k-font)}
@@ -164,6 +182,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 2/5</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-btn</td><td class="v">#000000</td><td class="e">06 Got it pill y 787.7-841.7, 07 Speak pill and tooltip, 08 Try it now: #000000 on every flat</td></tr><tr><td class="t">--k-material-line</td><td class="v">rgba(255,255,255,.16)</td><td class="e">05 card edge peaks #3B3B3B over one 0.9pt band at y 522.8-523.6 and #5C5A5D at 198.9-199.8 with smoke behind; .16 over #131313 is #393939</td></tr><tr><td class="t">--k-price-line</td><td class="v">#252525</td><td class="e">05 col x100 618.4-619.3 #252525 and 713.8-714.7 #222222: the plan group's 1pt edge</td></tr><tr><td class="t">--k-plan-line</td><td class="v">rgba(255,255,255,.17)</td><td class="e">05 Yearly card edge peaks #505052 (row 623.5), #565658 (625), #535557 (row 660 right); .17 over the ramp's #333536 top is #565758</td></tr><tr><td class="t">--k-composer-shadow</td><td class="v">rgba(0,0,0,.12)</td><td class="e">07 the halo round the composer: 13.3 levels at the side edges (x 10 and 419, row 840), 8.7 at the top edge and 18 under the bottom, fading to the page over 36pt below (y 891-927) and 8 to the sides; one box-shadow, swept dy 6-12 / blur 32-52 / alpha .09-.14 over the band y 720-932: flat minimum 2.27-2.33 at 6-8px / 36px / .11-.12, 8px 36px .12 kept because it also matches the side-edge reading; .14 costs .1-.2 everywhere, blur 52 costs .15</td></tr><tr><td class="t">--k-composer-line</td><td class="v">#FFFFFF</td><td class="e">07 col x 200 at y 793.3-794.3 reads #FFFFFF, one pt over the #FBFBFB card interior and above the #F8F8F8 halo outside it: a 1pt white edge</td></tr><tr><td class="t">--k-ink</td><td class="v">#000000</td><td class="e">01 'Grok' and icon core; 02/03 body ink core #010101; 05 CTA label</td></tr><tr><td class="t">--k-ink-inv</td><td class="v">#FFFFFF</td><td class="e">05 title and feature titles ink core #FFFFFF; 04 title reads #FDF8F4 through the warm blur</td></tr><tr><td class="t">--k-mute</td><td class="v">#A9A9A9</td><td class="e">05 feature subtitles #ACA9AB and #A5A4A5, 'Monthly' #A6A6A7, '/year' and '$25 /month' #ACACAC: one grey, four readings, the mean</td></tr><tr><td class="t">--k-skip-ink</td><td class="v">#BBBBBB</td><td class="e">05 'Skip' ink core #B8B8B8-#BBBBBB</td></tr><tr><td class="t">--k-foot</td><td class="v">#838383</td><td class="e">05 footer line ink core, x 34.8-358.2 y 805-817</td></tr><tr><td class="t">--k-free-ink</td><td class="v">#E07D54</td><td class="e">05 FREE ink core (brightest 2%) inside x 135-180 y 645-662</td></tr><tr><td class="t">--k-dots</td><td class="v">#C5C5C5</td><td class="e">02/03 page dots, mode of each 6.2pt disc: #C4C4C4-#C5C5C5</td></tr><tr><td class="t">--k-copy-mute</td><td class="v">#7F7F7F</td><td class="e">06 body ink core on the grey-only windows, x 35-150 of line 1 and x 160-395 of line 2: #7F7F7F on both; a window that takes in the black 'Terms of Service' span reads #777777, the span's pixels, not the grey</td></tr><tr><td class="t">--k-placeholder</td><td class="v">#7D7D7D</td><td class="e">07 'Ask Anything' ink core x 27-127 y 811-828</td></tr><tr><td class="t">--k-field-ink</td><td class="v">#6A6A6B</td><td class="e">09 'Type to make video' ink core x 29-171 y 527-544</td></tr><tr><td class="t">--k-card-ink</td><td class="v">#262627</td><td class="e">08 card title ink core x 90-340 y 578-628</td></tr><tr><td class="t">--k-para-ink</td><td class="v">#53584E</td><td class="e">08 body ink core x 26-362 y 759-821: a green-grey, not the page grey</td></tr><tr><td class="t">--k-dim-inv</td><td class="v">#CCCCCC</td><td class="e">08 'Continue' label under the sheet's scrim: white at .8, which is what the page ground reads there (#CCCCCC against #FFFFFF on 09); 07's watermark mark is the same value</td></tr><tr><td class="t">--k-new-ink</td><td class="v">#FB630A</td><td class="e">08 NEW ink core x 43-72 y 687-697, an R-B > 90 mask against the #8B6D5A badge</td></tr><tr><td class="t">--k-r-phone</td><td class="v">52px</td><td class="e">iPhone 14 Pro/15/16 display corner, this repo's stand-in</td></tr><tr><td class="t">--k-r-widget</td><td class="v">27px</td><td class="e">01 widget corner insets 21.3/12.4/8.4/2.1 at 0.7/3.7/6.7/15.7 down: r 27</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 2/6</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-rec</td><td class="v">#F09540</td><td class="e">04 the recording dot inside the island, x 215.0-220.8 y 26.8-32.6: #F09540 #F29442 #F09444</td></tr><tr><td class="t">--k-page</td><td class="v">#FFFFFF</td><td class="e">06 flat census x 20-410 y 560-760, 07 x 20-410 y 150-360, 09 x 20-410 y 400-440: #FFFFFF on 100% of the flats</td></tr><tr><td class="t">--k-chip</td><td class="v">#F5F5F5</td><td class="e">07 suggestion chips, row y 735 x 15-55 and row y 770 x 165-295: #F5F5F5</td></tr><tr><td class="t">--k-composer</td><td class="v">#FBFBFB</td><td class="e">07 composer interior census x 40-280 y 825-845: #FBFBFB</td></tr><tr><td class="t">--k-ctl</td><td class="v">#F1F1F1</td><td class="e">07 the + disc (centre 37.2, 863.9), the Auto pill x 59.7-134.3 and the mic disc x 283-315.7: cores #F1F1F1</td></tr><tr><td class="t">--k-btn</td><td class="v">#000000</td><td class="e">06 Got it pill y 787.7-841.7, 07 Speak pill and tooltip, 08 Try it now: #000000 on every flat</td></tr><tr><td class="t">--k-material-line</td><td class="v">rgba(255,255,255,.16)</td><td class="e">05 card edge peaks #3B3B3B over one 0.9pt band at y 522.8-523.6 and #5C5A5D at 198.9-199.8 with smoke behind; .16 over #131313 is #393939</td></tr><tr><td class="t">--k-price-line</td><td class="v">#252525</td><td class="e">05 col x100 618.4-619.3 #252525 and 713.8-714.7 #222222: the plan group's 1pt edge</td></tr><tr><td class="t">--k-plan-line</td><td class="v">rgba(255,255,255,.17)</td><td class="e">05 Yearly card edge peaks #505052 (row 623.5), #565658 (625), #535557 (row 660 right); .17 over the ramp's #333536 top is #565758</td></tr><tr><td class="t">--k-composer-shadow</td><td class="v">rgba(0,0,0,.12)</td><td class="e">07 the halo round the composer: 13.3 levels at the side edges (x 10 and 419, row 840), 8.7 at the top edge and 18 under the bottom, fading to the page over 36pt below (y 891-927) and 8 to the sides; one box-shadow, swept dy 6-12 / blur 32-52 / alpha .09-.14 over the band y 720-932: flat minimum 2.27-2.33 at 6-8px / 36px / .11-.12, 8px 36px .12 kept because it also matches the side-edge reading; .14 costs .1-.2 everywhere, blur 52 costs .15</td></tr><tr><td class="t">--k-composer-line</td><td class="v">#FFFFFF</td><td class="e">07 col x 200 at y 793.3-794.3 reads #FFFFFF, one pt over the #FBFBFB card interior and above the #F8F8F8 halo outside it: a 1pt white edge</td></tr><tr><td class="t">--k-illo-card-shadow</td><td class="v">rgba(0,0,0,.24)</td><td class="e">02 the drawn widget card's halo: col x 176.8 climbs #FCFBFC to #E9E9E9 over the 21pt above its top edge, row y 455 #F9F9F9 to #E5E5E5 over the 20.5pt left of it, row y 473 #E2E2E2 to #FEFEFE over 20pt to the right: 22-29 levels at the edge. One box-shadow swept dy 0-8 / blur 14-44 / alpha .12-.30 over the 25pt above the card: minimum .85 at 4px 28px .24, 0 28px .18 costs .1, 4px 20px .18 costs 2.6</td></tr><tr><td class="t">--k-illo-sheet-shadow</td><td class="v">rgba(0,0,0,.12)</td><td class="e">02 above the drawn sheet's top edge 299.1, col x200: #DDDDDD to 274.6, #DADADA to 285.3, #D7D7D7 to 292.4, #D4D4D4 to 298.7, nine levels over 46pt on top of the scrim. One box-shadow swept blur 12-56 / alpha .05-.20 over that band: minimum 1.51 at 24px / .12, 40px / .08 costs .2</td></tr><tr><td class="t">--k-ink</td><td class="v">#000000</td><td class="e">01 'Grok' and icon core; 02/03 body ink core #010101; 05 CTA label</td></tr><tr><td class="t">--k-ink-inv</td><td class="v">#FFFFFF</td><td class="e">05 title and feature titles ink core #FFFFFF; 04 title reads #FDF8F4 through the warm blur</td></tr><tr><td class="t">--k-mute</td><td class="v">#A9A9A9</td><td class="e">05 feature subtitles #ACA9AB and #A5A4A5, 'Monthly' #A6A6A7, '/year' and '$25 /month' #ACACAC: one grey, four readings, the mean</td></tr><tr><td class="t">--k-skip-ink</td><td class="v">#BBBBBB</td><td class="e">05 'Skip' ink core #B8B8B8-#BBBBBB</td></tr><tr><td class="t">--k-foot</td><td class="v">#838383</td><td class="e">05 footer line ink core, x 34.8-358.2 y 805-817</td></tr><tr><td class="t">--k-free-ink</td><td class="v">#E07D54</td><td class="e">05 FREE ink core (brightest 2%) inside x 135-180 y 645-662</td></tr><tr><td class="t">--k-dots</td><td class="v">#C5C5C5</td><td class="e">02/03 page dots, mode of each 6.2pt disc: #C4C4C4-#C5C5C5</td></tr><tr><td class="t">--k-copy-mute</td><td class="v">#7F7F7F</td><td class="e">06 body ink core on the grey-only windows, x 35-150 of line 1 and x 160-395 of line 2: #7F7F7F on both; a window that takes in the black 'Terms of Service' span reads #777777, the span's pixels, not the grey</td></tr><tr><td class="t">--k-placeholder</td><td class="v">#7D7D7D</td><td class="e">07 'Ask Anything' ink core x 27-127 y 811-828</td></tr></table></div>
 </body>
 </html>

@@ -28,6 +28,10 @@
         {
           "file": "00f-evidence",
           "label": "Evidence"
+        },
+        {
+          "file": "00g-evidence",
+          "label": "Evidence"
         }
       ]
     },

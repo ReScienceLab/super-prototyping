@@ -452,6 +452,286 @@
   "_": "04 down x 100 across the voice sheet's top edge (403.6), left of the grabber (176.7-217): the scene, then the blurred sheet"
  },
  {
+  "id": "illo-scrim-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   58,
+   220,
+   71,
+   276
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the drawn phone's screen between the frame's inner edge (55.9) and the first tile (73.1), y 220-276: the dimmed screen only, above the sheet's halo"
+ },
+ {
+  "id": "illo-sheet-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   221,
+   339,
+   311,
+   352
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the drawn sheet between the header row (ends y 336) and the title (starts 361): white ground only"
+ },
+ {
+  "id": "illo-grabber-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   186,
+   303,
+   207,
+   305
+  ],
+  "only": "all",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the sheet grabber's core, inside its 183.8-209.2 x 302.4-306.0 box"
+ },
+ {
+  "id": "illo-pill-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   150,
+   437,
+   163,
+   472
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the widget pill's left end, x 150-163 y 437-472: pill fill, left of the mark (starts 166.8) and inside the cap"
+ },
+ {
+  "id": "illo-label-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   95,
+   316,
+   128,
+   335
+  ],
+  "only": "ink",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 'Grok' beside the app icon, x 98-124 y 321-330, with 3pt of sheet around it: the label's ink only"
+ },
+ {
+  "id": "illo-sub-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   101,
+   383,
+   293,
+   402
+  ],
+  "only": "ink",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the subtitle line x 104-289 y 388-398 with 3pt around it: its ink only"
+ },
+ {
+  "id": "illo-title-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   167,
+   356,
+   226,
+   382
+  ],
+  "only": "ink",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the sheet title 'Grok' x 174-219 y 361-377 with sheet around it: the black ink"
+ },
+ {
+  "id": "illo-pill-ink-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   190,
+   445,
+   231,
+   469
+  ],
+  "only": "ink",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 'Grok' in the widget pill x 192-227 y 450-465, right of the mark (ends 187.4): its ink only"
+ },
+ {
+  "id": "illo-sheet-shadow-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "col",
+  "at": 200,
+  "range": [
+   254,
+   298
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 down x 200 between the island's foot (251.4) and the sheet's top edge (299.1), both excluded: the scrim, then the sheet's halo darkening into the edge; the largest step is the halo's last run"
+ },
+ {
+  "id": "illo-card-halo-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "col",
+  "at": 176.8,
+  "range": [
+   400,
+   416
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 down x 176.8 from the subtitle's foot (398.4) to the widget card's top edge (417 at that column): the card's halo only"
+ },
+ {
+  "id": "t-illo-label-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   95,
+   316,
+   128,
+   335
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 'Grok' beside the app icon: the window holds the word and 3pt of sheet, the icon ends at 92.3"
+ },
+ {
+  "id": "t-illo-title-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   167,
+   356,
+   226,
+   382
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the sheet title: the word and sheet around it, the subtitle starts at 387.7"
+ },
+ {
+  "id": "t-illo-sub-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   101,
+   383,
+   293,
+   402
+  ],
+  "dark": 160,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the subtitle line: the whole line and sheet around it, the title ends at 376.9 and the card's halo starts below 405"
+ },
+ {
+  "id": "t-illo-pill-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   190,
+   445,
+   231,
+   469
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 'Grok' in the pill, right of the mark (ends 187.4) and inside the pill (right cap starts about 240)"
+ },
+ {
+  "id": "illo-grabber-box-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   178,
+   300,
+   215,
+   309
+  ],
+  "dark": 235,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the grabber: window inside the sheet (top 299.1), clear of the app icon (starts 315.8)"
+ },
+ {
+  "id": "illo-app-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   70,
+   313,
+   95,
+   338
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the app icon crop: the black rounded square and 2pt of sheet, the label starts at 98.1"
+ },
+ {
+  "id": "illo-close-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   302,
+   317,
+   320,
+   334
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the close X crop: the glyph and 2pt of sheet, the sheet's right edge is 294.4+43"
+ },
+ {
+  "id": "illo-mark-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   163,
+   441,
+   191,
+   466
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the mark crop inside the pill: the glyph and pill fill, the pill's 'Grok' starts at 192.3"
+ },
+ {
+  "id": "illo-card-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "row",
+  "at": 460,
+  "range": [
+   100,
+   136
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 across y 460 from the sheet's left edge to short of the pill (its cap starts 140.3 at this row): the card's halo and the card's left edge at 127.6, nothing else"
+ },
+ {
+  "id": "illo-pill-cap-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "row",
+  "at": 460,
+  "range": [
+   132,
+   150
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 across y 460 from inside the card (its left edge is 127.6) into the pill: the pill's left cap at 140.3 is the only edge"
+ },
+ {
   "id": "page-06",
   "img": "assets/refs/cp6.png",
   "cmd": "sample",
