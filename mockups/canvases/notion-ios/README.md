@@ -15,6 +15,7 @@ Open it with `?canvas=notion-ios`, or a single board with
 | `07-manage-data-sources` … `10-to-do-list-table` | The *adding a new data source* flow, added later against four more captures. |
 | `11-add-an-account` … `15-add-an-account-code-filled` | The *adding an account* flow, five states of one sheet, against five more captures. |
 | `16-plan-plus-ai-monthly` … `18-purchase-success` | The *Plus & Notion AI purchase sheet*, Apple's paywall over the dimmed app, against three more captures. |
+| `19-purchase-sheet-motion` | 16 → 17 → 18 → 16 as a ten-second CSS loop, on Open Props' easings. Not a screen: a board that plays the three above. |
 | `probes.json` | The measurements behind the tokens, replayable with `refkit batch probes.json --against <shots> --pt 3`. |
 
 Two things in `00-design-tokens.html` are worth reading. The capture scale
@@ -170,6 +171,68 @@ cat 13.97, sparkles 10.9, with a second independent return at 14.56 and 11.12
 that did not beat the first. The one visible cost is the cat's hind leg, which
 ends about 4pt higher than the capture's; `pw-cat` records it. A crop would
 have scored 0, and the redraw was the brief.
+
+## The purchase sheet in motion, 19
+
+One more board plays the three states as a loop: tap the yearly card, tap the
+monthly one back, press Subscribe, the spinner, the alert, OK, and round
+again. It is the same `paywall()` markup as 16–18 with every state in the DOM
+at once, so a change to a measured value moves all four boards together.
+
+**It is CSS, not a script, and that is the constraint rather than a taste.**
+The canvas renders a board in `<iframe srcDoc sandbox="">`, where no script
+runs at all, so Motion, GSAP or anime.js would play when the file is opened
+on its own and stand still on the canvas, which is where the board is seen.
+So every element carries one `animation` of the same ten seconds, `infinite`,
+and the keyframes are a timeline in seconds turned into percentages by `kf()`
+in `gen.py`. The easings come from
+[Open Props](https://open-props.style) (v1.7.23, MIT), copied verbatim from
+`easings.css` and `animations.css` into a block on `.phone`: `--ease-3` for
+every fade, ring and resize, `--ease-spring-2` for the alert's entrance, and
+its `spin` keyframes for the ring. The springs are `linear()` easings, which
+is the one thing a hand-written `cubic-bezier` cannot express.
+
+| at | what happens | over |
+|---|---|---|
+| 0.0 | board 16, monthly selected | held 1.4s |
+| 1.4 | the yearly card is tapped: its ring, fill and text colours come on as the monthly's go off; the button's label cross-fades to the yearly price | 0.22s |
+| 1.62 | board 17 | held 2.0s |
+| 3.6 | the monthly card is tapped back, the same swap the other way | 0.22s |
+| 3.82 | board 16 again, which is the sheet board 18 sits on | held 1.1s |
+| 4.9 | Subscribe is pressed: the button dims for 0.1s, then grows from 50.4 to 54.4 as the label fades out and the spinner fades in; the links move 4.1 down with it | 0.4s |
+| 5.3 | spinning | held 0.9s |
+| 6.2 | the scrim comes up to 20% black; the alert springs in from 1.12 to 1 | 0.25s, 0.35s |
+| 6.6 | board 18 | held 2.0s |
+| 8.6 | OK is pressed: the pill dims, the alert shrinks to .97 and fades, the scrim goes | 0.35s |
+| 8.95 | the button shrinks back, spinner out, label in, links up | 0.3s |
+| 9.25 | board 16 | held to 10.0, then round again |
+
+The selection goes *back* to monthly before the purchase because capture 18
+shows the monthly card selected under the alert. A loop that went 17 → 18
+directly would have to invent a state no capture has.
+
+**Checked by freezing it.** A negative `animation-delay` with
+`animation-play-state: paused` on every element holds the board at one
+instant, and `refkit diff` of that frame against the static board says
+whether the held state is the same drawing:
+
+```css
+.phone *{animation-play-state:paused!important;animation-delay:-2.8s!important}
+```
+
+| held at | against | mean Δ |
+|---|---|---|
+| 0.7s | 16 | 0.03 |
+| 2.8s | 17 | 0.11 |
+| 4.4s | 16 | 0.10 |
+| 7.6s | 18 | 0.23 |
+
+The 0.1 on 17 is the yearly card's text, which the loop places with a
+`transform` where the static board uses a class; the 0.23 on 18 is the
+spinner's arc, frozen at a different angle, and the alert's edge on its own
+compositing layer. At 0% every keyframe is board 16 exactly, so
+`prefers-reduced-motion: reduce`, which drops the animations, leaves 16
+standing rather than a half state.
 
 ## How close it lands
 

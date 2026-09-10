@@ -3,8 +3,8 @@
 Eighteen screens of Notion iOS: the splash, search and the AI chat, a meeting
 page, the date and share sheets, the four-screen flow that adds a data source
 to a database, the five-screen flow that adds an account, and the Plus & AI
-purchase sheet in three states. The measurements behind the tokens are in
-probes.json.
+purchase sheet in three states, plus one board that plays those three states
+as a loop. The measurements behind the tokens are in probes.json.
 
     python3 mockups/canvases/notion-ios/gen.py
 
@@ -1020,6 +1020,7 @@ BODY_15 = account(EMAIL % TYPED + CODE % '<span>QGuM7E</span>'
 # The cat and the sparkles are gpt-image-2 redraws of the capture's crops
 # (assets/art/), scored in art-gen.json.
 import base64
+import re
 
 
 def cap(size, lh):
@@ -1123,10 +1124,8 @@ CSS_PW = """
     links_top=round(754.3 - SHEET - cap(13, 23.7), 2),
 )
 
-CSS_PW_OK = """
-/* Success: the button grows to 54.4pt while it spins and the links move down
-   with it; then a 20%% black scrim over the whole screen and a frosted alert. */
-.cta{height:54.4px}.links{top:%(links_top)spx}
+CSS_ALERT = """
+/* A 20%% black scrim over the whole screen and a frosted alert. */
 .scrim{position:absolute;inset:0;background:rgba(0,0,0,.2);border-radius:52px}
 .alert{position:absolute;left:37.3px;top:362.3px;width:318.7px;height:152.2px;border-radius:30px;
   background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);
@@ -1136,8 +1135,15 @@ CSS_PW_OK = """
 .alert p{top:%(p_top)spx;font:400 15px/20px var(--n-font);color:#505050;letter-spacing:0}
 .ok{position:absolute;left:16.2px;top:88.3px;width:286.9px;height:48.5px;border-radius:24.25px;
   background:#367CEF;color:#fff;text-align:center;font:600 17px/48.5px var(--n-font)}
-""" % dict(h_top=round(388.1 - 362.3 - cap(17, 22), 2), p_top=round(415.4 - 362.3 - cap(15, 20), 2),
-            links_top=round(758.4 - SHEET - cap(13, 23.7), 2))
+""" % dict(h_top=round(388.1 - 362.3 - cap(17, 22), 2), p_top=round(415.4 - 362.3 - cap(15, 20), 2))
+
+LINKS_TOP = round(754.3 - SHEET - cap(13, 23.7), 2)
+LINKS_TOP_BUSY = round(758.4 - SHEET - cap(13, 23.7), 2)
+
+CSS_PW_OK = CSS_ALERT + """
+/* Success: the button grows to 54.4pt while it spins and the links move down with it. */
+.cta{height:54.4px}.links{top:%spx}
+""" % LINKS_TOP_BUSY
 
 STATUS = """  <div class="statusbar">
     <div class="time">9:41</div>
@@ -1161,7 +1167,12 @@ SPINNER = ('<svg viewBox="0 0 30 30" fill="none" stroke-width="2.3" stroke-linec
            '<circle cx="15" cy="15" r="11" stroke="#CFDCE8"/>'
            '<path d="M4.4 12.3A11 11 0 0 1 20.5 5.5" stroke="#2E3A36"/></svg>')
 
-def paywall(sel, cta, success=False):
+def cards(sel):
+    return ('    <div class="price l%s"><b>S$ 299.98</b><i>per year</i></div>\n' % (" on" if sel == "l" else "")
+            + '    <div class="price r%s"><b>S$ 29.98</b><i>per month</i></div>\n' % (" on" if sel == "r" else ""))
+
+
+def paywall(sel, cta, overlay=False):
     body = '<div class="phone">\n' + STATUS + '\n  <div class="sheet">\n'
     body += '    <div class="handle"></div>\n'
     body += ('    <span class="close"><svg viewBox="0 0 12 12" stroke="currentColor" stroke-width="1.5" '
@@ -1180,17 +1191,130 @@ def paywall(sel, cta, success=False):
     body += '      <img class="art spark" alt="three sparkle strokes" src="%s">\n' % png("spark")
     body += '      <img class="art cat" alt="line-drawn cat" src="%s">\n' % png("cat")
     body += '      <div class="fade"></div>\n    </div>\n\n'
-    body += '    <div class="price l%s"><b>S$ 299.98</b><i>per year</i></div>\n' % (" on" if sel == "l" else "")
-    body += '    <div class="price r%s"><b>S$ 29.98</b><i>per month</i></div>\n' % (" on" if sel == "r" else "")
-    body += '    <div class="cta">%s</div>\n' % (SPINNER if success else cta)
+    body += cards(sel)
+    body += '    <div class="cta">%s</div>\n' % cta
     body += '    <div class="links"><a>Restore subscription</a><a>Terms of service</a><a>Privacy policy</a></div>\n'
     body += '  </div>\n'
-    if success:
+    if overlay:
         body += ('  <div class="scrim"></div>\n  <div class="alert"><h3>You’re all set</h3>'
                  '<p>Your purchase was successful.</p><div class="ok">OK</div></div>\n')
     body += '</div>\n'
     return body
 
+
+
+# ---------------------------------------- 19 the purchase sheet in motion ---
+# One board that plays 16 -> 17 -> 18 and back as a loop. The canvas renders a
+# board in <iframe srcDoc sandbox="">, where no script runs, so the timeline
+# is CSS: every element animates over the same T seconds with `infinite`, and
+# the keyframes below are the timeline in seconds turned into percentages.
+# The easings are Open Props' (open-props.style, v1.7.23, MIT, Adam Argyle),
+# copied verbatim from easings.css and animations.css: the linear() springs
+# are the ones the browser cannot express as a cubic-bezier. At 0%% every
+# element is exactly board 16, so `prefers-reduced-motion: reduce` -- which
+# drops the animations -- leaves board 16 standing.
+OPEN_PROPS = {
+    "--ease-3": "cubic-bezier(.25,0,.3,1)",
+    "--ease-out-3": "cubic-bezier(0,0,.3,1)",
+    "--ease-spring-2": "linear(0,0.007,0.029 2.2%,0.118 4.7%,0.625 14.4%,0.826 19%,0.902,0.962,1.008 26.1%,"
+                       "1.041 28.7%,1.064 32.1%,1.07 36%,1.061 40.5%,1.015 53.4%,0.999 61.6%,0.995 71.2%,1)",
+    "--animation-spin": "spin 2s linear infinite",
+}
+OPEN_PROPS_KEYFRAMES = "@keyframes spin{to{transform:rotate(1turn)}}"
+
+T = 10.0  # seconds per loop
+
+
+def kf(name, steps, ease=OPEN_PROPS["--ease-3"]):
+    """A @keyframes block from (seconds, declarations[, easing]) steps.
+
+    A step's easing governs the segment that starts at it; a value holds when
+    two consecutive steps repeat it. The first step must be at 0 and the last
+    at T, so the loop closes on board 16."""
+    assert steps[0][0] == 0 and steps[-1][0] == T, name
+    out = []
+    for step in steps:
+        t, css = step[0], step[1]
+        e = step[2] if len(step) > 2 else ease
+        pct = ("%.2f" % (t / T * 100)).rstrip("0").rstrip(".")
+        out.append("%s%%{%s;animation-timing-function:%s}" % (pct, css, e))
+    return "@keyframes %s{%s}\n" % (name, "".join(out))
+
+
+def _token(name):
+    return re.search(r"%s:\s*([^;]+);" % re.escape(name), TOKENS).group(1).strip()
+
+
+# The loop, in seconds. Holds are what a reader needs to see each state.
+TAP_YEARLY, TAP_MONTHLY, PRESS, DONE, OK = 1.4, 3.6, 4.9, 6.2, 8.6
+SWAP = 0.22          # the selection ring and the button label, --ease-3
+GROW = 0.3           # the button's height and the links under it
+SPRING = 0.35        # the alert's entrance, --ease-spring-2
+
+OFF = "border-color:#E4E4E4;box-shadow:inset 0 0 0 1px rgba(72,126,208,0);background:#fff"
+ON = "border-color:#487ED0;box-shadow:inset 0 0 0 1px #487ED0;background:#E7F3FF"
+# Selected text sits 0.9 right and, for the price, 0.4 up: the 2pt ring's
+# extra point, less the -0.1 / -1.4 the static boards give .price.on.
+B_OFF, B_ON = "color:%s;transform:none" % _token("--n-text"), "color:#467AB9;transform:translate(.9px,-.4px)"
+I_OFF, I_ON = "color:%s;transform:none" % _token("--n-text-2"), "color:#4E7BB8;transform:translateX(.9px)"
+
+
+def toggle(off, on, first_on=False):
+    a, b = (on, off) if first_on else (off, on)
+    return [(0, a), (TAP_YEARLY, a), (TAP_YEARLY + SWAP, b), (TAP_MONTHLY, b), (TAP_MONTHLY + SWAP, a), (T, a)]
+
+
+CTA_UP = "height:50.4px;background:#4380D7"
+CTA_DOWN = "height:50.4px;background:#3B72C0"      # UIButton's highlighted dim, 0.1s
+CTA_BUSY = "height:54.4px;background:#4380D7"
+LINKS = "top:%spx" % LINKS_TOP
+LINKS_BUSY = "top:%spx" % LINKS_TOP_BUSY
+ALERT_HIDDEN = "opacity:0;transform:scale(1.12)"
+ALERT_GONE = "opacity:0;transform:scale(.97)"
+ALERT_SHOWN = "opacity:1;transform:none"
+UNDO = OK + 0.35    # the alert is gone; the button and links go back
+CSS_MO = "\n/* The loop: %ss, every element on the same clock. */\n" % T
+CSS_MO += ".phone{%s}\n" % ";".join("%s:%s" % kv for kv in OPEN_PROPS.items())
+CSS_MO += """.price.r{%(on)s}.price.r b{%(bon)s}.price.r i{%(ion)s}
+.price.l{animation:pl %(T)ss infinite}.price.l b{animation:pl-b %(T)ss infinite}.price.l i{animation:pl-i %(T)ss infinite}
+.price.r{animation:pr %(T)ss infinite}.price.r b{animation:pr-b %(T)ss infinite}.price.r i{animation:pr-i %(T)ss infinite}
+.price b,.price i{will-change:transform}
+.cta{animation:cta %(T)ss infinite}
+.cta span{position:absolute;left:0;right:0;top:0;line-height:50px}
+.cta .m{animation:cta-m %(T)ss infinite}.cta .y{opacity:0;animation:cta-y %(T)ss infinite}
+.cta .sp{opacity:0;animation:cta-sp %(T)ss infinite}
+.cta .sp svg{animation:var(--animation-spin);animation-duration:1s}
+.links{animation:links %(T)ss infinite}
+.scrim{opacity:0;animation:scrim %(T)ss infinite}
+.alert{%(ahid)s;animation:alert %(T)ss infinite}
+.ok{animation:ok %(T)ss infinite}
+@media (prefers-reduced-motion:reduce){.phone *{animation:none!important}}
+""" % dict(on=ON, bon=B_ON, ion=I_ON, T=T, ahid=ALERT_HIDDEN)
+CSS_MO += OPEN_PROPS_KEYFRAMES + "\n"
+CSS_MO += kf("pl", toggle(OFF, ON)) + kf("pl-b", toggle(B_OFF, B_ON)) + kf("pl-i", toggle(I_OFF, I_ON))
+CSS_MO += kf("pr", toggle(OFF, ON, True)) + kf("pr-b", toggle(B_OFF, B_ON, True)) + kf("pr-i", toggle(I_OFF, I_ON, True))
+CSS_MO += kf("cta", [(0, CTA_UP), (PRESS, CTA_UP), (PRESS + 0.1, CTA_DOWN), (PRESS + 0.1 + GROW, CTA_BUSY),
+                     (UNDO, CTA_BUSY), (UNDO + GROW, CTA_UP), (T, CTA_UP)])
+CSS_MO += kf("cta-m", [(0, "opacity:1"), (TAP_YEARLY + 0.05, "opacity:1"), (TAP_YEARLY + SWAP, "opacity:0"),
+                       (TAP_MONTHLY, "opacity:0"), (TAP_MONTHLY + SWAP - 0.05, "opacity:1"),
+                       (PRESS + 0.1, "opacity:1"), (PRESS + 0.25, "opacity:0"),
+                       (UNDO + 0.15, "opacity:0"), (UNDO + GROW, "opacity:1"), (T, "opacity:1")])
+CSS_MO += kf("cta-y", [(0, "opacity:0"), (TAP_YEARLY + 0.05, "opacity:0"), (TAP_YEARLY + SWAP, "opacity:1"),
+                       (TAP_MONTHLY, "opacity:1"), (TAP_MONTHLY + SWAP - 0.05, "opacity:0"), (T, "opacity:0")])
+CSS_MO += kf("cta-sp", [(0, "opacity:0"), (PRESS + 0.25, "opacity:0"), (PRESS + 0.1 + GROW, "opacity:1"),
+                        (UNDO, "opacity:1"), (UNDO + 0.15, "opacity:0"), (T, "opacity:0")])
+CSS_MO += kf("links", [(0, LINKS), (PRESS + 0.1, LINKS), (PRESS + 0.1 + GROW, LINKS_BUSY),
+                       (UNDO, LINKS_BUSY), (UNDO + GROW, LINKS), (T, LINKS)])
+CSS_MO += kf("scrim", [(0, "opacity:0"), (DONE, "opacity:0"), (DONE + 0.25, "opacity:1"),
+                       (OK + 0.1, "opacity:1"), (UNDO, "opacity:0"), (T, "opacity:0")])
+CSS_MO += kf("alert", [(0, ALERT_HIDDEN), (DONE + 0.05, ALERT_HIDDEN, OPEN_PROPS["--ease-spring-2"]),
+                       (DONE + 0.05 + SPRING, ALERT_SHOWN), (OK + 0.1, ALERT_SHOWN), (OK + 0.3, ALERT_GONE),
+                       (T, ALERT_HIDDEN)])
+CSS_MO += kf("ok", [(0, "background:#367CEF"), (OK, "background:#367CEF"), (OK + 0.1, "background:#2C6BD9"),
+                    (OK + 0.25, "background:#367CEF"), (T, "background:#367CEF")])
+
+MO_CTA = ('<span class="m">Subscribe for S$ 29.98 / month</span><span class="y">Subscribe for S$ 299.98 / year</span>'
+          '<span class="sp">' + SPINNER + '</span>')
 
 
 # ------------------------------------------------------------------- boards ---
@@ -1216,7 +1340,9 @@ BOARDS = [
     ("17-plan-plus-ai-yearly", "Notion iOS — Plan sheet, Plus & AI, yearly", CSS_PW,
      paywall("l", "Subscribe for S$ 299.98 / year")),
     ("18-purchase-success", "Notion iOS — Purchase success", CSS_PW + CSS_PW_OK,
-     paywall("r", "", success=True)),
+     paywall("r", SPINNER, overlay=True)),
+    ("19-purchase-sheet-motion", "Notion iOS — Purchase sheet, A to B to C", CSS_PW + CSS_ALERT + CSS_MO,
+     paywall(None, MO_CTA, overlay=True)),
 ]
 
 if __name__ == "__main__":

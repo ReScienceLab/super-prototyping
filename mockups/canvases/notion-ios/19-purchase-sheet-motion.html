@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Notion iOS — Purchase success</title>
+<title>Notion iOS — Purchase sheet, A to B to C</title>
 <style>
 /* ============================================================================
    NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
@@ -158,8 +158,37 @@ body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiase
 .ok{position:absolute;left:16.2px;top:88.3px;width:286.9px;height:48.5px;border-radius:24.25px;
   background:#367CEF;color:#fff;text-align:center;font:600 17px/48.5px var(--n-font)}
 
-/* Success: the button grows to 54.4pt while it spins and the links move down with it. */
-.cta{height:54.4px}.links{top:692.51px}
+/* The loop: 10.0s, every element on the same clock. */
+.phone{--ease-3:cubic-bezier(.25,0,.3,1);--ease-out-3:cubic-bezier(0,0,.3,1);--ease-spring-2:linear(0,0.007,0.029 2.2%,0.118 4.7%,0.625 14.4%,0.826 19%,0.902,0.962,1.008 26.1%,1.041 28.7%,1.064 32.1%,1.07 36%,1.061 40.5%,1.015 53.4%,0.999 61.6%,0.995 71.2%,1);--animation-spin:spin 2s linear infinite}
+.price.r{border-color:#487ED0;box-shadow:inset 0 0 0 1px #487ED0;background:#E7F3FF}.price.r b{color:#467AB9;transform:translate(.9px,-.4px)}.price.r i{color:#4E7BB8;transform:translateX(.9px)}
+.price.l{animation:pl 10.0s infinite}.price.l b{animation:pl-b 10.0s infinite}.price.l i{animation:pl-i 10.0s infinite}
+.price.r{animation:pr 10.0s infinite}.price.r b{animation:pr-b 10.0s infinite}.price.r i{animation:pr-i 10.0s infinite}
+.price b,.price i{will-change:transform}
+.cta{animation:cta 10.0s infinite}
+.cta span{position:absolute;left:0;right:0;top:0;line-height:50px}
+.cta .m{animation:cta-m 10.0s infinite}.cta .y{opacity:0;animation:cta-y 10.0s infinite}
+.cta .sp{opacity:0;animation:cta-sp 10.0s infinite}
+.cta .sp svg{animation:var(--animation-spin);animation-duration:1s}
+.links{animation:links 10.0s infinite}
+.scrim{opacity:0;animation:scrim 10.0s infinite}
+.alert{opacity:0;transform:scale(1.12);animation:alert 10.0s infinite}
+.ok{animation:ok 10.0s infinite}
+@media (prefers-reduced-motion:reduce){.phone *{animation:none!important}}
+@keyframes spin{to{transform:rotate(1turn)}}
+@keyframes pl{0%{border-color:#E4E4E4;box-shadow:inset 0 0 0 1px rgba(72,126,208,0);background:#fff;animation-timing-function:cubic-bezier(.25,0,.3,1)}14%{border-color:#E4E4E4;box-shadow:inset 0 0 0 1px rgba(72,126,208,0);background:#fff;animation-timing-function:cubic-bezier(.25,0,.3,1)}16.2%{border-color:#487ED0;box-shadow:inset 0 0 0 1px #487ED0;background:#E7F3FF;animation-timing-function:cubic-bezier(.25,0,.3,1)}36%{border-color:#487ED0;box-shadow:inset 0 0 0 1px #487ED0;background:#E7F3FF;animation-timing-function:cubic-bezier(.25,0,.3,1)}38.2%{border-color:#E4E4E4;box-shadow:inset 0 0 0 1px rgba(72,126,208,0);background:#fff;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{border-color:#E4E4E4;box-shadow:inset 0 0 0 1px rgba(72,126,208,0);background:#fff;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes pl-b{0%{color:#2C2C2C;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}14%{color:#2C2C2C;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}16.2%{color:#467AB9;transform:translate(.9px,-.4px);animation-timing-function:cubic-bezier(.25,0,.3,1)}36%{color:#467AB9;transform:translate(.9px,-.4px);animation-timing-function:cubic-bezier(.25,0,.3,1)}38.2%{color:#2C2C2C;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{color:#2C2C2C;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes pl-i{0%{color:#787774;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}14%{color:#787774;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}16.2%{color:#4E7BB8;transform:translateX(.9px);animation-timing-function:cubic-bezier(.25,0,.3,1)}36%{color:#4E7BB8;transform:translateX(.9px);animation-timing-function:cubic-bezier(.25,0,.3,1)}38.2%{color:#787774;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{color:#787774;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes pr{0%{border-color:#487ED0;box-shadow:inset 0 0 0 1px #487ED0;background:#E7F3FF;animation-timing-function:cubic-bezier(.25,0,.3,1)}14%{border-color:#487ED0;box-shadow:inset 0 0 0 1px #487ED0;background:#E7F3FF;animation-timing-function:cubic-bezier(.25,0,.3,1)}16.2%{border-color:#E4E4E4;box-shadow:inset 0 0 0 1px rgba(72,126,208,0);background:#fff;animation-timing-function:cubic-bezier(.25,0,.3,1)}36%{border-color:#E4E4E4;box-shadow:inset 0 0 0 1px rgba(72,126,208,0);background:#fff;animation-timing-function:cubic-bezier(.25,0,.3,1)}38.2%{border-color:#487ED0;box-shadow:inset 0 0 0 1px #487ED0;background:#E7F3FF;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{border-color:#487ED0;box-shadow:inset 0 0 0 1px #487ED0;background:#E7F3FF;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes pr-b{0%{color:#467AB9;transform:translate(.9px,-.4px);animation-timing-function:cubic-bezier(.25,0,.3,1)}14%{color:#467AB9;transform:translate(.9px,-.4px);animation-timing-function:cubic-bezier(.25,0,.3,1)}16.2%{color:#2C2C2C;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}36%{color:#2C2C2C;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}38.2%{color:#467AB9;transform:translate(.9px,-.4px);animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{color:#467AB9;transform:translate(.9px,-.4px);animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes pr-i{0%{color:#4E7BB8;transform:translateX(.9px);animation-timing-function:cubic-bezier(.25,0,.3,1)}14%{color:#4E7BB8;transform:translateX(.9px);animation-timing-function:cubic-bezier(.25,0,.3,1)}16.2%{color:#787774;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}36%{color:#787774;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}38.2%{color:#4E7BB8;transform:translateX(.9px);animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{color:#4E7BB8;transform:translateX(.9px);animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes cta{0%{height:50.4px;background:#4380D7;animation-timing-function:cubic-bezier(.25,0,.3,1)}49%{height:50.4px;background:#4380D7;animation-timing-function:cubic-bezier(.25,0,.3,1)}50%{height:50.4px;background:#3B72C0;animation-timing-function:cubic-bezier(.25,0,.3,1)}53%{height:54.4px;background:#4380D7;animation-timing-function:cubic-bezier(.25,0,.3,1)}89.5%{height:54.4px;background:#4380D7;animation-timing-function:cubic-bezier(.25,0,.3,1)}92.5%{height:50.4px;background:#4380D7;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{height:50.4px;background:#4380D7;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes cta-m{0%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}14.5%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}16.2%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}36%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}37.7%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}50%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}51.5%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}91%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}92.5%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes cta-y{0%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}14.5%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}16.2%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}36%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}37.7%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes cta-sp{0%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}51.5%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}53%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}89.5%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}91%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes links{0%{top:688.41px;animation-timing-function:cubic-bezier(.25,0,.3,1)}50%{top:688.41px;animation-timing-function:cubic-bezier(.25,0,.3,1)}53%{top:692.51px;animation-timing-function:cubic-bezier(.25,0,.3,1)}89.5%{top:692.51px;animation-timing-function:cubic-bezier(.25,0,.3,1)}92.5%{top:688.41px;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{top:688.41px;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes scrim{0%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}62%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}64.5%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}87%{opacity:1;animation-timing-function:cubic-bezier(.25,0,.3,1)}89.5%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{opacity:0;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes alert{0%{opacity:0;transform:scale(1.12);animation-timing-function:cubic-bezier(.25,0,.3,1)}62.5%{opacity:0;transform:scale(1.12);animation-timing-function:linear(0,0.007,0.029 2.2%,0.118 4.7%,0.625 14.4%,0.826 19%,0.902,0.962,1.008 26.1%,1.041 28.7%,1.064 32.1%,1.07 36%,1.061 40.5%,1.015 53.4%,0.999 61.6%,0.995 71.2%,1)}66%{opacity:1;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}87%{opacity:1;transform:none;animation-timing-function:cubic-bezier(.25,0,.3,1)}89%{opacity:0;transform:scale(.97);animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{opacity:0;transform:scale(1.12);animation-timing-function:cubic-bezier(.25,0,.3,1)}}
+@keyframes ok{0%{background:#367CEF;animation-timing-function:cubic-bezier(.25,0,.3,1)}86%{background:#367CEF;animation-timing-function:cubic-bezier(.25,0,.3,1)}87%{background:#2C6BD9;animation-timing-function:cubic-bezier(.25,0,.3,1)}88.5%{background:#367CEF;animation-timing-function:cubic-bezier(.25,0,.3,1)}100%{background:#367CEF;animation-timing-function:cubic-bezier(.25,0,.3,1)}}
 </style>
 </head>
 <body>
@@ -196,8 +225,8 @@ body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiase
     </div>
 
     <div class="price l"><b>S$ 299.98</b><i>per year</i></div>
-    <div class="price r on"><b>S$ 29.98</b><i>per month</i></div>
-    <div class="cta"><svg viewBox="0 0 30 30" fill="none" stroke-width="2.3" stroke-linecap="round"><circle cx="15" cy="15" r="11" stroke="#CFDCE8"/><path d="M4.4 12.3A11 11 0 0 1 20.5 5.5" stroke="#2E3A36"/></svg></div>
+    <div class="price r"><b>S$ 29.98</b><i>per month</i></div>
+    <div class="cta"><span class="m">Subscribe for S$ 29.98 / month</span><span class="y">Subscribe for S$ 299.98 / year</span><span class="sp"><svg viewBox="0 0 30 30" fill="none" stroke-width="2.3" stroke-linecap="round"><circle cx="15" cy="15" r="11" stroke="#CFDCE8"/><path d="M4.4 12.3A11 11 0 0 1 20.5 5.5" stroke="#2E3A36"/></svg></span></div>
     <div class="links"><a>Restore subscription</a><a>Terms of service</a><a>Privacy policy</a></div>
   </div>
   <div class="scrim"></div>

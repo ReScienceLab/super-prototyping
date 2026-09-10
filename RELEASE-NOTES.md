@@ -36,6 +36,12 @@ Everything below is on `main` and reaches no install until a version is cut.
   after the shared tokens. The cat and the sparkle strokes on the feature card
   are the folder's first `artgen` assets: `gpt-image-2` redraws of the
   capture's crops, keyed and scored in `art-gen.json`.
+- **A board that moves.** `notion-ios` gets a nineteenth board that plays the
+  purchase sheet's three states as a ten-second loop: tap, tap, subscribe,
+  spin, alert, OK. Boards render with no script, so it is a CSS timeline on
+  Open Props' easings, and it is checked the way the static boards are, by
+  freezing it at an instant and diffing the frame against the board it should
+  be. `docs/2026-09-10-motion-boards.md` says why CSS and not a library.
 
 ## v1.1.1
 

@@ -106,6 +106,15 @@
           "label": "Purchase success"
         }
       ]
+    },
+    {
+      "title": "Motion: the purchase sheet, A to B to C",
+      "files": [
+        {
+          "file": "19-purchase-sheet-motion",
+          "label": "16 → 17 → 18, a 10s loop"
+        }
+      ]
     }
   ]
 }
