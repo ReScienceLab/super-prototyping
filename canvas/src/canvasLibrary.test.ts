@@ -26,4 +26,12 @@ describe('loadCanvasFileHtml', () => {
     expect(await loadCanvasFileHtml(missing)).toBeUndefined()
     expect(canvasFileHtml.has(missing)).toBe(false)
   })
+
+  it('ends every board with the tag that stops the browser back gesture', async () => {
+    // A wheel inside an iframe never reaches tldraw, so a board that does not stop overscroll
+    // in its own document turns a two-finger pan over it into a back navigation.
+    const path = readCanvasLibrary()[1][0].path
+    const html = await loadCanvasFileHtml(path)
+    expect(html).toMatch(/<style>html\{overscroll-behavior:none\}<\/style>$/)
+  })
 })

@@ -218,7 +218,22 @@ export async function cloneCanvas(slug: string, name: string) {
   return JSON.parse(body).slug as string;
 }
 
-/** path -> raw HTML for every file fetched so far. Filled by loadCanvasFileHtml. */
+/**
+ * Appended to every board. A wheel event whose target is inside an iframe never reaches the
+ * parent document, so tldraw's own fix for this — preventDefault on the wheel that reaches its
+ * container, in useGestureEvents — never runs, and the browser turns the horizontal part of a
+ * two-finger pan into a back navigation. The page's own `overscroll-behavior: none` in index.css
+ * cannot reach in: overscroll chains one frame at a time, so a board has to stop the chain in its
+ * own document. Every iframe in this app gets one, because the ones that can be panned over are
+ * not the same set in every browser and the fix has already been missed once per site.
+ *
+ * Appended rather than spliced: 37 of the repo's 180 boards emit no `</body>`, and a tag put
+ * before the doctype would drop the board into quirks mode. A trailing `<style>` is parsed into
+ * the body, and the inspector agent skips STYLE elements, so this adds no layer.
+ */
+const NO_OVERSCROLL = "<style>html{overscroll-behavior:none}</style>";
+
+/** path -> the HTML every board iframe renders, for every file fetched so far. */
 export const canvasFileHtml = new Map<string, string>();
 const canvasFileLoads = new Map<string, Promise<string | undefined>>();
 
@@ -237,8 +252,9 @@ export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
   if (!load) {
     load = loader()
       .then((html) => {
-        canvasFileHtml.set(path, html);
-        return html;
+        const board = html + NO_OVERSCROLL;
+        canvasFileHtml.set(path, board);
+        return board;
       })
       // A chunk can fail to arrive — a board deleted between discovery and first render, a
       // dev-server restart mid-flight. Without this the rejected promise stays in the map and
