@@ -1,0 +1,30 @@
+{
+ "_": "The two crops in assets/art/ redrawn by gpt-image-2 from a two-cell geometry-anchored grid on a white ground, keyed, fitted back to the same pt box and scored against the crop they came from. `runs` is that asset's mean delta in each of two independent returns, in `_runs` order; `delta` is the one that shipped, at 3x the measured box. Both are over artgen's 8.0 default: thin black line art on white scores worse than the filled characters duolingo-ios was tuned on, and the second return did not beat the first on either asset. Rebuild with tools/artgen.py.",
+ "_runs": [
+  "white/high",
+  "white/high again"
+ ],
+ "_sup": 3,
+ "cat": {
+  "delta": 13.97,
+  "from": "white/high",
+  "scale": 0.91,
+  "dx": -1,
+  "dy": 8,
+  "runs": [
+   13.97,
+   14.56
+  ]
+ },
+ "spark": {
+  "delta": 10.9,
+  "from": "white/high",
+  "scale": 0.9,
+  "dx": 3,
+  "dy": 2,
+  "runs": [
+   10.9,
+   11.12
+  ]
+ }
+}

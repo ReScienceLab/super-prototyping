@@ -29,28 +29,71 @@ refkit font  ref.png 119 118 163.4 143.4 list --pt 3
 
 ## The purchase sheet, 07 to 09
 
-Three screens added later from 881 × 2000 Mobbin captures
-(`881 / 393 = 2.242 px/pt`, footer strip excluded), read off the images
-rather than probed, so treat their metrics as ±1 pt. What they add on top
-of the token block, and why it stays out of it:
+Three screens added later from 881 × 1910 Mobbin captures
+(`881 / 393 = 2.2417 px/pt`), measured with `refkit bbox` and row and column
+scans, then shot at 3×, resampled to capture scale and diffed against the
+capture until every text run, edge and glyph box agreed within 0.5 pt. A
+generator in the run's `scratch/` composes them from the token block of `06`,
+inlined byte-for-byte, and places each text run by its cap top; as with 01
+to 06, treat the HTML as its output. What they add on top of the token block,
+and why it stays out of it:
 
-- **The sheet sits higher.** Its top edge is at 58 pt, not the 71 pt every
-  other sheet on this board uses, so the value is a board-local
-  `--pw-sheet-top`. The paywall is a StoreKit-style modal rather than one
-  of the app's own sheets.
-- **The blue is not `--n-blue`.** Check marks, the selected price card and
-  the subscribe button read `#4A86E0`, visibly lighter and cooler than the
-  `#2784E0` the rest of the app uses for selection. The alert's OK button
-  is iOS system blue `#3478F6`, a third value. Both are board-local.
-- **The cat is drawn, not cropped.** The line-art cat and the three
-  sparkle strokes are hand-written SVG paths that match the pose, the
-  overlap with the card's right edge and the clip at the band's bottom
-  edge. They are not the source's artwork and will not survive a
-  pixel diff; the intent was the silhouette at canvas scale.
-- **The success state is a scrim plus the alert.** The dimmed sheet under
-  the alert is the monthly board with a 20 % black overlay and the CTA's
-  label swapped for a spinner, which is what the capture shows: the
-  purchase completes while the button is still spinning.
+- **The sheet sits at 58.9 pt** with a 38 pt corner over the app dimmed to
+  `#C6C6C6`, not the 71 pt and `--n-r-sheet` the app's own sheets use: this
+  is a StoreKit-style page sheet. Handle 36 × 4.5 at 5.3, close glyph 12 pt
+  at (351.3, 92.8).
+- **The status bar is the stock one.** The captures show a 17 pt semibold
+  "9:41" with its cap top at 22.8 pt and the icon group spanning
+  281.9–360.4, where the shared block sets a 16 px clock 12 pt lower. These
+  three boards place it by hand; 01 to 06 are left as they were.
+- **The Dynamic Island is kept.** The captures have none, which the skill
+  treats as a capture artefact, and 01 to 06 all show one, so the three
+  boards keep it. It is the one deliberate deviation, and it is all of the
+  diff above 54 pt.
+- **Three blues, none of them `--n-blue`.** Check marks and "Notion AI" are
+  `#4E7AB0`; the selected price card is a 2 pt `#487ED0` border on
+  `#E7F3FF` with its figures in `#467AB9` and `#4E7BB8`; the subscribe
+  button is `#4380D7`; the alert's OK is iOS system blue `#367CEF`.
+- **The segmented control has no pill shadow.** 353 × 31.7 at 122.1 with a
+  1.8 pt inset on `#EBEBEB`, and the grey runs unchanged right up to the
+  white pill's edge on every side. The labels sit 0.85 pt off their cells'
+  centres, away from the divide.
+- **The feature card is taller than its window.** A 249.8 × 300 white card
+  at (71.8, 285.5) with 22 pt corners and a three-layer shadow (`#ECECEC`
+  at the edge, `#F6F6F6` 10 pt out, `#FAFAFA` at 40), inside a window from
+  250.3 to 540 whose last 40 pt fade linearly to white. A black stroke of
+  the cat ramps from 0 to 253 between y 500 and 538 in the capture, and the
+  replica's does the same.
+- **The cat and the sparkles are generated, not drawn.** Both are crops of
+  the capture in `assets/art/` (198 × 250 and 77 × 88 px), redrawn by
+  `gpt-image-2` through `artgen` in one two-cell, white-ground,
+  geometry-anchored grid at high quality, keyed, and shipped at 3× the
+  measured box as `assets/cat.png` and `assets/spark.png`. `art-gen.json`
+  has the scores: cat 13.97 and sparkles 10.9 against the crop's 0, both
+  over artgen's 8.0 default, and a second independent return did no better
+  (14.56, 11.12). Thin black line art on white scores worse than the filled
+  characters that default was set on. The head, the whiskers and the
+  overlap with the card's edge land on the capture's boxes; the hind leg
+  ends 4 pt higher than the capture's. The two returns cost about US$0.50.
+- **Price cards** 178 × 75 at 567.5 with a 1 pt `#E4E4E4` border, figures
+  21.5 px bold, sub-labels 13 px. **Subscribe** 361.5 × 50.4 at 665.5,
+  8 pt corners, 15 px semibold. **Links** 13 px `#9A9A98`, underlined, on a
+  23.7 pt pitch from 754.3.
+- **The success state** is the monthly board under a 20 % black scrim. The
+  button grows to 54.4 pt while it spins and the links move 4 pt down with
+  it; a 24 pt ring spinner replaces the label; the alert is 318.7 × 152.2
+  at (37.3, 362.3) with 30 pt corners, 70 % white over a 30 px blur and a
+  `0 10 30` shadow at 12 %, its title 17 px semibold and its OK pill
+  286.9 × 48.5.
+
+Mean absolute delta against the captures, whole phone crop, in levels of
+255, and the same below the 54 pt status bar:
+
+| board | whole | below 54 pt |
+| --- | --- | --- |
+| 07 monthly | 5.08 | 2.63 |
+| 08 yearly | 5.29 | 2.86 |
+| 09 success | 4.31 | 2.25 |
 
 ## The reference row is not checked in
 
