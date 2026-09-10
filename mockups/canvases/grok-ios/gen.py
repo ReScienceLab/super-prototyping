@@ -31,12 +31,16 @@ the line-box model below is the platform face's own.
 TWO SCREENS ARE MOSTLY PHOTOGRAPH. 04 is a voice-settings sheet over a 3D
 companion scene, and the sheet is a dark blur of that scene rather than a
 fill; 05's paywall sits on a smoke-and-particles hero that reaches faintly
-down the whole screen and shows through its translucent feature card. Both
-grounds are cut from the captures (crops.json) after every piece of chrome
-and type on them is patched out (INPAINT below, a Coons fill from each box's
-own four edges), so the pixels are the capture's and the chrome on top is CSS.
-05's card is not patched: its 6.7% white material is un-applied inside the
+down the whole screen and shows through its translucent feature card. 05's
+ground is cut from the capture (crops.json) after every piece of chrome and
+type on it is patched out (INPAINT below, a Coons fill from each box's own
+four edges), so the pixels are the capture's and the chrome on top is CSS;
+its card is not patched: its 6.7% white material is un-applied inside the
 card box and re-applied by the CSS card, which is exact by construction.
+04's scene is the one asset the capture does not hold: above the sheet's
+edge it is the patched capture (i4), below it a gpt-image-2 edit of that
+frame (assets/art/04-scene.png, composed by scratch/scene4.py), and the
+sheet itself is drawn, with its blur and tint fitted (see s04).
 
 EVERY ICON IS A CROP, NOT A DRAWING. Thirty-four glyphs on these screens are SF
 Symbols, the Grok mark or its app icon, and a hand-drawn approximation of an SF Symbol is
@@ -143,6 +147,13 @@ TOKENS = [
  ("Surface", "grabber",  "rgba(255,255,255,.35)",
   "04 grabber #8B7467 over the patched sheet #412A1C at y 410-412: white at "
   ".39/.35/.33 per channel"),
+ ("Surface", "sheet-v",  "rgba(0,0,0,.40)",
+  "04 fitted through the drawn sheet at the 4px blur: at .40 the band under "
+  "the sheet's edge (y 406-428) reads -0.2 signed and the body band (y "
+  "606-740) +0.6; .35 leaves both +4, .45 both -5 (README)"),
+ ("Surface", "voice-pill", "#767676",
+  "04 the voice pill reads #474747 flat through the sheet (x 300-370, y "
+  "772-797, std 3.6): 71/.60 = 118 under the .40 tint"),
  ("Surface", "rec",      "#F09540",
   "04 the recording dot inside the island, x 215.0-220.8 y 26.8-32.6: "
   "#F09540 #F29442 #F09444"),
@@ -187,6 +198,11 @@ TOKENS = [
   "22-29 levels at the edge. One box-shadow swept dy 0-8 / blur 14-44 / "
   "alpha .12-.30 over the 25pt above the card: minimum .85 at 4px 28px "
   ".24, 0 28px .18 costs .1, 4px 20px .18 costs 2.6"),
+ ("Line", "row-line", "rgba(255,255,255,.10)",
+  "04 the row cards are a 1pt line and no fill: coverage solve over x 230-300 "
+  "of both rows' top and bottom edges (486.8, 537.7, 549.3, 600.3), white at "
+  ".087-.114, and .06-.14 on their sides, mean .10; inside a row reads "
+  "#42401C against #423F19 outside"),
  ("Line", "illo-sheet-shadow", "rgba(0,0,0,.12)",
   "02 above the drawn sheet's top edge 299.1, col x200: #DDDDDD to 274.6, "
   "#DADADA to 285.3, #D7D7D7 to 292.4, #D4D4D4 to 298.7, nine levels over "
@@ -259,6 +275,10 @@ TOKENS = [
  ("Radius", "r-sheet-v", "35px",
   "04 sheet corner insets 20.9/15.1/10.2/6.2/2.7 at 3.4/6.4/10.4/15.4/21.4 "
   "down from 403.6, left edge 8.5: r 35"),
+ ("Radius", "r-row",    "13px",
+  "04 row card corner: the top edge's 1pt line reaches full coverage 8.1pt "
+  "in from the left edge (x 28.5 against 20.4), and r - sqrt(2r - 1) = 8.1 "
+  "at r 13 (12 gives 7.2, 14 gives 8.8)"),
  ("Radius", "r-feat",   "32px",
   "05 feature card insets 14.9/10.5/6.9/3.8/1.7 at 5/8/12/17/23 down: r 32"),
  ("Radius", "r-price",  "18px",
@@ -401,6 +421,8 @@ TOKENS = [
  ("Metrics", "w-max",     "430px",
   "iPhone Pro Max logical width: cp6-cp9 are 1290 x 2796 at 3 px/pt"),
  ("Metrics", "h-max",     "932px",  "iPhone Pro Max logical height"),
+ ("Metrics", "sheet-v-blur", "4px",
+  "04 sigma of the blur read off the voice pill's edge, the one sharp edge the capture holds under the sheet: across x 270-300 at y 776/784/792 the ramp from the ground (40) to the pill (74) is 10pt for 10-90%, down x 310/334/358 over y 755-775 it is 8pt, 3.1-3.9 sigma; blur(4px). A sweep cannot read it: it walks to 44px+ because blurring the generated scene away hides the scene's own error (sheet band 13.3 at 44px against 16.3 at 4px)"),
  ("Metrics", "illo-stroke", "10px",
   "03 the drawn frame's stroke: 10.0pt at the sides (x 45.8-55.8), 9.6 at "
   "the top (y 205.9-215.5); one border"),
@@ -716,14 +738,14 @@ COMPOSER_SH = "0 8px 36px var(--x-composer-shadow)"
 def screen(title, inner, sb="var(--x-ink)", hm="var(--x-ink)", bg=None, rec=False, big=False):
     """One phone artboard. No board background: the phone floats on the canvas.
     big: the 430 x 932 device, template status bar over the content, no home
-    indicator (the captures show none)."""
+    indicator (the captures show none); hm None hides it on a 393pt screen."""
     style = ("width:var(--x-w-max);height:var(--x-h-max);" if big else "") + \
             ("background:%s" % bg if bg else "")
     return page(NAME + " - " + title,
                 '<div class="phone"%s>%s%s%s</div>'
                 % (' style="%s"' % style if style else "",
                    statusbar(sb, rec=rec, dx=37 if big else 0), inner,
-                   "" if big else home(hm)),
+                   "" if big or hm is None else home(hm)),
                 SCREEN_CSS)
 
 
@@ -845,27 +867,37 @@ def s03():
 
 
 # -------------------------------------------------------------------- 04 ----
-# Voice settings over the companion scene. The photo and the sheet's blurred
-# material are the capture's own pixels (04-bg, 04-sheet); the two row cards
-# stay in the crop, being a few levels of material over a photo that has no
-# flat ground to read them against. Everything with an edge is drawn.
+# Voice settings over the companion scene. The scene (04-scene) is the one
+# picture here the capture does not contain: under the sheet it is blurred
+# and dimmed, so the asset is the capture above the sheet's edge (the patched
+# frame i4) and, below it, a gpt-image-2 edit of that frame with the sheet's
+# box masked out and the body's measured proportions in the prompt
+# (scratch/scene4.py composes it; README.md has the candidates and scores).
+# The sheet is drawn over it: a 4px backdrop blur read off the voice pill's
+# edge, a .40 black tint fitted through it, two row cards that are a 1pt line
+# and no fill, and under the blur the voice pill where the capture shows it.
+# The capture shows no home indicator on this screen (x 196, y 842 is grass).
 def s04():
     inv = "var(--x-ink-inv)"
     side = ""
     for cy, name in ((139.9, "focus"), (192.9, "hanger"), (245.9, "trash")):
         side += circle(340.0, cy - 16, 32, "background:var(--x-glass)") + art("04-ic-" + name)
+    row = "border-radius:var(--x-r-row);border:1px solid var(--x-row-line)"
     return screen("Voice settings",
-        art("04-bg")
+        art("04-scene")
+        + box(288.5, 767.4, 91.1, 33.9, "border-radius:var(--x-r-pill);background:var(--x-voice-pill)")
         + circle(16.3, 63.4, 44, "background:var(--x-scrim-btn)") + art("04-ic-x")
         + circle(333.2, 63.4, 44, "background:var(--x-scrim-btn)") + art("04-ic-grid")
         + side + art("04-ic-chevron")
-        + art("04-sheet", "border-radius:var(--x-r-sheet-v) var(--x-r-sheet-v) 0 0")
+        + box(8.5, 403.6, 384.5, 448.4, "border-radius:var(--x-r-sheet-v) var(--x-r-sheet-v) 0 0;"
+              "backdrop-filter:blur(var(--x-sheet-v-blur));background:var(--x-sheet-v)")
+        + box(20.4, 486.8, 352.8, 50.9, row) + box(20.4, 549.3, 352.8, 51.0, row)
         + box(179.3, 408.6, 34.3, 4.9, "border-radius:var(--x-r-pill);background:var(--x-grabber)")
         + txc(434.9, "Voice Settings", "t-sheet", inv)
         + circle(327.5, 419.4, 42, "background:var(--x-scrim-btn)") + art("04-ic-close")
         + tx(34.8, 506.2, "Select Audio Device", "t-row", inv) + art("04-ic-airplay")
         + tx(34.7, 568.3, "Microphone Selection", "t-row", inv) + art("04-ic-person"),
-        sb=inv, hm=inv, bg="#000", rec=True)
+        sb=inv, hm=None, bg="#000", rec=True)
 
 
 # -------------------------------------------------------------------- 05 ----

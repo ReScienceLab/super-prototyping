@@ -452,6 +452,73 @@
   "_": "04 down x 100 across the voice sheet's top edge (403.6), left of the grabber (176.7-217): the scene, then the blurred sheet"
  },
  {
+  "id": "voice-pill",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   772,
+   370,
+   797
+  ],
+  "only": "flat",
+  "mine": "04-voice-settings.png",
+  "_": "04 the voice pill under the sheet, its core only (x 300-370 y 772-797 inside the blurred 288.5-379.6 x 767.4-801.3): #474747 through the tint; the render's #767676 pill under the .40 tint should read the same"
+ },
+ {
+  "id": "sheet-v-blur",
+  "img": "assets/refs/cp4.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 784,
+  "range": [
+   270,
+   300
+  ],
+  "mine": "04-voice-settings.png",
+  "_": "04 across the voice pill's left edge at y 784, ground (x 270) to pill core (x 300): the ramp's width is the sheet's blur, 10pt for 10-90%"
+ },
+ {
+  "id": "row-line",
+  "img": "assets/refs/cp4.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 265,
+  "range": [
+   483,
+   491
+  ],
+  "mine": "04-voice-settings.png",
+  "_": "04 down x 265 across the first row card's top edge (486.8), between the label and the airplay glyph: the 1pt line is the single lighter run, no fill on either side"
+ },
+ {
+  "id": "sheet-v",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   120,
+   495,
+   160,
+   505
+  ],
+  "only": "flat",
+  "mine": "04-voice-settings.png",
+  "_": "04 the hoodie through the sheet (x 120-160 y 495-505, between the row labels): #682525 in the capture; the render's is the generated hoodie under the same tint, so this probe scores the scene and the tint together"
+ },
+ {
+  "id": "home-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 196,
+  "range": [
+   836,
+   848
+  ],
+  "mine": "04-voice-settings.png",
+  "_": "04 down x 196 where a home indicator would be (y 838-843): grass all the way in the capture, so the render draws none"
+ },
+ {
   "id": "illo-scrim-02",
   "img": "assets/refs/cp2.png",
   "cmd": "sample",

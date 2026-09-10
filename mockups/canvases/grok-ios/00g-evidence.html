@@ -30,6 +30,8 @@
   --k-scrim-btn:rgba(0,0,0,.32);
   --k-glass:rgba(255,255,255,.09);
   --k-grabber:rgba(255,255,255,.35);
+  --k-sheet-v:rgba(0,0,0,.40);
+  --k-voice-pill:#767676;
   --k-rec:#F09540;
   --k-page:#FFFFFF;
   --k-chip:#F5F5F5;
@@ -44,6 +46,7 @@
   --k-composer-shadow:rgba(0,0,0,.12);
   --k-composer-line:#FFFFFF;
   --k-illo-card-shadow:rgba(0,0,0,.24);
+  --k-row-line:rgba(255,255,255,.10);
   --k-illo-sheet-shadow:rgba(0,0,0,.12);
 
   /* Ink */
@@ -74,6 +77,7 @@
   --k-r-illo-sheet:26.8px;
   --k-r-illo-card:22px;
   --k-r-sheet-v:35px;
+  --k-r-row:13px;
   --k-r-feat:32px;
   --k-r-price:18px;
   --k-r-plan:15px;
@@ -131,6 +135,7 @@
   --k-disc:40px;
   --k-w-max:430px;
   --k-h-max:932px;
+  --k-sheet-v-blur:4px;
   --k-illo-stroke:10px;
   --k-status-max:59px;
 }
@@ -182,6 +187,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 6/6</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-disc</td><td class="v">40px</td><td class="e">05 icon discs 40 x 39.8, left edge 40.3</td></tr><tr><td class="t">--k-w-max</td><td class="v">430px</td><td class="e">iPhone Pro Max logical width: cp6-cp9 are 1290 x 2796 at 3 px/pt</td></tr><tr><td class="t">--k-h-max</td><td class="v">932px</td><td class="e">iPhone Pro Max logical height</td></tr><tr><td class="t">--k-illo-stroke</td><td class="v">10px</td><td class="e">03 the drawn frame's stroke: 10.0pt at the sides (x 45.8-55.8), 9.6 at the top (y 205.9-215.5); one border</td></tr><tr><td class="t">--k-status-max</td><td class="v">59px</td><td class="e">iOS status bar on the 430pt devices: clock ink 22.7-36, island 11.3-48; the height the template bar covers on 06-09</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 6/6</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-tap</td><td class="v">44px</td><td class="e">02 back disc 44.1 x 43.7; 04 X and grid buttons 43-43.7</td></tr><tr><td class="t">--k-sheet-top</td><td class="v">59px</td><td class="e">02/03 sheet ground starts at 58.9</td></tr><tr><td class="t">--k-sheet-top-v</td><td class="v">403.6px</td><td class="e">04 sheet edge, col x100</td></tr><tr><td class="t">--k-widget</td><td class="v">162.4px</td><td class="e">01 widget 24.1-186.5 both axes</td></tr><tr><td class="t">--k-disc</td><td class="v">40px</td><td class="e">05 icon discs 40 x 39.8, left edge 40.3</td></tr><tr><td class="t">--k-w-max</td><td class="v">430px</td><td class="e">iPhone Pro Max logical width: cp6-cp9 are 1290 x 2796 at 3 px/pt</td></tr><tr><td class="t">--k-h-max</td><td class="v">932px</td><td class="e">iPhone Pro Max logical height</td></tr><tr><td class="t">--k-sheet-v-blur</td><td class="v">4px</td><td class="e">04 sigma of the blur read off the voice pill's edge, the one sharp edge the capture holds under the sheet: across x 270-300 at y 776/784/792 the ramp from the ground (40) to the pill (74) is 10pt for 10-90%, down x 310/334/358 over y 755-775 it is 8pt, 3.1-3.9 sigma; blur(4px). A sweep cannot read it: it walks to 44px+ because blurring the generated scene away hides the scene's own error (sheet band 13.3 at 44px against 16.3 at 4px)</td></tr><tr><td class="t">--k-illo-stroke</td><td class="v">10px</td><td class="e">03 the drawn frame's stroke: 10.0pt at the sides (x 45.8-55.8), 9.6 at the top (y 205.9-215.5); one border</td></tr><tr><td class="t">--k-status-max</td><td class="v">59px</td><td class="e">iOS status bar on the 430pt devices: clock ink 22.7-36, island 11.3-48; the height the template bar covers on 06-09</td></tr></table></div>
 </body>
 </html>

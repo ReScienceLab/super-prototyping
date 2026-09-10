@@ -1,18 +1,11 @@
 {
-  "_": "Art cut from assets/refs/<ref>.png at measured pt boxes (2.2417 px/pt for cp1-cp5, 3.0 for the 430 x 932 captures cp6-cp9), and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i4/i5/i8/i9 are cp4/cp5/cp8/cp9 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS.",
+  "_": "Art cut from assets/refs/<ref>.png at measured pt boxes (2.2417 px/pt for cp1-cp5, 3.0 for the 430 x 932 captures cp6-cp9), and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i5/i8/i9 are cp5/cp8/cp9 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS. g4 is not a capture: 04-scene is the companion scene with the voice sheet removed, the patched cp4 (i4) above the sheet's edge and a gpt-image-2 edit of it below, composed by scratch/scene4.py and committed as assets/art/04-scene.png; cut() leaves it alone.",
   "_rule": "Crop what the capture already contains; draw only what it does not.",
-  "04-bg": [
-    "i4",
+  "04-scene": [
+    "g4",
     0.0,
     0.0,
     393.0,
-    852.0
-  ],
-  "04-sheet": [
-    "i4",
-    8.5,
-    403.6,
-    384.5,
     852.0
   ],
   "05-bg": [

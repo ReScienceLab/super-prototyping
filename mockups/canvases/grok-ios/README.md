@@ -34,17 +34,22 @@ described below:
 | 01 Widget | 0.26 |
 | 02 Widget guide, step 4 | 1.42 |
 | 03 Widget guide, step 1 | 1.04 |
-| 04 Voice settings | 1.00 |
+| 04 Voice settings | 9.46 |
 | 05 SuperGrok | 5.75 |
 | 06 Terms update | 0.84 |
 | 07 Home | 0.75 |
 | 08 Video sheet | 1.97 |
 | 09 Video keyboard | 1.84 |
 
-The spread is what the pixels are. On 01 and 04 most of the frame is a crop
-of the capture (the whole companion scene, the sheet's blurred material) or
-a flat ground the census read to the level, and the type on them is one nav
-title and two lines of body. 02 and 03 carry the guide illustration, and it
+The spread is what the pixels are. On 01 most of the frame is a crop of the
+capture or a flat ground the census read to the level, and the type on it is
+one nav title and two lines of body. 04 is the one screen whose ground is
+generated (the section below): its 9.46 is nearly all the companion's body
+under the sheet, where the gpt-image-2 body is narrower than the blurred one
+the capture shows (the worst 40pt blocks, 38 at x 140–160 y 559, are the
+hoodie's edges), while the sheet's type, rows and discs on top of it sit at
+the same numbers as before; as a crop of the capture the screen read 1.00.
+02 and 03 carry the guide illustration, and it
 is drawn, not cropped (the section below): as crops the two read 0.90 and
 0.89, drawn they read 1.42 and 1.04, and on 02 the illustration's own box
 reads 2.28, nearly all of it inside the perspective card, whose pill label
@@ -62,10 +67,12 @@ it. The worst 40pt block on each is a line of type (07's header, 08's card
 title, 09's 480p chip), every one of them within 0.7pt of its measured box
 in both axes and none of them a placement error a blend can see.
 
-`refkit batch probes.json --against scratch/cap --pt 2.2417` replays the 81
+`refkit batch probes.json --against scratch/cap --pt 2.2417` replays the 86
 Phase-1 probes against the renders (the 06–09 probes carry their own
-`"pt": 3`): 41 colour probes at a mean Δ of 2.5, 31 box probes at a mean
-|dw| of 0.34pt and |dh| of 0.24pt, and 9 edge scans. The five scans through
+`"pt": 3`): 43 colour probes at a mean Δ of 2.7, 31 box probes at a mean
+|dw| of 0.33pt and |dh| of 0.24pt, and 12 edge scans. The worst colour probe
+is 04's hoodie through the sheet at 11, the generated body against the
+capture's; the pill under the same sheet lands within 2. The five scans through
 real edges land on the capture's own edge to the pixel, and so do the two
 through 02's drawn card edge and pill cap; the two through 02's fitted
 shadows land 3 and 9pt off, because a scan reports the largest step and
@@ -126,15 +133,15 @@ still measurably wrong. The cost is that the canvas's inspector names them by
 image content from `assets/art/`, not as vector assets, and `assets/icons/`
 does not exist in this folder.
 
-The pictures under the type are crops too: the companion scene under 04,
-the voice sheet's material, the smoke hero of 05, and the whole frame of 08
-and of 09 (`04-bg`, `04-sheet`, `05-bg`, `08-bg`, `09-bg`). All five are
-**inpainted crops**, and a reader
+The pictures under the type are crops too, on three of the screens: the
+smoke hero of 05 and the whole frame of 08 and of 09 (`05-bg`, `08-bg`,
+`09-bg`). All three are **inpainted crops**, and a reader
 should not take their pixels as the capture's where the type was: the
 generator patches every box of type and chrome out of the frame before
 cutting it (a Coons fill from each box's own four edges, edge profiles
 smoothed over 9px) so that the CSS type lands on clean ground. `INPAINT` in
-`gen.py` lists the boxes; on 04 that is the nav, the four side buttons, the
+`gen.py` lists the boxes; on 04 (whose patched frame is the top of the
+generated scene below) that is the nav, the four side buttons, the
 grabber, the title, the close disc and both row labels with their glyphs; on
 05 the title, the subtitle, the plan group, the CTA and the footer. 05's
 feature card is handled differently: its 6.7% white material is un-applied
@@ -150,8 +157,51 @@ not patched stays as pixels: 08's sheet card and its badge, 09's keyboard
 with its emoji, globe and mic glyphs and the faint 'A' predictive hint on
 the space bar, and the blurred video thumbnails on both.
 
+**The companion scene on 04 is generated, and the sheet over it is drawn.**
+The capture holds the scene only above the sheet's edge at 403.6; below it
+every pixel is the scene blurred and dimmed under the Voice Settings sheet,
+and a crop of that (`04-bg` and `04-sheet`, the first version, 1.00) is a
+screenshot of the sheet rather than a replica of it. On request the ground
+was regenerated and the sheet rebuilt in code. `assets/art/04-scene.png` is
+the patched capture above the sheet's edge (i4, so the head, the sky and
+the buttons' ground are the capture's pixels) and a gpt-image-2 edit below
+it, composed by `scratch/scene4.py` with a 6px blend at the seam. The edit
+was made with `POST /v1/images/edits`, the frame as the image and its
+sheet box as the mask, the prompt carrying the body's proportions read off
+the capture through the blur (down x 130–210: red hoodie y 450–615, dark
+shorts 630–670, orange legs 690–730, ground from 750). Nine candidates were
+scored through the drawn sheet at the fitted material (mean |Δ| over the
+sheet's box, x 8.5–393 y 404–838): three unmasked edits recomposed the
+shot and moved the head (13.3–19.6, a seam step of 26 levels), two masked
+edits without the proportions kept the head but ended the body at 635
+(15.6 and 14.7, seam steps of 16 and 20), the two with the proportions
+scored 16.3 and 14.7 with seam steps of 6 and 20, and two more asking for a
+wider hoodie recomposed the body (19.7 and 21.0). The 16.3 with the 6-level
+seam is the one shipped; the sub-bands are the band under the sheet's edge
+at 8.8, the rows at 19.3, the body at 12.5 and the ground at 12.4 (+11.5
+signed: the generated grass is lighter than the real one). Quality is
+`medium`: every `high` request was cut at 60 s by the connection, four
+times, sandboxed and not. The three faint voice-mode controls the capture
+shows at the bottom left under the sheet (x 33, 89, 145, y 786, 3.6 levels
+above the ground) are not drawn; the voice pill at the right is, a
+`#767676` pill under the blur at its measured box (288.5–379.6 ×
+767.4–801.3), so that it reads the capture's `#474747` through the tint.
+
+The sheet is a `backdrop-filter: blur(4px)` over a `.40` black tint, a
+grabber, a title, a close disc and two row cards that are a 1pt white line
+at `.10` and no fill (radius 13, solved from where the line reaches full
+coverage). Neither the blur nor the tint has a pixel to sample, and the
+usual sweep cannot find them here either: with the scene generated, a sweep
+walks to 44px and beyond because blurring the scene away hides the scene's
+own error (13.3 over the sheet at 44px against 16.3 at 4px), and the pill
+edge in the render, the one sharp edge the capture holds under the sheet,
+says the blur is 3–4pt of sigma. So the blur is read off that edge, the
+tint is the alpha at which the two bands the scene fits best (under the
+sheet's edge and over the body) balance in sign at that blur, .40, and the
+evidence rows carry both.
+
 **The guide illustration on 02 and 03 is drawn**, the one picture that is
-not a crop. It was cut from the capture at first (0.90 and 0.89), and it
+not a crop or a generation. It was cut from the capture at first (0.90 and 0.89), and it
 was redrawn on request so that the boards hold it as code rather than as a
 screenshot. 03's is a phone: a 301.6 × 330 frame with a 10pt stroke and a
 53.5 corner, a 87 × 25 island, ten 52.2pt tiles on a 65 pitch at a 14.3
@@ -251,6 +301,7 @@ the iOS ladder, and several are not on it:
   Those are the app's line breaks, transcribed.
 - 04's island carries the recording indicator because the capture was taken
   mid-session; the widget and guide captures have theirs composited out.
+  04 draws no home indicator: down x 196 the capture is grass at y 838–843.
 - The '$' on 05's prices is shorter than SF Pro's at any size that matches
   the digits: the price probe lands the width to 0.0 and the height 1.3 tall.
 - 06–09 are captures of a 430pt phone, not Mobbin exports, so they have
