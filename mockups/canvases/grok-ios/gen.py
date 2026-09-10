@@ -561,6 +561,11 @@ def _source(ref, cache):
     return cache[ref]
 
 
+# The three glyphs on 04's voice sheet: white ink the capture shows over the
+# sheet's own blurred ground, which is not on the board any more (see s04).
+KEYED = {"04-ic-close", "04-ic-airplay", "04-ic-person"}
+
+
 def cut():
     """Refresh assets/art/ from assets/refs/ at the boxes in crops.json."""
     if not REFS_DIR.exists():
@@ -571,7 +576,25 @@ def cut():
         if not (REFS_DIR / (INPAINT.get(ref, (ref,))[0] + ".png")).exists():
             continue
         box = tuple(round(v * scale_of(ref)) for v in (x0, y0, x1, y1))
-        _source(ref, cache).crop(box).save(ART_DIR / (cid + ".png"), optimize=True)
+        im = _source(ref, cache).crop(box)
+        if cid in KEYED:
+            # A white glyph the capture shows through the voice sheet: its
+            # ground is the sheet, which the board now draws, so the crop
+            # keeps the glyph's coverage and drops the ground. Ground is the
+            # median of the 1pt margin the box carries; coverage per pixel is
+            # the largest channel's (p - g) / (255 - g), the ink white.
+            import numpy as np
+            from PIL import Image
+            a = np.asarray(im.convert("RGB")).astype(float)
+            m = np.concatenate([a[:2].reshape(-1, 3), a[-2:].reshape(-1, 3),
+                                a[:, :2].reshape(-1, 3), a[:, -2:].reshape(-1, 3)])
+            g = np.median(m, axis=0)
+            cov = np.clip(((a - g) / (255 - g)).max(axis=2), 0, 1)
+            out = np.empty(a.shape[:2] + (4,), dtype="uint8")
+            out[..., :3] = 255
+            out[..., 3] = np.round(cov * 255)
+            im = Image.fromarray(out, "RGBA")
+        im.save(ART_DIR / (cid + ".png"), optimize=True)
         n += 1
     print("%-24s %6d crops" % ("assets/art/", n))
 

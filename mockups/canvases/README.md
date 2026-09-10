@@ -236,7 +236,7 @@ declares a box other than the default 478 x 980.
   1290 x 2796 captures of a 430pt phone at exactly 3 px/pt, rendered and
   scored on their own grid with the template's status bar in place of the
   capture's. Mean absolute delta is 0.26-1.42 on the three Mobbin screens
-  that are mostly crops or a drawn illustration, 9.46 on the Voice Settings
+  that are mostly crops or a drawn illustration, 9.51 on the Voice Settings
   sheet, whose companion scene under the sheet is the one ground the capture
   does not hold and is a gpt-image-2 edit with the sheet drawn over it, 5.75
   on the paywall (eighteen lines of white type over an inpainted hero), and

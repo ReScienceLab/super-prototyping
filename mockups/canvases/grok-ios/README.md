@@ -34,7 +34,7 @@ described below:
 | 01 Widget | 0.26 |
 | 02 Widget guide, step 4 | 1.42 |
 | 03 Widget guide, step 1 | 1.04 |
-| 04 Voice settings | 9.46 |
+| 04 Voice settings | 9.51 |
 | 05 SuperGrok | 5.75 |
 | 06 Terms update | 0.84 |
 | 07 Home | 0.75 |
@@ -44,7 +44,7 @@ described below:
 The spread is what the pixels are. On 01 most of the frame is a crop of the
 capture or a flat ground the census read to the level, and the type on it is
 one nav title and two lines of body. 04 is the one screen whose ground is
-generated (the section below): its 9.46 is nearly all the companion's body
+generated (the section below): its 9.51 is nearly all the companion's body
 under the sheet, where the gpt-image-2 body is narrower than the blurred one
 the capture shows (the worst 40pt blocks, 38 at x 140–160 y 559, are the
 hoodie's edges), while the sheet's type, rows and discs on top of it sit at
@@ -131,7 +131,12 @@ most of these glyphs are SF Symbols, whose outlines may not be redistributed,
 so a hand-drawn SVG would have been a near-copy of a licensed shape that was
 still measurably wrong. The cost is that the canvas's inspector names them by
 image content from `assets/art/`, not as vector assets, and `assets/icons/`
-does not exist in this folder.
+does not exist in this folder. Three of the crops are keyed: the close,
+AirPlay and microphone glyphs on 04's voice sheet were cut with the sheet's
+blurred ground in their 1pt margin, and now that the sheet is drawn rather
+than cropped, `cut()` keeps each one's coverage (the largest channel's
+(p − g) / (255 − g) against the median of its margin) as white on alpha, so
+the glyph is still the capture's and the ground under it is the board's.
 
 The pictures under the type are crops too, on three of the screens: the
 smoke hero of 05 and the whole frame of 08 and of 09 (`05-bg`, `08-bg`,
