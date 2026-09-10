@@ -26,11 +26,18 @@
   --k-glass:rgba(255,255,255,.09);
   --k-grabber:rgba(255,255,255,.35);
   --k-rec:#F09540;
+  --k-page:#FFFFFF;
+  --k-chip:#F5F5F5;
+  --k-composer:#FBFBFB;
+  --k-ctl:#F1F1F1;
+  --k-btn:#000000;
 
   /* Line */
   --k-material-line:rgba(255,255,255,.16);
   --k-price-line:#252525;
   --k-plan-line:rgba(255,255,255,.17);
+  --k-composer-shadow:rgba(0,0,0,.12);
+  --k-composer-line:#FFFFFF;
 
   /* Ink */
   --k-ink:#000000;
@@ -40,6 +47,13 @@
   --k-foot:#838383;
   --k-free-ink:#E07D54;
   --k-dots:#C5C5C5;
+  --k-copy-mute:#7F7F7F;
+  --k-placeholder:#7D7D7D;
+  --k-field-ink:#6A6A6B;
+  --k-card-ink:#262627;
+  --k-para-ink:#53584E;
+  --k-dim-inv:#CCCCCC;
+  --k-new-ink:#FB630A;
 
   /* Radius */
   --k-r-phone:52px;
@@ -50,6 +64,9 @@
   --k-r-feat:32px;
   --k-r-price:18px;
   --k-r-plan:15px;
+  --k-r-chip:24px;
+  --k-r-composer:20px;
+  --k-r-tip:14px;
   --k-r-pill:999px;
 
   /* Type */
@@ -67,6 +84,22 @@
   --k-t-unit:400 15.4px/20px var(--k-font);
   --k-t-price:700 20px/26px var(--k-font);
   --k-t-free:700 12.5px/14px var(--k-font);
+  --k-t-title:600 22px/28px var(--k-font);
+  --k-t-copy:400 15px/20px var(--k-font);
+  --k-t-link:400 17.5px/22px var(--k-font);
+  --k-t-hdr:500 22px/28px var(--k-font);
+  --k-t-chip:500 15px/20px var(--k-font);
+  --k-t-ctl:400 14px/18px var(--k-font);
+  --k-t-speak:600 14.5px/18px var(--k-font);
+  --k-t-btn:600 16.5px/22px var(--k-font);
+  --k-t-card:400 22px/25px var(--k-font);
+  --k-t-h3:600 18.9px/24px var(--k-font);
+  --k-t-para:400 16.15px/21px var(--k-font);
+  --k-t-field:400 16.3px/22px var(--k-font);
+  --k-t-opt:400 16px/20px var(--k-font);
+  --k-t-key:400 22px/28px var(--k-font);
+  --k-t-key-sm:400 18px/22px var(--k-font);
+  --k-t-new:500 13px/16px var(--k-font);
 
   /* Metrics */
   --k-w:393px;
@@ -79,6 +112,9 @@
   --k-sheet-top-v:403.6px;
   --k-widget:162.4px;
   --k-disc:40px;
+  --k-w-max:430px;
+  --k-h-max:932px;
+  --k-status-max:59px;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -87,7 +123,7 @@ body{font-family:var(--k-font);-webkit-font-smoothing:antialiased;
 .phone{position:relative;flex:none;width:var(--k-w);height:var(--k-h);
   border-radius:var(--k-r-phone);overflow:hidden;background:var(--k-card);color:var(--k-ink);transform:translateZ(0);
   box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
-.sb{position:absolute;left:0;top:0;width:var(--k-w);height:var(--k-status);z-index:6}
+.sb{position:absolute;left:0;top:0;width:100%;height:var(--k-status);z-index:6}
 .sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--k-t-time)}
 .sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
   width:125px;height:36px;border-radius:20px;background:#000}
@@ -99,27 +135,26 @@ body{font-family:var(--k-font);-webkit-font-smoothing:antialiased;
 body{padding:0;background:#FFF;color:var(--k-ink)}
 .sheet{width:478px;height:980px;padding:20px 20px 12px;overflow:hidden}
 h1{font:600 17px/22px var(--k-font);margin-bottom:2px}
-header p{font:400 11px/15px var(--k-font);color:var(--k-foot);margin-bottom:10px}
+header p{font:400 11px/15px var(--k-font);color:var(--k-foot);margin-bottom:6px}
 h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
   color:var(--k-foot);margin:7px 0 4px}
-.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
-.sw .chip{height:22px;border-radius:5px;border:1px solid var(--k-well);background-color:#888}
-.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
-.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
-  color:var(--k-foot);font-style:normal;word-break:break-all}
+.grid{column-count:2;column-gap:12px}
+.sw{display:flex;align-items:center;gap:5px;height:12px;break-inside:avoid;white-space:nowrap}
+.sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--k-well);background-color:#888}
+.sw b{font:600 7.5px/12px ui-monospace,Menlo,monospace}
+.sw i{font:400 7.5px/12px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
 .foot{display:flex;gap:28px;align-items:flex-start;margin-top:6px}
 .foot h2{margin-top:0}
-.rad{display:flex;gap:9px;flex-wrap:wrap}
-.rb{width:44px;height:26px;background:var(--k-sheet);border:1px solid var(--k-well)}
+.rad{display:flex;gap:6px;flex-wrap:wrap;width:250px}
+.rb{width:36px;height:22px;background:var(--k-sheet);border:1px solid var(--k-well)}
 .rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--k-font);
   color:var(--k-foot);font-style:normal;text-align:center}
-.ty{column-count:2;column-gap:16px}
+.ty{column-count:3;column-gap:12px}
 .tr{break-inside:avoid;border-bottom:1px solid var(--k-well)}
 .tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1.05}
 .tr em{display:block;font:400 8px/10px ui-monospace,Menlo,monospace;
   color:var(--k-foot);font-style:normal;white-space:nowrap}
-.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--k-ink);
-  column-count:2;column-gap:18px}
+.met{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--k-ink);white-space:nowrap}
 table.ev{width:100%;border-collapse:collapse}
 table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
   border-bottom:1px solid var(--k-well);font:400 8.5px/11px var(--k-font)}
@@ -129,6 +164,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Grok iOS</h1><p>Five Mobbin captures, 881 &times; 1910 after the footer trim, 2.2417 px per pt. One face (SF Pro, the platform&rsquo;s), one type ladder on 12/13/15/16/17/20/21/39, two apps&rsquo; worth of surface: the widget gallery and guide on light greys, the voice sheet and paywall on black and blurred photograph. Translucent surfaces are materials, not fills, because the ground under them is not flat.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--k-ground)"></div><b>--k-ground</b><i>#D5D5D5</i></div><div class="sw"><div class="chip" style="background:var(--k-card)"></div><b>--k-card</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--k-well)"></div><b>--k-well</b><i>#E5E5E5</i></div><div class="sw"><div class="chip" style="background:var(--k-dim)"></div><b>--k-dim</b><i>#CBCBCB</i></div><div class="sw"><div class="chip" style="background:var(--k-sheet)"></div><b>--k-sheet</b><i>#F6F6F6</i></div><div class="sw"><div class="chip" style="background:var(--k-night)"></div><b>--k-night</b><i>#010101</i></div><div class="sw"><div class="chip" style="background:var(--k-skip)"></div><b>--k-skip</b><i>#121212</i></div><div class="sw"><div class="chip" style="background:var(--k-material)"></div><b>--k-material</b><i>rgba(255,255,255,.067)</i></div><div class="sw"><div class="chip" style="background:var(--k-disc)"></div><b>--k-disc</b><i>rgba(255,255,255,.17)</i></div><div class="sw"><div class="chip" style="background:var(--k-price)"></div><b>--k-price</b><i>#131313</i></div><div class="sw"><div class="chip" style="background:var(--k-plan-lo)"></div><b>--k-plan-lo</b><i>#282828</i></div><div class="sw"><div class="chip" style="background:var(--k-plan-hi)"></div><b>--k-plan-hi</b><i>#333536</i></div><div class="sw"><div class="chip" style="background:var(--k-free-bg)"></div><b>--k-free-bg</b><i>#341A0E</i></div><div class="sw"><div class="chip" style="background:var(--k-scrim-btn)"></div><b>--k-scrim-btn</b><i>rgba(0,0,0,.32)</i></div><div class="sw"><div class="chip" style="background:var(--k-glass)"></div><b>--k-glass</b><i>rgba(255,255,255,.09)</i></div><div class="sw"><div class="chip" style="background:var(--k-grabber)"></div><b>--k-grabber</b><i>rgba(255,255,255,.35)</i></div><div class="sw"><div class="chip" style="background:var(--k-rec)"></div><b>--k-rec</b><i>#F09540</i></div><div class="sw"><div class="chip" style="background:var(--k-material-line)"></div><b>--k-material-line</b><i>rgba(255,255,255,.16)</i></div><div class="sw"><div class="chip" style="background:var(--k-price-line)"></div><b>--k-price-line</b><i>#252525</i></div><div class="sw"><div class="chip" style="background:var(--k-plan-line)"></div><b>--k-plan-line</b><i>rgba(255,255,255,.17)</i></div><div class="sw"><div class="chip" style="background:var(--k-ink)"></div><b>--k-ink</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--k-ink-inv)"></div><b>--k-ink-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--k-mute)"></div><b>--k-mute</b><i>#A9A9A9</i></div><div class="sw"><div class="chip" style="background:var(--k-skip-ink)"></div><b>--k-skip-ink</b><i>#BBBBBB</i></div><div class="sw"><div class="chip" style="background:var(--k-foot)"></div><b>--k-foot</b><i>#838383</i></div><div class="sw"><div class="chip" style="background:var(--k-free-ink)"></div><b>--k-free-ink</b><i>#E07D54</i></div><div class="sw"><div class="chip" style="background:var(--k-dots)"></div><b>--k-dots</b><i>#C5C5C5</i></div></div><div class="foot"><div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:27px"></div><em>27px</em></div><div><div class="rb" style="border-radius:26px"></div><em>26px</em></div><div><div class="rb" style="border-radius:30px"></div><em>30px</em></div><div><div class="rb" style="border-radius:35px"></div><em>35px</em></div><div><div class="rb" style="border-radius:32px"></div><em>32px</em></div><div><div class="rb" style="border-radius:18px"></div><em>18px</em></div><div><div class="rb" style="border-radius:15px"></div><em>15px</em></div><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div></div></div><div><h2>Metrics</h2><div class="met">--k-w: 393px<br>--k-h: 852px<br>--k-status: 54px<br>--k-gutter: 16px<br>--k-gutter-w: 20px<br>--k-tap: 44px<br>--k-sheet-top: 59px<br>--k-sheet-top-v: 403.6px<br>--k-widget: 162.4px<br>--k-disc: 40px</div></div></div><h2>Type</h2><div class="ty"><div class="tr"><span style="font:var(--k-t-time)">Prototype</span><em>--k-t-time &middot; 600 15px/20px</em></div><div class="tr"><span style="font:var(--k-t-widget)">Prototype</span><em>--k-t-widget &middot; 600 19.5px/24px</em></div><div class="tr"><span style="font:var(--k-t-h)">Prototype</span><em>--k-t-h &middot; 600 17px/22px</em></div><div class="tr"><span style="font:var(--k-t-body)">Prototype</span><em>--k-t-body &middot; 400 17px/22px</em></div><div class="tr"><span style="font:var(--k-t-feat)">Prototype</span><em>--k-t-feat &middot; 400 17.5px/22px</em></div><div class="tr"><span style="font:var(--k-t-row)">Prototype</span><em>--k-t-row &middot; 400 16.5px/21px</em></div><div class="tr"><span style="font:var(--k-t-sheet)">Prototype</span><em>--k-t-sheet &middot; 600 16px/21px</em></div><div class="tr"><span style="font:var(--k-t-h1)">Prototype</span><em>--k-t-h1 &middot; 500 40.5px/50px</em></div><div class="tr"><span style="font:var(--k-t-h2)">Prototype</span><em>--k-t-h2 &middot; 600 20px/25px</em></div><div class="tr"><span style="font:var(--k-t-sub)">Prototype</span><em>--k-t-sub &middot; 400 13.25px/18px</em></div><div class="tr"><span style="font:var(--k-t-plan)">Prototype</span><em>--k-t-plan &middot; 600 15px/20px</em></div><div class="tr"><span style="font:var(--k-t-unit)">Prototype</span><em>--k-t-unit &middot; 400 15.4px/20px</em></div><div class="tr"><span style="font:var(--k-t-price)">Prototype</span><em>--k-t-price &middot; 700 20px/26px</em></div><div class="tr"><span style="font:var(--k-t-free)">Prototype</span><em>--k-t-free &middot; 700 12.5px/14px</em></div></div></div>
+<div class="sheet"><header><h1>Grok iOS</h1><p>Five Mobbin captures, 881 &times; 1910 after the footer trim, 2.2417 px per pt, and four native 1290 &times; 2796 captures of a 430 &times; 932 device at 3 px per pt. One face (SF Pro, the platform&rsquo;s), one type ladder on 12/13/15/16/17/20/21/39, three apps&rsquo; worth of surface: the widget gallery and guide on light greys, the voice sheet and paywall on black and blurred photograph, the home and video composer on white. Translucent surfaces are materials, not fills, because the ground under them is not flat.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--k-ground)"></div><b>--k-ground</b><i>#D5D5D5</i></div><div class="sw"><div class="chip" style="background:var(--k-card)"></div><b>--k-card</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--k-well)"></div><b>--k-well</b><i>#E5E5E5</i></div><div class="sw"><div class="chip" style="background:var(--k-dim)"></div><b>--k-dim</b><i>#CBCBCB</i></div><div class="sw"><div class="chip" style="background:var(--k-sheet)"></div><b>--k-sheet</b><i>#F6F6F6</i></div><div class="sw"><div class="chip" style="background:var(--k-night)"></div><b>--k-night</b><i>#010101</i></div><div class="sw"><div class="chip" style="background:var(--k-skip)"></div><b>--k-skip</b><i>#121212</i></div><div class="sw"><div class="chip" style="background:var(--k-material)"></div><b>--k-material</b><i>rgba(255,255,255,.067)</i></div><div class="sw"><div class="chip" style="background:var(--k-disc)"></div><b>--k-disc</b><i>rgba(255,255,255,.17)</i></div><div class="sw"><div class="chip" style="background:var(--k-price)"></div><b>--k-price</b><i>#131313</i></div><div class="sw"><div class="chip" style="background:var(--k-plan-lo)"></div><b>--k-plan-lo</b><i>#282828</i></div><div class="sw"><div class="chip" style="background:var(--k-plan-hi)"></div><b>--k-plan-hi</b><i>#333536</i></div><div class="sw"><div class="chip" style="background:var(--k-free-bg)"></div><b>--k-free-bg</b><i>#341A0E</i></div><div class="sw"><div class="chip" style="background:var(--k-scrim-btn)"></div><b>--k-scrim-btn</b><i>rgba(0,0,0,.32)</i></div><div class="sw"><div class="chip" style="background:var(--k-glass)"></div><b>--k-glass</b><i>rgba(255,255,255,.09)</i></div><div class="sw"><div class="chip" style="background:var(--k-grabber)"></div><b>--k-grabber</b><i>rgba(255,255,255,.35)</i></div><div class="sw"><div class="chip" style="background:var(--k-rec)"></div><b>--k-rec</b><i>#F09540</i></div><div class="sw"><div class="chip" style="background:var(--k-page)"></div><b>--k-page</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--k-chip)"></div><b>--k-chip</b><i>#F5F5F5</i></div><div class="sw"><div class="chip" style="background:var(--k-composer)"></div><b>--k-composer</b><i>#FBFBFB</i></div><div class="sw"><div class="chip" style="background:var(--k-ctl)"></div><b>--k-ctl</b><i>#F1F1F1</i></div><div class="sw"><div class="chip" style="background:var(--k-btn)"></div><b>--k-btn</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--k-material-line)"></div><b>--k-material-line</b><i>rgba(255,255,255,.16)</i></div><div class="sw"><div class="chip" style="background:var(--k-price-line)"></div><b>--k-price-line</b><i>#252525</i></div><div class="sw"><div class="chip" style="background:var(--k-plan-line)"></div><b>--k-plan-line</b><i>rgba(255,255,255,.17)</i></div><div class="sw"><div class="chip" style="background:var(--k-composer-shadow)"></div><b>--k-composer-shadow</b><i>rgba(0,0,0,.12)</i></div><div class="sw"><div class="chip" style="background:var(--k-composer-line)"></div><b>--k-composer-line</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--k-ink)"></div><b>--k-ink</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--k-ink-inv)"></div><b>--k-ink-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--k-mute)"></div><b>--k-mute</b><i>#A9A9A9</i></div><div class="sw"><div class="chip" style="background:var(--k-skip-ink)"></div><b>--k-skip-ink</b><i>#BBBBBB</i></div><div class="sw"><div class="chip" style="background:var(--k-foot)"></div><b>--k-foot</b><i>#838383</i></div><div class="sw"><div class="chip" style="background:var(--k-free-ink)"></div><b>--k-free-ink</b><i>#E07D54</i></div><div class="sw"><div class="chip" style="background:var(--k-dots)"></div><b>--k-dots</b><i>#C5C5C5</i></div><div class="sw"><div class="chip" style="background:var(--k-copy-mute)"></div><b>--k-copy-mute</b><i>#7F7F7F</i></div><div class="sw"><div class="chip" style="background:var(--k-placeholder)"></div><b>--k-placeholder</b><i>#7D7D7D</i></div><div class="sw"><div class="chip" style="background:var(--k-field-ink)"></div><b>--k-field-ink</b><i>#6A6A6B</i></div><div class="sw"><div class="chip" style="background:var(--k-card-ink)"></div><b>--k-card-ink</b><i>#262627</i></div><div class="sw"><div class="chip" style="background:var(--k-para-ink)"></div><b>--k-para-ink</b><i>#53584E</i></div><div class="sw"><div class="chip" style="background:var(--k-dim-inv)"></div><b>--k-dim-inv</b><i>#CCCCCC</i></div><div class="sw"><div class="chip" style="background:var(--k-new-ink)"></div><b>--k-new-ink</b><i>#FB630A</i></div></div><div class="foot"><div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:27px"></div><em>27px</em></div><div><div class="rb" style="border-radius:26px"></div><em>26px</em></div><div><div class="rb" style="border-radius:30px"></div><em>30px</em></div><div><div class="rb" style="border-radius:35px"></div><em>35px</em></div><div><div class="rb" style="border-radius:32px"></div><em>32px</em></div><div><div class="rb" style="border-radius:18px"></div><em>18px</em></div><div><div class="rb" style="border-radius:15px"></div><em>15px</em></div><div><div class="rb" style="border-radius:24px"></div><em>24px</em></div><div><div class="rb" style="border-radius:20px"></div><em>20px</em></div><div><div class="rb" style="border-radius:14px"></div><em>14px</em></div><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div></div></div><div><h2>Metrics</h2><div class="met">--k-w: 393px<br>--k-h: 852px<br>--k-status: 54px<br>--k-gutter: 16px<br>--k-gutter-w: 20px<br>--k-tap: 44px<br>--k-sheet-top: 59px<br>--k-sheet-top-v: 403.6px<br>--k-widget: 162.4px<br>--k-disc: 40px<br>--k-w-max: 430px<br>--k-h-max: 932px<br>--k-status-max: 59px</div></div></div><h2>Type</h2><div class="ty"><div class="tr"><span style="font:var(--k-t-time)">Grok</span><em>--k-t-time &middot; 600 15px/20px</em></div><div class="tr"><span style="font:var(--k-t-widget)">Grok</span><em>--k-t-widget &middot; 600 19.5px/24px</em></div><div class="tr"><span style="font:var(--k-t-h)">Grok</span><em>--k-t-h &middot; 600 17px/22px</em></div><div class="tr"><span style="font:var(--k-t-body)">Grok</span><em>--k-t-body &middot; 400 17px/22px</em></div><div class="tr"><span style="font:var(--k-t-feat)">Grok</span><em>--k-t-feat &middot; 400 17.5px/22px</em></div><div class="tr"><span style="font:var(--k-t-row)">Grok</span><em>--k-t-row &middot; 400 16.5px/21px</em></div><div class="tr"><span style="font:var(--k-t-sheet)">Grok</span><em>--k-t-sheet &middot; 600 16px/21px</em></div><div class="tr"><span style="font:var(--k-t-h1)">Grok</span><em>--k-t-h1 &middot; 500 40.5px/50px</em></div><div class="tr"><span style="font:var(--k-t-h2)">Grok</span><em>--k-t-h2 &middot; 600 20px/25px</em></div><div class="tr"><span style="font:var(--k-t-sub)">Grok</span><em>--k-t-sub &middot; 400 13.25px/18px</em></div><div class="tr"><span style="font:var(--k-t-plan)">Grok</span><em>--k-t-plan &middot; 600 15px/20px</em></div><div class="tr"><span style="font:var(--k-t-unit)">Grok</span><em>--k-t-unit &middot; 400 15.4px/20px</em></div><div class="tr"><span style="font:var(--k-t-price)">Grok</span><em>--k-t-price &middot; 700 20px/26px</em></div><div class="tr"><span style="font:var(--k-t-free)">Grok</span><em>--k-t-free &middot; 700 12.5px/14px</em></div><div class="tr"><span style="font:var(--k-t-title)">Grok</span><em>--k-t-title &middot; 600 22px/28px</em></div><div class="tr"><span style="font:var(--k-t-copy)">Grok</span><em>--k-t-copy &middot; 400 15px/20px</em></div><div class="tr"><span style="font:var(--k-t-link)">Grok</span><em>--k-t-link &middot; 400 17.5px/22px</em></div><div class="tr"><span style="font:var(--k-t-hdr)">Grok</span><em>--k-t-hdr &middot; 500 22px/28px</em></div><div class="tr"><span style="font:var(--k-t-chip)">Grok</span><em>--k-t-chip &middot; 500 15px/20px</em></div><div class="tr"><span style="font:var(--k-t-ctl)">Grok</span><em>--k-t-ctl &middot; 400 14px/18px</em></div><div class="tr"><span style="font:var(--k-t-speak)">Grok</span><em>--k-t-speak &middot; 600 14.5px/18px</em></div><div class="tr"><span style="font:var(--k-t-btn)">Grok</span><em>--k-t-btn &middot; 600 16.5px/22px</em></div><div class="tr"><span style="font:var(--k-t-card)">Grok</span><em>--k-t-card &middot; 400 22px/25px</em></div><div class="tr"><span style="font:var(--k-t-h3)">Grok</span><em>--k-t-h3 &middot; 600 18.9px/24px</em></div><div class="tr"><span style="font:var(--k-t-para)">Grok</span><em>--k-t-para &middot; 400 16.15px/21px</em></div><div class="tr"><span style="font:var(--k-t-field)">Grok</span><em>--k-t-field &middot; 400 16.3px/22px</em></div><div class="tr"><span style="font:var(--k-t-opt)">Grok</span><em>--k-t-opt &middot; 400 16px/20px</em></div><div class="tr"><span style="font:var(--k-t-key)">Grok</span><em>--k-t-key &middot; 400 22px/28px</em></div><div class="tr"><span style="font:var(--k-t-key-sm)">Grok</span><em>--k-t-key-sm &middot; 400 18px/22px</em></div><div class="tr"><span style="font:var(--k-t-new)">Grok</span><em>--k-t-new &middot; 500 13px/16px</em></div></div></div>
 </body>
 </html>

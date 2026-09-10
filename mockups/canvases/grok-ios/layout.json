@@ -20,6 +20,14 @@
         {
           "file": "00d-evidence",
           "label": "Evidence"
+        },
+        {
+          "file": "00e-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00f-evidence",
+          "label": "Evidence"
         }
       ]
     },
@@ -46,11 +54,27 @@
         {
           "file": "05-supergrok",
           "label": "SuperGrok paywall"
+        },
+        {
+          "file": "06-terms-update",
+          "label": "Terms update"
+        },
+        {
+          "file": "07-home",
+          "label": "SuperGrok home"
+        },
+        {
+          "file": "08-video-sheet",
+          "label": "Video sheet"
+        },
+        {
+          "file": "09-video-keyboard",
+          "label": "Video keyboard"
         }
       ]
     },
     {
-      "title": "Source of truth: Mobbin captures",
+      "title": "Source of truth: the captures",
       "numbered": true,
       "files": [
         {
@@ -72,6 +96,22 @@
         {
           "file": "ref-05-supergrok",
           "label": "SuperGrok paywall"
+        },
+        {
+          "file": "ref-06-terms-update",
+          "label": "Terms update"
+        },
+        {
+          "file": "ref-07-home",
+          "label": "SuperGrok home"
+        },
+        {
+          "file": "ref-08-video-sheet",
+          "label": "Video sheet"
+        },
+        {
+          "file": "ref-09-video-keyboard",
+          "label": "Video keyboard"
         }
       ]
     }

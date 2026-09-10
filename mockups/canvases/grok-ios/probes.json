@@ -12,7 +12,7 @@
   "only": "flat",
   "mine": "01-widget.png",
   "_": "01 left of the widget (x 0-20, y 100-240): page ground, nothing else; the widget starts at 24.8",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (881x1910 for 393x852); run with --pt 2.2417. --against wants a directory of renders resized to 881x1910 with the masked corners composited onto the capture, which is what scratch/run.sh writes to scratch/cap/; every probe names its own file there. 'bright' on a sample means the ink is lighter than its ground; on a bbox it is the luminance above which a pixel is ink."
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (881x1910 for 393x852); run with --pt 2.2417. --against wants a directory of renders resized to 881x1910 with the masked corners composited onto the capture, which is what scratch/run.sh writes to scratch/cap/; every probe names its own file there. 'bright' on a sample means the ink is lighter than its ground; on a bbox it is the luminance above which a pixel is ink. 06-09 are native captures at 3 px/pt (1290x2796 for 430x932); their probes carry \"pt\": 3, which overrides the command line, and scratch/run6.sh writes their composites to the same scratch/cap/. The status bar on 06-09 is the template's, not the capture's, so no probe sits above y 59."
  },
  {
   "id": "card",
@@ -450,5 +450,430 @@
   ],
   "mine": "04-voice-settings.png",
   "_": "04 down x 100 across the voice sheet's top edge (403.6), left of the grabber (176.7-217): the scene, then the blurred sheet"
+ },
+ {
+  "id": "page-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   560,
+   410,
+   760
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 the empty band between the body copy (ends y 517) and the Got it pill (starts 787.7): page ground, nothing else"
+ },
+ {
+  "id": "chip-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   15,
+   731,
+   55,
+   741
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 top of the first suggestion chip (y 727.3-780.7, x 11-150), above the bot glyph which starts at y 744: chip fill only"
+ },
+ {
+  "id": "composer-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   140,
+   822,
+   280,
+   845
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 composer interior right of 'Ask Anything' (ends x 127) and above the control row (starts 847): the card fill"
+ },
+ {
+  "id": "ctl-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   90,
+   849,
+   132,
+   855
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 the Auto pill (x 59.7-134.3, y 847.3-880) above its glyph (y 855-873) and label (ink top 858.7): pill fill"
+ },
+ {
+  "id": "btn-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   795,
+   150,
+   805
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 the Got it pill (y 787.7-841.7) left of its label (x 190-240): black fill"
+ },
+ {
+  "id": "composer-line-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "col",
+  "at": 200,
+  "range": [
+   788,
+   800
+  ],
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 down x 200 across the composer's top edge: the halo, the 1pt white line at 793.3, then the #FBFBFB interior; the largest step is the line"
+ },
+ {
+  "id": "composer-shadow-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   9,
+   830,
+   11,
+   880
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 a 2pt strip just outside the composer's left edge (x 12.3), mid-height: the halo at its darkest, nothing else"
+ },
+ {
+  "id": "composer-below-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   895,
+   300,
+   900
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 5-10pt under the composer's bottom (890), between the chips' shadows and the page: the halo's tail"
+ },
+ {
+  "id": "copy-mute-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "sample",
+  "box": [
+   160,
+   501,
+   395,
+   517
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 body line 2 right of the black 'Use Policy.' span (ends about x 135): the grey copy only"
+ },
+ {
+  "id": "placeholder-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   27,
+   811,
+   127,
+   828
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'Ask Anything' in the composer, x 27-127, above the control row: placeholder ink"
+ },
+ {
+  "id": "field-ink-09",
+  "img": "assets/refs/cp9.png",
+  "cmd": "sample",
+  "box": [
+   29,
+   527,
+   171,
+   544
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "09-video-keyboard.png",
+  "_": "09 'Type to make video' in the field, right of the caret at x 24: the placeholder ink"
+ },
+ {
+  "id": "card-ink-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   90,
+   578,
+   340,
+   628
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "08-video-sheet.png",
+  "_": "08 both lines of the card title on the white sheet: title ink"
+ },
+ {
+  "id": "para-ink-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   26,
+   759,
+   362,
+   821
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "08-video-sheet.png",
+  "_": "08 the three body lines under 'Shape your scene': paragraph ink"
+ },
+ {
+  "id": "dim-inv-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   163.7,
+   271.7,
+   266.4,
+   290
+  ],
+  "only": "ink",
+  "bright": true,
+  "pt": 3,
+  "mine": "08-video-sheet.png",
+  "_": "08 the 'Continue' label on the black button under the sheet's scrim: brightest pixels are the dimmed white"
+ },
+ {
+  "id": "new-ink-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   43,
+   687,
+   72,
+   697
+  ],
+  "only": "ink",
+  "bright": true,
+  "pt": 3,
+  "mine": "08-video-sheet.png",
+  "_": "08 'NEW' on its brown badge (x 31-84): brightest pixels are the orange letters, the badge is 60 levels darker"
+ },
+ {
+  "id": "title-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   405,
+   415,
+   438
+  ],
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 title line 1 'Updates to our Terms of Service and' (ink 412.7-433); line 2 starts at 440.7"
+ },
+ {
+  "id": "copy-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   478,
+   415,
+   497
+  ],
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 body line 1 (ink top 481.7, 13.7 tall); line 2 starts 501.7"
+ },
+ {
+  "id": "link-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   855,
+   280,
+   882
+  ],
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 'Sign out' with its underline (ink 861-876.7), centred, nothing beside it"
+ },
+ {
+  "id": "hdr-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   57,
+   70,
+   175,
+   100
+  ],
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'SuperGrok' right of the mark (mark ends x 56.5), ink 75-95"
+ },
+ {
+  "id": "chip-lbl-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   57,
+   745,
+   150,
+   768
+  ],
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'Create Bot' in the first chip, right of the bot glyph (ends x 50); the chip fill is above threshold"
+ },
+ {
+  "id": "ctl-lbl-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   92,
+   855,
+   132,
+   876
+  ],
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'Auto' in the model pill, right of its glyph (ends x 88)"
+ },
+ {
+  "id": "speak-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   352,
+   850,
+   398,
+   878
+  ],
+  "bright": 160,
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'Speak' on the black pill, right of the wave glyph (ends x 348.5) and short of the pill's rounded right end (x 401.7 at y 850)"
+ },
+ {
+  "id": "btn-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   855,
+   280,
+   882
+  ],
+  "bright": 128,
+  "pt": 3,
+  "mine": "08-video-sheet.png",
+  "_": "08 'Try it now' on the black pill (y 855-885), the label only"
+ },
+ {
+  "id": "card-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   576,
+   410,
+   603
+  ],
+  "pt": 3,
+  "mine": "08-video-sheet.png",
+  "_": "08 card title line 1 'Add precise start and end' (ink 581.3-601); line 2 starts 606"
+ },
+ {
+  "id": "h3-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   728,
+   400,
+   752
+  ],
+  "pt": 3,
+  "mine": "08-video-sheet.png",
+  "_": "08 'Shape your scene, start to finish' (ink 730.7-748.7); the paragraph starts 761.3"
+ },
+ {
+  "id": "para-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   758,
+   400,
+   780
+  ],
+  "pt": 3,
+  "mine": "08-video-sheet.png",
+  "_": "08 paragraph line 1 'Choose your first and last frames, or create' (ink 761.3-777); line 2 starts 782.7"
+ },
+ {
+  "id": "field-09",
+  "img": "assets/refs/cp9.png",
+  "cmd": "bbox",
+  "box": [
+   28,
+   522,
+   180,
+   550
+  ],
+  "pt": 3,
+  "mine": "09-video-keyboard.png",
+  "_": "09 'Type to make video', right of the caret at x 24"
+ },
+ {
+  "id": "opt-09",
+  "img": "assets/refs/cp9.png",
+  "cmd": "bbox",
+  "box": [
+   80,
+   462,
+   125,
+   486
+  ],
+  "pt": 3,
+  "mine": "09-video-keyboard.png",
+  "_": "09 '720p' in the resolution control, between the selected 480p pill (ends x 70) and 1080p (starts 147)"
+ },
+ {
+  "id": "key-09",
+  "img": "assets/refs/cp9.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   818,
+   52,
+   840
+  ],
+  "pt": 3,
+  "mine": "09-video-keyboard.png",
+  "_": "09 the '123' key label on its grey key, the key ground is above threshold"
  }
 ]

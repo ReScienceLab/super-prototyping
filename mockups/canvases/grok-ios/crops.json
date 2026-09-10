@@ -1,5 +1,5 @@
 {
-  "_": "Art cut from assets/refs/<ref>.png at measured pt boxes, 2.2417 px/pt, and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i4/i5 are cp4/cp5 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS.",
+  "_": "Art cut from assets/refs/<ref>.png at measured pt boxes (2.2417 px/pt for cp1-cp5, 3.0 for the 430 x 932 captures cp6-cp9), and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i4/i5/i8/i9 are cp4/cp5/cp8/cp9 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS.",
   "_rule": "Crop what the capture already contains; draw only what it does not.",
   "02-illo": [
   "cp2",
@@ -175,5 +175,96 @@
   473.2,
   69.7,
   494.8
+ ],
+  "06-ic-mark": [
+  "cp6",
+  185.5,
+  333.0,
+  244.0,
+  389.0
+ ],
+  "07-ic-mark": [
+  "cp7",
+  15.0,
+  66.0,
+  56.5,
+  100.0
+ ],
+  "07-ic-watermark": [
+  "cp7",
+  174.0,
+  384.5,
+  256.0,
+  464.0
+ ],
+  "07-ic-bot": [
+  "cp7",
+  27.5,
+  744.0,
+  50.0,
+  767.0
+ ],
+  "07-ic-bank": [
+  "cp7",
+  176.0,
+  745.5,
+  196.0,
+  764.5
+ ],
+  "07-ic-trio": [
+  "cp7",
+  322.0,
+  746.0,
+  388.0,
+  777.0
+ ],
+  "07-ic-plus": [
+  "cp7",
+  30.0,
+  856.5,
+  44.5,
+  871.0
+ ],
+  "07-ic-auto": [
+  "cp7",
+  69.5,
+  855.0,
+  88.0,
+  873.0
+ ],
+  "07-ic-mic": [
+  "cp7",
+  291.5,
+  855.0,
+  307.0,
+  873.0
+ ],
+  "07-ic-wave": [
+  "cp7",
+  332.0,
+  855.5,
+  348.5,
+  872.0
+ ],
+  "07-ic-close": [
+  "cp7",
+  377.0,
+  784.0,
+  396.0,
+  803.0
+ ],
+  "08-bg": [
+  "i8",
+  0.0,
+  0.0,
+  430.0,
+  932.0
+ ],
+  "09-bg": [
+  "i9",
+  0.0,
+  0.0,
+  430.0,
+  932.0
  ]
 }
