@@ -1,0 +1,454 @@
+[
+ {
+  "id": "ground",
+  "img": "assets/refs/cp1.png",
+  "cmd": "sample",
+  "box": [
+   0,
+   100,
+   20,
+   240
+  ],
+  "only": "flat",
+  "mine": "01-widget.png",
+  "_": "01 left of the widget (x 0-20, y 100-240): page ground, nothing else; the widget starts at 24.8",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (881x1910 for 393x852); run with --pt 2.2417. --against wants a directory of renders resized to 881x1910 with the masked corners composited onto the capture, which is what scratch/run.sh writes to scratch/cap/; every probe names its own file there. 'bright' on a sample means the ink is lighter than its ground; on a bbox it is the luminance above which a pixel is ink."
+ },
+ {
+  "id": "card",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   295,
+   340,
+   305
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 illustration card interior, row band y 295-305 x 60-340: white between the fake home screen's rows, no icon ink"
+ },
+ {
+  "id": "well",
+  "img": "assets/refs/cp1.png",
+  "cmd": "sample",
+  "box": [
+   45,
+   122,
+   165,
+   128
+  ],
+  "only": "flat",
+  "mine": "01-widget.png",
+  "_": "01 the widget's pill (61.6 tall, y 96-158): the band x 45-165 y 122-128 is its upper blank, above the compose and wave glyphs which sit at y 183-209"
+ },
+ {
+  "id": "dim",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   5,
+   110,
+   50
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the dimmed parent above the sheet, y 5-50 x 30-110: left of the island (134-259) and below nothing"
+ },
+ {
+  "id": "sheet",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   700,
+   340,
+   720
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 sheet ground below the card (card ends 515) and above the body ink (548): y 700-720 x 60-340 is under the dots too, blank"
+ },
+ {
+  "id": "night",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   822,
+   372,
+   838
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 below the footer (ends 817) and above the diff window's floor (838), x 20-372: the flat page ground. The band between the feature card and the plan group is smoke tail, not ground"
+ },
+ {
+  "id": "skip",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   320,
+   72,
+   368,
+   94
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 Skip pill 315.6-372.3 x 67.6-99: the band x 320-368 y 72-94 holds the label ink too, so only the flats count"
+ },
+ {
+  "id": "material",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   384,
+   330,
+   396
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 feature card blank x 200-330 y 384-396, between row 3's second line (ends 380.5) and row 4's title (405): the material over black"
+ },
+ {
+  "id": "price",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   695,
+   190,
+   715
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 Monthly side of the plan group, x 30-190 y 695-715: below '$30 /month' (ends 688.3), above the group's edge (714.7)"
+ },
+ {
+  "id": "plan-lo",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   212,
+   700,
+   228,
+   712
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 Yearly card bottom-left x 212-228 y 700-712: below '$25 /month' (ends 697.2), inside the card's 15pt corner"
+ },
+ {
+  "id": "plan-hi",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   340,
+   626,
+   358,
+   636
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 Yearly card top-right x 340-358 y 626-636: right of 'Yearly' (ends 258.3), the light end of the ramp"
+ },
+ {
+  "id": "free-bg",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   134,
+   643,
+   140,
+   648
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 FREE badge 129.8-185.1 x 640.1-667.8, the blank x 134-140 y 643-648 left of the F (starts 141)"
+ },
+ {
+  "id": "rec",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   215,
+   26.8,
+   220.8,
+   32.6
+  ],
+  "only": "all",
+  "mine": "04-voice-settings.png",
+  "_": "04 the orange recording dot inside the island, x 215-220.8 y 26.8-32.6: a 6pt disc, so the mode of all pixels"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   16,
+   545,
+   377,
+   567
+  ],
+  "only": "ink",
+  "ink": "8",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 body line 1 x 16-377 y 545-567: 'Find Grok in the list, choose a widget size,' on sheet ground; darkest 8%"
+ },
+ {
+  "id": "ink-inv",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   99,
+   107,
+   294,
+   144
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 'SuperGrok' x 99-294 y 107-144: the largest white ink on the set; brightest 8%"
+ },
+ {
+  "id": "mute",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   95,
+   244,
+   312,
+   258
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 row 1 subtitle 'With Grok 4.1 - Fast & Expert mode' x 95-312 y 244-258; brightest 8% is the grey"
+ },
+ {
+  "id": "skip-ink",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   325,
+   76,
+   362,
+   92
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 'Skip' x 325-362 y 76-92 inside its pill; brightest 8%"
+ },
+ {
+  "id": "foot",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   35,
+   805,
+   358,
+   817
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 footer x 35-358 y 805-817, one 13px line on night ground; brightest 8%"
+ },
+ {
+  "id": "free-ink",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   141,
+   645,
+   176,
+   662
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 'FREE' x 141-176 y 645-662 inside the badge; brightest 8% is the orange"
+ },
+ {
+  "id": "h1-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "bbox",
+  "box": [
+   80,
+   90,
+   315,
+   150
+  ],
+  "bright": 128,
+  "mine": "05-supergrok.png",
+  "_": "05 'SuperGrok' alone: x 80-315 y 90-150. The Skip pill starts at x 315.6 and its label at 326, so the window's right edge keeps both out; the subtitle starts at y 156"
+ },
+ {
+  "id": "h-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   140,
+   85,
+   255,
+   112
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 nav title 'Widget' x 140-255 y 85-112: centred at 196.5, the back disc ends at 62, nothing else on the row"
+ },
+ {
+  "id": "body-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   16,
+   545,
+   377,
+   567
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 body line 1 only, y 545-567; line 2 starts at 570"
+ },
+ {
+  "id": "widget-01",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   97,
+   115,
+   145,
+   140
+  ],
+  "mine": "01-widget.png",
+  "_": "01 'Grok' in the widget header, x 96-145 y 115-140; the mark ends at 96"
+ },
+ {
+  "id": "sheet-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   130,
+   428,
+   265,
+   455
+  ],
+  "bright": 128,
+  "mine": "04-voice-settings.png",
+  "_": "04 'Voice Settings' x 130-265 y 428-455, centred; the close disc starts at 338"
+ },
+ {
+  "id": "row-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   30,
+   500,
+   200,
+   525
+  ],
+  "bright": 128,
+  "mine": "04-voice-settings.png",
+  "_": "04 'Select Audio Device' x 30-200 y 500-525; the airplay glyph starts at 334"
+ },
+ {
+  "id": "feat-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "bbox",
+  "box": [
+   90,
+   218,
+   340,
+   240
+  ],
+  "bright": 128,
+  "mine": "05-supergrok.png",
+  "_": "05 row 1 title 'Longer conversations in Chat' x 90-340 y 218-240; the subtitle starts at 244.9"
+ },
+ {
+  "id": "price-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "bbox",
+  "box": [
+   210,
+   656,
+   312,
+   680
+  ],
+  "bright": 128,
+  "mine": "05-supergrok.png",
+  "_": "05 '$300 /year' x 210-312 y 656-680; 'Yearly' ends 651.7, '$25 /month' starts 684.7"
+ },
+ {
+  "id": "cta-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   745,
+   300,
+   770
+  ],
+  "mine": "05-supergrok.png",
+  "_": "05 'Upgrade to SuperGrok' on the white CTA, x 100-300 y 745-770: dark ink on white"
+ },
+ {
+  "id": "sheet-edge",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 100,
+  "range": [
+   40,
+   80
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 down x 100 from the dimmed parent into the sheet: the edge is the token's y"
+ },
+ {
+  "id": "card-edge-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   190,
+   210
+  ],
+  "mine": "05-supergrok.png",
+  "_": "05 down x 200 across the feature card's top edge (199): smoke, the .16 line, then the material"
+ },
+ {
+  "id": "plan-edge",
+  "img": "assets/refs/cp5.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 100,
+  "range": [
+   610,
+   625
+  ],
+  "mine": "05-supergrok.png",
+  "_": "05 down x 100 across the plan group's top edge (618.4): night, the 1pt #252525 line, the price fill"
+ },
+ {
+  "id": "sheet-v-edge",
+  "img": "assets/refs/cp4.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 100,
+  "range": [
+   395,
+   415
+  ],
+  "mine": "04-voice-settings.png",
+  "_": "04 down x 100 across the voice sheet's top edge (403.6), left of the grabber (176.7-217): the scene, then the blurred sheet"
+ }
+]

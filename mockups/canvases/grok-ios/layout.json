@@ -1,0 +1,79 @@
+{
+  "name": "(example) Grok iOS",
+  "cover": "05-supergrok",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-widget",
+          "label": "Home Screen widget"
+        },
+        {
+          "file": "02-widget-guide-add",
+          "label": "Widget guide, step 4"
+        },
+        {
+          "file": "03-widget-guide-jiggle",
+          "label": "Widget guide, step 1"
+        },
+        {
+          "file": "04-voice-settings",
+          "label": "Voice settings"
+        },
+        {
+          "file": "05-supergrok",
+          "label": "SuperGrok paywall"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-widget",
+          "label": "Home Screen widget"
+        },
+        {
+          "file": "ref-02-widget-guide-add",
+          "label": "Widget guide, step 4"
+        },
+        {
+          "file": "ref-03-widget-guide-jiggle",
+          "label": "Widget guide, step 1"
+        },
+        {
+          "file": "ref-04-voice-settings",
+          "label": "Voice settings"
+        },
+        {
+          "file": "ref-05-supergrok",
+          "label": "SuperGrok paywall"
+        }
+      ]
+    }
+  ]
+}

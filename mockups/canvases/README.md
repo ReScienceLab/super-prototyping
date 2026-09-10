@@ -224,6 +224,25 @@ declares a box other than the default 478 x 980.
   is worthless on grey, and that a blur which monotonically improves a band is
   hiding a content defect rather than an antialiasing one. The 25 `ref-*`
   boards are gitignored, so a fresh clone has 29.
+- `grok-ios/`: the run to read when the ask is that the icons match the
+  source exactly. Five screens of the Grok iOS app - the Home Screen widget,
+  two pages of the widget guide, the Voice Settings sheet over the 3D
+  companion scene, and the SuperGrok paywall. Nine boards in three rows: a
+  token board and three evidence boards for 61 tokens, the five replicas, and
+  the Mobbin capture of each parked underneath. Mean absolute delta against
+  those captures is 0.26-1.00 on the four screens that are mostly crops and
+  5.75 on the paywall, which is eighteen lines of white type over an
+  inpainted hero. Every icon is a crop of the capture at its measured ink box
+  rather than a drawing, because a crop scores 0 by construction and most of
+  the glyphs are SF Symbols whose outlines cannot be redistributed; the folder
+  has no `assets/icons/`. Its `README.md` records the inpainting that clears
+  the type off the crops before they are cut (a Coons fill from each box's
+  own edges, and a card whose material is un-applied and re-applied by CSS),
+  the five alphas solved against those patched frames, and four type sizes
+  that are not on the iOS ladder because the widths said so - including a
+  title that measured as 400 at 42px by width and turned out to be 500 at
+  40.5px by ink mass, which halved its band's delta. The five `ref-*` boards
+  are gitignored, so a fresh clone has 9.
 - `substack-ios/`: the run to read when a translucent bar sits over content
   the board does not control. Seven screens of the Substack iOS home feed - a
   note, the Keep reading toast, three notes in a row, your own just-published

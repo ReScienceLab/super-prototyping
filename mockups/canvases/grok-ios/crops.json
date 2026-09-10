@@ -1,0 +1,179 @@
+{
+  "_": "Art cut from assets/refs/<ref>.png at measured pt boxes, 2.2417 px/pt, and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i4/i5 are cp4/cp5 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS.",
+  "_rule": "Crop what the capture already contains; draw only what it does not.",
+  "02-illo": [
+  "cp2",
+  43.0,
+  205.0,
+  350.0,
+  515.0
+ ],
+  "03-illo": [
+  "cp3",
+  43.0,
+  205.0,
+  350.0,
+  515.0
+ ],
+  "04-bg": [
+  "i4",
+  0.0,
+  0.0,
+  393.0,
+  852.0
+ ],
+  "04-sheet": [
+  "i4",
+  8.5,
+  403.6,
+  384.5,
+  852.0
+ ],
+  "05-bg": [
+  "i5",
+  0.0,
+  0.0,
+  393.0,
+  852.0
+ ],
+  "01-ic-mark": [
+  "cp1",
+  69.0,
+  112.3,
+  96.0,
+  137.9
+ ],
+  "01-ic-compose": [
+  "cp1",
+  56.5,
+  184.1,
+  81.7,
+  209.3
+ ],
+  "01-ic-wave": [
+  "cp1",
+  128.8,
+  183.2,
+  153.6,
+  208.9
+ ],
+  "02-ic-back": [
+  "cp2",
+  30.2,
+  86.9,
+  42.9,
+  107.6
+ ],
+  "02-ic-sparkle": [
+  "cp2",
+  213.6,
+  634.7,
+  227.6,
+  648.3
+ ],
+  "03-ic-sparkle": [
+  "cp3",
+  165.8,
+  634.7,
+  179.4,
+  648.3
+ ],
+  "04-ic-x": [
+  "cp4",
+  30.7,
+  77.5,
+  45.2,
+  92.4
+ ],
+  "04-ic-grid": [
+  "cp4",
+  344.7,
+  74.8,
+  365.5,
+  95.1
+ ],
+  "04-ic-focus": [
+  "cp4",
+  345.2,
+  129.3,
+  365.0,
+  149.1
+ ],
+  "04-ic-hanger": [
+  "cp4",
+  343.8,
+  180.6,
+  365.9,
+  199.5
+ ],
+  "04-ic-trash": [
+  "cp4",
+  347.0,
+  233.6,
+  363.7,
+  252.1
+ ],
+  "04-ic-chevron": [
+  "cp4",
+  345.6,
+  289.9,
+  364.6,
+  301.7
+ ],
+  "04-ic-close": [
+  "cp4",
+  338.9,
+  430.8,
+  357.4,
+  449.3
+ ],
+  "04-ic-airplay": [
+  "cp4",
+  334.0,
+  500.4,
+  357.4,
+  522.9
+ ],
+  "04-ic-person": [
+  "cp4",
+  332.7,
+  562.9,
+  358.3,
+  586.3
+ ],
+  "05-ic-rocket": [
+  "cp5",
+  49.4,
+  228.3,
+  70.6,
+  249.9
+ ],
+  "05-ic-imagine": [
+  "cp5",
+  49.0,
+  288.1,
+  70.6,
+  310.1
+ ],
+  "05-ic-wave5s": [
+  "cp5",
+  49.0,
+  349.2,
+  71.0,
+  371.3
+ ],
+  "05-ic-star": [
+  "cp5",
+  49.4,
+  412.5,
+  70.1,
+  432.4
+ ],
+  "05-ic-cube": [
+  "cp5",
+  49.9,
+  473.2,
+  69.7,
+  494.8
+ ]
+}
