@@ -12,6 +12,10 @@
    ========================================================================= */
 :root{
   --n-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --n-font-text:"SF Pro Text",var(--n-font);  /* the Text optical cut, named    */
+                                              /* outright: a browser gives      */
+                                              /* -apple-system the Display cut, */
+                                              /* 4% narrower                    */
 
   /* Surface */
   --n-bg:#FFFFFF;          /* document / full-screen page                */
@@ -58,7 +62,7 @@
   --n-gutter-card:12px;  /* card inset on a grouped sheet               */
   --n-row-h:44px;        /* settings row                                */
   --n-tap:44px;          /* minimum tap target                          */
-  --n-sheet-top:71px;    /* sheet top inset from the device top         */
+  --n-sheet-top:68px;    /* sheet top inset from the device top         */
 }
 
 *{box-sizing:border-box;margin:0;padding:0}

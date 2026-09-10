@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Notion iOS — Date sheet</title>
+<title>Notion iOS — Manage data sources, two</title>
 <style>
 /* ============================================================================
    NOTION iOS — DESIGN TOKENS  (single source of truth, inlined in every file
@@ -89,36 +89,24 @@ body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiase
 .snav{display:flex;align-items:center;justify-content:space-between;height:var(--n-tap);
   padding:0 var(--n-gutter);margin-top:7px}
 .stitle{font:var(--n-t-nav);color:var(--n-text);letter-spacing:-.2px}
-.help{width:26px;height:26px;color:var(--n-text-3);display:block}
-.help svg{width:26px;height:26px;display:block}
-.help.ghost{visibility:hidden}
-.card{background:var(--n-bg-card);border-radius:var(--n-r-card);margin:0 var(--n-gutter-card) 12px}
-.card.pad{padding:16px}
-.dtfield{display:flex;align-items:center;height:30px;border-radius:var(--n-r-tile);
-  background:var(--n-bg-sheet);padding:0 14px}
-.dt{font:var(--n-t-row);color:var(--n-text);letter-spacing:-.2px;flex:1}
-.dt.tm{text-align:right}
-.sep{width:1px;height:16px;background:#E2E0DD;flex:none}
-.cal{padding:14px 35px 12px;position:relative;overflow:hidden}
-.cal::before{content:"";position:absolute;top:0;left:0;right:0;height:20px;
-  background:linear-gradient(#F1F0EE,#FFF)}
-.wk{display:flex;justify-content:space-between;height:44px;align-items:center;position:relative}
-.d{width:34px;height:34px;display:grid;place-items:center;font:var(--n-t-row);color:var(--n-text);letter-spacing:-.2px}
-.d.out{color:var(--n-text-3)}
-.d.sel{background:var(--n-blue);color:#fff;border-radius:var(--n-r-day)}
-.d.today{background:var(--n-red);color:#fff;border-radius:50%}
-.rows{overflow:hidden}
-.srow{display:flex;align-items:center;height:var(--n-row-h);padding:0 22px}
-.srow + .srow{border-top:1px solid var(--n-hairline)}
-.sl{font:var(--n-t-row);color:var(--n-text);letter-spacing:-.2px;flex:1}
-.sv{font:var(--n-t-row);color:var(--n-text-3);letter-spacing:-.2px}
-.cv{width:17px;height:17px;color:#B6B5B1;margin-left:6px;display:block}
-.cv svg{width:100%;height:100%;display:block}
-.tg{width:51px;height:31px;border-radius:16px;background:var(--n-track);position:relative;flex:none}
-.tg::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;
-  background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.18)}
-.tg.on{background:var(--n-blue)}
-.tg.on::after{left:22px}
+
+.snav{padding:0 18px}
+.back{width:21px;height:21px;color:var(--n-text);display:block}
+.back svg{width:21px;height:21px;display:block}
+.back.ghost{visibility:hidden}
+.hdr{font:var(--n-t-sub);color:var(--n-text-2);letter-spacing:-.1px;padding:13px 20px 9px 33px}
+.card + .hdr{padding-top:15.4px}
+.card{background:var(--n-bg-card);border-radius:var(--n-r-card);margin:0 16px}
+.card + .card{margin-top:17px}
+.drow{display:flex;align-items:center;height:var(--n-row-h);padding:0 22px 0 17px}
+.drow + .drow{border-top:1px solid #EEEEEC}
+.di{width:18px;height:18px;flex:none;color:#84837F;margin-right:10px}
+.di svg{width:18px;height:18px;display:block}
+.dl{font:var(--n-t-row);color:var(--n-text)}
+.dl.mut{color:var(--n-text-2)}
+.dv{font:var(--n-t-row);color:var(--n-text-3);margin-left:auto}
+.dots{width:18px;height:18px;flex:none;color:#878786;margin-left:11px;display:block}
+.dots svg{width:18px;height:18px;display:block}
 </style>
 </head>
 <body>
@@ -137,32 +125,24 @@ body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiase
   <div class="sheet">
     <div class="handle"></div>
     <div class="snav">
-      <span class="help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M9.4 9.4a2.7 2.7 0 0 1 5.2.9c0 1.8-2.6 2.2-2.6 4"/><circle cx="12" cy="17.4" r=".95" fill="currentColor" stroke="none"/></svg></span>
-      <span class="stitle">Date</span>
-      <span class="help ghost"></span>
+      <span class="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 4-8 8 8 8"/></svg></span>
+      <span class="stitle">Manage data sources</span>
+      <span class="back ghost"></span>
     </div>
 
-    <div class="card pad">
-      <div class="dtfield">
-        <span class="dt">May 27, 2026</span>
-        <span class="sep"></span>
-        <span class="dt tm">12:02&thinsp;PM</span>
-      </div>
+    <div class="hdr">Source</div>
+    <div class="card">
+      <div class="drow"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="5.6" rx="8.2" ry="3.3"/><path d="M3.8 5.6v6.2c0 1.8 3.7 3.3 8.2 3.3s8.2-1.5 8.2-3.3V5.6"/><path d="M3.8 11.8v6.2c0 1.8 3.7 3.3 8.2 3.3s8.2-1.5 8.2-3.3v-6.2"/></svg></span><span class="dl">Need to do</span><span class="dv">1 view</span><span class="dots"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="4" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="20" cy="12" r="1.9"/></svg></span></div>
+      <div class="drow"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="5.6" rx="8.2" ry="3.3"/><path d="M3.8 5.6v6.2c0 1.8 3.7 3.3 8.2 3.3s8.2-1.5 8.2-3.3V5.6"/><path d="M3.8 11.8v6.2c0 1.8 3.7 3.3 8.2 3.3s8.2-1.5 8.2-3.3v-6.2"/></svg></span><span class="dl">New data source</span><span class="dv">1 view</span><span class="dots"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="4" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="20" cy="12" r="1.9"/></svg></span></div>
+      <div class="drow"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3.4v17.2M3.4 12h17.2"/></svg></span><span class="dl mut">Add data source</span></div>
     </div>
 
-    <div class="card cal"><div class="wk"><div class="d ">3</div><div class="d ">4</div><div class="d ">5</div><div class="d ">6</div><div class="d ">7</div><div class="d ">8</div><div class="d ">9</div></div><div class="wk"><div class="d ">10</div><div class="d ">11</div><div class="d ">12</div><div class="d ">13</div><div class="d ">14</div><div class="d ">15</div><div class="d ">16</div></div><div class="wk"><div class="d ">17</div><div class="d ">18</div><div class="d ">19</div><div class="d ">20</div><div class="d ">21</div><div class="d ">22</div><div class="d ">23</div></div><div class="wk"><div class="d ">24</div><div class="d ">25</div><div class="d ">26</div><div class="d sel">27</div><div class="d today">28</div><div class="d ">29</div><div class="d ">30</div></div><div class="wk"><div class="d ">31</div><div class="d out">1</div><div class="d out">2</div><div class="d out">3</div><div class="d out">4</div><div class="d out">5</div><div class="d out">6</div></div></div>
-
-    <div class="card rows">
-      <div class="srow"><span class="sl">End date</span><span class="tg"></span></div>
-      <div class="srow"><span class="sl">Date format</span><span class="sv">Full date</span><span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></div>
-      <div class="srow"><span class="sl">Include time</span><span class="tg on"></span></div>
-      <div class="srow"><span class="sl">Time format</span><span class="sv">12 hour</span><span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></div>
-      <div class="srow"><span class="sl">Timezone</span><span class="sv">GMT+7</span><span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></div>
-      <div class="srow"><span class="sl">Remind</span><span class="sv">None</span><span class="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></span></div>
+    <div class="hdr">Linked</div>
+    <div class="card">
+      <div class="drow"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3.4v17.2M3.4 12h17.2"/></svg></span><span class="dl mut">Link existing data source</span></div>
     </div>
-
-    <div class="card rows">
-      <div class="srow"><span class="sl">Clear</span></div>
+    <div class="card">
+      <div class="drow"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.2 9.2a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4.3"/><circle cx="12" cy="17.8" r="1" fill="currentColor" stroke="none"/></svg></span><span class="dl mut">Learn about data sources</span></div>
     </div>
   </div>
 </div>
