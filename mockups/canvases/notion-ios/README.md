@@ -125,6 +125,69 @@ alpha runs 0 to 1 over 17 to 52pt from the sheet's top edge, which puts the
 faded subtitle remnant within five grey levels of the capture the whole way
 down.
 
+## How close it lands
+
+Screens 7–15, each against its own capture cropped to `(0, 0, 1179, 2556)` and
+rendered with `refkit shoot --scale 3 --crop-phone`, so both sides are the same
+393 × 852 pt screen at 3 px/pt. Mean absolute delta in levels of 255:
+
+| # | screen | whole frame | below the status bar |
+|---|---|---|---|
+| 7 | Manage data sources | 5.20 | 1.91 |
+| 8 | New data source | 4.82 | 1.49 |
+| 9 | Manage data sources, two | 5.62 | 2.35 |
+| 10 | To do list with a table | 6.55 | 2.84 |
+| 11 | Add an account | 4.67 | 1.33 |
+| 12 | Work email | 5.28 | 1.99 |
+| 13 | Email typed | 5.28 | 1.99 |
+| 14 | Verification code | 5.08 | 1.77 |
+| 15 | Code typed | 5.07 | 1.77 |
+
+**Whole-frame mean 5.37, worst 6.55. Below the status bar, mean 1.94, worst
+2.84.** The gap between the two columns is one thing, and it is this repo's
+framing rather than a miss: the top 60pt band scores 51.9 on eight of the nine
+boards and 59.2 on board 10, near enough to a constant, because every board
+here draws a Dynamic Island and none of the captures has one. The left column
+is `refkit diff <render> <capture>`; the right is the same measure over
+`y >= 180px`, which is where the app's own content starts.
+
+What is left below that band is glyph antialiasing and the two deltas named
+below. Board 10 is worst of the nine because it carries the most type and the
+only clipped table; board 11 is best because it is a sheet of six outlined
+buttons on a flat ground.
+
+`refkit batch probes.json --against <shots> --pt 3` replays all 43 probes
+against the renders: **33 box probes at a mean |dw| of 0.41pt and |dh| of
+0.18**, and 4 colour probes at a mean Δmax of 1.8. Per screen:
+
+| # | screen | box probes | mean \|dw\| | mean \|dh\| | worst |
+|---|---|---|---|---|---|
+| 7 | Manage data sources | 6 | 1.05 | 0.27 | 4.7 |
+| 8 | New data source | 2 | 0.00 | 0.30 | 0.6 |
+| 9 | Manage data sources, two | edge probe only | | | 1.0 |
+| 10 | To do list with a table | 10 | 0.54 | 0.30 | 1.7 |
+| 11 | Add an account | 4 | 0.20 | 0.07 | 0.4 |
+| 12 | Work email | 5 | 0.12 | 0.06 | 0.3 |
+| 13 | Email typed | 1 | 0.00 | 0.00 | 0.0 |
+| 14 | Verification code | 4 | 0.07 | 0.00 | 0.3 |
+| 15 | Code typed | 1 | 0.00 | 0.00 | 0.0 |
+
+Screen 7 carries the spread on its own, and all of it is `nav-title`: 4.7pt,
+the standing `--n-t-nav` delta described above. Drop that one probe and 7 reads
+a mean |dw| of 0.32. Screen 9's only probe is the `sheet-top` column scan, which
+lands 1.0 off for a reason that is not a disagreement about the value: all eight
+captures with a sheet in them ramp from the scrim to the sheet ground across
+68.0 → 69.0, and the boards draw that boundary as a hard edge at 68. `refkit
+scan <capture> col 60 55 90 --pt 3` reads the same #D4D4D4 band on every one of
+them, which is also why `--n-sheet-top` moved to 68 with five captures behind
+it.
+
+Two colour deltas are worth naming. `acc-cta`, the Continue button, reads
+`#2280DE` on capture a2 against the board's `--n-blue` of `#2784E0`, a Δmax of
+5 and the worst colour delta in the folder — the token was measured off the
+first six screens and four boards share it, so it stays. `bar-shadow` is 1 off,
+and the rest are exact.
+
 ## The reference row is not checked in
 
 Phase 5 of `clone-prototype` parks each source capture in its own

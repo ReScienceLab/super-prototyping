@@ -246,7 +246,7 @@ BODY_00 = """
     <div><div class="rb" style="border-radius:var(--n-r-pill)"></div><em>pill 999</em></div>
   </div>
   <p class="metrics">gutter 20 · page 26 · summary 46 · card 12 · row 44 · tap 44 ·
-     status bar 54 · sheet top 71 · day cell 34 / pitch 44</p>
+     status bar 54 · sheet top 68 · day cell 34 / pitch 44</p>
 
   <h2>Components</h2>
   <div class="comps">
