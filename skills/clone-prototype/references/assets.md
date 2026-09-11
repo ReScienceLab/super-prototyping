@@ -8,9 +8,12 @@ build out of CSS and inline SVG.
 
 | The pixels you need are… | Do this |
 |---|---|
-| on the capture, whole | **crop at the measured box** |
-| on the capture, partly hidden by a sheet, fade or scroll edge | crop what is visible; treat the rest as absent (Phase 3's rule about invented content applies to pictures too) |
-| a third-party logo or app icon | pull the real file; see `brand-marks.md` |
+| interface: type, buttons, pills, badges, chips, glyphs, a keyboard | **rebuild it** in HTML and CSS, glyphs traced to SVG; never crop it |
+| a picture on the capture, whole | **crop at the measured box** |
+| a picture with interface set over it (a lockup on a hero, a headline on a card) | crop the picture, **`erase` the interface out of it**, draw the interface live |
+| a picture partly hidden by a sheet, fade or scroll edge | crop what is visible; treat the rest as absent (Phase 3's rule about invented content applies to pictures too) |
+| a sliver too small to identify (a 10 pt peek at a scroll edge) | crop it whole; there is nothing to rebuild it from |
+| a third-party logo or app icon | pull the real file, never a crop of it; see `brand-marks.md` |
 | genuinely not on any capture (a variant state, a second colourway, a filler photo that is nobody's brand) | generate |
 
 **A crop is exact by construction and a generation is never exact.** That is
@@ -68,6 +71,42 @@ Three things that go wrong:
   screens. Say so in the folder's `README.md` — never a folder-level
   `.gitignore` — because the opposite is the usual convention for a
   screenshot-sourced folder and the next person will assume it.
+
+## Erasing the interface out of a picture
+
+A picture with interface set on it is cropped with the interface removed, so
+the board can draw that interface live instead of carrying it twice.
+`app-store-ios` does it on every hero and Today card:
+
+```json
+"p6-hero": {"img": "p6", "box": [20, 257, 382, 490],
+  "erase": [[33.2, 440.7, 70.2, 477.8],
+            [76, 444, 283, 461.5, 1, 25]]}
+```
+
+Every number is in page pt. `[x0, y0, x1, y1]` clears the whole box, which
+suits an icon or a pill. `[x0, y0, x1, y1, sign, T]` clears only the glyph
+pixels in it: those lighter (`sign` 1) or darker (-1) than a 10 px Gaussian
+of the crop by `T` levels, grown by 1 pt to take the antialiased rim. The
+cleared pixels are filled harmonically from the ones around them, solved on a
+half-size pyramid and then relaxed. That is the smoothest surface meeting the
+boundary. It invents no texture, which is right for pixels that sit under
+live UI.
+
+Three things that go wrong:
+
+- **A threshold misses the middle of a solid glyph.** A high-pass sees edges,
+  so the centre of a filled 15 pt logo stays, and it shows as a glow behind
+  the live one. Give a solid glyph a box, and keep the threshold for type.
+- **An erase must stop where chrome over the picture begins.** A box that
+  starts 4 pt above a tab bar smears the art in the 4 pt that still shows.
+  Start it at the bar's top edge.
+- **Measure each line's ink with its neighbours out of the box.** A subtitle
+  box that reached a Get button came back 68 pt too wide, and a wordmark box
+  that clipped its logo put the type 2 pt off. Placement is only as good as
+  the ink box it starts from.
+
+After changing a box or an `erase`, delete the PNG so `cut()` cuts it again.
 
 ## Generating, when you have to
 

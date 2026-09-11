@@ -65,10 +65,18 @@ TOKENS = [
  ("Surface", "alert",    "rgba(255,255,255,.60)",  "p2 alert glass over the dimmed pane"),
  ("Surface", "alert-btn","rgba(0,0,0,.12)",
   "p2 alert buttons #C8C8C8 at col 127 y 524.7-542.0 against the glass's #E6E6E6 below them"),
+ ("Surface", "kbd",      "#E2E3E7",
+  "p9 keyboard panel, col 201 y 552-874 and the 6pt gaps between keys, flat"),
+ ("Surface", "glass-pill", "rgba(255,255,255,.41)",
+  "Get pill set over artwork: p6 #888791 over #303448, p5 #DCBCB1 over #C08E7D, "
+  "p3 card 2 #BE73D0 over #9416B1; white at .40-.44 on every channel"),
+ ("Surface", "glass-price", "rgba(255,255,255,.12)",
+  "p3 card 1 price pill #6C8E12 over the band's #587B00, .12 on red and .14 on green"),
 
  ("Line", "hairline",    "#DFDFDF",  "app-icon rim, p6 col 50 y 569.3-570.3 and 630.3-631.3, both 1pt"),
  ("Line", "border",      "#B0AFB0",  "tab-bar pill rim, p6 row 822 x 20.7-21.0 and 381.0-381.3"),
  ("Line", "sep",         "#E7E7E8",  "p4 row separator, col 201 y 217.0-218.0, all three samples"),
+ ("Line", "kbd-sep",     "#D3D4DA",  "p9 Passwords bar dividers, 1pt at x 30.5 and 371.5, y 559-583"),
 
  ("Ink", "ink",          "#000000",  "large title core, p6 x 22-100 y 75-98 --only ink"),
  ("Ink", "ink-2",        "#8A8A8E",  "card subtitle core, p6 'All-day coverage on ABC News' --only ink"),
@@ -80,6 +88,17 @@ TOKENS = [
  ("Ink", "ink-ph",      "#BCBCC1",  "p9 'Email or Phone Number' core over --x-group"),
  ("Ink", "ink-chev",    "#C5C5C7",  "p4 'App Updates' chevron core, 361.0-367.7 x 349.0-360.3"),
  ("Ink", "ink-alert",   "#838383",  "p2 alert message core, lines 1 and 2, as it lands on the glass"),
+ ("Ink", "ink-kbd",    "#494A4B",  "p9 'Passwords' core, ink 171.0-250.7 x 564.3-577.3, and its key glyph"),
+ ("Ink", "ink-hint",    "#CDCED0",  "p9 the space bar's 'A' hint, darkest sample of 187.0-196.0 x 787.3-801.0"),
+ ("Ink", "ink-off",     "#E5E6E9",  "p9 the return key's chevron, darkest sample of 345.7-352.3 x 772.0-788.0"),
+ ("Ink", "ink-glass",   "rgba(255,255,255,.70)",
+  "lockup subtitles over artwork: p6 core #BFC4D1 over #2F3E6A, p5 .70; p7 'Arcade' "
+  "#CCD2D7 over #536D81 at .69-.70, and its Apple logo .72"),
+ ("Ink", "ink-glass-2", "rgba(255,255,255,.55)",
+  "p3 'Brain Puzzle Games' #C795D8 over #9114AE (.49-.55), p5 'In-App Purchases' .59, "
+  "p3 '$12.99' .46-.50 over its own pill"),
+ ("Ink", "ink-promo",   "#FFFF7D",
+  "p3 card 1 yellow: 'GET STARTED' core #FFFF85, its subtitle and 'Sketch. Paint. Create.' #FFFF76"),
 
  ("Accent", "accent",    "#0082F7",  "selected tab glyph, p6 x 196-206 y 807-812, 308px 100% flat"),
  ("Accent", "accent-2",  "#0088FE",  "Get/Open label, p6 row 600, seven runs inside the pill"),
@@ -93,6 +112,10 @@ TOKENS = [
  ("Radius", "r-alert",   "34px",     "p2 alert, col 50 (9 in from the left edge) meets the glass at y 355.0; r 34 predicts 354.96"),
  ("Radius", "r-chip",    "18.5px",   "half the 37pt chip height; p6 row 130 left edge 26.7 solves 19.7 -> 20"),
  ("Radius", "r-pill",    "999px",    "by construction, not measured"),
+ ("Radius", "r-key",     "6px",
+  "p9 'w' key's top-left edge 2.7 in at 1pt down, 1.7 at 2 and 1.0 at 3: r 6 predicts 2.7, 1.5, .8"),
+ ("Radius", "r-kbd",     "28px",
+  "p9 keyboard panel from its top at 545.3: 16.7 in at 548, 6.7 at 555, 3.3 at 560; r 28 predicts 16.1, 6.8, 3.4"),
  ("Radius", "r-phone",   "62px",     "circular stand-in for the 16 Pro display corner"),
 
  ("Type", "t-title",     "700 34px/41px var(--x-font)",
@@ -104,7 +127,8 @@ TOKENS = [
  ("Type", "t-row",       "400 16px/18px var(--x-font)",
   "p6 'YouTube' ink 60.3 wide by 11.7 tall; at 17px it renders 63.7 by 12.3, and both ratios land on 0.95"),
  ("Type", "t-sub",       "400 12px/21px var(--x-font)",
-  "p6 'Videos, Music and Live Streams' ink 178.3 wide by a 'V' cap of 8.7; at 14px the same string renders 203.7 by 10.3"),
+  "p6 'Videos, Music and Live Streams' ink 178.3 wide by a 'V' cap of 8.7; at 14px the same string renders 203.7 by 10.3; "
+  "p3 'Sketch. Paint. Create.' 120.3, 'Brain Puzzle Games' 110.7 and card 1's 207.7 subtitle all render exactly at it"),
  ("Type", "t-chip",      "600 14px/19px var(--x-font)",
   "p6 'Entertainment' ink 92.0 by 11.0; at 15px it renders 100.3 by 12.0"),
  ("Type", "tr-tight",    "-0.2px",
@@ -113,6 +137,21 @@ TOKENS = [
   "p6 'Open' inside the 74 x 32 pill at x 308-382"),
  ("Type", "t-iap",       "400 8px/11px var(--x-font)",
   "p6 'In-App Purchases' ink 310.0-379.0, 69.0 wide by a cap of 7.3, cap top 700.3"),
+ ("Type", "t-lock",      "600 14px/18px var(--x-font)",
+  "lockup titles set over artwork: p6 'ABC News: Live Breaking Ne...' ink 201.0, p5 'Disney "
+  "Solitaire' 102.7, p3 'Procreate' 64.0, 'Meowdoku!' 75.3, 'Royal Match' 79.7; 14px renders "
+  "202.0/103.0/64.0/75.3/80.3"),
+ ("Type", "t-lock-sub",  "400 11px/14px var(--x-font)",
+  "p6 'Live headlines & daily alerts' ink 144.3 and p5 'Play a Magic Puzzle Card Game' "
+  "163.7; 11px renders both to the third"),
+ ("Type", "t-price",     "700 15px/20px var(--x-font)",
+  "p3 '$12.99' ink 49.0 by 12.7; 15px renders 49.3 by 12.7"),
+ ("Type", "t-tile",      "600 16px/19.33px var(--x-font)",
+  "p8 'Top Downloaded' ink 124.3 and 'Apps' 38.0 on a 19.33 pitch; 16px renders 124.7 and 38.0"),
+ ("Type", "t-wordmark",  "500 20px/24px var(--x-font)",
+  "p7 'Arcade' ink 176.67-239.33 = 62.7 by a cap of 15.0; 20px renders 63.0 by 15.0 - see --x-tr-wordmark"),
+ ("Type", "tr-wordmark", "-0.05px",
+  "closes the 20px 'Arcade' from 63.0 to the 62.7 measured with the logo erased out of the box; -.45 rendered 60.7"),
 
  ("Type", "t-head",      "600 21px/26px var(--x-font)",
   "p6 '9/11: 25 Years Later' ink 177.0 by 19.0; the width wants 19.5px and the height 21.2, and only tracking reconciles them - see --x-tr-head"),
@@ -140,10 +179,11 @@ TOKENS = [
   "p7 '1 month free, then $6.99/month.' ink 180.7 wide by 11.3 tall; at 15px "
   "it renders 219.0 by 14.3"),
  ("Type", "t-areye",     "600 12px/16px var(--x-font)",
-  "p7 row eyebrow 'Apple Arcade' ink 76.7 wide, its 'A' cap 702.3-711.0 = 8.7"),
+  "p7 row eyebrow 'Apple Arcade' ink 76.7 wide, its 'A' cap 702.3-711.0 = 8.7; p3 'GET "
+  "STARTED' 81.7 and 'OUR FAVORITES' 95.0 render 81.7 and 95.3 at it"),
  ("Type", "t-pane",      "700 27px/32px var(--x-font)",
   "p1 headline ink 253.0 and 159.3 wide on a 32 pitch; at 28px the two lines render "
-  "262.7 and 165.7, both .96"),
+  "262.7 and 165.7, both .96; p3 '5 Tips for Procreate' 243.0 by 24.7 renders exactly at it"),
  ("Type", "t-lede",      "400 21px/26px var(--x-font)",
   "p1 message, four forced lines 260.0/329.0/216.0/163.0 wide; at 20px all four "
   "render 1.04 narrow and 1.05 short"),
@@ -166,6 +206,14 @@ TOKENS = [
   "p2 alert message ink 216.3/248.7/173.7 wide on a 20 pitch; 15px renders 216.7/248.7/174.0"),
  ("Type", "t-alert-btn", "500 17px/22px var(--x-font)",
   "p2 'Don’t Allow' to 'Allow' ink 83.7-296.0; 17px renders 84.0-296.0"),
+ ("Type", "t-key",       "400 25px/35px var(--x-font)",
+  "p9 letter keys: 'w' x-height 613.3-626.0 and 17.0 wide, 'm' 17.7 wide, 'k' 662.3-680.0; at 24/42 they rendered 3 low and 12.3 tall"),
+ ("Type", "t-key-sm",    "400 18px/40px var(--x-font)",
+  "p9 '123' ink 15.0-42.3 x 774.0-787.3; at 17/42 it rendered 25.7 wide and 1.3 low"),
+ ("Type", "t-key-at",    "400 21px/38px var(--x-font)",
+  "p9 '@' ink 217.3-234.3 x 772.0-789.7; at the letters' 24px it rendered 19.0 wide"),
+ ("Type", "t-pw",        "400 17px/22px var(--x-font)",
+  "p9 'Passwords' ink 171.0-250.7, cap 564.3-577.3"),
  ("Type", "t-time",      "590 17px/22px var(--x-font)",
   "p6 clock ink 43.3-87.3, y 26.3-39.0; the template status bar sets this"),
 
@@ -216,11 +264,13 @@ PHONE = """.phone{position:relative;flex:none;width:var(--x-w);height:var(--x-h)
 .home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
   width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}"""
 
-# The status bar is templates/gen.py's, byte for byte: the .sb rules, SB_ICONS
-# and the clock. The template is drawn for a 393pt frame and this one is 402, so
-# the glyphs sit in a .glyphs wrapper moved +6, which puts the battery's right
-# edge at 366.3 against the 366.7 measured on p6. What the captures' own glyphs
-# show (iOS 26's filled battery, no-service bars) is deliberately not redrawn.
+# The status bar is templates/gen.py's, byte for byte: the .sb rules, SB_ICONS,
+# statusbar() and its 9:41 clock. The template is drawn for a 393pt frame and
+# this one is 402, so the glyphs sit in a .glyphs wrapper moved +6, which puts
+# the battery's right edge at 366.3 against the 366.7 measured on p6. Nothing
+# the captures' own status bars show is carried over: not their clocks, not the
+# person badge, not p2's bell or its expanded Focus island, not iOS 26's filled
+# battery or the no-service bars.
 SB_ICONS = (
  '<svg style="left:282px;top:23.34px;width:19.33px;height:12px" viewBox="0 0 19.33 12">'
  '<rect x="0" y="7.67" width="3.33" height="4.33" rx="1.05"/>'
@@ -250,27 +300,10 @@ SB_ICONS = (
  ' stroke-opacity=".38"/><rect x="2" y="2" width="21.3" height="8.7" rx="2.6"/>'
  '<path d="M26.1 4.3c.9.7.9 3 0 3.7V4.3Z" fill-opacity=".38"/></svg>')
 
-# The badge every one of these nine captures carries beside the clock, 11 x 12
-# on p6. It is the one glyph the template has no reason to ship, so it is drawn
-# here, the capture's 9pt gap to the right of the template clock's ink.
-SB_PERSON = ('<svg style="left:100.4px;top:23.4px;width:11px;height:12px" '
-             'viewBox="0 0 11 12"><circle cx="5.5" cy="3.35" r="3.35"/>'
-             '<path d="M5.5 7.1C2.35 7.1 0 9.05 0 11.05 0 11.68.34 12 .97 12h9.06'
-             'c.63 0 .97-.32.97-.95C11 9.05 8.65 7.1 5.5 7.1Z"/></svg>')
-
-
-def statusbar(time, colour="var(--x-ink)", island=True, extra="",
-              badge=SB_PERSON, icons=SB_ICONS, time_dx=0):
-    """The template's statusbar(), plus what p2 alone needs: an expanded island
-    that pushes the clock left, a bell badge, and no room for the cellular bars."""
-    return ('<div class="sb" style="color:%s">%s<div class="time"%s>%s</div>%s%s'
-            '<div class="glyphs">%s</div></div>'
-            % (colour, '<div class="island"></div>' if island else "",
-               ' style="left:%gpx"' % time_dx if time_dx else "",
-               time, badge, extra, icons))
-
-
-SB_BARS, SB_WIFI, SB_BATT = (g + "</svg>" for g in SB_ICONS.split("</svg>")[:3])
+def statusbar(colour="var(--x-ink)", time="9:41", island=True):
+    """island=False for the shell boards: the art draws its own camera housing."""
+    return ('<div class="sb" style="color:%s">%s<div class="time">%s</div><div class="glyphs">%s</div></div>'
+            % (colour, '<div class="island"></div>' if island else "", time, SB_ICONS))
 
 
 def home(colour="var(--x-ink)"):
@@ -278,18 +311,27 @@ def home(colour="var(--x-ink)"):
 
 
 # --------------------------------------------------------------- assets ----
-# Two sources, and the rule that picks between them:
+# Three sources, and the rule that picks between them:
 #
+#   interface        -> rebuilt: HTML and CSS, glyphs as SVG in assets/icons/
 #   an app icon      -> the original, 1024px from the iTunes lookup API
 #   editorial art    -> a crop of the capture at its own measured box
 #
-# An app icon has a canonical original that Apple serves, so nothing is gained
-# by reading it out of a 62pt crop. Editorial art (a Today card, a game hero,
-# a Browse tile) is composed by the App Store's editors and published nowhere
-# else at full size, so the capture is the only source there is.
+# Anything the system draws is rebuilt, never cut: the keyboard, the sheets'
+# marks and close buttons, the chips' and tabs' glyphs, p1's illustration. The
+# glyphs have no published outline, so each was traced from the capture into a
+# path whose viewBox is its ink box in page points. An app icon has a canonical
+# original that Apple serves. Only editorial art (a Today card's picture, a
+# game hero, a Browse tile's illustration) is composed by the App Store's
+# editors and published nowhere else at full size, so for that the capture is
+# the only source there is - and even then only the picture: the type, icons,
+# pills and badges the App Store sets over it are rebuilt, and cut() inpaints
+# them out of the crop so they are not drawn twice. The one exception is a
+# peek, a 10-12pt sliver of the next card or row at the right edge, too little
+# of anything to name the app or the words it belongs to.
 #
-# Both land in assets/art/, which is committed; assets/refs/ is not, so the
-# crops have to survive as files rather than as a recipe.
+# Icons and crops land in assets/, which is committed; assets/refs/ is not, so
+# the crops have to survive as files rather than as a recipe.
 
 ICON_PX = 3          # icons are cut at 3x their placement size, like the capture
 
@@ -343,35 +385,75 @@ def app_icon(slug, size):
 
 
 def cut(cid):
-    """A crop of the capture at its measured box, cached under assets/art/."""
+    """A crop of the capture at its measured box, cached under assets/art/.
+
+    `erase` lists the interface the App Store draws over the artwork, in page
+    pt, so the board can rebuild it live rather than ship it inside a picture.
+    [x0, y0, x1, y1] clears the whole box (an icon, a pill); [x0, y0, x1, y1,
+    sign, T] clears only the glyph pixels in it, those lighter (sign 1) or
+    darker (-1) than the blurred ground by T levels, grown by 1pt to take the
+    antialiased rim. _inpaint fills both from the pixels around them."""
     c = CROPS[cid]
     dst = ART_DIR / (cid + ".png")
     if not dst.exists():
-        from PIL import Image
+        import numpy as np
+        from PIL import Image, ImageFilter
         ART_DIR.mkdir(parents=True, exist_ok=True)
         src = Image.open(REFS_DIR / (c["img"] + ".png")).convert("RGB")
         box = tuple(round(v * SCALE) for v in c["box"])
         im = src.crop(box)
-        if c.get("kind") == "mask":
-            im = _to_mask(im)
+        if c.get("erase"):
+            a = np.asarray(im).astype(float)
+            lum = a.mean(2)
+            hp = lum - np.asarray(Image.fromarray(lum.astype(np.uint8))
+                                  .filter(ImageFilter.GaussianBlur(10))).astype(float)
+            m = np.zeros(lum.shape, bool)
+            for e in c["erase"]:
+                X0, Y0, X1, Y1 = (max(int(round((v - o) * SCALE)), 0)
+                                  for v, o in zip(e[:4], c["box"][:2] * 2))
+                if len(e) == 4:
+                    m[Y0:Y1, X0:X1] = True
+                else:
+                    g = np.zeros(lum.shape, bool)
+                    g[Y0:Y1, X0:X1] = hp[Y0:Y1, X0:X1] * e[4] > e[5]
+                    m |= _grow(g, int(SCALE))
+            im = Image.fromarray(np.clip(np.round(_inpaint(a, m)), 0, 255).astype(np.uint8))
         im.save(dst)
     return _uri(dst)
 
 
-def _to_mask(im):
-    """A monochrome glyph on a near-flat ground, turned into a black RGBA
-    stencil. The App Store's five tab glyphs are SF Symbols; Apple publishes
-    no outline for them, and hand-tracing a rocket loses more shape than the
-    capture's own antialiasing does. alpha = how far each pixel falls below
-    the ground, and the ground is the crop's 98th brightest percentile."""
-    from PIL import Image
-    lum = im.convert("L")
-    hist = sorted(lum.getdata())  # noqa: PIL 14 renames this to get_flattened_data
-    ground = max(hist[int(len(hist) * 0.98)], 1)
-    alpha = lum.point(lambda v: max(0, min(255, round(255 * (ground - v) / ground))))
-    out = Image.new("RGBA", im.size, (0, 0, 0, 0))
-    out.putalpha(alpha)
-    return out
+def _grow(m, n):
+    """Dilate a mask by n pixels, 4-connected."""
+    import numpy as np
+    for _ in range(n):
+        p = np.pad(m, 1)
+        m = p[1:-1, 1:-1] | p[:-2, 1:-1] | p[2:, 1:-1] | p[1:-1, :-2] | p[1:-1, 2:]
+    return m
+
+
+def _inpaint(a, m, sweeps=60):
+    """Harmonic fill of the pixels under m from the ones around them: solved on
+    a half-size copy first, then relaxed at this size. It is the smoothest
+    surface that meets the boundary, so it carries no texture and invents no
+    detail - which is the point, since what it fills sits under live UI."""
+    import numpy as np
+    if not m.any():
+        return a
+    H, W = m.shape
+    if min(H, W) > 16:
+        h, w = (H + 1) // 2, (W + 1) // 2
+        k = np.pad(~m, ((0, 2 * h - H), (0, 2 * w - W))).astype(float)
+        s = np.pad(a, ((0, 2 * h - H), (0, 2 * w - W), (0, 0))) * k[..., None]
+        n = k.reshape(h, 2, w, 2).sum((1, 3))
+        low = s.reshape(h, 2, w, 2, 3).sum((1, 3)) / np.maximum(n, 1)[..., None]
+        low = _inpaint(low, n == 0, sweeps)
+        a = np.where(m[..., None], low.repeat(2, 0).repeat(2, 1)[:H, :W], a)
+    elif (~m).any():
+        a = np.where(m[..., None], a[~m].mean(0), a)
+    for _ in range(sweeps):
+        p = np.pad(a, ((1, 1), (1, 1), (0, 0)), mode="edge")
+        a = np.where(m[..., None], (p[:-2, 1:-1] + p[2:, 1:-1] + p[1:-1, :-2] + p[1:-1, 2:]) / 4, a)
+    return a
 
 
 def _uri(path):
@@ -382,6 +464,23 @@ def art(cid, x, y, w, h, cls="", extra=""):
     """Place a crop back at the numbers it was measured at."""
     return ('<img class="%s" alt="%s" src="%s" style="left:%gpx;top:%gpx;'
             'width:%gpx;height:%gpx%s">' % (cls, cid, cut(cid), x, y, w, h, extra))
+
+
+def icon(name, x, y, w, h, extra=""):
+    """Inline assets/icons/<name>.svg at a measured box. Each file's viewBox is
+    its ink box in the capture's own coordinates, so the box it was measured at
+    places it, and the canvas inspector names the inline <svg> by its geometry."""
+    svg = (ICON_DIR / (name + ".svg")).read_text().strip()
+    return svg.replace("<svg ", '<svg preserveAspectRatio="none" style="left:%gpx;top:%gpx;'
+                       'width:%gpx;height:%gpx%s" ' % (x, y, w, h, extra), 1)
+
+
+def icon_at(name, extra="", dx=0, dy=0):
+    """icon() at the box its own viewBox records, shifted by (dx, dy) when the
+    parent is not at the page origin: pass minus the parent's page offset."""
+    vb = (ICON_DIR / (name + ".svg")).read_text().split('viewBox="', 1)[1].split('"', 1)[0]
+    x, y, w, h = (float(v) for v in vb.split())
+    return icon(name, round(x + dx, 2), round(y + dy, 2), w, h, extra)
 
 
 # ----------------------------------------------------------------- emit ----
@@ -537,9 +636,7 @@ h1.big{position:absolute;left:20px;top:62.6px;font:var(--x-t-title);letter-spaci
   box-shadow:inset 0 0 0 .5px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.05)}
 .bar .cap{position:absolute;top:4.5px;width:77px;height:54px;border-radius:27px;
   background:var(--x-fill-2)}
-.bar i{position:absolute;display:block;background:currentColor;
-  -webkit-mask-size:100% 100%;mask-size:100% 100%;
-  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.bar svg{position:absolute;display:block}
 .bar b{position:absolute;top:39.4px;width:80px;margin-left:-40px;text-align:center;
   font:var(--x-t-tab);letter-spacing:.06px}
 .bar .t{color:var(--x-ink)}
@@ -553,12 +650,8 @@ def tabbar(active):
         on = " on" if i == active else ""
         if on:
             out.append('<div class="cap" style="left:%gpx"></div>' % (c - 38.5))
-        out.append(
-            '<div class="t%s"><i style="left:%gpx;top:%gpx;width:%gpx;height:%gpx;'
-            '-webkit-mask-image:url(%s);mask-image:url(%s)"></i>'
-            '<b style="left:%gpx">%s</b></div>'
-            % (on, ix - BAR_L, iy - BAR_T, w, h, cut("tab-" + slug),
-               cut("tab-" + slug), c, label))
+        out.append('<div class="t%s">%s<b style="left:%gpx">%s</b></div>'
+                   % (on, icon_at("tab-" + slug, dx=-BAR_L, dy=-BAR_T), c, label))
     return '<div class="bar">%s</div>' % "".join(out)
 
 
@@ -573,37 +666,39 @@ def bigtitle(text):
 
 # -- category chip row -------------------------------------------------------
 # p6: pill 1 spans 20-159 and pill 2 167-367 at y 126-163, so the gap is 8 and
-# both pills are 37 tall on a 18.5 radius. The icons are App Store editorial
-# art, not emoji, so they are crops.
+# both pills are 37 tall on a 18.5 radius. The icons are App Store glyphs, not
+# emoji, traced from the capture into assets/icons/chip-*.svg in their own flat
+# colours.
 CHIP_CSS = """.chips{position:absolute;left:0;height:37px}
+.chip svg{position:absolute;display:block}
 .chip{position:absolute;top:0;height:37px;border-radius:var(--x-r-chip);
   background:var(--x-chip);box-shadow:0 1px 3px rgba(0,0,0,.05),0 4px 10px rgba(0,0,0,.05)}
 .chip span{position:absolute;top:7.8px;letter-spacing:var(--x-tr-tight);font:var(--x-t-chip);white-space:nowrap}"""
 
 
 def chips(items, top=126):
-    """items: (crop id, label, pill left, pill width, icon width, label left).
+    """items: (icon, label, pill left, pill width, label left).
 
-    The icon goes back exactly where it was cut from: its crop box is in page
+    The icon goes back exactly where it was traced from: its viewBox is in page
     coordinates, so subtracting the pill's own origin gives its offset inside
     the pill. Only the label offset is measured per chip, because the gap from
     the icon's ink to the first letter is set by the icon and not by the pill.
     `top` is 126 under a large title and 603 on p7, where the row sits below
     the promotion instead of above the content."""
     out = []
-    for cid, label, x, w, iw, tx in items:
-        bx, by = CROPS[cid]["box"][:2]
+    for name, label, x, w, tx in items:
         out.append('<div class="chip" style="left:%gpx;width:%gpx">%s'
                    '<span style="left:%gpx">%s</span></div>'
-                   % (x, w, art(cid, bx - x, by - top, iw, 24), tx, label))
+                   % (x, w, icon_at(name, dx=-x, dy=-top), tx, label))
     return '<div class="chips" style="top:%gpx">%s</div>' % (top, "".join(out))
 
 
 # -- editorial card ----------------------------------------------------------
 # p6: eyebrow cap 186.0, head cap 202.7, sub cap 226.7 (24 apart), card top
-# 257.0, card 20-382 x 257-490. The card is cropped whole: its bottom strip is
-# a glass bar over the photograph, and the pixels behind that bar are not in
-# the capture, so the strip cannot be rebuilt without inventing them.
+# 257.0, card 20-382 x 257-490. The photograph and the glass strip along its
+# bottom stay a crop - the pixels behind that strip are not in the capture, so
+# it cannot be rebuilt without inventing them. The lockup set on the strip is
+# not part of the picture, though: see lockups below.
 CARD_CSS = """.eyebrow{position:absolute;left:20px;top:181.8px;font:var(--x-t-eyebrow);
   letter-spacing:var(--x-tr-tight);
   color:var(--x-accent)}
@@ -647,6 +742,54 @@ def app_row(i, slug, title, sub, cta, iap=False, top0=ROW_TOP):
             % (top, slug, app_icon(slug, 62), title, sub, cta, note))
 
 
+# -- lockups set over artwork ------------------------------------------------
+# p6, p5 and p3 set an app lockup - icon, name, subtitle, pill - on top of an
+# editorial picture. None of it is the picture: the icon is the original from
+# iTunes, the type is live, the pill is glass, and cut() inpaints all of it out
+# of the crop first. Each line is placed from its measured ink top-left less
+# the offset that same string's ink shows in a 30px line box at its fitted
+# size, so the render lands on the capture's ink rather than on a guess at SF's
+# side bearings. Text centred in a pill needs no offset: a 32px line box puts
+# the 15px cap top 10.4 down, and p6, p5 and p3 measure 10.4, 10.7 and 10.7.
+LOCK_CSS = """.lk{position:absolute;white-space:nowrap;color:var(--x-ink-inv)}
+.lk.t{font:var(--x-t-lock);line-height:30px}
+.lk.s{font:var(--x-t-lock-sub);line-height:30px;color:var(--x-ink-glass)}
+.lk.s2{font:var(--x-t-sub);line-height:30px}
+.lk.e{font:var(--x-t-areye);line-height:30px}
+.lk.h{font:var(--x-t-pane);line-height:30px}
+.lk.n{font:var(--x-t-iap);line-height:30px}
+.lk.promo{color:var(--x-ink-promo)}
+.lk.dim{color:var(--x-ink-glass-2)}
+.lk.grey{color:var(--x-ink-2)}
+.lk.dark{color:var(--x-ink)}
+.gpill{position:absolute;height:32px;border-radius:16px;background:var(--x-glass-pill);
+  font:var(--x-t-cta);line-height:32px;text-align:center;color:var(--x-ink-inv)}
+.gpill.price{background:var(--x-glass-price);font:var(--x-t-price);line-height:32px;
+  color:var(--x-ink-glass-2)}
+.gpill.solid{background:var(--x-fill);color:var(--x-accent-2)}
+/* p3 card 2's Ad badge: 25 x 16 at 40, 697.8; its top edge is 3.7 in at .1pt down
+   and 1.0 in at 1.5, which r 4.5 predicts - not p8's r 8 badge */
+.adb{position:absolute;width:25px;height:16px;border-radius:4.5px;background:var(--x-badge);
+  font:var(--x-t-ad);line-height:16px;text-align:center;color:var(--x-ink-inv)}"""
+
+
+def lk(cls, ink, off, text):
+    """A line of type whose ink top-left measured `ink`; `off` is where the fit
+    sheet found that string's ink inside its own 30px line box."""
+    return ('<div class="lk %s" style="left:%gpx;top:%gpx">%s</div>'
+            % (cls, round(ink[0] - off[0], 2), round(ink[1] - off[1], 2), text))
+
+
+def lock_icon(slug, x, y, size):
+    return ('<img alt="icon-%s" src="%s" style="left:%gpx;top:%gpx;width:%dpx;height:%dpx">'
+            % (slug, app_icon(slug, size), x, y, size, size))
+
+
+def gpill(x, y, w, text, cls=""):
+    return ('<div class="gpill%s" style="left:%gpx;top:%gpx;width:%gpx">%s</div>'
+            % (" " + cls if cls else "", x, y, w, text))
+
+
 SECTION_CSS = """.sect{position:absolute;left:20px;font:var(--x-t-section)}
 .sect svg{display:inline-block;width:7.3px;height:15px;margin-left:8.4px;
   vertical-align:-1.5px;fill:none;stroke:var(--x-ink-3);stroke-width:2.6;
@@ -671,11 +814,11 @@ def section(title, cap_top, chev=True, small=False):
         " sm" if small else "", cap_top - off, title, CHEV if chev else "")
 
 
-def screen(label, css, body, time="16:58", tab=None, dark=False):
+def screen(label, css, body, tab=None, dark=False):
     ink = "var(--x-ink-inv)" if dark else "var(--x-ink)"
     return page(NAME + " - " + label,
                 '<div class="phone">%s<div class="scroll">%s</div>%s%s</div>'
-                % (statusbar(time, ink), body,
+                % (statusbar(ink), body,
                    "" if tab is None else tabbar(tab), home(ink)),
                 SCREEN_CSS + "\n" + css)
 
@@ -689,19 +832,23 @@ def s06_apps():
                 "Languages, Math, Music &amp; Chess", "Get", iap=True),
     ])
     body = (bigtitle("Apps")
-            + chips([("chip-entertainment", "Entertainment", 20, 139, 17, 34.3),
-                     ("chip-visionpro", "Apple Vision Pro Apps", 167, 200, 25, 41.7),
-                     ("chip-chat", "", 375, 200, 19, 44)])
+            + chips([("chip-entertainment", "Entertainment", 20, 139, 34.3),
+                     ("chip-visionpro", "Apple Vision Pro Apps", 167, 200, 41.7),
+                     ("chip-chat", "", 375, 200, 44)])
             + '<div class="eyebrow">TONIGHT 8:00 PM</div>'
             + '<div class="chead">9/11: 25 Years Later</div>'
             + '<div class="csub">All-day coverage on ABC News</div>'
             + art("p6-hero", 20, 257, 362, 233, "card")
+            + lock_icon("abc-news", 33.67, 441.17, 36)
+            + lk("t", (78.67, 446.67), (.67, 9.67), "ABC News: Live Breaking Ne&hellip;")
+            + lk("s", (79.0, 463.33), (1.0, 11.0), "Live headlines &amp; daily alerts")
+            + gpill(294, 443.3, 74, "Get")
             + art("p6-peek-card", 390, 180, 12, 312, "", ";border-radius:18px 0 0 18px")
             + section("Must-Have Apps", 537.0)
             + rows
             + art("p6-peek-rows", 390, 560, 12, 230))
-    return screen("Apps", CHIP_CSS + "\n" + CARD_CSS + "\n" + ROW_CSS + "\n" + SECTION_CSS,
-                  body, tab=2)
+    return screen("Apps", CHIP_CSS + "\n" + CARD_CSS + "\n" + ROW_CSS + "\n" + SECTION_CSS
+                  + "\n" + LOCK_CSS, body, tab=2)
 
 
 def s05_games():
@@ -712,14 +859,19 @@ def s05_games():
                 "Get", True, 586.3),
     ])
     body = (bigtitle("Games")
-            + chips([("chip-action", "Action", 20, 95, 22, 40.7),
-                     ("chip-racing", "Racing", 123, 97.7, 21, 40.3),
-                     ("chip-strategy", "Strategy", 228.7, 103.3, 21.3, 37.3),
-                     ("chip-puzzle", "Puzzle", 340, 100, 27, 46.3)])
+            + chips([("chip-action", "Action", 20, 95, 40.7),
+                     ("chip-racing", "Racing", 123, 97.7, 40.3),
+                     ("chip-strategy", "Strategy", 228.7, 103.3, 37.3),
+                     ("chip-puzzle", "Puzzle", 340, 100, 46.3)])
             + '<div class="eyebrow">HAPPENING NOW</div>'
             + '<div class="chead">Disney Solitaire</div>'
             + '<div class="csub">Cook with Remy and Linguini!</div>'
             + art("p5-hero", 20, 257, 362, 233, "card")
+            + lock_icon("disney-solitaire", 34, 437.67, 36)
+            + lk("t", (79.33, 443.33), (1.33, 9.67), "Disney Solitaire")
+            + lk("s", (79.0, 459.67), (1.0, 11.0), "Play a Magic Puzzle Card Game")
+            + gpill(294, 440, 74, "Get")
+            + lk("n dim", (295.67, 478), (.67, 12.0), "In-App Purchases")
             + art("p5-peek-card", 392, 176, 10, 326, "", ";border-radius:18px 0 0 18px")
             + section("What We&rsquo;re Playing", 537.0)
             + '<div class="ssub" style="top:%gpx">These favorites are always a great '
@@ -728,7 +880,7 @@ def s05_games():
             + art("p5-peek-rows", 392, 560, 10, 240)
             + section("Must-Play Games", 851.0))
     return screen("Games", CHIP_CSS + "\n" + CARD_CSS + "\n" + ROW_CSS + "\n"
-                  + SECTION_CSS + "\n" + SSUB_CSS, body, tab=1)
+                  + SECTION_CSS + "\n" + SSUB_CSS + "\n" + LOCK_CSS, body, tab=1)
 
 
 # -- search ------------------------------------------------------------------
@@ -738,9 +890,7 @@ def s05_games():
 # grey Get pill for a white one.
 SEARCH_CSS = """.field{position:absolute;left:16px;top:116px;width:370px;height:42px;
   border-radius:21px;background:var(--x-fill)}
-.field i{position:absolute;left:13.7px;top:13px;width:15.7px;height:15.7px;
-  display:block;background:var(--x-ink-2)}
-.field .mic{left:339.7px;top:12.3px;width:12px;height:17.3px}
+.field svg{position:absolute;display:block;color:var(--x-ink)}
 .field span{position:absolute;left:38px;top:10.3px;letter-spacing:.19px;
   font:var(--x-t-ph);
   color:var(--x-ink-2)}
@@ -752,15 +902,21 @@ SEARCH_CSS = """.field{position:absolute;left:16px;top:116px;width:370px;height:
 .upd{position:absolute;left:304px;top:230px;width:78px;height:32px;border-radius:16px;
   background:var(--x-bg);font:var(--x-t-cta);color:var(--x-accent-2);
   display:flex;align-items:center;justify-content:center}
-.tile{border-radius:12px}"""
+.tile{border-radius:12px}
+.tl{position:absolute;font:var(--x-t-tile);color:var(--x-ink-inv);white-space:nowrap}"""
+
+# The tile pictures are crops, their labels are not. Ink is 12.67 in from the
+# tile, the first line's ink top 56.33 down with a 19.33 pitch after it (t1
+# 570.33 and 589.67, t3 678.67 and 698.67), and a one-line label takes the
+# second line. Tiles 5 and 6 are under the tab bar, where the glass refracts
+# them: 'Photo & Video' reads through it, and so does 'Media', then 'Rea' 21pt
+# further on - the room ' & ' takes, with the '&' behind the joystick glyph.
+TILE_LABELS = [("Top Downloaded<br>Apps", 20, 514.0), ("Top Downloaded<br>Games", 206, 514.0),
+               ("Top-Selling<br>Apps", 20, 622.6), ("Top-Selling<br>Games", 206, 622.6),
+               ("Photo &amp; Video", 20, 731.6), ("Media &amp; Reading", 206, 731.6)]
 
 
 def s08_search():
-    def mask(cid, cls=""):
-        return ('<i class="%s" style="-webkit-mask-image:url(%s);mask-image:url(%s);'
-                '-webkit-mask-size:100%% 100%%;mask-size:100%% 100%%"></i>'
-                % (cls, cut(cid), cut(cid)))
-
     tiles = "".join(art("p8-tile-%d" % (i + 1), x, y, 176, 99.5, "tile")
                     for i, (x, y) in enumerate([(20, 514.0), (206, 514.0),
                                                 (20, 622.6), (206, 622.6),
@@ -768,9 +924,12 @@ def s08_search():
     # the fourth row's tops are under the tab bar; only the strip below it shows
     tiles += (art("p8-tile-7", 20, 853.3333, 176, 20.6667)
               + art("p8-tile-8", 206, 853.3333, 176, 20.6667))
+    tiles += "".join('<div class="tl" style="left:%gpx;top:%gpx">%s</div>'
+                     % (x + 12, round(y + 52.33 + (0 if "<br>" in t else 19.33), 2), t)
+                     for t, x, y in TILE_LABELS)
     body = (bigtitle("Search")
             + '<div class="field">%s%s<span>Games, Apps, Stories, and More</span></div>'
-              % (mask("p8-mag"), mask("p8-mic", "mic"))
+              % (icon_at("magnifier", dx=-16, dy=-116), icon_at("mic", dx=-16, dy=-116))
             + section("Suggested", 181.7, small=True)
             + '<div class="tint"></div>'
             # the promoted row: three lines of text, so it is not the 62-box row
@@ -794,14 +953,20 @@ def s08_search():
 # Three grounds, and each one is rebuilt from what the capture can actually
 # support. Rows 0-136 are a smooth vertical ramp (per-row sd under 7), so they
 # become a CSS gradient with the status bar, title and account disc drawn live
-# over them. From 136 the sky becomes a photograph, and the Arcade wordmark
-# sits on the photograph, so 136-383 is one crop. Below that the ground is
+# over them. From 136 the sky becomes a photograph, and 136-383 is a crop. The
+# Arcade wordmark on it is not: the logo is SF's own Apple glyph, U+F8FF out of
+# SFNS.ttf at the wordmark's 20px, kept as a path so it does not depend on the
+# viewer's fonts, and 'Arcade' beside it is live; cut() inpaints both out of
+# the photograph first. Below that the ground is
 # #000000 - measured pure from 448 down, with a short ramp out of the photo
 # from 383 - and the headline, the offer button and the footnote are drawn on
 # it. White content starts at 584.0.
 ARCADE_CSS = """.a7{position:absolute;left:0;top:0;width:var(--x-w);height:var(--x-h);
   background:#000}
 .a7 .sky{position:absolute;left:0;top:0;width:var(--x-w);height:136px;background:var(--x-sky)}
+.a7 svg{position:absolute;display:block}
+.a7 .wm{position:absolute;left:176px;top:356.33px;font:var(--x-t-wordmark);line-height:30px;
+  letter-spacing:var(--x-tr-wordmark);color:var(--x-ink-glass)}
 .a7 .fade{position:absolute;left:0;top:383px;width:var(--x-w);height:45px;
   background:linear-gradient(#0A0C13,#000)}
 .a7 .sheet7{position:absolute;left:0;top:584px;width:var(--x-w);height:290px;
@@ -856,15 +1021,17 @@ def arcade_row(i, slug, rank, title=None, sub=None, cta=None):
 def s07_arcade():
     body = ('<div class="a7"><div class="sky"></div>'
             + art("p7-hero", 0, 136, 402, 247)
+            # 'Arcade' ink 178.67, 364 less its 30px-box offset .67, 7.67
+            + icon_at("arcade-apple", ";color:var(--x-ink-glass)") + '<div class="wm">Arcade</div>'
             + '<div class="fade"></div><div class="sheet7"></div></div>'
             + bigtitle("Arcade")
             + '<div class="hl">No In-App Purchases. No<br>Ads. Just Fun.</div>'
             + '<div class="offer">Accept Offer</div>'
             + '<div class="foot">1 month free, then $6.99/month.</div>'
-            + chips([("p7-chip-all", "All Games", 20, 118.7, 20.3, 40.3),
-                     ("p7-chip-action", "Action", 147, 95, 21.7, 40.3),
-                     ("p7-chip-adv", "Adventure", 250.3, 120.4, 22, 40),
-                     ("p7-chip-4", "", 379, 118.7, 13, 40)], top=603)
+            + chips([("chip-all", "All Games", 20, 118.7, 40.3),
+                     ("chip-action-dark", "Action", 147, 95, 40.3),
+                     ("chip-adventure", "Adventure", 250.3, 120.4, 40),
+                     ("chip-board", "", 379, 118.7, 40)], top=603)
             + section("Top Arcade Games", 663.0, chev=False)
             + arcade_row(0, "block-blast-plus", 1, "Block Blast!+",
                          "Block Puzzle &amp; Brain Training", "Get")
@@ -877,26 +1044,50 @@ def s07_arcade():
 
 
 # -- p3, Today ---------------------------------------------------------------
-# Three editorial cards under the chrome and nothing else. Each one is a single
-# photograph with its own typography set into it by the App Store's editors, so
-# each is one crop at its own measured box; only the rounded corner and the
-# drop shadow are drawn. Card 3 runs off the bottom of the frame, which is what
-# the capture shows.
+# Three editorial cards under the chrome and nothing else. Cards 1 and 2 are
+# pictures with type and a lockup set over them, and only the pictures are
+# crops: the eyebrow, headline and subtitle, the original icons, the price and
+# Get pills and the Ad badge are live, and cut() inpaints them out first. Card
+# 3 is white with only type and a row on it, so it is built outright. Its
+# headline sits under the tab bar, where the glass blurs it, 20 below its
+# eyebrow as card 1's is; the card runs off the bottom of the frame, which is
+# what the capture shows.
 # The shadow is solved rather than styled. Measured out from card 1's left edge
 # the ground reads #E6E6E6 at 1pt, #ECECEC at 6, #F3F3F3 at 12 and #F8F8F8 at 18,
 # and the same four values come back above the card, so the offset is zero on
 # both axes. Treating the blur as a Gaussian of sd = radius/2, that profile fits
 # sd 15 at alpha .21 to within a level everywhere, and it predicts the #E0E0E0
 # the 16pt gap between two cards actually shows.
-TODAY_CSS = """.tcard{border-radius:20px;box-shadow:0 0 30px rgba(0,0,0,.21)}"""
+TODAY_CSS = """.tcard{border-radius:20px;box-shadow:0 0 30px rgba(0,0,0,.21)}
+.c3{position:absolute;left:20px;top:751.67px;width:362px;height:160px;background:var(--x-bg)}"""
 
 
 def s03_today():
-    body = (bigtitle("Today")
-            + art("p3-card1", 20, 116, 362, 446, "tcard")
-            + art("p3-card2", 20, 578, 362, 158.7, "tcard")
-            + art("p3-card3", 20, 751.7, 362, 122.3, "tcard"))
-    return screen("Today", TODAY_CSS, body, tab=0)
+    card1 = (art("p3-card1", 20, 116, 362, 446, "tcard")
+             + lk("e promo", (40.67, 400), (.67, 10.67), "GET STARTED")
+             + lk("h", (41.67, 420), (1.67, 5.0), "5 Tips for Procreate")
+             + lk("s2 promo", (40.67, 455.67), (.67, 10.33),
+                  "Get more out of the digital art studio.")
+             + lock_icon("procreate", 40, 498.67, 48)
+             + lk("t", (99.33, 509.33), (1.33, 10.33), "Procreate")
+             + lk("s2 promo", (98.67, 527.67), (.67, 10.33), "Sketch. Paint. Create.")
+             + gpill(286, 507, 76, "$12.99", "price"))
+    card2 = (art("p3-card2", 20, 578, 362, 158.7, "tcard")
+             + lock_icon("meowdoku", 161, 589.33, 80)
+             + lk("t", (41.33, 682), (1.33, 10.0), "Meowdoku!")
+             + '<div class="adb" style="left:40px;top:697.8px">Ad</div>'
+             + lk("s2 dim", (70, 701), (1.0, 10.33), "Brain Puzzle Games")
+             + gpill(288, 681, 74, "Get")
+             + lk("n", (289.67, 719), (.67, 12.0), "In-App Purchases"))
+    card3 = ('<div class="tcard c3"></div>'
+             + lk("e grey", (40.67, 774.67), (.67, 10.67), "OUR FAVORITES")
+             + lk("h dark", (41.67, 794.67), (1.67, 5.0), "Essential iPhone Games")
+             + lock_icon("royal-match", 40, 852.67, 48)
+             + lk("t dark", (99.33, 853), (1.33, 10.0), "Royal Match")
+             + lk("s2 grey", (99.0, 870.33), (1.0, 10.5), "King Robert&rsquo;s Match-3 Puzzles")
+             + gpill(288, 849.67, 74, "Get", "solid"))
+    return screen("Today", LOCK_CSS + "\n" + TODAY_CSS,
+                  bigtitle("Today") + card1 + card2 + card3, tab=0)
 
 
 # -- sheets ------------------------------------------------------------------
@@ -916,13 +1107,11 @@ SHEET_CSS = """.dim{position:absolute;left:0;top:0;width:var(--x-w);height:var(-
 .sheet{position:absolute;left:0;width:var(--x-w);overflow:hidden;z-index:8;background:var(--x-bg);
   border-radius:var(--x-r-sheet) var(--x-r-sheet) var(--x-r-phone) var(--x-r-phone)}
 .sheet>div{position:absolute;left:0;width:var(--x-w);height:var(--x-h)}
-.sheet img{position:absolute;display:block}
+.sheet img,.sheet>div>svg,.close svg{position:absolute;display:block}
 .tx{position:absolute;white-space:nowrap}
 .mid{left:0;width:var(--x-w);text-align:center}
 .close{position:absolute;top:78px;width:44px;height:44px;border-radius:22px;
-  box-shadow:inset 0 0 0 .5px rgba(0,0,0,.18),inset 0 2px 2px -1px #fff,inset 0 -2px 2px -1px #fff}
-.close img{left:10px;top:10.33px;width:24px;height:24px}
-.go{position:absolute;height:53px;border-radius:26.5px;background:var(--x-accent-2);
+  box-shadow:inset 0 0 0 .5px rgba(0,0,0,.18),inset 0 2px 2px -1px #fff,inset 0 -2px 2px -1px #fff}.go{position:absolute;height:53px;border-radius:26.5px;background:var(--x-accent-2);
   color:var(--x-ink-inv);font:var(--x-t-go);display:flex;align-items:center;justify-content:center;
   box-shadow:inset 0 1.5px 1.5px -.5px #0CD3FF,inset 0 -1.5px 1.5px -.5px #0CD3FF}"""
 
@@ -934,31 +1123,78 @@ def sheet(top, body):
             % (top, 874 - top, -top, body))
 
 
-def sheet_screen(label, css, body, time, top=SHEET_TOP, ground="", behind="",
-                 back="", above="", sb=None):
+def sheet_screen(label, css, body, top=SHEET_TOP, ground="", behind="",
+                 back="", above=""):
     """behind: under the scrim. back: over it, under the sheet. above: over all."""
     return page(NAME + " - " + label,
                 '<div class="phone"%s>%s%s<div class="dim"></div>%s%s%s%s</div>'
                 % (' style="background:%s"' % ground if ground else "",
-                   sb or statusbar(time), behind, back, sheet(top, body), above, home()),
+                   statusbar(), behind, back, sheet(top, body), above, home()),
                 SCREEN_CSS + "\n" + SHEET_CSS + "\n" + css)
 
 
-def close(left, crop, disc):
+def close(left, glyph, disc):
+    """The xmark is traced per sheet, so its file already records where it sits."""
     return ('<div class="close" style="left:%gpx;background:%s">%s</div>'
-            % (left, disc, art(crop, 10, 10.33, 24, 24)))
+            % (left, disc, icon_at(glyph, ";color:var(--x-ink)", dx=-left, dy=-78)))
+
+
+# -- p1's illustration -------------------------------------------------------
+# A lock screen's lower half with one notification on it. It is drawn, not cut:
+# every part is a flat fill or a vertical ramp, and the three glyphs are
+# assets/icons/. Measured on p1, in page coordinates:
+#   ground   #FEFEFE at y 70 to #EDEDED at 418, flat across the row
+#   phone    x 67.0-335.3, bottom 379.5 on a 47 corner; flat across every row,
+#            down x=70 254 at 84, 244 at 150, 226 at 200, 207 from 236, 203 at 378
+#   card     82.2-319.95 x 210.9-266.4, r 19, #FEFEFE; its shadow fits
+#            0 9.5 17 at alpha .12 to a mean 0.8 levels over 90 samples
+#   icon     91.5, 220.5, 36.3 square; #1FB6F6 to #1963EE
+#   lines    #DBDBDD from 137.33: 67 x 11.33 at 220.6, 163.5 x 5.8 at 238.65 and 251.0
+#   buttons  35.6 discs of #C4C4C4 centred 116.35 and 285.35 on 323.0, glyphs #F5F5F5
+#   home     153.3-248.7 x 367.5-371.2, #F1F1F1
+# On p2 the box is 72-425, and the drawing sits 7.85 lower at the same size:
+# centred in a box 4.3 shorter.
+ILLO_CSS = """.illo{position:absolute;left:0;width:var(--x-w);color:#F5F5F5;
+  background:linear-gradient(#FEFEFE 8px,#EDEDED 356px)}
+.illo>div,.illo>svg{position:absolute;display:block}
+.illo .dev{left:67px;width:268.3px;height:317.5px;border-radius:0 0 47px 47px;
+  background:linear-gradient(#FEFEFE 22px,#FBFBFB 58px,#F4F4F4 88px,#F2F2F2 98px,
+    #EAEAEA 118px,#E2E2E2 138px,#CFCFCF 174px,#CFCFCF 238px,#CBCBCB 316px)}
+.illo .nt{left:82.2px;width:237.75px;height:55.5px;border-radius:19px;background:#FEFEFE;
+  box-shadow:0 9.5px 17px rgba(0,0,0,.12)}
+.illo .ln{left:137.33px;width:163.5px;height:5.8px;border-radius:2px;background:#DBDBDD}
+.illo .ln.t{width:67px;height:11.33px;border-radius:3.3px}
+.illo .ctl{width:35.6px;height:35.6px;border-radius:50%;background:#C4C4C4}
+.illo .hb{left:153.3px;width:95.4px;height:3.7px;border-radius:1.85px;background:#F1F1F1}"""
+
+
+def notify_illo(top, h):
+    o = (h - 357.3) / 2 - SHEET_TOP     # page y on p1 -> y inside this box
+
+    def at(cls, y, left=None):
+        return '<div class="%s" style="%stop:%gpx"></div>' % (
+            cls, "" if left is None else "left:%gpx;" % left, round(y + o, 2))
+    return ('<div class="illo" style="top:%gpx;height:%gpx">' % (top, h)
+            + at("dev", 62) + at("nt", 210.9)
+            + icon("app-store", 91.5, round(220.5 + o, 2), 36.3, 36.3)
+            + at("ln t", 220.6) + at("ln", 238.65) + at("ln", 251.0)
+            + at("ctl", 305.2, 98.55) + at("ctl", 305.2, 267.55)
+            + icon("flashlight", 113.25, round(315.1 + o, 2), 6.4, 15.1)
+            + icon("camera", 277.35, round(316.3 + o, 2), 15.65, 12.1)
+            + at("hb", 367.5) + "</div>")
 
 
 PANE_CSS = """.pane{font:var(--x-t-pane)}
 .lede{font:var(--x-t-lede);color:var(--x-ink-2)}
-.link{font:var(--x-t-link);color:var(--x-accent-2)}"""
+.link{font:var(--x-t-link);color:var(--x-accent-2)}
+""" + ILLO_CSS
 
 
 def notify_pane(illo_top=SHEET_TOP, illo_h=357.3, dy=0):
     """p1's pane. p2 shows the same pane pushed to y 72 under its alert, and
     there the illustration is 353 tall rather than 357.3 and the copy under it
     sits 5.6 lower, while the button and the link do not move at all."""
-    return (art("p1-illo", 0, illo_top, 402, illo_h)
+    return (notify_illo(illo_top, illo_h)
             + '<div class="tx mid pane" style="top:%gpx">Stay Up to Date with<br>'
               'Notifications</div>' % (451.35 + dy)
             + '<div class="tx mid lede" style="top:%gpx">Get notified about billing and<br>'
@@ -970,14 +1206,12 @@ def notify_pane(illo_top=SHEET_TOP, illo_h=357.3, dy=0):
 
 def s01_notify():
     return sheet_screen("Notifications onboarding", PANE_CSS, notify_pane(),
-                        "16:57", behind=bigtitle("Today"))
+                        behind=bigtitle("Today"))
 
 
 # p2: the system alert over p1's pane. The pane is pushed back to y 72 and the
 # sheet it was presented from shows above it as a narrower card, 16-386 on a 34
 # radius; a second scrim dims all of that, and the alert is glass over the lot.
-# The expanded island is a Focus activity and is cut from the capture; the
-# status bar around it is the template's, less the cellular bars.
 ALERT_CSS = PANE_CSS + """
 .dim.two{z-index:9}
 .backcard{position:absolute;left:16.5px;top:62px;width:369px;height:812px;z-index:8;
@@ -992,24 +1226,18 @@ ALERT_CSS = PANE_CSS + """
   color:var(--x-ink-alert);white-space:nowrap}
 .alert b{position:absolute;top:150px;width:140px;height:48px;border-radius:24px;
   background:var(--x-alert-btn);font:var(--x-t-alert-btn);
-  display:flex;align-items:center;justify-content:center}
-.phone>img{position:absolute;display:block;z-index:11}"""
+  display:flex;align-items:center;justify-content:center}"""
 
 
 def s02_alert():
-    # the clock moves to the capture's own centre, 53.6, to clear the island
-    sb = statusbar("16:57", island=False, time_dx=-17.6,
-                   badge=art("p2-bell", 77.33, 25.33, 14, 15, extra=";position:absolute"),
-                   icons=SB_WIFI + SB_BATT)
-    alert = ('<div class="alert"><h2>“App Store” Would Like to Send<br>You Notifications</h2>'
+    alert =('<div class="alert"><h2>“App Store” Would Like to Send<br>You Notifications</h2>'
              '<p>Notifications may include alerts,<br>sounds, and icon badges. These can<br>'
              'be configured in Settings.</p>'
              '<b style="left:16px">Don’t Allow</b><b style="left:164px">Allow</b></div>')
     return sheet_screen("Permission alert", ALERT_CSS,
-                        notify_pane(72, 353, 5.6), "16:57", top=72, sb=sb,
+                        notify_pane(72, 353, 5.6), top=72,
                         behind=bigtitle("Today"), back='<div class="backcard"></div>',
-                        above='<div class="dim two"></div>' + alert
-                              + art("p2-island", 110, 13.6667, 184.3333, 37.3333))
+                        above='<div class="dim two"></div>' + alert)
 
 
 # p4: a grouped list on --x-group. Cards are 16-386 on --x-r-card; rows are 51
@@ -1024,9 +1252,9 @@ ACCOUNT_CSS = """.sheet{background:var(--x-group)}
 
 
 def s04_account():
-    body = (art("p4-mark", 15, 85, 30, 30)
+    body = (icon_at("mark-account")
             + '<div class="tx shead" style="left:52px;top:89.1px">Apple Account</div>'
-            + close(342, "p4-x", "var(--x-disc-2)")
+            + close(342, "xmark-p4", "var(--x-disc-2)")
             + '<div class="acard" style="top:167px;height:102px"></div><div class="sep"></div>'
             + '<div class="tx body blue" style="left:32px;top:181.2px">Apple Account Sign In...</div>'
             + '<div class="tx body blue" style="left:32px;top:232.2px">Create New Apple Account</div>'
@@ -1034,18 +1262,59 @@ def s04_account():
               'you use for just about<br>everything you do with Apple.</div>'
             + '<div class="acard" style="top:329px;height:51px"></div>'
             + '<div class="tx body" style="left:32px;top:343.2px">App Updates</div>'
-            + art("p4-chev", 360.33, 348.33, 8, 12.67)
+            + icon_at("chevron", ";color:var(--x-ink-chev)")
             + '<div class="acard" style="top:415px;height:51px"></div>'
-            + art("p4-gear", 31.33, 428.33, 24.33, 24.33)
+            + icon_at("gear", ";color:var(--x-accent-2)")
             + '<div class="tx body blue" style="left:71px;top:429.2px">App Store Settings</div>')
-    return sheet_screen("Apple Account sheet", ACCOUNT_CSS, body, "16:58",
+    return sheet_screen("Apple Account sheet", ACCOUNT_CSS, body,
                         behind=bigtitle("Today"))
 
 
-# p9: the keyboard is iOS 26's floating one and is cut whole, from its rounded
-# top at y 546 down; it is system chrome, like the status bar, and rebuilding
-# thirty keys would add nothing a crop does not already carry.
-SIGNIN_CSS = """.body{font:var(--x-t-body)}
+# p9: iOS 26's floating keyboard, rebuilt key by key rather than cut out. The
+# panel's top edge is 545.3 and its bottom corners are the display's own. Keys
+# are 42.3 tall on a 54 pitch, and letter keys 33.3 wide on a 39.33 pitch from
+# x 6.67 (row 1), 26.33 (row 2) and 65.67 (row 3); the rest were read off their
+# own edges. Every glyph that is not a letter was traced from the capture into
+# assets/icons/kb-*.svg, so each file's viewBox is where it sits.
+KBD_ROWS = [(598.67, 6.67, "qwertyuiop"), (652.33, 26.33, "asdfghjkl"), (706.33, 65.67, "zxcvbnm")]
+KBD_PITCH, KBD_KEY, KBD_H = 39.333, 33.33, 42.33
+KBD_CSS = """.kb>div{position:absolute}
+.kb>svg{position:absolute;display:block}
+.kb .panel{left:0;top:545.33px;width:var(--x-w);height:328.67px;background:var(--x-kbd);
+  border-radius:var(--x-r-kbd) var(--x-r-kbd) 0 0;
+  box-shadow:inset 0 .67px 0 #fff,0 -.34px 0 rgba(0,0,0,.14)}
+.kb .ksep{top:559px;width:1px;height:24px;background:var(--x-kbd-sep)}
+.kb .pw{left:169.33px;top:559.67px;font:var(--x-t-pw);color:var(--x-ink-kbd);white-space:nowrap}
+.kb .k{height:42.33px;border-radius:var(--x-r-key);background:var(--x-bg);
+  font:var(--x-t-key);text-align:center;color:var(--x-ink)}
+.kb .k.l{text-indent:2px}
+.kb .k.s{font:var(--x-t-key-sm)}
+.kb .k.at{font:var(--x-t-key-at)}"""
+
+
+def keyboard():
+    def key(x, y, w, label="", cls="k"):
+        return '<div class="%s" style="left:%gpx;top:%gpx;width:%gpx">%s</div>' % (cls, x, y, w, label)
+    out = ['<div class="kb"><div class="panel"></div>',
+           '<div class="ksep" style="left:30px"></div><div class="ksep" style="left:371px"></div>',
+           '<div class="pw">Passwords</div>']
+    for y, x0, letters in KBD_ROWS:
+        # SF's letters sit about 1pt right of their key's centre on the capture
+        out += [key(round(x0 + i * KBD_PITCH, 2), y, KBD_KEY, c, "k l") for i, c in enumerate(letters)]
+    y3, y4 = 706.33, 760.33
+    out += [key(6.67, y3, 45.33), key(350, y3, 45.67),
+            key(6.67, y4, 43.33, "123", "k s"), key(56, y4, 43.33), key(105.33, y4, 92.67),
+            key(204, y4, 43.33, "@", "k at"), key(253.33, y4, 43.33, "."), key(302.67, y4, 93)]
+    ink = ";color:var(--x-ink)"
+    out += [icon_at("kb-key", ";color:var(--x-ink-kbd)"), icon_at("kb-shift", ink),
+            icon_at("kb-delete", ink), icon_at("kb-emoji", ink),
+            icon_at("kb-space-a", ";color:var(--x-ink-hint)"), icon_at("kb-return", ";color:var(--x-ink-off)"),
+            icon_at("kb-globe", ink), icon_at("kb-mic", ink)]
+    return "".join(out) + "</div>"
+
+
+SIGNIN_CSS = KBD_CSS + """
+.body{font:var(--x-t-body)}
 .stitle{font:var(--x-t-signin)}
 .field{position:absolute;left:38px;top:328.33px;width:326px;height:52px;border-radius:26px;
   background:var(--x-group)}
@@ -1054,15 +1323,15 @@ SIGNIN_CSS = """.body{font:var(--x-t-body)}
 
 
 def s09_signin():
-    body = (close(16, "p9-x", "var(--x-disc)")
-            + art("p9-mark", 161, 151, 80, 82)
+    body = (close(16, "xmark", "var(--x-disc)")
+            + icon_at("mark-signin")
             + '<div class="tx stitle" style="left:38px;top:271.05px">Sign In to Complete Purchase</div>'
             + '<div class="field"></div>'
             + '<div class="tx body ph" style="left:54.3px;top:342.9px">Email or Phone Number</div>'
             + '<div class="tx body blue" style="left:38.3px;top:400.6px">Forgot password?</div>'
             + '<div class="go" style="left:38px;top:445px;width:326px">Sign In</div>'
-            + art("p9-keyboard", 0, 540, 402, 334))
-    return sheet_screen("Sign in to purchase", SIGNIN_CSS, body, "17:01",
+            + keyboard())
+    return sheet_screen("Sign in to purchase", SIGNIN_CSS, body,
                         ground="var(--x-haze)")
 
 

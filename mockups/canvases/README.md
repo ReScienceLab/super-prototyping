@@ -258,14 +258,15 @@ declares a box other than the default 478 x 980.
   Store - five tab roots, three sheets and a system alert - in 23 boards
   across three rows: a token board, a type board and three evidence boards for
   80 tokens, the nine replicas at 402 x 874, and the capture of each
-  underneath. Mean
-  absolute delta is 2.32-8.00 levels (of 255). Its `README.md` records the
-  rule that splits the pictures: every app icon is the 1024 px original from
-  the iTunes lookup API, and every piece of editorial art is a crop. It also
-  records the status bar, copied from `templates/` byte for byte, while the
-  captures show iOS 26's filled battery. That costs 0.2-0.5 a screen and is
-  kept on purpose. And it records p2, where two stacked 20% scrims land
-  exactly on 255 x .8 x .8. The nine `ref-*` boards are gitignored, so a
+  underneath. Mean absolute delta is 3.62-8.02 levels (of 255). Its
+  `README.md` records the rule that splits the pixels. Interface is rebuilt,
+  glyphs traced to SVG. Every app icon is the 1024 px original from the iTunes
+  lookup API. Only editorial pictures are crops, and the type, icons and
+  pills set over them are inpainted out of the crop and drawn again live.
+  Rebuilding took the range from 2.32-8.00 and is kept on purpose. It also
+  records the status bar, copied from `templates/` byte for byte, with none
+  of the captures' own clocks, badges or iOS 26 glyphs carried over. And it
+  records p2, where two stacked 20% scrims land exactly on 255 x .8 x .8. The nine `ref-*` boards are gitignored, so a
   fresh clone has 14.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
