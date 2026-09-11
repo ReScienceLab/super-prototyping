@@ -90,7 +90,10 @@ Three sources, and one rule picks between them (it is also the comment above
   sheets' marks and close buttons, the chips' and tabs' glyphs and p1's
   illustration are HTML and CSS. The glyphs have no published outline, so each
   was traced from the capture into an SVG in `assets/icons/` whose viewBox is
-  its ink box in page points. The Arcade logo is the exception: it is SF's own
+  its ink box in page points. A trace is point soup, so the seven glyphs the
+  boards show largest — the search field's magnifier and mic and the five tab
+  glyphs — were redrawn from it as circles, arcs and Béziers; `redraw/README.md`
+  is how. The Arcade logo is the exception to all of it: it is SF's own
   Apple glyph, U+F8FF out of `SFNS.ttf`, kept as a path.
 - **An app icon is the original.** `app_icon()` asks the iTunes lookup API
   for the track id in `icons.json`, downloads the 1024 px artwork, and masks it
@@ -185,8 +188,9 @@ mic.
   **Committed.** The boards are made of these, and a fresh clone without them
   renders empty frames. So, unlike its sibling `refs/`, this directory is not
   gitignored.
-- `assets/icons/`: 36 SVGs, the traced glyphs and the Arcade logo.
-  **Committed.**
+- `assets/icons/`: 36 SVGs, the traced glyphs and the Arcade logo. Seven are
+  redrawn from their trace (`redraw/`), 18280 bytes of point soup down to 4936
+  with the same ink boxes. **Committed.**
 - `assets/refs/`: the nine captures, `p1.png` to `p9.png`, and
   `madden-keyart.jpg`, which `cut()` downloads from EA the first time it needs
   it. **Gitignored**, along with the `ref-*.html` boards built from the
