@@ -243,8 +243,8 @@ declares a box other than the default 478 x 980.
   not hold and is a gpt-image-2 edit with the sheet drawn over it, 5.77 on
   the paywall (eighteen lines of white type over an inpainted hero),
   0.80-0.95 on the three native white pages, 2.12 on the App Store page,
-  4.77 on the Grok Bot sheet, whose card wash and glass are drawn in CSS and
-  fitted by sweep, and 0.74-1.66 on the voice picker and the settings sheet,
+  3.83 on the Grok Bot sheet, whose card wash, glass and vibrant copy are
+  drawn in CSS and fitted, and 0.74-1.66 on the voice picker and the settings sheet,
   which are flat grounds, white cards and crops. Every icon but three, 66 of
   them, is a crop of the capture at its measured ink box rather than a
   drawing, because a crop scores 0 by construction and most of the glyphs

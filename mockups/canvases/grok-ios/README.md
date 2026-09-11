@@ -53,7 +53,7 @@ described below:
 | 11 Settings, Voice | 1.66 |
 | 12 Settings, bottom | 1.06 |
 | 13 Terms update, loading | 0.92 |
-| 14 Introducing Grok Bot | 4.77 |
+| 14 Introducing Grok Bot | 3.83 |
 | 15 App Store, Grok Bot | 2.12 |
 
 The spread is what the pixels are. On 01 most of the frame is a crop of the
@@ -79,8 +79,9 @@ costs less than it does through a 2.2417 downscale. 06, 07 and 13 are white
 pages with a few lines of type, and the worst 40pt block on each is type
 within a point of its measured box: 'Sign out' at 17.5 on 06 and 20.3 on 13,
 06's title at 17.4, 07's header at 19.7. 14 is 13's page under a scrim and a
-glass sheet, and most of its 4.77 is the Grok Bot card, whose top reads 33.0
-in its worst block (the fitted values below). 15's worst blocks are lines of
+glass sheet, and its worst blocks are that same title under the scrim at
+14.7–16.2; the Grok Bot card, fitted below, reads 2.55 over its box and is no
+longer among them. 15's worst blocks are lines of
 type at 20–22, the release notes among them, over crops of the icon, the
 stars, the bundle and the previews. 08–12 go back through the downscale. The
 two voice screens are a flat dimmed ground, a flat card, and one crop each
@@ -378,14 +379,32 @@ Values no pixel holds, fitted rather than read:
   blur was swept at .5 over the pill's band (x 40–360 y 764–784): 14px −6.63
   signed, 18px −0.92, 19px +0.17, 20px +1.57, 28px +11.9. At 19px the flats
   read −0.48 at .48 and +0.74 at .5.
-- 14's card is `card-blue` with a pale ellipse (`card-pale`, #E8F3FE) in its
-  top-left, rotated 21° under one 70px 30px halo of card blue at .15. The
-  ellipse is fitted by least squares to ten boundary points read off a grid
-  of the capture, but the capture's pale shape is flatter than any ellipse,
-  and that is 14's worst block, 33.0 at the card's top (x 180–220 y
-  459–499). A 16px rim at .45 inside the halo cost .06 over the screen and
-  was dropped; halo alphas .10–.22 at blur 50–90 land within .04 of each
-  other.
+- 14's sheet starts at 445.3: its outline reads 444.67–445.0 at x 200 and its
+  first white row 445.67, and the corner's insets give `r-sheet-pro` 37. It
+  carries a 1pt white inset line at top and bottom and a 4px white glow under
+  the top edge; over the band y 436–470 the glow is worth .46 and the bottom
+  line .02 over the screen.
+- 14's body copy is iOS's plus-darker vibrancy, not a flat grey: each ink
+  pixel is the ground under it plus `sheet-copy` minus white, so line 1 reads
+  #5B5B5B over the sheet's white and line 3 near black over the blurred Got it
+  pill. Chromium has no plus-darker, so each line is filled through
+  `background-clip: text` with a vertical ramp of that sum, the ground taken
+  from the capture every 2pt of y 704–766 at its 97th percentile over x
+  60–330. The grey sweep is in the evidence row; blurs of 15 and 23px or glass
+  at .44 and .56 score the copy worse than 19px at .5 does.
+- 14's card is `card-blue` lightening to #6EB5FC over its top 110px, with a
+  pale ellipse (`card-pale`) in its top-left and a thin ring of #0A84FF at .18
+  outside it. The capture's pale shape holds 243 across its left and fades out
+  over some 60pt to the right, but falls off within 12pt along its bottom, and
+  its darker ring runs 20–30pt outside that edge rather than on it. So the
+  ellipse fades along its own width (full to 221.7px, clear by 301.5px) under
+  `blur(6.3px)`, and the ring is the same ellipse grown by 33.4 with a 12.7px
+  border under `blur(2.7px)`, both rotated 17.9°. All of it is one
+  least-squares fit of that construction to the card at 1pt, outside the bot
+  glyph, its title and the badge: mean |d| 3.13 at the start, 1.87 fitted. The
+  bottom-left glow fell to .03 in the fit and was dropped. In the browser the
+  card reads 2.55 against 4.26 before, and ring alphas .10 and .26 read 2.60
+  and 2.57.
 - `icon.png` is the App Store artwork under the system superellipse mask, the
   one asset that is not a crop of a screen.
 

@@ -207,10 +207,11 @@ TOKENS = [
   "cell within a level"),
  ("Surface", "card-pale", "#E8F3FE",
   "14 the pale shape in the card's top-left, cells x 46-106 y 463-513: "
-  "#E8F3FE, #E8F2FE. Its ellipse is fitted to ten boundary points read "
-  "off the grid (README), under one 70px 30px halo of card blue at .15: a "
-  "16px rim at .45 inside it cost .06 over the screen, and halo alphas "
-  ".10-.22 at blur 50-90 land 5.33-5.37 over x 0-402 y 59-874"),
+  "#E8F3FE, #E8F2FE. Along row 481 it holds 243 to x 108 and falls to 189 "
+  "by x 208, along column 88 it falls from 240 to 190 over y 521-537, and a "
+  "darker ring runs 20-30pt outside it (162-167 at x 208 y 505, x 168 y "
+  "541). Its ellipse, fade and ring are one fit to the card at 1pt, mean "
+  "|d| 3.13 to 1.87 over the card outside its crops and title (README)"),
 
  ("Line", "material-line", "rgba(255,255,255,.16)",
   "05 card edge peaks #3B3B3B over one 0.9pt band at y 522.8-523.6 and "
@@ -286,9 +287,14 @@ TOKENS = [
   "span reads the span's pixels, not the grey"),
  ("Ink", "placeholder", "#7E7E7E",
   "07 'Ask Anything' ink core x 27-121 y 755-770"),
- ("Ink", "sheet-copy",  "#5B5B5B",
-  "14 the three body lines under 'Introducing Grok Bot', ink core of line "
-  "1 x 40-360 y 708-720: #5B5B5B"),
+ ("Ink", "sheet-copy",  "#818181",
+  "14 the three body lines under 'Introducing Grok Bot', a plus-darker "
+  "grey: each ink pixel is the ground under it plus this minus white, "
+  "against the capture's ground at its 97th percentile over x 60-330 every "
+  "2pt of y 704-766 (228 at 704, 146 at 752). Line 1's core over 227 reads "
+  "#5B5B5B and line 3's over 146 #0E0E0E. Swept over the copy (x 20-390 y "
+  "700-770): #727272 9.30, #7C7C7C 8.52, #818181 8.32, #868686 8.37, "
+  "#8C8C8C 8.50"),
  ("Ink", "store-mute",  "#8A8A8D",
   "15 'AI agents that do real work' (x 155-326 y 173-187), 'News', 'Version "
   "1.8.0', '1d ago' and the chevron: ink core #8A8A8D on each"),
@@ -350,10 +356,11 @@ TOKENS = [
  ("Radius", "r-composer", "28px",
   "07 composer corner insets 21.3/15.0/10.3/6.3/3.0/1.0 at 1/3/6/10/15/21 "
   "down from 737.3, left edge 10.3: r 28"),
- ("Radius", "r-sheet-pro", "36px",
-  "14 the sheet's top-left corner, edge insets 19.3/8.7/3.3 at 4.3/13/21.7 "
-  "down from 442.5 (left edge 7.33): r 36 gives 18.9/8.3/3.0, 47 gives "
-  "27.3/12/5.5"),
+ ("Radius", "r-sheet-pro", "37px",
+  "14 the sheet's top-left corner, where its glass clears the scrim by 25 "
+  "levels: insets 18.67/9.0/3.33 at 4.7/12.7/21.7 down from its top edge "
+  "(outline 444.67-445.0, first white row 445.67) against a left edge of "
+  "8.0. r 37 gives 18.95/9.1/3.3, 36 gives 18.2/8.6/3.0, 38 19.7/9.6/3.7"),
  ("Radius", "r-store",  "38px",
   "15 the App Store sheet's corner (top 62, left edge 0): insets 17.7/10.7/"
   "6.0/3.3/1.7/0.7 at 5.7/11.3/17/22.7/28.3/34 down; r 38 gives 17.3/10.4/"
@@ -1247,36 +1254,54 @@ def s07():
 
 # -------------------------------------------------------------------- 14 ----
 # 'Introducing Grok Bot': the terms page under a scrim, a glass sheet with a
-# dark outline, the blue card (a flat blue, a pale tilted ellipse in its
-# top-left with a darker rim and a broad shadow, a pale glow at the bottom-
-# left corner; the bot glyph and the NEW badge are crops), a heading, three
-# body lines and the CTA pill.
-CARD_CSS = ("border-radius:var(--x-r-card);background:var(--x-card-blue);overflow:hidden;"
-            "transform:translateZ(0)")
-PALE = ('<div style="position:absolute;left:%.1fpx;top:%.1fpx;width:%.1fpx;height:%.1fpx;'
-        'border-radius:50%%;background:var(--x-card-pale);transform:rotate(%.1fdeg);'
-        'box-shadow:0 0 %dpx %dpx rgba(%s)"></div>')
-GLOW = ('<div style="position:absolute;left:-60px;top:110px;width:160px;height:160px;'
-        'border-radius:50%;background:radial-gradient(closest-side,rgba(232,243,254,.6),'
-        'rgba(232,243,254,0))"></div>')
+# dark outline, the blue card (blue lightening toward its top, a pale tilted
+# ellipse in its top-left that fades out along its own width, and a thin
+# darker ring 33pt outside it; the bot glyph and the NEW badge are crops), a
+# heading, three body lines and the CTA pill.
+CARD_CSS = ("border-radius:var(--x-r-card);background:linear-gradient(#6EB5FC,var(--x-card-blue) 110px);"
+            "overflow:hidden;transform:translateZ(0)")
+# Both ellipses are one least-squares fit of this exact construction to the
+# card at 1pt (README): the pale one, then the ring as the same ellipse grown
+# by 33.4 with a 12.7px border, both rotated about their shared centre.
+WASH = ('<div style="position:absolute;left:-13.4px;top:-568.2px;width:331.6px;height:652.4px;'
+        'border-radius:50%;transform:rotate(17.9deg);filter:blur(6.3px);'
+        'background:linear-gradient(90deg,var(--x-card-pale) 221.7px,rgba(232,243,254,0) 301.5px)"></div>'
+        '<div style="position:absolute;left:-46.8px;top:-601.6px;width:398.4px;height:719.2px;'
+        'border-radius:50%;transform:rotate(17.9deg);filter:blur(2.7px);'
+        'border:12.7px solid rgba(10,132,255,.18)"></div>')
 
 
 def s14():
     inv = "var(--x-ink-inv)"
     sheet = ("border-radius:var(--x-r-sheet-pro);background:var(--x-glass-sheet);"
              "backdrop-filter:blur(var(--x-sheet-blur));-webkit-backdrop-filter:blur(var(--x-sheet-blur));"
-             "box-shadow:0 0 0 .67px var(--x-sheet-line),0 0 24px rgba(0,0,0,.15)")
-    pale = PALE % (-44, -558, 384, 640, 21, 70, 30, "20,120,255,.15")
+             "box-shadow:0 0 0 .67px var(--x-sheet-line),0 0 24px rgba(0,0,0,.15),"
+             "inset 0 1px 0 #FFF,inset 0 -1px 0 #FFF,inset 0 4px 4px -2px rgba(255,255,255,.5)")
+    # The body copy is iOS's plus-darker grey: each ink pixel is the ground under it
+    # plus the grey minus white, so the lines over the blurred Got it pill go near
+    # black. The ground is the capture's, every 2pt from y 704 (README); CSS has no
+    # plus-darker outside WebKit, so each line is filled with that ramp instead.
+    ground = (228, 227, 227, 226, 225, 223, 222, 220, 217, 214, 208, 202, 195, 186, 179, 174,
+              169, 164, 160, 157, 154, 152, 150, 148, 146, 146, 146, 146, 147, 147, 148, 151)
+    grey = int(next(v for _, n, v, _ in TOKENS if n == "sheet-copy")[1:3], 16)
+    copy = ""
+    for top, line in ((708.3, "AI teammates you can give real work to. Bots can"),
+                      (728.3, "sign in to your tools, use them just like you do,"),
+                      (748.3, "and come back with finished work.")):
+        b = boxtop(top, "t-sheet-copy")
+        ramp = ",".join("#%02X%02X%02X %.2fpx" % ((max(0, g + grey - 255),) * 3 + (704 + 2 * i - b,))
+                        for i, g in enumerate(ground))
+        copy += txb(27.7, top, line, "t-sheet-copy",
+                    extra=";background:linear-gradient(%s);-webkit-background-clip:text;"
+                          "background-clip:text;-webkit-text-fill-color:transparent" % ramp)
     return screen("Introducing Grok Bot",
-        box(8.0, 442.5, 386.0, 423.5, sheet)
+        box(8.0, 445.3, 386.0, 420.7, sheet)
         + box(172.3, 451.3, 57.3, 3.7, "border-radius:2px;background:var(--x-grabber-pro)")
-        + box(23.3, 460.7, 355.3, 200.0, CARD_CSS, inner=pale + GLOW, attrs=" data-clip-ok")
+        + box(23.3, 460.7, 355.3, 200.0, CARD_CSS, inner=WASH, attrs=" data-clip-ok")
         + art("14-ic-bot") + art("14-badge")
         + txb(155.3, 547.3, "Grok Bot", "t-card", inv)
         + txb(27.7, 679.7, "Introducing Grok Bot", "t-sheet-h")
-        + txb(27.7, 708.3, "AI teammates you can give real work to. Bots can", "t-sheet-copy", "var(--x-sheet-copy)")
-        + txb(27.7, 728.3, "sign in to your tools, use them just like you do,", "t-sheet-copy", "var(--x-sheet-copy)")
-        + txb(27.7, 748.3, "and come back with finished work.", "t-sheet-copy", "var(--x-sheet-copy)")
+        + copy
         + box(27.3, 786.0, 347.3, 47.3, "border-radius:var(--x-r-pill);background:var(--x-btn)")
         + txcb(804.0, "Upgrade to Access", "t-btn", inv, 27.3, 347.3),
         bg="var(--x-page)", big=True,
