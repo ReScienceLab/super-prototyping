@@ -268,6 +268,27 @@ export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
   return load;
 }
 
+/** path -> the blob URL that board has been opened as a page at; see `boardPageUrl`. */
+const boardPages = new Map<string, string>();
+
+/**
+ * A board as a page of its own, for the buttons that open one. A blob rather than a link to the
+ * file because boards ship as strings in the bundle — lazy chunks off `virtual:canvases` — so
+ * there is no address to point at.
+ *
+ * One per board, kept for the session rather than revoked when the thing that asked for it goes
+ * away: nothing here can see when the tab it was opened in has finished fetching it, and revoking
+ * before that leaves the reader on an error page. It is a second copy of a string `canvasFileHtml`
+ * is already holding for as long anyway.
+ */
+export function boardPageUrl(path: string, html: string) {
+  const made = boardPages.get(path);
+  if (made) return made;
+  const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+  boardPages.set(path, url);
+  return url;
+}
+
 /**
  * A rendering shape's board HTML: undefined until its chunk arrives, then the string. Every shape
  * on the page mounts (culling only hides the off-screen ones), so a page fetches its own boards

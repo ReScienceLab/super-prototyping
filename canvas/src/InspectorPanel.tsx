@@ -8,6 +8,7 @@ import {
   BOARD_STATUS_LABEL,
   LAYOUT_CHANGED,
   type CanvasBoardStatus,
+  boardPageUrl,
   boardStatusForPath,
   readCanvasAssetNames,
   useCanvasFileHtml,
@@ -316,6 +317,9 @@ export function InspectorPanel({
 }) {
   const html = useCanvasFileHtml(path);
   const srcDoc = useMemo(() => (html ? injectAgent(html) : ""), [html]);
+  // The board's own HTML, not `srcDoc`: the agent injected there talks to a parent frame that
+  // a tab of its own does not have.
+  const pageUrl = html ? boardPageUrl(path, html) : "";
   const frame = useRef<HTMLIFrameElement>(null);
   const [data, setData] = useState<SpReady | null>(null);
   const [sel, setSel] = useState<number | null>(null);
@@ -509,7 +513,35 @@ export function InspectorPanel({
             ) : null}
           </div>
           <BoardStatus path={path} />
-          <span className="sp-zoom">{Math.round(scale * 100)}%</span>
+          {/*
+            The board at its own size, in a tab of its own. The preview is scaled to fit the
+            stage, so it is the wrong place to read type or tap through a flow; this is the
+            same board as an ordinary web page. An anchor, not a button, so the ordinary ways
+            to open a link — middle click, ⌘-click, copy — all work on it.
+          */}
+          {pageUrl ? (
+            <a
+              className="sp-full"
+              href={pageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open this board as a page"
+              aria-label="Open this board as a page"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4.5 1.5h-3v3M7.5 1.5h3v3M10.5 7.5v3h-3M1.5 7.5v3h3" />
+              </svg>
+            </a>
+          ) : null}
         </div>
         {editor ? (
           <BoardComments

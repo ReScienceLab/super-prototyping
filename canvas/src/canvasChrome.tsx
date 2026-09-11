@@ -28,6 +28,7 @@ import {
   type CommentUser,
 } from "./canvasComments";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
+import { openBoardsPage } from "./boardsPage";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 
 const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
@@ -164,6 +165,15 @@ export const canvasChromeComponents: TLComponents = {
     return (
       <>
         <DefaultActionsMenu {...props} />
+        {slug && (
+          <TldrawUiButton
+            type="icon"
+            title="Open every board on this page as one web page"
+            onClick={() => openBoardsPage(slug)}
+          >
+            <TldrawUiButtonIcon icon="external-link" />
+          </TldrawUiButton>
+        )}
         {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
             a page someone added by hand. */}
         {import.meta.env.DEV && slug && slug !== WELCOME_PAGE_SLUG && (

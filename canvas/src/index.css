@@ -463,12 +463,27 @@ input.canvas-clone-name:focus {
   box-shadow: 0 0 0 2px #ffffff, 0 1px 4px #00000040;
 }
 
-.sp-zoom {
+/* Opens the board as a page of its own. Sits where the zoom percentage used to: the corner of
+   the stage is the one part of it no board reaches, and the scale was a number nobody acted on. */
+.sp-full {
   position: absolute;
-  right: 12px;
-  bottom: 10px;
+  right: 8px;
+  bottom: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
   color: var(--sp-text-2);
-  pointer-events: none;
+  background: #ffffffd9;
+  box-shadow: 0 1px 3px #00000014;
+  cursor: pointer;
+}
+
+.sp-full:hover {
+  color: var(--sp-text);
+  background: #ffffff;
 }
 
 /* The rail's collapse handle, a lozenge straddling its divider. It was a 26px chip in the top
