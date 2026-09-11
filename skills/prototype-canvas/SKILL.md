@@ -46,6 +46,12 @@ actually bind, and prints the address.
   `#<file>` after that, e.g. `?canvas=notion-ios#02-search-ask-ai`: it opens
   in the inspector with the camera on it. Give the board link when pointing
   at one screen.
+- **Read a board as a web page.** The external-link button in the top bar
+  opens every board of the page in one scrolling document, each at its own
+  size; the button in the bottom right of the inspector's preview opens the
+  one board it is showing. Both are the board's own HTML in a tab of its own,
+  which is where to read type at the size it ships at, rather than at whatever
+  the canvas is zoomed to.
 
 Keep it on loopback. This is a local design tool, not a service to expose.
 
