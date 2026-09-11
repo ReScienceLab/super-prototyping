@@ -24,7 +24,6 @@ import "@tldraw/commenting/commenting.css";
 import { installAgentBridge } from "./agentBridge";
 import { WELCOME_PAGE_SLUG, boardFromUrl, slugFromUrl, urlForSlug } from "./canvasUrl";
 import {
-  CANVAS_FILE_DEFAULT_SIZE,
   CANVAS_FILE_SHAPE_TYPE,
   type CanvasFileShape,
   CanvasFileShapeUtil,
@@ -45,6 +44,7 @@ import {
   installLockedLinkClicks,
 } from "./CanvasLinkShapeUtil";
 import {
+  CANVAS_FILE_DEFAULT_SIZE,
   type CanvasLayoutLink,
   type CanvasLibraryFile,
   LAYOUT_CHANGED,

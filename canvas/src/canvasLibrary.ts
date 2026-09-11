@@ -15,7 +15,7 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // opening the welcome page pulls a dozen covers rather than every board (the full set is 25 MB of
 // HTML, which a phone should not download to look at one page). Vite still reloads the page when a
 // mockup is saved. `rawLayouts` and `rawIcons` stay eager because they are read during render.
-import { fileLoaders, rawLayouts, rawIcons, rawAssetNames } from "virtual:canvases";
+import { boardPages, fileLoaders, rawLayouts, rawIcons, rawAssetNames } from "virtual:canvases";
 
 export interface CanvasLibraryFile {
   path: string;
@@ -123,6 +123,14 @@ export interface CanvasLayoutConfig {
   status?: CanvasBoardStatus;
   rows: CanvasLayoutRow[];
 }
+
+/**
+ * The artboard a board is drawn at unless its layout entry says otherwise. Matches the v1.14+
+ * phone mockups' own canvas: .phone{430x932} + body{padding:24px}. Here rather than with the
+ * shape that draws it, because the sheet page needs the size too and must not import tldraw to
+ * read one pair of numbers.
+ */
+export const CANVAS_FILE_DEFAULT_SIZE = { w: 478, h: 980 } as const;
 
 export function humanize(slug: string) {
   return slug
@@ -268,25 +276,17 @@ export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
   return load;
 }
 
-/** path -> the blob URL that board has been opened as a page at; see `boardPageUrl`. */
-const boardPages = new Map<string, string>();
-
 /**
- * A board as a page of its own, for the buttons that open one. A blob rather than a link to the
- * file because boards ship as strings in the bundle — lazy chunks off `virtual:canvases` — so
- * there is no address to point at.
+ * Where a board is a web page of its own, for the buttons that open one, and undefined for a
+ * path that is not a board. `/board/<slug>/<file>.html`: the dev server reads it off the boards
+ * directory, a build emits it as a file (see the `prototyping-canvases` plugin).
  *
- * One per board, kept for the session rather than revoked when the thing that asked for it goes
- * away: nothing here can see when the tab it was opened in has finished fetching it, and revoking
- * before that leaves the reader on an error page. It is a second copy of a string `canvasFileHtml`
- * is already holding for as long anyway.
+ * An address rather than the `blob:` URL this was at first. A blob has no address to link, copy
+ * or reload, and it is a page the browser calls restricted, which is enough for an extension —
+ * a Figma importer, a reader, a screenshotter — to refuse to work on it at all.
  */
-export function boardPageUrl(path: string, html: string) {
-  const made = boardPages.get(path);
-  if (made) return made;
-  const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
-  boardPages.set(path, url);
-  return url;
+export function boardPageUrl(path: string): string | undefined {
+  return boardPages[path];
 }
 
 /**

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { WELCOME_PAGE_SLUG, boardFromUrl, slugFromUrl, urlForSlug } from './canvasUrl'
+import { canvasPageUrl, sheetPageUrl, WELCOME_PAGE_SLUG, boardFromUrl, slugFromUrl, urlForSlug } from './canvasUrl'
 
 // The address is what people paste to each other, so both directions have to agree: the URL a
 // page writes must open that page, the URL a board writes must open that board, and the welcome
@@ -39,6 +39,14 @@ describe('canvas URLs', () => {
     expect(urlForSlug(root + '?canvas=luma-ios#03-event', 'luma-ios')).toBe(root + '?canvas=luma-ios')
     expect(urlForSlug(root + '?canvas=luma-ios#03-event', 'notion-ios')).toBe(root + '?canvas=notion-ios')
     expect(urlForSlug(root, WELCOME_PAGE_SLUG, '00-welcome')).toBe(root + '#00-welcome')
+  })
+
+  it('links between the canvas and the sheet by swapping the file', () => {
+    expect(canvasPageUrl('luma-ios')).toBe('/?canvas=luma-ios')
+    // The welcome page is the bare address on the canvas, and a page like any other on the sheet.
+    expect(canvasPageUrl(WELCOME_PAGE_SLUG)).toBe('/')
+    expect(sheetPageUrl('luma-ios')).toBe('/sheet.html?canvas=luma-ios')
+    expect(slugFromUrl(root + sheetPageUrl('luma-ios').slice(1))).toBe('luma-ios')
   })
 
   it('round-trips and keeps unrelated parameters', () => {

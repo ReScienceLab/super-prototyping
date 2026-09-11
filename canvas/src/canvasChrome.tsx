@@ -28,8 +28,7 @@ import {
   type CommentUser,
 } from "./canvasComments";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
-import { openBoardsPage } from "./boardsPage";
-import { WELCOME_PAGE_SLUG } from "./canvasUrl";
+import { WELCOME_PAGE_SLUG, sheetPageUrl } from "./canvasUrl";
 
 const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
 /** The app the snapaction-ios boards are cloned from: its own site, not the App Store listing. */
@@ -165,14 +164,18 @@ export const canvasChromeComponents: TLComponents = {
     return (
       <>
         <DefaultActionsMenu {...props} />
+        {/* An anchor wearing the toolbar's button, not a button: this is a link to another page
+            of the app, so ⌘-click, middle click and copy-link all have to work on it. */}
         {slug && (
-          <TldrawUiButton
-            type="icon"
+          <a
+            className="tlui-button tlui-button__icon"
+            href={sheetPageUrl(slug)}
+            target="_blank"
+            rel="noopener noreferrer"
             title="Open every board on this page as one web page"
-            onClick={() => openBoardsPage(slug)}
           >
             <TldrawUiButtonIcon icon="external-link" />
-          </TldrawUiButton>
+          </a>
         )}
         {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
             a page someone added by hand. */}

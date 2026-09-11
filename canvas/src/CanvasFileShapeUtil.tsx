@@ -6,11 +6,13 @@ import {
   type TLShape,
   useIsEditing,
 } from "tldraw";
-import { hasCanvasFile, useCanvasFileHtml } from "./canvasLibrary";
+import {
+  CANVAS_FILE_DEFAULT_SIZE,
+  hasCanvasFile,
+  useCanvasFileHtml,
+} from "./canvasLibrary";
 
 export const CANVAS_FILE_SHAPE_TYPE = "canvas-file" as const;
-// Matches the v1.14+ phone mockups' own canvas: .phone{430x932} + body{padding:24px}.
-export const CANVAS_FILE_DEFAULT_SIZE = { w: 478, h: 980 } as const;
 
 declare module "tldraw" {
   export interface TLGlobalShapePropsMap {
