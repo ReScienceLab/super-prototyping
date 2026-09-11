@@ -253,6 +253,19 @@ declares a box other than the default 478 x 980.
   or two thirds of a point, were worth more than the blur fit and the compose
   glyph together. The seven `ref-*` boards are gitignored, so a fresh clone
   has 10.
+- `app-store-ios/`: the run to read when the source is native iPhone 16 Pro
+  screenshots rather than Mobbin or Figma. Nine screens of the iOS 26 App
+  Store - five tab roots, three sheets and a system alert - in 21 boards
+  across three rows: a token board and two evidence boards for 80 tokens, the
+  nine replicas at 402 x 874, and the capture of each underneath. Mean
+  absolute delta is 2.32-8.00 levels (of 255). Its `README.md` records the
+  rule that splits the pictures: every app icon is the 1024 px original from
+  the iTunes lookup API, and every piece of editorial art is a crop. It also
+  records the status bar, copied from `templates/` byte for byte, while the
+  captures show iOS 26's filled battery. That costs 0.2-0.5 a screen and is
+  kept on purpose. And it records p2, where two stacked 20% scrims land
+  exactly on 255 x .8 x .8. The nine `ref-*` boards are gitignored, so a
+  fresh clone has 12.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

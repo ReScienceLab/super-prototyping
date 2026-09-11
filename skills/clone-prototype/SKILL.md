@@ -276,6 +276,24 @@ Hard constraints from the canvas renderer (also in `prototype-canvas`'s
   `data-clip-ok`.
 - Phone frame is 393 × 852 pt at 1pt = 1px: 54px status bar, 125 × 36
   Dynamic Island, 139 × 5 home indicator.
+- **The iOS status bar is not yours to measure.** Every iPhone capture has
+  the same one, so `templates/gen.py` ships it finished: `PHONE`'s `.sb`
+  rules, the `SB_ICONS` cellular/Wi-Fi/battery SVGs and `statusbar()`. Copy
+  those four across unchanged and pass the capture's own clock, e.g.
+  `statusbar(time="16:58")`. Measuring four signal bars again costs an hour
+  and lands within a pixel of what is already there.
+
+  Two things do change and are worth a look at the capture. On a wider
+  frame, shift every `SB_ICONS` `left:` by the same delta so the battery
+  keeps its right inset, and re-centre `.time`. And a real screenshot often
+  carries an extra glyph the template has no reason to ship — a mute bell, a
+  Focus badge, a location arrow. Draw those, skip the rest.
+
+  What the capture's own glyphs happen to show is not one of those two
+  things. An iOS 26 filled battery, a different charge level, or no-service
+  bars all stay the template's glyphs, byte for byte. The status bar is shared
+  chrome across every board in the repo, and a per-capture redraw is exactly
+  the drift the rule is there to stop.
 - **No board background on a screen artboard.** Give `body` no `background`
   at all, so the phone floats on the canvas ground and its drop shadow lands
   on whatever the board is placed over. A cream or grey field behind the
