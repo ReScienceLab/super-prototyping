@@ -34,7 +34,7 @@ described below:
 | 01 Widget | 0.26 |
 | 02 Widget guide, step 4 | 1.42 |
 | 03 Widget guide, step 1 | 1.04 |
-| 04 Voice settings | 9.51 |
+| 04 Voice settings | 9.52 |
 | 05 SuperGrok | 5.75 |
 | 06 Terms update | 0.84 |
 | 07 Home | 0.75 |
@@ -44,7 +44,7 @@ described below:
 The spread is what the pixels are. On 01 most of the frame is a crop of the
 capture or a flat ground the census read to the level, and the type on it is
 one nav title and two lines of body. 04 is the one screen whose ground is
-generated (the section below): its 9.51 is nearly all the companion's body
+generated (the section below): its 9.52 is nearly all the companion's body
 under the sheet, where the gpt-image-2 body is narrower than the blurred one
 the capture shows (the worst 40pt blocks, 38 at x 140–160 y 559, are the
 hoodie's edges), while the sheet's type, rows and discs on top of it sit at
@@ -120,8 +120,8 @@ bell and right cluster, so the capture's own bar is patched out of the
 
 ## What is a crop, what is drawn, what is fitted
 
-**Every icon on the nine screens is a crop of the capture**, not a drawing:
-34 of them, each cut at its measured ink box grown by 1pt and placed
+**Every icon but three is a crop of the capture**, not a drawing:
+31 of them, each cut at its measured ink box grown by 1pt and placed
 back at the same numbers (the `-ic-` ids in `crops.json`), and that
 includes the three inside 02's drawn illustration, the app icon, the close
 disc and the Grok mark in the widget's pill. That was asked
@@ -130,13 +130,43 @@ only asset that scores 0 by construction. It is also the only honest one:
 most of these glyphs are SF Symbols, whose outlines may not be redistributed,
 so a hand-drawn SVG would have been a near-copy of a licensed shape that was
 still measurably wrong. The cost is that the canvas's inspector names them by
-image content from `assets/art/`, not as vector assets, and `assets/icons/`
-does not exist in this folder. Three of the crops are keyed: the close,
+image content from `assets/art/`, not as vector assets. The three side
+glyphs on 04 are the exception (the section below). Three of the crops are keyed: the close,
 AirPlay and microphone glyphs on 04's voice sheet were cut with the sheet's
 blurred ground in their 1pt margin, and now that the sheet is drawn rather
 than cropped, `cut()` keeps each one's coverage (the largest channel's
 (p − g) / (255 − g) against the median of its margin) as white on alpha, so
 the glyph is still the capture's and the ground under it is the board's.
+
+### Three vector icons
+
+The focus, hanger and trash glyphs in 04's side discs were asked for as
+vectors, so each is an SVG in `assets/icons/04-<name>.svg` whose `viewBox`
+is its measured ink box in pt (`345.2 129.3 19.8 19.8`, `343.8 180.6 22.1
+18.9`, `347 233.6 16.7 18.5`), inlined by `icon()` at the same numbers so
+the drawing is 1:1 with the measurement and the inspector names it as a
+vector asset. They were traced against the capture's coverage, not by eye:
+each box's local ground is a 15px median (a stroke is 3-4px), coverage is
+(p − g) / (205 − g), and the row and column sums of that map, the ink area,
+a ±4px offset probe and a polar profile for the focus ring were compared
+between the render and the capture on every pass. What that settled:
+
+- The ink is a flat `#CDCECF` (`--x-side-ink`), not white at an alpha: the
+  top 3% of each box reads 203-208 over grounds of 163, 180 and 194, and
+  white would need .16-.49 to fit the three.
+- The strokes differ per glyph. Focus is 1.7 with a 3.05 dot and four L
+  brackets whose corner radius is 2.6, the L and not an arc because both
+  polar profiles dip at the diagonal; the ring's centreline is at r 9.0 in
+  both. Trash is 1.6 with a 1.4 lid. The hanger is 1.3 with a 2.3 bar, read
+  through the blue channel because its ground is a cloud within 10 levels of
+  the ink in luminance; its tail is the left leg, and the right leg stops
+  short of the stem.
+- Ink area, in pt², after the last pass: focus 85.8 capture against 90.6,
+  trash 100.9 against 102.4, hanger 87.6 against 96.2; the offset probe is at
+  0 on all three. The 20pt boxes read 6.5, 4.0 and 6.0 mean Δ, nearly all of
+  it the generated scene under the glass discs, so the crops' 0 there is
+  not a number a vector can reach and 04's whole-frame Δ moves from 9.51 to
+  9.52.
 
 The pictures under the type are crops too, on three of the screens: the
 smoke hero of 05 and the whole frame of 08 and of 09 (`05-bg`, `08-bg`,

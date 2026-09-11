@@ -42,19 +42,23 @@ edge it is the patched capture (i4), below it a gpt-image-2 edit of that
 frame (assets/art/04-scene.png, composed by scratch/scene4.py), and the
 sheet itself is drawn, with its blur and tint fitted (see s04).
 
-EVERY ICON IS A CROP, NOT A DRAWING. Thirty-four glyphs on these screens are SF
-Symbols, the Grok mark or its app icon, and a hand-drawn approximation of an SF Symbol is
-visibly not the symbol at any zoom. Each one is cut from its capture at its
-measured ink box plus a point of ground (crops.json, the `-ic-` ids) and put
-back at the same numbers, so it is the capture's own pixels and scores zero
-by construction. There is no assets/icons/ here for that reason.
+ICONS ARE CROPS, NOT DRAWINGS, WITH THREE EXCEPTIONS. Thirty-one glyphs on these
+screens are SF Symbols, the Grok mark or its app icon, and a hand-drawn
+approximation of an SF Symbol is visibly not the symbol at any zoom. Each one
+is cut from its capture at its measured ink box plus a point of ground
+(crops.json, the `-ic-` ids) and put back at the same numbers, so it is the
+capture's own pixels and scores zero by construction. The three side glyphs on
+04 (focus, hanger, trash) are the exceptions, by request: each is an SVG in
+assets/icons/ whose viewBox is its measured ink box in pt, inlined by icon()
+so the canvas's inspector hands it back as a vector asset, traced stroke by
+stroke against the capture's coverage (README, "Three vector icons").
 
 Three defects belong to the source, not to the replica: Mobbin composites the
 Dynamic Island out (except on 04, where the app's own recording dot keeps it),
 drops the home indicator, and exports with square corners. All three are drawn
 here. The diff window is trimmed accordingly -- see README.md.
 """
-import base64, json
+import base64, json, re
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent
@@ -151,6 +155,8 @@ TOKENS = [
   "04 fitted through the drawn sheet at the 4px blur: at .40 the band under "
   "the sheet's edge (y 406-428) reads -0.2 signed and the body band (y "
   "606-740) +0.6; .35 leaves both +4, .45 both -5 (README)"),
+ ("Surface", "side-ink", "#CDCECF",
+  "04 ink of the three vector side glyphs: top 3% of each box 203-208 over grounds 163/180/194, so flat, not white at an alpha (.16-.49 would fit)"),
  ("Surface", "voice-pill", "#767676",
   "04 the voice pill reads #474747 flat through the sheet (x 300-370, y "
   "772-797, std 3.6): 71/.60 = 118 under the .40 tint"),
@@ -614,6 +620,20 @@ def art(cid, style="", z=None):
                ";z-index:%d" % z if z else "", ";" + style if style else ""))
 
 
+ICON_DIR = OUT / "assets" / "icons"
+
+
+def icon(name, colour):
+    """One inline <svg> from assets/icons/<name>.svg, at the ink box its
+    viewBox holds (pt), so the drawing is 1:1 with the measurement and the
+    canvas's inspector names it as a vector asset."""
+    svg = (ICON_DIR / (name + ".svg")).read_text().strip()
+    x, y, w, h = (float(v) for v in re.search(r'viewBox="([^"]+)"', svg).group(1).split())
+    return svg.replace('<svg xmlns="http://www.w3.org/2000/svg" ',
+                       '<svg class="ic" style="left:%gpx;top:%gpx;width:%gpx;height:%gpx;color:%s" '
+                       % (x, y, w, h, colour), 1).replace("\n", "")
+
+
 # ------------------------------------------------------------ phone frame ----
 # Measured once, for every board. The bezel is this repo's own framing, not a
 # property of the app being cloned, so it is the same in every folder.
@@ -740,8 +760,9 @@ def circle(x, y, d, style=""):
 
 
 # --------------------------------------------------------------- screens ----
-SCREEN_CSS = """.t,.b,.a{position:absolute}
-.a{display:block}
+SCREEN_CSS = """.t,.b,.a,.ic{position:absolute}
+.a,.ic{display:block}
+.ic{overflow:visible}
 .t{white-space:nowrap}
 .u{font:var(--x-t-unit)}
 .k{color:var(--x-ink)}
@@ -904,7 +925,7 @@ def s04():
     inv = "var(--x-ink-inv)"
     side = ""
     for cy, name in ((139.9, "focus"), (192.9, "hanger"), (245.9, "trash")):
-        side += circle(340.0, cy - 16, 32, "background:var(--x-glass)") + art("04-ic-" + name)
+        side += circle(340.0, cy - 16, 32, "background:var(--x-glass)") + icon("04-" + name, "var(--x-side-ink)")
     row = "border-radius:var(--x-r-row);border:1px solid var(--x-row-line)"
     return screen("Voice settings",
         art("04-scene")

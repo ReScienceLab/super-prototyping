@@ -1,270 +1,249 @@
 {
-  "_": "Art cut from assets/refs/<ref>.png at measured pt boxes (2.2417 px/pt for cp1-cp5, 3.0 for the 430 x 932 captures cp6-cp9), and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i5/i8/i9 are cp5/cp8/cp9 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS. g4 is not a capture: 04-scene is the companion scene with the voice sheet removed, the patched cp4 (i4) above the sheet's edge and a gpt-image-2 edit of it below, composed by scratch/scene4.py and committed as assets/art/04-scene.png; cut() leaves it alone. 04-ic-close, 04-ic-airplay and 04-ic-person are keyed by cut() (KEYED in gen.py): white ink at the glyph's own coverage, the sheet ground in their margin dropped, because the board draws that sheet now.",
-  "_rule": "Crop what the capture already contains; draw only what it does not.",
-  "04-scene": [
-    "g4",
-    0.0,
-    0.0,
-    393.0,
-    852.0
-  ],
-  "05-bg": [
-    "i5",
-    0.0,
-    0.0,
-    393.0,
-    852.0
-  ],
-  "01-ic-mark": [
-    "cp1",
-    69.0,
-    112.3,
-    96.0,
-    137.9
-  ],
-  "01-ic-compose": [
-    "cp1",
-    56.5,
-    184.1,
-    81.7,
-    209.3
-  ],
-  "01-ic-wave": [
-    "cp1",
-    128.8,
-    183.2,
-    153.6,
-    208.9
-  ],
-  "02-ic-back": [
-    "cp2",
-    30.2,
-    86.9,
-    42.9,
-    107.6
-  ],
-  "02-ic-app": [
-    "cp2",
-    71.3,
-    315.3,
-    92.8,
-    336.4
-  ],
-  "02-ic-close": [
-    "cp2",
-    304.2,
-    318.9,
-    317.2,
-    331.9
-  ],
-  "02-ic-mark": [
-    "cp2",
-    166.3,
-    444.3,
-    187.9,
-    464.0
-  ],
-  "02-ic-sparkle": [
-    "cp2",
-    213.6,
-    634.7,
-    227.6,
-    648.3
-  ],
-  "03-ic-sparkle": [
-    "cp3",
-    165.8,
-    634.7,
-    179.4,
-    648.3
-  ],
-  "04-ic-x": [
-    "cp4",
-    30.7,
-    77.5,
-    45.2,
-    92.4
-  ],
-  "04-ic-grid": [
-    "cp4",
-    344.7,
-    74.8,
-    365.5,
-    95.1
-  ],
-  "04-ic-focus": [
-    "cp4",
-    345.2,
-    129.3,
-    365.0,
-    149.1
-  ],
-  "04-ic-hanger": [
-    "cp4",
-    343.8,
-    180.6,
-    365.9,
-    199.5
-  ],
-  "04-ic-trash": [
-    "cp4",
-    347.0,
-    233.6,
-    363.7,
-    252.1
-  ],
-  "04-ic-chevron": [
-    "cp4",
-    345.6,
-    289.9,
-    364.6,
-    301.7
-  ],
-  "04-ic-close": [
-    "cp4",
-    338.9,
-    430.8,
-    357.4,
-    449.3
-  ],
-  "04-ic-airplay": [
-    "cp4",
-    334.0,
-    500.4,
-    357.4,
-    522.9
-  ],
-  "04-ic-person": [
-    "cp4",
-    332.7,
-    562.9,
-    358.3,
-    586.3
-  ],
-  "05-ic-rocket": [
-    "cp5",
-    49.4,
-    228.3,
-    70.6,
-    249.9
-  ],
-  "05-ic-imagine": [
-    "cp5",
-    49.0,
-    288.1,
-    70.6,
-    310.1
-  ],
-  "05-ic-wave5s": [
-    "cp5",
-    49.0,
-    349.2,
-    71.0,
-    371.3
-  ],
-  "05-ic-star": [
-    "cp5",
-    49.4,
-    412.5,
-    70.1,
-    432.4
-  ],
-  "05-ic-cube": [
-    "cp5",
-    49.9,
-    473.2,
-    69.7,
-    494.8
-  ],
-  "06-ic-mark": [
-    "cp6",
-    185.5,
-    333.0,
-    244.0,
-    389.0
-  ],
-  "07-ic-mark": [
-    "cp7",
-    15.0,
-    66.0,
-    56.5,
-    100.0
-  ],
-  "07-ic-watermark": [
-    "cp7",
-    174.0,
-    384.5,
-    256.0,
-    464.0
-  ],
-  "07-ic-bot": [
-    "cp7",
-    27.5,
-    744.0,
-    50.0,
-    767.0
-  ],
-  "07-ic-bank": [
-    "cp7",
-    176.0,
-    745.5,
-    196.0,
-    764.5
-  ],
-  "07-ic-trio": [
-    "cp7",
-    322.0,
-    746.0,
-    388.0,
-    777.0
-  ],
-  "07-ic-plus": [
-    "cp7",
-    30.0,
-    856.5,
-    44.5,
-    871.0
-  ],
-  "07-ic-auto": [
-    "cp7",
-    69.5,
-    855.0,
-    88.0,
-    873.0
-  ],
-  "07-ic-mic": [
-    "cp7",
-    291.5,
-    855.0,
-    307.0,
-    873.0
-  ],
-  "07-ic-wave": [
-    "cp7",
-    332.0,
-    855.5,
-    348.5,
-    872.0
-  ],
-  "07-ic-close": [
-    "cp7",
-    377.0,
-    784.0,
-    396.0,
-    803.0
-  ],
-  "08-bg": [
-    "i8",
-    0.0,
-    0.0,
-    430.0,
-    932.0
-  ],
-  "09-bg": [
-    "i9",
-    0.0,
-    0.0,
-    430.0,
-    932.0
-  ]
+ "_": "Art cut from assets/refs/<ref>.png at measured pt boxes (2.2417 px/pt for cp1-cp5, 3.0 for the 430 x 932 captures cp6-cp9), and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i5/i8/i9 are cp5/cp8/cp9 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS. g4 is not a capture: 04-scene is the companion scene with the voice sheet removed, the patched cp4 (i4) above the sheet's edge and a gpt-image-2 edit of it below, composed by scratch/scene4.py and committed as assets/art/04-scene.png; cut() leaves it alone. 04-ic-close, 04-ic-airplay and 04-ic-person are keyed by cut() (KEYED in gen.py): white ink at the glyph's own coverage, the sheet ground in their margin dropped, because the board draws that sheet now.",
+ "_rule": "Crop what the capture already contains; draw only what it does not.",
+ "04-scene": [
+  "g4",
+  0.0,
+  0.0,
+  393.0,
+  852.0
+ ],
+ "05-bg": [
+  "i5",
+  0.0,
+  0.0,
+  393.0,
+  852.0
+ ],
+ "01-ic-mark": [
+  "cp1",
+  69.0,
+  112.3,
+  96.0,
+  137.9
+ ],
+ "01-ic-compose": [
+  "cp1",
+  56.5,
+  184.1,
+  81.7,
+  209.3
+ ],
+ "01-ic-wave": [
+  "cp1",
+  128.8,
+  183.2,
+  153.6,
+  208.9
+ ],
+ "02-ic-back": [
+  "cp2",
+  30.2,
+  86.9,
+  42.9,
+  107.6
+ ],
+ "02-ic-app": [
+  "cp2",
+  71.3,
+  315.3,
+  92.8,
+  336.4
+ ],
+ "02-ic-close": [
+  "cp2",
+  304.2,
+  318.9,
+  317.2,
+  331.9
+ ],
+ "02-ic-mark": [
+  "cp2",
+  166.3,
+  444.3,
+  187.9,
+  464.0
+ ],
+ "02-ic-sparkle": [
+  "cp2",
+  213.6,
+  634.7,
+  227.6,
+  648.3
+ ],
+ "03-ic-sparkle": [
+  "cp3",
+  165.8,
+  634.7,
+  179.4,
+  648.3
+ ],
+ "04-ic-x": [
+  "cp4",
+  30.7,
+  77.5,
+  45.2,
+  92.4
+ ],
+ "04-ic-grid": [
+  "cp4",
+  344.7,
+  74.8,
+  365.5,
+  95.1
+ ],
+ "04-ic-chevron": [
+  "cp4",
+  345.6,
+  289.9,
+  364.6,
+  301.7
+ ],
+ "04-ic-close": [
+  "cp4",
+  338.9,
+  430.8,
+  357.4,
+  449.3
+ ],
+ "04-ic-airplay": [
+  "cp4",
+  334.0,
+  500.4,
+  357.4,
+  522.9
+ ],
+ "04-ic-person": [
+  "cp4",
+  332.7,
+  562.9,
+  358.3,
+  586.3
+ ],
+ "05-ic-rocket": [
+  "cp5",
+  49.4,
+  228.3,
+  70.6,
+  249.9
+ ],
+ "05-ic-imagine": [
+  "cp5",
+  49.0,
+  288.1,
+  70.6,
+  310.1
+ ],
+ "05-ic-wave5s": [
+  "cp5",
+  49.0,
+  349.2,
+  71.0,
+  371.3
+ ],
+ "05-ic-star": [
+  "cp5",
+  49.4,
+  412.5,
+  70.1,
+  432.4
+ ],
+ "05-ic-cube": [
+  "cp5",
+  49.9,
+  473.2,
+  69.7,
+  494.8
+ ],
+ "06-ic-mark": [
+  "cp6",
+  185.5,
+  333.0,
+  244.0,
+  389.0
+ ],
+ "07-ic-mark": [
+  "cp7",
+  15.0,
+  66.0,
+  56.5,
+  100.0
+ ],
+ "07-ic-watermark": [
+  "cp7",
+  174.0,
+  384.5,
+  256.0,
+  464.0
+ ],
+ "07-ic-bot": [
+  "cp7",
+  27.5,
+  744.0,
+  50.0,
+  767.0
+ ],
+ "07-ic-bank": [
+  "cp7",
+  176.0,
+  745.5,
+  196.0,
+  764.5
+ ],
+ "07-ic-trio": [
+  "cp7",
+  322.0,
+  746.0,
+  388.0,
+  777.0
+ ],
+ "07-ic-plus": [
+  "cp7",
+  30.0,
+  856.5,
+  44.5,
+  871.0
+ ],
+ "07-ic-auto": [
+  "cp7",
+  69.5,
+  855.0,
+  88.0,
+  873.0
+ ],
+ "07-ic-mic": [
+  "cp7",
+  291.5,
+  855.0,
+  307.0,
+  873.0
+ ],
+ "07-ic-wave": [
+  "cp7",
+  332.0,
+  855.5,
+  348.5,
+  872.0
+ ],
+ "07-ic-close": [
+  "cp7",
+  377.0,
+  784.0,
+  396.0,
+  803.0
+ ],
+ "08-bg": [
+  "i8",
+  0.0,
+  0.0,
+  430.0,
+  932.0
+ ],
+ "09-bg": [
+  "i9",
+  0.0,
+  0.0,
+  430.0,
+  932.0
+ ]
 }

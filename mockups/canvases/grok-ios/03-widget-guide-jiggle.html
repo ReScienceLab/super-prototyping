@@ -31,6 +31,7 @@
   --k-glass:rgba(255,255,255,.09);
   --k-grabber:rgba(255,255,255,.35);
   --k-sheet-v:rgba(0,0,0,.40);
+  --k-side-ink:#CDCECF;
   --k-voice-pill:#767676;
   --k-rec:#F09540;
   --k-page:#FFFFFF;
@@ -155,8 +156,9 @@ body{font-family:var(--k-font);-webkit-font-smoothing:antialiased;
 /* iOS picks the indicator colour against the wallpaper: measure it per screen */
 .home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
   width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
-.t,.b,.a{position:absolute}
-.a{display:block}
+.t,.b,.a,.ic{position:absolute}
+.a,.ic{display:block}
+.ic{overflow:visible}
 .t{white-space:nowrap}
 .u{font:var(--k-t-unit)}
 .k{color:var(--k-ink)}

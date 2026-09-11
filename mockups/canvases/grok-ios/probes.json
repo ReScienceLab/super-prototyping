@@ -1222,5 +1222,49 @@
   "pt": 3,
   "mine": "09-video-keyboard.png",
   "_": "09 the '123' key label on its grey key, the key ground is above threshold"
+ },
+ {
+  "id": "side-ink",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   347.0,
+   233.6,
+   363.7,
+   252.1
+  ],
+  "only": "ink",
+  "bright": true,
+  "mine": "04-voice-settings.png",
+  "_": "04 the trash glyph's box (x 347-363.7, y 233.6-252.1): flat #CDCECF ink over the glass disc, the disc's ground at 163 there; the focus box reads the same ink over 180 and the hanger over 194, which is why it is a grey and not an alpha",
+  "ink": "3"
+ },
+ {
+  "id": "ic-focus-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   344,
+   128,
+   366,
+   150
+  ],
+  "bright": 200,
+  "mine": "04-voice-settings.png",
+  "_": "04 the focus ring alone, 1pt of disc ground on each side: the disc is 180 under it and the ring's 205 ink is the only thing over 200; expect 345.2-365.0 x 129.3-149.1, the SVG's viewBox"
+ },
+ {
+  "id": "ic-trash-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   345,
+   231,
+   366,
+   254
+  ],
+  "bright": 200,
+  "mine": "04-voice-settings.png",
+  "_": "04 the trash glyph alone, 2pt of disc ground around it (163 there); expect 347.0-363.7 x 233.6-252.1, the SVG's viewBox. The hanger gets no bbox: its cloud ground is within 10 levels of the ink"
  }
 ]
