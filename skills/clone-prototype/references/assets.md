@@ -76,7 +76,7 @@ Three things that go wrong:
 
 A picture with interface set on it is cropped with the interface removed, so
 the board can draw that interface live instead of carrying it twice.
-`app-store-ios` does it on every hero and Today card:
+`apple-app-store` does it on every hero and Today card:
 
 ```json
 "p6-hero": {"img": "p6", "box": [20, 257, 382, 490],

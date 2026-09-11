@@ -354,7 +354,7 @@ every word twice, once in the picture and once in the type, and the copy in
 the picture cannot change. The only thing cut whole is a sliver too small to
 identify, such as a 10 pt peek of the next card at a scroll edge. There is
 nothing to rebuild it from. Rebuilding costs levels a crop would not.
-`app-store-ios` went from 2.32-8.00 to 3.62-8.02 when its interface came out
+`apple-app-store` went from 2.32-8.00 to 3.62-8.02 when its interface came out
 of the crops, and that is the trade to make.
 
 For a picture, the rule and the arithmetic behind it: a crop scores **0** by

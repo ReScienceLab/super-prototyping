@@ -200,7 +200,7 @@ It is not licensed for redistribution as product artwork.
 ## Regenerating
 
 ```bash
-python3 mockups/canvases/app-store-ios/gen.py
+python3 mockups/canvases/apple-app-store/gen.py
 ```
 
 Rebuilds every board and `layout.json`, byte-identical, without `scratch/`.
@@ -209,6 +209,6 @@ The boards are output: edit `gen.py`, never the HTML.
 Verify with:
 
 ```bash
-refkit tokens mockups/canvases/app-store-ios
-refkit batch mockups/canvases/app-store-ios/probes.json --against <renders> --pt 3
+refkit tokens mockups/canvases/apple-app-store
+refkit batch mockups/canvases/apple-app-store/probes.json --against <renders> --pt 3
 ```

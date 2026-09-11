@@ -253,7 +253,7 @@ declares a box other than the default 478 x 980.
   or two thirds of a point, were worth more than the blur fit and the compose
   glyph together. The seven `ref-*` boards are gitignored, so a fresh clone
   has 10.
-- `app-store-ios/`: the run to read when the source is native iPhone 16 Pro
+- `apple-app-store/`: the run to read when the source is native iPhone 16 Pro
   screenshots rather than Mobbin or Figma. Nine screens of the iOS 26 App
   Store - five tab roots, three sheets and a system alert - in 23 boards
   across three rows: a token board, a type board and three evidence boards for

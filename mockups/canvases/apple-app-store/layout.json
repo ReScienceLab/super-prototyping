@@ -1,5 +1,6 @@
 {
-  "name": "App Store",
+  "name": "(example) App Store",
+  "cover": "08-search",
   "rows": [
     {
       "title": "Foundations",

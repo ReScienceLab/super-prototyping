@@ -1,4 +1,4 @@
-"""Emit mockups/canvases/app-store-ios/ from nine iPhone 16 Pro captures.
+"""Emit mockups/canvases/apple-app-store/ from nine iPhone 16 Pro captures.
 
 Nine App Store screens: the notification onboarding pane and its system
 permission alert, the five tab roots (Today, Games, Apps, Arcade, Search),
@@ -9,7 +9,7 @@ SCALE is 3.0 and the frame here is the real 402 x 874 pt rather than this
 repo's usual 393 x 852. That makes `refkit shoot --scale 3` land on the
 capture's own pixel grid with no downscale between render and diff.
 
-    python3 mockups/canvases/app-store-ios/gen.py
+    python3 mockups/canvases/apple-app-store/gen.py
 
 Artboards are output. Edit this file, never the HTML.
 """
@@ -25,7 +25,8 @@ ICON_DIR = OUT / "assets" / "icons"
 SCALE = 3.0                                      # capture px per design pt
 
 NAME = "App Store"
-PAGE_NAME = NAME
+PAGE_NAME = "(example) " + NAME
+COVER = "08-search"  # the card on the welcome page: Search, not the first non-00 board
 P = "as"          # token prefix: --as-bg, --as-ink, --as-t-row
 
 # ---------------------------------------------------------------- tokens ----
@@ -1429,7 +1430,7 @@ def layout(names, foundations):
     if refs:
         rows.append({"title": "Source of truth: iPhone 16 Pro captures",
                      "numbered": True, "files": refs})
-    return {"name": PAGE_NAME, "rows": rows}
+    return {"name": PAGE_NAME, "cover": COVER, "rows": rows}
 
 
 def main():
