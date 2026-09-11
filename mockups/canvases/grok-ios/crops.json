@@ -1,5 +1,5 @@
 {
- "_": "Art cut from assets/refs/<ref>.png at measured pt boxes (2.2417 px/pt for cp1-cp5, 3.0 for the 430 x 932 captures cp6-cp7; cp8-cp12 are 2.2417 again), and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i8-i12 are cp8-cp12 with the type and the page dots patched out of the one band each screen crops (08/09: the card's bottom corners and shadow, y 700-852; 10-12: the header band, y 54-150), so the type is set again in CSS over the capture's own material. i5 is cp5 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS. g4 is not a capture: 04-scene is the companion scene with the voice sheet removed, the patched cp4 (i4) above the sheet's edge and a gpt-image-2 edit of it below, composed by scratch/scene4.py and committed as assets/art/04-scene.png; cut() leaves it alone. 04-ic-close, 04-ic-airplay and 04-ic-person are keyed by cut() (KEYED in gen.py): white ink at the glyph's own coverage, the sheet ground in their margin dropped, because the board draws that sheet now.",
+ "_": "Art cut from assets/refs/<ref>.png at measured pt boxes (2.2417 px/pt for cp1-cp5, 3.0 for the 402 x 874 captures cp6, cp7 and cp13-cp15; cp8-cp12 are 2.2417 again), and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i8-i12 are cp8-cp12 with the type and the page dots patched out of the one band each screen crops (08/09: the card's bottom corners and shadow, y 700-852; 10-12: the header band, y 54-150), so the type is set again in CSS over the capture's own material. i5 is cp5 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS. g4 is not a capture: 04-scene is the companion scene with the voice sheet removed, the patched cp4 (i4) above the sheet's edge and a gpt-image-2 edit of it below, composed by scratch/scene4.py and committed as assets/art/04-scene.png; cut() leaves it alone. 04-ic-close, 04-ic-airplay and 04-ic-person are keyed by cut() (KEYED in gen.py): white ink at the glyph's own coverage, the sheet ground in their margin dropped, because the board draws that sheet now.",
  "_rule": "Crop what the capture already contains; draw only what it does not.",
  "04-scene": [
   "g4",
@@ -157,80 +157,164 @@
  ],
  "06-ic-mark": [
   "cp6",
-  185.5,
-  333.0,
-  244.0,
-  389.0
+  172.33,
+  299.03,
+  229.37,
+  353.97
  ],
  "07-ic-mark": [
   "cp7",
-  15.0,
-  66.0,
-  56.5,
-  100.0
+  15.63,
+  69.63,
+  49.67,
+  102.37
  ],
  "07-ic-watermark": [
   "cp7",
-  174.0,
-  384.5,
-  256.0,
-  464.0
+  160.63,
+  360.63,
+  240.37,
+  437.37
  ],
  "07-ic-bot": [
   "cp7",
-  27.5,
-  744.0,
-  50.0,
-  767.0
+  27.63,
+  691.03,
+  45.67,
+  710.97
  ],
  "07-ic-bank": [
   "cp7",
-  176.0,
-  745.5,
-  196.0,
-  764.5
+  169.33,
+  692.33,
+  185.67,
+  708.97
  ],
  "07-ic-trio": [
   "cp7",
-  322.0,
-  746.0,
-  388.0,
-  777.0
+  316.63,
+  694.03,
+  361.37,
+  708.37
  ],
  "07-ic-plus": [
   "cp7",
-  30.0,
-  856.5,
-  44.5,
-  871.0
+  30.63,
+  799.33,
+  43.67,
+  812.37
  ],
  "07-ic-auto": [
   "cp7",
-  69.5,
-  855.0,
-  88.0,
-  873.0
+  70.33,
+  797.63,
+  86.67,
+  813.97
  ],
  "07-ic-mic": [
   "cp7",
-  291.5,
-  855.0,
-  307.0,
-  873.0
+  264.63,
+  798.03,
+  278.67,
+  813.97
  ],
  "07-ic-wave": [
   "cp7",
-  332.0,
-  855.5,
-  348.5,
-  872.0
+  305.03,
+  798.33,
+  319.67,
+  812.97
  ],
- "07-ic-close": [
-  "cp7",
-  377.0,
-  784.0,
-  396.0,
-  803.0
+ "13-spinner": [
+  "cp13",
+  191.03,
+  747.63,
+  211.37,
+  767.97
+ ],
+ "14-ic-bot": [
+  "cp14",
+  110.37,
+  543.37,
+  144.63,
+  578.03
+ ],
+ "14-badge": [
+  "cp14",
+  30.67,
+  630.97,
+  83.03,
+  652.03
+ ],
+ "15-ic-close": [
+  "cp15",
+  28.33,
+  91.33,
+  46.67,
+  109.67
+ ],
+ "15-ic-share": [
+  "cp15",
+  354.33,
+  87.63,
+  373.67,
+  111.67
+ ],
+ "15-icon": [
+  "cp15",
+  19.33,
+  141.03,
+  138.67,
+  260.37
+ ],
+ "15-ic-cloud": [
+  "cp15",
+  156.33,
+  231.03,
+  183.67,
+  256.37
+ ],
+ "15-ic-dev": [
+  "cp15",
+  374.63,
+  310.63,
+  400.37,
+  336.67
+ ],
+ "15-stars": [
+  "cp15",
+  32.33,
+  342.33,
+  102.97,
+  355.37
+ ],
+ "15-bundle": [
+  "cp15",
+  19.33,
+  424.33,
+  82.67,
+  487.67
+ ],
+ "15-ic-chevron": [
+  "cp15",
+  144.33,
+  532.63,
+  154.67,
+  548.97
+ ],
+ "15-preview-1": [
+  "cp15",
+  19.33,
+  726.03,
+  255.37,
+  874.0
+ ],
+ "15-preview-2": [
+  "cp15",
+  264.03,
+  726.03,
+  402.0,
+  874.0
  ],
  "08-ic-menu": [
   "cp8",

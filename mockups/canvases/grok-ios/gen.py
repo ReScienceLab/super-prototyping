@@ -66,7 +66,7 @@ ART_DIR = OUT / "assets" / "art"
 CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
          if not k.startswith("_")}
 SCALE = 2.2417                                    # capture px per design pt
-BIG = {"cp6", "cp7"}     # the 430 x 932 captures
+BIG = {"cp6", "cp7", "cp13", "cp14", "cp15"}     # the 402 x 874 captures
 
 
 def scale_of(ref):
@@ -163,18 +163,54 @@ TOKENS = [
   "04 the recording dot inside the island, x 215.0-220.8 y 26.8-32.6: "
   "#F09540 #F29442 #F09444"),
  ("Surface", "page",     "#FFFFFF",
-  "06 flat census x 20-410 y 560-760, 07 x 20-410 y 150-360: #FFFFFF on "
+  "06 flat census x 40-360 y 520-700, 07 x 100-300 y 200-300: #FFFFFF on "
   "100% of the flats"),
  ("Surface", "chip",     "#F5F5F5",
-  "07 suggestion chips, row y 735 x 15-55 and row y 770 x 165-295: #F5F5F5"),
- ("Surface", "composer", "#FBFBFB",
-  "07 composer interior census x 40-280 y 825-845: #FBFBFB"),
- ("Surface", "ctl",      "#F1F1F1",
-  "07 the + disc (centre 37.2, 863.9), the Auto pill x 59.7-134.3 and the "
-  "mic disc x 283-315.7: cores #F1F1F1"),
+  "07 suggestion chips y 675-727, census x 20-60 y 680-690 above the bot "
+  "glyph: #F5F5F5 on 100% of the flats"),
+ ("Surface", "composer", "#FEFEFE",
+  "07 composer interior census x 140-300 y 765-785, right of the placeholder "
+  "and above the controls: #FEFDFE on 84% of the flats; the 2pt inside its "
+  "edge reads #F9F9F9, the inset the line token carries"),
+ ("Surface", "ctl",      "#F4F3F4",
+  "07 the Auto pill x 59.3-134 y 789.3-822, census y 792-797 above its "
+  "glyph: #F4F3F4 on 98% of the flats; the + and mic discs the same"),
  ("Surface", "btn",      "#000000",
-  "06 Got it pill y 787.7-841.7, 07 Speak pill and tooltip: #000000 on "
-  "every flat"),
+  "06 Got it pill 20-382 x 730.7-784.7, census x 40-150 y 740-775: #000000 "
+  "on 100% of the flats; 07 Speak pill, 14 CTA the same"),
+ ("Surface", "scrim-sheet", "rgba(0,0,0,.19)",
+  "14 the Terms page under the sheet: its white reads #CCCCCC on 100% of the "
+  "flats (x 20-380 y 150-250) and the title's ink stays #000000; (255-204)/"
+  "255 = .20, the pill under the glass reads #8E8E8E at .19 and #8B8B8B at "
+  ".20, so .19"),
+ ("Surface", "glass-sheet", "rgba(255,255,255,.5)",
+  "14 the sheet over the scrimmed page: #E6E6E6 over #CCCCCC on 95% of "
+  "the flats (x 60-340 y 840-855) is white at .51; over the black Got it "
+  "pill it reads #8E8E8E, white at .56 with the pill's edges blurred in. "
+  "At the 19px blur the flats read .48 -0.48, .5 +0.74, .52 +1.74, .55 "
+  "+2.79 signed, and .5 is the alpha the blur was swept at over the pill"),
+ ("Surface", "grabber-pro", "#A4A4A6",
+  "14 grabber 172.3-229.7 x 451.3-455.0: #A4A4A6 on 78% of its flats"),
+ ("Surface", "store-dim", "#BDBFBC",
+  "15 the App Store page above the sheet, census x 100-300 y 20-50: #BDBFBC, "
+  "green one and two levels over red and blue in the capture itself"),
+ ("Surface", "store-disc", "#FAFAFA",
+  "15 the close and share discs (d 45.4 at 15.3 and 341.3, y 77.3-122.7): "
+  "interior mode #FAFAFA left of the X glyph (x 20-32 y 100-112), rim two "
+  "capture px of #D7D7D7 at the sides, #EEEEEE at the top"),
+ ("Surface", "store-pill", "#EEEEEF",
+  "15 the Purchased pill 289-382 x 440-472, census x 300-382 y 440-448: "
+  "#EEEEEF on 94% of the flats"),
+ ("Surface", "card-blue", "#80BEFD",
+  "14 the Grok Bot card 23.3-378.7 x 460.7-660.7: #80BEFD on a 20pt grid "
+  "over its right half and lower two thirds (x 66-366 y 583-643), every "
+  "cell within a level"),
+ ("Surface", "card-pale", "#E8F3FE",
+  "14 the pale shape in the card's top-left, cells x 46-106 y 463-513: "
+  "#E8F3FE, #E8F2FE. Its ellipse is fitted to ten boundary points read "
+  "off the grid (README), under one 70px 30px halo of card blue at .15: a "
+  "16px rim at .45 inside it cost .06 over the screen, and halo alphas "
+  ".10-.22 at blur 50-90 land 5.33-5.37 over x 0-402 y 59-874"),
 
  ("Line", "material-line", "rgba(255,255,255,.16)",
   "05 card edge peaks #3B3B3B over one 0.9pt band at y 522.8-523.6 and "
@@ -185,17 +221,31 @@ TOKENS = [
  ("Line", "plan-line",   "rgba(255,255,255,.17)",
   "05 Yearly card edge peaks #505052 (row 623.5), #565658 (625), #535557 "
   "(row 660 right); .17 over the ramp's #333536 top is #565758"),
- ("Line", "composer-shadow", "rgba(0,0,0,.12)",
-  "07 the halo round the composer: 13.3 levels at the side edges (x 10 and "
-  "419, row 840), 8.7 at the top edge and 18 under the bottom, fading to the "
-  "page over 36pt below (y 891-927) and 8 to the sides; one box-shadow, "
-  "swept dy 6-12 / blur 32-52 / alpha .09-.14 over the band y 720-932: "
-  "flat minimum 2.27-2.33 at 6-8px / 36px / .11-.12, 8px 36px .12 kept "
-  "because it also matches the side-edge reading; .14 costs .1-.2 "
-  "everywhere, blur 52 costs .15"),
- ("Line", "composer-line", "#FFFFFF",
-  "07 col x 200 at y 793.3-794.3 reads #FFFFFF, one pt over the #FBFBFB "
-  "card interior and above the #F8F8F8 halo outside it: a 1pt white edge"),
+ ("Line", "composer-shadow", "rgba(0,0,0,.07)",
+  "07 the halo under the composer: the page reads #F5F5F5 at y 833, a pt "
+  "under the card's bottom edge (832.3), and climbs to #FDFDFD by y 848; "
+  "beside the card (x 392-395, row 780) #FAFAFA-#FCFCFC. Swept with the "
+  "line at #F9F9F9 over the composer band y 728-862: blur 6px reads 4.63, "
+  "4.59, 4.63 at alpha .05, .07, .09 and blur 14px 4.45, 4.39, 4.51"),
+ ("Line", "composer-line", "#F9F9F9",
+  "07 the card's edge, row y 780: x 10.33 #DEDEDE, 10.67 #A9A9A9, 11.0 "
+  "#DFDFDF, 11.33 #E0E0E0, 11.67 #EFEFEF, then the #F9F9F9 inset; the "
+  "right edge x 390.3-391.3 #E0E0E0 #E0E0E0 #BABABA #C5C5C5, the top at "
+  "737.33-737.67 #EFEFEF #E5E5E5 and the bottom at 832.0-832.3 #DBDBDB "
+  "#E6E6E6: a line 2 capture px wide, darkest at the sides. Drawn at "
+  ".67pt any grey is too dark, because the halo carries the edge: swept "
+  "#A9A9A9 to #FFFFFF over the band y 728-862, #A9A9A9 5.25, #E4E4E4 "
+  "4.59, #EEEEEE 4.48, #F6F6F6 4.40, #F9F9F9 4.39, #FFFFFF 4.41"),
+ ("Line", "sheet-line", "rgba(0,0,0,.45)",
+  "14 the sheet's outline, row y 600: x 7.33 #9A9A9A and 7.67 #696969 over "
+  "a scrim of #C0C0C0 beside it, x 394.0 #696969 and 394.33 #9A9A9A on the "
+  "right; two capture px of black at .45 mean over #C0C0C0 (.25 and .59), "
+  "and the scrim beside it is #C0C0C0-#C4C4C4 against #CCCCCC away from "
+  "it, the sheet's own soft shadow"),
+ ("Line", "store-rule", "#E7E7E8",
+  "15 the rules at y 278.67 and 366.67 x 20-402 and the three column "
+  "separators at x 124.67, 229.67, 334.67 y 305.7-339.7: one capture px, "
+  "#E7E7E8 on 100% of the pixels, no solve needed at 3 px/pt"),
  ("Line", "illo-card-shadow", "rgba(0,0,0,.24)",
   "02 the drawn widget card's halo: col x 176.8 climbs #FCFBFC to #E9E9E9 "
   "over the 21pt above its top edge, row y 455 #F9F9F9 to #E5E5E5 over the "
@@ -231,11 +281,27 @@ TOKENS = [
  ("Ink", "dots",     "#C5C5C5",
   "02/03 page dots, mode of each 6.2pt disc: #C4C4C4-#C5C5C5"),
   ("Ink", "copy-mute",   "#7F7F7F",
-  "06 body ink core on the grey-only windows, x 35-150 of line 1 and x "
-  "160-395 of line 2: #7F7F7F on both; a window that takes in the black "
-  "'Terms of Service' span reads #777777, the span's pixels, not the grey"),
- ("Ink", "placeholder", "#7D7D7D",
-  "07 'Ask Anything' ink core x 27-127 y 811-828"),
+  "06 body ink core on a grey-only window, 'review them.' x 200-245 y "
+  "482-493: #7F7F7F; a window that takes in the black 'Terms of Service' "
+  "span reads the span's pixels, not the grey"),
+ ("Ink", "placeholder", "#7E7E7E",
+  "07 'Ask Anything' ink core x 27-121 y 755-770"),
+ ("Ink", "sheet-copy",  "#5B5B5B",
+  "14 the three body lines under 'Introducing Grok Bot', ink core of line "
+  "1 x 40-360 y 708-720: #5B5B5B"),
+ ("Ink", "store-mute",  "#8A8A8D",
+  "15 'AI agents that do real work' (x 155-326 y 173-187), 'News', 'Version "
+  "1.8.0', '1d ago' and the chevron: ink core #8A8A8D on each"),
+ ("Ink", "store-val",   "#8E8E92",
+  "15 '4.9' x 52-84 y 318-334 ink core #8E8E92; '18+', '#19', 'Years', "
+  "'Productivity', 'X Corp' and the stars the same to a level"),
+ ("Ink", "store-label", "#B1B1B4",
+  "15 '3.3K RATINGS' x 30-107 y 295-303: ink core #B1B1B4"),
+ ("Ink", "store-link",  "#0088FF",
+  "15 'more' x 350-382 y 638-647 and the cloud glyph x 157-183 y 231-256: "
+  "ink core #0088FF on both"),
+ ("Ink", "store-pill-ink", "#CFCFD1",
+  "15 'Purchased' x 302-369 y 451-461 on the #EEEEEF pill: ink core #CFCFD1"),
  ("Ink", "illo-label",  "#333333",
   "02 'Grok' beside the drawn app icon, x 98-124 y 321-330: ink core #333333"),
  ("Ink", "illo-sub",    "#5A5A5A",
@@ -277,12 +343,24 @@ TOKENS = [
   "05 plan group insets 10.9/7.3/4.2/1.7 at 1.6/3.6/6.6/10.6 down: r 18"),
  ("Radius", "r-plan",   "15px",
   "05 Yearly card insets 7.3/4.5/2.2/0.8 at 2.4/4.4/7.4/11.4 down: r 15"),
- ("Radius", "r-chip",   "24px",
-  "07 chip corner insets 17.3/14.0/12.0/9.0/6.0/3.0/1.0 at 1/2/3/5/8/12/17 "
-  "down from 727.3, left edge 11: r 24 on a 51.7 tall chip"),
- ("Radius", "r-composer", "20px",
-  "07 composer corner insets 16.7/13.0/10.3/7.0/2.7 at 1/2/3/5/8 down from "
-  "793.3, left edge 12.3: r 20"),
+ ("Radius", "r-chip",   "22px",
+  "07 chip corner: the first chip's left edge (x 11) reaches full coverage "
+  "at y 697 and the top edge (675) at x 33, on a 52 tall chip whose ends are "
+  "not full semicircles; circle fit on the arc r 22"),
+ ("Radius", "r-composer", "28px",
+  "07 composer corner insets 21.3/15.0/10.3/6.3/3.0/1.0 at 1/3/6/10/15/21 "
+  "down from 737.3, left edge 10.3: r 28"),
+ ("Radius", "r-sheet-pro", "36px",
+  "14 the sheet's top-left corner, edge insets 19.3/8.7/3.3 at 4.3/13/21.7 "
+  "down from 442.5 (left edge 7.33): r 36 gives 18.9/8.3/3.0, 47 gives "
+  "27.3/12/5.5"),
+ ("Radius", "r-store",  "38px",
+  "15 the App Store sheet's corner (top 62, left edge 0): insets 17.7/10.7/"
+  "6.0/3.3/1.7/0.7 at 5.7/11.3/17/22.7/28.3/34 down; r 38 gives 17.3/10.4/"
+  "6.4/3.5/1.6/0.5"),
+ ("Radius", "r-card",   "18px",
+  "14 the Grok Bot card's bottom-left corner (left edge 23.3, bottom 660.7): "
+  "insets 7.3/3.7/2.0/0.7 at 3.3/6.7/10/13.3 up; r 18 gives 7.0/3.6/1.9/0.7"),
  ("Radius", "r-tip",    "14px",
   "07 tooltip corner insets 9.7/7.7/6.0/4.0/1.7 at 1/2/3/5/8 down from 773, "
   "left edge 215.3: r 14"),
@@ -334,23 +412,78 @@ TOKENS = [
  ("Type", "t-free",   "700 12.5px/14px var(--x-font)",
   "05 FREE 29.4 x 8.9; 12px bold sets 28.7 x 8.3, 12.5px 29.7 x 8.7, 13px "
   "30.7 x 9.0"),
- ("Type", "t-title",  "600 22px/28px var(--x-font)",
-  "06 'Updates to our Terms of Service and' 358.3 x 20.3 on a 28 pitch; 22px "
-  "semibold sets 359.3 x 20.3"),
- ("Type", "t-copy",   "400 15px/20px var(--x-font)",
-  "06 body line 1 359.3 x 13.7 on a 20 pitch; 15px sets 359.3 x 13.7"),
- ("Type", "t-link",   "400 17.5px/22px var(--x-font)",
-  "06 'Sign out' 64.7 wide; 17px sets 63.0, 17.5px 64.9"),
- ("Type", "t-hdr",    "500 22px/28px var(--x-font)",
-  "07 'SuperGrok' 104.0 x 20 (x 57-161, boxed clear of the mark's tail); "
-  "22px medium sets 100.3 on the board and 103.9 with .45px tracking"),
- ("Type", "t-chip",   "500 15px/20px var(--x-font)",
-  "07 'Create Bot' and 'Try Finance' at 15px medium to the tenth"),
+ ("Type", "t-title",  "600 21px/26px var(--x-font)",
+  "06 'Updates to our Terms of Service and' 304.0 wide (x 49.3-353.3), its "
+  "U cap 15.0 (y 379.0-394.0), cap tops 379.0 and 405.0: a 26 pitch; 21px "
+  "semibold has a 15.05 cap"),
+ ("Type", "t-copy",   "400 14px/19px var(--x-font)",
+  "06 body: W cap 10.0, cap tops 444.7 / 463.7 / 482.7 (19 pitch), line 2 "
+  "305.3 wide (48.0-353.3); 14px has a 10.03 cap"),
+ ("Type", "t-link",   "400 16.75px/22px var(--x-font)",
+  "06 'Sign out' 61.7 wide (170.0-231.7), S 12.0 tall with overshoot; 17px "
+  "sets 63.0, 16.5px 61.1, 16.75px 62.1. The underline is one pt of ink "
+  "1.7 under the baseline (y 817.67-818.67)"),
+ ("Type", "t-btn",    "600 15.5px/20px var(--x-font)",
+  "06 'Got it' 39.7 wide (181.3-221.0), G 11.7 tall with overshoot, the "
+  "'o' 8.3 wide; 14 'Upgrade to Access' 138.7 wide (132.0-270.7), U 11.0 "
+  "flat top to overshoot; 16px semibold sets 40.8 and 143.2, 15.5px 39.6 "
+  "and 138.8"),
+ ("Type", "t-hdr",    "600 22px/28px var(--x-font)",
+  "07 'SuperGrok' 107.7 wide (x 53.3-161.0), 20.0 from S top to p foot, "
+  "and its glyphs wider than medium's at the same height: S 12.7 against "
+  "11.7, G 15.3 against 14.0, k 11.0 against 10.0 on the board at 500; "
+  "semibold sets 106.7, with .12px tracking 107.7"),
+ ("Type", "t-chip",   "500 14px/20px var(--x-font)",
+  "07 'Build a Bot' 69.0 wide (58.0-127.0), 'Try Finance' 75.0 (198.0-273.0), "
+  "caps 10.0-10.3; 14px medium sets 69.3 and 74.7"),
+ ("Type", "t-ask",    "400 16px/21px var(--x-font)",
+  "07 'Ask Anything' 93.0 x 14.3, A top to y foot (x 27.3-120.3); 17px "
+  "(t-body) sets 98.3 x 15.7 on the board, 16px 92.5 x 14.8"),
  ("Type", "t-ctl",    "400 14px/18px var(--x-font)",
-  "07 'Auto' in the model pill: 14px regular to the tenth"),
+  "07 'Auto' in the model pill x 93.0-121.3 (28.3), cap 10.0: 14px regular"),
  ("Type", "t-speak",  "600 14.5px/18px var(--x-font)",
-  "07 'Speak' 42.3 x 13.7 (bright threshold 160 keeps the pill edge out); "
-  "15px semibold sets 43.7, 14.5px 42.3"),
+  "07 'Speak' 42.3 wide (328.7-371.0) on the black pill, S 11.0 with "
+  "overshoot; 15px semibold sets 43.7, 14.5px 42.3, the same width the "
+  "430pt capture gave"),
+ ("Type", "t-sheet-h", "600 18.2px/22px var(--x-font)",
+  "14 'Introducing Grok Bot' 174.3 wide (28.7-203.0), I cap 13.0 "
+  "(679.67-692.67), 17.3 to the g foot; 18px sets 172.7 x 17.0 on the "
+  "board, 18.2px 174.3"),
+ ("Type", "t-sheet-copy", "400 15.25px/20px var(--x-font)",
+  "14 sheet body cap tops 708.3 / 728.3 / 748.3 (20 pitch), line 1 'AI "
+  "teammates you can give real work to. Bots can' 338.7 x 14.0 (x "
+  "28.0-366.7); 15px sets 333.7 x 13.3 on the board, 15.25px 339.2"),
+ ("Type", "t-card",   "500 36.5px/44px var(--x-font)",
+  "14 'Grok Bot' on the card, 136.7 wide (155.3-292.0), cap 26.4 "
+  "(547.3-573.7): 36px medium sets 135.0 on the board, 36.5px 136.9"),
+ ("Type", "t-store-h", "700 21px/26px var(--x-font)",
+  "15 'Also Included In' 154.7 x 15.7 (x 20.7-175.3), 'What's New', "
+  "'Preview': 21px bold sets 155.0; 20.5px sets 151.3"),
+ ("Type", "t-store-title", "600 21px/26px var(--x-font)",
+  "15 'Grok Bot' beside the icon, 82.0 x 15.7 (x 155-237, G top to the k "
+  "foot): the same height as the section heads but 21px bold sets 84.3, "
+  "2.7% wide, and 21px semibold 82.2"),
+ ("Type", "t-store-sub", "400 14px/19px var(--x-font)",
+  "15 'AI agents that do real work' 171.3 wide (154.7-326.0); 14px sets "
+  "171.5"),
+ ("Type", "t-store-label", "600 11px/13px var(--x-font)",
+  "15 '3.3K RATINGS' 76.0 wide (30.3-106.3), 'AGE RATING' 66.3, 'CHART' "
+  "38.0, cap 8.0 (295.0-303.0): 11px semibold caps at 7.9"),
+ ("Type", "t-store-val", "700 21px/25px var(--x-font)",
+  "15 '4.9' 31.3 wide (52-83.3), '18+' 35.0, '#19' 32.3, digit tops 318.7: "
+  "21px bold sets 31.5 / 35.2 / 32.0"),
+ ("Type", "t-store-small", "400 11.5px/14px var(--x-font)",
+  "15 'Years' 29.7 wide (161.7-191.3), 'Productivity' 66.3 (249-315.3): "
+  "11.5px sets 29.5 / 66.0; 'News' under the bundle the same size"),
+ ("Type", "t-store-bundle", "400 16px/19px var(--x-font)",
+  "15 'Apps by SpaceXAI: AI,' cap tops 432.0 and 451.0 (19 pitch), A cap "
+  "11.3: 16px has 11.5"),
+ ("Type", "t-store-body", "400 14px/19px var(--x-font)",
+  "15 'Version 1.8.0' cap 569.3, the three release-note lines at 598.3 / "
+  "617.3 / 636.3 (19 pitch), V cap 10.0: 14px"),
+ ("Type", "t-store-btn", "600 13px/16px var(--x-font)",
+  "15 'Purchased' 66.7 wide (302.3-369.0), P cap 9.3: 13px semibold sets "
+  "66.4 with a 9.3 cap"),
  ("Type", "t-illo-label", "500 11.5px/14px var(--x-font)",
   "02 'Grok' beside the app icon: ink 25.9 x 8.9; the stack sets 600 12px "
   "to 27.3 x 9.3 and 11.5px to 26.2 x 8.9. Weight and size swept over the "
@@ -383,17 +516,18 @@ TOKENS = [
  ("Metrics", "sheet-top-v", "403.6px", "04 sheet edge, col x100"),
  ("Metrics", "widget",    "162.4px", "01 widget 24.1-186.5 both axes"),
  ("Metrics", "disc",      "40px",   "05 icon discs 40 x 39.8, left edge 40.3"),
- ("Metrics", "w-max",     "430px",
-  "iPhone Pro Max logical width: cp6-cp7 are 1290 x 2796 at 3 px/pt"),
- ("Metrics", "h-max",     "932px",  "iPhone Pro Max logical height"),
+ ("Metrics", "w-pro",     "402px",
+  "iPhone 16 Pro logical width: cp6, cp7 and cp13-cp15 are 1206 x 2622 at 3 px/pt"),
+ ("Metrics", "h-pro",     "874px",  "iPhone 16 Pro logical height"),
  ("Metrics", "sheet-v-blur", "4px",
   "04 sigma of the blur read off the voice pill's edge, the one sharp edge the capture holds under the sheet: across x 270-300 at y 776/784/792 the ramp from the ground (40) to the pill (74) is 10pt for 10-90%, down x 310/334/358 over y 755-775 it is 8pt, 3.1-3.9 sigma; blur(4px). A sweep cannot read it: it walks to 44px+ because blurring the generated scene away hides the scene's own error (sheet band 13.3 at 44px against 16.3 at 4px)"),
  ("Metrics", "illo-stroke", "10px",
   "03 the drawn frame's stroke: 10.0pt at the sides (x 45.8-55.8), 9.6 at "
   "the top (y 205.9-215.5); one border"),
- ("Metrics", "status-max", "59px",
-  "iOS status bar on the 430pt devices: clock ink 22.7-36, island 11.3-48; "
-  "the height the template bar covers on 06-07"),
+ ("Metrics", "status-pro", "59px",
+  "iOS status bar on the 402pt device: 07 clock and cluster ink y 25.7-39.3, "
+  "x 44.7-366.7, no island on a screenshot; the band the template bar "
+  "covers on 06-07 and 13-15, and where their scoring starts"),
  # ---- 08-12: the voice picker and the settings sheet ----
  ("Font", "mono", 'ui-monospace,"SF Mono",Menlo,monospace',
   "12 the version line: every glyph of 'VERSION 1.3.42 (BUILD 2776)' sets on "
@@ -480,6 +614,11 @@ TOKENS = [
  ("Metrics", "row-s",  "52px",
   "10/11 settings rows: cap tops 343.0/394.3/446.5/498.3/550.9 (pitch "
   "51.3-52.6), a three-row card 156.1 tall, rules every 52.0"),
+ ("Metrics", "sheet-blur", "19px",
+  "14 the glass sheet's backdrop blur, swept with glass-sheet over the Got "
+  "it pill seen through the sheet (x 40-360 y 764-784): at .5 white, 14px "
+  "sits -6.63, 16px -3.76, 18px -0.92, 19px +0.17, 20px +1.57, 28px +11.9; "
+  "the same band at .52/14px -2.47 and .55/14px +3.12"),
  ("Metrics", "sheet-top-s", "58.7px",
   "10/11/12 the sheet's edge, col x100: dim to 58.7, the header band from there"),
 ]
@@ -718,7 +857,7 @@ SB_ICONS = (
 
 def statusbar(colour="var(--x-ink)", time="9:41", rec=False, dx=0):
     """The template bar. dx shifts the right cluster (and widens the clock's
-    centring box by the same) for the 430pt boards."""
+    centring box by the same) for the 402pt boards."""
     return ('<div class="sb" style="color:%s"><div class="island"></div>%s'
             '<div class="time"%s>%s</div><div style="position:absolute;left:%dpx;top:0">%s</div></div>'
             % (colour, '<div class="rec"></div>' if rec else "",
@@ -751,8 +890,12 @@ def write(name, html):
 TY = {"t-time": (15, 20), "t-widget": (19.5, 24), "t-h": (17, 22), "t-body": (17, 22),
       "t-feat": (17.5, 22), "t-row": (16.5, 21), "t-sheet": (16, 21), "t-h1": (40.5, 50),
       "t-h2": (20, 25), "t-sub": (13.25, 18), "t-plan": (15, 20), "t-unit": (15.4, 20),
-      "t-price": (20, 26), "t-free": (12.5, 14), "t-title": (22, 28), "t-copy": (15, 20),
-      "t-link": (17.5, 22), "t-hdr": (22, 28), "t-chip": (15, 20), "t-ctl": (14, 18),
+      "t-price": (20, 26), "t-free": (12.5, 14), "t-title": (21, 26), "t-copy": (14, 19),
+      "t-link": (16.75, 22), "t-hdr": (22, 28), "t-chip": (14, 20), "t-ctl": (14, 18),
+      "t-btn": (15.5, 20), "t-sheet-h": (18.2, 22), "t-sheet-copy": (15.25, 20), "t-card": (36.5, 44),
+      "t-store-h": (21, 26), "t-store-title": (21, 26), "t-store-sub": (14, 19), "t-store-label": (11, 13),
+      "t-store-val": (21, 25), "t-store-small": (11.5, 14), "t-store-bundle": (16, 19),
+      "t-store-body": (14, 19), "t-store-btn": (13, 16), "t-ask": (16, 21),
       "t-speak": (14.5, 18), "t-nav": (16, 22), "t-voice": (16.25, 21), "t-mail": (15.9, 20),
       "t-section": (15, 20), "t-voice-sub": (16, 21), "t-hint": (14.25, 18),
       "t-version": (11.65, 16), "t-illo-label": (11.5, 14),
@@ -764,17 +907,17 @@ def boxtop(ink_top, tk):
     return ink_top - (lh / 2 - 0.3455 * size)
 
 
-def tx(x, ink_top, s, tk="t-body", col=None, w=None, extra=""):
+def tx(x, ink_top, s, tk="t-body", col=None, w=None, extra="", attrs=""):
     """One run of type, positioned by the top of its ink."""
-    return ('<div class="t" style="left:%.2fpx;top:%.2fpx;font:var(--x-%s)%s%s%s">%s</div>'
-            % (x, boxtop(ink_top, tk), tk,
+    return ('<div class="t"%s style="left:%.2fpx;top:%.2fpx;font:var(--x-%s)%s%s%s">%s</div>'
+            % (attrs, x, boxtop(ink_top, tk), tk,
                ";color:%s" % col if col else "",
                ";width:%.1fpx" % w if w else "", extra, s))
 
 
-def txc(ink_top, s, tk="t-body", col=None, x=0.0, w=393.0, extra=""):
+def txc(ink_top, s, tk="t-body", col=None, x=0.0, w=393.0, extra="", attrs=""):
     """Centred type. The width is the box it centres in, not the ink."""
-    return tx(x, ink_top, s, tk, col, w, ";text-align:center" + extra)
+    return tx(x, ink_top, s, tk, col, w, ";text-align:center" + extra, attrs)
 
 
 def box(x, y, w, h, style="", cls="b", inner="", attrs=""):
@@ -803,19 +946,21 @@ SH = "box-shadow:0 5px 16px rgba(0,0,0,.07)"
 # 07's chips: col x30 reads #F5F5F5 to 780.7 and #F2F2F2 from there to 782.3,
 # with no halo at the sides (row 752 goes straight from the chip to #FFFFFF).
 CHIP_SH = "box-shadow:0 1.6px 0 #F2F2F2"
-COMPOSER_SH = "0 8px 36px var(--x-composer-shadow)"
+COMPOSER_SH = "0 4px 14px var(--x-composer-shadow)"
 
 
-def screen(title, inner, sb="var(--x-ink)", hm="var(--x-ink)", bg=None, rec=False, big=False):
+def screen(title, inner, sb="var(--x-ink)", hm="var(--x-ink)", bg=None, rec=False, big=False,
+           under=""):
     """One phone artboard. No board background: the phone floats on the canvas.
-    big: the 430 x 932 device, template status bar over the content, no home
-    indicator (the captures show none); hm None hides it on a 393pt screen."""
-    style = ("width:var(--x-w-max);height:var(--x-h-max);" if big else "") + \
+    big: the 402 x 874 device, template status bar over the content, no home
+    indicator (the captures show none); hm None hides it on a 393pt screen.
+    under: content the status bar sits on top of (14's dimmed page)."""
+    style = ("width:var(--x-w-pro);height:var(--x-h-pro);" if big else "") + \
             ("background:%s" % bg if bg else "")
     return page(NAME + " - " + title,
-                '<div class="phone"%s>%s%s%s</div>'
-                % (' style="%s"' % style if style else "",
-                   statusbar(sb, rec=rec, dx=37 if big else 0), inner,
+                '<div class="phone"%s>%s%s%s%s</div>'
+                % (' style="%s"' % style if style else "", under,
+                   statusbar(sb, rec=rec, dx=9 if big else 0), inner,
                    "" if big or hm is None else home(hm)),
                 SCREEN_CSS)
 
@@ -1025,72 +1170,168 @@ def s05():
 
 # At 3 px/pt Chrome sets a left-anchored string 0.7pt right of its box (the
 # face's left bearing: .6-1.0 on every string measured against the capture,
-# 1.3 for a leading F) and 0.5pt above the line-box model above (.3-1.0 on
-# twenty strings), so the 430pt boards place through these two.
-BEAR, DROP = 0.7, 0.5
+# 1.3 for a leading F), so the 402pt boards place through it. The line-box
+# model above holds to the tenth on this device: ten strings on 06, 07, 14
+# and 15 landed 0.3-0.7 low with a 0.5 drop, so there is none.
+BEAR, DROP = 0.7, 0.0
 
 
-def txb(x, ink_top, s, tk="t-body", col=None, w=None, extra=""):
-    return tx(x - BEAR, ink_top + DROP, s, tk, col, w, extra)
+def txb(x, ink_top, s, tk="t-body", col=None, w=None, extra="", attrs=""):
+    return tx(x - BEAR, ink_top + DROP, s, tk, col, w, extra, attrs)
 
 
-def txcb(ink_top, s, tk="t-body", col=None, x=0.0, w=430.0, extra=""):
-    return txc(ink_top + DROP, s, tk, col, x, w, extra)
+def txcb(ink_top, s, tk="t-body", col=None, x=0.0, w=402.0, extra="", attrs=""):
+    return txc(ink_top + DROP, s, tk, col, x, w, extra, attrs)
 
 
-# -------------------------------------------------------------------- 06 ----
+# -------------------------------------------------------------- 06, 13 ----
 # The terms notice: a white page, the mark cut from the capture, two title
-# lines on a 28 pitch, two body lines on 20 with the two policy names in
-# black, a 54pt black pill and an underlined link.
-def s06():
+# lines on a 26 pitch, three body lines on 19 with the two policy names in
+# black, a 54pt black pill and an underlined link. 13 is the same page a
+# beat after 'Sign out' was tapped: the pill's label is its spinner.
+def terms(label):
     mute = "var(--x-copy-mute)"
-    return screen("Terms update",
-        art("06-ic-mark")
-        + txcb(412.7, "Updates to our Terms of Service and", "t-title")
-        + txcb(440.7, "Acceptable Use Policy", "t-title")
-        + txcb(481.7, 'We&rsquo;re updating our <span class="k">Terms of Service</span> and '
-              '<span class="k">Acceptable', "t-copy", mute)
-        + txcb(501.7, '<span class="k">Use Policy</span>. Now&rsquo;s a great chance to review them.',
-              "t-copy", mute)
-        + box(20.0, 787.7, 390.0, 54.0, "border-radius:var(--x-r-pill);background:var(--x-btn)")
-        + txcb(808.0, "Got it", "t-h", "var(--x-ink-inv)", 20.0, 390.0)
-        + txcb(861.0, "Sign out", "t-link",
-               extra=";text-decoration:underline;text-decoration-thickness:1.7px;text-underline-offset:1px"),
-        bg="var(--x-page)", big=True)
+    return (art("06-ic-mark")
+        + txcb(379.0, "Updates to our Terms of Service", "t-title")
+        + txcb(405.0, "and Acceptable Use Policy", "t-title")
+        + txcb(444.7, 'We&rsquo;re updating our <span class="k">Terms of Service</span> and',
+               "t-copy", mute)
+        + txcb(463.7, '<span class="k">Acceptable Use Policy</span>. Now&rsquo;s a great chance to',
+               "t-copy", mute)
+        + txcb(482.7, "review them.", "t-copy", mute)
+        + box(20.0, 730.7, 362.0, 54.0, "border-radius:var(--x-r-pill);background:var(--x-btn)")
+        + label
+        + txcb(804.2, "Sign out", "t-link",
+               extra=";text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:1.7px"))
+
+
+GOT_IT = txcb(751.8, "Got it", "t-btn", "var(--x-ink-inv)", 20.0, 362.0)
+
+
+def s06():
+    return screen("Terms update", terms(GOT_IT), bg="var(--x-page)", big=True)
+
+
+def s13():
+    return screen("Terms update, signing out", terms(art("13-spinner")),
+                  bg="var(--x-page)", big=True)
 
 
 # -------------------------------------------------------------------- 07 ----
 # The SuperGrok home: header mark and wordmark, the grey watermark mark, three
 # suggestion chips (the third runs off the screen; only 'Try C' is visible,
-# and Gmail, GitHub and Notion in its icon trio make it Connectors), the
-# composer card with a 1pt white edge over a soft halo, and the coach-mark
-# tooltip with its tail over the Speak pill.
+# and Gmail, GitHub and Notion in its icon trio make it Connectors), and the
+# composer card with a thin grey edge over a soft halo.
 def s07():
     inv = "var(--x-ink-inv)"
     chip = "border-radius:var(--x-r-chip);background:var(--x-chip);" + CHIP_SH
     ctl = "background:var(--x-ctl)"
     return screen("SuperGrok home",
-        art("07-ic-mark") + txb(53.3, 75.0, "SuperGrok", "t-hdr", extra=";letter-spacing:.45px")
+        art("07-ic-mark") + txb(53.3, 78.3, "SuperGrok", "t-hdr", extra=";letter-spacing:.12px")
         + art("07-ic-watermark")
-        + box(11.0, 727.3, 139.0, 53.4, chip) + art("07-ic-bot") + txb(59.7, 750.0, "Create Bot", "t-chip")
-        + box(158.0, 727.3, 145.3, 53.4, chip) + art("07-ic-bank") + txb(206.7, 749.3, "Try Finance", "t-chip")
-        + box(311.3, 727.3, 118.7, 53.4, chip + ";border-radius:var(--x-r-chip) 0 0 var(--x-r-chip)")
-        + art("07-ic-trio") + txb(392.0, 750.0, "Try C", "t-chip")
-        + box(12.3, 793.3, 405.4, 96.7, "border-radius:var(--x-r-composer);background:var(--x-composer);"
-              "box-shadow:0 0 0 1px var(--x-composer-line)," + COMPOSER_SH)
-        + txb(27.7, 811.0, "Ask Anything", "t-body", "var(--x-placeholder)")
-        + circle(20.9, 847.5, 32.7, ctl) + art("07-ic-plus")
-        + box(59.7, 847.3, 74.6, 32.7, "border-radius:var(--x-r-pill);" + ctl)
-        + art("07-ic-auto") + txb(93.0, 858.7, "Auto", "t-ctl")
-        + circle(283.0, 847.3, 32.7, ctl) + art("07-ic-mic")
-        + box(321.7, 847.3, 87.3, 32.7, "border-radius:var(--x-r-pill);background:var(--x-btn)")
-        + art("07-ic-wave") + txb(356.7, 858.0, "Speak", "t-speak", inv)
-        + box(215.3, 773.0, 193.7, 62.3, "border-radius:var(--x-r-tip);background:var(--x-btn)")
-        + box(371.6, 835.3, 18.8, 9.4, "background:var(--x-btn);clip-path:polygon(0 0,100% 0,50% 100%)")
-        + txb(230.0, 787.0, "Tap here to speak", "t-body", inv)
-        + txb(230.0, 809.0, "with Grok", "t-body", inv)
-        + art("07-ic-close"),
+        + box(11.0, 675.0, 132.7, 52.0, chip) + art("07-ic-bot") + txb(58.0, 696.0, "Build a Bot", "t-chip")
+        + box(151.3, 675.0, 138.0, 52.0, chip) + art("07-ic-bank") + txb(198.0, 696.0, "Try Finance", "t-chip")
+        + box(297.0, 675.0, 105.0, 52.0, chip + ";border-radius:var(--x-r-chip) 0 0 var(--x-r-chip)")
+        + art("07-ic-trio") + txb(374.3, 696.0, "Try C", "t-chip")
+        + box(10.3, 737.3, 381.3, 95.3, "border-radius:var(--x-r-composer);background:var(--x-composer);"
+              "box-shadow:0 0 0 .67px var(--x-composer-line)," + COMPOSER_SH)
+        + txb(27.0, 754.7, "Ask Anything", "t-ask", "var(--x-placeholder)")
+        + circle(21.0, 789.3, 32.7, ctl) + art("07-ic-plus")
+        + box(59.3, 789.3, 74.7, 32.7, "border-radius:var(--x-r-pill);" + ctl)
+        + art("07-ic-auto") + txb(93.0, 800.7, "Auto", "t-ctl")
+        + circle(255.3, 789.3, 32.7, ctl) + art("07-ic-mic")
+        + box(293.7, 789.5, 87.6, 32.3, "border-radius:var(--x-r-pill);background:var(--x-btn)")
+        + art("07-ic-wave") + txb(328.7, 800.2, "Speak", "t-speak", inv),
         bg="var(--x-page)", big=True)
+
+
+# -------------------------------------------------------------------- 14 ----
+# 'Introducing Grok Bot': the terms page under a scrim, a glass sheet with a
+# dark outline, the blue card (a flat blue, a pale tilted ellipse in its
+# top-left with a darker rim and a broad shadow, a pale glow at the bottom-
+# left corner; the bot glyph and the NEW badge are crops), a heading, three
+# body lines and the CTA pill.
+CARD_CSS = ("border-radius:var(--x-r-card);background:var(--x-card-blue);overflow:hidden;"
+            "transform:translateZ(0)")
+PALE = ('<div style="position:absolute;left:%.1fpx;top:%.1fpx;width:%.1fpx;height:%.1fpx;'
+        'border-radius:50%%;background:var(--x-card-pale);transform:rotate(%.1fdeg);'
+        'box-shadow:0 0 %dpx %dpx rgba(%s)"></div>')
+GLOW = ('<div style="position:absolute;left:-60px;top:110px;width:160px;height:160px;'
+        'border-radius:50%;background:radial-gradient(closest-side,rgba(232,243,254,.6),'
+        'rgba(232,243,254,0))"></div>')
+
+
+def s14():
+    inv = "var(--x-ink-inv)"
+    sheet = ("border-radius:var(--x-r-sheet-pro);background:var(--x-glass-sheet);"
+             "backdrop-filter:blur(var(--x-sheet-blur));-webkit-backdrop-filter:blur(var(--x-sheet-blur));"
+             "box-shadow:0 0 0 .67px var(--x-sheet-line),0 0 24px rgba(0,0,0,.15)")
+    pale = PALE % (-44, -558, 384, 640, 21, 70, 30, "20,120,255,.15")
+    return screen("Introducing Grok Bot",
+        box(8.0, 442.5, 386.0, 423.5, sheet)
+        + box(172.3, 451.3, 57.3, 3.7, "border-radius:2px;background:var(--x-grabber-pro)")
+        + box(23.3, 460.7, 355.3, 200.0, CARD_CSS, inner=pale + GLOW, attrs=" data-clip-ok")
+        + art("14-ic-bot") + art("14-badge")
+        + txb(155.3, 547.3, "Grok Bot", "t-card", inv)
+        + txb(27.7, 679.7, "Introducing Grok Bot", "t-sheet-h")
+        + txb(27.7, 708.3, "AI teammates you can give real work to. Bots can", "t-sheet-copy", "var(--x-sheet-copy)")
+        + txb(27.7, 728.3, "sign in to your tools, use them just like you do,", "t-sheet-copy", "var(--x-sheet-copy)")
+        + txb(27.7, 748.3, "and come back with finished work.", "t-sheet-copy", "var(--x-sheet-copy)")
+        + box(27.3, 786.0, 347.3, 47.3, "border-radius:var(--x-r-pill);background:var(--x-btn)")
+        + txcb(804.0, "Upgrade to Access", "t-btn", inv, 27.3, 347.3),
+        bg="var(--x-page)", big=True,
+        under=terms(GOT_IT) + box(0, 0, 402, 874, "background:var(--x-scrim-sheet)"))
+
+
+# -------------------------------------------------------------------- 15 ----
+# The App Store product sheet for Grok Bot over the dimmed store: two glyph
+# discs, the app icon (a crop), title, subtitle, the cloud, the four-column
+# facts strip between two rules, the bundle row with its Purchased pill,
+# What's New with the version line and three release notes, and the two
+# preview cards (crops) running off the bottom.
+def s15():
+    mute, val = "var(--x-store-mute)", "var(--x-store-val)"
+    disc = "background:var(--x-store-disc);box-shadow:inset 0 0 0 .67px #D7D7D7"
+    rule = "background:var(--x-store-rule)"
+    clip = ' data-clip-ok'
+    cols = (68.3, 177.2, 282.2, 387.2)
+    return screen("App Store, Grok Bot",
+        box(0, 62.0, 402, 812, "border-radius:var(--x-r-store) var(--x-r-store) 0 0;"
+            "background:var(--x-card);box-shadow:0 -2px 16px rgba(0,0,0,.12)")
+        + circle(15.3, 77.3, 45.4, disc) + art("15-ic-close")
+        + circle(341.3, 77.3, 45.4, disc) + art("15-ic-share")
+        + art("15-icon")
+        + txb(155.0, 146.7, "Grok Bot", "t-store-title")
+        + txb(154.7, 173.7, "AI agents that do real work", "t-store-sub", mute)
+        + art("15-ic-cloud")
+        + box(20, 278.67, 382, 1, rule) + box(20, 366.67, 382, 1, rule)
+        + "".join(box(x, 305.7, 1, 34, rule) for x in (124.67, 229.67, 334.67))
+        + "".join(txcb(295.0, t, "t-store-label", "var(--x-store-label)", cx - 70, 140,
+                       extra=";letter-spacing:.1px", **({"attrs": clip} if cx > 350 else {}))
+                  for cx, t in zip(cols, ("3.3K RATINGS", "AGE RATING", "CHART", "DEVELOPER")))
+        + "".join(txcb(318.7, t, "t-store-val", val, cx - 40, 80)
+                  for cx, t in zip(cols, ("4.9", "18+", "#19")))
+        + art("15-ic-dev") + art("15-stars")
+        + txcb(344.7, "Years", "t-store-small", val, cols[1] - 40, 80)
+        + txcb(344.7, "Productivity", "t-store-small", val, cols[2] - 40, 80)
+        + txb(366.7, 344.7, "X Corp", "t-store-small", val, attrs=clip)
+        + txb(20.7, 392.3, "Also Included In", "t-store-h")
+        + art("15-bundle")
+        + txb(92.3, 432.0, "Apps by SpaceXAI: AI,", "t-store-bundle")
+        + txb(92.3, 451.0, "news, videos, social me&hellip;", "t-store-bundle")
+        + txb(92.3, 471.7, "News", "t-store-small", mute)
+        + box(289.0, 440.0, 93.0, 32.0, "border-radius:var(--x-r-pill);background:var(--x-store-pill)")
+        + txb(302.3, 451.7, "Purchased", "t-store-btn", "var(--x-store-pill-ink)")
+        + txb(20.7, 533.3, "What&rsquo;s New", "t-store-h") + art("15-ic-chevron")
+        + txb(20.7, 569.3, "Version 1.8.0", "t-store-body", mute)
+        + txb(281.3, 569.3, "1d ago", "t-store-body", mute, w=100, extra=";text-align:right")
+        + txb(21.0, 598.3, "- Added select-and-copy on message text", "t-store-body")
+        + txb(21.0, 617.3, "- Added a confirm step when sharing a bot as a", "t-store-body")
+        + txb(21.0, 636.3, "template", "t-store-body")
+        + txb(281.3, 636.3, "more", "t-store-body", "var(--x-store-link)", w=100, extra=";text-align:right")
+        + txb(21.3, 694.0, "Preview", "t-store-h")
+        + art("15-preview-1") + art("15-preview-2"),
+        bg="var(--x-store-dim)", big=True)
 
 
 # -------------------------------------------------------------- 08, 09 ----
@@ -1229,6 +1470,9 @@ SCREENS = [
     ("10-settings", "Settings", s10),
     ("11-settings-voice", "Settings, scrolled to Voice", s11),
     ("12-settings-bottom", "Settings, bottom", s12),
+    ("13-terms-loading", "Terms update, signing out", s13),
+    ("14-grok-bot-sheet", "Introducing Grok Bot", s14),
+    ("15-app-store", "App Store, Grok Bot", s15),
 ]
 
 
@@ -1277,15 +1521,11 @@ def token_board():
     radii = "".join(
         '<div><div class="rb" style="border-radius:%s"></div><em>%s</em></div>' % (v, v)
         for _, n, v, _ in _of("Radius") if n != "r-phone")
-    type_ = "".join(
-        '<div class="tr"><span style="font:var(--x-%s)">Grok</span>'
-        '<em>--x-%s &middot; %s</em></div>' % (n, n, v.split(" var")[0])
-        for _, n, v, _ in _of("Type"))
     met = "<br>".join("--x-%s: %s" % (n, v) for _, n, v, _ in _of("Metrics"))
     return page(NAME + " - Design Tokens",
                 '<div class="sheet"><header><h1>%s</h1>'
-                '<p>Ten Mobbin captures at 2.2417 px per pt, two native 1290 &times; '
-                '2796 captures at 3 px per pt. One face (SF Pro), one type ladder, '
+                '<p>Ten Mobbin captures at 2.2417 px per pt, five native 1206 &times; '
+                '2622 captures at 3 px per pt. One face (SF Pro), one type ladder, '
                 'surfaces from white and light grey to black and a blurred photograph. '
                 'Translucent surfaces are materials, not fills: the ground under them '
                 'is not flat.</p>'
@@ -1293,22 +1533,44 @@ def token_board():
                 '<h2>Colour</h2><div class="grid">%s</div>'
                 '<div class="foot"><div><h2>Radius</h2>'
                 '<div class="rad">%s</div></div>'
-                '<div><h2>Metrics</h2><div class="met">%s</div></div></div>'
-                '<h2>Type</h2><div class="ty">%s</div></div>'
-                % (NAME, swatches, radii, met, type_), SHEET)
+                '<div><h2>Metrics</h2><div class="met">%s</div></div></div></div>'
+                % (NAME, swatches, radii, met), SHEET)
 
 
-EV_ROWS = 22
+def type_board():
+    # the type ladder outgrew the token board at 46 rows, so it has its own
+    rows = "".join(
+        '<div class="tr"><span style="font:var(--x-%s)">Grok</span>'
+        '<em>--x-%s &middot; %s</em></div>' % (n, n, v.split(" var")[0])
+        for _, n, v, _ in _of("Type"))
+    return page(NAME + " - Type Tokens",
+                '<div class="sheet"><header><h1>%s type</h1>'
+                '<p>Every size is fitted to a measured width on the board, so several '
+                'are off the iOS ladder. The evidence rows carry the widths.</p>'
+                '</header><div class="ty">%s</div></div>' % (NAME, rows), SHEET)
+
+
+EV_LINES = 56     # a page of 60 estimated lines fits the board, 62 does not
 
 
 def evidence_boards():
-    pages = [TOKENS[i:i + EV_ROWS] for i in range(0, len(TOKENS), EV_ROWS)]
+    # a row wraps its evidence at about 62 characters, so a page breaks by
+    # lines rather than by rows: 22 rows ran from 52 lines to 73
+    pages, page_, lines = [], [], 0
+    for row in TOKENS:
+        n = -(-len(row[3]) // 62)
+        if page_ and lines + n > EV_LINES:
+            pages.append(page_)
+            page_, lines = [], 0
+        page_.append(row)
+        lines += n
+    pages.append(page_)
     for i, chunk in enumerate(pages):
         rows = "".join(
             '<tr><td class="t">--x-%s</td><td class="v">%s</td><td class="e">%s</td></tr>'
             % (n, v, e) for _, n, v, e in chunk)
         of = " %d/%d" % (i + 1, len(pages)) if len(pages) > 1 else ""
-        yield ("00%s-evidence" % "bcdefgh"[i],
+        yield ("00%s-evidence" % "bcdefghijk"[i],
                page(NAME + " - Evidence" + of,
                     '<div class="sheet"><header><h1>Evidence%s</h1>'
                     '<p>One row per token. A token with no evidence is a guess.</p>'
@@ -1326,7 +1588,7 @@ def ref_boards():
         if not f.exists():
             continue
         uri = "data:image/png;base64," + base64.b64encode(f.read_bytes()).decode()
-        big = ' style="width:var(--x-w-max);height:var(--x-h-max)"' if "cp%d" % i in BIG else ""
+        big = ' style="width:var(--x-w-pro);height:var(--x-h-pro)"' if "cp%d" % i in BIG else ""
         yield ("ref-" + stem,
                page(NAME + " - reference: " + label,
                     '<div class="phone"%s><img src="%s" alt="%s"></div>' % (big, uri, label),
@@ -1336,7 +1598,8 @@ def ref_boards():
 # ----------------------------------------------------------------- main ----
 def layout(names):
     rows = [{"title": "Foundations",
-             "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
+             "files": [{"file": "00-design-tokens", "label": "Design tokens"},
+                       {"file": "00a-type-tokens", "label": "Type tokens"}]
                       + [{"file": n, "label": "Evidence"}
                          for n, _ in evidence_boards()]},
             {"title": "Screens", "numbered": True,
@@ -1351,7 +1614,7 @@ def layout(names):
 
 def main():
     cut()
-    files = dict([("00-design-tokens", token_board())]
+    files = dict([("00-design-tokens", token_board()), ("00a-type-tokens", type_board())]
                  + list(evidence_boards())
                  + [(s, fn()) for s, _, fn in SCREENS]
                  + list(ref_boards()))

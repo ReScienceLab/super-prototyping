@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 5/7</title>
+<title>Grok iOS - Evidence 5/9</title>
 <style>
 :root{
   /* Font */
@@ -36,16 +36,26 @@
   --k-rec:#F09540;
   --k-page:#FFFFFF;
   --k-chip:#F5F5F5;
-  --k-composer:#FBFBFB;
-  --k-ctl:#F1F1F1;
+  --k-composer:#FEFEFE;
+  --k-ctl:#F4F3F4;
   --k-btn:#000000;
+  --k-scrim-sheet:rgba(0,0,0,.19);
+  --k-glass-sheet:rgba(255,255,255,.5);
+  --k-grabber-pro:#A4A4A6;
+  --k-store-dim:#BDBFBC;
+  --k-store-disc:#FAFAFA;
+  --k-store-pill:#EEEEEF;
+  --k-card-blue:#80BEFD;
+  --k-card-pale:#E8F3FE;
 
   /* Line */
   --k-material-line:rgba(255,255,255,.16);
   --k-price-line:#252525;
   --k-plan-line:rgba(255,255,255,.17);
-  --k-composer-shadow:rgba(0,0,0,.12);
-  --k-composer-line:#FFFFFF;
+  --k-composer-shadow:rgba(0,0,0,.07);
+  --k-composer-line:#F9F9F9;
+  --k-sheet-line:rgba(0,0,0,.45);
+  --k-store-rule:#E7E7E8;
   --k-illo-card-shadow:rgba(0,0,0,.24);
   --k-row-line:rgba(255,255,255,.10);
   --k-illo-sheet-shadow:rgba(0,0,0,.12);
@@ -59,7 +69,13 @@
   --k-free-ink:#E07D54;
   --k-dots:#C5C5C5;
   --k-copy-mute:#7F7F7F;
-  --k-placeholder:#7D7D7D;
+  --k-placeholder:#7E7E7E;
+  --k-sheet-copy:#5B5B5B;
+  --k-store-mute:#8A8A8D;
+  --k-store-val:#8E8E92;
+  --k-store-label:#B1B1B4;
+  --k-store-link:#0088FF;
+  --k-store-pill-ink:#CFCFD1;
   --k-illo-label:#333333;
   --k-illo-sub:#5A5A5A;
 
@@ -77,8 +93,11 @@
   --k-r-feat:32px;
   --k-r-price:18px;
   --k-r-plan:15px;
-  --k-r-chip:24px;
-  --k-r-composer:20px;
+  --k-r-chip:22px;
+  --k-r-composer:28px;
+  --k-r-sheet-pro:36px;
+  --k-r-store:38px;
+  --k-r-card:18px;
   --k-r-tip:14px;
   --k-r-pill:999px;
 
@@ -97,13 +116,27 @@
   --k-t-unit:400 15.4px/20px var(--k-font);
   --k-t-price:700 20px/26px var(--k-font);
   --k-t-free:700 12.5px/14px var(--k-font);
-  --k-t-title:600 22px/28px var(--k-font);
-  --k-t-copy:400 15px/20px var(--k-font);
-  --k-t-link:400 17.5px/22px var(--k-font);
-  --k-t-hdr:500 22px/28px var(--k-font);
-  --k-t-chip:500 15px/20px var(--k-font);
+  --k-t-title:600 21px/26px var(--k-font);
+  --k-t-copy:400 14px/19px var(--k-font);
+  --k-t-link:400 16.75px/22px var(--k-font);
+  --k-t-btn:600 15.5px/20px var(--k-font);
+  --k-t-hdr:600 22px/28px var(--k-font);
+  --k-t-chip:500 14px/20px var(--k-font);
+  --k-t-ask:400 16px/21px var(--k-font);
   --k-t-ctl:400 14px/18px var(--k-font);
   --k-t-speak:600 14.5px/18px var(--k-font);
+  --k-t-sheet-h:600 18.2px/22px var(--k-font);
+  --k-t-sheet-copy:400 15.25px/20px var(--k-font);
+  --k-t-card:500 36.5px/44px var(--k-font);
+  --k-t-store-h:700 21px/26px var(--k-font);
+  --k-t-store-title:600 21px/26px var(--k-font);
+  --k-t-store-sub:400 14px/19px var(--k-font);
+  --k-t-store-label:600 11px/13px var(--k-font);
+  --k-t-store-val:700 21px/25px var(--k-font);
+  --k-t-store-small:400 11.5px/14px var(--k-font);
+  --k-t-store-bundle:400 16px/19px var(--k-font);
+  --k-t-store-body:400 14px/19px var(--k-font);
+  --k-t-store-btn:600 13px/16px var(--k-font);
   --k-t-illo-label:500 11.5px/14px var(--k-font);
   --k-t-illo-title:600 21.25px/26px var(--k-font);
   --k-t-illo-sub:400 11.25px/15px var(--k-font);
@@ -120,11 +153,11 @@
   --k-sheet-top-v:403.6px;
   --k-widget:162.4px;
   --k-disc:40px;
-  --k-w-max:430px;
-  --k-h-max:932px;
+  --k-w-pro:402px;
+  --k-h-pro:874px;
   --k-sheet-v-blur:4px;
   --k-illo-stroke:10px;
-  --k-status-max:59px;
+  --k-status-pro:59px;
 
   /* Font */
   --k-mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -164,6 +197,7 @@
 
   /* Metrics */
   --k-row-s:52px;
+  --k-sheet-blur:19px;
   --k-sheet-top-s:58.7px;
 }
 
@@ -214,6 +248,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 5/7</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-t-illo-label</td><td class="v">500 11.5px/14px var(--k-font)</td><td class="e">02 'Grok' beside the app icon: ink 25.9 x 8.9; the stack sets 600 12px to 27.3 x 9.3 and 11.5px to 26.2 x 8.9. Weight and size swept over the word's box: 500 11.5px 7.9, 600 11.5px 13.4, 400 11.5px 10.1</td></tr><tr><td class="t">--k-t-illo-title</td><td class="v">600 21.25px/26px var(--k-font)</td><td class="e">02 sheet title 'Grok': ink 44.6 x 16.1; 700 21px sets 46.3 x 15.7, 22px 48.7 x 16.3, 600 22px 47.3 x 16.3. Swept over the word's box: 600 21.25px 7.9, 600 21px 8.7, 500 21.5px 9.1, 700 21px 11.2, 700 22px 16.7</td></tr><tr><td class="t">--k-t-illo-sub</td><td class="v">400 11.25px/15px var(--k-font)</td><td class="e">02 'Quickly start a new chat with Grok.': ink 184.7 x 10.7; 400 11.5px sets 188.7 x 10.7, 12px 195.7 x 11.3. Swept over the line's box in .05 steps: 11.25px 11.3, 11.2px 11.8, 11.3px 13.4, 11.5px 19.8</td></tr><tr><td class="t">--k-t-illo-pill</td><td class="v">600 15.5px/20px var(--k-font)</td><td class="e">02 'Grok' in the widget pill, unprojected into the card's plane: ink 35.0 x 12.2; 600 16px sets 35.3 x 12.3, and projected back reads 34.8 x 13.8 against the capture's 34.3 x 15.2, a taller face. Swept over the word's box: 15.5px 27.9, 15px 28.3, 16px 34.7, 16.5px 40.1. Set in the card's flat coordinates, before its matrix3d</td></tr><tr><td class="t">--k-w</td><td class="v">393px</td><td class="e">iPhone 14 Pro/15/16 logical width</td></tr><tr><td class="t">--k-h</td><td class="v">852px</td><td class="e">iPhone 14 Pro/15/16 logical height</td></tr><tr><td class="t">--k-status</td><td class="v">54px</td><td class="e">iOS status bar, Dynamic Island devices</td></tr><tr><td class="t">--k-gutter</td><td class="v">16px</td><td class="e">02 card x 16.1-376.8; 04 buttons x 16.3 and 333.2-377</td></tr><tr><td class="t">--k-gutter-w</td><td class="v">20px</td><td class="e">05 card x 20.5-372.3, plan group and CTA the same</td></tr><tr><td class="t">--k-tap</td><td class="v">44px</td><td class="e">02 back disc 44.1 x 43.7; 04 X and grid buttons 43-43.7</td></tr><tr><td class="t">--k-sheet-top</td><td class="v">59px</td><td class="e">02/03 sheet ground starts at 58.9</td></tr><tr><td class="t">--k-sheet-top-v</td><td class="v">403.6px</td><td class="e">04 sheet edge, col x100</td></tr><tr><td class="t">--k-widget</td><td class="v">162.4px</td><td class="e">01 widget 24.1-186.5 both axes</td></tr><tr><td class="t">--k-disc</td><td class="v">40px</td><td class="e">05 icon discs 40 x 39.8, left edge 40.3</td></tr><tr><td class="t">--k-w-max</td><td class="v">430px</td><td class="e">iPhone Pro Max logical width: cp6-cp7 are 1290 x 2796 at 3 px/pt</td></tr><tr><td class="t">--k-h-max</td><td class="v">932px</td><td class="e">iPhone Pro Max logical height</td></tr><tr><td class="t">--k-sheet-v-blur</td><td class="v">4px</td><td class="e">04 sigma of the blur read off the voice pill's edge, the one sharp edge the capture holds under the sheet: across x 270-300 at y 776/784/792 the ramp from the ground (40) to the pill (74) is 10pt for 10-90%, down x 310/334/358 over y 755-775 it is 8pt, 3.1-3.9 sigma; blur(4px). A sweep cannot read it: it walks to 44px+ because blurring the generated scene away hides the scene's own error (sheet band 13.3 at 44px against 16.3 at 4px)</td></tr><tr><td class="t">--k-illo-stroke</td><td class="v">10px</td><td class="e">03 the drawn frame's stroke: 10.0pt at the sides (x 45.8-55.8), 9.6 at the top (y 205.9-215.5); one border</td></tr><tr><td class="t">--k-status-max</td><td class="v">59px</td><td class="e">iOS status bar on the 430pt devices: clock ink 22.7-36, island 11.3-48; the height the template bar covers on 06-07</td></tr><tr><td class="t">--k-mono</td><td class="v">ui-monospace,"SF Mono",Menlo,monospace</td><td class="e">12 the version line: every glyph of 'VERSION 1.3.42 (BUILD 2776)' sets on one pitch, 6.95pt per character over 27 characters (187.4 wide); a monospaced face, the platform's</td></tr><tr><td class="t">--k-voice-sheet</td><td class="v">#EDEDEE</td><td class="e">08/09 the voice card's interior, col x196 405-700 and row y520 outside the orb: flat #EDEDEE once the export's cast is taken out (README, colour normalisation). Its 1pt edge reads #FCFAFC, card white</td></tr><tr><td class="t">--k-nav-well</td><td class="v">#C8C8C9</td><td class="e">08/09 the tints under the nav: the menu disc 17.8-60.7 x 63.1-106.9, the Ask pill from 130.3 x 69.4-99.8, the compose disc from 335.4 x 64.0-106.9, all flat #C8C8C9, three levels under dim</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 5/9</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-r-row</td><td class="v">13px</td><td class="e">04 row card corner: the top edge's 1pt line reaches full coverage 8.1pt in from the left edge (x 28.5 against 20.4), and r - sqrt(2r - 1) = 8.1 at r 13 (12 gives 7.2, 14 gives 8.8)</td></tr><tr><td class="t">--k-r-feat</td><td class="v">32px</td><td class="e">05 feature card insets 14.9/10.5/6.9/3.8/1.7 at 5/8/12/17/23 down: r 32</td></tr><tr><td class="t">--k-r-price</td><td class="v">18px</td><td class="e">05 plan group insets 10.9/7.3/4.2/1.7 at 1.6/3.6/6.6/10.6 down: r 18</td></tr><tr><td class="t">--k-r-plan</td><td class="v">15px</td><td class="e">05 Yearly card insets 7.3/4.5/2.2/0.8 at 2.4/4.4/7.4/11.4 down: r 15</td></tr><tr><td class="t">--k-r-chip</td><td class="v">22px</td><td class="e">07 chip corner: the first chip's left edge (x 11) reaches full coverage at y 697 and the top edge (675) at x 33, on a 52 tall chip whose ends are not full semicircles; circle fit on the arc r 22</td></tr><tr><td class="t">--k-r-composer</td><td class="v">28px</td><td class="e">07 composer corner insets 21.3/15.0/10.3/6.3/3.0/1.0 at 1/3/6/10/15/21 down from 737.3, left edge 10.3: r 28</td></tr><tr><td class="t">--k-r-sheet-pro</td><td class="v">36px</td><td class="e">14 the sheet's top-left corner, edge insets 19.3/8.7/3.3 at 4.3/13/21.7 down from 442.5 (left edge 7.33): r 36 gives 18.9/8.3/3.0, 47 gives 27.3/12/5.5</td></tr><tr><td class="t">--k-r-store</td><td class="v">38px</td><td class="e">15 the App Store sheet's corner (top 62, left edge 0): insets 17.7/10.7/6.0/3.3/1.7/0.7 at 5.7/11.3/17/22.7/28.3/34 down; r 38 gives 17.3/10.4/6.4/3.5/1.6/0.5</td></tr><tr><td class="t">--k-r-card</td><td class="v">18px</td><td class="e">14 the Grok Bot card's bottom-left corner (left edge 23.3, bottom 660.7): insets 7.3/3.7/2.0/0.7 at 3.3/6.7/10/13.3 up; r 18 gives 7.0/3.6/1.9/0.7</td></tr><tr><td class="t">--k-r-tip</td><td class="v">14px</td><td class="e">07 tooltip corner insets 9.7/7.7/6.0/4.0/1.7 at 1/2/3/5/8 down from 773, left edge 215.3: r 14</td></tr><tr><td class="t">--k-r-pill</td><td class="v">999px</td><td class="e">01 pill 61.6 tall, 05 Skip 31.4, FREE 27.7 and CTA 56: all fully round (CTA inset 19.5 at 1.5 down fits r 28)</td></tr><tr><td class="t">--k-t-time</td><td class="v">600 15px/20px var(--k-font)</td><td class="e">iOS status bar clock</td></tr><tr><td class="t">--k-t-widget</td><td class="v">600 19.5px/24px var(--k-font)</td><td class="e">01 'Grok' 42.4 wide, G 14.3 tall with overshoot; 20px sets 43.3 x 15.0 and 19.5px 42.2 x 14.6</td></tr><tr><td class="t">--k-t-h</td><td class="v">600 17px/22px var(--k-font)</td><td class="e">02 'Widget' 55.8 wide, 'Home Screen Widget' 166.4 wide, both 16.1 cap-to-descender: 17px; 05 CTA 'Upgrade to SuperGrok' 177.1 wide at the same</td></tr><tr><td class="t">--k-t-body</td><td class="v">400 17px/22px var(--k-font)</td><td class="e">02/03 body pitch 21.9, F cap to g descender 15.6, line 1 315.8 wide on both boards; 17px sets it 315.8</td></tr><tr><td class="t">--k-t-feat</td><td class="v">400 17.5px/22px var(--k-font)</td><td class="e">05 'Longer conversations in Chat' 224.8 wide and 'Skip' 32.6: 17px sets 219.3 and 31.3, 17.5px 225.3 and 32.3. Same cap as t-body, wider set</td></tr><tr><td class="t">--k-t-row</td><td class="v">400 16.5px/21px var(--k-font)</td><td class="e">04 'Select Audio Device' 147.7 x 12.9, 'Microphone Selection' 161.0 x 15.2: 17px sets 150.3/163.3, 16px 143.3/155.7, 16.5px 147.0/159.0</td></tr><tr><td class="t">--k-t-sheet</td><td class="v">600 16px/21px var(--k-font)</td><td class="e">04 'Voice Settings' V cap 11.6 and 108.4 wide: one size under the nav</td></tr><tr><td class="t">--k-t-h1</td><td class="v">500 40.5px/50px var(--k-font)</td><td class="e">05 'SuperGrok' 194.0 x 36.1 from S top to p foot with 10332 ink px; swept in the board: 42px regular with .5px tracking hits the width but sets 37.5 tall with 9116 ink px, 40.5px medium with .6px tracking sets 194.0 x 36.1 with 10053 and halves the title band's delta (16.5 to 10.9)</td></tr><tr><td class="t">--k-t-h2</td><td class="v">600 20px/25px var(--k-font)</td><td class="e">05 'Unlock the full power of Grok' U cap 14.3, 263.2 wide</td></tr><tr><td class="t">--k-t-sub</td><td class="v">400 13.25px/18px var(--k-font)</td><td class="e">05 feature subtitles W cap 9.4, pitch 21.8 under the title; footer T cap 9.4. Widths disagree on the size: 13px sets the two long subtitles 2.1% narrow (211.0 for 215.5, 230.2 for 235.5) and the footer 1.2% narrow, while '$25 /month' 67.8 x 12.5 is what 13px sets. 13.25px splits it</td></tr><tr><td class="t">--k-t-plan</td><td class="v">600 15px/20px var(--k-font)</td><td class="e">05 'Monthly' M cap 10.3, 'Yearly' Y cap 10.7</td></tr></table></div>
 </body>
 </html>

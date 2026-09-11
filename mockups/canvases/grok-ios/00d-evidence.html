@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 3/7</title>
+<title>Grok iOS - Evidence 3/9</title>
 <style>
 :root{
   /* Font */
@@ -36,16 +36,26 @@
   --k-rec:#F09540;
   --k-page:#FFFFFF;
   --k-chip:#F5F5F5;
-  --k-composer:#FBFBFB;
-  --k-ctl:#F1F1F1;
+  --k-composer:#FEFEFE;
+  --k-ctl:#F4F3F4;
   --k-btn:#000000;
+  --k-scrim-sheet:rgba(0,0,0,.19);
+  --k-glass-sheet:rgba(255,255,255,.5);
+  --k-grabber-pro:#A4A4A6;
+  --k-store-dim:#BDBFBC;
+  --k-store-disc:#FAFAFA;
+  --k-store-pill:#EEEEEF;
+  --k-card-blue:#80BEFD;
+  --k-card-pale:#E8F3FE;
 
   /* Line */
   --k-material-line:rgba(255,255,255,.16);
   --k-price-line:#252525;
   --k-plan-line:rgba(255,255,255,.17);
-  --k-composer-shadow:rgba(0,0,0,.12);
-  --k-composer-line:#FFFFFF;
+  --k-composer-shadow:rgba(0,0,0,.07);
+  --k-composer-line:#F9F9F9;
+  --k-sheet-line:rgba(0,0,0,.45);
+  --k-store-rule:#E7E7E8;
   --k-illo-card-shadow:rgba(0,0,0,.24);
   --k-row-line:rgba(255,255,255,.10);
   --k-illo-sheet-shadow:rgba(0,0,0,.12);
@@ -59,7 +69,13 @@
   --k-free-ink:#E07D54;
   --k-dots:#C5C5C5;
   --k-copy-mute:#7F7F7F;
-  --k-placeholder:#7D7D7D;
+  --k-placeholder:#7E7E7E;
+  --k-sheet-copy:#5B5B5B;
+  --k-store-mute:#8A8A8D;
+  --k-store-val:#8E8E92;
+  --k-store-label:#B1B1B4;
+  --k-store-link:#0088FF;
+  --k-store-pill-ink:#CFCFD1;
   --k-illo-label:#333333;
   --k-illo-sub:#5A5A5A;
 
@@ -77,8 +93,11 @@
   --k-r-feat:32px;
   --k-r-price:18px;
   --k-r-plan:15px;
-  --k-r-chip:24px;
-  --k-r-composer:20px;
+  --k-r-chip:22px;
+  --k-r-composer:28px;
+  --k-r-sheet-pro:36px;
+  --k-r-store:38px;
+  --k-r-card:18px;
   --k-r-tip:14px;
   --k-r-pill:999px;
 
@@ -97,13 +116,27 @@
   --k-t-unit:400 15.4px/20px var(--k-font);
   --k-t-price:700 20px/26px var(--k-font);
   --k-t-free:700 12.5px/14px var(--k-font);
-  --k-t-title:600 22px/28px var(--k-font);
-  --k-t-copy:400 15px/20px var(--k-font);
-  --k-t-link:400 17.5px/22px var(--k-font);
-  --k-t-hdr:500 22px/28px var(--k-font);
-  --k-t-chip:500 15px/20px var(--k-font);
+  --k-t-title:600 21px/26px var(--k-font);
+  --k-t-copy:400 14px/19px var(--k-font);
+  --k-t-link:400 16.75px/22px var(--k-font);
+  --k-t-btn:600 15.5px/20px var(--k-font);
+  --k-t-hdr:600 22px/28px var(--k-font);
+  --k-t-chip:500 14px/20px var(--k-font);
+  --k-t-ask:400 16px/21px var(--k-font);
   --k-t-ctl:400 14px/18px var(--k-font);
   --k-t-speak:600 14.5px/18px var(--k-font);
+  --k-t-sheet-h:600 18.2px/22px var(--k-font);
+  --k-t-sheet-copy:400 15.25px/20px var(--k-font);
+  --k-t-card:500 36.5px/44px var(--k-font);
+  --k-t-store-h:700 21px/26px var(--k-font);
+  --k-t-store-title:600 21px/26px var(--k-font);
+  --k-t-store-sub:400 14px/19px var(--k-font);
+  --k-t-store-label:600 11px/13px var(--k-font);
+  --k-t-store-val:700 21px/25px var(--k-font);
+  --k-t-store-small:400 11.5px/14px var(--k-font);
+  --k-t-store-bundle:400 16px/19px var(--k-font);
+  --k-t-store-body:400 14px/19px var(--k-font);
+  --k-t-store-btn:600 13px/16px var(--k-font);
   --k-t-illo-label:500 11.5px/14px var(--k-font);
   --k-t-illo-title:600 21.25px/26px var(--k-font);
   --k-t-illo-sub:400 11.25px/15px var(--k-font);
@@ -120,11 +153,11 @@
   --k-sheet-top-v:403.6px;
   --k-widget:162.4px;
   --k-disc:40px;
-  --k-w-max:430px;
-  --k-h-max:932px;
+  --k-w-pro:402px;
+  --k-h-pro:874px;
   --k-sheet-v-blur:4px;
   --k-illo-stroke:10px;
-  --k-status-max:59px;
+  --k-status-pro:59px;
 
   /* Font */
   --k-mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -164,6 +197,7 @@
 
   /* Metrics */
   --k-row-s:52px;
+  --k-sheet-blur:19px;
   --k-sheet-top-s:58.7px;
 }
 
@@ -214,6 +248,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 3/7</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-free-ink</td><td class="v">#E07D54</td><td class="e">05 FREE ink core (brightest 2%) inside x 135-180 y 645-662</td></tr><tr><td class="t">--k-dots</td><td class="v">#C5C5C5</td><td class="e">02/03 page dots, mode of each 6.2pt disc: #C4C4C4-#C5C5C5</td></tr><tr><td class="t">--k-copy-mute</td><td class="v">#7F7F7F</td><td class="e">06 body ink core on the grey-only windows, x 35-150 of line 1 and x 160-395 of line 2: #7F7F7F on both; a window that takes in the black 'Terms of Service' span reads #777777, the span's pixels, not the grey</td></tr><tr><td class="t">--k-placeholder</td><td class="v">#7D7D7D</td><td class="e">07 'Ask Anything' ink core x 27-127 y 811-828</td></tr><tr><td class="t">--k-illo-label</td><td class="v">#333333</td><td class="e">02 'Grok' beside the drawn app icon, x 98-124 y 321-330: ink core #333333</td></tr><tr><td class="t">--k-illo-sub</td><td class="v">#5A5A5A</td><td class="e">02 'Quickly start a new chat with Grok.' x 104-289 y 388-398: ink core #5A5A5A; the title above it (x 174-219 y 361-377) and the pill's 'Grok' (x 192-227 y 450-465) core #000000 and #080808, the ink token</td></tr><tr><td class="t">--k-r-phone</td><td class="v">52px</td><td class="e">iPhone 14 Pro/15/16 display corner, this repo's stand-in</td></tr><tr><td class="t">--k-r-widget</td><td class="v">27px</td><td class="e">01 widget corner insets 21.3/12.4/8.4/2.1 at 0.7/3.7/6.7/15.7 down: r 27</td></tr><tr><td class="t">--k-r-card</td><td class="v">26px</td><td class="e">02 card corner insets 16.2/12.2/8.6/5.1/2.4 at 2/4/7/11/16 down: r 26</td></tr><tr><td class="t">--k-r-sheet</td><td class="v">30px</td><td class="e">02 sheet corner insets 20.5/13.8/8.5/4.5 at 2.1/5.1/9.1/14.1 down: r 30</td></tr><tr><td class="t">--k-r-illo</td><td class="v">53.5px</td><td class="e">03 frame outer arc, leftmost frame pixel 28.5/13.8/5.4pt in at 8/21.4/39.3pt down from 205.9: a 53.5pt circle; the inner arc (32.6/22.8/14.7 at 7.4/16.3/34.1 down from 215.5) is 42.4, the stroke less</td></tr><tr><td class="t">--k-r-illo-tile</td><td class="v">14.3px</td><td class="e">03 tile corner insets 10.7/6.2/3.6/0.9pt at 0.2/2/4.7/9.1 down from 278.4: r 14.3</td></tr><tr><td class="t">--k-r-illo-sheet</td><td class="v">26.8px</td><td class="e">02 drawn sheet corner: row y300, 1pt under the top edge at 299.1, white begins at 76.9 against a sheet edge of 55.9: the inset of a 26.8 radius</td></tr><tr><td class="t">--k-r-illo-card</td><td class="v">22px</td><td class="e">02 the widget card's left edge leaves its fitted line 23pt below the top-left corner and the top edge 25pt right of it, at a local scale of .80 down and 1.09 across: 22 in the card's own plane</td></tr><tr><td class="t">--k-r-sheet-v</td><td class="v">35px</td><td class="e">04 sheet corner insets 20.9/15.1/10.2/6.2/2.7 at 3.4/6.4/10.4/15.4/21.4 down from 403.6, left edge 8.5: r 35</td></tr><tr><td class="t">--k-r-row</td><td class="v">13px</td><td class="e">04 row card corner: the top edge's 1pt line reaches full coverage 8.1pt in from the left edge (x 28.5 against 20.4), and r - sqrt(2r - 1) = 8.1 at r 13 (12 gives 7.2, 14 gives 8.8)</td></tr><tr><td class="t">--k-r-feat</td><td class="v">32px</td><td class="e">05 feature card insets 14.9/10.5/6.9/3.8/1.7 at 5/8/12/17/23 down: r 32</td></tr><tr><td class="t">--k-r-price</td><td class="v">18px</td><td class="e">05 plan group insets 10.9/7.3/4.2/1.7 at 1.6/3.6/6.6/10.6 down: r 18</td></tr><tr><td class="t">--k-r-plan</td><td class="v">15px</td><td class="e">05 Yearly card insets 7.3/4.5/2.2/0.8 at 2.4/4.4/7.4/11.4 down: r 15</td></tr><tr><td class="t">--k-r-chip</td><td class="v">24px</td><td class="e">07 chip corner insets 17.3/14.0/12.0/9.0/6.0/3.0/1.0 at 1/2/3/5/8/12/17 down from 727.3, left edge 11: r 24 on a 51.7 tall chip</td></tr><tr><td class="t">--k-r-composer</td><td class="v">20px</td><td class="e">07 composer corner insets 16.7/13.0/10.3/7.0/2.7 at 1/2/3/5/8 down from 793.3, left edge 12.3: r 20</td></tr><tr><td class="t">--k-r-tip</td><td class="v">14px</td><td class="e">07 tooltip corner insets 9.7/7.7/6.0/4.0/1.7 at 1/2/3/5/8 down from 773, left edge 215.3: r 14</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 3/9</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-card-pale</td><td class="v">#E8F3FE</td><td class="e">14 the pale shape in the card's top-left, cells x 46-106 y 463-513: #E8F3FE, #E8F2FE. Its ellipse is fitted to ten boundary points read off the grid (README), under one 70px 30px halo of card blue at .15: a 16px rim at .45 inside it cost .06 over the screen, and halo alphas .10-.22 at blur 50-90 land 5.33-5.37 over x 0-402 y 59-874</td></tr><tr><td class="t">--k-material-line</td><td class="v">rgba(255,255,255,.16)</td><td class="e">05 card edge peaks #3B3B3B over one 0.9pt band at y 522.8-523.6 and #5C5A5D at 198.9-199.8 with smoke behind; .16 over #131313 is #393939</td></tr><tr><td class="t">--k-price-line</td><td class="v">#252525</td><td class="e">05 col x100 618.4-619.3 #252525 and 713.8-714.7 #222222: the plan group's 1pt edge</td></tr><tr><td class="t">--k-plan-line</td><td class="v">rgba(255,255,255,.17)</td><td class="e">05 Yearly card edge peaks #505052 (row 623.5), #565658 (625), #535557 (row 660 right); .17 over the ramp's #333536 top is #565758</td></tr><tr><td class="t">--k-composer-shadow</td><td class="v">rgba(0,0,0,.07)</td><td class="e">07 the halo under the composer: the page reads #F5F5F5 at y 833, a pt under the card's bottom edge (832.3), and climbs to #FDFDFD by y 848; beside the card (x 392-395, row 780) #FAFAFA-#FCFCFC. Swept with the line at #F9F9F9 over the composer band y 728-862: blur 6px reads 4.63, 4.59, 4.63 at alpha .05, .07, .09 and blur 14px 4.45, 4.39, 4.51</td></tr><tr><td class="t">--k-composer-line</td><td class="v">#F9F9F9</td><td class="e">07 the card's edge, row y 780: x 10.33 #DEDEDE, 10.67 #A9A9A9, 11.0 #DFDFDF, 11.33 #E0E0E0, 11.67 #EFEFEF, then the #F9F9F9 inset; the right edge x 390.3-391.3 #E0E0E0 #E0E0E0 #BABABA #C5C5C5, the top at 737.33-737.67 #EFEFEF #E5E5E5 and the bottom at 832.0-832.3 #DBDBDB #E6E6E6: a line 2 capture px wide, darkest at the sides. Drawn at .67pt any grey is too dark, because the halo carries the edge: swept #A9A9A9 to #FFFFFF over the band y 728-862, #A9A9A9 5.25, #E4E4E4 4.59, #EEEEEE 4.48, #F6F6F6 4.40, #F9F9F9 4.39, #FFFFFF 4.41</td></tr><tr><td class="t">--k-sheet-line</td><td class="v">rgba(0,0,0,.45)</td><td class="e">14 the sheet's outline, row y 600: x 7.33 #9A9A9A and 7.67 #696969 over a scrim of #C0C0C0 beside it, x 394.0 #696969 and 394.33 #9A9A9A on the right; two capture px of black at .45 mean over #C0C0C0 (.25 and .59), and the scrim beside it is #C0C0C0-#C4C4C4 against #CCCCCC away from it, the sheet's own soft shadow</td></tr><tr><td class="t">--k-store-rule</td><td class="v">#E7E7E8</td><td class="e">15 the rules at y 278.67 and 366.67 x 20-402 and the three column separators at x 124.67, 229.67, 334.67 y 305.7-339.7: one capture px, #E7E7E8 on 100% of the pixels, no solve needed at 3 px/pt</td></tr><tr><td class="t">--k-illo-card-shadow</td><td class="v">rgba(0,0,0,.24)</td><td class="e">02 the drawn widget card's halo: col x 176.8 climbs #FCFBFC to #E9E9E9 over the 21pt above its top edge, row y 455 #F9F9F9 to #E5E5E5 over the 20.5pt left of it, row y 473 #E2E2E2 to #FEFEFE over 20pt to the right: 22-29 levels at the edge. One box-shadow swept dy 0-8 / blur 14-44 / alpha .12-.30 over the 25pt above the card: minimum .85 at 4px 28px .24, 0 28px .18 costs .1, 4px 20px .18 costs 2.6</td></tr><tr><td class="t">--k-row-line</td><td class="v">rgba(255,255,255,.10)</td><td class="e">04 the row cards are a 1pt line and no fill: coverage solve over x 230-300 of both rows' top and bottom edges (486.8, 537.7, 549.3, 600.3), white at .087-.114, and .06-.14 on their sides, mean .10; inside a row reads #42401C against #423F19 outside</td></tr><tr><td class="t">--k-illo-sheet-shadow</td><td class="v">rgba(0,0,0,.12)</td><td class="e">02 above the drawn sheet's top edge 299.1, col x200: #DDDDDD to 274.6, #DADADA to 285.3, #D7D7D7 to 292.4, #D4D4D4 to 298.7, nine levels over 46pt on top of the scrim. One box-shadow swept blur 12-56 / alpha .05-.20 over that band: minimum 1.51 at 24px / .12, 40px / .08 costs .2</td></tr></table></div>
 </body>
 </html>

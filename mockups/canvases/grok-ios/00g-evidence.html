@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 6/7</title>
+<title>Grok iOS - Evidence 6/9</title>
 <style>
 :root{
   /* Font */
@@ -36,16 +36,26 @@
   --k-rec:#F09540;
   --k-page:#FFFFFF;
   --k-chip:#F5F5F5;
-  --k-composer:#FBFBFB;
-  --k-ctl:#F1F1F1;
+  --k-composer:#FEFEFE;
+  --k-ctl:#F4F3F4;
   --k-btn:#000000;
+  --k-scrim-sheet:rgba(0,0,0,.19);
+  --k-glass-sheet:rgba(255,255,255,.5);
+  --k-grabber-pro:#A4A4A6;
+  --k-store-dim:#BDBFBC;
+  --k-store-disc:#FAFAFA;
+  --k-store-pill:#EEEEEF;
+  --k-card-blue:#80BEFD;
+  --k-card-pale:#E8F3FE;
 
   /* Line */
   --k-material-line:rgba(255,255,255,.16);
   --k-price-line:#252525;
   --k-plan-line:rgba(255,255,255,.17);
-  --k-composer-shadow:rgba(0,0,0,.12);
-  --k-composer-line:#FFFFFF;
+  --k-composer-shadow:rgba(0,0,0,.07);
+  --k-composer-line:#F9F9F9;
+  --k-sheet-line:rgba(0,0,0,.45);
+  --k-store-rule:#E7E7E8;
   --k-illo-card-shadow:rgba(0,0,0,.24);
   --k-row-line:rgba(255,255,255,.10);
   --k-illo-sheet-shadow:rgba(0,0,0,.12);
@@ -59,7 +69,13 @@
   --k-free-ink:#E07D54;
   --k-dots:#C5C5C5;
   --k-copy-mute:#7F7F7F;
-  --k-placeholder:#7D7D7D;
+  --k-placeholder:#7E7E7E;
+  --k-sheet-copy:#5B5B5B;
+  --k-store-mute:#8A8A8D;
+  --k-store-val:#8E8E92;
+  --k-store-label:#B1B1B4;
+  --k-store-link:#0088FF;
+  --k-store-pill-ink:#CFCFD1;
   --k-illo-label:#333333;
   --k-illo-sub:#5A5A5A;
 
@@ -77,8 +93,11 @@
   --k-r-feat:32px;
   --k-r-price:18px;
   --k-r-plan:15px;
-  --k-r-chip:24px;
-  --k-r-composer:20px;
+  --k-r-chip:22px;
+  --k-r-composer:28px;
+  --k-r-sheet-pro:36px;
+  --k-r-store:38px;
+  --k-r-card:18px;
   --k-r-tip:14px;
   --k-r-pill:999px;
 
@@ -97,13 +116,27 @@
   --k-t-unit:400 15.4px/20px var(--k-font);
   --k-t-price:700 20px/26px var(--k-font);
   --k-t-free:700 12.5px/14px var(--k-font);
-  --k-t-title:600 22px/28px var(--k-font);
-  --k-t-copy:400 15px/20px var(--k-font);
-  --k-t-link:400 17.5px/22px var(--k-font);
-  --k-t-hdr:500 22px/28px var(--k-font);
-  --k-t-chip:500 15px/20px var(--k-font);
+  --k-t-title:600 21px/26px var(--k-font);
+  --k-t-copy:400 14px/19px var(--k-font);
+  --k-t-link:400 16.75px/22px var(--k-font);
+  --k-t-btn:600 15.5px/20px var(--k-font);
+  --k-t-hdr:600 22px/28px var(--k-font);
+  --k-t-chip:500 14px/20px var(--k-font);
+  --k-t-ask:400 16px/21px var(--k-font);
   --k-t-ctl:400 14px/18px var(--k-font);
   --k-t-speak:600 14.5px/18px var(--k-font);
+  --k-t-sheet-h:600 18.2px/22px var(--k-font);
+  --k-t-sheet-copy:400 15.25px/20px var(--k-font);
+  --k-t-card:500 36.5px/44px var(--k-font);
+  --k-t-store-h:700 21px/26px var(--k-font);
+  --k-t-store-title:600 21px/26px var(--k-font);
+  --k-t-store-sub:400 14px/19px var(--k-font);
+  --k-t-store-label:600 11px/13px var(--k-font);
+  --k-t-store-val:700 21px/25px var(--k-font);
+  --k-t-store-small:400 11.5px/14px var(--k-font);
+  --k-t-store-bundle:400 16px/19px var(--k-font);
+  --k-t-store-body:400 14px/19px var(--k-font);
+  --k-t-store-btn:600 13px/16px var(--k-font);
   --k-t-illo-label:500 11.5px/14px var(--k-font);
   --k-t-illo-title:600 21.25px/26px var(--k-font);
   --k-t-illo-sub:400 11.25px/15px var(--k-font);
@@ -120,11 +153,11 @@
   --k-sheet-top-v:403.6px;
   --k-widget:162.4px;
   --k-disc:40px;
-  --k-w-max:430px;
-  --k-h-max:932px;
+  --k-w-pro:402px;
+  --k-h-pro:874px;
   --k-sheet-v-blur:4px;
   --k-illo-stroke:10px;
-  --k-status-max:59px;
+  --k-status-pro:59px;
 
   /* Font */
   --k-mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -164,6 +197,7 @@
 
   /* Metrics */
   --k-row-s:52px;
+  --k-sheet-blur:19px;
   --k-sheet-top-s:58.7px;
 }
 
@@ -214,6 +248,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 6/7</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-avatar</td><td class="v">#F0F0F0</td><td class="e">10 the profile disc 32.1-91.9 x 180.2-240.4, flat #F0F0F0 around the glyph</td></tr><tr><td class="t">--k-toggle-off</td><td class="v">#C5C4C7</td><td class="e">11 'Open App in Voice Mode' track 300.3-362.7 x 283.0-310.7, flat #C5C4C7 beside its white knob 302.0-339.1 x 285.3-308.9</td></tr><tr><td class="t">--k-card-line</td><td class="v">#EAEAEA</td><td class="e">10 the rule between rows, x 64.3-360.7 at y 373.9-374.8 and every 52 below: two capture pixels (0.9pt) of #EAEAEA between white rows, no solve needed; drawn 0.9pt tall so the same two pixels carry it</td></tr><tr><td class="t">--k-voice-shadow</td><td class="v">rgba(0,0,0,.11)</td><td class="e">08/09 the ground beside the card reads 7-11 levels under dim, 3 above it. Swept as 0 4px 16px over the bands beside the card: .10 leaves them +0.6/+0.4, .11 +0.2/-0.0, .12 -0.5/-0.8, .14 -1.6/-2.1; 0 2px 10px and 0 6px 24px score worse at every alpha</td></tr><tr><td class="t">--k-voice-sub</td><td class="v">#5E5E5E</td><td class="e">08/09 'Upbeat Female', 'Soothing Female' and 'Swipe to explore more voices' ink core #5E5E5E</td></tr><tr><td class="t">--k-dot-off</td><td class="v">#A6A3A7</td><td class="e">08/09 the three inactive page dots, mode #A6A3A7 across y 707.1-713.4; the active one is ink</td></tr><tr><td class="t">--k-voice-btn</td><td class="v">#090709</td><td class="e">09 the Continue pill 46.5-347.2 x 746.1-796.5, 99.4% flat #090709: the capture's black, 9 levels above btn, which the same export reads on 07</td></tr><tr><td class="t">--k-section-ink</td><td class="v">#787878</td><td class="e">10/11/12 'General', 'Voice', 'Data & Information', 'Subscription' ink core #787878, three screens</td></tr><tr><td class="t">--k-sec-ink</td><td class="v">#7C7C7C</td><td class="e">10 'English' core #7C7C7C, the email line #7B7B7B: one secondary ink. 07's placeholder reads #7D7D7D off a 3 px/pt capture, kept apart because that is another device's export</td></tr><tr><td class="t">--k-danger</td><td class="v">#BE484C</td><td class="e">12 'Sign Out', the label: its 20 most-covered pixels average #BE484C (darkest 2% by luminance #AE4E52). The glyph beside it cores at #E83B43, a brighter red no ink this dark could give, and is its own crop</td></tr><tr><td class="t">--k-version-ink</td><td class="v">#C2C2C2</td><td class="e">12 'VERSION 1.3.42 (BUILD 2776)' ink core #C3C1C3, the lightest type on the set</td></tr><tr><td class="t">--k-r-voice</td><td class="v">37.5px</td><td class="e">08/09 the voice card's top corners: circle fit to its edge 37.5 (err 4.2). Its bottom corners, fit 50.5 with a poor residual, arrive as pixels in the band crop</td></tr><tr><td class="t">--k-r-modal</td><td class="v">39.5px</td><td class="e">10/11/12 the sheet's top corners, circle fit on the dim/sheet edge 39.5</td></tr><tr><td class="t">--k-r-group</td><td class="v">25.5px</td><td class="e">10 the settings cards, fit 25.5 at x 16.1 / y 323.1 on the sheet</td></tr><tr><td class="t">--k-t-nav</td><td class="v">500 16px/22px var(--k-font)</td><td class="e">08/09 'Ask' 26.3 x 12.0, 'Imagine' 56.7 wide: 500 17px sets 28.5 / 59.8, 16px 26.8 / 56.3</td></tr><tr><td class="t">--k-t-voice</td><td class="v">600 16.25px/21px var(--k-font)</td><td class="e">08/09 'Voice Selection' 115.5 wide, 'Ara' 24.5, 'Eve' 25.0, 09 'Continue' 67.4: 600 17px (t-h) sets 120.4 / 25.9 / 26.3 / 70.5, 16.25px 115.1 / 24.8 / 25.1 / 67.4</td></tr><tr><td class="t">--k-t-mail</td><td class="v">400 15.9px/20px var(--k-font)</td><td class="e">10 'alexsmith.mobbin+1@gmail.-' 207.4 wide, 'com' 29.4: 400 15px sets 195.8 / 27.7, 15.9px 207.5 / 29.4. 'Alex Smith' above it is t-h: 83.0 against 17px semibold's 82.8</td></tr><tr><td class="t">--k-t-section</td><td class="v">600 15px/20px var(--k-font)</td><td class="e">10/11/12 'General' 53.1 x 11.2 cap, 'Voice' 37.9, 'Data & Information' 132.0, 'Subscription' 88.8: 600 15.5px sets 55.3 / 39.3 / 136.1 / 91.9, 15px 53.5 / 38.0 / 131.7 / 88.9</td></tr><tr><td class="t">--k-t-voice-sub</td><td class="v">400 16px/21px var(--k-font)</td><td class="e">08/09 'Upbeat Female' 108.4 x 14.7 (cap to descender), 'Soothing Female' 120.4: 400 16px sets 108.6 / 120.2</td></tr><tr><td class="t">--k-t-hint</td><td class="v">400 14.25px/18px var(--k-font)</td><td class="e">08 'Swipe to explore more voices' 190.5 x 12.9: 400 14px sets 186.9, 14.25px 190.2</td></tr><tr><td class="t">--k-t-version</td><td class="v">400 11.65px/16px var(--k-mono)</td><td class="e">12 'VERSION 1.3.42 (BUILD 2776)' 186.9 x 11.6, parentheses to their full height: 12px sets 192.3 x 10.7, 11.65px 186.7; the face's parens are shorter than the capture's, so the width is what this fits</td></tr><tr><td class="t">--k-row-s</td><td class="v">52px</td><td class="e">10/11 settings rows: cap tops 343.0/394.3/446.5/498.3/550.9 (pitch 51.3-52.6), a three-row card 156.1 tall, rules every 52.0</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 6/9</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-t-unit</td><td class="v">400 15.4px/20px var(--k-font)</td><td class="e">05 '/month' 11.2 tall (slash to h ascender), '/year' 13.8 (to y descender); '/month' runs 85.0-133.6 (48.6) and '/year' 270.7-305.0 (34.3), which 15px sets 47.3 and 33.5, 2.5% narrow</td></tr><tr><td class="t">--k-t-price</td><td class="v">700 20px/26px var(--k-font)</td><td class="e">05 '300' digits 14.7 tall, '30' 15.2, which reads as 21px bold, but '$300' runs 215.8-265.3 (49.5) and '$30' 42.1-80.9 (38.8), which 21px sets 52.2 and 40.6, 5% wide, and the whole string 17.0 tall against 21px's 18.7. 20px carries the width</td></tr><tr><td class="t">--k-t-free</td><td class="v">700 12.5px/14px var(--k-font)</td><td class="e">05 FREE 29.4 x 8.9; 12px bold sets 28.7 x 8.3, 12.5px 29.7 x 8.7, 13px 30.7 x 9.0</td></tr><tr><td class="t">--k-t-title</td><td class="v">600 21px/26px var(--k-font)</td><td class="e">06 'Updates to our Terms of Service and' 304.0 wide (x 49.3-353.3), its U cap 15.0 (y 379.0-394.0), cap tops 379.0 and 405.0: a 26 pitch; 21px semibold has a 15.05 cap</td></tr><tr><td class="t">--k-t-copy</td><td class="v">400 14px/19px var(--k-font)</td><td class="e">06 body: W cap 10.0, cap tops 444.7 / 463.7 / 482.7 (19 pitch), line 2 305.3 wide (48.0-353.3); 14px has a 10.03 cap</td></tr><tr><td class="t">--k-t-link</td><td class="v">400 16.75px/22px var(--k-font)</td><td class="e">06 'Sign out' 61.7 wide (170.0-231.7), S 12.0 tall with overshoot; 17px sets 63.0, 16.5px 61.1, 16.75px 62.1. The underline is one pt of ink 1.7 under the baseline (y 817.67-818.67)</td></tr><tr><td class="t">--k-t-btn</td><td class="v">600 15.5px/20px var(--k-font)</td><td class="e">06 'Got it' 39.7 wide (181.3-221.0), G 11.7 tall with overshoot, the 'o' 8.3 wide; 14 'Upgrade to Access' 138.7 wide (132.0-270.7), U 11.0 flat top to overshoot; 16px semibold sets 40.8 and 143.2, 15.5px 39.6 and 138.8</td></tr><tr><td class="t">--k-t-hdr</td><td class="v">600 22px/28px var(--k-font)</td><td class="e">07 'SuperGrok' 107.7 wide (x 53.3-161.0), 20.0 from S top to p foot, and its glyphs wider than medium's at the same height: S 12.7 against 11.7, G 15.3 against 14.0, k 11.0 against 10.0 on the board at 500; semibold sets 106.7, with .12px tracking 107.7</td></tr><tr><td class="t">--k-t-chip</td><td class="v">500 14px/20px var(--k-font)</td><td class="e">07 'Build a Bot' 69.0 wide (58.0-127.0), 'Try Finance' 75.0 (198.0-273.0), caps 10.0-10.3; 14px medium sets 69.3 and 74.7</td></tr><tr><td class="t">--k-t-ask</td><td class="v">400 16px/21px var(--k-font)</td><td class="e">07 'Ask Anything' 93.0 x 14.3, A top to y foot (x 27.3-120.3); 17px (t-body) sets 98.3 x 15.7 on the board, 16px 92.5 x 14.8</td></tr><tr><td class="t">--k-t-ctl</td><td class="v">400 14px/18px var(--k-font)</td><td class="e">07 'Auto' in the model pill x 93.0-121.3 (28.3), cap 10.0: 14px regular</td></tr><tr><td class="t">--k-t-speak</td><td class="v">600 14.5px/18px var(--k-font)</td><td class="e">07 'Speak' 42.3 wide (328.7-371.0) on the black pill, S 11.0 with overshoot; 15px semibold sets 43.7, 14.5px 42.3, the same width the 430pt capture gave</td></tr><tr><td class="t">--k-t-sheet-h</td><td class="v">600 18.2px/22px var(--k-font)</td><td class="e">14 'Introducing Grok Bot' 174.3 wide (28.7-203.0), I cap 13.0 (679.67-692.67), 17.3 to the g foot; 18px sets 172.7 x 17.0 on the board, 18.2px 174.3</td></tr><tr><td class="t">--k-t-sheet-copy</td><td class="v">400 15.25px/20px var(--k-font)</td><td class="e">14 sheet body cap tops 708.3 / 728.3 / 748.3 (20 pitch), line 1 'AI teammates you can give real work to. Bots can' 338.7 x 14.0 (x 28.0-366.7); 15px sets 333.7 x 13.3 on the board, 15.25px 339.2</td></tr><tr><td class="t">--k-t-card</td><td class="v">500 36.5px/44px var(--k-font)</td><td class="e">14 'Grok Bot' on the card, 136.7 wide (155.3-292.0), cap 26.4 (547.3-573.7): 36px medium sets 135.0 on the board, 36.5px 136.9</td></tr><tr><td class="t">--k-t-store-h</td><td class="v">700 21px/26px var(--k-font)</td><td class="e">15 'Also Included In' 154.7 x 15.7 (x 20.7-175.3), 'What's New', 'Preview': 21px bold sets 155.0; 20.5px sets 151.3</td></tr><tr><td class="t">--k-t-store-title</td><td class="v">600 21px/26px var(--k-font)</td><td class="e">15 'Grok Bot' beside the icon, 82.0 x 15.7 (x 155-237, G top to the k foot): the same height as the section heads but 21px bold sets 84.3, 2.7% wide, and 21px semibold 82.2</td></tr><tr><td class="t">--k-t-store-sub</td><td class="v">400 14px/19px var(--k-font)</td><td class="e">15 'AI agents that do real work' 171.3 wide (154.7-326.0); 14px sets 171.5</td></tr><tr><td class="t">--k-t-store-label</td><td class="v">600 11px/13px var(--k-font)</td><td class="e">15 '3.3K RATINGS' 76.0 wide (30.3-106.3), 'AGE RATING' 66.3, 'CHART' 38.0, cap 8.0 (295.0-303.0): 11px semibold caps at 7.9</td></tr><tr><td class="t">--k-t-store-val</td><td class="v">700 21px/25px var(--k-font)</td><td class="e">15 '4.9' 31.3 wide (52-83.3), '18+' 35.0, '#19' 32.3, digit tops 318.7: 21px bold sets 31.5 / 35.2 / 32.0</td></tr></table></div>
 </body>
 </html>

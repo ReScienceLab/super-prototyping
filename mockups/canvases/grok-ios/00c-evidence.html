@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 2/7</title>
+<title>Grok iOS - Evidence 2/9</title>
 <style>
 :root{
   /* Font */
@@ -36,16 +36,26 @@
   --k-rec:#F09540;
   --k-page:#FFFFFF;
   --k-chip:#F5F5F5;
-  --k-composer:#FBFBFB;
-  --k-ctl:#F1F1F1;
+  --k-composer:#FEFEFE;
+  --k-ctl:#F4F3F4;
   --k-btn:#000000;
+  --k-scrim-sheet:rgba(0,0,0,.19);
+  --k-glass-sheet:rgba(255,255,255,.5);
+  --k-grabber-pro:#A4A4A6;
+  --k-store-dim:#BDBFBC;
+  --k-store-disc:#FAFAFA;
+  --k-store-pill:#EEEEEF;
+  --k-card-blue:#80BEFD;
+  --k-card-pale:#E8F3FE;
 
   /* Line */
   --k-material-line:rgba(255,255,255,.16);
   --k-price-line:#252525;
   --k-plan-line:rgba(255,255,255,.17);
-  --k-composer-shadow:rgba(0,0,0,.12);
-  --k-composer-line:#FFFFFF;
+  --k-composer-shadow:rgba(0,0,0,.07);
+  --k-composer-line:#F9F9F9;
+  --k-sheet-line:rgba(0,0,0,.45);
+  --k-store-rule:#E7E7E8;
   --k-illo-card-shadow:rgba(0,0,0,.24);
   --k-row-line:rgba(255,255,255,.10);
   --k-illo-sheet-shadow:rgba(0,0,0,.12);
@@ -59,7 +69,13 @@
   --k-free-ink:#E07D54;
   --k-dots:#C5C5C5;
   --k-copy-mute:#7F7F7F;
-  --k-placeholder:#7D7D7D;
+  --k-placeholder:#7E7E7E;
+  --k-sheet-copy:#5B5B5B;
+  --k-store-mute:#8A8A8D;
+  --k-store-val:#8E8E92;
+  --k-store-label:#B1B1B4;
+  --k-store-link:#0088FF;
+  --k-store-pill-ink:#CFCFD1;
   --k-illo-label:#333333;
   --k-illo-sub:#5A5A5A;
 
@@ -77,8 +93,11 @@
   --k-r-feat:32px;
   --k-r-price:18px;
   --k-r-plan:15px;
-  --k-r-chip:24px;
-  --k-r-composer:20px;
+  --k-r-chip:22px;
+  --k-r-composer:28px;
+  --k-r-sheet-pro:36px;
+  --k-r-store:38px;
+  --k-r-card:18px;
   --k-r-tip:14px;
   --k-r-pill:999px;
 
@@ -97,13 +116,27 @@
   --k-t-unit:400 15.4px/20px var(--k-font);
   --k-t-price:700 20px/26px var(--k-font);
   --k-t-free:700 12.5px/14px var(--k-font);
-  --k-t-title:600 22px/28px var(--k-font);
-  --k-t-copy:400 15px/20px var(--k-font);
-  --k-t-link:400 17.5px/22px var(--k-font);
-  --k-t-hdr:500 22px/28px var(--k-font);
-  --k-t-chip:500 15px/20px var(--k-font);
+  --k-t-title:600 21px/26px var(--k-font);
+  --k-t-copy:400 14px/19px var(--k-font);
+  --k-t-link:400 16.75px/22px var(--k-font);
+  --k-t-btn:600 15.5px/20px var(--k-font);
+  --k-t-hdr:600 22px/28px var(--k-font);
+  --k-t-chip:500 14px/20px var(--k-font);
+  --k-t-ask:400 16px/21px var(--k-font);
   --k-t-ctl:400 14px/18px var(--k-font);
   --k-t-speak:600 14.5px/18px var(--k-font);
+  --k-t-sheet-h:600 18.2px/22px var(--k-font);
+  --k-t-sheet-copy:400 15.25px/20px var(--k-font);
+  --k-t-card:500 36.5px/44px var(--k-font);
+  --k-t-store-h:700 21px/26px var(--k-font);
+  --k-t-store-title:600 21px/26px var(--k-font);
+  --k-t-store-sub:400 14px/19px var(--k-font);
+  --k-t-store-label:600 11px/13px var(--k-font);
+  --k-t-store-val:700 21px/25px var(--k-font);
+  --k-t-store-small:400 11.5px/14px var(--k-font);
+  --k-t-store-bundle:400 16px/19px var(--k-font);
+  --k-t-store-body:400 14px/19px var(--k-font);
+  --k-t-store-btn:600 13px/16px var(--k-font);
   --k-t-illo-label:500 11.5px/14px var(--k-font);
   --k-t-illo-title:600 21.25px/26px var(--k-font);
   --k-t-illo-sub:400 11.25px/15px var(--k-font);
@@ -120,11 +153,11 @@
   --k-sheet-top-v:403.6px;
   --k-widget:162.4px;
   --k-disc:40px;
-  --k-w-max:430px;
-  --k-h-max:932px;
+  --k-w-pro:402px;
+  --k-h-pro:874px;
   --k-sheet-v-blur:4px;
   --k-illo-stroke:10px;
-  --k-status-max:59px;
+  --k-status-pro:59px;
 
   /* Font */
   --k-mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -164,6 +197,7 @@
 
   /* Metrics */
   --k-row-s:52px;
+  --k-sheet-blur:19px;
   --k-sheet-top-s:58.7px;
 }
 
@@ -214,6 +248,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 2/7</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-sheet-v</td><td class="v">rgba(0,0,0,.40)</td><td class="e">04 fitted through the drawn sheet at the 4px blur: at .40 the band under the sheet's edge (y 406-428) reads -0.2 signed and the body band (y 606-740) +0.6; .35 leaves both +4, .45 both -5 (README)</td></tr><tr><td class="t">--k-side-ink</td><td class="v">#CDCECF</td><td class="e">04 ink of the three vector side glyphs: top 3% of each box 203-208 over grounds 163/180/194, so flat, not white at an alpha (.16-.49 would fit)</td></tr><tr><td class="t">--k-voice-pill</td><td class="v">#767676</td><td class="e">04 the voice pill reads #474747 flat through the sheet (x 300-370, y 772-797, std 3.6): 71/.60 = 118 under the .40 tint</td></tr><tr><td class="t">--k-rec</td><td class="v">#F09540</td><td class="e">04 the recording dot inside the island, x 215.0-220.8 y 26.8-32.6: #F09540 #F29442 #F09444</td></tr><tr><td class="t">--k-page</td><td class="v">#FFFFFF</td><td class="e">06 flat census x 20-410 y 560-760, 07 x 20-410 y 150-360: #FFFFFF on 100% of the flats</td></tr><tr><td class="t">--k-chip</td><td class="v">#F5F5F5</td><td class="e">07 suggestion chips, row y 735 x 15-55 and row y 770 x 165-295: #F5F5F5</td></tr><tr><td class="t">--k-composer</td><td class="v">#FBFBFB</td><td class="e">07 composer interior census x 40-280 y 825-845: #FBFBFB</td></tr><tr><td class="t">--k-ctl</td><td class="v">#F1F1F1</td><td class="e">07 the + disc (centre 37.2, 863.9), the Auto pill x 59.7-134.3 and the mic disc x 283-315.7: cores #F1F1F1</td></tr><tr><td class="t">--k-btn</td><td class="v">#000000</td><td class="e">06 Got it pill y 787.7-841.7, 07 Speak pill and tooltip: #000000 on every flat</td></tr><tr><td class="t">--k-material-line</td><td class="v">rgba(255,255,255,.16)</td><td class="e">05 card edge peaks #3B3B3B over one 0.9pt band at y 522.8-523.6 and #5C5A5D at 198.9-199.8 with smoke behind; .16 over #131313 is #393939</td></tr><tr><td class="t">--k-price-line</td><td class="v">#252525</td><td class="e">05 col x100 618.4-619.3 #252525 and 713.8-714.7 #222222: the plan group's 1pt edge</td></tr><tr><td class="t">--k-plan-line</td><td class="v">rgba(255,255,255,.17)</td><td class="e">05 Yearly card edge peaks #505052 (row 623.5), #565658 (625), #535557 (row 660 right); .17 over the ramp's #333536 top is #565758</td></tr><tr><td class="t">--k-composer-shadow</td><td class="v">rgba(0,0,0,.12)</td><td class="e">07 the halo round the composer: 13.3 levels at the side edges (x 10 and 419, row 840), 8.7 at the top edge and 18 under the bottom, fading to the page over 36pt below (y 891-927) and 8 to the sides; one box-shadow, swept dy 6-12 / blur 32-52 / alpha .09-.14 over the band y 720-932: flat minimum 2.27-2.33 at 6-8px / 36px / .11-.12, 8px 36px .12 kept because it also matches the side-edge reading; .14 costs .1-.2 everywhere, blur 52 costs .15</td></tr><tr><td class="t">--k-composer-line</td><td class="v">#FFFFFF</td><td class="e">07 col x 200 at y 793.3-794.3 reads #FFFFFF, one pt over the #FBFBFB card interior and above the #F8F8F8 halo outside it: a 1pt white edge</td></tr><tr><td class="t">--k-illo-card-shadow</td><td class="v">rgba(0,0,0,.24)</td><td class="e">02 the drawn widget card's halo: col x 176.8 climbs #FCFBFC to #E9E9E9 over the 21pt above its top edge, row y 455 #F9F9F9 to #E5E5E5 over the 20.5pt left of it, row y 473 #E2E2E2 to #FEFEFE over 20pt to the right: 22-29 levels at the edge. One box-shadow swept dy 0-8 / blur 14-44 / alpha .12-.30 over the 25pt above the card: minimum .85 at 4px 28px .24, 0 28px .18 costs .1, 4px 20px .18 costs 2.6</td></tr><tr><td class="t">--k-row-line</td><td class="v">rgba(255,255,255,.10)</td><td class="e">04 the row cards are a 1pt line and no fill: coverage solve over x 230-300 of both rows' top and bottom edges (486.8, 537.7, 549.3, 600.3), white at .087-.114, and .06-.14 on their sides, mean .10; inside a row reads #42401C against #423F19 outside</td></tr><tr><td class="t">--k-illo-sheet-shadow</td><td class="v">rgba(0,0,0,.12)</td><td class="e">02 above the drawn sheet's top edge 299.1, col x200: #DDDDDD to 274.6, #DADADA to 285.3, #D7D7D7 to 292.4, #D4D4D4 to 298.7, nine levels over 46pt on top of the scrim. One box-shadow swept blur 12-56 / alpha .05-.20 over that band: minimum 1.51 at 24px / .12, 40px / .08 costs .2</td></tr><tr><td class="t">--k-ink</td><td class="v">#000000</td><td class="e">01 'Grok' and icon core; 02/03 body ink core #010101; 05 CTA label</td></tr><tr><td class="t">--k-ink-inv</td><td class="v">#FFFFFF</td><td class="e">05 title and feature titles ink core #FFFFFF; 04 title reads #FDF8F4 through the warm blur</td></tr><tr><td class="t">--k-mute</td><td class="v">#A9A9A9</td><td class="e">05 feature subtitles #ACA9AB and #A5A4A5, 'Monthly' #A6A6A7, '/year' and '$25 /month' #ACACAC: one grey, four readings, the mean</td></tr><tr><td class="t">--k-skip-ink</td><td class="v">#BBBBBB</td><td class="e">05 'Skip' ink core #B8B8B8-#BBBBBB</td></tr><tr><td class="t">--k-foot</td><td class="v">#838383</td><td class="e">05 footer line ink core, x 34.8-358.2 y 805-817</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 2/9</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-glass</td><td class="v">rgba(255,255,255,.09)</td><td class="e">04 side-stack discs solved against the patched frame i4 over a ring r 10-14.5: white at .089 and .090 over sky, .037 over the cloud where the ground is too bright to resolve</td></tr><tr><td class="t">--k-grabber</td><td class="v">rgba(255,255,255,.35)</td><td class="e">04 grabber #8B7467 over the patched sheet #412A1C at y 410-412: white at .39/.35/.33 per channel</td></tr><tr><td class="t">--k-sheet-v</td><td class="v">rgba(0,0,0,.40)</td><td class="e">04 fitted through the drawn sheet at the 4px blur: at .40 the band under the sheet's edge (y 406-428) reads -0.2 signed and the body band (y 606-740) +0.6; .35 leaves both +4, .45 both -5 (README)</td></tr><tr><td class="t">--k-side-ink</td><td class="v">#CDCECF</td><td class="e">04 ink of the three vector side glyphs: top 3% of each box 203-208 over grounds 163/180/194, so flat, not white at an alpha (.16-.49 would fit)</td></tr><tr><td class="t">--k-voice-pill</td><td class="v">#767676</td><td class="e">04 the voice pill reads #474747 flat through the sheet (x 300-370, y 772-797, std 3.6): 71/.60 = 118 under the .40 tint</td></tr><tr><td class="t">--k-rec</td><td class="v">#F09540</td><td class="e">04 the recording dot inside the island, x 215.0-220.8 y 26.8-32.6: #F09540 #F29442 #F09444</td></tr><tr><td class="t">--k-page</td><td class="v">#FFFFFF</td><td class="e">06 flat census x 40-360 y 520-700, 07 x 100-300 y 200-300: #FFFFFF on 100% of the flats</td></tr><tr><td class="t">--k-chip</td><td class="v">#F5F5F5</td><td class="e">07 suggestion chips y 675-727, census x 20-60 y 680-690 above the bot glyph: #F5F5F5 on 100% of the flats</td></tr><tr><td class="t">--k-composer</td><td class="v">#FEFEFE</td><td class="e">07 composer interior census x 140-300 y 765-785, right of the placeholder and above the controls: #FEFDFE on 84% of the flats; the 2pt inside its edge reads #F9F9F9, the inset the line token carries</td></tr><tr><td class="t">--k-ctl</td><td class="v">#F4F3F4</td><td class="e">07 the Auto pill x 59.3-134 y 789.3-822, census y 792-797 above its glyph: #F4F3F4 on 98% of the flats; the + and mic discs the same</td></tr><tr><td class="t">--k-btn</td><td class="v">#000000</td><td class="e">06 Got it pill 20-382 x 730.7-784.7, census x 40-150 y 740-775: #000000 on 100% of the flats; 07 Speak pill, 14 CTA the same</td></tr><tr><td class="t">--k-scrim-sheet</td><td class="v">rgba(0,0,0,.19)</td><td class="e">14 the Terms page under the sheet: its white reads #CCCCCC on 100% of the flats (x 20-380 y 150-250) and the title's ink stays #000000; (255-204)/255 = .20, the pill under the glass reads #8E8E8E at .19 and #8B8B8B at .20, so .19</td></tr><tr><td class="t">--k-glass-sheet</td><td class="v">rgba(255,255,255,.5)</td><td class="e">14 the sheet over the scrimmed page: #E6E6E6 over #CCCCCC on 95% of the flats (x 60-340 y 840-855) is white at .51; over the black Got it pill it reads #8E8E8E, white at .56 with the pill's edges blurred in. At the 19px blur the flats read .48 -0.48, .5 +0.74, .52 +1.74, .55 +2.79 signed, and .5 is the alpha the blur was swept at over the pill</td></tr><tr><td class="t">--k-grabber-pro</td><td class="v">#A4A4A6</td><td class="e">14 grabber 172.3-229.7 x 451.3-455.0: #A4A4A6 on 78% of its flats</td></tr><tr><td class="t">--k-store-dim</td><td class="v">#BDBFBC</td><td class="e">15 the App Store page above the sheet, census x 100-300 y 20-50: #BDBFBC, green one and two levels over red and blue in the capture itself</td></tr><tr><td class="t">--k-store-disc</td><td class="v">#FAFAFA</td><td class="e">15 the close and share discs (d 45.4 at 15.3 and 341.3, y 77.3-122.7): interior mode #FAFAFA left of the X glyph (x 20-32 y 100-112), rim two capture px of #D7D7D7 at the sides, #EEEEEE at the top</td></tr><tr><td class="t">--k-store-pill</td><td class="v">#EEEEEF</td><td class="e">15 the Purchased pill 289-382 x 440-472, census x 300-382 y 440-448: #EEEEEF on 94% of the flats</td></tr><tr><td class="t">--k-card-blue</td><td class="v">#80BEFD</td><td class="e">14 the Grok Bot card 23.3-378.7 x 460.7-660.7: #80BEFD on a 20pt grid over its right half and lower two thirds (x 66-366 y 583-643), every cell within a level</td></tr></table></div>
 </body>
 </html>

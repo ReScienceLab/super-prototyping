@@ -12,7 +12,7 @@
   "only": "flat",
   "mine": "01-widget.png",
   "_": "01 left of the widget (x 0-20, y 100-240): page ground, nothing else; the widget starts at 24.8",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (881x1910 for 393x852); run with --pt 2.2417. --against wants a directory of renders resized to 881x1910 with the masked corners composited onto the capture, which is what scratch/run.sh writes to scratch/cap/; every probe names its own file there. 'bright' on a sample means the ink is lighter than its ground; on a bbox it is the luminance above which a pixel is ink. 06-07 are native captures at 3 px/pt (1290x2796 for 430x932); their probes carry \"pt\": 3, which overrides the command line, and scratch/run6.sh writes their composites to the same scratch/cap/. The status bar on 06-07 is the template's, not the capture's, so no probe sits above y 59. 08-12 are 2.2417 again (881x1910 after the Mobbin footer is dropped); cp8, cp9 and cp12 are read after the per-channel cast correction the README describes, which is what assets/refs holds."
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (881x1910 for 393x852); run with --pt 2.2417. --against wants a directory of renders resized to 881x1910 with the masked corners composited onto the capture, which is what scratch/run.sh writes to scratch/cap/; every probe names its own file there. 'bright' on a sample means the ink is lighter than its ground; on a bbox it is the luminance above which a pixel is ink. 06, 07 and 13-15 are native captures at 3 px/pt (1206x2622 for 402x874); their probes carry \"pt\": 3, which overrides the command line, and scratch/run13.sh writes their composites to the same scratch/cap/. The status bar on those five is the template's, not the capture's, so no probe sits above y 59. 08-12 are 2.2417 again (881x1910 after the Mobbin footer is dropped); cp8, cp9 and cp12 are read after the per-channel cast correction the README describes, which is what assets/refs holds."
  },
  {
   "id": "card",
@@ -804,14 +804,14 @@
   "cmd": "sample",
   "box": [
    20,
-   560,
-   410,
-   760
+   520,
+   380,
+   700
   ],
   "only": "flat",
   "pt": 3,
   "mine": "06-terms-update.png",
-  "_": "06 the empty band between the body copy (ends y 517) and the Got it pill (starts 787.7): page ground, nothing else"
+  "_": "06 the empty band between the body copy (ends y 496) and the Got it pill (starts 730.7): page ground, nothing else"
  },
  {
   "id": "chip-07",
@@ -819,14 +819,14 @@
   "cmd": "sample",
   "box": [
    15,
-   731,
+   678,
    55,
-   741
+   688
   ],
   "only": "flat",
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 top of the first suggestion chip (y 727.3-780.7, x 11-150), above the bot glyph which starts at y 744: chip fill only"
+  "_": "07 top of the first suggestion chip (y 675-727, x 11-143.7), above the bot glyph which starts at y 691.7: chip fill only"
  },
  {
   "id": "composer-07",
@@ -834,14 +834,14 @@
   "cmd": "sample",
   "box": [
    140,
-   822,
-   280,
-   845
+   765,
+   300,
+   785
   ],
   "only": "flat",
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 composer interior right of 'Ask Anything' (ends x 127) and above the control row (starts 847): the card fill"
+  "_": "07 composer interior right of 'Ask Anything' (ends x 120.3) and above the control row (starts 789.3): the card fill"
  },
  {
   "id": "ctl-07",
@@ -849,14 +849,14 @@
   "cmd": "sample",
   "box": [
    90,
-   849,
+   792,
    132,
-   855
+   797
   ],
   "only": "flat",
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 the Auto pill (x 59.7-134.3, y 847.3-880) above its glyph (y 855-873) and label (ink top 858.7): pill fill"
+  "_": "07 the Auto pill (x 59.3-134, y 789.3-822) above its glyph (y 798.3-813.3) and label (ink top 800.7): pill fill"
  },
  {
   "id": "btn-06",
@@ -864,14 +864,14 @@
   "cmd": "sample",
   "box": [
    40,
-   795,
+   740,
    150,
-   805
+   775
   ],
   "only": "flat",
   "pt": 3,
   "mine": "06-terms-update.png",
-  "_": "06 the Got it pill (y 787.7-841.7) left of its label (x 190-240): black fill"
+  "_": "06 the Got it pill (y 730.7-784.7) left of its label (x 181-221): black fill"
  },
  {
   "id": "composer-line-07",
@@ -881,27 +881,27 @@
   "axis": "col",
   "at": 200,
   "range": [
-   788,
-   800
+   731,
+   745
   ],
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 down x 200 across the composer's top edge: the halo, the 1pt white line at 793.3, then the #FBFBFB interior; the largest step is the line"
+  "_": "07 down x 200 across the composer's top edge: the halo, the line at 737.3-737.7, then the #FEFEFE interior; the largest step is the line"
  },
  {
   "id": "composer-shadow-07",
   "img": "assets/refs/cp7.png",
   "cmd": "sample",
   "box": [
-   9,
-   830,
-   11,
-   880
+   8,
+   770,
+   10,
+   820
   ],
   "only": "all",
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 a 2pt strip just outside the composer's left edge (x 12.3), mid-height: the halo at its darkest, nothing else"
+  "_": "07 a 2pt strip just outside the composer's left edge (x 10.3), mid-height: the halo at its darkest, nothing else"
  },
  {
   "id": "composer-below-07",
@@ -909,29 +909,29 @@
   "cmd": "sample",
   "box": [
    100,
-   895,
+   838,
    300,
-   900
+   843
   ],
   "only": "all",
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 5-10pt under the composer's bottom (890), between the chips' shadows and the page: the halo's tail"
+  "_": "07 5-10pt under the composer's bottom (832.7), above the home indicator's band: the halo's tail"
  },
  {
   "id": "copy-mute-06",
   "img": "assets/refs/cp6.png",
   "cmd": "sample",
   "box": [
-   160,
-   501,
-   395,
-   517
+   200,
+   482,
+   245,
+   493
   ],
   "only": "ink",
   "pt": 3,
   "mine": "06-terms-update.png",
-  "_": "06 body line 2 right of the black 'Use Policy.' span (ends about x 135): the grey copy only"
+  "_": "06 'review them.' on body line 3, the only grey-only window: the copy ink, no black span"
  },
  {
   "id": "placeholder-07",
@@ -939,14 +939,14 @@
   "cmd": "sample",
   "box": [
    27,
-   811,
-   127,
-   828
+   755,
+   121,
+   770
   ],
   "only": "ink",
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 'Ask Anything' in the composer, x 27-127, above the control row: placeholder ink"
+  "_": "07 'Ask Anything' in the composer, x 27.3-120.3, above the control row: placeholder ink"
  },
  {
   "id": "title-06",
@@ -954,13 +954,13 @@
   "cmd": "bbox",
   "box": [
    15,
-   405,
-   415,
-   438
+   374,
+   390,
+   401
   ],
   "pt": 3,
   "mine": "06-terms-update.png",
-  "_": "06 title line 1 'Updates to our Terms of Service and' (ink 412.7-433); line 2 starts at 440.7"
+  "_": "06 title line 1 'Updates to our Terms of Service' (ink 379.0-394.0 plus descenders); line 2 starts at 405.0"
  },
  {
   "id": "copy-06",
@@ -968,13 +968,13 @@
   "cmd": "bbox",
   "box": [
    15,
-   478,
-   415,
-   497
+   441,
+   390,
+   461
   ],
   "pt": 3,
   "mine": "06-terms-update.png",
-  "_": "06 body line 1 (ink top 481.7, 13.7 tall); line 2 starts 501.7"
+  "_": "06 body line 1 (ink top 444.7, 10.0 cap); line 2 starts 463.7"
  },
  {
   "id": "link-06",
@@ -982,70 +982,481 @@
   "cmd": "bbox",
   "box": [
    150,
-   855,
-   280,
-   882
+   798,
+   250,
+   822
   ],
   "pt": 3,
   "mine": "06-terms-update.png",
-  "_": "06 'Sign out' with its underline (ink 861-876.7), centred, nothing beside it"
+  "_": "06 'Sign out' with its underline (ink 804.2-818.7), centred, nothing beside it"
  },
  {
   "id": "hdr-07",
   "img": "assets/refs/cp7.png",
   "cmd": "bbox",
   "box": [
-   57,
+   50,
    70,
    175,
-   100
+   102
   ],
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 'SuperGrok' right of the mark (mark ends x 56.5), ink 75-95"
+  "_": "07 'SuperGrok' right of the mark (mark ends x 49), ink 78-98"
  },
  {
   "id": "chip-lbl-07",
   "img": "assets/refs/cp7.png",
   "cmd": "bbox",
   "box": [
-   57,
-   745,
-   150,
-   768
+   50,
+   690,
+   143,
+   712
   ],
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 'Create Bot' in the first chip, right of the bot glyph (ends x 50); the chip fill is above threshold"
+  "_": "07 'Build a Bot' in the first chip, right of the bot glyph (ends x 45); the chip fill is above threshold"
  },
  {
   "id": "ctl-lbl-07",
   "img": "assets/refs/cp7.png",
   "cmd": "bbox",
   "box": [
-   92,
-   855,
+   90,
+   795,
    132,
-   876
+   816
   ],
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 'Auto' in the model pill, right of its glyph (ends x 88)"
+  "_": "07 'Auto' in the model pill, right of its glyph (ends x 86)"
  },
  {
   "id": "speak-07",
   "img": "assets/refs/cp7.png",
   "cmd": "bbox",
   "box": [
-   352,
-   850,
-   398,
-   878
+   322,
+   796,
+   376,
+   816
   ],
   "bright": 160,
   "pt": 3,
   "mine": "07-home.png",
-  "_": "07 'Speak' on the black pill, right of the wave glyph (ends x 348.5) and short of the pill's rounded right end (x 401.7 at y 850)"
+  "_": "07 'Speak' on the black pill, right of the wave glyph (ends x 319) and short of the pill's rounded right end (x 378.3 at y 796)"
+ },
+ {
+  "id": "page-13",
+  "img": "assets/refs/cp13.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   520,
+   380,
+   700
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "13-terms-loading.png",
+  "_": "13 the same band as page-06 under the spinner pill: page ground, nothing else"
+ },
+ {
+  "id": "title-13",
+  "img": "assets/refs/cp13.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   374,
+   390,
+   401
+  ],
+  "pt": 3,
+  "mine": "13-terms-loading.png",
+  "_": "13 title line 1, the same box as title-06; the spinner pill is 330pt below"
+ },
+ {
+  "id": "link-13",
+  "img": "assets/refs/cp13.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   798,
+   250,
+   822
+  ],
+  "pt": 3,
+  "mine": "13-terms-loading.png",
+  "_": "13 'Sign out' with its underline, the same box as link-06"
+ },
+ {
+  "id": "scrim-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   150,
+   380,
+   250
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the dimmed Terms page above the sheet (sheet top 442.5), between the status bar and the mark (starts 299.7): the scrim over white, nothing else"
+ },
+ {
+  "id": "glass-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   840,
+   340,
+   855
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the sheet's flats under the CTA (ends 833.3) and above the home indicator: glass over the scrimmed page, no type"
+ },
+ {
+  "id": "glass-pill-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   764,
+   340,
+   784
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the band between sheet body line 3 (ink ends 762) and the CTA (starts 786), where the black Got it pill (730.7-784.7) shows through the glass"
+ },
+ {
+  "id": "grabber-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   175,
+   452,
+   227,
+   454
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the grabber's core (172.3-229.7 x 451.3-455.0), inside its rounded ends"
+ },
+ {
+  "id": "card-blue-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   66,
+   583,
+   366,
+   643
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the card's lower two thirds right of the NEW badge (ends x 82.7 at y 631-652 - the window starts at 66 above it, y 583-631 clear) and under the title (ends 573.7): flat blue"
+ },
+ {
+  "id": "card-pale-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   46,
+   463,
+   106,
+   513
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the card's top-left corner inside the pale shape (its edge runs from (26,505) to (246,463)): the pale fill only"
+ },
+ {
+  "id": "sheet-line-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "row",
+  "at": 600,
+  "range": [
+   3,
+   13
+  ],
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 along row y 600 across the sheet's left edge (7.33-7.67): scrim, the two-px outline, then the glass"
+ },
+ {
+  "id": "sheet-copy-ink-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   708,
+   360,
+   721
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 sheet body line 1 'AI teammates you can give real work to. Bots can' (ink 708.3-722): the copy ink"
+ },
+ {
+  "id": "sheet-h-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   676,
+   220,
+   699
+  ],
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 'Introducing Grok Bot' (ink 679.7-697), above body line 1 (starts 708.3)"
+ },
+ {
+  "id": "sheet-copy-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   705,
+   380,
+   724
+  ],
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 sheet body line 1 (ink top 708.3); line 2 starts 728.3"
+ },
+ {
+  "id": "card-title-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   543,
+   300,
+   578
+  ],
+  "bright": 200,
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 'Grok Bot' on the card, white on #80BEFD (luminance 181), right of the bot glyph (ends 144.3) and clear of the pale shape"
+ },
+ {
+  "id": "store-dim-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   22,
+   130,
+   52
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 the App Store page above the sheet (sheet top 62), under the template's clock, whose glyphs the flat census ignores: the dimmed ground"
+ },
+ {
+  "id": "store-disc-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   100,
+   32,
+   112
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 the close disc's interior (d 45.4 at 15.3, 77.3) left of the X glyph (starts x 29)"
+ },
+ {
+  "id": "store-pill-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   440,
+   382,
+   448
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 the Purchased pill (289-382 x 440-472) above its label (ink top 451.7): pill fill"
+ },
+ {
+  "id": "store-rule-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "col",
+  "at": 200,
+  "range": [
+   274,
+   284
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 down x 200 across the first rule (278.67): sheet, one px of rule, sheet"
+ },
+ {
+  "id": "store-mute-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   155,
+   173,
+   326,
+   187
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'AI agents that do real work' under the title (ends 162.4): the subtitle ink"
+ },
+ {
+  "id": "store-val-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   52,
+   318,
+   84,
+   334
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 '4.9' in the ratings column (ink top 318.7), above the stars (start 343)"
+ },
+ {
+  "id": "store-label-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   295,
+   107,
+   303
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 '3.3K RATINGS' (ink 295-303), between the rule at 278.67 and the value at 318.7"
+ },
+ {
+  "id": "store-link-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   350,
+   638,
+   382,
+   647
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'more' at the end of the release notes (ink 638-647), right of 'template' (ends x 90)"
+ },
+ {
+  "id": "store-pill-ink-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   302,
+   451,
+   369,
+   461
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'Purchased' on its pill (ink 451.7-461): the label ink over #EEEEEF"
+ },
+ {
+  "id": "store-title-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   143,
+   245,
+   168
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'Grok Bot' beside the icon (icon ends x 138), ink 146.7-162.4; the subtitle starts 173.7"
+ },
+ {
+  "id": "store-sub-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   170,
+   330,
+   190
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'AI agents that do real work' (ink 173.7-187), above the cloud button (starts 231.7)"
+ },
+ {
+  "id": "store-h-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   389,
+   180,
+   411
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'Also Included In' (ink 392.3-408), under the second rule (366.67) and above the bundle art (starts 425)"
+ },
+ {
+  "id": "store-bundle-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   88,
+   428,
+   285,
+   448
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'Apps by SpaceXAI: AI,' right of the bundle art (ends x 82) and left of the Purchased pill (starts 289), ink 432-447"
+ },
+ {
+  "id": "store-body-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   595,
+   300,
+   613
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 the first release-note line (ink top 598.3); line 2 starts 617.3"
  },
  {
   "id": "side-ink",

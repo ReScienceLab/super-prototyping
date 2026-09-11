@@ -36,16 +36,26 @@
   --k-rec:#F09540;
   --k-page:#FFFFFF;
   --k-chip:#F5F5F5;
-  --k-composer:#FBFBFB;
-  --k-ctl:#F1F1F1;
+  --k-composer:#FEFEFE;
+  --k-ctl:#F4F3F4;
   --k-btn:#000000;
+  --k-scrim-sheet:rgba(0,0,0,.19);
+  --k-glass-sheet:rgba(255,255,255,.5);
+  --k-grabber-pro:#A4A4A6;
+  --k-store-dim:#BDBFBC;
+  --k-store-disc:#FAFAFA;
+  --k-store-pill:#EEEEEF;
+  --k-card-blue:#80BEFD;
+  --k-card-pale:#E8F3FE;
 
   /* Line */
   --k-material-line:rgba(255,255,255,.16);
   --k-price-line:#252525;
   --k-plan-line:rgba(255,255,255,.17);
-  --k-composer-shadow:rgba(0,0,0,.12);
-  --k-composer-line:#FFFFFF;
+  --k-composer-shadow:rgba(0,0,0,.07);
+  --k-composer-line:#F9F9F9;
+  --k-sheet-line:rgba(0,0,0,.45);
+  --k-store-rule:#E7E7E8;
   --k-illo-card-shadow:rgba(0,0,0,.24);
   --k-row-line:rgba(255,255,255,.10);
   --k-illo-sheet-shadow:rgba(0,0,0,.12);
@@ -59,7 +69,13 @@
   --k-free-ink:#E07D54;
   --k-dots:#C5C5C5;
   --k-copy-mute:#7F7F7F;
-  --k-placeholder:#7D7D7D;
+  --k-placeholder:#7E7E7E;
+  --k-sheet-copy:#5B5B5B;
+  --k-store-mute:#8A8A8D;
+  --k-store-val:#8E8E92;
+  --k-store-label:#B1B1B4;
+  --k-store-link:#0088FF;
+  --k-store-pill-ink:#CFCFD1;
   --k-illo-label:#333333;
   --k-illo-sub:#5A5A5A;
 
@@ -77,8 +93,11 @@
   --k-r-feat:32px;
   --k-r-price:18px;
   --k-r-plan:15px;
-  --k-r-chip:24px;
-  --k-r-composer:20px;
+  --k-r-chip:22px;
+  --k-r-composer:28px;
+  --k-r-sheet-pro:36px;
+  --k-r-store:38px;
+  --k-r-card:18px;
   --k-r-tip:14px;
   --k-r-pill:999px;
 
@@ -97,13 +116,27 @@
   --k-t-unit:400 15.4px/20px var(--k-font);
   --k-t-price:700 20px/26px var(--k-font);
   --k-t-free:700 12.5px/14px var(--k-font);
-  --k-t-title:600 22px/28px var(--k-font);
-  --k-t-copy:400 15px/20px var(--k-font);
-  --k-t-link:400 17.5px/22px var(--k-font);
-  --k-t-hdr:500 22px/28px var(--k-font);
-  --k-t-chip:500 15px/20px var(--k-font);
+  --k-t-title:600 21px/26px var(--k-font);
+  --k-t-copy:400 14px/19px var(--k-font);
+  --k-t-link:400 16.75px/22px var(--k-font);
+  --k-t-btn:600 15.5px/20px var(--k-font);
+  --k-t-hdr:600 22px/28px var(--k-font);
+  --k-t-chip:500 14px/20px var(--k-font);
+  --k-t-ask:400 16px/21px var(--k-font);
   --k-t-ctl:400 14px/18px var(--k-font);
   --k-t-speak:600 14.5px/18px var(--k-font);
+  --k-t-sheet-h:600 18.2px/22px var(--k-font);
+  --k-t-sheet-copy:400 15.25px/20px var(--k-font);
+  --k-t-card:500 36.5px/44px var(--k-font);
+  --k-t-store-h:700 21px/26px var(--k-font);
+  --k-t-store-title:600 21px/26px var(--k-font);
+  --k-t-store-sub:400 14px/19px var(--k-font);
+  --k-t-store-label:600 11px/13px var(--k-font);
+  --k-t-store-val:700 21px/25px var(--k-font);
+  --k-t-store-small:400 11.5px/14px var(--k-font);
+  --k-t-store-bundle:400 16px/19px var(--k-font);
+  --k-t-store-body:400 14px/19px var(--k-font);
+  --k-t-store-btn:600 13px/16px var(--k-font);
   --k-t-illo-label:500 11.5px/14px var(--k-font);
   --k-t-illo-title:600 21.25px/26px var(--k-font);
   --k-t-illo-sub:400 11.25px/15px var(--k-font);
@@ -120,11 +153,11 @@
   --k-sheet-top-v:403.6px;
   --k-widget:162.4px;
   --k-disc:40px;
-  --k-w-max:430px;
-  --k-h-max:932px;
+  --k-w-pro:402px;
+  --k-h-pro:874px;
   --k-sheet-v-blur:4px;
   --k-illo-stroke:10px;
-  --k-status-max:59px;
+  --k-status-pro:59px;
 
   /* Font */
   --k-mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -164,6 +197,7 @@
 
   /* Metrics */
   --k-row-s:52px;
+  --k-sheet-blur:19px;
   --k-sheet-top-s:58.7px;
 }
 

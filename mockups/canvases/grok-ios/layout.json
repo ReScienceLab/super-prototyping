@@ -10,6 +10,10 @@
           "label": "Design tokens"
         },
         {
+          "file": "00a-type-tokens",
+          "label": "Type tokens"
+        },
+        {
           "file": "00b-evidence",
           "label": "Evidence"
         },
@@ -35,6 +39,14 @@
         },
         {
           "file": "00h-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00i-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00j-evidence",
           "label": "Evidence"
         }
       ]
@@ -90,6 +102,18 @@
         {
           "file": "12-settings-bottom",
           "label": "Settings, bottom"
+        },
+        {
+          "file": "13-terms-loading",
+          "label": "Terms update, signing out"
+        },
+        {
+          "file": "14-grok-bot-sheet",
+          "label": "Introducing Grok Bot"
+        },
+        {
+          "file": "15-app-store",
+          "label": "App Store, Grok Bot"
         }
       ]
     },
@@ -144,6 +168,18 @@
         {
           "file": "ref-12-settings-bottom",
           "label": "Settings, bottom"
+        },
+        {
+          "file": "ref-13-terms-loading",
+          "label": "Terms update, signing out"
+        },
+        {
+          "file": "ref-14-grok-bot-sheet",
+          "label": "Introducing Grok Bot"
+        },
+        {
+          "file": "ref-15-app-store",
+          "label": "App Store, Grok Bot"
         }
       ]
     }
