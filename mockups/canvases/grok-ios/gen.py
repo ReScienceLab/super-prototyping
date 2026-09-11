@@ -632,12 +632,18 @@ def _uri(cid):
             if f.exists() else "")
 
 
-def art(cid, style="", z=None):
-    """One <img>, at the box it was measured from."""
-    _, x0, y0, x1, y1 = CROPS[cid]
-    return ('<img class="a" src="%s" alt="" style="left:%.1fpx;top:%.1fpx;'
-            'width:%.1fpx;height:%.1fpx%s%s">'
-            % (_uri(cid), x0, y0, x1 - x0, y1 - y0,
+def art(cid, style="", z=None, top=None):
+    """One <img>, at the box it was measured from, snapped to the pixels
+    cut() took: a crop placed at its pt box lands up to half a capture
+    pixel from where it was cut, which reads as a one-pixel shift on every
+    glyph. top moves a crop placed more than once (the chevron)."""
+    ref, x0, y0, x1, y1 = CROPS[cid]
+    s = scale_of(ref)
+    w, h = round(x1 * s) - round(x0 * s), round(y1 * s) - round(y0 * s)
+    x, y = round(x0 * s), round((top if top is not None else y0) * s)
+    return ('<img class="a" src="%s" alt="" style="left:%.3fpx;top:%.3fpx;'
+            'width:%.3fpx;height:%.3fpx%s%s">'
+            % (_uri(cid), x / s, y / s, w / s, h / s,
                ";z-index:%d" % z if z else "", ";" + style if style else ""))
 
 
@@ -1141,13 +1147,13 @@ def group(top, items, label=None, label_top=None):
             continue
         out += tx(64.3, y + 19.9, text, "t-body", col) + art(ic)
         if trail == "chev":
-            out += art("10-ic-chevron", "top:%.1fpx" % (y + 18.9))
+            out += art("10-ic-chevron", top=y + 18.9)
         elif trail == "toggle":
             out += box(300.3, y + 12.0, 62.4, 27.7, "border-radius:var(--x-r-pill);background:var(--x-toggle-off)") \
                  + box(302.0, y + 14.3, 37.1, 23.6, "border-radius:var(--x-r-pill);background:var(--x-card)")
         elif trail:
             out += tx(200.0, y + 19.9, trail, "t-body", "var(--x-sec-ink)", w=138.9, extra=";text-align:right") \
-                 + art("10-ic-chevron", "top:%.1fpx" % (y + 18.9))
+                 + art("10-ic-chevron", top=y + 18.9)
     return out
 
 
@@ -1167,7 +1173,7 @@ def s10():
         + tx(104.5, 183.0, "Alex Smith", "t-h")
         + tx(104.5, 204.8, "alexsmith.mobbin+1@gmail.-", "t-mail", sec)
         + tx(104.5, 226.2, "com", "t-mail", sec)
-        + art("10-ic-chevron", "top:203.3px")
+        + art("10-ic-chevron", top=203.3)
         + group(323.1, [("Appearance", "10-ic-appearance", "chev", None),
                         ("Customize Grok", "10-ic-customize", "chev", None),
                         ("Haptics", "10-ic-haptics", "chev", None),

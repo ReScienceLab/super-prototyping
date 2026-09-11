@@ -168,6 +168,23 @@ than cropped, `cut()` keeps each one's coverage (the largest channel's
 (p − g) / (255 − g) against the median of its margin) as white on alpha, so
 the glyph is still the capture's and the ground under it is the board's.
 
+`scratch/icons.py` is the check that they are: it finds every placed crop
+and inline SVG in the boards (94 placements, the chevron counted each time
+it is set) and scores each one's window against the capture, with a shift
+search of ±4 capture pixels. Every placement lands within one capture
+pixel of the capture's own glyph, and the shapes are the same by
+construction. `art()` places each crop on the pixels `cut()` took rather
+than at the pt box: a box like 291.5pt on a 3px/pt capture is not a pixel
+edge, and a crop set there was resampled by half a pixel on the way back.
+On 06 and 07, where the render shares the capture's grid, that snap makes
+every icon an exact copy (Δ 0.0 over its ink, where the mic, the Auto
+rocket and the bank glyph read 14–26 before). On the Mobbin screens the
+render is shot at 3px/pt and downscaled to 2.2417, two grids that share
+no edge, so a crop's ink reads Δ 5–25 through that chain at whatever
+sub-pixel phase it lands on; the montages in `scratch/icons/` show the
+three columns, capture, render and difference, and the difference is a
+one-pixel ring on every edge and nothing inside it.
+
 ### Three vector icons
 
 The focus, hanger and trash glyphs in 04's side discs were asked for as
