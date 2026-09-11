@@ -1,4 +1,4 @@
-"""Grok for iOS -- nine screens, the tokens behind them, and the captures.
+"""Grok for iOS -- seven screens, the tokens behind them, and the captures.
 
 Regenerates the whole folder in place, byte-identically, from anywhere:
 
@@ -7,21 +7,20 @@ Regenerates the whole folder in place, byte-identically, from anywhere:
 
 Every colour and every metric in here was read off five Mobbin captures at
 2.2417 capture px per design pt (881 px across a 393 pt screen, 1910 down an
-852 pt one) and four native captures at exactly 3 px per pt (1290 x 2796, a
+852 pt one) and two native captures at exactly 3 px per pt (1290 x 2796, a
 430 x 932 pt Pro Max screen), and every one of them is stated with its
 evidence on the 00b-00f boards. Nothing was eyeballed. The artboards are output: never hand-edit an
 .html, edit this file and re-run.
 
 Four decisions the captures force.
 
-TWO DEVICES. 01-05 are 393 x 852 boards like every other folder here; 06-09
+TWO DEVICES. 01-05 are 393 x 852 boards like every other folder here; 06-07
 were captured on a 430 x 932 device and are drawn at that size, which fills
 the 478 x 980 artboard exactly with the 24px padding (the bezel rings fit, the
 drop shadow is clipped). Their status bar and Dynamic Island are this repo's
 template frame, not the captures' (the captures show 20:52, a muted bell and a
 live-activity glyph in the island; none of that is the app), and they carry no
-home indicator because the captures show none. 08 and 09 are full-frame crops
-with the capture's own status bar patched out under the template's.
+home indicator because the captures show none.
 
 THE FACE IS SF PRO, AND IT IS THE PLATFORM'S. `refkit font` returns a weak
 call for SF Pro on every title measured, so the boards set in the platform
@@ -67,7 +66,7 @@ ART_DIR = OUT / "assets" / "art"
 CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
          if not k.startswith("_")}
 SCALE = 2.2417                                    # capture px per design pt
-BIG = {"cp6", "cp7", "cp8", "cp9", "i8", "i9"}     # the 430 x 932 captures
+BIG = {"cp6", "cp7"}     # the 430 x 932 captures
 
 
 def scale_of(ref):
@@ -164,8 +163,8 @@ TOKENS = [
   "04 the recording dot inside the island, x 215.0-220.8 y 26.8-32.6: "
   "#F09540 #F29442 #F09444"),
  ("Surface", "page",     "#FFFFFF",
-  "06 flat census x 20-410 y 560-760, 07 x 20-410 y 150-360, 09 x 20-410 y "
-  "400-440: #FFFFFF on 100% of the flats"),
+  "06 flat census x 20-410 y 560-760, 07 x 20-410 y 150-360: #FFFFFF on "
+  "100% of the flats"),
  ("Surface", "chip",     "#F5F5F5",
   "07 suggestion chips, row y 735 x 15-55 and row y 770 x 165-295: #F5F5F5"),
  ("Surface", "composer", "#FBFBFB",
@@ -174,8 +173,8 @@ TOKENS = [
   "07 the + disc (centre 37.2, 863.9), the Auto pill x 59.7-134.3 and the "
   "mic disc x 283-315.7: cores #F1F1F1"),
  ("Surface", "btn",      "#000000",
-  "06 Got it pill y 787.7-841.7, 07 Speak pill and tooltip, 08 Try it now: "
-  "#000000 on every flat"),
+  "06 Got it pill y 787.7-841.7, 07 Speak pill and tooltip: #000000 on "
+  "every flat"),
 
  ("Line", "material-line", "rgba(255,255,255,.16)",
   "05 card edge peaks #3B3B3B over one 0.9pt band at y 522.8-523.6 and "
@@ -237,25 +236,12 @@ TOKENS = [
   "'Terms of Service' span reads #777777, the span's pixels, not the grey"),
  ("Ink", "placeholder", "#7D7D7D",
   "07 'Ask Anything' ink core x 27-127 y 811-828"),
- ("Ink", "field-ink",   "#6A6A6B",
-  "09 'Type to make video' ink core x 29-171 y 527-544"),
- ("Ink", "card-ink",    "#262627",
-  "08 card title ink core x 90-340 y 578-628"),
- ("Ink", "para-ink",    "#53584E",
-  "08 body ink core x 26-362 y 759-821: a green-grey, not the page grey"),
  ("Ink", "illo-label",  "#333333",
   "02 'Grok' beside the drawn app icon, x 98-124 y 321-330: ink core #333333"),
  ("Ink", "illo-sub",    "#5A5A5A",
   "02 'Quickly start a new chat with Grok.' x 104-289 y 388-398: ink core "
   "#5A5A5A; the title above it (x 174-219 y 361-377) and the pill's 'Grok' "
   "(x 192-227 y 450-465) core #000000 and #080808, the ink token"),
- ("Ink", "dim-inv",     "#CCCCCC",
-  "08 'Continue' label under the sheet's scrim: white at .8, which is what "
-  "the page ground reads there (#CCCCCC against #FFFFFF on 09); 07's "
-  "watermark mark is the same value"),
- ("Ink", "new-ink",     "#FB630A",
-  "08 NEW ink core x 43-72 y 687-697, an R-B > 90 mask against the #8B6D5A "
-  "badge"),
 
  ("Radius", "r-phone",  "52px",  "iPhone 14 Pro/15/16 display corner, this repo's stand-in"),
  ("Radius", "r-widget", "27px",
@@ -356,42 +342,15 @@ TOKENS = [
  ("Type", "t-link",   "400 17.5px/22px var(--x-font)",
   "06 'Sign out' 64.7 wide; 17px sets 63.0, 17.5px 64.9"),
  ("Type", "t-hdr",    "500 22px/28px var(--x-font)",
-  "07-09 'SuperGrok' 104.0 x 20 (x 57-161, boxed clear of the mark's tail); "
+  "07 'SuperGrok' 104.0 x 20 (x 57-161, boxed clear of the mark's tail); "
   "22px medium sets 100.3 on the board and 103.9 with .45px tracking"),
  ("Type", "t-chip",   "500 15px/20px var(--x-font)",
-  "07 'Create Bot' and 'Try Finance' at 15px medium to the tenth; 09 'Video' "
-  "39.3 x 11.3 the same"),
+  "07 'Create Bot' and 'Try Finance' at 15px medium to the tenth"),
  ("Type", "t-ctl",    "400 14px/18px var(--x-font)",
   "07 'Auto' in the model pill: 14px regular to the tenth"),
  ("Type", "t-speak",  "600 14.5px/18px var(--x-font)",
   "07 'Speak' 42.3 x 13.7 (bright threshold 160 keeps the pill edge out); "
   "15px semibold sets 43.7, 14.5px 42.3"),
- ("Type", "t-btn",    "600 16.5px/22px var(--x-font)",
-  "08/09 'Continue' 69.0 wide and 08 'Try it now' 75.3; 17px semibold sets "
-  "71.0 and 76.7, 16.5px 69.0 and 74.5"),
- ("Type", "t-card",   "400 22px/25px var(--x-font)",
-  "08 'Add precise start and end' 241.7 x 19.7, 24.7 to the second line; "
-  "22px regular"),
- ("Type", "t-h3",     "600 18.9px/24px var(--x-font)",
-  "08 'Shape your scene, start to finish' 281.0 x 18.0; 19px semibold sets "
-  "282.7 on the board, 18.9px 281.2"),
- ("Type", "t-para",   "400 16.15px/21px var(--x-font)",
-  "08 'Choose your first and last frames, or create' 314.0 wide and "
-  "'seamless loops. Every video now follows your' 330.7, on a 21.2 pitch; "
-  "16px sets 311.3 and 327.7, .9% narrow on both, 16.15px closes it"),
- ("Type", "t-field",  "400 16.3px/22px var(--x-font)",
-  "09 'Type to make video' 142.3 wide (x 29-171.3); 17px sets 146.7, 16.5px "
-  "on the board 144.0, 16.3px 142.3"),
- ("Type", "t-opt",    "400 16px/20px var(--x-font)",
-  "09 '720p' 35.7, '6s' 16.3, 'Auto' 32.0 wide; 16px sets 36.0, 16.7, 32.7"),
- ("Type", "t-key",    "400 22px/28px var(--x-font)",
-  "09 'W' 18 x 16 on key rows 56 apart; 22px regular sets 19 x 15.7"),
- ("Type", "t-key-sm", "400 18px/22px var(--x-font)",
-  "09 '123' 27.0 x 13.3 at 18px regular to the tenth; the '@' key is 17 x 17.7, "
-  "which is the 22px t-key, and '#' 10.3 x 10.3 is a lighter glyph than either "
-  "size of the face draws"),
- ("Type", "t-new",    "500 13px/16px var(--x-font)",
-  "08 'NEW' 28.0 x 9.3; 13px medium sets 28.3 x 9.3"),
  ("Type", "t-illo-label", "500 11.5px/14px var(--x-font)",
   "02 'Grok' beside the app icon: ink 25.9 x 8.9; the stack sets 600 12px "
   "to 27.3 x 9.3 and 11.5px to 26.2 x 8.9. Weight and size swept over the "
@@ -425,7 +384,7 @@ TOKENS = [
  ("Metrics", "widget",    "162.4px", "01 widget 24.1-186.5 both axes"),
  ("Metrics", "disc",      "40px",   "05 icon discs 40 x 39.8, left edge 40.3"),
  ("Metrics", "w-max",     "430px",
-  "iPhone Pro Max logical width: cp6-cp9 are 1290 x 2796 at 3 px/pt"),
+  "iPhone Pro Max logical width: cp6-cp7 are 1290 x 2796 at 3 px/pt"),
  ("Metrics", "h-max",     "932px",  "iPhone Pro Max logical height"),
  ("Metrics", "sheet-v-blur", "4px",
   "04 sigma of the blur read off the voice pill's edge, the one sharp edge the capture holds under the sheet: across x 270-300 at y 776/784/792 the ramp from the ground (40) to the pill (74) is 10pt for 10-90%, down x 310/334/358 over y 755-775 it is 8pt, 3.1-3.9 sigma; blur(4px). A sweep cannot read it: it walks to 44px+ because blurring the generated scene away hides the scene's own error (sheet band 13.3 at 44px against 16.3 at 4px)"),
@@ -434,7 +393,95 @@ TOKENS = [
   "the top (y 205.9-215.5); one border"),
  ("Metrics", "status-max", "59px",
   "iOS status bar on the 430pt devices: clock ink 22.7-36, island 11.3-48; "
-  "the height the template bar covers on 06-09"),
+  "the height the template bar covers on 06-07"),
+ # ---- 08-12: the voice picker and the settings sheet ----
+ ("Font", "mono", 'ui-monospace,"SF Mono",Menlo,monospace',
+  "12 the version line: every glyph of 'VERSION 1.3.42 (BUILD 2776)' sets on "
+  "one pitch, 6.95pt per character over 27 characters (187.4 wide); a "
+  "monospaced face, the platform's"),
+ ("Surface", "voice-sheet", "#EDEDEE",
+  "08/09 the voice card's interior, col x196 405-700 and row y520 outside the "
+  "orb: flat #EDEDEE once the export's cast is taken out (README, colour "
+  "normalisation). Its 1pt edge reads #FCFAFC, card white"),
+ ("Surface", "nav-well", "#C8C8C9",
+  "08/09 the tints under the nav: the menu disc 17.8-60.7 x 63.1-106.9, the "
+  "Ask pill from 130.3 x 69.4-99.8, the compose disc from 335.4 x 64.0-106.9, "
+  "all flat #C8C8C9, three levels under dim"),
+ ("Surface", "avatar",   "#F0F0F0",
+  "10 the profile disc 32.1-91.9 x 180.2-240.4, flat #F0F0F0 around the glyph"),
+ ("Surface", "toggle-off", "#C5C4C7",
+  "11 'Open App in Voice Mode' track 300.3-362.7 x 283.0-310.7, flat #C5C4C7 "
+  "beside its white knob 302.0-339.1 x 285.3-308.9"),
+ ("Line", "card-line", "#EAEAEA",
+  "10 the rule between rows, x 64.3-360.7 at y 373.9-374.8 and every 52 "
+  "below: two capture pixels (0.9pt) of #EAEAEA between white rows, no "
+  "solve needed; drawn 0.9pt tall so the same two pixels carry it"),
+ ("Line", "voice-shadow", "rgba(0,0,0,.11)",
+  "08/09 the ground beside the card reads 7-11 levels under dim, 3 above "
+  "it. Swept as 0 4px 16px over the bands beside the card: .10 leaves them "
+  "+0.6/+0.4, .11 +0.2/-0.0, .12 -0.5/-0.8, .14 -1.6/-2.1; 0 2px 10px and "
+  "0 6px 24px score worse at every alpha"),
+ ("Ink", "voice-sub", "#5E5E5E",
+  "08/09 'Upbeat Female', 'Soothing Female' and 'Swipe to explore more "
+  "voices' ink core #5E5E5E"),
+ ("Ink", "dot-off",  "#A6A3A7",
+  "08/09 the three inactive page dots, mode #A6A3A7 across y 707.1-713.4; the "
+  "active one is ink"),
+ ("Ink", "voice-btn", "#090709",
+  "09 the Continue pill 46.5-347.2 x 746.1-796.5, 99.4% flat #090709: the "
+  "capture's black, 9 levels above btn, which the same export reads on 07"),
+ ("Ink", "section-ink", "#787878",
+  "10/11/12 'General', 'Voice', 'Data & Information', 'Subscription' ink "
+  "core #787878, three screens"),
+ ("Ink", "sec-ink",  "#7C7C7C",
+  "10 'English' core #7C7C7C, the email line #7B7B7B: one secondary ink. "
+  "07's placeholder reads #7D7D7D off a 3 px/pt capture, kept apart because "
+  "that is another device's export"),
+ ("Ink", "danger",   "#BE484C",
+  "12 'Sign Out', the label: its 20 most-covered pixels average #BE484C "
+  "(darkest 2% by luminance #AE4E52). The glyph beside it cores at #E83B43, "
+  "a brighter red no ink this dark could give, and is its own crop"),
+ ("Ink", "version-ink", "#C2C2C2",
+  "12 'VERSION 1.3.42 (BUILD 2776)' ink core #C3C1C3, the lightest type on "
+  "the set"),
+ ("Radius", "r-voice",  "37.5px",
+  "08/09 the voice card's top corners: circle fit to its edge 37.5 (err "
+  "4.2). Its bottom corners, fit 50.5 with a poor residual, arrive as pixels "
+  "in the band crop"),
+ ("Radius", "r-modal",  "39.5px",
+  "10/11/12 the sheet's top corners, circle fit on the dim/sheet edge 39.5"),
+ ("Radius", "r-group",  "25.5px",
+  "10 the settings cards, fit 25.5 at x 16.1 / y 323.1 on the sheet"),
+ ("Type", "t-nav",     "500 16px/22px var(--x-font)",
+  "08/09 'Ask' 26.3 x 12.0, 'Imagine' 56.7 wide: 500 17px sets 28.5 / 59.8, "
+  "16px 26.8 / 56.3"),
+ ("Type", "t-voice",   "600 16.25px/21px var(--x-font)",
+  "08/09 'Voice Selection' 115.5 wide, 'Ara' 24.5, 'Eve' 25.0, 09 'Continue' "
+  "67.4: 600 17px (t-h) sets 120.4 / 25.9 / 26.3 / 70.5, 16.25px 115.1 / 24.8 "
+  "/ 25.1 / 67.4"),
+  ("Type", "t-mail",    "400 15.9px/20px var(--x-font)",
+  "10 'alexsmith.mobbin+1@gmail.-' 207.4 wide, 'com' 29.4: 400 15px sets "
+  "195.8 / 27.7, 15.9px 207.5 / 29.4. 'Alex Smith' above it is t-h: 83.0 "
+  "against 17px semibold's 82.8"),
+ ("Type", "t-section", "600 15px/20px var(--x-font)",
+  "10/11/12 'General' 53.1 x 11.2 cap, 'Voice' 37.9, 'Data & Information' "
+  "132.0, 'Subscription' 88.8: 600 15.5px sets 55.3 / 39.3 / 136.1 / 91.9, "
+  "15px 53.5 / 38.0 / 131.7 / 88.9"),
+ ("Type", "t-voice-sub", "400 16px/21px var(--x-font)",
+  "08/09 'Upbeat Female' 108.4 x 14.7 (cap to descender), 'Soothing Female' "
+  "120.4: 400 16px sets 108.6 / 120.2"),
+ ("Type", "t-hint",    "400 14.25px/18px var(--x-font)",
+  "08 'Swipe to explore more voices' 190.5 x 12.9: 400 14px sets 186.9, "
+  "14.25px 190.2"),
+ ("Type", "t-version", "400 11.65px/16px var(--x-mono)",
+  "12 'VERSION 1.3.42 (BUILD 2776)' 186.9 x 11.6, parentheses to their "
+  "full height: 12px sets 192.3 x 10.7, 11.65px 186.7; the face's parens "
+  "are shorter than the capture's, so the width is what this fits"),
+ ("Metrics", "row-s",  "52px",
+  "10/11 settings rows: cap tops 343.0/394.3/446.5/498.3/550.9 (pitch "
+  "51.3-52.6), a three-row card 156.1 tall, rules every 52.0"),
+ ("Metrics", "sheet-top-s", "58.7px",
+  "10/11/12 the sheet's edge, col x100: dim to 58.7, the header band from there"),
 ]
 
 
@@ -458,41 +505,7 @@ TOKENS_CSS = _root()
 # photo and the sheet that the boards draw again in CSS. Each box is filled
 # with a Coons patch from its own four edges, which is exact on the smooth
 # grounds these sit on and continuous at the boundary by construction.
-# 09's key caps: ink top of each row and the centre of each letter.
-KEYS = [
-    (652.3, "QWERTYUIOP", (24.9, 67.0, 109.4, 151.4, 194.4, 236.2, 278.2, 321.2, 363.2, 405.7)),
-    (708.3, "ASDFGHJKL", (46.2, 88.2, 130.3, 173.7, 214.9, 257.0, 298.5, 342.5, 384.7)),
-    (764.3, "ZXCVBNM", (88.0, 130.0, 173.2, 214.9, 257.5, 298.9, 342.0)),
-]
-
 INPAINT = {
- "i8": ("cp8", [
-    (34, 20, 86, 38), (87, 20.5, 104.5, 38),    # status bar clock and bell
-    (128, 10, 319, 49), (312, 19.5, 403, 38),  # Dynamic Island, right cluster
-    (51.5, 72.5, 163, 97.5),                   # SuperGrok
-    (131, 223, 299, 244),                      # Animate your photos
-    (178.5, 269.5, 252, 287),                  # Continue
-    (7, 339, 168, 359.5),                      # Featured Templates
-    (91, 578.5, 339, 603.5), (116, 603.5, 314, 628.5),   # card title
-    (42.5, 686.5, 73, 698.5),                  # NEW
-    (26.5, 728.5, 312, 751),                   # Shape your scene
-    (26.5, 759, 345, 778.5), (26.5, 780.5, 361.5, 800), (26.5, 801.5, 215, 821),
-    (175.5, 858, 255.5, 878.5),                # Try it now
- ]),
- "i9": ("cp9", [
-    (34, 20, 86, 38), (87, 20.5, 104.5, 38),    # status bar clock and bell
-    (128, 10, 319, 49), (312, 19.5, 403, 38),  # Dynamic Island, right cluster
-    (51.5, 72.5, 163, 97.5),                   # SuperGrok
-    (131, 223, 299, 244),                      # Animate your photos
-    (178.5, 269.5, 252, 287),                  # Continue
-    (7, 339, 168, 359.5),                      # Featured Templates
-    (22.5, 466.5, 59.5, 484), (84.5, 466.5, 124, 484), (146, 466.5, 194, 484),
-    (232, 466.5, 252, 482), (306.5, 467, 342, 482), (392.5, 466.5, 414, 482),
-    (29.5, 524, 174, 549),                     # placeholder; the caret stays
-    (147.5, 570, 190.5, 585.5),                # Video
-    (15, 820, 46, 837.5), (337, 818, 358, 839.5), (393.5, 821, 407.5, 835.5),
- ] + [(cx - 11, top - 2, cx + 11, top + 20)
-      for top, row, cs in KEYS for cx in cs]),
  "i4": ("cp4", [
     (40, 16, 105, 42), (278, 18, 366, 40),     # status bar clock and glyphs
     (130, 8, 263, 52),                         # Dynamic Island
@@ -511,6 +524,14 @@ INPAINT = {
     (19, 617, 374, 716), (19, 729, 374, 788),  # plan group, CTA
     (30, 802, 364, 820),                       # footer
  ]),
+ # 08/09: the band that carries the voice card's bottom corners and its
+ # shadow, with the page dots and the hint / pill patched out; 10-12: the
+ # header band (material, close disc, the fade below it) with its title out.
+ "i8": ("cp8", [(172.0, 705.5, 222.0, 715.0), (100.0, 764.0, 294.0, 780.5)]),
+ "i9": ("cp9", [(172.0, 705.5, 222.0, 715.0), (45.0, 744.5, 349.0, 798.0)]),
+ "i10": ("cp10", [(162.5, 88.5, 230.5, 108.0)]),
+ "i11": ("cp11", [(162.5, 88.5, 230.5, 108.0), (31.5, 140.5, 72.0, 154.5)]),
+ "i12": ("cp12", [(162.5, 88.5, 230.5, 108.0)]),
 }
 # 05's feature card: un-apply the material inside it, then patch its 1pt
 # edge, its four corner arcs, the icon discs and the nine lines of type.
@@ -546,7 +567,7 @@ def _coons(a, box, s=SCALE):
 
 
 def _source(ref, cache):
-    """A capture as an RGB image, patched first if crops.json asks for i4/i5/i8/i9."""
+    """A capture as an RGB image, patched first if crops.json asks for i4/i5/i8-i12."""
     from PIL import Image                                     # noqa: local dep
     import numpy as np
     if ref in cache:
@@ -726,9 +747,9 @@ TY = {"t-time": (15, 20), "t-widget": (19.5, 24), "t-h": (17, 22), "t-body": (17
       "t-h2": (20, 25), "t-sub": (13.25, 18), "t-plan": (15, 20), "t-unit": (15.4, 20),
       "t-price": (20, 26), "t-free": (12.5, 14), "t-title": (22, 28), "t-copy": (15, 20),
       "t-link": (17.5, 22), "t-hdr": (22, 28), "t-chip": (15, 20), "t-ctl": (14, 18),
-      "t-speak": (14.5, 18), "t-btn": (16.5, 22), "t-card": (22, 25), "t-h3": (18.9, 24),
-      "t-para": (16.15, 21), "t-field": (16.3, 22), "t-opt": (16, 20), "t-key": (22, 28),
-      "t-key-sm": (18, 22), "t-new": (13, 16), "t-illo-label": (11.5, 14),
+      "t-speak": (14.5, 18), "t-nav": (16, 22), "t-voice": (16.25, 21), "t-mail": (15.9, 20),
+      "t-section": (15, 20), "t-voice-sub": (16, 21), "t-hint": (14.25, 18),
+      "t-version": (11.65, 16), "t-illo-label": (11.5, 14),
       "t-illo-title": (21.25, 26), "t-illo-sub": (11.25, 15), "t-illo-pill": (15.5, 20)}
 
 
@@ -1066,49 +1087,127 @@ def s07():
         bg="var(--x-page)", big=True)
 
 
-# ----------------------------------------------------------------- 08-09 ----
-# The video composer. Both are the capture with every string patched out
-# (i8/i9): the hero photos, the tiles, the sheet, the card, the segmented
-# control, the keys and the caret are its pixels, and the type is set again
-# on top. 08 sits under a 20% black scrim, so its white label (Continue) is
-# #CCCCCC and its black ones (the hero title, Featured Templates) still #000.
-def video_top(label_ink):
-    return (txb(53.3, 75.0, "SuperGrok", "t-hdr", extra=";letter-spacing:.45px")
-            + txcb(225.3, "Animate your photos", "t-h")
-            + txcb(271.7, "Continue", "t-btn", label_ink, 163.7, 102.7)
-            + txb(8.7, 341.3, "Featured Templates", "t-h"))
+# -------------------------------------------------------------- 08, 09 ----
+# The voice picker: a card on the dimmed home, its bottom corners and shadow
+# cropped (08-band / 09-band, the dots and the hint or pill patched out and
+# drawn again), everything above y700 CSS around the orb and the ghost line.
+def voice(stem, orb, ghost, band, name, sub, foot):
+    return screen("Voice selection, " + name,
+        circle(17.8, 63.1, 43.5, "background:var(--x-nav-well)")
+        + box(130.3, 69.4, 50.7, 30.4, "border-radius:var(--x-r-pill);background:var(--x-nav-well)")
+        + circle(335.4, 64.0, 43.0, "background:var(--x-nav-well)")
+        + art("08-ic-menu") + art("08-ic-compose")
+        + tx(142.0, 78.9, "Ask", "t-nav") + tx(194.0, 78.9, "Imagine", "t-nav")
+        + box(8.0, 403.6, 377.4, 440.9,
+              "border-radius:var(--x-r-voice);background:var(--x-voice-sheet);"
+              "box-shadow:inset 0 0 0 1px var(--x-card),0 4px 16px var(--x-voice-shadow)")
+        + txc(434.8, "Voice Selection", "t-voice")
+        + art(orb) + txc(607.5, name, "t-voice") + txc(631.3, sub, "t-voice-sub", "var(--x-voice-sub)")
+        + art(ghost) + art(band)
+        + "".join(circle(cx - 3.15, 707.1, 6.3, "background:var(--x-%s)"
+                         % ("ink" if k == (0 if stem == "08" else 1) else "dot-off"))
+                  for k, cx in enumerate((176.7, 190.1, 203.65, 217.05)))
+        + foot,
+        bg="var(--x-dim)")
 
 
 def s08():
-    para = "var(--x-para-ink)"
-    return screen("Video sheet",
-        art("08-bg") + video_top("var(--x-dim-inv)")
-        + txcb(581.3, "Add precise start and end", "t-card", "var(--x-card-ink)", 23.3, 383.4)
-        + txcb(606.0, "frames to your video", "t-card", "var(--x-card-ink)", 23.3, 383.4)
-        + txcb(687.7, "NEW", "t-new", "var(--x-new-ink)", 31.0, 52.7)
-        + txb(28.0, 730.7, "Shape your scene, start to finish", "t-h3")
-        + txb(28.3, 761.3, "Choose your first and last frames, or create", "t-para", para)
-        + txb(28.3, 782.7, "seamless loops. Every video now follows your", "t-para", para)
-        + txb(28.3, 803.7, "instructions more closely.", "t-para", para)
-        + txcb(860.3, "Try it now", "t-btn", "var(--x-ink-inv)", 27.3, 375.3),
-        bg="var(--x-dim-inv)", big=True)
+    return voice("08", "08-orb", "08-ghost", "08-band", "Ara", "Upbeat Female",
+                 txc(766.3, "Swipe to explore more voices", "t-hint", "var(--x-voice-sub)"))
 
 
 def s09():
-    keys = "".join(txcb(top, ch, "t-key", x=cx - 15, w=30)
-                   for top, row, cs in KEYS for ch, cx in zip(row, cs))
-    return screen("Video keyboard",
-        art("09-bg") + video_top("var(--x-ink-inv)")
-        + txb(24.0, 468.7, "480p", "t-opt") + txb(86.3, 468.3, "720p", "t-opt")
-        + txb(147.4, 468.3, "1080p", "t-opt") + txb(233.7, 468.3, "6s", "t-opt")
-        + txb(308.3, 468.7, "Auto", "t-opt") + txb(394.0, 468.3, "On", "t-opt")
-        + txb(29.0, 527.7, "Type to make video", "t-field", "var(--x-field-ink)")
-        + txb(149.3, 572.0, "Video", "t-chip")
-        + keys
-        + txcb(822.0, "123", "t-key-sm", x=10.35, w=40.0)
-        + txcb(820.0, "@", "t-key", x=332.5, w=30.0)
-        + txcb(823.0, "#", "t-key-sm", x=385.5, w=30.0),
-        bg="var(--x-page)", big=True)
+    return voice("09", "09-orb", "09-ghost", "09-band", "Eve", "Soothing Female",
+                 box(46.5, 746.1, 300.7, 50.4, "border-radius:var(--x-r-pill);background:var(--x-voice-btn)")
+                 + txc(765.1, "Continue", "t-voice", "var(--x-ink-inv)", x=46.5, w=300.7))
+
+
+# ---------------------------------------------------------- 10, 11, 12 ----
+# The settings sheet, three scroll states of one list. Cards are CSS at
+# their measured tops; rows are 52 (row-s); every glyph is a crop at its own
+# box; the header band (material, close disc, the fade under it) is a crop
+# with its title patched out. A row's label None means the crop above
+# carries that row (12's first row sits under the header).
+def group(top, items, label=None, label_top=None):
+    n = len(items)
+    out = box(16.1, top, 361.3, 52.0 * n, "border-radius:var(--x-r-group);background:var(--x-card)")
+    if label:
+        out += tx(32.5, label_top if label_top else top - 24.85, label, "t-section", "var(--x-section-ink)")
+    for k, (text, ic, trail, col) in enumerate(items):
+        y = top + 52.0 * k
+        if k:
+            out += box(64.3, y - 1.1, 296.4, 0.9, "background:var(--x-card-line)")
+        if text is None:
+            continue
+        out += tx(64.3, y + 19.9, text, "t-body", col) + art(ic)
+        if trail == "chev":
+            out += art("10-ic-chevron", "top:%.1fpx" % (y + 18.9))
+        elif trail == "toggle":
+            out += box(300.3, y + 12.0, 62.4, 27.7, "border-radius:var(--x-r-pill);background:var(--x-toggle-off)") \
+                 + box(302.0, y + 14.3, 37.1, 23.6, "border-radius:var(--x-r-pill);background:var(--x-card)")
+        elif trail:
+            out += tx(200.0, y + 19.9, trail, "t-body", "var(--x-sec-ink)", w=138.9, extra=";text-align:right") \
+                 + art("10-ic-chevron", "top:%.1fpx" % (y + 18.9))
+    return out
+
+
+def settings(title, inner, hdr, after=""):
+    """after: what sits over the header crop, a label it patched out."""
+    return screen(title,
+        box(0, 58.7, 393, 852 - 58.7, "border-radius:var(--x-r-modal) var(--x-r-modal) 0 0;background:var(--x-sheet)")
+        + inner + art(hdr) + txc(91.5, "Settings", "t-h") + after,
+        bg="var(--x-dim)")
+
+
+def s10():
+    sec = "var(--x-sec-ink)"
+    return settings("Settings",
+        box(16.1, 164.3, 361.3, 92.3, "border-radius:var(--x-r-group);background:var(--x-card)")
+        + circle(32.1, 180.2, 60.0, "background:var(--x-avatar)") + art("10-ic-person")
+        + tx(104.5, 183.0, "Alex Smith", "t-h")
+        + tx(104.5, 204.8, "alexsmith.mobbin+1@gmail.-", "t-mail", sec)
+        + tx(104.5, 226.2, "com", "t-mail", sec)
+        + art("10-ic-chevron", "top:203.3px")
+        + group(323.1, [("Appearance", "10-ic-appearance", "chev", None),
+                        ("Customize Grok", "10-ic-customize", "chev", None),
+                        ("Haptics", "10-ic-haptics", "chev", None),
+                        ("Widget", "10-ic-widget", "chev", None),
+                        ("App Language", "10-ic-language", "English", None)], "General")
+        + group(618.0, [("Kids Mode", "10-ic-kids", "chev", None),
+                        ("NSFW Preferences", "10-ic-nsfw", "chev", None)])
+        + group(777.7, [("Companions", "10-ic-companions", "chev", None),
+                        ("Dictation", "10-ic-dictation", "chev", None)], "Voice"),
+        "10-hdr")
+
+
+def s11():
+    return settings("Settings, Voice",
+        group(167.0, [("Companions", "11-ic-companions", "chev", None),
+                      ("Dictation", "11-ic-dictation", "chev", None),
+                      ("Open App in Voice Mode", "11-ic-voicemode", "toggle", None)])
+        + group(378.4, [("Shared Conversations", "11-ic-shared", "chev", None),
+                        ("Data Controls", "11-ic-data", "chev", None),
+                        ("Recently Deleted", "11-ic-deleted", "chev", None)], "Data &amp; Information")
+        + group(569.3, [("Terms of Use", "11-ic-terms", "chev", None),
+                        ("Privacy Policy", "11-ic-privacy", "chev", None)])
+        + group(708.1, [("Report a Problem", "11-ic-report", "chev", None)])
+        + group(816.0, [("SuperGrok", "11-ic-supergrok", "chev", None)], "Subscription"),
+        "11-hdr", tx(32.5, 142.4, "Voice", "t-section", "var(--x-section-ink)"))
+
+
+def s12():
+    return settings("Settings, bottom",
+        group(107.8, [(None, None, None, None),
+                      ("Data Controls", "12-ic-data", "chev", None),
+                      ("Recently Deleted", "12-ic-deleted", "chev", None)])
+        + group(299.0, [("Terms of Use", "12-ic-terms", "chev", None),
+                        ("Privacy Policy", "12-ic-privacy", "chev", None)])
+        + group(437.7, [("Report a Problem", "12-ic-report", "chev", None)])
+        + group(545.7, [("SuperGrok", "12-ic-supergrok", "chev", None)], "Subscription")
+        + group(632.2, [("Sign Out", "12-ic-signout", None, "var(--x-danger)")])
+        + art("12-xai")
+        + txc(772.5, "VERSION 1.3.42 (BUILD 2776)", "t-version", "var(--x-version-ink)"),
+        "12-hdr")
 
 
 SCREENS = [
@@ -1119,8 +1218,11 @@ SCREENS = [
     ("05-supergrok", "SuperGrok paywall", s05),
     ("06-terms-update", "Terms update", s06),
     ("07-home", "SuperGrok home", s07),
-    ("08-video-sheet", "Video sheet", s08),
-    ("09-video-keyboard", "Video keyboard", s09),
+    ("08-voice-select-ara", "Voice selection, Ara", s08),
+    ("09-voice-select-eve", "Voice selection, Eve", s09),
+    ("10-settings", "Settings", s10),
+    ("11-settings-voice", "Settings, scrolled to Voice", s11),
+    ("12-settings-bottom", "Settings, bottom", s12),
 ]
 
 
@@ -1132,7 +1234,7 @@ header p{font:400 10.5px/13.5px var(--x-font);color:var(--x-foot);margin-bottom:
 h2{font:600 9px/12px var(--x-font);letter-spacing:.8px;text-transform:uppercase;
   color:var(--x-foot);margin:5px 0 3px}
 .grid{column-count:2;column-gap:12px}
-.sw{display:flex;align-items:center;gap:5px;height:10.5px;break-inside:avoid;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:5px;height:10.2px;break-inside:avoid;white-space:nowrap}
 .sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--x-well);background-color:#888}
 .sw b{font:600 7.5px/10.5px ui-monospace,Menlo,monospace}
 .sw i{font:400 7.5px/10.5px ui-monospace,Menlo,monospace;color:var(--x-foot);font-style:normal}
@@ -1176,11 +1278,11 @@ def token_board():
     met = "<br>".join("--x-%s: %s" % (n, v) for _, n, v, _ in _of("Metrics"))
     return page(NAME + " - Design Tokens",
                 '<div class="sheet"><header><h1>%s</h1>'
-                '<p>Five Mobbin captures at 2.2417 px per pt and four native '
-                '1290 &times; 2796 captures at 3 px per pt. One face (SF Pro), one type '
-                'ladder on 12/13/15/16/17/20/21/39, three apps&rsquo; worth of surface: '
-                'light greys, black and blurred photograph, white. Translucent surfaces '
-                'are materials, not fills, because the ground under them is not flat.</p>'
+                '<p>Ten Mobbin captures at 2.2417 px per pt, two native 1290 &times; '
+                '2796 captures at 3 px per pt. One face (SF Pro), one type ladder, '
+                'surfaces from white and light grey to black and a blurred photograph. '
+                'Translucent surfaces are materials, not fills: the ground under them '
+                'is not flat.</p>'
                 '</header>'
                 '<h2>Colour</h2><div class="grid">%s</div>'
                 '<div class="foot"><div><h2>Radius</h2>'

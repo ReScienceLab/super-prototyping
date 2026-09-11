@@ -1,19 +1,19 @@
 # Grok, iOS
 
-Nine screens of the Grok iOS app: the Home Screen widget on the system
+Twelve screens of the Grok iOS app: the Home Screen widget on the system
 widget gallery ground, two pages of the in-app widget guide (the first and
 the last step), the Voice Settings sheet over the 3D companion scene, the
 SuperGrok paywall, the Terms update interstitial, the SuperGrok home with
-its composer and Speak tooltip, and the video maker as a sheet over the
-dimmed page and again with the keyboard up. The first five are Mobbin
-captures of a 393pt phone; the last four are native captures of a 430pt
-one. Sixteen boards in three rows, plus nine more that park each capture
-under its replica.
+its composer and Speak tooltip, the voice picker on two of its voices, and
+the Settings sheet at three scroll positions. 01–05 and 08–12 are Mobbin
+captures of a 393pt phone; 06 and 07 are native captures of a 430pt one.
+Twenty boards in three rows, plus twelve more that park each capture under
+its replica.
 
 | # | Board | What it shows |
 | --- | --- | --- |
-| 00 | `design-tokens` | The 114 tokens, as one `:root` block |
-| 00b–00g | `evidence` | One row per token, with the measurement behind it |
+| 00 | `design-tokens` | The 133 tokens, as one `:root` block |
+| 00b–00h | `evidence` | One row per token, with the measurement behind it |
 | 01 | `widget` | The medium Home Screen widget on the gallery's grey |
 | 02 | `widget-guide-add` | "Find Grok in the list, choose a widget size, then tap Add Widget.", dot 4 |
 | 03 | `widget-guide-jiggle` | "From the Home Screen, touch and hold an empty area until the apps jiggle.", dot 1 |
@@ -21,8 +21,11 @@ under its replica.
 | 05 | `supergrok` | The SuperGrok paywall: five features, two plans, the CTA |
 | 06 | `terms-update` | "Updates to our Terms of Service and Acceptable Use Policy", Got it, Sign out |
 | 07 | `home` | SuperGrok home: three suggestion chips, the composer, the "Tap here to speak" tooltip |
-| 08 | `video-sheet` | The video maker's "What's new" card over the dimmed Animate-your-photos page |
-| 09 | `video-keyboard` | The video maker with the keyboard up: resolution chips, the field, the caret |
+| 08 | `voice-select-ara` | The voice picker on Ara, "Upbeat Female", dot 1, "Swipe to explore more voices" |
+| 09 | `voice-select-eve` | The voice picker on Eve, "Soothing Female", dot 2, the Continue pill |
+| 10 | `settings` | The Settings sheet: profile card, General, the top of Voice |
+| 11 | `settings-voice` | Settings scrolled to Voice, Data & Information, Terms, Report, Subscription |
+| 12 | `settings-bottom` | The bottom of Settings: Sign Out, the xAI mark, the version line |
 
 ## How close it lands
 
@@ -38,8 +41,11 @@ described below:
 | 05 SuperGrok | 5.75 |
 | 06 Terms update | 0.84 |
 | 07 Home | 0.75 |
-| 08 Video sheet | 1.97 |
-| 09 Video keyboard | 1.84 |
+| 08 Voice selection, Ara | 0.74 |
+| 09 Voice selection, Eve | 0.73 |
+| 10 Settings | 1.51 |
+| 11 Settings, Voice | 1.67 |
+| 12 Settings, bottom | 1.07 |
 
 The spread is what the pixels are. On 01 most of the frame is a crop of the
 capture or a flat ground the census read to the level, and the type on it is
@@ -59,37 +65,47 @@ inpainted hero: eighteen lines of it, white on black, where any sub-pixel
 disagreement in a glyph edge costs 60–100 levels on that pixel. Split into
 glyph and ground, the title band reads 66 on its glyph pixels and 3.8 on the
 rest; the ground under every line of 05 is within 3–6 of the capture.
-06–09 are scored on their own pixel grid, 3 px per pt, where a glyph edge a
-third of a point off costs less than it does through a 2.2417 downscale;
-06 and 07 are white pages with a few lines of type, and 08 and 09 carry a
-full-bleed inpainted crop with twenty to forty short strings of CSS type on
-it. The worst 40pt block on each is a line of type (07's header, 08's card
-title, 09's 480p chip), every one of them within 0.7pt of its measured box
-in both axes and none of them a placement error a blend can see.
+06 and 07 are scored on their own pixel grid, 3 px per pt, where a glyph
+edge a third of a point off costs less than it does through a 2.2417
+downscale; both are white pages with a few lines of type, and the worst
+40pt block on each is a line of type (07's header) within 0.7pt of its
+measured box in both axes. 08–12 go back through the downscale. The two
+voice screens are a flat dimmed ground, a flat card, and one crop each for
+the orb and the band under it, so what is left is glyph fringing on
+'Imagine' and on the card title, 13 and 12 in their 40pt blocks with the
+offset probe at 0. The three settings screens are white cards of 17px type
+on a grey sheet; their worst blocks are the profile card's name and email
+at 18 (offset probe at 0 again) and dense row labels at 10–11, and none is
+a placement a blend can see.
 
-`refkit batch probes.json --against scratch/cap --pt 2.2417` replays the 86
-Phase-1 probes against the renders (the 06–09 probes carry their own
-`"pt": 3`): 43 colour probes at a mean Δ of 2.7, 31 box probes at a mean
-|dw| of 0.33pt and |dh| of 0.24pt, and 12 edge scans. The worst colour probe
-is 04's hoodie through the sheet at 11, the generated body against the
-capture's; the pill under the same sheet lands within 2. The five scans through
-real edges land on the capture's own edge to the pixel, and so do the two
-through 02's drawn card edge and pill cap; the two through 02's fitted
+`refkit batch probes.json --against scratch/cap --pt 2.2417` replays the
+110 Phase-1 probes against the renders (the 06–07 probes carry their own
+`"pt": 3`): 54 colour probes at a mean Δ of 3.2, 43 box probes at a mean
+|dw| of 0.37pt and |dh| of 0.24pt, and 13 edge scans. The worst colour
+probe is 12's 'Sign Out' at 20: the token is the label's own most-covered
+pixels, #BE484C, and the render's core comes back more saturated (#B93A3F
+against the capture's #AE4E52) through the same resampling that darkens
+every grey ink below. Next is 04's hoodie through the sheet at 11, the
+generated body against the capture's; the pill under the same sheet lands
+within 2. The six scans through real edges land on the capture's own edge
+to the pixel, the settings sheet's edge at 58.7 among them, and so do the
+two through 02's drawn card edge and pill cap; the two through 02's fitted
 shadows land 3 and 9pt off, because a scan reports the largest step and
 inside a smooth ramp that step moves with one level of noise, so the value
 behind those two tokens is the sweep in their evidence rows, not the scan.
-The five grey-ink probes on 01–05 read Δ 7–11, and the two inks inside
-02's drawn sheet read Δ 15 the other way (`illo-label` #333333 replays as
-#242424), and that is the scoring, not the ink: the render is downscaled
-with LANCZOS, whose ringing puts the brightest 8% of a grey glyph 7 levels
-*above* the CSS colour (`mute` #A9A9A9 replays as #B0B0B0), while the
-capture's blur keeps its brightest 8% a few levels *below* the true ink. At
-3% and 15% the pattern is the same. The tokens are the capture's own core
-values and were left alone. The same replay on 06–09, where nothing is
-downscaled, reads every ink probe at Δ 0–2, and it caught one token: the
-grey copy on 06 had been cored over a window that took in the black
-'Terms of Service' span, which pulled the darkest 2% to #777777; on the
-grey-only windows it is #7F7F7F, and that is what ships.
+The five grey-ink probes on 01–05 read Δ 7–11, the four on 08–12 (the
+voice sub-line, the section, secondary and version inks) 6–11, and the two
+inks inside 02's drawn sheet read Δ 15 the other way (`illo-label` #333333
+replays as #242424), and that is the scoring, not the ink: the render is
+downscaled with LANCZOS, whose ringing puts the brightest 8% of a grey
+glyph 7 levels *above* the CSS colour (`mute` #A9A9A9 replays as #B0B0B0),
+while the capture's blur keeps its brightest 8% a few levels *below* the
+true ink. At 3% and 15% the pattern is the same. The tokens are the
+capture's own core values and were left alone. The same replay on 06–07,
+where nothing is downscaled, reads every ink probe at Δ 0–2, and it caught
+one token: the grey copy on 06 had been cored over a window that took in
+the black 'Terms of Service' span, which pulled the darkest 2% to #777777;
+on the grey-only windows it is #7F7F7F, and that is what ships.
 
 ## The diff window
 
@@ -105,23 +121,37 @@ corners; the bottom below 838pt, where the export has no home indicator. On
 04 the capture does keep the island's contents, an orange recording dot at
 x 215–221, and the board draws that dot (`rec`) inside its own island.
 
-06–09 come from a 430 × 932 phone at exactly **3 px per pt** (1290 × 2796,
-both axes), so their renders need no downscale: `refkit shoot --scale 3`
-on the whole board, the phone found by its bezel ring and cut to
+06 and 07 come from a 430 × 932 phone at exactly **3 px per pt** (1290 ×
+2796, both axes), so their renders need no downscale: `refkit shoot --scale
+3` on the whole board, the phone found by its bezel ring and cut to
 1290 × 2796, the 52pt corners masked and composited onto the capture
-(`scratch/run6.sh`). The phone on these four boards is 430 × 932 with no
+(`scratch/run6.sh`). The phone on these two boards is 430 × 932 with no
 home indicator, because the captures show none, and it fills the 478 × 980
-board with 24pt to spare on each side. Excluded: the top 59pt. Those four
+board with 24pt to spare on each side. Excluded: the top 59pt. Those two
 captures do carry a real status bar and Dynamic Island, and the boards do
 not replicate them: the ask was to use the template's status bar (9:41,
 the template island and glyphs) rather than clone the capture's clock,
-bell and right cluster, so the capture's own bar is patched out of the
-08 and 09 crops and nothing above 59pt is compared.
+bell and right cluster, so nothing above 59pt is compared.
+
+08–12 are Mobbin exports again, 881 or 882 × 2000 with a 90px Mobbin footer,
+cropped to 881 × 1910 (the 882-wide ones lose their last column), scored
+through the same 2.2417 downscale as 01–05. Three of them, cp8, cp9 and
+cp12, carry a colour cast the other seven captures do not: at every grey
+the red and blue channels sit 3 above the green, so the voice screens'
+dimmed ground read #CDCACE where 02's identical ground reads #CBCBCB, and
+12's sheet read #F8F6F9 where 11's reads #F6F6F6. A per-channel monotone
+lookup, fitted on the elements 12 shares with 11 (the sheet, the cards, the
+rule, the row ink, the section ink, the chevron), is applied to those three
+captures before anything is sampled or cut, and that is what
+`assets/refs/cp8.png`, `cp9.png` and `cp12.png` hold; the originals are in
+`scratch/orig/` and the table in `scratch/lut12.npy`. After it the voice
+ground reads #CBCBCB, `dim`, and 12 matches 11 within a level everywhere
+the two overlap.
 
 ## What is a crop, what is drawn, what is fitted
 
 **Every icon but three is a crop of the capture**, not a drawing:
-31 of them, each cut at its measured ink box grown by 1pt and placed
+61 of them, each cut at its measured ink box grown by 1pt and placed
 back at the same numbers (the `-ic-` ids in `crops.json`), and that
 includes the three inside 02's drawn illustration, the app icon, the close
 disc and the Grok mark in the widget's pill. That was asked
@@ -168,29 +198,31 @@ between the render and the capture on every pass. What that settled:
   not a number a vector can reach and 04's whole-frame Δ moves from 9.51 to
   9.52.
 
-The pictures under the type are crops too, on three of the screens: the
-smoke hero of 05 and the whole frame of 08 and of 09 (`05-bg`, `08-bg`,
-`09-bg`). All three are **inpainted crops**, and a reader
-should not take their pixels as the capture's where the type was: the
-generator patches every box of type and chrome out of the frame before
-cutting it (a Coons fill from each box's own four edges, edge profiles
-smoothed over 9px) so that the CSS type lands on clean ground. `INPAINT` in
-`gen.py` lists the boxes; on 04 (whose patched frame is the top of the
-generated scene below) that is the nav, the four side buttons, the
-grabber, the title, the close disc and both row labels with their glyphs; on
-05 the title, the subtitle, the plan group, the CTA and the footer. 05's
-feature card is handled differently: its 6.7% white material is un-applied
-inside the card box, its edge, corner arcs, five discs and nine lines of type
-are patched, and the CSS card re-applies the material, so the card's pixels
-under the type are solved rather than sampled. On 08 and 09 the patched
-boxes are the capture's status bar and island, the SuperGrok header, the
-page title, the Continue label, Featured Templates, and then per screen:
-08's card title, NEW, heading, three body lines and Try it now; 09's six
-option labels, the placeholder (the caret stays, it is a 2pt bar the CSS
-would only approximate), Video, the 26 letter keys and 123 / @ / #. What is
-not patched stays as pixels: 08's sheet card and its badge, 09's keyboard
-with its emoji, globe and mic glyphs and the faint 'A' predictive hint on
-the space bar, and the blurred video thumbnails on both.
+The pictures under the type are crops too: the smoke hero of 05 (`05-bg`),
+the band that carries the voice card's bottom corners and shadow on 08 and
+09 (`08-band`, `09-band`, y 700–852) and the header band of the settings
+sheet on 10, 11 and 12 (`10-hdr`, `11-hdr`, `12-hdr`, y 54–150). All are
+**inpainted crops**, and a reader should not take their pixels as the
+capture's where the type was: the generator patches every box of type and
+chrome out of the frame before cutting it (a Coons fill from each box's own
+four edges, edge profiles smoothed over 9px) so that the CSS type lands on
+clean ground. `INPAINT` in `gen.py` lists the boxes; on 04 (whose patched
+frame is the top of the generated scene below) that is the nav, the four
+side buttons, the grabber, the title, the close disc and both row labels
+with their glyphs; on 05 the title, the subtitle, the plan group, the CTA
+and the footer. 05's feature card is handled differently: its 6.7% white
+material is un-applied inside the card box, its edge, corner arcs, five
+discs and nine lines of type are patched, and the CSS card re-applies the
+material, so the card's pixels under the type are solved rather than
+sampled. On 08 and 09 the patched boxes are the four page dots and the
+swipe hint (08) or the Continue pill (09), all drawn again; on 10–12 the
+'Settings' title, and on 11 the 'Voice' label that the header's fade runs
+through, set again over the crop. What is not patched stays as pixels: the
+header material, the close disc and the fade under it on all three settings
+screens, 11's ghost of 'NSFW Preferences' scrolling out under that fade, and
+12's 'Shared Conversations' row, which sits under the same fade with an ink
+of #1C1B1C and would be a flat CSS grey over a gradient the CSS does not
+have.
 
 **The companion scene on 04 is generated, and the sheet over it is drawn.**
 The capture holds the scene only above the sheet's edge at 403.6; below it
@@ -273,10 +305,9 @@ Two strings on 07 are not fully knowable from the capture. The third
 suggestion chip runs off the screen with only 'Try C' visible; its icon
 trio is Gmail, GitHub and Notion, which makes the chip Connectors, and the
 board sets exactly the visible 'Try C' with the chip clipped at the frame
-rather than inventing the rest. The '#' key on 09 is 10.3pt square where
-the 22px key face draws a 17pt '@'; it is a lighter glyph than either key
-size of SF Pro sets, and it ships at the 18px small-key size, the nearest
-the face has.
+rather than inventing the rest. One string on 10 is: the Dictation row's
+label is cut by the frame, and the board sets it whole and lets the phone
+clip it (the Source section).
 
 Values no pixel holds, fitted rather than read:
 
@@ -295,9 +326,12 @@ Values no pixel holds, fitted rather than read:
   between 6–8px / 36px / .11–.12 at 2.27–2.33, so the value that also
   matches the side-edge reading was kept. Alpha .14 costs .1–.2 on every
   sub-band and blur 52 costs .15.
-- 08's dimming is a 20% black scrim: white reads #CCCCCC under it, the
-  black button stays #000, and the 'Continue' label and the page ground
-  both census to #CCCCCC, so `dim-inv` is one token for both.
+- The voice card's shadow on 08 and 09 is `0 4px 16px rgba(0,0,0,.11)`
+  over a 1pt white inset edge: the ground beside the card reads 7–11 levels
+  under `dim` and 3 above it. Three geometries and five alphas were swept
+  against the 7.5pt bands beside the card and the 23pt above it; .11 leaves
+  them +0.2 / −0.0 / +0.5 signed, .10 is +0.6 / +0.4, .14 costs 1.6–2.1,
+  and the other two geometries score worse at every alpha.
 - `icon.png` is the App Store artwork under the system superellipse mask, the
   one asset that is not a crop of a screen.
 
@@ -322,12 +356,20 @@ the iOS ladder, and several are not on it:
 - `t-unit` 15.4px for the '/month' and '/year' runs, 2.5% wider than 15px.
 - On the 3px/pt screens the fits are finer because the captures are: `t-hdr`
   is 22px medium **with .45px of tracking**, because 'SuperGrok' measures
-  104.0 wide where the untracked face sets 100.3; `t-h3` 18.9px, `t-para`
-  16.15px, `t-field` 16.3px, `t-speak` 14.5px and `t-btn` 16.5px each close
-  a width the ladder size misses by 1–3pt. Two placement corrections are
+  104.0 wide where the untracked face sets 100.3, and `t-speak` 14.5px
+  closes a width 15px misses by 1.4pt. Two placement corrections are
   applied to every string on those screens, a left bearing of 0.7pt and a
   cap-top drop of 0.5pt, measured on the 06 title and body against the
   capture and confirmed on 07's header and chips.
+- On 08–12 the fits are by width again, each on a string the render was
+  measured against: `t-voice` 16.25px semibold for the voice title, the two
+  names and 'Continue' (17px sets all four 4% wide), `t-nav` 16px medium for
+  'Ask' and 'Imagine', `t-mail` 15.9px for the email, `t-section` 15px
+  semibold for the group labels, `t-hint` 14.25px for the swipe hint and
+  `t-version` 11.65px of the platform's monospace face, whose parentheses
+  are shorter than the capture's (10.3 against 11.6 tall at the matched
+  width). 'Alex Smith' is `t-h` and every row label `t-body`, both on the
+  ladder, and every string above lands within 0.9pt of its measured width.
 
 ## What the source itself gets wrong
 
@@ -339,14 +381,24 @@ the iOS ladder, and several are not on it:
   04 draws no home indicator: down x 196 the capture is grass at y 838–843.
 - The '$' on 05's prices is shorter than SF Pro's at any size that matches
   the digits: the price probe lands the width to 0.0 and the height 1.3 tall.
-- 06–09 are captures of a 430pt phone, not Mobbin exports, so they have
+- 06 and 07 are captures of a 430pt phone, not Mobbin exports, so they have
   square corners and a real status bar; the corners are masked and the bar
   is the template's by request.
+- 10's email is 'alexsmith.mobbin+1@gmail.-' over 'com': the app hyphenates
+  it inside the domain, and the board sets both lines where they are.
+- 10's last row, Dictation, is cut by the frame at 852 with 2.6pt of its cap
+  and the top of its glyph showing; the board draws the row at its full 52
+  and lets the phone clip it rather than moving it.
+- Three of the five Mobbin exports of the second batch carry a colour cast
+  the first batch does not (the diff window section); it was taken out
+  before sampling, and the tokens are the corrected values.
 
 ## Regenerating
 
-`python3 gen.py` rewrites the sixteen boards from `TOKENS`, `crops.json` and
+`python3 gen.py` rewrites the twenty boards from `TOKENS`, `crops.json` and
 `assets/art/`. With `assets/refs/` present it also re-cuts the art, which
 needs Pillow and numpy; without it (a fresh clone, since the captures are
-gitignored) it uses the committed crops and needs nothing. The nine `ref-*`
-boards are gitignored too, so a fresh clone has sixteen.
+gitignored) it uses the committed crops and needs nothing. Re-cutting from
+fresh captures also needs the colour pass described under the diff window on
+cp8, cp9 and cp12. The twelve `ref-*` boards are gitignored too, so a fresh
+clone has twenty.

@@ -1,5 +1,5 @@
 {
- "_": "Art cut from assets/refs/<ref>.png at measured pt boxes (2.2417 px/pt for cp1-cp5, 3.0 for the 430 x 932 captures cp6-cp9), and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i5/i8/i9 are cp5/cp8/cp9 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS. g4 is not a capture: 04-scene is the companion scene with the voice sheet removed, the patched cp4 (i4) above the sheet's edge and a gpt-image-2 edit of it below, composed by scratch/scene4.py and committed as assets/art/04-scene.png; cut() leaves it alone. 04-ic-close, 04-ic-airplay and 04-ic-person are keyed by cut() (KEYED in gen.py): white ink at the glyph's own coverage, the sheet ground in their margin dropped, because the board draws that sheet now.",
+ "_": "Art cut from assets/refs/<ref>.png at measured pt boxes (2.2417 px/pt for cp1-cp5, 3.0 for the 430 x 932 captures cp6-cp7; cp8-cp12 are 2.2417 again), and placed back at the same numbers by art(). Illustrations at their card boxes; every icon (-ic-) at its ink box plus 1pt of ground, so it is the capture's own glyph. i8-i12 are cp8-cp12 with the type and the page dots patched out of the one band each screen crops (08/09: the card's bottom corners and shadow, y 700-852; 10-12: the header band, y 54-150), so the type is set again in CSS over the capture's own material. i5 is cp5 with every piece of chrome and type patched out first (the boxes are INPAINT in gen.py), so the photograph and the sheet material survive and the chrome is drawn again in CSS. g4 is not a capture: 04-scene is the companion scene with the voice sheet removed, the patched cp4 (i4) above the sheet's edge and a gpt-image-2 edit of it below, composed by scratch/scene4.py and committed as assets/art/04-scene.png; cut() leaves it alone. 04-ic-close, 04-ic-airplay and 04-ic-person are keyed by cut() (KEYED in gen.py): white ink at the glyph's own coverage, the sheet ground in their margin dropped, because the board draws that sheet now.",
  "_rule": "Crop what the capture already contains; draw only what it does not.",
  "04-scene": [
   "g4",
@@ -232,18 +232,284 @@
   396.0,
   803.0
  ],
- "08-bg": [
+ "08-ic-menu": [
+  "cp8",
+  27.5,
+  78.9,
+  49.2,
+  91.6
+ ],
+ "08-ic-compose": [
+  "cp8",
+  344.7,
+  74.4,
+  366.8,
+  96.0
+ ],
+ "08-orb": [
+  "cp8",
+  137.7,
+  501.7,
+  256.2,
+  574.7
+ ],
+ "09-orb": [
+  "cp9",
+  137.7,
+  501.7,
+  256.6,
+  574.7
+ ],
+ "08-ghost": [
+  "cp8",
+  141.8,
+  645.0,
+  237.9,
+  665.3
+ ],
+ "09-ghost": [
+  "cp9",
+  141.8,
+  645.0,
+  237.9,
+  665.3
+ ],
+ "08-band": [
   "i8",
   0.0,
-  0.0,
-  430.0,
-  932.0
+  700.0,
+  393.0,
+  852.0
  ],
- "09-bg": [
+ "09-band": [
   "i9",
   0.0,
+  700.0,
+  393.0,
+  852.0
+ ],
+ "10-hdr": [
+  "i10",
   0.0,
-  430.0,
-  932.0
+  54.0,
+  393.0,
+  150.0
+ ],
+ "11-hdr": [
+  "i11",
+  0.0,
+  54.0,
+  393.0,
+  150.0
+ ],
+ "12-hdr": [
+  "i12",
+  0.0,
+  54.0,
+  393.0,
+  150.0
+ ],
+ "10-ic-person": [
+  "cp10",
+  48.5,
+  196.2,
+  75.5,
+  224.9
+ ],
+ "10-ic-chevron": [
+  "cp10",
+  350.5,
+  342.0,
+  359.2,
+  355.6
+ ],
+ "10-ic-appearance": [
+  "cp10",
+  31.6,
+  338.0,
+  52.7,
+  359.2
+ ],
+ "10-ic-customize": [
+  "cp10",
+  32.5,
+  391.6,
+  51.4,
+  410.5
+ ],
+ "10-ic-haptics": [
+  "cp10",
+  33.3,
+  442.0,
+  52.7,
+  463.1
+ ],
+ "10-ic-widget": [
+  "cp10",
+  32.0,
+  494.6,
+  51.9,
+  514.9
+ ],
+ "10-ic-language": [
+  "cp10",
+  31.6,
+  546.4,
+  52.7,
+  567.1
+ ],
+ "10-ic-kids": [
+  "cp10",
+  30.7,
+  632.4,
+  53.6,
+  655.0
+ ],
+ "10-ic-nsfw": [
+  "cp10",
+  32.0,
+  686.0,
+  51.9,
+  705.8
+ ],
+ "10-ic-companions": [
+  "cp10",
+  30.2,
+  794.8,
+  54.1,
+  812.9
+ ],
+ "10-ic-dictation": [
+  "cp10",
+  30.2,
+  845.7,
+  54.1,
+  852.0
+ ],
+ "11-ic-companions": [
+  "cp11",
+  30.2,
+  183.7,
+  54.1,
+  202.2
+ ],
+ "11-ic-dictation": [
+  "cp11",
+  31.6,
+  235.0,
+  52.7,
+  254.4
+ ],
+ "11-ic-voicemode": [
+  "cp11",
+  32.5,
+  287.2,
+  51.9,
+  306.1
+ ],
+ "11-ic-shared": [
+  "cp11",
+  31.6,
+  393.8,
+  52.3,
+  414.5
+ ],
+ "11-ic-data": [
+  "cp11",
+  32.9,
+  445.5,
+  51.0,
+  466.7
+ ],
+ "11-ic-deleted": [
+  "cp11",
+  32.5,
+  497.7,
+  51.9,
+  518.5
+ ],
+ "11-ic-terms": [
+  "cp11",
+  33.3,
+  584.3,
+  51.0,
+  605.5
+ ],
+ "11-ic-privacy": [
+  "cp11",
+  32.5,
+  636.5,
+  51.9,
+  657.6
+ ],
+ "11-ic-report": [
+  "cp11",
+  31.6,
+  723.5,
+  52.7,
+  744.6
+ ],
+ "11-ic-supergrok": [
+  "cp11",
+  34.2,
+  833.2,
+  51.4,
+  850.4
+ ],
+ "12-ic-data": [
+  "cp12",
+  32.9,
+  175.2,
+  51.0,
+  195.9
+ ],
+ "12-ic-deleted": [
+  "cp12",
+  32.9,
+  227.0,
+  51.4,
+  248.1
+ ],
+ "12-ic-terms": [
+  "cp12",
+  33.8,
+  313.9,
+  51.0,
+  335.1
+ ],
+ "12-ic-privacy": [
+  "cp12",
+  32.5,
+  366.1,
+  51.4,
+  386.9
+ ],
+ "12-ic-report": [
+  "cp12",
+  31.6,
+  453.1,
+  52.7,
+  473.9
+ ],
+ "12-ic-supergrok": [
+  "cp12",
+  34.2,
+  563.3,
+  50.5,
+  580.0
+ ],
+ "12-ic-signout": [
+  "cp12",
+  32.5,
+  649.0,
+  51.4,
+  667.9
+ ],
+ "12-xai": [
+  "cp12",
+  186.8,
+  733.7,
+  206.6,
+  755.8
  ]
 }

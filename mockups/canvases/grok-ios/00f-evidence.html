@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 5/6</title>
+<title>Grok iOS - Evidence 5/7</title>
 <style>
 :root{
   /* Font */
@@ -60,13 +60,8 @@
   --k-dots:#C5C5C5;
   --k-copy-mute:#7F7F7F;
   --k-placeholder:#7D7D7D;
-  --k-field-ink:#6A6A6B;
-  --k-card-ink:#262627;
-  --k-para-ink:#53584E;
   --k-illo-label:#333333;
   --k-illo-sub:#5A5A5A;
-  --k-dim-inv:#CCCCCC;
-  --k-new-ink:#FB630A;
 
   /* Radius */
   --k-r-phone:52px;
@@ -109,15 +104,6 @@
   --k-t-chip:500 15px/20px var(--k-font);
   --k-t-ctl:400 14px/18px var(--k-font);
   --k-t-speak:600 14.5px/18px var(--k-font);
-  --k-t-btn:600 16.5px/22px var(--k-font);
-  --k-t-card:400 22px/25px var(--k-font);
-  --k-t-h3:600 18.9px/24px var(--k-font);
-  --k-t-para:400 16.15px/21px var(--k-font);
-  --k-t-field:400 16.3px/22px var(--k-font);
-  --k-t-opt:400 16px/20px var(--k-font);
-  --k-t-key:400 22px/28px var(--k-font);
-  --k-t-key-sm:400 18px/22px var(--k-font);
-  --k-t-new:500 13px/16px var(--k-font);
   --k-t-illo-label:500 11.5px/14px var(--k-font);
   --k-t-illo-title:600 21.25px/26px var(--k-font);
   --k-t-illo-sub:400 11.25px/15px var(--k-font);
@@ -139,6 +125,46 @@
   --k-sheet-v-blur:4px;
   --k-illo-stroke:10px;
   --k-status-max:59px;
+
+  /* Font */
+  --k-mono:ui-monospace,"SF Mono",Menlo,monospace;
+
+  /* Surface */
+  --k-voice-sheet:#EDEDEE;
+  --k-nav-well:#C8C8C9;
+  --k-avatar:#F0F0F0;
+  --k-toggle-off:#C5C4C7;
+
+  /* Line */
+  --k-card-line:#EAEAEA;
+  --k-voice-shadow:rgba(0,0,0,.11);
+
+  /* Ink */
+  --k-voice-sub:#5E5E5E;
+  --k-dot-off:#A6A3A7;
+  --k-voice-btn:#090709;
+  --k-section-ink:#787878;
+  --k-sec-ink:#7C7C7C;
+  --k-danger:#BE484C;
+  --k-version-ink:#C2C2C2;
+
+  /* Radius */
+  --k-r-voice:37.5px;
+  --k-r-modal:39.5px;
+  --k-r-group:25.5px;
+
+  /* Type */
+  --k-t-nav:500 16px/22px var(--k-font);
+  --k-t-voice:600 16.25px/21px var(--k-font);
+  --k-t-mail:400 15.9px/20px var(--k-font);
+  --k-t-section:600 15px/20px var(--k-font);
+  --k-t-voice-sub:400 16px/21px var(--k-font);
+  --k-t-hint:400 14.25px/18px var(--k-font);
+  --k-t-version:400 11.65px/16px var(--k-mono);
+
+  /* Metrics */
+  --k-row-s:52px;
+  --k-sheet-top-s:58.7px;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -163,7 +189,7 @@ header p{font:400 10.5px/13.5px var(--k-font);color:var(--k-foot);margin-bottom:
 h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
   color:var(--k-foot);margin:5px 0 3px}
 .grid{column-count:2;column-gap:12px}
-.sw{display:flex;align-items:center;gap:5px;height:10.5px;break-inside:avoid;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:5px;height:10.2px;break-inside:avoid;white-space:nowrap}
 .sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--k-well);background-color:#888}
 .sw b{font:600 7.5px/10.5px ui-monospace,Menlo,monospace}
 .sw i{font:400 7.5px/10.5px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
@@ -188,6 +214,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 5/6</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-t-link</td><td class="v">400 17.5px/22px var(--k-font)</td><td class="e">06 'Sign out' 64.7 wide; 17px sets 63.0, 17.5px 64.9</td></tr><tr><td class="t">--k-t-hdr</td><td class="v">500 22px/28px var(--k-font)</td><td class="e">07-09 'SuperGrok' 104.0 x 20 (x 57-161, boxed clear of the mark's tail); 22px medium sets 100.3 on the board and 103.9 with .45px tracking</td></tr><tr><td class="t">--k-t-chip</td><td class="v">500 15px/20px var(--k-font)</td><td class="e">07 'Create Bot' and 'Try Finance' at 15px medium to the tenth; 09 'Video' 39.3 x 11.3 the same</td></tr><tr><td class="t">--k-t-ctl</td><td class="v">400 14px/18px var(--k-font)</td><td class="e">07 'Auto' in the model pill: 14px regular to the tenth</td></tr><tr><td class="t">--k-t-speak</td><td class="v">600 14.5px/18px var(--k-font)</td><td class="e">07 'Speak' 42.3 x 13.7 (bright threshold 160 keeps the pill edge out); 15px semibold sets 43.7, 14.5px 42.3</td></tr><tr><td class="t">--k-t-btn</td><td class="v">600 16.5px/22px var(--k-font)</td><td class="e">08/09 'Continue' 69.0 wide and 08 'Try it now' 75.3; 17px semibold sets 71.0 and 76.7, 16.5px 69.0 and 74.5</td></tr><tr><td class="t">--k-t-card</td><td class="v">400 22px/25px var(--k-font)</td><td class="e">08 'Add precise start and end' 241.7 x 19.7, 24.7 to the second line; 22px regular</td></tr><tr><td class="t">--k-t-h3</td><td class="v">600 18.9px/24px var(--k-font)</td><td class="e">08 'Shape your scene, start to finish' 281.0 x 18.0; 19px semibold sets 282.7 on the board, 18.9px 281.2</td></tr><tr><td class="t">--k-t-para</td><td class="v">400 16.15px/21px var(--k-font)</td><td class="e">08 'Choose your first and last frames, or create' 314.0 wide and 'seamless loops. Every video now follows your' 330.7, on a 21.2 pitch; 16px sets 311.3 and 327.7, .9% narrow on both, 16.15px closes it</td></tr><tr><td class="t">--k-t-field</td><td class="v">400 16.3px/22px var(--k-font)</td><td class="e">09 'Type to make video' 142.3 wide (x 29-171.3); 17px sets 146.7, 16.5px on the board 144.0, 16.3px 142.3</td></tr><tr><td class="t">--k-t-opt</td><td class="v">400 16px/20px var(--k-font)</td><td class="e">09 '720p' 35.7, '6s' 16.3, 'Auto' 32.0 wide; 16px sets 36.0, 16.7, 32.7</td></tr><tr><td class="t">--k-t-key</td><td class="v">400 22px/28px var(--k-font)</td><td class="e">09 'W' 18 x 16 on key rows 56 apart; 22px regular sets 19 x 15.7</td></tr><tr><td class="t">--k-t-key-sm</td><td class="v">400 18px/22px var(--k-font)</td><td class="e">09 '123' 27.0 x 13.3 at 18px regular to the tenth; the '@' key is 17 x 17.7, which is the 22px t-key, and '#' 10.3 x 10.3 is a lighter glyph than either size of the face draws</td></tr><tr><td class="t">--k-t-new</td><td class="v">500 13px/16px var(--k-font)</td><td class="e">08 'NEW' 28.0 x 9.3; 13px medium sets 28.3 x 9.3</td></tr><tr><td class="t">--k-t-illo-label</td><td class="v">500 11.5px/14px var(--k-font)</td><td class="e">02 'Grok' beside the app icon: ink 25.9 x 8.9; the stack sets 600 12px to 27.3 x 9.3 and 11.5px to 26.2 x 8.9. Weight and size swept over the word's box: 500 11.5px 7.9, 600 11.5px 13.4, 400 11.5px 10.1</td></tr><tr><td class="t">--k-t-illo-title</td><td class="v">600 21.25px/26px var(--k-font)</td><td class="e">02 sheet title 'Grok': ink 44.6 x 16.1; 700 21px sets 46.3 x 15.7, 22px 48.7 x 16.3, 600 22px 47.3 x 16.3. Swept over the word's box: 600 21.25px 7.9, 600 21px 8.7, 500 21.5px 9.1, 700 21px 11.2, 700 22px 16.7</td></tr><tr><td class="t">--k-t-illo-sub</td><td class="v">400 11.25px/15px var(--k-font)</td><td class="e">02 'Quickly start a new chat with Grok.': ink 184.7 x 10.7; 400 11.5px sets 188.7 x 10.7, 12px 195.7 x 11.3. Swept over the line's box in .05 steps: 11.25px 11.3, 11.2px 11.8, 11.3px 13.4, 11.5px 19.8</td></tr><tr><td class="t">--k-t-illo-pill</td><td class="v">600 15.5px/20px var(--k-font)</td><td class="e">02 'Grok' in the widget pill, unprojected into the card's plane: ink 35.0 x 12.2; 600 16px sets 35.3 x 12.3, and projected back reads 34.8 x 13.8 against the capture's 34.3 x 15.2, a taller face. Swept over the word's box: 15.5px 27.9, 15px 28.3, 16px 34.7, 16.5px 40.1. Set in the card's flat coordinates, before its matrix3d</td></tr><tr><td class="t">--k-w</td><td class="v">393px</td><td class="e">iPhone 14 Pro/15/16 logical width</td></tr><tr><td class="t">--k-h</td><td class="v">852px</td><td class="e">iPhone 14 Pro/15/16 logical height</td></tr><tr><td class="t">--k-status</td><td class="v">54px</td><td class="e">iOS status bar, Dynamic Island devices</td></tr><tr><td class="t">--k-gutter</td><td class="v">16px</td><td class="e">02 card x 16.1-376.8; 04 buttons x 16.3 and 333.2-377</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 5/7</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-t-illo-label</td><td class="v">500 11.5px/14px var(--k-font)</td><td class="e">02 'Grok' beside the app icon: ink 25.9 x 8.9; the stack sets 600 12px to 27.3 x 9.3 and 11.5px to 26.2 x 8.9. Weight and size swept over the word's box: 500 11.5px 7.9, 600 11.5px 13.4, 400 11.5px 10.1</td></tr><tr><td class="t">--k-t-illo-title</td><td class="v">600 21.25px/26px var(--k-font)</td><td class="e">02 sheet title 'Grok': ink 44.6 x 16.1; 700 21px sets 46.3 x 15.7, 22px 48.7 x 16.3, 600 22px 47.3 x 16.3. Swept over the word's box: 600 21.25px 7.9, 600 21px 8.7, 500 21.5px 9.1, 700 21px 11.2, 700 22px 16.7</td></tr><tr><td class="t">--k-t-illo-sub</td><td class="v">400 11.25px/15px var(--k-font)</td><td class="e">02 'Quickly start a new chat with Grok.': ink 184.7 x 10.7; 400 11.5px sets 188.7 x 10.7, 12px 195.7 x 11.3. Swept over the line's box in .05 steps: 11.25px 11.3, 11.2px 11.8, 11.3px 13.4, 11.5px 19.8</td></tr><tr><td class="t">--k-t-illo-pill</td><td class="v">600 15.5px/20px var(--k-font)</td><td class="e">02 'Grok' in the widget pill, unprojected into the card's plane: ink 35.0 x 12.2; 600 16px sets 35.3 x 12.3, and projected back reads 34.8 x 13.8 against the capture's 34.3 x 15.2, a taller face. Swept over the word's box: 15.5px 27.9, 15px 28.3, 16px 34.7, 16.5px 40.1. Set in the card's flat coordinates, before its matrix3d</td></tr><tr><td class="t">--k-w</td><td class="v">393px</td><td class="e">iPhone 14 Pro/15/16 logical width</td></tr><tr><td class="t">--k-h</td><td class="v">852px</td><td class="e">iPhone 14 Pro/15/16 logical height</td></tr><tr><td class="t">--k-status</td><td class="v">54px</td><td class="e">iOS status bar, Dynamic Island devices</td></tr><tr><td class="t">--k-gutter</td><td class="v">16px</td><td class="e">02 card x 16.1-376.8; 04 buttons x 16.3 and 333.2-377</td></tr><tr><td class="t">--k-gutter-w</td><td class="v">20px</td><td class="e">05 card x 20.5-372.3, plan group and CTA the same</td></tr><tr><td class="t">--k-tap</td><td class="v">44px</td><td class="e">02 back disc 44.1 x 43.7; 04 X and grid buttons 43-43.7</td></tr><tr><td class="t">--k-sheet-top</td><td class="v">59px</td><td class="e">02/03 sheet ground starts at 58.9</td></tr><tr><td class="t">--k-sheet-top-v</td><td class="v">403.6px</td><td class="e">04 sheet edge, col x100</td></tr><tr><td class="t">--k-widget</td><td class="v">162.4px</td><td class="e">01 widget 24.1-186.5 both axes</td></tr><tr><td class="t">--k-disc</td><td class="v">40px</td><td class="e">05 icon discs 40 x 39.8, left edge 40.3</td></tr><tr><td class="t">--k-w-max</td><td class="v">430px</td><td class="e">iPhone Pro Max logical width: cp6-cp7 are 1290 x 2796 at 3 px/pt</td></tr><tr><td class="t">--k-h-max</td><td class="v">932px</td><td class="e">iPhone Pro Max logical height</td></tr><tr><td class="t">--k-sheet-v-blur</td><td class="v">4px</td><td class="e">04 sigma of the blur read off the voice pill's edge, the one sharp edge the capture holds under the sheet: across x 270-300 at y 776/784/792 the ramp from the ground (40) to the pill (74) is 10pt for 10-90%, down x 310/334/358 over y 755-775 it is 8pt, 3.1-3.9 sigma; blur(4px). A sweep cannot read it: it walks to 44px+ because blurring the generated scene away hides the scene's own error (sheet band 13.3 at 44px against 16.3 at 4px)</td></tr><tr><td class="t">--k-illo-stroke</td><td class="v">10px</td><td class="e">03 the drawn frame's stroke: 10.0pt at the sides (x 45.8-55.8), 9.6 at the top (y 205.9-215.5); one border</td></tr><tr><td class="t">--k-status-max</td><td class="v">59px</td><td class="e">iOS status bar on the 430pt devices: clock ink 22.7-36, island 11.3-48; the height the template bar covers on 06-07</td></tr><tr><td class="t">--k-mono</td><td class="v">ui-monospace,"SF Mono",Menlo,monospace</td><td class="e">12 the version line: every glyph of 'VERSION 1.3.42 (BUILD 2776)' sets on one pitch, 6.95pt per character over 27 characters (187.4 wide); a monospaced face, the platform's</td></tr><tr><td class="t">--k-voice-sheet</td><td class="v">#EDEDEE</td><td class="e">08/09 the voice card's interior, col x196 405-700 and row y520 outside the orb: flat #EDEDEE once the export's cast is taken out (README, colour normalisation). Its 1pt edge reads #FCFAFC, card white</td></tr><tr><td class="t">--k-nav-well</td><td class="v">#C8C8C9</td><td class="e">08/09 the tints under the nav: the menu disc 17.8-60.7 x 63.1-106.9, the Ask pill from 130.3 x 69.4-99.8, the compose disc from 335.4 x 64.0-106.9, all flat #C8C8C9, three levels under dim</td></tr></table></div>
 </body>
 </html>

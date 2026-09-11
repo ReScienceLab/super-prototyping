@@ -12,7 +12,7 @@
   "only": "flat",
   "mine": "01-widget.png",
   "_": "01 left of the widget (x 0-20, y 100-240): page ground, nothing else; the widget starts at 24.8",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (881x1910 for 393x852); run with --pt 2.2417. --against wants a directory of renders resized to 881x1910 with the masked corners composited onto the capture, which is what scratch/run.sh writes to scratch/cap/; every probe names its own file there. 'bright' on a sample means the ink is lighter than its ground; on a bbox it is the luminance above which a pixel is ink. 06-09 are native captures at 3 px/pt (1290x2796 for 430x932); their probes carry \"pt\": 3, which overrides the command line, and scratch/run6.sh writes their composites to the same scratch/cap/. The status bar on 06-09 is the template's, not the capture's, so no probe sits above y 59."
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (881x1910 for 393x852); run with --pt 2.2417. --against wants a directory of renders resized to 881x1910 with the masked corners composited onto the capture, which is what scratch/run.sh writes to scratch/cap/; every probe names its own file there. 'bright' on a sample means the ink is lighter than its ground; on a bbox it is the luminance above which a pixel is ink. 06-07 are native captures at 3 px/pt (1290x2796 for 430x932); their probes carry \"pt\": 3, which overrides the command line, and scratch/run6.sh writes their composites to the same scratch/cap/. The status bar on 06-07 is the template's, not the capture's, so no probe sits above y 59. 08-12 are 2.2417 again (881x1910 after the Mobbin footer is dropped); cp8, cp9 and cp12 are read after the per-channel cast correction the README describes, which is what assets/refs holds."
  },
  {
   "id": "card",
@@ -949,83 +949,6 @@
   "_": "07 'Ask Anything' in the composer, x 27-127, above the control row: placeholder ink"
  },
  {
-  "id": "field-ink-09",
-  "img": "assets/refs/cp9.png",
-  "cmd": "sample",
-  "box": [
-   29,
-   527,
-   171,
-   544
-  ],
-  "only": "ink",
-  "pt": 3,
-  "mine": "09-video-keyboard.png",
-  "_": "09 'Type to make video' in the field, right of the caret at x 24: the placeholder ink"
- },
- {
-  "id": "card-ink-08",
-  "img": "assets/refs/cp8.png",
-  "cmd": "sample",
-  "box": [
-   90,
-   578,
-   340,
-   628
-  ],
-  "only": "ink",
-  "pt": 3,
-  "mine": "08-video-sheet.png",
-  "_": "08 both lines of the card title on the white sheet: title ink"
- },
- {
-  "id": "para-ink-08",
-  "img": "assets/refs/cp8.png",
-  "cmd": "sample",
-  "box": [
-   26,
-   759,
-   362,
-   821
-  ],
-  "only": "ink",
-  "pt": 3,
-  "mine": "08-video-sheet.png",
-  "_": "08 the three body lines under 'Shape your scene': paragraph ink"
- },
- {
-  "id": "dim-inv-08",
-  "img": "assets/refs/cp8.png",
-  "cmd": "sample",
-  "box": [
-   163.7,
-   271.7,
-   266.4,
-   290
-  ],
-  "only": "ink",
-  "bright": true,
-  "pt": 3,
-  "mine": "08-video-sheet.png",
-  "_": "08 the 'Continue' label on the black button under the sheet's scrim: brightest pixels are the dimmed white"
- },
- {
-  "id": "new-ink-08",
-  "img": "assets/refs/cp8.png",
-  "cmd": "sample",
-  "box": [
-   43,
-   687,
-   72,
-   697
-  ],
-  "only": "ink",
-  "bright": true,
-  "pt": 3,
-  "mine": "08-video-sheet.png",
-  "_": "08 'NEW' on its brown badge (x 31-84): brightest pixels are the orange letters, the badge is 60 levels darker"
- },
- {
   "id": "title-06",
   "img": "assets/refs/cp6.png",
   "cmd": "bbox",
@@ -1125,105 +1048,6 @@
   "_": "07 'Speak' on the black pill, right of the wave glyph (ends x 348.5) and short of the pill's rounded right end (x 401.7 at y 850)"
  },
  {
-  "id": "btn-08",
-  "img": "assets/refs/cp8.png",
-  "cmd": "bbox",
-  "box": [
-   150,
-   855,
-   280,
-   882
-  ],
-  "bright": 128,
-  "pt": 3,
-  "mine": "08-video-sheet.png",
-  "_": "08 'Try it now' on the black pill (y 855-885), the label only"
- },
- {
-  "id": "card-08",
-  "img": "assets/refs/cp8.png",
-  "cmd": "bbox",
-  "box": [
-   20,
-   576,
-   410,
-   603
-  ],
-  "pt": 3,
-  "mine": "08-video-sheet.png",
-  "_": "08 card title line 1 'Add precise start and end' (ink 581.3-601); line 2 starts 606"
- },
- {
-  "id": "h3-08",
-  "img": "assets/refs/cp8.png",
-  "cmd": "bbox",
-  "box": [
-   20,
-   728,
-   400,
-   752
-  ],
-  "pt": 3,
-  "mine": "08-video-sheet.png",
-  "_": "08 'Shape your scene, start to finish' (ink 730.7-748.7); the paragraph starts 761.3"
- },
- {
-  "id": "para-08",
-  "img": "assets/refs/cp8.png",
-  "cmd": "bbox",
-  "box": [
-   20,
-   758,
-   400,
-   780
-  ],
-  "pt": 3,
-  "mine": "08-video-sheet.png",
-  "_": "08 paragraph line 1 'Choose your first and last frames, or create' (ink 761.3-777); line 2 starts 782.7"
- },
- {
-  "id": "field-09",
-  "img": "assets/refs/cp9.png",
-  "cmd": "bbox",
-  "box": [
-   28,
-   522,
-   180,
-   550
-  ],
-  "pt": 3,
-  "mine": "09-video-keyboard.png",
-  "_": "09 'Type to make video', right of the caret at x 24"
- },
- {
-  "id": "opt-09",
-  "img": "assets/refs/cp9.png",
-  "cmd": "bbox",
-  "box": [
-   80,
-   462,
-   125,
-   486
-  ],
-  "pt": 3,
-  "mine": "09-video-keyboard.png",
-  "_": "09 '720p' in the resolution control, between the selected 480p pill (ends x 70) and 1080p (starts 147)"
- },
- {
-  "id": "key-09",
-  "img": "assets/refs/cp9.png",
-  "cmd": "bbox",
-  "box": [
-   10,
-   818,
-   52,
-   840
-  ],
-  "pt": 3,
-  "mine": "09-video-keyboard.png",
-  "_": "09 the '123' key label on its grey key, the key ground is above threshold"
- },
- {
   "id": "side-ink",
   "img": "assets/refs/cp4.png",
   "cmd": "sample",
@@ -1266,5 +1090,466 @@
   "bright": 200,
   "mine": "04-voice-settings.png",
   "_": "04 the trash glyph alone, 2pt of disc ground around it (163 there); expect 347.0-363.7 x 233.6-252.1, the SVG's viewBox. The hanger gets no bbox: its cloud ground is within 10 levels of the ink"
+ },
+ {
+  "id": "dim-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   0,
+   150,
+   393,
+   380
+  ],
+  "only": "flat",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 the dimmed home between the nav and the card, y 150-380: flat ground, no chrome (the card starts at 403.6)"
+ },
+ {
+  "id": "nav-well",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   19,
+   65,
+   59,
+   105
+  ],
+  "only": "flat",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 the menu disc 17.8-60.7 x 63.1-106.9; the hamburger 28.5-48.2 x 79.9-90.6 is inside it, too thin to win a flat census"
+ },
+ {
+  "id": "t-nav-ask",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   135,
+   72,
+   175,
+   96
+  ],
+  "dark": 100,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Ask' alone: the pill ground around it is 3 levels under dim, under any ink threshold; expect 142.3-168.6 x 78.5-90.6"
+ },
+ {
+  "id": "t-nav-imagine",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   188,
+   72,
+   258,
+   98
+  ],
+  "dark": 100,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Imagine' alone between the pill and the compose disc; expect 194.9-251.6 x 78.5-93.2"
+ },
+ {
+  "id": "voice-sheet",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   420,
+   120,
+   700
+  ],
+  "only": "flat",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 the card interior left of the orb (138.7-255.2) and the title (from 138.7): flat card, no type"
+ },
+ {
+  "id": "t-voice-title",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   120,
+   428,
+   275,
+   452
+  ],
+  "dark": 100,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Voice Selection' alone on the card, the orb starts at 502; expect 138.7-254.3 x 434.0-446.5"
+ },
+ {
+  "id": "t-voice-name",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   170,
+   600,
+   225,
+   625
+  ],
+  "dark": 100,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Ara' between the orb (to 573.7) and 'Upbeat Female' (from 630.8); expect 184.2-208.8 x 608.0-619.6"
+ },
+ {
+  "id": "voice-sub",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   142,
+   630,
+   252,
+   646
+  ],
+  "only": "ink",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Upbeat Female' 142.7-251.1 x 630.8-645.5, the ghost line starts at 646"
+ },
+ {
+  "id": "t-voice-sub",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   130,
+   626,
+   265,
+   650
+  ],
+  "dark": 140,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Upbeat Female' alone; the ghost line below 646 is lighter than 140; expect 142.7-251.1 x 630.8-645.5"
+ },
+ {
+  "id": "dot-off",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   187,
+   707,
+   193.5,
+   713.5
+  ],
+  "only": "all",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 the second page dot, inactive on this screen (the first is ink), 187.0-193.2 x 707.1-713.4: mode of a 6.3pt disc"
+ },
+ {
+  "id": "t-hint",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   90,
+   760,
+   300,
+   784
+  ],
+  "dark": 140,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Swipe to explore more voices' alone under the dots (to 713.4); expect 101.7-292.2 x 765.9-778.9"
+ },
+ {
+  "id": "voice-btn",
+  "img": "assets/refs/cp9.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   750,
+   150,
+   792
+  ],
+  "only": "flat",
+  "mine": "09-voice-select-eve.png",
+  "_": "09 the Continue pill 46.5-347.2 x 746.1-796.5 left of its label (from 163.3)"
+ },
+ {
+  "id": "t-voice-btn",
+  "img": "assets/refs/cp9.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   758,
+   245,
+   782
+  ],
+  "bright": 200,
+  "mine": "09-voice-select-eve.png",
+  "_": "09 'Continue' white on the pill; expect 163.3-230.6 x 764.6-777.1"
+ },
+ {
+  "id": "t-voice-name-09",
+  "img": "assets/refs/cp9.png",
+  "cmd": "bbox",
+  "box": [
+   170,
+   600,
+   225,
+   625
+  ],
+  "dark": 100,
+  "mine": "09-voice-select-eve.png",
+  "_": "09 'Eve' alone; expect 184.7-209.7 x 608.0-619.6"
+ },
+ {
+  "id": "sheet-top-s",
+  "img": "assets/refs/cp10.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 100,
+  "range": [
+   40,
+   80
+  ],
+  "mine": "10-settings.png",
+  "_": "10 col x100 across the sheet's edge, clear of the template island (130-263): dim to 58.7, the sheet from there; the title starts at 90.6"
+ },
+ {
+  "id": "sheet-10",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   262,
+   300,
+   292
+  ],
+  "only": "flat",
+  "mine": "10-settings.png",
+  "_": "10 the sheet between the profile card (to 256.6) and 'General' (from 298.0): flat sheet, nothing on it"
+ },
+ {
+  "id": "card-10",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   326,
+   340,
+   368
+  ],
+  "only": "flat",
+  "mine": "10-settings.png",
+  "_": "10 the first card's interior right of 'Appearance' (to 155.2) and left of the chevron (351.5): white"
+ },
+ {
+  "id": "avatar",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   34,
+   183,
+   90,
+   238
+  ],
+  "only": "flat",
+  "mine": "10-settings.png",
+  "_": "10 the profile disc 32.1-91.9 x 180.2-240.4; the person glyph 49.5-74.5 x 197.2-223.9 is a minority of it"
+ },
+ {
+  "id": "t-h-name",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   98,
+   176,
+   200,
+   200
+  ],
+  "dark": 100,
+  "mine": "10-settings.png",
+  "_": "10 'Alex Smith' alone above the email (from 204.8); expect 104.8-187.8 x 182.5-195.8"
+ },
+ {
+  "id": "t-mail",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   98,
+   200,
+   320,
+   224
+  ],
+  "dark": 160,
+  "mine": "10-settings.png",
+  "_": "10 the email's first line alone, between the name (to 195.8) and 'com' (from 229.3); the chevron sits at 351.5; expect 104.8-312.3 x 204.8-219.5"
+ },
+ {
+  "id": "sec-ink",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   285,
+   550,
+   338,
+   566
+  ],
+  "only": "ink",
+  "mine": "10-settings.png",
+  "_": "10 'English' 285.5-337.7 x 550.5-566.1, the chevron is 14pt to its right"
+ },
+ {
+  "id": "section-ink",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   33,
+   298,
+   86,
+   309
+  ],
+  "only": "ink",
+  "mine": "10-settings.png",
+  "_": "10 'General' 33.0-86.1 x 298.0-309.1 on the sheet"
+ },
+ {
+  "id": "t-section",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   25,
+   292,
+   100,
+   314
+  ],
+  "dark": 160,
+  "mine": "10-settings.png",
+  "_": "10 'General' alone between the profile card (to 256.6) and the first card (from 323.1); expect 33.0-86.1 x 298.0-309.1"
+ },
+ {
+  "id": "card-line",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   373.9,
+   300,
+   374.8
+  ],
+  "only": "ink",
+  "mine": "10-settings.png",
+  "_": "10 the rule under 'Appearance', x 64.3-360.7 at y 373.9-374.8: the darkest 2% of a band holding only the rule and white is the rule"
+ },
+ {
+  "id": "t-body-row",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   337,
+   180,
+   360
+  ],
+  "dark": 100,
+  "mine": "10-settings.png",
+  "_": "10 'Appearance' alone: the icon ends at 51.7, the chevron starts at 351.5; expect 64.7-155.2 x 343.0-358.2"
+ },
+ {
+  "id": "row-s",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   631,
+   160,
+   655
+  ],
+  "dark": 100,
+  "mine": "10-settings.png",
+  "_": "10 'Kids Mode', the first row of the second card at 618.0: expect 65.6-144.1 x 637.5-650.4, cap top card + 19.5"
+ },
+ {
+  "id": "toggle-off",
+  "img": "assets/refs/cp11.png",
+  "cmd": "sample",
+  "box": [
+   342,
+   284,
+   362,
+   310
+  ],
+  "only": "flat",
+  "mine": "11-settings-voice.png",
+  "_": "11 the track right of its knob (knob to 339.1), 300.3-362.7 x 283.0-310.7"
+ },
+ {
+  "id": "t-section-11",
+  "img": "assets/refs/cp11.png",
+  "cmd": "bbox",
+  "box": [
+   25,
+   347,
+   180,
+   370
+  ],
+  "dark": 160,
+  "mine": "11-settings-voice.png",
+  "_": "11 'Data & Information' alone on the sheet between two cards (323.1 and 378.4); expect 33.5-165.5 x 353.3-364.5"
+ },
+ {
+  "id": "t-body-row-11",
+  "img": "assets/refs/cp11.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   284,
+   260,
+   308
+  ],
+  "dark": 100,
+  "mine": "11-settings-voice.png",
+  "_": "11 'Open App in Voice Mode' alone, the toggle starts at 300.3; expect 65.1-251.6 x 290.4-306.0"
+ },
+ {
+  "id": "danger",
+  "img": "assets/refs/cp12.png",
+  "cmd": "sample",
+  "box": [
+   65,
+   652,
+   130,
+   668
+  ],
+  "only": "ink",
+  "mine": "12-settings-bottom.png",
+  "_": "12 'Sign Out' 65.1-129.4 x 652.2-667.8 on the white card: ink core of thin red strokes"
+ },
+ {
+  "id": "t-danger",
+  "img": "assets/refs/cp12.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   646,
+   140,
+   672
+  ],
+  "dark": 200,
+  "mine": "12-settings-bottom.png",
+  "_": "12 'Sign Out' alone: the icon ends at 50.4; expect 65.1-129.4 x 652.2-667.8"
+ },
+ {
+  "id": "version-ink",
+  "img": "assets/refs/cp12.png",
+  "cmd": "sample",
+  "box": [
+   103,
+   770,
+   290,
+   783
+  ],
+  "only": "ink",
+  "mine": "12-settings-bottom.png",
+  "_": "12 'VERSION 1.3.42 (BUILD 2776)' 103.0-290.0 x 770.8-782.4 on the sheet"
+ },
+ {
+  "id": "t-version",
+  "img": "assets/refs/cp12.png",
+  "cmd": "bbox",
+  "box": [
+   95,
+   765,
+   300,
+   788
+  ],
+  "dark": 225,
+  "mine": "12-settings-bottom.png",
+  "_": "12 the version line alone under the xAI mark (to 754.8); expect 103.0-290.0 x 770.8-782.4"
  }
 ]

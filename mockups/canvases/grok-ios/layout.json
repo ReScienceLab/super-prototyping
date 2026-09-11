@@ -32,6 +32,10 @@
         {
           "file": "00g-evidence",
           "label": "Evidence"
+        },
+        {
+          "file": "00h-evidence",
+          "label": "Evidence"
         }
       ]
     },
@@ -68,12 +72,24 @@
           "label": "SuperGrok home"
         },
         {
-          "file": "08-video-sheet",
-          "label": "Video sheet"
+          "file": "08-voice-select-ara",
+          "label": "Voice selection, Ara"
         },
         {
-          "file": "09-video-keyboard",
-          "label": "Video keyboard"
+          "file": "09-voice-select-eve",
+          "label": "Voice selection, Eve"
+        },
+        {
+          "file": "10-settings",
+          "label": "Settings"
+        },
+        {
+          "file": "11-settings-voice",
+          "label": "Settings, scrolled to Voice"
+        },
+        {
+          "file": "12-settings-bottom",
+          "label": "Settings, bottom"
         }
       ]
     },
@@ -110,12 +126,24 @@
           "label": "SuperGrok home"
         },
         {
-          "file": "ref-08-video-sheet",
-          "label": "Video sheet"
+          "file": "ref-08-voice-select-ara",
+          "label": "Voice selection, Ara"
         },
         {
-          "file": "ref-09-video-keyboard",
-          "label": "Video keyboard"
+          "file": "ref-09-voice-select-eve",
+          "label": "Voice selection, Eve"
+        },
+        {
+          "file": "ref-10-settings",
+          "label": "Settings"
+        },
+        {
+          "file": "ref-11-settings-voice",
+          "label": "Settings, scrolled to Voice"
+        },
+        {
+          "file": "ref-12-settings-bottom",
+          "label": "Settings, bottom"
         }
       ]
     }

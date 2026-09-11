@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Grok iOS - Evidence 6/6</title>
+<title>Grok iOS - Evidence 6/7</title>
 <style>
 :root{
   /* Font */
@@ -60,13 +60,8 @@
   --k-dots:#C5C5C5;
   --k-copy-mute:#7F7F7F;
   --k-placeholder:#7D7D7D;
-  --k-field-ink:#6A6A6B;
-  --k-card-ink:#262627;
-  --k-para-ink:#53584E;
   --k-illo-label:#333333;
   --k-illo-sub:#5A5A5A;
-  --k-dim-inv:#CCCCCC;
-  --k-new-ink:#FB630A;
 
   /* Radius */
   --k-r-phone:52px;
@@ -109,15 +104,6 @@
   --k-t-chip:500 15px/20px var(--k-font);
   --k-t-ctl:400 14px/18px var(--k-font);
   --k-t-speak:600 14.5px/18px var(--k-font);
-  --k-t-btn:600 16.5px/22px var(--k-font);
-  --k-t-card:400 22px/25px var(--k-font);
-  --k-t-h3:600 18.9px/24px var(--k-font);
-  --k-t-para:400 16.15px/21px var(--k-font);
-  --k-t-field:400 16.3px/22px var(--k-font);
-  --k-t-opt:400 16px/20px var(--k-font);
-  --k-t-key:400 22px/28px var(--k-font);
-  --k-t-key-sm:400 18px/22px var(--k-font);
-  --k-t-new:500 13px/16px var(--k-font);
   --k-t-illo-label:500 11.5px/14px var(--k-font);
   --k-t-illo-title:600 21.25px/26px var(--k-font);
   --k-t-illo-sub:400 11.25px/15px var(--k-font);
@@ -139,6 +125,46 @@
   --k-sheet-v-blur:4px;
   --k-illo-stroke:10px;
   --k-status-max:59px;
+
+  /* Font */
+  --k-mono:ui-monospace,"SF Mono",Menlo,monospace;
+
+  /* Surface */
+  --k-voice-sheet:#EDEDEE;
+  --k-nav-well:#C8C8C9;
+  --k-avatar:#F0F0F0;
+  --k-toggle-off:#C5C4C7;
+
+  /* Line */
+  --k-card-line:#EAEAEA;
+  --k-voice-shadow:rgba(0,0,0,.11);
+
+  /* Ink */
+  --k-voice-sub:#5E5E5E;
+  --k-dot-off:#A6A3A7;
+  --k-voice-btn:#090709;
+  --k-section-ink:#787878;
+  --k-sec-ink:#7C7C7C;
+  --k-danger:#BE484C;
+  --k-version-ink:#C2C2C2;
+
+  /* Radius */
+  --k-r-voice:37.5px;
+  --k-r-modal:39.5px;
+  --k-r-group:25.5px;
+
+  /* Type */
+  --k-t-nav:500 16px/22px var(--k-font);
+  --k-t-voice:600 16.25px/21px var(--k-font);
+  --k-t-mail:400 15.9px/20px var(--k-font);
+  --k-t-section:600 15px/20px var(--k-font);
+  --k-t-voice-sub:400 16px/21px var(--k-font);
+  --k-t-hint:400 14.25px/18px var(--k-font);
+  --k-t-version:400 11.65px/16px var(--k-mono);
+
+  /* Metrics */
+  --k-row-s:52px;
+  --k-sheet-top-s:58.7px;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -163,7 +189,7 @@ header p{font:400 10.5px/13.5px var(--k-font);color:var(--k-foot);margin-bottom:
 h2{font:600 9px/12px var(--k-font);letter-spacing:.8px;text-transform:uppercase;
   color:var(--k-foot);margin:5px 0 3px}
 .grid{column-count:2;column-gap:12px}
-.sw{display:flex;align-items:center;gap:5px;height:10.5px;break-inside:avoid;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:5px;height:10.2px;break-inside:avoid;white-space:nowrap}
 .sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--k-well);background-color:#888}
 .sw b{font:600 7.5px/10.5px ui-monospace,Menlo,monospace}
 .sw i{font:400 7.5px/10.5px ui-monospace,Menlo,monospace;color:var(--k-foot);font-style:normal}
@@ -188,6 +214,6 @@ td.v{color:var(--k-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--k-foot)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 6/6</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-gutter-w</td><td class="v">20px</td><td class="e">05 card x 20.5-372.3, plan group and CTA the same</td></tr><tr><td class="t">--k-tap</td><td class="v">44px</td><td class="e">02 back disc 44.1 x 43.7; 04 X and grid buttons 43-43.7</td></tr><tr><td class="t">--k-sheet-top</td><td class="v">59px</td><td class="e">02/03 sheet ground starts at 58.9</td></tr><tr><td class="t">--k-sheet-top-v</td><td class="v">403.6px</td><td class="e">04 sheet edge, col x100</td></tr><tr><td class="t">--k-widget</td><td class="v">162.4px</td><td class="e">01 widget 24.1-186.5 both axes</td></tr><tr><td class="t">--k-disc</td><td class="v">40px</td><td class="e">05 icon discs 40 x 39.8, left edge 40.3</td></tr><tr><td class="t">--k-w-max</td><td class="v">430px</td><td class="e">iPhone Pro Max logical width: cp6-cp9 are 1290 x 2796 at 3 px/pt</td></tr><tr><td class="t">--k-h-max</td><td class="v">932px</td><td class="e">iPhone Pro Max logical height</td></tr><tr><td class="t">--k-sheet-v-blur</td><td class="v">4px</td><td class="e">04 sigma of the blur read off the voice pill's edge, the one sharp edge the capture holds under the sheet: across x 270-300 at y 776/784/792 the ramp from the ground (40) to the pill (74) is 10pt for 10-90%, down x 310/334/358 over y 755-775 it is 8pt, 3.1-3.9 sigma; blur(4px). A sweep cannot read it: it walks to 44px+ because blurring the generated scene away hides the scene's own error (sheet band 13.3 at 44px against 16.3 at 4px)</td></tr><tr><td class="t">--k-illo-stroke</td><td class="v">10px</td><td class="e">03 the drawn frame's stroke: 10.0pt at the sides (x 45.8-55.8), 9.6 at the top (y 205.9-215.5); one border</td></tr><tr><td class="t">--k-status-max</td><td class="v">59px</td><td class="e">iOS status bar on the 430pt devices: clock ink 22.7-36, island 11.3-48; the height the template bar covers on 06-09</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 6/7</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--k-avatar</td><td class="v">#F0F0F0</td><td class="e">10 the profile disc 32.1-91.9 x 180.2-240.4, flat #F0F0F0 around the glyph</td></tr><tr><td class="t">--k-toggle-off</td><td class="v">#C5C4C7</td><td class="e">11 'Open App in Voice Mode' track 300.3-362.7 x 283.0-310.7, flat #C5C4C7 beside its white knob 302.0-339.1 x 285.3-308.9</td></tr><tr><td class="t">--k-card-line</td><td class="v">#EAEAEA</td><td class="e">10 the rule between rows, x 64.3-360.7 at y 373.9-374.8 and every 52 below: two capture pixels (0.9pt) of #EAEAEA between white rows, no solve needed; drawn 0.9pt tall so the same two pixels carry it</td></tr><tr><td class="t">--k-voice-shadow</td><td class="v">rgba(0,0,0,.11)</td><td class="e">08/09 the ground beside the card reads 7-11 levels under dim, 3 above it. Swept as 0 4px 16px over the bands beside the card: .10 leaves them +0.6/+0.4, .11 +0.2/-0.0, .12 -0.5/-0.8, .14 -1.6/-2.1; 0 2px 10px and 0 6px 24px score worse at every alpha</td></tr><tr><td class="t">--k-voice-sub</td><td class="v">#5E5E5E</td><td class="e">08/09 'Upbeat Female', 'Soothing Female' and 'Swipe to explore more voices' ink core #5E5E5E</td></tr><tr><td class="t">--k-dot-off</td><td class="v">#A6A3A7</td><td class="e">08/09 the three inactive page dots, mode #A6A3A7 across y 707.1-713.4; the active one is ink</td></tr><tr><td class="t">--k-voice-btn</td><td class="v">#090709</td><td class="e">09 the Continue pill 46.5-347.2 x 746.1-796.5, 99.4% flat #090709: the capture's black, 9 levels above btn, which the same export reads on 07</td></tr><tr><td class="t">--k-section-ink</td><td class="v">#787878</td><td class="e">10/11/12 'General', 'Voice', 'Data & Information', 'Subscription' ink core #787878, three screens</td></tr><tr><td class="t">--k-sec-ink</td><td class="v">#7C7C7C</td><td class="e">10 'English' core #7C7C7C, the email line #7B7B7B: one secondary ink. 07's placeholder reads #7D7D7D off a 3 px/pt capture, kept apart because that is another device's export</td></tr><tr><td class="t">--k-danger</td><td class="v">#BE484C</td><td class="e">12 'Sign Out', the label: its 20 most-covered pixels average #BE484C (darkest 2% by luminance #AE4E52). The glyph beside it cores at #E83B43, a brighter red no ink this dark could give, and is its own crop</td></tr><tr><td class="t">--k-version-ink</td><td class="v">#C2C2C2</td><td class="e">12 'VERSION 1.3.42 (BUILD 2776)' ink core #C3C1C3, the lightest type on the set</td></tr><tr><td class="t">--k-r-voice</td><td class="v">37.5px</td><td class="e">08/09 the voice card's top corners: circle fit to its edge 37.5 (err 4.2). Its bottom corners, fit 50.5 with a poor residual, arrive as pixels in the band crop</td></tr><tr><td class="t">--k-r-modal</td><td class="v">39.5px</td><td class="e">10/11/12 the sheet's top corners, circle fit on the dim/sheet edge 39.5</td></tr><tr><td class="t">--k-r-group</td><td class="v">25.5px</td><td class="e">10 the settings cards, fit 25.5 at x 16.1 / y 323.1 on the sheet</td></tr><tr><td class="t">--k-t-nav</td><td class="v">500 16px/22px var(--k-font)</td><td class="e">08/09 'Ask' 26.3 x 12.0, 'Imagine' 56.7 wide: 500 17px sets 28.5 / 59.8, 16px 26.8 / 56.3</td></tr><tr><td class="t">--k-t-voice</td><td class="v">600 16.25px/21px var(--k-font)</td><td class="e">08/09 'Voice Selection' 115.5 wide, 'Ara' 24.5, 'Eve' 25.0, 09 'Continue' 67.4: 600 17px (t-h) sets 120.4 / 25.9 / 26.3 / 70.5, 16.25px 115.1 / 24.8 / 25.1 / 67.4</td></tr><tr><td class="t">--k-t-mail</td><td class="v">400 15.9px/20px var(--k-font)</td><td class="e">10 'alexsmith.mobbin+1@gmail.-' 207.4 wide, 'com' 29.4: 400 15px sets 195.8 / 27.7, 15.9px 207.5 / 29.4. 'Alex Smith' above it is t-h: 83.0 against 17px semibold's 82.8</td></tr><tr><td class="t">--k-t-section</td><td class="v">600 15px/20px var(--k-font)</td><td class="e">10/11/12 'General' 53.1 x 11.2 cap, 'Voice' 37.9, 'Data & Information' 132.0, 'Subscription' 88.8: 600 15.5px sets 55.3 / 39.3 / 136.1 / 91.9, 15px 53.5 / 38.0 / 131.7 / 88.9</td></tr><tr><td class="t">--k-t-voice-sub</td><td class="v">400 16px/21px var(--k-font)</td><td class="e">08/09 'Upbeat Female' 108.4 x 14.7 (cap to descender), 'Soothing Female' 120.4: 400 16px sets 108.6 / 120.2</td></tr><tr><td class="t">--k-t-hint</td><td class="v">400 14.25px/18px var(--k-font)</td><td class="e">08 'Swipe to explore more voices' 190.5 x 12.9: 400 14px sets 186.9, 14.25px 190.2</td></tr><tr><td class="t">--k-t-version</td><td class="v">400 11.65px/16px var(--k-mono)</td><td class="e">12 'VERSION 1.3.42 (BUILD 2776)' 186.9 x 11.6, parentheses to their full height: 12px sets 192.3 x 10.7, 11.65px 186.7; the face's parens are shorter than the capture's, so the width is what this fits</td></tr><tr><td class="t">--k-row-s</td><td class="v">52px</td><td class="e">10/11 settings rows: cap tops 343.0/394.3/446.5/498.3/550.9 (pitch 51.3-52.6), a three-row card 156.1 tall, rules every 52.0</td></tr></table></div>
 </body>
 </html>
