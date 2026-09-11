@@ -18,8 +18,19 @@ declare module "virtual:canvases" {
   import type { CommentsFile } from "./canvasComments";
   import type { CanvasLayoutConfig } from "./canvasLibrary";
 
-  /** Board HTML, one lazy chunk per file, fetched when a shape first shows it. */
+  /**
+   * Board HTML, fetched when a shape first shows it: a lazy `?raw` chunk in dev, where the
+   * module graph is what reloads the page when a board is rewritten, and a request for the
+   * board's own file in a build, where shipping the same 35 MB as chunks *and* as pages would
+   * be the whole site over again.
+   */
   export const fileLoaders: Record<string, () => Promise<string>>;
+  /**
+   * Where each board is a web page of its own, `/board/<slug>/<file>.html`. Served from the
+   * boards directory by the dev server and emitted as a file by the build — a real address, so
+   * it can be linked, reloaded, and read by the extensions that refuse a `blob:` page.
+   */
+  export const boardPages: Record<string, string>;
   /** Each folder's layout.json, eager: read during render. */
   export const rawLayouts: Record<string, CanvasLayoutConfig>;
   /** Each folder's icon.png as an emitted asset URL, eager: read during render. */

@@ -7,8 +7,12 @@ import {
   type TLEventInfo,
   type TLShape,
 } from "tldraw";
-import { CANVAS_FILE_DEFAULT_SIZE } from "./CanvasFileShapeUtil";
-import { canvasIconUrl, readCanvasLayout, useCanvasFileHtml } from "./canvasLibrary";
+import {
+  CANVAS_FILE_DEFAULT_SIZE,
+  canvasIconUrl,
+  readCanvasLayout,
+  useCanvasFileHtml,
+} from "./canvasLibrary";
 
 export const CANVAS_LINK_SHAPE_TYPE = "canvas-link" as const;
 

@@ -48,10 +48,13 @@ actually bind, and prints the address.
   at one screen.
 - **Read a board as a web page.** The external-link button in the top bar
   opens every board of the page in one scrolling document, each at its own
-  size; the button in the bottom right of the inspector's preview opens the
-  one board it is showing. Both are the board's own HTML in a tab of its own,
-  which is where to read type at the size it ships at, rather than at whatever
-  the canvas is zoomed to.
+  size, at `sheet.html?canvas=<slug>`; the button in the bottom right of the
+  inspector's preview opens the one board it is showing, at
+  `/board/<slug>/<file>.html`. Both are ordinary addresses serving the board's
+  own HTML, so they can be linked, reloaded, and read by the browser
+  extensions — a Figma importer, say — that refuse to work on a generated
+  page. This is where to read type at the size it ships at, rather than at
+  whatever the canvas is zoomed to.
 
 Keep it on loopback. This is a local design tool, not a service to expose.
 

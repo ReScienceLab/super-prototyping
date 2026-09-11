@@ -317,9 +317,9 @@ export function InspectorPanel({
 }) {
   const html = useCanvasFileHtml(path);
   const srcDoc = useMemo(() => (html ? injectAgent(html) : ""), [html]);
-  // The board's own HTML, not `srcDoc`: the agent injected there talks to a parent frame that
-  // a tab of its own does not have.
-  const pageUrl = html ? boardPageUrl(path, html) : "";
+  // The board's own address, and not this frame's `srcDoc`: the agent injected there talks to a
+  // parent frame that a tab of its own does not have.
+  const pageUrl = boardPageUrl(path);
   const frame = useRef<HTMLIFrameElement>(null);
   const [data, setData] = useState<SpReady | null>(null);
   const [sel, setSel] = useState<number | null>(null);
