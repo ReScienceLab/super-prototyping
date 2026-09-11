@@ -261,8 +261,9 @@ declares a box other than the default 478 x 980.
   be 500 at 40.5px by ink mass, which halved its band's delta. The widget
   guide's illustration is the one picture that is drawn rather than cropped:
   a phone in CSS on 03, and on 02 a sheet over it with the widget card as a
-  flat rectangle under one fitted `matrix3d`. The fifteen `ref-*` boards are
-  gitignored, so a fresh clone has 26.
+  flat rectangle under one fitted `matrix3d`. Fourteen of the fifteen `ref-*`
+  boards are gitignored; `ref-14-grok-bot-sheet` is committed so the hosted
+  canvas shows the capture under its replica, and a fresh clone has 27.
 - `substack-ios/`: the run to read when a translucent bar sits over content
   the board does not control. Seven screens of the Substack iOS home feed - a
   note, the Keep reading toast, three notes in a row, your own just-published

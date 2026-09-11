@@ -480,5 +480,7 @@ and `assets/art/`. With `assets/refs/` present it also re-cuts the art,
 which needs Pillow and numpy; without it (a fresh clone, since the captures
 are gitignored) it uses the committed crops and needs nothing. Re-cutting
 from fresh captures also needs the colour pass described under the diff
-window on cp8, cp9 and cp12. The fifteen `ref-*` boards are gitignored too,
-so a fresh clone has twenty-six.
+window on cp8, cp9 and cp12. Fourteen of the fifteen `ref-*` boards are
+gitignored too. `ref-14-grok-bot-sheet` is committed, a native screenshot
+under board 14 so the hosted canvas can compare the two, so a fresh clone
+has twenty-seven.

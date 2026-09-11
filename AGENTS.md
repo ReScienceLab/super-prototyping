@@ -58,8 +58,10 @@ Rules inside a canvas folder:
   hands it back as a vector asset.
 - Never commit `ref-*.html` or `assets/refs/`. They hold third-party
   captures, the root `.gitignore` already excludes them, and the
-  clone-prototype skill rebuilds them. `spotify-ios` is the one exception:
-  its five `ref-*` boards are committed so the hosted canvas shows them.
+  clone-prototype skill rebuilds them. `spotify-ios` is the exception: its
+  five `ref-*` boards are committed so the hosted canvas shows them. So is
+  `grok-ios/ref-14-grok-bot-sheet.html`, a native screenshot kept under
+  board 14 for comparison on request.
 - Put everything else a run makes in `scratch/`. The root `.gitignore`
   ignores it at any depth. Do not use the repo root or a dot directory.
 - Give every canvas folder a `README.md`: it carries the evidence, and
