@@ -31,7 +31,7 @@ of 255:
 | Apple Account sheet | 3.62 |
 | Games | 7.09 |
 | Apps | 7.50 |
-| Arcade | 4.88 |
+| Arcade | 4.21 |
 | Search | 8.02 |
 | Sign in to purchase | 4.49 |
 
@@ -104,7 +104,11 @@ Three sources, and one rule picks between them (it is also the comment above
   pill, and a box plus a threshold for type. `cut()` inpaints it out of the
   crop with a harmonic fill before the board draws it again live. That covers
   the lockups' icons, names, subtitles and Get or price pills, Today's
-  eyebrows, headlines and Ad badge, the Browse labels and the Arcade wordmark.
+  eyebrows, headlines and Ad badge, the Browse labels and the Arcade wordmark
+  and headline. Where the picture is published elsewhere, a crop's `guide`
+  names that copy and the affine that registers it, and the fill under the
+  erased type comes from its pixels rather than a smooth surface. The Arcade
+  hero is the one that has one.
 
 The one kind of picture cut whole is a **peek**. That means the 10–12 pt
 slivers of the next card or row at the right edge of Games, Apps and Arcade,
@@ -129,12 +133,26 @@ link do not move.
 
 **p7 has three grounds, each rebuilt from what it supports.** Rows 0–136 are
 a smooth vertical ramp, per-row sd under 7, so they are a CSS gradient with
-the title drawn live over it. 136–383 is a photograph, so it is one crop. The
-Arcade wordmark on it is not part of the photograph. The logo is the SF glyph
-scaled to the capture's 12.7 × 15.7 ink, and "Arcade" is live at 500 20 px
-with −0.05 px tracking, which lands its 62.7 pt ink exactly. `cut()` inpaints
-both out first. Below that the ground is pure black, and the headline, offer
-button and footnote are type again.
+the title drawn live over it. 136–424 is a photograph, so it is one crop, and
+it runs to the row where the photograph's own fade reaches `#000000`, so the
+picture ends as the capture's does rather than being cut through the
+player's legs. Two things on it are not the photograph. One is the Arcade
+wordmark: the logo is the SF glyph scaled to the capture's 12.7 × 15.7 ink,
+and "Arcade" is live at 500 20 px with −0.05 px tracking, which lands its
+62.7 pt ink exactly. The other is the headline's first line, whose ink reaches
+up into the fade. `cut()` erases both. Below 424 the ground is pure black,
+and the headline, offer button and footnote are type again.
+
+**The hero is EA's key art, recomposed.** EA publishes it at 4858 × 2732
+(`guide` in `crops.json`). Registered on the capture with SIFT and RANSAC, the
+player matches to a median 0.14 px at 5.621 key-art px per pt and 0.015°. The
+rest does not: the App Store cut moves the skyline, shrinks the logo, moves the
+NFLPA badge and lifts the sky 10–30%. So it cannot replace the crop, but it
+does know what the headline covered. Inside `[86, 356, 402, 424]` `cut()`
+fills the erased pixels from the key art, carrying the capture-to-key-art
+ratio across the hole so the App Store's grade and fade come with it. Left of
+x 86 the key art's NFLPA badge sits under "No", so the plain harmonic fill
+stays there.
 
 **Today's card shadow is solved, not styled.** The ground reads `#E6E6E6`
 at 1 pt from the card edge, `#ECECEC` at 6, `#F3F3F3` at 12 and `#F8F8F8` at
@@ -169,10 +187,12 @@ mic.
   gitignored.
 - `assets/icons/`: 36 SVGs, the traced glyphs and the Arcade logo.
   **Committed.**
-- `assets/refs/`: the nine captures, `p1.png` to `p9.png`. **Gitignored**,
-  along with the `ref-*.html` boards built from them. A fresh clone builds 14
-  boards. `gen.py` only needs `refs/` again for a crop whose file is missing,
-  so after changing a crop's box or `erase` list, delete its PNG.
+- `assets/refs/`: the nine captures, `p1.png` to `p9.png`, and
+  `madden-keyart.jpg`, which `cut()` downloads from EA the first time it needs
+  it. **Gitignored**, along with the `ref-*.html` boards built from the
+  captures. A fresh clone builds 14 boards. `gen.py` only needs `refs/` again
+  for a crop whose file is missing, so after changing a crop's box, `erase`
+  list or `guide`, delete its PNG.
 
 The artwork is Apple's and its developers', reproduced for design reference.
 It is not licensed for redistribution as product artwork.

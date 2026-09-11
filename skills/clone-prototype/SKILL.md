@@ -346,7 +346,10 @@ When interface is set on a picture, such as an app lockup on a hero or a
 headline on a card, **crop the picture and erase the interface out of it**.
 List it in the crop's `erase`: a box for an icon or pill, and a box plus a
 threshold for type. `cut()` inpaints those pixels from the ones around them,
-and the board draws the interface live on top. Otherwise the board carries
+and the board draws the interface live on top. End the crop where the picture
+itself ends (its fade to the ground), not at the first line of type on it. If
+the artwork is published anywhere else, give the crop a registered `guide` so
+the fill under wide type is the artwork's own texture. See `assets.md`. Otherwise the board carries
 every word twice, once in the picture and once in the type, and the copy in
 the picture cannot change. The only thing cut whole is a sliver too small to
 identify, such as a 10 pt peek of the next card at a scroll edge. There is

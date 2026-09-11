@@ -105,8 +105,45 @@ Three things that go wrong:
   box that reached a Get button came back 68 pt too wide, and a wordmark box
   that clipped its logo put the type 2 pt off. Placement is only as good as
   the ink box it starts from.
+- **End a crop where the picture ends, not where the interface starts.** The
+  Arcade hero was cut at the top of its headline, y 383, and read as a picture
+  sliced through the player's legs. The photograph actually fades to
+  `#000000` at 424. Crop to the row where the fade meets the ground, and put
+  the type that overlaps the fade in `erase`.
 
-After changing a box or an `erase`, delete the PNG so `cut()` cuts it again.
+After changing a box, an `erase` or a `guide`, delete the PNG so `cut()` cuts
+it again.
+
+### A guide, when the picture is published elsewhere
+
+A harmonic fill is fine under a 15 pt glyph and smears under a headline that
+crosses edges. When the artwork is published somewhere (a studio's key art, a
+newsroom image, a press kit), register that copy and let it fill the hole:
+
+```json
+"p7-hero": {"img": "p7", "box": [0, 136, 402, 424],
+  "erase": [[48, 393, 355, 420, 1, 45]],
+  "guide": {"file": "madden-keyart.jpg", "url": "https://…",
+            "affine": [[5.62107, -0.00143, 1311.5293], [0.00143, 5.62107, -227.38114]],
+            "boxes": [[86, 356, 402, 424]]}}
+```
+
+`affine` maps page pt to the guide's pixels, in continuous coordinates (pixel
+centres at +.5). Fit it with SIFT and a RANSAC similarity on the band of the
+capture that is picture, with the interface masked out. A good fit shows a
+median residual well under a pixel and a rotation near 0. `cut()` downloads the
+file into `refs/`, warps it onto the crop, and fills the erased pixels as
+`exp(log guide + inpaint(log capture − log guide))`. The ratio between the two
+copies is smooth, so it is what gets inpainted, and the guide contributes the
+texture. That keeps the store's own grade and fade.
+
+Published art is rarely the same composition. The App Store's Madden hero
+matches EA's key art on the player to 0.14 px, but the skyline, logo and
+badge are placed differently. Restrict the guide to `boxes` where the two
+agree, and check the edges of each box: at x 86 the key art's badge sat under
+the capture's "No". The harmonic fill covers everything outside the boxes.
+When no copy is published, the harmonic fill stands; generating the missing
+art is the last resort (below), not the first.
 
 ## Generating, when you have to
 

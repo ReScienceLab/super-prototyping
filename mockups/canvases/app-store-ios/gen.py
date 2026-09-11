@@ -392,7 +392,8 @@ def cut(cid):
     [x0, y0, x1, y1] clears the whole box (an icon, a pill); [x0, y0, x1, y1,
     sign, T] clears only the glyph pixels in it, those lighter (sign 1) or
     darker (-1) than the blurred ground by T levels, grown by 1pt to take the
-    antialiased rim. _inpaint fills both from the pixels around them."""
+    antialiased rim. _inpaint fills both from the pixels around them, and a
+    `guide` gives that fill real texture inside its boxes (see _guided)."""
     c = CROPS[cid]
     dst = ART_DIR / (cid + ".png")
     if not dst.exists():
@@ -417,7 +418,10 @@ def cut(cid):
                     g = np.zeros(lum.shape, bool)
                     g[Y0:Y1, X0:X1] = hp[Y0:Y1, X0:X1] * e[4] > e[5]
                     m |= _grow(g, int(SCALE))
-            im = Image.fromarray(np.clip(np.round(_inpaint(a, m)), 0, 255).astype(np.uint8))
+            out = _inpaint(a, m)
+            if c.get("guide"):
+                out = _guided(a, m, out, c)
+            im = Image.fromarray(np.clip(np.round(out), 0, 255).astype(np.uint8))
         im.save(dst)
     return _uri(dst)
 
@@ -454,6 +458,44 @@ def _inpaint(a, m, sweeps=60):
         p = np.pad(a, ((1, 1), (1, 1), (0, 0)), mode="edge")
         a = np.where(m[..., None], (p[:-2, 1:-1] + p[2:, 1:-1] + p[1:-1, :-2] + p[1:-1, 2:]) / 4, a)
     return a
+
+
+def _guided(a, m, out, c, eps=6.0):
+    """The erased pixels again, where the picture survives outside the App Store.
+
+    A harmonic fill smears what a glyph covered, which shows once a glyph is
+    wide or the picture under it has edges. `guide` names a published copy of
+    the artwork and the affine from page pt to its pixels, registered on the
+    features the two share. That copy is not the App Store's cut: its grade,
+    fade and some layers differ. So the fill carries the log ratio of capture
+    to guide across the hole, smooth as before, and multiplies the guide's own
+    pixels back in. Only inside `boxes`, where the two agree; the harmonic fill
+    stands everywhere else."""
+    import subprocess
+    import numpy as np
+    from PIL import Image
+    g = c["guide"]
+    src = REFS_DIR / g["file"]
+    if not src.exists():
+        subprocess.run(["curl", "-sL", g["url"], "-o", str(src)], check=True)
+    big = Image.open(src).convert("RGB")
+    (p, q, r), (s, t, u) = g["affine"]
+    k = SCALE / np.hypot(p, s)            # down to the crop's px per pt first,
+    small = big.resize((round(big.width * k), round(big.height * k)), Image.LANCZOS)
+    kx, ky = small.width / big.width, small.height / big.height
+    x0, y0 = c["box"][:2]                 # so the affine only has to place it
+    data = (kx * p / SCALE, kx * q / SCALE, kx * (p * x0 + q * y0 + r),
+            ky * s / SCALE, ky * t / SCALE, ky * (s * x0 + t * y0 + u))
+    gd = np.asarray(small.transform((m.shape[1], m.shape[0]), Image.AFFINE, data,
+                                    resample=Image.BICUBIC)).astype(float)
+    lg = np.log(gd + eps)
+    fill = np.exp(lg + _inpaint(np.log(a + eps) - lg, m)) - eps
+    w = np.zeros(m.shape, bool)
+    for b in g["boxes"]:
+        X0, Y0, X1, Y1 = (max(int(round((v - o) * SCALE)), 0)
+                          for v, o in zip(b, c["box"][:2] * 2))
+        w[Y0:Y1, X0:X1] = True
+    return np.where((m & w)[..., None], fill, out)
 
 
 def _uri(path):
@@ -953,22 +995,21 @@ def s08_search():
 # Three grounds, and each one is rebuilt from what the capture can actually
 # support. Rows 0-136 are a smooth vertical ramp (per-row sd under 7), so they
 # become a CSS gradient with the status bar, title and account disc drawn live
-# over them. From 136 the sky becomes a photograph, and 136-383 is a crop. The
-# Arcade wordmark on it is not: the logo is SF's own Apple glyph, U+F8FF out of
-# SFNS.ttf at the wordmark's 20px, kept as a path so it does not depend on the
-# viewer's fonts, and 'Arcade' beside it is live; cut() inpaints both out of
-# the photograph first. Below that the ground is
-# #000000 - measured pure from 448 down, with a short ramp out of the photo
-# from 383 - and the headline, the offer button and the footnote are drawn on
-# it. White content starts at 584.0.
+# over them. From 136 the sky becomes a photograph, and 136-424 is a crop that
+# brings the photograph's own fade to black with it: the ground reads pure
+# #000000 from 424 down. Two things on it are not the photograph. One is the
+# Arcade wordmark: the logo is SF's own Apple glyph, U+F8FF out of SFNS.ttf at
+# the wordmark's 20px, kept as a path so it does not depend on the viewer's
+# fonts, and 'Arcade' beside it is live. The other is the headline's first
+# line. cut() erases both and fills what they covered from EA's key art (the
+# crop's guide), then the headline, the offer button and the footnote are
+# drawn on top. White content starts at 584.0.
 ARCADE_CSS = """.a7{position:absolute;left:0;top:0;width:var(--x-w);height:var(--x-h);
   background:#000}
 .a7 .sky{position:absolute;left:0;top:0;width:var(--x-w);height:136px;background:var(--x-sky)}
 .a7 svg{position:absolute;display:block}
 .a7 .wm{position:absolute;left:176px;top:356.33px;font:var(--x-t-wordmark);line-height:30px;
   letter-spacing:var(--x-tr-wordmark);color:var(--x-ink-glass)}
-.a7 .fade{position:absolute;left:0;top:383px;width:var(--x-w);height:45px;
-  background:linear-gradient(#0A0C13,#000)}
 .a7 .sheet7{position:absolute;left:0;top:584px;width:var(--x-w);height:290px;
   background:var(--x-bg)}
 
@@ -1020,10 +1061,10 @@ def arcade_row(i, slug, rank, title=None, sub=None, cta=None):
 
 def s07_arcade():
     body = ('<div class="a7"><div class="sky"></div>'
-            + art("p7-hero", 0, 136, 402, 247)
+            + art("p7-hero", 0, 136, 402, 288)
             # 'Arcade' ink 178.67, 364 less its 30px-box offset .67, 7.67
             + icon_at("arcade-apple", ";color:var(--x-ink-glass)") + '<div class="wm">Arcade</div>'
-            + '<div class="fade"></div><div class="sheet7"></div></div>'
+            + '<div class="sheet7"></div></div>'
             + bigtitle("Arcade")
             + '<div class="hl">No In-App Purchases. No<br>Ads. Just Fun.</div>'
             + '<div class="offer">Accept Offer</div>'
