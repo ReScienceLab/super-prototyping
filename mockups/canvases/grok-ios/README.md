@@ -139,19 +139,19 @@ corners; the bottom below 838pt, where the export has no home indicator. On
 x 215–221, and the board draws that dot (`rec`) inside its own island.
 
 06, 07 and 13–15 come from a 402 × 874 phone at exactly **3 px per pt**
-(1206 × 2622, both axes), so their renders need no downscale: `refkit shoot
---scale 3` on the whole board, the phone cut at its offset inside the bezel
-ring (147, 72 px, asserted on the ring's colour) to 1206 × 2622, the 52pt
-corners masked and composited onto the capture (`scratch/run13.sh`). The
-phone on these boards is 402 × 874 with no home indicator, because the
-captures show none, and it sits on the 478 × 980 board with 38pt to spare on
-each side. Excluded: the top 59pt. These captures do carry a real status bar
-and Dynamic Island, and the boards do not replicate them: the ask was to use
-the template's status bar (9:41, the template island and glyphs) rather than
-clone the capture's clock, bell and right cluster, so nothing above 59pt is
-compared. 06 and 07 were first built from 1290 × 2796 captures of a 430pt
-phone; on request they were rebuilt from 402pt ones, and every number on
-them here is the 402pt one.
+(1206 × 2622, both axes), so their renders need no downscale:
+`refkit shoot --scale 3` on the whole board, the phone cut at its offset
+inside the bezel ring (147, 72 px, asserted on the ring's colour) to 1206 ×
+2622, the 52pt corners masked and composited onto the capture
+(`scratch/run13.sh`). The phone on these boards is 402 × 874 with no home
+indicator, because the captures show none, and it sits on the 478 × 980
+board with 38pt to spare on each side. Excluded: the top 59pt. These
+captures do carry a real status bar and Dynamic Island, and the boards do
+not replicate them: the ask was to use the template's status bar (9:41, the
+template island and glyphs) rather than clone the capture's clock, bell and
+right cluster, so nothing above 59pt is compared. 06 and 07 were first built
+from 1290 × 2796 captures of a 430pt phone; on request they were rebuilt
+from 402pt ones, and every number on them here is the 402pt one.
 
 08–12 are Mobbin exports again, 881 or 882 × 2000 with a 90px Mobbin footer,
 cropped to 881 × 1910 (the 882-wide ones lose their last column), scored
@@ -357,8 +357,8 @@ Values no pixel holds, fitted rather than read:
 - The Yearly card is a diagonal ramp, not a fill: its four corners census
   45/52/40/45 mean level, so it ships as `linear-gradient(to top right,
   plan-lo, plan-hi)` between the bottom-left and top-right censuses.
-- 07's composer edge is a .67pt `#F9F9F9` line under one `box-shadow`, `0
-  4px 14px rgba(0,0,0,.07)`. The capture's edge is two capture px wide and
+- 07's composer edge is a .67pt `#F9F9F9` line under one `box-shadow`,
+  `0 4px 14px rgba(0,0,0,.07)`. The capture's edge is two capture px wide and
   darkest at the sides (#A9A9A9 at x 10.67), but drawn at .67pt any grey is
   too dark: swept from #A9A9A9 to #FFFFFF over the band y 728–862, the line
   reads 5.25 at #A9A9A9, 4.59 at #E4E4E4, 4.39 at #F9F9F9 and 4.41 at white,
