@@ -46,7 +46,7 @@ actually bind, and prints the address.
   `#<file>` after that, e.g. `?canvas=notion-ios#02-search-ask-ai`: it opens
   in the inspector with the camera on it. Give the board link when pointing
   at one screen.
-- **Read a board as a web page.** The external-link button in the top bar
+- **Read a board as a web page.** The "Export to Figma" button in the top bar
   opens every board of the page in one scrolling document, each at its own
   size, at `sheet.html?canvas=<slug>`; the button in the bottom right of the
   inspector's preview opens the one board it is showing, at
@@ -54,7 +54,10 @@ actually bind, and prints the address.
   own HTML, so they can be linked, reloaded, and read by the browser
   extensions — a Figma importer, say — that refuse to work on a generated
   page. This is where to read type at the size it ships at, rather than at
-  whatever the canvas is zoomed to.
+  whatever the canvas is zoomed to. The sheet opens on what to do with it: the
+  html.to.design browser extension, which captures a localhost page that the
+  Figma plugin's own servers cannot reach, and the paste or plugin route from
+  there into a file.
 
 Keep it on loopback. This is a local design tool, not a service to expose.
 

@@ -28,6 +28,7 @@ import {
   type CommentUser,
 } from "./canvasComments";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
+import { FigmaMark } from "./FigmaMark";
 import { WELCOME_PAGE_SLUG, sheetPageUrl } from "./canvasUrl";
 
 const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
@@ -165,16 +166,20 @@ export const canvasChromeComponents: TLComponents = {
       <>
         <DefaultActionsMenu {...props} />
         {/* An anchor wearing the toolbar's button, not a button: this is a link to another page
-            of the app, so ⌘-click, middle click and copy-link all have to work on it. */}
+            of the app, so ⌘-click, middle click and copy-link all have to work on it.
+            Named for where the boards are going rather than for what the click does — an
+            external-link arrow is a true description of it that tells nobody it is the way
+            into Figma, which is what people are here to do with a mockup. */}
         {slug && (
           <a
-            className="tlui-button tlui-button__icon"
+            className="tlui-button sp-figma"
             href={sheetPageUrl(slug)}
             target="_blank"
             rel="noopener noreferrer"
-            title="Open every board on this page as one web page"
+            title="Open every board on this page as one web page — the page an importer such as html.to.design reads into Figma"
           >
-            <TldrawUiButtonIcon icon="external-link" />
+            <FigmaMark />
+            <span className="sp-figma__label">Export to Figma</span>
           </a>
         )}
         {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on

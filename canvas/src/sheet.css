@@ -25,6 +25,167 @@ h1 {
 .sub a {
   color: inherit;
 }
+/*
+ * What the canvas's Figma button owes whoever pressed it: the two things to install and the
+ * three things to do, before the boards rather than after them. A card in white on the page's
+ * grey, because it is instructions and not one of the boards.
+ */
+.howto {
+  max-width: 1108px;
+  margin: 22px 0 8px;
+  padding: 16px 20px 18px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  background: #ffffff;
+}
+.howto h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-size: 15px;
+}
+.howto__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+  margin-top: 13px;
+}
+/* The popup is 355 wide here; the steps take what is left, down to the width where a sentence
+   still reads, and below that the picture goes under them. */
+.howto__shot {
+  flex: 0 0 355px;
+}
+.howto__shot img {
+  width: 355px;
+  height: auto;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+}
+.howto__shot figcaption {
+  font-size: 12.5px;
+}
+@media (max-width: 900px) {
+  .howto__body {
+    flex-direction: column;
+  }
+}
+.howto ol {
+  margin: 0;
+  flex: 1 1 400px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.howto li {
+  position: relative;
+  counter-increment: step;
+  /* Room for the numeral, which sits in the margin so the second line of a step lines up with
+     the first rather than under the number. */
+  padding: 0 0 0 30px;
+  color: #4a4a4a;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.howto li + li {
+  margin-top: 10px;
+}
+.howto li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  color: #5a5a5a;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 19px;
+  text-align: center;
+}
+.howto b {
+  color: #1a1a1a;
+}
+.howto code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #f3f3f3;
+  font-size: 12.5px;
+}
+.howto a {
+  color: #1a73e8;
+}
+
+/*
+ * Step 1's button. Nothing on this page works until the extension is installed, and a page that
+ * asks for an install in the same 14px blue as every other link is asking quietly. Lit rather
+ * than flat for the same reason the canvas's own CTA is (index.css): it is the one thing here
+ * that wants pressing.
+ */
+.install {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin: 13px 0 3px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #4a85ff, #1b47d2);
+  box-shadow:
+    0 0 0 4px #4a85ff33,
+    0 8px 22px #2563eb59,
+    inset 0 1px 0 #ffffff47;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
+}
+.howto .install {
+  /* Wins over the card's link colour, which is for the links inside the sentences. */
+  color: #ffffff;
+}
+.install small {
+  display: block;
+  margin-top: 3px;
+  color: #ffffffc4;
+  font-size: 12px;
+  font-weight: 400;
+}
+.install__arrow {
+  margin-left: 3px;
+  color: #ffffffb8;
+  font-size: 17px;
+}
+.install:hover {
+  background: linear-gradient(180deg, #5a91ff, #2354e0);
+}
+.install:active {
+  transform: translateY(1px);
+}
+
+/*
+ * Step 3's button, which is the same shape without the light: the plugin is worth naming and
+ * worth one click, but two lit buttons on one card would be two things shouting the same volume
+ * at someone who can only do one of them first.
+ */
+.howto .install--plugin {
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px #dcdcdc;
+  color: #1a1a1a;
+  font-size: 15px;
+}
+.howto .install--plugin:hover {
+  background: #fafafa;
+}
+.install--plugin small {
+  color: #767676;
+}
+.install--plugin .install__arrow {
+  color: #9a9a9a;
+}
+
 h2 {
   margin: 40px 0 16px;
   font-size: 15px;

@@ -16,6 +16,15 @@ import {
  * canvas at 25% cannot show and the inspector can only show one board at a time.
  */
 
+/**
+ * The one row the sheet leaves out. Every folder here spells its token sheet's row the same way
+ * (references/layout.md), and that row is the only one that is not a screen: it is the evidence
+ * behind the boards, measured in CSS pixels and read on the canvas. Nobody imports it into Figma
+ * beside the screens, so the page an importer reads should not offer it. Its boards are still
+ * marked placed, or they would come back under "Everything else".
+ */
+const FOUNDATIONS_ROW = "Foundations";
+
 /** A board on the sheet: where its page is, what to call it, and how big it is. */
 export interface SheetBoard {
   src: string;
@@ -59,7 +68,7 @@ export function sheetRows(slug: string): SheetRow[] {
         ...(declared.w && declared.h ? { w: declared.w, h: declared.h } : CANVAS_FILE_DEFAULT_SIZE),
       });
     }
-    if (boards.length) rows.push({ title: row.title, boards });
+    if (boards.length && row.title !== FOUNDATIONS_ROW) rows.push({ title: row.title, boards });
   }
 
   const leftover = files.filter((file) => !placed.has(file.path));
