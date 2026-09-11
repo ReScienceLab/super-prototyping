@@ -443,10 +443,6 @@ def token_board():
     radii = "".join(
         '<div><div class="rb" style="border-radius:%s"></div><em>%s</em></div>' % (v, v)
         for _, n, v, _ in _of("Radius") if n != "r-phone")
-    type_ = "".join(
-        '<div class="tr"><span style="font:var(--x-%s)">Grumpy wizards</span>'
-        '<em>--x-%s &middot; %s</em></div>' % (n, n, v.split(" var")[0])
-        for _, n, v, _ in _of("Type"))
     met = "<br>".join("--x-%s: %s" % (n, v) for _, n, v, _ in _of("Metrics"))
     return page(NAME + " - Design Tokens",
                 '<div class="sheet"><header><h1>%s</h1>'
@@ -454,26 +450,61 @@ def token_board():
                 'SCALE = 3.0 and every number below is a direct read.</p></header>'
                 '<h2>Colour</h2><div class="grid">%s</div>'
                 '<h2>Radius</h2><div class="rad">%s</div>'
-                '<h2>Type</h2>%s'
                 '<h2>Metrics</h2><div class="met">%s</div></div>'
-                % (NAME, swatches, radii, type_, met), SHEET)
+                % (NAME, swatches, radii, met), SHEET)
 
 
-EV_ROWS = 40
+# 33 type specimens do not fit under the colours on one 980 px sheet
+def type_board():
+    type_ = "".join(
+        '<div class="tr"><span style="font:var(--x-%s)">Grumpy wizards</span>'
+        '<em>--x-%s &middot; %s</em></div>' % (n, n, v.split(" var")[0])
+        for _, n, v, _ in _of("Type"))
+    return page(NAME + " - Type",
+                '<div class="sheet"><header><h1>Type</h1>'
+                '<p>Each size fitted by rendering the string against the '
+                'capture\'s ink box. Chrome\'s SF sets N pt at about 0.95 N px.'
+                '</p></header>%s</div>' % type_, SHEET)
+
+
+# Rows wrap, so a page is filled to a height, not a count. A line of evidence
+# holds about 44 characters and a line of value 20; a row is 11 px a line plus
+# 6 of padding and rule, and the sheet holds 860 px of table under its header.
+EV_H = 860
+
+
+def evidence_pages():
+    pages, h = [[]], 0
+    for t in TOKENS:
+        rh = 6 + 11 * max(-(-len(t[3]) // 44), -(-len(t[2]) // 20))
+        if h + rh > EV_H:
+            pages.append([])
+            h = 0
+        pages[-1].append(t)
+        h += rh
+    return pages
 
 
 def evidence_boards():
-    pages = [TOKENS[i:i + EV_ROWS] for i in range(0, len(TOKENS), EV_ROWS)]
+    pages = evidence_pages()
     for i, chunk in enumerate(pages):
         rows = "".join(
             '<tr><td class="t">--x-%s</td><td class="v">%s</td><td class="e">%s</td></tr>'
             % (n, v, e) for _, n, v, e in chunk)
         of = " %d/%d" % (i + 1, len(pages)) if len(pages) > 1 else ""
-        yield ("00%s-evidence" % "bcdefgh"[i],
-               page(NAME + " - Evidence" + of,
-                    '<div class="sheet"><header><h1>Evidence%s</h1>'
-                    '<p>One row per token. A token with no evidence is a guess.</p>'
-                    '</header><table class="ev">%s</table></div>' % (of, rows), SHEET))
+        yield page(NAME + " - Evidence" + of,
+                   '<div class="sheet"><header><h1>Evidence%s</h1>'
+                   '<p>One row per token. A token with no evidence is a guess.</p>'
+                   '</header><table class="ev">%s</table></div>' % (of, rows), SHEET)
+
+
+def foundation_boards():
+    """(file, label, html) for the Foundations row, lettered in order after 00."""
+    boards = ([("design-tokens", "Design tokens", token_board()),
+               ("type", "Type", type_board())]
+              + [("evidence", "Evidence", b) for b in evidence_boards()])
+    for i, (slug, label, html) in enumerate(boards):
+        yield "00%s-%s" % ("abcdefghij"[i] if i else "", slug), label, html
 
 
 # --------------------------------------------------------------- screens ----
@@ -1076,11 +1107,9 @@ def ref_boards():
 
 
 # ----------------------------------------------------------------- main ----
-def layout(names):
+def layout(names, foundations):
     rows = [{"title": "Foundations",
-             "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
-                      + [{"file": n, "label": "Evidence"}
-                         for n, _ in evidence_boards()]},
+             "files": [{"file": n, "label": l} for n, l, _ in foundations]},
             {"title": "Screens", "numbered": True,
              "files": [{"file": s, "label": l} for s, l, _ in SCREENS]}]
     # Same order as the row above: the canvas lays every row out from x = 0 at
@@ -1094,14 +1123,15 @@ def layout(names):
 
 
 def main():
-    files = dict([("00-design-tokens", token_board())]
-                 + list(evidence_boards())
+    foundations = list(foundation_boards())
+    files = dict([(n, html) for n, _, html in foundations]
                  + [(s, fn()) for s, _, fn in SCREENS]
                  + list(ref_boards()))
     for name in sorted(files):
         write(name, files[name])
-    (OUT / "layout.json").write_text(json.dumps(layout(files), indent=2) + "\n")
-    print("%-28s %7d rows" % ("layout.json", len(layout(files)["rows"])))
+    rows = layout(files, foundations)
+    (OUT / "layout.json").write_text(json.dumps(rows, indent=2) + "\n")
+    print("%-28s %7d rows" % ("layout.json", len(rows["rows"])))
 
 
 if __name__ == "__main__":

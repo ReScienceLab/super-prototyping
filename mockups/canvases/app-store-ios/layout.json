@@ -9,11 +9,19 @@
           "label": "Design tokens"
         },
         {
-          "file": "00b-evidence",
-          "label": "Evidence"
+          "file": "00b-type",
+          "label": "Type"
         },
         {
           "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00e-evidence",
           "label": "Evidence"
         }
       ]

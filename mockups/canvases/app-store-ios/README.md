@@ -1,9 +1,10 @@
 # App Store, iOS
 
 Nine screens of the iOS 26 App Store on an iPhone 16 Pro, rebuilt from nine
-native screenshots (1206 × 2622, 3×, so a 402 × 874 pt frame). 21 boards in
-three rows: a token board and two evidence boards for 80 tokens, the nine
-replicas, and the capture of each column-for-column underneath.
+native screenshots (1206 × 2622, 3×, so a 402 × 874 pt frame). 23 boards in
+three rows: a token board, a type board and three evidence boards for 80
+tokens, the nine replicas, and the capture of each column-for-column
+underneath.
 
 | Board | Capture | What it is |
 | --- | --- | --- |
@@ -143,7 +144,7 @@ already carry.
   The boards are made of these, and a fresh clone without them renders empty
   frames. So, unlike its sibling `refs/`, this directory is not gitignored.
 - `assets/refs/`: the nine captures, `p1.png` to `p9.png`. **Gitignored**,
-  along with the `ref-*.html` boards built from them. A fresh clone builds 12
+  along with the `ref-*.html` boards built from them. A fresh clone builds 14
   boards; `gen.py` only needs `refs/` again for a crop whose file is missing.
 
 The artwork is Apple's and its developers', reproduced for design reference.
