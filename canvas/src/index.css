@@ -486,6 +486,48 @@ input.canvas-clone-name:focus {
   background: #ffffff;
 }
 
+/*
+ * The one control in the top bar that names a destination instead of an action, so it is the
+ * one that is wider than an icon and carries a logo: reading the boards into Figma is what
+ * people do with a mockup next, and an external-link arrow among five grey glyphs said nothing
+ * about that. It keeps the bar's height and its type; what it does not keep is the bar's grey,
+ * because a control nobody notices is the same as no control.
+ */
+.tlui-button.sp-figma {
+  width: auto;
+  /* Inset in the bar's 40px rather than filling it: at full height the white block reads as a
+     gap in the bar, and at 30 it reads as a chip sitting in one. */
+  height: 30px;
+  min-height: 0;
+  align-self: center;
+  gap: 7px;
+  /* Tighter on the mark's side than the label's: the logo already carries its own margin. */
+  padding: 0 11px 0 9px;
+  margin-left: 3px;
+  border-radius: 8px;
+  /* White against the bar's grey, which is what makes it read as the one thing to press here. */
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px #e3e3e3;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.tlui-button.sp-figma:hover {
+  background: #f7f7f7;
+}
+
+/* On a phone the bar is already tight against the page menu; the mark alone still says Figma. */
+@media (max-width: 720px) {
+  .sp-figma__label {
+    display: none;
+  }
+
+  .tlui-button.sp-figma {
+    padding: 0 9px;
+  }
+}
+
 /* The rail's collapse handle, a lozenge straddling its divider. It was a 26px chip in the top
    right of the preview, where it covered the board it was meant to help read. */
 .sp-collapse {

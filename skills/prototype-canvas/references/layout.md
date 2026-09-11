@@ -59,6 +59,11 @@ out top to bottom:
 }
 ```
 
+- `title` names the row. `"Foundations"` is the one title with a meaning:
+  it is where the `00-design-tokens` sheet goes, and the web-page view of a
+  canvas (`sheet.html?canvas=<slug>`) leaves that row out, because the sheet
+  is what a Figma importer reads and a token sheet is evidence rather than a
+  screen.
 - `name` overrides the page name. Without it the folder slug is humanized,
   which cannot express casing or punctuation: `notion-ios` becomes
   "Notion Ios". Set it when the humanized name reads wrong. A page is tied to
