@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dun - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --d-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --d-font-hand:"SignPainter","Bradley Hand","Brush Script MT",cursive;
+
+  /* Surface */
+  --d-bg:#F2F2F2;
+  --d-c-ws:#D8E2E8;
+  --d-c-proj:#F9D2B9;
+  --d-c-team:#E1E6C4;
+  --d-c-docs:#F6C8CE;
+  --d-c-comm:#D3ECE8;
+  --d-c-subt:#F9E9B5;
+  --d-c-task:#DDDAED;
+  --d-c-bulk:#ECEFBF;
+  --d-white:#FFFFFF;
+  --d-panel-top:#F5F9FA;
+  --d-panel-bot:#EBF2F2;
+  --d-chip:#F6F6F6;
+  --d-dark:#000000;
+  --d-dark-2:#4E4E4E;
+  --d-box:#3A3B38;
+  --d-kbd:#2B2B2B;
+  --d-tip:#444746;
+  --d-pill-grey:#EEEEEE;
+  --d-plus:#E6EAEB;
+  --d-tile-fade:rgba(255,255,255,.78);
+  --d-ghost:rgba(255,255,255,.42);
+
+  /* Line */
+  --d-ring:rgba(255,255,255,.75);
+  --d-hairline:#ECECEC;
+  --d-tree:#E8D7A4;
+
+  /* Ink */
+  --d-i-ws:#1F4256;
+  --d-i-proj:#724324;
+  --d-i-team:#203E14;
+  --d-i-docs:#5A2D4F;
+  --d-i-comm:#215C5C;
+  --d-i-subt:#51430D;
+  --d-i-task:#5C476A;
+  --d-i-bulk:#727358;
+  --d-ink:#050505;
+  --d-ink-2:#656765;
+  --d-ink-3:#B2B2B2;
+  --d-ink-4:#D1D1D1;
+  --d-ink-dim:#9BA0A0;
+  --d-ink-inv:#FFFFFF;
+  --d-doc-ink:#2A2A2A;
+  --d-doc-head:#343434;
+  --d-doc-body:#777876;
+
+  /* Accent */
+  --d-blue:#3B82F6;
+  --d-amber:#FBBF24;
+  --d-orange:#F59E0B;
+  --d-fuchsia:#D946EF;
+  --d-green:#22C55E;
+  --d-red:#F87171;
+  --d-folder:#FFDE77;
+  --d-cur-blue:#3092FE;
+  --d-cur-green:#1BB944;
+
+  /* Radius */
+  --d-r-card:36px;
+  --d-r-panel:24px;
+  --d-r-tip:14px;
+  --d-r-tile:20px;
+  --d-r-row:18px;
+  --d-r-box:8px;
+  --d-r-chip:8px;
+  --d-r-cur:16px;
+  --d-r-pill:999px;
+
+  /* Type */
+  --d-t-label:italic 700 25px/25px var(--d-font-hand);
+  --d-t-body:400 18px/28px var(--d-font);
+  --d-t-pill:400 19px/24px var(--d-font);
+  --d-t-row:600 16px/20px var(--d-font);
+  --d-t-row-id:400 16px/20px var(--d-font);
+  --d-t-chip:400 13px/16px var(--d-font);
+  --d-t-btn:600 16px/20px var(--d-font);
+  --d-t-btn-s:600 13px/17px var(--d-font);
+  --d-t-kbd:500 11px/14px var(--d-font);
+  --d-t-tip:600 21px/26px var(--d-font);
+  --d-t-cursor:600 18px/22px var(--d-font);
+  --d-t-doc-t:500 18px/22px var(--d-font);
+  --d-t-doc-h:500 11px/14px var(--d-font);
+  --d-t-doc-b:400 8px/11px var(--d-font);
+  --d-t-comm-n:600 13px/16px var(--d-font);
+  --d-t-comm-b:400 12px/16px var(--d-font);
+
+  /* Metrics */
+  --d-w:1954px;
+  --d-h:982px;
+  --d-pad:27px;
+  --d-label-top:31px;
+  --d-body-top:65px;
+  --d-gap:21px;
+  --d-row-pitch:85px;
+  --d-bulk-pitch:66px;
+  --d-o-text:.82;
+  --d-o-bulk-2:.94;
+  --d-o-bulk-3:.55;
+  --d-o-bulk-4:.04;
+  --d-rot-pill:.56deg;
+  --d-rot-ghost:-1.04deg;
+  --d-o-subt-4:.93;
+  --d-o-subt-5:.38;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--d-bg);font-family:var(--d-font);
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+body{color:var(--d-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--d-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--d-font);color:var(--d-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--d-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--d-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:22px;border-radius:6px;border:1px solid var(--d-hairline)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--d-ink-2);font-style:normal;word-break:break-all}
+.rad{display:flex;flex-wrap:wrap;gap:9px}
+.rb{flex:none;width:44px;height:26px;background:var(--d-c-ws);
+  border:1px solid var(--d-hairline)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--d-font);
+  color:var(--d-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--d-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--d-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--d-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--d-hairline);font:400 8.5px/11px var(--d-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--d-i-ws);white-space:nowrap}
+td.v{color:var(--d-ink-2);max-width:132px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.e{color:var(--d-doc-body)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Dun &mdash; web feature section</h1><p>Measured off one 1954 &times; 982 capture at 1&times;, so every number here is also a design px. The faces and the geometry are on the next board, the evidence for every value on the ones after it.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--d-bg)"></div><b>--d-bg</b><i>#F2F2F2</i></div><div class="sw"><div class="chip" style="background:var(--d-c-ws)"></div><b>--d-c-ws</b><i>#D8E2E8</i></div><div class="sw"><div class="chip" style="background:var(--d-c-proj)"></div><b>--d-c-proj</b><i>#F9D2B9</i></div><div class="sw"><div class="chip" style="background:var(--d-c-team)"></div><b>--d-c-team</b><i>#E1E6C4</i></div><div class="sw"><div class="chip" style="background:var(--d-c-docs)"></div><b>--d-c-docs</b><i>#F6C8CE</i></div><div class="sw"><div class="chip" style="background:var(--d-c-comm)"></div><b>--d-c-comm</b><i>#D3ECE8</i></div><div class="sw"><div class="chip" style="background:var(--d-c-subt)"></div><b>--d-c-subt</b><i>#F9E9B5</i></div><div class="sw"><div class="chip" style="background:var(--d-c-task)"></div><b>--d-c-task</b><i>#DDDAED</i></div><div class="sw"><div class="chip" style="background:var(--d-c-bulk)"></div><b>--d-c-bulk</b><i>#ECEFBF</i></div><div class="sw"><div class="chip" style="background:var(--d-white)"></div><b>--d-white</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--d-panel-top)"></div><b>--d-panel-top</b><i>#F5F9FA</i></div><div class="sw"><div class="chip" style="background:var(--d-panel-bot)"></div><b>--d-panel-bot</b><i>#EBF2F2</i></div><div class="sw"><div class="chip" style="background:var(--d-chip)"></div><b>--d-chip</b><i>#F6F6F6</i></div><div class="sw"><div class="chip" style="background:var(--d-dark)"></div><b>--d-dark</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--d-dark-2)"></div><b>--d-dark-2</b><i>#4E4E4E</i></div><div class="sw"><div class="chip" style="background:var(--d-box)"></div><b>--d-box</b><i>#3A3B38</i></div><div class="sw"><div class="chip" style="background:var(--d-kbd)"></div><b>--d-kbd</b><i>#2B2B2B</i></div><div class="sw"><div class="chip" style="background:var(--d-tip)"></div><b>--d-tip</b><i>#444746</i></div><div class="sw"><div class="chip" style="background:var(--d-pill-grey)"></div><b>--d-pill-grey</b><i>#EEEEEE</i></div><div class="sw"><div class="chip" style="background:var(--d-plus)"></div><b>--d-plus</b><i>#E6EAEB</i></div><div class="sw"><div class="chip" style="background:var(--d-tile-fade)"></div><b>--d-tile-fade</b><i>rgba(255,255,255,.78)</i></div><div class="sw"><div class="chip" style="background:var(--d-ghost)"></div><b>--d-ghost</b><i>rgba(255,255,255,.42)</i></div><div class="sw"><div class="chip" style="background:var(--d-ring)"></div><b>--d-ring</b><i>rgba(255,255,255,.75)</i></div><div class="sw"><div class="chip" style="background:var(--d-hairline)"></div><b>--d-hairline</b><i>#ECECEC</i></div><div class="sw"><div class="chip" style="background:var(--d-tree)"></div><b>--d-tree</b><i>#E8D7A4</i></div><div class="sw"><div class="chip" style="background:var(--d-i-ws)"></div><b>--d-i-ws</b><i>#1F4256</i></div><div class="sw"><div class="chip" style="background:var(--d-i-proj)"></div><b>--d-i-proj</b><i>#724324</i></div><div class="sw"><div class="chip" style="background:var(--d-i-team)"></div><b>--d-i-team</b><i>#203E14</i></div><div class="sw"><div class="chip" style="background:var(--d-i-docs)"></div><b>--d-i-docs</b><i>#5A2D4F</i></div><div class="sw"><div class="chip" style="background:var(--d-i-comm)"></div><b>--d-i-comm</b><i>#215C5C</i></div><div class="sw"><div class="chip" style="background:var(--d-i-subt)"></div><b>--d-i-subt</b><i>#51430D</i></div><div class="sw"><div class="chip" style="background:var(--d-i-task)"></div><b>--d-i-task</b><i>#5C476A</i></div><div class="sw"><div class="chip" style="background:var(--d-i-bulk)"></div><b>--d-i-bulk</b><i>#727358</i></div><div class="sw"><div class="chip" style="background:var(--d-ink)"></div><b>--d-ink</b><i>#050505</i></div><div class="sw"><div class="chip" style="background:var(--d-ink-2)"></div><b>--d-ink-2</b><i>#656765</i></div><div class="sw"><div class="chip" style="background:var(--d-ink-3)"></div><b>--d-ink-3</b><i>#B2B2B2</i></div><div class="sw"><div class="chip" style="background:var(--d-ink-4)"></div><b>--d-ink-4</b><i>#D1D1D1</i></div><div class="sw"><div class="chip" style="background:var(--d-ink-dim)"></div><b>--d-ink-dim</b><i>#9BA0A0</i></div><div class="sw"><div class="chip" style="background:var(--d-ink-inv)"></div><b>--d-ink-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--d-doc-ink)"></div><b>--d-doc-ink</b><i>#2A2A2A</i></div><div class="sw"><div class="chip" style="background:var(--d-doc-head)"></div><b>--d-doc-head</b><i>#343434</i></div><div class="sw"><div class="chip" style="background:var(--d-doc-body)"></div><b>--d-doc-body</b><i>#777876</i></div><div class="sw"><div class="chip" style="background:var(--d-blue)"></div><b>--d-blue</b><i>#3B82F6</i></div><div class="sw"><div class="chip" style="background:var(--d-amber)"></div><b>--d-amber</b><i>#FBBF24</i></div><div class="sw"><div class="chip" style="background:var(--d-orange)"></div><b>--d-orange</b><i>#F59E0B</i></div><div class="sw"><div class="chip" style="background:var(--d-fuchsia)"></div><b>--d-fuchsia</b><i>#D946EF</i></div><div class="sw"><div class="chip" style="background:var(--d-green)"></div><b>--d-green</b><i>#22C55E</i></div><div class="sw"><div class="chip" style="background:var(--d-red)"></div><b>--d-red</b><i>#F87171</i></div><div class="sw"><div class="chip" style="background:var(--d-folder)"></div><b>--d-folder</b><i>#FFDE77</i></div><div class="sw"><div class="chip" style="background:var(--d-cur-blue)"></div><b>--d-cur-blue</b><i>#3092FE</i></div><div class="sw"><div class="chip" style="background:var(--d-cur-green)"></div><b>--d-cur-green</b><i>#1BB944</i></div></div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:36px"></div><em>36px</em></div><div><div class="rb" style="border-radius:24px"></div><em>24px</em></div><div><div class="rb" style="border-radius:14px"></div><em>14px</em></div><div><div class="rb" style="border-radius:20px"></div><em>20px</em></div><div><div class="rb" style="border-radius:18px"></div><em>18px</em></div><div><div class="rb" style="border-radius:8px"></div><em>8px</em></div><div><div class="rb" style="border-radius:8px"></div><em>8px</em></div><div><div class="rb" style="border-radius:16px"></div><em>16px</em></div><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div></div></div>
+</body>
+</html>

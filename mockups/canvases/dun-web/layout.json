@@ -1,0 +1,49 @@
+{
+  "name": "(example) Dun Web",
+  "order": 40,
+  "cover": "01-feature-grid",
+  "coverBox": [
+    1480,
+    24,
+    415,
+    900
+  ],
+  "status": "live",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        "00-design-tokens",
+        "00b-type",
+        "00c-evidence",
+        "00d-evidence",
+        "00e-evidence",
+        "00f-evidence"
+      ]
+    },
+    {
+      "title": "Boards",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-feature-grid",
+          "label": "Feature section",
+          "w": 1954,
+          "h": 982
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-feature-grid",
+          "label": "Feature section",
+          "w": 1954,
+          "h": 982
+        }
+      ]
+    }
+  ]
+}

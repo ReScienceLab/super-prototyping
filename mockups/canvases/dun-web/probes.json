@@ -1,0 +1,1263 @@
+[
+ {
+  "id": "bg",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   598,
+   100,
+   613,
+   500
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the 21px gutter between the Workspace and Projects cards (595 -> 616), clear of both rings: page ground and nothing else",
+  "_head": "Phase 1's measurements, replayable. The capture is 1x -- design px == capture px, 1954 x 982 -- so no probe carries a --pt and `refkit batch probes.json` takes none either. --against wants a directory holding the render at the same size, which is what `refkit shoot 01-feature-grid.html -o scratch/shots --w 1954 --h 982 --scale 1` writes; every probe names 01-feature-grid.png there. A `sample` prints its flat-fill census first, so an ink probe says \"only\": \"ink\" and a small-element probe says \"only\": \"all\" (the mode) -- without that batch compares two backgrounds and reports a perfect 0. `bright` flips both: on a sample it takes the lightest percentile as the ink, on a bbox it matches pixels above the threshold instead of below. --x-rot-pill and --x-rot-ghost have no probe: a rotation of half a degree is a sub-pixel edge fit per column (README has the numbers), and no bbox threshold can see it -- `r-row` returns the tile's bounding box instead. --x-font and --x-font-hand have none either: `refkit font` takes a string rather than a box and batch has no way to pass one, so the face evidence is the verdict quoted in the token table and scratch/labelcmp2.png. Eight boxes here are crops rather than renders (see crops.json), so their probes compare the capture with its own pixels and read 0 by construction: proj-art's folder, the two cursor pills' arrows and the two avatars."
+ },
+ {
+  "id": "c-ws",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   450,
+   40,
+   580,
+   80
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "Workspace card top right: the label ink ends at x 185 and body line 1 starts at y 89, so this window holds only fill"
+ },
+ {
+  "id": "c-proj",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   650,
+   50,
+   880,
+   120
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "Projects card above its bottom-aligned text (label ink top 167) and left of the illustration crop (starts x 928)"
+ },
+ {
+  "id": "c-team",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1000,
+   336,
+   1130,
+   380
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "Teams card top right: right of the label (ends x 700), above body line 1 (y 391) and above the first pill row (y 464)"
+ },
+ {
+  "id": "c-docs",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1300,
+   40,
+   1480,
+   80
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "Docs card top right: the label is 39px wide at x 1184 and the panel starts at y 192"
+ },
+ {
+  "id": "c-comm",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1540,
+   275,
+   1830,
+   300
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "Comments card below the comment tile (ends y 262) and above the card edge at 307"
+ },
+ {
+  "id": "c-subt",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1545,
+   445,
+   1840,
+   490
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "Subtasks card between body line 2 (ink ends y 441) and row 1 (starts y 499). The window below the last row reads #FAE9B8 instead: the bottom of every card carries a few levels of webp mush, and this one is 91.7% one colour"
+ },
+ {
+  "id": "c-task",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   120,
+   875,
+   740,
+   915
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "Tasks card below the stacked pill (ends y 859) and above the card edge at 924"
+ },
+ {
+  "id": "c-bulk",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   824,
+   790,
+   1200,
+   828
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "Bulk card between body line 3 (ink ends y 772) and the toolbar (starts y 834), left of the rows (x 1240). Below the toolbar the same census reads #E6EBBC, 5 levels off, which is the bottom-edge mush again"
+ },
+ {
+  "id": "white",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   900,
+   470,
+   1020,
+   478
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "inside the Engineering pill (858,464 -> 1034,516), above its label ink (y 484) and right of its icon (ends x 894)"
+ },
+ {
+  "id": "panel-top",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   520,
+   203,
+   590,
+   212
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the Workspace panel's top band (panel top y 199), right of the Dun tooltip (ends x 486) and above everything on it. x 520 rather than 440 so the pair of panel probes cut the same column of the ramp"
+ },
+ {
+  "id": "panel-bot",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   548,
+   588,
+   580,
+   596
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the same panel 10px off the card's bottom edge (606), in the one window down there that is clear of both the You pill (480,559 -> 544,604) and the card's own 36px corner (which reaches x 584 by y 596). At x 440 or 520 the census catches the pill, #1BB944 over a third of it; here the ramp reads 245,249,250 at the top and 236,243,245"
+ },
+ {
+  "id": "chip",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   565,
+   795,
+   635,
+   801
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the Research chip (551,792 -> 640,823) above its dot (y 805) and its label ink (y 802)"
+ },
+ {
+  "id": "dark",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1190,
+   872,
+   1240,
+   879
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "Mark as done, the gradient's dark end: below the button label's ink (ends y 872) and left of the Ctrl plate (starts x 1278). A flat census inside a ramp reports whichever level happens to repeat most, so this one carries about ten levels of slop either way: the window's mean is 14.6 against my 19.0, and the 4.4 between them is the part of the reference's ramp that runs below black and a CSS gradient cannot"
+ },
+ {
+  "id": "dark-2",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1190,
+   845,
+   1240,
+   852
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the same button's light end: above the label ink (starts y 857) and inside the pill, which runs 843 -> 881"
+ },
+ {
+  "id": "box",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1240,
+   676,
+   1263,
+   699
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the row-1 Bulk checkbox, exactly its 23 x 23 box; the white tick is 9 x 7 inside it, so the mode is the fill"
+ },
+ {
+  "id": "kbd",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1280,
+   852,
+   1307,
+   873
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the Bulk toolbar's Ctrl plate (1278,850 -> 1309,875), inset 2px so the mode cannot pick up the white pill behind it"
+ },
+ {
+  "id": "tip",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   416,
+   274,
+   483,
+   280
+  ],
+  "only": "all",
+  "mine": "01-feature-grid.png",
+  "_": "the Dun tooltip, the band below its label ink (ends y 272) and above its bottom edge (283). The core has a left-to-right ramp, 64,66,65 to 69,72,71, so the mode of the whole pill flips with the window while its median is exactly the token; this strip's mode is 68,71,70"
+ },
+ {
+  "id": "pill-grey",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   416,
+   328,
+   425,
+   364
+  ],
+  "only": "all",
+  "mine": "01-feature-grid.png",
+  "_": "the ThisUX tooltip's left strip, inside the pill (413,325 -> 514,367) and left of its label ink (starts x 428). It reads #ECEEEE against a neutral token: the residual is the same red-below-green cast the cursor pills show, which is webp chroma, not a tint"
+ },
+ {
+  "id": "plus",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   326,
+   486,
+   382,
+   542
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the add-workspace circle (324,484, 60 x 60) inset 2px; its plus glyph is 19px of ink"
+ },
+ {
+  "id": "ghost",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   220,
+   838,
+   640,
+   854
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the stacked card behind the Tasks pill, in the band below the front tile (ends y 830) and above its own bottom edge (859)"
+ },
+ {
+  "id": "ring",
+  "img": "assets/refs/01.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 130,
+  "range": [
+   588,
+   602
+  ],
+  "mine": "01-feature-grid.png",
+  "_": "left to right across the Workspace card's right edge at a row that crosses card fill on both sides: fill to 595, the near-white rim, then the page ground. Two rings and one ground across the 21px gutter is what says the gap is a gap and not a shadow. The window stops at 602 because `batch` collapses a scan to its largest colour step, and a range wide enough to hold the Projects card's left edge at 616 holds two comparable steps, so which one is largest flips between the capture and the render"
+ },
+ {
+  "id": "hairline",
+  "img": "assets/refs/01.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 875,
+  "range": [
+   928,
+   942
+  ],
+  "mine": "01-feature-grid.png",
+  "_": "across the left outline of the X button on the Bulk toolbar (933,842 -> 971,881): toolbar white, the 1px outline at 934, then button white. Row 861 crosses the X glyph (856 -> 868) and row 845 the button's rounded corner, where the same cut reads #F8F8F8. Stopping at 942 leaves the button's right outline at 970 out, for the same largest-step reason as `ring`"
+ },
+ {
+  "id": "tree",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1568,
+   600,
+   1569,
+   700
+  ],
+  "only": "all",
+  "mine": "01-feature-grid.png",
+  "_": "1px wide by design: the Subtasks connector's first vertical is at x 1568 and runs y 556 -> 867, and this window is 100px of it clear of every horizontal stub (285/374/458/539 in card px)"
+ },
+ {
+  "id": "i-ws",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   86,
+   500,
+   105
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Workspace body line 1, ink top 89, the full 402px of it and no label"
+ },
+ {
+  "id": "i-proj",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   643,
+   198,
+   900,
+   232
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Projects body lines 1-2 (ink top 201, pitch 28), left of the illustration"
+ },
+ {
+  "id": "i-team",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   643,
+   388,
+   1110,
+   412
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Teams body line 1 (ink top 391); the pills start at y 464"
+ },
+ {
+  "id": "i-docs",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1184,
+   86,
+   1470,
+   106
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Docs body line 1 (ink top 89); the panel starts at y 192"
+ },
+ {
+  "id": "i-comm",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1545,
+   86,
+   1825,
+   106
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Comments body line 1 (ink top 89); the tile starts at y 180"
+ },
+ {
+  "id": "i-subt",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1545,
+   390,
+   1825,
+   410
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Subtasks body line 1 (ink top 393); the first row starts at y 499"
+ },
+ {
+  "id": "i-task",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   102,
+   696,
+   740,
+   716
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the Tasks card's single body line (ink top 699); the pill starts at y 775"
+ },
+ {
+  "id": "i-bulk",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   824,
+   696,
+   1180,
+   716
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Bulk body line 1 only. Line 3 is the same ink at --x-o-text and is probed separately, so this window stops well above it (y 755)"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   248,
+   796,
+   470,
+   818
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Competitor Analysis Research on the Tasks pill, ink left 250, clear of the DUN-20 id (ends x 232) and the Research chip (starts 551)"
+ },
+ {
+  "id": "ink-2",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1586,
+   199,
+   1626,
+   212
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Damia, the commenter name: 34px of ink at x 1588, left of the 2h timestamp (1804) and above the comment body (y 218)"
+ },
+ {
+  "id": "ink-3",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   173,
+   801,
+   234,
+   815
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "DUN-20 on the Tasks pill: 58px of ink at x 174, right of the status icon (ends x 161) and left of the title (250)"
+ },
+ {
+  "id": "ink-4",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1802,
+   200,
+   1824,
+   213
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the 2h timestamp, the palest ink on the board; 18px wide, so the window is barely wider than the string"
+ },
+ {
+  "id": "ink-dim",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   425,
+   334,
+   500,
+   356
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the ThisUX tooltip label, centred in a 101px pill at x 413; the same solve on Fli.so gives #A0A5A5 and on the plus glyph #919596"
+ },
+ {
+  "id": "ink-inv",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1166,
+   856,
+   1292,
+   874
+  ],
+  "only": "ink",
+  "bright": true,
+  "mine": "01-feature-grid.png",
+  "_": "Mark as done: white ink on the dark pill, so --bright takes the lightest percentile; the Ctrl plate starts at x 1278 and is also white ink, which is why this stops at 1292 rather than the pill's 1348"
+ },
+ {
+  "id": "doc-ink",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1229,
+   216,
+   1433,
+   237
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Product Requirement Doc, the doc title: 201 x 18 of ink at 1230,216, above the Overview heading (y 250)"
+ },
+ {
+  "id": "doc-head",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1229,
+   252,
+   1282,
+   264
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Overview: 50px of ink, the first of the four section headings"
+ },
+ {
+  "id": "doc-body",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1229,
+   275,
+   1453,
+   285
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the first doc paragraph, 222px of ink on one line, between Overview (ends y 264) and Description (starts 274 -> probe stops at 285)"
+ },
+ {
+  "id": "blue",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1611,
+   604,
+   1631,
+   624
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the circle-check on Subtasks row 2, exactly its 20 x 20 ink box on white. A 1.5px stroke has no flat core, so this is the darkest percentile, not a mode -- and it reads #608AB5 against a token of #3B82F6, because the icons in the capture are soft (their glow is visible at 12x) and a stroke that soft never reaches its own colour while the render's does. The five stroke accents all read 35-95 levels light here for that reason; --x-amber below is the one filled glyph on the board, it reaches #FFBF28 in the capture, and that is what puts the whole set on Tailwind rather than on these washed readings"
+ },
+ {
+  "id": "amber",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1569,
+   517,
+   1589,
+   537
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the half-filled circle on Subtasks row 1: the only filled status glyph on the board, which is why it is the one that reads a true value"
+ },
+ {
+  "id": "orange",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   872,
+   478,
+   894,
+   500
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the square-terminal on the Engineering pill, its 22 x 22 ink box; the capture reads #CB9744 on it, the stroke wash described under --x-blue"
+ },
+ {
+  "id": "fuchsia",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   777,
+   547,
+   798,
+   565
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the megaphone on the Marketing pill, 21 x 18: the one icon on the board that is not lucide's (see README); the capture reads #C435B0 on it, the stroke wash described under --x-blue"
+ },
+ {
+  "id": "green",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   945,
+   546,
+   966,
+   568
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the briefcase on the Sales pill, 21 x 22; the capture reads #46AD66 on it, the stroke wash described under --x-blue"
+ },
+ {
+  "id": "red",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   655,
+   798,
+   676,
+   818
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "the warning triangle at the right of the Tasks pill, 21 x 20; the Research chip's 5px dot solves the same hue on far less ink; the capture reads #D4796C on it, the stroke wash described under --x-blue"
+ },
+ {
+  "id": "folder",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   980,
+   120,
+   1060,
+   180
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "inside the Projects folder, which is part of the proj-art crop: 8842px of flat fill, so ref and render are the same pixels by construction"
+ },
+ {
+  "id": "cur-blue",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   120,
+   250,
+   185,
+   256
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the James pill's top band (pill 107,246 -> 196,292), above its label ink (y 258). The arrow is a crop; the pill is CSS"
+ },
+ {
+  "id": "cur-green",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   490,
+   563,
+   535,
+   569
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the You pill's top band (pill 480,559 -> 542,606), above its label ink"
+ },
+ {
+  "id": "r-card",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   70,
+   20,
+   600,
+   612
+  ],
+  "dark": 232,
+  "mine": "01-feature-grid.png",
+  "_": "the Workspace card against the page ground: 20 levels of contrast, so the threshold sits between them. Expect 75,24 520 x 582. 235 is above the ground's own luminance of 242 in name only -- the fill reads 226 and the rim 250, so the threshold has to clear the rim, not the fill"
+ },
+ {
+  "id": "r-panel",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   284,
+   194,
+   400,
+   230
+  ],
+  "bright": 232,
+  "mine": "01-feature-grid.png",
+  "_": "the Workspace panel's top left corner, brighter than the card it sits on; the window stops above the Dun mark (y 233)"
+ },
+ {
+  "id": "r-tip",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   405,
+   235,
+   495,
+   290
+  ],
+  "dark": 150,
+  "mine": "01-feature-grid.png",
+  "_": "the Dun tooltip, the darkest thing on that panel. Expect 413,241 73 x 42; its 7px pointer is at x 331 in card px, outside this window"
+ },
+ {
+  "id": "r-tile",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1535,
+   172,
+   1840,
+   270
+  ],
+  "bright": 236,
+  "mine": "01-feature-grid.png",
+  "_": "the Comments tile, white on #D3ECE8. Expect 1544,180 286 x 82"
+ },
+ {
+  "id": "r-row",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   120,
+   770,
+   735,
+   845
+  ],
+  "bright": 250,
+  "mine": "01-feature-grid.png",
+  "_": "the Tasks pill, white on #DDDAED. Expect 127,775 598 x 57: the tile is rotated .56deg, so a threshold box is its bounding box and reads 2px taller than the tile. A 248 threshold instead runs the box down into the ghost tile behind it"
+ },
+ {
+  "id": "r-box",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1233,
+   669,
+   1270,
+   706
+  ],
+  "dark": 120,
+  "mine": "01-feature-grid.png",
+  "_": "the row-1 Bulk checkbox, the darkest 23px on that card"
+ },
+ {
+  "id": "r-chip",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   545,
+   786,
+   648,
+   829
+  ],
+  "dark": 250,
+  "mine": "01-feature-grid.png",
+  "_": "the Research chip, #F6F6F6 -- on the white pill, not the card, so it is the darker of the two and --bright selects the whole pill. Expect 551,793 89 x 29"
+ },
+ {
+  "id": "r-cur",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   240,
+   200,
+   270
+  ],
+  "dark": 180,
+  "mine": "01-feature-grid.png",
+  "_": "the James label pill's top band. Expect 107,246 89 x 24. The full pill is 107,246 -> 196,292, but the arrow crop next to it runs to x 236, so a window tall enough to hold the pill also holds the arrow and reads 13px too wide"
+ },
+ {
+  "id": "r-pill",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   850,
+   458,
+   1042,
+   522
+  ],
+  "bright": 242,
+  "mine": "01-feature-grid.png",
+  "_": "the Engineering pill. Expect 858,464 176 x 52, and a corner solve at or past h/2 is what makes it a full pill rather than a 26px radius"
+ },
+ {
+  "id": "t-label",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   98,
+   48,
+   200,
+   86
+  ],
+  "dark": 180,
+  "mine": "01-feature-grid.png",
+  "_": "the Workspace hand label: ink top 55 (card + 31) and 81px wide. This is the box the 25px size was calibrated against, one of eight"
+ },
+ {
+  "id": "t-body",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   84,
+   510,
+   108
+  ],
+  "dark": 180,
+  "mine": "01-feature-grid.png",
+  "_": "Workspace body line 1: 402px of ink at 18px, ink top 89"
+ },
+ {
+  "id": "t-pill",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   905,
+   480,
+   1010,
+   505
+  ],
+  "dark": 150,
+  "mine": "01-feature-grid.png",
+  "_": "Engineering on its pill: 95px of ink, cap 14px. Right of the icon (ends x 894) and inside the pill (ends 1034)"
+ },
+ {
+  "id": "t-row",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   245,
+   793,
+   470,
+   820
+  ],
+  "dark": 150,
+  "mine": "01-feature-grid.png",
+  "_": "Competitor Analysis Research: 212px of ink and a 12px cap, the widest disagreement on the board between the cap solve and the width solve"
+ },
+ {
+  "id": "t-row-id",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   170,
+   797,
+   240,
+   818
+  ],
+  "dark": 200,
+  "mine": "01-feature-grid.png",
+  "_": "DUN-20 at --x-ink-3 (#B2B2B2, luminance 178), so the threshold has to be 200 rather than the 150 the black titles take"
+ },
+ {
+  "id": "t-chip",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   572,
+   798,
+   632,
+   815
+  ],
+  "dark": 180,
+  "mine": "01-feature-grid.png",
+  "_": "Research inside its chip: 55px of ink at --x-ink-2 on #F6F6F6, right of the 5px dot (ends x 565)"
+ },
+ {
+  "id": "t-btn",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   843,
+   853,
+   928,
+   876
+  ],
+  "dark": 150,
+  "mine": "01-feature-grid.png",
+  "_": "3 Selected on the Bulk toolbar: 75px of dark ink on white, left of the X button (starts x 933)"
+ },
+ {
+  "id": "t-btn-s",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1290,
+   538,
+   1360,
+   562
+  ],
+  "bright": 150,
+  "mine": "01-feature-grid.png",
+  "_": "Save doc: white ink on the dark pill, so --bright. Left of the Ctrl plate (starts x 1366), which is also white ink"
+ },
+ {
+  "id": "t-kbd",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1280,
+   852,
+   1309,
+   874
+  ],
+  "bright": 120,
+  "mine": "01-feature-grid.png",
+  "_": "Ctrl on the Bulk plate: 17 x 9 of white ink inside a 31 x 25 chip. The Docs plate's is 18 x 8, the same within a pixel, which is why there is one token and not two"
+ },
+ {
+  "id": "t-tip",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   420,
+   248,
+   480,
+   278
+  ],
+  "bright": 150,
+  "mine": "01-feature-grid.png",
+  "_": "Dun in its tooltip: 38px of white ink centred in a 73px pill"
+ },
+ {
+  "id": "t-cursor",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   112,
+   252,
+   192,
+   288
+  ],
+  "bright": 200,
+  "mine": "01-feature-grid.png",
+  "_": "James on its pill: 58px of white ink, cap 14px. The threshold is 200 because the pill under it is already luminance 129"
+ },
+ {
+  "id": "t-doc-t",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1226,
+   212,
+   1440,
+   240
+  ],
+  "dark": 150,
+  "mine": "01-feature-grid.png",
+  "_": "the doc title's ink box, the measurement the 18px size and the 500 weight both come from"
+ },
+ {
+  "id": "t-doc-h",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1226,
+   248,
+   1290,
+   268
+  ],
+  "dark": 150,
+  "mine": "01-feature-grid.png",
+  "_": "Overview: 50px of ink. Description, the other heading, is 60px, and 700 sets that one 3px over"
+ },
+ {
+  "id": "t-doc-b",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1226,
+   272,
+   1460,
+   288
+  ],
+  "dark": 180,
+  "mine": "01-feature-grid.png",
+  "_": "the first doc paragraph's one line: 222px of ink at --x-doc-body (#777876), the smallest type on the board"
+ },
+ {
+  "id": "t-comm-n",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1584,
+   196,
+   1630,
+   214
+  ],
+  "dark": 180,
+  "mine": "01-feature-grid.png",
+  "_": "Damia: 34px of ink at --x-ink-2, left of the timestamp"
+ },
+ {
+  "id": "t-comm-b",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1584,
+   215,
+   1815,
+   232
+  ],
+  "dark": 150,
+  "mine": "01-feature-grid.png",
+  "_": "the comment's first line: 220px of ink, cap 9px, the pair that put this token at 12px rather than 11"
+ },
+ {
+  "id": "w",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   0,
+   0,
+   1954,
+   982
+  ],
+  "dark": 232,
+  "mine": "01-feature-grid.png",
+  "_": "the whole board: the union of the eight cards against the ground. Expect 75,24 1783 x 900 -- the section is not centred in its capture, 96px of margin on the right against 75 on the left, which is why the board is the capture's own 1954 and not a symmetric crop"
+ },
+ {
+  "id": "h",
+  "img": "assets/refs/01.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 90,
+  "range": [
+   900,
+   940
+  ],
+  "tol": 12,
+  "mine": "01-feature-grid.png",
+  "_": "down through the bottom of the Tasks card in the 28px of left margin it keeps (its content starts at x 127): fill, then ground. The step lands at 917 rather than the card's own 924 because x 90 is 15px into a 36px corner, and that is where --x-r-card was fitted. The full-height cut this probe used to take, (0, 982), holds four comparable steps"
+ },
+ {
+  "id": "pad",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1180,
+   84,
+   1480,
+   108
+  ],
+  "dark": 180,
+  "mine": "01-feature-grid.png",
+  "_": "Docs body line 1: its ink left should read 1184, the card's 1157 plus 27. The same 27 holds on all eight cards"
+ },
+ {
+  "id": "label-top",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1540,
+   352,
+   1620,
+   382
+  ],
+  "dark": 180,
+  "mine": "01-feature-grid.png",
+  "_": "the Subtasks hand label: ink top should read 359, the card's 328 plus 31. Across the eight cards the reference runs + 30 to + 33 and the spread is the letter, not the layout"
+ },
+ {
+  "id": "body-top",
+  "img": "assets/refs/01.png",
+  "cmd": "bbox",
+  "box": [
+   1540,
+   84,
+   1830,
+   108
+  ],
+  "dark": 180,
+  "mine": "01-feature-grid.png",
+  "_": "Comments body line 1: ink top should read 89, the card's 24 plus 65"
+ },
+ {
+  "id": "gap",
+  "img": "assets/refs/01.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 130,
+  "range": [
+   608,
+   622
+  ],
+  "mine": "01-feature-grid.png",
+  "_": "the other side of the same gutter: page ground to 615, the Projects card's rim, then its fill. 616 - 595 = 21, the gutter, and `ring` holds the other edge. Row 300 crosses the Workspace panel rather than the card fill and reads #F1F6F7 on the left"
+ },
+ {
+  "id": "row-pitch",
+  "img": "assets/refs/01.png",
+  "cmd": "bands",
+  "box": [
+   1770,
+   490,
+   1850,
+   930
+  ],
+  "axis": "rows",
+  "thr": 200,
+  "mine": "01-feature-grid.png",
+  "_": "the five Subtasks row titles, in a column all five reach into (row 1 ends at x 1783, rows 3 and 4 start at 1761): five bands at a pitch of 85"
+ },
+ {
+  "id": "bulk-pitch",
+  "img": "assets/refs/01.png",
+  "cmd": "bands",
+  "box": [
+   1402,
+   650,
+   1470,
+   850
+  ],
+  "axis": "rows",
+  "thr": 215,
+  "mine": "01-feature-grid.png",
+  "_": "the Bulk row titles, rows 1-3 only, in a column the titles alone reach into: row 4 sits at --x-o-bulk-4 and is 3 levels off the card fill, below any threshold that does not also take the fill. Three bands, pitch 66"
+ },
+ {
+  "id": "o-text",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   824,
+   752,
+   1100,
+   772
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Bulk body line 3, the faded one: the same ink as lines 1-2 (probed as i-bulk) and it should read about 13 levels lighter"
+ },
+ {
+  "id": "tile-fade",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1650,
+   845,
+   1740,
+   855
+  ],
+  "only": "flat",
+  "mine": "01-feature-grid.png",
+  "_": "the last Subtasks row's tile, above its own ink (y 861) and left of where the right-edge fade begins (1764): --x-tile-fade over the card, which is the tile that stays while its contents go"
+ },
+ {
+  "id": "o-bulk-2",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1402,
+   746,
+   1492,
+   763
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Create task, Bulk row 2's title, against Core features on row 1 at the same x: the contrast ratio is .935 on all three channels"
+ },
+ {
+  "id": "o-bulk-3",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1402,
+   812,
+   1492,
+   829
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Edit/Delete task, row 3, at .544/.540/.559 of row 1"
+ },
+ {
+  "id": "o-bulk-4",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1402,
+   878,
+   1492,
+   895
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "Change status, row 4, at .040/.037/.040 -- 3 levels of ink, which is why this row needs an ink probe and not a threshold"
+ },
+ {
+  "id": "o-subt-4",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1684,
+   776,
+   1750,
+   791
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "DUN-23, the row id on Subtasks row 4, at .928 of row 1's. The id rather than the title: the titles on rows 3 and 4 are indented to x 1761, inside that card's fade, and the ids are not"
+ },
+ {
+  "id": "o-subt-5",
+  "img": "assets/refs/01.png",
+  "cmd": "sample",
+  "box": [
+   1643,
+   861,
+   1709,
+   876
+  ],
+  "only": "ink",
+  "mine": "01-feature-grid.png",
+  "_": "DUN-24 on the last Subtasks row, at .381/.389/.416 of row 1's"
+ }
+]

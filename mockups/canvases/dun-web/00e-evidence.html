@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dun - Evidence 3/4</title>
+<style>
+:root{
+  /* Font */
+  --d-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --d-font-hand:"SignPainter","Bradley Hand","Brush Script MT",cursive;
+
+  /* Surface */
+  --d-bg:#F2F2F2;
+  --d-c-ws:#D8E2E8;
+  --d-c-proj:#F9D2B9;
+  --d-c-team:#E1E6C4;
+  --d-c-docs:#F6C8CE;
+  --d-c-comm:#D3ECE8;
+  --d-c-subt:#F9E9B5;
+  --d-c-task:#DDDAED;
+  --d-c-bulk:#ECEFBF;
+  --d-white:#FFFFFF;
+  --d-panel-top:#F5F9FA;
+  --d-panel-bot:#EBF2F2;
+  --d-chip:#F6F6F6;
+  --d-dark:#000000;
+  --d-dark-2:#4E4E4E;
+  --d-box:#3A3B38;
+  --d-kbd:#2B2B2B;
+  --d-tip:#444746;
+  --d-pill-grey:#EEEEEE;
+  --d-plus:#E6EAEB;
+  --d-tile-fade:rgba(255,255,255,.78);
+  --d-ghost:rgba(255,255,255,.42);
+
+  /* Line */
+  --d-ring:rgba(255,255,255,.75);
+  --d-hairline:#ECECEC;
+  --d-tree:#E8D7A4;
+
+  /* Ink */
+  --d-i-ws:#1F4256;
+  --d-i-proj:#724324;
+  --d-i-team:#203E14;
+  --d-i-docs:#5A2D4F;
+  --d-i-comm:#215C5C;
+  --d-i-subt:#51430D;
+  --d-i-task:#5C476A;
+  --d-i-bulk:#727358;
+  --d-ink:#050505;
+  --d-ink-2:#656765;
+  --d-ink-3:#B2B2B2;
+  --d-ink-4:#D1D1D1;
+  --d-ink-dim:#9BA0A0;
+  --d-ink-inv:#FFFFFF;
+  --d-doc-ink:#2A2A2A;
+  --d-doc-head:#343434;
+  --d-doc-body:#777876;
+
+  /* Accent */
+  --d-blue:#3B82F6;
+  --d-amber:#FBBF24;
+  --d-orange:#F59E0B;
+  --d-fuchsia:#D946EF;
+  --d-green:#22C55E;
+  --d-red:#F87171;
+  --d-folder:#FFDE77;
+  --d-cur-blue:#3092FE;
+  --d-cur-green:#1BB944;
+
+  /* Radius */
+  --d-r-card:36px;
+  --d-r-panel:24px;
+  --d-r-tip:14px;
+  --d-r-tile:20px;
+  --d-r-row:18px;
+  --d-r-box:8px;
+  --d-r-chip:8px;
+  --d-r-cur:16px;
+  --d-r-pill:999px;
+
+  /* Type */
+  --d-t-label:italic 700 25px/25px var(--d-font-hand);
+  --d-t-body:400 18px/28px var(--d-font);
+  --d-t-pill:400 19px/24px var(--d-font);
+  --d-t-row:600 16px/20px var(--d-font);
+  --d-t-row-id:400 16px/20px var(--d-font);
+  --d-t-chip:400 13px/16px var(--d-font);
+  --d-t-btn:600 16px/20px var(--d-font);
+  --d-t-btn-s:600 13px/17px var(--d-font);
+  --d-t-kbd:500 11px/14px var(--d-font);
+  --d-t-tip:600 21px/26px var(--d-font);
+  --d-t-cursor:600 18px/22px var(--d-font);
+  --d-t-doc-t:500 18px/22px var(--d-font);
+  --d-t-doc-h:500 11px/14px var(--d-font);
+  --d-t-doc-b:400 8px/11px var(--d-font);
+  --d-t-comm-n:600 13px/16px var(--d-font);
+  --d-t-comm-b:400 12px/16px var(--d-font);
+
+  /* Metrics */
+  --d-w:1954px;
+  --d-h:982px;
+  --d-pad:27px;
+  --d-label-top:31px;
+  --d-body-top:65px;
+  --d-gap:21px;
+  --d-row-pitch:85px;
+  --d-bulk-pitch:66px;
+  --d-o-text:.82;
+  --d-o-bulk-2:.94;
+  --d-o-bulk-3:.55;
+  --d-o-bulk-4:.04;
+  --d-rot-pill:.56deg;
+  --d-rot-ghost:-1.04deg;
+  --d-o-subt-4:.93;
+  --d-o-subt-5:.38;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--d-bg);font-family:var(--d-font);
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+body{color:var(--d-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--d-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--d-font);color:var(--d-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--d-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--d-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:22px;border-radius:6px;border:1px solid var(--d-hairline)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--d-ink-2);font-style:normal;word-break:break-all}
+.rad{display:flex;flex-wrap:wrap;gap:9px}
+.rb{flex:none;width:44px;height:26px;background:var(--d-c-ws);
+  border:1px solid var(--d-hairline)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--d-font);
+  color:var(--d-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--d-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--d-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--d-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--d-hairline);font:400 8.5px/11px var(--d-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--d-i-ws);white-space:nowrap}
+td.v{color:var(--d-ink-2);max-width:132px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.e{color:var(--d-doc-body)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 3/4</h1><p>One row per token. A token with no evidence is a guess. The replayable half is probes.json.</p></header><table class="ev"><tr><td class="t">--d-r-card</td><td class="v">36px</td><td class="e">circle fit to where the fill starts on each row of the Tasks card&rsquo;s bottom-left corner: r 39.5 at rms 0.6, against 30.0 for my own 28px corner, so the fit runs 2 levels of threshold wide and the reference is 37.5. A sweep of the 32 card corners bottoms out at 36, and the same sweep confirms r-panel, r-tile and r-cur where they already stood. A bbox on one corner crop read 28, which is the corner&rsquo;s chord, not its radius</td></tr><tr><td class="t">--d-r-panel</td><td class="v">24px</td><td class="e">the Workspace and Docs panels&rsquo; one visible corner</td></tr><tr><td class="t">--d-r-tip</td><td class="v">14px</td><td class="e">the Dun tooltip corner, and the Docs toolbar&rsquo;s</td></tr><tr><td class="t">--d-r-tile</td><td class="v">20px</td><td class="e">the Comments tile corner</td></tr><tr><td class="t">--d-r-row</td><td class="v">18px</td><td class="e">solved on a Subtasks row, the Tasks pill and the Bulk toolbar; the Tasks pill is 55px tall, so 18 is a real radius and not h/2</td></tr><tr><td class="t">--d-r-box</td><td class="v">8px</td><td class="e">a Bulk checkbox and a toolbar button corner</td></tr><tr><td class="t">--d-r-chip</td><td class="v">8px</td><td class="e">the Research chip corner</td></tr><tr><td class="t">--d-r-cur</td><td class="v">16px</td><td class="e">the James and You label pills, 46 and 47px tall,
+  so 16 is a real radius and not a full pill</td></tr><tr><td class="t">--d-r-pill</td><td class="v">999px</td><td class="e">solved &ge; h/2 on the four Teams pills, so they are full pills</td></tr><tr><td class="t">--d-t-label</td><td class="v">italic 700 25px/25px var(--d-font-hand)</td><td class="e">ink top is card + 31 on all eight cards. Size is calibrated, not solved: SignPainter is a substitution, so its 21px ink was measured against all eight reference labels (81/64/44/39/79/69/41/96 px wide) and each asks for 23.7-26.4</td></tr><tr><td class="t">--d-t-body</td><td class="v">400 18px/28px var(--d-font)</td><td class="e">body cap 13px &rarr; 18.2; line 1 ink 402px wide on Workspace &rarr; 17-18px. Line 1 ink top is card + 65 and the pitch is 28 on all eight cards</td></tr><tr><td class="t">--d-t-pill</td><td class="v">400 19px/24px var(--d-font)</td><td class="e">&ldquo;Engineering&rdquo; cap 14px &rarr; 19.6; ink 95px wide &rarr; 18px</td></tr><tr><td class="t">--d-t-row</td><td class="v">600 16px/20px var(--d-font)</td><td class="e">&ldquo;Competitor Analysis Research&rdquo; cap 12px &rarr; 16.8; ink 212px wide &rarr; 14px. The widest disagreement on the board: SF Pro Semibold sets it +14%</td></tr><tr><td class="t">--d-t-row-id</td><td class="v">400 16px/20px var(--d-font)</td><td class="e">&ldquo;DUN-20&rdquo; cap 12px &rarr; 16.8; ink 58px wide &rarr; 15px</td></tr><tr><td class="t">--d-t-chip</td><td class="v">400 13px/16px var(--d-font)</td><td class="e">&ldquo;Research&rdquo; cap 10px &rarr; 14; ink 55px wide &rarr; 12-13px</td></tr><tr><td class="t">--d-t-btn</td><td class="v">600 16px/20px var(--d-font)</td><td class="e">&ldquo;3 Selected&rdquo; cap 12px &rarr; 16.8, ink 75px &rarr; 14px; &ldquo;Mark as done&rdquo; ink 121px &rarr; 18px. White-on-dark ink measures dilated and dark-on-white eroded, so the two straddle 16</td></tr><tr><td class="t">--d-t-btn-s</td><td class="v">600 13px/17px var(--d-font)</td><td class="e">&ldquo;Save doc&rdquo; cap 10px &rarr; 14, ink 57px &rarr; 12px. The Docs toolbar is a smaller instance of the Bulk one (252 &times; 51 vs 528 &times; 56)</td></tr><tr><td class="t">--d-t-kbd</td><td class="v">500 11px/14px var(--d-font)</td><td class="e">&ldquo;Ctrl&rdquo; ink is 18 &times; 8 on the Docs plate and 17 &times; 9 on the Bulk one &mdash; the same size within a pixel, so one token, not two</td></tr><tr><td class="t">--d-t-tip</td><td class="v">600 21px/26px var(--d-font)</td><td class="e">cap 16/16/15px and ink 38/72/48px wide on Dun / ThisUX / Fli.so; 21px satisfies both on all three, the cleanest agreement on the board</td></tr><tr><td class="t">--d-t-cursor</td><td class="v">600 18px/22px var(--d-font)</td><td class="e">&ldquo;James&rdquo; cap 14px &rarr; 19.6, ink 58px &rarr; 18px; &ldquo;You&rdquo; cap 13px &rarr; 18.2</td></tr></table></div>
+</body>
+</html>

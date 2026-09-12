@@ -61,9 +61,9 @@ and `templates/` use `page(title, body, extra_css="")`. Copy whichever matches
 your source. `apple-wallet` is the folder built from more than one source: two
 modules, one per Figma file, imported by its `gen.py`.
 
-`00-welcome` is the one board here that is not phone-shaped. Its `gen.py`
-writes 2153 x 819 into `layout.json` as `w`/`h`, which is how any board
-declares a box other than the default 478 x 980.
+Two boards here are not phone-shaped. `00-welcome` writes 2153 x 819 into
+`layout.json` as `w`/`h` and `dun-web` writes 1954 x 982, which is how any
+board declares a box other than the default 478 x 980.
 
 ## Examples
 
@@ -308,6 +308,23 @@ declares a box other than the default 478 x 980.
   of the captures' own clocks, badges or iOS 26 glyphs carried over. And it
   records p2, where two stacked 20% scrims land exactly on 255 x .8 x .8. The nine `ref-*` boards are gitignored, so a
   fresh clone has 14.
+- `dun-web/`: the run to read when the source is a web page rather than a
+  phone. One 1954 x 982 landscape board, the eight-card bento feature section
+  of Dun's marketing page, in 8 boards across three rows: a colour and radius
+  board, a type and metrics board, four evidence boards for 94 tokens, the
+  replica, and the capture under it. The
+  capture is 1x, so design px and capture px are the same number and no
+  measurement passes through a scale. Mean absolute delta is 4.86 levels (of
+  255) over the whole frame and 3.19-9.21 per card, the spread tracking how
+  much of a card is small type. Its `README.md` records the two findings that
+  cost the most: a faded row's tile does **not** fade with its contents (the
+  tile holds .78 while the contents go to .04, so the tile is painted behind
+  an opacity wrapper), and the estimator that separates the two, which only
+  works when both windows sit at the same x because that is what cancels the
+  cards' right-edge fade. It also records the dark pills, whose plane fit
+  extrapolates below black, and the card radius that `refkit bbox` reports as
+  28 where a circle fit over the corner says 36. The one `ref-*` board is
+  gitignored, so a fresh clone has 7.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so
