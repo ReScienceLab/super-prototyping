@@ -52,7 +52,7 @@ export interface SpAsset {
   mime: string;
   /** Payload length in characters; for a vector, the standalone markup's. */
   chars: number;
-  /** For a vector, the viewBox size in board units. */
+  /** For a vector, the viewBox size in board units, else its width and height attributes. */
   w: number;
   h: number;
   /** The `alt`; for a vector, its accessible name, class or the caption beside it. */
@@ -334,22 +334,26 @@ function addSvg(i,el){
     if(!dst[j].hasAttribute('stroke')&&s.stroke!==ps.stroke)dst[j].setAttribute('stroke',s.stroke);}
   /* A same-document <use> is inlined here and not before the pass above, which walks el and c in
      lockstep by index: a node inlined into c has no counterpart in el. A <symbol> becomes an inner
-     <svg> carrying the use's own attributes (x, y, width, height, a fill) and the symbol's viewBox,
-     which the root adopts when it has none, so the copy draws standalone and signs like the
-     symbol's file; any other target is cloned in place. The inlined geometry takes the root's fill
-     and stroke written in above, not the sprite's own cascade. An external reference (file.svg#id)
-     stays as it is, and data-sp goes last because the inlined nodes bring the document's in.
-     ponytail: eight passes; a deeper chain, or a symbol that uses itself, keeps a dangling <use>. */
-  var us,u,t,g,h,d,m;
-  for(d=0;d<8&&(us=c.querySelectorAll('use')).length;d++)for(m=0;m<us.length;m++){u=us[m];
-    h=u.getAttribute('href')||u.getAttribute('xlink:href')||'';t=h.charAt(0)==='#'?document.getElementById(h.slice(1)):null;
-    if(!t)continue;g=document.createElementNS('http://www.w3.org/2000/svg','svg');
+     <svg> carrying the use's own attributes (x, y, width, height, a fill) and the symbol's viewBox;
+     any other target is cloned in place. The inlined geometry takes the root's fill and stroke
+     written in above, not the sprite's own cascade. An external reference (file.svg#id) stays as
+     it is, and data-sp goes last because the inlined nodes bring the document's in. The root
+     adopts the symbol's viewBox only when that one use, unoffset and unsized, is the whole root: a
+     root composing two symbols side by side keeps its own coordinate system, and its size then
+     reads from its width and height.
+     ponytail: 64 resolutions in all, then whatever <use> is still queued stays dangling; a symbol
+     holding two references to itself ends as 64 wrappers, not two to the power of the depth. */
+  var q=Array.prototype.slice.call(c.querySelectorAll('use')),left=64,seen=0,svb='',u,t,g,h;
+  while(q.length&&left){u=q.shift();h=u.getAttribute('href')||u.getAttribute('xlink:href')||'';
+    t=h.charAt(0)==='#'?document.getElementById(h.slice(1)):null;if(!t)continue;left--;seen++;
+    g=document.createElementNS('http://www.w3.org/2000/svg','svg');
     for(n=0;n<u.attributes.length;n++)if(!/href$/.test(u.attributes[n].name))g.setAttribute(u.attributes[n].name,u.attributes[n].value);
-    if(t.tagName==='symbol'){if(t.hasAttribute('viewBox')){g.setAttribute('viewBox',t.getAttribute('viewBox'));
-        if(!c.hasAttribute('viewBox'))c.setAttribute('viewBox',t.getAttribute('viewBox'));}
+    if(t.tagName==='symbol'){if(t.hasAttribute('viewBox'))g.setAttribute('viewBox',t.getAttribute('viewBox'));
+      if(!(u.getAttribute('x')||u.getAttribute('y')||u.getAttribute('width')||u.getAttribute('height')))svb=t.getAttribute('viewBox')||'';
       t=t.cloneNode(true);while(t.firstChild)g.appendChild(t.firstChild);}
     else g.appendChild(t.cloneNode(true));
-    u.parentNode.replaceChild(g,u);}
+    u.parentNode.replaceChild(g,u);q.push.apply(q,g.querySelectorAll('use'));}
+  if(seen===1&&svb&&!c.hasAttribute('viewBox'))c.setAttribute('viewBox',svb);
   inner=c.querySelectorAll('[data-sp]');for(n=0;n<inner.length;n++)inner[n].removeAttribute('data-sp');
   var svg=c.outerHTML.replace(/currentColor/gi,cs.color)
     .replace(/var\(\s*(--[\w-]+)[^)]*\)/g,function(m,p){return cs.getPropertyValue(p).replace(/^\s+|\s+$/g,'')||m;});
@@ -359,7 +363,7 @@ function addSvg(i,el){
   var k='svg:'+fnv(svgSignature(svg))+':'+fnv(cs.fill+'|'+cs.stroke+'|'+cs.color),a=byKey[k];
   if(!a){var vb=(c.getAttribute('viewBox')||'').split(/[\s,]+/);
     a=byKey[k]={key:k,uri:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),via:'svg',mime:'image/svg+xml',
-      chars:svg.length,w:+vb[2]||0,h:+vb[3]||0,alt:svgLabel(el),svg:svg,uses:[]};assets.push(a);}
+      chars:svg.length,w:+vb[2]||+c.getAttribute('width')||0,h:+vb[3]||+c.getAttribute('height')||0,alt:svgLabel(el),svg:svg,uses:[]};assets.push(a);}
   if(a.uses.indexOf(i)<0)a.uses.push(i);nodes[i].img=true;}
 /* No board writes a title on its icons, so with no file to name one the name is a guess from
    context: the accessible name if there is one; else a class, when it is a word (logo, aiface)
