@@ -19,6 +19,12 @@ describe("AGENT", () => {
     // every backslash doubled and would silently turn `\s` into `s`.
     expect(AGENT).toContain("replace(/^\\s+|\\s+$/g,'')");
   });
+
+  it("inlines a same-document <use> and passes over a sprite host's own definitions", () => {
+    // Issue #73: a <use href="#id"> cloned alone dangles, and a <defs> of <symbol>s draws nothing.
+    expect(AGENT).toContain("document.getElementById(h.slice(1))");
+    expect(AGENT).toContain(":not(defs *,symbol *)");
+  });
 });
 
 describe("injectAgent", () => {
