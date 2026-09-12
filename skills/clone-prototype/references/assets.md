@@ -8,7 +8,7 @@ build out of CSS and inline SVG.
 
 | The pixels you need are… | Do this |
 |---|---|
-| interface: type, buttons, pills, badges, chips, glyphs, a keyboard | **rebuild it** in HTML and CSS, glyphs traced to SVG (`glyphs.md` redraws the large ones); never crop it |
+| interface: type, buttons, pills, badges, chips, glyphs, a keyboard | **rebuild it** in HTML and CSS, glyphs traced to SVG and the large ones redrawn per `glyphs.md`; never crop it |
 | a picture on the capture, whole | **crop at the measured box** |
 | a picture with interface set over it (a lockup on a hero, a headline on a card) | crop the picture, **`erase` the interface out of it**, draw the interface live |
 | a picture partly hidden by a sheet, fade or scroll edge | crop what is visible; treat the rest as absent (Phase 3's rule about invented content applies to pictures too) |

@@ -29,14 +29,12 @@ a number will not converge.
 - **Measuring a render's height in pixels.** A card's `box-shadow` paints ~60px
   below its own bottom edge, so a pixel probe reports overflow that is not
   there. Ask the layout engine (`--check-overflow` does).
-- **Measuring a stroke off a diagonal edge.** A 45deg bar traces about sqrt(2)
-  thicker than it is (2.34 against a 1.62 ring on the App Store magnifier):
-  that is the stair-stepping, not a heavier stroke. One weight for both, and
+- **Measuring a stroke off a diagonal edge.** A 45° bar traces about √2
+  thicker than it is, 2.34 against a 1.62 ring on the App Store magnifier.
+  That is the stair-stepping, not a heavier stroke. Give both one weight, and
   see [`glyphs.md`](glyphs.md).
-
 - **Shipping a traced glyph the board draws large.** A trace scores 0 and looks
-  faceted at 2x. `glyphs.md` again.
-
+  faceted at 2×. See [`glyphs.md`](glyphs.md).
 - **Redrawing a third-party logo by hand.** Pull the real one; see
   [`brand-marks.md`](brand-marks.md) for the source, and
   for why you check the glyph against the capture before trusting a file name.
