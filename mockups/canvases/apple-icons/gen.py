@@ -123,8 +123,11 @@ BOARDS = [
     ("01-icon-set-dark", "assets-dark", "5:89", "Apple System App Icons, Dark"),
 ]
 
+# order: this folder is two reference sheets, not an app, so it sits at the end
+# of the welcome row with the empty folder rather than among the apps.
 LAYOUT = """{
   "name": "(example) Apple Icons",
+  "order": 1,
   "coverBox": [0, 0, 478, 980],
   "rows": [
     {
