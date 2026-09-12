@@ -21,6 +21,47 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+### The canvas
+
+- **A board is a web page with an address.** The button in the corner of the
+  inspector's preview opens the board it is showing as an ordinary document at
+  `/board/<slug>/<file>.html`, and the top bar opens every board of a page in
+  one scrolling document at `sheet.html?canvas=<slug>`, laid out in
+  `layout.json`'s rows with the canvas's own captions. This is where to read
+  type at the size it ships at rather than at whatever the canvas is zoomed to.
+  They are real addresses rather than the `blob:` URLs the first version handed
+  out, so a page can be linked, copied, reloaded, and read by the browser
+  extensions that refuse a generated page outright. The sheet is its own entry
+  in the build too, so reading a board no longer downloads tldraw to do it.
+- **Export to Figma is a button that says so.** The top bar's external-link
+  arrow is now a chip with Figma's mark, and the sheet it opens walks through
+  the route that works: install the html.to.design extension, capture the page
+  with it, then paste into a file. The extension is what the route turns on,
+  because the Figma plugin's own servers cannot reach localhost. The sheet
+  leaves the Foundations row out, because a token sheet is evidence behind the
+  screens rather than a screen to import beside them.
+
+### The toolkit and the skills
+
+- **`refkit refit` turns a traced contour back into a drawing.** A glyph traced
+  off a capture has the right shape and the wrong object: hundreds of implicit
+  linetos, visibly faceted where a board draws it large, while every delta
+  reads 0, because a mean delta cannot see faceting that stays inside a pixel.
+  `refit` resamples the contour, finds its corners by turning angle and fits
+  each run as a line, an arc or a cubic, leaving the file's `viewBox`
+  byte-identical.
+- **`clone-prototype` says when a glyph has to be redrawn, and how far to take
+  it.** The half that cannot ship as code is now `references/glyphs.md`: most
+  interface glyphs are a composition of primitives, because that is how they
+  were drawn, so the drawing is written with its dimensions as parameters and
+  the parameters are fitted against the trace, and the reference says how to
+  find what the glyph actually is and where to stop. Two pitfalls join the
+  list, both of which cost a run here: shipping a trace on a board that draws
+  it large, and measuring a stroke off a diagonal edge, where a 45° bar traces
+  about √2 thicker than it is.
+
+### Example canvases
+
 - **The `notion-ios` example canvas gains nine screens and a generator.** The
   four-screen flow for adding a data source to a database, and the five-screen
   flow for adding an account, both measured against native @3x captures. The
@@ -36,6 +77,22 @@ Everything below is on `main` and reaches no install until a version is cut.
   after the shared tokens. The cat and the sparkle strokes on the feature card
   are the folder's first `artgen` assets: `gpt-image-2` redraws of the
   capture's crops, keyed and scored in `art-gen.json`.
+- **`apple-app-store`, nine iOS 26 App Store screens.** Native iPhone 16 Pro
+  captures rebuilt as one `gen.py`, with a token board and two evidence boards
+  behind 80 tokens. The app icons are the originals from the iTunes lookup API
+  and the editorial art is a crop at its measured box, including an Arcade hero
+  that ends at the photograph's own fade and is filled, where the headline
+  covered it, from EA's published key art registered onto the page. The status
+  bar is `templates/gen.py`'s byte for byte, moved as a group for the wider
+  frame, which is now what the skill asks for. It is the head of Apple's own
+  row on the welcome page.
+- **`grok-ios`, fifteen Grok iOS screens.** The widget and its guide, the
+  paywall, the Terms update and its sign-out, the Grok Bot sheets, the home
+  with its composer, the voice picker and the Settings sheet at three scroll
+  positions, in the order the app walks them. Every icon is a crop of the
+  capture but seven: the three side glyphs on 04, and the four marks on 07's
+  chips, which are the publishers' own SVGs placed on a box fitted against the
+  capture rather than anything traced or redrawn.
 
 ## v1.1.1
 
