@@ -274,6 +274,51 @@ def test_grow_box_keeps_the_pale_edge_and_drops_the_neighbour():
     assert edge == "T", edge
 
 
+def _traced(pts):
+    """A tracer's output: one path of implicit linetos, no curves."""
+    d = "M" + " ".join("%.3f %.3f" % (x, y) for x, y in pts) + "Z"
+    return '<svg viewBox="0 0 20 20">\n<path d="%s"/>\n</svg>\n' % d
+
+
+def _opts(**kw):
+    o = R._parser().parse_args(["refit", "x.svg"])
+    for k, v in kw.items():
+        setattr(o, k, v)
+    return o
+
+
+def test_refit_turns_a_traced_circle_back_into_two_arcs():
+    a = np.linspace(0, 2 * np.pi, 240, endpoint=False)
+    out, notes = R._refit_svg(_traced(np.column_stack([
+        10 + 6 * np.cos(a), 10 + 6 * np.sin(a)])), _opts())
+    assert out.startswith('<svg viewBox="0 0 20 20">'), out    # viewBox kept
+    assert out.count("A") == 2 and "C" not in out, out
+    assert any(n.startswith("circle r=5.99") for n in notes), notes
+
+
+def test_refit_keeps_the_corners_of_a_traced_square():
+    # 4 corners, 4 straight runs: a rounding that ate one would show here.
+    side = np.linspace(0, 1, 60, endpoint=False)
+    box = np.vstack([np.column_stack([4 + 12 * side, np.full(60, 4.0)]),
+                     np.column_stack([np.full(60, 16.0), 4 + 12 * side]),
+                     np.column_stack([16 - 12 * side, np.full(60, 16.0)]),
+                     np.column_stack([np.full(60, 4.0), 16 - 12 * side])])
+    out, notes = R._refit_svg(_traced(box), _opts())
+    assert out.count("L") == 4 and "C" not in out, out
+    # 11.83, not 12: smoothing pulls each corner about 0.09 in along both
+    # edges, which is the price of killing the jitter and is well under a pixel
+    runs = [float(n.split()[1]) for n in notes if n.startswith("line")]
+    assert len(runs) == 4 and all(11.7 < v < 12.0 for v in runs), notes
+
+
+def test_refit_prefers_one_cubic_to_a_pile_of_anchors():
+    t = np.linspace(0, 1, 200)
+    ctrl = np.array([[3.0, 10.0], [7.0, 2.0], [13.0, 18.0], [17.0, 10.0]])
+    arch = R._bezier(ctrl, t)
+    out, _ = R._refit_svg(_traced(np.vstack([arch, arch[::-1] + [0, 1.5]])), _opts())
+    assert out.count("C") <= 4, out       # the trace had 400 linetos
+
+
 if __name__ == "__main__":
     fns = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in fns:

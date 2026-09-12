@@ -2,13 +2,14 @@
 
 A glyph traced off a capture is point soup: one `<path>` of hundreds of
 implicit linetos, no curves, and edges that are visibly ragged at any zoom.
-These two scripts turn one into artwork a designer could have drawn, which
-means few anchors on real circles, arcs and Béziers.
+`design.py` here and `refkit refit` in the toolkit turn one into artwork a
+designer could have drawn, which means few anchors on real circles, arcs and
+Béziers.
 
-Both read `../assets/icons/<name>.svg`, keep its `viewBox` byte for byte —
-that box is the glyph's ink box in the capture's page points, and `gen.py`
-places the file by it, so a changed box moves the glyph — and write their
-overlays to `../scratch/compare/`.
+`design.py` reads `../assets/icons/<name>.svg` and `refkit refit` takes a path;
+both keep the file's `viewBox` byte for byte — that box is the glyph's ink box
+in the capture's page points, and `gen.py` places the file by it, so a changed
+box moves the glyph. `design.py` writes its overlays to `../scratch/compare/`.
 
 ## `design.py` — the glyph *is* a construction
 
@@ -28,15 +29,17 @@ re-run reproduces the same file. Adding a glyph means reading it — `probe.py`
 prints where the ink starts and stops along each row and column, in the
 glyph's own points — and adding a builder.
 
-## `refit.py` — the glyph is a shape
+## `refkit refit` — the glyph is a shape
 
 The rocket has no construction, so fit the outline itself: resample the
 contour, smooth it, find the corners by turning angle, and fit each run
 between two corners as a line, a circular arc or a cubic Bézier, splitting
-until the worst deviation is under tolerance.
+until the worst deviation is under tolerance. That half is general, so it
+lives in the toolkit rather than here.
 
 ```bash
-SIGMA=0.35 TOL=0.13 CORNER=50 SPAN=1.0 python3 redraw/refit.py --write tab-games
+refkit refit --sigma 0.35 --tol 0.13 --corner 50 --span 1.0 --write \
+    assets/icons/tab-games.svg
 ```
 
 Those four are the anchor-count/fidelity knee for these glyphs: 2382 bytes
@@ -44,7 +47,9 @@ and no curves in, 1072 bytes and 40 anchors out, 0.9% of the ink disagreeing.
 Looser smoothing rounds off the fin tips; tighter keeps the trace's wobble.
 
 Unlike `design.py`, this one has no record of its input beyond its output, so
-run it on a glyph once. The traced originals are in git history, at 7b188a5.
+run it on a glyph once. The traced originals are in git history, at 7b188a5,
+which is also how to re-check a fit: `git show 7b188a5:<path> > /tmp/x.svg`
+and refit that.
 
 ## How close these land
 

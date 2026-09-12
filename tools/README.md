@@ -4,8 +4,9 @@ Three command-line tools, packaged so the skills can call them by name.
 
 - **`refkit`** — the measuring toolkit. Overlays a labelled grid on a
   reference capture, takes colour censuses, finds bands and bounding boxes,
-  names a typeface, shoots mockup HTML with headless Chrome, and diffs a
-  render against its source. `refkit --help` lists all sixteen subcommands.
+  names a typeface, shoots mockup HTML with headless Chrome, diffs a render
+  against its source, and redraws a traced glyph as real curves.
+  `refkit --help` lists all seventeen subcommands.
 - **`artgen`** — redraws the rare asset that cannot be CSS or inline SVG,
   chroma-keys it off its ground, and fits it to the measured box.
 - **`sp-canvas`** — starts the bundled tldraw canvas against a project's board

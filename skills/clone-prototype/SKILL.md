@@ -332,7 +332,11 @@ before cutting anything:
   the capture into an SVG whose viewBox is its ink box in page points. Use the
   system font's own outline where one exists, such as SF's Apple logo at
   U+F8FF. A crop of interface scores well and is worthless, because nothing
-  in it can be edited, reflowed or reused.
+  in it can be edited, reflowed or reused. **A trace is not the finish for a
+  glyph the board draws large**: it is a polygon of hundreds of linetos whose
+  edges are visibly faceted at 2× while every delta reads 0.
+  [`references/glyphs.md`](references/glyphs.md) redraws those as the
+  primitives or the curves they were designed as.
 - **An app icon or third-party logo is the original file**, never a crop:
   the iTunes lookup API's 1024 px artwork for an App Store app, and
   [`references/brand-marks.md`](references/brand-marks.md) for the rest.
@@ -379,7 +383,9 @@ against the crop it came from.
 `assets/art/` is committed while `assets/refs/` is not;
 [`references/generating.md`](references/generating.md)
 is the generation procedure end to end, with the key-colour, alpha-ramp and
-fit-sign traps that each cost a run.
+fit-sign traps that each cost a run;
+[`references/glyphs.md`](references/glyphs.md) turns the traced glyphs a board
+draws large back into artwork, by construction or with `refkit refit`.
 
 ### Model the line box once, then place by ink
 
