@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dun - Type and metrics</title>
+<style>
+:root{
+  /* Font */
+  --d-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --d-font-hand:"SignPainter","Bradley Hand","Brush Script MT",cursive;
+
+  /* Surface */
+  --d-bg:#F2F2F2;
+  --d-c-ws:#D8E2E8;
+  --d-c-proj:#F9D2B9;
+  --d-c-team:#E1E6C4;
+  --d-c-docs:#F6C8CE;
+  --d-c-comm:#D3ECE8;
+  --d-c-subt:#F9E9B5;
+  --d-c-task:#DDDAED;
+  --d-c-bulk:#ECEFBF;
+  --d-white:#FFFFFF;
+  --d-panel-top:#F5F9FA;
+  --d-panel-bot:#EBF2F2;
+  --d-chip:#F6F6F6;
+  --d-dark:#000000;
+  --d-dark-2:#4E4E4E;
+  --d-box:#3A3B38;
+  --d-kbd:#2B2B2B;
+  --d-tip:#444746;
+  --d-pill-grey:#EEEEEE;
+  --d-plus:#E6EAEB;
+  --d-tile-fade:rgba(255,255,255,.78);
+  --d-ghost:rgba(255,255,255,.42);
+
+  /* Line */
+  --d-ring:rgba(255,255,255,.75);
+  --d-hairline:#ECECEC;
+  --d-tree:#E8D7A4;
+
+  /* Ink */
+  --d-i-ws:#1F4256;
+  --d-i-proj:#724324;
+  --d-i-team:#203E14;
+  --d-i-docs:#5A2D4F;
+  --d-i-comm:#215C5C;
+  --d-i-subt:#51430D;
+  --d-i-task:#5C476A;
+  --d-i-bulk:#727358;
+  --d-ink:#050505;
+  --d-ink-2:#656765;
+  --d-ink-3:#B2B2B2;
+  --d-ink-4:#D1D1D1;
+  --d-ink-dim:#9BA0A0;
+  --d-ink-inv:#FFFFFF;
+  --d-doc-ink:#2A2A2A;
+  --d-doc-head:#343434;
+  --d-doc-body:#777876;
+
+  /* Accent */
+  --d-blue:#3B82F6;
+  --d-amber:#FBBF24;
+  --d-orange:#F59E0B;
+  --d-fuchsia:#D946EF;
+  --d-green:#22C55E;
+  --d-red:#F87171;
+  --d-folder:#FFDE77;
+  --d-cur-blue:#3092FE;
+  --d-cur-green:#1BB944;
+
+  /* Radius */
+  --d-r-card:36px;
+  --d-r-panel:24px;
+  --d-r-tip:14px;
+  --d-r-tile:20px;
+  --d-r-row:18px;
+  --d-r-box:8px;
+  --d-r-chip:8px;
+  --d-r-cur:16px;
+  --d-r-pill:999px;
+
+  /* Type */
+  --d-t-label:italic 700 25px/25px var(--d-font-hand);
+  --d-t-body:400 18px/28px var(--d-font);
+  --d-t-pill:400 19px/24px var(--d-font);
+  --d-t-row:600 16px/20px var(--d-font);
+  --d-t-row-id:400 16px/20px var(--d-font);
+  --d-t-chip:400 13px/16px var(--d-font);
+  --d-t-btn:600 16px/20px var(--d-font);
+  --d-t-btn-s:600 13px/17px var(--d-font);
+  --d-t-kbd:500 11px/14px var(--d-font);
+  --d-t-tip:600 21px/26px var(--d-font);
+  --d-t-cursor:600 18px/22px var(--d-font);
+  --d-t-doc-t:500 18px/22px var(--d-font);
+  --d-t-doc-h:500 11px/14px var(--d-font);
+  --d-t-doc-b:400 8px/11px var(--d-font);
+  --d-t-comm-n:600 13px/16px var(--d-font);
+  --d-t-comm-b:400 12px/16px var(--d-font);
+
+  /* Metrics */
+  --d-w:1954px;
+  --d-h:982px;
+  --d-pad:27px;
+  --d-label-top:31px;
+  --d-body-top:65px;
+  --d-gap:21px;
+  --d-row-pitch:85px;
+  --d-bulk-pitch:66px;
+  --d-o-text:.82;
+  --d-o-bulk-2:.94;
+  --d-o-bulk-3:.55;
+  --d-o-bulk-4:.04;
+  --d-rot-pill:.56deg;
+  --d-rot-ghost:-1.04deg;
+  --d-o-subt-4:.93;
+  --d-o-subt-5:.38;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--d-bg);font-family:var(--d-font);
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+body{color:var(--d-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--d-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--d-font);color:var(--d-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--d-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--d-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:22px;border-radius:6px;border:1px solid var(--d-hairline)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--d-ink-2);font-style:normal;word-break:break-all}
+.rad{display:flex;flex-wrap:wrap;gap:9px}
+.rb{flex:none;width:44px;height:26px;background:var(--d-c-ws);
+  border:1px solid var(--d-hairline)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--d-font);
+  color:var(--d-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--d-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--d-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--d-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--d-hairline);font:400 8.5px/11px var(--d-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--d-i-ws);white-space:nowrap}
+td.v{color:var(--d-ink-2);max-width:132px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.e{color:var(--d-doc-body)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Type and metrics</h1><p>One composite <code>font:</code> per role. The hand face is a substitution and sets narrower than the reference&rsquo;s, so its size is the one fitted by rendering rather than read off the capture.</p></header><h2>Type</h2><div class="tr"><span style="font:var(--d-t-label)">Everything starts</span><em>--d-t-label &middot; italic 700 25px/25px</em></div><div class="tr"><span style="font:var(--d-t-body)">Everything starts</span><em>--d-t-body &middot; 400 18px/28px</em></div><div class="tr"><span style="font:var(--d-t-pill)">Everything starts</span><em>--d-t-pill &middot; 400 19px/24px</em></div><div class="tr"><span style="font:var(--d-t-row)">Everything starts</span><em>--d-t-row &middot; 600 16px/20px</em></div><div class="tr"><span style="font:var(--d-t-row-id)">Everything starts</span><em>--d-t-row-id &middot; 400 16px/20px</em></div><div class="tr"><span style="font:var(--d-t-chip)">Everything starts</span><em>--d-t-chip &middot; 400 13px/16px</em></div><div class="tr"><span style="font:var(--d-t-btn)">Everything starts</span><em>--d-t-btn &middot; 600 16px/20px</em></div><div class="tr"><span style="font:var(--d-t-btn-s)">Everything starts</span><em>--d-t-btn-s &middot; 600 13px/17px</em></div><div class="tr"><span style="font:var(--d-t-kbd)">Everything starts</span><em>--d-t-kbd &middot; 500 11px/14px</em></div><div class="tr"><span style="font:var(--d-t-tip)">Everything starts</span><em>--d-t-tip &middot; 600 21px/26px</em></div><div class="tr"><span style="font:var(--d-t-cursor)">Everything starts</span><em>--d-t-cursor &middot; 600 18px/22px</em></div><div class="tr"><span style="font:var(--d-t-doc-t)">Everything starts</span><em>--d-t-doc-t &middot; 500 18px/22px</em></div><div class="tr"><span style="font:var(--d-t-doc-h)">Everything starts</span><em>--d-t-doc-h &middot; 500 11px/14px</em></div><div class="tr"><span style="font:var(--d-t-doc-b)">Everything starts</span><em>--d-t-doc-b &middot; 400 8px/11px</em></div><div class="tr"><span style="font:var(--d-t-comm-n)">Everything starts</span><em>--d-t-comm-n &middot; 600 13px/16px</em></div><div class="tr"><span style="font:var(--d-t-comm-b)">Everything starts</span><em>--d-t-comm-b &middot; 400 12px/16px</em></div><h2>Metrics</h2><div class="met">--d-w: 1954px<br>--d-h: 982px<br>--d-pad: 27px<br>--d-label-top: 31px<br>--d-body-top: 65px<br>--d-gap: 21px<br>--d-row-pitch: 85px<br>--d-bulk-pitch: 66px<br>--d-o-text: .82<br>--d-o-bulk-2: .94<br>--d-o-bulk-3: .55<br>--d-o-bulk-4: .04<br>--d-rot-pill: .56deg<br>--d-rot-ghost: -1.04deg<br>--d-o-subt-4: .93<br>--d-o-subt-5: .38</div></div>
+</body>
+</html>

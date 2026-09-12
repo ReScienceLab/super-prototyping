@@ -1,0 +1,19 @@
+{
+  "_": "Art cut from assets/refs/01.png at measured page boxes, [ref, x0, y0, x1, y1]. The capture is 1x, so these are design px too. gen.py's cut() writes assets/art/<id>.png and art() places each <img> at the same numbers, so an asset cannot drift from where it was measured. Everything else on the board -- cards, pills, panels, toolbars, type, line icons -- is CSS or inline SVG.",
+
+  "_logos": "The three workspace marks in the Workspace panel. 60px circles on the panel's own near-white ramp, so each square crop carries 2 levels of that ramp with it and lands back on the same place.",
+  "logo-dun":     ["01", 325, 233, 385, 293],
+  "logo-thisux":  ["01", 325, 316, 385, 376],
+  "logo-fliso":   ["01", 325, 400, 385, 460],
+
+  "_proj": "The Projects folder and the three note cards fanned behind it. One crop, not four: the cards overlap the folder and each other, and the fan angles are not measurable off a 169px piece of art.",
+  "proj-art":     ["01", 928, 49, 1103, 222],
+
+  "_faces": "Two photographs. Nothing else on the board is a photograph, and a drawn stand-in for a face is the one substitution a reader always notices.",
+  "avatar-damia": ["01", 1557, 195, 1580, 218],
+  "avatar-task":  ["01", 690, 798, 711, 819],
+
+  "_cursors": "The two collaborator arrows. Their pills are CSS -- box and radius measure to a pixel -- but an arrow is a four-point polygon with four sharp vertices, and at 1x every one of them is antialiased below any threshold: fitting the edges off this capture put the James apex 4px above where the ink starts. The box is the arrow ink grown to the ringing fringe around it, so the crop also carries the one pixel of cyan overshoot the capture has and a render must not invent. Both boxes clip the pill the arrow points out of, so the art is drawn first and the pill lands back on top of it.",
+  "cur-james":    ["01", 185, 272, 236, 318],
+  "cur-you":      ["01", 439, 531, 489, 576]
+}

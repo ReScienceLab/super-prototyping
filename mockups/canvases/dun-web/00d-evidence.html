@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dun - Evidence 2/4</title>
+<style>
+:root{
+  /* Font */
+  --d-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --d-font-hand:"SignPainter","Bradley Hand","Brush Script MT",cursive;
+
+  /* Surface */
+  --d-bg:#F2F2F2;
+  --d-c-ws:#D8E2E8;
+  --d-c-proj:#F9D2B9;
+  --d-c-team:#E1E6C4;
+  --d-c-docs:#F6C8CE;
+  --d-c-comm:#D3ECE8;
+  --d-c-subt:#F9E9B5;
+  --d-c-task:#DDDAED;
+  --d-c-bulk:#ECEFBF;
+  --d-white:#FFFFFF;
+  --d-panel-top:#F5F9FA;
+  --d-panel-bot:#EBF2F2;
+  --d-chip:#F6F6F6;
+  --d-dark:#000000;
+  --d-dark-2:#4E4E4E;
+  --d-box:#3A3B38;
+  --d-kbd:#2B2B2B;
+  --d-tip:#444746;
+  --d-pill-grey:#EEEEEE;
+  --d-plus:#E6EAEB;
+  --d-tile-fade:rgba(255,255,255,.78);
+  --d-ghost:rgba(255,255,255,.42);
+
+  /* Line */
+  --d-ring:rgba(255,255,255,.75);
+  --d-hairline:#ECECEC;
+  --d-tree:#E8D7A4;
+
+  /* Ink */
+  --d-i-ws:#1F4256;
+  --d-i-proj:#724324;
+  --d-i-team:#203E14;
+  --d-i-docs:#5A2D4F;
+  --d-i-comm:#215C5C;
+  --d-i-subt:#51430D;
+  --d-i-task:#5C476A;
+  --d-i-bulk:#727358;
+  --d-ink:#050505;
+  --d-ink-2:#656765;
+  --d-ink-3:#B2B2B2;
+  --d-ink-4:#D1D1D1;
+  --d-ink-dim:#9BA0A0;
+  --d-ink-inv:#FFFFFF;
+  --d-doc-ink:#2A2A2A;
+  --d-doc-head:#343434;
+  --d-doc-body:#777876;
+
+  /* Accent */
+  --d-blue:#3B82F6;
+  --d-amber:#FBBF24;
+  --d-orange:#F59E0B;
+  --d-fuchsia:#D946EF;
+  --d-green:#22C55E;
+  --d-red:#F87171;
+  --d-folder:#FFDE77;
+  --d-cur-blue:#3092FE;
+  --d-cur-green:#1BB944;
+
+  /* Radius */
+  --d-r-card:36px;
+  --d-r-panel:24px;
+  --d-r-tip:14px;
+  --d-r-tile:20px;
+  --d-r-row:18px;
+  --d-r-box:8px;
+  --d-r-chip:8px;
+  --d-r-cur:16px;
+  --d-r-pill:999px;
+
+  /* Type */
+  --d-t-label:italic 700 25px/25px var(--d-font-hand);
+  --d-t-body:400 18px/28px var(--d-font);
+  --d-t-pill:400 19px/24px var(--d-font);
+  --d-t-row:600 16px/20px var(--d-font);
+  --d-t-row-id:400 16px/20px var(--d-font);
+  --d-t-chip:400 13px/16px var(--d-font);
+  --d-t-btn:600 16px/20px var(--d-font);
+  --d-t-btn-s:600 13px/17px var(--d-font);
+  --d-t-kbd:500 11px/14px var(--d-font);
+  --d-t-tip:600 21px/26px var(--d-font);
+  --d-t-cursor:600 18px/22px var(--d-font);
+  --d-t-doc-t:500 18px/22px var(--d-font);
+  --d-t-doc-h:500 11px/14px var(--d-font);
+  --d-t-doc-b:400 8px/11px var(--d-font);
+  --d-t-comm-n:600 13px/16px var(--d-font);
+  --d-t-comm-b:400 12px/16px var(--d-font);
+
+  /* Metrics */
+  --d-w:1954px;
+  --d-h:982px;
+  --d-pad:27px;
+  --d-label-top:31px;
+  --d-body-top:65px;
+  --d-gap:21px;
+  --d-row-pitch:85px;
+  --d-bulk-pitch:66px;
+  --d-o-text:.82;
+  --d-o-bulk-2:.94;
+  --d-o-bulk-3:.55;
+  --d-o-bulk-4:.04;
+  --d-rot-pill:.56deg;
+  --d-rot-ghost:-1.04deg;
+  --d-o-subt-4:.93;
+  --d-o-subt-5:.38;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--d-bg);font-family:var(--d-font);
+  -webkit-font-smoothing:antialiased;overflow:hidden}
+body{color:var(--d-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--d-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--d-font);color:var(--d-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--d-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--d-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:22px;border-radius:6px;border:1px solid var(--d-hairline)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--d-ink-2);font-style:normal;word-break:break-all}
+.rad{display:flex;flex-wrap:wrap;gap:9px}
+.rb{flex:none;width:44px;height:26px;background:var(--d-c-ws);
+  border:1px solid var(--d-hairline)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--d-font);
+  color:var(--d-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--d-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--d-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--d-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--d-hairline);font:400 8.5px/11px var(--d-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--d-i-ws);white-space:nowrap}
+td.v{color:var(--d-ink-2);max-width:132px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.e{color:var(--d-doc-body)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 2/4</h1><p>One row per token. A token with no evidence is a guess. The replayable half is probes.json.</p></header><table class="ev"><tr><td class="t">--d-ghost</td><td class="v">rgba(255,255,255,.42)</td><td class="e">the stacked card behind the Tasks row reads #EBEAF3 over --d-c-task (#DDDAED): alpha .41 on red and .43 on green. Blue has 18 levels of headroom against red&rsquo;s 34 and solves .33, which is the noise floor, not a third colour</td></tr><tr><td class="t">--d-ring</td><td class="v">rgba(255,255,255,.75)</td><td class="e">1-2px near-white rim just outside every card fill (#F9FEFF/#FFFFFF); the ground returns to #F2F2F2 at once, so there is no dark drop shadow to solve</td></tr><tr><td class="t">--d-hairline</td><td class="v">#ECECEC</td><td class="e">refkit scan row 527, the toolbar button outline</td></tr><tr><td class="t">--d-tree</td><td class="v">#E8D7A4</td><td class="e">row scan at y614: the subtask connector is 1px wide and a tint of --d-c-subt, not a grey; a #D6D6D6 mask finds the DUN-NN text instead of the tree</td></tr><tr><td class="t">--d-i-ws</td><td class="v">#1F4256</td><td class="e">ink core, darkest 2%, Workspace label and body (they match)</td></tr><tr><td class="t">--d-i-proj</td><td class="v">#724324</td><td class="e">ink core, Projects label and body</td></tr><tr><td class="t">--d-i-team</td><td class="v">#203E14</td><td class="e">ink core, Teams label and body</td></tr><tr><td class="t">--d-i-docs</td><td class="v">#5A2D4F</td><td class="e">ink core, Docs label and body</td></tr><tr><td class="t">--d-i-comm</td><td class="v">#215C5C</td><td class="e">ink core, Comments label and body</td></tr><tr><td class="t">--d-i-subt</td><td class="v">#51430D</td><td class="e">ink core, Subtasks label and body</td></tr><tr><td class="t">--d-i-task</td><td class="v">#5C476A</td><td class="e">ink core, Tasks label and body</td></tr><tr><td class="t">--d-i-bulk</td><td class="v">#727358</td><td class="e">ink core, Bulk label and lines 1-2; line 3 is the same ink at --d-o-text</td></tr><tr><td class="t">--d-ink</td><td class="v">#050505</td><td class="e">ink core of a row title (Develop MVP, Competitor Analysis Research)</td></tr><tr><td class="t">--d-ink-2</td><td class="v">#656765</td><td class="e">ink core of the commenter name and the Research chip label</td></tr><tr><td class="t">--d-ink-3</td><td class="v">#B2B2B2</td><td class="e">ink core of a DUN-NN row id, two cards</td></tr><tr><td class="t">--d-ink-4</td><td class="v">#D1D1D1</td><td class="e">ink core of the 2h timestamp</td></tr><tr><td class="t">--d-ink-dim</td><td class="v">#9BA0A0</td><td class="e">ink core of the ThisUX (#9DA09F) and Fli.so (#A0A5A5) tooltip labels and of the add-workspace plus glyph (#919596, only 19 px of ink)</td></tr><tr><td class="t">--d-ink-inv</td><td class="v">#FFFFFF</td><td class="e">ink core on the dark pills and the cursor labels</td></tr><tr><td class="t">--d-doc-ink</td><td class="v">#2A2A2A</td><td class="e">ink core of the doc title, Product Requirement Doc</td></tr><tr><td class="t">--d-doc-head</td><td class="v">#343434</td><td class="e">ink core of a doc section heading</td></tr><tr><td class="t">--d-doc-body</td><td class="v">#777876</td><td class="e">ink core of a doc paragraph</td></tr><tr><td class="t">--d-blue</td><td class="v">#3B82F6</td><td class="e">1.5px stroke; darkest px #488ED6, nearest Tailwind step to its hue</td></tr><tr><td class="t">--d-amber</td><td class="v">#FBBF24</td><td class="e">filled half-circle, darkest px #FFBF28 = Tailwind amber-400</td></tr><tr><td class="t">--d-orange</td><td class="v">#F59E0B</td><td class="e">1.5px stroke, terminal icon; darkest px #CB9744</td></tr><tr><td class="t">--d-fuchsia</td><td class="v">#D946EF</td><td class="e">1.5px stroke, megaphone; darkest px #C435B0</td></tr><tr><td class="t">--d-green</td><td class="v">#22C55E</td><td class="e">1.5px stroke, briefcase; darkest px #46AD66</td></tr><tr><td class="t">--d-red</td><td class="v">#F87171</td><td class="e">1.5px stroke, warning triangle and the Research dot; darkest px #D4796C</td></tr><tr><td class="t">--d-folder</td><td class="v">#FFDE77</td><td class="e">mode of the Projects folder core, 8842 px</td></tr><tr><td class="t">--d-cur-blue</td><td class="v">#3092FE</td><td class="e">mode of the James cursor core, 429 px</td></tr><tr><td class="t">--d-cur-green</td><td class="v">#1BB944</td><td class="e">mode of the You cursor core, 334 px</td></tr></table></div>
+</body>
+</html>
