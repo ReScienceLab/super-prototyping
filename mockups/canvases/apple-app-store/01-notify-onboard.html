@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>App Store - Notifications onboarding</title>
+<style>
+:root{
+  /* Font */
+  --as-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --as-bg:#FFFFFF;
+  --as-fill:#EEEEEF;
+  --as-fill-2:#EBEBEB;
+  --as-chip:#FFFFFF;
+  --as-circle:#F9F9FA;
+  --as-tint:#EDF6FF;
+  --as-badge:#86C0FD;
+  --as-sky:linear-gradient(#023254,#034B72 41%,#04608A 72%,#056792 85%,#1A719E);
+  --as-scrim:rgba(0,0,0,.20);
+  --as-group:#F2F2F6;
+  --as-haze:#F9FAFA;
+  --as-disc:#FAFAFB;
+  --as-disc-2:#F5F5F9;
+  --as-back:#E0E0E0;
+  --as-alert:rgba(255,255,255,.60);
+  --as-alert-btn:rgba(0,0,0,.12);
+  --as-kbd:#E2E3E7;
+  --as-glass-pill:rgba(255,255,255,.41);
+  --as-glass-price:rgba(255,255,255,.12);
+
+  /* Line */
+  --as-hairline:#DFDFDF;
+  --as-border:#B0AFB0;
+  --as-sep:#E7E7E8;
+  --as-kbd-sep:#D3D4DA;
+
+  /* Ink */
+  --as-ink:#000000;
+  --as-ink-2:#8A8A8E;
+  --as-ink-3:#BFBFBF;
+  --as-ink-inv:#FFFFFF;
+  --as-ink-dim:#707172;
+  --as-ink-note:#85858B;
+  --as-ink-ph:#BCBCC1;
+  --as-ink-chev:#C5C5C7;
+  --as-ink-alert:#838383;
+  --as-ink-kbd:#494A4B;
+  --as-ink-hint:#CDCED0;
+  --as-ink-off:#E5E6E9;
+  --as-ink-glass:rgba(255,255,255,.70);
+  --as-ink-glass-2:rgba(255,255,255,.55);
+  --as-ink-promo:#FFFF7D;
+
+  /* Accent */
+  --as-accent:#0082F7;
+  --as-accent-2:#0088FE;
+  --as-accent-3:#007AFF;
+
+  /* Radius */
+  --as-r-card:26px;
+  --as-r-sheet:38px;
+  --as-r-alert:34px;
+  --as-r-chip:18.5px;
+  --as-r-pill:999px;
+  --as-r-key:6px;
+  --as-r-kbd:28px;
+  --as-r-phone:62px;
+
+  /* Type */
+  --as-t-title:700 34px/41px var(--as-font);
+  --as-t-section:700 21px/26px var(--as-font);
+  --as-t-group:700 16px/20px var(--as-font);
+  --as-t-row:400 16px/18px var(--as-font);
+  --as-t-sub:400 12px/21px var(--as-font);
+  --as-t-chip:600 14px/19px var(--as-font);
+  --as-tr-tight:-0.2px;
+  --as-t-cta:600 15px/20px var(--as-font);
+  --as-t-iap:400 8px/11px var(--as-font);
+  --as-t-lock:600 14px/18px var(--as-font);
+  --as-t-lock-sub:400 11px/14px var(--as-font);
+  --as-t-price:700 15px/20px var(--as-font);
+  --as-t-tile:600 16px/19.33px var(--as-font);
+  --as-t-wordmark:500 20px/24px var(--as-font);
+  --as-tr-wordmark:-0.05px;
+  --as-t-head:600 21px/26px var(--as-font);
+  --as-t-headsub:400 22px/26px var(--as-font);
+  --as-t-eyebrow:700 11px/16px var(--as-font);
+  --as-tr-head:-0.5px;
+  --as-t-ssub:400 14px/18px var(--as-font);
+  --as-t-ph:400 16px/20px var(--as-font);
+  --as-t-ad:600 10px/13px var(--as-font);
+  --as-t-tab:500 10px/12px var(--as-font);
+  --as-t-hero:700 26px/32px var(--as-font);
+  --as-t-btn:600 16.5px/22px var(--as-font);
+  --as-t-foot:400 12px/16px var(--as-font);
+  --as-t-areye:600 12px/16px var(--as-font);
+  --as-t-pane:700 27px/32px var(--as-font);
+  --as-t-lede:400 21px/26px var(--as-font);
+  --as-t-go:600 16px/22px var(--as-font);
+  --as-t-link:600 16px/22px var(--as-font);
+  --as-t-body:400 16px/22px var(--as-font);
+  --as-t-sheet:600 17px/22px var(--as-font);
+  --as-t-note:400 12px/14px var(--as-font);
+  --as-t-signin:700 21px/28px var(--as-font);
+  --as-t-alert:600 17px/22px var(--as-font);
+  --as-t-alert-msg:400 15px/20px var(--as-font);
+  --as-t-alert-btn:500 17px/22px var(--as-font);
+  --as-t-key:400 25px/35px var(--as-font);
+  --as-t-key-sm:400 18px/40px var(--as-font);
+  --as-t-key-at:400 21px/38px var(--as-font);
+  --as-t-pw:400 17px/22px var(--as-font);
+  --as-t-time:590 17px/22px var(--as-font);
+
+  /* Metrics */
+  --as-w:402px;
+  --as-h:874px;
+  --as-status:62px;
+  --as-gutter:20px;
+  --as-icon:62px;
+  --as-bar-w:361px;
+  --as-bar-h:62.7px;
+  --as-bar-top:790.5px;
+  --as-tab-pitch:68.7px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--as-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--as-w);height:var(--as-h);
+  border-radius:var(--as-r-phone);overflow:hidden;background:var(--as-bg);color:var(--as-ink);
+  transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--as-w);height:var(--as-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--as-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* the one change for a 402pt frame: the template's glyphs, moved as a group */
+.sb .glyphs{position:absolute;left:6px;top:0}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+.scroll{position:absolute;left:0;top:0;width:var(--as-w);height:var(--as-h)}
+.scroll img{position:absolute;display:block}
+
+h1.big{position:absolute;left:20px;top:62.6px;font:var(--as-t-title);letter-spacing:.37px}
+.acct{position:absolute;left:342px;top:62px;width:44px;height:44px;border-radius:22px;
+  background:var(--as-circle);box-shadow:inset 0 0 0 .5px rgba(0,0,0,.10)}
+.acct svg{position:absolute;left:12.7px;top:12.3px;width:18.3px;height:19.3px;
+  display:block;fill:currentColor}
+
+/* floating tab bar: one stadium, five tabs, the selected one on a capsule */
+.bar{position:absolute;left:20.5px;top:790.5px;width:var(--as-bar-w);height:var(--as-bar-h);
+  border-radius:31.35px;z-index:5;background:rgba(255,255,255,.60);
+  -webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);
+  box-shadow:inset 0 0 0 .5px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.05)}
+.bar .cap{position:absolute;top:4.5px;width:77px;height:54px;border-radius:27px;
+  background:var(--as-fill-2)}
+.bar svg{position:absolute;display:block}
+.bar b{position:absolute;top:39.4px;width:80px;margin-left:-40px;text-align:center;
+  font:var(--as-t-tab);letter-spacing:.06px}
+.bar .t{color:var(--as-ink)}
+.bar .t.on{color:var(--as-accent)}
+.dim{position:absolute;left:0;top:0;width:var(--as-w);height:var(--as-h);
+  background:var(--as-scrim);z-index:7}
+.sheet{position:absolute;left:0;width:var(--as-w);overflow:hidden;z-index:8;background:var(--as-bg);
+  border-radius:var(--as-r-sheet) var(--as-r-sheet) var(--as-r-phone) var(--as-r-phone)}
+.sheet>div{position:absolute;left:0;width:var(--as-w);height:var(--as-h)}
+.sheet img,.sheet>div>svg,.close svg{position:absolute;display:block}
+.tx{position:absolute;white-space:nowrap}
+.mid{left:0;width:var(--as-w);text-align:center}
+.close{position:absolute;top:78px;width:44px;height:44px;border-radius:22px;
+  box-shadow:inset 0 0 0 .5px rgba(0,0,0,.18),inset 0 2px 2px -1px #fff,inset 0 -2px 2px -1px #fff}.go{position:absolute;height:53px;border-radius:26.5px;background:var(--as-accent-2);
+  color:var(--as-ink-inv);font:var(--as-t-go);display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 1.5px 1.5px -.5px #0CD3FF,inset 0 -1.5px 1.5px -.5px #0CD3FF}
+.pane{font:var(--as-t-pane)}
+.lede{font:var(--as-t-lede);color:var(--as-ink-2)}
+.link{font:var(--as-t-link);color:var(--as-accent-2)}
+.illo{position:absolute;left:0;width:var(--as-w);color:#F5F5F5;
+  background:linear-gradient(#FEFEFE 8px,#EDEDED 356px)}
+.illo>div,.illo>svg{position:absolute;display:block}
+.illo .dev{left:67px;width:268.3px;height:317.5px;border-radius:0 0 47px 47px;
+  background:linear-gradient(#FEFEFE 22px,#FBFBFB 58px,#F4F4F4 88px,#F2F2F2 98px,
+    #EAEAEA 118px,#E2E2E2 138px,#CFCFCF 174px,#CFCFCF 238px,#CBCBCB 316px)}
+.illo .nt{left:82.2px;width:237.75px;height:55.5px;border-radius:19px;background:#FEFEFE;
+  box-shadow:0 9.5px 17px rgba(0,0,0,.12)}
+.illo .ln{left:137.33px;width:163.5px;height:5.8px;border-radius:2px;background:#DBDBDD}
+.illo .ln.t{width:67px;height:11.33px;border-radius:3.3px}
+.illo .ctl{width:35.6px;height:35.6px;border-radius:50%;background:#C4C4C4}
+.illo .hb{left:153.3px;width:95.4px;height:3.7px;border-radius:1.85px;background:#F1F1F1}</style>
+</head>
+<body>
+<div class="phone"><div class="sb" style="color:var(--as-ink)"><div class="island"></div><div class="time">9:41</div><div class="glyphs"><svg style="left:282px;top:23.34px;width:19.33px;height:12px" viewBox="0 0 19.33 12"><rect x="0" y="7.67" width="3.33" height="4.33" rx="1.05"/><rect x="5.33" y="5.33" width="3.33" height="6.67" rx="1.05"/><rect x="10.67" y="2.67" width="3.33" height="9.33" rx="1.05"/><rect x="16" y="0" width="3.33" height="12" rx="1.05"/></svg><svg preserveAspectRatio="none" viewBox="335 22.008 19.114 13.796" style="left:309px;top:23px;width:16.62px;height:12.3px"><path d="M344.555 35.8042C344.738 35.8042 344.896 35.7212 345.219 35.4058L347.245 33.4634C347.369 33.3389 347.403 33.1562 347.286 33.0068C346.747 32.3096 345.726 31.7036 344.555 31.7036C343.352 31.7036 342.331 32.3345 341.791 33.0566C341.708 33.1895 341.741 33.3389 341.874 33.4634L343.891 35.4058C344.215 35.7129 344.373 35.8042 344.555 35.8042ZM339.7 31.2886C339.882 31.4629 340.106 31.438 340.272 31.2554C341.268 30.1514 342.895 29.3462 344.555 29.3545C346.232 29.3462 347.859 30.1763 348.872 31.2803C349.021 31.4546 349.229 31.4463 349.411 31.2803L350.698 30.002C350.831 29.8691 350.848 29.6865 350.723 29.5371C349.47 28.0015 347.145 26.8477 344.555 26.8477C341.966 26.8477 339.641 28.0015 338.388 29.5371C338.263 29.6865 338.272 29.8525 338.413 30.002L339.7 31.2886ZM336.255 27.8189C336.421 27.9766 336.653 27.9766 336.811 27.8106C338.853 25.644 341.542 24.4985 344.555 24.4985C347.585 24.4985 350.291 25.6523 352.317 27.8189C352.466 27.9683 352.69 27.96 352.856 27.8022L354.002 26.6567C354.151 26.5073 354.143 26.3247 354.027 26.1836C352.076 23.7764 348.407 22.0083 344.555 22.0083C340.712 22.0083 337.027 23.7764 335.084 26.1836C334.968 26.3247 334.968 26.5073 335.109 26.6567L336.255 27.8189Z"/></svg><svg style="left:333px;top:23px;width:27.3px;height:12.7px" viewBox="0 0 27.3 12.7"><rect x=".6" y=".6" width="24.1" height="11.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".38"/><rect x="2" y="2" width="21.3" height="8.7" rx="2.6"/><path d="M26.1 4.3c.9.7.9 3 0 3.7V4.3Z" fill-opacity=".38"/></svg></div></div><h1 class="big">Today</h1><div class="acct"><svg viewBox="0 0 18.3 19.3"><circle cx="9.15" cy="5.4" r="5.4"/><path d="M9.15 11.6C4.1 11.6 0 14.9 0 17.9c0 1 .5 1.4 1.6 1.4h15.1c1.1 0 1.6-.4 1.6-1.4 0-3-4.1-6.3-9.15-6.3Z"/></svg></div><div class="dim"></div><div class="sheet" style="top:62px;height:812px"><div style="top:-62px"><div class="illo" style="top:62px;height:357.3px"><div class="dev" style="top:0px"></div><div class="nt" style="top:148.9px"></div><svg preserveAspectRatio="none" style="left:91.5px;top:158.5px;width:36.3px;height:36.3px" xmlns="http://www.w3.org/2000/svg" width="36.3" height="36.3" viewBox="91.5 220.5 36.3 36.3">
+<defs>
+<linearGradient id="app-store-ground" x1="0" y1="220.5" x2="0" y2="256.8" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1FB6F6"/><stop offset="1" stop-color="#1963EE"/></linearGradient>
+<linearGradient id="app-store-leg" x1="0" y1="227" x2="0" y2="250" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFF" stop-opacity=".74"/><stop offset="1" stop-color="#FFF" stop-opacity=".58"/></linearGradient>
+<linearGradient id="app-store-bar" x1="99" y1="0" x2="120" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFF" stop-opacity=".66"/><stop offset="1" stop-color="#FFF" stop-opacity=".54"/></linearGradient>
+</defs>
+<rect x="91.5" y="220.5" width="36.3" height="36.3" rx="8.2" fill="url(#app-store-ground)"/>
+<g fill="none" stroke-width="3" stroke-linecap="round">
+<path d="M107.69 228.57 118.27 248.17" stroke="url(#app-store-leg)"/>
+<path d="M111.61 228.57 103.91 242.83" stroke="url(#app-store-leg)"/>
+<path d="M103.91 242.83 101.03 248.17" stroke="#FFF" stroke-opacity=".5"/>
+<path d="M99.17 242.83H120.17" stroke="url(#app-store-bar)"/>
+</g>
+</svg><div class="ln t" style="top:158.6px"></div><div class="ln" style="top:176.65px"></div><div class="ln" style="top:189px"></div><div class="ctl" style="left:98.55px;top:243.2px"></div><div class="ctl" style="left:267.55px;top:243.2px"></div><svg preserveAspectRatio="none" style="left:113.25px;top:253.1px;width:6.4px;height:15.1px" xmlns="http://www.w3.org/2000/svg" width="6.4" height="15.1" viewBox="113.25 315.1 6.4 15.1" fill="currentColor">
+<path fill-rule="evenodd" d="M113.35 316.5V315.7Q113.35 315.1 113.95 315.1H119Q119.6 315.1 119.6 315.7V316.5ZM113.25 317.4H119.65V318.2L118.25 320.7V329.4Q118.25 330.2 117.45 330.2H115.45Q114.65 330.2 114.65 329.4V320.7L113.25 318.2ZM115.4 322.15Q115.4 321.1 116.45 321.1Q117.5 321.1 117.5 322.15V323.9Q117.5 324.95 116.45 324.95Q115.4 324.95 115.4 323.9ZM115.85 323.9Q115.85 323.3 116.45 323.3Q117.05 323.3 117.05 323.9V324.1Q117.05 324.7 116.45 324.7Q115.85 324.7 115.85 324.1Z"/>
+</svg><svg preserveAspectRatio="none" style="left:277.35px;top:254.3px;width:15.65px;height:12.1px" xmlns="http://www.w3.org/2000/svg" width="15.65" height="12.1" viewBox="277.35 316.3 15.65 12.1" fill="currentColor">
+<path fill-rule="evenodd" d="M277.35 326.8V319.6Q277.35 318 278.95 318H281.6L282.7 316.6Q282.95 316.3 283.35 316.3H287.05Q287.45 316.3 287.7 316.6L288.8 318H291.4Q293 318 293 319.6V326.8Q293 328.4 291.4 328.4H278.95Q277.35 328.4 277.35 326.8ZM288.35 323A3.25 3.25 0 1 0 281.85 323A3.25 3.25 0 1 0 288.35 323ZM287.7 323A2.6 2.6 0 1 0 282.5 323A2.6 2.6 0 1 0 287.7 323ZM291.4 320.2A.55 .55 0 1 0 290.3 320.2A.55 .55 0 1 0 291.4 320.2Z"/>
+</svg><div class="hb" style="top:305.5px"></div></div><div class="tx mid pane" style="top:451.35px">Stay Up to Date with<br>Notifications</div><div class="tx mid lede" style="top:521.4px">Get notified about billing and<br>product updates, pre-orders, special<br>offers, and personalized<br>recommendations</div><div class="go" style="left:37.33px;top:717.33px;width:327.33px;padding-bottom:2px">Continue</div><div class="tx mid link" style="top:797.55px">Not Now</div></div></div><div class="home" style="color:var(--as-ink)"></div></div>
+</body>
+</html>

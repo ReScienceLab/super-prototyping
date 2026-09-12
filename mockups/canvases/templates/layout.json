@@ -1,5 +1,6 @@
 {
   "name": "(example) Templates",
+  "order": 2,
   "rows": [
     {
       "title": "Foundations",

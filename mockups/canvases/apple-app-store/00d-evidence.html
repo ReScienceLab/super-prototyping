@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>App Store - Evidence 2/4</title>
+<style>
+:root{
+  /* Font */
+  --as-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --as-bg:#FFFFFF;
+  --as-fill:#EEEEEF;
+  --as-fill-2:#EBEBEB;
+  --as-chip:#FFFFFF;
+  --as-circle:#F9F9FA;
+  --as-tint:#EDF6FF;
+  --as-badge:#86C0FD;
+  --as-sky:linear-gradient(#023254,#034B72 41%,#04608A 72%,#056792 85%,#1A719E);
+  --as-scrim:rgba(0,0,0,.20);
+  --as-group:#F2F2F6;
+  --as-haze:#F9FAFA;
+  --as-disc:#FAFAFB;
+  --as-disc-2:#F5F5F9;
+  --as-back:#E0E0E0;
+  --as-alert:rgba(255,255,255,.60);
+  --as-alert-btn:rgba(0,0,0,.12);
+  --as-kbd:#E2E3E7;
+  --as-glass-pill:rgba(255,255,255,.41);
+  --as-glass-price:rgba(255,255,255,.12);
+
+  /* Line */
+  --as-hairline:#DFDFDF;
+  --as-border:#B0AFB0;
+  --as-sep:#E7E7E8;
+  --as-kbd-sep:#D3D4DA;
+
+  /* Ink */
+  --as-ink:#000000;
+  --as-ink-2:#8A8A8E;
+  --as-ink-3:#BFBFBF;
+  --as-ink-inv:#FFFFFF;
+  --as-ink-dim:#707172;
+  --as-ink-note:#85858B;
+  --as-ink-ph:#BCBCC1;
+  --as-ink-chev:#C5C5C7;
+  --as-ink-alert:#838383;
+  --as-ink-kbd:#494A4B;
+  --as-ink-hint:#CDCED0;
+  --as-ink-off:#E5E6E9;
+  --as-ink-glass:rgba(255,255,255,.70);
+  --as-ink-glass-2:rgba(255,255,255,.55);
+  --as-ink-promo:#FFFF7D;
+
+  /* Accent */
+  --as-accent:#0082F7;
+  --as-accent-2:#0088FE;
+  --as-accent-3:#007AFF;
+
+  /* Radius */
+  --as-r-card:26px;
+  --as-r-sheet:38px;
+  --as-r-alert:34px;
+  --as-r-chip:18.5px;
+  --as-r-pill:999px;
+  --as-r-key:6px;
+  --as-r-kbd:28px;
+  --as-r-phone:62px;
+
+  /* Type */
+  --as-t-title:700 34px/41px var(--as-font);
+  --as-t-section:700 21px/26px var(--as-font);
+  --as-t-group:700 16px/20px var(--as-font);
+  --as-t-row:400 16px/18px var(--as-font);
+  --as-t-sub:400 12px/21px var(--as-font);
+  --as-t-chip:600 14px/19px var(--as-font);
+  --as-tr-tight:-0.2px;
+  --as-t-cta:600 15px/20px var(--as-font);
+  --as-t-iap:400 8px/11px var(--as-font);
+  --as-t-lock:600 14px/18px var(--as-font);
+  --as-t-lock-sub:400 11px/14px var(--as-font);
+  --as-t-price:700 15px/20px var(--as-font);
+  --as-t-tile:600 16px/19.33px var(--as-font);
+  --as-t-wordmark:500 20px/24px var(--as-font);
+  --as-tr-wordmark:-0.05px;
+  --as-t-head:600 21px/26px var(--as-font);
+  --as-t-headsub:400 22px/26px var(--as-font);
+  --as-t-eyebrow:700 11px/16px var(--as-font);
+  --as-tr-head:-0.5px;
+  --as-t-ssub:400 14px/18px var(--as-font);
+  --as-t-ph:400 16px/20px var(--as-font);
+  --as-t-ad:600 10px/13px var(--as-font);
+  --as-t-tab:500 10px/12px var(--as-font);
+  --as-t-hero:700 26px/32px var(--as-font);
+  --as-t-btn:600 16.5px/22px var(--as-font);
+  --as-t-foot:400 12px/16px var(--as-font);
+  --as-t-areye:600 12px/16px var(--as-font);
+  --as-t-pane:700 27px/32px var(--as-font);
+  --as-t-lede:400 21px/26px var(--as-font);
+  --as-t-go:600 16px/22px var(--as-font);
+  --as-t-link:600 16px/22px var(--as-font);
+  --as-t-body:400 16px/22px var(--as-font);
+  --as-t-sheet:600 17px/22px var(--as-font);
+  --as-t-note:400 12px/14px var(--as-font);
+  --as-t-signin:700 21px/28px var(--as-font);
+  --as-t-alert:600 17px/22px var(--as-font);
+  --as-t-alert-msg:400 15px/20px var(--as-font);
+  --as-t-alert-btn:500 17px/22px var(--as-font);
+  --as-t-key:400 25px/35px var(--as-font);
+  --as-t-key-sm:400 18px/40px var(--as-font);
+  --as-t-key-at:400 21px/38px var(--as-font);
+  --as-t-pw:400 17px/22px var(--as-font);
+  --as-t-time:590 17px/22px var(--as-font);
+
+  /* Metrics */
+  --as-w:402px;
+  --as-h:874px;
+  --as-status:62px;
+  --as-gutter:20px;
+  --as-icon:62px;
+  --as-bar-w:361px;
+  --as-bar-h:62.7px;
+  --as-bar-top:790.5px;
+  --as-tab-pitch:68.7px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--as-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--as-w);height:var(--as-h);
+  border-radius:var(--as-r-phone);overflow:hidden;background:var(--as-bg);color:var(--as-ink);
+  transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--as-w);height:var(--as-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--as-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* the one change for a 402pt frame: the template's glyphs, moved as a group */
+.sb .glyphs{position:absolute;left:6px;top:0}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--as-bg);color:var(--as-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--as-font);margin-bottom:2px}
+header p{font:var(--as-t-note);color:var(--as-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--as-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--as-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--as-border)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--as-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px;flex-wrap:wrap}
+.rb{width:44px;height:26px;background:var(--as-bg);border:1px solid var(--as-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--as-font);
+  color:var(--as-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--as-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--as-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--as-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--as-hairline);font:400 8.5px/11px var(--as-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--as-accent);white-space:nowrap}
+td.v{color:var(--as-ink-2);max-width:120px;word-break:break-all}
+td.e{color:var(--as-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 2/4</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--as-ink-3</td><td class="v">#BFBFBF</td><td class="e">inactive cellular bars, p6 row 34 x 288-307, four solid runs</td></tr><tr><td class="t">--as-ink-inv</td><td class="v">#FFFFFF</td><td class="e">Arcade hero copy, p7</td></tr><tr><td class="t">--as-ink-dim</td><td class="v">#707172</td><td class="e">p7 footnote over pure black, the brightest 5% of its ink</td></tr><tr><td class="t">--as-ink-note</td><td class="v">#85858B</td><td class="e">p4 footnote core, both lines --only ink</td></tr><tr><td class="t">--as-ink-ph</td><td class="v">#BCBCC1</td><td class="e">p9 'Email or Phone Number' core over --as-group</td></tr><tr><td class="t">--as-ink-chev</td><td class="v">#C5C5C7</td><td class="e">p4 'App Updates' chevron core, 361.0-367.7 x 349.0-360.3</td></tr><tr><td class="t">--as-ink-alert</td><td class="v">#838383</td><td class="e">p2 alert message core, lines 1 and 2, as it lands on the glass</td></tr><tr><td class="t">--as-ink-kbd</td><td class="v">#494A4B</td><td class="e">p9 'Passwords' core, ink 171.0-250.7 x 564.3-577.3, and its key glyph</td></tr><tr><td class="t">--as-ink-hint</td><td class="v">#CDCED0</td><td class="e">p9 the space bar's 'A' hint, darkest sample of 187.0-196.0 x 787.3-801.0</td></tr><tr><td class="t">--as-ink-off</td><td class="v">#E5E6E9</td><td class="e">p9 the return key's chevron, darkest sample of 345.7-352.3 x 772.0-788.0</td></tr><tr><td class="t">--as-ink-glass</td><td class="v">rgba(255,255,255,.70)</td><td class="e">lockup subtitles over artwork: p6 core #BFC4D1 over #2F3E6A, p5 .70; p7 'Arcade' #CCD2D7 over #536D81 at .69-.70, and its Apple logo .72</td></tr><tr><td class="t">--as-ink-glass-2</td><td class="v">rgba(255,255,255,.55)</td><td class="e">p3 'Brain Puzzle Games' #C795D8 over #9114AE (.49-.55), p5 'In-App Purchases' .59, p3 '$12.99' .46-.50 over its own pill</td></tr><tr><td class="t">--as-ink-promo</td><td class="v">#FFFF7D</td><td class="e">p3 card 1 yellow: 'GET STARTED' core #FFFF85, its subtitle and 'Sketch. Paint. Create.' #FFFF76</td></tr><tr><td class="t">--as-accent</td><td class="v">#0082F7</td><td class="e">selected tab glyph, p6 x 196-206 y 807-812, 308px 100% flat</td></tr><tr><td class="t">--as-accent-2</td><td class="v">#0088FE</td><td class="e">Get/Open label, p6 row 600, seven runs inside the pill</td></tr><tr><td class="t">--as-accent-3</td><td class="v">#007AFF</td><td class="e">p7 Accept Offer fill, x 70-140 y 480-512, 100% flat</td></tr><tr><td class="t">--as-r-card</td><td class="v">26px</td><td class="e">p4 card 1 spans 179.0-257.3 at x 20 against 167-269 at x 201; an inset of 12.0 four points in from the edge solves r 25.8</td></tr><tr><td class="t">--as-r-sheet</td><td class="v">38px</td><td class="e">sheet top edge 17.3 down at x 6, 16.0 at x 7 and 4.7 at x 20; all three solve r 37.7</td></tr><tr><td class="t">--as-r-alert</td><td class="v">34px</td><td class="e">p2 alert, col 50 (9 in from the left edge) meets the glass at y 355.0; r 34 predicts 354.96</td></tr><tr><td class="t">--as-r-chip</td><td class="v">18.5px</td><td class="e">half the 37pt chip height; p6 row 130 left edge 26.7 solves 19.7 -> 20</td></tr><tr><td class="t">--as-r-pill</td><td class="v">999px</td><td class="e">by construction, not measured</td></tr><tr><td class="t">--as-r-key</td><td class="v">6px</td><td class="e">p9 'w' key's top-left edge 2.7 in at 1pt down, 1.7 at 2 and 1.0 at 3: r 6 predicts 2.7, 1.5, .8</td></tr><tr><td class="t">--as-r-kbd</td><td class="v">28px</td><td class="e">p9 keyboard panel from its top at 545.3: 16.7 in at 548, 6.7 at 555, 3.3 at 560; r 28 predicts 16.1, 6.8, 3.4</td></tr><tr><td class="t">--as-r-phone</td><td class="v">62px</td><td class="e">circular stand-in for the 16 Pro display corner</td></tr><tr><td class="t">--as-t-title</td><td class="v">700 34px/41px var(--as-font)</td><td class="e">cap 24.3 at y 72.0 on p3 'T', p5 'G' 24.7, p8 'S' 24.7; 24.3/.7147 = 34.0</td></tr><tr><td class="t">--as-t-section</td><td class="v">700 21px/26px var(--as-font)</td><td class="e">p6 'Must-Have Apps' ink 162.7 wide; the same string at 22px renders 170.0, and the 'M' cap 14.7 against 15.3 agrees on the same 0.95</td></tr><tr><td class="t">--as-t-group</td><td class="v">700 16px/20px var(--as-font)</td><td class="e">p8 'Suggested' with its chevron 94.0 wide and 'Browse' 67.7; at t-section they render 121.3 and 87.3, both 0.775 of it</td></tr></table></div>
+</body>
+</html>

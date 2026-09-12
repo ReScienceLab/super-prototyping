@@ -8,9 +8,12 @@ build out of CSS and inline SVG.
 
 | The pixels you need are… | Do this |
 |---|---|
-| on the capture, whole | **crop at the measured box** |
-| on the capture, partly hidden by a sheet, fade or scroll edge | crop what is visible; treat the rest as absent (Phase 3's rule about invented content applies to pictures too) |
-| a third-party logo or app icon | pull the real file; see `brand-marks.md` |
+| interface: type, buttons, pills, badges, chips, glyphs, a keyboard | **rebuild it** in HTML and CSS, glyphs traced to SVG and the large ones redrawn per `glyphs.md`; never crop it |
+| a picture on the capture, whole | **crop at the measured box** |
+| a picture with interface set over it (a lockup on a hero, a headline on a card) | crop the picture, **`erase` the interface out of it**, draw the interface live |
+| a picture partly hidden by a sheet, fade or scroll edge | crop what is visible; treat the rest as absent (Phase 3's rule about invented content applies to pictures too) |
+| a sliver too small to identify (a 10 pt peek at a scroll edge) | crop it whole; there is nothing to rebuild it from |
+| a third-party logo or app icon | pull the real file, never a crop of it; see `brand-marks.md` |
 | genuinely not on any capture (a variant state, a second colourway, a filler photo that is nobody's brand) | generate |
 
 **A crop is exact by construction and a generation is never exact.** That is
@@ -68,6 +71,79 @@ Three things that go wrong:
   screens. Say so in the folder's `README.md` — never a folder-level
   `.gitignore` — because the opposite is the usual convention for a
   screenshot-sourced folder and the next person will assume it.
+
+## Erasing the interface out of a picture
+
+A picture with interface set on it is cropped with the interface removed, so
+the board can draw that interface live instead of carrying it twice.
+`apple-app-store` does it on every hero and Today card:
+
+```json
+"p6-hero": {"img": "p6", "box": [20, 257, 382, 490],
+  "erase": [[33.2, 440.7, 70.2, 477.8],
+            [76, 444, 283, 461.5, 1, 25]]}
+```
+
+Every number is in page pt. `[x0, y0, x1, y1]` clears the whole box, which
+suits an icon or a pill. `[x0, y0, x1, y1, sign, T]` clears only the glyph
+pixels in it: those lighter (`sign` 1) or darker (-1) than a 10 px Gaussian
+of the crop by `T` levels, grown by 1 pt to take the antialiased rim. The
+cleared pixels are filled harmonically from the ones around them, solved on a
+half-size pyramid and then relaxed. That is the smoothest surface meeting the
+boundary. It invents no texture, which is right for pixels that sit under
+live UI.
+
+Three things that go wrong:
+
+- **A threshold misses the middle of a solid glyph.** A high-pass sees edges,
+  so the centre of a filled 15 pt logo stays, and it shows as a glow behind
+  the live one. Give a solid glyph a box, and keep the threshold for type.
+- **An erase must stop where chrome over the picture begins.** A box that
+  starts 4 pt above a tab bar smears the art in the 4 pt that still shows.
+  Start it at the bar's top edge.
+- **Measure each line's ink with its neighbours out of the box.** A subtitle
+  box that reached a Get button came back 68 pt too wide, and a wordmark box
+  that clipped its logo put the type 2 pt off. Placement is only as good as
+  the ink box it starts from.
+- **End a crop where the picture ends, not where the interface starts.** The
+  Arcade hero was cut at the top of its headline, y 383, and read as a picture
+  sliced through the player's legs. The photograph actually fades to
+  `#000000` at 424. Crop to the row where the fade meets the ground, and put
+  the type that overlaps the fade in `erase`.
+
+After changing a box, an `erase` or a `guide`, delete the PNG so `cut()` cuts
+it again.
+
+### A guide, when the picture is published elsewhere
+
+A harmonic fill is fine under a 15 pt glyph and smears under a headline that
+crosses edges. When the artwork is published somewhere (a studio's key art, a
+newsroom image, a press kit), register that copy and let it fill the hole:
+
+```json
+"p7-hero": {"img": "p7", "box": [0, 136, 402, 424],
+  "erase": [[48, 393, 355, 420, 1, 45]],
+  "guide": {"file": "madden-keyart.jpg", "url": "https://…",
+            "affine": [[5.62107, -0.00143, 1311.5293], [0.00143, 5.62107, -227.38114]],
+            "boxes": [[86, 356, 402, 424]]}}
+```
+
+`affine` maps page pt to the guide's pixels, in continuous coordinates (pixel
+centres at +.5). Fit it with SIFT and a RANSAC similarity on the band of the
+capture that is picture, with the interface masked out. A good fit shows a
+median residual well under a pixel and a rotation near 0. `cut()` downloads the
+file into `refs/`, warps it onto the crop, and fills the erased pixels as
+`exp(log guide + inpaint(log capture − log guide))`. The ratio between the two
+copies is smooth, so it is what gets inpainted, and the guide contributes the
+texture. That keeps the store's own grade and fade.
+
+Published art is rarely the same composition. The App Store's Madden hero
+matches EA's key art on the player to 0.14 px, but the skyline, logo and
+badge are placed differently. Restrict the guide to `boxes` where the two
+agree, and check the edges of each box: at x 86 the key art's badge sat under
+the capture's "No". The harmonic fill covers everything outside the boxes.
+When no copy is published, the harmonic fill stands; generating the missing
+art is the last resort (below), not the first.
 
 ## Generating, when you have to
 

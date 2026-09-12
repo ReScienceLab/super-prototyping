@@ -276,6 +276,23 @@ Hard constraints from the canvas renderer (also in `prototype-canvas`'s
   `data-clip-ok`.
 - Phone frame is 393 × 852 pt at 1pt = 1px: 54px status bar, 125 × 36
   Dynamic Island, 139 × 5 home indicator.
+- **The iOS status bar comes from the template, never from the capture.**
+  Any iPhone screen with a status bar uses the one `templates/gen.py` ships
+  finished: `PHONE`'s `.sb` rules, the `SB_ICONS` cellular/Wi-Fi/battery SVGs
+  and `statusbar()` with its `9:41` clock and plain island. Copy those four
+  across unchanged and call `statusbar()` as it is. Measuring four signal bars
+  again costs an hour and lands within a pixel of what is already there.
+
+  The one thing that changes is the frame. On a wider frame, move the
+  `SB_ICONS` group by the width delta so the battery keeps its right inset.
+
+  Nothing in the capture's own status bar is carried over, whether drawn or
+  cropped. That covers its clock and any extra glyph: a mute bell, a Focus or
+  person badge, a location arrow. It also covers an expanded island or Live
+  Activity, an iOS 26 filled battery, a different charge level and no-service
+  bars. The status bar is shared chrome across every board in the repo, and a
+  per-capture copy is exactly the drift the rule is there to stop. The diff
+  pays a few levels in the top 54 pt for it, and that is expected.
 - **No board background on a screen artboard.** Give `body` no `background`
   at all, so the phone floats on the canvas ground and its drop shadow lands
   on whatever the board is placed over. A cream or grey field behind the
@@ -303,16 +320,49 @@ container the capture shows holding one, and two measured rules collide.
 Widen the container and record why; never shrink the type to make a measured
 width hold. Claude's user bubble measures 302.6 and ships at 316.
 
-### Artwork: crop it, do not draw it and do not generate it
+### Artwork: crop only the picture, rebuild the interface on it
 
-A screen that is mostly illustration is not mostly work. **Every picture on
-the capture is cropped out of the capture at its own measured box**, keyed by
-id in a `crops.json` the generator reads, cut to `assets/art/<id>.png` and
-placed back by an `art()` helper at the same numbers. The asset then cannot
-drift from where it was measured, and its pixels are the reference's own.
+A screen that is mostly illustration is not mostly work, but a screenshot
+pasted into the frame is not a replica either. Sort the pixels three ways
+before cutting anything:
 
-The rule and the arithmetic behind it: a crop scores **0** by construction,
-and the same crop redrawn by `gpt-image-2` scores **38.53**, the same
+- **Interface is rebuilt**, however much it looks like a picture: type,
+  buttons, pills, badges, chips, tab glyphs, sheet marks, a keyboard, an
+  illustration made of flat fills. Use HTML and CSS, and trace each glyph from
+  the capture into an SVG whose viewBox is its ink box in page points. Use the
+  system font's own outline where one exists, such as SF's Apple logo at
+  U+F8FF. A crop of interface scores well and is worthless, because nothing
+  in it can be edited, reflowed or reused. **A trace is not the finish for a
+  glyph the board draws large.** It is a polygon of hundreds of linetos whose
+  edges show facets at 2× while every delta reads 0.
+  [`references/glyphs.md`](references/glyphs.md) redraws such a glyph as the
+  primitives or the curves it was designed as.
+- **An app icon or third-party logo is the original file**, never a crop:
+  the iTunes lookup API's 1024 px artwork for an App Store app, and
+  [`references/brand-marks.md`](references/brand-marks.md) for the rest.
+- **Only a picture is cropped**, meaning photography, illustration and
+  editorial art that the capture is the only source for. It is keyed by id in
+  a `crops.json` the generator reads, cut to `assets/art/<id>.png` and placed
+  back by an `art()` helper at the same numbers. The asset then cannot drift
+  from where it was measured, and its pixels are the reference's own.
+
+When interface is set on a picture, such as an app lockup on a hero or a
+headline on a card, **crop the picture and erase the interface out of it**.
+List it in the crop's `erase`: a box for an icon or pill, and a box plus a
+threshold for type. `cut()` inpaints those pixels from the ones around them,
+and the board draws the interface live on top. End the crop where the picture
+itself ends (its fade to the ground), not at the first line of type on it. If
+the artwork is published anywhere else, give the crop a registered `guide` so
+the fill under wide type is the artwork's own texture. See `assets.md`. Otherwise the board carries
+every word twice, once in the picture and once in the type, and the copy in
+the picture cannot change. The only thing cut whole is a sliver too small to
+identify, such as a 10 pt peek of the next card at a scroll edge. There is
+nothing to rebuild it from. Rebuilding costs levels a crop would not.
+`apple-app-store` went from 2.32-8.00 to 3.62-8.02 when its interface came out
+of the crops, and that is the trade to make.
+
+For a picture, the rule and the arithmetic behind it: a crop scores **0** by
+construction, and the same crop redrawn by `gpt-image-2` scores **38.53**, the same
 character with a different head-to-body ratio and the props moved.
 So **generate only pixels the capture does not contain**, name those assets
 in the folder README, and give each one a probe like any other measurement.
@@ -329,10 +379,13 @@ including keying the cells back out, solving the fit and scoring each asset
 against the crop it came from.
 
 [`references/assets.md`](references/assets.md) has the decision table, the
-`crops.json`/`cut()`/`art()` shape, and why `assets/art/` is committed while
-`assets/refs/` is not; [`references/generating.md`](references/generating.md)
+`crops.json`/`cut()`/`art()` shape, the `erase` list and its traps, and why
+`assets/art/` is committed while `assets/refs/` is not;
+[`references/generating.md`](references/generating.md)
 is the generation procedure end to end, with the key-colour, alpha-ramp and
-fit-sign traps that each cost a run.
+fit-sign traps that each cost a run;
+[`references/glyphs.md`](references/glyphs.md) redraws the traced glyphs a
+board draws large, by construction or with `refkit refit`.
 
 ### Model the line box once, then place by ink
 

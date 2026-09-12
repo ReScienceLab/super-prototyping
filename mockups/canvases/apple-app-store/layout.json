@@ -1,0 +1,119 @@
+{
+  "name": "(example) App Store",
+  "cover": "08-search",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-type",
+          "label": "Type"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00e-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00f-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-notify-onboard",
+          "label": "Notifications onboarding"
+        },
+        {
+          "file": "02-notify-alert",
+          "label": "Permission alert"
+        },
+        {
+          "file": "03-today",
+          "label": "Today"
+        },
+        {
+          "file": "04-account-sheet",
+          "label": "Apple Account sheet"
+        },
+        {
+          "file": "05-games",
+          "label": "Games"
+        },
+        {
+          "file": "06-apps",
+          "label": "Apps"
+        },
+        {
+          "file": "07-arcade",
+          "label": "Arcade"
+        },
+        {
+          "file": "08-search",
+          "label": "Search"
+        },
+        {
+          "file": "09-signin-sheet",
+          "label": "Sign in to purchase"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: iPhone 16 Pro captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-notify-onboard",
+          "label": "Notifications onboarding"
+        },
+        {
+          "file": "ref-02-notify-alert",
+          "label": "Permission alert"
+        },
+        {
+          "file": "ref-03-today",
+          "label": "Today"
+        },
+        {
+          "file": "ref-04-account-sheet",
+          "label": "Apple Account sheet"
+        },
+        {
+          "file": "ref-05-games",
+          "label": "Games"
+        },
+        {
+          "file": "ref-06-apps",
+          "label": "Apps"
+        },
+        {
+          "file": "ref-07-arcade",
+          "label": "Arcade"
+        },
+        {
+          "file": "ref-08-search",
+          "label": "Search"
+        },
+        {
+          "file": "ref-09-signin-sheet",
+          "label": "Sign in to purchase"
+        }
+      ]
+    }
+  ]
+}

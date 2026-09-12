@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36.3" height="36.3" viewBox="91.5 220.5 36.3 36.3">
+<defs>
+<linearGradient id="app-store-ground" x1="0" y1="220.5" x2="0" y2="256.8" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1FB6F6"/><stop offset="1" stop-color="#1963EE"/></linearGradient>
+<linearGradient id="app-store-leg" x1="0" y1="227" x2="0" y2="250" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFF" stop-opacity=".74"/><stop offset="1" stop-color="#FFF" stop-opacity=".58"/></linearGradient>
+<linearGradient id="app-store-bar" x1="99" y1="0" x2="120" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFF" stop-opacity=".66"/><stop offset="1" stop-color="#FFF" stop-opacity=".54"/></linearGradient>
+</defs>
+<rect x="91.5" y="220.5" width="36.3" height="36.3" rx="8.2" fill="url(#app-store-ground)"/>
+<g fill="none" stroke-width="3" stroke-linecap="round">
+<path d="M107.69 228.57 118.27 248.17" stroke="url(#app-store-leg)"/>
+<path d="M111.61 228.57 103.91 242.83" stroke="url(#app-store-leg)"/>
+<path d="M103.91 242.83 101.03 248.17" stroke="#FFF" stroke-opacity=".5"/>
+<path d="M99.17 242.83H120.17" stroke="url(#app-store-bar)"/>
+</g>
+</svg>

@@ -445,6 +445,9 @@ for _model, _row in SHELLS:
 
 LAYOUT = {
  "name": PAGE_NAME,
+ # Last card on the welcome page, after apple-icons at 1: the folder you copy is
+ # not an example anyone came to look at.
+ "order": 2,
  "rows": [
   {"title": "Foundations",
    "files": [{"file": "00-design-tokens", "label": "Design tokens"}]

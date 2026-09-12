@@ -25,6 +25,8 @@
            and ranks by glyph shape, so it can answer "SF Pro"
   shoot    render mockup HTML with headless Chrome at artboard size
   diff     side-by-side + per-region census of a render against its reference
+  refit    redraw a traced glyph SVG as artwork: the polygon a tracer emits
+           back into lines, arcs and cubics, keeping its viewBox
   tokens   audit a canvas folder: one shared :root, no undefined var()
   montage  lay images side by side for an A/B compare
 
@@ -36,7 +38,7 @@ coordinate comes back in the same unit you asked in.
 Needs: pillow, numpy. Chrome only for `shoot`.
 Self-check: python3 tools/test_refkit.py (from a checkout; not shipped in the wheel)
 """
-import argparse, contextlib, glob, io, json, os, re, subprocess, sys, tempfile
+import argparse, contextlib, glob, io, json, math, os, re, subprocess, sys, tempfile
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
@@ -1015,6 +1017,239 @@ def cmd_montage(a):
     print(a.out, out.size)
 
 
+# --------------------------------------------------------------------- refit
+#
+# A glyph traced off a capture is one <path> of hundreds of implicit linetos:
+# the edges are faceted and the "circles" are not circles, which shows at any
+# size the board draws the glyph large. This turns that polygon back into the
+# drawing a designer would have made -- resample and smooth away the tracing
+# jitter, find the corners where the outline genuinely turns, and fit each
+# corner-to-corner run with the simplest thing that holds.
+
+
+def _contours(d):
+    """The traces are M + implicit linetos + Z, nothing else."""
+    out = []
+    for chunk in d.replace("Z", " ").split("M"):
+        nums = [float(v) for v in chunk.split()]
+        if len(nums) >= 6:
+            out.append(np.array(nums, float).reshape(-1, 2))
+    return out
+
+
+def _resample(pts, step):
+    """Uniform arc-length samples around a closed contour."""
+    loop = np.vstack([pts, pts[:1]])
+    seg = np.linalg.norm(np.diff(loop, axis=0), axis=1)
+    s = np.concatenate([[0], np.cumsum(seg)])
+    n = max(16, int(round(s[-1] / step)))
+    t = np.linspace(0, s[-1], n, endpoint=False)
+    return np.column_stack([np.interp(t, s, loop[:, 0]), np.interp(t, s, loop[:, 1])])
+
+
+def _smooth(pts, sigma, step):
+    r = max(1, int(round(3 * sigma / step)))
+    k = np.exp(-0.5 * (np.arange(-r, r + 1) * step / sigma) ** 2)
+    k /= k.sum()
+    wrap = np.vstack([pts[-r:], pts, pts[:r]])
+    return np.column_stack([np.convolve(wrap[:, i], k, "valid") for i in (0, 1)])
+
+
+def _corners(pts, step, o):
+    """Indices where the outline turns more than --corner over --span."""
+    k = max(2, int(round(o.span / step / 2)))
+    a = pts - np.roll(pts, k, axis=0)
+    b = np.roll(pts, -k, axis=0) - pts
+    turn = a[:, 0] * b[:, 1] - a[:, 1] * b[:, 0]
+    ang = np.degrees(np.abs(np.arctan2(turn, (a * b).sum(1))))
+    hits, n = [], len(pts)
+    for i in np.flatnonzero(ang > o.corner):
+        w = [(i + j) % n for j in range(-k, k + 1)]
+        # non-max suppression: one corner per turn, not one per sample in it
+        if ang[i] >= ang[w].max() and not any(
+                (i - h) % n < 2 * k or (h - i) % n < 2 * k for h in hits):
+            hits.append(int(i))
+    return sorted(hits)
+
+
+def _fit_line(p):
+    """Worst distance from the run to the chord across it."""
+    v = p[-1] - p[0]
+    n = np.linalg.norm(v)
+    if n < 1e-9:
+        return 0.0
+    v = v / n
+    return float(np.abs((p - p[0])[:, 0] * v[1] - (p - p[0])[:, 1] * v[0]).max())
+
+
+def _fit_circle(p):
+    """Kasa fit; returns (cx, cy, r, worst radial error)."""
+    x, y = p[:, 0], p[:, 1]
+    a = np.column_stack([x, y, np.ones(len(p))])
+    try:
+        sol, *_ = np.linalg.lstsq(a, x * x + y * y, rcond=None)
+    except np.linalg.LinAlgError:
+        return None
+    cx, cy = sol[0] / 2, sol[1] / 2
+    rr = sol[2] + cx * cx + cy * cy
+    if rr <= 0:
+        return None
+    r = math.sqrt(rr)
+    return cx, cy, r, float(np.abs(np.hypot(x - cx, y - cy) - r).max())
+
+
+def _bezier(ctrl, t):
+    u = 1 - t
+    return ((u ** 3)[:, None] * ctrl[0] + (3 * u * u * t)[:, None] * ctrl[1]
+            + (3 * u * t * t)[:, None] * ctrl[2] + (t ** 3)[:, None] * ctrl[3])
+
+
+def _fit_bezier(p, t0, t1):
+    """Least squares cubic through p with its end tangents held.
+
+    The tangents are the run's own, so consecutive pieces meet smoothly; only
+    the two handle lengths are solved for. Six Newton reparameterisation passes
+    move each sample to the t that is actually nearest it, which is what turns
+    a chord-length guess into a fit.
+    """
+    d = np.linalg.norm(np.diff(p, axis=0), axis=1)
+    t = np.concatenate([[0], np.cumsum(d)])
+    t = t / t[-1] if t[-1] > 0 else t
+    best = None
+    for _ in range(6):
+        u = 1 - t
+        a1 = (3 * u * u * t)[:, None] * t0
+        a2 = (3 * u * t * t)[:, None] * t1
+        rhs = p - (u ** 3)[:, None] * p[0] - (t ** 3)[:, None] * p[-1]
+        m = np.array([[(a1 * a1).sum(), (a1 * a2).sum()],
+                      [(a1 * a2).sum(), (a2 * a2).sum()]])
+        v = np.array([(a1 * rhs).sum(), (a2 * rhs).sum()])
+        try:
+            alpha = np.linalg.solve(m, v)
+        except np.linalg.LinAlgError:
+            break
+        chord = np.linalg.norm(p[-1] - p[0])
+        alpha = np.clip(alpha, 1e-3, 3 * chord)
+        ctrl = np.array([p[0], p[0] + alpha[0] * t0, p[-1] + alpha[1] * t1, p[-1]])
+        err = float(np.linalg.norm(_bezier(ctrl, t) - p, axis=1).max())
+        if best is None or err < best[1]:
+            best = (ctrl, err)
+        u = 1 - t
+        dv = (3 * (u * u)[:, None] * (ctrl[1] - ctrl[0])
+              + 6 * (u * t)[:, None] * (ctrl[2] - ctrl[1])
+              + 3 * (t * t)[:, None] * (ctrl[3] - ctrl[2]))
+        d2 = (6 * u[:, None] * (ctrl[2] - 2 * ctrl[1] + ctrl[0])
+              + 6 * t[:, None] * (ctrl[3] - 2 * ctrl[2] + ctrl[1]))
+        diff = _bezier(ctrl, t) - p
+        num, den = (diff * dv).sum(1), (dv * dv).sum(1) + (diff * d2).sum(1)
+        t = np.clip(t - np.where(np.abs(den) > 1e-12, num / den, 0), 0, 1)
+        t[0], t[-1] = 0, 1
+    return best
+
+
+def _tangent(pts, i, ahead, k=6):
+    n = len(pts)
+    v = pts[(i + k) % n] - pts[i] if ahead else pts[i] - pts[(i - k) % n]
+    d = np.linalg.norm(v)
+    return v / d if d > 1e-9 else np.array([1.0, 0.0])
+
+
+def _n2(v):
+    return ("%.2f" % v).rstrip("0").rstrip(".") or "0"
+
+
+def _xy(p):
+    return "%s %s" % (_n2(p[0]), _n2(p[1]))
+
+
+def _piece(p, t0, t1, depth, notes, o):
+    """One corner-to-corner run as the simplest thing that fits it.
+
+    Line, then circular arc, then cubic. A round corner comes out as one `A`
+    and a straight edge as one `L`; only what is neither costs a `C`, and a
+    run that no single cubic holds is split at its midpoint and retried.
+    """
+    if len(p) < 3:
+        return "L" + _xy(p[-1])
+    if _fit_line(p) <= o.tol:
+        notes.append("line %.2f" % np.linalg.norm(p[-1] - p[0]))
+        return "L" + _xy(p[-1])
+    c = _fit_circle(p)
+    if c and c[3] <= o.tol and c[2] < 400:
+        cx, cy, r, _ = c
+        mid = p[len(p) // 2]
+        sweep = 1 if (mid[0] - p[0][0]) * (p[-1][1] - mid[1]) \
+            - (mid[1] - p[0][1]) * (p[-1][0] - mid[0]) > 0 else 0
+        a0 = math.atan2(p[0][1] - cy, p[0][0] - cx)
+        a1 = math.atan2(p[-1][1] - cy, p[-1][0] - cx)
+        span = (a1 - a0) % (2 * math.pi) if sweep else (a0 - a1) % (2 * math.pi)
+        notes.append("arc r=%.2f c=(%.2f,%.2f) %.0fdeg" % (r, cx, cy, math.degrees(span)))
+        return "A%s %s 0 %d %d %s" % (_n2(r), _n2(r), 1 if span > math.pi else 0,
+                                      sweep, _xy(p[-1]))
+    b = _fit_bezier(p, t0, t1)
+    # depth and length caps: a run this short is noise, and splitting it
+    # forever would emit an anchor per sample, which is the trace again
+    if b and (b[1] <= o.tol or depth >= 8 or len(p) < 10):
+        notes.append("bezier err=%.3f" % b[1])
+        return "C%s %s %s" % (_xy(b[0][1]), _xy(b[0][2]), _xy(b[0][3]))
+    h = len(p) // 2
+    tm = p[min(h + 3, len(p) - 1)] - p[max(h - 3, 0)]
+    tm = tm / (np.linalg.norm(tm) or 1)
+    return (_piece(p[:h + 1], t0, -tm, depth + 1, notes, o)
+            + _piece(p[h:], tm, t1, depth + 1, notes, o))
+
+
+def _contour_path(raw, notes, o):
+    pts = _smooth(_resample(raw, o.step), o.sigma, o.step)
+    cs = _corners(pts, o.step, o)
+    n = len(pts)
+    if len(cs) < 3:
+        # Too few corners to chord the loop. A ring is the common case, and
+        # two half arcs are the whole drawing; anything else gets three even
+        # splits so the run below has chords to fit against.
+        c = _fit_circle(pts)
+        if c and c[3] <= o.tol:
+            cx, cy, r, _ = c
+            notes.append("circle r=%.3f c=(%.2f,%.2f)" % (r, cx, cy))
+            return "M%s %sA%s %s 0 1 0 %s %sA%s %s 0 1 0 %s %sZ" % (
+                _n2(cx - r), _n2(cy), _n2(r), _n2(r), _n2(cx + r), _n2(cy),
+                _n2(r), _n2(r), _n2(cx - r), _n2(cy))
+        cs = [0, n // 3, 2 * n // 3]
+    d = "M" + _xy(pts[cs[0]])
+    for j, a in enumerate(cs):
+        b = cs[(j + 1) % len(cs)]
+        run = pts[a:b + 1] if b > a else np.vstack([pts[a:], pts[:b + 1]])
+        d += _piece(run, _tangent(pts, a, True), _tangent(pts, b, False), 0, notes, o)
+    return d + "Z"
+
+
+def _refit_svg(src, o):
+    """A traced one-path SVG, redrawn. The head line is kept verbatim, so the
+    viewBox is byte-identical and a generator placing the file by it does not
+    move the glyph."""
+    head = src.split("\n", 1)[0]
+    d = src.split(' d="', 1)[1].split('"', 1)[0]
+    notes, parts = [], []
+    for raw in _contours(d):
+        notes.append("-- contour %d, %d traced points" % (len(parts) + 1, len(raw)))
+        parts.append(_contour_path(raw, notes, o))
+    return head + '\n<path fill-rule="evenodd" d="%s"/>\n</svg>\n' % "".join(parts), notes
+
+
+def cmd_refit(a):
+    for path in a.svg:
+        src = open(path).read()
+        out, notes = _refit_svg(src, a)
+        anchors = sum(out.count(c) for c in "MLAC")
+        print("\n== %s  %d -> %d bytes, %d anchors"
+              % (path, len(src), len(out), anchors))
+        for line in notes:
+            print("   " + line)
+        if a.write:
+            open(path, "w").write(out)
+            print("   written")
+
+
 def _region_args(sub, pt=True):
     sub.add_argument("image")
     for n in ("x0", "y0", "x1", "y1"):
@@ -1152,6 +1387,23 @@ def _parser():
                    help="shift ref by this many pt (default: whichever shift scores best)")
     z.add_argument("--probe", type=float, default=3,
                    help="pt to search either side when looking for a displacement")
+
+    f = s.add_parser("refit"); f.set_defaults(fn=cmd_refit)
+    f.add_argument("svg", nargs="+", help="traced SVG(s): one path of linetos")
+    f.add_argument("--write", action="store_true",
+                   help="rewrite the files in place (default: report only)")
+    f.add_argument("--sigma", type=float, default=0.22,
+                   help="smoothing along the contour, in the SVG's own units. "
+                        "Too little keeps the trace's wobble, too much rounds "
+                        "off real tips")
+    f.add_argument("--tol", type=float, default=0.09,
+                   help="worst deviation a fitted piece may have, same units")
+    f.add_argument("--corner", type=float, default=45.0,
+                   help="degrees turned over --span to count as a corner")
+    f.add_argument("--span", type=float, default=0.7,
+                   help="window the turn is measured over, same units")
+    f.add_argument("--step", type=float, default=0.02,
+                   help="resampling pitch, same units")
 
     k = s.add_parser("tokens"); k.set_defaults(fn=cmd_tokens)
     k.add_argument("folder")

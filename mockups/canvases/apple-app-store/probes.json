@@ -1,0 +1,138 @@
+[
+ {
+  "id": "bg",
+  "img": "assets/refs/p6.png",
+  "mine": "06-apps.png",
+  "cmd": "sample",
+  "box": [98, 782, 102, 790],
+  "only": "flat",
+  "_": "p6 page ground between the last Duolingo row (ends ~770) and the tab bar pill (starts 786); nothing else in the window",
+  "_head": "Phase 1 measurements, replayable. Every box is design pt on the iPhone 16 Pro 3x captures in assets/refs (1206x2622, 402x874pt); run with --pt 3. --against wants scratch/mine, the renders from scratch/it.sh (refkit shoot --scale 3 --crop-phone --phone-size 402x874), one file per `mine`. Ink probes carry --only ink, because batch compares the first colour printed."
+ },
+ {
+  "id": "fill",
+  "img": "assets/refs/p6.png",
+  "mine": "06-apps.png",
+  "cmd": "sample",
+  "box": [311, 597, 325, 603],
+  "only": "flat",
+  "_": "p6 YouTube 'Open' pill (308-382 x 584-616), left end before the label, which starts at ~331"
+ },
+ {
+  "id": "accent-2",
+  "img": "assets/refs/p6.png",
+  "mine": "06-apps.png",
+  "cmd": "sample",
+  "box": [330, 594, 362, 606],
+  "only": "ink",
+  "_": "p6 'Open' label inside the same pill; the pill's grey is the flat census, the blue is the ink"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/p6.png",
+  "mine": "06-apps.png",
+  "cmd": "sample",
+  "box": [22, 75, 100, 98],
+  "only": "ink",
+  "_": "p6 large title 'Apps', cap top 72.0 and baseline ~96.3; the account disc starts at 342"
+ },
+ {
+  "id": "scrim",
+  "img": "assets/refs/p1.png",
+  "mine": "01-notify-onboard.png",
+  "cmd": "sample",
+  "box": [150, 54, 250, 60],
+  "only": "flat",
+  "_": "p1 white page under one --x-scrim: below the status bar (ends 53) and above the sheet top (62), clear of the island, which the capture omits and the render ends at 48"
+ },
+ {
+  "id": "scrim-2",
+  "img": "assets/refs/p2.png",
+  "mine": "02-notify-alert.png",
+  "cmd": "sample",
+  "box": [150, 54, 250, 60],
+  "only": "flat",
+  "_": "p2 the same window under two scrims (the alert stacks a second): below the expanded island crop (ends 51), above the back card (62)"
+ },
+ {
+  "id": "back",
+  "img": "assets/refs/p2.png",
+  "mine": "02-notify-alert.png",
+  "cmd": "sample",
+  "box": [60, 64, 340, 68],
+  "only": "flat",
+  "_": "p2 the stacked back card (16.5-385.5 from 62) above the pane, which starts at 72; under the alert's scrim"
+ },
+ {
+  "id": "ink-alert",
+  "img": "assets/refs/p2.png",
+  "mine": "02-notify-alert.png",
+  "cmd": "sample",
+  "box": [71, 414, 330, 455],
+  "only": "ink",
+  "_": "p2 alert message lines 1-2 on the glass (alert 41-361 x 344-558, message at 71,414); the buttons start at 494"
+ },
+ {
+  "id": "group",
+  "img": "assets/refs/p4.png",
+  "mine": "04-account-sheet.png",
+  "cmd": "sample",
+  "box": [195, 130, 207, 160],
+  "only": "flat",
+  "_": "p4 sheet ground between the 'Apple Account' heading (ends ~105) and card 1 (starts 167), centre column"
+ },
+ {
+  "id": "ink-note",
+  "img": "assets/refs/p4.png",
+  "mine": "04-account-sheet.png",
+  "cmd": "sample",
+  "box": [32, 276, 300, 300],
+  "only": "ink",
+  "_": "p4 footnote under card 1, both lines, on --x-group; card 2 starts at 329"
+ },
+ {
+  "id": "ink-ph",
+  "img": "assets/refs/p9.png",
+  "mine": "09-signin-sheet.png",
+  "cmd": "sample",
+  "box": [54, 342, 250, 356],
+  "only": "ink",
+  "_": "p9 'Email or Phone Number' placeholder inside the field (38-364 x 328-380), on --x-group"
+ },
+ {
+  "id": "disc",
+  "img": "assets/refs/p9.png",
+  "mine": "09-signin-sheet.png",
+  "cmd": "sample",
+  "box": [36, 80, 40, 87],
+  "only": "flat",
+  "_": "p9 close disc (16-60 x 78-122) above its x glyph, which starts at 88.3"
+ },
+ {
+  "id": "tint",
+  "img": "assets/refs/p8.png",
+  "mine": "08-search.png",
+  "cmd": "sample",
+  "box": [100, 211, 300, 214],
+  "only": "flat",
+  "_": "p8 promoted card (16-386 x 210-282) above the Claude icon and title, which start at 215"
+ },
+ {
+  "id": "badge",
+  "img": "assets/refs/p8.png",
+  "mine": "08-search.png",
+  "cmd": "sample",
+  "box": [94, 260, 115, 270],
+  "only": "flat",
+  "_": "p8 'Ad' badge (92-117 x 257-273); the white 'Ad' ink is the minority, so the flat census is the fill"
+ },
+ {
+  "id": "accent-3",
+  "img": "assets/refs/p7.png",
+  "mine": "07-arcade.png",
+  "cmd": "sample",
+  "box": [70, 480, 140, 512],
+  "only": "flat",
+  "_": "p7 Accept Offer button fill, left half before the label"
+ }
+]

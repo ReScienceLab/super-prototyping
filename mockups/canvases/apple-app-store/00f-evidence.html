@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>App Store - Evidence 4/4</title>
+<style>
+:root{
+  /* Font */
+  --as-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --as-bg:#FFFFFF;
+  --as-fill:#EEEEEF;
+  --as-fill-2:#EBEBEB;
+  --as-chip:#FFFFFF;
+  --as-circle:#F9F9FA;
+  --as-tint:#EDF6FF;
+  --as-badge:#86C0FD;
+  --as-sky:linear-gradient(#023254,#034B72 41%,#04608A 72%,#056792 85%,#1A719E);
+  --as-scrim:rgba(0,0,0,.20);
+  --as-group:#F2F2F6;
+  --as-haze:#F9FAFA;
+  --as-disc:#FAFAFB;
+  --as-disc-2:#F5F5F9;
+  --as-back:#E0E0E0;
+  --as-alert:rgba(255,255,255,.60);
+  --as-alert-btn:rgba(0,0,0,.12);
+  --as-kbd:#E2E3E7;
+  --as-glass-pill:rgba(255,255,255,.41);
+  --as-glass-price:rgba(255,255,255,.12);
+
+  /* Line */
+  --as-hairline:#DFDFDF;
+  --as-border:#B0AFB0;
+  --as-sep:#E7E7E8;
+  --as-kbd-sep:#D3D4DA;
+
+  /* Ink */
+  --as-ink:#000000;
+  --as-ink-2:#8A8A8E;
+  --as-ink-3:#BFBFBF;
+  --as-ink-inv:#FFFFFF;
+  --as-ink-dim:#707172;
+  --as-ink-note:#85858B;
+  --as-ink-ph:#BCBCC1;
+  --as-ink-chev:#C5C5C7;
+  --as-ink-alert:#838383;
+  --as-ink-kbd:#494A4B;
+  --as-ink-hint:#CDCED0;
+  --as-ink-off:#E5E6E9;
+  --as-ink-glass:rgba(255,255,255,.70);
+  --as-ink-glass-2:rgba(255,255,255,.55);
+  --as-ink-promo:#FFFF7D;
+
+  /* Accent */
+  --as-accent:#0082F7;
+  --as-accent-2:#0088FE;
+  --as-accent-3:#007AFF;
+
+  /* Radius */
+  --as-r-card:26px;
+  --as-r-sheet:38px;
+  --as-r-alert:34px;
+  --as-r-chip:18.5px;
+  --as-r-pill:999px;
+  --as-r-key:6px;
+  --as-r-kbd:28px;
+  --as-r-phone:62px;
+
+  /* Type */
+  --as-t-title:700 34px/41px var(--as-font);
+  --as-t-section:700 21px/26px var(--as-font);
+  --as-t-group:700 16px/20px var(--as-font);
+  --as-t-row:400 16px/18px var(--as-font);
+  --as-t-sub:400 12px/21px var(--as-font);
+  --as-t-chip:600 14px/19px var(--as-font);
+  --as-tr-tight:-0.2px;
+  --as-t-cta:600 15px/20px var(--as-font);
+  --as-t-iap:400 8px/11px var(--as-font);
+  --as-t-lock:600 14px/18px var(--as-font);
+  --as-t-lock-sub:400 11px/14px var(--as-font);
+  --as-t-price:700 15px/20px var(--as-font);
+  --as-t-tile:600 16px/19.33px var(--as-font);
+  --as-t-wordmark:500 20px/24px var(--as-font);
+  --as-tr-wordmark:-0.05px;
+  --as-t-head:600 21px/26px var(--as-font);
+  --as-t-headsub:400 22px/26px var(--as-font);
+  --as-t-eyebrow:700 11px/16px var(--as-font);
+  --as-tr-head:-0.5px;
+  --as-t-ssub:400 14px/18px var(--as-font);
+  --as-t-ph:400 16px/20px var(--as-font);
+  --as-t-ad:600 10px/13px var(--as-font);
+  --as-t-tab:500 10px/12px var(--as-font);
+  --as-t-hero:700 26px/32px var(--as-font);
+  --as-t-btn:600 16.5px/22px var(--as-font);
+  --as-t-foot:400 12px/16px var(--as-font);
+  --as-t-areye:600 12px/16px var(--as-font);
+  --as-t-pane:700 27px/32px var(--as-font);
+  --as-t-lede:400 21px/26px var(--as-font);
+  --as-t-go:600 16px/22px var(--as-font);
+  --as-t-link:600 16px/22px var(--as-font);
+  --as-t-body:400 16px/22px var(--as-font);
+  --as-t-sheet:600 17px/22px var(--as-font);
+  --as-t-note:400 12px/14px var(--as-font);
+  --as-t-signin:700 21px/28px var(--as-font);
+  --as-t-alert:600 17px/22px var(--as-font);
+  --as-t-alert-msg:400 15px/20px var(--as-font);
+  --as-t-alert-btn:500 17px/22px var(--as-font);
+  --as-t-key:400 25px/35px var(--as-font);
+  --as-t-key-sm:400 18px/40px var(--as-font);
+  --as-t-key-at:400 21px/38px var(--as-font);
+  --as-t-pw:400 17px/22px var(--as-font);
+  --as-t-time:590 17px/22px var(--as-font);
+
+  /* Metrics */
+  --as-w:402px;
+  --as-h:874px;
+  --as-status:62px;
+  --as-gutter:20px;
+  --as-icon:62px;
+  --as-bar-w:361px;
+  --as-bar-h:62.7px;
+  --as-bar-top:790.5px;
+  --as-tab-pitch:68.7px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--as-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--as-w);height:var(--as-h);
+  border-radius:var(--as-r-phone);overflow:hidden;background:var(--as-bg);color:var(--as-ink);
+  transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--as-w);height:var(--as-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--as-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* the one change for a 402pt frame: the template's glyphs, moved as a group */
+.sb .glyphs{position:absolute;left:6px;top:0}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--as-bg);color:var(--as-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--as-font);margin-bottom:2px}
+header p{font:var(--as-t-note);color:var(--as-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--as-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--as-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--as-border)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--as-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px;flex-wrap:wrap}
+.rb{width:44px;height:26px;background:var(--as-bg);border:1px solid var(--as-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--as-font);
+  color:var(--as-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--as-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--as-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--as-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--as-hairline);font:400 8.5px/11px var(--as-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:var(--as-accent);white-space:nowrap}
+td.v{color:var(--as-ink-2);max-width:120px;word-break:break-all}
+td.e{color:var(--as-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 4/4</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--as-t-areye</td><td class="v">600 12px/16px var(--as-font)</td><td class="e">p7 row eyebrow 'Apple Arcade' ink 76.7 wide, its 'A' cap 702.3-711.0 = 8.7; p3 'GET STARTED' 81.7 and 'OUR FAVORITES' 95.0 render 81.7 and 95.3 at it</td></tr><tr><td class="t">--as-t-pane</td><td class="v">700 27px/32px var(--as-font)</td><td class="e">p1 headline ink 253.0 and 159.3 wide on a 32 pitch; at 28px the two lines render 262.7 and 165.7, both .96; p3 '5 Tips for Procreate' 243.0 by 24.7 renders exactly at it</td></tr><tr><td class="t">--as-t-lede</td><td class="v">400 21px/26px var(--as-font)</td><td class="e">p1 message, four forced lines 260.0/329.0/216.0/163.0 wide; at 20px all four render 1.04 narrow and 1.05 short</td></tr><tr><td class="t">--as-t-go</td><td class="v">600 16px/22px var(--as-font)</td><td class="e">p1 'Continue' ink 66.7 and p9 'Sign In' 50.0; at 17px they render 70.7 and 52.7, .94-.95</td></tr><tr><td class="t">--as-t-link</td><td class="v">600 16px/22px var(--as-font)</td><td class="e">p1 'Not Now' ink 63.3 by a cap of 12.0; at 17px it renders 66.7 by 12.3</td></tr><tr><td class="t">--as-t-body</td><td class="v">400 16px/22px var(--as-font)</td><td class="e">p4 rows 170.7/193.7/93.7/135.3 wide, p9 field 169.0 and link 127.3; at 17px all six render .95 of that, the same .95 --as-t-row found</td></tr><tr><td class="t">--as-t-sheet</td><td class="v">600 17px/22px var(--as-font)</td><td class="e">p4 'Apple Account' ink 113.0 by 15.7; at 18px it renders 122.3 by 16.7</td></tr><tr><td class="t">--as-t-note</td><td class="v">400 12px/14px var(--as-font)</td><td class="e">p4 footnote ink 291.0 and 166.3 wide by 11.3, pitch 14; at 13px it renders .934 of both</td></tr><tr><td class="t">--as-t-signin</td><td class="v">700 21px/28px var(--as-font)</td><td class="e">p9 'Sign In to Complete Purchase' ink 287.3 by 20.0; at 22px it renders 299.7 by 20.7</td></tr><tr><td class="t">--as-t-alert</td><td class="v">600 17px/22px var(--as-font)</td><td class="e">p2 alert title ink 248.0 and 134.0 wide on a 22 pitch; 17px renders 248.7 and 134.7</td></tr><tr><td class="t">--as-t-alert-msg</td><td class="v">400 15px/20px var(--as-font)</td><td class="e">p2 alert message ink 216.3/248.7/173.7 wide on a 20 pitch; 15px renders 216.7/248.7/174.0</td></tr><tr><td class="t">--as-t-alert-btn</td><td class="v">500 17px/22px var(--as-font)</td><td class="e">p2 'Don’t Allow' to 'Allow' ink 83.7-296.0; 17px renders 84.0-296.0</td></tr><tr><td class="t">--as-t-key</td><td class="v">400 25px/35px var(--as-font)</td><td class="e">p9 letter keys: 'w' x-height 613.3-626.0 and 17.0 wide, 'm' 17.7 wide, 'k' 662.3-680.0; at 24/42 they rendered 3 low and 12.3 tall</td></tr><tr><td class="t">--as-t-key-sm</td><td class="v">400 18px/40px var(--as-font)</td><td class="e">p9 '123' ink 15.0-42.3 x 774.0-787.3; at 17/42 it rendered 25.7 wide and 1.3 low</td></tr><tr><td class="t">--as-t-key-at</td><td class="v">400 21px/38px var(--as-font)</td><td class="e">p9 '@' ink 217.3-234.3 x 772.0-789.7; at the letters' 24px it rendered 19.0 wide</td></tr><tr><td class="t">--as-t-pw</td><td class="v">400 17px/22px var(--as-font)</td><td class="e">p9 'Passwords' ink 171.0-250.7, cap 564.3-577.3</td></tr><tr><td class="t">--as-t-time</td><td class="v">590 17px/22px var(--as-font)</td><td class="e">p6 clock ink 43.3-87.3, y 26.3-39.0; the template status bar sets this</td></tr><tr><td class="t">--as-w</td><td class="v">402px</td><td class="e">iPhone 16 Pro logical width, 1206 capture px / 3</td></tr><tr><td class="t">--as-h</td><td class="v">874px</td><td class="e">iPhone 16 Pro logical height, 2622 / 3</td></tr><tr><td class="t">--as-status</td><td class="v">62px</td><td class="e">clock ink top 26.3 to the large-title cap top 72.0</td></tr><tr><td class="t">--as-gutter</td><td class="v">20px</td><td class="e">p6 title ink 20.7, hero card 20.0, app icon 20.0, Get pill right 382.0</td></tr><tr><td class="t">--as-icon</td><td class="v">62px</td><td class="e">p6 app icon, col 50 y 569.3-631.3 and row 600 x 20.0-82.0</td></tr><tr><td class="t">--as-bar-w</td><td class="v">361px</td><td class="e">tab-bar pill, p6 row 822 x 20.5-381.5</td></tr><tr><td class="t">--as-bar-h</td><td class="v">62.7px</td><td class="e">tab-bar pill, x=100 edges 790.5/853.2 after the r=31.35 stadium solve</td></tr><tr><td class="t">--as-bar-top</td><td class="v">790.5px</td><td class="e">same solve; x=30 predicts 799.1 against 799.3 measured</td></tr><tr><td class="t">--as-tab-pitch</td><td class="v">68.7px</td><td class="e">tab ink centres 63.6/132.3/201.0/269.7/338.4 on p6</td></tr></table></div>
+</body>
+</html>
