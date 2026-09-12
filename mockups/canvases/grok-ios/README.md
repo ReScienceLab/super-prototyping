@@ -4,13 +4,15 @@ Fifteen screens of the Grok iOS app: the Home Screen widget on the system
 widget gallery ground, two pages of the in-app widget guide (the first and
 the last step), the Voice Settings sheet over the 3D companion scene, the
 SuperGrok paywall, the Terms update interstitial with its Got it pill and
-again with a spinner in the pill, the SuperGrok home with its composer, the
-voice picker on two of its voices, the Settings sheet at three scroll
-positions, the Introducing Grok Bot sheet over the Terms page, and the App
-Store sheet for Grok Bot. 01–05 and 08–12 are Mobbin captures of a 393pt
+again with a spinner in the pill, the Introducing Grok Bot sheet over the
+Terms page, the App Store sheet for Grok Bot, the SuperGrok home with its
+composer, the voice picker on two of its voices, and the Settings sheet at
+three scroll positions. 01–05 and 08–12 are Mobbin captures of a 393pt
 phone; 06, 07 and 13–15 are native captures of a 402pt one. Twenty-six
 boards in three rows, plus fifteen more that park each capture under its
-replica.
+replica. The rows run in flow order, so 13–15 sit between 06 and 07: the
+spinner and the two Grok Bot sheets follow the Terms update they come from.
+A board's number is the capture it was built from and does not move.
 
 | # | Board | What it shows |
 | --- | --- | --- |
@@ -171,7 +173,7 @@ the two overlap.
 
 ## What is a crop, what is drawn, what is fitted
 
-**Every icon but three is a crop of the capture**, not a drawing: 66 of
+**Every icon but seven is a crop of the capture**, not a drawing: 64 of
 them, each cut at its measured ink box grown by 1pt and placed back at the
 same numbers (the `-ic-` ids in `crops.json`), and that includes the three
 inside 02's drawn illustration, the app icon, the close disc and the Grok
@@ -181,8 +183,8 @@ construction. It is also the only honest one: most of these glyphs are SF
 Symbols, whose outlines may not be redistributed, so a hand-drawn SVG would
 have been a near-copy of a licensed shape that was still measurably wrong.
 The cost is that the canvas's inspector names them by image content from
-`assets/art/`, not as vector assets. The three side glyphs on 04 are the
-exception (the section below). Three of the crops are keyed: the close,
+`assets/art/`, not as vector assets. The seven exceptions are the three side
+glyphs on 04 and the four marks on 07's chips (the section below). Three of the crops are keyed: the close,
 AirPlay and microphone glyphs on 04's voice sheet were cut with the sheet's
 blurred ground in their 1pt margin, and now that the sheet is drawn rather
 than cropped, `cut()` keeps each one's coverage (the largest channel's (p −
@@ -190,10 +192,11 @@ g) / (255 − g) against the median of its margin) as white on alpha, so the
 glyph is still the capture's and the ground under it is the board's.
 
 `scratch/icons.py` is the check that they are: it finds every placed crop
-and inline SVG in the boards (105 placements, the chevron counted each time
+and inline SVG in the boards (107 placements, the chevron counted each time
 it is set) and scores each one's window against the capture, with a shift
 search of ±4 capture pixels. Every placement lands within one capture pixel
-of the capture's own glyph, and the shapes are the same by construction.
+of the capture's own glyph. A crop's shape is the capture's by construction;
+the seven vectors' are measured, in the section below.
 `art()` places each crop on the pixels `cut()` took rather than at the pt
 box: a box like 291.5pt on a 3px/pt capture is not a pixel edge, and a crop
 set there was resampled by half a pixel on the way back. On 06, 07 and
@@ -206,7 +209,7 @@ whatever sub-pixel phase it lands on; the montages in `scratch/icons/` show
 the three columns, capture, render and difference, and the difference is a
 one-pixel ring on every edge and nothing inside it.
 
-### Three vector icons
+### Seven vector icons
 
 The focus, hanger and trash glyphs in 04's side discs were asked for as
 vectors, so each is an SVG in `assets/icons/04-<name>.svg` whose `viewBox`
@@ -235,6 +238,54 @@ between the render and the capture on every pass. What that settled:
   it the generated scene under the glass discs, so the crops' 0 there is
   not a number a vector can reach and 04's whole-frame Δ moves from 9.51 to
   9.52.
+
+The four marks on 07's chips are vectors for the opposite reason: they were
+asked for as the original icons, so nothing in them is traced.
+`assets/icons/07-{gmail,github,notion,bot}.svg` each carry the publisher's own
+artwork, the original's children untouched under one `translate ... scale`,
+inside a viewBox that is the box the artwork was fitted to. They replace two
+crops, `07-ic-bot` and `07-ic-trio`, now gone from `crops.json` and
+`assets/art/`.
+
+The boxes were fitted, not chosen (`scratch/fit_icons.py`): each source is
+rendered with the engine the boards are shot with, and a search over uniform
+scale and integer-pixel offset about its own ink box takes the lowest coverage
+delta against the capture's pixels. The winners, in pt:
+
+| mark | box | mean Δ | source |
+| --- | --- | --- | --- |
+| Grok Bot | 28.333 691.667 18.667 × 18.667 | 10.80 | asvg.app, the logomark |
+| Gmail | 317.333 696.333 13 × 9.667 | 5.03 | Wikimedia Commons, Gmail icon (2020) |
+| GitHub | 333 695 12.667 × 12.333 | 18.92 | Iconify `logos/github-icon` |
+| Notion | 348.333 694.667 12.333 × 13 | 11.95 | Iconify `logos/notion-icon` |
+
+- The Δ is the board against the capture's own crop of that box grown by 1pt,
+  and `scratch/marks.py` runs the same ±4 capture-pixel search the crops get:
+  all four land at offset 0, and a ±12% sweep of the size finds the fitted box
+  is the best one. A crop scores 0 by construction and published artwork
+  cannot: GitHub's 18.92 is the largest because the app's invertocat is a
+  little heavier than the published one at 12.7pt, where every edge is two or
+  three capture pixels of antialiasing. Two sources were rejected on the same
+  measurement: Iconify's `logos/google-gmail` draws the 2020 M as a gradient
+  where the capture has it flat, and `simple-icons:notion` draws the N solid
+  where the capture has it outlined.
+- The three connector marks sit in white avatar circles, d 21.667pt at a
+  15.5pt pitch, centres x 324.5 / 340 / 355.5 and y 701, painted right to left
+  so each circle cuts the mark behind it, the way the capture shows them. A fit
+  that does not model those circles reads the clipping as shape error, which is
+  what `scratch/fit_trio.py` is for; the whole 134 × 43 px window of the old
+  crop now reads 11.33.
+- A viewBox is an ink box, so the ink has to land on it. `scratch/make_icons.py`
+  takes each source's ink box off a 400px raster, and that put three of the
+  four up to one capture pixel off the box they were fitted to. The correction
+  is carried in the `translate`, never the viewBox (`scratch/tune.py` sweeps it
+  in the board itself, in sixths of a point, against the capture): with it the
+  rendered ink box is the viewBox on all four, and 07's two windows move from
+  17.92 and 25.72 to 10.80 and 11.33.
+- The marks keep their publishers' colours; only the Grok ball follows
+  `--x-ink`, through the `currentColor` its logomark already uses. That ball is
+  also wider than the crop it replaces -- 18.667pt against the 18.04 `07-ic-bot`
+  was cut at -- so the vector puts back a sliver the crop had lost.
 
 The pictures under the type are crops too: the smoke hero of 05 (`05-bg`),
 the band that carries the voice card's bottom corners and shadow on 08 and

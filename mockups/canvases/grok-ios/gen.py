@@ -41,16 +41,20 @@ edge it is the patched capture (i4), below it a gpt-image-2 edit of that
 frame (assets/art/04-scene.png, composed by scratch/scene4.py), and the
 sheet itself is drawn, with its blur and tint fitted (see s04).
 
-ICONS ARE CROPS, NOT DRAWINGS, WITH THREE EXCEPTIONS. Thirty-one glyphs on these
-screens are SF Symbols, the Grok mark or its app icon, and a hand-drawn
+ICONS ARE CROPS, NOT DRAWINGS, WITH TWO SETS OF EXCEPTIONS. Thirty-one glyphs on
+these screens are SF Symbols, the Grok mark or its app icon, and a hand-drawn
 approximation of an SF Symbol is visibly not the symbol at any zoom. Each one
 is cut from its capture at its measured ink box plus a point of ground
 (crops.json, the `-ic-` ids) and put back at the same numbers, so it is the
-capture's own pixels and scores zero by construction. The three side glyphs on
-04 (focus, hanger, trash) are the exceptions, by request: each is an SVG in
-assets/icons/ whose viewBox is its measured ink box in pt, inlined by icon()
-so the canvas's inspector hands it back as a vector asset, traced stroke by
-stroke against the capture's coverage (README, "Three vector icons").
+capture's own pixels and scores zero by construction.
+
+The exceptions are vectors in assets/icons/, each with a viewBox that is its
+measured ink box in pt, inlined by icon() so the canvas's inspector hands it
+back as a vector asset. The three side glyphs on 04 (focus, hanger, trash) are
+traced stroke by stroke against the capture's coverage, by request. The four
+marks on 07's chips are not traced at all: they are the published artwork of
+Gmail, GitHub, Notion and Grok Bot, each placed on the box that fits the
+capture's pixels, also by request (README, "Seven vector icons").
 
 Three defects belong to the source, not to the replica: Mobbin composites the
 Dynamic Island out (except on 04, where the app's own recording dot keeps it),
@@ -1236,10 +1240,16 @@ def s07():
     return screen("SuperGrok home",
         art("07-ic-mark") + txb(53.3, 78.3, "SuperGrok", "t-hdr", extra=";letter-spacing:.12px")
         + art("07-ic-watermark")
-        + box(11.0, 675.0, 132.7, 52.0, chip) + art("07-ic-bot") + txb(58.0, 696.0, "Build a Bot", "t-chip")
+        + box(11.0, 675.0, 132.7, 52.0, chip) + icon("07-bot", "var(--x-ink)")
+        + txb(58.0, 696.0, "Build a Bot", "t-chip")
         + box(151.3, 675.0, 138.0, 52.0, chip) + art("07-ic-bank") + txb(198.0, 696.0, "Try Finance", "t-chip")
         + box(297.0, 675.0, 105.0, 52.0, chip + ";border-radius:var(--x-r-chip) 0 0 var(--x-r-chip)")
-        + art("07-ic-trio") + txb(374.3, 696.0, "Try C", "t-chip")
+        # the three connector avatars, painted right to left so each white
+        # circle cuts the mark behind it, the way the capture shows them
+        + "".join(circle(cx - 10.83, 690.17, 21.67, "background:var(--x-card)")
+                  + icon("07-" + n, "var(--x-ink)")
+                  for cx, n in ((355.5, "notion"), (340.0, "github"), (324.5, "gmail")))
+        + txb(374.3, 696.0, "Try C", "t-chip")
         + box(10.3, 737.3, 381.3, 95.3, "border-radius:var(--x-r-composer);background:var(--x-composer);"
               "box-shadow:0 0 0 .67px var(--x-composer-line)," + COMPOSER_SH)
         + txb(27.0, 754.7, "Ask Anything", "t-ask", "var(--x-placeholder)")
@@ -1489,15 +1499,15 @@ SCREENS = [
     ("04-voice-settings", "Voice settings", s04),
     ("05-supergrok", "SuperGrok paywall", s05),
     ("06-terms-update", "Terms update", s06),
+    ("13-terms-loading", "Terms update, signing out", s13),
+    ("14-grok-bot-sheet", "Introducing Grok Bot", s14),
+    ("15-app-store", "App Store, Grok Bot", s15),
     ("07-home", "SuperGrok home", s07),
     ("08-voice-select-ara", "Voice selection, Ara", s08),
     ("09-voice-select-eve", "Voice selection, Eve", s09),
     ("10-settings", "Settings", s10),
     ("11-settings-voice", "Settings, scrolled to Voice", s11),
     ("12-settings-bottom", "Settings, bottom", s12),
-    ("13-terms-loading", "Terms update, signing out", s13),
-    ("14-grok-bot-sheet", "Introducing Grok Bot", s14),
-    ("15-app-store", "App Store, Grok Bot", s15),
 ]
 
 
@@ -1608,12 +1618,13 @@ REF_CSS = """body{padding:24px}
 
 
 def ref_boards():
-    for i, (stem, label, _) in enumerate(SCREENS, 1):
-        f = REFS_DIR / ("cp%d.png" % i)
+    for stem, label, _ in SCREENS:
+        ref = "cp%d" % int(stem[:2])          # the capture of this board, not of its place in the row
+        f = REFS_DIR / (ref + ".png")
         if not f.exists():
             continue
         uri = "data:image/png;base64," + base64.b64encode(f.read_bytes()).decode()
-        big = ' style="width:var(--x-w-pro);height:var(--x-h-pro)"' if "cp%d" % i in BIG else ""
+        big = ' style="width:var(--x-w-pro);height:var(--x-h-pro)"' if ref in BIG else ""
         yield ("ref-" + stem,
                page(NAME + " - reference: " + label,
                     '<div class="phone"%s><img src="%s" alt="%s"></div>' % (big, uri, label),

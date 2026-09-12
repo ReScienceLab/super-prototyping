@@ -80,6 +80,18 @@
           "label": "Terms update"
         },
         {
+          "file": "13-terms-loading",
+          "label": "Terms update, signing out"
+        },
+        {
+          "file": "14-grok-bot-sheet",
+          "label": "Introducing Grok Bot"
+        },
+        {
+          "file": "15-app-store",
+          "label": "App Store, Grok Bot"
+        },
+        {
           "file": "07-home",
           "label": "SuperGrok home"
         },
@@ -102,18 +114,6 @@
         {
           "file": "12-settings-bottom",
           "label": "Settings, bottom"
-        },
-        {
-          "file": "13-terms-loading",
-          "label": "Terms update, signing out"
-        },
-        {
-          "file": "14-grok-bot-sheet",
-          "label": "Introducing Grok Bot"
-        },
-        {
-          "file": "15-app-store",
-          "label": "App Store, Grok Bot"
         }
       ]
     },
@@ -146,6 +146,18 @@
           "label": "Terms update"
         },
         {
+          "file": "ref-13-terms-loading",
+          "label": "Terms update, signing out"
+        },
+        {
+          "file": "ref-14-grok-bot-sheet",
+          "label": "Introducing Grok Bot"
+        },
+        {
+          "file": "ref-15-app-store",
+          "label": "App Store, Grok Bot"
+        },
+        {
           "file": "ref-07-home",
           "label": "SuperGrok home"
         },
@@ -168,18 +180,6 @@
         {
           "file": "ref-12-settings-bottom",
           "label": "Settings, bottom"
-        },
-        {
-          "file": "ref-13-terms-loading",
-          "label": "Terms update, signing out"
-        },
-        {
-          "file": "ref-14-grok-bot-sheet",
-          "label": "Introducing Grok Bot"
-        },
-        {
-          "file": "ref-15-app-store",
-          "label": "App Store, Grok Bot"
         }
       ]
     }
