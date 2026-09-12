@@ -25,6 +25,9 @@ mockups/canvases/*/assets/refs/
 # spotify-ios is the exception: prototyping.rescience.com is built from the checkout, so
 # its captures sit under the replicas on the hosted page only as committed boards.
 !mockups/canvases/spotify-ios/ref-*.html
+# grok-ios shows one capture on the hosted page, under board 14, by request: a native
+# screenshot, not a Mobbin one, parked where the replica can be compared against it.
+!mockups/canvases/grok-ios/ref-14-grok-bot-sheet.html
 # Same rule for the walkthrough row and its crops: they show the capture itself.
 mockups/canvases/*/w[0-9]-*.html
 mockups/canvases/*/walkassets.json

@@ -224,6 +224,46 @@ declares a box other than the default 478 x 980.
   is worthless on grey, and that a blur which monotonically improves a band is
   hiding a content defect rather than an antialiasing one. The 25 `ref-*`
   boards are gitignored, so a fresh clone has 29.
+- `grok-ios/`: the run to read when the ask is that the icons match the
+  source exactly, and the one with two devices on one canvas. Fifteen
+  screens of the Grok iOS app - the Home Screen widget, two pages of the
+  widget guide, the Voice Settings sheet over the 3D companion scene, the
+  SuperGrok paywall, the Terms update, the SuperGrok home with its composer,
+  the voice picker on two voices, the Settings sheet at three scroll
+  positions, the Terms update signing out, the Introducing Grok Bot sheet
+  and the App Store page for Grok Bot. Twenty-six boards in three rows: a
+  token board, a type board and nine evidence boards for 167 tokens, the
+  fifteen replicas, and the capture of each parked underneath. Ten are
+  Mobbin captures of a 393pt phone at 2.2417 px/pt; five are native 1206 x
+  2622 captures of a 402pt phone at exactly 3 px/pt, rendered and scored on
+  their own grid with the template's status bar in place of the capture's.
+  Mean absolute delta is 0.27-1.41 on the three Mobbin screens that are
+  mostly crops or a drawn illustration, 9.53 on the Voice Settings sheet,
+  whose companion scene under the sheet is the one ground the capture does
+  not hold and is a gpt-image-2 edit with the sheet drawn over it, 5.77 on
+  the paywall (eighteen lines of white type over an inpainted hero),
+  0.80-0.95 on the three native white pages, 2.12 on the App Store page,
+  3.83 on the Grok Bot sheet, whose card wash, glass and vibrant copy are
+  drawn in CSS and fitted, and 0.74-1.66 on the voice picker and the settings sheet,
+  which are flat grounds, white cards and crops. Every icon but three, 66 of
+  them, is a crop of the capture at its measured ink box rather than a
+  drawing, because a crop scores 0 by construction and most of the glyphs
+  are SF Symbols whose outlines cannot be redistributed; the three side
+  glyphs on the voice screen are SVGs in `assets/icons/`, traced against the
+  capture's coverage maps by request. Its `README.md` records the inpainting
+  that clears the type off the crops before they are cut (a Coons fill from
+  each box's own edges, and a card whose material is un-applied and
+  re-applied by CSS), the five alphas solved against those patched frames,
+  the shadows and the glass fitted by sweep, a colour cast on three of the Mobbin exports
+  taken out with a per-channel lookup before anything was sampled, and the
+  type sizes that are not on the iOS ladder because the widths said so -
+  including a title that measured as 400 at 42px by width and turned out to
+  be 500 at 40.5px by ink mass, which halved its band's delta. The widget
+  guide's illustration is the one picture that is drawn rather than cropped:
+  a phone in CSS on 03, and on 02 a sheet over it with the widget card as a
+  flat rectangle under one fitted `matrix3d`. Fourteen of the fifteen `ref-*`
+  boards are gitignored; `ref-14-grok-bot-sheet` is committed so the hosted
+  canvas shows the capture under its replica, and a fresh clone has 27.
 - `substack-ios/`: the run to read when a translucent bar sits over content
   the board does not control. Seven screens of the Substack iOS home feed - a
   note, the Keep reading toast, three notes in a row, your own just-published

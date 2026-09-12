@@ -1,0 +1,187 @@
+{
+  "name": "(example) Grok iOS",
+  "cover": "05-supergrok",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00a-type-tokens",
+          "label": "Type tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00e-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00f-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00g-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00h-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00i-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00j-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-widget",
+          "label": "Home Screen widget"
+        },
+        {
+          "file": "02-widget-guide-add",
+          "label": "Widget guide, step 4"
+        },
+        {
+          "file": "03-widget-guide-jiggle",
+          "label": "Widget guide, step 1"
+        },
+        {
+          "file": "04-voice-settings",
+          "label": "Voice settings"
+        },
+        {
+          "file": "05-supergrok",
+          "label": "SuperGrok paywall"
+        },
+        {
+          "file": "06-terms-update",
+          "label": "Terms update"
+        },
+        {
+          "file": "13-terms-loading",
+          "label": "Terms update, signing out"
+        },
+        {
+          "file": "14-grok-bot-sheet",
+          "label": "Introducing Grok Bot"
+        },
+        {
+          "file": "15-app-store",
+          "label": "App Store, Grok Bot"
+        },
+        {
+          "file": "07-home",
+          "label": "SuperGrok home"
+        },
+        {
+          "file": "08-voice-select-ara",
+          "label": "Voice selection, Ara"
+        },
+        {
+          "file": "09-voice-select-eve",
+          "label": "Voice selection, Eve"
+        },
+        {
+          "file": "10-settings",
+          "label": "Settings"
+        },
+        {
+          "file": "11-settings-voice",
+          "label": "Settings, scrolled to Voice"
+        },
+        {
+          "file": "12-settings-bottom",
+          "label": "Settings, bottom"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: the captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-widget",
+          "label": "Home Screen widget"
+        },
+        {
+          "file": "ref-02-widget-guide-add",
+          "label": "Widget guide, step 4"
+        },
+        {
+          "file": "ref-03-widget-guide-jiggle",
+          "label": "Widget guide, step 1"
+        },
+        {
+          "file": "ref-04-voice-settings",
+          "label": "Voice settings"
+        },
+        {
+          "file": "ref-05-supergrok",
+          "label": "SuperGrok paywall"
+        },
+        {
+          "file": "ref-06-terms-update",
+          "label": "Terms update"
+        },
+        {
+          "file": "ref-13-terms-loading",
+          "label": "Terms update, signing out"
+        },
+        {
+          "file": "ref-14-grok-bot-sheet",
+          "label": "Introducing Grok Bot"
+        },
+        {
+          "file": "ref-15-app-store",
+          "label": "App Store, Grok Bot"
+        },
+        {
+          "file": "ref-07-home",
+          "label": "SuperGrok home"
+        },
+        {
+          "file": "ref-08-voice-select-ara",
+          "label": "Voice selection, Ara"
+        },
+        {
+          "file": "ref-09-voice-select-eve",
+          "label": "Voice selection, Eve"
+        },
+        {
+          "file": "ref-10-settings",
+          "label": "Settings"
+        },
+        {
+          "file": "ref-11-settings-voice",
+          "label": "Settings, scrolled to Voice"
+        },
+        {
+          "file": "ref-12-settings-bottom",
+          "label": "Settings, bottom"
+        }
+      ]
+    }
+  ]
+}

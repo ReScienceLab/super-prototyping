@@ -1,0 +1,1966 @@
+[
+ {
+  "id": "ground",
+  "img": "assets/refs/cp1.png",
+  "cmd": "sample",
+  "box": [
+   0,
+   100,
+   20,
+   240
+  ],
+  "only": "flat",
+  "mine": "01-widget.png",
+  "_": "01 left of the widget (x 0-20, y 100-240): page ground, nothing else; the widget starts at 24.8",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (881x1910 for 393x852); run with --pt 2.2417. --against wants a directory of renders resized to 881x1910 with the masked corners composited onto the capture, which is what scratch/run.sh writes to scratch/cap/; every probe names its own file there. 'bright' on a sample means the ink is lighter than its ground; on a bbox it is the luminance above which a pixel is ink. 06, 07 and 13-15 are native captures at 3 px/pt (1206x2622 for 402x874); their probes carry \"pt\": 3, which overrides the command line, and scratch/run13.sh writes their composites to the same scratch/cap/. The status bar on those five is the template's, not the capture's, so no probe sits above y 59. 08-12 are 2.2417 again (881x1910 after the Mobbin footer is dropped); cp8, cp9 and cp12 are read after the per-channel cast correction the README describes, which is what assets/refs holds."
+ },
+ {
+  "id": "card",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   295,
+   340,
+   305
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 illustration card interior, row band y 295-305 x 60-340: white between the fake home screen's rows, no icon ink"
+ },
+ {
+  "id": "well",
+  "img": "assets/refs/cp1.png",
+  "cmd": "sample",
+  "box": [
+   45,
+   122,
+   165,
+   128
+  ],
+  "only": "flat",
+  "mine": "01-widget.png",
+  "_": "01 the widget's pill (61.6 tall, y 96-158): the band x 45-165 y 122-128 is its upper blank, above the compose and wave glyphs which sit at y 183-209"
+ },
+ {
+  "id": "dim",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   5,
+   110,
+   50
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the dimmed parent above the sheet, y 5-50 x 30-110: left of the island (134-259) and below nothing"
+ },
+ {
+  "id": "sheet",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   700,
+   340,
+   720
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 sheet ground below the card (card ends 515) and above the body ink (548): y 700-720 x 60-340 is under the dots too, blank"
+ },
+ {
+  "id": "night",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   822,
+   372,
+   838
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 below the footer (ends 817) and above the diff window's floor (838), x 20-372: the flat page ground. The band between the feature card and the plan group is smoke tail, not ground"
+ },
+ {
+  "id": "skip",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   320,
+   72,
+   368,
+   94
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 Skip pill 315.6-372.3 x 67.6-99: the band x 320-368 y 72-94 holds the label ink too, so only the flats count"
+ },
+ {
+  "id": "material",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   384,
+   330,
+   396
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 feature card blank x 200-330 y 384-396, between row 3's second line (ends 380.5) and row 4's title (405): the material over black"
+ },
+ {
+  "id": "price",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   695,
+   190,
+   715
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 Monthly side of the plan group, x 30-190 y 695-715: below '$30 /month' (ends 688.3), above the group's edge (714.7)"
+ },
+ {
+  "id": "plan-lo",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   212,
+   700,
+   228,
+   712
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 Yearly card bottom-left x 212-228 y 700-712: below '$25 /month' (ends 697.2), inside the card's 15pt corner"
+ },
+ {
+  "id": "plan-hi",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   340,
+   626,
+   358,
+   636
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 Yearly card top-right x 340-358 y 626-636: right of 'Yearly' (ends 258.3), the light end of the ramp"
+ },
+ {
+  "id": "free-bg",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   134,
+   643,
+   140,
+   648
+  ],
+  "only": "flat",
+  "mine": "05-supergrok.png",
+  "_": "05 FREE badge 129.8-185.1 x 640.1-667.8, the blank x 134-140 y 643-648 left of the F (starts 141)"
+ },
+ {
+  "id": "rec",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   215,
+   26.8,
+   220.8,
+   32.6
+  ],
+  "only": "all",
+  "mine": "04-voice-settings.png",
+  "_": "04 the orange recording dot inside the island, x 215-220.8 y 26.8-32.6: a 6pt disc, so the mode of all pixels"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   16,
+   545,
+   377,
+   567
+  ],
+  "only": "ink",
+  "ink": "8",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 body line 1 x 16-377 y 545-567: 'Find Grok in the list, choose a widget size,' on sheet ground; darkest 8%"
+ },
+ {
+  "id": "ink-inv",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   99,
+   107,
+   294,
+   144
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 'SuperGrok' x 99-294 y 107-144: the largest white ink on the set; brightest 8%"
+ },
+ {
+  "id": "mute",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   95,
+   244,
+   312,
+   258
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 row 1 subtitle 'With Grok 4.1 - Fast & Expert mode' x 95-312 y 244-258; brightest 8% is the grey"
+ },
+ {
+  "id": "skip-ink",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   325,
+   76,
+   362,
+   92
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 'Skip' x 325-362 y 76-92 inside its pill; brightest 8%"
+ },
+ {
+  "id": "foot",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   35,
+   805,
+   358,
+   817
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 footer x 35-358 y 805-817, one 13px line on night ground; brightest 8%"
+ },
+ {
+  "id": "free-ink",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   141,
+   645,
+   176,
+   662
+  ],
+  "only": "ink",
+  "ink": "8",
+  "bright": true,
+  "mine": "05-supergrok.png",
+  "_": "05 'FREE' x 141-176 y 645-662 inside the badge; brightest 8% is the orange"
+ },
+ {
+  "id": "h1-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "bbox",
+  "box": [
+   80,
+   90,
+   315,
+   150
+  ],
+  "bright": 128,
+  "mine": "05-supergrok.png",
+  "_": "05 'SuperGrok' alone: x 80-315 y 90-150. The Skip pill starts at x 315.6 and its label at 326, so the window's right edge keeps both out; the subtitle starts at y 156"
+ },
+ {
+  "id": "h-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   140,
+   85,
+   255,
+   112
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 nav title 'Widget' x 140-255 y 85-112: centred at 196.5, the back disc ends at 62, nothing else on the row"
+ },
+ {
+  "id": "body-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   16,
+   545,
+   377,
+   567
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 body line 1 only, y 545-567; line 2 starts at 570"
+ },
+ {
+  "id": "widget-01",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   97,
+   115,
+   145,
+   140
+  ],
+  "mine": "01-widget.png",
+  "_": "01 'Grok' in the widget header, x 96-145 y 115-140; the mark ends at 96"
+ },
+ {
+  "id": "sheet-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   130,
+   428,
+   265,
+   455
+  ],
+  "bright": 128,
+  "mine": "04-voice-settings.png",
+  "_": "04 'Voice Settings' x 130-265 y 428-455, centred; the close disc starts at 338"
+ },
+ {
+  "id": "row-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   30,
+   500,
+   200,
+   525
+  ],
+  "bright": 128,
+  "mine": "04-voice-settings.png",
+  "_": "04 'Select Audio Device' x 30-200 y 500-525; the airplay glyph starts at 334"
+ },
+ {
+  "id": "feat-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "bbox",
+  "box": [
+   90,
+   218,
+   340,
+   240
+  ],
+  "bright": 128,
+  "mine": "05-supergrok.png",
+  "_": "05 row 1 title 'Longer conversations in Chat' x 90-340 y 218-240; the subtitle starts at 244.9"
+ },
+ {
+  "id": "price-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "bbox",
+  "box": [
+   210,
+   656,
+   312,
+   680
+  ],
+  "bright": 128,
+  "mine": "05-supergrok.png",
+  "_": "05 '$300 /year' x 210-312 y 656-680; 'Yearly' ends 651.7, '$25 /month' starts 684.7"
+ },
+ {
+  "id": "cta-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   745,
+   300,
+   770
+  ],
+  "mine": "05-supergrok.png",
+  "_": "05 'Upgrade to SuperGrok' on the white CTA, x 100-300 y 745-770: dark ink on white"
+ },
+ {
+  "id": "sheet-edge",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 100,
+  "range": [
+   40,
+   80
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 down x 100 from the dimmed parent into the sheet: the edge is the token's y"
+ },
+ {
+  "id": "card-edge-05",
+  "img": "assets/refs/cp5.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   190,
+   210
+  ],
+  "mine": "05-supergrok.png",
+  "_": "05 down x 200 across the feature card's top edge (199): smoke, the .16 line, then the material"
+ },
+ {
+  "id": "plan-edge",
+  "img": "assets/refs/cp5.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 100,
+  "range": [
+   610,
+   625
+  ],
+  "mine": "05-supergrok.png",
+  "_": "05 down x 100 across the plan group's top edge (618.4): night, the 1pt #252525 line, the price fill"
+ },
+ {
+  "id": "sheet-v-edge",
+  "img": "assets/refs/cp4.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 100,
+  "range": [
+   395,
+   415
+  ],
+  "mine": "04-voice-settings.png",
+  "_": "04 down x 100 across the voice sheet's top edge (403.6), left of the grabber (176.7-217): the scene, then the blurred sheet"
+ },
+ {
+  "id": "voice-pill",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   772,
+   370,
+   797
+  ],
+  "only": "flat",
+  "mine": "04-voice-settings.png",
+  "_": "04 the voice pill under the sheet, its core only (x 300-370 y 772-797 inside the blurred 288.5-379.6 x 767.4-801.3): #474747 through the tint; the render's #767676 pill under the .40 tint should read the same"
+ },
+ {
+  "id": "sheet-v-blur",
+  "img": "assets/refs/cp4.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 784,
+  "range": [
+   270,
+   300
+  ],
+  "mine": "04-voice-settings.png",
+  "_": "04 across the voice pill's left edge at y 784, ground (x 270) to pill core (x 300): the ramp's width is the sheet's blur, 10pt for 10-90%"
+ },
+ {
+  "id": "row-line",
+  "img": "assets/refs/cp4.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 265,
+  "range": [
+   483,
+   491
+  ],
+  "mine": "04-voice-settings.png",
+  "_": "04 down x 265 across the first row card's top edge (486.8), between the label and the airplay glyph: the 1pt line is the single lighter run, no fill on either side"
+ },
+ {
+  "id": "sheet-v",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   120,
+   495,
+   160,
+   505
+  ],
+  "only": "flat",
+  "mine": "04-voice-settings.png",
+  "_": "04 the hoodie through the sheet (x 120-160 y 495-505, between the row labels): #682525 in the capture; the render's is the generated hoodie under the same tint, so this probe scores the scene and the tint together"
+ },
+ {
+  "id": "home-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 196,
+  "range": [
+   836,
+   848
+  ],
+  "mine": "04-voice-settings.png",
+  "_": "04 down x 196 where a home indicator would be (y 838-843): grass all the way in the capture, so the render draws none"
+ },
+ {
+  "id": "illo-scrim-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   58,
+   220,
+   71,
+   276
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the drawn phone's screen between the frame's inner edge (55.9) and the first tile (73.1), y 220-276: the dimmed screen only, above the sheet's halo"
+ },
+ {
+  "id": "illo-sheet-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   221,
+   339,
+   311,
+   352
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the drawn sheet between the header row (ends y 336) and the title (starts 361): white ground only"
+ },
+ {
+  "id": "illo-grabber-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   186,
+   303,
+   207,
+   305
+  ],
+  "only": "all",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the sheet grabber's core, inside its 183.8-209.2 x 302.4-306.0 box"
+ },
+ {
+  "id": "illo-pill-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   150,
+   437,
+   163,
+   472
+  ],
+  "only": "flat",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the widget pill's left end, x 150-163 y 437-472: pill fill, left of the mark (starts 166.8) and inside the cap"
+ },
+ {
+  "id": "illo-label-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   95,
+   316,
+   128,
+   335
+  ],
+  "only": "ink",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 'Grok' beside the app icon, x 98-124 y 321-330, with 3pt of sheet around it: the label's ink only"
+ },
+ {
+  "id": "illo-sub-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   101,
+   383,
+   293,
+   402
+  ],
+  "only": "ink",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the subtitle line x 104-289 y 388-398 with 3pt around it: its ink only"
+ },
+ {
+  "id": "illo-title-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   167,
+   356,
+   226,
+   382
+  ],
+  "only": "ink",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the sheet title 'Grok' x 174-219 y 361-377 with sheet around it: the black ink"
+ },
+ {
+  "id": "illo-pill-ink-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "sample",
+  "box": [
+   190,
+   445,
+   231,
+   469
+  ],
+  "only": "ink",
+  "mine": "02-widget-guide-add.png",
+  "_": "02 'Grok' in the widget pill x 192-227 y 450-465, right of the mark (ends 187.4): its ink only"
+ },
+ {
+  "id": "illo-sheet-shadow-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "col",
+  "at": 200,
+  "range": [
+   254,
+   298
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 down x 200 between the island's foot (251.4) and the sheet's top edge (299.1), both excluded: the scrim, then the sheet's halo darkening into the edge; the largest step is the halo's last run"
+ },
+ {
+  "id": "illo-card-halo-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "col",
+  "at": 176.8,
+  "range": [
+   400,
+   416
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 down x 176.8 from the subtitle's foot (398.4) to the widget card's top edge (417 at that column): the card's halo only"
+ },
+ {
+  "id": "t-illo-label-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   95,
+   316,
+   128,
+   335
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 'Grok' beside the app icon: the window holds the word and 3pt of sheet, the icon ends at 92.3"
+ },
+ {
+  "id": "t-illo-title-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   167,
+   356,
+   226,
+   382
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the sheet title: the word and sheet around it, the subtitle starts at 387.7"
+ },
+ {
+  "id": "t-illo-sub-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   101,
+   383,
+   293,
+   402
+  ],
+  "dark": 160,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the subtitle line: the whole line and sheet around it, the title ends at 376.9 and the card's halo starts below 405"
+ },
+ {
+  "id": "t-illo-pill-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   190,
+   445,
+   231,
+   469
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 'Grok' in the pill, right of the mark (ends 187.4) and inside the pill (right cap starts about 240)"
+ },
+ {
+  "id": "illo-grabber-box-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   178,
+   300,
+   215,
+   309
+  ],
+  "dark": 235,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the grabber: window inside the sheet (top 299.1), clear of the app icon (starts 315.8)"
+ },
+ {
+  "id": "illo-app-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   70,
+   313,
+   95,
+   338
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the app icon crop: the black rounded square and 2pt of sheet, the label starts at 98.1"
+ },
+ {
+  "id": "illo-close-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   302,
+   317,
+   320,
+   334
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the close X crop: the glyph and 2pt of sheet, the sheet's right edge is 294.4+43"
+ },
+ {
+  "id": "illo-mark-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   163,
+   441,
+   191,
+   466
+  ],
+  "dark": 128,
+  "mine": "02-widget-guide-add.png",
+  "_": "02 the mark crop inside the pill: the glyph and pill fill, the pill's 'Grok' starts at 192.3"
+ },
+ {
+  "id": "illo-card-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "row",
+  "at": 460,
+  "range": [
+   100,
+   136
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 across y 460 from the sheet's left edge to short of the pill (its cap starts 140.3 at this row): the card's halo and the card's left edge at 127.6, nothing else"
+ },
+ {
+  "id": "illo-pill-cap-02",
+  "img": "assets/refs/cp2.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "row",
+  "at": 460,
+  "range": [
+   132,
+   150
+  ],
+  "mine": "02-widget-guide-add.png",
+  "_": "02 across y 460 from inside the card (its left edge is 127.6) into the pill: the pill's left cap at 140.3 is the only edge"
+ },
+ {
+  "id": "page-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   520,
+   380,
+   700
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 the empty band between the body copy (ends y 496) and the Got it pill (starts 730.7): page ground, nothing else"
+ },
+ {
+  "id": "chip-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   15,
+   678,
+   55,
+   688
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 top of the first suggestion chip (y 675-727, x 11-143.7), above the bot glyph which starts at y 691.7: chip fill only"
+ },
+ {
+  "id": "composer-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   140,
+   765,
+   300,
+   785
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 composer interior right of 'Ask Anything' (ends x 120.3) and above the control row (starts 789.3): the card fill"
+ },
+ {
+  "id": "ctl-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   90,
+   792,
+   132,
+   797
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 the Auto pill (x 59.3-134, y 789.3-822) above its glyph (y 798.3-813.3) and label (ink top 800.7): pill fill"
+ },
+ {
+  "id": "btn-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   740,
+   150,
+   775
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 the Got it pill (y 730.7-784.7) left of its label (x 181-221): black fill"
+ },
+ {
+  "id": "composer-line-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "col",
+  "at": 200,
+  "range": [
+   731,
+   745
+  ],
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 down x 200 across the composer's top edge: the halo, the line at 737.3-737.7, then the #FEFEFE interior; the largest step is the line"
+ },
+ {
+  "id": "composer-shadow-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   8,
+   770,
+   10,
+   820
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 a 2pt strip just outside the composer's left edge (x 10.3), mid-height: the halo at its darkest, nothing else"
+ },
+ {
+  "id": "composer-below-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   838,
+   300,
+   843
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 5-10pt under the composer's bottom (832.7), above the home indicator's band: the halo's tail"
+ },
+ {
+  "id": "copy-mute-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   482,
+   245,
+   493
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 'review them.' on body line 3, the only grey-only window: the copy ink, no black span"
+ },
+ {
+  "id": "placeholder-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "sample",
+  "box": [
+   27,
+   755,
+   121,
+   770
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'Ask Anything' in the composer, x 27.3-120.3, above the control row: placeholder ink"
+ },
+ {
+  "id": "title-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   374,
+   390,
+   401
+  ],
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 title line 1 'Updates to our Terms of Service' (ink 379.0-394.0 plus descenders); line 2 starts at 405.0"
+ },
+ {
+  "id": "copy-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   441,
+   390,
+   461
+  ],
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 body line 1 (ink top 444.7, 10.0 cap); line 2 starts 463.7"
+ },
+ {
+  "id": "link-06",
+  "img": "assets/refs/cp6.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   798,
+   250,
+   822
+  ],
+  "pt": 3,
+  "mine": "06-terms-update.png",
+  "_": "06 'Sign out' with its underline (ink 804.2-818.7), centred, nothing beside it"
+ },
+ {
+  "id": "hdr-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   50,
+   70,
+   175,
+   102
+  ],
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'SuperGrok' right of the mark (mark ends x 49), ink 78-98"
+ },
+ {
+  "id": "chip-lbl-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   50,
+   690,
+   143,
+   712
+  ],
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'Build a Bot' in the first chip, right of the bot glyph (ends x 45); the chip fill is above threshold"
+ },
+ {
+  "id": "ctl-lbl-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   90,
+   795,
+   132,
+   816
+  ],
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'Auto' in the model pill, right of its glyph (ends x 86)"
+ },
+ {
+  "id": "speak-07",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   322,
+   796,
+   376,
+   816
+  ],
+  "bright": 160,
+  "pt": 3,
+  "mine": "07-home.png",
+  "_": "07 'Speak' on the black pill, right of the wave glyph (ends x 319) and short of the pill's rounded right end (x 378.3 at y 796)"
+ },
+ {
+  "id": "page-13",
+  "img": "assets/refs/cp13.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   520,
+   380,
+   700
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "13-terms-loading.png",
+  "_": "13 the same band as page-06 under the spinner pill: page ground, nothing else"
+ },
+ {
+  "id": "title-13",
+  "img": "assets/refs/cp13.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   374,
+   390,
+   401
+  ],
+  "pt": 3,
+  "mine": "13-terms-loading.png",
+  "_": "13 title line 1, the same box as title-06; the spinner pill is 330pt below"
+ },
+ {
+  "id": "link-13",
+  "img": "assets/refs/cp13.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   798,
+   250,
+   822
+  ],
+  "pt": 3,
+  "mine": "13-terms-loading.png",
+  "_": "13 'Sign out' with its underline, the same box as link-06"
+ },
+ {
+  "id": "scrim-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   150,
+   380,
+   250
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the dimmed Terms page above the sheet (sheet top 442.5), between the status bar and the mark (starts 299.7): the scrim over white, nothing else"
+ },
+ {
+  "id": "glass-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   840,
+   340,
+   855
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the sheet's flats under the CTA (ends 833.3) and above the home indicator: glass over the scrimmed page, no type"
+ },
+ {
+  "id": "glass-pill-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   764,
+   340,
+   784
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the band between sheet body line 3 (ink ends 762) and the CTA (starts 786), where the black Got it pill (730.7-784.7) shows through the glass"
+ },
+ {
+  "id": "grabber-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   175,
+   452,
+   227,
+   454
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the grabber's core (172.3-229.7 x 451.3-455.0), inside its rounded ends"
+ },
+ {
+  "id": "card-blue-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   66,
+   583,
+   366,
+   643
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the card's lower two thirds right of the NEW badge (ends x 82.7 at y 631-652 - the window starts at 66 above it, y 583-631 clear) and under the title (ends 573.7): flat blue"
+ },
+ {
+  "id": "card-pale-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   46,
+   463,
+   106,
+   513
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 the card's top-left corner inside the pale shape (its edge runs from (26,505) to (246,463)): the pale fill only"
+ },
+ {
+  "id": "sheet-line-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "row",
+  "at": 600,
+  "range": [
+   3,
+   13
+  ],
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 along row y 600 across the sheet's left edge (7.33-7.67): scrim, the two-px outline, then the glass"
+ },
+ {
+  "id": "sheet-copy-ink-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   708,
+   360,
+   721
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 sheet body line 1 'AI teammates you can give real work to. Bots can' (ink 708.3-722): the copy ink"
+ },
+ {
+  "id": "sheet-h-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   676,
+   220,
+   699
+  ],
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 'Introducing Grok Bot' (ink 679.7-697), above body line 1 (starts 708.3)"
+ },
+ {
+  "id": "sheet-copy-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   705,
+   380,
+   724
+  ],
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 sheet body line 1 (ink top 708.3); line 2 starts 728.3"
+ },
+ {
+  "id": "card-title-14",
+  "img": "assets/refs/cp14.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   543,
+   300,
+   578
+  ],
+  "bright": 200,
+  "pt": 3,
+  "mine": "14-grok-bot-sheet.png",
+  "_": "14 'Grok Bot' on the card, white on #80BEFD (luminance 181), right of the bot glyph (ends 144.3) and clear of the pale shape"
+ },
+ {
+  "id": "store-dim-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   22,
+   130,
+   52
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 the App Store page above the sheet (sheet top 62), under the template's clock, whose glyphs the flat census ignores: the dimmed ground"
+ },
+ {
+  "id": "store-disc-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   100,
+   32,
+   112
+  ],
+  "only": "all",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 the close disc's interior (d 45.4 at 15.3, 77.3) left of the X glyph (starts x 29)"
+ },
+ {
+  "id": "store-pill-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   440,
+   382,
+   448
+  ],
+  "only": "flat",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 the Purchased pill (289-382 x 440-472) above its label (ink top 451.7): pill fill"
+ },
+ {
+  "id": "store-rule-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "scan",
+  "box": null,
+  "axis": "col",
+  "at": 200,
+  "range": [
+   274,
+   284
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 down x 200 across the first rule (278.67): sheet, one px of rule, sheet"
+ },
+ {
+  "id": "store-mute-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   155,
+   173,
+   326,
+   187
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'AI agents that do real work' under the title (ends 162.4): the subtitle ink"
+ },
+ {
+  "id": "store-val-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   52,
+   318,
+   84,
+   334
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 '4.9' in the ratings column (ink top 318.7), above the stars (start 343)"
+ },
+ {
+  "id": "store-label-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   295,
+   107,
+   303
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 '3.3K RATINGS' (ink 295-303), between the rule at 278.67 and the value at 318.7"
+ },
+ {
+  "id": "store-link-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   350,
+   638,
+   382,
+   647
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'more' at the end of the release notes (ink 638-647), right of 'template' (ends x 90)"
+ },
+ {
+  "id": "store-pill-ink-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "sample",
+  "box": [
+   302,
+   451,
+   369,
+   461
+  ],
+  "only": "ink",
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'Purchased' on its pill (ink 451.7-461): the label ink over #EEEEEF"
+ },
+ {
+  "id": "store-title-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   143,
+   245,
+   168
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'Grok Bot' beside the icon (icon ends x 138), ink 146.7-162.4; the subtitle starts 173.7"
+ },
+ {
+  "id": "store-sub-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   170,
+   330,
+   190
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'AI agents that do real work' (ink 173.7-187), above the cloud button (starts 231.7)"
+ },
+ {
+  "id": "store-h-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   389,
+   180,
+   411
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'Also Included In' (ink 392.3-408), under the second rule (366.67) and above the bundle art (starts 425)"
+ },
+ {
+  "id": "store-bundle-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   88,
+   428,
+   285,
+   448
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 'Apps by SpaceXAI: AI,' right of the bundle art (ends x 82) and left of the Purchased pill (starts 289), ink 432-447"
+ },
+ {
+  "id": "store-body-15",
+  "img": "assets/refs/cp15.png",
+  "cmd": "bbox",
+  "box": [
+   15,
+   595,
+   300,
+   613
+  ],
+  "pt": 3,
+  "mine": "15-app-store.png",
+  "_": "15 the first release-note line (ink top 598.3); line 2 starts 617.3"
+ },
+ {
+  "id": "side-ink",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   347.0,
+   233.6,
+   363.7,
+   252.1
+  ],
+  "only": "ink",
+  "bright": true,
+  "mine": "04-voice-settings.png",
+  "_": "04 the trash glyph's box (x 347-363.7, y 233.6-252.1): flat #CDCECF ink over the glass disc, the disc's ground at 163 there; the focus box reads the same ink over 180 and the hanger over 194, which is why it is a grey and not an alpha",
+  "ink": "3"
+ },
+ {
+  "id": "ic-focus-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   344,
+   128,
+   366,
+   150
+  ],
+  "bright": 200,
+  "mine": "04-voice-settings.png",
+  "_": "04 the focus ring alone, 1pt of disc ground on each side: the disc is 180 under it and the ring's 205 ink is the only thing over 200; expect 345.2-365.0 x 129.3-149.1, the SVG's viewBox"
+ },
+ {
+  "id": "ic-trash-04",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   345,
+   231,
+   366,
+   254
+  ],
+  "bright": 200,
+  "mine": "04-voice-settings.png",
+  "_": "04 the trash glyph alone, 2pt of disc ground around it (163 there); expect 347.0-363.7 x 233.6-252.1, the SVG's viewBox. The hanger gets no bbox: its cloud ground is within 10 levels of the ink"
+ },
+ {
+  "id": "dim-08",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   0,
+   150,
+   393,
+   380
+  ],
+  "only": "flat",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 the dimmed home between the nav and the card, y 150-380: flat ground, no chrome (the card starts at 403.6)"
+ },
+ {
+  "id": "nav-well",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   19,
+   65,
+   59,
+   105
+  ],
+  "only": "flat",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 the menu disc 17.8-60.7 x 63.1-106.9; the hamburger 28.5-48.2 x 79.9-90.6 is inside it, too thin to win a flat census"
+ },
+ {
+  "id": "t-nav-ask",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   135,
+   72,
+   175,
+   96
+  ],
+  "dark": 100,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Ask' alone: the pill ground around it is 3 levels under dim, under any ink threshold; expect 142.3-168.6 x 78.5-90.6"
+ },
+ {
+  "id": "t-nav-imagine",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   188,
+   72,
+   258,
+   98
+  ],
+  "dark": 100,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Imagine' alone between the pill and the compose disc; expect 194.9-251.6 x 78.5-93.2"
+ },
+ {
+  "id": "voice-sheet",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   420,
+   120,
+   700
+  ],
+  "only": "flat",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 the card interior left of the orb (138.7-255.2) and the title (from 138.7): flat card, no type"
+ },
+ {
+  "id": "t-voice-title",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   120,
+   428,
+   275,
+   452
+  ],
+  "dark": 100,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Voice Selection' alone on the card, the orb starts at 502; expect 138.7-254.3 x 434.0-446.5"
+ },
+ {
+  "id": "t-voice-name",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   170,
+   600,
+   225,
+   625
+  ],
+  "dark": 100,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Ara' between the orb (to 573.7) and 'Upbeat Female' (from 630.8); expect 184.2-208.8 x 608.0-619.6"
+ },
+ {
+  "id": "voice-sub",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   142,
+   630,
+   252,
+   646
+  ],
+  "only": "ink",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Upbeat Female' 142.7-251.1 x 630.8-645.5, the ghost line starts at 646"
+ },
+ {
+  "id": "t-voice-sub",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   130,
+   626,
+   265,
+   650
+  ],
+  "dark": 140,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Upbeat Female' alone; the ghost line below 646 is lighter than 140; expect 142.7-251.1 x 630.8-645.5"
+ },
+ {
+  "id": "dot-off",
+  "img": "assets/refs/cp8.png",
+  "cmd": "sample",
+  "box": [
+   187,
+   707,
+   193.5,
+   713.5
+  ],
+  "only": "all",
+  "mine": "08-voice-select-ara.png",
+  "_": "08 the second page dot, inactive on this screen (the first is ink), 187.0-193.2 x 707.1-713.4: mode of a 6.3pt disc"
+ },
+ {
+  "id": "t-hint",
+  "img": "assets/refs/cp8.png",
+  "cmd": "bbox",
+  "box": [
+   90,
+   760,
+   300,
+   784
+  ],
+  "dark": 140,
+  "mine": "08-voice-select-ara.png",
+  "_": "08 'Swipe to explore more voices' alone under the dots (to 713.4); expect 101.7-292.2 x 765.9-778.9"
+ },
+ {
+  "id": "voice-btn",
+  "img": "assets/refs/cp9.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   750,
+   150,
+   792
+  ],
+  "only": "flat",
+  "mine": "09-voice-select-eve.png",
+  "_": "09 the Continue pill 46.5-347.2 x 746.1-796.5 left of its label (from 163.3)"
+ },
+ {
+  "id": "t-voice-btn",
+  "img": "assets/refs/cp9.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   758,
+   245,
+   782
+  ],
+  "bright": 200,
+  "mine": "09-voice-select-eve.png",
+  "_": "09 'Continue' white on the pill; expect 163.3-230.6 x 764.6-777.1"
+ },
+ {
+  "id": "t-voice-name-09",
+  "img": "assets/refs/cp9.png",
+  "cmd": "bbox",
+  "box": [
+   170,
+   600,
+   225,
+   625
+  ],
+  "dark": 100,
+  "mine": "09-voice-select-eve.png",
+  "_": "09 'Eve' alone; expect 184.7-209.7 x 608.0-619.6"
+ },
+ {
+  "id": "sheet-top-s",
+  "img": "assets/refs/cp10.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 100,
+  "range": [
+   40,
+   80
+  ],
+  "mine": "10-settings.png",
+  "_": "10 col x100 across the sheet's edge, clear of the template island (130-263): dim to 58.7, the sheet from there; the title starts at 90.6"
+ },
+ {
+  "id": "sheet-10",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   262,
+   300,
+   292
+  ],
+  "only": "flat",
+  "mine": "10-settings.png",
+  "_": "10 the sheet between the profile card (to 256.6) and 'General' (from 298.0): flat sheet, nothing on it"
+ },
+ {
+  "id": "card-10",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   326,
+   340,
+   368
+  ],
+  "only": "flat",
+  "mine": "10-settings.png",
+  "_": "10 the first card's interior right of 'Appearance' (to 155.2) and left of the chevron (351.5): white"
+ },
+ {
+  "id": "avatar",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   34,
+   183,
+   90,
+   238
+  ],
+  "only": "flat",
+  "mine": "10-settings.png",
+  "_": "10 the profile disc 32.1-91.9 x 180.2-240.4; the person glyph 49.5-74.5 x 197.2-223.9 is a minority of it"
+ },
+ {
+  "id": "t-h-name",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   98,
+   176,
+   200,
+   200
+  ],
+  "dark": 100,
+  "mine": "10-settings.png",
+  "_": "10 'Alex Smith' alone above the email (from 204.8); expect 104.8-187.8 x 182.5-195.8"
+ },
+ {
+  "id": "t-mail",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   98,
+   200,
+   320,
+   224
+  ],
+  "dark": 160,
+  "mine": "10-settings.png",
+  "_": "10 the email's first line alone, between the name (to 195.8) and 'com' (from 229.3); the chevron sits at 351.5; expect 104.8-312.3 x 204.8-219.5"
+ },
+ {
+  "id": "sec-ink",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   285,
+   550,
+   338,
+   566
+  ],
+  "only": "ink",
+  "mine": "10-settings.png",
+  "_": "10 'English' 285.5-337.7 x 550.5-566.1, the chevron is 14pt to its right"
+ },
+ {
+  "id": "section-ink",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   33,
+   298,
+   86,
+   309
+  ],
+  "only": "ink",
+  "mine": "10-settings.png",
+  "_": "10 'General' 33.0-86.1 x 298.0-309.1 on the sheet"
+ },
+ {
+  "id": "t-section",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   25,
+   292,
+   100,
+   314
+  ],
+  "dark": 160,
+  "mine": "10-settings.png",
+  "_": "10 'General' alone between the profile card (to 256.6) and the first card (from 323.1); expect 33.0-86.1 x 298.0-309.1"
+ },
+ {
+  "id": "card-line",
+  "img": "assets/refs/cp10.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   373.9,
+   300,
+   374.8
+  ],
+  "only": "ink",
+  "mine": "10-settings.png",
+  "_": "10 the rule under 'Appearance', x 64.3-360.7 at y 373.9-374.8: the darkest 2% of a band holding only the rule and white is the rule"
+ },
+ {
+  "id": "t-body-row",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   337,
+   180,
+   360
+  ],
+  "dark": 100,
+  "mine": "10-settings.png",
+  "_": "10 'Appearance' alone: the icon ends at 51.7, the chevron starts at 351.5; expect 64.7-155.2 x 343.0-358.2"
+ },
+ {
+  "id": "row-s",
+  "img": "assets/refs/cp10.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   631,
+   160,
+   655
+  ],
+  "dark": 100,
+  "mine": "10-settings.png",
+  "_": "10 'Kids Mode', the first row of the second card at 618.0: expect 65.6-144.1 x 637.5-650.4, cap top card + 19.5"
+ },
+ {
+  "id": "toggle-off",
+  "img": "assets/refs/cp11.png",
+  "cmd": "sample",
+  "box": [
+   342,
+   284,
+   362,
+   310
+  ],
+  "only": "flat",
+  "mine": "11-settings-voice.png",
+  "_": "11 the track right of its knob (knob to 339.1), 300.3-362.7 x 283.0-310.7"
+ },
+ {
+  "id": "t-section-11",
+  "img": "assets/refs/cp11.png",
+  "cmd": "bbox",
+  "box": [
+   25,
+   347,
+   180,
+   370
+  ],
+  "dark": 160,
+  "mine": "11-settings-voice.png",
+  "_": "11 'Data & Information' alone on the sheet between two cards (323.1 and 378.4); expect 33.5-165.5 x 353.3-364.5"
+ },
+ {
+  "id": "t-body-row-11",
+  "img": "assets/refs/cp11.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   284,
+   260,
+   308
+  ],
+  "dark": 100,
+  "mine": "11-settings-voice.png",
+  "_": "11 'Open App in Voice Mode' alone, the toggle starts at 300.3; expect 65.1-251.6 x 290.4-306.0"
+ },
+ {
+  "id": "danger",
+  "img": "assets/refs/cp12.png",
+  "cmd": "sample",
+  "box": [
+   65,
+   652,
+   130,
+   668
+  ],
+  "only": "ink",
+  "mine": "12-settings-bottom.png",
+  "_": "12 'Sign Out' 65.1-129.4 x 652.2-667.8 on the white card: ink core of thin red strokes"
+ },
+ {
+  "id": "t-danger",
+  "img": "assets/refs/cp12.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   646,
+   140,
+   672
+  ],
+  "dark": 200,
+  "mine": "12-settings-bottom.png",
+  "_": "12 'Sign Out' alone: the icon ends at 50.4; expect 65.1-129.4 x 652.2-667.8"
+ },
+ {
+  "id": "version-ink",
+  "img": "assets/refs/cp12.png",
+  "cmd": "sample",
+  "box": [
+   103,
+   770,
+   290,
+   783
+  ],
+  "only": "ink",
+  "mine": "12-settings-bottom.png",
+  "_": "12 'VERSION 1.3.42 (BUILD 2776)' 103.0-290.0 x 770.8-782.4 on the sheet"
+ },
+ {
+  "id": "t-version",
+  "img": "assets/refs/cp12.png",
+  "cmd": "bbox",
+  "box": [
+   95,
+   765,
+   300,
+   788
+  ],
+  "dark": 225,
+  "mine": "12-settings-bottom.png",
+  "_": "12 the version line alone under the xAI mark (to 754.8); expect 103.0-290.0 x 770.8-782.4"
+ }
+]
