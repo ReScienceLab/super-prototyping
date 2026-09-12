@@ -21,6 +21,13 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.2.0
+
+2026-09-12. A board stops being something only the canvas can show: it has a
+web page of its own, at an address a link or a Figma importer can reach. A
+glyph traced off a capture can be fitted back into a drawing. Two more
+example canvases.
+
 ### The canvas
 
 - **A board is a web page with an address.** The button in the corner of the
