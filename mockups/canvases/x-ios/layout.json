@@ -94,6 +94,613 @@
           "label": "Professional profile"
         }
       ]
+    },
+    {
+      "title": "Logo & wordmark",
+      "images": [
+        {
+          "file": "assets/brand/identity/logo-x-black.png",
+          "label": "X mark, black, official brand toolkit",
+          "w": 1565,
+          "h": 1600,
+          "source": "https://about.x.com/en/who-we-are/brand-toolkit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-handle-lockup.png",
+          "label": "X mark + @handle lockup, clearspace guide (brand toolkit, rasterized from vector)",
+          "w": 1600,
+          "h": 592,
+          "source": "https://about.x.com/en/who-we-are/brand-toolkit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-partnership-lockup.png",
+          "label": "X mark + partner logo co-branding lockup, clearspace guide (brand toolkit, rasterized from vector)",
+          "w": 1600,
+          "h": 816,
+          "source": "https://about.x.com/en/who-we-are/brand-toolkit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-bw-treatment.png",
+          "label": "Logo black/white color treatment (external brand guidelines PDF, p.3)",
+          "w": 1236,
+          "h": 1600,
+          "source": "https://about.x.com/content/dam/about-twitter/x/brand-toolkit/x-brand-guidelines.pdf",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Typeface",
+      "images": [
+        {
+          "file": "assets/brand/identity/typeface-specimen.png",
+          "label": "Typography specimen \u2014 Helvetica Neue headline/body/data styles (external brand guidelines PDF, p.6)",
+          "w": 1236,
+          "h": 1600,
+          "source": "https://about.x.com/content/dam/about-twitter/x/brand-toolkit/x-brand-guidelines.pdf",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Art direction",
+      "images": [
+        {
+          "file": "assets/brand/identity/art-notification-card-success-story.webp",
+          "label": "Illustration style, notification card \u2014 customer success story",
+          "w": 924,
+          "h": 266,
+          "source": "https://business.x.com/en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-notification-card-ad-format.webp",
+          "label": "Illustration style, notification card \u2014 ad format guide",
+          "w": 924,
+          "h": 266,
+          "source": "https://business.x.com/en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-notification-card-viral-strategy.webp",
+          "label": "Illustration style, notification card \u2014 viral launch strategy",
+          "w": 924,
+          "h": 266,
+          "source": "https://business.x.com/en",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/applied-xbusiness-sharecard.png",
+          "label": "X Business identity card (link-preview image)",
+          "w": 1200,
+          "h": 630,
+          "source": "https://business.x.com/en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-about-x-sharecard.png",
+          "label": "About X identity card, textured X mark (link-preview image)",
+          "w": 768,
+          "h": 403,
+          "source": "https://about.x.com/en/who-we-are/brand-toolkit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-post-layout-diagram.png",
+          "label": "Anatomy of a post \u2014 labeled UI diagram (brand toolkit, rasterized from vector)",
+          "w": 1600,
+          "h": 1018,
+          "source": "https://about.x.com/en/who-we-are/brand-toolkit",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-avatar.jpg",
+          "label": "@X avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/X",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-banner.jpg",
+          "label": "@X profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/X",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-nflgametime.jpg",
+          "label": "@X post \u2014 NFL Gametime on X launch",
+          "w": 1200,
+          "h": 675,
+          "source": "https://x.com/X/status/2092764677805609060",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-android-rebuild.jpg",
+          "label": "@X post \u2014 rebuilt X for Android",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/X/status/2079275369304150492",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-customtimelines-soccer.jpg",
+          "label": "@X post \u2014 Soccer Custom Timeline",
+          "w": 1200,
+          "h": 675,
+          "source": "https://x.com/X/status/2065223678061678739",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-yapacity.jpg",
+          "label": "@X post \u2014 video reactions on iOS",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://x.com/X/status/2061622495862575585",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-xchat-homescreen.jpg",
+          "label": "@X post \u2014 XChat app on iOS",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/X/status/2047748954071195814",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-customtimelines-launch.jpg",
+          "label": "@X post \u2014 Custom Timelines launch",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/X/status/2047029292240937331",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-bangers.jpg",
+          "label": "@X post \u2014 photo editor teaser",
+          "w": 988,
+          "h": 561,
+          "source": "https://x.com/X/status/2043383260927918213",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-facereveal.jpg",
+          "label": "@X post \u2014 new photo editor teaser",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://x.com/X/status/2041718277123273168",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-trending-explore.jpg",
+          "label": "@X post \u2014 Trending now live on Explore",
+          "w": 1237,
+          "h": 787,
+          "source": "https://x.com/X/status/2001825532137079169",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-ios-widgets.jpg",
+          "label": "@X post \u2014 X widgets on iOS",
+          "w": 1200,
+          "h": 1200,
+          "source": "https://x.com/X/status/1999910734692757654",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-howiseeworld.jpg",
+          "label": "@X post \u2014 \"how i see the world\"",
+          "w": 1105,
+          "h": 1600,
+          "source": "https://x.com/X/status/1980661975794479108",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-new-avatar.jpg",
+          "label": "@X post \u2014 new profile picture reveal",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://x.com/X/status/1955345054547038520",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-darkmode-spookyszn.jpg",
+          "label": "@X post \u2014 Dark Mode, \"spooky szn\"",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/X/status/1973469002459652501",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/youtube-avatar.jpg",
+          "label": "X channel avatar (YouTube)",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.youtube.com/@X.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-banner.jpg",
+          "label": "X channel banner (YouTube)",
+          "w": 1600,
+          "h": 265,
+          "source": "https://www.youtube.com/@X.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-ads-webinar.jpg",
+          "label": "Video thumbnail \u2014 X Ads Webinar 101",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=U6YVgRBgBkI",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-bracket-challenge.jpg",
+          "label": "Video thumbnail \u2014 X Bracket Challenge",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=_esueeK3IbY",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-nfl-portal.jpg",
+          "label": "Video thumbnail \u2014 Introducing the NFL Portal on X",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=7BfeWnRGgJ0",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-thisyearonx-2024.jpg",
+          "label": "Video thumbnail \u2014 this year on X: 2024",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=VqiXiDs3kHE",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/linkedin-logo.jpg",
+          "label": "X Corp. LinkedIn company logo",
+          "w": 200,
+          "h": 200,
+          "source": "https://www.linkedin.com/company/x-corp",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-cover.jpg",
+          "label": "X Corp. LinkedIn cover image",
+          "w": 1128,
+          "h": 191,
+          "source": "https://www.linkedin.com/company/x-corp",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-nflgametime.jpg",
+          "label": "LinkedIn post \u2014 NFL Gametime on X",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.linkedin.com/posts/x-corp_where-the-game-meets-the-conversation-introducing-activity-7498786781107081216-tkDs",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-adsmanager.jpg",
+          "label": "LinkedIn post \u2014 X Ads Manager",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.linkedin.com/posts/x-corp_simpler-smarter-more-powerful-real-results-activity-7488661298390425602-ob7g",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.jpg",
+          "label": "App Store icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-01.jpg",
+          "label": "App Store iPhone screenshot 1",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-02.jpg",
+          "label": "App Store iPhone screenshot 2",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-03.jpg",
+          "label": "App Store iPhone screenshot 3",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-04.jpg",
+          "label": "App Store iPhone screenshot 4",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-05.jpg",
+          "label": "App Store iPhone screenshot 5",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-06.jpg",
+          "label": "App Store iPhone screenshot 6",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-07.jpg",
+          "label": "App Store iPhone screenshot 7",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-01.png",
+          "label": "App Store iPad screenshot 1",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-02.png",
+          "label": "App Store iPad screenshot 2",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-03.png",
+          "label": "App Store iPad screenshot 3",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://apps.apple.com/us/app/x/id333903271",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/playstore-icon.jpg",
+          "label": "Google Play icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/playstore-screenshot-01.jpg",
+          "label": "Google Play screenshot 1",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/playstore-screenshot-02.jpg",
+          "label": "Google Play screenshot 2",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/playstore-screenshot-03.jpg",
+          "label": "Google Play screenshot 3",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/playstore-screenshot-04.jpg",
+          "label": "Google Play screenshot 4",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/playstore-screenshot-05.jpg",
+          "label": "Google Play screenshot 5",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/playstore-screenshot-06.jpg",
+          "label": "Google Play screenshot 6",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/playstore-screenshot-07.jpg",
+          "label": "Google Play screenshot 7",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/playstore-screenshot-08.jpg",
+          "label": "Google Play screenshot 8",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/playstore-promo-video-thumb.jpg",
+          "label": "Google Play promo video thumbnail",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.twitter.android",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/ads/announce-nflgametime-launch.jpg",
+          "label": "Article header \u2014 NFL Gametime on X launch",
+          "w": 1600,
+          "h": 640,
+          "source": "https://x.com/i/article/2093014551247704065",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announce-xads-summer-review.jpg",
+          "label": "Article header \u2014 X Ads' summer in review",
+          "w": 1600,
+          "h": 640,
+          "source": "https://x.com/i/article/2094818135660728320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announce-insidenfl-anniversary.png",
+          "label": "Article header \u2014 Inside the NFL 50th anniversary on X",
+          "w": 1200,
+          "h": 480,
+          "source": "https://x.com/i/article/2097319556825985025",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announce-xbusiness-summer-recap.jpg",
+          "label": "Article header \u2014 summer recap on X",
+          "w": 1600,
+          "h": 640,
+          "source": "https://x.com/i/article/2097384389495726080",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announce-smb-winners.jpg",
+          "label": "Article header \u2014 SMBs winning on X",
+          "w": 1600,
+          "h": 640,
+          "source": "https://x.com/i/article/2095928629414760451",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/paidads-adsmanager-objective.svg",
+          "label": "Ads Manager \u2014 campaign objective picker",
+          "w": 796,
+          "h": 409,
+          "source": "https://business.x.com/en/advertising",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/paidads-adsmanager-adgroup.svg",
+          "label": "Ads Manager \u2014 ad group budget & audience details",
+          "w": 796,
+          "h": 409,
+          "source": "https://business.x.com/en/advertising",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/paidads-adsmanager-composer.svg",
+          "label": "Ads Manager \u2014 ad composer with live post preview",
+          "w": 796,
+          "h": 409,
+          "source": "https://business.x.com/en/advertising",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/paidads-adsmanager-dashboard.svg",
+          "label": "Ads Manager \u2014 campaign performance dashboard",
+          "w": 797,
+          "h": 409,
+          "source": "https://business.x.com/en/advertising",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/paidads-trend-takeover-mockup.png",
+          "label": "X app ad format mockup \u2014 Trend Takeover",
+          "w": 276,
+          "h": 564,
+          "source": "https://business.x.com/en/advertising",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/paidads-infeed-mockup.png",
+          "label": "X app ad format mockup \u2014 in-feed promoted post",
+          "w": 1104,
+          "h": 1322,
+          "source": "https://business.x.com/en/advertising",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/paidads-spotlight-takeover-mockup.svg",
+          "label": "X app ad format mockup \u2014 Spotlight Takeover",
+          "w": 337,
+          "h": 455,
+          "source": "https://business.x.com/en/products/spotlight-takeovers",
+          "provenance": "theirs"
+        }
+      ]
     }
   ]
 }
