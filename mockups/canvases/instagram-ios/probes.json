@@ -1,0 +1,212 @@
+[
+ {
+  "id": "bg",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "sample",
+  "box": [200, 302, 300, 312],
+  "only": "flat",
+  "_": "c01 page ground between the Threads row (ink ends 297.0) and the mutuals row (starts 317.7); nothing else in the window",
+  "_head": "Phase 1 measurements, replayable. Boxes are design pt on the iPhone 16 Pro @3x captures in assets/refs, so run with --pt 3. cNN.png is the Nth Mobbin user-profile capture (1179x2556, 393x852pt) with its 120px bottom attribution banner cropped off; the refs are third-party and are not committed, so rebuild them before replaying. --against wants a directory of renders whose names start with each probe's `mine`, made with `refkit shoot <board>.html -o scratch/mine/ --w 478 --h 980 --scale 3 --crop-phone`. Ink probes carry --only ink because batch compares the first colour printed. iOS stem-darkens text: the darkest 2% of a glyph sits about 5 levels below the fill iOS was asked for, so every --only ink probe on type reads darker than the token it justifies. The solid 2pt tab underline (probe `ink`) is the flat authority for --ig-ink and the type probes are the cross-check."
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "sample",
+  "box": [30, 559, 68, 561],
+  "only": "flat",
+  "_": "c01 active-tab underline, x 29-69 y 559-561: the only solid fill of --ig-ink on any screen, so it and not a glyph core sets the token. The divider below starts 561.0",
+  "_expect": "#0E0F13"
+ },
+ {
+  "id": "ink-nav",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "sample",
+  "box": [53, 76, 146, 95],
+  "only": "ink",
+  "_": "c01 nav title 'instagram' alone: the chevron ends 33.0 and the verified badge starts 153.7. Stem darkening, so ~#090B0E against a #0E0F13 token"
+ },
+ {
+  "id": "ink-2",
+  "img": "assets/refs/c06.png",
+  "mine": "06-private.png",
+  "cmd": "sample",
+  "box": [65, 651, 328, 665],
+  "only": "ink",
+  "_": "c06 'Follow this account to see their photos', the longest run of secondary ink in the set; the title above ends 630.3 and line 2 starts 668.7"
+ },
+ {
+  "id": "ink-2b",
+  "img": "assets/refs/c08.png",
+  "mine": "08-agnezmo.png",
+  "cmd": "sample",
+  "box": [16, 230, 46, 245],
+  "only": "ink",
+  "_": "c08 bio line 1 'Artist', grey where the three lines under it are --ig-ink; confirms ink-2 is one token and not a c06 quirk"
+ },
+ {
+  "id": "link",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "sample",
+  "box": [38, 254, 290, 266],
+  "only": "ink",
+  "_": "c01 'www.youtube.com/watch?v=e3GBHkiMSi8' after the chain icon, which ends 33.3; the Threads row starts 282.3"
+ },
+ {
+  "id": "accent",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "sample",
+  "box": [60, 375, 150, 395],
+  "only": "flat",
+  "_": "c01 Follow button (16-194 x 369-401), left of its centred label; 94.6% flat",
+  "_expect": "#4A5DF6"
+ },
+ {
+  "id": "fill",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "sample",
+  "box": [240, 375, 330, 395],
+  "only": "flat",
+  "_": "c01 Message button (199-377 x 369-401), left of its centred label; 89.4% flat",
+  "_expect": "#F1F2F6"
+ },
+ {
+  "id": "verified",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "sample",
+  "box": [156, 81, 163, 88],
+  "only": "all",
+  "_": "c01 verified badge (153.7-165.0 x 78.3-90.0), the middle of the disc inside the white tick's arms. 7pt square, so no flat census: --only all"
+ },
+ {
+  "id": "ring",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "sample",
+  "box": [14, 440, 17.3, 452],
+  "only": "all",
+  "_": "c01 highlight 1 ring at its left edge, 3.3pt of stroke over 12pt of height at the circle's widest; the photo inside starts 20.7. Grey, not the story gradient the avatar ring carries",
+  "_expect": "#DDDEE2"
+ },
+ {
+  "id": "hairline",
+  "img": "assets/refs/c06.png",
+  "mine": "06-private.png",
+  "cmd": "sample",
+  "box": [40, 346, 340, 346.3],
+  "only": "all",
+  "_": "c06 tab-bar divider, one device pixel tall at y 346.0 and the full width of the screen. c06 because its tab bar is at half opacity but its divider is not",
+  "_expect": "#DADADA"
+ },
+ {
+  "id": "ink-50",
+  "img": "assets/refs/c06.png",
+  "mine": "06-private.png",
+  "cmd": "sample",
+  "box": [80, 344, 116, 346],
+  "only": "all",
+  "_": "c06 active-tab underline. #858887 is #0E0F13 at 0.5 on white, which is what says the whole private tab bar is the normal one at opacity 0.5 rather than three new greys",
+  "_expect": "#858887"
+ },
+ {
+  "id": "story",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "sample",
+  "box": [9.3, 165, 12.3, 180],
+  "only": "all",
+  "_": "c01 avatar ring at 9 o'clock, 3pt of stroke: the story gradient, orange at this angle. The highlight rings (probe `ring`) are flat grey, so the two rings are two tokens"
+ },
+ {
+  "id": "nav-title",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "bbox",
+  "box": [40, 70, 150, 100],
+  "_": "c01 'instagram' ink box: 53.3-146.0 x 75.7-95.0, w 92.7. The chevron ends 33.0 and the badge starts 153.7, so the window holds the title alone. 92.7 is what picks 700 20px/24px out of the ladder"
+ },
+ {
+  "id": "name",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "bbox",
+  "box": [118, 132, 393, 158],
+  "_": "c01 display name 'Instagram': 124.7-190.3 x 140.0-152.7, w 65.7 -> 600 14px/18px. x starts at 118 because the avatar ring ends 108.7 and the column is at 120"
+ },
+ {
+  "id": "stats",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "bbox",
+  "box": [118, 160, 393, 205],
+  "_": "c01 both stat rows: 124.3-353.0 x 168.7-200.3. Numbers 168.3-183.3 (600 16px/20px), labels 187.0-200.3 (400 14px/18px); the name above ends 152.7 and the bio below starts 230.7"
+ },
+ {
+  "id": "avatar",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "bbox",
+  "box": [4, 116, 116, 226],
+  "dark": 245,
+  "_": "c01 avatar story ring: 9.0-108.7 x 123.0-222.7, d 99.7. --dark 245 because the ring's own lightest stop is nowhere near the 128 default. The photo inside is d 86 at 16-102"
+ },
+ {
+  "id": "avatar-plain",
+  "img": "assets/refs/c06.png",
+  "mine": "06-private.png",
+  "cmd": "bbox",
+  "box": [4, 110, 116, 215],
+  "dark": 245,
+  "_": "c06 avatar with no story: 16.0-102.0 x 119.7-205.7, d 86 and no ring and no white gap. Same photo diameter as c01, 9.7pt higher, which is what says the name/stats column is centred on the avatar box rather than on the ring"
+ },
+ {
+  "id": "buttons",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "bbox",
+  "box": [0, 362, 393, 408],
+  "_": "c01 button row: y 369.0-401.0, h 32. x1 stops at 317.7 because the Message fill is brighter than the 128 default and only its label counts as ink; the fill's own box is 199-377, measured by probe `fill`"
+ },
+ {
+  "id": "highlight",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "bbox",
+  "box": [10, 405, 82, 485],
+  "_": "c01 highlight 1's photo: 20.7-71.3 x 425.7-476.3, d 50.7. Ring 3.3 plus white gap 3.3 puts the circle itself at 14.0-78.0 x 419.0-483.0, d 64"
+ },
+ {
+  "id": "lock",
+  "img": "assets/refs/c06.png",
+  "mine": "06-private.png",
+  "cmd": "bbox",
+  "box": [140, 490, 250, 595],
+  "_": "c06 private-account lock ring: 152.3-240.3 x 498.0-586.0, d 88, centred x 196.3. The lock glyph inside is 176.0-216.7 x 515.3-566.0"
+ },
+ {
+  "id": "divider",
+  "img": "assets/refs/c01.png",
+  "mine": "01-profile.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [555, 566],
+  "_": "c01 down a column between the tab glyphs, through the divider into the grid: white to 561.0, one device pixel of divider, white to 562.0, photo. Grid top = divider + 1.0 holds on every capture that has a grid"
+ },
+ {
+  "id": "gutter",
+  "img": "assets/refs/c02.png",
+  "mine": "02-grid-scrolled.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 400,
+  "range": [125, 140],
+  "_": "c02 across the gutter between grid columns 0 and 1: tile 0 to 130.3, 1.0pt of white, tile 1 from 131.3. Column pitch 131.33, tile 130.33"
+ }
+]

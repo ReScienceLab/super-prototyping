@@ -1,0 +1,94 @@
+{
+  "name": "(example) Instagram",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-profile",
+          "label": "Profile"
+        },
+        {
+          "file": "02-grid-scrolled",
+          "label": "Grid, scrolled"
+        },
+        {
+          "file": "03-reels",
+          "label": "Reels tab"
+        },
+        {
+          "file": "04-reposts",
+          "label": "Reposts tab"
+        },
+        {
+          "file": "05-tagged",
+          "label": "Tagged tab"
+        },
+        {
+          "file": "06-private",
+          "label": "Private account"
+        },
+        {
+          "file": "07-nytcooking",
+          "label": "NYT Cooking"
+        },
+        {
+          "file": "08-agnezmo",
+          "label": "AGNEZ MO"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-profile",
+          "label": "Profile"
+        },
+        {
+          "file": "ref-02-grid-scrolled",
+          "label": "Grid, scrolled"
+        },
+        {
+          "file": "ref-03-reels",
+          "label": "Reels tab"
+        },
+        {
+          "file": "ref-04-reposts",
+          "label": "Reposts tab"
+        },
+        {
+          "file": "ref-05-tagged",
+          "label": "Tagged tab"
+        },
+        {
+          "file": "ref-06-private",
+          "label": "Private account"
+        },
+        {
+          "file": "ref-07-nytcooking",
+          "label": "NYT Cooking"
+        },
+        {
+          "file": "ref-08-agnezmo",
+          "label": "AGNEZ MO"
+        }
+      ]
+    }
+  ]
+}

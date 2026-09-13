@@ -293,6 +293,33 @@ declares a box other than the default 478 x 980.
   or two thirds of a point, were worth more than the blur fit and the compose
   glyph together. The seven `ref-*` boards are gitignored, so a fresh clone
   has 10.
+- `instagram-ios/`: the run to read when eight screens are one app's own
+  profile at eight states. Eight user-profile screens of the Instagram iOS app
+  - one account at the top of its scroll and scrolled until the tab bar sticks,
+  the same account's Reels, Reposts and Tagged tabs, a private account, and two
+  verified profiles - in 10 boards across three rows: a token board and an
+  evidence board for 36 tokens, the eight replicas, and the Mobbin capture of
+  each column-for-column underneath. Mean absolute delta against those captures
+  is 5.06-7.82 levels (of 255) whole-frame and 1.85-4.79 below the status bar,
+  where about three of those levels are one fixed thing on all eight boards:
+  Mobbin strips the Dynamic Island and these boards draw one, because the
+  status bar is copied from `templates/` byte for byte. Its `README.md` records
+  that the story ring is an **angular** sweep, not a linear one - twelve samples
+  at 30 degrees round c01's ring do not mirror about any axis, which a linear
+  gradient on a circle always does - and that the four tab glyphs are really
+  eight, because an active tab is a different drawing rather than a recolour. It
+  also records the two measurement techniques that settled them: solving a
+  stroke width on coverage against the **core** ink level rather than against
+  255, which reads a grey stroke 43% narrow if you get it wrong, and a per-row
+  solve in place of a threshold bbox, which biases black shapes wider than grey
+  ones. And it names three defects as the source's: the active-tab underline is
+  40pt wide on four captures and 64 on the other four, c08's fifth highlight
+  label is not centred on its circle, and the reels scrim is baked into the
+  photographs. Only photography is cropped (74 boxes); the two brand-mark
+  avatars are the original 1080 and 720 px files from the profile API, and the
+  grid badges and view counts set over the crops are inpainted out and redrawn
+  live. `assets/art/`, `assets/brand/` and `assets/icons/` are committed; the
+  eight `ref-*` boards are gitignored, so a fresh clone has 10.
 - `apple-app-store/`: the run to read when the source is native iPhone 16 Pro
   screenshots rather than Mobbin or Figma. Nine screens of the iOS 26 App
   Store - five tab roots, three sheets and a system alert - in 23 boards
