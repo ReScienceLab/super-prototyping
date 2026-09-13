@@ -318,11 +318,12 @@ declares a box other than the default 478 x 980.
   photographs. Only photography is cropped (74 boxes); the two brand-mark
   avatars are the original 1080 and 720 px files from the profile API, and the
   grid badges and view counts set over the crops are inpainted out and redrawn
-  live. Twelve of the 23 SVGs are Instagram's own drawings rather than traces,
+  live. Thirteen of the 23 SVGs are Meta's own drawings rather than traces,
   pulled out of the `IGDS*Icon.react` modules in the JS bundles the logged-out
-  instagram.com shell loads - which is also where that README records the rule
-  that makes them usable: `icon()` sets `preserveAspectRatio="none"`, so what
-  ships has to be the path's **ink box**, never the module's design grid.
+  instagram.com shell loads, plus one the Threads row needs that only
+  threads.com carries - which is also where that README records the rule that
+  makes them usable: `icon()` sets `preserveAspectRatio="none"`, so what ships
+  has to be the path's **ink box**, never the module's design grid.
   `assets/art/`, `assets/brand/` and `assets/icons/` are committed; the eight
   `ref-*` boards are gitignored, so a fresh clone has 11.
 - `apple-app-store/`: the run to read when the source is native iPhone 16 Pro

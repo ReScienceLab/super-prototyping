@@ -20,12 +20,13 @@ else is live -- type, buttons, rings, the tab bar, the grid's play/carousel/pin
 badges and the reels view counts, which are listed in each crop's `erase`,
 inpainted out of the photograph and redrawn on top.
 
-Where the icons come from. 12 of the 23 SVGs in assets/icons are Instagram's
-own IGDS drawings, lifted out of the IGDS*Icon.react modules in the JS the
-logged-out instagram.com shell loads; the other 11 are traced off the captures
-because they only appear behind the login wall. icon() sets
-preserveAspectRatio="none", so each file's viewBox is the glyph's ink box,
-never a module's design grid -- see the folder README.
+Where the icons come from. 13 of the 23 SVGs in assets/icons are Meta's own
+IGDS drawings, lifted out of the IGDS*Icon.react modules in the JS the
+logged-out instagram.com shell loads, except threads-note, which only
+threads.com carries; the other 10 are traced off the captures because they
+only appear behind the login wall. icon() sets preserveAspectRatio="none", so
+each file's viewBox is the glyph's ink box, never a module's design grid --
+see the folder README.
 
 The scroll model. Boards 03-05 are board 01 scrolled by exactly 208.33 pt:
 the mutuals row, the buttons and the highlights all move by that one number,
@@ -556,7 +557,7 @@ def threads(base, handle, note_x=None, title=None, tail=None):
     out = [icon("threads", 17.33, base - 12.5, 13.33, 15.33),
            tx(handle, 35.0, base, "bodys")]
     if note_x:
-        out.append(icon("threads-note", note_x, base - 12.3, 15.33, 14))
+        out.append(icon("threads-note", note_x, base - 11.4, 14.67, 13.33))
         out.append(tx(title[1], title[0], base, "bodys"))
         if tail:
             out.append(tx(tail[1], tail[0], base, "bodys"))
@@ -589,7 +590,7 @@ def s01():
             + icon("link", 16.67, 251.33, 17.33, 17.33, ";color:var(--x-link)")
             + tx("www.youtube.com/watch?v=e3GBHkiMSi8", 39.5, 264.33, "body",
                  "var(--x-link)")
-            + threads(294.5, "instagram", 113.0,
+            + threads(294.5, "instagram", 113.33,
                       (131.5, "What’s Good on Instagram ✨"))
             + mutuals()
             + btn(16, 178, 369, "Follow", acc=True) + btn(199, 178, 369, "Message")
@@ -682,7 +683,7 @@ def s08():
             + tx("Official booking: booking@agnezmo.com", 16, 295.33)
             + icon("link", 16.67, 305, 17.33, 17.33, ";color:var(--x-link)")
             + tx("linktr.ee/agnezmo", 39.5, 318, "body", "var(--x-link)")
-            + threads(348.33, "agnezmo", 107.33, (126.5, "Life is Life-ing"),
+            + threads(348.33, "agnezmo", 107.67, (126.5, "Life is Life-ing"),
                       (231.8, "1 more"))
             + btn(15.67, 105.33, 364, "Follow", acc=True)
             + btn(125.67, 104.67, 364, "Message") + btn(235.33, 104.67, 364, "Subscribe")

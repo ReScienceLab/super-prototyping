@@ -30,7 +30,7 @@ Mean absolute delta against the captures, in levels of 255, phone crop
 | 01 Profile | 7.77 | 4.73 | 05 Tagged | 7.36 | 4.30 |
 | 02 Grid, scrolled | 6.43 | 3.31 | 06 Private account | 5.06 | 1.84 |
 | 03 Reels | 7.47 | 4.41 | 07 NYT Cooking | 6.68 | 3.57 |
-| 04 Reposts | 7.40 | 4.33 | 08 AGNEZ MO | 6.44 | 3.31 |
+| 04 Reposts | 7.40 | 4.33 | 08 AGNEZ MO | 6.42 | 3.29 |
 
 **Both columns are the same render.** Roughly three levels of every whole-frame
 number is the status bar, and it is the same three levels on all eight boards,
@@ -94,7 +94,7 @@ play / carousel / pin badges and the reels view counts. Those last two sets
 sit *on* photographs, so they are listed in each crop's `erase`, inpainted
 out of the picture by `cut()` and drawn again on top. 23 glyphs are SVGs in
 `assets/icons/`, each with its `viewBox` set to its measured ink box in pt.
-**12 of the 23 are Instagram's own drawings, not traces** — see below.
+**13 of the 23 are Instagram's own drawings, not traces** — see below.
 
 **The two brand marks are original files, not crops.** `assets/brand/`
 holds Instagram's own 1080 px and NYT Cooking's 720 px profile pictures,
@@ -131,7 +131,7 @@ stays a crop**, because the live picture is a different photograph now.
   nav goes opaque, so nothing above the mutuals survives. Board 02 is the
   same account scrolled further, and its first grid row is board 01's second
   — which is why 01 and 02 share the crops `ig-t4..ig-t6`.
-- **Twelve icons are Instagram's own, pulled out of instagram.com's bundles.**
+- **Thirteen icons are Instagram's own, pulled out of Meta's bundles.**
   The whole IGDS set ships as `IGDS*Icon.react` modules inside the JS the
   logged-out shell loads: 370 bundles, 202 icon modules, each one an
   `IGDSSVGIconBase` with a `viewBox` and its children. `verified`, `threads`,
@@ -140,6 +140,16 @@ stays a crop**, because the live picture is a different photograph now.
   verbatim. It cost between 0.02 and 0.10 levels a board, and it is worth more
   than that: a trace of a 22 pt glyph facets at 2× while every delta reads
   clean.
+- **The Threads row's second glyph came from threads.com, not instagram.com.**
+  Nothing under a Barcelona, thread, comment or note name in instagram.com's
+  202 modules draws it. www.threads.com's logged-out profile page names 489
+  bundles, 466 of them ones instagram.com never loads, and
+  `ThreadsCommentsOutline24Icon` in those is the drawing exactly: a back bubble
+  knocked out by the front one, tail bottom-right. The trace it replaced drew
+  the back bubble as a closed ring fused into the front one, which is a
+  different picture, not a rougher one. Its ink is square on a 24 grid and the
+  capture's is 14.67 × 13.33 pt, so `threads-note` is the one glyph here
+  that ships stretched 10% wide, on purpose.
 - **A module's `viewBox` is its design grid, and `icon()` wants the ink box.**
   `icon()` injects `preserveAspectRatio="none"`, so a glyph shipped on its own
   `0 0 24 24` grid lands short of the measured span by whatever margin the grid
@@ -151,9 +161,9 @@ stays a crop**, because the live picture is a different photograph now.
   is a padlock inside a circle where board 06 draws the circle in CSS, and its
   padlock alone is 38.4 × 49.33 against the capture's 40.67 × 50.67 — swapping
   it cost 06 0.18 levels, so it was reverted. The grid, tagged and crown tab
-  glyphs, `threads-note` and the plain `eye` are not in the logged-out bundle
-  set at all; they live behind the login-walled profile route, which returns
-  302 to every anonymous request. Those 11 stay traces.
+  glyphs and the plain `eye` are not in either logged-out bundle set at all;
+  they live behind the login-walled profile route, which returns 302 to every
+  anonymous request. Those 10 stay traces.
 - **`refkit diff --top N` does not exclude anything from the mean.** It only
   controls which bands get reported. The second column of the table above is a
   separate `refkit diff` of the same pair with the top 54 pt cropped off both.
@@ -165,8 +175,8 @@ stays a crop**, because the live picture is a different photograph now.
 - `art/`: 74 PNGs, each a crop of a capture at the box named in `crops.json`.
   **Committed**: without it the boards have no photography.
 - `brand/`: the two original profile pictures described above. **Committed.**
-- `icons/`: 23 SVGs, inlined by `icon()`. 12 are Instagram's own IGDS
-  paths, 11 are traced off the captures. **Committed.**
+- `icons/`: 23 SVGs, inlined by `icon()`. 13 are Meta's own IGDS paths,
+  10 are traced off the captures. **Committed.**
 - `refs/`: the 8 captures, 1179 × 2556 after their attribution banner is
   cropped off the shipped 1179 × 2676. **Gitignored**, along with the
   `ref-*.html` boards built from them.
