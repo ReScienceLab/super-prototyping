@@ -42,6 +42,11 @@ OUT = Path(__file__).resolve().parent
 REFS_DIR = OUT / "assets" / "refs"
 ART_DIR = OUT / "assets" / "art"
 ICON_DIR = OUT / "assets" / "icons"
+# The brand-material rows, which are image shapes of their own rather than data: URIs
+# inlined into a board -- one row per surface, so the canvas can compare avatar against
+# avatar down the page. The two profile pictures brand() reads sit in the same folder and
+# are not part of it; manifest.json lists what belongs to the rows.
+BRAND_DIR = OUT / "assets" / "brand"
 
 NAME = "Instagram"
 PAGE_NAME = "(example) " + NAME
@@ -766,7 +771,8 @@ def layout():
          "files": [{"file": s, "label": l} for s, l, _ in SCREENS]},
         # Same order as the row above, so capture N lands under replica N.
         {"title": "Source of truth: Mobbin captures", "numbered": True,
-         "files": [{"file": "ref-" + s, "label": l} for s, l, _ in SCREENS]}]}
+         "files": [{"file": "ref-" + s, "label": l} for s, l, _ in SCREENS]}]
+        + json.loads((BRAND_DIR / "manifest.json").read_text())}
 
 
 def main():

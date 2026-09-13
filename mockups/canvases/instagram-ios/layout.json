@@ -93,6 +93,898 @@
           "label": "AGNEZ MO"
         }
       ]
+    },
+    {
+      "title": "Logo & wordmark",
+      "images": [
+        {
+          "file": "assets/brand/identity/glyph-gradient.png",
+          "label": "Instagram glyph, gradient colorway",
+          "w": 1100,
+          "h": 1100,
+          "source": "https://www.meta.com/brand/resources/instagram/instagram-brand/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/glyph-black.svg",
+          "label": "Instagram glyph, black",
+          "w": 1000,
+          "h": 1000,
+          "source": "https://www.meta.com/brand/resources/instagram/instagram-brand/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Art direction",
+      "images": [
+        {
+          "file": "assets/brand/identity/art-direction-glyph-installation.jpg",
+          "label": "Concentric-rings art installation around the Instagram icon",
+          "w": 413,
+          "h": 549,
+          "source": "https://about.instagram.com/about-us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-brand-gradient.jpg",
+          "label": "Instagram signature gradient background art",
+          "w": 1600,
+          "h": 1015,
+          "source": "https://about.instagram.com/features/reels",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-wordmark-before-after.jpg",
+          "label": "Instagram wordmark redesign, before and after comparison",
+          "w": 1600,
+          "h": 900,
+          "source": "https://www.meta.com/design-at-meta/blog/the-new-instagram-brand-identity/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-design-collage.jpg",
+          "label": "Brand design collage: wordmark lockup, glyph construction grid, icon set",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.meta.com/design-at-meta/blog/the-new-instagram-brand-identity/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-campaign-collage.jpg",
+          "label": "Brand campaign collage: \"Yours to make\" art direction and gradient app icon",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.meta.com/design-at-meta/blog/the-new-instagram-brand-identity/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/applied-creator-piano-ui.webp",
+          "label": "In-app like/comment/share UI overlaid on a creator's piano video",
+          "w": 892,
+          "h": 574,
+          "source": "https://creators.instagram.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-creator-askme-sticker.webp",
+          "label": "\"Ask me anything\" sticker overlaid on a creator's Story",
+          "w": 892,
+          "h": 574,
+          "source": "https://creators.instagram.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-creator-closet-ui.webp",
+          "label": "In-app UI overlaid on a creator's closet/fashion content",
+          "w": 1475,
+          "h": 945,
+          "source": "https://creators.instagram.com",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-avatar.jpg",
+          "label": "@instagram profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-banner.jpg",
+          "label": "@instagram profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-1.jpg",
+          "label": "X post image, @instagram",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-2-videothumb.jpg",
+          "label": "X post video thumbnail, @instagram",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-3.jpg",
+          "label": "X post image, @instagram",
+          "w": 465,
+          "h": 826,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-4.jpg",
+          "label": "X post image, @instagram",
+          "w": 1280,
+          "h": 1600,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-5.jpg",
+          "label": "X post image, @instagram",
+          "w": 900,
+          "h": 1600,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-6.jpg",
+          "label": "X post image, @instagram",
+          "w": 900,
+          "h": 1600,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-7.jpg",
+          "label": "X post image, @instagram",
+          "w": 900,
+          "h": 1600,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-8-videothumb.jpg",
+          "label": "X post video thumbnail, @instagram",
+          "w": 720,
+          "h": 1280,
+          "source": "https://x.com/instagram",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/ig-avatar.jpg",
+          "label": "@instagram profile avatar",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.instagram.com/instagram/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-1.jpg",
+          "label": "@instagram feed post",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/instagram/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-2.jpg",
+          "label": "@instagram feed post",
+          "w": 480,
+          "h": 854,
+          "source": "https://www.instagram.com/instagram/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-3.jpg",
+          "label": "@instagram feed post",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/instagram/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-4.jpg",
+          "label": "@instagram feed post",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/instagram/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-5.jpg",
+          "label": "@instagram feed post",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://www.instagram.com/instagram/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-6.jpg",
+          "label": "@instagram feed post",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/instagram/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-7.jpg",
+          "label": "@instagram feed post",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/instagram/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-8.jpg",
+          "label": "@instagram feed post",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/instagram/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tiktok-avatar.jpg",
+          "label": "@instagram profile avatar",
+          "w": 1078,
+          "h": 1078,
+          "source": "https://www.tiktok.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-1.jpg",
+          "label": "@instagram video cover",
+          "w": 1005,
+          "h": 1461,
+          "source": "https://www.tiktok.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-2.webp",
+          "label": "@instagram video cover",
+          "w": 270,
+          "h": 480,
+          "source": "https://www.tiktok.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-3.webp",
+          "label": "@instagram video cover",
+          "w": 270,
+          "h": 480,
+          "source": "https://www.tiktok.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-4.jpg",
+          "label": "@instagram video cover",
+          "w": 891,
+          "h": 1600,
+          "source": "https://www.tiktok.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-5.jpg",
+          "label": "@instagram video cover",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.tiktok.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-6.jpg",
+          "label": "@instagram video cover",
+          "w": 1014,
+          "h": 1473,
+          "source": "https://www.tiktok.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-7.jpg",
+          "label": "@instagram video cover",
+          "w": 1014,
+          "h": 1473,
+          "source": "https://www.tiktok.com/@instagram",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/yt-avatar.jpg",
+          "label": "Instagram channel avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.youtube.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-banner.jpg",
+          "label": "Instagram channel banner",
+          "w": 1600,
+          "h": 265,
+          "source": "https://www.youtube.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-1.jpg",
+          "label": "YouTube video thumbnail, \"Salma Hayek and Valentina Pinault Go Vintage Shopping\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-2.jpg",
+          "label": "YouTube video thumbnail, \"Billie Eilish \u2014 What's In My Camera Roll\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-3.jpg",
+          "label": "YouTube video thumbnail, \"Carversations with Tom Brady\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-4.jpg",
+          "label": "YouTube video thumbnail, \"Gabriel Moses | Anyway\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-5.jpg",
+          "label": "YouTube video thumbnail, \"Carversations with Usher\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@instagram",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-6.jpg",
+          "label": "YouTube video thumbnail, \"Instagram Rings \u2014 The Award Designed by Grace Wales Bonner\"",
+          "w": 640,
+          "h": 480,
+          "source": "https://www.youtube.com/@instagram",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.jpg",
+          "label": "App Store icon",
+          "w": 1024,
+          "h": 1024,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-01.jpg",
+          "label": "App Store iPhone screenshot 1",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-02.jpg",
+          "label": "App Store iPhone screenshot 2",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-03.jpg",
+          "label": "App Store iPhone screenshot 3",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-04.jpg",
+          "label": "App Store iPhone screenshot 4",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-05.jpg",
+          "label": "App Store iPhone screenshot 5",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-06.jpg",
+          "label": "App Store iPhone screenshot 6",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-07.jpg",
+          "label": "App Store iPhone screenshot 7",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-08.jpg",
+          "label": "App Store iPhone screenshot 8",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-01.jpg",
+          "label": "App Store iPad screenshot 1",
+          "w": 1600,
+          "h": 1200,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-02.jpg",
+          "label": "App Store iPad screenshot 2",
+          "w": 1600,
+          "h": 1200,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-03.jpg",
+          "label": "App Store iPad screenshot 3",
+          "w": 1600,
+          "h": 1200,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-04.jpg",
+          "label": "App Store iPad screenshot 4",
+          "w": 1600,
+          "h": 1200,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-05.jpg",
+          "label": "App Store iPad screenshot 5",
+          "w": 1600,
+          "h": 1200,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-06.jpg",
+          "label": "App Store iPad screenshot 6",
+          "w": 1600,
+          "h": 1200,
+          "source": "https://apps.apple.com/us/app/instagram/id389801252",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/googleplay-icon.png",
+          "label": "Google Play icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-01.jpg",
+          "label": "Google Play screenshot 1",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-02.png",
+          "label": "Google Play screenshot 2",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-03.jpg",
+          "label": "Google Play screenshot 3",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-04.png",
+          "label": "Google Play screenshot 4",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-05.png",
+          "label": "Google Play screenshot 5",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-06.png",
+          "label": "Google Play screenshot 6",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-07.png",
+          "label": "Google Play screenshot 7",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-08.png",
+          "label": "Google Play screenshot 8",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-09.png",
+          "label": "Google Play screenshot 9",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-10.png",
+          "label": "Google Play screenshot 10",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-11.png",
+          "label": "Google Play screenshot 11",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-12.png",
+          "label": "Google Play screenshot 12",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-13.png",
+          "label": "Google Play screenshot 13",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-14.png",
+          "label": "Google Play screenshot 14",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-15.png",
+          "label": "Google Play screenshot 15",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-16.png",
+          "label": "Google Play screenshot 16",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-17.png",
+          "label": "Google Play screenshot 17",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-18.png",
+          "label": "Google Play screenshot 18",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-19.png",
+          "label": "Google Play screenshot 19",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=com.instagram.android",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/ads/announcement-edits-tips.webp",
+          "label": "Announcement card, Edits app tips",
+          "w": 760,
+          "h": 760,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-first-video-edit.webp",
+          "label": "Announcement card, your first video edit",
+          "w": 720,
+          "h": 720,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-stories-meta-ai-effects.webp",
+          "label": "Announcement card, Meta AI effects in Stories",
+          "w": 668,
+          "h": 668,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-stories-guide.jpg",
+          "label": "Announcement card, guide to Stories",
+          "w": 1600,
+          "h": 1435,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-ai-glasses.webp",
+          "label": "Announcement card, AI glasses integration",
+          "w": 720,
+          "h": 720,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-close-friends-podcast.webp",
+          "label": "Announcement card, Close Friends podcast feature",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-instagram-tv.jpg",
+          "label": "Announcement card, IGTV",
+          "w": 1600,
+          "h": 1435,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-instagram-plus.webp",
+          "label": "Announcement card, Instagram+",
+          "w": 668,
+          "h": 668,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-katseye-podcast.webp",
+          "label": "Announcement card, KATSEYE podcast feature",
+          "w": 1400,
+          "h": 1400,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-instants.webp",
+          "label": "Announcement card, Instants feature",
+          "w": 780,
+          "h": 780,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-creator-algorithm.webp",
+          "label": "Announcement card, creator algorithm update",
+          "w": 1050,
+          "h": 1050,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-edits-anniversary.webp",
+          "label": "Announcement card, Edits app anniversary",
+          "w": 512,
+          "h": 512,
+          "source": "https://about.instagram.com/blog",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/meta-ad-library-1.jpg",
+          "label": "Meta ad for Instagram, \"Ride with your Close Friends\" (Japanese)",
+          "w": 338,
+          "h": 600,
+          "source": "https://www.facebook.com/ads/library/?id=1136477421764875",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-library-2.jpg",
+          "label": "Meta ad for Instagram, \"Find hobby tips on Instagram\" (Japanese)",
+          "w": 338,
+          "h": 600,
+          "source": "https://www.facebook.com/ads/library/?id=1389362972730511",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-library-3.jpg",
+          "label": "Meta ad for Instagram, \"Everyday life is Reels material\"",
+          "w": 338,
+          "h": 600,
+          "source": "https://www.facebook.com/ads/library/?id=1531728168456913",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-library-4.jpg",
+          "label": "Meta ad for Instagram, \"Find hobby tips on Instagram\"",
+          "w": 338,
+          "h": 600,
+          "source": "https://www.facebook.com/ads/library/?id=1786060712103701",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-library-5.jpg",
+          "label": "Meta ad for Instagram, \"Ride with your Close Friends\"",
+          "w": 338,
+          "h": 600,
+          "source": "https://www.facebook.com/ads/library/?id=4027352274149008",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-library-6.jpg",
+          "label": "Meta ad for Instagram, \"Found on here, lived out there\"",
+          "w": 337,
+          "h": 600,
+          "source": "https://www.facebook.com/ads/library/?id=1611352337214961",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-library-7.jpg",
+          "label": "Meta ad for Instagram, \"The best butterflies are shared\"",
+          "w": 480,
+          "h": 600,
+          "source": "https://www.facebook.com/ads/library/?id=1579357867314529",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-library-8.jpg",
+          "label": "Meta ad for Instagram, \"Only Close Friends get to see this\"",
+          "w": 338,
+          "h": 600,
+          "source": "https://www.facebook.com/ads/library/?id=1755573049092184",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Press photography",
+      "images": [
+        {
+          "file": "assets/brand/press/press-adam-mosseri.jpg",
+          "label": "Adam Mosseri, Head of Instagram",
+          "w": 1600,
+          "h": 1066,
+          "source": "https://www.meta.com/media-gallery/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-office-entryway.jpg",
+          "label": "Instagram office, entryway",
+          "w": 720,
+          "h": 900,
+          "source": "https://about.instagram.com/about-us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-office-lounge.jpg",
+          "label": "Instagram office, lounge",
+          "w": 720,
+          "h": 900,
+          "source": "https://about.instagram.com/about-us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-office-hallway.jpg",
+          "label": "Instagram office, hallway",
+          "w": 815,
+          "h": 460,
+          "source": "https://about.instagram.com/about-us",
+          "provenance": "theirs"
+        }
+      ]
     }
   ]
 }
