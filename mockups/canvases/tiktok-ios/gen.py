@@ -129,6 +129,31 @@ def _root():
 TOKENS_CSS = _root()
 
 # ------------------------------------------------------------------ art ----
+# The + badge over the avatar: the page-coloured notch, then the cyan disc.
+# cut() masks the notch out of the photograph and profile_screen() draws it
+# back, so the asset carries the photograph and nothing else.
+NOTCH = (218.5, 180.15, 29.7)
+
+
+def disc(im, cid):
+    """The avatar as photograph only. The gradient ring, the page-coloured gap
+    and the + badge are geometry, so the crop's corners and the badge sitting
+    over its bottom-right are masked away rather than shipped inside it."""
+    from PIL import Image, ImageDraw                          # noqa: local dep
+    ss = 4
+    w, h = (v * ss for v in im.size)
+    m = Image.new("L", (w, h), 0)
+    d = ImageDraw.Draw(m)
+    d.ellipse((0, 0, w - 1, h - 1), fill=255)
+    x0, y0 = CROPS[cid][1:3]
+    bx, by, bd = (v * SCALE * ss for v in NOTCH)
+    bx, by = bx - x0 * SCALE * ss, by - y0 * SCALE * ss
+    d.ellipse((bx, by, bx + bd, by + bd), fill=0)
+    im = im.convert("RGBA")
+    im.putalpha(m.resize(im.size, Image.LANCZOS))
+    return im
+
+
 def cut():
     """Refresh assets/art/ from assets/refs/ at the boxes in crops.json."""
     if not REFS_DIR.exists():
@@ -143,7 +168,10 @@ def cut():
         if ref not in src:
             src[ref] = Image.open(f).convert("RGB")
         box_ = tuple(round(v * SCALE) for v in (x0, y0, x1, y1))
-        src[ref].crop(box_).save(ART_DIR / (cid + ".png"), optimize=True)
+        out = src[ref].crop(box_)
+        if cid == "03-avatar":
+            out = disc(out, cid)
+        out.save(ART_DIR / (cid + ".png"), optimize=True)
         n += 1
     print("%-24s %6d crops" % ("assets/art/", n))
 
@@ -434,10 +462,10 @@ def profile_screen():
 
     # Avatar: a 4pt gradient ring, a 2.5pt page-coloured gap, the photograph.
     t += (circle(142.7, 104.7, 109.0,
-                 "background:linear-gradient(135deg,#0FA6F6,#10E8CA)")
+                 "background:linear-gradient(135deg,#0E9DFF,#19FEBF)")
           + circle(146.7, 108.7, 101.0, "background:var(--x-bg)")
-          + art("03-avatar", ";border-radius:50%")
-          + circle(218.5, 180.15, 29.7, "background:var(--x-bg)")
+          + art("03-avatar")
+          + circle(*NOTCH, "background:var(--x-bg)")
           + circle(221.33, 183.0, 24.0, "background:var(--x-cyan)")
           + box(232.25, 189.97, 1.9, 10.67, "background:var(--x-ink-inv)")
           + box(227.0, 194.35, 11.67, 1.9, "background:var(--x-ink-inv)"))
@@ -530,10 +558,12 @@ def post_chips():
             + tx(135.0, 285.67, "Mention", "t-chip"))
 
 
-# The two middle place names in the capture are crude user-generated ones. The
-# measured chip boxes are kept and neutral names are centred in them; see README.
-PLACES = [(38.0, 67.0, "Yo Mama"), (113.0, 120.33, "Bella's Pizzeria"),
-          (241.33, 75.0, "All For You"), (324.33, 82.0, "Bridge Market")]
+# Two of the place names in the capture are crude user-generated ones. The
+# measured chip boxes are kept and neutral names are centred in them, chosen to
+# render at the width the box was built for: a chip is its label plus 6-7pt of
+# padding, so a substitute that does not fill it reads as a padding error.
+PLACES = [(38.0, 67.0, "Yo Mama"), (113.0, 120.33, "Northside Pizzeria"),
+          (241.33, 75.0, "All For You"), (324.33, 82.0, "Bridge Cafe")]
 
 
 def post_settings():

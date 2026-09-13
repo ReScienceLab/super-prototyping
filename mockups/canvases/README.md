@@ -313,8 +313,8 @@ declares a box other than the default 478 x 980.
   the profile it returns to, and the post composer through four states of
   writing a caption. 17 boards in three rows: a token board and two evidence
   boards for 53 tokens, the seven replicas, and the capture of each parked
-  underneath. Mean absolute delta against those captures is 2.07-5.67 levels
-  (of 255), mean 4.09, and the gradient is the keyboard: the two boards that
+  underneath. Mean absolute delta against those captures is 2.07-5.62 levels
+  (of 255), mean 4.06, and the gradient is the keyboard: the two boards that
   are three-quarters keycaps cost the most, with nothing on them
   geometrically off. Its `README.md` records the residual test the other runs
   do not have. `scratch/ink.py` reports dark-pixel mass over 29 named regions,

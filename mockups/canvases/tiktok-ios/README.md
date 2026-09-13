@@ -47,11 +47,11 @@ Mean absolute delta against the capture, whole frame, phone crop, in levels of
 |---|---|---|
 | 1 | Bio, empty | 2.07 |
 | 2 | Bio, filled | 3.84 |
-| 3 | Profile | 3.43 |
-| 4 | Post, empty | 3.54 |
-| 5 | Post, keyboard | 5.67 |
+| 3 | Profile | 3.42 |
+| 4 | Post, empty | 3.47 |
+| 5 | Post, keyboard | 5.62 |
 | 6 | Post, hashtags | 5.16 |
-| 7 | Post, caption | 4.89 |
+| 7 | Post, caption | 4.82 |
 
 The gradient is the keyboard. Boards 5 and 6 are three-quarters keycaps, and a
 keycap is a rounded rect with a 1.3pt bottom edge repeated thirty times — every
@@ -115,6 +115,25 @@ finding that the Share-to marks are desaturated (`#A5A2A5` / `#A6A3A6`) rather
 than brand-coloured. The finding still holds; the crop simply carries it, and
 a token no board reads is not evidence.
 
+**The avatar's ring is a gradient, and its endpoints are not the colours on
+the ring.** A CSS `linear-gradient` runs corner to corner of its box, so the
+inscribed ring only ever samples the middle 68% of it — read the ring's own
+bluest and greenest arcs into the gradient and both come out washed. Fitting
+all 116 clean ring samples back to the full gradient line gives `#0E9DFF` to
+`#19FEBF`, neither of which appears anywhere on the ring. Mean colour error
+around the ring: 14.9 → 9.6 levels.
+
+**A place chip is its label plus 6-7pt, so a substituted name has to fill the
+box it replaces.** Two of the four names are neutral stand-ins (below), and
+the measured boxes are kept. Sized by eye, the short one sat in 15.7pt of
+padding and the long one overflowed to 1.0pt — the only two chips on the
+screen whose padding did not match the other two. `scratch/fitnames.py`
+renders a candidate at the chip's own type token and reports its width, which
+is what picked `Northside Pizzeria` (108.7pt into a 120.3pt box) and
+`Bridge Cafe` (69.7 into 82.0). Padding now reads 5.3-7.0 against the
+capture's own 6.3-7.3. Board 4 went 3.54 → 3.47, board 5 5.67 → 5.62, board 7
+4.89 → 4.82.
+
 **The create button is cyan, then pink, then black on top.** Painting pink
 last buried the cap and the cyan. A column scan reads cyan 175.0..179.0, dark
 `#141723` 179.3..213.7, pink 214.0..218.3 — colour only at the two edges. With
@@ -154,13 +173,18 @@ Everything below is a deliberate departure from the capture. Each one is a
 string or a mark that would otherwise reproduce a real person's content.
 
 - **Two location chips are renamed.** The capture reads `Big Dick's Pizzeria`
-  and `Big Butt M…`; the board ships `Bella's Pizzeria` and `Bridge Market`.
-  Same box, same metrics — the widths in `probes.json` are the capture's.
+  and `Big Butt M…`; the board ships `Northside Pizzeria` and `Bridge Cafe`,
+  each chosen to render within a point or so of the width its box was built
+  for. Same box, same metrics — the widths in `probes.json` are the
+  capture's, and the fourth chip runs off the right edge in both.
 - **Three whole regions are bitmap crops, not drawings** (`crops.json`, which
-  also holds the 26 glyph boxes): the profile avatar, the drafts thumbnail and the composer's cover art. Their overlays
-  are baked inside the crop — the "motion" tag and the "Edit cover" pill sit
-  in `04-cover.png`, and the "Drafts: 1" label in `03-draft.png`. Nothing
-  re-types them, so nothing can get them wrong.
+  also holds the 26 glyph boxes): the profile photograph, the drafts
+  thumbnail and the composer's cover art. Their overlays are baked in — the
+  "motion" tag and the "Edit cover" pill sit in `04-cover.png`, and the "Drafts: 1" label in `03-draft.png`. Nothing
+  re-types them, so nothing can get them wrong. The avatar is the exception:
+  its gradient ring, the page-coloured gap and the + badge are geometry, so
+  `cut()` masks the crop to the photograph alone — a disc, with the badge's
+  notch bitten out of it — and `03-avatar.png` carries no ring and no badge.
 - **The emoji glyphs are the host's**, as above.
 
 ## Assets
@@ -169,7 +193,8 @@ string or a mark that would otherwise reproduce a real person's content.
   the one thing `gen.py` cannot rebuild without the captures, and the rule
   against committing reference imagery is about whole third-party screens; a
   96 × 96 avatar, two thumbnails and 26 glyphs at their ink boxes are the art
-  a board needs to render at all. `cut()` refreshes them from `assets/refs/` when the captures are there.
+  a board needs to render at all. `cut()` refreshes them from `assets/refs/`
+  when the captures are there, masking the avatar to its photograph on the way.
 - `assets/refs/` — the seven captures. **Gitignored**, along with the `ref-*`
   boards built from them. A fresh clone therefore builds 10 of the 17 boards
   and skips the reference row.
