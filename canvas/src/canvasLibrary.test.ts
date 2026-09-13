@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   canvasFileHtml,
+  canvasImageUrl,
   loadCanvasFileHtml,
   readCanvasLayout,
   readCanvasLibrary,
@@ -46,5 +47,24 @@ describe('loadCanvasFileHtml', () => {
     const path = readCanvasLibrary()[1][0].path
     const html = await loadCanvasFileHtml(path)
     expect(html).toMatch(/<style>html\{overscroll-behavior:none\}<\/style>$/)
+  })
+})
+
+describe('images rows', () => {
+  it('name only committed files, with the pixel size they are drawn at', () => {
+    // Both the canvas and the brand sheet drop an image they cannot resolve or size, so a
+    // mistyped path or a missing w/h leaves a gap in the published evidence and says nothing
+    // about it. This is where that gets said: the two conditions, checked in one place.
+    const slugs = [...new Set(readCanvasLibrary().map((files) => files[0].pageSlug))]
+    const broken = slugs.flatMap((slug) =>
+      (readCanvasLayout(slug)?.rows ?? []).flatMap((row) =>
+        (row.images ?? []).flatMap((image) =>
+          canvasImageUrl(slug, image.file) && image.w && image.h
+            ? []
+            : [`${slug}: ${image.file}`],
+        ),
+      ),
+    )
+    expect(broken).toEqual([])
   })
 })
