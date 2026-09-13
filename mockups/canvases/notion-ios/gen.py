@@ -1031,16 +1031,6 @@ def png(name):
     return "data:image/png;base64," + base64.b64encode(b).decode()
 
 
-def brand(name):
-    """Inline assets/brand/<name>, whatever its extension -- a sibling to png()
-    because the brand board's assets live in their own subfolder and are not
-    all .png (the wordmark is .svg, the X captures are .jpg)."""
-    b = (OUT / "assets" / "brand" / name).read_bytes()
-    ext = name.rsplit(".", 1)[-1].lower()
-    mime = {"svg": "image/svg+xml", "jpg": "image/jpeg", "png": "image/png"}[ext]
-    return "data:%s;base64,%s" % (mime, base64.b64encode(b).decode())
-
-
 SHEET = 58.9
 CARD_TOP = 285.5
 
@@ -1203,104 +1193,6 @@ def paywall(sel, cta, success=False):
 
 
 
-# ------------------------------------------------------------- 00h-brand ---
-# Notion's public identity, not sampled from screenshots: every asset here is
-# vendored from a first-party source (see assets/brand/) and labelled with
-# where it came from, mirroring 00-design-tokens' sheetcard so this reads as
-# the same kind of reference page rather than a nineteenth app screen.
-CSS_BRAND = """
-
-body{background:#F3F2F0}
-.sheetcard{width:430px;height:932px;background:#fff;border-radius:20px;padding:16px 24px 14px;
-  border:1px solid var(--n-border);box-shadow:0 18px 44px rgba(29,25,26,.14);overflow:hidden;
-  color:var(--n-text);position:relative}
-header{display:flex;gap:14px;align-items:flex-start;padding-bottom:8px;border-bottom:1px solid var(--n-hairline)}
-.brandmark{width:34px;height:34px;flex:none}
-.brandmark .logo{width:34px;height:34px;display:block}
-h1{font:700 19px/24px var(--n-font)}
-header p{font:400 12px/16px var(--n-font);color:var(--n-text-2);margin-top:3px}
-h2{font:600 11px/14px var(--n-font);letter-spacing:.8px;text-transform:uppercase;
-  color:var(--n-text-3);margin:11px 0 6px}
-.agrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
-.asset .thumb{height:98px;border-radius:6px;border:1px solid rgba(0,0,0,.08);background:var(--n-fill-neutral);
-  display:flex;align-items:center;justify-content:center;overflow:hidden;padding:5px}
-.asset .thumb img{max-width:100%;max-height:100%;object-fit:contain;display:block}
-.asset .cap{margin-top:4px;display:flex;flex-direction:column;gap:1px}
-.asset .cap b{font:600 9.5px/12px var(--n-font);color:var(--n-text)}
-.asset .cap i{font:400 9px/12px var(--n-font);color:var(--n-blue);font-style:normal}
-.asset .cap s{font:400 8.5px/11px var(--n-font);color:var(--n-text-3);text-decoration:none;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
-.tagline{margin-top:3px;padding:16px 18px;background:var(--n-fill-neutral);border-radius:var(--n-r-card)}
-.tagline p{font:400 16px/22px var(--n-font);color:var(--n-text);font-style:italic}
-.tagline span{display:block;margin-top:7px;font:400 10.5px/14px var(--n-font);color:var(--n-text-2)}
-footer{position:absolute;left:24px;right:24px;bottom:14px;padding-top:8px;border-top:1px solid var(--n-hairline);
-  font:400 9.5px/14px ui-monospace,Menlo,monospace;color:var(--n-text-3)}
-"""
-
-BRANDMARK = ('<svg class="logo" viewBox="0 0 100 100" fill="none"><path d="M6.017 4.313 61.35.227c6.797-.583 '
-             '8.543-.19 12.817 2.916l17.663 12.443c2.913 2.14 3.883 2.723 3.883 5.053v68.243c0 4.277-1.553 '
-             '6.807-6.99 7.193l-64.257 3.89c-4.08.193-6.023-.39-8.16-3.113L3.3 79.94C.967 76.827 0 74.497 0 '
-             '71.773V11.113c0-3.497 1.553-6.413 6.017-6.8Z" fill="#fff"/><path fill-rule="evenodd" '
-             'clip-rule="evenodd" d="M61.35.227 6.017 4.313C1.553 4.7 0 7.617 0 11.113v60.66c0 2.724.967 '
-             '5.054 3.3 8.167l13.007 16.913c2.137 2.723 4.08 3.306 8.16 3.113l64.257-3.89c5.433-.386 '
-             '6.99-2.916 6.99-7.193V20.64c0-2.21-.873-2.847-3.443-4.733L74.167 3.143C69.894.037 '
-             '68.147-.356 61.35.227ZM25.92 19.523c-5.247.353-6.437.433-9.417-1.99L8.927 11.507c-.77-.78 '
-             '-.383-1.753 1.557-1.947l53.193-3.887c4.467-.39 6.793 1.167 8.54 2.527l9.123 6.61c.39.197 '
-             '1.36 1.36.193 1.36l-54.933 3.307-.68.046ZM19.803 88.3V30.367c0-2.53.777-3.697 3.103-3.894L86 '
-             '22.78c2.14-.193 3.107 1.167 3.107 3.693v57.547c0 2.53-.39 4.67-3.883 4.863l-60.377 3.5c-3.493'
-             '.194-5.043-.97-5.043-4.083Zm59.6-54.827c.387 1.75 0 3.5-1.75 3.7l-2.91.577V80.52c-2.527 1.36'
-             '-4.853 2.137-6.797 2.137-3.107 0-3.883-.973-6.21-3.887l-19.03-29.94v28.967l6.02 1.363s0 3.5'
-             '-4.857 3.5l-13.39.777c-.39-.78 0-2.723 1.357-3.11l3.497-.97V40.99l-4.853-.39c-.39-1.75.58'
-             '-4.277 3.3-4.474l14.367-.966 19.807 30.327V38.657l-5.047-.58c-.39-2.144 1.163-3.7 3.103'
-             '-3.89l13.393-.78Z" fill="#000"/></svg>')
-
-# role | local file | provenance | human source page (not the signed/CDN URL) | alt text.
-# Every row is "theirs": vendored straight from Notion's own Media Kit
-# (notion.so), the App Store listing, notion.com, @NotionHQ on X, and Meta's
-# Ad Library -- never sampled or guessed. See assets/brand/ and the canvas
-# README for how each was fetched.
-BRAND_ASSETS = [
-    ("wordmark.svg", "wordmark", "notion.so Media Kit", "Notion wordmark lockup"),
-    ("appicon.png", "app icon", "App Store listing", "Notion iOS app icon"),
-    ("og-card.png", "og:image", "notion.com", "notion.com link-preview image"),
-    ("x-avatar.jpg", "x/avatar", "x.com/NotionHQ", "@NotionHQ profile photo"),
-    ("x-banner.jpg", "x/banner", "x.com/NotionHQ", "@NotionHQ profile banner"),
-    ("appstore-1.png", "appstore/screenshot 1", "App Store listing", "App Store screenshot 1"),
-    ("hero.png", "marketing/hero", "notion.com", "notion.com homepage hero capture"),
-    ("ad-1.png", "ad creative", "Meta Ad Library", "Notion paid ad, Meta Ad Library"),
-]
-
-
-def brand_board():
-    cards = ""
-    for file, role, source, alt in BRAND_ASSETS:
-        cards += ('    <div class="asset"><div class="thumb"><img src="%s" alt="%s"></div>\n'
-                  '      <div class="cap"><b>%s</b><i>theirs</i><s>%s</s></div></div>\n'
-                  % (brand(file), alt, role, source))
-    return ("""<div class="sheetcard">
-  <header>
-    <div class="brandmark">%s</div>
-    <div><h1>Brand &amp; promotion</h1>
-    <p>Notion's public identity on the App Store, notion.com and X, next to the in-app
-    surface every other board in this canvas measures from screenshots.</p></div>
-  </header>
-
-  <h2>Assets</h2>
-  <div class="agrid">
-%s  </div>
-
-  <h2>Tagline</h2>
-  <div class="tagline">
-    <p>"The AI workspace that works for you."</p>
-    <span>notion.com -- homepage &lt;title&gt;, fetched 2026-09-13</span>
-  </div>
-
-  <footer>Fetched 2026-09-13 &middot; notion.com &middot; notion.so/Media-Kit-205535b1d9c4440497a3d7a2ac096286
-    &middot; apps.apple.com (Notion: Notes, Tasks, AI, id1232780281) &middot; x.com/NotionHQ &middot;
-    Meta Ad Library, page "Notion"</footer>
-</div>""" % (BRANDMARK, cards))
-
-
 # ------------------------------------------------------------------- boards ---
 BOARDS = [
     ("00-design-tokens", "Notion iOS — Design Tokens", CSS_00, BODY_00),
@@ -1325,7 +1217,6 @@ BOARDS = [
      paywall("l", "Subscribe for S$ 299.98 / year")),
     ("18-purchase-success", "Notion iOS — Purchase success", CSS_PW + CSS_PW_OK,
      paywall("r", "", success=True)),
-    ("00h-brand", "Notion iOS — Brand & promotion", CSS_BRAND, brand_board()),
 ]
 
 if __name__ == "__main__":

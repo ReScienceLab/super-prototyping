@@ -76,11 +76,1000 @@
       ]
     },
     {
-      "title": "Brand & promotion",
-      "files": [
+      "title": "Logo & wordmark",
+      "images": [
         {
-          "file": "00h-brand",
-          "label": "Brand & promotion"
+          "file": "assets/brand/identity/logo-full-green.png",
+          "label": "Full logo lockup, green (official press kit)",
+          "w": 1600,
+          "h": 438,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-icon-green.png",
+          "label": "Logomark, green (official press kit)",
+          "w": 939,
+          "h": 940,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-icon-black.svg",
+          "label": "Logomark, black (vector, official press kit)",
+          "w": 236,
+          "h": 225,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-lockup-framed.svg",
+          "label": "Full logo lockup on light background",
+          "w": 800,
+          "h": 356,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-clearspace.svg",
+          "label": "Logo clear-space / minimum size guide",
+          "w": 1695,
+          "h": 979,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-misuse.svg",
+          "label": "Correct logo lockup usage example",
+          "w": 386,
+          "h": 386,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Art direction",
+      "images": [
+        {
+          "file": "assets/brand/identity/art-content-direction.svg",
+          "label": "Guideline art: artwork vs. artist crediting on a card",
+          "w": 1695,
+          "h": 979,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-color-direction.svg",
+          "label": "Guideline art: brand mark on gradient color treatment",
+          "w": 386,
+          "h": 386,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-wrapped-3d.png",
+          "label": "Wrapped 2025 3D club artwork ('Cloudstate')",
+          "w": 1000,
+          "h": 1000,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-color-palette.svg",
+          "label": "Official colour palette card: Green / White / Black",
+          "w": 1695,
+          "h": 499,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-color-contrast-example.svg",
+          "label": "Guideline art: accessible high-contrast colour example",
+          "w": 386,
+          "h": 386,
+          "source": "https://developer.spotify.com/documentation/design",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-wrapped-club-serotonin-3d.png",
+          "label": "Wrapped 2025 3D club artwork ('Club Serotonin')",
+          "w": 1000,
+          "h": 1000,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-canvas-nowplaying.jpg",
+          "label": "Spotify Canvas: looping video Now Playing background",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/applied-kiosk-mexico-1.jpg",
+          "label": "Wrapped 2025 mall kiosk signage, Mexico City",
+          "w": 1600,
+          "h": 1200,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-kiosk-mexico-2.jpg",
+          "label": "Wrapped 2025 mall kiosk signage, Mexico City",
+          "w": 1600,
+          "h": 1200,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-mall-banner-paris.jpg",
+          "label": "Wrapped 2025 shopping mall banner, Paris",
+          "w": 1024,
+          "h": 680,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-billboard-nashville.jpg",
+          "label": "Wrapped 2025 billboard signage, Nashville",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-billboard-pennplaza.jpg",
+          "label": "Wrapped 2025 billboard signage, Penn Plaza NYC",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-loudclear-cover.jpg",
+          "label": "Loud & Clear 2025 (Spotify for Artists) campaign key art",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/loud-clear-2025/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-loudclear-takeaway-payouts.png",
+          "label": "Loud & Clear 2025 data story: artist payouts ($10B+)",
+          "w": 1200,
+          "h": 1500,
+          "source": "https://newsroom.spotify.com/media-kit/loud-clear-2025/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-s4c-clips-upload.jpg",
+          "label": "Spotify for Creators: upload-a-clip product UI",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/now-playing-2024/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-s4c-signup.jpg",
+          "label": "Spotify for Creators campaign key art with sign-up QR",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/now-playing-2024/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-s4c-notifications.jpg",
+          "label": "Spotify for Creators: iPhone-framed notifications UI",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/now-playing-2024/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-android-auto-nowplaying.png",
+          "label": "Android Auto in-car Now Playing screen",
+          "w": 1024,
+          "h": 768,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-avatar.jpg",
+          "label": "@Spotify profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-banner.jpg",
+          "label": "@Spotify profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-1.jpg",
+          "label": "@Spotify post: Billions Club, newest members (Aug 2026)",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://x.com/Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-2.jpg",
+          "label": "@Spotify post: Jhene Aiko, 'Westside Whimsy' new release",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://x.com/Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-3.jpg",
+          "label": "@Spotify post: Noah Kahan, 'Orbiter' new video release",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://x.com/Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-4.jpg",
+          "label": "@Spotify post: Miley Cyrus, 'Reserved by Spotify' campaign art",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://x.com/Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-5.jpg",
+          "label": "@Spotify post: Top Albums Debut Global chart",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://x.com/Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-6.jpg",
+          "label": "@Spotify post: live concert photography",
+          "w": 1165,
+          "h": 1600,
+          "source": "https://x.com/Spotify",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/instagram-avatar.jpg",
+          "label": "@spotify profile avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.instagram.com/spotify/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-1.jpg",
+          "label": "@spotify feed post",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.instagram.com/spotify/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-2.jpg",
+          "label": "@spotify feed post",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.instagram.com/spotify/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-3.jpg",
+          "label": "@spotify feed post: Queued Up with Sloane Stephens",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://www.instagram.com/spotify/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-4.jpg",
+          "label": "@spotify feed post: Becky G 'Baraja Bendita' illustrated art",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/spotify/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-5.jpg",
+          "label": "@spotify feed post: Billions Club, newest members (Aug 2026)",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://www.instagram.com/spotify/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-6.jpg",
+          "label": "@spotify feed post: Gospel, Unity and Culture / Stellar Awards",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/spotify/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tiktok-avatar.jpg",
+          "label": "@spotify profile avatar",
+          "w": 798,
+          "h": 798,
+          "source": "https://www.tiktok.com/@spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-1.jpg",
+          "label": "@spotify video cover",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-2.jpg",
+          "label": "@spotify video cover",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-3.jpg",
+          "label": "@spotify video cover: 'I Do' fan story",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-4.jpg",
+          "label": "@spotify video cover: 80s glam pop sound trend",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-5.jpg",
+          "label": "@spotify video cover: live performance clip",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-6.jpg",
+          "label": "@spotify video cover: Bea Miller on where she got her start",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@spotify",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/youtube-avatar.jpg",
+          "label": "@Spotify channel avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.youtube.com/@Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-banner.jpg",
+          "label": "@Spotify channel banner",
+          "w": 1600,
+          "h": 265,
+          "source": "https://www.youtube.com/@Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-1.jpg",
+          "label": "@Spotify video thumbnail: Sam Fender's Most Viral Fan",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-2.jpg",
+          "label": "@Spotify video thumbnail: Countdown To, Riley Green and Pat McAfee",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-3.jpg",
+          "label": "@Spotify video thumbnail: artist interview short",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-4.jpg",
+          "label": "@Spotify video thumbnail: artist interview short",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-5.jpg",
+          "label": "@Spotify video thumbnail: Zara Larsson's Most Viral Fan",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@Spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-6.jpg",
+          "label": "@Spotify video thumbnail: Day in the Life with Nemzzz",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@Spotify",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/linkedin-logo.jpg",
+          "label": "Spotify company page logo",
+          "w": 200,
+          "h": 200,
+          "source": "https://se.linkedin.com/company/spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-cover.jpg",
+          "label": "Spotify company page cover",
+          "w": 1584,
+          "h": 396,
+          "source": "https://se.linkedin.com/company/spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-1.jpg",
+          "label": "Spotify company post: Forbes Best Employers for Tech Workers 2026",
+          "w": 800,
+          "h": 525,
+          "source": "https://se.linkedin.com/company/spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-2.jpg",
+          "label": "Spotify company post: Listening Lounge, introducing Firdhaus",
+          "w": 800,
+          "h": 1000,
+          "source": "https://se.linkedin.com/company/spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-3.jpg",
+          "label": "Spotify company post: Spotify x Tekniska museet partnership",
+          "w": 1081,
+          "h": 1350,
+          "source": "https://se.linkedin.com/company/spotify",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-4.jpg",
+          "label": "Spotify company post: Spotify x Tekniska museet, planetarium show",
+          "w": 1081,
+          "h": 1350,
+          "source": "https://se.linkedin.com/company/spotify",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.jpg",
+          "label": "App Store app icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-01.jpg",
+          "label": "App Store screenshot 1",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-02.jpg",
+          "label": "App Store screenshot 2",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-03.jpg",
+          "label": "App Store screenshot 3",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-04.jpg",
+          "label": "App Store screenshot 4",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-05.jpg",
+          "label": "App Store screenshot 5",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-06.jpg",
+          "label": "App Store screenshot 6",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-07.jpg",
+          "label": "App Store screenshot 7",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-08.jpg",
+          "label": "App Store screenshot 8",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-ipad-01.jpg",
+          "label": "App Store iPad screenshot 1",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-ipad-02.jpg",
+          "label": "App Store iPad screenshot 2",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-ipad-03.jpg",
+          "label": "App Store iPad screenshot 3",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-ipad-04.jpg",
+          "label": "App Store iPad screenshot 4",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-ipad-05.jpg",
+          "label": "App Store iPad screenshot 5",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-ipad-06.jpg",
+          "label": "App Store iPad screenshot 6",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/play-icon.jpg",
+          "label": "Google Play app icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-01.jpg",
+          "label": "Google Play screenshot 1",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-02.png",
+          "label": "Google Play screenshot 2",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-03.png",
+          "label": "Google Play screenshot 3",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-01.jpg",
+          "label": "Google Play phone screenshot 1",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-02.jpg",
+          "label": "Google Play phone screenshot 2",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-03.jpg",
+          "label": "Google Play phone screenshot 3",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-04.jpg",
+          "label": "Google Play phone screenshot 4",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-05.jpg",
+          "label": "Google Play phone screenshot 5",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-06.jpg",
+          "label": "Google Play phone screenshot 6",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-07.jpg",
+          "label": "Google Play phone screenshot 7",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-08.jpg",
+          "label": "Google Play phone screenshot 8",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-01.jpg",
+          "label": "Google Play tablet screenshot 1",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-02.jpg",
+          "label": "Google Play tablet screenshot 2",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-03.jpg",
+          "label": "Google Play tablet screenshot 3",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-04.jpg",
+          "label": "Google Play tablet screenshot 4",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-05.jpg",
+          "label": "Google Play tablet screenshot 5",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-06.jpg",
+          "label": "Google Play tablet screenshot 6",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-07.jpg",
+          "label": "Google Play tablet screenshot 7",
+          "w": 1600,
+          "h": 1199,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-feature-graphic.png",
+          "label": "Google Play feature graphic",
+          "w": 1024,
+          "h": 500,
+          "source": "https://play.google.com/store/apps/details?id=com.spotify.music",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Microsoft Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/mstore-logo.png",
+          "label": "Microsoft Store app icon",
+          "w": 300,
+          "h": 300,
+          "source": "https://apps.microsoft.com/detail/9ncbcszsjrsb",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/mstore-screenshot-01.jpg",
+          "label": "Microsoft Store screenshot 1",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9ncbcszsjrsb",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/mstore-screenshot-02.jpg",
+          "label": "Microsoft Store screenshot 2",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9ncbcszsjrsb",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/press/announcement-badbunny-sharecard.jpg",
+          "label": "Wrapped 2025 for Artists: Bad Bunny share card",
+          "w": 1280,
+          "h": 1600,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-top10-songs.jpg",
+          "label": "Wrapped 2025 share card: Top 10 Songs Globally",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-wrappedparty-cover.jpg",
+          "label": "Wrapped Party Awards announcement cover",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-clubs-card.png",
+          "label": "Wrapped 2025 share card: Clubs",
+          "w": 608,
+          "h": 1316,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-listening-age-card.png",
+          "label": "Wrapped 2025 share card: Listening Age",
+          "w": 228,
+          "h": 492,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-top-albums-card.png",
+          "label": "Wrapped 2025 share card: Top Albums",
+          "w": 608,
+          "h": 1316,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/ad-billboard-timessquare.jpg",
+          "label": "Wrapped 2025 paid OOH placement, Times Square",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/ad-billboard-atlanta.jpg",
+          "label": "Wrapped 2025 paid OOH placement, Atlanta",
+          "w": 1600,
+          "h": 1048,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/ad-billboard-miami.jpg",
+          "label": "Wrapped 2025 paid OOH placement, Miami",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/ad-meta-s4a-grow.png",
+          "label": "Spotify for Artists Meta ad: 'Grow'",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=6243987495",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/ad-meta-s4a-pitch.png",
+          "label": "Spotify for Artists Meta ad: 'Pitch'",
+          "w": 1200,
+          "h": 1200,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=6243987495",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/ad-meta-s4a-boost.png",
+          "label": "Spotify for Artists Meta ad: 'Boost'",
+          "w": 1201,
+          "h": 1200,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=6243987495",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/ad-meta-s4a-canvas.png",
+          "label": "Spotify for Artists Meta ad: 'Canvas'",
+          "w": 1201,
+          "h": 1200,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=6243987495",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/ad-google-search-1.png",
+          "label": "Spotify USA Inc. Google search ad",
+          "w": 696,
+          "h": 380,
+          "source": "https://adstransparency.google.com/?domain=spotify.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/ad-google-search-2.png",
+          "label": "Spotify USA Inc. Google search ad",
+          "w": 728,
+          "h": 466,
+          "source": "https://adstransparency.google.com/?domain=spotify.com",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Press photography",
+      "images": [
+        {
+          "file": "assets/brand/press/press-portrait-jeusette.jpg",
+          "label": "Press lifestyle photography (Jeusette)",
+          "w": 650,
+          "h": 280,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-portrait-badbunny.jpg",
+          "label": "Wrapped 2025 press photography: Bad Bunny",
+          "w": 1279,
+          "h": 1600,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-event-group.jpg",
+          "label": "Wrapped Party press event photography",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.spotify.com/media-kit/2025-wrapped-media-kit/",
+          "provenance": "theirs"
         }
       ]
     }

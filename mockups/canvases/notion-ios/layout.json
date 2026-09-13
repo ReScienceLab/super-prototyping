@@ -108,11 +108,832 @@
       ]
     },
     {
-      "title": "Brand & promotion",
-      "files": [
+      "title": "Logo & wordmark",
+      "images": [
         {
-          "file": "00h-brand",
-          "label": "Brand & promotion"
+          "file": "assets/brand/identity/logo-block-main.svg",
+          "label": "Notion logomark, vector",
+          "w": 335,
+          "h": 350,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-block-main.png",
+          "label": "Notion logomark, raster",
+          "w": 1340,
+          "h": 1400,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-block-sticker.png",
+          "label": "Notion logomark, white sticker variant",
+          "w": 1524,
+          "h": 1584,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-lockup-main.svg",
+          "label": "Notion logo lockup (icon + wordmark), vector",
+          "w": 1216,
+          "h": 350,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-lockup-main.png",
+          "label": "Notion logo lockup (icon + wordmark), raster",
+          "w": 1600,
+          "h": 460,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Art direction",
+      "images": [
+        {
+          "file": "assets/brand/identity/illustration-docs-papertrio.png",
+          "label": "Brand illustration — paper trio / docs motif",
+          "w": 1260,
+          "h": 714,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/illustration-team.png",
+          "label": "Brand illustration — team collaboration",
+          "w": 1600,
+          "h": 550,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/illustration-together.png",
+          "label": "Brand illustration — working together",
+          "w": 1222,
+          "h": 714,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/illustration-spot-characters-ai.png",
+          "label": "Brand illustration — spot characters with AI motif",
+          "w": 1018,
+          "h": 714,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/illustration-trio-collaborating-ai.png",
+          "label": "Brand illustration — trio collaborating with AI",
+          "w": 1222,
+          "h": 714,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-ai-illustration.png",
+          "label": "Brand illustration — stipple-shaded character with icon badges",
+          "w": 978,
+          "h": 786,
+          "source": "https://www.notion.com/product/ai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-evergreen-illustration.png",
+          "label": "Brand illustration — isometric browser windows and growth chart",
+          "w": 1220,
+          "h": 635,
+          "source": "https://www.notion.com",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/applied-identity-conference-signage.jpg",
+          "label": "Registration desk signage with Notion logomark, Make with Notion event",
+          "w": 1600,
+          "h": 981,
+          "source": "https://www.notion.com/blog/making-the-brand",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-venue-facade.jpg",
+          "label": "\"Make with Notion\" building facade with shape-pattern banners",
+          "w": 1388,
+          "h": 912,
+          "source": "https://www.notion.com/blog/making-the-brand",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-help-center.png",
+          "label": "Help center identity card",
+          "w": 1200,
+          "h": 630,
+          "source": "https://www.notion.com/help",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-templates-gallery.png",
+          "label": "Template gallery identity card",
+          "w": 1200,
+          "h": 630,
+          "source": "https://www.notion.com/templates",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-journal-template.png",
+          "label": "Template gallery — Journal template preview",
+          "w": 1600,
+          "h": 1000,
+          "source": "https://www.notion.com/templates",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-notion-agent-ui.png",
+          "label": "Notion Agent Q&A UI, applied to internal help-desk surface",
+          "w": 1600,
+          "h": 1000,
+          "source": "https://www.notion.com/product/ai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-notion-calendar.png",
+          "label": "Notion Calendar product identity",
+          "w": 1200,
+          "h": 630,
+          "source": "https://www.notion.com/product/calendar",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-avatar.jpg",
+          "label": "@NotionHQ profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/NotionHQ",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-banner.jpg",
+          "label": "@NotionHQ profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/NotionHQ",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-01-agent-meme.jpg",
+          "label": "@NotionHQ post — AI agent meme graphic",
+          "w": 1600,
+          "h": 1405,
+          "source": "https://x.com/NotionHQ",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-02-notion-agent-library.jpg",
+          "label": "@NotionHQ post — Notion agent Library/Skills UI",
+          "w": 1600,
+          "h": 911,
+          "source": "https://x.com/NotionHQ",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-03-personal-memories.jpg",
+          "label": "@NotionHQ post — Notion AI Personal Memories UI",
+          "w": 1600,
+          "h": 902,
+          "source": "https://x.com/NotionHQ",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-04-marketing-standup.jpg",
+          "label": "@NotionHQ post — Notion AI meeting notes UI",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/NotionHQ",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-05-interview-clip.jpg",
+          "label": "@NotionHQ post — video thumbnail, interview clip",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/NotionHQ",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/ig-avatar.jpg",
+          "label": "@notionhq profile avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://instagram.com/notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-01.jpg",
+          "label": "@notionhq feed post",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://instagram.com/notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-02.jpg",
+          "label": "@notionhq feed post",
+          "w": 480,
+          "h": 270,
+          "source": "https://instagram.com/notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-03.jpg",
+          "label": "@notionhq feed post",
+          "w": 480,
+          "h": 851,
+          "source": "https://instagram.com/notionhq",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tt-avatar.jpg",
+          "label": "@notionhq profile avatar",
+          "w": 200,
+          "h": 200,
+          "source": "https://tiktok.com/@notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tt-cover-01.jpg",
+          "label": "@notionhq video cover",
+          "w": 360,
+          "h": 640,
+          "source": "https://tiktok.com/@notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tt-cover-02.jpg",
+          "label": "@notionhq video cover",
+          "w": 360,
+          "h": 640,
+          "source": "https://tiktok.com/@notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tt-cover-03.jpg",
+          "label": "@notionhq video cover",
+          "w": 360,
+          "h": 640,
+          "source": "https://tiktok.com/@notionhq",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/yt-avatar.jpg",
+          "label": "@Notion channel avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://youtube.com/@Notion",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-banner.jpg",
+          "label": "@Notion channel banner",
+          "w": 1600,
+          "h": 265,
+          "source": "https://youtube.com/@Notion",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-01.jpg",
+          "label": "@Notion video thumbnail",
+          "w": 1280,
+          "h": 720,
+          "source": "https://youtube.com/@Notion",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-02.jpg",
+          "label": "@Notion video thumbnail",
+          "w": 1280,
+          "h": 720,
+          "source": "https://youtube.com/@Notion",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/li-logo.jpg",
+          "label": "Notion company page logo",
+          "w": 200,
+          "h": 200,
+          "source": "https://linkedin.com/company/notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-cover.jpg",
+          "label": "Notion company page cover image",
+          "w": 1128,
+          "h": 191,
+          "source": "https://linkedin.com/company/notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-01-library-skills.jpg",
+          "label": "LinkedIn post — Library Skills section UI",
+          "w": 800,
+          "h": 600,
+          "source": "https://linkedin.com/company/notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-02-notion-ai-model-controls.jpg",
+          "label": "LinkedIn post — Notion AI model controls UI",
+          "w": 800,
+          "h": 546,
+          "source": "https://linkedin.com/company/notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-03-macos-dock.jpg",
+          "label": "LinkedIn post — Notion icon in macOS dock",
+          "w": 1280,
+          "h": 720,
+          "source": "https://linkedin.com/company/notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-04-agent-connections.jpg",
+          "label": "LinkedIn post — Notion Agent connections settings UI",
+          "w": 842,
+          "h": 720,
+          "source": "https://linkedin.com/company/notionhq",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-05-notion-calendar.jpg",
+          "label": "LinkedIn post — Notion Calendar app UI",
+          "w": 1280,
+          "h": 720,
+          "source": "https://linkedin.com/company/notionhq",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.jpg",
+          "label": "App Store icon",
+          "w": 1024,
+          "h": 1024,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-01.png",
+          "label": "App Store iPhone screenshot 1",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-02.png",
+          "label": "App Store iPhone screenshot 2",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-03.png",
+          "label": "App Store iPhone screenshot 3",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-01.png",
+          "label": "App Store iPad screenshot 1",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-02.png",
+          "label": "App Store iPad screenshot 2",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-04.jpg",
+          "label": "App Store iPhone screenshot 4",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-05.jpg",
+          "label": "App Store iPhone screenshot 5",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-06.jpg",
+          "label": "App Store iPhone screenshot 6",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-07.jpg",
+          "label": "App Store iPhone screenshot 7",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-03.png",
+          "label": "App Store iPad screenshot 3",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-04.png",
+          "label": "App Store iPad screenshot 4",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-05.png",
+          "label": "App Store iPad screenshot 5",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-06.png",
+          "label": "App Store iPad screenshot 6",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-07.png",
+          "label": "App Store iPad screenshot 7",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/play-icon.png",
+          "label": "Google Play icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone.png",
+          "label": "Google Play phone screenshot",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet.png",
+          "label": "Google Play tablet screenshot",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-feature-graphic.jpg",
+          "label": "Google Play feature graphic",
+          "w": 1600,
+          "h": 900,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-02.png",
+          "label": "Google Play phone screenshot 2",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-03.png",
+          "label": "Google Play phone screenshot 3",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-04.png",
+          "label": "Google Play phone screenshot 4",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-05.png",
+          "label": "Google Play phone screenshot 5",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-06.png",
+          "label": "Google Play phone screenshot 6",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-phone-07.png",
+          "label": "Google Play phone screenshot 7",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-02.png",
+          "label": "Google Play tablet screenshot 2",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-03.png",
+          "label": "Google Play tablet screenshot 3",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-04.jpg",
+          "label": "Google Play tablet screenshot 4",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-05.png",
+          "label": "Google Play tablet screenshot 5",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-06.png",
+          "label": "Google Play tablet screenshot 6",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-tablet-07.png",
+          "label": "Google Play tablet screenshot 7",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=notion.id",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Microsoft Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/msstore-icon.png",
+          "label": "Microsoft Store icon",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://apps.microsoft.com/detail/xpdbvss44r0l9h",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-01.png",
+          "label": "Microsoft Store screenshot — Enterprise search",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/xpdbvss44r0l9h",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-02.png",
+          "label": "Microsoft Store screenshot — app icon",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/xpdbvss44r0l9h",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-03.png",
+          "label": "Microsoft Store screenshot — projects & roadmap",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/xpdbvss44r0l9h",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-04.png",
+          "label": "Microsoft Store screenshot — Notion AI",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/xpdbvss44r0l9h",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/stores/og-homepage-share.jpg",
+          "label": "notion.com homepage share card",
+          "w": 1600,
+          "h": 833,
+          "source": "https://www.notion.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-notion-3-0-launch.png",
+          "label": "\"Introducing Notion 3.0\" announcement card",
+          "w": 1200,
+          "h": 630,
+          "source": "https://www.notion.com/blog/introducing-notion-3-0",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-meet-scruff-ai-teammate.png",
+          "label": "\"Meet Scruff, Security's new AI teammate\" announcement card",
+          "w": 1200,
+          "h": 630,
+          "source": "https://www.notion.com/blog/meet-scruff-securitys-new-ai-teammate",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-developer-platform.jpg",
+          "label": "\"Introducing the Notion developer platform\" announcement card",
+          "w": 1600,
+          "h": 840,
+          "source": "https://www.notion.com/blog/introducing-developer-platform",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-make-with-notion-europe.jpg",
+          "label": "Make with Notion Showcase Europe 2025 announcement card",
+          "w": 1200,
+          "h": 630,
+          "source": "https://www.notion.com/blog/highlights-make-with-notion-showcase-europe-2025",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/meta-ad-connected-ai-workspace.jpg",
+          "label": "Meta ad — \"The connected AI workspace\"",
+          "w": 1600,
+          "h": 1600,
+          "source": "Meta Ad Library",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-team-ai-samepage.jpg",
+          "label": "Meta ad — \"Your team's AI, all on the same page\"",
+          "w": 900,
+          "h": 1600,
+          "source": "Meta Ad Library",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-webinar-jp.png",
+          "label": "Meta ad — Japan-localized webinar promotion",
+          "w": 1000,
+          "h": 1000,
+          "source": "Meta Ad Library",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/linkedin-ad-ai-fundraise-guide.png",
+          "label": "LinkedIn ad — AI fundraising guide",
+          "w": 374,
+          "h": 484,
+          "source": "LinkedIn Ad Library",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/google-ad-project-management-ai.png",
+          "label": "Google display ad — \"The workspace top companies choose\"",
+          "w": 1439,
+          "h": 1015,
+          "source": "Google Ads Transparency Center",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Press photography",
+      "images": [
+        {
+          "file": "assets/brand/press/office-entrance.jpg",
+          "label": "Notion HQ — archway entrance",
+          "w": 1600,
+          "h": 1067,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/office-lounge.jpg",
+          "label": "Notion HQ — lounge seating",
+          "w": 1600,
+          "h": 1067,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/office-hallway.jpg",
+          "label": "Notion HQ — marble hallway",
+          "w": 1142,
+          "h": 1600,
+          "source": "Notion Media Kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/make-with-notion-lounge.jpg",
+          "label": "Make with Notion event — venue seating area",
+          "w": 1145,
+          "h": 745,
+          "source": "https://www.notion.com/blog/making-the-brand",
+          "provenance": "theirs"
         }
       ]
     }

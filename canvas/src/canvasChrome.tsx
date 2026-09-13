@@ -27,9 +27,10 @@ import {
   resolveAuthor,
   type CommentUser,
 } from "./canvasComments";
+import { hasBrandMaterial } from "./canvasLibrary";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
 import { FigmaMark } from "./FigmaMark";
-import { WELCOME_PAGE_SLUG, sheetPageUrl } from "./canvasUrl";
+import { WELCOME_PAGE_SLUG, brandPageUrl, sheetPageUrl } from "./canvasUrl";
 
 const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
 /** The app the snapaction-ios boards are cloned from: its own site, not the App Store listing. */
@@ -180,6 +181,34 @@ export const canvasChromeComponents: TLComponents = {
           >
             <FigmaMark />
             <span className="sp-figma__label">Export to Figma</span>
+          </a>
+        )}
+        {/* The second destination, next to the first: the pictures this product publishes of
+            itself, which are collected per page and so are not there for every one of them. */}
+        {slug && hasBrandMaterial(slug) && (
+          <a
+            className="tlui-button sp-brand"
+            href={brandPageUrl(slug)}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open the brand material collected for this page — the logos, social profiles, store listings and advertising this product publishes"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <rect x="3" y="4" width="18" height="16" rx="2.5" />
+              <circle cx="8.5" cy="9.5" r="1.6" />
+              <path d="M4 17l4.5-4.5 3.5 3.5 3-2.5L20 17" />
+            </svg>
+            <span className="sp-brand__label">Brand material</span>
           </a>
         )}
         {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on

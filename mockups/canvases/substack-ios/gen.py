@@ -333,53 +333,6 @@ def evidence_boards():
                     '</header><table class="ev">%s</table></div>' % (of, rows), SHEET))
 
 
-# Every asset here is Substack's own, vendored into assets/brand/ -- never a
-# crop, never a screenshot of a screenshot. (file, role, source page)
-BRAND = [
- ("wordmark.png",   "wordmark",              "substack.com/brand"),
- ("orange-mark.png","orange mark",           "substack.com/brand"),
- ("appicon.png",    "app icon",              "apps.apple.com (App Store)"),
- ("og-card.svg",    "og:image",              "substack.com"),
- ("x-avatar.jpg",   "x/avatar",              "x.com/Substack"),
- ("x-banner.jpg",   "x/banner",              "x.com/Substack"),
- ("appstore-1.png", "appstore/screenshot 1", "apps.apple.com (App Store)"),
- ("hero.png",       "marketing/hero",        "substack.com/app"),
-]
-
-BRAND_CSS = """.bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:2px}
-.bimg{height:118px;border-radius:6px;border:1px solid var(--x-border);background:var(--x-fill);
-  display:flex;align-items:center;justify-content:center;overflow:hidden}
-.bimg img{max-width:88%;max-height:88%;object-fit:contain}
-.bcell b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
-.bcell i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--x-ink-2);font-style:normal}
-.tag{font:600 13px/18px var(--x-font);margin:2px 0 10px}
-.tag i{display:block;margin-top:2px;font:400 9px/12px ui-monospace,Menlo,monospace;
-  color:var(--x-ink-2);font-style:normal}"""
-
-
-def brand_board():
-    cells = "".join(
-        '<div class="bcell"><div class="bimg"><img src="%s" alt="%s"></div>'
-        '<b>%s</b><i>theirs &middot; %s</i></div>'
-        % (_brand_uri(fname), role, role, src) for fname, role, src in BRAND)
-    swatch = ('<div class="grid"><div class="sw"><div class="chip" '
-              'style="background:#FF6719"></div><b>#FF6719</b>'
-              '<i>the mark&#39;s own fill, substack.com/brand</i></div></div>')
-    return page(NAME + " - Brand & promotion",
-                '<div class="sheet"><header><h1>Brand &amp; promotion</h1>'
-                '<p>The public brand mark is #FF6719, read off substack.com/brand; the '
-                'in-app compose button these seven screens document is #FF5800, a '
-                'different orange measured off the same captures behind every other '
-                'token here.</p></header>'
-                '<h2>Assets</h2><div class="bgrid">%s</div>'
-                '<h2>Brand colour</h2>%s'
-                '<h2>Tagline</h2><p class="tag">"The app for independent voices"'
-                '<i>substack.com</i></p>'
-                '<div class="met">Fetched 2026-09-13 &middot; substack.com/brand &middot; '
-                'substack.com/app &middot; apps.apple.com/app/id1581650857 &middot; '
-                'x.com/Substack</div></div>' % (cells, swatch), SHEET + BRAND_CSS)
-
-
 # ------------------------------------------------------------------ art ----
 def cut():
     """Refresh assets/art/ from assets/refs/ at the boxes in crops.json."""
@@ -726,15 +679,6 @@ def _uri(cid):
     f = ART_DIR / (cid + ".png")
     return ("data:image/png;base64," + base64.b64encode(f.read_bytes()).decode()
             if f.exists() else "")
-
-
-_BRAND_MIME = {".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml"}
-
-
-def _brand_uri(fname):
-    """A vendored assets/brand/ file, inlined by its own extension's mime type."""
-    f = BRAND_DIR / fname
-    return "data:%s;base64,%s" % (_BRAND_MIME[f.suffix], base64.b64encode(f.read_bytes()).decode())
 
 
 def art(cid, x=None, y=None, extra=""):
@@ -1503,22 +1447,23 @@ def ref_boards():
 
 
 def layout(files):
-    return {
-     "name": PAGE_NAME,
-     "rows": [
-      {"title": "Foundations",
-       "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
-                + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]},
-      {"title": "Screens", "numbered": True,
-       "files": [{"file": n, "label": l} for n, l, _ in SCREENS]},
-      # Same order as the row above: the canvas lays every row out from x = 0 at
-      # one pitch, so item N here lands column-for-column under item N up there.
-      {"title": "Source of truth: captures", "numbered": True,
-       "files": [{"file": "ref-" + n, "label": l} for n, l, _ in REFS
-                 if "ref-" + n in files]},
-      {"title": "Brand & promotion",
-       "files": [{"file": "00h-brand", "label": "Brand & promotion"}]},
-     ]}
+    rows = [
+     {"title": "Foundations",
+      "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
+               + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]},
+     {"title": "Screens", "numbered": True,
+      "files": [{"file": n, "label": l} for n, l, _ in SCREENS]},
+     # Same order as the row above: the canvas lays every row out from x = 0 at
+     # one pitch, so item N here lands column-for-column under item N up there.
+     {"title": "Source of truth: captures", "numbered": True,
+      "files": [{"file": "ref-" + n, "label": l} for n, l, _ in REFS
+                if "ref-" + n in files]},
+    ]
+    # Unlike everything else under assets/, these are never inlined as data: URIs.
+    # manifest.json places them as image shapes of their own, one row per surface,
+    # so the canvas can compare avatar against avatar down the page.
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
+    return {"name": PAGE_NAME, "rows": rows}
 
 
 def main():
@@ -1526,7 +1471,6 @@ def main():
     tilecut()
     files = dict([("00-design-tokens", token_board())]
                  + list(evidence_boards())
-                 + [("00h-brand", brand_board())]
                  + [(s, fn()) for s, _, fn in SCREENS]
                  + list(ref_boards()))
     for name in sorted(files):

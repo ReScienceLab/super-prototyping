@@ -293,6 +293,70 @@
         "h": 500,
         "source": "https://x.com/OpenAIDevs",
         "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-chatgpt-post-dropbox-integrations.jpg",
+        "label": "@ChatGPT post: Dropbox, Box, and Sharepoint integrations in ChatGPT Library",
+        "w": 1600,
+        "h": 900,
+        "source": "https://x.com/ChatGPT/status/2098127115791294703",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-chatgpt-post-work-templates-1.jpg",
+        "label": "@ChatGPT post: ChatGPT Work Template Creator (1 of 2)",
+        "w": 1026,
+        "h": 1324,
+        "source": "https://x.com/ChatGPT/status/2093424514726285341",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-chatgpt-post-work-templates-2.jpg",
+        "label": "@ChatGPT post: ChatGPT Work Template Creator (2 of 2)",
+        "w": 1058,
+        "h": 1338,
+        "source": "https://x.com/ChatGPT/status/2093424514726285341",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-openai-post-cyberdefense.jpg",
+        "label": "@OpenAI post: Defense Factory cyber hardening initiative",
+        "w": 1200,
+        "h": 672,
+        "source": "https://x.com/OpenAI/status/2097786616311840853",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-openai-post-navier-stokes.jpg",
+        "label": "@OpenAI post: Navier-Stokes Millennium Prize Problem solution",
+        "w": 1254,
+        "h": 1254,
+        "source": "https://x.com/OpenAI/status/2097374640582668336",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-openai-post-wiki-incident.jpg",
+        "label": "@OpenAI post: statement on the \"wiki incident\"",
+        "w": 1600,
+        "h": 900,
+        "source": "https://x.com/OpenAI/status/2096133504417616165",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-openaidevs-post-habitat.jpg",
+        "label": "@OpenAIDevs post: Habitat online storage platform",
+        "w": 1280,
+        "h": 720,
+        "source": "https://x.com/OpenAIDevs/status/2098502006935814272",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-openaidevs-post-rosalind-thumb.jpg",
+        "label": "@OpenAIDevs post: GPT-Rosalind biological reasoning in the API",
+        "w": 1280,
+        "h": 720,
+        "source": "https://x.com/OpenAIDevs/status/2098509226335412479",
+        "provenance": "theirs"
       }
     ]
   },
@@ -338,6 +402,54 @@
         "h": 1080,
         "source": "https://www.instagram.com/openai/",
         "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/ig-openai-post-astra-robotarm.jpg",
+        "label": "OpenAI IG: Astra controlling a robot arm",
+        "w": 1080,
+        "h": 1350,
+        "source": "https://www.instagram.com/p/DdMTNaHm8j6/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/ig-openai-post-ivyxara-story.jpg",
+        "label": "OpenAI IG: computer scientist @ivyxara feature story",
+        "w": 1080,
+        "h": 1350,
+        "source": "https://www.instagram.com/p/DdJ65pQmuT6/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/ig-openai-post-chatgpt-80s.jpg",
+        "label": "OpenAI IG: \"ChatGPT in the 80s\" image post",
+        "w": 1284,
+        "h": 1600,
+        "source": "https://www.instagram.com/p/DdH-8hMvztm/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/ig-openai-post-twoblindbrothers.jpg",
+        "label": "OpenAI IG: Two Blind Brothers founders feature",
+        "w": 1080,
+        "h": 1350,
+        "source": "https://www.instagram.com/p/DdHN0k-G-NU/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/ig-openai-post-navier-stokes.jpg",
+        "label": "OpenAI IG: Navier-Stokes existence and smoothness problem post",
+        "w": 1080,
+        "h": 1350,
+        "source": "https://www.instagram.com/p/DdC5DWXDwbn/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/ig-openai-post-gpt6astra-video.jpg",
+        "label": "OpenAI IG: GPT-6 Astra capabilities video cover",
+        "w": 480,
+        "h": 853,
+        "source": "https://www.instagram.com/p/DdHWQ3CJb6i/",
+        "provenance": "theirs"
       }
     ]
   },
@@ -374,6 +486,38 @@
         "w": 270,
         "h": 480,
         "source": "https://www.tiktok.com/@openai",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/tiktok-openai-cover-astra-robotarm.jpg",
+        "label": "OpenAI TikTok: Astra controlling a robot arm video cover",
+        "w": 360,
+        "h": 452,
+        "source": "https://www.tiktok.com/@openai/video/7684679933167258894",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/tiktok-openai-cover-build-astra.jpg",
+        "label": "OpenAI TikTok: \"Build with Astra\" video cover",
+        "w": 360,
+        "h": 452,
+        "source": "https://www.tiktok.com/@openai/video/7684494497362791694",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/tiktok-openai-cover-twoblindbrothers.jpg",
+        "label": "OpenAI TikTok: Two Blind Brothers ChatGPT feature video cover",
+        "w": 360,
+        "h": 640,
+        "source": "https://www.tiktok.com/@openai/video/7683937797886987533",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/tiktok-openai-cover-navier-stokes.webp",
+        "label": "OpenAI TikTok: Navier-Stokes problem video cover",
+        "w": 480,
+        "h": 600,
+        "source": "https://www.tiktok.com/@openai/video/7683319047508757773",
         "provenance": "theirs"
       }
     ]
@@ -420,6 +564,38 @@
         "h": 720,
         "source": "https://www.youtube.com/@OpenAI",
         "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/yt-openai-thumb-gptlive1-api.jpg",
+        "label": "OpenAI YouTube: \"GPT-Live-1 is now in the API\"",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=OSaP6bJoU44",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/yt-openai-thumb-twoblindbrothers.jpg",
+        "label": "OpenAI YouTube: \"Two blind brothers using ChatGPT to navigate life and run their nonprofit\"",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=qg_54P-oPgI",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/yt-openai-thumb-dataagent.jpg",
+        "label": "OpenAI YouTube: \"Data agent in ChatGPT Work\"",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=MSiAd36bGeQ",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/yt-openai-thumb-astra-tomkrcha.jpg",
+        "label": "OpenAI YouTube: \"GPT-6 Astra with Tom Krcha\"",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=QDLlQ5IL2Bk",
+        "provenance": "theirs"
       }
     ]
   },
@@ -440,6 +616,54 @@
         "w": 200,
         "h": 200,
         "source": "https://www.linkedin.com/company/openai",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/li-openai-post-cyberdefense.jpg",
+        "label": "OpenAI LinkedIn: Defense Factory cyber hardening post",
+        "w": 800,
+        "h": 448,
+        "source": "https://www.linkedin.com/posts/openai_we-mobilized-250-people-to-strengthen-our-activity-7503863629813837824-XLk9",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/li-openai-post-chatgptwork-astra.jpg",
+        "label": "OpenAI LinkedIn: ChatGPT Work powered by GPT-6 Astra post",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.linkedin.com/posts/openai_chatgpt-work-is-now-powered-by-gpt-6-astra-activity-7503522578574184448-IAzl",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/li-openai-post-paulchristiano.png",
+        "label": "OpenAI LinkedIn: Paul Christiano joins OpenAI Foundation Board announcement card",
+        "w": 800,
+        "h": 450,
+        "source": "https://www.linkedin.com/posts/openai_paul-christiano-joins-openai-foundation-board-activity-7503513440825745408-vpTS",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/li-openai-post-journalism.png",
+        "label": "OpenAI LinkedIn: journalism initiatives announcement card",
+        "w": 800,
+        "h": 450,
+        "source": "https://www.linkedin.com/posts/openai_openai-expands-initiatives-to-support-journalism-activity-7503210570582564864-LJPG",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/li-openai-post-gpt6astra.jpg",
+        "label": "OpenAI LinkedIn: \"This is GPT-6 Astra\" launch post",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.linkedin.com/posts/openai_this-gpt-6-astra-activity-7501364499304579072-dm6F",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/li-openai-post-images25.jpg",
+        "label": "OpenAI LinkedIn: ChatGPT Images 2.5 announcement post",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.linkedin.com/posts/openai_introducing-chatgpt-images-25-activity-7503163796631326720-39UO",
         "provenance": "theirs"
       }
     ]
@@ -966,6 +1190,38 @@
         "w": 1080,
         "h": 1350,
         "source": "openai.com/brand (Design Guidelines page, Gallery section) via Wayback Machine snapshot 20260907013431",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/press/openai-press-photo-office-collaboration.jpg",
+        "label": "OpenAI office photo - two employees collaborating at a table (Stangel, 2022)",
+        "w": 1600,
+        "h": 1200,
+        "source": "openai.com/about (office photography) via Wayback Machine snapshot 20260907234740",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/press/openai-press-photo-office-window-chat.jpg",
+        "label": "OpenAI office photo - employees talking by a window (Stangel, 2022)",
+        "w": 1600,
+        "h": 1200,
+        "source": "openai.com/about (office photography) via Wayback Machine snapshot 20260907234740",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/press/openai-press-photo-office-conversation.jpg",
+        "label": "OpenAI office photo - three employees in conversation by a window",
+        "w": 1600,
+        "h": 1600,
+        "source": "openai.com/careers (Emerging Talent section) via Wayback Machine snapshot 20260905022359",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/press/openai-press-photo-office-lounge.jpg",
+        "label": "OpenAI office photo - employee in a lounge chair",
+        "w": 1600,
+        "h": 893,
+        "source": "openai.com/careers via Wayback Machine snapshot 20260905022359",
         "provenance": "theirs"
       }
     ]

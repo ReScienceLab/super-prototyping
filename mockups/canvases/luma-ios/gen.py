@@ -27,6 +27,10 @@ HERE = pathlib.Path(__file__).resolve().parent
 # replica's tab bar tints it a second time.
 A = json.load(open(HERE / 'assets.json'))
 OUT = HERE
+# Unlike everything else under assets/, these are never inlined as data: URIs.
+# manifest.json places them as image shapes of their own, one row per surface,
+# so the canvas can compare avatar against avatar down the page.
+BRAND_DIR = OUT / "assets" / "brand"
 
 # ---------------------------------------------------------------- tokens ----
 TOKENS = """:root{
@@ -1676,56 +1680,6 @@ write('w4-foundations', walk_board(
  'every value tracing back to a pixel someone looked at.'))
 
 
-# ------------------------------------------------------- 00h: brand board ---
-# The company's own public identity, vendored from lu.ma / luma.com, the App
-# Store listing and x.com/LumaHQ — as opposed to the --l- tokens above, which
-# were measured off the in-app replica screens. brandassets.json holds these
-# six images as pre-encoded data: URIs, the same arrangement as assets.json.
-BR = json.load(open(HERE / 'brandassets.json'))
-
-BRAND_CSS = PROC_CSS + """
-.assets{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.asset{background:rgba(255,255,255,.06);border-radius:8px;padding:8px 8px 7px;
-  display:flex;flex-direction:column;align-items:center;text-align:center}
-.asset img{max-height:64px;max-width:100%;object-fit:contain;border-radius:4px}
-.asset b{margin-top:6px;font:600 9.5px/12px var(--l-font)}
-.asset s{margin-top:1px;font:400 8px/11px var(--l-font);color:rgba(255,255,255,.5);text-decoration:none}
-.quote{margin-top:2px;padding:10px 12px;background:rgba(0,0,0,.24);border-radius:6px;
-  font:italic 400 12px/17px var(--l-font);color:rgba(255,255,255,.86)}
-.quote cite{display:block;margin-top:5px;font:400 8.5px/12px ui-monospace,Menlo,monospace;
-  color:#F1CD8A;font-style:normal}"""
-
-# key, alt text, role label, human source page (never the raw CDN URL)
-ASSETS = [
- ('wordmark',   'Luma wordmark',        'wordmark',              'lu.ma homepage'),
- ('appicon',    'Luma app icon',        'app icon',              'App Store listing'),
- ('og_card',    'Luma og:image card',   'og:image',              'luma.com meta tag'),
- ('x_avatar',   '@LumaHQ avatar',       'x/avatar',              'x.com/LumaHQ'),
- ('x_banner',   '@LumaHQ banner',       'x/banner',              'x.com/LumaHQ'),
- ('appstore_1', 'Luma App Store screenshot', 'appstore/screenshot 1', 'App Store listing'),
-]
-
-def brand_board(sub, title, lede, body, note):
-    html = ('<div class="board"><header><h1>%s <span>%s</span></h1><p>%s</p></header>'
-            % (title, sub, lede) + body + '<p class="note">%s</p></div>' % note)
-    return page('Luma iOS — ' + title, html, BRAND_CSS.replace('BGA', A['bg_a']))
-
-write('00h-brand', brand_board(
-    'official assets', 'Brand &amp; promotion',
-    'The wordmark, icon and social presence Luma controls in public &mdash; distinct from the '
-    '--l- tokens measured off the in-app replica screens elsewhere on this canvas.',
-    '<h2>Public identity</h2><div class="assets">' +
-    ''.join('<div class="asset"><img src="%s" alt="%s"><b>%s</b>'
-            '<s>theirs &middot; %s</s></div>' % (BR[k], alt, role, src)
-            for k, alt, role, src in ASSETS) +
-    '</div>' +
-    '<h2>Tagline</h2>'
-    '<div class="quote">&ldquo;Delightful events start here.&rdquo;'
-    '<cite>luma.com homepage</cite></div>',
-    'No official brand-colour or press kit was found published by Luma, so no swatch row is shown here. '
-    'Fetched 2026-09-13 from luma.com, the App Store listing and x.com/LumaHQ.'))
-
-
 LAYOUT = {
  "name": "(example) Luma iOS",
  "rows": [
@@ -1750,9 +1704,8 @@ LAYOUT = {
              for n, sid, label, note in REFS] +
             [{"file": "ref-" + hs[0], "label": label}
              for hs, (n, sid, label, note) in zip(HOME_SCREENS, HOME_REFS)]},
-  {"title": "Brand & promotion",
-   "files": [{"file": "00h-brand", "label": "Brand & promotion"}]},
  ],
 }
+LAYOUT["rows"] += json.loads((BRAND_DIR / "manifest.json").read_text())
 (OUT / 'layout.json').write_text(json.dumps(LAYOUT, indent=2) + '\n')
 print('layout.json', len(LAYOUT['rows']), 'rows')

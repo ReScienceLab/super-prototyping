@@ -65,49 +65,704 @@
       ]
     },
     {
-      "title": "Source of truth: Mobbin captures",
-      "numbered": true,
-      "files": [
+      "title": "Logo & wordmark",
+      "images": [
         {
-          "file": "ref-01-path-green",
-          "label": "Path: green"
+          "file": "assets/brand/identity/logo-touch-icon.png",
+          "label": "Site touch icon (owl mark)",
+          "w": 180,
+          "h": 180,
+          "source": "https://duolingo.com",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-02-path-red",
-          "label": "Path: red"
-        },
-        {
-          "file": "ref-03-path-blue",
-          "label": "Path: blue"
-        },
-        {
-          "file": "ref-04-section-done",
-          "label": "Section complete"
-        },
-        {
-          "file": "ref-05-section-next",
-          "label": "Up next: locked"
-        },
-        {
-          "file": "ref-06-jump-here",
-          "label": "Jump here"
-        },
-        {
-          "file": "ref-07-streak-freeze",
-          "label": "Streak freeze"
-        },
-        {
-          "file": "ref-08-league-promo",
-          "label": "League promotion"
+          "file": "assets/brand/identity/logo-wordmark-lockup-business.png",
+          "label": "Duolingo for Business wordmark lockup",
+          "w": 600,
+          "h": 400,
+          "source": "https://duolingo.com/business",
+          "provenance": "theirs"
         }
       ]
     },
     {
-      "title": "Brand & promotion",
-      "files": [
+      "title": "Art direction",
+      "images": [
         {
-          "file": "00h-brand",
-          "label": "Brand & promotion"
+          "file": "assets/brand/identity/art-direction-homepage-hero.jpg",
+          "label": "Homepage hero illustration",
+          "w": 1200,
+          "h": 630,
+          "source": "https://duolingo.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-shape-language.png",
+          "label": "Shape-count study: how many shapes make a good character",
+          "w": 990,
+          "h": 438,
+          "source": "https://blog.duolingo.com/shape-language-duolingos-art-style/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-character-system.png",
+          "label": "Full character-design system sample sheet",
+          "w": 1600,
+          "h": 901,
+          "source": "https://blog.duolingo.com/shape-language-duolingos-art-style/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-sketch-process.png",
+          "label": "Early pencil-sketch exploration of a character pose",
+          "w": 633,
+          "h": 518,
+          "source": "https://blog.duolingo.com/shape-language-duolingos-art-style/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-character-lineup.png",
+          "label": "Cast lineup of Duolingo characters",
+          "w": 1600,
+          "h": 424,
+          "source": "https://blog.duolingo.com/shape-language-duolingos-art-style/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-picasso-duo.png",
+          "label": "Duo painting a self-portrait at an easel, Picasso-style",
+          "w": 1104,
+          "h": 812,
+          "source": "https://blog.duolingo.com/shape-language-duolingos-art-style/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/applied-identity-piano-toy.jpg",
+          "label": "Loog x Duolingo piano toy",
+          "w": 1280,
+          "h": 1600,
+          "source": "https://store.duolingo.com/products/loog-x-duolingo-piano",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-chess-plush-scene.png",
+          "label": "Duo chess set and plushies, store homepage",
+          "w": 1300,
+          "h": 416,
+          "source": "https://store.duolingo.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-hoodie.jpg",
+          "label": "Daily Duolingo hoodie",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://store.duolingo.com/products/daily-duolingo-hoodie",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-backpack.jpg",
+          "label": "Duo backpack",
+          "w": 1000,
+          "h": 1000,
+          "source": "https://store.duolingo.com/products/duo-backpack",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-identity-captain-duo-shirt.jpg",
+          "label": "Captain Duo t-shirt",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://store.duolingo.com/products/captain-duo-shirt",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-avatar.jpg",
+          "label": "@duolingo profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-banner.jpg",
+          "label": "@duolingo profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-1.jpg",
+          "label": "Giant Duo balloon over \u201cStarr Park\u201d (Brawl Stars crossover)",
+          "w": 1280,
+          "h": 1600,
+          "source": "https://x.com/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-2.jpg",
+          "label": "Close-up selfie in the plush Duo mascot costume, office",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://x.com/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-3.jpg",
+          "label": "\u201cThis is Duo.\u201d foldable-phone parody ad",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://x.com/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-4.jpg",
+          "label": "SS27 Phonetic Collection fashion editorial, basketball hoop",
+          "w": 1280,
+          "h": 1600,
+          "source": "https://x.com/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-5.jpg",
+          "label": "\u201cThe situation\u201d Notes-app screenshot bit (HQ vandalized)",
+          "w": 1279,
+          "h": 1600,
+          "source": "https://x.com/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-6.jpg",
+          "label": "Duolingo x Brawl Stars YouTube comment-reply exchange screenshot",
+          "w": 941,
+          "h": 1600,
+          "source": "https://x.com/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-7.jpg",
+          "label": "Chinese lesson screenshot featuring the viral ox meme character",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://x.com/duolingo",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/ig-avatar.jpg",
+          "label": "@duolingo profile avatar",
+          "w": 648,
+          "h": 648,
+          "source": "https://www.instagram.com/duolingo/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-1.jpg",
+          "label": "@duolingo Instagram post",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://www.instagram.com/duolingo/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-2.jpg",
+          "label": "@duolingo Instagram post",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://www.instagram.com/duolingo/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-3.jpg",
+          "label": "\u201cIt's your move.\u201d chess illustration",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/duolingo/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-4.jpg",
+          "label": "\u201cUwU, Duolingo-chan!\u201d airport scene with We Bare Bears",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/duolingo/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-5.jpg",
+          "label": "Christmas scene: Duo in a Santa costume with elves",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/duolingo/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-6.jpg",
+          "label": "\u201cAnimal Hospital\u201d polaroid gag",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/duolingo/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-7.jpg",
+          "label": "K-pop stage dance scene with Duo and a boy band",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/duolingo/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-8.jpg",
+          "label": "Duo and MrBeast leaning on a car",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/duolingo/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tiktok-avatar.jpeg",
+          "label": "@duolingo TikTok profile avatar",
+          "w": 647,
+          "h": 647,
+          "source": "https://www.tiktok.com/@duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-cover-1.jpg",
+          "label": "@duolingo TikTok video cover",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-cover-2.jpg",
+          "label": "@duolingo TikTok video cover",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-cover-3.jpg",
+          "label": "\u201cair\u00b7mess\u201d green handbag photo, Canal Street",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-cover-4.jpg",
+          "label": "\u201cTop 3 Korean phrases every Kpop stan should know\u201d",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@duolingo",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/youtube-avatar.jpg",
+          "label": "Duolingo YouTube channel avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.youtube.com/@duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-banner.jpg",
+          "label": "Duolingo YouTube channel banner",
+          "w": 1138,
+          "h": 188,
+          "source": "https://www.youtube.com/@duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-1.jpg",
+          "label": "\u201cDuolingo SS27: The Phonetic Collection\u201d video thumbnail",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=4zjjvM9TMjQ",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-2.jpg",
+          "label": "\u201cWhy We Redesigned Our Sikh Character\u201d video thumbnail",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=o28neCIiS6k",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-3.jpg",
+          "label": "\u201cLinguist Breaks Down Jujutsu Kaisen Dubbing Mistakes\u201d video thumbnail",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=C49AvaU8zs8",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-4.jpg",
+          "label": "\u201cLearn Math the Fun Way with Duolingo Math\u201d video thumbnail",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=SAv29dOh6X0",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-5.jpg",
+          "label": "\u201cOne Word a Day\u201d Duo Bopz Korean song video thumbnail",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=x1z53IFygbk",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-video-6.jpg",
+          "label": "\u201clofi lily\u201d chill-beats channel art video thumbnail",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=C5ZQp95hSFQ",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/linkedin-logo.jpg",
+          "label": "Duolingo LinkedIn company logo",
+          "w": 200,
+          "h": 200,
+          "source": "https://www.linkedin.com/company/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-cover.jpg",
+          "label": "Duolingo LinkedIn cover image",
+          "w": 1128,
+          "h": 191,
+          "source": "https://www.linkedin.com/company/duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-1.jpg",
+          "label": "Duo and Oscar plush chess video: \u201cChess is a battle of the minds\u201d",
+          "w": 800,
+          "h": 485,
+          "source": "https://www.linkedin.com/posts/duolingo_want-to-learn-chess-but-have-no-idea-where-activity-7503423344587718656-sDyh",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-2.jpg",
+          "label": "\u201cchoppelg\u00e4nger\u201d Gen Alpha vocab card",
+          "w": 800,
+          "h": 762,
+          "source": "https://www.linkedin.com/posts/duolingo_gen-alpha-vocab-lesson-choppelganger-activity-7500522992662114304-iP3-",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-3.jpg",
+          "label": "Duolingo Chess \u201cGame Review\u201d feature video thumbnail",
+          "w": 720,
+          "h": 1280,
+          "source": "https://www.linkedin.com/posts/duolingo_one-of-the-most-commonly-requested-features-activity-7500885482546008064-biEe",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-4.gif",
+          "label": "\u201cDuo viewed your profile\u201d LinkedIn-notification parody GIF",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.linkedin.com/posts/duolingo_getting-checked-out-on-linkedin-hits-different-activity-7501247759472177153-BkWo",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.jpg",
+          "label": "App Store icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-1.jpg",
+          "label": "App Store screenshot 1",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-2.jpg",
+          "label": "App Store screenshot 2",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-3.jpg",
+          "label": "App Store screenshot 3",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-4.jpg",
+          "label": "App Store screenshot 4",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-5.jpg",
+          "label": "App Store screenshot 5",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-6.jpg",
+          "label": "App Store screenshot 6",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-7.jpg",
+          "label": "App Store screenshot 7",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-8.jpg",
+          "label": "App Store screenshot 8",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/gplay-icon.png",
+          "label": "Google Play icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/gplay-feature-graphic.png",
+          "label": "Google Play feature graphic",
+          "w": 1024,
+          "h": 500,
+          "source": "https://play.google.com/store/apps/details?id=com.duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/gplay-screenshot-1.jpg",
+          "label": "Google Play screenshot 1",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/gplay-screenshot-2.jpg",
+          "label": "Google Play screenshot 2",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/gplay-screenshot-3.jpg",
+          "label": "Google Play screenshot 3",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.duolingo",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/gplay-screenshot-4.jpg",
+          "label": "Google Play screenshot 4",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.duolingo",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Microsoft Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/msstore-icon.png",
+          "label": "Microsoft Store icon",
+          "w": 300,
+          "h": 300,
+          "source": "https://apps.microsoft.com/detail/9wzdncrcv5xn",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-1.jpg",
+          "label": "Microsoft Store screenshot 1",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.microsoft.com/detail/9wzdncrcv5xn",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-2.jpg",
+          "label": "Microsoft Store screenshot 2",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.microsoft.com/detail/9wzdncrcv5xn",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/stores/announce-new-subjects.png",
+          "label": "\u201cNew Subjects\u201d launch announcement card",
+          "w": 900,
+          "h": 600,
+          "source": "https://blog.duolingo.com/new-subjects/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/announce-video-call.png",
+          "label": "Video Call feature announcement card",
+          "w": 900,
+          "h": 600,
+          "source": "https://blog.duolingo.com/video-call/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/announce-duolingo-max.png",
+          "label": "Duolingo Max launch announcement card",
+          "w": 900,
+          "h": 600,
+          "source": "https://blog.duolingo.com/duolingo-max/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/meta-ad-chess.png",
+          "label": "Meta ad: \u201cLearn chess for free\u201d",
+          "w": 1200,
+          "h": 1200,
+          "source": "https://www.facebook.com/ads/library/?id=1364532395612949",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-fluency.png",
+          "label": "Meta ad: \u201cLearn a Language for Free\u201d",
+          "w": 1200,
+          "h": 1500,
+          "source": "https://www.facebook.com/ads/library/?id=1017419480682934",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-spanish.png",
+          "label": "Meta ad, Spanish-language creative",
+          "w": 1200,
+          "h": 1500,
+          "source": "https://www.facebook.com/ads/library/?id=1520486649739880",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/google-ad-1.png",
+          "label": "Google Display Network ad creative",
+          "w": 696,
+          "h": 320,
+          "source": "https://adstransparency.google.com/advertiser/AR01320432650854334465/creative/CR09480857258985259009",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Press photography",
+      "images": [
+        {
+          "file": "assets/brand/press/press-matt-brandman.png",
+          "label": "Matt Brandman, Senior Engineering Manager \u2014 Life at Duolingo",
+          "w": 1200,
+          "h": 638,
+          "source": "https://blog.duolingo.com/life-at-duolingo-matt-brandman/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-katie-wallace.png",
+          "label": "Katie Wallace, Engineering Director \u2014 Life at Duolingo",
+          "w": 1200,
+          "h": 638,
+          "source": "https://blog.duolingo.com/life-at-duolingo-katie-wallace/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-julie-wang.png",
+          "label": "Julie Wang, iOS Engineer \u2014 Life at Duolingo",
+          "w": 1200,
+          "h": 638,
+          "source": "https://blog.duolingo.com/life-at-duolingo-julie-wang/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-jackie-lee.png",
+          "label": "Jackie Lee, AI Research Scientist \u2014 Life at Duolingo",
+          "w": 1200,
+          "h": 638,
+          "source": "https://blog.duolingo.com/life-at-duolingo-jackie-lee/",
+          "provenance": "theirs"
         }
       ]
     }

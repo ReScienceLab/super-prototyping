@@ -7,12 +7,14 @@ import {
   defaultBindingUtils,
   defaultShapeUtils,
   getIndices,
+  inlineBase64AssetStore,
   react,
   renderPlaintextFromRichText,
   toRichText,
   type Editor,
   type TLPageId,
   type TLAsset,
+  type TLAssetStore,
   type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
@@ -50,7 +52,9 @@ import {
   type CanvasLayoutLink,
   type CanvasLibraryFile,
   LAYOUT_CHANGED,
+  BRAND_THUMB_EDGE,
   boardTabStatusForPath,
+  brandThumbForSrc,
   canvasImageUrl,
   readCanvasLayout,
   readCanvasLibrary,
@@ -117,6 +121,30 @@ const storeOptions = {
   bindingUtils: defaultBindingUtils,
   assetUtils: defaultAssetUtils,
   records: commentSchemaRecords,
+  assets: {
+    ...inlineBase64AssetStore,
+    /**
+     * Draw the brand images at the size the screen is actually showing them. Zoomed to fit,
+     * a page of them is a wall of thumbnails, and fetching the full-size file for each one is
+     * tens of megabytes decoded down to a few hundred pixels.
+     *
+     * The original comes back the moment it has a use: zoomed past the variant's own
+     * resolution, and unconditionally when the picture leaves the canvas for an export or the
+     * clipboard. So nothing is ever *shown* at less than the pixels available to show it —
+     * the only thing dropped is the pixels that would not have been visible.
+     */
+    resolve(asset, { screenScale, steppedScreenScale, dpr, shouldResolveToOriginal }) {
+      const src = asset.props.src ?? null;
+      if (asset.type !== "image" || shouldResolveToOriginal || !src) return src;
+      const thumb = brandThumbForSrc(src);
+      if (!thumb) return src;
+      // The variant's own width: its long edge is BRAND_THUMB_EDGE, so a portrait image is
+      // narrower than that. Compare it against the device pixels the shape occupies now.
+      const { w, h } = asset.props;
+      const thumbWidth = (w * BRAND_THUMB_EDGE) / Math.max(w, h);
+      return w * Math.max(screenScale, steppedScreenScale) * dpr <= thumbWidth ? thumb : src;
+    },
+  } satisfies TLAssetStore,
 };
 
 /**

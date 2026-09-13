@@ -1,5 +1,16 @@
-import { canvasImageUrl, pageNameFor, readCanvasLayout } from "./canvasLibrary";
-import { canvasPageUrl, sheetPageUrl } from "./canvasUrl";
+import {
+  BRAND_THUMB_EDGE,
+  brandMaterialSlugs,
+  canvasIconUrl,
+  canvasImageThumbUrl,
+  canvasImageUrl,
+  pageNameFor,
+  readCanvasLayout,
+} from "./canvasLibrary";
+import { brandPageUrl, canvasPageUrl, sheetPageUrl } from "./canvasUrl";
+
+/** The switcher wants the product, not the shelf: "(example) Claude iOS" reads as "Claude iOS". */
+const shortName = (slug: string) => pageNameFor(slug).replace(/^\(example\)\s*/, "");
 
 /**
  * How many columns a row gets, and the shape of its cards, from the pictures actually in it.
@@ -17,6 +28,18 @@ function rowShape(images: { w: number; h: number }[]) {
   // Clamped so one very wide banner or one very tall screenshot cannot make a card that is a
   // sliver on the page; past the clamp the picture letterboxes inside the card instead.
   return { cols, box: Math.min(Math.max(median, 0.62), 3.2) };
+}
+
+/**
+ * The width a card's picture is actually drawn at, mirroring brand.css: the band's 28px of side
+ * padding, the 20px grid gaps, the card's 24px of padding, and the two breakpoints where a row
+ * gives up columns. Told nothing, a browser assumes an image fills the window and fetches the
+ * original for every card, which is the entire saving gone.
+ */
+function cardSizes(cols: number) {
+  const at = (n: number) => `calc((100vw - 56px - ${(n - 1) * 20}px) / ${n} - 48px)`;
+  const [two, three] = [at(Math.min(cols, 2)), at(Math.min(cols, 3))];
+  return `(max-width: 720px) ${two}, (max-width: 1100px) ${three}, ${at(cols)}`;
 }
 
 /**
@@ -47,7 +70,8 @@ export function BrandSheet({ slug }: { slug: string }) {
   const rows = (readCanvasLayout(slug)?.rows ?? []).flatMap((row) => {
     const images = (row.images ?? []).flatMap((image) => {
       const src = canvasImageUrl(slug, image.file);
-      return src && image.w && image.h ? [{ ...image, src }] : [];
+      const thumb = canvasImageThumbUrl(slug, image.file);
+      return src && image.w && image.h ? [{ ...image, src, thumb }] : [];
     });
     return images.length ? [{ title: row.title, images, ...rowShape(images) }] : [];
   });
@@ -56,8 +80,28 @@ export function BrandSheet({ slug }: { slug: string }) {
     rows.flatMap((row) => row.images.flatMap((i) => sourceLabel(i.source)?.host ?? [])),
   );
 
+  // The app icon carries this: nine product names in a row is a list to read, and nine app
+  // icons is a shelf to recognise. The name stays next to it, because two of these icons are a
+  // black glyph on white and the icon alone would be a guess.
+  const pages = brandMaterialSlugs();
+
   return (
     <main>
+      {pages.length > 1 && (
+        <nav className="switch" aria-label="Brand material for the other examples">
+          {pages.map((page) => (
+            <a
+              key={page}
+              className="chip"
+              href={brandPageUrl(page)}
+              aria-current={page === slug ? "page" : undefined}
+            >
+              <img src={canvasIconUrl(page)} alt="" />
+              {shortName(page)}
+            </a>
+          ))}
+        </nav>
+      )}
       <header className="head">
         <div>
           <h1>{pageNameFor(slug)}</h1>
@@ -94,10 +138,26 @@ export function BrandSheet({ slug }: { slug: string }) {
           <div className="grid">
             {row.images.map((image) => {
               const source = sourceLabel(image.source);
+              // A variant exists only where it is genuinely smaller than the original, so its
+              // width is the long edge scaled down — and the original is always in the set
+              // above it, for the screen wide or dense enough to have a use for it.
+              const thumbWidth = Math.round(
+                (image.w * BRAND_THUMB_EDGE) / Math.max(image.w, image.h),
+              );
               return (
               <figure key={image.file}>
                 <div className="card">
-                  <img src={image.src} alt={image.label} loading="lazy" />
+                  <img
+                    src={image.src}
+                    srcSet={
+                      image.thumb
+                        ? `${image.thumb} ${thumbWidth}w, ${image.src} ${image.w}w`
+                        : undefined
+                    }
+                    sizes={image.thumb ? cardSizes(row.cols) : undefined}
+                    alt={image.label}
+                    loading="lazy"
+                  />
                 </div>
                 <figcaption>
                   {image.label}

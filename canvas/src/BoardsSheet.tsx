@@ -1,5 +1,5 @@
 import { FigmaMark } from "./FigmaMark";
-import { pageNameFor, readCanvasLayout } from "./canvasLibrary";
+import { hasBrandMaterial, pageNameFor } from "./canvasLibrary";
 import { sheetRows } from "./sheetLayout";
 import { brandPageUrl, canvasPageUrl } from "./canvasUrl";
 
@@ -20,8 +20,7 @@ const H2D_PLUGIN = "https://www.figma.com/community/plugin/1159123024924461424/h
 export function BoardsSheet({ slug }: { slug: string }) {
   const rows = sheetRows(slug);
   const count = rows.reduce((n, row) => n + row.boards.length, 0);
-  // Only the pages that have collected any: the brand page of a page with no pictures is empty.
-  const hasBrand = (readCanvasLayout(slug)?.rows ?? []).some((row) => row.images?.length);
+  const hasBrand = hasBrandMaterial(slug);
 
   return (
     <main>

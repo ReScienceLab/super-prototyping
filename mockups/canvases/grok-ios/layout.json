@@ -118,77 +118,678 @@
       ]
     },
     {
-      "title": "Source of truth: the captures",
-      "numbered": true,
-      "files": [
+      "title": "Logo & wordmark",
+      "images": [
         {
-          "file": "ref-01-widget",
-          "label": "Home Screen widget"
+          "file": "assets/brand/identity/app-icon.png",
+          "label": "Grok app icon (App Store artwork)",
+          "w": 512,
+          "h": 512,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-02-widget-guide-add",
-          "label": "Widget guide, step 4"
+          "file": "assets/brand/identity/logomark.png",
+          "label": "Grok logomark (grok.com share icon)",
+          "w": 512,
+          "h": 512,
+          "source": "https://grok.com",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-03-widget-guide-jiggle",
-          "label": "Widget guide, step 1"
+          "file": "assets/brand/identity/xai-icon-mark.png",
+          "label": "SpaceXAI app icon mark (new X+comet symbol)",
+          "w": 512,
+          "h": 512,
+          "source": "https://x.ai",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-04-voice-settings",
-          "label": "Voice settings"
-        },
-        {
-          "file": "ref-05-supergrok",
-          "label": "SuperGrok paywall"
-        },
-        {
-          "file": "ref-06-terms-update",
-          "label": "Terms update"
-        },
-        {
-          "file": "ref-13-terms-loading",
-          "label": "Terms update, signing out"
-        },
-        {
-          "file": "ref-14-grok-bot-sheet",
-          "label": "Introducing Grok Bot"
-        },
-        {
-          "file": "ref-15-app-store",
-          "label": "App Store, Grok Bot"
-        },
-        {
-          "file": "ref-07-home",
-          "label": "SuperGrok home"
-        },
-        {
-          "file": "ref-08-voice-select-ara",
-          "label": "Voice selection, Ara"
-        },
-        {
-          "file": "ref-09-voice-select-eve",
-          "label": "Voice selection, Eve"
-        },
-        {
-          "file": "ref-10-settings",
-          "label": "Settings"
-        },
-        {
-          "file": "ref-11-settings-voice",
-          "label": "Settings, scrolled to Voice"
-        },
-        {
-          "file": "ref-12-settings-bottom",
-          "label": "Settings, bottom"
+          "file": "assets/brand/identity/xai-wordmark-og.png",
+          "label": "SpaceX wordmark with comet-trail AI accent (x.ai homepage card)",
+          "w": 1600,
+          "h": 840,
+          "source": "https://x.ai",
+          "provenance": "theirs"
         }
       ]
     },
     {
-      "title": "Brand & promotion",
-      "files": [
+      "title": "Art direction",
+      "images": [
         {
-          "file": "00h-brand",
-          "label": "Brand & promotion"
+          "file": "assets/brand/art/grok-bot-illustration-set.png",
+          "label": "Grok Bot mascot illustration set (six avatar variants)",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.ai/news/designing-grok-bot",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/art/imagine-japanese-room.jpg",
+          "label": "Grok Imagine demo image - lifestyle photo",
+          "w": 1248,
+          "h": 832,
+          "source": "https://x.ai/api/imagine",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/art/imagine-architectural-sketch.jpg",
+          "label": "Grok Imagine demo image - architectural sketch",
+          "w": 1600,
+          "h": 1066,
+          "source": "https://x.ai/api/imagine",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/art/imagine-fashion-flatlay.jpg",
+          "label": "Grok Imagine demo image - fashion flatlay",
+          "w": 1408,
+          "h": 1408,
+          "source": "https://x.ai/api/imagine",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/merch-hoodie-xai.jpg",
+          "label": "The xAI Hoodie, official shop",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://shop.x.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/merch-hoodie-grok.jpg",
+          "label": "The Grok Hoodie, official shop",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://shop.x.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/merch-beanie.jpg",
+          "label": "xAI Thermal Beanie, official shop",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://shop.x.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/merch-tee-kids.jpg",
+          "label": "Kids \"Grok to Understand\" tee, official shop",
+          "w": 1599,
+          "h": 1600,
+          "source": "https://shop.x.com/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-avatar.jpg",
+          "label": "@grok profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-banner.jpg",
+          "label": "@grok profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-grok-code-cli.jpg",
+          "label": "@grok post - Grok Code CLI screenshot",
+          "w": 820,
+          "h": 1600,
+          "source": "https://x.com/grok/status/2097477180125266374",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-supergrok-models.jpg",
+          "label": "@grok post - SuperGrok app model picker",
+          "w": 1600,
+          "h": 840,
+          "source": "https://x.com/grok/status/2093443133615055332",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-grok-build-publish.jpg",
+          "label": "@grok post - Grok Build publish dialog",
+          "w": 1600,
+          "h": 839,
+          "source": "https://x.com/grok/status/2090233405816307726",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-imagine-trojan-horse.jpg",
+          "label": "@grok post - Grok Imagine video still (Trojan horse)",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/grok/status/2089443401695470006",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-imagine-dragon.jpg",
+          "label": "@grok post - Grok Imagine video still (dragon)",
+          "w": 1600,
+          "h": 898,
+          "source": "https://x.com/grok/status/2096298105213952178",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/instagram-avatar.jpg",
+          "label": "@grok profile avatar",
+          "w": 768,
+          "h": 768,
+          "source": "https://instagram.com/grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-grokbot.jpg",
+          "label": "@grok feed post - Grok Bot",
+          "w": 480,
+          "h": 853,
+          "source": "https://instagram.com/grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-videoscene.jpg",
+          "label": "@grok feed post - Grok Imagine video still",
+          "w": 480,
+          "h": 853,
+          "source": "https://instagram.com/grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-imagine-references.jpg",
+          "label": "@grok feed post - Imagine video references feature",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/p/Dc1dO_dRsfV/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-imagine-camera-moves.jpg",
+          "label": "@grok feed post - Grok Imagine camera moves",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/p/DctKrTIsmmc/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-build-website-demo.jpg",
+          "label": "@grok feed post - Grok Build interactive website demo",
+          "w": 480,
+          "h": 852,
+          "source": "https://www.instagram.com/p/DcwZJw2o-jr/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tiktok-avatar.jpg",
+          "label": "@askgrok profile avatar",
+          "w": 1000,
+          "h": 1000,
+          "source": "https://www.tiktok.com/@askgrok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-imagine.jpg",
+          "label": "@askgrok video cover - Grok Imagine",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@askgrok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-grokbot.jpg",
+          "label": "@askgrok video cover - Grok Bot",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@askgrok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-odyssey-contest.jpg",
+          "label": "@askgrok video cover - Imagine Odyssey Contest",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@askgrok/video/7675130604203052301",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-image-2-0.jpg",
+          "label": "@askgrok video cover - Imagine Image 2.0",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@askgrok/video/7671669943133293838",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-14-references.jpg",
+          "label": "@askgrok video cover - 14 references editor",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@askgrok/video/7681380313716526349",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/youtube-avatar.jpg",
+          "label": "@Grok channel avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.youtube.com/@Grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-banner.jpg",
+          "label": "@Grok channel banner",
+          "w": 1600,
+          "h": 264,
+          "source": "https://www.youtube.com/@Grok",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/linkedin-logo.jpg",
+          "label": "SpaceXAI company logo",
+          "w": 200,
+          "h": 200,
+          "source": "https://www.linkedin.com/company/spacexai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-teams-integration.jpg",
+          "label": "SpaceXAI post - Grok Bot Microsoft Teams integration",
+          "w": 800,
+          "h": 450,
+          "source": "https://www.linkedin.com/company/spacexai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-bot-marketplace.jpg",
+          "label": "SpaceXAI post - Grok Bot marketplace",
+          "w": 800,
+          "h": 450,
+          "source": "https://www.linkedin.com/company/spacexai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-forms-autofill.jpg",
+          "label": "SpaceXAI post - Grok Bot forms autofill",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.linkedin.com/company/spacexai",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-01.jpg",
+          "label": "App Store screenshot 1",
+          "w": 738,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-02.jpg",
+          "label": "App Store screenshot 2",
+          "w": 738,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-03.jpg",
+          "label": "App Store screenshot 3",
+          "w": 738,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-04.jpg",
+          "label": "App Store screenshot 4",
+          "w": 738,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-05.jpg",
+          "label": "App Store screenshot 5",
+          "w": 738,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-06.jpg",
+          "label": "App Store screenshot 6",
+          "w": 738,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-07.jpg",
+          "label": "App Store screenshot 7",
+          "w": 738,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-08.jpg",
+          "label": "App Store screenshot 8",
+          "w": 738,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-09.jpg",
+          "label": "App Store screenshot 9",
+          "w": 738,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-01.jpg",
+          "label": "App Store iPad screenshot 1",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-02.jpg",
+          "label": "App Store iPad screenshot 2",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-03.jpg",
+          "label": "App Store iPad screenshot 3",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-04.jpg",
+          "label": "App Store iPad screenshot 4",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-05.jpg",
+          "label": "App Store iPad screenshot 5",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-06.jpg",
+          "label": "App Store iPad screenshot 6",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-07.jpg",
+          "label": "App Store iPad screenshot 7",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-08.jpg",
+          "label": "App Store iPad screenshot 8",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/grok/id6670324846",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/play-01.png",
+          "label": "Google Play screenshot 1",
+          "w": 273,
+          "h": 592,
+          "source": "https://play.google.com/store/apps/details?id=ai.x.grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-02.jpg",
+          "label": "Google Play screenshot 2",
+          "w": 273,
+          "h": 592,
+          "source": "https://play.google.com/store/apps/details?id=ai.x.grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-03.jpg",
+          "label": "Google Play screenshot 3",
+          "w": 273,
+          "h": 592,
+          "source": "https://play.google.com/store/apps/details?id=ai.x.grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-04.jpg",
+          "label": "Google Play screenshot 4",
+          "w": 273,
+          "h": 592,
+          "source": "https://play.google.com/store/apps/details?id=ai.x.grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-05.jpg",
+          "label": "Google Play screenshot 5",
+          "w": 273,
+          "h": 592,
+          "source": "https://play.google.com/store/apps/details?id=ai.x.grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-06.jpg",
+          "label": "Google Play screenshot 6",
+          "w": 273,
+          "h": 592,
+          "source": "https://play.google.com/store/apps/details?id=ai.x.grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-07.jpg",
+          "label": "Google Play screenshot 7",
+          "w": 273,
+          "h": 592,
+          "source": "https://play.google.com/store/apps/details?id=ai.x.grok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-08.jpg",
+          "label": "Google Play screenshot 8",
+          "w": 273,
+          "h": 592,
+          "source": "https://play.google.com/store/apps/details?id=ai.x.grok",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/press/og-grok-4-6.jpg",
+          "label": "\"Grok 4.6\" announcement card",
+          "w": 1024,
+          "h": 537,
+          "source": "https://x.ai/news/grok-4-6",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/og-grok-4-5.jpg",
+          "label": "\"Grok 4.5\" announcement card",
+          "w": 1024,
+          "h": 537,
+          "source": "https://x.ai/news/grok-4-5",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/og-grok-imagine-video-1-5.png",
+          "label": "\"Grok Imagine Video 1.5\" announcement card",
+          "w": 1200,
+          "h": 630,
+          "source": "https://x.ai/news/grok-imagine-1-5",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/og-grok-skills.png",
+          "label": "\"Grok Skills\" announcement card",
+          "w": 1200,
+          "h": 630,
+          "source": "https://x.ai/news/grok-skills",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/og-agent-dashboard.jpg",
+          "label": "\"Agent Dashboard\" announcement card",
+          "w": 1600,
+          "h": 840,
+          "source": "https://x.ai/news/agent-dashboard",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/og-automations.jpg",
+          "label": "\"Automations\" announcement card",
+          "w": 1600,
+          "h": 840,
+          "source": "https://x.ai/news/grok-automations",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/og-grok-bot-enterprise.jpg",
+          "label": "\"Grok Bot for Enterprise\" announcement card",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.ai/news/grok-bot-for-enterprise",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/og-grok-bot-procurement.png",
+          "label": "\"Grok Bot for Procurement\" announcement card",
+          "w": 1600,
+          "h": 840,
+          "source": "https://x.ai/news/grok-bot-procurement",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/og-biosecurity-frontier.jpg",
+          "label": "\"Biosecurity at the Frontier\" announcement card",
+          "w": 1600,
+          "h": 840,
+          "source": "https://x.ai/news/biosafety-at-the-frontier",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/og-grok-bot-and-x.jpg",
+          "label": "\"Grok Bot now works with X\" announcement card",
+          "w": 1600,
+          "h": 840,
+          "source": "https://x.ai/news/grok-bot-and-x",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/meta-ad-01.jpg",
+          "label": "Meta ad - Grok Bot (light)",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/askgrok/ (Meta Ad Library)",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-02.jpg",
+          "label": "Meta ad - Grok Bot (dark)",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/askgrok/ (Meta Ad Library)",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-03.jpg",
+          "label": "Meta ad - Grok Bot (tan)",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/askgrok/ (Meta Ad Library)",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-04.jpg",
+          "label": "Meta ad - Grok Bot (orange)",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/askgrok/ (Meta Ad Library)",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-05.jpg",
+          "label": "Meta ad - Grok Bot lifestyle photo",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/askgrok/ (Meta Ad Library)",
+          "provenance": "theirs"
         }
       ]
     }

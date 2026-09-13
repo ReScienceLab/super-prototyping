@@ -974,79 +974,10 @@ def ref_boards():
         yield "ref-" + name, page(NAME + " - reference: " + label, body, REF_CSS)
 
 
-# -------------------------------------------------- Phase 6: brand board ----
+# Unlike everything else under assets/, these are never inlined as data: URIs.
+# manifest.json places them as image shapes of their own, one row per surface,
+# so the canvas can compare avatar against avatar down the page.
 BRAND_DIR = OUT / "assets" / "brand"
-BRAND_MIME = {"svg": "image/svg+xml", "png": "image/png", "jpg": "image/jpeg"}
-
-
-def _brand_uri(name):
-    ext = name.rsplit(".", 1)[-1]
-    data = (BRAND_DIR / name).read_bytes()
-    return "data:%s;base64,%s" % (BRAND_MIME[ext], base64.b64encode(data).decode())
-
-
-# (file, role, human source page). Every asset here is Anthropic's own --
-# vendored from the official press kit, claude.com, the App Store listing,
-# @claudeai on X, or Anthropic's own Meta ad account. No fan art, no
-# third-party captures.
-BRAND = [
- ("wordmark.svg",    "wordmark",             "anthropic.com/press-kit"),
- ("appicon.png",     "app icon",             "anthropic.com/press-kit"),
- ("og-card.jpg",     "og:image",             "claude.com/product/overview"),
- ("x-avatar.jpg",    "x/avatar",             "x.com/claudeai"),
- ("x-banner.jpg",    "x/banner",             "x.com/claudeai"),
- ("appstore-1.png",  "appstore/screenshot 1","App Store &ndash; Claude by Anthropic"),
- ("hero.png",        "marketing/hero",       "claude.com/product/overview"),
- ("ad-1.jpg",        "ad creative",          "Meta Ad Library &ndash; facebook.com/AnthropicAI"),
-]
-
-# Anthropic's own published brand colours, distinct from the --c- tokens
-# measured off the captures: anthropics/skills, the brand-guidelines skill.
-BRAND_COLOURS = [
- ("Dark",       "#141413"), ("Light",      "#faf9f5"),
- ("Mid gray",   "#b0aea5"), ("Light gray", "#e8e6dc"),
- ("Orange",     "#d97757"), ("Blue",       "#6a9bcc"),
- ("Green",      "#788c5d"),
-]
-
-BRAND_CSS = """.brand-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.bcell{display:flex;flex-direction:column}
-.bcell .thumb{height:96px;border-radius:6px;border:1px solid var(--x-border);
-  background:var(--x-fill);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.bcell img{max-width:88%;max-height:88%;object-fit:contain}
-.bcell b{display:block;margin-top:4px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
-.bcell i{display:block;font:400 7.5px/10px ui-monospace,Menlo,monospace;color:var(--x-ink-3);
-  font-style:normal;word-break:break-word}
-.tag{font:italic 400 15.5px/20px var(--x-serif);color:var(--x-ink-2);margin:0;
-  border-left:2px solid var(--x-accent);padding-left:9px}
-.tag em{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--x-ink-3);
-  font-style:normal;margin-top:3px}
-.foot{margin-top:12px;font:400 7.5px/11px ui-monospace,Menlo,monospace;color:var(--x-ink-4)}"""
-
-
-def brand_board():
-    cells = "".join(
-        '<div class="bcell"><div class="thumb"><img src="%s" alt="%s"></div>'
-        '<b>%s</b><i>theirs &middot; %s</i></div>'
-        % (_brand_uri(f), role, role, src) for f, role, src in BRAND)
-    colours = "".join(
-        '<div class="sw2"><div class="chip2" style="background:%s"></div>'
-        '<b>%s</b><i>%s</i></div>' % (v, n, v) for n, v in BRAND_COLOURS)
-    return page(NAME + " - Brand & promotion",
-                '<div class="sheet"><header><h1>Brand &amp; promotion</h1>'
-                '<p>Anthropic&rsquo;s own brand guidelines call for Poppins/Lora over this '
-                'seven-colour palette; the in-app system on the boards behind this one is '
-                'measured off screenshots and stands in with SF Pro and Georgia for the same '
-                'two brand faces, Styrene and Tiempos.</p></header>'
-                '<h2>Assets</h2><div class="brand-grid">%s</div>'
-                '<h2>Brand colours</h2><div class="grid">%s</div>'
-                '<h2>Tagline</h2><div class="tag">&ldquo;The AI for Problem Solvers&rdquo;'
-                '<em>claude.com/product/overview</em></div>'
-                '<div class="foot">Fetched 2026-09-13 &middot; anthropic.com/press-kit &middot; '
-                'claude.com/product/overview &middot; App Store: Claude by Anthropic &middot; '
-                'x.com/claudeai &middot; Meta Ad Library: facebook.com/AnthropicAI &middot; '
-                'anthropics/skills (brand-guidelines)</div></div>'
-                % (cells, colours), SHEET + BRAND_CSS)
 
 
 # ------------------------------------------------------------------- run ----
@@ -1061,7 +992,6 @@ def boards():
                          css)
     for name, html in ref_boards():
         yield name, html
-    yield "00h-brand", brand_board()
 
 
 def layout(names):
@@ -1077,8 +1007,7 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: Mobbin captures",
                      "numbered": True, "files": refs})
-    rows.append({"title": "Brand & promotion",
-                 "files": [{"file": "00h-brand", "label": "Brand & promotion"}]})
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
     return {"name": PAGE_NAME, "rows": rows}
 
 

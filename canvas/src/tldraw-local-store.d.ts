@@ -1,4 +1,5 @@
 import type { TLStoreOptions, TLStoreWithStatus } from "tldraw";
+import type { TLAssetStore } from "@tldraw/tlschema";
 
 /**
  * `useLocalStore` is the hook `<Tldraw persistenceKey>` uses internally to build its store and
@@ -16,4 +17,13 @@ declare module "tldraw" {
   export function useLocalStore(
     options: TLStoreOptions & { persistenceKey?: string; sessionId?: string },
   ): TLStoreWithStatus;
+
+  /**
+   * The asset store `createTLStore` installs when given none: uploads become `data:` URIs and
+   * every asset resolves to its own `src`. Same packaging gap as above — `@tldraw/editor`
+   * exports it, `tldraw` re-exports it at runtime, and the rolled-up declaration omits it.
+   * App.tsx spreads it so that adding a `resolve` does not also mean reimplementing `upload`.
+   */
+  export const inlineBase64AssetStore: TLAssetStore;
+  export type { TLAssetStore } from "@tldraw/tlschema";
 }

@@ -1,0 +1,447 @@
+[
+    {
+        "title": "Logo & wordmark",
+        "images": [
+            {
+                "file": "assets/brand/identity/wordmark.svg",
+                "label": "Luma wordmark",
+                "w": 724,
+                "h": 264,
+                "source": "lu.ma homepage",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/logomark-icon.png",
+                "label": "Luma logomark \u2014 iridescent sparkle app icon",
+                "w": 512,
+                "h": 512,
+                "source": "luma.com site icon",
+                "provenance": "theirs"
+            }
+        ]
+    },
+    {
+        "title": "Art direction",
+        "images": [
+            {
+                "file": "assets/brand/identity/og-card.png",
+                "label": "Default share card \u2014 gradient colour identity",
+                "w": 1200,
+                "h": 630,
+                "source": "luma.com homepage og:image",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/ig-post-passover.jpg",
+                "label": "Illustration & type style \u2014 holiday post",
+                "w": 1080,
+                "h": 1350,
+                "source": "instagram.com/luma_hq",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/illustration-art-of-hosting.jpg",
+                "label": "Illustration campaign \u2014 \"The Art of Hosting\" host interview series",
+                "w": 1600,
+                "h": 900,
+                "source": "x.com/LumaHQ",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/illustration-halloween-spooky.jpg",
+                "label": "Illustration campaign \u2014 Halloween theme card, purple palette",
+                "w": 1080,
+                "h": 1080,
+                "source": "x.com/LumaHQ",
+                "provenance": "theirs"
+            }
+        ]
+    },
+    {
+        "title": "Applied identity",
+        "images": [
+            {
+                "file": "assets/brand/identity/applied-event-page.jpg",
+                "label": "Public event page \u2014 guest view (example event)",
+                "w": 1600,
+                "h": 1509,
+                "source": "help.luma.com/p/event-registration-process",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/applied-manage-dashboard.jpg",
+                "label": "Host manage-event dashboard \u2014 Overview tab",
+                "w": 1600,
+                "h": 978,
+                "source": "help.luma.com/p/event-registration-process",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/applied-confirmation-email.jpg",
+                "label": "Registration confirmation email with calendar invite",
+                "w": 1600,
+                "h": 1288,
+                "source": "help.luma.com/p/event-registration-process",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/applied-calendar-page.jpg",
+                "label": "Public Calendar page template (Reading Rhythms Global)",
+                "w": 1449,
+                "h": 1600,
+                "source": "help.luma.com/p/luma-calendar-overview",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/applied-explore-page.jpg",
+                "label": "City Explore page \u2014 curated event discovery (New York)",
+                "w": 1482,
+                "h": 1600,
+                "source": "help.luma.com/p/featuring-your-event-on-luma",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/applied-social-card.jpg",
+                "label": "Auto-generated event share/social card",
+                "w": 1600,
+                "h": 935,
+                "source": "help.luma.com/p/updating-social-images",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/applied-ticket-type-creator.jpg",
+                "label": "Ticket type creation UI",
+                "w": 712,
+                "h": 872,
+                "source": "help.luma.com/p/setting-up-ticket-types",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/applied-ticket-apps.jpg",
+                "label": "Ticket QR code \u2014 cross-platform check-in (iOS/Android/web)",
+                "w": 1600,
+                "h": 868,
+                "source": "help.luma.com/p/check-in",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/applied-wallet-pass.jpg",
+                "label": "Apple/Google Wallet ticket pass design",
+                "w": 1600,
+                "h": 1514,
+                "source": "help.luma.com/p/check-in",
+                "provenance": "theirs"
+            }
+        ]
+    },
+    {
+        "title": "X",
+        "images": [
+            {
+                "file": "assets/brand/social/x-avatar.jpg",
+                "label": "@LumaHQ profile avatar",
+                "w": 400,
+                "h": 400,
+                "source": "x.com/LumaHQ",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/x-banner.jpg",
+                "label": "@LumaHQ profile banner \u2014 event-cover sticker collage",
+                "w": 1500,
+                "h": 500,
+                "source": "x.com/LumaHQ",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/x-pinned-liquidglass.jpg",
+                "label": "@LumaHQ pinned post \u2014 iOS 26 Liquid Glass redesign",
+                "w": 1080,
+                "h": 1080,
+                "source": "x.com/LumaHQ",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/x-post-openclaw-meetups.jpg",
+                "label": "@LumaHQ post \u2014 OpenClaw community meetups illustration",
+                "w": 1080,
+                "h": 1350,
+                "source": "x.com/LumaHQ",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/x-post-onbrand-hackathon.jpg",
+                "label": "@LumaHQ post \u2014 Gemini 3 Hackathon event page screenshot",
+                "w": 1600,
+                "h": 1449,
+                "source": "x.com/LumaHQ",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/x-post-halloween-party.jpg",
+                "label": "@LumaHQ post \u2014 Halloween party theme card, red skull motif",
+                "w": 1080,
+                "h": 1080,
+                "source": "x.com/LumaHQ",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/x-post-passkeys.jpg",
+                "label": "@LumaHQ post \u2014 passkey sign-in feature announcement",
+                "w": 1600,
+                "h": 1600,
+                "source": "x.com/LumaHQ",
+                "provenance": "theirs"
+            }
+        ]
+    },
+    {
+        "title": "Instagram",
+        "images": [
+            {
+                "file": "assets/brand/social/ig-avatar.jpg",
+                "label": "@luma_hq profile avatar",
+                "w": 912,
+                "h": 912,
+                "source": "instagram.com/luma_hq",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/ig-post-community-builders.jpg",
+                "label": "Instagram post \u2014 community builders",
+                "w": 1080,
+                "h": 1350,
+                "source": "instagram.com/luma_hq",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/ig-post-cool-events-la.jpg",
+                "label": "Instagram post \u2014 cool events in LA",
+                "w": 1080,
+                "h": 1350,
+                "source": "instagram.com/luma_hq",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/ig-post-real-events-collage.jpg",
+                "label": "Instagram post \u2014 real event photography collage",
+                "w": 1279,
+                "h": 1600,
+                "source": "instagram.com/luma_hq",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/ig-post-vienna-dinner.jpg",
+                "label": "Instagram post \u2014 Vienna friends dinner party",
+                "w": 480,
+                "h": 852,
+                "source": "instagram.com/luma_hq",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/ig-post-nyc-weekend-events.jpg",
+                "label": "Instagram post \u2014 \"13 events to keep you busy this weekend\" NYC card",
+                "w": 1080,
+                "h": 1350,
+                "source": "instagram.com/luma_hq",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/ig-post-hosting-love-language.jpg",
+                "label": "Instagram Reel cover \u2014 \"Hosting is a love language\" campaign",
+                "w": 480,
+                "h": 853,
+                "source": "instagram.com/luma_hq",
+                "provenance": "theirs"
+            }
+        ]
+    },
+    {
+        "title": "LinkedIn",
+        "images": [
+            {
+                "file": "assets/brand/social/li-logo.jpg",
+                "label": "LinkedIn company logo",
+                "w": 200,
+                "h": 200,
+                "source": "linkedin.com/company/luma-hq",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/social/li-cover.jpg",
+                "label": "LinkedIn company cover image",
+                "w": 1600,
+                "h": 271,
+                "source": "linkedin.com/company/luma-hq",
+                "provenance": "theirs"
+            }
+        ]
+    },
+    {
+        "title": "App Store",
+        "images": [
+            {
+                "file": "assets/brand/stores/appstore-icon.jpg",
+                "label": "App Store icon",
+                "w": 512,
+                "h": 512,
+                "source": "App Store listing \u2014 Luma: Events & Invites (apps.apple.com/us/app/id1546150895)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/appstore-01-intro.jpg",
+                "label": "App Store screenshot 1 \u2014 intro",
+                "w": 736,
+                "h": 1600,
+                "source": "App Store listing \u2014 Luma: Events & Invites (apps.apple.com/us/app/id1546150895)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/appstore-02-discover.jpg",
+                "label": "App Store screenshot 2 \u2014 discover",
+                "w": 736,
+                "h": 1600,
+                "source": "App Store listing \u2014 Luma: Events & Invites (apps.apple.com/us/app/id1546150895)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/appstore-03-calendar.jpg",
+                "label": "App Store screenshot 3 \u2014 calendar",
+                "w": 736,
+                "h": 1600,
+                "source": "App Store listing \u2014 Luma: Events & Invites (apps.apple.com/us/app/id1546150895)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/appstore-04-event.jpg",
+                "label": "App Store screenshot 4 \u2014 event page",
+                "w": 736,
+                "h": 1600,
+                "source": "App Store listing \u2014 Luma: Events & Invites (apps.apple.com/us/app/id1546150895)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/appstore-05-chat.jpg",
+                "label": "App Store screenshot 5 \u2014 chat",
+                "w": 736,
+                "h": 1600,
+                "source": "App Store listing \u2014 Luma: Events & Invites (apps.apple.com/us/app/id1546150895)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/appstore-06-profile.jpg",
+                "label": "App Store screenshot 6 \u2014 profile",
+                "w": 736,
+                "h": 1600,
+                "source": "App Store listing \u2014 Luma: Events & Invites (apps.apple.com/us/app/id1546150895)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/appstore-07-notifications.jpg",
+                "label": "App Store screenshot 7 \u2014 notifications",
+                "w": 736,
+                "h": 1600,
+                "source": "App Store listing \u2014 Luma: Events & Invites (apps.apple.com/us/app/id1546150895)",
+                "provenance": "theirs"
+            }
+        ]
+    },
+    {
+        "title": "Google Play",
+        "images": [
+            {
+                "file": "assets/brand/stores/play-icon.png",
+                "label": "Google Play icon",
+                "w": 512,
+                "h": 512,
+                "source": "Google Play listing \u2014 Luma: Events & Invites (play.google.com, id=com.luma.mobile)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/play-screenshot-01.jpg",
+                "label": "Google Play screenshot 1",
+                "w": 900,
+                "h": 1600,
+                "source": "Google Play listing \u2014 Luma: Events & Invites (play.google.com, id=com.luma.mobile)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/play-screenshot-02.jpg",
+                "label": "Google Play screenshot 2",
+                "w": 900,
+                "h": 1600,
+                "source": "Google Play listing \u2014 Luma: Events & Invites (play.google.com, id=com.luma.mobile)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/play-screenshot-03.jpg",
+                "label": "Google Play screenshot 3",
+                "w": 900,
+                "h": 1600,
+                "source": "Google Play listing \u2014 Luma: Events & Invites (play.google.com, id=com.luma.mobile)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/play-screenshot-04.jpg",
+                "label": "Google Play screenshot 4",
+                "w": 900,
+                "h": 1600,
+                "source": "Google Play listing \u2014 Luma: Events & Invites (play.google.com, id=com.luma.mobile)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/play-screenshot-05.jpg",
+                "label": "Google Play screenshot 5",
+                "w": 900,
+                "h": 1600,
+                "source": "Google Play listing \u2014 Luma: Events & Invites (play.google.com, id=com.luma.mobile)",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/stores/play-screenshot-06.jpg",
+                "label": "Google Play screenshot 6",
+                "w": 900,
+                "h": 1600,
+                "source": "Google Play listing \u2014 Luma: Events & Invites (play.google.com, id=com.luma.mobile)",
+                "provenance": "theirs"
+            }
+        ]
+    },
+    {
+        "title": "Announcement cards",
+        "images": [
+            {
+                "file": "assets/brand/identity/og-pricing.jpg",
+                "label": "Pricing page announcement card",
+                "w": 1500,
+                "h": 900,
+                "source": "luma.com/pricing og:image",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/og-sf.jpg",
+                "label": "San Francisco discover page announcement card",
+                "w": 1200,
+                "h": 630,
+                "source": "luma.com/sf og:image",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/og-discover.jpg",
+                "label": "Discover page announcement card",
+                "w": 1600,
+                "h": 840,
+                "source": "luma.com/discover og:image",
+                "provenance": "theirs"
+            },
+            {
+                "file": "assets/brand/identity/og-halloween.jpg",
+                "label": "Halloween party landing page announcement card",
+                "w": 1600,
+                "h": 800,
+                "source": "luma.com/halloween og:image",
+                "provenance": "theirs"
+            }
+        ]
+    }
+]

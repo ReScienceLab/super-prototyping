@@ -42,6 +42,15 @@ declare module "virtual:canvases" {
    */
   export const rawBrandImages: Record<string, string>;
   /**
+   * The same images at {@link brandThumbEdge}, WebP, keyed identically — what is actually drawn.
+   * Missing for an asset a variant would not help: an SVG, or one WebP cannot make smaller. The
+   * original in `rawBrandImages` stays the asset of record and is what a zoom, an export or a
+   * copy resolves to.
+   */
+  export const rawBrandThumbs: Record<string, string>;
+  /** Longest edge of everything in {@link rawBrandThumbs}, in pixels. */
+  export const brandThumbEdge: number;
+  /**
    * Per folder slug, `"<payload length>:<fnv1a>"` of a data: URI's base64 payload -> the file
    * in that folder it was inlined from. Built from `assets/**`, `assets-dark/**` and
    * `assets.json`, so it needs no attribute in the HTML and no regeneration; eager because it
