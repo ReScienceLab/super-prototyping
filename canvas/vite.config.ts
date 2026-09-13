@@ -179,12 +179,41 @@ function assetIndex(folder: string): Record<string, AssetName> {
   return out;
 }
 
+/**
+ * Every image under `assets/brand/`, by path relative to the board folder. A layout places these
+ * as tldraw image shapes of their own rather than inside a board, so they are the one part of
+ * `assets/` that needs a real URL: everything else is already a `data:` URI in the HTML.
+ */
+function brandImages(folder: string): string[] {
+  const out: string[] = [];
+  const walk = (dir: string, rel: string) => {
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (e.name.startsWith(".")) continue;
+      if (e.isDirectory()) walk(path.join(dir, e.name), `${rel}${e.name}/`);
+      else if (
+        ASSET_MIME.has(path.extname(e.name).toLowerCase()) &&
+        urlSafe(e.name, "brand image")
+      )
+        out.push(rel + e.name);
+    }
+  };
+  walk(path.join(folder, "assets", "brand"), "assets/brand/");
+  return out.sort();
+}
+
 interface Board {
   slug: string;
   html: string[];
   layout: boolean;
   icon: boolean;
   assets: Record<string, AssetName>;
+  brand: string[];
 }
 
 /**
@@ -237,6 +266,7 @@ function scan(dir: string): Board[] {
         layout: fs.existsSync(path.join(folder, "layout.json")),
         icon: fs.existsSync(path.join(folder, "icon.png")),
         assets: assetIndex(folder),
+        brand: brandImages(folder),
       };
     })
     .filter((b): b is Board => b !== null && b.html.length > 0);
@@ -296,6 +326,8 @@ function canvasesSource(): Plugin {
       const pages: string[] = [];
       const layouts: string[] = [];
       const icons: string[] = [];
+      const brand: string[] = [];
+      let brandCount = 0;
       const assets: string[] = [];
       const comments: string[] = [];
 
@@ -331,6 +363,11 @@ function canvasesSource(): Plugin {
         if (board.icon) {
           imports.push(`import __icon${i} from ${spec(path.join(folder, "icon.png"), "?url")};`);
           icons.push(`  ${jsString(keyFor(board.slug, "icon.png"))}: __icon${i},`);
+        }
+        for (const file of board.brand) {
+          const id = `__brand${brandCount++}`;
+          imports.push(`import ${id} from ${spec(path.join(folder, file), "?url")};`);
+          brand.push(`  ${jsString(keyFor(board.slug, file))}: ${id},`);
         }
         if (Object.keys(board.assets).length) {
           assets.push(`  ${jsString(board.slug)}: ${jsLiteral(board.assets)},`);
@@ -373,6 +410,7 @@ function canvasesSource(): Plugin {
         `export const boardPages = {\n${pages.join("\n")}\n};`,
         `export const rawLayouts = {\n${layouts.join("\n")}\n};`,
         `export const rawIcons = {\n${icons.join("\n")}\n};`,
+        `export const rawBrandImages = {\n${brand.join("\n")}\n};`,
         `export const rawAssetNames = {\n${assets.join("\n")}\n};`,
         `export const rawComments = {\n${comments.join("\n")}\n};`,
         // The HMR boundary for every layout.json, which the inspector's status control writes on
@@ -734,10 +772,11 @@ export default defineConfig({
     // is a megabyte on its own and a warning nobody can act on is noise.
     chunkSizeWarningLimit: 4_000,
     rollupOptions: {
-      // Two pages: the canvas, and the sheet that shows one canvas page's boards at full size.
-      // The sheet is its own entry rather than a route inside the canvas so that reading a
-      // board as a web page does not download tldraw to do it.
-      input: { index: "index.html", sheet: "sheet.html" },
+      // Three pages: the canvas, the sheet that shows one canvas page's boards at full size,
+      // and the brand page that shows the same page's brand material. Each is its own entry
+      // rather than a route inside the canvas so that reading one as a web page does not
+      // download tldraw to do it.
+      input: { index: "index.html", sheet: "sheet.html", brand: "brand.html" },
     },
   },
 });

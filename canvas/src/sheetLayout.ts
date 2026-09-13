@@ -53,7 +53,7 @@ export function sheetRows(slug: string): SheetRow[] {
 
   for (const row of readCanvasLayout(slug)?.rows ?? []) {
     const boards: SheetBoard[] = [];
-    for (const entry of row.files) {
+    for (const entry of row.files ?? []) {
       // An entry is the file name alone, or that name with the overrides beside it.
       const declared = typeof entry === "string" ? { file: entry } : entry;
       const file = files.find((c) => c.fileName === declared.file && !placed.has(c.path));

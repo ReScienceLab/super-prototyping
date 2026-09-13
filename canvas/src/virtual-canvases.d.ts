@@ -36,6 +36,12 @@ declare module "virtual:canvases" {
   /** Each folder's icon.png as an emitted asset URL, eager: read during render. */
   export const rawIcons: Record<string, string>;
   /**
+   * Each folder's `assets/brand/**` images as emitted asset URLs, keyed the same way. These are
+   * the assets a layout places as image shapes of their own, so they need an address rather than
+   * the `data:` URI the generator inlines everything else as.
+   */
+  export const rawBrandImages: Record<string, string>;
+  /**
    * Per folder slug, `"<payload length>:<fnv1a>"` of a data: URI's base64 payload -> the file
    * in that folder it was inlined from. Built from `assets/**`, `assets-dark/**` and
    * `assets.json`, so it needs no attribute in the HTML and no regeneration; eager because it

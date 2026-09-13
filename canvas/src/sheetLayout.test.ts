@@ -13,6 +13,7 @@ describe("sheetRows", () => {
       "Flow: adding a new data source",
       "Flow: adding an account",
       "Flow: the purchase sheet",
+      "Brand & promotion",
     ]);
     // A `numbered` row counts from 1 within that row; a plain one is the file's own title.
     expect(captions("notion-ios").slice(0, 2)).toEqual(["1 · Splash", "2 · Search / Ask AI"]);

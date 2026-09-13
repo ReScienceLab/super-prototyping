@@ -130,117 +130,973 @@
       ]
     },
     {
-      "title": "Source of truth: Mobbin captures",
-      "numbered": true,
-      "files": [
+      "title": "Logo & wordmark",
+      "images": [
         {
-          "file": "ref-01-splash",
-          "label": "Splash"
+          "file": "assets/brand/identity/logo-construction.jpg",
+          "label": "Logomark construction grid",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
         },
         {
-          "file": "ref-02-welcome",
-          "label": "Welcome"
+          "file": "assets/brand/identity/logo-gpt-construction.jpg",
+          "label": "GPT letterform construction",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
         },
         {
-          "file": "ref-03-home-signed-out",
-          "label": "Home, signed out"
+          "file": "assets/brand/press/openai-blossom-usage-guide-light.svg",
+          "label": "OpenAI Blossom logomark - clear-space/usage guide (light)",
+          "w": 1183,
+          "h": 719,
+          "source": "openai.com/brand (Design Guidelines page, Logo section) via Wayback Machine snapshot 20260907013431",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-04-auth-wall",
-          "label": "Auth wall"
+          "file": "assets/brand/identity/logo-mark.png",
+          "label": "Blossom logomark",
+          "w": 1232,
+          "h": 1232,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
         },
         {
-          "file": "ref-05-login-sheet",
-          "label": "Log in or sign up"
+          "file": "assets/brand/identity/logo-orb.jpg",
+          "label": "Orb mark",
+          "w": 1069,
+          "h": 602,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
         },
         {
-          "file": "ref-06-login-email",
-          "label": "Email entered"
+          "file": "assets/brand/identity/logo-wordmark.png",
+          "label": "OpenAI wordmark",
+          "w": 1026,
+          "h": 315,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
         },
         {
-          "file": "ref-07-create-account",
-          "label": "Create account"
-        },
-        {
-          "file": "ref-08-create-account-valid",
-          "label": "Password valid"
-        },
-        {
-          "file": "ref-09-check-inbox",
-          "label": "Check inbox"
-        },
-        {
-          "file": "ref-10-check-inbox-code",
-          "label": "Code entered"
-        },
-        {
-          "file": "ref-11-age",
-          "label": "How old are you?"
-        },
-        {
-          "file": "ref-12-age-filled",
-          "label": "Age filled"
-        },
-        {
-          "file": "ref-13-notifications",
-          "label": "Notifications"
-        },
-        {
-          "file": "ref-14-use-case",
-          "label": "Use case"
-        },
-        {
-          "file": "ref-15-use-case-selected",
-          "label": "Use case selected"
-        },
-        {
-          "file": "ref-16-memory-sheet",
-          "label": "Memory announcement"
-        },
-        {
-          "file": "ref-17-home-empty",
-          "label": "Home, empty"
-        },
-        {
-          "file": "ref-18-home-carousel",
-          "label": "Home, carousel"
-        },
-        {
-          "file": "ref-19-composer-menu",
-          "label": "Composer menu"
-        },
-        {
-          "file": "ref-20-image-whats-new",
-          "label": "Image announcement"
-        },
-        {
-          "file": "ref-21-sidebar-empty",
-          "label": "Sidebar, empty"
-        },
-        {
-          "file": "ref-22-sidebar-loading",
-          "label": "Sidebar, loading"
-        },
-        {
-          "file": "ref-23-sidebar-full",
-          "label": "Sidebar, full"
-        },
-        {
-          "file": "ref-24-project-chats",
-          "label": "Project chats"
-        },
-        {
-          "file": "ref-25-project-sources",
-          "label": "Project sources"
+          "file": "assets/brand/press/openai-wordmark.gif",
+          "label": "OpenAI wordmark (animated)",
+          "w": 1042,
+          "h": 521,
+          "source": "openai.com/brand (Design Guidelines page, Logo section) via Wayback Machine snapshot 20260907013431",
+          "provenance": "theirs"
         }
       ]
     },
     {
-      "title": "Brand & promotion",
-      "files": [
+      "title": "Typeface",
+      "images": [
         {
-          "file": "00h-brand",
-          "label": "Brand & promotion"
+          "file": "assets/brand/identity/type-4o-specimen.jpg",
+          "label": "4o numeral specimen",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/type-character-set.jpg",
+          "label": "OpenAI Sans character set",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/type-specimen-sheets.jpg",
+          "label": "Numeral specimen sheets",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        }
+      ]
+    },
+    {
+      "title": "Art direction",
+      "images": [
+        {
+          "file": "assets/brand/identity/art-direction-1.jpg",
+          "label": "Wordmark over cloud sea",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-2.jpg",
+          "label": "Mission line over coastal sunset",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-3.jpg",
+          "label": "Input-output type over ocean",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-4.jpg",
+          "label": "Identity collage, R",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-5.jpg",
+          "label": "Identity collage, G",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-6.jpg",
+          "label": "Identity collage, model naming",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/application-01.jpg",
+          "label": "Wordmark poster, light",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-02.jpg",
+          "label": "Wordmark weight ladder and character set",
+          "w": 1600,
+          "h": 1067,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-03.jpg",
+          "label": "Wordmark over nature photography",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-04.jpg",
+          "label": "Question-mark poster pair",
+          "w": 1600,
+          "h": 1067,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-05.jpg",
+          "label": "Sora posters, gradient and butterfly",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-06.jpg",
+          "label": "Wordmark and Sora photographic posters",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-07.jpg",
+          "label": "Type weight specimen sheets",
+          "w": 1600,
+          "h": 1067,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-08.jpg",
+          "label": "Research paper covers, colour set",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-09.jpg",
+          "label": "Research paper cover, Deliberative Alignment",
+          "w": 1600,
+          "h": 1200,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-10.jpg",
+          "label": "Business cards",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-11.jpg",
+          "label": "1-800-CHATGPT hoodie",
+          "w": 1600,
+          "h": 976,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        },
+        {
+          "file": "assets/brand/identity/application-12.jpg",
+          "label": "Operator launch page on laptop",
+          "w": 1600,
+          "h": 900,
+          "source": "https://brandarchive.xyz/identity/open-ai",
+          "provenance": "archive"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-chatgpt-avatar.jpg",
+          "label": "@ChatGPT profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/ChatGPT",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-openai-avatar.jpg",
+          "label": "@OpenAI profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/OpenAI",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-openaidevs-avatar.jpg",
+          "label": "@OpenAIDevs profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/OpenAIDevs",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-chatgpt-banner.jpg",
+          "label": "@ChatGPT profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/ChatGPT",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-openai-banner.jpg",
+          "label": "@OpenAI profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/OpenAI",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-openaidevs-banner.jpg",
+          "label": "@OpenAIDevs profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/OpenAIDevs",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/ig-openai-avatar.jpg",
+          "label": "@openai Instagram avatar",
+          "w": 320,
+          "h": 320,
+          "source": "https://www.instagram.com/openai/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-openai-post-chatgptwork.jpg",
+          "label": "OpenAI IG: ChatGPT Work announcement post",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.instagram.com/openai/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-openai-post-gpt6astra.jpg",
+          "label": "OpenAI IG: \"Introducing GPT-6 Astra\" launch post",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.instagram.com/openai/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-openai-post-gptlive.jpg",
+          "label": "OpenAI IG: \"Introducing GPT-Live\" announcement post",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.instagram.com/openai/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-openai-post-images25.jpg",
+          "label": "OpenAI IG: ChatGPT Images 2.5 announcement post",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.instagram.com/openai/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tiktok-openai-avatar.jpg",
+          "label": "@openai TikTok avatar",
+          "w": 596,
+          "h": 596,
+          "source": "https://www.tiktok.com/@openai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-openai-cover-astra-images25.webp",
+          "label": "OpenAI TikTok: \"Astra x Images 2.5\" video cover",
+          "w": 270,
+          "h": 480,
+          "source": "https://www.tiktok.com/@openai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-openai-cover-gpt56.jpg",
+          "label": "OpenAI TikTok: GPT-5.6 Sol/Terra/Luna rollout video cover",
+          "w": 1048,
+          "h": 1518,
+          "source": "https://www.tiktok.com/@openai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-openai-cover-gptlive.webp",
+          "label": "OpenAI TikTok: GPT-Live real-time grammar corrections video cover",
+          "w": 270,
+          "h": 480,
+          "source": "https://www.tiktok.com/@openai",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/yt-openai-avatar.jpg",
+          "label": "OpenAI YouTube channel avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.youtube.com/@OpenAI",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-openai-banner.jpg",
+          "label": "OpenAI YouTube channel banner art",
+          "w": 1600,
+          "h": 265,
+          "source": "https://www.youtube.com/@OpenAI",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-openai-thumb-agentsapi.jpg",
+          "label": "OpenAI YouTube: \"Introducing the Agents API\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@OpenAI",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-openai-thumb-chatgptimages25.jpg",
+          "label": "OpenAI YouTube: \"Introducing ChatGPT Images 2.5\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@OpenAI",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-openai-thumb-gpt6astra-dev.jpg",
+          "label": "OpenAI YouTube: \"Introducing GPT-6 Astra for developers\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@OpenAI",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/li-openai-cover.jpg",
+          "label": "OpenAI LinkedIn company page cover image",
+          "w": 1128,
+          "h": 191,
+          "source": "https://www.linkedin.com/company/openai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-openai-logo.jpg",
+          "label": "OpenAI LinkedIn company logo",
+          "w": 200,
+          "h": 200,
+          "source": "https://www.linkedin.com/company/openai",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.jpg",
+          "label": "ChatGPT app icon (App Store)",
+          "w": 512,
+          "h": 512,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-01.jpg",
+          "label": "App Store iPad screenshot 1",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-02.jpg",
+          "label": "App Store iPad screenshot 2",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-03.jpg",
+          "label": "App Store iPad screenshot 3",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-04.jpg",
+          "label": "App Store iPad screenshot 4",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-05.jpg",
+          "label": "App Store iPad screenshot 5",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-06.jpg",
+          "label": "App Store iPad screenshot 6",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-07.jpg",
+          "label": "App Store iPad screenshot 7",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-08.jpg",
+          "label": "App Store iPad screenshot 8",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-01.jpg",
+          "label": "App Store iPhone screenshot 1 \u2014 \"See your ideas come to life\"",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-02.jpg",
+          "label": "App Store iPhone screenshot 2",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-03.jpg",
+          "label": "App Store iPhone screenshot 3",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-04.jpg",
+          "label": "App Store iPhone screenshot 4",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-05.jpg",
+          "label": "App Store iPhone screenshot 5",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-06.jpg",
+          "label": "App Store iPhone screenshot 6",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-07.jpg",
+          "label": "App Store iPhone screenshot 7",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-08.jpg",
+          "label": "App Store iPhone screenshot 8",
+          "w": 739,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/play-icon.png",
+          "label": "ChatGPT app icon (Google Play)",
+          "w": 512,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-01.jpg",
+          "label": "Google Play screenshot 1 \u2014 \"See your ideas come to life\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-02.jpg",
+          "label": "Google Play screenshot 2",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-03.jpg",
+          "label": "Google Play screenshot 3",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-04.jpg",
+          "label": "Google Play screenshot 4",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-05.jpg",
+          "label": "Google Play screenshot 5",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-06.jpg",
+          "label": "Google Play screenshot 6",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-07.jpg",
+          "label": "Google Play screenshot 7",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-08.jpg",
+          "label": "Google Play screenshot 8",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-09.png",
+          "label": "Google Play screenshot 9",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-10.png",
+          "label": "Google Play screenshot 10",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-11.jpg",
+          "label": "Google Play screenshot 11",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-12.png",
+          "label": "Google Play screenshot 12",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-13.jpg",
+          "label": "Google Play screenshot 13",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-14.png",
+          "label": "Google Play screenshot 14",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-15.png",
+          "label": "Google Play screenshot 15",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-16.png",
+          "label": "Google Play screenshot 16",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.openai.chatgpt",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Microsoft Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/msstore-icon.png",
+          "label": "ChatGPT app icon (Microsoft Store)",
+          "w": 300,
+          "h": 300,
+          "source": "https://apps.microsoft.com/detail/9PLM9XGG6VKS",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-01.jpg",
+          "label": "Microsoft Store screenshot 1 \u2014 \"What should we work on?\" desktop UI",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9PLM9XGG6VKS",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-02.jpg",
+          "label": "Microsoft Store screenshot 2",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9PLM9XGG6VKS",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-03.jpg",
+          "label": "Microsoft Store screenshot 3",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9PLM9XGG6VKS",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-04.jpg",
+          "label": "Microsoft Store screenshot 4",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9PLM9XGG6VKS",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/stores/og-chatgpt-com-share.png",
+          "label": "chatgpt.com share card",
+          "w": 1600,
+          "h": 900,
+          "source": "https://chatgpt.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-chatgpt-enterprise.jpg",
+          "label": "ChatGPT Enterprise og:image",
+          "w": 1600,
+          "h": 900,
+          "source": "https://chatgpt.com/business/enterprise/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-chatgpt-pricing.jpg",
+          "label": "ChatGPT Pricing og:image",
+          "w": 1600,
+          "h": 900,
+          "source": "https://chatgpt.com/pricing/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-openai-business.png",
+          "label": "OpenAI for Business og:image",
+          "w": 1600,
+          "h": 900,
+          "source": "https://openai.com/business/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-openai-intro-chatgpt.jpg",
+          "label": "\"Introducing ChatGPT\" og:image",
+          "w": 1600,
+          "h": 900,
+          "source": "https://openai.com/index/chatgpt/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/chatgpt-agent-announcement-card.png",
+          "label": "ChatGPT agent announcement blog card art",
+          "w": 1600,
+          "h": 900,
+          "source": "openai.com/index/introducing-chatgpt-agent (og:image) via Wayback Machine snapshot",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/chatgpt-gpt5-announcement-card.png",
+          "label": "GPT-5 announcement blog card art",
+          "w": 1600,
+          "h": 900,
+          "source": "openai.com/index/introducing-gpt-5 (og:image) via Wayback Machine snapshot",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/chatgpt-images-announcement-card.png",
+          "label": "ChatGPT Images announcement blog card art",
+          "w": 1600,
+          "h": 900,
+          "source": "openai.com/index/new-chatgpt-images-is-here (og:image) via Wayback Machine snapshot",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/gpt6-astra-announcement-card.png",
+          "label": "GPT-6 Astra announcement blog card art",
+          "w": 1600,
+          "h": 900,
+          "source": "openai.com/index/gpt-6-astra (og:image) via Wayback Machine snapshot",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/openai-brand-page-thumbnail.png",
+          "label": "OpenAI brand page social/share thumbnail",
+          "w": 1600,
+          "h": 900,
+          "source": "openai.com/brand (page share/OG thumbnail) via images.ctfassets.net",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/google-ad-search-codex.png",
+          "label": "\"Codex Desktop App - Build with Codex\" search ad",
+          "w": 1310,
+          "h": 1600,
+          "source": "https://adstransparency.google.com/advertiser/AR02788840342533701633/creative/CR07967290030592884737",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/google-ad-search-signup.png",
+          "label": "\"Official ChatGPT website - Get fast answers, anywhere\" search ad",
+          "w": 1600,
+          "h": 919,
+          "source": "https://adstransparency.google.com/advertiser/AR02788840342533701633/creative/CR16583401769657171969",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/linkedin-ad-chatgpt-work-earth.jpg",
+          "label": "ChatGPT Work brand image ad (earth/space visual)",
+          "w": 1600,
+          "h": 900,
+          "source": "https://www.linkedin.com/ad-library/detail/1550756664",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/linkedin-ad-data-analytics-webinar.jpg",
+          "label": "\"OpenAI on OpenAI\" data analytics webinar ad (Event Ad)",
+          "w": 1600,
+          "h": 900,
+          "source": "https://www.linkedin.com/ad-library/detail/1559619954",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-business-quote-neuro.png",
+          "label": "\"Try ChatGPT Business\" customer quote card (Neuro)",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?id=1041629998853549",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-documentary-antarctica.jpg",
+          "label": "\"Training to cycle across Antarctica with ChatGPT\" documentary-style video-ad frame",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?id=2117285183004818",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-enterprise-knowledge.jpg",
+          "label": "\"Try ChatGPT Enterprise\" - Bring company knowledge into ChatGPT",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?id=912446811425149",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-enterprise-quote-lowes.jpg",
+          "label": "\"Try ChatGPT Enterprise\" customer quote card (Lowe's)",
+          "w": 1280,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?id=2151410462465211",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-personalization-tripplanning.jpg",
+          "label": "\"Based on what ChatGPT knows about you\" personalization video-ad frame",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?id=1630102495408367",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-product-ui-homedesign.jpg",
+          "label": "\"Upgrade any space with ChatGPT\" - in-app screenshot creative",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?id=2360095864734038",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Press photography",
+      "images": [
+        {
+          "file": "assets/brand/press/openai-press-photo-butterflies.jpg",
+          "label": "OpenAI brand gallery photo - wordmark over butterfly migration",
+          "w": 1080,
+          "h": 1350,
+          "source": "openai.com/brand (Design Guidelines page, Gallery section) via Wayback Machine snapshot 20260907013431",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/openai-press-photo-hoodie.jpg",
+          "label": "OpenAI brand gallery photo - '1-800-CHATGPT' hoodie",
+          "w": 1080,
+          "h": 1350,
+          "source": "openai.com/brand (Design Guidelines page, Gallery section) via Wayback Machine snapshot 20260907013431",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/openai-press-photo-wordmark-print.jpg",
+          "label": "OpenAI brand gallery photo - wordmark on printed card",
+          "w": 1080,
+          "h": 1350,
+          "source": "openai.com/brand (Design Guidelines page, Gallery section) via Wayback Machine snapshot 20260907013431",
+          "provenance": "theirs"
         }
       ]
     }

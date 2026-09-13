@@ -15,7 +15,14 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // opening the welcome page pulls a dozen covers rather than every board (the full set is 25 MB of
 // HTML, which a phone should not download to look at one page). Vite still reloads the page when a
 // mockup is saved. `rawLayouts` and `rawIcons` stay eager because they are read during render.
-import { boardPages, fileLoaders, rawLayouts, rawIcons, rawAssetNames } from "virtual:canvases";
+import {
+  boardPages,
+  fileLoaders,
+  rawLayouts,
+  rawIcons,
+  rawAssetNames,
+  rawBrandImages,
+} from "virtual:canvases";
 
 export interface CanvasLibraryFile {
   path: string;
@@ -76,9 +83,30 @@ export interface CanvasLayoutLink {
   url: string;
 }
 
+/**
+ * A picture in a row, laid out as a tldraw image shape rather than a board: a logo, a screenshot
+ * of someone else's marketing, an ad creative. `file` is relative to the folder and has to live
+ * under `assets/brand/`, which is the only part of `assets/` the plugin gives an address to.
+ *
+ * `w`/`h` are the image's own pixel size, not the size it draws at — the row scales every image
+ * to a common band from them, so a wrong pair renders the wrong shape.
+ */
+export interface CanvasLayoutImage {
+  file: string;
+  label: string;
+  w: number;
+  h: number;
+  /** The human page this came from, and whether the company published it or an archive did. */
+  source?: string;
+  provenance?: string;
+}
+
 export interface CanvasLayoutRow {
   title: string;
-  files: CanvasLayoutFileEntry[];
+  /** The boards in this row. Omitted by a row that carries `images` instead. */
+  files?: CanvasLayoutFileEntry[];
+  /** Pictures in this row, instead of boards. A row is one or the other, never both. */
+  images?: CanvasLayoutImage[];
   /** Prefix each caption with its 1-based position in `files`, e.g. "3 · Referral". */
   numbered?: boolean;
   /**
@@ -170,7 +198,7 @@ export function boardStatusForPath(path: string): CanvasBoardStatus {
   const layout = readCanvasLayout(file.pageSlug);
   let status = layout?.status;
   for (const row of layout?.rows ?? []) {
-    for (const entry of row.files) {
+    for (const entry of row.files ?? []) {
       if (typeof entry === "string" || entry.file !== file.fileName) continue;
       if (entry.status) status = entry.status;
     }
@@ -379,6 +407,17 @@ const ICON_PATTERN = /canvases\/([^/]+)\/icon\.png$/;
 export function canvasIconUrl(pageSlug: string) {
   for (const [path, url] of Object.entries(rawIcons)) {
     if (ICON_PATTERN.exec(path)?.[1] === pageSlug) return url;
+  }
+  return undefined;
+}
+
+const BRAND_PATTERN = /canvases\/([^/]+)\/(assets\/brand\/.+)$/;
+
+/** A folder's brand image by its path inside the folder, e.g. `assets/brand/social/x-banner.jpg`. */
+export function canvasImageUrl(pageSlug: string, file: string) {
+  for (const [path, url] of Object.entries(rawBrandImages)) {
+    const match = BRAND_PATTERN.exec(path);
+    if (match?.[1] === pageSlug && match[2] === file) return url;
   }
   return undefined;
 }

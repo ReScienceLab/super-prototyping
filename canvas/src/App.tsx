@@ -12,6 +12,7 @@ import {
   toRichText,
   type Editor,
   type TLPageId,
+  type TLAsset,
   type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
@@ -45,10 +46,12 @@ import {
 } from "./CanvasLinkShapeUtil";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
+  type CanvasLayoutImage,
   type CanvasLayoutLink,
   type CanvasLibraryFile,
   LAYOUT_CHANGED,
   boardTabStatusForPath,
+  canvasImageUrl,
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
@@ -136,7 +139,7 @@ try {
  */
 function boardSize(file: CanvasLibraryFile) {
   for (const row of readCanvasLayout(file.pageSlug)?.rows ?? []) {
-    for (const entry of row.files) {
+    for (const entry of row.files ?? []) {
       if (typeof entry === "string" || entry.file !== file.fileName) continue;
       if (entry.w && entry.h) return { w: entry.w, h: entry.h };
     }
@@ -160,6 +163,7 @@ const LIBRARY_HEADING_HEIGHT = 44;
  */
 const LIBRARY_SHAPE_PREFIXES = [
   "shape:canvas-file:",
+  "shape:canvas-image:",
   "shape:canvas-row-heading:",
   "shape:canvas-file-label:",
   "shape:canvas-link:",
@@ -450,6 +454,153 @@ function layoutRow(
   return linksY + linksH + LIBRARY_LABEL_HEIGHT + LIBRARY_GAP;
 }
 
+/**
+ * The box a picture in an image row draws inside, before its own proportions decide the rest.
+ * Wider than a board and shorter, because these rows are read across: a row of one platform's
+ * assets against the row of the next, not a wall of full-height artwork.
+ */
+const IMAGE_FIT = { w: 760, h: 520 };
+
+const IMAGE_MIME: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+  svg: "image/svg+xml",
+};
+
+function imageShapeId(pageSlug: string, file: string) {
+  return createShapeId(`canvas-image:${pageSlug}/${file}`);
+}
+
+/**
+ * The asset record a picture's shape points at. Derived from the path rather than from the
+ * bytes, so it is the same id on every machine and every reload: an asset keyed by a content
+ * hash would be a second record the moment someone re-exported the file at a different quality,
+ * and the shapes would still point at the first one.
+ */
+function imageAssetId(pageSlug: string, file: string): TLAsset["id"] {
+  // Branded string: the store validates only the `asset:` prefix, the rest is ours to choose.
+  return `asset:canvas-image:${pageSlug}/${file}` as TLAsset["id"];
+}
+
+/**
+ * Lays out one row of pictures the way layoutRow lays out a row of boards: heading above,
+ * caption under each, idempotent, returning the y for the next row.
+ *
+ * These are tldraw's own image shapes, not boards in an iframe, so they can be zoomed into and
+ * read at their real resolution. Unlike a row of boards they are not one shape — an avatar is
+ * square, a profile banner is 3:1, a phone screenshot is 9:19.5 — so each is fitted into the
+ * same box and the row is as tall as the tallest result, with the shorter ones centred in it.
+ * Nothing is scaled up past its own pixels: a 400px avatar drawn at 520 would be the only
+ * blurry thing on the page.
+ */
+function layoutImageRow(
+  editor: Editor,
+  page: { id: TLPageId },
+  pageSlug: string,
+  images: CanvasLayoutImage[],
+  rowTop: number,
+  heading: string,
+) {
+  const placed = images.flatMap((image) => {
+    const src = canvasImageUrl(pageSlug, image.file);
+    // A layout naming a file nobody committed draws nothing, rather than an empty box with a
+    // caption under it that reads as a missing asset.
+    if (!src || !image.w || !image.h) return [];
+    const scale = Math.min(IMAGE_FIT.w / image.w, IMAGE_FIT.h / image.h, 1);
+    return [{ image, src, w: Math.round(image.w * scale), h: Math.round(image.h * scale) }];
+  });
+  if (!placed.length) return rowTop;
+
+  const bandH = Math.max(...placed.map((entry) => entry.h));
+  const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
+
+  // The asset holds the URL and the real pixel size; the shape holds the size it draws at and
+  // points at the asset by id. Created first, because a shape whose assetId resolves to nothing
+  // renders as a broken placeholder until something fills it in.
+  const missingAssets = placed.filter(
+    (entry) => !editor.getAsset(imageAssetId(pageSlug, entry.image.file)),
+  );
+  if (missingAssets.length) {
+    editor.createAssets(
+      missingAssets.map((entry) => ({
+        id: imageAssetId(pageSlug, entry.image.file),
+        typeName: "asset" as const,
+        type: "image" as const,
+        meta: {},
+        props: {
+          w: entry.image.w,
+          h: entry.image.h,
+          name: entry.image.file.split("/").pop() ?? entry.image.file,
+          isAnimated: entry.image.file.toLowerCase().endsWith(".gif"),
+          mimeType:
+            IMAGE_MIME[entry.image.file.split(".").pop()?.toLowerCase() ?? ""] ?? null,
+          src: entry.src,
+        },
+      })),
+    );
+  }
+
+  // Each picture starts where the last one ended, so a row of mixed proportions has one gap
+  // between neighbours rather than a column pitch set by its widest member.
+  let x = 0;
+  const xs = placed.map((entry) => {
+    const at = x;
+    x += entry.w + LIBRARY_GAP;
+    return at;
+  });
+
+  const missing = placed
+    .map((entry, index) => ({ entry, index }))
+    .filter(({ entry }) => !editor.getShape(imageShapeId(pageSlug, entry.image.file)));
+  if (missing.length) {
+    editor.createShapes(
+      missing.map(({ entry, index }) => ({
+        id: imageShapeId(pageSlug, entry.image.file),
+        type: "image",
+        parentId: page.id,
+        x: xs[index],
+        y: contentY + (bandH - entry.h) / 2,
+        isLocked: true,
+        props: {
+          w: entry.w,
+          h: entry.h,
+          assetId: imageAssetId(pageSlug, entry.image.file),
+          altText: entry.image.label,
+        },
+      })),
+    );
+  }
+
+  createAnnotation(editor, {
+    id: `canvas-row-heading:${page.id}:${heading}`,
+    text: heading,
+    x: 0,
+    y: rowTop,
+    w: Math.max(x - LIBRARY_GAP, 1),
+    size: "l",
+    parentId: page.id,
+  });
+
+  const captionY = contentY + bandH + LIBRARY_LABEL_GAP;
+  placed.forEach((entry, index) => {
+    createAnnotation(editor, {
+      id: `canvas-file-label:${pageSlug}/${entry.image.file}`,
+      text: entry.image.label,
+      x: xs[index],
+      y: captionY,
+      w: entry.w,
+      size: "s",
+      align: "middle",
+      parentId: page.id,
+    });
+  });
+
+  return captionY + LIBRARY_LABEL_HEIGHT + LIBRARY_GAP;
+}
+
 function linkShapeId(name: string) {
   return createShapeId(`canvas-link:${name}`);
 }
@@ -647,8 +798,12 @@ function initializeCanvasLibrary(editor: Editor) {
     let rowTop = 0;
 
     for (const row of readCanvasLayout(files[0].pageSlug)?.rows ?? []) {
+      if (row.images?.length) {
+        rowTop = layoutImageRow(editor, page, pageSlug, row.images, rowTop, row.title);
+        continue;
+      }
       const rowFiles: { file: CanvasLibraryFile; label?: string }[] = [];
-      for (const entry of row.files) {
+      for (const entry of row.files ?? []) {
         const fileName = typeof entry === "string" ? entry : entry.file;
         const label = typeof entry === "string" ? undefined : entry.label;
         const file = files.find(

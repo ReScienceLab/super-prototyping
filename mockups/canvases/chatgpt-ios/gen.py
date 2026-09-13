@@ -270,17 +270,10 @@ def _uri(cid):
             if f.exists() else "")
 
 
+# Unlike everything else under assets/, these are never inlined as data: URIs.
+# manifest.json places them as image shapes of their own, one row per surface,
+# so the canvas can compare avatar against avatar down the page.
 BRAND_DIR = OUT / "assets" / "brand"
-
-
-def _brand_uri(fname):
-    """assets/brand/ holds vendored third-party captures, not our own art/
-    crops -- sniff the real bytes rather than trust the filename's extension,
-    since these are re-hosted App Store thumbnails whose served type can
-    differ from the name they were saved under."""
-    data = (BRAND_DIR / fname).read_bytes()
-    mime = "image/jpeg" if data[:2] == b"\xff\xd8" else "image/png"
-    return "data:%s;base64,%s" % (mime, base64.b64encode(data).decode())
 
 
 def art(cid, x=None, y=None, w=None, z=None):
@@ -1410,64 +1403,6 @@ def token_board():
                 % (NAME, swatches, radii, met, type_), SHEET)
 
 
-# ------------------------------------------------------ brand & promotion ----
-# Every row here is a vendored first-party capture -- the company's own
-# published asset, never a fan crop or a third-party mirror. See
-# assets/brand/README-less provenance inline: role, then "theirs", then the
-# human source page.
-BRAND_ASSETS = [
- ("appicon.jpg", "app icon",
-  "App Store listing — apps.apple.com/us/app/chatgpt/id6448311069"),
- ("appstore-1.jpg", "appstore/screenshot 1",
-  "App Store listing — apps.apple.com/us/app/chatgpt/id6448311069"),
- ("x-avatar.jpg", "x/avatar", "x.com/chatgpt"),
- ("x-banner.jpg", "x/banner", "x.com/chatgpt"),
- ("ad-1.png", "ad creative",
-  "Meta Ad Library — facebook.com/ads/library?id=2480054779174464"),
-]
-
-BRAND_CSS = """.bgrid{display:flex;gap:10px;margin-bottom:8px}
-.bgrid .cell{flex:1;min-width:0;border:1px solid var(--x-hair);border-radius:6px;padding:7px;background:var(--x-card)}
-.bgrid img{display:block;width:100%;height:130px;object-fit:contain;background:#fff;
-  border-radius:4px;border:1px solid var(--x-hair)}
-.bgrid b{display:block;margin-top:6px;font:600 8.5px/12px var(--x-font);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bgrid i{display:block;margin-top:1px;font:400 7px/10px ui-monospace,Menlo,monospace;
-  color:var(--x-sub);font-style:normal;overflow-wrap:break-word}
-.tag{margin:2px 0 8px;padding-left:10px;border-left:2px solid var(--x-hair);
-  font:italic 400 14px/19px var(--x-font);color:var(--x-ink)}
-.tag cite{display:block;margin-top:3px;font:400 8.5px/12px var(--x-font);
-  color:var(--x-sub);font-style:normal}
-.bfoot{margin-top:4px;font:400 8px/12px var(--x-font);color:var(--x-sub)}"""
-
-
-def brand_board():
-    cells = "".join(
-        '<div class="cell"><img src="%s" alt="%s"><b>%s</b>'
-        '<i>theirs &middot; %s</i></div>'
-        % (_brand_uri(f), role, role, src)
-        for f, role, src in BRAND_ASSETS)
-    return page(NAME + " - Brand & promotion",
-                '<div class="sheet"><header><h1>Brand &amp; promotion</h1>'
-                '<p>Public promotion is one blossom mark in one black across '
-                'the App Store, X and paid social; the app behind that mark '
-                'runs native and web view side by side on two different '
-                'blacks the public assets never show.</p></header>'
-                '<h2>Assets</h2><div class="bgrid">%s</div>'
-                '<h2>Tagline</h2>'
-                '<div class="tag">&ldquo;Your everyday AI assistant&rdquo;'
-                '<cite>App Store subtitle — '
-                'apps.apple.com/us/app/chatgpt/id6448311069</cite></div>'
-                '<div class="bfoot">Fetched 2026-09-13 from the App Store '
-                'listing, x.com/chatgpt and Meta&rsquo;s Ad Library. '
-                'openai.com/brand and chatgpt.com returned a Cloudflare '
-                'challenge page to every fetch, so wordmark, og:image and '
-                'marketing/hero are left off rather than filled with a '
-                'stand-in — and no colour row, since the brand kit that '
-                'states official hexes never loaded.</div></div>'
-                % cells, SHEET + BRAND_CSS)
-
-
 EV_ROWS = 24
 
 
@@ -1515,8 +1450,7 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: Mobbin captures",
                      "numbered": True, "files": refs})
-    rows.append({"title": "Brand & promotion",
-                 "files": [{"file": "00h-brand", "label": "Brand & promotion"}]})
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
     # The welcome card shows 23: the home boards are white to the composer and
     # read as blank at card size, the sidebar is the one screen with the app on it.
     return {"name": PAGE_NAME, "cover": "23-sidebar-full", "rows": rows}
@@ -1527,8 +1461,7 @@ def main():
     files = dict([("00-design-tokens", token_board())]
                  + list(evidence_boards())
                  + [(s, fn()) for s, _, fn in SCREENS]
-                 + list(ref_boards())
-                 + [("00h-brand", brand_board())])
+                 + list(ref_boards()))
     for name in sorted(files):
         write(name, files[name])
     (OUT / "layout.json").write_text(json.dumps(layout(files), indent=2) + "\n")
