@@ -17,7 +17,7 @@ Open it with `?canvas=tiktok-ios`, or a single board with
 | `crops.json` | The 25 glyph boxes cut out of the captures as bitmaps. Everything else is drawn or fetched. |
 | `iconbuild.py` | Fetches `icon.png` from the App Store and masks it. One shot; the icon is committed. |
 | `avatarbuild.py` | Fetches board 3's avatar from a named TikTok account, so no stranger's face ships here. One shot; the PNG is committed. |
-| `tilebuild.py` | Fetches the same account's site banner and letterboxes it into `tile.png`, which fills both content tiles. One shot; the PNG is committed. |
+| `tilebuild.py` | Cuts one frame out of the clip the boards are posting and letterboxes it into `tile.png`, which fills both content tiles. One shot; the PNG is committed, the clip stays out of the repo. |
 
 The captures are 1179 × 2556 for a 393 × 852 frame, so the scale is 3.0 px/pt
 exactly and every `refkit` call in this folder runs `--pt 3`.
@@ -49,11 +49,11 @@ Mean absolute delta against the capture, whole frame, phone crop, in levels of
 |---|---|---|
 | 1 | Bio, empty | 2.07 |
 | 2 | Bio, filled | 3.97 |
-| 3 | Profile | 15.41 |
-| 4 | Post, empty | 9.69 |
-| 5 | Post, keyboard | 11.71 |
-| 6 | Post, hashtags | 11.25 |
-| 7 | Post, caption | 10.91 |
+| 3 | Profile | 14.19 |
+| 4 | Post, empty | 9.73 |
+| 5 | Post, keyboard | 11.75 |
+| 6 | Post, hashtags | 11.29 |
+| 7 | Post, caption | 10.95 |
 
 **Six of these seven numbers are dominated by a deliberate substitution, not
 by an error.** Board 1 is the only one that carries none. Every other board
@@ -61,9 +61,9 @@ holds at least one region where the capture's content belongs to a real person
 and the board ships a stand-in account's instead — the list is under
 *Substitutions*. The two content tiles are what move the numbers: board 3's
 drafts cell is 131 × 174.3 pt, 6.8% of the frame, and boards 4–7 carry the
-same art in a 112 × 148.8 cell, 5.0%. Both hold a black-ground banner where
-the capture holds a bright photograph, so those pixels run to 200-odd levels
-of difference and carry the whole-frame mean up several points on their own.
+same art in a 112 × 148.8 cell, 5.0%. Both hold a letterboxed frame of a
+different video from the capture's, so those pixels run to 200-odd levels of
+difference and carry the whole-frame mean up several points on their own.
 Board 3 adds the avatar disc, another 2.6% at some 70 levels. None of that is
 a fidelity score; it is the price of not shipping a stranger's face and video.
 
@@ -212,15 +212,21 @@ string or a mark that would otherwise reproduce a real person's content.
   `snapaction.ai` there on the same centre, behind board 4's own globe glyph
   at the 17pt it was cut at: icon + 3.67 + text, 110.0 wide against the
   capture's 97.7.
-- **Both content tiles are the account's own art, not the capture's video.**
+- **Both content tiles are the account's own video, not the capture's.**
   Board 3's drafts cell and boards 4–7's cover cell held frames of a
-  stranger's video. Both are 3:4, so one bitmap fills both: `tilebuild.py`
-  fetches `snapaction.ai`'s `og:image` and letterboxes it on black, the way
-  TikTok shows a landscape clip. The chrome TikTok draws over a cover is
-  TikTok's, so it is redrawn rather than carried in the bitmap — "Drafts: 1"
-  on board 3, and "Preview", the 40% bar and "Edit cover" on board 4. The
-  video's own watermark and sticker went with the video. This is what board 3
-  and boards 4–7 cost in *How close it lands*.
+  stranger's video, which is the one thing on these boards a caption is
+  actually about: board 3 has it as a draft, boards 4–7 are posting it. Both
+  cells are 3:4, so one bitmap fills both — `tilebuild.py` takes the 4.0s
+  frame of `@snapaction_ai`'s own clip, the one with the whole device centred,
+  which is what survives being scaled to the 112pt cover. The clip is 16:9, so
+  it sits letterboxed on black, the way TikTok shows a landscape video; the
+  clip itself is 39MB and stays out of the repo, so the script takes its path
+  and the PNG is committed. The chrome TikTok draws over a cover is TikTok's,
+  so it is redrawn rather than carried in the bitmap — "Drafts: 1" on board 3,
+  and "Preview", the 40% bar and "Edit cover" on board 4, all three landing on
+  the letterbox, which is why they read at all and why the bar is invisible.
+  The capture's own watermark and sticker went with its video. This is what
+  board 3 and boards 4–7 cost in *How close it lands*.
 - **The profile avatar is the same account's.** The face in the capture
   belongs to a real person, so board 3 ships `@snapaction_ai`'s avatar,
   fetched by `avatarbuild.py` — point its `PROFILE` at another handle to swap
@@ -238,8 +244,8 @@ string or a mark that would otherwise reproduce a real person's content.
   committing reference imagery is about whole third-party screens; 25 glyphs
   at their ink boxes are the art a board needs to render at all. `cut()`
   refreshes them from `assets/refs/` when the captures are there;
-  `avatarbuild.py` and `tilebuild.py` refetch theirs, which need no capture at
-  all.
+  `avatarbuild.py` refetches its avatar and `tilebuild.py` re-cuts its frame,
+  neither of which needs a capture at all.
 - `assets/refs/` — the seven captures. **Gitignored**, along with the `ref-*`
   boards built from them. A fresh clone therefore builds 10 of the 17 boards
   and skips the reference row.

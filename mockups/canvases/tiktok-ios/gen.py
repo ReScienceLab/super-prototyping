@@ -142,7 +142,7 @@ NOTCH = (218.5, 180.15, 29.7)
 # The name, the handle, the bio, the row under it and the two content tiles in
 # the captures are all one real person's, so the boards carry a stand-in
 # account instead -- @snapaction_ai, whose avatar avatarbuild.py fetches and
-# whose site banner tilebuild.py fetches. BIO is measured to the capture's own
+# whose own clip tilebuild.py cuts the tiles from. BIO is measured to the capture's
 # ink box (ref 125.7pt wide, this 125.3 at t-body); the character counter is
 # derived from it rather than typed, by the rule the capture's own 19/80 fixes:
 # TikTok counts UTF-16 units, so the dancer costs two. This bio comes to 21.
@@ -511,8 +511,9 @@ def profile_screen():
           + box(28.0, 442.0, 48.0, 2.0, "background:var(--x-ink)")
           + rule(0, 443.67, 393, "var(--x-line)")
           # The drafts cell: one third of 393 at 3:4. The capture's frame is a
-          # stranger's video, so it carries tilebuild.py's banner, and the
-          # badge TikTok draws over it is redrawn rather than cut out with it.
+          # stranger's video, so it carries a frame of the stand-in account's
+          # own, and the badge TikTok draws over it is redrawn rather than cut
+          # out with it -- on the letterbox, which is why it reads at all.
           + img("tile", 0.0, 444.0, 131.0, 174.3)
           + tx(6.1, 453.8, "Drafts: 1", "t-bio", "var(--x-ink-inv)"))
 
@@ -552,10 +553,11 @@ def post_head(lines=(), caret=None):
     means the placeholder."""
     t = (svg(16.67, 72.33, 10.0, 17.33, '<path d="M25.7 73.3L17.7 81.0L25.7 88.7"/>')
          + rule(0, 102.67, 393, "var(--x-hairline)")
-         # The cover cell, the same stand-in banner at the same 3:4. Its two
+         # The cover cell, the same stand-in frame at the same 3:4. Its two
          # labels and the bar under them are TikTok's, so they are drawn here;
          # the watermark and the sticker in the capture were the video's own
-         # and went with it. The bar is a 40% scrim, invisible on this cover.
+         # and went with it. The bar is a 40% scrim, invisible on the
+         # letterbox both labels sit on.
          + img("tile", 265.2, 111.1, 112.0, 148.8, ";border-radius:var(--x-r-cover)")
          + tx(275.8, 123.6, "Preview", "t-chip", "var(--x-ink-inv)")
          + box(271.0, 228.2, 100.2, 25.7,

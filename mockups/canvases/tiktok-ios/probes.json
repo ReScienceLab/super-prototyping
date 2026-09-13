@@ -730,7 +730,7 @@
   ],
   "dark": 248,
   "mine": "03-profile.png",
-  "_": "03 the draft grid: x 0..393 y 442.0..618.7, three touching columns of 131 (= 393/3) at 3:4, with no gutter to separate them, one of them filled. That one frame is a stranger's video, so the board fills the cell with tilebuild.py's banner and redraws the Drafts: 1 badge over it"
+  "_": "03 the draft grid: x 0..393 y 442.0..618.7, three touching columns of 131 (= 393/3) at 3:4, with no gutter to separate them, one of them filled. That one frame is a stranger's video, so the board fills the cell with a frame of the stand-in account's own and redraws the Drafts: 1 badge"
  },
  {
   "id": "card-title",
@@ -898,7 +898,7 @@
   ],
   "dark": 248,
   "mine": "04-post-empty.png",
-  "_": "04 the video cover: x 264.0..377.7 y 110.7..260.7, so 114x150. The frame inside it is the same stranger's video, so the board fills the cell with the same banner and draws TikTok's own labels and bar back over it"
+  "_": "04 the video cover: x 264.0..377.7 y 110.7..260.7, so 114x150. The frame inside it is the same stranger's video, so the board fills the cell with the same stand-in frame and draws TikTok's labels and bar back over it"
  },
  {
   "id": "editcover",

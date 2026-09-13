@@ -1,43 +1,39 @@
 #!/usr/bin/env python3
-"""Build assets/art/tile.png from the stand-in account's own site banner.
+"""Build assets/art/tile.png from one frame of the clip the boards are posting.
 
-    python3 mockups/canvases/tiktok-ios/tilebuild.py
+    python3 mockups/canvases/tiktok-ios/tilebuild.py ~/Desktop/day4.mp4
 
-Run once; the PNG is committed. It fills the two content tiles -- board 03's
-drafts thumbnail and boards 04-07's cover cell -- which are both 3:4 and were
-both crops of a video belonging to a stranger. The banner is landscape, so it
-sits letterboxed on the black it already carries, the way TikTok shows a
-landscape clip. SITE is the one knob; it has to match avatarbuild.py's PROFILE.
+Run once; the PNG is committed, and the clip itself stays out of the repo at
+39MB. It fills the two content tiles -- board 03's drafts thumbnail and boards
+04-07's cover cell -- which are both 3:4 and were both frames of a video
+belonging to a stranger. This clip is the stand-in account's own, so the
+boards post its video rather than someone else's. AT is the frame: 4.0s is the
+one with the whole device centred, which is what a cover has to survive being
+scaled to 112pt. The clip is 16:9, so it sits letterboxed on the black it
+already carries, the way TikTok shows a landscape video.
 """
 import io
-import re
-import urllib.request
+import subprocess
+import sys
 from pathlib import Path
 
 from PIL import Image, PngImagePlugin
 
-SITE = "https://snapaction.ai/"
-SIZE = (393, 523)             # board 03's drafts cell at 1x; 04 scales it down
-TRIM = (110, 15, 1090, 630)   # the banner's own margins, off its 1200x630
-UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36")
+AT = "4.0"          # seconds; the whole phone, centred
+SIZE = (393, 523)   # board 03's drafts cell at 1x; 04 scales it down
 
-
-def get(url):
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    return urllib.request.urlopen(req).read()
-
-
-page = get(SITE).decode("utf-8", "replace")
-url = re.search(r'og:image"\s+content="([^"]+)"', page).group(1)
-banner = Image.open(io.BytesIO(get(url))).convert("RGB").crop(TRIM)
+clip = Path(sys.argv[1]).expanduser()
+png = subprocess.run(["ffmpeg", "-v", "error", "-ss", AT, "-i", str(clip),
+                      "-frames:v", "1", "-f", "image2", "-c:v", "png", "-"],
+                     capture_output=True, check=True).stdout
+frame = Image.open(io.BytesIO(png)).convert("RGB")
 
 im = Image.new("RGB", SIZE, (0, 0, 0))
-h = round(SIZE[0] * banner.height / banner.width)
-im.paste(banner.resize((SIZE[0], h), Image.LANCZOS), (0, (SIZE[1] - h) // 2))
+h = round(SIZE[0] * frame.height / frame.width)
+im.paste(frame.resize((SIZE[0], h), Image.LANCZOS), (0, (SIZE[1] - h) // 2))
 
 meta = PngImagePlugin.PngInfo()
-meta.add_text("Source", url)
+meta.add_text("Source", "%s @ %ss" % (clip.name, AT))
 out = Path(__file__).resolve().parent / "assets" / "art" / "tile.png"
 im.save(out, optimize=True, pnginfo=meta)
-print(out, im.size, url)
+print(out, im.size, meta.chunks[0][1].decode())

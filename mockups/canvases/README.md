@@ -313,13 +313,13 @@ declares a box other than the default 478 x 980.
   the profile it returns to, and the post composer through four states of
   writing a caption. 17 boards in three rows: a token board and two evidence
   boards for 55 tokens, the seven replicas, and the capture of each parked
-  underneath. Mean absolute delta against those captures is 2.07-15.41 levels
-  (of 255), mean 9.29, and six of those seven numbers read a substitution
+  underneath. Mean absolute delta against those captures is 2.07-14.19 levels
+  (of 255), mean 9.14, and six of those seven numbers read a substitution
   rather than an error: the capture's profile, its avatar and its two video
   frames are all one real person's, so the boards carry a named account's
-  name, handle, bio, site and art instead, and the two content tiles alone -
-  6.8% of the profile frame, 5.0% of the composer's - are black art over a
-  bright photograph. What is left is the keyboard: the two boards that are
+  name, handle, bio, site and its own clip instead, and the two content tiles
+  alone - 6.8% of the profile frame, 5.0% of the composer's - are a different
+  video from the capture's. What is left is the keyboard: the two boards that are
   three-quarters keycaps cost the most, with nothing on them geometrically
   off. Its `README.md` records the residual test the other runs do not have. `scratch/ink.py` reports dark-pixel mass over 25 named regions,
   and the *shape* of the spread is the diagnosis: leaning one way is a weight
