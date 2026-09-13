@@ -98,10 +98,12 @@ out of the picture by `cut()` and drawn again on top. 23 glyphs are SVGs in
 
 **The two brand marks are original files, not crops.** `assets/brand/`
 holds Instagram's own 1080 px and NYT Cooking's 720 px profile pictures,
-fetched from the profile API rather than cut out of a capture. They cost
-about 6 levels on the Instagram mark and 14 on NYT Cooking's red, which is
-the resampling and the capture's own JPEG, and they are worth it: a crop of
-a 86 pt circle is 258 px of a logo that exists at 1080. **agnezmo's avatar
+fetched from the profile API rather than cut out of a capture, and committed
+Lanczos-resampled to 516 px square: twice what an 86 pt circle needs at 3x,
+and small enough to inline as a `data:` URI in two boards. They cost about 6
+levels on the Instagram mark and 14 on NYT Cooking's red, which is that
+resampling and the capture's own JPEG, and they are worth it: a crop of a
+86 pt circle is 258 px of a logo that exists at 1080. **agnezmo's avatar
 stays a crop**, because the live picture is a different photograph now.
 
 ## Details worth not re-deriving
@@ -174,7 +176,8 @@ stays a crop**, because the live picture is a different photograph now.
 
 - `art/`: 74 PNGs, each a crop of a capture at the box named in `crops.json`.
   **Committed**: without it the boards have no photography.
-- `brand/`: the two original profile pictures described above. **Committed.**
+- `brand/`: the two profile pictures described above, 516 px square.
+  **Committed.**
 - `icons/`: 23 SVGs, inlined by `icon()`. 13 are Meta's own IGDS paths,
   10 are traced off the captures. **Committed.**
 - `refs/`: the 8 captures, 1179 × 2556 after their attribution banner is
@@ -199,9 +202,11 @@ the 8 reference boards.
 Verify with:
 
 ```bash
-refkit tokens mockups/canvases/instagram-ios
-refkit shoot mockups/canvases/instagram-ios/01-profile.html \
+B=mockups/canvases/instagram-ios
+refkit tokens $B
+# every board the probes name -- `batch --against` exits non-zero on a missing render
+refkit shoot $B/01-profile.html $B/02-grid-scrolled.html $B/06-private.html \
+    $B/08-agnezmo.html \
     -o scratch/mine/ --w 478 --h 980 --scale 3 --crop-phone --check-overflow
-refkit batch mockups/canvases/instagram-ios/probes.json --pt 3 \
-    --against scratch/mine
+refkit batch $B/probes.json --pt 3 --against scratch/mine
 ```

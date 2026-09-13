@@ -386,11 +386,12 @@ def brand(name, x, y, d):
     """A profile picture that is a brand mark: the original file, never a crop.
 
     The instagram and nytcooking avatars are the 1080 and 720px squares their
-    profile API serves, masked to the circle iOS masks them to. Both register
-    against the capture at scale 1.000 with no offset, so what is left is the
-    capture's own encoding: about 6 levels on the Instagram mark, 14 on NYT
-    Cooking's red. agnezmo's live picture is a different photograph now, so
-    that one stays a crop.
+    profile API serves, Lanczos-resampled to 516 -- twice the 258 px an 86pt
+    circle needs at 3x, and small enough to inline -- and masked to the circle
+    iOS masks them to. Both register against the capture at scale 1.000 with no
+    offset, so what is left is the capture's own encoding: about 6 levels on the
+    Instagram mark, 14 on NYT Cooking's red. agnezmo's live picture is a
+    different photograph now, so that one stays a crop.
     """
     return ('<img class="a rnd" alt="%s avatar" src="%s" style="left:%gpx;top:%gpx;'
             'width:%gpx;height:%gpx">'
@@ -749,18 +750,23 @@ def ref_boards():
 
 
 # ------------------------------------------------------------------ run ----
-def layout(names):
-    rows = [{"title": "Foundations",
-             "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
-                      + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]},
-            {"title": "Screens", "numbered": True,
-             "files": [{"file": s, "label": l} for s, l, _ in SCREENS]}]
-    # Same order as the row above, so capture N lands under replica N.
-    refs = [{"file": "ref-" + s, "label": l} for s, l, _ in SCREENS if "ref-" + s in names]
-    if refs:
-        rows.append({"title": "Source of truth: Mobbin captures",
-                     "numbered": True, "files": refs})
-    return {"name": PAGE_NAME, "rows": rows}
+def layout():
+    """The three rows, whether or not the reference boards were built.
+
+    They need assets/refs/, which is gitignored, so a clean clone builds none
+    of them -- and a row written only when they exist would rewrite the
+    committed layout.json on every such run. The canvas already drops an entry
+    whose file is missing, and a row that empties out with it.
+    """
+    return {"name": PAGE_NAME, "rows": [
+        {"title": "Foundations",
+         "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
+                  + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]},
+        {"title": "Screens", "numbered": True,
+         "files": [{"file": s, "label": l} for s, l, _ in SCREENS]},
+        # Same order as the row above, so capture N lands under replica N.
+        {"title": "Source of truth: Mobbin captures", "numbered": True,
+         "files": [{"file": "ref-" + s, "label": l} for s, l, _ in SCREENS]}]}
 
 
 def main():
@@ -770,7 +776,7 @@ def main():
                  + list(ref_boards()))
     for name in sorted(files):
         write(name, files[name])
-    out = layout(files)
+    out = layout()
     (OUT / "layout.json").write_text(json.dumps(out, indent=2) + "\n")
     print("layout.json", len(out["rows"]), "rows")
 

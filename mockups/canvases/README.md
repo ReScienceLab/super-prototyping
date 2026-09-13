@@ -316,7 +316,8 @@ declares a box other than the default 478 x 980.
   40pt wide on four captures and 64 on the other four, c08's fifth highlight
   label is not centred on its circle, and the reels scrim is baked into the
   photographs. Only photography is cropped (74 boxes); the two brand-mark
-  avatars are the original 1080 and 720 px files from the profile API, and the
+  avatars are the 1080 and 720 px files from the profile API resampled to 516,
+  not crops of the captures, and the
   grid badges and view counts set over the crops are inpainted out and redrawn
   live. Thirteen of the 23 SVGs are Meta's own drawings rather than traces,
   pulled out of the `IGDS*Icon.react` modules in the JS bundles the logged-out
