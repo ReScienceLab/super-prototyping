@@ -10,11 +10,11 @@ Open it with `?canvas=tiktok-ios`, or a single board with
 | file | what it is |
 |---|---|
 | `gen.py` | The source of truth. Every `NN-*.html` here is its output; edit the generator and re-run, never the HTML. |
-| `00-design-tokens.html` | The contract. 56 tokens with the measurement behind each one, inlined byte-identically into all seventeen boards. |
+| `00-design-tokens.html` | The contract. 53 tokens with the measurement behind each one, inlined byte-identically into all seventeen boards. |
 | `00b-evidence`, `00c-evidence` | The same values shown against the captures they came off. |
 | `01-bio-empty` … `07-post-caption` | The screens. 393 × 852 pt frames on 478 × 980 artboards, fully self-contained. |
 | `probes.json` | 85 measurements, replayable: `refkit batch probes.json --pt 3 --against scratch/mine`. |
-| `crops.json` | The three boxes cut out of the captures as bitmaps. Everything else is drawn. |
+| `crops.json` | The 29 boxes cut out of the captures as bitmaps: three regions and every glyph. Everything else is drawn. |
 | `iconbuild.py` | Fetches `icon.png` from the App Store and masks it. One shot; the icon is committed. |
 
 The captures are 1179 × 2556 for a 393 × 852 frame, so the scale is 3.0 px/pt
@@ -45,24 +45,24 @@ Mean absolute delta against the capture, whole frame, phone crop, in levels of
 
 | # | screen | Δ |
 |---|---|---|
-| 1 | Bio, empty | 2.28 |
-| 2 | Bio, filled | 3.95 |
-| 3 | Profile | 3.72 |
-| 4 | Post, empty | 3.81 |
-| 5 | Post, keyboard | 5.91 |
-| 6 | Post, hashtags | 5.26 |
-| 7 | Post, caption | 5.16 |
+| 1 | Bio, empty | 2.07 |
+| 2 | Bio, filled | 3.84 |
+| 3 | Profile | 3.43 |
+| 4 | Post, empty | 3.54 |
+| 5 | Post, keyboard | 5.67 |
+| 6 | Post, hashtags | 5.16 |
+| 7 | Post, caption | 4.89 |
 
 The gradient is the keyboard. Boards 5 and 6 are three-quarters keycaps, and a
 keycap is a rounded rect with a 1.3pt bottom edge repeated thirty times — every
 antialiased edge in the grid counts twice, once on each side. Nothing in those
 two boards is geometrically off; `01-bio-empty` carries the same keyboard at
-2.28 because half its frame is empty ground.
+2.07 because half its frame is empty ground.
 
 `refkit batch probes.json --pt 3 --against scratch/mine` replays all 85:
 
 - **13 colour probes**, mean Δmax 0.6, worst 3.
-- **59 box probes**, mean |dw| 0.70 pt, mean |dh| 0.42 pt.
+- **59 box probes**, mean |dw| 0.68 pt, mean |dh| 0.40 pt.
 - **11 edge scans**, all landing.
 - **2 band probes** print `differs`, both by under a third of a point:
   `stat-rows` (ref `253.7 .. 266.3`, mine `253.7 .. 266.7`) and `sugg-rows`
@@ -100,10 +100,20 @@ box matched the capture exactly (11.67 × 17.67) and still set 16% more ink.
 Bracketing gave 350 (n 729) then **320** (n 705 against the capture's 698).
 `--tk-t-key` ships at 320.
 
-**The Share-to marks are desaturated in the source.** The board first drew
-them in brand colours; the flat-fill census reads `#A5A2A5` / `#A6A3A6`. That
-is the capture, not a rendering artefact, so `--tk-mark-off` exists and both
-marks point at it. Board 4 went 3.98 → 3.81, board 7 5.33 → 5.16.
+**Every glyph is a crop, because tracing 25 of them by eye was the wrong
+method.** `scratch/iconink.py` counts ink inside each glyph's own box, and a
+ratio far off 1.0 is not a stroke that wants thinning, it is the wrong shape:
+the traced globe read 1.203, `kb-emoji` 0.773, `share` 0.851. At 6× the globe
+was a tennis ball and the share arrow curved where the source's is a hollow
+forward-arrow. All 25 now come out of the captures at their measured ink
+boxes, one line of `crops.json` each — the rule `grok-ios` already applies to
+66 of its 69 icons, where a crop scores 0 by construction. Every board
+improved: 2.28 → 2.07, 3.95 → 3.84, 3.72 → 3.43, 3.81 → 3.54, 5.91 → 5.67,
+5.26 → 5.16, 5.16 → 4.89. Three tokens went with them — `--tk-glyph`,
+`--tk-glyph-2` and `--tk-mark-off`, the last being the flat-fill census's
+finding that the Share-to marks are desaturated (`#A5A2A5` / `#A6A3A6`) rather
+than brand-coloured. The finding still holds; the crop simply carries it, and
+a token no board reads is not evidence.
 
 **The create button is cyan, then pink, then black on top.** Painting pink
 last buried the cap and the cyan. A column scan reads cyan 175.0..179.0, dark
@@ -135,8 +145,8 @@ and the delta is honest about which one.
   Dynamic Island above; `--crop-phone` rounds the render's 52pt corners and
   fills them with bezel, which is why `tabbar-hairline` and `tabbar-5` stop
   short of the corner and `badge-x` and `card-sub` were narrowed to clear a
-  neighbour's ink; and the three bitmaps below are crops of the capture, so
-  they carry its compression.
+  neighbour's ink; and everything in `crops.json` is a crop of the capture,
+  so it carries its compression.
 
 ## Substitutions
 
@@ -146,26 +156,20 @@ string or a mark that would otherwise reproduce a real person's content.
 - **Two location chips are renamed.** The capture reads `Big Dick's Pizzeria`
   and `Big Butt M…`; the board ships `Bella's Pizzeria` and `Bridge Market`.
   Same box, same metrics — the widths in `probes.json` are the capture's.
-- **Three regions are bitmap crops, not drawings** (`crops.json`): the profile
-  avatar, the drafts thumbnail and the composer's cover art. Their overlays
+- **Three whole regions are bitmap crops, not drawings** (`crops.json`, which
+  also holds the 26 glyph boxes): the profile avatar, the drafts thumbnail and the composer's cover art. Their overlays
   are baked inside the crop — the "motion" tag and the "Edit cover" pill sit
   in `04-cover.png`, and the "Drafts: 1" label in `03-draft.png`. Nothing
   re-types them, so nothing can get them wrong.
-- **The globe glyph's landmass is approximated.** `assets/icons/globe.svg` is
-  a filled disc with three white strokes over it. At 18.7pt the capture's
-  continents are four pixels of ink; matching them exactly would be inventing
-  detail the source does not carry.
 - **The emoji glyphs are the host's**, as above.
 
 ## Assets
 
-- `assets/icons/` — 25 SVGs, each redrawn as vector from the capture, each
-  `viewBox` its own ink box in frame coordinates.
-- `assets/art/` — the three crops from `crops.json`, **committed**. They are
+- `assets/art/` — the 29 crops from `crops.json`, **committed**. They are
   the one thing `gen.py` cannot rebuild without the captures, and the rule
   against committing reference imagery is about whole third-party screens; a
-  96 × 96 avatar and two thumbnails are the art a board needs to render at
-  all. `cut()` refreshes them from `assets/refs/` when the captures are there.
+  96 × 96 avatar, two thumbnails and 26 glyphs at their ink boxes are the art
+  a board needs to render at all. `cut()` refreshes them from `assets/refs/` when the captures are there.
 - `assets/refs/` — the seven captures. **Gitignored**, along with the `ref-*`
   boards built from them. A fresh clone therefore builds 10 of the 17 boards
   and skips the reference row.

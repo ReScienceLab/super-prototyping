@@ -312,9 +312,9 @@ declares a box other than the default 478 x 980.
   TikTok iOS app across two Mobbin flows - the bio editor empty and filled,
   the profile it returns to, and the post composer through four states of
   writing a caption. 17 boards in three rows: a token board and two evidence
-  boards for 56 tokens, the seven replicas, and the capture of each parked
-  underneath. Mean absolute delta against those captures is 2.28-5.91 levels
-  (of 255), mean 4.30, and the gradient is the keyboard: the two boards that
+  boards for 53 tokens, the seven replicas, and the capture of each parked
+  underneath. Mean absolute delta against those captures is 2.07-5.67 levels
+  (of 255), mean 4.09, and the gradient is the keyboard: the two boards that
   are three-quarters keycaps cost the most, with nothing on them
   geometrically off. Its `README.md` records the residual test the other runs
   do not have. `scratch/ink.py` reports dark-pixel mass over 29 named regions,
@@ -327,9 +327,11 @@ declares a box other than the default 478 x 980.
   rather than a weight above them, and how the keycap letters settled at 320 -
   below any named weight - with their glyph box already exact. It also
   records the three by-design mismatches every reference board here carries,
-  the two location chips renamed off a stranger's lunch, and the Share-to
-  brand marks that arrive desaturated in the source and are drawn that way.
-  `assets/art/` is committed, three crops, and `iconbuild.py` is the one
+  the two location chips renamed off a stranger's lunch, and why all 25 of its
+  glyphs are crops of the captures rather than traces: the same ink census run
+  inside each glyph's own box caught three that were the wrong shape rather
+  than the wrong weight, and a crop scores 0 by construction.
+  `assets/art/` is committed, 29 crops, and `iconbuild.py` is the one
   folder here that keeps the App Store fetch behind its `icon.png` as a
   script rather than a note; the seven `ref-*` boards are gitignored, so a
   fresh clone has 10.

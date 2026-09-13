@@ -14,11 +14,10 @@ Dynamic Island out of its captures, so the status bar ships island=False; and
 the captures are Dutch-locale, so the space bar reads "spatie".
 """
 
-import base64, json, re
+import base64, json
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent
-ICON_DIR = OUT / "assets" / "icons"
 ART_DIR = OUT / "assets" / "art"
 REFS_DIR = OUT / "assets" / "refs"
 CROPS = json.loads((OUT / "crops.json").read_text())
@@ -59,11 +58,7 @@ TOKENS = [
  ("Ink", "ink-2",        "#6A6767",  "stat labels #6D6B6C and 07 suggestion text #676467"),
  ("Ink", "ink-3",        "#838083",  "04 More-options subtitle #817E80, 06 #878587, 03 #878487"),
  ("Ink", "ink-4",        "#A8A5A8",  "the 0/80 counter, the palest type; placeholders within 5 levels"),
- ("Ink", "glyph",        "#878689",  "inactive tab-bar glyph, 03 y 776-797"),
- ("Ink", "glyph-2",      "#6B686A",  "inactive content-tab glyph, 03 y 415-433"),
  ("Ink", "ink-inv",      "#FDFBFC",  "white type on the pink pill and over the cover art"),
- ("Ink", "mark-off",     "#A5A2A5",
-  "04/07 Share-to marks: the captures carry them desaturated, flat fill #A5A2A5"),
 
  ("Accent", "pink",      "#FD2953",  "Save once filled, the Add pill, the Post pill, the caret"),
  ("Accent", "cyan",      "#1FD6EC",  "the avatar + badge and the left third of the create button"),
@@ -159,12 +154,13 @@ def _uri(cid):
             if f.exists() else "")
 
 
-def art(cid, extra=""):
-    """One <img>, placed at the box it was measured from."""
+def art(cid, extra="", dx=0.0):
+    """One <img>, placed at the box it was measured from. dx moves it along its
+    row: the camera mark repeats on 07's two chips."""
     _, x0, y0, x1, y1 = CROPS[cid]
     return ('<img class="a" src="%s" alt="" style="left:%.1fpx;top:%.1fpx;'
             'width:%.1fpx;height:%.1fpx%s">'
-            % (_uri(cid), x0, y0, x1 - x0, y1 - y0, extra))
+            % (_uri(cid), x0 + dx, y0, x1 - x0, y1 - y0, extra))
 
 
 # ------------------------------------------------------------ phone frame ----
@@ -374,19 +370,9 @@ def rule(x, y, w, colour):
     return box(x, y, w, 0.33, "background:%s" % colour)
 
 
-def icon(name, colour="var(--x-ink)", dx=0.0):
-    """One glyph from assets/icons, already drawn in absolute screen pt. dx
-    moves it along its row: the camera mark repeats on 07's two chips."""
-    s = (ICON_DIR / (name + ".svg")).read_text().strip()
-    x, y, w, h = (float(v) for v in re.search(r'viewBox="([^"]+)"', s).group(1).split())
-    return s.replace('<svg xmlns="http://www.w3.org/2000/svg" ',
-                     '<svg class="ic" style="left:%gpx;top:%gpx;width:%gpx;height:%gpx;color:%s" '
-                     % (x + dx, y, w, h, colour), 1).replace("\n", "")
-
-
 def svg(x, y, w, h, inner, colour="var(--x-ink)", sw=2.0):
     """A glyph small enough to live at its call site: chevrons, dots, marks.
-    Same contract as icon() -- the path is in absolute screen pt."""
+    Same contract as art() -- the path is in absolute screen pt."""
     return ('<svg class="ic" viewBox="%g %g %g %g" style="left:%gpx;top:%gpx;width:%gpx;'
             'height:%gpx;color:%s" fill="none" stroke="currentColor" stroke-width="%g"'
             ' stroke-linecap="round" stroke-linejoin="round">%s</svg>'
@@ -442,7 +428,7 @@ def profile_screen():
     """The profile the saved bio lands on."""
     t = (tx(158.0, 73.0, "alexsmith", "t-nav")
          + svg(238.0, 76.67, 11.67, 7.33, '<path d="M239 77.7L243.83 82.4L248.67 77.7"/>')
-         + icon("footprints")
+         + art("footprints")
          + "".join(box(355.67, y, 19.33, 2.0, "border-radius:1px;background:var(--x-ink)")
                    for y in (74.0, 80.0, 86.0)))
 
@@ -468,10 +454,10 @@ def profile_screen():
 
     t += (box(46.33, 294.0, 117.33, 44.0, PILL) + tx(68.0, 310.0, "Edit profile", "t-btn")
           + box(167.67, 294.0, 131.33, 44.0, PILL) + tx(188.67, 310.0, "Share profile", "t-btn")
-          + box(303.0, 294.0, 44.0, 44.0, PILL) + icon("personadd"))
+          + box(303.0, 294.0, 44.0, 44.0, PILL) + art("personadd"))
 
     t += (txc(352.67, "here for the fun \U0001F57A", "t-bio", x=76.5, w=240)
-          + icon("cart", "var(--x-pink)")
+          + art("cart")
           + tx(169.33, 378.33, "Your orders", "t-chip-lg"))
 
     # Content tabs. The grid tab is active: six bars, a caret, a 2pt underline.
@@ -479,10 +465,10 @@ def profile_screen():
                   for y in (416.33, 425.33) for i in range(3))
           + svg(60.67, 422.0, 7.0, 4.67,
                 '<path d="M60.67 422.0H67.67L64.17 426.67Z" fill="currentColor" stroke="none"/>')
-          + icon("tab-lock", "var(--x-glyph-2)")
-          + icon("tab-repost", "var(--x-glyph-2)")
-          + icon("tab-saved", "var(--x-glyph-2)")
-          + icon("tab-liked", "var(--x-glyph-2)")
+          + art("tab-lock")
+          + art("tab-repost")
+          + art("tab-saved")
+          + art("tab-liked")
           + box(28.0, 442.0, 48.0, 2.0, "background:var(--x-ink)")
           + rule(0, 443.67, 393, "var(--x-line)")
           + art("03-draft"))
@@ -504,7 +490,7 @@ def profile_screen():
                                   ("tb-friends", "Friends", 101.67, 803.33, False),
                                   ("tb-inbox", "Inbox", 263.0, 803.33, False),
                                   ("tb-me", "Profile", 339.33, 803.0, True)):
-        t += (icon(name, "var(--x-ink)" if on else "var(--x-glyph)")
+        t += (art(name)
               + tx(lx, ly, lab, "t-tab", None if on else "var(--x-ink-3)"))
     # The create button: cyan then pink, offset by 4 and 7.33, with the near-black
     # cap painted over both -- the capture shows colour only at the two edges.
@@ -554,22 +540,21 @@ def post_settings():
     """Divider, Location, Add link, the privacy row, More options, Share to.
     07 translates this whole block down 40pt; every number here is 04's."""
     t = (rule(0, 319.67, 393, "var(--x-rule)")
-         + icon("pin") + tx(45.33, 347.67, "Location", "t-row")
+         + art("pin") + tx(45.33, 347.67, "Location", "t-row")
          + svg(114.0, 348.33, 11.33, 11.33,
                '<circle cx="119.67" cy="354.0" r="5.1"/>'
                '<path d="M119.67 351.6V351.7M119.67 353.4V356.6"/>', "var(--x-ink-3)", 1.2)
          + chev_right(348.33))
     t += "".join(box(x, 380.0, w, 28.0, CHIP) + txc(389.0, s, "t-meta", x=x, w=w)
                  for x, w, s in PLACES)
-    t += (svg(18.33, 438.33, 15.34, 15.34,
-              '<path d="M26.0 439.1V452.9M19.1 446.0H32.9"/>')
+    t += (art("plus")
           + tx(44.33, 439.67, "Add link", "t-row")
           + circle(106.0, 433.33, 7.33, "background:var(--x-pink)")
           + chev_right(440.33)
           + box(38.0, 470.0, 89.33, 28.0, CHIP)
-          + icon("template")
+          + art("template")
           + tx(66.33, 478.67, "Template", "t-meta"))
-    t += (icon("globe") + tx(45.33, 529.67, "Everyone can view this post", "t-row")
+    t += (art("globe") + tx(45.33, 529.67, "Everyone can view this post", "t-row")
           + chev_right(530.33))
     t += ("".join(circle(18.0 + 6.33 * i, 586.33, 3.0, "background:var(--x-ink)")
                   for i in range(3))
@@ -577,21 +562,21 @@ def post_settings():
           + tx(45.0, 604.33, "Privacy and more settings have been moved here.",
                "t-meta", "var(--x-ink-3)")
           + chev_right(582.33))
-    t += (icon("share") + tx(44.67, 656.0, "Share to", "t-row")
+    t += (art("share") + tx(44.67, 656.0, "Share to", "t-row")
           + circle(293.0, 644.0, 36.0, "background:var(--x-chip)")
           + circle(342.0, 644.0, 36.0, "background:var(--x-chip)")
-          + icon("bubble", "var(--x-mark-off)")
-          + icon("facebook", "var(--x-mark-off)"))
+          + art("bubble")
+          + art("facebook"))
     return t
 
 
 def post_buttons():
     return (box(11.67, 769.67, 182.33, 44.67,
                 "border-radius:var(--x-r-btn);background:var(--x-chip)")
-            + icon("drafts") + tx(91.33, 785.67, "Drafts", "t-btn-lg")
+            + art("drafts") + tx(91.33, 785.67, "Drafts", "t-btn-lg")
             + box(200.33, 769.67, 182.33, 44.67,
                   "border-radius:var(--x-r-btn);background:var(--x-pink)")
-            + icon("post", "var(--x-ink-inv)")
+            + art("post")
             + tx(285.67, 786.67, "Post", "t-btn-lg", "var(--x-ink-inv)"))
 
 
@@ -638,11 +623,11 @@ def keyboard(alt=False):
             x = ROW_X[r] + i * KEY_PITCH
             t += keycap(x, KEY_W, ROW_Y[r],
                         "var(--x-key)", txc(ROW_INK[r] - xcap, ch, "t-key", x=x, w=KEY_W))
-    t += (keycap(3.0, 44.33, ROW_Y[2], "var(--x-key-alt)", icon("kb-shift"))
-          + keycap(346.0, 44.33, ROW_Y[2], "var(--x-key-alt)", icon("kb-back"))
+    t += (keycap(3.0, 44.33, ROW_Y[2], "var(--x-key-alt)", art("kb-shift"))
+          + keycap(346.0, 44.33, ROW_Y[2], "var(--x-key-alt)", art("kb-back"))
           + keycap(3.0, 42.67, ROW_Y[3], "var(--x-key-alt)",
                    txc(747.0, "123", "t-keylab", x=3.0, w=42.67))
-          + keycap(51.67, 43.33, ROW_Y[3], "var(--x-key-alt)", icon("kb-emoji"))
+          + keycap(51.67, 43.33, ROW_Y[3], "var(--x-key-alt)", art("kb-emoji"))
           + keycap(100.33, 192.0, ROW_Y[3], "var(--x-key)",
                    txc(745.67, "spatie", "t-keylab", x=100.33, w=192.0)))
     if alt:
@@ -653,7 +638,7 @@ def keyboard(alt=False):
     else:
         t += keycap(298.33, 92.0, ROW_Y[3], "var(--x-key-alt)",
                     txc(748.0, "return", "t-keylab", x=298.33, w=92.0))
-    return t + icon("kb-globe") + icon("kb-mic")
+    return t + art("kb-globe") + art("kb-mic")
 
 
 # ----------------------------------------------------------- post boards ----
@@ -683,7 +668,7 @@ def post_caption():
     which pushes everything from the divider down by 40pt."""
     sugg = ("".join(box(x, 316.67, w, 28.0, CHIP)
                     + tx(40.33 + dx, 325.33, s, "t-meta", "var(--x-ink-2)")
-                    + icon("camera", "var(--x-ink-2)", dx)
+                    + art("camera", dx=dx)
                     for x, w, dx, s in ((16.0, 198.33, 0.0, "share your excellent capture"),
                                         (222.33, 153.0, 206.0, "display your footage")))
             + box(383.33, 316.67, 40.0, 28.0, CHIP))
