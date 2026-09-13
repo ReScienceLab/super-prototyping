@@ -314,10 +314,13 @@ declares a box other than the default 478 x 980.
   writing a caption. 17 boards in three rows: a token board and two evidence
   boards for 53 tokens, the seven replicas, and the capture of each parked
   underneath. Mean absolute delta against those captures is 2.07-5.62 levels
-  (of 255), mean 4.06, and the gradient is the keyboard: the two boards that
+  (of 255), mean 4.36, and the gradient is the keyboard: the two boards that
   are three-quarters keycaps cost the most, with nothing on them
-  geometrically off. Its `README.md` records the residual test the other runs
-  do not have. `scratch/ink.py` reports dark-pixel mass over 29 named regions,
+  geometrically off. The profile board is the exception, and reads its own
+  substitution rather than an error: the capture's avatar is a photograph of
+  a real person, so the board ships TikTok's own account avatar over it, and
+  2.6% of the frame differs on purpose for 3.42 -> 5.53. Its `README.md`
+  records the residual test the other runs do not have. `scratch/ink.py` reports dark-pixel mass over 29 named regions,
   and the *shape* of the spread is the diagnosis: leaning one way is a weight
   error worth fixing, symmetric - here 0.936 to 1.084 - is the rasteriser's
   stem darkening and is not chaseable, so the run stops. The same harness
@@ -331,9 +334,9 @@ declares a box other than the default 478 x 980.
   glyphs are crops of the captures rather than traces: the same ink census run
   inside each glyph's own box caught three that were the wrong shape rather
   than the wrong weight, and a crop scores 0 by construction.
-  `assets/art/` is committed, 29 crops, and `iconbuild.py` is the one
-  folder here that keeps the App Store fetch behind its `icon.png` as a
-  script rather than a note; the seven `ref-*` boards are gitignored, so a
+  `assets/art/` is committed, 28 crops and one fetched avatar, and
+  `iconbuild.py` and `avatarbuild.py` are the only fetches here kept as
+  scripts rather than notes, because both URLs are built or signed; the seven `ref-*` boards are gitignored, so a
   fresh clone has 10.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked

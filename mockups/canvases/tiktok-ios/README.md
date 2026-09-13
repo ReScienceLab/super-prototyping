@@ -14,8 +14,9 @@ Open it with `?canvas=tiktok-ios`, or a single board with
 | `00b-evidence`, `00c-evidence` | The same values shown against the captures they came off. |
 | `01-bio-empty` … `07-post-caption` | The screens. 393 × 852 pt frames on 478 × 980 artboards, fully self-contained. |
 | `probes.json` | 85 measurements, replayable: `refkit batch probes.json --pt 3 --against scratch/mine`. |
-| `crops.json` | The 29 boxes cut out of the captures as bitmaps: three regions and every glyph. Everything else is drawn. |
+| `crops.json` | The 28 boxes cut out of the captures as bitmaps: two regions and every glyph. Everything else is drawn. |
 | `iconbuild.py` | Fetches `icon.png` from the App Store and masks it. One shot; the icon is committed. |
+| `avatarbuild.py` | Fetches board 3's avatar from TikTok's own account, so no stranger's face ships here. One shot; the PNG is committed. |
 
 The captures are 1179 × 2556 for a 393 × 852 frame, so the scale is 3.0 px/pt
 exactly and every `refkit` call in this folder runs `--pt 3`.
@@ -47,7 +48,7 @@ Mean absolute delta against the capture, whole frame, phone crop, in levels of
 |---|---|---|
 | 1 | Bio, empty | 2.07 |
 | 2 | Bio, filled | 3.84 |
-| 3 | Profile | 3.42 |
+| 3 | Profile | 5.53 |
 | 4 | Post, empty | 3.47 |
 | 5 | Post, keyboard | 5.62 |
 | 6 | Post, hashtags | 5.16 |
@@ -58,6 +59,13 @@ keycap is a rounded rect with a 1.3pt bottom edge repeated thirty times — ever
 antialiased edge in the grid counts twice, once on each side. Nothing in those
 two boards is geometrically off; `01-bio-empty` carries the same keyboard at
 2.07 because half its frame is empty ground.
+
+Board 3 is the one number here that is not a fidelity score. Its avatar is a
+deliberate substitution — TikTok's own account avatar, a black tile, over a
+capture holding a photograph of a stranger — and that 109pt disc is 2.6% of
+the frame at some 80 levels of difference. The board reads 3.42 against the
+capture's own face and 5.53 as shipped; the shipped number is the one in the
+table.
 
 `refkit batch probes.json --pt 3 --against scratch/mine` replays all 85:
 
@@ -177,24 +185,29 @@ string or a mark that would otherwise reproduce a real person's content.
   each chosen to render within a point or so of the width its box was built
   for. Same box, same metrics — the widths in `probes.json` are the
   capture's, and the fourth chip runs off the right edge in both.
-- **Three whole regions are bitmap crops, not drawings** (`crops.json`, which
-  also holds the 26 glyph boxes): the profile photograph, the drafts
-  thumbnail and the composer's cover art. Their overlays are baked in — the
-  "motion" tag and the "Edit cover" pill sit in `04-cover.png`, and the "Drafts: 1" label in `03-draft.png`. Nothing
-  re-types them, so nothing can get them wrong. The avatar is the exception:
-  its gradient ring, the page-coloured gap and the + badge are geometry, so
-  `cut()` masks the crop to the photograph alone — a disc, with the badge's
-  notch bitten out of it — and `03-avatar.png` carries no ring and no badge.
+- **Two whole regions are bitmap crops, not drawings** (`crops.json`, which
+  also holds the 26 glyph boxes): the drafts thumbnail and the composer's
+  cover art. Their overlays are baked in — the "motion" tag and the "Edit
+  cover" pill sit in `04-cover.png`, and the "Drafts: 1" label in
+  `03-draft.png`. Nothing re-types them, so nothing can get them wrong.
+- **The profile avatar is TikTok's own, not the capture's.** The face in the
+  capture belongs to a real person, so board 3 ships the avatar of TikTok's
+  account instead, fetched by `avatarbuild.py`. It is the only bitmap here
+  that is not a crop, and the only substitution that costs a whole board — see
+  *How close it lands*. Everything around it is geometry and stays drawn: the
+  4pt gradient ring, the 2.5pt page-coloured gap, the notch and the + badge.
+  The asset is a plain 288 × 288 square and carries none of them.
 - **The emoji glyphs are the host's**, as above.
 
 ## Assets
 
-- `assets/art/` — the 29 crops from `crops.json`, **committed**. They are
-  the one thing `gen.py` cannot rebuild without the captures, and the rule
-  against committing reference imagery is about whole third-party screens; a
-  96 × 96 avatar, two thumbnails and 26 glyphs at their ink boxes are the art
-  a board needs to render at all. `cut()` refreshes them from `assets/refs/`
-  when the captures are there, masking the avatar to its photograph on the way.
+- `assets/art/` — the 28 crops from `crops.json` plus the fetched avatar,
+  **committed**. They are the one thing `gen.py` cannot rebuild without the
+  captures, and the rule against committing reference imagery is about whole
+  third-party screens; two thumbnails and 26 glyphs at their ink boxes are the
+  art a board needs to render at all. `cut()` refreshes the crops from
+  `assets/refs/` when the captures are there; `avatarbuild.py` refetches the
+  avatar, which needs no capture at all.
 - `assets/refs/` — the seven captures. **Gitignored**, along with the `ref-*`
   boards built from them. A fresh clone therefore builds 10 of the 17 boards
   and skips the reference row.
