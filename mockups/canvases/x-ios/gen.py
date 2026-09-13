@@ -19,17 +19,18 @@ ink width against SF Pro at 8x rather than assumed off the iOS ladder. The
 fits land inside half a pixel -- 07 "Movie review" measures 157.67 and Heavy
 25.5 draws 157.62 -- which is why several sizes are halves.
 
-ONLY PHOTOGRAPHS ARE CROPPED. Six crops (crops.json): two heroes, a banner, a
-peek of the page under a sheet, and one avatar that serves five places at five
-sizes. Everything else on these screens -- every rule, fill, chip, glyph and
-run of type -- is rebuilt. Where interface sat on a photograph it is patched
-out of the capture first (INPAINT below, a Coons fill from each box's own four
-edges) and drawn again in CSS on top: 01's close disc, 07's four header discs
-and, on all three, the status bar.
+ONLY PHOTOGRAPHS ARE CROPPED. Two crops (crops.json), 01's and 05's heroes.
+The other four photographs are the example account's own -- its banner on two
+screens, its avatar on three and its post's video thumbnail on one -- and they
+come from assets/ through pic(), not from a capture. Everything else on these
+screens -- every rule, fill, chip, glyph and run of type -- is rebuilt. Where
+interface sat on a cropped photograph it is patched out of the capture first
+(INPAINT below, a Coons fill from each box's own four edges) and drawn again in
+CSS on top: 01's close disc and, on both, the status bar.
 
-THIRTY ICONS ARE VECTORS, NOT CROPS. Each one is drawn on X's own 24-unit grid
-in assets/icons/, with a viewBox that is the glyph's ink box, and inlined by
-icon() at the ink box measured off the capture, so the canvas's inspector
+TWENTY-FIVE ICONS ARE VECTORS, NOT CROPS. Each one is drawn on X's own 24-unit
+grid in assets/icons/, with a viewBox that is the glyph's ink box, and inlined
+by icon() at the ink box measured off the capture, so the canvas's inspector
 hands it back as a vector asset. Most are approximations of X's artwork; the
 five bottom-nav glyphs are not. Those are traced off the artwork at half
 coverage and redrawn as lines, arcs and cubics, and the Grok mark is traced
@@ -39,6 +40,12 @@ THREE DEFECTS BELONG TO THE SOURCE. Mobbin composites the Dynamic Island out,
 drops the home indicator, and exports with square corners. All three are this
 repo's frame and are drawn here regardless, so the diff window is trimmed --
 see README.md.
+
+ONE THING THE CAPTURES DO NOT DECIDE. 06 and 07 show @Yilin0x rather than the
+captures' demo persona: its banner, its avatar, its two-line bio, location,
+website, join month and counts, and one post, all read off twitterapi.io. Their
+deltas against the captures are therefore not clone scores -- README.md says
+what is still comparable on those two, and what the swap costs.
 """
 import base64, json
 from pathlib import Path
@@ -55,6 +62,12 @@ PAGE_NAME = "(example) " + NAME
 # The account the boards show. The captures hold X's own demo persona, and the
 # evidence rows below still quote it: they measure the captures, not the render.
 USER, AT = "Yilin", "@Yilin0x"
+# Its bio, location, join month and two counts, read off twitterapi.io on
+# 2026-09-13 with the post below. The bio is two lines where the capture's
+# "Ordinary guy" is one, so shift() drops everything under it by one line.
+BIO = ("Building <a>@snapaction_ai</a> <a>snapaction.ai</a>\U0001F984"
+       "Discord: <a>discord.gg/C2b7tNfhZC</a>")
+DY = 21.0
 P = "x"          # token prefix: --x-ink, --x-accent, --x-t-body
 
 # ---------------------------------------------------------------- tokens ----
@@ -160,8 +173,9 @@ TOKENS = [
   "07 both Host chips: the post's is 18.33 tall and the card's 15.33, and "
   "neither end is a semicircle -- the fill is square 4 in from each corner"),
  ("Radius", "r-sheet", "12px",
-  "06 the sheet's top edge is at 70.33 and its white reaches x 1 only at "
-  "76.33"),
+  "06 the sheet's top edge is at 69.0 and its white reaches x 1 only at "
+  "76.33: 12 puts that corner at 76.20 and fits eleven columns across the "
+  "curve at 0.17 rms, where the 70.33 first read off mid-width sits 1.24 out"),
  ("Radius", "r-peek", "10px",
   "06 the page peeking above the sheet, x 20-373.33: opaque across its "
   "full width from 52.7, 10 below its top at 42.67"),
@@ -259,9 +273,6 @@ INPAINT = {
  "i1": ("p1", [(44, 16, 100, 42), (278, 20, 364, 38),    # clock, right cluster
                (14, 63, 52, 101)]),                      # the close disc
  "i5": ("p5", [(44, 16, 100, 42), (278, 20, 364, 38)]),
- "i7": ("p7", [(44, 16, 100, 42), (278, 20, 364, 38)]
-              + [(cx - 17, 63.5, cx + 17, 97.5)          # four header discs
-                 for cx in (32.3, 280.7, 321.3, 361.0)]),
 }
 
 
@@ -323,19 +334,27 @@ def _uri(cid):
         (ART_DIR / (cid + ".png")).read_bytes()).decode()
 
 
-def art(cid, style="", at=None):
-    """One <img>. By default it lands at the box it was cut from, snapped to
-    the capture's pixels: a crop placed at its raw pt box sits up to half a
-    capture pixel from where it was taken. `at` places it somewhere else --
-    07-avatar is the same photograph at five diameters on two screens."""
-    ref, x0, y0, x1, y1 = CROPS[cid]
-    if at is None:
-        at = (round(x0 * SCALE) / SCALE, round(y0 * SCALE) / SCALE,
-              (round(x1 * SCALE) - round(x0 * SCALE)) / SCALE,
-              (round(y1 * SCALE) - round(y0 * SCALE)) / SCALE)
+def art(cid):
+    """One <img>, at the box it was cut from and snapped to the capture's
+    pixels: a crop placed at its raw pt box sits up to half a capture pixel
+    from where it was taken."""
+    _, x0, y0, x1, y1 = CROPS[cid]
     return ('<img class="a" src="%s" alt="" style="left:%.3fpx;top:%.3fpx;'
-            'width:%.3fpx;height:%.3fpx%s">'
-            % (_uri(cid), at[0], at[1], at[2], at[3], ";" + style if style else ""))
+            'width:%.3fpx;height:%.3fpx">'
+            % (_uri(cid), round(x0 * SCALE) / SCALE, round(y0 * SCALE) / SCALE,
+               (round(x1 * SCALE) - round(x0 * SCALE)) / SCALE,
+               (round(y1 * SCALE) - round(y0 * SCALE)) / SCALE))
+
+
+def pic(name, x, y, w, h, style=""):
+    """One image from assets/, inlined. The three the example account
+    brings -- its avatar, its banner and its post's video thumbnail -- are
+    not cut from a capture, so they are not in crops.json and art() cannot
+    place them. Each is stored at 3 px per pt, like every capture here."""
+    uri = base64.b64encode((OUT / "assets" / (name + ".jpg")).read_bytes()).decode()
+    return ('<img class="a" src="data:image/jpeg;base64,%s" alt="" style="left:'
+            '%.2fpx;top:%.2fpx;width:%.2fpx;height:%.2fpx%s">'
+            % (uri, x, y, w, h, ";" + style if style else ""))
 
 
 ICON_DIR = OUT / "assets" / "icons"
@@ -639,29 +658,45 @@ def s05():
 # The edit-profile sheet over a dimmed page. Ten full-width rules bound eight
 # rows and one empty 32.33pt band; the avatar is the same photograph as 07
 # under a .28 black scrim, with a stroked camera and a sparkle on it.
+# The Bio row is 90.67 tall in the capture for a one-line value, so the
+# example account's two lines sit in it unchanged. Every value wraps at the
+# field's own right edge, 383.33.
 FIELDS = [(323.0, "Name", USER, "var(--x-accent)"),
-          (361.7, "Bio", "Ordinary guy", "var(--x-accent)"),
-          (457.7, "Location", "New Jersey, USA", "var(--x-accent)"),
-          (502.3, "Website", "Add your website", "var(--x-ink-2)"),
+          (361.7, "Bio", BIO, "var(--x-accent)"),
+          (457.7, "Location", "London, UK", "var(--x-accent)"),
+          (502.3, "Website", "rescience.com", "var(--x-accent)"),
           (547.0, "Birth date", "Add your date of birth", "var(--x-ink-2)")]
 RULES6 = [306.00, 350.67, 441.33, 486.00, 530.67, 575.33, 620.00, 664.67,
           697.00, 741.67]
 
 
 def s06():
-    fields = "".join(tx(10.0, y, label, "t-row") + tx(92.33, y, value, "t-body", col)
+    fields = "".join(tx(10.0, y, label, "t-row")
+                     + tx(92.33, y, value, "t-body", col,
+                          extra=";width:291px;white-space:normal")
                      for y, label, value, col in FIELDS)
     return screen("Edit profile",
-        art("06-peek", "border-radius:var(--x-r-peek) var(--x-r-peek) 0 0")
-        + box(0, 70.33, 393, 781.67,
+        # the parent profile behind the sheet: the same banner at the peek's
+        # scale, under the dim itself. The dim is fitted, not guessed -- the
+        # capture's peek is 0.563 of the banner it shows on 07. The peek ends
+        # where the sheet starts, 69.0: the crop this replaced ran to 70.33 and
+        # carried 1.33 of the sheet's own white, which is where that number
+        # came from and why the corner fit above disagrees with it
+        pic("profile-banner", 20, 42.67, 353.33, 26.33,
+              "object-fit:cover;object-position:top;"
+              "border-radius:var(--x-r-peek) var(--x-r-peek) 0 0")
+        + box(20, 42.67, 353.33, 26.33,
+              "border-radius:var(--x-r-peek) var(--x-r-peek) 0 0;"
+              "background:rgba(0,0,0,.44)")
+        + box(0, 69.0, 393, 783.0,
               "border-radius:var(--x-r-sheet) var(--x-r-sheet) 0 0;"
               "background:var(--x-ground)")
         + tx(17.0, 86.67, "Cancel", "t-field")
         + tx(152.33, 86.33, "Edit profile", "t-sheet")
         + tx(338.67, 88.0, "Save", "t-save", "var(--x-save-off)")
-        + art("06-banner")
+        + pic("profile-banner", 0, 118.0, 393, 128, "object-fit:cover")
         + circle(9.28, 223.28, 70.1, "background:var(--x-inv)")
-        + art("07-avatar", "border-radius:50%", at=(12.67, 226.67, 63.33, 63.33))
+        + pic("profile-avatar", 12.67, 226.67, 63.33, 63.33, "border-radius:50%")
         + circle(12.67, 226.67, 63.33, "background:var(--x-scrim)")
         + icon("camera", 31.67, 248.0, 25.33, 23.0, "var(--x-inv)")
         + icon("sparkle", 47.0, 245.5, 9.33, 10.0, "var(--x-inv)")
@@ -681,8 +716,7 @@ def s06():
 
 # -------------------------------------------------------------------- 07 ----
 # The finished profile. A banner to 131.33 with four translucent discs on it,
-# the avatar breaking its edge, the meta block, six tabs, then two identical
-# posts 309.0 apart -- the second clipped by the nav bar at 768.67.
+# the avatar breaking its edge, the meta block, six tabs, then the timeline.
 DISCS = [("back", 32.3, 26.0, 75.67, 12.67, 10.66),
          ("search", 280.7, 273.33, 73.33, 14.67, 14.67),
          ("pencil", 321.3, 314.33, 73.67, 14.0, 14.0),
@@ -690,16 +724,6 @@ DISCS = [("back", 32.3, 26.0, 75.67, 12.67, 10.66),
 TABS = [("Posts", 16.0, "var(--x-ink)"), ("Replies", 80.0, "var(--x-ink-2)"),
         ("Highlights", 150.0, "var(--x-ink-2)"), ("Videos", 239.33, "var(--x-ink-2)"),
         ("Photos", 306.67, "var(--x-ink-2)"), ("Articles", 374.0, "var(--x-ink-2)")]
-# The last two are half under the FAB in the capture and are drawn in full.
-# Each glyph's own ink box. The six do not share a top or a height: the heart
-# sits a point lower than the reply bubble and is a point shorter. The last
-# two are measured at their x only -- the compose button covers the rest.
-ACTIONS = [("reply", 62.67, 701.00, 15.33, 14.33),
-           ("repost", 129.67, 702.33, 17.33, 12.00),
-           ("like", 199.00, 702.00, 14.67, 13.00),
-           ("views", 268.33, 701.67, 12.00, 13.33),
-           ("bookmark", 336.33, 701.00, 12.00, 14.00),
-           ("share", 370.00, 701.00, 11.00, 14.00)]
 # Fitted, not thresholded: a razor tip or an arc's bulge crosses half coverage
 # outside the last pixel a threshold keeps, so scratch/navfit.py slides each box
 # against the window itself. The five land at 2.0-3.0 mean levels over the wash.
@@ -708,67 +732,85 @@ NAV = [("home-fill", 29.25, 782.37, 20.19, 21.07), ("search", 108.11, 783.08, 19
        ("mail", 344.28, 784.31, 20.07, 18.07)]
 
 
-def spaces_card(dy):
-    return (box(61.33, 477.67 + dy, 322.67, 214,
-                "border-radius:var(--x-r-card);background:var(--x-spaces)")
-            + circle(70.67, 490.33 + dy, 19.33, "background:var(--x-inv)")
-            + art("07-avatar", "border-radius:50%",
-                  at=(71.67, 491.33 + dy, 17.33, 17.33))
-            + tx(95.0, 494.67 + dy, USER, "t-host", "var(--x-inv)")
-            + box(157.33, 492.67 + dy, 36.33, 15.33,
-                  "border-radius:var(--x-r-chip);background:var(--x-chip-card)")
-            + tx(162.33, 495.67 + dy, "Host", "t-count", "var(--x-inv)")
-            + icon("dots", 355.33, 503.67 + dy, 11.33, 2.0, "var(--x-inv)")
-            + tx(72.0, 527.67 + dy, "Movie review", "t-space", "var(--x-inv)")
-            + icon("play", 73.33, 612.33 + dy, 10.67, 14.67, "var(--x-inv)")
-            + tx(85.0, 614.33 + dy, "Dec 10, 2025 · 11s", "t-date", "var(--x-inv)")
-            + box(70.67, 646 + dy, 286, 33,
-                  "border-radius:var(--x-r-play);background:var(--x-inv)")
-            + tx(166.33, 657.0 + dy, "Play recording", "t-pill"))
+# ----------------------------------------------------------- 07's timeline ----
+# Not the capture's. X's demo profile posts a Space recording; this board draws
+# @Yilin0x's launch post instead, read off twitterapi.io on 2026-09-13:
+# x.com/Yilin0x/status/2095791405545480331. It is set to X's rhythm rather than
+# measured off a capture, and it is taller than the fold: the video thumbnail
+# runs under the nav and the action row falls off the board entirely, which is
+# what the phone shows for a post this long under an unscrolled profile header.
+# So the board draws no action row, and 07 keeps none of the capture's. README
+# carries what that costs against the capture.
+POST = """Launching super-prototyping: clone any app's UI as plain HTML artboards \
+on a <a>@tldraw</a> canvas.
+Run /clone-prototype on your screenshots; every color and metric traces to a \
+measurement. No design tool, no build step.
+<a>prototyping.rescience.com</a>
+<a>github.com/ReScienceLab/s…</a>"""
+# One run, not four. The capture's four boxes fix where the row starts and the
+# two ink gaps inside it, 3.67 within a pair and 10.67 between them; the
+# example account's three-digit counts set everything else. A margin is advance
+# where a gap is ink, so 2.4 and 9.5 are what reproduce those two gaps exactly.
+COUNTS = ('<b style="color:var(--x-ink)">364</b>'
+          '<span style="margin-left:2.4px">Following</span>'
+          '<b style="color:var(--x-ink);margin-left:9.5px">246</b>'
+          '<span style="margin-left:2.4px">Followers</span>')
+LINES = 7                            # what POST wraps to in 322pt at 15.5/21
+MEDIA = 623 / 966                    # assets/post-media.jpg, the video's thumbnail
 
 
-def post(dy):
-    return (art("07-avatar", "border-radius:50%", at=(9.0, 433.67 + dy, 44.33, 44.33))
-            + tx(61.67, 434.33 + dy, USER, "t-row")
-            + tx(126.0, 434.0 + dy, AT + " · 2h", "t-note", "var(--x-ink-2)")
-            + icon("x-logo", 365.67, 432.67 + dy, 16.67, 16.33, "var(--x-ink)")
-            + box(61.33, 451.0 + dy, 40.67, 18.33,
-                  "border-radius:var(--x-r-chip);background:var(--x-chip)")
-            + tx(66.67, 454.67 + dy, "Host", "t-body", "var(--x-chip-ink)")
-            + spaces_card(dy)
-            + "".join(icon(n, x, y + dy, w, h, "var(--x-ink-2)")
-                      for n, x, y, w, h in ACTIONS)
-            + tx(286.67, 701.67 + dy, "8", "t-count", "var(--x-ink-2)")
-            + rule(730.33 + dy))
+def post():
+    """The post: head, text, and the video's thumbnail with its play button."""
+    my = boxtop(455.33, "t-note") + LINES * 21 + 12     # the text's floor, and a gap
+    mh = 322 * MEDIA
+    return (pic("profile-avatar", 9.0, 433.67, 44.33, 44.33, "border-radius:50%")
+            + tx(61.67, 434.33, USER + '<span style="font:var(--x-t-note);color:'
+                 'var(--x-ink-2);margin-left:5.33px">%s · 9/4/26</span>' % AT, "t-row")
+            + icon("x-logo", 365.67, 432.67, 16.67, 16.33, "var(--x-ink)")
+            + tx(61.33, 455.33, POST, "t-note",
+                 extra=";width:322px;white-space:pre-wrap")
+            + '<img class="a" src="data:image/jpeg;base64,%s" alt="" style="left:'
+              '61.33px;top:%.2fpx;width:322px;height:%.2fpx;border-radius:16px">'
+              % (base64.b64encode((OUT / "assets" / "post-media.jpg").read_bytes()).decode(),
+                 my, mh)
+            + circle(198.33, my + mh / 2 - 24, 48, "background:rgba(0,0,0,.45)")
+            + icon("play", 218.0, my + mh / 2 - 9.5, 13.67, 19.0, "var(--x-inv)"))
+
+
+def shift(inner):
+    """Everything the bio's second line pushes down. The numbers inside are
+    still the capture's: the block moves, nothing in it is re-measured."""
+    return ('<div class="b" style="left:0;top:%.2fpx;width:393px;height:852px">'
+            '%s</div>' % (DY, inner))
 
 
 def s07():
     return screen("Professional profile",
-        art("07-banner")
+        pic("profile-banner", 0, 0, 393, 131.33, "object-fit:cover")
         + "".join(circle(cx - 15, 65.5, 30, "background:var(--x-disc-7)")
                   + icon(name, gx, gy, gw, gh, "var(--x-inv)")
                   for name, cx, gx, gy, gw, gh in DISCS)
         + circle(5.45, 106.3, 70.1, "background:var(--x-inv)")
-        + art("07-avatar", "border-radius:50%", at=(8.67, 109.5, 63.67, 63.67))
+        + pic("profile-avatar", 8.67, 109.5, 63.67, 63.67, "border-radius:50%")
         + tx(9.0, 188.0, USER, "t-name")
         + tx(9.67, 215.33, AT, "t-note", "var(--x-ink-2)")
-        + tx(9.67, 249.0, "Ordinary guy", "t-body")
-        + icon("briefcase", 10.33, 275.67, 13.0, 12.33, "var(--x-ink-2)")
-        + tx(28.33, 277.33, "Entertainment &amp; Recreation", "t-meta", "var(--x-ink-2)")
-        + icon("pin", 206.67, 275.67, 11.0, 13.0, "var(--x-ink-2)")
-        + tx(223.67, 277.33, "New Jersey, USA", "t-meta", "var(--x-ink-2)")
-        + icon("calendar", 11.0, 302.33, 11.67, 11.67, "var(--x-ink-2)")
-        + tx(27.33, 302.33, "Joined November 2025", "t-count", "var(--x-ink-2)")
-        + icon("chevron-right", 170.67, 302.67, 6.33, 10.66, "var(--x-ink-2)")
-        + tx(9.0, 328.0, "View more", "t-count", "var(--x-accent)")
-        + tx(9.33, 356.33, "7", "t-count", extra=";font-weight:700")
-        + tx(19.67, 356.33, "Following", "t-count", "var(--x-ink-2)")
-        + tx(85.67, 356.33, "2", "t-count", extra=";font-weight:700")
-        + tx(97.0, 356.33, "Followers", "t-count", "var(--x-ink-2)")
-        + "".join(tx(x, 393.33, label, "t-row", col) for label, x, col in TABS)
-        + box(11.0, 418.33, 48, 3, "border-radius:1.5px;background:var(--x-accent)")
-        + rule(421.33)
-        + post(0) + post(309.0)
+        + tx(9.67, 249.0, BIO, "t-body", extra=";width:373.67px;white-space:normal")
+        + shift(
+            icon("briefcase", 10.33, 275.67, 13.0, 12.33, "var(--x-ink-2)")
+            + tx(28.33, 277.33, "Entertainment &amp; Recreation", "t-meta",
+                 "var(--x-ink-2)")
+            + icon("pin", 206.67, 275.67, 11.0, 13.0, "var(--x-ink-2)")
+            + tx(223.67, 277.33, "London, UK", "t-meta", "var(--x-ink-2)")
+            + icon("calendar", 11.0, 302.33, 11.67, 11.67, "var(--x-ink-2)")
+            + tx(27.33, 302.33, "Joined January 2023", "t-count", "var(--x-ink-2)")
+            + icon("chevron-right", 170.67, 302.67, 6.33, 10.66, "var(--x-ink-2)")
+            + tx(9.0, 328.0, "View more", "t-count", "var(--x-accent)")
+            + tx(9.33, 356.33, COUNTS, "t-count", "var(--x-ink-2)")
+            + "".join(tx(x, 393.33, label, "t-row", col) for label, x, col in TABS)
+            + box(11.0, 418.33, 48, 3,
+                  "border-radius:1.5px;background:var(--x-accent)")
+            + rule(421.33)
+            + post())
         + circle(328, 704, 56, "background:var(--x-accent);"
                                "box-shadow:0 4px 12px rgba(0,0,0,.18)")
         + icon("plus", 348.33, 724.33, 15.33, 15.33, "var(--x-inv)")
@@ -840,8 +882,11 @@ def token_board():
                 '<div class="sheet"><header><h1>%s</h1>'
                 '<p>Seven Mobbin captures at exactly 3 px per pt. One face (SF Pro), '
                 'one type ladder fitted by ink width, and a palette that is almost '
-                'entirely white, two greys and one blue &mdash; with a Spaces purple '
-                'and a pale purple nav wash on the last screen.</p>'
+                'entirely white, two greys and one blue &mdash; with a pale purple '
+                'nav wash on the last screen. Ten of these have no screen left to '
+                'sit on: they were read off a Spaces card and a post action row '
+                'that the captures show and that board 07, which carries the '
+                'example account&rsquo;s own timeline, does not draw.</p>'
                 '</header>'
                 '<h2>Colour</h2><div class="grid">%s</div>'
                 '<div class="foot"><div><h2>Radius</h2>'

@@ -12,7 +12,7 @@
   "only": "flat",
   "mine": "06-edit-profile.png",
   "_": "06 the empty band between the hairlines at 664.67 and 697.00, clear of both: page ground and nothing else",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the seven boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them."
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the seven boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Eight left the file when 07 took @Yilin0x's own timeline: spaces, chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, and t-name and t-meta the demo persona's name and location -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those eight measurements stay on the 00b-00d evidence boards, which quote the capture and are not replayed against a render."
  },
  {
   "id": "field",
@@ -27,34 +27,6 @@
   "only": "flat",
   "mine": "02-select-category.png",
   "_": "02 the search field's interior, right of the placeholder ink (ends 189.7) and inside the 34pt box at y 260-294"
- },
- {
-  "id": "spaces",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   80,
-   570,
-   360,
-   605
-  ],
-  "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the Spaces card between 'Movie review' (ends 552) and the play row (from 612): the card's own fill, no ink in the band"
- },
- {
-  "id": "chip",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   62,
-   452,
-   66,
-   468
-  ],
-  "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the post's Host chip, x 61.33-102.00 y 451.00-469.33: the 4pt margin left of the label ink, which starts at 66.67"
  },
  {
   "id": "pill-off",
@@ -82,7 +54,7 @@
   ],
   "only": "flat",
   "mine": "06-edit-profile.png",
-  "_": "06 left of the peek card (starts x20) and above the sheet (70.33): the dimmed parent, black"
+  "_": "06 left of the peek card (starts x20) and above the sheet (69.0): the dimmed parent, black"
  },
  {
   "id": "accent",
@@ -156,18 +128,18 @@
  },
  {
   "id": "inv",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/p1.png",
   "cmd": "sample",
   "box": [
-   72,
-   518,
-   232,
-   558
+   140,
+   772,
+   250,
+   788
   ],
   "only": "ink",
   "bright": true,
-  "mine": "07-profile.png",
-  "_": "07 'Movie review' on the Spaces card: white ink on #7856FE, so the brightest percentile rather than the darkest"
+  "mine": "01-professional-splash.png",
+  "_": "01 'Agree & Continue' on the enabled CTA, inside the label's ink and the pill both: white on --x-ink, so the brightest percentile rather than the darkest. It read #FFFFFF off 07's Spaces card too, while the boards still drew one"
  },
  {
   "id": "ink-off",
@@ -196,20 +168,6 @@
   "only": "ink",
   "mine": "06-edit-profile.png",
   "_": "06 'Save', ink 338.67-377.00 y 88.0-99.0: a grey of its own, not 02's disabled label"
- },
- {
-  "id": "chip-ink",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   66,
-   454,
-   97,
-   466
-  ],
-  "only": "ink",
-  "mine": "07-profile.png",
-  "_": "07 the post's Host label on the #ECE8FF chip"
  },
  {
   "id": "hairline",
@@ -252,7 +210,7 @@
    120
   ],
   "mine": "06-edit-profile.png",
-  "_": "06 down the middle: the peek card's top at 42.67, then the sheet's at 70.33. Two edges in one line, and the pair is what sets --x-r-peek and --x-r-sheet"
+  "_": "06 down the middle: the peek card's top at 42.67, then the sheet's at 69.0. Two edges in one line, and the pair is what sets --x-r-peek and --x-r-sheet"
  },
  {
   "id": "m-field",
@@ -283,33 +241,6 @@
   "_": "02 the Next pill: 52 tall, x 18-375, ends semicircular"
  },
  {
-  "id": "m-card",
-  "img": "assets/refs/p7.png",
-  "cmd": "bbox",
-  "box": [
-   55,
-   470,
-   390,
-   700
-  ],
-  "dark": 200,
-  "mine": "07-profile.png",
-  "_": "07 the Spaces card, x 61.33-384.00 y 477.67-691.67"
- },
- {
-  "id": "m-play",
-  "img": "assets/refs/p7.png",
-  "cmd": "scan",
-  "axis": "col",
-  "at": 300,
-  "range": [
-   630,
-   665
-  ],
-  "mine": "07-profile.png",
-  "_": "07 down into the Play pill, right of its label and glyph: #7856FE to white at 646, the pill's top edge. It ends 679 and the card's floor follows at 691.7, both outside this window so the run list has one step in it. A bbox cannot read this one -- #7856FE carries B 254, so any --bright that takes the pill takes the card under it"
- },
- {
   "id": "t-title",
   "img": "assets/refs/p1.png",
   "cmd": "bbox",
@@ -336,47 +267,5 @@
   "dark": 150,
   "mine": "04-select-account-type.png",
   "_": "04 'Business' 77.33"
- },
- {
-  "id": "t-name",
-  "img": "assets/refs/p7.png",
-  "cmd": "bbox",
-  "box": [
-   5,
-   178,
-   110,
-   210
-  ],
-  "dark": 150,
-  "mine": "07-profile.png",
-  "_": "07 the profile name 'Sam Lee' 86.33 at 22/27, the fit behind --x-t-name. The boards carry the example account, so the run there reads 'Yilin' and --against scores the name rather than the size"
- },
- {
-  "id": "t-meta",
-  "img": "assets/refs/p7.png",
-  "cmd": "bbox",
-  "box": [
-   220,
-   266,
-   340,
-   296
-  ],
-  "dark": 150,
-  "mine": "07-profile.png",
-  "_": "07 'New Jersey, USA' 97.00: the one small run --x-tr-text does not close, which is why t-meta is 13.5 and not 14.5"
- },
- {
-  "id": "t-space",
-  "img": "assets/refs/p7.png",
-  "cmd": "bbox",
-  "box": [
-   68,
-   516,
-   260,
-   560
-  ],
-  "bright": 170,
-  "mine": "07-profile.png",
-  "_": "07 'Movie review' 157.67 measured, 157.62 drawn at Heavy 25.5 -- the fit that settled the whole Type group"
  }
 ]
