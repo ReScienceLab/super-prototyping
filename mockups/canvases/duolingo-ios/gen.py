@@ -664,6 +664,74 @@ def ref_boards():
                     REF_CSS))
 
 
+# -------------------------------------------------------- brand board ----
+BRAND_DIR = OUT / "assets" / "brand"
+
+BRAND_ASSETS = [
+    ("wordmark.png", "wordmark", "store.duolingo.com"),
+    ("appicon.png", "app icon", "apps.apple.com – App Store listing"),
+    ("og-card.jpg", "og:image", "duolingo.com"),
+    ("x-avatar.jpg", "x/avatar", "x.com/duolingo"),
+    ("x-banner.jpg", "x/banner", "x.com/duolingo"),
+    ("appstore-1.png", "appstore/screenshot 1", "apps.apple.com – App Store listing"),
+    ("hero.png", "marketing/hero", "duolingo.com/business"),
+    ("ad-1.png", "ad creative", "Meta Ad Library – facebook.com/duolingo"),
+]
+
+
+def _brand_uri(name):
+    f = BRAND_DIR / name
+    if not f.exists():
+        return ""
+    mime = "jpeg" if f.suffix.lower() in (".jpg", ".jpeg") else f.suffix.lstrip(".")
+    return "data:image/%s;base64,%s" % (mime, base64.b64encode(f.read_bytes()).decode())
+
+
+BRAND_CSS = SHEET + """
+.rule{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--x-ink-2);margin:-10px 0 13px}
+.bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
+.bcell{border:1px solid var(--x-rule);border-radius:7px;overflow:hidden;background:#FCFCFC}
+.bcell .iw{height:92px;display:flex;align-items:center;justify-content:center;
+  background:#FCFCFC;padding:6px}
+.bcell img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.bcell b{display:block;font:600 8px/11px ui-monospace,Menlo,monospace;color:var(--x-ink);
+  text-align:center;border-top:1px solid var(--x-rule);background:#FFF;padding:3px 3px 0}
+.bcell i{display:block;font:400 7.5px/10px ui-monospace,Menlo,monospace;color:var(--x-ink-2);
+  font-style:normal;text-align:center;padding:0 3px 4px;word-break:break-word}
+.tagline{margin:14px 0 4px;padding:10px 12px;border-left:3px solid var(--x-blue);
+  background:var(--x-panel);font:400 11px/15px var(--x-font);color:var(--x-ink)}
+.tagline em{display:block;margin-top:4px;font:400 8.5px/11px ui-monospace,Menlo,monospace;
+  color:var(--x-ink-2);font-style:normal}
+.footline{margin-top:10px;font:400 8px/12px ui-monospace,Menlo,monospace;color:var(--x-ink-2)}
+"""
+
+
+def brand_board():
+    cells = "".join(
+        '<div class="bcell"><div class="iw"><img src="%s" alt="%s"></div>'
+        '<b>%s</b><i>%s</i></div>' % (_brand_uri(f), role, role, src)
+        for f, role, src in BRAND_ASSETS)
+    header = ('<header><h1>Brand &amp; promotion</h1>'
+              '<p>Off-app, Duolingo is Duo the owl, lowercase Feather Bold headlines '
+              'and a relentless paid-social machine; the other boards measure only '
+              'the in-app chrome, in a system-font stand-in for that same '
+              'typeface.</p></header>')
+    grid = '<h2>Public brand assets, all first-party</h2><div class="bgrid">%s</div>' % cells
+    tagline = ('<div class="tagline">“Duolingo is the world’s most popular way '
+               'to learn a language. It’s 100% free, fun and science-based.”'
+               '<em>duolingo.com, meta description</em></div>')
+    foot = ('<div class="footline">Fetched 2026-09-13 from duolingo.com, '
+            'duolingo.com/business, apps.apple.com, x.com/duolingo, '
+            'store.duolingo.com and the Meta Ad Library. design.duolingo.com, '
+            'Duolingo’s former brand-guidelines site, now redirects to '
+            'blog.duolingo.com/hub/design/, and press.duolingo.com renders only '
+            'via JavaScript — neither yielded an official colour palette, so '
+            'no swatches are shown here.</div>')
+    return page(NAME + " - Brand & promotion",
+                '<div class="sheet">%s%s%s%s</div>' % (header, grid, tagline, foot),
+                BRAND_CSS)
+
+
 # ----------------------------------------------------------------- main ----
 def layout(names):
     rows = [{"title": "Foundations",
@@ -679,6 +747,8 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: Mobbin captures",
                      "numbered": True, "files": refs})
+    rows.append({"title": "Brand & promotion",
+                 "files": [{"file": "00h-brand", "label": "Brand & promotion"}]})
     return {"name": PAGE_NAME, "rows": rows}
 
 
@@ -686,7 +756,8 @@ def main():
     cut()
     files = dict([("00-design-tokens", token_board()),
                   ("00d-art", art_board()),
-                  ("00e-art-gen", gen_board())]
+                  ("00e-art-gen", gen_board()),
+                  ("00h-brand", brand_board())]
                  + list(evidence_boards())
                  + [(s, fn()) for s, _, fn in SCREENS]
                  + list(ref_boards()))

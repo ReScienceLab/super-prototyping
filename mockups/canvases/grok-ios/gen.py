@@ -782,6 +782,17 @@ def _uri(cid):
             if f.exists() else "")
 
 
+BRAND_DIR = OUT / "assets" / "brand"
+BRAND_MIME = {"svg": "image/svg+xml", "png": "image/png", "jpg": "image/jpeg"}
+
+
+def _brand_uri(name):
+    """A brand asset (assets/brand/<name>) as a data: URI, mirroring _uri()
+    for the one directory it doesn't cover."""
+    mime = BRAND_MIME[name.rsplit(".", 1)[1]]
+    return "data:%s;base64,%s" % (mime, base64.b64encode((BRAND_DIR / name).read_bytes()).decode())
+
+
 def art(cid, style="", z=None, top=None):
     """One <img>, at the box it was measured from, snapped to the pixels
     cut() took: a crop placed at its pt box lands up to half a capture
@@ -1585,6 +1596,59 @@ def type_board():
                 '</header><div class="ty">%s</div></div>' % (NAME, rows), SHEET)
 
 
+BRAND_CSS = SHEET + """
+.bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 10px;margin-bottom:2px}
+.bc{display:flex;flex-direction:column;gap:2px}
+.bimg{height:92px;border:1px solid var(--x-well);border-radius:6px;background:var(--x-sheet);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.bimg img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.bc b{font:600 7.5px/9.5px ui-monospace,Menlo,monospace}
+.bc i{font:400 7px/9.5px ui-monospace,Menlo,monospace;color:var(--x-foot);font-style:normal}
+.tag{font:600 14px/19px var(--x-font);margin:2px 0 1px}
+.tag-src{font:400 8.5px/11px var(--x-font);color:var(--x-foot)}
+.bfoot{font:400 8.5px/12px var(--x-font);color:var(--x-foot);margin-top:8px;padding-top:6px;
+  border-top:1px solid var(--x-well)}"""
+
+# Every row is `theirs`: xAI/Grok's own published material, sourced to the
+# human page it came from (see README-style provenance in the spec this
+# board follows), never the raw CDN URL.
+BRAND_ASSETS = [
+ ("wordmark.svg", "mark (no wordmark)",
+  "theirs &mdash; grok.com favicon.svg, the site&rsquo;s only vector mark"),
+ ("appicon.png", "app icon",
+  "theirs &mdash; App Store listing"),
+ ("og-card.png", "og:image",
+  "theirs &mdash; grok.com &lt;meta og:image&gt;, captioned &ldquo;built by SpaceXAI&rdquo;"),
+ ("x-avatar.jpg", "x/avatar",
+  "theirs &mdash; x.com/grok"),
+ ("x-banner.jpg", "x/banner",
+  "theirs &mdash; x.com/grok"),
+ ("appstore-1.jpg", "appstore/screenshot 1",
+  "theirs &mdash; App Store listing"),
+ ("ad-1.jpg", "ad creative",
+  "theirs &mdash; Meta Ad Library, Grok Bot campaign"),
+]
+
+
+def brand_board():
+    cells = "".join(
+        '<div class="bc"><div class="bimg"><img src="%s" alt=""></div><b>%s</b><i>%s</i></div>'
+        % (_brand_uri(f), role, src) for f, role, src in BRAND_ASSETS)
+    return page(NAME + " - Brand & Promotion",
+                '<div class="sheet"><header><h1>Brand &amp; promotion</h1>'
+                '<p>xAI publishes no brand kit, no wordmark and no official palette &mdash; one '
+                'black glyph stands in as the app icon, the X presence and every paid ad, '
+                'against the type ladder and colour tokens measured screen by screen on the '
+                'boards before this one.</p></header>'
+                '<h2>Assets</h2><div class="bgrid">%s</div>'
+                '<h2>Tagline</h2><p class="tag">&ldquo;What should we explore?&rdquo;</p>'
+                '<p class="tag-src">grok.com, homepage headline</p>'
+                '<p class="bfoot">Fetched 2026-09-13 from grok.com, the Grok AI App Store '
+                'listing (apps.apple.com/us/app/grok-ai/id6670324846), x.com/grok, and Meta&rsquo;s '
+                'Ad Library (facebook.com/ads/library).</p></div>'
+                % cells, BRAND_CSS)
+
+
 EV_LINES = 56     # a page of 60 estimated lines fits the board, 62 does not
 
 
@@ -1645,12 +1709,15 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: the captures",
                      "numbered": True, "files": refs})
+    rows.append({"title": "Brand & promotion",
+                 "files": [{"file": "00h-brand", "label": "Brand & promotion"}]})
     return {"name": PAGE_NAME, "cover": "05-supergrok", "rows": rows}
 
 
 def main():
     cut()
-    files = dict([("00-design-tokens", token_board()), ("00a-type-tokens", type_board())]
+    files = dict([("00-design-tokens", token_board()), ("00a-type-tokens", type_board()),
+                  ("00h-brand", brand_board())]
                  + list(evidence_boards())
                  + [(s, fn()) for s, _, fn in SCREENS]
                  + list(ref_boards()))

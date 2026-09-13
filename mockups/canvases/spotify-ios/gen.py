@@ -252,6 +252,17 @@ def _uri(cid):
             if f.exists() else "")
 
 
+BRAND_DIR = OUT / "assets" / "brand"
+BRAND_MIME = {"svg": "image/svg+xml", "png": "image/png", "jpg": "image/jpeg"}
+
+
+def _uri_brand(name):
+    f = BRAND_DIR / name
+    return ("data:%s;base64,%s" % (BRAND_MIME[f.suffix[1:]],
+                                   base64.b64encode(f.read_bytes()).decode())
+            if f.exists() else "")
+
+
 # Art that has to sit above chrome drawn later in the document. The two home
 # thumbs are cut from pixels the bottom fade has already dimmed, so they go
 # over the fade, not under it, or the fade lands on them twice.
@@ -753,6 +764,83 @@ def art_board():
                 % (len(CROPS), minis, tiles), ART_CSS)
 
 
+# --------------------------------------------------- brand & promotion ----
+# (file, role, provenance, source page). Every asset here is vendored into
+# assets/brand/ from the company's own published material -- see the
+# provenance column below rather than the raw CDN URL.
+BRAND_ASSETS = [
+ ("wordmark.svg", "wordmark", "theirs",
+  "developer.spotify.com/documentation/design"),
+ ("appicon.jpg", "app icon", "theirs",
+  "apps.apple.com (App Store)"),
+ ("og-card.jpg", "og:image", "theirs",
+  "newsroom.spotify.com"),
+ ("x-avatar.jpg", "x/avatar", "theirs",
+  "x.com/Spotify"),
+ ("x-banner.jpg", "x/banner", "theirs",
+  "x.com/Spotify"),
+ ("appstore-1.png", "appstore/screenshot 1", "theirs",
+  "apps.apple.com (App Store)"),
+ ("hero.jpg", "marketing/hero", "theirs",
+  "newsroom.spotify.com"),
+ ("ad-1.jpg", "ad creative", "theirs",
+  "Meta Ad Library, facebook.com/Spotify"),
+]
+
+# Only colour the developer guidelines actually publish with a hex, per the
+# "Using our colours" diagram at developer.spotify.com/documentation/design.
+BRAND_COLORS = [("Green", "#1ED760"), ("White", "#FFFFFF"), ("Black", "#121212")]
+
+BRAND_CSS = SHEET + """
+.tiles{display:flex;flex-wrap:wrap;gap:10px}
+.tile{width:100px;text-align:center}
+.tile .thumb{height:74px;display:flex;align-items:center;justify-content:center;
+  background:#0A0A0A;border:1px solid #2A2A2A;border-radius:4px;overflow:hidden}
+.tile img{max-width:92px;max-height:70px;display:block;margin:0 auto}
+.tile b{display:block;margin-top:4px;font:600 8.5px/11px var(--x-font)}
+.tile i{display:block;font:400 7px/10px ui-monospace,Menlo,monospace;
+  color:var(--x-ink-3);font-style:normal;word-break:break-all;overflow-wrap:anywhere}
+.tile em{display:inline-block;margin-top:2px;padding:1px 4px;border-radius:3px;
+  font:600 7px/10px ui-monospace,Menlo,monospace;font-style:normal;
+  background:var(--x-green);color:var(--x-ink-on-accent)}
+.quote{font:400 12.5px/17px var(--x-font);color:var(--x-ink);margin:8px 0 2px;
+  border-left:2px solid var(--x-green);padding-left:8px}
+.quote cite{display:block;margin-top:4px;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--x-ink-3);font-style:normal}
+.foot{display:block;margin-top:10px;font:400 8px/12px ui-monospace,Menlo,monospace;
+  color:var(--x-ink-3)}"""
+
+
+def brand_board():
+    tiles = "".join(
+        '<div class="tile"><div class="thumb"><img src="%s" alt=""></div>'
+        '<b>%s</b><i>%s</i><em>%s</em></div>'
+        % (_uri_brand(fn), role, src, prov)
+        for fn, role, prov, src in BRAND_ASSETS)
+    swatches = "".join(
+        '<div class="sw"><div class="chip" style="background:%s"></div>'
+        '<b>%s</b><i>%s</i></div>' % (hexv, name, hexv)
+        for name, hexv in BRAND_COLORS)
+    return page(NAME + " - Brand & promotion",
+                '<div class="sheet"><header><h1>Brand &amp; promotion</h1>'
+                '<p>Spotify&#8217;s outward brand is one green (#1ED760) over '
+                'flat black or white with a wordless mark; the phone screens '
+                'elsewhere on this canvas run on the darker, more numerous '
+                'surface tokens measured off five real captures, not the '
+                'press kit.</p></header>'
+                '<h2>Assets</h2><div class="tiles">%s</div>'
+                '<h2>Brand colours</h2><div class="grid">%s</div>'
+                '<blockquote class="quote">&ldquo;Music for everyone&rdquo;'
+                '<cite>open.spotify.com &mdash; page title / og:title</cite>'
+                '</blockquote>'
+                '<footer class="foot">Fetched 2026-09-13 &middot; '
+                'developer.spotify.com/documentation/design &middot; '
+                'newsroom.spotify.com &middot; open.spotify.com &middot; '
+                'x.com/Spotify &middot; apps.apple.com &middot; '
+                'Meta Ad Library</footer></div>'
+                % (tiles, swatches), BRAND_CSS)
+
+
 SCREENS = [("01-home-chips", "Home, rail scrolled", home_chips),
            ("02-jam", "Jam invitation", jam),
            ("03-live-events", "Live events", live_events),
@@ -782,6 +870,7 @@ write("00-design-tokens", token_board())
 for name, html in evidence_boards():
     write(name, html)
 write("00d-art", art_board())
+write("00h-brand", brand_board())
 for name, _, fn in SCREENS:
     write(name, fn())
 for name, html in ref_boards():
@@ -803,6 +892,8 @@ LAYOUT = {
   # one pitch, so item N here lands column-for-column under item N up there.
   {"title": "Source of truth: captures", "numbered": True,
    "files": [{"file": "ref-" + n, "label": l} for n, l, _ in SCREENS]},
+  {"title": "Brand & promotion",
+   "files": [{"file": "00h-brand", "label": "Brand & promotion"}]},
  ],
 }
 (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2) + "\n")
