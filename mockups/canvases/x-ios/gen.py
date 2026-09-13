@@ -314,9 +314,10 @@ def cut():
 
 
 def _uri(cid):
-    f = ART_DIR / (cid + ".png")
-    return ("data:image/png;base64," + base64.b64encode(f.read_bytes()).decode()
-            if f.exists() else "")
+    # no fallback: a crop named here and missing from assets/art/ is a bug, and
+    # an empty src would ship a board that looks generated and is not
+    return "data:image/png;base64," + base64.b64encode(
+        (ART_DIR / (cid + ".png")).read_bytes()).decode()
 
 
 def art(cid, style="", at=None):
@@ -847,10 +848,14 @@ def token_board():
 
 
 def type_board():
+    # --x-tr-text is in this group and is not a font: it is the tracking track()
+    # puts on every run under 20px, so each such specimen wears it and says so
     rows = "".join(
-        '<div class="tr"><span style="font:var(--x-%s)">Sam Lee</span>'
-        '<em>--x-%s &middot; %s</em></div>' % (n, n, v.split(" var")[0])
-        for _, n, v, _ in _of("Type"))
+        '<div class="tr"><span style="font:var(--x-%s)%s">Sam Lee</span>'
+        '<em>--x-%s &middot; %s%s</em></div>'
+        % (n, track(n), n, v.split(" var")[0],
+           " + --x-tr-text" if track(n) else "")
+        for _, n, v, _ in _of("Type") if n in TY)
     return page(NAME + " - Type Tokens",
                 '<div class="sheet"><header><h1>%s type</h1>'
                 '<p>Every size is fitted to a measured ink width, so several are off '
@@ -903,7 +908,7 @@ def ref_boards():
 
 
 # ----------------------------------------------------------------- main ----
-def layout(names):
+def layout():
     rows = [{"title": "Foundations",
              "files": [{"file": "00-design-tokens", "label": "Design tokens"},
                        {"file": "00a-type-tokens", "label": "Type tokens"}]
@@ -911,11 +916,13 @@ def layout(names):
                          for n, _ in evidence_boards()]},
             {"title": "Screens", "numbered": True,
              "files": [{"file": s, "label": l} for s, l, _ in SCREENS]}]
-    refs = [{"file": "ref-" + s, "label": l}
-            for s, l, _ in SCREENS if "ref-" + s in names]
-    if refs:
-        rows.append({"title": "Source of truth: the captures",
-                     "numbered": True, "files": refs})
+    # declared even though ref-*.html is gitignored: the canvas skips a row
+    # entry whose file is absent and drops the row when none of them resolve,
+    # so this one file is the same on a clean checkout as it is beside the
+    # captures -- which is what makes `python3 gen.py` a no-op either way
+    rows.append({"title": "Source of truth: the captures", "numbered": True,
+                 "files": [{"file": "ref-" + s, "label": l}
+                           for s, l, _ in SCREENS]})
     return {"name": PAGE_NAME, "cover": "07-profile", "rows": rows}
 
 
@@ -927,8 +934,8 @@ def main():
                  + list(ref_boards()))
     for name in sorted(files):
         write(name, files[name])
-    (OUT / "layout.json").write_text(json.dumps(layout(files), indent=2) + "\n")
-    print("%-24s %6d rows" % ("layout.json", len(layout(files)["rows"])))
+    (OUT / "layout.json").write_text(json.dumps(layout(), indent=2) + "\n")
+    print("%-24s %6d rows" % ("layout.json", len(layout()["rows"])))
 
 
 if __name__ == "__main__":
