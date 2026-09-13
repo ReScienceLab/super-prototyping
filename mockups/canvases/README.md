@@ -312,15 +312,16 @@ declares a box other than the default 478 x 980.
   TikTok iOS app across two Mobbin flows - the bio editor empty and filled,
   the profile it returns to, and the post composer through four states of
   writing a caption. 17 boards in three rows: a token board and two evidence
-  boards for 53 tokens, the seven replicas, and the capture of each parked
-  underneath. Mean absolute delta against those captures is 2.07-5.62 levels
-  (of 255), mean 4.30, and the gradient is the keyboard: the two boards that
-  are three-quarters keycaps cost the most, with nothing on them
-  geometrically off. The profile board is the exception, and reads its own
-  substitution rather than an error: the capture's avatar is a photograph of
-  a real person, so the board ships a named account's avatar over it, and
-  2.6% of the frame differs on purpose for 3.42 -> 5.12. Its `README.md`
-  records the residual test the other runs do not have. `scratch/ink.py` reports dark-pixel mass over 29 named regions,
+  boards for 55 tokens, the seven replicas, and the capture of each parked
+  underneath. Mean absolute delta against those captures is 2.07-15.41 levels
+  (of 255), mean 9.29, and six of those seven numbers read a substitution
+  rather than an error: the capture's profile, its avatar and its two video
+  frames are all one real person's, so the boards carry a named account's
+  name, handle, bio, site and art instead, and the two content tiles alone -
+  6.8% of the profile frame, 5.0% of the composer's - are black art over a
+  bright photograph. What is left is the keyboard: the two boards that are
+  three-quarters keycaps cost the most, with nothing on them geometrically
+  off. Its `README.md` records the residual test the other runs do not have. `scratch/ink.py` reports dark-pixel mass over 25 named regions,
   and the *shape* of the spread is the diagnosis: leaning one way is a weight
   error worth fixing, symmetric - here 0.936 to 1.084 - is the rasteriser's
   stem darkening and is not chaseable, so the run stops. The same harness
@@ -334,9 +335,10 @@ declares a box other than the default 478 x 980.
   glyphs are crops of the captures rather than traces: the same ink census run
   inside each glyph's own box caught three that were the wrong shape rather
   than the wrong weight, and a crop scores 0 by construction.
-  `assets/art/` is committed, 28 crops and one fetched avatar, and
-  `iconbuild.py` and `avatarbuild.py` are the only fetches here kept as
-  scripts rather than notes, because both URLs are built or signed; the seven `ref-*` boards are gitignored, so a
+  `assets/art/` is committed, 25 crops and two fetched assets, and
+  `iconbuild.py`, `avatarbuild.py` and `tilebuild.py` are the only fetches
+  here kept as scripts rather than notes, because every URL is built or
+  signed; the seven `ref-*` boards are gitignored, so a
   fresh clone has 10.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked

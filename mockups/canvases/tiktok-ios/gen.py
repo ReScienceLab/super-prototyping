@@ -38,7 +38,7 @@ TOKENS = [
  ("Font", "font",
   '-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",'
   '"Helvetica Neue",Helvetica,Arial,sans-serif',
-  "refkit font on 'alexsmith' and 'Bio': SF Pro, the platform face"),
+  "refkit font on the capture's 'alexsmith' and 'Bio': SF Pro, the platform face"),
 
  ("Surface", "bg",       "#FDFBFC",  "flat-fill census, page ground on all seven captures"),
  ("Surface", "chip",     "#F3F0F3",  "chip, action-pill and suggestion-chip fill, 04 x60 y280"),
@@ -48,6 +48,8 @@ TOKENS = [
  ("Surface", "key-edge", "#898B8D",  "keycap bottom edge, 1.3pt under every cap"),
  ("Surface", "scrim",    "rgba(0,0,0,.195)",
   "05 reads #CCC9CD over #FDFBFC below the divider: (253-204)/253"),
+ ("Surface", "bar",      "rgba(0,0,0,.40)",
+  "04's Edit cover bar: the cover reads 137 beside it, 82 under"),
 
  ("Line", "hairline",    "#D1CECF",  "nav rule, y 102.67, one device pixel on all but 03"),
  ("Line", "divider",     "#8A8788",  "bio field rule, 01/02 y 247.67, x 16 to 377.33"),
@@ -67,14 +69,15 @@ TOKENS = [
 
  ("Radius", "r-chip",    "4px",      "half-coverage corner solve on the h-28 chips"),
  ("Radius", "r-ctl",     "5px",      "keycap and the @ Mention chip"),
+ ("Radius", "r-cover",   "6px",      "04's cover cell and its bar: 4.8pt in, one row off the foot"),
  ("Radius", "r-pill",    "8px",      "profile action pills, h 44"),
  ("Radius", "r-btn",     "9px",      "Drafts and Post, h 44.67; the create button's three rects"),
  ("Radius", "r-card",    "12px",     "the Add-phone-number banner"),
  ("Radius", "r-phone",   "52px",     "circular stand-in for the 55pt continuous display corner"),
 
  ("Type", "t-time",      "590 17px/22px var(--x-font)", "iOS status bar clock"),
- ("Type", "t-nav",       "700 17px/22px var(--x-font)", "'Bio' 24.67x13.33; 'alexsmith'; the stat numbers"),
- ("Type", "t-handle",    "600 17px/22px var(--x-font)", "'@alexsmith58' 113.67 wide"),
+ ("Type", "t-nav",       "700 17px/22px var(--x-font)", "'Bio' 24.67x13.33; the capture's 'alexsmith'; the stat numbers"),
+ ("Type", "t-handle",    "600 17px/22px var(--x-font)", "the capture's '@alexsmith58', 113.67 wide"),
  ("Type", "t-body",      "400 15px/20px var(--x-font)", "'Save' 32.67 wide; 'Add a bio' 63.33x11.0"),
  ("Type", "t-cap",       "400 15px/17.67px var(--x-font)",
   "the description field: 'Add description...' 119.3 wide, line pitch 17.67"),
@@ -88,11 +91,11 @@ TOKENS = [
   "the composer buttons run a size above the profile pills: 'Drafts' 44.3x12.3, 'Post' 32.0"),
  ("Type", "t-tag",       "400 15.5px/20px var(--x-font)", "'#motion' 57.0; '#motionlessinwhite' 149.0"),
  ("Type", "t-card",      "700 15px/20px var(--x-font)", "'Add phone number' 138.0x12.7 with the descender"),
- ("Type", "t-bio",       "400 14px/19px var(--x-font)", "the profile bio, 'here for the fun' 98.33x10.67"),
- ("Type", "t-chip-lg",   "600 14px/19px var(--x-font)", "01 chip 'Mention' 52.33x10.67; 'Your orders' 75.33"),
+ ("Type", "t-bio",       "400 14px/19px var(--x-font)", "the profile bio; 03's 'Drafts: 1' 51.67x10.33 over the tile"),
+ ("Type", "t-chip-lg",   "600 14px/19px var(--x-font)", "01 chip 'Mention' 52.33x10.67; the capture's 'Your orders' 75.33"),
  ("Type", "t-meta",      "400 13px/18px var(--x-font)", "stat labels, place chips, post counts, 'Template'"),
- ("Type", "t-chip",      "600 12px/16px var(--x-font)", "04 chips: 'Hashtags' 54.0x11.0, 'Mention' 47.0"),
- ("Type", "t-count",     "400 12px/16px var(--x-font)", "'0/80' 24.67 wide, '19/80' 29.67"),
+ ("Type", "t-chip",      "600 12px/16px var(--x-font)", "04 chips: 'Hashtags' 54.0x11.0, 'Mention' 47.0; 'Preview' 45.33"),
+ ("Type", "t-count",     "400 12px/16px var(--x-font)", "'0/80' 24.67 wide, the capture's '19/80' 29.67"),
  ("Type", "t-tab",       "600 9.5px/13px var(--x-font)", "'Home' 27.0, 'Inbox' 25.0, 'Profile' 29.7 wide"),
  ("Type", "t-key",       "320 25px/30px var(--x-font)",
   "keycap letters: 'q' 11.67x17.67, x-height 13.33 = 13.33/0.529; 400 sets 16% more ink"),
@@ -135,6 +138,20 @@ TOKENS_CSS = _root()
 # is drawn rather than carried inside any asset.
 NOTCH = (218.5, 180.15, 29.7)
 
+# ---------------------------------------------------------- substitutions ----
+# The name, the handle, the bio, the row under it and the two content tiles in
+# the captures are all one real person's, so the boards carry a stand-in
+# account instead -- @snapaction_ai, whose avatar avatarbuild.py fetches and
+# whose site banner tilebuild.py fetches. BIO is measured to the capture's own
+# ink box (ref 125.7pt wide, this 125.3 at t-body); the character counter is
+# derived from it rather than typed, by the rule the capture's own 19/80 fixes:
+# TikTok counts UTF-16 units, so the dancer costs two. This bio comes to 21.
+ACCOUNT = "snapaction_ai"
+HANDLE = "@" + ACCOUNT
+BIO = "snap it, act later \U0001F57A"
+COUNT = "%d/80" % (len(BIO.encode("utf-16-le")) // 2)
+LINK = "snapaction.ai"
+
 
 def cut():
     """Refresh assets/art/ from assets/refs/ at the boxes in crops.json."""
@@ -161,13 +178,19 @@ def _uri(cid):
             if f.exists() else "")
 
 
-def art(cid, extra="", dx=0.0):
-    """One <img>, placed at the box it was measured from. dx moves it along its
+def img(cid, x, y, w, h, extra=""):
+    """One <img> at a box of its own. Everything a crop covers goes through
+    art(); this is for the two fetched assets, and for the globe, a crop the
+    link row reuses below the size it was cut at."""
+    return ('<img class="a" src="%s" alt="" style="left:%.1fpx;top:%.1fpx;'
+            'width:%.1fpx;height:%.1fpx%s">' % (_uri(cid), x, y, w, h, extra))
+
+
+def art(cid, dx=0.0):
+    """One crop, placed at the box it was measured from. dx moves it along its
     row: the camera mark repeats on 07's two chips."""
     _, x0, y0, x1, y1 = CROPS[cid]
-    return ('<img class="a" src="%s" alt="" style="left:%.1fpx;top:%.1fpx;'
-            'width:%.1fpx;height:%.1fpx%s">'
-            % (_uri(cid), x0 + dx, y0, x1 - x0, y1 - y0, extra))
+    return img(cid, x0 + dx, y0, x1 - x0, y1 - y0)
 
 
 # ------------------------------------------------------------ phone frame ----
@@ -310,7 +333,7 @@ def token_board():
                 % (NAME, swatches, radii, met, type_), SHEET)
 
 
-EV_ROWS = 40   # rows that fit the 478 x 980 box; the table splits past this
+EV_ROWS = 38   # rows that fit the 478 x 980 box; the table splits past this
 
 
 def evidence_boards():
@@ -407,15 +430,15 @@ def screen(title, inner, hm="#686568"):
 # ------------------------------------------------------------ 01-02 bio ----
 def bio_screen(filled):
     """The bio editor. Empty: grey Save, pink caret, placeholder. Filled: the
-    19-character bio, pink Save, no caret (the capture caught it dark)."""
+    bio, pink Save, no caret (the capture caught it dark)."""
     t = (tx(17.0, 75.33, "Cancel")
          + txc(73.67, "Bio", "t-nav")
          + tx(343.67, 75.67, "Save", "t-body",
               "var(--x-pink)" if filled else "var(--x-ink-4)")
          + rule(0, 102.67, 393, "var(--x-hairline)"))
     if filled:
-        t += (tx(22.0, 122.33, "here for the fun \U0001F57A")
-              + tx(16.33, 262.33, "19/80", "t-count", "var(--x-ink-4)"))
+        t += (tx(22.0, 122.33, BIO)
+              + tx(16.33, 262.33, COUNT, "t-count", "var(--x-ink-4)"))
     else:
         t += (box(20.0, 119.0, 2.67, 19.0, "background:var(--x-pink)")
               + tx(23.0, 122.67, "Add a bio", "t-body", "var(--x-ink-4)")
@@ -433,8 +456,11 @@ def bio_screen(filled):
 # ------------------------------------------------------------ 03 profile ----
 def profile_screen():
     """The profile the saved bio lands on."""
-    t = (tx(158.0, 73.0, "alexsmith", "t-nav")
-         + svg(238.0, 76.67, 11.67, 7.33, '<path d="M239 77.7L243.83 82.4L248.67 77.7"/>')
+    # The name is centred on the screen and its chevron hangs 3.7pt off the
+    # right of the ink, so the substitute's extra 35.7pt of width moves both.
+    t = (txc(73.0, ACCOUNT, "t-nav")
+         + svg(256.7, 76.67, 11.67, 7.33,
+               '<path d="M257.7 77.7L262.53 82.4L267.37 77.7"/>')
          + art("footprints")
          + "".join(box(355.67, y, 19.33, 2.0, "border-radius:1px;background:var(--x-ink)")
                    for y in (74.0, 80.0, 86.0)))
@@ -445,13 +471,12 @@ def profile_screen():
     t += (circle(142.7, 104.7, 109.0,
                  "background:linear-gradient(135deg,#0E9DFF,#19FEBF)")
           + circle(146.7, 108.7, 101.0, "background:var(--x-bg)")
-          + ('<img class="a" src="%s" alt="" style="left:149.2px;top:111.2px;'
-             'width:96px;height:96px;border-radius:50%%">' % _uri("03-avatar"))
+          + img("03-avatar", 149.2, 111.2, 96.0, 96.0, ";border-radius:50%")
           + circle(*NOTCH, "background:var(--x-bg)")
           + circle(221.33, 183.0, 24.0, "background:var(--x-cyan)")
           + box(232.25, 189.97, 1.9, 10.67, "background:var(--x-ink-inv)")
           + box(227.0, 194.35, 11.67, 1.9, "background:var(--x-ink-inv)"))
-    t += tx(139.67, 219.33, "@alexsmith58", "t-handle")
+    t += txc(219.33, HANDLE, "t-handle")
 
     # Stats. The divider is a three-pixel ramp: one pixel of its core reads it.
     for cx, n, lab, lx in ((104.33, "6", "Following", 77.33),
@@ -466,9 +491,13 @@ def profile_screen():
           + box(167.67, 294.0, 131.33, 44.0, PILL) + tx(188.67, 310.0, "Share profile", "t-btn")
           + box(303.0, 294.0, 44.0, 44.0, PILL) + art("personadd"))
 
-    t += (txc(352.67, "here for the fun \U0001F57A", "t-bio", x=76.5, w=240)
-          + art("cart")
-          + tx(169.33, 378.33, "Your orders", "t-chip-lg"))
+    t += (txc(352.67, BIO, "t-bio", x=76.5, w=240)
+          # The capture's row here is TikTok Shop's, so this is the account's
+          # site instead, on the same centre: the globe is 04's own glyph, at
+          # the 17pt the cart it replaces was cut at, and the row is
+          # icon + 3.67 + text, 110.0 wide against the capture's 97.7.
+          + img("globe", 141.5, 375.5, 17.0, 17.0)
+          + tx(162.17, 378.33, LINK, "t-chip-lg"))
 
     # Content tabs. The grid tab is active: six bars, a caret, a 2pt underline.
     t += ("".join(box(39.0 + 6.0 * i, y, 2.33, 6.33, "background:var(--x-ink)")
@@ -481,7 +510,11 @@ def profile_screen():
           + art("tab-liked")
           + box(28.0, 442.0, 48.0, 2.0, "background:var(--x-ink)")
           + rule(0, 443.67, 393, "var(--x-line)")
-          + art("03-draft"))
+          # The drafts cell: one third of 393 at 3:4. The capture's frame is a
+          # stranger's video, so it carries tilebuild.py's banner, and the
+          # badge TikTok draws over it is redrawn rather than cut out with it.
+          + img("tile", 0.0, 444.0, 131.0, 174.3)
+          + tx(6.1, 453.8, "Drafts: 1", "t-bio", "var(--x-ink-inv)"))
 
     # The contacts banner: page-coloured, so only its shadow reads.
     t += (box(0, 689.33, 393, 67.67, "border-radius:var(--x-r-card) var(--x-r-card) 0 0;"
@@ -519,7 +552,15 @@ def post_head(lines=(), caret=None):
     means the placeholder."""
     t = (svg(16.67, 72.33, 10.0, 17.33, '<path d="M25.7 73.3L17.7 81.0L25.7 88.7"/>')
          + rule(0, 102.67, 393, "var(--x-hairline)")
-         + art("04-cover"))
+         # The cover cell, the same stand-in banner at the same 3:4. Its two
+         # labels and the bar under them are TikTok's, so they are drawn here;
+         # the watermark and the sticker in the capture were the video's own
+         # and went with it. The bar is a 40% scrim, invisible on this cover.
+         + img("tile", 265.2, 111.1, 112.0, 148.8, ";border-radius:var(--x-r-cover)")
+         + tx(275.8, 123.6, "Preview", "t-chip", "var(--x-ink-inv)")
+         + box(271.0, 228.2, 100.2, 25.7,
+               "border-radius:var(--x-r-cover);background:var(--x-bar)")
+         + txc(236.8, "Edit cover", "t-chip", "var(--x-ink-inv)", x=271.0, w=100.2))
     if lines:
         t += "".join(tx(21.5, 115.0 + 17.67 * i, s, tk)
                      for i, (s, tk) in enumerate(lines))

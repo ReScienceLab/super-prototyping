@@ -256,10 +256,10 @@
   "at": 10,
   "range": [
    760,
-   800
+   852
   ],
   "mine": "03-profile.png",
-  "_": "03 the tab bar's top hairline at y 769.0, read in the left gutter so no tab glyph is in the column; the range stops at 800, clear of the render's 52pt corner"
+  "_": "03 the tab bar's top hairline at y 769.0, read in the left gutter so no tab glyph is in the column"
  },
  {
   "id": "card-shadow",
@@ -294,11 +294,11 @@
   "axis": "row",
   "at": 195,
   "range": [
-   212,
-   220
+   210,
+   255
   ],
   "mine": "03-profile.png",
-  "_": "03 across the avatar's + badge at its centre row: the photo ends at 216.7 and the white ring begins. The window holds that one edge; beyond it the ring runs to 221.3, cyan to 245.7, and the white + bar interrupts the cyan at 227.0..238.7"
+  "_": "03 across the avatar's + badge at its centre row: photo to 217, a white ring 217.7..221.3, cyan 221.3..245.7 (the white + bar interrupts it at 227..238.7), page from 246.3 -- a 24.3 circle in a ~3pt white ring"
  },
  {
   "id": "badge-y",
@@ -395,7 +395,7 @@
   ],
   "dark": 140,
   "mine": "02-bio-filled.png",
-  "_": "02 'here for the fun' ink x 22.0..147.7 y 120.3..137.0, the same 15px line box as the placeholder it replaces"
+  "_": "02 'here for the fun' ink x 22.0..147.7 y 120.3..137.0, the same 15px line box as the placeholder it replaces. The board's bio is the stand-in account's, measured back to this box: 125.3 against 125.7"
  },
  {
   "id": "bio-counter-2",
@@ -409,7 +409,7 @@
   ],
   "dark": 200,
   "mine": "02-bio-filled.png",
-  "_": "02 '19/80' ink 16.7..46.0: the counter grows to the right, left edge held"
+  "_": "02 '19/80' ink 16.7..46.0: the counter grows to the right, left edge held. The board counts its own bio instead and reads 21/80; the capture's own string is what fixes the rule it counts by"
  },
  {
   "id": "mention-chip",
@@ -493,7 +493,7 @@
   ],
   "dark": 140,
   "mine": "03-profile.png",
-  "_": "03 'alexsmith' ink at 158.0,73.0, w 76.3; its chevron follows at 238.0..249.7, which is why the window stops at 236"
+  "_": "03 'alexsmith' ink at 158.0,73.0, w 76.3; its chevron follows at 238.0..249.7, which is why the window stops at 236. The board's name is the stand-in account's, 113.0 on the same centre, so it overruns this window at both edges and reports clipped"
  },
  {
   "id": "avatar",
@@ -521,7 +521,7 @@
   ],
   "dark": 200,
   "mine": "03-profile.png",
-  "_": "03 '@alexsmith58' ink at 139.7,219.3: 17px/600, h 15.7. The window starts at 214 because the + badge reaches 207.3 and dithers below it"
+  "_": "03 '@alexsmith58' ink at 139.7,219.3: 17px/600, h 15.7. The window starts at 214 because the + badge reaches 207.3 and dithers below it. The board's handle is the stand-in account's, 125.0 against 113.7 on the same centre"
  },
  {
   "id": "stat-1",
@@ -633,7 +633,7 @@
   ],
   "dark": 200,
   "mine": "03-profile.png",
-  "_": "03 'Your orders' with its cart glyph: icon 149.7..166, text to 244.7, ink y 377.0, 15px"
+  "_": "03 'Your orders' with its cart glyph: icon 149.7..166, text to 244.7, ink y 377.0, 15px. The board puts the stand-in account's site here instead, globe + 3.67 + text, 110.0 wide on the same centre"
  },
  {
   "id": "tab-1",
@@ -730,7 +730,7 @@
   ],
   "dark": 248,
   "mine": "03-profile.png",
-  "_": "03 the draft grid: x 0..393 y 442.0..618.7, three touching columns of 131 (= 393/3) at 3:4, with no gutter to separate them"
+  "_": "03 the draft grid: x 0..393 y 442.0..618.7, three touching columns of 131 (= 393/3) at 3:4, with no gutter to separate them, one of them filled. That one frame is a stranger's video, so the board fills the cell with tilebuild.py's banner and redraws the Drafts: 1 badge over it"
  },
  {
   "id": "card-title",
@@ -752,13 +752,13 @@
   "cmd": "bbox",
   "box": [
    26,
-   726,
+   723,
    240,
    746
   ],
   "dark": 200,
   "mine": "03-profile.png",
-  "_": "03 'Let contacts find you on TikTok' ink 29.0..213.0, top 728.3 and the 'y' descender to 740.3: 13px. The window starts at 726, below the title's own descender, which runs to 723.0"
+  "_": "03 'Let contacts find you on TikTok' ink 29.0..213.0 at y 723.0: 13px"
  },
  {
   "id": "add-pill",
@@ -823,12 +823,12 @@
   "box": [
    315,
    800,
-   380,
-   816
+   392,
+   820
   ],
   "dark": 200,
   "mine": "03-profile.png",
-  "_": "03 the active 'Profile' label, 339.3..369.0 -> centre 354.2: pitch 78.6, a plain 5-column grid across the full 393 rather than an inset one. 10px, h 8.0 off its 0.727 ascender. The window stops short of the 52pt corner, which --crop-phone fills with bezel"
+  "_": "03 the active 'Profile' label, 339.3..369.0 -> centre 354.2: pitch 78.6, a plain 5-column grid across the full 393 rather than an inset one. 10px, h 8.0 off its 0.727 ascender"
  },
  {
   "id": "tabbar-create",
@@ -898,7 +898,7 @@
   ],
   "dark": 248,
   "mine": "04-post-empty.png",
-  "_": "04 the video cover: x 264.0..377.7 y 110.7..260.7, so 114x150"
+  "_": "04 the video cover: x 264.0..377.7 y 110.7..260.7, so 114x150. The frame inside it is the same stranger's video, so the board fills the cell with the same banner and draws TikTok's own labels and bar back over it"
  },
  {
   "id": "editcover",
@@ -912,7 +912,7 @@
   ],
   "bright": 250,
   "mine": "04-post-empty.png",
-  "_": "04 the white 'Edit cover' label inside that cover, 292.3..351.3 at y 236.0: 13px on a dark bar"
+  "_": "04 the white 'Edit cover' label inside that cover, 292.3..351.3 at y 236.0: 13px on a dark bar. Redrawn rather than cut out with the frame; white on dark blooms, so it measures ~1.5 narrower than the capture reads"
  },
  {
   "id": "chip-hashtags",

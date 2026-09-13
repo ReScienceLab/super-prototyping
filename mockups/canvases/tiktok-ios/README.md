@@ -10,13 +10,14 @@ Open it with `?canvas=tiktok-ios`, or a single board with
 | file | what it is |
 |---|---|
 | `gen.py` | The source of truth. Every `NN-*.html` here is its output; edit the generator and re-run, never the HTML. |
-| `00-design-tokens.html` | The contract. 53 tokens with the measurement behind each one, inlined byte-identically into all seventeen boards. |
+| `00-design-tokens.html` | The contract. 55 tokens with the measurement behind each one, inlined byte-identically into all seventeen boards. |
 | `00b-evidence`, `00c-evidence` | The same values shown against the captures they came off. |
 | `01-bio-empty` … `07-post-caption` | The screens. 393 × 852 pt frames on 478 × 980 artboards, fully self-contained. |
 | `probes.json` | 85 measurements, replayable: `refkit batch probes.json --pt 3 --against scratch/mine`. |
-| `crops.json` | The 28 boxes cut out of the captures as bitmaps: two regions and every glyph. Everything else is drawn. |
+| `crops.json` | The 25 glyph boxes cut out of the captures as bitmaps. Everything else is drawn or fetched. |
 | `iconbuild.py` | Fetches `icon.png` from the App Store and masks it. One shot; the icon is committed. |
 | `avatarbuild.py` | Fetches board 3's avatar from a named TikTok account, so no stranger's face ships here. One shot; the PNG is committed. |
+| `tilebuild.py` | Fetches the same account's site banner and letterboxes it into `tile.png`, which fills both content tiles. One shot; the PNG is committed. |
 
 The captures are 1179 × 2556 for a 393 × 852 frame, so the scale is 3.0 px/pt
 exactly and every `refkit` call in this folder runs `--pt 3`.
@@ -47,40 +48,52 @@ Mean absolute delta against the capture, whole frame, phone crop, in levels of
 | # | screen | Δ |
 |---|---|---|
 | 1 | Bio, empty | 2.07 |
-| 2 | Bio, filled | 3.84 |
-| 3 | Profile | 5.12 |
-| 4 | Post, empty | 3.47 |
-| 5 | Post, keyboard | 5.62 |
-| 6 | Post, hashtags | 5.16 |
-| 7 | Post, caption | 4.82 |
+| 2 | Bio, filled | 3.97 |
+| 3 | Profile | 15.41 |
+| 4 | Post, empty | 9.69 |
+| 5 | Post, keyboard | 11.71 |
+| 6 | Post, hashtags | 11.25 |
+| 7 | Post, caption | 10.91 |
 
-The gradient is the keyboard. Boards 5 and 6 are three-quarters keycaps, and a
+**Six of these seven numbers are dominated by a deliberate substitution, not
+by an error.** Board 1 is the only one that carries none. Every other board
+holds at least one region where the capture's content belongs to a real person
+and the board ships a stand-in account's instead — the list is under
+*Substitutions*. The two content tiles are what move the numbers: board 3's
+drafts cell is 131 × 174.3 pt, 6.8% of the frame, and boards 4–7 carry the
+same art in a 112 × 148.8 cell, 5.0%. Both hold a black-ground banner where
+the capture holds a bright photograph, so those pixels run to 200-odd levels
+of difference and carry the whole-frame mean up several points on their own.
+Board 3 adds the avatar disc, another 2.6% at some 70 levels. None of that is
+a fidelity score; it is the price of not shipping a stranger's face and video.
+
+What is left is the keyboard. Boards 5 and 6 are three-quarters keycaps, and a
 keycap is a rounded rect with a 1.3pt bottom edge repeated thirty times — every
 antialiased edge in the grid counts twice, once on each side. Nothing in those
 two boards is geometrically off; `01-bio-empty` carries the same keyboard at
 2.07 because half its frame is empty ground.
 
-Board 3 is the one number here that is not a fidelity score. Its avatar is a
-deliberate substitution — the avatar of `@snapaction_ai`, a mark on black,
-over a capture holding a photograph of a stranger — and that 109pt disc is
-2.6% of the frame at some 70 levels of difference. The board reads 3.42
-against the capture's own face and 5.12 as shipped; the shipped number is the
-one in the table.
-
 `refkit batch probes.json --pt 3 --against scratch/mine` replays all 85:
 
 - **13 colour probes**, mean Δmax 0.6, worst 3.
-- **59 box probes**, mean |dw| 0.68 pt, mean |dh| 0.40 pt.
+- **59 box probes**, mean |dw| 1.42 pt, mean |dh| 0.71 pt.
 - **11 edge scans**, all landing.
 - **2 band probes** print `differs`, both by under a third of a point:
   `stat-rows` (ref `253.7 .. 266.3`, mine `253.7 .. 266.7`) and `sugg-rows`
   (ref `341.0 .. 352.0`, mine `340.7 .. 352.0`).
 
-The worst box probes are all one emoji: `bio-text` w\* 1.041 h\* 1.193 and
-`bio-line` h\* 1.254. See *the emoji is not the same glyph* below.
+The worst box probes are the substituted strings, and they miss by the width
+their replacement runs to: `nav-title-3` w\* 0.887 (and clipped by its own
+window), `handle` 0.910, `orders` 0.905. Each one's note in `probes.json` says
+which string it now measures. After those, the emoji: `bio-line` h\* 1.164 and
+`bio-text` h\* 1.136, both widths landing — see *the emoji is not the same
+glyph* below. The two fetched tiles land: `draft-row` +0.0 / +0.4 pt, `cover`
++1.7 / +1.0, `editcover` +1.7 / +0.7.
 
-`scratch/ink.py` compares dark-pixel **counts** over 29 named regions, which is
-what separates a weight error from a size error. All 29 land within ±8.5%, and
+`scratch/ink.py` compares dark-pixel **counts** over 25 named regions, which is
+what separates a weight error from a size error. It lists only regions the
+board reproduces; a ratio over a substituted string would compare two different
+strings. All 25 land within ±8.5%, and
 the spread is symmetric — 1.084 worst high (the post-count row), 0.936 worst
 low (the "Bio" nav title). A systematic weight error would push one way; this
 is headless Chrome's stem darkening against iOS's, and it is not worth chasing.
@@ -185,30 +198,48 @@ string or a mark that would otherwise reproduce a real person's content.
   each chosen to render within a point or so of the width its box was built
   for. Same box, same metrics — the widths in `probes.json` are the
   capture's, and the fourth chip runs off the right edge in both.
-- **Two whole regions are bitmap crops, not drawings** (`crops.json`, which
-  also holds the 26 glyph boxes): the drafts thumbnail and the composer's
-  cover art. Their overlays are baked in — the "motion" tag and the "Edit
-  cover" pill sit in `04-cover.png`, and the "Drafts: 1" label in
-  `03-draft.png`. Nothing re-types them, so nothing can get them wrong.
-- **The profile avatar is another account's, not the capture's.** The face in
-  the capture belongs to a real person, so board 3 ships the avatar of
-  `@snapaction_ai` instead, fetched by `avatarbuild.py` — point its `PROFILE`
-  at another handle to swap it. It is the only bitmap here
-  that is not a crop, and the only substitution that costs a whole board — see
-  *How close it lands*. Everything around it is geometry and stays drawn: the
-  4pt gradient ring, the 2.5pt page-coloured gap, the notch and the + badge.
-  The asset is a plain 288 × 288 square and carries none of them.
+- **The account is a stand-in throughout.** The capture's profile is one real
+  person's, so the name, the handle, the bio and the row under it all belong
+  to `@snapaction_ai` here: `snapaction_ai` at `--tk-t-nav` (113.0 against the
+  capture's 76.3), `@snapaction_ai` (125.0 against 113.7), and
+  `snap it, act later 🕺`, measured back to the capture's own ink box — 125.3
+  against 125.7. The character counter is not typed: `gen.py` derives it from
+  the bio by the rule the capture's own `19/80` fixes — TikTok counts UTF-16
+  units, so the dancer costs two — and this bio comes to `21/80`.
+  `ACCOUNT` and `BIO` in `gen.py` are the two knobs.
+- **The TikTok Shop row is the account's site.** The capture's row reads
+  `🛒 Your orders`, which is that person's order history. The board puts
+  `snapaction.ai` there on the same centre, behind board 4's own globe glyph
+  at the 17pt it was cut at: icon + 3.67 + text, 110.0 wide against the
+  capture's 97.7.
+- **Both content tiles are the account's own art, not the capture's video.**
+  Board 3's drafts cell and boards 4–7's cover cell held frames of a
+  stranger's video. Both are 3:4, so one bitmap fills both: `tilebuild.py`
+  fetches `snapaction.ai`'s `og:image` and letterboxes it on black, the way
+  TikTok shows a landscape clip. The chrome TikTok draws over a cover is
+  TikTok's, so it is redrawn rather than carried in the bitmap — "Drafts: 1"
+  on board 3, and "Preview", the 40% bar and "Edit cover" on board 4. The
+  video's own watermark and sticker went with the video. This is what board 3
+  and boards 4–7 cost in *How close it lands*.
+- **The profile avatar is the same account's.** The face in the capture
+  belongs to a real person, so board 3 ships `@snapaction_ai`'s avatar,
+  fetched by `avatarbuild.py` — point its `PROFILE` at another handle to swap
+  it, and `tilebuild.py`'s `SITE` with it. Everything around it is geometry
+  and stays drawn: the 4pt gradient ring, the 2.5pt page-coloured gap, the
+  notch and the + badge. The asset is a plain 288 × 288 square and carries
+  none of them.
 - **The emoji glyphs are the host's**, as above.
 
 ## Assets
 
-- `assets/art/` — the 28 crops from `crops.json` plus the fetched avatar,
-  **committed**. They are the one thing `gen.py` cannot rebuild without the
-  captures, and the rule against committing reference imagery is about whole
-  third-party screens; two thumbnails and 26 glyphs at their ink boxes are the
-  art a board needs to render at all. `cut()` refreshes the crops from
-  `assets/refs/` when the captures are there; `avatarbuild.py` refetches the
-  avatar, which needs no capture at all.
+- `assets/art/` — the 25 crops from `crops.json` plus the two fetched assets,
+  `03-avatar.png` and `tile.png`, **committed**. The crops are the one thing
+  `gen.py` cannot rebuild without the captures, and the rule against
+  committing reference imagery is about whole third-party screens; 25 glyphs
+  at their ink boxes are the art a board needs to render at all. `cut()`
+  refreshes them from `assets/refs/` when the captures are there;
+  `avatarbuild.py` and `tilebuild.py` refetch theirs, which need no capture at
+  all.
 - `assets/refs/` — the seven captures. **Gitignored**, along with the `ref-*`
   boards built from them. A fresh clone therefore builds 10 of the 17 boards
   and skips the reference row.
