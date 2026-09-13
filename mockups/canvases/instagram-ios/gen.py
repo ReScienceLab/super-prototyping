@@ -20,6 +20,13 @@ else is live -- type, buttons, rings, the tab bar, the grid's play/carousel/pin
 badges and the reels view counts, which are listed in each crop's `erase`,
 inpainted out of the photograph and redrawn on top.
 
+Where the icons come from. 12 of the 23 SVGs in assets/icons are Instagram's
+own IGDS drawings, lifted out of the IGDS*Icon.react modules in the JS the
+logged-out instagram.com shell loads; the other 11 are traced off the captures
+because they only appear behind the login wall. icon() sets
+preserveAspectRatio="none", so each file's viewBox is the glyph's ink box,
+never a module's design grid -- see the folder README.
+
 The scroll model. Boards 03-05 are board 01 scrolled by exactly 208.33 pt:
 the mutuals row, the buttons and the highlights all move by that one number,
 and the nav is opaque, so nothing above the mutuals survives. Board 02 is the
@@ -272,7 +279,7 @@ def token_board():
                 % (NAME, swatches, radii, type_, met), SHEET)
 
 
-EV_ROWS = 40   # rows that fit the 478 x 980 box; the table splits past this
+EV_ROWS = 18   # rows that fit the 478 x 980 box; the table splits past this
 
 
 def evidence_boards():

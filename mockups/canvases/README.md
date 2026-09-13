@@ -297,10 +297,10 @@ declares a box other than the default 478 x 980.
   profile at eight states. Eight user-profile screens of the Instagram iOS app
   - one account at the top of its scroll and scrolled until the tab bar sticks,
   the same account's Reels, Reposts and Tagged tabs, a private account, and two
-  verified profiles - in 10 boards across three rows: a token board and an
-  evidence board for 36 tokens, the eight replicas, and the Mobbin capture of
+  verified profiles - in 11 boards across three rows: a token board and two
+  evidence boards for 36 tokens, the eight replicas, and the Mobbin capture of
   each column-for-column underneath. Mean absolute delta against those captures
-  is 5.06-7.82 levels (of 255) whole-frame and 1.85-4.79 below the status bar,
+  is 5.06-7.77 levels (of 255) whole-frame and 1.84-4.73 below the status bar,
   where about three of those levels are one fixed thing on all eight boards:
   Mobbin strips the Dynamic Island and these boards draw one, because the
   status bar is copied from `templates/` byte for byte. Its `README.md` records
@@ -318,8 +318,13 @@ declares a box other than the default 478 x 980.
   photographs. Only photography is cropped (74 boxes); the two brand-mark
   avatars are the original 1080 and 720 px files from the profile API, and the
   grid badges and view counts set over the crops are inpainted out and redrawn
-  live. `assets/art/`, `assets/brand/` and `assets/icons/` are committed; the
-  eight `ref-*` boards are gitignored, so a fresh clone has 10.
+  live. Twelve of the 23 SVGs are Instagram's own drawings rather than traces,
+  pulled out of the `IGDS*Icon.react` modules in the JS bundles the logged-out
+  instagram.com shell loads - which is also where that README records the rule
+  that makes them usable: `icon()` sets `preserveAspectRatio="none"`, so what
+  ships has to be the path's **ink box**, never the module's design grid.
+  `assets/art/`, `assets/brand/` and `assets/icons/` are committed; the eight
+  `ref-*` boards are gitignored, so a fresh clone has 11.
 - `apple-app-store/`: the run to read when the source is native iPhone 16 Pro
   screenshots rather than Mobbin or Figma. Nine screens of the iOS 26 App
   Store - five tab roots, three sheets and a system alert - in 23 boards

@@ -3,7 +3,7 @@
 Eight user-profile screens of the Instagram iOS app, rebuilt from Mobbin
 captures: one account at two scroll positions and across its four profile
 tabs, a private account, and two more profiles that carry the pieces the
-first one does not. 10 boards, and 8 more that park each capture under its
+first one does not. 11 boards, and 8 more that park each capture under its
 replica.
 
 | # | Board | What it shows |
@@ -17,7 +17,8 @@ replica.
 | 07 | `nytcooking` | A verified business profile: category row, link row, Following pill |
 | 08 | `agnezmo` | A verified creator profile: Follow / Message / Subscribe, five highlights |
 | 00 | `design-tokens` | 36 tokens in eight groups |
-| 00b | `evidence` | One row per token, with the measurement behind it |
+| 00b | `evidence` | One row per token, with the measurement behind it, 1/2 |
+| 00c | `evidence` | The same table, 2/2 |
 
 ## How close it lands
 
@@ -26,10 +27,10 @@ Mean absolute delta against the captures, in levels of 255, phone crop
 
 | Screen | whole frame | below the status bar | Screen | whole frame | below the status bar |
 | --- | --- | --- | --- | --- | --- |
-| 01 Profile | 7.82 | 4.79 | 05 Tagged | 7.41 | 4.35 |
-| 02 Grid, scrolled | 6.50 | 3.38 | 06 Private account | 5.06 | 1.85 |
-| 03 Reels | 7.52 | 4.46 | 07 NYT Cooking | 6.73 | 3.63 |
-| 04 Reposts | 7.45 | 4.39 | 08 AGNEZ MO | 6.51 | 3.39 |
+| 01 Profile | 7.77 | 4.73 | 05 Tagged | 7.36 | 4.30 |
+| 02 Grid, scrolled | 6.43 | 3.31 | 06 Private account | 5.06 | 1.84 |
+| 03 Reels | 7.47 | 4.41 | 07 NYT Cooking | 6.68 | 3.57 |
+| 04 Reposts | 7.40 | 4.33 | 08 AGNEZ MO | 6.44 | 3.31 |
 
 **Both columns are the same render.** Roughly three levels of every whole-frame
 number is the status bar, and it is the same three levels on all eight boards,
@@ -37,7 +38,7 @@ because the difference there is one fixed thing: the captures have no Dynamic
 Island and these boards draw one (see below). The second column is what the
 screens themselves score.
 
-The spread inside that second column is photography. 06 is the lowest at 1.85
+The spread inside that second column is photography. 06 is the lowest at 1.84
 because it is a white page with one avatar on it; 01 and 03–05 are the highest
 because they are nine to twelve photographs plus a story ring, and every ring,
 badge and view count set over those photographs is drawn live rather than
@@ -93,6 +94,7 @@ play / carousel / pin badges and the reels view counts. Those last two sets
 sit *on* photographs, so they are listed in each crop's `erase`, inpainted
 out of the picture by `cut()` and drawn again on top. 23 glyphs are SVGs in
 `assets/icons/`, each with its `viewBox` set to its measured ink box in pt.
+**12 of the 23 are Instagram's own drawings, not traces** — see below.
 
 **The two brand marks are original files, not crops.** `assets/brand/`
 holds Instagram's own 1080 px and NYT Cooking's 720 px profile pictures,
@@ -129,9 +131,32 @@ stays a crop**, because the live picture is a different photograph now.
   nav goes opaque, so nothing above the mutuals survives. Board 02 is the
   same account scrolled further, and its first grid row is board 01's second
   — which is why 01 and 02 share the crops `ig-t4..ig-t6`.
+- **Twelve icons are Instagram's own, pulled out of instagram.com's bundles.**
+  The whole IGDS set ships as `IGDS*Icon.react` modules inside the JS the
+  logged-out shell loads: 370 bundles, 202 icon modules, each one an
+  `IGDSSVGIconBase` with a `viewBox` and its children. `verified`, `threads`,
+  `tab-reels`, `tab-reels-on`, `badge-play`, `badge-carousel`, `badge-pin`,
+  `bell`, `link`, `more`, `chevron-down` and `chevron-left` are those paths
+  verbatim. It cost between 0.02 and 0.10 levels a board, and it is worth more
+  than that: a trace of a 22 pt glyph facets at 2× while every delta reads
+  clean.
+- **A module's `viewBox` is its design grid, and `icon()` wants the ink box.**
+  `icon()` injects `preserveAspectRatio="none"`, so a glyph shipped on its own
+  `0 0 24 24` grid lands short of the measured span by whatever margin the grid
+  carries — `more` is 15.07 × 3.07 of ink on a 24 × 24 grid, so it would come
+  out at 63% of width and 13% of height. The boxes are measured by rasterizing
+  each candidate at a known scale and reading the ink back, because arcs and
+  stroked polylines cannot be got out of the `d` string by hand.
+- **Two of the set are the wrong drawing and stay traces.** `IGDSLockOutline96Icon`
+  is a padlock inside a circle where board 06 draws the circle in CSS, and its
+  padlock alone is 38.4 × 49.33 against the capture's 40.67 × 50.67 — swapping
+  it cost 06 0.18 levels, so it was reverted. The grid, tagged and crown tab
+  glyphs, `threads-note` and the plain `eye` are not in the logged-out bundle
+  set at all; they live behind the login-walled profile route, which returns
+  302 to every anonymous request. Those 11 stay traces.
 - **`refkit diff --top N` does not exclude anything from the mean.** It only
-  controls which bands get reported. The second column of the table above was
-  computed separately, masking rows above y 54 pt with the render's own alpha.
+  controls which bands get reported. The second column of the table above is a
+  separate `refkit diff` of the same pair with the top 54 pt cropped off both.
 
 ## Assets
 
@@ -140,7 +165,8 @@ stays a crop**, because the live picture is a different photograph now.
 - `art/`: 74 PNGs, each a crop of a capture at the box named in `crops.json`.
   **Committed**: without it the boards have no photography.
 - `brand/`: the two original profile pictures described above. **Committed.**
-- `icons/`: 23 SVGs, inlined by `icon()`. **Committed.**
+- `icons/`: 23 SVGs, inlined by `icon()`. 12 are Instagram's own IGDS
+  paths, 11 are traced off the captures. **Committed.**
 - `refs/`: the 8 captures, 1179 × 2556 after their attribution banner is
   cropped off the shipped 1179 × 2676. **Gitignored**, along with the
   `ref-*.html` boards built from them.
