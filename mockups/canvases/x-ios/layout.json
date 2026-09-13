@@ -1,0 +1,99 @@
+{
+  "name": "(example) X iOS",
+  "cover": "07-profile",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00a-type-tokens",
+          "label": "Type tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-professional-splash",
+          "label": "X for Professionals"
+        },
+        {
+          "file": "02-select-category",
+          "label": "Select a category"
+        },
+        {
+          "file": "03-category-selected",
+          "label": "Category selected"
+        },
+        {
+          "file": "04-select-account-type",
+          "label": "Select an account type"
+        },
+        {
+          "file": "05-welcome",
+          "label": "Welcome"
+        },
+        {
+          "file": "06-edit-profile",
+          "label": "Edit profile"
+        },
+        {
+          "file": "07-profile",
+          "label": "Professional profile"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: the captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-professional-splash",
+          "label": "X for Professionals"
+        },
+        {
+          "file": "ref-02-select-category",
+          "label": "Select a category"
+        },
+        {
+          "file": "ref-03-category-selected",
+          "label": "Category selected"
+        },
+        {
+          "file": "ref-04-select-account-type",
+          "label": "Select an account type"
+        },
+        {
+          "file": "ref-05-welcome",
+          "label": "Welcome"
+        },
+        {
+          "file": "ref-06-edit-profile",
+          "label": "Edit profile"
+        },
+        {
+          "file": "ref-07-profile",
+          "label": "Professional profile"
+        }
+      ]
+    }
+  ]
+}

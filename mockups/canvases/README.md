@@ -293,6 +293,40 @@ declares a box other than the default 478 x 980.
   or two thirds of a point, were worth more than the blur fit and the compose
   glyph together. The seven `ref-*` boards are gitignored, so a fresh clone
   has 10.
+- `instagram-ios/`: the run to read when eight screens are one app's own
+  profile at eight states. Eight user-profile screens of the Instagram iOS app
+  - one account at the top of its scroll and scrolled until the tab bar sticks,
+  the same account's Reels, Reposts and Tagged tabs, a private account, and two
+  verified profiles - in 11 boards across three rows: a token board and two
+  evidence boards for 36 tokens, the eight replicas, and the Mobbin capture of
+  each column-for-column underneath. Mean absolute delta against those captures
+  is 5.06-7.77 levels (of 255) whole-frame and 1.84-4.73 below the status bar,
+  where about three of those levels are one fixed thing on all eight boards:
+  Mobbin strips the Dynamic Island and these boards draw one, because the
+  status bar is copied from `templates/` byte for byte. Its `README.md` records
+  that the story ring is an **angular** sweep, not a linear one - twelve samples
+  at 30 degrees round c01's ring do not mirror about any axis, which a linear
+  gradient on a circle always does - and that the four tab glyphs are really
+  eight, because an active tab is a different drawing rather than a recolour. It
+  also records the two measurement techniques that settled them: solving a
+  stroke width on coverage against the **core** ink level rather than against
+  255, which reads a grey stroke 43% narrow if you get it wrong, and a per-row
+  solve in place of a threshold bbox, which biases black shapes wider than grey
+  ones. And it names three defects as the source's: the active-tab underline is
+  40pt wide on four captures and 64 on the other four, c08's fifth highlight
+  label is not centred on its circle, and the reels scrim is baked into the
+  photographs. Only photography is cropped (74 boxes); the two brand-mark
+  avatars are the 1080 and 720 px files from the profile API resampled to 516,
+  not crops of the captures, and the
+  grid badges and view counts set over the crops are inpainted out and redrawn
+  live. Thirteen of the 23 SVGs are Meta's own drawings rather than traces,
+  pulled out of the `IGDS*Icon.react` modules in the JS bundles the logged-out
+  instagram.com shell loads, plus one the Threads row needs that only
+  threads.com carries - which is also where that README records the rule that
+  makes them usable: `icon()` sets `preserveAspectRatio="none"`, so what ships
+  has to be the path's **ink box**, never the module's design grid.
+  `assets/art/`, `assets/brand/` and `assets/icons/` are committed; the eight
+  `ref-*` boards are gitignored, so a fresh clone has 11.
 - `apple-app-store/`: the run to read when the source is native iPhone 16 Pro
   screenshots rather than Mobbin or Figma. Nine screens of the iOS 26 App
   Store - five tab roots, three sheets and a system alert - in 23 boards
@@ -308,6 +342,33 @@ declares a box other than the default 478 x 980.
   of the captures' own clocks, badges or iOS 26 glyphs carried over. And it
   records p2, where two stacked 20% scrims land exactly on 255 x .8 x .8. The nine `ref-*` boards are gitignored, so a
   fresh clone has 14.
+- `x-ios/`: the run to read when the brand face has an optical-size twin on
+  the device. Seven screens of switching an X account to a professional one -
+  the X for Professionals splash, the category list before and after a pick,
+  the account-type cards, the welcome page, the Edit profile sheet and the
+  finished professional profile. 12 boards in three rows: a token board, a type
+  board and three evidence boards for 52 tokens, the seven replicas, and the
+  Mobbin capture of each parked underneath. Mean absolute delta against those
+  captures is 3.24-5.90 levels (of 255), mean 4.57, and the spread is type
+  density: all forty-two of the worst 40 px bands across the seven screens
+  carry a line of text, and forty of their worst rows sample the same flat
+  colour on both sides. Its `README.md` records the substitution behind that -
+  Chirp is neither a system face nor in any candidate set, so every size was
+  fitted to a measured run's ink width rather than read off the iOS ladder -
+  and the split that fit exposed: the platform serves SF Pro Display at 20px
+  and up, where the widths agree within 1%, and SF Pro Text below it, which
+  runs 6-8% wide, so **one tracking token applied only under 20px** closes the
+  band and the 24 probed runs land at a mean width ratio of 0.997. It also
+  records what that leaves, a mean ink-height ratio of 0.9685 that no
+  repositioning can fix, and the line-box constant re-solved against ink
+  *bottoms* to prove the +1pt at the tops is the taller cap and not a placement
+  error. Only photographs are cropped, six of them; thirty icons are SVGs whose
+  `viewBox` is the glyph's own ink box, so moving one part of a glyph moves
+  every other part relative to its placement box. And it records the source's
+  own inconsistency: the enabled Next pill samples `#060B13` on one capture and
+  `#0E1419` on two others with the page ground identical on all three, which is
+  the whole 0.51 gap between screens 03 and 02. The seven `ref-*` boards are
+  gitignored, so a fresh clone has 12.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so
