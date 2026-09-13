@@ -37,9 +37,9 @@ Mean absolute delta against the captures, in levels of 255, over the whole
 | Screen | Δ | Screen | Δ |
 | --- | --- | --- | --- |
 | 01 Professional splash | 3.33 | 05 Welcome | 5.90 |
-| 02 Select a category | 4.67 | 06 Edit profile | 3.24 |
-| 03 Category selected | 5.18 | 07 Professional profile | 5.04 |
-| 04 Select account type | 4.46 | **Mean** | **4.55** |
+| 02 Select a category | 4.67 | 06 Edit profile | 3.26 |
+| 03 Category selected | 5.18 | 07 Professional profile | 5.56 |
+| 04 Select account type | 4.46 | **Mean** | **4.62** |
 
 The spread is type density, not geometry. All forty-two of the worst 40 px
 bands `refkit diff` reports across the seven screens carry a line of text, and
@@ -56,6 +56,19 @@ Space card.
 
 03 is the exception worth naming, and it is the source's, not the board's: see
 **What the captures get wrong**.
+
+## The account on the boards
+
+The captures show X's own demo persona, Sam Lee. The boards show
+[@Yilin0x](https://x.com/Yilin0x): the profile name, the handle, the post head
+and the Space card's host are the example account's, and so is 06's Name field.
+Nothing else moves — the avatar is still the capture's photograph, and the bio,
+the location and the category are still its text.
+
+Those four runs are the whole of the cost. 07 scores 5.56 against the capture
+and 4.99 outside the three bands that hold them, which is the 5.04 it scored
+when it said Sam Lee; 06 goes 3.24 to 3.26 for one field. `t-name` in
+**Replaying the measurements** reads the same divergence as +42 pt.
 
 ## The score window, and the three things Mobbin did to the export
 
@@ -213,8 +226,12 @@ refkit batch mockups/canvases/x-ios/probes.json --pt 3 \
 ```
 
 The 17 colour probes come back at a mean Δmax of 2.8 levels and a worst of 9;
-the 8 box probes at a mean |dw| of 0.95 pt and a mean |dh| of 0.20 pt. The two
-scan probes land within 0.3 pt of their edge.
+the 7 box probes that measure the same run on both sides at a mean |dw| of
+0.90 pt and a mean |dh| of 0.23 pt. The eighth is `t-name`, and it reads +42.0:
+the capture's run there is `Sam Lee` and the board's is `Yilin`, so what that
+row now reports is the account, not the size. The fit behind `--x-t-name` is
+the capture-side 86.33 pt, which `refkit batch probes.json --pt 3` replays
+without `--against`. The two scan probes land within 0.3 pt of their edge.
 
 `assets/refs/` and the seven `ref-*.html` boards hold third-party captures and
 are gitignored, so a fresh clone has 12 boards; `gen.py` rebuilds the reference

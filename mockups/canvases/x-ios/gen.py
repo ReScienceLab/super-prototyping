@@ -52,6 +52,9 @@ SCALE = 3.0                                       # capture px per design pt
 
 NAME = "X iOS"
 PAGE_NAME = "(example) " + NAME
+# The account the boards show. The captures hold X's own demo persona, and the
+# evidence rows below still quote it: they measure the captures, not the render.
+USER, AT = "Yilin", "@Yilin0x"
 P = "x"          # token prefix: --x-ink, --x-accent, --x-t-body
 
 # ---------------------------------------------------------------- tokens ----
@@ -636,7 +639,7 @@ def s05():
 # The edit-profile sheet over a dimmed page. Ten full-width rules bound eight
 # rows and one empty 32.33pt band; the avatar is the same photograph as 07
 # under a .28 black scrim, with a stroked camera and a sparkle on it.
-FIELDS = [(323.0, "Name", "Sam Lee", "var(--x-accent)"),
+FIELDS = [(323.0, "Name", USER, "var(--x-accent)"),
           (361.7, "Bio", "Ordinary guy", "var(--x-accent)"),
           (457.7, "Location", "New Jersey, USA", "var(--x-accent)"),
           (502.3, "Website", "Add your website", "var(--x-ink-2)"),
@@ -711,7 +714,7 @@ def spaces_card(dy):
             + circle(70.67, 490.33 + dy, 19.33, "background:var(--x-inv)")
             + art("07-avatar", "border-radius:50%",
                   at=(71.67, 491.33 + dy, 17.33, 17.33))
-            + tx(95.0, 494.67 + dy, "Sam Lee", "t-host", "var(--x-inv)")
+            + tx(95.0, 494.67 + dy, USER, "t-host", "var(--x-inv)")
             + box(157.33, 492.67 + dy, 36.33, 15.33,
                   "border-radius:var(--x-r-chip);background:var(--x-chip-card)")
             + tx(162.33, 495.67 + dy, "Host", "t-count", "var(--x-inv)")
@@ -726,8 +729,8 @@ def spaces_card(dy):
 
 def post(dy):
     return (art("07-avatar", "border-radius:50%", at=(9.0, 433.67 + dy, 44.33, 44.33))
-            + tx(61.67, 434.33 + dy, "Sam Lee", "t-row")
-            + tx(126.0, 434.0 + dy, "@SamLeexf · 2h", "t-note", "var(--x-ink-2)")
+            + tx(61.67, 434.33 + dy, USER, "t-row")
+            + tx(126.0, 434.0 + dy, AT + " · 2h", "t-note", "var(--x-ink-2)")
             + icon("x-logo", 365.67, 432.67 + dy, 16.67, 16.33, "var(--x-ink)")
             + box(61.33, 451.0 + dy, 40.67, 18.33,
                   "border-radius:var(--x-r-chip);background:var(--x-chip)")
@@ -747,8 +750,8 @@ def s07():
                   for name, cx, gx, gy, gw, gh in DISCS)
         + circle(5.45, 106.3, 70.1, "background:var(--x-inv)")
         + art("07-avatar", "border-radius:50%", at=(8.67, 109.5, 63.67, 63.67))
-        + tx(9.0, 188.0, "Sam Lee", "t-name")
-        + tx(9.67, 215.33, "@SamLeexf", "t-note", "var(--x-ink-2)")
+        + tx(9.0, 188.0, USER, "t-name")
+        + tx(9.67, 215.33, AT, "t-note", "var(--x-ink-2)")
         + tx(9.67, 249.0, "Ordinary guy", "t-body")
         + icon("briefcase", 10.33, 275.67, 13.0, 12.33, "var(--x-ink-2)")
         + tx(28.33, 277.33, "Entertainment &amp; Recreation", "t-meta", "var(--x-ink-2)")
@@ -851,9 +854,9 @@ def type_board():
     # --x-tr-text is in this group and is not a font: it is the tracking track()
     # puts on every run under 20px, so each such specimen wears it and says so
     rows = "".join(
-        '<div class="tr"><span style="font:var(--x-%s)%s">Sam Lee</span>'
+        '<div class="tr"><span style="font:var(--x-%s)%s">%s</span>'
         '<em>--x-%s &middot; %s%s</em></div>'
-        % (n, track(n), n, v.split(" var")[0],
+        % (n, track(n), USER, n, v.split(" var")[0],
            " + --x-tr-text" if track(n) else "")
         for _, n, v, _ in _of("Type") if n in TY)
     return page(NAME + " - Type Tokens",
