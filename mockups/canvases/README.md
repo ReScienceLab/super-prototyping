@@ -329,8 +329,10 @@ declares a box other than the default 478 x 980.
   records the three by-design mismatches every reference board here carries,
   the two location chips renamed off a stranger's lunch, and the Share-to
   brand marks that arrive desaturated in the source and are drawn that way.
-  `assets/art/` is committed, three crops; the seven `ref-*` boards are
-  gitignored, so a fresh clone has 10.
+  `assets/art/` is committed, three crops, and `iconbuild.py` is the one
+  folder here that keeps the App Store fetch behind its `icon.png` as a
+  script rather than a note; the seven `ref-*` boards are gitignored, so a
+  fresh clone has 10.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

@@ -15,7 +15,7 @@ Open it with `?canvas=tiktok-ios`, or a single board with
 | `01-bio-empty` … `07-post-caption` | The screens. 393 × 852 pt frames on 478 × 980 artboards, fully self-contained. |
 | `probes.json` | 85 measurements, replayable: `refkit batch probes.json --pt 3 --against scratch/mine`. |
 | `crops.json` | The three boxes cut out of the captures as bitmaps. Everything else is drawn. |
-| `iconbuild.py` | Writes `icon.png`, the folder card's app icon. One shot; the icon is committed. |
+| `iconbuild.py` | Fetches `icon.png` from the App Store and masks it. One shot; the icon is committed. |
 
 The captures are 1179 × 2556 for a 393 × 852 frame, so the scale is 3.0 px/pt
 exactly and every `refkit` call in this folder runs `--pt 3`.
@@ -170,14 +170,15 @@ string or a mark that would otherwise reproduce a real person's content.
   boards built from them. A fresh clone therefore builds 10 of the 17 boards
   and skips the reference row.
 
-- `icon.png` — the folder card's icon, **drawn** by `iconbuild.py` rather
-  than fetched. The sibling folders take theirs from the App Store's own
-  artwork; TikTok's is not redistributable, so the note is redrawn as three
-  offset strokes under the same superellipse mask, against the watermark in
-  the captures. The PNG's `Source` chunk says so.
+- `icon.png` — the folder card's icon, the App Store's own artwork, same
+  route as every sibling: `iconbuild.py` reads `artworkUrl512` off the iTunes
+  lookup for track `835599320`, resizes to 256 and masks it with the
+  superellipse. The source URL is in the PNG's `Source` chunk. This artwork is
+  the iOS 26 `AppIcon26`, which carries its own grey glass rim; that rim is
+  TikTok's, not a compositing artefact, and the mask is wide enough to keep it.
 
-The screen designs are TikTok's, reproduced for design reference. Not licensed
-for redistribution as product artwork.
+The artwork and the screen designs are TikTok's, reproduced for design
+reference. Not licensed for redistribution as product artwork.
 
 ## Regenerating
 
