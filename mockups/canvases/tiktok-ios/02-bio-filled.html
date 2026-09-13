@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TikTok - Bio - filled</title>
+<style>
+:root{
+  /* Font */
+  --tk-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --tk-bg:#FDFBFC;
+  --tk-chip:#F3F0F3;
+  --tk-keyboard:#D1D2D9;
+  --tk-key:#FDFBFC;
+  --tk-key-alt:#AAAFBB;
+  --tk-key-edge:#898B8D;
+  --tk-scrim:rgba(0,0,0,.195);
+
+  /* Line */
+  --tk-hairline:#D1CECF;
+  --tk-divider:#8A8788;
+  --tk-rule:#E8E6E7;
+  --tk-line:#E6E3E4;
+  --tk-tabs:#CDCBCC;
+  --tk-stat:#F1EFF0;
+
+  /* Ink */
+  --tk-ink:#000000;
+  --tk-ink-2:#6A6767;
+  --tk-ink-3:#838083;
+  --tk-ink-4:#A8A5A8;
+  --tk-glyph:#878689;
+  --tk-glyph-2:#6B686A;
+  --tk-ink-inv:#FDFBFC;
+  --tk-mark-off:#A5A2A5;
+
+  /* Accent */
+  --tk-pink:#FD2953;
+  --tk-cyan:#1FD6EC;
+
+  /* Radius */
+  --tk-r-chip:4px;
+  --tk-r-ctl:5px;
+  --tk-r-pill:8px;
+  --tk-r-btn:9px;
+  --tk-r-card:12px;
+  --tk-r-phone:52px;
+
+  /* Type */
+  --tk-t-time:590 17px/22px var(--tk-font);
+  --tk-t-nav:700 17px/22px var(--tk-font);
+  --tk-t-handle:600 17px/22px var(--tk-font);
+  --tk-t-body:400 15px/20px var(--tk-font);
+  --tk-t-cap:400 15px/17.67px var(--tk-font);
+  --tk-t-cap-b:600 15px/17.67px var(--tk-font);
+  --tk-t-row:500 16.5px/20px var(--tk-font);
+  --tk-t-btn:550 15px/20px var(--tk-font);
+  --tk-t-btn-lg:550 16px/20px var(--tk-font);
+  --tk-t-tag:400 15.5px/20px var(--tk-font);
+  --tk-t-card:700 15px/20px var(--tk-font);
+  --tk-t-bio:400 14px/19px var(--tk-font);
+  --tk-t-chip-lg:600 14px/19px var(--tk-font);
+  --tk-t-meta:400 13px/18px var(--tk-font);
+  --tk-t-chip:600 12px/16px var(--tk-font);
+  --tk-t-count:400 12px/16px var(--tk-font);
+  --tk-t-tab:600 9.5px/13px var(--tk-font);
+  --tk-t-key:320 25px/30px var(--tk-font);
+  --tk-t-keylab:400 16px/21px var(--tk-font);
+  --tk-t-mark:400 17.5px/22px var(--tk-font);
+  --tk-t-mark-sm:400 15.5px/20px var(--tk-font);
+
+  /* Metrics */
+  --tk-w:393px;
+  --tk-h:852px;
+  --tk-status:54px;
+  --tk-kb:562.33px;
+  --tk-nav:102.67px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--tk-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--tk-w);height:var(--tk-h);
+  border-radius:var(--tk-r-phone);overflow:hidden;background:var(--tk-bg);color:var(--tk-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--tk-w);height:var(--tk-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--tk-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+.t,.b,.a,.ic{position:absolute}
+.a,.ic{display:block}
+.ic{overflow:visible}
+.t{white-space:nowrap}
+.sh{position:absolute;left:0;top:0;width:var(--tk-w);height:var(--tk-h)}</style>
+</head>
+<body>
+<div class="phone"><div class="sb" style="color:var(--tk-ink)"><div class="time">9:41</div><svg style="left:282px;top:23.34px;width:19.33px;height:12px" viewBox="0 0 19.33 12"><rect x="0" y="7.67" width="3.33" height="4.33" rx="1.05"/><rect x="5.33" y="5.33" width="3.33" height="6.67" rx="1.05"/><rect x="10.67" y="2.67" width="3.33" height="9.33" rx="1.05"/><rect x="16" y="0" width="3.33" height="12" rx="1.05"/></svg><svg preserveAspectRatio="none" viewBox="335 22.008 19.114 13.796" style="left:309px;top:23px;width:16.62px;height:12.3px"><path d="M344.555 35.8042C344.738 35.8042 344.896 35.7212 345.219 35.4058L347.245 33.4634C347.369 33.3389 347.403 33.1562 347.286 33.0068C346.747 32.3096 345.726 31.7036 344.555 31.7036C343.352 31.7036 342.331 32.3345 341.791 33.0566C341.708 33.1895 341.741 33.3389 341.874 33.4634L343.891 35.4058C344.215 35.7129 344.373 35.8042 344.555 35.8042ZM339.7 31.2886C339.882 31.4629 340.106 31.438 340.272 31.2554C341.268 30.1514 342.895 29.3462 344.555 29.3545C346.232 29.3462 347.859 30.1763 348.872 31.2803C349.021 31.4546 349.229 31.4463 349.411 31.2803L350.698 30.002C350.831 29.8691 350.848 29.6865 350.723 29.5371C349.47 28.0015 347.145 26.8477 344.555 26.8477C341.966 26.8477 339.641 28.0015 338.388 29.5371C338.263 29.6865 338.272 29.8525 338.413 30.002L339.7 31.2886ZM336.255 27.8189C336.421 27.9766 336.653 27.9766 336.811 27.8106C338.853 25.644 341.542 24.4985 344.555 24.4985C347.585 24.4985 350.291 25.6523 352.317 27.8189C352.466 27.9683 352.69 27.96 352.856 27.8022L354.002 26.6567C354.151 26.5073 354.143 26.3247 354.027 26.1836C352.076 23.7764 348.407 22.0083 344.555 22.0083C340.712 22.0083 337.027 23.7764 335.084 26.1836C334.968 26.3247 334.968 26.5073 335.109 26.6567L336.255 27.8189Z"/></svg><svg style="left:333px;top:23px;width:27.3px;height:12.7px" viewBox="0 0 27.3 12.7"><rect x=".6" y=".6" width="24.1" height="11.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".38"/><rect x="2" y="2" width="21.3" height="8.7" rx="2.6"/><path d="M26.1 4.3c.9.7.9 3 0 3.7V4.3Z" fill-opacity=".38"/></svg></div><div class="t" style="left:17.00px;top:70.51px;font:var(--tk-t-body)">Cancel</div><div class="t" style="left:0.00px;top:68.54px;font:var(--tk-t-nav);width:393.0px;text-align:center">Bio</div><div class="t" style="left:343.67px;top:70.85px;font:var(--tk-t-body);color:var(--tk-pink)">Save</div><div class="b" style="left:0.00px;top:102.67px;width:393.00px;height:0.33px;background:var(--tk-hairline)"></div><div class="t" style="left:22.00px;top:117.51px;font:var(--tk-t-body)">here for the fun 🕺</div><div class="t" style="left:16.33px;top:258.48px;font:var(--tk-t-count);color:var(--tk-ink-4)">19/80</div><div class="b" style="left:16.00px;top:247.67px;width:361.33px;height:0.33px;background:var(--tk-divider)"></div><div class="b" style="left:8.00px;top:522.67px;width:91.00px;height:31.33px;border-radius:var(--tk-r-ctl);background:var(--tk-bg);box-shadow:inset 0 0 0 1px var(--tk-line)"></div><div class="t" style="left:18.00px;top:526.38px;font:var(--tk-t-mark)">@</div><div class="t" style="left:36.00px;top:527.67px;font:var(--tk-t-chip-lg)">Mention</div><div class="b" style="left:0.00px;top:562.33px;width:393.00px;height:289.67px;background:var(--tk-keyboard)"></div><div class="b" style="left:3.00px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:3.00px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:3.00px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">q</div><div class="b" style="left:42.33px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:42.33px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:42.33px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">w</div><div class="b" style="left:81.66px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:81.66px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:81.66px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">e</div><div class="b" style="left:120.99px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:120.99px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:120.99px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">r</div><div class="b" style="left:160.32px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:160.32px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:160.32px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">t</div><div class="b" style="left:199.65px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:199.65px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:199.65px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">y</div><div class="b" style="left:238.98px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:238.98px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:238.98px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">u</div><div class="b" style="left:278.31px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:278.31px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:278.31px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">i</div><div class="b" style="left:317.64px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:317.64px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:317.64px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">o</div><div class="b" style="left:356.97px;top:570.33px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:356.97px;top:570.33px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:356.97px;top:572.95px;font:var(--tk-t-key);width:33.3px;text-align:center">p</div><div class="b" style="left:22.33px;top:624.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:22.33px;top:624.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:22.33px;top:626.95px;font:var(--tk-t-key);width:33.3px;text-align:center">a</div><div class="b" style="left:61.66px;top:624.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:61.66px;top:624.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:61.66px;top:626.95px;font:var(--tk-t-key);width:33.3px;text-align:center">s</div><div class="b" style="left:100.99px;top:624.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:100.99px;top:624.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:100.99px;top:626.95px;font:var(--tk-t-key);width:33.3px;text-align:center">d</div><div class="b" style="left:140.32px;top:624.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:140.32px;top:624.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:140.32px;top:626.95px;font:var(--tk-t-key);width:33.3px;text-align:center">f</div><div class="b" style="left:179.65px;top:624.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:179.65px;top:624.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:179.65px;top:626.95px;font:var(--tk-t-key);width:33.3px;text-align:center">g</div><div class="b" style="left:218.98px;top:624.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:218.98px;top:624.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:218.98px;top:626.95px;font:var(--tk-t-key);width:33.3px;text-align:center">h</div><div class="b" style="left:258.31px;top:624.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:258.31px;top:624.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:258.31px;top:626.95px;font:var(--tk-t-key);width:33.3px;text-align:center">j</div><div class="b" style="left:297.64px;top:624.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:297.64px;top:624.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:297.64px;top:626.95px;font:var(--tk-t-key);width:33.3px;text-align:center">k</div><div class="b" style="left:336.97px;top:624.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:336.97px;top:624.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:336.97px;top:626.95px;font:var(--tk-t-key);width:33.3px;text-align:center">l</div><div class="b" style="left:61.67px;top:678.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:61.67px;top:678.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:61.67px;top:680.95px;font:var(--tk-t-key);width:33.3px;text-align:center">z</div><div class="b" style="left:101.00px;top:678.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:101.00px;top:678.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:101.00px;top:680.95px;font:var(--tk-t-key);width:33.3px;text-align:center">x</div><div class="b" style="left:140.33px;top:678.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:140.33px;top:678.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:140.33px;top:680.95px;font:var(--tk-t-key);width:33.3px;text-align:center">c</div><div class="b" style="left:179.66px;top:678.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:179.66px;top:678.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:179.66px;top:680.95px;font:var(--tk-t-key);width:33.3px;text-align:center">v</div><div class="b" style="left:218.99px;top:678.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:218.99px;top:678.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:218.99px;top:680.95px;font:var(--tk-t-key);width:33.3px;text-align:center">b</div><div class="b" style="left:258.32px;top:678.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:258.32px;top:678.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:258.32px;top:680.95px;font:var(--tk-t-key);width:33.3px;text-align:center">n</div><div class="b" style="left:297.65px;top:678.67px;width:33.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:297.65px;top:678.67px;width:33.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:297.65px;top:680.95px;font:var(--tk-t-key);width:33.3px;text-align:center">m</div><div class="b" style="left:3.00px;top:678.67px;width:44.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:3.00px;top:678.67px;width:44.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key-alt)"></div><svg class="ic" style="left:14.33px;top:690px;width:21px;height:18.33px;color:var(--tk-ink)" viewBox="14.33 690 21 18.33" fill="none" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"><path d="M24.8 691.0L34.5 700.5H29.6V707.5H20.1V700.5H15.2Z"/></svg><div class="b" style="left:346.00px;top:678.67px;width:44.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:346.00px;top:678.67px;width:44.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key-alt)"></div><svg class="ic" style="left:357.33px;top:690px;width:21.67px;height:18.33px;color:var(--tk-ink)" viewBox="357.33 690 21.67 18.33" fill="none" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"><path d="M364.5 690.9H375.7A2.4 2.4 0 0 1 378.1 693.3V705.1A2.4 2.4 0 0 1 375.7 707.5H364.5L358.4 699.9A1.0 1.0 0 0 1 358.4 698.5Z"/><path d="M366.5 695.9L373.4 702.5M373.4 695.9L366.5 702.5"/></svg><div class="b" style="left:3.00px;top:732.67px;width:42.67px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:3.00px;top:732.67px;width:42.67px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key-alt)"></div><div class="t" style="left:3.00px;top:742.03px;font:var(--tk-t-keylab);width:42.7px;text-align:center">123</div><div class="b" style="left:51.67px;top:732.67px;width:43.33px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:51.67px;top:732.67px;width:43.33px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key-alt)"></div><svg class="ic" style="left:63px;top:743px;width:20px;height:20.33px;color:var(--tk-ink)" viewBox="63 743 20 20.33" fill="none" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"><circle cx="73" cy="753.2" r="9.2"/><circle cx="69.8" cy="750.3" r="0.95" fill="currentColor" stroke="none"/><circle cx="76.2" cy="750.3" r="0.95" fill="currentColor" stroke="none"/><path d="M68.8 755.6A5.0 5.0 0 0 0 77.2 755.6"/></svg><div class="b" style="left:100.33px;top:732.67px;width:192.00px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:100.33px;top:732.67px;width:192.00px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key)"></div><div class="t" style="left:100.33px;top:740.70px;font:var(--tk-t-keylab);width:192.0px;text-align:center">spatie</div><div class="b" style="left:298.33px;top:732.67px;width:92.00px;height:42.63px;border-radius:var(--tk-r-ctl);background:var(--tk-key-edge)"></div><div class="b" style="left:298.33px;top:732.67px;width:92.00px;height:41.33px;border-radius:var(--tk-r-ctl);background:var(--tk-key-alt)"></div><div class="t" style="left:298.33px;top:743.03px;font:var(--tk-t-keylab);width:92.0px;text-align:center">return</div><svg class="ic" style="left:29px;top:799.67px;width:26.67px;height:26.67px;color:var(--tk-ink)" viewBox="29 799.67 26.67 26.67" fill="none" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"><circle cx="42.3" cy="813" r="12.5"/><ellipse cx="42.3" cy="813" rx="5.2" ry="12.5"/><path d="M29.8 813H54.8"/><path d="M32.2 805.4H52.4M32.2 820.6H52.4"/></svg><svg class="ic" style="left:341.33px;top:798px;width:18.34px;height:28px;color:var(--tk-ink)" viewBox="341.33 798 18.34 28" fill="none" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"><rect x="346.8" y="798.8" width="7.4" height="14.5" rx="3.7"/><path d="M342.2 809.9V811.6A8.3 8.3 0 0 0 358.8 811.6V809.9"/><path d="M350.5 819.9V825.2"/><path d="M345.7 825.2H355.3"/></svg><div class="home" style="color:#000000"></div></div>
+</body>
+</html>

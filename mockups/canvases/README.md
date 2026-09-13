@@ -308,6 +308,29 @@ declares a box other than the default 478 x 980.
   of the captures' own clocks, badges or iOS 26 glyphs carried over. And it
   records p2, where two stacked 20% scrims land exactly on 255 x .8 x .8. The nine `ref-*` boards are gitignored, so a
   fresh clone has 14.
+- `tiktok-ios/`: the run to read for where to stop. Seven screens of the
+  TikTok iOS app across two Mobbin flows - the bio editor empty and filled,
+  the profile it returns to, and the post composer through four states of
+  writing a caption. 17 boards in three rows: a token board and two evidence
+  boards for 56 tokens, the seven replicas, and the capture of each parked
+  underneath. Mean absolute delta against those captures is 2.28-5.91 levels
+  (of 255), mean 4.30, and the gradient is the keyboard: the two boards that
+  are three-quarters keycaps cost the most, with nothing on them
+  geometrically off. Its `README.md` records the residual test the other runs
+  do not have. `scratch/ink.py` reports dark-pixel mass over 29 named regions,
+  and the *shape* of the spread is the diagnosis: leaning one way is a weight
+  error worth fixing, symmetric - here 0.936 to 1.084 - is the rasteriser's
+  stem darkening and is not chaseable, so the run stops. The same harness
+  separates the two errors a bounding box cannot: a box that matches while the
+  ink does not is a weight, a box and ink that miss together is a size, which
+  is how the composer buttons turned out to run a size above the profile pills
+  rather than a weight above them, and how the keycap letters settled at 320 -
+  below any named weight - with their glyph box already exact. It also
+  records the three by-design mismatches every reference board here carries,
+  the two location chips renamed off a stranger's lunch, and the Share-to
+  brand marks that arrive desaturated in the source and are drawn that way.
+  `assets/art/` is committed, three crops; the seven `ref-*` boards are
+  gitignored, so a fresh clone has 10.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

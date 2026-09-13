@@ -1,0 +1,90 @@
+{
+  "name": "(example) TikTok",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "TikTok: bio and caption",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-bio-empty",
+          "label": "Bio - empty"
+        },
+        {
+          "file": "02-bio-filled",
+          "label": "Bio - filled"
+        },
+        {
+          "file": "03-profile",
+          "label": "Profile"
+        },
+        {
+          "file": "04-post-empty",
+          "label": "Post - empty"
+        },
+        {
+          "file": "05-post-keyboard",
+          "label": "Post - keyboard"
+        },
+        {
+          "file": "06-post-hashtags",
+          "label": "Post - hashtags"
+        },
+        {
+          "file": "07-post-caption",
+          "label": "Post - caption"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-bio-empty",
+          "label": "Bio - empty"
+        },
+        {
+          "file": "ref-02-bio-filled",
+          "label": "Bio - filled"
+        },
+        {
+          "file": "ref-03-profile",
+          "label": "Profile"
+        },
+        {
+          "file": "ref-04-post-empty",
+          "label": "Post - empty"
+        },
+        {
+          "file": "ref-05-post-keyboard",
+          "label": "Post - keyboard"
+        },
+        {
+          "file": "ref-06-post-hashtags",
+          "label": "Post - hashtags"
+        },
+        {
+          "file": "ref-07-post-caption",
+          "label": "Post - caption"
+        }
+      ]
+    }
+  ]
+}
