@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Tldraw,
   commentSchemaRecords,
@@ -25,7 +31,12 @@ import {
 import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
 import { installAgentBridge } from "./agentBridge";
-import { WELCOME_PAGE_SLUG, boardFromUrl, slugFromUrl, urlForSlug } from "./canvasUrl";
+import {
+  WELCOME_PAGE_SLUG,
+  boardFromUrl,
+  slugFromUrl,
+  urlForSlug,
+} from "./canvasUrl";
 import {
   CANVAS_FILE_SHAPE_TYPE,
   type CanvasFileShape,
@@ -104,7 +115,8 @@ const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
  * The key today is an evaluation license, which grants every feature and expires on 2026-12-12 with
  * no grace period. On that date commenting stops working again unless the key has been replaced.
  */
-const TLDRAW_LICENSE_KEY: string | undefined = import.meta.env.VITE_TLDRAW_LICENSE_KEY;
+const TLDRAW_LICENSE_KEY: string | undefined = import.meta.env
+  .VITE_TLDRAW_LICENSE_KEY;
 
 /**
  * The store, built here rather than by `<Tldraw persistenceKey>`, because the comment record
@@ -133,7 +145,10 @@ const storeOptions = {
      * clipboard. So nothing is ever *shown* at less than the pixels available to show it —
      * the only thing dropped is the pixels that would not have been visible.
      */
-    resolve(asset, { screenScale, steppedScreenScale, dpr, shouldResolveToOriginal }) {
+    resolve(
+      asset,
+      { screenScale, steppedScreenScale, dpr, shouldResolveToOriginal },
+    ) {
       const src = asset.props.src ?? null;
       if (asset.type !== "image" || shouldResolveToOriginal || !src) return src;
       const thumb = brandThumbForSrc(src);
@@ -142,7 +157,9 @@ const storeOptions = {
       // narrower than that. Compare it against the device pixels the shape occupies now.
       const { w, h } = asset.props;
       const thumbWidth = (w * BRAND_THUMB_EDGE) / Math.max(w, h);
-      return w * Math.max(screenScale, steppedScreenScale) * dpr <= thumbWidth ? thumb : src;
+      return w * Math.max(screenScale, steppedScreenScale) * dpr <= thumbWidth
+        ? thumb
+        : src;
     },
   } satisfies TLAssetStore,
 };
@@ -261,8 +278,12 @@ function EmptyLibraryNotice() {
     <div className="canvas-empty" role="status">
       <h1 className="canvas-empty__title">No boards here yet</h1>
       <p className="canvas-empty__body">
-        {canvasesDir ? "This canvas is showing" : "This canvas has no boards in it."}
-        {canvasesDir && <code className="canvas-empty__path">{canvasesDir}</code>}
+        {canvasesDir
+          ? "This canvas is showing"
+          : "This canvas has no boards in it."}
+        {canvasesDir && (
+          <code className="canvas-empty__path">{canvasesDir}</code>
+        )}
         Every subfolder with <code>.html</code> files in it becomes a page, and
         one appears here on its own the moment it is written — no restart.
       </p>
@@ -377,9 +398,10 @@ function layoutRow(
   const statusH = rowStatuses.some(Boolean)
     ? CANVAS_STATUS_BANNER_HEIGHT + CANVAS_STATUS_BANNER_GAP
     : 0;
-  const contentY =
-    (bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT) + statusH;
-  const missing = rowFiles.filter((file) => !editor.getShape(fileShapeId(file)));
+  const contentY = (bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT) + statusH;
+  const missing = rowFiles.filter(
+    (file) => !editor.getShape(fileShapeId(file)),
+  );
   if (missing.length) {
     editor.createShapes(
       missing.map((file) => ({
@@ -538,7 +560,14 @@ function layoutImageRow(
     // caption under it that reads as a missing asset.
     if (!src || !image.w || !image.h) return [];
     const scale = Math.min(IMAGE_FIT.w / image.w, IMAGE_FIT.h / image.h, 1);
-    return [{ image, src, w: Math.round(image.w * scale), h: Math.round(image.h * scale) }];
+    return [
+      {
+        image,
+        src,
+        w: Math.round(image.w * scale),
+        h: Math.round(image.h * scale),
+      },
+    ];
   });
   if (!placed.length) return rowTop;
 
@@ -548,28 +577,39 @@ function layoutImageRow(
   // The asset holds the URL and the real pixel size; the shape holds the size it draws at and
   // points at the asset by id. Created first, because a shape whose assetId resolves to nothing
   // renders as a broken placeholder until something fills it in.
-  const missingAssets = placed.filter(
-    (entry) => !editor.getAsset(imageAssetId(pageSlug, entry.image.file)),
-  );
-  if (missingAssets.length) {
-    editor.createAssets(
-      missingAssets.map((entry) => ({
-        id: imageAssetId(pageSlug, entry.image.file),
-        typeName: "asset" as const,
-        type: "image" as const,
-        meta: {},
-        props: {
-          w: entry.image.w,
-          h: entry.image.h,
-          name: entry.image.file.split("/").pop() ?? entry.image.file,
-          isAnimated: entry.image.file.toLowerCase().endsWith(".gif"),
-          mimeType:
-            IMAGE_MIME[entry.image.file.split(".").pop()?.toLowerCase() ?? ""] ?? null,
-          src: entry.src,
-        },
-      })),
+  const assets = placed.map((entry) => ({
+    id: imageAssetId(pageSlug, entry.image.file),
+    typeName: "asset" as const,
+    type: "image" as const,
+    meta: {},
+    props: {
+      w: entry.image.w,
+      h: entry.image.h,
+      name: entry.image.file.split("/").pop() ?? entry.image.file,
+      isAnimated: entry.image.file.toLowerCase().endsWith(".gif"),
+      mimeType:
+        IMAGE_MIME[entry.image.file.split(".").pop()?.toLowerCase() ?? ""] ??
+        null,
+      src: entry.src,
+    },
+  }));
+  // A build gives each file a content-hashed URL, so a returning browser's persisted asset can
+  // point at a URL this deployment no longer serves — a broken picture that no amount of force
+  // refreshing fixes, because the refresh rebuilds shapes and leaves assets alone. The id is the
+  // path, so only what the path does not already fix can go stale: the URL and the pixel size.
+  const stale = assets.filter((asset) => {
+    const current = editor.getAsset(asset.id);
+    if (!current) return false;
+    return (
+      current.type !== "image" ||
+      current.props.src !== asset.props.src ||
+      current.props.w !== asset.props.w ||
+      current.props.h !== asset.props.h
     );
-  }
+  });
+  const created = assets.filter((asset) => !editor.getAsset(asset.id));
+  if (created.length) editor.createAssets(created);
+  if (stale.length) editor.updateAssets(stale);
 
   // Each picture starts where the last one ended, so a row of mixed proportions has one gap
   // between neighbours rather than a column pitch set by its widest member.
@@ -582,7 +622,9 @@ function layoutImageRow(
 
   const missing = placed
     .map((entry, index) => ({ entry, index }))
-    .filter(({ entry }) => !editor.getShape(imageShapeId(pageSlug, entry.image.file)));
+    .filter(
+      ({ entry }) => !editor.getShape(imageShapeId(pageSlug, entry.image.file)),
+    );
   if (missing.length) {
     editor.createShapes(
       missing.map(({ entry, index }) => ({
@@ -780,7 +822,7 @@ function layoutWelcomeExtras(
       contentY +
       CANVAS_LINK_CARD_SIZE.h +
       LIBRARY_LABEL_GAP +
-      LIBRARY_LABEL_HEIGHT * 2 +   // the card's caption is two lines, name over count
+      LIBRARY_LABEL_HEIGHT * 2 + // the card's caption is two lines, name over count
       LIBRARY_GAP;
   }
 }
@@ -827,7 +869,14 @@ function initializeCanvasLibrary(editor: Editor) {
 
     for (const row of readCanvasLayout(files[0].pageSlug)?.rows ?? []) {
       if (row.images?.length) {
-        rowTop = layoutImageRow(editor, page, pageSlug, row.images, rowTop, row.title);
+        rowTop = layoutImageRow(
+          editor,
+          page,
+          pageSlug,
+          row.images,
+          rowTop,
+          row.title,
+        );
         continue;
       }
       const rowFiles: { file: CanvasLibraryFile; label?: string }[] = [];
