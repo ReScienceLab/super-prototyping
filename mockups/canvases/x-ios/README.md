@@ -38,8 +38,8 @@ Mean absolute delta against the captures, in levels of 255, over the whole
 | --- | --- | --- | --- |
 | 01 Professional splash | 3.33 | 05 Welcome | 5.90 |
 | 02 Select a category | 4.67 | 06 Edit profile | 3.24 |
-| 03 Category selected | 5.18 | 07 Professional profile | 5.21 |
-| 04 Select account type | 4.46 | **Mean** | **4.57** |
+| 03 Category selected | 5.18 | 07 Professional profile | 5.04 |
+| 04 Select account type | 4.46 | **Mean** | **4.55** |
 
 The spread is type density, not geometry. All forty-two of the worst 40 px
 bands `refkit diff` reports across the seven screens carry a line of text, and
@@ -142,17 +142,39 @@ as a vector asset. One consequence is worth knowing before editing any of
 them: because the `viewBox` is computed from the path's bounding box, *moving
 one part of a glyph moves every other part relative to its placement box*.
 
+**The five bottom-nav glyphs are traced, not drawn.** `scratch/mknav.py` takes
+the half-coverage contour off the artwork with marching squares — on the
+coverage map itself, because the edge of a 70 px glyph is one antialiased pixel
+wide and a hard threshold turns that into a staircase — and `refkit refit`
+redraws the polygon as lines, arcs and cubics. `scratch/navfit.py` then slides
+each placement box against the window by coordinate descent, over the window's
+own two levels rather than white: a ground biased toward white, or ink drawn
+blacker than the capture's, pushes the fit toward a bigger glyph. Over 07's nav
+strip that took the mean Δ from **6.75 to 3.24** levels:
+
+| Glyph | Before | After | Glyph | Before | After |
+| --- | --- | --- | --- | --- | --- |
+| home | 16.14 | 3.70 | bell | 13.31 | 4.63 |
+| search | 7.28 | 4.25 | mail | 13.02 | 5.08 |
+| grok | 12.69 | 6.42 | **strip** | **6.75** | **3.24** |
+
+**The Grok mark is the mark.** It is not traced off X's nav at all: this repo's
+`grok-ios` canvas carries the same artwork at 165 px in
+`assets/art/06-ic-mark.png`, and that is what board 07 draws. The nav renders
+it at 70 px, where the dart's razor tips fall below half coverage and shorten
+the ink box — which is why the mark's apparent ring span reads 0.800 of its
+width there and 0.764 on the 165 px copy, and why its box is fitted rather than
+thresholded.
+
 ## Approximations
 
 Four things on these boards are fitted rather than measured, and a reader would
 otherwise take them for measurement:
 
-- **The icons are approximations of X's artwork, not the artwork.** The nav's
-  Grok mark especially: it is a gapped ring plus a waisted dart, fitted to a
-  radial profile (the band sits at r 7.3–9.3 pt) and a 3°-step angular scan
-  (the gaps are empty at 126–135° and 306–312°) of a 24 × 22.7 pt ink box. It
-  is not X's curve. The reply, repost and views glyphs are drawn to their
-  measured ink boxes and their interiors are approximate too.
+- **Twenty-five of the thirty icons are approximations of X's artwork, not the
+  artwork.** The reply, repost and views glyphs especially are drawn to their
+  measured ink boxes and their interiors are approximate. The five bottom-nav
+  glyphs are the exception — those are traced off the artwork, as above.
 - **The nav gradient.** `--x-nav` is four stops fitted to one row of the wash;
   the capture holds a two-axis gradient that no stop list along one axis
   reproduces.

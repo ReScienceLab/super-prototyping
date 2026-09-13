@@ -30,9 +30,10 @@ and, on all three, the status bar.
 THIRTY ICONS ARE VECTORS, NOT CROPS. Each one is drawn on X's own 24-unit grid
 in assets/icons/, with a viewBox that is the glyph's ink box, and inlined by
 icon() at the ink box measured off the capture, so the canvas's inspector
-hands it back as a vector asset. They are approximations of X's artwork, not
-the artwork: the nav's Grok mark in particular is a gapped ring and a waisted
-dart fitted to a radial and angular scan of the capture, not X's own curve.
+hands it back as a vector asset. Most are approximations of X's artwork; the
+five bottom-nav glyphs are not. Those are traced off the artwork at half
+coverage and redrawn as lines, arcs and cubics, and the Grok mark is traced
+off grok-ios's own copy of it at 165 px rather than the nav's 70 px.
 
 THREE DEFECTS BELONG TO THE SOURCE. Mobbin composites the Dynamic Island out,
 drops the home indicator, and exports with square corners. All three are this
@@ -695,9 +696,12 @@ ACTIONS = [("reply", 62.67, 701.00, 15.33, 14.33),
            ("views", 268.33, 701.67, 12.00, 13.33),
            ("bookmark", 336.33, 701.00, 12.00, 14.00),
            ("share", 370.00, 701.00, 11.00, 14.00)]
-NAV = [("home-fill", 29.33, 778.33, 21.0, 25.0), ("search", 108.0, 783.0, 20.0, 20.0),
-       ("grok", 185.0, 781.7, 24.0, 22.7), ("bell", 267.0, 783.33, 18.67, 20.0),
-       ("mail", 344.33, 784.33, 20.0, 18.0)]
+# Fitted, not thresholded: a razor tip or an arc's bulge crosses half coverage
+# outside the last pixel a threshold keeps, so scratch/navfit.py slides each box
+# against the window itself. The five land at 2.0-3.0 mean levels over the wash.
+NAV = [("home-fill", 29.25, 782.37, 20.19, 21.07), ("search", 108.11, 783.08, 19.6, 19.82),
+       ("grok", 185.23, 781.79, 23.5, 22.46), ("bell", 267.26, 783.34, 18.35, 19.99),
+       ("mail", 344.28, 784.31, 20.07, 18.07)]
 
 
 def spaces_card(dy):
