@@ -16,7 +16,7 @@ Open it with `?canvas=tiktok-ios`, or a single board with
 | `probes.json` | 85 measurements, replayable: `refkit batch probes.json --pt 3 --against scratch/mine`. |
 | `crops.json` | The 28 boxes cut out of the captures as bitmaps: two regions and every glyph. Everything else is drawn. |
 | `iconbuild.py` | Fetches `icon.png` from the App Store and masks it. One shot; the icon is committed. |
-| `avatarbuild.py` | Fetches board 3's avatar from TikTok's own account, so no stranger's face ships here. One shot; the PNG is committed. |
+| `avatarbuild.py` | Fetches board 3's avatar from a named TikTok account, so no stranger's face ships here. One shot; the PNG is committed. |
 
 The captures are 1179 × 2556 for a 393 × 852 frame, so the scale is 3.0 px/pt
 exactly and every `refkit` call in this folder runs `--pt 3`.
@@ -48,7 +48,7 @@ Mean absolute delta against the capture, whole frame, phone crop, in levels of
 |---|---|---|
 | 1 | Bio, empty | 2.07 |
 | 2 | Bio, filled | 3.84 |
-| 3 | Profile | 5.53 |
+| 3 | Profile | 5.12 |
 | 4 | Post, empty | 3.47 |
 | 5 | Post, keyboard | 5.62 |
 | 6 | Post, hashtags | 5.16 |
@@ -61,11 +61,11 @@ two boards is geometrically off; `01-bio-empty` carries the same keyboard at
 2.07 because half its frame is empty ground.
 
 Board 3 is the one number here that is not a fidelity score. Its avatar is a
-deliberate substitution — TikTok's own account avatar, a black tile, over a
-capture holding a photograph of a stranger — and that 109pt disc is 2.6% of
-the frame at some 80 levels of difference. The board reads 3.42 against the
-capture's own face and 5.53 as shipped; the shipped number is the one in the
-table.
+deliberate substitution — the avatar of `@snapaction_ai`, a mark on black,
+over a capture holding a photograph of a stranger — and that 109pt disc is
+2.6% of the frame at some 70 levels of difference. The board reads 3.42
+against the capture's own face and 5.12 as shipped; the shipped number is the
+one in the table.
 
 `refkit batch probes.json --pt 3 --against scratch/mine` replays all 85:
 
@@ -190,9 +190,10 @@ string or a mark that would otherwise reproduce a real person's content.
   cover art. Their overlays are baked in — the "motion" tag and the "Edit
   cover" pill sit in `04-cover.png`, and the "Drafts: 1" label in
   `03-draft.png`. Nothing re-types them, so nothing can get them wrong.
-- **The profile avatar is TikTok's own, not the capture's.** The face in the
-  capture belongs to a real person, so board 3 ships the avatar of TikTok's
-  account instead, fetched by `avatarbuild.py`. It is the only bitmap here
+- **The profile avatar is another account's, not the capture's.** The face in
+  the capture belongs to a real person, so board 3 ships the avatar of
+  `@snapaction_ai` instead, fetched by `avatarbuild.py` — point its `PROFILE`
+  at another handle to swap it. It is the only bitmap here
   that is not a crop, and the only substitution that costs a whole board — see
   *How close it lands*. Everything around it is geometry and stays drawn: the
   4pt gradient ring, the 2.5pt page-coloured gap, the notch and the + badge.

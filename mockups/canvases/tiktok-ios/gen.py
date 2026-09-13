@@ -8,8 +8,8 @@ refkit. "Adding a bio" is boards 01-03, "Adding a caption" is boards 04-07.
 Every number in here came off a capture; probes.json is the replay and
 README.md the write-up. Interface is redrawn in HTML/CSS/SVG -- only the boxes
 in crops.json are cut out of the captures, and board 03's avatar is not one of
-them: the capture's is a real person's face, so avatarbuild.py fetches TikTok's
-own account avatar instead.
+them: the capture's is a real person's face, so avatarbuild.py fetches a named
+TikTok account's avatar instead.
 
 Two facts about the source that shape the whole board: Mobbin composites the
 Dynamic Island out of its captures, so the status bar ships island=False; and
@@ -440,8 +440,8 @@ def profile_screen():
                    for y in (74.0, 80.0, 86.0)))
 
     # Avatar: a 4pt gradient ring, a 2.5pt page-coloured gap, then the 96pt
-    # disc. The face in the capture is a stranger's, so the disc is TikTok's
-    # own account avatar instead -- avatarbuild.py fetches it.
+    # disc. The face in the capture is a stranger's, so the disc is another
+    # account's avatar instead -- avatarbuild.py fetches it.
     t += (circle(142.7, 104.7, 109.0,
                  "background:linear-gradient(135deg,#0E9DFF,#19FEBF)")
           + circle(146.7, 108.7, 101.0, "background:var(--x-bg)")

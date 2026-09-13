@@ -314,12 +314,12 @@ declares a box other than the default 478 x 980.
   writing a caption. 17 boards in three rows: a token board and two evidence
   boards for 53 tokens, the seven replicas, and the capture of each parked
   underneath. Mean absolute delta against those captures is 2.07-5.62 levels
-  (of 255), mean 4.36, and the gradient is the keyboard: the two boards that
+  (of 255), mean 4.30, and the gradient is the keyboard: the two boards that
   are three-quarters keycaps cost the most, with nothing on them
   geometrically off. The profile board is the exception, and reads its own
   substitution rather than an error: the capture's avatar is a photograph of
-  a real person, so the board ships TikTok's own account avatar over it, and
-  2.6% of the frame differs on purpose for 3.42 -> 5.53. Its `README.md`
+  a real person, so the board ships a named account's avatar over it, and
+  2.6% of the frame differs on purpose for 3.42 -> 5.12. Its `README.md`
   records the residual test the other runs do not have. `scratch/ink.py` reports dark-pixel mass over 29 named regions,
   and the *shape* of the spread is the diagnosis: leaning one way is a weight
   error worth fixing, symmetric - here 0.936 to 1.084 - is the rasteriser's

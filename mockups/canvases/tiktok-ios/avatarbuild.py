@@ -5,9 +5,9 @@
 
 Run once; the PNG is committed. Every other bitmap on these boards is cut out
 of a capture, but the profile photograph in the capture belongs to a stranger,
-so board 03 ships the avatar of TikTok's own account instead. The profile page
-carries it in its rehydration blob as avatarLarger, behind a signed URL that
-expires, which is why this is a script and not a note with a link in it.
+so board 03 ships the avatar of the account in PROFILE instead. The profile
+page carries it in its rehydration blob as avatarLarger, behind a signed URL
+that expires, which is why this is a script and not a note with a link in it.
 """
 import io
 import json
@@ -17,7 +17,7 @@ from pathlib import Path
 
 from PIL import Image, PngImagePlugin
 
-PROFILE = "https://www.tiktok.com/@tiktok"
+PROFILE = "https://www.tiktok.com/@snapaction_ai"
 SIZE = 288          # the 96pt disc at 3x, the scale the captures were taken at
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36")
