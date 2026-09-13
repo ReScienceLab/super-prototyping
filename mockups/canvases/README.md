@@ -297,9 +297,11 @@ declares a box other than the default 478 x 980.
   profile at eight states. Eight user-profile screens of the Instagram iOS app
   - one account at the top of its scroll and scrolled until the tab bar sticks,
   the same account's Reels, Reposts and Tagged tabs, a private account, and two
-  verified profiles - in 11 boards across three rows: a token board and two
-  evidence boards for 36 tokens, the eight replicas, and the Mobbin capture of
-  each column-for-column underneath. Mean absolute delta against those captures
+  verified profiles - in 12 boards across three rows: a token board and two
+  evidence boards for 36 tokens, the eight replicas, the Mobbin capture of each
+  column-for-column underneath, and one board that is the same geometry with a
+  live account poured into it rather than a capture, so it has no delta and no
+  probe. Mean absolute delta against those captures
   is 5.06-7.77 levels (of 255) whole-frame and 1.84-4.73 below the status bar,
   where about three of those levels are one fixed thing on all eight boards:
   Mobbin strips the Dynamic Island and these boards draw one, because the

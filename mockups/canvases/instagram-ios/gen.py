@@ -1,4 +1,5 @@
 """Instagram for iOS: eight user-profile screens, rebuilt from Mobbin captures.
+Plus a ninth that is the same layout carrying a live account.
 
     python3 mockups/canvases/instagram-ios/gen.py
 
@@ -28,6 +29,11 @@ only appear behind the login wall. icon() sets preserveAspectRatio="none", so
 each file's viewBox is the glyph's ink box, never a module's design grid --
 see the folder README.
 
+Board 09 is the exception to all of that. It has no capture behind it: it is
+the geometry boards 01, 06 and 07 were measured at, filled with what the
+profile API returns for one live account, so it carries no delta, no probe and
+no crop. Its pictures are that API's own files, in assets/photo.
+
 The scroll model. Boards 03-05 are board 01 scrolled by exactly 208.33 pt:
 the mutuals row, the buttons and the highlights all move by that one number,
 and the nav is opaque, so nothing above the mutuals survives. Board 02 is the
@@ -42,6 +48,7 @@ OUT = Path(__file__).resolve().parent
 REFS_DIR = OUT / "assets" / "refs"
 ART_DIR = OUT / "assets" / "art"
 ICON_DIR = OUT / "assets" / "icons"
+PHOTO_DIR = OUT / "assets" / "photo"
 
 NAME = "Instagram"
 PAGE_NAME = "(example) " + NAME
@@ -398,11 +405,26 @@ def brand(name, x, y, d):
             % (name, _uri(OUT / "assets" / "brand" / (name + ".png")), x, y, d, d))
 
 
+def photo(name, x, y, w, h, cls=""):
+    """A picture board 09 has no capture to cut from, so it is the original file.
+
+    The profile API serves the avatar at 1080 and each grid thumbnail at its
+    post's own aspect, and assets/photo holds them Lanczos-resampled to the box
+    they are placed at, times 3: 516 square for the d 86 circle, 391 x 521 for a
+    130.33 x 173.67 tile. A tall post does not fit that tile, so `.ph` crops it
+    on the centre the way the grid does rather than squashing it.
+    """
+    return ('<img class="a ph %s" alt="%s" src="%s" style="left:%gpx;top:%gpx;'
+            'width:%gpx;height:%gpx">'
+            % (cls, name, _uri(PHOTO_DIR / (name + ".png")), x, y, w, h))
+
+
 # --------------------------------------------------------------- screens ----
 SCREEN_CSS = """.t{position:absolute;white-space:nowrap}
 .t b{font-weight:600}
 .c{transform:translateX(-50%)}
 .a{position:absolute;display:block}
+.ph{object-fit:cover}
 .rnd{border-radius:50%}
 svg{position:absolute;display:block}
 .ring{position:absolute;width:100px;height:100px;border-radius:50%;background:var(--x-story)}
@@ -697,6 +719,44 @@ def s08():
                    ["pin", "pin", "pin", "play", "carousel", "carousel"]))
 
 
+# The grid's three columns and the pitch its rows repeat at, off c01 and c02.
+GRID_COLS = ((0.0, 130.33), (131.33, 261.67), (262.67, 393.0))
+
+
+def s09():
+    """@yilin0xx, live off the profile API rather than off a capture.
+
+    Every row the account does not have is absent and the rows below it move
+    up: no verified badge, no Threads row (has_onboarded_to_text_post_app is
+    false), no link row (external_url is empty), no highlights
+    (highlight_reel_count is 0), no mutuals.
+
+    The geometry is still the measured one. The header is c06's, which is where
+    the column sits when there is no story ring; the 15.67pt from the last line
+    of bio to the buttons is c07's and c08's, which agree on it; the 88pt from
+    the buttons to the tab divider is c06's, the only capture with no
+    highlights row in between; and the grid is the captures' own 130.33 x
+    173.67 tiles at pitch 174.66, its last row cut off by the phone's foot
+    exactly as c02's is. Nine of the twelve posts are above that foot.
+    """
+    tiles = []
+    for i, kind in enumerate(["carousel"] + ["play"] * 7 + ["carousel"]):
+        x0, x1 = GRID_COLS[i % 3]
+        y = round(335.51 + 174.66 * (i // 3), 2)
+        tiles.append(photo("yl-t%d" % (i + 1), x0, y, x1 - x0, min(173.67, 852 - y)))
+        tiles.append(icon("badge-" + kind, round(x1 - 24.0, 2), round(y + 7.67, 2),
+                          16.33, 16.33))
+    return (statusbar() + nav("yilin0xx")
+            + photo("yl-avatar", 16, 119.67, 86, 86, "rnd")
+            + tx("Yilin小林", 123, 139.84, "bodys")
+            + stats(154.6, [("12", "posts"), ("51", "followers"), ("116", "following")])
+            + tx("An observer full of curiosity about the world.", 16, 230.84)
+            + btn(16, 178, 246.51, "Follow", acc=True)
+            + btn(199, 178, 246.51, "Message")
+            + tabs(334.51, IG_TABS, 0, 29, 40)
+            + "".join(tiles))
+
+
 SCREENS = [("01-profile", "Profile", s01),
            ("02-grid-scrolled", "Grid, scrolled", s02),
            ("03-reels", "Reels tab", s03),
@@ -705,6 +765,10 @@ SCREENS = [("01-profile", "Profile", s01),
            ("06-private", "Private account", s06),
            ("07-nytcooking", "NYT Cooking", s07),
            ("08-agnezmo", "AGNEZ MO", s08)]
+
+# Board 09 has no capture behind it, so it joins the screens row and not the
+# captures row, and nothing in probes.json or the README's delta table names it.
+LIVE = [("09-yilin0xx", "yilin0xx, live", s09)]
 
 
 def screen(label, fn):
@@ -763,7 +827,7 @@ def layout():
          "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
                   + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]},
         {"title": "Screens", "numbered": True,
-         "files": [{"file": s, "label": l} for s, l, _ in SCREENS]},
+         "files": [{"file": s, "label": l} for s, l, _ in SCREENS + LIVE]},
         # Same order as the row above, so capture N lands under replica N.
         {"title": "Source of truth: Mobbin captures", "numbered": True,
          "files": [{"file": "ref-" + s, "label": l} for s, l, _ in SCREENS]}]}
@@ -772,7 +836,7 @@ def layout():
 def main():
     files = dict([("00-design-tokens", token_board())]
                  + list(evidence_boards())
-                 + [(s, screen(l, fn)) for s, l, fn in SCREENS]
+                 + [(s, screen(l, fn)) for s, l, fn in SCREENS + LIVE]
                  + list(ref_boards()))
     for name in sorted(files):
         write(name, files[name])

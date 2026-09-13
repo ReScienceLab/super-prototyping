@@ -3,8 +3,9 @@
 Eight user-profile screens of the Instagram iOS app, rebuilt from Mobbin
 captures: one account at two scroll positions and across its four profile
 tabs, a private account, and two more profiles that carry the pieces the
-first one does not. 11 boards, and 8 more that park each capture under its
-replica.
+first one does not. A ninth screen is the same geometry carrying a live
+account instead of a capture. 12 boards, and 8 more that park each capture
+under its replica.
 
 | # | Board | What it shows |
 | --- | --- | --- |
@@ -16,6 +17,7 @@ replica.
 | 06 | `private` | A private account: no ring, no bio, two tabs at half opacity, the lock panel |
 | 07 | `nytcooking` | A verified business profile: category row, link row, Following pill |
 | 08 | `agnezmo` | A verified creator profile: Follow / Message / Subscribe, five highlights |
+| 09 | `yilin0xx` | The same geometry filled from the live profile API. No capture behind it |
 | 00 | `design-tokens` | 36 tokens in eight groups |
 | 00b | `evidence` | One row per token, with the measurement behind it, 1/2 |
 | 00c | `evidence` | The same table, 2/2 |
@@ -31,6 +33,9 @@ Mean absolute delta against the captures, in levels of 255, phone crop
 | 02 Grid, scrolled | 6.43 | 3.31 | 06 Private account | 5.06 | 1.84 |
 | 03 Reels | 7.47 | 4.41 | 07 NYT Cooking | 6.68 | 3.57 |
 | 04 Reposts | 7.40 | 4.33 | 08 AGNEZ MO | 6.42 | 3.29 |
+
+Board 09 is not in that table and has no row anywhere else either: there is
+no capture of it to be close to. See below.
 
 **Both columns are the same render.** Roughly three levels of every whole-frame
 number is the status bar, and it is the same three levels on all eight boards,
@@ -106,6 +111,37 @@ resampling and the capture's own JPEG, and they are worth it: a crop of a
 86 pt circle is 258 px of a logo that exists at 1080. **agnezmo's avatar
 stays a crop**, because the live picture is a different photograph now.
 
+## Board 09 carries an account, not a capture
+
+The other eight boards are measured against a capture and scored against it.
+Board 09 is the same geometry with a live profile poured into it: everything
+on it -- handle, name, bio, the three counts, the avatar and the nine tiles --
+is what `api.scrapecreators.com/v1/instagram/profile?handle=yilin0xx` returned
+on 13 September 2026. So it has no delta, no probe, no crop and no row in the
+captures row of `layout.json`.
+
+What it does keep is the geometry, and each number on it is still one of the
+captures'. The header is c06's, because c06 is the capture where the column
+sits with no story ring: avatar at y 119.67, name baseline 139.84, stats top
+154.6, all 10.16 pt above where c01 puts them. The 15.67 pt from the last line
+of bio to the top of the buttons is c07's and c08's, which agree on it. The 88
+pt from the buttons to the tab divider is c06's, the one capture with no
+highlights row in between. The grid is the captures' own 130.33 x 173.67 tiles
+at pitch 174.66, its last row cut off by the phone's foot exactly as c02's is.
+
+**A row the account does not have is absent, and everything below it moves
+up.** `is_verified` false, so no badge after the nav title;
+`has_onboarded_to_text_post_app` false, so no Threads row; `external_url`
+empty, so no link row; `highlight_reel_count` 0, so no highlights. That is
+four of board 01's rows gone, which is why 09's tab bar sits at 334.51 where
+01's sits at 561 -- and why nine of the twelve posts fit above the fold rather
+than six.
+
+The pictures are the API's own files, resampled to the box they are placed at
+times 3: 516 square for the d 86 circle, 391 x 521 for a tile. A thumbnail is
+square or tall and a tile is 3:4, so `photo()` gives them `object-fit:cover`
+and lets the grid crop them on the centre, which is what the grid does.
+
 ## Details worth not re-deriving
 
 - **The story ring is an angular sweep, not a linear one.** Sampled every 30°
@@ -180,6 +216,8 @@ stays a crop**, because the live picture is a different photograph now.
   **Committed.**
 - `icons/`: 23 SVGs, inlined by `icon()`. 13 are Meta's own IGDS paths,
   10 are traced off the captures. **Committed.**
+- `photo/`: board 09's ten pictures, the profile API's own files rather than
+  crops. **Committed.**
 - `refs/`: the 8 captures, 1179 × 2556 after their attribution banner is
   cropped off the shipped 1179 × 2676. **Gitignored**, along with the
   `ref-*.html` boards built from them.
