@@ -1426,13 +1426,14 @@ BRAND_ASSETS = [
   "Meta Ad Library — facebook.com/ads/library?id=2480054779174464"),
 ]
 
-BRAND_CSS = """.bgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:8px}
-.bgrid .cell{border:1px solid var(--x-hair);border-radius:6px;padding:8px;background:var(--x-card)}
-.bgrid img{display:block;width:100%;height:190px;object-fit:contain;background:#fff;
+BRAND_CSS = """.bgrid{display:flex;gap:10px;margin-bottom:8px}
+.bgrid .cell{flex:1;min-width:0;border:1px solid var(--x-hair);border-radius:6px;padding:7px;background:var(--x-card)}
+.bgrid img{display:block;width:100%;height:130px;object-fit:contain;background:#fff;
   border-radius:4px;border:1px solid var(--x-hair)}
-.bgrid b{display:block;margin-top:6px;font:600 9.5px/13px var(--x-font)}
-.bgrid i{display:block;margin-top:1px;font:400 8px/11px ui-monospace,Menlo,monospace;
-  color:var(--x-sub);font-style:normal;word-break:break-word}
+.bgrid b{display:block;margin-top:6px;font:600 8.5px/12px var(--x-font);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bgrid i{display:block;margin-top:1px;font:400 7px/10px ui-monospace,Menlo,monospace;
+  color:var(--x-sub);font-style:normal;overflow-wrap:break-word}
 .tag{margin:2px 0 8px;padding-left:10px;border-left:2px solid var(--x-hair);
   font:italic 400 14px/19px var(--x-font);color:var(--x-ink)}
 .tag cite{display:block;margin-top:3px;font:400 8.5px/12px var(--x-font);
