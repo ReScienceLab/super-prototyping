@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>X iOS - Type Tokens</title>
+<style>
+:root{
+  /* Font */
+  --x-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --x-ground:#FFFFFF;
+  --x-field:#EFF3F4;
+  --x-spaces:#7856FE;
+  --x-chip:#ECE8FF;
+  --x-chip-card:rgba(255,255,255,.30);
+  --x-pill-off:#88898D;
+  --x-disc-1:rgba(0,0,0,.75);
+  --x-disc-7:rgba(0,0,0,.57);
+  --x-scrim:rgba(0,0,0,.28);
+  --x-backdrop:#000000;
+  --x-nav:linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%);
+
+  /* Line */
+  --x-hairline:#D2D4D6;
+  --x-border:#D0D8DC;
+  --x-ring:#BAC9D0;
+
+  /* Ink */
+  --x-ink:#0F1419;
+  --x-ink-2:#536471;
+  --x-accent:#1D9BF0;
+  --x-inv:#FFFFFF;
+  --x-ink-off:#C6C7C9;
+  --x-save-off:#C5C5C5;
+  --x-chip-ink:#291465;
+
+  /* Radius */
+  --x-r-phone:52px;
+  --x-r-pill:26px;
+  --x-r-field:17px;
+  --x-r-card:16px;
+  --x-r-play:16.5px;
+  --x-r-chip:4px;
+  --x-r-sheet:12px;
+  --x-r-peek:10px;
+
+  /* Metrics */
+  --x-w:393px;
+  --x-h:852px;
+  --x-status:54px;
+
+  /* Type */
+  --x-tr-text:-0.035em;
+  --x-t-time:590 17px/22px var(--x-font);
+  --x-t-title:800 26px/34px var(--x-font);
+  --x-t-space:800 25.5px/31px var(--x-font);
+  --x-t-name:800 22px/27px var(--x-font);
+  --x-t-card:700 19px/24px var(--x-font);
+  --x-t-field:400 18.5px/24px var(--x-font);
+  --x-t-sheet:700 18.5px/24px var(--x-font);
+  --x-t-save:700 17.5px/22px var(--x-font);
+  --x-t-btn:700 16.5px/21px var(--x-font);
+  --x-t-body:400 16px/21px var(--x-font);
+  --x-t-date:700 16px/21px var(--x-font);
+  --x-t-row:700 15.5px/21px var(--x-font);
+  --x-t-note:400 15.5px/21px var(--x-font);
+  --x-t-pill:700 15px/20px var(--x-font);
+  --x-t-desc:400 14.5px/15.67px var(--x-font);
+  --x-t-meta:400 13.5px/19px var(--x-font);
+  --x-t-host:800 14.5px/18px var(--x-font);
+  --x-t-count:400 14px/19px var(--x-font);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--x-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--x-w);height:var(--x-h);
+  border-radius:var(--x-r-phone);overflow:hidden;background:var(--x-ground);color:var(--x-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:100%;height:var(--x-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--x-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:#FFF;color:var(--x-ink)}
+.sheet{width:478px;height:980px;padding:14px 20px 8px;overflow:hidden}
+h1{font:600 17px/22px var(--x-font);margin-bottom:2px}
+header p{font:400 10.5px/13.5px var(--x-font);color:var(--x-ink-2);margin-bottom:4px}
+h2{font:600 9px/12px var(--x-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--x-ink-2);margin:5px 0 3px}
+.grid{column-count:2;column-gap:12px}
+.sw{display:flex;align-items:center;gap:5px;height:10.2px;break-inside:avoid;white-space:nowrap}
+.sw .chip{width:16px;height:9px;flex:none;border-radius:3px;border:1px solid var(--x-border);background-color:#888}
+.sw b{font:600 7.5px/10.5px ui-monospace,Menlo,monospace}
+.sw i{font:400 7.5px/10.5px ui-monospace,Menlo,monospace;color:var(--x-ink-2);font-style:normal}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:4px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:6px;flex-wrap:wrap;width:250px}
+.rb{width:36px;height:22px;background:var(--x-field);border:1px solid var(--x-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--x-font);
+  color:var(--x-ink-2);font-style:normal;text-align:center}
+.ty{column-count:3;column-gap:12px}
+.tr{break-inside:avoid;border-bottom:1px solid var(--x-border)}
+.tr span{display:block;white-space:nowrap;overflow:hidden;line-height:1}
+.tr em{display:block;font:400 7px/9px ui-monospace,Menlo,monospace;
+  color:var(--x-ink-2);font-style:normal;white-space:nowrap}
+.met{font:400 8px/9.5px ui-monospace,Menlo,monospace;color:var(--x-ink);white-space:nowrap}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--x-border);font:400 8.5px/11px var(--x-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:#0A60FF}
+td.v{color:var(--x-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--x-ink-2)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>X iOS type</h1><p>Every size is fitted to a measured ink width, so several are off the iOS ladder. The evidence rows carry the widths.</p></header><div class="ty"><div class="tr"><span style="font:var(--x-tr-text)">Sam Lee</span><em>--x-tr-text &middot; -0.035em</em></div><div class="tr"><span style="font:var(--x-t-time)">Sam Lee</span><em>--x-t-time &middot; 590 17px/22px</em></div><div class="tr"><span style="font:var(--x-t-title)">Sam Lee</span><em>--x-t-title &middot; 800 26px/34px</em></div><div class="tr"><span style="font:var(--x-t-space)">Sam Lee</span><em>--x-t-space &middot; 800 25.5px/31px</em></div><div class="tr"><span style="font:var(--x-t-name)">Sam Lee</span><em>--x-t-name &middot; 800 22px/27px</em></div><div class="tr"><span style="font:var(--x-t-card)">Sam Lee</span><em>--x-t-card &middot; 700 19px/24px</em></div><div class="tr"><span style="font:var(--x-t-field)">Sam Lee</span><em>--x-t-field &middot; 400 18.5px/24px</em></div><div class="tr"><span style="font:var(--x-t-sheet)">Sam Lee</span><em>--x-t-sheet &middot; 700 18.5px/24px</em></div><div class="tr"><span style="font:var(--x-t-save)">Sam Lee</span><em>--x-t-save &middot; 700 17.5px/22px</em></div><div class="tr"><span style="font:var(--x-t-btn)">Sam Lee</span><em>--x-t-btn &middot; 700 16.5px/21px</em></div><div class="tr"><span style="font:var(--x-t-body)">Sam Lee</span><em>--x-t-body &middot; 400 16px/21px</em></div><div class="tr"><span style="font:var(--x-t-date)">Sam Lee</span><em>--x-t-date &middot; 700 16px/21px</em></div><div class="tr"><span style="font:var(--x-t-row)">Sam Lee</span><em>--x-t-row &middot; 700 15.5px/21px</em></div><div class="tr"><span style="font:var(--x-t-note)">Sam Lee</span><em>--x-t-note &middot; 400 15.5px/21px</em></div><div class="tr"><span style="font:var(--x-t-pill)">Sam Lee</span><em>--x-t-pill &middot; 700 15px/20px</em></div><div class="tr"><span style="font:var(--x-t-desc)">Sam Lee</span><em>--x-t-desc &middot; 400 14.5px/15.67px</em></div><div class="tr"><span style="font:var(--x-t-meta)">Sam Lee</span><em>--x-t-meta &middot; 400 13.5px/19px</em></div><div class="tr"><span style="font:var(--x-t-host)">Sam Lee</span><em>--x-t-host &middot; 800 14.5px/18px</em></div><div class="tr"><span style="font:var(--x-t-count)">Sam Lee</span><em>--x-t-count &middot; 400 14px/19px</em></div></div></div>
+</body>
+</html>

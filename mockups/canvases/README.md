@@ -308,6 +308,33 @@ declares a box other than the default 478 x 980.
   of the captures' own clocks, badges or iOS 26 glyphs carried over. And it
   records p2, where two stacked 20% scrims land exactly on 255 x .8 x .8. The nine `ref-*` boards are gitignored, so a
   fresh clone has 14.
+- `x-ios/`: the run to read when the brand face has an optical-size twin on
+  the device. Seven screens of switching an X account to a professional one -
+  the X for Professionals splash, the category list before and after a pick,
+  the account-type cards, the welcome page, the Edit profile sheet and the
+  finished professional profile. 12 boards in three rows: a token board, a type
+  board and three evidence boards for 52 tokens, the seven replicas, and the
+  Mobbin capture of each parked underneath. Mean absolute delta against those
+  captures is 3.24-5.90 levels (of 255), mean 4.57, and the spread is type
+  density: all forty-two of the worst 40 px bands across the seven screens
+  carry a line of text, and forty of their worst rows sample the same flat
+  colour on both sides. Its `README.md` records the substitution behind that -
+  Chirp is neither a system face nor in any candidate set, so every size was
+  fitted to a measured run's ink width rather than read off the iOS ladder -
+  and the split that fit exposed: the platform serves SF Pro Display at 20px
+  and up, where the widths agree within 1%, and SF Pro Text below it, which
+  runs 6-8% wide, so **one tracking token applied only under 20px** closes the
+  band and the 24 probed runs land at a mean width ratio of 0.997. It also
+  records what that leaves, a mean ink-height ratio of 0.9685 that no
+  repositioning can fix, and the line-box constant re-solved against ink
+  *bottoms* to prove the +1pt at the tops is the taller cap and not a placement
+  error. Only photographs are cropped, six of them; thirty icons are SVGs whose
+  `viewBox` is the glyph's own ink box, so moving one part of a glyph moves
+  every other part relative to its placement box. And it records the source's
+  own inconsistency: the enabled Next pill samples `#060B13` on one capture and
+  `#0E1419` on two others with the page ground identical on all three, which is
+  the whole 0.51 gap between screens 03 and 02. The seven `ref-*` boards are
+  gitignored, so a fresh clone has 12.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

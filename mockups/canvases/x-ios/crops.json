@@ -1,0 +1,11 @@
+{
+  "_": "Boxes in design pt, x0 y0 x1 y1, on the capture named first. gen.py's cut() multiplies by SCALE (3.0 capture px per pt) and writes assets/art/<id>.png. p1/p5/p7 are read through gen.py's INPAINT: the chrome the boards draw again in CSS is patched out of the capture with a Coons fill before the crop is taken.",
+  "_rule": "Only a photograph is cropped. Every rule, fill, glyph and run of type on these screens is rebuilt, so nothing here carries interface pixels except where an opaque drawn element covers them: 06-banner and 07-banner both include the top of the avatar, and the drawn white avatar ring sits on exactly that ground.",
+
+  "01-hero": ["i1", 0, 0, 393, 395],
+  "05-hero": ["i5", 0, 0, 393, 198],
+  "06-peek": ["p6", 20, 42.67, 373.33, 70.33],
+  "06-banner": ["p6", 0, 118, 393, 246],
+  "07-banner": ["i7", 0, 0, 393, 131.33],
+  "07-avatar": ["p7", 8.67, 109.5, 72.33, 173.17]
+}
