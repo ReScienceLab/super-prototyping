@@ -50,6 +50,9 @@ TOKENS = [
   "05 reads #CCC9CD over #FDFBFC below the divider: (253-204)/253"),
  ("Surface", "bar",      "rgba(0,0,0,.40)",
   "04's Edit cover bar: the cover reads 137 beside it, 82 under"),
+ ("Surface", "tile-scrim",
+  "linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.42) 60%,rgba(0,0,0,0))",
+  "not the capture's: TikTok draws the top label bare, and the stand-in clip is white UI"),
 
  ("Line", "hairline",    "#D1CECF",  "nav rule, y 102.67, one device pixel on all but 03"),
  ("Line", "divider",     "#8A8788",  "bio field rule, 01/02 y 247.67, x 16 to 377.33"),
@@ -512,9 +515,12 @@ def profile_screen():
           + rule(0, 443.67, 393, "var(--x-line)")
           # The drafts cell: one third of 393 at 3:4. The capture's frame is a
           # stranger's video, so it carries a frame of the stand-in account's
-          # own, and the badge TikTok draws over it is redrawn rather than cut
-          # out with it -- on the letterbox, which is why it reads at all.
+          # own, cropped to fill rather than letterboxed, and the badge TikTok
+          # draws over it is redrawn rather than cut out with it. The scrim
+          # under the badge is the one thing here the capture does not have:
+          # see the tile-scrim token.
           + img("tile", 0.0, 444.0, 131.0, 174.3)
+          + box(0.0, 444.0, 131.0, 52.3, "background:var(--x-tile-scrim)")
           + tx(6.1, 453.8, "Drafts: 1", "t-bio", "var(--x-ink-inv)"))
 
     # The contacts banner: page-coloured, so only its shadow reads.
@@ -556,9 +562,11 @@ def post_head(lines=(), caret=None):
          # The cover cell, the same stand-in frame at the same 3:4. Its two
          # labels and the bar under them are TikTok's, so they are drawn here;
          # the watermark and the sticker in the capture were the video's own
-         # and went with it. The bar is a 40% scrim, invisible on the
-         # letterbox both labels sit on.
+         # and went with it. 'Edit cover' keeps its 40% bar; the top label gets
+         # the tile-scrim, at the same 0.30 of the cell 03 uses.
          + img("tile", 265.2, 111.1, 112.0, 148.8, ";border-radius:var(--x-r-cover)")
+         + box(265.2, 111.1, 112.0, 44.6, "background:var(--x-tile-scrim);"
+               "border-radius:var(--x-r-cover) var(--x-r-cover) 0 0")
          + tx(275.8, 123.6, "Preview", "t-chip", "var(--x-ink-inv)")
          + box(271.0, 228.2, 100.2, 25.7,
                "border-radius:var(--x-r-cover);background:var(--x-bar)")

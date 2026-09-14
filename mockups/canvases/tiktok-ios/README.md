@@ -10,14 +10,14 @@ Open it with `?canvas=tiktok-ios`, or a single board with
 | file | what it is |
 |---|---|
 | `gen.py` | The source of truth. Every `NN-*.html` here is its output; edit the generator and re-run, never the HTML. |
-| `00-design-tokens.html` | The contract. 55 tokens with the measurement behind each one, inlined byte-identically into all seventeen boards. |
+| `00-design-tokens.html` | The contract. 56 tokens with the measurement behind each one, inlined byte-identically into all seventeen boards. |
 | `00b-evidence`, `00c-evidence` | The same values shown against the captures they came off. |
 | `01-bio-empty` … `07-post-caption` | The screens. 393 × 852 pt frames on 478 × 980 artboards, fully self-contained. |
 | `probes.json` | 85 measurements, replayable: `refkit batch probes.json --pt 3 --against scratch/mine`. |
 | `crops.json` | The 25 glyph boxes cut out of the captures as bitmaps. Everything else is drawn or fetched. |
 | `iconbuild.py` | Fetches `icon.png` from the App Store and masks it. One shot; the icon is committed. |
 | `avatarbuild.py` | Fetches board 3's avatar from a named TikTok account, so no stranger's face ships here. One shot; the PNG is committed. |
-| `tilebuild.py` | Cuts one frame out of the clip the boards are posting and letterboxes it into `tile.png`, which fills both content tiles. One shot; the PNG is committed, the clip stays out of the repo. |
+| `tilebuild.py` | Cuts one frame out of the clip the boards are posting and centre-crops it to 3:4 as `tile.png`, which fills both content tiles. One shot; the PNG is committed, the clip stays out of the repo. |
 
 The captures are 1179 × 2556 for a 393 × 852 frame, so the scale is 3.0 px/pt
 exactly and every `refkit` call in this folder runs `--pt 3`.
@@ -49,11 +49,11 @@ Mean absolute delta against the capture, whole frame, phone crop, in levels of
 |---|---|---|
 | 1 | Bio, empty | 2.07 |
 | 2 | Bio, filled | 3.97 |
-| 3 | Profile | 14.19 |
-| 4 | Post, empty | 9.73 |
-| 5 | Post, keyboard | 11.75 |
-| 6 | Post, hashtags | 11.29 |
-| 7 | Post, caption | 10.95 |
+| 3 | Profile | 10.87 |
+| 4 | Post, empty | 8.35 |
+| 5 | Post, keyboard | 10.37 |
+| 6 | Post, hashtags | 9.91 |
+| 7 | Post, caption | 9.57 |
 
 **Six of these seven numbers are dominated by a deliberate substitution, not
 by an error.** Board 1 is the only one that carries none. Every other board
@@ -61,9 +61,9 @@ holds at least one region where the capture's content belongs to a real person
 and the board ships a stand-in account's instead — the list is under
 *Substitutions*. The two content tiles are what move the numbers: board 3's
 drafts cell is 131 × 174.3 pt, 6.8% of the frame, and boards 4–7 carry the
-same art in a 112 × 148.8 cell, 5.0%. Both hold a letterboxed frame of a
-different video from the capture's, so those pixels run to 200-odd levels of
-difference and carry the whole-frame mean up several points on their own.
+same art in a 112 × 148.8 cell, 5.0%. Both hold a 3:4 crop of a different
+video from the capture's, so those pixels run to 200-odd levels of difference
+and carry the whole-frame mean up several points on their own.
 Board 3 adds the avatar disc, another 2.6% at some 70 levels. None of that is
 a fidelity score; it is the price of not shipping a stranger's face and video.
 
@@ -76,7 +76,7 @@ two boards is geometrically off; `01-bio-empty` carries the same keyboard at
 `refkit batch probes.json --pt 3 --against scratch/mine` replays all 85:
 
 - **13 colour probes**, mean Δmax 0.6, worst 3.
-- **59 box probes**, mean |dw| 1.42 pt, mean |dh| 0.71 pt.
+- **59 box probes**, mean |dw| 1.42 pt, mean |dh| 0.74 pt.
 - **11 edge scans**, all landing.
 - **2 band probes** print `differs`, both by under a third of a point:
   `stat-rows` (ref `253.7 .. 266.3`, mine `253.7 .. 266.7`) and `sugg-rows`
@@ -216,17 +216,27 @@ string or a mark that would otherwise reproduce a real person's content.
   Board 3's drafts cell and boards 4–7's cover cell held frames of a
   stranger's video, which is the one thing on these boards a caption is
   actually about: board 3 has it as a draft, boards 4–7 are posting it. Both
-  cells are 3:4, so one bitmap fills both — `tilebuild.py` takes the 4.0s
-  frame of `@snapaction_ai`'s own clip, the one with the whole device centred,
-  which is what survives being scaled to the 112pt cover. The clip is 16:9, so
-  it sits letterboxed on black, the way TikTok shows a landscape video; the
-  clip itself is 39MB and stays out of the repo, so the script takes its path
-  and the PNG is committed. The chrome TikTok draws over a cover is TikTok's,
-  so it is redrawn rather than carried in the bitmap — "Drafts: 1" on board 3,
-  and "Preview", the 40% bar and "Edit cover" on board 4, all three landing on
-  the letterbox, which is why they read at all and why the bar is invisible.
-  The capture's own watermark and sticker went with its video. This is what
-  board 3 and boards 4–7 cost in *How close it lands*.
+  cells are 3:4, so one bitmap fills both — `tilebuild.py` centre-crops
+  `@snapaction_ai`'s own clip to 3:4 rather than letterboxing it, because a
+  cover fills its cell. That keeps 1080 of the clip's 2560 columns, which is
+  what makes the frame worth choosing: at 9.0s the demo is on its result card,
+  the one frame that still reads as a product at the 112pt the cover is scaled
+  to, where the frames of scrolling mail are mush. The clip itself is 39MB and
+  stays out of the repo, so the script takes its path and the PNG is
+  committed. The chrome TikTok draws over a cover is TikTok's, so it is
+  redrawn rather than carried in the bitmap — "Drafts: 1" on board 3, and
+  "Preview", the 40% bar and "Edit cover" on board 4. The capture's own
+  watermark and sticker went with its video. This is what board 3 and boards
+  4–7 cost in *How close it lands*.
+- **The scrim under the two top labels is the one thing here the capture does
+  not have.** TikTok draws them bare: zoom into the capture's cover and
+  "Preview" is plain white with no scrim and no shadow, half of it lost in the
+  sky behind it. That works because the capture's videos are dark where the
+  labels land and this clip is a white-UI screen recording — every frame in it
+  measures 240-odd in that box, so a bare label is not dim, it is gone. The
+  `tile-scrim` token puts a top-down gradient under both, 0.30 of each cell's
+  height, and "Edit cover" keeps the 40% bar it was measured at. It is drawn
+  under the labels rather than into `tile.png` so the frame stays the frame.
 - **The profile avatar is the same account's.** The face in the capture
   belongs to a real person, so board 3 ships `@snapaction_ai`'s avatar,
   fetched by `avatarbuild.py` — point its `PROFILE` at another handle to swap

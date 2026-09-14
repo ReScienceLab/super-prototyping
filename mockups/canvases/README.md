@@ -312,9 +312,9 @@ declares a box other than the default 478 x 980.
   TikTok iOS app across two Mobbin flows - the bio editor empty and filled,
   the profile it returns to, and the post composer through four states of
   writing a caption. 17 boards in three rows: a token board and two evidence
-  boards for 55 tokens, the seven replicas, and the capture of each parked
-  underneath. Mean absolute delta against those captures is 2.07-14.19 levels
-  (of 255), mean 9.14, and six of those seven numbers read a substitution
+  boards for 56 tokens, the seven replicas, and the capture of each parked
+  underneath. Mean absolute delta against those captures is 2.07-10.87 levels
+  (of 255), mean 7.87, and six of those seven numbers read a substitution
   rather than an error: the capture's profile, its avatar and its two video
   frames are all one real person's, so the boards carry a named account's
   name, handle, bio, site and its own clip instead, and the two content tiles
