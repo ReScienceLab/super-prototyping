@@ -106,7 +106,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v7
 
       # The same two lines the README gives for running these locally.
       - run: uv run --with pillow --with numpy python tools/test_refkit.py
