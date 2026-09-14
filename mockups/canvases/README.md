@@ -308,64 +308,68 @@ declares a box other than the default 478 x 980.
   of the captures' own clocks, badges or iOS 26 glyphs carried over. And it
   records p2, where two stacked 20% scrims land exactly on 255 x .8 x .8. The nine `ref-*` boards are gitignored, so a
   fresh clone has 14.
-- `tiktok-ios/`: the run to read for where to stop. Seven screens of the
-  TikTok iOS app across two Mobbin flows - the bio editor empty and filled,
-  the profile it returns to, and the post composer through four states of
-  writing a caption. 17 boards in three rows: a token board and two evidence
-  boards for 56 tokens, the seven replicas, and the capture of each parked
-  underneath. Mean absolute delta against those captures is 2.07-10.87 levels
-  (of 255), mean 7.87, and six of those seven numbers read a substitution
-  rather than an error: the capture's profile, its avatar and its two video
-  frames are all one real person's, so the boards carry a named account's
-  name, handle, bio, site and its own clip instead, and the two content tiles
-  alone - 6.8% of the profile frame, 5.0% of the composer's - are a different
-  video from the capture's. What is left is the keyboard: the two boards that are
-  three-quarters keycaps cost the most, with nothing on them geometrically
-  off. Its `README.md` records the residual test the other runs do not have. `scratch/ink.py` reports dark-pixel mass over 25 named regions,
-  and the *shape* of the spread is the diagnosis: leaning one way is a weight
-  error worth fixing, symmetric - here 0.936 to 1.084 - is the rasteriser's
-  stem darkening and is not chaseable, so the run stops. The same harness
-  separates the two errors a bounding box cannot: a box that matches while the
-  ink does not is a weight, a box and ink that miss together is a size, which
-  is how the composer buttons turned out to run a size above the profile pills
-  rather than a weight above them, and how the keycap letters settled at 320 -
-  below any named weight - with their glyph box already exact. It also
-  records the three by-design mismatches every reference board here carries,
-  the two location chips renamed off a stranger's lunch, and why all 25 of its
-  glyphs are crops of the captures rather than traces: the same ink census run
-  inside each glyph's own box caught three that were the wrong shape rather
-  than the wrong weight, and a crop scores 0 by construction.
-  `assets/art/` is committed, 25 crops and two fetched assets, and
-  `iconbuild.py`, `avatarbuild.py` and `tilebuild.py` are the only fetches
-  here kept as scripts rather than notes, because every URL is built or
-  signed; the seven `ref-*` boards are gitignored, so a
-  fresh clone has 10.
-- `tiktok-feed-ios/`: the run to read when the whole interface is drawn on one
-  moving picture. Eight screens of the TikTok iOS For You feed - a post at
-  rest, scrubbing and just-released, playing, a pull-to-refresh, the next post,
-  and one caption expanded and collapsed. 20 boards in three rows: a token
-  board and three evidence boards for 46 tokens, the eight replicas, and the
-  Mobbin capture of each parked underneath. Mean absolute delta against those
-  captures is 4.03-8.13 levels (of 255), mean 5.26, and the spread is a
-  straight function of how much white type a board sets over how textured a
+- `tiktok-ios/`: the run to read for where to stop, and the only folder here
+  carrying two runs on one canvas page. Fifteen screens of the TikTok iOS app:
+  seven across two Mobbin flows - the bio editor empty and filled, the profile
+  it returns to, and the post composer through four states of writing a caption
+  - and eight of the For You feed - a post at rest, scrubbing and just
+  released, playing, a pull-to-refresh, the next post, and one caption expanded
+  and collapsed. 37 boards in five rows: a token board and two evidence boards
+  for the first run's 56 tokens, a token board and three for the second's 46,
+  the fifteen replicas, and the capture of each parked underneath. The two runs
+  keep their own prefixes, `--tk-` and `--tf-`, inside the one `:root` block
+  every board on the page inlines, and a `probes`/`crops` pair each, because
+  their captures are at 3.0 and 2.2417 px/pt and `refkit batch` takes one
+  `--pt` per run; `gen.py` is still the one entry point and `feed.py` a module
+  it imports. Mean absolute delta against the captures is 2.07-10.87 levels
+  (of 255) on the first run and 4.03-8.13 on the second, and neither range
+  reads as a fidelity score. Six of the first run's seven numbers read a
+  substitution rather than an error: the capture's profile, its avatar and its
+  two video frames are all one real person's, so the boards carry a named
+  account's name, handle, bio, site and its own clip instead, and the two
+  content tiles alone - 6.8% of the profile frame, 5.0% of the composer's - are
+  a different video from the capture's. What is left there is the keyboard: the
+  two boards that are three-quarters keycaps cost the most, with nothing on
+  them geometrically off. The second run substitutes nothing, and its spread is
+  a straight function of how much white type a board sets over how textured a
   frame: board 07 is board 08 with five more caption lines on the same post,
-  and those five lines cost 2.8. Only the video is cropped - eight full-frame
+  and those five lines cost 2.8. Its `README.md` records the residual test the
+  other runs do not have. `scratch/ink.py` reports dark-pixel mass over 25
+  named regions, and the *shape* of the spread is the diagnosis: leaning one
+  way is a weight error worth fixing, symmetric - here 0.936 to 1.084 - is the
+  rasteriser's stem darkening and is not chaseable, so the run stops. The same
+  harness separates the two errors a bounding box cannot: a box that matches
+  while the ink does not is a weight, a box and ink that miss together is a
+  size, which is how the composer buttons turned out to run a size above the
+  profile pills rather than a weight above them, and how the keycap letters
+  settled at 320 - below any named weight - with their glyph box already exact.
+  It also records the three by-design mismatches every reference board here
+  carries, the two location chips renamed off a stranger's lunch, and why all
+  25 of the first run's glyphs are crops of the captures rather than traces:
+  the same ink census run inside each glyph's own box caught three that were
+  the wrong shape rather than the wrong weight, and a crop scores 0 by
+  construction. The feed half is the one to read when the whole interface is
+  drawn on one moving picture. Only the video is cropped - eight full-frame
   crops plus three avatars and three album discs - and every one of the 15 to
   18 boxes TikTok draws on each frame is inpainted back out of the photograph
-  and redrawn live. Its `README.md` records the technique that made that
-  possible: TikTok scrims the location chip rather than blurring it, and p2 and
-  p3 are the one pair of frames differing *only* by that chip, so the composite
-  solves to `chip = .587*video + 16.43` and `cut()` runs the affine backwards
-  to hand the video underneath back. It also records the four tokens the
-  renders corrected - a Repost label that is black rather than the brand
-  `#161823`, a 13px label that measured as 12, a repost glyph built as the
-  wrong shape, and a resting progress line that turned out to be its own two
-  alphas rather than the scrub bar drawn thin - and the four readings that look
-  like defects and are not, including why `--only flat` is unstable over
-  compressed video, why the inpaint under a large erase box reads 11 levels
-  bright, and that Chrome snaps box edges to whole device pixels at 3x, so a
-  0.2pt nudge to a 2pt bar dropped its ink 17%. The eight `ref-*` boards are
-  gitignored, so a fresh clone has 12.
+  and redrawn live. The technique that made that possible is written up too:
+  TikTok scrims the location chip rather than blurring it, and f2 and f3 are
+  the one pair of frames differing *only* by that chip, so the composite solves
+  to `chip = .587*video + 16.43` and `cut()` runs the affine backwards to hand
+  the video underneath back. So are the five tokens the renders corrected - a
+  Repost label that is black rather than the brand `#161823`, a 13px label that
+  measured as 12, a repost glyph built as the wrong shape, seven icons whose
+  traced paths drew outside their own `viewBox` and were silently clipped by
+  it, and a resting progress line that turned out to be its own two alphas
+  rather than the scrub bar drawn thin - and the four readings that look like
+  defects and are not, including why `--only flat` is unstable over compressed
+  video, why the inpaint under a large erase box reads 11 levels bright, and
+  that Chrome snaps box edges to whole device pixels at 3x, so a 0.2pt nudge to
+  a 2pt bar dropped its ink 17%. `assets/art/` is committed, 39 crops and two
+  fetched assets, and `iconbuild.py`, `avatarbuild.py` and `tilebuild.py` are
+  the only fetches here kept as scripts rather than notes, because every URL is
+  built or signed; the fifteen `ref-*` boards are gitignored, so a fresh clone
+  has 22.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

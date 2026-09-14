@@ -1,7 +1,7 @@
 [
  {
   "id": "bar",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "sample",
   "box": [
    60,
@@ -10,12 +10,12 @@
    800
   ],
   "only": "flat",
-  "_": "p1 tab bar, between the Home label (ends 52.8) and Friends: pure black",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (882x1910 for 393.45x851.6), so run with --pt 2.2417; --against wants scratch/mine, which scratch/render.py fills with the eight boards shot at --scale 3 --crop-phone and resized to the captures' own pixel size. Probe and render share a basename (p1..p8), so no probe needs a 'mine'. Almost every surface here is white ink over moving video, so a sample takes --only ink with --bright and a bbox takes --bright rather than --dark; the two exceptions are the Repost pill, which is dark ink on white, and the flat fills (tab bar, pill, pin plate, accent badge) which sample --only flat; the resting progress line is too thin for even that and takes --only all. Anything set in a dimmed ink -- 'Following', an inactive tab, the scrub readout's separator -- needs its own lower threshold, or the probe finds a sliver of the brightest stroke and calls that the box. Four tokens have no probe and cannot have one: --tf-t-time and the frame metrics w/h/status/tabbar come from templates/gen.py, not from a capture, and no probe sits above y 54 because Mobbin composites the status bar out. The radii are measured as a corner's ink box rather than a number: a rounded rect's fill reaches its own left edge r below its top edge, which is what r-pill-corner and scrub-track-box check."
+  "_": "f1 tab bar, between the Home label (ends 52.8) and Friends: pure black",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (882x1910 for 393.45x851.6), so run with --pt 2.2417; --against wants scratch/feed/mine, which scratch/feed/render.py fills with the eight boards shot at --scale 3 --crop-phone and resized to the captures' own pixel size. Probe and render share a basename (f1..f8), so no probe needs a 'mine'. Almost every surface here is white ink over moving video, so a sample takes --only ink with --bright and a bbox takes --bright rather than --dark; the two exceptions are the Repost pill, which is dark ink on white, and the flat fills (tab bar, pill, pin plate, accent badge) which sample --only flat; the resting progress line is too thin for even that and takes --only all. Anything set in a dimmed ink -- 'Following', an inactive tab, the scrub readout's separator -- needs its own lower threshold, or the probe finds a sliver of the brightest stroke and calls that the box. Four tokens have no probe and cannot have one: --tf-t-time and the frame metrics w/h/status/tabbar come from templates/gen.py, not from a capture, and no probe sits above y 54 because Mobbin composites the status bar out. The radii are measured as a corner's ink box rather than a number: a rounded rect's fill reaches its own left edge r below its top edge, which is what r-pill-corner and scrub-track-box check."
  },
  {
   "id": "bg",
-  "img": "assets/refs/p2.png",
+  "img": "assets/refs/f2.png",
   "cmd": "sample",
   "box": [
    200,
@@ -24,11 +24,11 @@
    840
   ],
   "only": "flat",
-  "_": "p2 below the tab labels, the ground the video crop sits on"
+  "_": "f2 below the tab labels, the ground the video crop sits on"
  },
  {
   "id": "chip",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "sample",
   "box": [
    235,
@@ -37,11 +37,11 @@
    652
   ],
   "only": "flat",
-  "_": "p1's chip right of its second line (ink ends 229.8) and inside its 6pt corner: the scrim over video, which is what SCRIM_T/K solve for"
+  "_": "f1's chip right of its second line (ink ends 229.8) and inside its 6pt corner: the scrim over video, which is what SCRIM_T/K solve for"
  },
  {
   "id": "pill",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/f7.png",
   "cmd": "sample",
   "box": [
    14,
@@ -50,11 +50,11 @@
    512
   ],
   "only": "flat",
-  "_": "p7's Repost pill, whose label ink is dark, so the flat census is the fill"
+  "_": "f7's Repost pill, whose label ink is dark, so the flat census is the fill"
  },
  {
   "id": "pin",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/f7.png",
   "cmd": "sample",
   "box": [
    20,
@@ -63,11 +63,11 @@
    543
   ],
   "only": "flat",
-  "_": "p7's location-pin plate, inside its 20.07pt rounded square at 16.06,527.28"
+  "_": "f7's location-pin plate, inside its 20.07pt rounded square at 16.06,527.28"
  },
  {
   "id": "track",
-  "img": "assets/refs/p2.png",
+  "img": "assets/refs/f2.png",
   "cmd": "sample",
   "box": [
    300,
@@ -76,11 +76,11 @@
    768
   ],
   "only": "flat",
-  "_": "p2's scrub track right of the knob (ends 253.8): unplayed, over video"
+  "_": "f2's scrub track right of the knob (ends 253.8): unplayed, over video"
  },
  {
   "id": "fill",
-  "img": "assets/refs/p2.png",
+  "img": "assets/refs/f2.png",
   "cmd": "sample",
   "box": [
    20,
@@ -93,7 +93,7 @@
  },
  {
   "id": "rest",
-  "img": "assets/refs/p5.png",
+  "img": "assets/refs/f5.png",
   "cmd": "sample",
   "box": [
    15,
@@ -102,11 +102,11 @@
    768.9
   ],
   "only": "all",
-  "_": "p5's resting 2.1pt line, inside the 31.3pt it has played and inside its three fully covered rows. --only all, not flat: a 2pt line over compressed video has no run wide enough to read as a flat fill"
+  "_": "f5's resting 2.1pt line, inside the 31.3pt it has played and inside its three fully covered rows. --only all, not flat: a 2pt line over compressed video has no run wide enough to read as a flat fill"
  },
  {
   "id": "rest-track",
-  "img": "assets/refs/p5.png",
+  "img": "assets/refs/f5.png",
   "cmd": "sample",
   "box": [
    60,
@@ -119,7 +119,7 @@
  },
  {
   "id": "play",
-  "img": "assets/refs/p2.png",
+  "img": "assets/refs/f2.png",
   "cmd": "sample",
   "box": [
    185,
@@ -132,7 +132,7 @@
  },
  {
   "id": "ink",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "sample",
   "box": [
    215,
@@ -142,11 +142,11 @@
   ],
   "only": "ink",
   "bright": true,
-  "_": "p1 nav 'For You', the brightest run on the board"
+  "_": "f1 nav 'For You', the brightest run on the board"
  },
  {
   "id": "ink-2",
-  "img": "assets/refs/p5.png",
+  "img": "assets/refs/f5.png",
   "cmd": "sample",
   "box": [
    43,
@@ -156,11 +156,11 @@
   ],
   "only": "ink",
   "bright": true,
-  "_": "p5's chip line 2, the secondary run inside the chip"
+  "_": "f5's chip line 2, the secondary run inside the chip"
  },
  {
   "id": "ink-3",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "sample",
   "box": [
    124,
@@ -170,11 +170,11 @@
   ],
   "only": "ink",
   "bright": true,
-  "_": "p1 nav 'Following', dimmer than the 'For You' beside it"
+  "_": "f1 nav 'Following', dimmer than the 'For You' beside it"
  },
  {
   "id": "ink-4",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "sample",
   "box": [
    205.2,
@@ -187,7 +187,7 @@
  },
  {
   "id": "ink-tab",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "sample",
   "box": [
    339,
@@ -197,11 +197,11 @@
   ],
   "only": "ink",
   "bright": true,
-  "_": "p1's inactive Profile label over the tab bar's pure black"
+  "_": "f1's inactive Profile label over the tab bar's pure black"
  },
  {
   "id": "ink-dark",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/f7.png",
   "cmd": "sample",
   "box": [
    40,
@@ -214,7 +214,7 @@
  },
  {
   "id": "accent",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "sample",
   "box": [
    356,
@@ -223,11 +223,11 @@
    427
   ],
   "only": "flat",
-  "_": "p1's follow badge, the 21.4pt disc under the avatar at 352.4,411.3"
+  "_": "f1's follow badge, the 21.4pt disc under the avatar at 352.4,411.3"
  },
  {
   "id": "cyan",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "sample",
   "box": [
    176,
@@ -240,7 +240,7 @@
  },
  {
   "id": "save",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/f7.png",
   "cmd": "sample",
   "box": [
    360,
@@ -249,11 +249,11 @@
    602
   ],
   "only": "flat",
-  "_": "p7's saved bookmark, inside its 20.9x23.7 ink box at 352.9,585.7"
+  "_": "f7's saved bookmark, inside its 20.9x23.7 ink box at 352.9,585.7"
  },
  {
   "id": "r-pill-corner",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/f7.png",
   "cmd": "bbox",
   "box": [
    10,
@@ -266,7 +266,7 @@
  },
  {
   "id": "scrub-track-box",
-  "img": "assets/refs/p2.png",
+  "img": "assets/refs/f2.png",
   "cmd": "bbox",
   "box": [
    12,
@@ -275,11 +275,11 @@
    772
   ],
   "bright": 150,
-  "_": "p2's fat scrub bar: 757.0-768.6, so r-track is half of 11.6"
+  "_": "f2's fat scrub bar: 757.0-768.6, so r-track is half of 11.6"
  },
  {
   "id": "t-nav",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    210,
@@ -292,7 +292,7 @@
  },
  {
   "id": "t-nav-2",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    120,
@@ -305,7 +305,7 @@
  },
  {
   "id": "t-name",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    10,
@@ -318,7 +318,7 @@
  },
  {
   "id": "t-copy",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    10,
@@ -327,11 +327,11 @@
    711
   ],
   "bright": 200,
-  "_": "p1 caption line 1, the window between the name (ends 680.4) and line 2"
+  "_": "f1 caption line 1, the window between the name (ends 680.4) and line 2"
  },
  {
   "id": "t-copy-b",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/f7.png",
   "cmd": "bbox",
   "box": [
    10,
@@ -340,11 +340,11 @@
    717
   ],
   "bright": 200,
-  "_": "p7 caption line 6, a hashtag line: same cap as its prose, heavier"
+  "_": "f7 caption line 6, a hashtag line: same cap as its prose, heavier"
  },
  {
   "id": "t-chip",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    42,
@@ -353,11 +353,11 @@
    636
   ],
   "bright": 200,
-  "_": "p1 chip line 1, right of the pin plate (ends 36.13)"
+  "_": "f1 chip line 1, right of the pin plate (ends 36.13)"
  },
  {
   "id": "t-chip-2",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    42,
@@ -366,11 +366,11 @@
    652
   ],
   "bright": 195,
-  "_": "p1 chip line 2: the band splits at 636, between 633.63 and 639.43"
+  "_": "f1 chip line 2: the band splits at 636, between 633.63 and 639.43"
  },
  {
   "id": "t-count",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    330,
@@ -383,7 +383,7 @@
  },
  {
   "id": "t-tab",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    10,
@@ -396,7 +396,7 @@
  },
  {
   "id": "t-time-big",
-  "img": "assets/refs/p2.png",
+  "img": "assets/refs/f2.png",
   "cmd": "bbox",
   "box": [
    60,
@@ -405,11 +405,11 @@
    712
   ],
   "bright": 245,
-  "_": "p2's '00:06', which ends at 171.7, well left of the separator at 194;\n  the video behind the readout is bright sky, so this is the one place the\n  ink threshold has to go to 245"
+  "_": "f2's '00:06', which ends at 171.7, well left of the separator at 194;\n  the video behind the readout is bright sky, so this is the one place the\n  ink threshold has to go to 245"
  },
  {
   "id": "t-time-sep",
-  "img": "assets/refs/p2.png",
+  "img": "assets/refs/f2.png",
   "cmd": "bbox",
   "box": [
    180,
@@ -422,7 +422,7 @@
  },
  {
   "id": "t-refresh",
-  "img": "assets/refs/p5.png",
+  "img": "assets/refs/f5.png",
   "cmd": "bbox",
   "box": [
    100,
@@ -431,11 +431,11 @@
    122
   ],
   "bright": 200,
-  "_": "p5's 'Drag down to refresh' row, above the rail"
+  "_": "f5's 'Drag down to refresh' row, above the rail"
  },
  {
   "id": "t-pill",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/f7.png",
   "cmd": "bbox",
   "box": [
    36,
@@ -448,7 +448,7 @@
  },
  {
   "id": "t-music",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    26,
@@ -461,7 +461,7 @@
  },
  {
   "id": "gutter",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/f7.png",
   "cmd": "bbox",
   "box": [
    8,
@@ -470,11 +470,11 @@
    717
   ],
   "bright": 200,
-  "_": "p7 caption line 6 starts at 12.68; the chip, pill and every caption line on all eight boards start 12.04-12.5"
+  "_": "f7 caption line 6 starts at 12.68; the chip, pill and every caption line on all eight boards start 12.04-12.5"
  },
  {
   "id": "copy-w",
-  "img": "assets/refs/p8.png",
+  "img": "assets/refs/f8.png",
   "cmd": "bbox",
   "box": [
    10,
@@ -483,11 +483,11 @@
    761
   ],
   "bright": 200,
-  "_": "p8's longest caption line, which ends at 310.03 inside a 300pt column starting at 12"
+  "_": "f8's longest caption line, which ends at 310.03 inside a 300pt column starting at 12"
  },
  {
   "id": "rail-x",
-  "img": "assets/refs/p1.png",
+  "img": "assets/refs/f1.png",
   "cmd": "bbox",
   "box": [
    330,

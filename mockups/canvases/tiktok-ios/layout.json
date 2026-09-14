@@ -15,6 +15,22 @@
         {
           "file": "00c-evidence",
           "label": "Evidence"
+        },
+        {
+          "file": "00d-feed-tokens",
+          "label": "Feed tokens"
+        },
+        {
+          "file": "00e-feed-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00f-feed-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00g-feed-evidence",
+          "label": "Evidence"
         }
       ]
     },
@@ -83,6 +99,82 @@
         {
           "file": "ref-07-post-caption",
           "label": "Post - caption"
+        }
+      ]
+    },
+    {
+      "title": "TikTok: the For You feed",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-for-you",
+          "label": "For You"
+        },
+        {
+          "file": "02-scrubbing",
+          "label": "Scrubbing"
+        },
+        {
+          "file": "03-scrub-released",
+          "label": "Scrub released"
+        },
+        {
+          "file": "04-playing",
+          "label": "Playing"
+        },
+        {
+          "file": "05-pull-to-refresh",
+          "label": "Pull to refresh"
+        },
+        {
+          "file": "06-next-post",
+          "label": "Next post"
+        },
+        {
+          "file": "07-caption-expanded",
+          "label": "Caption expanded"
+        },
+        {
+          "file": "08-caption-collapsed",
+          "label": "Caption collapsed"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-for-you",
+          "label": "For You"
+        },
+        {
+          "file": "ref-02-scrubbing",
+          "label": "Scrubbing"
+        },
+        {
+          "file": "ref-03-scrub-released",
+          "label": "Scrub released"
+        },
+        {
+          "file": "ref-04-playing",
+          "label": "Playing"
+        },
+        {
+          "file": "ref-05-pull-to-refresh",
+          "label": "Pull to refresh"
+        },
+        {
+          "file": "ref-06-next-post",
+          "label": "Next post"
+        },
+        {
+          "file": "ref-07-caption-expanded",
+          "label": "Caption expanded"
+        },
+        {
+          "file": "ref-08-caption-collapsed",
+          "label": "Caption collapsed"
         }
       ]
     }

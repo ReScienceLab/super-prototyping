@@ -1,9 +1,18 @@
-"""TikTok for iOS: the bio editor and the post composer, seven screens.
+"""TikTok for iOS: fifteen screens across two runs, on one canvas page.
 
-Two Mobbin flows, rebuilt from the captures in assets/refs and measured with
-refkit. "Adding a bio" is boards 01-03, "Adding a caption" is boards 04-07.
+This file is the bio editor and the post composer, seven screens from two
+Mobbin flows: "Adding a bio" is boards 01-03, "Adding a caption" is 04-07.
+feed.py is the other run, the eight-screen For You feed, and this file is the
+entry point for both -- it builds the one :root they share and writes every
+board:
 
     python3 mockups/canvases/tiktok-ios/gen.py
+
+The two runs keep separate token prefixes, --tk- here and --tf- there, because
+they are two different surfaces of the app measured off two different capture
+sets: these seven are assets/refs/cp1..cp7 at 3 px/pt, those eight are f1..f8
+at 2.2417. That is also why each keeps its own crops and probes file; refkit
+batch takes one --pt per run.
 
 Every number in here came off a capture; probes.json is the replay and
 README.md the write-up. Interface is redrawn in HTML/CSS/SVG -- only the boxes
@@ -18,6 +27,8 @@ the captures are Dutch-locale, so the space bar reads "spatie".
 
 import base64, json
 from pathlib import Path
+
+import feed
 
 OUT = Path(__file__).resolve().parent
 ART_DIR = OUT / "assets" / "art"
@@ -121,20 +132,29 @@ def TS(tok):
     return float(a.rstrip("px")), float(b.rstrip("px"))
 
 
-def _root():
-    """One :root block, byte-identical in every board. No `}` inside it:
-    refkit tokens reads it with a non-greedy regex."""
+def _root(*runs):
+    """One :root block, byte-identical in every board on the page -- both runs'
+    tokens, each under its own prefix. No `}` inside it: refkit tokens reads it
+    with a non-greedy regex."""
     out, seen = [":root{"], None
-    for group, name, value, _ in TOKENS:
-        if group != seen:
-            out.append("" if seen else None)
-            out.append("  /* %s */" % group)
-            seen = group
-        out.append("  --x-%s:%s;" % (name, value))
+    for prefix, tokens in runs:
+        for group, name, value, _ in tokens:
+            if (prefix, group) != seen:
+                out.append("" if seen else None)
+                out.append("  /* %s %s */" % (prefix, group))
+                seen = (prefix, group)
+            # a composite type token carries var(--x-font) inside its value,
+            # and page()'s rewrite is per run, so the block itself has to be
+            # final on both sides of the colon
+            out.append("  --%s-%s:%s;"
+                       % (prefix, name, value.replace("--x-", "--%s-" % prefix)))
     return "\n".join(x for x in out if x is not None) + "\n}"
 
 
-TOKENS_CSS = _root()
+# Written out with the final prefixes, not the --x- placeholder, since one
+# block now holds two of them. page() still rewrites --x- in the rest of each
+# file, per run.
+TOKENS_CSS = feed.TOKENS_CSS = _root((P, TOKENS), (feed.P, feed.TOKENS))
 
 # ------------------------------------------------------------------ art ----
 # The page-coloured notch under the + badge over the avatar. Geometry, so it
@@ -797,17 +817,31 @@ def ref_boards():
 
 
 # ----------------------------------------------------------------- main ----
-def layout(names):
-    rows = [{"title": "Foundations",
-             "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
-                      + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]},
-            {"title": "TikTok: bio and caption", "numbered": True,
-             "files": [{"file": s, "label": l} for s, l, _ in SCREENS]}]
+def _run_rows(title, screens, names):
+    """A run's screens and, under them, the captures they were measured from.
+    The canvas lays every row out from x = 0 at one pitch, so the two rows stay
+    in the same order and item N lands column-for-column over its own capture.
+    That is also why the two runs get two reference rows and not one: 7 screens
+    above 15 captures would line up with nothing."""
+    rows = [{"title": title, "numbered": True,
+             "files": [{"file": s, "label": l} for s, l, _ in screens]}]
     refs = [{"file": "ref-" + s, "label": l}
-            for s, l, _ in SCREENS if "ref-" + s in names]
+            for s, l, _ in screens if "ref-" + s in names]
     if refs:
         rows.append({"title": "Source of truth: Mobbin captures",
                      "numbered": True, "files": refs})
+    return rows
+
+
+def layout(names):
+    rows = [{"title": "Foundations",
+             "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
+                      + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]
+                      + [{"file": "00d-feed-tokens", "label": "Feed tokens"}]
+                      + [{"file": n, "label": "Evidence"}
+                         for n, _ in feed.evidence_boards()]}]
+    rows += _run_rows("TikTok: bio and caption", SCREENS, names)
+    rows += _run_rows("TikTok: the For You feed", feed.SCREENS, names)
     return {"name": PAGE_NAME, "rows": rows}
 
 
@@ -817,10 +851,15 @@ def main():
                  + list(evidence_boards())
                  + [(s, fn()) for s, _, fn in SCREENS]
                  + list(ref_boards()))
+    both = feed.build()
+    clash = set(files) & set(both)
+    assert not clash, "two runs, one board name: %s" % sorted(clash)
+    files.update(both)
     for name in sorted(files):
         write(name, files[name])
     (OUT / "layout.json").write_text(json.dumps(layout(files), indent=2) + "\n")
     print("%-24s %6d rows" % ("layout.json", len(layout(files)["rows"])))
+    print("\nnext: refkit tokens", OUT)
 
 
 if __name__ == "__main__":

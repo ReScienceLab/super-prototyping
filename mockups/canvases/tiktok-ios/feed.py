@@ -1,11 +1,13 @@
 """TikTok for iOS: the For You feed and its video player, eight screens.
 
-One Mobbin flow, rebuilt from the captures in assets/refs and measured with
-refkit:
+The second of this folder's two runs, and a module rather than a script: gen.py
+is the entry point, builds the one :root both runs share, and calls build()
+below. These eight captures are assets/refs/f1..f8 at 2.2417 px/pt against the
+other run's cp1..cp7 at 3, which is why the evidence keeps its own
+crops-feed.json and probes-feed.json -- refkit batch takes one --pt per run,
+and these two are not the same number.
 
-    python3 mockups/canvases/tiktok-feed-ios/gen.py
-
-Every number in here came off a capture. probes.json is the replay and
+Every number in here came off a capture. probes-feed.json is the replay and
 README.md the write-up.
 
 These screens are almost entirely interface over one moving picture, so the
@@ -28,7 +30,7 @@ OUT = Path(__file__).resolve().parent
 ART_DIR = OUT / "assets" / "art"
 REFS_DIR = OUT / "assets" / "refs"
 ICON_DIR = OUT / "assets" / "icons"
-CROPS = json.loads((OUT / "crops.json").read_text())
+CROPS = json.loads((OUT / "crops-feed.json").read_text())
 
 NAME = "TikTok feed"
 # The canvas page name. This folder ships as an example, hence the prefix.
@@ -145,20 +147,10 @@ def TS(tok):
     return float(a.rstrip("px")), float(b.rstrip("px"))
 
 
-def _root():
-    """One :root block, byte-identical in every board. No `}` inside it:
-    refkit tokens reads it with a non-greedy regex."""
-    out, seen = [":root{"], None
-    for group, name, value, _ in TOKENS:
-        if group != seen:
-            out.append("" if seen else None)
-            out.append("  /* %s */" % group)
-            seen = group
-        out.append("  --x-%s:%s;" % (name, value))
-    return "\n".join(x for x in out if x is not None) + "\n}"
-
-
-TOKENS_CSS = _root()
+# The shared :root, assigned by gen.py before build() runs: one block carries
+# both runs' tokens, under --tk- and --tf-, so every board in the folder inlines
+# the same one.
+TOKENS_CSS = None
 
 
 # ------------------------------------------------------------------ art ----
@@ -433,7 +425,7 @@ def evidence_boards():
             '<tr><td class="t">--x-%s</td><td class="v">%s</td><td class="e">%s</td></tr>'
             % (n, v, e) for _, n, v, e in chunk)
         of = " %d/%d" % (i + 1, len(pages)) if len(pages) > 1 else ""
-        yield ("00%s-evidence" % "bcdefgh"[i],
+        yield ("00%s-feed-evidence" % "efgh"[i],
                page(NAME + " - Evidence" + of,
                     '<div class="sheet"><header><h1>Evidence%s</h1>'
                     '<p>One row per token. A token with no evidence is a guess.</p>'
@@ -760,7 +752,7 @@ REF_NOTES = {
 
 def ref_boards():
     for stem, label, _ in SCREENS:
-        f = REFS_DIR / ("p%d.png" % int(stem[:2]))
+        f = REFS_DIR / ("f%d.png" % int(stem[:2]))
         if not f.exists():
             continue
         uri = "data:image/png;base64," + base64.b64encode(f.read_bytes()).decode()
@@ -776,37 +768,11 @@ def ref_boards():
 
 
 # ------------------------------------------------------------------ run ----
-def layout(names):
-    rows = [{"title": "Foundations",
-             "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
-                      + [{"file": n, "label": "Evidence"}
-                         for n in names if n.endswith("-evidence")]},
-            # Same order as the row below: the canvas lays every row out from
-            # x = 0 at one pitch, so item N here lands column-for-column over
-            # its own capture.
-            {"title": NAME + ": For You feed", "numbered": True,
-             "files": [{"file": s, "label": l} for s, l, _ in SCREENS]}]
-    refs = [{"file": "ref-" + s, "label": l}
-            for s, l, _ in SCREENS if "ref-" + s in names]
-    if refs:
-        rows.append({"title": "Source of truth: Mobbin captures",
-                     "numbered": True, "files": refs})
-    return {"name": PAGE_NAME, "rows": rows}
-
-
-def main():
+def build():
+    """name -> html for this run's boards. gen.py writes them and owns
+    layout.json, because the two runs' rows interleave on one canvas page."""
     cut()
-    files = dict([("00-design-tokens", token_board())]
-                 + list(evidence_boards())
-                 + [(s, fn()) for s, _, fn in SCREENS]
-                 + list(ref_boards()))
-    for name in sorted(files):
-        write(name, files[name])
-    out = layout(sorted(files))
-    (OUT / "layout.json").write_text(json.dumps(out, indent=2) + "\n")
-    print("layout.json", len(out["rows"]), "rows")
-    print("\nnext: refkit tokens", OUT)
-
-
-if __name__ == "__main__":
-    main()
+    return dict([("00d-feed-tokens", token_board())]
+                + list(evidence_boards())
+                + [(s, fn()) for s, _, fn in SCREENS]
+                + list(ref_boards()))
