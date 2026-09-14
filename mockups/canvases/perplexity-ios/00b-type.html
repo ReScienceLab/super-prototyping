@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Perplexity iOS - Type</title>
+<style>
+:root{
+  /* Font */
+  --pp-font:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --pp-serif:"Bodoni 72","Bodoni MT",Didot,ui-serif,"New York",Georgia,serif;
+  --pp-mono:ui-monospace,Menlo,"SF Mono",monospace;
+
+  /* Surface */
+  --pp-bg:#FFFDFC;
+  --pp-night:#1B181C;
+  --pp-night-2:#1A191C;
+  --pp-card:#F6F4F0;
+  --pp-chip:#252527;
+  --pp-pill:#FFFDFF;
+  --pp-pill-2:#302D31;
+  --pp-kbd:#D3D5DB;
+  --pp-key:#FFFDFE;
+  --pp-key-mod:#ACB1BD;
+  --pp-search:#EAE9E5;
+  --pp-ring:#ECEAE8;
+  --pp-off:#E2E0DF;
+  --pp-alert:radial-gradient(circle 135px at 50% 50%,#EFECF0 0%,#E6E3E7 40%,#CFCCD0 100%);
+  --pp-scrim:rgba(0,0,0,.355);
+
+  /* Line */
+  --pp-border:#DBDAD6;
+  --pp-line:#646464;
+  --pp-line-on:#56ACBC;
+  --pp-line-chip:#404042;
+
+  /* Ink */
+  --pp-ink:#142C2F;
+  --pp-ink-2:#8B8987;
+  --pp-ink-3:#969598;
+  --pp-ink-4:#BDBBB9;
+  --pp-ink-inv:#FFFDFF;
+  --pp-ink-max:#000000;
+  --pp-ink-cyan:#0C3A44;
+  --pp-idle:#8E8C8B;
+  --pp-quiet:#ACABA8;
+  --pp-wash:#F8F6F5;
+
+  /* Accent */
+  --pp-accent:#207F8E;
+  --pp-accent-2:#2C777F;
+  --pp-caret:#2E7C86;
+  --pp-cyan:#21BAD2;
+  --pp-cyan-2:#48B2C4;
+  --pp-gold:#FFD4AA;
+  --pp-gold-ink:#2B1101;
+  --pp-blue:#017BFF;
+  --pp-danger:#F1412B;
+  --pp-flag:#F44041;
+
+  /* Radius */
+  --pp-r-field:12px;
+  --pp-r-card:13px;
+  --pp-r-badge:6px;
+  --pp-r-key:5px;
+  --pp-r-chip:4px;
+  --pp-r-alert:14px;
+  --pp-r-pill:999px;
+  --pp-r-phone:52px;
+
+  /* Type */
+  --pp-t-nav:400 24.9px/24.9px var(--pp-font);
+  --pp-t-title:400 20.9px/20.9px var(--pp-font);
+  --pp-t-body:400 16.3px/20.6px var(--pp-font);
+  --pp-t-btn:500 18px/18px var(--pp-font);
+  --pp-t-field:350 17px/17px var(--pp-font);
+  --pp-t-chip:400 14.4px/40px var(--pp-font);
+  --pp-t-plan:600 16px/16px var(--pp-font);
+  --pp-t-price:400 25.2px/25.2px var(--pp-font);
+  --pp-t-foot:400 15px/15px var(--pp-font);
+  --pp-t-note:400 12px/12px var(--pp-font);
+  --pp-t-key:400 24.7px/35.4px var(--pp-font);
+  --pp-t-key-2:400 16.2px/39.9px var(--pp-font);
+  --pp-t-hero:400 33px/36px var(--pp-serif);
+  --pp-t-home:400 29.8px/35.3px var(--pp-serif);
+  --pp-t-time:590 17px/22px var(--pp-font);
+
+  /* Metrics */
+  --pp-w:393px;
+  --pp-h:852px;
+  --pp-status:54px;
+  --pp-gutter:24px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--pp-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--pp-w);height:var(--pp-h);
+  border-radius:var(--pp-r-phone);overflow:hidden;background:var(--pp-bg);color:var(--pp-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--pp-w);height:var(--pp-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--pp-t-time)}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--pp-bg);color:var(--pp-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--pp-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--pp-font);color:var(--pp-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--pp-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--pp-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--pp-border)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--pp-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--pp-card);border:1px solid var(--pp-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--pp-font);
+  color:var(--pp-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--pp-border)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--pp-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--pp-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--pp-border);font:400 8.5px/11px var(--pp-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--pp-accent)}
+td.v{color:var(--pp-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--pp-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Type</h1><p>Two families: the platform sans standing in for FK Grotesk Neue, and the platform serif for the headline face. Sizes are ink-box measurements, line heights the pitch between two ink tops.</p></header><div class="tr"><span style="font:var(--pp-t-nav)">Grumpy wizards</span><em>--pp-t-nav &middot; 400 24.9px/24.9px</em></div><div class="tr"><span style="font:var(--pp-t-title)">Grumpy wizards</span><em>--pp-t-title &middot; 400 20.9px/20.9px</em></div><div class="tr"><span style="font:var(--pp-t-body)">Grumpy wizards</span><em>--pp-t-body &middot; 400 16.3px/20.6px</em></div><div class="tr"><span style="font:var(--pp-t-btn)">Grumpy wizards</span><em>--pp-t-btn &middot; 500 18px/18px</em></div><div class="tr"><span style="font:var(--pp-t-field)">Grumpy wizards</span><em>--pp-t-field &middot; 350 17px/17px</em></div><div class="tr"><span style="font:var(--pp-t-chip)">Grumpy wizards</span><em>--pp-t-chip &middot; 400 14.4px/40px</em></div><div class="tr"><span style="font:var(--pp-t-plan)">Grumpy wizards</span><em>--pp-t-plan &middot; 600 16px/16px</em></div><div class="tr"><span style="font:var(--pp-t-price)">Grumpy wizards</span><em>--pp-t-price &middot; 400 25.2px/25.2px</em></div><div class="tr"><span style="font:var(--pp-t-foot)">Grumpy wizards</span><em>--pp-t-foot &middot; 400 15px/15px</em></div><div class="tr"><span style="font:var(--pp-t-note)">Grumpy wizards</span><em>--pp-t-note &middot; 400 12px/12px</em></div><div class="tr"><span style="font:var(--pp-t-key)">Grumpy wizards</span><em>--pp-t-key &middot; 400 24.7px/35.4px</em></div><div class="tr"><span style="font:var(--pp-t-key-2)">Grumpy wizards</span><em>--pp-t-key-2 &middot; 400 16.2px/39.9px</em></div><div class="tr"><span style="font:var(--pp-t-hero)">Where knowledge begins</span><em>--pp-t-hero &middot; 400 33px/36px</em></div><div class="tr"><span style="font:var(--pp-t-home)">Where knowledge begins</span><em>--pp-t-home &middot; 400 29.8px/35.3px</em></div><div class="tr"><span style="font:var(--pp-t-time)">Grumpy wizards</span><em>--pp-t-time &middot; 590 17px/22px</em></div></div>
+</body>
+</html>

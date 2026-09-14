@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Perplexity iOS - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --pp-font:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --pp-serif:"Bodoni 72","Bodoni MT",Didot,ui-serif,"New York",Georgia,serif;
+  --pp-mono:ui-monospace,Menlo,"SF Mono",monospace;
+
+  /* Surface */
+  --pp-bg:#FFFDFC;
+  --pp-night:#1B181C;
+  --pp-night-2:#1A191C;
+  --pp-card:#F6F4F0;
+  --pp-chip:#252527;
+  --pp-pill:#FFFDFF;
+  --pp-pill-2:#302D31;
+  --pp-kbd:#D3D5DB;
+  --pp-key:#FFFDFE;
+  --pp-key-mod:#ACB1BD;
+  --pp-search:#EAE9E5;
+  --pp-ring:#ECEAE8;
+  --pp-off:#E2E0DF;
+  --pp-alert:radial-gradient(circle 135px at 50% 50%,#EFECF0 0%,#E6E3E7 40%,#CFCCD0 100%);
+  --pp-scrim:rgba(0,0,0,.355);
+
+  /* Line */
+  --pp-border:#DBDAD6;
+  --pp-line:#646464;
+  --pp-line-on:#56ACBC;
+  --pp-line-chip:#404042;
+
+  /* Ink */
+  --pp-ink:#142C2F;
+  --pp-ink-2:#8B8987;
+  --pp-ink-3:#969598;
+  --pp-ink-4:#BDBBB9;
+  --pp-ink-inv:#FFFDFF;
+  --pp-ink-max:#000000;
+  --pp-ink-cyan:#0C3A44;
+  --pp-idle:#8E8C8B;
+  --pp-quiet:#ACABA8;
+  --pp-wash:#F8F6F5;
+
+  /* Accent */
+  --pp-accent:#207F8E;
+  --pp-accent-2:#2C777F;
+  --pp-caret:#2E7C86;
+  --pp-cyan:#21BAD2;
+  --pp-cyan-2:#48B2C4;
+  --pp-gold:#FFD4AA;
+  --pp-gold-ink:#2B1101;
+  --pp-blue:#017BFF;
+  --pp-danger:#F1412B;
+  --pp-flag:#F44041;
+
+  /* Radius */
+  --pp-r-field:12px;
+  --pp-r-card:13px;
+  --pp-r-badge:6px;
+  --pp-r-key:5px;
+  --pp-r-chip:4px;
+  --pp-r-alert:14px;
+  --pp-r-pill:999px;
+  --pp-r-phone:52px;
+
+  /* Type */
+  --pp-t-nav:400 24.9px/24.9px var(--pp-font);
+  --pp-t-title:400 20.9px/20.9px var(--pp-font);
+  --pp-t-body:400 16.3px/20.6px var(--pp-font);
+  --pp-t-btn:500 18px/18px var(--pp-font);
+  --pp-t-field:350 17px/17px var(--pp-font);
+  --pp-t-chip:400 14.4px/40px var(--pp-font);
+  --pp-t-plan:600 16px/16px var(--pp-font);
+  --pp-t-price:400 25.2px/25.2px var(--pp-font);
+  --pp-t-foot:400 15px/15px var(--pp-font);
+  --pp-t-note:400 12px/12px var(--pp-font);
+  --pp-t-key:400 24.7px/35.4px var(--pp-font);
+  --pp-t-key-2:400 16.2px/39.9px var(--pp-font);
+  --pp-t-hero:400 33px/36px var(--pp-serif);
+  --pp-t-home:400 29.8px/35.3px var(--pp-serif);
+  --pp-t-time:590 17px/22px var(--pp-font);
+
+  /* Metrics */
+  --pp-w:393px;
+  --pp-h:852px;
+  --pp-status:54px;
+  --pp-gutter:24px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--pp-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--pp-w);height:var(--pp-h);
+  border-radius:var(--pp-r-phone);overflow:hidden;background:var(--pp-bg);color:var(--pp-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--pp-w);height:var(--pp-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--pp-t-time)}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--pp-bg);color:var(--pp-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--pp-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--pp-font);color:var(--pp-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--pp-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--pp-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--pp-border)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--pp-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--pp-card);border:1px solid var(--pp-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--pp-font);
+  color:var(--pp-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--pp-border)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--pp-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--pp-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--pp-border);font:400 8.5px/11px var(--pp-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--pp-accent)}
+td.v{color:var(--pp-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--pp-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Perplexity iOS</h1><p>Ten Mobbin captures of the Perplexity onboarding flow, at @3x. Every value is measured; the evidence boards carry the probe behind each one.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--pp-bg)"></div><b>--pp-bg</b><i>#FFFDFC</i></div><div class="sw"><div class="chip" style="background:var(--pp-night)"></div><b>--pp-night</b><i>#1B181C</i></div><div class="sw"><div class="chip" style="background:var(--pp-night-2)"></div><b>--pp-night-2</b><i>#1A191C</i></div><div class="sw"><div class="chip" style="background:var(--pp-card)"></div><b>--pp-card</b><i>#F6F4F0</i></div><div class="sw"><div class="chip" style="background:var(--pp-chip)"></div><b>--pp-chip</b><i>#252527</i></div><div class="sw"><div class="chip" style="background:var(--pp-pill)"></div><b>--pp-pill</b><i>#FFFDFF</i></div><div class="sw"><div class="chip" style="background:var(--pp-pill-2)"></div><b>--pp-pill-2</b><i>#302D31</i></div><div class="sw"><div class="chip" style="background:var(--pp-kbd)"></div><b>--pp-kbd</b><i>#D3D5DB</i></div><div class="sw"><div class="chip" style="background:var(--pp-key)"></div><b>--pp-key</b><i>#FFFDFE</i></div><div class="sw"><div class="chip" style="background:var(--pp-key-mod)"></div><b>--pp-key-mod</b><i>#ACB1BD</i></div><div class="sw"><div class="chip" style="background:var(--pp-search)"></div><b>--pp-search</b><i>#EAE9E5</i></div><div class="sw"><div class="chip" style="background:var(--pp-ring)"></div><b>--pp-ring</b><i>#ECEAE8</i></div><div class="sw"><div class="chip" style="background:var(--pp-off)"></div><b>--pp-off</b><i>#E2E0DF</i></div><div class="sw"><div class="chip" style="background:var(--pp-alert)"></div><b>--pp-alert</b><i>radial-gradient(circle 135px at 50% 50%,#EFECF0 0%,#E6E3E7 40%,#CFCCD0 100%)</i></div><div class="sw"><div class="chip" style="background:var(--pp-scrim)"></div><b>--pp-scrim</b><i>rgba(0,0,0,.355)</i></div><div class="sw"><div class="chip" style="background:var(--pp-border)"></div><b>--pp-border</b><i>#DBDAD6</i></div><div class="sw"><div class="chip" style="background:var(--pp-line)"></div><b>--pp-line</b><i>#646464</i></div><div class="sw"><div class="chip" style="background:var(--pp-line-on)"></div><b>--pp-line-on</b><i>#56ACBC</i></div><div class="sw"><div class="chip" style="background:var(--pp-line-chip)"></div><b>--pp-line-chip</b><i>#404042</i></div><div class="sw"><div class="chip" style="background:var(--pp-ink)"></div><b>--pp-ink</b><i>#142C2F</i></div><div class="sw"><div class="chip" style="background:var(--pp-ink-2)"></div><b>--pp-ink-2</b><i>#8B8987</i></div><div class="sw"><div class="chip" style="background:var(--pp-ink-3)"></div><b>--pp-ink-3</b><i>#969598</i></div><div class="sw"><div class="chip" style="background:var(--pp-ink-4)"></div><b>--pp-ink-4</b><i>#BDBBB9</i></div><div class="sw"><div class="chip" style="background:var(--pp-ink-inv)"></div><b>--pp-ink-inv</b><i>#FFFDFF</i></div><div class="sw"><div class="chip" style="background:var(--pp-ink-max)"></div><b>--pp-ink-max</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--pp-ink-cyan)"></div><b>--pp-ink-cyan</b><i>#0C3A44</i></div><div class="sw"><div class="chip" style="background:var(--pp-idle)"></div><b>--pp-idle</b><i>#8E8C8B</i></div><div class="sw"><div class="chip" style="background:var(--pp-quiet)"></div><b>--pp-quiet</b><i>#ACABA8</i></div><div class="sw"><div class="chip" style="background:var(--pp-wash)"></div><b>--pp-wash</b><i>#F8F6F5</i></div><div class="sw"><div class="chip" style="background:var(--pp-accent)"></div><b>--pp-accent</b><i>#207F8E</i></div><div class="sw"><div class="chip" style="background:var(--pp-accent-2)"></div><b>--pp-accent-2</b><i>#2C777F</i></div><div class="sw"><div class="chip" style="background:var(--pp-caret)"></div><b>--pp-caret</b><i>#2E7C86</i></div><div class="sw"><div class="chip" style="background:var(--pp-cyan)"></div><b>--pp-cyan</b><i>#21BAD2</i></div><div class="sw"><div class="chip" style="background:var(--pp-cyan-2)"></div><b>--pp-cyan-2</b><i>#48B2C4</i></div><div class="sw"><div class="chip" style="background:var(--pp-gold)"></div><b>--pp-gold</b><i>#FFD4AA</i></div><div class="sw"><div class="chip" style="background:var(--pp-gold-ink)"></div><b>--pp-gold-ink</b><i>#2B1101</i></div><div class="sw"><div class="chip" style="background:var(--pp-blue)"></div><b>--pp-blue</b><i>#017BFF</i></div><div class="sw"><div class="chip" style="background:var(--pp-danger)"></div><b>--pp-danger</b><i>#F1412B</i></div><div class="sw"><div class="chip" style="background:var(--pp-flag)"></div><b>--pp-flag</b><i>#F44041</i></div></div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:12px"></div><em>12px</em></div><div><div class="rb" style="border-radius:13px"></div><em>13px</em></div><div><div class="rb" style="border-radius:6px"></div><em>6px</em></div><div><div class="rb" style="border-radius:5px"></div><em>5px</em></div><div><div class="rb" style="border-radius:4px"></div><em>4px</em></div><div><div class="rb" style="border-radius:14px"></div><em>14px</em></div><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div></div><h2>Metrics</h2><div class="met">--pp-w: 393px<br>--pp-h: 852px<br>--pp-status: 54px<br>--pp-gutter: 24px</div></div>
+</body>
+</html>

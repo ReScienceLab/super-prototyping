@@ -442,6 +442,40 @@ declares a box other than the default 478 x 980.
   the only fetches here kept as scripts rather than notes, because every URL is
   built or signed; the fifteen `ref-*` boards are gitignored, so a fresh clone
   has 22.
+- `perplexity-ios/`: the run to read when a substituted face has to be fitted
+  twice, in opposite directions. The Perplexity iOS onboarding flow end to end
+  - the splash, email entry empty and filled, the "check your email" pane and
+  its two code states, the Pro paywall with and without its purchase alert, and
+  the home screen with and without the voice tooltip - in 24 boards across
+  three rows: a token board, a type board and two evidence boards for 69
+  tokens, the ten replicas, and the Mobbin capture of each parked underneath.
+  Mean absolute delta against those captures is 2.40-6.48 levels (of 255), mean
+  4.01, and geometry is not what the number scores: across the 11 box probes
+  the mean ink-box width error is 0.51pt and the mean height error 0.75pt. The
+  whole spread is the didone headline on 07 and 08, whose two lines are those
+  boards' four worst bands; mask the 66.7pt they occupy and 07 falls from 6.10
+  to 3.84. Its `README.md` records why the same substitution was fitted two
+  different ways. On the paywall the stand-in holds the set width to 0.4% at
+  33px while its ascender runs 12.7% short, and buying that height back costs
+  more than it returns - 37px retracked to the same width lands the ascender
+  within 2.5% and raises the band from 32.2 to 41.0 - so the size stays and the
+  line is placed **by its baseline instead of its top**. On the home screen the
+  same face is fitted on width instead, 29.8px against the 32px its ascenders
+  read, because three short centred lines are checked on width and a two-line
+  paragraph on where it sits. It also records that the sans is a size
+  correction per token rather than one ratio (-4% to +16% across the ladder,
+  weights settled on ink mass), that a width shortfall is charged as tracking
+  when charging it as size would grow the ink height, and that the phone corner
+  is most of what is left on every light board - the captures are framebuffers,
+  square to the pixel at every corner, so the 52pt radius is this repo's
+  stand-in and nothing in the source argues with it; exclude the two corner
+  columns and p04's worst band goes from 24.94 to 0.00. And it names four
+  defects as the captures' own: the plan chips are clipped on 07 and 08, 06
+  caught the code caret mid-blink, 09 caught the home indicator mid-fade, and
+  09 and 10 hold different frames of the same voice glyph. Only three boxes are
+  cropped and no art is generated; 20 icons are SVGs traced against the
+  captures, one of them a 37-segment watermark. The ten `ref-*` boards are
+  gitignored, so a fresh clone has 14.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

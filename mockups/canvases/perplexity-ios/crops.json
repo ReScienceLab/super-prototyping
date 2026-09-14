@@ -1,0 +1,23 @@
+{
+  "p01-splash": {
+    "img": "p01",
+    "box": [0, 0, 393, 435],
+    "kind": "photo",
+    "why": "The painted desert scene on the splash: a picture, so it is cut rather than redrawn. It fades to the sheet's own #1B181C by y 432, which is where the box ends. Everything the app draws over it is erased here and rebuilt live.",
+    "erase": [[0, 12, 393, 42, 1, 26], [316, 60, 385, 92, 1, 22], [163, 366, 230, 435]]
+  },
+  "p07-hero": {
+    "img": "p07",
+    "box": [0, 0, 393, 500],
+    "kind": "photo",
+    "why": "The starburst-over-a-book paywall hero, down to the first chip row at 500.5. Same rule: the close button, Restore, the pro lockup and the serif headline come off it and are rebuilt.",
+    "erase": [[0, 12, 393, 42, 1, 26], [14, 68, 44, 94, 1, 22], [312, 68, 384, 94, 1, 22],
+              [108, 140, 286, 178, 1, 18], [30, 178, 365, 262, 1, 16]]
+  },
+  "p10-news": {
+    "img": "p10",
+    "box": [198.8, 633, 232.5, 668],
+    "kind": "photo",
+    "why": "The wire-photo thumbnail in the news card. Nothing is drawn over it, so it is cut whole."
+  }
+}

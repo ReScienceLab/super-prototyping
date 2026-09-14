@@ -1,0 +1,119 @@
+{
+  "name": "(example) Perplexity iOS",
+  "cover": "07-paywall",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-type",
+          "label": "Type"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-splash",
+          "label": "Splash"
+        },
+        {
+          "file": "02-email",
+          "label": "Continue with email"
+        },
+        {
+          "file": "03-email-typed",
+          "label": "Address typed"
+        },
+        {
+          "file": "04-check-email",
+          "label": "Check your email"
+        },
+        {
+          "file": "05-enter-code",
+          "label": "Enter code"
+        },
+        {
+          "file": "06-code-loading",
+          "label": "Code accepted"
+        },
+        {
+          "file": "07-paywall",
+          "label": "Perplexity Pro"
+        },
+        {
+          "file": "08-purchased",
+          "label": "Purchase confirmed"
+        },
+        {
+          "file": "09-home-tip",
+          "label": "Home, voice tooltip"
+        },
+        {
+          "file": "10-home",
+          "label": "Home"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-splash",
+          "label": "Splash"
+        },
+        {
+          "file": "ref-02-email",
+          "label": "Continue with email"
+        },
+        {
+          "file": "ref-03-email-typed",
+          "label": "Address typed"
+        },
+        {
+          "file": "ref-04-check-email",
+          "label": "Check your email"
+        },
+        {
+          "file": "ref-05-enter-code",
+          "label": "Enter code"
+        },
+        {
+          "file": "ref-06-code-loading",
+          "label": "Code accepted"
+        },
+        {
+          "file": "ref-07-paywall",
+          "label": "Perplexity Pro"
+        },
+        {
+          "file": "ref-08-purchased",
+          "label": "Purchase confirmed"
+        },
+        {
+          "file": "ref-09-home-tip",
+          "label": "Home, voice tooltip"
+        },
+        {
+          "file": "ref-10-home",
+          "label": "Home"
+        }
+      ]
+    }
+  ]
+}
