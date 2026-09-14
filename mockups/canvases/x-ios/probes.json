@@ -10,9 +10,9 @@
    694
   ],
   "only": "flat",
-  "mine": "06-edit-profile.png",
-  "_": "06 the empty band between the hairlines at 664.67 and 697.00, clear of both: page ground and nothing else",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the seven boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them."
+  "mine": "01-edit-profile.png",
+  "_": "01 the empty band between the hairlines at 664.67 and 697.00, clear of both: page ground and nothing else",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. N is Mobbin's export order, not the board number: the deck leads with the profile pair, so 01 reads p6 and 02 p7, and 03-07 read p1-p5. --against wants scratch/shot, which scratch/run.py fills with the fifteen boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Nine left the file when 02 took @Yilin0x's own timeline: chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, t-name and t-meta the demo persona's name and location, and nav-l and nav-r the purple X tints the nav bar with while a Space is live, which that timeline no longer has -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those nine measurements stay on the 00b-00f evidence boards, which quote the capture and are not replayed against a render. spaces is not among them: 13's card brought it back, on a screen this time."
  },
  {
   "id": "field",
@@ -25,36 +25,8 @@
    288
   ],
   "only": "flat",
-  "mine": "02-select-category.png",
-  "_": "02 the search field's interior, right of the placeholder ink (ends 189.7) and inside the 34pt box at y 260-294"
- },
- {
-  "id": "spaces",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   80,
-   570,
-   360,
-   605
-  ],
-  "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the Spaces card between 'Movie review' (ends 552) and the play row (from 612): the card's own fill, no ink in the band"
- },
- {
-  "id": "chip",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   62,
-   452,
-   66,
-   468
-  ],
-  "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the post's Host chip, x 61.33-102.00 y 451.00-469.33: the 4pt margin left of the label ink, which starts at 66.67"
+  "mine": "04-select-category.png",
+  "_": "04 the search field's interior, right of the placeholder ink (ends 189.7) and inside the 34pt box at y 260-294"
  },
  {
   "id": "pill-off",
@@ -67,8 +39,8 @@
    798
   ],
   "only": "flat",
-  "mine": "02-select-category.png",
-  "_": "02 the disabled Next pill, x 18-375 y 754-806: right of its label ink (ends 213.67) and inside the semicircular ends"
+  "mine": "04-select-category.png",
+  "_": "04 the disabled Next pill, x 18-375 y 754-806: right of its label ink (ends 213.67) and inside the semicircular ends"
  },
  {
   "id": "backdrop",
@@ -81,8 +53,8 @@
    70
   ],
   "only": "flat",
-  "mine": "06-edit-profile.png",
-  "_": "06 left of the peek card (starts x20) and above the sheet (70.33): the dimmed parent, black"
+  "mine": "01-edit-profile.png",
+  "_": "01 left of the peek card (starts x20) and above the sheet (69.0): the dimmed parent, black"
  },
  {
   "id": "accent",
@@ -95,36 +67,8 @@
    744
   ],
   "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the compose FAB, d 56 at (328, 704): inside the disc and left of the plus glyph, which starts at 348.33"
- },
- {
-  "id": "nav-l",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   4,
-   770,
-   40,
-   778
-  ],
-  "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the nav wash at its left end, below the rule at 768.67 and above the glyphs at 781: the lightest stop"
- },
- {
-  "id": "nav-r",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   360,
-   770,
-   389,
-   778
-  ],
-  "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the same band at its right end. APPROXIMATION: the generator fits four stops to this row, not the two-axis gradient the capture holds"
+  "mine": "02-profile.png",
+  "_": "02 the compose FAB, d 56 at (328, 704): inside the disc and left of the plus glyph, which starts at 348.33"
  },
  {
   "id": "ink",
@@ -137,8 +81,8 @@
    446
   ],
   "only": "ink",
-  "mine": "01-professional-splash.png",
-  "_": "01 'X for Professionals', the title run, ink 14.7-245.7"
+  "mine": "03-professional-splash.png",
+  "_": "03 'X for Professionals', the title run, ink 14.7-245.7"
  },
  {
   "id": "ink-2",
@@ -151,23 +95,23 @@
    478
   ],
   "only": "ink",
-  "mine": "01-professional-splash.png",
-  "_": "01 the first body line, the secondary ink"
+  "mine": "03-professional-splash.png",
+  "_": "03 the first body line, the secondary ink"
  },
  {
   "id": "inv",
-  "img": "assets/refs/p7.png",
+  "img": "assets/refs/p1.png",
   "cmd": "sample",
   "box": [
-   72,
-   518,
-   232,
-   558
+   140,
+   772,
+   250,
+   788
   ],
   "only": "ink",
   "bright": true,
-  "mine": "07-profile.png",
-  "_": "07 'Movie review' on the Spaces card: white ink on #7856FE, so the brightest percentile rather than the darkest"
+  "mine": "03-professional-splash.png",
+  "_": "03 'Agree & Continue' on the enabled CTA, inside the label's ink and the pill both: white on --x-ink, so the brightest percentile rather than the darkest. It read #FFFFFF off 02's Spaces card too, while the boards still drew one"
  },
  {
   "id": "ink-off",
@@ -180,8 +124,8 @@
    786
   ],
   "only": "ink",
-  "mine": "02-select-category.png",
-  "_": "02 the disabled Next label on its #88898D pill, ink 180.0-213.67"
+  "mine": "04-select-category.png",
+  "_": "04 the disabled Next label on its #88898D pill, ink 180.0-213.67"
  },
  {
   "id": "save-off",
@@ -194,22 +138,8 @@
    100
   ],
   "only": "ink",
-  "mine": "06-edit-profile.png",
-  "_": "06 'Save', ink 338.67-377.00 y 88.0-99.0: a grey of its own, not 02's disabled label"
- },
- {
-  "id": "chip-ink",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   66,
-   454,
-   97,
-   466
-  ],
-  "only": "ink",
-  "mine": "07-profile.png",
-  "_": "07 the post's Host label on the #ECE8FF chip"
+  "mine": "01-edit-profile.png",
+  "_": "01 'Save', ink 338.67-377.00 y 88.0-99.0: a grey of its own, not 04's disabled label"
  },
  {
   "id": "hairline",
@@ -223,8 +153,8 @@
   ],
   "bg": "FFFFFF",
   "scale": 3,
-  "mine": "06-edit-profile.png",
-  "_": "06 the rule at 350.67, one of ten full-width ones. A 1pt rule never reaches its true colour in a 3x capture, so it is solved, not sampled"
+  "mine": "01-edit-profile.png",
+  "_": "01 the rule at 350.67, one of ten full-width ones. A 1pt rule never reaches its true colour in a 3x capture, so it is solved, not sampled"
  },
  {
   "id": "border",
@@ -238,8 +168,8 @@
   ],
   "bg": "FFFFFF",
   "scale": 3,
-  "mine": "04-select-account-type.png",
-  "_": "04 the Business card's top border at y 234.67, solved the same way"
+  "mine": "06-select-account-type.png",
+  "_": "06 the Business card's top border at y 234.67, solved the same way"
  },
  {
   "id": "sheet-edge",
@@ -251,8 +181,8 @@
    36,
    120
   ],
-  "mine": "06-edit-profile.png",
-  "_": "06 down the middle: the peek card's top at 42.67, then the sheet's at 70.33. Two edges in one line, and the pair is what sets --x-r-peek and --x-r-sheet"
+  "mine": "01-edit-profile.png",
+  "_": "01 down the middle: the peek card's top at 42.67, then the sheet's at 69.0. Two edges in one line, and the pair is what sets --x-r-peek and --x-r-sheet"
  },
  {
   "id": "m-field",
@@ -265,8 +195,8 @@
    305
   ],
   "dark": 246,
-  "mine": "02-select-category.png",
-  "_": "02 the search field: 34 tall at y 260-294, x 16-377. #EFF3F4 on white is under any ordinary threshold, hence --dark 246"
+  "mine": "04-select-category.png",
+  "_": "04 the search field: 34 tall at y 260-294, x 16-377. #EFF3F4 on white is under any ordinary threshold, hence --dark 246"
  },
  {
   "id": "m-cta",
@@ -279,35 +209,8 @@
    812
   ],
   "dark": 200,
-  "mine": "02-select-category.png",
-  "_": "02 the Next pill: 52 tall, x 18-375, ends semicircular"
- },
- {
-  "id": "m-card",
-  "img": "assets/refs/p7.png",
-  "cmd": "bbox",
-  "box": [
-   55,
-   470,
-   390,
-   700
-  ],
-  "dark": 200,
-  "mine": "07-profile.png",
-  "_": "07 the Spaces card, x 61.33-384.00 y 477.67-691.67"
- },
- {
-  "id": "m-play",
-  "img": "assets/refs/p7.png",
-  "cmd": "scan",
-  "axis": "col",
-  "at": 300,
-  "range": [
-   630,
-   665
-  ],
-  "mine": "07-profile.png",
-  "_": "07 down into the Play pill, right of its label and glyph: #7856FE to white at 646, the pill's top edge. It ends 679 and the card's floor follows at 691.7, both outside this window so the run list has one step in it. A bbox cannot read this one -- #7856FE carries B 254, so any --bright that takes the pill takes the card under it"
+  "mine": "04-select-category.png",
+  "_": "04 the Next pill: 52 tall, x 18-375, ends semicircular"
  },
  {
   "id": "t-title",
@@ -320,8 +223,8 @@
    450
   ],
   "dark": 150,
-  "mine": "01-professional-splash.png",
-  "_": "01 'X for Professionals' 231.00 wide. Every Type size was fitted to a run's ink width, not read off the iOS ladder"
+  "mine": "03-professional-splash.png",
+  "_": "03 'X for Professionals' 231.00 wide. Every Type size was fitted to a run's ink width, not read off the iOS ladder"
  },
  {
   "id": "t-card",
@@ -334,49 +237,340 @@
    274
   ],
   "dark": 150,
-  "mine": "04-select-account-type.png",
-  "_": "04 'Business' 77.33"
+  "mine": "06-select-account-type.png",
+  "_": "06 'Business' 77.33"
  },
  {
-  "id": "t-name",
-  "img": "assets/refs/p7.png",
+  "id": "track-on",
+  "img": "assets/refs/p11.png",
+  "cmd": "sample",
+  "box": [
+   337,
+   334,
+   350,
+   351
+  ],
+  "only": "flat",
+  "mine": "11-push-notifications.png",
+  "_": "11 the Photo tags track, x 333-384 y 327-358: left of the knob, which rests at 355-382 when the switch is on"
+ },
+ {
+  "id": "track-off",
+  "img": "assets/refs/p12.png",
+  "cmd": "sample",
+  "box": [
+   366,
+   379,
+   380,
+   396
+  ],
+  "only": "flat",
+  "mine": "12-new-followers-off.png",
+  "_": "12 the New followers track, the one switch this board turns off: right of the knob, which rests at 335-362 when it is"
+ },
+ {
+  "id": "hairline-2",
+  "img": "assets/refs/p10.png",
+  "cmd": "hairline",
+  "box": [
+   20,
+   517,
+   370,
+   519.5
+  ],
+  "bg": "FFFFFF",
+  "scale": 3,
+  "mine": "10-explore.png",
+  "_": "10 the rule between the first two news items at 518.00, solved rather than sampled like every other 1pt rule here. It is inset to x 9-384 where the page's other two run the full width"
+ },
+ {
+  "id": "m-search",
+  "img": "assets/refs/p10.png",
+  "cmd": "bbox",
+  "box": [
+   50,
+   55,
+   350,
+   106
+  ],
+  "dark": 246,
+  "mine": "10-explore.png",
+  "_": "10 the search pill: 39 tall at y 61-100, x 64-337. #EFF3F4 on white is under any ordinary threshold, hence --dark 246, as on 04's field"
+ },
+ {
+  "id": "m-toggle",
+  "img": "assets/refs/p11.png",
+  "cmd": "bbox",
+  "box": [
+   325,
+   320,
+   393,
+   365
+  ],
+  "dark": 150,
+  "mine": "11-push-notifications.png",
+  "_": "11 the Photo tags switch: 51 x 31 at x 333 y 327, the box every toggle on 08, 09, 11 and 12 is drawn at"
+ },
+ {
+  "id": "t-head",
+  "img": "assets/refs/p11.png",
+  "cmd": "bbox",
+  "box": [
+   110,
+   60,
+   285,
+   84
+  ],
+  "dark": 150,
+  "mine": "11-push-notifications.png",
+  "_": "11 'Push notifications' 149.00, centred on the screen at 196.83"
+ },
+ {
+  "id": "t-sect",
+  "img": "assets/refs/p11.png",
   "cmd": "bbox",
   "box": [
    5,
-   178,
-   110,
-   210
+   108,
+   280,
+   130
   ],
   "dark": 150,
-  "mine": "07-profile.png",
-  "_": "07 the profile name 'Sam Lee' 86.33 at 22/27"
+  "mine": "11-push-notifications.png",
+  "_": "11 'Related to you and your posts' 256.00 -- the section head is half a point larger than the title above it"
  },
  {
-  "id": "t-meta",
-  "img": "assets/refs/p7.png",
+  "id": "t-desc-2",
+  "img": "assets/refs/p8.png",
   "cmd": "bbox",
   "box": [
-   220,
-   266,
-   340,
-   296
+   5,
+   186,
+   380,
+   205
   ],
   "dark": 150,
-  "mine": "07-profile.png",
-  "_": "07 'New Jersey, USA' 97.00: the one small run --x-tr-text does not close, which is why t-meta is 13.5 and not 14.5"
+  "mine": "08-explore-settings.png",
+  "_": "08 the location description's first line, 361.00 -- t-count, not a size of its own, but set on a 16.33 baseline pitch rather than its own 19. The box stops at 205 to keep the second line, whose ink starts at 210.33, out"
  },
  {
-  "id": "t-space",
-  "img": "assets/refs/p7.png",
+  "id": "t-badge",
+  "img": "assets/refs/p10.png",
   "cmd": "bbox",
   "box": [
-   68,
-   516,
-   260,
-   560
+   284,
+   780,
+   293,
+   791
   ],
-  "bright": 170,
-  "mine": "07-profile.png",
-  "_": "07 'Movie review' 157.67 measured, 157.62 drawn at Heavy 25.5 -- the fit that settled the whole Type group"
+  "bright": 200,
+  "mine": "10-explore.png",
+  "_": "10 the '5' in the notifications badge, 6.00 x 9.00. White on the accent, so it is read bright, and the box stays inside the 16.00 disc -- the page around it is white too"
+ },
+ {
+  "id": "spaces",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   331,
+   726,
+   344,
+   740
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 inside the Spaces button, d 58 at (327, 704), left of its glyph at 346: flat #7856FE. 13's card in the sheet is the same fill two levels of red off, so the token is read here rather than there"
+ },
+ {
+  "id": "spaces-2",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   70,
+   370,
+   80
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 the host card's body, above the avatar (starts 82) and right of the Host chip (ends 169.33): the darker of the two card purples"
+ },
+ {
+  "id": "wash",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   44,
+   120,
+   56
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 the band behind the status bar, below the clock ink (ends 40) and above the card at 59"
+ },
+ {
+  "id": "banner",
+  "img": "assets/refs/p14.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   112,
+   360,
+   122
+  ],
+  "only": "flat",
+  "mine": "14-reminder-set.png",
+  "_": "14 the confirmation banner, between its one line of type (ends 107.00) and the blue pill at 124.67: the one thing the veil does not reach, so this is the undimmed colour"
+ },
+ {
+  "id": "veil",
+  "img": "assets/refs/p13.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   168,
+   370,
+   188
+  ],
+  "only": "flat",
+  "mine": "13-set-a-reminder.png",
+  "_": "13 the dimmed page at its whitest, below the host card (ends 158.33) and above the heading ink at 194.67. White under the veil, so the reading is the veil itself: #878787 is .47 black on #FFFFFF"
+ },
+ {
+  "id": "nav2-t",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   770,
+   100,
+   777
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 the nav wash at its top, below the rule at 768.5 and above the glyphs at 781.79, right of the active dot (ends 50.33)"
+ },
+ {
+  "id": "nav2-b",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   820,
+   100,
+   835
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 the same wash near its foot, clear of the home indicator band. The pair is what sets the gradient's two stops"
+ },
+ {
+  "id": "m-tile",
+  "img": "assets/refs/p15.png",
+  "cmd": "bbox",
+  "box": [
+   0,
+   258,
+   100,
+   350
+  ],
+  "dark": 160,
+  "mine": "15-calendar.png",
+  "_": "15 the first event tile, 80.67 square at (8.83, 264). #7A55FE on white sits just above an ordinary ink cut, hence --dark 160"
+ },
+ {
+  "id": "m-bell",
+  "img": "assets/refs/p15.png",
+  "cmd": "bbox",
+  "box": [
+   330,
+   258,
+   393,
+   336
+  ],
+  "mine": "15-calendar.png",
+  "_": "15 the first row's bell, the unset one: a filled disc d 44.33 at (339.67, 264), which is the control this whole flow turns on"
+ },
+ {
+  "id": "m-banner",
+  "img": "assets/refs/p14.png",
+  "cmd": "bbox",
+  "box": [
+   4,
+   62,
+   389,
+   176
+  ],
+  "bright": 200,
+  "mine": "14-reminder-set.png",
+  "_": "14 the banner, 371.33 x 100 at (10.67, 69). It is the bright thing on a dimmed page, so it is cut the other way round"
+ },
+ {
+  "id": "modal-edge",
+  "img": "assets/refs/p13.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 196,
+  "range": [
+   348,
+   372
+  ],
+  "mine": "13-set-a-reminder.png",
+  "_": "13 down the middle, starting below the third title line of the event row the veil dims: the sheet's top edge at 356.00"
+ },
+ {
+  "id": "t-cal",
+  "img": "assets/refs/p15.png",
+  "cmd": "bbox",
+  "box": [
+   5,
+   190,
+   285,
+   216
+  ],
+  "mine": "15-calendar.png",
+  "_": "15 'Get these in your calendar' at x 9.67, the heading the page is built around"
+ },
+ {
+  "id": "t-event",
+  "img": "assets/refs/p15.png",
+  "cmd": "bbox",
+  "box": [
+   95,
+   285,
+   330,
+   310
+  ],
+  "mine": "15-calendar.png",
+  "_": "15 the first event's opening line, 'NUAI 101 with Will Gray'"
+ },
+ {
+  "id": "t-space-2",
+  "img": "assets/refs/p13.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   470,
+   335,
+   493
+  ],
+  "bright": 200,
+  "mine": "13-set-a-reminder.png",
+  "_": "13 the card title's first line, 'RWA-Investment: The Future of', white on the card. The window stops above 494 because the microphone on the line below poles up to 496"
+ },
+ {
+  "id": "t-tag",
+  "img": "assets/refs/p14.png",
+  "cmd": "bbox",
+  "box": [
+   135,
+   130,
+   258,
+   152
+  ],
+  "bright": 200,
+  "mine": "14-reminder-set.png",
+  "_": "14 'Share with a post' on the banner's blue pill, white on #1D9BF0"
  }
 ]
