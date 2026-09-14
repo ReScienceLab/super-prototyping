@@ -346,7 +346,7 @@ declares a box other than the default 478 x 980.
   and one caption expanded and collapsed. 20 boards in three rows: a token
   board and three evidence boards for 46 tokens, the eight replicas, and the
   Mobbin capture of each parked underneath. Mean absolute delta against those
-  captures is 4.04-8.14 levels (of 255), mean 5.27, and the spread is a
+  captures is 4.03-8.13 levels (of 255), mean 5.26, and the spread is a
   straight function of how much white type a board sets over how textured a
   frame: board 07 is board 08 with five more caption lines on the same post,
   and those five lines cost 2.8. Only the video is cropped - eight full-frame

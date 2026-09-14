@@ -37,16 +37,16 @@ captures' own 882 × 1910 before differing.
 
 | board | Δ | where the worst 40px bands fall |
 |---|---|---|
-| 01 For You | 4.15 | caption lines 1–2 and chip line 2 over bright river; the status bar band |
-| 02 Scrubbing | 4.04 | almost all status bar: the least ink of any board, on the brightest sky |
-| 03 Scrub released | 5.68 | the same sky with the caption and chip back on it |
-| 04 Playing | 5.40 | same again, plus the marquee at a different scroll phase (below) |
-| 05 Pull to refresh | 4.44 | bare near-black video, where both sides read `#000002` and the capture's compression blocks do not |
-| 06 Next post | 4.95 | same |
-| 07 Caption expanded | 8.14 | seven caption lines over textured video — the most ink on any board |
-| 08 Caption collapsed | 5.34 | two lines of the same, over a bright band of the same clip |
+| 01 For You | 4.14 | caption lines 1–2 and chip line 2 over bright river; the status bar band |
+| 02 Scrubbing | 4.03 | almost all status bar: the least ink of any board, on the brightest sky |
+| 03 Scrub released | 5.67 | the same sky with the caption and chip back on it |
+| 04 Playing | 5.39 | same again, plus the marquee at a different scroll phase (below) |
+| 05 Pull to refresh | 4.42 | bare near-black video, where both sides read `#000002` and the capture's compression blocks do not |
+| 06 Next post | 4.93 | same |
+| 07 Caption expanded | 8.13 | seven caption lines over textured video — the most ink on any board |
+| 08 Caption collapsed | 5.33 | two lines of the same, over a bright band of the same clip |
 
-Mean 5.27. The spread is a function of how much white type each board sets
+Mean 5.26. The spread is a function of how much white type each board sets
 over how textured a video frame, not of how well any of them is built: board
 07 is board 08 with five more caption lines on the same post, and those five
 lines cost 2.8 levels. Every band the diff calls worst on p7
@@ -72,7 +72,8 @@ picture is cut.
   45.5 × 45.5 and 40.2 × 40.2 pt. They are photographs of three real creators;
   there is nothing to rebuild them from.
 - **Everything else is HTML, CSS and 17 inline SVGs** in `assets/icons/`, each
-  with its measured ink box as its `viewBox`.
+  with its measured ink box as its `viewBox`, and each drawn to fill that box
+  edge to edge (below).
 
 Art ships as JPEG q92: the crops are photographs, and the whole set is 1.65 MB
 where the same pixels as PNG are 8.28 MB. The captures are themselves JPEG, so
@@ -139,7 +140,7 @@ it the chip would be baked into the photograph twice and could never change.
 
 ## What the renders corrected
 
-Four tokens that a first reading got wrong, kept here because each one took a
+Five things a first reading got wrong, kept here because each one took a
 measurement to settle and the wrong answer was plausible.
 
 - **The Repost label is black, not TikTok's brand `#161823`.** Three methods
@@ -157,6 +158,20 @@ measurement to settle and the wrong answer was plausible.
   the capture row by row it is two open strokes and two *solid* triangles:
   stroke 1.79pt, elbow radius ~1.0 (not 2.9), heads 6.69 × 4.2pt, stems at
   x 21.36 and 30.72. `assets/icons/repost.svg` is now that.
+- **Seven icons drew outside their own `viewBox`, and were clipped.** An icon's
+  `viewBox` is its measured ink box in page pt and the span carries the same
+  numbers, so the glyph is meant to fill the box exactly; a hand-traced path
+  lands near it, not on it. The outermost `<svg>` clips, silently: the heart
+  lost 1.61pt of its right lobe and the share arrow 2.20pt of its tip, and
+  `music`, `bubble`, `live`, `search` and `bow` lost 0.19–0.94pt. Four more
+  underfilled and simply rendered small — `play` 1.76pt narrow, `tab-inbox`
+  1.16pt short. `scratch/clipcheck.py` finds it by rendering each icon in a
+  viewBox grown 5pt on all sides, on a magenta ground, and comparing the ink
+  box that comes back; `scratch/icfit.py` then rewrites the geometry so the two
+  agree, holding stroke width fixed and iterating, since a fixed stroke adds a
+  constant to the box that one pass overshoots. Four passes converged to 0.04pt,
+  under the 0.06pt antialiasing quantum. No token moved and no probe moved;
+  every board improved by 0.01–0.02 levels.
 - **The resting progress line is its own thing, not the scrub bar drawn thin.**
   It was 1.4pt at `.5` over the expanded bar's `track .24`. Solved as an
   integral over p5 and p6 it is 2.1pt, its played half reads 131.5 / 130.2 over
