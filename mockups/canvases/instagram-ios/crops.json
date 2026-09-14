@@ -1,5 +1,5 @@
 {
-  "_": "Every photograph on the boards, cut from assets/refs/cNN.png at its measured box in design pt (3.0 capture px per pt) and placed back by art() at the same numbers, so an asset cannot drift from where it was measured. Interface is not cropped: the grid's play/carousel/pin badges and the reels view counts are listed in `erase`, inpainted out of the picture, and redrawn live on top. Chrome, type, rings, buttons and tab bar are CSS and SVG. The instagram and nytcooking avatars are not here because they are brand marks: those two are the original 1080 and 720 px files from the profile API, committed whole in assets/brand.",
+  "_": "Every photograph on the boards, cut from assets/refs/cNN.png at its measured box in design pt (3.0 capture px per pt) and placed back by art() at the same numbers, so an asset cannot drift from where it was measured. Interface is not cropped: the grid's play/carousel/pin badges and the reels view counts are listed in `erase`, inpainted out of the picture, and redrawn live on top. On a feed post the picture is full bleed and the interface is set on it, so every line of type over one is erased too; a ring, an outlined pill and an opaque badge are not, because the live element covers its own pixels one to one and the erase would take the picture out of the hole it leaves. Chrome, type, rings, buttons and tab bar are CSS and SVG. The instagram and nytcooking avatars are not here because they are brand marks: those two are the original 1080 and 720 px files from the profile API, committed whole in assets/brand.",
 
   "ig-mut1":     ["c01", 16.0, 317.67, 48.0, 349.67],
   "ig-mut2":     ["c01", 41.33, 317.67, 73.33, 349.67],
@@ -75,4 +75,21 @@
   "agz-t4":      {"img": "c08", "box": [0.0, 731.67, 130.33, 852.0], "erase": [[104.0, 737.01, 124.99, 758.0]]},
   "agz-t5":      {"img": "c08", "box": [131.33, 731.67, 261.67, 852.0], "erase": [[235.34, 737.01, 256.33, 758.0]]},
   "agz-t6":      {"img": "c08", "box": [262.67, 731.67, 393.0, 852.0], "erase": [[366.67, 737.01, 387.66, 758.0]]}
+,
+
+  "f09-s1":      ["c09", 12.85, 118.83, 92.18, 198.16],
+  "f09-s2":      ["c09", 117.0, 118.7, 196.6, 198.3],
+  "f09-s3":      ["c09", 221.7, 118.7, 301.3, 198.3],
+  "f09-s4":      ["c09", 326.6, 118.7, 393.0, 198.3],
+  "f09-av":      ["c09", 10.67, 246.33, 42.67, 278.33],
+  "f09-post":    {"img": "c09", "box": [0.0, 234.67, 393.0, 768.67], "erase": [[52.0, 246.0, 250.0, 281.0], [290.0, 253.0, 339.0, 270.0], [361.0, 257.0, 381.0, 267.0]]},
+  "f10-av":      ["c10", 10.67, 124.67, 42.67, 156.67],
+  "f10-post":    ["c10", 0.0, 166.67, 393.0, 652.0],
+  "f10-post2":   ["c10", 0.0, 801.67, 393.0, 852.0],
+  "f11-art":     ["c11", 102.0, 301.33, 291.33, 394.67],
+  "f12-av":      ["c12", 10.67, 124.67, 42.67, 156.67],
+  "f12-video":   {"img": "c12", "box": [0.0, 113.33, 393.0, 721.0], "erase": [[51.0, 125.5, 236.0, 158.0], [262.0, 132.0, 307.0, 149.0], [362.0, 137.0, 380.0, 143.0]]},
+  "f12-next":    {"img": "c12", "box": [0.0, 829.0, 393.0, 852.0], "erase": [[51.0, 841.0, 236.0, 852.0]]},
+  "f13-video":   {"img": "c13", "box": [0.0, 0.0, 393.0, 767.0], "erase": [[54.0, 22.0, 88.0, 36.5], [281.0, 22.0, 357.0, 36.5]]},
+  "f14-video":   {"img": "c14", "box": [0.0, 0.0, 393.0, 767.0], "erase": [[54.0, 22.0, 88.0, 36.5], [281.0, 22.0, 357.0, 36.5], [185.5, 373.5, 207.0, 395.0]]}
 }

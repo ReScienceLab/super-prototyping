@@ -15,6 +15,10 @@
         {
           "file": "00c-evidence",
           "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
         }
       ]
     },
@@ -55,7 +59,31 @@
           "label": "AGNEZ MO"
         },
         {
-          "file": "09-yilin0xx",
+          "file": "09-feed-switcher",
+          "label": "Feed switcher"
+        },
+        {
+          "file": "10-following-feed",
+          "label": "Following feed"
+        },
+        {
+          "file": "11-favorites-empty",
+          "label": "Favorites, empty"
+        },
+        {
+          "file": "12-favorites-feed",
+          "label": "Favorites feed"
+        },
+        {
+          "file": "13-reels-toast",
+          "label": "Reels, fullscreen, toast"
+        },
+        {
+          "file": "14-reels-fullscreen",
+          "label": "Reels, fullscreen"
+        },
+        {
+          "file": "15-yilin0xx",
           "label": "yilin0xx, live"
         }
       ]
@@ -95,6 +123,30 @@
         {
           "file": "ref-08-agnezmo",
           "label": "AGNEZ MO"
+        },
+        {
+          "file": "ref-09-feed-switcher",
+          "label": "Feed switcher"
+        },
+        {
+          "file": "ref-10-following-feed",
+          "label": "Following feed"
+        },
+        {
+          "file": "ref-11-favorites-empty",
+          "label": "Favorites, empty"
+        },
+        {
+          "file": "ref-12-favorites-feed",
+          "label": "Favorites feed"
+        },
+        {
+          "file": "ref-13-reels-toast",
+          "label": "Reels, fullscreen, toast"
+        },
+        {
+          "file": "ref-14-reels-fullscreen",
+          "label": "Reels, fullscreen"
         }
       ]
     }

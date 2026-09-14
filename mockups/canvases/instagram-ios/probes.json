@@ -208,5 +208,135 @@
   "at": 400,
   "range": [125, 140],
   "_": "c02 across the gutter between grid columns 0 and 1: tile 0 to 130.3, 1.0pt of white, tile 1 from 131.3. Column pitch 131.33, tile 130.33"
+ },
+ {
+  "id": "bar-dark",
+  "img": "assets/refs/c13.png",
+  "mine": "13-reels-toast.png",
+  "cmd": "sample",
+  "box": [120, 815, 260, 845],
+  "only": "flat",
+  "_": "c13 tab bar between the Reels and Direct glyphs, below the home indicator's row and above the frame's bottom: 100% flat, no glyph in the window"
+ },
+ {
+  "id": "toast",
+  "img": "assets/refs/c13.png",
+  "mine": "13-reels-toast.png",
+  "cmd": "sample",
+  "box": [12, 745, 381, 758],
+  "only": "flat",
+  "_": "c13 screen-recording toast, the band under its type (ink ends 744.0) and above its bottom edge at 759.0. The ground is translucent over the video, so it reads #736D6D in the band above the type and #69666C here; the token is the mean of the two"
+ },
+ {
+  "id": "badge",
+  "img": "assets/refs/c09.png",
+  "mine": "09-feed-switcher.png",
+  "cmd": "sample",
+  "box": [69.5, 184, 73, 189],
+  "only": "flat",
+  "_": "c09 Your-story plus badge, inside its d 24 disc and left of the plus glyph's own arm, which starts 74.3"
+ },
+ {
+  "id": "scrim",
+  "img": "assets/refs/c12.png",
+  "mine": "12-favorites-feed.png",
+  "cmd": "sample",
+  "box": [355, 690, 359, 696],
+  "only": "flat",
+  "_": "c12 mute badge's disc at its left, inside the d 25.67 circle (left 353.2) and left of the speaker glyph (starts 360.3)"
+ },
+ {
+  "id": "notif",
+  "img": "assets/refs/c09.png",
+  "mine": "09-feed-switcher.png",
+  "cmd": "sample",
+  "box": [371, 74, 377, 78],
+  "only": "flat",
+  "_": "c09 unread dot on the activity heart, inside the d 8 disc at 370-378 and clear of the white ring it is punched into"
+ },
+ {
+  "id": "accent-2",
+  "img": "assets/refs/c11.png",
+  "mine": "11-favorites-empty.png",
+  "cmd": "sample",
+  "box": [136, 572, 256, 580],
+  "only": "flat",
+  "_": "c11 Add favorites button, the band under its label (ink ends 570.3) and above the 12pt corner's turn: 100% flat"
+ },
+ {
+  "id": "nav-line",
+  "img": "assets/refs/c10.png",
+  "mine": "10-following-feed.png",
+  "cmd": "sample",
+  "box": [150, 113, 250, 113.33],
+  "only": "flat",
+  "_": "c10 divider under the Following title, one device pixel tall, in the gap between the title's descenders and the first post's picture"
+ },
+ {
+  "id": "track",
+  "img": "assets/refs/c14.png",
+  "mine": "14-reels-fullscreen.png",
+  "cmd": "sample",
+  "box": [200, 767.2, 380, 768.5],
+  "only": "flat",
+  "_": "c14 scrubber to the right of the playhead at 151.0: the unplayed track, one device pixel of it above the tab bar's top at 769.0"
+ },
+ {
+  "id": "played",
+  "img": "assets/refs/c14.png",
+  "mine": "14-reels-fullscreen.png",
+  "cmd": "sample",
+  "box": [20, 767.2, 140, 768.5],
+  "only": "flat",
+  "_": "c14 the same scrubber left of the playhead, so the played half; the two windows share a row and differ only in which side of 151.0 they sit"
+ },
+ {
+  "id": "pop",
+  "img": "assets/refs/c09.png",
+  "mine": "09-feed-switcher.png",
+  "cmd": "sample",
+  "box": [250, 212, 267, 224],
+  "only": "flat",
+  "_": "c09 popover ground at its bottom right, below the Favorites label's descenders (ink ends 208.6) and inside the 20pt corner. One cell of the lattice POP is fitted to, so it checks the fit where it is furthest from the base colour"
+ },
+ {
+  "id": "menu",
+  "img": "assets/refs/c09.png",
+  "mine": "09-feed-switcher.png",
+  "cmd": "bbox",
+  "box": [175, 135, 270, 155],
+  "_": "c09 the word Following in the switcher, right of the users glyph (ends 165.0) and above Favorites (starts 187.7): 179.7..245.7, w 66.0"
+ },
+ {
+  "id": "h2",
+  "img": "assets/refs/c11.png",
+  "mine": "11-favorites-empty.png",
+  "cmd": "bbox",
+  "box": [50, 412, 345, 442],
+  "_": "c11 the headline, between the illustration (ends 394.7) and the body copy (starts 449.0), the window wider than the type so the box is the ink's: 68.0..324.7, w 256.7"
+ },
+ {
+  "id": "cta",
+  "img": "assets/refs/c11.png",
+  "mine": "11-favorites-empty.png",
+  "cmd": "bbox",
+  "box": [110, 525, 285, 600],
+  "_": "c11 the Add favorites button including its fill, between the body copy (ends 512.0) and the frame's bottom: 132..261 x 539..582.3"
+ },
+ {
+  "id": "nav-following",
+  "img": "assets/refs/c10.png",
+  "mine": "10-following-feed.png",
+  "cmd": "bbox",
+  "box": [45, 65, 200, 100],
+  "_": "c10 the Following title, right of the back chevron (ends 37.0) and above the divider at 113.0: 51.7..156.0, w 104.3"
+ },
+ {
+  "id": "post-name",
+  "img": "assets/refs/c10.png",
+  "mine": "10-following-feed.png",
+  "cmd": "bbox",
+  "box": [48, 130, 250, 152],
+  "_": "c10 midcenturyhome on the first post, right of its avatar (ends 42.7) and left of the Follow pill (starts 291.0): 53.0..166.0, w 113.0"
  }
 ]

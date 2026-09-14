@@ -293,19 +293,23 @@ declares a box other than the default 478 x 980.
   or two thirds of a point, were worth more than the blur fit and the compose
   glyph together. The seven `ref-*` boards are gitignored, so a fresh clone
   has 10.
-- `instagram-ios/`: the run to read when eight screens are one app's own
-  profile at eight states. Eight user-profile screens of the Instagram iOS app
-  - one account at the top of its scroll and scrolled until the tab bar sticks,
-  the same account's Reels, Reposts and Tagged tabs, a private account, and two
-  verified profiles - in 12 boards across three rows: a token board and two
-  evidence boards for 36 tokens, the eight replicas, the Mobbin capture of each
-  column-for-column underneath, and one board that is the same geometry with a
-  live account poured into it rather than a capture, so it has no delta and no
-  probe. Mean absolute delta against those captures
-  is 5.06-7.77 levels (of 255) whole-frame and 1.84-4.73 below the status bar,
-  where about three of those levels are one fixed thing on all eight boards:
-  Mobbin strips the Dynamic Island and these boards draw one, because the
-  status bar is copied from `templates/` byte for byte. Its `README.md` records
+- `instagram-ios/`: the run to read when one app is cloned at many states.
+  Fourteen screens of the Instagram iOS app - eight of a user profile (one
+  account at the top of its scroll and scrolled until the tab bar sticks, the
+  same account's Reels, Reposts and Tagged tabs, a private account, and two
+  verified profiles) and six of the feed (the Following/Favorites switcher open
+  over the home feed, the two feeds it opens, and two fullscreen reels views) -
+  in 19 boards across three rows: a token board and three evidence boards for
+  53 tokens, the fourteen replicas, the Mobbin capture of each column-for-column
+  underneath, and one board that is the profile geometry with a live account
+  poured into it rather than a capture, so it has no delta and no probe. Mean
+  absolute delta against those captures is 1.19-7.76 levels (of 255)
+  whole-frame and 0.26-4.72 below the status bar, where about three of those
+  levels are one fixed thing on the twelve boards with a light ground: Mobbin
+  strips the Dynamic Island and these boards draw one, because the status bar
+  is copied from `templates/` byte for byte. The two reels boards are what
+  shows what that costs - the same black pill reads delta 9.6 where the video
+  behind it is black and 58.9 where it is a lit face. Its `README.md` records
   that the story ring is an **angular** sweep, not a linear one - twelve samples
   at 30 degrees round c01's ring do not mirror about any axis, which a linear
   gradient on a circle always does - and that the four tab glyphs are really
@@ -317,18 +321,23 @@ declares a box other than the default 478 x 980.
   ones. And it names three defects as the source's: the active-tab underline is
   40pt wide on four captures and 64 on the other four, c08's fifth highlight
   label is not centred on its circle, and the reels scrim is baked into the
-  photographs. Only photography is cropped (74 boxes); the two brand-mark
-  avatars are the 1080 and 720 px files from the profile API resampled to 516,
-  not crops of the captures, and the
-  grid badges and view counts set over the crops are inpainted out and redrawn
-  live. Thirteen of the 23 SVGs are Meta's own drawings rather than traces,
+  photographs. Only photography and editorial art are cropped (89 boxes); the
+  two brand-mark avatars are the 1080 and 720 px files from the profile API
+  resampled to 516, not crops of the captures, and everything set over a crop -
+  the grid badges, the view counts, and on a feed post every line of type - is
+  inpainted out and redrawn live, while a ring, an outlined pill and an opaque
+  badge are left alone because the live element covers its own pixels one to
+  one. The one surface with nothing behind it to crop is the switcher's blurred
+  popover, and its ground is 20 radial gradients on a 5 x 4 lattice, colours
+  least-squares fitted to the capture's own pixels rather than eyeballed.
+  Thirty-four of the 44 SVGs are Meta's own drawings rather than traces,
   pulled out of the `IGDS*Icon.react` modules in the JS bundles the logged-out
   instagram.com shell loads, plus one the Threads row needs that only
   threads.com carries - which is also where that README records the rule that
   makes them usable: `icon()` sets `preserveAspectRatio="none"`, so what ships
   has to be the path's **ink box**, never the module's design grid.
-  `assets/art/`, `assets/brand/` and `assets/icons/` are committed; the eight
-  `ref-*` boards are gitignored, so a fresh clone has 11.
+  `assets/art/`, `assets/brand/` and `assets/icons/` are committed; the
+  fourteen `ref-*` boards are gitignored, so a fresh clone has 19.
 - `apple-app-store/`: the run to read when the source is native iPhone 16 Pro
   screenshots rather than Mobbin or Figma. Nine screens of the iOS 26 App
   Store - five tab roots, three sheets and a system alert - in 23 boards
