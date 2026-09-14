@@ -1,0 +1,183 @@
+{
+  "name": "(example) TikTok",
+  "cover": "03-profile",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-feed-tokens",
+          "label": "Feed tokens"
+        },
+        {
+          "file": "00e-feed-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00f-feed-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00g-feed-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "TikTok: bio and caption",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-bio-empty",
+          "label": "Bio - empty"
+        },
+        {
+          "file": "02-bio-filled",
+          "label": "Bio - filled"
+        },
+        {
+          "file": "03-profile",
+          "label": "Profile"
+        },
+        {
+          "file": "04-post-empty",
+          "label": "Post - empty"
+        },
+        {
+          "file": "05-post-keyboard",
+          "label": "Post - keyboard"
+        },
+        {
+          "file": "06-post-hashtags",
+          "label": "Post - hashtags"
+        },
+        {
+          "file": "07-post-caption",
+          "label": "Post - caption"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-bio-empty",
+          "label": "Bio - empty"
+        },
+        {
+          "file": "ref-02-bio-filled",
+          "label": "Bio - filled"
+        },
+        {
+          "file": "ref-03-profile",
+          "label": "Profile"
+        },
+        {
+          "file": "ref-04-post-empty",
+          "label": "Post - empty"
+        },
+        {
+          "file": "ref-05-post-keyboard",
+          "label": "Post - keyboard"
+        },
+        {
+          "file": "ref-06-post-hashtags",
+          "label": "Post - hashtags"
+        },
+        {
+          "file": "ref-07-post-caption",
+          "label": "Post - caption"
+        }
+      ]
+    },
+    {
+      "title": "TikTok: the For You feed",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-for-you",
+          "label": "For You"
+        },
+        {
+          "file": "02-scrubbing",
+          "label": "Scrubbing"
+        },
+        {
+          "file": "03-scrub-released",
+          "label": "Scrub released"
+        },
+        {
+          "file": "04-playing",
+          "label": "Playing"
+        },
+        {
+          "file": "05-pull-to-refresh",
+          "label": "Pull to refresh"
+        },
+        {
+          "file": "06-next-post",
+          "label": "Next post"
+        },
+        {
+          "file": "07-caption-expanded",
+          "label": "Caption expanded"
+        },
+        {
+          "file": "08-caption-collapsed",
+          "label": "Caption collapsed"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: Mobbin captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-for-you",
+          "label": "For You"
+        },
+        {
+          "file": "ref-02-scrubbing",
+          "label": "Scrubbing"
+        },
+        {
+          "file": "ref-03-scrub-released",
+          "label": "Scrub released"
+        },
+        {
+          "file": "ref-04-playing",
+          "label": "Playing"
+        },
+        {
+          "file": "ref-05-pull-to-refresh",
+          "label": "Pull to refresh"
+        },
+        {
+          "file": "ref-06-next-post",
+          "label": "Next post"
+        },
+        {
+          "file": "ref-07-caption-expanded",
+          "label": "Caption expanded"
+        },
+        {
+          "file": "ref-08-caption-collapsed",
+          "label": "Caption collapsed"
+        }
+      ]
+    }
+  ]
+}
