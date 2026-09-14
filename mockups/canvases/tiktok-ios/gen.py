@@ -842,7 +842,7 @@ def layout(names):
                          for n, _ in feed.evidence_boards()]}]
     rows += _run_rows("TikTok: bio and caption", SCREENS, names)
     rows += _run_rows("TikTok: the For You feed", feed.SCREENS, names)
-    return {"name": PAGE_NAME, "rows": rows}
+    return {"name": PAGE_NAME, "cover": "03-profile", "rows": rows}
 
 
 def main():
