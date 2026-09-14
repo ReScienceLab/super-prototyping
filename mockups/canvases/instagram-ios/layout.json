@@ -9,11 +9,23 @@
           "label": "Design tokens"
         },
         {
+          "file": "00a-design-tokens",
+          "label": "Design tokens"
+        },
+        {
           "file": "00b-evidence",
           "label": "Evidence"
         },
         {
           "file": "00c-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00d-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00e-evidence",
           "label": "Evidence"
         }
       ]
@@ -53,6 +65,34 @@
         {
           "file": "08-agnezmo",
           "label": "AGNEZ MO"
+        },
+        {
+          "file": "09-feed-switcher",
+          "label": "Feed switcher"
+        },
+        {
+          "file": "10-following-feed",
+          "label": "Following feed"
+        },
+        {
+          "file": "11-favorites-empty",
+          "label": "Favorites, empty"
+        },
+        {
+          "file": "12-favorites-feed",
+          "label": "Favorites feed"
+        },
+        {
+          "file": "13-reels-toast",
+          "label": "Reels, fullscreen, toast"
+        },
+        {
+          "file": "14-reels-fullscreen",
+          "label": "Reels, fullscreen"
+        },
+        {
+          "file": "15-yilin0xx",
+          "label": "yilin0xx, live"
         }
       ]
     },
@@ -91,6 +131,82 @@
         {
           "file": "ref-08-agnezmo",
           "label": "AGNEZ MO"
+        },
+        {
+          "file": "ref-09-feed-switcher",
+          "label": "Feed switcher"
+        },
+        {
+          "file": "ref-10-following-feed",
+          "label": "Following feed"
+        },
+        {
+          "file": "ref-11-favorites-empty",
+          "label": "Favorites, empty"
+        },
+        {
+          "file": "ref-12-favorites-feed",
+          "label": "Favorites feed"
+        },
+        {
+          "file": "ref-13-reels-toast",
+          "label": "Reels, fullscreen, toast"
+        },
+        {
+          "file": "ref-14-reels-fullscreen",
+          "label": "Reels, fullscreen"
+        }
+      ]
+    },
+    {
+      "title": "Home-screen widgets",
+      "numbered": true,
+      "files": [
+        {
+          "file": "16-widget-messages",
+          "label": "Messages"
+        },
+        {
+          "file": "17-widget-stories",
+          "label": "Stories"
+        },
+        {
+          "file": "18-widget-reels",
+          "label": "Suggested reels"
+        },
+        {
+          "file": "19-widget-shortcuts",
+          "label": "Shortcuts"
+        },
+        {
+          "file": "20-widget-search",
+          "label": "Search"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: widget captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-16-widget-messages",
+          "label": "Messages"
+        },
+        {
+          "file": "ref-17-widget-stories",
+          "label": "Stories"
+        },
+        {
+          "file": "ref-18-widget-reels",
+          "label": "Suggested reels"
+        },
+        {
+          "file": "ref-19-widget-shortcuts",
+          "label": "Shortcuts"
+        },
+        {
+          "file": "ref-20-widget-search",
+          "label": "Search"
         }
       ]
     },
