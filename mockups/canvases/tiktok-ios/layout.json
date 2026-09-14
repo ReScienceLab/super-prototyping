@@ -178,6 +178,1033 @@
           "label": "Caption collapsed"
         }
       ]
+    },
+    {
+      "title": "Logo & wordmark",
+      "images": [
+        {
+          "file": "assets/brand/identity/wordmark-black.png",
+          "label": "Icon + wordmark lockup, horizontal, black (tag mark)",
+          "w": 1600,
+          "h": 656,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/wordmark-color.svg",
+          "label": "Wordmark, brand colours (SVG)",
+          "w": 118,
+          "h": 30,
+          "source": "https://www.tiktok.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/wordmark-horizontal-black.png",
+          "label": "Icon + wordmark lockup, horizontal, black",
+          "w": 1600,
+          "h": 667,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/wordmark-horizontal-white.png",
+          "label": "Icon + wordmark lockup, horizontal, white",
+          "w": 1600,
+          "h": 667,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/wordmark-stacked-black.png",
+          "label": "Icon + wordmark lockup, stacked, black",
+          "w": 1600,
+          "h": 1599,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/wordmark-stacked-white.png",
+          "label": "Icon + wordmark lockup, stacked, white",
+          "w": 869,
+          "h": 770,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/wordmark-stacked-white-official.png",
+          "label": "Icon + wordmark lockup, stacked, white (official mark)",
+          "w": 1600,
+          "h": 1599,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/wordmark-brandhub-dark.jpg",
+          "label": "Wordmark lockup on black, Brand Hub",
+          "w": 1600,
+          "h": 304,
+          "source": "https://www.tiktokbrandhub.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/icon-circle-black.png",
+          "label": "App icon mark, circular badge, black",
+          "w": 1200,
+          "h": 1200,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/icon-square-black.png",
+          "label": "App icon mark, square badge, black",
+          "w": 1200,
+          "h": 1200,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logomark-512.png",
+          "label": "Logomark (musical note), 512px",
+          "w": 512,
+          "h": 512,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logomark-tag-black.png",
+          "label": "Logomark with wordmark tag, black",
+          "w": 1600,
+          "h": 1599,
+          "source": "https://developers.tiktok.com/docs/en/getting-started-design-guidelines",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Typeface",
+      "images": [
+        {
+          "file": "assets/brand/identity/typeface-brandhub-specimen.jpg",
+          "label": "\"Our custom typeface, TikTok Sans\" \u2014 headline specimen",
+          "w": 1502,
+          "h": 560,
+          "source": "https://www.tiktokbrandhub.com/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Art direction",
+      "images": [
+        {
+          "file": "assets/brand/identity/art-direction-brandhub-flowers.jpg",
+          "label": "Art direction \u2014 Spark shape over floral bouquet photography",
+          "w": 1600,
+          "h": 900,
+          "source": "https://www.tiktokbrandhub.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-brandhub-pottery.jpg",
+          "label": "Art direction \u2014 Spark shape over pottery-wheel photography",
+          "w": 1600,
+          "h": 900,
+          "source": "https://www.tiktokbrandhub.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-brandhub-margarita.jpg",
+          "label": "Art direction \u2014 Spark shape over lifestyle portrait photography",
+          "w": 1600,
+          "h": 900,
+          "source": "https://www.tiktokbrandhub.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-brandhub-dance.jpg",
+          "label": "Art direction \u2014 Spark shape over dance and textile photography",
+          "w": 1600,
+          "h": 900,
+          "source": "https://www.tiktokbrandhub.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-brandhub-surfer.jpg",
+          "label": "Art direction \u2014 Spark outline over surf lifestyle photography",
+          "w": 1600,
+          "h": 900,
+          "source": "https://www.tiktokbrandhub.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-direction-brandhub-cat.jpg",
+          "label": "Art direction \u2014 Spark outline over pet photography",
+          "w": 1203,
+          "h": 1600,
+          "source": "https://www.tiktokbrandhub.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logomark-3d-render.jpg",
+          "label": "Art direction \u2014 3D-rendered logomark, default newsroom share-card art",
+          "w": 688,
+          "h": 550,
+          "source": "https://newsroom.tiktok.com/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/applied-identity-web-app.png",
+          "label": "Applied identity \u2014 tiktok.com web app interface",
+          "w": 1502,
+          "h": 852,
+          "source": "https://www.tiktok.com/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-avatar.jpg",
+          "label": "X avatar, @tiktok_us",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/tiktok_us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-banner.jpg",
+          "label": "X header banner, @tiktok_us",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/tiktok_us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-01.jpg",
+          "label": "X post \u2014 TikTok Year in Music 2025, #1 Global Artist KATSEYE",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://x.com/tiktok_us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-02.png",
+          "label": "X post \u2014 TikTok Year in Music 2025, Top 10 Artists Global",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://x.com/tiktok_us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-03.png",
+          "label": "X post \u2014 TikTok Year in Music 2025, Top Song US chart",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://x.com/tiktok_us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-04.jpg",
+          "label": "X post \u2014 TikTok Year in Music 2025, #1 US Song \"Pretty Little Baby\"",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://x.com/tiktok_us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-05.jpg",
+          "label": "X post \u2014 TikTok Awards, \"New Era, New Icons\"",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/tiktok_us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-06.png",
+          "label": "X post \u2014 Music Year on TikTok 2024, Top 10 Songs US",
+          "w": 1600,
+          "h": 1598,
+          "source": "https://x.com/tiktok_us",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-07.png",
+          "label": "X post \u2014 Music Year on TikTok 2024, Top 10 Artists US",
+          "w": 1600,
+          "h": 1598,
+          "source": "https://x.com/tiktok_us",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/instagram-avatar.jpg",
+          "label": "Instagram avatar, @tiktok",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.instagram.com/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-reel-01.jpg",
+          "label": "Instagram Reel cover \u2014 \"Golden Rules\" with @ourfilipinograndma",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-reel-02.jpg",
+          "label": "Instagram Reel cover \u2014 \"My LIVE My Story\"",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-reel-03.jpg",
+          "label": "Instagram Reel cover \u2014 \"Search Files\" with @alexwarren",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-reel-04.jpg",
+          "label": "Instagram Reel cover \u2014 \"Hey it's Mischa\"",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-reel-05.jpg",
+          "label": "Instagram Reel cover \u2014 TikTok Premiere, Songs of the Summer",
+          "w": 480,
+          "h": 852,
+          "source": "https://www.instagram.com/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-reel-06.jpg",
+          "label": "Instagram Reel cover \u2014 Katy Perry, Songs of the Summer",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-reel-07.jpg",
+          "label": "Instagram Reel cover \u2014 \"Behind the Breakthrough with Bella Kay\" (1)",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-reel-08.jpg",
+          "label": "Instagram Reel cover \u2014 \"Behind the Breakthrough with Bella Kay\" (2)",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/tiktok/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tiktok-avatar.jpg",
+          "label": "TikTok avatar, @tiktok",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.tiktok.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-01.jpg",
+          "label": "TikTok video cover \u2014 Katy Perry, Songs of the Summer",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-02.jpg",
+          "label": "TikTok video cover \u2014 TikTok Premiere, Songs of the Summer",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-03.jpg",
+          "label": "TikTok video cover \u2014 \"Hey it's Mischa\"",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-04.jpg",
+          "label": "TikTok video cover \u2014 \"I'm here with TikTok\" with @alexwarren",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-05.jpg",
+          "label": "TikTok video cover \u2014 \"Golden Rules\" with @ourfilipinograndma",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-06.jpg",
+          "label": "TikTok video cover \u2014 two creators on a couch",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-video-07.jpg",
+          "label": "TikTok video cover \u2014 \"Behind the Breakthrough with Bella Kay\"",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@tiktok",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/youtube-banner.jpg",
+          "label": "YouTube channel banner \u2014 #STEMTok",
+          "w": 1138,
+          "h": 188,
+          "source": "https://www.youtube.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-short-01.jpg",
+          "label": "YouTube Short thumbnail \u2014 \"My LIVE My Story\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-short-02.jpg",
+          "label": "YouTube Short thumbnail \u2014 creator portrait, dark set",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-short-03.jpg",
+          "label": "YouTube Short thumbnail \u2014 \"Behind the Breakthrough\" interview",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-short-04.jpg",
+          "label": "YouTube Short thumbnail \u2014 TikTok Awards broadcast, backstage interview",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-short-05.jpg",
+          "label": "YouTube Short thumbnail \u2014 fishing boat scene",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-short-06.jpg",
+          "label": "YouTube Short thumbnail \u2014 style reveal, before to present",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@tiktok",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-short-07.jpg",
+          "label": "YouTube Short thumbnail \u2014 clothing store fitting room",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/@tiktok",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/linkedin-avatar.jpg",
+          "label": "LinkedIn avatar",
+          "w": 200,
+          "h": 200,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-banner.jpg",
+          "label": "LinkedIn cover banner \u2014 \"Do great things with great people\"",
+          "w": 1128,
+          "h": 191,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-01.jpg",
+          "label": "LinkedIn post \u2014 \"Use the product\", employee culture post",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-02.jpg",
+          "label": "LinkedIn post \u2014 employee portrait in TikTok-branded shirt",
+          "w": 852,
+          "h": 1280,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-03.jpg",
+          "label": "LinkedIn post \u2014 close-up of phone in hand",
+          "w": 720,
+          "h": 1280,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-04.jpg",
+          "label": "LinkedIn post \u2014 TikTok and The Walt Disney Company lockup",
+          "w": 800,
+          "h": 450,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-05.jpg",
+          "label": "LinkedIn post \u2014 employee at desk in office",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-06.jpg",
+          "label": "LinkedIn post \u2014 employee on rooftop patio",
+          "w": 720,
+          "h": 1280,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-07.jpg",
+          "label": "LinkedIn post \u2014 in-app search UI mockup",
+          "w": 720,
+          "h": 1280,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-08.jpg",
+          "label": "LinkedIn post \u2014 \"Over 1.2 trillion views on World Cup content on TikTok\"",
+          "w": 165,
+          "h": 165,
+          "source": "https://www.linkedin.com/company/tiktok/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.jpg",
+          "label": "App Store icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-01.jpg",
+          "label": "App Store iPad screenshot \u2014 \"Videos for every mood\"",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-02.jpg",
+          "label": "App Store iPad screenshot \u2014 \"Landscape mode is here\"",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-03.jpg",
+          "label": "App Store iPad screenshot \u2014 \"Instantly entertaining\"",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-04.jpg",
+          "label": "App Store iPad screenshot \u2014 \"Personalized video feed\"",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-01.png",
+          "label": "App Store iPhone screenshot \u2014 \"Sharing Moments Together\" hero",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-02.png",
+          "label": "App Store iPhone screenshot \u2014 \"Be the first to discover\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-03.png",
+          "label": "App Store iPhone screenshot \u2014 \"Share videos with your favourite person\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-04.png",
+          "label": "App Store iPhone screenshot \u2014 \"Find recipes for every season\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-05.png",
+          "label": "App Store iPhone screenshot \u2014 \"Use words to create AI-generated artwork\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-06.png",
+          "label": "App Store iPhone screenshot \u2014 \"Follow your favourite teams\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-07.png",
+          "label": "App Store iPhone screenshot \u2014 \"Watch what you love\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/tiktok-videos-shop-live/id835599320",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/googleplay-icon.png",
+          "label": "Google Play icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-01.jpg",
+          "label": "Google Play screenshot \u2014 \"Sharing moments together\" hero",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-02.jpg",
+          "label": "Google Play screenshot \u2014 \"Explore the world\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-03.jpg",
+          "label": "Google Play screenshot \u2014 \"Find inspiration on LIVE\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-04.jpg",
+          "label": "Google Play screenshot \u2014 \"Enjoy TikTok anywhere with offline videos\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-05.jpg",
+          "label": "Google Play screenshot \u2014 \"Join Slash & Free, Get Free Products\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-06.jpg",
+          "label": "Google Play screenshot \u2014 \"Watch immersive drama\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-07.jpg",
+          "label": "Google Play screenshot \u2014 \"Shop on TikTok\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-08.jpg",
+          "label": "Google Play screenshot \u2014 \"Make your own AI-generated videos\"",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-09.jpg",
+          "label": "Google Play screenshot \u2014 \"Made for multi-tasking\"",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-10.jpg",
+          "label": "Google Play screenshot \u2014 \"Watch and gift creators\"",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-11.jpg",
+          "label": "Google Play screenshot \u2014 \"Discover more at once\"",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/googleplay-screenshot-12.jpg",
+          "label": "Google Play screenshot \u2014 \"A bigger profile view\"",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Microsoft Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/msstore-screenshot-01.jpg",
+          "label": "Microsoft Store screenshot \u2014 For You feed, creator profile \"photodiaries.freya\"",
+          "w": 1366,
+          "h": 768,
+          "source": "https://apps.microsoft.com/detail/9nh2gph4jzs4",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-02.jpg",
+          "label": "Microsoft Store screenshot \u2014 creator profile \"peterperks\"",
+          "w": 1366,
+          "h": 768,
+          "source": "https://apps.microsoft.com/detail/9nh2gph4jzs4",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-03.jpg",
+          "label": "Microsoft Store screenshot \u2014 creator profile \"west.iam.stripes\"",
+          "w": 1366,
+          "h": 768,
+          "source": "https://apps.microsoft.com/detail/9nh2gph4jzs4",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-04.jpg",
+          "label": "Microsoft Store screenshot \u2014 profile and search results split view",
+          "w": 1366,
+          "h": 768,
+          "source": "https://apps.microsoft.com/detail/9nh2gph4jzs4",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-05.jpg",
+          "label": "Microsoft Store screenshot \u2014 video playback with comments",
+          "w": 1366,
+          "h": 768,
+          "source": "https://apps.microsoft.com/detail/9nh2gph4jzs4",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/ads/announcement-card-01.png",
+          "label": "Announcement \u2014 TikTok returns to TIFF",
+          "w": 1280,
+          "h": 720,
+          "source": "https://newsroom.tiktok.com/tiktok-returns-to-tiff-celebrating-the-creators-and-fans-shaping-film-fandom?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-02.png",
+          "label": "Announcement \u2014 TikTok and NFL renew partnership",
+          "w": 688,
+          "h": 550,
+          "source": "https://newsroom.tiktok.com/tiktok-and-nfl-renew-partnership-with-multiyear-agreement-to-bring-global-fans-closer-to-football?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-03.png",
+          "label": "Announcement \u2014 Songs of the Summer, Katy Perry \"The One That Got Away\"",
+          "w": 578,
+          "h": 593,
+          "source": "https://newsroom.tiktok.com/tiktoks-global-and-us-song-of-the-summer-2026-katy-perrys-the-one-that-got-away?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-04.png",
+          "label": "Announcement \u2014 \"Behind the Breakthrough\" with Bella Kay",
+          "w": 578,
+          "h": 592,
+          "source": "https://newsroom.tiktok.com/tiktok-goes-behind-the-breakthrough-with-bella-kay?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-05.png",
+          "label": "Announcement \u2014 Alex Warren, TikTok LIVE Wildchild Experience",
+          "w": 688,
+          "h": 550,
+          "source": "https://newsroom.tiktok.com/alex-warren-tiktok-live-wildchild-experience?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-06.png",
+          "label": "Announcement \u2014 MPA and ByteDance IP protection agreement",
+          "w": 688,
+          "h": 550,
+          "source": "https://newsroom.tiktok.com/mpa-and-bytedance-announce-global-agreement-to-protect-intellectual-property-on-ai-video-and-image-generation-models?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-07.png",
+          "label": "Announcement \u2014 KATSEYE \"Wild\" EP fan experience",
+          "w": 688,
+          "h": 550,
+          "source": "https://newsroom.tiktok.com/tiktok-celebrates-katseyes-new-ep-wild-with-exclusive-fan-experience?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-08.jpg",
+          "label": "Announcement \u2014 TikTok and FIFA reach preferred platform agreement",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.tiktok.com/tiktok-fifa-reach-preferred-platform-agreement?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-09.jpg",
+          "label": "Announcement \u2014 TikTok and ICC partner on small-business initiative",
+          "w": 1600,
+          "h": 900,
+          "source": "https://newsroom.tiktok.com/tiktok-and-international-chamber-of-commerce-partner-on-global-initiative-to-empower-small-businesses-and-drive-economic-growth?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-10.jpg",
+          "label": "Announcement \u2014 TikTok and LaLiga extend partnership",
+          "w": 740,
+          "h": 416,
+          "source": "https://newsroom.tiktok.com/tiktok-and-laliga-extend-their-partnership-agreement-to-bring-spanish-soccer-to-the-global-tiktok-community?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/announcement-card-11.jpg",
+          "label": "Announcement \u2014 TikTok and FIS extend wintersport partnership",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://newsroom.tiktok.com/tiktok-and-the-international-ski-and-snowboard-federation-fis-extend-partnership-to-bring-the-thrill-of-wintersport-to-the-global-community?lang=en",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-01.jpg",
+          "label": "App-install ad \u2014 \"Turn on notifications\" prompt creative",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-02.jpg",
+          "label": "App-install ad \u2014 \"For You\" memories prompt creative",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-03.jpg",
+          "label": "App-install ad \u2014 \"New message from a friend\" prompt creative",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-04.jpg",
+          "label": "App-install ad \u2014 \"Rarely known!\" fun-fact creative",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-05.jpg",
+          "label": "App-install ad \u2014 \"You were mentioned in a comment\" prompt creative",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-06.jpg",
+          "label": "App-install ad \u2014 \"New message!\" prompt creative",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-07.jpg",
+          "label": "App-install ad \u2014 \"What would you look like as a model?\" AI filter creative",
+          "w": 1280,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-08.jpg",
+          "label": "App-install ad \u2014 trending nature-video collage creative",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-09.jpg",
+          "label": "App-install ad \u2014 \"Your post started a debate\" prompt creative",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-tiktok-10.jpg",
+          "label": "App-install ad \u2014 \"Jenny Miller wants to add you as a friend\" prompt creative",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.facebook.com/ads/library/?view_all_page_id=100083860366075",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Press photography",
+      "images": [
+        {
+          "file": "assets/brand/press/press-apec-ceo-summit-2025.jpg",
+          "label": "TikTok executive speaking at APEC CEO Summit Korea 2025",
+          "w": 1600,
+          "h": 796,
+          "source": "https://newsroom.tiktok.com/apec-2025-newsroom-post?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-katseye-fan-experience.jpg",
+          "label": "KATSEYE with TikTok at exclusive fan experience event",
+          "w": 1042,
+          "h": 696,
+          "source": "https://newsroom.tiktok.com/tiktok-celebrates-katseyes-new-ep-wild-with-exclusive-fan-experience?lang=en",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-community-fest-26.jpg",
+          "label": "Live crowd and stage at TikTok Community FEST 26, Santa Monica",
+          "w": 1600,
+          "h": 899,
+          "source": "https://newsroom.tiktok.com/tiktok-live-spotlights-creators-at-community-fest-event-in-santa-monica-with-special-performance-by-tinashe?lang=en",
+          "provenance": "theirs"
+        }
+      ]
     }
   ]
 }

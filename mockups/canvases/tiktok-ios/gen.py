@@ -33,6 +33,7 @@ import feed
 OUT = Path(__file__).resolve().parent
 ART_DIR = OUT / "assets" / "art"
 REFS_DIR = OUT / "assets" / "refs"
+BRAND_DIR = OUT / "assets" / "brand"
 CROPS = json.loads((OUT / "crops.json").read_text())
 
 NAME = "TikTok"
@@ -817,7 +818,7 @@ def ref_boards():
 
 
 # ----------------------------------------------------------------- main ----
-def _run_rows(title, screens, names):
+def _run_rows(title, screens):
     """A run's screens and, under them, the captures they were measured from.
     The canvas lays every row out from x = 0 at one pitch, so the two rows stay
     in the same order and item N lands column-for-column over its own capture.
@@ -825,23 +826,25 @@ def _run_rows(title, screens, names):
     above 15 captures would line up with nothing."""
     rows = [{"title": title, "numbered": True,
              "files": [{"file": s, "label": l} for s, l, _ in screens]}]
-    refs = [{"file": "ref-" + s, "label": l}
-            for s, l, _ in screens if "ref-" + s in names]
-    if refs:
-        rows.append({"title": "Source of truth: Mobbin captures",
-                     "numbered": True, "files": refs})
+    # declared even though ref-*.html is gitignored: the canvas skips a row
+    # entry whose file is absent and drops the row when none of them resolve,
+    # so this one file is the same on a clean checkout as it is beside the
+    # captures -- which is what makes `python3 gen.py` a no-op either way
+    rows.append({"title": "Source of truth: Mobbin captures", "numbered": True,
+                 "files": [{"file": "ref-" + s, "label": l} for s, l, _ in screens]})
     return rows
 
 
-def layout(names):
+def layout():
     rows = [{"title": "Foundations",
              "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
                       + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]
                       + [{"file": "00d-feed-tokens", "label": "Feed tokens"}]
                       + [{"file": n, "label": "Evidence"}
                          for n, _ in feed.evidence_boards()]}]
-    rows += _run_rows("TikTok: bio and caption", SCREENS, names)
-    rows += _run_rows("TikTok: the For You feed", feed.SCREENS, names)
+    rows += _run_rows("TikTok: bio and caption", SCREENS)
+    rows += _run_rows("TikTok: the For You feed", feed.SCREENS)
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
     return {"name": PAGE_NAME, "cover": "03-profile", "rows": rows}
 
 
@@ -857,8 +860,8 @@ def main():
     files.update(both)
     for name in sorted(files):
         write(name, files[name])
-    (OUT / "layout.json").write_text(json.dumps(layout(files), indent=2) + "\n")
-    print("%-24s %6d rows" % ("layout.json", len(layout(files)["rows"])))
+    (OUT / "layout.json").write_text(json.dumps(layout(), indent=2) + "\n")
+    print("%-24s %6d rows" % ("layout.json", len(layout()["rows"])))
     print("\nnext: refkit tokens", OUT)
 
 
