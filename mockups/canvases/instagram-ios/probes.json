@@ -300,6 +300,15 @@
   "_": "c09 popover ground at its bottom right, below the Favorites label's descenders (ink ends 208.6) and inside the 20pt corner. One cell of the lattice POP is fitted to, so it checks the fit where it is furthest from the base colour"
  },
  {
+  "id": "pop-rim",
+  "img": "assets/refs/c09.png",
+  "mine": "09-feed-switcher.png",
+  "cmd": "sample",
+  "box": [142.33, 111.0, 250, 111.33],
+  "only": "flat",
+  "_": "c09 popover's specular rim, its second device row along the top edge, 20pt in from each corner. Walking in from the edge the rim reads white over the ground at alpha .87/.75/.74 on the top, .95/.66/.56 on the left, .69/.38/.43 on the right and .55/.34/.25 on the bottom, and is gone by the fourth device px (scratch/poprim2.py)"
+ },
+ {
   "id": "menu",
   "img": "assets/refs/c09.png",
   "mine": "09-feed-switcher.png",

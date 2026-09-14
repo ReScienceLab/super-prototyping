@@ -70,11 +70,11 @@ photographs plus a story ring, and every ring, badge and view count set over
 those photographs is drawn live rather than cropped. 02 beats 01 by 1.4 on
 the same account for one reason: it has no ring and no highlights.
 
-`refkit batch probes.json --pt 3 --against scratch/mine` replays all 38
-Phase-1 probes against the renders: **23 colour probes at a mean Δmax of
+`refkit batch probes.json --pt 3 --against scratch/mine` replays all 39
+Phase-1 probes against the renders: **24 colour probes at a mean Δmax of
 2.3**, 13 box probes at a mean |dw| of 0.38 pt and |dh| of 0.10 pt, and 2 edge
 scans inside a third of a point. Seven of the 13 box probes are exact on both
-axes, and thirteen of the 23 colour probes are exact.
+axes, and thirteen of the 24 colour probes are exact.
 
 Two colour probes are the known ones and not errors. `link` reads Δ 19 and
 `ink-nav` Δ 6 because **iOS stem-darkens text**: the darkest 2% of a glyph
@@ -150,7 +150,7 @@ resampling and the capture's own JPEG, and they are worth it: a crop of a
 86 pt circle is 258 px of a logo that exists at 1080. **agnezmo's avatar
 stays a crop**, because the live picture is a different photograph now.
 
-## The one surface that had to be fitted
+## The one surface that had to be fitted, and its edge
 
 The feed switcher's popover is a heavy blur of the story rail behind it, and
 nothing of that rail survives under it to blur: ring 2's photograph is wholly
@@ -167,6 +167,26 @@ rounded corners masked out. It lands at a mean |d| of 4.68 over the 75.5% of
 the popover that is ground, and it took board 09 from 3.27 to 2.98.
 `scratch/popfit.py` is the solve; the `pop` probe checks one lattice cell at
 the bottom right, furthest from the base colour, and reads Δ 3.
+
+That settled the ground and left the edge. Walking in from the popover's
+border, the capture reads white over that ground at alpha .87/.75/.74 along
+the top, .95/.66/.56 on the left, .69/.38/.43 on the right and .55/.34/.25
+along the bottom, and is back to the ground by the fourth device px
+(`scratch/poprim2.py`) — a two-px specular rim, lit from the top left, which
+is the one part of the glass material the board was not drawing at all. It
+ships as three inset shadows at .67pt: a .40 ring with .55 over it on the top
+and the left. Measured against the alternatives (`scratch/poprim3.py`), that
+takes the six-px border band from Δ 14.71 to 12.57, where a uniform ring at
+its own best alpha of .60 gets 13.05, and board 09 from 6.13 to 6.12. The
+`pop-rim` probe reads the rim's own row, Δ 4.
+
+A `backdrop-filter` was measured rather than assumed, because the board does
+draw the rings the capture's popover covers, and so unlike the capture it has
+real pixels under there to blur. `scratch/popcmp.py` swept blur 12/20/30 ×
+white 0 to .30 × saturate 100/180/300 against the same mask. The best of the
+36, blur 20 with no tint at all, reaches 8.80 where the fitted stack is at
+4.73; every tint above zero is worse, and blur radius barely moves it. The
+gradients stay.
 
 ## Board 15 carries an account, not a capture
 

@@ -520,7 +520,8 @@ svg{position:absolute;display:block}
   border:1px solid rgba(255,255,255,.5)}
 .cta{position:absolute;height:44px;border-radius:var(--x-r-cta);background:var(--x-accent-2)}
 .pop{position:absolute;border-radius:var(--x-r-pop);background:var(--x-pop);
-  box-shadow:0 2px 10px rgba(0,0,0,.16)}
+  box-shadow:0 2px 10px rgba(0,0,0,.16),inset 0 0 0 .67px rgba(255,255,255,.4),
+    inset 0 .67px 0 rgba(255,255,255,.55),inset .67px 0 0 rgba(255,255,255,.55)}
 .toast{position:absolute;border-radius:var(--x-r-toast);background:var(--x-toast)}
 .prog{position:absolute;left:0;top:767px;width:var(--x-w);height:1.67px;background:var(--x-track)}
 .prog i{position:absolute;left:0;top:0;height:1.67px;background:var(--x-played)}"""
