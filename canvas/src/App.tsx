@@ -682,8 +682,8 @@ function linkShapeId(name: string) {
  * navigate anything.
  *
  * Cover art is the folder's first screen rather than its 00- board, which is a token sheet on
- * every example and would make five identical-looking cards. The cards sit in two rows, Apple's
- * own apps and everything else.
+ * every example and would make five identical-looking cards. The cards sit in four rows: two
+ * of example apps grouped by what the app is for, then Apple's own apps, then the template.
  */
 function layoutWelcomeExtras(
   editor: Editor,
@@ -701,22 +701,45 @@ function layoutWelcomeExtras(
   if (editor.getShape(starId)) deleteLibraryShapes(editor, [starId]);
   if (!targets.length) return;
 
-  // Two rows, because twelve cards in one row read as a list of twelve unrelated things: the
-  // apps this repo cloned first, Apple's own second. A card's id is its slug, so a folder that
-  // changes group moves on the next force refresh rather than turning into a second card.
-  // The top row is the cloned apps. Apple's own, and the empty folder you copy to start one,
-  // are the row under it: neither is an app someone came here to look at.
-  const isSecondRow = (files: CanvasLibraryFile[]) =>
-    files[0].pageSlug.startsWith("apple-") || files[0].pageSlug === "templates";
+  // Four rows, because twenty-one cards in one row read as a list of twenty-one unrelated
+  // things. Two rows of cloned apps split by what the app is for, then Apple's own, then the
+  // empty template on its own: it is the one card that is not an app to look at but a folder
+  // to copy, and a row of one says that where a seat at the end of the Apple row did not. A
+  // card's id is its slug, so a folder that changes row moves on the next force refresh
+  // rather than turning into a second card.
+  //
+  // Both orders are by hand rather than alphabetical, which wedged Duolingo between Claude and
+  // Grok. A slug named in neither list still shows, at the end of the first row, so a new
+  // folder is never silently dropped; the last row has no list, so it keeps library order.
+  const ROWS = [
+    ["snapaction-ios", "chatgpt-ios", "claude-ios", "grok-ios", "notion-ios",
+     "raycast-ios", "luma-ios"],
+    ["instagram-ios", "tiktok-ios", "x-ios", "substack-ios", "spotify-ios", "duolingo-ios"],
+  ];
+  const rowOf = (slug: string) => {
+    if (slug === "templates") return 3;
+    if (slug.startsWith("apple-")) return 2;
+    const found = ROWS.findIndex((row) => row.includes(slug));
+    return found === -1 ? 0 : found;
+  };
+  const inRow = (index: number) => {
+    const order = ROWS[index] ?? [];
+    const rank = (files: CanvasLibraryFile[]) => {
+      const at = order.indexOf(files[0].pageSlug);
+      return at === -1 ? order.length : at;
+    };
+    return targets
+      .filter((files) => rowOf(files[0].pageSlug) === index)
+      .sort((a, b) => rank(a) - rank(b));
+  };
   const groups = [
     {
-      title: "Examples: iOS apps. Click a card to open its canvas",
-      targets: targets.filter((files) => !isSecondRow(files)),
+      title: "Examples: AI assistants and productivity tools. Click a card to open its canvas",
+      targets: inRow(0),
     },
-    {
-      title: "Examples: Apple's own apps, and the empty folder to copy",
-      targets: targets.filter(isSecondRow),
-    },
+    { title: "Examples: social, media and learning apps", targets: inRow(1) },
+    { title: "Examples: Apple's own apps", targets: inRow(2) },
+    { title: "The empty folder to copy to start your own", targets: inRow(3) },
   ];
 
   // Headings are keyed by row, not by their own text: keyed by text, renaming one left the old
@@ -792,9 +815,13 @@ function layoutWelcomeExtras(
       text: group.title,
       x: 0,
       y: top,
-      w:
-        group.targets.length * CANVAS_LINK_CARD_SIZE.w +
-        (group.targets.length - 1) * LIBRARY_GAP,
+      // A heading is as wide as the row it labels, so it wraps at the last card rather than
+      // running out over the canvas. Floored at three cards: the row holding only the empty
+      // template is one card wide, and a heading that narrow wraps to a word a line.
+      w: (() => {
+        const cols = Math.max(group.targets.length, 3);
+        return cols * CANVAS_LINK_CARD_SIZE.w + (cols - 1) * LIBRARY_GAP;
+      })(),
       size: "l",
       color: "white",
       parentId: page.id,
