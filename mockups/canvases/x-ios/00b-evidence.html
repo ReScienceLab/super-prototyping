@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>X iOS - Evidence 1/3</title>
+<title>X iOS - Evidence 1/4</title>
 <style>
 :root{
   /* Font */
@@ -19,10 +19,13 @@
   --x-disc-7:rgba(0,0,0,.57);
   --x-scrim:rgba(0,0,0,.28);
   --x-backdrop:#000000;
+  --x-track-on:#01BA7B;
+  --x-track-off:#E9E9E9;
   --x-nav:linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%);
 
   /* Line */
   --x-hairline:#D2D4D6;
+  --x-hairline-2:#C6C6C6;
   --x-border:#D0D8DC;
   --x-ring:#BAC9D0;
 
@@ -39,6 +42,7 @@
   --x-r-phone:52px;
   --x-r-pill:26px;
   --x-r-field:17px;
+  --x-r-search:19.5px;
   --x-r-card:16px;
   --x-r-play:16.5px;
   --x-r-chip:4px;
@@ -49,6 +53,7 @@
   --x-w:393px;
   --x-h:852px;
   --x-status:54px;
+  --x-dim:.31;
 
   /* Type */
   --x-tr-text:-0.035em;
@@ -59,7 +64,9 @@
   --x-t-card:700 19px/24px var(--x-font);
   --x-t-field:400 18.5px/24px var(--x-font);
   --x-t-sheet:700 18.5px/24px var(--x-font);
+  --x-t-sect:800 19.3px/24px var(--x-font);
   --x-t-save:700 17.5px/22px var(--x-font);
+  --x-t-head:800 18.25px/22px var(--x-font);
   --x-t-btn:700 16.5px/21px var(--x-font);
   --x-t-body:400 16px/21px var(--x-font);
   --x-t-date:700 16px/21px var(--x-font);
@@ -70,6 +77,7 @@
   --x-t-meta:400 13.5px/19px var(--x-font);
   --x-t-host:800 14.5px/18px var(--x-font);
   --x-t-count:400 14px/19px var(--x-font);
+  --x-t-badge:400 12.5px/16px var(--x-font);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -118,6 +126,6 @@ td.v{color:var(--x-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--x-ink-2)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 1/3</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--x-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">Every size in Type was fitted by ink width against SF Pro rendered at 8x and lands within 0.4px of the capture: 07 'Movie review' 157.67 measured against 157.62 drawn at Heavy 25.5. X's own Chirp is not on the device</td></tr><tr><td class="t">--x-ground</td><td class="v">#FFFFFF</td><td class="e">06 the empty band between its hairlines at 664.67 and 697.00, x 4-389 y 668-694: #FFFFFF on 100% of the pixels; 06 the bio row's right half (x 200-389 y 355-438) the same</td></tr><tr><td class="t">--x-field</td><td class="v">#EFF3F4</td><td class="e">02 the search field's interior right of the placeholder (ends 189.7) and inside the 34pt box at y 260-294: flat #EFF3F4</td></tr><tr><td class="t">--x-spaces</td><td class="v">#7856FE</td><td class="e">07 the Spaces card, x 61.33-384.00 y 477.67-691.67, sampled between 'Movie review' (ends 552) and the play row (from 612): flat #7856FE</td></tr><tr><td class="t">--x-chip</td><td class="v">#ECE8FF</td><td class="e">07 the post's Host chip, x 61.33-102.00 y 451.00-469.33, outside the label ink (66.67-97.00): #ECE8FF</td></tr><tr><td class="t">--x-chip-card</td><td class="v">rgba(255,255,255,.30)</td><td class="e">07 the Host chip inside the card reads #AA94FA against the card's #7856FE: (170-120)/(255-120) = .370, (148-86)/(255-86) = .367, (250-254)/(255-254) rails at white, so .30 on the two channels that carry it once the chip's own antialiasing is dropped</td></tr><tr><td class="t">--x-pill-off</td><td class="v">#88898D</td><td class="e">02 the disabled Next button, x 18-375 y 754-806, outside the label ink (180.0-213.67): flat #88898D</td></tr><tr><td class="t">--x-disc-1</td><td class="v">rgba(0,0,0,.75)</td><td class="e">01 the close disc on the hero, d 28 at (18, 67.3): the disc reads about a quarter of the hero's own luminance right through it, and the hero under it is not flat, so it is a black at .75 rather than a fill</td></tr><tr><td class="t">--x-disc-7</td><td class="v">rgba(0,0,0,.57)</td><td class="e">07 the four header discs, d 30 centred at y 80.5 on x 32.3 / 280.7 / 321.3 / 361.0: the banner shows through at about .43 of its own value</td></tr><tr><td class="t">--x-scrim</td><td class="v">rgba(0,0,0,.28)</td><td class="e">06 the sheet's avatar against the same photograph on 07: mean ratio 0.699 / 0.727 / 0.742 per channel over the disc with the camera glyph masked out, so a black scrim at 1 - 0.72 = .28</td></tr><tr><td class="t">--x-backdrop</td><td class="v">#000000</td><td class="e">06 above the peek card, x 0-20 and x 373.33-393 at y 0-70: #000000</td></tr><tr><td class="t">--x-nav</td><td class="v">linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%)</td><td class="e">07 the nav bar below 768.67 is a pale purple wash, lightest at the top left and deepest just left of centre. APPROXIMATION: four stops fitted to the row at y 790, not the two-axis gradient the capture holds</td></tr><tr><td class="t">--x-hairline</td><td class="v">#D2D4D6</td><td class="e">06 the ten full-width rules at 306.00, 350.67, 441.33, 486.00, 530.67, 575.33, 620.00, 664.67, 697.00, 741.67 read #D5D7D6, #D1D3D5 and #D1D2DB; one device pixel is 0.333pt, so the drawn rule is 0.33 tall</td></tr><tr><td class="t">--x-border</td><td class="v">#D0D8DC</td><td class="e">04 both cards' 1pt borders, x 16.00-377.33 at y 234.67 and y 343.67: #D0D8DC at the same weight on both</td></tr><tr><td class="t">--x-ring</td><td class="v">#BAC9D0</td><td class="e">02 an unchecked category ring core #BAC9D1; 05 a row chevron core #BAC8CF; 06 the location caret #BAC7CD and a row chevron #B8C8CD</td></tr><tr><td class="t">--x-ink</td><td class="v">#0F1419</td><td class="e">01 title core #0E1215, 02 a row label #06090D, 05 'Skip for now' #0D1113, 07 the bio #0E1012 and the 'Posts' tab #0D0F11. The same value fills the enabled button: #0E1419 on 01 and 04, #060B13 on 03</td></tr><tr><td class="t">--x-ink-2</td><td class="v">#536471</td><td class="e">01 body #56626C and legal note #55616A, 02 subtitle #5A6771 and placeholder #54636D, 04 card description #57626B, 07 handle #546069, meta #54616A, inactive tab #52606A and action row #58656D</td></tr><tr><td class="t">--x-accent</td><td class="v">#1D9BF0</td><td class="e">06 the three editable values read core #288ECD, 07 'View more' #298DCB, and 07's FAB disc samples #1E9BF0 flat at its centre</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 1/4</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--x-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">Every size in Type was fitted by ink width against SF Pro rendered at 8x and lands within 0.4px of the capture: 07 'Movie review' 157.67 measured against 157.62 drawn at Heavy 25.5. X's own Chirp is not on the device</td></tr><tr><td class="t">--x-ground</td><td class="v">#FFFFFF</td><td class="e">06 the empty band between its hairlines at 664.67 and 697.00, x 4-389 y 668-694: #FFFFFF on 100% of the pixels; 06 the bio row's right half (x 200-389 y 355-438) the same</td></tr><tr><td class="t">--x-field</td><td class="v">#EFF3F4</td><td class="e">02 the search field's interior right of the placeholder (ends 189.7) and inside the 34pt box at y 260-294: flat #EFF3F4</td></tr><tr><td class="t">--x-spaces</td><td class="v">#7856FE</td><td class="e">07 the Spaces card, x 61.33-384.00 y 477.67-691.67, sampled between 'Movie review' (ends 552) and the play row (from 612): flat #7856FE</td></tr><tr><td class="t">--x-chip</td><td class="v">#ECE8FF</td><td class="e">07 the post's Host chip, x 61.33-102.00 y 451.00-469.33, outside the label ink (66.67-97.00): #ECE8FF</td></tr><tr><td class="t">--x-chip-card</td><td class="v">rgba(255,255,255,.30)</td><td class="e">07 the Host chip inside the card reads #AA94FA against the card's #7856FE: (170-120)/(255-120) = .370, (148-86)/(255-86) = .367, (250-254)/(255-254) rails at white, so .30 on the two channels that carry it once the chip's own antialiasing is dropped</td></tr><tr><td class="t">--x-pill-off</td><td class="v">#88898D</td><td class="e">02 the disabled Next button, x 18-375 y 754-806, outside the label ink (180.0-213.67): flat #88898D</td></tr><tr><td class="t">--x-disc-1</td><td class="v">rgba(0,0,0,.75)</td><td class="e">01 the close disc on the hero, d 28 at (18, 67.3): the disc reads about a quarter of the hero's own luminance right through it, and the hero under it is not flat, so it is a black at .75 rather than a fill</td></tr><tr><td class="t">--x-disc-7</td><td class="v">rgba(0,0,0,.57)</td><td class="e">07 the four header discs, d 30 centred at y 80.5 on x 32.3 / 280.7 / 321.3 / 361.0: the banner shows through at about .43 of its own value</td></tr><tr><td class="t">--x-scrim</td><td class="v">rgba(0,0,0,.28)</td><td class="e">06 the sheet's avatar against the same photograph on 07: mean ratio 0.699 / 0.727 / 0.742 per channel over the disc with the camera glyph masked out, so a black scrim at 1 - 0.72 = .28</td></tr><tr><td class="t">--x-backdrop</td><td class="v">#000000</td><td class="e">06 above the peek card, x 0-20 and x 373.33-393 at y 0-70: #000000</td></tr><tr><td class="t">--x-track-on</td><td class="v">#01BA7B</td><td class="e">11 all nine toggle tracks and 08's two, sampled left of the knob at x 337-350: #01BA7B on every one</td></tr><tr><td class="t">--x-track-off</td><td class="v">#E9E9E9</td><td class="e">12 the New followers track at y 372.33 and 09's location track at 151.00, sampled right of the knob at x 366-380: #E9E9E9</td></tr><tr><td class="t">--x-nav</td><td class="v">linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%)</td><td class="e">07 the nav bar below 768.67 is a pale purple wash, lightest at the top left and deepest just left of centre. APPROXIMATION: four stops fitted to the row at y 790, not the two-axis gradient the capture holds</td></tr><tr><td class="t">--x-hairline</td><td class="v">#D2D4D6</td><td class="e">06 the ten full-width rules at 306.00, 350.67, 441.33, 486.00, 530.67, 575.33, 620.00, 664.67, 697.00, 741.67 read #D5D7D6, #D1D3D5 and #D1D2DB; one device pixel is 0.333pt, so the drawn rule is 0.33 tall</td></tr><tr><td class="t">--x-hairline-2</td><td class="v">#C6C6C6</td><td class="e">10 the two rules between the news items, at 518.00 and 632.33: both #C6C6C6, and both inset to x 9.00-384.00 where the page's other two, at 375.33 and 768.67, run the full 393 at --x-hairline</td></tr><tr><td class="t">--x-border</td><td class="v">#D0D8DC</td><td class="e">04 both cards' 1pt borders, x 16.00-377.33 at y 234.67 and y 343.67: #D0D8DC at the same weight on both</td></tr><tr><td class="t">--x-ring</td><td class="v">#BAC9D0</td><td class="e">02 an unchecked category ring core #BAC9D1; 05 a row chevron core #BAC8CF; 06 the location caret #BAC7CD and a row chevron #B8C8CD</td></tr></table></div>
 </body>
 </html>

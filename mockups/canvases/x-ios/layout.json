@@ -24,6 +24,10 @@
         {
           "file": "00d-evidence",
           "label": "Evidence"
+        },
+        {
+          "file": "00e-evidence",
+          "label": "Evidence"
         }
       ]
     },
@@ -58,6 +62,26 @@
         {
           "file": "07-profile",
           "label": "Professional profile"
+        },
+        {
+          "file": "08-explore-settings",
+          "label": "Explore settings"
+        },
+        {
+          "file": "09-explore-location-off",
+          "label": "Explore location off"
+        },
+        {
+          "file": "10-explore",
+          "label": "Explore"
+        },
+        {
+          "file": "11-push-notifications",
+          "label": "Push notifications"
+        },
+        {
+          "file": "12-new-followers-off",
+          "label": "New followers off"
         }
       ]
     },
@@ -92,6 +116,26 @@
         {
           "file": "ref-07-profile",
           "label": "Professional profile"
+        },
+        {
+          "file": "ref-08-explore-settings",
+          "label": "Explore settings"
+        },
+        {
+          "file": "ref-09-explore-location-off",
+          "label": "Explore location off"
+        },
+        {
+          "file": "ref-10-explore",
+          "label": "Explore"
+        },
+        {
+          "file": "ref-11-push-notifications",
+          "label": "Push notifications"
+        },
+        {
+          "file": "ref-12-new-followers-off",
+          "label": "New followers off"
         }
       ]
     }

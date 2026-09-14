@@ -12,7 +12,7 @@
   "only": "flat",
   "mine": "06-edit-profile.png",
   "_": "06 the empty band between the hairlines at 664.67 and 697.00, clear of both: page ground and nothing else",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the seven boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Eight left the file when 07 took @Yilin0x's own timeline: spaces, chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, and t-name and t-meta the demo persona's name and location -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those eight measurements stay on the 00b-00d evidence boards, which quote the capture and are not replayed against a render."
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the twelve boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Eight left the file when 07 took @Yilin0x's own timeline: spaces, chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, and t-name and t-meta the demo persona's name and location -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those eight measurements stay on the 00b-00d evidence boards, which quote the capture and are not replayed against a render."
  },
  {
   "id": "field",
@@ -267,5 +267,132 @@
   "dark": 150,
   "mine": "04-select-account-type.png",
   "_": "04 'Business' 77.33"
+ },
+ {
+  "id": "track-on",
+  "img": "assets/refs/p11.png",
+  "cmd": "sample",
+  "box": [
+   337,
+   334,
+   350,
+   351
+  ],
+  "only": "flat",
+  "mine": "11-push-notifications.png",
+  "_": "11 the Photo tags track, x 333-384 y 327-358: left of the knob, which rests at 355-382 when the switch is on"
+ },
+ {
+  "id": "track-off",
+  "img": "assets/refs/p12.png",
+  "cmd": "sample",
+  "box": [
+   366,
+   379,
+   380,
+   396
+  ],
+  "only": "flat",
+  "mine": "12-new-followers-off.png",
+  "_": "12 the New followers track, the one switch this board turns off: right of the knob, which rests at 335-362 when it is"
+ },
+ {
+  "id": "hairline-2",
+  "img": "assets/refs/p10.png",
+  "cmd": "hairline",
+  "box": [
+   20,
+   517,
+   370,
+   519.5
+  ],
+  "bg": "FFFFFF",
+  "scale": 3,
+  "mine": "10-explore.png",
+  "_": "10 the rule between the first two news items at 518.00, solved rather than sampled like every other 1pt rule here. It is inset to x 9-384 where the page's other two run the full width"
+ },
+ {
+  "id": "m-search",
+  "img": "assets/refs/p10.png",
+  "cmd": "bbox",
+  "box": [
+   50,
+   55,
+   350,
+   106
+  ],
+  "dark": 246,
+  "mine": "10-explore.png",
+  "_": "10 the search pill: 39 tall at y 61-100, x 64-337. #EFF3F4 on white is under any ordinary threshold, hence --dark 246, as on 02's field"
+ },
+ {
+  "id": "m-toggle",
+  "img": "assets/refs/p11.png",
+  "cmd": "bbox",
+  "box": [
+   325,
+   320,
+   393,
+   365
+  ],
+  "dark": 150,
+  "mine": "11-push-notifications.png",
+  "_": "11 the Photo tags switch: 51 x 31 at x 333 y 327, the box every toggle on 08, 09, 11 and 12 is drawn at"
+ },
+ {
+  "id": "t-head",
+  "img": "assets/refs/p11.png",
+  "cmd": "bbox",
+  "box": [
+   110,
+   60,
+   285,
+   84
+  ],
+  "dark": 150,
+  "mine": "11-push-notifications.png",
+  "_": "11 'Push notifications' 149.00, centred on the screen at 196.83"
+ },
+ {
+  "id": "t-sect",
+  "img": "assets/refs/p11.png",
+  "cmd": "bbox",
+  "box": [
+   5,
+   108,
+   280,
+   130
+  ],
+  "dark": 150,
+  "mine": "11-push-notifications.png",
+  "_": "11 'Related to you and your posts' 256.00 -- the section head is half a point larger than the title above it"
+ },
+ {
+  "id": "t-desc-2",
+  "img": "assets/refs/p8.png",
+  "cmd": "bbox",
+  "box": [
+   5,
+   186,
+   380,
+   205
+  ],
+  "dark": 150,
+  "mine": "08-explore-settings.png",
+  "_": "08 the location description's first line, 361.00 -- t-count, not a size of its own, but set on a 16.33 baseline pitch rather than its own 19. The box stops at 205 to keep the second line, whose ink starts at 210.33, out"
+ },
+ {
+  "id": "t-badge",
+  "img": "assets/refs/p10.png",
+  "cmd": "bbox",
+  "box": [
+   284,
+   780,
+   293,
+   791
+  ],
+  "bright": 200,
+  "mine": "10-explore.png",
+  "_": "10 the '5' in the notifications badge, 6.00 x 9.00. White on the accent, so it is read bright, and the box stays inside the 16.00 disc -- the page around it is white too"
  }
 ]

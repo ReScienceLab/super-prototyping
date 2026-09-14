@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>X iOS - Evidence 3/3</title>
+<title>X iOS - Evidence 3/4</title>
 <style>
 :root{
   /* Font */
@@ -19,10 +19,13 @@
   --x-disc-7:rgba(0,0,0,.57);
   --x-scrim:rgba(0,0,0,.28);
   --x-backdrop:#000000;
+  --x-track-on:#01BA7B;
+  --x-track-off:#E9E9E9;
   --x-nav:linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%);
 
   /* Line */
   --x-hairline:#D2D4D6;
+  --x-hairline-2:#C6C6C6;
   --x-border:#D0D8DC;
   --x-ring:#BAC9D0;
 
@@ -39,6 +42,7 @@
   --x-r-phone:52px;
   --x-r-pill:26px;
   --x-r-field:17px;
+  --x-r-search:19.5px;
   --x-r-card:16px;
   --x-r-play:16.5px;
   --x-r-chip:4px;
@@ -49,6 +53,7 @@
   --x-w:393px;
   --x-h:852px;
   --x-status:54px;
+  --x-dim:.31;
 
   /* Type */
   --x-tr-text:-0.035em;
@@ -59,7 +64,9 @@
   --x-t-card:700 19px/24px var(--x-font);
   --x-t-field:400 18.5px/24px var(--x-font);
   --x-t-sheet:700 18.5px/24px var(--x-font);
+  --x-t-sect:800 19.3px/24px var(--x-font);
   --x-t-save:700 17.5px/22px var(--x-font);
+  --x-t-head:800 18.25px/22px var(--x-font);
   --x-t-btn:700 16.5px/21px var(--x-font);
   --x-t-body:400 16px/21px var(--x-font);
   --x-t-date:700 16px/21px var(--x-font);
@@ -70,6 +77,7 @@
   --x-t-meta:400 13.5px/19px var(--x-font);
   --x-t-host:800 14.5px/18px var(--x-font);
   --x-t-count:400 14px/19px var(--x-font);
+  --x-t-badge:400 12.5px/16px var(--x-font);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -118,6 +126,6 @@ td.v{color:var(--x-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--x-ink-2)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 3/3</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--x-t-body</td><td class="v">400 16px/21px var(--x-font)</td><td class="e">01 body 337.00 on a 21.0 pitch, 02 subtitle 341.00 on 21, 04 subtitle 276.00 on 21, 05 body 329.00 on 21.3, 07 the bio 84.33, 07 the post's Host label 30.33 (regular, not bold -- see the capture)</td></tr><tr><td class="t">--x-t-date</td><td class="v">700 16px/21px var(--x-font)</td><td class="e">07 'Dec 10, 2025 - 11s' 130.00, bold on the card</td></tr><tr><td class="t">--x-t-row</td><td class="v">700 15.5px/21px var(--x-font)</td><td class="e">02 row 1 194.67 and row 7 238.67, 06 every field label, 07 the five legible tabs 38.33 / 50.33 / 70.66 / 48.00 / 48.33 and the post head's 'Sam Lee' 59.00</td></tr><tr><td class="t">--x-t-note</td><td class="v">400 15.5px/21px var(--x-font)</td><td class="e">01 the legal note 329.67 on a 20.67 pitch, 07 the handle 79.00 and the post head's '@SamLeexf - 2h' 103.67</td></tr><tr><td class="t">--x-t-pill</td><td class="v">700 15px/20px var(--x-font)</td><td class="e">07 'Play recording' 95.67</td></tr><tr><td class="t">--x-t-desc</td><td class="v">400 14.5px/15.67px var(--x-font)</td><td class="e">04 the card descriptions 293.00 and 287.33, the two lines of the first 15.67 apart</td></tr><tr><td class="t">--x-t-meta</td><td class="v">400 13.5px/19px var(--x-font)</td><td class="e">07 'Entertainment & Recreation' 162.00 with 'New Jersey, USA' 97.00 beside it. The one run the tracking band does not reach: at 14.5px it still redrew 9% wide, and the cap height agrees -- 9.3 against 10.0</td></tr><tr><td class="t">--x-t-host</td><td class="v">800 14.5px/18px var(--x-font)</td><td class="e">07 the Spaces card's 'Sam Lee' 57.33 -- heavy at 14.5, not the 22 of the profile name</td></tr><tr><td class="t">--x-t-count</td><td class="v">400 14px/19px var(--x-font)</td><td class="e">07 'Following' 55.66 and 'Followers' 55.33, 'Joined November 2025' 137.67, 'View more' 61.67 (cap 10.0), the card's 'Host' 26.67</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 3/4</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--x-tr-text</td><td class="v">-0.035em</td><td class="e">SF Pro stands in for Chirp. Above 20px the platform serves SF Pro Display and the ink widths agree within 1% (01 title 230.67 vs 232.00, 07 'Movie review' 158.33 vs 157.33); below it serves SF Pro Text, which runs 6-8% wide (07 'New Jersey, USA' 97.00 vs 111.67). Tracking closes the band, and nothing above 20px carries it. Swept -0.03 / -0.035 / -0.04: -0.035 puts the mean of the nineteen small-text ink widths on 0.998 of the capture's, and costs 1% on the seven whole-screen deltas against -0.04, which reads narrow</td></tr><tr><td class="t">--x-t-time</td><td class="v">590 17px/22px var(--x-font)</td><td class="e">This repo's frame: the iOS status bar clock, not the app</td></tr><tr><td class="t">--x-t-title</td><td class="v">800 26px/34px var(--x-font)</td><td class="e">01 'X for Professionals' 231.00, 02 'Select a category' 212.33, 04 'Select an account type' 278.33, 05 'Welcome to X for' 207.33 and 'Professionals' 165.33; 05's two lines sit 34 apart</td></tr><tr><td class="t">--x-t-space</td><td class="v">800 25.5px/31px var(--x-font)</td><td class="e">07 'Movie review' 157.67 measured, 157.62 drawn</td></tr><tr><td class="t">--x-t-name</td><td class="v">800 22px/27px var(--x-font)</td><td class="e">07 the profile name 'Sam Lee' 86.33</td></tr><tr><td class="t">--x-t-card</td><td class="v">700 19px/24px var(--x-font)</td><td class="e">04 'Business' 77.33 and 'Creator' 66.33</td></tr><tr><td class="t">--x-t-field</td><td class="v">400 18.5px/24px var(--x-font)</td><td class="e">02 the placeholder 'Search categories' 136.33, 05 'Customize your profile' 168.67 and 'Explore Profile Spotlights' 188.33, 05 'Skip for now' 94.00, 06 'Cancel' 52.33</td></tr><tr><td class="t">--x-t-sheet</td><td class="v">700 18.5px/24px var(--x-font)</td><td class="e">06 'Edit profile' 90.67, the same size as Cancel beside it and bold</td></tr><tr><td class="t">--x-t-sect</td><td class="v">800 19.3px/24px var(--x-font)</td><td class="e">08 'Location' 73.67 and 'Personalization' 134.67, 11 'Related to you and your posts' 256.00 and 'In-app notifications from X' 234.33. The section head is a point larger than the title above it. Fitted against the render rather than against SF Pro at 8x: heavy is the one weight where the 8x fit and --x-tr-text do not cancel, and 18.5 off the 8x fit ships 4.3% narrow</td></tr><tr><td class="t">--x-t-save</td><td class="v">700 17.5px/22px var(--x-font)</td><td class="e">06 'Save' 38.67 -- a size of its own, half a point under the title. 08-12 'Done' 40.00, in --x-ink rather than the accent</td></tr><tr><td class="t">--x-t-head</td><td class="v">800 18.25px/22px var(--x-font)</td><td class="e">08 'Explore settings' 132.00, 11 'Push notifications' 148.67, 10 "Today's News" 117.00. Fitted against the render for the same reason as t-sect: 17.5, which is what SF Pro at 8x asks for, ships 4.3% narrow</td></tr><tr><td class="t">--x-t-btn</td><td class="v">700 16.5px/21px var(--x-font)</td><td class="e">01 'Agree & Continue' 131.00 and 02/03/04 'Next' 33.67</td></tr><tr><td class="t">--x-t-body</td><td class="v">400 16px/21px var(--x-font)</td><td class="e">01 body 337.00 on a 21.0 pitch, 02 subtitle 341.00 on 21, 04 subtitle 276.00 on 21, 05 body 329.00 on 21.3, 07 the bio 84.33, 07 the post's Host label 30.33 (regular, not bold -- see the capture)</td></tr><tr><td class="t">--x-t-date</td><td class="v">700 16px/21px var(--x-font)</td><td class="e">07 'Dec 10, 2025 - 11s' 130.00, bold on the card</td></tr><tr><td class="t">--x-t-row</td><td class="v">700 15.5px/21px var(--x-font)</td><td class="e">02 row 1 194.67 and row 7 238.67, 06 every field label, 07 the five legible tabs 38.33 / 50.33 / 70.66 / 48.00 / 48.33 and the post head's 'Sam Lee' 59.00</td></tr><tr><td class="t">--x-t-note</td><td class="v">400 15.5px/21px var(--x-font)</td><td class="e">01 the legal note 329.67 on a 20.67 pitch, 07 the handle 79.00 and the post head's '@SamLeexf - 2h' 103.67</td></tr><tr><td class="t">--x-t-pill</td><td class="v">700 15px/20px var(--x-font)</td><td class="e">07 'Play recording' 95.67</td></tr><tr><td class="t">--x-t-desc</td><td class="v">400 14.5px/15.67px var(--x-font)</td><td class="e">04 the card descriptions 293.00 and 287.33, the two lines of the first 15.67 apart</td></tr><tr><td class="t">--x-t-meta</td><td class="v">400 13.5px/19px var(--x-font)</td><td class="e">07 'Entertainment & Recreation' 162.00 with 'New Jersey, USA' 97.00 beside it. The one run the tracking band does not reach: at 14.5px it still redrew 9% wide, and the cap height agrees -- 9.3 against 10.0</td></tr><tr><td class="t">--x-t-host</td><td class="v">800 14.5px/18px var(--x-font)</td><td class="e">07 the Spaces card's 'Sam Lee' 57.33 -- heavy at 14.5, not the 22 of the profile name</td></tr></table></div>
 </body>
 </html>

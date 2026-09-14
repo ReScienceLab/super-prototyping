@@ -1,11 +1,11 @@
-"""X for iOS -- switching to a professional account, in seven screens.
+"""X for iOS -- a professional account, then two settings flows, in twelve screens.
 
 Regenerates the whole folder in place, byte-identically, from anywhere:
 
     python3 mockups/canvases/x-ios/gen.py
     refkit tokens mockups/canvases/x-ios
 
-Every colour and every metric in here was read off seven Mobbin captures at
+Every colour and every metric in here was read off twelve Mobbin captures at
 exactly 3 capture px per design pt (1179 px across a 393 pt screen, 2556 down
 an 852 pt one), and every one of them is stated with its evidence on the
 00b/00c boards. Nothing was eyeballed. The artboards are output: never
@@ -19,16 +19,18 @@ ink width against SF Pro at 8x rather than assumed off the iOS ladder. The
 fits land inside half a pixel -- 07 "Movie review" measures 157.67 and Heavy
 25.5 draws 157.62 -- which is why several sizes are halves.
 
-ONLY PHOTOGRAPHS ARE CROPPED. Two crops (crops.json), 01's and 05's heroes.
-The other four photographs are the example account's own -- its banner on two
-screens, its avatar on three and its post's video thumbnail on one -- and they
-come from assets/ through pic(), not from a capture. Everything else on these
-screens -- every rule, fill, chip, glyph and run of type -- is rebuilt. Where
-interface sat on a cropped photograph it is patched out of the capture first
-(INPAINT below, a Coons fill from each box's own four edges) and drawn again in
-CSS on top: 01's close disc and, on both, the status bar.
+ONLY PICTURES ARE CROPPED. Six crops (crops.json): 01's and 05's heroes, 10's
+live-event graphic, and the three facepiles under 10's news items, each cut as
+one rectangle because the discs overlap. Four more pictures are the example
+account's own -- its banner on two screens, its avatar on four and its post's
+video thumbnail on one -- and they come from assets/ through pic(), not from a
+capture. Everything else on these screens -- every rule, fill, chip, glyph and
+run of type -- is rebuilt. Where interface sat on a cropped picture it is
+patched out of the capture first (INPAINT below, a Coons fill from each box's
+own four edges) and drawn again in CSS on top: 01's close disc, 10's "LIVE" and
+event title, and on 01 and 05 the status bar.
 
-TWENTY-FIVE ICONS ARE VECTORS, NOT CROPS. Each one is drawn on X's own 24-unit
+TWENTY-EIGHT ICONS ARE VECTORS, NOT CROPS. Each one is drawn on X's own 24-unit
 grid in assets/icons/, with a viewBox that is the glyph's ink box, and inlined
 by icon() at the ink box measured off the capture, so the canvas's inspector
 hands it back as a vector asset. Most are approximations of X's artwork; the
@@ -41,11 +43,12 @@ drops the home indicator, and exports with square corners. All three are this
 repo's frame and are drawn here regardless, so the diff window is trimmed --
 see README.md.
 
-ONE THING THE CAPTURES DO NOT DECIDE. 06 and 07 show @Yilin0x rather than the
-captures' demo persona: its banner, its avatar, its two-line bio, location,
-website, join month and counts, and one post, all read off twitterapi.io. Their
-deltas against the captures are therefore not clone scores -- README.md says
-what is still comparable on those two, and what the swap costs.
+ONE THING THE CAPTURES DO NOT DECIDE. 06, 07 and 08-12 show @Yilin0x rather
+than the captures' demo persona: its banner, its avatar, its two-line bio,
+location, website, join month and counts, its handle under four settings
+titles, and one post, all read off twitterapi.io. Their deltas against the
+captures are therefore not clone scores -- README.md says what is still
+comparable on those boards, and what the swap costs.
 """
 import base64, json
 from pathlib import Path
@@ -115,6 +118,12 @@ TOKENS = [
   "masked out, so a black scrim at 1 - 0.72 = .28"),
  ("Surface", "backdrop", "#000000",
   "06 above the peek card, x 0-20 and x 373.33-393 at y 0-70: #000000"),
+ ("Surface", "track-on", "#01BA7B",
+  "11 all nine toggle tracks and 08's two, sampled left of the knob at "
+  "x 337-350: #01BA7B on every one"),
+ ("Surface", "track-off", "#E9E9E9",
+  "12 the New followers track at y 372.33 and 09's location track at "
+  "151.00, sampled right of the knob at x 366-380: #E9E9E9"),
  ("Surface", "nav", "linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,"
                     "#EAE0FF 62%,#EFE7FF 100%)",
   "07 the nav bar below 768.67 is a pale purple wash, lightest at the top "
@@ -125,6 +134,10 @@ TOKENS = [
   "06 the ten full-width rules at 306.00, 350.67, 441.33, 486.00, 530.67, "
   "575.33, 620.00, 664.67, 697.00, 741.67 read #D5D7D6, #D1D3D5 and "
   "#D1D2DB; one device pixel is 0.333pt, so the drawn rule is 0.33 tall"),
+ ("Line", "hairline-2", "#C6C6C6",
+  "10 the two rules between the news items, at 518.00 and 632.33: both "
+  "#C6C6C6, and both inset to x 9.00-384.00 where the page's other two, at "
+  "375.33 and 768.67, run the full 393 at --x-hairline"),
  ("Line", "border", "#D0D8DC",
   "04 both cards' 1pt borders, x 16.00-377.33 at y 234.67 and y 343.67: "
   "#D0D8DC at the same weight on both"),
@@ -163,6 +176,10 @@ TOKENS = [
   "reaches full width only at y 780, half its height"),
  ("Radius", "r-field", "17px",
   "02 the search field is 34 tall (y 260-294) with semicircular ends"),
+ ("Radius", "r-search", "19.5px",
+  "10 the search pill, x 64.00-337.00 y 61.00-100.00: 39 tall with "
+  "semicircular ends -- 19.5 fits every row down the curve, where 19 and 20 "
+  "each miss by a pixel at the waist"),
  ("Radius", "r-card", "16px",
   "04 the two bordered cards and 07's Spaces card: the fill of the card at "
   "x 61.33-384.00 reaches its full width 16 down from y 477.67"),
@@ -186,6 +203,11 @@ TOKENS = [
   "2556 capture px / 3 = 852pt, once Mobbin's 120px footer is dropped"),
  ("Metrics", "status", "54px",
   "This repo's frame: the status bar height the template sets"),
+ ("Metrics", "dim", ".31",
+  "08 the locations row while the location toggle is on. Its three parts "
+  "each fade toward the page: the label #111417 to #B8B9B9 is alpha .302, "
+  "'Select' #59656F to #CFD1D2 is .299, and the chevron #C0CCD2 to #ECEEF0 "
+  "is .327 -- one opacity on the row, not three colours"),
 
  ("Type", "tr-text", "-0.035em",
   "SF Pro stands in for Chirp. Above 20px the platform serves SF Pro Display "
@@ -214,8 +236,19 @@ TOKENS = [
   "now' 94.00, 06 'Cancel' 52.33"),
  ("Type", "t-sheet", "700 18.5px/24px var(--x-font)",
   "06 'Edit profile' 90.67, the same size as Cancel beside it and bold"),
+ ("Type", "t-sect", "800 19.3px/24px var(--x-font)",
+  "08 'Location' 73.67 and 'Personalization' 134.67, 11 'Related to you and "
+  "your posts' 256.00 and 'In-app notifications from X' 234.33. The section "
+  "head is a point larger than the title above it. Fitted against the render "
+  "rather than against SF Pro at 8x: heavy is the one weight where the 8x fit "
+  "and --x-tr-text do not cancel, and 18.5 off the 8x fit ships 4.3% narrow"),
  ("Type", "t-save", "700 17.5px/22px var(--x-font)",
-  "06 'Save' 38.67 -- a size of its own, half a point under the title"),
+  "06 'Save' 38.67 -- a size of its own, half a point under the title. "
+  "08-12 'Done' 40.00, in --x-ink rather than the accent"),
+ ("Type", "t-head", "800 18.25px/22px var(--x-font)",
+  "08 'Explore settings' 132.00, 11 'Push notifications' 148.67, 10 "
+  "\"Today's News\" 117.00. Fitted against the render for the same reason as "
+  "t-sect: 17.5, which is what SF Pro at 8x asks for, ships 4.3% narrow"),
  ("Type", "t-btn", "700 16.5px/21px var(--x-font)",
   "01 'Agree & Continue' 131.00 and 02/03/04 'Next' 33.67"),
  ("Type", "t-body", "400 16px/21px var(--x-font)",
@@ -245,7 +278,14 @@ TOKENS = [
   "the profile name"),
  ("Type", "t-count", "400 14px/19px var(--x-font)",
   "07 'Following' 55.66 and 'Followers' 55.33, 'Joined November 2025' "
-  "137.67, 'View more' 61.67 (cap 10.0), the card's 'Host' 26.67"),
+  "137.67, 'View more' 61.67 (cap 10.0), the card's 'Host' 26.67. 10 the "
+  "three news meta lines, 237.67 / 239.00 / 241.67, and 08's two "
+  "descriptions, 361.00 and 364.00 on the first line and 116.00 on 'and who "
+  "you follow.' -- those two wrap on a 16.33 baseline pitch rather than this "
+  "token's 19, so explore() places each line itself"),
+ ("Type", "t-badge", "400 12.5px/16px var(--x-font)",
+  "10 the '5' in the notifications tab's badge, 6.00 wide and 9.00 tall "
+  "inside a 16.00 disc"),
 ]
 
 
@@ -273,6 +313,8 @@ INPAINT = {
  "i1": ("p1", [(44, 16, 100, 42), (278, 20, 364, 38),    # clock, right cluster
                (14, 63, 52, 101)]),                      # the close disc
  "i5": ("p5", [(44, 16, 100, 42), (278, 20, 364, 38)]),
+ "i10": ("p10", [(8, 303, 41, 319),                       # "LIVE"
+                 (7, 326, 217, 349)]),                    # the event title
 }
 
 
@@ -456,10 +498,12 @@ def write(name, html):
 # the ascent (0.952em) and the cap height (0.7165em) of the platform face.
 TY = {"t-time": (17, 22), "t-title": (26, 34), "t-space": (25.5, 31),
       "t-name": (22, 27), "t-card": (19, 24), "t-field": (18.5, 24),
-      "t-sheet": (18.5, 24), "t-save": (17.5, 22), "t-btn": (16.5, 21),
-      "t-body": (16, 21), "t-date": (16, 21), "t-row": (15.5, 21),
-      "t-note": (15.5, 21), "t-pill": (15, 20), "t-desc": (14.5, 15.67),
-      "t-meta": (13.5, 19), "t-host": (14.5, 18), "t-count": (14, 19)}
+      "t-sheet": (18.5, 24), "t-sect": (19.3, 24), "t-save": (17.5, 22),
+      "t-head": (18.25, 22), "t-btn": (16.5, 21), "t-body": (16, 21),
+      "t-date": (16, 21), "t-row": (15.5, 21), "t-note": (15.5, 21),
+      "t-pill": (15, 20), "t-desc": (14.5, 15.67),
+      "t-meta": (13.5, 19), "t-host": (14.5, 18), "t-count": (14, 19),
+      "t-badge": (12.5, 16)}
 
 
 def boxtop(ink_top, tk):
@@ -496,9 +540,9 @@ def circle(x, y, d, style=""):
     return box(x, y, d, d, "border-radius:50%;" + style)
 
 
-def rule(y, x=0.0, w=393.0):
+def rule(y, x=0.0, w=393.0, col="hairline"):
     """One device pixel at 3 capture px per pt."""
-    return box(x, y, w, 0.33, "background:var(--x-hairline)")
+    return box(x, y, w, 0.33, "background:var(--x-%s)" % col)
 
 
 # --------------------------------------------------------------- screens ----
@@ -821,6 +865,166 @@ def s07():
         sb="var(--x-inv)")
 
 
+# ----------------------------------------------------------------- 08-12 ----
+# Settings. Four boards share a header -- the title centred over the account's
+# handle, "Done" at the right in --x-ink rather than the accent -- and a
+# switch: a 51x31 track at x 333, a 27pt knob 2 in from the end it rests
+# against, and no shadow on either state.
+def settings_head(title, back):
+    return ((icon("back", 11.67, 73.67, 17.33, 14.67, "var(--x-ink)") if back else "")
+            + txc(0, 66.67, 393, title, "t-head")
+            + txc(0, 86.67, 393, AT, "t-meta", "var(--x-ink-2)")
+            + tx(336.67, 75.0, "Done", "t-save"))
+
+
+def toggle(y, on):
+    return (box(333, y, 51, 31, "border-radius:15.5px;background:var(--x-track-%s)"
+                % ("on" if on else "off"))
+            + circle(355 if on else 335, y + 2, 27, "background:var(--x-inv)"))
+
+
+# ----------------------------------------------------------------- 08-09 ----
+# Explore settings, the two states of one switch. Each toggle row carries a
+# two-line description whose baselines sit 16.33 apart, not the 19 its size
+# carries elsewhere, so both lines are placed here and nothing wraps.
+# The counter-intuitive half: while the location switch is ON the picker under
+# it is dimmed, and turning the switch off is what hands the picker back.
+def explore(title, on):
+    picker = (tx(10.0, 251.33, "Explore locations", "t-row")
+              + tx(311.33, 251.67, "Select", "t-body", "var(--x-ink-2)")
+              + icon("chevron-right", 371.67, 251.33, 7.33, 12.67, "var(--x-ring)"))
+    return screen(title,
+        settings_head("Explore settings", False)
+        + tx(10.0, 113.33, "Location", "t-sect")
+        + tx(9.33, 160.33, "Show content in your current location", "t-row")
+        + toggle(151.0, on)
+        + tx(9.33, 191.33, "When this is on, you’ll see what’s happening around "
+             "you right", "t-count", "var(--x-ink-2)")
+        + tx(9.33, 207.67, "now.", "t-count", "var(--x-ink-2)")
+        + ('<div class="b" style="left:0;top:0;width:393px;height:852px;'
+           'opacity:var(--x-dim)">%s</div>' % picker if on else picker)
+        + rule(286.0)
+        + tx(10.0, 307.67, "Personalization", "t-sect")
+        + tx(9.33, 354.67, "Trends for you", "t-row")
+        + toggle(345.67, True)
+        + tx(9.33, 385.33, "You can personalize the trends for you based on your "
+             "location", "t-count", "var(--x-ink-2)")
+        + tx(9.33, 401.67, "and who you follow.", "t-count", "var(--x-ink-2)"))
+
+
+def s08():
+    return explore("Explore settings", True)
+
+
+def s09():
+    return explore("Explore location off", False)
+
+
+# -------------------------------------------------------------------- 10 ----
+# Explore. Avatar, search pill and gear across the top, five category tabs
+# under them, a live event graphic, then news items -- a headline over a
+# facepile and a line of meta. The page is white the whole way down: the nav
+# is a rule and five glyphs, with no band under them.
+TABS_10 = [("For You", 9.67, "var(--x-ink)"), ("Trending", 79.33, "var(--x-ink-2)"),
+           ("News", 160.33, "var(--x-ink-2)"), ("Sports", 216.67, "var(--x-ink-2)"),
+           ("Entertainment", 282.67, "var(--x-ink-2)")]
+# (the headline's lines as (ink top, x, text), then the meta's ink top, x and
+# text). Each facepile sits 24.67 under its headline's ink.
+NEWS = [([(445.00, 9.33, "Troll 2 Brings Bigger Monsters to Netflix Worldwide")],
+         478.00, 83.67, "18 hours ago · Entertainment · 507 posts"),
+        ([(541.67, 10.00, "Freen Sarocha Shines at Longchamp Spring/Summer"),
+          (559.33, 9.67, "2026 Preview in Bangkok")],
+         592.33, 83.67, "21 hours ago · Entertainment · 86K posts"),
+        ([(655.67, 9.33, "42 Years Since MTV's Thriller Video Premiere")],
+         688.67, 83.33, "Trending now · Entertainment · 310 posts")]
+# 10's Home is the outline, not 07's filled one, and its Search is the bold
+# active cut rather than the thin one 02 and 07 use. The other three are 07's.
+NAV_10 = [("home", 29.33, 782.33, 20.00, 21.00),
+          ("search-bold", 107.67, 782.67, 20.67, 20.67)] + NAV[2:]
+
+
+def s10():
+    news = "".join(
+        "".join(tx(x, y, s, "t-row") for y, x, s in lines)
+        + art("10-pile-%d" % n)
+        + tx(mx, my, meta, "t-count", "var(--x-ink-2)")
+        for n, (lines, my, mx, meta) in enumerate(NEWS, 1))
+    return screen("Explore",
+        art("10-hero")
+        + tx(10.33, 306.0, "LIVE", "t-note", "var(--x-inv)")
+        + tx(9.33, 329.33, "AWS re:Invent 2025", "t-name", "var(--x-inv)")
+        + pic("profile-avatar", 16, 64, 32, 32, "border-radius:50%")
+        + box(64, 61, 273, 39,
+              "border-radius:var(--x-r-search);background:var(--x-field)")
+        + icon("search", 166.67, 73.67, 14.0, 14.0, "var(--x-ink-2)")
+        + tx(186.33, 74.67, "Search", "t-field", "var(--x-ink-2)")
+        + icon("gear", 354.67, 70.67, 20.67, 20.67, "var(--x-ink)")
+        + "".join(tx(x, 119.67, label, "t-row", col) for label, x, col in TABS_10)
+        + box(5.0, 144.0, 60.33, 3.33,
+              "border-radius:1.5px;background:var(--x-accent)")
+        + rule(375.33)
+        + tx(9.33, 391.33, "Today's News", "t-head")
+        + news
+        + rule(518.0, 9.0, 375.0, "hairline-2")
+        + rule(632.33, 9.0, 375.0, "hairline-2")
+        # the fourth item's headline, one word of it above the fold
+        + tx(9.67, 752.67, "Costco", "t-row")
+        + circle(328, 704, 56, "background:var(--x-accent);"
+                               "box-shadow:0 4px 12px rgba(0,0,0,.18)")
+        + icon("plus", 348.33, 724.33, 15.33, 15.33, "var(--x-inv)")
+        + rule(768.67)
+        + "".join(icon(n, x, y, w, h, "var(--x-ink)") for n, x, y, w, h in NAV_10)
+        + circle(44.33, 778.33, 6, "background:var(--x-accent)")
+        + circle(280.33, 777.33, 16, "background:var(--x-accent)")
+        + txc(280.33, 780.67, 16, "5", "t-badge", "var(--x-inv)"))
+
+
+# ----------------------------------------------------------------- 11-12 ----
+# Push notifications, fourteen rows in two sections. Five open a screen of
+# their own -- a chevron, and all but Posts an "On" beside it -- and nine
+# carry a switch. 12 is 11 with one of them off.
+# (label ink top, label, whether "On" sits before the chevron). All at x 10.
+PUSH_ROWS = [(159.67, "Posts", False), (203.00, "Mentions and replies", True),
+             (247.67, "Reposts", True), (291.00, "Likes", True),
+             (471.00, "Message reactions", True)]
+# (label ink top, label x, label, the track's own top)
+PUSH_TOGGLES = [(336.67, 10.00, "Photo tags", 327.00),
+                (381.67, 10.00, "New followers", 372.33),
+                (427.00, 10.00, "Direct Messages", 417.33),
+                (516.33, 9.67, "Contact joins X", 507.00),
+                (619.67, 10.00, "Recommendations from your network", 609.67),
+                (665.00, 10.00, "Recommendations", 655.00),
+                (710.33, 9.33, "Topics", 700.33),
+                (756.00, 10.00, "Broadcasts &amp; Spaces", 745.67),
+                (801.00, 10.00, "News / Sports", 791.67)]
+
+
+def push(title, off):
+    """11 has every switch on; 12 turns one off, named here."""
+    rows = "".join(
+        tx(10.0, y, label, "t-row")
+        + (tx(333.67, y + 0.33, "On", "t-body", "var(--x-ink-2)") if on else "")
+        + icon("chevron-right", 371.67, y + 0.5, 7.33, 12.67, "var(--x-ring)")
+        for y, label, on in PUSH_ROWS)
+    return screen(title,
+        settings_head("Push notifications", True)
+        + tx(10.0, 113.67, "Related to you and your posts", "t-sect")
+        + rows
+        + "".join(tx(x, y, label, "t-row") + toggle(ty, label != off)
+                  for y, x, label, ty in PUSH_TOGGLES)
+        + rule(551.0)
+        + tx(10.0, 572.67, "In-app notifications from X", "t-sect")
+        + rule(835.67))
+
+
+def s11():
+    return push("Push notifications", None)
+
+
+def s12():
+    return push("New followers off", "New followers")
+
+
 SCREENS = [
     ("01-professional-splash", "X for Professionals", s01),
     ("02-select-category", "Select a category", s02),
@@ -829,6 +1033,11 @@ SCREENS = [
     ("05-welcome", "Welcome", s05),
     ("06-edit-profile", "Edit profile", s06),
     ("07-profile", "Professional profile", s07),
+    ("08-explore-settings", "Explore settings", s08),
+    ("09-explore-location-off", "Explore location off", s09),
+    ("10-explore", "Explore", s10),
+    ("11-push-notifications", "Push notifications", s11),
+    ("12-new-followers-off", "New followers off", s12),
 ]
 
 
@@ -880,10 +1089,11 @@ def token_board():
     met = "<br>".join("--x-%s: %s" % (n, v) for _, n, v, _ in _of("Metrics"))
     return page(NAME + " - Design Tokens",
                 '<div class="sheet"><header><h1>%s</h1>'
-                '<p>Seven Mobbin captures at exactly 3 px per pt. One face (SF Pro), '
+                '<p>Twelve Mobbin captures at exactly 3 px per pt. One face (SF Pro), '
                 'one type ladder fitted by ink width, and a palette that is almost '
-                'entirely white, two greys and one blue &mdash; with a pale purple '
-                'nav wash on the last screen. Ten of these have no screen left to '
+                'entirely white, two greys and one blue &mdash; plus the switch '
+                'green the settings screens turn on and off, and a pale purple '
+                'nav wash on 07. Ten of these have no screen left to '
                 'sit on: they were read off a Spaces card and a post action row '
                 'that the captures show and that board 07, which carries the '
                 'example account&rsquo;s own timeline, does not draw.</p>'
