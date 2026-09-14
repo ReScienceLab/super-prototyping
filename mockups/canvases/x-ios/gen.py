@@ -93,7 +93,30 @@ TOKENS = [
   "inside the 34pt box at y 260-294: flat #EFF3F4"),
  ("Surface", "spaces", "#7856FE",
   "07 the Spaces card, x 61.33-384.00 y 477.67-691.67, sampled between "
-  "'Movie review' (ends 552) and the play row (from 612): flat #7856FE"),
+  "'Movie review' (ends 552) and the play row (from 612): flat #7856FE. 15 "
+  "the three event tiles and the FAB read the same; 13's card in the sheet "
+  "reads #7A55FE, two levels of red off it"),
+ ("Surface", "spaces-2", "#6748D9",
+  "15 the host card's body, x 8.82-384.00 y 68.00-158.17, clear of the "
+  "avatar and the two description lines: flat #6748D9, a darker cut of "
+  "--x-spaces than the 8.67pt band of --x-spaces above it"),
+ ("Surface", "wash", "#E6D8FF",
+  "15 the band behind the status bar, y 0-58.50 across the full width: flat "
+  "#E6D8FF on every row, with the transition to the card at 58.67"),
+ ("Surface", "banner", "#E9F5FC",
+  "14 the confirmation banner, x 10.67-382.00 y 69.00-169.00, outside the "
+  "check disc, the text and the share pill: flat #E9F5FC"),
+ ("Surface", "veil", "rgba(0,0,0,.47)",
+  "13/14 the calendar page under the sheet, against 15 undimmed: the white "
+  "at (196, 350) goes #FFFFFF to #878787 and at (196, 300) #FDFFFF to "
+  "#858887, both 0.5294 of their own value, so a black at .4706. Fitted as a "
+  "line per channel over the white page, the host card and a tile\u2019s "
+  "purple it is the same black three times (out = .551 in -5.4, .554 in -6.3, "
+  ".506 in +6.3, every residual under 0.7). It reaches the status bar too, "
+  "though not by this law: the band there is a flat #787294 on both, where "
+  "the dimmed wash should be #797187. 13 levels of blue, and no input can "
+  "explain them -- the fit wants a B of 280 going in. Over that one band the "
+  "scrim behaves like rgba(0,0,27,.47); the boards ship the plain black"),
  ("Surface", "chip", "#ECE8FF",
   "07 the post's Host chip, x 61.33-102.00 y 451.00-469.33, outside the "
   "label ink (66.67-97.00): #ECE8FF"),
@@ -129,6 +152,14 @@ TOKENS = [
   "07 the nav bar below 768.67 is a pale purple wash, lightest at the top "
   "left and deepest just left of centre. APPROXIMATION: four stops fitted "
   "to the row at y 790, not the two-axis gradient the capture holds"),
+ ("Surface", "nav-2", "linear-gradient(180deg,#E7DDFE 0%,#ECE3FF 100%)",
+  "15 carries the same five glyphs over a wash of its own, and this one runs "
+  "down rather than across. A single column reads it to a couple of levels "
+  "either way, so it is averaged: rows meaned over x 60-100, clear of the dot "
+  "and the glyphs, climb evenly from (231.8, 221.5, 254.4) at 775 to "
+  "(236, 227, 255) at 848 -- one straight line across the whole 83.5pt band "
+  "rather than a ramp that flattens partway. Solved on that pair, the ends "
+  "are #E7DDFE and #ECE3FF"),
 
  ("Line", "hairline", "#D2D4D6",
   "06 the ten full-width rules at 306.00, 350.67, 441.33, 486.00, 530.67, "
@@ -185,14 +216,28 @@ TOKENS = [
   "x 61.33-384.00 reaches its full width 16 down from y 477.67"),
  ("Radius", "r-play", "16.5px",
   "07 the white Play pill, x 70.67-356.67 y 646-679: 33 tall, ends "
-  "semicircular"),
+  "semicircular. 14 the banner's share pill, x 21.67-371.00 y 124.67-157.00: "
+  "32.33 tall, so 16.17 closes it and 16.5 is the nearest measured radius"),
  ("Radius", "r-chip", "4px",
   "07 both Host chips: the post's is 18.33 tall and the card's 15.33, and "
   "neither end is a semicircle -- the fill is square 4 in from each corner"),
  ("Radius", "r-sheet", "12px",
   "06 the sheet's top edge is at 69.0 and its white reaches x 1 only at "
   "76.33: 12 puts that corner at 76.20 and fits eleven columns across the "
-  "curve at 0.17 rms, where the 70.33 first read off mid-width sits 1.24 out"),
+  "curve at 0.17 rms, where the 70.33 first read off mid-width sits 1.24 out. "
+  "Four more corners land on it: 13's card in the sheet fits 12.45, 15's host "
+  "card 13.05 and its LIVE card 12.80, and 14's banner 10.85 -- one value at "
+  "0.9 mean error rather than four radii a hair apart"),
+ ("Radius", "r-modal", "36px",
+  "13/14 the reminder sheet's top edge is at 356.00 and its white reaches "
+  "x 1 only at 380.6; swept 30-42, 36 fits the thirteen columns across the "
+  "curve at 0.46 rms and is three times the sheet radius 06 uses"),
+ ("Radius", "r-tile", "20px",
+  "15 the three event tiles, 80.67 square at x 8.83 with tops 264 / 419 / "
+  "574. Swept the way r-modal is, down the first tile's left edge and below "
+  "the blurred apex, 20.8 fits at 0.17 rms: iOS draws a squircle, and a "
+  "circular corner fitted to one always runs a shade wide, so the token is "
+  "the 20 that sweep rounds to"),
  ("Radius", "r-peek", "10px",
   "06 the page peeking above the sheet, x 20-373.33: opaque across its "
   "full width from 52.7, 10 below its top at 42.67"),
@@ -228,6 +273,15 @@ TOKENS = [
   "07 'Movie review' 157.67 measured, 157.62 drawn"),
  ("Type", "t-name", "800 22px/27px var(--x-font)",
   "07 the profile name 'Sam Lee' 86.33"),
+ ("Type", "t-cal", "800 21.65px/28px var(--x-font)",
+  "15 'Get these in your calendar' 269.00, cap 16.33. Above 20px, so no "
+  "--x-tr-text: fitted between 21.25 drawn at 264.00 and 22.25 at 276.33"),
+ ("Type", "t-space-2", "800 20.2px/23.67px var(--x-font)",
+  "13 the card's title in the sheet, 'RWA-Investment: The Future of' 303.00 "
+  "and 'Real Estate, Fractionally yours!' 296.00, fitting 20.17 and 20.18; "
+  "cap 14.33 on both and the two baselines 23.67 apart. The one run on these "
+  "boards that clears 20px by a fifth of a point, so it drops --x-tr-text "
+  "while the rows below it keep it"),
  ("Type", "t-card", "700 19px/24px var(--x-font)",
   "04 'Business' 77.33 and 'Creator' 66.33"),
  ("Type", "t-field", "400 18.5px/24px var(--x-font)",
@@ -249,23 +303,41 @@ TOKENS = [
   "08 'Explore settings' 132.00, 11 'Push notifications' 148.67, 10 "
   "\"Today's News\" 117.00. Fitted against the render for the same reason as "
   "t-sect: 17.5, which is what SF Pro at 8x asks for, ships 4.3% narrow"),
+ ("Type", "t-event", "800 18px/20.33px var(--x-font)",
+  "15 the eight title lines on the three event rows fit 18.10 / 17.94 / "
+  "18.20 / 18.04 / 18.21 / 17.97 / 18.05 against ink widths of 190.33 / "
+  "204.00 / 162.67 / 179.67 / 174.00 / 197.33 / 64.33, and 13's sheet title "
+  "'Moby Media&rsquo;s Space' 165.67 fits 17.82. Their baselines are 20.33 "
+  "apart, which is the line height. t-head at 18.25 ships 1.2% wide"),
  ("Type", "t-btn", "700 16.5px/21px var(--x-font)",
-  "01 'Agree & Continue' 131.00 and 02/03/04 'Next' 33.67"),
+  "01 'Agree & Continue' 131.00 and 02/03/04 'Next' 33.67. 13's three sheet "
+  "buttons fit 16.78 / 17.00 / 16.57 and 14's 'Reminder set' 16.80, all 1.7% "
+  "over, and each label sits 20.33 below its own pill's top like 01-04's"),
  ("Type", "t-body", "400 16px/21px var(--x-font)",
   "01 body 337.00 on a 21.0 pitch, 02 subtitle 341.00 on 21, 04 subtitle "
   "276.00 on 21, 05 body 329.00 on 21.3, 07 the bio 84.33, 07 the post's "
-  "Host label 30.33 (regular, not bold -- see the capture)"),
+  "Host label 30.33 (regular, not bold -- see the capture). The widest band "
+  "on 13-15: 15's subtitle fits 16.05, its two card description lines 15.87 "
+  "and 15.91, the three host names 16.00 / 15.82 / 15.83, the two times "
+  "15.67 and 15.73, and 14's banner sentence 16.17"),
  ("Type", "t-date", "700 16px/21px var(--x-font)",
   "07 'Dec 10, 2025 - 11s' 130.00, bold on the card"),
  ("Type", "t-row", "700 15.5px/21px var(--x-font)",
   "02 row 1 194.67 and row 7 238.67, 06 every field label, 07 the five "
   "legible tabs 38.33 / 50.33 / 70.66 / 48.00 / 48.33 and the post head's "
-  "'Sam Lee' 59.00"),
+  "'Sam Lee' 59.00. 13 the card's foot 'Dec 08 at 5:00 PM &middot; 226 "
+  "going' 208.33 fits 15.28"),
  ("Type", "t-note", "400 15.5px/21px var(--x-font)",
   "01 the legal note 329.67 on a 20.67 pitch, 07 the handle 79.00 and the "
-  "post head's '@SamLeexf - 2h' 103.67"),
+  "post head's '@SamLeexf - 2h' 103.67. 15 the three going counts fit 15.39 "
+  "/ 15.58 / 15.58, and its 'LIVE' rides the same token 10's does -- two and "
+  "a half points of that card show before the nav covers it"),
  ("Type", "t-pill", "700 15px/20px var(--x-font)",
-  "07 'Play recording' 95.67"),
+  "07 'Play recording' 95.67. 13 the card's 'Moby Media' 82.33 and 15's "
+  "'IG NEWMAN' 84.33 fit 15.20 and 15.19 at bold; the leading M caps at "
+  "10.67, which this token redraws exactly. Heavy is the other reading the "
+  "cap allows -- 14.89 -- but t-host at 14.5 would ship each 2.6% narrow, "
+  "against 0.8% here, and t-row at 15.5 would ship each 3% wide"),
  ("Type", "t-desc", "400 14.5px/15.67px var(--x-font)",
   "04 the card descriptions 293.00 and 287.33, the two lines of the first "
   "15.67 apart"),
@@ -273,6 +345,11 @@ TOKENS = [
   "07 'Entertainment & Recreation' 162.00 with 'New Jersey, USA' 97.00 "
   "beside it. The one run the tracking band does not reach: at 14.5px it "
   "still redrew 9% wide, and the cap height agrees -- 9.3 against 10.0"),
+ ("Type", "t-tag", "800 13.5px/19px var(--x-font)",
+  "14 'Share with a post' on the banner's blue pill, ink 142.67-249.33 so "
+  "107.00 wide, fits 13.39 at heavy and 13.68 at bold; its leading S runs "
+  "136.00-145.33, a cap of 9.67, which asks for 13.49. So t-meta's size at "
+  "the weight the pill is set in -- 13.5 heavy redraws it 107.83"),
  ("Type", "t-host", "800 14.5px/18px var(--x-font)",
   "07 the Spaces card's 'Sam Lee' 57.33 -- heavy at 14.5, not the 22 of "
   "the profile name"),
@@ -282,7 +359,9 @@ TOKENS = [
   "three news meta lines, 237.67 / 239.00 / 241.67, and 08's two "
   "descriptions, 361.00 and 364.00 on the first line and 116.00 on 'and who "
   "you follow.' -- those two wrap on a 16.33 baseline pitch rather than this "
-  "token's 19, so explore() places each line itself"),
+  "token's 19, so explore() places each line itself. 13 and 15 both carry a "
+  "'Host' chip on a Spaces card, 27.00 wide against 07's 26.67, and both fit "
+  "13.75"),
  ("Type", "t-badge", "400 12.5px/16px var(--x-font)",
   "10 the '5' in the notifications tab's badge, 6.00 wide and 9.00 tall "
   "inside a 16.00 disc"),
@@ -376,16 +455,17 @@ def _uri(cid):
         (ART_DIR / (cid + ".png")).read_bytes()).decode()
 
 
-def art(cid):
+def art(cid, style=""):
     """One <img>, at the box it was cut from and snapped to the capture's
     pixels: a crop placed at its raw pt box sits up to half a capture pixel
     from where it was taken."""
     _, x0, y0, x1, y1 = CROPS[cid]
     return ('<img class="a" src="%s" alt="" style="left:%.3fpx;top:%.3fpx;'
-            'width:%.3fpx;height:%.3fpx">'
+            'width:%.3fpx;height:%.3fpx%s">'
             % (_uri(cid), round(x0 * SCALE) / SCALE, round(y0 * SCALE) / SCALE,
                (round(x1 * SCALE) - round(x0 * SCALE)) / SCALE,
-               (round(y1 * SCALE) - round(y0 * SCALE)) / SCALE))
+               (round(y1 * SCALE) - round(y0 * SCALE)) / SCALE,
+               ";" + style if style else ""))
 
 
 def pic(name, x, y, w, h, style=""):
@@ -497,13 +577,15 @@ def write(name, html):
 # below the box top -- half-leading (lh - 1.162*size)/2 plus the gap between
 # the ascent (0.952em) and the cap height (0.7165em) of the platform face.
 TY = {"t-time": (17, 22), "t-title": (26, 34), "t-space": (25.5, 31),
-      "t-name": (22, 27), "t-card": (19, 24), "t-field": (18.5, 24),
+      "t-name": (22, 27), "t-cal": (21.65, 28), "t-space-2": (20.2, 23.67),
+      "t-card": (19, 24), "t-field": (18.5, 24),
       "t-sheet": (18.5, 24), "t-sect": (19.3, 24), "t-save": (17.5, 22),
-      "t-head": (18.25, 22), "t-btn": (16.5, 21), "t-body": (16, 21),
+      "t-head": (18.25, 22), "t-event": (18, 20.33), "t-btn": (16.5, 21),
+      "t-body": (16, 21),
       "t-date": (16, 21), "t-row": (15.5, 21), "t-note": (15.5, 21),
       "t-pill": (15, 20), "t-desc": (14.5, 15.67),
-      "t-meta": (13.5, 19), "t-host": (14.5, 18), "t-count": (14, 19),
-      "t-badge": (12.5, 16)}
+      "t-meta": (13.5, 19), "t-tag": (13.5, 19), "t-host": (14.5, 18),
+      "t-count": (14, 19), "t-badge": (12.5, 16)}
 
 
 def boxtop(ink_top, tk):
@@ -1025,6 +1107,163 @@ def s12():
     return push("New followers off", "New followers")
 
 
+# ----------------------------------------------------------------- 13-15 ----
+# Turning on a reminder. 15 is the page all three are built on: a purple wash
+# behind the status bar, the host's card under it, a heading, three event rows
+# each with a bell at the right, the Spaces button and a LIVE card sliding
+# under the nav -- which is 07's five glyphs over a wash that runs down rather
+# than across. 13 lifts a sheet over that page for the second of those events,
+# and 14 is 13 a tap later: a confirmation banner at the top and the first
+# button set. The page under the sheet is 15 unchanged beneath --x-veil, to
+# the pixel: card, heading and page top all sit at the same y on all three,
+# and the veil is one black over every one of them bar the status band, which
+# --x-veil's row measures and these two ship 13 levels short of.
+
+# (tile top, the host's name and its x, the title's lines as (x, text), the
+# time as (x, ink top, text), the going count the same way, whether the bell
+# is already set). A name's ink sits 4.00 under its own tile and the title
+# lines run on 20.33, so only the two runs below them carry their own tops:
+# row 3 has one title line fewer and everything under it rides up.
+EVENTS = [
+ (264, ("Kash", 102.00),
+  [(101.67, "NUAI 101 with Will Gray"), (102.00, "(CEO) and Charlie Nelson"),
+   (102.00, "(Executive Director)")],
+  (101.33, 357.00, "Today at 2:00 PM"), (101.33, 381.00, "414 going"), False),
+ (419, ("Moby Media", 102.00),
+  [(101.67, "RWA-Investment: The"), (101.67, "Future of Real Estate,"),
+   (101.67, "Fractionally yours! \U0001F399\uFE0F")],
+  (101.33, 512.00, "Today at 5:00 PM"), (101.67, 535.67, "225 going"), True),
+ (574, ("Tom Dante", 101.33),
+  [(101.00, "Stories from 25 years as"), (101.33, "a trader")],
+  (102.00, 646.67, "Dec 14, 2025 at 3:00 PM"),
+  (101.67, 670.33, "26K going"), False),
+]
+
+
+def calendar():
+    """15's page, which is also what 13 and 14 dim. The LIVE card at the foot
+    shows two and a half points of itself before the nav covers the rest."""
+    rows = "".join(
+        box(8.83, top, 80.67, 80.67,
+            "border-radius:var(--x-r-tile);background:var(--x-spaces)")
+        + art("15-tile-%d" % n, "border-radius:50%")
+        + circle(339.67, top, 44.33,
+                 "background:var(--x-inv);border:1px solid var(--x-border)"
+                 if on else "background:var(--x-ink)")
+        + icon("bell-check" if on else "bell-plus", 354.67, top + 14.0,
+               14.67 if on else 15.67, 16.67,
+               "var(--x-ink)" if on else "var(--x-inv)")
+        + tx(nx, top + 4.0, name, "t-body", "var(--x-ink-2)")
+        + "".join(tx(x, top + 26.33 + 20.33 * i, s, "t-event")
+                  for i, (x, s) in enumerate(lines))
+        + tx(tx_, ty, time, "t-body", "var(--x-spaces)")
+        + tx(gx, gy, going, "t-note", "var(--x-ink-2)")
+        for n, (top, (name, nx), lines, (tx_, ty, time), (gx, gy, going), on)
+        in enumerate(EVENTS, 1))
+    return (box(0, 0, 393, 58.5, "background:var(--x-wash)")
+            + box(8.82, 59, 375.18, 9, "background:var(--x-spaces)")
+            + box(8.82, 68, 375.18, 90.33,
+                  "border-radius:0 0 var(--x-r-sheet) var(--x-r-sheet);"
+                  "background:var(--x-spaces-2)")
+            + art("15-avatar", "border-radius:50%")
+            + tx(44.0, 86.33, "IG NEWMAN", "t-pill", "var(--x-inv)")
+            + box(132.67, 84.0, 36.67, 16.0,
+                  "border-radius:var(--x-r-chip);background:var(--x-chip-card)")
+            + tx(137.67, 87.33, "Host", "t-count", "var(--x-inv)")
+            + tx(19.0, 114.0, "Evangelist,President Rock of Ages", "t-body",
+                 "var(--x-inv)")
+            + tx(19.0, 131.67, "Empowerment Foundation", "t-body", "var(--x-inv)")
+            + tx(9.67, 195.0, "Get these in your calendar", "t-cal")
+            + tx(10.0, 222.0, "People you follow will be tuning in", "t-body",
+                 "var(--x-ink-2)")
+            + rows
+            + circle(327, 704, 58, "background:var(--x-spaces);"
+                                   "box-shadow:0 4px 12px rgba(0,0,0,.18)")
+            + icon("spaces", 346, 720, 21, 22, "var(--x-inv)")
+            + box(8.82, 744.33, 375.18, 66,
+                  "border-radius:var(--x-r-sheet) var(--x-r-sheet) 0 0;"
+                  "background:var(--x-spaces)")
+            + tx(41.0, 766.0, "LIVE", "t-note", "var(--x-inv)")
+            + box(0, 768.5, 393, 83.5, "background:var(--x-nav-2)")
+            + "".join(icon(n, x, y, w, h, "var(--x-ink)") for n, x, y, w, h in NAV)
+            + circle(44.33, 778.33, 6, "background:var(--x-accent)"))
+
+
+def s15():
+    return screen("Spaces in your calendar", calendar())
+
+
+def pill(y, on=False):
+    """One of the sheet's three 52pt buttons, at x 16 and 361 wide."""
+    return box(16, y, 361, 52, "border-radius:var(--x-r-pill);" + (
+        "background:var(--x-ink)" if on else "border:1px solid var(--x-border)"))
+
+
+def reminder(title, first, banner=""):
+    """13 and 14. They differ in the first of the three buttons and in 14's
+    banner, which is the one thing the veil does not reach."""
+    return screen(title,
+        calendar()
+        + box(0, 0, 393, 852, "background:var(--x-veil)")
+        + banner
+        + box(0, 356, 393, 496, "border-radius:var(--x-r-modal) "
+              "var(--x-r-modal) 0 0;background:var(--x-ground)")
+        + box(179.0, 361.67, 34.67, 5.0,
+              "border-radius:2.5px;background:var(--x-field)")
+        + txc(0, 381.67, 393, "Moby Media&rsquo;s Space", "t-event")
+        + icon("close", 357.67, 380.33, 14.67, 15.0, "var(--x-ink)")
+        + box(16, 425.67, 361, 168.33,
+              "border-radius:var(--x-r-sheet);background:var(--x-spaces)")
+        + art("13-avatar", "border-radius:50%")
+        + tx(50.0, 443.0, "Moby Media", "t-pill", "var(--x-inv)")
+        + icon("verified", 138.67, 439.67, 17.33, 17.0, "var(--x-inv)")
+        + box(161.33, 440.33, 36.67, 16.0,
+              "border-radius:var(--x-r-chip);background:var(--x-chip-card)")
+        + tx(166.33, 443.67, "Host", "t-count", "var(--x-inv)")
+        + "".join(circle(x, 451.67, 2.67, "background:var(--x-inv)")
+                  for x in (348.0, 352.67, 357.33))
+        + tx(26.0, 475.33, "RWA-Investment: The Future of", "t-space-2",
+             "var(--x-inv)")
+        + tx(26.0, 499.0, "Real Estate, Fractionally yours! \U0001F399\uFE0F",
+             "t-space-2", "var(--x-inv)")
+        + icon("calendar", 27.0, 561.0, 14.0, 14.0, "var(--x-inv)")
+        + tx(48.0, 562.67, "Dec 08 at 5:00 PM &middot; 226 going", "t-row",
+             "var(--x-inv)")
+        + first
+        + pill(682) + txc(16, 702.33, 361, "Add to calendar", "t-btn")
+        + pill(746) + txc(16, 766.33, 361, "Share", "t-btn"))
+
+
+def s13():
+    return reminder("Set a reminder",
+        pill(618, True)
+        + txc(16, 638.33, 361, "Set reminder", "t-btn", "var(--x-inv)"))
+
+
+def s14():
+    # the banner's shadow is the one number on these three boards that is not
+    # measured: the capture fades #62737B to the dimmed ground over 6.5pt
+    # below y 169, which is about a 3pt drop at an 8pt blur and .16 black
+    banner = (box(10.67, 69, 371.33, 100,
+                  "border-radius:var(--x-r-sheet);background:var(--x-banner);"
+                  "box-shadow:0 3px 8px rgba(0,0,0,.16)")
+              + circle(23.33, 90.33, 21.33, "background:var(--x-accent)")
+              + icon("check-bold", 29.73, 97.73, 8.33, 7.33, "var(--x-inv)")
+              + tx(58.0, 93.33,
+                   "All set. You&rsquo;ll get a notification when it starts.",
+                   "t-body")
+              + box(21.67, 124.67, 349.33, 32.33,
+                    "border-radius:var(--x-r-play);background:var(--x-accent)")
+              + txc(21.67, 135.67, 349.33, "Share with a post", "t-tag",
+                    "var(--x-inv)"))
+    return reminder("Reminder set",
+        pill(618)
+        + circle(131.33, 633.33, 21.33, "background:var(--x-ink)")
+        + icon("check-bold", 137.4, 640.4, 8.67, 8.0, "var(--x-inv)")
+        + tx(163.0, 638.33, "Reminder set", "t-btn"),
+        banner)
+
+
 SCREENS = [
     ("01-professional-splash", "X for Professionals", s01),
     ("02-select-category", "Select a category", s02),
@@ -1038,6 +1277,9 @@ SCREENS = [
     ("10-explore", "Explore", s10),
     ("11-push-notifications", "Push notifications", s11),
     ("12-new-followers-off", "New followers off", s12),
+    ("13-set-a-reminder", "Set a reminder", s13),
+    ("14-reminder-set", "Reminder set", s14),
+    ("15-calendar", "Spaces in your calendar", s15),
 ]
 
 
@@ -1089,14 +1331,16 @@ def token_board():
     met = "<br>".join("--x-%s: %s" % (n, v) for _, n, v, _ in _of("Metrics"))
     return page(NAME + " - Design Tokens",
                 '<div class="sheet"><header><h1>%s</h1>'
-                '<p>Twelve Mobbin captures at exactly 3 px per pt. One face (SF Pro), '
+                '<p>Fifteen Mobbin captures at exactly 3 px per pt. One face (SF Pro), '
                 'one type ladder fitted by ink width, and a palette that is almost '
                 'entirely white, two greys and one blue &mdash; plus the switch '
-                'green the settings screens turn on and off, and a pale purple '
-                'nav wash on 07. Ten of these have no screen left to '
-                'sit on: they were read off a Spaces card and a post action row '
-                'that the captures show and that board 07, which carries the '
-                'example account&rsquo;s own timeline, does not draw.</p>'
+                'green the settings screens turn on and off, and the purples '
+                'Spaces brings: a nav wash on 07, a second one under 13-15, two '
+                'card fills and the veil 13 and 14 dim the page with. Five of '
+                'these have no screen left to sit on: they were read off the '
+                'Spaces card and the post&rsquo;s Host chip that p7 shows and '
+                'that board 07, which carries the example account&rsquo;s own '
+                'timeline, does not draw.</p>'
                 '</header>'
                 '<h2>Colour</h2><div class="grid">%s</div>'
                 '<div class="foot"><div><h2>Radius</h2>'

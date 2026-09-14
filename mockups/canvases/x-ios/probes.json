@@ -12,7 +12,7 @@
   "only": "flat",
   "mine": "06-edit-profile.png",
   "_": "06 the empty band between the hairlines at 664.67 and 697.00, clear of both: page ground and nothing else",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the twelve boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Eight left the file when 07 took @Yilin0x's own timeline: spaces, chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, and t-name and t-meta the demo persona's name and location -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those eight measurements stay on the 00b-00d evidence boards, which quote the capture and are not replayed against a render."
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the fifteen boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Seven left the file when 07 took @Yilin0x's own timeline: chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, and t-name and t-meta the demo persona's name and location -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those seven measurements stay on the 00b-00f evidence boards, which quote the capture and are not replayed against a render. spaces is not among them: 13's card brought it back, on a screen this time."
  },
  {
   "id": "field",
@@ -394,5 +394,211 @@
   "bright": 200,
   "mine": "10-explore.png",
   "_": "10 the '5' in the notifications badge, 6.00 x 9.00. White on the accent, so it is read bright, and the box stays inside the 16.00 disc -- the page around it is white too"
+ },
+ {
+  "id": "spaces",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   331,
+   726,
+   344,
+   740
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 inside the Spaces button, d 58 at (327, 704), left of its glyph at 346: flat #7856FE. 13's card in the sheet is the same fill two levels of red off, so the token is read here rather than there"
+ },
+ {
+  "id": "spaces-2",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   70,
+   370,
+   80
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 the host card's body, above the avatar (starts 82) and right of the Host chip (ends 169.33): the darker of the two card purples"
+ },
+ {
+  "id": "wash",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   44,
+   120,
+   56
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 the band behind the status bar, below the clock ink (ends 40) and above the card at 59"
+ },
+ {
+  "id": "banner",
+  "img": "assets/refs/p14.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   112,
+   360,
+   122
+  ],
+  "only": "flat",
+  "mine": "14-reminder-set.png",
+  "_": "14 the confirmation banner, between its one line of type (ends 107.00) and the blue pill at 124.67: the one thing the veil does not reach, so this is the undimmed colour"
+ },
+ {
+  "id": "veil",
+  "img": "assets/refs/p13.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   168,
+   370,
+   188
+  ],
+  "only": "flat",
+  "mine": "13-set-a-reminder.png",
+  "_": "13 the dimmed page at its whitest, below the host card (ends 158.33) and above the heading ink at 194.67. White under the veil, so the reading is the veil itself: #878787 is .47 black on #FFFFFF"
+ },
+ {
+  "id": "nav2-t",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   770,
+   100,
+   777
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 the nav wash at its top, below the rule at 768.5 and above the glyphs at 781.79, right of the active dot (ends 50.33)"
+ },
+ {
+  "id": "nav2-b",
+  "img": "assets/refs/p15.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   820,
+   100,
+   835
+  ],
+  "only": "flat",
+  "mine": "15-calendar.png",
+  "_": "15 the same wash near its foot, clear of the home indicator band. The pair is what sets the gradient's two stops"
+ },
+ {
+  "id": "m-tile",
+  "img": "assets/refs/p15.png",
+  "cmd": "bbox",
+  "box": [
+   0,
+   258,
+   100,
+   350
+  ],
+  "dark": 160,
+  "mine": "15-calendar.png",
+  "_": "15 the first event tile, 80.67 square at (8.83, 264). #7A55FE on white sits just above an ordinary ink cut, hence --dark 160"
+ },
+ {
+  "id": "m-bell",
+  "img": "assets/refs/p15.png",
+  "cmd": "bbox",
+  "box": [
+   330,
+   258,
+   393,
+   336
+  ],
+  "mine": "15-calendar.png",
+  "_": "15 the first row's bell, the unset one: a filled disc d 44.33 at (339.67, 264), which is the control this whole flow turns on"
+ },
+ {
+  "id": "m-banner",
+  "img": "assets/refs/p14.png",
+  "cmd": "bbox",
+  "box": [
+   4,
+   62,
+   389,
+   176
+  ],
+  "bright": 200,
+  "mine": "14-reminder-set.png",
+  "_": "14 the banner, 371.33 x 100 at (10.67, 69). It is the bright thing on a dimmed page, so it is cut the other way round"
+ },
+ {
+  "id": "modal-edge",
+  "img": "assets/refs/p13.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 196,
+  "range": [
+   348,
+   372
+  ],
+  "mine": "13-set-a-reminder.png",
+  "_": "13 down the middle, starting below the third title line of the event row the veil dims: the sheet's top edge at 356.00"
+ },
+ {
+  "id": "t-cal",
+  "img": "assets/refs/p15.png",
+  "cmd": "bbox",
+  "box": [
+   5,
+   190,
+   285,
+   216
+  ],
+  "mine": "15-calendar.png",
+  "_": "15 'Get these in your calendar' at x 9.67, the heading the page is built around"
+ },
+ {
+  "id": "t-event",
+  "img": "assets/refs/p15.png",
+  "cmd": "bbox",
+  "box": [
+   95,
+   285,
+   330,
+   310
+  ],
+  "mine": "15-calendar.png",
+  "_": "15 the first event's opening line, 'NUAI 101 with Will Gray'"
+ },
+ {
+  "id": "t-space-2",
+  "img": "assets/refs/p13.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   470,
+   335,
+   493
+  ],
+  "bright": 200,
+  "mine": "13-set-a-reminder.png",
+  "_": "13 the card title's first line, 'RWA-Investment: The Future of', white on the card. The window stops above 494 because the microphone on the line below poles up to 496"
+ },
+ {
+  "id": "t-tag",
+  "img": "assets/refs/p14.png",
+  "cmd": "bbox",
+  "box": [
+   135,
+   130,
+   258,
+   152
+  ],
+  "bright": 200,
+  "mine": "14-reminder-set.png",
+  "_": "14 'Share with a post' on the banner's blue pill, white on #1D9BF0"
  }
 ]

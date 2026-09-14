@@ -1,16 +1,17 @@
 # X, iOS
 
-Twelve screens of X on iOS in three flows — switching an account to a
-professional one, turning Explore's location off, and turning one push
-notification off — rebuilt from Mobbin captures at exactly 3 capture px per
-design pt, plus the token board, the type board and four evidence boards behind
-them. 18 boards, and 12 more that park each capture under its replica.
+Fifteen screens of X on iOS in four flows — switching an account to a
+professional one, turning Explore's location off, turning one push notification
+off, and turning on a reminder for a Space — rebuilt from Mobbin captures at
+exactly 3 capture px per design pt, plus the token board, the type board and
+five evidence boards behind them. 22 boards, and 15 more that park each capture
+under its replica.
 
 | # | Board | What it shows |
 | --- | --- | --- |
-| 00 | `design-tokens` | All 60 tokens, as one `:root` block |
+| 00 | `design-tokens` | All 71 tokens, as one `:root` block |
 | 00a | `type-tokens` | The type ladder, one row per size |
-| 00b–00e | `evidence` | One row per token, and what it was read off |
+| 00b–00f | `evidence` | One row per token, and what it was read off |
 | 01 | `professional-splash` | The hero, the pitch, the legal note, Agree & Continue |
 | 02 | `select-category` | The search field and ten category rows, Next disabled |
 | 03 | `category-selected` | Entertainment & Recreation checked, Next enabled |
@@ -23,6 +24,9 @@ them. 18 boards, and 12 more that park each capture under its replica.
 | 10 | `explore` | The Explore tab: live-event hero, five topic tabs, Today's News |
 | 11 | `push-notifications` | Push notifications, all nine switches on |
 | 12 | `new-followers-off` | The same screen with New followers turned off |
+| 13 | `set-a-reminder` | The Space's sheet over a dimmed calendar, Set reminder live |
+| 14 | `reminder-set` | The same sheet a tap later: the confirmation banner and the set button |
+| 15 | `calendar` | The page under both: host card, three events, and a LIVE card under the nav |
 
 `gen.py` is the only source of truth; the `NN-*.html` boards are its output.
 Regenerate from anywhere, byte-identically:
@@ -45,16 +49,18 @@ Mean absolute delta against the captures, in levels of 255, over the whole
 | 04 Select account type | 4.46 | 11 Push notifications | 5.92 |
 | 05 Welcome | 5.90 | 12 New followers off | 5.92 |
 | **Mean, 01–05** | **4.71** | **Mean, 08–12** | **5.17** |
+| 13 Set a reminder | 5.76 | 15 Spaces in your calendar | 7.60 |
+| 14 Reminder set | 5.70 | **Mean, 13–15** | **6.35** |
 | 06 Edit profile | 16.87 | 07 Professional profile | 55.14 |
 
-**Ten of the twelve are clone scores.** 06 and 07 carry the example account's
+**Thirteen of the fifteen are clone scores.** 06 and 07 carry the example account's
 own banner, avatar, bio, links and timeline, so what their numbers measure is
 the distance between two accounts' content rather than between a replica and
 its source. 08–12 carry that account too, but only its handle and, on 10, its
 avatar — worth 0.05 to 0.17 levels, measured below. **The account on the
 boards** says what is still comparable on all seven and what it comes to.
 
-Across 01–05 and 08–12 the spread is type density, not geometry. Every one of
+Across 01–05, 08–12 and 13–15 the spread is type density, not geometry. Every one of
 the worst 40 px bands `refkit diff` reports on 01–05, 08, 09, 11 and 12 carries
 a line of text, and all but one of their worst rows sample the same flat colour
 on both sides, white against white; the exception is `#0F1419` against
@@ -64,11 +70,17 @@ photograph, and 08 and 09, which are two-thirds white; the highest of them is
 05, which sets two title lines, a three-line body and four row labels in one
 screen.
 
-10 is the exception among the new five, and the reason is contrast rather than
-craft: it sets "AWS re:Invent 2025" in white over the hero photograph, so the
-same sub-pixel drift that scores as white-on-white elsewhere scores as ink
-against photograph there. Two of its five worst bands are that title and a
-wrapped news headline; the other three are white on white like the rest.
+10 and 15 are the exceptions, and the reason in both cases is contrast rather
+than craft. 10 sets "AWS re:Invent 2025" in white over the hero photograph, so
+the same sub-pixel drift that scores as white-on-white elsewhere scores as ink
+against photograph there; two of its five worst bands are that title and a
+wrapped news headline, and the other three are white on white like the rest.
+15 is the densest page in the canvas — a heading, a subhead, eight event title
+lines, three host names, three times and three counts inside 480 pt — and all
+six of its worst bands are those rows. 13 and 14 set the same page under the
+veil, which more than halves the contrast of every glyph on it, and both score
+below 15 for exactly that reason: four of their six worst bands sample
+`#878787` against `#878787`, the veil over white.
 
 03 is the exception worth naming among the first five, and it is the source's,
 not the board's: see **What the captures get wrong**.
@@ -81,7 +93,9 @@ name and handle, the avatar, the banner and the strip of it peeking above 06's
 sheet, the two-line bio, the location, the website, the join month, the two
 counts, and one post — the 9/4/26 super-prototyping launch, with its video
 thumbnail. 01–05 are the signup flow and carry no account, so they are
-untouched.
+untouched, and so are 13–15: the hosts and speakers on those three are other
+people's, not the viewer's, and a Space's card is the same card whoever is
+looking at it.
 
 Three things follow from that on 06 and 07, and each costs those boards
 something:
@@ -95,11 +109,13 @@ something:
   thumbnail runs under the nav and the action row falls off the board
   altogether. 07 draws no action row, and the reply, repost, like, views and
   bookmark glyphs went with it.
-- **The Spaces card is gone**, and ten tokens now appear only on 00–00d:
-  `spaces`, `chip`, `chip-card`, `chip-ink`, `r-play`, `r-chip`, `t-space`,
-  `t-date`, `t-pill` and `t-host`. Each keeps its evidence row. The
-  measurements were made off the captures and still stand; they have no screen
-  left to sit on.
+- **The Spaces card is gone**, and ten tokens went with it. Five have since
+  come back on a screen of their own: 13–15 draw `spaces`, `chip-card`,
+  `r-play`, `r-chip` and `t-pill` again, on the Space's own sheet rather than
+  on a post. Five still appear only on 00–00f — `chip`, `chip-ink`, `t-space`,
+  `t-date` and `t-host` — and each keeps its evidence row. Those measurements
+  were made off the captures and still stand; they have no screen left to sit
+  on.
 
 What is still comparable: outside the three photographs the account brings —
 the peek, the banner and the avatar disc, 19.5% of the frame — 06 scores
@@ -206,9 +222,14 @@ error. K was left alone.
 
 > Crop what the capture already contains; draw only what it does not.
 
-`crops.json` is **six boxes**, and every one is a photograph: the heroes on 01,
-05 and 10, and the three facepiles under 10's news items. Each facepile is cut
-as one rectangle, white gaps included, because the discs overlap. The other
+`crops.json` is **eleven boxes**, and every one is a photograph: the heroes on
+01, 05 and 10, the three facepiles under 10's news items, and the five round
+ones the Spaces boards want — 13's host avatar, 15's host avatar and the
+pictures on 15's three event tiles. Each facepile is cut as one rectangle,
+white gaps included, because the discs overlap. The five round ones are cut as
+squares and placed under `border-radius:50%`, and each brings the ring the
+capture draws around it: that ring is a property of the picture's own edge, not
+a fill a board could redraw. The other
 photographs — the banner on 06 and 07, the avatar at four diameters across 06,
 07 and 10, and the post's video thumbnail — are the example account's own, so
 they come out of `assets/` through `pic()` and never out of a capture.
@@ -230,7 +251,7 @@ showed. The sheet's top edge is **69.0**: fitting eleven columns across its
 12 pt corner puts it there at 0.17 pt rms, where 70.33 sits 1.24 out. Both the
 peek and the sheet moved, and 06 went 17.22 to 16.87.
 
-**Twenty-eight icons are vectors, not crops.** Each is drawn on X's own 24-unit
+**Thirty-three icons are vectors, not crops.** Each is drawn on X's own 24-unit
 grid in `assets/icons/`, and `scratch/mkicons.py` sets each file's `viewBox`
 to the glyph's own ink box, so `icon()` maps that box straight onto the ink box
 measured off the capture and the canvas's inspector still hands the glyph back
@@ -264,10 +285,10 @@ thresholded.
 
 ## Approximations
 
-Three things on these boards are fitted rather than measured, and a reader
-would otherwise take them for measurement:
+Five things on these boards are fitted, or shipped a shade off what was
+measured, and a reader would otherwise take them for measurement:
 
-- **Twenty-three of the twenty-eight icons are approximations of X's artwork,
+- **Twenty-eight of the thirty-three icons are approximations of X's artwork,
   not the artwork.** Each is drawn to its measured ink box: the box is the
   measurement and the interior is a redraw. The five bottom-nav glyphs are the
   exception — those are traced off the artwork, as above. The three the Explore
@@ -277,9 +298,28 @@ would otherwise take them for measurement:
   intersection over union (`scratch/fithome.py`, `fitsrch.py`, `fitgear.py`).
   The gear is the loosest, and that is the eight-lobed
   `r(t) = 8.1 + 0.9 cos 8t` standing in for a tooth profile with flats on it.
+  The five the Spaces flow adds — the two bells, the heavy check, the Spaces
+  mark and the verified badge — are plain redraws to their measured boxes.
 - **The nav gradient.** `--x-nav` is four stops fitted to one row of the wash;
   the capture holds a two-axis gradient that no stop list along one axis
-  reproduces.
+  reproduces. `--x-nav-2`, the wash under 13–15, runs down instead of across
+  and is two stops solved on two rows, so it is a measurement — but the
+  capture's own lateral drift of two to four levels is still there under it.
+- **14's banner shadow.** The capture fades `#62737B` into the dimmed ground
+  over 6.5 pt below y 169. That is read as a 3 pt drop at an 8 pt blur and .16
+  black, which is a shape chosen to match a falloff rather than a measurement
+  of one: it is the only number on 13–15 that was not measured.
+- **The veil over the status band on 13 and 14.** `--x-veil` is one black
+  everywhere else: fitted as a line per channel over the white page, the host
+  card and a tile's purple it comes out the same three times, every residual
+  under 0.7 of a level. The band behind the clock does not follow it. It reads
+  a flat `#787294` on both captures where the dimmed wash should be `#797187`,
+  and nothing going in explains the 13 levels of blue — the fit wants a B of
+  280 out of a channel that stops at 255. Over that one band the scrim behaves
+  like `rgba(0,0,27,.47)`; the boards ship the plain black and eat the
+  difference. The band runs 7.9 levels of mean channel error against the whole
+  frame's 6.2, and it is 6.9% of the frame, so shipping it exact would take
+  about half a level off each of the two boards (`scratch/bandcost.py`).
 - **`--x-chip-card`, `--x-scrim` and the two black discs are solved alphas**,
   not sampled fills. Each one's evidence row on the 00b–00e boards carries the
   arithmetic.
@@ -300,9 +340,9 @@ source's too, not the app's.
 
 ## Replaying the measurements
 
-`probes.json` is 28 of the measurements in the shape `refkit batch` replays —
+`probes.json` is 43 of the measurements in the shape `refkit batch` replays —
 the flat-fill censuses, the ink cores, the three coverage solves for the 1 pt
-rules, one structural edge and the fitted type widths, each with the note that
+rules, two structural edges and the fitted type widths, each with the note that
 says why its window is where it is.
 
 ```bash
@@ -311,20 +351,22 @@ refkit batch mockups/canvases/x-ios/probes.json --pt 3 \
     --against mockups/canvases/x-ios/scratch/shot
 ```
 
-The 17 colour probes come back at a mean Δmax of 2.4 levels and a worst of 9;
-the 10 box probes at a mean |dw| of 0.74 pt and a mean |dh| of 0.48 pt; the one
-scan probe lands on its edge exactly.
+The 24 colour probes come back at a mean Δmax of 1.7 levels and a worst of 9;
+the 17 box probes at a mean |dw| of 0.75 pt and a mean |dh| of 0.46 pt; both
+scan probes land on their edge exactly.
 
-Every probe here replays a run both sides still draw, which is why there are 28
-and not 36. Eight went with the Spaces card and the demo persona's name and
-location, and a shifted run cannot be replayed at all — `--against` reads one
-box on both images, and the bio's second line moves 07's meta block 21 pt down
-the render. Those eight measurements are on the 00b–00e evidence boards, which
-quote the capture and are not replayed against a render. `inv` stayed by moving
-to 01's "Agree & Continue", white on `--x-ink` where it used to be white on the
-Space card.
+Every probe here replays a run both sides still draw. Seven measurements cannot
+be: five went with the Spaces card X's own post carries, two are the demo
+persona's name and location, and a shifted run cannot be replayed at all —
+`--against` reads one box on both images, and the bio's second line moves 07's
+meta block 21 pt down the render. Those seven are on the 00b–00f evidence
+boards, which quote the capture and are not replayed against a render. `inv`
+stayed by moving to 01's "Agree & Continue", white on `--x-ink` where it used to
+be white on the Space card, and `spaces` came back outright when 13 drew a
+Spaces card again — it is read off 15's Spaces button, because 13's card is the
+same fill two levels of red off it.
 
-`assets/refs/` and the twelve `ref-*.html` boards hold third-party captures and
-are gitignored, so a fresh clone has 18 boards; `gen.py` rebuilds the reference
+`assets/refs/` and the fifteen `ref-*.html` boards hold third-party captures and
+are gitignored, so a fresh clone has 22 boards; `gen.py` rebuilds the reference
 boards whenever the captures are present. Everything a run makes otherwise
 lives in `scratch/`.

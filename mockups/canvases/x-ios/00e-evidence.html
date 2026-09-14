@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>X iOS - Evidence 4/4</title>
+<title>X iOS - Evidence 4/5</title>
 <style>
 :root{
   /* Font */
@@ -12,6 +12,10 @@
   --x-ground:#FFFFFF;
   --x-field:#EFF3F4;
   --x-spaces:#7856FE;
+  --x-spaces-2:#6748D9;
+  --x-wash:#E6D8FF;
+  --x-banner:#E9F5FC;
+  --x-veil:rgba(0,0,0,.47);
   --x-chip:#ECE8FF;
   --x-chip-card:rgba(255,255,255,.30);
   --x-pill-off:#88898D;
@@ -22,6 +26,7 @@
   --x-track-on:#01BA7B;
   --x-track-off:#E9E9E9;
   --x-nav:linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%);
+  --x-nav-2:linear-gradient(180deg,#E7DDFE 0%,#ECE3FF 100%);
 
   /* Line */
   --x-hairline:#D2D4D6;
@@ -47,6 +52,8 @@
   --x-r-play:16.5px;
   --x-r-chip:4px;
   --x-r-sheet:12px;
+  --x-r-modal:36px;
+  --x-r-tile:20px;
   --x-r-peek:10px;
 
   /* Metrics */
@@ -61,12 +68,15 @@
   --x-t-title:800 26px/34px var(--x-font);
   --x-t-space:800 25.5px/31px var(--x-font);
   --x-t-name:800 22px/27px var(--x-font);
+  --x-t-cal:800 21.65px/28px var(--x-font);
+  --x-t-space-2:800 20.2px/23.67px var(--x-font);
   --x-t-card:700 19px/24px var(--x-font);
   --x-t-field:400 18.5px/24px var(--x-font);
   --x-t-sheet:700 18.5px/24px var(--x-font);
   --x-t-sect:800 19.3px/24px var(--x-font);
   --x-t-save:700 17.5px/22px var(--x-font);
   --x-t-head:800 18.25px/22px var(--x-font);
+  --x-t-event:800 18px/20.33px var(--x-font);
   --x-t-btn:700 16.5px/21px var(--x-font);
   --x-t-body:400 16px/21px var(--x-font);
   --x-t-date:700 16px/21px var(--x-font);
@@ -75,6 +85,7 @@
   --x-t-pill:700 15px/20px var(--x-font);
   --x-t-desc:400 14.5px/15.67px var(--x-font);
   --x-t-meta:400 13.5px/19px var(--x-font);
+  --x-t-tag:800 13.5px/19px var(--x-font);
   --x-t-host:800 14.5px/18px var(--x-font);
   --x-t-count:400 14px/19px var(--x-font);
   --x-t-badge:400 12.5px/16px var(--x-font);
@@ -126,6 +137,6 @@ td.v{color:var(--x-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--x-ink-2)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 4/4</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--x-t-count</td><td class="v">400 14px/19px var(--x-font)</td><td class="e">07 'Following' 55.66 and 'Followers' 55.33, 'Joined November 2025' 137.67, 'View more' 61.67 (cap 10.0), the card's 'Host' 26.67. 10 the three news meta lines, 237.67 / 239.00 / 241.67, and 08's two descriptions, 361.00 and 364.00 on the first line and 116.00 on 'and who you follow.' -- those two wrap on a 16.33 baseline pitch rather than this token's 19, so explore() places each line itself</td></tr><tr><td class="t">--x-t-badge</td><td class="v">400 12.5px/16px var(--x-font)</td><td class="e">10 the '5' in the notifications tab's badge, 6.00 wide and 9.00 tall inside a 16.00 disc</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 4/5</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--x-t-space-2</td><td class="v">800 20.2px/23.67px var(--x-font)</td><td class="e">13 the card's title in the sheet, 'RWA-Investment: The Future of' 303.00 and 'Real Estate, Fractionally yours!' 296.00, fitting 20.17 and 20.18; cap 14.33 on both and the two baselines 23.67 apart. The one run on these boards that clears 20px by a fifth of a point, so it drops --x-tr-text while the rows below it keep it</td></tr><tr><td class="t">--x-t-card</td><td class="v">700 19px/24px var(--x-font)</td><td class="e">04 'Business' 77.33 and 'Creator' 66.33</td></tr><tr><td class="t">--x-t-field</td><td class="v">400 18.5px/24px var(--x-font)</td><td class="e">02 the placeholder 'Search categories' 136.33, 05 'Customize your profile' 168.67 and 'Explore Profile Spotlights' 188.33, 05 'Skip for now' 94.00, 06 'Cancel' 52.33</td></tr><tr><td class="t">--x-t-sheet</td><td class="v">700 18.5px/24px var(--x-font)</td><td class="e">06 'Edit profile' 90.67, the same size as Cancel beside it and bold</td></tr><tr><td class="t">--x-t-sect</td><td class="v">800 19.3px/24px var(--x-font)</td><td class="e">08 'Location' 73.67 and 'Personalization' 134.67, 11 'Related to you and your posts' 256.00 and 'In-app notifications from X' 234.33. The section head is a point larger than the title above it. Fitted against the render rather than against SF Pro at 8x: heavy is the one weight where the 8x fit and --x-tr-text do not cancel, and 18.5 off the 8x fit ships 4.3% narrow</td></tr><tr><td class="t">--x-t-save</td><td class="v">700 17.5px/22px var(--x-font)</td><td class="e">06 'Save' 38.67 -- a size of its own, half a point under the title. 08-12 'Done' 40.00, in --x-ink rather than the accent</td></tr><tr><td class="t">--x-t-head</td><td class="v">800 18.25px/22px var(--x-font)</td><td class="e">08 'Explore settings' 132.00, 11 'Push notifications' 148.67, 10 "Today's News" 117.00. Fitted against the render for the same reason as t-sect: 17.5, which is what SF Pro at 8x asks for, ships 4.3% narrow</td></tr><tr><td class="t">--x-t-event</td><td class="v">800 18px/20.33px var(--x-font)</td><td class="e">15 the eight title lines on the three event rows fit 18.10 / 17.94 / 18.20 / 18.04 / 18.21 / 17.97 / 18.05 against ink widths of 190.33 / 204.00 / 162.67 / 179.67 / 174.00 / 197.33 / 64.33, and 13's sheet title 'Moby Media&rsquo;s Space' 165.67 fits 17.82. Their baselines are 20.33 apart, which is the line height. t-head at 18.25 ships 1.2% wide</td></tr><tr><td class="t">--x-t-btn</td><td class="v">700 16.5px/21px var(--x-font)</td><td class="e">01 'Agree & Continue' 131.00 and 02/03/04 'Next' 33.67. 13's three sheet buttons fit 16.78 / 17.00 / 16.57 and 14's 'Reminder set' 16.80, all 1.7% over, and each label sits 20.33 below its own pill's top like 01-04's</td></tr><tr><td class="t">--x-t-body</td><td class="v">400 16px/21px var(--x-font)</td><td class="e">01 body 337.00 on a 21.0 pitch, 02 subtitle 341.00 on 21, 04 subtitle 276.00 on 21, 05 body 329.00 on 21.3, 07 the bio 84.33, 07 the post's Host label 30.33 (regular, not bold -- see the capture). The widest band on 13-15: 15's subtitle fits 16.05, its two card description lines 15.87 and 15.91, the three host names 16.00 / 15.82 / 15.83, the two times 15.67 and 15.73, and 14's banner sentence 16.17</td></tr><tr><td class="t">--x-t-date</td><td class="v">700 16px/21px var(--x-font)</td><td class="e">07 'Dec 10, 2025 - 11s' 130.00, bold on the card</td></tr><tr><td class="t">--x-t-row</td><td class="v">700 15.5px/21px var(--x-font)</td><td class="e">02 row 1 194.67 and row 7 238.67, 06 every field label, 07 the five legible tabs 38.33 / 50.33 / 70.66 / 48.00 / 48.33 and the post head's 'Sam Lee' 59.00. 13 the card's foot 'Dec 08 at 5:00 PM &middot; 226 going' 208.33 fits 15.28</td></tr><tr><td class="t">--x-t-note</td><td class="v">400 15.5px/21px var(--x-font)</td><td class="e">01 the legal note 329.67 on a 20.67 pitch, 07 the handle 79.00 and the post head's '@SamLeexf - 2h' 103.67. 15 the three going counts fit 15.39 / 15.58 / 15.58, and its 'LIVE' rides the same token 10's does -- two and a half points of that card show before the nav covers it</td></tr></table></div>
 </body>
 </html>
