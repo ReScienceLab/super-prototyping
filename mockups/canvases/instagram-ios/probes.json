@@ -347,5 +347,154 @@
   "cmd": "bbox",
   "box": [48, 130, 250, 152],
   "_": "c10 midcenturyhome on the first post, right of its avatar (ends 42.7) and left of the Follow pill (starts 291.0): 53.0..166.0, w 113.0"
+ },
+ {
+  "id": "w-home",
+  "img": "assets/refs/c19.png",
+  "mine": "19-widget-shortcuts.png",
+  "cmd": "sample",
+  "box": [20, 600, 373, 800],
+  "only": "flat",
+  "_": "c19 the empty home screen below the four widgets, which end 424.7 and leave the rest of the frame bare: 100% flat, and the widgets cast no shadow onto it",
+  "_expect": "#D5D5D5"
+ },
+ {
+  "id": "w-tile",
+  "img": "assets/refs/c20.png",
+  "mine": "20-widget-search.png",
+  "cmd": "sample",
+  "box": [46, 155, 75, 220],
+  "only": "flat",
+  "_": "c20 shortcut tile 1, left of its home glyph (starts 79.7) and inside the tile (42.0..139.7 x 150.0..224.7): 99.7% flat",
+  "_expect": "#F5F5F5"
+ },
+ {
+  "id": "w-blank",
+  "img": "assets/refs/c16.png",
+  "mine": "16-widget-messages.png",
+  "cmd": "sample",
+  "box": [52, 152, 62, 168],
+  "only": "flat",
+  "_": "c16 the blank avatar of an account with no picture, left of the white silhouette's shoulder and inside the disc (48.8..106.3 x 131.3..188.8): 93.0% flat",
+  "_expect": "#D3D7DA"
+ },
+ {
+  "id": "w-ink",
+  "img": "assets/refs/c16.png",
+  "mine": "16-widget-messages.png",
+  "cmd": "sample",
+  "box": [43, 104, 113, 118],
+  "only": "ink",
+  "_": "c16 the widget title Messages, its own ink box (43.3..113.3 x 104.7..118.0): the widgets set type on pure black, not on the app's --ig-ink #0E0F13",
+  "_expect": "#000000"
+ },
+ {
+  "id": "w-ink2",
+  "img": "assets/refs/c20.png",
+  "mine": "20-widget-search.png",
+  "cmd": "sample",
+  "box": [89, 113, 237, 127],
+  "only": "ink",
+  "_": "c20 the placeholder Search on Instagram, right of the corner mark (ends 79.3) and inside the field (42.0..350.7 x 98.0..142.0); c17's Your story label reads #8A8A8A",
+  "_expect": "#89898A"
+ },
+ {
+  "id": "w-med",
+  "img": "assets/refs/c16.png",
+  "mine": "16-widget-messages.png",
+  "cmd": "bbox",
+  "box": [10, 66, 380, 250],
+  "bright": 230,
+  "_": "c16 the medium widget, white on the grey home screen, so this matches bright and not dark: 24.0..368.7 x 80.0..242.7, 344.7 x 162.7. The small one below starts 262.0",
+  "_expect": "x0 24.0  y0 80.0  x1 368.7  y1 242.7"
+ },
+ {
+  "id": "w-small",
+  "img": "assets/refs/c16.png",
+  "mine": "16-widget-messages.png",
+  "cmd": "bbox",
+  "box": [10, 248, 200, 460],
+  "bright": 230,
+  "_": "c16 the small widget, below the medium one (ends 242.7) and left of the empty right column: 24.0..186.7 x 262.0..424.7, 162.7 square",
+  "_expect": "x0 24.0  y0 262.0  x1 186.7  y1 424.7"
+ },
+ {
+  "id": "w-title",
+  "img": "assets/refs/c16.png",
+  "mine": "16-widget-messages.png",
+  "cmd": "bbox",
+  "box": [40, 102, 180, 122],
+  "_": "c16 the title Messages, right of the widget's 18pt inset and left of the corner mark (starts 327.3), above the avatar (starts 131.3): 43.3..113.3, w 70.0, which is what picks 600 15px out of the ladder",
+  "_expect": "x0 43.3  y0 104.7  x1 113.3  y1 118.0"
+ },
+ {
+  "id": "w-mark",
+  "img": "assets/refs/c16.png",
+  "mine": "16-widget-messages.png",
+  "cmd": "bbox",
+  "box": [318, 92, 360, 128],
+  "dark": 245,
+  "_": "c16 the Instagram corner mark, right of the title (ends 113.3) and inside the widget: 327.3..349.7 x 98.7..121.3. --dark 245 because the ramp's gold end is nowhere near the 128 default, so the box runs 0.3-0.7 past the ink the mark is placed by",
+  "_expect": "x0 327.3  y0 98.7  x1 349.7  y1 121.3"
+ },
+ {
+  "id": "w-blank-fit",
+  "img": "assets/refs/c16.png",
+  "mine": "16-widget-messages.png",
+  "cmd": "bbox",
+  "box": [40, 122, 116, 196],
+  "dark": 245,
+  "_": "c16 the blank avatar: 48.7..106.3 x 131.3..181.0. h reads 49.7 against w 57.7 because the white silhouette fills the bottom arc, so the disc is placed by a least-squares circle fit on the left and right edges instead (c 77.51,160.06 d 57.48, residual 0.067)",
+  "_expect": "x0 48.7  y0 131.3  x1 106.3  y1 181.0"
+ },
+ {
+  "id": "w-ring",
+  "img": "assets/refs/c17.png",
+  "mine": "17-widget-stories.png",
+  "cmd": "bbox",
+  "box": [118, 128, 196, 210],
+  "dark": 245,
+  "_": "c17 story ring 2 on the medium widget, between ring 1 (ends 113.7) and ring 3 (starts 200.0), above the labels (start 213.7): 121.0..192.7 x 134.7..206.3, d 71.7 on a 79.0 pitch",
+  "_expect": "x0 121.0  y0 134.7  x1 192.7  y1 206.3"
+ },
+ {
+  "id": "w-thumbs",
+  "img": "assets/refs/c18.png",
+  "mine": "18-widget-reels.png",
+  "cmd": "bbox",
+  "box": [36, 126, 360, 230],
+  "dark": 245,
+  "_": "c18 all four reel thumbnails at once, below the title (ends 118.0) and inside the widget: 42.0..350.7 x 130.0..224.7, so 71.67 x 94.67 cells on the same 79.0 pitch the rings use",
+  "_expect": "x0 42.0  y0 130.0  x1 350.7  y1 224.7"
+ },
+ {
+  "id": "w-glyph",
+  "img": "assets/refs/c19.png",
+  "mine": "19-widget-shortcuts.png",
+  "cmd": "bbox",
+  "box": [60, 130, 180, 210],
+  "dark": 245,
+  "_": "c19 the Reels glyph on the top-left shortcut, below its title (ends 118.0) and inside the widget (ends 186.7): 81.0..129.3 x 144.3..192.7. --dark 245 for the ramp's gold end, as on w-mark",
+  "_expect": "x0 81.0  y0 144.3  x1 129.3  y1 192.7"
+ },
+ {
+  "id": "w-tiles",
+  "img": "assets/refs/c20.png",
+  "mine": "20-widget-search.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 200,
+  "range": [34, 160],
+  "_": "c20 across the first gutter between shortcut tiles: widget white to 42.0, tile 1 to 139.7, white to 147.7, tile 2 after. Tile 97.67 on a 105.67 pitch"
+ },
+ {
+  "id": "w-field",
+  "img": "assets/refs/c20.png",
+  "mine": "20-widget-search.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 120,
+  "range": [34, 50],
+  "_": "c20 across the search field's left edge, level with the placeholder and left of the corner mark (starts 57.0): widget white to 42.0, field after. Same 18pt inset as every title"
  }
 ]

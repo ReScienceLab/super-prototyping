@@ -6,8 +6,9 @@ its four profile tabs, a private account, and two more profiles that carry
 the pieces the first one does not. Six are the feed: the Following /
 Favorites switcher open over the home feed, the two feeds it opens, and the
 two fullscreen reels views. A fifteenth screen is the profile geometry
-carrying a live account instead of a capture. 19 boards, and 14 more that
-park each capture under its replica.
+carrying a live account instead of a capture. Five more boards are not app
+screens at all: they are the iOS home screen carrying Instagram's widgets.
+26 boards, and 19 more that park each capture under its replica.
 
 | # | Board | What it shows |
 | --- | --- | --- |
@@ -26,10 +27,17 @@ park each capture under its replica.
 | 13 | `reels-toast` | Reels fullscreen with the screen-recording toast over the scrubber |
 | 14 | `reels-fullscreen` | Reels fullscreen, the same layout with the toast gone and the scrubber further along |
 | 15 | `yilin0xx` | Board 01's geometry filled from the live profile API. No capture behind it |
-| 00 | `design-tokens` | 53 tokens in eight groups |
-| 00b | `evidence` | One row per token, with the measurement behind it, 1/3 |
-| 00c | `evidence` | The same table, 2/3 |
-| 00d | `evidence` | The same table, 3/3 |
+| 16 | `widget-messages` | The Messages widget at both sizes, on an account with no profile picture |
+| 17 | `widget-stories` | The Stories widget: Your story plus three rings on the medium, two on the small |
+| 18 | `widget-reels` | Suggested Reels, four thumbnails on the medium widget's own 4-column pitch |
+| 19 | `widget-shortcuts` | Four small shortcut widgets — Reels, Messages, Explore, Create — one brand-ramp glyph each |
+| 20 | `widget-search` | The Search widget: a field with the corner mark in it, and three shortcut tiles |
+| 00 | `design-tokens` | Colour and radius, 37 of the 69 tokens, 1/2 |
+| 00a | `design-tokens` | Type and metrics, 31 more, 2/2. `--ig-font` is shown by every row that sets type rather than as a swatch |
+| 00b | `evidence` | One row per token, with the measurement behind it, 1/4 |
+| 00c | `evidence` | The same table, 2/4 |
+| 00d | `evidence` | The same table, 3/4 |
+| 00e | `evidence` | The same table, 4/4 |
 
 ## How close it lands
 
@@ -39,12 +47,20 @@ Mean absolute delta against the captures, in levels of 255, phone crop
 | Screen | whole frame | below the status bar | Screen | whole frame | below the status bar |
 | --- | --- | --- | --- | --- | --- |
 | 01 Profile | 7.76 | 4.72 | 08 AGNEZ MO | 6.41 | 3.28 |
-| 02 Grid, scrolled | 6.43 | 3.31 | 09 Feed switcher | 6.13 | 2.98 |
+| 02 Grid, scrolled | 6.43 | 3.31 | 09 Feed switcher | 6.12 | 2.98 |
 | 03 Reels | 7.47 | 4.41 | 10 Following feed | 5.82 | 2.65 |
 | 04 Reposts | 7.40 | 4.33 | 11 Favorites, empty | 4.48 | 1.03 |
 | 05 Tagged | 7.36 | 4.30 | 12 Favorites feed | 5.74 | 2.57 |
 | 06 Private account | 5.06 | 1.84 | 13 Reels + toast | 1.19 | 0.90 |
 | 07 NYT Cooking | 6.67 | 3.56 | 14 Reels, fullscreen | 2.58 | 0.26 |
+
+And the five home-screen widgets:
+
+| Board | whole frame | below the status bar | Board | whole frame | below the status bar |
+| --- | --- | --- | --- | --- | --- |
+| 16 Messages | 3.03 | 0.21 | 19 Shortcuts | 3.23 | 0.42 |
+| 17 Stories | 3.44 | 0.65 | 20 Search | 3.02 | 0.19 |
+| 18 Suggested Reels | 2.94 | 0.11 | | | |
 
 Board 15 is not in that table and has no row anywhere else either: there is
 no capture of it to be close to. See below.
@@ -53,7 +69,9 @@ no capture of it to be close to. See below.
 whole-frame number on boards 01–12 is the status bar, and it is much the same
 three levels on all of them, because the difference there is one fixed thing:
 the captures have no Dynamic Island and these boards draw one (see below).
-The second column is what the screens themselves score.
+The second column is what the screens themselves score. Boards 16–20 are that
+statement at the limit: the island is nearly the whole of their whole-frame
+number, and what is left is 0.11 to 0.65 of home screen and widget.
 
 Boards 13 and 14 are the exception that proves it, and they disagree with
 each other by 2 levels for one reason: **the island costs whatever is behind
@@ -62,19 +80,24 @@ is black there and the band reads Δ 9.6; on 14 the same band is a lit face at
 `#FFAF88` and it reads Δ 58.9.
 
 The spread inside the second column is photography and how much of the frame
-it covers. 14 is the lowest at 0.26 and 13 next at 0.90, because a fullscreen
-reel is one crop with six glyphs on it. 11 is 1.03 for the opposite reason —
+it covers. Among the app screens 14 is the lowest at 0.26 and 13 next at 0.90,
+because a fullscreen reel is one crop with six glyphs on it. 11 is 1.03 for the opposite reason —
 a white page with one illustration — and 06 is 1.84, a white page with one
 avatar. 01 and 03–05 are the highest because they are nine to twelve
 photographs plus a story ring, and every ring, badge and view count set over
 those photographs is drawn live rather than cropped. 02 beats 01 by 1.4 on
 the same account for one reason: it has no ring and no highlights.
 
-`refkit batch probes.json --pt 3 --against scratch/mine` replays all 39
-Phase-1 probes against the renders: **24 colour probes at a mean Δmax of
-2.3**, 13 box probes at a mean |dw| of 0.38 pt and |dh| of 0.10 pt, and 2 edge
-scans inside a third of a point. Seven of the 13 box probes are exact on both
-axes, and thirteen of the 24 colour probes are exact.
+`refkit batch probes.json --pt 3 --against scratch/mine` replays all 54
+Phase-1 probes against the renders: **29 colour probes at a mean Δmax of
+1.9**, 21 box probes at a mean |dw| of 0.30 pt and |dh| of 0.47 pt, and 4 edge
+scans inside a third of a point. Eleven of the 21 box probes are exact on both
+axes, and eighteen of the 29 colour probes are exact.
+
+That |dh| is one probe. `w-blank-fit` reads −7.6 on purpose: it is the c16
+blank avatar, whose threshold box is 57.7 wide and 49.7 tall because the white
+silhouette inside it fills the bottom arc, and the board draws the whole disc.
+Set it aside and the mean |dh| is 0.11.
 
 Two colour probes are the known ones and not errors. `link` reads Δ 19 and
 `ink-nav` Δ 6 because **iOS stem-darkens text**: the darkest 2% of a glyph
@@ -119,16 +142,16 @@ captures'.
 
 ## What is cropped and what is rebuilt
 
-89 boxes in `crops.json`, each cut from a capture at its measured pt box,
+99 boxes in `crops.json`, each cut from a capture at its measured pt box,
 written to `assets/art/<id>.png` and placed back by `art()` at the same
 numbers, so an asset cannot drift from where it was measured.
 
 **Only photography and editorial art are cropped.** Everything else on these
 boards is live: type, buttons, the story ring, the highlight rings, the tab
 bar, the grid's play / carousel / pin badges, the reels view counts, and on
-the feed boards the whole action rail and the scrubber. 44 glyphs are SVGs in
+the feed boards the whole action rail and the scrubber. 50 glyphs are SVGs in
 `assets/icons/`, each with its `viewBox` set to its measured ink box in pt.
-**34 of the 44 are Instagram's own drawings, not traces** — see below.
+**34 of the 50 are Instagram's own drawings, not traces** — see below.
 
 The feed boards are where that line gets tested, because a feed post is a
 full-bleed picture with the interface set on it. Every line of type over one
@@ -190,7 +213,7 @@ gradients stay.
 
 ## Board 15 carries an account, not a capture
 
-The other fourteen boards are measured against a capture and scored against
+The other nineteen boards are measured against a capture and scored against
 it. Board 15 is board 01's geometry with a live profile poured into it:
 everything on it -- handle, name, bio, the three counts, the avatar and the
 nine tiles -- is what
@@ -219,6 +242,77 @@ The pictures are the API's own files, resampled to the box they are placed at
 times 3: 516 square for the d 86 circle, 391 x 521 for a tile. A thumbnail is
 square or tall and a tile is 3:4, so `photo()` gives them `object-fit:cover`
 and lets the grid crop them on the centre, which is what the grid does.
+
+## Boards 16-20 are the home screen, not the app
+
+Instagram ships five widgets and Mobbin shoots them on a bare home screen: no
+wallpaper, no app icons, no dock, just `#D5D5D5` and the widgets on it. So that
+is all these boards draw, and it is why `--ig-home` can be one flat token —
+the ground reads 100% flat right up to a widget's corner, because **nothing
+here casts a shadow**.
+
+The five share one geometry, and every number in it is c16's or c19's. A
+medium widget is 344.67 x 162.67 and a small one is that height square; the
+left column starts at x 24 and the right at 206, row 1 at y 80 and row 2 at
+262. Content is inset 18, the title sets 600/15 on a baseline 35.33 below the
+widget top, and the corner mark is inset 19 from the top-right. The medium
+widget's four columns are 71.67 on a 79.0 pitch and the small one's two are
+59.67 on the same 7.33 gutter, which is what puts c17's rings and c18's
+thumbnails on the same grid.
+
+- **The widgets draw their own story ring, and it is not the app's.** It runs
+  magenta at 12 o'clock where `--ig-story` runs pink, and it is through gold by
+  90° where the app's is still violet. `--ig-story-w` is the same method as
+  `--ig-story` — 24 samples 15° apart at mid-stroke — averaged over the five
+  rings c17 carries at two sizes, no sample spreading more than 3.2 levels
+  across them (`scratch/wring.py`).
+- **Board 19's four glyphs are stroked in the brand ramp, so the ramp is not a
+  token.** It is an SVG paint and not a CSS background, and there is no one
+  box to sample it in: `grad()` lays a `radialGradient` over each glyph's own
+  ink box, so what is checked is the rendered glyph, not a colour. Twelve
+  stops solved against the four at once (`scratch/wglyphchk.py`) land them at
+  Δ 4.19 to 6.32, and the `w-glyph` probe holds the box one of them is placed
+  by. Two traps in that: a `gradientUnits="userSpaceOnUse"` gradient with `cx`/`cy` omitted
+  defaults each to **50% of the viewport**, not 0, and userSpaceOnUse resolves
+  in viewBox units rather than in the pt the icon is placed at — so the
+  transform is built from the file's own viewBox, which here is the glyph.
+- **The corner mark arrived composited on white.** `assets/brand/instagram.png`
+  is Instagram's own outline mark, and the captures show it transparent: c20
+  reads 243 inside the lens against 245 on the field around it. On a white
+  widget that costs nothing, which is why it went unnoticed on c16, c18 and
+  c19 — on c20's `#F5F5F5` field it was a white square, worth Δ 22.9 on the
+  mark and 11.1% of the board past 8 levels. `scratch/wunwhite.py` divides the
+  white back out (alpha = 1 − min(r,g,b)/255, colour ÷ alpha, exact over
+  white) and the file is committed RGBA.
+- **A threshold bbox cannot measure a disc with something white inside it.**
+  c16's blank avatar reads 57.7 wide and 49.7 tall, because the white
+  silhouette's shoulders fill the bottom arc. A least-squares circle fit on
+  the left and right edges alone puts it at c 77.51, 160.06 d 57.48, residual
+  0.067. The `w-blank-fit` probe keeps the threshold box and its own
+  explanation, so the −7.6 in the batch summary is evidence and not drift.
+- **Board 20's three tile glyphs are the widgets' drawings, not the app's.**
+  They look like the bottom nav's and they are not: `nav-home` scores 18.91
+  against the c20 tile and `nav-reels` 50.84, where `w-home`, `w-reels` and
+  `w-direct` score 7.47, 5.08 and 5.86. Six SVGs are new here — those three
+  plus `w-create`, `avatar-blank` and `w-plus`.
+- **Two tokens may not share a name, and `refkit tokens` will not say so.** The
+  widget tile fill went in as `--x-tile` next to the profile grid's existing
+  `--x-tile: 130.33px`; the later row wins, and the field and all three
+  shortcut tiles rendered white on white. The linter checks that every `var()`
+  resolves, which this one did. It is `--ig-wtile` now, and the flat-census
+  probe is what caught it.
+- **Seventeen new tokens pushed the token board off its own sheet.** It clipped
+  by 60 px, silently, and only `refkit shoot --check-overflow` said so. It is
+  two boards now, the way the evidence table already was: colour and radius on
+  `00`, type and metrics on `00a`. Shrinking the swatch grid instead would have
+  clipped the values out of the captions, and a token whose value nobody can
+  read is not documented.
+
+The one thing left on the table is c17's story labels. Their ink widths match
+the capture to 0.00 pt and their baselines to 0 px, so the type spec is right;
+three of the six sit one or two device pixels off horizontally, which is the
+subpixel phase a centred line lands at and not a metric. It is worth Δ 10.66
+in the one 10 pt band that holds them, and 0.65 for the board.
 
 ## Details worth not re-deriving
 
@@ -304,19 +398,20 @@ and lets the grid crop them on the centre, which is what the grid does.
 
 `assets/` holds what the boards embed, so they rebuild offline.
 
-- `art/`: 89 PNGs, each a crop of a capture at the box named in `crops.json`.
+- `art/`: 99 PNGs, each a crop of a capture at the box named in `crops.json`.
   **Committed**: without it the boards have no photography.
-- `brand/`: the two profile pictures described above, 516 px square.
-  **Committed.**
-- `icons/`: 44 SVGs, inlined by `icon()`. 34 are Meta's own IGDS paths,
-  10 are traced off the captures. **Committed.**
+- `brand/`: the two profile pictures described above, 516 px square, plus the
+  Instagram mark the widgets set in their corner — the same file, RGBA after
+  the white it shipped on was divided back out. **Committed.**
+- `icons/`: 50 SVGs, inlined by `icon()`. 34 are Meta's own IGDS paths,
+  16 are traced off the captures. **Committed.**
 - `photo/`: board 15's ten pictures, the profile API's own files rather than
   crops. **Committed.**
-- `refs/`: the 14 captures, 1179 × 2556 after their attribution banner is
+- `refs/`: the 19 captures, 1179 × 2556 after their attribution banner is
   cropped off the shipped 1179 × 2676. **Gitignored**, along with the
   `ref-*.html` boards built from them. `SOURCE` in `gen.py` names where each
   one came from: a Mobbin screen URL for the eight profiles, the flow's own
-  filename for the six feed captures.
+  filename for the six feed captures and the five widget ones.
 
 The captures are Mobbin's, reproduced for design reference; the photography
 and the brand marks are Instagram's and the account holders'.
@@ -331,7 +426,7 @@ Rebuilds every board and `layout.json`, byte-identical, from anywhere. The
 boards are output: edit `gen.py`, never the HTML. A crop is cut from the
 captures only when `assets/art/` does not already hold it, so with the committed
 art in place a clone rebuilds every screen without `assets/refs/` and skips only
-the 14 reference boards.
+the 19 reference boards.
 
 Verify with:
 
@@ -342,7 +437,9 @@ refkit tokens $B
 refkit shoot $B/01-profile.html $B/02-grid-scrolled.html $B/06-private.html \
     $B/08-agnezmo.html $B/09-feed-switcher.html $B/10-following-feed.html \
     $B/11-favorites-empty.html $B/12-favorites-feed.html $B/13-reels-toast.html \
-    $B/14-reels-fullscreen.html \
+    $B/14-reels-fullscreen.html $B/16-widget-messages.html \
+    $B/17-widget-stories.html $B/18-widget-reels.html \
+    $B/19-widget-shortcuts.html $B/20-widget-search.html \
     -o scratch/mine/ --w 478 --h 980 --scale 3 --crop-phone --check-overflow
 refkit batch $B/probes.json --pt 3 --against scratch/mine
 python3 $B/scratch/dd.py        # needs assets/refs

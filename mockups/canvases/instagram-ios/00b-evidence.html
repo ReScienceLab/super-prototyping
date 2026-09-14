@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Instagram - Evidence 1/3</title>
+<title>Instagram - Evidence 1/4</title>
 <style>
 :root{
   /* Font */
@@ -14,6 +14,9 @@
   --ig-bar-dark:#0D1116;
   --ig-toast:#6C666D;
   --ig-badge:#212329;
+  --ig-home:#D5D5D5;
+  --ig-wtile:#F5F5F5;
+  --ig-blank:#D3D7DA;
   --ig-scrim:#383C41;
   --ig-pop:radial-gradient(20% 25% at 10% 12.5%,#F1C1B6 0%,#F1C1B600 100%),radial-gradient(20% 25% at 30% 12.5%,#F0BCB6 0%,#F0BCB600 100%),radial-gradient(20% 25% at 50% 12.5%,#F8EEFF 0%,#F8EEFF00 100%),radial-gradient(20% 25% at 70% 12.5%,#F9DBEA 0%,#F9DBEA00 100%),radial-gradient(20% 25% at 90% 12.5%,#F4AEFC 0%,#F4AEFC00 100%),radial-gradient(20% 25% at 10% 37.5%,#ECC9D1 0%,#ECC9D100 100%),radial-gradient(20% 25% at 30% 37.5%,#EAC5C8 0%,#EAC5C800 100%),radial-gradient(20% 25% at 50% 37.5%,#F5D7E2 0%,#F5D7E200 100%),radial-gradient(20% 25% at 70% 37.5%,#F7C5C5 0%,#F7C5C500 100%),radial-gradient(20% 25% at 90% 37.5%,#F7C3DF 0%,#F7C3DF00 100%),radial-gradient(20% 25% at 10% 62.5%,#F0C7B5 0%,#F0C7B500 100%),radial-gradient(20% 25% at 30% 62.5%,#F0C3B3 0%,#F0C3B300 100%),radial-gradient(20% 25% at 50% 62.5%,#F6E9F7 0%,#F6E9F700 100%),radial-gradient(20% 25% at 70% 62.5%,#F9F0C7 0%,#F9F0C700 100%),radial-gradient(20% 25% at 90% 62.5%,#FCDCA6 0%,#FCDCA600 100%),radial-gradient(20% 25% at 10% 87.5%,#EFF3EC 0%,#EFF3EC00 100%),radial-gradient(20% 25% at 30% 87.5%,#ECF3F6 0%,#ECF3F600 100%),radial-gradient(20% 25% at 50% 87.5%,#EEF4FA 0%,#EEF4FA00 100%),radial-gradient(20% 25% at 70% 87.5%,#E9F0FC 0%,#E9F0FC00 100%),radial-gradient(20% 25% at 90% 87.5%,#F1F6ED 0%,#F1F6ED00 100%),#F5D7BE;
 
@@ -28,6 +31,8 @@
   --ig-ink:#0E0F13;
   --ig-ink-2:#6E7074;
   --ig-ink-inv:#FFFFFF;
+  --ig-ink-w:#000000;
+  --ig-ink-w2:#89898A;
 
   /* Accent */
   --ig-accent:#4A5DF6;
@@ -37,12 +42,17 @@
   --ig-verified:#3F96F4;
   --ig-sub:#7339F5;
   --ig-story:conic-gradient(#E731A3 0deg,#D52BBD 30deg,#D32CCB 60deg,#E433A1 90deg,#EB335A 120deg,#E95F20 150deg,#EEA837 180deg,#F7CE43 210deg,#F4D243 240deg,#F0A63B 270deg,#EE6329 300deg,#EB3260 330deg,#E731A3 360deg);
+  --ig-story-w:conic-gradient(#C328BA 0deg,#CD55B2 15deg,#D576A5 30deg,#DF9299 45deg,#E7A981 60deg,#EFC16B 75deg,#FAD54A 90deg,#F9C943 105deg,#F6BD3E 120deg,#F3AD3C 135deg,#F29F38 150deg,#F09131 165deg,#EF8132 180deg,#EE773C 195deg,#EE6B4A 210deg,#E9624F 225deg,#EE555F 240deg,#EC4566 255deg,#EC346B 270deg,#E63579 285deg,#DD3588 300deg,#D33595 315deg,#D133A2 330deg,#CC2FB3 345deg,#C328BA 360deg);
 
   /* Radius */
   --ig-r-btn:8px;
   --ig-r-cta:12px;
   --ig-r-toast:16px;
   --ig-r-pop:20px;
+  --ig-r-tile:9px;
+  --ig-r-thumb:6.67px;
+  --ig-r-field:21px;
+  --ig-r-widget:27.8px;
   --ig-r-phone:52px;
 
   /* Type */
@@ -56,6 +66,7 @@
   --ig-t-caps:600 12px/15px var(--ig-font);
   --ig-t-title:700 24px/29px var(--ig-font);
   --ig-t-note:400 15px/18px var(--ig-font);
+  --ig-t-wtitle:600 15px/18px var(--ig-font);
   --ig-t-time:590 17px/22px var(--ig-font);
 
   /* Metrics */
@@ -72,6 +83,11 @@
   --ig-row:174.67px;
   --ig-reel:232.67px;
   --ig-rail:104.67px;
+  --ig-w-med:344.67px;
+  --ig-w-small:162.67px;
+  --ig-w-inset:18px;
+  --ig-w-pitch:79px;
+  --ig-w-pitchs:67px;
   --ig-tab:78px;
 }
 
@@ -121,6 +137,6 @@ td.v{color:var(--ig-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsi
 td.e{color:var(--ig-ink-2)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 1/3</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--ig-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font on the c01 nav title: SF Pro, score 0.922, margin 0.104 over the runner-up</td></tr><tr><td class="t">--ig-bg</td><td class="v">#FFFFFF</td><td class="e">flat census of c01 200-300 x 302-312, the ground between the Threads and mutuals rows: 100% flat</td></tr><tr><td class="t">--ig-fill</td><td class="v">#F1F2F6</td><td class="e">flat census of the c01 Message button at 240-330 x 375-395: 89.4% flat, no channel under 241</td></tr><tr><td class="t">--ig-bar-dark</td><td class="v">#0D1116</td><td class="e">flat census of the c13 fullscreen tab bar at 60-340 x 810-845: 100% flat</td></tr><tr><td class="t">--ig-toast</td><td class="v">#6C666D</td><td class="e">c13 toast, four windows inside the box: 95.3% flat at its left margin; the alpha solve against the video above and below returns .92-1.00 per channel, so it ships opaque</td></tr><tr><td class="t">--ig-badge</td><td class="v">#212329</td><td class="e">c09 story badge's dark disc, 69.5-74 x 180-193 inside the plus's arms: 64.1% flat</td></tr><tr><td class="t">--ig-scrim</td><td class="v">#383C41</td><td class="e">c12 mute badge's disc at 358-374 x 686-702, inside the glyph's arms; opaque, not a white at alpha</td></tr><tr><td class="t">--ig-pop</td><td class="v">radial-gradient(20% 25% at 10% 12.5%,#F1C1B6 0%,#F1C1B600 100%),radial-gradient(20% 25% at 30% 12.5%,#F0BCB6 0%,#F0BCB600 100%),radial-gradient(20% 25% at 50% 12.5%,#F8EEFF 0%,#F8EEFF00 100%),radial-gradient(20% 25% at 70% 12.5%,#F9DBEA 0%,#F9DBEA00 100%),radial-gradient(20% 25% at 90% 12.5%,#F4AEFC 0%,#F4AEFC00 100%),radial-gradient(20% 25% at 10% 37.5%,#ECC9D1 0%,#ECC9D100 100%),radial-gradient(20% 25% at 30% 37.5%,#EAC5C8 0%,#EAC5C800 100%),radial-gradient(20% 25% at 50% 37.5%,#F5D7E2 0%,#F5D7E200 100%),radial-gradient(20% 25% at 70% 37.5%,#F7C5C5 0%,#F7C5C500 100%),radial-gradient(20% 25% at 90% 37.5%,#F7C3DF 0%,#F7C3DF00 100%),radial-gradient(20% 25% at 10% 62.5%,#F0C7B5 0%,#F0C7B500 100%),radial-gradient(20% 25% at 30% 62.5%,#F0C3B3 0%,#F0C3B300 100%),radial-gradient(20% 25% at 50% 62.5%,#F6E9F7 0%,#F6E9F700 100%),radial-gradient(20% 25% at 70% 62.5%,#F9F0C7 0%,#F9F0C700 100%),radial-gradient(20% 25% at 90% 62.5%,#FCDCA6 0%,#FCDCA600 100%),radial-gradient(20% 25% at 10% 87.5%,#EFF3EC 0%,#EFF3EC00 100%),radial-gradient(20% 25% at 30% 87.5%,#ECF3F6 0%,#ECF3F600 100%),radial-gradient(20% 25% at 50% 87.5%,#EEF4FA 0%,#EEF4FA00 100%),radial-gradient(20% 25% at 70% 87.5%,#E9F0FC 0%,#E9F0FC00 100%),radial-gradient(20% 25% at 90% 87.5%,#F1F6ED 0%,#F1F6ED00 100%),#F5D7BE</td><td class="e">20 radial gradients on a 5 x 4 lattice, least-squares fitted to the c09 popover's own ground at 122.3-270.7 x 110.7-230.7: mean |d| 4.68 over its 75.5% that is not glyph or corner</td></tr><tr><td class="t">--ig-hairline</td><td class="v">#DADADA</td><td class="e">c06 tab-bar divider at y 346.0, one device pixel tall and the full width: 72.3% flat</td></tr><tr><td class="t">--ig-ring</td><td class="v">#DDDEE2</td><td class="e">c01 highlight 1's ring at 9 o'clock, 3.3pt of stroke over 12pt of height: 56.1% flat</td></tr><tr><td class="t">--ig-nav-line</td><td class="v">#EFEFEF</td><td class="e">c10 and c11 divider under the feed nav at y 113.0-113.33, one device pixel tall and the full width</td></tr><tr><td class="t">--ig-track</td><td class="v">#2E3137</td><td class="e">c13 progress bar right of the played head, 200-380 x 767.3-768.3</td></tr><tr><td class="t">--ig-played</td><td class="v">#A4AAB1</td><td class="e">c13 progress bar left of the played head, 5-40 x 767.3-768.3</td></tr><tr><td class="t">--ig-ink</td><td class="v">#0E0F13</td><td class="e">flat census of the c01 active-tab underline, 29-69 x 559-561: the only solid fill of this colour in the set</td></tr><tr><td class="t">--ig-ink-2</td><td class="v">#6E7074</td><td class="e">modal ink of c06's 'Follow this account to see their photos'; --only ink reads #696C6E, iOS stem-darkening</td></tr><tr><td class="t">--ig-ink-inv</td><td class="v">#FFFFFF</td><td class="e">label core on the accent fill, c01 Follow</td></tr><tr><td class="t">--ig-accent</td><td class="v">#4A5DF6</td><td class="e">flat census of the c01 Follow button at 60-150 x 375-395: 94.6% flat</td></tr><tr><td class="t">--ig-accent-2</td><td class="v">#465DFF</td><td class="e">flat census of the c11 Add favorites button at 140-250 x 545-575: 94.9% flat; a second blue, not c01's</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 1/4</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--ig-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font on the c01 nav title: SF Pro, score 0.922, margin 0.104 over the runner-up</td></tr><tr><td class="t">--ig-bg</td><td class="v">#FFFFFF</td><td class="e">flat census of c01 200-300 x 302-312, the ground between the Threads and mutuals rows: 100% flat</td></tr><tr><td class="t">--ig-fill</td><td class="v">#F1F2F6</td><td class="e">flat census of the c01 Message button at 240-330 x 375-395: 89.4% flat, no channel under 241</td></tr><tr><td class="t">--ig-bar-dark</td><td class="v">#0D1116</td><td class="e">flat census of the c13 fullscreen tab bar at 60-340 x 810-845: 100% flat</td></tr><tr><td class="t">--ig-toast</td><td class="v">#6C666D</td><td class="e">c13 toast, four windows inside the box: 95.3% flat at its left margin; the alpha solve against the video above and below returns .92-1.00 per channel, so it ships opaque</td></tr><tr><td class="t">--ig-badge</td><td class="v">#212329</td><td class="e">c09 story badge's dark disc, 69.5-74 x 180-193 inside the plus's arms: 64.1% flat</td></tr><tr><td class="t">--ig-home</td><td class="v">#D5D5D5</td><td class="e">flat census of c19 20-373 x 600-800, the empty home screen below the four widgets: 100% flat</td></tr><tr><td class="t">--ig-wtile</td><td class="v">#F5F5F5</td><td class="e">flat census of the c20 shortcut tile at 46-75 x 155-220, left of its glyph: 99.7% flat</td></tr><tr><td class="t">--ig-blank</td><td class="v">#D3D7DA</td><td class="e">flat census of c16's blank avatar at 52-62 x 152-168, inside the disc and clear of the silhouette: 93.0% flat</td></tr><tr><td class="t">--ig-scrim</td><td class="v">#383C41</td><td class="e">c12 mute badge's disc at 358-374 x 686-702, inside the glyph's arms; opaque, not a white at alpha</td></tr><tr><td class="t">--ig-pop</td><td class="v">radial-gradient(20% 25% at 10% 12.5%,#F1C1B6 0%,#F1C1B600 100%),radial-gradient(20% 25% at 30% 12.5%,#F0BCB6 0%,#F0BCB600 100%),radial-gradient(20% 25% at 50% 12.5%,#F8EEFF 0%,#F8EEFF00 100%),radial-gradient(20% 25% at 70% 12.5%,#F9DBEA 0%,#F9DBEA00 100%),radial-gradient(20% 25% at 90% 12.5%,#F4AEFC 0%,#F4AEFC00 100%),radial-gradient(20% 25% at 10% 37.5%,#ECC9D1 0%,#ECC9D100 100%),radial-gradient(20% 25% at 30% 37.5%,#EAC5C8 0%,#EAC5C800 100%),radial-gradient(20% 25% at 50% 37.5%,#F5D7E2 0%,#F5D7E200 100%),radial-gradient(20% 25% at 70% 37.5%,#F7C5C5 0%,#F7C5C500 100%),radial-gradient(20% 25% at 90% 37.5%,#F7C3DF 0%,#F7C3DF00 100%),radial-gradient(20% 25% at 10% 62.5%,#F0C7B5 0%,#F0C7B500 100%),radial-gradient(20% 25% at 30% 62.5%,#F0C3B3 0%,#F0C3B300 100%),radial-gradient(20% 25% at 50% 62.5%,#F6E9F7 0%,#F6E9F700 100%),radial-gradient(20% 25% at 70% 62.5%,#F9F0C7 0%,#F9F0C700 100%),radial-gradient(20% 25% at 90% 62.5%,#FCDCA6 0%,#FCDCA600 100%),radial-gradient(20% 25% at 10% 87.5%,#EFF3EC 0%,#EFF3EC00 100%),radial-gradient(20% 25% at 30% 87.5%,#ECF3F6 0%,#ECF3F600 100%),radial-gradient(20% 25% at 50% 87.5%,#EEF4FA 0%,#EEF4FA00 100%),radial-gradient(20% 25% at 70% 87.5%,#E9F0FC 0%,#E9F0FC00 100%),radial-gradient(20% 25% at 90% 87.5%,#F1F6ED 0%,#F1F6ED00 100%),#F5D7BE</td><td class="e">20 radial gradients on a 5 x 4 lattice, least-squares fitted to the c09 popover's own ground at 122.3-270.7 x 110.7-230.7: mean |d| 4.68 over its 75.5% that is not glyph or corner</td></tr><tr><td class="t">--ig-hairline</td><td class="v">#DADADA</td><td class="e">c06 tab-bar divider at y 346.0, one device pixel tall and the full width: 72.3% flat</td></tr><tr><td class="t">--ig-ring</td><td class="v">#DDDEE2</td><td class="e">c01 highlight 1's ring at 9 o'clock, 3.3pt of stroke over 12pt of height: 56.1% flat</td></tr><tr><td class="t">--ig-nav-line</td><td class="v">#EFEFEF</td><td class="e">c10 and c11 divider under the feed nav at y 113.0-113.33, one device pixel tall and the full width</td></tr><tr><td class="t">--ig-track</td><td class="v">#2E3137</td><td class="e">c13 progress bar right of the played head, 200-380 x 767.3-768.3</td></tr><tr><td class="t">--ig-played</td><td class="v">#A4AAB1</td><td class="e">c13 progress bar left of the played head, 5-40 x 767.3-768.3</td></tr><tr><td class="t">--ig-ink</td><td class="v">#0E0F13</td><td class="e">flat census of the c01 active-tab underline, 29-69 x 559-561: the only solid fill of this colour in the set</td></tr><tr><td class="t">--ig-ink-2</td><td class="v">#6E7074</td><td class="e">modal ink of c06's 'Follow this account to see their photos'; --only ink reads #696C6E, iOS stem-darkening</td></tr></table></div>
 </body>
 </html>

@@ -49,7 +49,7 @@ same account scrolled far enough that the tab bar sticks under the nav; its
 first grid row is board 01's second, which is why boards 01 and 02 share the
 crops ig-t4..ig-t6.
 """
-import base64, json
+import base64, json, re
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent
@@ -73,6 +73,26 @@ P = "ig"         # token prefix: --ig-bg, --ig-ink, --ig-t-body
 STORY = ("conic-gradient(#E731A3 0deg,#D52BBD 30deg,#D32CCB 60deg,#E433A1 90deg,"
          "#EB335A 120deg,#E95F20 150deg,#EEA837 180deg,#F7CE43 210deg,"
          "#F4D243 240deg,#F0A63B 270deg,#EE6329 300deg,#EB3260 330deg,#E731A3 360deg)")
+
+# The widgets draw their own story ring, and it is not the app's: it runs
+# magenta at 12 o'clock where the app's runs pink, and it turns through gold at
+# 90 degrees where the app's is still violet. Same method as STORY, 24 samples
+# 15 degrees apart, but averaged over the five rings c17 carries at two sizes
+# (scratch/wring.py); no sample spreads more than 3.2 levels across the five.
+WSTORY = ("conic-gradient(#C328BA 0deg,#CD55B2 15deg,#D576A5 30deg,#DF9299 45deg,"
+          "#E7A981 60deg,#EFC16B 75deg,#FAD54A 90deg,#F9C943 105deg,#F6BD3E 120deg,"
+          "#F3AD3C 135deg,#F29F38 150deg,#F09131 165deg,#EF8132 180deg,#EE773C 195deg,"
+          "#EE6B4A 210deg,#E9624F 225deg,#EE555F 240deg,#EC4566 255deg,#EC346B 270deg,"
+          "#E63579 285deg,#DD3588 300deg,#D33595 315deg,#D133A2 330deg,#CC2FB3 345deg,"
+          "#C328BA 360deg)")
+
+# The ramp board 19's four shortcut glyphs are stroked in. It is an SVG paint
+# and not a CSS background, so unlike STORY it is no token: grad() lays it over
+# each glyph's own box and probes.json carries the fit. Twelve stops, solved
+# against the four glyphs at once (scratch/wglyphchk.py).
+RAMP = [(.436, "#F6D144"), (.484, "#F4BD40"), (.532, "#EF8B3E"), (.580, "#EB5953"),
+        (.628, "#EA4279"), (.676, "#EA3986"), (.724, "#EA36B6"), (.772, "#E334CF"),
+        (.820, "#C42DE4"), (.868, "#9124F1"), (.916, "#7423F4"), (.964, "#6B23F4")]
 
 # The feed switcher's ground is a heavy blur of the story rail behind it, and
 # nothing of that rail survives under it to blur: ring 2's photograph is wholly
@@ -119,6 +139,12 @@ TOKENS = [
   "c13 toast, four windows inside the box: 95.3% flat at its left margin; the alpha solve against the video above and below returns .92-1.00 per channel, so it ships opaque"),
  ("Surface", "badge", "#212329",
   "c09 story badge's dark disc, 69.5-74 x 180-193 inside the plus's arms: 64.1% flat"),
+ ("Surface", "home", "#D5D5D5",
+  "flat census of c19 20-373 x 600-800, the empty home screen below the four widgets: 100% flat"),
+ ("Surface", "wtile", "#F5F5F5",
+  "flat census of the c20 shortcut tile at 46-75 x 155-220, left of its glyph: 99.7% flat"),
+ ("Surface", "blank", "#D3D7DA",
+  "flat census of c16's blank avatar at 52-62 x 152-168, inside the disc and clear of the silhouette: 93.0% flat"),
  ("Surface", "scrim", "#383C41",
   "c12 mute badge's disc at 358-374 x 686-702, inside the glyph's arms; opaque, not a white at alpha"),
  ("Surface", "pop", POP,
@@ -141,6 +167,10 @@ TOKENS = [
   "modal ink of c06's 'Follow this account to see their photos'; --only ink reads #696C6E, iOS stem-darkening"),
  ("Ink", "ink-inv", "#FFFFFF",
   "label core on the accent fill, c01 Follow"),
+ ("Ink", "ink-w",   "#000000",
+  "ink core of the c16 widget title Messages at 43-113 x 104-118; the widgets set their type on pure black, not on the app's --x-ink"),
+ ("Ink", "ink-w2",  "#89898A",
+  "ink core of the c20 placeholder at 89-237 x 113-127; c17's Your story label at 49-106 x 213-225 reads #8A8A8A"),
 
  ("Accent", "accent",   "#4A5DF6",
   "flat census of the c01 Follow button at 60-150 x 375-395: 94.6% flat"),
@@ -156,6 +186,8 @@ TOKENS = [
   "modal of the filled crown on c08 highlight 1, ink box 12.67-24.0 x 484.33-492.67"),
  ("Accent", "story",    STORY,
   "24-sample sweep of the c01 avatar ring at r 48.5, kept every 30 deg; conic, because the halves do not mirror"),
+ ("Accent", "story-w",  WSTORY,
+  "the widget story ring: 24 samples 15 degrees apart, averaged over the five rings on c17, spread <= 3.2 levels"),
 
  ("Radius", "r-btn",   "8px",
   "refkit bbox on the c01 Follow button corner, 16-194 x 369-401"),
@@ -165,6 +197,10 @@ TOKENS = [
   "c13 toast corner: inset 14.33 at d 0.5 and 9.00 at d 1.5"),
  ("Radius", "r-pop",   "20px",
   "c09 popover corner: insets 16.0/11.33/7.67/3.67/0.67 at d 1/2/4/8/14 fit r 20 within 0.3"),
+ ("Radius", "r-tile",  "9px",      "c20 shortcut tile, left-inset solve at eight depths: err 0.26 at r 9"),
+ ("Radius", "r-thumb", "6.67px",   "c18 reel thumbnail, left-inset solve: err 0.21 at r 6.67"),
+ ("Radius", "r-field", "21px",     "c20 search field, 44.0 tall and fully rounded: r is half its height"),
+ ("Radius", "r-widget", "27.8px",  "every widget corner, left-inset solve at eight depths on c16 and c19: err 0.18 at r 27.8"),
  ("Radius", "r-phone", "52px",
   "circular stand-in for the 55pt continuous display corner"),
 
@@ -188,6 +224,8 @@ TOKENS = [
   "c06 'This account is private' w 250.33, baseline 625.2; 700 24px sets 249.67"),
  ("Type", "t-note",  "400 15px/18px var(--x-font)",
   "c06 'Follow this account to see their photos' w 262.67 and 'and videos.' w 77.33; 400 15px sets both"),
+ ("Type", "t-wtitle", "600 15px/18px var(--x-font)",
+  "every widget title: six strings rendered at six specs, ink widths against the captures, 600 15px wins at mean |d| 0.50"),
  ("Type", "t-time",  "590 17px/22px var(--x-font)",
   "iOS status bar clock, this repo's shared chrome"),
 
@@ -204,6 +242,11 @@ TOKENS = [
  ("Metrics", "row",    "174.67px", "c02 grid row pitch, 3:4 tiles"),
  ("Metrics", "reel",   "232.67px", "c03 reels row pitch, 9:16 tiles"),
  ("Metrics", "rail",   "104.67px", "c09 story rail pitch: ring centres at 52.5 / 156.8 / 261.5 / 366.4"),
+ ("Metrics", "w-med",   "344.67px", "medium widget, c16 and c18: x 24.0 to 368.67"),
+ ("Metrics", "w-small", "162.67px", "small widget, c16 and c19: square, x 24.0 to 186.67 and 206.0 to 368.67"),
+ ("Metrics", "w-inset", "18px",     "widget content inset: every title box lands at the widget left plus 18.0 (+-0.33)"),
+ ("Metrics", "w-pitch", "79px",     "medium widget 4-column pitch, c17 and c18: cells 71.67 on a 7.33 gutter"),
+ ("Metrics", "w-pitchs", "67px",    "small widget 2-column pitch, c17: cells 59.67 on the same 7.33 gutter"),
  ("Metrics", "tab",    "78px",     "c09 and c13 bottom nav pitch: glyph centres 40.67 to 352.67"),
 ]
 
@@ -334,7 +377,11 @@ def _of(group):
     return [t for t in TOKENS if t[0] == group]
 
 
-def token_board():
+def token_boards():
+    """The contract, on two boards. The 28 swatches and the type ladder each
+    want most of a 478 x 980 sheet on their own, so colour and radius go on 00
+    and type and metrics on 00a. Splitting beats shrinking: a token whose value
+    is clipped out of its caption is a token nobody can check."""
     swatches = "".join(
         '<div class="sw"><div class="chip" style="background:var(--x-%s)"></div>'
         '<b>--x-%s</b><i data-clip-ok>%s</i></div>' % (n, n, v)
@@ -347,15 +394,21 @@ def token_board():
         '<em>--x-%s &middot; %s</em></div>' % (n, n, v.split(" var")[0])
         for _, n, v, _ in _of("Type"))
     met = "<br>".join("--x-%s: %s" % (n, v) for _, n, v, _ in _of("Metrics"))
-    return page(NAME + " - Design Tokens",
-                '<div class="sheet"><header><h1>%s</h1>'
-                '<p>Sampled off fourteen iPhone 16 Pro captures at 3.0 capture px per '
-                'design pt. Every value has a row on the evidence board.</p></header>'
-                '<h2>Colour</h2><div class="grid">%s</div>'
-                '<h2>Radius</h2><div class="rad">%s</div>'
-                '<h2>Type</h2>%s'
-                '<h2>Metrics</h2><div class="met">%s</div></div>'
-                % (NAME, swatches, radii, type_, met), SHEET)
+    head = ('<div class="sheet"><header><h1>%s</h1>'
+            '<p>Sampled off nineteen iPhone 16 Pro captures at 3.0 capture px per '
+            'design pt. Every value has a row on the evidence board.</p></header>')
+    yield ("00-design-tokens",
+           page(NAME + " - Design Tokens 1/2",
+                head % (NAME + " \u00b7 colour")
+                + '<h2>Colour</h2><div class="grid">%s</div>'
+                  '<h2>Radius</h2><div class="rad">%s</div></div>'
+                  % (swatches, radii), SHEET))
+    yield ("00a-design-tokens",
+           page(NAME + " - Design Tokens 2/2",
+                head % (NAME + " \u00b7 type and metrics")
+                + '<h2>Type</h2>%s'
+                  '<h2>Metrics</h2><div class="met">%s</div></div>'
+                  % (type_, met), SHEET))
 
 
 EV_ROWS = 18   # rows that fit the 478 x 980 box; the table splits past this
@@ -524,11 +577,16 @@ svg{position:absolute;display:block}
     inset 0 .67px 0 rgba(255,255,255,.55),inset .67px 0 0 rgba(255,255,255,.55)}
 .toast{position:absolute;border-radius:var(--x-r-toast);background:var(--x-toast)}
 .prog{position:absolute;left:0;top:767px;width:var(--x-w);height:1.67px;background:var(--x-track)}
-.prog i{position:absolute;left:0;top:0;height:1.67px;background:var(--x-played)}"""
+.prog i{position:absolute;left:0;top:0;height:1.67px;background:var(--x-played)}
+/* the home screen boards 16-20 sit on, and the two fills they draw on it */
+.hs{position:absolute;inset:0;background:var(--x-home)}
+.w{position:absolute;background:var(--x-bg);border-radius:var(--x-r-widget)}
+.tl{position:absolute;background:var(--x-wtile)}
+.thumb{border-radius:var(--x-r-thumb)}"""
 
 TY = {"nav": (20, 24), "stat": (16, 20), "body": (14, 18), "bodys": (14, 18),
       "cap": (12, 15), "caps": (12, 15), "title": (24, 29), "note": (15, 18),
-      "menu": (16, 20), "h2": (22, 26)}
+      "menu": (16, 20), "h2": (22, 26), "wtitle": (15, 18)}
 
 
 def tx(s, x, base, ty="body", colour=None, mid=False):
@@ -556,13 +614,15 @@ def nav(title, vx=None, bell=False):
     return "".join(out) + icon("more", 357.5, 82.33, 15.33, 3.33)
 
 
-def ring(x=9, y=122.67, d=100, s=4):
-    """The story ring, at the three geometries the captures carry: d 100 stroke
-    4 on a profile, d 93 stroke 3.6 on c09's story rail, and d 40.33 stroke 2.5
-    on a feed post's header."""
+def ring(x=9, y=122.67, d=100, s=4, bg=None):
+    """The story ring, at the five geometries the captures carry: d 100 stroke
+    4 on a profile, d 93 stroke 3.6 on c09's story rail, d 40.33 stroke 2.5 on
+    a feed post's header, and d 71.67 and d 59.67 stroke 2.67 in the widgets --
+    which paint it in their own ramp, so those pass bg."""
     m = "radial-gradient(closest-side,#0000 calc(100%% - %gpx),#000 0)" % s
-    return ('<div class="ring" style="left:%gpx;top:%gpx;width:%gpx;height:%gpx;'
-            '-webkit-mask:%s;mask:%s"></div>' % (x, y, d, d, m, m))
+    return ('<div class="ring" style="left:%gpx;top:%gpx;width:%gpx;height:%gpx;%s'
+            '-webkit-mask:%s;mask:%s"></div>'
+            % (x, y, d, d, "background:%s;" % bg if bg else "", m, m))
 
 
 def disc(x, y, d, bg):
@@ -1093,6 +1153,160 @@ def s14():
             + bottom(769, 1, "var(--x-bar-dark)", "var(--x-ink-inv)"))
 
 
+# ------------------------------------------------- home-screen widgets ----
+# Boards 16-20 are not app screens. They are the iOS home screen carrying
+# Instagram's five widgets, which Mobbin shoots on a plain grey ground with no
+# wallpaper, app icons or dock -- so that is all these draw: the ground, the
+# shared status bar, and the widgets.
+#
+# The five share one geometry. A medium widget is 344.67 x 162.67 and a small
+# one is that height square; the left column starts at x 24 and the right at
+# 206, row 1 at y 80 and row 2 at 262. Content is inset 18, the title sets
+# 600/15 on a baseline 35.33 below the widget top, and the corner mark is
+# inset 19 from the top-right. Nothing casts a shadow: the ground reads 100%
+# flat right up to the corner, which is why --x-home can be one token.
+W_MED, W_SMALL = 344.67, 162.67
+W_COL2, W_ROW2 = 206.0, 262.0
+
+
+def mark(x, y, w=22.0, h=22.33):
+    """The Instagram corner mark: the app's own glyph, placed by its ink box.
+
+    assets/brand/instagram.png is the 516px square from the iTunes lookup, and
+    its glyph inks 99-419 x 99-421 of that -- 62.02% of the width and 62.40% of
+    the height, on a 19.186% margin. So the file goes down at whatever size
+    puts the measured ink where it was measured, with that margin backed off.
+    The mark is 22.00 x 22.33 on every widget that carries one, and 22.33 x
+    21.33 inside the c20 search field. The file arrived composited on white and
+    the captures show it transparent -- c20 reads 243 inside the lens against
+    245 on the field around it -- so scratch/wunwhite.py divided that white back
+    out before it was committed.
+    """
+    w, h = w / 0.6202, h / 0.6240
+    return ('<img class="a" alt="Instagram" src="%s" style="left:%gpx;top:%gpx;'
+            'width:%gpx;height:%gpx">'
+            % (_uri(OUT / "assets" / "brand" / "instagram.png"),
+               round(x - 0.19186 * w, 2), round(y - 0.19186 * h, 2),
+               round(w, 2), round(h, 2)))
+
+
+def grad(name, x, y, w, h):
+    """A board 19 shortcut glyph, stroked in the brand ramp instead of an ink.
+
+    The ramp runs corner to corner across the glyph's own box: a radial
+    gradient at -45 degrees, flattened to .3571 of its height and centred a
+    little outside the top-left. userSpaceOnUse resolves in viewBox units and
+    not in the pt the icon is placed at, so the transform is built from the
+    file's own viewBox -- which, this folder's icons being cut to their ink, is
+    the glyph. cx and cy are written out because omitting them defaults each to
+    50% of the viewport rather than to 0.
+    """
+    svg = icon(name, x, y, w, h)
+    vb = [float(v) for v in re.search(r'viewBox="([^"]+)"', svg).group(1).split()]
+    defs = ('<defs><radialGradient id="%s-g" gradientUnits="userSpaceOnUse" cx="0" cy="0"'
+            ' r="3.231" gradientTransform="translate(%g %g) scale(%g %g)'
+            ' translate(-.6 2) rotate(-45) scale(1 .3571)">%s</radialGradient></defs>'
+            % (name, vb[0], vb[1], vb[2], vb[3],
+               "".join('<stop offset="%g" stop-color="%s"/>' % r for r in RAMP)))
+    return svg.replace("currentColor", "url(#%s-g)" % name).replace(">", ">" + defs, 1)
+
+
+def widget(x, y, w, title=None):
+    """One widget tile. Board 20's search widget is the only one without a
+    title, and the only one without a corner mark, so the two go together."""
+    out = ['<div class="w" style="left:%gpx;top:%gpx;width:%gpx;height:%gpx"></div>'
+           % (x, y, w, W_SMALL)]
+    if title:
+        out += [tx(title, x + 18, y + 35.33, "wtitle", "var(--x-ink-w)"),
+                mark(x + w - 40.67, y + 19)]
+    return "".join(out)
+
+
+def cells(x, n, d):
+    """Left edges of a widget's columns. The cells are the story rings, d 71.67
+    in a medium widget and d 59.67 in a small one, and they sit flush against
+    both content edges: four across 308.67 and two across 126.67, which puts
+    the same 7.33 gutter between them either way."""
+    return [x + 18 + (d + 7.33) * i for i in range(n)]
+
+
+def s16():
+    """The Messages widget at both sizes. The account has no picture, so both
+    draw the blank avatar, and both centre the username on that rather than on
+    the content edge: the ink centres land 0.34 left of the disc's, which is
+    the string's own side bearings."""
+    return "".join(
+        ['<div class="hs"></div>', statusbar(),
+         widget(24, 80, W_MED, "Messages"),
+         icon("avatar-blank", 48.77, 131.32, 57.48, 57.48, ";color:var(--x-blank)"),
+         tx("samleefin18", 77.51, 206.2, "cap", "var(--x-ink-w)", mid=True),
+         widget(24, W_ROW2, W_SMALL, "Messages"),
+         icon("avatar-blank", 43.41, 314.34, 56.5, 56.5, ";color:var(--x-blank)"),
+         tx("samleefi&hellip;", 71.66, 388.2, "cap", "var(--x-ink-w)", mid=True)])
+
+
+def s17():
+    """The Stories widget at both sizes. Cell 1 of the medium is the account's
+    own story: no ring, a d 61.0 picture where a ringed cell's is 61.67, and a
+    badge that is a white knockout disc, a dark disc and the plus -- drawn over
+    the picture and not erased out of it, each covering its own pixels."""
+    d, ds = 71.67, 59.67
+    med, sml = cells(24, 4, d), cells(24, 2, ds)
+    out = ['<div class="hs"></div>', statusbar(),
+           widget(24, 80, W_MED, "Stories"),
+           art("w17-a1", cls="rnd"),
+           disc(88, 176, 24, "var(--x-bg)"), disc(89, 177, 22, "var(--x-badge)"),
+           icon("w-plus", 94, 182, 12, 12, ";color:var(--x-ink-inv)"),
+           tx("Your story", med[0] + d / 2, 221.5, "cap", "var(--x-ink-w2)", mid=True)]
+    for i, label in enumerate(["interiorplu&hellip;", "thegalacti&hellip;",
+                               "thedesign&hellip;"]):
+        out += [ring(med[i + 1], 134.5, d, 2.67, "var(--x-story-w)"),
+                art("w17-a%d" % (i + 2), cls="rnd"),
+                tx(label, med[i + 1] + d / 2, 221.5, "cap", "var(--x-ink-w)", mid=True)]
+    out.append(widget(24, W_ROW2, W_SMALL, "Stories"))
+    for i, label in enumerate(["interiorp&hellip;", "thegalac&hellip;"]):
+        out += [ring(sml[i], 319.34, ds, 2.67, "var(--x-story-w)"),
+                art("w17-b%d" % (i + 1), cls="rnd"),
+                tx(label, sml[i] + ds / 2, 394.5, "cap", "var(--x-ink-w)", mid=True)]
+    return "".join(out)
+
+
+def s18():
+    """Suggested Reels: four thumbnails on the medium widget's own 4-column
+    pitch, 94.67 tall where a story cell would be 71.67 square."""
+    return "".join(['<div class="hs"></div>', statusbar(),
+                    widget(24, 80, W_MED, "Suggested Reels")]
+                   + [art("w18-%d" % (i + 1), cls="thumb") for i in range(4)])
+
+
+def s19():
+    """Four small shortcut widgets, one glyph each in the brand ramp."""
+    return "".join(
+        ['<div class="hs"></div>', statusbar(),
+         widget(24, 80, W_SMALL, "Reels"), grad("w-reels", 81.33, 144.33, 48, 48),
+         widget(W_COL2, 80, W_SMALL, "Messages"), grad("w-direct", 259.33, 147, 55, 47.67),
+         widget(24, W_ROW2, W_SMALL, "Explore"), grad("nav-search", 81.33, 331, 48.33, 48.33),
+         widget(W_COL2, W_ROW2, W_SMALL, "Create"), grad("w-create", 263.33, 326.33, 48, 48)])
+
+
+def s20():
+    """The Search widget: no title and no corner mark, because the mark sits in
+    the field instead. Three shortcut tiles under it, black glyphs on the fill,
+    and those three are the widgets' own drawings, not the app's nav glyphs --
+    nav-home scores 18.91 against this tile and nav-reels 50.84."""
+    return "".join(
+        ['<div class="hs"></div>', statusbar(), widget(24, 80, W_MED),
+         '<div class="tl" style="left:42px;top:98px;width:308.67px;height:44px;'
+         'border-radius:var(--x-r-field)"></div>',
+         mark(57.0, 109.33, 22.33, 21.33),
+         tx("Search on Instagram", 88.33, 125.8, "menu", "var(--x-ink-w2)")]
+        + ['<div class="tl" style="left:%gpx;top:150px;width:97.67px;height:74.67px;'
+           'border-radius:var(--x-r-tile)"></div>' % x for x in (42, 147.67, 253)]
+        + [icon(n, x, y, w, h, ";color:var(--x-ink-w)") for n, x, y, w, h in
+           (("w-home", 79.67, 176, 22, 22), ("w-reels", 185.33, 176.33, 22, 22),
+            ("w-direct", 291, 177.67, 22, 19.67))])
+
+
 SCREENS = [("01-profile", "Profile", s01),
            ("02-grid-scrolled", "Grid, scrolled", s02),
            ("03-reels", "Reels tab", s03),
@@ -1107,6 +1321,15 @@ SCREENS = [("01-profile", "Profile", s01),
            ("12-favorites-feed", "Favorites feed", s12),
            ("13-reels-toast", "Reels, fullscreen, toast", s13),
            ("14-reels-fullscreen", "Reels, fullscreen", s14)]
+
+# The home screen, its own row on the canvas: five widgets, not five app
+# screens, and numbered 16-20 because that is the capture each is measured
+# against. There is no c15 -- board 15 carries a live account, not a capture.
+WIDGET_BOARDS = [("16-widget-messages", "Messages", s16),
+                 ("17-widget-stories", "Stories", s17),
+                 ("18-widget-reels", "Suggested reels", s18),
+                 ("19-widget-shortcuts", "Shortcuts", s19),
+                 ("20-widget-search", "Search", s20)]
 
 # Board 15 has no capture behind it, so it joins the screens row and not the
 # captures row, and nothing in probes.json or the README's delta table names it.
@@ -1140,7 +1363,12 @@ SOURCE = {"01-profile": MOBBIN + "14abab29-3e7f-41ea-b1d3-cad9d3705f5a",
           "11-favorites-empty": "switching-to-favorites-feed-01.png",
           "12-favorites-feed": "switching-to-favorites-feed-02.png",
           "13-reels-toast": "switching-to-fullscreen-01.png",
-          "14-reels-fullscreen": "switching-to-fullscreen-02.png"}
+          "14-reels-fullscreen": "switching-to-fullscreen-02.png",
+          "16-widget-messages": "widgets-01.png",
+          "17-widget-stories": "widgets-02.png",
+          "18-widget-reels": "widgets-03.png",
+          "19-widget-shortcuts": "widgets-04.png",
+          "20-widget-search": "widgets-05.png"}
 
 REF_CSS = """body{padding:24px}
 .rboard{position:relative;flex:none;width:430px;height:932px;padding:13px 20px 0;
@@ -1152,8 +1380,8 @@ REF_CSS = """body{padding:24px}
 
 
 def ref_boards():
-    for i, (stem, label, _) in enumerate(SCREENS):
-        f = REFS_DIR / ("p%02d.png" % (i + 1))
+    for stem, label, _ in SCREENS + WIDGET_BOARDS:
+        f = REFS_DIR / ("p%s.png" % stem[:2])
         if not f.exists():
             continue
         yield ("ref-" + stem,
@@ -1175,19 +1403,23 @@ def layout():
     """
     return {"name": PAGE_NAME, "rows": [
         {"title": "Foundations",
-         "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
+         "files": [{"file": n, "label": "Design tokens"} for n, _ in token_boards()]
                   + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]},
         {"title": "Screens", "numbered": True,
          "files": [{"file": s, "label": l} for s, l, _ in SCREENS + LIVE]},
         # Same order as the row above, so capture N lands under replica N.
         {"title": "Source of truth: Mobbin captures", "numbered": True,
-         "files": [{"file": "ref-" + s, "label": l} for s, l, _ in SCREENS]}]}
+         "files": [{"file": "ref-" + s, "label": l} for s, l, _ in SCREENS]},
+        {"title": "Home-screen widgets", "numbered": True,
+         "files": [{"file": s, "label": l} for s, l, _ in WIDGET_BOARDS]},
+        {"title": "Source of truth: widget captures", "numbered": True,
+         "files": [{"file": "ref-" + s, "label": l} for s, l, _ in WIDGET_BOARDS]}]}
 
 
 def main():
-    files = dict([("00-design-tokens", token_board())]
+    files = dict(list(token_boards())
                  + list(evidence_boards())
-                 + [(s, screen(l, fn)) for s, l, fn in SCREENS + LIVE]
+                 + [(s, screen(l, fn)) for s, l, fn in SCREENS + LIVE + WIDGET_BOARDS]
                  + list(ref_boards()))
     for name in sorted(files):
         write(name, files[name])
