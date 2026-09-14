@@ -51,7 +51,7 @@ Mean absolute delta against the captures, in levels of 255, over the whole
 | **Mean, 01–05** | **4.71** | **Mean, 08–12** | **5.17** |
 | 13 Set a reminder | 5.76 | 15 Spaces in your calendar | 7.60 |
 | 14 Reminder set | 5.70 | **Mean, 13–15** | **6.35** |
-| 06 Edit profile | 16.87 | 07 Professional profile | 55.14 |
+| 06 Edit profile | 16.87 | 07 Professional profile | 56.17 |
 
 **Thirteen of the fifteen are clone scores.** 06 and 07 carry the example account's
 own banner, avatar, bio, links and timeline, so what their numbers measure is
@@ -97,7 +97,7 @@ untouched, and so are 13–15: the hosts and speakers on those three are other
 people's, not the viewer's, and a Space's card is the same card whoever is
 looking at it.
 
-Three things follow from that on 06 and 07, and each costs those boards
+Four things follow from that on 06 and 07, and each costs those boards
 something:
 
 - **The bio is two lines where "Ordinary guy" is one.** `shift()` drops the
@@ -116,12 +116,20 @@ something:
   `t-date` and `t-host` — and each keeps its evidence row. Those measurements
   were made off the captures and still stand; they have no screen left to sit
   on.
+- **The nav bar is white, not purple.** X tints it while a Space is live, which
+  is why the capture's is a pale purple wash. Once the Space card went, the
+  tint had nothing left to follow, so 07 fills the strip with `--x-ground` —
+  the white board 10 already shows. It still fills it, where 10 draws nothing
+  at all, because 07's video thumbnail runs under the bar and something has to
+  cover it. `--x-nav` keeps its evidence row and its stops; no board draws it.
 
 What is still comparable: outside the three photographs the account brings —
 the peek, the banner and the avatar disc, 19.5% of the frame — 06 scores
 **4.35** (`scratch/band.py`) against the 16.87 it scores whole, and what is
 left inside that is the four field values, the two-line bio most of all. 07's
-nav strip, which the swap does not touch, still reads **3.24**.
+nav strip read **3.24** while it carried the wash, and reads **13.95** now
+that it is white against a purple capture (`scratch/navband.py`) — the glyphs
+inside it did not move.
 
 **08–12 get off far more lightly.** The handle is the only thing X's captures
 decide that these boards overrule — it sits under four settings titles, in one
@@ -267,7 +275,9 @@ redraws the polygon as lines, arcs and cubics. `scratch/navfit.py` then slides
 each placement box against the window by coordinate descent, over the window's
 own two levels rather than white: a ground biased toward white, or ink drawn
 blacker than the capture's, pushes the fit toward a bigger glyph. Over 07's nav
-strip that took the mean Δ from **6.75 to 3.24** levels:
+strip that took the mean Δ from **6.75 to 3.24** levels — measured against
+the purple wash, which is what 07 shipped at the time and what the capture
+still holds:
 
 | Glyph | Before | After | Glyph | Before | After |
 | --- | --- | --- | --- | --- | --- |
@@ -302,7 +312,8 @@ measured, and a reader would otherwise take them for measurement:
   mark and the verified badge — are plain redraws to their measured boxes.
 - **The nav gradient.** `--x-nav` is four stops fitted to one row of the wash;
   the capture holds a two-axis gradient that no stop list along one axis
-  reproduces. `--x-nav-2`, the wash under 13–15, runs down instead of across
+  reproduces. No board draws it any more — see the nav bullet above — so the
+  approximation is on the evidence board only. `--x-nav-2`, the wash under 13–15, runs down instead of across
   and is two stops solved on two rows, so it is a measurement — but the
   capture's own lateral drift of two to four levels is still there under it.
 - **14's banner shadow.** The capture fades `#62737B` into the dimmed ground
@@ -340,7 +351,7 @@ source's too, not the app's.
 
 ## Replaying the measurements
 
-`probes.json` is 43 of the measurements in the shape `refkit batch` replays —
+`probes.json` is 41 of the measurements in the shape `refkit batch` replays —
 the flat-fill censuses, the ink cores, the three coverage solves for the 1 pt
 rules, two structural edges and the fitted type widths, each with the note that
 says why its window is where it is.
@@ -351,15 +362,15 @@ refkit batch mockups/canvases/x-ios/probes.json --pt 3 \
     --against mockups/canvases/x-ios/scratch/shot
 ```
 
-The 24 colour probes come back at a mean Δmax of 1.7 levels and a worst of 9;
+The 22 colour probes come back at a mean Δmax of 1.5 levels and a worst of 9;
 the 17 box probes at a mean |dw| of 0.75 pt and a mean |dh| of 0.46 pt; both
 scan probes land on their edge exactly.
 
-Every probe here replays a run both sides still draw. Seven measurements cannot
+Every probe here replays a run both sides still draw. Nine measurements cannot
 be: five went with the Spaces card X's own post carries, two are the demo
-persona's name and location, and a shifted run cannot be replayed at all —
+persona's name and location, two are the nav wash that went with the Space, and a shifted run cannot be replayed at all —
 `--against` reads one box on both images, and the bio's second line moves 07's
-meta block 21 pt down the render. Those seven are on the 00b–00f evidence
+meta block 21 pt down the render. Those nine are on the 00b–00f evidence
 boards, which quote the capture and are not replayed against a render. `inv`
 stayed by moving to 01's "Agree & Continue", white on `--x-ink` where it used to
 be white on the Space card, and `spaces` came back outright when 13 drew a

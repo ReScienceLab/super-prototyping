@@ -151,7 +151,11 @@ TOKENS = [
                     "#EAE0FF 62%,#EFE7FF 100%)",
   "07 the nav bar below 768.67 is a pale purple wash, lightest at the top "
   "left and deepest just left of centre. APPROXIMATION: four stops fitted "
-  "to the row at y 790, not the two-axis gradient the capture holds"),
+  "to the row at y 790, not the two-axis gradient the capture holds. 07 no "
+  "longer draws it: X tints the bar while a Space is live, and this canvas\u2019s "
+  "own timeline has none, so the bar is --x-ground, the white 10 already "
+  "shows. It still needs the fill 10 does without, because 07\u2019s video "
+  "thumbnail runs under the bar and something has to cover it"),
  ("Surface", "nav-2", "linear-gradient(180deg,#E7DDFE 0%,#ECE3FF 100%)",
   "15 carries the same five glyphs over a wash of its own, and this one runs "
   "down rather than across. A single column reads it to a couple of levels "
@@ -940,7 +944,7 @@ def s07():
         + circle(328, 704, 56, "background:var(--x-accent);"
                                "box-shadow:0 4px 12px rgba(0,0,0,.18)")
         + icon("plus", 348.33, 724.33, 15.33, 15.33, "var(--x-inv)")
-        + box(0, 768.67, 393, 83.33, "background:var(--x-nav)")
+        + box(0, 768.67, 393, 83.33, "background:var(--x-ground)")
         + rule(768.67)
         + "".join(icon(n, x, y, w, h, "var(--x-ink)") for n, x, y, w, h in NAV)
         + circle(44.33, 778.33, 6, "background:var(--x-accent)"),

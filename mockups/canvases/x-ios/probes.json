@@ -12,7 +12,7 @@
   "only": "flat",
   "mine": "06-edit-profile.png",
   "_": "06 the empty band between the hairlines at 664.67 and 697.00, clear of both: page ground and nothing else",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the fifteen boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Seven left the file when 07 took @Yilin0x's own timeline: chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, and t-name and t-meta the demo persona's name and location -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those seven measurements stay on the 00b-00f evidence boards, which quote the capture and are not replayed against a render. spaces is not among them: 13's card brought it back, on a screen this time."
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the fifteen boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Nine left the file when 07 took @Yilin0x's own timeline: chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, t-name and t-meta the demo persona's name and location, and nav-l and nav-r the purple X tints the nav bar with while a Space is live, which that timeline no longer has -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those nine measurements stay on the 00b-00f evidence boards, which quote the capture and are not replayed against a render. spaces is not among them: 13's card brought it back, on a screen this time."
  },
  {
   "id": "field",
@@ -69,34 +69,6 @@
   "only": "flat",
   "mine": "07-profile.png",
   "_": "07 the compose FAB, d 56 at (328, 704): inside the disc and left of the plus glyph, which starts at 348.33"
- },
- {
-  "id": "nav-l",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   4,
-   770,
-   40,
-   778
-  ],
-  "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the nav wash at its left end, below the rule at 768.67 and above the glyphs at 781: the lightest stop"
- },
- {
-  "id": "nav-r",
-  "img": "assets/refs/p7.png",
-  "cmd": "sample",
-  "box": [
-   360,
-   770,
-   389,
-   778
-  ],
-  "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the same band at its right end. APPROXIMATION: the generator fits four stops to this row, not the two-axis gradient the capture holds"
  },
  {
   "id": "ink",
