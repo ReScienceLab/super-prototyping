@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Instagram - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --ig-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --ig-bg:#FFFFFF;
+  --ig-fill:#F1F2F6;
+
+  /* Line */
+  --ig-hairline:#DADADA;
+  --ig-ring:#DDDEE2;
+
+  /* Ink */
+  --ig-ink:#0E0F13;
+  --ig-ink-2:#6E7074;
+  --ig-ink-inv:#FFFFFF;
+
+  /* Accent */
+  --ig-accent:#4A5DF6;
+  --ig-link:#3846C7;
+  --ig-verified:#3F96F4;
+  --ig-sub:#7339F5;
+  --ig-story:conic-gradient(#E731A3 0deg,#D52BBD 30deg,#D32CCB 60deg,#E433A1 90deg,#EB335A 120deg,#E95F20 150deg,#EEA837 180deg,#F7CE43 210deg,#F4D243 240deg,#F0A63B 270deg,#EE6329 300deg,#EB3260 330deg,#E731A3 360deg);
+
+  /* Radius */
+  --ig-r-btn:8px;
+  --ig-r-phone:52px;
+
+  /* Type */
+  --ig-t-nav:700 20px/24px var(--ig-font);
+  --ig-t-stat:600 16px/20px var(--ig-font);
+  --ig-t-body:400 14px/18px var(--ig-font);
+  --ig-t-bodys:600 14px/18px var(--ig-font);
+  --ig-t-cap:400 12px/15px var(--ig-font);
+  --ig-t-caps:600 12px/15px var(--ig-font);
+  --ig-t-title:700 24px/29px var(--ig-font);
+  --ig-t-note:400 15px/18px var(--ig-font);
+  --ig-t-time:590 17px/22px var(--ig-font);
+
+  /* Metrics */
+  --ig-w:393px;
+  --ig-h:852px;
+  --ig-status:54px;
+  --ig-gutter:16px;
+  --ig-col:123px;
+  --ig-avatar:86px;
+  --ig-btn:32px;
+  --ig-hl:64px;
+  --ig-tile:130.33px;
+  --ig-pitch:131.33px;
+  --ig-row:174.67px;
+  --ig-reel:232.67px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ig-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--ig-w);height:var(--ig-h);
+  border-radius:var(--ig-r-phone);overflow:hidden;background:var(--ig-bg);color:var(--ig-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--ig-w);height:var(--ig-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--ig-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--ig-bg);color:var(--ig-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--ig-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--ig-font);color:var(--ig-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--ig-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--ig-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--ig-ring)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--ig-ink-2);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--ig-fill);border:1px solid var(--ig-ring)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--ig-font);
+  color:var(--ig-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--ig-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--ig-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--ig-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--ig-hairline);font:400 8.5px/11px var(--ig-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--ig-accent)}
+td.v{color:var(--ig-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--ig-ink-2)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Instagram</h1><p>Sampled off eight iPhone 16 Pro captures at 3.0 capture px per design pt. Every value has a row on the evidence board.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--ig-bg)"></div><b>--ig-bg</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--ig-fill)"></div><b>--ig-fill</b><i>#F1F2F6</i></div><div class="sw"><div class="chip" style="background:var(--ig-hairline)"></div><b>--ig-hairline</b><i>#DADADA</i></div><div class="sw"><div class="chip" style="background:var(--ig-ring)"></div><b>--ig-ring</b><i>#DDDEE2</i></div><div class="sw"><div class="chip" style="background:var(--ig-ink)"></div><b>--ig-ink</b><i>#0E0F13</i></div><div class="sw"><div class="chip" style="background:var(--ig-ink-2)"></div><b>--ig-ink-2</b><i>#6E7074</i></div><div class="sw"><div class="chip" style="background:var(--ig-ink-inv)"></div><b>--ig-ink-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--ig-accent)"></div><b>--ig-accent</b><i>#4A5DF6</i></div><div class="sw"><div class="chip" style="background:var(--ig-link)"></div><b>--ig-link</b><i>#3846C7</i></div><div class="sw"><div class="chip" style="background:var(--ig-verified)"></div><b>--ig-verified</b><i>#3F96F4</i></div><div class="sw"><div class="chip" style="background:var(--ig-sub)"></div><b>--ig-sub</b><i>#7339F5</i></div><div class="sw"><div class="chip" style="background:var(--ig-story)"></div><b>--ig-story</b><i>conic-gradient(#E731A3 0deg,#D52BBD 30deg,#D32CCB 60deg,#E433A1 90deg,#EB335A 120deg,#E95F20 150deg,#EEA837 180deg,#F7CE43 210deg,#F4D243 240deg,#F0A63B 270deg,#EE6329 300deg,#EB3260 330deg,#E731A3 360deg)</i></div></div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:8px"></div><em>8px</em></div></div><h2>Type</h2><div class="tr"><span style="font:var(--ig-t-nav)">Grumpy wizards</span><em>--ig-t-nav &middot; 700 20px/24px</em></div><div class="tr"><span style="font:var(--ig-t-stat)">Grumpy wizards</span><em>--ig-t-stat &middot; 600 16px/20px</em></div><div class="tr"><span style="font:var(--ig-t-body)">Grumpy wizards</span><em>--ig-t-body &middot; 400 14px/18px</em></div><div class="tr"><span style="font:var(--ig-t-bodys)">Grumpy wizards</span><em>--ig-t-bodys &middot; 600 14px/18px</em></div><div class="tr"><span style="font:var(--ig-t-cap)">Grumpy wizards</span><em>--ig-t-cap &middot; 400 12px/15px</em></div><div class="tr"><span style="font:var(--ig-t-caps)">Grumpy wizards</span><em>--ig-t-caps &middot; 600 12px/15px</em></div><div class="tr"><span style="font:var(--ig-t-title)">Grumpy wizards</span><em>--ig-t-title &middot; 700 24px/29px</em></div><div class="tr"><span style="font:var(--ig-t-note)">Grumpy wizards</span><em>--ig-t-note &middot; 400 15px/18px</em></div><div class="tr"><span style="font:var(--ig-t-time)">Grumpy wizards</span><em>--ig-t-time &middot; 590 17px/22px</em></div><h2>Metrics</h2><div class="met">--ig-w: 393px<br>--ig-h: 852px<br>--ig-status: 54px<br>--ig-gutter: 16px<br>--ig-col: 123px<br>--ig-avatar: 86px<br>--ig-btn: 32px<br>--ig-hl: 64px<br>--ig-tile: 130.33px<br>--ig-pitch: 131.33px<br>--ig-row: 174.67px<br>--ig-reel: 232.67px</div></div>
+</body>
+</html>

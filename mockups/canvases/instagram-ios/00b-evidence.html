@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Instagram - Evidence 1/2</title>
+<style>
+:root{
+  /* Font */
+  --ig-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --ig-bg:#FFFFFF;
+  --ig-fill:#F1F2F6;
+
+  /* Line */
+  --ig-hairline:#DADADA;
+  --ig-ring:#DDDEE2;
+
+  /* Ink */
+  --ig-ink:#0E0F13;
+  --ig-ink-2:#6E7074;
+  --ig-ink-inv:#FFFFFF;
+
+  /* Accent */
+  --ig-accent:#4A5DF6;
+  --ig-link:#3846C7;
+  --ig-verified:#3F96F4;
+  --ig-sub:#7339F5;
+  --ig-story:conic-gradient(#E731A3 0deg,#D52BBD 30deg,#D32CCB 60deg,#E433A1 90deg,#EB335A 120deg,#E95F20 150deg,#EEA837 180deg,#F7CE43 210deg,#F4D243 240deg,#F0A63B 270deg,#EE6329 300deg,#EB3260 330deg,#E731A3 360deg);
+
+  /* Radius */
+  --ig-r-btn:8px;
+  --ig-r-phone:52px;
+
+  /* Type */
+  --ig-t-nav:700 20px/24px var(--ig-font);
+  --ig-t-stat:600 16px/20px var(--ig-font);
+  --ig-t-body:400 14px/18px var(--ig-font);
+  --ig-t-bodys:600 14px/18px var(--ig-font);
+  --ig-t-cap:400 12px/15px var(--ig-font);
+  --ig-t-caps:600 12px/15px var(--ig-font);
+  --ig-t-title:700 24px/29px var(--ig-font);
+  --ig-t-note:400 15px/18px var(--ig-font);
+  --ig-t-time:590 17px/22px var(--ig-font);
+
+  /* Metrics */
+  --ig-w:393px;
+  --ig-h:852px;
+  --ig-status:54px;
+  --ig-gutter:16px;
+  --ig-col:123px;
+  --ig-avatar:86px;
+  --ig-btn:32px;
+  --ig-hl:64px;
+  --ig-tile:130.33px;
+  --ig-pitch:131.33px;
+  --ig-row:174.67px;
+  --ig-reel:232.67px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ig-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--ig-w);height:var(--ig-h);
+  border-radius:var(--ig-r-phone);overflow:hidden;background:var(--ig-bg);color:var(--ig-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--ig-w);height:var(--ig-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--ig-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--ig-bg);color:var(--ig-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--ig-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--ig-font);color:var(--ig-ink-2);margin-bottom:14px}
+h2{font:600 9px/12px var(--ig-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--ig-ink-2);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--ig-ring)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--ig-ink-2);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--ig-fill);border:1px solid var(--ig-ring)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--ig-font);
+  color:var(--ig-ink-2);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--ig-hairline)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--ig-ink-2);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--ig-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--ig-hairline);font:400 8.5px/11px var(--ig-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--ig-accent)}
+td.v{color:var(--ig-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--ig-ink-2)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 1/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--ig-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font on the c01 nav title: SF Pro, score 0.922, margin 0.104 over the runner-up</td></tr><tr><td class="t">--ig-bg</td><td class="v">#FFFFFF</td><td class="e">flat census of c01 200-300 x 302-312, the ground between the Threads and mutuals rows: 100% flat</td></tr><tr><td class="t">--ig-fill</td><td class="v">#F1F2F6</td><td class="e">flat census of the c01 Message button at 240-330 x 375-395: 89.4% flat, no channel under 241</td></tr><tr><td class="t">--ig-hairline</td><td class="v">#DADADA</td><td class="e">c06 tab-bar divider at y 346.0, one device pixel tall and the full width: 72.3% flat</td></tr><tr><td class="t">--ig-ring</td><td class="v">#DDDEE2</td><td class="e">c01 highlight 1's ring at 9 o'clock, 3.3pt of stroke over 12pt of height: 56.1% flat</td></tr><tr><td class="t">--ig-ink</td><td class="v">#0E0F13</td><td class="e">flat census of the c01 active-tab underline, 29-69 x 559-561: the only solid fill of this colour in the set</td></tr><tr><td class="t">--ig-ink-2</td><td class="v">#6E7074</td><td class="e">modal ink of c06's 'Follow this account to see their photos'; --only ink reads #696C6E, iOS stem-darkening</td></tr><tr><td class="t">--ig-ink-inv</td><td class="v">#FFFFFF</td><td class="e">label core on the accent fill, c01 Follow</td></tr><tr><td class="t">--ig-accent</td><td class="v">#4A5DF6</td><td class="e">flat census of the c01 Follow button at 60-150 x 375-395: 94.6% flat</td></tr><tr><td class="t">--ig-link</td><td class="v">#3846C7</td><td class="e">modal ink of c01's youtube.com URL; --only ink reads #3543B4, iOS stem-darkening</td></tr><tr><td class="t">--ig-verified</td><td class="v">#3F96F4</td><td class="e">flat census of the c01 verified disc, 156-163 x 81-88 inside the tick's arms: 42.9% flat</td></tr><tr><td class="t">--ig-sub</td><td class="v">#7339F5</td><td class="e">modal of the filled crown on c08 highlight 1, ink box 12.67-24.0 x 484.33-492.67</td></tr><tr><td class="t">--ig-story</td><td class="v">conic-gradient(#E731A3 0deg,#D52BBD 30deg,#D32CCB 60deg,#E433A1 90deg,#EB335A 120deg,#E95F20 150deg,#EEA837 180deg,#F7CE43 210deg,#F4D243 240deg,#F0A63B 270deg,#EE6329 300deg,#EB3260 330deg,#E731A3 360deg)</td><td class="e">24-sample sweep of the c01 avatar ring at r 48.5, kept every 30 deg; conic, because the halves do not mirror</td></tr><tr><td class="t">--ig-r-btn</td><td class="v">8px</td><td class="e">refkit bbox on the c01 Follow button corner, 16-194 x 369-401</td></tr><tr><td class="t">--ig-r-phone</td><td class="v">52px</td><td class="e">circular stand-in for the 55pt continuous display corner</td></tr><tr><td class="t">--ig-t-nav</td><td class="v">700 20px/24px var(--ig-font)</td><td class="e">c01 'instagram' ink 53.3-146.0, w 92.67, baseline 91.5; 700 20px sets 93.33</td></tr><tr><td class="t">--ig-t-stat</td><td class="v">600 16px/20px var(--ig-font)</td><td class="e">c01 '8,283' w 43.33 and '698M' w 43.33, baseline 180.67; 600 16px sets 43.67 and 43.33</td></tr><tr><td class="t">--ig-t-body</td><td class="v">400 14px/18px var(--ig-font)</td><td class="e">c01 'posts/followers/following' w 34.0/57.0/56.67 and the bio w 218.67; 400 14px sets all four to within 0.7</td></tr></table></div>
+</body>
+</html>
