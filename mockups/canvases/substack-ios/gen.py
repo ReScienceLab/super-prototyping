@@ -76,6 +76,7 @@ ART_DIR = OUT / "assets" / "art"
 LOGO_DIR = OUT / "assets" / "logos"
 FACE_DIR = OUT / "assets" / "avatars"
 PHOTO_DIR = OUT / "assets" / "photos"
+BRAND_DIR = OUT / "assets" / "brand"
 CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
          if not k.startswith("_")}
 SCALE = 3.0                       # capture px per design pt: 1179 / 393
@@ -1446,20 +1447,23 @@ def ref_boards():
 
 
 def layout(files):
-    return {
-     "name": PAGE_NAME,
-     "rows": [
-      {"title": "Foundations",
-       "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
-                + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]},
-      {"title": "Screens", "numbered": True,
-       "files": [{"file": n, "label": l} for n, l, _ in SCREENS]},
-      # Same order as the row above: the canvas lays every row out from x = 0 at
-      # one pitch, so item N here lands column-for-column under item N up there.
-      {"title": "Source of truth: captures", "numbered": True,
-       "files": [{"file": "ref-" + n, "label": l} for n, l, _ in REFS
-                 if "ref-" + n in files]},
-     ]}
+    rows = [
+     {"title": "Foundations",
+      "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
+               + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]},
+     {"title": "Screens", "numbered": True,
+      "files": [{"file": n, "label": l} for n, l, _ in SCREENS]},
+     # Same order as the row above: the canvas lays every row out from x = 0 at
+     # one pitch, so item N here lands column-for-column under item N up there.
+     {"title": "Source of truth: captures", "numbered": True,
+      "files": [{"file": "ref-" + n, "label": l} for n, l, _ in REFS
+                if "ref-" + n in files]},
+    ]
+    # Unlike everything else under assets/, these are never inlined as data: URIs.
+    # manifest.json places them as image shapes of their own, one row per surface,
+    # so the canvas can compare avatar against avatar down the page.
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
+    return {"name": PAGE_NAME, "rows": rows}
 
 
 def main():

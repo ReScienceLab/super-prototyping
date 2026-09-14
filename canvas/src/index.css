@@ -493,7 +493,8 @@ input.canvas-clone-name:focus {
  * about that. It keeps the bar's height and its type; what it does not keep is the bar's grey,
  * because a control nobody notices is the same as no control.
  */
-.tlui-button.sp-figma {
+.tlui-button.sp-figma,
+.tlui-button.sp-brand {
   width: auto;
   /* Inset in the bar's 40px rather than filling it: at full height the white block reads as a
      gap in the bar, and at 30 it reads as a chip sitting in one. */
@@ -513,17 +514,20 @@ input.canvas-clone-name:focus {
   text-decoration: none;
 }
 
-.tlui-button.sp-figma:hover {
+.tlui-button.sp-figma:hover,
+.tlui-button.sp-brand:hover {
   background: #f7f7f7;
 }
 
 /* On a phone the bar is already tight against the page menu; the mark alone still says Figma. */
 @media (max-width: 720px) {
-  .sp-figma__label {
+  .sp-figma__label,
+  .sp-brand__label {
     display: none;
   }
 
-  .tlui-button.sp-figma {
+  .tlui-button.sp-figma,
+  .tlui-button.sp-brand {
     padding: 0 9px;
   }
 }

@@ -782,6 +782,12 @@ def _uri(cid):
             if f.exists() else "")
 
 
+# Unlike everything else under assets/, these are never inlined as data: URIs.
+# manifest.json places them as image shapes of their own, one row per surface,
+# so the canvas can compare avatar against avatar down the page.
+BRAND_DIR = OUT / "assets" / "brand"
+
+
 def art(cid, style="", z=None, top=None):
     """One <img>, at the box it was measured from, snapped to the pixels
     cut() took: a crop placed at its pt box lands up to half a capture
@@ -1645,6 +1651,7 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: the captures",
                      "numbered": True, "files": refs})
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
     return {"name": PAGE_NAME, "cover": "05-supergrok", "rows": rows}
 
 

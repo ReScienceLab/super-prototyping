@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
+import sharp from "sharp";
 import { defineConfig, type Plugin } from "vite";
 import { svgSignature } from "./src/svgSignature.ts";
 
@@ -179,12 +180,98 @@ function assetIndex(folder: string): Record<string, AssetName> {
   return out;
 }
 
+/**
+ * Every image under `assets/brand/`, by path relative to the board folder. A layout places these
+ * as tldraw image shapes of their own rather than inside a board, so they are the one part of
+ * `assets/` that needs a real URL: everything else is already a `data:` URI in the HTML.
+ */
+function brandImages(folder: string): string[] {
+  const out: string[] = [];
+  const walk = (dir: string, rel: string) => {
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      if (e.name.startsWith(".")) continue;
+      if (e.isDirectory()) walk(path.join(dir, e.name), `${rel}${e.name}/`);
+      else if (
+        ASSET_MIME.has(path.extname(e.name).toLowerCase()) &&
+        urlSafe(e.name, "brand image")
+      )
+        out.push(rel + e.name);
+    }
+  };
+  walk(path.join(folder, "assets", "brand"), "assets/brand/");
+  return out.sort();
+}
+
+/**
+ * Longest edge of the variant generated for each brand image. A card on the brand page draws
+ * around 440 CSS px and the canvas draws most of these smaller still, so 880 is already
+ * pixel-exact on a retina screen: every pixel past it is decoded and thrown away. The original
+ * stays the asset of record — zoom, export, copy and a viewport wide enough to want it all
+ * resolve back to it, so nothing is ever shown softer than the screen can display.
+ */
+const THUMB_EDGE = 880;
+const thumbsDir = fileURLToPath(new URL("node_modules/.cache/brand-thumbs/", import.meta.url));
+
+/**
+ * The variant for one brand image, generated on first sight and read from the cache after.
+ * Named by the source's size and mtime, so replacing an asset writes a new file rather than
+ * serving the stale one.
+ *
+ * Undefined when a variant is not worth having, and the caller then keeps the original, which
+ * is only ever heavier and never broken: an SVG, which is already resolution-independent and
+ * the one thing here that rasterising *would* degrade; a file sharp cannot read; an image
+ * already small enough that a variant would hold the same pixels in a re-encoded file; or an
+ * image WebP fails to make smaller, which is common for the small flat-colour logos.
+ */
+async function brandThumb(file: string): Promise<string | undefined> {
+  if (path.extname(file).toLowerCase() === ".svg") return undefined;
+  const stat = fs.statSync(file, { throwIfNoEntry: false });
+  if (!stat?.isFile()) return undefined;
+  // djb2 over path, size and mtime — a cache key, not a digest.
+  let h = 5381;
+  const key = `${file}:${stat.size}:${stat.mtimeMs}`;
+  for (let i = 0; i < key.length; i++) h = ((h * 33) ^ key.charCodeAt(i)) >>> 0;
+  const out = path.join(thumbsDir, `${h.toString(36)}-${path.parse(file).name}.webp`);
+  // An empty cache file is the remembered answer "this one is better off as its original", so
+  // a rejected image is not re-encoded on every start just to reach the same conclusion.
+  if (fs.existsSync(out)) return fs.statSync(out).size ? out : undefined;
+  try {
+    fs.mkdirSync(thumbsDir, { recursive: true });
+    const meta = await sharp(file).metadata();
+    // An image the screen can already show whole gets no variant. Downscaling is what makes a
+    // variant honest — the same picture, at the size it is drawn. Re-encoding one at its own
+    // size is the other kind of saving, the kind that trades quality for bytes.
+    if (!meta.width || !meta.height || Math.max(meta.width, meta.height) <= THUMB_EDGE) {
+      fs.writeFileSync(out, "");
+      return undefined;
+    }
+    await sharp(file, { animated: true })
+      .resize({ width: THUMB_EDGE, height: THUMB_EDGE, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 90 })
+      .toFile(out);
+  } catch {
+    return undefined;
+  }
+  if (fs.statSync(out).size >= stat.size) {
+    fs.writeFileSync(out, "");
+    return undefined;
+  }
+  return out;
+}
+
 interface Board {
   slug: string;
   html: string[];
   layout: boolean;
   icon: boolean;
   assets: Record<string, AssetName>;
+  brand: string[];
 }
 
 /**
@@ -237,6 +324,7 @@ function scan(dir: string): Board[] {
         layout: fs.existsSync(path.join(folder, "layout.json")),
         icon: fs.existsSync(path.join(folder, "icon.png")),
         assets: assetIndex(folder),
+        brand: brandImages(folder),
       };
     })
     .filter((b): b is Board => b !== null && b.html.length > 0);
@@ -278,10 +366,19 @@ function canvasesSource(): Plugin {
       return id === VIRTUAL_ID ? RESOLVED_ID : null;
     },
 
-    load(id) {
+    async load(id) {
       if (id !== RESOLVED_ID) return null;
 
       const boards = scan(canvasesDir);
+      // Every variant up front, because the imports emitted below have to name files that
+      // already exist. Cached after the first run, so this is a stat per image from then on.
+      const thumbs = new Map<string, string>();
+      for (const board of boards) {
+        for (const file of board.brand) {
+          const thumb = await brandThumb(path.join(canvasesDir, board.slug, file));
+          if (thumb) thumbs.set(`${board.slug}/${file}`, thumb);
+        }
+      }
       // Dev serves files outside the project root through /@fs; a build resolves the absolute
       // path itself and emits the asset.
       //
@@ -296,6 +393,9 @@ function canvasesSource(): Plugin {
       const pages: string[] = [];
       const layouts: string[] = [];
       const icons: string[] = [];
+      const brand: string[] = [];
+      const brandThumbs: string[] = [];
+      let brandCount = 0;
       const assets: string[] = [];
       const comments: string[] = [];
 
@@ -331,6 +431,18 @@ function canvasesSource(): Plugin {
         if (board.icon) {
           imports.push(`import __icon${i} from ${spec(path.join(folder, "icon.png"), "?url")};`);
           icons.push(`  ${jsString(keyFor(board.slug, "icon.png"))}: __icon${i},`);
+        }
+        for (const file of board.brand) {
+          const n = brandCount++;
+          const key = jsString(keyFor(board.slug, file));
+          imports.push(`import __brand${n} from ${spec(path.join(folder, file), "?url")};`);
+          brand.push(`  ${key}: __brand${n},`);
+          // Keyed identically to the original, so the two maps line up by path.
+          const thumb = thumbs.get(`${board.slug}/${file}`);
+          if (thumb) {
+            imports.push(`import __thumb${n} from ${spec(thumb, "?url")};`);
+            brandThumbs.push(`  ${key}: __thumb${n},`);
+          }
         }
         if (Object.keys(board.assets).length) {
           assets.push(`  ${jsString(board.slug)}: ${jsLiteral(board.assets)},`);
@@ -373,6 +485,9 @@ function canvasesSource(): Plugin {
         `export const boardPages = {\n${pages.join("\n")}\n};`,
         `export const rawLayouts = {\n${layouts.join("\n")}\n};`,
         `export const rawIcons = {\n${icons.join("\n")}\n};`,
+        `export const rawBrandImages = {\n${brand.join("\n")}\n};`,
+        `export const rawBrandThumbs = {\n${brandThumbs.join("\n")}\n};`,
+        `export const brandThumbEdge = ${THUMB_EDGE};`,
         `export const rawAssetNames = {\n${assets.join("\n")}\n};`,
         `export const rawComments = {\n${comments.join("\n")}\n};`,
         // The HMR boundary for every layout.json, which the inspector's status control writes on
@@ -734,10 +849,11 @@ export default defineConfig({
     // is a megabyte on its own and a warning nobody can act on is noise.
     chunkSizeWarningLimit: 4_000,
     rollupOptions: {
-      // Two pages: the canvas, and the sheet that shows one canvas page's boards at full size.
-      // The sheet is its own entry rather than a route inside the canvas so that reading a
-      // board as a web page does not download tldraw to do it.
-      input: { index: "index.html", sheet: "sheet.html" },
+      // Three pages: the canvas, the sheet that shows one canvas page's boards at full size,
+      // and the brand page that shows the same page's brand material. Each is its own entry
+      // rather than a route inside the canvas so that reading one as a web page does not
+      // download tldraw to do it.
+      input: { index: "index.html", sheet: "sheet.html", brand: "brand.html" },
     },
   },
 });

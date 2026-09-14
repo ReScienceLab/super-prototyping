@@ -1,0 +1,203 @@
+/*
+ * The brand page, brand.html. Its own stylesheet rather than the sheet's: the sheet frames
+ * boards, which arrive at a size they chose, and this frames assets, which arrive at every size
+ * there is. The whole design is one answer to that — the card sets the geometry and the picture
+ * is contained inside it, so a 1500x500 banner and a 400x400 avatar occupy the same rectangle
+ * and a row can be read across instead of scanned.
+ *
+ * Ground, ink, hairline and the card's 8px/1px treatment follow brandarchive.xyz, which solves
+ * this exact problem for this exact kind of page.
+ */
+:root {
+  color-scheme: light;
+  --ground: #f3f4f1;
+  --ink: #292e2e;
+  --sub: #6f7573;
+  --hair: #dddedb;
+  --card: #ffffff;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+/* Sections run edge to edge and are separated by one hairline, so the page reads as a stack of
+   bands rather than as floating groups. The inner padding is what keeps content off the edge. */
+.band {
+  padding: 22px 28px 44px;
+  border-top: 1px solid var(--hair);
+}
+.band:first-child {
+  border-top: 0;
+}
+
+/* ---------------------------------------------------------------- switch ---- */
+/* The other examples, as a shelf of app icons above everything. One scrolling row rather than a
+   wrapping block: the strip is navigation, and navigation that changes height as the window
+   narrows moves the page under the reader. */
+.switch {
+  display: flex;
+  gap: 4px;
+  padding: 12px 28px;
+  border-bottom: 1px solid var(--hair);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.switch::-webkit-scrollbar {
+  display: none;
+}
+.chip {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 13px 5px 5px;
+  border-radius: 999px;
+  color: var(--sub);
+  font-size: 13.5px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.chip img {
+  width: 26px;
+  height: 26px;
+  /* The one place on this page a picture is cropped and rounded: here it is a button's icon
+     rather than an asset being shown, and an app icon is a rounded square everywhere else it
+     appears. The cards below still contain their pictures whole. */
+  border-radius: 6px;
+  object-fit: cover;
+}
+.chip:hover {
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.045);
+}
+/* Where you are, filled — so the strip answers that before it offers anywhere else to go. */
+.chip[aria-current="page"] {
+  color: var(--ink);
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+
+/* ------------------------------------------------------------------ head ---- */
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 26px 28px 30px;
+}
+.head h1 {
+  margin: 0;
+  font-size: 44px;
+  line-height: 1.12;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.head p {
+  margin: 10px 0 0;
+  color: var(--sub);
+}
+.head a {
+  color: var(--ink);
+  text-decoration-color: var(--hair);
+  text-underline-offset: 3px;
+}
+/* The facts about this page, as a table of hairline rows — the same shape a brand page uses for
+   designer and year, because the question a reader has here is the same: who made this, and is
+   it really theirs. */
+.meta {
+  flex: 0 1 460px;
+  min-width: 280px;
+  border-top: 1px solid var(--hair);
+}
+.meta div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hair);
+}
+.meta dt {
+  color: var(--sub);
+  font-size: 13px;
+}
+.meta dd {
+  margin: 0;
+  text-align: right;
+}
+
+/* ----------------------------------------------------------------- cards ---- */
+.band h2 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.band .count {
+  margin: 0 0 28px;
+  color: var(--sub);
+  font-size: 13px;
+}
+/* Column count and card shape are set per row from the pictures in it: a row of 3:1 banners and
+   a row of portrait store screenshots want opposite grids, and forcing one grid on both is what
+   makes a page like this look accidental. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: 20px;
+}
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(min(var(--cols), 3), minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(min(var(--cols), 2), minmax(0, 1fr));
+  }
+}
+figure {
+  margin: 0;
+}
+/* The card is the only thing with a border and a radius. The picture inside it is never clipped
+   and never cropped: it is contained, centred, and shown whole at whatever shape it is. */
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: var(--box);
+  padding: 24px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: var(--card);
+}
+.card img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+figcaption {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+/* Provenance is the repo's method, so it is on every picture — but quiet, and only loud enough
+   to notice when it is not the company's own asset. */
+.prov {
+  margin-top: 3px;
+  color: var(--sub);
+  font-size: 12px;
+}
+.prov a {
+  color: inherit;
+}

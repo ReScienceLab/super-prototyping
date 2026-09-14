@@ -1,7 +1,7 @@
 import { FigmaMark } from "./FigmaMark";
-import { pageNameFor } from "./canvasLibrary";
+import { hasBrandMaterial, pageNameFor } from "./canvasLibrary";
 import { sheetRows } from "./sheetLayout";
-import { canvasPageUrl } from "./canvasUrl";
+import { brandPageUrl, canvasPageUrl } from "./canvasUrl";
 
 /** The extension that reads a page, and the Figma plugin that the extension can hand off to. */
 const H2D_EXTENSION =
@@ -20,6 +20,7 @@ const H2D_PLUGIN = "https://www.figma.com/community/plugin/1159123024924461424/h
 export function BoardsSheet({ slug }: { slug: string }) {
   const rows = sheetRows(slug);
   const count = rows.reduce((n, row) => n + row.boards.length, 0);
+  const hasBrand = hasBrandMaterial(slug);
 
   return (
     <main>
@@ -27,6 +28,12 @@ export function BoardsSheet({ slug }: { slug: string }) {
       <p className="sub">
         {count} board{count === 1 ? "" : "s"} at full size ·{" "}
         <a href={canvasPageUrl(slug)}>back to the canvas</a>
+        {hasBrand ? (
+          <>
+            {" · "}
+            <a href={brandPageUrl(slug)}>brand material</a>
+          </>
+        ) : null}
       </p>
       {/* The canvas's Figma button lands here, so this page has to answer the question that
           button raises: what do I install, and what do I press. It is an ordinary page at an

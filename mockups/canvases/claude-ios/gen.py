@@ -974,6 +974,12 @@ def ref_boards():
         yield "ref-" + name, page(NAME + " - reference: " + label, body, REF_CSS)
 
 
+# Unlike everything else under assets/, these are never inlined as data: URIs.
+# manifest.json places them as image shapes of their own, one row per surface,
+# so the canvas can compare avatar against avatar down the page.
+BRAND_DIR = OUT / "assets" / "brand"
+
+
 # ------------------------------------------------------------------- run ----
 def boards():
     yield "00-design-tokens", token_board()
@@ -1001,6 +1007,7 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: Mobbin captures",
                      "numbered": True, "files": refs})
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
     return {"name": PAGE_NAME, "rows": rows}
 
 

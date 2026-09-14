@@ -28,11 +28,11 @@ export function boardFromUrl(href: string) {
 }
 
 /**
- * The two pages of the app, for links between them: the canvas showing a page, and that same
+ * The three pages of the app, for links between them: the canvas showing a page, that same
  * page's boards at full size (sheet.html, one entry of its own so a board read as a web page
- * does not download tldraw with it). Both take the slug as `?canvas=`, so one address becomes
- * the other by swapping the file. Built on BASE_URL rather than on the current address, which
- * is the other page.
+ * does not download tldraw with it), and its brand material (brand.html). All three take the
+ * slug as `?canvas=`, so one address becomes another by swapping the file. Built on BASE_URL
+ * rather than on the current address, which is one of the others.
  */
 export function canvasPageUrl(slug: string) {
   const query =
@@ -42,6 +42,10 @@ export function canvasPageUrl(slug: string) {
 
 export function sheetPageUrl(slug: string) {
   return `${import.meta.env.BASE_URL}sheet.html?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
+}
+
+export function brandPageUrl(slug: string) {
+  return `${import.meta.env.BASE_URL}brand.html?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
 }
 
 /**

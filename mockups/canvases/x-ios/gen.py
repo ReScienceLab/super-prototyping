@@ -56,6 +56,10 @@ from pathlib import Path
 OUT = Path(__file__).resolve().parent
 REFS_DIR = OUT / "assets" / "refs"
 ART_DIR = OUT / "assets" / "art"
+# Unlike everything else under assets/, these are never inlined as data: URIs.
+# manifest.json places them as image shapes of their own, one row per surface,
+# so the canvas can compare avatar against avatar down the page.
+BRAND_DIR = OUT / "assets" / "brand"
 CROPS = {k: v for k, v in json.loads((OUT / "crops.json").read_text()).items()
          if not k.startswith("_")}
 SCALE = 3.0                                       # capture px per design pt
@@ -1431,6 +1435,7 @@ def layout():
     rows.append({"title": "Source of truth: the captures", "numbered": True,
                  "files": [{"file": "ref-" + s, "label": l}
                            for s, l, _, _ in SCREENS]})
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
     return {"name": PAGE_NAME, "cover": "02-profile", "rows": rows}
 
 

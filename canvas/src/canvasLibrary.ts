@@ -15,7 +15,16 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // opening the welcome page pulls a dozen covers rather than every board (the full set is 25 MB of
 // HTML, which a phone should not download to look at one page). Vite still reloads the page when a
 // mockup is saved. `rawLayouts` and `rawIcons` stay eager because they are read during render.
-import { boardPages, fileLoaders, rawLayouts, rawIcons, rawAssetNames } from "virtual:canvases";
+import {
+  boardPages,
+  fileLoaders,
+  rawLayouts,
+  rawIcons,
+  rawAssetNames,
+  rawBrandImages,
+  rawBrandThumbs,
+  brandThumbEdge,
+} from "virtual:canvases";
 
 export interface CanvasLibraryFile {
   path: string;
@@ -76,9 +85,30 @@ export interface CanvasLayoutLink {
   url: string;
 }
 
+/**
+ * A picture in a row, laid out as a tldraw image shape rather than a board: a logo, a screenshot
+ * of someone else's marketing, an ad creative. `file` is relative to the folder and has to live
+ * under `assets/brand/`, which is the only part of `assets/` the plugin gives an address to.
+ *
+ * `w`/`h` are the image's own pixel size, not the size it draws at — the row scales every image
+ * to a common band from them, so a wrong pair renders the wrong shape.
+ */
+export interface CanvasLayoutImage {
+  file: string;
+  label: string;
+  w: number;
+  h: number;
+  /** The human page this came from, and whether the company published it or an archive did. */
+  source?: string;
+  provenance?: string;
+}
+
 export interface CanvasLayoutRow {
   title: string;
-  files: CanvasLayoutFileEntry[];
+  /** The boards in this row. Omitted by a row that carries `images` instead. */
+  files?: CanvasLayoutFileEntry[];
+  /** Pictures in this row, instead of boards. A row is one or the other, never both. */
+  images?: CanvasLayoutImage[];
   /** Prefix each caption with its 1-based position in `files`, e.g. "3 · Referral". */
   numbered?: boolean;
   /**
@@ -170,7 +200,7 @@ export function boardStatusForPath(path: string): CanvasBoardStatus {
   const layout = readCanvasLayout(file.pageSlug);
   let status = layout?.status;
   for (const row of layout?.rows ?? []) {
-    for (const entry of row.files) {
+    for (const entry of row.files ?? []) {
       if (typeof entry === "string" || entry.file !== file.fileName) continue;
       if (entry.status) status = entry.status;
     }
@@ -364,6 +394,18 @@ export function readCanvasLayout(
   return undefined;
 }
 
+/** Whether this page collected any brand material: the brand page of one that did not is empty. */
+export function hasBrandMaterial(pageSlug: string) {
+  return (readCanvasLayout(pageSlug)?.rows ?? []).some((row) => row.images?.length);
+}
+
+/** Every page that collected brand material, in folder order — what the brand page switches between. */
+export function brandMaterialSlugs() {
+  return Object.keys(layouts)
+    .map((path) => LAYOUT_PATTERN.exec(path)?.[1])
+    .filter((slug): slug is string => !!slug && hasBrandMaterial(slug));
+}
+
 /**
  * This folder's inlined images by payload key, if it committed the files they came from: the
  * inspector's Assets tab joins a board's data: URIs against it to put a file name next to each
@@ -381,6 +423,47 @@ export function canvasIconUrl(pageSlug: string) {
     if (ICON_PATTERN.exec(path)?.[1] === pageSlug) return url;
   }
   return undefined;
+}
+
+const BRAND_PATTERN = /canvases\/([^/]+)\/(assets\/brand\/.+)$/;
+
+function brandUrl(urls: Record<string, string>, pageSlug: string, file: string) {
+  for (const [path, url] of Object.entries(urls)) {
+    const match = BRAND_PATTERN.exec(path);
+    if (match?.[1] === pageSlug && match[2] === file) return url;
+  }
+  return undefined;
+}
+
+/** A folder's brand image by its path inside the folder, e.g. `assets/brand/social/x-banner.jpg`. */
+export function canvasImageUrl(pageSlug: string, file: string) {
+  return brandUrl(rawBrandImages, pageSlug, file);
+}
+
+/**
+ * The same image at `BRAND_THUMB_EDGE`, when one was generated for it. This is what the brand
+ * page and the canvas draw; the original is what they fall back to the moment either is asked
+ * to show the picture larger than the variant covers.
+ */
+export function canvasImageThumbUrl(pageSlug: string, file: string) {
+  return brandUrl(rawBrandThumbs, pageSlug, file);
+}
+
+export const BRAND_THUMB_EDGE = brandThumbEdge;
+
+/**
+ * Original brand-image URL to its variant. tldraw's asset resolver is handed an asset record
+ * rather than a page and a file, so the URL it already holds is the only key it can look up by.
+ */
+const THUMB_BY_SRC: Record<string, string> = Object.fromEntries(
+  Object.entries(rawBrandImages).flatMap(([path, url]) =>
+    rawBrandThumbs[path] ? [[url, rawBrandThumbs[path]]] : [],
+  ),
+);
+
+/** The variant for an original's URL, or undefined for an asset that kept its original. */
+export function brandThumbForSrc(src: string) {
+  return THUMB_BY_SRC[src];
 }
 
 /** Every discovered board, grouped by page and sorted by filename within it. */

@@ -85,68 +85,915 @@
       ]
     },
     {
-      "title": "Source of truth: Mobbin captures",
-      "numbered": true,
-      "files": [
+      "title": "Logo & wordmark",
+      "images": [
         {
-          "file": "ref-01-home-typed",
-          "label": "Home, typed"
+          "file": "assets/brand/identity/logo-claude-spark.png",
+          "label": "Claude spark mark",
+          "w": 937,
+          "h": 937,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-02-sent",
-          "label": "Question sent"
+          "file": "assets/brand/identity/logo-claude-wordmark.png",
+          "label": "Claude wordmark",
+          "w": 1600,
+          "h": 349,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-03-streaming",
-          "label": "Answer streaming"
+          "file": "assets/brand/identity/logo-claude-icon-square.png",
+          "label": "Claude app icon, square",
+          "w": 1280,
+          "h": 1280,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-04-voice-listening",
-          "label": "Voice, listening"
+          "file": "assets/brand/identity/logo-claude-icon-rounded.png",
+          "label": "Claude app icon, rounded",
+          "w": 1280,
+          "h": 1280,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-05-voice-warm",
-          "label": "Voice, interrupt"
+          "file": "assets/brand/identity/logo-claude-code-wordmark.png",
+          "label": "Claude Code wordmark",
+          "w": 1600,
+          "h": 220,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-06-voice-deep",
-          "label": "Voice, listening 2"
+          "file": "assets/brand/identity/logo-anthropic-symbol.png",
+          "label": "Anthropic symbol",
+          "w": 915,
+          "h": 640,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-07-artifact",
-          "label": "Artifact card"
+          "file": "assets/brand/identity/logo-anthropic-wordmark.png",
+          "label": "Anthropic wordmark",
+          "w": 1600,
+          "h": 190,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-08-home",
-          "label": "Home, empty"
+          "file": "assets/brand/identity/lockup-claude-home.jpg",
+          "label": "Claude homepage lockup",
+          "w": 1200,
+          "h": 630,
+          "source": "https://claude.com",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Art direction",
+      "images": [
+        {
+          "file": "assets/brand/identity/art-coding.jpg",
+          "label": "Illustration style, Coding solutions page",
+          "w": 1200,
+          "h": 630,
+          "source": "https://claude.com/solutions/coding",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-09-file-typed",
-          "label": "File attached"
+          "file": "assets/brand/identity/art-agents.jpg",
+          "label": "Illustration style, Agents solutions page",
+          "w": 1200,
+          "h": 630,
+          "source": "https://claude.com/solutions/agents",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-10-file-sent",
-          "label": "File sent"
+          "file": "assets/brand/identity/art-illustration-hand-headnodethink.png",
+          "label": "Illustration style, \"Hand HeadNodeThink\" (Anthropic news)",
+          "w": 1600,
+          "h": 842,
+          "source": "https://www.anthropic.com/news/expanding-support-for-scientists",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-11-file-answer",
-          "label": "File answer"
+          "file": "assets/brand/identity/art-illustration-hand-headflower.png",
+          "label": "Illustration style, \"Hand HeadFlower\" (Anthropic news)",
+          "w": 1600,
+          "h": 842,
+          "source": "https://www.anthropic.com/news/wellbeing-research-grants",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-12-add-sheet",
-          "label": "Add to Chat"
+          "file": "assets/brand/identity/art-economic-index-usage-map.png",
+          "label": "Data visualization style, Anthropic Economic Index",
+          "w": 1600,
+          "h": 894,
+          "source": "https://www.anthropic.com/economic-index",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/applied-claude-code-chat-panel.png",
+          "label": "Claude Code product UI \u2014 chat panel",
+          "w": 920,
+          "h": 920,
+          "source": "https://claude.com/product/claude-code",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-13-photo-attached",
-          "label": "Photo attached"
+          "file": "assets/brand/identity/applied-claude-code-repo-picker.png",
+          "label": "Claude Code product UI \u2014 repo/session picker",
+          "w": 920,
+          "h": 920,
+          "source": "https://claude.com/product/claude-code",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-14-photo-typed",
-          "label": "Photo, typed"
+          "file": "assets/brand/identity/applied-claude-code-terminal-welcome.png",
+          "label": "Claude Code terminal welcome illustration",
+          "w": 920,
+          "h": 920,
+          "source": "https://claude.com/product/claude-code",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-15-photo-answer",
-          "label": "Photo answer"
+          "file": "assets/brand/identity/applied-anthropic-academy.png",
+          "label": "Anthropic Academy identity card",
+          "w": 1200,
+          "h": 630,
+          "source": "https://academy.claude.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-claude-docs.png",
+          "label": "Claude Platform Docs identity card",
+          "w": 1600,
+          "h": 840,
+          "source": "https://platform.claude.com/docs/en/home",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-code-with-claude-conference.jpg",
+          "label": "Code with Claude conference identity",
+          "w": 1600,
+          "h": 840,
+          "source": "https://claude.com/code-with-claude",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-claudeai-avatar.jpg",
+          "label": "@claudeai profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/claudeai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-claudeai-banner.jpg",
+          "label": "@claudeai profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/claudeai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-anthropicai-avatar.jpg",
+          "label": "@AnthropicAI profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/AnthropicAI",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-anthropicai-banner.jpg",
+          "label": "@AnthropicAI profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/AnthropicAI",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-marketplace.jpg",
+          "label": "X post image, Claude Marketplace launch",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/claudeai/status/2097718980437831935",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-computer-use-background.jpg",
+          "label": "X post image, background computer use",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/claudeai/status/2095226833293685100",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-campus-ambassadors.png",
+          "label": "X post image, Claude Campus Ambassador program",
+          "w": 1280,
+          "h": 1600,
+          "source": "https://x.com/claudeai/status/2095168559873773970",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-cowork-browser.jpg",
+          "label": "X post image, built-in browser in Cowork",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/claudeai/status/2092755571455758427",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-memory-chat-cowork.jpg",
+          "label": "X post image, memory across chat and Cowork",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/claudeai/status/2092299704864284888",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-security-scans-mythos5.jpg",
+          "label": "X post image, Claude Security scans on Mythos 5",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/claudeai/status/2090852314319880425",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-gmail-drive.jpg",
+          "label": "X post image, Gmail and Google Drive connectors",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/claudeai/status/2089806039088517356",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-misaligned-reward-seeker.jpg",
+          "label": "X post image, \"Training a Misaligned Reward Seeker\" research",
+          "w": 1600,
+          "h": 682,
+          "source": "https://x.com/AnthropicAI/status/2094577944056430865",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/ig-avatar.jpg",
+          "label": "@claudeai profile avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.instagram.com/claudeai/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-1.jpg",
+          "label": "@claudeai feed post",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/claudeai/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-2.jpg",
+          "label": "@claudeai feed post",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/claudeai/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-3.jpg",
+          "label": "@claudeai feed post",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://www.instagram.com/claudeai/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-4.jpg",
+          "label": "@claudeai feed post",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/claudeai/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tiktok-avatar.jpg",
+          "label": "@claude profile avatar",
+          "w": 798,
+          "h": 798,
+          "source": "https://www.tiktok.com/@claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-1.jpg",
+          "label": "@claude video cover, \"Fable 5.1\"",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-2.jpg",
+          "label": "@claude video cover, \"hope in hard questions\"",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-3.jpg",
+          "label": "@claude video cover, Campus Ambassador program",
+          "w": 480,
+          "h": 600,
+          "source": "https://www.tiktok.com/@claude",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/yt-avatar.jpg",
+          "label": "Anthropic channel avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.youtube.com/@anthropic-ai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-banner.jpg",
+          "label": "Anthropic channel banner",
+          "w": 1600,
+          "h": 264,
+          "source": "https://www.youtube.com/@anthropic-ai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-fable-5-1.jpg",
+          "label": "YouTube video thumbnail, \"Introducing Claude Fable 5.1\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=ROF2Nv_KjOM",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-model-hardware-standard.jpg",
+          "label": "YouTube video thumbnail, \"Model Hardware Standard\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=UxJZrCFzTHY",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-levels-of-thinking.jpg",
+          "label": "YouTube video thumbnail, \"The levels of an AI's thinking\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=rKV5JcALQoQ",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-claude-opus-4-6.jpg",
+          "label": "YouTube video thumbnail, \"Introducing Claude Opus 4.6\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=dPn3GBI8lII",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-ai-runs-a-business.jpg",
+          "label": "YouTube video thumbnail, \"Claude ran a business in our office\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=5KTHvKCrQ00",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-translating-claude-thoughts.jpg",
+          "label": "YouTube video thumbnail, \"Translating Claude's thoughts into language\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=j2knrqAzYVY",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/li-logo.jpg",
+          "label": "Anthropic company page logo",
+          "w": 200,
+          "h": 200,
+          "source": "https://www.linkedin.com/company/anthropicresearch/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-cover.jpg",
+          "label": "Anthropic company page cover",
+          "w": 1128,
+          "h": 191,
+          "source": "https://www.linkedin.com/company/anthropicresearch/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-opus-4-8.jpg",
+          "label": "LinkedIn post image, Claude Opus 4.8 announcement",
+          "w": 800,
+          "h": 450,
+          "source": "https://www.linkedin.com/showcase/claude/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-briefing-legal.jpg",
+          "label": "LinkedIn post image, \"The Briefing: Claude for Legal\" event card",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.linkedin.com/company/anthropicresearch/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-briefing-financial-services.jpg",
+          "label": "LinkedIn post image, \"The Briefing: Financial Services\" event card",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.linkedin.com/company/anthropicresearch/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-briefing-enterprise-agents.jpg",
+          "label": "LinkedIn post image, \"The Briefing: Enterprise Agents\" event card",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.linkedin.com/company/anthropicresearch/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-81000-people-want-from-ai.jpg",
+          "label": "LinkedIn post image, \"What 81,000 people want from AI\" report cover",
+          "w": 390,
+          "h": 487,
+          "source": "https://www.linkedin.com/company/anthropicresearch/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.jpg",
+          "label": "App Store icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-1.png",
+          "label": "App Store screenshot 1",
+          "w": 886,
+          "h": 1575,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-2.jpg",
+          "label": "App Store screenshot 2",
+          "w": 886,
+          "h": 1575,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-3.jpg",
+          "label": "App Store screenshot 3",
+          "w": 886,
+          "h": 1575,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-4.png",
+          "label": "App Store screenshot 4",
+          "w": 886,
+          "h": 1575,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-5.png",
+          "label": "App Store screenshot 5",
+          "w": 886,
+          "h": 1575,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-6.jpg",
+          "label": "App Store screenshot 6 \u2014 Turn ideas into downloadable files",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-7.png",
+          "label": "App Store screenshot 7 \u2014 Review, approve, ship from anywhere",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-8.png",
+          "label": "App Store screenshot 8 \u2014 Write better first drafts",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-9.jpg",
+          "label": "App Store screenshot 9 \u2014 What are you thinking?",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-1.jpg",
+          "label": "App Store iPad screenshot 1 \u2014 Get useful answers wherever you are",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-2.jpg",
+          "label": "App Store iPad screenshot 2 \u2014 Talk it through with voice mode",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-3.jpg",
+          "label": "App Store iPad screenshot 3 \u2014 Plug in your everyday tools",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-4.jpg",
+          "label": "App Store iPad screenshot 4 \u2014 Build your own app solutions",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-5.jpg",
+          "label": "App Store iPad screenshot 5 \u2014 Turn ideas into downloadable files",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-6.jpg",
+          "label": "App Store iPad screenshot 6 \u2014 Keep tasks running while you're away",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-7.jpg",
+          "label": "App Store iPad screenshot 7 \u2014 Review, approve, ship from anywhere",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-8.jpg",
+          "label": "App Store iPad screenshot 8 \u2014 Write better first drafts",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-9.jpg",
+          "label": "App Store iPad screenshot 9 \u2014 What are you thinking?",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/play-icon.png",
+          "label": "Google Play icon",
+          "w": 512,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-feature-graphic.png",
+          "label": "Google Play feature graphic",
+          "w": 1024,
+          "h": 500,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-1.jpg",
+          "label": "Google Play screenshot 1",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-2.png",
+          "label": "Google Play screenshot 2",
+          "w": 621,
+          "h": 1104,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-3.jpg",
+          "label": "Google Play screenshot 3",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-4.jpg",
+          "label": "Google Play screenshot 4",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-5.png",
+          "label": "Google Play screenshot 5",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-6.jpg",
+          "label": "Google Play screenshot 6 \u2014 Turn ideas into downloadable files",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-7.jpg",
+          "label": "Google Play screenshot 7 \u2014 Keep tasks running while you're away",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-8.png",
+          "label": "Google Play screenshot 8 \u2014 Review, approve, ship from anywhere",
+          "w": 900,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.anthropic.claude",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/press/announcement-opus5.jpg",
+          "label": "Announcement, Claude Opus 5",
+          "w": 1600,
+          "h": 900,
+          "source": "https://www.anthropic.com/news/claude-opus-5",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-fable-mythos.jpg",
+          "label": "Announcement, Claude Fable and Mythos 5.1",
+          "w": 1200,
+          "h": 630,
+          "source": "https://www.anthropic.com/claude-fable-and-mythos-5-1",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-threat-intel.jpg",
+          "label": "Announcement, threat intelligence report",
+          "w": 1200,
+          "h": 630,
+          "source": "https://www.anthropic.com/threat-intelligence-report-september-2026",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-hand-city.png",
+          "label": "Announcement illustration, \"Hand City\"",
+          "w": 1600,
+          "h": 842,
+          "source": "https://www.anthropic.com/api/opengraph-illustration?name=Hand%20City&backgroundColor=sky",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-hand-quill.png",
+          "label": "Announcement illustration, \"Hand Quill\"",
+          "w": 1600,
+          "h": 842,
+          "source": "https://www.anthropic.com/api/opengraph-illustration?name=Hand%20Quill",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-hand-shapebuild.png",
+          "label": "Announcement illustration, \"Hand ShapeBuild\"",
+          "w": 1600,
+          "h": 842,
+          "source": "https://www.anthropic.com/news/improving-alignment-security-efforts",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-node-bird.png",
+          "label": "Announcement illustration, \"Node Bird\"",
+          "w": 1600,
+          "h": 842,
+          "source": "https://www.anthropic.com/news/improving-fable-5-s-biology-safeguards",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-hand-lock.png",
+          "label": "Announcement illustration, \"Hand Lock\"",
+          "w": 1600,
+          "h": 842,
+          "source": "https://www.anthropic.com/news/investigating-incidents-cybersecurity-evals",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announcement-open-weights-position.png",
+          "label": "Announcement card, \"Our position on open-weights models\"",
+          "w": 1600,
+          "h": 836,
+          "source": "https://www.anthropic.com/news/position-open-weights-models",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/meta-ad-arkana.jpg",
+          "label": "Meta ad, Arkana Labs customer story",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/AnthropicAI/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-newways.jpg",
+          "label": "Meta ad, \"new ways to create\" customer story",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/AnthropicAI/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-shybird.jpg",
+          "label": "Meta ad, Shy Bird customer story",
+          "w": 900,
+          "h": 1600,
+          "source": "https://www.facebook.com/AnthropicAI/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-soflo.jpg",
+          "label": "Meta ad, SoFlo Solar customer story",
+          "w": 1600,
+          "h": 1600,
+          "source": "https://www.facebook.com/AnthropicAI/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Press photography",
+      "images": [
+        {
+          "file": "assets/brand/press/press-dario-daniela.jpg",
+          "label": "Dario Amodei and Daniela Amodei",
+          "w": 1600,
+          "h": 1067,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-dario-amodei.jpg",
+          "label": "Dario Amodei, co-founder and CEO",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-daniela-amodei.jpg",
+          "label": "Daniela Amodei, co-founder and President",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-jack-clark.jpg",
+          "label": "Jack Clark, co-founder",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-jared-kaplan.jpg",
+          "label": "Jared Kaplan, co-founder",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://www.anthropic.com/press-kit",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-office-whiteboard.jpg",
+          "label": "Office photography, team members at whiteboard",
+          "w": 1152,
+          "h": 864,
+          "source": "https://www.anthropic.com/company",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-office-meeting.jpg",
+          "label": "Office photography, team members collaborating in meeting room",
+          "w": 1152,
+          "h": 864,
+          "source": "https://www.anthropic.com/company",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-office-laptop.jpg",
+          "label": "Office photography, team member working on laptop",
+          "w": 1152,
+          "h": 864,
+          "source": "https://www.anthropic.com/company",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/press-office-sunlit.jpg",
+          "label": "Office photography, team members in open, sunlit office",
+          "w": 1152,
+          "h": 864,
+          "source": "https://www.anthropic.com/company",
+          "provenance": "theirs"
         }
       ]
     }

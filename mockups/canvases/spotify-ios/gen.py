@@ -252,6 +252,12 @@ def _uri(cid):
             if f.exists() else "")
 
 
+# Unlike everything else under assets/, these are never inlined as data: URIs.
+# manifest.json places them as image shapes of their own, one row per surface,
+# so the canvas can compare avatar against avatar down the page.
+BRAND_DIR = OUT / "assets" / "brand"
+
+
 # Art that has to sit above chrome drawn later in the document. The two home
 # thumbs are cut from pixels the bottom fade has already dimmed, so they go
 # over the fade, not under it, or the fade lands on them twice.
@@ -787,12 +793,7 @@ for name, _, fn in SCREENS:
 for name, html in ref_boards():
     write(name, html)
 
-LAYOUT = {
- "name": PAGE_NAME,
- # Without this the welcome card would show the token board, which is not a
- # phone. 04 is the app's own front door.
- "cover": "04-home",
- "rows": [
+rows = [
   {"title": "Foundations",
    "files": [{"file": "00-design-tokens", "label": "Design tokens"}]
             + [{"file": n, "label": "Evidence"} for n, _ in evidence_boards()]
@@ -803,7 +804,15 @@ LAYOUT = {
   # one pitch, so item N here lands column-for-column under item N up there.
   {"title": "Source of truth: captures", "numbered": True,
    "files": [{"file": "ref-" + n, "label": l} for n, l, _ in SCREENS]},
- ],
+]
+rows += json.loads((BRAND_DIR / "manifest.json").read_text())
+
+LAYOUT = {
+ "name": PAGE_NAME,
+ # Without this the welcome card would show the token board, which is not a
+ # phone. 04 is the app's own front door.
+ "cover": "04-home",
+ "rows": rows,
 }
 (OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2) + "\n")
 print("layout.json", len(LAYOUT["rows"]), "rows")

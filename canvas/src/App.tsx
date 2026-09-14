@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Tldraw,
   commentSchemaRecords,
@@ -7,11 +13,14 @@ import {
   defaultBindingUtils,
   defaultShapeUtils,
   getIndices,
+  inlineBase64AssetStore,
   react,
   renderPlaintextFromRichText,
   toRichText,
   type Editor,
   type TLPageId,
+  type TLAsset,
+  type TLAssetStore,
   type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
@@ -22,7 +31,12 @@ import {
 import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
 import { installAgentBridge } from "./agentBridge";
-import { WELCOME_PAGE_SLUG, boardFromUrl, slugFromUrl, urlForSlug } from "./canvasUrl";
+import {
+  WELCOME_PAGE_SLUG,
+  boardFromUrl,
+  slugFromUrl,
+  urlForSlug,
+} from "./canvasUrl";
 import {
   CANVAS_FILE_SHAPE_TYPE,
   type CanvasFileShape,
@@ -45,10 +59,14 @@ import {
 } from "./CanvasLinkShapeUtil";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
+  type CanvasLayoutImage,
   type CanvasLayoutLink,
   type CanvasLibraryFile,
   LAYOUT_CHANGED,
+  BRAND_THUMB_EDGE,
   boardTabStatusForPath,
+  brandThumbForSrc,
+  canvasImageUrl,
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
@@ -97,7 +115,8 @@ const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
  * The key today is an evaluation license, which grants every feature and expires on 2026-12-12 with
  * no grace period. On that date commenting stops working again unless the key has been replaced.
  */
-const TLDRAW_LICENSE_KEY: string | undefined = import.meta.env.VITE_TLDRAW_LICENSE_KEY;
+const TLDRAW_LICENSE_KEY: string | undefined = import.meta.env
+  .VITE_TLDRAW_LICENSE_KEY;
 
 /**
  * The store, built here rather than by `<Tldraw persistenceKey>`, because the comment record
@@ -114,6 +133,35 @@ const storeOptions = {
   bindingUtils: defaultBindingUtils,
   assetUtils: defaultAssetUtils,
   records: commentSchemaRecords,
+  assets: {
+    ...inlineBase64AssetStore,
+    /**
+     * Draw the brand images at the size the screen is actually showing them. Zoomed to fit,
+     * a page of them is a wall of thumbnails, and fetching the full-size file for each one is
+     * tens of megabytes decoded down to a few hundred pixels.
+     *
+     * The original comes back the moment it has a use: zoomed past the variant's own
+     * resolution, and unconditionally when the picture leaves the canvas for an export or the
+     * clipboard. So nothing is ever *shown* at less than the pixels available to show it —
+     * the only thing dropped is the pixels that would not have been visible.
+     */
+    resolve(
+      asset,
+      { screenScale, steppedScreenScale, dpr, shouldResolveToOriginal },
+    ) {
+      const src = asset.props.src ?? null;
+      if (asset.type !== "image" || shouldResolveToOriginal || !src) return src;
+      const thumb = brandThumbForSrc(src);
+      if (!thumb) return src;
+      // The variant's own width: its long edge is BRAND_THUMB_EDGE, so a portrait image is
+      // narrower than that. Compare it against the device pixels the shape occupies now.
+      const { w, h } = asset.props;
+      const thumbWidth = (w * BRAND_THUMB_EDGE) / Math.max(w, h);
+      return w * Math.max(screenScale, steppedScreenScale) * dpr <= thumbWidth
+        ? thumb
+        : src;
+    },
+  } satisfies TLAssetStore,
 };
 
 /**
@@ -136,7 +184,7 @@ try {
  */
 function boardSize(file: CanvasLibraryFile) {
   for (const row of readCanvasLayout(file.pageSlug)?.rows ?? []) {
-    for (const entry of row.files) {
+    for (const entry of row.files ?? []) {
       if (typeof entry === "string" || entry.file !== file.fileName) continue;
       if (entry.w && entry.h) return { w: entry.w, h: entry.h };
     }
@@ -160,6 +208,7 @@ const LIBRARY_HEADING_HEIGHT = 44;
  */
 const LIBRARY_SHAPE_PREFIXES = [
   "shape:canvas-file:",
+  "shape:canvas-image:",
   "shape:canvas-row-heading:",
   "shape:canvas-file-label:",
   "shape:canvas-link:",
@@ -229,8 +278,12 @@ function EmptyLibraryNotice() {
     <div className="canvas-empty" role="status">
       <h1 className="canvas-empty__title">No boards here yet</h1>
       <p className="canvas-empty__body">
-        {canvasesDir ? "This canvas is showing" : "This canvas has no boards in it."}
-        {canvasesDir && <code className="canvas-empty__path">{canvasesDir}</code>}
+        {canvasesDir
+          ? "This canvas is showing"
+          : "This canvas has no boards in it."}
+        {canvasesDir && (
+          <code className="canvas-empty__path">{canvasesDir}</code>
+        )}
         Every subfolder with <code>.html</code> files in it becomes a page, and
         one appears here on its own the moment it is written — no restart.
       </p>
@@ -345,9 +398,10 @@ function layoutRow(
   const statusH = rowStatuses.some(Boolean)
     ? CANVAS_STATUS_BANNER_HEIGHT + CANVAS_STATUS_BANNER_GAP
     : 0;
-  const contentY =
-    (bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT) + statusH;
-  const missing = rowFiles.filter((file) => !editor.getShape(fileShapeId(file)));
+  const contentY = (bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT) + statusH;
+  const missing = rowFiles.filter(
+    (file) => !editor.getShape(fileShapeId(file)),
+  );
   if (missing.length) {
     editor.createShapes(
       missing.map((file) => ({
@@ -450,6 +504,173 @@ function layoutRow(
   return linksY + linksH + LIBRARY_LABEL_HEIGHT + LIBRARY_GAP;
 }
 
+/**
+ * The box a picture in an image row draws inside, before its own proportions decide the rest.
+ * Wider than a board and shorter, because these rows are read across: a row of one platform's
+ * assets against the row of the next, not a wall of full-height artwork.
+ */
+const IMAGE_FIT = { w: 760, h: 520 };
+
+const IMAGE_MIME: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+  svg: "image/svg+xml",
+};
+
+function imageShapeId(pageSlug: string, file: string) {
+  return createShapeId(`canvas-image:${pageSlug}/${file}`);
+}
+
+/**
+ * The asset record a picture's shape points at. Derived from the path rather than from the
+ * bytes, so it is the same id on every machine and every reload: an asset keyed by a content
+ * hash would be a second record the moment someone re-exported the file at a different quality,
+ * and the shapes would still point at the first one.
+ */
+function imageAssetId(pageSlug: string, file: string): TLAsset["id"] {
+  // Branded string: the store validates only the `asset:` prefix, the rest is ours to choose.
+  return `asset:canvas-image:${pageSlug}/${file}` as TLAsset["id"];
+}
+
+/**
+ * Lays out one row of pictures the way layoutRow lays out a row of boards: heading above,
+ * caption under each, idempotent, returning the y for the next row.
+ *
+ * These are tldraw's own image shapes, not boards in an iframe, so they can be zoomed into and
+ * read at their real resolution. Unlike a row of boards they are not one shape — an avatar is
+ * square, a profile banner is 3:1, a phone screenshot is 9:19.5 — so each is fitted into the
+ * same box and the row is as tall as the tallest result, with the shorter ones centred in it.
+ * Nothing is scaled up past its own pixels: a 400px avatar drawn at 520 would be the only
+ * blurry thing on the page.
+ */
+function layoutImageRow(
+  editor: Editor,
+  page: { id: TLPageId },
+  pageSlug: string,
+  images: CanvasLayoutImage[],
+  rowTop: number,
+  heading: string,
+) {
+  const placed = images.flatMap((image) => {
+    const src = canvasImageUrl(pageSlug, image.file);
+    // A layout naming a file nobody committed draws nothing, rather than an empty box with a
+    // caption under it that reads as a missing asset.
+    if (!src || !image.w || !image.h) return [];
+    const scale = Math.min(IMAGE_FIT.w / image.w, IMAGE_FIT.h / image.h, 1);
+    return [
+      {
+        image,
+        src,
+        w: Math.round(image.w * scale),
+        h: Math.round(image.h * scale),
+      },
+    ];
+  });
+  if (!placed.length) return rowTop;
+
+  const bandH = Math.max(...placed.map((entry) => entry.h));
+  const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
+
+  // The asset holds the URL and the real pixel size; the shape holds the size it draws at and
+  // points at the asset by id. Created first, because a shape whose assetId resolves to nothing
+  // renders as a broken placeholder until something fills it in.
+  const assets = placed.map((entry) => ({
+    id: imageAssetId(pageSlug, entry.image.file),
+    typeName: "asset" as const,
+    type: "image" as const,
+    meta: {},
+    props: {
+      w: entry.image.w,
+      h: entry.image.h,
+      name: entry.image.file.split("/").pop() ?? entry.image.file,
+      isAnimated: entry.image.file.toLowerCase().endsWith(".gif"),
+      mimeType:
+        IMAGE_MIME[entry.image.file.split(".").pop()?.toLowerCase() ?? ""] ??
+        null,
+      src: entry.src,
+    },
+  }));
+  // A build gives each file a content-hashed URL, so a returning browser's persisted asset can
+  // point at a URL this deployment no longer serves — a broken picture that no amount of force
+  // refreshing fixes, because the refresh rebuilds shapes and leaves assets alone. The id is the
+  // path, so only what the path does not already fix can go stale: the URL and the pixel size.
+  const stale = assets.filter((asset) => {
+    const current = editor.getAsset(asset.id);
+    if (!current) return false;
+    return (
+      current.type !== "image" ||
+      current.props.src !== asset.props.src ||
+      current.props.w !== asset.props.w ||
+      current.props.h !== asset.props.h
+    );
+  });
+  const created = assets.filter((asset) => !editor.getAsset(asset.id));
+  if (created.length) editor.createAssets(created);
+  if (stale.length) editor.updateAssets(stale);
+
+  // Each picture starts where the last one ended, so a row of mixed proportions has one gap
+  // between neighbours rather than a column pitch set by its widest member.
+  let x = 0;
+  const xs = placed.map((entry) => {
+    const at = x;
+    x += entry.w + LIBRARY_GAP;
+    return at;
+  });
+
+  const missing = placed
+    .map((entry, index) => ({ entry, index }))
+    .filter(
+      ({ entry }) => !editor.getShape(imageShapeId(pageSlug, entry.image.file)),
+    );
+  if (missing.length) {
+    editor.createShapes(
+      missing.map(({ entry, index }) => ({
+        id: imageShapeId(pageSlug, entry.image.file),
+        type: "image",
+        parentId: page.id,
+        x: xs[index],
+        y: contentY + (bandH - entry.h) / 2,
+        isLocked: true,
+        props: {
+          w: entry.w,
+          h: entry.h,
+          assetId: imageAssetId(pageSlug, entry.image.file),
+          altText: entry.image.label,
+        },
+      })),
+    );
+  }
+
+  createAnnotation(editor, {
+    id: `canvas-row-heading:${page.id}:${heading}`,
+    text: heading,
+    x: 0,
+    y: rowTop,
+    w: Math.max(x - LIBRARY_GAP, 1),
+    size: "l",
+    parentId: page.id,
+  });
+
+  const captionY = contentY + bandH + LIBRARY_LABEL_GAP;
+  placed.forEach((entry, index) => {
+    createAnnotation(editor, {
+      id: `canvas-file-label:${pageSlug}/${entry.image.file}`,
+      text: entry.image.label,
+      x: xs[index],
+      y: captionY,
+      w: entry.w,
+      size: "s",
+      align: "middle",
+      parentId: page.id,
+    });
+  });
+
+  return captionY + LIBRARY_LABEL_HEIGHT + LIBRARY_GAP;
+}
+
 function linkShapeId(name: string) {
   return createShapeId(`canvas-link:${name}`);
 }
@@ -461,8 +682,8 @@ function linkShapeId(name: string) {
  * navigate anything.
  *
  * Cover art is the folder's first screen rather than its 00- board, which is a token sheet on
- * every example and would make five identical-looking cards. The cards sit in two rows, Apple's
- * own apps and everything else.
+ * every example and would make five identical-looking cards. The cards sit in four rows: two
+ * of example apps grouped by what the app is for, then Apple's own apps, then the template.
  */
 function layoutWelcomeExtras(
   editor: Editor,
@@ -480,22 +701,45 @@ function layoutWelcomeExtras(
   if (editor.getShape(starId)) deleteLibraryShapes(editor, [starId]);
   if (!targets.length) return;
 
-  // Two rows, because twelve cards in one row read as a list of twelve unrelated things: the
-  // apps this repo cloned first, Apple's own second. A card's id is its slug, so a folder that
-  // changes group moves on the next force refresh rather than turning into a second card.
-  // The top row is the cloned apps. Apple's own, and the empty folder you copy to start one,
-  // are the row under it: neither is an app someone came here to look at.
-  const isSecondRow = (files: CanvasLibraryFile[]) =>
-    files[0].pageSlug.startsWith("apple-") || files[0].pageSlug === "templates";
+  // Four rows, because twenty-one cards in one row read as a list of twenty-one unrelated
+  // things. Two rows of cloned apps split by what the app is for, then Apple's own, then the
+  // empty template on its own: it is the one card that is not an app to look at but a folder
+  // to copy, and a row of one says that where a seat at the end of the Apple row did not. A
+  // card's id is its slug, so a folder that changes row moves on the next force refresh
+  // rather than turning into a second card.
+  //
+  // Both orders are by hand rather than alphabetical, which wedged Duolingo between Claude and
+  // Grok. A slug named in neither list still shows, at the end of the first row, so a new
+  // folder is never silently dropped; the last row has no list, so it keeps library order.
+  const ROWS = [
+    ["snapaction-ios", "chatgpt-ios", "claude-ios", "grok-ios", "notion-ios",
+     "raycast-ios", "luma-ios"],
+    ["instagram-ios", "tiktok-ios", "x-ios", "substack-ios", "spotify-ios", "duolingo-ios"],
+  ];
+  const rowOf = (slug: string) => {
+    if (slug === "templates") return 3;
+    if (slug.startsWith("apple-")) return 2;
+    const found = ROWS.findIndex((row) => row.includes(slug));
+    return found === -1 ? 0 : found;
+  };
+  const inRow = (index: number) => {
+    const order = ROWS[index] ?? [];
+    const rank = (files: CanvasLibraryFile[]) => {
+      const at = order.indexOf(files[0].pageSlug);
+      return at === -1 ? order.length : at;
+    };
+    return targets
+      .filter((files) => rowOf(files[0].pageSlug) === index)
+      .sort((a, b) => rank(a) - rank(b));
+  };
   const groups = [
     {
-      title: "Examples: iOS apps. Click a card to open its canvas",
-      targets: targets.filter((files) => !isSecondRow(files)),
+      title: "Examples: AI assistants and productivity tools. Click a card to open its canvas",
+      targets: inRow(0),
     },
-    {
-      title: "Examples: Apple's own apps, and the empty folder to copy",
-      targets: targets.filter(isSecondRow),
-    },
+    { title: "Examples: social, media and learning apps", targets: inRow(1) },
+    { title: "Examples: Apple's own apps", targets: inRow(2) },
+    { title: "The empty folder to copy to start your own", targets: inRow(3) },
   ];
 
   // Headings are keyed by row, not by their own text: keyed by text, renaming one left the old
@@ -571,9 +815,13 @@ function layoutWelcomeExtras(
       text: group.title,
       x: 0,
       y: top,
-      w:
-        group.targets.length * CANVAS_LINK_CARD_SIZE.w +
-        (group.targets.length - 1) * LIBRARY_GAP,
+      // A heading is as wide as the row it labels, so it wraps at the last card rather than
+      // running out over the canvas. Floored at three cards: the row holding only the empty
+      // template is one card wide, and a heading that narrow wraps to a word a line.
+      w: (() => {
+        const cols = Math.max(group.targets.length, 3);
+        return cols * CANVAS_LINK_CARD_SIZE.w + (cols - 1) * LIBRARY_GAP;
+      })(),
       size: "l",
       color: "white",
       parentId: page.id,
@@ -601,7 +849,7 @@ function layoutWelcomeExtras(
       contentY +
       CANVAS_LINK_CARD_SIZE.h +
       LIBRARY_LABEL_GAP +
-      LIBRARY_LABEL_HEIGHT * 2 +   // the card's caption is two lines, name over count
+      LIBRARY_LABEL_HEIGHT * 2 + // the card's caption is two lines, name over count
       LIBRARY_GAP;
   }
 }
@@ -647,8 +895,19 @@ function initializeCanvasLibrary(editor: Editor) {
     let rowTop = 0;
 
     for (const row of readCanvasLayout(files[0].pageSlug)?.rows ?? []) {
+      if (row.images?.length) {
+        rowTop = layoutImageRow(
+          editor,
+          page,
+          pageSlug,
+          row.images,
+          rowTop,
+          row.title,
+        );
+        continue;
+      }
       const rowFiles: { file: CanvasLibraryFile; label?: string }[] = [];
-      for (const entry of row.files) {
+      for (const entry of row.files ?? []) {
         const fileName = typeof entry === "string" ? entry : entry.file;
         const label = typeof entry === "string" ? undefined : entry.label;
         const file = files.find(

@@ -270,6 +270,12 @@ def _uri(cid):
             if f.exists() else "")
 
 
+# Unlike everything else under assets/, these are never inlined as data: URIs.
+# manifest.json places them as image shapes of their own, one row per surface,
+# so the canvas can compare avatar against avatar down the page.
+BRAND_DIR = OUT / "assets" / "brand"
+
+
 def art(cid, x=None, y=None, w=None, z=None):
     """One <img>, at the box it was measured from unless a screen reuses it.
 
@@ -1444,6 +1450,7 @@ def layout(names):
     if refs:
         rows.append({"title": "Source of truth: Mobbin captures",
                      "numbered": True, "files": refs})
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
     # The welcome card shows 23: the home boards are white to the composer and
     # read as blank at card size, the sidebar is the one screen with the app on it.
     return {"name": PAGE_NAME, "cover": "23-sidebar-full", "rows": rows}

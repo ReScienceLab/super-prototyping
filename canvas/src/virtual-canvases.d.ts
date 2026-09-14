@@ -36,6 +36,21 @@ declare module "virtual:canvases" {
   /** Each folder's icon.png as an emitted asset URL, eager: read during render. */
   export const rawIcons: Record<string, string>;
   /**
+   * Each folder's `assets/brand/**` images as emitted asset URLs, keyed the same way. These are
+   * the assets a layout places as image shapes of their own, so they need an address rather than
+   * the `data:` URI the generator inlines everything else as.
+   */
+  export const rawBrandImages: Record<string, string>;
+  /**
+   * The same images at {@link brandThumbEdge}, WebP, keyed identically — what is actually drawn.
+   * Missing for an asset a variant would not help: an SVG, or one WebP cannot make smaller. The
+   * original in `rawBrandImages` stays the asset of record and is what a zoom, an export or a
+   * copy resolves to.
+   */
+  export const rawBrandThumbs: Record<string, string>;
+  /** Longest edge of everything in {@link rawBrandThumbs}, in pixels. */
+  export const brandThumbEdge: number;
+  /**
    * Per folder slug, `"<payload length>:<fnv1a>"` of a data: URI's base64 payload -> the file
    * in that folder it was inlined from. Built from `assets/**`, `assets-dark/**` and
    * `assets.json`, so it needs no attribute in the HTML and no regeneration; eager because it

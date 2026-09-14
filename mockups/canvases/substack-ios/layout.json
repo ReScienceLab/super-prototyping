@@ -55,34 +55,646 @@
     {
       "title": "Source of truth: captures",
       "numbered": true,
-      "files": [
+      "files": []
+    },
+    {
+      "title": "Logo & wordmark",
+      "images": [
         {
-          "file": "ref-01-note",
-          "label": "Note in the feed"
+          "file": "assets/brand/identity/orange-mark.png",
+          "label": "Substack logomark (orange mark)",
+          "w": 1000,
+          "h": 1000,
+          "source": "https://substack.com/brand",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-02-keep-reading",
-          "label": "Keep reading toast"
+          "file": "assets/brand/identity/wordmark.png",
+          "label": "Substack wordmark",
+          "w": 1600,
+          "h": 275,
+          "source": "https://substack.com/brand",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-03-notes",
-          "label": "Three notes"
+          "file": "assets/brand/identity/app-icon-tile.png",
+          "label": "Substack app icon (iOS tile)",
+          "w": 180,
+          "h": 180,
+          "source": "https://substack.com/brand",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-04-just-published",
-          "label": "Just published"
+          "file": "assets/brand/identity/app-icon-mark.svg",
+          "label": "Substack app icon mark (SVG)",
+          "w": 64,
+          "h": 64,
+          "source": "https://substack.com/brand",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Art direction",
+      "images": [
+        {
+          "file": "assets/brand/identity/art-megaphone.png",
+          "label": "Brand page illustration - megaphone",
+          "w": 470,
+          "h": 315,
+          "source": "https://substack.com/brand",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-05-from-the-archives",
-          "label": "From the archives"
+          "file": "assets/brand/identity/art-brush.png",
+          "label": "Brand page illustration - paintbrush",
+          "w": 470,
+          "h": 315,
+          "source": "https://substack.com/brand",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-06-people-to-follow",
-          "label": "People to follow"
+          "file": "assets/brand/identity/art-pens.png",
+          "label": "Brand page illustration - pens",
+          "w": 470,
+          "h": 315,
+          "source": "https://substack.com/brand",
+          "provenance": "theirs"
         },
         {
-          "file": "ref-07-share-your-profile",
-          "label": "Share your profile"
+          "file": "assets/brand/identity/art-folder.png",
+          "label": "Brand page illustration - folder, desk objects and paper airplane",
+          "w": 1600,
+          "h": 710,
+          "source": "https://substack.com/brand",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/app-home-live.png",
+          "label": "Substack app: Home feed with Live",
+          "w": 785,
+          "h": 1600,
+          "source": "https://substack.com/app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/app-notes-feed.png",
+          "label": "Substack app: Notes feed",
+          "w": 780,
+          "h": 1600,
+          "source": "https://substack.com/app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/app-inbox.png",
+          "label": "Substack app: reader Inbox",
+          "w": 785,
+          "h": 1600,
+          "source": "https://substack.com/app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/app-chat.png",
+          "label": "Substack app: Chat feature",
+          "w": 785,
+          "h": 1600,
+          "source": "https://substack.com/app",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-avatar.jpg",
+          "label": "@Substack profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/Substack",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-banner.jpg",
+          "label": "@Substack profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/Substack",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-firefighter.png",
+          "label": "Substack X post: \"a weary firefighter\" quote card",
+          "w": 1042,
+          "h": 615,
+          "source": "https://x.com/Substack/status/2098517014864359838",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-writersroom-1.jpg",
+          "label": "Substack X post: Bookshop Social event photo",
+          "w": 1067,
+          "h": 1600,
+          "source": "https://x.com/Substack/status/2098500187669021083",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-lovegrows.jpg",
+          "label": "Substack X post: \"care has to be intentionally designed\" quote card",
+          "w": 927,
+          "h": 397,
+          "source": "https://x.com/Substack/status/2098442449328959926",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-dadaeats-video-thumb.jpg",
+          "label": "Substack X post: @dadaeats \"ranks her jobs\" video thumbnail",
+          "w": 900,
+          "h": 1600,
+          "source": "https://x.com/Substack/status/2098442149847027741",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-careeradvice.jpg",
+          "label": "Substack X post: career-advice quote card",
+          "w": 1143,
+          "h": 1600,
+          "source": "https://x.com/Substack/status/2098395141925220430",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-podcasts-launch.png",
+          "label": "Substack X post: podcasts feature launch announcement",
+          "w": 697,
+          "h": 517,
+          "source": "https://x.com/Substack/status/2098383742708642106",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/ig-avatar.jpg",
+          "label": "@substack Instagram avatar",
+          "w": 490,
+          "h": 490,
+          "source": "https://www.instagram.com/substack/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-notes.jpg",
+          "label": "Substack IG: \"Recently on Substack\" notes roundup post",
+          "w": 1280,
+          "h": 1600,
+          "source": "https://www.instagram.com/substack/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-modelbehavior.jpg",
+          "label": "Substack IG: \"Model Behavior\" series announcement post",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://www.instagram.com/substack/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-richardrushfield.jpg",
+          "label": "Substack IG: @richardrushfield \"Someone on Film\" episode post",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://www.instagram.com/p/DceuNjggbyg/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-shearserrano.jpg",
+          "label": "Substack IG: @shea.serrano profile post",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://www.instagram.com/p/DdHwrTvEpPX/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/ig-post-hateround-video-cover.jpg",
+          "label": "Substack IG: \"Hate Round\" Shit Show Quiz Night video cover",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/p/DcOulh6CXMQ/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tiktok-avatar.jpg",
+          "label": "@substack TikTok avatar",
+          "w": 1000,
+          "h": 1000,
+          "source": "https://www.tiktok.com/@substack",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-notes.webp",
+          "label": "Substack TikTok: \"Recently on Substack\" notes video cover",
+          "w": 480,
+          "h": 600,
+          "source": "https://www.tiktok.com/@substack",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-lucy.jpg",
+          "label": "Substack TikTok: @lucyblakiston (Shit Show Quiz) video cover",
+          "w": 300,
+          "h": 400,
+          "source": "https://www.tiktok.com/@substack",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-hateround.jpg",
+          "label": "Substack TikTok: \"Hate Round\" Shit Show Quiz Night video cover",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@substack/video/7675796300775820565",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-roundthree.jpg",
+          "label": "Substack TikTok: \"Round Three\" Shit Show Quiz Night video cover",
+          "w": 360,
+          "h": 640,
+          "source": "https://www.tiktok.com/@substack/video/7676220945123593493",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/yt-avatar.jpg",
+          "label": "@substackinc YouTube channel avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.youtube.com/@substackinc",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-banner.jpg",
+          "label": "@substackinc YouTube channel banner art",
+          "w": 1600,
+          "h": 264,
+          "source": "https://www.youtube.com/@substackinc",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-chrisbest-keynote.jpg",
+          "label": "YouTube: Chris Best opening remarks, Once and Future Media Forum",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=77AZcDrpazw",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-fightclub-priyaparker.jpg",
+          "label": "YouTube: \"Fight Club\" with Priya Parker",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=DPdgT35YZQU",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-jasminesun-aimedia.jpg",
+          "label": "YouTube: \"How Independent Media Wins in the Age of AI\" with Jasmine Sun",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=XKiyQgq9zTQ",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-opentab-hunterharris.jpg",
+          "label": "YouTube: \"Open Tab\" with Hunter Harris",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=jaz88JUVa6w",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/yt-thumb-rushfield.jpg",
+          "label": "YouTube: \"Richard Rushfield on Film\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=UDwswmPsns0",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/li-logo.jpg",
+          "label": "Substack LinkedIn company logo",
+          "w": 200,
+          "h": 200,
+          "source": "https://www.linkedin.com/company/substack",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-cover.jpg",
+          "label": "Substack LinkedIn company page cover image",
+          "w": 1600,
+          "h": 271,
+          "source": "https://www.linkedin.com/company/substack",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-bookshopsocial-1.jpg",
+          "label": "Substack LinkedIn: Bookshop Social event photo 1",
+          "w": 800,
+          "h": 1199,
+          "source": "https://www.linkedin.com/posts/substack_writing-is-often-something-we-do-alone-great-activity-7504265893908987904-RIPK",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-bookshopsocial-2.jpg",
+          "label": "Substack LinkedIn: Bookshop Social event photo 2",
+          "w": 800,
+          "h": 533,
+          "source": "https://www.linkedin.com/posts/substack_writing-is-often-something-we-do-alone-great-activity-7504265893908987904-RIPK",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-girlsinlowplaces.jpg",
+          "label": "Substack LinkedIn: \"Welcome to Substack, Girls in Low Places\" post",
+          "w": 992,
+          "h": 722,
+          "source": "https://www.linkedin.com/posts/substack_welcome-to-substack-girls-in-low-places-activity-7503921692537229312-P_Vf",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/li-post-googleai-overviews.jpg",
+          "label": "Substack LinkedIn: \"Google AI Overviews\" quote card",
+          "w": 1082,
+          "h": 485,
+          "source": "https://www.linkedin.com/posts/substack_googles-top-answers-are-now-ai-overviews-activity-7503920511760932865-0yQS",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.png",
+          "label": "Substack app icon (App Store)",
+          "w": 512,
+          "h": 512,
+          "source": "https://apps.apple.com/us/app/substack-find-top-newsletters/id1581650857",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-01.png",
+          "label": "App Store screenshot 1",
+          "w": 392,
+          "h": 696,
+          "source": "https://apps.apple.com/us/app/substack-find-top-newsletters/id1581650857",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-02.jpg",
+          "label": "App Store screenshot 2",
+          "w": 392,
+          "h": 696,
+          "source": "https://apps.apple.com/us/app/substack-find-top-newsletters/id1581650857",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-03.jpg",
+          "label": "App Store screenshot 3",
+          "w": 392,
+          "h": 696,
+          "source": "https://apps.apple.com/us/app/substack-find-top-newsletters/id1581650857",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-04.jpg",
+          "label": "App Store screenshot 4",
+          "w": 392,
+          "h": 696,
+          "source": "https://apps.apple.com/us/app/substack-find-top-newsletters/id1581650857",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-05.jpg",
+          "label": "App Store screenshot 5",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/substack-find-top-newsletters/id1581650857",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-06.jpg",
+          "label": "App Store screenshot 6",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/substack-find-top-newsletters/id1581650857",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-screenshot-07.jpg",
+          "label": "App Store screenshot 7",
+          "w": 900,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/substack-find-top-newsletters/id1581650857",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-screenshot-01.png",
+          "label": "App Store iPad screenshot 1",
+          "w": 1199,
+          "h": 1600,
+          "source": "https://apps.apple.com/us/app/substack-find-top-newsletters/id1581650857",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Google Play",
+      "images": [
+        {
+          "file": "assets/brand/stores/play-icon.png",
+          "label": "Substack app icon (Google Play)",
+          "w": 512,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.substack.app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-01.png",
+          "label": "Google Play screenshot 1",
+          "w": 738,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.substack.app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-02.png",
+          "label": "Google Play screenshot 2",
+          "w": 236,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.substack.app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-03.png",
+          "label": "Google Play screenshot 3",
+          "w": 236,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.substack.app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-04.png",
+          "label": "Google Play screenshot 4",
+          "w": 236,
+          "h": 512,
+          "source": "https://play.google.com/store/apps/details?id=com.substack.app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-05.png",
+          "label": "Google Play screenshot 5",
+          "w": 512,
+          "h": 405,
+          "source": "https://play.google.com/store/apps/details?id=com.substack.app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-06.png",
+          "label": "Google Play screenshot 6",
+          "w": 738,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.substack.app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/play-screenshot-07.png",
+          "label": "Google Play screenshot 7",
+          "w": 738,
+          "h": 1600,
+          "source": "https://play.google.com/store/apps/details?id=com.substack.app",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/stores/og-homepage.png",
+          "label": "substack.com homepage share card",
+          "w": 1600,
+          "h": 840,
+          "source": "https://substack.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-app.png",
+          "label": "substack.com/app page share card",
+          "w": 360,
+          "h": 558,
+          "source": "https://substack.com/app",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-onsubstack.jpg",
+          "label": "\"On Substack\" (creator resources blog) share card",
+          "w": 920,
+          "h": 480,
+          "source": "https://on.substack.com/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/og-jobs.png",
+          "label": "substack.com/jobs page share card",
+          "w": 1600,
+          "h": 944,
+          "source": "https://substack.com/jobs",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Paid advertising",
+      "images": [
+        {
+          "file": "assets/brand/ads/meta-ad-download-app.png",
+          "label": "Meta app-install ad - phone-in-hand inbox creative",
+          "w": 600,
+          "h": 1069,
+          "source": "https://www.facebook.com/ads/library/?id=420702907656701",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-voices-you-trust.png",
+          "label": "Meta app-install ad - \"Turn to the voices you trust\" variant",
+          "w": 720,
+          "h": 720,
+          "source": "https://www.facebook.com/ads/library/?id=420702907656701",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/ads/meta-ad-video-jollygoodginger.jpg",
+          "label": "Meta creator-testimonial video ad still (Jolly Good Ginger)",
+          "w": 1080,
+          "h": 1350,
+          "source": "https://www.facebook.com/ads/library/?id=3404115866397424",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Press photography",
+      "images": [
+        {
+          "file": "assets/brand/press/headshot-niall-wingham.jpg",
+          "label": "Substack employee headshot: Niall Wingham",
+          "w": 400,
+          "h": 400,
+          "source": "https://substack.com/jobs",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/headshot-will-taliaferro.jpg",
+          "label": "Substack employee headshot: Will Taliaferro",
+          "w": 400,
+          "h": 400,
+          "source": "https://substack.com/jobs",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/headshot-bailey-dunn.jpg",
+          "label": "Substack employee headshot: Bailey Dunn",
+          "w": 400,
+          "h": 400,
+          "source": "https://substack.com/jobs",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/headshot-dayne-rathbone.jpg",
+          "label": "Substack employee headshot: Dayne Rathbone",
+          "w": 400,
+          "h": 400,
+          "source": "https://substack.com/jobs",
+          "provenance": "theirs"
         }
       ]
     }

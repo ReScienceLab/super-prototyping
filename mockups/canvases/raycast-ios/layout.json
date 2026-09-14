@@ -114,6 +114,730 @@
           "label": "Home / Perplexity"
         }
       ]
+    },
+    {
+      "title": "Logo & wordmark",
+      "images": [
+        {
+          "file": "assets/brand/identity/logo-dark.svg",
+          "label": "Logomark (dark), vector",
+          "w": 228,
+          "h": 228,
+          "source": "https://raycast.com/press",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/logo-dark.png",
+          "label": "Logomark (dark), PNG",
+          "w": 1024,
+          "h": 1024,
+          "source": "https://raycast.com/press",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/wordmark-light.svg",
+          "label": "Wordmark (light), vector",
+          "w": 760,
+          "h": 294,
+          "source": "https://raycast.com/press",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/wordmark-light.png",
+          "label": "Wordmark (light), PNG",
+          "w": 1600,
+          "h": 620,
+          "source": "https://raycast.com/press",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/appicon-macos.png",
+          "label": "macOS app icon",
+          "w": 1024,
+          "h": 1024,
+          "source": "https://raycast.com/press",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/appicon-ios.png",
+          "label": "iOS app icon",
+          "w": 800,
+          "h": 800,
+          "source": "https://raycast.com/press",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Art direction",
+      "images": [
+        {
+          "file": "assets/brand/identity/art-wallpaper-blossom.jpg",
+          "label": "Official wallpaper \u2014 Blossom",
+          "w": 1600,
+          "h": 900,
+          "source": "https://raycast.com/wallpapers",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-wallpaper-glass-rainbow.jpg",
+          "label": "Official wallpaper \u2014 Glass Rainbow",
+          "w": 1600,
+          "h": 900,
+          "source": "https://raycast.com/wallpapers",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-wallpaper-loupe.jpg",
+          "label": "Official wallpaper \u2014 Loupe",
+          "w": 1400,
+          "h": 791,
+          "source": "https://raycast.com/wallpapers",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-wallpaper-chromatic.png",
+          "label": "Official wallpaper \u2014 Chromatic",
+          "w": 1400,
+          "h": 790,
+          "source": "https://raycast.com/wallpapers",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-ios-home-styled.jpg",
+          "label": "iOS marketing photography \u2014 Home",
+          "w": 1600,
+          "h": 1066,
+          "source": "https://raycast.com/blog/raycast-for-ios",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-ios-notes-styled.jpg",
+          "label": "iOS marketing photography \u2014 Notes",
+          "w": 1600,
+          "h": 1066,
+          "source": "https://raycast.com/blog/raycast-for-ios",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/art-ios-presets-styled.jpg",
+          "label": "iOS marketing photography \u2014 AI Presets",
+          "w": 1600,
+          "h": 1066,
+          "source": "https://raycast.com/blog/raycast-for-ios",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Applied identity",
+      "images": [
+        {
+          "file": "assets/brand/identity/applied-hoodie.jpg",
+          "label": "Raycast merch \u2014 branded hoodie",
+          "w": 1555,
+          "h": 1600,
+          "source": "https://merch.raycast.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-mug.jpg",
+          "label": "Raycast merch \u2014 branded mug",
+          "w": 1555,
+          "h": 1600,
+          "source": "https://merch.raycast.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-laptop-sticker.jpg",
+          "label": "Raycast merch \u2014 laptop sticker",
+          "w": 1555,
+          "h": 1600,
+          "source": "https://merch.raycast.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-store-og.png",
+          "label": "Applied identity \u2014 Store page og:image",
+          "w": 1600,
+          "h": 840,
+          "source": "https://raycast.com/store",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-pro-og.png",
+          "label": "Applied identity \u2014 Pro page og:image",
+          "w": 1600,
+          "h": 840,
+          "source": "https://raycast.com/pro",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-teams-og.jpg",
+          "label": "Applied identity \u2014 Teams page og:image",
+          "w": 1600,
+          "h": 840,
+          "source": "https://raycast.com/teams",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-ai-og.png",
+          "label": "Applied identity \u2014 AI page og:image",
+          "w": 1200,
+          "h": 630,
+          "source": "https://raycast.com/core-features/ai",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-devdocs-og.png",
+          "label": "Applied identity \u2014 developer docs og:image",
+          "w": 1200,
+          "h": 600,
+          "source": "https://developers.raycast.com",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/identity/applied-wallpapers-og.png",
+          "label": "Applied identity \u2014 Wallpapers page og:image",
+          "w": 1200,
+          "h": 630,
+          "source": "https://raycast.com/wallpapers",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "X",
+      "images": [
+        {
+          "file": "assets/brand/social/x-avatar.png",
+          "label": "@raycast profile avatar",
+          "w": 400,
+          "h": 400,
+          "source": "https://x.com/raycast",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-banner.jpg",
+          "label": "@raycast profile banner",
+          "w": 1500,
+          "h": 500,
+          "source": "https://x.com/raycast",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-producthunt.jpg",
+          "label": "X post \u2014 Product Hunt launch day",
+          "w": 1600,
+          "h": 800,
+          "source": "https://x.com/raycast/status/2098321066288361713",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-ai-this-week.jpg",
+          "label": "X post \u2014 new in Raycast AI this week",
+          "w": 1600,
+          "h": 1484,
+          "source": "https://x.com/raycast/status/2098013859298820596",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-byo-model.jpg",
+          "label": "X post \u2014 Bring Your Own Model to Raycast AI",
+          "w": 1600,
+          "h": 800,
+          "source": "https://x.com/raycast/status/2095497134644834655",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-emoji-picker.jpg",
+          "label": "X post \u2014 inline emoji picker returns in v2.1",
+          "w": 1600,
+          "h": 800,
+          "source": "https://x.com/raycast/status/2093293922906992891",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-keyboard.jpg",
+          "label": "X post \u2014 Raycast Keyboard announcement",
+          "w": 1600,
+          "h": 900,
+          "source": "https://x.com/raycast/status/2092949404487733614",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-v2-beta.jpg",
+          "label": "X post \u2014 Raycast v2 out of beta",
+          "w": 1600,
+          "h": 800,
+          "source": "https://x.com/raycast/status/2090067454785700289",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-nextweek-thumb.jpg",
+          "label": "X post video thumbnail \u2014 \"Next week\" teaser",
+          "w": 1280,
+          "h": 720,
+          "source": "https://x.com/raycast/status/2090786265922953496",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/x-post-screen-awareness-thumb.jpg",
+          "label": "X post video thumbnail \u2014 Introducing Screen Awareness",
+          "w": 720,
+          "h": 720,
+          "source": "https://x.com/raycast/status/2082811982034747827",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Instagram",
+      "images": [
+        {
+          "file": "assets/brand/social/instagram-avatar.jpg",
+          "label": "@raycastapp profile avatar",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.instagram.com/raycastapp",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-raycast-ios.jpg",
+          "label": "Instagram post \u2014 Raycast for iOS launch",
+          "w": 480,
+          "h": 854,
+          "source": "https://www.instagram.com/p/DJEjOWgoOac/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-nuphy-keyboard.jpg",
+          "label": "Instagram post \u2014 NuPhy Air75 V3 keyboard",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/p/DcbJHxhurlT/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-ios-ad-bts.jpg",
+          "label": "Instagram post \u2014 behind the scenes, iOS ad shoot",
+          "w": 1080,
+          "h": 719,
+          "source": "https://www.instagram.com/p/DJT9rNLteF-/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-introducing-glaze.jpg",
+          "label": "Instagram post \u2014 Introducing Glaze",
+          "w": 480,
+          "h": 270,
+          "source": "https://www.instagram.com/p/DVlfZ6uDIlO/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-glaze-launch.jpg",
+          "label": "Instagram post \u2014 Glaze launch",
+          "w": 480,
+          "h": 853,
+          "source": "https://www.instagram.com/p/DaP9E5KNXXR/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-raycast-notes.jpg",
+          "label": "Instagram post \u2014 Raycast Notes launch",
+          "w": 1440,
+          "h": 955,
+          "source": "https://www.instagram.com/p/DCE5n-5q_Ll/",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/instagram-post-raycast-windows.jpg",
+          "label": "Instagram post \u2014 Raycast for Windows launch",
+          "w": 480,
+          "h": 271,
+          "source": "https://www.instagram.com/p/DRR9sRZgW_6/",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "TikTok",
+      "images": [
+        {
+          "file": "assets/brand/social/tiktok-avatar.jpg",
+          "label": "@raycastapp profile avatar",
+          "w": 1080,
+          "h": 1080,
+          "source": "https://www.tiktok.com/@raycastapp",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-quicklinks.jpg",
+          "label": "TikTok video cover \u2014 Quicklinks + commands combo",
+          "w": 270,
+          "h": 480,
+          "source": "https://www.tiktok.com/@raycastapp/video/7349208467720195334",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/tiktok-cover-endofday.jpg",
+          "label": "TikTok video cover \u2014 end of day with Raycast",
+          "w": 270,
+          "h": 480,
+          "source": "https://www.tiktok.com/@raycastapp/video/7346273100041932037",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "YouTube",
+      "images": [
+        {
+          "file": "assets/brand/social/youtube-avatar.jpg",
+          "label": "@raycastapp channel avatar",
+          "w": 800,
+          "h": 800,
+          "source": "https://www.youtube.com/@raycastapp",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-banner.jpg",
+          "label": "@raycastapp channel banner",
+          "w": 1600,
+          "h": 265,
+          "source": "https://www.youtube.com/@raycastapp",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-thumb-raycast-ios.jpg",
+          "label": "YouTube video thumbnail \u2014 Raycast for iOS: What's New?",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=x0UTzao3-5o",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-thumb-glaze-first-look.jpg",
+          "label": "YouTube video thumbnail \u2014 First Look at Glaze",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=FGbmmgH97ms",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-thumb-dictation.jpg",
+          "label": "YouTube video thumbnail \u2014 Introducing Raycast Dictation",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=RUh1KDgSOsc",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-thumb-screen-awareness.jpg",
+          "label": "YouTube video thumbnail \u2014 Raycast can now see your screen",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=_eHOl-KyY6I",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-thumb-nuphy-keyboard.jpg",
+          "label": "YouTube video thumbnail \u2014 Introducing the NuPhy \u00d7 Raycast Keyboard",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=73pdeHCGerA",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/youtube-thumb-its-out.jpg",
+          "label": "YouTube video thumbnail \u2014 \"It's out\"",
+          "w": 1280,
+          "h": 720,
+          "source": "https://www.youtube.com/watch?v=uJ70iGerYzE",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "LinkedIn",
+      "images": [
+        {
+          "file": "assets/brand/social/linkedin-logo.jpg",
+          "label": "Raycast company logo",
+          "w": 200,
+          "h": 200,
+          "source": "https://www.linkedin.com/company/raycastapp",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-cover.jpg",
+          "label": "Raycast company cover image",
+          "w": 1128,
+          "h": 191,
+          "source": "https://www.linkedin.com/company/raycastapp",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-ai-this-week.jpg",
+          "label": "LinkedIn post \u2014 new in Raycast AI this week",
+          "w": 800,
+          "h": 742,
+          "source": "https://www.linkedin.com/posts/raycastapp_new-in-raycast-ai-this-week-connect-activity-7503779559377612800-Iqf_",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-emoji-picker.jpg",
+          "label": "LinkedIn post \u2014 inline emoji picker returns in v2.1",
+          "w": 800,
+          "h": 400,
+          "source": "https://www.linkedin.com/posts/raycastapp_the-inline-emoji-picker-is-back-in-v21-activity-7499059620838096896-_cMA",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-nuphy-keyboard.jpg",
+          "label": "LinkedIn post \u2014 Meet the Raycast Keyboard",
+          "w": 800,
+          "h": 450,
+          "source": "https://www.linkedin.com/posts/raycastapp_meet-the-raycast-keyboard-a-low-profile-activity-7498715105484857344-SmO4",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/social/linkedin-post-v2-out-of-beta.jpg",
+          "label": "LinkedIn post \u2014 Raycast v2 out of beta",
+          "w": 800,
+          "h": 400,
+          "source": "https://www.linkedin.com/posts/raycastapp_starting-today-raycast-v2-is-out-of-beta-activity-7495833154751021056-sgSw",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "App Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/appstore-icon.jpg",
+          "label": "App Store icon",
+          "w": 1024,
+          "h": 1024,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-1.jpg",
+          "label": "App Store screenshot \u2014 iPhone 1",
+          "w": 736,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-2.jpg",
+          "label": "App Store screenshot \u2014 iPhone 2",
+          "w": 736,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-3.jpg",
+          "label": "App Store screenshot \u2014 iPhone 3",
+          "w": 736,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-4.jpg",
+          "label": "App Store screenshot \u2014 iPhone 4",
+          "w": 736,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-1.jpg",
+          "label": "App Store screenshot \u2014 iPad 1",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-2.jpg",
+          "label": "App Store screenshot \u2014 iPad 2",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-3.jpg",
+          "label": "App Store screenshot \u2014 iPad 3",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-4.jpg",
+          "label": "App Store screenshot \u2014 iPad 4",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-5.jpg",
+          "label": "App Store screenshot \u2014 iPhone 5",
+          "w": 736,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-iphone-6.jpg",
+          "label": "App Store screenshot \u2014 iPhone 6",
+          "w": 736,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-5.jpg",
+          "label": "App Store screenshot \u2014 iPad 5",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/appstore-ipad-6.jpg",
+          "label": "App Store screenshot \u2014 iPad 6",
+          "w": 1200,
+          "h": 1600,
+          "source": "https://apps.apple.com/app/id6503428327",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Microsoft Store",
+      "images": [
+        {
+          "file": "assets/brand/stores/msstore-icon.png",
+          "label": "Microsoft Store icon",
+          "w": 900,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9PFXXSHC64H3",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-1.jpg",
+          "label": "Microsoft Store screenshot 1",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9PFXXSHC64H3",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-2.jpg",
+          "label": "Microsoft Store screenshot 2",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9PFXXSHC64H3",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/stores/msstore-screenshot-3.jpg",
+          "label": "Microsoft Store screenshot 3",
+          "w": 1600,
+          "h": 900,
+          "source": "https://apps.microsoft.com/detail/9PFXXSHC64H3",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Announcement cards",
+      "images": [
+        {
+          "file": "assets/brand/press/announce-ios.jpg",
+          "label": "Raycast for iOS announcement",
+          "w": 1600,
+          "h": 840,
+          "source": "https://raycast.com/blog/raycast-for-ios",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announce-windows.jpg",
+          "label": "Raycast for Windows announcement",
+          "w": 1600,
+          "h": 840,
+          "source": "https://raycast.com/blog/raycast-for-windows",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announce-new-raycast.png",
+          "label": "The New Raycast announcement",
+          "w": 1200,
+          "h": 630,
+          "source": "https://raycast.com/blog/the-new-raycast",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announce-notes.jpg",
+          "label": "Raycast Notes announcement",
+          "w": 1200,
+          "h": 630,
+          "source": "https://raycast.com/blog/raycast-notes",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announce-technical-deep-dive.png",
+          "label": "A technical deep dive into the new Raycast",
+          "w": 1600,
+          "h": 840,
+          "source": "https://raycast.com/blog/a-technical-deep-dive-into-the-new-raycast",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announce-ai-pricing.png",
+          "label": "Changing how Raycast AI is priced",
+          "w": 1200,
+          "h": 630,
+          "source": "https://raycast.com/blog/changing-how-raycast-ai-is-priced",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announce-introducing-glaze.png",
+          "label": "Introducing Glaze",
+          "w": 1200,
+          "h": 630,
+          "source": "https://raycast.com/blog/introducing-glaze",
+          "provenance": "theirs"
+        },
+        {
+          "file": "assets/brand/press/announce-meet-glaze.png",
+          "label": "Meet Glaze",
+          "w": 1200,
+          "h": 630,
+          "source": "https://raycast.com/blog/meet-glaze",
+          "provenance": "theirs"
+        }
+      ]
+    },
+    {
+      "title": "Press photography",
+      "images": [
+        {
+          "file": "assets/brand/press/press-cofounders.jpg",
+          "label": "Raycast co-founders",
+          "w": 1600,
+          "h": 1066,
+          "source": "https://raycast.com/press",
+          "provenance": "theirs"
+        }
+      ]
     }
   ]
 }

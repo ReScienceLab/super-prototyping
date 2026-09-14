@@ -27,6 +27,10 @@ HERE = pathlib.Path(__file__).resolve().parent
 # replica's tab bar tints it a second time.
 A = json.load(open(HERE / 'assets.json'))
 OUT = HERE
+# Unlike everything else under assets/, these are never inlined as data: URIs.
+# manifest.json places them as image shapes of their own, one row per surface,
+# so the canvas can compare avatar against avatar down the page.
+BRAND_DIR = OUT / "assets" / "brand"
 
 # ---------------------------------------------------------------- tokens ----
 TOKENS = """:root{
@@ -1702,5 +1706,6 @@ LAYOUT = {
              for hs, (n, sid, label, note) in zip(HOME_SCREENS, HOME_REFS)]},
  ],
 }
+LAYOUT["rows"] += json.loads((BRAND_DIR / "manifest.json").read_text())
 (OUT / 'layout.json').write_text(json.dumps(LAYOUT, indent=2) + '\n')
 print('layout.json', len(LAYOUT['rows']), 'rows')
