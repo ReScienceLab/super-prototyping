@@ -1,0 +1,1183 @@
+[
+ {
+  "id": "ground",
+  "img": "assets/refs/cp1.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   300,
+   360,
+   500
+  ],
+  "only": "flat",
+  "mine": "01-bio-empty.png",
+  "_": "01 the page between the composer divider (247.7) and the keyboard (562.3): empty ground, 100% of 572,884 flat px",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 3 (1179x2556 for 393x852); run with --pt 3. --against wants a directory of renders shot at --scale 3 --crop-phone and resized to 1179x2556, which is what scratch/pipe.py all writes to scratch/mine; every probe names its own file there. The status bar is the template's, not the capture's, so no probe sits above y 54; the nav row starts at 70. All seven captures are one Mobbin harvest of the same device, so a colour measured on one screen is quoted for all seven. On a sample, 'bright' takes the brightest percentile as the ink core (white type on the pink pill); on a bbox, --bright is the luminance above which a pixel counts as ink (a white key cap on the keyboard's grey). A chip's fill is #F3F0F3 against a #FDFBFC page, so a chip box is found with --dark 246 -- ten levels of separation, which is why no chip here is measured by eye. batch swallows 'axis' for anything but a scan, so a bands probe cannot ask for columns: where a column grid had to be checked (the stat columns, both tab rows) it is one bbox per column, windowed on the midpoints between the centres."
+ },
+ {
+  "id": "card-fill",
+  "img": "assets/refs/cp3.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   694,
+   250,
+   703
+  ],
+  "only": "flat",
+  "mine": "03-profile.png",
+  "_": "03 the Add-phone card's interior above its title ink (709.3): the same #FDFBFC as the page, so the card is a shadow, not a fill"
+ },
+ {
+  "id": "chip-fill",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   44,
+   382,
+   100,
+   400
+  ],
+  "only": "flat",
+  "mine": "04-post-empty.png",
+  "_": "04 first location chip, left of its glyph run"
+ },
+ {
+  "id": "brand",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   240,
+   775,
+   280,
+   800
+  ],
+  "only": "flat",
+  "mine": "04-post-empty.png",
+  "_": "04 the Post pill's interior, left of the label ink (284): the brand pink, taken from a solid fill because thin pink type samples ~40 levels light (the disabled-Save probe on 02 reads #984357 for the same colour)"
+ },
+ {
+  "id": "on-brand",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   284,
+   782,
+   332,
+   800
+  ],
+  "only": "ink",
+  "bright": true,
+  "mine": "04-post-empty.png",
+  "_": "04 the Post label on that pill: white"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   44,
+   530,
+   260,
+   548
+  ],
+  "only": "ink",
+  "mine": "04-post-empty.png",
+  "_": "04 'Everyone can view this post', the screen's heaviest 15pt row"
+ },
+ {
+  "id": "ink-2",
+  "img": "assets/refs/cp4.png",
+  "cmd": "sample",
+  "box": [
+   44,
+   604,
+   380,
+   620
+  ],
+  "only": "ink",
+  "mine": "04-post-empty.png",
+  "_": "04 the 'Privacy and more settings...' subtitle; #817E80 here, #878587 on 06 and #878487 on 03, so the token is their mean #838083 = rgba(0,0,0,.48)"
+ },
+ {
+  "id": "ink-3",
+  "img": "assets/refs/cp1.png",
+  "cmd": "sample",
+  "box": [
+   12,
+   262,
+   42,
+   274
+  ],
+  "only": "ink",
+  "mine": "01-bio-empty.png",
+  "_": "01 the 0/80 counter, the palest type in the set; the bio placeholder and the post placeholder land within 5 levels of it = rgba(0,0,0,.34)"
+ },
+ {
+  "id": "cyan",
+  "img": "assets/refs/cp3.png",
+  "cmd": "sample",
+  "box": [
+   230,
+   188,
+   244,
+   202
+  ],
+  "only": "flat",
+  "mine": "03-profile.png",
+  "_": "03 the core of the avatar's + badge; it dithers with #1DD7EC, so the census is taken on the flat interior only"
+ },
+ {
+  "id": "kb-ground",
+  "img": "assets/refs/cp1.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   614,
+   340,
+   622
+  ],
+  "only": "flat",
+  "mine": "01-bio-empty.png",
+  "_": "01 the keyboard between key rows 1 and 2 (caps end 611.7, next begins 624.7)"
+ },
+ {
+  "id": "key-cap",
+  "img": "assets/refs/cp1.png",
+  "cmd": "sample",
+  "box": [
+   8,
+   575,
+   32,
+   583
+  ],
+  "only": "flat",
+  "mine": "01-bio-empty.png",
+  "_": "01 the 'q' cap above its glyph: the same white as the page"
+ },
+ {
+  "id": "key-mod",
+  "img": "assets/refs/cp1.png",
+  "cmd": "sample",
+  "box": [
+   8,
+   683,
+   42,
+   691
+  ],
+  "only": "flat",
+  "mine": "01-bio-empty.png",
+  "_": "01 the shift cap, the modifier grey, 100% of 2,117 flat px"
+ },
+ {
+  "id": "scrim",
+  "img": "assets/refs/cp5.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   400,
+   360,
+   500
+  ],
+  "only": "flat",
+  "mine": "05-post-keyboard.png",
+  "_": "05 the dimmed page under the keyboard: #CCC9CD over a #FDFBFC page = rgba(0,0,0,.195)"
+ },
+ {
+  "id": "nav-hairline",
+  "img": "assets/refs/cp1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 102.8,
+  "range": [
+   0,
+   393
+  ],
+  "mine": "01-bio-empty.png",
+  "_": "01 the nav hairline: one device px, full width; present on every screen but 03, where the profile scrolls under its own title"
+ },
+ {
+  "id": "composer-rule",
+  "img": "assets/refs/cp1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 247.8,
+  "range": [
+   0,
+   393
+  ],
+  "mine": "01-bio-empty.png",
+  "_": "01 the bio composer's divider, x 16.0..377.3, one device px; same on 02"
+ },
+ {
+  "id": "post-divider",
+  "img": "assets/refs/cp4.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   314,
+   326
+  ],
+  "mine": "04-post-empty.png",
+  "_": "04 the divider above the Location row: edge at y 319.7, one device px"
+ },
+ {
+  "id": "post-divider-7",
+  "img": "assets/refs/cp7.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   352,
+   366
+  ],
+  "mine": "07-post-caption.png",
+  "_": "07 the same divider with a two-line caption and a suggestion row above it: 359.7, so everything below the divider shifts +40.0, not the 39 a quick read off the grid gave"
+ },
+ {
+  "id": "scrim-top",
+  "img": "assets/refs/cp5.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   300,
+   340
+  ],
+  "mine": "05-post-keyboard.png",
+  "_": "05 the scrim's top edge: the divider at 319.7, then #CCC9CD from 320 down, i.e. the scrim starts at the divider and not at the keyboard"
+ },
+ {
+  "id": "tabbar-hairline",
+  "img": "assets/refs/cp3.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 10,
+  "range": [
+   760,
+   852
+  ],
+  "mine": "03-profile.png",
+  "_": "03 the tab bar's top hairline at y 769.0, read in the left gutter so no tab glyph is in the column"
+ },
+ {
+  "id": "card-shadow",
+  "img": "assets/refs/cp3.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 20,
+  "range": [
+   676,
+   775
+  ],
+  "mine": "03-profile.png",
+  "_": "03 down through the card at x 20, inside its left inset and left of the title ink (28.3): a faint top edge at 689.3, fill to 756.0, then a shadow ramp peaking #ECE9EA and fading to page over ~11pt"
+ },
+ {
+  "id": "kb-top",
+  "img": "assets/refs/cp1.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 196.5,
+  "range": [
+   545,
+   580
+  ],
+  "mine": "01-bio-empty.png",
+  "_": "01 the keyboard's top edge at y 562.3, read in the gutter between caps 5 and 6 of row 1 (193.7..199.7) so the scan sees ground, not a cap"
+ },
+ {
+  "id": "badge-x",
+  "img": "assets/refs/cp3.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 195,
+  "range": [
+   210,
+   255
+  ],
+  "mine": "03-profile.png",
+  "_": "03 across the avatar's + badge at its centre row: photo to 217, a white ring 217.7..221.3, cyan 221.3..245.7 (the white + bar interrupts it at 227..238.7), page from 246.3 -- a 24.3 circle in a ~3pt white ring"
+ },
+ {
+  "id": "badge-y",
+  "img": "assets/refs/cp3.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 233.5,
+  "range": [
+   175,
+   215
+  ],
+  "mine": "03-profile.png",
+  "_": "03 the same badge down its centre column: cyan 183.0..207.3, so d 24.3 centred 233.5,195.2"
+ },
+ {
+  "id": "nav-cancel",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   14,
+   70,
+   66,
+   92
+  ],
+  "dark": 140,
+  "mine": "01-bio-empty.png",
+  "_": "01 'Cancel' ink at 17.0,75.3: 15px/400, h 11.3"
+ },
+ {
+  "id": "nav-title",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   180,
+   70,
+   214,
+   92
+  ],
+  "dark": 140,
+  "mine": "01-bio-empty.png",
+  "_": "01 'Bio' ink at 184.7,73.7: 17px/700, err 0.007 -- the title size for the set"
+ },
+ {
+  "id": "nav-save",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   335,
+   70,
+   380,
+   92
+  ],
+  "dark": 215,
+  "mine": "01-bio-empty.png",
+  "_": "01 the disabled 'Save' ink, 343.7..376.3; the active pink one on 02 boxes identically, so only the colour changes"
+ },
+ {
+  "id": "bio-placeholder",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   24,
+   112,
+   95,
+   140
+  ],
+  "dark": 220,
+  "mine": "01-bio-empty.png",
+  "_": "01 'Add a bio' ink at 24.0,122.7: 15px/400"
+ },
+ {
+  "id": "bio-counter",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   12,
+   256,
+   50,
+   280
+  ],
+  "dark": 220,
+  "mine": "01-bio-empty.png",
+  "_": "01 '0/80' ink at 16.7,262.3: 12px, the '/' setting the 10.0 height"
+ },
+ {
+  "id": "bio-text",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   16,
+   112,
+   240,
+   145
+  ],
+  "dark": 140,
+  "mine": "02-bio-filled.png",
+  "_": "02 'here for the fun' ink x 22.0..147.7 y 120.3..137.0, the same 15px line box as the placeholder it replaces. The board's bio is the stand-in account's, measured back to this box: 125.3 against 125.7"
+ },
+ {
+  "id": "bio-counter-2",
+  "img": "assets/refs/cp2.png",
+  "cmd": "bbox",
+  "box": [
+   12,
+   256,
+   50,
+   280
+  ],
+  "dark": 200,
+  "mine": "02-bio-filled.png",
+  "_": "02 '19/80' ink 16.7..46.0: the counter grows to the right, left edge held. The board counts its own bio instead and reads 21/80; the capture's own string is what fixes the rule it counts by"
+ },
+ {
+  "id": "mention-chip",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   4,
+   512,
+   108,
+   562
+  ],
+  "dark": 246,
+  "mine": "01-bio-empty.png",
+  "_": "01 the '@ Mention' chip above the keyboard: x 8.0..99.0 y 522.3..554.3, w 91.0 h 32.0"
+ },
+ {
+  "id": "key-q",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   1,
+   566,
+   40,
+   616
+  ],
+  "bright": 230,
+  "mine": "01-bio-empty.png",
+  "_": "01 the 'q' cap: 33.3x42.0 at 3.0,570.0 -- the letter-key box; pitch 39.33 across a row, 54.0 between rows (tops 570.3 / 624.7 / 678.7 / 732.7)"
+ },
+ {
+  "id": "key-shift",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   1,
+   674,
+   50,
+   724
+  ],
+  "dark": 195,
+  "mine": "01-bio-empty.png",
+  "_": "01 the shift cap, x 3.0..47.3 (w 44.3): a modifier is one letter plus one gutter wide, and reads darker than the keyboard ground"
+ },
+ {
+  "id": "key-return",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   294,
+   728,
+   393,
+   778
+  ],
+  "dark": 195,
+  "mine": "01-bio-empty.png",
+  "_": "01 the 'return' cap, x 298.3..390.3 (w 92.0); 05 and 06 put '@' and '#' keys in its place"
+ },
+ {
+  "id": "key-space",
+  "img": "assets/refs/cp1.png",
+  "cmd": "bbox",
+  "box": [
+   97,
+   728,
+   296,
+   778
+  ],
+  "bright": 230,
+  "mine": "01-bio-empty.png",
+  "_": "01 the space bar, x 100.3..292.3 (w 192.0), labelled 'spatie': the captures were shot on a Dutch keyboard"
+ },
+ {
+  "id": "nav-title-3",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   68,
+   236,
+   94
+  ],
+  "dark": 140,
+  "mine": "03-profile.png",
+  "_": "03 'alexsmith' ink at 158.0,73.0, w 76.3; its chevron follows at 238.0..249.7, which is why the window stops at 236. The board's name is the stand-in account's, 113.0 on the same centre, so it overruns this window at both edges and reports clipped"
+ },
+ {
+  "id": "avatar",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   138,
+   100,
+   256,
+   218
+  ],
+  "dark": 248,
+  "mine": "03-profile.png",
+  "_": "03 the avatar's outer ring: 109.0x109.7 at 142.7,104.0, centred 197.2,158.9; the photo inside starts at 148.7, so the ring is ~3pt and the photo d ~98"
+ },
+ {
+  "id": "handle",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   130,
+   214,
+   265,
+   240
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 '@alexsmith58' ink at 139.7,219.3: 17px/600, h 15.7. The window starts at 214 because the + badge reaches 207.3 and dithers below it. The board's handle is the stand-in account's, 125.0 against 113.7 on the same centre"
+ },
+ {
+  "id": "stat-1",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   64,
+   250,
+   145,
+   290
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 the first stat column, number over label, x 77.3..131.7 -> centre 104.5"
+ },
+ {
+  "id": "stat-2",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   250,
+   245,
+   290
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 the second, x 169.7..224.0 -> centre 196.9: the screen's own centre"
+ },
+ {
+  "id": "stat-3",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   248,
+   250,
+   336,
+   290
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 the third, x 275.0..303.0 -> centre 289.0; pitch 92.3 across the three"
+ },
+ {
+  "id": "stat-rows",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bands",
+  "box": [
+   60,
+   250,
+   340,
+   292
+  ],
+  "thr": 200,
+  "mine": "03-profile.png",
+  "_": "03 the two rows inside those columns: numbers 253.7..266.3, labels 274.0..286.3 (13px), so the pair is a 20.3 pitch"
+ },
+ {
+  "id": "pill-row",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   40,
+   290,
+   352,
+   342
+  ],
+  "dark": 248,
+  "mine": "03-profile.png",
+  "_": "03 the three action pills as one row: x 46.7..347.0, y 294..338, h 44"
+ },
+ {
+  "id": "pill-edit",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   40,
+   290,
+   166,
+   342
+  ],
+  "dark": 248,
+  "mine": "03-profile.png",
+  "_": "03 the 'Edit profile' pill alone, 46.7..163.7; Share profile follows at 167.7 and the icon pill at 303.0, so the gap is 4"
+ },
+ {
+  "id": "bio-line",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   130,
+   346,
+   260,
+   372
+  ],
+  "dark": 140,
+  "mine": "03-profile.png",
+  "_": "03 the saved bio, ink 136.3..253.7: text to 234.3, then a 14.7pt gap to the emoji at 243.0..253.7, the whole line centred"
+ },
+ {
+  "id": "orders",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   145,
+   372,
+   250,
+   400
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 'Your orders' with its cart glyph: icon 149.7..166, text to 244.7, ink y 377.0, 15px. The board puts the stand-in account's site here instead, globe + 3.67 + text, 110.0 wide on the same centre"
+ },
+ {
+  "id": "tab-1",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   410,
+   87,
+   438
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 the profile's content tabs, one bbox per column: grid icon 39.0..68.3"
+ },
+ {
+  "id": "tab-2",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   88,
+   410,
+   160,
+   438
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 second tab icon 116.3..132.3 -> centre 124.3"
+ },
+ {
+  "id": "tab-3",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   161,
+   410,
+   232,
+   438
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 third tab icon 186.7..206.7 -> centre 196.7, the screen centre"
+ },
+ {
+  "id": "tab-4",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   233,
+   410,
+   305,
+   438
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 fourth tab icon 260.3..279.0 -> centre 269.7"
+ },
+ {
+  "id": "tab-5",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   306,
+   410,
+   375,
+   438
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 fifth tab icon 332.0..351.7 -> centre 341.9; pitch 72.5, so a 5-column grid inset ~15 each side, and the icons sit y 415..433"
+ },
+ {
+  "id": "tab-rule",
+  "img": "assets/refs/cp3.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 228,
+  "range": [
+   438,
+   450
+  ],
+  "mine": "03-profile.png",
+  "_": "03 the rule under the tab strip at y 443.7, read at x 228 so the active tab's underline (x 27..76) is not in the column"
+ },
+ {
+  "id": "draft-row",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   0,
+   438,
+   393,
+   624
+  ],
+  "dark": 248,
+  "mine": "03-profile.png",
+  "_": "03 the draft grid: x 0..393 y 442.0..618.7, three touching columns of 131 (= 393/3) at 3:4, with no gutter to separate them, one of them filled. That one frame is a stranger's video, so the board fills the cell with a frame of the stand-in account's own and redraws the Drafts: 1 badge"
+ },
+ {
+  "id": "card-title",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   26,
+   700,
+   200,
+   722
+  ],
+  "dark": 140,
+  "mine": "03-profile.png",
+  "_": "03 'Add phone number' ink at 28.3,709.3: 14px/700, h 12.7 -- the one 14pt row in the set"
+ },
+ {
+  "id": "card-sub",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   26,
+   723,
+   240,
+   746
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 'Let contacts find you on TikTok' ink 29.0..213.0 at y 723.0: 13px"
+ },
+ {
+  "id": "add-pill",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   240,
+   700,
+   345,
+   740
+  ],
+  "dark": 248,
+  "mine": "03-profile.png",
+  "_": "03 the card's 'Add' pill, brand pink: x 248.7..337.7 y 705.3..734.3, h 29 -- the chip height, not a button's 44"
+ },
+ {
+  "id": "tabbar-1",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   4,
+   800,
+   78,
+   820
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 the tab bar's labels, one bbox per column: 26.0..53.0 -> centre 39.5"
+ },
+ {
+  "id": "tabbar-2",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   79,
+   800,
+   157,
+   820
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 second label 101.7..134.7 -> centre 118.2"
+ },
+ {
+  "id": "tabbar-4",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   236,
+   800,
+   314,
+   820
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 fourth label 263.0..288.0 -> centre 275.5 (the third column is the create button and carries no label)"
+ },
+ {
+  "id": "tabbar-5",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   315,
+   800,
+   392,
+   820
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 the active 'Profile' label, 339.3..369.0 -> centre 354.2: pitch 78.6, a plain 5-column grid across the full 393 rather than an inset one. 10px, h 8.0 off its 0.727 ascender"
+ },
+ {
+  "id": "tabbar-create",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   158,
+   775,
+   235,
+   800
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 the [+] create button, x 175.0..218.0 y 777.3..800: w 43.0, wider than the 20-24 of the four glyph tabs beside it"
+ },
+ {
+  "id": "home",
+  "img": "assets/refs/cp3.png",
+  "cmd": "bbox",
+  "box": [
+   120,
+   832,
+   275,
+   850
+  ],
+  "dark": 200,
+  "mine": "03-profile.png",
+  "_": "03 the home indicator: x 126.7..267.0 y 839..844, so 140.3x5 -- #686568 over the page here and #000000 over a keyboard on 01, 02, 05 and 06"
+ },
+ {
+  "id": "back",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   12,
+   68,
+   32,
+   94
+  ],
+  "dark": 140,
+  "mine": "04-post-empty.png",
+  "_": "04 the back chevron, x 16.7..26.7 y 72.3..89.7: 10x17.3 of stroke"
+ },
+ {
+  "id": "desc-placeholder",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   16,
+   108,
+   150,
+   136
+  ],
+  "dark": 220,
+  "mine": "04-post-empty.png",
+  "_": "04 'Add description...' ink at 21.3,113.7: 15px, h 14.0 with the descender"
+ },
+ {
+  "id": "cover",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   260,
+   106,
+   382,
+   266
+  ],
+  "dark": 248,
+  "mine": "04-post-empty.png",
+  "_": "04 the video cover: x 264.0..377.7 y 110.7..260.7, so 114x150. The frame inside it is the same stranger's video, so the board fills the cell with the same stand-in frame and draws TikTok's labels and bar back over it"
+ },
+ {
+  "id": "editcover",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   288,
+   232,
+   356,
+   250
+  ],
+  "bright": 250,
+  "mine": "04-post-empty.png",
+  "_": "04 the white 'Edit cover' label inside that cover, 292.3..351.3 at y 236.0: 13px on a dark bar. Redrawn rather than cut out with the frame; white on dark blooms, so it measures ~1.5 narrower than the capture reads"
+ },
+ {
+  "id": "chip-hashtags",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   12,
+   272,
+   106,
+   308
+  ],
+  "dark": 246,
+  "mine": "04-post-empty.png",
+  "_": "04 the '# Hashtags' chip: x 16.0..102.0 y 276.0..304.0, h 28"
+ },
+ {
+  "id": "chip-mention",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   106,
+   272,
+   195,
+   308
+  ],
+  "dark": 246,
+  "mine": "04-post-empty.png",
+  "_": "04 the '@ Mention' chip beside it, 110.3..189.0: the gap between chips is 8.3"
+ },
+ {
+  "id": "loc-row",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   14,
+   340,
+   130,
+   372
+  ],
+  "dark": 200,
+  "mine": "04-post-empty.png",
+  "_": "04 the Location row: pin 18.0..31, 'Location' 45.3..107.3 at 15px/700, then its info glyph to 125.0, all inside y 344.7..363.3"
+ },
+ {
+  "id": "loc-chips",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   34,
+   376,
+   320,
+   412
+  ],
+  "dark": 246,
+  "mine": "04-post-empty.png",
+  "_": "04 the place chips as one row, x 38.3..316.3 y 380.0..408.0; individually 38..105 / 113.3..233.3 / 241.3..316.3, the same 8.3 gap"
+ },
+ {
+  "id": "addlink",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   428,
+   120,
+   456
+  ],
+  "dark": 200,
+  "mine": "04-post-empty.png",
+  "_": "04 the '+ Add link' row: the + glyph 18.3..33.7, the words 44.3..105.0, and a brand-pink dot 105.7..114.0 at y 433.0..441.3"
+ },
+ {
+  "id": "template",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   34,
+   466,
+   132,
+   502
+  ],
+  "dark": 246,
+  "mine": "04-post-empty.png",
+  "_": "04 the 'Template' chip, x 38.0..127.0 y 470..498: h 28, chip height again"
+ },
+ {
+  "id": "everyone",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   40,
+   524,
+   262,
+   554
+  ],
+  "dark": 140,
+  "mine": "04-post-empty.png",
+  "_": "04 'Everyone can view this post' ink at 45.3,529.7: 15px/700, err 0.045; the rows below it start at the same x 45.3"
+ },
+ {
+  "id": "more-sub",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   40,
+   598,
+   390,
+   622
+  ],
+  "dark": 200,
+  "mine": "04-post-empty.png",
+  "_": "04 'Privacy and more settings have been moved here.' ink at 45.0,604.3: 13px"
+ },
+ {
+  "id": "share-circles",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   288,
+   642,
+   382,
+   684
+  ],
+  "dark": 248,
+  "mine": "04-post-empty.png",
+  "_": "04 the two 'Share to' avatars, x 293.0..377.3 y 644..680: d 36, pitch 49.3"
+ },
+ {
+  "id": "drafts-pill",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   8,
+   766,
+   198,
+   818
+  ],
+  "dark": 248,
+  "mine": "04-post-empty.png",
+  "_": "04 the 'Drafts' button, x 12.0..193.7 y 770..814: h 44, r 12"
+ },
+ {
+  "id": "post-pill",
+  "img": "assets/refs/cp4.png",
+  "cmd": "bbox",
+  "box": [
+   196,
+   766,
+   385,
+   818
+  ],
+  "dark": 248,
+  "mine": "04-post-empty.png",
+  "_": "04 the 'Post' button beside it, 199.3..382.7: the gap is 6.3 and the right inset matches the left"
+ },
+ {
+  "id": "sugg-rows",
+  "img": "assets/refs/cp6.png",
+  "cmd": "bands",
+  "box": [
+   14,
+   330,
+   380,
+   570
+  ],
+  "thr": 200,
+  "mine": "06-post-hashtags.png",
+  "_": "06 the five hashtag rows, ink tops 341.0 / 393.0 / 444.7 / 496.7 / 548.7: pitch 52.0, the first row starting where the divider would be"
+ },
+ {
+  "id": "sugg-tag",
+  "img": "assets/refs/cp6.png",
+  "cmd": "bbox",
+  "box": [
+   14,
+   386,
+   80,
+   412
+  ],
+  "dark": 140,
+  "mine": "06-post-hashtags.png",
+  "_": "06 '#motion' in the second row, 15.3..72.3: 14.5px/600, err 0.029"
+ },
+ {
+  "id": "sugg-count",
+  "img": "assets/refs/cp6.png",
+  "cmd": "bbox",
+  "box": [
+   286,
+   386,
+   380,
+   412
+  ],
+  "dark": 200,
+  "mine": "06-post-hashtags.png",
+  "_": "06 '964.2K posts' in that row, 298.0..377.7: 13px, right-aligned to the same 16pt gutter the labels start from"
+ },
+ {
+  "id": "caption-l1",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   16,
+   108,
+   245,
+   130
+  ],
+  "dark": 140,
+  "mine": "07-post-caption.png",
+  "_": "07 the caption's first line, ink 21.7..230.7 at y 115.0; PIL sets this string 3.4% wider than the capture at 15px, the documented browser gap"
+ },
+ {
+  "id": "caption-l2",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   16,
+   130,
+   245,
+   152
+  ],
+  "dark": 140,
+  "mine": "07-post-caption.png",
+  "_": "07 its second line at 21.3,132.7: line pitch 17.7 on a 15px body"
+ },
+ {
+  "id": "chip-hashtags-7",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   12,
+   272,
+   106,
+   308
+  ],
+  "dark": 246,
+  "mine": "07-post-caption.png",
+  "_": "07 the '# Hashtags' chip, 16.0..102.0 y 276.0..304.0 -- identical to 04, so the +40 offset starts below the chips, not above them"
+ },
+ {
+  "id": "sugg-chips",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   12,
+   312,
+   380,
+   348
+  ],
+  "dark": 246,
+  "mine": "07-post-caption.png",
+  "_": "07 the caption-suggestion chip row, x 16.0..375.3 y 316.7..344.7, h 28: the row that pushes everything below the divider down 40pt"
+ },
+ {
+  "id": "loc-row-7",
+  "img": "assets/refs/cp7.png",
+  "cmd": "bbox",
+  "box": [
+   14,
+   380,
+   130,
+   412
+  ],
+  "dark": 200,
+  "mine": "07-post-caption.png",
+  "_": "07 the Location row in the same window as 04's, shifted: 18.0..125.0 at y 384.7..403.3 against 344.7..363.3, i.e. +40.0 exactly"
+ }
+]

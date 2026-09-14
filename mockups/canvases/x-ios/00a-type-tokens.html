@@ -12,6 +12,10 @@
   --x-ground:#FFFFFF;
   --x-field:#EFF3F4;
   --x-spaces:#7856FE;
+  --x-spaces-2:#6748D9;
+  --x-wash:#E6D8FF;
+  --x-banner:#E9F5FC;
+  --x-veil:rgba(0,0,0,.47);
   --x-chip:#ECE8FF;
   --x-chip-card:rgba(255,255,255,.30);
   --x-pill-off:#88898D;
@@ -19,10 +23,14 @@
   --x-disc-7:rgba(0,0,0,.57);
   --x-scrim:rgba(0,0,0,.28);
   --x-backdrop:#000000;
+  --x-track-on:#01BA7B;
+  --x-track-off:#E9E9E9;
   --x-nav:linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%);
+  --x-nav-2:linear-gradient(180deg,#E7DDFE 0%,#ECE3FF 100%);
 
   /* Line */
   --x-hairline:#D2D4D6;
+  --x-hairline-2:#C6C6C6;
   --x-border:#D0D8DC;
   --x-ring:#BAC9D0;
 
@@ -39,16 +47,20 @@
   --x-r-phone:52px;
   --x-r-pill:26px;
   --x-r-field:17px;
+  --x-r-search:19.5px;
   --x-r-card:16px;
   --x-r-play:16.5px;
   --x-r-chip:4px;
   --x-r-sheet:12px;
+  --x-r-modal:36px;
+  --x-r-tile:20px;
   --x-r-peek:10px;
 
   /* Metrics */
   --x-w:393px;
   --x-h:852px;
   --x-status:54px;
+  --x-dim:.31;
 
   /* Type */
   --x-tr-text:-0.035em;
@@ -56,10 +68,15 @@
   --x-t-title:800 26px/34px var(--x-font);
   --x-t-space:800 25.5px/31px var(--x-font);
   --x-t-name:800 22px/27px var(--x-font);
+  --x-t-cal:800 21.65px/28px var(--x-font);
+  --x-t-space-2:800 20.2px/23.67px var(--x-font);
   --x-t-card:700 19px/24px var(--x-font);
   --x-t-field:400 18.5px/24px var(--x-font);
   --x-t-sheet:700 18.5px/24px var(--x-font);
+  --x-t-sect:800 19.3px/24px var(--x-font);
   --x-t-save:700 17.5px/22px var(--x-font);
+  --x-t-head:800 18.25px/22px var(--x-font);
+  --x-t-event:800 18px/20.33px var(--x-font);
   --x-t-btn:700 16.5px/21px var(--x-font);
   --x-t-body:400 16px/21px var(--x-font);
   --x-t-date:700 16px/21px var(--x-font);
@@ -68,8 +85,10 @@
   --x-t-pill:700 15px/20px var(--x-font);
   --x-t-desc:400 14.5px/15.67px var(--x-font);
   --x-t-meta:400 13.5px/19px var(--x-font);
+  --x-t-tag:800 13.5px/19px var(--x-font);
   --x-t-host:800 14.5px/18px var(--x-font);
   --x-t-count:400 14px/19px var(--x-font);
+  --x-t-badge:400 12.5px/16px var(--x-font);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -118,6 +137,6 @@ td.v{color:var(--x-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--x-ink-2)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>X iOS type</h1><p>Every size is fitted to a measured ink width, so several are off the iOS ladder. The evidence rows carry the widths.</p></header><div class="ty"><div class="tr"><span style="font:var(--x-t-time);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-time &middot; 590 17px/22px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-title)">Sam Lee</span><em>--x-t-title &middot; 800 26px/34px</em></div><div class="tr"><span style="font:var(--x-t-space)">Sam Lee</span><em>--x-t-space &middot; 800 25.5px/31px</em></div><div class="tr"><span style="font:var(--x-t-name)">Sam Lee</span><em>--x-t-name &middot; 800 22px/27px</em></div><div class="tr"><span style="font:var(--x-t-card);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-card &middot; 700 19px/24px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-field);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-field &middot; 400 18.5px/24px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-sheet);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-sheet &middot; 700 18.5px/24px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-save);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-save &middot; 700 17.5px/22px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-btn);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-btn &middot; 700 16.5px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-body);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-body &middot; 400 16px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-date);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-date &middot; 700 16px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-row &middot; 700 15.5px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-note);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-note &middot; 400 15.5px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-pill);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-pill &middot; 700 15px/20px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-desc);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-desc &middot; 400 14.5px/15.67px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-meta);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-meta &middot; 400 13.5px/19px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-host);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-host &middot; 800 14.5px/18px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-count);letter-spacing:var(--x-tr-text)">Sam Lee</span><em>--x-t-count &middot; 400 14px/19px + --x-tr-text</em></div></div></div>
+<div class="sheet"><header><h1>X iOS type</h1><p>Every size is fitted to a measured ink width, so several are off the iOS ladder. The evidence rows carry the widths.</p></header><div class="ty"><div class="tr"><span style="font:var(--x-t-time);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-time &middot; 590 17px/22px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-title)">Yilin</span><em>--x-t-title &middot; 800 26px/34px</em></div><div class="tr"><span style="font:var(--x-t-space)">Yilin</span><em>--x-t-space &middot; 800 25.5px/31px</em></div><div class="tr"><span style="font:var(--x-t-name)">Yilin</span><em>--x-t-name &middot; 800 22px/27px</em></div><div class="tr"><span style="font:var(--x-t-cal)">Yilin</span><em>--x-t-cal &middot; 800 21.65px/28px</em></div><div class="tr"><span style="font:var(--x-t-space-2)">Yilin</span><em>--x-t-space-2 &middot; 800 20.2px/23.67px</em></div><div class="tr"><span style="font:var(--x-t-card);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-card &middot; 700 19px/24px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-field);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-field &middot; 400 18.5px/24px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-sheet);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-sheet &middot; 700 18.5px/24px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-sect);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-sect &middot; 800 19.3px/24px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-save);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-save &middot; 700 17.5px/22px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-head);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-head &middot; 800 18.25px/22px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-event);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-event &middot; 800 18px/20.33px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-btn);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-btn &middot; 700 16.5px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-body);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-body &middot; 400 16px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-date);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-date &middot; 700 16px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-row &middot; 700 15.5px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-note);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-note &middot; 400 15.5px/21px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-pill);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-pill &middot; 700 15px/20px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-desc);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-desc &middot; 400 14.5px/15.67px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-meta);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-meta &middot; 400 13.5px/19px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-tag);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-tag &middot; 800 13.5px/19px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-host);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-host &middot; 800 14.5px/18px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-count);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-count &middot; 400 14px/19px + --x-tr-text</em></div><div class="tr"><span style="font:var(--x-t-badge);letter-spacing:var(--x-tr-text)">Yilin</span><em>--x-t-badge &middot; 400 12.5px/16px + --x-tr-text</em></div></div></div>
 </body>
 </html>

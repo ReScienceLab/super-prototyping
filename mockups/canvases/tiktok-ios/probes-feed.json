@@ -1,0 +1,501 @@
+[
+ {
+  "id": "bar",
+  "img": "assets/refs/f1.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   790,
+   95,
+   800
+  ],
+  "only": "flat",
+  "_": "f1 tab bar, between the Home label (ends 52.8) and Friends: pure black",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at capture scale 2.2417 (882x1910 for 393.45x851.6), so run with --pt 2.2417; --against wants scratch/feed/mine, which scratch/feed/render.py fills with the eight boards shot at --scale 3 --crop-phone and resized to the captures' own pixel size. Probe and render share a basename (f1..f8), so no probe needs a 'mine'. Almost every surface here is white ink over moving video, so a sample takes --only ink with --bright and a bbox takes --bright rather than --dark; the two exceptions are the Repost pill, which is dark ink on white, and the flat fills (tab bar, pill, pin plate, accent badge) which sample --only flat; the resting progress line is too thin for even that and takes --only all. Anything set in a dimmed ink -- 'Following', an inactive tab, the scrub readout's separator -- needs its own lower threshold, or the probe finds a sliver of the brightest stroke and calls that the box. Four tokens have no probe and cannot have one: --tf-t-time and the frame metrics w/h/status/tabbar come from templates/gen.py, not from a capture, and no probe sits above y 54 because Mobbin composites the status bar out. The radii are measured as a corner's ink box rather than a number: a rounded rect's fill reaches its own left edge r below its top edge, which is what r-pill-corner and scrub-track-box check."
+ },
+ {
+  "id": "bg",
+  "img": "assets/refs/f2.png",
+  "cmd": "sample",
+  "box": [
+   200,
+   820,
+   240,
+   840
+  ],
+  "only": "flat",
+  "_": "f2 below the tab labels, the ground the video crop sits on"
+ },
+ {
+  "id": "chip",
+  "img": "assets/refs/f1.png",
+  "cmd": "sample",
+  "box": [
+   235,
+   636,
+   288,
+   652
+  ],
+  "only": "flat",
+  "_": "f1's chip right of its second line (ink ends 229.8) and inside its 6pt corner: the scrim over video, which is what SCRIM_T/K solve for"
+ },
+ {
+  "id": "pill",
+  "img": "assets/refs/f7.png",
+  "cmd": "sample",
+  "box": [
+   14,
+   489,
+   88,
+   512
+  ],
+  "only": "flat",
+  "_": "f7's Repost pill, whose label ink is dark, so the flat census is the fill"
+ },
+ {
+  "id": "pin",
+  "img": "assets/refs/f7.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   531,
+   32,
+   543
+  ],
+  "only": "flat",
+  "_": "f7's location-pin plate, inside its 20.07pt rounded square at 16.06,527.28"
+ },
+ {
+  "id": "track",
+  "img": "assets/refs/f2.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   758,
+   375,
+   768
+  ],
+  "only": "flat",
+  "_": "f2's scrub track right of the knob (ends 253.8): unplayed, over video"
+ },
+ {
+  "id": "fill",
+  "img": "assets/refs/f2.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   758,
+   200,
+   768
+  ],
+  "only": "flat",
+  "_": "the same bar left of the knob: played"
+ },
+ {
+  "id": "rest",
+  "img": "assets/refs/f5.png",
+  "cmd": "sample",
+  "box": [
+   15,
+   767.7,
+   40,
+   768.9
+  ],
+  "only": "all",
+  "_": "f5's resting 2.1pt line, inside the 31.3pt it has played and inside its three fully covered rows. --only all, not flat: a 2pt line over compressed video has no run wide enough to read as a flat fill"
+ },
+ {
+  "id": "rest-track",
+  "img": "assets/refs/f5.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   767.7,
+   200,
+   768.9
+  ],
+  "only": "all",
+  "_": "the same three rows of the same line, right of the 43.5pt it has played, so this is the unplayed half over the same near-black video"
+ },
+ {
+  "id": "play",
+  "img": "assets/refs/f2.png",
+  "cmd": "sample",
+  "box": [
+   185,
+   380,
+   205,
+   395
+  ],
+  "only": "flat",
+  "_": "inside the paused triangle, clear of both its edges (175.3 and the slope that reaches 216 at the apex)"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/f1.png",
+  "cmd": "sample",
+  "box": [
+   215,
+   74,
+   274,
+   87
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "f1 nav 'For You', the brightest run on the board"
+ },
+ {
+  "id": "ink-2",
+  "img": "assets/refs/f5.png",
+  "cmd": "sample",
+  "box": [
+   43,
+   668,
+   200,
+   680
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "f5's chip line 2, the secondary run inside the chip"
+ },
+ {
+  "id": "ink-3",
+  "img": "assets/refs/f1.png",
+  "cmd": "sample",
+  "box": [
+   124,
+   75,
+   190,
+   90
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "f1 nav 'Following', dimmer than the 'For You' beside it"
+ },
+ {
+  "id": "ink-4",
+  "img": "assets/refs/f1.png",
+  "cmd": "sample",
+  "box": [
+   205.2,
+   76,
+   206.6,
+   87
+  ],
+  "only": "flat",
+  "_": "the 1.4pt nav separator over video: flat, not ink, because at .13 its own pixels never reach an ink percentile"
+ },
+ {
+  "id": "ink-tab",
+  "img": "assets/refs/f1.png",
+  "cmd": "sample",
+  "box": [
+   339,
+   803,
+   369,
+   812
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "f1's inactive Profile label over the tab bar's pure black"
+ },
+ {
+  "id": "ink-dark",
+  "img": "assets/refs/f7.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   497,
+   80,
+   507
+  ],
+  "only": "ink",
+  "_": "the Repost label: the one dark ink on the board, hence no --bright. It is black, not the brand #161823 -- its covered pixels sit at (3,2,6) and their deficit from the white pill runs 1:1.01:0.99 across the channels, where #161823 would run 1:0.99:0.94"
+ },
+ {
+  "id": "accent",
+  "img": "assets/refs/f1.png",
+  "cmd": "sample",
+  "box": [
+   356,
+   415,
+   368,
+   427
+  ],
+  "only": "flat",
+  "_": "f1's follow badge, the 21.4pt disc under the avatar at 352.4,411.3"
+ },
+ {
+  "id": "cyan",
+  "img": "assets/refs/f1.png",
+  "cmd": "sample",
+  "box": [
+   176,
+   784,
+   184,
+   800
+  ],
+  "only": "flat",
+  "_": "the add button's left plate, inside the 38.2pt rect at 174.87,779.2"
+ },
+ {
+  "id": "save",
+  "img": "assets/refs/f7.png",
+  "cmd": "sample",
+  "box": [
+   360,
+   592,
+   368,
+   602
+  ],
+  "only": "flat",
+  "_": "f7's saved bookmark, inside its 20.9x23.7 ink box at 352.9,585.7"
+ },
+ {
+  "id": "r-pill-corner",
+  "img": "assets/refs/f7.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   487.5,
+   24,
+   489.5
+  ],
+  "bright": 200,
+  "_": "the top 2pt of the Repost pill's left corner: a 4pt radius insets the fill to 14.9 there, a 10pt one to 21.6"
+ },
+ {
+  "id": "scrub-track-box",
+  "img": "assets/refs/f2.png",
+  "cmd": "bbox",
+  "box": [
+   12,
+   752,
+   380,
+   772
+  ],
+  "bright": 150,
+  "_": "f2's fat scrub bar: 757.0-768.6, so r-track is half of 11.6"
+ },
+ {
+  "id": "t-nav",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   210,
+   70,
+   280,
+   94
+  ],
+  "bright": 200,
+  "_": "'For You' 215.8-273.8, cap 74.46-86.95 = 12.49"
+ },
+ {
+  "id": "t-nav-2",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   120,
+   68,
+   200,
+   96
+  ],
+  "bright": 170,
+  "_": "'Following' 124.9-190.5, cap 10.7; dimmer ink, hence 170"
+ },
+ {
+  "id": "t-name",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   663,
+   320,
+   684
+  ],
+  "bright": 200,
+  "_": "'Michael Matti', ascender 668.35-680.40"
+ },
+ {
+  "id": "t-copy",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   694,
+   330,
+   711
+  ],
+  "bright": 200,
+  "_": "f1 caption line 1, the window between the name (ends 680.4) and line 2"
+ },
+ {
+  "id": "t-copy-b",
+  "img": "assets/refs/f7.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   700,
+   330,
+   717
+  ],
+  "bright": 200,
+  "_": "f7 caption line 6, a hashtag line: same cap as its prose, heavier"
+ },
+ {
+  "id": "t-chip",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   42,
+   618,
+   300,
+   636
+  ],
+  "bright": 200,
+  "_": "f1 chip line 1, right of the pin plate (ends 36.13)"
+ },
+ {
+  "id": "t-chip-2",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   42,
+   636,
+   300,
+   652
+  ],
+  "bright": 195,
+  "_": "f1 chip line 2: the band splits at 636, between 633.63 and 639.43"
+ },
+ {
+  "id": "t-count",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   330,
+   482,
+   396,
+   498
+  ],
+  "bright": 200,
+  "_": "the rail's heart count, under the 27.2x24.9 glyph at 349.7,455.5"
+ },
+ {
+  "id": "t-tab",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   800,
+   70,
+   815
+  ],
+  "bright": 200,
+  "_": "the active 'Home' label, 804.01-810.71"
+ },
+ {
+  "id": "t-time-big",
+  "img": "assets/refs/f2.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   672,
+   178,
+   712
+  ],
+  "bright": 245,
+  "_": "f2's '00:06', which ends at 171.7, well left of the separator at 194;\n  the video behind the readout is bright sky, so this is the one place the\n  ink threshold has to go to 245"
+ },
+ {
+  "id": "t-time-sep",
+  "img": "assets/refs/f2.png",
+  "cmd": "bbox",
+  "box": [
+   180,
+   676,
+   210,
+   708
+  ],
+  "bright": 235,
+  "_": "the separator alone at 194.0, 5.8 x 16.1 against 9.37 x 27.66 for the same slash at t-time-big; set in --tf-ink-3 over bright sky, so it reads under 245 and needs its own 235"
+ },
+ {
+  "id": "t-refresh",
+  "img": "assets/refs/f5.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   100,
+   300,
+   122
+  ],
+  "bright": 200,
+  "_": "f5's 'Drag down to refresh' row, above the rail"
+ },
+ {
+  "id": "t-pill",
+  "img": "assets/refs/f7.png",
+  "cmd": "bbox",
+  "box": [
+   36,
+   492,
+   95,
+   512
+  ],
+  "dark": 120,
+  "_": "the Repost label inside the white pill, right of its 15.7pt glyph"
+ },
+ {
+  "id": "t-music",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   26,
+   734,
+   215,
+   760
+  ],
+  "bright": 200,
+  "_": "the marquee, right of the note at 13.38,740.06 and inside the 182.6pt window it scrolls in"
+ },
+ {
+  "id": "gutter",
+  "img": "assets/refs/f7.png",
+  "cmd": "bbox",
+  "box": [
+   8,
+   700,
+   120,
+   717
+  ],
+  "bright": 200,
+  "_": "f7 caption line 6 starts at 12.68; the chip, pill and every caption line on all eight boards start 12.04-12.5"
+ },
+ {
+  "id": "copy-w",
+  "img": "assets/refs/f8.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   742,
+   330,
+   761
+  ],
+  "bright": 200,
+  "_": "f8's longest caption line, which ends at 310.03 inside a 300pt column starting at 12"
+ },
+ {
+  "id": "rail-x",
+  "img": "assets/refs/f1.png",
+  "cmd": "bbox",
+  "box": [
+   330,
+   678,
+   396,
+   694
+  ],
+  "bright": 200,
+  "_": "the share count, centred on the rail like its four siblings"
+ }
+]

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TikTok feed - Evidence 1/3</title>
+<style>
+:root{
+  /* tk Font */
+  --tk-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* tk Surface */
+  --tk-bg:#FDFBFC;
+  --tk-chip:#F3F0F3;
+  --tk-keyboard:#D1D2D9;
+  --tk-key:#FDFBFC;
+  --tk-key-alt:#AAAFBB;
+  --tk-key-edge:#898B8D;
+  --tk-scrim:rgba(0,0,0,.195);
+  --tk-bar:rgba(0,0,0,.40);
+  --tk-tile-scrim:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.42) 60%,rgba(0,0,0,0));
+
+  /* tk Line */
+  --tk-hairline:#D1CECF;
+  --tk-divider:#8A8788;
+  --tk-rule:#E8E6E7;
+  --tk-line:#E6E3E4;
+  --tk-tabs:#CDCBCC;
+  --tk-stat:#F1EFF0;
+
+  /* tk Ink */
+  --tk-ink:#000000;
+  --tk-ink-2:#6A6767;
+  --tk-ink-3:#838083;
+  --tk-ink-4:#A8A5A8;
+  --tk-ink-inv:#FDFBFC;
+
+  /* tk Accent */
+  --tk-pink:#FD2953;
+  --tk-cyan:#1FD6EC;
+
+  /* tk Radius */
+  --tk-r-chip:4px;
+  --tk-r-ctl:5px;
+  --tk-r-cover:6px;
+  --tk-r-pill:8px;
+  --tk-r-btn:9px;
+  --tk-r-card:12px;
+  --tk-r-phone:52px;
+
+  /* tk Type */
+  --tk-t-time:590 17px/22px var(--tk-font);
+  --tk-t-nav:700 17px/22px var(--tk-font);
+  --tk-t-handle:600 17px/22px var(--tk-font);
+  --tk-t-body:400 15px/20px var(--tk-font);
+  --tk-t-cap:400 15px/17.67px var(--tk-font);
+  --tk-t-cap-b:600 15px/17.67px var(--tk-font);
+  --tk-t-row:500 16.5px/20px var(--tk-font);
+  --tk-t-btn:550 15px/20px var(--tk-font);
+  --tk-t-btn-lg:550 16px/20px var(--tk-font);
+  --tk-t-tag:400 15.5px/20px var(--tk-font);
+  --tk-t-card:700 15px/20px var(--tk-font);
+  --tk-t-bio:400 14px/19px var(--tk-font);
+  --tk-t-chip-lg:600 14px/19px var(--tk-font);
+  --tk-t-meta:400 13px/18px var(--tk-font);
+  --tk-t-chip:600 12px/16px var(--tk-font);
+  --tk-t-count:400 12px/16px var(--tk-font);
+  --tk-t-tab:600 9.5px/13px var(--tk-font);
+  --tk-t-key:320 25px/30px var(--tk-font);
+  --tk-t-keylab:400 16px/21px var(--tk-font);
+  --tk-t-mark:400 17.5px/22px var(--tk-font);
+  --tk-t-mark-sm:400 15.5px/20px var(--tk-font);
+
+  /* tk Metrics */
+  --tk-w:393px;
+  --tk-h:852px;
+  --tk-status:54px;
+  --tk-kb:562.33px;
+  --tk-nav:102.67px;
+
+  /* tf Font */
+  --tf-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* tf Surface */
+  --tf-bg:#000;
+  --tf-bar:#000;
+  --tf-chip:rgba(40,40,40,.41);
+  --tf-pill:#FFF;
+  --tf-pin:#12BC90;
+  --tf-track:rgba(255,255,255,.24);
+  --tf-fill:rgba(255,255,255,.75);
+  --tf-rest:rgba(255,255,255,.43);
+  --tf-rest-track:rgba(255,255,255,.135);
+  --tf-play:rgba(255,255,255,.32);
+
+  /* tf Ink */
+  --tf-ink:#FFF;
+  --tf-ink-2:rgba(255,255,255,.85);
+  --tf-ink-3:rgba(255,255,255,.75);
+  --tf-ink-4:rgba(255,255,255,.13);
+  --tf-ink-tab:rgba(255,255,255,.8);
+  --tf-ink-dark:#000000;
+
+  /* tf Accent */
+  --tf-accent:#FE2C55;
+  --tf-cyan:#3BF2FD;
+  --tf-save:#FAD016;
+
+  /* tf Radius */
+  --tf-r-phone:52px;
+  --tf-r-chip:6px;
+  --tf-r-pill:4px;
+  --tf-r-track:5.8px;
+
+  /* tf Type */
+  --tf-t-time:590 17px/22px var(--tf-font);
+  --tf-t-nav:700 17px/22px var(--tf-font);
+  --tf-t-nav-2:600 15px/22px var(--tf-font);
+  --tf-t-name:600 17px/22px var(--tf-font);
+  --tf-t-copy:400 15px/17.2px var(--tf-font);
+  --tf-t-copy-b:600 15px/17.2px var(--tf-font);
+  --tf-t-chip:500 13px/16px var(--tf-font);
+  --tf-t-chip-2:400 11px/14px var(--tf-font);
+  --tf-t-count:600 12px/15px var(--tf-font);
+  --tf-t-tab:500 10px/12px var(--tf-font);
+  --tf-t-time-big:600 32px/38px var(--tf-font);
+  --tf-t-time-sep:600 20px/24px var(--tf-font);
+  --tf-t-refresh:700 17px/22px var(--tf-font);
+  --tf-t-pill:600 13px/15px var(--tf-font);
+  --tf-t-music:400 14px/16px var(--tf-font);
+
+  /* tf Metrics */
+  --tf-w:393px;
+  --tf-h:852px;
+  --tf-status:54px;
+  --tf-gutter:12px;
+  --tf-tabbar:82.7px;
+  --tf-copy-w:300px;
+  --tf-rail-x:362.8px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--tf-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--tf-w);height:var(--tf-h);
+  border-radius:var(--tf-r-phone);overflow:hidden;background:var(--tf-bg);color:var(--tf-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--tf-w);height:var(--tf-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--tf-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:#131316;color:var(--tf-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--tf-font);margin-bottom:2px}
+header p{font:400 10.5px/14px var(--tf-font);color:var(--tf-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--tf-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--tf-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.18)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--tf-ink-3);font-style:normal;word-break:break-all}
+.foot{display:flex;gap:30px;align-items:flex-start}
+.foot h2{margin-top:12px}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.18)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--tf-font);
+  color:var(--tf-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid rgba(255,255,255,.12)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--tf-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--tf-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid rgba(255,255,255,.12);font:400 8.5px/11px var(--tf-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--tf-accent)}
+td.v{color:var(--tf-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--tf-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 1/3</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--tf-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font on the creator name, 0.91; every cap height divides by SF Pro's 0.714</td></tr><tr><td class="t">--tf-bg</td><td class="v">#000</td><td class="e">the ground under the video crop; p2's tab bar reads (0,0,2)</td></tr><tr><td class="t">--tf-bar</td><td class="v">#000</td><td class="e">tab-bar ground, flat-fill census of p1 x60-95 y790-800</td></tr><tr><td class="t">--tf-chip</td><td class="v">rgba(40,40,40,.41)</td><td class="e">chip = .587*video + 16.43, solved p3 against p2, the one pair differing only by the chip</td></tr><tr><td class="t">--tf-pill</td><td class="v">#FFF</td><td class="e">Repost pill fill, p7 x14-88 y489-514 at the 99.5th pct</td></tr><tr><td class="t">--tf-pin</td><td class="v">#12BC90</td><td class="e">location-pin plate, median of its green pixels on p5 and p7</td></tr><tr><td class="t">--tf-track</td><td class="v">rgba(255,255,255,.24)</td><td class="e">unplayed scrub track, p2 x300-375 y758-768 solved against the video under it</td></tr><tr><td class="t">--tf-fill</td><td class="v">rgba(255,255,255,.75)</td><td class="e">played scrub fill, p2 x20-200 y758-768</td></tr><tr><td class="t">--tf-rest</td><td class="v">rgba(255,255,255,.43)</td><td class="e">the resting progress line's played half, p5 and p6: its fully covered rows
+  read 131.5 and 130.2 over near-black video, which is .51 composited over
+  the rest-track under it</td></tr><tr><td class="t">--tf-rest-track</td><td class="v">rgba(255,255,255,.135)</td><td class="e">the same line's unplayed half, which reads 39.2 on p5 and 30.9 on p6, well
+  under the .24 the expanded bar's track solves to: the resting line is the
+  subtler of the two, not the same bar drawn thin</td></tr><tr><td class="t">--tf-play</td><td class="v">rgba(255,255,255,.32)</td><td class="e">the paused-state triangle, p2 and p3 x175-216 y364-411: its left edge steps
+  the video by 30-37 levels where the same edge drawn at .6 steps it by 55-61</td></tr><tr><td class="t">--tf-ink</td><td class="v">#FFF</td><td class="e">nav 'For You', creator name, caption and every rail count read (255,255,255)</td></tr><tr><td class="t">--tf-ink-2</td><td class="v">rgba(255,255,255,.85)</td><td class="e">chip line 2 reads (217,215,218) over p5's (12,9,12) chip ground</td></tr><tr><td class="t">--tf-ink-3</td><td class="v">rgba(255,255,255,.75)</td><td class="e">nav 'Following' and the more/less link, dimmer than the run beside them</td></tr><tr><td class="t">--tf-ink-4</td><td class="v">rgba(255,255,255,.13)</td><td class="e">the 1.4pt nav separator; its peak coverage over the video reads .135-.142 on
+  p1, p6, p7 and p8, where the same solve returns .32 for a bar drawn at .30</td></tr><tr><td class="t">--tf-ink-tab</td><td class="v">rgba(255,255,255,.8)</td><td class="e">inactive tab glyph and label, (204,204,207) over the tab bar's pure black</td></tr><tr><td class="t">--tf-ink-dark</td><td class="v">#000000</td><td class="e">the Repost label and its glyph, black rather than the brand #161823: the
+  label's covered pixels sit at (3,2,6) on p7 and (4,3,5) on p8, and their
+  deficit from the white pill runs 1:1.01:0.99 across the channels where
+  #161823 would run 1:0.99:0.94</td></tr><tr><td class="t">--tf-accent</td><td class="v">#FE2C55</td><td class="e">follow badge, Friends dot and p7's liked heart</td></tr><tr><td class="t">--tf-cyan</td><td class="v">#3BF2FD</td><td class="e">the add button's left plate, p1 x175-186 y778-806</td></tr><tr><td class="t">--tf-save</td><td class="v">#FAD016</td><td class="e">p7 and p8's saved bookmark, x353-374 y586-609</td></tr><tr><td class="t">--tf-r-phone</td><td class="v">52px</td><td class="e">circular stand-in for the 55pt continuous display corner; this repo's own frame</td></tr><tr><td class="t">--tf-r-chip</td><td class="v">6px</td><td class="e">refkit bbox on the chip corner, p7 x12 y523.5</td></tr></table></div>
+</body>
+</html>

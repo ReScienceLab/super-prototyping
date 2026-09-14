@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>X iOS - Category selected</title>
+<style>
+:root{
+  /* Font */
+  --x-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --x-ground:#FFFFFF;
+  --x-field:#EFF3F4;
+  --x-spaces:#7856FE;
+  --x-spaces-2:#6748D9;
+  --x-wash:#E6D8FF;
+  --x-banner:#E9F5FC;
+  --x-veil:rgba(0,0,0,.47);
+  --x-chip:#ECE8FF;
+  --x-chip-card:rgba(255,255,255,.30);
+  --x-pill-off:#88898D;
+  --x-disc-1:rgba(0,0,0,.75);
+  --x-disc-7:rgba(0,0,0,.57);
+  --x-scrim:rgba(0,0,0,.28);
+  --x-backdrop:#000000;
+  --x-track-on:#01BA7B;
+  --x-track-off:#E9E9E9;
+  --x-nav:linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%);
+  --x-nav-2:linear-gradient(180deg,#E7DDFE 0%,#ECE3FF 100%);
+
+  /* Line */
+  --x-hairline:#D2D4D6;
+  --x-hairline-2:#C6C6C6;
+  --x-border:#D0D8DC;
+  --x-ring:#BAC9D0;
+
+  /* Ink */
+  --x-ink:#0F1419;
+  --x-ink-2:#536471;
+  --x-accent:#1D9BF0;
+  --x-inv:#FFFFFF;
+  --x-ink-off:#C6C7C9;
+  --x-save-off:#C5C5C5;
+  --x-chip-ink:#291465;
+
+  /* Radius */
+  --x-r-phone:52px;
+  --x-r-pill:26px;
+  --x-r-field:17px;
+  --x-r-search:19.5px;
+  --x-r-card:16px;
+  --x-r-play:16.5px;
+  --x-r-chip:4px;
+  --x-r-sheet:12px;
+  --x-r-modal:36px;
+  --x-r-tile:20px;
+  --x-r-peek:10px;
+
+  /* Metrics */
+  --x-w:393px;
+  --x-h:852px;
+  --x-status:54px;
+  --x-dim:.31;
+
+  /* Type */
+  --x-tr-text:-0.035em;
+  --x-t-time:590 17px/22px var(--x-font);
+  --x-t-title:800 26px/34px var(--x-font);
+  --x-t-space:800 25.5px/31px var(--x-font);
+  --x-t-name:800 22px/27px var(--x-font);
+  --x-t-cal:800 21.65px/28px var(--x-font);
+  --x-t-space-2:800 20.2px/23.67px var(--x-font);
+  --x-t-card:700 19px/24px var(--x-font);
+  --x-t-field:400 18.5px/24px var(--x-font);
+  --x-t-sheet:700 18.5px/24px var(--x-font);
+  --x-t-sect:800 19.3px/24px var(--x-font);
+  --x-t-save:700 17.5px/22px var(--x-font);
+  --x-t-head:800 18.25px/22px var(--x-font);
+  --x-t-event:800 18px/20.33px var(--x-font);
+  --x-t-btn:700 16.5px/21px var(--x-font);
+  --x-t-body:400 16px/21px var(--x-font);
+  --x-t-date:700 16px/21px var(--x-font);
+  --x-t-row:700 15.5px/21px var(--x-font);
+  --x-t-note:400 15.5px/21px var(--x-font);
+  --x-t-pill:700 15px/20px var(--x-font);
+  --x-t-desc:400 14.5px/15.67px var(--x-font);
+  --x-t-meta:400 13.5px/19px var(--x-font);
+  --x-t-tag:800 13.5px/19px var(--x-font);
+  --x-t-host:800 14.5px/18px var(--x-font);
+  --x-t-count:400 14px/19px var(--x-font);
+  --x-t-badge:400 12.5px/16px var(--x-font);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--x-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--x-w);height:var(--x-h);
+  border-radius:var(--x-r-phone);overflow:hidden;background:var(--x-ground);color:var(--x-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:100%;height:var(--x-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--x-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+.t,.b,.a,.ic{position:absolute}
+.a,.ic{display:block}
+.ic{overflow:visible}
+.t{white-space:nowrap}
+.t a{color:var(--x-accent);text-decoration:none}</style>
+</head>
+<body>
+<div class="phone"><div class="sb" style="color:var(--x-ink)"><div class="island"></div><div class="time">9:41</div><svg style="left:282px;top:23.34px;width:19.33px;height:12px" viewBox="0 0 19.33 12"><rect x="0" y="7.67" width="3.33" height="4.33" rx="1.05"/><rect x="5.33" y="5.33" width="3.33" height="6.67" rx="1.05"/><rect x="10.67" y="2.67" width="3.33" height="9.33" rx="1.05"/><rect x="16" y="0" width="3.33" height="12" rx="1.05"/></svg><svg preserveAspectRatio="none" viewBox="335 22.008 19.114 13.796" style="left:309px;top:23px;width:16.62px;height:12.3px"><path d="M344.555 35.8042C344.738 35.8042 344.896 35.7212 345.219 35.4058L347.245 33.4634C347.369 33.3389 347.403 33.1562 347.286 33.0068C346.747 32.3096 345.726 31.7036 344.555 31.7036C343.352 31.7036 342.331 32.3345 341.791 33.0566C341.708 33.1895 341.741 33.3389 341.874 33.4634L343.891 35.4058C344.215 35.7129 344.373 35.8042 344.555 35.8042ZM339.7 31.2886C339.882 31.4629 340.106 31.438 340.272 31.2554C341.268 30.1514 342.895 29.3462 344.555 29.3545C346.232 29.3462 347.859 30.1763 348.872 31.2803C349.021 31.4546 349.229 31.4463 349.411 31.2803L350.698 30.002C350.831 29.8691 350.848 29.6865 350.723 29.5371C349.47 28.0015 347.145 26.8477 344.555 26.8477C341.966 26.8477 339.641 28.0015 338.388 29.5371C338.263 29.6865 338.272 29.8525 338.413 30.002L339.7 31.2886ZM336.255 27.8189C336.421 27.9766 336.653 27.9766 336.811 27.8106C338.853 25.644 341.542 24.4985 344.555 24.4985C347.585 24.4985 350.291 25.6523 352.317 27.8189C352.466 27.9683 352.69 27.96 352.856 27.8022L354.002 26.6567C354.151 26.5073 354.143 26.3247 354.027 26.1836C352.076 23.7764 348.407 22.0083 344.555 22.0083C340.712 22.0083 337.027 23.7764 335.084 26.1836C334.968 26.3247 334.968 26.5073 335.109 26.6567L336.255 27.8189Z"/></svg><svg style="left:333px;top:23px;width:27.3px;height:12.7px" viewBox="0 0 27.3 12.7"><rect x=".6" y=".6" width="24.1" height="11.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".38"/><rect x="2" y="2" width="21.3" height="8.7" rx="2.6"/><path d="M26.1 4.3c.9.7.9 3 0 3.7V4.3Z" fill-opacity=".38"/></svg></div><svg class="ic" preserveAspectRatio="none" style="left:11.67px;top:73.67px;width:17.33px;height:14.67px;color:var(--x-ink)" viewBox="2.2 3.3 19.7 17.4"><path d="M2.2 12 10.9 3.3l1.4 1.4L5.9 11h16v2h-16l6.4 6.3-1.4 1.4L2.2 12Z" fill="currentColor"/></svg><svg class="ic" preserveAspectRatio="none" style="left:184.67px;top:68.67px;width:23.67px;height:23.67px;color:var(--x-ink)" viewBox="0 0 24 24"><path d="M14.1 10.2 22.9 0h-2.1l-7.6 8.9L7.1 0H0l9.2 13.4L0 24h2.1l8-9.4 6.4 9.4H24L14.1 10.2ZM11.2 13.6l-.9-1.3L2.8 1.6h3.2l6 8.6.9 1.3 7.7 11h-3.2l-6.4-9.1Z" fill="currentColor"/></svg><div class="t" style="left:18.00px;top:117.31px;font:var(--x-t-title)">Select a category</div><div class="t" style="left:18.00px;top:166.36px;font:var(--x-t-body);letter-spacing:var(--x-tr-text);color:var(--x-ink-2)">Choose the category to display on your profile. Pick</div><div class="t" style="left:18.00px;top:187.36px;font:var(--x-t-body);letter-spacing:var(--x-tr-text);color:var(--x-ink-2)">the one that best describes your account. This will be</div><div class="t" style="left:18.00px;top:208.36px;font:var(--x-t-body);letter-spacing:var(--x-tr-text);color:var(--x-ink-2)">shown on your public profile.</div><div class="b" style="left:18.00px;top:260.00px;width:357.00px;height:34.00px;border-radius:var(--x-r-field);background:var(--x-field)"></div><svg class="ic" preserveAspectRatio="none" style="left:29.3px;top:268px;width:17px;height:17px;color:var(--x-ink-2)" viewBox="0.0477435 0.0406262 23.6925 23.8617"><path d="M22.3 23.9L17.52 19.23A0.9 0.9 0 0 0 16.21 18.66L14.78 19.52L11.6 20.44A10.16 10.16 0 0 1 0.83 14.23A10.26 10.26 0 0 1 16.42 2.06A10.25 10.25 0 0 1 19.83 14.03L19.12 15.53A1.08 1.08 0 0 0 18.7 16.93L21.07 19.31L23.44 21.69A1.36 1.36 0 0 1 22.3 23.9ZM2.45 10.27A7.84 7.84 0 1 0 18.14 10.27A7.84 7.84 0 1 0 2.45 10.27Z" fill="currentColor" fill-rule="evenodd"/></svg><div class="t" style="left:53.33px;top:264.39px;font:var(--x-t-field);letter-spacing:var(--x-tr-text);color:var(--x-ink-2)">Search categories</div><div class="t" style="left:18.00px;top:305.53px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Entertainment &amp; Recreation</div><div class="b" style="left:352.00px;top:305.33px;width:21.67px;height:21.67px;border-radius:50%;background:var(--x-accent)"></div><svg class="ic" preserveAspectRatio="none" style="left:355px;top:308px;width:16px;height:17px;color:var(--x-inv)" viewBox="4 7.4 16.2 12"><path d="M9.6 16.6 5.4 12.4 4 13.8l5.6 5.6L20.2 8.8l-1.4-1.4-9.2 9.2Z" fill="currentColor"/></svg><div class="t" style="left:18.00px;top:350.86px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Event Venue</div><div class="b" style="left:352.67px;top:351.66px;width:20.67px;height:20.67px;border-radius:50%;border:1.5px solid var(--x-ring)"></div><div class="t" style="left:18.00px;top:396.19px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Dance &amp; Night Club</div><div class="b" style="left:352.67px;top:396.99px;width:20.67px;height:20.67px;border-radius:50%;border:1.5px solid var(--x-ring)"></div><div class="t" style="left:18.00px;top:441.52px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Automotive</div><div class="b" style="left:352.67px;top:442.32px;width:20.67px;height:20.67px;border-radius:50%;border:1.5px solid var(--x-ring)"></div><div class="t" style="left:18.00px;top:486.85px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Aviation</div><div class="b" style="left:352.67px;top:487.65px;width:20.67px;height:20.67px;border-radius:50%;border:1.5px solid var(--x-ring)"></div><div class="t" style="left:18.00px;top:532.18px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Marine</div><div class="b" style="left:352.67px;top:532.98px;width:20.67px;height:20.67px;border-radius:50%;border:1.5px solid var(--x-ring)"></div><div class="t" style="left:18.00px;top:577.51px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Beauty, Cosmetic &amp; Personal Care</div><div class="b" style="left:352.67px;top:578.31px;width:20.67px;height:20.67px;border-radius:50%;border:1.5px solid var(--x-ring)"></div><div class="t" style="left:18.00px;top:622.84px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Commercial &amp; Industrial</div><div class="b" style="left:352.67px;top:623.64px;width:20.67px;height:20.67px;border-radius:50%;border:1.5px solid var(--x-ring)"></div><div class="t" style="left:18.00px;top:668.17px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Education</div><div class="b" style="left:352.67px;top:668.97px;width:20.67px;height:20.67px;border-radius:50%;border:1.5px solid var(--x-ring)"></div><div class="t" style="left:18.00px;top:713.50px;font:var(--x-t-row);letter-spacing:var(--x-tr-text)">Financial Services</div><div class="b" style="left:352.67px;top:714.30px;width:20.67px;height:20.67px;border-radius:50%;border:1.5px solid var(--x-ring)"></div><div class="b" style="left:18.00px;top:754.00px;width:357.00px;height:52.00px;border-radius:var(--x-r-pill);background:var(--x-ink)"></div><div class="t" style="left:18.00px;top:769.53px;width:357.00px;text-align:center;font:var(--x-t-btn);letter-spacing:var(--x-tr-text);color:var(--x-inv)">Next</div><div class="home" style="color:var(--x-ink)"></div></div>
+</body>
+</html>

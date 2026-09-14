@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TikTok - Evidence 1/2</title>
+<style>
+:root{
+  /* tk Font */
+  --tk-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* tk Surface */
+  --tk-bg:#FDFBFC;
+  --tk-chip:#F3F0F3;
+  --tk-keyboard:#D1D2D9;
+  --tk-key:#FDFBFC;
+  --tk-key-alt:#AAAFBB;
+  --tk-key-edge:#898B8D;
+  --tk-scrim:rgba(0,0,0,.195);
+  --tk-bar:rgba(0,0,0,.40);
+  --tk-tile-scrim:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.42) 60%,rgba(0,0,0,0));
+
+  /* tk Line */
+  --tk-hairline:#D1CECF;
+  --tk-divider:#8A8788;
+  --tk-rule:#E8E6E7;
+  --tk-line:#E6E3E4;
+  --tk-tabs:#CDCBCC;
+  --tk-stat:#F1EFF0;
+
+  /* tk Ink */
+  --tk-ink:#000000;
+  --tk-ink-2:#6A6767;
+  --tk-ink-3:#838083;
+  --tk-ink-4:#A8A5A8;
+  --tk-ink-inv:#FDFBFC;
+
+  /* tk Accent */
+  --tk-pink:#FD2953;
+  --tk-cyan:#1FD6EC;
+
+  /* tk Radius */
+  --tk-r-chip:4px;
+  --tk-r-ctl:5px;
+  --tk-r-cover:6px;
+  --tk-r-pill:8px;
+  --tk-r-btn:9px;
+  --tk-r-card:12px;
+  --tk-r-phone:52px;
+
+  /* tk Type */
+  --tk-t-time:590 17px/22px var(--tk-font);
+  --tk-t-nav:700 17px/22px var(--tk-font);
+  --tk-t-handle:600 17px/22px var(--tk-font);
+  --tk-t-body:400 15px/20px var(--tk-font);
+  --tk-t-cap:400 15px/17.67px var(--tk-font);
+  --tk-t-cap-b:600 15px/17.67px var(--tk-font);
+  --tk-t-row:500 16.5px/20px var(--tk-font);
+  --tk-t-btn:550 15px/20px var(--tk-font);
+  --tk-t-btn-lg:550 16px/20px var(--tk-font);
+  --tk-t-tag:400 15.5px/20px var(--tk-font);
+  --tk-t-card:700 15px/20px var(--tk-font);
+  --tk-t-bio:400 14px/19px var(--tk-font);
+  --tk-t-chip-lg:600 14px/19px var(--tk-font);
+  --tk-t-meta:400 13px/18px var(--tk-font);
+  --tk-t-chip:600 12px/16px var(--tk-font);
+  --tk-t-count:400 12px/16px var(--tk-font);
+  --tk-t-tab:600 9.5px/13px var(--tk-font);
+  --tk-t-key:320 25px/30px var(--tk-font);
+  --tk-t-keylab:400 16px/21px var(--tk-font);
+  --tk-t-mark:400 17.5px/22px var(--tk-font);
+  --tk-t-mark-sm:400 15.5px/20px var(--tk-font);
+
+  /* tk Metrics */
+  --tk-w:393px;
+  --tk-h:852px;
+  --tk-status:54px;
+  --tk-kb:562.33px;
+  --tk-nav:102.67px;
+
+  /* tf Font */
+  --tf-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* tf Surface */
+  --tf-bg:#000;
+  --tf-bar:#000;
+  --tf-chip:rgba(40,40,40,.41);
+  --tf-pill:#FFF;
+  --tf-pin:#12BC90;
+  --tf-track:rgba(255,255,255,.24);
+  --tf-fill:rgba(255,255,255,.75);
+  --tf-rest:rgba(255,255,255,.43);
+  --tf-rest-track:rgba(255,255,255,.135);
+  --tf-play:rgba(255,255,255,.32);
+
+  /* tf Ink */
+  --tf-ink:#FFF;
+  --tf-ink-2:rgba(255,255,255,.85);
+  --tf-ink-3:rgba(255,255,255,.75);
+  --tf-ink-4:rgba(255,255,255,.13);
+  --tf-ink-tab:rgba(255,255,255,.8);
+  --tf-ink-dark:#000000;
+
+  /* tf Accent */
+  --tf-accent:#FE2C55;
+  --tf-cyan:#3BF2FD;
+  --tf-save:#FAD016;
+
+  /* tf Radius */
+  --tf-r-phone:52px;
+  --tf-r-chip:6px;
+  --tf-r-pill:4px;
+  --tf-r-track:5.8px;
+
+  /* tf Type */
+  --tf-t-time:590 17px/22px var(--tf-font);
+  --tf-t-nav:700 17px/22px var(--tf-font);
+  --tf-t-nav-2:600 15px/22px var(--tf-font);
+  --tf-t-name:600 17px/22px var(--tf-font);
+  --tf-t-copy:400 15px/17.2px var(--tf-font);
+  --tf-t-copy-b:600 15px/17.2px var(--tf-font);
+  --tf-t-chip:500 13px/16px var(--tf-font);
+  --tf-t-chip-2:400 11px/14px var(--tf-font);
+  --tf-t-count:600 12px/15px var(--tf-font);
+  --tf-t-tab:500 10px/12px var(--tf-font);
+  --tf-t-time-big:600 32px/38px var(--tf-font);
+  --tf-t-time-sep:600 20px/24px var(--tf-font);
+  --tf-t-refresh:700 17px/22px var(--tf-font);
+  --tf-t-pill:600 13px/15px var(--tf-font);
+  --tf-t-music:400 14px/16px var(--tf-font);
+
+  /* tf Metrics */
+  --tf-w:393px;
+  --tf-h:852px;
+  --tf-status:54px;
+  --tf-gutter:12px;
+  --tf-tabbar:82.7px;
+  --tf-copy-w:300px;
+  --tf-rail-x:362.8px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--tk-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--tk-w);height:var(--tk-h);
+  border-radius:var(--tk-r-phone);overflow:hidden;background:var(--tk-bg);color:var(--tk-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--tk-w);height:var(--tk-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--tk-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--tk-bg);color:var(--tk-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--tk-font);margin-bottom:2px}
+header p{font:400 10.5px/13.5px var(--tk-font);color:var(--tk-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--tk-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--tk-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--tk-line)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--tk-ink-3);font-style:normal;word-break:break-all}
+.foot{display:flex;gap:28px;align-items:flex-start;margin-top:12px}
+.foot h2{margin-top:0}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--tk-chip);border:1px solid var(--tk-line)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--tk-font);
+  color:var(--tk-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--tk-line)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--tk-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--tk-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--tk-line);font:400 8.5px/11px var(--tk-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--tk-pink)}
+td.v{color:var(--tk-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--tk-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 1/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--tk-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font on the capture's 'alexsmith' and 'Bio': SF Pro, the platform face</td></tr><tr><td class="t">--tk-bg</td><td class="v">#FDFBFC</td><td class="e">flat-fill census, page ground on all seven captures</td></tr><tr><td class="t">--tk-chip</td><td class="v">#F3F0F3</td><td class="e">chip, action-pill and suggestion-chip fill, 04 x60 y280</td></tr><tr><td class="t">--tk-keyboard</td><td class="v">#D1D2D9</td><td class="e">keyboard ground, 01 x197 y565 and y830</td></tr><tr><td class="t">--tk-key</td><td class="v">#FDFBFC</td><td class="e">letter keycap fill, 01 x10 y575</td></tr><tr><td class="t">--tk-key-alt</td><td class="v">#AAAFBB</td><td class="e">modifier keycap fill: shift, backspace, 123, emoji, return</td></tr><tr><td class="t">--tk-key-edge</td><td class="v">#898B8D</td><td class="e">keycap bottom edge, 1.3pt under every cap</td></tr><tr><td class="t">--tk-scrim</td><td class="v">rgba(0,0,0,.195)</td><td class="e">05 reads #CCC9CD over #FDFBFC below the divider: (253-204)/253</td></tr><tr><td class="t">--tk-bar</td><td class="v">rgba(0,0,0,.40)</td><td class="e">04's Edit cover bar: the cover reads 137 beside it, 82 under</td></tr><tr><td class="t">--tk-tile-scrim</td><td class="v">linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.42) 60%,rgba(0,0,0,0))</td><td class="e">not the capture's: TikTok draws the top label bare, and the stand-in clip is white UI</td></tr><tr><td class="t">--tk-hairline</td><td class="v">#D1CECF</td><td class="e">nav rule, y 102.67, one device pixel on all but 03</td></tr><tr><td class="t">--tk-divider</td><td class="v">#8A8788</td><td class="e">bio field rule, 01/02 y 247.67, x 16 to 377.33</td></tr><tr><td class="t">--tk-rule</td><td class="v">#E8E6E7</td><td class="e">post divider, 04-06 y 319.67 and 07 y 359.67</td></tr><tr><td class="t">--tk-line</td><td class="v">#E6E3E4</td><td class="e">content-tab rule 03 y 443.67; the @ Mention chip outline</td></tr><tr><td class="t">--tk-tabs</td><td class="v">#CDCBCC</td><td class="e">tab-bar hairline, 03 y 769.0</td></tr><tr><td class="t">--tk-stat</td><td class="v">#F1EFF0</td><td class="e">stat divider core, 03 x 150.8 and x 243.0, a 3px ramp</td></tr><tr><td class="t">--tk-ink</td><td class="v">#000000</td><td class="e">darkest 0.5% of every title and row label</td></tr><tr><td class="t">--tk-ink-2</td><td class="v">#6A6767</td><td class="e">stat labels #6D6B6C and 07 suggestion text #676467</td></tr><tr><td class="t">--tk-ink-3</td><td class="v">#838083</td><td class="e">04 More-options subtitle #817E80, 06 #878587, 03 #878487</td></tr><tr><td class="t">--tk-ink-4</td><td class="v">#A8A5A8</td><td class="e">the 0/80 counter, the palest type; placeholders within 5 levels</td></tr><tr><td class="t">--tk-ink-inv</td><td class="v">#FDFBFC</td><td class="e">white type on the pink pill and over the cover art</td></tr><tr><td class="t">--tk-pink</td><td class="v">#FD2953</td><td class="e">Save once filled, the Add pill, the Post pill, the caret</td></tr><tr><td class="t">--tk-cyan</td><td class="v">#1FD6EC</td><td class="e">the avatar + badge and the left third of the create button</td></tr><tr><td class="t">--tk-r-chip</td><td class="v">4px</td><td class="e">half-coverage corner solve on the h-28 chips</td></tr><tr><td class="t">--tk-r-ctl</td><td class="v">5px</td><td class="e">keycap and the @ Mention chip</td></tr><tr><td class="t">--tk-r-cover</td><td class="v">6px</td><td class="e">04's cover cell and its bar: 4.8pt in, one row off the foot</td></tr><tr><td class="t">--tk-r-pill</td><td class="v">8px</td><td class="e">profile action pills, h 44</td></tr><tr><td class="t">--tk-r-btn</td><td class="v">9px</td><td class="e">Drafts and Post, h 44.67; the create button's three rects</td></tr><tr><td class="t">--tk-r-card</td><td class="v">12px</td><td class="e">the Add-phone-number banner</td></tr><tr><td class="t">--tk-r-phone</td><td class="v">52px</td><td class="e">circular stand-in for the 55pt continuous display corner</td></tr><tr><td class="t">--tk-t-time</td><td class="v">590 17px/22px var(--tk-font)</td><td class="e">iOS status bar clock</td></tr><tr><td class="t">--tk-t-nav</td><td class="v">700 17px/22px var(--tk-font)</td><td class="e">'Bio' 24.67x13.33; the capture's 'alexsmith'; the stat numbers</td></tr><tr><td class="t">--tk-t-handle</td><td class="v">600 17px/22px var(--tk-font)</td><td class="e">the capture's '@alexsmith58', 113.67 wide</td></tr><tr><td class="t">--tk-t-body</td><td class="v">400 15px/20px var(--tk-font)</td><td class="e">'Save' 32.67 wide; 'Add a bio' 63.33x11.0</td></tr><tr><td class="t">--tk-t-cap</td><td class="v">400 15px/17.67px var(--tk-font)</td><td class="e">the description field: 'Add description...' 119.3 wide, line pitch 17.67</td></tr><tr><td class="t">--tk-t-cap-b</td><td class="v">600 15px/17.67px var(--tk-font)</td><td class="e">the hashtags inside the caption: '#motion #traffic #car #driving' 214.3</td></tr><tr><td class="t">--tk-t-row</td><td class="v">500 16.5px/20px var(--tk-font)</td><td class="e">'Everyone can view this post' 207.3 x 15.3 with its descender; the rows are not bold</td></tr><tr><td class="t">--tk-t-btn</td><td class="v">550 15px/20px var(--tk-font)</td><td class="e">'Edit profile' 75.0 wide over 3145 ink px; 600 sets 5% more ink than the capture</td></tr></table></div>
+</body>
+</html>

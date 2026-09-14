@@ -12,6 +12,10 @@
   --x-ground:#FFFFFF;
   --x-field:#EFF3F4;
   --x-spaces:#7856FE;
+  --x-spaces-2:#6748D9;
+  --x-wash:#E6D8FF;
+  --x-banner:#E9F5FC;
+  --x-veil:rgba(0,0,0,.47);
   --x-chip:#ECE8FF;
   --x-chip-card:rgba(255,255,255,.30);
   --x-pill-off:#88898D;
@@ -19,10 +23,14 @@
   --x-disc-7:rgba(0,0,0,.57);
   --x-scrim:rgba(0,0,0,.28);
   --x-backdrop:#000000;
+  --x-track-on:#01BA7B;
+  --x-track-off:#E9E9E9;
   --x-nav:linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%);
+  --x-nav-2:linear-gradient(180deg,#E7DDFE 0%,#ECE3FF 100%);
 
   /* Line */
   --x-hairline:#D2D4D6;
+  --x-hairline-2:#C6C6C6;
   --x-border:#D0D8DC;
   --x-ring:#BAC9D0;
 
@@ -39,16 +47,20 @@
   --x-r-phone:52px;
   --x-r-pill:26px;
   --x-r-field:17px;
+  --x-r-search:19.5px;
   --x-r-card:16px;
   --x-r-play:16.5px;
   --x-r-chip:4px;
   --x-r-sheet:12px;
+  --x-r-modal:36px;
+  --x-r-tile:20px;
   --x-r-peek:10px;
 
   /* Metrics */
   --x-w:393px;
   --x-h:852px;
   --x-status:54px;
+  --x-dim:.31;
 
   /* Type */
   --x-tr-text:-0.035em;
@@ -56,10 +68,15 @@
   --x-t-title:800 26px/34px var(--x-font);
   --x-t-space:800 25.5px/31px var(--x-font);
   --x-t-name:800 22px/27px var(--x-font);
+  --x-t-cal:800 21.65px/28px var(--x-font);
+  --x-t-space-2:800 20.2px/23.67px var(--x-font);
   --x-t-card:700 19px/24px var(--x-font);
   --x-t-field:400 18.5px/24px var(--x-font);
   --x-t-sheet:700 18.5px/24px var(--x-font);
+  --x-t-sect:800 19.3px/24px var(--x-font);
   --x-t-save:700 17.5px/22px var(--x-font);
+  --x-t-head:800 18.25px/22px var(--x-font);
+  --x-t-event:800 18px/20.33px var(--x-font);
   --x-t-btn:700 16.5px/21px var(--x-font);
   --x-t-body:400 16px/21px var(--x-font);
   --x-t-date:700 16px/21px var(--x-font);
@@ -68,8 +85,10 @@
   --x-t-pill:700 15px/20px var(--x-font);
   --x-t-desc:400 14.5px/15.67px var(--x-font);
   --x-t-meta:400 13.5px/19px var(--x-font);
+  --x-t-tag:800 13.5px/19px var(--x-font);
   --x-t-host:800 14.5px/18px var(--x-font);
   --x-t-count:400 14px/19px var(--x-font);
+  --x-t-badge:400 12.5px/16px var(--x-font);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -118,6 +137,6 @@ td.v{color:var(--x-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--x-ink-2)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>X iOS</h1><p>Seven Mobbin captures at exactly 3 px per pt. One face (SF Pro), one type ladder fitted by ink width, and a palette that is almost entirely white, two greys and one blue &mdash; with a Spaces purple and a pale purple nav wash on the last screen.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--x-ground)"></div><b>--x-ground</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--x-field)"></div><b>--x-field</b><i>#EFF3F4</i></div><div class="sw"><div class="chip" style="background:var(--x-spaces)"></div><b>--x-spaces</b><i>#7856FE</i></div><div class="sw"><div class="chip" style="background:var(--x-chip)"></div><b>--x-chip</b><i>#ECE8FF</i></div><div class="sw"><div class="chip" style="background:var(--x-chip-card)"></div><b>--x-chip-card</b><i>rgba(255,255,255,.30)</i></div><div class="sw"><div class="chip" style="background:var(--x-pill-off)"></div><b>--x-pill-off</b><i>#88898D</i></div><div class="sw"><div class="chip" style="background:var(--x-disc-1)"></div><b>--x-disc-1</b><i>rgba(0,0,0,.75)</i></div><div class="sw"><div class="chip" style="background:var(--x-disc-7)"></div><b>--x-disc-7</b><i>rgba(0,0,0,.57)</i></div><div class="sw"><div class="chip" style="background:var(--x-scrim)"></div><b>--x-scrim</b><i>rgba(0,0,0,.28)</i></div><div class="sw"><div class="chip" style="background:var(--x-backdrop)"></div><b>--x-backdrop</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--x-nav)"></div><b>--x-nav</b><i>linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%)</i></div><div class="sw"><div class="chip" style="background:var(--x-hairline)"></div><b>--x-hairline</b><i>#D2D4D6</i></div><div class="sw"><div class="chip" style="background:var(--x-border)"></div><b>--x-border</b><i>#D0D8DC</i></div><div class="sw"><div class="chip" style="background:var(--x-ring)"></div><b>--x-ring</b><i>#BAC9D0</i></div><div class="sw"><div class="chip" style="background:var(--x-ink)"></div><b>--x-ink</b><i>#0F1419</i></div><div class="sw"><div class="chip" style="background:var(--x-ink-2)"></div><b>--x-ink-2</b><i>#536471</i></div><div class="sw"><div class="chip" style="background:var(--x-accent)"></div><b>--x-accent</b><i>#1D9BF0</i></div><div class="sw"><div class="chip" style="background:var(--x-inv)"></div><b>--x-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--x-ink-off)"></div><b>--x-ink-off</b><i>#C6C7C9</i></div><div class="sw"><div class="chip" style="background:var(--x-save-off)"></div><b>--x-save-off</b><i>#C5C5C5</i></div><div class="sw"><div class="chip" style="background:var(--x-chip-ink)"></div><b>--x-chip-ink</b><i>#291465</i></div></div><div class="foot"><div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:26px"></div><em>26px</em></div><div><div class="rb" style="border-radius:17px"></div><em>17px</em></div><div><div class="rb" style="border-radius:16px"></div><em>16px</em></div><div><div class="rb" style="border-radius:16.5px"></div><em>16.5px</em></div><div><div class="rb" style="border-radius:4px"></div><em>4px</em></div><div><div class="rb" style="border-radius:12px"></div><em>12px</em></div><div><div class="rb" style="border-radius:10px"></div><em>10px</em></div></div></div><div><h2>Metrics</h2><div class="met">--x-w: 393px<br>--x-h: 852px<br>--x-status: 54px</div></div></div></div>
+<div class="sheet"><header><h1>X iOS</h1><p>Fifteen Mobbin captures at exactly 3 px per pt. One face (SF Pro), one type ladder fitted by ink width, and a palette that is almost entirely white, two greys and one blue &mdash; plus the switch green the settings screens turn on and off, and the purples Spaces brings: a nav wash on 02, a second one under 13-15, two card fills and the veil 13 and 14 dim the page with. Five of these have no screen left to sit on: they were read off the Spaces card and the post&rsquo;s Host chip that p7 shows and that board 02, which carries the example account&rsquo;s own timeline, does not draw.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--x-ground)"></div><b>--x-ground</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--x-field)"></div><b>--x-field</b><i>#EFF3F4</i></div><div class="sw"><div class="chip" style="background:var(--x-spaces)"></div><b>--x-spaces</b><i>#7856FE</i></div><div class="sw"><div class="chip" style="background:var(--x-spaces-2)"></div><b>--x-spaces-2</b><i>#6748D9</i></div><div class="sw"><div class="chip" style="background:var(--x-wash)"></div><b>--x-wash</b><i>#E6D8FF</i></div><div class="sw"><div class="chip" style="background:var(--x-banner)"></div><b>--x-banner</b><i>#E9F5FC</i></div><div class="sw"><div class="chip" style="background:var(--x-veil)"></div><b>--x-veil</b><i>rgba(0,0,0,.47)</i></div><div class="sw"><div class="chip" style="background:var(--x-chip)"></div><b>--x-chip</b><i>#ECE8FF</i></div><div class="sw"><div class="chip" style="background:var(--x-chip-card)"></div><b>--x-chip-card</b><i>rgba(255,255,255,.30)</i></div><div class="sw"><div class="chip" style="background:var(--x-pill-off)"></div><b>--x-pill-off</b><i>#88898D</i></div><div class="sw"><div class="chip" style="background:var(--x-disc-1)"></div><b>--x-disc-1</b><i>rgba(0,0,0,.75)</i></div><div class="sw"><div class="chip" style="background:var(--x-disc-7)"></div><b>--x-disc-7</b><i>rgba(0,0,0,.57)</i></div><div class="sw"><div class="chip" style="background:var(--x-scrim)"></div><b>--x-scrim</b><i>rgba(0,0,0,.28)</i></div><div class="sw"><div class="chip" style="background:var(--x-backdrop)"></div><b>--x-backdrop</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--x-track-on)"></div><b>--x-track-on</b><i>#01BA7B</i></div><div class="sw"><div class="chip" style="background:var(--x-track-off)"></div><b>--x-track-off</b><i>#E9E9E9</i></div><div class="sw"><div class="chip" style="background:var(--x-nav)"></div><b>--x-nav</b><i>linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%)</i></div><div class="sw"><div class="chip" style="background:var(--x-nav-2)"></div><b>--x-nav-2</b><i>linear-gradient(180deg,#E7DDFE 0%,#ECE3FF 100%)</i></div><div class="sw"><div class="chip" style="background:var(--x-hairline)"></div><b>--x-hairline</b><i>#D2D4D6</i></div><div class="sw"><div class="chip" style="background:var(--x-hairline-2)"></div><b>--x-hairline-2</b><i>#C6C6C6</i></div><div class="sw"><div class="chip" style="background:var(--x-border)"></div><b>--x-border</b><i>#D0D8DC</i></div><div class="sw"><div class="chip" style="background:var(--x-ring)"></div><b>--x-ring</b><i>#BAC9D0</i></div><div class="sw"><div class="chip" style="background:var(--x-ink)"></div><b>--x-ink</b><i>#0F1419</i></div><div class="sw"><div class="chip" style="background:var(--x-ink-2)"></div><b>--x-ink-2</b><i>#536471</i></div><div class="sw"><div class="chip" style="background:var(--x-accent)"></div><b>--x-accent</b><i>#1D9BF0</i></div><div class="sw"><div class="chip" style="background:var(--x-inv)"></div><b>--x-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--x-ink-off)"></div><b>--x-ink-off</b><i>#C6C7C9</i></div><div class="sw"><div class="chip" style="background:var(--x-save-off)"></div><b>--x-save-off</b><i>#C5C5C5</i></div><div class="sw"><div class="chip" style="background:var(--x-chip-ink)"></div><b>--x-chip-ink</b><i>#291465</i></div></div><div class="foot"><div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:26px"></div><em>26px</em></div><div><div class="rb" style="border-radius:17px"></div><em>17px</em></div><div><div class="rb" style="border-radius:19.5px"></div><em>19.5px</em></div><div><div class="rb" style="border-radius:16px"></div><em>16px</em></div><div><div class="rb" style="border-radius:16.5px"></div><em>16.5px</em></div><div><div class="rb" style="border-radius:4px"></div><em>4px</em></div><div><div class="rb" style="border-radius:12px"></div><em>12px</em></div><div><div class="rb" style="border-radius:36px"></div><em>36px</em></div><div><div class="rb" style="border-radius:20px"></div><em>20px</em></div><div><div class="rb" style="border-radius:10px"></div><em>10px</em></div></div></div><div><h2>Metrics</h2><div class="met">--x-w: 393px<br>--x-h: 852px<br>--x-status: 54px<br>--x-dim: .31</div></div></div></div>
 </body>
 </html>
