@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>X iOS - Evidence 3/3</title>
+<title>X iOS - Evidence 3/5</title>
 <style>
 :root{
   /* Font */
@@ -12,6 +12,10 @@
   --x-ground:#FFFFFF;
   --x-field:#EFF3F4;
   --x-spaces:#7856FE;
+  --x-spaces-2:#6748D9;
+  --x-wash:#E6D8FF;
+  --x-banner:#E9F5FC;
+  --x-veil:rgba(0,0,0,.47);
   --x-chip:#ECE8FF;
   --x-chip-card:rgba(255,255,255,.30);
   --x-pill-off:#88898D;
@@ -19,10 +23,14 @@
   --x-disc-7:rgba(0,0,0,.57);
   --x-scrim:rgba(0,0,0,.28);
   --x-backdrop:#000000;
+  --x-track-on:#01BA7B;
+  --x-track-off:#E9E9E9;
   --x-nav:linear-gradient(96deg,#FDFCFF 0%,#EFE8FF 38%,#EAE0FF 62%,#EFE7FF 100%);
+  --x-nav-2:linear-gradient(180deg,#E7DDFE 0%,#ECE3FF 100%);
 
   /* Line */
   --x-hairline:#D2D4D6;
+  --x-hairline-2:#C6C6C6;
   --x-border:#D0D8DC;
   --x-ring:#BAC9D0;
 
@@ -39,16 +47,20 @@
   --x-r-phone:52px;
   --x-r-pill:26px;
   --x-r-field:17px;
+  --x-r-search:19.5px;
   --x-r-card:16px;
   --x-r-play:16.5px;
   --x-r-chip:4px;
   --x-r-sheet:12px;
+  --x-r-modal:36px;
+  --x-r-tile:20px;
   --x-r-peek:10px;
 
   /* Metrics */
   --x-w:393px;
   --x-h:852px;
   --x-status:54px;
+  --x-dim:.31;
 
   /* Type */
   --x-tr-text:-0.035em;
@@ -56,10 +68,15 @@
   --x-t-title:800 26px/34px var(--x-font);
   --x-t-space:800 25.5px/31px var(--x-font);
   --x-t-name:800 22px/27px var(--x-font);
+  --x-t-cal:800 21.65px/28px var(--x-font);
+  --x-t-space-2:800 20.2px/23.67px var(--x-font);
   --x-t-card:700 19px/24px var(--x-font);
   --x-t-field:400 18.5px/24px var(--x-font);
   --x-t-sheet:700 18.5px/24px var(--x-font);
+  --x-t-sect:800 19.3px/24px var(--x-font);
   --x-t-save:700 17.5px/22px var(--x-font);
+  --x-t-head:800 18.25px/22px var(--x-font);
+  --x-t-event:800 18px/20.33px var(--x-font);
   --x-t-btn:700 16.5px/21px var(--x-font);
   --x-t-body:400 16px/21px var(--x-font);
   --x-t-date:700 16px/21px var(--x-font);
@@ -68,8 +85,10 @@
   --x-t-pill:700 15px/20px var(--x-font);
   --x-t-desc:400 14.5px/15.67px var(--x-font);
   --x-t-meta:400 13.5px/19px var(--x-font);
+  --x-t-tag:800 13.5px/19px var(--x-font);
   --x-t-host:800 14.5px/18px var(--x-font);
   --x-t-count:400 14px/19px var(--x-font);
+  --x-t-badge:400 12.5px/16px var(--x-font);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -118,6 +137,6 @@ td.v{color:var(--x-ink);max-width:150px;overflow:hidden;text-overflow:ellipsis}
 td.e{color:var(--x-ink-2)}</style>
 </head>
 <body>
-<div class="sheet"><header><h1>Evidence 3/3</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--x-t-body</td><td class="v">400 16px/21px var(--x-font)</td><td class="e">01 body 337.00 on a 21.0 pitch, 02 subtitle 341.00 on 21, 04 subtitle 276.00 on 21, 05 body 329.00 on 21.3, 07 the bio 84.33, 07 the post's Host label 30.33 (regular, not bold -- see the capture)</td></tr><tr><td class="t">--x-t-date</td><td class="v">700 16px/21px var(--x-font)</td><td class="e">07 'Dec 10, 2025 - 11s' 130.00, bold on the card</td></tr><tr><td class="t">--x-t-row</td><td class="v">700 15.5px/21px var(--x-font)</td><td class="e">02 row 1 194.67 and row 7 238.67, 06 every field label, 07 the five legible tabs 38.33 / 50.33 / 70.66 / 48.00 / 48.33 and the post head's 'Sam Lee' 59.00</td></tr><tr><td class="t">--x-t-note</td><td class="v">400 15.5px/21px var(--x-font)</td><td class="e">01 the legal note 329.67 on a 20.67 pitch, 07 the handle 79.00 and the post head's '@SamLeexf - 2h' 103.67</td></tr><tr><td class="t">--x-t-pill</td><td class="v">700 15px/20px var(--x-font)</td><td class="e">07 'Play recording' 95.67</td></tr><tr><td class="t">--x-t-desc</td><td class="v">400 14.5px/15.67px var(--x-font)</td><td class="e">04 the card descriptions 293.00 and 287.33, the two lines of the first 15.67 apart</td></tr><tr><td class="t">--x-t-meta</td><td class="v">400 13.5px/19px var(--x-font)</td><td class="e">07 'Entertainment & Recreation' 162.00 with 'New Jersey, USA' 97.00 beside it. The one run the tracking band does not reach: at 14.5px it still redrew 9% wide, and the cap height agrees -- 9.3 against 10.0</td></tr><tr><td class="t">--x-t-host</td><td class="v">800 14.5px/18px var(--x-font)</td><td class="e">07 the Spaces card's 'Sam Lee' 57.33 -- heavy at 14.5, not the 22 of the profile name</td></tr><tr><td class="t">--x-t-count</td><td class="v">400 14px/19px var(--x-font)</td><td class="e">07 'Following' 55.66 and 'Followers' 55.33, 'Joined November 2025' 137.67, 'View more' 61.67 (cap 10.0), the card's 'Host' 26.67</td></tr></table></div>
+<div class="sheet"><header><h1>Evidence 3/5</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--x-r-field</td><td class="v">17px</td><td class="e">04 the search field is 34 tall (y 260-294) with semicircular ends</td></tr><tr><td class="t">--x-r-search</td><td class="v">19.5px</td><td class="e">10 the search pill, x 64.00-337.00 y 61.00-100.00: 39 tall with semicircular ends -- 19.5 fits every row down the curve, where 19 and 20 each miss by a pixel at the waist</td></tr><tr><td class="t">--x-r-card</td><td class="v">16px</td><td class="e">06 the two bordered cards and 02's Spaces card: the fill of the card at x 61.33-384.00 reaches its full width 16 down from y 477.67</td></tr><tr><td class="t">--x-r-play</td><td class="v">16.5px</td><td class="e">02 the white Play pill, x 70.67-356.67 y 646-679: 33 tall, ends semicircular. 14 the banner's share pill, x 21.67-371.00 y 124.67-157.00: 32.33 tall, so 16.17 closes it and 16.5 is the nearest measured radius</td></tr><tr><td class="t">--x-r-chip</td><td class="v">4px</td><td class="e">02 both Host chips: the post's is 18.33 tall and the card's 15.33, and neither end is a semicircle -- the fill is square 4 in from each corner</td></tr><tr><td class="t">--x-r-sheet</td><td class="v">12px</td><td class="e">01 the sheet's top edge is at 69.0 and its white reaches x 1 only at 76.33: 12 puts that corner at 76.20 and fits eleven columns across the curve at 0.17 rms, where the 70.33 first read off mid-width sits 1.24 out. Four more corners land on it: 13's card in the sheet fits 12.45, 15's host card 13.05 and its LIVE card 12.80, and 14's banner 10.85 -- one value at 0.9 mean error rather than four radii a hair apart</td></tr><tr><td class="t">--x-r-modal</td><td class="v">36px</td><td class="e">13/14 the reminder sheet's top edge is at 356.00 and its white reaches x 1 only at 380.6; swept 30-42, 36 fits the thirteen columns across the curve at 0.46 rms and is three times the sheet radius 01 uses</td></tr><tr><td class="t">--x-r-tile</td><td class="v">20px</td><td class="e">15 the three event tiles, 80.67 square at x 8.83 with tops 264 / 419 / 574. Swept the way r-modal is, down the first tile's left edge and below the blurred apex, 20.8 fits at 0.17 rms: iOS draws a squircle, and a circular corner fitted to one always runs a shade wide, so the token is the 20 that sweep rounds to</td></tr><tr><td class="t">--x-r-peek</td><td class="v">10px</td><td class="e">01 the page peeking above the sheet, x 20-373.33: opaque across its full width from 52.7, 10 below its top at 42.67</td></tr><tr><td class="t">--x-w</td><td class="v">393px</td><td class="e">1179 capture px / 3 = 393pt, the iPhone 16 logical width</td></tr><tr><td class="t">--x-h</td><td class="v">852px</td><td class="e">2556 capture px / 3 = 852pt, once Mobbin's 120px footer is dropped</td></tr><tr><td class="t">--x-status</td><td class="v">54px</td><td class="e">This repo's frame: the status bar height the template sets</td></tr><tr><td class="t">--x-dim</td><td class="v">.31</td><td class="e">08 the locations row while the location toggle is on. Its three parts each fade toward the page: the label #111417 to #B8B9B9 is alpha .302, 'Select' #59656F to #CFD1D2 is .299, and the chevron #C0CCD2 to #ECEEF0 is .327 -- one opacity on the row, not three colours</td></tr><tr><td class="t">--x-tr-text</td><td class="v">-0.035em</td><td class="e">SF Pro stands in for Chirp. Above 20px the platform serves SF Pro Display and the ink widths agree within 1% (03 title 230.67 vs 232.00, 02 'Movie review' 158.33 vs 157.33); below it serves SF Pro Text, which runs 6-8% wide (02 'New Jersey, USA' 97.00 vs 111.67). Tracking closes the band, and nothing above 20px carries it. Swept -0.03 / -0.035 / -0.04: -0.035 puts the mean of the nineteen small-text ink widths on 0.998 of the capture's, and costs 1% on the seven whole-screen deltas against -0.04, which reads narrow</td></tr><tr><td class="t">--x-t-time</td><td class="v">590 17px/22px var(--x-font)</td><td class="e">This repo's frame: the iOS status bar clock, not the app</td></tr><tr><td class="t">--x-t-title</td><td class="v">800 26px/34px var(--x-font)</td><td class="e">03 'X for Professionals' 231.00, 04 'Select a category' 212.33, 06 'Select an account type' 278.33, 07 'Welcome to X for' 207.33 and 'Professionals' 165.33; 07's two lines sit 34 apart</td></tr></table></div>
 </body>
 </html>
