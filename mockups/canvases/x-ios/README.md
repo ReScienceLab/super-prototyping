@@ -12,13 +12,13 @@ under its replica.
 | 00 | `design-tokens` | All 71 tokens, as one `:root` block |
 | 00a | `type-tokens` | The type ladder, one row per size |
 | 00b–00f | `evidence` | One row per token, and what it was read off |
-| 01 | `professional-splash` | The hero, the pitch, the legal note, Agree & Continue |
-| 02 | `select-category` | The search field and ten category rows, Next disabled |
-| 03 | `category-selected` | Entertainment & Recreation checked, Next enabled |
-| 04 | `select-account-type` | The Business and Creator cards |
-| 05 | `welcome` | "Welcome to X for Professionals" and four setup rows |
-| 06 | `edit-profile` | The Edit profile sheet over the profile it edits |
-| 07 | `profile` | The finished profile: header, tabs, and the example account's launch post |
+| 01 | `edit-profile` | The Edit profile sheet over the profile it edits |
+| 02 | `profile` | The finished profile: header, tabs, and the example account's launch post |
+| 03 | `professional-splash` | The hero, the pitch, the legal note, Agree & Continue |
+| 04 | `select-category` | The search field and ten category rows, Next disabled |
+| 05 | `category-selected` | Entertainment & Recreation checked, Next enabled |
+| 06 | `select-account-type` | The Business and Creator cards |
+| 07 | `welcome` | "Welcome to X for Professionals" and four setup rows |
 | 08 | `explore-settings` | Explore settings, location on, the picker row below it dimmed |
 | 09 | `explore-location-off` | The same screen with the switch off and the picker live |
 | 10 | `explore` | The Explore tab: live-event hero, five topic tabs, Today's News |
@@ -43,31 +43,31 @@ Mean absolute delta against the captures, in levels of 255, over the whole
 
 | Screen | Δ | Screen | Δ |
 | --- | --- | --- | --- |
-| 01 Professional splash | 3.33 | 08 Explore settings | 3.52 |
-| 02 Select a category | 4.67 | 09 Explore location off | 3.73 |
-| 03 Category selected | 5.18 | 10 Explore | 6.74 |
-| 04 Select account type | 4.46 | 11 Push notifications | 5.92 |
-| 05 Welcome | 5.90 | 12 New followers off | 5.92 |
-| **Mean, 01–05** | **4.71** | **Mean, 08–12** | **5.17** |
+| 03 Professional splash | 3.33 | 08 Explore settings | 3.52 |
+| 04 Select a category | 4.67 | 09 Explore location off | 3.73 |
+| 05 Category selected | 5.18 | 10 Explore | 6.74 |
+| 06 Select account type | 4.46 | 11 Push notifications | 5.92 |
+| 07 Welcome | 5.90 | 12 New followers off | 5.92 |
+| **Mean, 03–07** | **4.71** | **Mean, 08–12** | **5.17** |
 | 13 Set a reminder | 5.76 | 15 Spaces in your calendar | 7.60 |
 | 14 Reminder set | 5.70 | **Mean, 13–15** | **6.35** |
-| 06 Edit profile | 16.87 | 07 Professional profile | 56.17 |
+| 01 Edit profile | 16.87 | 02 Professional profile | 56.16 |
 
-**Thirteen of the fifteen are clone scores.** 06 and 07 carry the example account's
+**Thirteen of the fifteen are clone scores.** 01 and 02 carry the example account's
 own banner, avatar, bio, links and timeline, so what their numbers measure is
 the distance between two accounts' content rather than between a replica and
 its source. 08–12 carry that account too, but only its handle and, on 10, its
 avatar — worth 0.05 to 0.17 levels, measured below. **The account on the
 boards** says what is still comparable on all seven and what it comes to.
 
-Across 01–05, 08–12 and 13–15 the spread is type density, not geometry. Every one of
-the worst 40 px bands `refkit diff` reports on 01–05, 08, 09, 11 and 12 carries
+Across 03–07, 08–12 and 13–15 the spread is type density, not geometry. Every one of
+the worst 40 px bands `refkit diff` reports on 03–07, 08, 09, 11 and 12 carries
 a line of text, and all but one of their worst rows sample the same flat colour
 on both sides, white against white; the exception is `#0F1419` against
-`#0E1419` inside 01's button. What the number scores is glyph fringing on a
-face the device does not have (below). The lowest are 01, half of which is a
+`#0E1419` inside 03's button. What the number scores is glyph fringing on a
+face the device does not have (below). The lowest are 03, half of which is a
 photograph, and 08 and 09, which are two-thirds white; the highest of them is
-05, which sets two title lines, a three-line body and four row labels in one
+07, which sets two title lines, a three-line body and four row labels in one
 screen.
 
 10 and 15 are the exceptions, and the reason in both cases is contrast rather
@@ -82,22 +82,22 @@ veil, which more than halves the contrast of every glyph on it, and both score
 below 15 for exactly that reason: four of their six worst bands sample
 `#878787` against `#878787`, the veil over white.
 
-03 is the exception worth naming among the first five, and it is the source's,
+05 is the exception worth naming among the first five, and it is the source's,
 not the board's: see **What the captures get wrong**.
 
 ## The account on the boards
 
-The captures show X's own demo persona, Sam Lee. Boards 06 and 07 show
+The captures show X's own demo persona, Sam Lee. Boards 01 and 02 show
 [@Yilin0x](https://x.com/Yilin0x), read off twitterapi.io on 2026-09-13: the
-name and handle, the avatar, the banner and the strip of it peeking above 06's
+name and handle, the avatar, the banner and the strip of it peeking above 01's
 sheet, the two-line bio, the location, the website, the join month, the two
 counts, and one post — the 9/4/26 super-prototyping launch, with its video
-thumbnail. 01–05 are the signup flow and carry no account, so they are
+thumbnail. 03–07 are the signup flow and carry no account, so they are
 untouched, and so are 13–15: the hosts and speakers on those three are other
 people's, not the viewer's, and a Space's card is the same card whoever is
 looking at it.
 
-Four things follow from that on 06 and 07, and each costs those boards
+Four things follow from that on 01 and 02, and each costs those boards
 something:
 
 - **The bio is two lines where "Ordinary guy" is one.** `shift()` drops the
@@ -107,7 +107,7 @@ something:
 - **The post is taller than the fold.** Four paragraphs of text and a 1.55:1
   video thumbnail do not fit between the tabs rule and the nav, so the
   thumbnail runs under the nav and the action row falls off the board
-  altogether. 07 draws no action row, and the reply, repost, like, views and
+  altogether. 02 draws no action row, and the reply, repost, like, views and
   bookmark glyphs went with it.
 - **The Spaces card is gone**, and ten tokens went with it. Five have since
   come back on a screen of their own: 13–15 draw `spaces`, `chip-card`,
@@ -118,15 +118,15 @@ something:
   on.
 - **The nav bar is white, not purple.** X tints it while a Space is live, which
   is why the capture's is a pale purple wash. Once the Space card went, the
-  tint had nothing left to follow, so 07 fills the strip with `--x-ground` —
+  tint had nothing left to follow, so 02 fills the strip with `--x-ground` —
   the white board 10 already shows. It still fills it, where 10 draws nothing
-  at all, because 07's video thumbnail runs under the bar and something has to
+  at all, because 02's video thumbnail runs under the bar and something has to
   cover it. `--x-nav` keeps its evidence row and its stops; no board draws it.
 
 What is still comparable: outside the three photographs the account brings —
-the peek, the banner and the avatar disc, 19.5% of the frame — 06 scores
+the peek, the banner and the avatar disc, 19.5% of the frame — 01 scores
 **4.35** (`scratch/band.py`) against the 16.87 it scores whole, and what is
-left inside that is the four field values, the two-line bio most of all. 07's
+left inside that is the four field values, the two-line bio most of all. 02's
 nav strip read **3.24** while it carried the wash, and reads **13.95** now
 that it is white against a purple capture (`scratch/navband.py`) — the glyphs
 inside it did not move.
@@ -140,9 +140,9 @@ account's, because a settings screen looks the same for everyone.
 
 Three things are left off on purpose. The blue verified badge is not drawn: a
 hand-traced lookalike is the thing this canvas's own launch post disclaims.
-There is no Website row on 07, because the capture's meta block has no geometry
+There is no Website row on 02, because the capture's meta block has no geometry
 for one. And the professional category stays "Entertainment & Recreation",
-which is what the 02–05 flow picks.
+which is what the 04–07 flow picks.
 
 ## The score window, and the three things Mobbin did to the export
 
@@ -168,7 +168,7 @@ closed-set matcher can return it, so every board here is SF Pro — and a
 substitution shows up as *width* before it shows up as anything else. So none
 of the type sizes were read off the iOS ladder. Each one was fitted to a
 measured run's ink width, which is why several of them are halves:
-`--x-t-space` is 25.5px because 07's "Movie review" measures 157.67 pt on the
+`--x-t-space` is 25.5px because 02's "Movie review" measures 157.67 pt on the
 capture and SF Pro Heavy at 25.5 sets it to 157.62.
 
 That fit leaves one systematic gap, and it has a cause. The platform serves
@@ -177,12 +177,12 @@ Text cut is drawn wide against Chirp:
 
 | | capture | drawn | ratio |
 | --- | --- | --- | --- |
-| 01 title, 26px | 230.67 | 232.00 | 0.994 |
-| 07 "Movie review", 25.5px | 158.33 | 157.33 | 1.006 |
-| 07 "New Jersey, USA", 14.5px *before* | 97.00 | 111.67 | 0.869 |
+| 03 title, 26px | 230.67 | 232.00 | 0.994 |
+| 02 "Movie review", 25.5px | 158.33 | 157.33 | 1.006 |
+| 02 "New Jersey, USA", 14.5px *before* | 97.00 | 111.67 | 0.869 |
 
-The two 07 rows are off boards that still drew the captures' account, and the
-third is from before `--x-tr-text` existed; 07 draws neither run today. What
+The two 02 rows are off boards that still drew the captures' account, and the
+third is from before `--x-tr-text` existed; 02 draws neither run today. What
 each size was fitted to is on the evidence boards, which quote the capture.
 
 One token closes it. `--x-tr-text: -0.035em` is applied by `track()` to every
@@ -194,11 +194,11 @@ which reads narrow.
 `scratch/width.py` measures one run per screen-and-token pair on both images,
 for the thirteen pairs both images still draw. After the tracking they land at
 a **mean width ratio of 0.998, and no run is more than 3.1% out**. One run the
-tracking band could not reach is 07's meta line, which redrew 9% wide at 14.5px
+tracking band could not reach is 02's meta line, which redrew 9% wide at 14.5px
 with its cap height agreeing; that is why `--x-t-meta` is 13.5px and every
 other small size is not.
 
-**Fit against the render, not against PIL.** Every size up to board 07 was
+**Fit against the render, not against PIL.** Every size up to board 02 was
 fitted by drawing SF Pro with PIL at 8x, untracked, and the ladder it produced
 lands well. The three sizes the Explore flow wanted did not, and the reason is
 that the two measurements are of different things: PIL reads `SFNS.ttf`, which
@@ -222,7 +222,7 @@ taller than Chirp at a width that matches. That is the fringing the delta table
 scores, and chasing it by nudging baselines would move correct elements off
 their measured coordinates. The line-box constant `boxtop()` uses, K = 0.3455,
 was re-solved against ink *bottoms* rather than tops to check exactly this:
-"04 Business" lands 268.0 against 268.0 and "06 Edit profile" 103.0 against
+"06 Business" lands 268.0 against 268.0 and "01 Edit profile" 103.0 against
 103.0, so the +1.0 pt seen at the tops is the taller cap and not a placement
 error. K was left alone.
 
@@ -231,33 +231,33 @@ error. K was left alone.
 > Crop what the capture already contains; draw only what it does not.
 
 `crops.json` is **eleven boxes**, and every one is a photograph: the heroes on
-01, 05 and 10, the three facepiles under 10's news items, and the five round
+03, 07 and 10, the three facepiles under 10's news items, and the five round
 ones the Spaces boards want — 13's host avatar, 15's host avatar and the
 pictures on 15's three event tiles. Each facepile is cut as one rectangle,
 white gaps included, because the discs overlap. The five round ones are cut as
 squares and placed under `border-radius:50%`, and each brings the ring the
 capture draws around it: that ring is a property of the picture's own edge, not
 a fill a board could redraw. The other
-photographs — the banner on 06 and 07, the avatar at four diameters across 06,
-07 and 10, and the post's video thumbnail — are the example account's own, so
+photographs — the banner on 01 and 02, the avatar at four diameters across 01,
+02 and 10, and the post's video thumbnail — are the example account's own, so
 they come out of `assets/` through `pic()` and never out of a capture.
 Everything else — every rule, fill, chip, pill, switch, glyph and run of type —
 is rebuilt.
 
 Where interface sat *on* a cropped photograph it is patched out of the capture
 before the crop is taken. `gen.py`'s `INPAINT` names seven boxes across p1, p5
-and p10 — the status bar clock and its right-hand cluster on p1 and p5, 01's
+and p10 — the status bar clock and its right-hand cluster on p1 and p5, 03's
 close disc, and the LIVE chip and event title baked into 10's hero — and
 `cut()` fills each with a Coons patch from that box's own four
 edges, which is exact on the smooth grounds these sit on and continuous at the
 boundary by construction. The chrome is then drawn again in CSS on top.
 
-Drawing 06's peek instead of cropping it found an error the crop had been
+Drawing 01's peek instead of cropping it found an error the crop had been
 hiding. That crop ran to 70.33 and carried 1.33 pt of the sheet's own white
 with it, so the sheet drawn at 70.33 met white either way and the seam never
 showed. The sheet's top edge is **69.0**: fitting eleven columns across its
 12 pt corner puts it there at 0.17 pt rms, where 70.33 sits 1.24 out. Both the
-peek and the sheet moved, and 06 went 17.22 to 16.87.
+peek and the sheet moved, and 01 went 17.22 to 16.87.
 
 **Thirty-three icons are vectors, not crops.** Each is drawn on X's own 24-unit
 grid in `assets/icons/`, and `scratch/mkicons.py` sets each file's `viewBox`
@@ -274,9 +274,9 @@ wide and a hard threshold turns that into a staircase — and `refkit refit`
 redraws the polygon as lines, arcs and cubics. `scratch/navfit.py` then slides
 each placement box against the window by coordinate descent, over the window's
 own two levels rather than white: a ground biased toward white, or ink drawn
-blacker than the capture's, pushes the fit toward a bigger glyph. Over 07's nav
+blacker than the capture's, pushes the fit toward a bigger glyph. Over 02's nav
 strip that took the mean Δ from **6.75 to 3.24** levels — measured against
-the purple wash, which is what 07 shipped at the time and what the capture
+the purple wash, which is what 02 shipped at the time and what the capture
 still holds:
 
 | Glyph | Before | After | Glyph | Before | After |
@@ -287,7 +287,7 @@ still holds:
 
 **The Grok mark is the mark.** It is not traced off X's nav at all: this repo's
 `grok-ios` canvas carries the same artwork at 165 px in
-`assets/art/06-ic-mark.png`, and that is what board 07 draws. The nav renders
+`assets/art/06-ic-mark.png`, and that is what board 02 draws. The nav renders
 it at 70 px, where the dart's razor tips fall below half coverage and shorten
 the ink box — which is why the mark's apparent ring span reads 0.800 of its
 width there and 0.764 on the 165 px copy, and why its box is fitted rather than
@@ -341,8 +341,8 @@ measured, and a reader would otherwise take them for measurement:
 pill samples a flat `#060B13` on p3 and a flat `#0E1419` on p1 and p4, with the
 page ground identical `#FFFFFF` on all three, so it is not a colour cast on the
 export. The boards paint one `--x-ink` and eat the difference, which is worth
-7.11 over that 357 × 52 pt band and 0.51 on screen 03's whole-frame number —
-the entire gap between 03 and 02, which are otherwise the same screen with one
+7.11 over that 357 × 52 pt band and 0.51 on screen 05's whole-frame number —
+the entire gap between 05 and 04, which are otherwise the same screen with one
 checkmark and one pill fill between them. Matching it would mean claiming X has
 two different black buttons.
 
@@ -369,15 +369,18 @@ scan probes land on their edge exactly.
 Every probe here replays a run both sides still draw. Nine measurements cannot
 be: five went with the Spaces card X's own post carries, two are the demo
 persona's name and location, two are the nav wash that went with the Space, and a shifted run cannot be replayed at all —
-`--against` reads one box on both images, and the bio's second line moves 07's
+`--against` reads one box on both images, and the bio's second line moves 02's
 meta block 21 pt down the render. Those nine are on the 00b–00f evidence
 boards, which quote the capture and are not replayed against a render. `inv`
-stayed by moving to 01's "Agree & Continue", white on `--x-ink` where it used to
+stayed by moving to 03's "Agree & Continue", white on `--x-ink` where it used to
 be white on the Space card, and `spaces` came back outright when 13 drew a
 Spaces card again — it is read off 15's Spaces button, because 13's card is the
 same fill two levels of red off it.
 
-`assets/refs/` and the fifteen `ref-*.html` boards hold third-party captures and
-are gitignored, so a fresh clone has 22 boards; `gen.py` rebuilds the reference
-boards whenever the captures are present. Everything a run makes otherwise
-lives in `scratch/`.
+`assets/refs/pN.png` is the Nth Mobbin capture in the order it exported, which
+is not the order the deck runs in: the profile pair leads, so board 01 is p6 and
+02 is p7, and 03–07 are p1–p5. `SCREENS` carries each board's capture number
+beside it. `assets/refs/` and the fifteen `ref-*.html` boards hold third-party
+captures and are gitignored, so a fresh clone has 22 boards; `gen.py` rebuilds
+the reference boards whenever the captures are present. Everything a run makes
+otherwise lives in `scratch/`.

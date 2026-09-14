@@ -1,9 +1,9 @@
 {
   "_": "Boxes in design pt, x0 y0 x1 y1, on the capture named first. gen.py's cut() multiplies by SCALE (3.0 capture px per pt) and writes assets/art/<id>.png. p1, p5 and p10 are read through gen.py's INPAINT: the chrome the boards draw again in CSS is patched out of the capture with a Coons fill before the crop is taken.",
-  "_rule": "Only a picture is cropped. Every rule, fill, glyph and run of type on these screens is rebuilt, so nothing here carries interface pixels -- 10's hero keeps its own baked-in scrim but has X's 'LIVE' and event title patched out of it. The three facepiles are one rectangle each, white gaps included, because the discs overlap. The five round ones below are square boxes the boards place under border-radius:50%, and each carries the ring drawn around it in the capture, which is a property of the picture's own edge rather than a fill a board could redraw. The two banners and the example account's avatar are not here: 06, 07 and 10 show its own, which are in assets/ and placed by pic().",
+  "_rule": "Only a picture is cropped. Every rule, fill, glyph and run of type on these screens is rebuilt, so nothing here carries interface pixels -- 10's hero keeps its own baked-in scrim but has X's 'LIVE' and event title patched out of it. The three facepiles are one rectangle each, white gaps included, because the discs overlap. The five round ones below are square boxes the boards place under border-radius:50%, and each carries the ring drawn around it in the capture, which is a property of the picture's own edge rather than a fill a board could redraw. The two banners and the example account's avatar are not here: 01, 02 and 10 show its own, which are in assets/ and placed by pic().",
 
-  "01-hero": ["i1", 0, 0, 393, 395],
-  "05-hero": ["i5", 0, 0, 393, 198],
+  "03-hero": ["i1", 0, 0, 393, 395],
+  "07-hero": ["i5", 0, 0, 393, 198],
   "10-hero": ["i10", 0, 147, 393, 362.67],
   "10-pile-1": ["p10", 10.67, 469.67, 73.33, 496.34],
   "10-pile-2": ["p10", 10.67, 584, 73.33, 610.67],

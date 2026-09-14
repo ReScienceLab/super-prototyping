@@ -1,6 +1,6 @@
 {
   "name": "(example) X iOS",
-  "cover": "07-profile",
+  "cover": "02-profile",
   "rows": [
     {
       "title": "Foundations",
@@ -40,32 +40,32 @@
       "numbered": true,
       "files": [
         {
-          "file": "01-professional-splash",
-          "label": "X for Professionals"
-        },
-        {
-          "file": "02-select-category",
-          "label": "Select a category"
-        },
-        {
-          "file": "03-category-selected",
-          "label": "Category selected"
-        },
-        {
-          "file": "04-select-account-type",
-          "label": "Select an account type"
-        },
-        {
-          "file": "05-welcome",
-          "label": "Welcome"
-        },
-        {
-          "file": "06-edit-profile",
+          "file": "01-edit-profile",
           "label": "Edit profile"
         },
         {
-          "file": "07-profile",
+          "file": "02-profile",
           "label": "Professional profile"
+        },
+        {
+          "file": "03-professional-splash",
+          "label": "X for Professionals"
+        },
+        {
+          "file": "04-select-category",
+          "label": "Select a category"
+        },
+        {
+          "file": "05-category-selected",
+          "label": "Category selected"
+        },
+        {
+          "file": "06-select-account-type",
+          "label": "Select an account type"
+        },
+        {
+          "file": "07-welcome",
+          "label": "Welcome"
         },
         {
           "file": "08-explore-settings",
@@ -106,32 +106,32 @@
       "numbered": true,
       "files": [
         {
-          "file": "ref-01-professional-splash",
-          "label": "X for Professionals"
-        },
-        {
-          "file": "ref-02-select-category",
-          "label": "Select a category"
-        },
-        {
-          "file": "ref-03-category-selected",
-          "label": "Category selected"
-        },
-        {
-          "file": "ref-04-select-account-type",
-          "label": "Select an account type"
-        },
-        {
-          "file": "ref-05-welcome",
-          "label": "Welcome"
-        },
-        {
-          "file": "ref-06-edit-profile",
+          "file": "ref-01-edit-profile",
           "label": "Edit profile"
         },
         {
-          "file": "ref-07-profile",
+          "file": "ref-02-profile",
           "label": "Professional profile"
+        },
+        {
+          "file": "ref-03-professional-splash",
+          "label": "X for Professionals"
+        },
+        {
+          "file": "ref-04-select-category",
+          "label": "Select a category"
+        },
+        {
+          "file": "ref-05-category-selected",
+          "label": "Category selected"
+        },
+        {
+          "file": "ref-06-select-account-type",
+          "label": "Select an account type"
+        },
+        {
+          "file": "ref-07-welcome",
+          "label": "Welcome"
         },
         {
           "file": "ref-08-explore-settings",

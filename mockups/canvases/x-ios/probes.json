@@ -10,9 +10,9 @@
    694
   ],
   "only": "flat",
-  "mine": "06-edit-profile.png",
-  "_": "06 the empty band between the hairlines at 664.67 and 697.00, clear of both: page ground and nothing else",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. --against wants scratch/shot, which scratch/run.py fills with the fifteen boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Nine left the file when 07 took @Yilin0x's own timeline: chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, t-name and t-meta the demo persona's name and location, and nav-l and nav-r the purple X tints the nav bar with while a Space is live, which that timeline no longer has -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those nine measurements stay on the 00b-00f evidence boards, which quote the capture and are not replayed against a render. spaces is not among them: 13's card brought it back, on a screen this time."
+  "mine": "01-edit-profile.png",
+  "_": "01 the empty band between the hairlines at 664.67 and 697.00, clear of both: page ground and nothing else",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt at 3 capture px to the pt; run with --pt 3. `img` is assets/refs/pN.png, the Nth Mobbin capture as it exported: 1179x2676, which is 393x852pt plus the 120px Mobbin footer that sits below every probe here. N is Mobbin's export order, not the board number: the deck leads with the profile pair, so 01 reads p6 and 02 p7, and 03-07 read p1-p5. --against wants scratch/shot, which scratch/run.py fills with the fifteen boards rendered at 3x with --crop-phone; every probe names its own board there. Nothing is probed on the Dynamic Island (x 134-259 y 11-47), the home indicator (x 127-266 y 839-846) or the 52pt display corners -- those three are this repo's frame and the capture carries none of them. Every probe replays a run both sides draw. Nine left the file when 02 took @Yilin0x's own timeline: chip, chip-ink, m-card, m-play and t-space read the Spaces card no board draws now, t-name and t-meta the demo persona's name and location, and nav-l and nav-r the purple X tints the nav bar with while a Space is live, which that timeline no longer has -- and a run the bio's second line pushes down cannot be probed anyway, since one box is read on both images. Those nine measurements stay on the 00b-00f evidence boards, which quote the capture and are not replayed against a render. spaces is not among them: 13's card brought it back, on a screen this time."
  },
  {
   "id": "field",
@@ -25,8 +25,8 @@
    288
   ],
   "only": "flat",
-  "mine": "02-select-category.png",
-  "_": "02 the search field's interior, right of the placeholder ink (ends 189.7) and inside the 34pt box at y 260-294"
+  "mine": "04-select-category.png",
+  "_": "04 the search field's interior, right of the placeholder ink (ends 189.7) and inside the 34pt box at y 260-294"
  },
  {
   "id": "pill-off",
@@ -39,8 +39,8 @@
    798
   ],
   "only": "flat",
-  "mine": "02-select-category.png",
-  "_": "02 the disabled Next pill, x 18-375 y 754-806: right of its label ink (ends 213.67) and inside the semicircular ends"
+  "mine": "04-select-category.png",
+  "_": "04 the disabled Next pill, x 18-375 y 754-806: right of its label ink (ends 213.67) and inside the semicircular ends"
  },
  {
   "id": "backdrop",
@@ -53,8 +53,8 @@
    70
   ],
   "only": "flat",
-  "mine": "06-edit-profile.png",
-  "_": "06 left of the peek card (starts x20) and above the sheet (69.0): the dimmed parent, black"
+  "mine": "01-edit-profile.png",
+  "_": "01 left of the peek card (starts x20) and above the sheet (69.0): the dimmed parent, black"
  },
  {
   "id": "accent",
@@ -67,8 +67,8 @@
    744
   ],
   "only": "flat",
-  "mine": "07-profile.png",
-  "_": "07 the compose FAB, d 56 at (328, 704): inside the disc and left of the plus glyph, which starts at 348.33"
+  "mine": "02-profile.png",
+  "_": "02 the compose FAB, d 56 at (328, 704): inside the disc and left of the plus glyph, which starts at 348.33"
  },
  {
   "id": "ink",
@@ -81,8 +81,8 @@
    446
   ],
   "only": "ink",
-  "mine": "01-professional-splash.png",
-  "_": "01 'X for Professionals', the title run, ink 14.7-245.7"
+  "mine": "03-professional-splash.png",
+  "_": "03 'X for Professionals', the title run, ink 14.7-245.7"
  },
  {
   "id": "ink-2",
@@ -95,8 +95,8 @@
    478
   ],
   "only": "ink",
-  "mine": "01-professional-splash.png",
-  "_": "01 the first body line, the secondary ink"
+  "mine": "03-professional-splash.png",
+  "_": "03 the first body line, the secondary ink"
  },
  {
   "id": "inv",
@@ -110,8 +110,8 @@
   ],
   "only": "ink",
   "bright": true,
-  "mine": "01-professional-splash.png",
-  "_": "01 'Agree & Continue' on the enabled CTA, inside the label's ink and the pill both: white on --x-ink, so the brightest percentile rather than the darkest. It read #FFFFFF off 07's Spaces card too, while the boards still drew one"
+  "mine": "03-professional-splash.png",
+  "_": "03 'Agree & Continue' on the enabled CTA, inside the label's ink and the pill both: white on --x-ink, so the brightest percentile rather than the darkest. It read #FFFFFF off 02's Spaces card too, while the boards still drew one"
  },
  {
   "id": "ink-off",
@@ -124,8 +124,8 @@
    786
   ],
   "only": "ink",
-  "mine": "02-select-category.png",
-  "_": "02 the disabled Next label on its #88898D pill, ink 180.0-213.67"
+  "mine": "04-select-category.png",
+  "_": "04 the disabled Next label on its #88898D pill, ink 180.0-213.67"
  },
  {
   "id": "save-off",
@@ -138,8 +138,8 @@
    100
   ],
   "only": "ink",
-  "mine": "06-edit-profile.png",
-  "_": "06 'Save', ink 338.67-377.00 y 88.0-99.0: a grey of its own, not 02's disabled label"
+  "mine": "01-edit-profile.png",
+  "_": "01 'Save', ink 338.67-377.00 y 88.0-99.0: a grey of its own, not 04's disabled label"
  },
  {
   "id": "hairline",
@@ -153,8 +153,8 @@
   ],
   "bg": "FFFFFF",
   "scale": 3,
-  "mine": "06-edit-profile.png",
-  "_": "06 the rule at 350.67, one of ten full-width ones. A 1pt rule never reaches its true colour in a 3x capture, so it is solved, not sampled"
+  "mine": "01-edit-profile.png",
+  "_": "01 the rule at 350.67, one of ten full-width ones. A 1pt rule never reaches its true colour in a 3x capture, so it is solved, not sampled"
  },
  {
   "id": "border",
@@ -168,8 +168,8 @@
   ],
   "bg": "FFFFFF",
   "scale": 3,
-  "mine": "04-select-account-type.png",
-  "_": "04 the Business card's top border at y 234.67, solved the same way"
+  "mine": "06-select-account-type.png",
+  "_": "06 the Business card's top border at y 234.67, solved the same way"
  },
  {
   "id": "sheet-edge",
@@ -181,8 +181,8 @@
    36,
    120
   ],
-  "mine": "06-edit-profile.png",
-  "_": "06 down the middle: the peek card's top at 42.67, then the sheet's at 69.0. Two edges in one line, and the pair is what sets --x-r-peek and --x-r-sheet"
+  "mine": "01-edit-profile.png",
+  "_": "01 down the middle: the peek card's top at 42.67, then the sheet's at 69.0. Two edges in one line, and the pair is what sets --x-r-peek and --x-r-sheet"
  },
  {
   "id": "m-field",
@@ -195,8 +195,8 @@
    305
   ],
   "dark": 246,
-  "mine": "02-select-category.png",
-  "_": "02 the search field: 34 tall at y 260-294, x 16-377. #EFF3F4 on white is under any ordinary threshold, hence --dark 246"
+  "mine": "04-select-category.png",
+  "_": "04 the search field: 34 tall at y 260-294, x 16-377. #EFF3F4 on white is under any ordinary threshold, hence --dark 246"
  },
  {
   "id": "m-cta",
@@ -209,8 +209,8 @@
    812
   ],
   "dark": 200,
-  "mine": "02-select-category.png",
-  "_": "02 the Next pill: 52 tall, x 18-375, ends semicircular"
+  "mine": "04-select-category.png",
+  "_": "04 the Next pill: 52 tall, x 18-375, ends semicircular"
  },
  {
   "id": "t-title",
@@ -223,8 +223,8 @@
    450
   ],
   "dark": 150,
-  "mine": "01-professional-splash.png",
-  "_": "01 'X for Professionals' 231.00 wide. Every Type size was fitted to a run's ink width, not read off the iOS ladder"
+  "mine": "03-professional-splash.png",
+  "_": "03 'X for Professionals' 231.00 wide. Every Type size was fitted to a run's ink width, not read off the iOS ladder"
  },
  {
   "id": "t-card",
@@ -237,8 +237,8 @@
    274
   ],
   "dark": 150,
-  "mine": "04-select-account-type.png",
-  "_": "04 'Business' 77.33"
+  "mine": "06-select-account-type.png",
+  "_": "06 'Business' 77.33"
  },
  {
   "id": "track-on",
@@ -295,7 +295,7 @@
   ],
   "dark": 246,
   "mine": "10-explore.png",
-  "_": "10 the search pill: 39 tall at y 61-100, x 64-337. #EFF3F4 on white is under any ordinary threshold, hence --dark 246, as on 02's field"
+  "_": "10 the search pill: 39 tall at y 61-100, x 64-337. #EFF3F4 on white is under any ordinary threshold, hence --dark 246, as on 04's field"
  },
  {
   "id": "m-toggle",
