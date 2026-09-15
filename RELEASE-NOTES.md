@@ -21,6 +21,13 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.3.0
+
+2026-09-15. The inspector moves onto the canvas: you click the board itself,
+and fold or hide its layers there. A product's published pictures become a
+brand kit, with a page of its own and an address for every picture. Four new
+example canvases: TikTok, X, Instagram and Perplexity.
+
 ### The canvas
 
 - **Inspect the board on the canvas.** Selecting a board no longer opens a
