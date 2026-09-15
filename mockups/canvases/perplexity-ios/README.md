@@ -3,10 +3,11 @@
 The onboarding flow end to end — splash, email entry empty and filled, the
 "check your email" pane and its two code states, the Pro paywall with and
 without its purchase alert, and the home screen with and without the voice
-tooltip — rebuilt from ten Mobbin captures, plus the token board, a type
-specimen and two evidence boards. 14 boards committed, and 10 more that park
-each capture under its replica; those are gitignored, so a fresh run produces
-24 and a fresh clone shows 14.
+tooltip — followed by the Dynamic Island in four Live Activity states, rebuilt
+from fourteen Mobbin captures, plus the token board, a type specimen and two
+evidence boards. 18 boards committed, and 14 more that park each capture under
+its replica; those are gitignored, so a fresh run produces 32 and a fresh clone
+shows 18.
 
 | # | Board | What it shows |
 | --- | --- | --- |
@@ -20,40 +21,55 @@ each capture under its replica; those are gitignored, so a fresh run produces
 | 08 | `purchased` | The same paywall under a scrim, iOS alert on top |
 | 09 | `home-tip` | Home with the voice tooltip |
 | 10 | `home` | Home at rest |
-| 00 | `design-tokens` | 69 tokens: font, surface, line, ink, accent, radius, type, metrics |
-| 00b | `type` | The 15 type tokens as a specimen, two families |
+| 11 | `island-voice` | Voice mode, the island compact |
+| 12 | `island-voice-open` | Voice mode, the island expanded |
+| 13 | `island-reasoning` | Reasoning, the island compact |
+| 14 | `island-reasoning-open` | Reasoning, the island expanded |
+| 00 | `design-tokens` | 77 tokens: font, surface, line, ink, accent, radius, type, metrics |
+| 00b | `type` | The 16 type tokens as a specimen, two families |
 | 00c–d | `evidence` | One row per token, with the probe behind it |
 
-The captures are Mobbin's 1180 × 2676 PNGs: a 1179 × 2556 iPhone screen at @3x
-with a 120px attribution strip under it. `SCALE` is 3.0 and the frame is this
-repo's 393 × 852 pt.
+**The captures come at two scales.** The ten onboarding ones are Mobbin's
+1180 × 2676 PNGs: a 1179 × 2556 iPhone screen at @3x with a 120px attribution
+strip under it, so 3.0 capture px per pt. The four island ones are 881 × 2000,
+an 881 × 1910 screen under a 90px strip, so **2.24173**, which the height agrees
+with at 1910 / 852 = 2.2418. `scale()` reads which from the capture's number,
+and every probe row on boards 11–14 carries its own `pt` so `refkit batch`
+overrides the one on the command line. The frame is this repo's 393 × 852 pt
+either way.
 
 ## How close it lands
 
 Mean absolute delta against the captures — all three channels, the whole
-1180 × 2556 frame with nothing masked, in levels of 255:
+frame with nothing masked, in levels of 255:
 
 | Screen | Δ | Screen | Δ |
 | --- | --- | --- | --- |
-| 01 Splash | 2.40 | 06 Code accepted | 2.96 |
-| 02 Continue with email | 3.52 | 07 Perplexity Pro | 6.10 |
-| 03 Address typed | 4.38 | 08 Purchase confirmed | 5.66 |
-| 04 Check your email | 2.68 | 09 Home, voice tooltip | 4.25 |
-| 05 Enter code | 3.72 | 10 Home | 3.57 |
+| 01 Splash | 2.40 | 08 Purchase confirmed | 5.66 |
+| 02 Continue with email | 3.52 | 09 Home, voice tooltip | 4.25 |
+| 03 Address typed | 4.38 | 10 Home | 3.57 |
+| 04 Check your email | 2.68 | 11 Voice, compact | 1.48 |
+| 05 Enter code | 3.72 | 12 Voice, expanded | 1.84 |
+| 06 Code accepted | 2.96 | 13 Reasoning, compact | 1.52 |
+| 07 Perplexity Pro | 6.10 | 14 Reasoning, expanded | 1.51 |
 
-Mean over the ten, 3.92. **The spread is the serif, and nothing else.** 07 and
-08 are the two boards that carry the two-line didone headline, and its four
-rows are their four worst bands — Δ 56.06, 38.34, 36.92 and 28.67 on 07 against
-a whole-frame 6.10. Mask the 66.7pt those two lines occupy, 7.8% of the
-frame, and 07 falls to **3.84**, between 02 and 03; 08 falls to 4.26, the rest
-of which is the fitted alert vignette. Every other board's worst band is
-either the same sans substitution at 9–25px or the phone corner, below.
+Mean over the fourteen, 3.26; over the ten onboarding screens, 3.92. **The
+spread is the serif, and nothing else.** 07 and 08 are the two boards that carry
+the two-line didone headline, and its four rows are their four worst bands —
+Δ 56.06, 38.34, 36.92 and 28.67 on 07 against a whole-frame 6.10. Mask the
+66.7pt those two lines occupy, 7.8% of the frame, and 07 falls to **3.84**,
+between 02 and 03; 08 falls to 4.26, the rest of which is the fitted alert
+vignette. Every other board's worst band is either the same sans substitution
+at 9–25px or the phone corner, below.
 
-Geometry is not what the numbers are scoring. Across the 12 box probes the
-mean ink-box width error is **0.47pt** and the mean height error **0.72pt**;
-the largest single miss is the 3.3pt the hero block is short, which is the
-substitution itself. The 39 colour probes land at a mean worst-channel
-distance of 2.9 levels, with one outlier at 52 (`flag`, below).
+Geometry is not what the numbers are scoring. Across the 22 box probes the
+mean ink-box width error is **0.68pt** and the mean height error **0.54pt**.
+The largest single miss is 4.4pt on `bar-14`, and it is not the bar: the
+capture keeps a lit pixel 4pt past the progress head, part of the halo the
+crop's `erase` deliberately leaves behind, where the redrawn head stops at its
+own edge. The next is the 3.3pt the hero block is short, which is the
+substitution itself. The 43 colour probes land at a mean worst-channel distance
+of 2.9 levels, with one outlier at 52 (`flag`, below).
 
 Three of the four worst bands on every light board are not the interface at
 all — they are the 52px corner this repo rounds its artboards with, against a
@@ -136,15 +152,71 @@ centred lines are checked on width, a two-line paragraph on where it sits, so
 The third substitution has one string in it, and costs nothing worth
 measuring. `--pp-mono` is `ui-monospace` because p07's "Save $49.00" has a
 7.2pt glyph pitch that holds across the space and the decimal point; every
-other string on the ten screens is proportional.
+other string on the fourteen screens is proportional.
+
+## The Dynamic Island is four boards that break the status-bar rule
+
+Mobbin shoots a Live Activity on a bare grey field: no wallpaper, no home
+indicator, nothing on the screen but the island. `--pp-ground` `#D5D5D5` is
+that field, flat at 213,213,213 across all 393 × 852 outside the island on all
+four captures, which is why these boards score what they do — below the status
+bar and with the artboard's corner columns excluded, 11 and 13 come in at
+**0.01** and 12 and 14 at 0.95 and 0.38.
+
+**The status bar comes from the template, and nothing of the capture's own is
+carried over — including an expanded island or a Live Activity.** These four
+are the one place that bends, because the Live Activity *is* the subject of the
+board. `statusbar()` still supplies the 9:41 clock and the signal group
+unchanged, and the island is drawn over the template's plain one. The bill
+lands in the top 54pt: the band around the island scores 19.23, 33.05, 19.98
+and 32.84 against whole-board deltas of 1.48 to 1.84, almost all of it the
+clock, which the capture sets at 35.7–65.6 where the template sets 54.9–87.0.
+On p11 alone the template's fourth cellular bar shows past the pill at
+298.0–301.1: the compact pill is 205.5 wide on p11 and 211.3 on p13, and only
+the wider one covers it.
+
+The island geometry itself is exact. The compact pill measures 205.2 × 37.0 at
+91.0, 11.2 in both, and the expanded island 370.7 wide and 132.9 tall at
+11.2, 11.2. It takes two probes rather than one box: `--crop-phone`'s 52pt
+corner mask paints the artboard's own corners black, and a dark threshold over
+the whole frame counts those as ink, so `isl-x-12` reads a band across the
+island's middle and `isl-y-12` a column down it, both of which the mask and the
+drop shadow miss.
+
+**`--pp-r-island` is 43.75px**, fitted as a circle against the capture's edge
+at 0.317pt mean absolute error — under a capture pixel. Apple's superellipse
+and a plain radius are not separable at this size, so the board draws the
+radius. The shadow under the panel is CSS rather than crop: the falloff below
+it fits a Gaussian with σ ≈ 16.5pt, and CSS's blur radius is 2σ, hence
+`0 12px 33px rgba(0,0,0,.38)`.
+
+**The glow under the compact glyph is a fitted linear falloff, not a gradient
+preset.** On p11 and p13 the lit glyph at the pill's right throws a cyan wash
+that the pill clips. Sampled clear of the glyph it holds R:G:B 33:64:69 and
+39:72:77, which normalise to the same colour, so the two boards share
+`--pp-glow` `#85EDFF` and differ only in alpha. Modelled as
+α = A·max(0, 1 − d/R) and fitted by least squares over the annulus below each
+glyph, where the pill is otherwise black, both give R ≈ 16.5pt with A 0.41 on
+p11 and 0.73 on p13. The first pass used `radial-gradient(circle closest-side)`
+in a 41px box, R 20.5, which matched its own model and fell far slower than the
+capture; the refit took the `glow` probe from Δ 18 to Δ 6.
+
+The expanded island is the only place on these four that is cropped. `cut()`
+takes `p12-island` and `p14-island` at the island's own box, `[11.15, 11.15,
+381.85, 144.53]`, not at the frame — so the board's own 43.75pt corner clips
+the picture and the shadow underneath is CSS. What is cropped is the starfield
+and the glass waveform or orbit rendered on it, which the capture is the only
+source for; the lockup, the status label and p14's whole progress row are
+erased out of the crop and drawn live. Two new traces go with them,
+`voice-wave.svg` and `atom.svg`.
 
 ## The art is cropped, not generated
 
-Three crops, listed in `crops.json`, cut from `assets/refs/pNN.png` at measured
+Five crops, listed in `crops.json`, cut from `assets/refs/pNN.png` at measured
 pt boxes into `assets/art/<id>.png` and placed back at the same numbers, so an
 asset cannot drift from where it was measured. **Nothing here is drawn by
 `artgen`** — there is no generated art and therefore no generated-asset
-manifest; the shipped Δ for each of the three is the board delta above.
+manifest; the shipped Δ for each of the five is the board delta above.
 
 - `p01-splash`, the painted desert on the splash, 0–435pt. It fades to the
   sheet's own `#1B181C` by y 432, which is where the box ends.
@@ -152,16 +224,19 @@ manifest; the shipped Δ for each of the three is the board delta above.
   first chip row at 500.5.
 - `p10-news`, the wire photo in the news card, 33.7 × 35pt. Nothing is drawn
   over it, so it is cut whole.
+- `p12-island` and `p14-island`, the starfield inside the expanded island and
+  the glass waveform or orbit on it, cut at the island box. Above.
 
-The first two are **not raw pixels**. Everything the app draws over the artwork
-— the status bar, the close and Restore buttons, the pro lockup, the serif
-headline — is erased inside the crop and inpainted from the pixels around it,
-then rebuilt live by the generator. `cut()`'s `erase` boxes say which
-rectangles, and whether the whole rectangle went or only the glyph pixels in
-it. That is why the headline can be re-typeset at all, and why the band around
-it scores what it does rather than being pixel-perfect by construction.
+All but `p10-news` are **not raw pixels**. Everything the app draws over the
+artwork — the status bar, the close and Restore buttons, the pro lockup, the
+serif headline, the island's lockup and progress row — is erased inside the
+crop and inpainted from the pixels around it, then rebuilt live by the
+generator. `cut()`'s `erase` boxes say which rectangles, and whether the whole
+rectangle went or only the glyph pixels in it. That is why the headline can be
+re-typeset at all, and why the band around it scores what it does rather than
+being pixel-perfect by construction.
 
-Everything else vector is **traced, not cropped**: 20 SVGs in `assets/icons/`,
+Everything else vector is **traced, not cropped**: 22 SVGs in `assets/icons/`,
 from the Apple and Google marks on the splash to the five tab glyphs. The
 largest is `home-watermark.svg`, the ghosted Perplexity mark behind the home
 screen, reconstructed from **37 measured path segments** — it is a redrawing
@@ -187,8 +262,8 @@ them by choice:
   cut mid-"File analysis" at the right edge; on p08, scrolled further, it
   reads "Pro user" and row 2 reads "Access to the latest mo". Neither capture
   shows either tail. **"Pro user support" and "Access to the latest models"
-  are inferred**, and they are the only two strings on the ten boards that
-  were not transcribed from pixels.
+  are inferred**, and they are the only two strings on the fourteen boards
+  that were not transcribed from pixels.
 - **p06's code field has no caret.** The blink was off in that frame, not the
   field unfocused — p05, the same field one state earlier, has one at 152.0.
   `code_field()` takes the caret as an optional argument for exactly this.
@@ -210,6 +285,21 @@ them by choice:
   renders a dot solid, so the probe's estimator reads a blend of dot and gap
   where the token holds the dot's own colour. The token is right and the
   probe cannot see it.
+- **The brand mark carries less ink at small sizes than the capture does.**
+  `perplexity-mark.svg` is the official file, a filled `fill-rule="evenodd"`
+  path with thin bars, and its ink box matches the capture exactly at all four
+  sizes the folder places it. Its mass does not. Ref over mine runs 0.993 at
+  p01's 51.7 × 59, 1.175 at p12's 17.8 × 19.6, 1.191 at p14's 14.3 × 15.6 and
+  1.354 at p11's 20.1 × 21.9 — the worst of the four at a size larger than two
+  of them, so the error is not monotonic in size and no single correction fits
+  it. A 0.5pt stroke on the compact mark does bring its mass within 2% and
+  takes that 26 × 25pt window from Δ 31.4 to 22.6, but at three placements
+  that is three fitted numbers thickening a brand file which is exact wherever
+  it is drawn large. It ships unthickened, and it is most of what is left of
+  the compact pill's Δ 5.43.
+- **The glow's own residual is ±0.05 alpha**, because the capture's wash is
+  slightly wider horizontally than a circle. A second fitted axis would take
+  that out and buy nothing the board delta can see.
 - **p08's alert is not glass.** It is iOS glass in the capture, but the blur
   is wide enough that nothing of the hero's *shape* survives it: the fill
   reads 239 at the centre, 230 at r 55 and 208 at r 126 whatever is behind it.
@@ -253,14 +343,24 @@ anywhere. Never hand-edit the artboards.
 
 `cut()` refreshes `assets/art/` from `assets/refs/`, which is gitignored —
 without the refs the generator still rebuilds every board from the committed
-art. To restore the refs, copy Mobbin's ten `onboarding-NN.png` downloads to
-`assets/refs/pNN.png` unchanged: no resize, no crop, the whole 1180 × 2676
-file including the attribution strip, which every probe box is measured
-against. `01` is the splash and `10` the bare home screen, in flow order.
+art. To restore the refs, copy Mobbin's downloads to `assets/refs/pNN.png`
+unchanged: no resize, no crop, the whole file including the attribution strip,
+which every probe box is measured against. `01`–`10` are the onboarding flow in
+order at 1180 × 2676, `01` the splash and `10` the bare home screen; `11`–`14`
+are the Live Activity captures at 881 × 2000, voice compact and expanded then
+reasoning compact and expanded.
 
-To re-measure, `scratch/it.py` shoots the ten screens at 3× and pads 1179 → 1180
-(pad, not resize — a one-column LANCZOS upscale rings and darkens every glyph
-core by ~13 levels), and `scratch/dd.py` diffs each against its capture with
-Mobbin's strip cut off. Both take substring filters, e.g. `python3
-scratch/dd.py 07 08`. `refkit batch probes.json --against scratch/mine --pt 3`
-re-runs all 53 probes and prints the table the numbers above come from.
+To re-measure, `scratch/it.py` shoots each screen at its own capture's scale —
+3× for the ten, padding 1179 → 1180 afterwards (pad, not resize: a one-column
+LANCZOS upscale rings and darkens every glyph core by ~13 levels), and 2.24173
+for the island four, where 393pt lands on 881px exactly and nothing needs
+padding. `scratch/dd.py` diffs each against its capture with Mobbin's strip cut
+off. Both take substring filters, e.g. `python3 scratch/dd.py 07 08`, and both
+want `PYTHONPATH=.` from this folder so they can import `scale()` from the
+generator. They also invoke `tools/refkit.py` out of this checkout rather than
+the `refkit` on PATH: a float `--scale` is a fix on this branch, and an older
+install rejects 2.24173.
+
+`refkit batch probes.json --against scratch/mine --pt 3` re-runs all 67 probes
+and prints the table the numbers above come from. The fourteen island rows
+carry their own `pt` and override that 3.

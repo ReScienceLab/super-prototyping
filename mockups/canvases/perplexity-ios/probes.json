@@ -1,5 +1,6 @@
 [
  {
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt on the ten Mobbin captures in assets/refs: 1180x2676 sRGB, an iPhone 15/16 screen at 3 px/pt (1179x2556 for 393x852) plus Mobbin's own 120px attribution bar under it, so run with --pt 3 and expect the far right edge to sit one capture pixel inside the box. --against wants scratch/mine, the renders from `refkit shoot --scale 3 --crop-phone` resized 1179->1180 with LANCZOS, one file per `mine`. A sample probe on ink carries --only ink, because batch reads the first colour a probe prints; `bright: true` there means the ink is lighter than its ground. On a bbox, `dark`/`bright` is the luminance threshold that counts as ink. The status bar and home indicator come from the template rather than the capture, so no probe sits above y 54 - the one home-indicator sample is a known near-match, noted in the README. The last fourteen rows are the Dynamic Island boards, whose captures p11-p14 are 881x2000: an 881x1910 screen plus a 90px bar, so 2.24173 px per pt rather than 3. Each of those rows carries its own `pt`, which overrides the one on the command line. Their boxes are absolute capture pt, where gen.py's expanded() places its body relative to the island's own 11.15,11.15 corner.",
   "id": "bg",
   "img": "assets/refs/p02.png",
   "mine": "02-email.png",
@@ -11,8 +12,7 @@
    460
   ],
   "only": "flat",
-  "_": "p02 page ground between the field (ends 211) and the Continue button (starts 485): nothing else in the window",
-  "_head": "Phase 1's measurements, replayable. Boxes are design pt on the ten Mobbin captures in assets/refs: 1180x2676 sRGB, an iPhone 15/16 screen at 3 px/pt (1179x2556 for 393x852) plus Mobbin's own 120px attribution bar under it, so run with --pt 3 and expect the far right edge to sit one capture pixel inside the box. --against wants scratch/mine, the renders from `refkit shoot --scale 3 --crop-phone` resized 1179->1180 with LANCZOS, one file per `mine`. A sample probe on ink carries --only ink, because batch reads the first colour a probe prints; `bright: true` there means the ink is lighter than its ground. On a bbox, `dark`/`bright` is the luminance threshold that counts as ink. The status bar and home indicator come from the template rather than the capture, so no probe sits above y 54 - the one home-indicator sample is a known near-match, noted in the README."
+  "_": "p02 page ground between the field (ends 211) and the Continue button (starts 485): nothing else in the window"
  },
  {
   "id": "night",
@@ -221,7 +221,7 @@
    315,
    418
   ],
-  "_": "p08 alert title ‘You’re all set’ inside the 270pt alert. The three runs are the iOS ladder -- 17 semibold, 13 regular, 17 medium -- and this is the one that reads it: 14px set the string 14.6% narrow and 38.6% light"
+  "_": "p08 alert title \u2018You\u2019re all set\u2019 inside the 270pt alert. The three runs are the iOS ladder -- 17 semibold, 13 regular, 17 medium -- and this is the one that reads it: 14px set the string 14.6% narrow and 38.6% light"
  },
  {
   "id": "border",
@@ -708,7 +708,7 @@
    660
   ],
   "dark": 200,
-  "_": "p10 '85°F Mostly cloudy' alone: the cloud glyph ends at 51.5 and the card at 181. Sets --pp-t-note"
+  "_": "p10 '85\u00b0F Mostly cloudy' alone: the cloud glyph ends at 51.5 and the card at 181. Sets --pp-t-note"
  },
  {
   "id": "tip-09",
@@ -737,5 +737,214 @@
   ],
   "dark": 200,
   "_": "p06 spinner ring inside its 104.5pt card: an arc, so the box is the ring's outer diameter, ~39 centred on 198, 442.5"
+ },
+ {
+  "id": "ground",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   300,
+   353,
+   500
+  ],
+  "only": "flat",
+  "pt": 2.24173,
+  "_": "p11 mid-screen. The Live Activity captures are shot on a bare field, so this is 313x200pt with nothing in the window at all -- no wallpaper, no home indicator"
+ },
+ {
+  "id": "island",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "sample",
+  "box": [
+   135,
+   20,
+   200,
+   40
+  ],
+  "only": "flat",
+  "pt": 2.24173,
+  "_": "p11 inside the compact pill, right of the mark (ends 124.0) and left of the mic dot (starts 215.0): the pill is a true black, not a near-black"
+ },
+ {
+  "id": "cyan-3",
+  "img": "assets/refs/p14.png",
+  "mine": "14-island-reasoning-open.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   120.8,
+   250,
+   122.4
+  ],
+  "only": "flat",
+  "pt": 2.24173,
+  "_": "p14 the interior rows of the filled progress bar, which spans 120.0-123.1, well short of the head at 302.6. The top and bottom rows are left out because they are the bar's own antialiasing"
+ },
+ {
+  "id": "mic",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "ink",
+  "box": [
+   215,
+   27,
+   220.6,
+   32.6
+  ],
+  "pt": 2.24173,
+  "_": "p11 the recording dot on the pill's black, d 5.6 at (217.8, 29.8). `ink`'s percentile is stricter on the capture's softer edge, so it reads the ref 0.4 narrow; at half maximum both read 5.80 across"
+ },
+ {
+  "id": "glow",
+  "img": "assets/refs/p13.png",
+  "mine": "13-island-reasoning.png",
+  "cmd": "sample",
+  "box": [
+   272,
+   38.5,
+   285,
+   41
+  ],
+  "only": "flat",
+  "pt": 2.24173,
+  "_": "p13 the annulus below the atom, r 8.5-11 from the glow's centre (278.5, 30) and clear of the glyph, which ends at 38.1. Black pill under it, so what is left is the glow alone"
+ },
+ {
+  "id": "pill-11",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "bbox",
+  "box": [
+   88,
+   8,
+   297,
+   52
+  ],
+  "dark": 120,
+  "pt": 2.24173,
+  "_": "p11 the compact pill. The window stops at 297 because the template's fourth cellular bar peeks past the pill at 298.0-301.1, and starts at 88 because the template's clock sits at 54.9-87.0 where the capture's is at 35.7-65.6"
+ },
+ {
+  "id": "wave-11",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "bbox",
+  "box": [
+   262,
+   18,
+   290,
+   42
+  ],
+  "bright": 100,
+  "pt": 2.24173,
+  "_": "p11 the five waveform bars, all of them. Threshold 100 of 255: the glow under them peaks at 47 and the bars core at 226"
+ },
+ {
+  "id": "atom-13",
+  "img": "assets/refs/p13.png",
+  "mine": "13-island-reasoning.png",
+  "cmd": "bbox",
+  "box": [
+   264,
+   16,
+   292,
+   42
+  ],
+  "bright": 100,
+  "pt": 2.24173,
+  "_": "p13 the atom, the same window one pt out on each side. It is square in the capture, 16.51 both ways, which is what sets the two ellipses' rx and ry"
+ },
+ {
+  "id": "isl-x-12",
+  "img": "assets/refs/p12.png",
+  "mine": "12-island-voice-open.png",
+  "cmd": "bbox",
+  "box": [
+   8,
+   60,
+   386,
+   100
+  ],
+  "dark": 120,
+  "pt": 2.24173,
+  "_": "p12 the expanded island across its middle, where the phone's own 52pt corner mask cannot reach. 120 of 255 clears the drop shadow, which bottoms at 133"
+ },
+ {
+  "id": "isl-y-12",
+  "img": "assets/refs/p12.png",
+  "mine": "12-island-voice-open.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   8,
+   250,
+   150
+  ],
+  "dark": 120,
+  "pt": 2.24173,
+  "_": "p12 the same island down its middle: the other two edges, on a column the shadow and the corner mask both miss"
+ },
+ {
+  "id": "lockup-12",
+  "img": "assets/refs/p12.png",
+  "mine": "12-island-voice-open.png",
+  "cmd": "bbox",
+  "box": [
+   52,
+   59,
+   154,
+   83
+  ],
+  "bright": 200,
+  "pt": 2.24173,
+  "_": "p12 the mark and the wordmark together, 200 of 255 so the starfield behind them does not join in. Both are the brand files at their measured boxes, so this is a placement check, not a shape one"
+ },
+ {
+  "id": "live-12",
+  "img": "assets/refs/p12.png",
+  "mine": "12-island-voice-open.png",
+  "cmd": "bbox",
+  "box": [
+   50,
+   92,
+   200,
+   112
+  ],
+  "bright": 150,
+  "pt": 2.24173,
+  "_": "p12 'Voice mode is active', cyan word included. Sets --pp-t-live. The 1.3pt it starts late is the V's left side bearing, which this folder places by the ink box everywhere; the 0.9 it runs tall is the capture's blur against a crisp render"
+ },
+ {
+  "id": "note-14",
+  "img": "assets/refs/p14.png",
+  "mine": "14-island-reasoning-open.png",
+  "cmd": "bbox",
+  "box": [
+   42,
+   76,
+   130,
+   94
+  ],
+  "bright": 60,
+  "pt": 2.24173,
+  "_": "p14 'Reasoning...', descender and ellipsis included. Threshold 60 rather than 128 because the string fades to the right and a higher cut would measure two different lengths of it"
+ },
+ {
+  "id": "bar-14",
+  "img": "assets/refs/p14.png",
+  "mine": "14-island-reasoning-open.png",
+  "cmd": "bbox",
+  "box": [
+   40,
+   119.5,
+   320,
+   123.5
+  ],
+  "bright": 100,
+  "pt": 2.24173,
+  "_": "p14 the filled bar and its head, on four rows so the starfield above and below stays out. The 4.4pt the ref runs long is the head's halo, which the board does not draw"
  }
 ]

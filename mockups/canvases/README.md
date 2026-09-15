@@ -446,12 +446,14 @@ declares a box other than the default 478 x 980.
   twice, in opposite directions. The Perplexity iOS onboarding flow end to end
   - the splash, email entry empty and filled, the "check your email" pane and
   its two code states, the Pro paywall with and without its purchase alert, and
-  the home screen with and without the voice tooltip - in 24 boards across
-  three rows: a token board, a type board and two evidence boards for 70
-  tokens, the ten replicas, and the Mobbin capture of each parked underneath.
-  Mean absolute delta against those captures is 2.40-6.10 levels (of 255), mean
-  3.92, and geometry is not what the number scores: across the 12 box probes
-  the mean ink-box width error is 0.47pt and the mean height error 0.72pt. The
+  the home screen with and without the voice tooltip, then the Dynamic Island
+  in four Live Activity states - in 32 boards across three rows: a token board,
+  a type board and two evidence boards for 77 tokens, the fourteen replicas,
+  and the Mobbin capture of each parked underneath. Mean absolute delta against
+  those captures is 1.48-6.10 levels (of 255), mean 3.26 over the fourteen and
+  3.92 over the ten onboarding screens, and geometry is not what the number
+  scores: across the 22 box probes the mean ink-box width error is 0.68pt and
+  the mean height error 0.54pt. The
   whole spread is the didone headline on 07 and 08, whose two lines are those
   boards' four worst bands; mask the 66.7pt they occupy and 07 falls from 6.10
   to 3.84. Its `README.md` records why the same substitution was fitted two
@@ -472,10 +474,16 @@ declares a box other than the default 478 x 980.
   columns and p04's worst band goes from 24.94 to 0.00. And it names four
   defects as the captures' own: the plan chips are clipped on 07 and 08, 06
   caught the code caret mid-blink, 09 caught the home indicator mid-fade, and
-  09 and 10 hold different frames of the same voice glyph. Only three boxes are
-  cropped and no art is generated; 20 icons are SVGs traced against the
-  captures, one of them a 37-segment watermark. The ten `ref-*` boards are
-  gitignored, so a fresh clone has 14.
+  09 and 10 hold different frames of the same voice glyph. It is also the run
+  to read when one folder's captures arrive at two scales: the island four are
+  881 x 2000 rather than @3x, so 2.24173 px per pt, which `scale()` reads off
+  the capture's number and each of their probe rows carries as its own `pt`.
+  They are the best boards in the folder, 1.48 to 1.84, and the four that bend
+  the status-bar rule - the Live Activity is the subject, so it is drawn, and
+  the top 54pt pays 19 to 33 levels for the template's own clock. Only five
+  boxes are cropped and no art is generated; 22 icons are SVGs traced against
+  the captures, one of them a 37-segment watermark. The fourteen `ref-*` boards
+  are gitignored, so a fresh clone has 18.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

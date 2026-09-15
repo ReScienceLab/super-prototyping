@@ -1348,7 +1348,7 @@ def _parser():
     t = s.add_parser("shoot"); t.set_defaults(fn=cmd_shoot)
     t.add_argument("html", nargs="+"); t.add_argument("-o", "--out", required=True)
     t.add_argument("--w", type=int, default=478); t.add_argument("--h", type=int, default=980)
-    t.add_argument("--scale", type=int, default=2)
+    t.add_argument("--scale", type=float, default=2)
     t.add_argument("--crop-phone", action="store_true",
                    help="cut the 393x852 screen out of the frame, corners masked "
                         "to the 52pt radius, ready to diff")

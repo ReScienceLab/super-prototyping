@@ -5,9 +5,14 @@ The onboarding flow end to end: the splash, email entry empty and filled, the
 without its purchase alert, and the home screen with and without the voice
 tooltip.
 
-The captures are 1180 x 2676 from Mobbin -- a 1179 x 2556 iPhone screen at @3x
-with a 120px attribution bar under it -- so SCALE is 3.0 and the frame is this
-repo's 393 x 852 pt.
+...and four Dynamic Island states: the voice Live Activity and the reasoning
+one, each compact and expanded.
+
+The first ten captures are 1180 x 2676 from Mobbin -- a 1179 x 2556 iPhone
+screen at @3x with a 120px attribution bar under it. The island four are
+881 x 2000, an 881 x 1910 screen under a 90px bar. Two scales, so `scale`
+reads it off the capture's name; the frame is this repo's 393 x 852 pt either
+way.
 
     python3 mockups/canvases/perplexity-ios/gen.py
 
@@ -26,7 +31,6 @@ OUT = Path(__file__).resolve().parent
 REFS_DIR = OUT / "assets" / "refs"
 ART_DIR = OUT / "assets" / "art"
 ICON_DIR = OUT / "assets" / "icons"
-SCALE = 3.0                                      # capture px per design pt
 
 NAME = "Perplexity iOS"
 PAGE_NAME = "(example) " + NAME
@@ -77,6 +81,13 @@ TOKENS = [
   "p08 against p07: the chip fill goes #252527 to #18181A and the sky #0868BA to "
   "#054379, both a factor of 0.645"),
 
+ ("Surface", "ground",  "#D5D5D5",
+  "the field p11-p14 are shot on: 213,213,213 flat across all 393 x 852 outside "
+  "the island, on all four, with no wallpaper and no home indicator on it"),
+ ("Surface", "island",  "#000000",
+  "the Live Activity's own ground: the compact pill's interior on p11 and p13 and "
+  "the surround the expanded one draws its panel inside on p12 and p14 all core 0,0,0"),
+
  ("Line", "border",  "#DBDAD6", "p02 field outline, col 196 ramp 164.0-165.7, darkest step"),
  ("Line", "line",    "#646464", "p07 Yearly card outline, col 377 y 690"),
  ("Line", "line-on", "#56ACBC", "p07 Monthly card outline, the selected one, col 16.9 y 690"),
@@ -113,6 +124,19 @@ TOKENS = [
  ("Accent", "blue",     "#017BFF",
   "p05 keyboard 'go' key; p08's alert 'OK' is the same iOS system blue, bluest "
   "pixel (4,123,255), so there is one token and not two"),
+ ("Accent", "cyan-3",   "#1DCCE2",
+  "p14's progress bar at x 150, clear of the head: (29,204,226) over three rows. "
+  "p11's waveform bars and p13's atom core the same, and so does p12's 'active'"),
+ ("Accent", "glow",     "#85EDFF",
+  "the wash under the right-hand glyph on p11 and p13. Sampled off the glyph it "
+  "holds R:G:B 33:64:69 and 39:72:77, which normalise to (122,236,255) and "
+  "(129,238,255). Its alpha falls linearly to nothing at r 16.5, fitted by least "
+  "squares to the annulus below each glyph, where the pill is otherwise black: "
+  "0.41 on p11 and 0.73 on p13, so the boards carry the two alphas and share "
+  "the colour"),
+ ("Accent", "mic",      "#FF9500",
+  "the microphone-in-use dot: p11 cores (255,148,0) and p12 (255,149,1), which is "
+  "iOS systemOrange to the level"),
  ("Accent", "danger",   "#F1412B", "p09 unread dot under the Discover tab, 145-151 x 812-818.3"),
  ("Accent", "flag",     "#F44041",
   "p03 spell-check rule under 'mobbin', 100.3-155.3 x 193.7-197.0: R-G peaks 190 "
@@ -130,6 +154,10 @@ TOKENS = [
  ("Radius", "r-pill",  "999px",
   "by construction: p01's four pills, both Continue buttons, the search bar, the "
   "tooltip and Subscribe all solve to r = h/2. The chips do not; see --x-r-chip"),
+ ("Radius", "r-island", "43.75px",
+  "p12/p14 expanded island corner. Fitted as a circle against the capture's edge "
+  "at 0.317pt mean absolute error, which is under a capture pixel: Apple's "
+  "superellipse and a plain radius are not separable at this size"),
  ("Radius", "r-phone", "52px",
   "not measured: the captures are framebuffers, square to the pixel at every corner "
   "(p02 (0,0) is #FFFDFC, p07 (0,0) is #0D0C11), so they carry no evidence of the "
@@ -188,6 +216,10 @@ TOKENS = [
   "4.89, where 29.8px lands them within 0.9% and the band at 3.91. The same "
   "substitute, the same trade as --x-t-hero, settled the other way -- here the "
   "three lines are short enough that width is what the eye checks"),
+ ("Type", "t-live",  "400 16.7px/16.7px var(--x-font)",
+  "p12 'Voice mode is active': its V is 12.04pt cap to baseline, which 16.7px "
+  "sets at the 0.7221 cap ratio --x-t-nav measures. p14's 'Reasoning...' is the "
+  "smaller line and reuses --x-t-note: its R reads 8.47, where 12px sets 8.67"),
  ("Type", "t-time",  "590 17px/22px var(--x-font)", "iOS status bar clock"),
 
  ("Metrics", "w",      "393px", "iPhone 15/16 logical width"),
@@ -196,6 +228,13 @@ TOKENS = [
  ("Metrics", "gutter", "24px",
   "p02-p06 field and button inset; the paywall uses 16.5 and the home screen 16"),
 ]
+
+
+def scale(img):
+    """Capture px per design pt, read off the capture's name. p01-p10 are @3x.
+    p11-p14 are 881 px across a 393pt screen, so 2.2417, which the height
+    agrees with at 1910 / 852 = 2.2418."""
+    return 3.0 if int(img[1:]) <= 10 else 881 / 393
 
 
 def _root():
@@ -283,13 +322,14 @@ def cut(cid):
     blurred ground by T levels, grown by 1pt to take the antialiased rim.
     _inpaint then fills both from the pixels around them."""
     c = CROPS[cid]
+    S = scale(c["img"])
     dst = ART_DIR / (cid + ".png")
     if not dst.exists():
         import numpy as np
         from PIL import Image, ImageFilter
         ART_DIR.mkdir(parents=True, exist_ok=True)
         src = Image.open(REFS_DIR / (c["img"] + ".png")).convert("RGB")
-        box = tuple(round(v * SCALE) for v in c["box"])
+        box = tuple(round(v * S) for v in c["box"])
         im = src.crop(box)
         if c.get("erase"):
             a = np.asarray(im).astype(float)
@@ -298,14 +338,14 @@ def cut(cid):
                                   .filter(ImageFilter.GaussianBlur(10))).astype(float)
             m = np.zeros(lum.shape, bool)
             for e in c["erase"]:
-                X0, Y0, X1, Y1 = (max(int(round((v - o) * SCALE)), 0)
+                X0, Y0, X1, Y1 = (max(int(round((v - o) * S)), 0)
                                   for v, o in zip(e[:4], c["box"][:2] * 2))
                 if len(e) == 4:
                     m[Y0:Y1, X0:X1] = True
                 else:
                     g = np.zeros(lum.shape, bool)
                     g[Y0:Y1, X0:X1] = hp[Y0:Y1, X0:X1] * e[4] > e[5]
-                    m |= _grow(g, int(SCALE))
+                    m |= _grow(g, int(S))
             out = _inpaint(a, m)
             im = Image.fromarray(np.clip(np.round(out), 0, 255).astype(np.uint8))
         im.save(dst)
@@ -498,7 +538,10 @@ SCREEN_CSS = """.phone svg,.phone img{position:absolute;display:block}
   height:40px;padding:0 15.4px;box-sizing:border-box;
   border:.33px solid var(--x-line-chip);border-radius:var(--x-r-chip);
   background:var(--x-chip);color:var(--x-ink-inv)}
-.tabs svg{color:var(--x-idle)}"""
+.tabs svg{color:var(--x-idle)}
+.isl{position:absolute;overflow:hidden;background:var(--x-island);z-index:7}
+.isl img{left:0;top:0}
+.glow{position:absolute;background:radial-gradient(circle closest-side,var(--x-glow),transparent)}"""
 
 
 def ink(y, size):
@@ -815,6 +858,75 @@ def s10():
     return home_screen(False)
 
 
+# --------------------------------------------- 11-14 the Dynamic Island ----
+# Mobbin shoots a Live Activity on a bare --x-ground field: no wallpaper, no
+# home indicator, nothing but the island, which is the whole subject of these
+# four boards. That is also why they draw one where the status-bar rule has
+# every other board leave the capture's alone; the README has the argument.
+ISLAND = (11.15, 11.15, 370.7, 133.38)   # x, y, w, h of the expanded island
+
+
+def compact(width, glyph, glow_cx, glow_a, mic=""):
+    """p11 and p13: a black stadium 37.03 tall hung off the top of the frame,
+    the brand mark at its left and a lit glyph at its right. Everything inside
+    is placed off the pill, and the pill clips the glow the glyph throws."""
+    return ('<div class="isl" data-clip-ok style="left:90.85px;top:11.15px;width:%gpx;'
+            'height:37.03px;border-radius:var(--x-r-pill)">'
+            '<div class="glow" style="left:%gpx;top:2.35px;width:33px;height:33px;'
+            'opacity:%s"></div>%s%s%s</div>'
+            % (width, round(glow_cx - 107.35, 2), glow_a,
+               icon("perplexity-mark", 13.09, 7.59, 20.07, 21.86, ";color:var(--x-ink-inv)"),
+               glyph, mic))
+
+
+def expanded(cid, body):
+    """p12 and p14: the island open. The starfield inside it, and the glass
+    waveform or orbit rendered on that, is the capture's own picture, cut at
+    the island box and clipped by the board's corner rather than by the crop.
+    The lockup, the label and the progress row are erased out of it and drawn
+    here, so the corner is CSS and the type is type."""
+    return ('<div class="isl" style="left:%gpx;top:%gpx;width:%gpx;height:%gpx;'
+            'border-radius:var(--x-r-island);box-shadow:0 12px 33px rgba(0,0,0,.38)">'
+            '%s%s</div>' % (ISLAND + (art(cid, 0, 0, ISLAND[2], ISLAND[3]), body)))
+
+
+def s11():
+    return statusbar() + compact(
+        205.5, icon("voice-wave", 176.48, 12.2, 16.48, 13.3, ";color:var(--x-cyan-3)"),
+        275.57, .41, b(124.15, 15.85, 5.6, 5.6,
+                       "border-radius:50%;background:var(--x-mic)"))
+
+
+def s12():
+    return statusbar() + expanded("p12-island", "".join([
+        icon("perplexity-mark", 42.38, 50.41, 17.84, 19.63, ";color:var(--x-ink-inv)"),
+        icon("perplexity-word", 65.58, 52.19, 75.39, 16.06, ";color:var(--x-ink-inv)"),
+        t(43.27, ink(84.76, 16.7), "font:var(--x-t-live);color:var(--x-ink-inv)",
+          'Voice mode is <span style="color:var(--x-cyan-3)">active</span>'),
+    ])) + b(375.95, 25.65, 8.3, 8.3,
+            "z-index:7;border-radius:50%;background:var(--x-island)",
+            b(2.15, 2.15, 4, 4, "border-radius:50%;background:var(--x-mic)"))
+
+
+def s13():
+    return statusbar() + compact(
+        211.3, icon("atom", 180.06, 10.42, 16.51, 16.51, ";color:var(--x-cyan-3)"),
+        278.5, .73)
+
+
+def s14():
+    return statusbar() + expanded("p14-island", "".join([
+        icon("perplexity-mark", 34.35, 35.69, 14.27, 15.61, ";color:var(--x-ink-inv)"),
+        icon("perplexity-word", 53.09, 37.47, 59.78, 12.49, ";color:var(--x-ink-inv)"),
+        t(35.24, ink(68.7, 12), "font:var(--x-t-note);background:linear-gradient(90deg,"
+          "var(--x-ink-inv),rgba(255,253,255,.3));-webkit-background-clip:text;"
+          "color:transparent", "Reasoning..."),
+        b(34.35, 108.9, 302, 3.1, "border-radius:var(--x-r-pill);background:rgba(255,255,255,.06)"),
+        b(34.35, 108.9, 257.1, 3.1, "border-radius:var(--x-r-pill);background:var(--x-cyan-3)"),
+        b(288.55, 107.55, 5.8, 5.8, "border-radius:50%;background:var(--x-cyan-3)"),
+    ]))
+
+
 SCREENS = [
     ("01-splash",       "Splash",             s01, "night"),
     ("02-email",        "Continue with email", lambda: email_screen(False), "bg"),
@@ -826,6 +938,10 @@ SCREENS = [
     ("08-purchased",    "Purchase confirmed", s08, "night-2"),
     ("09-home-tip",     "Home, voice tooltip", s09, "bg"),
     ("10-home",         "Home",               s10, "bg"),
+    ("11-island-voice",          "Voice, compact",      s11, "ground"),
+    ("12-island-voice-open",     "Voice, expanded",     s12, "ground"),
+    ("13-island-reasoning",      "Reasoning, compact",  s13, "ground"),
+    ("14-island-reasoning-open", "Reasoning, expanded", s14, "ground"),
 ]
 
 
@@ -846,7 +962,7 @@ REF_CSS = """body{padding:24px}
 def ref_uri(path):
     from PIL import Image
     im = Image.open(path).convert("RGB")
-    im = im.crop((0, 0, im.width, round(852 * SCALE)))      # drop Mobbin's 120px bar
+    im = im.crop((0, 0, im.width, round(852 * scale(path.stem))))   # drop Mobbin's bar
     im = im.resize((im.width // 2, im.height // 2), Image.LANCZOS)
     buf = io.BytesIO()
     im.save(buf, "JPEG", quality=88, optimize=True)

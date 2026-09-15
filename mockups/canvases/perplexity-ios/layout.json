@@ -66,6 +66,22 @@
         {
           "file": "10-home",
           "label": "Home"
+        },
+        {
+          "file": "11-island-voice",
+          "label": "Voice, compact"
+        },
+        {
+          "file": "12-island-voice-open",
+          "label": "Voice, expanded"
+        },
+        {
+          "file": "13-island-reasoning",
+          "label": "Reasoning, compact"
+        },
+        {
+          "file": "14-island-reasoning-open",
+          "label": "Reasoning, expanded"
         }
       ]
     },
@@ -112,6 +128,22 @@
         {
           "file": "ref-10-home",
           "label": "Home"
+        },
+        {
+          "file": "ref-11-island-voice",
+          "label": "Voice, compact"
+        },
+        {
+          "file": "ref-12-island-voice-open",
+          "label": "Voice, expanded"
+        },
+        {
+          "file": "ref-13-island-reasoning",
+          "label": "Reasoning, compact"
+        },
+        {
+          "file": "ref-14-island-reasoning-open",
+          "label": "Reasoning, expanded"
         }
       ]
     }
