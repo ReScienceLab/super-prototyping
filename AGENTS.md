@@ -7,7 +7,8 @@ holds only *data*.
 
 Code, shipped to every install:
 
-`skills/` holds `clone-prototype`, `new-ui-mock` and `prototype-canvas`.
+`skills/` holds `clone-prototype`, `new-ui-mock`, `prototype-canvas` and
+`brand-sheet`.
 `.claude/skills/` and `.agents/skills/` are symlinks to it, so this checkout
 loads the same tree an install does.
 
