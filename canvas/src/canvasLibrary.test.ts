@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  brandMaterialSlugs,
   canvasFileHtml,
+  canvasImageKey,
+  canvasImageRef,
   canvasImageUrl,
   loadCanvasFileHtml,
+  readCanvasImage,
   readCanvasLayout,
   readCanvasLibrary,
 } from './canvasLibrary'
@@ -66,5 +70,28 @@ describe('images rows', () => {
       ),
     )
     expect(broken).toEqual([])
+  })
+})
+
+describe('canvasImageRef', () => {
+  it('finds the layout entry behind a brand image, and nothing behind any other shape', () => {
+    // The whole click path, in one go: the canvas builds a shape id out of the folder and the
+    // file (App.tsx, imageShapeId), and a click on the canvas hands that id back for the panel
+    // to read the picture's row, label and source from.
+    const slug = brandMaterialSlugs()[0]
+    const row = (readCanvasLayout(slug)?.rows ?? []).find((r) => r.images?.length)
+    const image = row?.images?.[0]
+    if (!row || !image) throw new Error('no brand material to check')
+
+    expect(canvasImageRef(`shape:${canvasImageKey(slug, image.file)}`)).toEqual({
+      slug,
+      file: image.file,
+    })
+    expect(readCanvasImage(slug, image.file)).toEqual({ row: row.title, image })
+
+    // A brand file is `assets/brand/...`, so the slug is what is before the *first* slash.
+    expect(image.file).toContain('/')
+    expect(canvasImageRef('shape:canvas-file:/mockups/canvases/x/01-a.html')).toBeUndefined()
+    expect(canvasImageRef('shape:canvas-image:slug-with-no-file')).toBeUndefined()
   })
 })

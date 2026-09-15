@@ -1,15 +1,17 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { createShapeId, useEditor, type TLCommentThreadId } from "tldraw";
+import { useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createShapeId, useEditor, type TLCommentThreadId, type TLShapeId } from "tldraw";
 import { BoardComments } from "./InspectorComments";
 import { CanvasChromeContext } from "./canvasChrome";
-import type { CanvasFileShape } from "./CanvasFileShapeUtil";
+import { installInspectorClicks, type InspectorTarget } from "./inspectorClicks";
 import {
   BOARD_STATUSES,
   BOARD_STATUS_LABEL,
   LAYOUT_CHANGED,
   type CanvasBoardStatus,
+  type CanvasLayoutImage,
   boardPageUrl,
   boardStatusForPath,
+  canvasImageUrl,
   readCanvasAssetNames,
   writeBoardStatus,
 } from "./canvasLibrary";
@@ -22,7 +24,6 @@ import {
   type SpReady,
   type SpToken,
 } from "./inspectorAgent";
-import { installInspectorClicks } from "./inspectorClicks";
 import {
   type AssetRow,
   PANEL_W,
@@ -286,6 +287,60 @@ function dividerKeys(
   };
 }
 
+/**
+ * The panel's width, and the window it is clamped to. Both panels below are the same dock: one
+ * width, dragged from one edge, kept for whatever is opened next.
+ *
+ * Keyed `sp:panel`, not the `sp:panel-w` the two-pane panel used: the same number means a rail
+ * width now, and a session that had dragged the old panel wide would open a 736px rail.
+ */
+function usePanelWidth() {
+  const [panelW, setPanelW] = useStickyPanelState("sp:panel", PANEL_W);
+  const [win, setWin] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
+  useEffect(() => {
+    const onResize = () => setWin({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  // Clamped here, not only where it is set: see the note on `nextPanelW`. The raw state is what
+  // a drag started from, this is what is rendered and what the next drag reads back.
+  const panel = nextPanelW(panelW, 0, win.w);
+  return {
+    win,
+    panel,
+    setPanel: {
+      from: () => panel,
+      apply: (w0: number, dx: number) => setPanelW(nextPanelW(w0, dx, win.w)),
+    },
+  };
+}
+
+/** The panel is docked right, so its left edge is the one that resizes it: drag left, wider. */
+function WidthGrip({
+  width,
+  max,
+  set,
+}: {
+  width: number;
+  max: number;
+  set: { from: () => number; apply: (start: number, delta: number) => void };
+}) {
+  return (
+    <div
+      className="sp-grip sp-grip--x"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize inspector"
+      aria-valuenow={width}
+      aria-valuemin={panelBounds(max)[0]}
+      aria-valuemax={panelBounds(max)[1]}
+      tabIndex={0}
+      onPointerDown={divider("x", set.from, set.apply)}
+      onKeyDown={dividerKeys("x", set.from, set.apply)}
+    />
+  );
+}
+
 type Tab = "inspect" | "assets" | "tokens";
 
 const fmt = (n: number) => String(Math.round(n * 100) / 100);
@@ -295,7 +350,7 @@ export function InspectorClicks({
   inspectingPath,
   frame,
 }: {
-  onPick: (shape: CanvasFileShape) => void;
+  onPick: (shape: InspectorTarget) => void;
   inspectingPath: string | null;
   frame: React.RefObject<HTMLIFrameElement | null>;
 }) {
@@ -335,25 +390,17 @@ export function InspectorPanel({
   const [bindings, setBindings] = useState<SpBindings | null>(null);
   const [tab, setTab] = useState<Tab>("inspect");
   const [focusToken, setFocusToken] = useState<string | null>(null);
-  // Keyed `sp:panel`, not the `sp:panel-w` the two-pane panel used: the same number means a rail
-  // width now, and a session that had dragged the old panel wide would open a 736px rail.
-  const [panelW, setPanelW] = useStickyPanelState("sp:panel", PANEL_W);
   const [layersH, setLayersH] = useStickyPanelState(
     "sp:layers-h",
     initialLayersH(window.innerHeight),
   );
-  const [win, setWin] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
+  const { win, panel, setPanel } = usePanelWidth();
   // The comments on this board are the canvas's own, reached through the chrome context
   // because the panel renders beside `<Tldraw>` rather than under it.
   const editor = useContext(CanvasChromeContext).editor;
   const shapeId = useMemo(() => createShapeId(`canvas-file:${path}`), [path]);
   const [openThread, setOpenThread] = useState<TLCommentThreadId | null>(null);
 
-  useEffect(() => {
-    const onResize = () => setWin({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
   const slug = /canvases\/([^/]+)\//.exec(path)?.[1] ?? "";
   const names = useMemo(() => readCanvasAssetNames(slug), [slug]);
 
@@ -417,15 +464,10 @@ export function InspectorPanel({
   const node = data && sel !== null ? data.nodes[sel] : undefined;
   const selAsset = assetForNode(assets, sel);
 
-  // Clamped here, not only where they are set: see the note on `nextPanelW`. The raw state is
-  // what a drag started from, these are what is rendered and what the next drag reads back.
-  const panel = nextPanelW(panelW, 0, win.w);
+  // Clamped here, not only where it is set: see the note on `nextPanelW`. The raw state is what
+  // a drag started from, this is what is rendered and what the next drag reads back.
   const layers = nextLayersH(layersH, 0, win.h);
 
-  const setPanel = {
-    from: () => panel,
-    apply: (w0: number, dx: number) => setPanelW(nextPanelW(w0, dx, win.w)),
-  };
   const setLayers = {
     from: () => layers,
     apply: (h0: number, dy: number) => setLayersH(nextLayersH(h0, dy, win.h)),
@@ -439,19 +481,7 @@ export function InspectorPanel({
 
   return (
     <aside className="sp-panel" style={{ width: panel }}>
-      {/* The panel is docked right, so its left edge is the one that resizes it: drag left, wider. */}
-      <div
-        className="sp-grip sp-grip--x"
-        role="separator"
-        aria-orientation="vertical"
-        aria-label="Resize inspector"
-        aria-valuenow={panel}
-        aria-valuemin={panelBounds(win.w)[0]}
-        aria-valuemax={panelBounds(win.w)[1]}
-        tabIndex={0}
-        onPointerDown={divider("x", setPanel.from, setPanel.apply)}
-        onKeyDown={dividerKeys("x", setPanel.from, setPanel.apply)}
-      />
+      <WidthGrip width={panel} max={win.w} set={setPanel} />
       <div className="sp-rail">
         <header className="sp-head">
           <span className="sp-head-name" title={path}>
@@ -599,6 +629,7 @@ export function InspectorPanel({
         {editor ? (
           <BoardComments
             editor={editor}
+            subject="board"
             shapeId={shapeId}
             open={openThread}
             onOpen={setOpenThread}
@@ -607,6 +638,142 @@ export function InspectorPanel({
         ) : null}
       </div>
     </aside>
+  );
+}
+
+/**
+ * A brand image on the canvas, as the panel needs it. The shape is a plain tldraw image, so
+ * everything there is to say about the picture is in its folder's layout.json.
+ */
+export interface CanvasImagePick {
+  shapeId: TLShapeId;
+  slug: string;
+  file: string;
+  /** The row it was listed in, which is the surface it was collected from: "App Store", "X". */
+  row: string;
+  image: CanvasLayoutImage;
+}
+
+/**
+ * The inspector for a picture. Brand material is laid out as image shapes rather than boards, so
+ * there is no agent running inside one and nothing to pick within it: what a picture has to say
+ * is where it came from and how many pixels it really has. The comments are the board panel's,
+ * the same canvas threads, pinned on the image out there.
+ */
+export function ImagePanel({ pick, onClose }: { pick: CanvasImagePick; onClose: () => void }) {
+  const { win, panel, setPanel } = usePanelWidth();
+  const editor = useContext(CanvasChromeContext).editor;
+  const [openThread, setOpenThread] = useState<TLCommentThreadId | null>(null);
+  const { slug, file, row, image } = pick;
+  const original = canvasImageUrl(slug, file);
+
+  // Nothing is selected inside a picture, so Escape has only the one thing left to do.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented) onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <aside className="sp-panel" style={{ width: panel }}>
+      <WidthGrip width={panel} max={win.w} set={setPanel} />
+      <div className="sp-rail">
+        <header className="sp-head">
+          <span className="sp-head-name" title={file}>
+            {image.label}
+          </span>
+          <span className="sp-head-dim">{`${image.w} × ${image.h}`}</span>
+          {/* The file itself, at full size, in a tab of its own: on the canvas it is drawn at
+              whatever the camera says, and the pixels are the whole point of a reference. */}
+          {original ? (
+            <a
+              className="sp-head-x"
+              href={original}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open the original"
+              aria-label="Open the original"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4.5 1.5h-3v3M7.5 1.5h3v3M10.5 7.5v3h-3M1.5 7.5v3h3" />
+              </svg>
+            </a>
+          ) : null}
+          <button type="button" className="sp-head-x" onClick={onClose} aria-label="Close inspector">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
+              <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
+            </svg>
+          </button>
+        </header>
+
+        <div className="sp-props">
+          <div className="sp-sec">
+            <div className="sp-sh">
+              <span className="sp-sh-t">{row}</span>
+              <span className="sp-sh-s">{file.split("/").pop()}</span>
+            </div>
+            <Row k="Pixels" v={`${image.w} × ${image.h}`} />
+            <Row k="File" v={file} />
+            {image.source ? <Source source={image.source} /> : null}
+            {/* One word from the skill that collected it: "theirs" for something the company
+                published, "archive" for something recovered from one. */}
+            {image.provenance ? <Row k="Provenance" v={image.provenance} /> : null}
+          </div>
+        </div>
+
+        {editor ? (
+          <BoardComments
+            editor={editor}
+            subject="image"
+            shapeId={pick.shapeId}
+            open={openThread}
+            onOpen={setOpenThread}
+            pinAt={{ x: 0.5, y: 0.5 }}
+          />
+        ) : null}
+      </div>
+    </aside>
+  );
+}
+
+/**
+ * Where the picture was collected from. Some sources are prose rather than an address — "openai.com
+ * /brand (Logo section) via Wayback Machine snapshot 20260907013431" — because for those the route
+ * to the asset was the finding, so only the ones a browser can open become links and the rest are
+ * written out under the row. Same rule as the brand sheet's cards (BrandSheet.tsx).
+ */
+function Source({ source }: { source: string }) {
+  let host: string | undefined;
+  try {
+    host = new URL(source).host.replace(/^www\./, "");
+  } catch {
+    host = undefined;
+  }
+  return host ? (
+    <Row
+      k="Source"
+      v={
+        <a className="sp-link" href={source} target="_blank" rel="noopener noreferrer" title={source}>
+          {host}
+        </a>
+      }
+    />
+  ) : (
+    <>
+      <Row k="Source" v={source.split(/[\s/]/)[0]} />
+      <div className="sp-sub sp-longs">{source}</div>
+    </>
   );
 }
 
@@ -822,7 +989,7 @@ function Summary({
   );
 }
 
-function Row({ k, v }: { k: string; v: string }) {
+function Row({ k, v }: { k: string; v: ReactNode }) {
   return (
     <div className="sp-row">
       <span className="sp-k">{k}</span>

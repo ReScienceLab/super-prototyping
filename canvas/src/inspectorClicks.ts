@@ -1,5 +1,12 @@
-import type { Editor, TLEventInfo } from "tldraw";
+import type { Editor, TLEventInfo, TLImageShape } from "tldraw";
 import { CANVAS_FILE_SHAPE_TYPE, type CanvasFileShape } from "./CanvasFileShapeUtil";
+import { canvasImageRef } from "./canvasLibrary";
+
+/**
+ * What a click on the canvas can open: a board, or a piece of brand material, which the library
+ * lays out as an ordinary tldraw image shape rather than as a board (App.tsx, layoutImageRow).
+ */
+export type InspectorTarget = CanvasFileShape | TLImageShape;
 
 /**
  * A locked board cannot be selected, so tldraw reports a click on one as a click on the canvas
@@ -16,39 +23,45 @@ import { CANVAS_FILE_SHAPE_TYPE, type CanvasFileShape } from "./CanvasFileShapeU
  */
 export function installInspectorClicks(
   editor: Editor,
-  onPick: (shape: CanvasFileShape) => void,
+  onPick: (shape: InspectorTarget) => void,
   /** The board the inspector has open, by path: the one mockup that answers the pointer. */
   inspectingPath: string | null,
   /** That board's frame out on the canvas, filled in by CanvasFileShapeUtil. */
   frame: { current: HTMLIFrameElement | null },
 ) {
   /**
-   * The topmost shape must *be* a board. A `filter` here instead would search past anything drawn
-   * over one, so every click on an unlocked note or arrow sitting on a board would also open the
-   * inspector and squeeze the canvas out from under the thing being edited.
+   * The topmost shape must *be* a board or a brand image. A `filter` here instead would search
+   * past anything drawn over one, so every click on an unlocked note or arrow sitting on a board
+   * would also open the inspector and squeeze the canvas out from under the thing being edited.
    */
-  const boardUnderPointer = () => {
+  const targetUnderPointer = (): InspectorTarget | undefined => {
     const hit = editor.getShapeAtPoint(editor.inputs.getCurrentPagePoint(), {
       hitInside: true,
       hitLocked: true,
       renderingOnly: true,
     });
-    return hit?.type === CANVAS_FILE_SHAPE_TYPE ? (hit as CanvasFileShape) : undefined;
+    if (hit?.type === CANVAS_FILE_SHAPE_TYPE) return hit as CanvasFileShape;
+    // An image the library placed, not one someone dropped on the canvas themselves: only the
+    // first has an entry in layout.json behind it for the panel to read.
+    return hit?.type === "image" && canvasImageRef(hit.id) ? (hit as TLImageShape) : undefined;
   };
 
   /**
    * Hands the agent the pointer in the inspected board's own pixels. Anywhere else on the canvas
    * is (-1, -1): it hits nothing, which is how the highlight clears when the pointer leaves.
    */
-  const sendPointer = (board: CanvasFileShape | undefined, click: boolean) => {
-    const at =
-      board?.props.path === inspectingPath
-        ? editor.getPointInShapeSpace(board, editor.inputs.getCurrentPagePoint())
-        : { x: -1, y: -1 };
+  const sendPointer = (target: InspectorTarget | undefined, click: boolean) => {
+    const board =
+      target?.type === CANVAS_FILE_SHAPE_TYPE && target.props.path === inspectingPath
+        ? target
+        : undefined;
+    const at = board
+      ? editor.getPointInShapeSpace(board, editor.inputs.getCurrentPagePoint())
+      : { x: -1, y: -1 };
     frame.current?.contentWindow?.postMessage({ type: "sp:at", x: at.x, y: at.y, click }, "*");
   };
 
-  let pressed: CanvasFileShape | undefined;
+  let pressed: InspectorTarget | undefined;
   const onEvent = (info: TLEventInfo) => {
     if (info.type !== "pointer") {
       // Two fingers arriving, or a wheel, in the middle of a press: a zoom, not a click.
@@ -60,7 +73,10 @@ export function installInspectorClicks(
       // names it back for the layers list. Under the select tool only — with the comment tool up
       // the board is something to drop a pin on, not something to read.
       if (inspectingPath) {
-        sendPointer(editor.getCurrentToolId() === "select" ? boardUnderPointer() : undefined, false);
+        sendPointer(
+          editor.getCurrentToolId() === "select" ? targetUnderPointer() : undefined,
+          false,
+        );
       }
       return;
     }
@@ -71,7 +87,7 @@ export function installInspectorClicks(
         info.button === 0 &&
         editor.getCurrentToolId() === "select" &&
         !editor.menus.hasAnyOpenMenus()
-          ? boardUnderPointer()
+          ? targetUnderPointer()
           : undefined;
       return;
     }
@@ -79,11 +95,12 @@ export function installInspectorClicks(
     const target = pressed;
     pressed = undefined;
     if (!target || editor.inputs.getIsDragging()) return;
-    if (boardUnderPointer()?.id !== target.id) return;
-    // A click on the board already open picks the element under it; a click on any other board
-    // opens that one.
-    if (target.props.path === inspectingPath) sendPointer(target, true);
-    else onPick(target);
+    if (targetUnderPointer()?.id !== target.id) return;
+    // A click on the board already open picks the element under it; a click on any other board,
+    // or on a brand image, opens that one.
+    if (target.type === CANVAS_FILE_SHAPE_TYPE && target.props.path === inspectingPath) {
+      sendPointer(target, true);
+    } else onPick(target);
   };
 
   editor.on("event", onEvent);

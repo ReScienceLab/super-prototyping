@@ -66,12 +66,15 @@ const when = (at: number) => formatRelativeTime(new Date(at).toISOString());
 /** In the panel: every thread on this board, and the field for a new one. */
 export function BoardComments({
   editor,
+  subject,
   shapeId,
   open,
   onOpen,
   pinAt,
 }: {
   editor: Editor;
+  /** What the thing being commented on is called: a board, or a piece of brand material. */
+  subject: "board" | "image";
   shapeId: TLShapeId;
   open: TLCommentThreadId | null;
   onOpen: (id: TLCommentThreadId | null) => void;
@@ -117,11 +120,15 @@ export function BoardComments({
             />
           ))
         ) : (
-          <div className="sp-empty">No comments on this board.</div>
+          <div className="sp-empty">{`No comments on this ${subject}.`}</div>
         )}
       </div>
       <Composer
-        placeholder={pinAt.x === 0.5 && pinAt.y === 0.5 ? "Comment on this board…" : "Comment on the selected layer…"}
+        placeholder={
+          pinAt.x === 0.5 && pinAt.y === 0.5
+            ? `Comment on this ${subject}…`
+            : "Comment on the selected layer…"
+        }
         onPost={post}
       />
     </section>
