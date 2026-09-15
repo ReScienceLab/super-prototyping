@@ -74,13 +74,6 @@ export function BrandKit({ slug }: { slug: string }) {
       ? [{ title: row.title, images, ...rowShape(images) }]
       : [];
   });
-  const count = rows.reduce((n, row) => n + row.images.length, 0);
-  const sources = new Set(
-    rows.flatMap((row) =>
-      row.images.flatMap((i) => sourceLabel(i.source)?.host ?? []),
-    ),
-  );
-
   // The app icon carries this: a dozen product names in a row is a list to read, and a dozen
   // app icons is a shelf to recognise. The name is the icon's alt text and the link's tooltip
   // rather than a label beside it -- a couple of these icons are a black glyph on white, and
@@ -112,20 +105,6 @@ export function BrandKit({ slug }: { slug: string }) {
             <a href={sheetPageUrl(slug)}>Boards at full size</a>
           </p>
         </div>
-        <dl className="meta">
-          <div>
-            <dt>Assets</dt>
-            <dd>{count}</dd>
-          </div>
-          <div>
-            <dt>Surfaces</dt>
-            <dd>{rows.length}</dd>
-          </div>
-          <div>
-            <dt>Sources</dt>
-            <dd>{sources.size}</dd>
-          </div>
-        </dl>
       </header>
       {rows.map((row) => (
         <section
