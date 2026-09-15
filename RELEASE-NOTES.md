@@ -38,9 +38,9 @@ Everything below is on `main` and reaches no install until a version is cut.
   copy, and a 0×0 sprite host is no longer handed out as an asset.
 - **A Brand kit button, and a page of pictures behind it.** A folder with
   `images` rows in `layout.json` is a brand kit: the pictures the company
-  published, one row per surface. The toolbar button (a stack of pictures, next
-  to Export to Figma) opens `brand.html?canvas=<slug>` for a kit, or the index
-  of every kit when you are on a page that has none. The index is one card per
+  published, one row per surface. The toolbar button (a palette, next to
+  Export to Figma) opens `brand.html?canvas=<slug>` for a kit, or the index of
+  every kit when you are on a page that has none. The index is one card per
   product; a kit's own page is a shelf of app icons to switch with, and the
   title is the chip you are standing on.
 - **A picture on the canvas has an address.** `?canvas=grok-ios#01-widget`
