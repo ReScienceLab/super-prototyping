@@ -37,14 +37,27 @@ body {
 }
 
 /* ---------------------------------------------------------------- switch ---- */
+/* The two ways out of a kit, in the top-left corner above everything else and small enough to
+   leave the shelf as the first thing seen. */
+.crumbs {
+  margin: 0;
+  padding: 12px 28px 0;
+  color: var(--sub);
+  font-size: 13px;
+}
+.crumbs a {
+  color: inherit;
+  text-decoration-color: var(--hair);
+  text-underline-offset: 3px;
+}
 /* The other examples, as a shelf of app icons above everything. One scrolling row rather than a
    wrapping block: the strip is navigation, and navigation that changes height as the window
-   narrows moves the page under the reader. */
+   narrows moves the page under the reader. The first band's own hairline closes the shelf, so
+   it carries no border of its own. */
 .switch {
   display: flex;
   gap: 4px;
-  padding: 12px 28px;
-  border-bottom: 1px solid var(--hair);
+  padding: 10px 28px 14px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -53,11 +66,24 @@ body {
 }
 .chip {
   display: flex;
+  align-items: center;
   flex: 0 0 auto;
   padding: 5px;
   border-radius: 9px;
   color: var(--sub);
   text-decoration: none;
+}
+/* The page's title, set on the icon you are standing on rather than as a headline below the
+   shelf: clicking a logo is what asks which product this is, so the answer belongs on the logo
+   that answers it. */
+.chip h1 {
+  margin: 0 5px 0 8px;
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  white-space: nowrap;
 }
 .chip img {
   width: 30px;

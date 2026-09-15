@@ -74,38 +74,42 @@ export function BrandKit({ slug }: { slug: string }) {
       ? [{ title: row.title, images, ...rowShape(images) }]
       : [];
   });
-  // The app icon carries this: a dozen product names in a row is a list to read, and a dozen
-  // app icons is a shelf to recognise. The name is the icon's alt text and the link's tooltip
-  // rather than a label beside it -- a couple of these icons are a black glyph on white, and
-  // the row has outgrown the window since, so the names were costing the last two chips.
+  // The app icon carries the other twelve: a dozen product names in a row is a list to read,
+  // and a dozen app icons is a shelf to recognise. Only the one you are standing on is named,
+  // and that name is the page's title -- a headline underneath would say the same word twice,
+  // and the question "which product is this" is already being asked of the shelf.
   const pages = brandMaterialSlugs();
 
   return (
     <main>
-      {pages.length > 1 && (
-        <nav className="switch" aria-label="Brand kit for the other examples">
-          {pages.map((page) => (
-            <a
-              key={page}
-              className="chip"
-              href={brandPageUrl(page)}
-              title={shortName(page)}
-              aria-current={page === slug ? "page" : undefined}
-            >
-              <img src={canvasIconUrl(page)} alt={shortName(page)} />
-            </a>
-          ))}
-        </nav>
-      )}
-      <header className="head">
-        <div>
-          <h1>{shortName(slug)}</h1>
-          <p>
-            <a href={canvasPageUrl(slug)}>Back to the canvas</a> ·{" "}
-            <a href={sheetPageUrl(slug)}>Boards at full size</a>
-          </p>
-        </div>
-      </header>
+      <p className="crumbs">
+        <a href={canvasPageUrl(slug)}>Back to the canvas</a> ·{" "}
+        <a href={sheetPageUrl(slug)}>Boards at full size</a>
+      </p>
+      <nav className="switch" aria-label="Brand kit for the other examples">
+        {pages.map((page) => (
+          <a
+            key={page}
+            className="chip"
+            href={brandPageUrl(page)}
+            title={shortName(page)}
+            aria-current={page === slug ? "page" : undefined}
+            // The shelf is wider than a phone and the named chip is as likely to be the
+            // thirteenth as the second, so on a narrow window the page's own title would open
+            // off the right edge of it.
+            ref={
+              page === slug
+                ? (el) => {
+                    el?.scrollIntoView({ inline: "center", block: "nearest" });
+                  }
+                : undefined
+            }
+          >
+            <img src={canvasIconUrl(page)} alt={shortName(page)} />
+            {page === slug && <h1>{shortName(page)}</h1>}
+          </a>
+        ))}
+      </nav>
       {rows.map((row) => (
         <section
           className="band"
