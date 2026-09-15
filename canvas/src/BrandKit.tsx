@@ -29,13 +29,12 @@ function rowShape(images: { w: number; h: number }[]) {
 
 /**
  * The width a card's picture is actually drawn at, mirroring brand.css: the band's 28px of side
- * padding, the 20px grid gaps, the card's 24px of padding, and the two breakpoints where a row
- * gives up columns. Told nothing, a browser assumes an image fills the window and fetches the
+ * padding, the 20px grid gaps, and the two breakpoints where a row gives up columns. Told nothing, a browser assumes an image fills the window and fetches the
  * original for every card, which is the entire saving gone.
  */
 function cardSizes(cols: number) {
   const at = (n: number) =>
-    `calc((100vw - 56px - ${(n - 1) * 20}px) / ${n} - 48px)`;
+    `calc((100vw - 56px - ${(n - 1) * 20}px) / ${n})`;
   const [two, three] = [at(Math.min(cols, 2)), at(Math.min(cols, 3))];
   return `(max-width: 720px) ${two}, (max-width: 1100px) ${three}, ${at(cols)}`;
 }

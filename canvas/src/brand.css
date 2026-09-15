@@ -165,14 +165,17 @@ body {
 figure {
   margin: 0;
 }
-/* The card is the only thing with a border and a radius. The picture inside it is never clipped
-   and never cropped: it is contained, centred, and shown whole at whatever shape it is. */
+/* The card is the only thing with a border and a radius, and the picture fills it: no inner
+   padding, because half of these assets are a rectangle of artwork with a background of their
+   own — a banner, a store screenshot, an ad — and a ring of white around one of those frames the
+   frame. The picture is still contained rather than cropped, so a shape the card does not have
+   letterboxes on one axis and that white is the card's, not a margin. */
 .card {
   display: flex;
   align-items: center;
   justify-content: center;
   aspect-ratio: var(--box);
-  padding: 24px;
+  overflow: hidden;
   border: 1px solid var(--hair);
   border-radius: 8px;
   background: var(--card);
@@ -258,7 +261,6 @@ figcaption {
 }
 .product__strip .card {
   aspect-ratio: 1;
-  padding: 9px;
   border-radius: 6px;
   background: var(--ground);
 }
