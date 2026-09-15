@@ -6,12 +6,9 @@ import {
   canvasImageUrl,
   pageNameFor,
   readCanvasLayout,
+  shortName,
 } from "./canvasLibrary";
 import { brandPageUrl, canvasPageUrl, sheetPageUrl } from "./canvasUrl";
-
-/** The switcher wants the product, not the shelf: "(example) Claude iOS" reads as "Claude iOS". */
-const shortName = (slug: string) =>
-  pageNameFor(slug).replace(/^\(example\)\s*/, "");
 
 /**
  * How many columns a row gets, and the shape of its cards, from the pictures actually in it.
@@ -68,7 +65,7 @@ function sourceLabel(source: string | undefined) {
  * of asset on every surface, and an avatar that disagrees with the other avatars shows up as a
  * break in the column rather than as something to go looking for.
  */
-export function BrandSheet({ slug }: { slug: string }) {
+export function BrandKit({ slug }: { slug: string }) {
   const rows = (readCanvasLayout(slug)?.rows ?? []).flatMap((row) => {
     const images = (row.images ?? []).flatMap((image) => {
       const src = canvasImageUrl(slug, image.file);
@@ -95,10 +92,7 @@ export function BrandSheet({ slug }: { slug: string }) {
   return (
     <main>
       {pages.length > 1 && (
-        <nav
-          className="switch"
-          aria-label="Brand sheet for the other examples"
-        >
+        <nav className="switch" aria-label="Brand kit for the other examples">
           {pages.map((page) => (
             <a
               key={page}

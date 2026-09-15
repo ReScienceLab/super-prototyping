@@ -36,7 +36,9 @@ export function boardFromUrl(href: string) {
  */
 export function canvasPageUrl(slug: string) {
   const query =
-    slug === WELCOME_PAGE_SLUG ? "" : `?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
+    slug === WELCOME_PAGE_SLUG
+      ? ""
+      : `?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
   return `${import.meta.env.BASE_URL}${query}`;
 }
 
@@ -44,8 +46,11 @@ export function sheetPageUrl(slug: string) {
   return `${import.meta.env.BASE_URL}sheet.html?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
 }
 
-export function brandPageUrl(slug: string) {
-  return `${import.meta.env.BASE_URL}brand.html?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
+/** Without a slug: the index of every product that collected any, which is what a bare
+ *  brand.html opens. */
+export function brandPageUrl(slug?: string) {
+  const query = slug ? `?${CANVAS_PARAM}=${encodeURIComponent(slug)}` : "";
+  return `${import.meta.env.BASE_URL}brand.html${query}`;
 }
 
 /**

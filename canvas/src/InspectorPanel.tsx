@@ -878,7 +878,7 @@ export function ImagePanel({
  * Where the picture was collected from. Some sources are prose rather than an address — "openai.com
  * /brand (Logo section) via Wayback Machine snapshot 20260907013431" — because for those the route
  * to the asset was the finding, so only the ones a browser can open become links and the rest are
- * written out under the row. Same rule as the brand sheet's cards (BrandSheet.tsx).
+ * written out under the row. Same rule as the brand kit's cards (BrandKit.tsx).
  */
 function Source({ source }: { source: string }) {
   let host: string | undefined;

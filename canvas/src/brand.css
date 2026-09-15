@@ -96,6 +96,9 @@ body {
   letter-spacing: -0.02em;
 }
 .head p {
+  /* Capped at a readable measure: on the index this is a sentence of prose, and the flex row
+     would otherwise hand it every pixel the meta table does not want. */
+  max-width: 56ch;
   margin: 10px 0 0;
   color: var(--sub);
 }
@@ -196,4 +199,66 @@ figcaption {
 }
 .prov a {
   color: inherit;
+}
+
+/* ----------------------------------------------------------------- index ---- */
+/* A bare brand.html: one card per product instead of one product's kit. The card is a
+   preview rather than a name and a link, because what is worth seeing on the way in is that
+   these were all collected the same way — which only the pictures can show. */
+.index {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 18px;
+}
+.product {
+  display: block;
+  padding: 16px 16px 18px;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: var(--card);
+  color: inherit;
+  text-decoration: none;
+}
+.product:hover {
+  border-color: #c6c8c3;
+}
+.product__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+}
+/* The one picture on this page that is cropped and rounded, for the same reason the switcher's
+   are: here it is the product's button, and an app icon is a rounded square everywhere else. */
+.product__icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  object-fit: cover;
+}
+.product h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.product p {
+  margin: 3px 0 0;
+  color: var(--sub);
+  font-size: 12px;
+}
+/* Four square cards, whatever shape the pictures in them are — a wordmark, a hero, a piece of
+   merchandise and an avatar in one row only line up if the row decides the shape. */
+.product__strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.product__strip .card {
+  aspect-ratio: 1;
+  padding: 9px;
+  border-radius: 6px;
+  background: var(--ground);
 }

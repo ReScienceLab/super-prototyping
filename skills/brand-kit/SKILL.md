@@ -1,11 +1,11 @@
 ---
-name: brand-sheet
-description: Collect a product's official brand and promotional material and put it on its prototype canvas as image rows, one row per surface. Covers the company's own brand kit, the App Store, Google Play and Microsoft Store listings, verified social accounts, the newsroom and the marketing site; writing assets/brand/manifest.json with real pixel sizes, a source and a provenance on every file; wiring the folder's generator to read it; and verifying every file before it is listed. Use when asked to add branding, brand material, a brand kit, logos, app-store screenshots, ads or press photography to a canvas, or to build a brand sheet for a product.
+name: brand-kit
+description: Collect a product's official brand and promotional material and put it on its prototype canvas as image rows, one row per surface. Covers the company's own brand kit, the App Store, Google Play and Microsoft Store listings, verified social accounts, the newsroom and the marketing site; writing assets/brand/manifest.json with real pixel sizes, a source and a provenance on every file; wiring the folder's generator to read it; and verifying every file before it is listed. Use when asked to add branding, brand material, a brand kit, logos, app-store screenshots, ads or press photography to a canvas, or to build a brand kit for a product.
 license: Apache-2.0
 compatibility: Requires python3, curl, and the file and sips commands (macOS). Network access to the company's own sites and to the app stores. Social post collection needs whatever API or skill you already have for X, Instagram, TikTok, YouTube and LinkedIn; without one, collect the surfaces that do not need it and say so.
 ---
 
-# Brand sheet
+# Brand kit
 
 A canvas folder holds boards: HTML artboards you built. This adds a second
 kind of row to the same folder — **pictures the company published**, laid out
@@ -207,7 +207,7 @@ section of `references/manifest.md`; you have found a real bug and regenerating
 would commit the damage.
 
 The canvas picks the folder up with no further change: the row renders, the
-"Brand sheet" button appears in the toolbar, and the folder joins the brand
+"Brand kit" button appears in the toolbar, and the folder joins the brand
 page's switcher.
 
 ## Verify in a browser before you report
@@ -216,10 +216,10 @@ Open both pages for the folder on the dev server:
 
 ```
 http://127.0.0.1:<port>/?canvas=<slug>            the canvas
-http://127.0.0.1:<port>/brand.html?canvas=<slug>  the brand sheet
+http://127.0.0.1:<port>/brand.html?canvas=<slug>  the brand kit
 ```
 
-Run this on the **brand sheet**, not the canvas. Lazy loading means a picture
+Run this on the **brand kit**, not the canvas. Lazy loading means a picture
 that never scrolled into view also never failed, so force it and count:
 
 ```js

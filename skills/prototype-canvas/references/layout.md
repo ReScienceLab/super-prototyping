@@ -114,9 +114,9 @@ out top to bottom:
   relative to the folder and has to live under `assets/brand/` — the one part
   of `assets/` the canvas gives an address to. `w`/`h` are the picture's own
   pixel size, not the size it draws at, and the row scales every image to a
-  common band from them. A folder with any such row gets a **Brand sheet**
+  common band from them. A folder with any such row gets a **Brand kit**
   button in the toolbar and a page of its own at `brand.html?canvas=<slug>`.
-  The `brand-sheet` skill is how those rows get filled.
+  The `brand-kit` skill is how those rows get filled.
 
 After editing `layout.json`, press the **refresh** button in the top bar, next
 to the `…` actions menu. Shape creation is idempotent (it never moves a shape

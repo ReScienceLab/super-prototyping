@@ -331,7 +331,7 @@ them by choice:
   seats both. The gap is fitted to the labels, which carry the ink, and the
   difference rides as a relative offset on each mark.
 
-## The brand sheet, and the two accounts it turns on
+## The brand kit, and the two accounts it turns on
 
 `assets/brand/` is 151 pictures Perplexity published, in fourteen rows, and
 `manifest.json` is the source of record: every file carries the page it came

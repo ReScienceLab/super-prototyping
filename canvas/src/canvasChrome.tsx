@@ -31,7 +31,7 @@ import {
   resolveAuthor,
   type CommentUser,
 } from "./canvasComments";
-import { brandMaterialSlugs, hasBrandMaterial } from "./canvasLibrary";
+import { hasBrandMaterial } from "./canvasLibrary";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
 import { FigmaMark } from "./FigmaMark";
 import { WELCOME_PAGE_SLUG, brandPageUrl, sheetPageUrl } from "./canvasUrl";
@@ -196,12 +196,9 @@ export const canvasChromeComponents: TLComponents = {
       () => editor.getCurrentPage().meta.canvasSlug as string | undefined,
       [editor],
     );
-    const brandSlug =
-      slug === WELCOME_PAGE_SLUG
-        ? brandMaterialSlugs()[0]
-        : slug && hasBrandMaterial(slug)
-          ? slug
-          : undefined;
+    // Undefined on a page that collected no material — the welcome page, a folder someone has
+    // only just started — and the button then opens the index of every page that did.
+    const brandSlug = slug && hasBrandMaterial(slug) ? slug : undefined;
 
     return (
       <>
@@ -223,23 +220,25 @@ export const canvasChromeComponents: TLComponents = {
             <span className="sp-figma__label">Export to Figma</span>
           </a>
         )}
-        {/* The second destination, next to the first: the pictures this product publishes of
-            itself, which are collected per page and so are not there for every one of them.
-            The welcome page has none of its own and still gets the button, pointed at the
-            first folder that does — the sheet's own icon switcher is the way to the rest,
-            so one press from the way in reaches all of them. */}
-        {brandSlug && (
+        {/* The second destination, next to the first: the pictures a product publishes of
+            itself. They are collected per page, so a page that collected none — the welcome
+            page, a folder someone has only just started — still gets the button and opens the
+            index of the ones that did. Every page has somewhere to go. */}
+        {slug && (
           <a
             className="tlui-button sp-brand"
             href={brandPageUrl(brandSlug)}
             target="_blank"
             rel="noopener noreferrer"
             title={
-              brandSlug === slug
-                ? "Open the brand sheet collected for this page — the logos, social profiles, store listings and advertising this product publishes"
-                : "Open a brand sheet — the logos, social profiles, store listings and advertising these products publish, one page per example"
+              brandSlug
+                ? "Open the brand kit collected for this page — the logos, social profiles, store listings and advertising this product publishes"
+                : "Open the brand kits — the logos, social profiles, store listings and advertising these products publish, one kit per example"
             }
           >
+            {/* A stack of pictures, not one: under 720px the label goes and the mark is the
+                whole button, and a single photo frame there says "an image" when the thing
+                behind it is every image a product published. */}
             <svg
               viewBox="0 0 24 24"
               width="16"
@@ -251,11 +250,12 @@ export const canvasChromeComponents: TLComponents = {
               strokeLinejoin="round"
               aria-hidden
             >
-              <rect x="3" y="4" width="18" height="16" rx="2.5" />
-              <circle cx="8.5" cy="9.5" r="1.6" />
-              <path d="M4 17l4.5-4.5 3.5 3.5 3-2.5L20 17" />
+              <rect x="7" y="3" width="14" height="14" rx="2.5" />
+              <circle cx="11.5" cy="7.5" r="1.3" />
+              <path d="M8 14.5l3.5-3.5 2.5 2.5 2.5-2 4 4" />
+              <path d="M17 20.5H5.5A2.5 2.5 0 0 1 3 18V7" />
             </svg>
-            <span className="sp-brand__label">Brand sheet</span>
+            <span className="sp-brand__label">Brand kit</span>
           </a>
         )}
         {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
