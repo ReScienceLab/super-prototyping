@@ -16,6 +16,7 @@ import {
   isColorValue,
   layerKind,
   layerName,
+  layerRows,
   layerSelector,
   tokenGroups,
   tokenVia,
@@ -149,6 +150,39 @@ const token = (over: Partial<SpToken>): SpToken => ({
   usedBy: [],
   overrides: [],
   ...over,
+});
+
+describe("layerRows", () => {
+  // phone > [row > [a, b], icon > path]
+  const tree = [
+    node({ i: 0, parent: -1, depth: 0, cls: "phone" }),
+    node({ i: 1, parent: 0, depth: 1, cls: "row" }),
+    node({ i: 2, parent: 1, depth: 2, text: "a" }),
+    node({ i: 3, parent: 1, depth: 2, text: "b" }),
+    node({ i: 4, parent: 0, depth: 1, tag: "svg", img: true }),
+    node({ i: 5, parent: 4, depth: 2, tag: "path", inSvg: true }),
+  ];
+
+  it("lists every layer but an icon's own paths, and says which ones fold", () => {
+    expect(layerRows(tree, new Set()).map((r) => [r.node.i, r.kids])).toEqual([
+      [0, true],
+      [1, true],
+      [2, false],
+      [3, false],
+      // The icon has a child, but it is not a row, so there is nothing to fold away.
+      [4, false],
+    ]);
+  });
+
+  it("folds the whole subtree away, not only the children", () => {
+    expect(layerRows(tree, new Set([1])).map((r) => r.node.i)).toEqual([0, 1, 4]);
+    expect(layerRows(tree, new Set([0])).map((r) => r.node.i)).toEqual([0]);
+  });
+
+  it("keeps a fold that is itself folded away, so unfolding the parent does not open it", () => {
+    expect(layerRows(tree, new Set([0, 1])).map((r) => r.node.i)).toEqual([0]);
+    expect(layerRows(tree, new Set([1])).map((r) => r.node.i)).toEqual([0, 1, 4]);
+  });
 });
 
 describe("tokenGroups", () => {

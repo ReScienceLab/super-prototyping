@@ -36,6 +36,7 @@ import {
   layersBounds,
   layerKind,
   layerName,
+  layerRows,
   layerSelector,
   nextLayersH,
   newBoardPin,
@@ -328,6 +329,9 @@ export function InspectorPanel({
   const [data, setData] = useState<SpReady | null>(null);
   const [sel, setSel] = useState<number | null>(null);
   const [hov, setHov] = useState<number | null>(null);
+  /** Layers folded shut, and layers the eye has taken off the board. Both by node index. */
+  const [collapsed, setCollapsed] = useState<ReadonlySet<number>>(() => new Set());
+  const [hidden, setHidden] = useState<ReadonlySet<number>>(() => new Set());
   const [bindings, setBindings] = useState<SpBindings | null>(null);
   const [tab, setTab] = useState<Tab>("inspect");
   const [focusToken, setFocusToken] = useState<string | null>(null);
@@ -384,6 +388,12 @@ export function InspectorPanel({
   useEffect(() => {
     frame.current?.contentWindow?.postMessage({ type: "sp:hover", i: hov }, "*");
   }, [hov, frame]);
+
+  // `data` again: a board that scrolled out of view and came back is a fresh document, with
+  // every layer visible on it.
+  useEffect(() => {
+    frame.current?.contentWindow?.postMessage({ type: "sp:hide", i: [...hidden] }, "*");
+  }, [hidden, data, frame]);
 
   // Escape clears the selection, and with nothing selected closes the panel. `defaultPrevented`
   // skips the ones a tldraw menu or a Radix layer has already dismissed itself on.
@@ -508,8 +518,12 @@ export function InspectorPanel({
               sel={sel}
               hov={hov}
               names={assetNameByNode}
+              collapsed={collapsed}
+              hidden={hidden}
               onSelect={setSel}
               onHover={setHov}
+              onFold={(i) => setCollapsed((set) => toggled(set, i))}
+              onHide={(i) => setHidden((set) => toggled(set, i))}
             />
             {/* The list was a fixed 240px, which is why a 24-layer board could not be read. */}
             <div
@@ -650,10 +664,18 @@ function LayerIcon({ kind }: { kind: ReturnType<typeof layerKind> }) {
   );
 }
 
+/** Adds an index to a set, or takes it out: what the fold and the eye do to their set. */
+function toggled(set: ReadonlySet<number>, i: number) {
+  const next = new Set(set);
+  if (!next.delete(i)) next.add(i);
+  return next;
+}
+
 /**
- * A flat list in document order, indented by depth. It does not scale to the biggest boards
- * (352 elements on `luma-ios/11-home-nearby`); a collapsing tree or a text-and-image filter
- * is the open question, not taken up here.
+ * The board's tree, in document order and indented by depth. A layer with children folds shut,
+ * which is what makes the biggest boards readable (352 elements on `luma-ios/11-home-nearby`),
+ * and the eye takes one off the board without touching the generator — the board is a rendered
+ * file, so hiding is this session's view of it and nothing more.
  */
 function Layers({
   nodes,
@@ -661,52 +683,110 @@ function Layers({
   sel,
   hov,
   names,
+  collapsed,
+  hidden,
   onSelect,
   onHover,
+  onFold,
+  onHide,
 }: {
   nodes: SpNode[];
   height: number;
   sel: number | null;
   hov: number | null;
   names: Map<number, string>;
+  collapsed: ReadonlySet<number>;
+  hidden: ReadonlySet<number>;
   onSelect: (i: number) => void;
   onHover: (i: number | null) => void;
+  onFold: (i: number) => void;
+  onHide: (i: number) => void;
 }) {
   const list = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (sel === null) return;
     list.current?.querySelector(`[data-i="${sel}"]`)?.scrollIntoView({ block: "nearest" });
   }, [sel]);
-  // An icon is one layer: the paths inside an svg stay indexed (the Tokens tab counts uses on
-  // them) but are not listed.
-  const rows = nodes.filter((n) => !n.inSvg);
+  const rows = useMemo(() => layerRows(nodes, collapsed), [nodes, collapsed]);
   return (
     <div className="sp-layers" style={{ height }} ref={list} onMouseLeave={() => onHover(null)}>
       <div className="sp-sh">
         <span className="sp-sh-t">Layers</span>
         <span className="sp-sh-s">{Math.max(0, rows.length - 1)}</span>
       </div>
-      {rows.map((n) => (
-        <button
+      {rows.map(({ node: n, kids }) => (
+        <div
           key={n.i}
-          type="button"
           data-i={n.i}
-          className={cx("sp-layer", n.i === sel && "on", n.i === hov && n.i !== sel && "hov")}
-          style={{ paddingLeft: 12 + n.depth * 12 }}
-          title={layerSelector(n)}
-          onClick={() => onSelect(n.i)}
+          className={cx(
+            "sp-layer",
+            n.i === sel && "on",
+            n.i === hov && n.i !== sel && "hov",
+            hidden.has(n.i) && "off",
+          )}
+          style={{ paddingLeft: n.depth * 12 }}
           onMouseEnter={() => onHover(n.i)}
         >
-          <LayerIcon kind={layerKind(n)} />
-          <span className="sp-layer-n">{layerName(n, names.get(n.i))}</span>
-          {n.i === 0 && n.box ? (
-            <span className="sp-layer-d">
-              {fmt(n.box.w)} × {fmt(n.box.h)}
-            </span>
+          {/* Always rendered, so a leaf's name lines up with its siblings' rather than sliding
+              back under the fold of the layer above it. */}
+          <button
+            type="button"
+            className="sp-layer-fold"
+            disabled={!kids}
+            aria-label={collapsed.has(n.i) ? "Expand" : "Collapse"}
+            aria-expanded={kids ? !collapsed.has(n.i) : undefined}
+            onClick={() => onFold(n.i)}
+          >
+            {kids ? <Caret open={!collapsed.has(n.i)} /> : null}
+          </button>
+          <button
+            type="button"
+            className="sp-layer-hit"
+            title={layerSelector(n)}
+            onClick={() => onSelect(n.i)}
+          >
+            <LayerIcon kind={layerKind(n)} />
+            <span className="sp-layer-n">{layerName(n, names.get(n.i))}</span>
+            {n.i === 0 && n.box ? (
+              <span className="sp-layer-d">
+                {fmt(n.box.w)} × {fmt(n.box.h)}
+              </span>
+            ) : null}
+          </button>
+          {/* The root is the artboard: hiding it would blank the board and leave nothing to
+              click the eye back on. */}
+          {n.i > 0 ? (
+            <button
+              type="button"
+              className="sp-layer-eye"
+              aria-label={hidden.has(n.i) ? "Show" : "Hide"}
+              aria-pressed={hidden.has(n.i)}
+              onClick={() => onHide(n.i)}
+            >
+              <Eye off={hidden.has(n.i)} />
+            </button>
           ) : null}
-        </button>
+        </div>
       ))}
     </div>
+  );
+}
+
+function Caret({ open }: { open: boolean }) {
+  return (
+    <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
+      <path d={open ? "M0 2h8L4 7z" : "M2 0v8l5-4z"} />
+    </svg>
+  );
+}
+
+function Eye({ off }: { off: boolean }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+      <path d="M1 6s2-3.2 5-3.2S11 6 11 6s-2 3.2-5 3.2S1 6 1 6z" />
+      <circle cx="6" cy="6" r="1.4" />
+      {off ? <path d="M2 10L10 2" /> : null}
+    </svg>
   );
 }
 

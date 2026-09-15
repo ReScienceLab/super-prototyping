@@ -94,6 +94,31 @@ export function layerSelector(node: SpNode) {
   return node.tag + (cls.length ? `.${cls.join(".")}` : "");
 }
 
+/** A row of the layers tree: the node, and whether it has children a fold would hide. */
+export interface LayerRow {
+  node: SpNode;
+  kids: boolean;
+}
+
+/**
+ * The tree, folded. Nodes arrive in document order with a parent index behind every one, so one
+ * pass carries each node's answer down to its children: a node is drawn when its parent is drawn
+ * and not folded. An icon is one layer — the paths inside an `<svg>` stay indexed, because the
+ * Tokens tab counts uses on them, but are never rows.
+ */
+export function layerRows(nodes: SpNode[], collapsed: ReadonlySet<number>): LayerRow[] {
+  const kids = new Set(nodes.filter((n) => n.parent >= 0 && !n.inSvg).map((n) => n.parent));
+  const open = new Map<number, boolean>();
+  const rows: LayerRow[] = [];
+  for (const node of nodes) {
+    if (node.inSvg) continue;
+    const drawn = node.parent < 0 || !!open.get(node.parent);
+    open.set(node.i, drawn && !collapsed.has(node.i));
+    if (drawn) rows.push({ node, kids: kids.has(node.i) });
+  }
+  return rows;
+}
+
 export interface TokenGroupView {
   /** The author's heading, or a kind label when the board wrote none. */
   name: string;

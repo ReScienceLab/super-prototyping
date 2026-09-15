@@ -836,12 +836,10 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 
 .sp-layer {
-  width: 100%;
   height: 24px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 12px;
+  padding-right: 8px;
   white-space: nowrap;
 }
 
@@ -863,6 +861,30 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   color: inherit;
 }
 
+/* A hidden layer keeps its row readable and its fold working: the eye is a view of the board,
+   not a delete. */
+.sp-layer.off .sp-layer-hit {
+  opacity: 0.45;
+}
+
+.sp-layer-fold {
+  flex: none;
+  width: 14px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sp-layer-hit {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .sp-layer-n {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -872,6 +894,22 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   margin-left: auto;
   flex: none;
   color: var(--sp-text-2);
+}
+
+/* Out of the way until the row is under the pointer, as in Figma — except on the layers already
+   hidden, which is the only sign left that they are. */
+.sp-layer-eye {
+  flex: none;
+  margin-left: 6px;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+}
+
+.sp-layer:hover .sp-layer-eye,
+.sp-layer-eye:focus-visible,
+.sp-layer.off .sp-layer-eye {
+  opacity: 1;
 }
 
 /* Properties */
