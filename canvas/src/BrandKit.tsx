@@ -7,7 +7,8 @@ import {
   readCanvasLayout,
   shortName,
 } from "./canvasLibrary";
-import { brandPageUrl, canvasPageUrl, sheetPageUrl } from "./canvasUrl";
+import { brandPageUrl, canvasPageUrl } from "./canvasUrl";
+import { CanvasCta } from "./canvasCta";
 
 /**
  * How many columns a row gets, and the shape of its cards, from the pictures actually in it.
@@ -33,8 +34,7 @@ function rowShape(images: { w: number; h: number }[]) {
  * original for every card, which is the entire saving gone.
  */
 function cardSizes(cols: number) {
-  const at = (n: number) =>
-    `calc((100vw - 56px - ${(n - 1) * 20}px) / ${n})`;
+  const at = (n: number) => `calc((100vw - 56px - ${(n - 1) * 20}px) / ${n})`;
   const [two, three] = [at(Math.min(cols, 2)), at(Math.min(cols, 3))];
   return `(max-width: 720px) ${two}, (max-width: 1100px) ${three}, ${at(cols)}`;
 }
@@ -82,34 +82,52 @@ export function BrandKit({ slug }: { slug: string }) {
 
   return (
     <main>
-      <p className="crumbs">
-        <a href={canvasPageUrl(slug)}>Back to the canvas</a> ·{" "}
-        <a href={sheetPageUrl(slug)}>Boards at full size</a>
-      </p>
-      <nav className="switch" aria-label="Brand kit for the other examples">
-        {pages.map((page) => (
-          <a
-            key={page}
-            className="chip"
-            href={brandPageUrl(page)}
-            title={shortName(page)}
-            aria-current={page === slug ? "page" : undefined}
-            // The shelf is wider than a phone and the named chip is as likely to be the
-            // thirteenth as the second, so on a narrow window the page's own title would open
-            // off the right edge of it.
-            ref={
-              page === slug
-                ? (el) => {
-                    el?.scrollIntoView({ inline: "center", block: "nearest" });
-                  }
-                : undefined
-            }
-          >
-            <img src={canvasIconUrl(page)} alt={shortName(page)} />
-            {page === slug && <h1>{shortName(page)}</h1>}
-          </a>
-        ))}
-      </nav>
+      <div className="topbar">
+        {/* Back to the canvas this kit was collected for, wearing the app's own mark rather
+            than a product's: the row reads left to right as this app, these products, these
+            two asks. */}
+        <a className="chip home" href={canvasPageUrl(slug)}>
+          <img src={`${import.meta.env.BASE_URL}favicon-32.png`} alt="" />
+          <span>Super Prototyping</span>
+        </a>
+        <nav className="switch" aria-label="Brand kit for the other examples">
+          {pages.map((page) => (
+            <a
+              key={page}
+              className="chip"
+              href={brandPageUrl(page)}
+              title={shortName(page)}
+              aria-current={page === slug ? "page" : undefined}
+              // Named on both pages of the switch, so the filled pill travels from the chip you
+              // left to the chip you landed on rather than blinking across the shelf.
+              style={
+                page === slug
+                  ? ({
+                      viewTransitionName: "current-kit",
+                    } as React.CSSProperties)
+                  : undefined
+              }
+              // The shelf is wider than a phone and the named chip is as likely to be the
+              // thirteenth as the second, so on a narrow window the page's own title would open
+              // off the right edge of it.
+              ref={
+                page === slug
+                  ? (el) => {
+                      el?.scrollIntoView({
+                        inline: "center",
+                        block: "nearest",
+                      });
+                    }
+                  : undefined
+              }
+            >
+              <img src={canvasIconUrl(page)} alt={shortName(page)} />
+              {page === slug && <h1>{shortName(page)}</h1>}
+            </a>
+          ))}
+        </nav>
+        <CanvasCta />
+      </div>
       {rows.map((row) => (
         <section
           className="band"

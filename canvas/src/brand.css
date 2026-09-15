@@ -8,6 +8,12 @@
  * Ground, ink, hairline and the card's 8px/1px treatment follow brandarchive.xyz, which solves
  * this exact problem for this exact kind of page.
  */
+/* Every kit is this same page with different pictures in it, so switching between two is one
+   document replacing an identical one -- the browser will cross-fade that itself, and the chip
+   you are standing on is named so its pill slides from the old one to the new one. */
+@view-transition {
+  navigation: auto;
+}
 :root {
   color-scheme: light;
   --ground: #f3f4f1;
@@ -23,7 +29,12 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font:
+    15px/1.45 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 /* Sections run edge to edge and are separated by one hairline, so the page reads as a stack of
@@ -37,18 +48,18 @@ body {
 }
 
 /* ---------------------------------------------------------------- switch ---- */
-/* The two ways out of a kit, in the top-left corner above everything else and small enough to
-   leave the shelf as the first thing seen. */
-.crumbs {
-  margin: 0;
-  padding: 12px 28px 0;
-  color: var(--sub);
-  font-size: 13px;
+/* Two rows across the top of the page: the way back to the canvas and the same two CTAs the
+   canvas pins to its own top-right corner, then the shelf under them at full width. The shelf is
+   thirteen products wide and wants the whole line; sharing one with the pills left it a slot. */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 10px 16px 8px 23px;
 }
-.crumbs a {
-  color: inherit;
-  text-decoration-color: var(--hair);
-  text-underline-offset: 3px;
+.topbar .canvas-cta-group {
+  margin: 0 0 0 auto;
 }
 /* The other examples, as a shelf of app icons above everything. One scrolling row rather than a
    wrapping block: the strip is navigation, and navigation that changes height as the window
@@ -56,10 +67,23 @@ body {
    it carries no border of its own. */
 .switch {
   display: flex;
+  flex-basis: 100%;
+  order: 2;
   gap: 4px;
-  padding: 10px 28px 14px;
   overflow-x: auto;
   scrollbar-width: none;
+}
+@media (max-width: 720px) {
+  .topbar {
+    padding: 8px 8px 8px 12px;
+  }
+}
+/* At the narrowest phone the name and the two marks stop sharing a line, and a third row of
+   chrome above the first picture costs more than the name is worth. */
+@media (max-width: 360px) {
+  .home span {
+    display: none;
+  }
 }
 .switch::-webkit-scrollbar {
   display: none;
@@ -76,7 +100,8 @@ body {
 /* The page's title, set on the icon you are standing on rather than as a headline below the
    shelf: clicking a logo is what asks which product this is, so the answer belongs on the logo
    that answers it. */
-.chip h1 {
+.chip h1,
+.home span {
   margin: 0 5px 0 8px;
   font-size: 15px;
   line-height: 1;
@@ -94,9 +119,19 @@ body {
   border-radius: 6px;
   object-fit: cover;
 }
+.chip {
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
 .chip:hover {
   color: var(--ink);
   background: rgba(0, 0, 0, 0.045);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*) {
+    animation: none;
+  }
 }
 /* Where you are, filled — so the strip answers that before it offers anywhere else to go. */
 .chip[aria-current="page"] {
