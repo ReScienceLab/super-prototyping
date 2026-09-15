@@ -1,21 +1,37 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { createShapeId, useEditor, type TLCommentThreadId } from "tldraw";
-import { BoardComments, BoardPins } from "./InspectorComments";
+import {
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  createShapeId,
+  useEditor,
+  type TLCommentThreadId,
+  type TLShapeId,
+} from "tldraw";
+import { BoardComments } from "./InspectorComments";
 import { CanvasChromeContext } from "./canvasChrome";
-import type { CanvasFileShape } from "./CanvasFileShapeUtil";
+import {
+  installInspectorClicks,
+  type InspectorTarget,
+} from "./inspectorClicks";
 import {
   BOARD_STATUSES,
   BOARD_STATUS_LABEL,
   LAYOUT_CHANGED,
   type CanvasBoardStatus,
+  type CanvasLayoutImage,
   boardPageUrl,
   boardStatusForPath,
+  canvasImageThumbUrl,
+  canvasImageUrl,
   readCanvasAssetNames,
-  useCanvasFileHtml,
   writeBoardStatus,
 } from "./canvasLibrary";
 import {
-  injectAgent,
   type SpBinding,
   type SpBindings,
   type SpGroup,
@@ -24,15 +40,12 @@ import {
   type SpReady,
   type SpToken,
 } from "./inspectorAgent";
-import { installInspectorClicks } from "./inspectorClicks";
 import {
   type AssetRow,
   PANEL_W,
-  RAIL_W,
   VISIBLE_PROPS,
   assetForNode,
   assetRows,
-  fitScale,
   formatBytes,
   initialLayersH,
   isColorValue,
@@ -40,13 +53,12 @@ import {
   layersBounds,
   layerKind,
   layerName,
+  layerRows,
   layerSelector,
   nextLayersH,
   newBoardPin,
   nextPanelW,
-  nextRailW,
   panelBounds,
-  railBounds,
   tokenGroups,
   tokenVia,
 } from "./inspectorModel";
@@ -83,11 +95,10 @@ function useStickyPanelState<T>(key: string, initial: T) {
 const UNDO_MS = 10_000;
 
 /**
- * The board's status, top-left of the stage, where the badge is also the control that sets it.
+ * The board's status, in the panel's header, where the badge is also the control that sets it.
  *
- * On the stage rather than in the rail so it stays with the board when the rail is collapsed,
- * and it is the only place a status can be changed: the coloured tab above a board out on the
- * canvas is a read-only echo of the same value in layout.json.
+ * It is the only place a status can be changed: the coloured tab above a board out on the canvas
+ * is a read-only echo of the same value in layout.json.
  *
  * `import.meta.env.DEV` is the whole of the read-only rule. Writing means editing layout.json
  * through the dev server, and a built canvas is static files on a host with no repo behind them,
@@ -160,8 +171,7 @@ function BoardStatus({ path }: { path: string }) {
   );
 
   // Away from the dev server there is no file to write a status back to, so the badge is only a
-  // label — but it keeps the wrapper, which is what holds it in the stage's top left. Without it
-  // the badge is a plain flex child of the stage and rides along beside the board, centred.
+  // label — but it keeps the wrapper, which is what the menu and the Undo hang off.
   if (!import.meta.env.DEV) {
     return (
       <div className="sp-status-wrap">
@@ -173,7 +183,10 @@ function BoardStatus({ path }: { path: string }) {
   return (
     // The menu is dismissed by any pointerdown on the window, so the control has to keep its own
     // out of that. Otherwise opening it closes it in the same gesture.
-    <div className="sp-status-wrap" onPointerDown={(event) => event.stopPropagation()}>
+    <div
+      className="sp-status-wrap"
+      onPointerDown={(event) => event.stopPropagation()}
+    >
       <button
         type="button"
         className={`sp-status sp-status--${status}`}
@@ -183,7 +196,15 @@ function BoardStatus({ path }: { path: string }) {
         onClick={() => setOpen((v) => !v)}
       >
         {badge}
-        <svg className="sp-status-chev" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4">
+        <svg
+          className="sp-status-chev"
+          width="11"
+          height="11"
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+        >
           <path d="M2.5 4.5L6 8l3.5-3.5" />
         </svg>
       </button>
@@ -201,14 +222,23 @@ function BoardStatus({ path }: { path: string }) {
               <i className={`sp-status-dot sp-status--${option}`} />
               {BOARD_STATUS_LABEL[option]}
               {option === status ? (
-                <svg className="sp-menu-ck" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg
+                  className="sp-menu-ck"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <path d="M2 6.4l2.6 2.6L10 3.6" />
                 </svg>
               ) : null}
             </button>
           ))}
           <div className="sp-menu-foot">
-            Writes <code>{`${/canvases\/([^/]+)\//.exec(path)?.[1] ?? ""}/layout.json`}</code>
+            Writes{" "}
+            <code>{`${/canvases\/([^/]+)\//.exec(path)?.[1] ?? ""}/layout.json`}</code>
           </div>
         </div>
       ) : null}
@@ -219,23 +249,34 @@ function BoardStatus({ path }: { path: string }) {
           title={`Back to ${BOARD_STATUS_LABEL[undo.back]}`}
           onClick={revert}
         >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M3.2 4.6H7.6a2.6 2.6 0 010 5.2H5.2" />
             <path d="M5 2.4L3 4.6l2 2.2" />
           </svg>
           Undo
         </button>
       ) : null}
-      {failed ? <span className="sp-status-err">layout.json not written</span> : null}
+      {failed ? (
+        <span className="sp-status-err">layout.json not written</span>
+      ) : null}
     </div>
   );
 }
 
 /**
- * The docked inspector: a large preview of the clicked board on the left, a resizable and
- * collapsible rail on the right with layers and properties, the board's images, and its design tokens. The board is
- * loaded a second time into a scripted frame (inspectorAgent.ts), which is how the panel reads
- * what the canvas's own sandboxed frames cannot.
+ * The docked inspector: layers and properties, the board's images, its design tokens and the
+ * comments on it. There is no preview in here — the board being inspected is the one out on the
+ * canvas, which runs the agent (see CanvasFileShapeUtil) and is what a pick is made on, so the
+ * mockup someone reads is the mockup they click.
  */
 
 /**
@@ -243,9 +284,9 @@ function BoardStatus({ path }: { path: string }) {
  * started at rather than accumulating rounding error, and `apply` gets that value with the
  * pointer delta along one axis.
  *
- * Pointer capture is the whole trick: the preview is an iframe, and without capture the first
- * move over it delivers the event to the frame's document instead, which ends the drag the
- * moment the pointer crosses into the board.
+ * Pointer capture is the whole trick: the canvas behind the panel holds board frames, and
+ * without capture the first move over one delivers the event to that frame's document instead,
+ * which ends the drag the moment the pointer crosses onto a board.
  */
 function divider(
   axis: "x" | "y",
@@ -284,7 +325,8 @@ function dividerKeys(
   from: () => number,
   apply: (start: number, delta: number) => void,
 ) {
-  const [less, more] = axis === "x" ? ["ArrowLeft", "ArrowRight"] : ["ArrowUp", "ArrowDown"];
+  const [less, more] =
+    axis === "x" ? ["ArrowLeft", "ArrowRight"] : ["ArrowUp", "ArrowDown"];
   return (e: React.KeyboardEvent<HTMLElement>) => {
     const step = e.key === less ? -1 : e.key === more ? 1 : 0;
     if (!step) return;
@@ -293,13 +335,85 @@ function dividerKeys(
   };
 }
 
+/**
+ * The panel's width, and the window it is clamped to. Both panels below are the same dock: one
+ * width, dragged from one edge, kept for whatever is opened next.
+ *
+ * Keyed `sp:panel`, not the `sp:panel-w` the two-pane panel used: the same number means a rail
+ * width now, and a session that had dragged the old panel wide would open a 736px rail.
+ */
+function usePanelWidth() {
+  const [panelW, setPanelW] = useStickyPanelState("sp:panel", PANEL_W);
+  const [win, setWin] = useState(() => ({
+    w: window.innerWidth,
+    h: window.innerHeight,
+  }));
+  useEffect(() => {
+    const onResize = () =>
+      setWin({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  // Clamped here, not only where it is set: see the note on `nextPanelW`. The raw state is what
+  // a drag started from, this is what is rendered and what the next drag reads back.
+  const panel = nextPanelW(panelW, 0, win.w);
+  return {
+    win,
+    panel,
+    setPanel: {
+      from: () => panel,
+      apply: (w0: number, dx: number) => setPanelW(nextPanelW(w0, dx, win.w)),
+    },
+  };
+}
+
+/** The panel is docked right, so its left edge is the one that resizes it: drag left, wider. */
+function WidthGrip({
+  width,
+  max,
+  set,
+}: {
+  width: number;
+  max: number;
+  set: { from: () => number; apply: (start: number, delta: number) => void };
+}) {
+  return (
+    <div
+      className="sp-grip sp-grip--x"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize inspector"
+      aria-valuenow={width}
+      aria-valuemin={panelBounds(max)[0]}
+      aria-valuemax={panelBounds(max)[1]}
+      tabIndex={0}
+      onPointerDown={divider("x", set.from, set.apply)}
+      onKeyDown={dividerKeys("x", set.from, set.apply)}
+    />
+  );
+}
+
 type Tab = "inspect" | "assets" | "tokens";
 
 const fmt = (n: number) => String(Math.round(n * 100) / 100);
 /** Wiring component: lives inside <Tldraw> so it can reach the editor. */
-export function InspectorClicks({ onPick }: { onPick: (shape: CanvasFileShape) => void }) {
+export function InspectorClicks({
+  onPick,
+  onDismiss,
+  inspectingPath,
+  frame,
+}: {
+  onPick: (shape: InspectorTarget) => void;
+  onDismiss: () => void;
+  inspectingPath: string | null;
+  frame: React.RefObject<HTMLIFrameElement | null>;
+}) {
   const editor = useEditor();
-  useEffect(() => installInspectorClicks(editor, onPick), [editor, onPick]);
+  useEffect(
+    () =>
+      installInspectorClicks(editor, onPick, onDismiss, inspectingPath, frame),
+    [editor, onPick, onDismiss, inspectingPath, frame],
+  );
   return null;
 }
 
@@ -307,68 +421,42 @@ export function InspectorPanel({
   path,
   name,
   size,
+  frame,
   onClose,
 }: {
   path: string;
   name: string;
   /** The shape's own size, which is the artboard's: the frame is created at it. */
   size: { w: number; h: number };
+  /**
+   * The frame this board is drawn in out on the canvas, filled in by CanvasFileShapeUtil. It is
+   * the only board running the agent, so it is the only one this panel talks to.
+   */
+  frame: React.RefObject<HTMLIFrameElement | null>;
   onClose: () => void;
 }) {
-  const html = useCanvasFileHtml(path);
-  const srcDoc = useMemo(() => (html ? injectAgent(html) : ""), [html]);
-  // The board's own address, and not this frame's `srcDoc`: the agent injected there talks to a
-  // parent frame that a tab of its own does not have.
   const pageUrl = boardPageUrl(path);
-  const frame = useRef<HTMLIFrameElement>(null);
   const [data, setData] = useState<SpReady | null>(null);
   const [sel, setSel] = useState<number | null>(null);
   const [hov, setHov] = useState<number | null>(null);
+  /** Layers folded shut, and layers the eye has taken off the board. Both by node index. */
+  const [collapsed, setCollapsed] = useState<ReadonlySet<number>>(
+    () => new Set(),
+  );
+  const [hidden, setHidden] = useState<ReadonlySet<number>>(() => new Set());
   const [bindings, setBindings] = useState<SpBindings | null>(null);
   const [tab, setTab] = useState<Tab>("inspect");
   const [focusToken, setFocusToken] = useState<string | null>(null);
-  const [panelW, setPanelW] = useStickyPanelState("sp:panel-w", PANEL_W);
-  const [railW, setRailW] = useStickyPanelState("sp:rail-w", RAIL_W);
   const [layersH, setLayersH] = useStickyPanelState(
     "sp:layers-h",
     initialLayersH(window.innerHeight),
   );
-  const [win, setWin] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
-  const [railOpen, setRailOpen] = useStickyPanelState("sp:rail-open", true);
-  const stage = useRef<HTMLDivElement>(null);
+  const { win, panel, setPanel } = usePanelWidth();
   // The comments on this board are the canvas's own, reached through the chrome context
   // because the panel renders beside `<Tldraw>` rather than under it.
   const editor = useContext(CanvasChromeContext).editor;
   const shapeId = useMemo(() => createShapeId(`canvas-file:${path}`), [path]);
   const [openThread, setOpenThread] = useState<TLCommentThreadId | null>(null);
-
-  useEffect(() => {
-    const onResize = () => setWin({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-  const [scale, setScale] = useState(1);
-  const { w: boardW, h: boardH } = size;
-
-  /**
-   * The board is scaled to fit the stage rather than pinned at a constant, because every one of
-   * the three controls below changes how much stage there is. Contain, never past 1:1 — a phone
-   * board blown up past its own pixels is a blurrier board, not a bigger one — and a landscape
-   * evidence board fits by width and leaves the height alone.
-   */
-  useEffect(() => {
-    const el = stage.current;
-    if (!el) return;
-    const fit = () => {
-      setScale(fitScale({ w: el.clientWidth, h: el.clientHeight }, { w: boardW, h: boardH }));
-    };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    return () => ro.disconnect();
-    // Not `size`: App builds that object fresh every render, so depending on it would tear the
-    // observer down and rebuild it on each one.
-  }, [boardW, boardH]);
 
   const slug = /canvases\/([^/]+)\//.exec(path)?.[1] ?? "";
   const names = useMemo(() => readCanvasAssetNames(slug), [slug]);
@@ -382,7 +470,8 @@ export function InspectorPanel({
       // The frame has no origin to check — `allow-scripts` without `allow-same-origin` puts it in
       // an opaque origin, so `event.origin` is the string "null" for every such frame on the page.
       // Identity is the check that means anything: this message came from this frame's window.
-      if (!frame.current || event.source !== frame.current.contentWindow) return;
+      if (!frame.current || event.source !== frame.current.contentWindow)
+        return;
       const message = event.data as SpMessage | null;
       if (!message || typeof message !== "object") return;
       if (message.type === "sp:ready") setData(message);
@@ -392,15 +481,30 @@ export function InspectorPanel({
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, []);
+  }, [frame]);
 
+  // `data` is in the deps because the frame is the canvas's: tldraw drops a board that scrolls
+  // out of view and mounts it again with the board reloaded, which is a fresh report and a
+  // highlight that has to be put back.
   useEffect(() => {
     frame.current?.contentWindow?.postMessage({ type: "sp:sel", i: sel }, "*");
-  }, [sel]);
+  }, [sel, data, frame]);
 
   useEffect(() => {
-    frame.current?.contentWindow?.postMessage({ type: "sp:hover", i: hov }, "*");
-  }, [hov]);
+    frame.current?.contentWindow?.postMessage(
+      { type: "sp:hover", i: hov },
+      "*",
+    );
+  }, [hov, frame]);
+
+  // `data` again: a board that scrolled out of view and came back is a fresh document, with
+  // every layer visible on it.
+  useEffect(() => {
+    frame.current?.contentWindow?.postMessage(
+      { type: "sp:hide", i: [...hidden] },
+      "*",
+    );
+  }, [hidden, data, frame]);
 
   // Escape clears the selection, and with nothing selected closes the panel. `defaultPrevented`
   // skips the ones a tldraw menu or a Radix layer has already dismissed itself on.
@@ -414,49 +518,31 @@ export function InspectorPanel({
     return () => window.removeEventListener("keydown", onKey);
   }, [sel, onClose]);
 
-  const assets = useMemo(() => (data ? assetRows(data.assets, names) : []), [data, names]);
+  const assets = useMemo(
+    () => (data ? assetRows(data.assets, names) : []),
+    [data, names],
+  );
   const assetNameByNode = useMemo(() => {
     const map = new Map<number, string>();
-    for (const row of assets) for (const i of row.uses) if (!map.has(i)) map.set(i, row.name);
+    for (const row of assets)
+      for (const i of row.uses) if (!map.has(i)) map.set(i, row.name);
     return map;
   }, [assets]);
 
   const node = data && sel !== null ? data.nodes[sel] : undefined;
   const selAsset = assetForNode(assets, sel);
 
-  // Clamped here, not only where they are set: see the note on `nextPanelW`. The raw state is
-  // what a drag started from, these are what is rendered and what the next drag reads back.
-  const panel = nextPanelW(panelW, 0, win.w);
-  const rail = nextRailW(railW, 0, panel);
+  // Clamped here, not only where it is set: see the note on `nextPanelW`. The raw state is what
+  // a drag started from, this is what is rendered and what the next drag reads back.
   const layers = nextLayersH(layersH, 0, win.h);
 
-  const setPanel = {
-    from: () => panel,
-    apply: (w0: number, dx: number) => setPanelW(nextPanelW(w0, dx, win.w)),
-  };
-  const setRail = {
-    from: () => rail,
-    apply: (w0: number, dx: number) => setRailW(nextRailW(w0, dx, panel)),
-  };
   const setLayers = {
     from: () => layers,
     apply: (h0: number, dy: number) => setLayersH(nextLayersH(h0, dy, win.h)),
   };
-  const usedTokens = data ? data.tokens.filter((t) => t.usedBy.length).length : 0;
-
-  const railGrip: React.HTMLAttributes<HTMLDivElement> = railOpen
-    ? {
-        role: "separator",
-        "aria-orientation": "vertical",
-        "aria-label": "Resize details",
-        "aria-valuenow": rail,
-        "aria-valuemin": railBounds(panel)[0],
-        "aria-valuemax": railBounds(panel)[1],
-        tabIndex: 0,
-        onPointerDown: divider("x", setRail.from, setRail.apply),
-        onKeyDown: dividerKeys("x", setRail.from, setRail.apply),
-      }
-    : {};
+  const usedTokens = data
+    ? data.tokens.filter((t) => t.usedBy.length).length
+    : 0;
 
   const jumpToToken = (token: string) => {
     setTab("tokens");
@@ -465,63 +551,26 @@ export function InspectorPanel({
 
   return (
     <aside className="sp-panel" style={{ width: panel }}>
-      {/* The panel is docked right, so its left edge is the one that resizes it: drag left, wider. */}
-      <div
-        className="sp-grip sp-grip--x"
-        role="separator"
-        aria-orientation="vertical"
-        aria-label="Resize inspector"
-        aria-valuenow={panel}
-        aria-valuemin={panelBounds(win.w)[0]}
-        aria-valuemax={panelBounds(win.w)[1]}
-        tabIndex={0}
-        onPointerDown={divider("x", setPanel.from, setPanel.apply)}
-        onKeyDown={dividerKeys("x", setPanel.from, setPanel.apply)}
-      />
-      <div className="sp-preview">
-        <div className="sp-stage" ref={stage}>
-          <div
-            className="sp-board"
-            style={{ width: size.w, height: size.h, transform: `scale(${scale})` }}
-          >
-            {/*
-              Mounted only once the HTML is here, and keyed by path so a different board is a
-              different element. A board arrives asynchronously, so rendering the frame eagerly
-              gives it `srcdoc=""` and then mutates the attribute a tick later — and Chrome drops
-              that second navigation while the first is still pending, leaving a frame that is
-              permanently blank. Creating the element with its final srcdoc avoids the mutation.
-            */}
-            {srcDoc ? (
-              <iframe
-                key={path}
-                ref={frame}
-                title={name}
-                srcDoc={srcDoc}
-                sandbox="allow-scripts"
-                onLoad={() => frame.current?.contentWindow?.postMessage({ type: "sp:hello" }, "*")}
-                style={{ width: size.w, height: size.h, border: 0, display: "block" }}
-              />
-            ) : null}
-            {editor ? (
-              <BoardPins
-                editor={editor}
-                shapeId={shapeId}
-                scale={scale}
-                open={openThread}
-                onOpen={setOpenThread}
-              />
-            ) : null}
-          </div>
+      <WidthGrip width={panel} max={win.w} set={setPanel} />
+      <div className="sp-rail">
+        <header className="sp-head">
+          <span className="sp-head-name" title={path}>
+            {name}
+          </span>
+          <span className="sp-head-dim">
+            {data
+              ? `${fmt(data.size.w)} × ${fmt(data.size.h)}`
+              : "reading board…"}
+          </span>
           <BoardStatus path={path} />
           {/*
-            The board at its own size, in a tab of its own. The preview is scaled to fit the
-            stage, so it is the wrong place to read type or tap through a flow; this is the
-            same board as an ordinary web page. An anchor, not a button, so the ordinary ways
-            to open a link — middle click, ⌘-click, copy — all work on it.
+            The board as an ordinary web page, in a tab of its own: on the canvas it is drawn at
+            whatever the camera says, so that is where type is read and a flow is tapped through.
+            An anchor, not a button, so middle click, ⌘-click and copy all work on it.
           */}
           {pageUrl ? (
             <a
-              className="sp-full"
+              className="sp-head-x"
               href={pageUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -542,61 +591,20 @@ export function InspectorPanel({
               </svg>
             </a>
           ) : null}
-        </div>
-        {editor ? (
-          <BoardComments
-            editor={editor}
-            shapeId={shapeId}
-            open={openThread}
-            onOpen={setOpenThread}
-            pinAt={newBoardPin(node?.box, size)}
-          />
-        ) : null}
-      </div>
-
-      {/*
-        The rail's divider carries the collapse handle: the seam is where the fold happens, and a
-        handle on it costs the preview nothing. The grip itself stays mounted when the rail is
-        shut — the handle is then the only way back, because Escape does not help here: clicking
-        the preview moves focus into the frame and the agent forwards no keys. Shut, it is only a
-        perch, so it drops the separator role and the drag with the pane they would resize.
-      */}
-      <div className={cx("sp-grip", "sp-grip--x", !railOpen && "sp-grip--shut")} {...railGrip}>
-        <button
-          type="button"
-          className="sp-collapse"
-          aria-expanded={railOpen}
-          title={railOpen ? "Hide details" : "Show details"}
-          aria-label={railOpen ? "Hide details" : "Show details"}
-          // Sitting on the divider, the press that opens the rail must not also start a drag.
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => setRailOpen((v) => !v)}
-        >
-          <svg
-            width="9"
-            height="9"
-            viewBox="0 0 12 12"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <button
+            type="button"
+            className="sp-head-x"
+            onClick={onClose}
+            aria-label="Close inspector"
           >
-            <path d={railOpen ? "M4 2l4 4-4 4" : "M8 2l-4 4 4 4"} />
-          </svg>
-        </button>
-      </div>
-
-      <div className="sp-rail" style={{ width: rail, display: railOpen ? undefined : "none" }}>
-        <header className="sp-head">
-          <span className="sp-head-name" title={path}>
-            {name}
-          </span>
-          <span className="sp-head-dim">
-            {data ? `${fmt(data.size.w)} × ${fmt(data.size.h)}` : "reading board…"}
-          </span>
-          <button type="button" className="sp-head-x" onClick={onClose} aria-label="Close inspector">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+            >
               <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
             </svg>
           </button>
@@ -611,7 +619,11 @@ export function InspectorPanel({
               aria-pressed={tab === t}
               onClick={() => setTab(t)}
             >
-              {t === "inspect" ? "Inspect" : t === "assets" ? "Assets" : "Tokens"}
+              {t === "inspect"
+                ? "Inspect"
+                : t === "assets"
+                  ? "Assets"
+                  : "Tokens"}
             </button>
           ))}
         </nav>
@@ -624,8 +636,12 @@ export function InspectorPanel({
               sel={sel}
               hov={hov}
               names={assetNameByNode}
+              collapsed={collapsed}
+              hidden={hidden}
               onSelect={setSel}
               onHover={setHov}
+              onFold={(i) => setCollapsed((set) => toggled(set, i))}
+              onHide={(i) => setHidden((set) => toggled(set, i))}
             />
             {/* The list was a fixed 240px, which is why a 24-layer board could not be read. */}
             <div
@@ -652,7 +668,9 @@ export function InspectorPanel({
                     {selAsset.via === "svg"
                       ? `${fmt(selAsset.w)} × ${fmt(selAsset.h)} · svg`
                       : `${selAsset.w} × ${selAsset.h} · ${formatBytes(selAsset.bytes)}`}
-                    {selAsset.svg ? <CopySvg key={selAsset.key} svg={selAsset.svg} /> : null}
+                    {selAsset.svg ? (
+                      <CopySvg key={selAsset.key} svg={selAsset.svg} />
+                    ) : null}
                   </span>
                 </figcaption>
               </figure>
@@ -681,7 +699,13 @@ export function InspectorPanel({
           </section>
         ) : tab === "assets" ? (
           <section className="sp-tab">
-            <Assets rows={assets} sel={sel} hov={hov} onSelect={setSel} onHover={setHov} />
+            <Assets
+              rows={assets}
+              sel={sel}
+              hov={hov}
+              onSelect={setSel}
+              onHover={setHov}
+            />
           </section>
         ) : (
           <section className="sp-tab">
@@ -695,8 +719,194 @@ export function InspectorPanel({
             />
           </section>
         )}
+
+        {/* The board's threads, under the tab rather than under a preview. The pins themselves
+            are the canvas's own, drawn on the board out there. */}
+        {editor ? (
+          <BoardComments
+            editor={editor}
+            subject="board"
+            shapeId={shapeId}
+            open={openThread}
+            onOpen={setOpenThread}
+            pinAt={newBoardPin(node?.box, size)}
+          />
+        ) : null}
       </div>
     </aside>
+  );
+}
+
+/**
+ * A brand image on the canvas, as the panel needs it. The shape is a plain tldraw image, so
+ * everything there is to say about the picture is in its folder's layout.json.
+ */
+export interface CanvasImagePick {
+  shapeId: TLShapeId;
+  slug: string;
+  file: string;
+  /** The row it was listed in, which is the surface it was collected from: "App Store", "X". */
+  row: string;
+  image: CanvasLayoutImage;
+}
+
+/**
+ * The inspector for a picture. Brand material is laid out as image shapes rather than boards, so
+ * there is no agent running inside one and nothing to pick within it: what a picture has to say
+ * is where it came from and how many pixels it really has. The comments are the board panel's,
+ * the same canvas threads, pinned on the image out there.
+ */
+export function ImagePanel({
+  pick,
+  onClose,
+}: {
+  pick: CanvasImagePick;
+  onClose: () => void;
+}) {
+  const { win, panel, setPanel } = usePanelWidth();
+  const editor = useContext(CanvasChromeContext).editor;
+  const [openThread, setOpenThread] = useState<TLCommentThreadId | null>(null);
+  const { slug, file, row, image } = pick;
+  const original = canvasImageUrl(slug, file);
+  // The variant, the same one the canvas draws: the panel is 280px of rail, not a light table.
+  const preview = canvasImageThumbUrl(slug, file) ?? original;
+
+  // Nothing is selected inside a picture, so Escape has only the one thing left to do.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !event.defaultPrevented) onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <aside className="sp-panel" style={{ width: panel }}>
+      <WidthGrip width={panel} max={win.w} set={setPanel} />
+      <div className="sp-rail">
+        <header className="sp-head">
+          <span className="sp-head-name" title={file}>
+            {image.label}
+          </span>
+          <span className="sp-head-dim">{`${image.w} × ${image.h}`}</span>
+          {/* The file itself, at full size, in a tab of its own: on the canvas it is drawn at
+              whatever the camera says, and the pixels are the whole point of a reference. */}
+          {original ? (
+            <a
+              className="sp-head-x"
+              href={original}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open the original"
+              aria-label="Open the original"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M4.5 1.5h-3v3M7.5 1.5h3v3M10.5 7.5v3h-3M1.5 7.5v3h3" />
+              </svg>
+            </a>
+          ) : null}
+          <button
+            type="button"
+            className="sp-head-x"
+            onClick={onClose}
+            aria-label="Close inspector"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+            >
+              <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
+            </svg>
+          </button>
+        </header>
+
+        {/* The same figure a selected layer's image gets, for the same reason: the picture on the
+            canvas is drawn at whatever the camera says, and one of these is a cut-out as often as
+            not, which is a shape you cannot read off a flat ground. */}
+        {preview ? (
+          <figure className="sp-asset-view">
+            <img src={preview} alt={image.label} />
+          </figure>
+        ) : null}
+
+        <div className="sp-props">
+          <div className="sp-sec">
+            <div className="sp-sh">
+              <span className="sp-sh-t">{row}</span>
+              <span className="sp-sh-s">{file.split("/").pop()}</span>
+            </div>
+            <Row k="Pixels" v={`${image.w} × ${image.h}`} />
+            <Row k="File" v={file} />
+            {image.source ? <Source source={image.source} /> : null}
+            {/* One word from the skill that collected it: "theirs" for something the company
+                published, "archive" for something recovered from one. */}
+            {image.provenance ? (
+              <Row k="Provenance" v={image.provenance} />
+            ) : null}
+          </div>
+        </div>
+
+        {editor ? (
+          <BoardComments
+            editor={editor}
+            subject="image"
+            shapeId={pick.shapeId}
+            open={openThread}
+            onOpen={setOpenThread}
+            pinAt={{ x: 0.5, y: 0.5 }}
+          />
+        ) : null}
+      </div>
+    </aside>
+  );
+}
+
+/**
+ * Where the picture was collected from. Some sources are prose rather than an address — "openai.com
+ * /brand (Logo section) via Wayback Machine snapshot 20260907013431" — because for those the route
+ * to the asset was the finding, so only the ones a browser can open become links and the rest are
+ * written out under the row. Same rule as the brand sheet's cards (BrandSheet.tsx).
+ */
+function Source({ source }: { source: string }) {
+  let host: string | undefined;
+  try {
+    host = new URL(source).host.replace(/^www\./, "");
+  } catch {
+    host = undefined;
+  }
+  return host ? (
+    <Row
+      k="Source"
+      v={
+        <a
+          className="sp-link"
+          href={source}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={source}
+        >
+          {host}
+        </a>
+      }
+    />
+  ) : (
+    <>
+      <Row k="Source" v={source.split(/[\s/]/)[0]} />
+      <div className="sp-sub sp-longs">{source}</div>
+    </>
   );
 }
 
@@ -712,7 +922,9 @@ function CopySvg({ svg }: { svg: string }) {
     <button
       type="button"
       className="sp-copy"
-      onClick={() => void navigator.clipboard.writeText(svg).then(() => setCopied(true))}
+      onClick={() =>
+        void navigator.clipboard.writeText(svg).then(() => setCopied(true))
+      }
     >
       {copied ? "Copied" : "Copy SVG"}
     </button>
@@ -722,7 +934,13 @@ function CopySvg({ svg }: { svg: string }) {
 function LayerIcon({ kind }: { kind: ReturnType<typeof layerKind> }) {
   if (kind === "vector")
     return (
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+      >
         <path d="M2.5 9.5C2.5 4.5 7.5 7.5 9.5 2.5" />
         <circle cx="2.5" cy="9.5" r="1.2" fill="currentColor" stroke="none" />
         <circle cx="9.5" cy="2.5" r="1.2" fill="currentColor" stroke="none" />
@@ -736,28 +954,54 @@ function LayerIcon({ kind }: { kind: ReturnType<typeof layerKind> }) {
     );
   if (kind === "image")
     return (
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+      >
         <rect x="1.5" y="1.5" width="9" height="9" rx="1" />
         <path d="M2 9l2.5-3 2 2 1.5-1.5L10 9" />
       </svg>
     );
   if (kind === "frame")
     return (
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+      >
         <path d="M3.5 1v10M8.5 1v10M1 3.5h10M1 8.5h10" />
       </svg>
     );
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+    >
       <rect x="1.5" y="1.5" width="9" height="9" rx="1" />
     </svg>
   );
 }
 
+/** Adds an index to a set, or takes it out: what the fold and the eye do to their set. */
+function toggled(set: ReadonlySet<number>, i: number) {
+  const next = new Set(set);
+  if (!next.delete(i)) next.add(i);
+  return next;
+}
+
 /**
- * A flat list in document order, indented by depth. It does not scale to the biggest boards
- * (352 elements on `luma-ios/11-home-nearby`); a collapsing tree or a text-and-image filter
- * is the open question, not taken up here.
+ * The board's tree, in document order and indented by depth. A layer with children folds shut,
+ * which is what makes the biggest boards readable (352 elements on `luma-ios/11-home-nearby`),
+ * and the eye takes one off the board without touching the generator — the board is a rendered
+ * file, so hiding is this session's view of it and nothing more.
  */
 function Layers({
   nodes,
@@ -765,52 +1009,123 @@ function Layers({
   sel,
   hov,
   names,
+  collapsed,
+  hidden,
   onSelect,
   onHover,
+  onFold,
+  onHide,
 }: {
   nodes: SpNode[];
   height: number;
   sel: number | null;
   hov: number | null;
   names: Map<number, string>;
+  collapsed: ReadonlySet<number>;
+  hidden: ReadonlySet<number>;
   onSelect: (i: number) => void;
   onHover: (i: number | null) => void;
+  onFold: (i: number) => void;
+  onHide: (i: number) => void;
 }) {
   const list = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (sel === null) return;
-    list.current?.querySelector(`[data-i="${sel}"]`)?.scrollIntoView({ block: "nearest" });
+    list.current
+      ?.querySelector(`[data-i="${sel}"]`)
+      ?.scrollIntoView({ block: "nearest" });
   }, [sel]);
-  // An icon is one layer: the paths inside an svg stay indexed (the Tokens tab counts uses on
-  // them) but are not listed.
-  const rows = nodes.filter((n) => !n.inSvg);
+  const rows = useMemo(() => layerRows(nodes, collapsed), [nodes, collapsed]);
   return (
-    <div className="sp-layers" style={{ height }} ref={list} onMouseLeave={() => onHover(null)}>
+    <div
+      className="sp-layers"
+      style={{ height }}
+      ref={list}
+      onMouseLeave={() => onHover(null)}
+    >
       <div className="sp-sh">
         <span className="sp-sh-t">Layers</span>
         <span className="sp-sh-s">{Math.max(0, rows.length - 1)}</span>
       </div>
-      {rows.map((n) => (
-        <button
+      {rows.map(({ node: n, kids }) => (
+        <div
           key={n.i}
-          type="button"
           data-i={n.i}
-          className={cx("sp-layer", n.i === sel && "on", n.i === hov && n.i !== sel && "hov")}
-          style={{ paddingLeft: 12 + n.depth * 12 }}
-          title={layerSelector(n)}
-          onClick={() => onSelect(n.i)}
+          className={cx(
+            "sp-layer",
+            n.i === sel && "on",
+            n.i === hov && n.i !== sel && "hov",
+            hidden.has(n.i) && "off",
+          )}
+          style={{ paddingLeft: n.depth * 12 }}
           onMouseEnter={() => onHover(n.i)}
         >
-          <LayerIcon kind={layerKind(n)} />
-          <span className="sp-layer-n">{layerName(n, names.get(n.i))}</span>
-          {n.i === 0 && n.box ? (
-            <span className="sp-layer-d">
-              {fmt(n.box.w)} × {fmt(n.box.h)}
-            </span>
+          {/* Always rendered, so a leaf's name lines up with its siblings' rather than sliding
+              back under the fold of the layer above it. */}
+          <button
+            type="button"
+            className="sp-layer-fold"
+            disabled={!kids}
+            aria-label={collapsed.has(n.i) ? "Expand" : "Collapse"}
+            aria-expanded={kids ? !collapsed.has(n.i) : undefined}
+            onClick={() => onFold(n.i)}
+          >
+            {kids ? <Caret open={!collapsed.has(n.i)} /> : null}
+          </button>
+          <button
+            type="button"
+            className="sp-layer-hit"
+            title={layerSelector(n)}
+            onClick={() => onSelect(n.i)}
+          >
+            <LayerIcon kind={layerKind(n)} />
+            <span className="sp-layer-n">{layerName(n, names.get(n.i))}</span>
+            {n.i === 0 && n.box ? (
+              <span className="sp-layer-d">
+                {fmt(n.box.w)} × {fmt(n.box.h)}
+              </span>
+            ) : null}
+          </button>
+          {/* The root is the artboard: hiding it would blank the board and leave nothing to
+              click the eye back on. */}
+          {n.i > 0 ? (
+            <button
+              type="button"
+              className="sp-layer-eye"
+              aria-label={hidden.has(n.i) ? "Show" : "Hide"}
+              aria-pressed={hidden.has(n.i)}
+              onClick={() => onHide(n.i)}
+            >
+              <Eye off={hidden.has(n.i)} />
+            </button>
           ) : null}
-        </button>
+        </div>
       ))}
     </div>
+  );
+}
+
+function Caret({ open }: { open: boolean }) {
+  return (
+    <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
+      <path d={open ? "M0 2h8L4 7z" : "M2 0v8l5-4z"} />
+    </svg>
+  );
+}
+
+function Eye({ off }: { off: boolean }) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+    >
+      <path d="M1 6s2-3.2 5-3.2S11 6 11 6s-2 3.2-5 3.2S1 6 1 6z" />
+      <circle cx="6" cy="6" r="1.4" />
+      {off ? <path d="M2 10L10 2" /> : null}
+    </svg>
   );
 }
 
@@ -836,17 +1151,25 @@ function Summary({
         <span className="sp-sh-t">{name}</span>
         <span className="sp-sh-s">{file}</span>
       </div>
-      <Row k="Frame" v={root?.box ? `${fmt(root.box.w)} × ${fmt(root.box.h)}` : "–"} />
-      <Row k="Layers" v={String(Math.max(0, data.nodes.filter((n) => !n.inSvg).length - 1))} />
+      <Row
+        k="Frame"
+        v={root?.box ? `${fmt(root.box.w)} × ${fmt(root.box.h)}` : "–"}
+      />
+      <Row
+        k="Layers"
+        v={String(Math.max(0, data.nodes.filter((n) => !n.inSvg).length - 1))}
+      />
       <Row k="Images" v={String(assets.length - vectors)} />
       <Row k="Vectors" v={String(vectors)} />
       <Row k="Tokens" v={`${usedTokens} used of ${data.tokens.length}`} />
-      <div className="sp-hint">Click a layer, or an element in the preview.</div>
+      <div className="sp-hint">
+        Click a layer, or an element in the preview.
+      </div>
     </div>
   );
 }
 
-function Row({ k, v }: { k: string; v: string }) {
+function Row({ k, v }: { k: string; v: ReactNode }) {
   return (
     <div className="sp-row">
       <span className="sp-k">{k}</span>
@@ -884,7 +1207,10 @@ function TokenPill({
 
 /** The declaration with its tokens substituted, which is what the author would read back. */
 function resolvedText(b: SpBinding) {
-  return b.value.replace(/var\(\s*(--[\w-]+)\s*(?:,[^()]*)?\)/g, (m, n: string) => b.resolved[n] ?? m);
+  return b.value.replace(
+    /var\(\s*(--[\w-]+)\s*(?:,[^()]*)?\)/g,
+    (m, n: string) => b.resolved[n] ?? m,
+  );
 }
 
 function stateText(b: SpBinding) {
@@ -904,13 +1230,18 @@ function styleGroups(bindings: SpBinding[]) {
   for (const b of bindings) {
     // A declaration without a token earns a row only when it is visible and actually won, and
     // not when it is the universal reset (`* { padding: 0 }`), which every element would repeat.
-    if (!b.tokens.length && (b.src === "*" || !VISIBLE_PROPS.has(b.prop) || b.state !== "applied"))
+    if (
+      !b.tokens.length &&
+      (b.src === "*" || !VISIBLE_PROPS.has(b.prop) || b.state !== "applied")
+    )
       continue;
     const from = b.inheritedFrom;
     const label =
       (b.src || "inline") +
       b.pseudo +
-      (from ? ` · inherited from ${from.tag}${from.cls ? `.${from.cls.split(/\s+/)[0]}` : ""}` : "");
+      (from
+        ? ` · inherited from ${from.tag}${from.cls ? `.${from.cls.split(/\s+/)[0]}` : ""}`
+        : "");
     let group = index.get(label);
     if (!group) {
       group = { label, rows: [] };
@@ -935,7 +1266,10 @@ function Properties({
   onToken: (name: string) => void;
   onSelect: (i: number) => void;
 }) {
-  const kinds = useMemo(() => new Map(tokens.map((t) => [t.name, t.kind])), [tokens]);
+  const kinds = useMemo(
+    () => new Map(tokens.map((t) => [t.name, t.kind])),
+    [tokens],
+  );
   const groups = bindings ? styleGroups(bindings.bindings) : [];
   return (
     <>
@@ -1010,16 +1344,23 @@ function Properties({
                       {resolvedText(b)}
                     </div>
                   ) : null}
-                  {b.prop === "font" && b.state !== "overridden" && b.longhands.length > 1 ? (
+                  {b.prop === "font" &&
+                  b.state !== "overridden" &&
+                  b.longhands.length > 1 ? (
                     <div className="sp-sub sp-longs">
                       {b.longhands
-                        .filter((l) => /^font-(weight|size|family)$|^line-height$/.test(l.p))
+                        .filter((l) =>
+                          /^font-(weight|size|family)$|^line-height$/.test(l.p),
+                        )
                         .map((l) => `${l.p.replace(/^font-/, "")} ${l.v}`)
                         .join(" · ")}
                     </div>
                   ) : null}
                   {b.state !== "applied" ? (
-                    <div className={cx("sp-state", b.state)} title={b.by ?? undefined}>
+                    <div
+                      className={cx("sp-state", b.state)}
+                      title={b.by ?? undefined}
+                    >
                       {stateText(b)}
                     </div>
                   ) : null}
@@ -1039,7 +1380,9 @@ function Properties({
             <div key={k} className="sp-row">
               <span className="sp-k">{k}</span>
               <span className="sp-v" title={v}>
-                {isColorValue(v) ? <span className="sp-sw" style={{ background: v }} /> : null}
+                {isColorValue(v) ? (
+                  <span className="sp-sw" style={{ background: v }} />
+                ) : null}
                 {v}
               </span>
             </div>
@@ -1072,7 +1415,8 @@ function Assets({
   onSelect: (i: number) => void;
   onHover: (i: number | null) => void;
 }) {
-  if (!rows.length) return <div className="sp-empty">No images or vectors on this board.</div>;
+  if (!rows.length)
+    return <div className="sp-empty">No images or vectors on this board.</div>;
   return (
     <div className="sp-scroll" onMouseLeave={() => onHover(null)}>
       <div className="sp-sh sp-sh--pad">
@@ -1096,7 +1440,9 @@ function Assets({
             </span>
             <span className="sp-asset-n">
               {a.source === "file" ? a.name : <i>{a.name}</i>}
-              {a.source === "alt" || a.source === "label" ? <small>{a.source}</small> : null}
+              {a.source === "alt" || a.source === "label" ? (
+                <small>{a.source}</small>
+              ) : null}
             </span>
             <span className="sp-asset-d">
               {a.w && a.h ? `${fmt(a.w)} × ${fmt(a.h)}` : formatBytes(a.bytes)}
@@ -1132,7 +1478,8 @@ function Tokens({
       ?.querySelector(`[data-token="${CSS.escape(focus)}"]`)
       ?.scrollIntoView({ block: "center" });
   }, [focus]);
-  if (!tokens.length) return <div className="sp-empty">No tokens on this board.</div>;
+  if (!tokens.length)
+    return <div className="sp-empty">No tokens on this board.</div>;
   return (
     <div className="sp-scroll" ref={list}>
       <div className="sp-sh sp-sh--pad">
@@ -1159,11 +1506,19 @@ function Tokens({
               <div
                 key={t.name}
                 data-token={t.name}
-                className={cx("sp-token", unused && "unused", here && "on", t.name === focus && "focus")}
+                className={cx(
+                  "sp-token",
+                  unused && "unused",
+                  here && "on",
+                  t.name === focus && "focus",
+                )}
               >
                 <div className="sp-token-row">
                   {swatch ? (
-                    <span className="sp-sw" style={{ background: t.canon || t.value }} />
+                    <span
+                      className="sp-sw"
+                      style={{ background: t.canon || t.value }}
+                    />
                   ) : (
                     <span className="sp-sw sp-sw--none" />
                   )}
@@ -1186,11 +1541,17 @@ function Tokens({
                     disabled={!t.usedBy.length}
                     onClick={next}
                   >
-                    {t.usedBy.length ? `×${t.usedBy.length}` : via.length ? "via" : "–"}
+                    {t.usedBy.length
+                      ? `×${t.usedBy.length}`
+                      : via.length
+                        ? "via"
+                        : "–"}
                   </button>
                 </div>
                 {t.note ? <div className="sp-token-note">{t.note}</div> : null}
-                {via.length ? <div className="sp-token-note">via {via.join(", ")}</div> : null}
+                {via.length ? (
+                  <div className="sp-token-note">via {via.join(", ")}</div>
+                ) : null}
                 {t.overrides.map((o) => (
                   <div key={o.sel} className="sp-token-note">
                     <code>{o.sel}</code> {o.decl}

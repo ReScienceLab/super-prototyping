@@ -1,3 +1,4 @@
+import { useContext, useMemo, type CSSProperties } from "react";
 import {
   BaseBoxShapeUtil,
   HTMLContainer,
@@ -6,11 +7,13 @@ import {
   type TLShape,
   useIsEditing,
 } from "tldraw";
+import { CanvasChromeContext } from "./canvasChrome";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
   hasCanvasFile,
   useCanvasFileHtml,
 } from "./canvasLibrary";
+import { injectAgent } from "./inspectorAgent";
 
 export const CANVAS_FILE_SHAPE_TYPE = "canvas-file" as const;
 
@@ -30,7 +33,39 @@ export type CanvasFileShape = TLShape<typeof CANVAS_FILE_SHAPE_TYPE>;
 // oxlint-disable-next-line react/only-export-components
 function CanvasFile({ shape }: { shape: CanvasFileShape }) {
   const isEditing = useIsEditing(shape.id);
+  const { inspectingPath, setInspectorFrame } = useContext(CanvasChromeContext);
   const html = useCanvasFileHtml(shape.props.path);
+
+  /**
+   * The board the inspector has open runs the agent (inspectorAgent.ts), so a click on the mockup
+   * out here picks the element under it. The panel used to load a second copy of the board to do
+   * that, which meant reading one mockup and clicking another.
+   *
+   * The frame still never takes the pointer: inspectorClicks.ts hands the agent the canvas's own
+   * pointer as a board coordinate, so panning, zooming and the comment tool go on working over
+   * the board being read.
+   */
+  const inspected = inspectingPath === shape.props.path;
+  const agentDoc = useMemo(
+    () => (html && inspected ? injectAgent(html) : null),
+    [html, inspected],
+  );
+
+  // Behind the container, which is transparent, so the frames show through it. Safari routes a
+  // wheel to an iframe's own scrolling area whatever pointer-events says, so a two-finger pan
+  // over a board did nothing there, and a horizontal one chained out to the browser's back
+  // gesture. Behind the container neither frame is a scroll target, and the pan reaches tldraw
+  // wherever the cursor is. tldraw's own embed shape carries this same line:
+  // <https://stackoverflow.com/a/49150908>.
+  const frame: CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    border: 0,
+    display: "block",
+    pointerEvents: isEditing ? "auto" : "none",
+  };
 
   return (
     <HTMLContainer
@@ -44,24 +79,42 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
       }}
     >
       {html ? (
-        <iframe
-          title={shape.props.name}
-          srcDoc={html}
-          sandbox=""
-          style={{
-            width: "100%",
-            height: "100%",
-            border: 0,
-            display: "block",
-            pointerEvents: isEditing ? "auto" : "none",
-            // Safari routes a wheel to an iframe's own scrolling area whatever pointer-events
-            // says, so a two-finger pan over a board did nothing there, and a horizontal one
-            // chained out to the browser's back gesture. Behind its container it is not a scroll
-            // target, and the pan reaches tldraw wherever the cursor is. tldraw's own embed shape
-            // carries this same line: <https://stackoverflow.com/a/49150908>.
-            zIndex: isEditing ? undefined : -1,
-          }}
-        />
+        <>
+          <iframe
+            title={shape.props.name}
+            srcDoc={html}
+            sandbox=""
+            style={{ ...frame, zIndex: isEditing ? undefined : -2 }}
+          />
+          {/* The scripted board is a second document: srcdoc cannot be swapped on the frame above
+              (Chrome drops the second navigation while the first is still pending and leaves the
+              frame blank), and remounting it reloaded the mockup under the very click that opened
+              it, which is the flash. It loads over the board instead, pixel for pixel the same
+              one, so the swap is invisible — and the board underneath stays loaded, so closing
+              the inspector shows nothing either. */}
+          {agentDoc ? (
+            <iframe
+              ref={(el) => {
+                setInspectorFrame(el);
+                return () => setInspectorFrame(null);
+              }}
+              title={shape.props.name}
+              srcDoc={agentDoc}
+              // `allow-scripts` and deliberately not `allow-same-origin`, which together would let
+              // the frame reach back out into the canvas.
+              sandbox="allow-scripts"
+              // The agent answers with its report; the frame's own load event may have fired
+              // before the panel was listening.
+              onLoad={(e) =>
+                e.currentTarget.contentWindow?.postMessage(
+                  { type: "sp:hello" },
+                  "*",
+                )
+              }
+              style={{ ...frame, zIndex: isEditing ? undefined : -1 }}
+            />
+          ) : null}
+        </>
       ) : hasCanvasFile(shape.props.path) ? null : (
         // A board that exists but is not in yet renders nothing, so the frame fills in when its
         // chunk arrives rather than flashing an error first.

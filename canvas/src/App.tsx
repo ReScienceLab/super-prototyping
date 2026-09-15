@@ -39,10 +39,15 @@ import {
 } from "./canvasUrl";
 import {
   CANVAS_FILE_SHAPE_TYPE,
-  type CanvasFileShape,
   CanvasFileShapeUtil,
 } from "./CanvasFileShapeUtil";
-import { InspectorClicks, InspectorPanel } from "./InspectorPanel";
+import {
+  ImagePanel,
+  InspectorClicks,
+  InspectorPanel,
+  type CanvasImagePick,
+} from "./InspectorPanel";
+import type { InspectorTarget } from "./inspectorClicks";
 import {
   CANVAS_STATUS_BANNER_GAP,
   CANVAS_STATUS_BANNER_HEIGHT,
@@ -66,7 +71,10 @@ import {
   BRAND_THUMB_EDGE,
   boardTabStatusForPath,
   brandThumbForSrc,
+  canvasImageKey,
+  canvasImageRef,
   canvasImageUrl,
+  readCanvasImage,
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
@@ -521,7 +529,7 @@ const IMAGE_MIME: Record<string, string> = {
 };
 
 function imageShapeId(pageSlug: string, file: string) {
-  return createShapeId(`canvas-image:${pageSlug}/${file}`);
+  return createShapeId(canvasImageKey(pageSlug, file));
 }
 
 /**
@@ -532,7 +540,7 @@ function imageShapeId(pageSlug: string, file: string) {
  */
 function imageAssetId(pageSlug: string, file: string): TLAsset["id"] {
   // Branded string: the store validates only the `asset:` prefix, the rest is ours to choose.
-  return `asset:canvas-image:${pageSlug}/${file}` as TLAsset["id"];
+  return `asset:${canvasImageKey(pageSlug, file)}` as TLAsset["id"];
 }
 
 /**
@@ -712,9 +720,23 @@ function layoutWelcomeExtras(
   // Grok. A slug named in neither list still shows, at the end of the first row, so a new
   // folder is never silently dropped; the last row has no list, so it keeps library order.
   const ROWS = [
-    ["snapaction-ios", "chatgpt-ios", "claude-ios", "grok-ios", "notion-ios",
-     "raycast-ios", "luma-ios"],
-    ["instagram-ios", "tiktok-ios", "x-ios", "substack-ios", "spotify-ios", "duolingo-ios"],
+    [
+      "snapaction-ios",
+      "chatgpt-ios",
+      "claude-ios",
+      "grok-ios",
+      "notion-ios",
+      "raycast-ios",
+      "luma-ios",
+    ],
+    [
+      "instagram-ios",
+      "tiktok-ios",
+      "x-ios",
+      "substack-ios",
+      "spotify-ios",
+      "duolingo-ios",
+    ],
   ];
   const rowOf = (slug: string) => {
     if (slug === "templates") return 3;
@@ -734,7 +756,8 @@ function layoutWelcomeExtras(
   };
   const groups = [
     {
-      title: "Examples: AI assistants and productivity tools. Click a card to open its canvas",
+      title:
+        "Examples: AI assistants and productivity tools. Click a card to open its canvas",
       targets: inRow(0),
     },
     { title: "Examples: social, media and learning apps", targets: inRow(1) },
@@ -1187,6 +1210,9 @@ const BOARD_ZOOM_INSET = 80;
 export default function App() {
   /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
   const [inspecting, setInspecting] = useState<CanvasLibraryFile | null>(null);
+  /** The brand image open in the inspector instead, when a picture was the thing clicked. */
+  const [inspectingImage, setInspectingImage] =
+    useState<CanvasImagePick | null>(null);
   const [commentUser, setCommentUser] = useState(readCommentUser);
   /** State rather than a ref: the inspector panel renders outside `<Tldraw>` and needs it. */
   const [editor, setEditor] = useState<Editor | null>(null);
@@ -1197,6 +1223,8 @@ export default function App() {
   const writeUrl = useRef<(push: boolean) => void>(() => {});
   /** A board the address named, for the camera to go to once the inspector is beside it. */
   const zoomTo = useRef<CanvasLibraryFile | null>(null);
+  /** That board's frame on the canvas: the panel reads its report and posts its selection there. */
+  const inspectorFrame = useRef<HTMLIFrameElement | null>(null);
 
   // A layout.json edit moves boards: a row reserves the height of a status tab for all of its
   // boards, so a status appearing or disappearing reflows the row. Creation is idempotent and
@@ -1216,6 +1244,8 @@ export default function App() {
   const show = useCallback((file: CanvasLibraryFile | null, push: boolean) => {
     inspected.current = file;
     setInspecting(file);
+    // One dock, one thing in it: a board opening takes the place of a picture and the other way.
+    setInspectingImage(null);
     if (push) {
       zoomTo.current = null; // the reader's own pick or close, so no address is left to zoom to
       writeUrl.current(true);
@@ -1223,11 +1253,21 @@ export default function App() {
   }, []);
   const onCloseInspector = useCallback(() => show(null, true), [show]);
   const onPick = useCallback(
-    (shape: CanvasFileShape) => {
-      const file = readCanvasLibrary()
-        .flat()
-        .find((c) => c.path === shape.props.path);
-      if (file) show(file, true);
+    (shape: InspectorTarget) => {
+      if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
+        const file = readCanvasLibrary()
+          .flat()
+          .find((c) => c.path === shape.props.path);
+        if (file) show(file, true);
+        return;
+      }
+      // Brand material. A picture is not a board, so it has no address of its own: closing
+      // whatever the inspector had open is the whole of the URL's part in opening one.
+      const ref = canvasImageRef(shape.id);
+      const entry = ref && readCanvasImage(ref.slug, ref.file);
+      if (!ref || !entry) return;
+      show(null, true);
+      setInspectingImage({ shapeId: shape.id, ...ref, ...entry });
     },
     [show],
   );
@@ -1279,6 +1319,11 @@ export default function App() {
         commentUser,
         setCommentUser,
         inspectBoard: onPick,
+        inspectingPath: inspecting?.path ?? null,
+        inspectorOpen: Boolean(inspecting || inspectingImage),
+        setInspectorFrame: (frame: HTMLIFrameElement | null) => {
+          inspectorFrame.current = frame;
+        },
       }}
     >
       <div className="canvas-shell">
@@ -1295,7 +1340,12 @@ export default function App() {
           >
             <AgentBridge />
             <LockedLinkClicks />
-            <InspectorClicks onPick={onPick} />
+            <InspectorClicks
+              onPick={onPick}
+              onDismiss={onCloseInspector}
+              inspectingPath={inspecting?.path ?? null}
+              frame={inspectorFrame}
+            />
             <WelcomeGround />
             <EmptyLibraryNotice />
           </Tldraw>
@@ -1308,7 +1358,14 @@ export default function App() {
             path={inspecting.path}
             name={inspecting.title}
             size={boardSize(inspecting)}
+            frame={inspectorFrame}
             onClose={onCloseInspector}
+          />
+        ) : inspectingImage ? (
+          <ImagePanel
+            key={inspectingImage.shapeId}
+            pick={inspectingImage}
+            onClose={() => setInspectingImage(null)}
           />
         ) : null}
       </div>

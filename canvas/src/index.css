@@ -338,26 +338,6 @@ input.canvas-clone-name:focus {
   text-align: left;
 }
 
-/* Preview: the board, and the comments on it underneath */
-.sp-preview {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.sp-stage {
-  position: relative;
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: #f5f5f5;
-}
-
 /* The selected layer's own image, between the layers list and the properties under it.
    Shrinkable, not fixed: a layers list dragged tall would otherwise clip it against the rail. */
 .sp-asset-view {
@@ -385,6 +365,12 @@ input.canvas-clone-name:focus {
   background-position: 0 0, 6px 6px;
   background-origin: content-box;
   background-clip: content-box;
+}
+
+/* No caption under it — a brand image is named by the rows below instead — so the image itself
+   has to carry the padding the caption would have. */
+.sp-asset-view img:only-child {
+  padding-bottom: 8px;
 }
 
 /* Two lines in the rail: 280px will not hold a path and its dimensions side by side. */
@@ -419,71 +405,6 @@ input.canvas-clone-name:focus {
 
 .sp-copy:hover {
   background: var(--sp-hover);
-}
-
-.sp-board {
-  position: relative;
-  flex: 0 0 auto;
-  transform-origin: center;
-}
-
-/* Pins. The wrapper is a zero-size point at the anchor's fraction of the board, so the pin needs
-   no arithmetic to be placed; the pin then counter-scales off that point, which is why it is a
-   second element and why its origin is the corner it hangs from. */
-.sp-pin-at {
-  position: absolute;
-  width: 0;
-  height: 0;
-}
-
-.sp-panel .sp-pin {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 11px 11px 11px 2px;
-  transform-origin: 0 100%;
-  color: #ffffff;
-  background: var(--sp-accent);
-  box-shadow: 0 1px 4px #00000040;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.sp-panel .sp-pin--done {
-  background: var(--ds-gray-700);
-}
-
-.sp-panel .sp-pin.on {
-  box-shadow: 0 0 0 2px #ffffff, 0 1px 4px #00000040;
-}
-
-/* Opens the board as a page of its own. Sits where the zoom percentage used to: the corner of
-   the stage is the one part of it no board reaches, and the scale was a number nobody acted on. */
-.sp-full {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  color: var(--sp-text-2);
-  background: #ffffffd9;
-  box-shadow: 0 1px 3px #00000014;
-  cursor: pointer;
-}
-
-.sp-full:hover {
-  color: var(--sp-text);
-  background: #ffffff;
 }
 
 /*
@@ -530,48 +451,6 @@ input.canvas-clone-name:focus {
   .tlui-button.sp-brand {
     padding: 0 9px;
   }
-}
-
-/* The rail's collapse handle, a lozenge straddling its divider. It was a 26px chip in the top
-   right of the preview, where it covered the board it was meant to help read. */
-.sp-collapse {
-  position: absolute;
-  z-index: 1;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 12px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  color: var(--sp-text-2);
-  background: #ffffff;
-  box-shadow: 0 0 0 1px var(--sp-line);
-  cursor: pointer;
-}
-
-.sp-collapse:hover {
-  color: var(--sp-text);
-  background: var(--sp-hover);
-}
-
-/* Shut, the divider resizes nothing: no col-resize cursor, no accent line under the pointer. */
-.sp-grip--shut {
-  cursor: default;
-}
-
-.sp-grip--shut:hover::after {
-  background: transparent;
-}
-
-/* Its right edge then hangs 2px past the panel, and the panel is against the window's edge, so
-   a centred handle would lose half of itself off-screen. */
-.sp-grip--shut .sp-collapse {
-  left: auto;
-  right: 4px;
-  transform: translateY(-50%);
 }
 
 /* Dividers. The hit area is wider than the line, which is the whole reason for ::after. */
@@ -622,9 +501,10 @@ input.canvas-clone-name:focus {
   bottom: 2px;
 }
 
-/* Rail */
+/* Rail: the whole panel, now that the board it describes is the one out on the canvas. */
 .sp-rail {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -643,6 +523,9 @@ input.canvas-clone-name:focus {
 }
 
 .sp-head-name {
+  /* Shrinks first: the status badge and the two icons beside it are fixed, the name is not. */
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
@@ -650,15 +533,13 @@ input.canvas-clone-name:focus {
   text-overflow: ellipsis;
 }
 
-/* Status. Top-left of the stage, and the badge is the control: click it for the menu. Geist's
-   subtle badge, tinted ground with a step-400 rule and step-900 text, because at 100% beside a
-   single board a solid fill competes with the board it labels. The tab out on the canvas is the
-   same status drawn solid, which is what a page read at 34% needs instead. */
+/* Status. In the header, and the badge is the control: click it for the menu. Geist's subtle
+   badge, tinted ground with a step-400 rule and step-900 text, because a solid fill in a 40px
+   header competes with the board's name beside it. The tab out on the canvas is the same status
+   drawn solid, which is what a page read at 34% needs instead. */
 .sp-status-wrap {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
+  position: relative;
+  flex: none;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -775,7 +656,9 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-menu {
   position: absolute;
   top: 32px;
-  left: 0;
+  /* Right-aligned: the badge is near the panel's right edge, and a left-aligned 196px menu
+     would hang off it. */
+  right: 0;
   width: 196px;
   padding: 6px;
   border-radius: 12px;
@@ -817,8 +700,14 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 
 .sp-status-err {
-  display: block;
-  margin-top: 6px;
+  position: absolute;
+  top: 30px;
+  right: 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: var(--ds-shadow-menu);
+  white-space: nowrap;
   color: #cb2a2f;
 }
 
@@ -829,6 +718,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 
 .sp-head-x {
+  flex: none;
   width: 24px;
   height: 24px;
   display: flex;
@@ -952,12 +842,10 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 
 .sp-layer {
-  width: 100%;
   height: 24px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 12px;
+  padding-right: 8px;
   white-space: nowrap;
 }
 
@@ -979,6 +867,30 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   color: inherit;
 }
 
+/* A hidden layer keeps its row readable and its fold working: the eye is a view of the board,
+   not a delete. */
+.sp-layer.off .sp-layer-hit {
+  opacity: 0.45;
+}
+
+.sp-layer-fold {
+  flex: none;
+  width: 14px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sp-layer-hit {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .sp-layer-n {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -988,6 +900,22 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   margin-left: auto;
   flex: none;
   color: var(--sp-text-2);
+}
+
+/* Out of the way until the row is under the pointer, as in Figma — except on the layers already
+   hidden, which is the only sign left that they are. */
+.sp-layer-eye {
+  flex: none;
+  margin-left: 6px;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+}
+
+.sp-layer:hover .sp-layer-eye,
+.sp-layer-eye:focus-visible,
+.sp-layer.off .sp-layer-eye {
+  opacity: 1;
 }
 
 /* Properties */
@@ -1310,7 +1238,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   font-family: var(--sp-mono);
 }
 
-/* Comments, under the preview */
+/* Comments, under the tab */
 .sp-notes {
   flex: 0 0 auto;
   max-height: 45%;
