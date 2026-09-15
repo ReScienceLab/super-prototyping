@@ -19,10 +19,7 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 ## Unreleased
 
-A product's published brand sits on the canvas next to its screens, as
-pictures you can link to, and the board you inspect is the one on the canvas
-rather than a copy in the panel. A fourth skill collects those pictures. Four
-more example canvases.
+Everything below is on `main` and reaches no install until a version is cut.
 
 ### The canvas
 
