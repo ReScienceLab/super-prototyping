@@ -33,7 +33,7 @@ import "@tldraw/commenting/commenting.css";
 import { installAgentBridge } from "./agentBridge";
 import {
   WELCOME_PAGE_SLUG,
-  boardFromUrl,
+  targetFromUrl,
   slugFromUrl,
   urlForSlug,
 } from "./canvasUrl";
@@ -1102,32 +1102,53 @@ function relayoutCanvasLibrary(editor: Editor) {
  * address names that is not on that page closes the inspector, so what is on screen never
  * contradicts the address. Returns the board opened, if any.
  */
+/** What the inspector has open, as the address spells it: the page it belongs to, and either a
+ * board's file name or a picture's path inside that folder. */
+type CanvasAddress = { slug: string; name: string };
+
 function applyCanvasFromUrl(
   editor: Editor,
-  show: (file: CanvasLibraryFile | null) => void,
+  show: {
+    board: (file: CanvasLibraryFile | null) => void;
+    image: (pick: CanvasImagePick) => void;
+  },
 ) {
   const slug = slugFromUrl(window.location.href);
   const page = editor.getPages().find((c) => c.meta.canvasSlug === slug);
   if (page) editor.setCurrentPage(page.id);
-  const board = boardFromUrl(window.location.href);
+  const named = targetFromUrl(window.location.href);
   const file =
     readCanvasLibrary()
       .flat()
-      .find((c) => c.pageSlug === slug && c.fileName === board) ?? null;
-  show(file);
-  return file;
+      .find((c) => c.pageSlug === slug && c.fileName === named) ?? null;
+  // Then a picture of this page, which the address names by its path inside the folder. Every
+  // one of them is under assets/brand and a board is one file at the folder's root, so the two
+  // kinds of name cannot collide and the hash does not have to say which it is.
+  const found = !file && named ? readCanvasImage(slug, named) : undefined;
+  if (named && found) {
+    show.image({
+      shapeId: imageShapeId(slug, named),
+      slug,
+      file: named,
+      ...found,
+    });
+    return true;
+  }
+  show.board(file);
+  return Boolean(file);
 }
 
 /**
  * Keeps the address on what is being looked at, so whatever is on screen can be shared by
- * copying the URL: the page, and the board open in the inspector when it is one of that page's
- * (an inspector left open across a page change names a board of the other page, which the
- * address then leaves out). The address is derived from those two whenever either changes,
+ * copying the URL: the page, and the board or picture open in the inspector when it is one of
+ * that page's (an inspector left open across a page change names something of the other page,
+ * which the address then leaves out). The address is derived from those two whenever either
+ * changes,
  * never edited in place, so the two writers cannot disagree: the page is watched here, and
  * App calls `write` when the inspector opens or closes.
  *
- * Each change pushes a history entry, so Back returns to the previous board and, from a board,
- * to its page and the welcome page; a popstate applies the entry it lands on. Applying an
+ * Each change pushes a history entry, so Back returns to the previous one and, from there, to
+ * its page and the welcome page; a popstate applies the entry it lands on. Applying an
  * address is the one time the page changes without the address needing to follow, so the
  * watcher stands down for it and `apply` corrects the address once, without an entry, for a
  * page or board it named that does not exist. Pages tldraw persisted but no folder claims have
@@ -1135,15 +1156,18 @@ function applyCanvasFromUrl(
  */
 function installCanvasUrlSync(
   editor: Editor,
-  inspected: () => CanvasLibraryFile | null,
-  show: (file: CanvasLibraryFile | null) => void,
+  opened: () => CanvasAddress | null,
+  show: {
+    board: (file: CanvasLibraryFile | null) => void;
+    image: (pick: CanvasImagePick) => void;
+  },
 ) {
   const write = (push: boolean) => {
     const slug = editor.getCurrentPage().meta.canvasSlug;
     if (typeof slug !== "string") return;
-    const file = inspected();
-    const board = file?.pageSlug === slug ? file.fileName : undefined;
-    const href = urlForSlug(window.location.href, slug, board);
+    const open = opened();
+    const named = open?.slug === slug ? open.name : undefined;
+    const href = urlForSlug(window.location.href, slug, named);
     if (href === window.location.href) return;
     if (push) window.history.pushState(null, "", href);
     else window.history.replaceState(null, "", href);
@@ -1152,14 +1176,14 @@ function installCanvasUrlSync(
   let applying = false;
   const apply = () => {
     applying = true;
-    let file: CanvasLibraryFile | null;
+    let named: boolean;
     try {
-      file = applyCanvasFromUrl(editor, show);
+      named = applyCanvasFromUrl(editor, show);
     } finally {
       applying = false;
     }
     write(false);
-    return file;
+    return named;
   };
 
   // The first run is the subscription; `apply` writes the address right after it.
@@ -1217,12 +1241,14 @@ export default function App() {
   /** State rather than a ref: the inspector panel renders outside `<Tldraw>` and needs it. */
   const [editor, setEditor] = useState<Editor | null>(null);
   const store = useLocalStore(storeOptions);
-  /** The same board, for the address writer, which runs outside React. */
-  const inspected = useRef<CanvasLibraryFile | null>(null);
+  /** What the inspector has open, spelled the way the address spells it: a board by file name,
+   * a picture by its path inside the folder, each with the page it belongs to. For the address
+   * writer, which runs outside React. */
+  const opened = useRef<CanvasAddress | null>(null);
   /** Writes the address from the page and the inspector; installed with the editor. */
   const writeUrl = useRef<(push: boolean) => void>(() => {});
-  /** A board the address named, for the camera to go to once the inspector is beside it. */
-  const zoomTo = useRef<CanvasLibraryFile | null>(null);
+  /** What the address named, for the camera to go to once the inspector is beside it. */
+  const zoomTo = useRef<TLShapeId | null>(null);
   /** That board's frame on the canvas: the panel reads its report and posts its selection there. */
   const inspectorFrame = useRef<HTMLIFrameElement | null>(null);
 
@@ -1242,12 +1268,23 @@ export default function App() {
    * an address is not, and passes `push: false`.
    */
   const show = useCallback((file: CanvasLibraryFile | null, push: boolean) => {
-    inspected.current = file;
+    opened.current = file ? { slug: file.pageSlug, name: file.fileName } : null;
     setInspecting(file);
     // One dock, one thing in it: a board opening takes the place of a picture and the other way.
     setInspectingImage(null);
     if (push) {
       zoomTo.current = null; // the reader's own pick or close, so no address is left to zoom to
+      writeUrl.current(true);
+    }
+  }, []);
+  /** The same for a picture, which has an address of its own for the same reason a board does:
+   * it is a thing on the canvas someone will want to send to someone else. */
+  const showImage = useCallback((pick: CanvasImagePick, push: boolean) => {
+    opened.current = { slug: pick.slug, name: pick.file };
+    setInspecting(null);
+    setInspectingImage(pick);
+    if (push) {
+      zoomTo.current = null;
       writeUrl.current(true);
     }
   }, []);
@@ -1261,47 +1298,47 @@ export default function App() {
         if (file) show(file, true);
         return;
       }
-      // Brand material. A picture is not a board, so it has no address of its own: closing
-      // whatever the inspector had open is the whole of the URL's part in opening one.
+      // Brand material, addressed by the folder path its shape is keyed by.
       const ref = canvasImageRef(shape.id);
       const entry = ref && readCanvasImage(ref.slug, ref.file);
       if (!ref || !entry) return;
-      show(null, true);
-      setInspectingImage({ shapeId: shape.id, ...ref, ...entry });
+      showImage({ shapeId: shape.id, ...ref, ...entry }, true);
     },
-    [show],
+    [show, showImage],
   );
 
-  // The camera goes to a board the address named, after the inspector has taken its share of
-  // the window: a layout effect, so the panel is in the DOM, and the viewport measured here
-  // because tldraw measures it on a throttled resize observer, up to 200ms behind, which would
-  // fit the board to the canvas width the panel just took. Every `show` from an address is a
-  // fresh library object, so the effect runs even for the board already open.
+  // The camera goes to what the address named, after the inspector has taken its share of the
+  // window: a layout effect, so the panel is in the DOM, and the viewport measured here because
+  // tldraw measures it on a throttled resize observer, up to 200ms behind, which would fit the
+  // board to the canvas width the panel just took. Every `show` from an address is a fresh
+  // object, so the effect runs even for the one already open.
   useLayoutEffect(() => {
-    const file = zoomTo.current;
+    const id = zoomTo.current;
     zoomTo.current = null;
-    if (!editor || !file) return;
-    const bounds = editor.getShapePageBounds(fileShapeId(file));
+    if (!editor || !id) return;
+    const bounds = editor.getShapePageBounds(id);
     if (!bounds) return;
     editor.updateViewportScreenBounds(editor.getContainer());
     editor.zoomToBounds(bounds, { inset: BOARD_ZOOM_INSET });
-  }, [inspecting, editor]);
+  }, [inspecting, inspectingImage, editor]);
 
   function handleMount(editor: Editor) {
     setEditor(editor);
     initializeCanvas(editor);
     // After the library, which is what creates the pages the comments are keyed to.
     const disposeComments = installCanvasComments(editor);
-    const sync = installCanvasUrlSync(
-      editor,
-      () => inspected.current,
-      (file) => {
-        zoomTo.current = file;
+    const sync = installCanvasUrlSync(editor, () => opened.current, {
+      board: (file) => {
+        zoomTo.current = file ? fileShapeId(file) : null;
         show(file, false);
       },
-    );
+      image: (pick) => {
+        zoomTo.current = pick.shapeId;
+        showImage(pick, false);
+      },
+    });
     writeUrl.current = sync.write;
-    // The address names a board, or the whole page is the view.
+    // The address names one of them, or the whole page is the view.
     if (!sync.apply()) requestAnimationFrame(() => editor.zoomToFit());
     return () => {
       disposeComments();
@@ -1365,7 +1402,7 @@ export default function App() {
           <ImagePanel
             key={inspectingImage.shapeId}
             pick={inspectingImage}
-            onClose={() => setInspectingImage(null)}
+            onClose={onCloseInspector}
           />
         ) : null}
       </div>

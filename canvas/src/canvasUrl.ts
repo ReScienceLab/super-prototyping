@@ -1,8 +1,9 @@
 // The address of what is on screen. A page is `?canvas=<slug>`, the canvases/<slug> folder
-// name; the welcome page is the bare URL, so the way in stays the shortest link there is. A
-// board of that page is the hash, `?canvas=<slug>#<file>` for canvases/<slug>/<file>.html: the
-// board open in the inspector, and what a link to one board points at. Anything else in the
-// query string is left alone.
+// name; the welcome page is the bare URL, so the way in stays the shortest link there is. One
+// thing of that page is the hash: `#<file>` for the board canvases/<slug>/<file>.html, and
+// `#assets/brand/<...>` for a picture, which is that file's path inside the folder. A board is
+// one file at the folder's root and every picture is under assets/brand, so one hash names
+// either without ambiguity. Anything else in the query string is left alone.
 
 export const WELCOME_PAGE_SLUG = "00-welcome";
 
@@ -14,10 +15,11 @@ export function slugFromUrl(href: string) {
 }
 
 /**
- * The board an address opens, by file name: its hash, else nothing. The hash is typed by hand,
- * so a broken escape in it is a board that does not exist, not an error.
+ * The board or picture an address opens, by file name and by path in the folder respectively:
+ * its hash, else nothing. The hash is typed by hand, so a broken escape in it is something that
+ * does not exist, not an error.
  */
-export function boardFromUrl(href: string) {
+export function targetFromUrl(href: string) {
   const { hash } = new URL(href);
   if (!hash) return undefined;
   try {
@@ -54,13 +56,17 @@ export function brandPageUrl(slug?: string) {
 }
 
 /**
- * The address for a page slug and, if one is open, a board of it, built on `href` so the
- * origin, path and other parameters stay.
+ * The address for a page slug and, if one is open, a board or picture of it, built on `href` so
+ * the origin, path and other parameters stay.
+ *
+ * Escaped a segment at a time, so a picture's separators survive as separators and its address
+ * stays the path a person would recognise; a board's file name has no separator in it and comes
+ * out exactly as it always did.
  */
-export function urlForSlug(href: string, slug: string, board?: string) {
+export function urlForSlug(href: string, slug: string, target?: string) {
   const url = new URL(href);
   if (slug === WELCOME_PAGE_SLUG) url.searchParams.delete(CANVAS_PARAM);
   else url.searchParams.set(CANVAS_PARAM, slug);
-  url.hash = board ? encodeURIComponent(board) : "";
+  url.hash = target ? target.split("/").map(encodeURIComponent).join("/") : "";
   return url.href;
 }
