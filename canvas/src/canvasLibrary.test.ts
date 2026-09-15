@@ -56,7 +56,7 @@ describe('loadCanvasFileHtml', () => {
 
 describe('images rows', () => {
   it('name only committed files, with the pixel size they are drawn at', () => {
-    // Both the canvas and the brand sheet drop an image they cannot resolve or size, so a
+    // Both the canvas and the brand kit drop an image they cannot resolve or size, so a
     // mistyped path or a missing w/h leaves a gap in the published evidence and says nothing
     // about it. This is where that gets said: the two conditions, checked in one place.
     const slugs = [...new Set(readCanvasLibrary().map((files) => files[0].pageSlug))]

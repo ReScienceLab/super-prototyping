@@ -4,14 +4,11 @@ import {
   canvasIconUrl,
   canvasImageThumbUrl,
   canvasImageUrl,
-  pageNameFor,
   readCanvasLayout,
+  shortName,
 } from "./canvasLibrary";
-import { brandPageUrl, canvasPageUrl, sheetPageUrl } from "./canvasUrl";
-
-/** The switcher wants the product, not the shelf: "(example) Claude iOS" reads as "Claude iOS". */
-const shortName = (slug: string) =>
-  pageNameFor(slug).replace(/^\(example\)\s*/, "");
+import { brandPageUrl, canvasPageUrl } from "./canvasUrl";
+import { CanvasCta } from "./canvasCta";
 
 /**
  * How many columns a row gets, and the shape of its cards, from the pictures actually in it.
@@ -33,13 +30,11 @@ function rowShape(images: { w: number; h: number }[]) {
 
 /**
  * The width a card's picture is actually drawn at, mirroring brand.css: the band's 28px of side
- * padding, the 20px grid gaps, the card's 24px of padding, and the two breakpoints where a row
- * gives up columns. Told nothing, a browser assumes an image fills the window and fetches the
+ * padding, the 20px grid gaps, and the two breakpoints where a row gives up columns. Told nothing, a browser assumes an image fills the window and fetches the
  * original for every card, which is the entire saving gone.
  */
 function cardSizes(cols: number) {
-  const at = (n: number) =>
-    `calc((100vw - 56px - ${(n - 1) * 20}px) / ${n} - 48px)`;
+  const at = (n: number) => `calc((100vw - 56px - ${(n - 1) * 20}px) / ${n})`;
   const [two, three] = [at(Math.min(cols, 2)), at(Math.min(cols, 3))];
   return `(max-width: 720px) ${two}, (max-width: 1100px) ${three}, ${at(cols)}`;
 }
@@ -68,7 +63,7 @@ function sourceLabel(source: string | undefined) {
  * of asset on every surface, and an avatar that disagrees with the other avatars shows up as a
  * break in the column rather than as something to go looking for.
  */
-export function BrandSheet({ slug }: { slug: string }) {
+export function BrandKit({ slug }: { slug: string }) {
   const rows = (readCanvasLayout(slug)?.rows ?? []).flatMap((row) => {
     const images = (row.images ?? []).flatMap((image) => {
       const src = canvasImageUrl(slug, image.file);
@@ -79,26 +74,23 @@ export function BrandSheet({ slug }: { slug: string }) {
       ? [{ title: row.title, images, ...rowShape(images) }]
       : [];
   });
-  const count = rows.reduce((n, row) => n + row.images.length, 0);
-  const sources = new Set(
-    rows.flatMap((row) =>
-      row.images.flatMap((i) => sourceLabel(i.source)?.host ?? []),
-    ),
-  );
-
-  // The app icon carries this: a dozen product names in a row is a list to read, and a dozen
-  // app icons is a shelf to recognise. The name is the icon's alt text and the link's tooltip
-  // rather than a label beside it -- a couple of these icons are a black glyph on white, and
-  // the row has outgrown the window since, so the names were costing the last two chips.
+  // The app icon carries the other twelve: a dozen product names in a row is a list to read,
+  // and a dozen app icons is a shelf to recognise. Only the one you are standing on is named,
+  // and that name is the page's title -- a headline underneath would say the same word twice,
+  // and the question "which product is this" is already being asked of the shelf.
   const pages = brandMaterialSlugs();
 
   return (
     <main>
-      {pages.length > 1 && (
-        <nav
-          className="switch"
-          aria-label="Brand material for the other examples"
-        >
+      <div className="topbar">
+        {/* Back to the canvas this kit was collected for, wearing the app's own mark rather
+            than a product's: the row reads left to right as this app, these products, these
+            two asks. */}
+        <a className="chip home" href={canvasPageUrl(slug)}>
+          <img src={`${import.meta.env.BASE_URL}favicon-32.png`} alt="" />
+          <span>Super Prototyping</span>
+        </a>
+        <nav className="switch" aria-label="Brand kit for the other examples">
           {pages.map((page) => (
             <a
               key={page}
@@ -106,35 +98,36 @@ export function BrandSheet({ slug }: { slug: string }) {
               href={brandPageUrl(page)}
               title={shortName(page)}
               aria-current={page === slug ? "page" : undefined}
+              // Named on both pages of the switch, so the filled pill travels from the chip you
+              // left to the chip you landed on rather than blinking across the shelf.
+              style={
+                page === slug
+                  ? ({
+                      viewTransitionName: "current-kit",
+                    } as React.CSSProperties)
+                  : undefined
+              }
+              // The shelf is wider than a phone and the named chip is as likely to be the
+              // thirteenth as the second, so on a narrow window the page's own title would open
+              // off the right edge of it.
+              ref={
+                page === slug
+                  ? (el) => {
+                      el?.scrollIntoView({
+                        inline: "center",
+                        block: "nearest",
+                      });
+                    }
+                  : undefined
+              }
             >
               <img src={canvasIconUrl(page)} alt={shortName(page)} />
+              {page === slug && <h1>{shortName(page)}</h1>}
             </a>
           ))}
         </nav>
-      )}
-      <header className="head">
-        <div>
-          <h1>{pageNameFor(slug)}</h1>
-          <p>
-            <a href={canvasPageUrl(slug)}>Back to the canvas</a> ·{" "}
-            <a href={sheetPageUrl(slug)}>Boards at full size</a>
-          </p>
-        </div>
-        <dl className="meta">
-          <div>
-            <dt>Assets</dt>
-            <dd>{count}</dd>
-          </div>
-          <div>
-            <dt>Surfaces</dt>
-            <dd>{rows.length}</dd>
-          </div>
-          <div>
-            <dt>Sources</dt>
-            <dd>{sources.size}</dd>
-          </div>
-        </dl>
-      </header>
+        <CanvasCta />
+      </div>
       {rows.map((row) => (
         <section
           className="band"

@@ -176,6 +176,14 @@ export function pageNameFor(pageSlug: string) {
   return readCanvasLayout(pageSlug)?.name ?? humanize(pageSlug);
 }
 
+/**
+ * The same name with the shelf taken off: "(example) Claude iOS" reads as "Claude iOS". The
+ * brand pages want the product, because there every name on screen carries the same prefix and
+ * it is the twelve characters before the word you are looking for.
+ */
+export const shortName = (pageSlug: string) =>
+  pageNameFor(pageSlug).replace(/^\(example\)\s*/, "");
+
 function parse(path: string): CanvasLibraryFile | null {
   const match = FILE_PATTERN.exec(path);
   if (!match) return null;

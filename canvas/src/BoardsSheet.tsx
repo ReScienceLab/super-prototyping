@@ -31,7 +31,7 @@ export function BoardsSheet({ slug }: { slug: string }) {
         {hasBrand ? (
           <>
             {" · "}
-            <a href={brandPageUrl(slug)}>brand material</a>
+            <a href={brandPageUrl(slug)}>brand kit</a>
           </>
         ) : null}
       </p>

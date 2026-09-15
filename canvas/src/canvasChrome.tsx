@@ -25,20 +25,16 @@ import {
 import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
 import {
-  GITHUB_PATH,
   linkedBoard,
   readCommentUser,
   resolveAuthor,
   type CommentUser,
 } from "./canvasComments";
+import { CanvasCta } from "./canvasCta";
 import { hasBrandMaterial } from "./canvasLibrary";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
 import { FigmaMark } from "./FigmaMark";
 import { WELCOME_PAGE_SLUG, brandPageUrl, sheetPageUrl } from "./canvasUrl";
-
-const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
-/** The app the snapaction-ios boards are cloned from: its own site, not the App Store listing. */
-const SNAPACTION_URL = "https://snapaction.ai/";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
 const COMMENT_USER_DIALOG = "comment-user";
@@ -122,68 +118,7 @@ export const canvasChromeComponents: TLComponents = {
    */
   SharePanel: () => {
     if (useContext(CanvasChromeContext).inspectorOpen) return null;
-    return (
-      // The pill itself (size, type, the shimmer, and how it collapses to its mark on a phone)
-      // is .canvas-cta in index.css; what stays here is each one's own colour.
-      <div className="canvas-cta-group">
-        <a
-          href={SNAPACTION_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Try SnapAction, the app the example boards are cloned from"
-          className="canvas-cta"
-          style={{
-            border: "1px solid #4A4A56",
-            background: "linear-gradient(180deg,#2A2A32,#17171C)",
-            boxShadow:
-              "0 6px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.10)",
-          }}
-        >
-          {/* The app's own mark, cut from its symbolset by snapaction-ios/gen.py. */}
-          <img src="/snapaction.svg" width={23} height={18} alt="" />
-          <span className="canvas-cta__label">Try SnapAction</span>
-          <span className="canvas-cta__arrow" style={{ color: "#8A8781" }}>
-            &#8599;
-          </span>
-        </a>
-        <a
-          href={REPO_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Star super-prototyping on GitHub"
-          className="canvas-cta"
-          style={{
-            border: "1px solid #6E9BFF",
-            background: "linear-gradient(180deg,#4A85FF,#1B47D2)",
-            // The glow is the point: this is the one thing on the canvas asking for something,
-            // so it reads as a lit button rather than another piece of grey chrome.
-            boxShadow:
-              "0 0 0 4px rgba(74,133,255,.20), 0 8px 24px rgba(37,99,235,.55), inset 0 1px 0 rgba(255,255,255,.28)",
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="19"
-            height="19"
-            fill="#FFD666"
-            aria-hidden
-          >
-            <path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95z" />
-          </svg>
-          <span className="canvas-cta__label">Star on GitHub</span>
-          <svg
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            fill="#FFFFFF"
-            fillRule="evenodd"
-            aria-hidden
-          >
-            <path d={GITHUB_PATH} />
-          </svg>
-        </a>
-      </div>
-    );
+    return <CanvasCta />;
   },
   /** Clone and force-relayout are document-level actions, so they sit in the top bar with the
    * rest of them rather than with the drawing tools. */
@@ -196,6 +131,9 @@ export const canvasChromeComponents: TLComponents = {
       () => editor.getCurrentPage().meta.canvasSlug as string | undefined,
       [editor],
     );
+    // Undefined on a page that collected no material — the welcome page, a folder someone has
+    // only just started — and the button then opens the index of every page that did.
+    const brandSlug = slug && hasBrandMaterial(slug) ? slug : undefined;
 
     return (
       <>
@@ -217,16 +155,26 @@ export const canvasChromeComponents: TLComponents = {
             <span className="sp-figma__label">Export to Figma</span>
           </a>
         )}
-        {/* The second destination, next to the first: the pictures this product publishes of
-            itself, which are collected per page and so are not there for every one of them. */}
-        {slug && hasBrandMaterial(slug) && (
+        {/* The second destination, next to the first: the pictures a product publishes of
+            itself. They are collected per page, so a page that collected none — the welcome
+            page, a folder someone has only just started — still gets the button and opens the
+            index of the ones that did. Every page has somewhere to go. */}
+        {slug && (
           <a
             className="tlui-button sp-brand"
-            href={brandPageUrl(slug)}
+            href={brandPageUrl(brandSlug)}
             target="_blank"
             rel="noopener noreferrer"
-            title="Open the brand material collected for this page — the logos, social profiles, store listings and advertising this product publishes"
+            title={
+              brandSlug
+                ? "Open the brand kit collected for this page — the logos, social profiles, store listings and advertising this product publishes"
+                : "Open the brand kits — the logos, social profiles, store listings and advertising these products publish, one kit per example"
+            }
           >
+            {/* A palette. Under 720px the label goes and the mark is the whole button, so it
+                has to carry "brand" alone — and a picture frame, however many are stacked
+                behind it, says "images", which is every other button that ever held one. This
+                is the one mark a designer reads as a product's identity without a word. */}
             <svg
               viewBox="0 0 24 24"
               width="16"
@@ -238,11 +186,12 @@ export const canvasChromeComponents: TLComponents = {
               strokeLinejoin="round"
               aria-hidden
             >
-              <rect x="3" y="4" width="18" height="16" rx="2.5" />
-              <circle cx="8.5" cy="9.5" r="1.6" />
-              <path d="M4 17l4.5-4.5 3.5 3.5 3-2.5L20 17" />
+              <path d="M12 3.4a8.6 8.6 0 1 0 0 17.2c1.1 0 1.9-.8 1.9-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8h2a4.9 4.9 0 0 0 4.9-4.9c0-3.5-3.9-6.3-9.6-6.3z" />
+              <circle cx="7.6" cy="11.4" r="1.05" />
+              <circle cx="9.9" cy="7.4" r="1.05" />
+              <circle cx="14.4" cy="7.2" r="1.05" />
             </svg>
-            <span className="sp-brand__label">Brand material</span>
+            <span className="sp-brand__label">Brand kit</span>
           </a>
         )}
         {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
