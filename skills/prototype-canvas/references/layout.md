@@ -114,7 +114,7 @@ out top to bottom:
   relative to the folder and has to live under `assets/brand/` — the one part
   of `assets/` the canvas gives an address to. `w`/`h` are the picture's own
   pixel size, not the size it draws at, and the row scales every image to a
-  common band from them. A folder with any such row gets a **Brand material**
+  common band from them. A folder with any such row gets a **Brand sheet**
   button in the toolbar and a page of its own at `brand.html?canvas=<slug>`.
   The `brand-sheet` skill is how those rows get filled.
 

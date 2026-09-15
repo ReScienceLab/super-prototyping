@@ -207,7 +207,7 @@ section of `references/manifest.md`; you have found a real bug and regenerating
 would commit the damage.
 
 The canvas picks the folder up with no further change: the row renders, the
-"Brand material" button appears in the toolbar, and the folder joins the brand
+"Brand sheet" button appears in the toolbar, and the folder joins the brand
 page's switcher.
 
 ## Verify in a browser before you report

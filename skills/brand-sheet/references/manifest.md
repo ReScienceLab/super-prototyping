@@ -227,7 +227,7 @@ pure addition: your brand rows, nothing removed.
 ## What happens next, with no further change
 
 - The canvas draws the rows as image shapes under the boards.
-- The "Brand material" button appears in that canvas's toolbar; the canvas
+- The "Brand sheet" button appears in that canvas's toolbar; the canvas
   shows it for any folder whose layout has a row with images.
 - The folder joins the brand page's app-icon switcher.
 - The build generates a downscaled WebP variant for each image and the page

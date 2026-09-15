@@ -225,7 +225,7 @@ export const canvasChromeComponents: TLComponents = {
             href={brandPageUrl(slug)}
             target="_blank"
             rel="noopener noreferrer"
-            title="Open the brand material collected for this page — the logos, social profiles, store listings and advertising this product publishes"
+            title="Open the brand sheet collected for this page — the logos, social profiles, store listings and advertising this product publishes"
           >
             <svg
               viewBox="0 0 24 24"
@@ -242,7 +242,7 @@ export const canvasChromeComponents: TLComponents = {
               <circle cx="8.5" cy="9.5" r="1.6" />
               <path d="M4 17l4.5-4.5 3.5 3.5 3-2.5L20 17" />
             </svg>
-            <span className="sp-brand__label">Brand material</span>
+            <span className="sp-brand__label">Brand sheet</span>
           </a>
         )}
         {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on

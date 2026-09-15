@@ -97,7 +97,7 @@ export function BrandSheet({ slug }: { slug: string }) {
       {pages.length > 1 && (
         <nav
           className="switch"
-          aria-label="Brand material for the other examples"
+          aria-label="Brand sheet for the other examples"
         >
           {pages.map((page) => (
             <a
