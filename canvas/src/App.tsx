@@ -720,9 +720,23 @@ function layoutWelcomeExtras(
   // Grok. A slug named in neither list still shows, at the end of the first row, so a new
   // folder is never silently dropped; the last row has no list, so it keeps library order.
   const ROWS = [
-    ["snapaction-ios", "chatgpt-ios", "claude-ios", "grok-ios", "notion-ios",
-     "raycast-ios", "luma-ios"],
-    ["instagram-ios", "tiktok-ios", "x-ios", "substack-ios", "spotify-ios", "duolingo-ios"],
+    [
+      "snapaction-ios",
+      "chatgpt-ios",
+      "claude-ios",
+      "grok-ios",
+      "notion-ios",
+      "raycast-ios",
+      "luma-ios",
+    ],
+    [
+      "instagram-ios",
+      "tiktok-ios",
+      "x-ios",
+      "substack-ios",
+      "spotify-ios",
+      "duolingo-ios",
+    ],
   ];
   const rowOf = (slug: string) => {
     if (slug === "templates") return 3;
@@ -742,7 +756,8 @@ function layoutWelcomeExtras(
   };
   const groups = [
     {
-      title: "Examples: AI assistants and productivity tools. Click a card to open its canvas",
+      title:
+        "Examples: AI assistants and productivity tools. Click a card to open its canvas",
       targets: inRow(0),
     },
     { title: "Examples: social, media and learning apps", targets: inRow(1) },
@@ -1196,7 +1211,8 @@ export default function App() {
   /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
   const [inspecting, setInspecting] = useState<CanvasLibraryFile | null>(null);
   /** The brand image open in the inspector instead, when a picture was the thing clicked. */
-  const [inspectingImage, setInspectingImage] = useState<CanvasImagePick | null>(null);
+  const [inspectingImage, setInspectingImage] =
+    useState<CanvasImagePick | null>(null);
   const [commentUser, setCommentUser] = useState(readCommentUser);
   /** State rather than a ref: the inspector panel renders outside `<Tldraw>` and needs it. */
   const [editor, setEditor] = useState<Editor | null>(null);
@@ -1304,6 +1320,7 @@ export default function App() {
         setCommentUser,
         inspectBoard: onPick,
         inspectingPath: inspecting?.path ?? null,
+        inspectorOpen: Boolean(inspecting || inspectingImage),
         setInspectorFrame: (frame: HTMLIFrameElement | null) => {
           inspectorFrame.current = frame;
         },
@@ -1325,6 +1342,7 @@ export default function App() {
             <LockedLinkClicks />
             <InspectorClicks
               onPick={onPick}
+              onDismiss={onCloseInspector}
               inspectingPath={inspecting?.path ?? null}
               frame={inspectorFrame}
             />

@@ -399,17 +399,20 @@ const fmt = (n: number) => String(Math.round(n * 100) / 100);
 /** Wiring component: lives inside <Tldraw> so it can reach the editor. */
 export function InspectorClicks({
   onPick,
+  onDismiss,
   inspectingPath,
   frame,
 }: {
   onPick: (shape: InspectorTarget) => void;
+  onDismiss: () => void;
   inspectingPath: string | null;
   frame: React.RefObject<HTMLIFrameElement | null>;
 }) {
   const editor = useEditor();
   useEffect(
-    () => installInspectorClicks(editor, onPick, inspectingPath, frame),
-    [editor, onPick, inspectingPath, frame],
+    () =>
+      installInspectorClicks(editor, onPick, onDismiss, inspectingPath, frame),
+    [editor, onPick, onDismiss, inspectingPath, frame],
   );
   return null;
 }
