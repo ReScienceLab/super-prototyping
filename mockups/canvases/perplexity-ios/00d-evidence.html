@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Perplexity iOS - Evidence 2/2</title>
+<style>
+:root{
+  /* Font */
+  --pp-font:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --pp-serif:"Bodoni 72","Bodoni MT",Didot,ui-serif,"New York",Georgia,serif;
+  --pp-mono:ui-monospace,Menlo,"SF Mono",monospace;
+
+  /* Surface */
+  --pp-bg:#FFFDFC;
+  --pp-night:#1B181C;
+  --pp-night-2:#1A191C;
+  --pp-card:#F6F4F0;
+  --pp-chip:#252527;
+  --pp-pill:#FFFDFF;
+  --pp-pill-2:#302D31;
+  --pp-kbd:#D3D5DB;
+  --pp-key:#FFFDFE;
+  --pp-key-mod:#ACB1BD;
+  --pp-search:#EAE9E5;
+  --pp-ring:#ECEAE8;
+  --pp-off:#E2E0DF;
+  --pp-alert:radial-gradient(circle 135px at 50% 50%,#EFECF0 0%,#E6E3E7 40%,#CFCCD0 100%);
+  --pp-scrim:rgba(0,0,0,.355);
+  --pp-ground:#D5D5D5;
+  --pp-island:#000000;
+
+  /* Line */
+  --pp-border:#DBDAD6;
+  --pp-line:#646464;
+  --pp-line-on:#56ACBC;
+  --pp-line-chip:#404042;
+
+  /* Ink */
+  --pp-ink:#142C2F;
+  --pp-ink-2:#8B8987;
+  --pp-ink-3:#969598;
+  --pp-ink-4:#BDBBB9;
+  --pp-ink-inv:#FFFDFF;
+  --pp-ink-max:#000000;
+  --pp-ink-cyan:#0C3A44;
+  --pp-idle:#8E8C8B;
+  --pp-globe:#4D4F57;
+  --pp-quiet:#ACABA8;
+  --pp-wash:#F8F6F5;
+
+  /* Accent */
+  --pp-accent:#207F8E;
+  --pp-accent-2:#2C777F;
+  --pp-caret:#2E7C86;
+  --pp-cyan:#21BAD2;
+  --pp-cyan-2:#48B2C4;
+  --pp-gold:#FFD4AA;
+  --pp-gold-ink:#2B1101;
+  --pp-blue:#017BFF;
+  --pp-cyan-3:#1DCCE2;
+  --pp-glow:#85EDFF;
+  --pp-mic:#FF9500;
+  --pp-danger:#F1412B;
+  --pp-flag:#F44041;
+
+  /* Radius */
+  --pp-r-field:12px;
+  --pp-r-card:13px;
+  --pp-r-badge:6px;
+  --pp-r-key:5px;
+  --pp-r-chip:4px;
+  --pp-r-alert:14px;
+  --pp-r-pill:999px;
+  --pp-r-island:43.75px;
+  --pp-r-phone:52px;
+
+  /* Type */
+  --pp-t-nav:400 24.9px/24.9px var(--pp-font);
+  --pp-t-title:400 20.9px/20.9px var(--pp-font);
+  --pp-t-body:400 16.3px/20.6px var(--pp-font);
+  --pp-t-btn:500 18px/18px var(--pp-font);
+  --pp-t-field:350 17px/17px var(--pp-font);
+  --pp-t-chip:400 14.4px/40px var(--pp-font);
+  --pp-t-plan:600 16px/16px var(--pp-font);
+  --pp-t-price:400 25.2px/25.2px var(--pp-font);
+  --pp-t-foot:400 15px/15px var(--pp-font);
+  --pp-t-note:400 12px/12px var(--pp-font);
+  --pp-t-key:400 24.7px/35.4px var(--pp-font);
+  --pp-t-key-2:400 16.2px/39.9px var(--pp-font);
+  --pp-t-hero:400 33px/36px var(--pp-serif);
+  --pp-t-home:400 29.8px/35.3px var(--pp-serif);
+  --pp-t-live:400 16.7px/16.7px var(--pp-font);
+  --pp-t-time:590 17px/22px var(--pp-font);
+
+  /* Metrics */
+  --pp-w:393px;
+  --pp-h:852px;
+  --pp-status:54px;
+  --pp-gutter:24px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--pp-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--pp-w);height:var(--pp-h);
+  border-radius:var(--pp-r-phone);overflow:hidden;background:var(--pp-bg);color:var(--pp-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--pp-w);height:var(--pp-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--pp-t-time)}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--pp-bg);color:var(--pp-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 17px/22px var(--pp-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--pp-font);color:var(--pp-ink-3);margin-bottom:14px}
+h2{font:600 9px/12px var(--pp-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--pp-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid var(--pp-border)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--pp-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:44px;height:26px;background:var(--pp-card);border:1px solid var(--pp-border)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--pp-font);
+  color:var(--pp-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid var(--pp-border)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--pp-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:var(--pp-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid var(--pp-border);font:400 8.5px/11px var(--pp-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:var(--pp-accent)}
+td.v{color:var(--pp-ink-2);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:var(--pp-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 2/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--pp-gold</td><td class="v">#FFD4AA</td><td class="e">p07 'Save $49.00' badge fill</td></tr><tr><td class="t">--pp-gold-ink</td><td class="v">#2B1101</td><td class="e">the same badge's label</td></tr><tr><td class="t">--pp-blue</td><td class="v">#017BFF</td><td class="e">p05 keyboard 'go' key; p08's alert 'OK' is the same iOS system blue, bluest pixel (4,123,255), so there is one token and not two</td></tr><tr><td class="t">--pp-cyan-3</td><td class="v">#1DCCE2</td><td class="e">p14's progress bar at x 150, clear of the head: (29,204,226) over three rows. p11's waveform bars and p13's atom core the same, and so does p12's 'active'</td></tr><tr><td class="t">--pp-glow</td><td class="v">#85EDFF</td><td class="e">the wash under the right-hand glyph on p11 and p13. Sampled off the glyph it holds R:G:B 33:64:69 and 39:72:77, which normalise to (122,236,255) and (129,238,255). Its alpha falls linearly to nothing at r 16.5, fitted by least squares to the annulus below each glyph, where the pill is otherwise black: 0.41 on p11 and 0.73 on p13, so the boards carry the two alphas and share the colour</td></tr><tr><td class="t">--pp-mic</td><td class="v">#FF9500</td><td class="e">the microphone-in-use dot: p11 cores (255,148,0) and p12 (255,149,1), which is iOS systemOrange to the level</td></tr><tr><td class="t">--pp-danger</td><td class="v">#F1412B</td><td class="e">p09 unread dot under the Discover tab, 145-151 x 812-818.3</td></tr><tr><td class="t">--pp-flag</td><td class="v">#F44041</td><td class="e">p03 spell-check rule under 'mobbin', 100.3-155.3 x 193.7-197.0: R-G peaks 190 every 12 capture px and troughs at 20, so it is a 4pt dot pitch, not a line</td></tr><tr><td class="t">--pp-r-field</td><td class="v">12px</td><td class="e">p02 field: at its tangent row the fill run is 345 - 2r wide</td></tr><tr><td class="t">--pp-r-card</td><td class="v">13px</td><td class="e">p07 plan card corner, same solve</td></tr><tr><td class="t">--pp-r-badge</td><td class="v">6px</td><td class="e">p07 'Save $49.00' badge corner</td></tr><tr><td class="t">--pp-r-key</td><td class="v">5px</td><td class="e">p02 keyboard key corner</td></tr><tr><td class="t">--pp-r-chip</td><td class="v">4px</td><td class="e">p07 chip row 2: the fill inset off the left edge runs 1.5, 0.9, 0.5, 0.2, 0 at 0.5, 1.5, 2, 3 and 4pt down from the top, which is r - sqrt(2r.dy - dy2) for r = 4. The chips are rounded rectangles, not pills</td></tr><tr><td class="t">--pp-r-alert</td><td class="v">14px</td><td class="e">p08 alert corner, the iOS default</td></tr><tr><td class="t">--pp-r-pill</td><td class="v">999px</td><td class="e">by construction: p01's four pills, both Continue buttons, the search bar, the tooltip and Subscribe all solve to r = h/2. The chips do not; see --pp-r-chip</td></tr><tr><td class="t">--pp-r-island</td><td class="v">43.75px</td><td class="e">p12/p14 expanded island corner. Fitted as a circle against the capture's edge at 0.317pt mean absolute error, which is under a capture pixel: Apple's superellipse and a plain radius are not separable at this size</td></tr><tr><td class="t">--pp-r-phone</td><td class="v">52px</td><td class="e">not measured: the captures are framebuffers, square to the pixel at every corner (p02 (0,0) is #FFFDFC, p07 (0,0) is #0D0C11), so they carry no evidence of the display's own rounding. 52px is this repo's stand-in for it, and the corner it cuts is the whole of the 24.93 delta every light board shows in y 0..13.3</td></tr><tr><td class="t">--pp-t-nav</td><td class="v">400 24.9px/24.9px var(--pp-font)</td><td class="e">p02 'Continue with email', ink 85.0-307.0 x 103.0-121.0. Its 'C' is 18.0pt tall where 24px sets 17.33, hence 24.9; at 400 the string carries the capture's lit pixels to 0.4%, where 500 carries 21% more and 600 41% more</td></tr><tr><td class="t">--pp-t-title</td><td class="v">400 20.9px/20.9px var(--pp-font)</td><td class="e">p04 'Check your email', ink 116.3-276.0, cap 221.7-236.7. The same weight, and the same 4% size correction: its 'C' is 15.0pt where 20px sets 14.33</td></tr><tr><td class="t">--pp-t-body</td><td class="v">400 16.3px/20.6px var(--pp-font)</td><td class="e">p04 subtitle, two lines with ink tops 262.7 and 283.3, line 1 ink 291.0 wide</td></tr><tr><td class="t">--pp-t-btn</td><td class="v">500 18px/18px var(--pp-font)</td><td class="e">p01 'Continue with email' on the third pill, ink 116.3-276.7: the same string as --pp-t-nav at 72% of its width, so 18px, where 17px at 600 sets it 3.3% narrow and 1.0pt short. Of the weights 18px admits, 500 halves what the others cost: the four pill labels mean 20.1 levels against 41.7 at 400 and 34.8 at 600</td></tr><tr><td class="t">--pp-t-field</td><td class="v">350 17px/17px var(--pp-font)</td><td class="e">p03 'samlee.mobbin@gmail.com', ink 41.3-250.3</td></tr><tr><td class="t">--pp-t-chip</td><td class="v">400 14.4px/40px var(--pp-font)</td><td class="e">p07 chip labels set 96% of the same strings at 15px: 'searches' 57.6 not 60.0, '3x more sources' 106.9 not 111.9</td></tr><tr><td class="t">--pp-t-plan</td><td class="v">600 16px/16px var(--pp-font)</td><td class="e">p07 'Monthly', ink 33.3-94.3 x 631.0-645.7</td></tr><tr><td class="t">--pp-t-price</td><td class="v">400 25.2px/25.2px var(--pp-font)</td><td class="e">p07 'S$ 29.98', ink 33.3-133.0 x 653.0-675.0. 24px sets the digits 9% short and 4% narrow; 25.2px with -.28 tracking lands both within 1%, and at 400 the string carries the capture's lit pixels to 1%, where 500 carries 17% more and 700 48%</td></tr><tr><td class="t">--pp-t-foot</td><td class="v">400 15px/15px var(--pp-font)</td><td class="e">p01 'Privacy policy', ink 70.0-174.3 x 785.3-800.0</td></tr><tr><td class="t">--pp-t-note</td><td class="v">400 12px/12px var(--pp-font)</td><td class="e">p10 '85°F Mostly cloudy', ink 64.7-171.9 x 645.7-657.0; p07 'Billed Monthly' reads the same</td></tr><tr><td class="t">--pp-t-key</td><td class="v">400 24.7px/35.4px var(--pp-font)</td><td class="e">p02 letter keys: the z, x and c caps are 12.33, 12.33 and 13.0pt tall and 9.33, 9.67 and 10.33 wide, which 22px undershoots by 11% on both axes. The line-height is 6.9pt under the 42.3pt key because the substitute seats a centred line that much low</td></tr><tr><td class="t">--pp-t-key-2</td><td class="v">400 16.2px/39.9px var(--pp-font)</td><td class="e">p02 '123' and 'space', ink 24.33 and 41.67 wide: 14px sets both 12% short. The line-height trails the 42.3pt key for the reason --pp-t-key does</td></tr><tr><td class="t">--pp-t-hero</td><td class="v">400 33px/36px var(--pp-serif)</td><td class="e">p07 headline. Only luminance separates it from the starfield behind it: above 190 of 255 the two lines are ascender top 186.0, x-height top 194.8, baseline 212.3 and 248.3, so the leading is 36.0 and line 1 sets 42.3-351.0. 33px holds the set width to 0.4% -- the substitute's cost is vertical, an ascender 12.7% and an x-height 18.9% short of the capture's, and buying either back costs more in the band than it returns: 37px retracked to the same width lands the ascender within 2.5% and raises the headline band from 32.2 to 41.0</td></tr><tr><td class="t">--pp-t-home</td><td class="v">400 29.8px/35.3px var(--pp-serif)</td><td class="e">p10 'Where / knowledge / begins', ascender tops 338.3, 374.0, 408.9, lines 1 and 2 setting 77.3 and 120.7 wide. Fitted on width, not on height: 32px, which is what the ascenders read, sets both lines 6.9% wide and the headline band 4.89, where 29.8px lands them within 0.9% and the band at 3.91. The same substitute, the same trade as --pp-t-hero, settled the other way -- here the three lines are short enough that width is what the eye checks</td></tr><tr><td class="t">--pp-t-live</td><td class="v">400 16.7px/16.7px var(--pp-font)</td><td class="e">p12 'Voice mode is active': its V is 12.04pt cap to baseline, which 16.7px sets at the 0.7221 cap ratio --pp-t-nav measures. p14's 'Reasoning...' is the smaller line and reuses --pp-t-note: its R reads 8.47, where 12px sets 8.67</td></tr><tr><td class="t">--pp-t-time</td><td class="v">590 17px/22px var(--pp-font)</td><td class="e">iOS status bar clock</td></tr><tr><td class="t">--pp-w</td><td class="v">393px</td><td class="e">iPhone 15/16 logical width</td></tr><tr><td class="t">--pp-h</td><td class="v">852px</td><td class="e">iPhone 15/16 logical height</td></tr><tr><td class="t">--pp-status</td><td class="v">54px</td><td class="e">iOS status bar, Dynamic Island devices</td></tr><tr><td class="t">--pp-gutter</td><td class="v">24px</td><td class="e">p02-p06 field and button inset; the paywall uses 16.5 and the home screen 16</td></tr></table></div>
+</body>
+</html>

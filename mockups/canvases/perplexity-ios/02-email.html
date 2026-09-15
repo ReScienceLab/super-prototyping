@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Perplexity iOS - Continue with email</title>
+<style>
+:root{
+  /* Font */
+  --pp-font:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --pp-serif:"Bodoni 72","Bodoni MT",Didot,ui-serif,"New York",Georgia,serif;
+  --pp-mono:ui-monospace,Menlo,"SF Mono",monospace;
+
+  /* Surface */
+  --pp-bg:#FFFDFC;
+  --pp-night:#1B181C;
+  --pp-night-2:#1A191C;
+  --pp-card:#F6F4F0;
+  --pp-chip:#252527;
+  --pp-pill:#FFFDFF;
+  --pp-pill-2:#302D31;
+  --pp-kbd:#D3D5DB;
+  --pp-key:#FFFDFE;
+  --pp-key-mod:#ACB1BD;
+  --pp-search:#EAE9E5;
+  --pp-ring:#ECEAE8;
+  --pp-off:#E2E0DF;
+  --pp-alert:radial-gradient(circle 135px at 50% 50%,#EFECF0 0%,#E6E3E7 40%,#CFCCD0 100%);
+  --pp-scrim:rgba(0,0,0,.355);
+  --pp-ground:#D5D5D5;
+  --pp-island:#000000;
+
+  /* Line */
+  --pp-border:#DBDAD6;
+  --pp-line:#646464;
+  --pp-line-on:#56ACBC;
+  --pp-line-chip:#404042;
+
+  /* Ink */
+  --pp-ink:#142C2F;
+  --pp-ink-2:#8B8987;
+  --pp-ink-3:#969598;
+  --pp-ink-4:#BDBBB9;
+  --pp-ink-inv:#FFFDFF;
+  --pp-ink-max:#000000;
+  --pp-ink-cyan:#0C3A44;
+  --pp-idle:#8E8C8B;
+  --pp-globe:#4D4F57;
+  --pp-quiet:#ACABA8;
+  --pp-wash:#F8F6F5;
+
+  /* Accent */
+  --pp-accent:#207F8E;
+  --pp-accent-2:#2C777F;
+  --pp-caret:#2E7C86;
+  --pp-cyan:#21BAD2;
+  --pp-cyan-2:#48B2C4;
+  --pp-gold:#FFD4AA;
+  --pp-gold-ink:#2B1101;
+  --pp-blue:#017BFF;
+  --pp-cyan-3:#1DCCE2;
+  --pp-glow:#85EDFF;
+  --pp-mic:#FF9500;
+  --pp-danger:#F1412B;
+  --pp-flag:#F44041;
+
+  /* Radius */
+  --pp-r-field:12px;
+  --pp-r-card:13px;
+  --pp-r-badge:6px;
+  --pp-r-key:5px;
+  --pp-r-chip:4px;
+  --pp-r-alert:14px;
+  --pp-r-pill:999px;
+  --pp-r-island:43.75px;
+  --pp-r-phone:52px;
+
+  /* Type */
+  --pp-t-nav:400 24.9px/24.9px var(--pp-font);
+  --pp-t-title:400 20.9px/20.9px var(--pp-font);
+  --pp-t-body:400 16.3px/20.6px var(--pp-font);
+  --pp-t-btn:500 18px/18px var(--pp-font);
+  --pp-t-field:350 17px/17px var(--pp-font);
+  --pp-t-chip:400 14.4px/40px var(--pp-font);
+  --pp-t-plan:600 16px/16px var(--pp-font);
+  --pp-t-price:400 25.2px/25.2px var(--pp-font);
+  --pp-t-foot:400 15px/15px var(--pp-font);
+  --pp-t-note:400 12px/12px var(--pp-font);
+  --pp-t-key:400 24.7px/35.4px var(--pp-font);
+  --pp-t-key-2:400 16.2px/39.9px var(--pp-font);
+  --pp-t-hero:400 33px/36px var(--pp-serif);
+  --pp-t-home:400 29.8px/35.3px var(--pp-serif);
+  --pp-t-live:400 16.7px/16.7px var(--pp-font);
+  --pp-t-time:590 17px/22px var(--pp-font);
+
+  /* Metrics */
+  --pp-w:393px;
+  --pp-h:852px;
+  --pp-status:54px;
+  --pp-gutter:24px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--pp-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--pp-w);height:var(--pp-h);
+  border-radius:var(--pp-r-phone);overflow:hidden;background:var(--pp-bg);color:var(--pp-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--pp-w);height:var(--pp-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--pp-t-time)}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+.phone svg,.phone img{position:absolute;display:block}
+.b,.t,.ct{position:absolute}
+.t,.ct{white-space:nowrap}
+.ct{left:0;width:var(--pp-w);text-align:center}
+.pill{position:absolute;display:flex;align-items:center;justify-content:center;gap:5px;
+  border-radius:var(--pp-r-pill);font:var(--pp-t-btn)}
+/* the substitute seats a flex-centred line half a point below where the
+   capture puts its ink: its ascent and descent split the line box
+   differently from the real face */
+.lb{position:relative;top:-.5px}
+.gl{position:relative;flex:none}
+.fld{position:absolute;background:var(--pp-card);border:1px solid var(--pp-border);
+  border-radius:var(--pp-r-field)}
+.k,.km,.k2,.km2,.kb{position:absolute;height:42.3px;border-radius:var(--pp-r-key);
+  text-align:center;color:var(--pp-ink);background:var(--pp-key);font:var(--pp-t-key);
+  box-shadow:0 1px 0 rgba(20,18,24,.26)}
+.km,.km2{background:var(--pp-key-mod)}
+.k2,.km2{font:var(--pp-t-key-2)}
+.kb{background:var(--pp-blue);color:#FFFFFF;font:var(--pp-t-key-2)}
+.chips{position:absolute;top:0;display:flex;gap:7px}
+.chips span{display:block;flex:none;white-space:nowrap;font:var(--pp-t-chip);
+  height:40px;padding:0 15.4px;box-sizing:border-box;
+  border:.33px solid var(--pp-line-chip);border-radius:var(--pp-r-chip);
+  background:var(--pp-chip);color:var(--pp-ink-inv)}
+.tabs svg{color:var(--pp-idle)}
+.isl{position:absolute;overflow:hidden;background:var(--pp-island);z-index:7}
+.isl img{left:0;top:0}
+.glow{position:absolute;background:radial-gradient(circle closest-side,var(--pp-glow),transparent)}</style>
+</head>
+<body>
+<div class="phone" style="background:var(--pp-bg)"><div class="sb" style="color:var(--pp-ink)"><div class="time">9:41</div><svg style="left:282px;top:23.34px;width:19.33px;height:12px" viewBox="0 0 19.33 12"><rect x="0" y="7.67" width="3.33" height="4.33" rx="1.05"/><rect x="5.33" y="5.33" width="3.33" height="6.67" rx="1.05"/><rect x="10.67" y="2.67" width="3.33" height="9.33" rx="1.05"/><rect x="16" y="0" width="3.33" height="12" rx="1.05"/></svg><svg preserveAspectRatio="none" viewBox="335 22.008 19.114 13.796" style="left:309px;top:23px;width:16.62px;height:12.3px"><path d="M344.555 35.8042C344.738 35.8042 344.896 35.7212 345.219 35.4058L347.245 33.4634C347.369 33.3389 347.403 33.1562 347.286 33.0068C346.747 32.3096 345.726 31.7036 344.555 31.7036C343.352 31.7036 342.331 32.3345 341.791 33.0566C341.708 33.1895 341.741 33.3389 341.874 33.4634L343.891 35.4058C344.215 35.7129 344.373 35.8042 344.555 35.8042ZM339.7 31.2886C339.882 31.4629 340.106 31.438 340.272 31.2554C341.268 30.1514 342.895 29.3462 344.555 29.3545C346.232 29.3462 347.859 30.1763 348.872 31.2803C349.021 31.4546 349.229 31.4463 349.411 31.2803L350.698 30.002C350.831 29.8691 350.848 29.6865 350.723 29.5371C349.47 28.0015 347.145 26.8477 344.555 26.8477C341.966 26.8477 339.641 28.0015 338.388 29.5371C338.263 29.6865 338.272 29.8525 338.413 30.002L339.7 31.2886ZM336.255 27.8189C336.421 27.9766 336.653 27.9766 336.811 27.8106C338.853 25.644 341.542 24.4985 344.555 24.4985C347.585 24.4985 350.291 25.6523 352.317 27.8189C352.466 27.9683 352.69 27.96 352.856 27.8022L354.002 26.6567C354.151 26.5073 354.143 26.3247 354.027 26.1836C352.076 23.7764 348.407 22.0083 344.555 22.0083C340.712 22.0083 337.027 23.7764 335.084 26.1836C334.968 26.3247 334.968 26.5073 335.109 26.6567L336.255 27.8189Z"/></svg><svg style="left:333px;top:23px;width:27.3px;height:12.7px" viewBox="0 0 27.3 12.7"><rect x=".6" y=".6" width="24.1" height="11.5" rx="4" fill="none" stroke="currentColor" stroke-opacity=".38"/><rect x="2" y="2" width="21.3" height="8.7" rx="2.6"/><path d="M26.1 4.3c.9.7.9 3 0 3.7V4.3Z" fill-opacity=".38"/></svg></div><svg preserveAspectRatio="none" style="left:23.147px;top:66.7767px;width:10.0748px;height:17.5684px" xmlns="http://www.w3.org/2000/svg" viewBox="23.147 66.7767 10.0748 17.5684" fill="currentColor"><g transform="translate(20.9822 64.9449) scale(0.0832627 0.0832627) translate(0.000000,260.000000) scale(0.010000,-0.010000)"><path fill-rule="evenodd" d="M12397 23637 c-497 -329 -9416 -9298 -9604 -9658 -314 -604 -258
+-1081 196 -1645 769 -956 9203 -9282 9585 -9461 1214 -572 2575 853 1964 2057
+-90 176 -1935 2101 -4100 4278 -2166 2176 -3938 4020 -3938 4097 0 76 1771
+1918 3936 4092 4302 4321 4264 4277 4264 4830 0 1150 -1400 2007 -2303 1410z"/></g></svg><div class="ct" style="top:99.33px;font:var(--pp-t-nav);letter-spacing:.78px;text-indent:.78px;color:var(--pp-ink)">Continue with email</div><div class="fld" style="left:24px;top:164.8px;width:345px;height:46.2px"></div><div class="b" style="left:40px;top:176.67px;width:2.33px;height:22px;background:var(--pp-caret)"></div><div class="t" style="left:46.5px;top:178.79px;font:var(--pp-t-field);color:var(--pp-ink-4)">Email</div><div class="b" style="left:24px;top:485px;width:345.7px;height:60.3px;border-radius:var(--pp-r-pill);background:var(--pp-off)"></div><div class="ct" style="top:505.66px;font:var(--pp-t-btn);letter-spacing:.25px;text-indent:.25px;color:var(--pp-ink-2)">Continue</div><div class="b" style="left:0px;top:561.3px;width:393px;height:290.7px;background:var(--pp-kbd)"></div><div class="k" style="left:3.1px;top:569px;width:33.3px">q</div><div class="k" style="left:42.44px;top:569px;width:33.3px">w</div><div class="k" style="left:81.78px;top:569px;width:33.3px">e</div><div class="k" style="left:121.12px;top:569px;width:33.3px">r</div><div class="k" style="left:160.46px;top:569px;width:33.3px">t</div><div class="k" style="left:199.8px;top:569px;width:33.3px">y</div><div class="k" style="left:239.14px;top:569px;width:33.3px">u</div><div class="k" style="left:278.48px;top:569px;width:33.3px">i</div><div class="k" style="left:317.82px;top:569px;width:33.3px">o</div><div class="k" style="left:357.16px;top:569px;width:33.3px">p</div><div class="k" style="left:22.8px;top:623px;width:33.3px">a</div><div class="k" style="left:62.14px;top:623px;width:33.3px">s</div><div class="k" style="left:101.48px;top:623px;width:33.3px">d</div><div class="k" style="left:140.82px;top:623px;width:33.3px">f</div><div class="k" style="left:180.16px;top:623px;width:33.3px">g</div><div class="k" style="left:219.5px;top:623px;width:33.3px">h</div><div class="k" style="left:258.84px;top:623px;width:33.3px">j</div><div class="k" style="left:298.18px;top:623px;width:33.3px">k</div><div class="k" style="left:337.52px;top:623px;width:33.3px">l</div><div class="k" style="left:62px;top:677px;width:33.3px">z</div><div class="k" style="left:101.34px;top:677px;width:33.3px">x</div><div class="k" style="left:140.68px;top:677px;width:33.3px">c</div><div class="k" style="left:180.02px;top:677px;width:33.3px">v</div><div class="k" style="left:219.36px;top:677px;width:33.3px">b</div><div class="k" style="left:258.7px;top:677px;width:33.3px">n</div><div class="k" style="left:298.04px;top:677px;width:33.3px">m</div><div class="km" style="left:3.1px;top:677px;width:44.2px"></div><svg preserveAspectRatio="none" style="left:14.4044px;top:688.416px;width:21.232px;height:18.2345px" xmlns="http://www.w3.org/2000/svg" viewBox="14.4044 688.416 21.232 18.2345" fill="currentColor"><g transform="translate(12.3229 687.084) scale(0.0832627 0.0832627) translate(0.000000,268.000000) scale(0.010000,-0.010000)"><path fill-rule="evenodd" d="M14400 25009 c-519 -291 -11521 -11291 -11728 -11726 -405 -854 -62
+-1586 978 -2086 359 -173 639 -193 2755 -195 1696 -1 2389 -36 2475 -122 87
+-87 120 -822 121 -2675 2 -3459 165 -4000 1397 -4630 l538 -275 4238 0 c4642
+0 4885 25 5506 556 793 679 866 1013 902 4163 23 2029 65 2795 155 2870 73 61
+1026 108 2401 117 2568 17 2827 61 3385 581 517 483 613 1069 284 1748 -227
+469 -10860 11185 -11501 11591 -462 292 -1454 335 -1906 83z m4076 -5234
+c5795 -5731 6424 -6370 6424 -6521 0 -174 170 -164 -2972 -188 -2064 -16
+-2128 -22 -2350 -244 -237 -236 -260 -794 -277 -6595 -2 -838 86 -817 -3818
+-889 -3237 -59 -3368 -54 -3818 145 l-465 206 0 3460 0 3460 -250 250 -250
+250 -2425 -9 c-1334 -5 -2481 -8 -2550 -5 -69 3 -125 58 -125 122 0 255 9408
+9483 9669 9483 193 0 921 -664 3207 -2925z"/></g></svg><div class="km" style="left:345.7px;top:677px;width:44.2px"></div><svg preserveAspectRatio="none" style="left:357.114px;top:688.499px;width:21.6483px;height:18.1513px" xmlns="http://www.w3.org/2000/svg" viewBox="357.114 688.499 21.6483 18.1513" fill="currentColor"><g transform="translate(355.365 687.084) scale(0.0832627 0.0832627) translate(0.000000,268.000000) scale(0.010000,-0.010000)"><path fill-rule="evenodd" d="M12750 24995 c-1416 -244 -1706 -469 -5250 -4063 -5227 -5300 -5400
+-5515 -5400 -6708 0 -1273 76 -1365 6200 -7528 3671 -3694 2766 -3418 11050
+-3377 l6200 31 550 232 c718 302 1233 814 1629 1618 l321 650 29 7943 c25
+6945 9 8029 -129 8636 -285 1255 -747 1846 -1845 2361 l-555 260 -6150 16
+c-3382 8 -6375 -23 -6650 -71z m12175 -2177 c1062 -477 1029 -192 1027 -8868
+l-2 -7300 -249 -435 c-458 -800 -140 -761 -6537 -794 -4939 -25 -5760 -8
+-6250 129 -551 155 -654 249 -4365 3990 -2091 2107 -3888 3991 -3994 4187
+-312 579 -133 937 1121 2240 3034 3154 6319 6422 6666 6633 570 345 606 347
+6633 380 5259 28 5546 20 5950 -162z M12739 19102 c-329 -133 -639 -595 -639
+-954 0 -303 786 -1448 995 -1448 182 0 2405 -2346 2406 -2539 1 -142 -556
+-755 -1700 -1872 -1953 -1907 -2057 -2117 -1382 -2777 685 -670 1146 -463
+2971 1328 2037 2001 1906 1970 3064 730 2168 -2321 2822 -2704 3603 -2108 302
+231 343 316 343 718 0 457 0 457 -1650 2117 -1124 1131 -1650 1730 -1650 1879
+0 148 475 700 1460 1696 1961 1985 2160 2354 1599 2959 -642 693 -1153 453
+-3100 -1453 -1198 -1173 -1565 -1477 -1782 -1477 -219 -1 -566 290 -1740 1461
+-1690 1684 -2181 1989 -2798 1740z"/></g></svg><div class="km2" style="left:3.1px;top:731px;width:43.4px">123</div><div class="km" style="left:52.5px;top:731px;width:43.4px"></div><div class="k2" style="left:101.9px;top:731px;width:91.1px">space</div><div class="k2" style="left:199.4px;top:731px;width:43.4px">@</div><div class="k2" style="left:248.8px;top:731px;width:43.4px">.</div><div class="km2" style="left:298.2px;top:731px;width:91.7px">continue</div><svg preserveAspectRatio="none" style="left:62.9466px;top:741.371px;width:20.3994px;height:20.3161px" xmlns="http://www.w3.org/2000/svg" viewBox="62.9466 741.371 20.3994 20.3161" fill="currentColor"><g transform="translate(60.9483 740.039) scale(0.0832627 0.0832627) translate(0.000000,292.000000) scale(0.010000,-0.010000)"><path fill-rule="evenodd" d="M12800 27431 c-3410 -642 -6560 -2645 -8245 -5241 -264 -407 -564
+-862 -667 -1011 -104 -149 -188 -312 -188 -362 0 -88 -213 -609 -599 -1467
+-99 -220 -202 -512 -229 -650 -26 -137 -123 -520 -215 -850 -282 -1017 -232
+-3979 89 -5212 652 -2511 1598 -4179 3361 -5922 1079 -1069 2765 -2243 3693
+-2574 248 -88 653 -244 900 -346 1652 -681 5249 -798 7050 -231 1623 511 2322
+805 2815 1181 255 195 523 354 595 354 262 0 2409 1882 2910 2550 976 1304
+2022 3168 2028 3614 1 63 91 310 200 550 109 240 199 585 200 768 1 182 48
+417 104 523 672 1255 -12 6051 -1097 7695 -91 138 -219 375 -284 528 -344 800
+-1833 2587 -2750 3300 -999 776 -2323 1672 -2470 1672 -60 0 -279 87 -487 193
+-892 455 -1858 727 -3564 1005 -819 134 -2245 103 -3150 -67z m2872 -2486
+c1298 -187 2854 -646 3365 -992 204 -139 408 -253 452 -253 204 0 1368 -854
+1871 -1373 2082 -2146 3079 -4648 2898 -7277 -159 -2321 -151 -2286 -936
+-3950 -1543 -3273 -4941 -5397 -8641 -5401 -1477 -2 -3514 437 -4181 901 -137
+96 -362 208 -500 249 -482 144 -1787 1177 -2574 2035 -2066 2254 -2998 5727
+-2284 8516 180 705 628 1992 744 2138 49 62 123 225 165 362 99 326 1050 1707
+1222 1773 73 28 188 153 255 277 253 470 2262 1975 2867 2149 148 42 356 121
+462 175 560 287 1658 585 2593 706 1036 133 1055 133 2222 -35z M10700 19927
+c-1395 -537 -1551 -2749 -250 -3543 981 -599 2350 396 2350 1707 0 1166 -1174
+2192 -2100 1836z M17600 19888 c-1032 -410 -1472 -1945 -817 -2848 757 -1044
+1539 -1144 2380 -304 1291 1292 50 3793 -1563 3152z M7250 14833 c-1105 -298
+-564 -2709 1055 -4703 1023 -1259 2793 -2530 3523 -2530 69 0 304 -98 523
+-218 549 -300 3713 -331 4449 -44 248 97 585 211 750 255 1616 428 4014 2727
+4499 4314 41 134 144 322 230 419 108 123 168 461 198 1119 68 1466 -464 1775
+-2087 1216 -253 -88 -816 -206 -1250 -264 -435 -58 -961 -172 -1171 -253 -919
+-355 -6504 -270 -7422 114 -187 78 -467 142 -622 142 -155 0 -536 89 -846 198
+-597 210 -1495 326 -1829 235z m2607 -2179 c724 -214 4548 -581 5490 -527 981
+57 3772 431 4252 571 550 160 902 132 898 -73 -9 -459 -764 -883 -1818 -1020
+-401 -52 -1179 -168 -1729 -257 -1070 -173 -3769 -139 -5072 64 -345 54 -920
+137 -1278 184 -1045 138 -1573 379 -1814 830 -211 393 209 483 1071 228z"/></g></svg><svg preserveAspectRatio="none" style="left:29.3085px;top:798.073px;width:26.6441px;height:26.6441px;color:var(--pp-globe)" xmlns="http://www.w3.org/2000/svg" viewBox="29.3085 798.073 26.6441 26.6441" fill="currentColor"><g transform="translate(27.3102 796.658) scale(0.0832627 0.0832627) translate(0.000000,368.000000) scale(0.010000,-0.010000)"><path fill-rule="evenodd" d="M16700 35000 c-137 -44 -441 -85 -674 -90 -1235 -29 -4284 -1159
+-6026 -2232 -1415 -872 -3889 -3088 -4273 -3828 -86 -165 -301 -480 -478 -700
+-177 -220 -384 -520 -460 -667 -77 -147 -274 -509 -439 -803 -1955 -3492
+-2455 -7726 -1391 -11766 136 -514 313 -1063 394 -1220 81 -156 147 -342 147
+-413 0 -70 270 -669 600 -1330 2152 -4311 6373 -7550 11150 -8556 2809 -591
+6942 -220 8951 805 215 110 456 200 535 200 131 0 1104 477 1953 958 2304
+1304 4786 3992 6015 6514 328 672 596 1269 596 1327 0 58 116 385 258 728
+1101 2657 1157 6927 131 10019 -1051 3172 -2703 5570 -5212 7571 -1607 1280
+-2405 1769 -3727 2279 -330 127 -806 313 -1057 413 -1741 691 -5853 1156
+-6993 791z m-2529 -2760 c20 -61 -147 -354 -370 -650 -223 -297 -717 -1174
+-1098 -1948 -855 -1739 -834 -1720 -1548 -1453 -1865 698 -2299 1070 -1849
+1585 542 620 2316 1841 3087 2124 251 92 592 242 757 333 327 181 963 186
+1021 9z m10157 -314 c452 -200 941 -446 1087 -545 146 -100 304 -181 350 -182
+47 -1 466 -293 931 -650 465 -357 878 -649 918 -649 116 0 205 -383 138 -594
+-119 -375 -2116 -1285 -2611 -1190 -112 22 -334 329 -568 785 -210 412 -448
+849 -528 970 -80 122 -145 288 -145 368 0 80 -105 273 -233 428 -294 358 -867
+1422 -867 1612 0 210 537 86 1528 -353z m-6946 146 c67 -81 115 -958 130
+-2348 30 -2915 127 -2807 -2231 -2476 -1518 213 -1673 376 -1186 1252 107 193
+340 643 517 1000 792 1597 2366 3058 2770 2572z m2665 29 c1089 -414 3379
+-4264 2763 -4645 -217 -134 -1725 -356 -2420 -356 -1105 0 -1064 -96 -1084
+2536 -19 2562 33 2735 741 2465z m9467 -4326 c369 -302 1686 -2268 1686 -2516
+0 -43 65 -221 144 -394 641 -1405 1020 -2832 1068 -4017 36 -883 158 -848
+-2974 -848 -3224 0 -3081 -48 -3182 1066 -168 1852 -284 2774 -472 3746 -259
+1343 -256 1350 988 1881 1129 482 1413 617 2019 958 509 288 521 290 723 124z
+m-20571 -515 c609 -297 1363 -656 1675 -799 709 -325 732 -402 476 -1619 -115
+-546 -288 -1743 -386 -2661 -122 -1148 -230 -1750 -345 -1925 l-168 -256
+-2675 0 c-3446 0 -3316 -80 -2965 1814 358 1937 1402 4291 2488 5609 409 497
+575 483 1900 -163z m6407 -1817 c1936 -206 1897 -197 2026 -480 67 -147 120
+-1097 134 -2418 31 -2794 275 -2545 -2499 -2545 -2610 0 -2511 -49 -2511 1241
+0 511 43 1060 96 1219 53 160 147 695 208 1190 273 2197 72 2055 2546 1793z
+m8336 -76 c492 -593 932 -5043 521 -5263 -209 -112 -4174 -149 -4453 -42 -387
+149 -454 544 -454 2683 0 2111 58 2412 475 2464 2522 316 3739 365 3911 158z
+m-13331 -7412 c214 -214 245 -336 245 -949 0 -386 44 -1007 99 -1379 198
+-1363 297 -1991 414 -2630 197 -1071 92 -1197 -1513 -1807 -192 -74 -642 -304
+-998 -512 -357 -208 -756 -378 -887 -378 -834 0 -2691 3593 -3156 6108 -347
+1874 -480 1792 2918 1792 l2632 0 246 -245z m6926 41 c215 -200 336 -2475 235
+-4396 -37 -693 -125 -730 -2264 -940 l-1882 -186 -180 238 c-99 131 -230 553
+-292 938 -62 385 -175 1082 -250 1550 -328 2032 -307 2742 86 2900 505 204
+4310 117 4547 -104z m6981 -49 c188 -188 239 -322 200 -525 -29 -150 -80 -632
+-113 -1072 -117 -1550 -437 -3214 -695 -3608 -176 -268 -991 -283 -1954 -34
+-192 50 -714 91 -1160 91 -1231 1 -1190 -93 -1190 2720 0 2948 -256 2681 2566
+2681 l2093 0 253 -253z m8103 31 c493 -494 -591 -4199 -1791 -6124 -1103
+-1768 -1096 -1765 -2424 -1111 -495 243 -1178 563 -1517 710 -1103 478 -1129
+545 -802 2097 124 589 340 2224 515 3899 79 756 114 764 3167 731 2377 -27
+2700 -49 2852 -202z m-15065 -7178 c188 -188 200 -333 200 -2500 l0 -2300
+-352 0 c-673 0 -1782 1274 -2697 3098 -303 604 -551 1143 -551 1198 0 488
+2975 929 3400 504z m4916 -7 c661 -173 868 -422 659 -796 -96 -172 -175 -367
+-175 -433 0 -67 -146 -353 -325 -638 -179 -284 -460 -748 -625 -1032 -296
+-507 -1287 -1581 -1725 -1869 -200 -131 -252 -130 -469 12 l-243 159 -9 2200
+c-11 2781 -81 2662 1484 2561 584 -38 1226 -111 1428 -164z m-10223 -935 c65
+-78 406 -708 758 -1399 352 -692 826 -1531 1053 -1865 472 -695 468 -953 -11
+-858 -417 84 -1790 696 -2313 1031 -237 152 -552 345 -701 429 -407 231 -1517
+1104 -1610 1266 -158 276 46 521 733 882 1222 642 1856 798 2091 514z m14257
+-169 c630 -234 1488 -792 1527 -992 63 -329 -1893 -1743 -3273 -2366 -1564
+-705 -2070 -693 -1586 40 626 950 1067 1700 1134 1929 39 138 130 318 201 400
+72 83 207 342 301 578 303 761 578 828 1696 411z"/></g></svg><div class="home" style="color:#4C4B4E"></div></div>
+</body>
+</html>

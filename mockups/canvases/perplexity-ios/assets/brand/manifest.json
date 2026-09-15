@@ -1,0 +1,1280 @@
+[
+  {
+    "title": "Logo & wordmark",
+    "images": [
+      {
+        "file": "assets/brand/identity/logo-symbol.svg",
+        "label": "Primary symbol",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo (Perplexity Logo Nov 2025.zip)",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-symbol-mono.svg",
+        "label": "Symbol, single colour",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo (Perplexity Logo Nov 2025.zip)",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-horizontal.svg",
+        "label": "Primary horizontal lockup",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo (Perplexity Logo Nov 2025.zip)",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-stacked.svg",
+        "label": "Primary stacked lockup",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo (Perplexity Logo Nov 2025.zip)",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-wordmark-offblack.svg",
+        "label": "Wordmark, offblack",
+        "w": 1778,
+        "h": 400,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-heading.png",
+        "label": "01 Logos, section opener",
+        "w": 1280,
+        "h": 720,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-anatomy.png",
+        "label": "Anatomy of the mark",
+        "w": 1600,
+        "h": 683,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-clearspace.svg",
+        "label": "Clearspace and minimum size",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-lockup-01.png",
+        "label": "Horizontal lockup, primary",
+        "w": 1000,
+        "h": 562,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-lockup-02.png",
+        "label": "Horizontal lockup, offblack",
+        "w": 1000,
+        "h": 562,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-lockup-03.png",
+        "label": "Horizontal lockup, single colour on light",
+        "w": 1000,
+        "h": 562,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-lockup-04.png",
+        "label": "Horizontal lockup, reversed on dark",
+        "w": 1000,
+        "h": 562,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-stacked-primary.png",
+        "label": "Stacked lockup, primary",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-stacked-single.png",
+        "label": "Stacked lockup, single colour",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-stacked-color-01.png",
+        "label": "Stacked lockup on teal",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-stacked-color-02.png",
+        "label": "Stacked lockup on offblack",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-square-01.png",
+        "label": "Square app mark, primary",
+        "w": 800,
+        "h": 800,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-square-02.png",
+        "label": "Square app mark, offblack",
+        "w": 800,
+        "h": 800,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-square-03.png",
+        "label": "Square app mark, teal",
+        "w": 800,
+        "h": 800,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-square-04.png",
+        "label": "Square app mark, reversed",
+        "w": 800,
+        "h": 800,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-pro-light.png",
+        "label": "Perplexity Pro lockup",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-pro-badge.svg",
+        "label": "Perplexity Pro badge",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo (Perplexity Logo Nov 2025.zip)",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-max-light.png",
+        "label": "Perplexity Max lockup",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-enterprise-light.png",
+        "label": "Enterprise lockup",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-enterprise-pro.png",
+        "label": "Enterprise Pro lockup",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-enterprise-max.png",
+        "label": "Enterprise Max lockup",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-api-black.png",
+        "label": "Perplexity API lockup",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-comet-black.png",
+        "label": "Comet wordmark",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-comet-symbol.png",
+        "label": "Comet symbol",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-comet-by-perplexity.png",
+        "label": "Comet by Perplexity lockup",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-cobrand-softbank.svg",
+        "label": "Co-branding lockup with SoftBank",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-misuse-fill.svg",
+        "label": "Misuse: do not refill the mark",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-misuse-rotate.svg",
+        "label": "Misuse: do not rotate the mark",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-misuse-stroke.svg",
+        "label": "Misuse: do not outline the mark",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-endtag.png",
+        "label": "Motion end tag",
+        "w": 1600,
+        "h": 900,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "Typeface",
+    "images": [
+      {
+        "file": "assets/brand/identity/type-heading.png",
+        "label": "02 Typography, section opener",
+        "w": 1280,
+        "h": 720,
+        "source": "https://live.standards.site/perplexity/type",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/type-source-han-sans.jpg",
+        "label": "Source Han Sans, the CJK companion face",
+        "w": 800,
+        "h": 408,
+        "source": "https://live.standards.site/perplexity/type",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/type-business-cards.png",
+        "label": "Type on business cards",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/type",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/type-social-post.png",
+        "label": "Type in a social post",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/type",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/type-relationship-posters.png",
+        "label": "Type hierarchy across posters",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/type",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "Art direction",
+    "images": [
+      {
+        "file": "assets/brand/identity/art-heading.png",
+        "label": "04 Art Direction, section opener",
+        "w": 1280,
+        "h": 720,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-like-never-before.jpg",
+        "label": "Know like never before, campaign art",
+        "w": 1600,
+        "h": 1014,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-where-knowledge.png",
+        "label": "Where knowledge begins",
+        "w": 545,
+        "h": 819,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-iykyk-poster.jpg",
+        "label": "IYKYK poster",
+        "w": 1195,
+        "h": 1600,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-camp.jpg",
+        "label": "Campaign art, camp",
+        "w": 1195,
+        "h": 1600,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-portal.jpg",
+        "label": "Portal motif",
+        "w": 1066,
+        "h": 1600,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-curious-world.png",
+        "label": "A curious world, image system",
+        "w": 1000,
+        "h": 560,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-references.png",
+        "label": "Visual references board",
+        "w": 1000,
+        "h": 594,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-retro-futurism.png",
+        "label": "Retro-futurism reference board",
+        "w": 1000,
+        "h": 594,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-photography.jpg",
+        "label": "Photography treatment",
+        "w": 1000,
+        "h": 1192,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-pattern.png",
+        "label": "Pattern system",
+        "w": 1280,
+        "h": 720,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-iconography.svg",
+        "label": "Iconography, stroke set",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/art-iconography-font-awesome.svg",
+        "label": "Iconography, the Font Awesome base set",
+        "w": 1920,
+        "h": 1080,
+        "source": "https://live.standards.site/perplexity/design",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "Applied identity",
+    "images": [
+      {
+        "file": "assets/brand/identity/applied-heading.png",
+        "label": "05 Brand in Use, section opener",
+        "w": 1280,
+        "h": 720,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-color-slide.png",
+        "label": "03 Color, the palette in use",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/color",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-like-never.jpg",
+        "label": "Know like never before, out of home",
+        "w": 1600,
+        "h": 960,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-social.png",
+        "label": "Social templates",
+        "w": 1600,
+        "h": 733,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-social-icon.svg",
+        "label": "Social profile mark",
+        "w": 1606,
+        "h": 1200,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-business-cards.png",
+        "label": "Business cards",
+        "w": 1600,
+        "h": 900,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-mug.jpg",
+        "label": "Mug",
+        "w": 1600,
+        "h": 900,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-poster-all.png",
+        "label": "Poster series",
+        "w": 1000,
+        "h": 563,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-poster-mock.jpg",
+        "label": "Poster in situ",
+        "w": 1000,
+        "h": 667,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-poster-animated.png",
+        "label": "Animated poster",
+        "w": 1000,
+        "h": 1251,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-tote.png",
+        "label": "Tote bag",
+        "w": 1000,
+        "h": 1125,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/applied-stickers.png",
+        "label": "Sticker sheet",
+        "w": 1000,
+        "h": 1152,
+        "source": "https://live.standards.site/perplexity/brand",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/identity/logo-use-posters.jpg",
+        "label": "The mark on posters",
+        "w": 1000,
+        "h": 668,
+        "source": "https://live.standards.site/perplexity/logo",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "X",
+    "images": [
+      {
+        "file": "assets/brand/social/x-avatar.jpg",
+        "label": "@perplexity_ai avatar",
+        "w": 400,
+        "h": 400,
+        "source": "https://x.com/perplexity_ai",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-banner.jpg",
+        "label": "@perplexity_ai header",
+        "w": 1500,
+        "h": 500,
+        "source": "https://x.com/perplexity_ai",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-post-01.jpg",
+        "label": "Embedding and ranking, explainer card",
+        "w": 1600,
+        "h": 900,
+        "source": "https://x.com/perplexity_ai/status/2095984677463191607",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-post-02.png",
+        "label": "Brain, the self-improving memory system",
+        "w": 1600,
+        "h": 1310,
+        "source": "https://x.com/perplexity_ai/status/2092634609079218374",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-post-03.png",
+        "label": "Search as Code, architecture announcement",
+        "w": 1600,
+        "h": 1279,
+        "source": "https://x.com/perplexity_ai/status/2061506359326384319",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-post-04.jpg",
+        "label": "Main Street AI Accelerator",
+        "w": 1600,
+        "h": 893,
+        "source": "https://x.com/perplexity_ai/status/2062556000394379710",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-post-05.jpg",
+        "label": "Harvard research on the shift from chat",
+        "w": 1600,
+        "h": 1600,
+        "source": "https://x.com/perplexity_ai/status/2064023455453110286",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/x-post-06.jpg",
+        "label": "Computer Analytics",
+        "w": 1600,
+        "h": 1600,
+        "source": "https://x.com/perplexity_ai/status/2075599540640714863",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "Instagram",
+    "images": [
+      {
+        "file": "assets/brand/social/instagram-avatar.jpg",
+        "label": "@perplexity avatar",
+        "w": 1080,
+        "h": 1080,
+        "source": "https://www.instagram.com/perplexity/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/instagram-post-01.jpg",
+        "label": "Personal Computer release",
+        "w": 1080,
+        "h": 1080,
+        "source": "https://www.instagram.com/p/DXMyTzFkWX7/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/instagram-post-02.jpg",
+        "label": "Comet for iOS",
+        "w": 922,
+        "h": 922,
+        "source": "https://www.instagram.com/p/DWCSw6GkYQV/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/instagram-post-03.jpg",
+        "label": "Introducing Perplexity Computer",
+        "w": 1080,
+        "h": 1080,
+        "source": "https://www.instagram.com/p/DVMAcj-DT00/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/instagram-post-04.jpg",
+        "label": "Hybrid compute in Perplexity Computer",
+        "w": 720,
+        "h": 720,
+        "source": "https://www.instagram.com/p/DcwjrWJSb-r/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/instagram-post-05.jpg",
+        "label": "There is no progress without curiosity",
+        "w": 1080,
+        "h": 1080,
+        "source": "https://www.instagram.com/p/DaQLJAiM9TZ/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/instagram-post-06.jpg",
+        "label": "Trackside, the F1 partnership",
+        "w": 758,
+        "h": 758,
+        "source": "https://www.instagram.com/p/DaNm66oMj73/",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "TikTok",
+    "images": [
+      {
+        "file": "assets/brand/social/tiktok-avatar.jpg",
+        "label": "@perplexityapp avatar",
+        "w": 1080,
+        "h": 1080,
+        "source": "https://www.tiktok.com/@perplexityapp",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/tiktok-post-01.jpg",
+        "label": "Be curious. Ask questions.",
+        "w": 360,
+        "h": 640,
+        "source": "https://www.tiktok.com/@perplexityapp/video/7577153243407486238",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "YouTube",
+    "images": [
+      {
+        "file": "assets/brand/social/youtube-avatar.jpg",
+        "label": "@perplexity-ai avatar",
+        "w": 800,
+        "h": 800,
+        "source": "https://www.youtube.com/@perplexity-ai",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/youtube-banner.jpg",
+        "label": "@perplexity-ai channel banner",
+        "w": 1600,
+        "h": 265,
+        "source": "https://www.youtube.com/@perplexity-ai",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/youtube-post-01.jpg",
+        "label": "Portable Computer for Windows",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=Je7Wg2gTrdg",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/youtube-post-02.jpg",
+        "label": "Hybrid compute on Mac demo",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=328L7xBMTFE",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/youtube-post-03.jpg",
+        "label": "How Ramp uses Perplexity Enterprise",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=Ik_cXJhuFXs",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/youtube-post-04.jpg",
+        "label": "Computer for Builders",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=fizoqHN3yO8",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/youtube-post-05.jpg",
+        "label": "Brain for Perplexity Computer",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=K3NfZvqJod4",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/youtube-post-06.jpg",
+        "label": "Personal Computer for Mac",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.youtube.com/watch?v=9ywd9s3kTmE",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "LinkedIn",
+    "images": [
+      {
+        "file": "assets/brand/social/linkedin-logo.jpg",
+        "label": "Company page logo",
+        "w": 200,
+        "h": 200,
+        "source": "https://www.linkedin.com/company/perplexity-ai",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/linkedin-cover.jpg",
+        "label": "Company page cover",
+        "w": 1128,
+        "h": 191,
+        "source": "https://www.linkedin.com/company/perplexity-ai",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/linkedin-post-01.jpg",
+        "label": "Portable Computer on NVIDIA RTX PCs",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.linkedin.com/feed/update/urn:li:activity:7505280160632569856/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/linkedin-post-02.jpg",
+        "label": "Joining the Rust Foundation",
+        "w": 800,
+        "h": 450,
+        "source": "https://www.linkedin.com/feed/update/urn:li:activity:7503936971837235200/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/linkedin-post-03.jpg",
+        "label": "GPT-6 Astra evaluated on WANDR",
+        "w": 800,
+        "h": 979,
+        "source": "https://www.linkedin.com/feed/update/urn:li:activity:7501386120107016192/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/linkedin-post-04.jpg",
+        "label": "Enterprise webinar card",
+        "w": 800,
+        "h": 533,
+        "source": "https://www.linkedin.com/feed/update/urn:li:activity:7500984074258415616/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/linkedin-post-05.jpg",
+        "label": "Hybrid compute in Perplexity Computer",
+        "w": 1280,
+        "h": 720,
+        "source": "https://www.linkedin.com/feed/update/urn:li:activity:7500569247601946625/",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/social/linkedin-post-06.jpg",
+        "label": "GLM 5.3 in Perplexity Computer",
+        "w": 1080,
+        "h": 1350,
+        "source": "https://www.linkedin.com/feed/update/urn:li:activity:7499176289031860225/",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "App Store",
+    "images": [
+      {
+        "file": "assets/brand/stores/appstore-icon.png",
+        "label": "App icon, 1024px",
+        "w": 1024,
+        "h": 1024,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-iphone-01.jpg",
+        "label": "iPhone screenshot 1",
+        "w": 900,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-iphone-02.jpg",
+        "label": "iPhone screenshot 2",
+        "w": 900,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-iphone-03.jpg",
+        "label": "iPhone screenshot 3",
+        "w": 900,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-iphone-04.jpg",
+        "label": "iPhone screenshot 4",
+        "w": 900,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-iphone-05.jpg",
+        "label": "iPhone screenshot 5",
+        "w": 900,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-iphone-06.jpg",
+        "label": "iPhone screenshot 6",
+        "w": 900,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-iphone-07.jpg",
+        "label": "iPhone screenshot 7",
+        "w": 900,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-iphone-08.jpg",
+        "label": "iPhone screenshot 8",
+        "w": 900,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-ipad-01.jpg",
+        "label": "iPad screenshot 1",
+        "w": 1199,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-ipad-02.jpg",
+        "label": "iPad screenshot 2",
+        "w": 1199,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-ipad-03.jpg",
+        "label": "iPad screenshot 3",
+        "w": 1199,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-ipad-04.jpg",
+        "label": "iPad screenshot 4",
+        "w": 1199,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-ipad-05.jpg",
+        "label": "iPad screenshot 5",
+        "w": 1199,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-ipad-06.jpg",
+        "label": "iPad screenshot 6",
+        "w": 1199,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/appstore-ipad-07.jpg",
+        "label": "iPad screenshot 7",
+        "w": 1199,
+        "h": 1600,
+        "source": "https://apps.apple.com/us/app/perplexity-ai-search-chat/id1668000334",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "Google Play",
+    "images": [
+      {
+        "file": "assets/brand/stores/googleplay-icon.png",
+        "label": "App icon",
+        "w": 512,
+        "h": 512,
+        "source": "https://play.google.com/store/apps/details?id=ai.perplexity.app.android",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/googleplay-01.jpg",
+        "label": "Phone screenshot 1",
+        "w": 900,
+        "h": 1600,
+        "source": "https://play.google.com/store/apps/details?id=ai.perplexity.app.android",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/googleplay-02.png",
+        "label": "Phone screenshot 2",
+        "w": 900,
+        "h": 1600,
+        "source": "https://play.google.com/store/apps/details?id=ai.perplexity.app.android",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/googleplay-03.png",
+        "label": "Phone screenshot 3",
+        "w": 900,
+        "h": 1600,
+        "source": "https://play.google.com/store/apps/details?id=ai.perplexity.app.android",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/googleplay-04.png",
+        "label": "Phone screenshot 4",
+        "w": 900,
+        "h": 1600,
+        "source": "https://play.google.com/store/apps/details?id=ai.perplexity.app.android",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/googleplay-05.png",
+        "label": "Phone screenshot 5",
+        "w": 900,
+        "h": 1600,
+        "source": "https://play.google.com/store/apps/details?id=ai.perplexity.app.android",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/googleplay-06.png",
+        "label": "Phone screenshot 6",
+        "w": 900,
+        "h": 1600,
+        "source": "https://play.google.com/store/apps/details?id=ai.perplexity.app.android",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/googleplay-07.png",
+        "label": "Phone screenshot 7",
+        "w": 900,
+        "h": 1600,
+        "source": "https://play.google.com/store/apps/details?id=ai.perplexity.app.android",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/googleplay-08.png",
+        "label": "Phone screenshot 8",
+        "w": 900,
+        "h": 1600,
+        "source": "https://play.google.com/store/apps/details?id=ai.perplexity.app.android",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "Microsoft Store",
+    "images": [
+      {
+        "file": "assets/brand/stores/msstore-icon.png",
+        "label": "Store tile",
+        "w": 150,
+        "h": 150,
+        "source": "https://apps.microsoft.com/detail/9P9XG917PWCJ",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/msstore-01.jpg",
+        "label": "Windows screenshot 1",
+        "w": 1600,
+        "h": 899,
+        "source": "https://apps.microsoft.com/detail/9P9XG917PWCJ",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/msstore-02.jpg",
+        "label": "Windows screenshot 2",
+        "w": 1600,
+        "h": 899,
+        "source": "https://apps.microsoft.com/detail/9P9XG917PWCJ",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/msstore-03.jpg",
+        "label": "Windows screenshot 3",
+        "w": 1600,
+        "h": 899,
+        "source": "https://apps.microsoft.com/detail/9P9XG917PWCJ",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/msstore-04.jpg",
+        "label": "Windows screenshot 4",
+        "w": 1600,
+        "h": 899,
+        "source": "https://apps.microsoft.com/detail/9P9XG917PWCJ",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/stores/msstore-05.jpg",
+        "label": "Windows screenshot 5",
+        "w": 1600,
+        "h": 899,
+        "source": "https://apps.microsoft.com/detail/9P9XG917PWCJ",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "Announcement cards",
+    "images": [
+      {
+        "file": "assets/brand/ads/announce-portable-windows.jpg",
+        "label": "Portable Computer for Windows is here",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/portable-computer-for-windows-is-here",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-hybrid-compute-mac.jpg",
+        "label": "Introducing Hybrid Compute on Mac",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/introducing-hybrid-compute-on-mac",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-portable-computer.jpg",
+        "label": "Introducing Portable Computer",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/introducing-portable-computer-for-local-first-ai",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-finance-data-sources.jpg",
+        "label": "20+ new licensed finance data sources",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/computer-connects-to-20-new-licensed-finance-data-sources",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-computer-email.jpg",
+        "label": "Computer now works in email",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/computer-now-works-in-email",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-computer-builders.jpg",
+        "label": "Computer for Builders",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/computer-for-builders",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-spaces-projects.jpg",
+        "label": "Spaces are now Projects",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/spaces-are-now-projects",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-model-council.jpg",
+        "label": "Model Council comes to Computer",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/model-council-comes-to-computer",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-personal-computer-windows.jpg",
+        "label": "Personal Computer on Windows",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/personal-computer-on-windows",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-finance-search-api.jpg",
+        "label": "Finance Search in the Agent API",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/introducing-finance-search-in-the-agent-api",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-cobbledb.jpg",
+        "label": "CobbleDB, lower-latency AI search storage",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/cobbledb",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-fast-embeddings.jpg",
+        "label": "Fast embeddings on GPUs",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/fast-embeddings-on-gpus",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/announce-apple-silicon.jpg",
+        "label": "On-device inference for Apple silicon",
+        "w": 1200,
+        "h": 630,
+        "source": "https://www.perplexity.ai/hub/blog/optimizing-on-device-inference-for-apple-silicon",
+        "provenance": "theirs"
+      }
+    ]
+  },
+  {
+    "title": "Paid advertising",
+    "images": [
+      {
+        "file": "assets/brand/ads/google-ad-01.png",
+        "label": "Display creative, September 2026",
+        "w": 1436,
+        "h": 1014,
+        "source": "https://adstransparency.google.com/advertiser/AR03373525716690796545/creative/CR16875143874278850561",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/google-ad-02.png",
+        "label": "Half-page creative, September 2026",
+        "w": 600,
+        "h": 1200,
+        "source": "https://adstransparency.google.com/advertiser/AR03373525716690796545/creative/CR09649483310023311361",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/google-ad-03.png",
+        "label": "Half-page creative, September 2026",
+        "w": 600,
+        "h": 1200,
+        "source": "https://adstransparency.google.com/advertiser/AR03373525716690796545/creative/CR17764021509765988353",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/google-ad-04.png",
+        "label": "Half-page creative, August 2026",
+        "w": 600,
+        "h": 1200,
+        "source": "https://adstransparency.google.com/advertiser/AR03373525716690796545/creative/CR14341312181243478017",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/google-ad-05.png",
+        "label": "Half-page creative, August 2026",
+        "w": 600,
+        "h": 1200,
+        "source": "https://adstransparency.google.com/advertiser/AR03373525716690796545/creative/CR10349216358230654977",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/google-ad-06.png",
+        "label": "Banner creative, August 2026",
+        "w": 350,
+        "h": 190,
+        "source": "https://adstransparency.google.com/advertiser/AR03373525716690796545/creative/CR03435773115798388737",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/google-ad-07.png",
+        "label": "Mobile interstitial creative, August 2026",
+        "w": 640,
+        "h": 1136,
+        "source": "https://adstransparency.google.com/advertiser/AR03373525716690796545/creative/CR05344402156315213825",
+        "provenance": "theirs"
+      },
+      {
+        "file": "assets/brand/ads/google-ad-08.png",
+        "label": "Display creative, August 2026",
+        "w": 1436,
+        "h": 838,
+        "source": "https://adstransparency.google.com/advertiser/AR03373525716690796545/creative/CR02518051442023989249",
+        "provenance": "theirs"
+      }
+    ]
+  }
+]

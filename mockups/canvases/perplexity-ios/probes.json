@@ -1,0 +1,950 @@
+[
+ {
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt on the ten Mobbin captures in assets/refs: 1180x2676 sRGB, an iPhone 15/16 screen at 3 px/pt (1179x2556 for 393x852) plus Mobbin's own 120px attribution bar under it, so run with --pt 3 and expect the far right edge to sit one capture pixel inside the box. --against wants scratch/mine, the renders from `refkit shoot --scale 3 --crop-phone` resized 1179->1180 with LANCZOS, one file per `mine`. A sample probe on ink carries --only ink, because batch reads the first colour a probe prints; `bright: true` there means the ink is lighter than its ground. On a bbox, `dark`/`bright` is the luminance threshold that counts as ink. The status bar and home indicator come from the template rather than the capture, so no probe sits above y 54 - the one home-indicator sample is a known near-match, noted in the README. The last fourteen rows are the Dynamic Island boards, whose captures p11-p14 are 881x2000: an 881x1910 screen plus a 90px bar, so 2.24173 px per pt rather than 3. Each of those rows carries its own `pt`, which overrides the one on the command line. Their boxes are absolute capture pt, where gen.py's expanded() places its body relative to the island's own 11.15,11.15 corner.",
+  "id": "bg",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   180,
+   420,
+   215,
+   460
+  ],
+  "only": "flat",
+  "_": "p02 page ground between the field (ends 211) and the Continue button (starts 485): nothing else in the window"
+ },
+ {
+  "id": "night",
+  "img": "assets/refs/p01.png",
+  "mine": "01-splash.png",
+  "cmd": "sample",
+  "box": [
+   2,
+   450,
+   18,
+   520
+  ],
+  "only": "flat",
+  "_": "p01 left margin below the painting's fade (complete by 432) and above the wordmark (439 but inset to 96.7): the sheet's own ground"
+ },
+ {
+  "id": "night-2",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "sample",
+  "box": [
+   170,
+   752,
+   225,
+   768
+  ],
+  "only": "flat",
+  "_": "p07 between the plan cards (end 755.5) and the Subscribe pill (starts 772.3), mid-width where neither card reaches"
+ },
+ {
+  "id": "card",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   240,
+   172,
+   340,
+   204
+  ],
+  "only": "flat",
+  "_": "p02 email field interior, right of the 'Email' placeholder which ends at 82"
+ },
+ {
+  "id": "chip",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   503,
+   150,
+   510
+  ],
+  "only": "flat",
+  "_": "p07 chip row 1 above its labels: the row runs 500.5-538.7 and the 15px ink starts at 512"
+ },
+ {
+  "id": "scrim",
+  "img": "assets/refs/p08.png",
+  "mine": "08-purchased.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   503,
+   150,
+   510
+  ],
+  "only": "flat",
+  "_": "the same window on p08: chip fill under the alert's scrim. Against the chip probe it is the scrim's alpha, and it is the probe for it - a scrim has no colour of its own to sample"
+ },
+ {
+  "id": "pill",
+  "img": "assets/refs/p01.png",
+  "mine": "01-splash.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   540,
+   95,
+   570
+  ],
+  "only": "flat",
+  "_": "p01 'Continue with Apple' pill interior, left of the glyph which starts at 104.3"
+ },
+ {
+  "id": "pill-2",
+  "img": "assets/refs/p01.png",
+  "mine": "01-splash.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   655,
+   95,
+   685
+  ],
+  "only": "flat",
+  "_": "p01 'Continue with email' pill interior, left of the label which starts at 118"
+ },
+ {
+  "id": "kbd",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   170,
+   612,
+   230,
+   620
+  ],
+  "only": "flat",
+  "_": "p02 keyboard panel between row 1 (ends 611.3) and row 2 (starts 623): the panel itself, no key"
+ },
+ {
+  "id": "key",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   6,
+   574,
+   16,
+   606
+  ],
+  "only": "flat",
+  "_": "p02 'q' key (3.1-36.4 x 569-611.3), left of the letter which is centred at 19.8"
+ },
+ {
+  "id": "key-mod",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   6,
+   682,
+   13,
+   715
+  ],
+  "only": "flat",
+  "_": "p02 shift key (3.1-47.3 x 677-719.3), left of the arrow glyph which starts at 14.1"
+ },
+ {
+  "id": "search",
+  "img": "assets/refs/p10.png",
+  "mine": "10-home.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   700,
+   120,
+   740
+  ],
+  "only": "flat",
+  "_": "p10 search bar interior between the lens glyph (ends 52.5) and 'Ask anything' (starts 130)"
+ },
+ {
+  "id": "ring",
+  "img": "assets/refs/p10.png",
+  "mine": "10-home.png",
+  "cmd": "sample",
+  "box": [
+   16,
+   72,
+   17.5,
+   79
+  ],
+  "only": "flat",
+  "_": "p10 avatar ring at its left tangent, x 16-17.5 across the circle's mid height: one stroke, no 's'"
+ },
+ {
+  "id": "off",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   250,
+   495,
+   340,
+   535
+  ],
+  "only": "flat",
+  "_": "p02 Continue fill while the field is empty, right of the label which ends at 233"
+ },
+ {
+  "id": "alert",
+  "img": "assets/refs/p08.png",
+  "mine": "08-purchased.png",
+  "cmd": "sample",
+  "box": [
+   80,
+   466,
+   130,
+   496
+  ],
+  "only": "flat",
+  "_": "p08 alert below its divider (456.3) and left of 'OK' (186-208.7). Its blur is wide enough that nothing of the hero survives, so the board paints the vignette the capture reads as"
+ },
+ {
+  "id": "alert-08",
+  "img": "assets/refs/p08.png",
+  "mine": "08-purchased.png",
+  "cmd": "bbox",
+  "box": [
+   80,
+   390,
+   315,
+   418
+  ],
+  "_": "p08 alert title \u2018You\u2019re all set\u2019 inside the 270pt alert. The three runs are the iOS ladder -- 17 semibold, 13 regular, 17 medium -- and this is the one that reads it: 14px set the string 14.6% narrow and 38.6% light"
+ },
+ {
+  "id": "border",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   120,
+   163.5,
+   280,
+   166.5
+  ],
+  "only": "ink",
+  "_": "p02 field top border, mid-run where the corners are straight; the darkest step of the 164.0-165.7 ramp"
+ },
+ {
+  "id": "line",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "sample",
+  "box": [
+   376.6,
+   660,
+   377.4,
+   700
+  ],
+  "only": "flat",
+  "_": "p07 Yearly card right border: px 1129-1132 of row 2100 ramp 68, 105, 100, 62 out of a 26 ground, so the 1pt line centres on 377.0"
+ },
+ {
+  "id": "line-on",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "sample",
+  "box": [
+   16.3,
+   660,
+   17.0,
+   700
+  ],
+  "only": "flat",
+  "_": "p07 Monthly card left border, the selected one: the same row peaks 84,170,189 and 59,174,197 at px 49-50, centring the line on 16.5"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   85,
+   103,
+   308,
+   121
+  ],
+  "only": "ink",
+  "_": "p02 title 'Continue with email', ink 85.3-307.3 x 103.3-121.0"
+ },
+ {
+  "id": "ink-2",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   155,
+   500,
+   240,
+   530
+  ],
+  "only": "ink",
+  "_": "p02 'Continue' label on the off fill; the fill itself is the `off` probe"
+ },
+ {
+  "id": "ink-3",
+  "img": "assets/refs/p01.png",
+  "mine": "01-splash.png",
+  "cmd": "sample",
+  "box": [
+   70,
+   783,
+   175,
+   802
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "p01 'Privacy policy' on the night ground; 'Terms of service' starts at 199.7"
+ },
+ {
+  "id": "ink-4",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   44,
+   176,
+   86,
+   199
+  ],
+  "only": "ink",
+  "_": "p02 'Email' placeholder; the caret ends at 42.5 and the field's own fill is the `card` probe"
+ },
+ {
+  "id": "ink-inv",
+  "img": "assets/refs/p01.png",
+  "mine": "01-splash.png",
+  "cmd": "sample",
+  "box": [
+   120,
+   655,
+   280,
+   683
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "p01 'Continue with email' on the #302D31 pill: the light label the dark pills and the paywall chips share"
+ },
+ {
+  "id": "ink-max",
+  "img": "assets/refs/p01.png",
+  "mine": "01-splash.png",
+  "cmd": "sample",
+  "box": [
+   104,
+   543,
+   290,
+   561
+  ],
+  "only": "ink",
+  "_": "p01 'Continue with Apple' with its mark: black ink on the #FFFDFF pill, the one place on the ten screens that is not --pp-ink or --pp-night"
+ },
+ {
+  "id": "ink-cyan",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "sample",
+  "box": [
+   146,
+   787,
+   242,
+   806
+  ],
+  "only": "ink",
+  "_": "p07 'Subscribe' on the cyan pill - dark ink, not white, which is the whole reason for this token"
+ },
+ {
+  "id": "idle",
+  "img": "assets/refs/p10.png",
+  "mine": "10-home.png",
+  "cmd": "sample",
+  "box": [
+   137,
+   783,
+   158,
+   806
+  ],
+  "only": "ink",
+  "_": "p10 Discover tab glyph, an idle tab; the active one is Search at 39.5"
+ },
+ {
+  "id": "globe",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   29,
+   797,
+   57,
+   826
+  ],
+  "only": "ink",
+  "_": "p02 globe key glyph, the one keyboard glyph the capture does not draw black; shift, delete and the emoji face on the same screen all core under 1,1,7"
+ },
+ {
+  "id": "quiet",
+  "img": "assets/refs/p10.png",
+  "mine": "10-home.png",
+  "cmd": "sample",
+  "box": [
+   100,
+   336,
+   300,
+   370
+  ],
+  "only": "ink",
+  "_": "p10 serif 'Where': line 1 alone, y 338.7-366; 'knowledge' starts at 374.3"
+ },
+ {
+  "id": "wash",
+  "img": "assets/refs/p10.png",
+  "mine": "10-home.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   110,
+   370,
+   175
+  ],
+  "only": "ink",
+  "_": "p10 watermark strokes top right, below the header (ends 95) and well above the serif block: the only ink there. A 20/7 level difference integrated across a 2.86px stroke, so the ink core reads paler than the nominal line"
+ },
+ {
+  "id": "accent",
+  "img": "assets/refs/p03.png",
+  "mine": "03-email-typed.png",
+  "cmd": "sample",
+  "box": [
+   250,
+   495,
+   340,
+   535
+  ],
+  "only": "flat",
+  "_": "p03 Continue fill once the address validates, right of the label; p02's same window is the `off` probe"
+ },
+ {
+  "id": "accent-2",
+  "img": "assets/refs/p04.png",
+  "mine": "04-check-email.png",
+  "cmd": "sample",
+  "box": [
+   118,
+   338,
+   277,
+   356
+  ],
+  "only": "ink",
+  "_": "p04 'Enter Code Manually', the only link on the screen"
+ },
+ {
+  "id": "caret",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   39,
+   178,
+   43.5,
+   197
+  ],
+  "only": "ink",
+  "_": "p02 caret inside the empty field, 40-42.5 x 176.7-198.3"
+ },
+ {
+  "id": "cyan",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   780,
+   130,
+   812
+  ],
+  "only": "flat",
+  "_": "p07 Subscribe pill, left of the label which starts at 146.7"
+ },
+ {
+  "id": "cyan-2",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "sample",
+  "box": [
+   33,
+   630,
+   96,
+   647
+  ],
+  "only": "ink",
+  "bright": true,
+  "_": "p07 'Monthly' on the selected card: its ink and its border are two different cyans"
+ },
+ {
+  "id": "gold",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "sample",
+  "box": [
+   224,
+   692,
+   231,
+   709
+  ],
+  "only": "flat",
+  "_": "p07 'Save $49.00' badge (221-320.3 x 689.3-712), left of its centred label"
+ },
+ {
+  "id": "gold-ink",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "sample",
+  "box": [
+   232,
+   694,
+   310,
+   708
+  ],
+  "only": "ink",
+  "_": "the same badge's label"
+ },
+ {
+  "id": "blue",
+  "img": "assets/refs/p05.png",
+  "mine": "05-enter-code.png",
+  "cmd": "sample",
+  "box": [
+   303,
+   734,
+   322,
+   770
+  ],
+  "only": "flat",
+  "_": "p05 keyboard 'go' key, the flat one of the two places iOS system blue shows; p08's alert 'OK' is too thin to sample through the capture's ringing, so it shares this token"
+ },
+ {
+  "id": "danger",
+  "img": "assets/refs/p09.png",
+  "mine": "09-home-tip.png",
+  "cmd": "sample",
+  "box": [
+   147.5,
+   814,
+   149.5,
+   817
+  ],
+  "only": "ink",
+  "_": "p09 unread dot under the Discover tab: R-G > 40 over 145.0-150.7 x 812.0-818.0, so this box is its core; p10 has none there"
+ },
+ {
+  "id": "flag",
+  "img": "assets/refs/p03.png",
+  "mine": "03-email-typed.png",
+  "cmd": "sample",
+  "box": [
+   110,
+   194.7,
+   150,
+   196.3
+  ],
+  "only": "ink",
+  "_": "p03 spell-check rule under 'mobbin': R-G > 40 over 100.3-155.3 x 193.7-197.0, and R-G peaks 190 every 12 capture px, so it is a 4pt dot pitch. The colours will not agree: the darkest percentile reads the blur between the dots on a capture that never renders one solid, while the board's dots are crisp. The token is the capture's reddest pixel, (255,57,60), rounded to the dot core it implies"
+ },
+ {
+  "id": "title-02",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   98,
+   340,
+   126
+  ],
+  "_": "p02 title 'Continue with email' alone: the chevron ends at 33.2 and the field starts at 164.8. Sets --pp-t-nav"
+ },
+ {
+  "id": "field-02",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 196,
+  "range": [
+   150,
+   180
+  ],
+  "_": "p02 down the middle into the email field: the step is the field's top edge, 164.8"
+ },
+ {
+  "id": "title-04",
+  "img": "assets/refs/p04.png",
+  "mine": "04-check-email.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   215,
+   340,
+   246
+  ],
+  "_": "p04 'Check your email' alone: the envelope disc ends at 192.7 and the body copy starts at 262.7. Sets --pp-t-title"
+ },
+ {
+  "id": "body-04",
+  "img": "assets/refs/p04.png",
+  "mine": "04-check-email.png",
+  "cmd": "bbox",
+  "box": [
+   40,
+   258,
+   355,
+   280
+  ],
+  "_": "p04 body line 1 only, y 258-280; line 2's ink starts at 283.3, which is the 20.6 line height"
+ },
+ {
+  "id": "hero-07",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "bbox",
+  "box": [
+   30,
+   180,
+   365,
+   260
+  ],
+  "bright": 190,
+  "_": "p07 serif headline, both lines. The starfield behind it is lit too, so the threshold is 190 of 255 rather than the usual 128: nothing else in the card reaches it. Sets --pp-t-hero. The set width lands within 0.3pt; the 3.3pt the block is short, and the 3.3pt it starts low, are one number -- the substitute's ascender, and the decision to place the line by its baseline instead of its top"
+ },
+ {
+  "id": "plan-07",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   624,
+   185,
+   648
+  ],
+  "bright": 110,
+  "_": "p07 'Monthly' alone inside the selected card, above the price at 653.3. Sets --pp-t-plan"
+ },
+ {
+  "id": "price-07",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "bbox",
+  "box": [
+   20,
+   648,
+   185,
+   684
+  ],
+  "bright": 110,
+  "_": "p07 'S$ 29.98' alone, between the title and 'Billed Monthly' at 702. Sets --pp-t-price"
+ },
+ {
+  "id": "card-07",
+  "img": "assets/refs/p07.png",
+  "mine": "07-paywall.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 100,
+  "range": [
+   598,
+   620
+  ],
+  "_": "p07 down x 100 into the Monthly card: the step is its top border at 609.5, clear of the check badge which starts at 174.75"
+ },
+ {
+  "id": "home-10",
+  "img": "assets/refs/p10.png",
+  "mine": "10-home.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   330,
+   340,
+   425
+  ],
+  "dark": 200,
+  "_": "p10 'Where / knowledge / begins', all three serif lines: ink tops 338.7, 374.3, 409.7, so 35.5 of line height. Threshold 200 because the ink is #ACABA8 on #FFFDFC. Sets --pp-t-home"
+ },
+ {
+  "id": "ask-10",
+  "img": "assets/refs/p10.png",
+  "mine": "10-home.png",
+  "cmd": "bbox",
+  "box": [
+   125,
+   702,
+   330,
+   726
+  ],
+  "_": "p10 'Ask anything' alone inside the search bar: the lens ends at 52.5 and the voice glyph starts at 340.5"
+ },
+ {
+  "id": "weather-10",
+  "img": "assets/refs/p10.png",
+  "mine": "10-home.png",
+  "cmd": "bbox",
+  "box": [
+   60,
+   640,
+   180,
+   660
+  ],
+  "dark": 200,
+  "_": "p10 '85\u00b0F Mostly cloudy' alone: the cloud glyph ends at 51.5 and the card at 181. Sets --pp-t-note"
+ },
+ {
+  "id": "tip-09",
+  "img": "assets/refs/p09.png",
+  "mine": "09-home-tip.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   658,
+   385,
+   700
+  ],
+  "dark": 120,
+  "_": "p09 voice tooltip with its tail: the dark pill on white, 157-378.3 x 666-696. p10 does not have it"
+ },
+ {
+  "id": "spinner-06",
+  "img": "assets/refs/p06.png",
+  "mine": "06-code-loading.png",
+  "cmd": "bbox",
+  "box": [
+   170,
+   415,
+   228,
+   470
+  ],
+  "dark": 200,
+  "_": "p06 spinner ring inside its 104.5pt card: an arc, so the box is the ring's outer diameter, ~39 centred on 198, 442.5"
+ },
+ {
+  "id": "ground",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "sample",
+  "box": [
+   40,
+   300,
+   353,
+   500
+  ],
+  "only": "flat",
+  "pt": 2.24173,
+  "_": "p11 mid-screen. The Live Activity captures are shot on a bare field, so this is 313x200pt with nothing in the window at all -- no wallpaper, no home indicator"
+ },
+ {
+  "id": "island",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "sample",
+  "box": [
+   135,
+   20,
+   200,
+   40
+  ],
+  "only": "flat",
+  "pt": 2.24173,
+  "_": "p11 inside the compact pill, right of the mark (ends 124.0) and left of the mic dot (starts 215.0): the pill is a true black, not a near-black"
+ },
+ {
+  "id": "cyan-3",
+  "img": "assets/refs/p14.png",
+  "mine": "14-island-reasoning-open.png",
+  "cmd": "sample",
+  "box": [
+   60,
+   120.8,
+   250,
+   122.4
+  ],
+  "only": "flat",
+  "pt": 2.24173,
+  "_": "p14 the interior rows of the filled progress bar, which spans 120.0-123.1, well short of the head at 302.6. The top and bottom rows are left out because they are the bar's own antialiasing"
+ },
+ {
+  "id": "mic",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "ink",
+  "box": [
+   215,
+   27,
+   220.6,
+   32.6
+  ],
+  "pt": 2.24173,
+  "_": "p11 the recording dot on the pill's black, d 5.6 at (217.8, 29.8). `ink`'s percentile is stricter on the capture's softer edge, so it reads the ref 0.4 narrow; at half maximum both read 5.80 across"
+ },
+ {
+  "id": "glow",
+  "img": "assets/refs/p13.png",
+  "mine": "13-island-reasoning.png",
+  "cmd": "sample",
+  "box": [
+   272,
+   38.5,
+   285,
+   41
+  ],
+  "only": "flat",
+  "pt": 2.24173,
+  "_": "p13 the annulus below the atom, r 8.5-11 from the glow's centre (278.5, 30) and clear of the glyph, which ends at 38.1. Black pill under it, so what is left is the glow alone"
+ },
+ {
+  "id": "pill-11",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "bbox",
+  "box": [
+   88,
+   8,
+   297,
+   52
+  ],
+  "dark": 120,
+  "pt": 2.24173,
+  "_": "p11 the compact pill. The window stops at 297 because the template's fourth cellular bar peeks past the pill at 298.0-301.1, and starts at 88 because the template's clock sits at 54.9-87.0 where the capture's is at 35.7-65.6"
+ },
+ {
+  "id": "wave-11",
+  "img": "assets/refs/p11.png",
+  "mine": "11-island-voice.png",
+  "cmd": "bbox",
+  "box": [
+   262,
+   18,
+   290,
+   42
+  ],
+  "bright": 100,
+  "pt": 2.24173,
+  "_": "p11 the five waveform bars, all of them. Threshold 100 of 255: the glow under them peaks at 47 and the bars core at 226"
+ },
+ {
+  "id": "atom-13",
+  "img": "assets/refs/p13.png",
+  "mine": "13-island-reasoning.png",
+  "cmd": "bbox",
+  "box": [
+   264,
+   16,
+   292,
+   42
+  ],
+  "bright": 100,
+  "pt": 2.24173,
+  "_": "p13 the atom, the same window one pt out on each side. It is square in the capture, 16.51 both ways, which is what sets the two ellipses' rx and ry"
+ },
+ {
+  "id": "isl-x-12",
+  "img": "assets/refs/p12.png",
+  "mine": "12-island-voice-open.png",
+  "cmd": "bbox",
+  "box": [
+   8,
+   60,
+   386,
+   100
+  ],
+  "dark": 120,
+  "pt": 2.24173,
+  "_": "p12 the expanded island across its middle, where the phone's own 52pt corner mask cannot reach. 120 of 255 clears the drop shadow, which bottoms at 133"
+ },
+ {
+  "id": "isl-y-12",
+  "img": "assets/refs/p12.png",
+  "mine": "12-island-voice-open.png",
+  "cmd": "bbox",
+  "box": [
+   150,
+   8,
+   250,
+   150
+  ],
+  "dark": 120,
+  "pt": 2.24173,
+  "_": "p12 the same island down its middle: the other two edges, on a column the shadow and the corner mask both miss"
+ },
+ {
+  "id": "lockup-12",
+  "img": "assets/refs/p12.png",
+  "mine": "12-island-voice-open.png",
+  "cmd": "bbox",
+  "box": [
+   52,
+   59,
+   154,
+   83
+  ],
+  "bright": 200,
+  "pt": 2.24173,
+  "_": "p12 the mark and the wordmark together, 200 of 255 so the starfield behind them does not join in. Both are the brand files at their measured boxes, so this is a placement check, not a shape one"
+ },
+ {
+  "id": "live-12",
+  "img": "assets/refs/p12.png",
+  "mine": "12-island-voice-open.png",
+  "cmd": "bbox",
+  "box": [
+   50,
+   92,
+   200,
+   112
+  ],
+  "bright": 150,
+  "pt": 2.24173,
+  "_": "p12 'Voice mode is active', cyan word included. Sets --pp-t-live. The 1.3pt it starts late is the V's left side bearing, which this folder places by the ink box everywhere; the 0.9 it runs tall is the capture's blur against a crisp render"
+ },
+ {
+  "id": "note-14",
+  "img": "assets/refs/p14.png",
+  "mine": "14-island-reasoning-open.png",
+  "cmd": "bbox",
+  "box": [
+   42,
+   76,
+   130,
+   94
+  ],
+  "bright": 60,
+  "pt": 2.24173,
+  "_": "p14 'Reasoning...', descender and ellipsis included. Threshold 60 rather than 128 because the string fades to the right and a higher cut would measure two different lengths of it"
+ },
+ {
+  "id": "bar-14",
+  "img": "assets/refs/p14.png",
+  "mine": "14-island-reasoning-open.png",
+  "cmd": "bbox",
+  "box": [
+   40,
+   119.5,
+   320,
+   123.5
+  ],
+  "bright": 100,
+  "pt": 2.24173,
+  "_": "p14 the filled bar and its head, on four rows so the starfield above and below stays out. The 4.4pt the ref runs long is the head's halo, which the board does not draw"
+ }
+]

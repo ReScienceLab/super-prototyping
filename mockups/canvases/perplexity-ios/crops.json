@@ -1,0 +1,167 @@
+{
+  "p01-splash": {
+    "img": "p01",
+    "box": [
+      0,
+      0,
+      393,
+      435
+    ],
+    "kind": "photo",
+    "why": "The painted desert scene on the splash: a picture, so it is cut rather than redrawn. It fades to the sheet's own #1B181C by y 432, which is where the box ends. Everything the app draws over it is erased here and rebuilt live.",
+    "erase": [
+      [
+        0,
+        12,
+        393,
+        42,
+        1,
+        26
+      ],
+      [
+        316,
+        60,
+        385,
+        92,
+        1,
+        22
+      ],
+      [
+        163,
+        366,
+        230,
+        435
+      ]
+    ]
+  },
+  "p07-hero": {
+    "img": "p07",
+    "box": [
+      0,
+      0,
+      393,
+      500
+    ],
+    "kind": "photo",
+    "why": "The starburst-over-a-book paywall hero, down to the first chip row at 500.5. Same rule: the close button, Restore, the pro lockup and the serif headline come off it and are rebuilt.",
+    "erase": [
+      [
+        0,
+        12,
+        393,
+        42,
+        1,
+        26
+      ],
+      [
+        14,
+        68,
+        44,
+        94,
+        1,
+        22
+      ],
+      [
+        312,
+        68,
+        384,
+        94,
+        1,
+        22
+      ],
+      [
+        108,
+        140,
+        286,
+        178,
+        1,
+        18
+      ],
+      [
+        30,
+        178,
+        365,
+        262,
+        1,
+        16
+      ]
+    ]
+  },
+  "p10-news": {
+    "img": "p10",
+    "box": [
+      198.8,
+      633,
+      232.5,
+      668
+    ],
+    "kind": "photo",
+    "why": "The wire-photo thumbnail in the news card. Nothing is drawn over it, so it is cut whole."
+  },
+  "p12-island": {
+    "img": "p12",
+    "box": [
+      11.15,
+      11.15,
+      381.85,
+      144.53
+    ],
+    "kind": "photo",
+    "why": "The starfield inside the expanded island, with the glass waveform rendered on it. Cut at the island's own box, not at the frame, so the board's own 43.75pt corner clips it and the shadow underneath is CSS. The lockup and the label come off it and are rebuilt live.",
+    "erase": [
+      [
+        53,
+        60,
+        153,
+        82,
+        1,
+        40
+      ],
+      [
+        53,
+        94,
+        207,
+        109,
+        1,
+        40
+      ]
+    ]
+  },
+  "p14-island": {
+    "img": "p14",
+    "box": [
+      11.15,
+      11.15,
+      381.85,
+      144.53
+    ],
+    "kind": "photo",
+    "why": "The same cut on p14: the starfield and the orbit rendered on it. The lockup, the label and the whole progress row come off it. The row's erase runs the width of the panel at a low threshold, so the 6% track goes with the bar; the head's soft halo is too flat for the high-pass and stays, which is what the redrawn head wants under it.",
+    "erase": [
+      [
+        45,
+        45,
+        125,
+        63,
+        1,
+        40
+      ],
+      [
+        45,
+        78,
+        113,
+        92,
+        1,
+        30
+      ],
+      [
+        44,
+        115,
+        358,
+        128,
+        1,
+        20
+      ]
+    ]
+  }
+}

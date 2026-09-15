@@ -727,9 +727,9 @@ function layoutWelcomeExtras(
       "grok-ios",
       "notion-ios",
       "raycast-ios",
-      "luma-ios",
     ],
     [
+      "luma-ios",
       "instagram-ios",
       "tiktok-ios",
       "x-ios",

@@ -10,7 +10,8 @@ import {
 import { brandPageUrl, canvasPageUrl, sheetPageUrl } from "./canvasUrl";
 
 /** The switcher wants the product, not the shelf: "(example) Claude iOS" reads as "Claude iOS". */
-const shortName = (slug: string) => pageNameFor(slug).replace(/^\(example\)\s*/, "");
+const shortName = (slug: string) =>
+  pageNameFor(slug).replace(/^\(example\)\s*/, "");
 
 /**
  * How many columns a row gets, and the shape of its cards, from the pictures actually in it.
@@ -37,7 +38,8 @@ function rowShape(images: { w: number; h: number }[]) {
  * original for every card, which is the entire saving gone.
  */
 function cardSizes(cols: number) {
-  const at = (n: number) => `calc((100vw - 56px - ${(n - 1) * 20}px) / ${n} - 48px)`;
+  const at = (n: number) =>
+    `calc((100vw - 56px - ${(n - 1) * 20}px) / ${n} - 48px)`;
   const [two, three] = [at(Math.min(cols, 2)), at(Math.min(cols, 3))];
   return `(max-width: 720px) ${two}, (max-width: 1100px) ${three}, ${at(cols)}`;
 }
@@ -73,31 +75,39 @@ export function BrandSheet({ slug }: { slug: string }) {
       const thumb = canvasImageThumbUrl(slug, image.file);
       return src && image.w && image.h ? [{ ...image, src, thumb }] : [];
     });
-    return images.length ? [{ title: row.title, images, ...rowShape(images) }] : [];
+    return images.length
+      ? [{ title: row.title, images, ...rowShape(images) }]
+      : [];
   });
   const count = rows.reduce((n, row) => n + row.images.length, 0);
   const sources = new Set(
-    rows.flatMap((row) => row.images.flatMap((i) => sourceLabel(i.source)?.host ?? [])),
+    rows.flatMap((row) =>
+      row.images.flatMap((i) => sourceLabel(i.source)?.host ?? []),
+    ),
   );
 
-  // The app icon carries this: nine product names in a row is a list to read, and nine app
-  // icons is a shelf to recognise. The name stays next to it, because two of these icons are a
-  // black glyph on white and the icon alone would be a guess.
+  // The app icon carries this: a dozen product names in a row is a list to read, and a dozen
+  // app icons is a shelf to recognise. The name is the icon's alt text and the link's tooltip
+  // rather than a label beside it -- a couple of these icons are a black glyph on white, and
+  // the row has outgrown the window since, so the names were costing the last two chips.
   const pages = brandMaterialSlugs();
 
   return (
     <main>
       {pages.length > 1 && (
-        <nav className="switch" aria-label="Brand material for the other examples">
+        <nav
+          className="switch"
+          aria-label="Brand material for the other examples"
+        >
           {pages.map((page) => (
             <a
               key={page}
               className="chip"
               href={brandPageUrl(page)}
+              title={shortName(page)}
               aria-current={page === slug ? "page" : undefined}
             >
-              <img src={canvasIconUrl(page)} alt="" />
-              {shortName(page)}
+              <img src={canvasIconUrl(page)} alt={shortName(page)} />
             </a>
           ))}
         </nav>
@@ -129,7 +139,9 @@ export function BrandSheet({ slug }: { slug: string }) {
         <section
           className="band"
           key={row.title}
-          style={{ "--cols": row.cols, "--box": row.box } as React.CSSProperties}
+          style={
+            { "--cols": row.cols, "--box": row.box } as React.CSSProperties
+          }
         >
           <h2>{row.title}</h2>
           <p className="count">
@@ -145,37 +157,41 @@ export function BrandSheet({ slug }: { slug: string }) {
                 (image.w * BRAND_THUMB_EDGE) / Math.max(image.w, image.h),
               );
               return (
-              <figure key={image.file}>
-                <div className="card">
-                  <img
-                    src={image.src}
-                    srcSet={
-                      image.thumb
-                        ? `${image.thumb} ${thumbWidth}w, ${image.src} ${image.w}w`
-                        : undefined
-                    }
-                    sizes={image.thumb ? cardSizes(row.cols) : undefined}
-                    alt={image.label}
-                    loading="lazy"
-                  />
-                </div>
-                <figcaption>
-                  {image.label}
-                  {/* What this repo is for: a picture states where it came from, and an asset
-                      curated by an archive never passes as one published by the company. */}
-                  <div className="prov">
-                    {image.provenance === "theirs" ? "Theirs" : "Via archive"}
-                    {source ? " · " : null}
-                    {source?.href ? (
-                      <a href={source.href} target="_blank" rel="noopener noreferrer">
-                        {source.host}
-                      </a>
-                    ) : (
-                      source?.host
-                    )}
+                <figure key={image.file}>
+                  <div className="card">
+                    <img
+                      src={image.src}
+                      srcSet={
+                        image.thumb
+                          ? `${image.thumb} ${thumbWidth}w, ${image.src} ${image.w}w`
+                          : undefined
+                      }
+                      sizes={image.thumb ? cardSizes(row.cols) : undefined}
+                      alt={image.label}
+                      loading="lazy"
+                    />
                   </div>
-                </figcaption>
-              </figure>
+                  <figcaption>
+                    {image.label}
+                    {/* What this repo is for: a picture states where it came from, and an asset
+                      curated by an archive never passes as one published by the company. */}
+                    <div className="prov">
+                      {image.provenance === "theirs" ? "Theirs" : "Via archive"}
+                      {source ? " · " : null}
+                      {source?.href ? (
+                        <a
+                          href={source.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {source.host}
+                        </a>
+                      ) : (
+                        source?.host
+                      )}
+                    </div>
+                  </figcaption>
+                </figure>
               );
             })}
           </div>
