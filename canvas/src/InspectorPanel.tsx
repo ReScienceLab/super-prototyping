@@ -1,8 +1,23 @@
-import { useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { createShapeId, useEditor, type TLCommentThreadId, type TLShapeId } from "tldraw";
+import {
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  createShapeId,
+  useEditor,
+  type TLCommentThreadId,
+  type TLShapeId,
+} from "tldraw";
 import { BoardComments } from "./InspectorComments";
 import { CanvasChromeContext } from "./canvasChrome";
-import { installInspectorClicks, type InspectorTarget } from "./inspectorClicks";
+import {
+  installInspectorClicks,
+  type InspectorTarget,
+} from "./inspectorClicks";
 import {
   BOARD_STATUSES,
   BOARD_STATUS_LABEL,
@@ -11,6 +26,7 @@ import {
   type CanvasLayoutImage,
   boardPageUrl,
   boardStatusForPath,
+  canvasImageThumbUrl,
   canvasImageUrl,
   readCanvasAssetNames,
   writeBoardStatus,
@@ -167,7 +183,10 @@ function BoardStatus({ path }: { path: string }) {
   return (
     // The menu is dismissed by any pointerdown on the window, so the control has to keep its own
     // out of that. Otherwise opening it closes it in the same gesture.
-    <div className="sp-status-wrap" onPointerDown={(event) => event.stopPropagation()}>
+    <div
+      className="sp-status-wrap"
+      onPointerDown={(event) => event.stopPropagation()}
+    >
       <button
         type="button"
         className={`sp-status sp-status--${status}`}
@@ -177,7 +196,15 @@ function BoardStatus({ path }: { path: string }) {
         onClick={() => setOpen((v) => !v)}
       >
         {badge}
-        <svg className="sp-status-chev" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4">
+        <svg
+          className="sp-status-chev"
+          width="11"
+          height="11"
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+        >
           <path d="M2.5 4.5L6 8l3.5-3.5" />
         </svg>
       </button>
@@ -195,14 +222,23 @@ function BoardStatus({ path }: { path: string }) {
               <i className={`sp-status-dot sp-status--${option}`} />
               {BOARD_STATUS_LABEL[option]}
               {option === status ? (
-                <svg className="sp-menu-ck" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg
+                  className="sp-menu-ck"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <path d="M2 6.4l2.6 2.6L10 3.6" />
                 </svg>
               ) : null}
             </button>
           ))}
           <div className="sp-menu-foot">
-            Writes <code>{`${/canvases\/([^/]+)\//.exec(path)?.[1] ?? ""}/layout.json`}</code>
+            Writes{" "}
+            <code>{`${/canvases\/([^/]+)\//.exec(path)?.[1] ?? ""}/layout.json`}</code>
           </div>
         </div>
       ) : null}
@@ -213,14 +249,25 @@ function BoardStatus({ path }: { path: string }) {
           title={`Back to ${BOARD_STATUS_LABEL[undo.back]}`}
           onClick={revert}
         >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M3.2 4.6H7.6a2.6 2.6 0 010 5.2H5.2" />
             <path d="M5 2.4L3 4.6l2 2.2" />
           </svg>
           Undo
         </button>
       ) : null}
-      {failed ? <span className="sp-status-err">layout.json not written</span> : null}
+      {failed ? (
+        <span className="sp-status-err">layout.json not written</span>
+      ) : null}
     </div>
   );
 }
@@ -278,7 +325,8 @@ function dividerKeys(
   from: () => number,
   apply: (start: number, delta: number) => void,
 ) {
-  const [less, more] = axis === "x" ? ["ArrowLeft", "ArrowRight"] : ["ArrowUp", "ArrowDown"];
+  const [less, more] =
+    axis === "x" ? ["ArrowLeft", "ArrowRight"] : ["ArrowUp", "ArrowDown"];
   return (e: React.KeyboardEvent<HTMLElement>) => {
     const step = e.key === less ? -1 : e.key === more ? 1 : 0;
     if (!step) return;
@@ -296,9 +344,13 @@ function dividerKeys(
  */
 function usePanelWidth() {
   const [panelW, setPanelW] = useStickyPanelState("sp:panel", PANEL_W);
-  const [win, setWin] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
+  const [win, setWin] = useState(() => ({
+    w: window.innerWidth,
+    h: window.innerHeight,
+  }));
   useEffect(() => {
-    const onResize = () => setWin({ w: window.innerWidth, h: window.innerHeight });
+    const onResize = () =>
+      setWin({ w: window.innerWidth, h: window.innerHeight });
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -385,7 +437,9 @@ export function InspectorPanel({
   const [sel, setSel] = useState<number | null>(null);
   const [hov, setHov] = useState<number | null>(null);
   /** Layers folded shut, and layers the eye has taken off the board. Both by node index. */
-  const [collapsed, setCollapsed] = useState<ReadonlySet<number>>(() => new Set());
+  const [collapsed, setCollapsed] = useState<ReadonlySet<number>>(
+    () => new Set(),
+  );
   const [hidden, setHidden] = useState<ReadonlySet<number>>(() => new Set());
   const [bindings, setBindings] = useState<SpBindings | null>(null);
   const [tab, setTab] = useState<Tab>("inspect");
@@ -413,7 +467,8 @@ export function InspectorPanel({
       // The frame has no origin to check — `allow-scripts` without `allow-same-origin` puts it in
       // an opaque origin, so `event.origin` is the string "null" for every such frame on the page.
       // Identity is the check that means anything: this message came from this frame's window.
-      if (!frame.current || event.source !== frame.current.contentWindow) return;
+      if (!frame.current || event.source !== frame.current.contentWindow)
+        return;
       const message = event.data as SpMessage | null;
       if (!message || typeof message !== "object") return;
       if (message.type === "sp:ready") setData(message);
@@ -433,13 +488,19 @@ export function InspectorPanel({
   }, [sel, data, frame]);
 
   useEffect(() => {
-    frame.current?.contentWindow?.postMessage({ type: "sp:hover", i: hov }, "*");
+    frame.current?.contentWindow?.postMessage(
+      { type: "sp:hover", i: hov },
+      "*",
+    );
   }, [hov, frame]);
 
   // `data` again: a board that scrolled out of view and came back is a fresh document, with
   // every layer visible on it.
   useEffect(() => {
-    frame.current?.contentWindow?.postMessage({ type: "sp:hide", i: [...hidden] }, "*");
+    frame.current?.contentWindow?.postMessage(
+      { type: "sp:hide", i: [...hidden] },
+      "*",
+    );
   }, [hidden, data, frame]);
 
   // Escape clears the selection, and with nothing selected closes the panel. `defaultPrevented`
@@ -454,10 +515,14 @@ export function InspectorPanel({
     return () => window.removeEventListener("keydown", onKey);
   }, [sel, onClose]);
 
-  const assets = useMemo(() => (data ? assetRows(data.assets, names) : []), [data, names]);
+  const assets = useMemo(
+    () => (data ? assetRows(data.assets, names) : []),
+    [data, names],
+  );
   const assetNameByNode = useMemo(() => {
     const map = new Map<number, string>();
-    for (const row of assets) for (const i of row.uses) if (!map.has(i)) map.set(i, row.name);
+    for (const row of assets)
+      for (const i of row.uses) if (!map.has(i)) map.set(i, row.name);
     return map;
   }, [assets]);
 
@@ -472,7 +537,9 @@ export function InspectorPanel({
     from: () => layers,
     apply: (h0: number, dy: number) => setLayersH(nextLayersH(h0, dy, win.h)),
   };
-  const usedTokens = data ? data.tokens.filter((t) => t.usedBy.length).length : 0;
+  const usedTokens = data
+    ? data.tokens.filter((t) => t.usedBy.length).length
+    : 0;
 
   const jumpToToken = (token: string) => {
     setTab("tokens");
@@ -488,7 +555,9 @@ export function InspectorPanel({
             {name}
           </span>
           <span className="sp-head-dim">
-            {data ? `${fmt(data.size.w)} × ${fmt(data.size.h)}` : "reading board…"}
+            {data
+              ? `${fmt(data.size.w)} × ${fmt(data.size.h)}`
+              : "reading board…"}
           </span>
           <BoardStatus path={path} />
           {/*
@@ -519,8 +588,20 @@ export function InspectorPanel({
               </svg>
             </a>
           ) : null}
-          <button type="button" className="sp-head-x" onClick={onClose} aria-label="Close inspector">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
+          <button
+            type="button"
+            className="sp-head-x"
+            onClick={onClose}
+            aria-label="Close inspector"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+            >
               <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
             </svg>
           </button>
@@ -535,7 +616,11 @@ export function InspectorPanel({
               aria-pressed={tab === t}
               onClick={() => setTab(t)}
             >
-              {t === "inspect" ? "Inspect" : t === "assets" ? "Assets" : "Tokens"}
+              {t === "inspect"
+                ? "Inspect"
+                : t === "assets"
+                  ? "Assets"
+                  : "Tokens"}
             </button>
           ))}
         </nav>
@@ -580,7 +665,9 @@ export function InspectorPanel({
                     {selAsset.via === "svg"
                       ? `${fmt(selAsset.w)} × ${fmt(selAsset.h)} · svg`
                       : `${selAsset.w} × ${selAsset.h} · ${formatBytes(selAsset.bytes)}`}
-                    {selAsset.svg ? <CopySvg key={selAsset.key} svg={selAsset.svg} /> : null}
+                    {selAsset.svg ? (
+                      <CopySvg key={selAsset.key} svg={selAsset.svg} />
+                    ) : null}
                   </span>
                 </figcaption>
               </figure>
@@ -609,7 +696,13 @@ export function InspectorPanel({
           </section>
         ) : tab === "assets" ? (
           <section className="sp-tab">
-            <Assets rows={assets} sel={sel} hov={hov} onSelect={setSel} onHover={setHov} />
+            <Assets
+              rows={assets}
+              sel={sel}
+              hov={hov}
+              onSelect={setSel}
+              onHover={setHov}
+            />
           </section>
         ) : (
           <section className="sp-tab">
@@ -660,12 +753,20 @@ export interface CanvasImagePick {
  * is where it came from and how many pixels it really has. The comments are the board panel's,
  * the same canvas threads, pinned on the image out there.
  */
-export function ImagePanel({ pick, onClose }: { pick: CanvasImagePick; onClose: () => void }) {
+export function ImagePanel({
+  pick,
+  onClose,
+}: {
+  pick: CanvasImagePick;
+  onClose: () => void;
+}) {
   const { win, panel, setPanel } = usePanelWidth();
   const editor = useContext(CanvasChromeContext).editor;
   const [openThread, setOpenThread] = useState<TLCommentThreadId | null>(null);
   const { slug, file, row, image } = pick;
   const original = canvasImageUrl(slug, file);
+  // The variant, the same one the canvas draws: the panel is 280px of rail, not a light table.
+  const preview = canvasImageThumbUrl(slug, file) ?? original;
 
   // Nothing is selected inside a picture, so Escape has only the one thing left to do.
   useEffect(() => {
@@ -710,12 +811,33 @@ export function ImagePanel({ pick, onClose }: { pick: CanvasImagePick; onClose: 
               </svg>
             </a>
           ) : null}
-          <button type="button" className="sp-head-x" onClick={onClose} aria-label="Close inspector">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
+          <button
+            type="button"
+            className="sp-head-x"
+            onClick={onClose}
+            aria-label="Close inspector"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+            >
               <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
             </svg>
           </button>
         </header>
+
+        {/* The same figure a selected layer's image gets, for the same reason: the picture on the
+            canvas is drawn at whatever the camera says, and one of these is a cut-out as often as
+            not, which is a shape you cannot read off a flat ground. */}
+        {preview ? (
+          <figure className="sp-asset-view">
+            <img src={preview} alt={image.label} />
+          </figure>
+        ) : null}
 
         <div className="sp-props">
           <div className="sp-sec">
@@ -728,7 +850,9 @@ export function ImagePanel({ pick, onClose }: { pick: CanvasImagePick; onClose: 
             {image.source ? <Source source={image.source} /> : null}
             {/* One word from the skill that collected it: "theirs" for something the company
                 published, "archive" for something recovered from one. */}
-            {image.provenance ? <Row k="Provenance" v={image.provenance} /> : null}
+            {image.provenance ? (
+              <Row k="Provenance" v={image.provenance} />
+            ) : null}
           </div>
         </div>
 
@@ -764,7 +888,13 @@ function Source({ source }: { source: string }) {
     <Row
       k="Source"
       v={
-        <a className="sp-link" href={source} target="_blank" rel="noopener noreferrer" title={source}>
+        <a
+          className="sp-link"
+          href={source}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={source}
+        >
           {host}
         </a>
       }
@@ -789,7 +919,9 @@ function CopySvg({ svg }: { svg: string }) {
     <button
       type="button"
       className="sp-copy"
-      onClick={() => void navigator.clipboard.writeText(svg).then(() => setCopied(true))}
+      onClick={() =>
+        void navigator.clipboard.writeText(svg).then(() => setCopied(true))
+      }
     >
       {copied ? "Copied" : "Copy SVG"}
     </button>
@@ -799,7 +931,13 @@ function CopySvg({ svg }: { svg: string }) {
 function LayerIcon({ kind }: { kind: ReturnType<typeof layerKind> }) {
   if (kind === "vector")
     return (
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+      >
         <path d="M2.5 9.5C2.5 4.5 7.5 7.5 9.5 2.5" />
         <circle cx="2.5" cy="9.5" r="1.2" fill="currentColor" stroke="none" />
         <circle cx="9.5" cy="2.5" r="1.2" fill="currentColor" stroke="none" />
@@ -813,19 +951,37 @@ function LayerIcon({ kind }: { kind: ReturnType<typeof layerKind> }) {
     );
   if (kind === "image")
     return (
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+      >
         <rect x="1.5" y="1.5" width="9" height="9" rx="1" />
         <path d="M2 9l2.5-3 2 2 1.5-1.5L10 9" />
       </svg>
     );
   if (kind === "frame")
     return (
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+      >
         <path d="M3.5 1v10M8.5 1v10M1 3.5h10M1 8.5h10" />
       </svg>
     );
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+    >
       <rect x="1.5" y="1.5" width="9" height="9" rx="1" />
     </svg>
   );
@@ -872,11 +1028,18 @@ function Layers({
   const list = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (sel === null) return;
-    list.current?.querySelector(`[data-i="${sel}"]`)?.scrollIntoView({ block: "nearest" });
+    list.current
+      ?.querySelector(`[data-i="${sel}"]`)
+      ?.scrollIntoView({ block: "nearest" });
   }, [sel]);
   const rows = useMemo(() => layerRows(nodes, collapsed), [nodes, collapsed]);
   return (
-    <div className="sp-layers" style={{ height }} ref={list} onMouseLeave={() => onHover(null)}>
+    <div
+      className="sp-layers"
+      style={{ height }}
+      ref={list}
+      onMouseLeave={() => onHover(null)}
+    >
       <div className="sp-sh">
         <span className="sp-sh-t">Layers</span>
         <span className="sp-sh-s">{Math.max(0, rows.length - 1)}</span>
@@ -949,7 +1112,13 @@ function Caret({ open }: { open: boolean }) {
 
 function Eye({ off }: { off: boolean }) {
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+    >
       <path d="M1 6s2-3.2 5-3.2S11 6 11 6s-2 3.2-5 3.2S1 6 1 6z" />
       <circle cx="6" cy="6" r="1.4" />
       {off ? <path d="M2 10L10 2" /> : null}
@@ -979,12 +1148,20 @@ function Summary({
         <span className="sp-sh-t">{name}</span>
         <span className="sp-sh-s">{file}</span>
       </div>
-      <Row k="Frame" v={root?.box ? `${fmt(root.box.w)} × ${fmt(root.box.h)}` : "–"} />
-      <Row k="Layers" v={String(Math.max(0, data.nodes.filter((n) => !n.inSvg).length - 1))} />
+      <Row
+        k="Frame"
+        v={root?.box ? `${fmt(root.box.w)} × ${fmt(root.box.h)}` : "–"}
+      />
+      <Row
+        k="Layers"
+        v={String(Math.max(0, data.nodes.filter((n) => !n.inSvg).length - 1))}
+      />
       <Row k="Images" v={String(assets.length - vectors)} />
       <Row k="Vectors" v={String(vectors)} />
       <Row k="Tokens" v={`${usedTokens} used of ${data.tokens.length}`} />
-      <div className="sp-hint">Click a layer, or an element in the preview.</div>
+      <div className="sp-hint">
+        Click a layer, or an element in the preview.
+      </div>
     </div>
   );
 }
@@ -1027,7 +1204,10 @@ function TokenPill({
 
 /** The declaration with its tokens substituted, which is what the author would read back. */
 function resolvedText(b: SpBinding) {
-  return b.value.replace(/var\(\s*(--[\w-]+)\s*(?:,[^()]*)?\)/g, (m, n: string) => b.resolved[n] ?? m);
+  return b.value.replace(
+    /var\(\s*(--[\w-]+)\s*(?:,[^()]*)?\)/g,
+    (m, n: string) => b.resolved[n] ?? m,
+  );
 }
 
 function stateText(b: SpBinding) {
@@ -1047,13 +1227,18 @@ function styleGroups(bindings: SpBinding[]) {
   for (const b of bindings) {
     // A declaration without a token earns a row only when it is visible and actually won, and
     // not when it is the universal reset (`* { padding: 0 }`), which every element would repeat.
-    if (!b.tokens.length && (b.src === "*" || !VISIBLE_PROPS.has(b.prop) || b.state !== "applied"))
+    if (
+      !b.tokens.length &&
+      (b.src === "*" || !VISIBLE_PROPS.has(b.prop) || b.state !== "applied")
+    )
       continue;
     const from = b.inheritedFrom;
     const label =
       (b.src || "inline") +
       b.pseudo +
-      (from ? ` · inherited from ${from.tag}${from.cls ? `.${from.cls.split(/\s+/)[0]}` : ""}` : "");
+      (from
+        ? ` · inherited from ${from.tag}${from.cls ? `.${from.cls.split(/\s+/)[0]}` : ""}`
+        : "");
     let group = index.get(label);
     if (!group) {
       group = { label, rows: [] };
@@ -1078,7 +1263,10 @@ function Properties({
   onToken: (name: string) => void;
   onSelect: (i: number) => void;
 }) {
-  const kinds = useMemo(() => new Map(tokens.map((t) => [t.name, t.kind])), [tokens]);
+  const kinds = useMemo(
+    () => new Map(tokens.map((t) => [t.name, t.kind])),
+    [tokens],
+  );
   const groups = bindings ? styleGroups(bindings.bindings) : [];
   return (
     <>
@@ -1153,16 +1341,23 @@ function Properties({
                       {resolvedText(b)}
                     </div>
                   ) : null}
-                  {b.prop === "font" && b.state !== "overridden" && b.longhands.length > 1 ? (
+                  {b.prop === "font" &&
+                  b.state !== "overridden" &&
+                  b.longhands.length > 1 ? (
                     <div className="sp-sub sp-longs">
                       {b.longhands
-                        .filter((l) => /^font-(weight|size|family)$|^line-height$/.test(l.p))
+                        .filter((l) =>
+                          /^font-(weight|size|family)$|^line-height$/.test(l.p),
+                        )
                         .map((l) => `${l.p.replace(/^font-/, "")} ${l.v}`)
                         .join(" · ")}
                     </div>
                   ) : null}
                   {b.state !== "applied" ? (
-                    <div className={cx("sp-state", b.state)} title={b.by ?? undefined}>
+                    <div
+                      className={cx("sp-state", b.state)}
+                      title={b.by ?? undefined}
+                    >
                       {stateText(b)}
                     </div>
                   ) : null}
@@ -1182,7 +1377,9 @@ function Properties({
             <div key={k} className="sp-row">
               <span className="sp-k">{k}</span>
               <span className="sp-v" title={v}>
-                {isColorValue(v) ? <span className="sp-sw" style={{ background: v }} /> : null}
+                {isColorValue(v) ? (
+                  <span className="sp-sw" style={{ background: v }} />
+                ) : null}
                 {v}
               </span>
             </div>
@@ -1215,7 +1412,8 @@ function Assets({
   onSelect: (i: number) => void;
   onHover: (i: number | null) => void;
 }) {
-  if (!rows.length) return <div className="sp-empty">No images or vectors on this board.</div>;
+  if (!rows.length)
+    return <div className="sp-empty">No images or vectors on this board.</div>;
   return (
     <div className="sp-scroll" onMouseLeave={() => onHover(null)}>
       <div className="sp-sh sp-sh--pad">
@@ -1239,7 +1437,9 @@ function Assets({
             </span>
             <span className="sp-asset-n">
               {a.source === "file" ? a.name : <i>{a.name}</i>}
-              {a.source === "alt" || a.source === "label" ? <small>{a.source}</small> : null}
+              {a.source === "alt" || a.source === "label" ? (
+                <small>{a.source}</small>
+              ) : null}
             </span>
             <span className="sp-asset-d">
               {a.w && a.h ? `${fmt(a.w)} × ${fmt(a.h)}` : formatBytes(a.bytes)}
@@ -1275,7 +1475,8 @@ function Tokens({
       ?.querySelector(`[data-token="${CSS.escape(focus)}"]`)
       ?.scrollIntoView({ block: "center" });
   }, [focus]);
-  if (!tokens.length) return <div className="sp-empty">No tokens on this board.</div>;
+  if (!tokens.length)
+    return <div className="sp-empty">No tokens on this board.</div>;
   return (
     <div className="sp-scroll" ref={list}>
       <div className="sp-sh sp-sh--pad">
@@ -1302,11 +1503,19 @@ function Tokens({
               <div
                 key={t.name}
                 data-token={t.name}
-                className={cx("sp-token", unused && "unused", here && "on", t.name === focus && "focus")}
+                className={cx(
+                  "sp-token",
+                  unused && "unused",
+                  here && "on",
+                  t.name === focus && "focus",
+                )}
               >
                 <div className="sp-token-row">
                   {swatch ? (
-                    <span className="sp-sw" style={{ background: t.canon || t.value }} />
+                    <span
+                      className="sp-sw"
+                      style={{ background: t.canon || t.value }}
+                    />
                   ) : (
                     <span className="sp-sw sp-sw--none" />
                   )}
@@ -1329,11 +1538,17 @@ function Tokens({
                     disabled={!t.usedBy.length}
                     onClick={next}
                   >
-                    {t.usedBy.length ? `×${t.usedBy.length}` : via.length ? "via" : "–"}
+                    {t.usedBy.length
+                      ? `×${t.usedBy.length}`
+                      : via.length
+                        ? "via"
+                        : "–"}
                   </button>
                 </div>
                 {t.note ? <div className="sp-token-note">{t.note}</div> : null}
-                {via.length ? <div className="sp-token-note">via {via.join(", ")}</div> : null}
+                {via.length ? (
+                  <div className="sp-token-note">via {via.join(", ")}</div>
+                ) : null}
                 {t.overrides.map((o) => (
                   <div key={o.sel} className="sp-token-note">
                     <code>{o.sel}</code> {o.decl}

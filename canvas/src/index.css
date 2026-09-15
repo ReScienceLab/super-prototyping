@@ -367,6 +367,12 @@ input.canvas-clone-name:focus {
   background-clip: content-box;
 }
 
+/* No caption under it — a brand image is named by the rows below instead — so the image itself
+   has to carry the padding the caption would have. */
+.sp-asset-view img:only-child {
+  padding-bottom: 8px;
+}
+
 /* Two lines in the rail: 280px will not hold a path and its dimensions side by side. */
 .sp-asset-view figcaption {
   flex: none;
