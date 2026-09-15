@@ -1197,6 +1197,8 @@ export default function App() {
   const writeUrl = useRef<(push: boolean) => void>(() => {});
   /** A board the address named, for the camera to go to once the inspector is beside it. */
   const zoomTo = useRef<CanvasLibraryFile | null>(null);
+  /** That board's frame on the canvas: the panel reads its report and posts its selection there. */
+  const inspectorFrame = useRef<HTMLIFrameElement | null>(null);
 
   // A layout.json edit moves boards: a row reserves the height of a status tab for all of its
   // boards, so a status appearing or disappearing reflows the row. Creation is idempotent and
@@ -1279,6 +1281,10 @@ export default function App() {
         commentUser,
         setCommentUser,
         inspectBoard: onPick,
+        inspectingPath: inspecting?.path ?? null,
+        setInspectorFrame: (frame: HTMLIFrameElement | null) => {
+          inspectorFrame.current = frame;
+        },
       }}
     >
       <div className="canvas-shell">
@@ -1295,7 +1301,11 @@ export default function App() {
           >
             <AgentBridge />
             <LockedLinkClicks />
-            <InspectorClicks onPick={onPick} />
+            <InspectorClicks
+              onPick={onPick}
+              inspectingPath={inspecting?.path ?? null}
+              frame={inspectorFrame}
+            />
             <WelcomeGround />
             <EmptyLibraryNotice />
           </Tldraw>
@@ -1308,6 +1318,7 @@ export default function App() {
             path={inspecting.path}
             name={inspecting.title}
             size={boardSize(inspecting)}
+            frame={inspectorFrame}
             onClose={onCloseInspector}
           />
         ) : null}

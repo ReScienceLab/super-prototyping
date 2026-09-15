@@ -7,10 +7,20 @@ import { CANVAS_FILE_SHAPE_TYPE, type CanvasFileShape } from "./CanvasFileShapeU
  * solved the same way (installLockedLinkClicks in CanvasLinkShapeUtil.tsx): watch the editor's
  * pointer events and call a press and a release over one board, with no drag between them, a
  * click. Returns the uninstaller.
+ *
+ * The board the inspector has open takes its hovers and picks from here too, rather than by
+ * holding the pointer itself. A frame that took the pointer would be the one thing on the canvas
+ * that could not be panned across or zoomed over — the wheel never reached tldraw, so a zoom
+ * gesture over the mockup zoomed the browser page. The canvas keeps every gesture, and the
+ * pointer goes into the board as a board coordinate for the agent to hit-test (`sp:at`).
  */
 export function installInspectorClicks(
   editor: Editor,
   onPick: (shape: CanvasFileShape) => void,
+  /** The board the inspector has open, by path: the one mockup that answers the pointer. */
+  inspectingPath: string | null,
+  /** That board's frame out on the canvas, filled in by CanvasFileShapeUtil. */
+  frame: { current: HTMLIFrameElement | null },
 ) {
   /**
    * The topmost shape must *be* a board. A `filter` here instead would search past anything drawn
@@ -26,11 +36,32 @@ export function installInspectorClicks(
     return hit?.type === CANVAS_FILE_SHAPE_TYPE ? (hit as CanvasFileShape) : undefined;
   };
 
+  /**
+   * Hands the agent the pointer in the inspected board's own pixels. Anywhere else on the canvas
+   * is (-1, -1): it hits nothing, which is how the highlight clears when the pointer leaves.
+   */
+  const sendPointer = (board: CanvasFileShape | undefined, click: boolean) => {
+    const at =
+      board?.props.path === inspectingPath
+        ? editor.getPointInShapeSpace(board, editor.inputs.getCurrentPagePoint())
+        : { x: -1, y: -1 };
+    frame.current?.contentWindow?.postMessage({ type: "sp:at", x: at.x, y: at.y, click }, "*");
+  };
+
   let pressed: CanvasFileShape | undefined;
   const onEvent = (info: TLEventInfo) => {
     if (info.type !== "pointer") {
       // Two fingers arriving, or a wheel, in the middle of a press: a zoom, not a click.
       if (info.type === "pinch" || info.type === "wheel") pressed = undefined;
+      return;
+    }
+    if (info.name === "pointer_move") {
+      // Hover follows the canvas pointer, as in Figma: the agent outlines what is under it and
+      // names it back for the layers list. Under the select tool only — with the comment tool up
+      // the board is something to drop a pin on, not something to read.
+      if (inspectingPath) {
+        sendPointer(editor.getCurrentToolId() === "select" ? boardUnderPointer() : undefined, false);
+      }
       return;
     }
     if (info.name === "pointer_down") {
@@ -49,7 +80,10 @@ export function installInspectorClicks(
     pressed = undefined;
     if (!target || editor.inputs.getIsDragging()) return;
     if (boardUnderPointer()?.id !== target.id) return;
-    onPick(target);
+    // A click on the board already open picks the element under it; a click on any other board
+    // opens that one.
+    if (target.props.path === inspectingPath) sendPointer(target, true);
+    else onPick(target);
   };
 
   editor.on("event", onEvent);

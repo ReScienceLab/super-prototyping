@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createShapeId, useEditor, type TLCommentThreadId } from "tldraw";
-import { BoardComments, BoardPins } from "./InspectorComments";
+import { BoardComments } from "./InspectorComments";
 import { CanvasChromeContext } from "./canvasChrome";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
 import {
@@ -11,11 +11,9 @@ import {
   boardPageUrl,
   boardStatusForPath,
   readCanvasAssetNames,
-  useCanvasFileHtml,
   writeBoardStatus,
 } from "./canvasLibrary";
 import {
-  injectAgent,
   type SpBinding,
   type SpBindings,
   type SpGroup,
@@ -28,11 +26,9 @@ import { installInspectorClicks } from "./inspectorClicks";
 import {
   type AssetRow,
   PANEL_W,
-  RAIL_W,
   VISIBLE_PROPS,
   assetForNode,
   assetRows,
-  fitScale,
   formatBytes,
   initialLayersH,
   isColorValue,
@@ -44,9 +40,7 @@ import {
   nextLayersH,
   newBoardPin,
   nextPanelW,
-  nextRailW,
   panelBounds,
-  railBounds,
   tokenGroups,
   tokenVia,
 } from "./inspectorModel";
@@ -83,11 +77,10 @@ function useStickyPanelState<T>(key: string, initial: T) {
 const UNDO_MS = 10_000;
 
 /**
- * The board's status, top-left of the stage, where the badge is also the control that sets it.
+ * The board's status, in the panel's header, where the badge is also the control that sets it.
  *
- * On the stage rather than in the rail so it stays with the board when the rail is collapsed,
- * and it is the only place a status can be changed: the coloured tab above a board out on the
- * canvas is a read-only echo of the same value in layout.json.
+ * It is the only place a status can be changed: the coloured tab above a board out on the canvas
+ * is a read-only echo of the same value in layout.json.
  *
  * `import.meta.env.DEV` is the whole of the read-only rule. Writing means editing layout.json
  * through the dev server, and a built canvas is static files on a host with no repo behind them,
@@ -160,8 +153,7 @@ function BoardStatus({ path }: { path: string }) {
   );
 
   // Away from the dev server there is no file to write a status back to, so the badge is only a
-  // label — but it keeps the wrapper, which is what holds it in the stage's top left. Without it
-  // the badge is a plain flex child of the stage and rides along beside the board, centred.
+  // label — but it keeps the wrapper, which is what the menu and the Undo hang off.
   if (!import.meta.env.DEV) {
     return (
       <div className="sp-status-wrap">
@@ -232,10 +224,10 @@ function BoardStatus({ path }: { path: string }) {
 }
 
 /**
- * The docked inspector: a large preview of the clicked board on the left, a resizable and
- * collapsible rail on the right with layers and properties, the board's images, and its design tokens. The board is
- * loaded a second time into a scripted frame (inspectorAgent.ts), which is how the panel reads
- * what the canvas's own sandboxed frames cannot.
+ * The docked inspector: layers and properties, the board's images, its design tokens and the
+ * comments on it. There is no preview in here — the board being inspected is the one out on the
+ * canvas, which runs the agent (see CanvasFileShapeUtil) and is what a pick is made on, so the
+ * mockup someone reads is the mockup they click.
  */
 
 /**
@@ -243,9 +235,9 @@ function BoardStatus({ path }: { path: string }) {
  * started at rather than accumulating rounding error, and `apply` gets that value with the
  * pointer delta along one axis.
  *
- * Pointer capture is the whole trick: the preview is an iframe, and without capture the first
- * move over it delivers the event to the frame's document instead, which ends the drag the
- * moment the pointer crosses into the board.
+ * Pointer capture is the whole trick: the canvas behind the panel holds board frames, and
+ * without capture the first move over one delivers the event to that frame's document instead,
+ * which ends the drag the moment the pointer crosses onto a board.
  */
 function divider(
   axis: "x" | "y",
@@ -297,9 +289,20 @@ type Tab = "inspect" | "assets" | "tokens";
 
 const fmt = (n: number) => String(Math.round(n * 100) / 100);
 /** Wiring component: lives inside <Tldraw> so it can reach the editor. */
-export function InspectorClicks({ onPick }: { onPick: (shape: CanvasFileShape) => void }) {
+export function InspectorClicks({
+  onPick,
+  inspectingPath,
+  frame,
+}: {
+  onPick: (shape: CanvasFileShape) => void;
+  inspectingPath: string | null;
+  frame: React.RefObject<HTMLIFrameElement | null>;
+}) {
   const editor = useEditor();
-  useEffect(() => installInspectorClicks(editor, onPick), [editor, onPick]);
+  useEffect(
+    () => installInspectorClicks(editor, onPick, inspectingPath, frame),
+    [editor, onPick, inspectingPath, frame],
+  );
   return null;
 }
 
@@ -307,35 +310,35 @@ export function InspectorPanel({
   path,
   name,
   size,
+  frame,
   onClose,
 }: {
   path: string;
   name: string;
   /** The shape's own size, which is the artboard's: the frame is created at it. */
   size: { w: number; h: number };
+  /**
+   * The frame this board is drawn in out on the canvas, filled in by CanvasFileShapeUtil. It is
+   * the only board running the agent, so it is the only one this panel talks to.
+   */
+  frame: React.RefObject<HTMLIFrameElement | null>;
   onClose: () => void;
 }) {
-  const html = useCanvasFileHtml(path);
-  const srcDoc = useMemo(() => (html ? injectAgent(html) : ""), [html]);
-  // The board's own address, and not this frame's `srcDoc`: the agent injected there talks to a
-  // parent frame that a tab of its own does not have.
   const pageUrl = boardPageUrl(path);
-  const frame = useRef<HTMLIFrameElement>(null);
   const [data, setData] = useState<SpReady | null>(null);
   const [sel, setSel] = useState<number | null>(null);
   const [hov, setHov] = useState<number | null>(null);
   const [bindings, setBindings] = useState<SpBindings | null>(null);
   const [tab, setTab] = useState<Tab>("inspect");
   const [focusToken, setFocusToken] = useState<string | null>(null);
-  const [panelW, setPanelW] = useStickyPanelState("sp:panel-w", PANEL_W);
-  const [railW, setRailW] = useStickyPanelState("sp:rail-w", RAIL_W);
+  // Keyed `sp:panel`, not the `sp:panel-w` the two-pane panel used: the same number means a rail
+  // width now, and a session that had dragged the old panel wide would open a 736px rail.
+  const [panelW, setPanelW] = useStickyPanelState("sp:panel", PANEL_W);
   const [layersH, setLayersH] = useStickyPanelState(
     "sp:layers-h",
     initialLayersH(window.innerHeight),
   );
   const [win, setWin] = useState(() => ({ w: window.innerWidth, h: window.innerHeight }));
-  const [railOpen, setRailOpen] = useStickyPanelState("sp:rail-open", true);
-  const stage = useRef<HTMLDivElement>(null);
   // The comments on this board are the canvas's own, reached through the chrome context
   // because the panel renders beside `<Tldraw>` rather than under it.
   const editor = useContext(CanvasChromeContext).editor;
@@ -347,29 +350,6 @@ export function InspectorPanel({
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-  const [scale, setScale] = useState(1);
-  const { w: boardW, h: boardH } = size;
-
-  /**
-   * The board is scaled to fit the stage rather than pinned at a constant, because every one of
-   * the three controls below changes how much stage there is. Contain, never past 1:1 — a phone
-   * board blown up past its own pixels is a blurrier board, not a bigger one — and a landscape
-   * evidence board fits by width and leaves the height alone.
-   */
-  useEffect(() => {
-    const el = stage.current;
-    if (!el) return;
-    const fit = () => {
-      setScale(fitScale({ w: el.clientWidth, h: el.clientHeight }, { w: boardW, h: boardH }));
-    };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    return () => ro.disconnect();
-    // Not `size`: App builds that object fresh every render, so depending on it would tear the
-    // observer down and rebuild it on each one.
-  }, [boardW, boardH]);
-
   const slug = /canvases\/([^/]+)\//.exec(path)?.[1] ?? "";
   const names = useMemo(() => readCanvasAssetNames(slug), [slug]);
 
@@ -392,15 +372,18 @@ export function InspectorPanel({
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, []);
+  }, [frame]);
 
+  // `data` is in the deps because the frame is the canvas's: tldraw drops a board that scrolls
+  // out of view and mounts it again with the board reloaded, which is a fresh report and a
+  // highlight that has to be put back.
   useEffect(() => {
     frame.current?.contentWindow?.postMessage({ type: "sp:sel", i: sel }, "*");
-  }, [sel]);
+  }, [sel, data, frame]);
 
   useEffect(() => {
     frame.current?.contentWindow?.postMessage({ type: "sp:hover", i: hov }, "*");
-  }, [hov]);
+  }, [hov, frame]);
 
   // Escape clears the selection, and with nothing selected closes the panel. `defaultPrevented`
   // skips the ones a tldraw menu or a Radix layer has already dismissed itself on.
@@ -427,36 +410,17 @@ export function InspectorPanel({
   // Clamped here, not only where they are set: see the note on `nextPanelW`. The raw state is
   // what a drag started from, these are what is rendered and what the next drag reads back.
   const panel = nextPanelW(panelW, 0, win.w);
-  const rail = nextRailW(railW, 0, panel);
   const layers = nextLayersH(layersH, 0, win.h);
 
   const setPanel = {
     from: () => panel,
     apply: (w0: number, dx: number) => setPanelW(nextPanelW(w0, dx, win.w)),
   };
-  const setRail = {
-    from: () => rail,
-    apply: (w0: number, dx: number) => setRailW(nextRailW(w0, dx, panel)),
-  };
   const setLayers = {
     from: () => layers,
     apply: (h0: number, dy: number) => setLayersH(nextLayersH(h0, dy, win.h)),
   };
   const usedTokens = data ? data.tokens.filter((t) => t.usedBy.length).length : 0;
-
-  const railGrip: React.HTMLAttributes<HTMLDivElement> = railOpen
-    ? {
-        role: "separator",
-        "aria-orientation": "vertical",
-        "aria-label": "Resize details",
-        "aria-valuenow": rail,
-        "aria-valuemin": railBounds(panel)[0],
-        "aria-valuemax": railBounds(panel)[1],
-        tabIndex: 0,
-        onPointerDown: divider("x", setRail.from, setRail.apply),
-        onKeyDown: dividerKeys("x", setRail.from, setRail.apply),
-      }
-    : {};
 
   const jumpToToken = (token: string) => {
     setTab("tokens");
@@ -478,50 +442,23 @@ export function InspectorPanel({
         onPointerDown={divider("x", setPanel.from, setPanel.apply)}
         onKeyDown={dividerKeys("x", setPanel.from, setPanel.apply)}
       />
-      <div className="sp-preview">
-        <div className="sp-stage" ref={stage}>
-          <div
-            className="sp-board"
-            style={{ width: size.w, height: size.h, transform: `scale(${scale})` }}
-          >
-            {/*
-              Mounted only once the HTML is here, and keyed by path so a different board is a
-              different element. A board arrives asynchronously, so rendering the frame eagerly
-              gives it `srcdoc=""` and then mutates the attribute a tick later — and Chrome drops
-              that second navigation while the first is still pending, leaving a frame that is
-              permanently blank. Creating the element with its final srcdoc avoids the mutation.
-            */}
-            {srcDoc ? (
-              <iframe
-                key={path}
-                ref={frame}
-                title={name}
-                srcDoc={srcDoc}
-                sandbox="allow-scripts"
-                onLoad={() => frame.current?.contentWindow?.postMessage({ type: "sp:hello" }, "*")}
-                style={{ width: size.w, height: size.h, border: 0, display: "block" }}
-              />
-            ) : null}
-            {editor ? (
-              <BoardPins
-                editor={editor}
-                shapeId={shapeId}
-                scale={scale}
-                open={openThread}
-                onOpen={setOpenThread}
-              />
-            ) : null}
-          </div>
+      <div className="sp-rail">
+        <header className="sp-head">
+          <span className="sp-head-name" title={path}>
+            {name}
+          </span>
+          <span className="sp-head-dim">
+            {data ? `${fmt(data.size.w)} × ${fmt(data.size.h)}` : "reading board…"}
+          </span>
           <BoardStatus path={path} />
           {/*
-            The board at its own size, in a tab of its own. The preview is scaled to fit the
-            stage, so it is the wrong place to read type or tap through a flow; this is the
-            same board as an ordinary web page. An anchor, not a button, so the ordinary ways
-            to open a link — middle click, ⌘-click, copy — all work on it.
+            The board as an ordinary web page, in a tab of its own: on the canvas it is drawn at
+            whatever the camera says, so that is where type is read and a flow is tapped through.
+            An anchor, not a button, so middle click, ⌘-click and copy all work on it.
           */}
           {pageUrl ? (
             <a
-              className="sp-full"
+              className="sp-head-x"
               href={pageUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -542,59 +479,6 @@ export function InspectorPanel({
               </svg>
             </a>
           ) : null}
-        </div>
-        {editor ? (
-          <BoardComments
-            editor={editor}
-            shapeId={shapeId}
-            open={openThread}
-            onOpen={setOpenThread}
-            pinAt={newBoardPin(node?.box, size)}
-          />
-        ) : null}
-      </div>
-
-      {/*
-        The rail's divider carries the collapse handle: the seam is where the fold happens, and a
-        handle on it costs the preview nothing. The grip itself stays mounted when the rail is
-        shut — the handle is then the only way back, because Escape does not help here: clicking
-        the preview moves focus into the frame and the agent forwards no keys. Shut, it is only a
-        perch, so it drops the separator role and the drag with the pane they would resize.
-      */}
-      <div className={cx("sp-grip", "sp-grip--x", !railOpen && "sp-grip--shut")} {...railGrip}>
-        <button
-          type="button"
-          className="sp-collapse"
-          aria-expanded={railOpen}
-          title={railOpen ? "Hide details" : "Show details"}
-          aria-label={railOpen ? "Hide details" : "Show details"}
-          // Sitting on the divider, the press that opens the rail must not also start a drag.
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => setRailOpen((v) => !v)}
-        >
-          <svg
-            width="9"
-            height="9"
-            viewBox="0 0 12 12"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d={railOpen ? "M4 2l4 4-4 4" : "M8 2l-4 4 4 4"} />
-          </svg>
-        </button>
-      </div>
-
-      <div className="sp-rail" style={{ width: rail, display: railOpen ? undefined : "none" }}>
-        <header className="sp-head">
-          <span className="sp-head-name" title={path}>
-            {name}
-          </span>
-          <span className="sp-head-dim">
-            {data ? `${fmt(data.size.w)} × ${fmt(data.size.h)}` : "reading board…"}
-          </span>
           <button type="button" className="sp-head-x" onClick={onClose} aria-label="Close inspector">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
               <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
@@ -695,6 +579,18 @@ export function InspectorPanel({
             />
           </section>
         )}
+
+        {/* The board's threads, under the tab rather than under a preview. The pins themselves
+            are the canvas's own, drawn on the board out there. */}
+        {editor ? (
+          <BoardComments
+            editor={editor}
+            shapeId={shapeId}
+            open={openThread}
+            onOpen={setOpenThread}
+            pinAt={newBoardPin(node?.box, size)}
+          />
+        ) : null}
       </div>
     </aside>
   );

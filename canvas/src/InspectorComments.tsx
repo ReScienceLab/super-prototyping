@@ -26,8 +26,8 @@ import { resolveAuthor } from "./canvasComments";
 import { boardPin, cx, type BoardPin } from "./inspectorModel";
 
 /**
- * The board's comments, in the inspector: the same threads the canvas pins, listed under the
- * preview and drawn on it at the spot they mark. They are the same records either way, one board
+ * The board's comments, in the inspector: the same threads the canvas pins on the board out
+ * there, listed here in full. They are the same records either way, one board
  * folder's `comments.json`, so a note written here appears on the canvas and goes into Git with
  * the board, and one written out on the canvas is here when the board is opened.
  *
@@ -63,57 +63,7 @@ const openedBy = (thread: TLCommentThread) => resolveAuthor(thread.createdBy);
 
 const when = (at: number) => formatRelativeTime(new Date(at).toISOString());
 
-/**
- * The pins, over the preview. Positioned in the artboard's own coordinates, since the anchor is a
- * fraction of the board and the board is drawn at its own size, then counter-scaled, so a pin
- * is the same size whether the preview is at 100% or fitted to a third of that.
- */
-export function BoardPins({
-  editor,
-  shapeId,
-  scale,
-  open,
-  onOpen,
-}: {
-  editor: Editor;
-  shapeId: TLShapeId;
-  scale: number;
-  open: TLCommentThreadId | null;
-  onOpen: (id: TLCommentThreadId | null) => void;
-}) {
-  const rows = useBoardThreads(editor, shapeId);
-  return (
-    <>
-      {rows.map(({ thread, pin }, i) =>
-        // A thread anchored beside the board rather than on it is in the list but has no spot on
-        // the preview to point at, so it gets no pin.
-        pin.inside ? (
-          <div
-            key={thread.id}
-            className="sp-pin-at"
-            style={{ left: `${pin.x * 100}%`, top: `${pin.y * 100}%` }}
-          >
-            <button
-              type="button"
-              className={cx(
-                "sp-pin",
-                thread.resolved && "sp-pin--done",
-                open === thread.id && "on",
-              )}
-              style={{ transform: `scale(${1 / scale})` }}
-              title={`${openedBy(thread).name}: comment ${i + 1}`}
-              onClick={() => onOpen(open === thread.id ? null : thread.id)}
-            >
-              {i + 1}
-            </button>
-          </div>
-        ) : null,
-      )}
-    </>
-  );
-}
-
-/** The strip under the preview: every thread on this board, and the field for a new one. */
+/** In the panel: every thread on this board, and the field for a new one. */
 export function BoardComments({
   editor,
   shapeId,

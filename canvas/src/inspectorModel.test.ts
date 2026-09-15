@@ -7,14 +7,11 @@ import {
   assetRows,
   boardPin,
   newBoardPin,
-  fitScale,
   initialLayersH,
   layersBounds,
   nextLayersH,
   nextPanelW,
-  nextRailW,
   panelBounds,
-  railBounds,
   formatBytes,
   isColorValue,
   layerKind,
@@ -213,16 +210,14 @@ describe("panel geometry", () => {
     expect(nextPanelW(736, 100, 1600)).toBe(636);
   });
 
-  it("keeps the canvas and the preview from being dragged away entirely", () => {
+  it("keeps a strip of canvas beside the panel, and the panel off nothing", () => {
     expect(nextPanelW(736, -9999, 1600)).toBe(1320); // viewport - 280
-    expect(nextPanelW(736, 9999, 1600)).toBe(360);
-    expect(nextRailW(280, -9999, 736)).toBe(496); // panel - 240
-    expect(nextRailW(280, 9999, 736)).toBe(200);
+    expect(nextPanelW(736, 9999, 1600)).toBe(280);
   });
 
   it("prefers the minimum when a small viewport crosses the two bounds", () => {
-    // 300 - 280 = 20, below the 360 minimum: a pinned-open panel beats a negative one.
-    expect(nextPanelW(736, 0, 300)).toBe(360);
+    // 300 - 280 = 20, below the 280 minimum: a pinned-open panel beats a negative one.
+    expect(nextPanelW(736, 0, 300)).toBe(280);
   });
 
   it("opens the layers list on a share of the window, held off both ends", () => {
@@ -239,10 +234,6 @@ describe("panel geometry", () => {
   });
 
   it("re-clamps a value whose bound has since moved, which is what render does", () => {
-    // A rail dragged wide, then the panel dragged to its minimum: the stage keeps a strip.
-    const panel = nextPanelW(736, 9999, 1600);
-    expect(nextRailW(496, 0, panel)).toBe(200);
-    expect(panel - nextRailW(496, 0, panel)).toBe(160);
     // A panel dragged wide, then the window shrunk under it.
     expect(nextPanelW(1320, 0, 900)).toBe(620);
     // A layers list dragged tall, then the window shrunk: the grip stays inside the rail.
@@ -251,21 +242,10 @@ describe("panel geometry", () => {
   });
 
   it("reports the same bounds it clamps to, which is what the grips announce", () => {
-    expect(panelBounds(1600)).toEqual([360, 1320]);
-    expect(railBounds(736)).toEqual([200, 496]);
+    expect(panelBounds(1600)).toEqual([280, 1320]);
     expect(layersBounds(1000)).toEqual([72, 800]);
     // Crossed bounds collapse onto the minimum rather than inverting.
-    expect(panelBounds(300)).toEqual([360, 360]);
-    expect(railBounds(360)).toEqual([200, 200]);
-  });
-
-  it("contains the board in the stage and never enlarges past 1:1", () => {
-    // A phone board in a roomy stage: capped, not blown up.
-    expect(fitScale({ w: 900, h: 1200 }, { w: 393, h: 852 })).toBe(1);
-    // Height-bound: (852 - 32) / 852.
-    expect(fitScale({ w: 900, h: 852 }, { w: 393, h: 852 })).toBeCloseTo(820 / 852, 6);
-    // A landscape evidence board fits by width.
-    expect(fitScale({ w: 432, h: 900 }, { w: 1200, h: 400 })).toBeCloseTo(400 / 1200, 6);
+    expect(panelBounds(300)).toEqual([280, 280]);
   });
 });
 

@@ -55,6 +55,13 @@ export const CanvasChromeContext = createContext({
   setCommentUser: (_user: CommentUser) => {},
   /** Open a board in the inspector, for the parts of the canvas that link to one. */
   inspectBoard: (_board: CanvasFileShape) => {},
+  /**
+   * The board the inspector has open, by path. It is the one board on the canvas that runs the
+   * inspect agent and takes the pointer, so picking an element happens on the mockup itself.
+   */
+  inspectingPath: null as string | null,
+  /** Hands that board's frame to the panel, which reads its report and posts the selection back. */
+  setInspectorFrame: (_frame: HTMLIFrameElement | null) => {},
 });
 
 /**
