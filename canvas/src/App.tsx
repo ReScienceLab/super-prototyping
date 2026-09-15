@@ -712,9 +712,9 @@ function layoutWelcomeExtras(
   // Grok. A slug named in neither list still shows, at the end of the first row, so a new
   // folder is never silently dropped; the last row has no list, so it keeps library order.
   const ROWS = [
-    ["snapaction-ios", "chatgpt-ios", "claude-ios", "grok-ios", "notion-ios",
-     "raycast-ios", "luma-ios"],
-    ["instagram-ios", "tiktok-ios", "x-ios", "substack-ios", "spotify-ios", "duolingo-ios"],
+    ["snapaction-ios", "chatgpt-ios", "claude-ios", "grok-ios", "notion-ios", "raycast-ios"],
+    ["luma-ios", "instagram-ios", "tiktok-ios", "x-ios", "substack-ios", "spotify-ios",
+     "duolingo-ios"],
   ];
   const rowOf = (slug: string) => {
     if (slug === "templates") return 3;
