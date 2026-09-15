@@ -4,7 +4,6 @@ import {
   canvasIconUrl,
   canvasImageThumbUrl,
   canvasImageUrl,
-  pageNameFor,
   readCanvasLayout,
   shortName,
 } from "./canvasLibrary";
@@ -108,7 +107,7 @@ export function BrandKit({ slug }: { slug: string }) {
       )}
       <header className="head">
         <div>
-          <h1>{pageNameFor(slug)}</h1>
+          <h1>{shortName(slug)}</h1>
           <p>
             <a href={canvasPageUrl(slug)}>Back to the canvas</a> ·{" "}
             <a href={sheetPageUrl(slug)}>Boards at full size</a>

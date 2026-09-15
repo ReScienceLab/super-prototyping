@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./brand.css";
 import { BrandKitIndex } from "./BrandKitIndex";
 import { BrandKit } from "./BrandKit";
-import { hasBrandMaterial, pageNameFor } from "./canvasLibrary";
+import { hasBrandMaterial, shortName } from "./canvasLibrary";
 import { slugFromUrl } from "./canvasUrl";
 
 // The third entry, beside the canvas and the sheet, and the same `?canvas=<slug>` as both. It
@@ -15,7 +15,7 @@ import { slugFromUrl } from "./canvasUrl";
 // page, whose slug a bare address resolves to, and any folder still being worked on.
 const slug = slugFromUrl(window.location.href);
 const kit = hasBrandMaterial(slug);
-document.title = kit ? `${pageNameFor(slug)} — brand` : "Brand kits";
+document.title = kit ? `${shortName(slug)} — brand kit` : "Brand kits";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>{kit ? <BrandKit slug={slug} /> : <BrandKitIndex />}</StrictMode>,
