@@ -380,6 +380,20 @@
   "_": "p10 Discover tab glyph, an idle tab; the active one is Search at 39.5"
  },
  {
+  "id": "globe",
+  "img": "assets/refs/p02.png",
+  "mine": "02-email.png",
+  "cmd": "sample",
+  "box": [
+   29,
+   797,
+   57,
+   826
+  ],
+  "only": "ink",
+  "_": "p02 globe key glyph, the one keyboard glyph the capture does not draw black; shift, delete and the emoji face on the same screen all core under 1,1,7"
+ },
+ {
   "id": "quiet",
   "img": "assets/refs/p10.png",
   "mine": "10-home.png",

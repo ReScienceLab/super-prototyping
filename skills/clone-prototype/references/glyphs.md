@@ -19,6 +19,24 @@ degrees of freedom, and a designer fits it with a dozen. Redraw the glyphs that
 show, and leave the rest: a 9 pt keyboard glyph is three pixels of edge, and
 nobody will see its facets.
 
+## First check the trace is whole
+
+potrace closes any ink that reaches the edge of its raster along that edge. So
+a tracer that crops the capture to the glyph's ink box hands back a glyph with
+its apexes planed flat — a magnifier ring with no crown, a globe with no pole —
+and the defect is invisible to every test that looks for ink outside the box,
+because the cut *is* the box. Pad the crop by a couple of points, and let the
+tracer measure the ink in the padded raster and write that as the `viewBox`:
+the box you pass in only has to name the glyph, not bound it. On
+`perplexity-ios` the fourteen hand-measured boxes were out by up to 0.9pt each
+and one by 6.6, and ten of the fourteen glyphs shipped with a flat edge.
+
+The test that finds it: render each file with its `viewBox` padded, and measure
+the longest unbroken run of ink along each edge of the original box, as a
+fraction of that edge. A curve inscribed in its own box touches each edge at a
+point and scores a few percent; a cut scores twenty or more. Rectangles, stems
+and flat-topped glyphs score high honestly, so look at the ones it flags.
+
 ## Which of the two jobs this is
 
 Look at the glyph before fitting anything. Most interface glyphs are a
@@ -110,6 +128,8 @@ once. Re-running it on its own output fits the redraw and drifts.
 its ink box in the capture's page points, and the generator places the file by
 that box. Redraw inside it, and never re-tighten it around the new ink. A
 `<g transform="translate(x0 y0)">` with local coordinates is the readable way.
+Re-tracing from the capture is the one thing that may move it, because that
+re-measures the ink rather than refitting the drawing to it.
 
 **A 45° bar traces about √2 too thick.** The App Store magnifier's handle
 traced at 2.34 against a 1.62 ring, at 45.6° and a perpendicular offset of

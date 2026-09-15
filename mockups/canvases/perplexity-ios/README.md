@@ -35,13 +35,13 @@ Mean absolute delta against the captures — all three channels, the whole
 
 | Screen | Δ | Screen | Δ |
 | --- | --- | --- | --- |
-| 01 Splash | 2.40 | 06 Code accepted | 2.97 |
-| 02 Continue with email | 3.54 | 07 Perplexity Pro | 6.10 |
-| 03 Address typed | 4.39 | 08 Purchase confirmed | 5.66 |
-| 04 Check your email | 2.69 | 09 Home, voice tooltip | 4.25 |
-| 05 Enter code | 3.75 | 10 Home | 3.56 |
+| 01 Splash | 2.40 | 06 Code accepted | 2.96 |
+| 02 Continue with email | 3.52 | 07 Perplexity Pro | 6.10 |
+| 03 Address typed | 4.38 | 08 Purchase confirmed | 5.66 |
+| 04 Check your email | 2.68 | 09 Home, voice tooltip | 4.25 |
+| 05 Enter code | 3.72 | 10 Home | 3.57 |
 
-Mean over the ten, 3.93. **The spread is the serif, and nothing else.** 07 and
+Mean over the ten, 3.92. **The spread is the serif, and nothing else.** 07 and
 08 are the two boards that carry the two-line didone headline, and its four
 rows are their four worst bands — Δ 56.06, 38.34, 36.92 and 28.67 on 07 against
 a whole-frame 6.10. Mask the 66.7pt those two lines occupy, 7.8% of the
@@ -52,8 +52,8 @@ either the same sans substitution at 9–25px or the phone corner, below.
 Geometry is not what the numbers are scoring. Across the 12 box probes the
 mean ink-box width error is **0.47pt** and the mean height error **0.72pt**;
 the largest single miss is the 3.3pt the hero block is short, which is the
-substitution itself. The 38 colour probes land at a mean worst-channel
-distance of 3.0 levels, with one outlier at 52 (`flag`, below).
+substitution itself. The 39 colour probes land at a mean worst-channel
+distance of 2.9 levels, with one outlier at 52 (`flag`, below).
 
 Three of the four worst bands on every light board are not the interface at
 all — they are the 52px corner this repo rounds its artboards with, against a
@@ -167,6 +167,17 @@ largest is `home-watermark.svg`, the ghosted Perplexity mark behind the home
 screen, reconstructed from **37 measured path segments** — it is a redrawing
 of a shape read off a capture, not that shape.
 
+**A trace must be given more of the capture than the glyph.** potrace closes
+any ink that reaches the edge of its raster along that edge, so cropping to the
+ink box and tracing that hands back a glyph with its apexes planed flat: the
+search ring lost its crown, the globe its pole, ten of the fourteen traced
+glyphs something. `scratch/trace.py` pads the crop by 2pt and writes the ink
+box it then measures, rather than the box it was asked for — the guess only has
+to name the glyph, and the fourteen it was given were out by up to 0.9pt each,
+`kbd-globe` by 6.6 on the width. The old boxes cost 0.098 on the keyboard and
+0.025 on the tab bar, and a glyph missing a third of its outline in a canvas
+someone zooms into.
+
 ## What the captures themselves get wrong
 
 These are defects in the source, not in the replica, and the boards inherit
@@ -187,7 +198,7 @@ them by choice:
   whole of 09's worst band (`y 840..853.3`, Δ 45.09); every other board's
   indicator matches its capture within 2%.
 - **p09 and p10 caught the voice glyph on different animation frames** — mean
-  |Δ| 11.22 between the two captures over that 26 × 24pt box, peaking at 202.
+  |Δ| 11.81 between the two captures over that 25 × 24pt box, peaking at 214.
   Both boards render the same traced icon, so one of them is wrong and there
   is no way to be right on both.
 
@@ -252,4 +263,4 @@ To re-measure, `scratch/it.py` shoots the ten screens at 3× and pads 1179 → 1
 core by ~13 levels), and `scratch/dd.py` diffs each against its capture with
 Mobbin's strip cut off. Both take substring filters, e.g. `python3
 scratch/dd.py 07 08`. `refkit batch probes.json --against scratch/mine --pt 3`
-re-runs all 52 probes and prints the table the numbers above come from.
+re-runs all 53 probes and prints the table the numbers above come from.

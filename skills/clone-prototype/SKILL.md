@@ -329,7 +329,9 @@ before cutting anything:
 - **Interface is rebuilt**, however much it looks like a picture: type,
   buttons, pills, badges, chips, tab glyphs, sheet marks, a keyboard, an
   illustration made of flat fills. Use HTML and CSS, and trace each glyph from
-  the capture into an SVG whose viewBox is its ink box in page points. Use the
+  the capture into an SVG whose viewBox is its ink box in page points — trace a
+  padded crop and let the tracer measure that box, because a crop cut to the
+  glyph traces its apexes flat. Use the
   system font's own outline where one exists, such as SF's Apple logo at
   U+F8FF. A crop of interface scores well and is worthless, because nothing
   in it can be edited, reflowed or reused. **A trace is not the finish for a

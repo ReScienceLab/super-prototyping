@@ -94,6 +94,11 @@ TOKENS = [
   "under 1 of 255, where every string the app draws itself is --x-ink at 18,45,48"),
  ("Ink", "ink-cyan", "#0C3A44", "p07 'Subscribe' on the cyan pill"),
  ("Ink", "idle",     "#8E8C8B", "p10 idle tab glyph core"),
+ ("Ink", "globe",    "#4D4F57",
+  "p02's globe key is the one keyboard glyph the capture does not draw black: shift, "
+  "delete and the emoji face all core under 1,1,7 and it cores at 77,79,87. Painting "
+  "it --x-ink costs 37.4 on the glyph box against 24.8 here; the rest of that 24.8 is "
+  "blur, and no flat fill takes it below 22.6"),
  ("Ink", "quiet",    "#ACABA8", "p10 serif headline core"),
  ("Ink", "wash",     "#F8F6F5",
   "p10 watermark line: 20/7 levels integrated across a 2.86px stroke on --x-bg"),
@@ -570,7 +575,7 @@ def keyboard(row3):
             icon_at("kbd-delete")]
     out += ['<div class="%s" style="left:%gpx;top:731px;width:%gpx">%s</div>'
             % (cls, x, w, label) for x, w, label, cls in row3]
-    out += [icon_at("kbd-emoji"), icon_at("kbd-globe")]
+    out += [icon_at("kbd-emoji"), icon_at("kbd-globe", ";color:var(--x-globe)")]
     return "".join(out)
 
 

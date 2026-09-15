@@ -447,10 +447,10 @@ declares a box other than the default 478 x 980.
   - the splash, email entry empty and filled, the "check your email" pane and
   its two code states, the Pro paywall with and without its purchase alert, and
   the home screen with and without the voice tooltip - in 24 boards across
-  three rows: a token board, a type board and two evidence boards for 69
+  three rows: a token board, a type board and two evidence boards for 70
   tokens, the ten replicas, and the Mobbin capture of each parked underneath.
   Mean absolute delta against those captures is 2.40-6.10 levels (of 255), mean
-  3.93, and geometry is not what the number scores: across the 12 box probes
+  3.92, and geometry is not what the number scores: across the 12 box probes
   the mean ink-box width error is 0.47pt and the mean height error 0.72pt. The
   whole spread is the didone headline on 07 and 08, whose two lines are those
   boards' four worst bands; mask the 66.7pt they occupy and 07 falls from 6.10
