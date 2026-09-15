@@ -51,8 +51,13 @@ and links it when it parses as a URL, so keep the scheme on the front.
 
 Each must hold, or the file does not go in the manifest:
 
+- The file sits under `assets/brand/` and ends in `.png`, `.jpg`, `.jpeg`,
+  `.webp`, `.gif` or `.svg`, with no `#` or `?` in the name. That is exactly
+  what the canvas gives a URL to; anything else is dropped before it becomes a
+  shape, and the browser check below cannot see what was never drawn.
 - `file <path>` reports a real image type. An HTML challenge page or a JSON 404
-  body saved as `.jpg` is a failure. Delete it.
+  body saved as `.jpg` is a failure. Delete it. A TIFF or a BMP is a real image
+  and still unpublishable — convert it.
 - The extension matches the bytes. PNG under `.jpg` and WebP under `.png` have
   both happened. `file` is the authority; rename to match, and convert HEIF
   rather than renaming it (`sips -s format jpeg in.heic --out out.jpg`).
@@ -63,7 +68,8 @@ Each must hold, or the file does not go in the manifest:
   This is a raster rule and the script applies it only to raster files. An SVG
   redraws at any size, so its `w`/`h` only have to carry the right ratio: a
   `64 64` viewBox is a fine square mark, and two of the shipped folders ship
-  one.
+  one. The script checks that ratio against the viewBox, because a typo there
+  silently reshapes the whole row.
 - Never upscale anything.
 - SVG must start with `<svg` or `<?xml`, and must not be white-on-transparent,
   which renders as a blank card on the sheet's light cards. Open it and read
@@ -87,6 +93,7 @@ CANON = ["Logo & wordmark","Typeface","Art direction","Applied identity","X","In
          "Announcement cards","Paid advertising","Press photography"]
 EXT = {"JPEG": (".jpg",".jpeg"), "PNG": (".png",), "GIF": (".gif",),
        "Web/P": (".webp",), "SVG": (".svg",)}
+PUB = (".png",".jpg",".jpeg",".webp",".gif",".svg")   # what the canvas gives a URL to
 IGNORE = set()          # pre-existing non-brand files under assets/brand/
 rows = json.load(open('assets/brand/manifest.json'))
 seen, bad = collections.defaultdict(list), []
@@ -98,6 +105,10 @@ for r in rows:
     for i in r['images']:
         p = pathlib.Path(i['file'])
         if not p.exists(): bad.append(f"MISSING {i['file']}"); continue
+        if (not i['file'].startswith('assets/brand/') or p.suffix.lower() not in PUB
+                or re.search(r'[#?]', i['file']) or p.name.startswith('.')):
+            bad.append(f"UNPUBLISHABLE {i['file']}: the canvas serves only "
+                       f"assets/brand/**/*{PUB}, no # or ? in the name")
         seen[hashlib.md5(p.read_bytes()).hexdigest()].append(i['file'])
         kind = subprocess.run(['file','-b',str(p)],capture_output=True,text=True).stdout
         if not any(k in kind for k in ('image','JPEG','PNG','SVG','WebP','GIF','bitmap','XML')):
@@ -114,6 +125,13 @@ for r in rows:
             if (w,h) != (i['w'],i['h']): bad.append(f"SIZE {i['file']}: declared {i['w']}x{i['h']} actual {w}x{h}")
             if min(w,h) < 150: bad.append(f"TOO-SMALL {i['file']}: {w}x{h}")
             if max(w,h) > 1700: bad.append(f"TOO-WIDE {i['file']}: {w}x{h}")
+        else:
+            box = re.search(r'viewBox\s*=\s*["\']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)',
+                            p.read_text(errors='ignore')[:4000])
+            if box:
+                vw, vh = float(box.group(1)), float(box.group(2))
+                if vh and abs(i['w']/i['h'] - vw/vh) > 0.02:
+                    bad.append(f"SVG-ASPECT {i['file']}: declared {i['w']}x{i['h']}, viewBox {vw:g}x{vh:g}")
         if i.get('provenance') not in ('theirs','archive'): bad.append(f"PROVENANCE {i['file']}")
         for k in ('file','label','w','h','source','provenance'):
             if not i.get(k): bad.append(f"MISSING-FIELD {k} in {i['file']}")
