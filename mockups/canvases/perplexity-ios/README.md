@@ -331,6 +331,50 @@ them by choice:
   seats both. The gap is fitted to the labels, which carry the ink, and the
   difference rides as a relative offset on each mark.
 
+## The brand sheet, and the two accounts it turns on
+
+`assets/brand/` is 151 pictures Perplexity published, in fourteen rows, and
+`manifest.json` is the source of record: every file carries the page it came
+from. None of it is a screenshot taken here, and nothing in it is an archive
+copy — the provenance is `theirs` throughout.
+
+Perplexity publishes a real brand kit, which is most of why the identity rows
+are as deep as they are: **<https://live.standards.site/perplexity/>**,
+"Perplexity (2026)", linked only from the footer of `perplexity.ai/hub` and
+organised 01 Logos, 02 Typography, 03 Color, 04 Art Direction, 05 Brand in
+Use. There is no `/press`, `/press-kit`, `/newsroom`, `/brand` or
+`/legal/trademark` on perplexity.ai itself, and no press-photography page
+anywhere, which is why there is no `press/` group and no Press photography
+row. Five marks come from that site's `Perplexity Logo Nov 2025.zip` rather
+than from its pages: it serves `logo-symbol` as white on transparent, which is
+a blank card on a light sheet.
+
+Two accounts had to be settled by evidence rather than by handle:
+
+- **TikTok is `@perplexityapp`, not `@perplexity_ai`.** The second has two
+  hundred times the followers — 186,240 against 965 — and looks like the real
+  one. It is unverified, has an empty bio and a `commerceUser` flag, and posts
+  localised ad creative. `@perplexityapp` is verified, and its bio, "Curiosity
+  changes everything.", is byte-identical to the bio of the verified Instagram
+  account. That cross-surface match is the proof; the follower count is not.
+  The right account has posted exactly once, so the TikTok row is two pictures
+  where every other social row is seven or eight.
+- **YouTube is `@perplexity-ai`, not `@perplexity_ai`.** The underscore
+  channel exists, has 37 subscribers and is dormant. The hyphen one has 75.6K
+  subscribers, 382 videos and `pplx.ai` as its channel link.
+
+The accounts and ids behind the rest: X `@perplexity_ai` (id
+1599587232175849472, verified), Instagram `@perplexity` (id 60416752048,
+verified), LinkedIn `/company/perplexity-ai` (id 88007673), App Store id
+1668000334 / `ai.perplexity.app`, Google Play `ai.perplexity.app.android`,
+Microsoft Store `9P9XG917PWCJ`, and Google Ads advertiser "Perplexity AI,
+Inc." `AR03373525716690796545`.
+
+`perplexity.ai` fronts every page with Cloudflare, so nothing here came off it
+by `curl`: the hub articles and their `og:image` cards were read through a
+browser, and each article slug was checked against a deliberately bogus one on
+the same host, which returns the site's generic title.
+
 ## Regenerating
 
 ```bash

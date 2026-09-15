@@ -31,6 +31,7 @@ OUT = Path(__file__).resolve().parent
 REFS_DIR = OUT / "assets" / "refs"
 ART_DIR = OUT / "assets" / "art"
 ICON_DIR = OUT / "assets" / "icons"
+BRAND_DIR = OUT / "assets" / "brand"
 
 NAME = "Perplexity iOS"
 PAGE_NAME = "(example) " + NAME
@@ -997,11 +998,15 @@ def main():
              "files": [{"file": s, "label": l} for s, l, _, _ in SCREENS]}]
     # Same order as the row above: the canvas lays every row out from x = 0 at
     # one pitch, so item N here lands column-for-column under item N up there.
-    refs = [{"file": "ref-" + s, "label": l}
-            for s, l, _, _ in SCREENS if "ref-" + s in files]
-    if refs:
-        rows.append({"title": "Source of truth: Mobbin captures",
-                     "numbered": True, "files": refs})
+    #
+    # Declared even though ref-*.html is gitignored: the canvas skips a row
+    # entry whose file is absent and drops the row when none of them resolve,
+    # so this file is the same on a clean checkout as it is beside the
+    # captures -- which is what makes `python3 gen.py` a no-op either way.
+    rows.append({"title": "Source of truth: Mobbin captures", "numbered": True,
+                 "files": [{"file": "ref-" + s, "label": l}
+                           for s, l, _, _ in SCREENS]})
+    rows += json.loads((BRAND_DIR / "manifest.json").read_text())
     layout = {"name": PAGE_NAME, "cover": COVER, "rows": rows}
     (OUT / "layout.json").write_text(json.dumps(layout, indent=2) + "\n")
     print("%-26s %7d rows" % ("layout.json", len(rows)))
