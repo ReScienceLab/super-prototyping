@@ -109,6 +109,14 @@ out top to bottom:
   sits directly under item N of the row above**. That is what makes a
   reference row readable against the mockup row above it.
 - Files not listed in any row still appear, in a fallback grid below.
+- `"images"` instead of `"files"` makes a row of pictures rather than boards:
+  `{ "file", "label", "w", "h", "source", "provenance" }`, where `file` is
+  relative to the folder and has to live under `assets/brand/` — the one part
+  of `assets/` the canvas gives an address to. `w`/`h` are the picture's own
+  pixel size, not the size it draws at, and the row scales every image to a
+  common band from them. A folder with any such row gets a **Brand material**
+  button in the toolbar and a page of its own at `brand.html?canvas=<slug>`.
+  The `brand-sheet` skill is how those rows get filled.
 
 After editing `layout.json`, press the **refresh** button in the top bar, next
 to the `…` actions menu. Shape creation is idempotent (it never moves a shape

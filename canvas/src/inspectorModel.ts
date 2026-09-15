@@ -94,6 +94,31 @@ export function layerSelector(node: SpNode) {
   return node.tag + (cls.length ? `.${cls.join(".")}` : "");
 }
 
+/** A row of the layers tree: the node, and whether it has children a fold would hide. */
+export interface LayerRow {
+  node: SpNode;
+  kids: boolean;
+}
+
+/**
+ * The tree, folded. Nodes arrive in document order with a parent index behind every one, so one
+ * pass carries each node's answer down to its children: a node is drawn when its parent is drawn
+ * and not folded. An icon is one layer — the paths inside an `<svg>` stay indexed, because the
+ * Tokens tab counts uses on them, but are never rows.
+ */
+export function layerRows(nodes: SpNode[], collapsed: ReadonlySet<number>): LayerRow[] {
+  const kids = new Set(nodes.filter((n) => n.parent >= 0 && !n.inSvg).map((n) => n.parent));
+  const open = new Map<number, boolean>();
+  const rows: LayerRow[] = [];
+  for (const node of nodes) {
+    if (node.inSvg) continue;
+    const drawn = node.parent < 0 || !!open.get(node.parent);
+    open.set(node.i, drawn && !collapsed.has(node.i));
+    if (drawn) rows.push({ node, kids: kids.has(node.i) });
+  }
+  return rows;
+}
+
 export interface TokenGroupView {
   /** The author's heading, or a kind label when the board wrote none. */
   name: string;
@@ -196,9 +221,8 @@ export const assetForNode = (rows: AssetRow[], node: number | null): AssetRow | 
 
 /* --- Panel geometry ---------------------------------------------------------------------- */
 
-/** Starting sizes. Every one of them is a drag away from something else. */
-export const PANEL_W = 736;
-export const RAIL_W = 300;
+/** Starting width. A drag away from something else. */
+export const PANEL_W = 380;
 
 /**
  * How tall the layers list opens: a share of the window rather than a constant, because the
@@ -209,17 +233,15 @@ export const RAIL_W = 300;
 export const initialLayersH = (viewport: number) => clamp(Math.round(viewport * 0.45), 200, 560);
 
 /** Drag limits, so a divider cannot swallow the thing on the other side of it. */
-const PANEL_MIN = 360;
+const PANEL_MIN = 280;
 const RAIL_GAP = 280; // canvas left visible beside the panel
-const RAIL_MIN = 200;
-const STAGE_MIN = 240; // preview asked for beside the rail; the rail's own minimum wins under it
 const LAYERS_MIN = 72;
 const LAYERS_GAP = 200; // room under the layers for the selected asset and the properties
 
 export const clamp = (v: number, lo: number, hi: number) =>
   // lo wins a crossover: on a viewport too small for both bounds, a divider pinned to the
-  // minimum is usable, one pinned to a negative maximum is not. That crossover is reachable at
-  // the panel minimum, where 360 cannot hold RAIL_MIN + STAGE_MIN and the rail keeps its 200.
+  // minimum is usable, one pinned to a negative maximum is not. That crossover is reachable on
+  // a window narrower than PANEL_MIN + RAIL_GAP, where the panel keeps its 280.
   Math.max(lo, Math.min(v, hi));
 
 /**
@@ -230,19 +252,15 @@ export const panelBounds = (viewport: number): [number, number] => [
   PANEL_MIN,
   Math.max(PANEL_MIN, viewport - RAIL_GAP),
 ];
-export const railBounds = (panelW: number): [number, number] => [
-  RAIL_MIN,
-  Math.max(RAIL_MIN, panelW - STAGE_MIN),
-];
 export const layersBounds = (viewport: number): [number, number] => [
   LAYERS_MIN,
   Math.max(LAYERS_MIN, viewport - LAYERS_GAP),
 ];
 
 /**
- * Where a divider lands. The panel and the rail are both docked right, so their left edges
- * resize them and a leftward drag — a negative dx — makes them wider. The layers list is above
- * its divider, so it follows dy directly.
+ * Where a divider lands. The panel is docked right, so its left edge resizes it and a leftward
+ * drag — a negative dx — makes it wider. The layers list is above its divider, so it follows dy
+ * directly.
  *
  * Every one of these is applied at render as well as at drag time, with a zero delta. A bound
  * moves when the window resizes or when the divider on the other side of it is dragged, and a
@@ -252,23 +270,14 @@ export const layersBounds = (viewport: number): [number, number] => [
 export const nextPanelW = (start: number, dx: number, viewport: number) =>
   clamp(start - dx, ...panelBounds(viewport));
 
-export const nextRailW = (start: number, dx: number, panelW: number) =>
-  clamp(start - dx, ...railBounds(panelW));
-
 export const nextLayersH = (start: number, dy: number, viewport: number) =>
   clamp(start + dy, ...layersBounds(viewport));
-
-/** Contain, never past 1:1 — a board blown up past its own pixels is blurrier, not bigger. */
-export const fitScale = (stage: { w: number; h: number }, board: { w: number; h: number }) => {
-  const pad = 32;
-  return Math.max(0.05, Math.min(1, (stage.w - pad) / board.w, (stage.h - pad) / board.h));
-};
 
 /**
  * Where a comment thread points on a board, when it is that board's thread at all. Normalized
  * (0 to 1) within the artboard, and left unclamped: a pin dropped in the margin beside the mockup
- * belongs to it, which is what anchors it to the board through a layout.json reflow, but the
- * preview only draws the ones that land on the board itself.
+ * belongs to it, which is what anchors it to the board through a layout.json reflow, and the
+ * list marks the ones that did not land on the board itself.
  */
 export interface BoardPin {
   x: number;

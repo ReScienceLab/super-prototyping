@@ -17,7 +17,11 @@ import {
   useEditorPortalHost,
   useValue,
 } from "tldraw";
-import { CanvasComments, CommentTool, commentToolOverrides } from "@tldraw/commenting";
+import {
+  CanvasComments,
+  CommentTool,
+  commentToolOverrides,
+} from "@tldraw/commenting";
 import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
 import {
@@ -55,6 +59,15 @@ export const CanvasChromeContext = createContext({
   setCommentUser: (_user: CommentUser) => {},
   /** Open a board in the inspector, for the parts of the canvas that link to one. */
   inspectBoard: (_board: CanvasFileShape) => {},
+  /**
+   * The board the inspector has open, by path. It is the one board on the canvas that runs the
+   * inspect agent and takes the pointer, so picking an element happens on the mockup itself.
+   */
+  inspectingPath: null as string | null,
+  /** Whether the inspector is docked at all, over a board or over a piece of brand material. */
+  inspectorOpen: false,
+  /** Hands that board's frame to the panel, which reads its report and posts the selection back. */
+  setInspectorFrame: (_frame: HTMLIFrameElement | null) => {},
 });
 
 /**
@@ -73,10 +86,11 @@ export const canvasCommentTools = [
       ThreadActions: ({ thread }) => {
         const chrome = useContext(CanvasChromeContext);
         const editor = useEditor();
-        const board = useValue("linked board", () => linkedBoard(editor, thread.anchor), [
-          editor,
-          thread.anchor,
-        ]);
+        const board = useValue(
+          "linked board",
+          () => linkedBoard(editor, thread.anchor),
+          [editor, thread.anchor],
+        );
         // A note dropped out in open canvas is linked to nothing, and says so by showing nothing.
         if (!board) return null;
         return (
@@ -102,55 +116,75 @@ export const canvasChromeComponents: TLComponents = {
    * board, so they are there on every page and do not scroll away with the canvas. `SharePanel`
    * is tldraw's own slot for exactly this: it renders in `.tlui-layout__top__right`, above the
    * style panel, which is where a tldraw app puts its share and account controls.
+   *
+   * The inspector docks into the same row and narrows the canvas under it, which would slide the
+   * pair left and clip it. They are an invitation, not a tool, so the one that goes is them.
    */
-  SharePanel: () => (
-    // The pill itself (size, type, the shimmer, and how it collapses to its mark on a phone)
-    // is .canvas-cta in index.css; what stays here is each one's own colour.
-    <div className="canvas-cta-group">
-      <a
-        href={SNAPACTION_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        title="Try SnapAction, the app the example boards are cloned from"
-        className="canvas-cta"
-        style={{
-          border: "1px solid #4A4A56",
-          background: "linear-gradient(180deg,#2A2A32,#17171C)",
-          boxShadow: "0 6px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.10)",
-        }}
-      >
-        {/* The app's own mark, cut from its symbolset by snapaction-ios/gen.py. */}
-        <img src="/snapaction.svg" width={23} height={18} alt="" />
-        <span className="canvas-cta__label">Try SnapAction</span>
-        <span className="canvas-cta__arrow" style={{ color: "#8A8781" }}>
-          &#8599;
-        </span>
-      </a>
-      <a
-        href={REPO_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        title="Star super-prototyping on GitHub"
-        className="canvas-cta"
-        style={{
-          border: "1px solid #6E9BFF",
-          background: "linear-gradient(180deg,#4A85FF,#1B47D2)",
-          // The glow is the point: this is the one thing on the canvas asking for something,
-          // so it reads as a lit button rather than another piece of grey chrome.
-          boxShadow:
-            "0 0 0 4px rgba(74,133,255,.20), 0 8px 24px rgba(37,99,235,.55), inset 0 1px 0 rgba(255,255,255,.28)",
-        }}
-      >
-        <svg viewBox="0 0 24 24" width="19" height="19" fill="#FFD666" aria-hidden>
-          <path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95z" />
-        </svg>
-        <span className="canvas-cta__label">Star on GitHub</span>
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="#FFFFFF" fillRule="evenodd" aria-hidden>
-          <path d={GITHUB_PATH} />
-        </svg>
-      </a>
-    </div>
-  ),
+  SharePanel: () => {
+    if (useContext(CanvasChromeContext).inspectorOpen) return null;
+    return (
+      // The pill itself (size, type, the shimmer, and how it collapses to its mark on a phone)
+      // is .canvas-cta in index.css; what stays here is each one's own colour.
+      <div className="canvas-cta-group">
+        <a
+          href={SNAPACTION_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Try SnapAction, the app the example boards are cloned from"
+          className="canvas-cta"
+          style={{
+            border: "1px solid #4A4A56",
+            background: "linear-gradient(180deg,#2A2A32,#17171C)",
+            boxShadow:
+              "0 6px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.10)",
+          }}
+        >
+          {/* The app's own mark, cut from its symbolset by snapaction-ios/gen.py. */}
+          <img src="/snapaction.svg" width={23} height={18} alt="" />
+          <span className="canvas-cta__label">Try SnapAction</span>
+          <span className="canvas-cta__arrow" style={{ color: "#8A8781" }}>
+            &#8599;
+          </span>
+        </a>
+        <a
+          href={REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Star super-prototyping on GitHub"
+          className="canvas-cta"
+          style={{
+            border: "1px solid #6E9BFF",
+            background: "linear-gradient(180deg,#4A85FF,#1B47D2)",
+            // The glow is the point: this is the one thing on the canvas asking for something,
+            // so it reads as a lit button rather than another piece of grey chrome.
+            boxShadow:
+              "0 0 0 4px rgba(74,133,255,.20), 0 8px 24px rgba(37,99,235,.55), inset 0 1px 0 rgba(255,255,255,.28)",
+          }}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="19"
+            height="19"
+            fill="#FFD666"
+            aria-hidden
+          >
+            <path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95z" />
+          </svg>
+          <span className="canvas-cta__label">Star on GitHub</span>
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="#FFFFFF"
+            fillRule="evenodd"
+            aria-hidden
+          >
+            <path d={GITHUB_PATH} />
+          </svg>
+        </a>
+      </div>
+    );
+  },
   /** Clone and force-relayout are document-level actions, so they sit in the top bar with the
    * rest of them rather than with the drawing tools. */
   ActionsMenu: (props) => {
@@ -219,7 +253,9 @@ export const canvasChromeComponents: TLComponents = {
             title="Clone this canvas into a new one"
             onClick={() =>
               addDialog({
-                component: (dialog) => <CloneCanvasDialog {...dialog} slug={slug} />,
+                component: (dialog) => (
+                  <CloneCanvasDialog {...dialog} slug={slug} />
+                ),
               })
             }
           >
@@ -293,7 +329,8 @@ export const canvasChromeComponents: TLComponents = {
     // child list finds it, at a querySelector per popover.
     useEffect(() => {
       if (!host) return;
-      const find = () => setComposer(host.querySelector(".tlui-cmt-canvas-composer"));
+      const find = () =>
+        setComposer(host.querySelector(".tlui-cmt-canvas-composer"));
       find();
       const observer = new MutationObserver(find);
       observer.observe(host, { childList: true });
@@ -306,7 +343,9 @@ export const canvasChromeComponents: TLComponents = {
       if (tool !== "comment" || chrome.commentUser) return;
       addDialog({
         id: COMMENT_USER_DIALOG,
-        component: (dialog) => <CommentUserDialog {...dialog} onSave={chrome.setCommentUser} />,
+        component: (dialog) => (
+          <CommentUserDialog {...dialog} onSave={chrome.setCommentUser} />
+        ),
         // Only when they closed it without giving a name, since saving one should leave them in
         // the tool they just picked. Read back rather than trusting the value this effect captured.
         onClose: () => {
@@ -320,7 +359,9 @@ export const canvasChromeComponents: TLComponents = {
       const ask = () =>
         addDialog({
           id: COMMENT_USER_DIALOG,
-          component: (dialog) => <CommentUserDialog {...dialog} onSave={setCommentUser} />,
+          component: (dialog) => (
+            <CommentUserDialog {...dialog} onSave={setCommentUser} />
+          ),
         });
       window.addEventListener(ASK_COMMENT_USER, ask);
       return () => window.removeEventListener(ASK_COMMENT_USER, ask);

@@ -437,14 +437,32 @@ function hover(i){var el=at(i);place(hov,el&&el!==selEl?el:null);}
 addEventListener('message',function(e){var d=e.data;if(!d||typeof d!=='object')return;
   if(d.type==='sp:hello')send();
   else if(d.type==='sp:sel')select(d.i);
-  else if(d.type==='sp:hover')hover(d.i);});
+  else if(d.type==='sp:hover')hover(d.i);
+  else if(d.type==='sp:hide')hide(d.i);
+  else if(d.type==='sp:at'){var i=nodeAt(d.x,d.y);
+    if(d.click){if(i!==null)parent.postMessage({type:'sp:pick',i:i},'*');}
+    else if(i!==lastHover){lastHover=i;hover(i);parent.postMessage({type:'sp:hover',i:i},'*');}}});
 
-/* A click on a path is a click on its icon: the layers list shows the svg as one layer. */
-function pick(e){var el=e.target&&e.target.closest?e.target.closest('[data-sp]'):null;if(el&&el.closest('svg'))el=el.closest('svg');return el?+el.getAttribute('data-sp'):null;}
+/* The pointer is the canvas's, not this frame's. The board is drawn in an iframe out on the
+   tldraw canvas with pointer-events off, so that panning, zooming and the comment tool keep
+   working over it, and inspectorClicks.ts posts the pointer in board pixels as sp:at. A point
+   off the board comes as (-1,-1), which hits nothing and clears the hover.
+   A click on a path is a click on its icon: the layers list shows the svg as one layer. */
+function nodeAt(x,y){var el=document.elementFromPoint(x,y);
+  el=el&&el.closest?el.closest('[data-sp]'):null;
+  if(el&&el.closest('svg'))el=el.closest('svg');
+  return el?+el.getAttribute('data-sp'):null;}
 var lastHover=null;
-document.addEventListener('click',function(e){var i=pick(e);if(i===null)return;e.preventDefault();parent.postMessage({type:'sp:pick',i:i},'*');},true);
-document.addEventListener('mousemove',function(e){var i=pick(e);if(i===lastHover)return;lastHover=i;hover(i);parent.postMessage({type:'sp:hover',i:i},'*');},true);
-document.addEventListener('mouseleave',function(){lastHover=null;hover(null);parent.postMessage({type:'sp:hover',i:null},'*');},true);
+
+/* Hidden layers, from the eye in the panel's tree. Visibility rather than display, so the box
+   the panel already measured stays where it is and the rest of the board does not reflow around
+   a layer being looked past. A hidden element is not hit-tested either, so the pointer reads
+   what is behind it, which is the point of hiding it. */
+var hidden=[];
+function hide(list){var i,el;
+  for(i=0;i<hidden.length;i++){el=at(hidden[i]);if(el)el.style.visibility='';}
+  hidden=list||[];
+  for(i=0;i<hidden.length;i++){el=at(hidden[i]);if(el)el.style.visibility='hidden';}}
 })();`;
 
 /**

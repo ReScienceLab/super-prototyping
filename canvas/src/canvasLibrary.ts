@@ -441,6 +441,31 @@ export function canvasImageUrl(pageSlug: string, file: string) {
 }
 
 /**
+ * What the canvas calls one picture in one folder: the key its image shape and its asset record
+ * are both built from. `canvasImageRef` reads it back, so a click out on the canvas can find the
+ * layout entry behind the shape it landed on.
+ */
+export const canvasImageKey = (pageSlug: string, file: string) =>
+  `canvas-image:${pageSlug}/${file}`;
+
+const IMAGE_SHAPE_PATTERN = /^shape:canvas-image:([^/]+)\/(.+)$/;
+
+/** The folder and file behind a brand image's shape id, or undefined for any other shape. */
+export function canvasImageRef(shapeId: string) {
+  const match = IMAGE_SHAPE_PATTERN.exec(shapeId);
+  return match ? { slug: match[1], file: match[2] } : undefined;
+}
+
+/** What that folder's layout.json says about the file, and the row it listed it in. */
+export function readCanvasImage(pageSlug: string, file: string) {
+  for (const row of readCanvasLayout(pageSlug)?.rows ?? []) {
+    const image = row.images?.find((entry) => entry.file === file);
+    if (image) return { row: row.title, image };
+  }
+  return undefined;
+}
+
+/**
  * The same image at `BRAND_THUMB_EDGE`, when one was generated for it. This is what the brand
  * page and the canvas draw; the original is what they fall back to the moment either is asked
  * to show the picture larger than the variant covers.
