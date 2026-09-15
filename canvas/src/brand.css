@@ -198,6 +198,10 @@ figcaption {
 .prov {
   margin-top: 3px;
   color: var(--sub);
+  /* A source is a bare host, and a long one is a single unbreakable word: two columns on a
+     320px phone are 122px wide and `play.google.com` is 163px. It breaks rather than pushing
+     the page sideways. */
+  overflow-wrap: anywhere;
   font-size: 12px;
 }
 .prov a {
@@ -212,6 +216,15 @@ figcaption {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   gap: 18px;
+}
+/* Below 386px the band's side padding leaves less room than the 330px track, and a track never
+   shrinks past its minimum, so a small phone scrolls sideways. One column below that, and
+   `minmax(0, 1fr)` rather than `1fr`, whose automatic minimum is the card's min-content width
+   and so keeps the row too wide by exactly as much. */
+@media (max-width: 420px) {
+  .index {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .product {
   display: block;
