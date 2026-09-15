@@ -236,9 +236,10 @@ export const canvasChromeComponents: TLComponents = {
                 : "Open the brand kits — the logos, social profiles, store listings and advertising these products publish, one kit per example"
             }
           >
-            {/* A stack of pictures, not one: under 720px the label goes and the mark is the
-                whole button, and a single photo frame there says "an image" when the thing
-                behind it is every image a product published. */}
+            {/* A palette. Under 720px the label goes and the mark is the whole button, so it
+                has to carry "brand" alone — and a picture frame, however many are stacked
+                behind it, says "images", which is every other button that ever held one. This
+                is the one mark a designer reads as a product's identity without a word. */}
             <svg
               viewBox="0 0 24 24"
               width="16"
@@ -250,10 +251,10 @@ export const canvasChromeComponents: TLComponents = {
               strokeLinejoin="round"
               aria-hidden
             >
-              <rect x="7" y="3" width="14" height="14" rx="2.5" />
-              <circle cx="11.5" cy="7.5" r="1.3" />
-              <path d="M8 14.5l3.5-3.5 2.5 2.5 2.5-2 4 4" />
-              <path d="M17 20.5H5.5A2.5 2.5 0 0 1 3 18V7" />
+              <path d="M12 3.4a8.6 8.6 0 1 0 0 17.2c1.1 0 1.9-.8 1.9-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8h2a4.9 4.9 0 0 0 4.9-4.9c0-3.5-3.9-6.3-9.6-6.3z" />
+              <circle cx="7.6" cy="11.4" r="1.05" />
+              <circle cx="9.9" cy="7.4" r="1.05" />
+              <circle cx="14.4" cy="7.2" r="1.05" />
             </svg>
             <span className="sp-brand__label">Brand kit</span>
           </a>
