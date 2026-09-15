@@ -54,18 +54,14 @@ body {
 .chip {
   display: flex;
   flex: 0 0 auto;
-  align-items: center;
-  gap: 9px;
-  padding: 5px 13px 5px 5px;
-  border-radius: 999px;
+  padding: 5px;
+  border-radius: 9px;
   color: var(--sub);
-  font-size: 13.5px;
   text-decoration: none;
-  white-space: nowrap;
 }
 .chip img {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   /* The one place on this page a picture is cropped and rounded: here it is a button's icon
      rather than an asset being shown, and an app icon is a rounded square everywhere else it
      appears. The cards below still contain their pictures whole. */
