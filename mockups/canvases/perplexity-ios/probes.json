@@ -211,6 +211,19 @@
   "_": "p08 alert below its divider (456.3) and left of 'OK' (186-208.7). Its blur is wide enough that nothing of the hero survives, so the board paints the vignette the capture reads as"
  },
  {
+  "id": "alert-08",
+  "img": "assets/refs/p08.png",
+  "mine": "08-purchased.png",
+  "cmd": "bbox",
+  "box": [
+   80,
+   390,
+   315,
+   418
+  ],
+  "_": "p08 alert title ‘You’re all set’ inside the 270pt alert. The three runs are the iOS ladder -- 17 semibold, 13 regular, 17 medium -- and this is the one that reads it: 14px set the string 14.6% narrow and 38.6% light"
+ },
+ {
   "id": "border",
   "img": "assets/refs/p02.png",
   "mine": "02-email.png",

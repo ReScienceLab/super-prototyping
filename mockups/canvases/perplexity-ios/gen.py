@@ -68,9 +68,11 @@ TOKENS = [
  ("Surface", "off",     "#E2E0DF", "p02 Continue fill while the field is empty"),
  ("Surface", "alert",
   "radial-gradient(circle 135px at 50% 50%,#EFECF0 0%,#E6E3E7 40%,#CFCCD0 100%)",
-  "p08's alert is iOS glass, but its blur is wide enough that nothing of the hero "
-  "survives: the fill reads 239 at the centre, 230 at r 55 and 208 at r 126 whatever "
-  "is behind it, so it is traced as the vignette it looks like"),
+  "p08's alert is iOS glass, but its blur is wide enough that nothing of the hero's "
+  "shape survives: the fill reads 239 at the centre, 230 at r 55 and 208 at r 126 "
+  "whatever is behind it, so it is traced as the vignette it looks like. The hero's "
+  "chroma does survive, as a tilt no radial can hold -- top to bottom the capture falls "
+  "4.6 R, 8.9 G, 11.3 B -- and correcting it buys 0.009 on the board, so it is not"),
  ("Surface", "scrim",   "rgba(0,0,0,.355)",
   "p08 against p07: the chip fill goes #252527 to #18181A and the sky #0868BA to "
   "#054379, both a factor of 0.645"),
@@ -730,13 +732,16 @@ def s07():
     return statusbar("#FFFFFF") + paywall(-9, -8.7) + home("#747476")
 
 
-ALERT = '<div style="position:absolute;z-index:5">' + "".join(
-    [b(61.5, 379, 270, 122, "border-radius:var(--x-r-alert);background:var(--x-alert)"),
-     ct(ink(400, 14), "font:600 14px/14px var(--x-font);color:var(--x-ink)", "You&rsquo;re all set"),
-     ct(ink(423, 12), "font:var(--x-t-note);color:var(--x-ink)",
+# the capture's alert sits right of the phone's centre line: its box by 0.67pt,
+# and its three centred runs by 1.0, which is the substitute's side bearings on
+# top of that. text-indent inherits, so the wrapper carries it for all three
+ALERT = '<div style="position:absolute;z-index:5;text-indent:1px">' + "".join(
+    [b(62.17, 376.3, 270, 124.7, "border-radius:var(--x-r-alert);background:var(--x-alert)"),
+     ct(ink(400, 17), "font:600 17px/17px var(--x-font);color:var(--x-ink)", "You&rsquo;re all set"),
+     ct(ink(423, 13), "font:400 13px/13px var(--x-font);color:var(--x-ink)",
         "Your purchase was successful."),
-     b(61.5, 456.3, 270, .67, "background:rgba(20,18,24,.13)"),
-     ct(ink(472.7, 16), "font:400 16px/16px var(--x-font);color:var(--x-blue)", "OK")]) + "</div>"
+     b(62.17, 456.3, 270, .67, "background:rgba(20,18,24,.13)"),
+     ct(ink(472.7, 17), "font:500 17px/17px var(--x-font);color:var(--x-blue)", "OK")]) + "</div>"
 
 
 def s08():

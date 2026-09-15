@@ -37,20 +37,20 @@ Mean absolute delta against the captures — all three channels, the whole
 | --- | --- | --- | --- |
 | 01 Splash | 2.40 | 06 Code accepted | 2.97 |
 | 02 Continue with email | 3.54 | 07 Perplexity Pro | 6.10 |
-| 03 Address typed | 4.39 | 08 Purchase confirmed | 6.48 |
+| 03 Address typed | 4.39 | 08 Purchase confirmed | 5.66 |
 | 04 Check your email | 2.69 | 09 Home, voice tooltip | 4.25 |
 | 05 Enter code | 3.75 | 10 Home | 3.56 |
 
-Mean over the ten, 4.01. **The spread is the serif, and nothing else.** 07 and
+Mean over the ten, 3.93. **The spread is the serif, and nothing else.** 07 and
 08 are the two boards that carry the two-line didone headline, and its four
 rows are their four worst bands — Δ 56.06, 38.34, 36.92 and 28.67 on 07 against
-a whole-frame 6.10. Mask the 66.7pt those two lines occupy, 7.8% of the frame, and 07 falls to
-**3.84**, between 02 and 03; 08 falls to 5.15, the rest of which is the fitted
-alert vignette. Every other board's worst band is either the same sans
-substitution at 9–25px or the phone corner, below.
+a whole-frame 6.10. Mask the 66.7pt those two lines occupy, 7.8% of the
+frame, and 07 falls to **3.84**, between 02 and 03; 08 falls to 4.26, the rest
+of which is the fitted alert vignette. Every other board's worst band is
+either the same sans substitution at 9–25px or the phone corner, below.
 
-Geometry is not what the numbers are scoring. Across the 11 box probes the
-mean ink-box width error is **0.51pt** and the mean height error **0.75pt**;
+Geometry is not what the numbers are scoring. Across the 12 box probes the
+mean ink-box width error is **0.47pt** and the mean height error **0.72pt**;
 the largest single miss is the 3.3pt the hero block is short, which is the
 substitution itself. The 38 colour probes land at a mean worst-channel
 distance of 3.0 levels, with one outlier at 52 (`flag`, below).
@@ -80,6 +80,20 @@ glyphs by 11% on both axes, and `--pp-t-key-2` 16.2px where 14px sets '123' and
 'space' 12% short. The chip labels go the other way, 14.4px where 15px sets
 them 4% wide. Corrections run −4% to +16% and every one of them is on the
 evidence board with the ink box it came from.
+
+**p08's alert is the one place the sans needs no correction**, because it is
+the only surface the app does not draw: iOS does, and the substitute is
+standing in for the system face rather than for FK Grotesk. Its three runs are
+the platform ladder unmodified — 17 semibold title, 13 regular message, 17
+medium button — and at those sizes the ink widths land within 0.3%, 0.2% and
+0.0% of the capture. Getting there meant undoing a guess. The first pass set
+the title at 14px and reused `--pp-t-note`, 12px, for the message, which left
+the title 14.6% narrow and 38.6% light; 17/700 was then tried against 17/600
+and rejected on the region delta, 9.07 to 8.63. The alert also sits **0.67pt
+right of the phone's centre line, and its three centred runs a further
+0.33pt**, which is the substitute's side bearings on top of that. `ct()`
+centres on the 393pt frame, so the offset rides as a 1px `text-indent` — one
+declaration on the wrapper, because `text-indent` inherits.
 
 Weight is fitted on **ink mass**, not on the look of the render, because the
 substitute is lighter than the original at matched size and a width fit leaves
@@ -186,11 +200,17 @@ them by choice:
   where the token holds the dot's own colour. The token is right and the
   probe cannot see it.
 - **p08's alert is not glass.** It is iOS glass in the capture, but the blur
-  is wide enough that nothing of the hero survives it: the fill reads 239 at
-  the centre, 230 at r 55 and 208 at r 126 whatever is behind it. It ships as
-  the radial vignette it reads as, which is a fitted material, not a measured
-  one. The scrim under it *is* measured — chip fill `#252527 → #18181A` and
-  sky `#0868BA → #054379`, both a factor of 0.645.
+  is wide enough that nothing of the hero's *shape* survives it: the fill
+  reads 239 at the centre, 230 at r 55 and 208 at r 126 whatever is behind it.
+  It ships as the radial vignette it reads as, which is a fitted material, not
+  a measured one. What the blur does keep is the hero's chroma, as a tilt no
+  radial gradient can hold: top edge to bottom, the capture's fill falls 4.6
+  levels in R, 8.9 in G and 11.3 in B, so it is blue-grey at the title and
+  warm grey at the OK. That tilt is the whole of the `alert` probe's Δ 11.
+  Fitting a second, vertical layer over the vignette removes 1.1 of the 4.2
+  levels of fill residual and moves the board 0.009, which is not worth six
+  more fitted numbers. The scrim under it *is* measured — chip fill
+  `#252527 → #18181A` and sky `#0868BA → #054379`, both a factor of 0.645.
 - **The loading spinner's gradient is an approximation.** One frame of a
   rotating sweep, fitted to the arc the capture happens to hold.
 - **The active tab glyph is two-toned in the capture and one colour in the
@@ -232,4 +252,4 @@ To re-measure, `scratch/it.py` shoots the ten screens at 3× and pads 1179 → 1
 core by ~13 levels), and `scratch/dd.py` diffs each against its capture with
 Mobbin's strip cut off. Both take substring filters, e.g. `python3
 scratch/dd.py 07 08`. `refkit batch probes.json --against scratch/mine --pt 3`
-re-runs all 51 probes and prints the table the numbers above come from.
+re-runs all 52 probes and prints the table the numbers above come from.
