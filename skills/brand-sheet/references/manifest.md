@@ -28,23 +28,24 @@ Every field is required on every image.
 
 | field | what it is |
 |---|---|
-| `file` | path **relative to the canvas folder**, exactly where the file is |
-| `label` | the caption a human reads — "App Store screenshot 3 — search", not "screenshot" |
-| `w` / `h` | the **real** pixel size, from `sips -g pixelWidth -g pixelHeight <file>` |
-| `source` | the **human-readable page**, never a signed CDN URL |
+| `file` | path relative to the canvas folder, exactly where the file is |
+| `label` | the caption a human reads: "App Store screenshot 3 — search", not "screenshot" |
+| `w` / `h` | the pixel size, from `sips -g pixelWidth -g pixelHeight <file>` |
+| `source` | the human-readable page, never a signed CDN URL |
 | `provenance` | `"theirs"` or `"archive"`. Nothing else, ever |
 
 `w`/`h` are the image's own pixel size, not the size it draws at. The canvas
 and the brand page both size a shape from them and pick a row's column count
-from the row's **median** aspect ratio, so one wrong pair does not just render
-one card wrong — it can reshape the row around it.
+from the row's **median** aspect ratio, so one wrong pair can reshape the whole
+row, not only its own card.
 
-An SVG has no pixel size. Use the `viewBox`, or the `width`/`height` attributes,
-whichever the file actually carries.
+An SVG has no pixel size. Use the `viewBox`, or the `width`/`height`
+attributes, whichever the file has.
 
-`source` may be prose when the route to the asset was the finding — "example.com/brand
-(Logo section) via Wayback Machine snapshot 20260907013431". The brand page takes
-the first token as the domain and only links it when it parses as a URL.
+`source` may be prose when the page URL alone would not lead a reader back to
+the asset, e.g. `https://example.com/brand (Logo section) via Wayback Machine
+snapshot 20260907013431`. The brand page takes the first token as the domain
+and links it when it parses as a URL, so keep the scheme on the front.
 
 ## Per-file rules
 
@@ -52,13 +53,21 @@ Each must hold, or the file does not go in the manifest:
 
 - `file <path>` reports a real image type. An HTML challenge page or a JSON 404
   body saved as `.jpg` is a failure. Delete it.
-- The **extension matches the bytes**. HEIF under `.jpg`, PNG under `.jpg` and
-  WebP under `.png` have all happened. `file` is the authority; rename to match.
-- Longest edge ≤ **1600px** (`sips -Z 1600 <file>`), file < **1.2 MB**.
+- The extension matches the bytes. PNG under `.jpg` and WebP under `.png` have
+  both happened. `file` is the authority; rename to match, and convert HEIF
+  rather than renaming it (`sips -s format jpeg in.heic --out out.jpg`).
+- Longest edge ≤ **1600px** (`sips -Z 1600 <file>`), file < **1.2 MB**. The
+  script below fails at 1700px and 1.26 MB, so a file it passes can still be
+  over the target and worth shrinking.
 - Shortest edge ≥ **150px**. A 48px favicon renders as a broken card; skip it.
+  This is a raster rule and the script applies it only to raster files. An SVG
+  redraws at any size, so its `w`/`h` only have to carry the right ratio: a
+  `64 64` viewBox is a fine square mark, and two of the shipped folders ship
+  one.
 - Never upscale anything.
-- SVG must start with `<svg` or `<?xml`, and must not be white-on-transparent —
-  that renders as a blank card. Open it and read the fills.
+- SVG must start with `<svg` or `<?xml`, and must not be white-on-transparent,
+  which renders as a blank card on the sheet's light cards. Open it and read
+  the fills.
 
 ## The verification script
 
@@ -67,7 +76,8 @@ until it prints that, and paste its full output in your report.
 
 Put any pre-existing non-brand file under `assets/brand/` — a picture the
 generator inlines into a board rather than drawing as a row — in `IGNORE`, so
-it is not reported as an orphan. Do not add it to the manifest.
+it is not reported as an orphan. `git ls-files assets/brand/` lists them. Do
+not add them to the manifest.
 
 ```bash
 python3 - <<'PY'
@@ -75,12 +85,14 @@ import json, re, subprocess, pathlib, hashlib, collections
 CANON = ["Logo & wordmark","Typeface","Art direction","Applied identity","X","Instagram",
          "TikTok","YouTube","LinkedIn","App Store","Google Play","Microsoft Store",
          "Announcement cards","Paid advertising","Press photography"]
+EXT = {"JPEG": (".jpg",".jpeg"), "PNG": (".png",), "GIF": (".gif",),
+       "Web/P": (".webp",), "SVG": (".svg",)}
 IGNORE = set()          # pre-existing non-brand files under assets/brand/
 rows = json.load(open('assets/brand/manifest.json'))
 seen, bad = collections.defaultdict(list), []
 it = iter(CANON)
-if not all(r['title'] in it for r in rows):
-    bad.append("ROW-ORDER not a subsequence of the vocabulary: " + str([r['title'] for r in rows]))
+off = next((r['title'] for r in rows if r['title'] not in it), None)
+if off: bad.append(f"ROW-ORDER unknown or out-of-order title: {off!r}")
 for r in rows:
     if not r['images']: bad.append(f"EMPTY-ROW {r['title']}")
     for i in r['images']:
@@ -90,6 +102,9 @@ for r in rows:
         kind = subprocess.run(['file','-b',str(p)],capture_output=True,text=True).stdout
         if not any(k in kind for k in ('image','JPEG','PNG','SVG','WebP','GIF','bitmap','XML')):
             bad.append(f"NOT-AN-IMAGE {i['file']}: {kind.strip()[:60]}")
+        want = next((v for k, v in EXT.items() if k in kind), None)
+        if want and p.suffix.lower() not in want:
+            bad.append(f"EXT {i['file']}: bytes are {want[0]}")
         if p.stat().st_size > 1_260_000: bad.append(f"TOO-BIG {i['file']} {p.stat().st_size//1024}KB")
         if p.suffix != '.svg':
             o = subprocess.run(['sips','-g','pixelWidth','-g','pixelHeight',str(p)],
@@ -114,6 +129,9 @@ print("\n".join(bad) if bad else "NO PROBLEMS")
 PY
 ```
 
+It catches byte-identical duplicates only. Two crops or two sizes of one
+picture pass it, so that pair is caught by eye; keep the larger.
+
 ## Wiring `gen.py`
 
 `gen.py` is the only source of truth for a folder's `layout.json`. Never
@@ -123,21 +141,29 @@ hand-edit the JSON; add the read to the generator and regenerate.
 BRAND_DIR = OUT / "assets" / "brand"
 ```
 
-next to the folder's other directory constants, and in `layout()`:
+next to the folder's other directory constants. Then append the manifest rows
+wherever that folder finishes its rows list. Generators here come in two
+shapes:
 
 ```python
+def layout():
+    rows = [...]                                                          # board rows
     rows += json.loads((BRAND_DIR / "manifest.json").read_text())
-    return {"name": PAGE_NAME, "cover": ..., "rows": rows}
+    return {"name": PAGE_NAME, "rows": rows}
+```
+
+```python
+LAYOUT = {"name": PAGE_NAME, "rows": [...]}                               # module level
+LAYOUT["rows"] += json.loads((BRAND_DIR / "manifest.json").read_text())   # before write_text
 ```
 
 Two things about that line:
 
 - It goes **after every board row**. All the `files` rows, then all the
   `images` rows.
-- The read is **unconditional** — no `if BRAND_DIR.exists()`. Add the line only
-  once the manifest is written. A generator that silently produces a different
-  layout depending on what happens to be on disk is the bug the next section is
-  about.
+- The read is unconditional, with no `if BRAND_DIR.exists()`. Add the line only
+  once the manifest is written. A generator whose output depends on what is on
+  disk is the bug the next section is about.
 
 Then regenerate and read the diff:
 
@@ -155,15 +181,15 @@ where a latent violation surfaces.
 **If the diff deletes rows, stop.** You have found a real bug, and regenerating
 again would commit the damage.
 
-The usual cause: a row whose entries were gated on files existing —
+The usual cause is a row gated on files that are gitignored:
 
 ```python
 if "ref-" + s in names:            # wrong
     rows.append({"title": "Source of truth: captures", ...})
 ```
 
-— where those files are gitignored. On the machine that wrote them the row
-exists; on a clean checkout it vanishes, taking its committed rows with it.
+On the machine that wrote those files the row exists; on a clean checkout it
+vanishes, taking its committed entries with it.
 
 The fix is to declare the row unconditionally and let the canvas do the
 skipping, because it already does:
@@ -183,9 +209,9 @@ pure addition: your brand rows, nothing removed.
 ## What happens next, with no further change
 
 - The canvas draws the rows as image shapes under the boards.
-- The **Brand material** button appears in that canvas's toolbar — it is shown
-  for any folder whose layout has a row with images.
+- The "Brand material" button appears in that canvas's toolbar; the canvas
+  shows it for any folder whose layout has a row with images.
 - The folder joins the brand page's app-icon switcher.
 - The build generates a downscaled WebP variant for each image and the page
   serves it through `srcset`, so an oversized original costs the reader nothing
-  but costs the repository everything. Respect the 1600px / 1.2 MB ceilings.
+  and the repository its full size. Respect the 1600px / 1.2 MB ceilings.

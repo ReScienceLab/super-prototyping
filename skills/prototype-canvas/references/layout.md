@@ -116,7 +116,7 @@ out top to bottom:
   pixel size, not the size it draws at, and the row scales every image to a
   common band from them. A folder with any such row gets a **Brand material**
   button in the toolbar and a page of its own at `brand.html?canvas=<slug>`.
-  The `collect-brand-material` skill is how those rows get filled.
+  The `brand-sheet` skill is how those rows get filled.
 
 After editing `layout.json`, press the **refresh** button in the top bar, next
 to the `…` actions menu. Shape creation is idempotent (it never moves a shape

@@ -213,7 +213,7 @@ symlink to, so this checkout loads what an install does):
 | **clone-prototype** | Copying a real app's screens. Grid the reference, sample colours *visually*, name the type face, derive one measured token block, generate the artboards, verify by re-rendering, park the reference underneath. |
 | **new-ui-mock** | Designing new screens with no reference, built on existing tokens, including the empty/loading/error states and side-by-side proposals. |
 | **prototype-canvas** | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
-| **collect-brand-material** | Collecting a product's own brand and promotional material -- the brand kit, store listings, verified social accounts, the newsroom -- and turning it into the image rows of a canvas folder, each asset carrying its source and whether the company published it. |
+| **brand-sheet** | Collecting a product's own brand and promotional material -- the brand kit, store listings, verified social accounts, the newsroom -- and turning it into the image rows of a canvas folder, each asset carrying its source and whether the company published it. |
 
 The rule the whole thing is built around: **every colour and every metric in
 a cloned artboard traces to a measurement.** Grid the reference image, look
