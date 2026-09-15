@@ -19,7 +19,77 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 ## Unreleased
 
-Everything below is on `main` and reaches no install until a version is cut.
+A product's published brand sits on the canvas next to its screens, as
+pictures you can link to, and the board you inspect is the one on the canvas
+rather than a copy in the panel. A fourth skill collects those pictures. Four
+more example canvases.
+
+### The canvas
+
+- **Inspect the board on the canvas.** Selecting a board no longer opens a
+  second copy of it in the inspector. You click the mockup itself; hover, hide
+  and fold all run against that board, while pan, zoom, comments and marquee
+  keep working over it the way they do in Figma. The inspector keeps the name,
+  the size, the Live badge and Comments, and sits in the corner with a way out
+  of it.
+- **Fold and hide layers.** A caret folds a subtree; an eye takes a layer off
+  the board without reflowing what is around it (`visibility: hidden`, so a
+  click reads what is behind).
+- **A sprite's `<use>` draws in the inspector.** The inspector's copy used to
+  clone only the root `<svg>`, so a `<use href="#id">` into a sprite of
+  `<symbol>`s dangled and drew nothing. Same-document uses are inlined into the
+  copy, and a 0×0 sprite host is no longer handed out as an asset.
+- **A Brand kit button, and a page of pictures behind it.** A folder with
+  `images` rows in `layout.json` is a brand kit: the pictures the company
+  published, one row per surface. The toolbar button (a stack of pictures, next
+  to Export to Figma) opens `brand.html?canvas=<slug>` for a kit, or the index
+  of every kit when you are on a page that has none. The index is one card per
+  product; a kit's own page is a shelf of app icons to switch with, and the
+  title is the chip you are standing on.
+- **A picture on the canvas has an address.** `?canvas=grok-ios#01-widget`
+  still opens a board;
+  `?canvas=grok-ios#assets/brand/identity/app-icon.png` opens a picture. A
+  board is a file at the folder's root and every picture lives under
+  `assets/brand`, so the hash does not have to say which kind it is. Opening
+  one pushes history, Escape drops it, Back restores it, same as a board.
+- **Brand pictures are served at the size they are drawn.** The canvas and the
+  brand page request an 880px WebP while you are looking at a wall of
+  thumbnails, and the original the moment you zoom past it, export it, or copy
+  it. Nothing is shown softer than the screen can display.
+
+### The toolkit and the skills
+
+- **`brand-kit` collects a product's published material.** Press kit, store
+  listings, verified social accounts, the newsroom: files under
+  `assets/brand/`, a `manifest.json` with a source and a provenance on every
+  one, wired into `layout.json` as `images` rows. Rows are surfaces, not asset
+  types, in a fixed vocabulary, so a column down the page is the same kind of
+  picture on every platform. The skill is the spec the example canvases were
+  collected from, kept rather than thrown away.
+- **`clone-prototype` pads a glyph's crop before tracing it.** potrace closes
+  ink that reaches the crop's edge along that edge, so a tight box planes the
+  apexes off a magnifier or a globe. The crop is padded, and the tracer writes
+  the ink box it actually measured.
+- **`refkit shoot --scale` takes a float.** A capture that is not an integer
+  multiple of the design pt (the Dynamic Island boards were 2.24173 px/pt) can
+  be shot at that scale instead of rounded.
+
+### Example canvases
+
+- **`tiktok-ios`, fifteen screens.** The bio editor and post composer, and the
+  For You feed through scrubbing, playing, pull-to-refresh and an expanded
+  caption. Two clone runs, one folder, one page.
+- **`x-ios`, fifteen screens on @Yilin0x.** Switching to a professional
+  account, Explore and its location setting, push notifications, and a Space
+  reminder. The cover is the finished profile.
+- **`instagram-ios`, twenty screens.** Eight user-profile states, six of the
+  Following/Favorites feed and Reels, a live-account board, and Instagram's
+  five home-screen widgets.
+- **`perplexity-ios`, fourteen screens.** The onboarding flow end to end, then
+  the Dynamic Island in four Live Activity states.
+- **Thirteen canvases carry a brand kit.** About 1,265 first-party pictures in
+  surface rows, each with a source and whether the company published it. The
+  welcome page is four rows, grouped by what the app is for.
 
 ## v1.2.0
 
