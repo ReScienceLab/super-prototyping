@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { chatEventsFromLine } from './claudeStream'
+import { chatEventsFromLine, titleFilter } from './claudeStream'
 import sayHi from './fixtures/claude-2.1.274-say-hi.jsonl?raw'
+import titledHi from './fixtures/claude-2.1.274-titled-hi.jsonl?raw'
 import writeFile from './fixtures/claude-2.1.274-write-file.jsonl?raw'
 
-// Both fixtures are recordings of `claude -p --input-format stream-json --output-format stream-json
+// The fixtures are recordings of `claude -p --input-format stream-json --output-format stream-json
 // --verbose --include-partial-messages`, the shape vite.config.ts spawns, on Claude Code 2.1.274.
 // The hook and init frames had their machine-local payloads cut down and the working directory
 // was renamed; every frame is still there, in its recorded order.
@@ -37,5 +38,40 @@ describe('chatEventsFromLine', () => {
     expect(chatEventsFromLine(subagent)).toEqual([])
     const failed = '{"type":"result","subtype":"error_during_execution","is_error":true,"result":"boom"}'
     expect(chatEventsFromLine(failed)).toEqual([{ kind: 'end', ok: false, message: 'boom' }])
+  })
+})
+
+describe('titleFilter', () => {
+  const filtered = (jsonl: string) => events(jsonl).flatMap(titleFilter())
+  const text = (got: ReturnType<typeof events>) =>
+    got.flatMap((e) => (e.kind === 'text' ? [e.text] : [])).join('')
+
+  it('lifts the title out of a reply that opens with the marker split across deltas', () => {
+    // Recorded with the title sentence vite.config.ts appends to the system prompt; the marker
+    // arrives as `<s`, `p`, `-title>Gre`, `eting`, ` Exchange</sp-title`, `>\n\nHi.`.
+    const got = filtered(titledHi)
+    expect(got.filter((e) => e.kind === 'title')).toEqual([{ kind: 'title', title: 'Greeting Exchange' }])
+    expect(text(got)).toBe('Hi. What are we working on?')
+    expect(got.at(-1)).toEqual({ kind: 'end', ok: true })
+  })
+
+  it('passes a reply without the marker through as it was', () => {
+    expect(filtered(sayHi)).toEqual(events(sayHi))
+  })
+
+  it('releases held text once it cannot be the marker, and flushes the rest at the end', () => {
+    const tag = titleFilter()
+    expect(tag({ kind: 'text', text: '<s' })).toEqual([])
+    expect(tag({ kind: 'text', text: 'pan>' })).toEqual([{ kind: 'text', text: '<span>' }])
+    const cut = titleFilter()
+    expect(cut({ kind: 'text', text: '<sp-t' })).toEqual([])
+    expect(cut({ kind: 'end', ok: true })).toEqual([{ kind: 'text', text: '<sp-t' }, { kind: 'end', ok: true }])
+  })
+
+  it('drops the blank lines after the marker when they come in a later delta', () => {
+    // Seen live: the closing tag as one delta, the model's first sentence in the next.
+    const split = titleFilter()
+    expect(split({ kind: 'text', text: '<sp-title>Saying Hi</sp-title>' })).toEqual([{ kind: 'title', title: 'Saying Hi' }])
+    expect(split({ kind: 'text', text: '\n\nHi!' })).toEqual([{ kind: 'text', text: 'Hi!' }])
   })
 })

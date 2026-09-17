@@ -16,8 +16,8 @@ import {
   withCanvasName,
 } from "./src/boardStatusEdit.ts";
 import { boardChangeKind, boardSetSignature, boardSlug } from "./src/boardWatch.ts";
-import { attach, emit, ended, newRun, sseFrame, type Run } from "./src/agentRun.ts";
-import { chatEventsFromLine } from "./src/claudeStream.ts";
+import { attach, emit, ended, newRun, runSummary, sseFrame, type Run } from "./src/agentRun.ts";
+import { chatEventsFromLine, titleFilter } from "./src/claudeStream.ts";
 
 /**
  * Repo root — vite.config.ts sits in canvas/, one level below it. It is published into the page
@@ -721,7 +721,7 @@ function canvasesSource(): Plugin {
       // No reload broadcast from here: a board the agent writes reaches the page through the
       // watcher like anyone else's, and anything else it writes is not the canvas's business.
       const runs = new Map<string, Run & { child: ChildProcess }>();
-      server.middlewares.use("/__sp/agent/run", (req, res, next) => {
+      server.middlewares.use("/__sp/agent", (req, res, next) => {
         const send = (code: number, message: string) => {
           res.statusCode = code;
           res.end(message);
@@ -734,9 +734,10 @@ function canvasesSource(): Plugin {
               "`sp-canvas start` sets it to the directory it is started from.",
           );
         }
-        // Mounted under the prefix, so req.url is "/", "/<id>/events?after=N" or "/<id>/cancel".
+        // Mounted under the prefix, so req.url is "/run", "/runs", "/run/<id>/events?after=N"
+        // or "/run/<id>/cancel".
         const url = new URL(req.url ?? "/", "http://sp");
-        if (req.method === "POST" && url.pathname === "/") {
+        if (req.method === "POST" && url.pathname === "/run") {
           let body = "";
           req.on("data", (chunk) => (body += chunk));
           req.on("end", () => {
@@ -755,6 +756,8 @@ function canvasesSource(): Plugin {
                   "the prototype-canvas skill of the super-prototyping plugin: one folder is one canvas " +
                   "page, one .html file in it is one board, layout.json places them, and the open canvas " +
                   "reloads by itself when a board is rewritten.",
+                "Open your first reply with a title for this conversation on a line of its own, as " +
+                  "<sp-title>three to six words naming what was asked</sp-title>, then go on as usual.",
               ]
                 .filter(Boolean)
                 .join("\n");
@@ -776,6 +779,15 @@ function canvasesSource(): Plugin {
                 ),
               });
               runs.set(run.id, run);
+              // The prompt, its first line as the title until the model gives one, and the time:
+              // the first event, so a replay from zero rebuilds the whole turn and the history
+              // list reads off the same events (agentRun.ts).
+              emit(run, "start", {
+                kind: "start",
+                prompt: message,
+                title: message.trim().split("\n")[0].slice(0, 60),
+                at: Date.now(),
+              });
               // ponytail: the newest 20 runs are kept whatever their age; a tab that reattaches
               // to an older one gets a 404 and shows it.
               for (const [id, old] of runs) {
@@ -788,12 +800,13 @@ function canvasesSource(): Plugin {
               let stderr = "";
               run.child.stderr.setEncoding("utf8").on("data", (chunk: string) => (stderr += chunk));
               let pending = "";
+              const lift = titleFilter();
               const feed = (chunk: string) => {
                 const lines = (pending + chunk).split("\n");
                 pending = lines.pop()!;
                 try {
                   for (const line of lines) {
-                    if (line.trim()) for (const e of chatEventsFromLine(line)) emit(run, e.kind, e);
+                    if (line.trim()) for (const e of chatEventsFromLine(line)) for (const t of lift(e)) emit(run, t.kind, t);
                   }
                 } catch (error) {
                   run.child.kill();
@@ -835,7 +848,13 @@ function canvasesSource(): Plugin {
           });
           return;
         }
-        const match = /^\/([\w-]+)\/(events|cancel)$/.exec(url.pathname);
+        if (req.method === "GET" && url.pathname === "/runs") {
+          // Newest first, and in memory only: a restarted server lists nothing, which is
+          // consistent with it holding every run's events and nothing else holding any.
+          res.setHeader("content-type", "application/json");
+          return send(200, JSON.stringify([...runs.values()].reverse().map(runSummary)));
+        }
+        const match = /^\/run\/([\w-]+)\/(events|cancel)$/.exec(url.pathname);
         if (!match) return next();
         const run = runs.get(match[1]);
         if (!run) return send(404, "no such run");

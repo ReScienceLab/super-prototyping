@@ -15,6 +15,11 @@
  * Thinking is a marker, not text: on 2.1.274 every thinking delta arrives with an empty string
  * and a token estimate, so there is nothing to show but that it happened.
  *
+ * The title is asked for in the system prompt, as `<sp-title>…</sp-title>` at the head of the
+ * reply, and `titleFilter` lifts it out of the text into a `title` event on the server, before
+ * anything is emitted, so the page never sees the marker as text. Two events are the server's
+ * own rather than the parser's: `start`, written when the run is created, and that `title`.
+ *
  * A run has one terminal frame, `result`, on every build of Claude Code, so it is the only thing
  * that ends a turn here. The CLI also reports a `stop_reason`, on a frame that has moved between
  * releases; a host that keeps stdin open for further turns has to read it to know when to write
@@ -24,6 +29,8 @@
  * fixtures next to the test are the whole contract.
  */
 export type ChatEvent =
+  | { kind: "start"; prompt: string; title: string; at: number }
+  | { kind: "title"; title: string }
   | { kind: "text"; text: string }
   | { kind: "thinking" }
   | { kind: "tool"; id: string; name: string; detail: string }
@@ -91,4 +98,45 @@ export function chatEventsFromLine(line: string): ChatEvent[] {
     default:
       return [];
   }
+}
+
+const TITLE_OPEN = "<sp-title>";
+const TITLE_CLOSE = "</sp-title>";
+
+/**
+ * Lifts the title marker out of the text. The marker arrives split across deltas (`<s`, `p`,
+ * `-title>Gre`, … in the recorded fixture), so text is held while it could still be the marker —
+ * leading whitespace, or a prefix of the opening tag — and released the moment it cannot be. The
+ * blank lines the model puts between the marker and its first sentence go with the marker,
+ * whichever delta they arrive in. A reply that opens with anything else costs one held delta;
+ * whatever is held when the run ends is flushed as text.
+ */
+export function titleFilter(): (e: ChatEvent) => ChatEvent[] {
+  let held: string | null = ""; // text not yet released; null once it flows through untouched
+  let titled = false;
+  return (e) => {
+    if (held === null || (e.kind !== "text" && e.kind !== "end")) return [e];
+    if (e.kind === "end") {
+      const text = held.trim();
+      held = null;
+      return text ? [{ kind: "text", text }, e] : [e];
+    }
+    held += e.text;
+    let lead = held.trimStart();
+    const out: ChatEvent[] = [];
+    if (!titled && lead.startsWith(TITLE_OPEN)) {
+      const close = lead.indexOf(TITLE_CLOSE);
+      if (close < 0) return out;
+      const title = lead.slice(TITLE_OPEN.length, close).trim();
+      if (title) out.push({ kind: "title", title });
+      titled = true;
+      lead = lead.slice(close + TITLE_CLOSE.length).trimStart();
+      held = lead;
+    }
+    // Still only whitespace, or still a possible start of the marker: wait for more.
+    if (!lead || (!titled && TITLE_OPEN.startsWith(lead))) return out;
+    held = null;
+    out.push({ kind: "text", text: lead });
+    return out;
+  };
 }

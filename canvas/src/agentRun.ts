@@ -12,6 +12,8 @@
  * Kept free of node APIs so it can be tested without a dev server, the way boardStatusEdit.ts is;
  * the process itself lives in vite.config.ts.
  */
+import type { ChatEvent } from "./claudeStream.ts";
+
 export interface RunEvent {
   id: number;
   event: string;
@@ -48,3 +50,30 @@ export function attach(run: Run, cursor: number, sink: (e: RunEvent) => void): (
 /** One event in the text/event-stream wire format; chatTransport.ts reads it back. */
 export const sseFrame = (e: RunEvent) =>
   `id: ${e.id}\nevent: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`;
+
+export interface RunSummary {
+  id: string;
+  title: string;
+  startedAt: number;
+  status: "running" | "done" | "failed";
+}
+
+/**
+ * What the history list shows of a run, read off its events rather than kept beside them: the
+ * `start` event has the prompt's title and the time, a `title` event the model's, and the `end`
+ * event how it went. The server writes `start` first on every run, so a run without one is a
+ * bug here, not a case.
+ */
+export function runSummary(run: Run): RunSummary {
+  const events = run.events.map((e) => e.data as ChatEvent);
+  const start = events[0];
+  if (start?.kind !== "start") throw new Error(`run ${run.id} has no start event`);
+  const titled = events.find((e): e is Extract<ChatEvent, { kind: "title" }> => e.kind === "title");
+  const last = events.at(-1)!;
+  return {
+    id: run.id,
+    title: titled?.title ?? start.title,
+    startedAt: start.at,
+    status: last.kind !== "end" ? "running" : last.ok ? "done" : "failed",
+  };
+}

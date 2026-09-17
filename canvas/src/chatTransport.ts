@@ -27,6 +27,8 @@ export type Block =
 export interface Turn {
   runId: string;
   prompt: string;
+  /** The model's, once it has given one; the prompt's first line until then. */
+  title?: string;
   blocks: Block[];
   /** Set once the run has ended: whether it succeeded and, if not, why. */
   end?: { ok: boolean; message?: string };
@@ -35,6 +37,10 @@ export interface Turn {
 export function applyFrame(turn: Turn, frame: Frame): Turn {
   const e = frame.data as ChatEvent;
   switch (e.kind) {
+    case "start":
+      return { ...turn, prompt: e.prompt, title: e.title };
+    case "title":
+      return { ...turn, title: e.title };
     case "text": {
       const last = turn.blocks.at(-1);
       const blocks =

@@ -24,6 +24,16 @@ describe('applyFrame', () => {
     ])
     expect(turn.end).toEqual({ ok: true, message: undefined })
   })
+
+  it('takes the prompt and a first title from the start event, and the model\'s over it', () => {
+    let turn = applyFrame(
+      { runId: 'r', prompt: '', blocks: [] },
+      frame(1, { kind: 'start', prompt: 'say hi\nplease', title: 'say hi', at: 5 }),
+    )
+    expect(turn).toMatchObject({ prompt: 'say hi\nplease', title: 'say hi' })
+    turn = applyFrame(turn, frame(2, { kind: 'title', title: 'Greeting Exchange' }))
+    expect(turn.title).toBe('Greeting Exchange')
+  })
 })
 
 describe('sseFrames', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { attach, emit, ended, newRun, sseFrame } from './agentRun'
+import { attach, emit, ended, newRun, runSummary, sseFrame } from './agentRun'
 
 describe('attach', () => {
   it('replays from the cursor, then follows, until detached', () => {
@@ -38,5 +38,17 @@ describe('sseFrame', () => {
     expect(sseFrame({ id: 7, event: 'text', data: { text: 'hi\n' } })).toBe(
       'id: 7\nevent: text\ndata: {"text":"hi\\n"}\n\n',
     )
+  })
+})
+
+describe('runSummary', () => {
+  it('reads the history entry off the events', () => {
+    const run = newRun('r')
+    emit(run, 'start', { kind: 'start', prompt: 'say hi', title: 'say hi', at: 5 })
+    expect(runSummary(run)).toEqual({ id: 'r', title: 'say hi', startedAt: 5, status: 'running' })
+    emit(run, 'title', { kind: 'title', title: 'Greeting Exchange' })
+    emit(run, 'end', { kind: 'end', ok: false, message: 'stopped' })
+    expect(runSummary(run)).toEqual({ id: 'r', title: 'Greeting Exchange', startedAt: 5, status: 'failed' })
+    expect(() => runSummary(newRun('x'))).toThrow('no start event')
   })
 })
