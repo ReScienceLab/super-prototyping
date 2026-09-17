@@ -176,8 +176,11 @@ input.canvas-clone-name:focus {
 /*
  * The panel is a flex sibling of the editor rather than an overlay, so tldraw's own viewport
  * shrinks with it: its ResizeObserver re-measures, and zoom-to-fit, the toolbar and every
- * screen-space calculation keep working against the space actually left over. Whether it
- * should float instead is still open; the squeeze is what was measured.
+ * screen-space calculation keep working against the space actually left over. Floating was
+ * considered for the chat panel on the left and rejected: tldraw 5 takes a single scalar `inset`
+ * for zoomToFit/zoomToBounds and a per-axis-symmetric `VecLike` for `constraints.padding`, so
+ * an asymmetric inset for a panel over one edge has no native expression — and the squeeze keeps
+ * every calculation correct with nothing to add.
  */
 .canvas-shell {
   display: flex;
@@ -1340,4 +1343,104 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 .tlui-cmt-canvas-composer .canvas-composer-close:hover {
   background: var(--tl-color-muted-2);
+}
+
+/* ---- The chat panel (ChatPanel.tsx) ------------------------------------------------ */
+
+/*
+ * The inspector's mirror on the left: the same flex sibling, so the editor gives up its width
+ * and every screen-space calculation stays right (see .canvas-shell above).
+ */
+.sp-chat {
+  width: 360px;
+  flex-direction: column;
+  border-left: 0;
+  border-right: 1px solid var(--sp-line);
+}
+
+.sp-chat-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px;
+  overflow-y: auto;
+  user-select: text;
+}
+
+.sp-chat-log p {
+  margin: 0;
+}
+
+.sp-chat-empty,
+.sp-chat-dim {
+  color: var(--sp-text-2);
+  line-height: 18px;
+}
+
+.sp-chat-empty code {
+  font-family: var(--sp-mono);
+}
+
+.sp-chat-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* What the user said, as a bubble on the right; what the agent said, plain. */
+.sp-chat-you {
+  align-self: flex-end;
+  max-width: 88%;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--sp-sel);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sp-chat-text {
+  line-height: 18px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* One line per tool call: the tool, then its target, cut to the width. */
+.sp-chat-tool {
+  display: flex;
+  gap: 6px;
+  color: var(--sp-text-2);
+  font: 400 11px/16px var(--sp-mono);
+  white-space: nowrap;
+}
+
+.sp-chat-tool b {
+  flex: none;
+  font-weight: 500;
+  color: var(--sp-text);
+}
+
+.sp-chat-tool span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-chat-tool[data-ok="false"] b,
+.sp-chat-error {
+  color: #cb2a2f;
+}
+
+.sp-chat-error {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sp-chat-send-error {
+  margin: 0;
+  padding: 0 12px 8px;
+}
+
+.sp-chat-composer {
+  align-items: flex-end;
 }

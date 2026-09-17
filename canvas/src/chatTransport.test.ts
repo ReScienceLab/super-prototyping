@@ -1,0 +1,67 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { sseFrame } from './agentRun'
+import { applyFrame, followRun, sseFrames, type Frame, type Turn } from './chatTransport'
+import type { ChatEvent } from './claudeStream'
+
+const frame = (id: number, data: ChatEvent): Frame => ({ id, event: data.kind, data })
+
+describe('applyFrame', () => {
+  it('folds a run into one turn', () => {
+    let turn: Turn = { runId: 'r', prompt: 'hi', blocks: [] }
+    const frames = [
+      frame(1, { kind: 'thinking' }),
+      frame(2, { kind: 'tool', id: 't1', name: 'Write', detail: '/p/hi.txt' }),
+      frame(3, { kind: 'tool_done', id: 't1', ok: true }),
+      frame(4, { kind: 'text', text: 'do' }),
+      frame(5, { kind: 'text', text: 'ne' }),
+      frame(6, { kind: 'end', ok: true }),
+    ]
+    for (const f of frames) turn = applyFrame(turn, f)
+    expect(turn.blocks).toEqual([
+      { kind: 'thinking' },
+      { kind: 'tool', id: 't1', name: 'Write', detail: '/p/hi.txt', ok: true },
+      { kind: 'text', text: 'done' },
+    ])
+    expect(turn.end).toEqual({ ok: true, message: undefined })
+  })
+})
+
+describe('sseFrames', () => {
+  it('reads back what the server writes, skipping keepalives and keeping a partial frame', () => {
+    const a = { id: 1, event: 'text', data: { kind: 'text', text: 'a' } }
+    const b = { id: 2, event: 'end', data: { kind: 'end', ok: true } }
+    const wire = sseFrame(a) + ': keepalive\n\n' + sseFrame(b)
+    const cut = wire.length - 5
+    const first = sseFrames(wire.slice(0, cut))
+    expect(first.frames).toEqual([a])
+    expect(sseFrames(first.rest + wire.slice(cut)).frames).toEqual([b])
+  })
+})
+
+describe('followRun', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  const stream = (text: string, status = 200) =>
+    new Response(status === 200 ? new Blob([text]).stream() : text, { status })
+
+  it('reopens from the last id when the stream closes early, and stops at the end', async () => {
+    const urls: string[] = []
+    const one = frame(1, { kind: 'text', text: 'a' })
+    const two = frame(2, { kind: 'end', ok: true })
+    vi.stubGlobal('fetch', async (url: string) => {
+      urls.push(url)
+      return stream(urls.length === 1 ? sseFrame(one) : sseFrame(two))
+    })
+    const seen: number[] = []
+    await followRun('r', 0, (f) => seen.push(f.id), new AbortController().signal)
+    expect(seen).toEqual([1, 2])
+    expect(urls).toEqual(['/__sp/agent/run/r/events?after=0', '/__sp/agent/run/r/events?after=1'])
+  })
+
+  it('reports a run the server does not know without retrying', async () => {
+    const calls = vi.fn(async () => stream('no such run', 404))
+    vi.stubGlobal('fetch', calls)
+    await expect(followRun('r', 0, () => {}, new AbortController().signal)).rejects.toThrow('no such run')
+    expect(calls).toHaveBeenCalledTimes(1)
+  })
+})

@@ -47,6 +47,7 @@ import {
   InspectorPanel,
   type CanvasImagePick,
 } from "./InspectorPanel";
+import { ChatPanel } from "./ChatPanel";
 import type { InspectorTarget } from "./inspectorClicks";
 import {
   CANVAS_STATUS_BANNER_GAP,
@@ -1364,6 +1365,8 @@ export default function App() {
       }}
     >
       <div className="canvas-shell">
+        {/* Dev server only: the panel talks to /__sp/agent, which a hosted build has no process behind. */}
+        {import.meta.env.DEV && <ChatPanel />}
         <main className="tldraw__editor" aria-label="Prototype design canvas">
           <Tldraw
             assetUrls={canvasChromeAssetUrls}
