@@ -35,6 +35,9 @@ a history button, and folds to a rail. The rail is the mark; click it to open
 the panel again. The list lives in the dev server's memory and starts empty
 when it restarts.
 
+The agent's replies render as markdown — bold, lists, fences and tables, with
+wide ones scrolling inside the message — rather than as source.
+
 This needs the toolkit reinstalled, not only the plugin updated: `sp-canvas`
 1.2.0 predates `PROTOTYPING_PROJECT_DIR`, so a canvas it starts comes up with
 the panel but every message answers 503. Re-run the README's `uv tool install`
