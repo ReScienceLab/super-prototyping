@@ -244,6 +244,18 @@ export function ChatPanel() {
     switchTo(id);
   };
 
+  const newSession = () => {
+    // Runs are independent of each other already, so what this clears is the log in front of the
+    // user: the next message starts a conversation with nothing above it. A run still going keeps
+    // going and stays in History — stopping one is what the Stop button is for.
+    abort.current.abort();
+    abort.current = new AbortController();
+    setTurns([]);
+    setDraft("");
+    setSendError(null);
+    composer.current?.focus();
+  };
+
   const openHistory = async () => {
     const res = await fetch("/__sp/agent/runs");
     if (!res.ok) return setSendError(await res.text());
@@ -284,6 +296,17 @@ export function ChatPanel() {
             <span className="sp-head-name" title={title}>
               {title}
             </span>
+            <button
+              type="button"
+              className="sp-head-x"
+              onClick={newSession}
+              aria-label="New session"
+              title="New session"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <path d="M6 2v8M2 6h8" />
+              </svg>
+            </button>
             <button
               type="button"
               className="sp-head-x"

@@ -86,6 +86,10 @@ the runs you make, so it is there from the first answer of a session and matches
 whatever you have installed. Codex has no slash commands of its own, so the
 panel offers none for it.
 
+A plus in the panel's header starts a new session: the log clears and the next
+message has nothing above it. Anything still running keeps running and stays in
+the history list — the button clears the view, it does not stop the agent.
+
 ## v1.3.0
 
 2026-09-15. The inspector moves onto the canvas: you click the board itself,
