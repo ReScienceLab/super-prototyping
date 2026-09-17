@@ -1,4 +1,4 @@
-import { spawn, type ChildProcess } from "node:child_process";
+import { execFile, spawn, type ChildProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -17,7 +17,8 @@ import {
 } from "./src/boardStatusEdit.ts";
 import { boardChangeKind, boardSetSignature, boardSlug } from "./src/boardWatch.ts";
 import { attach, emit, ended, newRun, runSummary, sseFrame, type Run } from "./src/agentRun.ts";
-import { chatEventsFromLine, titleFilter } from "./src/claudeStream.ts";
+import { AGENTS, type AgentDef } from "./src/agents.ts";
+import { titleFilter } from "./src/claudeStream.ts";
 
 /**
  * Repo root — vite.config.ts sits in canvas/, one level below it. It is published into the page
@@ -709,9 +710,10 @@ function canvasesSource(): Plugin {
         });
       });
 
-      // The agent behind the chat panel: one Claude Code process per message, run in the user's
-      // project, its output kept here and streamed to the page. Dev server only, like the
-      // endpoints above and more so, since the process writes files.
+      // The agent behind the chat panel: one process per message — Claude Code or Codex, by the
+      // panel's choice, looked up in agents.ts — run in the user's project, its output kept here
+      // and streamed to the page. Dev server only, like the endpoints above and more so, since
+      // the process writes files.
       //
       // Two steps rather than one streaming response: the agent's work is a board written to
       // disk, and the watcher below answers that with a full reload, so a stream bound to the
@@ -721,11 +723,43 @@ function canvasesSource(): Plugin {
       // No reload broadcast from here: a board the agent writes reaches the page through the
       // watcher like anyone else's, and anything else it writes is not the canvas's business.
       const runs = new Map<string, Run & { child: ChildProcess }>();
+      // Which agents are installed: `bin --version` once each, for the server's lifetime, so
+      // the menu greys out one that is missing and says what to do, rather than letting the
+      // first message find out.
+      const probes = new Map<string, Promise<boolean>>();
+      const installed = (def: AgentDef) => {
+        let probe = probes.get(def.id);
+        if (!probe) {
+          probe = new Promise((done) =>
+            execFile(def.bin, ["--version"], { timeout: 10_000 }, (error) => done(!error)),
+          );
+          probes.set(def.id, probe);
+        }
+        return probe;
+      };
       server.middlewares.use("/__sp/agent", (req, res, next) => {
         const send = (code: number, message: string) => {
           res.statusCode = code;
           res.end(message);
         };
+        // Mounted under the prefix, so req.url is "/agents", "/run", "/runs",
+        // "/run/<id>/events?after=N" or "/run/<id>/cancel".
+        const url = new URL(req.url ?? "/", "http://sp");
+        if (req.method === "GET" && url.pathname === "/agents") {
+          // Ahead of the project check: what is on PATH does not depend on it.
+          void Promise.all(
+            AGENTS.map(async (def) => ({
+              id: def.id,
+              name: def.name,
+              available: await installed(def),
+              missing: def.missing,
+            })),
+          ).then((list) => {
+            res.setHeader("content-type", "application/json");
+            send(200, JSON.stringify(list));
+          });
+          return;
+        }
         const project = projectDir;
         if (!project) {
           return send(
@@ -734,16 +768,15 @@ function canvasesSource(): Plugin {
               "`sp-canvas start` sets it to the directory it is started from.",
           );
         }
-        // Mounted under the prefix, so req.url is "/run", "/runs", "/run/<id>/events?after=N"
-        // or "/run/<id>/cancel".
-        const url = new URL(req.url ?? "/", "http://sp");
         if (req.method === "POST" && url.pathname === "/run") {
           let body = "";
           req.on("data", (chunk) => (body += chunk));
           req.on("end", () => {
             try {
-              const { message, canvas } = JSON.parse(body || "{}");
+              const { message, canvas, agent = "claude" } = JSON.parse(body || "{}");
               if (typeof message !== "string" || !message.trim()) return send(400, "empty message");
+              const def = AGENTS.find((a) => a.id === agent);
+              if (!def) return send(400, "unknown agent");
               // The slug lands in a path in the prompt, so it is checked like the others.
               if (canvas !== undefined && !SAFE_NAME.test(canvas)) return send(400, "bad canvas name");
               const preamble = [
@@ -762,28 +795,15 @@ function canvasesSource(): Plugin {
                 .filter(Boolean)
                 .join("\n");
               const run = Object.assign(newRun(randomUUID()), {
-                child: spawn(
-                  "claude",
-                  [
-                    "-p",
-                    "--input-format", "stream-json",
-                    "--output-format", "stream-json",
-                    "--verbose",
-                    "--include-partial-messages",
-                    // The same trust as running claude in a terminal of the project, which is
-                    // what the panel replaces; the panel says so before the first message.
-                    "--permission-mode", "bypassPermissions",
-                    "--append-system-prompt", preamble,
-                  ],
-                  { cwd: project, env: process.env },
-                ),
+                child: spawn(def.bin, def.args(preamble, canvasesDir), { cwd: project, env: process.env }),
               });
               runs.set(run.id, run);
-              // The prompt, its first line as the title until the model gives one, and the time:
-              // the first event, so a replay from zero rebuilds the whole turn and the history
-              // list reads off the same events (agentRun.ts).
+              // The agent, the prompt, its first line as the title until the model gives one, and
+              // the time: the first event, so a replay from zero rebuilds the whole turn with the
+              // right mark on it and the history list reads off the same events (agentRun.ts).
               emit(run, "start", {
                 kind: "start",
+                agent: def.id,
                 prompt: message,
                 title: message.trim().split("\n")[0].slice(0, 60),
                 at: Date.now(),
@@ -806,38 +826,34 @@ function canvasesSource(): Plugin {
                 pending = lines.pop()!;
                 try {
                   for (const line of lines) {
-                    if (line.trim()) for (const e of chatEventsFromLine(line)) for (const t of lift(e)) emit(run, t.kind, t);
+                    if (line.trim()) for (const e of def.events(line)) for (const t of lift(e)) emit(run, t.kind, t);
                   }
                 } catch (error) {
                   run.child.kill();
-                  finish(`unreadable output from claude: ${error}`);
+                  finish(`unreadable output from ${def.bin}: ${error}`);
                 }
               };
               run.child.stdout.setEncoding("utf8").on("data", feed).on("end", () => feed("\n"));
               // A CLI that exits at once — an older one refusing a flag — closes the pipe before
               // the prompt is written; the exit below reports that, and the write error is noise.
               run.child.stdin.on("error", () => {});
-              run.child.stdin.end(
-                JSON.stringify({ type: "user", message: { role: "user", content: message } }) + "\n",
-              );
+              run.child.stdin.end(def.stdin(message, preamble));
               run.child.on("error", (error: NodeJS.ErrnoException) =>
-                finish(
-                  error.code === "ENOENT"
-                    ? "claude is not on PATH. Install Claude Code, or start sp-canvas from a shell where `claude` runs."
-                    : String(error),
-                ),
+                finish(error.code === "ENOENT" ? def.missing : String(error)),
               );
               run.child.on("close", (code, signal) => {
                 if (ended(run)) return;
                 const tail = stderr.trim().split("\n").slice(-5).join("\n");
                 // `claude` is a launcher around the real process: a SIGTERM to it comes back as
-                // exit 143, not as a signal.
+                // exit 143, not as a signal. Harmless for codex, which dies by the signal.
                 finish(
                   signal || code === 143
                     ? "stopped"
-                    : `claude exited with code ${code}` +
+                    : `${def.bin} exited with code ${code}` +
                         (tail ? `\n${tail}` : "") +
-                        (/unknown option/i.test(stderr) ? "\nThe panel needs Claude Code 2.1.274 or newer." : ""),
+                        (def.id === "claude" && /unknown option/i.test(stderr)
+                          ? "\nThe panel needs Claude Code 2.1.274 or newer."
+                          : ""),
                 );
               });
               res.setHeader("content-type", "application/json");

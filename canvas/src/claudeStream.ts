@@ -18,7 +18,8 @@
  * The title is asked for in the system prompt, as `<sp-title>…</sp-title>` at the head of the
  * reply, and `titleFilter` lifts it out of the text into a `title` event on the server, before
  * anything is emitted, so the page never sees the marker as text. Two events are the server's
- * own rather than the parser's: `start`, written when the run is created, and that `title`.
+ * own rather than the parser's: `start`, written when the run is created with which agent runs
+ * it, and that `title`. Both parsers produce this union; codexStream.ts is the other.
  *
  * A run has one terminal frame, `result`, on every build of Claude Code, so it is the only thing
  * that ends a turn here. The CLI also reports a `stop_reason`, on a frame that has moved between
@@ -28,8 +29,10 @@
  * Kept free of node and DOM APIs so the dev server and vitest both import it, and the recorded
  * fixtures next to the test are the whole contract.
  */
+import type { AgentId } from "./agents.ts";
+
 export type ChatEvent =
-  | { kind: "start"; prompt: string; title: string; at: number }
+  | { kind: "start"; agent: AgentId; prompt: string; title: string; at: number }
   | { kind: "title"; title: string }
   | { kind: "text"; text: string }
   | { kind: "thinking" }

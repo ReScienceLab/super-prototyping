@@ -23,7 +23,7 @@
  * test are the contract, except `file_change`, whose shape is Open Design's recording of the
  * same wire; no turn here has written a file yet.
  */
-import type { ChatEvent } from "./claudeStream";
+import type { ChatEvent } from "./claudeStream.ts";
 
 interface Frame {
   type: string;

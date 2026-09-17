@@ -12,6 +12,7 @@
  * Kept free of node APIs so it can be tested without a dev server, the way boardStatusEdit.ts is;
  * the process itself lives in vite.config.ts.
  */
+import type { AgentId } from "./agents.ts";
 import type { ChatEvent } from "./claudeStream.ts";
 
 export interface RunEvent {
@@ -53,6 +54,7 @@ export const sseFrame = (e: RunEvent) =>
 
 export interface RunSummary {
   id: string;
+  agent: AgentId;
   title: string;
   startedAt: number;
   status: "running" | "done" | "failed";
@@ -60,8 +62,8 @@ export interface RunSummary {
 
 /**
  * What the history list shows of a run, read off its events rather than kept beside them: the
- * `start` event has the prompt's title and the time, a `title` event the model's, and the `end`
- * event how it went. The server writes `start` first on every run, so a run without one is a
+ * `start` event has the agent, the prompt's title and the time, a `title` event the model's, and
+ * the `end` event how it went. The server writes `start` first on every run, so a run without one is a
  * bug here, not a case.
  */
 export function runSummary(run: Run): RunSummary {
@@ -72,6 +74,7 @@ export function runSummary(run: Run): RunSummary {
   const last = events.at(-1)!;
   return {
     id: run.id,
+    agent: start.agent,
     title: titled?.title ?? start.title,
     startedAt: start.at,
     status: last.kind !== "end" ? "running" : last.ok ? "done" : "failed",
