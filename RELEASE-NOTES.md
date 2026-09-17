@@ -43,6 +43,12 @@ This needs the toolkit reinstalled, not only the plugin updated: `sp-canvas`
 the panel but every message answers 503. Re-run the README's `uv tool install`
 line with `--force`.
 
+The canvas toolbar drops its shape editing: undo, redo, delete, duplicate and
+the overflow menu of aligns, distributes and reorders are gone from the top
+bar, which leaves comments, Export to Figma, Brand kit, clone and refresh. The
+actions themselves are unchanged — the keyboard and the right-click menu still
+have them.
+
 ## v1.3.0
 
 2026-09-15. The inspector moves onto the canvas: you click the board itself,

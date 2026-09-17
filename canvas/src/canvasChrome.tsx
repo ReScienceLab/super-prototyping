@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
-  DefaultActionsMenu,
   DefaultContextMenu,
   DefaultContextMenuContent,
+  DefaultQuickActions,
   TldrawUiButton,
   TldrawUiButtonIcon,
   TldrawUiIcon,
@@ -12,6 +12,7 @@ import {
   type TLUiAssetUrlOverrides,
   TldrawUiMenuGroup,
   TldrawUiMenuItem,
+  TldrawUiMenuToolItem,
   useDialogs,
   useEditor,
   useEditorPortalHost,
@@ -120,9 +121,16 @@ export const canvasChromeComponents: TLComponents = {
     if (useContext(CanvasChromeContext).inspectorOpen) return null;
     return <CanvasCta />;
   },
-  /** Clone and force-relayout are document-level actions, so they sit in the top bar with the
-   * rest of them rather than with the drawing tools. */
-  ActionsMenu: (props) => {
+  /**
+   * Shape editing is gone from the top bar: undo, redo, delete and duplicate (QuickActions
+   * below) and the overflow of aligns, distributes and reorders that `DefaultActionsMenu`
+   * opens. These shapes are boards written from files, so six buttons for nudging them crowd
+   * out the two the bar is for. The actions stay — the keyboard and the context menu have them.
+   *
+   * What is left is the app's own. Clone and force-relayout are document-level actions, so they
+   * sit in the top bar with the rest of them rather than with the drawing tools.
+   */
+  ActionsMenu: () => {
     const chrome = useContext(CanvasChromeContext);
     const editor = useEditor();
     const { addDialog } = useDialogs();
@@ -137,7 +145,6 @@ export const canvasChromeComponents: TLComponents = {
 
     return (
       <>
-        <DefaultActionsMenu {...props} />
         {/* An anchor wearing the toolbar's button, not a button: this is a link to another page
             of the app, so ⌘-click, middle click and copy-link all have to work on it.
             Named for where the boards are going rather than for what the click does — an
@@ -219,6 +226,24 @@ export const canvasChromeComponents: TLComponents = {
           <TldrawUiButtonIcon icon="refresh-icon" />
         </TldrawUiButton>
       </>
+    );
+  },
+  /**
+   * The comment tool, alone, where undo, redo, delete and duplicate were: on a canvas that is
+   * read rather than drawn on, it is the one mark someone does make.
+   */
+  QuickActions: (props) => {
+    const editor = useEditor();
+    const selected = useValue(
+      "comment tool selected",
+      () => editor.getCurrentToolId() === "comment",
+      [editor],
+    );
+
+    return (
+      <DefaultQuickActions {...props}>
+        <TldrawUiMenuToolItem toolId="comment" isSelected={selected} />
+      </DefaultQuickActions>
     );
   },
   /**
