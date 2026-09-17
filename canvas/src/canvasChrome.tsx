@@ -282,6 +282,10 @@ export const canvasChromeComponents: TLComponents = {
   /** No drawing tools: the boards are the content, and the tools that are not for drawing are in
    *  the top bar and the right button. Keyboard shortcuts still reach the ones tldraw ships. */
   Toolbar: null,
+  /** No zoom readout and no minimap: zooming is the trackpad, ⌘+ and ⌘-, and ⇧1 to fit, none of
+   *  which the widget was doing. It sat in the bottom-left corner, which is where the chat panel
+   *  ends, so the one thing it did reliably was crowd the composer. */
+  NavigationPanel: null,
   /**
    * The comments layer: pins, thread popovers and the composer the comment tool opens. Where they
    * are stored, in the board folder and in Git, and how a pin snaps onto the mockup beside it, is

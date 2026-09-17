@@ -64,7 +64,9 @@ The canvas toolbar drops its shape editing: undo, redo, delete, duplicate and
 the overflow menu of aligns, distributes and reorders are gone from the top
 bar, which leaves comments, Export to Figma, Brand kit, clone and refresh. The
 actions themselves are unchanged — the keyboard and the right-click menu still
-have them.
+have them. The zoom readout and minimap toggle go from the bottom-left corner
+too, where they sat under the chat panel's composer: zoom is the trackpad, ⌘+
+and ⌘-, and ⇧1 to fit the page.
 
 Under the message box: which model, which effort, and what the last message
 cost. The model list is the agent's own — for Codex it is the list its own
