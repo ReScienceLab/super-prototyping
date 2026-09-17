@@ -259,10 +259,28 @@ and bills for it: $0.017, measured. A palette that quietly cost that on every de
 a worse trade than a palette that is empty until the first message of the session, which is what
 this is. The list arrives with the first answer and is right from then on.
 
-Codex has no such list and no such feature: `codex exec` hands `/foo` to the model as the five
-characters it is, which a custom prompt in `CODEX_HOME/prompts` does not change. So `commands` is
-simply absent from its table entry, the endpoint answers with nothing, and the palette never
-opens for it. The same shape as `modelsFile`: what an agent has, it declares.
+Codex needed the opposite arrangement, and it took a while to find the honest one. `codex exec`
+runs no slash commands at all: `codex debug prompt-input "/sp-probe hello"` — which composes the
+prompt the CLI would send, locally and without spending anything — shows the message arriving as
+the literal `/sp-probe hello`, whether or not a file of that name sits in `CODEX_HOME/prompts`.
+Custom prompts are expanded by the TUI (`tui/src/bottom_pane/custom_prompt_view.rs`), before any
+of this. So listing codex's TUI commands would have been a lie: `/diff` and `/compact` do nothing
+here.
+
+What a slash does mean to codex is a **skill**, and skills do reach `exec` — the same probe shows
+an entire `<skills_instructions>` block naming 80 of them, with roots for the personal directory,
+the plugin caches and this project's own `skills/`. So codex's palette is that block, read by
+`commandsProbe`: argv to run, and a function to read the names out of the answer. Run once for the
+server's lifetime, the first time the palette opens for codex, three seconds, no network, no
+charge.
+
+The two agents therefore answer the same question from opposite directions, and the table says
+which: `commands` reads a line the agent was going to write anyway, `commandsProbe` asks an agent
+that writes no such line. Claude is never asked; codex never harvests. The one difference worth
+being straight about is what happens after the palette closes. Claude Code executes `/clone-prototype`
+itself — it is the CLI's command. Codex is *told* about its skills and decides; `/imagegen a cat`
+reaches the model as that text, next to instructions saying what `imagegen` is and where its
+`SKILL.md` lives. Same palette, one CLI feature and one model behaviour.
 
 Open Design does the opposite end of this, and it is worth saying why it does not transfer. Its
 `/` palette (`apps/web/src/components/ChatComposer.tsx`) is a host-side catalog built from live

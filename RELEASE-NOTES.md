@@ -83,8 +83,14 @@ listed — your own, the project's, the plugins' and the skills, `/clone-prototy
 among them — with the arrow keys and Enter to take one. They already worked if
 you knew the name; now you can see them. The list is the CLI's own, learned from
 the runs you make, so it is there from the first answer of a session and matches
-whatever you have installed. Codex has no slash commands of its own, so the
-panel offers none for it.
+whatever you have installed.
+
+Codex gets the same palette, listing its skills — your own, the plugins' and
+this project's. It is not the same mechanism underneath: Claude Code runs a
+slash command itself, while Codex is told what its skills are and what they are
+for, and a `/name` goes to the model as the text it is. The list is Codex's
+own, composed by the CLI without a turn being run, so it is there before the
+first message rather than after it.
 
 A plus in the panel's header starts a new session: the log clears and the next
 message has nothing above it. Anything still running keeps running and stays in

@@ -773,6 +773,31 @@ function canvasesSource(): Plugin {
           // Not the line that carries them.
         }
       };
+      // And for an agent that announces nothing, what it says when asked. Local, free and slow
+      // enough (seconds) to be worth keeping: like the probes above, once for the server's life.
+      const asked = new Map<string, Promise<string[]>>();
+      const askFor = (def: AgentDef) => {
+        let ask = asked.get(def.id);
+        if (!ask) {
+          ask = new Promise<string[]>((done) =>
+            execFile(
+              def.bin,
+              def.commandsProbe!.args,
+              { cwd: projectDir ?? undefined, timeout: 30_000, maxBuffer: 8 << 20 },
+              (error, stdout) => {
+                try {
+                  done(error ? [] : def.commandsProbe!.read(stdout));
+                } catch {
+                  // A version whose answer this cannot read: no palette, rather than no panel.
+                  done([]);
+                }
+              },
+            ),
+          );
+          asked.set(def.id, ask);
+        }
+        return ask;
+      };
       server.middlewares.use("/__sp/agent", (req, res, next) => {
         const send = (code: number, message: string) => {
           res.statusCode = code;
@@ -783,7 +808,13 @@ function canvasesSource(): Plugin {
         const url = new URL(req.url ?? "/", "http://sp");
         if (req.method === "GET" && url.pathname === "/commands") {
           res.setHeader("content-type", "application/json");
-          send(200, JSON.stringify(commands.get(url.searchParams.get("agent") ?? "") ?? []));
+          const def = AGENTS.find((a) => a.id === url.searchParams.get("agent"));
+          const known = commands.get(def?.id ?? "");
+          if (known || !def?.commandsProbe) {
+            send(200, JSON.stringify(known ?? []));
+            return;
+          }
+          void askFor(def).then((list) => send(200, JSON.stringify(list)));
           return;
         }
         if (req.method === "GET" && url.pathname === "/agents") {

@@ -69,6 +69,15 @@ export interface AgentDef {
    * is not free. An agent with no such line, and no slash commands to run, leaves this out.
    */
   commands?(line: string): string[] | null;
+  /**
+   * What to run to ask an agent that announces nothing. Codex has no init frame and no slash
+   * commands of its own: what a slash means to it is a skill, and skills do reach `codex exec` —
+   * it lists them to the model in the prompt it composes. `codex debug prompt-input` composes
+   * that prompt without sending it, so the list is the CLI's own, costs no turn, and includes the
+   * project's skills as well as the personal and plugin ones. Run once for the server's lifetime,
+   * the first time the palette opens for that agent.
+   */
+  commandsProbe?: { args: string[]; read(stdout: string): string[] };
   /** What the run says when `bin` is not on PATH; the menu says it too, greyed. */
   missing: string;
 }
@@ -170,6 +179,19 @@ export const AGENTS: AgentDef[] = [
             window: m.context_window,
             efforts: m.supported_reasoning_levels.map((e) => e.effort),
           })),
+    },
+    commandsProbe: {
+      args: ["debug", "prompt-input"],
+      // The prompt is a list of messages; the skills live in one of them, under a heading that
+      // also lists their roots as "- `r0` = ...". A root's name is backquoted, so a bare name is
+      // the entry and nothing else is.
+      read: (stdout) => {
+        const skills = (JSON.parse(stdout) as { content?: { text?: string }[] }[])
+          .flatMap((m) => m.content ?? [])
+          .map((c) => c.text ?? "")
+          .find((t) => t.includes("<skills_instructions>"));
+        return skills ? [...skills.matchAll(/^- ([\w.:-]+): /gm)].map((m) => m[1]!) : [];
+      },
     },
     missing:
       "codex is not on PATH. Install the Codex CLI, or start sp-canvas from a shell where `codex` runs.",

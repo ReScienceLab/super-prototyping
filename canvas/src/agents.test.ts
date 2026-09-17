@@ -56,9 +56,31 @@ describe('AGENTS', () => {
     expect(def('claude').commands!('{"type": "assistant", "message": {"role": "assistant", "content": []}}')).toBeNull()
   })
 
-  // `codex exec` hands a slash command to the model as the text it is, so there is nothing to
-  // offer and the palette stays shut for it.
-  it('offers no palette for an agent that runs no slash commands', () => {
+  // Codex announces nothing in its stream, so its list is asked for instead. What a slash means
+  // to codex is a skill, and the skills it would tell the model about are in the prompt it will
+  // compose — roots and all, which must not be read as skills.
+  it("reads codex's skills out of the prompt it would have sent", () => {
+    const skills = [
+      '<skills_instructions>',
+      '## Skills',
+      '### Skill roots',
+      '- `r0` = `/Users/x/.codex/skills`',
+      '### Available skills',
+      '- imagegen: Generate or edit raster images (file: r0/imagegen/SKILL.md)',
+      '- ponytail:ponytail-audit: Audit for complexity (file: r1/ponytail/SKILL.md)',
+      '</skills_instructions>',
+    ].join('\n')
+    const prompt = JSON.stringify([
+      { role: 'developer', content: [{ type: 'input_text', text: skills }] },
+      { role: 'user', content: [{ type: 'input_text', text: 'hi' }] },
+    ])
+    expect(def('codex').commandsProbe!.read(prompt)).toEqual(['imagegen', 'ponytail:ponytail-audit'])
+    expect(def('codex').commandsProbe!.read('[]')).toEqual([])
+  })
+
+  // Claude's arrive in a run it is making anyway, so it is never asked.
+  it('asks only the agent that announces nothing', () => {
+    expect(def('claude').commandsProbe).toBeUndefined()
     expect(def('codex').commands).toBeUndefined()
   })
 })
