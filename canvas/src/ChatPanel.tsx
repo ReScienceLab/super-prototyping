@@ -128,7 +128,6 @@ export function ChatPanel() {
             <span className="sp-head-name" title={title}>
               {title}
             </span>
-            <span className="sp-head-dim">{canvas ?? "no canvas open"}</span>
             <button
               type="button"
               className="sp-head-x"

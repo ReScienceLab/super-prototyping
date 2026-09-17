@@ -65,6 +65,10 @@ created with the prompt, the title and the time. It exists so a run replays whol
 zero: the panel keeps only run ids in `sessionStorage` now, where it kept prompts too, and the
 history list is read off the same events (`runSummary` in `agentRun.ts`).
 
+The board it is pointed at is not named here. It was, until the panel was seen beside the
+canvas's own header a few hundred pixels to the right, naming the same board; one of the two had
+to go, and the panel is not the one that owns it. The slug still travels with the message.
+
 ## The history is the server's memory, and dies with it
 
 `GET /__sp/agent/runs` lists the runs the server retains — the newest twenty, in memory —
