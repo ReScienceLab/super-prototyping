@@ -96,6 +96,13 @@ A plus in the panel's header starts a new session: the log clears and the next
 message has nothing above it. Anything still running keeps running and stays in
 the history list — the button clears the view, it does not stop the agent.
 
+The canvas is dark, and its panels are drawn in Vercel's Geist: its greys and
+its accents, its icons, and Geist Sans and Geist Mono bundled so a board looks
+the same offline as online. The chat panel, the inspector and the top bar all
+read as one app now, and tldraw's own canvas is dark with them. Your boards are
+untouched — a mockup is drawn by its own generator and keeps whatever palette it
+was measured in.
+
 ## v1.3.0
 
 2026-09-15. The inspector moves onto the canvas: you click the board itself,

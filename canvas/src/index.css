@@ -11,7 +11,7 @@ body,
 }
 
 body {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--sp-sans);
 }
 
 button {
@@ -25,12 +25,17 @@ button {
 }
 
 /*
- * The welcome board is full-bleed black line work. On tldraw's default near-white ground it
- * reads as a slab with a hard edge, so the ground goes black under it and the page's own
- * captions go white to match. App.tsx toggles the class per current page.
+ * The canvas ground, on the same token as the panels beside it. tldraw's own dark ground is
+ * hsl(240 5% 6.5%), a shade off black and a shade off them, which reads as two apps in one
+ * window — the thing asking for tldraw's dark theme was meant to stop. Geist has one default
+ * ground: "in most instances, you should use Background 1", and Background 2 "sparingly when a
+ * subtle background differentiation is needed". A rail next to a canvas is not that: the
+ * panel's own 1px border is what separates them.
  */
-.tl-container.canvas-welcome-ground {
-  --tl-color-background: #08080a;
+/* Two classes, because the value it replaces is `.tl-theme__dark`'s and one class would only
+   win on import order. */
+.tl-container.tl-theme__dark {
+  --tl-color-background: var(--ds-background-100);
 }
 
 /*
@@ -128,15 +133,15 @@ input.canvas-clone-name:focus {
   padding: 32px;
   pointer-events: none;
   text-align: center;
-  color: #3c3c43;
-  font: 400 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  color: var(--ds-gray-900);
+  font: 400 15px/1.55 var(--sp-sans);
 }
 
 .canvas-empty__title {
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  color: #1c1c1e;
+  color: var(--ds-gray-1000);
 }
 
 .canvas-empty__body {
@@ -148,8 +153,8 @@ input.canvas-clone-name:focus {
 .canvas-empty__cmd {
   pointer-events: all;
   user-select: text;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  background: rgba(0, 0, 0, 0.05);
+  font-family: var(--sp-mono);
+  background: var(--ds-gray-alpha-300);
   border-radius: 8px;
 }
 
@@ -195,53 +200,82 @@ input.canvas-clone-name:focus {
 }
 
 /*
-  Geist, at the published values of the steps this panel uses: 100-300 are component
-  backgrounds, 400 a border, 700 a solid fill or a dot, 900-1000 text. They are spelled out
-  rather than imported because the canvas ships as a plugin, and there is no design-system
-  package on the other side of an install.
-*/
-.sp-panel {
-  --ds-gray-100: #f2f2f2;
-  --ds-gray-200: #ebebeb;
-  --ds-gray-300: #e6e6e6;
-  --ds-gray-400: #ebebeb;
-  --ds-gray-700: #8f8f8f;
-  --ds-gray-900: #4d4d4d;
-  --ds-gray-1000: #171717;
-  --ds-blue-100: #f0f7ff;
-  --ds-blue-200: #ebf5ff;
-  --ds-blue-300: #e0f0ff;
-  --ds-blue-400: #cce6ff;
-  --ds-blue-700: #0072f5;
-  --ds-blue-900: #0068d6;
-  --ds-amber-100: #fff6e6;
-  --ds-amber-200: #fff4d6;
-  --ds-amber-300: #fef0cd;
-  --ds-amber-400: #ffdd8f;
-  --ds-amber-700: #ffb224;
-  --ds-amber-900: #a35200;
-  --ds-shadow-menu:
-    0 0 0 1px #00000014, 0 1px 1px #00000005, 0 4px 8px -4px #0000000a,
-    0 16px 24px -8px #0000000f;
-  --ds-focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px var(--ds-blue-700);
+  Geist's scale, at the values Vercel publishes in vercel.com/geist/vercel-brand.css (GeistCN
+  snapshot 4f5d9c0da9ad400918e15083c83626572f19fd9b). The names are Geist's own `--ds-*`, so a
+  path lifted out of its icon set reads the same here as it does there. Spelled out rather than
+  imported because the canvas ships as a plugin and there is no design-system package on the
+  other side of an install; on `:root` rather than on the panel because the top bar's own
+  controls are part of the same system.
 
+  Geist publishes each step as a `light-dark()` pair, so both halves are here and
+  `color-scheme` below picks which one every token resolves to. Dark, unconditionally: it is
+  what the canvas opens as, and a board is easier to read against a ground that is not competing
+  with it. One word here is the whole switch.
+*/
+:root {
+  color-scheme: dark;
+  --ds-background-100: light-dark(oklch(1 0 0), oklch(0 0 0));
+  --ds-background-200: light-dark(oklch(0.984 0 0), oklch(0.027 0 0));
+  --ds-gray-100: light-dark(oklch(0.961 0 0), oklch(0.218 0 0));
+  --ds-gray-200: light-dark(oklch(0.94 0 0), oklch(0.239 0 0));
+  --ds-gray-300: light-dark(oklch(0.925 0 0), oklch(0.281 0 0));
+  --ds-gray-400: light-dark(oklch(0.937 0 0), oklch(0.301 0 0));
+  --ds-gray-700: light-dark(oklch(0.65 0 0), oklch(0.65 0 0));
+  --ds-gray-900: light-dark(oklch(0.42 0 0), oklch(0.706 0 0));
+  --ds-gray-1000: light-dark(oklch(0.205 0 0), oklch(0.946 0 0));
+  --ds-gray-alpha-300: light-dark(oklch(0 0 0 / 0.1), oklch(1 0 0 / 0.13));
+  --ds-gray-alpha-400: light-dark(oklch(0 0 0 / 0.08), oklch(1 0 0 / 0.14));
+  --ds-blue-100: light-dark(oklch(97.32% 0.0141 251.56), oklch(22.17% 0.069 259.89));
+  --ds-blue-400: light-dark(oklch(91.58% 0.0473 245.116), oklch(34.1% 0.121 254.74));
+  --ds-blue-700: light-dark(oklch(57.61% 0.2508 258.23), oklch(57.61% 0.2321 258.23));
+  --ds-blue-900: light-dark(oklch(53.18% 0.2399 256.99), oklch(71.7% 0.1648 250.794));
+  --ds-amber-100: light-dark(oklch(97.48% 0.0331 85.79), oklch(22.46% 0.0538 76.04));
+  --ds-amber-400: light-dark(oklch(91.02% 0.1322 88.25), oklch(35.53% 0.0903 66.297));
+  --ds-amber-700: light-dark(oklch(81.87% 0.1969 76.46), oklch(81.87% 0.1969 76.46));
+  --ds-amber-900: light-dark(oklch(52.79% 0.1496 54.65), oklch(77.21% 0.1991 64.28));
+  --ds-red-900: light-dark(oklch(54.99% 0.232 25.29), oklch(69.96% 0.2136 22.03));
+  /* Geist publishes 100, 400, 700, 900 and 1000 of a hue and nothing between. The status badge
+     wants two presses' worth of ground between its 100 and its 400, so those two steps are
+     interpolated on the scale's own ramp rather than picked by eye. */
+  --ds-blue-200: color-mix(in oklab, var(--ds-blue-100), var(--ds-blue-400) 33%);
+  --ds-blue-300: color-mix(in oklab, var(--ds-blue-100), var(--ds-blue-400) 66%);
+  --ds-amber-200: color-mix(in oklab, var(--ds-amber-100), var(--ds-amber-400) 33%);
+  --ds-amber-300: color-mix(in oklab, var(--ds-amber-100), var(--ds-amber-400) 66%);
+  /* The 1px ring is the token rather than the published `#00000014`: on a dark ground a black
+     ring is no edge at all, and a menu with no edge is a menu floating in the panel. */
+  --ds-shadow-menu:
+    0 0 0 1px var(--ds-gray-alpha-400), 0 1px 1px #00000005,
+    0 4px 8px -4px #0000000a, 0 16px 24px -8px #0000000f;
+  --ds-focus-ring: 0 0 0 2px var(--ds-background-100), 0 0 0 4px var(--ds-blue-700);
+  --sp-sans: "Geist Variable", Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --sp-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.sp-panel {
+  --sp-bg: var(--ds-background-100);
   --sp-line: var(--ds-gray-400);
   --sp-text: var(--ds-gray-1000);
   --sp-text-2: var(--ds-gray-700);
-  --sp-field: #fafafa;
+  --sp-field: var(--ds-background-200);
   --sp-hover: var(--ds-gray-100);
   --sp-sel: var(--ds-blue-100);
   --sp-accent: var(--ds-blue-700);
-  --sp-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sp-warn: var(--ds-amber-900);
+  --sp-danger: var(--ds-red-900);
   display: flex;
   flex: 0 0 auto;
   height: 100%;
   border-left: 1px solid var(--sp-line);
-  background: #ffffff;
+  background: var(--sp-bg);
   color: var(--sp-text);
-  font: 400 12px/16px Geist, Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font: 400 12px/16px var(--sp-sans);
   letter-spacing: -0.01em;
+  /* After the shorthand, which resets all four. Geist ships with contextual alternates off and
+     ss11 on; that pair is what gives its `a` and its numerals the shapes Vercel draws. */
+  font-feature-settings: "rlig" 1, "calt" 0, "ss11" 1;
   font-variant-numeric: tabular-nums;
+  font-kerning: normal;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   user-select: none;
 }
@@ -275,7 +309,9 @@ input.canvas-clone-name:focus {
   object-fit: contain;
   padding: 8px 12px 4px;
   /* Checkerboard: most of these are cut-outs with alpha, and alpha over a flat ground is a
-     shape you cannot tell from a white one. */
+     shape you cannot tell from a white one. Light in both themes, along with the dark ground
+     the photo thumbs take: these are grounds for the board's own artwork, and artwork that
+     inverted with the panel would be artwork nobody could check. */
   background-image:
     linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%),
     linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%);
@@ -346,8 +382,8 @@ input.canvas-clone-name:focus {
   margin-left: 3px;
   border-radius: 8px;
   /* White against the bar's grey, which is what makes it read as the one thing to press here. */
-  background: #ffffff;
-  box-shadow: inset 0 0 0 1px #e3e3e3;
+  background: var(--ds-background-100);
+  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
   font-weight: 500;
   white-space: nowrap;
   text-decoration: none;
@@ -355,7 +391,7 @@ input.canvas-clone-name:focus {
 
 .tlui-button.sp-figma:hover,
 .tlui-button.sp-brand:hover {
-  background: #f7f7f7;
+  background: var(--ds-gray-100);
 }
 
 /* On a phone the bar is already tight against the page menu; the mark alone still says Figma. */
@@ -473,12 +509,12 @@ input.canvas-clone-name:focus {
   padding: 0 10px;
   border: 1px solid var(--ds-gray-400);
   border-radius: 9999px;
-  background: #fff;
+  background: var(--ds-background-100);
   color: var(--ds-gray-1000);
   font: inherit;
   font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 0 0 1px #ffffffa8;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--ds-background-100) 66%, transparent);
   transition: background 0.12s ease;
 }
 
@@ -503,7 +539,7 @@ input.canvas-clone-name:focus {
   color: var(--fg);
   font-weight: 500;
   /* Against a board that may be any colour at all, not a drop shadow. */
-  box-shadow: 0 0 0 1px #ffffffa8;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--ds-background-100) 66%, transparent);
   transition: background 0.12s ease;
 }
 
@@ -580,7 +616,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   width: 196px;
   padding: 6px;
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--ds-background-100);
   box-shadow: var(--ds-shadow-menu);
 }
 
@@ -623,10 +659,10 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   right: 0;
   padding: 4px 8px;
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--ds-background-100);
   box-shadow: var(--ds-shadow-menu);
   white-space: nowrap;
-  color: #cb2a2f;
+  color: var(--sp-danger);
 }
 
 .sp-head-dim {
@@ -934,7 +970,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-link {
   flex: none;
   color: var(--sp-accent);
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--sp-sans);
   cursor: pointer;
 }
 
@@ -960,14 +996,14 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-state {
   padding: 0 0 4px 96px;
   line-height: 16px;
-  color: #b25d00;
+  color: var(--sp-warn);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .sp-state.overridden {
-  color: #c0392b;
+  color: var(--sp-danger);
 }
 
 .sp-decl.overridden .sp-k {
@@ -982,7 +1018,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   gap: 5px;
   padding: 0 6px 0 4px;
   border-radius: 4px;
-  background: #efefef;
+  background: var(--ds-gray-100);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -997,7 +1033,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 
 .sp-pill:hover {
-  background: #e4e4e4;
+  background: var(--ds-gray-300);
 }
 
 .sp-sw {
@@ -1005,7 +1041,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   height: 12px;
   flex: none;
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-300);
 }
 
 .sp-sw--none {
@@ -1081,7 +1117,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   line-height: 12px;
   padding: 0 3px;
   border-radius: 3px;
-  background: #efefef;
+  background: var(--ds-gray-100);
   color: var(--sp-text-2);
 }
 
@@ -1162,7 +1198,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   max-height: 45%;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--sp-bg);
   border-top: 1px solid var(--sp-line);
 }
 
@@ -1513,7 +1549,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 
 .sp-chat-tool[data-ok="false"] b,
 .sp-chat-error {
-  color: #cb2a2f;
+  color: var(--sp-danger);
 }
 
 .sp-chat-error {
@@ -1596,21 +1632,22 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   overscroll-behavior: contain;
   border: 1px solid var(--sp-line);
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  background: var(--ds-background-100);
+  box-shadow: var(--ds-shadow-menu);
 }
 
 .sp-chat-slash .sp-menu-row {
   height: 28px;
-  font-family: var(--sp-mono, ui-monospace, monospace);
+  font-family: var(--sp-mono);
 }
 
-/* The accent, not the hover grey: the hover grey is a 5% step on white, so the arrow keys moved
-   the selection without anything on screen appearing to move. It also has to outrank :hover,
-   which paints the same grey on whichever row the pointer happens to be resting over. */
+/* The accent, not the hover grey: the hover grey is one step off the panel's own ground, so the
+   arrow keys moved the selection without anything on screen appearing to move. It also has to
+   outrank :hover, which paints the same grey on whichever row the pointer happens to be resting
+   over. */
 .sp-chat-slash .sp-menu-row.sp-chat-slash-on {
   background: var(--sp-accent);
-  color: #fff;
+  color: #ffffff;
 }
 
 /* Collapsed: a rail the width of the mark, which is the button that opens the panel again. The
@@ -1644,9 +1681,9 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   padding: 4px;
   border: 1px solid var(--sp-line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--sp-bg);
   color: var(--sp-text);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--ds-shadow-menu);
 }
 
 .sp-chat-history {
@@ -1699,7 +1736,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 
 .sp-chat-history-row[data-status="failed"] .sp-chat-history-title {
-  color: #cb2a2f;
+  color: var(--sp-danger);
 }
 
 /* The agent menu: the inspector's rows, grown to fit a second line under a CLI that was not

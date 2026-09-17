@@ -34,6 +34,7 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
+import { Check, ClockRewind, Plus, SidebarLeft } from "./geistIcons";
 import { renderMarkdown } from "./markdown";
 
 const RUNS_KEY = "sp-chat-runs";
@@ -47,12 +48,6 @@ const effortName = (e: string) => (e === "xhigh" ? "XHigh" : e.charAt(0).toUpper
 
 /** 26k, 272k: a token count is read at a glance or not at all. */
 const tokens = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}k` : String(n));
-
-const Check = () => (
-  <svg className="sp-menu-ck" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-    <path d="M2 6.4l2.6 2.6L10 3.6" />
-  </svg>
-);
 
 /** Each agent's mark, by the id the server names it with. */
 const MARKS = { claude: ClaudeMark, codex: CodexMark };
@@ -303,9 +298,7 @@ export function ChatPanel() {
               aria-label="New session"
               title="New session"
             >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
-                <path d="M6 2v8M2 6h8" />
-              </svg>
+              <Plus />
             </button>
             <button
               type="button"
@@ -315,17 +308,10 @@ export function ChatPanel() {
               aria-label="History"
               title="History"
             >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
-                <path d="M1.5 6a4.5 4.5 0 1 0 4.5-4.5 4.875 4.875 0 0 0-3.37 1.37L1.5 4" />
-                <path d="M1.5 1.5v2.5h2.5" />
-                <path d="M6 3.5v2.5l2 1" />
-              </svg>
+              <ClockRewind />
             </button>
             <button type="button" className="sp-head-x" onClick={toggle} aria-label="Collapse the chat panel">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
-                <rect x="1.5" y="1.5" width="9" height="9" rx="1" />
-                <path d="M4.5 1.5v9" />
-              </svg>
+              <SidebarLeft />
             </button>
           </>
         )}
@@ -346,7 +332,7 @@ export function ChatPanel() {
               {a.name}
               {!a.available && <small>{a.missing}</small>}
             </span>
-            {a.id === agent && <Check />}
+            {a.id === agent && <Check className="sp-menu-ck" />}
           </button>
         ))}
       </div>
@@ -367,7 +353,7 @@ export function ChatPanel() {
               {m.name}
               {!m.id && <small>Whatever {nameOf(agent)} is set to use</small>}
             </span>
-            {m.id === model && <Check />}
+            {m.id === model && <Check className="sp-menu-ck" />}
           </button>
         ))}
       </div>
@@ -386,7 +372,7 @@ export function ChatPanel() {
             Default
             <small>Whatever {nameOf(agent)} is set to use</small>
           </span>
-          {!effort && <Check />}
+          {!effort && <Check className="sp-menu-ck" />}
         </button>
         <input
           type="range"

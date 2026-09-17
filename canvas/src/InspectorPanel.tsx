@@ -4,6 +4,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ReactElement,
   type ReactNode,
 } from "react";
 import {
@@ -13,6 +14,21 @@ import {
   type TLShapeId,
 } from "tldraw";
 import { BoardComments } from "./InspectorComments";
+import {
+  Box,
+  Check,
+  ChevronDownSmall,
+  ChevronRightSmall,
+  Cross,
+  Eye,
+  EyeOff,
+  Fullscreen,
+  Image,
+  Layout,
+  Pen,
+  RefreshCounterClockwise,
+  TextTitle,
+} from "./geistIcons";
 import { CanvasChromeContext } from "./canvasChrome";
 import {
   installInspectorClicks,
@@ -61,6 +77,7 @@ import {
   panelBounds,
   tokenGroups,
   tokenVia,
+  type LayerKind,
 } from "./inspectorModel";
 
 /**
@@ -196,17 +213,7 @@ function BoardStatus({ path }: { path: string }) {
         onClick={() => setOpen((v) => !v)}
       >
         {badge}
-        <svg
-          className="sp-status-chev"
-          width="11"
-          height="11"
-          viewBox="0 0 12 12"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.4"
-        >
-          <path d="M2.5 4.5L6 8l3.5-3.5" />
-        </svg>
+        <ChevronDownSmall className="sp-status-chev" />
       </button>
       {open ? (
         <div className="sp-menu" role="menu">
@@ -222,17 +229,7 @@ function BoardStatus({ path }: { path: string }) {
               <i className={`sp-status-dot sp-status--${option}`} />
               {BOARD_STATUS_LABEL[option]}
               {option === status ? (
-                <svg
-                  className="sp-menu-ck"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <path d="M2 6.4l2.6 2.6L10 3.6" />
-                </svg>
+                <Check className="sp-menu-ck" />
               ) : null}
             </button>
           ))}
@@ -249,19 +246,7 @@ function BoardStatus({ path }: { path: string }) {
           title={`Back to ${BOARD_STATUS_LABEL[undo.back]}`}
           onClick={revert}
         >
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3.2 4.6H7.6a2.6 2.6 0 010 5.2H5.2" />
-            <path d="M5 2.4L3 4.6l2 2.2" />
-          </svg>
+          <RefreshCounterClockwise />
           Undo
         </button>
       ) : null}
@@ -577,18 +562,7 @@ export function InspectorPanel({
               title="Open this board as a page"
               aria-label="Open this board as a page"
             >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M4.5 1.5h-3v3M7.5 1.5h3v3M10.5 7.5v3h-3M1.5 7.5v3h3" />
-              </svg>
+              <Fullscreen />
             </a>
           ) : null}
           <button
@@ -597,16 +571,7 @@ export function InspectorPanel({
             onClick={onClose}
             aria-label="Close inspector"
           >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.2"
-            >
-              <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
-            </svg>
+            <Cross />
           </button>
         </header>
 
@@ -800,18 +765,7 @@ export function ImagePanel({
               title="Open the original"
               aria-label="Open the original"
             >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M4.5 1.5h-3v3M7.5 1.5h3v3M10.5 7.5v3h-3M1.5 7.5v3h3" />
-              </svg>
+              <Fullscreen />
             </a>
           ) : null}
           <button
@@ -820,16 +774,7 @@ export function ImagePanel({
             onClick={onClose}
             aria-label="Close inspector"
           >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.2"
-            >
-              <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" />
-            </svg>
+            <Cross />
           </button>
         </header>
 
@@ -931,64 +876,13 @@ function CopySvg({ svg }: { svg: string }) {
   );
 }
 
-function LayerIcon({ kind }: { kind: ReturnType<typeof layerKind> }) {
-  if (kind === "vector")
-    return (
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 12 12"
-        fill="none"
-        stroke="currentColor"
-      >
-        <path d="M2.5 9.5C2.5 4.5 7.5 7.5 9.5 2.5" />
-        <circle cx="2.5" cy="9.5" r="1.2" fill="currentColor" stroke="none" />
-        <circle cx="9.5" cy="2.5" r="1.2" fill="currentColor" stroke="none" />
-      </svg>
-    );
-  if (kind === "text")
-    return (
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-        <path d="M2 2h8v2H7v6H5V4H2z" />
-      </svg>
-    );
-  if (kind === "image")
-    return (
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 12 12"
-        fill="none"
-        stroke="currentColor"
-      >
-        <rect x="1.5" y="1.5" width="9" height="9" rx="1" />
-        <path d="M2 9l2.5-3 2 2 1.5-1.5L10 9" />
-      </svg>
-    );
-  if (kind === "frame")
-    return (
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 12 12"
-        fill="none"
-        stroke="currentColor"
-      >
-        <path d="M3.5 1v10M8.5 1v10M1 3.5h10M1 8.5h10" />
-      </svg>
-    );
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
-      stroke="currentColor"
-    >
-      <rect x="1.5" y="1.5" width="9" height="9" rx="1" />
-    </svg>
-  );
-}
+const LAYER_ICON: Record<LayerKind, (p: { size?: number }) => ReactElement> = {
+  vector: Pen,
+  text: TextTitle,
+  image: Image,
+  frame: Layout,
+  box: Box,
+};
 
 /** Adds an index to a set, or takes it out: what the fold and the eye do to their set. */
 function toggled(set: ReadonlySet<number>, i: number) {
@@ -1078,7 +972,7 @@ function Layers({
             title={layerSelector(n)}
             onClick={() => onSelect(n.i)}
           >
-            <LayerIcon kind={layerKind(n)} />
+            {LAYER_ICON[layerKind(n)]({ size: 12 })}
             <span className="sp-layer-n">{layerName(n, names.get(n.i))}</span>
             {n.i === 0 && n.box ? (
               <span className="sp-layer-d">
@@ -1096,7 +990,7 @@ function Layers({
               aria-pressed={hidden.has(n.i)}
               onClick={() => onHide(n.i)}
             >
-              <Eye off={hidden.has(n.i)} />
+              {hidden.has(n.i) ? <EyeOff size={12} /> : <Eye size={12} />}
             </button>
           ) : null}
         </div>
@@ -1106,27 +1000,8 @@ function Layers({
 }
 
 function Caret({ open }: { open: boolean }) {
-  return (
-    <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
-      <path d={open ? "M0 2h8L4 7z" : "M2 0v8l5-4z"} />
-    </svg>
-  );
-}
-
-function Eye({ off }: { off: boolean }) {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
-      stroke="currentColor"
-    >
-      <path d="M1 6s2-3.2 5-3.2S11 6 11 6s-2 3.2-5 3.2S1 6 1 6z" />
-      <circle cx="6" cy="6" r="1.4" />
-      {off ? <path d="M2 10L10 2" /> : null}
-    </svg>
-  );
+  const Glyph = open ? ChevronDownSmall : ChevronRightSmall;
+  return <Glyph size={12} />;
 }
 
 function Summary({

@@ -26,7 +26,6 @@ import {
   type TLTextShape,
   useEditor,
   useLocalStore,
-  useValue,
 } from "tldraw";
 import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
@@ -244,22 +243,6 @@ function AgentBridge() {
 function LockedLinkClicks() {
   const editor = useEditor();
   useEffect(() => installLockedLinkClicks(editor), [editor]);
-  return null;
-}
-
-/** Blacks out the canvas under the welcome board, whose art runs to its own edges. */
-function WelcomeGround() {
-  const editor = useEditor();
-  const isWelcome = useValue(
-    "on the welcome page",
-    () => editor.getCurrentPage().meta.canvasSlug === WELCOME_PAGE_SLUG,
-    [editor],
-  );
-  useEffect(() => {
-    const container = editor.getContainer();
-    container.classList.toggle("canvas-welcome-ground", isWelcome);
-    return () => container.classList.remove("canvas-welcome-ground");
-  }, [editor, isWelcome]);
   return null;
 }
 
@@ -1325,6 +1308,9 @@ export default function App() {
 
   function handleMount(editor: Editor) {
     setEditor(editor);
+    // tldraw's own dark theme, to the panel's. A dark rail against tldraw's near-white ground is
+    // two apps in one window, and the ground is the larger half of what that looks like.
+    editor.user.updateUserPreferences({ colorScheme: "dark" });
     initializeCanvas(editor);
     // After the library, which is what creates the pages the comments are keyed to.
     const disposeComments = installCanvasComments(editor);
@@ -1386,7 +1372,6 @@ export default function App() {
               inspectingPath={inspecting?.path ?? null}
               frame={inspectorFrame}
             />
-            <WelcomeGround />
             <EmptyLibraryNotice />
           </Tldraw>
         </main>
