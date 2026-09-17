@@ -190,7 +190,7 @@ def _root():
 TOKENS = _root()
 
 BASE = """*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--awt-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}"""
+body{font-family:var(--awt-font);-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}"""
 
 # The notch, as one path in frame coordinates, solved off the 2x export rather
 # than taken from the file: the Display Shape node exports as a 55 KB bitmap

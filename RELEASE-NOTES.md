@@ -98,10 +98,18 @@ the history list — the button clears the view, it does not stop the agent.
 
 The canvas is dark, and its panels are drawn in Vercel's Geist: its greys and
 its accents, its icons, and Geist Sans and Geist Mono bundled so a board looks
-the same offline as online. The chat panel, the inspector and the top bar all
-read as one app now, and tldraw's own canvas is dark with them. Your boards are
-untouched — a mockup is drawn by its own generator and keeps whatever palette it
-was measured in.
+the same offline as online. The chat panel, the inspector, the top bar and the
+canvas they sit around all read as one app now, on one ground, separated by
+hairlines rather than by shade. Your boards are untouched — a mockup is drawn by
+its own generator and keeps whatever palette it was measured in.
+
+One thing about a board does change, and it is what the dark ground exposed: a
+mockup used to sit on a white card. A frame paints an opaque white background
+of its own underneath whatever the board draws — invisible while the canvas was
+white, a card around every phone once it is not. The canvas releases it, so the
+canvas shows through wherever a board paints nothing and every pixel the board
+does paint stays as it was. A board that wants a ground still declares one, a
+token sheet or an evidence sheet, and looks exactly as it did.
 
 ## v1.3.0
 

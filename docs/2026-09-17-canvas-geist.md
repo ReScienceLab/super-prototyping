@@ -41,6 +41,15 @@ hand re-skin of its chrome. A dark rail against tldraw's near-white ground is tw
 window, and the ground is the larger half of what the window looks like; tldraw already has the
 dark theme its own components were designed for, and one line asks for it.
 
+One token of that theme is overridden, and it is the ground itself: `--tl-color-background` is
+`var(--ds-background-100)`, because tldraw's dark ground is `hsl(240 5% 6.5%)` and the panels
+beside it are black, which is the same two-apps-in-one-window at a smaller amplitude. Geist has
+one default ground — "in most instances, you should use Background 1", with Background 2
+"sparingly when a subtle background differentiation is needed" — and a rail next to a canvas is
+not that case: the panel's own 1px border is what separates them, as it is everywhere in
+Vercel's own dark UI. The rule is `.tl-container.tl-theme__dark`, two classes, because the value
+it replaces is that class's and one class would have won or lost on import order.
+
 That deleted a component. `WelcomeGround` blacked out the canvas under the welcome board because
 the board's full-bleed line work read as a slab on tldraw's near-white ground — an effect, a
 class toggle and a `--tl-color-background` override for a problem that was the light ground.
@@ -67,6 +76,42 @@ board is behind it, so they belong to the panel, not to the board.
 The menu shadow's 1px ring is the token rather than the published `#00000014`. On a dark ground a
 black ring is no edge at all, and a menu with no edge is a menu floating in the panel; the ring
 is `--ds-gray-alpha-400`, whose dark half is white at 14%.
+
+## The boards were sitting on white cards
+
+The ground went dark and every mockup became a white card on it. Two different things were painting
+that white, and only one of them was in the boards.
+
+Six generators, and raycast's eleven hand-written boards, carried `background:#fff` in the shared
+screen `body{}` rule — drift from `templates/gen.py`, which has never had it. That is data, so it
+was fixed as data: the declaration is gone and the boards are regenerated. The `.phone` frame
+already paints its own opaque ground, so nothing inside a phone moved.
+
+Every other board declared nothing and was white anyway, because a frame paints an opaque base
+background underneath the document it loads, and nothing outside the frame reaches it. Measured, all
+five of these still paint `#FFFFFF`: `background` on the `<iframe>` element,
+`allowtransparency="true"`, `color-scheme` on the element, an injected
+`html{background:transparent}`, an injected `html,body{background:none!important}`. The one lever
+that releases it is `color-scheme: dark` declared inside the document, on its own `:root` — the
+frame then composites onto what is behind it. Which is why `CanvasFileShapeUtil` injects that and
+not a colour: the board shows the canvas through, whatever the canvas is, and the light theme of the
+section above needs no second rule here.
+
+It goes in straight after the doctype. Anything before the doctype is quirks mode, and `</head>` is
+not an anchor — 51 of the 351 boards close no head. Being first also means a board that declares
+either property wins. The property that comes along with a dark scheme is the root's default
+`color`, which flips to white and would repaint the status bar's `currentColor` glyphs, so `#000` is
+pinned back: the light default the boards were authored against.
+
+The cost was measured rather than assumed, at the real 478 × 980 and over a white ground, so that
+only the releasing shows. Three of six boards came out pixel identical; the others differed by at
+most 11 in one channel, on glyph edges, where subpixel antialiasing gives way to grayscale on a
+layer that is no longer opaque. `refkit shoot` renders a board directly rather than through the
+canvas, so every measurement and screenshot in the repo is untouched by this.
+
+Both skills grew the rule — `prototype-canvas`'s `references/layout.md` and `clone-prototype`'s hard
+constraints: no page ground, let `.phone` paint its own, document boards excepted because black text
+needs one.
 
 ## Sixteen path strings, not a package
 
