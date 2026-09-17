@@ -47,4 +47,18 @@ describe('AGENTS', () => {
   it('offers nothing when codex has cached nothing', () => {
     expect(def('codex').modelsFile!.read({})).toEqual([])
   })
+
+  // Claude Code names every slash command it can run on the init frame of a run — the project's,
+  // the personal ones, the plugins' and the skills — so the palette costs no spawn of its own.
+  it("takes claude's slash commands off the frame that lists them, and nothing off the rest", () => {
+    const init = '{"type": "system", "subtype": "init", "cwd": "/p", "session_id": "s", "model": "claude-haiku-4-5-20251001", "slash_commands": ["clone-prototype", "ponytail:ponytail", "review"]}'
+    expect(def('claude').commands!(init)).toEqual(['clone-prototype', 'ponytail:ponytail', 'review'])
+    expect(def('claude').commands!('{"type": "assistant", "message": {"role": "assistant", "content": []}}')).toBeNull()
+  })
+
+  // `codex exec` hands a slash command to the model as the text it is, so there is nothing to
+  // offer and the palette stays shut for it.
+  it('offers no palette for an agent that runs no slash commands', () => {
+    expect(def('codex').commands).toBeUndefined()
+  })
 })

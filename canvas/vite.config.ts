@@ -760,6 +760,19 @@ function canvasesSource(): Plugin {
         }
         return list;
       };
+      // The slash commands each agent last said it had. Claude Code lists them on the init frame
+      // of every run, so they cost nothing to learn and are exactly what that project can run;
+      // the palette is empty until the first message, which is the price of not spawning a CLI
+      // to ask. A bad line is a line: the menu must never take a run down with it.
+      const commands = new Map<string, string[]>();
+      const harvest = (def: AgentDef, line: string) => {
+        try {
+          const list = def.commands?.(line);
+          if (list) commands.set(def.id, list);
+        } catch {
+          // Not the line that carries them.
+        }
+      };
       server.middlewares.use("/__sp/agent", (req, res, next) => {
         const send = (code: number, message: string) => {
           res.statusCode = code;
@@ -768,6 +781,11 @@ function canvasesSource(): Plugin {
         // Mounted under the prefix, so req.url is "/agents", "/run", "/runs",
         // "/run/<id>/events?after=N" or "/run/<id>/cancel".
         const url = new URL(req.url ?? "/", "http://sp");
+        if (req.method === "GET" && url.pathname === "/commands") {
+          res.setHeader("content-type", "application/json");
+          send(200, JSON.stringify(commands.get(url.searchParams.get("agent") ?? "") ?? []));
+          return;
+        }
         if (req.method === "GET" && url.pathname === "/agents") {
           // Ahead of the project check: what is on PATH does not depend on it.
           void Promise.all(
@@ -868,6 +886,7 @@ function canvasesSource(): Plugin {
                 try {
                   for (const line of lines) {
                     if (line.trim()) {
+                      harvest(def, line);
                       for (const e of def.events(line)) for (const t of lift(e)) emit(run, t.kind, sized(t));
                     }
                   }

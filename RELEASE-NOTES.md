@@ -78,6 +78,14 @@ remembered per agent. The number on the right is the tokens that message used
 against the model's window. It is that message, not the conversation: each one
 still runs as its own process with no memory of the last.
 
+Type `/` in the chat panel and the commands Claude Code can run there are
+listed — your own, the project's, the plugins' and the skills, `/clone-prototype`
+among them — with the arrow keys and Enter to take one. They already worked if
+you knew the name; now you can see them. The list is the CLI's own, learned from
+the runs you make, so it is there from the first answer of a session and matches
+whatever you have installed. Codex has no slash commands of its own, so the
+panel offers none for it.
+
 ## v1.3.0
 
 2026-09-15. The inspector moves onto the canvas: you click the board itself,

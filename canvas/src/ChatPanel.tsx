@@ -103,10 +103,16 @@ export function ChatPanel() {
     }
   });
   const [history, setHistory] = useState<RunSummary[]>([]);
+  // The agent's own slash commands, and where the keyboard is in them. Asked for when the draft
+  // becomes one, since the server learns them from runs and the list grows as the panel is used.
+  const [commands, setCommands] = useState<string[]>([]);
+  const [slashAt, setSlashAt] = useState(0);
+  const [slashOff, setSlashOff] = useState(false);
   const [draft, setDraft] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
   const abort = useRef(new AbortController());
   const log = useRef<HTMLDivElement>(null);
+  const composer = useRef<HTMLTextAreaElement>(null);
   const historyList = useRef<HTMLDivElement>(null);
   const agentMenu = useRef<HTMLDivElement>(null);
   const modelMenu = useRef<HTMLDivElement>(null);
@@ -169,6 +175,21 @@ export function ChatPanel() {
   // The newest turn that got as far as being charged for; a failed one never is.
   const usage = [...turns].reverse().find((t) => t.usage)?.usage;
 
+  // The palette is open while the draft is a single unfinished word starting with a slash: "/cl"
+  // and not "/clone-prototype the app", since an argument means the command has been chosen.
+  const typing = /^\/(\S*)$/.exec(draft)?.[1];
+  const matches =
+    typing === undefined || slashOff
+      ? []
+      : commands.filter((c) => c.includes(typing.toLowerCase())).slice(0, 8);
+  const at = Math.min(slashAt, matches.length - 1);
+
+  const pickCommand = (name: string) => {
+    setDraft(`/${name} `);
+    setSlashAt(0);
+    composer.current?.focus();
+  };
+
   const prefer = (patch: { model?: string; effort?: string }) => {
     const next = { ...choices, [agent]: { ...choice, ...patch } };
     localStorage.setItem(CHOICE_KEY, JSON.stringify(next));
@@ -193,6 +214,17 @@ export function ChatPanel() {
     setTurns((ts) => [...ts, { ...turnFor(runId), prompt: message, agent }]);
     follow(runId);
   };
+
+  // Asked for on the way into a slash word rather than at mount: the server learns the list from
+  // the runs it pumps, so it is empty before the first message and right after it.
+  useEffect(() => {
+    if (typing === undefined) return;
+    void fetch(`/__sp/agent/commands?agent=${agent}`).then(async (res) =>
+      setCommands(res.ok ? await res.json() : []),
+    );
+    // The word itself does not change the list; starting one, or changing agent, does.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [typing === undefined, agent]);
 
   const toggle = () => {
     localStorage.setItem(COLLAPSED_KEY, String(!collapsed));
@@ -428,17 +460,57 @@ export function ChatPanel() {
         }}
       >
         <textarea
+          ref={composer}
           value={draft}
           placeholder={running ? "Working…" : `Ask ${nameOf(agent)}…`}
           aria-label={`Message to ${nameOf(agent)}`}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            setSlashAt(0);
+            // Escape closes the palette for the word it was typed in; the next one opens again.
+            if (!e.target.value.startsWith("/")) setSlashOff(false);
+          }}
           onKeyDown={(e) => {
+            if (matches.length > 0) {
+              if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                e.preventDefault();
+                const step = e.key === "ArrowDown" ? 1 : matches.length - 1;
+                return setSlashAt((i) => (Math.min(i, matches.length - 1) + step) % matches.length);
+              }
+              if (e.key === "Enter" || e.key === "Tab") {
+                e.preventDefault();
+                return pickCommand(matches[at]!);
+              }
+              if (e.key === "Escape") {
+                e.preventDefault();
+                return setSlashOff(true);
+              }
+            }
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               void send();
             }
           }}
         />
+        {/* Above the box, where the caret is. The agent runs the command itself — the panel only
+            says which ones there are, and Enter takes the highlighted one. */}
+        {matches.length > 0 && (
+          <div className="sp-chat-slash" role="listbox" aria-label="Slash commands">
+            {matches.map((c, i) => (
+              <button
+                key={c}
+                type="button"
+                role="option"
+                aria-selected={i === at}
+                className={i === at ? "sp-menu-row sp-chat-slash-on" : "sp-menu-row"}
+                onMouseEnter={() => setSlashAt(i)}
+                onClick={() => pickCommand(c)}
+              >
+                /{c}
+              </button>
+            ))}
+          </div>
+        )}
         {running ? (
           <button
             type="button"

@@ -60,6 +60,15 @@ export interface AgentDef {
   efforts: string[];
   /** Where the agent keeps its own list, relative to the home directory, if it keeps one. */
   modelsFile?: { path: string; read(json: unknown): AgentModel[] };
+  /**
+   * The agent's own slash commands, read off a line it writes, for the composer's palette. Claude
+   * Code names them all on the init frame of every run — the project's, the personal ones, the
+   * installed plugins' and the skills, namespaced as it namespaces them — so the palette is the
+   * CLI's list rather than a second discovery of it that goes stale. Nothing is spawned to ask:
+   * the frame arrives on the messages the user sends anyway, and a run's worth of system prompt
+   * is not free. An agent with no such line, and no slash commands to run, leaves this out.
+   */
+  commands?(line: string): string[] | null;
   /** What the run says when `bin` is not on PATH; the menu says it too, greyed. */
   missing: string;
 }
@@ -95,6 +104,19 @@ export const AGENTS: AgentDef[] = [
     stdin: (message) =>
       JSON.stringify({ type: "user", message: { role: "user", content: message } }) + "\n",
     events: chatEventsFromLine,
+    // `claude -p` runs a slash command sent as the message text, the same as the terminal does:
+    // a command, a skill, a plugin's command. Codex has neither — `codex exec` hands `/foo` to
+    // the model as the five characters it is — so it defines none of this.
+    commands: (line) => {
+      const frame = JSON.parse(line) as {
+        type?: string;
+        subtype?: string;
+        slash_commands?: string[];
+      };
+      return frame.type === "system" && frame.subtype === "init"
+        ? (frame.slash_commands ?? null)
+        : null;
+    },
     // Aliases rather than versioned names, which is what `claude --model` documents: the alias
     // follows the latest of its line, so this list does not go stale between releases. Claude
     // Code has no list of its own on disk to read, and the window comes off every result frame.

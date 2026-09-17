@@ -1528,6 +1528,30 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 
 .sp-chat-composer {
   align-items: flex-end;
+  /* The slash palette hangs off the top of the box, so it follows it however tall it has grown. */
+  position: relative;
+}
+
+/* Typing "/" lists what the agent can run. Not a popover: it opens while typing rather than on a
+   click, and light dismiss would take the first keystroke with it. */
+.sp-chat-slash {
+  position: absolute;
+  inset: auto 0 100% 0;
+  margin-bottom: 6px;
+  padding: 4px;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.sp-chat-slash .sp-menu-row {
+  height: 28px;
+  font-family: var(--sp-mono, ui-monospace, monospace);
+}
+
+.sp-chat-slash-on {
+  background: var(--sp-hover, rgba(0, 0, 0, 0.06));
 }
 
 /* Collapsed: a rail the width of the mark, which is the button that opens the panel again. The

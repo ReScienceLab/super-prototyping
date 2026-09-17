@@ -237,6 +237,40 @@ process with no memory of the last, so it is that message, prompt and answer
 together, against the window it had. The tooltip says so. It will mean the other
 thing on the day resume lands.
 
+## Slash commands, and whose they are
+
+Typing `/` in the composer lists what the agent can run, and Enter takes the highlighted one.
+The panel does not run anything: `claude -p` runs a slash command sent as the message text
+exactly as the terminal does, which was verified through the panel's own path — a stream-json
+user message of `/pingprobe` answers `PONGCMD`, and a skill invoked the same way answers as a
+skill. So the feature was already there; what was missing was knowing what to type.
+
+The list is Claude Code's own. Its init frame names every command available in that project —
+the project's, the personal ones, each installed plugin's, namespaced as it namespaces them
+(`ponytail:ponytail`, `convex:add`), and the skills a plugin ships, which is where
+`/clone-prototype` comes from. 132 of them on this machine. The dev server keeps what the frame
+says and serves it to the palette, so the panel never discovers commands a second way: no scan of
+`.claude/commands`, no guess at which plugins are enabled, nothing to go stale the day Claude
+Code changes where a command may live.
+
+Nothing is spawned to ask, because asking is not free. `claude -p` does not write the init frame
+until it has a message to work on, and a run with an empty message still loads the system prompt
+and bills for it: $0.017, measured. A palette that quietly cost that on every dev-server start is
+a worse trade than a palette that is empty until the first message of the session, which is what
+this is. The list arrives with the first answer and is right from then on.
+
+Codex has no such list and no such feature: `codex exec` hands `/foo` to the model as the five
+characters it is, which a custom prompt in `CODEX_HOME/prompts` does not change. So `commands` is
+simply absent from its table entry, the endpoint answers with nothing, and the palette never
+opens for it. The same shape as `modelsFile`: what an agent has, it declares.
+
+Open Design does the opposite end of this, and it is worth saying why it does not transfer. Its
+`/` palette (`apps/web/src/components/ChatComposer.tsx`) is a host-side catalog built from live
+app state — `/mcp <server>`, `/search`, `/pet` — where some entries insert text for the model and
+others are caught by the host and never sent at all. It lists what the product can do, not what
+the CLI underneath it can run. Here the CLI is the product, so the palette is its list, and every
+entry goes to it verbatim.
+
 ## Left out
 
 - One turn per run and no resuming, for either agent: every message is a fresh process with no
