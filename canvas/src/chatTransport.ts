@@ -33,6 +33,8 @@ export interface Turn {
   /** The model's, once it has given one; the prompt's first line until then. */
   title?: string;
   blocks: Block[];
+  /** What the turn put in the context window, once the agent has said; the composer shows it. */
+  usage?: { used: number; window?: number };
   /** Set once the run has ended: whether it succeeded and, if not, why. */
   end?: { ok: boolean; message?: string };
 }
@@ -61,6 +63,8 @@ export function applyFrame(turn: Turn, frame: Frame): Turn {
         ...turn,
         blocks: turn.blocks.map((b) => (b.kind === "tool" && b.id === e.id ? { ...b, ok: e.ok } : b)),
       };
+    case "usage":
+      return { ...turn, usage: { used: e.used, window: e.window } };
     case "end":
       return { ...turn, end: { ok: e.ok, message: e.message } };
   }

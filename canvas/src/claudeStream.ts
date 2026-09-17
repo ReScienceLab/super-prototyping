@@ -3,8 +3,9 @@
  *
  * `claude -p --output-format stream-json --include-partial-messages` writes one JSON frame per
  * line. The panel wants five things out of them: text as it arrives, that the model is thinking,
- * each tool call as it starts and when it finishes, and the end of the run. Everything else — the
- * init frame, hook frames, rate-limit notices, token counts — is dropped here.
+ * each tool call as it starts and when it finishes, and the end of the run, and what the turn
+ * cost the context window. Everything else — the init frame, hook frames, rate-limit notices —
+ * is dropped here.
  *
  * Text comes only from `stream_event` deltas, never from the `assistant` frame that repeats each
  * finished message in full: taking both would print every paragraph twice. Tool calls come only
@@ -38,6 +39,7 @@ export type ChatEvent =
   | { kind: "thinking" }
   | { kind: "tool"; id: string; name: string; detail: string }
   | { kind: "tool_done"; id: string; ok: boolean }
+  | { kind: "usage"; used: number; window?: number }
   | { kind: "end"; ok: boolean; message?: string };
 
 /** The parts of a frame this reads; the rest of Claude Code's schema stays untyped. */
@@ -53,6 +55,8 @@ interface Frame {
   message?: { content: string | Block[] };
   is_error?: boolean;
   result?: string;
+  usage?: Record<string, number>;
+  modelUsage?: Record<string, { contextWindow?: number }>;
 }
 
 type Block =
@@ -96,11 +100,37 @@ export function chatEventsFromLine(line: string): ChatEvent[] {
       );
     case "result": {
       const ok = frame.subtype === "success" && !frame.is_error;
-      return [ok ? { kind: "end", ok } : { kind: "end", ok, message: frame.result || frame.subtype }];
+      return [
+        ...tokens(frame),
+        ok ? { kind: "end", ok } : { kind: "end", ok, message: frame.result || frame.subtype },
+      ];
     }
     default:
       return [];
   }
+}
+
+/**
+ * What the turn put in the model's context, off the result frame: the prompt it sent — fresh
+ * and cached alike, since a cached token occupies the window the same as a read one — and the
+ * answer it got back. `modelUsage` is keyed by the model that ran, and carries the size of the
+ * window those tokens went into, which is the only place either parser is told it.
+ *
+ * A run that failed before the API answered has no usage at all, and reports none.
+ */
+function tokens(frame: Frame): ChatEvent[] {
+  const u = frame.usage;
+  if (!u) return [];
+  const used =
+    (u.input_tokens ?? 0) +
+    (u.cache_creation_input_tokens ?? 0) +
+    (u.cache_read_input_tokens ?? 0) +
+    (u.output_tokens ?? 0);
+  // A turn that ran a sub-agent reports both models, the sub-agent's first, and `usage` above
+  // has summed the two; the bigger window is the one that turn was up against.
+  const windows = Object.values(frame.modelUsage ?? {}).map((m) => m.contextWindow ?? 0);
+  const window = windows.length ? Math.max(...windows) : undefined;
+  return [{ kind: "usage", used, window }];
 }
 
 const TITLE_OPEN = "<sp-title>";

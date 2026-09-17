@@ -1543,6 +1543,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 
 .sp-chat-collapsed .sp-chat-log,
 .sp-chat-collapsed .sp-chat-composer,
+.sp-chat-collapsed .sp-chat-bar,
 .sp-chat-collapsed .sp-chat-send-error {
   display: none;
 }
@@ -1552,7 +1553,8 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
    both are placed under the header by those numbers rather than by anchor positioning, which not
    every browser has yet. */
 .sp-chat-history,
-.sp-chat-agents {
+.sp-chat-agents,
+.sp-chat-picker {
   position: fixed;
   inset: 44px auto auto 8px;
   margin: 0;
@@ -1677,4 +1679,75 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 
 .sp-chat-history-row > .sp-chat-mark {
   align-self: center;
+}
+
+/* The two pickers open upward, from the bar at the panel's foot rather than the header. */
+.sp-chat-picker {
+  inset: auto auto 34px 8px;
+  width: max-content;
+  min-width: 180px;
+  max-width: 300px;
+}
+
+.sp-chat-picker .sp-menu-row {
+  height: auto;
+  min-height: 32px;
+  padding: 6px 8px;
+}
+
+.sp-chat-picker-name {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.sp-chat-picker-name small {
+  color: var(--sp-text-2);
+}
+
+/* The effort slider: the levels the model has, in their own order, which is the order they get
+   more expensive in. The ends are labelled rather than the stops — six words under a 160px
+   track would not be readable, and the chip above says which one is chosen. */
+.sp-chat-efforts input {
+  width: 100%;
+  margin: 6px 0 2px;
+  accent-color: var(--sp-accent);
+}
+
+.sp-chat-efforts-ends {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0 2px 2px;
+  color: var(--sp-text-2);
+}
+
+/* Under the composer: what the next message runs with, and what the last one cost. The chips
+   read as text until they are hovered — three controls across 360px can only be small. */
+.sp-chat-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px 8px;
+  color: var(--sp-text-2);
+  line-height: 18px;
+}
+
+.sp-chat-chip {
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sp-chat-chip:hover {
+  background: var(--sp-hover);
+}
+
+/* The count keeps the right edge, whatever the chips beside it are called. */
+.sp-chat-ctx {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
 }

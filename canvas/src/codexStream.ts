@@ -4,8 +4,9 @@
  * `codex exec --json` writes one JSON frame per line, each about the thread, the turn or an
  * item: a command the agent ran, a file it changed, a reasoning summary, its message. The panel
  * wants each tool call as it starts and when it finishes, that the model reasoned, the message,
- * and the end of the turn. Everything else — the thread id, `turn.started`, token usage, and the
- * `error` items that are only warnings about the configured model — is dropped here.
+ * the end of the turn, and what the turn put in the context window. Everything else — the thread
+ * id, `turn.started`, and the `error` items that are only warnings about the configured model —
+ * is dropped here.
  *
  * Nothing streams a character at a time. Codex has suppressed its message deltas on this wire
  * since rust-v0.8.0, so each message arrives whole, in one `item.completed`. There can be
@@ -30,6 +31,7 @@ interface Frame {
   type: string;
   item?: Item;
   error?: { message?: string };
+  usage?: Record<string, number>;
 }
 
 /** The parts of an item this reads; each type carries more. */
@@ -69,8 +71,14 @@ export function codexEventsFromLine(line: string): ChatEvent[] {
         default:
           return [];
       }
-    case "turn.completed":
-      return [{ kind: "end", ok: true }];
+    case "turn.completed": {
+      // Cached input is input: it was sent, and it occupies the window like any other token.
+      // Codex does not say how big that window is — the server tells it elsewhere, and the
+      // dev server fills it in from the same list the model picker is drawn from.
+      const u = frame.usage;
+      const used = u ? (u.input_tokens ?? 0) + (u.output_tokens ?? 0) : 0;
+      return [...(u ? [{ kind: "usage" as const, used }] : []), { kind: "end", ok: true }];
+    }
     case "turn.failed":
       return [{ kind: "end", ok: false, message: readable(frame.error?.message) }];
     default:

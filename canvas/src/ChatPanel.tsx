@@ -16,10 +16,18 @@
  * run's start event says. The clock lists the runs the server still holds, and the panel icon
  * folds the panel to a rail — the mark, which opens it again — that keeps following whatever is
  * running.
+ *
+ * Under the composer, what the next message is run with: the model, the reasoning effort, and
+ * what the last one cost. Both pickers open with a Default that sends no flag at all, so the
+ * CLI's own configuration decides until the user says otherwise, and both are per agent — a
+ * codex model means nothing to claude — and kept in localStorage beside the agent itself. The
+ * server serves the lists (agents.ts): claude's models are its aliases, codex's are the ones
+ * its own picker draws, read from the list it caches. The token count is the last turn's, not
+ * the conversation's, because every message is its own process with no memory of the last.
  */
 import { useContext, useEffect, useRef, useState } from "react";
 import { useValue } from "tldraw";
-import type { AgentId } from "./agents";
+import type { AgentId, AgentModel } from "./agents";
 import type { RunSummary } from "./agentRun";
 import { CanvasChromeContext } from "./canvasChrome";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
@@ -31,6 +39,20 @@ import { renderMarkdown } from "./markdown";
 const RUNS_KEY = "sp-chat-runs";
 const COLLAPSED_KEY = "sp-chat-collapsed";
 const AGENT_KEY = "sp-chat-agent";
+const CHOICE_KEY = "sp-chat-choice";
+
+/** The CLI's own word for a level, with a capital: Low, High, XHigh. Total: the agent list
+ *  arrives a moment after the panel does, and until it has there is no level to name. */
+const effortName = (e: string) => (e === "xhigh" ? "XHigh" : e.charAt(0).toUpperCase() + e.slice(1));
+
+/** 26k, 272k: a token count is read at a glance or not at all. */
+const tokens = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}k` : String(n));
+
+const Check = () => (
+  <svg className="sp-menu-ck" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <path d="M2 6.4l2.6 2.6L10 3.6" />
+  </svg>
+);
 
 /** Each agent's mark, by the id the server names it with. */
 const MARKS = { claude: ClaudeMark, codex: CodexMark };
@@ -45,6 +67,8 @@ interface AgentRow {
   id: AgentId;
   name: string;
   available: boolean;
+  models: AgentModel[];
+  efforts: string[];
   missing: string;
 }
 
@@ -69,6 +93,15 @@ export function ChatPanel() {
     return stored && stored in MARKS ? (stored as AgentId) : "claude";
   });
   const [agents, setAgents] = useState<AgentRow[]>([]);
+  // What each agent is to be run with, by agent id, since neither's models mean anything to the
+  // other. A key missing, or naming something the agent no longer offers, is the CLI's default.
+  const [choices, setChoices] = useState<Record<string, { model?: string; effort?: string }>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(CHOICE_KEY) ?? "{}");
+    } catch {
+      return {};
+    }
+  });
   const [history, setHistory] = useState<RunSummary[]>([]);
   const [draft, setDraft] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
@@ -76,6 +109,8 @@ export function ChatPanel() {
   const log = useRef<HTMLDivElement>(null);
   const historyList = useRef<HTMLDivElement>(null);
   const agentMenu = useRef<HTMLDivElement>(null);
+  const modelMenu = useRef<HTMLDivElement>(null);
+  const effortMenu = useRef<HTMLDivElement>(null);
 
   const follow = (runId: string) => {
     const { signal } = abort.current;
@@ -120,6 +155,26 @@ export function ChatPanel() {
   const nameOf = (id: AgentId) => agents.find((a) => a.id === id)?.name ?? id;
   const title = turns[0]?.title ?? nameOf(agent);
 
+  const row = agents.find((a) => a.id === agent);
+  const choice = choices[agent] ?? {};
+  const picked = row?.models.find((m) => m.id === choice.model);
+  // A model may take levels its agent does not list; codex's newest take two more than the rest.
+  const efforts = picked?.efforts ?? row?.efforts ?? [];
+  // What actually goes with the message. A choice the agent has since stopped offering — a model
+  // dropped from its list, a level the picked model has not got — is not sent: the CLI's own
+  // setting stands rather than a run failing on a name from last week.
+  const model = picked?.id ?? "";
+  const effort = choice.effort && efforts.includes(choice.effort) ? choice.effort : "";
+  const slider = effort ? efforts.indexOf(effort) : Math.floor(efforts.length / 2);
+  // The newest turn that got as far as being charged for; a failed one never is.
+  const usage = [...turns].reverse().find((t) => t.usage)?.usage;
+
+  const prefer = (patch: { model?: string; effort?: string }) => {
+    const next = { ...choices, [agent]: { ...choice, ...patch } };
+    localStorage.setItem(CHOICE_KEY, JSON.stringify(next));
+    setChoices(next);
+  };
+
   const send = async () => {
     const message = draft.trim();
     if (!message || running) return;
@@ -128,7 +183,7 @@ export function ChatPanel() {
     const res = await fetch("/__sp/agent/run", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ message, canvas, agent }),
+      body: JSON.stringify({ message, canvas, agent, model, effort }),
     });
     if (!res.ok) {
       setDraft(message);
@@ -225,13 +280,69 @@ export function ChatPanel() {
               {a.name}
               {!a.available && <small>{a.missing}</small>}
             </span>
-            {a.id === agent && (
-              <svg className="sp-menu-ck" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M2 6.4l2.6 2.6L10 3.6" />
-              </svg>
-            )}
+            {a.id === agent && <Check />}
           </button>
         ))}
+      </div>
+      <div id="sp-chat-models" popover="auto" className="sp-chat-picker" role="menu" ref={modelMenu}>
+        {[{ id: "", name: "Default" }, ...(row?.models ?? [])].map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            role="menuitemradio"
+            aria-checked={m.id === model}
+            className="sp-menu-row"
+            onClick={() => {
+              modelMenu.current?.hidePopover();
+              prefer({ model: m.id });
+            }}
+          >
+            <span className="sp-chat-picker-name">
+              {m.name}
+              {!m.id && <small>Whatever {nameOf(agent)} is set to use</small>}
+            </span>
+            {m.id === model && <Check />}
+          </button>
+        ))}
+      </div>
+      <div id="sp-chat-efforts" popover="auto" className="sp-chat-picker sp-chat-efforts" ref={effortMenu}>
+        <button
+          type="button"
+          role="menuitemradio"
+          aria-checked={!effort}
+          className="sp-menu-row"
+          onClick={() => {
+            effortMenu.current?.hidePopover();
+            prefer({ effort: "" });
+          }}
+        >
+          <span className="sp-chat-picker-name">
+            Default
+            <small>Whatever {nameOf(agent)} is set to use</small>
+          </span>
+          {!effort && <Check />}
+        </button>
+        <input
+          type="range"
+          min={0}
+          max={Math.max(0, efforts.length - 1)}
+          step={1}
+          value={slider}
+          list="sp-chat-effort-stops"
+          aria-label="Reasoning effort"
+          aria-valuetext={effortName(efforts[slider] ?? "")}
+          onChange={(e) => prefer({ effort: efforts[Number(e.target.value)] })}
+        />
+        {/* Native tick marks: one per level, so the track shows how many there are. */}
+        <datalist id="sp-chat-effort-stops">
+          {efforts.map((e) => (
+            <option key={e} value={efforts.indexOf(e)} label={effortName(e)} />
+          ))}
+        </datalist>
+        <p className="sp-chat-efforts-ends">
+          <span>Faster</span>
+          <span>Smarter</span>
+        </p>
       </div>
       <div id="sp-chat-history" popover="auto" className="sp-chat-history" ref={historyList}>
         {history.length === 0 ? (
@@ -335,6 +446,41 @@ export function ChatPanel() {
         )}
       </form>
       {sendError && <p className="sp-chat-error sp-chat-send-error">{sendError}</p>}
+      <div className="sp-chat-bar">
+        {row && row.models.length > 0 && (
+          <button
+            type="button"
+            className="sp-chat-chip"
+            popoverTarget="sp-chat-models"
+            title={`The model ${nameOf(agent)} runs`}
+          >
+            {picked ? picked.name : <span className="sp-chat-dim">Model</span>}
+          </button>
+        )}
+        {efforts.length > 0 && (
+          <button
+            type="button"
+            className="sp-chat-chip"
+            popoverTarget="sp-chat-efforts"
+            title="How hard the model thinks before answering"
+          >
+            {effort ? effortName(effort) : <span className="sp-chat-dim">Effort</span>}
+          </button>
+        )}
+        {usage && (
+          <span
+            className="sp-chat-ctx"
+            title={
+              "Context the last message used, prompt and answer together. Every message is its " +
+              "own run with no memory of the one before, so this is that message, not the " +
+              "conversation."
+            }
+          >
+            {tokens(usage.used)}
+            {usage.window ? ` / ${tokens(usage.window)}` : ""}
+          </span>
+        )}
+      </div>
     </aside>
   );
 }

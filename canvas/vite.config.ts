@@ -1,6 +1,7 @@
 import { execFile, spawn, type ChildProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
@@ -17,8 +18,8 @@ import {
 } from "./src/boardStatusEdit.ts";
 import { boardChangeKind, boardSetSignature, boardSlug } from "./src/boardWatch.ts";
 import { attach, emit, ended, newRun, runSummary, sseFrame, type Run } from "./src/agentRun.ts";
-import { AGENTS, type AgentDef } from "./src/agents.ts";
-import { titleFilter } from "./src/claudeStream.ts";
+import { AGENTS, type AgentDef, type AgentModel } from "./src/agents.ts";
+import { titleFilter, type ChatEvent } from "./src/claudeStream.ts";
 
 /**
  * Repo root — vite.config.ts sits in canvas/, one level below it. It is published into the page
@@ -737,6 +738,28 @@ function canvasesSource(): Plugin {
         }
         return probe;
       };
+      // The models an agent offers the composer: its own list when it keeps one on disk —
+      // codex caches what its server sent, which is the list its own picker draws — and the
+      // table's otherwise. Read once for the server's lifetime, like the probe above; a user
+      // who installs a new model restarts the canvas, as they would for a new CLI.
+      const catalogs = new Map<string, AgentModel[]>();
+      const models = (def: AgentDef) => {
+        let list = catalogs.get(def.id);
+        if (!list) {
+          list = def.models;
+          if (def.modelsFile) {
+            try {
+              const file = path.join(os.homedir(), def.modelsFile.path);
+              list = def.modelsFile.read(JSON.parse(fs.readFileSync(file, "utf8")));
+            } catch {
+              // No cache yet, or one this cannot read: the table's list stands, which for an
+              // agent that keeps its own is empty, leaving the composer its default alone.
+            }
+          }
+          catalogs.set(def.id, list);
+        }
+        return list;
+      };
       server.middlewares.use("/__sp/agent", (req, res, next) => {
         const send = (code: number, message: string) => {
           res.statusCode = code;
@@ -752,6 +775,8 @@ function canvasesSource(): Plugin {
               id: def.id,
               name: def.name,
               available: await installed(def),
+              models: models(def),
+              efforts: def.efforts,
               missing: def.missing,
             })),
           ).then((list) => {
@@ -773,10 +798,16 @@ function canvasesSource(): Plugin {
           req.on("data", (chunk) => (body += chunk));
           req.on("end", () => {
             try {
-              const { message, canvas, agent = "claude" } = JSON.parse(body || "{}");
+              const { message, canvas, agent = "claude", model = "", effort = "" } = JSON.parse(body || "{}");
               if (typeof message !== "string" || !message.trim()) return send(400, "empty message");
               const def = AGENTS.find((a) => a.id === agent);
               if (!def) return send(400, "unknown agent");
+              // Both reach a command line, and neither is a name this made up: they are ids out
+              // of the list this server just served, or the empty string for the CLI's default.
+              const known = models(def);
+              if (model && !known.some((m) => m.id === model)) return send(400, "unknown model");
+              const efforts = known.find((m) => m.id === model)?.efforts ?? def.efforts;
+              if (effort && !efforts.includes(effort)) return send(400, "unknown effort");
               // The slug lands in a path in the prompt, so it is checked like the others.
               if (canvas !== undefined && !SAFE_NAME.test(canvas)) return send(400, "bad canvas name");
               const preamble = [
@@ -795,7 +826,10 @@ function canvasesSource(): Plugin {
                 .filter(Boolean)
                 .join("\n");
               const run = Object.assign(newRun(randomUUID()), {
-                child: spawn(def.bin, def.args(preamble, canvasesDir), { cwd: project, env: process.env }),
+                child: spawn(def.bin, def.args({ preamble, boards: canvasesDir, model, effort }), {
+                  cwd: project,
+                  env: process.env,
+                }),
               });
               runs.set(run.id, run);
               // The agent, the prompt, its first line as the title until the model gives one, and
@@ -821,12 +855,21 @@ function canvasesSource(): Plugin {
               run.child.stderr.setEncoding("utf8").on("data", (chunk: string) => (stderr += chunk));
               let pending = "";
               const lift = titleFilter();
+              // Codex reports what a turn used but never how much there was; the model list it
+              // caches says, and this is the one place that knows which model was picked.
+              const contextWindow = known.find((m) => m.id === model)?.window;
+              const sized = (e: ChatEvent) =>
+                e.kind === "usage" && e.window === undefined && contextWindow
+                  ? { ...e, window: contextWindow }
+                  : e;
               const feed = (chunk: string) => {
                 const lines = (pending + chunk).split("\n");
                 pending = lines.pop()!;
                 try {
                   for (const line of lines) {
-                    if (line.trim()) for (const e of def.events(line)) for (const t of lift(e)) emit(run, t.kind, t);
+                    if (line.trim()) {
+                      for (const e of def.events(line)) for (const t of lift(e)) emit(run, t.kind, sized(t));
+                    }
                   }
                 } catch (error) {
                   run.child.kill();

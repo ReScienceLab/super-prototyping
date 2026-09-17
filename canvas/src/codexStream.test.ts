@@ -12,7 +12,15 @@ const events = (jsonl: string) => jsonl.trim().split('\n').flatMap(codexEventsFr
 describe('codexEventsFromLine', () => {
   it('reports each command as it starts and finishes, then the message whole, then the end', () => {
     const got = events(readsAFile)
-    expect(got.map((e) => e.kind)).toEqual(['tool', 'tool_done', 'tool', 'tool_done', 'text', 'end'])
+    expect(got.map((e) => e.kind)).toEqual([
+      'tool',
+      'tool_done',
+      'tool',
+      'tool_done',
+      'text',
+      'usage',
+      'end',
+    ])
     expect(got[2]).toEqual({
       kind: 'tool',
       id: 'item_1',
@@ -22,6 +30,9 @@ describe('codexEventsFromLine', () => {
     expect(got[3]).toEqual({ kind: 'tool_done', id: 'item_1', ok: true })
     expect(got[4]).toEqual({ kind: 'text', text: 'It says the cat sat on the mat.' })
     expect(got.at(-1)).toEqual({ kind: 'end', ok: true })
+    // The prompt and the answer. Cached input is input — it was sent, and it takes up the window
+    // like any other token — and codex never says how big that window is, so nothing does here.
+    expect(got.at(-2)).toEqual({ kind: 'usage', used: 68_835 + 230 })
   })
 
   it('ends a failed turn once, with the one sentence out of the response body', () => {
@@ -57,11 +68,12 @@ describe('codexEventsFromLine', () => {
       'tool',
       'tool_done',
       'text',
+      'usage',
       'end',
     ])
     expect(got[2]).toEqual({ kind: 'tool', id: 'item_2', name: 'Edit', detail: '/tmp/probe/note.txt' })
     expect(got[3]).toEqual({ kind: 'tool_done', id: 'item_2', ok: true })
-    expect(got.at(-2)).toEqual({ kind: 'text', text: 'Done. `note.txt` now says `ping`.' })
+    expect(got.at(-3)).toEqual({ kind: 'text', text: 'Done. `note.txt` now says `ping`.' })
   })
 
   it('gives the title filter the whole reply in one event, which it can still lift the title from', () => {

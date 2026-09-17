@@ -66,6 +66,16 @@ bar, which leaves comments, Export to Figma, Brand kit, clone and refresh. The
 actions themselves are unchanged — the keyboard and the right-click menu still
 have them.
 
+Under the message box: which model, which effort, and what the last message
+cost. The model list is the agent's own — for Codex it is the list its own
+picker shows, read from its cache, so a model you gained by updating the CLI is
+there without waiting for us — and the effort levels are the ones that model
+actually takes. Both start at Default, which sends nothing and leaves your
+`~/.codex/config.toml` or Claude's settings in charge; pick one and it is
+remembered per agent. The number on the right is the tokens that message used
+against the model's window. It is that message, not the conversation: each one
+still runs as its own process with no memory of the last.
+
 ## v1.3.0
 
 2026-09-15. The inspector moves onto the canvas: you click the board itself,

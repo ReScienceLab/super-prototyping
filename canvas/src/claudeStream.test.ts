@@ -20,7 +20,7 @@ describe('chatEventsFromLine', () => {
 
   it('reports a tool call with its target, then its result', () => {
     const got = events(writeFile)
-    expect(got.map((e) => e.kind)).toEqual(['thinking', 'tool', 'tool_done', 'text', 'end'])
+    expect(got.map((e) => e.kind)).toEqual(['thinking', 'tool', 'tool_done', 'text', 'usage', 'end'])
     const [, tool, done, text] = got
     expect(tool).toEqual({
       kind: 'tool',
@@ -30,6 +30,9 @@ describe('chatEventsFromLine', () => {
     })
     expect(done).toEqual({ kind: 'tool_done', id: (tool as { id: string }).id, ok: true })
     expect(text).toEqual({ kind: 'text', text: 'done' })
+    // Every token of the prompt, cached or not, plus the answer — and the window they went into,
+    // which this turn's sub-agent has its own of, both 200k here.
+    expect(got.at(-2)).toEqual({ kind: 'usage', used: 4 + 10505 + 31291 + 739, window: 200_000 })
   })
 
   it('skips a sub-agent frame and says why a run failed', () => {

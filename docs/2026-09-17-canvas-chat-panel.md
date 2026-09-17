@@ -190,17 +190,66 @@ later — correct, not guessable, and the log follows its end as it does for any
 model writes tables wider than 360px; they scroll sideways inside their block, as fences do,
 rather than widening the panel.
 
+## The model, the effort, and what the message cost
+
+A strip under the composer: which model, which effort, and the tokens the last
+message took. Three controls where Claude Code and Codex both put them, because
+that is where the hand already is.
+
+Both lists are data on the `AgentDef`, next to the argv the agent takes, since
+that is the one place the two CLIs already differ. Claude's is written down —
+four aliases, five levels — because Claude Code publishes no list to read.
+Codex keeps its own at `~/.codex/models_cache.json`: the server-sent presets its
+own picker draws, with each model's display name, context window, and the
+reasoning levels that model actually takes, which differ per model — Luna stops
+at `max` where Astra goes on to `ultra`. Reading that file is strictly better
+than a copy of it made today, so `AgentDef` carries `modelsFile` — a
+home-relative path and a pure `read(json)` — and `vite.config.ts` does the
+`readFileSync` beside the PATH probe. `agents.ts` stays free of node, which its
+header has promised since the day it was two literals.
+
+The first row of both pickers is Default, and Default sends no flag at all: your
+`~/.codex/config.toml` and Claude's own settings keep deciding until you say
+otherwise, which is what the terminal does and what both CLIs' own pickers say.
+A choice is per agent and kept in `localStorage`; one that has gone stale — a
+model dropped from the list, a level the picked model does not have — is
+silently not sent rather than failing a run on a name from last week. The server
+checks both against the same list and answers 400, because both values reach a
+command line.
+
+Effort is not symmetric. Claude takes `--effort`, and refuses a level it does
+not know at startup. Codex has no flag: it is `-c model_reasoning_effort="…"`,
+and codex takes no opinion at startup — a level the model does not have comes
+back as the API's complaint, mid-turn. Hence the per-model vocabularies from the
+cache; they are what the slider's stops are drawn from.
+
+The token count rides in on a `usage` event, which both agents already report
+and neither reported the same way. Claude's `result` frame sums input, both
+cache figures and output — cached input is input, it was sent and it occupies
+the window — and names the window in `modelUsage`. A turn that ran a sub-agent
+lists both models there, the sub-agent's first, so the window is the largest of
+them rather than the first. Codex's `turn.completed` has the usage and no window
+at all; the server knows it from the same cache the picker was drawn from, and
+stamps it on the way past.
+
+What the number is not: a conversation total. Every message is still its own
+process with no memory of the last, so it is that message, prompt and answer
+together, against the window it had. The tooltip says so. It will mean the other
+thing on the day resume lands.
+
 ## Left out
 
 - One turn per run and no resuming, for either agent: every message is a fresh process with no
   memory of the last. The first thing to revisit once the panel has been used; Claude's
   `--resume <session_id>` from its `init` frame and Codex's `exec resume <thread_id>` from its
-  `thread.started` are the whole mechanism.
+  `thread.started` are the whole mechanism. They are two mechanisms, not one: separate id spaces,
+  separate stores (`~/.claude/projects/<cwd>/<id>.jsonl` against
+  `~/.codex/sessions/<y>/<m>/<d>/rollout-*.jsonl`), separate line schemas, and each flag reads only
+  its own. So a session belongs to the agent that opened it, and switching agents starts a new one
+  — there is no context to hand over, only a transcript we could re-state as text.
 - Thinking is a marker, not text. On Claude Code 2.1.274 every thinking delta arrives empty, with
   a token estimate, so there is nothing to fold; Codex does send a summary, and it is dropped to
   the same marker so the two read alike.
-- No model or reasoning-effort choice for either agent. The user's own config says it, as in a
-  terminal; Codex's `-c model=…` is one argv line away when that stops being enough.
 - No TodoWrite cards, no question form, no syntax highlighting.
 - The parser reads no `stop_reason`. Claude Code reports it on a frame that has moved between
   releases; a host that keeps stdin open must read it to know when to write again, and this one
