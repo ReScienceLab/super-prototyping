@@ -1,0 +1,8 @@
+{"type":"thread.started","thread_id":"01a0b075-708c-7361-8fc6-4ea072230203"}
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"item_0","type":"command_execution","command":"/bin/zsh -lc \"pwd && rg --files | rg '(\"'^|/)hello'\"\\\\.txt\"'$'\"'\"","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_0","type":"command_execution","command":"/bin/zsh -lc \"pwd && rg --files | rg '(\"'^|/)hello'\"\\\\.txt\"'$'\"'\"","aggregated_output":"/tmp/probe\nhello.txt\n","exit_code":0,"status":"completed"}}
+{"type":"item.started","item":{"id":"item_1","type":"command_execution","command":"/bin/zsh -lc \"sed -n '1,20p' hello.txt\"","aggregated_output":"","exit_code":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"command_execution","command":"/bin/zsh -lc \"sed -n '1,20p' hello.txt\"","aggregated_output":"the cat sat on the mat\n","exit_code":0,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"It says the cat sat on the mat."}}
+{"type":"turn.completed","usage":{"input_tokens":68835,"cached_input_tokens":50304,"cache_write_input_tokens":0,"output_tokens":230,"reasoning_output_tokens":0}}
