@@ -11,6 +11,7 @@
  * Kept free of React so the decoding and folding can be tested on their own; ChatPanel.tsx owns
  * the state and the DOM.
  */
+import type { AgentId } from "./agents";
 import type { ChatEvent } from "./claudeStream";
 
 export interface Frame {
@@ -26,6 +27,8 @@ export type Block =
 
 export interface Turn {
   runId: string;
+  /** Who ran it, from the start event; a conversation can switch agents between messages. */
+  agent?: AgentId;
   prompt: string;
   /** The model's, once it has given one; the prompt's first line until then. */
   title?: string;
@@ -38,7 +41,7 @@ export function applyFrame(turn: Turn, frame: Frame): Turn {
   const e = frame.data as ChatEvent;
   switch (e.kind) {
     case "start":
-      return { ...turn, prompt: e.prompt, title: e.title };
+      return { ...turn, agent: e.agent, prompt: e.prompt, title: e.title };
     case "title":
       return { ...turn, title: e.title };
     case "text": {

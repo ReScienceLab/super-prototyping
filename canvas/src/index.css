@@ -1547,16 +1547,14 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   display: none;
 }
 
-/* The history list, a native popover: the top layer and light dismiss for free. The panel's
-   geometry is fixed — the viewport's left edge, 360 wide, a 40px header — so the list is placed
-   under the header by those numbers rather than by anchor positioning, which not every browser
-   has yet. */
-.sp-chat-history {
+/* The history list and the agent menu, native popovers: the top layer and light dismiss for
+   free. The panel's geometry is fixed — the viewport's left edge, 360 wide, a 40px header — so
+   both are placed under the header by those numbers rather than by anchor positioning, which not
+   every browser has yet. */
+.sp-chat-history,
+.sp-chat-agents {
   position: fixed;
   inset: 44px auto auto 8px;
-  width: 344px;
-  max-height: 60vh;
-  overflow-y: auto;
   margin: 0;
   padding: 4px;
   border: 1px solid var(--sp-line);
@@ -1564,6 +1562,12 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   background: #fff;
   color: var(--sp-text);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.sp-chat-history {
+  width: 344px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .sp-chat-history .sp-chat-dim {
@@ -1606,4 +1610,56 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 
 .sp-chat-history-row[data-status="failed"] .sp-chat-history-title {
   color: #cb2a2f;
+}
+
+/* The agent menu: the inspector's rows, grown to fit a second line under a CLI that was not
+   found on PATH, saying what to do. Such a row is greyed and takes no click. */
+.sp-chat-agents {
+  width: 280px;
+}
+
+.sp-chat-agents .sp-menu-row {
+  height: auto;
+  min-height: 32px;
+  padding: 6px 8px;
+}
+
+.sp-chat-agents .sp-menu-row:disabled {
+  color: var(--sp-text-2);
+  cursor: default;
+}
+
+.sp-chat-agents .sp-menu-row:disabled:hover {
+  background: none;
+}
+
+.sp-chat-agents-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sp-chat-agents-name small {
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--sp-text-2);
+}
+
+/* Whose turn, and whose run: the mark of the agent that ran it, since the mark in the header is
+   only who the next message goes to. Codex's mark is currentColor, so it reads in the text's
+   colour; Claude's keeps its own. */
+.sp-chat-mark {
+  flex: none;
+  display: inline-flex;
+  color: var(--sp-text);
+}
+
+.sp-chat-turn > .sp-chat-mark {
+  align-self: flex-start;
+}
+
+.sp-chat-history-row > .sp-chat-mark {
+  align-self: center;
 }

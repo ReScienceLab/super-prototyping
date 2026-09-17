@@ -1,11 +1,12 @@
 /**
- * Claude's mark, on the chat panel's header: who the panel talks to, and the whole of the rail
- * the panel folds to. Drawn here rather than fetched, like every other icon in this app. The
- * geometry is lobehub/icons' `Claude.Color` (MIT): one path on a 24 grid in Anthropic's terracotta.
- * The package itself was not taken — nine megabytes and an Ant Design stack for one path.
+ * Claude's mark: on the chat panel's header when Claude Code is the agent, on each turn it ran,
+ * and the rail when the panel is folded. Drawn here rather than fetched, like every other icon in
+ * this app. The geometry is lobehub/icons' `Claude.Color` (MIT): one path on a 24 grid in
+ * Anthropic's terracotta. The package itself was not taken — nine megabytes and an Ant Design
+ * stack for one path.
  *
- * The panel talks to one agent, so this is one file next to FigmaMark.tsx and not an icon map;
- * a second agent, when one genuinely arrives, is one more file that day.
+ * One file next to FigmaMark.tsx, as this once said a second agent would be one more file the day
+ * it arrived; CodexMark.tsx is that file, and ChatPanel.tsx picks between the two by id.
  */
 export function ClaudeMark({ size = 16 }: { size?: number }) {
   return (
