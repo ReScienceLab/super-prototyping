@@ -525,6 +525,19 @@ function canvasesSource(): Plugin {
     },
 
     configureServer(server) {
+      // Everything under /__sp writes something: a board's status, a comment, a cloned canvas, an
+      // agent holding bypassPermissions in the project. A dev server on a known loopback port is
+      // reachable from every page the user has open — a cross-origin POST still runs, CORS only
+      // hides the reply — so the check is the browser's own account of where the request came
+      // from. A page cannot forge it: Sec-Fetch-* are forbidden header names. Absent means the
+      // caller was not a browser, which is curl, and curl is not the attack.
+      server.middlewares.use("/__sp", (req, res, next) => {
+        const site = req.headers["sec-fetch-site"];
+        if (site === undefined || site === "same-origin" || site === "none") return next();
+        res.statusCode = 403;
+        res.end("cross-site request");
+      });
+
       // A board as a web page, at the address the canvas's two "open as a web page" buttons
       // point at. The build emits these as files (see `load` above); here they are read off
       // the boards directory per request, so the tab a board is open in shows the current

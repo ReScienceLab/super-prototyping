@@ -41,6 +41,15 @@ through — a second process for a question the panel can put once. So the panel
 empty state, before the first message: the same trust as running `claude` in a terminal of the
 project, which is what the panel replaces.
 
+The same trust is why `/__sp` is same-origin only. A dev server sits on a port every page in the
+browser can reach, and a cross-origin `POST` still runs — CORS withholds the reply, not the
+request — so any site the user visits while the canvas is open could otherwise start an agent
+with those permissions in their project. One check answers it, before every `/__sp` handler:
+`Sec-Fetch-Site` must be `same-origin` or `none`. The browser writes that header itself and a
+page cannot change it, `Sec-Fetch-*` being forbidden header names; absent means the caller was
+not a browser, which is `curl`, which was never the attack. A token would need generating,
+serving into the page, storing and comparing, to learn the same fact the browser already states.
+
 ## Where the agent runs
 
 In the user's project — never the boards directory (a prompt about a screen reaches for the code
