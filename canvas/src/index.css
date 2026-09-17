@@ -1444,3 +1444,81 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-chat-composer {
   align-items: flex-end;
 }
+
+/* Collapsed: a rail the width of the mark, which is the button that opens the panel again. The
+   log and composer are hidden, not unmounted — the panel keeps following whatever is running. */
+.sp-chat-collapsed {
+  width: 36px;
+}
+
+.sp-chat-collapsed .sp-head {
+  padding: 0;
+  justify-content: center;
+}
+
+.sp-chat-collapsed .sp-chat-log,
+.sp-chat-collapsed .sp-chat-composer,
+.sp-chat-collapsed .sp-chat-send-error {
+  display: none;
+}
+
+/* The history list, a native popover: the top layer and light dismiss for free. The panel's
+   geometry is fixed — the viewport's left edge, 360 wide, a 40px header — so the list is placed
+   under the header by those numbers rather than by anchor positioning, which not every browser
+   has yet. */
+.sp-chat-history {
+  position: fixed;
+  inset: 44px auto auto 8px;
+  width: 344px;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--sp-text);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.sp-chat-history .sp-chat-dim {
+  margin: 0;
+  padding: 6px 8px;
+}
+
+.sp-chat-history-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sp-chat-history-row:hover {
+  background: var(--sp-hover);
+}
+
+.sp-chat-history-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A run still going gets the accent dot; one that failed, the error red. */
+.sp-chat-history-row[data-status="running"]::before {
+  content: "";
+  flex: none;
+  align-self: center;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sp-accent);
+}
+
+.sp-chat-history-row[data-status="failed"] .sp-chat-history-title {
+  color: #cb2a2f;
+}

@@ -7,14 +7,24 @@
  * reload a board write causes, from event zero: the transcript is rebuilt, not saved, since the
  * server has the whole run (chatTransport.ts). One run at a time — two agents editing one project
  * would race each other — so Send is Stop while one is going.
+ *
+ * The header names the conversation, with the model's own title once it has given one, behind
+ * Claude's mark. The clock lists the runs the server still holds, and the panel icon folds the
+ * panel to a rail — the mark, which opens it again — that keeps following whatever is running.
  */
 import { useContext, useEffect, useRef, useState } from "react";
 import { useValue } from "tldraw";
+import type { RunSummary } from "./agentRun";
 import { CanvasChromeContext } from "./canvasChrome";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
+import { ClaudeMark } from "./ClaudeMark";
 
-const STORAGE_KEY = "sp-chat-turns";
+const RUNS_KEY = "sp-chat-runs";
+const COLLAPSED_KEY = "sp-chat-collapsed";
+
+/** A turn with nothing in it yet: the run's events, from `start` on, fill in the rest. */
+const turnFor = (runId: string): Turn => ({ runId, prompt: "", blocks: [] });
 
 export function ChatPanel() {
   const { editor } = useContext(CanvasChromeContext);
@@ -25,16 +35,16 @@ export function ChatPanel() {
   );
   // The welcome page is drawn by the app and has no folder, so it is no canvas to the agent.
   const canvas = slug && slug !== WELCOME_PAGE_SLUG ? slug : undefined;
-  const [turns, setTurns] = useState<Turn[]>(() => {
-    const saved: Pick<Turn, "runId" | "prompt">[] = JSON.parse(
-      sessionStorage.getItem(STORAGE_KEY) ?? "[]",
-    );
-    return saved.map((t) => ({ ...t, blocks: [] }));
-  });
+  const [turns, setTurns] = useState<Turn[]>(() =>
+    (JSON.parse(sessionStorage.getItem(RUNS_KEY) ?? "[]") as string[]).map(turnFor),
+  );
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSED_KEY) === "true");
+  const [history, setHistory] = useState<RunSummary[]>([]);
   const [draft, setDraft] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
   const abort = useRef(new AbortController());
   const log = useRef<HTMLDivElement>(null);
+  const historyList = useRef<HTMLDivElement>(null);
 
   const follow = (runId: string) => {
     const { signal } = abort.current;
@@ -54,14 +64,13 @@ export function ChatPanel() {
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(turns.map(({ runId, prompt }) => ({ runId, prompt }))),
-    );
+    sessionStorage.setItem(RUNS_KEY, JSON.stringify(turns.map((t) => t.runId)));
+    // Also on reopening: a hidden log has no scroll height to have been scrolled to.
     log.current?.scrollTo(0, log.current.scrollHeight);
-  }, [turns]);
+  }, [turns, collapsed]);
 
   const running = turns.find((t) => !t.end);
+  const title = turns[0]?.title ?? "Claude Code";
 
   const send = async () => {
     const message = draft.trim();
@@ -78,16 +87,90 @@ export function ChatPanel() {
       return setSendError(await res.text());
     }
     const { runId } = await res.json();
-    setTurns((ts) => [...ts, { runId, prompt: message, blocks: [] }]);
+    setTurns((ts) => [...ts, { ...turnFor(runId), prompt: message }]);
+    follow(runId);
+  };
+
+  const toggle = () => {
+    localStorage.setItem(COLLAPSED_KEY, String(!collapsed));
+    setCollapsed(!collapsed);
+  };
+
+  const openHistory = async () => {
+    const res = await fetch("/__sp/agent/runs");
+    if (!res.ok) return setSendError(await res.text());
+    setHistory(await res.json());
+  };
+
+  const pick = (runId: string) => {
+    historyList.current?.hidePopover();
+    // The picked run may be one already on screen, and two follows of one run draw it twice.
+    abort.current.abort();
+    abort.current = new AbortController();
+    setTurns([turnFor(runId)]);
     follow(runId);
   };
 
   return (
-    <aside className="sp-panel sp-chat" aria-label="Claude Code chat">
+    <aside
+      className={collapsed ? "sp-panel sp-chat sp-chat-collapsed" : "sp-panel sp-chat"}
+      aria-label="Claude Code chat"
+    >
       <header className="sp-head">
-        <span className="sp-head-name">Claude Code</span>
-        <span className="sp-head-dim">{canvas ?? "no canvas open"}</span>
+        {collapsed ? (
+          <button type="button" className="sp-head-x" onClick={toggle} aria-label="Open the chat panel">
+            <ClaudeMark />
+          </button>
+        ) : (
+          <>
+            <ClaudeMark />
+            <span className="sp-head-name" title={title}>
+              {title}
+            </span>
+            <span className="sp-head-dim">{canvas ?? "no canvas open"}</span>
+            <button
+              type="button"
+              className="sp-head-x"
+              popoverTarget="sp-chat-history"
+              onClick={() => void openHistory()}
+              aria-label="History"
+              title="History"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <path d="M1.5 6a4.5 4.5 0 1 0 4.5-4.5 4.875 4.875 0 0 0-3.37 1.37L1.5 4" />
+                <path d="M1.5 1.5v2.5h2.5" />
+                <path d="M6 3.5v2.5l2 1" />
+              </svg>
+            </button>
+            <button type="button" className="sp-head-x" onClick={toggle} aria-label="Collapse the chat panel">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <rect x="1.5" y="1.5" width="9" height="9" rx="1" />
+                <path d="M4.5 1.5v9" />
+              </svg>
+            </button>
+          </>
+        )}
       </header>
+      <div id="sp-chat-history" popover="auto" className="sp-chat-history" ref={historyList}>
+        {history.length === 0 ? (
+          <p className="sp-chat-dim">No runs yet</p>
+        ) : (
+          history.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              className="sp-chat-history-row"
+              data-status={r.status}
+              onClick={() => pick(r.id)}
+            >
+              <span className="sp-chat-history-title">{r.title}</span>
+              <span className="sp-chat-dim">
+                {new Date(r.startedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            </button>
+          ))
+        )}
+      </div>
       <div className="sp-chat-log" ref={log}>
         {turns.length === 0 && (
           <p className="sp-chat-empty">
