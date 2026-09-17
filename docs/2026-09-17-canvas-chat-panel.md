@@ -1,0 +1,62 @@
+# The canvas gets a chat panel
+
+2026-09-17. A panel on the left of the canvas takes a message, runs Claude Code in the user's
+project with it, and draws what it does as it happens. The dev server hosts the process; the
+page only ever reads events. Three decisions were open in the plan and are settled here, with a
+fourth the plan had wrong.
+
+## The panel is a flex sibling, not an overlay
+
+The inspector on the right is a flex sibling of the editor, and the chat panel on the left is the
+same: 360px, `flex: 0 0 auto`, before `<main>` in `.canvas-shell`. tldraw's viewport shrinks by
+the panel's width, its ResizeObserver re-measures, and zoom-to-fit, the toolbar and every
+screen-space calculation keep working against the space actually there.
+
+Floating the panel over the canvas was the alternative, and it was rejected rather than deferred.
+tldraw 5 takes a single scalar `inset` for `zoomToFit`/`zoomToBounds` and a per-axis-symmetric
+`VecLike` for `constraints.padding`, so "keep the left 360px clear" has no native expression: it
+would mean a wrapper around every zoom call and camera arithmetic the squeeze gets for free.
+
+## Two steps, with a cursor
+
+`POST /__sp/agent/run` answers 202 with a run id, and `GET /__sp/agent/run/:id/events?after=N`
+is a server-sent event stream from event N+1 on. Not one streaming response, because the agent's
+work is a board written to disk, and the watcher answers that with a full reload: a stream bound
+to the fetch that started the run would die at the exact moment the run succeeds. The panel keeps
+its run ids in `sessionStorage` and, after the reload, reads each run again from zero. The server
+keeps every event of a run (a turn is kilobytes) and the newest twenty runs; a stream that drops
+mid-run reconnects from the last id it saw. Both are the same request with a different `after`,
+which is why an event id is just its position in the run.
+
+The plan had the panel persist `lastEventId` as well. It does not need to: after a reload the
+panel has no transcript, so the only cursor that rebuilds one is zero. The cursor lives in the
+reconnect loop of `chatTransport.ts`, where it is the last id that reached the page.
+
+## Permissions off, and said so
+
+The process runs with `--permission-mode bypassPermissions`. In print mode there is no terminal
+to ask at: a tool call that needs permission is refused, and a run asked to write a board ends
+having written nothing. The alternative is `--permission-prompt-tool` and an MCP server to answer
+through — a second process for a question the panel can put once. So the panel says it in its
+empty state, before the first message: the same trust as running `claude` in a terminal of the
+project, which is what the panel replaces.
+
+## Where the agent runs
+
+In the user's project — never the boards directory (a prompt about a screen reaches for the code
+around it) and never the plugin checkout (`repoRoot` in `vite.config.ts` is the plugin, not the
+user's work). `sp-canvas start` passes the directory it is started from as
+`PROTOTYPING_PROJECT_DIR`, the same one the boards default under. A server started without it
+answers the agent endpoints with 503 naming the variable, and serves everything else as before.
+
+## Left out
+
+- One turn per run and no `--resume`: every message is a fresh process with no memory of the
+  last. The first thing to revisit once the panel has been used; `--resume <session_id>` from
+  the `init` frame is the whole mechanism.
+- Thinking is a marker, not text. On Claude Code 2.1.274 every thinking delta arrives empty, with
+  a token estimate, so there is nothing to fold.
+- No markdown rendering, no TodoWrite cards, no question form, no collapse toggle. Text is text.
+- The parser reads no `stop_reason`. Claude Code reports it on a frame that has moved between
+  releases; a host that keeps stdin open must read it to know when to write again, and this one
+  closes stdin after the message. `result` ends the run on every build.

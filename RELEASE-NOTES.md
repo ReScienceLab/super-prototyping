@@ -21,6 +21,14 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+The canvas has a chat panel on the left when it runs from `sp-canvas start`:
+a message to Claude Code, run in your project with its permission prompts
+off, and what it does as it happens — each tool call as a line, its reply as
+text. A board it rewrites reloads the canvas as any rewrite does, and the
+panel picks the run back up. `sp-canvas start` now tells the server which
+project it is in (`PROTOTYPING_PROJECT_DIR`); without that, the panel says it
+cannot run.
+
 ## v1.3.0
 
 2026-09-15. The inspector moves onto the canvas: you click the board itself,
