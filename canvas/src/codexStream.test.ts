@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { titleFilter } from './claudeStream'
 import { codexEventsFromLine } from './codexStream'
 import modelRefused from './fixtures/codex-0.146.0-model-refused.jsonl?raw'
+import editsAFile from './fixtures/codex-0.146.0-edits-a-file.jsonl?raw'
 import readsAFile from './fixtures/codex-0.146.0-reads-a-file.jsonl?raw'
 
 // The fixtures are recordings of `codex exec --json` on codex-cli 0.146.0, the shape agents.ts
@@ -23,28 +24,44 @@ describe('codexEventsFromLine', () => {
     expect(got.at(-1)).toEqual({ kind: 'end', ok: true })
   })
 
-  it('ends a failed turn once, with the server\'s own words', () => {
+  it('ends a failed turn once, with the one sentence out of the response body', () => {
     const got = events(modelRefused)
     // The two `error` items are warnings and the bare `error` frame repeats turn.failed: none
     // of them may end the run, or emit would refuse the second end.
     expect(got.map((e) => e.kind)).toEqual(['end'])
+    // Verbatim, but the sentence and not the JSON envelope codex wrapped it in.
     expect(got[0]).toEqual({
       kind: 'end',
       ok: false,
-      message: expect.stringContaining("The 'gpt-6-astra' model requires a newer version of Codex"),
+      message:
+        "The 'gpt-6-astra' model requires a newer version of Codex. Please upgrade to the latest app or CLI and try again.",
     })
   })
 
-  it('reads a file change and a reasoning summary', () => {
-    // Open Design's recording of the same wire (json-event-stream.ts), verbatim but for the path.
-    const started =
-      '{"type":"item.started","item":{"id":"item_3","type":"file_change","changes":[{"path":"/p/page.html","kind":"add"}],"status":"in_progress"}}'
-    expect(codexEventsFromLine(started)).toEqual([{ kind: 'tool', id: 'item_3', name: 'Edit', detail: '/p/page.html' }])
-    const done =
-      '{"type":"item.completed","item":{"id":"item_3","type":"file_change","changes":[{"path":"/p/page.html","kind":"add"}],"status":"completed"}}'
-    expect(codexEventsFromLine(done)).toEqual([{ kind: 'tool_done', id: 'item_3', ok: true }])
-    const reasoning = '{"type":"item.completed","item":{"id":"item_1","type":"reasoning","text":"**Reading the file**"}}'
-    expect(codexEventsFromLine(reasoning)).toEqual([{ kind: 'thinking' }])
+  it('leaves a failure that is not a response body alone', () => {
+    const line = '{"type":"turn.failed","error":{"message":"stream disconnected before completion"}}'
+    expect(codexEventsFromLine(line)).toEqual([
+      { kind: 'end', ok: false, message: 'stream disconnected before completion' },
+    ])
+  })
+
+  it('reads a file change, a reasoning summary, and a reply on either side of the work', () => {
+    const got = events(editsAFile)
+    // A turn that thinks, says what it is about to do, patches a file, checks it, and answers:
+    // the text is not one block at the end, which is as close to streaming as this wire gets.
+    expect(got.map((e) => e.kind)).toEqual([
+      'thinking',
+      'text',
+      'tool',
+      'tool_done',
+      'tool',
+      'tool_done',
+      'text',
+      'end',
+    ])
+    expect(got[2]).toEqual({ kind: 'tool', id: 'item_2', name: 'Edit', detail: '/tmp/probe/note.txt' })
+    expect(got[3]).toEqual({ kind: 'tool_done', id: 'item_2', ok: true })
+    expect(got.at(-2)).toEqual({ kind: 'text', text: 'Done. `note.txt` now says `ping`.' })
   })
 
   it('gives the title filter the whole reply in one event, which it can still lift the title from', () => {

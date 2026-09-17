@@ -7,21 +7,22 @@
  * and the end of the turn. Everything else — the thread id, `turn.started`, token usage, and the
  * `error` items that are only warnings about the configured model — is dropped here.
  *
- * Nothing streams. Codex has suppressed its message deltas on this wire since rust-v0.8.0, so
- * the message arrives whole, in one `item.completed`, after every tool line: a Codex turn shows
- * its commands one by one and then its reply all at once, and a panel that seems to hang before
- * the text is showing exactly what the CLI sends. Codex's other wire, `app-server`, does stream,
- * and is a JSON-RPC session rather than a pipe; Open Design carries a second transport for it,
- * and this panel does not.
+ * Nothing streams a character at a time. Codex has suppressed its message deltas on this wire
+ * since rust-v0.8.0, so each message arrives whole, in one `item.completed`. There can be
+ * several: the recordings show a turn open with a sentence about what it is off to do, then its
+ * tool lines, then the answer — so the text lands in paragraphs rather than in one block, but a
+ * panel that sits still while a long command runs is showing exactly what the CLI sends. Codex's
+ * other wire, `app-server`, does stream, and is a JSON-RPC session rather than a pipe; Open
+ * Design carries a second transport for it, and this panel does not.
  *
  * A turn that fails says so twice, as a bare `error` and then `turn.failed` with the same text.
  * Only the second ends the turn here, since a run may end once (agentRun.ts). The message is the
- * server's wording verbatim: on this machine the configured model is one the installed CLI is
- * too old for, and the sentence that says so is the whole diagnosis.
+ * server's wording, unwrapped one layer: codex puts an API refusal on this wire as the response
+ * body in a string, so `turn.failed` about a model the installed CLI is too old for carries a
+ * line of JSON whose one readable sentence is the whole diagnosis. That sentence is what shows.
  *
  * Kept free of node and DOM APIs like claudeStream.ts, and the recorded fixtures next to the
- * test are the contract, except `file_change`, whose shape is Open Design's recording of the
- * same wire; no turn here has written a file yet.
+ * test are the contract.
  */
 import type { ChatEvent } from "./claudeStream.ts";
 
@@ -71,8 +72,24 @@ export function codexEventsFromLine(line: string): ChatEvent[] {
     case "turn.completed":
       return [{ kind: "end", ok: true }];
     case "turn.failed":
-      return [{ kind: "end", ok: false, message: frame.error?.message || "turn failed" }];
+      return [{ kind: "end", ok: false, message: readable(frame.error?.message) }];
     default:
       return [];
   }
+}
+
+/**
+ * The sentence in a codex failure. An API refusal reaches this wire as the whole response body
+ * in a string — `{"type":"error","status":400,"error":{"type":..,"message":"the sentence"}}` —
+ * and the body is not what the user needs to read. Anything else is already the sentence.
+ */
+function readable(message: string | undefined): string {
+  if (!message) return "turn failed";
+  try {
+    const body = JSON.parse(message);
+    if (typeof body?.error?.message === "string") return body.error.message;
+  } catch {
+    // Not JSON, which is the ordinary case.
+  }
+  return message;
 }

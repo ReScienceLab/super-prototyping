@@ -111,14 +111,23 @@ const TITLE_CLOSE = "</sp-title>";
  * `-title>Gre`, … in the recorded fixture), so text is held while it could still be the marker —
  * leading whitespace, or a prefix of the opening tag — and released the moment it cannot be. The
  * blank lines the model puts between the marker and its first sentence go with the marker,
- * whichever delta they arrive in. A reply that opens with anything else costs one held delta;
+ * whichever delta they arrive in. A block that opens with anything else costs one held delta;
  * whatever is held when the run ends is flushed as text.
+ *
+ * Every block gets that chance, not only the first. A turn that opens by saying what it is about
+ * to do, runs a tool and titles the reply after it is the ordinary shape of a turn that has work
+ * to do, and the title belongs in the header either way; a tool call between two blocks of text
+ * re-arms the filter, until a title has been lifted.
  */
 export function titleFilter(): (e: ChatEvent) => ChatEvent[] {
   let held: string | null = ""; // text not yet released; null once it flows through untouched
   let titled = false;
   return (e) => {
-    if (held === null || (e.kind !== "text" && e.kind !== "end")) return [e];
+    if (e.kind !== "text" && e.kind !== "end") {
+      if (!titled && held === null) held = ""; // A tool ends a block; the next one may be titled.
+      return [e];
+    }
+    if (held === null) return [e];
     if (e.kind === "end") {
       const text = held.trim();
       held = null;

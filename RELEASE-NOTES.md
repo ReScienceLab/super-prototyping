@@ -42,13 +42,18 @@ message, and every turn and history row shows the mark of the agent that ran
 it. An agent that is not installed is in the menu greyed, with how to get it.
 Codex runs in its own workspace sandbox with the boards folder added, takes
 the panel's briefing ahead of your message since it has no system prompt, and
-answers whole rather than streaming, which is how `codex exec` works. If your
-Codex is older than the model its config names, the first message fails with
-the server's own sentence saying so; update the CLI or set `model` in
-`~/.codex/config.toml`.
+answers in paragraphs rather than word by word, which is how `codex exec`
+works. If your Codex is older than the model its config names, the first
+message fails with the server's own sentence saying so; update the CLI or set
+`model` in `~/.codex/config.toml`.
 
 The agent's replies render as markdown — bold, lists, fences and tables, with
 wide ones scrolling inside the message — rather than as source.
+
+The conversation gets its name from a turn that had work to do: a reply that
+opens by saying what it is about to do, runs a tool and titles itself after
+that is titled in the header and the history list, where the title used to be
+left sitting in the middle of the reply instead.
 
 This needs the toolkit reinstalled, not only the plugin updated: `sp-canvas`
 1.2.0 predates `PROTOTYPING_PROJECT_DIR`, so a canvas it starts comes up with

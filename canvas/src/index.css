@@ -1597,6 +1597,11 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   white-space: nowrap;
 }
 
+/* The time keeps its one line and the title gives up the room, not the other way round. */
+.sp-chat-history-row .sp-chat-dim {
+  flex: none;
+}
+
 /* A run still going gets the accent dot; one that failed, the error red. */
 .sp-chat-history-row[data-status="running"]::before {
   content: "";
@@ -1614,8 +1619,12 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 
 /* The agent menu: the inspector's rows, grown to fit a second line under a CLI that was not
    found on PATH, saying what to do. Such a row is greyed and takes no click. */
+/* As wide as its rows, which is narrow with both agents installed; the ceiling is for the one
+   that is missing, whose row carries a sentence about installing it. */
 .sp-chat-agents {
-  width: 280px;
+  width: max-content;
+  min-width: 140px;
+  max-width: 280px;
 }
 
 .sp-chat-agents .sp-menu-row {
@@ -1631,6 +1640,12 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 
 .sp-chat-agents .sp-menu-row:disabled:hover {
   background: none;
+}
+
+/* A mark in its brand colour beside greyed-out text reads as the available one, and Claude's is
+   a fixed terracotta rather than currentColor, so the row dims the mark itself. */
+.sp-chat-agents .sp-menu-row:disabled svg {
+  opacity: 0.45;
 }
 
 .sp-chat-agents-name {

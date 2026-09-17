@@ -60,6 +60,12 @@ is held only while it could still be the marker and released the moment it canno
 prompt. Until the model's title arrives, and when it never does, the header shows the prompt's
 first line.
 
+Every block of text gets that chance, not only the first. A turn with work to do usually opens
+by saying what it is about to do, runs a tool, and titles the reply on the far side of it — and
+a filter that gave up at the first sentence left the marker in the reply, where the sanitizer
+dropped the tags and the model's title sat in the middle of the text as a stray line while the
+header showed the prompt. A tool call re-arms the filter, until a title has been lifted.
+
 That fallback travels in `start`, the run's first event, which the server writes when the run is
 created with the prompt, the title and the time. It exists so a run replays whole from event
 zero: the panel keeps only run ids in `sessionStorage` now, where it kept prompts too, and the
@@ -70,6 +76,11 @@ canvas's own header a few hundred pixels to the right, naming the same board; on
 to go, and the panel is not the one that owns it. The slug still travels with the message.
 
 ## The history is the server's memory, and dies with it
+
+A run the server no longer has replays as a failure before a single frame, and a turn with no
+prompt and no blocks under it is not a conversation to put an error under, so it is dropped
+instead. The panel comes back from a dev-server restart empty rather than carrying a column of
+run ids it cannot show, one per reload.
 
 `GET /__sp/agent/runs` lists the runs the server retains — the newest twenty, in memory —
 newest first, as `{ id, title, startedAt, status }`; picking one replays it through the same
@@ -115,22 +126,25 @@ item is what becomes the thinking marker.
 
 `codexStream.ts` reads `codex exec --json` into the same ChatEvents Claude's stream becomes:
 `command_execution` and `file_change` items as tool and tool_done, `agent_message` as text,
-`reasoning` as thinking, `turn.completed` and `turn.failed` as the end. Nothing streams. Codex
-suppressed its message deltas on this wire in rust-v0.8.0 and has not put them back, so the
-reply arrives whole after the last tool line: a Codex turn shows its commands one by one and
-then its text all at once, and the panel is drawing exactly what it is sent. Codex's other wire,
-`app-server`, streams and is a JSON-RPC session; Open Design carries a second transport for it,
-and this panel does not. The title filter does not mind: it lifts `<sp-title>` from the one
-`text` event as it would from the first delta.
+`reasoning` as thinking, `turn.completed` and `turn.failed` as the end. Nothing streams a
+character at a time: Codex suppressed its message deltas on this wire in rust-v0.8.0 and has not
+put them back, so each message arrives whole. There is more than one. The recordings show a turn
+open by saying what it is about to do, then its tool lines, then the answer — text in paragraphs
+rather than in one block at the end, which is as close to streaming as this wire gets, and the
+panel is drawing exactly what it is sent. Codex's other wire, `app-server`, streams and is a
+JSON-RPC session; Open Design carries a second transport for it, and this panel does not.
 
 A failed turn says so twice, a bare `error` frame and then `turn.failed` with the same text, and
-only the second ends the run, since `emit` refuses a second end. The text is the server's,
-verbatim, because on this machine it is the whole diagnosis: codex-cli 0.146.0's default model
-is `gpt-6-astra`, and the server answers "The 'gpt-6-astra' model requires a newer version of
-Codex", so Codex fails on the first message until the CLI is updated or `model` is set in
-`~/.codex/config.toml`. The panel does not choose a model; that is the user's config, as it is
-in a terminal. The `file_change` shape is Open Design's recording of the same wire — no turn
-here has written a file yet — and the test says so.
+only the second ends the run, since `emit` refuses a second end. The text is the server's, with
+one layer taken off: codex puts an API refusal on this wire as the whole response body inside a
+string, and a panel that shows it whole shows a line of JSON with one readable sentence in the
+middle of it. That sentence is what shows, and on this machine it is the whole diagnosis —
+codex-cli 0.146.0's default model is `gpt-6-astra`, the server answers "The 'gpt-6-astra' model
+requires a newer version of Codex", and Codex fails on the first message until the CLI is
+updated or `model` is set in `~/.codex/config.toml`. The panel does not choose a model; that is
+the user's config, as it is in a terminal. Every shape above is a recording of codex-cli 0.146.0
+spawned the way `agents.ts` spawns it, `file_change` included: a turn that patches a file, runs
+a command to check it, and answers, which is the fixture the test reads.
 
 Which agents exist is the server's to say: `GET /__sp/agent/agents` probes each binary once per
 server with `--version` and answers `available`, and the menu greys the ones it could not find,

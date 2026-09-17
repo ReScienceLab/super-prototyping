@@ -74,4 +74,25 @@ describe('titleFilter', () => {
     expect(split({ kind: 'text', text: '<sp-title>Saying Hi</sp-title>' })).toEqual([{ kind: 'title', title: 'Saying Hi' }])
     expect(split({ kind: 'text', text: '\n\nHi!' })).toEqual([{ kind: 'text', text: 'Hi!' }])
   })
+
+  it('takes the title from the block after the tool call, which is where a working turn puts it', () => {
+    // The ordinary shape: say what you are about to do, do it, then answer with the title on top.
+    const later = titleFilter()
+    expect(later({ kind: 'text', text: "I'll look at the folder." })).toEqual([
+      { kind: 'text', text: "I'll look at the folder." },
+    ])
+    expect(later({ kind: 'tool', id: 't1', name: 'Bash', detail: 'ls' })).toEqual([
+      { kind: 'tool', id: 't1', name: 'Bash', detail: 'ls' },
+    ])
+    expect(later({ kind: 'tool_done', id: 't1', ok: true })).toEqual([{ kind: 'tool_done', id: 't1', ok: true }])
+    expect(later({ kind: 'text', text: '<sp-title>Reading The Folder</sp-title>\n\nTwenty-nine boards.' })).toEqual([
+      { kind: 'title', title: 'Reading The Folder' },
+      { kind: 'text', text: 'Twenty-nine boards.' },
+    ])
+    // One title per turn: a marker in a third block is text like any other.
+    expect(later({ kind: 'tool', id: 't2', name: 'Bash', detail: 'ls' })).toHaveLength(1)
+    expect(later({ kind: 'text', text: '<sp-title>Again</sp-title>' })).toEqual([
+      { kind: 'text', text: '<sp-title>Again</sp-title>' },
+    ])
+  })
 })

@@ -82,7 +82,19 @@ export function ChatPanel() {
     const update = (patch: (t: Turn) => Turn) =>
       setTurns((ts) => ts.map((t) => (t.runId === runId ? patch(t) : t)));
     followRun(runId, 0, (frame) => update((t) => applyFrame(t, frame)), signal).catch((error) => {
-      if (!signal.aborted) update((t) => ({ ...t, end: { ok: false, message: String(error) } }));
+      if (signal.aborted) return;
+      // A run the server no longer has — it keeps the newest twenty, and a restart keeps none —
+      // replays as a failure before a single frame. There is no conversation left to put an
+      // error under, so the turn goes with it rather than standing in the log as an id.
+      setTurns((ts) =>
+        ts.flatMap((t) =>
+          t.runId !== runId
+            ? [t]
+            : t.prompt || t.blocks.length
+              ? [{ ...t, end: { ok: false, message: String(error) } }]
+              : [],
+        ),
+      );
     });
   };
 
@@ -254,7 +266,9 @@ export function ChatPanel() {
         )}
         {turns.map((t) => (
           <article key={t.runId} className="sp-chat-turn">
-            <p className="sp-chat-you">{t.prompt}</p>
+            {/* A run the server has forgotten — it keeps the newest twenty, and a restart
+                keeps none — replays as an error with no prompt to put above it. */}
+            {t.prompt && <p className="sp-chat-you">{t.prompt}</p>}
             {t.agent && (
               <span className="sp-chat-mark" title={nameOf(t.agent)}>
                 <Mark agent={t.agent} size={12} />
