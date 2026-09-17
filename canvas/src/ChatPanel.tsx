@@ -19,6 +19,7 @@ import { CanvasChromeContext } from "./canvasChrome";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
+import { renderMarkdown } from "./markdown";
 
 const RUNS_KEY = "sp-chat-runs";
 const COLLAPSED_KEY = "sp-chat-collapsed";
@@ -184,9 +185,12 @@ export function ChatPanel() {
             <p className="sp-chat-you">{t.prompt}</p>
             {t.blocks.map((b, i) =>
               b.kind === "text" ? (
-                <p key={i} className="sp-chat-text">
-                  {b.text}
-                </p>
+                <div
+                  key={i}
+                  className="sp-chat-md"
+                  // Sanitized in markdown.ts; nothing else reaches this attribute.
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(b.text) }}
+                />
               ) : b.kind === "thinking" ? (
                 <p key={i} className="sp-chat-tool">
                   <b>Thinking</b>

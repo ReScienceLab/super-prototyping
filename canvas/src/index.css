@@ -1400,10 +1400,95 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   overflow-wrap: anywhere;
 }
 
-.sp-chat-text {
+/* The agent's text, as markdown (markdown.ts). A grid with a gap rather than margins, so the
+   blocks space themselves whatever the log's `p { margin: 0 }` says; the minmax(0) column is
+   what lets a table or fence wider than the panel scroll inside its own block instead of
+   widening the panel. A table exists only once its delimiter row has streamed in — until then
+   the header line is a paragraph of pipes, and it becomes a table in place. */
+.sp-chat-md {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
   line-height: 18px;
-  white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.sp-chat-md > * {
+  margin: 0;
+}
+
+.sp-chat-md h1,
+.sp-chat-md h2,
+.sp-chat-md h3,
+.sp-chat-md h4 {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sp-chat-md ul,
+.sp-chat-md ol {
+  padding-left: 18px;
+}
+
+.sp-chat-md code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--sp-field);
+  font: 400 11px/16px var(--sp-mono);
+}
+
+/* A fence and a table scroll sideways inside the message: the panel is 360px wide and the model
+   does not know that. */
+.sp-chat-md pre {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--sp-field);
+  overflow-x: auto;
+}
+
+.sp-chat-md pre code {
+  padding: 0;
+  background: none;
+}
+
+.sp-chat-md table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.sp-chat-md th,
+.sp-chat-md td {
+  padding: 3px 8px;
+  border: 1px solid var(--sp-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.sp-chat-md th {
+  font-weight: 500;
+  background: var(--sp-field);
+}
+
+.sp-chat-md blockquote {
+  padding-left: 10px;
+  border-left: 2px solid var(--sp-line);
+  color: var(--sp-text-2);
+}
+
+.sp-chat-md hr {
+  border: 0;
+  border-top: 1px solid var(--sp-line);
+}
+
+.sp-chat-md a {
+  color: var(--sp-accent);
+}
+
+.sp-chat-md img {
+  max-width: 100%;
 }
 
 /* One line per tool call: the tool, then its target, cut to the width. */
