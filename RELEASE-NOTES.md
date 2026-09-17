@@ -29,6 +29,17 @@ panel picks the run back up. `sp-canvas start` now tells the server which
 project it is in (`PROTOTYPING_PROJECT_DIR`); without that, the panel says it
 cannot run.
 
+The panel's header names the conversation — the agent's own title for it once
+it has given one — behind Claude's mark, lists the server's recent runs behind
+a history button, and folds to a rail. The rail is the mark; click it to open
+the panel again. The list lives in the dev server's memory and starts empty
+when it restarts.
+
+This needs the toolkit reinstalled, not only the plugin updated: `sp-canvas`
+1.2.0 predates `PROTOTYPING_PROJECT_DIR`, so a canvas it starts comes up with
+the panel but every message answers 503. Re-run the README's `uv tool install`
+line with `--force`.
+
 ## v1.3.0
 
 2026-09-15. The inspector moves onto the canvas: you click the board itself,

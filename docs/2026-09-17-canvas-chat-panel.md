@@ -49,6 +49,46 @@ user's work). `sp-canvas start` passes the directory it is started from as
 `PROTOTYPING_PROJECT_DIR`, the same one the boards default under. A server started without it
 answers the agent endpoints with 503 naming the variable, and serves everything else as before.
 
+## The header names the conversation
+
+The title comes from the model, in the same run: the system prompt asks it to open its reply
+with `<sp-title>…</sp-title>` on a line of its own, and `titleFilter` in `claudeStream.ts` lifts
+the marker out on the server, before anything is emitted, so the page never sees it as text. The
+marker arrives split across deltas (`<s`, `p`, `-title>Gre`… in the recorded fixture), so text
+is held only while it could still be the marker and released the moment it cannot be. A second
+`claude` call to name the run would cost a process and a wait; this costs one sentence of
+prompt. Until the model's title arrives, and when it never does, the header shows the prompt's
+first line.
+
+That fallback travels in `start`, the run's first event, which the server writes when the run is
+created with the prompt, the title and the time. It exists so a run replays whole from event
+zero: the panel keeps only run ids in `sessionStorage` now, where it kept prompts too, and the
+history list is read off the same events (`runSummary` in `agentRun.ts`).
+
+## The history is the server's memory, and dies with it
+
+`GET /__sp/agent/runs` lists the runs the server retains — the newest twenty, in memory —
+newest first, as `{ id, title, startedAt, status }`; picking one replays it through the same
+`events?after=0`. Nothing is written to disk. A dev server that restarts starts with an empty
+list, and that is consistent with the rest of the panel: the server already holds every run's
+events and nothing else does. A file would be this feature's first persistence, and a database
+its second.
+
+## Collapsing is a width change
+
+The panel folds to a 36px rail showing Claude's mark, which is the button that opens it again.
+Nothing unmounts: the panel keeps following a run while collapsed, and comes back with its
+transcript scrolled to the end. The state is in `localStorage`, so a panel closed stays closed
+across reloads — and the reload a board write causes is exactly when that matters.
+
+## One mark, no registry
+
+`ClaudeMark.tsx` sits next to `FigmaMark.tsx`: one path from lobehub/icons' `Claude.Color`
+(MIT), drawn inline like every other icon here rather than pulled in as a package that is nine
+megabytes and an Ant Design stack. The panel talks to one agent, so there is one mark and no
+icon map, registry or agent-to-icon configuration; a second agent, when one genuinely arrives,
+is one more file that day. The absence is deliberate.
+
 ## Left out
 
 - One turn per run and no `--resume`: every message is a fresh process with no memory of the
@@ -56,7 +96,7 @@ answers the agent endpoints with 503 naming the variable, and serves everything 
   the `init` frame is the whole mechanism.
 - Thinking is a marker, not text. On Claude Code 2.1.274 every thinking delta arrives empty, with
   a token estimate, so there is nothing to fold.
-- No markdown rendering, no TodoWrite cards, no question form, no collapse toggle. Text is text.
+- No markdown rendering, no TodoWrite cards, no question form. Text is text.
 - The parser reads no `stop_reason`. Claude Code reports it on a frame that has moved between
   releases; a host that keeps stdin open must read it to know when to write again, and this one
   closes stdin after the message. `result` ends the run on every build.

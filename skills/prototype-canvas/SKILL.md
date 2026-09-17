@@ -138,7 +138,8 @@ message to Claude Code, run in the project with its permission prompts off,
 and what it did as it happens. It names the canvas that is open and tells the
 agent, and points the agent at this skill before it touches a board folder. A
 board it rewrites reloads the canvas as any rewrite does; the panel keeps its
-runs across the reload.
+runs across the reload, and its history button lists the runs the server
+still holds.
 
 Each message is a fresh `claude -p` with no memory of the last, so repeat what
 matters. A server started by hand needs `PROTOTYPING_PROJECT_DIR` set to the
