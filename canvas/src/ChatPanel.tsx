@@ -199,10 +199,14 @@ export function ChatPanel() {
     setCollapsed(!collapsed);
   };
 
-  const choose = (id: AgentId) => {
-    agentMenu.current?.hidePopover();
+  const switchTo = (id: AgentId) => {
     localStorage.setItem(AGENT_KEY, id);
     setAgent(id);
+  };
+
+  const choose = (id: AgentId) => {
+    agentMenu.current?.hidePopover();
+    switchTo(id);
   };
 
   const openHistory = async () => {
@@ -211,8 +215,12 @@ export function ChatPanel() {
     setHistory(await res.json());
   };
 
-  const pick = (runId: string) => {
+  const pick = (runId: string, ran: AgentId) => {
     historyList.current?.hidePopover();
+    // Opening a conversation picks the agent that held it: the header mark, the model and effort
+    // under the composer, and where the next message goes all mean the run on screen, not
+    // whatever was selected before it was opened.
+    switchTo(ran);
     // The picked run may be one already on screen, and two follows of one run draw it twice.
     abort.current.abort();
     abort.current = new AbortController();
@@ -354,7 +362,7 @@ export function ChatPanel() {
               type="button"
               className="sp-chat-history-row"
               data-status={r.status}
-              onClick={() => pick(r.id)}
+              onClick={() => pick(r.id, r.agent)}
             >
               <span className="sp-chat-mark" title={nameOf(r.agent)}>
                 <Mark agent={r.agent} size={12} />
