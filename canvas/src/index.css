@@ -1526,10 +1526,61 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   padding: 0 12px 8px;
 }
 
+/* The box is the input. The textarea inside it has no chrome of its own: the border, the
+   background and the focus ring belong to the form, and the submit sits inside them — Claude
+   Code's composer, which this panel is a second window onto. */
 .sp-chat-composer {
-  align-items: flex-end;
+  flex: none;
   /* The slash palette hangs off the top of the box, so it follows it however tall it has grown. */
   position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin: 8px 12px 6px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--sp-line);
+  border-radius: 10px;
+  background: var(--sp-field);
+}
+
+.sp-chat-composer:focus-within {
+  border-color: var(--sp-accent);
+}
+
+.sp-chat-composer textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: 160px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  outline: none;
+  resize: none;
+  field-sizing: content;
+  user-select: text;
+}
+
+.sp-chat-submit {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: var(--sp-text-2);
+  cursor: pointer;
+}
+
+.sp-chat-submit:hover:not(:disabled) {
+  color: var(--sp-text);
+  background: var(--sp-hover);
+}
+
+.sp-chat-submit:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* Typing "/" lists what the agent can run. Not a popover: it opens while typing rather than on a
@@ -1761,7 +1812,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 6px 8px;
+  padding: 0 10px 8px;
   color: var(--sp-text-2);
   line-height: 18px;
 }
@@ -1779,7 +1830,33 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 
 /* The count keeps the right edge, whatever the chips beside it are called. */
+.sp-chat-perm {
+  margin-right: auto;
+  padding-left: 2px;
+}
+
 .sp-chat-ctx {
-  margin-left: auto;
   font-variant-numeric: tabular-nums;
+}
+
+.sp-chat-spin {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--sp-line);
+  border-top-color: var(--sp-accent);
+  border-radius: 50%;
+  animation: sp-chat-spin 0.7s linear infinite;
+}
+
+@keyframes sp-chat-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-chat-spin {
+    animation-duration: 3s;
+  }
 }

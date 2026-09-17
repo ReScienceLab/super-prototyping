@@ -479,7 +479,7 @@ export function ChatPanel() {
         ))}
       </div>
       <form
-        className="sp-note-new sp-chat-composer"
+        className="sp-chat-composer"
         onSubmit={(e) => {
           e.preventDefault();
           void send();
@@ -488,7 +488,7 @@ export function ChatPanel() {
         <textarea
           ref={composer}
           value={draft}
-          placeholder={running ? "Working…" : `Ask ${nameOf(agent)}…`}
+          placeholder={running ? "Working…" : "Type / for commands"}
           aria-label={`Message to ${nameOf(agent)}`}
           onChange={(e) => {
             setDraft(e.target.value);
@@ -542,22 +542,55 @@ export function ChatPanel() {
             ))}
           </div>
         )}
+        {/* One control, inside the box: the arrow the box invites, the square while it is busy. */}
         {running ? (
           <button
             type="button"
-            className="sp-note-send"
+            className="sp-chat-submit"
+            aria-label="Stop the agent"
+            title="Stop"
             onClick={() => void fetch(`/__sp/agent/run/${running.runId}/cancel`, { method: "POST" })}
           >
-            Stop
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+              <rect x="4" y="4" width="6" height="6" rx="1.5" fill="currentColor" />
+            </svg>
           </button>
         ) : (
-          <button type="submit" className="sp-note-send" disabled={!draft.trim()}>
-            Send
+          <button
+            type="submit"
+            className="sp-chat-submit"
+            disabled={!draft.trim()}
+            aria-label="Send"
+            title="Send — Enter"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M11.5 3v4.5H3.5" />
+              <path d="M6 5 3.5 7.5 6 10" />
+            </svg>
           </button>
         )}
       </form>
       {sendError && <p className="sp-chat-error sp-chat-send-error">{sendError}</p>}
       <div className="sp-chat-bar">
+        <span
+          className="sp-chat-perm"
+          title={
+            "Tool calls are not asked about: the process runs with bypassPermissions, the same " +
+            "trust as running the CLI in a terminal of this project. The panel cannot switch it."
+          }
+        >
+          Bypass permissions
+        </span>
         {row && row.models.length > 0 && (
           <button
             type="button"
@@ -591,6 +624,7 @@ export function ChatPanel() {
             {usage.window ? ` / ${tokens(usage.window)}` : ""}
           </span>
         )}
+        {running && <span className="sp-chat-spin" role="status" aria-label="Working" />}
       </div>
     </aside>
   );

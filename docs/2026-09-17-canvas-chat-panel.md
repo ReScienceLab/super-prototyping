@@ -311,6 +311,21 @@ others are caught by the host and never sent at all. It lists what the product c
 the CLI underneath it can run. Here the CLI is the product, so the palette is its list, and every
 entry goes to it verbatim.
 
+## The composer is Claude Code's
+
+A bordered box with the submit inside it, and under the box a row: what the run is allowed to do
+on the left, what it runs as on the right. The textarea has no chrome of its own — the border,
+the background and the focus ring are the form's — so the box grows with the text and the slash
+palette keeps hanging off its top edge. Colours stay the canvas's: this is the same arrangement
+in a light panel, not a dark theme dropped into a light app.
+
+Three of that row's controls are deliberately missing. The microphone: no voice input here. The
+chevron beside the permission label: it switches Edit and Bypass mode, and this panel cannot —
+the mode is fixed at spawn and the label states it rather than offering it. And `+`, which adds
+files and images to the message: the prompt reaches the agent as one string on stdin, so the
+button would open onto nothing. It comes back the day there is something to attach.
+
+
 ## Left out
 
 - One turn per run and no resuming, for either agent: every message is a fresh process with no
