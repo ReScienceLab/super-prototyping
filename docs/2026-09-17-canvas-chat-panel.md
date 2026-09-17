@@ -89,9 +89,56 @@ across reloads — and the reload a board write causes is exactly when that matt
 
 `ClaudeMark.tsx` sits next to `FigmaMark.tsx`: one path from lobehub/icons' `Claude.Color`
 (MIT), drawn inline like every other icon here rather than pulled in as a package that is nine
-megabytes and an Ant Design stack. The panel talks to one agent, so there is one mark and no
-icon map, registry or agent-to-icon configuration; a second agent, when one genuinely arrives,
-is one more file that day. The absence is deliberate.
+megabytes and an Ant Design stack. The panel talked to one agent, so there was one mark and no
+icon map, registry or agent-to-icon configuration; a second agent, when one genuinely arrived,
+would be one more file that day. It arrived, below, and it was: `CodexMark.tsx`, and a two-entry
+object in `ChatPanel.tsx` that picks a mark by id.
+
+## A second agent, and the table it made
+
+Codex arrived, and the mark's promise held; what the server needed was a little more. The spawn,
+its argv, how the preamble and the message reach the process and how its output is read were
+Claude's, inline in `vite.config.ts`. They are now one object literal per CLI in `agents.ts` —
+id, name, binary, `args`, `stdin`, `events`, and the sentence for when the binary is not on
+PATH — and the server looks up the one the panel asked for and does everything after the spawn
+the same way for both. This is Open Design's `RuntimeAgentDef` with the fields the two genuinely
+differ in and none of the rest: a table, not a registry, and a third agent is a third literal.
+
+The two differ in more than argv. Claude Code takes the preamble as a flag and the message as
+one stream-json line; Codex has no system-prompt flag, so the preamble goes ahead of the message
+in the prompt itself, plain text on stdin. Claude writes wherever it likes with its prompts off;
+Codex in `workspace-write` writes only its working directory, and `sp-canvas --canvases` can put
+the boards anywhere, so the boards folder is named to it with `--add-dir`. And Codex asks the
+API for a reasoning summary only when told to — Open Design measured a turn with 516 reasoning
+tokens and no reasoning item — so `model_reasoning_summary="detailed"` is on the argv, and that
+item is what becomes the thinking marker.
+
+`codexStream.ts` reads `codex exec --json` into the same ChatEvents Claude's stream becomes:
+`command_execution` and `file_change` items as tool and tool_done, `agent_message` as text,
+`reasoning` as thinking, `turn.completed` and `turn.failed` as the end. Nothing streams. Codex
+suppressed its message deltas on this wire in rust-v0.8.0 and has not put them back, so the
+reply arrives whole after the last tool line: a Codex turn shows its commands one by one and
+then its text all at once, and the panel is drawing exactly what it is sent. Codex's other wire,
+`app-server`, streams and is a JSON-RPC session; Open Design carries a second transport for it,
+and this panel does not. The title filter does not mind: it lifts `<sp-title>` from the one
+`text` event as it would from the first delta.
+
+A failed turn says so twice, a bare `error` frame and then `turn.failed` with the same text, and
+only the second ends the run, since `emit` refuses a second end. The text is the server's,
+verbatim, because on this machine it is the whole diagnosis: codex-cli 0.146.0's default model
+is `gpt-6-astra`, and the server answers "The 'gpt-6-astra' model requires a newer version of
+Codex", so Codex fails on the first message until the CLI is updated or `model` is set in
+`~/.codex/config.toml`. The panel does not choose a model; that is the user's config, as it is
+in a terminal. The `file_change` shape is Open Design's recording of the same wire — no turn
+here has written a file yet — and the test says so.
+
+Which agents exist is the server's to say: `GET /__sp/agent/agents` probes each binary once per
+server with `--version` and answers `available`, and the menu greys the ones it could not find,
+with the sentence the run would have failed with. The choice is the header's mark, kept in
+`localStorage` under `sp-chat-agent` and sent with the message, and each run's `start` event
+names the agent that ran it, so a rebuilt transcript and the history list show the mark of the
+agent that ran each turn rather than the one chosen now. No settings page: one click, one menu,
+one mark.
 
 ## Markdown: marked, remend and DOMPurify
 
@@ -131,11 +178,15 @@ rather than widening the panel.
 
 ## Left out
 
-- One turn per run and no `--resume`: every message is a fresh process with no memory of the
-  last. The first thing to revisit once the panel has been used; `--resume <session_id>` from
-  the `init` frame is the whole mechanism.
+- One turn per run and no resuming, for either agent: every message is a fresh process with no
+  memory of the last. The first thing to revisit once the panel has been used; Claude's
+  `--resume <session_id>` from its `init` frame and Codex's `exec resume <thread_id>` from its
+  `thread.started` are the whole mechanism.
 - Thinking is a marker, not text. On Claude Code 2.1.274 every thinking delta arrives empty, with
-  a token estimate, so there is nothing to fold.
+  a token estimate, so there is nothing to fold; Codex does send a summary, and it is dropped to
+  the same marker so the two read alike.
+- No model or reasoning-effort choice for either agent. The user's own config says it, as in a
+  terminal; Codex's `-c model=…` is one argv line away when that stops being enough.
 - No TodoWrite cards, no question form, no syntax highlighting.
 - The parser reads no `stop_reason`. Claude Code reports it on a frame that has moved between
   releases; a host that keeps stdin open must read it to know when to write again, and this one

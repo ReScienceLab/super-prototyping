@@ -134,15 +134,17 @@ Do not build an annotation-to-agent protocol. The screenshot is the bridge.
 ## The chat panel
 
 The canvas has a panel on the left when it runs from `sp-canvas start`: a
-message to Claude Code, run in the project with its permission prompts off,
-and what it did as it happens. It names the canvas that is open and tells the
-agent, and points the agent at this skill before it touches a board folder. A
+message to Claude Code or Codex — the mark on the header picks — run in the
+project, Claude with its permission prompts off and Codex in its workspace
+sandbox, and what it did as it happens. The panel names the canvas that is
+open and tells the agent, and points the agent at this skill before it
+touches a board folder. A
 board it rewrites reloads the canvas as any rewrite does; the panel keeps its
 runs across the reload, and its history button lists the runs the server
 still holds.
 
-Each message is a fresh `claude -p` with no memory of the last, so repeat what
-matters. A server started by hand needs `PROTOTYPING_PROJECT_DIR` set to the
+Each message is a fresh `claude -p` or `codex exec` with no memory of the
+last, so repeat what matters. A server started by hand needs `PROTOTYPING_PROJECT_DIR` set to the
 project, or the panel says it cannot run; `sp-canvas start` sets it.
 
 ## State and persistence

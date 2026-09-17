@@ -30,10 +30,22 @@ project it is in (`PROTOTYPING_PROJECT_DIR`); without that, the panel says it
 cannot run.
 
 The panel's header names the conversation — the agent's own title for it once
-it has given one — behind Claude's mark, lists the server's recent runs behind
-a history button, and folds to a rail. The rail is the mark; click it to open
-the panel again. The list lives in the dev server's memory and starts empty
-when it restarts.
+it has given one — behind the agent's mark, lists the server's recent runs
+behind a history button, and folds to a rail. The rail is the mark; click it
+to open the panel again. The list lives in the dev server's memory and starts
+empty when it restarts.
+
+The panel talks to Codex as well as Claude Code. The mark on the header is the
+switch: click it for a menu of the agents the server found on your PATH, pick
+one, and the mark becomes that agent's; the choice is kept and sent with each
+message, and every turn and history row shows the mark of the agent that ran
+it. An agent that is not installed is in the menu greyed, with how to get it.
+Codex runs in its own workspace sandbox with the boards folder added, takes
+the panel's briefing ahead of your message since it has no system prompt, and
+answers whole rather than streaming, which is how `codex exec` works. If your
+Codex is older than the model its config names, the first message fails with
+the server's own sentence saying so; update the CLI or set `model` in
+`~/.codex/config.toml`.
 
 The agent's replies render as markdown — bold, lists, fences and tables, with
 wide ones scrolling inside the message — rather than as source.
