@@ -1,3 +1,5 @@
+import { spawn, type ChildProcess } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +16,8 @@ import {
   withCanvasName,
 } from "./src/boardStatusEdit.ts";
 import { boardChangeKind, boardSetSignature, boardSlug } from "./src/boardWatch.ts";
+import { attach, emit, ended, newRun, sseFrame, type Run } from "./src/agentRun.ts";
+import { chatEventsFromLine } from "./src/claudeStream.ts";
 
 /**
  * Repo root — vite.config.ts sits in canvas/, one level below it. It is published into the page
@@ -37,6 +41,17 @@ const defaultCanvasesDir = path.resolve(repoRoot, "mockups/canvases");
 const canvasesDir = path.resolve(
   process.env.PROTOTYPING_CANVASES_DIR || defaultCanvasesDir,
 );
+
+/**
+ * The user's project, for the agent behind the chat panel to run in. It is their project the
+ * agent works on — the boards are one folder inside it, and a prompt about a screen reaches for
+ * the code around it — so neither the boards directory nor this checkout would do as its cwd.
+ * `sp-canvas start` sets it to the directory it is started from, the same one the boards default
+ * under. Unset, the agent endpoints answer 503 by name and the rest of the server is unaffected.
+ */
+const projectDir = process.env.PROTOTYPING_PROJECT_DIR
+  ? path.resolve(process.env.PROTOTYPING_PROJECT_DIR)
+  : null;
 
 /**
  * Suffix for the tldraw persistence key, so two projects do not share one document.
@@ -692,6 +707,159 @@ function canvasesSource(): Plugin {
             send(500, String(error));
           }
         });
+      });
+
+      // The agent behind the chat panel: one Claude Code process per message, run in the user's
+      // project, its output kept here and streamed to the page. Dev server only, like the
+      // endpoints above and more so, since the process writes files.
+      //
+      // Two steps rather than one streaming response: the agent's work is a board written to
+      // disk, and the watcher below answers that with a full reload, so a stream bound to the
+      // fetch that started the run would die exactly when the run succeeds. The page comes back
+      // with the run's id and reads its events from wherever it left off (agentRun.ts).
+      //
+      // No reload broadcast from here: a board the agent writes reaches the page through the
+      // watcher like anyone else's, and anything else it writes is not the canvas's business.
+      const runs = new Map<string, Run & { child: ChildProcess }>();
+      server.middlewares.use("/__sp/agent/run", (req, res, next) => {
+        const send = (code: number, message: string) => {
+          res.statusCode = code;
+          res.end(message);
+        };
+        const project = projectDir;
+        if (!project) {
+          return send(
+            503,
+            "PROTOTYPING_PROJECT_DIR is not set, so there is no project for the agent to work in. " +
+              "`sp-canvas start` sets it to the directory it is started from.",
+          );
+        }
+        // Mounted under the prefix, so req.url is "/", "/<id>/events?after=N" or "/<id>/cancel".
+        const url = new URL(req.url ?? "/", "http://sp");
+        if (req.method === "POST" && url.pathname === "/") {
+          let body = "";
+          req.on("data", (chunk) => (body += chunk));
+          req.on("end", () => {
+            try {
+              const { message, canvas } = JSON.parse(body || "{}");
+              if (typeof message !== "string" || !message.trim()) return send(400, "empty message");
+              // The slug lands in a path in the prompt, so it is checked like the others.
+              if (canvas !== undefined && !SAFE_NAME.test(canvas)) return send(400, "bad canvas name");
+              const preamble = [
+                `You are working in the user's project at ${project}, from the chat panel of the ` +
+                  "super-prototyping canvas they have open.",
+                `Their boards are the folders under ${canvasesDir}, one per canvas page.`,
+                canvas &&
+                  `They are looking at the canvas "${canvas}", whose folder is ${path.join(canvasesDir, canvas)}.`,
+                `Before touching a board folder, read ${repoRoot}/skills/prototype-canvas/SKILL.md, ` +
+                  "the prototype-canvas skill of the super-prototyping plugin: one folder is one canvas " +
+                  "page, one .html file in it is one board, layout.json places them, and the open canvas " +
+                  "reloads by itself when a board is rewritten.",
+              ]
+                .filter(Boolean)
+                .join("\n");
+              const run = Object.assign(newRun(randomUUID()), {
+                child: spawn(
+                  "claude",
+                  [
+                    "-p",
+                    "--input-format", "stream-json",
+                    "--output-format", "stream-json",
+                    "--verbose",
+                    "--include-partial-messages",
+                    // The same trust as running claude in a terminal of the project, which is
+                    // what the panel replaces; the panel says so before the first message.
+                    "--permission-mode", "bypassPermissions",
+                    "--append-system-prompt", preamble,
+                  ],
+                  { cwd: project, env: process.env },
+                ),
+              });
+              runs.set(run.id, run);
+              // ponytail: the newest 20 runs are kept whatever their age; a tab that reattaches
+              // to an older one gets a 404 and shows it.
+              for (const [id, old] of runs) {
+                if (runs.size <= 20) break;
+                if (ended(old)) runs.delete(id);
+              }
+              const finish = (message: string) => {
+                if (!ended(run)) emit(run, "end", { kind: "end", ok: false, message });
+              };
+              let stderr = "";
+              run.child.stderr.setEncoding("utf8").on("data", (chunk: string) => (stderr += chunk));
+              let pending = "";
+              const feed = (chunk: string) => {
+                const lines = (pending + chunk).split("\n");
+                pending = lines.pop()!;
+                try {
+                  for (const line of lines) {
+                    if (line.trim()) for (const e of chatEventsFromLine(line)) emit(run, e.kind, e);
+                  }
+                } catch (error) {
+                  run.child.kill();
+                  finish(`unreadable output from claude: ${error}`);
+                }
+              };
+              run.child.stdout.setEncoding("utf8").on("data", feed).on("end", () => feed("\n"));
+              // A CLI that exits at once — an older one refusing a flag — closes the pipe before
+              // the prompt is written; the exit below reports that, and the write error is noise.
+              run.child.stdin.on("error", () => {});
+              run.child.stdin.end(
+                JSON.stringify({ type: "user", message: { role: "user", content: message } }) + "\n",
+              );
+              run.child.on("error", (error: NodeJS.ErrnoException) =>
+                finish(
+                  error.code === "ENOENT"
+                    ? "claude is not on PATH. Install Claude Code, or start sp-canvas from a shell where `claude` runs."
+                    : String(error),
+                ),
+              );
+              run.child.on("close", (code, signal) => {
+                if (ended(run)) return;
+                const tail = stderr.trim().split("\n").slice(-5).join("\n");
+                // `claude` is a launcher around the real process: a SIGTERM to it comes back as
+                // exit 143, not as a signal.
+                finish(
+                  signal || code === 143
+                    ? "stopped"
+                    : `claude exited with code ${code}` +
+                        (tail ? `\n${tail}` : "") +
+                        (/unknown option/i.test(stderr) ? "\nThe panel needs Claude Code 2.1.274 or newer." : ""),
+                );
+              });
+              res.setHeader("content-type", "application/json");
+              send(202, JSON.stringify({ runId: run.id }));
+            } catch (error) {
+              send(500, String(error));
+            }
+          });
+          return;
+        }
+        const match = /^\/([\w-]+)\/(events|cancel)$/.exec(url.pathname);
+        if (!match) return next();
+        const run = runs.get(match[1]);
+        if (!run) return send(404, "no such run");
+        if (match[2] === "events" && req.method === "GET") {
+          const after = Number(url.searchParams.get("after") ?? 0);
+          if (!Number.isInteger(after) || after < 0) return send(400, "bad cursor");
+          res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-store" });
+          res.flushHeaders();
+          const detach = attach(run, after, (e) => {
+            res.write(sseFrame(e));
+            if (e.event === "end") res.end();
+          });
+          const keepalive = setInterval(() => res.write(": keepalive\n\n"), 25_000);
+          res.on("close", () => {
+            detach();
+            clearInterval(keepalive);
+          });
+          return;
+        }
+        if (match[2] === "cancel" && req.method === "POST") {
+          run.child.kill();
+          return send(200, "");
+        }
+        next();
       });
 
       // Every module Vite transformed from this file, dropped, so the next request for it reads
