@@ -98,6 +98,19 @@ list, and that is consistent with the rest of the panel: the server already hold
 events and nothing else does. A file would be this feature's first persistence, and a database
 its second.
 
+That memory is also where "one agent at a time" is decided. The composer disables itself while a
+run is open, but that is React state: a second tab, a reload, or the panel's own new-session
+button does not share it, and two agents in one project overwrite each other's boards. So the
+server refuses a second run with 409 while it holds an unfinished one, and the panel shows what
+it said. Stopping the running one is the way to start another, which is what the Stop button was
+already for.
+
+And when the server goes, they go: `start_new_session=True` makes it the leader of its own
+process group, so `sp-canvas stop` signals the group rather than the pid, and the agents it
+spawned do not outlive the canvas that started them. The tmux path already did this — a pane
+takes its whole group down with it.
+
+
 ## Collapsing is a width change
 
 The panel folds to a 36px rail showing Claude's mark, which is the button that opens it again.

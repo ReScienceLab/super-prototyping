@@ -181,7 +181,7 @@ export function ChatPanel() {
   const matches =
     typing === undefined || slashOff
       ? []
-      : commands.filter((c) => c.includes(typing.toLowerCase()));
+      : commands.filter((c) => c.toLowerCase().includes(typing.toLowerCase()));
   const at = Math.min(slashAt, matches.length - 1);
 
   const pickCommand = (name: string) => {

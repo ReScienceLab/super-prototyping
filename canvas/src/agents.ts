@@ -190,7 +190,8 @@ export const AGENTS: AgentDef[] = [
           .flatMap((m) => m.content ?? [])
           .map((c) => c.text ?? "")
           .find((t) => t.includes("<skills_instructions>"));
-        return skills ? [...skills.matchAll(/^- ([\w.:-]+): /gm)].map((m) => m[1]!) : [];
+        // A Set because a skill reachable from two roots is listed under both.
+        return skills ? [...new Set([...skills.matchAll(/^- ([\w.:-]+): /gm)].map((m) => m[1]!))] : [];
       },
     },
     missing:

@@ -379,7 +379,10 @@ def cmd_stop(a):
                       f"stale pidfile removed")
         else:
             try:
-                os.kill(pid, signal.SIGTERM)
+                # The group, not the process: `start_new_session=True` above makes the
+                # server its own group leader, and the agents its chat panel spawned are in
+                # it. Signalling the pid alone leaves them editing the project afterwards.
+                os.killpg(pid, signal.SIGTERM)
                 print(f"stopped background process {pid}")
                 stopped = True
             except ProcessLookupError:

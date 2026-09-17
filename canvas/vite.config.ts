@@ -748,6 +748,9 @@ function canvasesSource(): Plugin {
             execFile(def.bin, ["--version"], { timeout: 10_000 }, (error) => done(!error)),
           );
           probes.set(def.id, probe);
+          // A no is not worth keeping: the CLI may be installed a minute later, and a probe that
+          // timed out on a busy machine would otherwise grey the agent out until a restart.
+          void probe.then((ok) => ok || probes.delete(def.id));
         }
         return probe;
       };
@@ -862,6 +865,12 @@ function canvasesSource(): Plugin {
             try {
               const { message, canvas, agent = "claude", model = "", effort = "" } = JSON.parse(body || "{}");
               if (typeof message !== "string" || !message.trim()) return send(400, "empty message");
+              // One agent at a time, and only the server can say so: the composer's own guard is
+              // React state, which a second tab, a reload, or a cleared view does not share. Two
+              // agents in one project overwrite each other's boards.
+              if ([...runs.values()].some((r) => !ended(r))) {
+                return send(409, "an agent is already running in this project. Stop it first.");
+              }
               const def = AGENTS.find((a) => a.id === agent);
               if (!def) return send(400, "unknown agent");
               // Both reach a command line, and neither is a name this made up: they are ids out
