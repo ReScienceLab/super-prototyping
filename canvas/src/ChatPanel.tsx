@@ -200,6 +200,9 @@ export function ChatPanel() {
     const message = draft.trim();
     if (!message || running) return;
     setDraft("");
+    // Sending clears the draft without passing through onChange, so an Escape that closed the
+    // palette for this word has to be forgotten here too, or the next word never opens one.
+    setSlashOff(false);
     setSendError(null);
     const res = await fetch("/__sp/agent/run", {
       method: "POST",
