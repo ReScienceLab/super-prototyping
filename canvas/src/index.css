@@ -1539,6 +1539,10 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   inset: auto 0 100% 0;
   margin-bottom: 6px;
   padding: 4px;
+  /* Every command the agent has, not the first handful: 132 of them here, so the list scrolls. */
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--sp-line);
   border-radius: 8px;
   background: #fff;

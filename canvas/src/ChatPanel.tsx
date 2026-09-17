@@ -181,7 +181,7 @@ export function ChatPanel() {
   const matches =
     typing === undefined || slashOff
       ? []
-      : commands.filter((c) => c.includes(typing.toLowerCase())).slice(0, 8);
+      : commands.filter((c) => c.includes(typing.toLowerCase()));
   const at = Math.min(slashAt, matches.length - 1);
 
   const pickCommand = (name: string) => {
@@ -502,6 +502,11 @@ export function ChatPanel() {
             {matches.map((c, i) => (
               <button
                 key={c}
+                // The list scrolls, so the row the arrow keys land on has to bring itself into
+                // view; "nearest" does nothing when it already is.
+                ref={(el) => {
+                  if (i === at) el?.scrollIntoView({ block: "nearest" });
+                }}
                 type="button"
                 role="option"
                 aria-selected={i === at}
