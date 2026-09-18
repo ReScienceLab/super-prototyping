@@ -1,77 +1,76 @@
-import "./canvasCta.css";
+import { Button } from "@/components/ui/button";
 import { GITHUB_PATH } from "./canvasComments";
+import "./canvasCta.css";
 
 const REPO_URL = "https://github.com/ReScienceLab/super-prototyping";
 /** The app the snapaction-ios boards are cloned from: its own site, not the App Store listing. */
 const SNAPACTION_URL = "https://snapaction.ai/";
 
 /**
- * The two things this whole repo is asking for, as a pair of pills. They live in the top-right
+ * The two things this whole repo is asking for, as a pair of buttons. They live in the top-right
  * corner of every page it serves — the canvas, and the brand pages, which are the same work read
  * a second way and reached from the same toolbar.
  *
- * The pill itself (size, type, the shimmer, and how it collapses to its mark on a phone) is
- * .canvas-cta in canvasCta.css; what stays here is each one's own colour.
+ * Both are Geist's primary button — the ground and the ink swapped — so the same two elements
+ * come out white on the canvas and black on the brand page with nothing here to keep in step.
+ * The second is not the secondary button: these are the two asks, not an ask and an aside, and
+ * a hairline chip beside a solid one reads as the lesser of them.
+ *
+ * `canvas-cta-group` is the hook for the two rules that are not the Button's: brand.css pushes
+ * the pair to the end of its topbar by it, and canvasCta.css sweeps a shimmer across them.
  */
 export function CanvasCta() {
   return (
-    <div className="canvas-cta-group">
-      <a
-        href={SNAPACTION_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        title="Try SnapAction, the app the example boards are cloned from"
-        className="canvas-cta"
-        style={{
-          border: "1px solid #4A4A56",
-          background: "linear-gradient(180deg,#2A2A32,#17171C)",
-          boxShadow:
-            "0 6px 18px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.10)",
-        }}
-      >
-        {/* The app's own mark, cut from its symbolset by snapaction-ios/gen.py. */}
-        <img src="/snapaction.svg" width={23} height={18} alt="" />
-        <span className="canvas-cta__label">Try SnapAction</span>
-        <span className="canvas-cta__arrow" style={{ color: "#8A8781" }}>
-          &#8599;
-        </span>
-      </a>
-      <a
-        href={REPO_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        title="Star super-prototyping on GitHub"
-        className="canvas-cta"
-        style={{
-          border: "1px solid #6E9BFF",
-          background: "linear-gradient(180deg,#4A85FF,#1B47D2)",
-          // The glow is the point: this is the one thing on the page asking for something, so
-          // it reads as a lit button rather than another piece of grey chrome.
-          boxShadow:
-            "0 0 0 4px rgba(74,133,255,.20), 0 8px 24px rgba(37,99,235,.55), inset 0 1px 0 rgba(255,255,255,.28)",
-        }}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="19"
-          height="19"
-          fill="#FFD666"
-          aria-hidden
+    <div className="canvas-cta-group pointer-events-auto mt-2.5 mr-3 flex gap-2.5 max-[720px]:mt-2 max-[720px]:mr-2 max-[720px]:gap-2">
+      <Button asChild size="lg" className="max-[720px]:px-3">
+        <a
+          href={SNAPACTION_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Try SnapAction, the app the example boards are cloned from"
         >
-          <path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.2 20.5l1.1-6.45-4.7-4.6 6.5-.95z" />
-        </svg>
-        <span className="canvas-cta__label">Star on GitHub</span>
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="#FFFFFF"
-          fillRule="evenodd"
-          aria-hidden
+          {/* The app's own mark, cut from its symbolset by snapaction-ios/gen.py — as a mask
+              rather than a picture, because the file is a fixed near-white and the ink it sits
+              in is black here. Masked, it is whatever the button's ink is. */}
+          <span
+            aria-hidden
+            className="shrink-0"
+            style={{
+              width: 23,
+              height: 18,
+              background: "currentColor",
+              WebkitMask: "url(/snapaction.svg) center / contain no-repeat",
+              mask: "url(/snapaction.svg) center / contain no-repeat",
+            }}
+          />
+          <span className="max-[720px]:hidden">Try SnapAction</span>
+          <span
+            aria-hidden
+            className="text-muted-foreground max-[720px]:hidden"
+          >
+            &#8599;
+          </span>
+        </a>
+      </Button>
+      <Button asChild size="lg" className="max-[720px]:px-3">
+        <a
+          href={REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Star super-prototyping on GitHub"
         >
-          <path d={GITHUB_PATH} />
-        </svg>
-      </a>
+          {/* currentColor, so the mark is the button's ink in either theme. */}
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            fillRule="evenodd"
+            aria-hidden
+          >
+            <path d={GITHUB_PATH} />
+          </svg>
+          <span className="max-[720px]:hidden">Star on GitHub</span>
+        </a>
+      </Button>
     </div>
   );
 }
