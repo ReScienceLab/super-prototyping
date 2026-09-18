@@ -53,7 +53,12 @@ export type ChatEvent =
   | { kind: "thinking" }
   | { kind: "tool"; id: string; name: string; detail: string }
   | { kind: "tool_done"; id: string; ok: boolean; shots?: Shot[] }
-  | { kind: "usage"; used: number; window?: number }
+  /**
+   * How full the window is, and how big it is. Two numbers from two different frames — the
+   * occupancy off every assistant message, the size only at the end of the turn — so each arrives
+   * on its own and the panel keeps whichever it has been told.
+   */
+  | { kind: "usage"; used?: number; window?: number }
   | { kind: "end"; ok: boolean; message?: string };
 
 /**
@@ -77,10 +82,9 @@ interface Frame {
     content_block?: { type: string };
     delta?: { type: string; text?: string };
   };
-  message?: { content: string | Block[] };
+  message?: { content: string | Block[]; usage?: Record<string, number> };
   is_error?: boolean;
   result?: string;
-  usage?: Record<string, number>;
   modelUsage?: Record<string, { contextWindow?: number }>;
 }
 
@@ -139,18 +143,21 @@ export function chatEventsFromLine(line: string): ChatEvent[] {
       return [];
     }
     case "assistant":
-      return blocks.flatMap((b) =>
-        b.type === "tool_use"
-          ? [
-              {
-                kind: "tool" as const,
-                id: b.id,
-                name: b.name,
-                detail: toolDetail(b.input),
-              },
-            ]
-          : [],
-      );
+      return [
+        ...occupancy(frame),
+        ...blocks.flatMap((b) =>
+          b.type === "tool_use"
+            ? [
+                {
+                  kind: "tool" as const,
+                  id: b.id,
+                  name: b.name,
+                  detail: toolDetail(b.input),
+                },
+              ]
+            : [],
+        ),
+      ];
     case "user":
       return blocks.flatMap((b) => {
         if (b.type !== "tool_result") return [];
@@ -176,7 +183,7 @@ export function chatEventsFromLine(line: string): ChatEvent[] {
     case "result": {
       const ok = frame.subtype === "success" && !frame.is_error;
       return [
-        ...tokens(frame),
+        ...windowSize(frame),
         ok
           ? { kind: "end", ok }
           : { kind: "end", ok, message: frame.result || frame.subtype },
@@ -188,28 +195,50 @@ export function chatEventsFromLine(line: string): ChatEvent[] {
 }
 
 /**
- * What the turn put in the model's context, off the result frame: the prompt it sent — fresh
- * and cached alike, since a cached token occupies the window the same as a read one — and the
- * answer it got back. `modelUsage` is keyed by the model that ran, and carries the size of the
- * window those tokens went into, which is the only place either parser is told it.
+ * How much of the window the turn is holding, off each assistant message: the whole prompt that
+ * call was sent — fresh, cached and read alike, since a cached token occupies the window exactly
+ * as a fresh one does — and the answer it got back, which the next call sends again.
  *
- * A run that failed before the API answered has no usage at all, and reports none.
+ * Read per call and replaced, never added up, which is the whole point of reading it here rather
+ * than off the result frame. That frame carries the same four fields summed over every call the
+ * turn made: a billing total, not an occupancy. Each call re-sends the entire conversation, so
+ * every earlier call's prompt arrives again inside the next one's `cache_read_input_tokens` — in
+ * the write-file fixture the second call's 19,317 cached tokens *are* the first call's whole
+ * prompt. A turn of a dozen tool calls therefore reports several times the window it ever filled,
+ * which is how a 200k window came to show 437k used.
+ *
+ * Claude Code writes one assistant frame per content block and puts the same usage on each, so a
+ * message with four blocks says the same thing four times. Last write wins and they are all the
+ * same write.
  */
-function tokens(frame: Frame): ChatEvent[] {
-  const u = frame.usage;
+function occupancy(frame: Frame): ChatEvent[] {
+  const u = frame.message?.usage;
   if (!u) return [];
-  const used =
-    (u.input_tokens ?? 0) +
-    (u.cache_creation_input_tokens ?? 0) +
-    (u.cache_read_input_tokens ?? 0) +
-    (u.output_tokens ?? 0);
-  // A turn that ran a sub-agent reports both models, the sub-agent's first, and `usage` above
-  // has summed the two; the bigger window is the one that turn was up against.
-  const windows = Object.values(frame.modelUsage ?? {}).map(
-    (m) => m.contextWindow ?? 0,
+  return [
+    {
+      kind: "usage",
+      used:
+        (u.input_tokens ?? 0) +
+        (u.cache_creation_input_tokens ?? 0) +
+        (u.cache_read_input_tokens ?? 0) +
+        (u.output_tokens ?? 0),
+    },
+  ];
+}
+
+/**
+ * How big that window is, off the result frame, which is the only place either parser is told it.
+ * `modelUsage` is keyed by the model that ran; a turn that ran a sub-agent reports both, and the
+ * bigger window is the one the turn was up against.
+ *
+ * A run that failed before the API answered names no model, and reports no size.
+ */
+function windowSize(frame: Frame): ChatEvent[] {
+  const window = Math.max(
+    0,
+    ...Object.values(frame.modelUsage ?? {}).map((m) => m.contextWindow ?? 0),
   );
-  const window = windows.length ? Math.max(...windows) : undefined;
-  return [{ kind: "usage", used, window }];
+  return window ? [{ kind: "usage", window }] : [];
 }
 
 const TITLE_OPEN = "<sp-title>";

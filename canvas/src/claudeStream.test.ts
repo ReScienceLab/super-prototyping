@@ -25,30 +25,48 @@ describe("chatEventsFromLine", () => {
     const got = events(writeFile);
     expect(got.map((e) => e.kind)).toEqual([
       "thinking",
+      "usage",
+      "usage",
       "tool",
       "tool_done",
       "text",
       "usage",
+      "usage",
       "end",
     ]);
-    const [, tool, done, text] = got;
+    const tool = got.find((e) => e.kind === "tool");
     expect(tool).toEqual({
       kind: "tool",
       id: expect.stringMatching(/^toolu_/),
       name: "Write",
       detail: "/home/user/project/hi.txt",
     });
-    expect(done).toEqual({
+    expect(got.find((e) => e.kind === "tool_done")).toEqual({
       kind: "tool_done",
       id: (tool as { id: string }).id,
       ok: true,
     });
-    expect(text).toEqual({ kind: "text", text: "done" });
-    // Every token of the prompt, cached or not, plus the answer — and the window they went into,
-    // which this turn's sub-agent has its own of, both 200k here.
-    expect(got.at(-2)).toEqual({
+    expect(got.find((e) => e.kind === "text")).toEqual({
+      kind: "text",
+      text: "done",
+    });
+  });
+
+  it("reports the window the last call filled, not every call added up", () => {
+    const used = events(writeFile).flatMap((e) =>
+      e.kind === "usage" && e.used !== undefined ? [e.used] : [],
+    );
+    // Two calls in this recording, the first reported twice because its message had two blocks.
+    // It sent 7343 fresh tokens over 11974 cached; the second sent 3162 over 19317 — and that
+    // 19317 *is* the first call's whole prompt, sent again, which is exactly what makes adding
+    // the two together wrong. The result frame does add them, to cache_read 31291 and
+    // cache_creation 10505, and that is a bill; the window itself never held more than 22482.
+    expect(used).toEqual([19_321, 19_321, 22_482]);
+    expect(2 + 3162 + 19_317 + 1).toBe(22_482);
+    // Its size arrives on its own at the end of the turn. This one ran a sub-agent, which has a
+    // window of its own; both are 200k here, and the bigger is the one the turn was up against.
+    expect(events(writeFile).at(-2)).toEqual({
       kind: "usage",
-      used: 4 + 10505 + 31291 + 739,
       window: 200_000,
     });
   });

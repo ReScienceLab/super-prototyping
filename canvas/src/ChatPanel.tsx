@@ -256,8 +256,13 @@ export function ChatPanel() {
   const slider = effort
     ? efforts.indexOf(effort)
     : Math.floor(efforts.length / 2);
-  // The newest turn that got as far as being charged for; a failed one never is.
-  const usage = [...turns].reverse().find((t) => t.usage)?.usage;
+  // The newest turn that got as far as an answer; a run that failed before one never reports.
+  // The window's size is only named at the end of a turn, so while one is still running it comes
+  // from the last turn that finished — a window does not change size under you mid-run.
+  const newest = [...turns].reverse();
+  const usage = newest.find((t) => t.usage)?.usage;
+  const limit =
+    usage?.window ?? newest.find((t) => t.usage?.window)?.usage?.window;
 
   // The palette is open while the draft is a single unfinished word starting with a slash: "/cl"
   // and not "/clone-prototype the app", since an argument means the command has been chosen.
@@ -1229,7 +1234,7 @@ export function ChatPanel() {
             }
           >
             {tokens(usage.used)}
-            {usage.window ? ` / ${tokens(usage.window)}` : ""}
+            {limit ? ` / ${tokens(limit)}` : ""}
           </span>
         )}
         {running && (
