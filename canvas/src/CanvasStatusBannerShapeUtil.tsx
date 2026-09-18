@@ -31,7 +31,7 @@ const STATUS_STYLE: Record<
   Exclude<CanvasBoardStatus, "live">,
   { label: string; fill: string; ink: string }
 > = {
-  exploring: { label: "EXPLORING", fill: "#FFB224", ink: "#171717" },
+  exploring: { label: "EXPLORING", fill: "var(--ds-amber-700)", ink: "#171717" },
   outdated: { label: "OUTDATED", fill: "#4D4D4D", ink: "#FFFFFF" },
 };
 
@@ -80,7 +80,7 @@ export class CanvasStatusBannerShapeUtil extends BaseBoxShapeUtil<CanvasStatusBa
           height: shape.props.h,
           background: style.fill,
           color: style.ink,
-          font: `800 42px/${shape.props.h}px -apple-system, BlinkMacSystemFont, sans-serif`,
+          font: `800 42px/${shape.props.h}px var(--sp-sans)`,
           letterSpacing: ".14em",
           textAlign: "center",
         }}

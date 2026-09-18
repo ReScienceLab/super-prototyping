@@ -1,3 +1,4 @@
+@import "./tokens.css";
 html,
 body,
 #root {
@@ -11,11 +12,31 @@ body,
 }
 
 body {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--sp-sans);
 }
 
 button {
   font: inherit;
+}
+
+/*
+ * Every scrollbar in the app, in one place. There are seven scrolling elements: the transcript,
+ * the slash menu, the history list, the notes list and the inspector's three. Add whichever of
+ * tldraw's menus it does not already hide the bar on. Each was drawing the platform's default,
+ * a light thumb in a light trough, which on a black ground is the brightest thing on screen and
+ * looks like part of another window.
+ *
+ * `scrollbar-color` inherits, so `:root` covers every one of them and a new element is covered
+ * before it exists. Two standard properties rather than `::-webkit-scrollbar` and its six
+ * pseudo-elements, because the thumb is a Geist grey and the trough is the element it is on,
+ * which is all there is to say.
+ *
+ * It stops at this document. A board is an iframe with its own scrollbars, and a mockup of a
+ * phone should scroll like the phone it is a mockup of.
+ */
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ds-gray-400) transparent;
 }
 
 .tldraw__editor {
@@ -25,12 +46,55 @@ button {
 }
 
 /*
- * The welcome board is full-bleed black line work. On tldraw's default near-white ground it
- * reads as a slab with a hard edge, so the ground goes black under it and the page's own
- * captions go white to match. App.tsx toggles the class per current page.
+ * The canvas ground, on the same token as the panels beside it. tldraw's own dark ground is
+ * hsl(240 5% 6.5%), a shade off black and a shade off them, which reads as two apps in one
+ * window, the thing asking for tldraw's dark theme was meant to stop. Geist has one default
+ * ground: "in most instances, you should use Background 1", and Background 2 "sparingly when a
+ * subtle background differentiation is needed". A rail next to a canvas is not that case. The
+ * panel's own 1px border is what separates them.
  */
-.tl-container.canvas-welcome-ground {
-  --tl-color-background: #08080a;
+/* Two classes, because the value it replaces is set on `.tl-theme__dark` and one class would
+   only win on import order. */
+.tl-container.tl-theme__dark {
+  --tl-color-background: var(--ds-background-100);
+  /* The rest of the theme, for the same reason and by the same route. tldraw draws its menus,
+     its page list, its tooltips and its toolbar from these variables, so pointing them at the
+     scale is the whole re-skin. No component CSS is touched, which is what keeps it from
+     becoming a per-release maintenance cost. The shape palette, meaning the twelve drawing
+     colours, the text shadow and the highlighter, is artwork and stays tldraw's. */
+  --tl-color-panel: var(--ds-background-100);
+  /* Read as `inset 0 0 0 1px` inside all three --tl-shadow-*, which is where Geist puts the 1px
+     ring that separates a black menu from a black canvas. */
+  --tl-color-panel-contrast: var(--ds-gray-alpha-400);
+  --tl-color-panel-overlay: color-mix(in oklab, var(--ds-background-100) 82%, transparent);
+  --tl-color-low: var(--ds-gray-100);
+  --tl-color-low-border: var(--ds-gray-400);
+  --tl-color-divider: var(--ds-gray-400);
+  /* Hover, pressed and hint grounds. tldraw states them as white at 2% to 10%, which is what
+     the alpha greys are. */
+  --tl-color-muted-0: color-mix(in oklab, var(--ds-gray-alpha-400) 25%, transparent);
+  --tl-color-muted-1: var(--ds-gray-alpha-300);
+  --tl-color-muted-2: var(--ds-gray-alpha-400);
+  --tl-color-hint: var(--ds-gray-alpha-400);
+  --tl-color-overlay: color-mix(in oklab, var(--ds-background-100) 50%, transparent);
+  --tl-color-selected: var(--ds-blue-700);
+  /* White on the accent, not the ground token. blue-700 is one colour in both halves, so the
+     ground token would turn the label on a selected row black under a light theme. */
+  --tl-color-selected-contrast: #ffffff;
+  --tl-color-focus: var(--ds-focus);
+  /* tldraw's dark tooltip is white with dark text, which is Geist's too, so gray-1000 for both. */
+  --tl-color-tooltip: var(--ds-gray-1000);
+  --tl-color-text: var(--ds-gray-1000);
+  --tl-color-text-0: var(--ds-gray-1000);
+  --tl-color-text-1: var(--ds-gray-900);
+  --tl-color-text-3: var(--ds-gray-700);
+  --tl-color-text-disabled: var(--ds-gray-700);
+  --tl-color-primary: var(--ds-blue-700);
+  --tl-color-info: var(--ds-blue-700);
+  --tl-color-warning: var(--ds-amber-700);
+  --tl-color-danger: var(--ds-red-900);
+  --tl-color-selection-stroke: var(--ds-blue-700);
+  --tl-color-selection-fill: color-mix(in oklab, var(--ds-blue-700) 20%, transparent);
 }
 
 /*
@@ -128,15 +192,15 @@ input.canvas-clone-name:focus {
   padding: 32px;
   pointer-events: none;
   text-align: center;
-  color: #3c3c43;
-  font: 400 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  color: var(--ds-gray-900);
+  font: 400 15px/1.55 var(--sp-sans);
 }
 
 .canvas-empty__title {
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  color: #1c1c1e;
+  color: var(--ds-gray-1000);
 }
 
 .canvas-empty__body {
@@ -148,8 +212,8 @@ input.canvas-clone-name:focus {
 .canvas-empty__cmd {
   pointer-events: all;
   user-select: text;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  background: rgba(0, 0, 0, 0.05);
+  font-family: var(--sp-mono);
+  background: var(--ds-gray-alpha-300);
   border-radius: 8px;
 }
 
@@ -176,8 +240,11 @@ input.canvas-clone-name:focus {
 /*
  * The panel is a flex sibling of the editor rather than an overlay, so tldraw's own viewport
  * shrinks with it: its ResizeObserver re-measures, and zoom-to-fit, the toolbar and every
- * screen-space calculation keep working against the space actually left over. Whether it
- * should float instead is still open; the squeeze is what was measured.
+ * screen-space calculation keep working against the space actually left over. Floating was
+ * considered for the chat panel on the left and rejected: tldraw 5 takes a single scalar `inset`
+ * for zoomToFit/zoomToBounds and a per-axis-symmetric `VecLike` for `constraints.padding`, so
+ * an asymmetric inset for a panel over one edge has no native expression — and the squeeze keeps
+ * every calculation correct with nothing to add.
  */
 .canvas-shell {
   display: flex;
@@ -191,54 +258,32 @@ input.canvas-clone-name:focus {
   min-width: 0;
 }
 
-/*
-  Geist, at the published values of the steps this panel uses: 100-300 are component
-  backgrounds, 400 a border, 700 a solid fill or a dot, 900-1000 text. They are spelled out
-  rather than imported because the canvas ships as a plugin, and there is no design-system
-  package on the other side of an install.
-*/
-.sp-panel {
-  --ds-gray-100: #f2f2f2;
-  --ds-gray-200: #ebebeb;
-  --ds-gray-300: #e6e6e6;
-  --ds-gray-400: #ebebeb;
-  --ds-gray-700: #8f8f8f;
-  --ds-gray-900: #4d4d4d;
-  --ds-gray-1000: #171717;
-  --ds-blue-100: #f0f7ff;
-  --ds-blue-200: #ebf5ff;
-  --ds-blue-300: #e0f0ff;
-  --ds-blue-400: #cce6ff;
-  --ds-blue-700: #0072f5;
-  --ds-blue-900: #0068d6;
-  --ds-amber-100: #fff6e6;
-  --ds-amber-200: #fff4d6;
-  --ds-amber-300: #fef0cd;
-  --ds-amber-400: #ffdd8f;
-  --ds-amber-700: #ffb224;
-  --ds-amber-900: #a35200;
-  --ds-shadow-menu:
-    0 0 0 1px #00000014, 0 1px 1px #00000005, 0 4px 8px -4px #0000000a,
-    0 16px 24px -8px #0000000f;
-  --ds-focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px var(--ds-blue-700);
 
+.sp-panel {
+  --sp-bg: var(--ds-background-100);
   --sp-line: var(--ds-gray-400);
   --sp-text: var(--ds-gray-1000);
   --sp-text-2: var(--ds-gray-700);
-  --sp-field: #fafafa;
+  --sp-field: var(--ds-background-200);
   --sp-hover: var(--ds-gray-100);
   --sp-sel: var(--ds-blue-100);
   --sp-accent: var(--ds-blue-700);
-  --sp-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sp-warn: var(--ds-amber-900);
+  --sp-danger: var(--ds-red-900);
   display: flex;
   flex: 0 0 auto;
   height: 100%;
   border-left: 1px solid var(--sp-line);
-  background: #ffffff;
+  background: var(--sp-bg);
   color: var(--sp-text);
-  font: 400 12px/16px Geist, Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font: 400 12px/16px var(--sp-sans);
   letter-spacing: -0.01em;
+  /* After the shorthand, which resets all four. Geist ships with contextual alternates off and
+     ss11 on; that pair is what gives its `a` and its numerals the shapes Vercel draws. */
+  font-feature-settings: "rlig" 1, "calt" 0, "ss11" 1;
   font-variant-numeric: tabular-nums;
+  font-kerning: normal;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   user-select: none;
 }
@@ -251,6 +296,25 @@ input.canvas-clone-name:focus {
   padding: 0;
   cursor: default;
   text-align: left;
+}
+
+/*
+ * Geist rings every focusable with one blanket rule and so does this. An outline rather than
+ * --ds-focus-ring, because it costs nothing on the elements that already carry a box-shadow of
+ * their own, and the two rings that predate it (the grip, the status buttons) still outrank it
+ * on specificity. The composer is the exception. It shows focus on the wrapper, so the textarea
+ * inside it must not draw a second ring in there.
+ */
+.sp-panel :focus-visible {
+  outline: 2px solid var(--ds-focus);
+  outline-offset: 2px;
+}
+
+/* The box draws its own ring, on the border, so the draft inside it must not draw a second one.
+   Only the draft: the buttons in there are focus stops of their own, and the tinted border says
+   the box has focus, not which control in it does. */
+.sp-chat-draft:focus-visible {
+  outline: none;
 }
 
 /* The selected layer's own image, between the layers list and the properties under it.
@@ -272,7 +336,9 @@ input.canvas-clone-name:focus {
   object-fit: contain;
   padding: 8px 12px 4px;
   /* Checkerboard: most of these are cut-outs with alpha, and alpha over a flat ground is a
-     shape you cannot tell from a white one. */
+     shape you cannot tell from a white one. Light in both themes, along with the dark ground
+     the photo thumbs take. These are grounds for the board's own artwork, and artwork that
+     inverted with the panel could not be checked. */
   background-image:
     linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%),
     linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%);
@@ -323,6 +389,60 @@ input.canvas-clone-name:focus {
 }
 
 /*
+ * Every glyph in the top bar and its menus is now a Geist component rather than one of tldraw's
+ * mask files, and these two rules are what it costs. tldraw sizes its own icons by class, 18px,
+ * or 15 in a menu row, and those numbers would land on an svg that already carries width and
+ * height, so a 16-grid mark would be redrawn at 15 in menus and at 18 nowhere consistently.
+ * Geist's grid is 16 everywhere.
+ */
+.tlui-icon__small,
+.tlui-icon__tiny {
+  width: 16px;
+  height: 16px;
+}
+
+/* One icon button, wherever it sits. The chat panel's header and the canvas's top bar are one
+   40px row across the window, so a glyph on the left of the divider and a glyph on the right of
+   it have to be the same grey and answer the pointer the same way. They were two: the panel
+   drew its own at gray-700 over a solid ground, and tldraw drew its own at gray-900 over a
+   translucent one, four pixels wider. Geist's is the one kept: muted at rest, full ink on a
+   gray-100 ground.
+
+   The two chips are not this. They are Geist's secondary button, named below, and a destination
+   rather than an action. The :not() is what keeps this rule off them whatever the import order.
+   tldraw paints its ground on an inset ::after rather than on the button, which is why that half
+   is written twice. The inset is what sets the ground's size, and 8 is the panel's 24px. */
+.sp-head-x,
+.tlui-menu-zone .tlui-button:not(.sp-figma, .sp-brand) {
+  color: var(--ds-gray-900);
+}
+
+.sp-head-x:hover,
+.tlui-menu-zone .tlui-button:not(.sp-figma, .sp-brand):hover {
+  color: var(--ds-gray-1000);
+}
+
+.tlui-menu-zone .tlui-button:not(.sp-figma, .sp-brand)::after {
+  inset: 8px;
+  border-radius: 6px;
+  background: var(--ds-gray-100);
+}
+
+/* The bar itself, on the ground everything else here is on. tldraw raises it to --tl-color-low,
+   a grey block in the corner of a black canvas, which is the same two-apps-in-one-window the
+   token remap above was for. Geist has one default ground and this is not the rare case for the
+   second. What separates it from the canvas is the hairline, the way the chat panel's does, and
+   it is on the two edges that face the canvas, since the other two face the window.
+
+   Two classes, for the reason the theme block above gives. tldraw sets these on `.tlui-menu-zone`
+   itself, and one class would only win on import order. */
+.tl-container .tlui-menu-zone {
+  background-color: var(--ds-background-100);
+  border-right: 1px solid var(--ds-gray-alpha-400);
+  border-bottom: 1px solid var(--ds-gray-alpha-400);
+}
+
+/*
  * The one control in the top bar that names a destination instead of an action, so it is the
  * one that is wider than an icon and carries a logo: reading the boards into Figma is what
  * people do with a mockup next, and an external-link arrow among five grey glyphs said nothing
@@ -342,9 +462,12 @@ input.canvas-clone-name:focus {
   padding: 0 11px 0 9px;
   margin-left: 3px;
   border-radius: 8px;
-  /* White against the bar's grey, which is what makes it read as the one thing to press here. */
-  background: #ffffff;
-  box-shadow: inset 0 0 0 1px #e3e3e3;
+  /* The page's own ground against the bar's raised grey, with a hairline. That is Geist's
+     secondary button, and what makes it read as the one thing to press here. Full-strength ink,
+     because the bar's own glyphs are muted and a muted label on a chip reads as disabled. */
+  background: var(--ds-background-100);
+  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
+  color: var(--ds-gray-1000);
   font-weight: 500;
   white-space: nowrap;
   text-decoration: none;
@@ -352,7 +475,7 @@ input.canvas-clone-name:focus {
 
 .tlui-button.sp-figma:hover,
 .tlui-button.sp-brand:hover {
-  background: #f7f7f7;
+  background: var(--ds-gray-100);
 }
 
 /* On a phone the bar is already tight against the page menu; the mark alone still says Figma. */
@@ -470,12 +593,12 @@ input.canvas-clone-name:focus {
   padding: 0 10px;
   border: 1px solid var(--ds-gray-400);
   border-radius: 9999px;
-  background: #fff;
+  background: var(--ds-background-100);
   color: var(--ds-gray-1000);
   font: inherit;
   font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 0 0 1px #ffffffa8;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--ds-background-100) 66%, transparent);
   transition: background 0.12s ease;
 }
 
@@ -500,7 +623,7 @@ input.canvas-clone-name:focus {
   color: var(--fg);
   font-weight: 500;
   /* Against a board that may be any colour at all, not a drop shadow. */
-  box-shadow: 0 0 0 1px #ffffffa8;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--ds-background-100) 66%, transparent);
   transition: background 0.12s ease;
 }
 
@@ -577,7 +700,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   width: 196px;
   padding: 6px;
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--ds-background-100);
   box-shadow: var(--ds-shadow-menu);
 }
 
@@ -620,10 +743,10 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   right: 0;
   padding: 4px 8px;
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--ds-background-100);
   box-shadow: var(--ds-shadow-menu);
   white-space: nowrap;
-  color: #cb2a2f;
+  color: var(--sp-danger);
 }
 
 .sp-head-dim {
@@ -632,6 +755,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   white-space: nowrap;
 }
 
+/* Colour and hover are shared with the top bar's buttons, up where the two are set together. */
 .sp-head-x {
   flex: none;
   width: 24px;
@@ -640,13 +764,11 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  color: var(--sp-text-2);
   cursor: pointer;
 }
 
 .sp-head-x:hover {
-  background: var(--sp-hover);
-  color: var(--sp-text);
+  background: var(--ds-gray-100);
 }
 
 .sp-tabs {
@@ -931,7 +1053,9 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-link {
   flex: none;
   color: var(--sp-accent);
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--sp-sans);
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
   cursor: pointer;
 }
 
@@ -957,14 +1081,14 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-state {
   padding: 0 0 4px 96px;
   line-height: 16px;
-  color: #b25d00;
+  color: var(--sp-warn);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .sp-state.overridden {
-  color: #c0392b;
+  color: var(--sp-danger);
 }
 
 .sp-decl.overridden .sp-k {
@@ -979,7 +1103,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   gap: 5px;
   padding: 0 6px 0 4px;
   border-radius: 4px;
-  background: #efefef;
+  background: var(--ds-gray-100);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -994,7 +1118,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 
 .sp-pill:hover {
-  background: #e4e4e4;
+  background: var(--ds-gray-300);
 }
 
 .sp-sw {
@@ -1002,7 +1126,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   height: 12px;
   flex: none;
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-300);
 }
 
 .sp-sw--none {
@@ -1078,7 +1202,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   line-height: 12px;
   padding: 0 3px;
   border-radius: 3px;
-  background: #efefef;
+  background: var(--ds-gray-100);
   color: var(--sp-text-2);
 }
 
@@ -1159,7 +1283,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   max-height: 45%;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--sp-bg);
   border-top: 1px solid var(--sp-line);
 }
 
@@ -1340,4 +1464,737 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 }
 .tlui-cmt-canvas-composer .canvas-composer-close:hover {
   background: var(--tl-color-muted-2);
+}
+
+/* What a board or a picture can be to a message, in its top-right corner while the pointer is
+   over it (canvasAttach.tsx). The layer this is drawn on takes no pointer events, so the buttons
+   ask for them back. Inside the corner, not over it: a button that crossed the shape's edge would
+   leave the shape as the pointer arrived, and take itself away with the hover. */
+.sp-attach {
+  position: absolute;
+  display: flex;
+  transform: translate(calc(-100% - 8px), 8px);
+  pointer-events: auto;
+}
+
+.sp-attach-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--ds-gray-alpha-400);
+  border-radius: 6px;
+  color: var(--ds-gray-900);
+  background: var(--ds-background-100);
+  box-shadow: var(--ds-shadow-menu);
+  cursor: pointer;
+}
+
+.sp-attach-btn:hover:not(:disabled) {
+  color: var(--ds-gray-1000);
+  background: var(--ds-gray-100);
+}
+
+.sp-attach-btn:disabled {
+  cursor: default;
+}
+
+/* The panel's spinner, out here where the panel's own variables are not. */
+.sp-attach-btn .sp-chat-spin {
+  border-color: var(--ds-gray-400);
+  border-top-color: var(--ds-blue-700);
+}
+
+/* ---- The chat panel (ChatPanel.tsx) ------------------------------------------------ */
+
+/*
+ * The inspector's mirror on the left: the same flex sibling, so the editor gives up its width
+ * and every screen-space calculation stays right (see .canvas-shell above).
+ */
+.sp-chat {
+  width: 360px;
+  flex-direction: column;
+  border-left: 0;
+  border-right: 1px solid var(--sp-line);
+}
+
+.sp-chat-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px;
+  overflow-y: auto;
+  user-select: text;
+}
+
+.sp-chat-log p {
+  margin: 0;
+}
+
+.sp-chat-empty,
+.sp-chat-dim {
+  color: var(--sp-text-2);
+  line-height: 18px;
+}
+
+.sp-chat-empty code {
+  font-family: var(--sp-mono);
+}
+
+.sp-chat-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* What the user said, as a bubble on the right; what the agent said, plain. The bubble may hold
+   a strip of pictures under the words, so the newlines are the words' own business. */
+.sp-chat-you {
+  align-self: flex-end;
+  max-width: 88%;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--sp-sel);
+}
+
+.sp-chat-say {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* The pictures a message was sent with: a scroller at one height rather than a grid, which is the
+   single rule that holds for one of them or five, and for a phone screenshot beside a wide one.
+   Never cropped here — the tile and the chip crop, because they only have to say which image. */
+.sp-chat-strip {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.sp-chat-shot {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--ds-blue-400);
+  border-radius: 6px;
+  background: var(--ds-gray-100);
+  line-height: 0;
+  scroll-snap-align: start;
+  cursor: zoom-in;
+}
+
+.sp-chat-shot img {
+  display: block;
+  width: auto;
+  height: 160px;
+}
+
+/* The number, on the picture: the same mark in the tray, in the strip and in the chip. */
+.sp-chat-num {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: #000000cc;
+  box-shadow: inset 0 0 0 1px #ffffff40;
+  color: #fff;
+  font: 500 10px/16px var(--sp-sans);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* The agent's text, as markdown (markdown.ts). A grid with a gap rather than margins, so the
+   blocks space themselves whatever the log's `p { margin: 0 }` says; the minmax(0) column is
+   what lets a table or fence wider than the panel scroll inside its own block instead of
+   widening the panel. A table exists only once its delimiter row has streamed in — until then
+   the header line is a paragraph of pipes, and it becomes a table in place. */
+.sp-chat-md {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.sp-chat-md > * {
+  margin: 0;
+}
+
+.sp-chat-md h1,
+.sp-chat-md h2,
+.sp-chat-md h3,
+.sp-chat-md h4 {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sp-chat-md ul,
+.sp-chat-md ol {
+  padding-left: 18px;
+  /* Tailwind's preflight drops every marker; a nested list still steps from disc to circle. */
+  list-style: revert;
+}
+
+.sp-chat-md code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--sp-field);
+  font: 400 11px/16px var(--sp-mono);
+}
+
+/* A fence and a table scroll sideways inside the message: the panel is 360px wide and the model
+   does not know that. */
+.sp-chat-md pre {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--sp-field);
+  overflow-x: auto;
+}
+
+.sp-chat-md pre code {
+  padding: 0;
+  background: none;
+}
+
+.sp-chat-md table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.sp-chat-md th,
+.sp-chat-md td {
+  padding: 3px 8px;
+  border: 1px solid var(--sp-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.sp-chat-md th {
+  font-weight: 500;
+  background: var(--sp-field);
+}
+
+.sp-chat-md blockquote {
+  padding-left: 10px;
+  border-left: 2px solid var(--sp-line);
+  color: var(--sp-text-2);
+}
+
+.sp-chat-md hr {
+  border: 0;
+  border-top: 1px solid var(--sp-line);
+}
+
+.sp-chat-md a {
+  color: var(--sp-accent);
+  /* Preflight opts every link out of an underline, and colour on its own is not an affordance. */
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
+}
+
+.sp-chat-md img {
+  max-width: 100%;
+}
+
+/* One line per tool call: the tool, then its target, cut to the width. */
+.sp-chat-tool {
+  display: flex;
+  gap: 6px;
+  color: var(--sp-text-2);
+  font: 400 11px/16px var(--sp-mono);
+  white-space: nowrap;
+}
+
+.sp-chat-tool b {
+  flex: none;
+  font-weight: 500;
+  color: var(--sp-text);
+}
+
+.sp-chat-tool span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-chat-tool[data-ok="false"] b,
+.sp-chat-error {
+  color: var(--sp-danger);
+}
+
+.sp-chat-error {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sp-chat-send-error {
+  margin: 0;
+  padding: 0 12px 8px;
+}
+
+/* What is attached, above the box: one crop each, with the number it will be referred to by. */
+.sp-chat-hint {
+  flex: none;
+  margin: 0 12px 6px;
+  color: var(--sp-text-2);
+  font-size: 11px;
+}
+
+.sp-chat-tray {
+  flex: none;
+  display: flex;
+  gap: 6px;
+  margin: 0 12px 8px;
+  padding-bottom: 2px;
+  overflow-x: auto;
+}
+
+.sp-chat-tile {
+  position: relative;
+  flex: none;
+  width: 76px;
+  margin: 0;
+}
+
+/* Cropped from the top, which is where a screenshot says what it is. */
+.sp-chat-thumb {
+  display: block;
+  position: relative;
+  width: 76px;
+  height: 56px;
+  overflow: hidden;
+  border: 1px solid var(--sp-line);
+  border-radius: 6px;
+  background: var(--ds-gray-100);
+  cursor: pointer;
+}
+
+.sp-chat-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.sp-chat-x {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: #000000cc;
+  box-shadow: inset 0 0 0 1px #ffffff40;
+  color: #fff;
+  font-size: 9px;
+  line-height: 1;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.sp-chat-tile:hover .sp-chat-x,
+.sp-chat-x:focus-visible {
+  opacity: 1;
+}
+
+.sp-chat-name {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--sp-text-2);
+  font: 400 10px/14px var(--sp-mono);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The box is the input. The draft inside it has no chrome of its own: the border, the background
+   and the focus ring belong to the form, and the send button sits inside them — Claude Code's
+   composer, which this panel is a second window onto. */
+.sp-chat-composer {
+  flex: none;
+  /* The slash palette hangs off the top of the box, so it follows it however tall it has grown. */
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin: 8px 12px 6px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--sp-line);
+  border-radius: 10px;
+  background: var(--sp-field);
+}
+
+.sp-chat-composer:focus-within {
+  border-color: var(--sp-accent);
+}
+
+/* The draft is a contenteditable rather than a textarea: a reference to an image is a thumbnail
+   inside the sentence, and a textarea holds characters and nothing else. Which is also why the
+   badge is now the element it always looked like, and no longer a pill painted behind the text. */
+.sp-chat-draft {
+  flex: 1;
+  min-width: 0;
+  max-height: 160px;
+  padding: 2px 0;
+  overflow-y: auto;
+  font: inherit;
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  user-select: text;
+}
+
+.sp-chat-draft[data-empty]::before {
+  content: attr(data-placeholder);
+  color: var(--sp-text-2);
+}
+
+.sp-chat-cmd {
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: var(--ds-blue-100);
+  box-shadow: inset 0 0 0 1px var(--ds-blue-400);
+}
+
+/* A reference: the picture small enough to recognise and the number to say it by. Inline, so it
+   wraps with the words around it and the caret steps past it in one press. */
+.sp-chat-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: -3px;
+  height: 18px;
+  padding: 0 5px 0 3px;
+  border-radius: 5px;
+  background: var(--ds-blue-100);
+  box-shadow: inset 0 0 0 1px var(--ds-blue-400);
+  white-space: nowrap;
+}
+
+.sp-chat-ref img {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* The picture it named is gone, and the sentence is not rewritten for it. */
+.sp-chat-ref-gone {
+  padding: 0 5px;
+  background: var(--ds-amber-100);
+  box-shadow: inset 0 0 0 1px var(--ds-amber-400);
+  color: var(--ds-amber-900);
+  text-decoration: line-through;
+}
+
+.sp-chat-attach,
+.sp-chat-submit {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: var(--sp-text-2);
+  cursor: pointer;
+}
+
+.sp-chat-attach:hover,
+.sp-chat-submit:hover:not(:disabled) {
+  color: var(--sp-text);
+  background: var(--sp-hover);
+}
+
+/* First thing in the row under the box, where Claude Code keeps it: the same height as the chips
+   beside it, so the row reads as one line of controls rather than a button with labels after it. */
+.sp-chat-attach {
+  width: 22px;
+  height: 22px;
+}
+
+.sp-chat-submit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Typing "/" lists what the agent can run. Not a popover: it opens while typing rather than on a
+   click, and light dismiss would take the first keystroke with it. */
+.sp-chat-slash {
+  position: absolute;
+  inset: auto 0 100% 0;
+  margin-bottom: 6px;
+  padding: 4px;
+  /* Every command the agent has, not the first handful: 132 of them here, so the list scrolls. */
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px;
+  background: var(--ds-background-100);
+  box-shadow: var(--ds-shadow-menu);
+}
+
+.sp-chat-slash .sp-menu-row {
+  height: 28px;
+  font-family: var(--sp-mono);
+}
+
+/* The accent, not the hover grey. The hover grey is one step off the panel's own ground, so the
+   arrow keys moved the selection without anything on screen appearing to move. It also has to
+   outrank :hover, which paints the same grey on whichever row the pointer happens to be resting
+   over. */
+.sp-chat-slash .sp-menu-row.sp-chat-slash-on {
+  background: var(--sp-accent);
+  color: #ffffff;
+}
+
+/* Collapsed: gone, with nothing left behind. The button that brings it back is in the canvas's
+   own top-left corner now, so a rail here would be a second one. Hidden, not unmounted, so the
+   panel keeps following whatever is running and comes back to it mid-stream. */
+.sp-chat-collapsed {
+  display: none;
+}
+
+/* The history list and the agent menu, native popovers: the top layer and light dismiss for
+   free. The panel's geometry is fixed — the viewport's left edge, 360 wide, a 40px header — so
+   both are placed under the header by those numbers rather than by anchor positioning, which not
+   every browser has yet. */
+.sp-chat-history,
+.sp-chat-agents,
+.sp-chat-picker {
+  position: fixed;
+  inset: 44px auto auto 8px;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px;
+  background: var(--sp-bg);
+  color: var(--sp-text);
+  box-shadow: var(--ds-shadow-menu);
+}
+
+.sp-chat-history {
+  width: 344px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.sp-chat-history .sp-chat-dim {
+  margin: 0;
+  padding: 6px 8px;
+}
+
+.sp-chat-history-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sp-chat-history-row:hover {
+  background: var(--sp-hover);
+}
+
+.sp-chat-history-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The time keeps its one line and the title gives up the room, not the other way round. */
+.sp-chat-history-row .sp-chat-dim {
+  flex: none;
+}
+
+/* A run still going gets the accent dot; one that failed, the error red. */
+.sp-chat-history-row[data-status="running"]::before {
+  content: "";
+  flex: none;
+  align-self: center;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sp-accent);
+}
+
+.sp-chat-history-row[data-status="failed"] .sp-chat-history-title {
+  color: var(--sp-danger);
+}
+
+/* The agent menu: the inspector's rows, grown to fit a second line under a CLI that was not
+   found on PATH, saying what to do. Such a row is greyed and takes no click. */
+/* As wide as its rows, which is narrow with both agents installed; the ceiling is for the one
+   that is missing, whose row carries a sentence about installing it. */
+.sp-chat-agents {
+  width: max-content;
+  min-width: 140px;
+  max-width: 280px;
+}
+
+.sp-chat-agents .sp-menu-row {
+  height: auto;
+  min-height: 32px;
+  padding: 6px 8px;
+}
+
+.sp-chat-agents .sp-menu-row:disabled {
+  color: var(--sp-text-2);
+  cursor: default;
+}
+
+.sp-chat-agents .sp-menu-row:disabled:hover {
+  background: none;
+}
+
+/* A mark in its brand colour beside greyed-out text reads as the available one, and Claude's is
+   a fixed terracotta rather than currentColor, so the row dims the mark itself. */
+.sp-chat-agents .sp-menu-row:disabled svg {
+  opacity: 0.45;
+}
+
+.sp-chat-agents-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sp-chat-agents-name small {
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--sp-text-2);
+}
+
+/* Whose turn, and whose run: the mark of the agent that ran it, since the mark in the header is
+   only who the next message goes to. Codex's mark is currentColor, so it reads in the text's
+   colour; Claude's keeps its own. */
+.sp-chat-mark {
+  flex: none;
+  display: inline-flex;
+  color: var(--sp-text);
+}
+
+.sp-chat-turn > .sp-chat-mark {
+  align-self: flex-start;
+}
+
+.sp-chat-history-row > .sp-chat-mark {
+  align-self: center;
+}
+
+/* The two pickers open upward, from the bar at the panel's foot rather than the header. */
+.sp-chat-picker {
+  inset: auto auto 34px 8px;
+  width: max-content;
+  min-width: 180px;
+  max-width: 300px;
+}
+
+.sp-chat-picker .sp-menu-row {
+  height: auto;
+  min-height: 32px;
+  padding: 6px 8px;
+}
+
+.sp-chat-picker-name {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.sp-chat-picker-name small {
+  color: var(--sp-text-2);
+}
+
+/* The effort slider: the levels the model has, in their own order, which is the order they get
+   more expensive in. The ends are labelled rather than the stops — six words under a 160px
+   track would not be readable, and the chip above says which one is chosen. */
+.sp-chat-efforts input {
+  width: 100%;
+  margin: 6px 0 2px;
+  accent-color: var(--sp-accent);
+}
+
+.sp-chat-efforts-ends {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0 2px 2px;
+  color: var(--sp-text-2);
+}
+
+/* Under the composer: what the next message runs with, and what the last one cost. The chips
+   read as text until they are hovered — three controls across 360px can only be small. */
+.sp-chat-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 8px;
+  color: var(--sp-text-2);
+  line-height: 18px;
+}
+
+.sp-chat-chip {
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sp-chat-chip:hover {
+  background: var(--sp-hover);
+}
+
+/* The count keeps the right edge, whatever the chips beside it are called. */
+.sp-chat-perm {
+  margin-right: auto;
+}
+
+.sp-chat-ctx {
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-chat-spin {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--sp-line);
+  border-top-color: var(--sp-accent);
+  border-radius: 50%;
+  animation: sp-chat-spin 0.7s linear infinite;
+}
+
+@keyframes sp-chat-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-chat-spin {
+    animation-duration: 3s;
+  }
 }

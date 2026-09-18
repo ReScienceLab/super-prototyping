@@ -12,6 +12,31 @@ import { canvasImageRef } from "./canvasLibrary";
 export type InspectorTarget = CanvasFileShape | TLImageShape;
 
 /**
+ * The topmost shape under the pointer, whatever it is. It must *be* a board or a brand image for
+ * the canvas to answer for it (asCanvasTarget below); a `filter` here instead would search past
+ * anything drawn over one, so every click on an unlocked note or arrow sitting on a board would
+ * also open the inspector and squeeze the canvas out from under the thing being edited.
+ */
+export const shapeUnderPointer = (editor: Editor) =>
+  editor.getShapeAtPoint(editor.inputs.getCurrentPagePoint(), {
+    hitInside: true,
+    hitLocked: true,
+    renderingOnly: true,
+  });
+
+/** That shape when it is one the canvas answers for, and nothing when it is not. */
+export const asCanvasTarget = (
+  hit: TLShape | undefined,
+): InspectorTarget | undefined => {
+  if (hit?.type === CANVAS_FILE_SHAPE_TYPE) return hit as CanvasFileShape;
+  // An image the library placed, not one someone dropped on the canvas themselves: only the
+  // first has an entry in layout.json behind it for the panel to read.
+  return hit?.type === "image" && canvasImageRef(hit.id)
+    ? (hit as TLImageShape)
+    : undefined;
+};
+
+/**
  * A locked board cannot be selected, so tldraw reports a click on one as a click on the canvas
  * and the shape util's own `onClick` never runs — the same problem the welcome page's cards have,
  * solved the same way (installLockedLinkClicks in CanvasLinkShapeUtil.tsx): watch the editor's
@@ -34,27 +59,6 @@ export function installInspectorClicks(
   /** That board's frame out on the canvas, filled in by CanvasFileShapeUtil. */
   frame: { current: HTMLIFrameElement | null },
 ) {
-  /**
-   * The topmost shape must *be* a board or a brand image. A `filter` here instead would search
-   * past anything drawn over one, so every click on an unlocked note or arrow sitting on a board
-   * would also open the inspector and squeeze the canvas out from under the thing being edited.
-   */
-  const shapeUnderPointer = () =>
-    editor.getShapeAtPoint(editor.inputs.getCurrentPagePoint(), {
-      hitInside: true,
-      hitLocked: true,
-      renderingOnly: true,
-    });
-
-  const asTarget = (hit: TLShape | undefined): InspectorTarget | undefined => {
-    if (hit?.type === CANVAS_FILE_SHAPE_TYPE) return hit as CanvasFileShape;
-    // An image the library placed, not one someone dropped on the canvas themselves: only the
-    // first has an entry in layout.json behind it for the panel to read.
-    return hit?.type === "image" && canvasImageRef(hit.id)
-      ? (hit as TLImageShape)
-      : undefined;
-  };
-
   /**
    * Hands the agent the pointer in the inspected board's own pixels. Anywhere else on the canvas
    * is (-1, -1): it hits nothing, which is how the highlight clears when the pointer leaves.
@@ -90,7 +94,7 @@ export function installInspectorClicks(
       if (inspectingPath) {
         sendPointer(
           editor.getCurrentToolId() === "select"
-            ? asTarget(shapeUnderPointer())
+            ? asCanvasTarget(shapeUnderPointer(editor))
             : undefined,
           false,
         );
@@ -104,7 +108,7 @@ export function installInspectorClicks(
         info.button === 0 &&
         editor.getCurrentToolId() === "select" &&
         !editor.menus.hasAnyOpenMenus()
-          ? { hit: shapeUnderPointer() }
+          ? { hit: shapeUnderPointer(editor) }
           : undefined;
       return;
     }
@@ -112,13 +116,13 @@ export function installInspectorClicks(
     const press = pressed;
     pressed = undefined;
     if (!press || editor.inputs.getIsDragging()) return;
-    const hit = shapeUnderPointer();
+    const hit = shapeUnderPointer(editor);
     if (hit?.id !== press.hit?.id) return;
     // Nothing under the pointer: a click on the canvas itself, which closes the inspector the
     // same way it clears a selection. Anything else that is not a board or a picture — a note,
     // an arrow, a comment pin — is a thing, so the panel stays where it is.
     if (!hit) return onDismiss();
-    const target = asTarget(hit);
+    const target = asCanvasTarget(hit);
     if (!target) return;
     // A click on the board already open picks the element under it; a click on any other board,
     // or on a brand image, opens that one.

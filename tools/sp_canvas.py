@@ -268,7 +268,11 @@ def cmd_start(a):
             f"`sp-canvas stop` if it is this one."
         )
 
-    env = dict(os.environ, PROTOTYPING_CANVASES_DIR=str(boards))
+    # The project is the directory this is run from — the same one the boards default under.
+    # The canvas's chat panel runs Claude Code in it; without it the panel's endpoints answer 503.
+    project = Path.cwd().resolve()
+    env = dict(os.environ, PROTOTYPING_CANVASES_DIR=str(boards),
+               PROTOTYPING_PROJECT_DIR=str(project))
     # --host 127.0.0.1 because Vite otherwise binds localhost only, which can
     # resolve to ::1 and make every 127.0.0.1 request fail with a bare
     # connection error. Loopback either way: this is a design tool, not a service.
@@ -292,6 +296,7 @@ def cmd_start(a):
         inline = " ".join([
             "env",
             f"PROTOTYPING_CANVASES_DIR={shlex.quote(str(boards))}",
+            f"PROTOTYPING_PROJECT_DIR={shlex.quote(str(project))}",
             f"PATH={shlex.quote(os.environ.get('PATH', ''))}",
             shlex.join(cmd),
         ])
@@ -318,6 +323,7 @@ def cmd_start(a):
 
     print(f"canvas   http://127.0.0.1:{a.port}/")
     print(f"boards   {boards}")
+    print(f"project  {project}")
     print(f"app      {app}")
     print(f"running  {how}")
 
@@ -373,7 +379,10 @@ def cmd_stop(a):
                       f"stale pidfile removed")
         else:
             try:
-                os.kill(pid, signal.SIGTERM)
+                # The group, not the process: `start_new_session=True` above makes the
+                # server its own group leader, and the agents its chat panel spawned are in
+                # it. Signalling the pid alone leaves them editing the project afterwards.
+                os.killpg(pid, signal.SIGTERM)
                 print(f"stopped background process {pid}")
                 stopped = True
             except ProcessLookupError:
