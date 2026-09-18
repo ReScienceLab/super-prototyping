@@ -1,4 +1,4 @@
-import { FigmaMark } from "./FigmaMark";
+import { LogoFigma } from "./geistIcons";
 import { hasBrandMaterial, pageNameFor } from "./canvasLibrary";
 import { sheetRows } from "./sheetLayout";
 import { brandPageUrl, canvasPageUrl } from "./canvasUrl";
@@ -41,7 +41,7 @@ export function BoardsSheet({ slug }: { slug: string }) {
           generated one. */}
       <section className="howto">
         <h2>
-          <FigmaMark height={17} />
+          <LogoFigma size={17} />
           Into Figma, in three steps
         </h2>
         <div className="howto__body">
@@ -99,7 +99,7 @@ export function BoardsSheet({ slug }: { slug: string }) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <FigmaMark height={19} />
+                <LogoFigma size={19} />
                 <span>
                   Get the Figma plugin
                   <small>Optional · html.to.design by ‹div›RIOTS</small>

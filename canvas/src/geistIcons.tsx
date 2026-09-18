@@ -1,142 +1,62 @@
 /**
- * The glyphs the panel uses, from Vercel's Geist icon set, at its geometry.
+ * The glyphs this app uses, from Vercel's Geist icon set — the set itself, not a copy of it.
+ * `geist-icons` publishes all 455 of them as one dependency-free ESM module, so nobody here
+ * maintains a path string. Everything the canvas draws as a glyph comes through this file, which
+ * is what keeps the top bar, the chat panel and the inspector on one set.
  *
- * Copied in rather than installed: `geist-icons` on npm is a third-party mirror of all 455 of
- * them in one 600K module, and sixteen path strings are smaller than the dependency, let alone
- * the mirror's trust. Geist draws every icon as a single filled path on a 16x16 grid — no
- * strokes — so one wrapper covers all of them and `size` is the only knob.
+ * Two things are added to each, and nothing else. The size, because Geist draws on a 16 grid and
+ * the package defaults its components to 20 — the one number every call site would otherwise
+ * repeat. And `aria-hidden`, because every glyph here sits inside a control that already carries
+ * its own name.
  */
+import type { ComponentProps, ComponentType } from "react";
+import {
+  Box as GBox,
+  Check as GCheck,
+  ChevronDownSmall as GChevronDownSmall,
+  ChevronRightSmall as GChevronRightSmall,
+  ClockRewind as GClockRewind,
+  Copy as GCopy,
+  Cross as GCross,
+  Eye as GEye,
+  EyeOff as GEyeOff,
+  Fullscreen as GFullscreen,
+  Image as GImage,
+  Layers as GLayers,
+  Layout as GLayout,
+  LogoFigma as GLogoFigma,
+  Message as GMessage,
+  Pen as GPen,
+  Plus as GPlus,
+  RefreshCounterClockwise as GRefreshCounterClockwise,
+  SidebarLeft as GSidebarLeft,
+  TextTitle as GTextTitle,
+} from "geist-icons";
 
-const Icon = ({
-  d,
-  size = 16,
-  className,
-}: {
-  d: string;
-  size?: number;
-  className?: string;
-}) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 16 16"
-    className={className}
-    aria-hidden
-  >
-    <path fillRule="evenodd" clipRule="evenodd" d={d} fill="currentColor" />
-  </svg>
+type IconProps = ComponentProps<typeof GCheck>;
+
+const at16 = (Icon: ComponentType<IconProps>) => (props: IconProps) => (
+  <Icon size={16} aria-hidden {...props} />
 );
 
-type IconProps = { size?: number; className?: string };
-
-export const Check = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M15.5607 3.99999L15.0303 4.53032L6.23744 13.3232C5.55403 14.0066 4.44599 14.0066 3.76257 13.3232L4.2929 12.7929L3.76257 13.3232L0.969676 10.5303L0.439346 9.99999L1.50001 8.93933L2.03034 9.46966L4.82323 12.2626C4.92086 12.3602 5.07915 12.3602 5.17678 12.2626L13.9697 3.46966L14.5 2.93933L15.5607 3.99999Z"
-  />
-);
-
-export const ChevronDownSmall = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M12.0607 6.74999L11.5303 7.28032L8.7071 10.1035C8.31657 10.4941 7.68341 10.4941 7.29288 10.1035L4.46966 7.28032L3.93933 6.74999L4.99999 5.68933L5.53032 6.21966L7.99999 8.68933L10.4697 6.21966L11 5.68933L12.0607 6.74999Z"
-  />
-);
-
-export const ChevronRightSmall = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M6.74999 3.93933L7.28032 4.46966L10.1035 7.29288C10.4941 7.68341 10.4941 8.31657 10.1035 8.7071L7.28032 11.5303L6.74999 12.0607L5.68933 11L6.21966 10.4697L8.68933 7.99999L6.21966 5.53032L5.68933 4.99999L6.74999 3.93933Z"
-  />
-);
-
-export const Cross = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M12.4697 13.5303L13 14.0607L14.0607 13L13.5303 12.4697L9.06065 7.99999L13.5303 3.53032L14.0607 2.99999L13 1.93933L12.4697 2.46966L7.99999 6.93933L3.53032 2.46966L2.99999 1.93933L1.93933 2.99999L2.46966 3.53032L6.93933 7.99999L2.46966 12.4697L1.93933 13L2.99999 14.0607L3.53032 13.5303L7.99999 9.06065L12.4697 13.5303Z"
-  />
-);
-
-export const Plus = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M8.75 1.75V1H7.25V1.75V7.25H1.75H1V8.75H1.75H7.25V14.25V15H8.75V14.25V8.75H14.25H15V7.25H14.25H8.75V1.75Z"
-  />
-);
-
-export const Eye = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M4.02168 4.76932C6.11619 2.33698 9.88374 2.33698 11.9783 4.76932L14.7602 7.99999L11.9783 11.2307C9.88374 13.663 6.1162 13.663 4.02168 11.2307L1.23971 7.99999L4.02168 4.76932ZM13.1149 3.79054C10.422 0.663244 5.57797 0.663247 2.88503 3.79054L-0.318359 7.5106V8.48938L2.88503 12.2094C5.57797 15.3367 10.422 15.3367 13.1149 12.2094L16.3183 8.48938V7.5106L13.1149 3.79054ZM6.49997 7.99999C6.49997 7.17157 7.17154 6.49999 7.99997 6.49999C8.82839 6.49999 9.49997 7.17157 9.49997 7.99999C9.49997 8.82842 8.82839 9.49999 7.99997 9.49999C7.17154 9.49999 6.49997 8.82842 6.49997 7.99999ZM7.99997 4.99999C6.34311 4.99999 4.99997 6.34314 4.99997 7.99999C4.99997 9.65685 6.34311 11 7.99997 11C9.65682 11 11 9.65685 11 7.99999C11 6.34314 9.65682 4.99999 7.99997 4.99999Z"
-  />
-);
-
-export const EyeOff = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M0.191137 2.06228L0.751694 2.56055L14.2517 14.5605L14.8122 15.0588L15.8088 13.9377L15.2482 13.4394L13.4399 11.832L16.3183 8.48938V7.51059L13.1149 3.79053C10.6442 0.921301 6.36413 0.684726 3.59378 3.07992L1.74824 1.43943L1.18768 0.941162L0.191137 2.06228ZM14.7602 7.99998L12.3187 10.8354L10.6699 9.36978C11.249 8.24171 11.0661 6.82347 10.1213 5.87865C9.08954 4.8469 7.49326 4.72376 6.32676 5.50923L4.72751 4.08767C6.88288 2.36327 10.1023 2.59076 11.9783 4.76931L14.7602 7.99998ZM7.52702 6.57613L9.46929 8.30259C9.56713 7.82531 9.43091 7.30959 9.06063 6.93931C8.64578 6.52446 8.0484 6.4034 7.52702 6.57613ZM-0.318359 7.51059L1.40386 5.5106L2.54051 6.48938L1.23971 7.99998L4.02168 11.2307C5.52853 12.9805 7.90301 13.4734 9.89972 12.7017L10.4405 14.1008C7.88008 15.0904 4.82516 14.4625 2.88503 12.2094L-0.318359 8.48938V7.51059Z"
-  />
-);
-
-export const Fullscreen = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M1 5.25V6H2.5V5.25V2.5H5.25H6V1H5.25H2C1.44772 1 1 1.44772 1 2V5.25ZM5.25 14.9994H6V13.4994H5.25H2.5V10.7494V9.99939H1V10.7494V13.9994C1 14.5517 1.44772 14.9994 2 14.9994H5.25ZM15 10V10.75V14C15 14.5523 14.5523 15 14 15H10.75H10V13.5H10.75H13.5V10.75V10H15ZM10.75 1H10V2.5H10.75H13.5V5.25V6H15V5.25V2C15 1.44772 14.5523 1 14 1H10.75Z"
-  />
-);
-
-export const RefreshCounterClockwise = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M2.72876 6.42462C3.40596 4.15488 5.51032 2.5 8.00002 2.5C10.0902 2.5 11.9092 3.66566 12.8405 5.38592L13.1975 6.04548L14.5166 5.33138L14.1596 4.67183C12.9767 2.48677 10.6625 1 8.00002 1C5.05453 1 2.53485 2.81872 1.50122 5.39447V3.75V3H0.0012207V3.75V7.17462C0.0012207 7.58883 0.337007 7.92462 0.751221 7.92462H4.17584H4.92584V6.42462H4.17584H2.72876ZM13.2713 9.57538H11.8243H11.0743V8.07538H11.8243H15.2489C15.6631 8.07538 15.9989 8.41117 15.9989 8.82538V12.25V13H14.4989V12.25V10.6053C13.4653 13.1812 10.9456 15 8.00002 15C5.35065 15 3.04619 13.5279 1.85809 11.3605L1.49757 10.7029L2.8129 9.98181L3.17342 10.6395C4.10882 12.3458 5.92017 13.5 8.00002 13.5C10.4897 13.5 12.5941 11.8451 13.2713 9.57538Z"
-  />
-);
-
-export const ClockRewind = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M7.96452 2.5C11.0257 2.5 13.5 4.96643 13.5 8C13.5 11.0336 11.0257 13.5 7.96452 13.5C6.12055 13.5 4.48831 12.6051 3.48161 11.2273L3.03915 10.6217L1.828 11.5066L2.27046 12.1122C3.54872 13.8617 5.62368 15 7.96452 15C11.8461 15 15 11.87 15 8C15 4.13001 11.8461 1 7.96452 1C5.06835 1 2.57851 2.74164 1.5 5.23347V3.75V3H0V3.75V7.25C0 7.66421 0.335786 8 0.75 8H3.75H4.5V6.5H3.75H2.63724C3.29365 4.19393 5.42843 2.5 7.96452 2.5ZM8.75 5.25V4.5H7.25V5.25V7.8662C7.25 8.20056 7.4171 8.51279 7.6953 8.69825L9.08397 9.62404L9.70801 10.0401L10.5401 8.79199L9.91603 8.37596L8.75 7.59861V5.25Z"
-  />
-);
-
-export const SidebarLeft = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M6.245 2.5H14.5V12.5C14.5 13.0523 14.0523 13.5 13.5 13.5H6.245V2.5ZM4.995 2.5H1.5V12.5C1.5 13.0523 1.94772 13.5 2.5 13.5H4.995V2.5ZM0 1H1.5H14.5H16V2.5V12.5C16 13.8807 14.8807 15 13.5 15H2.5C1.11929 15 0 13.8807 0 12.5V2.5V1Z"
-  />
-);
-
-export const Pen = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M8.75 0.189331L9.28033 0.719661L15.2803 6.71966L15.8107 7.24999L15.2803 7.78032L13.7374 9.32322C13.1911 9.8696 12.3733 9.97916 11.718 9.65188L9.54863 13.5568C8.71088 15.0648 7.12143 16 5.39639 16H0.75H0V15.25V10.6036C0 8.87856 0.935237 7.28911 2.4432 6.45136L6.34811 4.28196C6.02084 3.62674 6.13039 2.80894 6.67678 2.26255L8.21967 0.719661L8.75 0.189331ZM7.3697 5.43035L10.5696 8.63029L8.2374 12.8283C7.6642 13.8601 6.57668 14.5 5.39639 14.5H2.56066L5.53033 11.5303L4.46967 10.4697L1.5 13.4393V10.6036C1.5 9.42331 2.1399 8.33579 3.17166 7.76259L7.3697 5.43035ZM12.6768 8.26256C12.5791 8.36019 12.4209 8.36019 12.3232 8.26255L12.0303 7.96966L8.03033 3.96966L7.73744 3.67677C7.63981 3.57914 7.63981 3.42085 7.73744 3.32321L8.75 2.31065L13.6893 7.24999L12.6768 8.26256Z"
-  />
-);
-
-export const TextTitle = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M2.5 0.75C1.94772 0.75 1.5 1.19772 1.5 1.75V2.75V3.5H3V2.75V2.25H7.25V13.5H6.75H6V15H6.75H7.25H8.75H9.25H10V13.5H9.25H8.75V2.25H13.25V2.75V3.5H14.75V2.75V1.75C14.75 1.19771 14.3023 0.75 13.75 0.75H2.5Z"
-  />
-);
-
-export const Image = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M14.5 2.5H1.5V9.18933L2.96966 7.71967L3.18933 7.5H3.49999H6.63001H6.93933L6.96966 7.46967L10.4697 3.96967L11.5303 3.96967L14.5 6.93934V2.5ZM8.00066 8.55999L9.53034 10.0897L10.0607 10.62L9.00001 11.6807L8.46968 11.1503L6.31935 9H3.81065L1.53032 11.2803L1.5 11.3106V12.5C1.5 13.0523 1.94772 13.5 2.5 13.5H13.5C14.0523 13.5 14.5 13.0523 14.5 12.5V9.06066L11 5.56066L8.03032 8.53033L8.00066 8.55999ZM4.05312e-06 10.8107V12.5C4.05312e-06 13.8807 1.11929 15 2.5 15H13.5C14.8807 15 16 13.8807 16 12.5V9.56066L16.5607 9L16.0303 8.46967L16 8.43934V2.5V1H14.5H1.5H4.05312e-06V2.5V10.6893L-0.0606689 10.75L4.05312e-06 10.8107Z"
-  />
-);
-
-export const Layout = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M14.5 2.5H1.5V5.005H14.5V2.5ZM14.5 6.255H6.245V13.5H13.5C14.0523 13.5 14.5 13.0523 14.5 12.5V6.255ZM4.995 6.255H1.5V12.5C1.5 13.0523 1.94772 13.5 2.5 13.5H4.995V6.255ZM1.5 1H0V2.5V12.5C0 13.8807 1.11929 15 2.5 15H13.5C14.8807 15 16 13.8807 16 12.5V2.5V1H14.5H1.5Z"
-  />
-);
-
-export const Box = (p: IconProps) => (
-  <Icon
-    {...p}
-    d="M8 0.154663L8.34601 0.334591L14.596 3.58459L15 3.79466V4.25V11.75V12.2053L14.596 12.4154L8.34601 15.6654L8 15.8453L7.65399 15.6654L1.40399 12.4154L1 12.2053V11.75V4.25V3.79466L1.40399 3.58459L7.65399 0.334591L8 0.154663ZM2.5 11.2947V5.44058L7.25 7.81559V13.7647L2.5 11.2947ZM8.75 13.7647L13.5 11.2947V5.44056L8.75 7.81556V13.7647ZM8 1.84534L12.5766 4.22519L7.99998 6.51352L3.42335 4.2252L8 1.84534Z"
-  />
-);
+export const Box = at16(GBox);
+export const Check = at16(GCheck);
+export const ChevronDownSmall = at16(GChevronDownSmall);
+export const ChevronRightSmall = at16(GChevronRightSmall);
+export const ClockRewind = at16(GClockRewind);
+export const Copy = at16(GCopy);
+export const Cross = at16(GCross);
+export const Eye = at16(GEye);
+export const EyeOff = at16(GEyeOff);
+export const Fullscreen = at16(GFullscreen);
+export const Image = at16(GImage);
+export const Layers = at16(GLayers);
+export const Layout = at16(GLayout);
+/** Figma's mark, in Geist's own transcription of it — still Figma's five colours. */
+export const LogoFigma = at16(GLogoFigma);
+export const Message = at16(GMessage);
+export const Pen = at16(GPen);
+export const Plus = at16(GPlus);
+export const RefreshCounterClockwise = at16(GRefreshCounterClockwise);
+export const SidebarLeft = at16(GSidebarLeft);
+export const TextTitle = at16(GTextTitle);
