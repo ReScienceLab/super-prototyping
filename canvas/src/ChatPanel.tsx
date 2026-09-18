@@ -323,15 +323,6 @@ export function ChatPanel() {
     return chip;
   };
 
-  /** A board named from the canvas: its path, atomic like the chips, and read back verbatim. */
-  const fileFor = (path: string) => {
-    const badge = document.createElement("span");
-    badge.className = "sp-chat-file";
-    badge.contentEditable = "false";
-    badge.textContent = path;
-    return badge;
-  };
-
   /**
    * Back to #1 once nothing points at a number any more: no tile in the tray, and no chip left in
    * the box. A number is never reused while something does point at it, because renumbering under
@@ -465,17 +456,17 @@ export function ChatPanel() {
           insertAtCaret(chipFor(image));
   };
 
-  // What the buttons on a canvas shape hand over (canvasAttach.tsx): a board's path written into
-  // the sentence, a picture both attached and named there, or the reason one of those did not work.
+  // What the buttons on a canvas shape hand over (canvasAttach.tsx): a picture, attached and named
+  // in the sentence, or the reason there is none. A mockup arrives as a picture of itself, called
+  // by its own path, so pointing at one puts the same tile and the same number in the panel that
+  // pointing at a picture does — and the path is what the tile is captioned with.
   // No dependency list, so every render leaves a listener holding that render's `addImages` and
   // its numbering — a listener that stayed would be attaching to the draft the panel had at mount.
   useEffect(() => {
     const take = (event: Event) => {
       const detail = (event as CustomEvent<CanvasAttachDetail>).detail;
       if (detail.kind === "error") return setSendError(detail.message);
-      if (detail.kind === "image") return void addImages([detail.file], true);
-      setSendError(null);
-      insertAtCaret(fileFor(detail.text));
+      void addImages([detail.file], true);
     };
     window.addEventListener(CANVAS_ATTACH, take);
     return () => window.removeEventListener(CANVAS_ATTACH, take);
@@ -927,8 +918,12 @@ export function ChatPanel() {
                 >
                   ✕
                 </span>
+                {/* The tile is 76px and the caption is what says which of them this is, so a
+                    board shows the board and not the canvas it is in — a path ellipsised from
+                    the right is the same dozen characters on every tile in the folder. The whole
+                    of it is still the tooltip, the alt text and what the agent is handed. */}
                 <figcaption className="sp-chat-name" title={i.name}>
-                  {i.name}
+                  {i.name.split("/").pop()}
                 </figcaption>
               </figure>
             ))}

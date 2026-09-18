@@ -1871,16 +1871,6 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   box-shadow: inset 0 0 0 1px var(--ds-blue-400);
 }
 
-/* A board named from the canvas. Neutral, not the command badge's blue: it is a file for the
-   agent to open, not something to run. */
-.sp-chat-file {
-  padding: 2px 4px;
-  border-radius: 4px;
-  background: var(--sp-hover);
-  box-shadow: inset 0 0 0 1px var(--sp-line);
-  color: var(--sp-text-2);
-}
-
 /* A reference: the picture small enough to recognise and the number to say it by. Inline, so it
    wraps with the words around it and the caret steps past it in one press. */
 .sp-chat-ref {
