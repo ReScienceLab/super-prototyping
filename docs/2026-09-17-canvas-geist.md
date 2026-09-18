@@ -88,20 +88,26 @@ was fixed as data. The declaration is gone and the boards are regenerated. The `
 already paints its own opaque ground, so nothing inside a phone moved.
 
 Every other board declared nothing and was white anyway, because a frame paints an opaque base
-background underneath the document it loads, and nothing outside the frame reaches it. Measured, all
-five of these still paint `#FFFFFF`: `background` on the `<iframe>` element,
-`allowtransparency="true"`, `color-scheme` on the element, an injected
-`html{background:transparent}`, and an injected `html,body{background:none!important}`. The one
-declaration that releases it is `color-scheme: dark` inside the document, on its own `:root`. The
-frame then composites onto what is behind it. That is why `CanvasFileShapeUtil` injects that and
-not a colour. The board shows the canvas through, whatever colour the canvas is, and a light theme
-of the kind the section above describes needs no second rule here.
+background under the document it loads whenever the frame element's colour scheme and the
+document's differ; CSS Color Adjust calls it a colour scheme mismatch. The canvas is dark, the
+`<iframe>` inherits that, and a board that says nothing is light, so every board was that mismatch.
+The first measurement here tried `background` on the element, `allowtransparency="true"`,
+`color-scheme: dark` on the element, an injected `html{background:transparent}` and an injected
+`html,body{background:none!important}`, saw all five paint `#FFFFFF`, and concluded that only a
+`color-scheme: dark` injected into the document after its doctype released the backdrop.
+`CanvasFileShapeUtil` shipped that injection, with the root's `color` pinned back to `#000` because
+a dark scheme flips it. Review caught what the measurement had missed: the element-side value tried
+was the one that matches the canvas, not the one that matches the board. Measured again in Chrome
+153, `color-scheme: light` (or `normal`) on the `<iframe>` composites transparent, and `dark` or no
+rule at all paints white.
 
-It goes in straight after the doctype. Anything before the doctype is quirks mode, and `</head>` is
-not an anchor, since 51 of the 351 boards close no head. Being first also means a board that
-declares either property wins. A dark scheme also changes the root's default `color`, which flips
-to white and would repaint the status bar's `currentColor` glyphs, so `#000` is pinned back. That
-is the light default the boards were authored against.
+So the frame element says `light`, and the injection is gone. Nothing is written into a board's
+markup; its text and form controls keep the colours it was authored with; an injected `:root` rule
+no longer outranks a board's own `html{}` rule, which it did, being a class-level selector against
+a type-level one; and the doctype is no longer an anchor anything depends on. A board that declares
+a dark scheme of its own is the mismatch again and gets an opaque backdrop. None of the 351 do. The
+canvas still shows through whatever colour it is, and a light theme of the kind the section above
+describes needs no second rule here.
 
 The cost was measured rather than assumed, at the real 478 × 980 and over a white ground, so that
 only the release shows. Three of six boards came out pixel identical. The others differed by at

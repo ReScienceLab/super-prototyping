@@ -33,6 +33,9 @@ import {
 } from "./src/agentRun.ts";
 import {
   AGENTS,
+  IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGES,
   type AgentDef,
   type AgentImage,
   type AgentModel,
@@ -909,32 +912,12 @@ function canvasesSource(): Plugin {
         string,
         Run & {
           child: ChildProcess;
-          /** What the composer attached, as `image/<n>` serves it; the bytes are on disk. */
-          images: Pick<AgentImage, "n" | "type" | "path">[];
+          /** What the composer attached, as `image/<n>` serves it and codex's stdin needs it. */
+          images: AgentImage[];
           /** The pictures its tools handed back, in arrival order; `shot/<k>` is one-based. */
           shots: { type: string; data: Buffer }[];
         }
       >();
-      // A run's attachments go on disk under one folder per server process, so that a start can
-      // tell whose leftovers it is looking at. The map above is what names a run's folder and
-      // it dies with the process — after a `kill -9`, and after the `tmux kill-session` that
-      // `sp-canvas stop` is, which no close hook sees — so the sweep here, of folders whose
-      // process is gone, is what removes them. One whose pid is alive is a neighbour's, or a
-      // stranger's that took the number, and stays; one this cannot signal is another user's.
-      const chatDir = path.join(os.tmpdir(), `sp-chat-${process.pid}`);
-      for (const name of fs.readdirSync(os.tmpdir())) {
-        const pid = Number(/^sp-chat-(\d+)$/.exec(name)?.[1]);
-        if (!pid) continue;
-        try {
-          process.kill(pid, 0);
-        } catch (error) {
-          if ((error as NodeJS.ErrnoException).code === "ESRCH")
-            fs.rmSync(path.join(os.tmpdir(), name), {
-              recursive: true,
-              force: true,
-            });
-        }
-      }
       // Which agents are installed: `bin --version` once each, for the server's lifetime, so
       // the menu greys out one that is missing and says what to do, rather than letting the
       // first message find out.
@@ -1025,6 +1008,33 @@ function canvasesSource(): Plugin {
         }
         return ask;
       };
+      // Attached images go to disk for an agent that takes files (agents.ts), for as long as
+      // that agent runs: a run's folder goes when its child closes, since the page is served
+      // the bytes the run holds and nothing else reads the files. The folders sit under one per
+      // server, named by its pid and made private here rather than at a path anyone on a shared
+      // tmp could have put a folder or a link at first; a Vite restart is a second one for the
+      // same pid. At start the folders of servers that were killed rather than closed go too: a
+      // pid nothing answers on is a server that is gone. Not on the server's own close — Vite
+      // restarts by building the new server, same pid, before it closes the old, and Ctrl+C
+      // never closes it at all.
+      const chatDir = fs.mkdtempSync(
+        path.join(os.tmpdir(), `sp-chat-${process.pid}-`),
+      );
+      for (const name of fs.readdirSync(os.tmpdir())) {
+        const pid = Number(/^sp-chat-(\d+)-/.exec(name)?.[1]);
+        if (!pid || pid === process.pid) continue;
+        try {
+          process.kill(pid, 0);
+        } catch (error) {
+          // Gone (ESRCH), as against alive and another user's (EPERM) on a host whose tmp is
+          // shared: that one is a running canvas, and not this server's to remove. A dead
+          // one that was another user's is not removable either, and is left.
+          if ((error as NodeJS.ErrnoException).code !== "ESRCH") continue;
+          try {
+            fs.rmSync(path.join(os.tmpdir(), name), { recursive: true });
+          } catch {}
+        }
+      }
       server.middlewares.use("/__sp/agent", (req, res, next) => {
         const send = (code: number, message: string) => {
           res.statusCode = code;
@@ -1073,22 +1083,22 @@ function canvasesSource(): Plugin {
         }
         if (req.method === "POST" && url.pathname === "/run") {
           // The body is no longer a sentence: attached images ride in it as base64, and it is
-          // held whole in memory before anything reads it, so it is capped on the way in.
-          let body = "";
-          let tooBig = false;
-          req.on("data", (chunk) => {
-            if (tooBig) return;
-            body += chunk;
-            if (body.length > 48_000_000) {
-              tooBig = true;
-              body = "";
-            }
+          // held whole in memory before anything reads it, so it is capped on the way in. Kept
+          // as bytes and decoded once at the end: a character split across two chunks decodes
+          // to U+FFFD if each chunk is decoded alone, and the message and the file names sit
+          // after megabytes of base64 and hundreds of chunk boundaries.
+          const chunks: Buffer[] = [];
+          let size = 0;
+          req.on("data", (chunk: Buffer) => {
+            size += chunk.length;
+            if (size > MAX_IMAGE_BYTES * 2) chunks.length = 0;
+            else chunks.push(chunk);
           });
           req.on("end", () => {
-            if (tooBig)
+            if (size > MAX_IMAGE_BYTES * 2)
               return send(
                 413,
-                "too much attached; keep the images under about 32 MB",
+                `too much attached; keep the images under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`,
               );
             try {
               const {
@@ -1098,28 +1108,25 @@ function canvasesSource(): Plugin {
                 model = "",
                 effort = "",
                 images = [],
-              } = JSON.parse(body || "{}");
-              // The listeners the run leaves on its child close over this scope, and the run is
-              // kept for twenty more, so the string — every attachment in it, base64 — goes now
-              // rather than living as long as the run does.
-              body = "";
+              } = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+              // The raw body is a second copy of every attachment, and the listeners the run
+              // leaves on its child close over this scope, so it would live as long as the run
+              // does — twenty more runs. What is still needed of it is in `images` below.
+              chunks.length = 0;
               if (typeof message !== "string" || !message.trim())
                 return send(400, "empty message");
               // A browser sent these, so nothing in them is taken on trust. The number is what
               // the message refers to and what names the file below; the type decides the
               // extension and what the image endpoint says it is serving; the name is a caption
               // in the prompt and a label in the panel, and never any part of a path.
-              if (!Array.isArray(images) || images.length > 20)
+              if (!Array.isArray(images) || images.length > MAX_IMAGES)
                 return send(400, "bad images");
               for (const i of images) {
                 if (!Number.isInteger(i?.n) || i.n < 1)
                   return send(400, "bad image number");
                 if (typeof i.name !== "string" || i.name.length > 200)
                   return send(400, "bad image name");
-                if (
-                  typeof i.type !== "string" ||
-                  !/^image\/[\w.+-]+$/.test(i.type)
-                )
+                if (!IMAGE_TYPES.includes(i.type))
                   return send(400, "bad image type");
                 if (
                   typeof i.data !== "string" ||
@@ -1127,6 +1134,19 @@ function canvasesSource(): Plugin {
                 )
                   return send(400, "bad image data");
               }
+              // The body cap above is the panel's limit in base64; a client that is not the
+              // panel meets the limit itself here, in the bytes the files come out as.
+              if (
+                images.reduce(
+                  (n: number, i: { data: string }) =>
+                    n + Buffer.byteLength(i.data, "base64"),
+                  0,
+                ) > MAX_IMAGE_BYTES
+              )
+                return send(
+                  413,
+                  `too much attached; keep the images under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`,
+                );
               // One agent at a time, and only the server can say so: the composer's own guard is
               // React state, which a second tab, a reload, or a cleared view does not share. Two
               // agents in one project overwrite each other's boards.
@@ -1180,7 +1200,7 @@ function canvasesSource(): Plugin {
                 }) => {
                   const file = path.join(
                     imagesDir,
-                    `${i.n}.${i.type.slice(6).replace(/\W/g, "") || "png"}`,
+                    `${i.n}.${i.type.slice(6)}`,
                   );
                   fs.writeFileSync(file, Buffer.from(i.data, "base64"));
                   return { ...i, path: file };
@@ -1201,9 +1221,7 @@ function canvasesSource(): Plugin {
                     env: process.env,
                   },
                 ),
-                // The numbers, the types and the paths: the bytes are on disk, and go down the
-                // agent's stdin below, and the run outlives both reads by twenty runs.
-                images: held.map((i) => ({ n: i.n, type: i.type, path: i.path })),
+                images: held,
                 shots: [] as { type: string; data: Buffer }[],
               });
               runs.set(run.id, run);
@@ -1227,10 +1245,6 @@ function canvasesSource(): Plugin {
                 if (runs.size <= 20) break;
                 if (ended(old)) {
                   runs.delete(oldId);
-                  fs.rmSync(path.join(chatDir, oldId), {
-                    recursive: true,
-                    force: true,
-                  });
                 }
               }
               const finish = (message: string) => {
@@ -1276,7 +1290,7 @@ function canvasesSource(): Plugin {
                                   shots: t.shots.map((s) => {
                                     if (!("data" in s)) return s;
                                     run.shots.push({
-                                      type: /^image\/[\w.+-]+$/.test(s.type)
+                                      type: IMAGE_TYPES.includes(s.type)
                                         ? s.type
                                         : "image/png",
                                       data: Buffer.from(s.data, "base64"),
@@ -1301,10 +1315,18 @@ function canvasesSource(): Plugin {
               // the prompt is written; the exit below reports that, and the write error is noise.
               run.child.stdin.on("error", () => {});
               run.child.stdin.end(def.stdin(message, preamble, held));
-              run.child.on("error", (error: NodeJS.ErrnoException) =>
-                finish(error.code === "ENOENT" ? def.missing : String(error)),
-              );
+              // The files were for this child; the page is served the bytes the run holds. On
+              // both, since a child that could not be spawned never closes.
+              const unfile = () => {
+                if (imagesDir)
+                  fs.rmSync(imagesDir, { recursive: true, force: true });
+              };
+              run.child.on("error", (error: NodeJS.ErrnoException) => {
+                unfile();
+                finish(error.code === "ENOENT" ? def.missing : String(error));
+              });
               run.child.on("close", (code, signal) => {
+                unfile();
                 if (ended(run)) return;
                 const tail = stderr.trim().split("\n").slice(-5).join("\n");
                 // `claude` is a launcher around the real process: a SIGTERM to it comes back as
@@ -1362,7 +1384,7 @@ function canvasesSource(): Plugin {
             "x-content-type-options": "nosniff",
             "cache-control": "no-store",
           });
-          return res.end(fs.readFileSync(img.path));
+          return res.end(Buffer.from(img.data, "base64"));
         }
         if (req.method === "GET" && match[2].startsWith("shot/")) {
           // The other direction: what a tool drew, kept in the run rather than on disk, since

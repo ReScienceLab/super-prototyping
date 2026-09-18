@@ -87,7 +87,7 @@ import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasChromeContext,
   canvasChromeComponents,
-  canvasCommentOverrides,
+  canvasUiOverrides,
   canvasCommentTools,
 } from "./canvasChrome";
 
@@ -1407,7 +1407,7 @@ export default function App() {
             store={store}
             shapeUtils={shapeUtils}
             tools={canvasCommentTools}
-            overrides={canvasCommentOverrides}
+            overrides={canvasUiOverrides}
             licenseKey={TLDRAW_LICENSE_KEY}
             onMount={handleMount}
           >
