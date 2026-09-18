@@ -11,6 +11,10 @@
 /* Every kit is this same page with different pictures in it, so switching between two is one
    document replacing an identical one -- the browser will cross-fade that itself, and the chip
    you are standing on is named so its pill slides from the old one to the new one. */
+/* The scale, for the two CTAs in the topbar. The `:root` below keeps this page light, and
+   that one word is what resolves every token in it to its light half. */
+@import "./tokens.css";
+
 @view-transition {
   navigation: auto;
 }
@@ -165,6 +169,8 @@ body {
 }
 .head a {
   color: var(--ink);
+  /* Preflight opts links out of underlines, and here the underline is the whole affordance. */
+  text-decoration-line: underline;
   text-decoration-color: var(--hair);
   text-underline-offset: 3px;
 }
@@ -267,6 +273,8 @@ figcaption {
 }
 .prov a {
   color: inherit;
+  /* Same ink as the line it sits in, so the underline preflight removes is all that says link. */
+  text-decoration-line: underline;
 }
 
 /* ----------------------------------------------------------------- index ---- */

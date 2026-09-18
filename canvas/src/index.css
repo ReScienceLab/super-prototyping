@@ -1,3 +1,4 @@
+@import "./tokens.css";
 html,
 body,
 #root {
@@ -18,6 +19,25 @@ button {
   font: inherit;
 }
 
+/*
+ * Every scrollbar in the app, in one place. There are seven scrolling surfaces — the transcript,
+ * the slash menu, the history list, the notes list and the inspector's three — plus whichever of
+ * tldraw's menus it does not already hide the bar on, and each was drawing the platform's
+ * default: a light thumb in a light trough, which on a black ground is the brightest thing on
+ * screen and belongs to a window that is not this one.
+ *
+ * `scrollbar-color` inherits, so `:root` is every one of them and a new surface is already done.
+ * Two standard properties rather than `::-webkit-scrollbar` and its six pseudo-elements: the
+ * thumb is a Geist grey and the trough is the surface it is on, which is all there is to say.
+ *
+ * It stops at this document. A board is an iframe with its own, and a mockup of a phone should
+ * scroll like the phone it is a mockup of.
+ */
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ds-gray-400) transparent;
+}
+
 .tldraw__editor {
   position: relative;
   width: 100%;
@@ -36,6 +56,44 @@ button {
    win on import order. */
 .tl-container.tl-theme__dark {
   --tl-color-background: var(--ds-background-100);
+  /* The rest of the theme, for the same reason and by the same route: tldraw draws its menus,
+     its page list, its tooltips and its toolbar from these variables, so pointing them at the
+     scale is the whole re-skin. No component CSS is touched, which is what keeps it from
+     becoming a per-release maintenance cost. The shape palette — the twelve drawing colours,
+     the text shadow, the highlighter — is artwork and stays tldraw's. */
+  --tl-color-panel: var(--ds-background-100);
+  /* Read as `inset 0 0 0 1px` inside all three --tl-shadow-*, which is exactly where Geist puts
+     the 1px ring that holds a black menu off a black canvas. */
+  --tl-color-panel-contrast: var(--ds-gray-alpha-400);
+  --tl-color-panel-overlay: color-mix(in oklab, var(--ds-background-100) 82%, transparent);
+  --tl-color-low: var(--ds-gray-100);
+  --tl-color-low-border: var(--ds-gray-400);
+  --tl-color-divider: var(--ds-gray-400);
+  /* Hover, pressed and hint grounds. tldraw states them as white at 2–10%, which is what the
+     alpha greys are. */
+  --tl-color-muted-0: color-mix(in oklab, var(--ds-gray-alpha-400) 25%, transparent);
+  --tl-color-muted-1: var(--ds-gray-alpha-300);
+  --tl-color-muted-2: var(--ds-gray-alpha-400);
+  --tl-color-hint: var(--ds-gray-alpha-400);
+  --tl-color-overlay: color-mix(in oklab, var(--ds-background-100) 50%, transparent);
+  --tl-color-selected: var(--ds-blue-700);
+  /* White on the accent, not the ground token: blue-700 is one colour in both halves, so the
+     label on a selected row would turn black under a light theme. */
+  --tl-color-selected-contrast: #ffffff;
+  --tl-color-focus: var(--ds-focus);
+  /* tldraw's dark tooltip is white with dark text, which is Geist's too — gray-1000 both. */
+  --tl-color-tooltip: var(--ds-gray-1000);
+  --tl-color-text: var(--ds-gray-1000);
+  --tl-color-text-0: var(--ds-gray-1000);
+  --tl-color-text-1: var(--ds-gray-900);
+  --tl-color-text-3: var(--ds-gray-700);
+  --tl-color-text-disabled: var(--ds-gray-700);
+  --tl-color-primary: var(--ds-blue-700);
+  --tl-color-info: var(--ds-blue-700);
+  --tl-color-warning: var(--ds-amber-700);
+  --tl-color-danger: var(--ds-red-900);
+  --tl-color-selection-stroke: var(--ds-blue-700);
+  --tl-color-selection-fill: color-mix(in oklab, var(--ds-blue-700) 20%, transparent);
 }
 
 /*
@@ -199,57 +257,6 @@ input.canvas-clone-name:focus {
   min-width: 0;
 }
 
-/*
-  Geist's scale, at the values Vercel publishes in vercel.com/geist/vercel-brand.css (GeistCN
-  snapshot 4f5d9c0da9ad400918e15083c83626572f19fd9b). The names are Geist's own `--ds-*`, so a
-  path lifted out of its icon set reads the same here as it does there. Spelled out rather than
-  imported because the canvas ships as a plugin and there is no design-system package on the
-  other side of an install; on `:root` rather than on the panel because the top bar's own
-  controls are part of the same system.
-
-  Geist publishes each step as a `light-dark()` pair, so both halves are here and
-  `color-scheme` below picks which one every token resolves to. Dark, unconditionally: it is
-  what the canvas opens as, and a board is easier to read against a ground that is not competing
-  with it. One word here is the whole switch.
-*/
-:root {
-  color-scheme: dark;
-  --ds-background-100: light-dark(oklch(1 0 0), oklch(0 0 0));
-  --ds-background-200: light-dark(oklch(0.984 0 0), oklch(0.027 0 0));
-  --ds-gray-100: light-dark(oklch(0.961 0 0), oklch(0.218 0 0));
-  --ds-gray-200: light-dark(oklch(0.94 0 0), oklch(0.239 0 0));
-  --ds-gray-300: light-dark(oklch(0.925 0 0), oklch(0.281 0 0));
-  --ds-gray-400: light-dark(oklch(0.937 0 0), oklch(0.301 0 0));
-  --ds-gray-700: light-dark(oklch(0.65 0 0), oklch(0.65 0 0));
-  --ds-gray-900: light-dark(oklch(0.42 0 0), oklch(0.706 0 0));
-  --ds-gray-1000: light-dark(oklch(0.205 0 0), oklch(0.946 0 0));
-  --ds-gray-alpha-300: light-dark(oklch(0 0 0 / 0.1), oklch(1 0 0 / 0.13));
-  --ds-gray-alpha-400: light-dark(oklch(0 0 0 / 0.08), oklch(1 0 0 / 0.14));
-  --ds-blue-100: light-dark(oklch(97.32% 0.0141 251.56), oklch(22.17% 0.069 259.89));
-  --ds-blue-400: light-dark(oklch(91.58% 0.0473 245.116), oklch(34.1% 0.121 254.74));
-  --ds-blue-700: light-dark(oklch(57.61% 0.2508 258.23), oklch(57.61% 0.2321 258.23));
-  --ds-blue-900: light-dark(oklch(53.18% 0.2399 256.99), oklch(71.7% 0.1648 250.794));
-  --ds-amber-100: light-dark(oklch(97.48% 0.0331 85.79), oklch(22.46% 0.0538 76.04));
-  --ds-amber-400: light-dark(oklch(91.02% 0.1322 88.25), oklch(35.53% 0.0903 66.297));
-  --ds-amber-700: light-dark(oklch(81.87% 0.1969 76.46), oklch(81.87% 0.1969 76.46));
-  --ds-amber-900: light-dark(oklch(52.79% 0.1496 54.65), oklch(77.21% 0.1991 64.28));
-  --ds-red-900: light-dark(oklch(54.99% 0.232 25.29), oklch(69.96% 0.2136 22.03));
-  /* Geist publishes 100, 400, 700, 900 and 1000 of a hue and nothing between. The status badge
-     wants two presses' worth of ground between its 100 and its 400, so those two steps are
-     interpolated on the scale's own ramp rather than picked by eye. */
-  --ds-blue-200: color-mix(in oklab, var(--ds-blue-100), var(--ds-blue-400) 33%);
-  --ds-blue-300: color-mix(in oklab, var(--ds-blue-100), var(--ds-blue-400) 66%);
-  --ds-amber-200: color-mix(in oklab, var(--ds-amber-100), var(--ds-amber-400) 33%);
-  --ds-amber-300: color-mix(in oklab, var(--ds-amber-100), var(--ds-amber-400) 66%);
-  /* The 1px ring is the token rather than the published `#00000014`: on a dark ground a black
-     ring is no edge at all, and a menu with no edge is a menu floating in the panel. */
-  --ds-shadow-menu:
-    0 0 0 1px var(--ds-gray-alpha-400), 0 1px 1px #00000005,
-    0 4px 8px -4px #0000000a, 0 16px 24px -8px #0000000f;
-  --ds-focus-ring: 0 0 0 2px var(--ds-background-100), 0 0 0 4px var(--ds-blue-700);
-  --sp-sans: "Geist Variable", Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --sp-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-}
 
 .sp-panel {
   --sp-bg: var(--ds-background-100);
@@ -288,6 +295,22 @@ input.canvas-clone-name:focus {
   padding: 0;
   cursor: default;
   text-align: left;
+}
+
+/*
+ * Geist rings every focusable with one blanket rule and so does this. An outline rather than
+ * --ds-focus-ring, because it costs nothing on the elements that already carry a box-shadow of
+ * their own, and the two rings that predate it (the grip, the status buttons) still outrank it
+ * on specificity. The composer is the exception: it shows focus on the wrapper, so the textarea
+ * inside it must not draw a second ring in there.
+ */
+.sp-panel :focus-visible {
+  outline: 2px solid var(--ds-focus);
+  outline-offset: 2px;
+}
+
+.sp-chat-composer :focus-visible {
+  outline: none;
 }
 
 /* The selected layer's own image, between the layers list and the properties under it.
@@ -362,6 +385,59 @@ input.canvas-clone-name:focus {
 }
 
 /*
+ * Every glyph in the top bar and its menus is now a Geist component rather than one of tldraw's
+ * mask files, and these two rules are what it costs. tldraw sizes its own icons by class — 18px,
+ * 15 in a menu row — and those numbers would land on an svg that already carries width and
+ * height, so a 16-grid mark would be redrawn at 15 in menus and at 18 nowhere consistently.
+ * Geist's grid is 16 everywhere.
+ */
+.tlui-icon__small,
+.tlui-icon__tiny {
+  width: 16px;
+  height: 16px;
+}
+
+/* One icon button, wherever it sits. The chat panel's header and the canvas's top bar are one
+   40px row across the window, so a glyph on the left of the divider and a glyph on the right of
+   it have to be the same grey and answer the pointer the same way — and they were two: the panel
+   drew its own at gray-700 over a solid ground, tldraw drew its at gray-900 over a translucent
+   one, four pixels wider. Geist's is the one kept: muted at rest, full ink on a gray-100 ground.
+
+   The two chips are not this. They are Geist's secondary button, named below, and a destination
+   rather than an action — the :not() is what keeps this rule off them whatever the import order.
+   tldraw paints its ground on an inset ::after rather than on the button, which is why that half
+   is written twice; the inset is what sets the ground's size, and 8 is the panel's 24px. */
+.sp-head-x,
+.tlui-menu-zone .tlui-button:not(.sp-figma, .sp-brand) {
+  color: var(--ds-gray-900);
+}
+
+.sp-head-x:hover,
+.tlui-menu-zone .tlui-button:not(.sp-figma, .sp-brand):hover {
+  color: var(--ds-gray-1000);
+}
+
+.tlui-menu-zone .tlui-button:not(.sp-figma, .sp-brand)::after {
+  inset: 8px;
+  border-radius: 6px;
+  background: var(--ds-gray-100);
+}
+
+/* The bar itself, on the ground everything else here is on. tldraw raises it to --tl-color-low,
+   a grey block in the corner of a black canvas, which is the same two-apps-in-one-window the
+   token remap above was for: Geist has one default ground and this is not the rare case for the
+   second. What separates it from the canvas is the hairline, the way the chat panel's does —
+   and it is on the two edges that face the canvas, since the other two face the window.
+
+   Two classes, for the reason the theme block above gives: tldraw sets these on `.tlui-menu-zone`
+   itself, and one class would only win on import order. */
+.tl-container .tlui-menu-zone {
+  background-color: var(--ds-background-100);
+  border-right: 1px solid var(--ds-gray-alpha-400);
+  border-bottom: 1px solid var(--ds-gray-alpha-400);
+}
+
+/*
  * The one control in the top bar that names a destination instead of an action, so it is the
  * one that is wider than an icon and carries a logo: reading the boards into Figma is what
  * people do with a mockup next, and an external-link arrow among five grey glyphs said nothing
@@ -381,9 +457,12 @@ input.canvas-clone-name:focus {
   padding: 0 11px 0 9px;
   margin-left: 3px;
   border-radius: 8px;
-  /* White against the bar's grey, which is what makes it read as the one thing to press here. */
+  /* The page's own ground against the bar's raised grey, with a hairline: Geist's secondary
+     button, and what makes it read as the one thing to press here. Full-strength ink, because
+     the bar's own glyphs are muted and a muted label on a chip reads as disabled. */
   background: var(--ds-background-100);
   box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
+  color: var(--ds-gray-1000);
   font-weight: 500;
   white-space: nowrap;
   text-decoration: none;
@@ -671,6 +750,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   white-space: nowrap;
 }
 
+/* Colour and hover are shared with the top bar's buttons, up where the two are set together. */
 .sp-head-x {
   flex: none;
   width: 24px;
@@ -679,13 +759,11 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  color: var(--sp-text-2);
   cursor: pointer;
 }
 
 .sp-head-x:hover {
-  background: var(--sp-hover);
-  color: var(--sp-text);
+  background: var(--ds-gray-100);
 }
 
 .sp-tabs {
@@ -971,6 +1049,8 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   flex: none;
   color: var(--sp-accent);
   font-family: var(--sp-sans);
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
   cursor: pointer;
 }
 
@@ -1464,6 +1544,8 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-chat-md ul,
 .sp-chat-md ol {
   padding-left: 18px;
+  /* Tailwind's preflight drops every marker; a nested list still steps disc → circle. */
+  list-style: revert;
 }
 
 .sp-chat-md code {
@@ -1521,6 +1603,9 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 
 .sp-chat-md a {
   color: var(--sp-accent);
+  /* Preflight opts every link out of an underline, and colour on its own is not an affordance. */
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
 }
 
 .sp-chat-md img {
@@ -1650,21 +1735,10 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   color: #ffffff;
 }
 
-/* Collapsed: a rail the width of the mark, which is the button that opens the panel again. The
-   log and composer are hidden, not unmounted — the panel keeps following whatever is running. */
+/* Collapsed: gone, with nothing left behind — the button that brings it back is in the canvas's
+   own top-left corner now, so a rail here would be a second one. Hidden, not unmounted: the panel
+   keeps following whatever is running, and comes back to it mid-stream. */
 .sp-chat-collapsed {
-  width: 36px;
-}
-
-.sp-chat-collapsed .sp-head {
-  padding: 0;
-  justify-content: center;
-}
-
-.sp-chat-collapsed .sp-chat-log,
-.sp-chat-collapsed .sp-chat-composer,
-.sp-chat-collapsed .sp-chat-bar,
-.sp-chat-collapsed .sp-chat-send-error {
   display: none;
 }
 

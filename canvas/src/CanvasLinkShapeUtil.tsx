@@ -71,7 +71,7 @@ const MUTED = "#7C7C86";
 // One step up from the welcome page's black ground, so a card reads as a raised panel.
 const GROUND = "#111115";
 const EDGE = "1px solid #26262C";
-const FONT = "ui-sans-serif, -apple-system, system-ui, sans-serif";
+const FONT = "var(--sp-sans)";
 
 /**
  * Places a board behind the shell's screen so the `[x, y, w, h]` box fills it and sits centred:
