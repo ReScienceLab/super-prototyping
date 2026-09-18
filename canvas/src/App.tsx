@@ -1255,9 +1255,14 @@ export default function App() {
   /** Whether the chat panel is shut. Here rather than in the panel, because the button that works
    * it sits in the canvas's top bar, which is the panel's sibling, not its child. Remembered
    * across reloads, because it is a preference about this window, not about any one board. */
-  const [chatCollapsed, setChatCollapsed] = useState(
-    () => localStorage.getItem(CHAT_COLLAPSED_KEY) === "true",
-  );
+  const [chatCollapsed, setChatCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(CHAT_COLLAPSED_KEY) === "true";
+    } catch {
+      // Storage unavailable (private mode, blocked cookies), so the panel starts open.
+      return false;
+    }
+  });
   const store = useLocalStore(storeOptions);
   /** What the inspector has open, spelled the way the address spells it: a board by file name,
    * a picture by its path inside the folder, each with the page it belongs to. For the address
@@ -1381,7 +1386,11 @@ export default function App() {
         inspectorOpen: Boolean(inspecting || inspectingImage),
         chatCollapsed,
         toggleChat: () => {
-          localStorage.setItem(CHAT_COLLAPSED_KEY, String(!chatCollapsed));
+          try {
+            localStorage.setItem(CHAT_COLLAPSED_KEY, String(!chatCollapsed));
+          } catch {
+            // Storage unavailable (private mode, blocked cookies), so the choice lasts until a reload.
+          }
           setChatCollapsed(!chatCollapsed);
         },
         setInspectorFrame: (frame: HTMLIFrameElement | null) => {

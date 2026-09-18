@@ -118,10 +118,9 @@ out top to bottom:
   button in the toolbar and a page of its own at `brand.html?canvas=<slug>`.
   The `brand-kit` skill is how those rows get filled.
 
-After editing `layout.json`, press the **refresh** button in the top bar, next
-to the `…` actions menu. Shape creation is idempotent (it never moves a shape
-that already exists), so reordering a row needs that force-relayout to take
-effect.
+After editing `layout.json`, right-click the canvas and choose **Force
+refresh**. Shape creation is idempotent (it never moves a shape that already
+exists), so reordering a row needs that force-relayout to take effect.
 
 ## Constraints on every artboard
 

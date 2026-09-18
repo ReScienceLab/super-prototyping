@@ -105,23 +105,6 @@ interface ResultBlock {
   source?: { type: string; media_type: string; data: string };
 }
 
-/**
- * The pictures in what a tool returned. Read hands an image back as a base64 block where another
- * tool would have put text — so the panel gets the grid the agent is looking at for free, without
- * anyone watching the project directory for files.
- */
-function shotsIn(
-  content: string | ResultBlock[] | undefined,
-): Shot[] | undefined {
-  if (!Array.isArray(content)) return undefined;
-  const shots = content.flatMap((c) =>
-    c.type === "image" && c.source?.type === "base64"
-      ? [{ type: c.source.media_type, data: c.source.data }]
-      : [],
-  );
-  return shots.length ? shots : undefined;
-}
-
 // ponytail: one line per call from whichever argument names its target; the panel truncates it.
 const toolDetail = (input: Record<string, unknown>) =>
   String(
@@ -169,18 +152,27 @@ export function chatEventsFromLine(line: string): ChatEvent[] {
           : [],
       );
     case "user":
-      return blocks.flatMap((b) =>
-        b.type === "tool_result"
-          ? [
-              {
-                kind: "tool_done" as const,
-                id: b.tool_use_id,
-                ok: !b.is_error,
-                shots: shotsIn(b.content),
-              },
-            ]
-          : [],
-      );
+      return blocks.flatMap((b) => {
+        if (b.type !== "tool_result") return [];
+        // The pictures in what the tool returned. Read hands an image back as a base64 block
+        // where another tool would have put text — so the panel gets the grid the agent is
+        // looking at for free, without anyone watching the project directory for files.
+        const shots = Array.isArray(b.content)
+          ? b.content.flatMap((c) =>
+              c.type === "image" && c.source?.type === "base64"
+                ? [{ type: c.source.media_type, data: c.source.data }]
+                : [],
+            )
+          : [];
+        return [
+          {
+            kind: "tool_done" as const,
+            id: b.tool_use_id,
+            ok: !b.is_error,
+            shots: shots.length ? shots : undefined,
+          },
+        ];
+      });
     case "result": {
       const ok = frame.subtype === "success" && !frame.is_error;
       return [
