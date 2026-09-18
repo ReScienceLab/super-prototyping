@@ -1226,8 +1226,8 @@ export default function App() {
   /** State rather than a ref: the inspector panel renders outside `<Tldraw>` and needs it. */
   const [editor, setEditor] = useState<Editor | null>(null);
   /** Whether the chat panel is shut. Here rather than in the panel, because the button that works
-   * it sits in the canvas's top bar — the panel's sibling, not its child. Remembered across
-   * reloads: it is a preference about this window, not about any one board. */
+   * it sits in the canvas's top bar, which is the panel's sibling, not its child. Remembered
+   * across reloads, because it is a preference about this window, not about any one board. */
   const [chatCollapsed, setChatCollapsed] = useState(
     () => localStorage.getItem(CHAT_COLLAPSED_KEY) === "true",
   );
@@ -1315,8 +1315,8 @@ export default function App() {
 
   function handleMount(editor: Editor) {
     setEditor(editor);
-    // tldraw's own dark theme, to the panel's. A dark rail against tldraw's near-white ground is
-    // two apps in one window, and the ground is the larger half of what that looks like.
+    // tldraw's own dark theme, to match the panel's. A dark rail against tldraw's near-white ground
+    // looks like two apps in one window, and the ground is most of the window.
     editor.user.updateUserPreferences({ colorScheme: "dark" });
     initializeCanvas(editor);
     // After the library, which is what creates the pages the comments are keyed to.

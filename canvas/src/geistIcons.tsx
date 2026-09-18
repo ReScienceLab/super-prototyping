@@ -1,13 +1,13 @@
 /**
- * The glyphs this app uses, from Vercel's Geist icon set — the set itself, not a copy of it.
+ * The glyphs this app uses, from Vercel's Geist icon set itself rather than a copy of it.
  * `geist-icons` publishes all 455 of them as one dependency-free ESM module, so nobody here
  * maintains a path string. Everything the canvas draws as a glyph comes through this file, which
  * is what keeps the top bar, the chat panel and the inspector on one set.
  *
  * Two things are added to each, and nothing else. The size, because Geist draws on a 16 grid and
- * the package defaults its components to 20 — the one number every call site would otherwise
- * repeat. And `aria-hidden`, because every glyph here sits inside a control that already carries
- * its own name.
+ * the package defaults its components to 20, which is the one number every call site would
+ * otherwise repeat. And `aria-hidden`, because every glyph here sits inside a control that
+ * already carries its own name.
  */
 import type { ComponentProps, ComponentType } from "react";
 import {
@@ -52,7 +52,7 @@ export const Fullscreen = at16(GFullscreen);
 export const Image = at16(GImage);
 export const Layers = at16(GLayers);
 export const Layout = at16(GLayout);
-/** Figma's mark, in Geist's own transcription of it — still Figma's five colours. */
+/** Figma's mark, in Geist's own transcription of it, still in Figma's five colours. */
 export const LogoFigma = at16(GLogoFigma);
 export const Message = at16(GMessage);
 export const Pen = at16(GPen);

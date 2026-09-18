@@ -273,7 +273,8 @@ figcaption {
 }
 .prov a {
   color: inherit;
-  /* Same ink as the line it sits in, so the underline preflight removes is all that says link. */
+  /* Same ink as the line it sits in, so the underline that preflight removes is all that marks
+     it as a link. */
   text-decoration-line: underline;
 }
 

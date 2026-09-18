@@ -270,12 +270,12 @@ Hard constraints from the canvas renderer (also in `prototype-canvas`'s
   written as a literal in `gen.py` gets no name.
 - **No page ground.** The canvas releases the frame's own opaque white
   background, so a board shows the canvas through wherever it paints nothing.
-  The shared `body{}` rule in `gen.py` is where this gets broken: leave it with
-  no `background` (as `templates/gen.py` ships it) and let `.phone` paint its
-  own, so a screen board floats on the canvas instead of sitting on a white
-  card. Document boards — the token sheet, the evidence sheets — are the
-  exception: they are a page rather than a device, and their black text needs
-  a ground.
+  The shared `body{}` rule in `gen.py` is where this gets broken. Leave it
+  with no `background`, as `templates/gen.py` ships it, and let `.phone` paint
+  its own, so a screen board floats on the canvas instead of sitting on a
+  white card. Document boards, the token sheet and the evidence sheets, are
+  the exception. They are a page rather than a device, and their black text
+  needs a ground.
 - **Artboard box is 478 × 980.** Overflow clips silently. Do not check
   this by eye; `refkit shoot ... --check-overflow` asks the layout engine and
   exits non-zero with the exact px, so a clipped board fails in Phase 3

@@ -20,18 +20,19 @@ button {
 }
 
 /*
- * Every scrollbar in the app, in one place. There are seven scrolling surfaces — the transcript,
- * the slash menu, the history list, the notes list and the inspector's three — plus whichever of
- * tldraw's menus it does not already hide the bar on, and each was drawing the platform's
- * default: a light thumb in a light trough, which on a black ground is the brightest thing on
- * screen and belongs to a window that is not this one.
+ * Every scrollbar in the app, in one place. There are seven scrolling elements: the transcript,
+ * the slash menu, the history list, the notes list and the inspector's three. Add whichever of
+ * tldraw's menus it does not already hide the bar on. Each was drawing the platform's default,
+ * a light thumb in a light trough, which on a black ground is the brightest thing on screen and
+ * looks like part of another window.
  *
- * `scrollbar-color` inherits, so `:root` is every one of them and a new surface is already done.
- * Two standard properties rather than `::-webkit-scrollbar` and its six pseudo-elements: the
- * thumb is a Geist grey and the trough is the surface it is on, which is all there is to say.
+ * `scrollbar-color` inherits, so `:root` covers every one of them and a new element is covered
+ * before it exists. Two standard properties rather than `::-webkit-scrollbar` and its six
+ * pseudo-elements, because the thumb is a Geist grey and the trough is the element it is on,
+ * which is all there is to say.
  *
- * It stops at this document. A board is an iframe with its own, and a mockup of a phone should
- * scroll like the phone it is a mockup of.
+ * It stops at this document. A board is an iframe with its own scrollbars, and a mockup of a
+ * phone should scroll like the phone it is a mockup of.
  */
 :root {
   scrollbar-width: thin;
@@ -47,41 +48,41 @@ button {
 /*
  * The canvas ground, on the same token as the panels beside it. tldraw's own dark ground is
  * hsl(240 5% 6.5%), a shade off black and a shade off them, which reads as two apps in one
- * window — the thing asking for tldraw's dark theme was meant to stop. Geist has one default
+ * window, the thing asking for tldraw's dark theme was meant to stop. Geist has one default
  * ground: "in most instances, you should use Background 1", and Background 2 "sparingly when a
- * subtle background differentiation is needed". A rail next to a canvas is not that: the
+ * subtle background differentiation is needed". A rail next to a canvas is not that case. The
  * panel's own 1px border is what separates them.
  */
-/* Two classes, because the value it replaces is `.tl-theme__dark`'s and one class would only
-   win on import order. */
+/* Two classes, because the value it replaces is set on `.tl-theme__dark` and one class would
+   only win on import order. */
 .tl-container.tl-theme__dark {
   --tl-color-background: var(--ds-background-100);
-  /* The rest of the theme, for the same reason and by the same route: tldraw draws its menus,
+  /* The rest of the theme, for the same reason and by the same route. tldraw draws its menus,
      its page list, its tooltips and its toolbar from these variables, so pointing them at the
      scale is the whole re-skin. No component CSS is touched, which is what keeps it from
-     becoming a per-release maintenance cost. The shape palette — the twelve drawing colours,
-     the text shadow, the highlighter — is artwork and stays tldraw's. */
+     becoming a per-release maintenance cost. The shape palette, meaning the twelve drawing
+     colours, the text shadow and the highlighter, is artwork and stays tldraw's. */
   --tl-color-panel: var(--ds-background-100);
-  /* Read as `inset 0 0 0 1px` inside all three --tl-shadow-*, which is exactly where Geist puts
-     the 1px ring that holds a black menu off a black canvas. */
+  /* Read as `inset 0 0 0 1px` inside all three --tl-shadow-*, which is where Geist puts the 1px
+     ring that separates a black menu from a black canvas. */
   --tl-color-panel-contrast: var(--ds-gray-alpha-400);
   --tl-color-panel-overlay: color-mix(in oklab, var(--ds-background-100) 82%, transparent);
   --tl-color-low: var(--ds-gray-100);
   --tl-color-low-border: var(--ds-gray-400);
   --tl-color-divider: var(--ds-gray-400);
-  /* Hover, pressed and hint grounds. tldraw states them as white at 2–10%, which is what the
-     alpha greys are. */
+  /* Hover, pressed and hint grounds. tldraw states them as white at 2% to 10%, which is what
+     the alpha greys are. */
   --tl-color-muted-0: color-mix(in oklab, var(--ds-gray-alpha-400) 25%, transparent);
   --tl-color-muted-1: var(--ds-gray-alpha-300);
   --tl-color-muted-2: var(--ds-gray-alpha-400);
   --tl-color-hint: var(--ds-gray-alpha-400);
   --tl-color-overlay: color-mix(in oklab, var(--ds-background-100) 50%, transparent);
   --tl-color-selected: var(--ds-blue-700);
-  /* White on the accent, not the ground token: blue-700 is one colour in both halves, so the
-     label on a selected row would turn black under a light theme. */
+  /* White on the accent, not the ground token. blue-700 is one colour in both halves, so the
+     ground token would turn the label on a selected row black under a light theme. */
   --tl-color-selected-contrast: #ffffff;
   --tl-color-focus: var(--ds-focus);
-  /* tldraw's dark tooltip is white with dark text, which is Geist's too — gray-1000 both. */
+  /* tldraw's dark tooltip is white with dark text, which is Geist's too, so gray-1000 for both. */
   --tl-color-tooltip: var(--ds-gray-1000);
   --tl-color-text: var(--ds-gray-1000);
   --tl-color-text-0: var(--ds-gray-1000);
@@ -301,7 +302,7 @@ input.canvas-clone-name:focus {
  * Geist rings every focusable with one blanket rule and so does this. An outline rather than
  * --ds-focus-ring, because it costs nothing on the elements that already carry a box-shadow of
  * their own, and the two rings that predate it (the grip, the status buttons) still outrank it
- * on specificity. The composer is the exception: it shows focus on the wrapper, so the textarea
+ * on specificity. The composer is the exception. It shows focus on the wrapper, so the textarea
  * inside it must not draw a second ring in there.
  */
 .sp-panel :focus-visible {
@@ -333,8 +334,8 @@ input.canvas-clone-name:focus {
   padding: 8px 12px 4px;
   /* Checkerboard: most of these are cut-outs with alpha, and alpha over a flat ground is a
      shape you cannot tell from a white one. Light in both themes, along with the dark ground
-     the photo thumbs take: these are grounds for the board's own artwork, and artwork that
-     inverted with the panel would be artwork nobody could check. */
+     the photo thumbs take. These are grounds for the board's own artwork, and artwork that
+     inverted with the panel could not be checked. */
   background-image:
     linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%),
     linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%);
@@ -386,8 +387,8 @@ input.canvas-clone-name:focus {
 
 /*
  * Every glyph in the top bar and its menus is now a Geist component rather than one of tldraw's
- * mask files, and these two rules are what it costs. tldraw sizes its own icons by class — 18px,
- * 15 in a menu row — and those numbers would land on an svg that already carries width and
+ * mask files, and these two rules are what it costs. tldraw sizes its own icons by class, 18px,
+ * or 15 in a menu row, and those numbers would land on an svg that already carries width and
  * height, so a 16-grid mark would be redrawn at 15 in menus and at 18 nowhere consistently.
  * Geist's grid is 16 everywhere.
  */
@@ -399,14 +400,15 @@ input.canvas-clone-name:focus {
 
 /* One icon button, wherever it sits. The chat panel's header and the canvas's top bar are one
    40px row across the window, so a glyph on the left of the divider and a glyph on the right of
-   it have to be the same grey and answer the pointer the same way — and they were two: the panel
-   drew its own at gray-700 over a solid ground, tldraw drew its at gray-900 over a translucent
-   one, four pixels wider. Geist's is the one kept: muted at rest, full ink on a gray-100 ground.
+   it have to be the same grey and answer the pointer the same way. They were two: the panel
+   drew its own at gray-700 over a solid ground, and tldraw drew its own at gray-900 over a
+   translucent one, four pixels wider. Geist's is the one kept: muted at rest, full ink on a
+   gray-100 ground.
 
    The two chips are not this. They are Geist's secondary button, named below, and a destination
-   rather than an action — the :not() is what keeps this rule off them whatever the import order.
+   rather than an action. The :not() is what keeps this rule off them whatever the import order.
    tldraw paints its ground on an inset ::after rather than on the button, which is why that half
-   is written twice; the inset is what sets the ground's size, and 8 is the panel's 24px. */
+   is written twice. The inset is what sets the ground's size, and 8 is the panel's 24px. */
 .sp-head-x,
 .tlui-menu-zone .tlui-button:not(.sp-figma, .sp-brand) {
   color: var(--ds-gray-900);
@@ -425,11 +427,11 @@ input.canvas-clone-name:focus {
 
 /* The bar itself, on the ground everything else here is on. tldraw raises it to --tl-color-low,
    a grey block in the corner of a black canvas, which is the same two-apps-in-one-window the
-   token remap above was for: Geist has one default ground and this is not the rare case for the
-   second. What separates it from the canvas is the hairline, the way the chat panel's does —
-   and it is on the two edges that face the canvas, since the other two face the window.
+   token remap above was for. Geist has one default ground and this is not the rare case for the
+   second. What separates it from the canvas is the hairline, the way the chat panel's does, and
+   it is on the two edges that face the canvas, since the other two face the window.
 
-   Two classes, for the reason the theme block above gives: tldraw sets these on `.tlui-menu-zone`
+   Two classes, for the reason the theme block above gives. tldraw sets these on `.tlui-menu-zone`
    itself, and one class would only win on import order. */
 .tl-container .tlui-menu-zone {
   background-color: var(--ds-background-100);
@@ -457,9 +459,9 @@ input.canvas-clone-name:focus {
   padding: 0 11px 0 9px;
   margin-left: 3px;
   border-radius: 8px;
-  /* The page's own ground against the bar's raised grey, with a hairline: Geist's secondary
-     button, and what makes it read as the one thing to press here. Full-strength ink, because
-     the bar's own glyphs are muted and a muted label on a chip reads as disabled. */
+  /* The page's own ground against the bar's raised grey, with a hairline. That is Geist's
+     secondary button, and what makes it read as the one thing to press here. Full-strength ink,
+     because the bar's own glyphs are muted and a muted label on a chip reads as disabled. */
   background: var(--ds-background-100);
   box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
   color: var(--ds-gray-1000);
@@ -1544,7 +1546,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-chat-md ul,
 .sp-chat-md ol {
   padding-left: 18px;
-  /* Tailwind's preflight drops every marker; a nested list still steps disc → circle. */
+  /* Tailwind's preflight drops every marker; a nested list still steps from disc to circle. */
   list-style: revert;
 }
 
@@ -1726,7 +1728,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   font-family: var(--sp-mono);
 }
 
-/* The accent, not the hover grey: the hover grey is one step off the panel's own ground, so the
+/* The accent, not the hover grey. The hover grey is one step off the panel's own ground, so the
    arrow keys moved the selection without anything on screen appearing to move. It also has to
    outrank :hover, which paints the same grey on whichever row the pointer happens to be resting
    over. */
@@ -1735,9 +1737,9 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   color: #ffffff;
 }
 
-/* Collapsed: gone, with nothing left behind — the button that brings it back is in the canvas's
-   own top-left corner now, so a rail here would be a second one. Hidden, not unmounted: the panel
-   keeps following whatever is running, and comes back to it mid-stream. */
+/* Collapsed: gone, with nothing left behind. The button that brings it back is in the canvas's
+   own top-left corner now, so a rail here would be a second one. Hidden, not unmounted, so the
+   panel keeps following whatever is running and comes back to it mid-stream. */
 .sp-chat-collapsed {
   display: none;
 }

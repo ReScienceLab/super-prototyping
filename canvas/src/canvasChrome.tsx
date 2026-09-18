@@ -119,17 +119,17 @@ export const canvasCommentOverrides = commentToolOverrides;
 
 export const canvasChromeComponents: TLComponents = {
   /**
-   * tldraw's own menu, gone. Everything in it is either somewhere better already — the app's
-   * export controls are in the bar beside it, and cut/copy/paste/undo are on the keyboard and in
-   * the context menu — or it is about editing a document nobody here owns:
-   * these boards are written from files by a generator, so embedding a video in one, uploading
-   * media to one, or picking a language for the app that renders it are eight submenus deep in
+   * tldraw's own menu is gone. Everything in it is either somewhere better already, since the
+   * app's export controls are in the bar beside it and cut, copy, paste and undo are on the
+   * keyboard and in the context menu, or it is about editing a document nobody here owns. These
+   * boards are written from files by a generator, so embedding a video in one, uploading media
+   * to one, or picking a language for the app that renders it are eight submenus deep in
    * settings for something that cannot be edited from this side anyway.
    *
-   * What the slot is for instead: it is the leftmost thing in the top bar, against the window's
-   * left edge, which is where the switch for the panel on that edge belongs. In the panel's own
-   * header it would disappear along with the panel and need a second control to undo it. Dev
-   * only, like the panel itself.
+   * The slot holds the chat panel's switch instead. It is the leftmost thing in the top bar,
+   * against the window's left edge, which is where the switch for the panel on that edge belongs.
+   * In the panel's own header it would disappear along with the panel and need a second control
+   * to undo it. Dev only, like the panel itself.
    */
   MainMenu: import.meta.env.DEV
     ? () => {
@@ -169,9 +169,9 @@ export const canvasChromeComponents: TLComponents = {
    * out the two the bar is for. The actions stay — the keyboard and the context menu have them.
    *
    * What is left is the two places a board goes next, and nothing else. Comment, clone and
-   * force-relayout were here too and are on the right button now (ContextMenu below): they act on
+   * force-relayout were here too and are on the right button now (ContextMenu below). They act on
    * whatever is under the cursor, or on the whole page, which is where a right-click already
-   * points. A top bar of two destinations reads at a glance; one of five does not.
+   * points. A top bar of two destinations reads at a glance, and one of five does not.
    */
   ActionsMenu: () => {
     const editor = useEditor();
@@ -220,7 +220,7 @@ export const canvasChromeComponents: TLComponents = {
             }
           >
             {/* A stack of sheets. Under 720px the label goes and the mark is the whole button,
-                so it has to carry "brand kit" alone — and Geist's one picture frame says
+                so it has to carry "brand kit" alone, and Geist's one picture frame says
                 "images", which is every other button that ever held one. A kit is the stack. */}
             <Layers />
             <span className="sp-brand__label">Brand kit</span>
@@ -229,14 +229,14 @@ export const canvasChromeComponents: TLComponents = {
       </>
     );
   },
-  /** The undo/redo/delete/duplicate cluster, gone with the rest of the shape editing: these
-   *  boards are written from files. The comment button stood here alone for a while, and is on
-   *  the right button with the other two now. */
+  /** The undo, redo, delete and duplicate cluster, gone with the rest of the shape editing, since
+   *  these boards are written from files. The comment button stood here alone for a while, and is
+   *  on the right button with the other two now. */
   QuickActions: null,
   /**
    * The right button carries everything the top bar does not: commenting, the clone and the
    * relayout. The bottom toolbar is gone (Toolbar below) because a canvas of boards is read, not
-   * drawn on — and all three of these act on what is under the cursor or on the page it is on,
+   * drawn on, and all three of these act on what is under the cursor or on the page it is on,
    * which is what a right-click has already picked out. The top bar keeps the two links out.
    */
   ContextMenu: (props) => {
@@ -253,8 +253,8 @@ export const canvasChromeComponents: TLComponents = {
       <DefaultContextMenu {...props}>
         <TldrawUiMenuGroup id="canvas">
           {/* The tool's own registration (canvasCommentOverrides) is what binds the `c` key. This
-              is only the row, spelled out rather than taken from it: a registered tool names its
-              icon by id, and the set the rest of this app draws from is components. */}
+              is only the row, spelled out rather than taken from it, because a registered tool
+              names its icon by id, and the set the rest of this app draws from is components. */}
           <TldrawUiMenuItem
             id="comment"
             label="Comment"

@@ -136,8 +136,8 @@ Boards render inside `<iframe srcDoc sandbox="">`:
   background, so a board shows the canvas through wherever it paints nothing.
   Leave `html` and `body` with no `background` and let `.phone` paint its own,
   so a screen board floats on the canvas instead of sitting on a white card.
-  Document boards — the token sheet, the evidence sheets — are the exception:
-  they are a page rather than a device, and their black text needs a ground.
+  Document boards, the token sheet and the evidence sheets, are the exception.
+  They are a page rather than a device, and their black text needs a ground.
 - **The shape box is 478 × 980** (`CANVAS_FILE_DEFAULT_SIZE`). The iframe
   clips anything past that box with no warning, so check every fixed-height
   board after adding a row. A board that needs another size declares `w`/`h`

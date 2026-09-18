@@ -41,14 +41,14 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
    * draws, and nothing out here reaches it: not `background` on the `<iframe>`, not
    * `allowtransparency`, not `color-scheme` on the element, not a transparent `html` inside.
    * Measured, all five paint the same #FFFFFF. A dark `color-scheme` on the board's own root is
-   * the one thing that releases it — then the canvas shows through wherever the board paints
-   * nothing, whatever colour the canvas is, which is why this does not care about the theme.
+   * the one thing that releases it. The canvas then shows through wherever the board paints
+   * nothing, whatever colour the canvas is, which is why this does not depend on the theme.
    *
-   * The `color` pin holds the black that light `color-scheme` gives the root, because the status
-   * bar's glyphs are `currentColor` and would otherwise turn white with the scheme. It goes in
-   * right after the doctype — before the board's own rules, so a board that sets either wins, and
-   * after the doctype, because anything before it is quirks mode. Every board has one; `</head>`
-   * is not a safe anchor, 51 of them close no head.
+   * The `color` pin keeps the black that a light `color-scheme` gives the root, because the
+   * status bar's glyphs are `currentColor` and would otherwise turn white with the scheme. It
+   * goes in right after the doctype: before the board's own rules, so a board that sets either
+   * wins, and after the doctype, because anything before it is quirks mode. Every board has one.
+   * `</head>` is not a safe anchor, since 51 of them close no head.
    */
   const html = useMemo(
     () =>

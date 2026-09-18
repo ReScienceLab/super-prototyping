@@ -11,9 +11,9 @@ const SNAPACTION_URL = "https://snapaction.ai/";
  * corner of every page it serves — the canvas, and the brand pages, which are the same work read
  * a second way and reached from the same toolbar.
  *
- * Both are Geist's primary button — the ground and the ink swapped — so the same two elements
+ * Both are Geist's primary button, the ground and the ink swapped, so the same two elements
  * come out white on the canvas and black on the brand page with nothing here to keep in step.
- * The second is not the secondary button: these are the two asks, not an ask and an aside, and
+ * The second is not the secondary button. These are the two asks, not an ask and an aside, and
  * a hairline chip beside a solid one reads as the lesser of them.
  *
  * `canvas-cta-group` is the hook for the two rules that are not the Button's: brand.css pushes
@@ -29,9 +29,9 @@ export function CanvasCta() {
           rel="noopener noreferrer"
           title="Try SnapAction, the app the example boards are cloned from"
         >
-          {/* The app's own mark, cut from its symbolset by snapaction-ios/gen.py — as a mask
+          {/* The app's own mark, cut from its symbolset by snapaction-ios/gen.py, as a mask
               rather than a picture, because the file is a fixed near-white and the ink it sits
-              in is black here. Masked, it is whatever the button's ink is. */}
+              in is black here. Masked, it takes whatever the button's ink is. */}
           <span
             aria-hidden
             className="shrink-0"

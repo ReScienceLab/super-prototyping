@@ -190,7 +190,7 @@ export function ChatPanel() {
       ? []
       : commands.filter((c) => c.toLowerCase().includes(typing.toLowerCase()));
   // A word that is already the only command it matches has nothing left to choose, so the palette
-  // closes and Enter sends. Open, it would swallow that Enter to pick what is on screen — typing
+  // closes and Enter sends. Open, it would swallow that Enter to pick what is on screen. Typing
   // a command out in full and pressing Enter appeared to do nothing, because all the pick added
   // was the trailing space, and it took a second Enter to send.
   const matches = found.length === 1 && found[0] === typing ? [] : found;
