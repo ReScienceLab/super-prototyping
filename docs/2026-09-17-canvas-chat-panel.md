@@ -275,11 +275,29 @@ says and serves it to the palette, so the panel never discovers commands a secon
 `.claude/commands`, no guess at which plugins are enabled, nothing to go stale the day Claude
 Code changes where a command may live.
 
-Nothing is spawned to ask, because asking is not free. `claude -p` does not write the init frame
-until it has a message to work on, and a run with an empty message still loads the system prompt
-and bills for it: $0.017, measured. A palette that quietly cost that on every dev-server start is
-a worse trade than a palette that is empty until the first message of the session, which is what
-this is. The list arrives with the first answer and is right from then on.
+That map is the only copy, and it dies with the process. An edit to `vite.config.ts`, or to
+anything it imports, restarts vite mid-session and takes the palette with it; so does the first
+page of a fresh server. Waiting for the next run to refill it is what made the slash key look
+broken at random — the panel was working exactly as designed, and the design was wrong.
+
+So it asks, which first meant finding an ask that is free, because this one runs on every
+dev-server start. `claude -p` writes no init frame until it has a message to work on, and a
+message that reaches the model loads the system prompt and bills for it: $0.017, measured.
+`/help` is the way through. Claude Code answers it itself, so the result frame comes back
+`num_turns: 0`, `duration_api_ms: 0`, `total_cost_usd: 0` — and the init frame, all 132 commands
+of it, was printed several lines above. Five to seven seconds, nearly all of it process start.
+The answer is thrown away; the frame above it was the point. `--max-budget-usd 0.0000001` rides
+along as the belt, so a version that ever sends `/help` to the model stops there rather than
+quietly billing every restart.
+
+Seconds are still too slow for a keystroke, so the panel does not wait on that ask to draw a
+palette. It asks at mount rather than at the first slash, and keeps each agent's answer in
+`localStorage`, replaced only by a non-empty one: a server that has just restarted has forgotten
+what it told this panel, which is not the same as the agent having no commands. The palette opens
+on what the browser remembers and corrects itself when the server answers — half a millisecond,
+once anything has warmed the map. The one case with nothing to open on is a browser that has
+never seen this project and a server that has never been asked; there the list fills itself in
+when the probe lands, with no second keystroke.
 
 Codex needed the opposite arrangement, and it took a while to find the honest one. `codex exec`
 runs no slash commands at all: `codex debug prompt-input "/sp-probe hello"` — which composes the
@@ -297,8 +315,9 @@ server's lifetime, the first time the palette opens for codex, three seconds, no
 charge.
 
 The two agents therefore answer the same question from opposite directions, and the table says
-which: `commands` reads a line the agent was going to write anyway, `commandsProbe` asks an agent
-that writes no such line. Claude is never asked; codex never harvests. The one difference worth
+which: `commands` reads a line the agent was going to write anyway, `commandsProbe` asks for one.
+Codex only ever asks, having no such line to read; claude does both, the probe for the first
+palette of a server's life and the frame for every one after. The one difference worth
 being straight about is what happens after the palette closes. Claude Code executes `/clone-prototype`
 itself — it is the CLI's command. Codex is *told* about its skills and decides; `/imagegen a cat`
 reaches the model as that text, next to instructions saying what `imagegen` is and where its
