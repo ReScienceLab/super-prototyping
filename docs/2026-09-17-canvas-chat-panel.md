@@ -398,6 +398,13 @@ artefact of how the generated index keys them and means nothing to anyone else. 
 atomic and not editable, like the numbered chips, and `readDraft` reads it back verbatim because
 it carries no `data-ref`.
 
+A picture arrives both ways at once: the tile appears in the tray above the composer and its
+chip is written into the sentence as it lands, rather than waiting for the tile to be clicked.
+A pick, a paste or a drop is a handful of images at once and which of them the message is about
+is still to be said; a picture pointed at on the canvas is one image, and pointing at it is the
+saying. The chip is the same `#N` as any other, so the message is written in one vocabulary and
+`detach` strikes it through the same way if the tile is removed again.
+
 Drawing one is the server's job (`/__sp/shoot`): a board is a page in an `<iframe>` and the
 browser cannot read one of those into a canvas, so `refkit shoot` makes the picture — this repo's
 own renderer, already on PATH beside the CLIs the panel spawns, so what reaches the agent is the

@@ -20,7 +20,8 @@
  * Images are attached by number. The icon under the box, a paste, or a drop puts a
  * screenshot in the tray above it as #1, #2, #3; clicking a tile drops that number into the
  * sentence as a chip, so a message can say "borrow the button from #2 and the copy from #3" and
- * mean it. The numbers are handed out in arrival order and never reused — removing #2 of three
+ * mean it. A picture handed over from the canvas writes its own chip as it lands, since one
+ * pointed at is one the message is already about. The numbers are handed out in arrival order and never reused — removing #2 of three
  * leaves #1 and #3, and the next attachment is #4 — because renumbering would silently repoint a
  * sentence already typed. That is why the box is a contenteditable and not a textarea: a chip is
  * an element in the text, which a textarea cannot hold (chatDraft.ts reads it back).
@@ -349,7 +350,7 @@ export function ChatPanel() {
     setDraft(readDraft(box));
   };
 
-  const addImages = (list: FileList | File[] | null) => {
+  const addImages = (list: FileList | File[] | null, cite = false) => {
     const picked = [...(list ?? [])].filter((f) => f.type.startsWith("image/"));
     if (picked.length === 0) return;
     // The server refuses a body over about 48 MB, and base64 is a third larger than the file; a
@@ -366,31 +367,31 @@ export function ChatPanel() {
       const reader = new FileReader();
       reader.onload = () => {
         const url = String(reader.result);
-        setAttached((a) =>
-          [
-            ...a,
-            {
-              n,
-              name: file.name,
-              type: file.type,
-              data: url.slice(url.indexOf(",") + 1),
-            },
-          ].sort((x, y) => x.n - y.n),
-        );
+        const image = {
+          n,
+          name: file.name,
+          type: file.type,
+          data: url.slice(url.indexOf(",") + 1),
+        };
+        setAttached((a) => [...a, image].sort((x, y) => x.n - y.n));
+        // One picture, pointed at on the canvas: the sentence says which one without a second
+        // click on the tile that has just appeared. A pick, a paste or a drop is a handful at
+        // once, and which of them the message is about is still to be said.
+        if (cite) insertAtCaret(chipFor(image));
       };
       reader.readAsDataURL(file);
     }
   };
 
   // What the buttons on a canvas shape hand over (canvasAttach.tsx): a board's path written into
-  // the sentence, a picture attached like any other, or the reason one of those did not work.
+  // the sentence, a picture both attached and named there, or the reason one of those did not work.
   // No dependency list, so every render leaves a listener holding that render's `addImages` and
   // its numbering — a listener that stayed would be attaching to the draft the panel had at mount.
   useEffect(() => {
     const take = (event: Event) => {
       const detail = (event as CustomEvent<CanvasAttachDetail>).detail;
       if (detail.kind === "error") return setSendError(detail.message);
-      if (detail.kind === "image") return addImages([detail.file]);
+      if (detail.kind === "image") return addImages([detail.file], true);
       setSendError(null);
       insertAtCaret(fileFor(detail.text));
     };
