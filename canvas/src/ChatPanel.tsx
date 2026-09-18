@@ -445,6 +445,11 @@ export function ChatPanel() {
             : null,
         );
         if (picked.length === 0) return;
+        // What cannot fit whatever the tray holds is refused before it is read: a read is the
+        // whole file in memory, a third larger.
+        const tooBig = `those are too large to attach; keep them under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`;
+        if (picked.reduce((n, f) => n + f.size, 0) > MAX_IMAGE_BYTES)
+          return setSendError(tooBig);
         // Read first and numbered after, which is what lets the same picture keep the number it
         // already has: pressing + on one twice is one picture said twice, not two — and not a
         // twenty-first, so the limits are over what is new. Still numbered in the order they
@@ -468,9 +473,7 @@ export function ChatPanel() {
           tray.current.reduce((n, i) => n + i.size, 0) + size >
           MAX_IMAGE_BYTES
         )
-          return setSendError(
-            `those are too large to attach; keep them under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`,
-          );
+          return setSendError(tooBig);
         const fresh: Attached[] = novel.map(({ file, url }) => ({
           n: nextN.current++,
           name: file.name,
