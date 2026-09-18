@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import {
   useEditor,
+  usePassThroughWheelEvents,
   useValue,
   type TLEventInfo,
   type TLImageShape,
@@ -57,6 +58,14 @@ export function CanvasAttachButtons() {
   // Drawing a board takes seconds, and the pointer moves on: the hover is pinned while it does,
   // so the button that was pressed is still there to finish and to say if it failed.
   const pinned = useRef(false);
+
+  // Two fingers on the trackpad over these buttons is still a pan. This layer is a sibling of
+  // .tl-canvas rather than a child of it, and the wheel is listened for on the canvas itself, so a
+  // wheel that starts here reaches no handler at all and the board sits dead under the pointer.
+  // Handing it back is what every control tldraw draws over the canvas does — the toolbar, the
+  // minimap, a comment pin — and it steps aside for anything in here that really does scroll.
+  const bar = useRef<HTMLDivElement>(null);
+  usePassThroughWheelEvents(bar);
 
   useEffect(() => {
     const follow = (info: TLEventInfo) => {
@@ -182,7 +191,11 @@ export function CanvasAttachButtons() {
   };
 
   return (
-    <div className="sp-attach" style={{ left: corner.x, top: corner.y }}>
+    <div
+      ref={bar}
+      className="sp-attach"
+      style={{ left: corner.x, top: corner.y }}
+    >
       {board && (
         <button
           type="button"
