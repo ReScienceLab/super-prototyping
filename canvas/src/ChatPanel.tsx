@@ -502,10 +502,13 @@ export function ChatPanel() {
         // rather than the one React has not rendered yet.
         tray.current = [...tray.current, ...fresh].sort((x, y) => x.n - y.n);
         setAttached(tray.current);
-        // One picture, pointed at on the canvas: the sentence says which one without a second
-        // click on the tile that has just appeared, and says it once however many times it is
-        // pointed at. A pick, a paste or a drop is a handful at once, and which of them the
-        // message is about is still to be said.
+        // Numbered into the sentence where the caret already is, so the picture the writer has
+        // just put there is named without a second click on the tile that has appeared above —
+        // and named once however many times it is added. Both ways in that land on one picture
+        // do this: the + on a canvas shape, and a paste, which is the screenshot in the
+        // clipboard going into the sentence being typed. A pick and a drop are a handful chosen
+        // at a distance from the caret, and which of them the message is about is still to be
+        // said.
         const box = composer.current;
         if (cite && box)
           for (const image of said)
@@ -1052,7 +1055,7 @@ export function ChatPanel() {
           onPaste={(e) => {
             e.preventDefault();
             if (e.clipboardData.files.length)
-              return void addImages(e.clipboardData.files);
+              return void addImages(e.clipboardData.files, true);
             // The text and not the markup that came with it: the box holds the chips it made
             // itself and nothing else. execCommand because it is the only insert that native
             // undo still knows about.
