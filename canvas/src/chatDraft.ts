@@ -8,6 +8,18 @@
  * box, the caret and the chips themselves.
  */
 
+/**
+ * The pictures the box points at, by number. A chip whose picture was removed is struck through
+ * rather than taken out — the sentence is not rewritten under whoever typed it — and it still
+ * reads as "#N" below, so it is named here too: while it is in the box, handing that number out
+ * again would repoint it. Which is what the panel watches this for, in both directions — a number
+ * that has left the box takes its picture with it, and an empty one starts the numbering over.
+ */
+export const namedPictures = (box: ParentNode) =>
+  [...box.querySelectorAll<HTMLElement>("[data-ref]")].map((el) =>
+    Number(el.dataset.ref),
+  );
+
 /** What the box says, as text: a chip as "#N", a break as a newline. */
 export function readDraft(node: Node): string {
   let out = "";

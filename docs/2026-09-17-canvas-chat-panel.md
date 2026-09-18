@@ -350,9 +350,29 @@ it does.
 A picture attached to a message gets a number, and the message refers to it by that number. That
 is how a person talks about four screenshots at once — the layout from #1, the button from #3,
 the copy from #4 — and it is the only thing a strip of thumbnails cannot say on its own. Numbers
-count up for the life of the composer and are never reused, so a number in the transcript still
-means what it meant when it was typed. Paste, drop, or the button in the row: three ways in,
-because a screenshot is on the clipboard as often as it is in a folder.
+count up while anything still points at one and are never reused under it, so a number in the
+transcript still means what it meant when it was typed; they start over at #1 once nothing does,
+which is where sending leaves the composer and where clearing away a false start leaves it too.
+The cleared-away case is the one worth naming: a picture attached, thought better of and removed
+leaves an empty tray and an empty box, and the next one there being #2 reads as a bug, because
+there is no #1 anywhere to tell it apart from.
+
+A number belongs to a picture and not to the act of attaching one, so the same picture handed over
+twice keeps the one it has: the tray is searched for those exact bytes before a number is handed
+out, and the chip is only written if the box does not already say it. Pressing **+** on an icon
+four times leaves one tile and one #1 rather than four of each — which is what it looked like
+before, and read as four different pictures that happened to be identical. Bytes rather than the
+file's name, because a paste is called `image.png` every time and is a different screenshot every
+time. The reads therefore finish before the numbers are handed out; they are still handed out in
+the order the files were picked, so three chosen at once are #1, #2, #3 down the dialog.
+
+The relationship runs both ways once a chip is written. Removing a tile leaves its chips struck
+through, because a sentence is not rewritten under whoever typed it, but deleting a chip takes its
+picture out of the tray: a message that no longer mentions a picture is not a message with that
+picture attached. A picture the box has never named is left where it is, since most are attached
+before a word is typed. Paste, drop, the button in the row, or a shape on the
+canvas: four ways in, because a screenshot is on the clipboard as often as it is in a folder, and
+what the message is about is usually already on the canvas.
 
 Each agent is handed them the way it can take them. Claude gets base64 blocks inline on stdin,
 each behind an `[Image #n] <name>` line, so the numbers the message uses are the numbers the model
@@ -382,6 +402,43 @@ to would have needed no copy at all, and is wrong twice: `refkit` reuses its `-o
 hour-old line in the transcript would quietly show a later screen or 404, and a dev server that
 serves an arbitrary path on request is a disclosure hole. The media type is the agent's word and
 goes out as a response header, so it is checked against `image/…` before it gets there.
+
+
+## What the canvas hands over
+
+The canvas is the other way in, and a mockup on it is not a picture yet. Hovering a board or a
+piece of brand material puts two small buttons inside its top-right corner: **+** writes the
+board's name into the sentence, and the picture frame hands the board over drawn. Brand material
+is already a picture, so it gets the **+** alone and that attaches it.
+
+What **+** writes is `<slug>/<file>.html`, the name the layout, the server and the agent all use
+for a board — not the `../../mockups/canvases/…` module path its shape carries, which is an
+artefact of how the generated index keys them and means nothing to anyone else. The badge is
+atomic and not editable, like the numbered chips, and `readDraft` reads it back verbatim because
+it carries no `data-ref`.
+
+A picture arrives both ways at once: the tile appears in the tray above the composer and its
+chip is written into the sentence as it lands, rather than waiting for the tile to be clicked.
+A pick, a paste or a drop is a handful of images at once and which of them the message is about
+is still to be said; a picture pointed at on the canvas is one image, and pointing at it is the
+saying. The chip is the same `#N` as any other, so the message is written in one vocabulary and
+`detach` strikes it through the same way if the tile is removed again.
+
+Drawing one is the server's job (`/__sp/shoot`): a board is a page in an `<iframe>` and the
+browser cannot read one of those into a canvas, so `refkit shoot` makes the picture — this repo's
+own renderer, already on PATH beside the CLIs the panel spawns, so what reaches the agent is the
+picture the rest of the toolkit measures and diffs. One is kept per board and per artboard size
+and redrawn when the board is written again, which is the only thing that can change it. It is
+drawn into a directory of its own and moved into place when it is whole, because the cached name
+exists from the instant the renderer creates the file: a second click during the seconds it takes
+to write would otherwise be served half a picture.
+
+The hover is a hit test of our own, because a locked shape gets no hover from tldraw — the same
+`getShapeAtPoint(…, { hitLocked: true })` the inspector's clicks use, so the two agree on what the
+canvas answers for. It has one rule that is not obvious: reaching for the buttons is not a move to
+another shape. A board drawn small is smaller than the buttons are, so the bar hangs over the
+board next door, and following the pointer onto it would carry the bar out from under the finger
+pressing it — which lands the press on the canvas and opens the wrong board.
 
 
 ## Left out

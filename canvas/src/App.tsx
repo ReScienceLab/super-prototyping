@@ -6,6 +6,9 @@ import {
   useState,
 } from "react";
 import {
+  Ellipse2d,
+  ImageShapeUtil,
+  Rectangle2d,
   Tldraw,
   commentSchemaRecords,
   createShapeId,
@@ -21,6 +24,7 @@ import {
   type TLPageId,
   type TLAsset,
   type TLAssetStore,
+  type TLImageShape,
   type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
@@ -87,8 +91,25 @@ import {
   canvasCommentTools,
 } from "./canvasChrome";
 
+/**
+ * A picture is the whole of its box. tldraw hit-tests an image that can carry transparency against
+ * its own pixels, so a mockup drawn on nothing answers nothing where it is nothing: the inspector
+ * stays shut and the attach buttons never appear except over the drawing itself. Here a picture is
+ * a tile in a row of tiles, and the empty part of a tile is still that tile.
+ */
+class CanvasImageShapeUtil extends ImageShapeUtil {
+  override getGeometry(shape: TLImageShape) {
+    const box = { width: shape.props.w, height: shape.props.h, isFilled: true };
+    // A circle crop is still a circle; it is only the alpha channel that stops counting.
+    return shape.props.crop?.isCircle
+      ? new Ellipse2d(box)
+      : new Rectangle2d(box);
+  }
+}
+
 const shapeUtils = [
   CanvasFileShapeUtil,
+  CanvasImageShapeUtil,
   CanvasLinkShapeUtil,
   CanvasStatusBannerShapeUtil,
 ];
@@ -135,8 +156,14 @@ const TLDRAW_LICENSE_KEY: string | undefined = import.meta.env
 const storeOptions = {
   persistenceKey: PERSISTENCE_KEY,
   // The same set `<Tldraw>` merges for itself; the schema has to know every type the document
-  // can hold, hand-drawn annotations included.
-  shapeUtils: [...defaultShapeUtils, ...shapeUtils],
+  // can hold, hand-drawn annotations included. A default one of ours stands in for is dropped
+  // rather than listed beside it: the schema refuses the same shape type twice.
+  shapeUtils: [
+    ...defaultShapeUtils.filter(
+      (fallback) => !shapeUtils.some((ours) => ours.type === fallback.type),
+    ),
+    ...shapeUtils,
+  ],
   bindingUtils: defaultBindingUtils,
   assetUtils: defaultAssetUtils,
   records: commentSchemaRecords,
