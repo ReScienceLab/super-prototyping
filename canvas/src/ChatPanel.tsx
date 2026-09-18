@@ -44,10 +44,12 @@ const CHOICE_KEY = "sp-chat-choice";
 
 /** The CLI's own word for a level, with a capital: Low, High, XHigh. Total: the agent list
  *  arrives a moment after the panel does, and until it has there is no level to name. */
-const effortName = (e: string) => (e === "xhigh" ? "XHigh" : e.charAt(0).toUpperCase() + e.slice(1));
+const effortName = (e: string) =>
+  e === "xhigh" ? "XHigh" : e.charAt(0).toUpperCase() + e.slice(1);
 
 /** 26k, 272k: a token count is read at a glance or not at all. */
-const tokens = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}k` : String(n));
+const tokens = (n: number) =>
+  n >= 1000 ? `${Math.round(n / 1000)}k` : String(n);
 
 /** Each agent's mark, by the id the server names it with. */
 const MARKS = { claude: ClaudeMark, codex: CodexMark };
@@ -80,9 +82,13 @@ export function ChatPanel() {
   // The welcome page is drawn by the app and has no folder, so it is no canvas to the agent.
   const canvas = slug && slug !== WELCOME_PAGE_SLUG ? slug : undefined;
   const [turns, setTurns] = useState<Turn[]>(() =>
-    (JSON.parse(sessionStorage.getItem(RUNS_KEY) ?? "[]") as string[]).map(turnFor),
+    (JSON.parse(sessionStorage.getItem(RUNS_KEY) ?? "[]") as string[]).map(
+      turnFor,
+    ),
   );
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSED_KEY) === "true");
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem(COLLAPSED_KEY) === "true",
+  );
   const [agent, setAgent] = useState<AgentId>(() => {
     const stored = localStorage.getItem(AGENT_KEY);
     return stored && stored in MARKS ? (stored as AgentId) : "claude";
@@ -90,7 +96,9 @@ export function ChatPanel() {
   const [agents, setAgents] = useState<AgentRow[]>([]);
   // What each agent is to be run with, by agent id, since neither's models mean anything to the
   // other. A key missing, or naming something the agent no longer offers, is the CLI's default.
-  const [choices, setChoices] = useState<Record<string, { model?: string; effort?: string }>>(() => {
+  const [choices, setChoices] = useState<
+    Record<string, { model?: string; effort?: string }>
+  >(() => {
     try {
       return JSON.parse(localStorage.getItem(CHOICE_KEY) ?? "{}");
     } catch {
@@ -117,7 +125,12 @@ export function ChatPanel() {
     const { signal } = abort.current;
     const update = (patch: (t: Turn) => Turn) =>
       setTurns((ts) => ts.map((t) => (t.runId === runId ? patch(t) : t)));
-    followRun(runId, 0, (frame) => update((t) => applyFrame(t, frame)), signal).catch((error) => {
+    followRun(
+      runId,
+      0,
+      (frame) => update((t) => applyFrame(t, frame)),
+      signal,
+    ).catch((error) => {
       if (signal.aborted) return;
       // A run the server no longer has — it keeps the newest twenty, and a restart keeps none —
       // replays as a failure before a single frame. There is no conversation left to put an
@@ -165,18 +178,26 @@ export function ChatPanel() {
   // dropped from its list, a level the picked model has not got — is not sent: the CLI's own
   // setting stands rather than a run failing on a name from last week.
   const model = picked?.id ?? "";
-  const effort = choice.effort && efforts.includes(choice.effort) ? choice.effort : "";
-  const slider = effort ? efforts.indexOf(effort) : Math.floor(efforts.length / 2);
+  const effort =
+    choice.effort && efforts.includes(choice.effort) ? choice.effort : "";
+  const slider = effort
+    ? efforts.indexOf(effort)
+    : Math.floor(efforts.length / 2);
   // The newest turn that got as far as being charged for; a failed one never is.
   const usage = [...turns].reverse().find((t) => t.usage)?.usage;
 
   // The palette is open while the draft is a single unfinished word starting with a slash: "/cl"
   // and not "/clone-prototype the app", since an argument means the command has been chosen.
   const typing = /^\/(\S*)$/.exec(draft)?.[1];
-  const matches =
+  const found =
     typing === undefined || slashOff
       ? []
       : commands.filter((c) => c.toLowerCase().includes(typing.toLowerCase()));
+  // A word that is already the only command it matches has nothing left to choose, so the palette
+  // closes and Enter sends. Open, it would swallow that Enter to pick what is on screen — typing
+  // a command out in full and pressing Enter appeared to do nothing, because all the pick added
+  // was the trailing space, and it took a second Enter to send.
+  const matches = found.length === 1 && found[0] === typing ? [] : found;
   const at = Math.min(slashAt, matches.length - 1);
 
   const pickCommand = (name: string) => {
@@ -271,10 +292,20 @@ export function ChatPanel() {
   };
 
   return (
-    <aside className={collapsed ? "sp-panel sp-chat sp-chat-collapsed" : "sp-panel sp-chat"} aria-label="Agent chat">
+    <aside
+      className={
+        collapsed ? "sp-panel sp-chat sp-chat-collapsed" : "sp-panel sp-chat"
+      }
+      aria-label="Agent chat"
+    >
       <header className="sp-head">
         {collapsed ? (
-          <button type="button" className="sp-head-x" onClick={toggle} aria-label="Open the chat panel">
+          <button
+            type="button"
+            className="sp-head-x"
+            onClick={toggle}
+            aria-label="Open the chat panel"
+          >
             <Mark agent={agent} />
           </button>
         ) : (
@@ -310,13 +341,24 @@ export function ChatPanel() {
             >
               <ClockRewind />
             </button>
-            <button type="button" className="sp-head-x" onClick={toggle} aria-label="Collapse the chat panel">
+            <button
+              type="button"
+              className="sp-head-x"
+              onClick={toggle}
+              aria-label="Collapse the chat panel"
+            >
               <SidebarLeft />
             </button>
           </>
         )}
       </header>
-      <div id="sp-chat-agents" popover="auto" className="sp-chat-agents" role="menu" ref={agentMenu}>
+      <div
+        id="sp-chat-agents"
+        popover="auto"
+        className="sp-chat-agents"
+        role="menu"
+        ref={agentMenu}
+      >
         {agents.map((a) => (
           <button
             key={a.id}
@@ -336,7 +378,13 @@ export function ChatPanel() {
           </button>
         ))}
       </div>
-      <div id="sp-chat-models" popover="auto" className="sp-chat-picker" role="menu" ref={modelMenu}>
+      <div
+        id="sp-chat-models"
+        popover="auto"
+        className="sp-chat-picker"
+        role="menu"
+        ref={modelMenu}
+      >
         {[{ id: "", name: "Default" }, ...(row?.models ?? [])].map((m) => (
           <button
             key={m.id}
@@ -357,7 +405,12 @@ export function ChatPanel() {
           </button>
         ))}
       </div>
-      <div id="sp-chat-efforts" popover="auto" className="sp-chat-picker sp-chat-efforts" ref={effortMenu}>
+      <div
+        id="sp-chat-efforts"
+        popover="auto"
+        className="sp-chat-picker sp-chat-efforts"
+        ref={effortMenu}
+      >
         <button
           type="button"
           role="menuitemradio"
@@ -396,7 +449,12 @@ export function ChatPanel() {
           <span>Smarter</span>
         </p>
       </div>
-      <div id="sp-chat-history" popover="auto" className="sp-chat-history" ref={historyList}>
+      <div
+        id="sp-chat-history"
+        popover="auto"
+        className="sp-chat-history"
+        ref={historyList}
+      >
         {history.length === 0 ? (
           <p className="sp-chat-dim">No runs yet</p>
         ) : (
@@ -413,7 +471,10 @@ export function ChatPanel() {
               </span>
               <span className="sp-chat-history-title">{r.title}</span>
               <span className="sp-chat-dim">
-                {new Date(r.startedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {new Date(r.startedAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </span>
             </button>
           ))
@@ -422,9 +483,10 @@ export function ChatPanel() {
       <div className="sp-chat-log" ref={log}>
         {turns.length === 0 && (
           <p className="sp-chat-empty">
-            Runs Claude Code with its permission prompts off, or Codex in its workspace sandbox, in
-            your project — the same trust as running either in a terminal there. The mark above
-            picks which. Ask for a board, a change to one, or about the code behind one.
+            Runs Claude Code with its permission prompts off, or Codex in its
+            workspace sandbox, in your project — the same trust as running
+            either in a terminal there. The mark above picks which. Ask for a
+            board, a change to one, or about the code behind one.
           </p>
         )}
         {turns.map((t) => (
@@ -487,7 +549,10 @@ export function ChatPanel() {
               if (e.key === "ArrowDown" || e.key === "ArrowUp") {
                 e.preventDefault();
                 const step = e.key === "ArrowDown" ? 1 : matches.length - 1;
-                return setSlashAt((i) => (Math.min(i, matches.length - 1) + step) % matches.length);
+                return setSlashAt(
+                  (i) =>
+                    (Math.min(i, matches.length - 1) + step) % matches.length,
+                );
               }
               if (e.key === "Enter" || e.key === "Tab") {
                 e.preventDefault();
@@ -507,7 +572,11 @@ export function ChatPanel() {
         {/* Above the box, where the caret is. The agent runs the command itself — the panel only
             says which ones there are, and Enter takes the highlighted one. */}
         {matches.length > 0 && (
-          <div className="sp-chat-slash" role="listbox" aria-label="Slash commands">
+          <div
+            className="sp-chat-slash"
+            role="listbox"
+            aria-label="Slash commands"
+          >
             {matches.map((c, i) => (
               <button
                 key={c}
@@ -519,7 +588,9 @@ export function ChatPanel() {
                 type="button"
                 role="option"
                 aria-selected={i === at}
-                className={i === at ? "sp-menu-row sp-chat-slash-on" : "sp-menu-row"}
+                className={
+                  i === at ? "sp-menu-row sp-chat-slash-on" : "sp-menu-row"
+                }
                 onMouseEnter={() => setSlashAt(i)}
                 onClick={() => pickCommand(c)}
               >
@@ -535,10 +606,21 @@ export function ChatPanel() {
             className="sp-chat-submit"
             aria-label="Stop the agent"
             title="Stop"
-            onClick={() => void fetch(`/__sp/agent/run/${running.runId}/cancel`, { method: "POST" })}
+            onClick={() =>
+              void fetch(`/__sp/agent/run/${running.runId}/cancel`, {
+                method: "POST",
+              })
+            }
           >
             <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-              <rect x="4" y="4" width="6" height="6" rx="1.5" fill="currentColor" />
+              <rect
+                x="4"
+                y="4"
+                width="6"
+                height="6"
+                rx="1.5"
+                fill="currentColor"
+              />
             </svg>
           </button>
         ) : (
@@ -566,7 +648,9 @@ export function ChatPanel() {
           </button>
         )}
       </form>
-      {sendError && <p className="sp-chat-error sp-chat-send-error">{sendError}</p>}
+      {sendError && (
+        <p className="sp-chat-error sp-chat-send-error">{sendError}</p>
+      )}
       <div className="sp-chat-bar">
         <span
           className="sp-chat-perm"
@@ -594,7 +678,11 @@ export function ChatPanel() {
             popoverTarget="sp-chat-efforts"
             title="How hard the model thinks before answering"
           >
-            {effort ? effortName(effort) : <span className="sp-chat-dim">Effort</span>}
+            {effort ? (
+              effortName(effort)
+            ) : (
+              <span className="sp-chat-dim">Effort</span>
+            )}
           </button>
         )}
         {usage && (
@@ -610,7 +698,9 @@ export function ChatPanel() {
             {usage.window ? ` / ${tokens(usage.window)}` : ""}
           </span>
         )}
-        {running && <span className="sp-chat-spin" role="status" aria-label="Working" />}
+        {running && (
+          <span className="sp-chat-spin" role="status" aria-label="Working" />
+        )}
       </div>
     </aside>
   );
