@@ -60,13 +60,23 @@ This needs the toolkit reinstalled, not only the plugin updated: `sp-canvas`
 the panel but every message answers 503. Re-run the README's `uv tool install`
 line with `--force`.
 
-The canvas toolbar drops its shape editing: undo, redo, delete, duplicate and
-the overflow menu of aligns, distributes and reorders are gone from the top
-bar, which leaves comments, Export to Figma, Brand kit, clone and refresh. The
-actions themselves are unchanged — the keyboard and the right-click menu still
-have them. The zoom readout and minimap toggle go from the bottom-left corner
-too, where they sat under the chat panel's composer: zoom is the trackpad, ⌘+
-and ⌘-, and ⇧1 to fit the page.
+The canvas top bar is down to a switch, the page name and two destinations:
+collapse the chat panel, Export to Figma, Brand kit. Everything else on it is
+somewhere better. Shape editing — undo, redo, delete, duplicate and the
+overflow of aligns, distributes and reorders — is on the keyboard and the
+right-click menu, where it already was; these boards are written from files by
+a generator, so six buttons for nudging them crowded out the two the bar is
+for. Comment, clone and force refresh join them on the right button: all three
+act on what is under the cursor, or on the page it is on, which is what a
+right-click has already picked out. The hamburger beside the page name goes
+too, and so do the zoom readout and minimap toggle in the bottom-left corner,
+where they sat under the chat panel's composer — zoom is the trackpad, ⌘+ and
+⌘-, and ⇧1 to fit the page.
+
+The switch for the chat panel is in the canvas's own top-left corner, which is
+the one place it can be whether the panel is open or shut. In the panel's
+header it went away with the panel and needed a second control to bring it
+back.
 
 Under the message box: which model, which effort, and what the last message
 cost. The model list is the agent's own — for Codex it is the list its own
@@ -100,8 +110,16 @@ The canvas is dark, and its panels are drawn in Vercel's Geist: its greys and
 its accents, its icons, and Geist Sans and Geist Mono bundled so a board looks
 the same offline as online. The chat panel, the inspector, the top bar and the
 canvas they sit around all read as one app now, on one ground, separated by
-hairlines rather than by shade. Your boards are untouched — a mockup is drawn by
-its own generator and keeps whatever palette it was measured in.
+hairlines rather than by shade. tldraw's own chrome comes with them: its menus,
+its toolbar and its context menu read the same tokens, so a page menu is the
+same black card with the same hairline as a panel's menu, and an icon button
+in the top bar is the same grey, and lights the same way, as one in the chat
+panel's header beside it. The glyphs are Geist's own set rather than a
+transcription of it, and the scrollbars are the app's rather than the
+platform's: one thin grey thumb on whatever ground it is over, in the
+transcript, the slash menu, the history, the notes and the inspector alike.
+Your boards are untouched — a mockup is drawn by its own generator and keeps
+whatever palette it was measured in, scrollbars included.
 
 One thing about a board does change, and it is what the dark ground exposed: a
 mockup used to sit on a white card. A frame paints an opaque white background

@@ -113,19 +113,39 @@ Both skills grew the rule — `prototype-canvas`'s `references/layout.md` and `c
 constraints: no page ground, let `.phone` paint its own, document boards excepted because black text
 needs one.
 
-## Sixteen path strings, not a package
+## The icon set, not a transcription of it
 
-`geistIcons.tsx` is sixteen `d` strings and one wrapper, replacing eighteen hand-drawn SVGs of
+`geistIcons.tsx` is twenty names bound to `geist-icons`, replacing eighteen hand-drawn SVGs of
 mixed geometry and stroke weight. Geist draws every icon as a single filled `currentColor` path
-on a 16×16 grid — no strokes — so one component covers all of them and `size` is the only knob.
+on a 16×16 grid — no strokes — so one wrapper covers all of them, and it adds exactly two things:
+`size={16}`, because the package defaults to 20, and `aria-hidden`, because every glyph here sits
+inside a control that already has a name.
 
-`geist-icons` on npm is a third-party mirror: all 455 icons in one 600K ESM module, one
-maintainer. Sixteen path strings are smaller than the dependency, let alone the trust. If the
-panel ever wants fifty of them, that is the day to reconsider.
+Vercel publishes no icon package. `geist@1.7.2` is fonts — `./font`, `./font/mono`, `./font/sans`,
+`./font/pixel` — and `@vercel/geist-icons`, `@geist/icons` and `@vercel/geist` do not exist.
+`geist-icons@1.3.0` is a third-party mirror (MIT, one maintainer): all 455 marks in one
+dependency-free ESM module. It was taken on evidence rather than on its name — fifteen of the
+sixteen paths this file had already transcribed from Geist's own docs matched it byte for byte.
+
+It costs 167 kB gzip, and the reason is worth writing down. Every icon in the module is
+`var X = forwardRef(…)` with no `/*#__PURE__*/` annotation, and the package's own manifest says
+`"sideEffects": false`. Rollup would shake that; **rolldown, which is what Vite builds with here,
+does not** — a one-icon entry bundles all 455, and `treeshake.moduleSideEffects`,
+`manualPureFunctions` and a cleared cache change nothing. So the canvas ships 435 marks it never
+draws. The alternative is a generated file of twenty path strings, which is what this file used to
+be; the set is one `bun remove` and one script away if that number ever matters more than having
+the real set.
 
 Two functions went away with the icons rather than being kept next to them. `LayerIcon`'s
 five-branch switch is a `Record<LayerKind, …>` of five Geist glyphs, and `Caret` picks between
 `ChevronDownSmall` and `ChevronRightSmall` instead of rotating one path.
+
+What is still drawn by hand is what Geist has no mark for: `ClaudeMark` and `CodexMark`, whose
+geometry is lobehub/icons'. Its logo set runs to about fifty companies and neither is one.
+`LogoFigma`, which is in it, is in Figma's five colours — Geist ships third-party marks coloured,
+so keeping the Figma chip coloured is the set's own convention, not an exception to it.
+`GITHUB_PATH` stays hand-held for the opposite reason: Geist's `LogoGithub` mixes `currentColor`
+with a literal `white`, which would vanish on the CTA's near-white primary button.
 
 ## The fonts are bundled
 
@@ -139,15 +159,125 @@ One trap, worth writing down: the CSS `font` shorthand resets `font-feature-sett
 `font-kerning`, `font-variant-numeric` and `font-optical-sizing`. The panel sets all four, and
 they have to come after the shorthand or they are silently dropped.
 
+## Tailwind and shadcn/ui, under the same tokens
+
+2026-09-18. Two things were true at once: the panels are hand-written CSS that works, and every
+new surface was about to be hand-written CSS too. Tailwind and shadcn/ui are in, and the whole
+integration rests on one fact — `@import "tailwindcss"` puts its preflight in `layer(base)` and
+its utilities in `layer(utilities)`, and an unlayered rule beats a layered one whatever its
+specificity. Every rule in `index.css`, every rule in `brand.css` and every rule tldraw ships
+still wins. Tailwind reaches what nothing else claims, which is exactly the new work.
+
+The scale moved out of `index.css` into `tokens.css`, and that was forced rather than tidy: the
+two top-right buttons render on the brand pages as well as the canvas, and the brand pages load
+`brand.css`, which had never seen a `--ds-*` token. Both stylesheets import `tokens.css` now, so
+there is one scale behind every page the canvas serves. `brand.css` keeps its own
+`color-scheme: light` after the import, and that one word resolves every `light-dark()` token in
+it to its light half — the same buttons come out dark on the canvas and light on a brand page
+with nothing to keep in step.
+
+The `@theme inline` block is the whole of the configuration: it names the scale in shadcn's
+vocabulary, so `bg-background` is `--ds-background-100` and `ring-ring` is `--ds-focus`. Two of
+those names are false friends and are commented as such — shadcn's `primary` is Geist's ground
+and ink swapped rather than the accent blue, and its `accent` is a hovered row rather than the
+brand's accent.
+
+Two of shadcn's assumptions had to be answered, both in `tokens.css`:
+
+- Its components carry `dark:` classes, and Tailwind's `dark:` reads the operating system. This
+  app's theme is `color-scheme`, which no selector can match — and needs none, since every token
+  is a `light-dark()` pair. Left as `dark:` pointed at a `data-theme` attribute nothing sets:
+  the classes stay where shadcn puts them and mean nothing, instead of painting a dark button on
+  a brand page because the laptop is in dark mode.
+- Tailwind leaves an undeclared border at `currentColor`, so `border` on a shadcn component draws
+  in the ink colour. shadcn answers that with one base-layer rule and so does this.
+
+Preflight costs four rules, and each was measured in the browser rather than guessed at:
+`list-style: none` took the chat markdown's bullets and numbers, and `a { text-decoration:
+inherit }` took the underline off three links whose only affordance it was — the chat's markdown
+links, the inspector's source host, and a brand page's provenance line, which is the same ink as
+the sentence around it. The rest of preflight lands on elements that already name what they
+want.
+
+The CTA pair is the proof it works end to end: `CanvasCta` is two shadcn Buttons with Tailwind
+classes for the layout, and the blue and dark gradients and the gold star are gone. Both are the
+primary button — ground and ink swapped — rather than a primary and a secondary: these are the
+two asks, not an ask and an aside, and a hairline chip beside a solid one reads as the lesser of
+them. The SnapAction mark became a mask rather than an `<img>` on the way, because the file is a
+fixed near-white and the ink it sits in is black; masked, it is whatever the button's ink is.
+
+What `canvasCta.css` still holds is the shimmer, and only that. It stays a file rather than a
+block in index.css because the pair is also in the brand pages' topbar, which is another document
+with another stylesheet, and an import beside the component travels with it. The band is a
+`light-dark()` pair for the same reason the buttons are one component: the ground under it is
+near-white on the canvas and near-black on a brand page. Its ends are `rgb(255 255 255 / 0)` and
+not `transparent`, which is transparent *black* — interpolated towards it the band dims at its own
+edges, and a grey fringe sweeping across a white button is the one thing a shimmer must not leave.
+
+The panels did not move. They are CSS that works, they read the same tokens, and a rewrite of
+working layout into utility classes is a diff nobody can review against a screenshot.
+
+## tldraw's chrome, after all
+
+The entry above left tldraw's chrome to its own dark theme. That held while the panels were the
+only Geist on screen; it stopped holding once the top bar's chips were Geist and the menu under
+them was not. It is a variable remap and not a re-skin: tldraw
+drives its whole UI from `--tl-color-*`, so ~25 declarations on `.tl-container.tl-theme__dark`
+put its menus, toolbar, tooltips and selection on the same scale — including the 1px ring in
+`--tl-shadow-*`, which is where a Geist menu's edge lives. No component CSS is touched, so a
+tldraw release changes the values behind the names and nothing here.
+
+What stays tldraw's is what is artwork rather than chrome: the shape palette, the text shadow and
+the highlighter.
+
+The main menu is gone rather than restyled. Everything it listed is either on this app's own bar,
+the keyboard or the context menu, or is about editing a document that a generator writes from
+files. Its slot is the leftmost thing in the top bar, against the window's left edge, so the chat
+panel's collapse took it: in the panel's own header that switch disappeared along with the panel
+and needed a second control to undo it. The state moved up to `App` with it, since the button and
+the panel are now siblings rather than parent and child.
+
+The bar itself is on `--ds-background-100` rather than tldraw's `--tl-color-low`, which drew a
+grey block in the corner of a black canvas — the same two-apps-in-one-window the token remap was
+for. A hairline on the two edges facing the canvas is what separates them, the way the chat
+panel's does. It takes two classes to say, for the reason the theme block does: tldraw sets its
+own on `.tlui-menu-zone`, and one class would only win on import order.
+
+What it carries is a switch, the page name and two destinations. Comment, clone and force refresh
+left the bar for the right button, which is where all three already pointed: each acts on what is
+under the cursor or on the page it is on. `QuickActions` goes to `null` with the comment button
+that was the last thing in it.
+
+An icon button is one thing across the whole row now. The panel drew its own at gray-700 over a
+solid ground and tldraw drew its at gray-900 over a translucent one four pixels wider, which put
+two greys and two hovers in the same 40px band either side of the divider. Geist's is the one
+kept — muted at rest, full ink on a gray-100 ground — and it is written once, over both. Half of
+it has to be said twice even so: tldraw paints its ground on an inset `::after` rather than on the
+button, and that inset is what sets the ground's size.
+
+The scrollbars are the same shape of problem and get the same shape of answer. Seven surfaces
+scroll and none of them said anything about it, so each drew the platform's: a light thumb in a
+light trough, the brightest thing on a black screen. `scrollbar-width` and `scrollbar-color` on
+`:root` is the whole fix — both inherit, so every surface is covered and the next one is covered
+before it exists — and it is two standard properties rather than `::-webkit-scrollbar` and its
+six pseudo-elements, which buy control over a thumb that only has to be one grey. It stops at the
+document, which is the right edge: a board is an iframe, and a mockup of a phone should scroll
+like one.
+
 ## Left out
 
 - A light theme, and anything that switches between the two. `color-scheme` is the switch; there
   is nowhere yet for a user to reach it, and a toggle with no second opinion behind it is a
   preference nobody asked for.
-- `sheet.css` and `brand.css`, which both pin `color-scheme: light` on purpose: a contact sheet
-  and a brand kit are documents about boards, printed on white.
-- The brand marks — Claude, Codex, Figma, the brand-kit palette — which are other people's
-  identities at their own colours, and the welcome board's own art.
-- tldraw's chrome beyond the one preference line. Its dark theme is the vendor's; restyling it to
-  Geist would be a per-release maintenance cost for a toolbar nobody is looking at while reading
-  a board.
+- The light theme of `sheet.css` and `brand.css`, which both pin `color-scheme: light` on
+  purpose: a contact sheet and a brand kit are documents about boards, printed on white. They
+  keep their own palettes too — `brand.css` shares the scale but is still drawn in the
+  brandarchive greys it was designed in.
+- The brand marks — Claude, Codex, Figma, GitHub — which are other people's identities at their
+  own colours, and the welcome board's own art.
+- tldraw's own page-menu chevron, the one glyph left in the top bar that Geist did not draw.
+  Replacing it means replacing `DefaultPageMenu` whole, which is a lot of component for a caret
+  that already reads as the same weight.
+- Rewriting the panels' CSS as utility classes, and any shadcn component the app has no use for.
+  The Button is in because the CTA pair needed one; the second real case is what shows the next
+  component its shape.
