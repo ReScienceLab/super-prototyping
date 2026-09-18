@@ -355,7 +355,22 @@ transcript still means what it meant when it was typed; they start over at #1 on
 which is where sending leaves the composer and where clearing away a false start leaves it too.
 The cleared-away case is the one worth naming: a picture attached, thought better of and removed
 leaves an empty tray and an empty box, and the next one there being #2 reads as a bug, because
-there is no #1 anywhere to tell it apart from. Paste, drop, the button in the row, or a shape on the
+there is no #1 anywhere to tell it apart from.
+
+A number belongs to a picture and not to the act of attaching one, so the same picture handed over
+twice keeps the one it has: the tray is searched for those exact bytes before a number is handed
+out, and the chip is only written if the box does not already say it. Pressing **+** on an icon
+four times leaves one tile and one #1 rather than four of each — which is what it looked like
+before, and read as four different pictures that happened to be identical. Bytes rather than the
+file's name, because a paste is called `image.png` every time and is a different screenshot every
+time. The reads therefore finish before the numbers are handed out; they are still handed out in
+the order the files were picked, so three chosen at once are #1, #2, #3 down the dialog.
+
+The relationship runs both ways once a chip is written. Removing a tile leaves its chips struck
+through, because a sentence is not rewritten under whoever typed it, but deleting a chip takes its
+picture out of the tray: a message that no longer mentions a picture is not a message with that
+picture attached. A picture the box has never named is left where it is, since most are attached
+before a word is typed. Paste, drop, the button in the row, or a shape on the
 canvas: four ways in, because a screenshot is on the clipboard as often as it is in a folder, and
 what the message is about is usually already on the canvas.
 

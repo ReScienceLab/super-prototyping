@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { namesAPicture, readDraft } from "./chatDraft";
+import { namedPictures, readDraft } from "./chatDraft";
 
 const box = (html: string) => {
   const el = document.createElement("div");
@@ -43,21 +43,34 @@ describe("readDraft", () => {
   });
 });
 
-describe("namesAPicture", () => {
+describe("namedPictures", () => {
+  it("names every number the box points at, in the order it draws them", () => {
+    // The panel compares one reading with the last to see what has been deleted, so a number that
+    // is written twice has to come back twice: one of the two going is not the picture going.
+    expect(
+      namedPictures(
+        box(
+          'from <span data-ref="2"><img alt="">#2</span> and ' +
+            '<span data-ref="1"><img alt="">#1</span>, like <span data-ref="2">#2</span>',
+        ),
+      ),
+    ).toEqual([2, 1, 2]);
+    expect(
+      namedPictures(box('<span class="sp-chat-cmd">/clone</span> this')),
+    ).toEqual([]);
+  });
+
   it("counts a struck-through chip, which is what stops a number being handed out twice", () => {
     // Removing a picture strikes its chip through and takes the thumbnail out, but the chip still
     // reads as "#1": start the numbering over with that in the box and the sentence would end up
     // pointing at whatever came next. Only an empty box is clear.
     expect(
-      namesAPicture(
+      namedPictures(
         box(
           '<span class="sp-chat-ref sp-chat-ref-gone" data-ref="1">#1</span>',
         ),
       ),
-    ).toBe(true);
-    expect(
-      namesAPicture(box('<span class="sp-chat-cmd">/clone</span> this')),
-    ).toBe(false);
-    expect(namesAPicture(box(""))).toBe(false);
+    ).toEqual([1]);
+    expect(namedPictures(box(""))).toEqual([]);
   });
 });

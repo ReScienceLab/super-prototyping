@@ -9,13 +9,16 @@
  */
 
 /**
- * Whether the box still points at an attached picture. A chip whose picture was removed is struck
- * through rather than taken out — the sentence is not rewritten under whoever typed it — and it
- * still reads as "#N" below, so it counts. This is what lets the numbering start over: while it
- * is false, no number in the box can be repointed by handing it out again.
+ * The pictures the box points at, by number. A chip whose picture was removed is struck through
+ * rather than taken out — the sentence is not rewritten under whoever typed it — and it still
+ * reads as "#N" below, so it is named here too: while it is in the box, handing that number out
+ * again would repoint it. Which is what the panel watches this for, in both directions — a number
+ * that has left the box takes its picture with it, and an empty one starts the numbering over.
  */
-export const namesAPicture = (box: ParentNode) =>
-  !!box.querySelector("[data-ref]");
+export const namedPictures = (box: ParentNode) =>
+  [...box.querySelectorAll<HTMLElement>("[data-ref]")].map((el) =>
+    Number(el.dataset.ref),
+  );
 
 /** What the box says, as text: a chip as "#N", a break as a newline. */
 export function readDraft(node: Node): string {

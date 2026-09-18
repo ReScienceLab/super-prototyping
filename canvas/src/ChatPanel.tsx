@@ -21,9 +21,12 @@
  * screenshot in the tray above it as #1, #2, #3; clicking a tile drops that number into the
  * sentence as a chip, so a message can say "borrow the button from #2 and the copy from #3" and
  * mean it. A picture handed over from the canvas writes its own chip as it lands, since one
- * pointed at is one the message is already about. The numbers are handed out in arrival order and
- * never reused while anything still points at one — removing #2 of three leaves #1 and #3, and the
- * next attachment is #4 — because renumbering would silently repoint a sentence already typed.
+ * pointed at is one the message is already about, and deleting that chip out of the sentence
+ * takes the picture out of the tray with it. One picture is one number however many times it is
+ * handed over — pressing + on the same icon four times is one tile and one chip, since the tray
+ * is checked for those bytes before a number is handed out. The numbers go in arrival order and
+ * are never reused while anything still points at one — removing #2 of three leaves #1 and #3,
+ * and the next attachment is #4 — because renumbering would silently repoint a sentence typed.
  * They start again at #1 once nothing does: an empty tray and an empty box, which is where a
  * false start leaves the panel and where sending leaves it too. That is why the box is a
  * contenteditable and not a textarea: a chip is an element in the text, which a textarea cannot
@@ -48,7 +51,7 @@ import type { RunSummary } from "./agentRun";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./canvasAttach";
 import { CanvasChromeContext } from "./canvasChrome";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
-import { namesAPicture, readDraft } from "./chatDraft";
+import { namedPictures, readDraft } from "./chatDraft";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
@@ -329,6 +332,55 @@ export function ChatPanel() {
     return badge;
   };
 
+  /**
+   * Back to #1 once nothing points at a number any more: no tile in the tray, and no chip left in
+   * the box. A number is never reused while something does point at it, because renumbering under
+   * a sentence already typed would silently repoint it — but a false start that has been cleared
+   * away leaves nothing to repoint, and the next picture there should be #1 and not #2.
+   *
+   * `left` rather than `attached`, since the tray this is deciding about is the one after the
+   * removal and React has not re-rendered with it yet.
+   */
+  const renumber = (left: Attached[]) => {
+    if (
+      left.length === 0 &&
+      composer.current &&
+      namedPictures(composer.current).length === 0
+    )
+      nextN.current = 1;
+  };
+
+  /** The numbers the box named when it was last read, to see what has left it since. */
+  const named = useRef<number[]>([]);
+
+  /**
+   * The box, read back for the pictures it names. One that has gone from it since the last read
+   * goes from the tray too: deleting "#2" out of the sentence is how someone says they did not
+   * mean that picture after all, and a tile left standing for it would be an attachment the
+   * message no longer mentions. A picture the box has never named is left alone — most are
+   * attached before a word is typed, and the tray is a tray before it is a sentence.
+   */
+  const syncRefs = (box: HTMLElement) => {
+    const now = namedPictures(box);
+    const gone = named.current.filter((n) => !now.includes(n));
+    named.current = now;
+    // Read the tray rather than close over it: this also runs from the read that attaches a
+    // picture and cites it in one go, where `attached` is still the tray from before it landed.
+    if (gone.length) setAttached((a) => a.filter((i) => !gone.includes(i.n)));
+    // The box emptying while the tray already was is the one restart nothing else sees, since no
+    // tile changed hands for the effect below to notice.
+    renumber(attached);
+  };
+
+  // The other restart: the tray itself going empty, whoever emptied it — the ✕ on a tile, a chip
+  // deleted above, sending, starting over. After the render that empties it, so the box it asks
+  // about is the one on screen and not the one the handler was holding.
+  useEffect(() => {
+    renumber(attached);
+    // renumber is this render's, and reads a ref and the DOM; the tray is what it waits on.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [attached]);
+
   // One of the atomic things above, written where the caret is, with a space after it so the next
   // word is not glued to it. Nothing is inserted into one, since none of them is editable.
   const insertAtCaret = (node: HTMLElement) => {
@@ -351,9 +403,24 @@ export function ChatPanel() {
     node.after(space);
     caretAt(space, 1);
     setDraft(readDraft(box));
+    // A chip written here is one more number the box names, and the caret may have been sitting
+    // on a selection that held another: read it back rather than assume what changed.
+    syncRefs(box);
   };
 
-  const addImages = (list: FileList | File[] | null, cite = false) => {
+  /** The file as the tray holds it: base64, without the `data:` prefix a data URL opens with. */
+  const readFile = (file: File) =>
+    new Promise<string>((done, fail) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const url = String(reader.result);
+        done(url.slice(url.indexOf(",") + 1));
+      };
+      reader.onerror = () => fail(reader.error ?? new Error(file.name));
+      reader.readAsDataURL(file);
+    });
+
+  const addImages = async (list: FileList | File[] | null, cite = false) => {
     const picked = [...(list ?? [])].filter((f) => f.type.startsWith("image/"));
     if (picked.length === 0) return;
     // The server refuses a body over about 48 MB, and base64 is a third larger than the file; a
@@ -363,27 +430,39 @@ export function ChatPanel() {
         "those are too large to attach; keep them under about 24 MB together",
       );
     setSendError(null);
-    // Numbered as they were picked and not as they finish being read: three files chosen at once
-    // are #1, #2, #3 in that order, whatever order the reads come back in. Handing the numbers
-    // out here also keeps the counter out of the state updater, which React may call twice.
-    for (const [file, n] of picked.map((f) => [f, nextN.current++] as const)) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const url = String(reader.result);
-        const image = {
-          n,
-          name: file.name,
-          type: file.type,
-          data: url.slice(url.indexOf(",") + 1),
-        };
-        setAttached((a) => [...a, image].sort((x, y) => x.n - y.n));
-        // One picture, pointed at on the canvas: the sentence says which one without a second
-        // click on the tile that has just appeared. A pick, a paste or a drop is a handful at
-        // once, and which of them the message is about is still to be said.
-        if (cite) insertAtCaret(chipFor(image));
-      };
-      reader.readAsDataURL(file);
+    let bytes: string[];
+    try {
+      bytes = await Promise.all(picked.map(readFile));
+    } catch (error) {
+      return setSendError(`could not read that picture: ${String(error)}`);
     }
+    // Read first and numbered after, which is what lets the same picture keep the number it
+    // already has: pressing + on one twice is one picture said twice, not two. Still numbered in
+    // the order they were picked rather than the order the reads came back in, so three files
+    // chosen at once are #1, #2, #3 as they appear in the dialog.
+    const tray = [...attached];
+    const said: Attached[] = [];
+    for (const [file, data] of picked.map((f, i) => [f, bytes[i]!] as const)) {
+      const already = tray.find((i) => i.data === data);
+      const image = already ?? {
+        n: nextN.current++,
+        name: file.name,
+        type: file.type,
+        data,
+      };
+      if (!already) tray.push(image);
+      said.push(image);
+    }
+    setAttached(tray.sort((x, y) => x.n - y.n));
+    // One picture, pointed at on the canvas: the sentence says which one without a second click
+    // on the tile that has just appeared, and says it once however many times it is pointed at.
+    // A pick, a paste or a drop is a handful at once, and which of them the message is about is
+    // still to be said.
+    const box = composer.current;
+    if (cite && box)
+      for (const image of said)
+        if (!namedPictures(box).includes(image.n))
+          insertAtCaret(chipFor(image));
   };
 
   // What the buttons on a canvas shape hand over (canvasAttach.tsx): a board's path written into
@@ -394,32 +473,13 @@ export function ChatPanel() {
     const take = (event: Event) => {
       const detail = (event as CustomEvent<CanvasAttachDetail>).detail;
       if (detail.kind === "error") return setSendError(detail.message);
-      if (detail.kind === "image") return addImages([detail.file], true);
+      if (detail.kind === "image") return void addImages([detail.file], true);
       setSendError(null);
       insertAtCaret(fileFor(detail.text));
     };
     window.addEventListener(CANVAS_ATTACH, take);
     return () => window.removeEventListener(CANVAS_ATTACH, take);
   });
-
-  /**
-   * Back to #1 once nothing points at a number any more: no tile in the tray, and no chip left in
-   * the box. A number is never reused while something does point at it, because renumbering under
-   * a sentence already typed would silently repoint it — but a false start that has been cleared
-   * away leaves nothing to repoint, and the next picture there should be #1 and not #2.
-   *
-   * Called wherever both can empty: removing a tile, editing the box, sending, starting over.
-   * `left` rather than `attached`, since the tray this is deciding about is the one after the
-   * removal and React has not re-rendered with it yet.
-   */
-  const renumber = (left: Attached[]) => {
-    if (
-      left.length === 0 &&
-      composer.current &&
-      !namesAPicture(composer.current)
-    )
-      nextN.current = 1;
-  };
 
   // The tile goes; the chips that named it stay where they were written, struck through and
   // without their picture. A sentence is not rewritten because what it pointed at was removed.
@@ -432,7 +492,6 @@ export function ChatPanel() {
       chip.classList.add("sp-chat-ref-gone");
       chip.querySelector("img")?.remove();
     }
-    renumber(left);
   };
 
   const prefer = (patch: { model?: string; effort?: string }) => {
@@ -467,8 +526,10 @@ export function ChatPanel() {
     setDraft("");
     setAttached([]);
     // The sent message keeps its own numbers — the transcript draws them from the turn — so the
-    // next one starts at #1 rather than carrying on from where this one stopped.
-    renumber([]);
+    // next one starts at #1 rather than carrying on from where this one stopped. The emptied box
+    // is not a box that has had its chips deleted: forget them, or the first edit after this
+    // would read them as gone and take the next message's pictures with them.
+    named.current = [];
     const { runId } = await res.json();
     const images = attached.map(({ n, name }) => ({ n, name }));
     setTurns((ts) => [
@@ -519,7 +580,7 @@ export function ChatPanel() {
     composer.current?.replaceChildren();
     setDraft("");
     setAttached([]);
-    renumber([]);
+    named.current = [];
     setSendError(null);
     composer.current?.focus();
   };
@@ -883,7 +944,7 @@ export function ChatPanel() {
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
-          addImages(e.dataTransfer.files);
+          void addImages(e.dataTransfer.files);
         }}
       >
         {/* Uncontrolled on purpose: React renders it empty and never touches it again, so it
@@ -904,15 +965,15 @@ export function ChatPanel() {
             const text = readDraft(box);
             setDraft(text);
             setSlashAt(0);
-            // Deleting the last struck-through chip is the other way the box empties.
-            renumber(attached);
+            // Every edit, since a chip is deleted like any other character.
+            syncRefs(box);
             // Escape closes the palette for the word it was typed in; the next one opens again.
             if (!text.startsWith("/")) setSlashOff(false);
           }}
           onPaste={(e) => {
             e.preventDefault();
             if (e.clipboardData.files.length)
-              return addImages(e.clipboardData.files);
+              return void addImages(e.clipboardData.files);
             // The text and not the markup that came with it: the box holds the chips it made
             // itself and nothing else. execCommand because it is the only insert that native
             // undo still knows about.
@@ -1046,7 +1107,7 @@ export function ChatPanel() {
           multiple
           hidden
           onChange={(e) => {
-            addImages(e.target.files);
+            void addImages(e.target.files);
             // Cleared, or picking the same file twice in a row fires no change the second time.
             e.target.value = "";
           }}
