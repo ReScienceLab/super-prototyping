@@ -198,10 +198,9 @@ status` and `sp-canvas stop` do what they say.
 
 Deep-link a page with `?canvas=<slug>`, and one board of it with
 `?canvas=<slug>#<file>`: it opens in the inspector with the camera on it, and
-clicking any board writes that link into the address bar. The bottom toolbar carries a
-styles-panel toggle alongside tldraw's own tools; the top bar carries a
-force-relayout button. Press it after editing a `layout.json`. A board folder
-added after boot appears on its own.
+clicking any board writes that link into the address bar. Right-clicking the
+canvas offers Force refresh; choose it after editing a `layout.json`. A board
+folder added after boot appears on its own.
 
 ## The workflow
 

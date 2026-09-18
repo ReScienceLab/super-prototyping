@@ -120,7 +120,7 @@ out top to bottom:
 
 After editing `layout.json`, right-click the canvas and choose **Force
 refresh**. Shape creation is idempotent (it never moves a shape that already
-exists), so reordering a row needs that force-relayout to take effect.
+exists), so reordering a row needs that refresh to take effect.
 
 ## Constraints on every artboard
 
