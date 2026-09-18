@@ -49,12 +49,17 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
    * goes in right after the doctype: before the board's own rules, so a board that sets either
    * wins, and after the doctype, because anything before it is quirks mode. Every board has one.
    * `</head>` is not a safe anchor, since 51 of them close no head.
+   *
+   * The selector is `html`, not `:root`, though they name the same element: the inspector's agent
+   * (inspectorAgent.ts) takes the first `:root {…}` in the document's stylesheets to be the
+   * board's token block, and this rule comes first. `html` is the lower specificity of the two,
+   * so the board's own rules still win, its `:root` by specificity and its `html` by order.
    */
   const html = useMemo(
     () =>
       loaded?.replace(
         /(<!doctype html>)/i,
-        "$1<style>:root{color-scheme:dark;color:#000}</style>",
+        "$1<style>html{color-scheme:dark;color:#000}</style>",
       ),
     [loaded],
   );
