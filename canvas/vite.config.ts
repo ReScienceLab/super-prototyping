@@ -1010,13 +1010,17 @@ function canvasesSource(): Plugin {
       // Attached images go to disk for an agent that takes files (agents.ts), for as long as
       // that agent runs: a run's folder goes when its child closes, since the page is served
       // the bytes the run holds and nothing else reads the files. The folders sit under one per
-      // server named by its pid, and at start the folders of servers that were killed rather
-      // than closed go too: a pid nothing answers on is a server that is gone. Not on the
-      // server's own close — Vite restarts by building the new server, same pid, before it
-      // closes the old, and Ctrl+C never closes it at all.
-      const chatDir = path.join(os.tmpdir(), `sp-chat-${process.pid}`);
+      // server, named by its pid and made private here rather than at a path anyone on a shared
+      // tmp could have put a folder or a link at first; a Vite restart is a second one for the
+      // same pid. At start the folders of servers that were killed rather than closed go too: a
+      // pid nothing answers on is a server that is gone. Not on the server's own close — Vite
+      // restarts by building the new server, same pid, before it closes the old, and Ctrl+C
+      // never closes it at all.
+      const chatDir = fs.mkdtempSync(
+        path.join(os.tmpdir(), `sp-chat-${process.pid}-`),
+      );
       for (const name of fs.readdirSync(os.tmpdir())) {
-        const pid = Number(/^sp-chat-(\d+)$/.exec(name)?.[1]);
+        const pid = Number(/^sp-chat-(\d+)-/.exec(name)?.[1]);
         if (!pid || pid === process.pid) continue;
         try {
           process.kill(pid, 0);
