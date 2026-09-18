@@ -82,7 +82,6 @@ import { canvasesDir, canvasesNamespace } from "virtual:canvases";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasChromeContext,
-  canvasChromeAssetUrls,
   canvasChromeComponents,
   canvasCommentOverrides,
   canvasCommentTools,
@@ -1215,6 +1214,8 @@ function initializeCanvas(editor: Editor) {
 /** Distance from the viewport's edge to the board the address named, in screen px. */
 const BOARD_ZOOM_INSET = 80;
 
+const CHAT_COLLAPSED_KEY = "sp-chat-collapsed";
+
 export default function App() {
   /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
   const [inspecting, setInspecting] = useState<CanvasLibraryFile | null>(null);
@@ -1224,6 +1225,12 @@ export default function App() {
   const [commentUser, setCommentUser] = useState(readCommentUser);
   /** State rather than a ref: the inspector panel renders outside `<Tldraw>` and needs it. */
   const [editor, setEditor] = useState<Editor | null>(null);
+  /** Whether the chat panel is shut. Here rather than in the panel, because the button that works
+   * it sits in the canvas's top bar — the panel's sibling, not its child. Remembered across
+   * reloads: it is a preference about this window, not about any one board. */
+  const [chatCollapsed, setChatCollapsed] = useState(
+    () => localStorage.getItem(CHAT_COLLAPSED_KEY) === "true",
+  );
   const store = useLocalStore(storeOptions);
   /** What the inspector has open, spelled the way the address spells it: a board by file name,
    * a picture by its path inside the folder, each with the page it belongs to. For the address
@@ -1345,6 +1352,11 @@ export default function App() {
         inspectBoard: onPick,
         inspectingPath: inspecting?.path ?? null,
         inspectorOpen: Boolean(inspecting || inspectingImage),
+        chatCollapsed,
+        toggleChat: () => {
+          localStorage.setItem(CHAT_COLLAPSED_KEY, String(!chatCollapsed));
+          setChatCollapsed(!chatCollapsed);
+        },
         setInspectorFrame: (frame: HTMLIFrameElement | null) => {
           inspectorFrame.current = frame;
         },
@@ -1355,7 +1367,6 @@ export default function App() {
         {import.meta.env.DEV && <ChatPanel />}
         <main className="tldraw__editor" aria-label="Prototype design canvas">
           <Tldraw
-            assetUrls={canvasChromeAssetUrls}
             components={canvasChromeComponents}
             store={store}
             shapeUtils={shapeUtils}

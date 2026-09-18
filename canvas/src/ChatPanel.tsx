@@ -34,11 +34,10 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
-import { Check, ClockRewind, Plus, SidebarLeft } from "./geistIcons";
+import { Check, ClockRewind, Plus } from "./geistIcons";
 import { renderMarkdown } from "./markdown";
 
 const RUNS_KEY = "sp-chat-runs";
-const COLLAPSED_KEY = "sp-chat-collapsed";
 const AGENT_KEY = "sp-chat-agent";
 const CHOICE_KEY = "sp-chat-choice";
 
@@ -73,7 +72,7 @@ interface AgentRow {
 const turnFor = (runId: string): Turn => ({ runId, prompt: "", blocks: [] });
 
 export function ChatPanel() {
-  const { editor } = useContext(CanvasChromeContext);
+  const { editor, chatCollapsed } = useContext(CanvasChromeContext);
   const slug = useValue(
     "canvas slug",
     () => editor?.getCurrentPage().meta.canvasSlug as string | undefined,
@@ -85,9 +84,6 @@ export function ChatPanel() {
     (JSON.parse(sessionStorage.getItem(RUNS_KEY) ?? "[]") as string[]).map(
       turnFor,
     ),
-  );
-  const [collapsed, setCollapsed] = useState(
-    () => localStorage.getItem(COLLAPSED_KEY) === "true",
   );
   const [agent, setAgent] = useState<AgentId>(() => {
     const stored = localStorage.getItem(AGENT_KEY);
@@ -162,7 +158,7 @@ export function ChatPanel() {
     sessionStorage.setItem(RUNS_KEY, JSON.stringify(turns.map((t) => t.runId)));
     // Also on reopening: a hidden log has no scroll height to have been scrolled to.
     log.current?.scrollTo(0, log.current.scrollHeight);
-  }, [turns, collapsed]);
+  }, [turns, chatCollapsed]);
 
   const running = turns.find((t) => !t.end);
   // The id until the server's list arrives, a moment after mount.
@@ -245,11 +241,6 @@ export function ChatPanel() {
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [typing === undefined, agent]);
 
-  const toggle = () => {
-    localStorage.setItem(COLLAPSED_KEY, String(!collapsed));
-    setCollapsed(!collapsed);
-  };
-
   const switchTo = (id: AgentId) => {
     localStorage.setItem(AGENT_KEY, id);
     setAgent(id);
@@ -294,63 +285,44 @@ export function ChatPanel() {
   return (
     <aside
       className={
-        collapsed ? "sp-panel sp-chat sp-chat-collapsed" : "sp-panel sp-chat"
+        chatCollapsed
+          ? "sp-panel sp-chat sp-chat-collapsed"
+          : "sp-panel sp-chat"
       }
       aria-label="Agent chat"
     >
       <header className="sp-head">
-        {collapsed ? (
-          <button
-            type="button"
-            className="sp-head-x"
-            onClick={toggle}
-            aria-label="Open the chat panel"
-          >
-            <Mark agent={agent} />
-          </button>
-        ) : (
-          <>
-            <button
-              type="button"
-              className="sp-head-x"
-              popoverTarget="sp-chat-agents"
-              aria-label="Choose the agent"
-              title={nameOf(agent)}
-            >
-              <Mark agent={agent} />
-            </button>
-            <span className="sp-head-name" title={title}>
-              {title}
-            </span>
-            <button
-              type="button"
-              className="sp-head-x"
-              onClick={newSession}
-              aria-label="New session"
-              title="New session"
-            >
-              <Plus />
-            </button>
-            <button
-              type="button"
-              className="sp-head-x"
-              popoverTarget="sp-chat-history"
-              onClick={() => void openHistory()}
-              aria-label="History"
-              title="History"
-            >
-              <ClockRewind />
-            </button>
-            <button
-              type="button"
-              className="sp-head-x"
-              onClick={toggle}
-              aria-label="Collapse the chat panel"
-            >
-              <SidebarLeft />
-            </button>
-          </>
-        )}
+        <button
+          type="button"
+          className="sp-head-x"
+          popoverTarget="sp-chat-agents"
+          aria-label="Choose the agent"
+          title={nameOf(agent)}
+        >
+          <Mark agent={agent} />
+        </button>
+        <span className="sp-head-name" title={title}>
+          {title}
+        </span>
+        <button
+          type="button"
+          className="sp-head-x"
+          onClick={newSession}
+          aria-label="New session"
+          title="New session"
+        >
+          <Plus />
+        </button>
+        <button
+          type="button"
+          className="sp-head-x"
+          popoverTarget="sp-chat-history"
+          onClick={() => void openHistory()}
+          aria-label="History"
+          title="History"
+        >
+          <ClockRewind />
+        </button>
       </header>
       <div
         id="sp-chat-agents"
