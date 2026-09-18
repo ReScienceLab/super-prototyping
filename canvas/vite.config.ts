@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import sharp from "sharp";
 import { defineConfig, type Plugin } from "vite";
 import { svgSignature } from "./src/svgSignature.ts";
@@ -1154,7 +1155,9 @@ function canvasesSource(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), repoRootMeta(), canvasesSource()],
+  plugins: [react(), tailwindcss(), repoRootMeta(), canvasesSource()],
+  // What shadcn/ui writes its imports as, and what its CLI expects to find.
+  resolve: { alias: { "@": fileURLToPath(new URL("src", import.meta.url)) } },
   server: {
     // The boards sit outside this app's root — one level up by default, anywhere at all when
     // PROTOTYPING_CANVASES_DIR points elsewhere. They load on demand rather than being pulled

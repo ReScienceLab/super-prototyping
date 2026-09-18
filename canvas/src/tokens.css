@@ -1,0 +1,125 @@
+/*
+ * The design system, and the only file that holds it: every page the canvas serves imports this
+ * one — index.css for the canvas, brand.css for the brand pages — so there is a single scale
+ * behind all of them rather than a palette per entry point. Tailwind and shadcn/ui read it
+ * through the `@theme` block at the bottom.
+ *
+ * Tailwind's utilities land in `layer(utilities)` and its preflight in `layer(base)`, and an
+ * unlayered rule beats a layered one whatever its specificity — so every hand-written rule in
+ * the stylesheets that import this, and every rule tldraw ships, still wins. Tailwind reaches
+ * only what nothing else claims.
+ */
+@import "tailwindcss";
+
+/*
+ * Tailwind's `dark:` variant, pointed at an attribute nothing here sets. The theme on these
+ * pages is the `color-scheme` below, which no selector can match — and needs none, because
+ * every colour a component reads is a `light-dark()` token that switches with it. Left as the
+ * attribute strategy rather than deleted so the shadcn components can keep the `dark:` classes
+ * they ship with; unpointed, they would fire off the operating system's preference and paint a
+ * dark button on the brand pages, which are light whatever the OS says.
+ */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Tailwind leaves an undeclared border at `currentColor`, so the `border` utility on a shadcn
+ * component draws in the ink colour. shadcn answers that with one rule in the base layer, and
+ * this is it: layered, so anything that names its own border still wins.
+ */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+}
+
+/*
+  Geist's scale, at the values Vercel publishes in vercel.com/geist/vercel-brand.css (GeistCN
+  snapshot 4f5d9c0da9ad400918e15083c83626572f19fd9b). The names are Geist's own `--ds-*`, so a
+  path lifted out of its icon set reads the same here as it does there. Spelled out rather than
+  imported because the canvas ships as a plugin and there is no design-system package on the
+  other side of an install; on `:root` rather than on the panel because the top bar's own
+  controls are part of the same system.
+
+  Geist publishes each step as a `light-dark()` pair, so both halves are here and
+  `color-scheme` below picks which one every token resolves to. Dark, unconditionally: it is
+  what the canvas opens as, and a board is easier to read against a ground that is not competing
+  with it. One word here is the whole switch.
+*/
+:root {
+  color-scheme: dark;
+  --ds-background-100: light-dark(oklch(1 0 0), oklch(0 0 0));
+  --ds-background-200: light-dark(oklch(0.984 0 0), oklch(0.027 0 0));
+  --ds-gray-100: light-dark(oklch(0.961 0 0), oklch(0.218 0 0));
+  --ds-gray-200: light-dark(oklch(0.94 0 0), oklch(0.239 0 0));
+  --ds-gray-300: light-dark(oklch(0.925 0 0), oklch(0.281 0 0));
+  --ds-gray-400: light-dark(oklch(0.937 0 0), oklch(0.301 0 0));
+  --ds-gray-700: light-dark(oklch(0.65 0 0), oklch(0.65 0 0));
+  --ds-gray-900: light-dark(oklch(0.42 0 0), oklch(0.706 0 0));
+  --ds-gray-1000: light-dark(oklch(0.205 0 0), oklch(0.946 0 0));
+  --ds-gray-alpha-300: light-dark(oklch(0 0 0 / 0.1), oklch(1 0 0 / 0.13));
+  --ds-gray-alpha-400: light-dark(oklch(0 0 0 / 0.08), oklch(1 0 0 / 0.14));
+  --ds-blue-100: light-dark(oklch(97.32% 0.0141 251.56), oklch(22.17% 0.069 259.89));
+  --ds-blue-400: light-dark(oklch(91.58% 0.0473 245.116), oklch(34.1% 0.121 254.74));
+  --ds-blue-700: light-dark(oklch(57.61% 0.2508 258.23), oklch(57.61% 0.2321 258.23));
+  --ds-blue-900: light-dark(oklch(53.18% 0.2399 256.99), oklch(71.7% 0.1648 250.794));
+  --ds-amber-100: light-dark(oklch(97.48% 0.0331 85.79), oklch(22.46% 0.0538 76.04));
+  --ds-amber-400: light-dark(oklch(91.02% 0.1322 88.25), oklch(35.53% 0.0903 66.297));
+  --ds-amber-700: light-dark(oklch(81.87% 0.1969 76.46), oklch(81.87% 0.1969 76.46));
+  --ds-amber-900: light-dark(oklch(52.79% 0.1496 54.65), oklch(77.21% 0.1991 64.28));
+  --ds-red-900: light-dark(oklch(54.99% 0.232 25.29), oklch(69.96% 0.2136 22.03));
+  /* Geist publishes 100, 400, 700, 900 and 1000 of a hue and nothing between. The status badge
+     wants two presses' worth of ground between its 100 and its 400, so those two steps are
+     interpolated on the scale's own ramp rather than picked by eye. */
+  --ds-blue-200: color-mix(in oklab, var(--ds-blue-100), var(--ds-blue-400) 33%);
+  --ds-blue-300: color-mix(in oklab, var(--ds-blue-100), var(--ds-blue-400) 66%);
+  --ds-amber-200: color-mix(in oklab, var(--ds-amber-100), var(--ds-amber-400) 33%);
+  --ds-amber-300: color-mix(in oklab, var(--ds-amber-100), var(--ds-amber-400) 66%);
+  /* The 1px ring is the token rather than the published `#00000014`: on a dark ground a black
+     ring is no edge at all, and a menu with no edge is a menu floating in the panel. */
+  --ds-shadow-menu:
+    0 0 0 1px var(--ds-gray-alpha-400), 0 1px 1px #00000005,
+    0 4px 8px -4px #0000000a, 0 16px 24px -8px #0000000f;
+  /* Published as `--vbg-focus`, and a pair rather than one step: blue-700 against a black
+     ground is a ring nobody can see, so the dark half goes up to blue-900. */
+  --ds-focus: light-dark(var(--ds-blue-700), var(--ds-blue-900));
+  --ds-focus-ring: 0 0 0 2px var(--ds-background-100), 0 0 0 4px var(--ds-focus);
+  --sp-sans: "Geist Variable", Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --sp-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/*
+ * The same tokens under the names Tailwind generates utilities from and shadcn/ui components
+ * expect — so `bg-background` and a copied-in `<Button>` are already Geist, with no second
+ * palette to keep in step. `inline` is what makes that true: a utility emits `var(--ds-…)`
+ * rather than a snapshot of the value, so the one `color-scheme` word above still switches
+ * both halves of every one of them.
+ */
+@theme inline {
+  --color-background: var(--ds-background-100);
+  --color-foreground: var(--ds-gray-1000);
+  --color-card: var(--ds-background-100);
+  --color-card-foreground: var(--ds-gray-1000);
+  --color-popover: var(--ds-background-100);
+  --color-popover-foreground: var(--ds-gray-1000);
+  /* Geist's primary button is the ground and the ink swapped, not the accent blue. */
+  --color-primary: var(--ds-gray-1000);
+  --color-primary-foreground: var(--ds-background-100);
+  --color-secondary: var(--ds-gray-100);
+  --color-secondary-foreground: var(--ds-gray-1000);
+  --color-muted: var(--ds-gray-100);
+  --color-muted-foreground: var(--ds-gray-700);
+  /* shadcn's `accent` is a hovered row, not the brand accent. */
+  --color-accent: var(--ds-gray-100);
+  --color-accent-foreground: var(--ds-gray-1000);
+  --color-destructive: var(--ds-red-900);
+  --color-border: var(--ds-gray-400);
+  --color-input: var(--ds-gray-400);
+  --color-ring: var(--ds-focus);
+  --font-sans: var(--sp-sans);
+  --font-mono: var(--sp-mono);
+  /* Geist's radius ladder: 6 on a control, 8 on a menu, 12 on a card. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
