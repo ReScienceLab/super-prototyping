@@ -41,6 +41,7 @@ import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { useValue } from "tldraw";
 import type { AgentId, AgentModel } from "./agents";
 import type { RunSummary } from "./agentRun";
+import { CANVAS_ATTACH, type CanvasAttachDetail } from "./canvasAttach";
 import { CanvasChromeContext } from "./canvasChrome";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 import { readDraft } from "./chatDraft";
@@ -315,9 +316,18 @@ export function ChatPanel() {
     return chip;
   };
 
-  // Clicking a tile writes its number where the caret is, with a space after it so the next word
-  // is not glued to the chip. Nothing is inserted into a chip, since a chip is not editable.
-  const insertRef = (i: Attached) => {
+  /** A board named from the canvas: its path, atomic like the chips, and read back verbatim. */
+  const fileFor = (path: string) => {
+    const badge = document.createElement("span");
+    badge.className = "sp-chat-file";
+    badge.contentEditable = "false";
+    badge.textContent = path;
+    return badge;
+  };
+
+  // One of the atomic things above, written where the caret is, with a space after it so the next
+  // word is not glued to it. Nothing is inserted into one, since none of them is editable.
+  const insertAtCaret = (node: HTMLElement) => {
     const box = composer.current;
     if (!box) return;
     box.focus();
@@ -327,15 +337,14 @@ export function ChatPanel() {
       box.contains(selection.getRangeAt(0).commonAncestorContainer)
         ? selection.getRangeAt(0)
         : null;
-    const chip = chipFor(i);
     if (range) {
       range.deleteContents();
-      range.insertNode(chip);
+      range.insertNode(node);
     } else {
-      box.append(chip);
+      box.append(node);
     }
     const space = document.createTextNode(" ");
-    chip.after(space);
+    node.after(space);
     caretAt(space, 1);
     setDraft(readDraft(box));
   };
@@ -372,6 +381,22 @@ export function ChatPanel() {
       reader.readAsDataURL(file);
     }
   };
+
+  // What the buttons on a canvas shape hand over (canvasAttach.tsx): a board's path written into
+  // the sentence, a picture attached like any other, or the reason one of those did not work.
+  // No dependency list, so every render leaves a listener holding that render's `addImages` and
+  // its numbering — a listener that stayed would be attaching to the draft the panel had at mount.
+  useEffect(() => {
+    const take = (event: Event) => {
+      const detail = (event as CustomEvent<CanvasAttachDetail>).detail;
+      if (detail.kind === "error") return setSendError(detail.message);
+      if (detail.kind === "image") return addImages([detail.file]);
+      setSendError(null);
+      insertAtCaret(fileFor(detail.text));
+    };
+    window.addEventListener(CANVAS_ATTACH, take);
+    return () => window.removeEventListener(CANVAS_ATTACH, take);
+  });
 
   // The tile goes; the chips that named it stay where they were written, struck through and
   // without their picture. A sentence is not rewritten because what it pointed at was removed.
@@ -791,7 +816,7 @@ export function ChatPanel() {
                 <button
                   type="button"
                   className="sp-chat-thumb"
-                  onClick={() => insertRef(i)}
+                  onClick={() => insertAtCaret(chipFor(i))}
                   title={`Write #${i.n} into the message`}
                 >
                   <img src={source(i)} alt={i.name} />

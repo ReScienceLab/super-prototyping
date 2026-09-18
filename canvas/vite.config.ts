@@ -643,6 +643,90 @@ function canvasesSource(): Plugin {
         fs.createReadStream(file).pipe(res);
       });
 
+      // A board as a picture, for the chat panel: an agent takes a mockup the way it takes a
+      // screenshot, and a page in an `<iframe>` cannot be read into a canvas from the browser
+      // side. `refkit shoot` draws it — this repo's own renderer, on PATH beside the CLIs the
+      // panel spawns — so the picture is the one the rest of the toolkit measures and diffs.
+      server.middlewares.use("/__sp/shoot", (req, res, next) => {
+        if (req.method !== "GET") return next();
+        const send = (code: number, message: string) => {
+          res.statusCode = code;
+          res.end(message);
+        };
+        const query = new URL(req.url ?? "/", "http://sp").searchParams;
+        const parts = (query.get("path") ?? "").split("/");
+        // <slug>/<board>.html, which is what the canvas knows a board by. Both names are joined
+        // into a filesystem path and the slug names an output folder as well, so they are
+        // checked before they are joined, the way the endpoints around this one check theirs.
+        if (
+          parts.length !== 2 ||
+          !parts.every((name) => SAFE_NAME.test(name)) ||
+          !parts[1].endsWith(".html")
+        ) {
+          return send(400, "bad board name");
+        }
+        // The artboard the canvas draws that board at, which is 478x980 unless its layout.json
+        // says otherwise. Both reach a command line, so both are numbers or nothing happens.
+        const size = ["w", "h"].map((key) => Number(query.get(key)));
+        if (!size.every((n) => Number.isInteger(n) && n > 0 && n <= 4000))
+          return send(400, "bad artboard size");
+        const board = path.join(canvasesDir, ...parts);
+        if (!fs.statSync(board, { throwIfNoEntry: false })?.isFile())
+          return send(404, "no such board");
+        // A folder per canvas and per size, because refkit names its output after the board's
+        // own basename and two canvases can each hold an `03-home.html`.
+        const out = path.join(os.tmpdir(), "sp-shot", parts[0], size.join("x"));
+        const png = path.join(out, parts[1].replace(/\.html$/, ".png"));
+        const serve = () => {
+          res.setHeader("content-type", "image/png");
+          res.setHeader("cache-control", "no-store");
+          fs.createReadStream(png).pipe(res);
+        };
+        // Drawing one costs seconds of headless Chrome, so the last one stands until the board
+        // it is of is written again — which the generator does, and the watcher already sees.
+        const shot = fs.statSync(png, { throwIfNoEntry: false });
+        if (shot && shot.mtimeMs >= fs.statSync(board).mtimeMs) return serve();
+        // Drawn somewhere else and moved into place when it is whole: the cached name appears at
+        // the instant refkit creates the file, so a second request during the seconds it takes to
+        // write would otherwise find a newer mtime and serve half a picture.
+        const work = fs.mkdtempSync(path.join(os.tmpdir(), "sp-shot-"));
+        const drawn = path.join(work, path.basename(png));
+        const done = () => fs.rmSync(work, { recursive: true, force: true });
+        execFile(
+          "refkit",
+          [
+            "shoot",
+            board,
+            "-o",
+            work,
+            "--w",
+            `${size[0]}`,
+            "--h",
+            `${size[1]}`,
+          ],
+          { timeout: 120_000 },
+          (error) => {
+            if (fs.existsSync(drawn)) {
+              fs.mkdirSync(out, { recursive: true });
+              fs.renameSync(drawn, png);
+              done();
+              return serve();
+            }
+            done();
+            // refkit is this plugin's own toolkit, installed by `uv tool install`; a canvas
+            // started some other way can be running without it, and Chrome is its own ask.
+            send(
+              (error as NodeJS.ErrnoException | null)?.code === "ENOENT"
+                ? 503
+                : 500,
+              error
+                ? `could not render the board: ${error.message}`
+                : "refkit wrote no image",
+            );
+          },
+        );
+      });
+
       // The inspector's status badge, writing back. Only the dev server can do this: a built
       // canvas is static files on a host with no repo behind them, which is why the badge is
       // not a button there.

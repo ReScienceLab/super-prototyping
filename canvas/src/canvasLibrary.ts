@@ -235,7 +235,10 @@ export function boardTabStatusForPath(path: string) {
  * Only the dev server can write. A built canvas is static files on a host with no repo behind
  * them, which is why the badge is not a button there.
  */
-export async function writeBoardStatus(path: string, status: CanvasBoardStatus) {
+export async function writeBoardStatus(
+  path: string,
+  status: CanvasBoardStatus,
+) {
   const file = parse(path);
   if (!file) return false;
   const response = await fetch("/__sp/board-status", {
@@ -374,7 +377,9 @@ if (import.meta.hot) {
   import.meta.hot.on(
     "sp:board-status",
     ({ slug, layout }: { slug: string; layout: CanvasLayoutConfig }) => {
-      const key = Object.keys(layouts).find((path) => LAYOUT_PATTERN.exec(path)?.[1] === slug);
+      const key = Object.keys(layouts).find(
+        (path) => LAYOUT_PATTERN.exec(path)?.[1] === slug,
+      );
       if (!key) return;
       layouts = { ...layouts, [key]: layout };
       window.dispatchEvent(new Event(LAYOUT_CHANGED));
@@ -404,7 +409,9 @@ export function readCanvasLayout(
 
 /** Whether this page collected any brand material: the brand page of one that did not is empty. */
 export function hasBrandMaterial(pageSlug: string) {
-  return (readCanvasLayout(pageSlug)?.rows ?? []).some((row) => row.images?.length);
+  return (readCanvasLayout(pageSlug)?.rows ?? []).some(
+    (row) => row.images?.length,
+  );
 }
 
 /** Every page that collected brand material, in folder order — what the brand page switches between. */
@@ -435,7 +442,11 @@ export function canvasIconUrl(pageSlug: string) {
 
 const BRAND_PATTERN = /canvases\/([^/]+)\/(assets\/brand\/.+)$/;
 
-function brandUrl(urls: Record<string, string>, pageSlug: string, file: string) {
+function brandUrl(
+  urls: Record<string, string>,
+  pageSlug: string,
+  file: string,
+) {
   for (const [path, url] of Object.entries(urls)) {
     const match = BRAND_PATTERN.exec(path);
     if (match?.[1] === pageSlug && match[2] === file) return url;
@@ -457,6 +468,17 @@ export const canvasImageKey = (pageSlug: string, file: string) =>
   `canvas-image:${pageSlug}/${file}`;
 
 const IMAGE_SHAPE_PATTERN = /^shape:canvas-image:([^/]+)\/(.+)$/;
+
+/**
+ * The folder and file behind a board's path, which is the module path the generated index keys
+ * it by and not an address: `<slug>/<file>.html` is what the server and the agent know it as.
+ */
+export function canvasBoardRef(path: string) {
+  const file = parse(path);
+  return file
+    ? { slug: file.pageSlug, file: `${file.fileName}.html` }
+    : undefined;
+}
 
 /** The folder and file behind a brand image's shape id, or undefined for any other shape. */
 export function canvasImageRef(shapeId: string) {
@@ -517,7 +539,9 @@ export function readCanvasLibrary(): CanvasLibraryFile[][] {
   // numeric: true so 02- sorts before 10-, and v1.9 before v1.13. Then `order`: sort is
   // stable, so it only moves the folders that ask to be moved.
   const rank = (slug: string) =>
-    slug === WELCOME_PAGE_SLUG ? -Infinity : (readCanvasLayout(slug)?.order ?? 0);
+    slug === WELCOME_PAGE_SLUG
+      ? -Infinity
+      : (readCanvasLayout(slug)?.order ?? 0);
   return [...byPage.entries()]
     .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
     .sort(([a], [b]) => rank(a) - rank(b))

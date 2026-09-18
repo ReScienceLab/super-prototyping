@@ -1466,6 +1466,47 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   background: var(--tl-color-muted-2);
 }
 
+/* What a board or a picture can be to a message, in its top-right corner while the pointer is
+   over it (canvasAttach.tsx). The layer this is drawn on takes no pointer events, so the buttons
+   ask for them back. Inside the corner, not over it: a button that crossed the shape's edge would
+   leave the shape as the pointer arrived, and take itself away with the hover. */
+.sp-attach {
+  position: absolute;
+  display: flex;
+  gap: 4px;
+  transform: translate(calc(-100% - 8px), 8px);
+  pointer-events: auto;
+}
+
+.sp-attach-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--ds-gray-alpha-400);
+  border-radius: 6px;
+  color: var(--ds-gray-900);
+  background: var(--ds-background-100);
+  box-shadow: var(--ds-shadow-menu);
+  cursor: pointer;
+}
+
+.sp-attach-btn:hover:not(:disabled) {
+  color: var(--ds-gray-1000);
+  background: var(--ds-gray-100);
+}
+
+.sp-attach-btn:disabled {
+  cursor: default;
+}
+
+/* The panel's spinner, out here where the panel's own variables are not. */
+.sp-attach-btn .sp-chat-spin {
+  border-color: var(--ds-gray-400);
+  border-top-color: var(--ds-blue-700);
+}
+
 /* ---- The chat panel (ChatPanel.tsx) ------------------------------------------------ */
 
 /*
@@ -1828,6 +1869,16 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   border-radius: 4px;
   background: var(--ds-blue-100);
   box-shadow: inset 0 0 0 1px var(--ds-blue-400);
+}
+
+/* A board named from the canvas. Neutral, not the command badge's blue: it is a file for the
+   agent to open, not something to run. */
+.sp-chat-file {
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: var(--sp-hover);
+  box-shadow: inset 0 0 0 1px var(--sp-line);
+  color: var(--sp-text-2);
 }
 
 /* A reference: the picture small enough to recognise and the number to say it by. Inline, so it

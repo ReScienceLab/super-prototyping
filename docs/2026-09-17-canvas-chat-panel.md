@@ -351,8 +351,9 @@ A picture attached to a message gets a number, and the message refers to it by t
 is how a person talks about four screenshots at once — the layout from #1, the button from #3,
 the copy from #4 — and it is the only thing a strip of thumbnails cannot say on its own. Numbers
 count up for the life of the composer and are never reused, so a number in the transcript still
-means what it meant when it was typed. Paste, drop, or the button in the row: three ways in,
-because a screenshot is on the clipboard as often as it is in a folder.
+means what it meant when it was typed. Paste, drop, the button in the row, or a shape on the
+canvas: four ways in, because a screenshot is on the clipboard as often as it is in a folder, and
+what the message is about is usually already on the canvas.
 
 Each agent is handed them the way it can take them. Claude gets base64 blocks inline on stdin,
 each behind an `[Image #n] <name>` line, so the numbers the message uses are the numbers the model
@@ -382,6 +383,36 @@ to would have needed no copy at all, and is wrong twice: `refkit` reuses its `-o
 hour-old line in the transcript would quietly show a later screen or 404, and a dev server that
 serves an arbitrary path on request is a disclosure hole. The media type is the agent's word and
 goes out as a response header, so it is checked against `image/…` before it gets there.
+
+
+## What the canvas hands over
+
+The canvas is the other way in, and a mockup on it is not a picture yet. Hovering a board or a
+piece of brand material puts two small buttons inside its top-right corner: **+** writes the
+board's name into the sentence, and the picture frame hands the board over drawn. Brand material
+is already a picture, so it gets the **+** alone and that attaches it.
+
+What **+** writes is `<slug>/<file>.html`, the name the layout, the server and the agent all use
+for a board — not the `../../mockups/canvases/…` module path its shape carries, which is an
+artefact of how the generated index keys them and means nothing to anyone else. The badge is
+atomic and not editable, like the numbered chips, and `readDraft` reads it back verbatim because
+it carries no `data-ref`.
+
+Drawing one is the server's job (`/__sp/shoot`): a board is a page in an `<iframe>` and the
+browser cannot read one of those into a canvas, so `refkit shoot` makes the picture — this repo's
+own renderer, already on PATH beside the CLIs the panel spawns, so what reaches the agent is the
+picture the rest of the toolkit measures and diffs. One is kept per board and per artboard size
+and redrawn when the board is written again, which is the only thing that can change it. It is
+drawn into a directory of its own and moved into place when it is whole, because the cached name
+exists from the instant the renderer creates the file: a second click during the seconds it takes
+to write would otherwise be served half a picture.
+
+The hover is a hit test of our own, because a locked shape gets no hover from tldraw — the same
+`getShapeAtPoint(…, { hitLocked: true })` the inspector's clicks use, so the two agree on what the
+canvas answers for. It has one rule that is not obvious: reaching for the buttons is not a move to
+another shape. A board drawn small is smaller than the buttons are, so the bar hangs over the
+board next door, and following the pointer onto it would carry the bar out from under the finger
+pressing it — which lands the press on the canvas and opens the wrong board.
 
 
 ## Left out

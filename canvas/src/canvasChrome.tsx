@@ -19,6 +19,7 @@ import {
   CommentTool,
   commentToolOverrides,
 } from "@tldraw/commenting";
+import { CanvasAttachButtons } from "./canvasAttach";
 import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
 import {
@@ -302,6 +303,9 @@ export const canvasChromeComponents: TLComponents = {
    * The comments layer: pins, thread popovers and the composer the comment tool opens. Where they
    * are stored, in the board folder and in Git, and how a pin snaps onto the mockup beside it, is
    * all canvasComments.ts; this is only the UI.
+   *
+   * And the buttons that hand a board or a picture to the chat panel (canvasAttach.tsx), which
+   * live here for the same reason: both are drawn over the canvas in screen pixels.
    */
   InFrontOfTheCanvas: () => {
     const chrome = useContext(CanvasChromeContext);
@@ -365,6 +369,8 @@ export const canvasChromeComponents: TLComponents = {
           currentUserId={chrome.commentUser?.id ?? null}
           resolveAuthor={resolveAuthor}
         />
+        {/* Dev only, like the panel they hand things to. */}
+        {import.meta.env.DEV && <CanvasAttachButtons />}
         {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
             next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}
