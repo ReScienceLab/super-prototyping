@@ -3,16 +3,13 @@ import { createPortal } from "react-dom";
 import {
   DefaultContextMenu,
   DefaultContextMenuContent,
-  DefaultQuickActions,
   TldrawUiButton,
   TldrawUiButtonIcon,
-  TldrawUiIcon,
   type Editor,
   type TLComponents,
-  type TLUiAssetUrlOverrides,
+  type TLUiOverrides,
   TldrawUiMenuGroup,
   TldrawUiMenuItem,
-  TldrawUiMenuToolItem,
   useDialogs,
   useEditor,
   useEditorPortalHost,
@@ -23,6 +20,7 @@ import {
   CommentTool,
   commentToolOverrides,
 } from "@tldraw/commenting";
+import { CanvasAttachButtons } from "./canvasAttach";
 import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
 import {
@@ -34,7 +32,15 @@ import {
 import { CanvasCta } from "./canvasCta";
 import { hasBrandMaterial } from "./canvasLibrary";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
-import { FigmaMark } from "./FigmaMark";
+import {
+  Copy,
+  Cross,
+  Layers,
+  LogoFigma,
+  Message,
+  RefreshCounterClockwise,
+  SidebarLeft,
+} from "./geistIcons";
 import { WELCOME_PAGE_SLUG, brandPageUrl, sheetPageUrl } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
@@ -63,6 +69,12 @@ export const CanvasChromeContext = createContext({
   inspectingPath: null as string | null,
   /** Whether the inspector is docked at all, over a board or over a piece of brand material. */
   inspectorOpen: false,
+  /**
+   * Whether the chat panel is shut, and the switch for it. Held by App, because the button that
+   * works it is in the canvas's top bar and the panel it works on is the bar's sibling.
+   */
+  chatCollapsed: false,
+  toggleChat: () => {},
   /** Hands that board's frame to the panel, which reads its report and posts the selection back. */
   setInspectorFrame: (_frame: HTMLIFrameElement | null) => {},
 });
@@ -104,10 +116,58 @@ export const canvasCommentTools = [
   }),
 ];
 
-/** The toolbar entry for that tool. */
-export const canvasCommentOverrides = commentToolOverrides;
+/**
+ * The toolbar entry for that tool, and one action fewer. tldraw keeps Cmd+/ bound to
+ * `toggle-dark-mode` with its menu gone, and everything drawn here is dark only: the ground remap
+ * in index.css is scoped to `.tl-theme__dark`, the welcome board's black art and the panels'
+ * tokens are unconditional. A press left a near-white canvas under a black rail, and App.tsx
+ * forced dark back on the next reload. One theme, so no switch: App.tsx's write at mount is
+ * the theme, and this takes away the one way left of leaving it. Deleting the action is enough
+ * because the shortcut table and the shortcuts dialog both draw from this map — the dialog's
+ * item renders nothing for an action that is not there — and the colour-scheme menu lives only
+ * in tldraw's main menu, which `MainMenu` below replaces. This tldraw exports no user-preference
+ * hook to pin the scheme with; if one arrives, it is the single mechanism to move to.
+ */
+export const canvasUiOverrides: TLUiOverrides = {
+  ...commentToolOverrides,
+  actions(_editor, actions) {
+    delete actions["toggle-dark-mode"];
+    return actions;
+  },
+};
 
 export const canvasChromeComponents: TLComponents = {
+  /**
+   * tldraw's own menu is gone. Everything in it is either somewhere better already, since the
+   * app's export controls are in the bar beside it and cut, copy, paste and undo are on the
+   * keyboard and in the context menu, or it is about editing a document nobody here owns. These
+   * boards are written from files by a generator, so embedding a video in one, uploading media
+   * to one, or picking a language for the app that renders it are eight submenus deep in
+   * settings for something that cannot be edited from this side anyway.
+   *
+   * The slot holds the chat panel's switch instead. It is the leftmost thing in the top bar,
+   * against the window's left edge, which is where the switch for the panel on that edge belongs.
+   * In the panel's own header it would disappear along with the panel and need a second control
+   * to undo it. Dev only, like the panel itself.
+   */
+  MainMenu: import.meta.env.DEV
+    ? () => {
+        const chrome = useContext(CanvasChromeContext);
+        return (
+          <TldrawUiButton
+            type="icon"
+            title={
+              chrome.chatCollapsed
+                ? "Open the chat panel"
+                : "Collapse the chat panel"
+            }
+            onClick={chrome.toggleChat}
+          >
+            <TldrawUiButtonIcon icon={<SidebarLeft />} />
+          </TldrawUiButton>
+        );
+      }
+    : null,
   /**
    * The two CTAs, pinned to the viewport's top-right corner rather than drawn on the welcome
    * board, so they are there on every page and do not scroll away with the canvas. `SharePanel`
@@ -127,13 +187,13 @@ export const canvasChromeComponents: TLComponents = {
    * opens. These shapes are boards written from files, so six buttons for nudging them crowd
    * out the two the bar is for. The actions stay — the keyboard and the context menu have them.
    *
-   * What is left is the app's own. Clone and force-relayout are document-level actions, so they
-   * sit in the top bar with the rest of them rather than with the drawing tools.
+   * What is left is the two places a board goes next, and nothing else. Comment, clone and
+   * force-relayout were here too and are on the right button now (ContextMenu below). They act on
+   * whatever is under the cursor, or on the whole page, which is where a right-click already
+   * points. A top bar of two destinations reads at a glance, and one of five does not.
    */
   ActionsMenu: () => {
-    const chrome = useContext(CanvasChromeContext);
     const editor = useEditor();
-    const { addDialog } = useDialogs();
     const slug = useValue(
       "canvas slug",
       () => editor.getCurrentPage().meta.canvasSlug as string | undefined,
@@ -158,7 +218,7 @@ export const canvasChromeComponents: TLComponents = {
             rel="noopener noreferrer"
             title="Open every board on this page as one web page — the page an importer such as html.to.design reads into Figma"
           >
-            <FigmaMark />
+            <LogoFigma />
             <span className="sp-figma__label">Export to Figma</span>
           </a>
         )}
@@ -178,100 +238,71 @@ export const canvasChromeComponents: TLComponents = {
                 : "Open the brand kits — the logos, social profiles, store listings and advertising these products publish, one kit per example"
             }
           >
-            {/* A palette. Under 720px the label goes and the mark is the whole button, so it
-                has to carry "brand" alone — and a picture frame, however many are stacked
-                behind it, says "images", which is every other button that ever held one. This
-                is the one mark a designer reads as a product's identity without a word. */}
-            <svg
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M12 3.4a8.6 8.6 0 1 0 0 17.2c1.1 0 1.9-.8 1.9-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8h2a4.9 4.9 0 0 0 4.9-4.9c0-3.5-3.9-6.3-9.6-6.3z" />
-              <circle cx="7.6" cy="11.4" r="1.05" />
-              <circle cx="9.9" cy="7.4" r="1.05" />
-              <circle cx="14.4" cy="7.2" r="1.05" />
-            </svg>
+            {/* A stack of sheets. Under 720px the label goes and the mark is the whole button,
+                so it has to carry "brand kit" alone, and Geist's one picture frame says
+                "images", which is every other button that ever held one. A kit is the stack. */}
+            <Layers />
             <span className="sp-brand__label">Brand kit</span>
           </a>
         )}
-        {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
-            a page someone added by hand. */}
-        {import.meta.env.DEV && slug && slug !== WELCOME_PAGE_SLUG && (
-          <TldrawUiButton
-            type="icon"
-            title="Clone this canvas into a new one"
-            onClick={() =>
-              addDialog({
-                component: (dialog) => (
-                  <CloneCanvasDialog {...dialog} slug={slug} />
-                ),
-              })
-            }
-          >
-            <TldrawUiButtonIcon icon="clone-icon" />
-          </TldrawUiButton>
-        )}
-        <TldrawUiButton
-          type="icon"
-          title="Force refresh canvas library (fixes overlapping frames after a layout.json edit)"
-          onClick={chrome.relayoutLibrary}
-        >
-          <TldrawUiButtonIcon icon="refresh-icon" />
-        </TldrawUiButton>
       </>
     );
   },
+  /** The undo, redo, delete and duplicate cluster, gone with the rest of the shape editing, since
+   *  these boards are written from files. The comment button stood here alone for a while, and is
+   *  on the right button with the other two now. */
+  QuickActions: null,
   /**
-   * The comment tool, alone, where undo, redo, delete and duplicate were: on a canvas that is
-   * read rather than drawn on, it is the one mark someone does make.
-   */
-  QuickActions: (props) => {
-    const editor = useEditor();
-    const selected = useValue(
-      "comment tool selected",
-      () => editor.getCurrentToolId() === "comment",
-      [editor],
-    );
-
-    return (
-      <DefaultQuickActions {...props}>
-        <TldrawUiMenuToolItem toolId="comment" isSelected={selected} />
-      </DefaultQuickActions>
-    );
-  },
-  /**
-   * The right button carries what the toolbar used to: commenting, and the relayout. The bottom
-   * toolbar is gone (Toolbar below) because a canvas of boards is read, not drawn on, but a
-   * comment is the one mark someone does want to make, and it should be under the cursor rather
-   * than in a bar at the other end of the screen.
+   * The right button carries everything the top bar does not: commenting, the clone and the
+   * relayout. The bottom toolbar is gone (Toolbar below) because a canvas of boards is read, not
+   * drawn on, and all three of these act on what is under the cursor or on the page it is on,
+   * which is what a right-click has already picked out. The top bar keeps the two links out.
    */
   ContextMenu: (props) => {
     const chrome = useContext(CanvasChromeContext);
     const editor = useEditor();
+    const { addDialog } = useDialogs();
+    const slug = useValue(
+      "canvas slug",
+      () => editor.getCurrentPage().meta.canvasSlug as string | undefined,
+      [editor],
+    );
 
     return (
       <DefaultContextMenu {...props}>
         <TldrawUiMenuGroup id="canvas">
+          {/* The tool's own registration (canvasUiOverrides) is what binds the `c` key. This
+              is only the row, spelled out rather than taken from it, because a registered tool
+              names its icon by id, and the set the rest of this app draws from is components. */}
           <TldrawUiMenuItem
             id="comment"
             label="Comment"
-            icon="comment"
+            icon={<Message />}
             kbd="c"
             onSelect={() => {
               editor.setCurrentTool("comment");
             }}
           />
+          {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
+              a page someone added by hand. */}
+          {import.meta.env.DEV && slug && slug !== WELCOME_PAGE_SLUG && (
+            <TldrawUiMenuItem
+              id="clone"
+              label="Clone this canvas"
+              icon={<Copy />}
+              onSelect={() => {
+                addDialog({
+                  component: (dialog) => (
+                    <CloneCanvasDialog {...dialog} slug={slug} />
+                  ),
+                });
+              }}
+            />
+          )}
           <TldrawUiMenuItem
             id="relayout"
             label="Force refresh"
-            icon="refresh-icon"
+            icon={<RefreshCounterClockwise />}
             onSelect={chrome.relayoutLibrary}
           />
         </TldrawUiMenuGroup>
@@ -290,6 +321,9 @@ export const canvasChromeComponents: TLComponents = {
    * The comments layer: pins, thread popovers and the composer the comment tool opens. Where they
    * are stored, in the board folder and in Git, and how a pin snaps onto the mockup beside it, is
    * all canvasComments.ts; this is only the UI.
+   *
+   * And the buttons that hand a board or a picture to the chat panel (canvasAttach.tsx), which
+   * live here for the same reason: both are drawn over the canvas in screen pixels.
    */
   InFrontOfTheCanvas: () => {
     const chrome = useContext(CanvasChromeContext);
@@ -353,6 +387,8 @@ export const canvasChromeComponents: TLComponents = {
           currentUserId={chrome.commentUser?.id ?? null}
           resolveAuthor={resolveAuthor}
         />
+        {/* Dev only, like the panel they hand things to. */}
+        {import.meta.env.DEV && <CanvasAttachButtons />}
         {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
             next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}
@@ -364,7 +400,7 @@ export const canvasChromeComponents: TLComponents = {
               className="canvas-composer-close"
               onClick={() => editor.setCurrentTool("select")}
             >
-              <TldrawUiIcon icon="cross-2" label="Close" small />
+              <Cross />
             </TldrawUiButton>,
             composer,
           )}
@@ -372,11 +408,4 @@ export const canvasChromeComponents: TLComponents = {
     );
   },
   StylePanel: null,
-};
-
-export const canvasChromeAssetUrls: TLUiAssetUrlOverrides = {
-  icons: {
-    "clone-icon": "/clone.svg",
-    "refresh-icon": "/refresh.svg",
-  },
 };

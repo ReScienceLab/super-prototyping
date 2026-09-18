@@ -173,7 +173,7 @@ TOKENS = _root()
 DARK = _dark()
 
 BASE = """*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--as-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}"""
+body{font-family:var(--as-font);-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}"""
 
 # translateZ(0) composites the frame itself. Safari on iPhone clips composited children (blur,
 # backdrop-filter) of a non-composited ancestor with a plain rectangle, so the screen painted

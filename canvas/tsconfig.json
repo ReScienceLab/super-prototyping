@@ -3,5 +3,10 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  /* A references-only stub otherwise, but shadcn's CLI reads the alias from this file and nowhere
+     else: without it, `shadcn add` writes its components into a folder literally named `@`. */
+  "compilerOptions": {
+    "paths": { "@/*": ["./src/*"] }
+  }
 }

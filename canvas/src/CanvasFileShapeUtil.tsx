@@ -65,6 +65,11 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
     border: 0,
     display: "block",
     pointerEvents: isEditing ? "auto" : "none",
+    // The board's own scheme, so the frame composites transparent rather than painting the
+    // white backdrop a frame gets under a document whose scheme differs from its element's.
+    // On the element, so nothing is written into the board. Measured in
+    // docs/2026-09-17-canvas-geist.md.
+    colorScheme: "light",
   };
 
   return (
@@ -118,7 +123,13 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
       ) : hasCanvasFile(shape.props.path) ? null : (
         // A board that exists but is not in yet renders nothing, so the frame fills in when its
         // chunk arrives rather than flashing an error first.
-        <div style={{ padding: 16, font: "13px sans-serif", color: "#a33" }}>
+        <div
+          style={{
+            padding: 16,
+            font: "13px var(--sp-sans)",
+            color: "var(--ds-red-900)",
+          }}
+        >
           Missing source: {shape.props.path}
         </div>
       )}

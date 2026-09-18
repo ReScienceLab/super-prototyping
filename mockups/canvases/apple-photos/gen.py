@@ -116,7 +116,7 @@ TOKENS = """:root{
 }"""
 
 BASE = """*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--ap-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}"""
+body{font-family:var(--ap-font);-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}"""
 
 PHONE = """.phone{width:var(--ap-w);height:var(--ap-h);position:relative;flex:none;overflow:hidden;border-radius:var(--ap-r-phone);background:var(--ap-bg);color:var(--ap-ink);outline:1px solid rgba(0,0,0,.10);box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
 .sb{position:absolute;left:0;right:0;top:0;height:var(--ap-sb);z-index:6}

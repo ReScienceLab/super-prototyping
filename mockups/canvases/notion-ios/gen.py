@@ -108,7 +108,7 @@ TOKENS = """/* =================================================================
 # The bezel, the status bar and the home indicator are this repo's framing,
 # not a property of the app.
 BASE = """*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--n-font);background:#fff;-webkit-font-smoothing:antialiased;
+body{font-family:var(--n-font);-webkit-font-smoothing:antialiased;
   display:flex;justify-content:center;padding:24px}
 .phone{width:393px;height:852px;position:relative;border-radius:52px;overflow:hidden;flex:none;
   background:var(--n-bg);outline:1px solid rgba(0,0,0,.10);

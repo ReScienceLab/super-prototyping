@@ -6,6 +6,9 @@ import {
   useState,
 } from "react";
 import {
+  Ellipse2d,
+  ImageShapeUtil,
+  Rectangle2d,
   Tldraw,
   commentSchemaRecords,
   createShapeId,
@@ -21,12 +24,12 @@ import {
   type TLPageId,
   type TLAsset,
   type TLAssetStore,
+  type TLImageShape,
   type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
   useEditor,
   useLocalStore,
-  useValue,
 } from "tldraw";
 import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
@@ -83,14 +86,30 @@ import { canvasesDir, canvasesNamespace } from "virtual:canvases";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasChromeContext,
-  canvasChromeAssetUrls,
   canvasChromeComponents,
-  canvasCommentOverrides,
+  canvasUiOverrides,
   canvasCommentTools,
 } from "./canvasChrome";
 
+/**
+ * A picture is the whole of its box. tldraw hit-tests an image that can carry transparency against
+ * its own pixels, so a mockup drawn on nothing answers nothing where it is nothing: the inspector
+ * stays shut and the attach buttons never appear except over the drawing itself. Here a picture is
+ * a tile in a row of tiles, and the empty part of a tile is still that tile.
+ */
+class CanvasImageShapeUtil extends ImageShapeUtil {
+  override getGeometry(shape: TLImageShape) {
+    const box = { width: shape.props.w, height: shape.props.h, isFilled: true };
+    // A circle crop is still a circle; it is only the alpha channel that stops counting.
+    return shape.props.crop?.isCircle
+      ? new Ellipse2d(box)
+      : new Rectangle2d(box);
+  }
+}
+
 const shapeUtils = [
   CanvasFileShapeUtil,
+  CanvasImageShapeUtil,
   CanvasLinkShapeUtil,
   CanvasStatusBannerShapeUtil,
 ];
@@ -137,8 +156,14 @@ const TLDRAW_LICENSE_KEY: string | undefined = import.meta.env
 const storeOptions = {
   persistenceKey: PERSISTENCE_KEY,
   // The same set `<Tldraw>` merges for itself; the schema has to know every type the document
-  // can hold, hand-drawn annotations included.
-  shapeUtils: [...defaultShapeUtils, ...shapeUtils],
+  // can hold, hand-drawn annotations included. A default one of ours stands in for is dropped
+  // rather than listed beside it: the schema refuses the same shape type twice.
+  shapeUtils: [
+    ...defaultShapeUtils.filter(
+      (fallback) => !shapeUtils.some((ours) => ours.type === fallback.type),
+    ),
+    ...shapeUtils,
+  ],
   bindingUtils: defaultBindingUtils,
   assetUtils: defaultAssetUtils,
   records: commentSchemaRecords,
@@ -244,22 +269,6 @@ function AgentBridge() {
 function LockedLinkClicks() {
   const editor = useEditor();
   useEffect(() => installLockedLinkClicks(editor), [editor]);
-  return null;
-}
-
-/** Blacks out the canvas under the welcome board, whose art runs to its own edges. */
-function WelcomeGround() {
-  const editor = useEditor();
-  const isWelcome = useValue(
-    "on the welcome page",
-    () => editor.getCurrentPage().meta.canvasSlug === WELCOME_PAGE_SLUG,
-    [editor],
-  );
-  useEffect(() => {
-    const container = editor.getContainer();
-    container.classList.toggle("canvas-welcome-ground", isWelcome);
-    return () => container.classList.remove("canvas-welcome-ground");
-  }, [editor, isWelcome]);
   return null;
 }
 
@@ -1232,6 +1241,8 @@ function initializeCanvas(editor: Editor) {
 /** Distance from the viewport's edge to the board the address named, in screen px. */
 const BOARD_ZOOM_INSET = 80;
 
+const CHAT_COLLAPSED_KEY = "sp-chat-collapsed";
+
 export default function App() {
   /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
   const [inspecting, setInspecting] = useState<CanvasLibraryFile | null>(null);
@@ -1241,6 +1252,17 @@ export default function App() {
   const [commentUser, setCommentUser] = useState(readCommentUser);
   /** State rather than a ref: the inspector panel renders outside `<Tldraw>` and needs it. */
   const [editor, setEditor] = useState<Editor | null>(null);
+  /** Whether the chat panel is shut. Here rather than in the panel, because the button that works
+   * it sits in the canvas's top bar, which is the panel's sibling, not its child. Remembered
+   * across reloads, because it is a preference about this window, not about any one board. */
+  const [chatCollapsed, setChatCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(CHAT_COLLAPSED_KEY) === "true";
+    } catch {
+      // Storage unavailable (private mode, blocked cookies), so the panel starts open.
+      return false;
+    }
+  });
   const store = useLocalStore(storeOptions);
   /** What the inspector has open, spelled the way the address spells it: a board by file name,
    * a picture by its path inside the folder, each with the page it belongs to. For the address
@@ -1325,6 +1347,9 @@ export default function App() {
 
   function handleMount(editor: Editor) {
     setEditor(editor);
+    // tldraw's own dark theme, to match the panel's. A dark rail against tldraw's near-white ground
+    // looks like two apps in one window, and the ground is most of the window.
+    editor.user.updateUserPreferences({ colorScheme: "dark" });
     initializeCanvas(editor);
     // After the library, which is what creates the pages the comments are keyed to.
     const disposeComments = installCanvasComments(editor);
@@ -1359,6 +1384,15 @@ export default function App() {
         inspectBoard: onPick,
         inspectingPath: inspecting?.path ?? null,
         inspectorOpen: Boolean(inspecting || inspectingImage),
+        chatCollapsed,
+        toggleChat: () => {
+          try {
+            localStorage.setItem(CHAT_COLLAPSED_KEY, String(!chatCollapsed));
+          } catch {
+            // Storage unavailable (private mode, blocked cookies), so the choice lasts until a reload.
+          }
+          setChatCollapsed(!chatCollapsed);
+        },
         setInspectorFrame: (frame: HTMLIFrameElement | null) => {
           inspectorFrame.current = frame;
         },
@@ -1369,12 +1403,11 @@ export default function App() {
         {import.meta.env.DEV && <ChatPanel />}
         <main className="tldraw__editor" aria-label="Prototype design canvas">
           <Tldraw
-            assetUrls={canvasChromeAssetUrls}
             components={canvasChromeComponents}
             store={store}
             shapeUtils={shapeUtils}
             tools={canvasCommentTools}
-            overrides={canvasCommentOverrides}
+            overrides={canvasUiOverrides}
             licenseKey={TLDRAW_LICENSE_KEY}
             onMount={handleMount}
           >
@@ -1386,7 +1419,6 @@ export default function App() {
               inspectingPath={inspecting?.path ?? null}
               frame={inspectorFrame}
             />
-            <WelcomeGround />
             <EmptyLibraryNotice />
           </Tldraw>
         </main>

@@ -12,7 +12,7 @@
  * the state and the DOM.
  */
 import type { AgentId } from "./agents";
-import type { ChatEvent } from "./claudeStream";
+import type { ChatEvent, Shot } from "./claudeStream";
 
 export interface Frame {
   id: number;
@@ -23,7 +23,15 @@ export interface Frame {
 export type Block =
   | { kind: "text"; text: string }
   | { kind: "thinking" }
-  | { kind: "tool"; id: string; name: string; detail: string; ok?: boolean };
+  | {
+      kind: "tool";
+      id: string;
+      name: string;
+      detail: string;
+      ok?: boolean;
+      /** What it handed back in pictures; the panel draws them under the line. */
+      shots?: Shot[];
+    };
 
 export interface Turn {
   runId: string;
@@ -33,6 +41,8 @@ export interface Turn {
   /** The model's, once it has given one; the prompt's first line until then. */
   title?: string;
   blocks: Block[];
+  /** What the composer attached, by number; the sent message draws them under its text. */
+  images?: { n: number; name: string }[];
   /** What the turn put in the context window, once the agent has said; the composer shows it. */
   usage?: { used: number; window?: number };
   /** Set once the run has ended: whether it succeeded and, if not, why. */
@@ -43,25 +53,44 @@ export function applyFrame(turn: Turn, frame: Frame): Turn {
   const e = frame.data as ChatEvent;
   switch (e.kind) {
     case "start":
-      return { ...turn, agent: e.agent, prompt: e.prompt, title: e.title };
+      return {
+        ...turn,
+        agent: e.agent,
+        prompt: e.prompt,
+        title: e.title,
+        images: e.images,
+      };
     case "title":
       return { ...turn, title: e.title };
     case "text": {
       const last = turn.blocks.at(-1);
       const blocks =
         last?.kind === "text"
-          ? [...turn.blocks.slice(0, -1), { kind: "text" as const, text: last.text + e.text }]
+          ? [
+              ...turn.blocks.slice(0, -1),
+              { kind: "text" as const, text: last.text + e.text },
+            ]
           : [...turn.blocks, { kind: "text" as const, text: e.text }];
       return { ...turn, blocks };
     }
     case "thinking":
       return { ...turn, blocks: [...turn.blocks, { kind: "thinking" }] };
     case "tool":
-      return { ...turn, blocks: [...turn.blocks, { kind: "tool", id: e.id, name: e.name, detail: e.detail }] };
+      return {
+        ...turn,
+        blocks: [
+          ...turn.blocks,
+          { kind: "tool", id: e.id, name: e.name, detail: e.detail },
+        ],
+      };
     case "tool_done":
       return {
         ...turn,
-        blocks: turn.blocks.map((b) => (b.kind === "tool" && b.id === e.id ? { ...b, ok: e.ok } : b)),
+        blocks: turn.blocks.map((b) =>
+          b.kind === "tool" && b.id === e.id
+            ? { ...b, ok: e.ok, shots: e.shots }
+            : b,
+        ),
       };
     case "usage":
       return { ...turn, usage: { used: e.used, window: e.window } };
@@ -82,7 +111,12 @@ export function sseFrames(buffer: string): { frames: Frame[]; rest: string } {
       if (at > 0) fields[line.slice(0, at)] = line.slice(at + 2);
     }
     // A comment line (the server's keepalive) has no fields at all.
-    if (fields.data) frames.push({ id: Number(fields.id), event: fields.event, data: JSON.parse(fields.data) });
+    if (fields.data)
+      frames.push({
+        id: Number(fields.id),
+        event: fields.event,
+        data: JSON.parse(fields.data),
+      });
   }
   return { frames, rest };
 }
@@ -107,9 +141,12 @@ export async function followRun(
     const idle = new AbortController();
     let timer = setTimeout(() => idle.abort(), IDLE_MS);
     try {
-      const res = await fetch(`/__sp/agent/run/${runId}/events?after=${cursor}`, {
-        signal: AbortSignal.any([signal, idle.signal]),
-      });
+      const res = await fetch(
+        `/__sp/agent/run/${runId}/events?after=${cursor}`,
+        {
+          signal: AbortSignal.any([signal, idle.signal]),
+        },
+      );
       if (!res.ok) throw new Error(await res.text());
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
@@ -119,7 +156,9 @@ export async function followRun(
         if (done) break;
         clearTimeout(timer);
         timer = setTimeout(() => idle.abort(), IDLE_MS);
-        const decoded = sseFrames(buffer + decoder.decode(value, { stream: true }));
+        const decoded = sseFrames(
+          buffer + decoder.decode(value, { stream: true }),
+        );
         buffer = decoded.rest;
         for (const frame of decoded.frames) {
           cursor = frame.id;
@@ -132,6 +171,7 @@ export async function followRun(
     } finally {
       clearTimeout(timer);
     }
-    if (reconnects === RECONNECTS) throw new Error("lost the run's event stream");
+    if (reconnects === RECONNECTS)
+      throw new Error("lost the run's event stream");
   }
 }

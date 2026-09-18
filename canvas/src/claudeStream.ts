@@ -10,8 +10,10 @@
  * Text comes only from `stream_event` deltas, never from the `assistant` frame that repeats each
  * finished message in full: taking both would print every paragraph twice. Tool calls come only
  * from the `assistant` frame, because that is where `input` is complete — the deltas carry it as
- * JSON fragments. Tool results come from the `user` frame that carries them back. Frames with a
- * `parent_tool_use_id` belong to a sub-agent and are skipped whole.
+ * JSON fragments. Tool results come from the `user` frame that carries them back, and with them
+ * any picture the tool returned — the working images of a clone arrive here rather than being
+ * watched for on disk. Frames with a `parent_tool_use_id` belong to a sub-agent and are skipped
+ * whole.
  *
  * Thinking is a marker, not text: on 2.1.274 every thinking delta arrives with an empty string
  * and a token estimate, so there is nothing to show but that it happened.
@@ -33,14 +35,37 @@
 import type { AgentId } from "./agents.ts";
 
 export type ChatEvent =
-  | { kind: "start"; agent: AgentId; prompt: string; title: string; at: number }
+  | {
+      kind: "start";
+      agent: AgentId;
+      prompt: string;
+      title: string;
+      at: number;
+      /**
+       * What the composer attached, by the number the message refers to. The picture itself is a
+       * request away (`/run/<id>/image/<n>`), so a reload — which is how a written board reaches
+       * the page — rebuilds the strip without carrying the bytes through the stream again.
+       */
+      images?: { n: number; name: string }[];
+    }
   | { kind: "title"; title: string }
   | { kind: "text"; text: string }
   | { kind: "thinking" }
   | { kind: "tool"; id: string; name: string; detail: string }
-  | { kind: "tool_done"; id: string; ok: boolean }
+  | { kind: "tool_done"; id: string; ok: boolean; shots?: Shot[] }
   | { kind: "usage"; used: number; window?: number }
   | { kind: "end"; ok: boolean; message?: string };
+
+/**
+ * A picture a tool handed back: the grid refkit draws over a reference, a crop, a screenshot —
+ * the working images of a clone, which the panel draws under the call that produced them.
+ *
+ * Two shapes, one on each side of the dev server. The parser lifts the bytes off the frame; the
+ * server files them under the run and passes on only `k`, the number to ask for them by, for the
+ * same reason the composer's attachments are served rather than replayed: the page rebuilds every
+ * turn from event zero after the reload a written board causes, and a full-page grid is megabytes.
+ */
+export type Shot = { type: string; data: string } | { k: number };
 
 /** The parts of a frame this reads; the rest of Claude Code's schema stays untyped. */
 interface Frame {
@@ -60,25 +85,52 @@ interface Frame {
 }
 
 type Block =
-  | { type: "tool_use"; id: string; name: string; input: Record<string, unknown> }
-  | { type: "tool_result"; tool_use_id: string; is_error?: boolean }
+  | {
+      type: "tool_use";
+      id: string;
+      name: string;
+      input: Record<string, unknown>;
+    }
+  | {
+      type: "tool_result";
+      tool_use_id: string;
+      is_error?: boolean;
+      /** A string for most tools; the blocks the model was handed when one returned pictures. */
+      content?: string | ResultBlock[];
+    }
   | { type: "text" | "thinking" };
+
+interface ResultBlock {
+  type: string;
+  source?: { type: string; media_type: string; data: string };
+}
 
 // ponytail: one line per call from whichever argument names its target; the panel truncates it.
 const toolDetail = (input: Record<string, unknown>) =>
   String(
-    input.file_path ?? input.path ?? input.command ?? input.pattern ?? input.url ??
-      input.description ?? input.skill ?? "",
+    input.file_path ??
+      input.path ??
+      input.command ??
+      input.pattern ??
+      input.url ??
+      input.description ??
+      input.skill ??
+      "",
   );
 
 export function chatEventsFromLine(line: string): ChatEvent[] {
   const frame: Frame = JSON.parse(line);
   if (frame.parent_tool_use_id) return [];
-  const blocks = Array.isArray(frame.message?.content) ? frame.message.content : [];
+  const blocks = Array.isArray(frame.message?.content)
+    ? frame.message.content
+    : [];
   switch (frame.type) {
     case "stream_event": {
       const e = frame.event!;
-      if (e.type === "content_block_start" && e.content_block!.type === "thinking") {
+      if (
+        e.type === "content_block_start" &&
+        e.content_block!.type === "thinking"
+      ) {
         return [{ kind: "thinking" }];
       }
       if (e.type === "content_block_delta" && e.delta!.type === "text_delta") {
@@ -89,20 +141,45 @@ export function chatEventsFromLine(line: string): ChatEvent[] {
     case "assistant":
       return blocks.flatMap((b) =>
         b.type === "tool_use"
-          ? [{ kind: "tool" as const, id: b.id, name: b.name, detail: toolDetail(b.input) }]
+          ? [
+              {
+                kind: "tool" as const,
+                id: b.id,
+                name: b.name,
+                detail: toolDetail(b.input),
+              },
+            ]
           : [],
       );
     case "user":
-      return blocks.flatMap((b) =>
-        b.type === "tool_result"
-          ? [{ kind: "tool_done" as const, id: b.tool_use_id, ok: !b.is_error }]
-          : [],
-      );
+      return blocks.flatMap((b) => {
+        if (b.type !== "tool_result") return [];
+        // The pictures in what the tool returned. Read hands an image back as a base64 block
+        // where another tool would have put text — so the panel gets the grid the agent is
+        // looking at for free, without anyone watching the project directory for files.
+        const shots = Array.isArray(b.content)
+          ? b.content.flatMap((c) =>
+              c.type === "image" && c.source?.type === "base64"
+                ? [{ type: c.source.media_type, data: c.source.data }]
+                : [],
+            )
+          : [];
+        return [
+          {
+            kind: "tool_done" as const,
+            id: b.tool_use_id,
+            ok: !b.is_error,
+            shots: shots.length ? shots : undefined,
+          },
+        ];
+      });
     case "result": {
       const ok = frame.subtype === "success" && !frame.is_error;
       return [
         ...tokens(frame),
-        ok ? { kind: "end", ok } : { kind: "end", ok, message: frame.result || frame.subtype },
+        ok
+          ? { kind: "end", ok }
+          : { kind: "end", ok, message: frame.result || frame.subtype },
       ];
     }
     default:
@@ -128,7 +205,9 @@ function tokens(frame: Frame): ChatEvent[] {
     (u.output_tokens ?? 0);
   // A turn that ran a sub-agent reports both models, the sub-agent's first, and `usage` above
   // has summed the two; the bigger window is the one that turn was up against.
-  const windows = Object.values(frame.modelUsage ?? {}).map((m) => m.contextWindow ?? 0);
+  const windows = Object.values(frame.modelUsage ?? {}).map(
+    (m) => m.contextWindow ?? 0,
+  );
   const window = windows.length ? Math.max(...windows) : undefined;
   return [{ kind: "usage", used, window }];
 }

@@ -186,7 +186,7 @@ TOKENS = _root()
 DARK = _dark()
 
 BASE = """*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--aw-font);background:#fff;-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}"""
+body{font-family:var(--aw-font);-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:24px}"""
 
 PHONE = """.phone{width:var(--aw-w);height:var(--aw-h);position:relative;flex:none;overflow:hidden;border-radius:var(--aw-r-phone);background:var(--aw-bg);color:var(--aw-ink);outline:1px solid rgba(0,0,0,.10);box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
 .sb{position:absolute;left:0;right:0;top:0;height:var(--aw-sb);z-index:8}

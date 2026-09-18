@@ -83,13 +83,13 @@ one shape. Switch with the page menu at the top-left; do not build a separate
 switcher. `references/layout.md` has the `layout.json` schema, the caption
 rules, and the 478 × 980 / sandbox constraints every artboard lives under.
 
-**After editing `layout.json`, press the refresh button in the top bar,**
-next to the `…` actions menu. Shape creation is idempotent. It fills in what
-is missing but never moves a shape that already exists, so inserting or
-reordering a row entry leaves the old shape at its old position, overlapping
-the new one. Force-refresh deletes every `canvas-file` /
-`canvas-row-heading` / `canvas-file-label` shape on all pages and rebuilds
-them from the current files. Content-only edits to a placed file do **not**
+**After editing `layout.json`, right-click the canvas and choose Force
+refresh.** Shape creation is idempotent. It fills in what is missing but never
+moves a shape that already exists, so inserting or reordering a row entry
+leaves the old shape at its old position, overlapping the new one. Force
+refresh deletes every `canvas-file` / `canvas-row-heading` /
+`canvas-file-label` shape on all pages and rebuilds them from the current
+files. Content-only edits to a placed file do **not**
 need it: the dev server reloads the canvas onto the rewritten board.
 
 ## Drive the canvas
@@ -151,7 +151,7 @@ project, or the panel says it cannot run; `sp-canvas start` sets it.
 
 The document lives in the browser's IndexedDB under `PERSISTENCE_KEY` in the
 app's `src/App.tsx`. A board's identity is its path key, so renaming a folder
-or a file orphans that board's shapes; the refresh button rebuilds them.
+or a file orphans that board's shapes; Force refresh rebuilds them.
 Ordinary layout drift is what refresh is for, not a persistence-key bump.
 
 ## Working on the canvas app itself
@@ -165,9 +165,8 @@ bun run lint && bun run test && bun run build
 ```
 
 Then, in a fresh browser session: each board page loads with its frames,
-headings and captions; the frames stay independently selectable; the styles
-panel starts hidden and toggles; the top-bar refresh button rebuilds a board
-cleanly.
+headings and captions; the frames stay independently selectable; the inspector
+opens on the board you click; Force refresh rebuilds a board cleanly.
 
 Board discovery is a generated module, not an `import.meta.glob` — see the
 `prototyping-canvases` plugin in `canvas/vite.config.ts`. Bump

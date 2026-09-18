@@ -413,8 +413,8 @@ addEventListener('load',function(){send();schedule();});
 function overlay(css){var d=document.createElement('div');
   d.style.cssText='position:fixed;pointer-events:none;z-index:2147483647;display:none;box-sizing:border-box;'+css;
   document.documentElement.appendChild(d);return d;}
-var hi=overlay('box-shadow:0 0 0 1.5px #0d99ff'),hov=overlay('box-shadow:0 0 0 1px #0d99ff'),
-  badge=overlay('height:16px;padding:0 4px;border-radius:2px;background:#0d99ff;color:#fff;font:10px/16px Inter,system-ui,sans-serif;white-space:nowrap;transform:translateX(-50%)');
+var hi=overlay('box-shadow:0 0 0 1.5px #006EFE'),hov=overlay('box-shadow:0 0 0 1px #006EFE'),
+  badge=overlay('height:16px;padding:0 4px;border-radius:2px;background:#006EFE;color:#fff;font:10px/16px system-ui,sans-serif;white-space:nowrap;transform:translateX(-50%)');
 function fmt(n){return String(Math.round(n*100)/100);}
 function place(d,el){if(!el){d.style.display='none';return null;}var r=el.getBoundingClientRect();
   d.style.display='block';d.style.left=r.left+'px';d.style.top=r.top+'px';d.style.width=r.width+'px';d.style.height=r.height+'px';return r;}

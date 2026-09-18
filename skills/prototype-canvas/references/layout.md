@@ -118,10 +118,9 @@ out top to bottom:
   button in the toolbar and a page of its own at `brand.html?canvas=<slug>`.
   The `brand-kit` skill is how those rows get filled.
 
-After editing `layout.json`, press the **refresh** button in the top bar, next
-to the `…` actions menu. Shape creation is idempotent (it never moves a shape
-that already exists), so reordering a row needs that force-relayout to take
-effect.
+After editing `layout.json`, right-click the canvas and choose **Force
+refresh**. Shape creation is idempotent (it never moves a shape that already
+exists), so reordering a row needs that refresh to take effect.
 
 ## Constraints on every artboard
 
@@ -132,6 +131,12 @@ Boards render inside `<iframe srcDoc sandbox="">`:
   SVG, each kept as `assets/icons/<name>.svg` so the inspector can name it.
   A sandboxed iframe has no shared stylesheet, so the `:root` block is
   copied byte-identically into every board rather than imported.
+- **No page ground.** The canvas releases the frame's own opaque white
+  background, so a board shows the canvas through wherever it paints nothing.
+  Leave `html` and `body` with no `background` and let `.phone` paint its own,
+  so a screen board floats on the canvas instead of sitting on a white card.
+  Document boards, the token sheet and the evidence sheets, are the exception.
+  They are a page rather than a device, and their black text needs a ground.
 - **The shape box is 478 × 980** (`CANVAS_FILE_DEFAULT_SIZE`). The iframe
   clips anything past that box with no warning, so check every fixed-height
   board after adding a row. A board that needs another size declares `w`/`h`
