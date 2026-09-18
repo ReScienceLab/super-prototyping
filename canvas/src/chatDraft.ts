@@ -8,6 +8,15 @@
  * box, the caret and the chips themselves.
  */
 
+/**
+ * Whether the box still points at an attached picture. A chip whose picture was removed is struck
+ * through rather than taken out — the sentence is not rewritten under whoever typed it — and it
+ * still reads as "#N" below, so it counts. This is what lets the numbering start over: while it
+ * is false, no number in the box can be repointed by handing it out again.
+ */
+export const namesAPicture = (box: ParentNode) =>
+  !!box.querySelector("[data-ref]");
+
 /** What the box says, as text: a chip as "#N", a break as a newline. */
 export function readDraft(node: Node): string {
   let out = "";

@@ -21,10 +21,13 @@
  * screenshot in the tray above it as #1, #2, #3; clicking a tile drops that number into the
  * sentence as a chip, so a message can say "borrow the button from #2 and the copy from #3" and
  * mean it. A picture handed over from the canvas writes its own chip as it lands, since one
- * pointed at is one the message is already about. The numbers are handed out in arrival order and never reused — removing #2 of three
- * leaves #1 and #3, and the next attachment is #4 — because renumbering would silently repoint a
- * sentence already typed. That is why the box is a contenteditable and not a textarea: a chip is
- * an element in the text, which a textarea cannot hold (chatDraft.ts reads it back).
+ * pointed at is one the message is already about. The numbers are handed out in arrival order and
+ * never reused while anything still points at one — removing #2 of three leaves #1 and #3, and the
+ * next attachment is #4 — because renumbering would silently repoint a sentence already typed.
+ * They start again at #1 once nothing does: an empty tray and an empty box, which is where a
+ * false start leaves the panel and where sending leaves it too. That is why the box is a
+ * contenteditable and not a textarea: a chip is an element in the text, which a textarea cannot
+ * hold (chatDraft.ts reads it back).
  *
  * Pictures come back the other way too: whatever a tool hands the agent as an image — the grid
  * refkit draws over a reference, a crop, a screenshot — is drawn under the call that produced it,
@@ -45,7 +48,7 @@ import type { RunSummary } from "./agentRun";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./canvasAttach";
 import { CanvasChromeContext } from "./canvasChrome";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
-import { readDraft } from "./chatDraft";
+import { namesAPicture, readDraft } from "./chatDraft";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
@@ -399,16 +402,37 @@ export function ChatPanel() {
     return () => window.removeEventListener(CANVAS_ATTACH, take);
   });
 
+  /**
+   * Back to #1 once nothing points at a number any more: no tile in the tray, and no chip left in
+   * the box. A number is never reused while something does point at it, because renumbering under
+   * a sentence already typed would silently repoint it — but a false start that has been cleared
+   * away leaves nothing to repoint, and the next picture there should be #1 and not #2.
+   *
+   * Called wherever both can empty: removing a tile, editing the box, sending, starting over.
+   * `left` rather than `attached`, since the tray this is deciding about is the one after the
+   * removal and React has not re-rendered with it yet.
+   */
+  const renumber = (left: Attached[]) => {
+    if (
+      left.length === 0 &&
+      composer.current &&
+      !namesAPicture(composer.current)
+    )
+      nextN.current = 1;
+  };
+
   // The tile goes; the chips that named it stay where they were written, struck through and
   // without their picture. A sentence is not rewritten because what it pointed at was removed.
   const detach = (n: number) => {
-    setAttached((a) => a.filter((i) => i.n !== n));
+    const left = attached.filter((i) => i.n !== n);
+    setAttached(left);
     for (const chip of composer.current?.querySelectorAll(
       `[data-ref="${n}"]`,
     ) ?? []) {
       chip.classList.add("sp-chat-ref-gone");
       chip.querySelector("img")?.remove();
     }
+    renumber(left);
   };
 
   const prefer = (patch: { model?: string; effort?: string }) => {
@@ -442,6 +466,9 @@ export function ChatPanel() {
     composer.current?.replaceChildren();
     setDraft("");
     setAttached([]);
+    // The sent message keeps its own numbers — the transcript draws them from the turn — so the
+    // next one starts at #1 rather than carrying on from where this one stopped.
+    renumber([]);
     const { runId } = await res.json();
     const images = attached.map(({ n, name }) => ({ n, name }));
     setTurns((ts) => [
@@ -492,6 +519,7 @@ export function ChatPanel() {
     composer.current?.replaceChildren();
     setDraft("");
     setAttached([]);
+    renumber([]);
     setSendError(null);
     composer.current?.focus();
   };
@@ -876,6 +904,8 @@ export function ChatPanel() {
             const text = readDraft(box);
             setDraft(text);
             setSlashAt(0);
+            // Deleting the last struck-through chip is the other way the box empties.
+            renumber(attached);
             // Escape closes the palette for the word it was typed in; the next one opens again.
             if (!text.startsWith("/")) setSlashOff(false);
           }}

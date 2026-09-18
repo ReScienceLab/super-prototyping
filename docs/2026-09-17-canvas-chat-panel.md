@@ -350,8 +350,12 @@ it does.
 A picture attached to a message gets a number, and the message refers to it by that number. That
 is how a person talks about four screenshots at once — the layout from #1, the button from #3,
 the copy from #4 — and it is the only thing a strip of thumbnails cannot say on its own. Numbers
-count up for the life of the composer and are never reused, so a number in the transcript still
-means what it meant when it was typed. Paste, drop, the button in the row, or a shape on the
+count up while anything still points at one and are never reused under it, so a number in the
+transcript still means what it meant when it was typed; they start over at #1 once nothing does,
+which is where sending leaves the composer and where clearing away a false start leaves it too.
+The cleared-away case is the one worth naming: a picture attached, thought better of and removed
+leaves an empty tray and an empty box, and the next one there being #2 reads as a bug, because
+there is no #1 anywhere to tell it apart from. Paste, drop, the button in the row, or a shape on the
 canvas: four ways in, because a screenshot is on the clipboard as often as it is in a folder, and
 what the message is about is usually already on the canvas.
 
