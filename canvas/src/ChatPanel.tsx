@@ -47,9 +47,10 @@
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { useValue } from "tldraw";
 import {
-  IMAGE_TYPES,
+  ATTACH_TYPES,
   MAX_IMAGE_BYTES,
   MAX_IMAGES,
+  SVG_TYPE,
   type AgentId,
   type AgentModel,
 } from "./agents";
@@ -63,6 +64,7 @@ import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
 import { Check, ClockRewind, Image, Plus } from "./geistIcons";
 import { renderMarkdown } from "./markdown";
+import { rasterizeSvg } from "./svgRaster";
 
 const RUNS_KEY = "sp-chat-runs";
 const AGENT_KEY = "sp-chat-agent";
@@ -438,20 +440,28 @@ export function ChatPanel() {
     (adds.current = adds.current
       .then(async () => {
         const given = [...(list ?? [])];
-        const picked = given.filter((f) => IMAGE_TYPES.includes(f.type));
+        const taken = given.filter((f) => ATTACH_TYPES.includes(f.type));
         // A file the agent could not look at is refused here rather than by the server, and said:
         // the file dialog offers only these, but a drop, a paste and the canvas hand over anything.
         setSendError(
-          picked.length < given.length
-            ? "only png, jpeg, gif and webp pictures can be attached"
+          taken.length < given.length
+            ? "only png, jpeg, gif, webp and svg pictures can be attached"
             : null,
         );
-        if (picked.length === 0) return;
+        if (taken.length === 0) return;
         // What cannot fit whatever the tray holds is refused before it is read: a read is the
-        // whole file in memory, a third larger.
+        // whole file in memory, a third larger. Measured on the files as they arrived, since
+        // that is what a drawing has to hold in memory too.
         const tooBig = `those are too large to attach; keep them under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`;
-        if (picked.reduce((n, f) => n + f.size, 0) > MAX_IMAGE_BYTES)
+        if (taken.reduce((n, f) => n + f.size, 0) > MAX_IMAGE_BYTES)
           return setSendError(tooBig);
+        // A vector is drawn into a PNG here, at the one door every attachment comes through —
+        // the picker, a paste, a drop, and the + on a canvas shape, which hands its asset over
+        // with whatever type the asset has. Past this line everything is an IMAGE_TYPE, so the
+        // tray, the limits, the preview and the agent all go on seeing what they always saw.
+        const picked = await Promise.all(
+          taken.map((f) => (f.type === SVG_TYPE ? rasterizeSvg(f) : f)),
+        );
         // Read first and numbered after, which is what lets the same picture keep the number it
         // already has: pressing + on one twice is one picture said twice, not two — and not a
         // twenty-first, so the limits are over what is new. Still numbered in the order they
@@ -1177,7 +1187,7 @@ export function ChatPanel() {
         <input
           ref={files}
           type="file"
-          accept={IMAGE_TYPES.join(",")}
+          accept={ATTACH_TYPES.join(",")}
           multiple
           hidden
           onChange={(e) => {

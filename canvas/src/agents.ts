@@ -40,6 +40,14 @@ export const IMAGE_TYPES = [
   "image/gif",
   "image/webp",
 ];
+export const SVG_TYPE = "image/svg+xml";
+/**
+ * What the composer takes at the door, which is one more than what travels: an SVG is accepted
+ * and drawn into a PNG on the way in (svgRaster.ts), so the vector itself never reaches the tray,
+ * the server or the agent. The two lists differ by exactly that conversion — anything accepted
+ * here is an IMAGE_TYPE by the time it is numbered.
+ */
+export const ATTACH_TYPES = [...IMAGE_TYPES, SVG_TYPE];
 export const MAX_IMAGES = 20;
 export const MAX_IMAGE_BYTES = 24_000_000;
 
