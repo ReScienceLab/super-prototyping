@@ -17,6 +17,18 @@
  * folds the panel to a rail — the mark, which opens it again — that keeps following whatever is
  * running.
  *
+ * Images are attached by number. The icon under the box, a paste, or a drop puts a
+ * screenshot in the tray above it as #1, #2, #3; clicking a tile drops that number into the
+ * sentence as a chip, so a message can say "borrow the button from #2 and the copy from #3" and
+ * mean it. The numbers are handed out in arrival order and never reused — removing #2 of three
+ * leaves #1 and #3, and the next attachment is #4 — because renumbering would silently repoint a
+ * sentence already typed. That is why the box is a contenteditable and not a textarea: a chip is
+ * an element in the text, which a textarea cannot hold (chatDraft.ts reads it back).
+ *
+ * Pictures come back the other way too: whatever a tool hands the agent as an image — the grid
+ * refkit draws over a reference, a crop, a screenshot — is drawn under the call that produced it,
+ * so a clone can be watched while it is measured rather than only read about afterwards.
+ *
  * Under the composer, what the next message is run with: the model, the reasoning effort, and
  * what the last one cost. Both pickers open with a Default that sends no flag at all, so the
  * CLI's own configuration decides until the user says otherwise, and both are per agent — a
@@ -25,16 +37,17 @@
  * its own picker draws, read from the list it caches. The token count is the last turn's, not
  * the conversation's, because every message is its own process with no memory of the last.
  */
-import { useContext, useEffect, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { useValue } from "tldraw";
 import type { AgentId, AgentModel } from "./agents";
 import type { RunSummary } from "./agentRun";
 import { CanvasChromeContext } from "./canvasChrome";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
+import { readDraft } from "./chatDraft";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
-import { Check, ClockRewind, Plus } from "./geistIcons";
+import { Check, ClockRewind, Image, Plus } from "./geistIcons";
 import { renderMarkdown } from "./markdown";
 
 const RUNS_KEY = "sp-chat-runs";
@@ -70,6 +83,17 @@ interface AgentRow {
 
 /** A turn with nothing in it yet: the run's events, from `start` on, fill in the rest. */
 const turnFor = (runId: string): Turn => ({ runId, prompt: "", blocks: [] });
+
+/** One attached image, as the composer holds it and as the run is posted it. */
+interface Attached {
+  n: number;
+  name: string;
+  type: string;
+  /** Base64, no `data:` prefix — what the server writes to disk and hands the agent. */
+  data: string;
+}
+
+const source = (i: Attached) => `data:${i.type};base64,${i.data}`;
 
 export function ChatPanel() {
   const { editor, chatCollapsed } = useContext(CanvasChromeContext);
@@ -107,11 +131,18 @@ export function ChatPanel() {
   const [commands, setCommands] = useState<string[]>([]);
   const [slashAt, setSlashAt] = useState(0);
   const [slashOff, setSlashOff] = useState(false);
+  // What the box says, read back off it after every edit (chatDraft.ts). The box itself is the
+  // truth — React renders it empty and never again, so it cannot fight the caret — and this is
+  // the copy the palette, the send button and the message all read.
   const [draft, setDraft] = useState("");
+  const [attached, setAttached] = useState<Attached[]>([]);
+  // Arrival order, and it never goes back: see the numbers in the note above.
+  const nextN = useRef(1);
   const [sendError, setSendError] = useState<string | null>(null);
   const abort = useRef(new AbortController());
   const log = useRef<HTMLDivElement>(null);
-  const composer = useRef<HTMLTextAreaElement>(null);
+  const composer = useRef<HTMLDivElement>(null);
+  const files = useRef<HTMLInputElement>(null);
   const historyList = useRef<HTMLDivElement>(null);
   const agentMenu = useRef<HTMLDivElement>(null);
   const modelMenu = useRef<HTMLDivElement>(null);
@@ -196,10 +227,139 @@ export function ChatPanel() {
   const matches = found.length === 1 && found[0] === typing ? [] : found;
   const at = Math.min(slashAt, matches.length - 1);
 
+  /** The caret put back just past `node`'s `offset`, which is where every edit below leaves it. */
+  const caretAt = (node: Node, offset: number) => {
+    const range = document.createRange();
+    range.setStart(node, offset);
+    range.collapse(true);
+    const selection = getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  };
+
+  /** A command badge: atomic, like the reference chips, so Backspace takes the whole word. */
+  const badgeFor = (command: string) => {
+    const badge = document.createElement("span");
+    badge.className = "sp-chat-cmd";
+    badge.contentEditable = "false";
+    badge.textContent = command;
+    return badge;
+  };
+
+  // The word a draft opens with, drawn as a badge in the box the moment the space after it is
+  // typed. Only ever the first word of the first text node, and only while the caret sits just
+  // past that space — which is exactly where typing it leaves the caret — so the caret is put
+  // back by construction rather than by measuring where it was.
+  const badgeCommand = (box: HTMLDivElement) => {
+    const first = box.firstChild;
+    if (!first || first.nodeType !== Node.TEXT_NODE) return;
+    const m = /^(\/\S+)(\s)/.exec(first.textContent ?? "");
+    const selection = getSelection();
+    if (
+      !m ||
+      selection?.anchorNode !== first ||
+      selection.anchorOffset !== m[1]!.length + 1
+    )
+      return;
+    first.textContent = first.textContent!.slice(m[0].length);
+    box.prepend(badgeFor(m[1]!), document.createTextNode(m[2]!));
+    caretAt(box.childNodes[1]!, 1);
+  };
+
   const pickCommand = (name: string) => {
+    const box = composer.current;
+    if (!box) return;
+    // The palette is only open while the draft is that one word, so there is nothing else in the
+    // box to keep.
+    box.replaceChildren(badgeFor(`/${name}`), document.createTextNode(" "));
     setDraft(`/${name} `);
     setSlashAt(0);
-    composer.current?.focus();
+    box.focus();
+    caretAt(box.childNodes[1]!, 1);
+  };
+
+  /** A reference to an attached image: its thumbnail and its number, one atomic element. */
+  const chipFor = (i: Attached) => {
+    const chip = document.createElement("span");
+    chip.className = "sp-chat-ref";
+    chip.contentEditable = "false";
+    chip.dataset.ref = String(i.n);
+    chip.title = i.name;
+    const thumb = document.createElement("img");
+    thumb.src = source(i);
+    thumb.alt = "";
+    chip.append(thumb, `#${i.n}`);
+    return chip;
+  };
+
+  // Clicking a tile writes its number where the caret is, with a space after it so the next word
+  // is not glued to the chip. Nothing is inserted into a chip, since a chip is not editable.
+  const insertRef = (i: Attached) => {
+    const box = composer.current;
+    if (!box) return;
+    box.focus();
+    const selection = getSelection();
+    const range =
+      selection?.rangeCount &&
+      box.contains(selection.getRangeAt(0).commonAncestorContainer)
+        ? selection.getRangeAt(0)
+        : null;
+    const chip = chipFor(i);
+    if (range) {
+      range.deleteContents();
+      range.insertNode(chip);
+    } else {
+      box.append(chip);
+    }
+    const space = document.createTextNode(" ");
+    chip.after(space);
+    caretAt(space, 1);
+    setDraft(readDraft(box));
+  };
+
+  const addImages = (list: FileList | File[] | null) => {
+    const picked = [...(list ?? [])].filter((f) => f.type.startsWith("image/"));
+    if (picked.length === 0) return;
+    // The server refuses a body over about 48 MB, and base64 is a third larger than the file; a
+    // number said here is better than one found out after the whole thing has been read and sent.
+    if (picked.reduce((n, f) => n + f.size, 0) > 24_000_000)
+      return setSendError(
+        "those are too large to attach; keep them under about 24 MB together",
+      );
+    setSendError(null);
+    // Numbered as they were picked and not as they finish being read: three files chosen at once
+    // are #1, #2, #3 in that order, whatever order the reads come back in. Handing the numbers
+    // out here also keeps the counter out of the state updater, which React may call twice.
+    for (const [file, n] of picked.map((f) => [f, nextN.current++] as const)) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const url = String(reader.result);
+        setAttached((a) =>
+          [
+            ...a,
+            {
+              n,
+              name: file.name,
+              type: file.type,
+              data: url.slice(url.indexOf(",") + 1),
+            },
+          ].sort((x, y) => x.n - y.n),
+        );
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // The tile goes; the chips that named it stay where they were written, struck through and
+  // without their picture. A sentence is not rewritten because what it pointed at was removed.
+  const detach = (n: number) => {
+    setAttached((a) => a.filter((i) => i.n !== n));
+    for (const chip of composer.current?.querySelectorAll(
+      `[data-ref="${n}"]`,
+    ) ?? []) {
+      chip.classList.add("sp-chat-ref-gone");
+      chip.querySelector("img")?.remove();
+    }
   };
 
   const prefer = (patch: { model?: string; effort?: string }) => {
@@ -211,22 +371,34 @@ export function ChatPanel() {
   const send = async () => {
     const message = draft.trim();
     if (!message || running) return;
-    setDraft("");
-    // Sending clears the draft without passing through onChange, so an Escape that closed the
+    // Sending clears the draft without passing through onInput, so an Escape that closed the
     // palette for this word has to be forgotten here too, or the next word never opens one.
     setSlashOff(false);
     setSendError(null);
     const res = await fetch("/__sp/agent/run", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ message, canvas, agent, model, effort }),
+      body: JSON.stringify({
+        message,
+        canvas,
+        agent,
+        model,
+        effort,
+        images: attached,
+      }),
     });
-    if (!res.ok) {
-      setDraft(message);
-      return setSendError(await res.text());
-    }
+    if (!res.ok) return setSendError(await res.text());
+    // Emptied only once it is away — a refused message is still in the box, chips and all, to be
+    // fixed and sent again.
+    composer.current?.replaceChildren();
+    setDraft("");
+    setAttached([]);
     const { runId } = await res.json();
-    setTurns((ts) => [...ts, { ...turnFor(runId), prompt: message, agent }]);
+    const images = attached.map(({ n, name }) => ({ n, name }));
+    setTurns((ts) => [
+      ...ts,
+      { ...turnFor(runId), prompt: message, agent, images },
+    ]);
     follow(runId);
   };
 
@@ -258,7 +430,9 @@ export function ChatPanel() {
     abort.current.abort();
     abort.current = new AbortController();
     setTurns([]);
+    composer.current?.replaceChildren();
     setDraft("");
+    setAttached([]);
     setSendError(null);
     composer.current?.focus();
   };
@@ -465,7 +639,54 @@ export function ChatPanel() {
           <article key={t.runId} className="sp-chat-turn">
             {/* A run the server has forgotten — it keeps the newest twenty, and a restart
                 keeps none — replays as an error with no prompt to put above it. */}
-            {t.prompt && <p className="sp-chat-you">{t.prompt}</p>}
+            {/* What was said, with the command and every reference drawn as they were written,
+                and the pictures themselves under it: full height, never cropped, one scroller
+                whatever their shapes. The bytes come back from the run rather than out of the
+                event, so this survives the reload a written board causes. */}
+            {t.prompt && (
+              <div className="sp-chat-you">
+                <span className="sp-chat-say">
+                  {t.prompt.split(/(^\/\S+|#\d+)/).map((piece, i) =>
+                    i === 1 && piece.startsWith("/") ? (
+                      <span key={i} className="sp-chat-cmd">
+                        {piece}
+                      </span>
+                    ) : /^#\d+$/.test(piece) &&
+                      t.images?.some((g) => g.n === Number(piece.slice(1))) ? (
+                      <span key={i} className="sp-chat-ref">
+                        <img
+                          src={`/__sp/agent/run/${t.runId}/image/${piece.slice(1)}`}
+                          alt=""
+                        />
+                        {piece}
+                      </span>
+                    ) : (
+                      piece
+                    ),
+                  )}
+                </span>
+                {t.images && t.images.length > 0 && (
+                  <span className="sp-chat-strip">
+                    {t.images.map((g) => (
+                      <a
+                        key={g.n}
+                        className="sp-chat-shot"
+                        href={`/__sp/agent/run/${t.runId}/image/${g.n}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={g.name}
+                      >
+                        <img
+                          src={`/__sp/agent/run/${t.runId}/image/${g.n}`}
+                          alt={g.name}
+                        />
+                        <span className="sp-chat-num">#{g.n}</span>
+                      </a>
+                    ))}
+                  </span>
+                )}
+              </div>
+            )}
             {t.agent && (
               <span className="sp-chat-mark" title={nameOf(t.agent)}>
                 <Mark agent={t.agent} size={12} />
@@ -484,10 +705,36 @@ export function ChatPanel() {
                   <b>Thinking</b>
                 </p>
               ) : (
-                <p key={b.id} className="sp-chat-tool" data-ok={b.ok}>
-                  <b>{b.name}</b>
-                  <span>{b.detail}</span>
-                </p>
+                // What the call drew, under the line that made it: a grid, a crop, a screenshot
+                // the agent read back. Same strip as the sent message's, so a picture looks the
+                // same whichever end of the conversation put it there.
+                <Fragment key={b.id}>
+                  <p className="sp-chat-tool" data-ok={b.ok}>
+                    <b>{b.name}</b>
+                    <span>{b.detail}</span>
+                  </p>
+                  {b.shots && b.shots.length > 0 && (
+                    <span className="sp-chat-strip">
+                      {b.shots.map((s) =>
+                        "k" in s ? (
+                          <a
+                            key={s.k}
+                            className="sp-chat-shot"
+                            href={`/__sp/agent/run/${t.runId}/shot/${s.k}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            title={b.detail}
+                          >
+                            <img
+                              src={`/__sp/agent/run/${t.runId}/shot/${s.k}`}
+                              alt={b.detail}
+                            />
+                          </a>
+                        ) : null,
+                      )}
+                    </span>
+                  )}
+                </Fragment>
               ),
             )}
             {!t.end ? (
@@ -498,23 +745,93 @@ export function ChatPanel() {
           </article>
         ))}
       </div>
+      {/* What is attached, in the order it arrived. The tile is a crop — it only has to say which
+          image this is — and clicking it writes that number into the sentence. */}
+      {attached.length > 0 && (
+        <>
+          <p className="sp-chat-hint">
+            Attached — click a tile to put its number in the message
+          </p>
+          <div className="sp-chat-tray">
+            {attached.map((i) => (
+              <figure key={i.n} className="sp-chat-tile">
+                <button
+                  type="button"
+                  className="sp-chat-thumb"
+                  onClick={() => insertRef(i)}
+                  title={`Write #${i.n} into the message`}
+                >
+                  <img src={source(i)} alt={i.name} />
+                  <span className="sp-chat-num">#{i.n}</span>
+                </button>
+                <span
+                  className="sp-chat-x"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Remove image #${i.n}`}
+                  onClick={() => detach(i.n)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      detach(i.n);
+                    }
+                  }}
+                >
+                  ✕
+                </span>
+                <figcaption className="sp-chat-name" title={i.name}>
+                  {i.name}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </>
+      )}
       <form
         className="sp-chat-composer"
         onSubmit={(e) => {
           e.preventDefault();
           void send();
         }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
+          addImages(e.dataTransfer.files);
+        }}
       >
-        <textarea
+        {/* Uncontrolled on purpose: React renders it empty and never touches it again, so it
+            cannot move the caret out from under someone mid-word. The box is the truth and
+            `draft` is the reading of it (chatDraft.ts). */}
+        <div
           ref={composer}
-          value={draft}
-          placeholder={running ? "Working…" : "Type / for commands"}
+          className="sp-chat-draft"
+          contentEditable
+          suppressContentEditableWarning
+          role="textbox"
+          aria-multiline="true"
           aria-label={`Message to ${nameOf(agent)}`}
-          onChange={(e) => {
-            setDraft(e.target.value);
+          data-placeholder={running ? "Working…" : "Type / for commands"}
+          onInput={(e) => {
+            const box = e.currentTarget;
+            badgeCommand(box);
+            const text = readDraft(box);
+            setDraft(text);
             setSlashAt(0);
             // Escape closes the palette for the word it was typed in; the next one opens again.
-            if (!e.target.value.startsWith("/")) setSlashOff(false);
+            if (!text.startsWith("/")) setSlashOff(false);
+          }}
+          onPaste={(e) => {
+            e.preventDefault();
+            if (e.clipboardData.files.length)
+              return addImages(e.clipboardData.files);
+            // The text and not the markup that came with it: the box holds the chips it made
+            // itself and nothing else. execCommand because it is the only insert that native
+            // undo still knows about.
+            document.execCommand(
+              "insertText",
+              false,
+              e.clipboardData.getData("text/plain"),
+            );
           }}
           onKeyDown={(e) => {
             if (matches.length > 0) {
@@ -624,6 +941,27 @@ export function ChatPanel() {
         <p className="sp-chat-error sp-chat-send-error">{sendError}</p>
       )}
       <div className="sp-chat-bar">
+        <button
+          type="button"
+          className="sp-chat-attach"
+          onClick={() => files.current?.click()}
+          aria-label="Attach images"
+          title="Attach images — or paste, or drop them into the box"
+        >
+          <Image />
+        </button>
+        <input
+          ref={files}
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          onChange={(e) => {
+            addImages(e.target.files);
+            // Cleared, or picking the same file twice in a row fires no change the second time.
+            e.target.value = "";
+          }}
+        />
         <span
           className="sp-chat-perm"
           title={

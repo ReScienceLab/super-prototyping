@@ -17,9 +17,26 @@ import {
   withBoardStatus,
   withCanvasName,
 } from "./src/boardStatusEdit.ts";
-import { boardChangeKind, boardSetSignature, boardSlug } from "./src/boardWatch.ts";
-import { attach, emit, ended, newRun, runSummary, sseFrame, type Run } from "./src/agentRun.ts";
-import { AGENTS, type AgentDef, type AgentModel } from "./src/agents.ts";
+import {
+  boardChangeKind,
+  boardSetSignature,
+  boardSlug,
+} from "./src/boardWatch.ts";
+import {
+  attach,
+  emit,
+  ended,
+  newRun,
+  runSummary,
+  sseFrame,
+  type Run,
+} from "./src/agentRun.ts";
+import {
+  AGENTS,
+  type AgentDef,
+  type AgentImage,
+  type AgentModel,
+} from "./src/agents.ts";
 import { titleFilter, type ChatEvent } from "./src/claudeStream.ts";
 
 /**
@@ -29,7 +46,10 @@ import { titleFilter, type ChatEvent } from "./src/claudeStream.ts";
  * Dev server only: a hosted build has no checkout to name, and the path would leak the
  * build machine's filesystem.
  */
-const repoRoot = fileURLToPath(new URL("..", import.meta.url)).replace(/\/$/, "");
+const repoRoot = fileURLToPath(new URL("..", import.meta.url)).replace(
+  /\/$/,
+  "",
+);
 
 /**
  * Where the boards live. Defaults to this checkout's own folder, so the repo and the hosted
@@ -118,7 +138,8 @@ const jsLiteral = (value: unknown) =>
     .replace(/</g, "\\u003c");
 
 /** The historical key for a board, kept whatever directory it was actually read from. */
-const keyFor = (slug: string, file: string) => `../../mockups/canvases/${slug}/${file}`;
+const keyFor = (slug: string, file: string) =>
+  `../../mockups/canvases/${slug}/${file}`;
 
 const ASSET_MIME = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"]);
 
@@ -130,7 +151,8 @@ const ASSET_MIME = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"]);
  */
 function fnv1a(s: string) {
   let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0;
+  for (let i = 0; i < s.length; i++)
+    h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0;
   return h.toString(36);
 }
 
@@ -175,10 +197,15 @@ function assetIndex(folder: string): Record<string, AssetName> {
       const buf = fs.readFileSync(p);
       addPayload(buf.toString("base64"), rel + e.name, buf.length);
       if (e.name.toLowerCase().endsWith(".svg"))
-        add(`svg:${fnv1a(svgSignature(buf.toString("utf8")))}`, rel + e.name, buf.length);
+        add(
+          `svg:${fnv1a(svgSignature(buf.toString("utf8")))}`,
+          rel + e.name,
+          buf.length,
+        );
     }
   };
-  for (const sub of ["assets", "assets-dark"]) walk(path.join(folder, sub), `${sub}/`);
+  for (const sub of ["assets", "assets-dark"])
+    walk(path.join(folder, sub), `${sub}/`);
   const json = path.join(folder, "assets.json");
   if (fs.existsSync(json)) {
     try {
@@ -187,8 +214,16 @@ function assetIndex(folder: string): Record<string, AssetName> {
         for (const [key, v] of Object.entries(map)) {
           if (typeof v !== "string" || !v.startsWith("data:")) continue;
           const payload = v.slice(v.indexOf(",") + 1);
-          const pad = payload.endsWith("==") ? 2 : payload.endsWith("=") ? 1 : 0;
-          addPayload(payload, `assets.json#${key}`, Math.floor((payload.length * 3) / 4) - pad);
+          const pad = payload.endsWith("==")
+            ? 2
+            : payload.endsWith("=")
+              ? 1
+              : 0;
+          addPayload(
+            payload,
+            `assets.json#${key}`,
+            Math.floor((payload.length * 3) / 4) - pad,
+          );
         }
       }
     } catch {
@@ -234,7 +269,9 @@ function brandImages(folder: string): string[] {
  * resolve back to it, so nothing is ever shown softer than the screen can display.
  */
 const THUMB_EDGE = 880;
-const thumbsDir = fileURLToPath(new URL("node_modules/.cache/brand-thumbs/", import.meta.url));
+const thumbsDir = fileURLToPath(
+  new URL("node_modules/.cache/brand-thumbs/", import.meta.url),
+);
 
 /**
  * The variant for one brand image, generated on first sight and read from the cache after.
@@ -255,7 +292,10 @@ async function brandThumb(file: string): Promise<string | undefined> {
   let h = 5381;
   const key = `${file}:${stat.size}:${stat.mtimeMs}`;
   for (let i = 0; i < key.length; i++) h = ((h * 33) ^ key.charCodeAt(i)) >>> 0;
-  const out = path.join(thumbsDir, `${h.toString(36)}-${path.parse(file).name}.webp`);
+  const out = path.join(
+    thumbsDir,
+    `${h.toString(36)}-${path.parse(file).name}.webp`,
+  );
   // An empty cache file is the remembered answer "this one is better off as its original", so
   // a rejected image is not re-encoded on every start just to reach the same conclusion.
   if (fs.existsSync(out)) return fs.statSync(out).size ? out : undefined;
@@ -265,12 +305,21 @@ async function brandThumb(file: string): Promise<string | undefined> {
     // An image the screen can already show whole gets no variant. Downscaling is what makes a
     // variant honest — the same picture, at the size it is drawn. Re-encoding one at its own
     // size is the other kind of saving, the kind that trades quality for bytes.
-    if (!meta.width || !meta.height || Math.max(meta.width, meta.height) <= THUMB_EDGE) {
+    if (
+      !meta.width ||
+      !meta.height ||
+      Math.max(meta.width, meta.height) <= THUMB_EDGE
+    ) {
       fs.writeFileSync(out, "");
       return undefined;
     }
     await sharp(file, { animated: true })
-      .resize({ width: THUMB_EDGE, height: THUMB_EDGE, fit: "inside", withoutEnlargement: true })
+      .resize({
+        width: THUMB_EDGE,
+        height: THUMB_EDGE,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
       .webp({ quality: 90 })
       .toFile(out);
   } catch {
@@ -300,52 +349,61 @@ interface Board {
  */
 function urlSafe(name: string, what: string) {
   if (!/[#?]/.test(name)) return true;
-  console.warn(`[canvases] skipping ${what} "${name}": # and ? cannot appear in a board's name`);
+  console.warn(
+    `[canvases] skipping ${what} "${name}": # and ? cannot appear in a board's name`,
+  );
   return false;
 }
 
 /** One folder per board, one HTML file per screen. Missing layout.json / icon.png are normal. */
 function scan(dir: string): Board[] {
   if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter((e) => e.isDirectory() || e.isSymbolicLink())
-    .map((e) => e.name)
-    // `import.meta.glob` skipped dot-prefixed folders (`dot: false`) and the discovery set has
-    // to match it exactly, or an upgrade changes which boards exist.
-    .filter((slug) => !slug.startsWith("."))
-    .filter((slug) => urlSafe(slug, "board folder"))
-    .sort()
-    .map((slug) => {
-      const folder = path.join(dir, slug);
-      // `throwIfNoEntry: false` because a dangling symlink here used to throw out of load(), and
-      // then *every* board 500s rather than the one bad entry being skipped.
-      if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) return null;
-      let names: string[];
-      try {
-        names = fs.readdirSync(folder);
-      } catch {
-        return null; // unreadable folder: skip it, do not take the whole canvas down
-      }
-      // Must resolve to a real file. A *directory* named `foo.html` would otherwise be listed as
-      // a board and its import would resolve to index.html, leaving a permanently blank shape.
-      const isFile = (name: string) =>
-        fs.statSync(path.join(folder, name), { throwIfNoEntry: false })?.isFile() ?? false;
-      return {
-        slug,
-        html: names
-          // dot-files for the same reason the dot-folders above are skipped: `import.meta.glob`
-          // used `dot: false`, and the discovery set has to keep matching it.
-          .filter((f) => !f.startsWith(".") && f.endsWith(".html") && isFile(f))
-          .filter((f) => urlSafe(f, "board"))
-          .sort(),
-        layout: fs.existsSync(path.join(folder, "layout.json")),
-        icon: fs.existsSync(path.join(folder, "icon.png")),
-        assets: assetIndex(folder),
-        brand: brandImages(folder),
-      };
-    })
-    .filter((b): b is Board => b !== null && b.html.length > 0);
+  return (
+    fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((e) => e.isDirectory() || e.isSymbolicLink())
+      .map((e) => e.name)
+      // `import.meta.glob` skipped dot-prefixed folders (`dot: false`) and the discovery set has
+      // to match it exactly, or an upgrade changes which boards exist.
+      .filter((slug) => !slug.startsWith("."))
+      .filter((slug) => urlSafe(slug, "board folder"))
+      .sort()
+      .map((slug) => {
+        const folder = path.join(dir, slug);
+        // `throwIfNoEntry: false` because a dangling symlink here used to throw out of load(), and
+        // then *every* board 500s rather than the one bad entry being skipped.
+        if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory())
+          return null;
+        let names: string[];
+        try {
+          names = fs.readdirSync(folder);
+        } catch {
+          return null; // unreadable folder: skip it, do not take the whole canvas down
+        }
+        // Must resolve to a real file. A *directory* named `foo.html` would otherwise be listed as
+        // a board and its import would resolve to index.html, leaving a permanently blank shape.
+        const isFile = (name: string) =>
+          fs
+            .statSync(path.join(folder, name), { throwIfNoEntry: false })
+            ?.isFile() ?? false;
+        return {
+          slug,
+          html: names
+            // dot-files for the same reason the dot-folders above are skipped: `import.meta.glob`
+            // used `dot: false`, and the discovery set has to keep matching it.
+            .filter(
+              (f) => !f.startsWith(".") && f.endsWith(".html") && isFile(f),
+            )
+            .filter((f) => urlSafe(f, "board"))
+            .sort(),
+          layout: fs.existsSync(path.join(folder, "layout.json")),
+          icon: fs.existsSync(path.join(folder, "icon.png")),
+          assets: assetIndex(folder),
+          brand: brandImages(folder),
+        };
+      })
+      .filter((b): b is Board => b !== null && b.html.length > 0)
+  );
 }
 
 /**
@@ -393,7 +451,9 @@ function canvasesSource(): Plugin {
       const thumbs = new Map<string, string>();
       for (const board of boards) {
         for (const file of board.brand) {
-          const thumb = await brandThumb(path.join(canvasesDir, board.slug, file));
+          const thumb = await brandThumb(
+            path.join(canvasesDir, board.slug, file),
+          );
           if (thumb) thumbs.set(`${board.slug}/${file}`, thumb);
         }
       }
@@ -433,27 +493,41 @@ function canvasesSource(): Plugin {
               fileName: `board/${board.slug}/${file}`,
               source: fs.readFileSync(path.join(folder, file)),
             });
-            loaders.push(`  ${key}: () => __board(${jsString(pageUrl(board.slug, file))}),`);
+            loaders.push(
+              `  ${key}: () => __board(${jsString(pageUrl(board.slug, file))}),`,
+            );
           } else {
             // Dev keeps the import: the module graph is what makes a rewritten board reload
             // the page, and it is also how the tests, which have no server to fetch from,
             // read a board at all.
             const from = spec(path.join(folder, file), "?raw");
-            loaders.push(`  ${key}: () => import(${from}).then((m) => m.default),`);
+            loaders.push(
+              `  ${key}: () => import(${from}).then((m) => m.default),`,
+            );
           }
         }
         if (board.layout) {
-          imports.push(`import __layout${i} from ${spec(path.join(folder, "layout.json"))};`);
-          layouts.push(`  ${jsString(keyFor(board.slug, "layout.json"))}: __layout${i},`);
+          imports.push(
+            `import __layout${i} from ${spec(path.join(folder, "layout.json"))};`,
+          );
+          layouts.push(
+            `  ${jsString(keyFor(board.slug, "layout.json"))}: __layout${i},`,
+          );
         }
         if (board.icon) {
-          imports.push(`import __icon${i} from ${spec(path.join(folder, "icon.png"), "?url")};`);
-          icons.push(`  ${jsString(keyFor(board.slug, "icon.png"))}: __icon${i},`);
+          imports.push(
+            `import __icon${i} from ${spec(path.join(folder, "icon.png"), "?url")};`,
+          );
+          icons.push(
+            `  ${jsString(keyFor(board.slug, "icon.png"))}: __icon${i},`,
+          );
         }
         for (const file of board.brand) {
           const n = brandCount++;
           const key = jsString(keyFor(board.slug, file));
-          imports.push(`import __brand${n} from ${spec(path.join(folder, file), "?url")};`);
+          imports.push(
+            `import __brand${n} from ${spec(path.join(folder, file), "?url")};`,
+          );
           brand.push(`  ${key}: __brand${n},`);
           // Keyed identically to the original, so the two maps line up by path.
           const thumb = thumbs.get(`${board.slug}/${file}`);
@@ -534,7 +608,8 @@ function canvasesSource(): Plugin {
       // caller was not a browser, which is curl, and curl is not the attack.
       server.middlewares.use("/__sp", (req, res, next) => {
         const site = req.headers["sec-fetch-site"];
-        if (site === undefined || site === "same-origin" || site === "none") return next();
+        if (site === undefined || site === "same-origin" || site === "none")
+          return next();
         res.statusCode = 403;
         res.end("cross-site request");
       });
@@ -587,7 +662,8 @@ function canvasesSource(): Plugin {
             if (!SAFE_NAME.test(slug ?? "") || !SAFE_NAME.test(file ?? "")) {
               return send(400, "bad board name");
             }
-            if (!BOARD_STATUSES.includes(status)) return send(400, "bad status");
+            if (!BOARD_STATUSES.includes(status))
+              return send(400, "bad status");
             const layoutPath = path.join(canvasesDir, slug, "layout.json");
             const before = fs.readFileSync(layoutPath, "utf8");
             const after = withBoardStatus(before, file, status);
@@ -598,11 +674,16 @@ function canvasesSource(): Plugin {
               // its own write from the watcher, which answers a batch and not a keystroke: a
               // badge that lags a fifth of a second behind the click reads as a badge that did
               // not take. canvasLibrary.ts listens.
-              server.hot.send("sp:board-status", { slug, layout: JSON.parse(after) });
+              server.hot.send("sp:board-status", {
+                slug,
+                layout: JSON.parse(after),
+              });
               // And drop the transformed layout.json by hand for the same reason, or the *next*
               // page load, if it beats the watcher, would serve the status back stale and undo
               // what the click just did.
-              for (const mod of server.moduleGraph.getModulesByFile(layoutPath) ?? []) {
+              for (const mod of server.moduleGraph.getModulesByFile(
+                layoutPath,
+              ) ?? []) {
                 server.moduleGraph.invalidateModule(mod);
               }
             }
@@ -649,7 +730,9 @@ function canvasesSource(): Plugin {
             // The slug lands in a filesystem path, so it is checked before it is joined.
             if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad board name");
             const folder = path.join(canvasesDir, slug);
-            if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) {
+            if (
+              !fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()
+            ) {
               return send(404, `no canvas folder named ${slug}`);
             }
             const target = path.join(folder, "comments.json");
@@ -697,7 +780,8 @@ function canvasesSource(): Plugin {
             const to = path.join(canvasesDir, target);
             // The welcome page is drawn by the app and has no folder, so this is also what
             // stops it being cloned into one.
-            if (!fs.existsSync(from)) return send(404, `no canvas folder named ${slug}`);
+            if (!fs.existsSync(from))
+              return send(404, `no canvas folder named ${slug}`);
             if (fs.existsSync(to)) return send(409, `${target} already exists`);
             // Everything, generator and assets included: a board folder is only worth cloning
             // if the clone can be regenerated the same way the original could.
@@ -737,7 +821,15 @@ function canvasesSource(): Plugin {
       //
       // No reload broadcast from here: a board the agent writes reaches the page through the
       // watcher like anyone else's, and anything else it writes is not the canvas's business.
-      const runs = new Map<string, Run & { child: ChildProcess }>();
+      const runs = new Map<
+        string,
+        Run & {
+          child: ChildProcess;
+          images: AgentImage[];
+          /** The pictures its tools handed back, in arrival order; `shot/<k>` is one-based. */
+          shots: { type: string; data: Buffer }[];
+        }
+      >();
       // Which agents are installed: `bin --version` once each, for the server's lifetime, so
       // the menu greys out one that is missing and says what to do, rather than letting the
       // first message find out.
@@ -746,7 +838,9 @@ function canvasesSource(): Plugin {
         let probe = probes.get(def.id);
         if (!probe) {
           probe = new Promise((done) =>
-            execFile(def.bin, ["--version"], { timeout: 10_000 }, (error) => done(!error)),
+            execFile(def.bin, ["--version"], { timeout: 10_000 }, (error) =>
+              done(!error),
+            ),
           );
           probes.set(def.id, probe);
           // A no is not worth keeping: the CLI may be installed a minute later, and a probe that
@@ -767,7 +861,9 @@ function canvasesSource(): Plugin {
           if (def.modelsFile) {
             try {
               const file = path.join(os.homedir(), def.modelsFile.path);
-              list = def.modelsFile.read(JSON.parse(fs.readFileSync(file, "utf8")));
+              list = def.modelsFile.read(
+                JSON.parse(fs.readFileSync(file, "utf8")),
+              );
             } catch {
               // No cache yet, or one this cannot read: the table's list stands, which for an
               // agent that keeps its own is empty, leaving the composer its default alone.
@@ -800,7 +896,11 @@ function canvasesSource(): Plugin {
             execFile(
               def.bin,
               def.commandsProbe!.args,
-              { cwd: projectDir ?? undefined, timeout: 30_000, maxBuffer: 8 << 20 },
+              {
+                cwd: projectDir ?? undefined,
+                timeout: 30_000,
+                maxBuffer: 8 << 20,
+              },
               (error, stdout) => {
                 try {
                   done(error ? [] : def.commandsProbe!.read(stdout));
@@ -825,7 +925,9 @@ function canvasesSource(): Plugin {
         const url = new URL(req.url ?? "/", "http://sp");
         if (req.method === "GET" && url.pathname === "/commands") {
           res.setHeader("content-type", "application/json");
-          const def = AGENTS.find((a) => a.id === url.searchParams.get("agent"));
+          const def = AGENTS.find(
+            (a) => a.id === url.searchParams.get("agent"),
+          );
           const known = commands.get(def?.id ?? "");
           if (known || !def?.commandsProbe) {
             send(200, JSON.stringify(known ?? []));
@@ -860,28 +962,80 @@ function canvasesSource(): Plugin {
           );
         }
         if (req.method === "POST" && url.pathname === "/run") {
+          // The body is no longer a sentence: attached images ride in it as base64, and it is
+          // held whole in memory before anything reads it, so it is capped on the way in.
           let body = "";
-          req.on("data", (chunk) => (body += chunk));
+          let tooBig = false;
+          req.on("data", (chunk) => {
+            if (tooBig) return;
+            body += chunk;
+            if (body.length > 48_000_000) {
+              tooBig = true;
+              body = "";
+            }
+          });
           req.on("end", () => {
+            if (tooBig)
+              return send(
+                413,
+                "too much attached; keep the images under about 32 MB",
+              );
             try {
-              const { message, canvas, agent = "claude", model = "", effort = "" } = JSON.parse(body || "{}");
-              if (typeof message !== "string" || !message.trim()) return send(400, "empty message");
+              const {
+                message,
+                canvas,
+                agent = "claude",
+                model = "",
+                effort = "",
+                images = [],
+              } = JSON.parse(body || "{}");
+              if (typeof message !== "string" || !message.trim())
+                return send(400, "empty message");
+              // A browser sent these, so nothing in them is taken on trust. The number is what
+              // the message refers to and what names the file below; the type decides the
+              // extension and what the image endpoint says it is serving; the name is a caption
+              // in the prompt and a label in the panel, and never any part of a path.
+              if (!Array.isArray(images) || images.length > 20)
+                return send(400, "bad images");
+              for (const i of images) {
+                if (!Number.isInteger(i?.n) || i.n < 1)
+                  return send(400, "bad image number");
+                if (typeof i.name !== "string" || i.name.length > 200)
+                  return send(400, "bad image name");
+                if (
+                  typeof i.type !== "string" ||
+                  !/^image\/[\w.+-]+$/.test(i.type)
+                )
+                  return send(400, "bad image type");
+                if (
+                  typeof i.data !== "string" ||
+                  !/^[A-Za-z0-9+/]*={0,2}$/.test(i.data)
+                )
+                  return send(400, "bad image data");
+              }
               // One agent at a time, and only the server can say so: the composer's own guard is
               // React state, which a second tab, a reload, or a cleared view does not share. Two
               // agents in one project overwrite each other's boards.
               if ([...runs.values()].some((r) => !ended(r))) {
-                return send(409, "an agent is already running in this project. Stop it first.");
+                return send(
+                  409,
+                  "an agent is already running in this project. Stop it first.",
+                );
               }
               const def = AGENTS.find((a) => a.id === agent);
               if (!def) return send(400, "unknown agent");
               // Both reach a command line, and neither is a name this made up: they are ids out
               // of the list this server just served, or the empty string for the CLI's default.
               const known = models(def);
-              if (model && !known.some((m) => m.id === model)) return send(400, "unknown model");
-              const efforts = known.find((m) => m.id === model)?.efforts ?? def.efforts;
-              if (effort && !efforts.includes(effort)) return send(400, "unknown effort");
+              if (model && !known.some((m) => m.id === model))
+                return send(400, "unknown model");
+              const efforts =
+                known.find((m) => m.id === model)?.efforts ?? def.efforts;
+              if (effort && !efforts.includes(effort))
+                return send(400, "unknown effort");
               // The slug lands in a path in the prompt, so it is checked like the others.
-              if (canvas !== undefined && !SAFE_NAME.test(canvas)) return send(400, "bad canvas name");
+              if (canvas !== undefined && !SAFE_NAME.test(canvas))
+                return send(400, "bad canvas name");
               const preamble = [
                 `You are working in the user's project at ${project}, from the chat panel of the ` +
                   "super-prototyping canvas they have open.",
@@ -897,11 +1051,46 @@ function canvasesSource(): Plugin {
               ]
                 .filter(Boolean)
                 .join("\n");
-              const run = Object.assign(newRun(randomUUID()), {
-                child: spawn(def.bin, def.args({ preamble, boards: canvasesDir, model, effort }), {
-                  cwd: project,
-                  env: process.env,
-                }),
+              // The run's id names the folder, and the image's number and media type name the
+              // file in it, so what the browser called the file stays a caption: a slash or a
+              // `..` in that name is text in the prompt and reaches no path here.
+              const id = randomUUID();
+              const imagesDir = images.length
+                ? path.join(os.tmpdir(), `sp-chat-${id}`)
+                : "";
+              if (imagesDir) fs.mkdirSync(imagesDir, { recursive: true });
+              const held: AgentImage[] = images.map(
+                (i: {
+                  n: number;
+                  name: string;
+                  type: string;
+                  data: string;
+                }) => {
+                  const file = path.join(
+                    imagesDir,
+                    `${i.n}.${i.type.slice(6).replace(/\W/g, "") || "png"}`,
+                  );
+                  fs.writeFileSync(file, Buffer.from(i.data, "base64"));
+                  return { ...i, path: file };
+                },
+              );
+              const run = Object.assign(newRun(id), {
+                child: spawn(
+                  def.bin,
+                  def.args({
+                    preamble,
+                    boards: canvasesDir,
+                    model,
+                    effort,
+                    imagesDir,
+                  }),
+                  {
+                    cwd: project,
+                    env: process.env,
+                  },
+                ),
+                images: held,
+                shots: [] as { type: string; data: Buffer }[],
               });
               runs.set(run.id, run);
               // The agent, the prompt, its first line as the title until the model gives one, and
@@ -913,18 +1102,31 @@ function canvasesSource(): Plugin {
                 prompt: message,
                 title: message.trim().split("\n")[0].slice(0, 60),
                 at: Date.now(),
+                // The numbers and the names only: the pictures are a request away, so the reload
+                // that a written board causes rebuilds the strip without the bytes coming back
+                // down the stream with every other event.
+                images: held.map(({ n, name }) => ({ n, name })),
               });
               // ponytail: the newest 20 runs are kept whatever their age; a tab that reattaches
               // to an older one gets a 404 and shows it.
-              for (const [id, old] of runs) {
+              for (const [oldId, old] of runs) {
                 if (runs.size <= 20) break;
-                if (ended(old)) runs.delete(id);
+                if (ended(old)) {
+                  runs.delete(oldId);
+                  fs.rmSync(path.join(os.tmpdir(), `sp-chat-${oldId}`), {
+                    recursive: true,
+                    force: true,
+                  });
+                }
               }
               const finish = (message: string) => {
-                if (!ended(run)) emit(run, "end", { kind: "end", ok: false, message });
+                if (!ended(run))
+                  emit(run, "end", { kind: "end", ok: false, message });
               };
               let stderr = "";
-              run.child.stderr.setEncoding("utf8").on("data", (chunk: string) => (stderr += chunk));
+              run.child.stderr
+                .setEncoding("utf8")
+                .on("data", (chunk: string) => (stderr += chunk));
               let pending = "";
               const lift = titleFilter();
               // Codex reports what a turn used but never how much there was; the model list it
@@ -934,6 +1136,28 @@ function canvasesSource(): Plugin {
                 e.kind === "usage" && e.window === undefined && contextWindow
                   ? { ...e, window: contextWindow }
                   : e;
+              // A picture a tool handed back is kept here and the event keeps the number to ask
+              // for it by, for the reason the composer's attachments are: every reload rebuilds
+              // the transcript from event zero, and a page of grids would come back down the
+              // stream on each one. The media type is the agent's word, and goes out as a header.
+              // ponytail: held in memory for the run's life, so a turn that reads a hundred
+              // full-page grids grows by them; give the run a folder if one ever does.
+              const filed = (e: ChatEvent) =>
+                e.kind === "tool_done" && e.shots
+                  ? {
+                      ...e,
+                      shots: e.shots.map((s) => {
+                        if (!("data" in s)) return s;
+                        run.shots.push({
+                          type: /^image\/[\w.+-]+$/.test(s.type)
+                            ? s.type
+                            : "image/png",
+                          data: Buffer.from(s.data, "base64"),
+                        });
+                        return { k: run.shots.length };
+                      }),
+                    }
+                  : e;
               const feed = (chunk: string) => {
                 const lines = (pending + chunk).split("\n");
                 pending = lines.pop()!;
@@ -941,7 +1165,9 @@ function canvasesSource(): Plugin {
                   for (const line of lines) {
                     if (line.trim()) {
                       harvest(def, line);
-                      for (const e of def.events(line)) for (const t of lift(e)) emit(run, t.kind, sized(t));
+                      for (const e of def.events(line))
+                        for (const t of lift(e))
+                          emit(run, t.kind, filed(sized(t)));
                     }
                   }
                 } catch (error) {
@@ -949,11 +1175,14 @@ function canvasesSource(): Plugin {
                   finish(`unreadable output from ${def.bin}: ${error}`);
                 }
               };
-              run.child.stdout.setEncoding("utf8").on("data", feed).on("end", () => feed("\n"));
+              run.child.stdout
+                .setEncoding("utf8")
+                .on("data", feed)
+                .on("end", () => feed("\n"));
               // A CLI that exits at once — an older one refusing a flag — closes the pipe before
               // the prompt is written; the exit below reports that, and the write error is noise.
               run.child.stdin.on("error", () => {});
-              run.child.stdin.end(def.stdin(message, preamble));
+              run.child.stdin.end(def.stdin(message, preamble, held));
               run.child.on("error", (error: NodeJS.ErrnoException) =>
                 finish(error.code === "ENOENT" ? def.missing : String(error)),
               );
@@ -984,22 +1213,58 @@ function canvasesSource(): Plugin {
           // Newest first, and in memory only: a restarted server lists nothing, which is
           // consistent with it holding every run's events and nothing else holding any.
           res.setHeader("content-type", "application/json");
-          return send(200, JSON.stringify([...runs.values()].reverse().map(runSummary)));
+          return send(
+            200,
+            JSON.stringify([...runs.values()].reverse().map(runSummary)),
+          );
         }
-        const match = /^\/run\/([\w-]+)\/(events|cancel)$/.exec(url.pathname);
+        const match =
+          /^\/run\/([\w-]+)\/(events|cancel|image\/\d+|shot\/\d+)$/.exec(
+            url.pathname,
+          );
         if (!match) return next();
         const run = runs.get(match[1]);
         if (!run) return send(404, "no such run");
+        if (req.method === "GET" && match[2].startsWith("image/")) {
+          // Served back rather than replayed: the page rebuilds a turn from event zero after
+          // every reload, and the strip asks for its pictures again instead of the stream
+          // carrying them each time. `send` writes strings, so these go out on their own.
+          const img = run.images.find((i) => i.n === Number(match[2].slice(6)));
+          if (!img) return send(404, "no such image");
+          res.writeHead(200, {
+            "content-type": img.type,
+            "cache-control": "no-store",
+          });
+          return res.end(fs.readFileSync(img.path));
+        }
+        if (req.method === "GET" && match[2].startsWith("shot/")) {
+          // The other direction: what a tool drew, kept in the run rather than on disk, since
+          // nothing but this page ever has to open it.
+          const shot = run.shots[Number(match[2].slice(5)) - 1];
+          if (!shot) return send(404, "no such shot");
+          res.writeHead(200, {
+            "content-type": shot.type,
+            "cache-control": "no-store",
+          });
+          return res.end(shot.data);
+        }
         if (match[2] === "events" && req.method === "GET") {
           const after = Number(url.searchParams.get("after") ?? 0);
-          if (!Number.isInteger(after) || after < 0) return send(400, "bad cursor");
-          res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-store" });
+          if (!Number.isInteger(after) || after < 0)
+            return send(400, "bad cursor");
+          res.writeHead(200, {
+            "content-type": "text/event-stream",
+            "cache-control": "no-store",
+          });
           res.flushHeaders();
           const detach = attach(run, after, (e) => {
             res.write(sseFrame(e));
             if (e.event === "end") res.end();
           });
-          const keepalive = setInterval(() => res.write(": keepalive\n\n"), 25_000);
+          const keepalive = setInterval(
+            () => res.write(": keepalive\n\n"),
+            25_000,
+          );
           res.on("close", () => {
             detach();
             clearInterval(keepalive);
@@ -1085,7 +1350,10 @@ function canvasesSource(): Plugin {
           // viewport and the open panel. canvasLibrary.ts listens.
           try {
             const layout = JSON.parse(fs.readFileSync(file, "utf8"));
-            server.hot.send("sp:board-status", { slug: boardSlug(canvasesDir, file), layout });
+            server.hot.send("sp:board-status", {
+              slug: boardSlug(canvasesDir, file),
+              layout,
+            });
           } catch {
             // Half-written or malformed: the next write brings a whole one, and the page keeps
             // the layout it has until then.
@@ -1132,11 +1400,17 @@ function canvasesSource(): Plugin {
       // better than nothing: it watches inotify-style, and the boards are usually in the same
       // tree as the app.
       try {
-        const watcher = fs.watch(canvasesDir, { recursive: true }, (_event, name) => {
-          if (name) queue(path.resolve(canvasesDir, name.toString()));
-        });
+        const watcher = fs.watch(
+          canvasesDir,
+          { recursive: true },
+          (_event, name) => {
+            if (name) queue(path.resolve(canvasesDir, name.toString()));
+          },
+        );
         watcher.on("error", (error) => {
-          server.config.logger.error(`[canvases] watch of ${canvasesDir} failed: ${error}`);
+          server.config.logger.error(
+            `[canvases] watch of ${canvasesDir} failed: ${error}`,
+          );
         });
         watcher.unref();
         server.httpServer?.once("close", () => watcher.close());
@@ -1146,7 +1420,13 @@ function canvasesSource(): Plugin {
             `falling back to Vite's watcher, which may miss boards outside the app's root`,
         );
         server.watcher.add(canvasesDir);
-        for (const event of ["add", "unlink", "change", "addDir", "unlinkDir"] as const) {
+        for (const event of [
+          "add",
+          "unlink",
+          "change",
+          "addDir",
+          "unlinkDir",
+        ] as const) {
           server.watcher.on(event, queue);
         }
       }

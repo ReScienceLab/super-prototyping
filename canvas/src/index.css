@@ -310,7 +310,10 @@ input.canvas-clone-name:focus {
   outline-offset: 2px;
 }
 
-.sp-chat-composer :focus-visible {
+/* The box draws its own ring, on the border, so the draft inside it must not draw a second one.
+   Only the draft: the buttons in there are focus stops of their own, and the tinted border says
+   the box has focus, not which control in it does. */
+.sp-chat-draft:focus-visible {
   outline: none;
 }
 
@@ -1507,15 +1510,67 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   gap: 6px;
 }
 
-/* What the user said, as a bubble on the right; what the agent said, plain. */
+/* What the user said, as a bubble on the right; what the agent said, plain. The bubble may hold
+   a strip of pictures under the words, so the newlines are the words' own business. */
 .sp-chat-you {
   align-self: flex-end;
   max-width: 88%;
   padding: 6px 10px;
   border-radius: 10px;
   background: var(--sp-sel);
+}
+
+.sp-chat-say {
+  display: block;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/* The pictures a message was sent with: a scroller at one height rather than a grid, which is the
+   single rule that holds for one of them or five, and for a phone screenshot beside a wide one.
+   Never cropped here — the tile and the chip crop, because they only have to say which image. */
+.sp-chat-strip {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.sp-chat-shot {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--ds-blue-400);
+  border-radius: 6px;
+  background: var(--ds-gray-100);
+  line-height: 0;
+  scroll-snap-align: start;
+  cursor: zoom-in;
+}
+
+.sp-chat-shot img {
+  display: block;
+  width: auto;
+  height: 160px;
+}
+
+/* The number, on the picture: the same mark in the tray, in the strip and in the chip. */
+.sp-chat-num {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: #000000cc;
+  box-shadow: inset 0 0 0 1px #ffffff40;
+  color: #fff;
+  font: 500 10px/16px var(--sp-sans);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 /* The agent's text, as markdown (markdown.ts). A grid with a gap rather than margins, so the
@@ -1649,9 +1704,86 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   padding: 0 12px 8px;
 }
 
-/* The box is the input. The textarea inside it has no chrome of its own: the border, the
-   background and the focus ring belong to the form, and the submit sits inside them — Claude
-   Code's composer, which this panel is a second window onto. */
+/* What is attached, above the box: one crop each, with the number it will be referred to by. */
+.sp-chat-hint {
+  flex: none;
+  margin: 0 12px 6px;
+  color: var(--sp-text-2);
+  font-size: 11px;
+}
+
+.sp-chat-tray {
+  flex: none;
+  display: flex;
+  gap: 6px;
+  margin: 0 12px 8px;
+  padding-bottom: 2px;
+  overflow-x: auto;
+}
+
+.sp-chat-tile {
+  position: relative;
+  flex: none;
+  width: 76px;
+  margin: 0;
+}
+
+/* Cropped from the top, which is where a screenshot says what it is. */
+.sp-chat-thumb {
+  display: block;
+  position: relative;
+  width: 76px;
+  height: 56px;
+  overflow: hidden;
+  border: 1px solid var(--sp-line);
+  border-radius: 6px;
+  background: var(--ds-gray-100);
+  cursor: pointer;
+}
+
+.sp-chat-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.sp-chat-x {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: #000000cc;
+  box-shadow: inset 0 0 0 1px #ffffff40;
+  color: #fff;
+  font-size: 9px;
+  line-height: 1;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.sp-chat-tile:hover .sp-chat-x,
+.sp-chat-x:focus-visible {
+  opacity: 1;
+}
+
+.sp-chat-name {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--sp-text-2);
+  font: 400 10px/14px var(--sp-mono);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The box is the input. The draft inside it has no chrome of its own: the border, the background
+   and the focus ring belong to the form, and the send button sits inside them — Claude Code's
+   composer, which this panel is a second window onto. */
 .sp-chat-composer {
   flex: none;
   /* The slash palette hangs off the top of the box, so it follows it however tall it has grown. */
@@ -1670,21 +1802,67 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   border-color: var(--sp-accent);
 }
 
-.sp-chat-composer textarea {
+/* The draft is a contenteditable rather than a textarea: a reference to an image is a thumbnail
+   inside the sentence, and a textarea holds characters and nothing else. Which is also why the
+   badge is now the element it always looked like, and no longer a pill painted behind the text. */
+.sp-chat-draft {
   flex: 1;
   min-width: 0;
   max-height: 160px;
   padding: 2px 0;
-  border: 0;
-  background: none;
-  color: inherit;
+  overflow-y: auto;
   font: inherit;
   outline: none;
-  resize: none;
-  field-sizing: content;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
   user-select: text;
 }
 
+.sp-chat-draft:empty::before {
+  content: attr(data-placeholder);
+  color: var(--sp-text-2);
+}
+
+.sp-chat-cmd {
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: var(--ds-blue-100);
+  box-shadow: inset 0 0 0 1px var(--ds-blue-400);
+}
+
+/* A reference: the picture small enough to recognise and the number to say it by. Inline, so it
+   wraps with the words around it and the caret steps past it in one press. */
+.sp-chat-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: -3px;
+  height: 18px;
+  padding: 0 5px 0 3px;
+  border-radius: 5px;
+  background: var(--ds-blue-100);
+  box-shadow: inset 0 0 0 1px var(--ds-blue-400);
+  white-space: nowrap;
+}
+
+.sp-chat-ref img {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* The picture it named is gone, and the sentence is not rewritten for it. */
+.sp-chat-ref-gone {
+  padding: 0 5px;
+  background: var(--ds-amber-100);
+  box-shadow: inset 0 0 0 1px var(--ds-amber-400);
+  color: var(--ds-amber-900);
+  text-decoration: line-through;
+}
+
+.sp-chat-attach,
 .sp-chat-submit {
   flex: none;
   display: grid;
@@ -1696,9 +1874,17 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   cursor: pointer;
 }
 
+.sp-chat-attach:hover,
 .sp-chat-submit:hover:not(:disabled) {
   color: var(--sp-text);
   background: var(--sp-hover);
+}
+
+/* First thing in the row under the box, where Claude Code keeps it: the same height as the chips
+   beside it, so the row reads as one line of controls rather than a button with labels after it. */
+.sp-chat-attach {
+  width: 22px;
+  height: 22px;
 }
 
 .sp-chat-submit:disabled {
@@ -1945,7 +2131,6 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 /* The count keeps the right edge, whatever the chips beside it are called. */
 .sp-chat-perm {
   margin-right: auto;
-  padding-left: 2px;
 }
 
 .sp-chat-ctx {

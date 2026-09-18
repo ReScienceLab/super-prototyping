@@ -37,12 +37,32 @@ export interface AgentModel {
   efforts?: string[];
 }
 
+/**
+ * An image the composer attached, as the run holds it. `n` is the number the composer drew on the
+ * tile and the number the message refers to, so it is the image's name on both sides of the pipe:
+ * the panel writes "#2" in the sentence, and whichever form the agent is handed below carries the
+ * same "#2" beside the picture.
+ */
+export interface AgentImage {
+  n: number;
+  /** What the browser called the file; a caption, never a path. */
+  name: string;
+  /** The media type the browser reported, `image/png` and the like. */
+  type: string;
+  /** The bytes, base64, with no `data:` prefix. */
+  data: string;
+  /** Where the server wrote it, for an agent that takes files rather than bytes. */
+  path: string;
+}
+
 /** What the composer chose, handed to `args`. An empty string means the CLI decides. */
 export interface RunSpec {
   preamble: string;
   boards: string;
   model: string;
   effort: string;
+  /** Where this run's images were written, or empty when it has none. */
+  imagesDir: string;
 }
 
 export interface AgentDef {
@@ -52,7 +72,7 @@ export interface AgentDef {
   bin: string;
   args(spec: RunSpec): string[];
   /** Everything written to the process's stdin, which is then closed. */
-  stdin(message: string, preamble: string): string;
+  stdin(message: string, preamble: string, images: AgentImage[]): string;
   events(line: string): ChatEvent[];
   /** The models to offer when the agent keeps no list of its own. */
   models: AgentModel[];
@@ -99,19 +119,41 @@ export const AGENTS: AgentDef[] = [
     bin: "claude",
     args: ({ preamble, model, effort }) => [
       "-p",
-      "--input-format", "stream-json",
-      "--output-format", "stream-json",
+      "--input-format",
+      "stream-json",
+      "--output-format",
+      "stream-json",
       "--verbose",
       "--include-partial-messages",
       // The same trust as running claude in a terminal of the project, which is what the
       // panel replaces; the panel says so before the first message.
-      "--permission-mode", "bypassPermissions",
-      "--append-system-prompt", preamble,
+      "--permission-mode",
+      "bypassPermissions",
+      "--append-system-prompt",
+      preamble,
       ...(model ? ["--model", model] : []),
       ...(effort ? ["--effort", effort] : []),
     ],
-    stdin: (message) =>
-      JSON.stringify({ type: "user", message: { role: "user", content: message } }) + "\n",
+    // With images the content is a list of blocks rather than a string: each picture goes in
+    // behind the marker that names it, so the "#2" in the sentence lands on the block above it.
+    // `[Image #2]` is the marker Claude Code writes itself when a screenshot is pasted into its
+    // terminal, so the number arrives as something already read rather than a local convention.
+    stdin: (message, _preamble, images) => {
+      const blocks = images.flatMap((i) => [
+        { type: "text", text: `[Image #${i.n}] ${i.name}` },
+        {
+          type: "image",
+          source: { type: "base64", media_type: i.type, data: i.data },
+        },
+      ]);
+      const content = blocks.length
+        ? [...blocks, { type: "text", text: message }]
+        : message;
+      return (
+        JSON.stringify({ type: "user", message: { role: "user", content } }) +
+        "\n"
+      );
+    },
     events: chatEventsFromLine,
     // `claude -p` runs a slash command sent as the message text, the same as the terminal does:
     // a command, a skill, a plugin's command. Codex has neither — `codex exec` hands `/foo` to
@@ -143,24 +185,42 @@ export const AGENTS: AgentDef[] = [
     id: "codex",
     name: "Codex",
     bin: "codex",
-    args: ({ boards, model, effort }) => [
-      "exec", "--json",
+    args: ({ boards, model, effort, imagesDir }) => [
+      "exec",
+      "--json",
       "--skip-git-repo-check",
       // Codex's own sandbox, and the nearest it has to claude's mode above: the project, the
       // boards, /tmp, and the network.
-      "--sandbox", "workspace-write",
-      "-c", "sandbox_workspace_write.network_access=true",
-      "--add-dir", boards,
+      "--sandbox",
+      "workspace-write",
+      "-c",
+      "sandbox_workspace_write.network_access=true",
+      "--add-dir",
+      boards,
+      // And this run's images, which the server wrote under the system temp directory: whether
+      // the sandbox reaches that on its own is a per-platform question, and naming it is two
+      // words instead of an answer.
+      ...(imagesDir ? ["--add-dir", imagesDir] : []),
       // Codex asks the API for a reasoning summary only when told to; without this the stream
       // carries no reasoning item at all on a turn that provably reasoned (Open Design measured
       // 516 reasoning tokens and no item). The summary is what becomes the thinking marker.
-      "-c", 'model_reasoning_summary="detailed"',
+      "-c",
+      'model_reasoning_summary="detailed"',
       ...(model ? ["-m", model] : []),
       // No flag of its own: effort is a config key, and codex takes no opinion on the value at
       // startup — a level the model does not have fails on the API's answer, in the turn.
       ...(effort ? ["-c", `model_reasoning_effort="${effort}"`] : []),
     ],
-    stdin: (message, preamble) => `${preamble}\n\n${message}`,
+    // Codex takes a prompt and nothing else, so an image is a path it is told to open rather
+    // than bytes handed over; with none attached this is the preamble and the message it was.
+    stdin: (message, preamble, images) =>
+      [
+        preamble,
+        images.map((i) => `[Image #${i.n}] ${i.path}`).join("\n"),
+        message,
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
     events: codexEventsFromLine,
     // Codex's models come from its server and change between releases, so nothing is listed
     // here: the cache below is the same list its own picker draws, and an empty one leaves the
@@ -186,12 +246,20 @@ export const AGENTS: AgentDef[] = [
       // also lists their roots as "- `r0` = ...". A root's name is backquoted, so a bare name is
       // the entry and nothing else is.
       read: (stdout) => {
-        const skills = (JSON.parse(stdout) as { content?: { text?: string }[] }[])
+        const skills = (
+          JSON.parse(stdout) as { content?: { text?: string }[] }[]
+        )
           .flatMap((m) => m.content ?? [])
           .map((c) => c.text ?? "")
           .find((t) => t.includes("<skills_instructions>"));
         // A Set because a skill reachable from two roots is listed under both.
-        return skills ? [...new Set([...skills.matchAll(/^- ([\w.:-]+): /gm)].map((m) => m[1]!))] : [];
+        return skills
+          ? [
+              ...new Set(
+                [...skills.matchAll(/^- ([\w.:-]+): /gm)].map((m) => m[1]!),
+              ),
+            ]
+          : [];
       },
     },
     missing:
