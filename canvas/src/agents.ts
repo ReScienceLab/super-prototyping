@@ -84,18 +84,21 @@ export interface AgentDef {
    * The agent's own slash commands, read off a line it writes, for the composer's palette. Claude
    * Code names them all on the init frame of every run — the project's, the personal ones, the
    * installed plugins' and the skills, namespaced as it namespaces them — so the palette is the
-   * CLI's list rather than a second discovery of it that goes stale. Nothing is spawned to ask:
-   * the frame arrives on the messages the user sends anyway, and a run's worth of system prompt
-   * is not free. An agent with no such line, and no slash commands to run, leaves this out.
+   * CLI's list rather than a second discovery of it that goes stale. The frame rides along on
+   * the messages the user sends anyway, so a panel in use keeps the list current for free; it is
+   * `commandsProbe` that gets the first one. An agent with no such line leaves this out.
    */
   commands?(line: string): string[] | null;
   /**
-   * What to run to ask an agent that announces nothing. Codex has no init frame and no slash
-   * commands of its own: what a slash means to it is a skill, and skills do reach `codex exec` —
-   * it lists them to the model in the prompt it composes. `codex debug prompt-input` composes
-   * that prompt without sending it, so the list is the CLI's own, costs no turn, and includes the
-   * project's skills as well as the personal and plugin ones. Run once for the server's lifetime,
-   * the first time the palette opens for that agent.
+   * What to run when no line has carried the list yet. Claude Code has one but only mid-run, so
+   * until the first message — and after every dev-server restart, which empties the map — the
+   * palette would be blank; the probe asks for that same init frame by sending the one command
+   * the CLI answers by itself, and throws the answer away.
+   * Codex has no such frame at all: what a slash means to it is a skill, and skills do reach
+   * `codex exec` — it lists them to the model in the prompt it composes, and `codex debug
+   * prompt-input` composes that prompt without sending it. Either way the list is the CLI's own,
+   * costs no turn, and covers the project's, the personal, the plugins' and the skills. Run once
+   * for the server's lifetime, the first time the palette opens for that agent.
    */
   commandsProbe?: { args: string[]; read(stdout: string): string[] };
   /** What the run says when `bin` is not on PATH; the menu says it too, greyed. */
@@ -111,6 +114,22 @@ interface CodexModel {
   visibility: string;
   supported_reasoning_levels: { effort: string }[];
 }
+
+/**
+ * Claude Code's slash commands off the one frame that lists them, null off every other line.
+ * Both ways in read this: the run the panel is pumping, and the probe that starts a run for no
+ * other reason than this frame.
+ */
+const claudeCommands = (line: string): string[] | null => {
+  const frame = JSON.parse(line) as {
+    type?: string;
+    subtype?: string;
+    slash_commands?: string[];
+  };
+  return frame.type === "system" && frame.subtype === "init"
+    ? (frame.slash_commands ?? null)
+    : null;
+};
 
 export const AGENTS: AgentDef[] = [
   {
@@ -158,15 +177,33 @@ export const AGENTS: AgentDef[] = [
     // `claude -p` runs a slash command sent as the message text, the same as the terminal does:
     // a command, a skill, a plugin's command. Codex has neither — `codex exec` hands `/foo` to
     // the model as the five characters it is — so it defines none of this.
-    commands: (line) => {
-      const frame = JSON.parse(line) as {
-        type?: string;
-        subtype?: string;
-        slash_commands?: string[];
-      };
-      return frame.type === "system" && frame.subtype === "init"
-        ? (frame.slash_commands ?? null)
-        : null;
+    commands: claudeCommands,
+    // The same init frame, asked for rather than waited for. A prompt is required — with none,
+    // `claude -p` exits before it says hello — and `/help` is the one that answers itself: the
+    // CLI runs it locally, so the result frame comes back `num_turns: 0`, `duration_api_ms: 0`,
+    // `total_cost_usd: 0`, measured. Its output is thrown away; the init frame above it is the
+    // point. The budget is the belt, in case a version ever sends `/help` to the model instead.
+    commandsProbe: {
+      args: [
+        "-p",
+        "/help",
+        "--max-budget-usd",
+        "0.0000001",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+      ],
+      read: (stdout) => {
+        for (const line of stdout.split("\n")) {
+          try {
+            const list = claudeCommands(line);
+            if (list) return list;
+          } catch {
+            // The hook frames around it, and the blank line at the end.
+          }
+        }
+        return [];
+      },
     },
     // Aliases rather than versioned names, which is what `claude --model` documents: the alias
     // follows the latest of its line, so this list does not go stale between releases. Claude

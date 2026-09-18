@@ -53,6 +53,25 @@ import { renderMarkdown } from "./markdown";
 const RUNS_KEY = "sp-chat-runs";
 const AGENT_KEY = "sp-chat-agent";
 const CHOICE_KEY = "sp-chat-choice";
+const COMMANDS_KEY = "sp-chat-commands";
+
+/**
+ * The commands this browser was last told each agent had. The palette has to open on the slash
+ * itself, and the server cannot always answer that fast: it keeps the list only in memory, so a
+ * dev-server restart sends it back to the CLI to ask, which takes seconds. This is what it opens
+ * on meanwhile — yesterday's list is right far more often than an empty one is, and the ask that
+ * every mount makes anyway corrects it.
+ */
+const remembered = (): Record<string, string[]> => {
+  try {
+    return JSON.parse(localStorage.getItem(COMMANDS_KEY) ?? "{}") as Record<
+      string,
+      string[]
+    >;
+  } catch {
+    return {};
+  }
+};
 
 /** The CLI's own word for a level, with a capital: Low, High, XHigh. Total: the agent list
  *  arrives a moment after the panel does, and until it has there is no level to name. */
@@ -126,9 +145,13 @@ export function ChatPanel() {
     }
   });
   const [history, setHistory] = useState<RunSummary[]>([]);
-  // The agent's own slash commands, and where the keyboard is in them. Asked for when the draft
-  // becomes one, since the server learns them from runs and the list grows as the panel is used.
-  const [commands, setCommands] = useState<string[]>([]);
+  // The agent's own slash commands, and where the keyboard is in them. Opens on what this browser
+  // remembers, then on what the server says: asked for at mount and again on the way into a slash
+  // word, since the server learns them off the runs it pumps and the list grows as the panel is
+  // used.
+  const [commands, setCommands] = useState<string[]>(
+    () => remembered()[agent] ?? [],
+  );
   const [slashAt, setSlashAt] = useState(0);
   const [slashOff, setSlashOff] = useState(false);
   // What the box says, read back off it after every edit (chatDraft.ts). The box itself is the
@@ -402,13 +425,21 @@ export function ChatPanel() {
     follow(runId);
   };
 
-  // Asked for on the way into a slash word rather than at mount: the server learns the list from
-  // the runs it pumps, so it is empty before the first message and right after it.
+  // At mount, so the seconds a cold server spends asking the CLI are spent while the canvas is
+  // being looked at, and again on the way into a slash word, so a list learned since — off a run,
+  // or off a probe that answered after this asked — is the one the palette opens with. An empty
+  // answer is never kept: a server that has just restarted has forgotten what it told this panel,
+  // which is not the same as the agent having no commands.
   useEffect(() => {
-    if (typing === undefined) return;
-    void fetch(`/__sp/agent/commands?agent=${agent}`).then(async (res) =>
-      setCommands(res.ok ? await res.json() : []),
-    );
+    void fetch(`/__sp/agent/commands?agent=${agent}`).then(async (res) => {
+      const list = (res.ok ? await res.json() : []) as string[];
+      if (!list.length) return;
+      setCommands(list);
+      localStorage.setItem(
+        COMMANDS_KEY,
+        JSON.stringify({ ...remembered(), [agent]: list }),
+      );
+    });
     // The word itself does not change the list; starting one, or changing agent, does.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [typing === undefined, agent]);
@@ -416,6 +447,8 @@ export function ChatPanel() {
   const switchTo = (id: AgentId) => {
     localStorage.setItem(AGENT_KEY, id);
     setAgent(id);
+    // The other agent's commands are not this one's, and the ask above lands seconds later.
+    setCommands(remembered()[id] ?? []);
   };
 
   const choose = (id: AgentId) => {

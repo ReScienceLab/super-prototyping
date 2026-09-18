@@ -156,11 +156,35 @@ describe("AGENTS", () => {
       "ponytail:ponytail-audit",
     ]);
     expect(def("codex").commandsProbe!.read("[]")).toEqual([]);
+    // Nothing in codex's stream carries them, which is why it is asked at all.
+    expect(def("codex").commands).toBeUndefined();
   });
 
-  // Claude's arrive in a run it is making anyway, so it is never asked.
-  it("asks only the agent that announces nothing", () => {
-    expect(def("claude").commandsProbe).toBeUndefined();
-    expect(def("codex").commands).toBeUndefined();
+  // Claude's list rides along on runs, but only once one has started: before the first message,
+  // and after a restart empties the server's map, the probe asks for the frame on its own. It
+  // reads the same stdout, so the lines around the frame must not stop it — the hook ones parse
+  // and are not it, the blank one at the end does not parse at all.
+  it("reads claude's commands out of what the probe printed around them", () => {
+    const probe = def("claude").commandsProbe!;
+    // Names nothing here has heard of, on purpose: the palette is whatever that install of that
+    // CLI says it can run today. Nowhere is there a list of commands to fall behind a release.
+    expect(
+      probe.read(
+        [
+          '{"type":"system","subtype":"hook_started","hook_name":"SessionStart"}',
+          '{"type":"system","subtype":"init","cwd":"/p","slash_commands":["not-a-command-yet","some-plugin:shipped-tomorrow"]}',
+          '{"type":"result","subtype":"success","num_turns":0,"total_cost_usd":0}',
+          "",
+        ].join("\n"),
+      ),
+    ).toEqual(["not-a-command-yet", "some-plugin:shipped-tomorrow"]);
+    // A version that says it some other way, or a spawn that failed: no palette, not a crash.
+    expect(probe.read("")).toEqual([]);
+    // The prompt is the one thing about the probe that is a literal, and it is how to ask, not
+    // what comes back: `/help` is the command the CLI answers by itself, so no turn and no bill.
+    // A release that dropped it would still print the init frame this reads — the budget below
+    // is what keeps that from quietly costing money.
+    expect(probe.args).toContain("/help");
+    expect(probe.args).toContain("--max-budget-usd");
   });
 });

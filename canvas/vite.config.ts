@@ -874,9 +874,11 @@ function canvasesSource(): Plugin {
         return list;
       };
       // The slash commands each agent last said it had. Claude Code lists them on the init frame
-      // of every run, so they cost nothing to learn and are exactly what that project can run;
-      // the palette is empty until the first message, which is the price of not spawning a CLI
-      // to ask. A bad line is a line: the menu must never take a run down with it.
+      // of every run, so they cost nothing to learn and are exactly what that project can run.
+      // This map is all there is, and it dies with the server — an edit to this file or anything
+      // it imports restarts vite mid-session — so an agent that has not run yet falls through to
+      // the probe below rather than to an empty palette. A bad line is a line: the menu must
+      // never take a run down with it.
       const commands = new Map<string, string[]>();
       const harvest = (def: AgentDef, line: string) => {
         try {
@@ -886,8 +888,9 @@ function canvasesSource(): Plugin {
           // Not the line that carries them.
         }
       };
-      // And for an agent that announces nothing, what it says when asked. Local, free and slow
-      // enough (seconds) to be worth keeping: like the probes above, once for the server's life.
+      // And what an agent says when asked, for the first palette of a server's life and for one
+      // that announces nothing at all. Local, free and slow enough (seconds) to be worth keeping:
+      // like the probes above, once for the server's life.
       const asked = new Map<string, Promise<string[]>>();
       const askFor = (def: AgentDef) => {
         let ask = asked.get(def.id);
@@ -901,9 +904,11 @@ function canvasesSource(): Plugin {
                 timeout: 30_000,
                 maxBuffer: 8 << 20,
               },
-              (error, stdout) => {
+              (_error, stdout) => {
+                // Whatever the exit code: the frame the palette wants is printed early, and a
+                // probe that ends badly after that still has it on stdout.
                 try {
-                  done(error ? [] : def.commandsProbe!.read(stdout));
+                  done(def.commandsProbe!.read(stdout));
                 } catch {
                   // A version whose answer this cannot read: no palette, rather than no panel.
                   done([]);
