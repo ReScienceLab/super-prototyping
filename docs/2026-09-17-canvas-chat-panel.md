@@ -319,11 +319,50 @@ the background and the focus ring are the form's — so the box grows with the t
 palette keeps hanging off its top edge. Colours stay the canvas's: this is the same arrangement
 in a light panel, not a dark theme dropped into a light app.
 
-Three of that row's controls are deliberately missing. The microphone: no voice input here. The
+Two of that row's controls are deliberately missing. The microphone: no voice input here. And the
 chevron beside the permission label: it switches Edit and Bypass mode, and this panel cannot —
-the mode is fixed at spawn and the label states it rather than offering it. And `+`, which adds
-files and images to the message: the prompt reaches the agent as one string on stdin, so the
-button would open onto nothing. It comes back the day there is something to attach.
+the mode is fixed at spawn and the label states it rather than offering it. The third, `+`, is
+here after all, first thing in that row where Claude Code keeps it, and the next section is what
+it does.
+
+
+## Pictures, both ways
+
+A picture attached to a message gets a number, and the message refers to it by that number. That
+is how a person talks about four screenshots at once — the layout from #1, the button from #3,
+the copy from #4 — and it is the only thing a strip of thumbnails cannot say on its own. Numbers
+count up for the life of the composer and are never reused, so a number in the transcript still
+means what it meant when it was typed. Paste, drop, or the button in the row: three ways in,
+because a screenshot is on the clipboard as often as it is in a folder.
+
+Each agent is handed them the way it can take them. Claude gets base64 blocks inline on stdin,
+each behind an `[Image #n] <name>` line, so the numbers the message uses are the numbers the model
+sees. Codex has no image channel on stdin, so it gets the paths instead, to files written under a
+per-run temp directory. The browser's filename is a caption in both cases and reaches no path: the
+run's id names the folder, the number and media type name the file.
+
+The other direction is the interesting one. Whatever a tool hands the agent as an image arrives on
+the `user` frame that carries the tool's result, as a base64 block where a string would otherwise
+be — and the clone toolchain already tells the agent to look: `refkit grid` writes its annotated
+PNG and prints "Now READ this image with the Read tool." So the working images of a clone reach
+the panel for free, and they are exactly what the model looked at, rather than a file some watcher
+found in the project afterwards. Nothing watches the project directory, and nothing had to be
+taught which tools draw.
+
+Both directions obey the same rule about bytes: they do not live in the event buffer. A written
+board reloads the page, the panel rebuilds every turn from event zero, and a full-page grid is
+megabytes — so what the stream carries is a number, and the picture is a request away. The
+composer's attachments go out as `{n, name}` on the `start` event and are served from
+`/run/<id>/image/<n>`; a tool's pictures are lifted off the frame by the parser, filed under the
+run by the server, and served from `/run/<id>/shot/<k>`. The panel draws one strip for both, so a
+picture looks the same whichever end of the conversation put it there.
+
+A tool's pictures are held in memory rather than written down. Nothing but the page ever opens
+them, and evicting the run drops them with it. Serving the file from the path the agent wrote it
+to would have needed no copy at all, and is wrong twice: `refkit` reuses its `-o` names, so an
+hour-old line in the transcript would quietly show a later screen or 404, and a dev server that
+serves an arbitrary path on request is a disclosure hole. The media type is the agent's word and
+goes out as a response header, so it is checked against `image/…` before it gets there.
 
 
 ## Left out
