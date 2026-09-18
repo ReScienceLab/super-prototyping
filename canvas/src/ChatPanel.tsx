@@ -167,9 +167,25 @@ export function ChatPanel() {
   // the copy the palette, the send button and the message all read.
   const [draft, setDraft] = useState("");
   const [attached, setAttached] = useState<Attached[]>([]);
+  // The tray as it stands this instant, beside the state React draws it from: every change goes
+  // through setTray and every decision reads the ref. A handler holds the `attached` of the render
+  // that made it, and addImages reads its files before it merges, so two additions in the air at
+  // once — a drop landing during a paste — would each merge into that stale tray and the later
+  // one would win. Not a state updater, which reads the current tray too, because the merge hands
+  // out the numbers and StrictMode runs an updater twice.
+  const tray = useRef<Attached[]>([]);
+  const setTray = (next: Attached[]) => {
+    tray.current = next;
+    setAttached(next);
+  };
   // Arrival order, and it never goes back: see the numbers in the note above.
   const nextN = useRef(1);
   const [sendError, setSendError] = useState<string | null>(null);
+  // True from Enter until the server has answered. The box is still open for those milliseconds
+  // — the run is not in the log until the answer names it — and what was typed into it then
+  // would be swept out with the sent message, so the box takes nothing while this is set. The
+  // tray still does: a picture that lands meanwhile is kept back for the next message.
+  const [sending, setSending] = useState(false);
   const abort = useRef(new AbortController());
   const log = useRef<HTMLDivElement>(null);
   const composer = useRef<HTMLDivElement>(null);
@@ -251,11 +267,12 @@ export function ChatPanel() {
     typing === undefined || slashOff
       ? []
       : commands.filter((c) => c.toLowerCase().includes(typing.toLowerCase()));
-  // A word that is already the only command it matches has nothing left to choose, so the palette
-  // closes and Enter sends. Open, it would swallow that Enter to pick what is on screen. Typing
-  // a command out in full and pressing Enter appeared to do nothing, because all the pick added
-  // was the trailing space, and it took a second Enter to send.
-  const matches = found.length === 1 && found[0] === typing ? [] : found;
+  // A word that already is a command has nothing left to choose — even one that is also the start
+  // of a longer command, as review is of security-review — so the palette closes and Enter sends.
+  // Open, it would swallow that Enter to pick what is on screen. Typing a command out in full and
+  // pressing Enter appeared to do nothing, because all the pick added was the trailing space, and
+  // it took a second Enter to send.
+  const matches = found.some((c) => c === typing) ? [] : found;
   const at = Math.min(slashAt, matches.length - 1);
 
   /** The caret put back just past `node`'s `offset`, which is where every edit below leaves it. */
@@ -355,12 +372,12 @@ export function ChatPanel() {
     const now = namedPictures(box);
     const gone = named.current.filter((n) => !now.includes(n));
     named.current = now;
-    // Read the tray rather than close over it: this also runs from the read that attaches a
-    // picture and cites it in one go, where `attached` is still the tray from before it landed.
-    if (gone.length) setAttached((a) => a.filter((i) => !gone.includes(i.n)));
+    // The ref rather than `attached`: this also runs from the read that attaches a picture and
+    // cites it in one go, where `attached` is still the tray from before it landed.
+    if (gone.length) setTray(tray.current.filter((i) => !gone.includes(i.n)));
     // The box emptying while the tray already was is the one restart nothing else sees, since no
     // tile changed hands for the effect below to notice.
-    renumber(attached);
+    renumber(tray.current);
   };
 
   // The other restart: the tray itself going empty, whoever emptied it — the ✕ on a tile, a chip
@@ -376,7 +393,7 @@ export function ChatPanel() {
   // word is not glued to it. Nothing is inserted into one, since none of them is editable.
   const insertAtCaret = (node: HTMLElement) => {
     const box = composer.current;
-    if (!box) return;
+    if (!box || sending) return;
     box.focus();
     const selection = getSelection();
     const range =
@@ -414,11 +431,21 @@ export function ChatPanel() {
   const addImages = async (list: FileList | File[] | null, cite = false) => {
     const picked = [...(list ?? [])].filter((f) => f.type.startsWith("image/"));
     if (picked.length === 0) return;
-    // The server refuses a body over about 48 MB, and base64 is a third larger than the file; a
-    // number said here is better than one found out after the whole thing has been read and sent.
-    if (picked.reduce((n, f) => n + f.size, 0) > 24_000_000)
+    // The server takes twenty pictures in a body under 48 MB, and base64 is a third larger than
+    // the file, so about 32 MB of pictures is what fits. Counted with what is in the tray already,
+    // since the body carries all of it and not this batch alone; and said here, before the read,
+    // rather than found out after the whole thing has been read and sent.
+    if (tray.current.length + picked.length > 20)
       return setSendError(
-        "those are too large to attach; keep them under about 24 MB together",
+        "that is too many to attach; a message takes twenty pictures at most",
+      );
+    if (
+      tray.current.reduce((n, i) => n + i.data.length * 0.75, 0) +
+        picked.reduce((n, f) => n + f.size, 0) >
+      32_000_000
+    )
+      return setSendError(
+        "those are too large to attach; keep the pictures under about 32 MB together",
       );
     setSendError(null);
     let bytes: string[];
@@ -427,24 +454,25 @@ export function ChatPanel() {
     } catch (error) {
       return setSendError(`could not read that picture: ${String(error)}`);
     }
-    // Read first and numbered after, which is what lets the same picture keep the number it
-    // already has: pressing + on one twice is one picture said twice, not two. Still numbered in
-    // the order they were picked rather than the order the reads came back in, so three files
-    // chosen at once are #1, #2, #3 as they appear in the dialog.
-    const tray = [...attached];
+    // Read first and merged after, into the tray as it stands once the reads are back, which is
+    // what lets the same picture keep the number it already has: pressing + on one twice is one
+    // picture said twice, not two. Still numbered in the order they were picked rather than the
+    // order the reads came back in, so three files chosen at once are #1, #2, #3 as they appear
+    // in the dialog.
+    const next = [...tray.current];
     const said: Attached[] = [];
     for (const [file, data] of picked.map((f, i) => [f, bytes[i]!] as const)) {
-      const already = tray.find((i) => i.data === data);
+      const already = next.find((i) => i.data === data);
       const image = already ?? {
         n: nextN.current++,
         name: file.name,
         type: file.type,
         data,
       };
-      if (!already) tray.push(image);
+      if (!already) next.push(image);
       said.push(image);
     }
-    setAttached(tray.sort((x, y) => x.n - y.n));
+    setTray(next.sort((x, y) => x.n - y.n));
     // One picture, pointed at on the canvas: the sentence says which one without a second click
     // on the tile that has just appeared, and says it once however many times it is pointed at.
     // A pick, a paste or a drop is a handful at once, and which of them the message is about is
@@ -475,8 +503,7 @@ export function ChatPanel() {
   // The tile goes; the chips that named it stay where they were written, struck through and
   // without their picture. A sentence is not rewritten because what it pointed at was removed.
   const detach = (n: number) => {
-    const left = attached.filter((i) => i.n !== n);
-    setAttached(left);
+    setTray(tray.current.filter((i) => i.n !== n));
     for (const chip of composer.current?.querySelectorAll(
       `[data-ref="${n}"]`,
     ) ?? []) {
@@ -493,39 +520,39 @@ export function ChatPanel() {
 
   const send = async () => {
     const message = draft.trim();
-    if (!message || running) return;
+    if (!message || running || sending) return;
+    const images = tray.current;
     // Sending clears the draft without passing through onInput, so an Escape that closed the
     // palette for this word has to be forgotten here too, or the next word never opens one.
     setSlashOff(false);
     setSendError(null);
+    setSending(true);
     const res = await fetch("/__sp/agent/run", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        message,
-        canvas,
-        agent,
-        model,
-        effort,
-        images: attached,
-      }),
-    });
+      body: JSON.stringify({ message, canvas, agent, model, effort, images }),
+    }).finally(() => setSending(false));
     if (!res.ok) return setSendError(await res.text());
     // Emptied only once it is away — a refused message is still in the box, chips and all, to be
-    // fixed and sent again.
+    // fixed and sent again. Only the pictures that went: one that landed while this was away is
+    // the next message's, tile and number intact.
     composer.current?.replaceChildren();
     setDraft("");
-    setAttached([]);
+    setTray(tray.current.filter((i) => !images.includes(i)));
     // The sent message keeps its own numbers — the transcript draws them from the turn — so the
     // next one starts at #1 rather than carrying on from where this one stopped. The emptied box
     // is not a box that has had its chips deleted: forget them, or the first edit after this
     // would read them as gone and take the next message's pictures with them.
     named.current = [];
     const { runId } = await res.json();
-    const images = attached.map(({ n, name }) => ({ n, name }));
     setTurns((ts) => [
       ...ts,
-      { ...turnFor(runId), prompt: message, agent, images },
+      {
+        ...turnFor(runId),
+        prompt: message,
+        agent,
+        images: images.map(({ n, name }) => ({ n, name })),
+      },
     ]);
     follow(runId);
   };
@@ -570,7 +597,7 @@ export function ChatPanel() {
     setTurns([]);
     composer.current?.replaceChildren();
     setDraft("");
-    setAttached([]);
+    setTray([]);
     named.current = [];
     setSendError(null);
     composer.current?.focus();
@@ -969,6 +996,7 @@ export function ChatPanel() {
             e.preventDefault();
             if (e.clipboardData.files.length)
               return void addImages(e.clipboardData.files);
+            if (sending) return;
             // The text and not the markup that came with it: the box holds the chips it made
             // itself and nothing else. execCommand because it is the only insert that native
             // undo still knows about.
@@ -979,6 +1007,9 @@ export function ChatPanel() {
             );
           }}
           onKeyDown={(e) => {
+            // Tab still leaves, whatever is in the air: a box that took no key at all would hold
+            // a keyboard in it for as long as the send took.
+            if (sending && e.key !== "Tab") return e.preventDefault();
             if (matches.length > 0) {
               if (e.key === "ArrowDown" || e.key === "ArrowUp") {
                 e.preventDefault();
@@ -1061,7 +1092,7 @@ export function ChatPanel() {
           <button
             type="submit"
             className="sp-chat-submit"
-            disabled={!draft.trim()}
+            disabled={!draft.trim() || sending}
             aria-label="Send"
             title="Send — Enter"
           >
