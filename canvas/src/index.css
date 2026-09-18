@@ -1858,7 +1858,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   user-select: text;
 }
 
-.sp-chat-draft:empty::before {
+.sp-chat-draft[data-empty]::before {
   content: attr(data-placeholder);
   color: var(--sp-text-2);
 }

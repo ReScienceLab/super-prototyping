@@ -377,8 +377,10 @@ what the message is about is usually already on the canvas.
 Each agent is handed them the way it can take them. Claude gets base64 blocks inline on stdin,
 each behind an `[Image #n] <name>` line, so the numbers the message uses are the numbers the model
 sees. Codex has no image channel on stdin, so it gets the paths instead, to files written under a
-per-run temp directory. The browser's filename is a caption in both cases and reaches no path: the
-run's id names the folder, the number and media type name the file.
+per-run folder in the server's temp directory for as long as the agent runs; the page is served
+the bytes the run holds, so the files go when the child exits. The browser's filename is a
+caption in both cases and reaches no path: the run's id names the folder, the number and media
+type name the file.
 
 The other direction is the interesting one. Whatever a tool hands the agent as an image arrives on
 the `user` frame that carries the tool's result, as a base64 block where a string would otherwise

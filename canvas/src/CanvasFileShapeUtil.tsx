@@ -65,17 +65,10 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
     border: 0,
     display: "block",
     pointerEvents: isEditing ? "auto" : "none",
-    /**
-     * A frame paints an opaque base background under the document it loads whenever the frame
-     * element's colour scheme and the document's differ (CSS Color Adjust calls it a colour
-     * scheme mismatch). The canvas is dark (tokens.css) and the element inherits that; a board
-     * declares no scheme and is light. That mismatch was the white card under every board.
-     * Saying `light` here matches the board, and the canvas shows through wherever the board
-     * paints nothing, whatever colour the canvas is. Measured in Chrome 153: `light` and
-     * `normal` on the element composite transparent, `dark` and no rule paint #FFFFFF. On the
-     * element and not in the document, so nothing is written into a board's markup and its own
-     * text and control colours stand (docs/2026-09-17-canvas-geist.md).
-     */
+    // The board's own scheme, so the frame composites transparent rather than painting the
+    // white backdrop a frame gets under a document whose scheme differs from its element's.
+    // On the element, so nothing is written into the board. Measured in
+    // docs/2026-09-17-canvas-geist.md.
     colorScheme: "light",
   };
 

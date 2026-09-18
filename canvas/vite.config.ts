@@ -33,6 +33,9 @@ import {
 } from "./src/agentRun.ts";
 import {
   AGENTS,
+  IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGES,
   type AgentDef,
   type AgentImage,
   type AgentModel,
@@ -1004,11 +1007,13 @@ function canvasesSource(): Plugin {
         }
         return ask;
       };
-      // Attached images go to disk for an agent that takes files (agents.ts), under one folder
-      // per server named by its pid. A run's folder goes when the run leaves the ring below, the
-      // server's goes with the server, and at start the folders of servers that were killed
-      // rather than closed go too: a pid nothing answers on is a server that is gone, and a
-      // run's images have no use past the server holding its events.
+      // Attached images go to disk for an agent that takes files (agents.ts), for as long as
+      // that agent runs: a run's folder goes when its child closes, since the page is served
+      // the bytes the run holds and nothing else reads the files. The folders sit under one per
+      // server named by its pid, and at start the folders of servers that were killed rather
+      // than closed go too: a pid nothing answers on is a server that is gone. Not on the
+      // server's own close — Vite restarts by building the new server, same pid, before it
+      // closes the old, and Ctrl+C never closes it at all.
       const chatDir = path.join(os.tmpdir(), `sp-chat-${process.pid}`);
       for (const name of fs.readdirSync(os.tmpdir())) {
         const pid = Number(/^sp-chat-(\d+)$/.exec(name)?.[1]);
@@ -1017,21 +1022,14 @@ function canvasesSource(): Plugin {
           process.kill(pid, 0);
         } catch (error) {
           // Gone (ESRCH), as against alive and another user's (EPERM) on a host whose tmp is
-          // shared: that one is a running canvas, and not this server's to remove.
-          if ((error as NodeJS.ErrnoException).code === "ESRCH")
-            fs.rmSync(path.join(os.tmpdir(), name), {
-              recursive: true,
-              force: true,
-            });
+          // shared: that one is a running canvas, and not this server's to remove. A dead
+          // one that was another user's is not removable either, and is left.
+          if ((error as NodeJS.ErrnoException).code !== "ESRCH") continue;
+          try {
+            fs.rmSync(path.join(os.tmpdir(), name), { recursive: true });
+          } catch {}
         }
       }
-      server.httpServer?.once("close", () =>
-        fs.rmSync(chatDir, { recursive: true, force: true }),
-      );
-      // The four the CLIs read as images, and the panel offers (ChatPanel.tsx). Not "anything
-      // image/": an SVG is a document that can carry a script, and the routes below serve a
-      // picture back on this origin, where every /__sp endpoint writes.
-      const IMAGE_TYPE = /^image\/(png|jpeg|gif|webp)$/;
       server.middlewares.use("/__sp/agent", (req, res, next) => {
         const send = (code: number, message: string) => {
           res.statusCode = code;
@@ -1088,14 +1086,14 @@ function canvasesSource(): Plugin {
           let size = 0;
           req.on("data", (chunk: Buffer) => {
             size += chunk.length;
-            if (size > 48_000_000) chunks.length = 0;
+            if (size > MAX_IMAGE_BYTES * 2) chunks.length = 0;
             else chunks.push(chunk);
           });
           req.on("end", () => {
-            if (size > 48_000_000)
+            if (size > MAX_IMAGE_BYTES * 2)
               return send(
                 413,
-                "too much attached; keep the images under about 24 MB together",
+                `too much attached; keep the images under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`,
               );
             try {
               const {
@@ -1112,14 +1110,14 @@ function canvasesSource(): Plugin {
               // the message refers to and what names the file below; the type decides the
               // extension and what the image endpoint says it is serving; the name is a caption
               // in the prompt and a label in the panel, and never any part of a path.
-              if (!Array.isArray(images) || images.length > 20)
+              if (!Array.isArray(images) || images.length > MAX_IMAGES)
                 return send(400, "bad images");
               for (const i of images) {
                 if (!Number.isInteger(i?.n) || i.n < 1)
                   return send(400, "bad image number");
                 if (typeof i.name !== "string" || i.name.length > 200)
                   return send(400, "bad image name");
-                if (typeof i.type !== "string" || !IMAGE_TYPE.test(i.type))
+                if (!IMAGE_TYPES.includes(i.type))
                   return send(400, "bad image type");
                 if (
                   typeof i.data !== "string" ||
@@ -1225,10 +1223,6 @@ function canvasesSource(): Plugin {
                 if (runs.size <= 20) break;
                 if (ended(old)) {
                   runs.delete(oldId);
-                  fs.rmSync(path.join(chatDir, oldId), {
-                    recursive: true,
-                    force: true,
-                  });
                 }
               }
               const finish = (message: string) => {
@@ -1261,7 +1255,9 @@ function canvasesSource(): Plugin {
                       shots: e.shots.map((s) => {
                         if (!("data" in s)) return s;
                         run.shots.push({
-                          type: IMAGE_TYPE.test(s.type) ? s.type : "image/png",
+                          type: IMAGE_TYPES.includes(s.type)
+                            ? s.type
+                            : "image/png",
                           data: Buffer.from(s.data, "base64"),
                         });
                         return { k: run.shots.length };
@@ -1293,10 +1289,18 @@ function canvasesSource(): Plugin {
               // the prompt is written; the exit below reports that, and the write error is noise.
               run.child.stdin.on("error", () => {});
               run.child.stdin.end(def.stdin(message, preamble, held));
-              run.child.on("error", (error: NodeJS.ErrnoException) =>
-                finish(error.code === "ENOENT" ? def.missing : String(error)),
-              );
+              // The files were for this child; the page is served the bytes the run holds. On
+              // both, since a child that could not be spawned never closes.
+              const unfile = () => {
+                if (imagesDir)
+                  fs.rmSync(imagesDir, { recursive: true, force: true });
+              };
+              run.child.on("error", (error: NodeJS.ErrnoException) => {
+                unfile();
+                finish(error.code === "ENOENT" ? def.missing : String(error));
+              });
               run.child.on("close", (code, signal) => {
+                unfile();
                 if (ended(run)) return;
                 const tail = stderr.trim().split("\n").slice(-5).join("\n");
                 // `claude` is a launcher around the real process: a SIGTERM to it comes back as
@@ -1345,7 +1349,7 @@ function canvasesSource(): Plugin {
             "content-type": img.type,
             "cache-control": "no-store",
           });
-          return res.end(fs.readFileSync(img.path));
+          return res.end(Buffer.from(img.data, "base64"));
         }
         if (req.method === "GET" && match[2].startsWith("shot/")) {
           // The other direction: what a tool drew, kept in the run rather than on disk, since

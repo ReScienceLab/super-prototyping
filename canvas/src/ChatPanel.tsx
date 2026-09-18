@@ -46,7 +46,13 @@
  */
 import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { useValue } from "tldraw";
-import type { AgentId, AgentModel } from "./agents";
+import {
+  IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGES,
+  type AgentId,
+  type AgentModel,
+} from "./agents";
 import type { RunSummary } from "./agentRun";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./canvasAttach";
 import { CanvasChromeContext } from "./canvasChrome";
@@ -62,9 +68,6 @@ const RUNS_KEY = "sp-chat-runs";
 const AGENT_KEY = "sp-chat-agent";
 const CHOICE_KEY = "sp-chat-choice";
 const COMMANDS_KEY = "sp-chat-commands";
-/** What can be attached: the four the CLIs read as images, and all the server accepts
- *  (vite.config.ts). A file the agent could not look at is refused here rather than there. */
-const IMAGE_TYPE = /^image\/(png|jpeg|gif|webp)$/;
 
 /**
  * The commands this browser was last told each agent had. The palette has to open on the slash
@@ -119,12 +122,10 @@ interface Attached {
   n: number;
   name: string;
   type: string;
-  /**
-   * The `data:` URL the reader produced, which is what the tile and the chip draw; the base64
-   * after the comma is what the run is posted. Kept whole: the panel renders on every keystroke,
-   * and a string that is the same object is one React does not have to compare, where a URL
-   * rebuilt per render from megabytes of base64 was one it did.
-   */
+  /** The file's own byte count, for the limit on what the whole tray weighs. */
+  size: number;
+  /** The reader's `data:` URL, drawn as-is by the tile and the chip; `send` posts what follows
+   *  the comma. */
   url: string;
 }
 
@@ -422,74 +423,82 @@ export function ChatPanel() {
       reader.readAsDataURL(file);
     });
 
-  // What is being read and is not in the tray yet. The limits below are checked before the read,
-  // and a second paste or drop while the first is still reading would see a tray without it.
-  const pending = useRef({ count: 0, bytes: 0 });
+  // The tray as of the last render, for an add to read after its files have been read: by then
+  // `attached` is the tray from before, and what a pick, a paste and a ✕ have done since is here.
+  const tray = useRef(attached);
+  tray.current = attached;
+  // Adds run one after another. Two at once — a paste while a drop is still reading — would
+  // each measure the tray without the other, and each number a picture the other has already
+  // numbered; the second then waits, and reads a tray the first has finished with.
+  const adds = useRef(Promise.resolve());
 
-  const addImages = async (list: FileList | File[] | null, cite = false) => {
-    const picked = [...(list ?? [])].filter((f) => IMAGE_TYPE.test(f.type));
-    if (picked.length === 0) return;
-    // The server's two limits, said here before anything is read or sent: twenty images, and a
-    // body under about 48 MB, which is 24 MB of files once base64 has made them a third larger.
-    // Both over the whole tray, since the server sees the whole tray and not this pick.
-    if (attached.length + pending.current.count + picked.length > 20)
-      return setSendError("that is too many to attach; keep it to 20 images");
-    const held =
-      attached.reduce((n, i) => n + i.url.length * 0.75, 0) +
-      pending.current.bytes;
-    const size = picked.reduce((n, f) => n + f.size, 0);
-    if (held + size > 24_000_000)
-      return setSendError(
-        "those are too large to attach; keep them under about 24 MB together",
-      );
-    setSendError(null);
-    pending.current.count += picked.length;
-    pending.current.bytes += size;
-    let urls: string[];
-    try {
-      urls = await Promise.all(picked.map(readFile));
-    } catch (error) {
-      return setSendError(`could not read that picture: ${String(error)}`);
-    } finally {
-      pending.current.count -= picked.length;
-      pending.current.bytes -= size;
-    }
-    // Read first and numbered after, which is what lets the same picture keep the number it
-    // already has: pressing + on one twice is one picture said twice, not two. Still numbered in
-    // the order they were picked rather than the order the reads came back in, so three files
-    // chosen at once are #1, #2, #3 as they appear in the dialog. The numbers are handed out
-    // here, outside the updater, which React may call twice; the updater merges into the tray
-    // as it is by then, since a second pick that finished reading first is already in it, and
-    // `attached` is the tray from before this one started reading.
-    const fresh: Attached[] = [];
-    const said: Attached[] = [];
-    for (const [file, url] of picked.map((f, i) => [f, urls[i]!] as const)) {
-      const already =
-        attached.find((i) => i.url === url) ?? fresh.find((i) => i.url === url);
-      const image = already ?? {
-        n: nextN.current++,
-        name: file.name,
-        type: file.type,
-        url,
-      };
-      if (!already) fresh.push(image);
-      said.push(image);
-    }
-    setAttached((a) =>
-      [...a, ...fresh.filter((f) => !a.some((i) => i.url === f.url))].sort(
-        (x, y) => x.n - y.n,
-      ),
-    );
-    // One picture, pointed at on the canvas: the sentence says which one without a second click
-    // on the tile that has just appeared, and says it once however many times it is pointed at.
-    // A pick, a paste or a drop is a handful at once, and which of them the message is about is
-    // still to be said.
-    const box = composer.current;
-    if (cite && box)
-      for (const image of said)
-        if (!namedPictures(box).includes(image.n))
-          insertAtCaret(chipFor(image));
-  };
+  const addImages = (list: FileList | File[] | null, cite = false) =>
+    (adds.current = adds.current
+      .then(async () => {
+        const given = [...(list ?? [])];
+        const picked = given.filter((f) => IMAGE_TYPES.includes(f.type));
+        // Both limits are the server's (agents.ts), said here before anything is read or sent,
+        // and over the whole tray, since the server sees the whole tray and not this pick.
+        if (tray.current.length + picked.length > MAX_IMAGES)
+          return setSendError(
+            `that is too many to attach; keep it to ${MAX_IMAGES} images`,
+          );
+        const size = picked.reduce((n, f) => n + f.size, 0);
+        if (
+          tray.current.reduce((n, i) => n + i.size, 0) + size >
+          MAX_IMAGE_BYTES
+        )
+          return setSendError(
+            `those are too large to attach; keep them under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`,
+          );
+        // A file the agent could not look at is refused here rather than by the server, and said:
+        // the file dialog offers only these, but a drop, a paste and the canvas hand over anything.
+        setSendError(
+          picked.length < given.length
+            ? "only png, jpeg, gif and webp pictures can be attached"
+            : null,
+        );
+        if (picked.length === 0) return;
+        const urls = await Promise.all(picked.map(readFile));
+        // Read first and numbered after, which is what lets the same picture keep the number it
+        // already has: pressing + on one twice is one picture said twice, not two. Still numbered
+        // in the order they were picked rather than the order the reads came back in, so three
+        // files chosen at once are #1, #2, #3 as they appear in the dialog.
+        const fresh: Attached[] = [];
+        const said: Attached[] = [];
+        for (const [file, url] of picked.map(
+          (f, i) => [f, urls[i]!] as const,
+        )) {
+          const already =
+            tray.current.find((i) => i.url === url) ??
+            fresh.find((i) => i.url === url);
+          const image = already ?? {
+            n: nextN.current++,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            url,
+          };
+          if (!already) fresh.push(image);
+          said.push(image);
+        }
+        // Written to the ref as well as set, so the add queued behind this one reads this tray
+        // rather than the one React has not rendered yet.
+        tray.current = [...tray.current, ...fresh].sort((x, y) => x.n - y.n);
+        setAttached(tray.current);
+        // One picture, pointed at on the canvas: the sentence says which one without a second
+        // click on the tile that has just appeared, and says it once however many times it is
+        // pointed at. A pick, a paste or a drop is a handful at once, and which of them the
+        // message is about is still to be said.
+        const box = composer.current;
+        if (cite && box)
+          for (const image of said)
+            if (!namedPictures(box).includes(image.n))
+              insertAtCaret(chipFor(image));
+      })
+      .catch((error) =>
+        setSendError(`could not attach that: ${String(error)}`),
+      ));
 
   // What the buttons on a canvas shape hand over (canvasAttach.tsx): a picture, attached and named
   // in the sentence, or the reason there is none. A mockup arrives as a picture of itself, called
@@ -585,15 +594,18 @@ export function ChatPanel() {
   // answer is never kept: a server that has just restarted has forgotten what it told this panel,
   // which is not the same as the agent having no commands.
   useEffect(() => {
-    void fetch(`/__sp/agent/commands?agent=${agent}`).then(async (res) => {
-      const list = (res.ok ? await res.json() : []) as string[];
-      if (!list.length) return;
-      setCommands(list);
-      localStorage.setItem(
-        COMMANDS_KEY,
-        JSON.stringify({ ...remembered(), [agent]: list }),
-      );
-    });
+    void fetch(`/__sp/agent/commands?agent=${agent}`)
+      .then(async (res) => {
+        const list = (res.ok ? await res.json() : []) as string[];
+        if (!list.length) return;
+        setCommands(list);
+        localStorage.setItem(
+          COMMANDS_KEY,
+          JSON.stringify({ ...remembered(), [agent]: list }),
+        );
+      })
+      // No answer at all: the dev server restarting under an edit, as with the list of agents.
+      .catch((error) => setSendError(String(error)));
     // The word itself does not change the list; starting one, or changing agent, does.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [typing === undefined, agent]);
@@ -1007,14 +1019,13 @@ export function ChatPanel() {
           aria-multiline="true"
           aria-label={`Message to ${nameOf(agent)}`}
           data-placeholder={running ? "Working…" : "Type / for commands"}
+          // For the placeholder: typed into and then emptied, the box keeps a lone <br>, which
+          // is not `:empty` to CSS, and a box that looks blank is one that says nothing.
+          data-empty={draft.trim() ? undefined : ""}
           onInput={(e) => {
             const box = e.currentTarget;
             badgeCommand(box);
             const text = readDraft(box);
-            // Typed into and then emptied, the box keeps a lone <br>, which is not `:empty`, so
-            // the placeholder stayed away from a box that looked blank. Nothing but breaks is
-            // nothing, and the box is emptied outright.
-            if (!/[^\n]/.test(text)) box.replaceChildren();
             setDraft(text);
             setSlashAt(0);
             // Every edit, since a chip is deleted like any other character.
@@ -1037,7 +1048,10 @@ export function ChatPanel() {
           }}
           onKeyDown={(e) => {
             // Enter inside an IME composition picks the candidate; it is the editor's, not ours.
-            if (e.nativeEvent.isComposing) return;
+            // Safari reports the confirming Enter after the composition has ended, with the
+            // legacy 229 as its only mark.
+            if (e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229)
+              return;
             if (matches.length > 0) {
               if (e.key === "ArrowDown" || e.key === "ArrowUp") {
                 e.preventDefault();
@@ -1157,7 +1171,7 @@ export function ChatPanel() {
         <input
           ref={files}
           type="file"
-          accept="image/png,image/jpeg,image/gif,image/webp"
+          accept={IMAGE_TYPES.join(",")}
           multiple
           hidden
           onChange={(e) => {

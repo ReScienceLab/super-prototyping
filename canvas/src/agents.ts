@@ -26,6 +26,23 @@ import { codexEventsFromLine } from "./codexStream.ts";
 
 export type AgentId = "claude" | "codex";
 
+/**
+ * What a message can carry, said once for the composer and the server (ChatPanel.tsx,
+ * vite.config.ts): the four types the CLIs read as images — not "anything image/", since an SVG
+ * is a document that can carry a script, and the server serves a picture back on its own
+ * origin — at most twenty of them, and under 24 MB of file together, which is the 48 MB body
+ * the server takes once base64 has made them a third larger. The composer refuses at the
+ * limit before reading a byte; the server refuses the same limit from a client that is not it.
+ */
+export const IMAGE_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+  "image/webp",
+];
+export const MAX_IMAGES = 20;
+export const MAX_IMAGE_BYTES = 24_000_000;
+
 /** One model in the composer's picker. */
 export interface AgentModel {
   /** What the CLI is given; the empty string is the CLI's own default, which is never sent. */
@@ -51,7 +68,8 @@ export interface AgentImage {
   type: string;
   /** The bytes, base64, with no `data:` prefix. */
   data: string;
-  /** Where the server wrote it, for an agent that takes files rather than bytes. */
+  /** Where the server wrote it, for an agent that takes files rather than bytes; gone once
+   *  that agent has exited. */
   path: string;
 }
 

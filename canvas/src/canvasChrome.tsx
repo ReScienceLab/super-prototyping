@@ -121,7 +121,12 @@ export const canvasCommentTools = [
  * `toggle-dark-mode` with its menu gone, and everything drawn here is dark only: the ground remap
  * in index.css is scoped to `.tl-theme__dark`, the welcome board's black art and the panels'
  * tokens are unconditional. A press left a near-white canvas under a black rail, and App.tsx
- * forced dark back on the next reload. One theme, so no switch.
+ * forced dark back on the next reload. One theme, so no switch: App.tsx's write at mount is
+ * the theme, and this takes away the one way left of leaving it. Deleting the action is enough
+ * because the shortcut table and the shortcuts dialog both draw from this map — the dialog's
+ * item renders nothing for an action that is not there — and the colour-scheme menu lives only
+ * in tldraw's main menu, which `MainMenu` below replaces. This tldraw exports no user-preference
+ * hook to pin the scheme with; if one arrives, it is the single mechanism to move to.
  */
 export const canvasUiOverrides: TLUiOverrides = {
   ...commentToolOverrides,
