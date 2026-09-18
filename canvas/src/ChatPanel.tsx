@@ -437,20 +437,6 @@ export function ChatPanel() {
       .then(async () => {
         const given = [...(list ?? [])];
         const picked = given.filter((f) => IMAGE_TYPES.includes(f.type));
-        // Both limits are the server's (agents.ts), said here before anything is read or sent,
-        // and over the whole tray, since the server sees the whole tray and not this pick.
-        if (tray.current.length + picked.length > MAX_IMAGES)
-          return setSendError(
-            `that is too many to attach; keep it to ${MAX_IMAGES} images`,
-          );
-        const size = picked.reduce((n, f) => n + f.size, 0);
-        if (
-          tray.current.reduce((n, i) => n + i.size, 0) + size >
-          MAX_IMAGE_BYTES
-        )
-          return setSendError(
-            `those are too large to attach; keep them under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`,
-          );
         // A file the agent could not look at is refused here rather than by the server, and said:
         // the file dialog offers only these, but a drop, a paste and the canvas hand over anything.
         setSendError(
@@ -459,29 +445,44 @@ export function ChatPanel() {
             : null,
         );
         if (picked.length === 0) return;
-        const urls = await Promise.all(picked.map(readFile));
         // Read first and numbered after, which is what lets the same picture keep the number it
-        // already has: pressing + on one twice is one picture said twice, not two. Still numbered
-        // in the order they were picked rather than the order the reads came back in, so three
-        // files chosen at once are #1, #2, #3 as they appear in the dialog.
-        const fresh: Attached[] = [];
-        const said: Attached[] = [];
-        for (const [file, url] of picked.map(
-          (f, i) => [f, urls[i]!] as const,
-        )) {
-          const already =
-            tray.current.find((i) => i.url === url) ??
-            fresh.find((i) => i.url === url);
-          const image = already ?? {
-            n: nextN.current++,
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            url,
-          };
-          if (!already) fresh.push(image);
-          said.push(image);
-        }
+        // already has: pressing + on one twice is one picture said twice, not two — and not a
+        // twenty-first, so the limits are over what is new. Still numbered in the order they
+        // were picked rather than the order the reads came back in, so three files chosen at
+        // once are #1, #2, #3 as they appear in the dialog.
+        const urls = await Promise.all(picked.map(readFile));
+        const read = picked.map((file, i) => ({ file, url: urls[i]! }));
+        const novel = read.filter(
+          ({ url }, i) =>
+            !tray.current.some((t) => t.url === url) &&
+            read.findIndex((r) => r.url === url) === i,
+        );
+        // Both limits are the server's (agents.ts), said here before anything is sent, and over
+        // the whole tray, since the server sees the whole tray and not this pick.
+        if (tray.current.length + novel.length > MAX_IMAGES)
+          return setSendError(
+            `that is too many to attach; keep it to ${MAX_IMAGES} images`,
+          );
+        const size = novel.reduce((n, r) => n + r.file.size, 0);
+        if (
+          tray.current.reduce((n, i) => n + i.size, 0) + size >
+          MAX_IMAGE_BYTES
+        )
+          return setSendError(
+            `those are too large to attach; keep them under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`,
+          );
+        const fresh: Attached[] = novel.map(({ file, url }) => ({
+          n: nextN.current++,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          url,
+        }));
+        const said = read.map(
+          ({ url }) =>
+            tray.current.find((t) => t.url === url) ??
+            fresh.find((f) => f.url === url)!,
+        );
         // Written to the ref as well as set, so the add queued behind this one reads this tray
         // rather than the one React has not rendered yet.
         tray.current = [...tray.current, ...fresh].sort((x, y) => x.n - y.n);

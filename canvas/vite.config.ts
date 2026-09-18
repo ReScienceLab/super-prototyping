@@ -1129,6 +1129,19 @@ function canvasesSource(): Plugin {
                 )
                   return send(400, "bad image data");
               }
+              // The body cap above is the panel's limit in base64; a client that is not the
+              // panel meets the limit itself here, in the bytes the files come out as.
+              if (
+                images.reduce(
+                  (n: number, i: { data: string }) =>
+                    n + Buffer.byteLength(i.data, "base64"),
+                  0,
+                ) > MAX_IMAGE_BYTES
+              )
+                return send(
+                  413,
+                  `too much attached; keep the images under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`,
+                );
               // One agent at a time, and only the server can say so: the composer's own guard is
               // React state, which a second tab, a reload, or a cleared view does not share. Two
               // agents in one project overwrite each other's boards.
