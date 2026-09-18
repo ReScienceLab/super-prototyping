@@ -1473,7 +1473,6 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-attach {
   position: absolute;
   display: flex;
-  gap: 4px;
   transform: translate(calc(-100% - 8px), 8px);
   pointer-events: auto;
 }
