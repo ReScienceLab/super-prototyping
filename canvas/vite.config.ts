@@ -909,11 +909,32 @@ function canvasesSource(): Plugin {
         string,
         Run & {
           child: ChildProcess;
-          images: AgentImage[];
+          /** What the composer attached, as `image/<n>` serves it; the bytes are on disk. */
+          images: Pick<AgentImage, "n" | "type" | "path">[];
           /** The pictures its tools handed back, in arrival order; `shot/<k>` is one-based. */
           shots: { type: string; data: Buffer }[];
         }
       >();
+      // A run's attachments go on disk under one folder per server process, so that a start can
+      // tell whose leftovers it is looking at. The map above is what names a run's folder and
+      // it dies with the process — after a `kill -9`, and after the `tmux kill-session` that
+      // `sp-canvas stop` is, which no close hook sees — so the sweep here, of folders whose
+      // process is gone, is what removes them. One whose pid is alive is a neighbour's, or a
+      // stranger's that took the number, and stays; one this cannot signal is another user's.
+      const chatDir = path.join(os.tmpdir(), `sp-chat-${process.pid}`);
+      for (const name of fs.readdirSync(os.tmpdir())) {
+        const pid = Number(/^sp-chat-(\d+)$/.exec(name)?.[1]);
+        if (!pid) continue;
+        try {
+          process.kill(pid, 0);
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code === "ESRCH")
+            fs.rmSync(path.join(os.tmpdir(), name), {
+              recursive: true,
+              force: true,
+            });
+        }
+      }
       // Which agents are installed: `bin --version` once each, for the server's lifetime, so
       // the menu greys out one that is missing and says what to do, rather than letting the
       // first message find out.
@@ -1078,6 +1099,10 @@ function canvasesSource(): Plugin {
                 effort = "",
                 images = [],
               } = JSON.parse(body || "{}");
+              // The listeners the run leaves on its child close over this scope, and the run is
+              // kept for twenty more, so the string — every attachment in it, base64 — goes now
+              // rather than living as long as the run does.
+              body = "";
               if (typeof message !== "string" || !message.trim())
                 return send(400, "empty message");
               // A browser sent these, so nothing in them is taken on trust. The number is what
@@ -1144,9 +1169,7 @@ function canvasesSource(): Plugin {
               // file in it, so what the browser called the file stays a caption: a slash or a
               // `..` in that name is text in the prompt and reaches no path here.
               const id = randomUUID();
-              const imagesDir = images.length
-                ? path.join(os.tmpdir(), `sp-chat-${id}`)
-                : "";
+              const imagesDir = images.length ? path.join(chatDir, id) : "";
               if (imagesDir) fs.mkdirSync(imagesDir, { recursive: true });
               const held: AgentImage[] = images.map(
                 (i: {
@@ -1178,7 +1201,9 @@ function canvasesSource(): Plugin {
                     env: process.env,
                   },
                 ),
-                images: held,
+                // The numbers, the types and the paths: the bytes are on disk, and go down the
+                // agent's stdin below, and the run outlives both reads by twenty runs.
+                images: held.map((i) => ({ n: i.n, type: i.type, path: i.path })),
                 shots: [] as { type: string; data: Buffer }[],
               });
               runs.set(run.id, run);
@@ -1202,7 +1227,7 @@ function canvasesSource(): Plugin {
                 if (runs.size <= 20) break;
                 if (ended(old)) {
                   runs.delete(oldId);
-                  fs.rmSync(path.join(os.tmpdir(), `sp-chat-${oldId}`), {
+                  fs.rmSync(path.join(chatDir, oldId), {
                     recursive: true,
                     force: true,
                   });
@@ -1225,28 +1250,6 @@ function canvasesSource(): Plugin {
                 e.kind === "usage" && e.window === undefined && contextWindow
                   ? { ...e, window: contextWindow }
                   : e;
-              // A picture a tool handed back is kept here and the event keeps the number to ask
-              // for it by, for the reason the composer's attachments are: every reload rebuilds
-              // the transcript from event zero, and a page of grids would come back down the
-              // stream on each one. The media type is the agent's word, and goes out as a header.
-              // ponytail: held in memory for the run's life, so a turn that reads a hundred
-              // full-page grids grows by them; give the run a folder if one ever does.
-              const filed = (e: ChatEvent) =>
-                e.kind === "tool_done" && e.shots
-                  ? {
-                      ...e,
-                      shots: e.shots.map((s) => {
-                        if (!("data" in s)) return s;
-                        run.shots.push({
-                          type: /^image\/[\w.+-]+$/.test(s.type)
-                            ? s.type
-                            : "image/png",
-                          data: Buffer.from(s.data, "base64"),
-                        });
-                        return { k: run.shots.length };
-                      }),
-                    }
-                  : e;
               const feed = (chunk: string) => {
                 const lines = (pending + chunk).split("\n");
                 pending = lines.pop()!;
@@ -1254,9 +1257,35 @@ function canvasesSource(): Plugin {
                   for (const line of lines) {
                     if (line.trim()) {
                       harvest(def, line);
+                      // A picture a tool handed back is kept here and the event keeps the number
+                      // to ask for it by, for the reason the composer's attachments are: every
+                      // reload rebuilds the transcript from event zero, and a page of grids would
+                      // come back down the stream on each one. The media type is the agent's
+                      // word, and goes out as a header.
+                      // ponytail: held in memory for the run's life, so a turn that reads a
+                      // hundred full-page grids grows by them; give the run a folder if one ever
+                      // does.
                       for (const e of def.events(line))
                         for (const t of lift(e))
-                          emit(run, t.kind, filed(sized(t)));
+                          emit(
+                            run,
+                            t.kind,
+                            t.kind === "tool_done" && t.shots
+                              ? {
+                                  ...t,
+                                  shots: t.shots.map((s) => {
+                                    if (!("data" in s)) return s;
+                                    run.shots.push({
+                                      type: /^image\/[\w.+-]+$/.test(s.type)
+                                        ? s.type
+                                        : "image/png",
+                                      data: Buffer.from(s.data, "base64"),
+                                    });
+                                    return { k: run.shots.length };
+                                  }),
+                                }
+                              : sized(t),
+                          );
                     }
                   }
                 } catch (error) {
@@ -1318,21 +1347,33 @@ function canvasesSource(): Plugin {
           // Served back rather than replayed: the page rebuilds a turn from event zero after
           // every reload, and the strip asks for its pictures again instead of the stream
           // carrying them each time. `send` writes strings, so these go out on their own.
+          //
+          // The strip also links each one to open in a tab, and the type is the browser's word,
+          // so an attached SVG would open as a document of this origin — where its script can
+          // POST /run and start an agent in the project, asked by no one. `sandbox` opens it in
+          // an opaque origin with no script instead, which a PNG or a JPEG in a tab never
+          // notices, and `nosniff` keeps a type the browser does not know from being guessed
+          // into HTML. Neither touches the same bytes drawn as an <img>.
           const img = run.images.find((i) => i.n === Number(match[2].slice(6)));
           if (!img) return send(404, "no such image");
           res.writeHead(200, {
             "content-type": img.type,
+            "content-security-policy": "sandbox",
+            "x-content-type-options": "nosniff",
             "cache-control": "no-store",
           });
           return res.end(fs.readFileSync(img.path));
         }
         if (req.method === "GET" && match[2].startsWith("shot/")) {
           // The other direction: what a tool drew, kept in the run rather than on disk, since
-          // nothing but this page ever has to open it.
+          // nothing but this page ever has to open it. Linked to open in a tab the same way, and
+          // the type is the agent's word rather than the browser's, so the same two headers.
           const shot = run.shots[Number(match[2].slice(5)) - 1];
           if (!shot) return send(404, "no such shot");
           res.writeHead(200, {
             "content-type": shot.type,
+            "content-security-policy": "sandbox",
+            "x-content-type-options": "nosniff",
             "cache-control": "no-store",
           });
           return res.end(shot.data);
