@@ -34,6 +34,26 @@ describe('applyFrame', () => {
     turn = applyFrame(turn, frame(2, { kind: 'title', title: 'Greeting Exchange' }))
     expect(turn.title).toBe('Greeting Exchange')
   })
+
+  it('keeps the attached images off the start event and a tool\'s shots off its done event', () => {
+    let turn = applyFrame(
+      { runId: 'r', prompt: '', blocks: [] },
+      frame(1, {
+        kind: 'start',
+        agent: 'codex',
+        prompt: 'fix #1',
+        title: 'fix #1',
+        at: 5,
+        images: [{ n: 1, name: 'a.png' }],
+      }),
+    )
+    turn = applyFrame(turn, frame(2, { kind: 'tool', id: 't1', name: 'Bash', detail: 'refkit shoot' }))
+    turn = applyFrame(turn, frame(3, { kind: 'tool_done', id: 't1', ok: true, shots: [{ k: 1 }] }))
+    expect(turn.images).toEqual([{ n: 1, name: 'a.png' }])
+    expect(turn.blocks).toEqual([
+      { kind: 'tool', id: 't1', name: 'Bash', detail: 'refkit shoot', ok: true, shots: [{ k: 1 }] },
+    ])
+  })
 })
 
 describe('sseFrames', () => {

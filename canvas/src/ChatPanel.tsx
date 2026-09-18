@@ -54,6 +54,9 @@ const RUNS_KEY = "sp-chat-runs";
 const AGENT_KEY = "sp-chat-agent";
 const CHOICE_KEY = "sp-chat-choice";
 const COMMANDS_KEY = "sp-chat-commands";
+/** What can be attached: the four the CLIs read as images, and all the server accepts
+ *  (vite.config.ts). A file the agent could not look at is refused here rather than there. */
+const IMAGE_TYPE = /^image\/(png|jpeg|gif|webp)$/;
 
 /**
  * The commands this browser was last told each agent had. The palette has to open on the slash
@@ -103,16 +106,19 @@ interface AgentRow {
 /** A turn with nothing in it yet: the run's events, from `start` on, fill in the rest. */
 const turnFor = (runId: string): Turn => ({ runId, prompt: "", blocks: [] });
 
-/** One attached image, as the composer holds it and as the run is posted it. */
+/** One attached image, as the composer holds it. */
 interface Attached {
   n: number;
   name: string;
   type: string;
-  /** Base64, no `data:` prefix — what the server writes to disk and hands the agent. */
-  data: string;
+  /**
+   * The `data:` URL the reader produced, which is what the tile and the chip draw; the base64
+   * after the comma is what the run is posted. Kept whole: the panel renders on every keystroke,
+   * and a string that is the same object is one React does not have to compare, where a URL
+   * rebuilt per render from megabytes of base64 was one it did.
+   */
+  url: string;
 }
-
-const source = (i: Attached) => `data:${i.type};base64,${i.data}`;
 
 export function ChatPanel() {
   const { editor, chatCollapsed } = useContext(CanvasChromeContext);
@@ -159,6 +165,11 @@ export function ChatPanel() {
   // the copy the palette, the send button and the message all read.
   const [draft, setDraft] = useState("");
   const [attached, setAttached] = useState<Attached[]>([]);
+  // From the send until the server has answered it. `running` starts only once the answer is
+  // in, and the box is emptied then too, so without this a second Enter — a key held down
+  // repeats — posted the same message and its images again, to be told an agent was already
+  // running.
+  const [sending, setSending] = useState(false);
   // Arrival order, and it never goes back: see the numbers in the note above.
   const nextN = useRef(1);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -200,9 +211,12 @@ export function ChatPanel() {
   useEffect(() => {
     abort.current = new AbortController();
     for (const t of turns) follow(t.runId);
-    void fetch("/__sp/agent/agents").then(async (res) =>
-      res.ok ? setAgents(await res.json()) : setSendError(await res.text()),
-    );
+    void fetch("/__sp/agent/agents")
+      .then(async (res) =>
+        res.ok ? setAgents(await res.json()) : setSendError(await res.text()),
+      )
+      // No answer at all, as against a refusal: the dev server restarting under an edit.
+      .catch((error) => setSendError(String(error)));
     return () => abort.current.abort();
     // Mount only: the turns to pick up again are the ones the page came back with.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
@@ -309,7 +323,7 @@ export function ChatPanel() {
     chip.dataset.ref = String(i.n);
     chip.title = i.name;
     const thumb = document.createElement("img");
-    thumb.src = source(i);
+    thumb.src = i.url;
     thumb.alt = "";
     chip.append(thumb, `#${i.n}`);
     return chip;
@@ -341,11 +355,15 @@ export function ChatPanel() {
   };
 
   const addImages = (list: FileList | File[] | null) => {
-    const picked = [...(list ?? [])].filter((f) => f.type.startsWith("image/"));
+    const picked = [...(list ?? [])].filter((f) => IMAGE_TYPE.test(f.type));
     if (picked.length === 0) return;
-    // The server refuses a body over about 48 MB, and base64 is a third larger than the file; a
-    // number said here is better than one found out after the whole thing has been read and sent.
-    if (picked.reduce((n, f) => n + f.size, 0) > 24_000_000)
+    // The server's two limits, said here before anything is read or sent: twenty images, and a
+    // body under about 48 MB, which is 24 MB of files once base64 has made them a third larger.
+    // Both over the whole tray, since the server sees the whole tray and not this pick.
+    if (attached.length + picked.length > 20)
+      return setSendError("that is too many to attach; keep it to 20 images");
+    const held = attached.reduce((n, i) => n + i.url.length * 0.75, 0);
+    if (held + picked.reduce((n, f) => n + f.size, 0) > 24_000_000)
       return setSendError(
         "those are too large to attach; keep them under about 24 MB together",
       );
@@ -355,20 +373,16 @@ export function ChatPanel() {
     // out here also keeps the counter out of the state updater, which React may call twice.
     for (const [file, n] of picked.map((f) => [f, nextN.current++] as const)) {
       const reader = new FileReader();
-      reader.onload = () => {
-        const url = String(reader.result);
+      reader.onload = () =>
         setAttached((a) =>
           [
             ...a,
-            {
-              n,
-              name: file.name,
-              type: file.type,
-              data: url.slice(url.indexOf(",") + 1),
-            },
+            { n, name: file.name, type: file.type, url: String(reader.result) },
           ].sort((x, y) => x.n - y.n),
         );
-      };
+      // The number is spent either way, so the gap it leaves in the tray is explained.
+      reader.onerror = () =>
+        setSendError(`${file.name} could not be read, so there is no #${n}`);
       reader.readAsDataURL(file);
     }
   };
@@ -393,36 +407,50 @@ export function ChatPanel() {
 
   const send = async () => {
     const message = draft.trim();
-    if (!message || running) return;
+    if (!message || running || sending) return;
     // Sending clears the draft without passing through onInput, so an Escape that closed the
     // palette for this word has to be forgotten here too, or the next word never opens one.
     setSlashOff(false);
     setSendError(null);
-    const res = await fetch("/__sp/agent/run", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        message,
-        canvas,
-        agent,
-        model,
-        effort,
-        images: attached,
-      }),
-    });
-    if (!res.ok) return setSendError(await res.text());
-    // Emptied only once it is away — a refused message is still in the box, chips and all, to be
-    // fixed and sent again.
-    composer.current?.replaceChildren();
-    setDraft("");
-    setAttached([]);
-    const { runId } = await res.json();
-    const images = attached.map(({ n, name }) => ({ n, name }));
-    setTurns((ts) => [
-      ...ts,
-      { ...turnFor(runId), prompt: message, agent, images },
-    ]);
-    follow(runId);
+    setSending(true);
+    try {
+      const res = await fetch("/__sp/agent/run", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          message,
+          canvas,
+          agent,
+          model,
+          effort,
+          images: attached.map(({ n, name, type, url }) => ({
+            n,
+            name,
+            type,
+            data: url.slice(url.indexOf(",") + 1),
+          })),
+        }),
+      });
+      if (!res.ok) return setSendError(await res.text());
+      const { runId } = await res.json();
+      // Emptied only once it is away — a refused message is still in the box, chips and all, to
+      // be fixed and sent again.
+      composer.current?.replaceChildren();
+      setDraft("");
+      setAttached([]);
+      const images = attached.map(({ n, name }) => ({ n, name }));
+      setTurns((ts) => [
+        ...ts,
+        { ...turnFor(runId), prompt: message, agent, images },
+      ]);
+      follow(runId);
+    } catch (error) {
+      // No answer at all, as against a refusal: the dev server restarting under an edit. Left
+      // to itself this was an unhandled rejection, and a message that looked sent and ignored.
+      setSendError(String(error));
+    } finally {
+      setSending(false);
+    }
   };
 
   // At mount, so the seconds a cold server spends asking the CLI are spent while the canvas is
@@ -471,9 +499,13 @@ export function ChatPanel() {
   };
 
   const openHistory = async () => {
-    const res = await fetch("/__sp/agent/runs");
-    if (!res.ok) return setSendError(await res.text());
-    setHistory(await res.json());
+    try {
+      const res = await fetch("/__sp/agent/runs");
+      if (!res.ok) return setSendError(await res.text());
+      setHistory(await res.json());
+    } catch (error) {
+      setSendError(String(error));
+    }
   };
 
   const pick = (runId: string, ran: AgentId) => {
@@ -794,7 +826,7 @@ export function ChatPanel() {
                   onClick={() => insertRef(i)}
                   title={`Write #${i.n} into the message`}
                 >
-                  <img src={source(i)} alt={i.name} />
+                  <img src={i.url} alt={i.name} />
                   <span className="sp-chat-num">#{i.n}</span>
                 </button>
                 <span
@@ -848,6 +880,10 @@ export function ChatPanel() {
             const box = e.currentTarget;
             badgeCommand(box);
             const text = readDraft(box);
+            // Typed into and then emptied, the box keeps a lone <br>, which is not `:empty`, so
+            // the placeholder stayed away from a box that looked blank. Nothing but breaks is
+            // nothing, and the box is emptied outright.
+            if (!/[^\n]/.test(text)) box.replaceChildren();
             setDraft(text);
             setSlashAt(0);
             // Escape closes the palette for the word it was typed in; the next one opens again.
@@ -867,6 +903,8 @@ export function ChatPanel() {
             );
           }}
           onKeyDown={(e) => {
+            // Enter inside an IME composition picks the candidate; it is the editor's, not ours.
+            if (e.nativeEvent.isComposing) return;
             if (matches.length > 0) {
               if (e.key === "ArrowDown" || e.key === "ArrowUp") {
                 e.preventDefault();
@@ -949,7 +987,7 @@ export function ChatPanel() {
           <button
             type="submit"
             className="sp-chat-submit"
-            disabled={!draft.trim()}
+            disabled={!draft.trim() || sending}
             aria-label="Send"
             title="Send — Enter"
           >
@@ -986,7 +1024,7 @@ export function ChatPanel() {
         <input
           ref={files}
           type="file"
-          accept="image/*"
+          accept="image/png,image/jpeg,image/gif,image/webp"
           multiple
           hidden
           onChange={(e) => {

@@ -920,6 +920,31 @@ function canvasesSource(): Plugin {
         }
         return ask;
       };
+      // Attached images go to disk for an agent that takes files (agents.ts), under one folder
+      // per server named by its pid. A run's folder goes when the run leaves the ring below, the
+      // server's goes with the server, and at start the folders of servers that were killed
+      // rather than closed go too: a pid nothing answers on is a server that is gone, and a
+      // run's images have no use past the server holding its events.
+      const chatDir = path.join(os.tmpdir(), `sp-chat-${process.pid}`);
+      for (const name of fs.readdirSync(os.tmpdir())) {
+        const pid = Number(/^sp-chat-(\d+)$/.exec(name)?.[1]);
+        if (!pid || pid === process.pid) continue;
+        try {
+          process.kill(pid, 0);
+        } catch {
+          fs.rmSync(path.join(os.tmpdir(), name), {
+            recursive: true,
+            force: true,
+          });
+        }
+      }
+      server.httpServer?.once("close", () =>
+        fs.rmSync(chatDir, { recursive: true, force: true }),
+      );
+      // The four the CLIs read as images, and the panel offers (ChatPanel.tsx). Not "anything
+      // image/": an SVG is a document that can carry a script, and the routes below serve a
+      // picture back on this origin, where every /__sp endpoint writes.
+      const IMAGE_TYPE = /^image\/(png|jpeg|gif|webp)$/;
       server.middlewares.use("/__sp/agent", (req, res, next) => {
         const send = (code: number, message: string) => {
           res.statusCode = code;
@@ -968,22 +993,22 @@ function canvasesSource(): Plugin {
         }
         if (req.method === "POST" && url.pathname === "/run") {
           // The body is no longer a sentence: attached images ride in it as base64, and it is
-          // held whole in memory before anything reads it, so it is capped on the way in.
-          let body = "";
-          let tooBig = false;
-          req.on("data", (chunk) => {
-            if (tooBig) return;
-            body += chunk;
-            if (body.length > 48_000_000) {
-              tooBig = true;
-              body = "";
-            }
+          // held whole in memory before anything reads it, so it is capped on the way in. Kept
+          // as bytes and decoded once at the end: a character split across two chunks decodes
+          // to U+FFFD if each chunk is decoded alone, and the message and the file names sit
+          // after megabytes of base64 and hundreds of chunk boundaries.
+          const chunks: Buffer[] = [];
+          let size = 0;
+          req.on("data", (chunk: Buffer) => {
+            size += chunk.length;
+            if (size > 48_000_000) chunks.length = 0;
+            else chunks.push(chunk);
           });
           req.on("end", () => {
-            if (tooBig)
+            if (size > 48_000_000)
               return send(
                 413,
-                "too much attached; keep the images under about 32 MB",
+                "too much attached; keep the images under about 24 MB together",
               );
             try {
               const {
@@ -993,7 +1018,7 @@ function canvasesSource(): Plugin {
                 model = "",
                 effort = "",
                 images = [],
-              } = JSON.parse(body || "{}");
+              } = JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
               if (typeof message !== "string" || !message.trim())
                 return send(400, "empty message");
               // A browser sent these, so nothing in them is taken on trust. The number is what
@@ -1007,10 +1032,7 @@ function canvasesSource(): Plugin {
                   return send(400, "bad image number");
                 if (typeof i.name !== "string" || i.name.length > 200)
                   return send(400, "bad image name");
-                if (
-                  typeof i.type !== "string" ||
-                  !/^image\/[\w.+-]+$/.test(i.type)
-                )
+                if (typeof i.type !== "string" || !IMAGE_TYPE.test(i.type))
                   return send(400, "bad image type");
                 if (
                   typeof i.data !== "string" ||
@@ -1060,9 +1082,7 @@ function canvasesSource(): Plugin {
               // file in it, so what the browser called the file stays a caption: a slash or a
               // `..` in that name is text in the prompt and reaches no path here.
               const id = randomUUID();
-              const imagesDir = images.length
-                ? path.join(os.tmpdir(), `sp-chat-${id}`)
-                : "";
+              const imagesDir = images.length ? path.join(chatDir, id) : "";
               if (imagesDir) fs.mkdirSync(imagesDir, { recursive: true });
               const held: AgentImage[] = images.map(
                 (i: {
@@ -1073,7 +1093,7 @@ function canvasesSource(): Plugin {
                 }) => {
                   const file = path.join(
                     imagesDir,
-                    `${i.n}.${i.type.slice(6).replace(/\W/g, "") || "png"}`,
+                    `${i.n}.${i.type.slice(6)}`,
                   );
                   fs.writeFileSync(file, Buffer.from(i.data, "base64"));
                   return { ...i, path: file };
@@ -1118,7 +1138,7 @@ function canvasesSource(): Plugin {
                 if (runs.size <= 20) break;
                 if (ended(old)) {
                   runs.delete(oldId);
-                  fs.rmSync(path.join(os.tmpdir(), `sp-chat-${oldId}`), {
+                  fs.rmSync(path.join(chatDir, oldId), {
                     recursive: true,
                     force: true,
                   });
@@ -1154,9 +1174,7 @@ function canvasesSource(): Plugin {
                       shots: e.shots.map((s) => {
                         if (!("data" in s)) return s;
                         run.shots.push({
-                          type: /^image\/[\w.+-]+$/.test(s.type)
-                            ? s.type
-                            : "image/png",
+                          type: IMAGE_TYPE.test(s.type) ? s.type : "image/png",
                           data: Buffer.from(s.data, "base64"),
                         });
                         return { k: run.shots.length };

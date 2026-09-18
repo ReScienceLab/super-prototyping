@@ -34,30 +34,7 @@ export type CanvasFileShape = TLShape<typeof CANVAS_FILE_SHAPE_TYPE>;
 function CanvasFile({ shape }: { shape: CanvasFileShape }) {
   const isEditing = useIsEditing(shape.id);
   const { inspectingPath, setInspectorFrame } = useContext(CanvasChromeContext);
-  const loaded = useCanvasFileHtml(shape.props.path);
-
-  /**
-   * A frame paints an opaque white base background of its own, underneath whatever the board
-   * draws, and nothing out here reaches it: not `background` on the `<iframe>`, not
-   * `allowtransparency`, not `color-scheme` on the element, not a transparent `html` inside.
-   * Measured, all five paint the same #FFFFFF. A dark `color-scheme` on the board's own root is
-   * the one thing that releases it. The canvas then shows through wherever the board paints
-   * nothing, whatever colour the canvas is, which is why this does not depend on the theme.
-   *
-   * The `color` pin keeps the black that a light `color-scheme` gives the root, because the
-   * status bar's glyphs are `currentColor` and would otherwise turn white with the scheme. It
-   * goes in right after the doctype: before the board's own rules, so a board that sets either
-   * wins, and after the doctype, because anything before it is quirks mode. Every board has one.
-   * `</head>` is not a safe anchor, since 51 of them close no head.
-   */
-  const html = useMemo(
-    () =>
-      loaded?.replace(
-        /(<!doctype html>)/i,
-        "$1<style>:root{color-scheme:dark;color:#000}</style>",
-      ),
-    [loaded],
-  );
+  const html = useCanvasFileHtml(shape.props.path);
 
   /**
    * The board the inspector has open runs the agent (inspectorAgent.ts), so a click on the mockup
@@ -88,6 +65,18 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
     border: 0,
     display: "block",
     pointerEvents: isEditing ? "auto" : "none",
+    /**
+     * A frame paints an opaque base background under the document it loads whenever the frame
+     * element's colour scheme and the document's differ (CSS Color Adjust calls it a colour
+     * scheme mismatch). The canvas is dark (tokens.css) and the element inherits that; a board
+     * declares no scheme and is light. That mismatch was the white card under every board.
+     * Saying `light` here matches the board, and the canvas shows through wherever the board
+     * paints nothing, whatever colour the canvas is. Measured in Chrome 153: `light` and
+     * `normal` on the element composite transparent, `dark` and no rule paint #FFFFFF. On the
+     * element and not in the document, so nothing is written into a board's markup and its own
+     * text and control colours stand (docs/2026-09-17-canvas-geist.md).
+     */
+    colorScheme: "light",
   };
 
   return (

@@ -7,6 +7,7 @@ import {
   TldrawUiButtonIcon,
   type Editor,
   type TLComponents,
+  type TLUiOverrides,
   TldrawUiMenuGroup,
   TldrawUiMenuItem,
   useDialogs,
@@ -114,8 +115,20 @@ export const canvasCommentTools = [
   }),
 ];
 
-/** The toolbar entry for that tool. */
-export const canvasCommentOverrides = commentToolOverrides;
+/**
+ * The toolbar entry for that tool, and one action fewer. tldraw keeps Cmd+/ bound to
+ * `toggle-dark-mode` with its menu gone, and everything drawn here is dark only: the ground remap
+ * in index.css is scoped to `.tl-theme__dark`, the welcome board's black art and the panels'
+ * tokens are unconditional. A press left a near-white canvas under a black rail, and App.tsx
+ * forced dark back on the next reload. One theme, so no switch.
+ */
+export const canvasUiOverrides: TLUiOverrides = {
+  ...commentToolOverrides,
+  actions(_editor, actions) {
+    delete actions["toggle-dark-mode"];
+    return actions;
+  },
+};
 
 export const canvasChromeComponents: TLComponents = {
   /**
@@ -252,7 +265,7 @@ export const canvasChromeComponents: TLComponents = {
     return (
       <DefaultContextMenu {...props}>
         <TldrawUiMenuGroup id="canvas">
-          {/* The tool's own registration (canvasCommentOverrides) is what binds the `c` key. This
+          {/* The tool's own registration (canvasUiOverrides) is what binds the `c` key. This
               is only the row, spelled out rather than taken from it, because a registered tool
               names its icon by id, and the set the rest of this app draws from is components. */}
           <TldrawUiMenuItem
