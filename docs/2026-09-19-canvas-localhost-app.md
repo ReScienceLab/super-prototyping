@@ -58,6 +58,7 @@ be stale.
   `SUPER_PROTOTYPING_ROOT` are resolved once in the launcher and passed to
   the server and, through it, to every agent it spawns. That is the
   OpenDesign `OD_DATA_DIR` discipline with the names this plugin already had.
+  The shell followed the same day, in `2026-09-19-desktop-shell.md`.
 - **A build in the plugin directory.** `bun` is needed only in a checkout
   being worked on. An install runs the bundle below.
 

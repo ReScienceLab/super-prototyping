@@ -86,6 +86,13 @@ The **toolkit** the skills call by name is one more command, once per machine.
 | **Trae**, and anything else that reads `SKILL.md` | `npx skills add ReScienceLab/super-prototyping` |
 | Any of those except Claude Code, from a clone you control | `scripts/install-skills.sh` |
 
+**Or download the app.** Every
+[release](https://github.com/ReScienceLab/super-prototyping/releases) also
+attaches `Super-Prototyping-<version>-<arch>.dmg`, the canvas in a window for
+macOS: it asks for a project, shows that project's `mockups/canvases`, and
+needs no terminal and no bun. The skills still need the toolkit below; the app
+says so on first launch when it is missing.
+
 Then the toolkit, whichever product you came from:
 
 ```bash
@@ -287,6 +294,7 @@ refkit --version                                  # which release you are on
 cd canvas && bun run lint && bun run test && bun run build
 uv run --with pillow --with numpy python tools/test_refkit.py
 uv run python tools/test_sp_canvas.py
+(cd desktop && bun install && bun test && bun run build)   # the macOS app
 scripts/bump-version.sh --check      # every manifest agrees on one version
 claude plugin validate . --strict    # and the manifests are what they claim
 ```

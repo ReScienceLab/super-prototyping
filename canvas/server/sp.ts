@@ -1069,6 +1069,10 @@ export function createSpServer(options: {
       watcher?.close();
       for (const page of pages) page.end();
       pages.clear();
+      // The agent is this server's child and no one else's: a SIGTERM to the server alone,
+      // which is how the macOS app stops it, would otherwise leave the agent editing the
+      // project with nobody watching. The same kill the Stop button sends.
+      for (const run of runs.values()) if (!ended(run)) run.child.kill();
     },
   };
 }

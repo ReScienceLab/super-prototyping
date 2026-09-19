@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "bun"
-    directory: "/canvas"
+    directories: ["/canvas", "/desktop"]
     schedule:
       interval: "weekly"
       day: "monday"
