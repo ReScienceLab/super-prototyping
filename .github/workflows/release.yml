@@ -10,7 +10,8 @@ name: Release
 #   2. Merging that PR changes .claude-plugin/plugin.json on main, which fires
 #      the second half: it tags super-prototyping--v<version>, cuts the
 #      GitHub Release from the matching RELEASE-NOTES.md section, and attaches
-#      the canvas, built without the example boards, as canvas-dist.tgz.
+#      the canvas, built without the example boards, as canvas-dist.tgz. A
+#      macOS runner then adds the app, a dmg per architecture.
 #
 # Nothing tags a commit that is not on main, and the second half only acts when
 # the version actually changed in that push: the tag ruleset forbids moving a
@@ -135,6 +136,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      fresh: ${{ steps.v.outputs.fresh }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -280,3 +284,65 @@ jobs:
           PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
           tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist
           gh release upload "super-prototyping--v$VERSION" "$RUNNER_TEMP/canvas-dist.tgz"
+
+  # The macOS app (#111): the canvas built exactly as above, wrapped in Electron
+  # by desktop/, one dmg per architecture. Its own runner, because signing and
+  # notarising need macOS; after `tag` for the same reason the bundle is attached
+  # last, so a failure here is a missing asset, which `gh release upload` by hand
+  # adds, and the commands below are the list to run. Signing turns on when the
+  # secrets are present and stays off otherwise, so a fork or a checkout without
+  # them builds an unsigned dmg, which Gatekeeper refuses until right-click →
+  # Open. The secrets, by name; their values live nowhere in this repo:
+  #
+  #   MAC_CERT_P12        Developer ID Application certificate, a .p12, base64
+  #   MAC_CERT_PASSWORD   the password that .p12 was exported with
+  #   APPLE_API_KEY_P8    App Store Connect API key, the .p8, base64
+  #   APPLE_API_KEY_ID    that key's id
+  #   APPLE_API_ISSUER    that key's issuer id
+  #
+  # electron-builder signs when CSC_LINK holds the certificate and notarises when
+  # the three APPLE_API_* variables are set: `xcrun notarytool submit --wait`,
+  # then `xcrun stapler staple`, through @electron/notarize.
+  dmg:
+    name: Attach the macOS app
+    needs: tag
+    if: needs.tag.outputs.fresh == 'true'
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Build the canvas, without the example boards
+        working-directory: canvas
+        run: |
+          bun install --frozen-lockfile
+          PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
+
+      - name: Build, sign, notarise and attach the dmgs
+        working-directory: desktop
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.tag.outputs.version }}
+          MAC_CERT_P12: ${{ secrets.MAC_CERT_P12 }}
+          MAC_CERT_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          set -euo pipefail
+          if [ -n "$MAC_CERT_P12" ]; then
+            # A certificate without the notarisation key would ship a signed dmg
+            # that Gatekeeper still refuses: all five secrets, or none.
+            : "${MAC_CERT_PASSWORD:?}" "${APPLE_API_KEY_P8:?}" "${APPLE_API_KEY_ID:?}" "${APPLE_API_ISSUER:?}"
+            printf '%s' "$APPLE_API_KEY_P8" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+            export CSC_LINK="$MAC_CERT_P12" CSC_KEY_PASSWORD="$MAC_CERT_PASSWORD" APPLE_API_KEY="$RUNNER_TEMP/AuthKey.p8"
+          else
+            echo "::warning::MAC_CERT_P12 is not set, so the dmgs are unsigned"
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+          fi
+          bun install --frozen-lockfile
+          bun run build
+          bunx electron-builder --mac dmg --arm64 --x64 --publish never
+          gh release upload "super-prototyping--v$VERSION" dist/out/*.dmg
