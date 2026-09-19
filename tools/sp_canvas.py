@@ -128,6 +128,10 @@ def _candidates():
         for path in sorted(glob.glob(str(Path.home() / pattern))):
             yield label, Path(path)
 
+    # Homebrew installs the plugin tree under the formula's opt link (#109).
+    for prefix in ("/opt/homebrew", "/usr/local", "/home/linuxbrew/.linuxbrew"):
+        yield "Homebrew", Path(prefix) / "opt/super-prototyping/libexec/plugin"
+
     # Everything else holds a symlink per skill, pointing back into the checkout:
     # <root>/skills/prototype-canvas -> up two levels is <root>.
     for label, root in (
@@ -301,15 +305,37 @@ def _needs_build(app: Path) -> bool:
     return False
 
 
-def _bundle_dist(version):
-    """`dist/` of the canvas built for this release, from the cache or downloaded into it.
+def _dist(root: Path) -> Path:
+    """The `dist/` to serve, holding `server.mjs`: the checkout's own when it is being worked
+    on, else the canvas built for the plugin's release, from the cache or downloaded into it.
+
+    A checkout with `node_modules`, or with a dist already built, is a developer's: it serves
+    what is on disk, rebuilt when a source is newer, and this is the one path that still
+    needs bun. A plugin install is a bare checkout of a tag, so the bundle that release
+    attached is the app it should run, and nothing but node or bun is needed to run it. The
+    version is the manifest's, not the toolkit's: the manifest is what `claude plugin tag`
+    tagged, spelled as the tag is, where the installed toolkit reports PEP 440's `1.5.0rc1`
+    for the tag's `1.5.0-rc.1`. A root with no manifest names no release, and builds.
 
     The tarball is the one release.yml attaches to every release: one top-level `dist/`
-    holding the built app and `server.mjs`. One directory per version, so a new toolkit
+    holding the built app and `server.mjs`. One directory per version, so a new release
     fetches its own and the old one waits for `sp-canvas clean`. A version directory is whole
     or absent, never half: it is unpacked beside its name and renamed into place, so the one
-    file the check below looks for cannot be there without the rest.
+    file the cache check looks for cannot be there without the rest.
     """
+    app = root / "canvas"
+    version = _plugin_version(root)
+    if not version or (app / "node_modules").is_dir() or (app / "dist/server.mjs").is_file():
+        if _needs_build(app):
+            if not shutil.which("bun"):
+                raise SystemExit("error: bun is needed to build the canvas app from its "
+                                 "sources — https://bun.sh")
+            if not (app / "node_modules").is_dir():
+                print(f"installing canvas dependencies in {app} …")
+                subprocess.run(["bun", "install", "--frozen-lockfile"], cwd=app, check=True)
+            print(f"building the canvas app in {app} …")
+            subprocess.run(["bun", "run", "build"], cwd=app, check=True)
+        return app / "dist"
     cache = _dirs()[0] / version
     if (cache / "dist/server.mjs").is_file():
         return cache / "dist"
@@ -337,34 +363,6 @@ def _bundle_dist(version):
         if not (cache / "dist/server.mjs").is_file():
             raise
     return cache / "dist"
-
-
-def _dist(root: Path) -> Path:
-    """The `dist/` to serve, holding `server.mjs`: the checkout's own when it is being worked
-    on, else the canvas built for the plugin's release.
-
-    A checkout with `node_modules`, or with a dist already built, is a developer's: it serves
-    what is on disk, rebuilt when a source is newer, and this is the one path that still
-    needs bun. A plugin install is a bare checkout of a tag, so the bundle that release
-    attached is the app it should run, and nothing but node or bun is needed to run it. The
-    version is the manifest's, not the toolkit's: the manifest is what `claude plugin tag`
-    tagged, spelled as the tag is, where the installed toolkit reports PEP 440's `1.5.0rc1`
-    for the tag's `1.5.0-rc.1`. A root with no manifest names no release, and builds.
-    """
-    app = root / "canvas"
-    version = _plugin_version(root)
-    if not version or (app / "node_modules").is_dir() or (app / "dist/server.mjs").is_file():
-        if _needs_build(app):
-            if not shutil.which("bun"):
-                raise SystemExit("error: bun is needed to build the canvas app from its "
-                                 "sources — https://bun.sh")
-            if not (app / "node_modules").is_dir():
-                print(f"installing canvas dependencies in {app} …")
-                subprocess.run(["bun", "install", "--frozen-lockfile"], cwd=app, check=True)
-            print(f"building the canvas app in {app} …")
-            subprocess.run(["bun", "run", "build"], cwd=app, check=True)
-        return app / "dist"
-    return _bundle_dist(version)
 
 
 def cmd_start(a):

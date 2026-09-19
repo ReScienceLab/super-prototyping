@@ -377,13 +377,13 @@ def test_the_tag_prefix_matches_the_one_the_release_actually_cuts():
 
 
 def test_the_bundle_fetched_is_the_one_the_release_workflow_attaches():
-    """Two files spell the asset: release.yml uploads it, _bundle_dist downloads it and
+    """Two files spell the asset: release.yml uploads it, _dist downloads it and
     expects one top-level `dist/` inside. Neither may move without the other."""
     workflow = (Path(__file__).resolve().parent.parent / ".github/workflows/release.yml").read_text()
     assert 'tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist' in workflow
     assert 'gh release upload "super-prototyping--v$VERSION" plugin.tgz canvas-dist.tgz SHA256SUMS' in workflow
     import inspect
-    assert "/canvas-dist.tgz" in inspect.getsource(C._bundle_dist)
+    assert "/canvas-dist.tgz" in inspect.getsource(C._dist)
 
 
 def test_the_newest_cached_release_wins_and_a_prerelease_ranks_below_it():
