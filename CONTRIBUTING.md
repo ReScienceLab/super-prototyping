@@ -65,9 +65,10 @@ Everything under `.github/`:
   agree and validate, the canvas lints, tests and builds, and the toolkit's
   tests pass. Run the same commands locally from the root README.
 - `workflows/release.yml`: dispatch it with a version and it opens the release
-  PR; merging that PR tags `super-prototyping--v<version>` and cuts the GitHub
-  Release from the matching `RELEASE-NOTES.md` section. It is in two halves
-  because branch protection means CI cannot push to `main`.
+  PR; merging that PR tags `super-prototyping--v<version>`, cuts the GitHub
+  Release from the matching `RELEASE-NOTES.md` section, and attaches
+  `canvas-dist.tgz`, the canvas built without the example boards. It is in two
+  halves because branch protection means CI cannot push to `main`.
 - `CODEOWNERS`: who is asked to review pull requests, by path.
 - `dependabot.yml`: weekly dependency updates for `canvas/` (bun) and for any
   GitHub Actions workflows.
@@ -112,7 +113,8 @@ release calls a command from the other.
 4. On that PR, rename `## Unreleased` to `## v<version>` and open a fresh empty
    `## Unreleased` above it. The tag job reads exactly that heading.
 5. Merge. The push to `main` tags `super-prototyping--v<version>` through
-   `claude plugin tag` and cuts the GitHub Release from that notes section.
+   `claude plugin tag`, cuts the GitHub Release from that notes section, and
+   attaches `canvas-dist.tgz` to it.
 
 **Then check the release exists**, because everything downstream keys off the
 tag: the tag on the Releases page, `/plugin update super-prototyping` in Claude
@@ -128,6 +130,11 @@ the workflow cannot open the pull request, the branch is already pushed and
 nothing is lost: open it by hand from
 `main...release/<version>`, and turn on Settings → Actions → General → "Allow
 GitHub Actions to create and approve pull requests", which is what it needed.
+The bundle is attached last, after the release is cut, so a failure there leaves
+the release whole. To add it by hand: in `canvas/`, run `bun run build` with
+`PROTOTYPING_CANVASES_DIR` pointing at an empty directory, then
+`tar -czf canvas-dist.tgz dist`, then
+`gh release upload super-prototyping--v<version> canvas-dist.tgz`.
 The whole thing is doable by hand too. Run `scripts/bump-version.sh <version>`,
 open a pull request, then `claude plugin tag . --push -m 'super-prototyping %s'`
 after it merges; the workflow is that sequence with the gates in front of it.
