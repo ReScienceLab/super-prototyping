@@ -15,9 +15,12 @@ loads the same tree an install does.
 `canvas/` is the tldraw viewer, built with Bun and Vite. It discovers
 `<boards dir>/*/*.html` one level deep, where the boards dir is
 `PROTOTYPING_CANVASES_DIR` and falls back to this repo's `mockups/canvases`.
-Discovery is the `prototyping-canvases` plugin in `canvas/vite.config.ts` —
-a generated virtual module, not an `import.meta.glob`, because a glob pattern
-is a build-time literal and could only ever read one hard-coded directory.
+Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
+`/__sp/index.json` by `canvas/server/sp.ts` and written into `dist` by the
+build — not an `import.meta.glob`, because a glob pattern is a build-time
+literal and could only ever read one hard-coded directory. `sp-canvas start`
+runs the built app from `canvas/dist/server.mjs`; the canvas's `dev` script
+mounts the same server module under Vite for working on the app.
 
 `tools/` is a Python package, `super-prototyping-tools`. It installs `refkit`
 (measure, shoot, diff, check tokens), `artgen` (the rare asset that has to be

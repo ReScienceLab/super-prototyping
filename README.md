@@ -191,8 +191,8 @@ is in there to copy from too.
 sp-canvas start
 ```
 
-It finds the bundled canvas app, installs its dependencies on first run, boots
-it on 127.0.0.1:5173 against `./mockups/canvases`, and prints the address.
+It finds the bundled canvas app, builds it on first run, serves it on
+127.0.0.1:5173 against `./mockups/canvases`, and prints the address.
 `--canvases DIR` points it somewhere else, `--port N` moves it, `sp-canvas
 status` and `sp-canvas stop` do what they say.
 

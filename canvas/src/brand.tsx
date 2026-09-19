@@ -1,9 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./brand.css";
-import { BrandKitIndex } from "./BrandKitIndex";
-import { BrandKit } from "./BrandKit";
-import { hasBrandMaterial, shortName } from "./canvasLibrary";
+import { loadCanvasIndex } from "./canvasIndex";
 import { slugFromUrl } from "./canvasUrl";
 
 // The third entry, beside the canvas and the sheet, and the same `?canvas=<slug>` as both. It
@@ -13,10 +11,23 @@ import { slugFromUrl } from "./canvasUrl";
 // Without a slug it is the index of every product that collected any. That is also what a page
 // which collected none gets, rather than the empty kit it would otherwise render: the welcome
 // page, whose slug a bare address resolves to, and any folder still being worked on.
-const slug = slugFromUrl(window.location.href);
-const kit = hasBrandMaterial(slug);
-document.title = kit ? `${shortName(slug)} — brand kit` : "Brand kits";
-
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>{kit ? <BrandKit slug={slug} /> : <BrandKitIndex />}</StrictMode>,
-);
+//
+// The index first, then the page, as main.tsx does: the library reads the index at module scope.
+loadCanvasIndex()
+  .then(async () => {
+    const [{ BrandKitIndex }, { BrandKit }, { hasBrandMaterial, shortName }] =
+      await Promise.all([
+        import("./BrandKitIndex"),
+        import("./BrandKit"),
+        import("./canvasLibrary"),
+      ]);
+    const slug = slugFromUrl(window.location.href);
+    const kit = hasBrandMaterial(slug);
+    document.title = kit ? `${shortName(slug)} — brand kit` : "Brand kits";
+    createRoot(document.getElementById("root")!).render(
+      <StrictMode>{kit ? <BrandKit slug={slug} /> : <BrandKitIndex />}</StrictMode>,
+    );
+  })
+  .catch((error) => {
+    document.getElementById("root")!.textContent = String(error);
+  });

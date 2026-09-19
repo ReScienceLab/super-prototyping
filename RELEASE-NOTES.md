@@ -21,6 +21,15 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- `sp-canvas start` now serves the built canvas from one file,
+  `canvas/dist/server.mjs`, with node or bun, instead of running Vite's dev
+  server. It builds the app in place on first start and after an update (bun
+  is still needed for that), opens the browser when started from a terminal,
+  and keeps its pidfile and log in the platform's state directory rather than
+  in your home. Everything the canvas could do before — status, comments,
+  clone, the chat panel, reload on rewrite — works the same; the app just no
+  longer needs a dev toolchain running to do it.
+
 ## v1.4.1
 
 2026-09-19. Three fixes to the chat panel's composer: the command palette

@@ -41,7 +41,9 @@ registry to edit and no build step per board.
   `.gitignore`.**
 - **A user-visible change adds its line** to `## Unreleased` in
   `RELEASE-NOTES.md`, in the same pull request that makes it.
-- **Viewer changes** in `canvas/` need `bun test` and `bun run build` to pass.
+- **Viewer changes** in `canvas/` need `bun run lint`, `bun run test` and
+  `bun run build` to pass. `sp-canvas start` rebuilds `canvas/dist` when a
+  source is newer than it, so a checkout being edited serves what is on disk.
   Add a test next to the module you touched.
 
 ## Adding an example canvas
