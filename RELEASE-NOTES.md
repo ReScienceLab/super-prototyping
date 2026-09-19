@@ -23,16 +23,19 @@ Everything below is on `main` and reaches no install until a version is cut.
 
 - One install command on macOS and Linux, whichever product you use:
   `curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main/install.sh | sh`.
-  It puts the release's plugin at `~/.local/share/super-prototyping/<version>/`,
-  checked against the release's `SHA256SUMS` before anything lands, installs
-  the toolkit from that copy with uv (installing uv first when there is none),
-  and links the skills into Codex, CodeBuddy, Hermes, Pi, Trae and Trae CN. No
-  sudo, and no shell profile edited: it prints the PATH line if one is needed.
-  `--tools-only` for Claude Code, whose plugin stays on the marketplace;
+  It puts the release's plugin at `~/.local/share/super-prototyping/<version>/`
+  with the canvas app built for it at `canvas/dist` inside, both checked
+  against the release's `SHA256SUMS` before anything lands, and links the
+  skills into Codex, CodeBuddy, Hermes, Pi, Trae and Trae CN. That is the tree
+  the Homebrew formula lays out, with `tools/` beside it, and nothing more: no
+  Python, no toolkit. The
+  toolkit is the agent's to install from that tree when a skill needs it, and
+  the script prints the line. No sudo, and no shell profile edited.
   `--version` for a release; `--dry-run` to look first. Running it again moves
   you to the newest release. It replaces `scripts/install-skills.sh`, whose job
   is now `sh install.sh --from-checkout` inside a clone. Each release from here
-  on also ships `plugin.tgz` and `SHA256SUMS`, which is what it downloads.
+  on also ships `plugin.tgz` and `SHA256SUMS`, which is what it downloads
+  beside `canvas-dist.tgz`.
 - `sp-canvas start` now runs the canvas as a small localhost app instead of
   Vite's dev server. On first start it downloads the canvas built for the
   plugin's version from that release (`canvas-dist.tgz`) into

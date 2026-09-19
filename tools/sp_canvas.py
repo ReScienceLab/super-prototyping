@@ -17,9 +17,10 @@ app without touching a single board you have authored.
 Boards default to ./mockups/canvases under the current directory. Override with
 --canvases or PROTOTYPING_CANVASES_DIR. The plugin is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer. The app served is
-the canvas built for the plugin's release, fetched once into
-~/.cache/super-prototyping/<version>/; a checkout with node_modules serves its own
-canvas/dist. The port is --port or SP_CANVAS_PORT. Nothing is read from a file.
+the canvas built for the plugin's release: the canvas/dist an install.sh or Homebrew
+tree carries, else fetched once into ~/.cache/super-prototyping/<version>/; a checkout
+with node_modules serves its own canvas/dist. The port is --port or SP_CANVAS_PORT.
+Nothing is read from a file.
 """
 import argparse, glob, io, json, os, re, shlex, shutil, signal, subprocess, sys, tarfile
 import tempfile, time, urllib.request, webbrowser
@@ -309,10 +310,12 @@ def _dist(root: Path) -> Path:
     """The `dist/` to serve, holding `server.mjs`: the checkout's own when it is being worked
     on, else the canvas built for the plugin's release, from the cache or downloaded into it.
 
-    A checkout with `node_modules`, or with a dist already built, is a developer's: it serves
-    what is on disk, rebuilt when a source is newer, and this is the one path that still
-    needs bun. A plugin install is a bare checkout of a tag, so the bundle that release
-    attached is the app it should run, and nothing but node or bun is needed to run it. The
+    A checkout with `node_modules`, or a tree with a dist already built, serves what is on
+    disk: the developer's checkout, rebuilt when a source is newer, which is the one path
+    that still needs bun; and the tree install.sh or the Homebrew formula left, whose
+    `canvas/dist` is the release's own with nothing beside it newer. A plugin install is a
+    bare checkout of a tag, so the bundle that release attached is the app it should run,
+    and nothing but node or bun is needed to run it. The
     version is the manifest's, not the toolkit's: the manifest is what `claude plugin tag`
     tagged, spelled as the tag is, where the installed toolkit reports PEP 440's `1.5.0rc1`
     for the tag's `1.5.0-rc.1`. A root with no manifest names no release, and builds.

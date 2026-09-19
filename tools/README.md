@@ -42,8 +42,12 @@ Once per machine, and from a checkout instead if you are working on the tools:
 This pulls `pillow` and `numpy`, which were previously an undocumented
 prerequisite. `refkit shoot` additionally needs Google Chrome.
 
-The root `install.sh` does this for you from a release, alongside linking the
-skills into the non-Claude agent products; `--tools-only` is just this step.
+The root `install.sh` does not do this: it leaves the plugin tree with `tools/`
+in it and prints the line for that tree, `uv tool install --force <tree>/tools`,
+the agent's to run when a skill first needs the toolkit. The Homebrew formula
+hands the toolkit to the agent too, but its caveat names `super-prototyping-tools`,
+which is not on PyPI yet, so from a Homebrew install the `git+https` line above
+is the one that works.
 
 Check what you have:
 

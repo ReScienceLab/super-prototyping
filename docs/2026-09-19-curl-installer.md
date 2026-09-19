@@ -9,9 +9,10 @@ curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main
 for every product, on macOS and Linux. Before this there were six install
 commands, one per product, plus a clone-and-link script for the products with
 none, and the toolkit was a seventh command after any of them. The script does
-the three steps every route ended in: the plugin on disk, the toolkit on PATH,
-the skills where the product looks. This note is the decisions behind it, and
-the survey of sixteen `curl | sh` installers (uv, rustup, Deno, bun, Ollama,
+the two steps every route ended in: the plugin on disk, with the canvas app
+built for it, and the skills where the product looks. The toolkit it leaves to
+the agent, as the Homebrew formula does (below). This note is the decisions
+behind it, and the survey of sixteen `curl | sh` installers (uv, rustup, Deno, bun, Ollama,
 pnpm, Homebrew, nvm, Tailscale, mise, Zed, Docker, Starship, Helm, Claude Code,
 OpenDesign) that most of them came from.
 
@@ -21,15 +22,15 @@ OpenDesign) that most of them came from.
 `archive/refs/tags/<tag>.tar.gz#subdirectory=tools`. That archive is the whole
 repo, about 400 MB gzipped because of the example boards, and GitHub attaches no
 checksum to it. Instead `release.yml` now attaches `plugin.tgz`: `git archive`
-of `LICENSE .claude-plugin skills tools canvas mockups/canvases/templates`, the
-same sparse set the README documents for a small marketplace install, 1.9 MB
-gzipped and 3.1 MB unpacked, next to a `SHA256SUMS` covering it and
-`canvas-dist.tgz`. The script downloads that one asset and its checksum line
-into a temporary directory, verifies, and only then unpacks it beside its final
-name under the data directory and renames it into place, so the version's
-directory is whole or absent (uv's own trick). The toolkit is then installed
-from that verified copy, `uv tool install --force <copy>/tools`, which is what
-the clone-and-link script already did; nothing else is fetched. Verification
+of the three manifests, `skills`, `tools`, `mockups/canvases/templates`,
+`LICENSE` and `canvas/package.json`, the tree the Homebrew formula lays out
+plus `tools`, `LICENSE` and the templates, under 1 MB gzipped, next to
+`canvas-dist.tgz` and a `SHA256SUMS` covering both.
+The script downloads the two assets and the checksum file into a temporary
+directory, verifies both, and only then unpacks them as one tree beside its
+final name under the data directory, the canvas at `canvas/dist` inside it,
+and renames it into place, so the version's directory is whole or absent (uv's
+own trick). Nothing else is fetched, and nothing is installed from it. Verification
 uses `sha256sum`, else `shasum -a 256`, else `openssl dgst`, and stops when none
 is there rather than skipping the check: the survey flagged uv's "no tool, no
 check" as the one practice not to copy.
@@ -57,7 +58,7 @@ a machine with no skill-reading product installed still finds it, and a
 `--version` downgrade whose links point at the older copy still wins over a
 newer copy left behind. `sp-canvas paths` prints it; `sp-canvas clean` leaves
 it, since removing the install is an uninstall, which #114 keeps out of scope.
-One copy per version and no removal of older ones: it is 3.1 MB each, and the
+One copy per version and no removal of older ones: it is 5.5 MB each, and the
 skill links of a downgrade point into the older one.
 
 ## Practices taken from the survey
@@ -77,13 +78,12 @@ skill links of a downgrade point into the older one.
   branch against a wget that stops at any other flag.
 - **No prompts, no profile edits.** Fourteen of sixteen never prompt. Seven
   print the PATH line and three delegate it; only three edit rc files. The
-  script prints `export PATH="$HOME/.local/bin:$PATH"` when `sp-canvas` is not
-  found on the user's PATH afterwards, and runs uv's installer, the one other
-  script it ever runs, with `--no-modify-path` so that promise holds through it.
+  script puts nothing on PATH and runs no other script, so it has no line to
+  print and nothing to edit.
 - **Skip what is already there, redo the rest.** A version already under the
-  data directory is not downloaded again ("already at"); the toolkit is always
-  reinstalled with `--force` and the links always re-checked, so a run that
-  died halfway is repaired by the next one. A symlink that already points at
+  data directory is not downloaded again ("already at"); the links are always
+  re-checked, so a run that died halfway is repaired by the next one, and a
+  tree is never half there. A symlink that already points at
   the right place is reported and left; a real directory at a skill's name is
   the user's and is never replaced.
 - **Windows is a named refusal**, `MINGW*|MSYS*|CYGWIN*` → #111, the way Claude
@@ -91,14 +91,39 @@ skill links of a downgrade point into the older one.
 
 ## `--from-checkout` is what `scripts/install-skills.sh` was
 
-Same links, same toolkit install, from the clone the script is run in rather
+Same links, from the clone the script is run in rather
 than from a release; the file it replaces did nothing the release path does not
 do better except point at a working tree. One script, one set of product
 roots, one place to add a product.
 
+## The tree the Homebrew formula leaves, and no Python
+
+The first cut installed the toolkit too: `uv tool install --force <copy>/tools`,
+pipx second, uv's own installer third, and uv fetching a CPython when the
+machine had none it could use (macOS ships 3.9, `tools` wants 3.10). The
+Homebrew formula (#109) does none of that. It lays out one tree, `libexec/plugin`,
+holding the manifests, the skills, `canvas/package.json` and the built canvas
+at `canvas/dist`, and its caveats say the toolkit is a Python package the agent
+installs when a skill needs it. The script now leaves that tree, with `tools`,
+`LICENSE` and the templates beside it, from the same two assets, under the data
+directory instead of the Cellar, and ends the way the caveats do: the toolkit is
+the agent's, `uv tool install --force <tree>/tools`. Two routes, one layout, one
+sentence to say what is missing; `sp-canvas` serves the `canvas/dist` it finds
+in either without a fetch. What is left is the formula's: take `plugin.tgz` as
+its `url` and install those three from it too, and point its caveat at
+`<tree>/tools` as well, since the `super-prototyping-tools` its caveat names
+today is not on PyPI.
+
+The toolkit stays the agent's for the reason the formula gives: the skills say
+what to run when it is missing, and the agent resolves what that needs, Python
+included, the moment a skill first calls for it. An installer that fetches a
+CPython to satisfy a package the user may never call is a second installer
+inside the first, and a hundred megabytes for a `sp-canvas start` that needs
+only node. What the script installs, the checksum covers; what it does not, it
+names.
+
 ## Not done, on purpose
 
-Windows (#111), a vanity domain in front of the raw URL, uninstall, and a
-pipx-first tier for machines that have pipx and not uv: pipx is second choice,
-since uv is what the rest of the repo assumes. The `--from-checkout` route is not the way to work on the canvas app either: a
+Windows (#111), a vanity domain in front of the raw URL, and uninstall. The
+`--from-checkout` route is not the way to work on the canvas app either: a
 checkout with `canvas/node_modules` serves its own build, as before.

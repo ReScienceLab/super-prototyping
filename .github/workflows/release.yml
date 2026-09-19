@@ -261,12 +261,16 @@ jobs:
         if: steps.v.outputs.fresh == 'true'
 
       # Three assets, each consumed by name under this tag. plugin.tgz is the plugin
-      # without the example boards, the same sparse set README documents for a small
-      # marketplace install: install.sh (#114) downloads it, checks it against
-      # SHA256SUMS and unpacks it as the install. canvas-dist.tgz is the canvas, built
-      # once here so that an install does not have to: `sp-canvas start` fetches it for
-      # the plugin's version on first start (#108), and the Homebrew formula (#109) will
-      # too. The example boards stay out of both, because an install shows the user's
+      # without the example boards or the canvas sources: the manifests, the skills,
+      # the toolkit's sources, the templates, and canvas/package.json, which is how the
+      # launcher recognises the tree. install.sh (#114) downloads it, checks it against
+      # SHA256SUMS and unpacks it as the install; the Homebrew formula (#109) lays out
+      # the same tree less tools, LICENSE and the templates, and can take this asset
+      # as its url. canvas-dist.tgz is the canvas, built once here so that an install
+      # does not have to: install.sh and the formula unpack it at canvas/dist inside
+      # that tree, and `sp-canvas start` fetches it for the plugin's version on first
+      # start (#108) where a marketplace install has no dist of its own.
+      # The example boards stay out of both, because an install shows the user's
       # boards and not this repo's; PROTOTYPING_CANVASES_DIR is the same knob `sp-canvas
       # start` sets, and an empty directory builds an empty canvas. After the release
       # rather than before it: the tag is pushed by now and the ruleset forbids moving
@@ -282,7 +286,7 @@ jobs:
         run: |
           set -euo pipefail
           git archive --format=tar.gz --prefix=super-prototyping/ -o "$RUNNER_TEMP/plugin.tgz" HEAD \
-            LICENSE .claude-plugin skills tools canvas mockups/canvases/templates
+            LICENSE .claude-plugin .codex-plugin .codebuddy-plugin plugin.json skills tools canvas/package.json mockups/canvases/templates
           cd canvas
           bun install --frozen-lockfile
           PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build

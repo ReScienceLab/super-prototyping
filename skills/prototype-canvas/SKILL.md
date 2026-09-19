@@ -22,15 +22,13 @@ sp-canvas start
 ```
 
 Not found? `sp-canvas` installs separately from the plugin, which cannot run
-an installer of its own:
-`curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main/install.sh | sh -s -- --tools-only`,
-or `uv tool install
+an installer of its own: `uv tool install
 "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
 
-That is the whole thing. On first run it fetches the canvas app built for
-its version into `~/.cache/super-prototyping/<version>/`, then serves it on
-127.0.0.1:5173 with node or bun, waits for the port to actually bind, and
-prints the address. Started from a terminal it also opens the browser; from
+That is the whole thing. It serves the canvas app built for its version,
+the `canvas/dist` inside an install.sh or Homebrew tree, else fetched on first
+run into `~/.cache/super-prototyping/<version>/`, on 127.0.0.1:5173 with node
+or bun, waits for the port to actually bind, and prints the address. Started from a terminal it also opens the browser; from
 an agent's shell it only prints. A checkout being worked on serves its own
 `canvas/dist` instead, rebuilt with bun when a source is newer.
 

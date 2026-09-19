@@ -19,8 +19,9 @@ Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
 `/__sp/index.json` by `canvas/server/sp.ts` and written into `dist` by the
 build — not an `import.meta.glob`, because a glob pattern is a build-time
 literal and could only ever read one hard-coded directory. `sp-canvas start`
-runs the built app, `dist/server.mjs`: the release's `canvas-dist.tgz`
-fetched into `~/.cache/super-prototyping/<version>/` for an install, or this
+runs the built app, `dist/server.mjs`: the `canvas/dist` an install.sh or
+Homebrew tree carries, the release's `canvas-dist.tgz` fetched into
+`~/.cache/super-prototyping/<version>/` for a marketplace install, or this
 checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
 `dev` script mounts the same server module under Vite for working on the app.
 
@@ -36,9 +37,12 @@ manifests, and the root `plugin.json` is the portable Agent Plugins v1 one that
 Hermes reads. All four describe the same `skills/` tree — a manifest per
 product, never a skill per product. The root `install.sh` is the `curl | sh`
 installer: a release's `plugin.tgz` into
-`~/.local/share/super-prototyping/<version>/`, the toolkit from that copy, and
-skill links into the products that read a skills directory; `--from-checkout`
-links this clone instead. `tools/test_install.py` runs it against fakes.
+`~/.local/share/super-prototyping/<version>/` with its `canvas-dist.tgz`
+unpacked at `canvas/dist` inside, the tree the Homebrew formula lays out with
+`tools/` beside it, plus skill links into the products that read a skills
+directory; `--from-checkout`
+links this clone instead. Neither route installs the toolkit or a Python: the
+agent does, from `<tree>/tools`. `tools/test_install.py` runs it against fakes.
 `scripts/bump-version.sh` moves every version in `.version-bump.json` at once;
 run it with `--check` before releasing.
 

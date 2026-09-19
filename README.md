@@ -78,22 +78,24 @@ One command on macOS or Linux, whichever agent you use:
 curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main/install.sh | sh
 ```
 
-It puts the latest release's plugin at `~/.local/share/super-prototyping/<version>/`,
-checked against the release's `SHA256SUMS` before anything lands, installs the
-toolkit the skills call by name (`refkit`, `artgen`, `sp-canvas`) from that copy
-with uv, and links the skills into every product on the machine that reads a
-skills directory: Codex, CodeBuddy, Hermes, Pi, Trae and Trae CN. No sudo, no
-shell profile edited; if `~/.local/bin` is not on your PATH it prints the line
-to add. `--dry-run` shows what it would do, `--version 1.5.0` names a release,
-`--help` has the rest, and running it again moves you to the newest one.
-Windows is not there yet
+It puts the latest release's plugin at `~/.local/share/super-prototyping/<version>/`
+with the canvas app built for it at `canvas/dist` inside, both checked against
+the release's `SHA256SUMS` before anything lands, and links the skills into
+every product on the machine that reads a skills directory: Codex, CodeBuddy,
+Hermes, Pi, Trae and Trae CN. That is the tree the Homebrew formula
+([#109](https://github.com/ReScienceLab/super-prototyping/issues/109)) lays
+out, with `tools/` beside it, and nothing more: no Python, no toolkit. `refkit`, `artgen` and
+`sp-canvas` are a Python package the agent installs from that tree when a
+skill calls for them, and the script prints the line. No sudo, no shell
+profile edited. `--dry-run` shows what it would do, `--version 1.5.0` names a
+release, `--help` has the rest, and running it again moves you to the newest
+one. Windows is not there yet
 ([#111](https://github.com/ReScienceLab/super-prototyping/issues/111)).
 
 Claude Code is the one product the script does not link into: it installs
 plugins from a marketplace and `/plugin update` moves them, so there the
-**plugin** is the two slash commands below and the **toolkit** is the same
-script with `--tools-only`. Every other product with an install command of its
-own can take the plugin from it the same way, and then needs only the toolkit.
+plugin is the two slash commands below. Every other product with an install
+command of its own can take the plugin from it the same way.
 
 | Your agent | Install the plugin |
 |---|---|
@@ -104,8 +106,9 @@ own can take the plugin from it the same way, and then needs only the toolkit.
 | **Pi** | `pi install git:github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>` |
 | **Trae**, and anything else that reads `SKILL.md` | `npx skills add ReScienceLab/super-prototyping` |
 
-Then the toolkit, whichever product you came from: the script with
-`--tools-only`, or uv directly:
+Then the toolkit, whichever route you came by. No route installs it, or a
+Python for it: it is the agent's to install when a skill first calls for it.
+The script prints the line for the tree it left; from anywhere else:
 
 ```bash
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
@@ -183,14 +186,14 @@ cd super-prototyping
 sh install.sh --from-checkout
 ```
 
-It installs the toolkit from that clone and links `skills/*` into the same
-product skill roots the release install uses (`~/.codex/skills`,
-`~/.codebuddy/skills`, `~/.hermes/skills`, `~/.pi/agent/skills`,
-`~/.trae/skills`, `~/.trae-cn/skills`). The skills are links, not copies, so
-`git pull` in that checkout updates every product at once. The toolkit is a
-copy, so run it again after a pull to move `refkit`, `artgen` and `sp-canvas`
-with it. What it cannot give you is a version. A linked checkout is whatever
-you last pulled, where an install is a release.
+It links `skills/*` into the same product skill roots the release install uses
+(`~/.codex/skills`, `~/.codebuddy/skills`, `~/.hermes/skills`,
+`~/.pi/agent/skills`, `~/.trae/skills`, `~/.trae-cn/skills`). The skills are
+links, not copies, so `git pull` in that checkout updates every product at
+once. The toolkit is the agent's, `uv tool install --force <clone>/tools`, and
+a copy, so run that again after a pull to move `refkit`, `artgen` and
+`sp-canvas` with it. What it cannot give you is a version. A linked checkout is
+whatever you last pulled, where an install is a release.
 
 ## Start a project
 

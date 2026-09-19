@@ -1,7 +1,10 @@
 #!/bin/sh
 #
-# Install super-prototyping from a release: the plugin, the toolkit and the skill
-# links, in one command, with no sudo and no shell profile edited.
+# Install super-prototyping from a release: the plugin with the canvas app built
+# for it, and the skill links, in one command, with no sudo and no shell profile
+# edited. The tree the Homebrew formula lays out, with the toolkit's sources
+# beside it; the toolkit itself is the agent's to install from there, so no
+# Python is installed here.
 #
 #   curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main/install.sh | sh
 #
@@ -18,31 +21,31 @@ die() { printf 'install.sh: %s\n' "$*" >&2; exit 1; }
 
 usage() {
   cat <<'EOF'
-Install super-prototyping: the plugin, the toolkit and the skill links.
+Install super-prototyping: the plugin, its canvas app and the skill links.
 
   curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main/install.sh | sh
   curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main/install.sh | sh -s -- --version 1.5.0
 
   --version <semver>  that release rather than the latest
-  --tools-only        the toolkit only, no skill links: for Claude Code, whose
-                      plugin comes from the marketplace
   --from-checkout     this clone rather than a release: cd into it, then
                       sh install.sh --from-checkout
   --dry-run           say what would happen and change nothing
   --help              this text
 
 What happens:
-  1. plugin.tgz for the release is downloaded, checked against the release's
-     SHA256SUMS, and unpacked at ~/.local/share/super-prototyping/<version>/
-     (XDG_DATA_HOME or SUPER_PROTOTYPING_HOME moves it; `sp-canvas paths`
-     prints it).
-  2. The toolkit (refkit, artgen, sp-canvas) is installed from that copy with
-     uv, or pipx, or uv is installed first from https://astral.sh/uv/install.sh.
-  3. Each skill is linked into every product on this machine that reads a
+  1. plugin.tgz and canvas-dist.tgz for the release are downloaded, checked
+     against the release's SHA256SUMS, and unpacked as one tree at
+     ~/.local/share/super-prototyping/<version>/, the canvas app at canvas/dist
+     inside it (XDG_DATA_HOME or SUPER_PROTOTYPING_HOME moves it; `sp-canvas
+     paths` prints it). The tree the Homebrew formula lays out, with tools/
+     beside it.
+  2. Each skill is linked into every product on this machine that reads a
      skills directory: Codex, CodeBuddy, Hermes, Pi, Trae, Trae CN. A product
      that is not installed is skipped; a real directory in the way stays.
-Running it again for a version already there re-links and reinstalls the
-toolkit, and downloads nothing.
+Nothing else: no Python, no toolkit. refkit, artgen and sp-canvas are a Python
+package the agent installs from that tree when a skill calls for them,
+`uv tool install --force <tree>/tools`, and the line is printed at the end.
+Running it again for a version already there re-links and downloads nothing.
 EOF
 }
 
@@ -91,11 +94,10 @@ link() {
 }
 
 main() {
-  VERSION='' DRY=0 TOOLS_ONLY=0 CHECKOUT=0 FOUND=0
+  VERSION='' DRY=0 CHECKOUT=0 FOUND=0
   while [ $# -gt 0 ]; do
     case $1 in
       --version) [ $# -ge 2 ] || die "--version needs a value, like --version 1.5.0"; VERSION=$2; shift ;;
-      --tools-only) TOOLS_ONLY=1 ;;
       --from-checkout) CHECKOUT=1 ;;
       --dry-run) DRY=1 ;;
       -h|--help) usage; exit 0 ;;
@@ -144,7 +146,7 @@ main() {
     if [ -d "$ROOT" ]; then
       say "plugin   $VERSION is already at $ROOT"
     elif [ "$DRY" = 1 ]; then
-      say "plugin   $VERSION: would download $BASE/plugin.tgz, check it against $BASE/SHA256SUMS, unpack it at $ROOT"
+      say "plugin   $VERSION: would download $BASE/plugin.tgz and $BASE/canvas-dist.tgz, check them against $BASE/SHA256SUMS, unpack them at $ROOT"
     else
       say "plugin   $VERSION → $ROOT"
       # sha256sum on Linux, shasum on macOS, openssl as the last resort. None at all
@@ -153,62 +155,45 @@ main() {
       elif command -v shasum >/dev/null 2>&1; then sha256() { shasum -a 256 "$1" | awk '{ print $1 }'; }
       elif command -v openssl >/dev/null 2>&1; then sha256() { openssl dgst -r -sha256 "$1" | awk '{ print $1 }'; }
       else die "no sha256sum, shasum or openssl on PATH to check the download with"; fi
-      fetch "$BASE/plugin.tgz" "$TMP/plugin.tgz"
       fetch "$BASE/SHA256SUMS" "$TMP/SHA256SUMS"
-      want=$(awk '$2 == "plugin.tgz" { print $1; exit }' "$TMP/SHA256SUMS")
-      have=$(sha256 "$TMP/plugin.tgz")
-      if [ -z "$want" ] || [ "$have" != "$want" ]; then
-        die "plugin.tgz does not match SHA256SUMS: expected '${want:-no line for plugin.tgz}', got '$have'. Nothing was installed."
-      fi
-      # Unpacked beside its final name and renamed into place, so the directory
-      # is whole or absent.
+      # Both assets are checked before either lands, so the tree is whole or absent.
+      for asset in plugin.tgz canvas-dist.tgz; do
+        fetch "$BASE/$asset" "$TMP/$asset"
+        want=$(awk -v f="$asset" '$2 == f { print $1; exit }' "$TMP/SHA256SUMS")
+        have=$(sha256 "$TMP/$asset")
+        if [ -z "$want" ] || [ "$have" != "$want" ]; then
+          die "$asset does not match SHA256SUMS: expected '${want:-no line for $asset}', got '$have'. Nothing was installed."
+        fi
+      done
+      # Unpacked beside the final name and renamed into place, so the directory
+      # is whole or absent. The canvas app goes at canvas/dist inside the tree,
+      # where the Homebrew formula puts it and `sp-canvas start` serves it as is.
       mkdir -p "$DATA"
       STAGE=$(mktemp -d "$DATA/tmp.XXXXXX")
       trap 'rm -rf "$TMP" "$STAGE"' EXIT
       tar -xzf "$TMP/plugin.tgz" -C "$STAGE"
+      tar -xzf "$TMP/canvas-dist.tgz" -C "$STAGE/super-prototyping/canvas"
       mv "$STAGE/super-prototyping" "$ROOT"
     fi
   fi
 
-  # refkit, artgen and sp-canvas go on PATH so a SKILL.md can say `refkit grid` with
-  # no path in it, the only spelling that works in every product. Always --force:
-  # the copy under ROOT is the version to be at, whatever is installed now. A
-  # failure here is reported after the links: a half-install you can see beats none.
-  TOOLS=$ROOT/tools TOOLKIT=1
-  if command -v uv >/dev/null 2>&1; then
-    say "toolkit  uv tool install --force $TOOLS"
-    [ "$DRY" = 1 ] || uv tool install --force "$TOOLS" || TOOLKIT=0
-  elif command -v pipx >/dev/null 2>&1; then
-    say "toolkit  pipx install --force $TOOLS"
-    [ "$DRY" = 1 ] || pipx install --force "$TOOLS" || TOOLKIT=0
-  else
-    say "toolkit  neither uv nor pipx is on PATH: uv first, from https://astral.sh/uv/install.sh, then uv tool install --force $TOOLS"
-    if [ "$DRY" = 0 ]; then
-      net
-      fetch https://astral.sh/uv/install.sh "$TMP/uv-install.sh"
-      { sh "$TMP/uv-install.sh" --no-modify-path && "$HOME/.local/bin/uv" tool install --force "$TOOLS"; } || TOOLKIT=0
-    fi
-  fi
+  link "Codex CLI" "$HOME/.codex/skills"
+  link CodeBuddy "$HOME/.codebuddy/skills"
+  link Hermes "$HOME/.hermes/skills"
+  link Pi "$HOME/.pi/agent/skills"
+  link Trae "$HOME/.trae/skills"
+  link "Trae CN" "$HOME/.trae-cn/skills"
+  [ "$FOUND" = 1 ] || say "skills   no product that reads a skills directory is installed here; nothing to link"
 
-  if [ "$TOOLS_ONLY" = 0 ]; then
-    link "Codex CLI" "$HOME/.codex/skills"
-    link CodeBuddy "$HOME/.codebuddy/skills"
-    link Hermes "$HOME/.hermes/skills"
-    link Pi "$HOME/.pi/agent/skills"
-    link Trae "$HOME/.trae/skills"
-    link "Trae CN" "$HOME/.trae-cn/skills"
-    [ "$FOUND" = 1 ] || say "skills   no product that reads a skills directory is installed here; nothing to link"
-  fi
-
+  # No toolkit here, and no Python to run it: refkit, artgen and sp-canvas are the
+  # agent's to install from this tree when a skill calls for them, as the formula's
+  # caveats say after `brew install`. A dry run has no tree yet, and says so.
+  if [ -d "$ROOT" ]; then where="are in"; else where="would be in"; fi
   say ""
-  [ "$TOOLKIT" = 1 ] || die "the toolkit did not install (its error is above); the skill links are in place, so run this again once it does"
-  if [ "$DRY" = 0 ] && ! command -v sp-canvas >/dev/null 2>&1; then
-    say "sp-canvas is installed but not on your PATH. Add this line to your shell profile and open a new shell:"
-    # shellcheck disable=SC2016  # the line is for their profile, unexpanded
-    say '  export PATH="$HOME/.local/bin:$PATH"'
-  fi
-  [ "$TOOLS_ONLY" = 1 ] || say "Claude Code installs the plugin from the marketplace: /plugin marketplace add $REPO, then /plugin install super-prototyping@super-prototyping"
-  say "Next, in a project: sp-canvas start"
+  say "The skills and the canvas app $where $ROOT"
+  say "The toolkit (sp-canvas, refkit, artgen) is a Python package the agent installs when a skill needs it:"
+  say "  uv tool install --force \"$ROOT/tools\""
+  say "Claude Code installs the plugin from the marketplace: /plugin marketplace add $REPO, then /plugin install super-prototyping@super-prototyping"
 }
 
 main "$@"
