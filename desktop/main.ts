@@ -109,8 +109,8 @@ async function main() {
   // window must not open before this app's own server is up, because Electron loses a utility
   // process's early output when a window is being created as it starts.
   let port = portArg ?? Number(process.env.SP_CANVAS_PORT || 0);
-  if (Number.isNaN(port)) {
-    dialog.showErrorBox("Bad port", "--port and SP_CANVAS_PORT take a number.");
+  if (!Number.isInteger(port) || port < 0 || port > 65535) {
+    dialog.showErrorBox("Bad port", "--port and SP_CANVAS_PORT take a port number, 1 to 65535.");
     return app.exit(1);
   }
   if (port && (await portAnswers(port))) {
