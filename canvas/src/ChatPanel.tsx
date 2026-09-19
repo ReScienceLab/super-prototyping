@@ -58,7 +58,7 @@ import type { RunSummary } from "./agentRun";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./canvasAttach";
 import { CanvasChromeContext } from "./canvasChrome";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
-import { namedPictures, readDraft } from "./chatDraft";
+import { namedPictures, readDraft, slashWord } from "./chatDraft";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
@@ -67,6 +67,8 @@ import { renderMarkdown } from "./markdown";
 import { rasterizeSvg } from "./svgRaster";
 
 const RUNS_KEY = "sp-chat-runs";
+const QUEUE_KEY = "sp-chat-queue";
+const SENT_KEY = "sp-chat-sent";
 const AGENT_KEY = "sp-chat-agent";
 const CHOICE_KEY = "sp-chat-choice";
 const COMMANDS_KEY = "sp-chat-commands";
@@ -114,6 +116,12 @@ interface AgentRow {
   models: AgentModel[];
   efforts: string[];
   missing: string;
+}
+
+/** A message sent while a run was on, held for the next one. */
+interface Queued {
+  message: string;
+  images: Attached[];
 }
 
 /** A turn with nothing in it yet: the run's events, from `start` on, fill in the rest. */
@@ -181,6 +189,21 @@ export function ChatPanel() {
   // repeats — posted the same message and its images again, to be told an agent was already
   // running.
   const [sending, setSending] = useState(false);
+  // Messages sent while an agent was running, to go one at a time as each run ends — the server
+  // takes one run at a time. In sessionStorage like the runs, because a run that writes a board
+  // reloads the page, which is exactly when the message typed during it would otherwise be
+  // lost.
+  const [queued, setQueued] = useState<Queued[]>(() =>
+    JSON.parse(sessionStorage.getItem(QUEUE_KEY) ?? "[]"),
+  );
+  // What was sent before, newest last, for the up arrow to walk back through as a terminal does.
+  // Across sessions like a shell's history file, capped, and never the same line twice running.
+  // Text only: a picture is not in the box to recall, so its "#N" comes back as the words.
+  const [sent, setSent] = useState<string[]>(() =>
+    JSON.parse(localStorage.getItem(SENT_KEY) ?? "[]"),
+  );
+  // How far back the arrows are: -1 is the box's own text, 0 the newest line sent.
+  const [back, setBack] = useState(-1);
   // Arrival order, and it never goes back: see the numbers in the note above.
   const nextN = useRef(1);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -240,6 +263,15 @@ export function ChatPanel() {
   }, [turns, chatCollapsed]);
 
   const running = turns.find((t) => !t.end);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(QUEUE_KEY, JSON.stringify(queued));
+    } catch {
+      // ponytail: images are data URLs and the tray takes 24 MB, sessionStorage a few; a queue
+      // that does not fit lives to the next reload only. IndexedDB if that bites.
+    }
+  }, [queued]);
   // The id until the server's list arrives, a moment after mount.
   const nameOf = (id: AgentId) => agents.find((a) => a.id === id)?.name ?? id;
   const title = turns[0]?.title ?? nameOf(agent);
@@ -266,9 +298,11 @@ export function ChatPanel() {
   const limit =
     usage?.window ?? newest.find((t) => t.usage?.window)?.usage?.window;
 
-  // The palette is open while the draft is a single unfinished word starting with a slash: "/cl"
-  // and not "/clone-prototype the app", since an argument means the command has been chosen.
-  const typing = /^\/(\S*)$/.exec(draft)?.[1];
+  // The palette is open while the draft ends in an unfinished word starting with a slash: "/cl"
+  // and "fix the header /cl", not "/clone-prototype the app", since an argument means the
+  // command has been chosen. The end of the draft rather than the caret, which is where typing
+  // leaves it.
+  const typing = slashWord(draft);
   const found =
     typing === undefined || slashOff
       ? []
@@ -323,14 +357,21 @@ export function ChatPanel() {
 
   const pickCommand = (name: string) => {
     const box = composer.current;
-    if (!box) return;
-    // The palette is only open while the draft is that one word, so there is nothing else in the
-    // box to keep.
-    box.replaceChildren(badgeFor(`/${name}`), document.createTextNode(" "));
-    setDraft(`/${name} `);
+    if (!box || typing === undefined) return;
+    // The palette is only open while the draft ends in the slash word, so that word is the tail
+    // of the last text in the box; the badge takes its place and whatever came before it stays.
+    const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+    let last: Text | null = null;
+    while (walker.nextNode()) last = walker.currentNode as Text;
+    if (!last) return;
+    last.data = last.data.slice(0, -(typing.length + 1));
+    const space = document.createTextNode(" ");
+    last.after(badgeFor(`/${name}`), space);
+    if (!last.data) last.remove();
+    setDraft(readDraft(box));
     setSlashAt(0);
     box.focus();
-    caretAt(box.childNodes[1]!, 1);
+    caretAt(space, 1);
   };
 
   /** A reference to an attached image: its thumbnail and its number, one atomic element. */
@@ -559,12 +600,36 @@ export function ChatPanel() {
     setChoices(next);
   };
 
-  const send = async () => {
-    const message = draft.trim();
-    if (!message || running || sending) return;
-    // Sending clears the draft without passing through onInput, so an Escape that closed the
-    // palette for this word has to be forgotten here too, or the next word never opens one.
-    setSlashOff(false);
+  /** The box holding `text` and nothing else, with the caret after it. */
+  const fill = (text: string) => {
+    const box = composer.current;
+    if (!box) return;
+    box.replaceChildren(...(text ? [document.createTextNode(text)] : []));
+    setDraft(text);
+    box.focus();
+    caretAt(box.firstChild ?? box, text.length);
+  };
+
+  /** The box and the tray emptied, once what they held is away. */
+  const clear = (message?: string) => {
+    if (message && message !== sent.at(-1)) {
+      const next = [...sent, message].slice(-50);
+      setSent(next);
+      localStorage.setItem(SENT_KEY, JSON.stringify(next));
+    }
+    setBack(-1);
+    composer.current?.replaceChildren();
+    setDraft("");
+    setAttached([]);
+    // The sent message keeps its own numbers — the transcript draws them from the turn — so
+    // the next one starts at #1 rather than carrying on from where this one stopped. The
+    // emptied box is not a box that has had its chips deleted: forget them, or the first edit
+    // after this would read them as gone and take the next message's pictures with them.
+    named.current = [];
+  };
+
+  /** One message to the server as a run; false when it was refused or never answered. */
+  const post = async ({ message, images: attached }: Queued) => {
     setSendError(null);
     setSending(true);
     try {
@@ -585,32 +650,62 @@ export function ChatPanel() {
           })),
         }),
       });
-      if (!res.ok) return setSendError(await res.text());
+      if (!res.ok) {
+        setSendError(await res.text());
+        return false;
+      }
       const { runId } = await res.json();
-      // Emptied only once it is away — a refused message is still in the box, chips and all, to
-      // be fixed and sent again.
-      composer.current?.replaceChildren();
-      setDraft("");
-      setAttached([]);
-      // The sent message keeps its own numbers — the transcript draws them from the turn — so
-      // the next one starts at #1 rather than carrying on from where this one stopped. The
-      // emptied box is not a box that has had its chips deleted: forget them, or the first edit
-      // after this would read them as gone and take the next message's pictures with them.
-      named.current = [];
       const images = attached.map(({ n, name }) => ({ n, name }));
       setTurns((ts) => [
         ...ts,
         { ...turnFor(runId), prompt: message, agent, images },
       ]);
       follow(runId);
+      return true;
     } catch (error) {
       // No answer at all, as against a refusal: the dev server restarting under an edit. Left
       // to itself this was an unhandled rejection, and a message that looked sent and ignored.
       setSendError(String(error));
+      return false;
     } finally {
       setSending(false);
     }
   };
+
+  const send = async () => {
+    const message = draft.trim();
+    if (!message || sending) return;
+    // Sending clears the draft without passing through onInput, so an Escape that closed the
+    // palette for this word has to be forgotten here too, or the next word never opens one.
+    setSlashOff(false);
+    // While an agent is at work, Enter queues, as in Claude Code's terminal: the box empties as
+    // if sent, and the message goes when the run ends.
+    if (running) {
+      setQueued((q) => [...q, { message, images: attached }]);
+      return clear(message);
+    }
+    // Emptied only once it is away — a refused message is still in the box, chips and all, to
+    // be fixed and sent again.
+    if (await post({ message, images: attached })) clear(message);
+  };
+
+  // The queue drains one message per run ended, not one per render: the head is taken off before
+  // the post, and put back if the post fails, so a refusal shows its error and waits for the next
+  // end rather than retrying every time something else changes. The ref rather than `sending`,
+  // because StrictMode runs a mount effect twice on the same state.
+  const draining = useRef(false);
+  useEffect(() => {
+    if (running || draining.current || !queued.length) return;
+    const [next, ...rest] = queued;
+    draining.current = true;
+    setQueued(rest);
+    void post(next!).then((ok) => {
+      draining.current = false;
+      if (!ok) setQueued((q) => [next!, ...q]);
+    });
+    // The head is read when a run ends, and only then.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!running]);
 
   // At mount, so the seconds a cold server spends asking the CLI are spent while the canvas is
   // being looked at, and again on the way into a slash word, so a list learned since — off a run,
@@ -972,6 +1067,26 @@ export function ChatPanel() {
             )}
           </article>
         ))}
+        {/* What is waiting for the run above to end: the bubble each will be, faded, with a way
+            out. Editing one is taking it out and typing it again. */}
+        {queued.map((q, i) => (
+          <div key={i} className="sp-chat-you sp-chat-queued">
+            <span className="sp-chat-say">
+              {q.message}
+              {q.images.length > 0 &&
+                ` (${q.images.length} ${q.images.length === 1 ? "image" : "images"})`}
+            </span>
+            <button
+              type="button"
+              className="sp-chat-unqueue"
+              aria-label="Remove queued message"
+              title="Remove"
+              onClick={() => setQueued((qs) => qs.filter((_, j) => j !== i))}
+            >
+              ✕
+            </button>
+          </div>
+        ))}
       </div>
       {/* What is attached, in the order it arrived. The tile is a crop — it only has to say which
           image this is — and clicking it writes that number into the sentence. */}
@@ -1042,7 +1157,9 @@ export function ChatPanel() {
           role="textbox"
           aria-multiline="true"
           aria-label={`Message to ${nameOf(agent)}`}
-          data-placeholder={running ? "Working…" : "Type / for commands"}
+          data-placeholder={
+            running ? "Working… Enter queues a message" : "Type / for commands"
+          }
           // For the placeholder: typed into and then emptied, the box keeps a lone <br>, which
           // is not `:empty` to CSS, and a box that looks blank is one that says nothing.
           data-empty={draft.trim() ? undefined : ""}
@@ -1052,10 +1169,12 @@ export function ChatPanel() {
             const text = readDraft(box);
             setDraft(text);
             setSlashAt(0);
+            // A recalled line edited is the box's own again; the arrows move the caret from here.
+            setBack(-1);
             // Every edit, since a chip is deleted like any other character.
             syncRefs(box);
             // Escape closes the palette for the word it was typed in; the next one opens again.
-            if (!text.startsWith("/")) setSlashOff(false);
+            if (slashWord(text) === undefined) setSlashOff(false);
           }}
           onPaste={(e) => {
             e.preventDefault();
@@ -1093,6 +1212,22 @@ export function ChatPanel() {
                 e.preventDefault();
                 return setSlashOff(true);
               }
+            }
+            // The arrows walk what was sent, as a terminal's do, but only from an empty box or
+            // once already walking: in a draft with lines of its own they move the caret. Down
+            // past the newest line is the empty box again.
+            if (
+              (e.key === "ArrowUp" || e.key === "ArrowDown") &&
+              (back >= 0 || !draft)
+            ) {
+              const to =
+                e.key === "ArrowUp"
+                  ? Math.min(back + 1, sent.length - 1)
+                  : back - 1;
+              if (to === back) return;
+              e.preventDefault();
+              setBack(to);
+              return fill(to < 0 ? "" : sent[sent.length - 1 - to]!);
             }
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();

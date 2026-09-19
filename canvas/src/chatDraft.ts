@@ -40,3 +40,6 @@ export function readDraft(node: Node): string {
   }
   return out;
 }
+
+/** The unfinished slash word a draft ends in, without its slash; undefined when it ends in none. */
+export const slashWord = (text: string) => /(?:^|\s)\/(\S*)$/.exec(text)?.[1];

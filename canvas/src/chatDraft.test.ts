@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { namedPictures, readDraft } from "./chatDraft";
+import { namedPictures, readDraft, slashWord } from "./chatDraft";
 
 const box = (html: string) => {
   const el = document.createElement("div");
@@ -73,4 +73,14 @@ describe("namedPictures", () => {
     ).toEqual([1]);
     expect(namedPictures(box(""))).toEqual([]);
   });
+});
+
+it("the palette's word is the slash word the draft ends in, wherever it starts", () => {
+  expect(slashWord("/")).toBe("");
+  expect(slashWord("/cl")).toBe("cl");
+  expect(slashWord("fix the header /cl")).toBe("cl");
+  expect(slashWord("fix the header\n/cl")).toBe("cl");
+  expect(slashWord("/clone-prototype the app")).toBeUndefined();
+  expect(slashWord("a/b")).toBeUndefined();
+  expect(slashWord("")).toBeUndefined();
 });
