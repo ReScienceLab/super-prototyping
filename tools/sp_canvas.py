@@ -126,10 +126,6 @@ def _candidates():
         for path in sorted(glob.glob(str(Path.home() / pattern))):
             yield label, Path(path)
 
-    # Homebrew installs the plugin tree under the formula's opt link (#109).
-    for prefix in ("/opt/homebrew", "/usr/local", "/home/linuxbrew/.linuxbrew"):
-        yield "Homebrew", Path(prefix) / "opt/super-prototyping/libexec/plugin"
-
     # Everything else holds a symlink per skill, pointing back into the checkout:
     # <root>/skills/prototype-canvas -> up two levels is <root>.
     for label, root in (
@@ -143,6 +139,12 @@ def _candidates():
         link = Path(root).expanduser() / "prototype-canvas"
         if link.is_symlink():
             yield f"{label} skill link", link.resolve().parent.parent
+
+    # Homebrew installs the plugin tree under the formula's opt link (#109). After every
+    # agent-side install: those hold the skills the agent already loads, and the chat panel
+    # points the agent at whichever tree is picked here.
+    for prefix in ("/opt/homebrew", "/usr/local", "/home/linuxbrew/.linuxbrew"):
+        yield "Homebrew", Path(prefix) / "opt/super-prototyping/libexec/plugin"
 
     # Finally, a checkout you are standing in.
     try:
