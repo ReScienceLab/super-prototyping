@@ -470,8 +470,11 @@ def _is_our_server(pid, port):
     try:
         out = subprocess.run(["ps", "-o", "command=", "-p", str(pid)],
                              capture_output=True, text=True).stdout
-    except OSError:
-        return False
+    except FileNotFoundError:
+        # No `ps` (Windows, a slim container). Not a guess either way: False would send
+        # `clean` under a live server, True would send `stop`'s SIGTERM to a stranger.
+        raise SystemExit(f"error: cannot tell whether pid {pid} is still the canvas "
+                         "without `ps`; stop it by hand and remove the pidfile")
     return f"--port {port}" in out and "server.mjs" in out
 
 
