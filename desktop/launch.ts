@@ -8,11 +8,19 @@ import net from "node:net";
 import path from "node:path";
 
 /**
+ * A leading `~`, the way `Path.expanduser()` reads the same variables in tools/sp_canvas.py.
+ * A GUI app's environment never went through a shell, so nothing has expanded it yet.
+ */
+export function untilde(p: string, home: string) {
+  return p === "~" || p.startsWith("~/") ? home + p.slice(1) : p;
+}
+
+/**
  * `<state>/super-prototyping`, exactly as `_dirs()` in tools/sp_canvas.py computes it, so the
  * shell's own files sit beside the CLI's pidfile and log and `sp-canvas clean` removes both.
  */
 export function stateDir(env: NodeJS.ProcessEnv, home: string) {
-  if (env.SUPER_PROTOTYPING_HOME) return path.join(env.SUPER_PROTOTYPING_HOME, "state");
+  if (env.SUPER_PROTOTYPING_HOME) return path.join(untilde(env.SUPER_PROTOTYPING_HOME, home), "state");
   return path.join(env.XDG_STATE_HOME || path.join(home, ".local/state"), "super-prototyping");
 }
 

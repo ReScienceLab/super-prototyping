@@ -41,9 +41,9 @@ Everything below is on `main` and reaches no install until a version is cut.
 - A macOS app. Every release attaches `Super-Prototyping-<version>-arm64.dmg`
   and `-x64.dmg`: the canvas `sp-canvas start` serves, in a window, for a
   project you pick when it opens or name after `--args`. It uses the same
-  port, the same `~/.cache` and `~/.local/state` directories and the same
-  toolkit as the command line, and says so on first launch when `uv` or the
-  toolkit is missing, with the install line to run.
+  port, the same `~/.local/state` directory and the same toolkit as the
+  command line, and says so on first launch when `uv` or the toolkit is
+  missing, with the install line to run.
 
 ## v1.4.1
 

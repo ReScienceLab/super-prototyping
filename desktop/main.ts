@@ -18,6 +18,7 @@ import {
   portAnswers,
   stateDir,
   toolchainBins,
+  untilde,
   waitForPort,
 } from "./launch.ts";
 
@@ -66,9 +67,10 @@ async function main() {
     PROTOTYPING_PROJECT_DIR: project,
     PROTOTYPING_CANVASES_DIR: path.resolve(
       project,
-      process.env.PROTOTYPING_CANVASES_DIR || "mockups/canvases",
+      untilde(process.env.PROTOTYPING_CANVASES_DIR || "mockups/canvases", home),
     ),
   };
+  if (env.SUPER_PROTOTYPING_ROOT) env.SUPER_PROTOTYPING_ROOT = untilde(env.SUPER_PROTOTYPING_ROOT, home);
 
   // The plugin root, resolved by the toolkit so the app and the CLI never disagree on it. Its
   // absence is the first-launch state: say what to install and where it was looked for, then
@@ -106,7 +108,11 @@ async function main() {
   // that was asked for and is taken is an error, not a second server racing the first: the
   // window must not open before this app's own server is up, because Electron loses a utility
   // process's early output when a window is being created as it starts.
-  let port = portArg ?? Number(process.env.SP_CANVAS_PORT);
+  let port = portArg ?? Number(process.env.SP_CANVAS_PORT || 0);
+  if (Number.isNaN(port)) {
+    dialog.showErrorBox("Bad port", "--port and SP_CANVAS_PORT take a number.");
+    return app.exit(1);
+  }
   if (port && (await portAnswers(port))) {
     dialog.showErrorBox(
       `Port ${port} is already in use`,
@@ -167,4 +173,9 @@ async function main() {
   await win.loadURL(`http://127.0.0.1:${port}/`);
 }
 
-main();
+// Electron neither exits nor says anything on a rejection in the main process; without this,
+// a failure before the window exists is an app in the Dock with nothing to show.
+main().catch((e) => {
+  dialog.showErrorBox("Super Prototyping failed to start", String(e));
+  app.exit(1);
+});

@@ -41,7 +41,7 @@ not weigh against opening a terminal.
   already answers, which is a canvas the command line started. A port that was
   asked for and is taken is an error before anything starts, not a second
   server racing the first: Electron loses a utility process's early output
-  when a window is being created as it exits, so the app never opens its
+  when a window is being created as it starts, so the app never opens its
   window before its own server answers.
 - **The plugin root.** The app asks `sp-canvas root` for it, the value
   `sp-canvas start` passes, so an agent the canvas spawns is pointed at the

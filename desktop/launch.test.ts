@@ -1,6 +1,14 @@
 import { expect, test } from "bun:test";
 import net from "node:net";
-import { augmentedPath, findOnPath, freePort, missingToolkitMessage, parseArgs, portAnswers, stateDir, waitForPort } from "./launch.ts";
+import { augmentedPath, findOnPath, freePort, missingToolkitMessage, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
+
+test("untilde expands only the current user's leading tilde", () => {
+  expect(untilde("~/sp", "/Users/u")).toBe("/Users/u/sp");
+  expect(untilde("~", "/Users/u")).toBe("/Users/u");
+  expect(untilde("~other/sp", "/Users/u")).toBe("~other/sp");
+  expect(untilde("/abs/~", "/Users/u")).toBe("/abs/~");
+  expect(stateDir({ SUPER_PROTOTYPING_HOME: "~/sp" }, "/Users/u")).toBe("/Users/u/sp/state");
+});
 
 test("stateDir mirrors sp-canvas _dirs()", () => {
   expect(stateDir({}, "/Users/a")).toBe("/Users/a/.local/state/super-prototyping");
