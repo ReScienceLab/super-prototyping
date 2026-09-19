@@ -106,6 +106,46 @@ A plus in the panel's header starts a new session: the log clears and the next
 message has nothing above it. Anything still running keeps running and stays in
 the history list — the button clears the view, it does not stop the agent.
 
+A message can carry pictures. Paste one into the box, drop one on the panel, or
+pick them with the button in the row underneath, where Claude Code keeps it, and
+each arrives as a numbered tile above the box. That number is the number the
+agent is handed beside the picture, so the sentence can say which is which: the
+layout from #1, the copy from #4. A paste writes its `#1` at the caret, since
+one picture arriving where you are already typing has said which it is; a pick
+or a drop is a handful chosen at a distance, so those only fill the tray, and
+you click a tile to write its number or the x in its corner to drop it. Delete
+a number out of the sentence by hand and its tile goes with it. A picture keeps
+one number however often you point at it, and the numbering starts over once
+nothing points at one, meaning an empty tray and no number left in the box.
+
+The other direction comes with it. Whatever a tool hands the agent as an image
+is drawn under the call that produced it, so a clone's working pictures — the
+grid over the reference, the crops — appear in the transcript as they are made.
+Nothing watches your project folder, and no tool had to be taught to do this.
+
+Pictures also come off the canvas. Hover a mockup or a piece of brand material
+and a + appears in its top-right corner; press it and that shape is in the tray
+with its number already written into the sentence. A board is a page rather than
+a picture, so the server draws it first and it comes over under its own
+`<slug>/<file>.html`, which is the name the tile is captioned with, the name the
+agent is handed, and the file it can go and open. Two fingers on the trackpad
+over the button still pan the board, and a picture is attachable anywhere inside
+its box rather than only where it has painted pixels, which for a logo on a
+transparent ground is most of it.
+
+A vector attaches by being drawn rather than refused. Every brand logo on these
+boards is an SVG, and the CLIs read png, jpeg, gif and webp and nothing else, so
+one sent whole would travel the entire way to be turned down at the far end. It
+is drawn into a PNG in the browser instead, on the way in, at a 1024px long edge
+— a vector has no pixels of its own to be scaled up past, and a 24px icon
+attached at 24px is a picture with nothing in it. Nothing SVG-shaped reaches the
+tray, the server or the agent.
+
+Twenty pictures and 24 MB to a message, counted over the whole tray rather than
+over the batch being added, and a file too big to fit is refused before it is
+read rather than after. A run's copies of your pictures are deleted when it
+ends.
+
 The canvas is dark, and its panels are drawn in Vercel's Geist: its greys and
 its accents, its icons, and Geist Sans and Geist Mono bundled so a board looks
 the same offline as online. The chat panel, the inspector, the top bar and the
