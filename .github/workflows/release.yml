@@ -280,3 +280,46 @@ jobs:
           PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
           tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist
           gh release upload "super-prototyping--v$VERSION" "$RUNNER_TEMP/canvas-dist.tgz"
+
+      # The tap's formula names one release: the source tarball of its tag and the
+      # bundle just attached, each with its sha256 (#109). Rewritten here and pushed to
+      # the tap's main, since the tap holds nothing a review would catch that `brew
+      # install` does not. HOMEBREW_TAP_TOKEN is a fine-grained token with contents
+      # write on ReScienceLab/homebrew-tap and nothing else; the org disallows deploy
+      # keys, which would have been narrower still.
+      - uses: actions/checkout@v7
+        if: steps.v.outputs.fresh == 'true'
+        with:
+          repository: ReScienceLab/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: tap
+
+      - name: Point the Homebrew formula at this release
+        if: steps.v.outputs.fresh == 'true'
+        working-directory: tap
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          set -euo pipefail
+          source=$(curl -fsSL "https://github.com/${{ github.repository }}/archive/refs/tags/super-prototyping--v$VERSION.tar.gz" | sha256sum | cut -d' ' -f1)
+          canvas=$(sha256sum "$RUNNER_TEMP/canvas-dist.tgz" | cut -d' ' -f1)
+          python3 - "$VERSION" "$source" "$canvas" <<'PY'
+          import re, sys
+          version, source, canvas = sys.argv[1:]
+          path = "Formula/super-prototyping.rb"
+          text = open(path).read()
+          # The version it names now, replaced wherever the tag spells it (both URLs;
+          # the livecheck regex does not), then the version line, then the two sha256
+          # lines in the order the formula fixes: its own, then the canvas resource's.
+          current = re.search(r'version "([^"]*)"', text).group(1)
+          text = text.replace(f"--v{current}", f"--v{version}")
+          text = text.replace(f'version "{current}"', f'version "{version}"')
+          assert text.count('sha256 "') == 2, text
+          shas = iter([source, canvas])
+          text = re.sub(r'(sha256 ")[0-9a-f]{64}', lambda m: m.group(1) + next(shas), text)
+          open(path, "w").write(text)
+          PY
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -am "super-prototyping $VERSION"
+          git push
