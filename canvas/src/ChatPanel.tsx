@@ -58,7 +58,7 @@ import type { RunSummary } from "./agentRun";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./canvasAttach";
 import { CanvasChromeContext } from "./canvasChrome";
 import { WELCOME_PAGE_SLUG } from "./canvasUrl";
-import { namedPictures, readDraft } from "./chatDraft";
+import { namedPictures, readDraft, slashWord } from "./chatDraft";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
@@ -266,9 +266,11 @@ export function ChatPanel() {
   const limit =
     usage?.window ?? newest.find((t) => t.usage?.window)?.usage?.window;
 
-  // The palette is open while the draft is a single unfinished word starting with a slash: "/cl"
-  // and not "/clone-prototype the app", since an argument means the command has been chosen.
-  const typing = /^\/(\S*)$/.exec(draft)?.[1];
+  // The palette is open while the draft ends in an unfinished word starting with a slash: "/cl"
+  // and "fix the header /cl", not "/clone-prototype the app", since an argument means the
+  // command has been chosen. The end of the draft rather than the caret, which is where typing
+  // leaves it.
+  const typing = slashWord(draft);
   const found =
     typing === undefined || slashOff
       ? []
@@ -323,14 +325,21 @@ export function ChatPanel() {
 
   const pickCommand = (name: string) => {
     const box = composer.current;
-    if (!box) return;
-    // The palette is only open while the draft is that one word, so there is nothing else in the
-    // box to keep.
-    box.replaceChildren(badgeFor(`/${name}`), document.createTextNode(" "));
-    setDraft(`/${name} `);
+    if (!box || typing === undefined) return;
+    // The palette is only open while the draft ends in the slash word, so that word is the tail
+    // of the last text in the box; the badge takes its place and whatever came before it stays.
+    const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+    let last: Text | null = null;
+    while (walker.nextNode()) last = walker.currentNode as Text;
+    if (!last) return;
+    last.data = last.data.slice(0, -(typing.length + 1));
+    const space = document.createTextNode(" ");
+    last.after(badgeFor(`/${name}`), space);
+    if (!last.data) last.remove();
+    setDraft(readDraft(box));
     setSlashAt(0);
     box.focus();
-    caretAt(box.childNodes[1]!, 1);
+    caretAt(space, 1);
   };
 
   /** A reference to an attached image: its thumbnail and its number, one atomic element. */
@@ -1055,7 +1064,7 @@ export function ChatPanel() {
             // Every edit, since a chip is deleted like any other character.
             syncRefs(box);
             // Escape closes the palette for the word it was typed in; the next one opens again.
-            if (!text.startsWith("/")) setSlashOff(false);
+            if (slashWord(text) === undefined) setSlashOff(false);
           }}
           onPaste={(e) => {
             e.preventDefault();
