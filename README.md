@@ -99,6 +99,13 @@ Then the toolkit, whichever product you came from:
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
 ```
 
+**Homebrew.** `brew install ReScienceLab/tap/super-prototyping` installs the
+skills and the prebuilt canvas app under Homebrew's prefix, with node as its
+only dependency, and `sp-canvas` finds that tree by itself. The canvas's chat
+panel points the agent at the skills there; for the skills in a terminal
+session too, install the plugin from the table. The toolkit is still the
+`uv tool install` line.
+
 One skills tree, a thin manifest per product, so a skill is never forked to be
 ported: `.claude-plugin/` for Claude Code, `.codex-plugin/` plus the
 `.agents/plugins/marketplace.json` catalogue for Codex, `.codebuddy-plugin/` for

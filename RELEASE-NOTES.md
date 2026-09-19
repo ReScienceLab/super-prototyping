@@ -38,6 +38,11 @@ Everything below is on `main` and reaches no install until a version is cut.
   `sp-canvas clean` removes them. The port can also come from
   `SP_CANVAS_PORT`. The old `~/.super-prototyping-canvas-<port>.pid` and
   `.log` files in your home are not read any more; delete them.
+- A Homebrew tap. `brew install ReScienceLab/tap/super-prototyping` installs
+  the skills and the prebuilt canvas app with node as the only dependency, and
+  `sp-canvas` finds that install on its own. The toolkit stays the
+  `uv tool install` line, which the agent runs when a skill needs it. Each
+  release points the formula at itself.
 - A macOS app. Every release attaches `Super-Prototyping-<version>-arm64.dmg`
   and `-x64.dmg`: the canvas `sp-canvas start` serves, in a window, for a
   project you pick when it opens or name after `--args`. It uses the same

@@ -322,6 +322,17 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
         C._is_our_server, C.subprocess.run, C.shutil.which = real
 
 
+def test_without_ps_the_liveness_check_refuses_to_guess():
+    """A pidfile and no `ps` (Windows, a slim container): `stop` must not SIGTERM a stranger
+    and `clean` must not delete under a live server, so neither answer is given."""
+    try:
+        with_env({"PATH": ""}, lambda: C._is_our_server(4242, "5173"))
+    except SystemExit as e:
+        assert "ps" in str(e) and "4242" in str(e), e
+    else:
+        assert False, "must not answer without ps"
+
+
 def test_the_app_is_built_when_dist_is_missing_or_older_than_a_source():
     """`start` runs one built file. An install from git has none, and a checkout that was
     edited has one from before the edit; both must build, and an up-to-date one must not."""

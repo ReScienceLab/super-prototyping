@@ -268,20 +268,20 @@ resolved. Submit to
 core only after a licence read says tldraw clears it, and after `refkit`
 discovers a browser rather than assuming one.
 
-**How the formula looks.** The Python pattern from
-<https://docs.brew.sh/Language-Specific-Formulae>: `depends_on "python@3.x"`,
-one `resource` per transitive dependency written by
-`brew update-python-resources` (few, with only Pillow and numpy), and
-`virtualenv_install_with_resources`. The canvas comes in as a second
-`resource` pointing at a prebuilt bundle attached to the GitHub Release, so the
-formula depends on no JavaScript toolchain at all. `bun` is in homebrew-core
-(1.4.2 today, checked with `brew info`), so building at install time is
-possible, but building in CI once is the pattern every release-automation
-action assumes and it keeps the formula's install to a download. The tag
-spelling `super-prototyping--v1.4.1` needs a `livecheck` block with a regex
-(<https://docs.brew.sh/Brew-Livecheck>), and `brew bump-formula-pr` or
-`dawidd6/action-homebrew-bump-formula` can open the tap PR from our own
-`release.yml` right after `gh release create`.
+**How the formula looks.** `depends_on "node"` and nothing else. It installs
+the `skills/` tree, the four manifests, `canvas/package.json` and the canvas
+bundle attached to the GitHub Release, which comes in as a `resource` with its
+sha256, so the formula depends on no JavaScript toolchain and builds nothing.
+No Python either: the Homebrew pattern for it (`python@3.x`, a `resource` per
+dependency, `virtualenv_install_with_resources`) would make `brew install`
+pull numpy, and with it openblas and gcc, half a gigabyte for a toolkit the
+agent installs itself the moment a skill needs it. The tag spelling
+`super-prototyping--v1.4.1` needs a `livecheck` block with a regex
+(<https://docs.brew.sh/Brew-Livecheck>). `release.yml` rewrites the formula's
+tag and both sha256 lines after `gh release upload` and pushes them to the
+tap's main; `brew bump-formula-pr` was not used because it knows the formula's
+own url and sha256 and not the resource's. The formula lives at
+<https://github.com/ReScienceLab/homebrew-tap>.
 
 **Other channels, by effort.** Publishing `super-prototyping-tools` to PyPI
 with trusted publishing is the smallest lift of all, since `pyproject.toml`
