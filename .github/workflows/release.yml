@@ -8,8 +8,9 @@ name: Release
 #   1. Dispatch this workflow with a version. It runs the gates, bumps every
 #      manifest with scripts/bump-version.sh, and opens a release PR.
 #   2. Merging that PR changes .claude-plugin/plugin.json on main, which fires
-#      the second half: it tags super-prototyping--v<version> and cuts the
-#      GitHub Release from the matching RELEASE-NOTES.md section.
+#      the second half: it tags super-prototyping--v<version>, cuts the
+#      GitHub Release from the matching RELEASE-NOTES.md section, and attaches
+#      the canvas, built without the example boards, as canvas-dist.tgz.
 #
 # Nothing tags a commit that is not on main, and the second half only acts when
 # the version actually changed in that push: the tag ruleset forbids moving a
@@ -253,3 +254,27 @@ jobs:
             gh release create "super-prototyping--v$VERSION" $prerelease \
               --title "super-prototyping $VERSION" --generate-notes
           fi
+
+      - uses: oven-sh/setup-bun@v2
+        if: steps.v.outputs.fresh == 'true'
+
+      # The canvas, built once here so that an install does not have to: `sp-canvas
+      # start` builds it from source today and needs Bun on the user's machine for it,
+      # and the localhost app (#108) and the Homebrew formula (#109) fetch this bundle
+      # instead. The example boards stay out, because an install shows the user's
+      # boards and not this repo's; PROTOTYPING_CANVASES_DIR is the same knob
+      # `sp-canvas start` sets, and an empty directory builds an empty canvas. After
+      # the release rather than before it, because nothing consumes the bundle yet:
+      # a failure here is a missing asset, which `gh release upload` by hand adds to
+      # a release that is already cut, not a version that never shipped.
+      - name: Attach the canvas, built without the example boards
+        if: steps.v.outputs.fresh == 'true'
+        working-directory: canvas
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          bun install --frozen-lockfile
+          PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
+          tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist
+          gh release upload "super-prototyping--v$VERSION" "$RUNNER_TEMP/canvas-dist.tgz"
