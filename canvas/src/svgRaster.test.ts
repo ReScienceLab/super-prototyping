@@ -7,7 +7,8 @@ const unmeasured = { w: 0, h: 0 };
 
 describe("rasterSize", () => {
   it("scales a stated size so its long edge is the raster edge", () => {
-    const svg = '<svg width="200" height="100" xmlns="http://www.w3.org/2000/svg"/>';
+    const svg =
+      '<svg width="200" height="100" xmlns="http://www.w3.org/2000/svg"/>';
     expect(rasterSize(svg, unmeasured)).toEqual({ w: 1024, h: 512 });
   });
 
@@ -32,5 +33,13 @@ describe("rasterSize", () => {
 
   it("gives an unparseable file a square rather than a zero-sized canvas", () => {
     expect(rasterSize("<svg", unmeasured)).toEqual({ w: 1024, h: 1024 });
+  });
+
+  it("keeps a pixel of a sliver too thin to round to one", () => {
+    // 5000:1 scales to 0.2 of a pixel. Rounded it is nothing, and a canvas with a zero side
+    // hands toBlob back no blob at all, which rasterizeSvg then reports as a failed drawing.
+    const svg =
+      '<svg viewBox="0 0 5000 1" xmlns="http://www.w3.org/2000/svg"/>';
+    expect(rasterSize(svg, unmeasured)).toEqual({ w: 1024, h: 1 });
   });
 });

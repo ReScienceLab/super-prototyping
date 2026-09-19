@@ -37,12 +37,16 @@ export function rasterSize(
 ): { w: number; h: number } {
   // Malformed markup parses to a <parsererror> document, whose attributes are all absent: that
   // falls through to `natural` on its own, so there is nothing here to catch.
-  const root = new DOMParser().parseFromString(markup, "image/svg+xml")
-    .documentElement;
+  const root = new DOMParser().parseFromString(
+    markup,
+    "image/svg+xml",
+  ).documentElement;
   const px = (raw: string | null) => {
     const n = Number.parseFloat(raw ?? "");
     // A percentage or an em is a size relative to a box this has no business inventing.
-    return Number.isFinite(n) && n > 0 && !/%|e[mx]\s*$/i.test(raw ?? "") ? n : 0;
+    return Number.isFinite(n) && n > 0 && !/%|e[mx]\s*$/i.test(raw ?? "")
+      ? n
+      : 0;
   };
   const box = (root.getAttribute("viewBox") ?? "").split(/[\s,]+/).map(Number);
   const side = (attr: string, i: number, fallback: number) =>
@@ -55,7 +59,11 @@ export function rasterSize(
   // only guess left, and it is better than a zero-sized canvas, which throws.
   if (!(w > 0) || !(h > 0)) return { w: RASTER_EDGE, h: RASTER_EDGE };
   const k = RASTER_EDGE / Math.max(w, h);
-  return { w: Math.round(w * k), h: Math.round(h * k) };
+  // Rounded up off zero, not just rounded. Past about 2048:1 — a hairline rule, a wide divider —
+  // the short edge lands under half a pixel and rounds away, and a canvas with a zero side draws
+  // nothing for toBlob to hand back. One pixel of a sliver is the sliver; none of it throws.
+  const edge = (side: number) => Math.max(1, Math.round(side * k));
+  return { w: edge(w), h: edge(h) };
 }
 
 /** The same picture as a PNG, named for the file it came from. Rejects if it will not draw. */
