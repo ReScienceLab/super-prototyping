@@ -67,6 +67,7 @@ import { renderMarkdown } from "./markdown";
 import { rasterizeSvg } from "./svgRaster";
 
 const RUNS_KEY = "sp-chat-runs";
+const QUEUE_KEY = "sp-chat-queue";
 const AGENT_KEY = "sp-chat-agent";
 const CHOICE_KEY = "sp-chat-choice";
 const COMMANDS_KEY = "sp-chat-commands";
@@ -114,6 +115,12 @@ interface AgentRow {
   models: AgentModel[];
   efforts: string[];
   missing: string;
+}
+
+/** A message sent while a run was on, held for the next one. */
+interface Queued {
+  message: string;
+  images: Attached[];
 }
 
 /** A turn with nothing in it yet: the run's events, from `start` on, fill in the rest. */
@@ -181,6 +188,13 @@ export function ChatPanel() {
   // repeats — posted the same message and its images again, to be told an agent was already
   // running.
   const [sending, setSending] = useState(false);
+  // Messages sent while an agent was running, to go one at a time as each run ends — the server
+  // takes one run at a time. In sessionStorage like the runs, because a run that writes a board
+  // reloads the page, which is exactly when the message typed during it would otherwise be
+  // lost.
+  const [queued, setQueued] = useState<Queued[]>(() =>
+    JSON.parse(sessionStorage.getItem(QUEUE_KEY) ?? "[]"),
+  );
   // Arrival order, and it never goes back: see the numbers in the note above.
   const nextN = useRef(1);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -240,6 +254,15 @@ export function ChatPanel() {
   }, [turns, chatCollapsed]);
 
   const running = turns.find((t) => !t.end);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(QUEUE_KEY, JSON.stringify(queued));
+    } catch {
+      // ponytail: images are data URLs and the tray takes 24 MB, sessionStorage a few; a queue
+      // that does not fit lives to the next reload only. IndexedDB if that bites.
+    }
+  }, [queued]);
   // The id until the server's list arrives, a moment after mount.
   const nameOf = (id: AgentId) => agents.find((a) => a.id === id)?.name ?? id;
   const title = turns[0]?.title ?? nameOf(agent);
@@ -568,12 +591,20 @@ export function ChatPanel() {
     setChoices(next);
   };
 
-  const send = async () => {
-    const message = draft.trim();
-    if (!message || running || sending) return;
-    // Sending clears the draft without passing through onInput, so an Escape that closed the
-    // palette for this word has to be forgotten here too, or the next word never opens one.
-    setSlashOff(false);
+  /** The box and the tray emptied, once what they held is away. */
+  const clear = () => {
+    composer.current?.replaceChildren();
+    setDraft("");
+    setAttached([]);
+    // The sent message keeps its own numbers — the transcript draws them from the turn — so
+    // the next one starts at #1 rather than carrying on from where this one stopped. The
+    // emptied box is not a box that has had its chips deleted: forget them, or the first edit
+    // after this would read them as gone and take the next message's pictures with them.
+    named.current = [];
+  };
+
+  /** One message to the server as a run; false when it was refused or never answered. */
+  const post = async ({ message, images: attached }: Queued) => {
     setSendError(null);
     setSending(true);
     try {
@@ -594,32 +625,62 @@ export function ChatPanel() {
           })),
         }),
       });
-      if (!res.ok) return setSendError(await res.text());
+      if (!res.ok) {
+        setSendError(await res.text());
+        return false;
+      }
       const { runId } = await res.json();
-      // Emptied only once it is away — a refused message is still in the box, chips and all, to
-      // be fixed and sent again.
-      composer.current?.replaceChildren();
-      setDraft("");
-      setAttached([]);
-      // The sent message keeps its own numbers — the transcript draws them from the turn — so
-      // the next one starts at #1 rather than carrying on from where this one stopped. The
-      // emptied box is not a box that has had its chips deleted: forget them, or the first edit
-      // after this would read them as gone and take the next message's pictures with them.
-      named.current = [];
       const images = attached.map(({ n, name }) => ({ n, name }));
       setTurns((ts) => [
         ...ts,
         { ...turnFor(runId), prompt: message, agent, images },
       ]);
       follow(runId);
+      return true;
     } catch (error) {
       // No answer at all, as against a refusal: the dev server restarting under an edit. Left
       // to itself this was an unhandled rejection, and a message that looked sent and ignored.
       setSendError(String(error));
+      return false;
     } finally {
       setSending(false);
     }
   };
+
+  const send = async () => {
+    const message = draft.trim();
+    if (!message || sending) return;
+    // Sending clears the draft without passing through onInput, so an Escape that closed the
+    // palette for this word has to be forgotten here too, or the next word never opens one.
+    setSlashOff(false);
+    // While an agent is at work, Enter queues, as in Claude Code's terminal: the box empties as
+    // if sent, and the message goes when the run ends.
+    if (running) {
+      setQueued((q) => [...q, { message, images: attached }]);
+      return clear();
+    }
+    // Emptied only once it is away — a refused message is still in the box, chips and all, to
+    // be fixed and sent again.
+    if (await post({ message, images: attached })) clear();
+  };
+
+  // The queue drains one message per run ended, not one per render: the head is taken off before
+  // the post, and put back if the post fails, so a refusal shows its error and waits for the next
+  // end rather than retrying every time something else changes. The ref rather than `sending`,
+  // because StrictMode runs a mount effect twice on the same state.
+  const draining = useRef(false);
+  useEffect(() => {
+    if (running || draining.current || !queued.length) return;
+    const [next, ...rest] = queued;
+    draining.current = true;
+    setQueued(rest);
+    void post(next!).then((ok) => {
+      draining.current = false;
+      if (!ok) setQueued((q) => [next!, ...q]);
+    });
+    // The head is read when a run ends, and only then.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!running]);
 
   // At mount, so the seconds a cold server spends asking the CLI are spent while the canvas is
   // being looked at, and again on the way into a slash word, so a list learned since — off a run,
@@ -981,6 +1042,26 @@ export function ChatPanel() {
             )}
           </article>
         ))}
+        {/* What is waiting for the run above to end: the bubble each will be, faded, with a way
+            out. Editing one is taking it out and typing it again. */}
+        {queued.map((q, i) => (
+          <div key={i} className="sp-chat-you sp-chat-queued">
+            <span className="sp-chat-say">
+              {q.message}
+              {q.images.length > 0 &&
+                ` (${q.images.length} ${q.images.length === 1 ? "image" : "images"})`}
+            </span>
+            <button
+              type="button"
+              className="sp-chat-unqueue"
+              aria-label="Remove queued message"
+              title="Remove"
+              onClick={() => setQueued((qs) => qs.filter((_, j) => j !== i))}
+            >
+              ✕
+            </button>
+          </div>
+        ))}
       </div>
       {/* What is attached, in the order it arrived. The tile is a crop — it only has to say which
           image this is — and clicking it writes that number into the sentence. */}
@@ -1051,7 +1132,9 @@ export function ChatPanel() {
           role="textbox"
           aria-multiline="true"
           aria-label={`Message to ${nameOf(agent)}`}
-          data-placeholder={running ? "Working…" : "Type / for commands"}
+          data-placeholder={
+            running ? "Working… Enter queues a message" : "Type / for commands"
+          }
           // For the placeholder: typed into and then emptied, the box keeps a lone <br>, which
           // is not `:empty` to CSS, and a box that looks blank is one that says nothing.
           data-empty={draft.trim() ? undefined : ""}

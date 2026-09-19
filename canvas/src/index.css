@@ -1560,6 +1560,27 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   background: var(--sp-sel);
 }
 
+/* A message waiting on the run above it: the bubble it will be, faded, with a way out. */
+.sp-chat-queued {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  opacity: 0.6;
+}
+
+.sp-chat-unqueue {
+  flex: none;
+  margin-top: 2px;
+  color: var(--sp-text-2);
+  font-size: 10px;
+  line-height: 14px;
+  cursor: pointer;
+}
+
+.sp-chat-unqueue:hover {
+  color: var(--sp-text);
+}
+
 .sp-chat-say {
   display: block;
   white-space: pre-wrap;
