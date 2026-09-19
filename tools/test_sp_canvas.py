@@ -141,8 +141,19 @@ def test_the_app_is_built_when_dist_is_missing_or_older_than_a_source():
         os.utime(app / f, (now - 10, now - 10))
     os.utime(app / "dist/server.mjs", (now, now))
     assert not C._needs_build(app)
-    os.utime(app / "src/App.tsx", (now + 10, now + 10))
-    assert C._needs_build(app)
+    # The build's own output and an installed dependency are not sources.
+    (app / "node_modules/x").mkdir(parents=True)
+    for f in ("dist/index.html", "node_modules/x/index.js"):
+        (app / f).write_text("")
+        os.utime(app / f, (now + 10, now + 10))
+    assert not C._needs_build(app)
+    # An entry page and a `public/` file are, as much as anything under `src/`.
+    for f in ("src/App.tsx", "index.html", "public/favicon.ico"):
+        (app / f).parent.mkdir(exist_ok=True)
+        (app / f).write_text("")
+        os.utime(app / f, (now + 10, now + 10))
+        assert C._needs_build(app), f
+        os.utime(app / f, (now - 10, now - 10))
 
 
 def test_the_tag_prefix_matches_the_one_the_release_actually_cuts():

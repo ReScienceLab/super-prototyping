@@ -263,10 +263,13 @@ def _needs_build(app: Path) -> bool:
     if not server.is_file():
         return True
     built = server.stat().st_mtime
-    sources = [app / "vite.config.ts", app / "package.json"]
-    for sub in ("src", "server"):
-        sources += [Path(d) / f for d, _, files in os.walk(app / sub) for f in files]
-    return any(src.stat().st_mtime > built for src in sources if src.exists())
+    # Everything under the app but its own output and the dependency tree: the entry pages,
+    # `public/`, the configs and the lockfile are inputs of the build as much as `src/` is.
+    for d, dirs, files in os.walk(app):
+        dirs[:] = [x for x in dirs if x not in ("dist", "node_modules")]
+        if any((Path(d) / f).stat().st_mtime > built for f in files):
+            return True
+    return False
 
 
 def cmd_start(a):

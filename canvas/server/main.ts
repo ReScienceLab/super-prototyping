@@ -53,23 +53,29 @@ function serveStatic(req: http.IncomingMessage, res: http.ServerResponse) {
     pathname = "/";
   }
   if (pathname.endsWith("/")) pathname += "index.html";
-  const file = path.join(dist, pathname);
-  const found =
-    !pathname.split("/").includes("..") &&
+  const send = (status: number, file: string, cacheControl: string) => {
+    res.statusCode = status;
+    res.setHeader("Content-Type", TYPES[path.extname(file)] ?? "application/octet-stream");
+    res.setHeader("Cache-Control", cacheControl);
+    fs.createReadStream(file).pipe(res);
+  };
+  // Resolved before it is checked: `resolve` folds any `..` in, so a path that escapes
+  // dist no longer starts with it.
+  const file = path.resolve(dist, "." + pathname);
+  if (
     file.startsWith(dist + path.sep) &&
-    fs.statSync(file, { throwIfNoEntry: false })?.isFile();
-  const target = found ? file : path.join(dist, "404.html");
-  res.statusCode = found ? 200 : 404;
-  res.setHeader("Content-Type", TYPES[path.extname(target)] ?? "application/octet-stream");
-  // Vite names every built asset by its content hash, so those never change under a URL;
-  // the pages and the board files it emitted are read fresh.
-  res.setHeader(
-    "Cache-Control",
-    found && pathname.startsWith("/assets/")
-      ? "public, max-age=31536000, immutable"
-      : "no-cache",
-  );
-  fs.createReadStream(target).pipe(res);
+    fs.statSync(file, { throwIfNoEntry: false })?.isFile()
+  ) {
+    // Vite names every built asset by its content hash, so those never change under a URL;
+    // the pages and the board files it emitted are read fresh.
+    send(
+      200,
+      file,
+      pathname.startsWith("/assets/") ? "public, max-age=31536000, immutable" : "no-cache",
+    );
+  } else {
+    send(404, path.join(dist, "404.html"), "no-cache");
+  }
 }
 
 const sp = createSpServer({ canvasesDir, projectDir, repoRoot });
@@ -83,5 +89,9 @@ server.listen(port, "127.0.0.1", () => {
   console.log(`boards   ${canvasesDir}`);
 });
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
-  process.on(signal, () => server.close(() => process.exit(0)));
+  process.on(signal, () => {
+    server.close(() => process.exit(0));
+    // `close` waits for every request to finish, and an event stream never does.
+    server.closeAllConnections();
+  });
 }
