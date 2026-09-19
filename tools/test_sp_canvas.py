@@ -210,10 +210,14 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     attached, fetched once into the cache and never fetched again while it is there."""
     sp_home = Path(tempfile.mkdtemp())
     env = dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home))
-    dist = lambda root, version: with_env(env, lambda: with_toolkit(version, lambda: C._dist(root)))
+
+    def dist(root, version):
+        """`_dist` of a plugin root whose manifest says `version`."""
+        (root / ".claude-plugin/plugin.json").write_text(json.dumps({"version": version}))
+        return with_env(env, lambda: C._dist(root))
 
     # node_modules marks a checkout being worked on: its own dist, even with a release known.
-    dev = canvas_app_at(Path(tempfile.mkdtemp()))
+    dev = canvas_app_at(plugin_root("1.4.2"))
     (dev / "canvas/node_modules").mkdir()
     (dev / "canvas/dist").mkdir()
     (dev / "canvas/dist/server.mjs").write_text("")
@@ -223,7 +227,7 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
 
     # A bare install with a version: the bundle. Fetched from the tag's release asset, into
     # one folder per version, whole — no temporary directory left beside it.
-    install = canvas_app_at(Path(tempfile.mkdtemp()))
+    install = canvas_app_at(plugin_root("1.4.2"))
     (got, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.4.2"))
     assert got == sp_home / "cache/1.4.2/dist"
     assert urls == [f"https://github.com/{C.REPO}/releases/download/{C.TAG_PREFIX}1.4.2/canvas-dist.tgz"]
@@ -249,6 +253,11 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     assert again == got and urls == []
     (newer, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.5.0"))
     assert newer == sp_home / "cache/1.5.0/dist" and len(urls) == 1
+    # The version is the manifest's, spelled as the tag is. The installed toolkit would say
+    # 1.5.0rc1 for this release, and no tag is spelled that way.
+    (rc, urls) = with_release(canvas_bundle(), lambda: with_toolkit("1.5.0rc1", lambda: dist(install, "1.5.0-rc.1")))
+    assert rc == sp_home / "cache/1.5.0-rc.1/dist"
+    assert urls == [f"https://github.com/{C.REPO}/releases/download/{C.TAG_PREFIX}1.5.0-rc.1/canvas-dist.tgz"]
 
     # No release to fetch: say so, with the URL that failed, and leave the cache as it was.
     try:
@@ -346,6 +355,16 @@ def test_the_app_is_built_when_dist_is_missing_or_older_than_a_source():
 def test_the_tag_prefix_matches_the_one_the_release_actually_cuts():
     spec = json.loads((Path(__file__).resolve().parent.parent / ".version-bump.json").read_text())
     assert C.TAG_PREFIX == spec["tagPrefix"]
+
+
+def test_the_bundle_fetched_is_the_one_the_release_workflow_attaches():
+    """Two files spell the asset: release.yml uploads it, _bundle_dist downloads it and
+    expects one top-level `dist/` inside. Neither may move without the other."""
+    workflow = (Path(__file__).resolve().parent.parent / ".github/workflows/release.yml").read_text()
+    assert 'tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist' in workflow
+    assert 'gh release upload "super-prototyping--v$VERSION" "$RUNNER_TEMP/canvas-dist.tgz"' in workflow
+    import inspect
+    assert "/canvas-dist.tgz" in inspect.getsource(C._bundle_dist)
 
 
 def test_the_newest_cached_release_wins_and_a_prerelease_ranks_below_it():

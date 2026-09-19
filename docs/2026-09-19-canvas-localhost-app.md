@@ -77,10 +77,11 @@ checkout above it, which is why the server takes the plugin root from
 is where the skill an agent is pointed at lives.
 
 A checkout with `canvas/node_modules`, or with a `dist` already built, is a
-developer's. It serves its own `dist`, rebuilt when a source is newer, and a
-toolkit running from source (no installed version) builds the same way. The
-bundle's version follows the toolkit's, not the plugin manifest's: the
-toolkit is the thing that runs, and `start` already says when the two drift.
+developer's. It serves its own `dist`, rebuilt when a source is newer. The
+bundle's version is the plugin manifest's, not the installed toolkit's: the
+manifest is what `claude plugin tag` tagged, spelled as the tag is, where the
+toolkit reports PEP 440's `1.5.0rc1` for the tag's `1.5.0-rc.1` and no
+release is spelled that way. `start` already says when the two drift.
 
 ## Files in the home directory
 

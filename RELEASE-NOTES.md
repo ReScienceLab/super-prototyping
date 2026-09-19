@@ -23,7 +23,7 @@ Everything below is on `main` and reaches no install until a version is cut.
 
 - `sp-canvas start` now runs the canvas as a small localhost app instead of
   Vite's dev server. On first start it downloads the canvas built for the
-  toolkit's version from that release (`canvas-dist.tgz`) into
+  plugin's version from that release (`canvas-dist.tgz`) into
   `~/.cache/super-prototyping/<version>/` and runs it with node or bun, so an
   install needs no bun and no build. A checkout with `canvas/node_modules`
   still serves its own build, rebuilt when a source is newer. It opens the

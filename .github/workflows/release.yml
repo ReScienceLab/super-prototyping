@@ -259,14 +259,16 @@ jobs:
         if: steps.v.outputs.fresh == 'true'
 
       # The canvas, built once here so that an install does not have to: `sp-canvas
-      # start` builds it from source today and needs Bun on the user's machine for it,
-      # and the localhost app (#108) and the Homebrew formula (#109) fetch this bundle
-      # instead. The example boards stay out, because an install shows the user's
-      # boards and not this repo's; PROTOTYPING_CANVASES_DIR is the same knob
-      # `sp-canvas start` sets, and an empty directory builds an empty canvas. After
-      # the release rather than before it, because nothing consumes the bundle yet:
-      # a failure here is a missing asset, which `gh release upload` by hand adds to
-      # a release that is already cut, not a version that never shipped.
+      # start` fetches this bundle for the plugin's version on first start (#108), by
+      # this asset name under this tag, and the Homebrew formula (#109) will too. The
+      # example boards stay out, because an install shows the user's boards and not
+      # this repo's; PROTOTYPING_CANVASES_DIR is the same knob `sp-canvas start` sets,
+      # and an empty directory builds an empty canvas. After the release rather than
+      # before it: the tag is pushed by now and the ruleset forbids moving it, so a
+      # build failure must not leave a tag with no release behind it. A failure here
+      # is a missing asset, which `gh release upload` by hand adds to a release that
+      # is already cut; until it is there, every `sp-canvas start` on this version
+      # stops and prints the URL it wanted.
       - name: Attach the canvas, built without the example boards
         if: steps.v.outputs.fresh == 'true'
         working-directory: canvas

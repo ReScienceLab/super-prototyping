@@ -17,7 +17,7 @@ app without touching a single board you have authored.
 Boards default to ./mockups/canvases under the current directory. Override with
 --canvases or PROTOTYPING_CANVASES_DIR. The plugin is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer. The app served is
-the canvas built for this toolkit's release, fetched once into
+the canvas built for the plugin's release, fetched once into
 ~/.cache/super-prototyping/<version>/; a checkout with node_modules serves its own
 canvas/dist. The port is --port or SP_CANVAS_PORT. Nothing is read from a file.
 """
@@ -332,17 +332,18 @@ def _bundle_dist(version):
 
 def _dist(root: Path) -> Path:
     """The `dist/` to serve, holding `server.mjs`: the checkout's own when it is being worked
-    on, else the canvas built for this toolkit's release.
+    on, else the canvas built for the plugin's release.
 
     A checkout with `node_modules`, or with a dist already built, is a developer's: it serves
     what is on disk, rebuilt when a source is newer, and this is the one path that still
-    needs bun. A plugin install is a bare checkout of a tag, and the toolkit beside it was
-    installed from the same tag, so the bundle that release attached is the app it should
-    run, and nothing but node or bun is needed to run it. A toolkit running from source names
-    no release, and builds like a developer.
+    needs bun. A plugin install is a bare checkout of a tag, so the bundle that release
+    attached is the app it should run, and nothing but node or bun is needed to run it. The
+    version is the manifest's, not the toolkit's: the manifest is what `claude plugin tag`
+    tagged, spelled as the tag is, where the installed toolkit reports PEP 440's `1.5.0rc1`
+    for the tag's `1.5.0-rc.1`. A root with no manifest names no release, and builds.
     """
     app = root / "canvas"
-    version = _toolkit_version()
+    version = _plugin_version(root)
     if not version or (app / "node_modules").is_dir() or (app / "dist/server.mjs").is_file():
         if _needs_build(app):
             if not shutil.which("bun"):

@@ -192,7 +192,7 @@ sp-canvas start
 ```
 
 On first run it downloads the canvas app built for your version of the
-toolkit into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
+plugin into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
 against `./mockups/canvases` with node or bun, opens the browser, and prints
 the address. `--canvases DIR` points it somewhere else, `--port N` (or
 `SP_CANVAS_PORT`) moves it, `sp-canvas status` and `sp-canvas stop` do what
