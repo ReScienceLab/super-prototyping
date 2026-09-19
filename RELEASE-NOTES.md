@@ -21,6 +21,14 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.4.1
+
+2026-09-19. Three fixes to the chat panel's composer: the command palette
+opens from a slash typed mid-sentence, Enter queues a message while the agent
+is working, and Up recalls what was sent. Nothing in the toolkit changed, but
+it carries the same version, so move it too with the README's `uv tool
+install` line, or `sp-canvas start` will say the two have drifted.
+
 ### The chat panel
 
 - **`/` opens the commands mid-sentence.** The palette used to open only when
