@@ -21,153 +21,166 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-The canvas has a chat panel on the left when it runs from `sp-canvas start`:
-a message to Claude Code, run in your project with its permission prompts
-off, and what it does as it happens — each tool call as a line, its reply as
-text. A board it rewrites reloads the canvas as any rewrite does, and the
-panel picks the run back up. `sp-canvas start` now tells the server which
-project it is in (`PROTOTYPING_PROJECT_DIR`); without that, the panel says it
-cannot run.
+## v1.4.0
 
-The panel's header names the conversation — the agent's own title for it once
-it has given one — behind the agent's mark, lists the server's recent runs
-behind a history button, and folds to a rail. The rail is the mark; click it
-to open the panel again. The list lives in the dev server's memory and starts
-empty when it restarts.
+2026-09-19. The canvas gets a chat panel: talk to Claude Code or Codex about
+the board in front of you, hand it pictures and boards off the canvas itself,
+and see what it draws come back into the conversation. The canvas is dark now
+and drawn in Vercel's Geist, and its top bar is down to a switch and two
+destinations. This release needs the toolkit reinstalled, not only the plugin
+updated.
 
-The panel talks to Codex as well as Claude Code. The mark on the header is the
-switch: click it for a menu of the agents the server found on your PATH, pick
-one, and the mark becomes that agent's; the choice is kept and sent with each
-message, and every turn and history row shows the mark of the agent that ran
-it. An agent that is not installed is in the menu greyed, with how to get it.
-Codex runs in its own workspace sandbox with the boards folder added, takes
-the panel's briefing ahead of your message since it has no system prompt, and
-answers in paragraphs rather than word by word, which is how `codex exec`
-works. If your Codex is older than the model its config names, the first
-message fails with the server's own sentence saying so; update the CLI or set
-`model` in `~/.codex/config.toml`.
+### The chat panel
 
-The agent's replies render as markdown — bold, lists, fences and tables, with
-wide ones scrolling inside the message — rather than as source.
+- **A chat panel on the left.** When the canvas runs from `sp-canvas start`
+  there is a message box beside the boards. What you send runs Claude Code in
+  your project with its permission prompts off, and what it does arrives as it
+  happens, each tool call a line and its reply as text. A board it rewrites
+  reloads the canvas the way any rewrite does, and the panel picks the run back
+  up. `sp-canvas start` now tells the server which project it is in
+  (`PROTOTYPING_PROJECT_DIR`); without that, the panel says it cannot run.
+- **Codex as well as Claude Code.** The mark on the header is the switch: click
+  it for a menu of the agents the server found on your PATH, and pick one. The
+  choice is kept and sent with each message, and every turn and history row
+  shows the mark of the agent that ran it. An agent that is not installed is in
+  the menu greyed, with how to get it. Codex runs in its own workspace sandbox
+  with the boards folder added, takes the panel's briefing ahead of your
+  message since it has no system prompt, and answers in paragraphs rather than
+  word by word, which is how `codex exec` works. If your Codex is older than
+  the model its config names, the first message fails with the server's own
+  sentence saying so; update the CLI or set `model` in `~/.codex/config.toml`.
+- **The header names the conversation**, with the agent's own title for it once
+  it has given one, and lists the server's recent runs behind a history button.
+  That list lives in the dev server's memory and starts empty when it restarts.
+  The name comes from a turn that had work to do: a reply that opens by saying
+  what it is about to do, runs a tool and titles itself after that is titled in
+  the header and the history list, where the title used to be left sitting in
+  the middle of the reply instead.
+- **Replies render as markdown** — bold, lists, fences and tables, with wide
+  ones scrolling inside the message — rather than as source.
+- **Which model, which effort, and what the last message cost**, in a row under
+  the box. The model list is the agent's own — for Codex it is the list its own
+  picker shows, read from its cache, so a model you gained by updating the CLI
+  is there without waiting for us — and the effort levels are the ones that
+  model actually takes. Both start at Default, which sends nothing and leaves
+  your `~/.codex/config.toml` or Claude's settings in charge; pick one and it
+  is remembered per agent. The number on the right is the tokens that message
+  used against the model's window. It is that message, not the conversation:
+  each one still runs as its own process with no memory of the last.
+- **Type `/` and the commands are listed.** Claude Code's are your own, the
+  project's, the plugins' and the skills, `/clone-prototype` among them, with
+  the arrow keys and Enter to take one. They already worked if you knew the
+  name; now you can see them. The list is the CLI's own, learned from the runs
+  you make, so it is there from the first answer of a session and matches
+  whatever you have installed. Codex gets the same palette, listing its skills
+  — your own, the plugins' and this project's. It is not the same mechanism
+  underneath: Claude Code runs a slash command itself, while Codex is told what
+  its skills are and what they are for, and a `/name` goes to the model as the
+  text it is.
+- **A plus in the header starts a new session.** The log clears and the next
+  message has nothing above it. Anything still running keeps running and stays
+  in the history list: the button clears the view, it does not stop the agent.
 
-The conversation gets its name from a turn that had work to do: a reply that
-opens by saying what it is about to do, runs a tool and titles itself after
-that is titled in the header and the history list, where the title used to be
-left sitting in the middle of the reply instead.
+### Pictures in the chat
 
-This needs the toolkit reinstalled, not only the plugin updated: `sp-canvas`
-1.2.0 predates `PROTOTYPING_PROJECT_DIR`, so a canvas it starts comes up with
-the panel but every message answers 503. Re-run the README's `uv tool install`
-line with `--force`.
+- **A message can carry pictures.** Paste one into the box, drop one on the
+  panel, or pick them with the button in the row underneath, where Claude Code
+  keeps it, and each arrives as a numbered tile above the box. That number is
+  the number the agent is handed beside the picture, so the sentence can say
+  which is which: the layout from #1, the copy from #4. A paste writes its `#1`
+  at the caret, since one picture arriving where you are already typing has
+  said which it is; a pick or a drop is a handful chosen at a distance, so
+  those only fill the tray, and you click a tile to write its number or the x
+  in its corner to drop it. Delete a number out of the sentence by hand and its
+  tile goes with it. A picture keeps one number however often you point at it,
+  and the numbering starts over once nothing points at one, meaning an empty
+  tray and no number left in the box.
+- **The pictures a tool draws come back the same way.** Whatever a tool hands
+  the agent as an image is drawn under the call that produced it, so a clone's
+  working pictures — the grid over the reference, the crops — appear in the
+  transcript as they are made. Nothing watches your project folder, and no tool
+  had to be taught to do this.
+- **Hand a board or a picture over from the canvas.** Hover a mockup or a piece
+  of brand material and a **+** appears in its top-right corner; press it and
+  that shape is in the tray with its number already written into the sentence.
+  A board is a page rather than a picture, so the server draws it first and it
+  comes over under its own `<slug>/<file>.html`, which is the name the tile is
+  captioned with, the name the agent is handed, and the file it can go and
+  open. Two fingers on the trackpad over the button still pan the board, and a
+  picture is attachable anywhere inside its box rather than only where it has
+  painted pixels, which for a logo on a transparent ground is most of it.
+- **A vector attaches by being drawn rather than refused.** Every brand logo on
+  these boards is an SVG, and the CLIs read png, jpeg, gif and webp and nothing
+  else, so one sent whole would travel the entire way to be turned down at the
+  far end. It is drawn into a PNG in the browser instead, on the way in, at a
+  1024px long edge: a vector has no pixels of its own to be scaled up past, and
+  a 24px icon attached at 24px is a picture with nothing in it. Nothing
+  SVG-shaped reaches the tray, the server or the agent.
+- **Twenty pictures and 24 MB to a message**, counted over the whole tray
+  rather than over the batch being added, and a file too big to fit is refused
+  before it is read rather than after. A run's copies of your pictures are
+  deleted when it ends.
 
-The canvas top bar is down to a switch, the page name and two destinations:
-collapse the chat panel, Export to Figma, Brand kit. Everything else on it
-moved. Shape editing, meaning undo, redo, delete, duplicate and the overflow
-of aligns, distributes and reorders, is on the keyboard and the right-click
-menu, where it already was. These boards are written from files by a
-generator, so six buttons for nudging them crowded out the two the bar is
-for. Comment, clone and force refresh join them on the right button. All
-three act on what is under the cursor, or on the page it is on, which is what
-a right-click has already picked out. The hamburger beside the page name goes
-too, and so do the zoom readout and minimap toggle in the bottom-left corner,
-where they sat under the chat panel's composer. Zoom is the trackpad, ⌘+ and
-⌘-, and ⇧1 to fit the page.
+### The canvas
 
-The switch for the chat panel is in the canvas's own top-left corner, which is
-the one place it can be whether the panel is open or shut. In the panel's
-header it went away with the panel and needed a second control to bring it
-back.
+- **Dark, and drawn in Vercel's Geist:** its greys and its accents, its icons,
+  and Geist Sans and Geist Mono bundled so a board looks the same offline as
+  online. The chat panel, the inspector, the top bar and the canvas they sit
+  around all read as one app now, on one ground, separated by hairlines rather
+  than by shade. tldraw's own chrome comes with them. Its menus, its toolbar
+  and its context menu read the same tokens, so a page menu is the same black
+  card with the same hairline as a panel's menu, and an icon button in the top
+  bar is the same grey, and lights the same way, as one in the chat panel's
+  header beside it. The glyphs are Geist's own set rather than a transcription
+  of it, and the scrollbars are the app's rather than the platform's: one thin
+  grey thumb on whatever ground it is over, in the transcript, the slash menu,
+  the history, the notes and the inspector alike. Your boards are untouched. A
+  mockup is drawn by its own generator and keeps whatever palette it was
+  measured in, scrollbars included.
+- **A board sits on the canvas, not on a white card.** This is the one thing
+  about a board that does change, and it is what the dark ground exposed. A
+  frame paints an opaque white background of its own underneath whatever the
+  board draws, invisible while the canvas was white and a card around every
+  phone once it is not. The canvas releases it, so the canvas shows through
+  wherever a board paints nothing and every pixel the board does paint stays as
+  it was. A board that wants a ground, such as a token sheet or an evidence
+  sheet, still declares one and looks exactly as it did.
+- **The top bar is down to a switch, the page name and two destinations:**
+  collapse the chat panel, Export to Figma, Brand kit. Everything else on it
+  moved. Shape editing, meaning undo, redo, delete, duplicate and the overflow
+  of aligns, distributes and reorders, is on the keyboard and the right-click
+  menu, where it already was. These boards are written from files by a
+  generator, so six buttons for nudging them crowded out the two the bar is
+  for. Comment, clone and force refresh join them on the right button. All
+  three act on what is under the cursor, or on the page it is on, which is what
+  a right-click has already picked out. The hamburger beside the page name goes
+  too, and so do the zoom readout and minimap toggle in the bottom-left corner,
+  where they sat under the chat panel's composer. Zoom is the trackpad, ⌘+ and
+  ⌘-, and ⇧1 to fit the page.
+- **The switch for the chat panel is in the canvas's own top-left corner**,
+  which is the one place it can be whether the panel is open or shut. In the
+  panel's header it went away with the panel and needed a second control to
+  bring it back. The panel is hidden rather than unmounted, so it keeps
+  following whatever is running and comes back to it mid-stream, and whether it
+  is open is remembered across reloads.
 
-Under the message box: which model, which effort, and what the last message
-cost. The model list is the agent's own — for Codex it is the list its own
-picker shows, read from its cache, so a model you gained by updating the CLI is
-there without waiting for us — and the effort levels are the ones that model
-actually takes. Both start at Default, which sends nothing and leaves your
-`~/.codex/config.toml` or Claude's settings in charge; pick one and it is
-remembered per agent. The number on the right is the tokens that message used
-against the model's window. It is that message, not the conversation: each one
-still runs as its own process with no memory of the last.
+### The toolkit and the skills
 
-Type `/` in the chat panel and the commands Claude Code can run there are
-listed — your own, the project's, the plugins' and the skills, `/clone-prototype`
-among them — with the arrow keys and Enter to take one. They already worked if
-you knew the name; now you can see them. The list is the CLI's own, learned from
-the runs you make, so it is there from the first answer of a session and matches
-whatever you have installed.
-
-Codex gets the same palette, listing its skills — your own, the plugins' and
-this project's. It is not the same mechanism underneath: Claude Code runs a
-slash command itself, while Codex is told what its skills are and what they are
-for, and a `/name` goes to the model as the text it is. The list is Codex's
-own, composed by the CLI without a turn being run, so it is there before the
-first message rather than after it.
-
-A plus in the panel's header starts a new session: the log clears and the next
-message has nothing above it. Anything still running keeps running and stays in
-the history list — the button clears the view, it does not stop the agent.
-
-A message can carry pictures. Paste one into the box, drop one on the panel, or
-pick them with the button in the row underneath, where Claude Code keeps it, and
-each arrives as a numbered tile above the box. That number is the number the
-agent is handed beside the picture, so the sentence can say which is which: the
-layout from #1, the copy from #4. A paste writes its `#1` at the caret, since
-one picture arriving where you are already typing has said which it is; a pick
-or a drop is a handful chosen at a distance, so those only fill the tray, and
-you click a tile to write its number or the x in its corner to drop it. Delete
-a number out of the sentence by hand and its tile goes with it. A picture keeps
-one number however often you point at it, and the numbering starts over once
-nothing points at one, meaning an empty tray and no number left in the box.
-
-The other direction comes with it. Whatever a tool hands the agent as an image
-is drawn under the call that produced it, so a clone's working pictures — the
-grid over the reference, the crops — appear in the transcript as they are made.
-Nothing watches your project folder, and no tool had to be taught to do this.
-
-Pictures also come off the canvas. Hover a mockup or a piece of brand material
-and a + appears in its top-right corner; press it and that shape is in the tray
-with its number already written into the sentence. A board is a page rather than
-a picture, so the server draws it first and it comes over under its own
-`<slug>/<file>.html`, which is the name the tile is captioned with, the name the
-agent is handed, and the file it can go and open. Two fingers on the trackpad
-over the button still pan the board, and a picture is attachable anywhere inside
-its box rather than only where it has painted pixels, which for a logo on a
-transparent ground is most of it.
-
-A vector attaches by being drawn rather than refused. Every brand logo on these
-boards is an SVG, and the CLIs read png, jpeg, gif and webp and nothing else, so
-one sent whole would travel the entire way to be turned down at the far end. It
-is drawn into a PNG in the browser instead, on the way in, at a 1024px long edge
-— a vector has no pixels of its own to be scaled up past, and a 24px icon
-attached at 24px is a picture with nothing in it. Nothing SVG-shaped reaches the
-tray, the server or the agent.
-
-Twenty pictures and 24 MB to a message, counted over the whole tray rather than
-over the batch being added, and a file too big to fit is refused before it is
-read rather than after. A run's copies of your pictures are deleted when it
-ends.
-
-The canvas is dark, and its panels are drawn in Vercel's Geist: its greys and
-its accents, its icons, and Geist Sans and Geist Mono bundled so a board looks
-the same offline as online. The chat panel, the inspector, the top bar and the
-canvas they sit around all read as one app now, on one ground, separated by
-hairlines rather than by shade. tldraw's own chrome comes with them. Its menus,
-its toolbar and its context menu read the same tokens, so a page menu is the
-same black card with the same hairline as a panel's menu, and an icon button
-in the top bar is the same grey, and lights the same way, as one in the chat
-panel's header beside it. The glyphs are Geist's own set rather than a
-transcription of it, and the scrollbars are the app's rather than the
-platform's: one thin grey thumb on whatever ground it is over, in the
-transcript, the slash menu, the history, the notes and the inspector alike.
-Your boards are untouched. A mockup is drawn by its own generator and keeps
-whatever palette it was measured in, scrollbars included.
-
-One thing about a board does change, and it is what the dark ground exposed. A
-mockup used to sit on a white card. A frame paints an opaque white background
-of its own underneath whatever the board draws, invisible while the canvas was
-white and a card around every phone once it is not. The canvas releases it, so
-the canvas shows through wherever a board paints nothing and every pixel the
-board does paint stays as it was. A board that wants a ground, such as a token
-sheet or an evidence sheet, still declares one and looks exactly as it did.
+- **Reinstall the toolkit, do not only update the plugin.** `sp-canvas` 1.3.0
+  and earlier predate `PROTOTYPING_PROJECT_DIR`, so a canvas one of them starts
+  comes up with the panel but every message answers 503. Re-run the README's
+  `uv tool install` line with `--force`.
+- **`sp-canvas stop` stops what the panel started.** It signals the server's
+  process group rather than its pid alone, so an agent the chat panel spawned
+  goes down with the server instead of being left editing your project.
+- **Force refresh is on the right-click menu**, not the top bar, and both
+  skills say so where they used to name the button.
+- **A board paints no page ground.** `clone-prototype` and `prototype-canvas`
+  now tell a generator to leave `html` and `body` with no `background` and let
+  `.phone` paint its own, so a screen board floats on the canvas instead of
+  sitting on a white card. Document boards, the token sheet and the evidence
+  sheets, are the exception: they are a page rather than a device, and their
+  black text needs a ground.
 
 ## v1.3.0
 
