@@ -43,7 +43,7 @@ export interface Turn {
   blocks: Block[];
   /** What the composer attached, by number; the sent message draws them under its text. */
   images?: { n: number; name: string }[];
-  /** What the turn put in the context window, once the agent has said; the composer shows it. */
+  /** How full the context window is, as of the turn's last call, and how big it is. */
   usage?: { used: number; window?: number };
   /** Set once the run has ended: whether it succeeded and, if not, why. */
   end?: { ok: boolean; message?: string };
@@ -93,7 +93,15 @@ export function applyFrame(turn: Turn, frame: Frame): Turn {
         ),
       };
     case "usage":
-      return { ...turn, usage: { used: e.used, window: e.window } };
+      // Merged rather than replaced: the two halves arrive on different frames, the occupancy on
+      // every assistant message and the window's size only once the turn has ended.
+      return {
+        ...turn,
+        usage: {
+          used: e.used ?? turn.usage?.used ?? 0,
+          window: e.window ?? turn.usage?.window,
+        },
+      };
     case "end":
       return { ...turn, end: { ok: e.ok, message: e.message } };
   }
