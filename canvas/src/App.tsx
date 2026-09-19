@@ -82,7 +82,7 @@ import {
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
-import { canvasesDir, canvasesNamespace } from "virtual:canvases";
+import { canvasIndex } from "./canvasIndex";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasChromeContext,
@@ -122,9 +122,9 @@ const shapeUtils = [
  *
  * The namespace is per boards directory, and empty for this checkout's own: every canvas runs
  * on 127.0.0.1, so without it a second project started on the same port opens the first one's
- * document. See `canvasesNamespace` in vite.config.ts.
+ * document. See `canvasesNamespace` in server/boards.ts.
  */
-const PERSISTENCE_KEY = `super-prototyping-canvas-v2${canvasesNamespace}`;
+const PERSISTENCE_KEY = `super-prototyping-canvas-v2${canvasIndex().canvasesNamespace}`;
 
 /** Marks that the snap default below has been applied once in this browser. */
 const SNAP_DEFAULT_KEY = `${PERSISTENCE_KEY}:snap-default`;
@@ -291,6 +291,7 @@ function EmptyLibraryNotice() {
   if (readCanvasLibrary().length) return null;
   // Empty in a production build, which does not ship the build machine's paths. The notice still
   // has something worth saying without it, so it degrades rather than disappearing.
+  const { canvasesDir } = canvasIndex();
   const target = canvasesDir || "mockups/canvases";
   return (
     <div className="canvas-empty" role="status">
@@ -1400,7 +1401,7 @@ export default function App() {
     >
       <div className="canvas-shell">
         {/* Dev server only: the panel talks to /__sp/agent, which a hosted build has no process behind. */}
-        {import.meta.env.DEV && <ChatPanel />}
+        {canvasIndex().served && <ChatPanel />}
         <main className="tldraw__editor" aria-label="Prototype design canvas">
           <Tldraw
             components={canvasChromeComponents}

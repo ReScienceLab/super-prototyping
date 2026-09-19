@@ -9,9 +9,9 @@ Three command-line tools, packaged so the skills can call them by name.
   `refkit --help` lists all seventeen subcommands.
 - **`artgen`** — redraws the rare asset that cannot be CSS or inline SVG,
   chroma-keys it off its ground, and fits it to the measured box.
-- **`sp-canvas`** — starts the bundled tldraw canvas against a project's board
-  folders, and stops it again. `sp-canvas root` prints which copy of the app it
-  found.
+- **`sp-canvas`** — serves the bundled tldraw canvas against a project's board
+  folders, building it first when needed, and stops it again. `sp-canvas root`
+  prints which copy of the app it found.
 
 ## Why these are installed, not called by path
 

@@ -17,6 +17,7 @@ import {
   writeCommentUser,
   type CommentUser,
 } from "./canvasComments";
+import { canvasIndex } from "./canvasIndex";
 
 /**
  * Asking who is commenting. There is no account here and there is not going to be one, since the
@@ -103,7 +104,7 @@ export function CommentUserDialog({
             is not the same in both places. Lead with that, in one sentence. */}
         <div className="canvas-clone-hint">
           {failed ||
-            (import.meta.env.DEV ? (
+            (canvasIndex().served ? (
               <>
                 <strong>Comments go into Git</strong>, as <code>comments.json</code> in the
                 board&rsquo;s folder, signed with your handle and avatar.

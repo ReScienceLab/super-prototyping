@@ -5,7 +5,7 @@ import {
   type TLCommentRecord,
 } from "@tldraw/commenting";
 import type { Editor, TLCommentAnchor, TLPageId, TLRecord, TLShapeId } from "tldraw";
-import { rawComments } from "virtual:canvases";
+import { canvasIndex } from "./canvasIndex";
 import { CANVAS_FILE_SHAPE_TYPE, type CanvasFileShape } from "./CanvasFileShapeUtil";
 
 // Comments live in the board folder, as `<slug>/comments.json`, and go into Git with the boards.
@@ -37,9 +37,9 @@ type FileCommentRecord = Omit<TLCommentRecord, "pageId">;
  */
 const LOCAL_KEY = "super-prototyping-comments";
 
-/** The boards this browser has commented on, whole files, keyed by slug. Empty on a dev server. */
+/** The boards this browser has commented on, whole files, keyed by slug. Empty when served. */
 const localFiles: Record<string, CommentsFile> = (() => {
-  if (import.meta.env.DEV) return {};
+  if (canvasIndex().served) return {};
   try {
     return JSON.parse(localStorage.getItem(LOCAL_KEY) ?? "{}") as Record<string, CommentsFile>;
   } catch {
@@ -52,7 +52,12 @@ const localFiles: Record<string, CommentsFile> = (() => {
  * board. A board only appears in `localFiles` once someone here has changed it, so every other
  * board keeps following the repo.
  */
-const commentFiles: Record<string, CommentsFile> = { ...rawComments, ...localFiles };
+const commentFiles: Record<string, CommentsFile> = {
+  ...Object.fromEntries(
+    canvasIndex().boards.flatMap((b) => (b.comments ? [[b.slug, b.comments]] : [])),
+  ),
+  ...localFiles,
+};
 
 /** Who this browser posts as. No login: a GitHub handle typed once, kept in localStorage. */
 export interface CommentUser {
@@ -395,7 +400,7 @@ export function installCanvasComments(editor: Editor) {
       if (written.get(slug) === body) continue;
       written.set(slug, body);
       const file = body ? (JSON.parse(body) as CommentsFile) : null;
-      if (import.meta.env.DEV) {
+      if (canvasIndex().served) {
         void fetch("/__sp/comments", {
           method: "POST",
           headers: { "content-type": "application/json" },

@@ -44,7 +44,7 @@ export interface SpNode {
 export interface SpAsset {
   /**
    * `"<payload length>:<fnv1a>"` of the base64 payload, or `"svg:<fnv1a>"` of an inline vector's
-   * geometry signature; joins against rawAssetNames.
+   * geometry signature; joins against the index's asset names (readCanvasAssetNames).
    */
   key: string;
   uri: string;

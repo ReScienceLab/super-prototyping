@@ -5,7 +5,7 @@ have drifted apart.
 
     python3 tools/test_sp_canvas.py
 """
-import json, os, sys, tempfile
+import json, os, sys, tempfile, time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -112,6 +112,37 @@ def test_each_products_install_location_is_searched():
         (home / root / "prototype-canvas").symlink_to(checkout / "skills/prototype-canvas")
         # Resolved, because following the link is how the checkout was found.
         assert with_home(home, lambda: C.resolve_root()) == checkout.resolve(), root
+
+
+def test_the_state_dir_is_the_platforms_own_and_the_pidfile_lives_in_it():
+    home = Path(tempfile.mkdtemp())
+    real = sys.platform
+    try:
+        sys.platform = "darwin"
+        pidfile = with_home(home, lambda: C._pidfile(5173))
+        assert pidfile == home / "Library/Application Support/super-prototyping/canvas-5173.pid"
+        assert pidfile.parent.is_dir()
+    finally:
+        sys.platform = real
+
+
+def test_the_app_is_built_when_dist_is_missing_or_older_than_a_source():
+    """`start` runs one built file. An install from git has none, and a checkout that was
+    edited has one from before the edit; both must build, and an up-to-date one must not."""
+    app = Path(tempfile.mkdtemp())
+    (app / "src").mkdir()
+    (app / "src/App.tsx").write_text("")
+    (app / "vite.config.ts").write_text("")
+    assert C._needs_build(app)
+    (app / "dist").mkdir()
+    (app / "dist/server.mjs").write_text("")
+    now = time.time()
+    for f in ("src/App.tsx", "vite.config.ts"):
+        os.utime(app / f, (now - 10, now - 10))
+    os.utime(app / "dist/server.mjs", (now, now))
+    assert not C._needs_build(app)
+    os.utime(app / "src/App.tsx", (now + 10, now + 10))
+    assert C._needs_build(app)
 
 
 def test_the_tag_prefix_matches_the_one_the_release_actually_cuts():

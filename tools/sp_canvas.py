@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """sp-canvas, the launcher for the tldraw board canvas.
 
-  start    boot the dev server against a folder of boards, print its address
+  start    serve the canvas against a folder of boards, print its address
   stop     kill the one on that port, and only that one
   status   say whether it is up, and on what
   root     print the plugin root it resolved (-v: where it looked, and the
@@ -16,7 +16,7 @@ Boards default to ./mockups/canvases under the current directory. Override with
 --canvases or PROTOTYPING_CANVASES_DIR. The app itself is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer.
 """
-import argparse, glob, json, os, re, shlex, shutil, signal, subprocess, sys, time
+import argparse, glob, json, os, re, shlex, shutil, signal, subprocess, sys, time, webbrowser
 from pathlib import Path
 
 DEFAULT_PORT = 5173
@@ -33,12 +33,25 @@ def _target(port):
     return f"={_session(port)}"
 
 
+def _state_dir():
+    """Where the pidfile and the log go: the platform's place for an app's own state, so a home
+    directory does not collect one dotfile per port that was ever used."""
+    if sys.platform == "darwin":
+        d = Path.home() / "Library/Application Support/super-prototyping"
+    elif sys.platform == "win32":
+        d = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData/Local") / "super-prototyping"
+    else:
+        d = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state") / "super-prototyping"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
 def _pidfile(port):
-    return Path.home() / f".super-prototyping-canvas-{port}.pid"
+    return _state_dir() / f"canvas-{port}.pid"
 
 
 def _logfile(port):
-    return Path.home() / f".super-prototyping-canvas-{port}.log"
+    return _state_dir() / f"canvas-{port}.log"
 
 
 # --- finding the canvas app --------------------------------------------------
@@ -240,6 +253,22 @@ def _port_answers(port):
         return s.connect_ex(("127.0.0.1", port)) == 0
 
 
+def _needs_build(app: Path) -> bool:
+    """Whether `canvas/dist` is missing or older than the app's sources.
+
+    An install from git has no dist at all, and a checkout being worked on has one from before
+    the last edit. Either way the server that would start is not the app on disk.
+    """
+    server = app / "dist/server.mjs"
+    if not server.is_file():
+        return True
+    built = server.stat().st_mtime
+    sources = [app / "vite.config.ts", app / "package.json"]
+    for sub in ("src", "server"):
+        sources += [Path(d) / f for d, _, files in os.walk(app / sub) for f in files]
+    return any(src.stat().st_mtime > built for src in sources if src.exists())
+
+
 def cmd_start(a):
     root = resolve_root()
     app = root / "canvas"
@@ -248,18 +277,28 @@ def cmd_start(a):
     if not boards.is_dir():
         print(f"note: {boards} does not exist yet — the canvas will open empty.")
         print("      Start a board with the clone-prototype or new-ui-mock skill.")
-    # Create it here rather than leaving it to the dev server. The server creates it too (it has
+    # Create it here rather than leaving it to the server. The server creates it too (it has
     # to watch it), but a failure there is a stack trace inside a tmux pane that has already gone.
     try:
         boards.mkdir(parents=True, exist_ok=True)
     except OSError as e:
         raise SystemExit(f"error: cannot create the boards directory {boards}\n  {e}")
 
-    if not (app / "node_modules").is_dir():
+    # The canvas is a built app served by one file, `dist/server.mjs`, and only building it
+    # needs the toolchain: an install from git has no dist, and a checkout being edited has a
+    # stale one. Built here, in place, on first start and after every change to the app.
+    if _needs_build(app):
         if not shutil.which("bun"):
-            raise SystemExit("error: bun is not installed — https://bun.sh")
-        print(f"installing canvas dependencies in {app} …")
-        subprocess.run(["bun", "install", "--frozen-lockfile"], cwd=app, check=True)
+            raise SystemExit("error: bun is needed to build the canvas app — https://bun.sh")
+        if not (app / "node_modules").is_dir():
+            print(f"installing canvas dependencies in {app} …")
+            subprocess.run(["bun", "install", "--frozen-lockfile"], cwd=app, check=True)
+        print(f"building the canvas app in {app} …")
+        subprocess.run(["bun", "run", "build"], cwd=app, check=True)
+    # node where there is one, bun otherwise: the bundle is plain ESM and either runs it.
+    runtime = shutil.which("node") and "node" or shutil.which("bun")
+    if not runtime:
+        raise SystemExit("error: neither node nor bun is on PATH to run the canvas server")
 
     if _port_answers(a.port):
         raise SystemExit(
@@ -273,11 +312,8 @@ def cmd_start(a):
     project = Path.cwd().resolve()
     env = dict(os.environ, PROTOTYPING_CANVASES_DIR=str(boards),
                PROTOTYPING_PROJECT_DIR=str(project))
-    # --host 127.0.0.1 because Vite otherwise binds localhost only, which can
-    # resolve to ::1 and make every 127.0.0.1 request fail with a bare
-    # connection error. Loopback either way: this is a design tool, not a service.
-    cmd = ["bun", "run", "dev", "--", "--host", "127.0.0.1",
-           "--port", str(a.port), "--strictPort"]
+    # The server binds 127.0.0.1 itself: this is a design tool, not a service.
+    cmd = [runtime, str(app / "dist/server.mjs"), "--port", str(a.port)]
 
     session = _session(a.port)
     if shutil.which("tmux"):
@@ -321,7 +357,12 @@ def cmd_start(a):
     else:
         raise SystemExit(f"error: the server did not bind port {a.port} in 15s.\n  {how}")
 
-    print(f"canvas   http://127.0.0.1:{a.port}/")
+    url = f"http://127.0.0.1:{a.port}/"
+    # Opened for a person at a terminal. An agent runs this from a subprocess with no TTY, and
+    # what it wants is the address printed below, not a browser tab per restart.
+    if sys.stdout.isatty():
+        webbrowser.open(url)
+    print(f"canvas   {url}")
     print(f"boards   {boards}")
     print(f"project  {project}")
     print(f"app      {app}")
@@ -349,13 +390,13 @@ def _is_our_server(pid, port):
                              capture_output=True, text=True).stdout
     except OSError:
         return False
-    return f"--port {port}" in out and ("vite" in out or "bun" in out)
+    return f"--port {port}" in out and "server.mjs" in out
 
 
 def cmd_stop(a):
     """Stop the canvas on this port, and nothing else.
 
-    Never a pattern kill: `pkill -f vite` matches every Vite dev server on the machine,
+    Never a pattern kill: `pkill -f server.mjs` matches every such server on the machine,
     including ones belonging to other projects and other people's work.
     """
     session = _session(a.port)

@@ -1,8 +1,8 @@
 ---
 name: prototype-canvas
-description: Start and operate the local tldraw design canvas that shows HTML artboards. Launch the dev server against a project's board folders, add or switch boards, drive shapes through the bounded window.snapCanvas bridge, and act on annotated screenshots of the canvas. Use when asked to open/launch the canvas, put a mockup on the canvas, annotate or draw on it, fix overlapping frames after a layout.json edit, or respond to a screenshot of the canvas with notes drawn on it.
+description: Start and operate the local tldraw design canvas that shows HTML artboards. Start the canvas app against a project's board folders, add or switch boards, drive shapes through the bounded window.snapCanvas bridge, and act on annotated screenshots of the canvas. Use when asked to open/launch the canvas, put a mockup on the canvas, annotate or draw on it, fix overlapping frames after a layout.json edit, or respond to a screenshot of the canvas with notes drawn on it.
 license: Apache-2.0
-compatibility: Requires bun and the sp-canvas command from super-prototyping-tools. A modern browser to view the canvas.
+compatibility: Requires the sp-canvas command from super-prototyping-tools, node or bun to run the canvas, and bun to build it once. A modern browser to view the canvas.
 ---
 
 # Prototype canvas
@@ -25,9 +25,10 @@ Not found? `sp-canvas` installs separately from the plugin, which cannot run
 an installer of its own: `uv tool install
 "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
 
-That is the whole thing. It finds the bundled app, installs its dependencies
-on first run, boots the dev server on 127.0.0.1:5173, waits for the port to
-actually bind, and prints the address.
+That is the whole thing. It finds the bundled app, builds it on first run,
+serves it on 127.0.0.1:5173, waits for the port to actually bind, and prints
+the address. Started from a terminal it also opens the browser; from an
+agent's shell it only prints.
 
 - **Boards** default to `./mockups/canvases` under the current directory.
   Point somewhere else with `--canvases DIR` or `PROTOTYPING_CANVASES_DIR`.
@@ -65,7 +66,7 @@ A project with no boards yet opens on a notice naming the directory the
 canvas resolved, rather than an empty grid: an empty boards folder and a canvas
 pointed at the wrong one look identical otherwise.
 
-**A folder created after boot appears on its own.** The dev server watches the
+**A folder created after boot appears on its own.** The server watches the
 boards directory and rebuilds its index when a board folder or file is added
 or removed. Rewriting a board reloads the page onto the new version, so a
 generator can be re-run with the canvas open. If a `?canvas=<slug>` link still
@@ -90,7 +91,7 @@ leaves the old shape at its old position, overlapping the new one. Force
 refresh deletes every `canvas-file` / `canvas-row-heading` /
 `canvas-file-label` shape on all pages and rebuilds them from the current
 files. Content-only edits to a placed file do **not**
-need it: the dev server reloads the canvas onto the rewritten board.
+need it: the server reloads the canvas onto the rewritten board.
 
 ## Drive the canvas
 
@@ -168,8 +169,11 @@ Then, in a fresh browser session: each board page loads with its frames,
 headings and captions; the frames stay independently selectable; the inspector
 opens on the board you click; Force refresh rebuilds a board cleanly.
 
-Board discovery is a generated module, not an `import.meta.glob` — see the
-`prototyping-canvases` plugin in `canvas/vite.config.ts`. Bump
+Everything the canvas needs a server for lives in `canvas/server/`: `sp.ts`
+answers `/__sp` and `/board`, the Vite dev server mounts it for working on the
+app, and `main.ts` mounts it in front of `dist` as the server `sp-canvas start`
+runs. Board discovery is `boards.ts`, served as `/__sp/index.json` and fetched
+by the page before it loads, not an `import.meta.glob`. Bump
 `PERSISTENCE_KEY` **only** when a change would leave existing documents
 inconsistent with the code, such as a shape's props changing shape; a bump
 discards every persisted hand-drawn annotation.
