@@ -19,8 +19,10 @@ Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
 `/__sp/index.json` by `canvas/server/sp.ts` and written into `dist` by the
 build — not an `import.meta.glob`, because a glob pattern is a build-time
 literal and could only ever read one hard-coded directory. `sp-canvas start`
-runs the built app from `canvas/dist/server.mjs`; the canvas's `dev` script
-mounts the same server module under Vite for working on the app.
+runs the built app, `dist/server.mjs`: the release's `canvas-dist.tgz`
+fetched into `~/.cache/super-prototyping/<version>/` for an install, or this
+checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
+`dev` script mounts the same server module under Vite for working on the app.
 
 `tools/` is a Python package, `super-prototyping-tools`. It installs `refkit`
 (measure, shoot, diff, check tokens), `artgen` (the rare asset that has to be

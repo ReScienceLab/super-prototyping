@@ -92,6 +92,13 @@ Then the toolkit, whichever product you came from:
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
 ```
 
+**Homebrew.** `brew install ReScienceLab/tap/super-prototyping` installs the
+skills and the prebuilt canvas app under Homebrew's prefix, with node as its
+only dependency, and `sp-canvas` finds that tree by itself. The canvas's chat
+panel points the agent at the skills there; for the skills in a terminal
+session too, install the plugin from the table. The toolkit is still the
+`uv tool install` line.
+
 One skills tree, a thin manifest per product, so a skill is never forked to be
 ported: `.claude-plugin/` for Claude Code, `.codex-plugin/` plus the
 `.agents/plugins/marketplace.json` catalogue for Codex, `.codebuddy-plugin/` for
@@ -191,10 +198,13 @@ is in there to copy from too.
 sp-canvas start
 ```
 
-It finds the bundled canvas app, builds it on first run, serves it on
-127.0.0.1:5173 against `./mockups/canvases`, and prints the address.
-`--canvases DIR` points it somewhere else, `--port N` moves it, `sp-canvas
-status` and `sp-canvas stop` do what they say.
+On first run it downloads the canvas app built for your version of the
+plugin into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
+against `./mockups/canvases` with node or bun, opens the browser, and prints
+the address. `--canvases DIR` points it somewhere else, `--port N` (or
+`SP_CANVAS_PORT`) moves it, `sp-canvas status` and `sp-canvas stop` do what
+they say. `sp-canvas paths` lists the two directories it writes, and
+`sp-canvas clean` removes them.
 
 Deep-link a page with `?canvas=<slug>`, and one board of it with
 `?canvas=<slug>#<file>`: it opens in the inspector with the camera on it, and
