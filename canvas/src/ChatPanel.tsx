@@ -68,6 +68,7 @@ import { rasterizeSvg } from "./svgRaster";
 
 const RUNS_KEY = "sp-chat-runs";
 const QUEUE_KEY = "sp-chat-queue";
+const SENT_KEY = "sp-chat-sent";
 const AGENT_KEY = "sp-chat-agent";
 const CHOICE_KEY = "sp-chat-choice";
 const COMMANDS_KEY = "sp-chat-commands";
@@ -195,6 +196,14 @@ export function ChatPanel() {
   const [queued, setQueued] = useState<Queued[]>(() =>
     JSON.parse(sessionStorage.getItem(QUEUE_KEY) ?? "[]"),
   );
+  // What was sent before, newest last, for the up arrow to walk back through as a terminal does.
+  // Across sessions like a shell's history file, capped, and never the same line twice running.
+  // Text only: a picture is not in the box to recall, so its "#N" comes back as the words.
+  const [sent, setSent] = useState<string[]>(() =>
+    JSON.parse(localStorage.getItem(SENT_KEY) ?? "[]"),
+  );
+  // How far back the arrows are: -1 is the box's own text, 0 the newest line sent.
+  const [back, setBack] = useState(-1);
   // Arrival order, and it never goes back: see the numbers in the note above.
   const nextN = useRef(1);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -591,8 +600,24 @@ export function ChatPanel() {
     setChoices(next);
   };
 
+  /** The box holding `text` and nothing else, with the caret after it. */
+  const fill = (text: string) => {
+    const box = composer.current;
+    if (!box) return;
+    box.replaceChildren(...(text ? [document.createTextNode(text)] : []));
+    setDraft(text);
+    box.focus();
+    caretAt(box.firstChild ?? box, text.length);
+  };
+
   /** The box and the tray emptied, once what they held is away. */
-  const clear = () => {
+  const clear = (message?: string) => {
+    if (message && message !== sent.at(-1)) {
+      const next = [...sent, message].slice(-50);
+      setSent(next);
+      localStorage.setItem(SENT_KEY, JSON.stringify(next));
+    }
+    setBack(-1);
     composer.current?.replaceChildren();
     setDraft("");
     setAttached([]);
@@ -657,11 +682,11 @@ export function ChatPanel() {
     // if sent, and the message goes when the run ends.
     if (running) {
       setQueued((q) => [...q, { message, images: attached }]);
-      return clear();
+      return clear(message);
     }
     // Emptied only once it is away — a refused message is still in the box, chips and all, to
     // be fixed and sent again.
-    if (await post({ message, images: attached })) clear();
+    if (await post({ message, images: attached })) clear(message);
   };
 
   // The queue drains one message per run ended, not one per render: the head is taken off before
@@ -1144,6 +1169,8 @@ export function ChatPanel() {
             const text = readDraft(box);
             setDraft(text);
             setSlashAt(0);
+            // A recalled line edited is the box's own again; the arrows move the caret from here.
+            setBack(-1);
             // Every edit, since a chip is deleted like any other character.
             syncRefs(box);
             // Escape closes the palette for the word it was typed in; the next one opens again.
@@ -1185,6 +1212,22 @@ export function ChatPanel() {
                 e.preventDefault();
                 return setSlashOff(true);
               }
+            }
+            // The arrows walk what was sent, as a terminal's do, but only from an empty box or
+            // once already walking: in a draft with lines of its own they move the caret. Down
+            // past the newest line is the empty box again.
+            if (
+              (e.key === "ArrowUp" || e.key === "ArrowDown") &&
+              (back >= 0 || !draft)
+            ) {
+              const to =
+                e.key === "ArrowUp"
+                  ? Math.min(back + 1, sent.length - 1)
+                  : back - 1;
+              if (to === back) return;
+              e.preventDefault();
+              setBack(to);
+              return fill(to < 0 ? "" : sent[sent.length - 1 - to]!);
             }
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
