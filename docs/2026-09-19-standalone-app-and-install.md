@@ -289,8 +289,8 @@ already declares the scripts, and it gives `uv tool install` and `pipx` a
 version rather than a git URL. It only helps `sp-canvas` once the canvas
 bundle ships inside the wheel or is fetched by tag. `npm i -g` would make the
 canvas the entry point, but `canvas/package.json` is private with no `bin`, and
-it would split one install across two ecosystems. `scripts/install-skills.sh`
-already is the curl installer for products without a plugin command. A
+it would split one install across two ecosystems. The root `install.sh` is
+the curl installer, for every product (`2026-09-19-curl-installer.md`). A
 single static binary would mean rewriting both halves; out of scope.
 
 **Practices to adopt as part of this.** Pidfiles and logs go under
@@ -388,7 +388,7 @@ Same paths on macOS as on Linux, following uv, gh and bat rather than
 `platformdirs`' Apple default: the users of this tool have `~/.claude` and
 `~/.cache/uv` already, and one convention across the two Unixes is simpler
 to document and to `zap`. One variable, `SUPER_PROTOTYPING_HOME`, relocates
-both directories under a single root, the way `CODEX_HOME` and
+all three directories under a single root, the way `CODEX_HOME` and
 `CLAUDE_CONFIG_DIR` do. The Python toolkit computes the paths and hands them
 to the server it starts as environment variables; the server never derives
 them itself, which is OpenDesign's `OD_DATA_DIR` rule. Directories are

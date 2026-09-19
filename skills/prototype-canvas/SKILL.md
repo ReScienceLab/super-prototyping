@@ -22,7 +22,9 @@ sp-canvas start
 ```
 
 Not found? `sp-canvas` installs separately from the plugin, which cannot run
-an installer of its own: `uv tool install
+an installer of its own:
+`curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main/install.sh | sh -s -- --tools-only`,
+or `uv tool install
 "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
 
 That is the whole thing. On first run it fetches the canvas app built for
@@ -49,7 +51,8 @@ an agent's shell it only prints. A checkout being worked on serves its own
   `~/.local/state/super-prototyping/` for its pidfile and log (the same on
   macOS as on Linux; `%LOCALAPPDATA%\super-prototyping\` on Windows).
   `SUPER_PROTOTYPING_HOME` moves both under one root. `sp-canvas paths`
-  prints them and every variable in use; `sp-canvas clean` removes them.
+  prints them, the install directory it only reads, and every variable in
+  use; `sp-canvas clean` removes the two it writes.
 - Deep-link a page with `?canvas=<slug>`, e.g.
   `http://127.0.0.1:5173/?canvas=notion-ios`, and one board of it with
   `#<file>` after that, e.g. `?canvas=notion-ios#02-search-ask-ai`: it opens

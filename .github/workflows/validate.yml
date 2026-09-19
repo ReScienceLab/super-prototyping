@@ -75,10 +75,14 @@ jobs:
       - name: Every manifest agrees on one version
         run: scripts/bump-version.sh --check
 
+      # install.sh is run as `curl | sh` on machines this repo never sees, so it has
+      # to be POSIX sh, not bash that happens to work here: dash parses it, and
+      # shellcheck reads the `#!/bin/sh` and holds it to that.
       - name: Shell scripts parse
         run: |
           bash -n scripts/bump-version.sh
-          bash -n scripts/install-skills.sh
+          sh -n install.sh
+          shellcheck install.sh
 
   canvas:
     name: Canvas
@@ -111,6 +115,7 @@ jobs:
       # The same two lines the README gives for running these locally.
       - run: uv run --with pillow --with numpy python tools/test_refkit.py
       - run: uv run python tools/test_sp_canvas.py
+      - run: uv run python tools/test_install.py
 
       # The skills call these by name, so a syntax error in one is a broken install
       # rather than a broken test.

@@ -34,8 +34,11 @@ need a different spelling per product.
 `.claude-plugin/`, `.codex-plugin/` and `.codebuddy-plugin/` are the per-product
 manifests, and the root `plugin.json` is the portable Agent Plugins v1 one that
 Hermes reads. All four describe the same `skills/` tree — a manifest per
-product, never a skill per product. `scripts/install-skills.sh` links the skills
-into products that read a skills directory instead.
+product, never a skill per product. The root `install.sh` is the `curl | sh`
+installer: a release's `plugin.tgz` into
+`~/.local/share/super-prototyping/<version>/`, the toolkit from that copy, and
+skill links into the products that read a skills directory; `--from-checkout`
+links this clone instead. `tools/test_install.py` runs it against fakes.
 `scripts/bump-version.sh` moves every version in `.version-bump.json` at once;
 run it with `--check` before releasing.
 

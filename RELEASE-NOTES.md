@@ -21,6 +21,18 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- One install command on macOS and Linux, whichever product you use:
+  `curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main/install.sh | sh`.
+  It puts the release's plugin at `~/.local/share/super-prototyping/<version>/`,
+  checked against the release's `SHA256SUMS` before anything lands, installs
+  the toolkit from that copy with uv (installing uv first when there is none),
+  and links the skills into Codex, CodeBuddy, Hermes, Pi, Trae and Trae CN. No
+  sudo, and no shell profile edited: it prints the PATH line if one is needed.
+  `--tools-only` for Claude Code, whose plugin stays on the marketplace;
+  `--version` for a release; `--dry-run` to look first. Running it again moves
+  you to the newest release. It replaces `scripts/install-skills.sh`, whose job
+  is now `sh install.sh --from-checkout` inside a clone. Each release from here
+  on also ships `plugin.tgz` and `SHA256SUMS`, which is what it downloads.
 - `sp-canvas start` now runs the canvas as a small localhost app instead of
   Vite's dev server. On first start it downloads the canvas built for the
   plugin's version from that release (`canvas-dist.tgz`) into
@@ -37,7 +49,10 @@ Everything below is on `main` and reaches no install until a version is cut.
   commands: `sp-canvas paths` prints them and every variable in use, and
   `sp-canvas clean` removes them. The port can also come from
   `SP_CANVAS_PORT`. The old `~/.super-prototyping-canvas-<port>.pid` and
-  `.log` files in your home are not read any more; delete them.
+  `.log` files in your home are not read any more; delete them. `paths` also
+  prints the directory the install script fills, and `sp-canvas` looks there
+  for the plugin after the products' own install locations; `clean` leaves it,
+  since it is the install itself.
 
 ## v1.4.1
 

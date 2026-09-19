@@ -10,7 +10,9 @@ name: Release
 #   2. Merging that PR changes .claude-plugin/plugin.json on main, which fires
 #      the second half: it tags super-prototyping--v<version>, cuts the
 #      GitHub Release from the matching RELEASE-NOTES.md section, and attaches
-#      the canvas, built without the example boards, as canvas-dist.tgz.
+#      plugin.tgz and canvas-dist.tgz, both without the example boards, with a
+#      SHA256SUMS for the two: install.sh downloads the first, sp-canvas start
+#      the second.
 #
 # Nothing tags a commit that is not on main, and the second half only acts when
 # the version actually changed in that push: the tag ruleset forbids moving a
@@ -258,25 +260,33 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         if: steps.v.outputs.fresh == 'true'
 
-      # The canvas, built once here so that an install does not have to: `sp-canvas
-      # start` fetches this bundle for the plugin's version on first start (#108), by
-      # this asset name under this tag, and the Homebrew formula (#109) will too. The
-      # example boards stay out, because an install shows the user's boards and not
-      # this repo's; PROTOTYPING_CANVASES_DIR is the same knob `sp-canvas start` sets,
-      # and an empty directory builds an empty canvas. After the release rather than
-      # before it: the tag is pushed by now and the ruleset forbids moving it, so a
-      # build failure must not leave a tag with no release behind it. A failure here
-      # is a missing asset, which `gh release upload` by hand adds to a release that
-      # is already cut; until it is there, every `sp-canvas start` on this version
-      # stops and prints the URL it wanted.
-      - name: Attach the canvas, built without the example boards
+      # Three assets, each consumed by name under this tag. plugin.tgz is the plugin
+      # without the example boards, the same sparse set README documents for a small
+      # marketplace install: install.sh (#114) downloads it, checks it against
+      # SHA256SUMS and unpacks it as the install. canvas-dist.tgz is the canvas, built
+      # once here so that an install does not have to: `sp-canvas start` fetches it for
+      # the plugin's version on first start (#108), and the Homebrew formula (#109) will
+      # too. The example boards stay out of both, because an install shows the user's
+      # boards and not this repo's; PROTOTYPING_CANVASES_DIR is the same knob `sp-canvas
+      # start` sets, and an empty directory builds an empty canvas. After the release
+      # rather than before it: the tag is pushed by now and the ruleset forbids moving
+      # it, so a build failure must not leave a tag with no release behind it. A failure
+      # here is a missing asset, which `gh release upload` by hand adds to a release that
+      # is already cut; until it is there, install.sh and every `sp-canvas start` on this
+      # version stop and print the URL they wanted.
+      - name: Attach the plugin and the canvas, both without the example boards
         if: steps.v.outputs.fresh == 'true'
-        working-directory: canvas
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.v.outputs.version }}
         run: |
+          set -euo pipefail
+          git archive --format=tar.gz --prefix=super-prototyping/ -o "$RUNNER_TEMP/plugin.tgz" HEAD \
+            LICENSE .claude-plugin skills tools canvas mockups/canvases/templates
+          cd canvas
           bun install --frozen-lockfile
           PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
           tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist
-          gh release upload "super-prototyping--v$VERSION" "$RUNNER_TEMP/canvas-dist.tgz"
+          cd "$RUNNER_TEMP"
+          sha256sum plugin.tgz canvas-dist.tgz > SHA256SUMS
+          gh release upload "super-prototyping--v$VERSION" plugin.tgz canvas-dist.tgz SHA256SUMS

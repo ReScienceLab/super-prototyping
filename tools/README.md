@@ -42,8 +42,8 @@ Once per machine, and from a checkout instead if you are working on the tools:
 This pulls `pillow` and `numpy`, which were previously an undocumented
 prerequisite. `refkit shoot` additionally needs Google Chrome.
 
-`scripts/install-skills.sh` at the repo root does this for you, alongside
-linking the skills into the non-Claude agent products.
+The root `install.sh` does this for you from a release, alongside linking the
+skills into the non-Claude agent products; `--tools-only` is just this step.
 
 Check what you have:
 
