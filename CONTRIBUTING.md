@@ -129,9 +129,10 @@ nothing is lost: open it by hand from
 `main...release/<version>`, and turn on Settings → Actions → General → "Allow
 GitHub Actions to create and approve pull requests", which is what it needed.
 The bundle is attached last, after the release is cut, so a failure there leaves
-the release whole; `gh release upload super-prototyping--v<version>
-canvas-dist.tgz`, from a `bun run build` in `canvas/` with
-`PROTOTYPING_CANVASES_DIR` pointing at an empty directory, closes the gap.
+the release whole. To add it by hand: in `canvas/`, run `bun run build` with
+`PROTOTYPING_CANVASES_DIR` pointing at an empty directory, then
+`tar -czf canvas-dist.tgz dist`, then
+`gh release upload super-prototyping--v<version> canvas-dist.tgz`.
 The whole thing is doable by hand too. Run `scripts/bump-version.sh <version>`,
 open a pull request, then `claude plugin tag . --push -m 'super-prototyping %s'`
 after it merges; the workflow is that sequence with the gates in front of it.

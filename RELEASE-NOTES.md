@@ -21,11 +21,6 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-- **Every release carries `canvas-dist.tgz`**, the canvas built without this
-  repo's example boards. Nothing installs from it yet: it is what the coming
-  localhost app and Homebrew formula fetch, so that running the canvas stops
-  needing Bun.
-
 ## v1.4.1
 
 2026-09-19. Three fixes to the chat panel's composer: the command palette
