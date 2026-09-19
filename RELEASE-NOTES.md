@@ -21,6 +21,22 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+### The chat panel
+
+- **`/` opens the commands mid-sentence.** The palette used to open only when
+  the slash was the first thing in the box. Now it opens on a slash typed after
+  words as well, and picking a command keeps what was typed before it.
+- **Enter queues a message while the agent is working.** The box was never
+  locked, but Enter did nothing until the run ended. Now the message shows
+  faded under the running turn with an ✕, and is sent the moment the run ends,
+  one per run, as in Claude Code's terminal. A queue survives the reload a
+  written board causes.
+- **Up recalls what you sent.** From an empty box, Up brings back the newest
+  message and each press walks one older; Down walks newer and, past the
+  newest, empties the box. Editing a recalled line or sending ends the walk,
+  so inside a draft of your own the arrows still move the caret. The last
+  fifty lines are kept across sessions.
+
 ## v1.4.0
 
 2026-09-19. The canvas gets a chat panel: talk to Claude Code or Codex about
