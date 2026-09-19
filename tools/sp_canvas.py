@@ -6,6 +6,8 @@
   status   say whether it is up, and on what
   root     print the plugin root it resolved (-v: where it looked, and the
            release each half is on)
+  paths    print the two directories this writes, and the variables that move them
+  clean    remove them: every downloaded app, pidfile and log
 
 The canvas app ships inside the plugin, which is installed outside your
 project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
@@ -13,13 +15,21 @@ boards stay in your project. This joins the two, so an upgrade can replace the
 app without touching a single board you have authored.
 
 Boards default to ./mockups/canvases under the current directory. Override with
---canvases or PROTOTYPING_CANVASES_DIR. The app itself is found by search;
-SUPER_PROTOTYPING_ROOT skips the search when you know the answer.
+--canvases or PROTOTYPING_CANVASES_DIR. The plugin is found by search;
+SUPER_PROTOTYPING_ROOT skips the search when you know the answer. The app served is
+the canvas built for this toolkit's release, fetched once into
+~/.cache/super-prototyping/<version>/; a checkout with node_modules serves its own
+canvas/dist. The port is --port or SP_CANVAS_PORT. Nothing is read from a file.
 """
-import argparse, glob, json, os, re, shlex, shutil, signal, subprocess, sys, time, webbrowser
+import argparse, glob, io, json, os, re, shlex, shutil, signal, subprocess, sys, tarfile
+import tempfile, time, urllib.request, webbrowser
 from pathlib import Path
 
 DEFAULT_PORT = 5173
+# The identifier every directory below is named by. Fixed, so a later cask's `zap` or a
+# desktop shell's data directory points at the same folders and nothing migrates.
+APP = "super-prototyping"
+REPO = "ReScienceLab/super-prototyping"
 
 # Per-port names, because two projects run two canvases. A fixed session name meant
 # starting the second one killed the first, silently and with a zero exit code.
@@ -33,25 +43,36 @@ def _target(port):
     return f"={_session(port)}"
 
 
-def _state_dir():
-    """Where the pidfile and the log go: the platform's place for an app's own state, so a home
-    directory does not collect one dotfile per port that was ever used."""
-    if sys.platform == "darwin":
-        d = Path.home() / "Library/Application Support/super-prototyping"
-    elif sys.platform == "win32":
-        d = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData/Local") / "super-prototyping"
-    else:
-        d = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state") / "super-prototyping"
-    d.mkdir(parents=True, exist_ok=True)
-    return d
+def _dirs():
+    """(cache, state): the two directories this writes. The downloaded app goes in the first,
+    one folder per version; the pidfiles and logs in the second. Nothing else, and no
+    configuration file: a port is a flag plus SP_CANVAS_PORT.
+
+    The XDG pair on macOS as on Linux, following uv, gh and bat rather than platformdirs'
+    ~/Library: the people running this have ~/.cache/uv already, and one convention across
+    the two Unixes is one to document and one to remove. %LOCALAPPDATA% on Windows, which is
+    machine-local and never roams. SUPER_PROTOTYPING_HOME puts both under one root, the way
+    CODEX_HOME and CLAUDE_CONFIG_DIR do. Nothing is created here: a directory appears at the
+    first write into it, as the spec asks, so `status` on a fresh machine leaves no trace.
+    """
+    home = os.environ.get("SUPER_PROTOTYPING_HOME")
+    if home:
+        root = Path(home).expanduser()
+        return root / "cache", root / "state"
+    if sys.platform == "win32":
+        root = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData/Local") / APP
+        return root / "cache", root / "state"
+    def xdg(var, default):
+        return Path(os.environ.get(var) or Path.home() / default) / APP
+    return xdg("XDG_CACHE_HOME", ".cache"), xdg("XDG_STATE_HOME", ".local/state")
 
 
 def _pidfile(port):
-    return _state_dir() / f"canvas-{port}.pid"
+    return _dirs()[1] / f"canvas-{port}.pid"
 
 
 def _logfile(port):
-    return _state_dir() / f"canvas-{port}.log"
+    return _dirs()[1] / f"canvas-{port}.log"
 
 
 # --- finding the canvas app --------------------------------------------------
@@ -200,8 +221,7 @@ def skew_fix(plugin, toolkit):
     if _version_key(toolkit) > _version_key(plugin):
         return ("/plugin update super-prototyping   (Claude Code; or codex plugin add, "
                 "codebuddy plugin install, hermes plugins update, npx skills update)")
-    return ('uv tool install --force "git+https://github.com/ReScienceLab/'
-            f'super-prototyping@{TAG_PREFIX}{plugin}#subdirectory=tools"')
+    return f'uv tool install --force "git+https://github.com/{REPO}@{TAG_PREFIX}{plugin}#subdirectory=tools"'
 
 
 def _is_canvas_app(root: Path) -> bool:
@@ -272,9 +292,73 @@ def _needs_build(app: Path) -> bool:
     return False
 
 
+def _bundle_dist(version):
+    """`dist/` of the canvas built for this release, from the cache or downloaded into it.
+
+    The tarball is the one release.yml attaches to every release: one top-level `dist/`
+    holding the built app and `server.mjs`. One directory per version, so a new toolkit
+    fetches its own and the old one waits for `sp-canvas clean`. A version directory is whole
+    or absent, never half: it is unpacked beside its name and renamed into place, so the one
+    file the check below looks for cannot be there without the rest.
+    """
+    cache = _dirs()[0] / version
+    if (cache / "dist/server.mjs").is_file():
+        return cache / "dist"
+    url = f"https://github.com/{REPO}/releases/download/{TAG_PREFIX}{version}/canvas-dist.tgz"
+    print(f"fetching the canvas app for {version} …\n  {url}")
+    try:
+        with urllib.request.urlopen(url, timeout=60) as response:
+            archive = response.read()
+    except OSError as e:  # a 404, no network and a timeout are all this
+        raise SystemExit(
+            f"error: could not download the canvas app for {version}\n  {url}\n  {e}\n"
+            f"Try again once the network is back. A checkout with bun builds it instead:\n"
+            f'  cd "$(sp-canvas root)/canvas" && bun install && bun run build')
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    work = tempfile.mkdtemp(prefix=f"{version}.", dir=cache.parent)
+    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as tar:
+        # `filter` arrived in the 2023 security releases of 3.10 and 3.11; before them, none.
+        tar.extractall(work, **({"filter": "data"} if hasattr(tarfile, "data_filter") else {}))
+    try:
+        os.rename(work, cache)
+    except OSError:
+        # A second `start` racing this one on a fresh machine finished first, with the same
+        # bytes. Anything else is a real failure and stays loud.
+        shutil.rmtree(work)
+        if not (cache / "dist/server.mjs").is_file():
+            raise
+    return cache / "dist"
+
+
+def _dist(root: Path) -> Path:
+    """The `dist/` to serve, holding `server.mjs`: the checkout's own when it is being worked
+    on, else the canvas built for this toolkit's release.
+
+    A checkout with `node_modules`, or with a dist already built, is a developer's: it serves
+    what is on disk, rebuilt when a source is newer, and this is the one path that still
+    needs bun. A plugin install is a bare checkout of a tag, and the toolkit beside it was
+    installed from the same tag, so the bundle that release attached is the app it should
+    run, and nothing but node or bun is needed to run it. A toolkit running from source names
+    no release, and builds like a developer.
+    """
+    app = root / "canvas"
+    version = _toolkit_version()
+    if not version or (app / "node_modules").is_dir() or (app / "dist/server.mjs").is_file():
+        if _needs_build(app):
+            if not shutil.which("bun"):
+                raise SystemExit("error: bun is needed to build the canvas app from its "
+                                 "sources — https://bun.sh")
+            if not (app / "node_modules").is_dir():
+                print(f"installing canvas dependencies in {app} …")
+                subprocess.run(["bun", "install", "--frozen-lockfile"], cwd=app, check=True)
+            print(f"building the canvas app in {app} …")
+            subprocess.run(["bun", "run", "build"], cwd=app, check=True)
+        return app / "dist"
+    return _bundle_dist(version)
+
+
 def cmd_start(a):
     root = resolve_root()
-    app = root / "canvas"
     boards = _canvases_dir(a.canvases)
 
     if not boards.is_dir():
@@ -287,22 +371,6 @@ def cmd_start(a):
     except OSError as e:
         raise SystemExit(f"error: cannot create the boards directory {boards}\n  {e}")
 
-    # The canvas is a built app served by one file, `dist/server.mjs`, and only building it
-    # needs the toolchain: an install from git has no dist, and a checkout being edited has a
-    # stale one. Built here, in place, on first start and after every change to the app.
-    if _needs_build(app):
-        if not shutil.which("bun"):
-            raise SystemExit("error: bun is needed to build the canvas app — https://bun.sh")
-        if not (app / "node_modules").is_dir():
-            print(f"installing canvas dependencies in {app} …")
-            subprocess.run(["bun", "install", "--frozen-lockfile"], cwd=app, check=True)
-        print(f"building the canvas app in {app} …")
-        subprocess.run(["bun", "run", "build"], cwd=app, check=True)
-    # node where there is one, bun otherwise: the bundle is plain ESM and either runs it.
-    runtime = shutil.which("node") and "node" or shutil.which("bun")
-    if not runtime:
-        raise SystemExit("error: neither node nor bun is on PATH to run the canvas server")
-
     if _port_answers(a.port):
         raise SystemExit(
             f"error: port {a.port} is already answering. It may be another checkout's\n"
@@ -310,13 +378,26 @@ def cmd_start(a):
             f"`sp-canvas stop` if it is this one."
         )
 
+    # The canvas is a built app served by one file, `dist/server.mjs`: the release's own
+    # bundle, fetched once, or the checkout's build. Either way it is plain ESM, so node
+    # where there is one and bun otherwise runs it.
+    dist = _dist(root)
+    runtime = shutil.which("node") and "node" or shutil.which("bun")
+    if not runtime:
+        raise SystemExit("error: neither node nor bun is on PATH to run the canvas server")
+
     # The project is the directory this is run from — the same one the boards default under.
     # The canvas's chat panel runs Claude Code in it; without it the panel's endpoints answer 503.
     project = Path.cwd().resolve()
-    env = dict(os.environ, PROTOTYPING_CANVASES_DIR=str(boards),
-               PROTOTYPING_PROJECT_DIR=str(project))
+    # Resolved once, here, and handed down: the server passes them on to every agent it
+    # spawns, and it derives none itself — the bundle it runs may sit in the cache directory
+    # with no checkout above it, and the root is where the skill it points the agent at is.
+    passed = {"PROTOTYPING_CANVASES_DIR": str(boards),
+              "PROTOTYPING_PROJECT_DIR": str(project),
+              "SUPER_PROTOTYPING_ROOT": str(root)}
+    env = dict(os.environ, **passed)
     # The server binds 127.0.0.1 itself: this is a design tool, not a service.
-    cmd = [runtime, str(app / "dist/server.mjs"), "--port", str(a.port)]
+    cmd = [runtime, str(dist / "server.mjs"), "--port", str(a.port)]
 
     session = _session(a.port)
     if shutil.which("tmux"):
@@ -334,21 +415,21 @@ def cmd_start(a):
         # below — the only way to see why — reports "session not found".
         inline = " ".join([
             "env",
-            f"PROTOTYPING_CANVASES_DIR={shlex.quote(str(boards))}",
-            f"PROTOTYPING_PROJECT_DIR={shlex.quote(str(project))}",
+            *(f"{k}={shlex.quote(v)}" for k, v in passed.items()),
             f"PATH={shlex.quote(os.environ.get('PATH', ''))}",
             shlex.join(cmd),
         ])
         subprocess.run(
-            ["tmux", "new-session", "-d", "-s", session, "-c", str(app),
+            ["tmux", "new-session", "-d", "-s", session, "-c", str(dist.parent),
              f"{inline}; echo; echo '--- canvas exited'; sleep 3600"],
             check=True,
         )
         how = f"tmux session '{session}' — read it with: tmux capture-pane -p -t {session}"
     else:
         log = _logfile(a.port)
+        log.parent.mkdir(parents=True, exist_ok=True)  # at the first write, not before
         with open(log, "wb") as fh:
-            proc = subprocess.Popen(cmd, cwd=app, env=env, stdout=fh, stderr=fh,
+            proc = subprocess.Popen(cmd, cwd=dist.parent, env=env, stdout=fh, stderr=fh,
                                     start_new_session=True)
         _pidfile(a.port).write_text(f"{proc.pid}\n")
         how = f"background process {proc.pid} — log at {log}"
@@ -368,7 +449,7 @@ def cmd_start(a):
     print(f"canvas   {url}")
     print(f"boards   {boards}")
     print(f"project  {project}")
-    print(f"app      {app}")
+    print(f"app      {dist}")
     print(f"running  {how}")
 
     versions = skew(root)
@@ -384,9 +465,8 @@ def cmd_start(a):
 def _is_our_server(pid, port):
     """Whether this pid is still the canvas we started on this port.
 
-    The pidfile lives in $HOME and outlives reboots, and pids get recycled. Without this check
-    `stop` sends SIGTERM to whatever process inherited the number — someone else's editor, a
-    build, anything.
+    The pidfile outlives reboots, and pids get recycled. Without this check `stop` sends
+    SIGTERM to whatever process inherited the number — someone else's editor, a build, anything.
     """
     try:
         out = subprocess.run(["ps", "-o", "command=", "-p", str(pid)],
@@ -461,7 +541,52 @@ def cmd_root(a):
               file=sys.stderr)
 
 
-def main():
+def cmd_paths(a):
+    """Every directory this writes and every variable that moves one, so they can be named in
+    an uninstall note and removed by `clean`. `uv cache dir`, for two directories."""
+    cache, state = _dirs()
+    print(f"cache  {cache}")
+    print(f"state  {state}")
+    print()
+    moves = ("LOCALAPPDATA",) if sys.platform == "win32" else ("XDG_CACHE_HOME", "XDG_STATE_HOME")
+    for var in ("SUPER_PROTOTYPING_HOME", *moves, "SP_CANVAS_PORT", "PROTOTYPING_CANVASES_DIR",
+                "SUPER_PROTOTYPING_ROOT"):
+        print(f"{var:<25} {os.environ.get(var) or '(unset)'}")
+
+
+def cmd_clean(a):
+    """Remove both directories: every downloaded app, pidfile and log. The next `start`
+    downloads again. `uv cache clean`, for two directories."""
+    cache, state = _dirs()
+    # Never from under a running canvas: it reads its files off this disk on every request.
+    # One in tmux wrote no pidfile and is found by its session, as `stop` finds it; a
+    # background one is found by its pidfile and nothing else, so removing that would leave
+    # a server `stop` cannot see.
+    live = []
+    if shutil.which("tmux"):
+        out = subprocess.run(["tmux", "list-sessions", "-F", "#{session_name}"],
+                             capture_output=True, text=True).stdout
+        live += re.findall(r"^canvas-(\d+)$", out, re.M)
+    for pidfile in state.glob("canvas-*.pid"):
+        port = pidfile.stem.removeprefix("canvas-")
+        try:
+            pid = int(pidfile.read_text().strip())
+        except ValueError:
+            continue
+        if _is_our_server(pid, port):
+            live.append(port)
+    if live:
+        raise SystemExit(f"error: a canvas is still running on port {', '.join(live)}. "
+                         f"Run `sp-canvas stop --port {live[0]}` first.")
+    for d in (cache, state):
+        if d.is_dir():
+            shutil.rmtree(d)
+            print(f"removed  {d}")
+        else:
+            print(f"absent   {d}")
+
+
+def parser():
     p = argparse.ArgumentParser(
         prog="sp-canvas", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -473,7 +598,11 @@ def main():
         sub = s.add_parser(name)
         sub.set_defaults(fn=fn)
         if ports:
-            sub.add_argument("--port", type=int, default=DEFAULT_PORT)
+            # A string default is parsed as an argument would be, so a bad SP_CANVAS_PORT
+            # gets argparse's own "invalid int value" rather than a traceback.
+            sub.add_argument("--port", type=int,
+                             default=os.environ.get("SP_CANVAS_PORT") or DEFAULT_PORT,
+                             help=f"default SP_CANVAS_PORT, then {DEFAULT_PORT}")
         if canvases:
             sub.add_argument("--canvases", help="folder of board folders "
                                                 "(default ./mockups/canvases)")
@@ -485,8 +614,13 @@ def main():
     root = add("root", cmd_root, ports=False, canvases=False)
     root.add_argument("-v", "--verbose", action="store_true",
                       help="also list every place that was searched")
+    add("paths", cmd_paths, ports=False, canvases=False)
+    add("clean", cmd_clean, ports=False, canvases=False)
+    return p
 
-    a = p.parse_args()
+
+def main():
+    a = parser().parse_args()
     a.fn(a)
 
 

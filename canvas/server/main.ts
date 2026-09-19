@@ -10,10 +10,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSpServer } from "./sp.ts";
 
-// This file runs from `canvas/dist/`, two levels below the checkout. Derived rather than
-// passed in, so a checkout found by `sp-canvas root` needs nothing else to name itself.
 const dist = fileURLToPath(new URL(".", import.meta.url)).replace(/\/$/, "");
-const repoRoot = path.resolve(dist, "../..");
+// The plugin root: where the skill an agent is pointed at lives, and whose boards a checkout
+// serves by default. `sp-canvas start` resolves it and passes it, because the bundle a
+// release attaches runs from ~/.cache/super-prototyping/<version>/dist with no checkout
+// above it. Derived only for `node dist/server.mjs` run by hand inside a checkout, where
+// this file sits two levels below it.
+const repoRoot = process.env.SUPER_PROTOTYPING_ROOT
+  ? path.resolve(process.env.SUPER_PROTOTYPING_ROOT)
+  : path.resolve(dist, "../..");
 const canvasesDir = path.resolve(
   process.env.PROTOTYPING_CANVASES_DIR ||
     path.join(repoRoot, "mockups/canvases"),

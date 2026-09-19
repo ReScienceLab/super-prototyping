@@ -21,14 +21,23 @@ toolkit carry the same version; `sp-canvas start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-- `sp-canvas start` now serves the built canvas from one file,
-  `canvas/dist/server.mjs`, with node or bun, instead of running Vite's dev
-  server. It builds the app in place on first start and after an update (bun
-  is still needed for that), opens the browser when started from a terminal,
-  and keeps its pidfile and log in the platform's state directory rather than
-  in your home. Everything the canvas could do before — status, comments,
-  clone, the chat panel, reload on rewrite — works the same; the app just no
-  longer needs a dev toolchain running to do it.
+- `sp-canvas start` now runs the canvas as a small localhost app instead of
+  Vite's dev server. On first start it downloads the canvas built for the
+  toolkit's version from that release (`canvas-dist.tgz`) into
+  `~/.cache/super-prototyping/<version>/` and runs it with node or bun, so an
+  install needs no bun and no build. A checkout with `canvas/node_modules`
+  still serves its own build, rebuilt when a source is newer. It opens the
+  browser when started from a terminal. Everything the canvas could do before
+  — status, comments, clone, the chat panel, reload on rewrite — works the
+  same.
+- The launcher writes two directories and nothing else: that cache, and
+  `~/.local/state/super-prototyping/` for its pidfile and log, the same on
+  macOS as on Linux, `%LOCALAPPDATA%\super-prototyping\{cache,state}\` on
+  Windows. `SUPER_PROTOTYPING_HOME` moves both under one root. Two new
+  commands: `sp-canvas paths` prints them and every variable in use, and
+  `sp-canvas clean` removes them. The port can also come from
+  `SP_CANVAS_PORT`. The old `~/.super-prototyping-canvas-<port>.pid` and
+  `.log` files in your home are not read any more; delete them.
 
 ## v1.4.1
 

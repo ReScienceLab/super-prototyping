@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Self-check for how the launcher finds the plugin: where each product's install
-lands, which cached release it picks, and when it says the plugin and the toolkit
-have drifted apart.
+"""Self-check for the launcher: where each product's install lands, which cached
+release it picks, when it says the plugin and the toolkit have drifted apart, which
+app it serves and where it is allowed to write.
 
     python3 tools/test_sp_canvas.py
 """
@@ -114,16 +114,203 @@ def test_each_products_install_location_is_searched():
         assert with_home(home, lambda: C.resolve_root()) == checkout.resolve(), root
 
 
-def test_the_state_dir_is_the_platforms_own_and_the_pidfile_lives_in_it():
-    home = Path(tempfile.mkdtemp())
-    real = sys.platform
+def with_env(vars, fn):
+    """Run fn with these environment variables set (None: unset), then put them back."""
+    saved = {k: os.environ.get(k) for k in vars}
+    for k, v in vars.items():
+        if v is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = str(v)
     try:
-        sys.platform = "darwin"
-        pidfile = with_home(home, lambda: C._pidfile(5173))
-        assert pidfile == home / "Library/Application Support/super-prototyping/canvas-5173.pid"
-        assert pidfile.parent.is_dir()
+        return fn()
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+
+def on_platform(name, fn):
+    real = sys.platform
+    sys.platform = name
+    try:
+        return fn()
     finally:
         sys.platform = real
+
+
+UNSET = {"SUPER_PROTOTYPING_HOME": None, "XDG_CACHE_HOME": None, "XDG_STATE_HOME": None}
+
+
+def test_the_two_directories_follow_xdg_on_unix_localappdata_on_windows_and_one_home_over_both():
+    """Where the downloaded app and the pidfiles go: uv's answer, not platformdirs'. The same
+    pair on macOS as on Linux, and nothing created until something is written."""
+    home = Path(tempfile.mkdtemp())
+    dirs = lambda: with_home(home, lambda: with_env(UNSET, C._dirs))
+    for platform in ("darwin", "linux"):
+        cache, state = on_platform(platform, dirs)
+        assert cache == home / ".cache/super-prototyping", platform
+        assert state == home / ".local/state/super-prototyping", platform
+    assert not (home / ".cache").exists() and not (home / ".local").exists()
+    pidfile = on_platform("darwin", lambda: with_home(home, lambda: with_env(UNSET, lambda: C._pidfile(5173))))
+    assert pidfile == home / ".local/state/super-prototyping/canvas-5173.pid"
+    assert not pidfile.parent.exists()
+    # The XDG variables move each half on its own.
+    cache, state = on_platform("linux", lambda: with_home(home, lambda: with_env(
+        dict(UNSET, XDG_CACHE_HOME="/c", XDG_STATE_HOME="/s"), C._dirs)))
+    assert (cache, state) == (Path("/c/super-prototyping"), Path("/s/super-prototyping"))
+    # SUPER_PROTOTYPING_HOME puts both under one root, and wins over them.
+    cache, state = on_platform("linux", lambda: with_home(home, lambda: with_env(
+        dict(UNSET, SUPER_PROTOTYPING_HOME="~/sp", XDG_CACHE_HOME="/c"), C._dirs)))
+    assert (cache, state) == (home / "sp/cache", home / "sp/state")
+    # Windows: %LOCALAPPDATA%, machine-local, both halves under the one folder.
+    cache, state = on_platform("win32", lambda: with_home(home, lambda: with_env(
+        dict(UNSET, LOCALAPPDATA=str(home / "AppData/Local")), C._dirs)))
+    assert cache == home / "AppData/Local/super-prototyping/cache"
+    assert state == home / "AppData/Local/super-prototyping/state"
+
+
+def canvas_bundle(files=("dist/server.mjs", "dist/index.html")):
+    """The bytes release.yml attaches: a gzipped tar with one top-level `dist/`."""
+    import io, tarfile
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        for name in files:
+            data = f"// {name}\n".encode()
+            info = tarfile.TarInfo(name)
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+    return buf.getvalue()
+
+
+def with_release(answer, fn):
+    """Run fn with the release download answering `answer`: bytes to serve, or an exception
+    to raise. Returns (result, urls asked for)."""
+    import contextlib
+    urls = []
+
+    def urlopen(url, timeout=None):
+        urls.append(url)
+        if isinstance(answer, BaseException):
+            raise answer
+        return contextlib.closing(type("R", (), {"read": lambda self: answer, "close": lambda self: None})())
+
+    real = C.urllib.request.urlopen
+    C.urllib.request.urlopen = urlopen
+    try:
+        return fn(), urls
+    finally:
+        C.urllib.request.urlopen = real
+
+
+def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bundle():
+    """A developer's checkout serves its build; an install runs the bundle its release
+    attached, fetched once into the cache and never fetched again while it is there."""
+    sp_home = Path(tempfile.mkdtemp())
+    env = dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home))
+    dist = lambda root, version: with_env(env, lambda: with_toolkit(version, lambda: C._dist(root)))
+
+    # node_modules marks a checkout being worked on: its own dist, even with a release known.
+    dev = canvas_app_at(Path(tempfile.mkdtemp()))
+    (dev / "canvas/node_modules").mkdir()
+    (dev / "canvas/dist").mkdir()
+    (dev / "canvas/dist/server.mjs").write_text("")
+    now = time.time()
+    os.utime(dev / "canvas/package.json", (now - 10, now - 10))
+    assert dist(dev, "1.4.2") == dev / "canvas/dist"
+
+    # A bare install with a version: the bundle. Fetched from the tag's release asset, into
+    # one folder per version, whole — no temporary directory left beside it.
+    install = canvas_app_at(Path(tempfile.mkdtemp()))
+    (got, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.4.2"))
+    assert got == sp_home / "cache/1.4.2/dist"
+    assert urls == [f"https://github.com/{C.REPO}/releases/download/{C.TAG_PREFIX}1.4.2/canvas-dist.tgz"]
+    assert (got / "server.mjs").is_file() and (got / "index.html").is_file()
+    assert [p.name for p in (sp_home / "cache").iterdir()] == ["1.4.2"]
+    # A second `start` that raced this one and lost its rename ends on the same answer.
+    real_rename = C.os.rename
+
+    def rename_after_the_other(src, dst):
+        (Path(dst) / "dist").mkdir(parents=True)
+        (Path(dst) / "dist/server.mjs").write_text("")
+        real_rename(src, dst)
+
+    C.os.rename = rename_after_the_other
+    try:
+        (raced, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.4.3"))
+    finally:
+        C.os.rename = real_rename
+    assert raced == sp_home / "cache/1.4.3/dist" and len(urls) == 1
+    assert sorted(p.name for p in (sp_home / "cache").iterdir()) == ["1.4.2", "1.4.3"]
+    # Cached: no request the second time. A newer toolkit fetches its own.
+    (again, urls) = with_release(AssertionError("no"), lambda: dist(install, "1.4.2"))
+    assert again == got and urls == []
+    (newer, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.5.0"))
+    assert newer == sp_home / "cache/1.5.0/dist" and len(urls) == 1
+
+    # No release to fetch: say so, with the URL that failed, and leave the cache as it was.
+    try:
+        with_release(C.urllib.request.URLError("no network"), lambda: dist(install, "1.6.0"))
+    except SystemExit as e:
+        assert "1.6.0/canvas-dist.tgz" in str(e) and "no network" in str(e)
+    else:
+        assert False, "a failed download must exit loudly"
+    assert not (sp_home / "cache/1.6.0").exists()
+
+
+def test_the_port_is_the_flag_then_sp_canvas_port_then_the_default():
+    import contextlib, io
+    port = lambda argv, env: with_env({"SP_CANVAS_PORT": env}, lambda: C.parser().parse_args(argv).port)
+    assert port(["status"], None) == C.DEFAULT_PORT
+    assert port(["status"], "6001") == 6001
+    assert port(["status", "--port", "6002"], "6001") == 6002
+    try:
+        with contextlib.redirect_stderr(io.StringIO()):
+            port(["status"], "canvas")
+    except SystemExit:
+        pass
+    else:
+        assert False, "a bad SP_CANVAS_PORT must be rejected the way a bad --port is"
+
+
+def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
+    sp_home = Path(tempfile.mkdtemp())
+    env = dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home))
+    (sp_home / "cache/1.4.2/dist").mkdir(parents=True)
+    (sp_home / "cache/1.4.2/dist/server.mjs").write_text("")
+    (sp_home / "state").mkdir()
+    (sp_home / "state/canvas-5173.pid").write_text("4242\n")
+    (sp_home / "state/canvas-5174.pid").write_text("not a pid\n")  # skipped, not fatal
+    sessions = ["main\n"]  # what `tmux list-sessions` answers
+    real = C._is_our_server, C.subprocess.run, C.shutil.which
+
+    def refuses(port):
+        try:
+            with_env(env, lambda: C.cmd_clean(None))
+        except SystemExit as e:
+            assert port in str(e) and "sp-canvas stop" in str(e), e
+        else:
+            assert False, f"clean must refuse while a canvas runs on {port}"
+        assert (sp_home / "cache/1.4.2/dist/server.mjs").is_file()
+
+    try:
+        C.subprocess.run = lambda *a, **k: type("R", (), {"stdout": sessions[0]})()
+        C.shutil.which = lambda name, *a, **k: "/usr/bin/tmux"
+        # A background canvas is known by its pidfile ...
+        C._is_our_server = lambda pid, port: (pid, port) == (4242, "5173")
+        refuses("5173")
+        # ... and one in tmux, which wrote no pidfile, by its session.
+        C._is_our_server = lambda pid, port: False
+        sessions[0] = "canvas-5180\nmain\n"
+        refuses("5180")
+        sessions[0] = "main\n"
+        with_env(env, lambda: C.cmd_clean(None))
+        assert not (sp_home / "cache").exists() and not (sp_home / "state").exists()
+        with_env(env, lambda: C.cmd_clean(None))  # a second time is not an error
+    finally:
+        C._is_our_server, C.subprocess.run, C.shutil.which = real
 
 
 def test_the_app_is_built_when_dist_is_missing_or_older_than_a_source():

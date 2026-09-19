@@ -191,10 +191,13 @@ is in there to copy from too.
 sp-canvas start
 ```
 
-It finds the bundled canvas app, builds it on first run, serves it on
-127.0.0.1:5173 against `./mockups/canvases`, and prints the address.
-`--canvases DIR` points it somewhere else, `--port N` moves it, `sp-canvas
-status` and `sp-canvas stop` do what they say.
+On first run it downloads the canvas app built for your version of the
+toolkit into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
+against `./mockups/canvases` with node or bun, opens the browser, and prints
+the address. `--canvases DIR` points it somewhere else, `--port N` (or
+`SP_CANVAS_PORT`) moves it, `sp-canvas status` and `sp-canvas stop` do what
+they say. `sp-canvas paths` lists the two directories it writes, and
+`sp-canvas clean` removes them.
 
 Deep-link a page with `?canvas=<slug>`, and one board of it with
 `?canvas=<slug>#<file>`: it opens in the inspector with the camera on it, and

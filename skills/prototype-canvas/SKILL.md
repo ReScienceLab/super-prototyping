@@ -2,7 +2,7 @@
 name: prototype-canvas
 description: Start and operate the local tldraw design canvas that shows HTML artboards. Start the canvas app against a project's board folders, add or switch boards, drive shapes through the bounded window.snapCanvas bridge, and act on annotated screenshots of the canvas. Use when asked to open/launch the canvas, put a mockup on the canvas, annotate or draw on it, fix overlapping frames after a layout.json edit, or respond to a screenshot of the canvas with notes drawn on it.
 license: Apache-2.0
-compatibility: Requires the sp-canvas command from super-prototyping-tools, node or bun to run the canvas, and bun to build it once. A modern browser to view the canvas.
+compatibility: Requires the sp-canvas command from super-prototyping-tools, node or bun to run the canvas, and network access on first start to fetch it. A modern browser to view the canvas.
 ---
 
 # Prototype canvas
@@ -25,23 +25,31 @@ Not found? `sp-canvas` installs separately from the plugin, which cannot run
 an installer of its own: `uv tool install
 "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
 
-That is the whole thing. It finds the bundled app, builds it on first run,
-serves it on 127.0.0.1:5173, waits for the port to actually bind, and prints
-the address. Started from a terminal it also opens the browser; from an
-agent's shell it only prints.
+That is the whole thing. On first run it fetches the canvas app built for
+its version into `~/.cache/super-prototyping/<version>/`, then serves it on
+127.0.0.1:5173 with node or bun, waits for the port to actually bind, and
+prints the address. Started from a terminal it also opens the browser; from
+an agent's shell it only prints. A checkout being worked on serves its own
+`canvas/dist` instead, rebuilt with bun when a source is newer.
 
 - **Boards** default to `./mockups/canvases` under the current directory.
   Point somewhere else with `--canvases DIR` or `PROTOTYPING_CANVASES_DIR`.
-- **Port** with `--port N`. A port that already answers is never reused: it
-  may be another project's canvas, so `start` refuses rather than showing you
-  the wrong boards.
+- **Port** with `--port N`, or `SP_CANVAS_PORT` for a machine that always
+  uses another one. A port that already answers is never reused: it may be
+  another project's canvas, so `start` refuses rather than showing you the
+  wrong boards.
 - **Two projects can run two canvases.** Everything is keyed by port — the
   session name, the log, the pidfile — so a second `start` on a free port
   leaves the first one alone. `stop` and `status` take `--port` for the same
   reason, and `stop` only ever kills the canvas it started.
-- `sp-canvas root` prints which copy of the app it found — and with `-v`,
+- `sp-canvas root` prints which copy of the plugin it found — and with `-v`,
   everywhere it looked. The first thing to run when the canvas is not what
   you expected.
+- **It writes two directories and nothing else**: that cache, and
+  `~/.local/state/super-prototyping/` for its pidfile and log (the same on
+  macOS as on Linux; `%LOCALAPPDATA%\super-prototyping\` on Windows).
+  `SUPER_PROTOTYPING_HOME` moves both under one root. `sp-canvas paths`
+  prints them and every variable in use; `sp-canvas clean` removes them.
 - Deep-link a page with `?canvas=<slug>`, e.g.
   `http://127.0.0.1:5173/?canvas=notion-ios`, and one board of it with
   `#<file>` after that, e.g. `?canvas=notion-ios#02-search-ask-ai`: it opens
