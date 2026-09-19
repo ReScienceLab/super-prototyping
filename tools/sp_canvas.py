@@ -6,8 +6,8 @@
   status   say whether it is up, and on what
   root     print the plugin root it resolved (-v: where it looked, and the
            release each half is on)
-  paths    print the two directories this writes, and the variables that move them
-  clean    remove them: every downloaded app, pidfile and log
+  paths    print the three directories in use, and the variables that move them
+  clean    remove the cache and the state: every downloaded app, pidfile and log
 
 The canvas app ships inside the plugin, which is installed outside your
 project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
@@ -44,9 +44,10 @@ def _target(port):
 
 
 def _dirs():
-    """(cache, state): the two directories this writes. The downloaded app goes in the first,
-    one folder per version; the pidfiles and logs in the second. Nothing else, and no
-    configuration file: a port is a flag plus SP_CANVAS_PORT.
+    """(cache, state, data): the three directories in use. The downloaded app goes in the
+    first, one folder per version; the pidfiles and logs in the second. The third is
+    install.sh's, one copy of the plugin per version, which this only reads. Nothing else,
+    and no configuration file: a port is a flag plus SP_CANVAS_PORT.
 
     The XDG pair on macOS as on Linux, following uv, gh and bat rather than platformdirs'
     ~/Library: the people running this have ~/.cache/uv already, and one convention across
@@ -58,13 +59,14 @@ def _dirs():
     home = os.environ.get("SUPER_PROTOTYPING_HOME")
     if home:
         root = Path(home).expanduser()
-        return root / "cache", root / "state"
+        return root / "cache", root / "state", root / "data"
     if sys.platform == "win32":
         root = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData/Local") / APP
-        return root / "cache", root / "state"
+        return root / "cache", root / "state", root / "data"
     def xdg(var, default):
         return Path(os.environ.get(var) or Path.home() / default) / APP
-    return xdg("XDG_CACHE_HOME", ".cache"), xdg("XDG_STATE_HOME", ".local/state")
+    return (xdg("XDG_CACHE_HOME", ".cache"), xdg("XDG_STATE_HOME", ".local/state"),
+            xdg("XDG_DATA_HOME", ".local/share"))
 
 
 def _pidfile(port):
@@ -143,6 +145,13 @@ def _candidates():
         link = Path(root).expanduser() / "prototype-canvas"
         if link.is_symlink():
             yield f"{label} skill link", link.resolve().parent.parent
+
+    # install.sh keeps one copy of the plugin per version under the data directory, newest
+    # first as with the plugin caches. After the skill links, which point at the copy the
+    # installer linked last, so a `--version` downgrade beats a newer copy left behind.
+    for path in sorted(glob.glob(str(_dirs()[2] / "*")),
+                       key=lambda p: _version_key(Path(p).name), reverse=True):
+        yield "install.sh copy", Path(path)
 
     # Finally, a checkout you are standing in.
     try:
@@ -541,22 +550,25 @@ def cmd_root(a):
 
 
 def cmd_paths(a):
-    """Every directory this writes and every variable that moves one, so they can be named in
-    an uninstall note and removed by `clean`. `uv cache dir`, for two directories."""
-    cache, state = _dirs()
+    """Every directory in use and every variable that moves one, so they can be named in an
+    uninstall note. `uv cache dir`, for three directories."""
+    cache, state, data = _dirs()
     print(f"cache  {cache}")
     print(f"state  {state}")
+    print(f"data   {data}")
     print()
-    moves = ("LOCALAPPDATA",) if sys.platform == "win32" else ("XDG_CACHE_HOME", "XDG_STATE_HOME")
+    moves = (("LOCALAPPDATA",) if sys.platform == "win32"
+             else ("XDG_CACHE_HOME", "XDG_STATE_HOME", "XDG_DATA_HOME"))
     for var in ("SUPER_PROTOTYPING_HOME", *moves, "SP_CANVAS_PORT", "PROTOTYPING_CANVASES_DIR",
                 "SUPER_PROTOTYPING_ROOT"):
         print(f"{var:<25} {os.environ.get(var) or '(unset)'}")
 
 
 def cmd_clean(a):
-    """Remove both directories: every downloaded app, pidfile and log. The next `start`
-    downloads again. `uv cache clean`, for two directories."""
-    cache, state = _dirs()
+    """Remove the cache and the state: every downloaded app, pidfile and log. The next `start`
+    downloads again. `uv cache clean`, for two directories. The data directory stays: it is
+    the install itself, and the skill links point into it."""
+    cache, state, _ = _dirs()
     # Never from under a running canvas: it reads its files off this disk on every request.
     # One in tmux wrote no pidfile and is found by its session, as `stop` finds it; a
     # background one is found by its pidfile and nothing else, so removing that would leave

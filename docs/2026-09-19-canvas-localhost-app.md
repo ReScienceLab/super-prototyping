@@ -100,6 +100,15 @@ the two directories and every variable that moves one; `sp-canvas clean`
 removes them, and refuses while a pidfile names a canvas that is still
 running, since that pidfile is the only way `stop` would find it.
 
+A third directory, `$XDG_DATA_HOME/super-prototyping/<version>/`, is the
+install itself when `install.sh` did the installing (`2026-09-19-curl-installer.md`).
+The launcher only reads it: it is the last install `sp-canvas` looks for, after
+the products' own install locations and the skill links and before only a
+checkout you are standing in, so a `--version` downgrade
+whose links point at an older copy still wins over a newer copy left behind.
+`paths` prints it with the other two, and `clean` leaves it, because removing
+the install is an uninstall and not what `clean` is for.
+
 ## Borrowed from OpenDesign
 
 The launcher opens the browser once the port answers, and the capability

@@ -9,8 +9,8 @@ Codex does have a marketplace, as of `codex-cli` 0.145:
 `codex plugin add super-prototyping@super-prototyping` copies the plugin into
 `plugins/cache/<marketplace>/<plugin>/<version>/`, keyed by the version in this
 manifest. The catalogue it reads is `.agents/plugins/marketplace.json`.
-`scripts/install-skills.sh` is still there for a Codex too old for the plugin
-commands, and for products that have no such command at all: it symlinks each
-`skills/*` into their skill roots.
+The root `install.sh` is there for a Codex too old for the plugin commands, and
+for products that have no such command at all: it links each skill into their
+skill roots, from a release, or from this clone with `--from-checkout`.
 
 Its version moves with the others through `scripts/bump-version.sh`.

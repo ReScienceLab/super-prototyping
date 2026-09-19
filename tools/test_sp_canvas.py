@@ -113,6 +113,20 @@ def test_each_products_install_location_is_searched():
         # Resolved, because following the link is how the checkout was found.
         assert with_home(home, lambda: C.resolve_root()) == checkout.resolve(), root
 
+    # And install.sh's copy per version under the data directory: the newest, with a
+    # prerelease below the release it leads to. A skill link outranks it, because the link
+    # names the copy the installer linked last, which after `--version` is an older one.
+    home = Path(tempfile.mkdtemp())
+    data = home / ".local/share/super-prototyping"
+    for version in ("1.4.1", "1.5.0", "1.5.0-rc.1"):
+        canvas_app_at(data / version)
+    found = lambda: with_home(home, lambda: with_env(UNSET, C.resolve_root))
+    assert found() == data / "1.5.0"
+    (data / "1.4.1/skills/prototype-canvas").mkdir(parents=True)
+    (home / ".codex/skills").mkdir(parents=True)
+    (home / ".codex/skills/prototype-canvas").symlink_to(data / "1.4.1/skills/prototype-canvas")
+    assert found() == (data / "1.4.1").resolve()
+
 
 def with_env(vars, fn):
     """Run fn with these environment variables set (None: unset), then put them back."""
@@ -141,35 +155,38 @@ def on_platform(name, fn):
         sys.platform = real
 
 
-UNSET = {"SUPER_PROTOTYPING_HOME": None, "XDG_CACHE_HOME": None, "XDG_STATE_HOME": None}
+UNSET = {"SUPER_PROTOTYPING_HOME": None, "XDG_CACHE_HOME": None, "XDG_STATE_HOME": None,
+         "XDG_DATA_HOME": None}
 
 
-def test_the_two_directories_follow_xdg_on_unix_localappdata_on_windows_and_one_home_over_both():
-    """Where the downloaded app and the pidfiles go: uv's answer, not platformdirs'. The same
-    pair on macOS as on Linux, and nothing created until something is written."""
+def test_the_three_directories_follow_xdg_on_unix_localappdata_on_windows_and_one_home_over_both():
+    """Where the downloaded app, the pidfiles and install.sh's copy go: uv's answer, not
+    platformdirs'. The same on macOS as on Linux, and nothing created until something is
+    written."""
     home = Path(tempfile.mkdtemp())
     dirs = lambda: with_home(home, lambda: with_env(UNSET, C._dirs))
     for platform in ("darwin", "linux"):
-        cache, state = on_platform(platform, dirs)
+        cache, state, data = on_platform(platform, dirs)
         assert cache == home / ".cache/super-prototyping", platform
         assert state == home / ".local/state/super-prototyping", platform
+        assert data == home / ".local/share/super-prototyping", platform
     assert not (home / ".cache").exists() and not (home / ".local").exists()
     pidfile = on_platform("darwin", lambda: with_home(home, lambda: with_env(UNSET, lambda: C._pidfile(5173))))
     assert pidfile == home / ".local/state/super-prototyping/canvas-5173.pid"
     assert not pidfile.parent.exists()
-    # The XDG variables move each half on its own.
-    cache, state = on_platform("linux", lambda: with_home(home, lambda: with_env(
-        dict(UNSET, XDG_CACHE_HOME="/c", XDG_STATE_HOME="/s"), C._dirs)))
-    assert (cache, state) == (Path("/c/super-prototyping"), Path("/s/super-prototyping"))
-    # SUPER_PROTOTYPING_HOME puts both under one root, and wins over them.
-    cache, state = on_platform("linux", lambda: with_home(home, lambda: with_env(
+    # The XDG variables move each one on its own.
+    dirs = on_platform("linux", lambda: with_home(home, lambda: with_env(
+        dict(UNSET, XDG_CACHE_HOME="/c", XDG_STATE_HOME="/s", XDG_DATA_HOME="/d"), C._dirs)))
+    assert dirs == (Path("/c/super-prototyping"), Path("/s/super-prototyping"), Path("/d/super-prototyping"))
+    # SUPER_PROTOTYPING_HOME puts all three under one root, and wins over them.
+    dirs = on_platform("linux", lambda: with_home(home, lambda: with_env(
         dict(UNSET, SUPER_PROTOTYPING_HOME="~/sp", XDG_CACHE_HOME="/c"), C._dirs)))
-    assert (cache, state) == (home / "sp/cache", home / "sp/state")
-    # Windows: %LOCALAPPDATA%, machine-local, both halves under the one folder.
-    cache, state = on_platform("win32", lambda: with_home(home, lambda: with_env(
+    assert dirs == (home / "sp/cache", home / "sp/state", home / "sp/data")
+    # Windows: %LOCALAPPDATA%, machine-local, all three under the one folder.
+    dirs = on_platform("win32", lambda: with_home(home, lambda: with_env(
         dict(UNSET, LOCALAPPDATA=str(home / "AppData/Local")), C._dirs)))
-    assert cache == home / "AppData/Local/super-prototyping/cache"
-    assert state == home / "AppData/Local/super-prototyping/state"
+    local = home / "AppData/Local/super-prototyping"
+    assert dirs == (local / "cache", local / "state", local / "data")
 
 
 def canvas_bundle(files=("dist/server.mjs", "dist/index.html")):
@@ -292,6 +309,7 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
     (sp_home / "state").mkdir()
     (sp_home / "state/canvas-5173.pid").write_text("4242\n")
     (sp_home / "state/canvas-5174.pid").write_text("not a pid\n")  # skipped, not fatal
+    (sp_home / "data/1.4.2/skills").mkdir(parents=True)  # install.sh's copy: not ours to remove
     sessions = ["main\n"]  # what `tmux list-sessions` answers
     real = C._is_our_server, C.subprocess.run, C.shutil.which
 
@@ -317,6 +335,7 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
         sessions[0] = "main\n"
         with_env(env, lambda: C.cmd_clean(None))
         assert not (sp_home / "cache").exists() and not (sp_home / "state").exists()
+        assert (sp_home / "data/1.4.2/skills").is_dir()
         with_env(env, lambda: C.cmd_clean(None))  # a second time is not an error
     finally:
         C._is_our_server, C.subprocess.run, C.shutil.which = real
@@ -362,7 +381,7 @@ def test_the_bundle_fetched_is_the_one_the_release_workflow_attaches():
     expects one top-level `dist/` inside. Neither may move without the other."""
     workflow = (Path(__file__).resolve().parent.parent / ".github/workflows/release.yml").read_text()
     assert 'tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist' in workflow
-    assert 'gh release upload "super-prototyping--v$VERSION" "$RUNNER_TEMP/canvas-dist.tgz"' in workflow
+    assert 'gh release upload "super-prototyping--v$VERSION" plugin.tgz canvas-dist.tgz SHA256SUMS' in workflow
     import inspect
     assert "/canvas-dist.tgz" in inspect.getsource(C._dist)
 

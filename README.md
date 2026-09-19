@@ -72,9 +72,28 @@ six "Ask AI" screens are on the same board.*
 
 ## Install
 
-It installs in two halves, in every product. The **plugin** holds the three
-skills and the canvas app, and comes from your product's own install command.
-The **toolkit** the skills call by name is one more command, once per machine.
+One command on macOS or Linux, whichever agent you use:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ReScienceLab/super-prototyping/main/install.sh | sh
+```
+
+It puts the latest release's plugin at `~/.local/share/super-prototyping/<version>/`,
+checked against the release's `SHA256SUMS` before anything lands, installs the
+toolkit the skills call by name (`refkit`, `artgen`, `sp-canvas`) from that copy
+with uv, and links the skills into every product on the machine that reads a
+skills directory: Codex, CodeBuddy, Hermes, Pi, Trae and Trae CN. No sudo, no
+shell profile edited; if `~/.local/bin` is not on your PATH it prints the line
+to add. `--dry-run` shows what it would do, `--version 1.5.0` names a release,
+`--help` has the rest, and running it again moves you to the newest one.
+Windows is not there yet
+([#111](https://github.com/ReScienceLab/super-prototyping/issues/111)).
+
+Claude Code is the one product the script does not link into: it installs
+plugins from a marketplace and `/plugin update` moves them, so there the
+**plugin** is the two slash commands below and the **toolkit** is the same
+script with `--tools-only`. Every other product with an install command of its
+own can take the plugin from it the same way, and then needs only the toolkit.
 
 | Your agent | Install the plugin |
 |---|---|
@@ -84,9 +103,9 @@ The **toolkit** the skills call by name is one more command, once per machine.
 | **Hermes** | `hermes plugins install ReScienceLab/super-prototyping --enable` |
 | **Pi** | `pi install git:github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>` |
 | **Trae**, and anything else that reads `SKILL.md` | `npx skills add ReScienceLab/super-prototyping` |
-| Any of those except Claude Code, from a clone you control | `scripts/install-skills.sh` |
 
-Then the toolkit, whichever product you came from:
+Then the toolkit, whichever product you came from: the script with
+`--tools-only`, or uv directly:
 
 ```bash
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
@@ -100,7 +119,9 @@ WorkBuddy, and a root `plugin.json` in the portable
 Hermes installs. Pi and `npx skills` read `skills/*/SKILL.md` directly and need
 no manifest at all.
 
-`/plugin update super-prototyping` picks up a new release. The others are
+Running the install script again moves everything it installed to the newest
+release. Where the plugin came from a product's own command, that command moves
+it: `/plugin update super-prototyping` picks up a new release, and the others are
 `codex plugin add` again, `codebuddy plugin install` again, `hermes plugins
 update super-prototyping`, `npx skills update`, and for Pi another `pi install`
 naming the new tag, since Pi pins the ref you gave it and never moves it on its
@@ -154,22 +175,22 @@ skills add` asks which agents and whether to install globally, and knows Trae,
 Trae CN, CodeBuddy, Hermes, Pi and Codex by name; `-a trae -g` answers both
 questions up front.
 
-**No install command, or you want one checkout behind all of them.** Clone
-once, then link:
+**One checkout behind all of them.** Clone once, then from inside it:
 
 ```bash
-git clone https://github.com/ReScienceLab/super-prototyping.git ~/.super-prototyping
-~/.super-prototyping/scripts/install-skills.sh
+git clone https://github.com/ReScienceLab/super-prototyping.git
+cd super-prototyping
+sh install.sh --from-checkout
 ```
 
-It installs the toolkit and symlinks `skills/*` into every product skill root it
-finds (`~/.codex/skills`, `~/.codebuddy/skills`, `~/.hermes/skills`,
-`~/.pi/agent/skills`, `~/.trae/skills`, `~/.trae-cn/skills`). The skills are
-links, not copies, so `git pull` in that checkout updates every product at once.
-The toolkit is a copy, so re-run the script after a pull to move `refkit`,
-`artgen` and `sp-canvas` with it. `--list` shows what it would do and changes
-nothing. What it cannot give you is a version. A linked checkout is whatever you
-last pulled, where a marketplace install is a release.
+It installs the toolkit from that clone and links `skills/*` into the same
+product skill roots the release install uses (`~/.codex/skills`,
+`~/.codebuddy/skills`, `~/.hermes/skills`, `~/.pi/agent/skills`,
+`~/.trae/skills`, `~/.trae-cn/skills`). The skills are links, not copies, so
+`git pull` in that checkout updates every product at once. The toolkit is a
+copy, so run it again after a pull to move `refkit`, `artgen` and `sp-canvas`
+with it. What it cannot give you is a version. A linked checkout is whatever
+you last pulled, where an install is a release.
 
 ## Start a project
 
@@ -196,8 +217,8 @@ plugin into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
 against `./mockups/canvases` with node or bun, opens the browser, and prints
 the address. `--canvases DIR` points it somewhere else, `--port N` (or
 `SP_CANVAS_PORT`) moves it, `sp-canvas status` and `sp-canvas stop` do what
-they say. `sp-canvas paths` lists the two directories it writes, and
-`sp-canvas clean` removes them.
+they say. `sp-canvas paths` lists the two directories it writes and the
+install directory it reads; `sp-canvas clean` removes the first two.
 
 Deep-link a page with `?canvas=<slug>`, and one board of it with
 `?canvas=<slug>#<file>`: it opens in the inspector with the camera on it, and

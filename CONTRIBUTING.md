@@ -62,13 +62,15 @@ with a `README.md` that says what was measured and what was excluded.
 Everything under `.github/`:
 
 - `workflows/validate.yml`: the gates, on every pull request — the manifests
-  agree and validate, the canvas lints, tests and builds, and the toolkit's
-  tests pass. Run the same commands locally from the root README.
+  agree and validate, the canvas lints, tests and builds, the toolkit's tests
+  pass, and `install.sh` is POSIX sh. Run the same commands locally from the
+  root README.
 - `workflows/release.yml`: dispatch it with a version and it opens the release
   PR; merging that PR tags `super-prototyping--v<version>`, cuts the GitHub
   Release from the matching `RELEASE-NOTES.md` section, and attaches
-  `canvas-dist.tgz`, the canvas built without the example boards. It is in two
-  halves because branch protection means CI cannot push to `main`.
+  `plugin.tgz`, the plugin without the example boards, `canvas-dist.tgz`, the
+  canvas built the same way, and `SHA256SUMS` for both. It is in two halves
+  because branch protection means CI cannot push to `main`.
 - `CODEOWNERS`: who is asked to review pull requests, by path.
 - `dependabot.yml`: weekly dependency updates for `canvas/` (bun) and for any
   GitHub Actions workflows.
@@ -114,11 +116,12 @@ release calls a command from the other.
    `## Unreleased` above it. The tag job reads exactly that heading.
 5. Merge. The push to `main` tags `super-prototyping--v<version>` through
    `claude plugin tag`, cuts the GitHub Release from that notes section, and
-   attaches `canvas-dist.tgz` to it.
+   attaches `plugin.tgz`, `canvas-dist.tgz` and `SHA256SUMS` to it.
 
-**Then check the release exists**, because everything downstream keys off the
-tag: the tag on the Releases page, `/plugin update super-prototyping` in Claude
-Code, and `uv tool install --force
+**Then check the release exists and has its three assets**, because everything
+downstream keys off the tag: the tag on the Releases page, `install.sh`, which
+downloads the newest release's `plugin.tgz`, `/plugin update super-prototyping`
+in Claude Code, and `uv tool install --force
 "git+https://github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>#subdirectory=tools"`.
 
 **When a step fails.** The tag job runs only when the push moved the version
@@ -130,11 +133,14 @@ the workflow cannot open the pull request, the branch is already pushed and
 nothing is lost: open it by hand from
 `main...release/<version>`, and turn on Settings → Actions → General → "Allow
 GitHub Actions to create and approve pull requests", which is what it needed.
-The bundle is attached last, after the release is cut, so a failure there leaves
-the release whole. To add it by hand: in `canvas/`, run `bun run build` with
-`PROTOTYPING_CANVASES_DIR` pointing at an empty directory, then
-`tar -czf canvas-dist.tgz dist`, then
-`gh release upload super-prototyping--v<version> canvas-dist.tgz`.
+The assets are attached last, after the release is cut, so a failure there
+leaves the release whole; until they are there, `install.sh` and `sp-canvas
+start` on that version stop with the URL they wanted. To add them by hand, run
+the workflow's last step yourself: `git archive` for `plugin.tgz`, `bun run
+build` in `canvas/` with `PROTOTYPING_CANVASES_DIR` pointing at an empty
+directory and `tar -czf canvas-dist.tgz dist`, `sha256sum` of both into
+`SHA256SUMS`, then `gh release upload super-prototyping--v<version>` with the
+three.
 The whole thing is doable by hand too. Run `scripts/bump-version.sh <version>`,
 open a pull request, then `claude plugin tag . --push -m 'super-prototyping %s'`
 after it merges; the workflow is that sequence with the gates in front of it.
