@@ -4,29 +4,29 @@
 <meta charset="utf-8" />
 <title>Super Prototyping</title>
 <style>
-  /* Vercel's Geist look, dark like the canvas: one neutral ramp, hairline borders, 6px and 8px
-     radii, and a primary button that inverts rather than colours. */
+  /* One dark glass panel floating on the aurora, in Geist: soft corners, white-on-glass fills
+     in place of borders, grey second-line text, and orange as the only colour. */
   :root {
     color-scheme: dark;
     --bg: #000000;
-    --fg: #ededed;
-    --fg-dim: #a1a1a1;
-    --border: #333333;
-    --border-hover: #666666;
-    /* What a control is filled with is part see-through, so the picture shows in it too. */
-    --surface: rgb(0 0 0 / 0.45);
-    --hover: rgb(255 255 255 / 0.1);
-    --accent: rgb(237 237 237 / 0.85);
-    --accent-fg: #0a0a0a;
-    --accent-hover: rgb(237 237 237 / 0.7);
-    --ring: #0070f3;
+    --fg: #f2f2f2;
+    --fg-dim: #8e8e96;
+    --border: rgb(255 255 255 / 0.08);
+    --border-hover: rgb(255 255 255 / 0.25);
+    --panel: rgb(16 16 22 / 0.8);
+    --surface: rgb(255 255 255 / 0.06);
+    --hover: rgb(255 255 255 / 0.12);
+    --accent: #ff7a4a;
+    --accent-fg: #2a1208;
+    --accent-hover: #ff9066;
+    --ring: var(--accent);
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     height: 100vh;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     font: 14px/1.5 "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     color: var(--fg);
@@ -38,10 +38,16 @@
     justify-content: space-between;
     height: 56px;
     padding: 0 24px;
-    border-bottom: 1px solid var(--border);
   }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
   .brand img { width: 24px; height: 24px; }
+  /* The three steps as a bar under the header. It fills up to the step whose section is showing,
+     so no script keeps it in step. */
+  #progress { display: flex; gap: 8px; margin: 0; padding: 0 24px; list-style: none; font-size: 12px; color: var(--fg-dim); }
+  #progress li { flex: 1; padding-top: 8px; border-top: 2px solid var(--border-hover); }
+  #progress li:first-child,
+  body:has(#step-project:not([hidden])) #progress li:nth-child(2),
+  body:has(#step-name:not([hidden])) #progress li { border-color: var(--accent); color: var(--fg); }
   main {
     min-height: 0;
     overflow: auto;
@@ -52,13 +58,13 @@
     position: relative;
   }
   /* Three steps, one section each: the agent, the project, and, for a new project, its name. */
-  section { display: flex; flex-direction: column; align-items: center; }
+  section { display: flex; flex-direction: column; align-items: center; padding: 40px 48px; border-radius: 28px; background: var(--panel); }
   section[hidden] { display: none; }
-  .step { margin: 0 0 12px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-dim); }
-  h1 { margin: 0 0 8px; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+  h1 { margin: 0 0 8px; font-size: 26px; font-weight: 500; letter-spacing: -0.02em; }
   #step-project h1 { margin-bottom: 32px; }
+  #step-project .cards { margin-bottom: 0; }
   p.sub { margin: 0 0 32px; max-width: 540px; color: var(--fg-dim); text-align: center; }
-  code { font: 13px/1 "Geist Mono", ui-monospace, Menlo, monospace; padding: 2px 5px; border: 1px solid var(--border); border-radius: 4px; }
+  code { font: 13px/1 "Geist Mono", ui-monospace, Menlo, monospace; padding: 2px 5px; border-radius: 6px; background: var(--surface); }
   .cards {
     list-style: none;
     margin: 0 0 32px;
@@ -74,10 +80,10 @@
   input[type="text"] {
     font: inherit;
     width: 360px;
-    height: 40px;
-    padding: 0 12px;
+    height: 44px;
+    padding: 0 16px;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 12px;
     background: var(--surface);
     color: var(--fg);
     transition: border-color 0.15s;
@@ -96,7 +102,8 @@
   /* The folders already in Documents/Super Prototyping, a flat grid of cards three across. The
      grid scrolls in itself under a thin scrollbar, so a long one does not grow the page, and its
      padding keeps a card's focus ring from being clipped. */
-  #projects { width: 812px; max-width: 100%; margin: 0 0 32px; }
+  #projects { width: 812px; max-width: 100%; margin: 32px 0 0; }
+  #projects p { margin: 0 0 12px; font-size: 13px; color: var(--fg-dim); }
   #project-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border-hover) transparent; padding: 4px; margin: -4px; }
   #project-list span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .actions { display: flex; gap: 12px; }
@@ -110,8 +117,8 @@
     align-items: center;
     gap: 8px;
     border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--surface);
+    border-radius: 999px;
+    background: var(--panel);
     color: var(--fg);
     text-decoration: none;
     cursor: pointer;
@@ -130,7 +137,7 @@
     gap: 4px;
     padding: 20px;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 16px;
     background: var(--surface);
     color: var(--fg);
     text-align: left;
@@ -138,7 +145,7 @@
     transition: border-color 0.15s, background 0.15s;
   }
   .card:hover { border-color: var(--border-hover); background: var(--hover); }
-  li:has(input:checked) > .card { border-color: var(--fg); }
+  li:has(input:checked) > .card { border-color: var(--accent); }
   li:has(input:focus-visible) > .card, .card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
 </style>
 </head>
@@ -149,9 +156,9 @@
     <!-- GitHub's mark, Octicons' mark-github (MIT). A link off the loopback opens in the browser. -->
     <a class="button" href="https://github.com/ReScienceLab/super-prototyping"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Star on GitHub</a>
   </header>
+  <ol id="progress"><li>Agent</li><li>Project</li><li>Name</li></ol>
   <main>
     <section id="step-agent">
-      <p class="step">Step 1 of 3</p>
       <h1>Which agent will you work with?</h1>
       <p class="sub">It gets the super-prototyping skills copied into your project.</p>
       <ul id="list" class="cards"></ul>
@@ -161,7 +168,6 @@
     </section>
     <section id="step-project" hidden>
       <button id="back" class="back" type="button">Back</button>
-      <p class="step">Step 2 of 3</p>
       <h1>Set up a project</h1>
       <!-- The two glyphs are Lucide's folder-plus and folder-open (ISC), in currentColor. -->
       <div class="cards">
@@ -175,13 +181,12 @@
         </button>
       </div>
       <div id="projects" hidden>
-        <p class="step">Your projects</p>
+        <p>Your projects</p>
         <div id="project-list"></div>
       </div>
     </section>
     <section id="step-name" hidden>
       <button id="back-name" class="back" type="button">Back</button>
-      <p class="step">Step 3 of 3</p>
       <h1>Name your project</h1>
       <p class="sub">It goes in <code>Documents/Super Prototyping</code> as a folder with <code>mockups/canvases</code> in it, ready for a first board.</p>
       <form id="name-form">
