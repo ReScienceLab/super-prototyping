@@ -90,8 +90,10 @@ Two directories and nothing else, following the survey in
 `$XDG_STATE_HOME/super-prototyping/` for the pidfile and log. The same paths
 on macOS as on Linux, as uv, gh and bat do, rather than `platformdirs`'
 `~/Library`: the people running this have `~/.cache/uv` already, and one
-convention across the two Unixes is one to document and one to remove.
-`%LOCALAPPDATA%\super-prototyping\{cache,state}\` on Windows.
+convention across the two Unixes is one to document and one to remove. No
+Windows path yet: `stop` and `clean` need `ps` and process groups, so the
+launcher does not run there, and the survey's `%LOCALAPPDATA%` answer waits
+for the desktop shell.
 `SUPER_PROTOTYPING_HOME` puts both under one root, the way `CODEX_HOME` and
 `CLAUDE_CONFIG_DIR` do. A directory is created at the first write into it,
 so `status` on a fresh machine leaves no trace. No configuration file: the

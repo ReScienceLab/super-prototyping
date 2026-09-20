@@ -144,7 +144,7 @@ def on_platform(name, fn):
 UNSET = {"SUPER_PROTOTYPING_HOME": None, "XDG_CACHE_HOME": None, "XDG_STATE_HOME": None}
 
 
-def test_the_two_directories_follow_xdg_on_unix_localappdata_on_windows_and_one_home_over_both():
+def test_the_two_directories_follow_xdg_on_both_unixes_and_one_home_over_both():
     """Where the downloaded app and the pidfiles go: uv's answer, not platformdirs'. The same
     pair on macOS as on Linux, and nothing created until something is written."""
     home = Path(tempfile.mkdtemp())
@@ -165,11 +165,6 @@ def test_the_two_directories_follow_xdg_on_unix_localappdata_on_windows_and_one_
     cache, state = on_platform("linux", lambda: with_home(home, lambda: with_env(
         dict(UNSET, SUPER_PROTOTYPING_HOME="~/sp", XDG_CACHE_HOME="/c"), C._dirs)))
     assert (cache, state) == (home / "sp/cache", home / "sp/state")
-    # Windows: %LOCALAPPDATA%, machine-local, both halves under the one folder.
-    cache, state = on_platform("win32", lambda: with_home(home, lambda: with_env(
-        dict(UNSET, LOCALAPPDATA=str(home / "AppData/Local")), C._dirs)))
-    assert cache == home / "AppData/Local/super-prototyping/cache"
-    assert state == home / "AppData/Local/super-prototyping/state"
 
 
 def canvas_bundle(files=("dist/server.mjs", "dist/index.html")):
@@ -281,15 +276,37 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     else:
         assert False, "a failed download must exit loudly"
     assert not (sp_home / "cache/1.6.0").exists()
+    # A release with no bundle attached is a 404, not a network problem: every release before
+    # bundles shipped is one, so a plugin behind the toolkit is told to move the plugin up.
+    missing = lambda: C.urllib.error.HTTPError(url="", code=404, msg="Not Found", hdrs=None, fp=None)
+    try:
+        with_release(missing(), lambda: with_toolkit("1.6.0", lambda: dist(install, "1.4.1")))
+    except SystemExit as e:
+        assert "1.4.1 has no canvas app attached" in str(e) and "/plugin update" in str(e), e
+        assert "network" not in str(e)
+    else:
+        assert False, "a missing bundle must exit loudly"
+    # A plugin ahead of the toolkit, or level with it, is a release whose attach step failed:
+    # updating the plugin would not help, building would.
+    try:
+        with_release(missing(), lambda: with_toolkit("1.4.1", lambda: dist(install, "1.6.0")))
+    except SystemExit as e:
+        assert "1.6.0 has no canvas app attached" in str(e) and "bun run build" in str(e), e
+    else:
+        assert False, "a missing bundle must exit loudly"
 
 
 def test_the_boards_are_the_flag_then_the_variable_then_the_projects_mockups_canvases():
-    boards = lambda arg, env, project: with_env(
-        dict(UNSET, **env), lambda: C._canvases_dir(arg, Path(project)))
+    boards = lambda arg, env, project, **kw: with_env(
+        dict(UNSET, **env), lambda: C._canvases_dir(arg, Path(project), **kw))
     assert boards(None, {}, "/p") == Path("/p/mockups/canvases")
     assert boards(None, {}, ".") == Path.cwd() / "mockups/canvases"
     assert boards(None, {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/v")
     assert boards("/f", {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/f")
+    # A project named on the command line beats the variable: an agent spawned by one canvas
+    # inherits that canvas's variable, and its `sp start <other>` must serve the other.
+    assert boards(None, {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p", named=True) == Path("/p/mockups/canvases")
+    assert boards("/f", {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p", named=True) == Path("/f")
     assert C.parser().parse_args(["start", "~/app"]).project == "~/app"
     assert C.parser().parse_args(["start"]).project is None
 
@@ -317,6 +334,7 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
     (sp_home / "state").mkdir()
     (sp_home / "state/canvas-5173.pid").write_text("4242\n")
     (sp_home / "state/canvas-5174.pid").write_text("not a pid\n")  # skipped, not fatal
+    (sp_home / "state/canvas-backup.pid").write_text("4242\n")  # not a port; debris, not fatal
     sessions = ["main\n"]  # what `tmux list-sessions` answers
     real = C._is_our_server, C.subprocess.run, C.shutil.which
 
@@ -339,7 +357,8 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
         C._is_our_server = lambda pid, port: False
         sessions[0] = "canvas-5180\nmain\n"
         refuses("5180")
-        sessions[0] = "main\n"
+        # Someone else's session is not ours whatever its name holds.
+        sessions[0] = "notes canvas-9999\nmain\n"
         with_env(env, lambda: C.cmd_clean(None))
         assert not (sp_home / "cache").exists() and not (sp_home / "state").exists()
         with_env(env, lambda: C.cmd_clean(None))  # a second time is not an error
