@@ -98,7 +98,7 @@
   #note { width: 360px; margin: 12px 0 0; color: var(--fg-dim); font-size: 13px; }
   #note button { all: unset; color: var(--fg); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   #note button[hidden] { display: none; }
-  #note button:focus-visible { border-radius: 2px; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
+  #note button:focus-visible, .status a:focus-visible { border-radius: 2px; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
   /* The folders already in Documents/Super Prototyping, a flat grid of cards three across. The
      grid scrolls in itself under a thin scrollbar, so a long one does not grow the page, and its
      padding keeps a card's focus ring from being clipped. */
@@ -145,6 +145,10 @@
     transition: border-color 0.15s, background 0.15s;
   }
   .card:hover { border-color: var(--border-hover); background: var(--hover); }
+  li:has(input:disabled) > .card { pointer-events: none; }
+  li:has(input:disabled) :is(.icon, .name) { opacity: 0.4; }
+  .status a { color: var(--fg); pointer-events: auto; }
+  button:disabled { opacity: 0.4; pointer-events: none; }
   li:has(input:checked) > .card { border-color: var(--border-hover); background: var(--hover); }
   li:has(input:focus-visible) > .card, .card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
 </style>
@@ -200,8 +204,10 @@
   </main>
   <script>
     var agents = JSON.parse(new URLSearchParams(location.search).get("agents") || "[]");
-    // The first row with something found starts selected.
-    var initial = agents.find(function (a) { return a.found.length > 0; }) || agents[0];
+    // The first row with something found starts selected. A row with nothing found cannot be
+    // chosen and links to where to get it, and with no row found there is nothing to go on with.
+    var initial = agents.find(function (a) { return a.found.length > 0; });
+    document.getElementById("next").disabled = !initial;
     var list = document.getElementById("list");
     agents.forEach(function (agent) {
       var li = document.createElement("li");
@@ -216,6 +222,7 @@
       input.name = "agent";
       input.value = agent.id;
       input.checked = agent === initial;
+      input.disabled = agent.found.length === 0;
       label.appendChild(input);
       var icon = document.createElement("span");
       icon.className = "icon";
@@ -227,7 +234,14 @@
       label.appendChild(name);
       var status = document.createElement("span");
       status.className = "status";
-      status.textContent = agent.found.length ? "Found on this machine" : "Not found";
+      status.textContent = agent.found.length ? "Found on this machine" : "Not found. ";
+      if (!agent.found.length) {
+        var site = document.createElement("a");
+        site.href = agent.site;
+        site.textContent = "Install it";
+        site.title = "Then reopen Super Prototyping";
+        status.appendChild(site);
+      }
       label.appendChild(status);
       li.appendChild(label);
       list.appendChild(li);

@@ -106,6 +106,7 @@ async function main() {
       id: a.id,
       name: a.name,
       found: found[a.id],
+      site: a.site,
       icon: fs.readFileSync(path.join(app.getAppPath(), "icons", `${a.id}.svg`), "utf8"),
     }));
     // Where every new project goes, which makes the folder the list of them. The page's second

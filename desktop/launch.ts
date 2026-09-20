@@ -133,6 +133,8 @@ export type Agent = {
   homeDirs: string[];
   /** A macOS app bundle name under /Applications or ~/Applications, if one exists. */
   app?: string;
+  /** Its maker's page for getting it, which an offered row links to when nothing was found. */
+  site?: string;
   /** Shown once after install, alongside this agent's name, when it has something to say. */
   note?: string;
 };
@@ -152,6 +154,7 @@ export const AGENTS: Agent[] = [
     bins: ["claude"],
     homeDirs: [".claude"],
     app: "Claude.app",
+    site: "https://claude.com/product/claude-code",
     note: "A user-level ~/.claude/skills folder with the same name overrides the project one.",
   },
   {
@@ -161,6 +164,7 @@ export const AGENTS: Agent[] = [
     dir: ".agents/skills",
     bins: ["codex"],
     homeDirs: [".codex"],
+    site: "https://openai.com/codex/",
   },
   {
     id: "cursor",
