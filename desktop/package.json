@@ -23,7 +23,7 @@
     "productName": "Super Prototyping",
     "artifactName": "Super-Prototyping-${version}-${arch}.${ext}",
     "directories": { "output": "dist/out" },
-    "files": ["dist/main.mjs", "dist/preload.cjs", "startup.html"],
+    "files": ["dist/main.mjs", "dist/preload.cjs", "startup.html", "icons/**"],
     "extraResources": [
       { "from": "../skills", "to": "plugin/skills" },
       { "from": "../.claude-plugin", "to": "plugin/.claude-plugin" },

@@ -73,7 +73,17 @@ async function main() {
         fs.existsSync(path.join("/Applications", name)) ||
         fs.existsSync(path.join(home, "Applications", name)),
     });
-    const rows = AGENTS.map((a) => ({ id: a.id, name: a.name, found: found[a.id] }));
+    // Each row's icon is LobeHub's brand SVG from icons/, inlined rather than linked so the mono
+    // ones, drawn in currentColor, follow the text colour in dark mode. Factory Droid has none.
+    const rows = AGENTS.map((a) => {
+      const icon = path.join(app.getAppPath(), "icons", `${a.id}.svg`);
+      return {
+        id: a.id,
+        name: a.name,
+        found: found[a.id],
+        icon: fs.existsSync(icon) ? fs.readFileSync(icon, "utf8") : "",
+      };
+    });
     const win = new BrowserWindow({
       width: 560,
       height: 720,

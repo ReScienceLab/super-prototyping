@@ -54,8 +54,9 @@ Everything below is on `main` and reaches no install until a version is cut.
   port and the same `~/.local/state` directory as the command line. Closing
   the window stops the server and any agent it was running.
 - On launch the app opens on the agents it finds on this machine — a binary
-  on PATH, a config directory under home, an app bundle, each row saying
-  which — pre-checked and correctable, and then asks for a project: an
+  on PATH, a config directory under home, an app bundle, each row with its
+  icon and saying which — pre-checked and correctable, and then asks for a
+  project: an
   existing folder, or a new one it creates with `mockups/canvases` and the
   template canvas in it. Each checked agent gets the bundled skills copied
   into that project, into its own skills directory, and each copy lands with

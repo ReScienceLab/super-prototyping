@@ -57,6 +57,7 @@
     cursor: pointer;
   }
   label:hover { background: var(--hover); }
+  .icon { width: 18px; height: 18px; font-size: 18px; display: inline-flex; align-items: center; flex: none; }
   .found { margin-left: auto; color: var(--fg-dim); font-size: 12px; text-align: right; }
   .actions {
     display: flex;
@@ -97,6 +98,10 @@
       input.value = agent.id;
       input.checked = agent.found.length > 0;
       label.appendChild(input);
+      var icon = document.createElement("span");
+      icon.className = "icon";
+      icon.innerHTML = agent.icon; // the app's own SVG from icons/, not anything a user typed
+      label.appendChild(icon);
       label.appendChild(document.createTextNode(agent.name));
       var found = document.createElement("span");
       found.className = "found";
