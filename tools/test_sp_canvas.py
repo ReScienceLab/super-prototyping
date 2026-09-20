@@ -281,6 +281,24 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     else:
         assert False, "a failed download must exit loudly"
     assert not (sp_home / "cache/1.6.0").exists()
+    # A release with no bundle attached is a 404, not a network problem: every release before
+    # bundles shipped is one, so a plugin behind the toolkit is told to move the plugin up.
+    missing = lambda: C.urllib.error.HTTPError(url="", code=404, msg="Not Found", hdrs=None, fp=None)
+    try:
+        with_release(missing(), lambda: with_toolkit("1.6.0", lambda: dist(install, "1.4.1")))
+    except SystemExit as e:
+        assert "1.4.1 has no canvas app attached" in str(e) and "/plugin update" in str(e), e
+        assert "network" not in str(e)
+    else:
+        assert False, "a missing bundle must exit loudly"
+    # A plugin ahead of the toolkit, or level with it, is a release whose attach step failed:
+    # updating the plugin would not help, building would.
+    try:
+        with_release(missing(), lambda: with_toolkit("1.4.1", lambda: dist(install, "1.6.0")))
+    except SystemExit as e:
+        assert "1.6.0 has no canvas app attached" in str(e) and "bun run build" in str(e), e
+    else:
+        assert False, "a missing bundle must exit loudly"
 
 
 def test_the_boards_are_the_flag_then_the_variable_then_the_projects_mockups_canvases():

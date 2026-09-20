@@ -24,7 +24,7 @@ the canvas built for the plugin's release, fetched once into
 canvas/dist. The port is --port or SP_CANVAS_PORT. Nothing is read from a file.
 """
 import argparse, glob, io, json, os, re, shlex, shutil, signal, subprocess, sys, tarfile
-import tempfile, time, urllib.request, webbrowser
+import tempfile, time, urllib.error, urllib.request, webbrowser
 from pathlib import Path
 
 DEFAULT_PORT = 5173
@@ -317,7 +317,8 @@ def _dist(root: Path) -> Path:
     attached is the app it should run, and nothing but node or bun is needed to run it. The
     version is the manifest's, not the toolkit's: the manifest is what `claude plugin tag`
     tagged, spelled as the tag is, where the installed toolkit reports PEP 440's `1.5.0rc1`
-    for the tag's `1.5.0-rc.1`. A root with no manifest names no release, and builds.
+    for the tag's `1.5.0-rc.1`. A fresh clone has a manifest too, so it is served the release
+    it names until `bun install` marks it as being worked on.
 
     The tarball is the one release.yml attaches to every release: one top-level `dist/`
     holding the built app and `server.mjs`. One directory per version, so a new release
@@ -326,14 +327,13 @@ def _dist(root: Path) -> Path:
     file the cache check looks for cannot be there without the rest.
     """
     app = root / "canvas"
-    # A dist with no sources beside it is an install's, Homebrew's: the app as shipped, with
-    # nothing to rebuild it from. The mtime check below would take its package.json, unpacked
-    # after the bundle was built, as an edit.
-    if (app / "dist/server.mjs").is_file() and not (app / "src").is_dir():
-        return app / "dist"
+    own = (app / "dist/server.mjs").is_file()
     version = _plugin_version(root)
-    if not version or (app / "node_modules").is_dir() or (app / "dist/server.mjs").is_file():
-        if _needs_build(app):
+    if own or (app / "node_modules").is_dir() or not version:
+        # Rebuilt only where there are sources to rebuild from. A dist with none beside it
+        # is an install's, Homebrew's: the app as shipped, and the mtime check would take
+        # its package.json, unpacked after the bundle was built, as an edit.
+        if (app / "src").is_dir() and _needs_build(app):
             if not shutil.which("bun"):
                 raise SystemExit("error: bun is needed to build the canvas app from its "
                                  "sources — https://bun.sh")
@@ -352,10 +352,23 @@ def _dist(root: Path) -> Path:
         with urllib.request.urlopen(url, timeout=60) as response:
             archive = response.read()
     except OSError as e:  # a 404, no network and a timeout are all this
+        build = ('A checkout with bun builds it instead:\n'
+                 '  cd "$(sp root)/canvas" && bun install && bun run build')
+        if isinstance(e, urllib.error.HTTPError) and e.code == 404:
+            # The release is there and the bundle is not: every release before bundles
+            # shipped, or one whose attach step failed. The first is a plugin behind the
+            # toolkit, which the skew note after a successful start would have said.
+            versions = skew(root)
+            if versions and _version_key(versions[1]) > _version_key(versions[0]):
+                plugin, toolkit = versions
+                fix = (f"The plugin is {plugin} and the toolkit {toolkit}. Move the plugin up:\n"
+                       f"      {skew_fix(plugin, toolkit)}")
+            else:
+                fix = build
+            raise SystemExit(f"error: release {version} has no canvas app attached\n  {url}\n{fix}")
         raise SystemExit(
             f"error: could not download the canvas app for {version}\n  {url}\n  {e}\n"
-            f"Try again once the network is back. A checkout with bun builds it instead:\n"
-            f'  cd "$(sp root)/canvas" && bun install && bun run build')
+            f"Try again once the network is back. {build}")
     cache.parent.mkdir(parents=True, exist_ok=True)
     work = tempfile.mkdtemp(prefix=f"{version}.", dir=cache.parent)
     with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as tar:
