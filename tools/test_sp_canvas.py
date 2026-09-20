@@ -284,12 +284,16 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
 
 
 def test_the_boards_are_the_flag_then_the_variable_then_the_projects_mockups_canvases():
-    boards = lambda arg, env, project: with_env(
-        dict(UNSET, **env), lambda: C._canvases_dir(arg, Path(project)))
+    boards = lambda arg, env, project, **kw: with_env(
+        dict(UNSET, **env), lambda: C._canvases_dir(arg, Path(project), **kw))
     assert boards(None, {}, "/p") == Path("/p/mockups/canvases")
     assert boards(None, {}, ".") == Path.cwd() / "mockups/canvases"
     assert boards(None, {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/v")
     assert boards("/f", {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/f")
+    # A project named on the command line beats the variable: an agent spawned by one canvas
+    # inherits that canvas's variable, and its `sp start <other>` must serve the other.
+    assert boards(None, {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p", named=True) == Path("/p/mockups/canvases")
+    assert boards("/f", {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p", named=True) == Path("/f")
     assert C.parser().parse_args(["start", "~/app"]).project == "~/app"
     assert C.parser().parse_args(["start"]).project is None
 

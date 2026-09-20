@@ -16,7 +16,8 @@ boards stay in your project. This joins the two, so an upgrade can replace the
 app without touching a single board you have authored.
 
 Boards default to mockups/canvases under the project. Override with --canvases or
-PROTOTYPING_CANVASES_DIR. The plugin is found by search;
+PROTOTYPING_CANVASES_DIR; a project named on the command line beats the variable.
+The plugin is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer. The app served is
 the canvas built for the plugin's release, fetched once into
 ~/.cache/super-prototyping/<version>/; a checkout with node_modules serves its own
@@ -267,8 +268,15 @@ def resolve_root(verbose=False):
 
 # --- the server --------------------------------------------------------------
 
-def _canvases_dir(arg, project=Path()):
-    raw = arg or os.environ.get("PROTOTYPING_CANVASES_DIR") or project / "mockups/canvases"
+def _canvases_dir(arg, project=Path(), named=False):
+    """The flag, else PROTOTYPING_CANVASES_DIR, else mockups/canvases under the project.
+
+    A project `named` on the command line beats the variable. `start` exports the variable
+    to the server, which hands its environment to every agent it spawns, so without this an
+    agent's `sp start <other project>` from the chat panel would serve this one's boards.
+    """
+    env = None if named else os.environ.get("PROTOTYPING_CANVASES_DIR")
+    raw = arg or env or project / "mockups/canvases"
     return Path(raw).expanduser().resolve()
 
 
@@ -372,7 +380,7 @@ def cmd_start(a):
     project = Path(a.project or ".").expanduser().resolve()
     if not project.is_dir():
         raise SystemExit(f"error: {project} is not a directory")
-    boards = _canvases_dir(a.canvases, project)
+    boards = _canvases_dir(a.canvases, project, named=a.project is not None)
 
     if not boards.is_dir():
         print(f"note: {boards} does not exist yet — the canvas will open empty.")
