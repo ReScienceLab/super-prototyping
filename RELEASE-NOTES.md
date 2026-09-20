@@ -41,14 +41,10 @@ Everything below is on `main` and reaches no install until a version is cut.
   `uv tool install` line with `--force` to get it. `sp start <dir>` names the
   project from anywhere; with no argument it is the current directory, as
   before.
-- A Homebrew tap. `brew install ReScienceLab/tap/super-prototyping` installs
-  the skills, the board template, the prebuilt canvas app and `sp`, with node
-  as the only dependency: `cd my-project && sp start`. The rest of the toolkit
-  is not part of it. The agent runs the `uv tool install` line when a skill
-  needs `refkit` or `artgen`, and the `sp` that brings is the same one. Each
-  release points the formula at itself.
 - A macOS app. Every release attaches `Super-Prototyping-<version>-arm64.dmg`
-  and `-x64.dmg`. It is the canvas `sp start` serves, in a window, for a
+  and `-x64.dmg`. `brew install --cask ReScienceLab/tap/super-prototyping`
+  installs that same dmg, and `brew upgrade` follows each stable release. It
+  is the canvas `sp start` serves, in a window, for a
   project you pick when it opens or name after `--args`. It uses the same port
   and the same `~/.local/state` directory as the command line. Closing the
   window stops the server and any agent it was running. The app has its own

@@ -240,7 +240,7 @@ accept a detached process, run `sp start`, then open a URL by hand.
 Pencil's is `npm install -g @pencil.dev/cli`; tldraw offline's is
 `brew install --cask`. That gap, not any feature, is what stops out-of-the-box
 use, and it is what the sequence below closes: a prebuilt bundle so Bun is
-not needed, one package that installs both halves, and a browser that opens
+not needed, one command that installs the app, and a browser that opens
 itself.
 
 **Cross-platform, honestly.** The toolkit has only ever run on macOS. `refkit`
@@ -254,41 +254,32 @@ when it is built.
 
 ## User-level install and Homebrew
 
-**Formula, not cask.** This is a CLI with web assets, which Homebrew routes to
-a formula; casks are for `.app` bundles.
+**A cask, and only a cask.** Homebrew installs the app, `brew install --cask
+ReScienceLab/tap/super-prototyping`, and the cask names the same two dmgs the
+GitHub release attaches, so the two routes give the same app by construction.
+There is no formula. One was written first, carrying the skills, the canvas
+bundle and `sp` under Homebrew's prefix, and it was deleted before any
+release: it was a second artifact with contents of its own to keep consistent
+with the app, and `sp` already has an installer in `uv tool install`. One
+artifact leaves nothing to keep consistent. The cask does not wait for
+signing: an unsigned dmg is quarantined the same whether a browser or Homebrew
+downloaded it, so the two routes stay equal either way.
 
-**A tap of our own, not homebrew-core.** Core's bar
-(<https://docs.brew.sh/Acceptable-Formulae>) wants a stable tag with a sha256,
-which we have, but also a DFSG-compatible licence for everything shipped and no
-proprietary runtime. Two things stand in the way: tldraw's SDK licence, which
-is free with a watermark and paid without, and `refkit`'s hard dependency on
-Chrome. A third-party tap (`brew tap ReScienceLab/tap`, a repo named
-`ReScienceLab/homebrew-tap`, <https://docs.brew.sh/Taps>) needs neither
-resolved. Submit to
-core only after a licence read says tldraw clears it, and after `refkit`
-discovers a browser rather than assuming one.
+**A tap of our own, not homebrew-cask.** The main cask repo's bar
+(<https://docs.brew.sh/Acceptable-Casks>) wants an app that passes Gatekeeper
+and a project with some standing, and today's dmgs are unsigned. A third-party
+tap (`brew tap ReScienceLab/tap`, a repo named `ReScienceLab/homebrew-tap`,
+<https://docs.brew.sh/Taps>) needs neither.
 
-**How the formula looks.** `depends_on "node"` and nothing else. It installs
-the `skills/` tree, the four manifests, the board template under
-`mockups/canvases/templates` (the skills copy it to start a board; the worked
-examples, 150MB, stay out), `canvas/package.json`, `tools/sp_canvas.py` and
-the canvas bundle attached to the GitHub Release, which comes in as a
-`resource` with its sha256, so the formula depends on no JavaScript toolchain
-and builds nothing. Its one command, `bin/sp`, is three lines of shell: the
-plugin tree in `SUPER_PROTOTYPING_ROOT`, Homebrew's node on PATH, and
-`python3` on `sp_canvas.py`, which is standard library only and runs on the
-interpreter macOS's Command Line Tools ship, which Homebrew requires anyway.
-So `brew install` ends in `sp start` with nothing to install first, and the
-`sp` the agent's toolkit later puts on PATH is the same file.
-No Python either: the Homebrew pattern for it (`python@3.x`, a `resource` per
-dependency, `virtualenv_install_with_resources`) would make `brew install`
-pull numpy, and with it openblas and gcc, half a gigabyte for a toolkit the
-agent installs itself the moment a skill needs it. The tag spelling
-`super-prototyping--v1.4.1` needs a `livecheck` block with a regex
-(<https://docs.brew.sh/Brew-Livecheck>). `release.yml` rewrites the formula's
-tag and both sha256 lines after `gh release upload` and pushes them to the
-tap's main; `brew bump-formula-pr` was not used because it knows the formula's
-own url and sha256 and not the resource's. The formula lives at
+**How the cask looks.** `arch`, `version`, a sha256 per architecture, the
+release URL built from those, `app "Super Prototyping.app"`, `depends_on
+macos: :ventura`, which Homebrew reads as Ventura or later and is Electron
+44's floor, and a `zap` for the state and cache directories below. No
+`livecheck` block, because the release workflow rewrites the cask and nothing
+polls for a version. No `binary` stanza, because the app ships no `sp`.
+`release.yml` writes the whole file after `gh release upload`, with the
+checksums of the two dmgs it just built, and pushes it to the tap's main, for
+stable releases only. The tap is pure output and lives at
 <https://github.com/ReScienceLab/homebrew-tap>.
 
 **Other channels, by effort.** Publishing `super-prototyping-tools` to PyPI
@@ -303,11 +294,11 @@ single static binary would mean rewriting both halves; out of scope.
 
 **Practices to adopt as part of this.** Pidfiles and logs go under
 `~/.local/state/super-prototyping/`, not `$HOME`. The canvas bundle goes
-under `~/.cache/super-prototyping/`, never into a formula's Cellar path,
-which Homebrew treats as immutable. The section on home-directory files
-below has the full decision and its sources. Keep the plugin-versus-toolkit skew check
-at `sp start`; a formula that installs both halves at one version
-removes the drift the two-command install has today. Give `refkit` browser
+under `~/.cache/super-prototyping/`, never into the install itself, which
+a plugin cache or a signed app bundle treats as immutable. The section on
+home-directory files below has the full decision and its sources. Keep the
+plugin-versus-toolkit skew check at `sp start`, because the two-command
+install can still drift. Give `refkit` browser
 discovery, since a packaged tool that only works with Chrome at one macOS path
 will be the first bug report from Linux.
 
@@ -388,7 +379,7 @@ written by us. What we do write:
 
 | what | where, by default | why |
 |---|---|---|
-| downloaded canvas bundle, one directory per version | `$XDG_CACHE_HOME/super-prototyping/<version>/` (`~/.cache/…`) | regenerable; Homebrew's Cellar is read-only in practice |
+| downloaded canvas bundle, one directory per version | `$XDG_CACHE_HOME/super-prototyping/<version>/` (`~/.cache/…`) | regenerable; an install's own directory is read-only in practice |
 | pid file, log | `$XDG_STATE_HOME/super-prototyping/` (`~/.local/state/…`) | state, not config; today they are loose in `$HOME` |
 | Windows | `%LOCALAPPDATA%\super-prototyping\{cache,state}\` | machine-local, never roaming |
 
@@ -407,9 +398,8 @@ last board.
 
 Two commands come with this, modelled on `uv cache dir` and
 `uv cache clean`: `sp paths` prints every directory and variable in
-use, and `sp clean` removes the cache and state directories. The
-formula gets a `caveats` line naming them, because a formula cannot `zap`.
-The identifier `super-prototyping` is fixed now, so a later cask's `zap` and
+use, and `sp clean` removes the cache and state directories.
+The identifier `super-prototyping` is fixed now, so the cask's `zap` and
 a later Tauri `identifier` point at the same folders and nothing migrates.
 
 ## The sequence
@@ -428,21 +418,20 @@ a later Tauri `identifier` point at the same folders and nothing migrates.
    or uses the checkout's `dist` when there is one, starts the server and
    opens the browser. The dev server stays for working on the canvas itself.
    This is the one step with design in it, and it deserves its own note.
-4. **A tap with one formula**, resources for Python, a resource for the
-   bundle, livecheck for our tag spelling, and an auto-bump step in
-   `release.yml`.
+4. **No formula.** A tap with one formula was written and deleted before any
+   release. Homebrew installs the app through the cask in step 6 and nothing
+   else.
 5. **Linux.** Browser discovery in `refkit` (look for Chrome, Chromium and
    Edge on PATH and in the usual places, macOS included), and a test run of
-   steps 3 and 4 on Ubuntu. Homebrew on Linux installs the same formula.
-6. **A desktop shell, with a Homebrew cask and a winget id**, only if steps 3
-   to 5 leave people asking for a Dock icon or for Windows. That is the point
+   step 3 on Ubuntu.
+6. **A desktop shell, with a Homebrew cask and a winget id.** That is the point
    to lift OpenDesign's Windows spawning and PATH augmentation, and to follow
-   tldraw offline's channel list. A homebrew-core submission waits on the
-   tldraw licence read either way.
+   tldraw offline's channel list. `docs/2026-09-19-desktop-shell.md` has the
+   macOS app. A homebrew-cask submission waits on a signed release.
 
 Steps 1 and 2 are a day and change no behaviour. Step 3 is the work, and it
 is bounded: the server logic already lives in tested modules, and the diff is
-the glue around them plus the board index. Steps 3 and 4 together turn the
-first run into `brew install ReScienceLab/tap/super-prototyping` followed by
-`sp start`, which is the shape every low-friction product in the
+the glue around them plus the board index. Steps 3 and 6 together turn the
+first run into `brew install --cask ReScienceLab/tap/super-prototyping` and
+opening the app, which is the shape every low-friction product in the
 survey has.
