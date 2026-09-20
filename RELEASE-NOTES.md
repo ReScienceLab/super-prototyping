@@ -21,6 +21,8 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- The Start here page has a new banner: the wordmark on a night sky, beside an
+  astronaut holding a glowing board.
 - The canvas's top-right corner holds one button now, Star on GitHub. Try
   SnapAction is gone, from the canvas and from the brand pages.
 - `sp start` now runs the canvas as a small localhost app instead of
