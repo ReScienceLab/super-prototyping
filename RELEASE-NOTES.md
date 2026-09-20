@@ -60,7 +60,8 @@ Everything below is on `main` and reaches no install until a version is cut.
   with the project name and a link to star the repo on GitHub. As its second
   step, it asks for a project, either an existing folder or a new one, and
   shows the projects already in `Documents/Super Prototyping` as cards, last
-  edited first, each with its name, its folder and when it was last edited. A new one takes a third step, its name, and
+  edited first, each with an icon, its name, its folder and when it was last edited. The icon is the
+  `icon.png` of the project's first canvas that has one, and a folder until then. A new one takes a third step, its name, and
   nothing else. It goes in `Documents/Super Prototyping` with
   `mockups/canvases` in it, and opens on the Start here canvas with every
   example canvas under it. The examples ship in the app and are shown

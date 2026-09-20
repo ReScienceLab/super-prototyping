@@ -45,8 +45,12 @@ test("listProjects gives the folders in the root, last edited first, and skips f
   fs.mkdirSync(path.dirname(board), { recursive: true });
   fs.writeFileSync(board, "");
   fs.utimesSync(board, 5000, 5000);
+  const icon = path.join(root, "old/mockups/canvases/app/icon.png");
+  fs.writeFileSync(icon, "");
+  fs.utimesSync(icon, 4000, 4000);
   for (const dir of ["old/mockups/canvases/app", "old/mockups/canvases", "old/mockups", "old"]) fs.utimesSync(path.join(root, dir), 1000, 1000);
-  expect(listProjects(root)[0]).toEqual({ name: "old", dir: path.join(root, "old"), at: 5000_000 });
+  expect(listProjects(root)[0]).toEqual({ name: "old", dir: path.join(root, "old"), icon, at: 5000_000 });
+  expect(listProjects(root)[1].icon).toBeUndefined();
   expect(listProjects(path.join(root, "missing"))).toEqual([]);
   fs.rmSync(root, { recursive: true });
 });

@@ -94,6 +94,7 @@
   input[type="text"]:hover { border-color: var(--border-hover); }
   input[type="text"]:focus { outline: none; border-color: var(--fg-dim); box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
   .icon { width: 32px; height: 32px; font-size: 32px; display: inline-flex; align-items: center; margin-bottom: 8px; }
+  .icon img { width: 100%; height: 100%; border-radius: 22%; }
   .name { font-weight: 500; }
   .status { color: var(--fg-dim); font-size: 13px; }
   /* What main.ts said about the name, under the field, with the way out as a link in it. */
@@ -285,6 +286,13 @@
       var card = document.createElement("button");
       card.type = "button";
       card.className = "card";
+      // A project is drawn as the app it prototypes, its first canvas's icon.png, and as a folder
+      // until it has one. The folder is the glyph on the "Open" card, so it is copied from there.
+      var icon = document.createElement("span");
+      icon.className = "icon";
+      if (project.icon) icon.appendChild(document.createElement("img")).src = project.icon;
+      else icon.innerHTML = document.querySelector("#open .icon").innerHTML;
+      card.appendChild(icon);
       var edited = "Edited " + new Date(project.at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
       [["name", project.name], ["status", project.where], ["status", edited]].forEach(function (line) {
         var span = document.createElement("span");

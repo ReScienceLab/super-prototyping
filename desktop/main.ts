@@ -7,6 +7,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell, utilityProcess } from "electron";
 import type { IpcMainInvokeEvent } from "electron";
 import {
@@ -167,7 +168,12 @@ async function main() {
           // Where a project is: the folder it sits in, with ~ for home. The name is the card's
           // title already, and a full path would be cut off before it got to the name.
           projects: JSON.stringify(
-            listProjects(projectsDir).map((p) => ({ name: p.name, where: path.dirname(p.dir).replace(home, "~"), at: p.at })),
+            listProjects(projectsDir).map((p) => ({
+              name: p.name,
+              where: path.dirname(p.dir).replace(home, "~"),
+              at: p.at,
+              icon: p.icon && pathToFileURL(p.icon).href,
+            })),
           ),
         },
       });
