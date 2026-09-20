@@ -21,6 +21,8 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- The canvas's top-right corner holds one button now, Star on GitHub. Try
+  SnapAction is gone, from the canvas and from the brand pages.
 - `sp start` now runs the canvas as a small localhost app instead of
   Vite's dev server. On first start it downloads the canvas built for the
   plugin's version from that release (`canvas-dist.tgz`) into

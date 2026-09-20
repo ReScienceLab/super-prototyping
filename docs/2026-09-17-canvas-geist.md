@@ -212,6 +212,7 @@ primary button, ground and ink swapped, rather than a primary and a secondary. T
 asks, not an ask and an aside, and a hairline chip beside a solid one reads as the lesser of them.
 The SnapAction mark became a mask rather than an `<img>` on the way, because the file is a fixed
 near-white and the ink it sits in is black. Masked, it takes whatever the button's ink is.
+The SnapAction button went on 2026-09-20, so `CanvasCta` is the star button alone now.
 
 What `canvasCta.css` still holds is the shimmer, and only that. It stays a file rather than a
 block in `index.css` because the pair is also in the brand pages' topbar, which is another

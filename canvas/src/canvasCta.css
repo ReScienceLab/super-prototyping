@@ -1,10 +1,10 @@
 /*
- * The shimmer on the two top-right CTAs (canvasCta.tsx), and nothing else. Their shape, ground
- * and ink are the shadcn Button over the scale in tokens.css. A band sweeps across each one
- * every few seconds, because they are the only things on the page asking for something and so
- * they get the only motion on it. The second is offset so the pair does not flash in lockstep.
+ * The shimmer on the top-right CTA (canvasCta.tsx), and nothing else. Its shape, ground and ink
+ * are the shadcn Button over the scale in tokens.css. A band sweeps across it every few seconds,
+ * because it is the only thing on the page asking for something and so it gets the only motion
+ * on it.
  *
- * This is its own file rather than a block in index.css, because the pair is also in the topbar
+ * This is its own file rather than a block in index.css, because the button is also in the topbar
  * of the brand pages, which are a different document with a different stylesheet. The component
  * imports this file, so it comes along wherever the component is used.
  */
@@ -22,7 +22,7 @@
      towards black, the band's own edges dim, and a grey fringe on a white button is the one thing
      a shimmer must not leave behind.
 
-     Both buttons are the primary one, ground and ink swapped, so the ground is near-white on
+     The button is the primary one, ground and ink swapped, so the ground is near-white on
      the canvas and near-black on the brand pages, and a band that reads on one is invisible or
      too strong on the other. `light-dark()` is already the switch every other colour here uses.
      The band is a wash on the dark ground, and on the near-white one it goes the whole way to
@@ -34,10 +34,6 @@
     rgb(255 255 255 / 0) 62%
   );
   animation: canvas-cta-shimmer 4s ease-in-out infinite;
-}
-
-.canvas-cta-group > a + a::after {
-  animation-delay: 0.7s;
 }
 
 /* Still for the first 55%, then one pass. A sweep every four seconds rather than a bar in
