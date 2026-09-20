@@ -60,12 +60,14 @@
     align-items: center;
     justify-content: center;
     padding: 40px 24px;
+    position: relative;
   }
   /* Three steps, one section each: the agent, the project, and, for a new project, its name. */
   section { display: flex; flex-direction: column; align-items: center; }
   section[hidden] { display: none; }
   .step { margin: 0 0 12px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-dim); }
   h1 { margin: 0 0 8px; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+  #step-project h1 { margin-bottom: 32px; }
   p.sub { margin: 0 0 32px; max-width: 540px; color: var(--fg-dim); text-align: center; }
   code { font: 13px/1 "Geist Mono", ui-monospace, Menlo, monospace; padding: 2px 5px; border: 1px solid var(--border); border-radius: 4px; }
   .cards {
@@ -103,12 +105,13 @@
   #note button[hidden] { display: none; }
   #note button:focus-visible { border-radius: 2px; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
   /* The folders already in Documents/Super Prototyping, a flat grid of cards three across. The
-     grid scrolls in itself, so a long one does not push Back off a short window, and its padding
-     keeps a card's focus ring from being clipped. */
+     grid scrolls in itself under a thin scrollbar, so a long one does not grow the page, and its
+     padding keeps a card's focus ring from being clipped. */
   #projects { width: 812px; max-width: 100%; margin: 0 0 32px; }
-  #project-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; max-height: 300px; overflow-y: auto; padding: 4px; margin: -4px; }
+  #project-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border-hover) transparent; padding: 4px; margin: -4px; }
   #project-list span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .actions { display: flex; gap: 12px; }
+  .back { position: absolute; top: 24px; left: 24px; }
   button, a.button {
     font: inherit;
     font-weight: 500;
@@ -168,9 +171,9 @@
       </div>
     </section>
     <section id="step-project" hidden>
+      <button id="back" class="back" type="button">Back</button>
       <p class="step">Step 2 of 3</p>
       <h1>Set up a project</h1>
-      <p class="sub">A project is a folder with <code>mockups/canvases</code> in it. The canvas shows the boards there, and <span id="agent-name"></span> gets the skills copied in.</p>
       <!-- The two glyphs are Lucide's folder-plus and folder-open (ISC), in currentColor. -->
       <div class="cards">
         <button id="create" class="card" type="button">
@@ -186,11 +189,9 @@
         <p class="step">Your projects</p>
         <div id="project-list"></div>
       </div>
-      <div class="actions">
-        <button id="back" type="button">Back</button>
-      </div>
     </section>
     <section id="step-name" hidden>
+      <button id="back-name" class="back" type="button">Back</button>
       <p class="step">Step 3 of 3</p>
       <h1>Name your project</h1>
       <p class="sub">It goes in <code>Documents/Super Prototyping</code> as a folder with <code>mockups/canvases</code> in it, ready for a first board.</p>
@@ -199,7 +200,6 @@
         <p id="note" role="status" hidden><span id="note-text"></span> <button id="open-it" type="button">Open it instead</button></p>
       </form>
       <div class="actions">
-        <button id="back-name" type="button">Back</button>
         <button class="primary" type="submit" form="name-form">Create</button>
       </div>
     </section>
@@ -242,7 +242,6 @@
     var stepAgent = document.getElementById("step-agent");
     var stepProject = document.getElementById("step-project");
     document.getElementById("next").addEventListener("click", function () {
-      document.getElementById("agent-name").textContent = agents.find(function (a) { return a.id === chosen(); }).name;
       stepAgent.hidden = true;
       stepProject.hidden = false;
     });
