@@ -5,7 +5,7 @@ Two release-and-install scripts. Neither is needed to *use* the plugin.
 **`install-skills.sh`** links `skills/*` into the skill roots of every product
 on the machine that reads one (Codex, CodeBuddy, Hermes, Pi, Trae, Trae CN) and
 installs the Python toolkit that
-puts `refkit`, `artgen` and `sp-canvas` on PATH. Links, not copies, so one
+puts `refkit`, `artgen` and `sp` on PATH. Links, not copies, so one
 `git pull` in this checkout updates every product at once. `--list` shows what
 it would do and changes nothing; `--tools-only` skips the linking. Most of those
 products also have an install command of their own, and README's install table

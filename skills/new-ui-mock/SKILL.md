@@ -14,14 +14,14 @@ Everything renders on the canvas from `mockups/canvases/<slug>/`; see
 `prototype-canvas` for running it, and its `references/layout.md` for the
 folder and `layout.json` rules.
 
-The plugin ships the template folder and every worked example. `sp-canvas`
+The plugin ships the template folder and every worked example. `sp`
 and `refkit` are separate — the plugin cannot run an installer of its own, so
 if they are not on PATH: `uv tool install
 "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
-`sp-canvas root` then prints where the plugin landed:
+`sp root` then prints where the plugin landed:
 
 ```bash
-KIT="$(sp-canvas root)"
+KIT="$(sp root)"
 mkdir -p mockups/canvases                       # first board in a project
 B=mockups/canvases/<slug>
 cp -r "$KIT/mockups/canvases/templates" "$B"

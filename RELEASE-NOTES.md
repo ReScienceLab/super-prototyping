@@ -15,13 +15,13 @@ has been shown.
 Update with `/plugin update super-prototyping` (Claude Code), or the equivalent
 for your product, which README's install table lists. Then move the toolkit with
 the `uv tool install` line in the README. The plugin and the
-toolkit carry the same version; `sp-canvas start` says so when they drift.
+toolkit carry the same version; `sp start` says so when they drift.
 
 ## Unreleased
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-- `sp-canvas start` now runs the canvas as a small localhost app instead of
+- `sp start` now runs the canvas as a small localhost app instead of
   Vite's dev server. On first start it downloads the canvas built for the
   plugin's version from that release (`canvas-dist.tgz`) into
   `~/.cache/super-prototyping/<version>/` and runs it with node or bun, so an
@@ -34,17 +34,18 @@ Everything below is on `main` and reaches no install until a version is cut.
   `~/.local/state/super-prototyping/` for its pidfile and log, the same on
   macOS as on Linux, `%LOCALAPPDATA%\super-prototyping\{cache,state}\` on
   Windows. `SUPER_PROTOTYPING_HOME` moves both under one root. Two new
-  commands: `sp-canvas paths` prints them and every variable in use, and
-  `sp-canvas clean` removes them. The port can also come from
+  commands: `sp paths` prints them and every variable in use, and
+  `sp clean` removes them. The port can also come from
   `SP_CANVAS_PORT`. The old `~/.super-prototyping-canvas-<port>.pid` and
   `.log` files in your home are not read any more; delete them.
+- `sp-canvas` is now `sp`: `sp start`, `sp stop`, `sp root`. Re-run the
+  `uv tool install` line with `--force` to get it.
 - A Homebrew tap. `brew install ReScienceLab/tap/super-prototyping` installs
-  the skills, the board template and the prebuilt canvas app with node as the
-  only dependency, and `sp` (or `super-prototyping`) in a project directory
-  serves `./mockups/canvases` and opens the browser. The toolkit is not part of it:
-  the agent runs the `uv tool install` line when a skill needs it, and
-  `sp-canvas` finds the Homebrew install on its own. Each release points the
-  formula at itself.
+  the skills, the board template, the prebuilt canvas app and `sp`, with node
+  as the only dependency: `cd my-project && sp start`. The rest of the toolkit
+  is not part of it. The agent runs the `uv tool install` line when a skill
+  needs `refkit` or `artgen`, and the `sp` that brings is the same one. Each
+  release points the formula at itself.
 
 
 ## v1.4.1

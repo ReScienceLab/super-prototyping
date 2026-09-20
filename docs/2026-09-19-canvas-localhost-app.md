@@ -1,6 +1,6 @@
 # The canvas runs as a localhost app, not a dev server
 
-2026-09-19. `sp-canvas start` used to boot Vite in the plugin's cache
+2026-09-19. `sp start` used to boot Vite in the plugin's cache
 directory and hand the user a development server: HMR websocket, module
 graph, `/@fs` imports of files outside the app root, `sharp` compiled on
 first install. Issue #108 asked for the thing a user actually needs, a small
@@ -61,7 +61,7 @@ be stale.
 - **A build in the plugin directory.** `bun` is needed only in a checkout
   being worked on. An install runs the bundle below.
 
-## Which app `sp-canvas start` runs
+## Which app `sp start` runs
 
 The release workflow attaches `canvas-dist.tgz` to every release (#106): one
 top-level `dist/` holding the built page and `server.mjs`. The launcher
@@ -69,7 +69,7 @@ fetches the one for the toolkit's own version into
 `$XDG_CACHE_HOME/super-prototyping/<version>/` on first start and runs it
 from there with node or bun, so a plugin install needs no toolchain at all.
 One directory per version, unpacked beside its name and renamed into place,
-so a version is whole or absent and `sp-canvas clean` removes them all. A
+so a version is whole or absent and `sp clean` removes them all. A
 download that fails says so, with the URL, and stops; it does not fall back
 to a build the user did not ask for. The bundle runs from a directory with no
 checkout above it, which is why the server takes the plugin root from
@@ -95,8 +95,8 @@ convention across the two Unixes is one to document and one to remove.
 `SUPER_PROTOTYPING_HOME` puts both under one root, the way `CODEX_HOME` and
 `CLAUDE_CONFIG_DIR` do. A directory is created at the first write into it,
 so `status` on a fresh machine leaves no trace. No configuration file: the
-port is `--port`, then `SP_CANVAS_PORT`, then 5173. `sp-canvas paths` prints
-the two directories and every variable that moves one; `sp-canvas clean`
+port is `--port`, then `SP_CANVAS_PORT`, then 5173. `sp paths` prints
+the two directories and every variable that moves one; `sp clean`
 removes them, and refuses while a pidfile names a canvas that is still
 running, since that pidfile is the only way `stop` would find it.
 

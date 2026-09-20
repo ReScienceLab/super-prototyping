@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""sp-canvas, the launcher for the tldraw board canvas.
+"""sp, the launcher for the tldraw board canvas.
 
   start    serve the canvas against a folder of boards, print its address
   stop     kill the one on that port, and only that one
@@ -312,7 +312,7 @@ def _dist(root: Path) -> Path:
 
     The tarball is the one release.yml attaches to every release: one top-level `dist/`
     holding the built app and `server.mjs`. One directory per version, so a new release
-    fetches its own and the old one waits for `sp-canvas clean`. A version directory is whole
+    fetches its own and the old one waits for `sp clean`. A version directory is whole
     or absent, never half: it is unpacked beside its name and renamed into place, so the one
     file the cache check looks for cannot be there without the rest.
     """
@@ -341,7 +341,7 @@ def _dist(root: Path) -> Path:
         raise SystemExit(
             f"error: could not download the canvas app for {version}\n  {url}\n  {e}\n"
             f"Try again once the network is back. A checkout with bun builds it instead:\n"
-            f'  cd "$(sp-canvas root)/canvas" && bun install && bun run build')
+            f'  cd "$(sp root)/canvas" && bun install && bun run build')
     cache.parent.mkdir(parents=True, exist_ok=True)
     work = tempfile.mkdtemp(prefix=f"{version}.", dir=cache.parent)
     with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as tar:
@@ -376,7 +376,7 @@ def cmd_start(a):
         raise SystemExit(
             f"error: port {a.port} is already answering. It may be another checkout's\n"
             f"canvas, so this will not reuse it. Pass --port with a free one, or run\n"
-            f"`sp-canvas stop` if it is this one."
+            f"`sp stop` if it is this one."
         )
 
     # The canvas is a built app served by one file, `dist/server.mjs`: the release's own
@@ -535,11 +535,11 @@ def cmd_status(a):
 
 
 def cmd_root(a):
-    """Just the path, so it can be captured: KIT="$(sp-canvas root)"."""
+    """Just the path, so it can be captured: KIT="$(sp root)"."""
     root = resolve_root(verbose=a.verbose)
     print(root)
     if a.verbose:
-        # On stderr, like the search itself, so `$(sp-canvas root -v)` is still the path.
+        # On stderr, like the search itself, so `$(sp root -v)` is still the path.
         print(f"  plugin  {_plugin_version(root) or 'unversioned (a checkout)'}", file=sys.stderr)
         print(f"  toolkit {_toolkit_version() or 'dev (running from a source checkout)'}",
               file=sys.stderr)
@@ -581,7 +581,7 @@ def cmd_clean(a):
             live.append(port)
     if live:
         raise SystemExit(f"error: a canvas is still running on port {', '.join(live)}. "
-                         f"Run `sp-canvas stop --port {live[0]}` first.")
+                         f"Run `sp stop --port {live[0]}` first.")
     for d in (cache, state):
         if d.is_dir():
             shutil.rmtree(d)
@@ -592,10 +592,10 @@ def cmd_clean(a):
 
 def parser():
     p = argparse.ArgumentParser(
-        prog="sp-canvas", description=__doc__,
+        prog="sp", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--version", action="version",
-                   version=f"sp-canvas {_toolkit_version() or 'dev (running from a source checkout)'}")
+                   version=f"sp {_toolkit_version() or 'dev (running from a source checkout)'}")
     s = p.add_subparsers(dest="cmd", required=True)
 
     def add(name, fn, ports=True, canvases=True):

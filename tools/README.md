@@ -9,10 +9,10 @@ Three command-line tools, packaged so the skills can call them by name.
   `refkit --help` lists all seventeen subcommands.
 - **`artgen`** — redraws the rare asset that cannot be CSS or inline SVG,
   chroma-keys it off its ground, and fits it to the measured box.
-- **`sp-canvas`** — serves the tldraw canvas against a project's board
+- **`sp`** — serves the tldraw canvas against a project's board
   folders, fetching the build for its version on first run, and stops it
-  again. `sp-canvas root` prints which copy of the plugin it found,
-  `sp-canvas paths` where it writes, `sp-canvas clean` removes that.
+  again. `sp root` prints which copy of the plugin it found,
+  `sp paths` where it writes, `sp clean` removes that.
 
 ## Why these are installed, not called by path
 
@@ -23,7 +23,7 @@ product exposes its plugin root as a shell variable that Claude Code, Codex,
 CodeBuddy, Hermes, Pi and Trae agree on, so a path-based invocation would need
 a spelling per product and would still break outside a git repository.
 
-Installing them puts `refkit`, `artgen` and `sp-canvas` on `PATH`, and every
+Installing them puts `refkit`, `artgen` and `sp` on `PATH`, and every
 skill reads the same in every product:
 
 ```bash

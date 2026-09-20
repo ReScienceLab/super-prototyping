@@ -1,10 +1,9 @@
 /**
  * The canvas as a localhost app: the built `dist` served as static files, with the same
  * `/__sp` and `/board` server in front of it that the Vite dev server mounts. Bundled to
- * `dist/server.mjs` by `bun run build`, so `sp-canvas start` runs one file with node or bun
- * and no dev toolchain. Usage: `node dist/server.mjs --port 5173 [--open]`.
+ * `dist/server.mjs` by `bun run build`, so `sp start` runs one file with node or bun
+ * and no dev toolchain. Usage: `node dist/server.mjs --port 5173`.
  */
-import { spawn } from "node:child_process";
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
@@ -13,7 +12,7 @@ import { createSpServer } from "./sp.ts";
 
 const dist = fileURLToPath(new URL(".", import.meta.url)).replace(/\/$/, "");
 // The plugin root: where the skill an agent is pointed at lives, and whose boards a checkout
-// serves by default. `sp-canvas start` resolves it and passes it, because the bundle a
+// serves by default. `sp start` resolves it and passes it, because the bundle a
 // release attaches runs from ~/.cache/super-prototyping/<version>/dist with no checkout
 // above it. Derived only for `node dist/server.mjs` run by hand inside a checkout, where
 // this file sits two levels below it.
@@ -91,18 +90,8 @@ const server = http.createServer((req, res) =>
 server.once("close", sp.close);
 // Loopback only. This is a local design tool, not a service to expose.
 server.listen(port, "127.0.0.1", () => {
-  const url = `http://127.0.0.1:${port}/`;
-  console.log(`canvas   ${url}`);
+  console.log(`canvas   http://127.0.0.1:${port}/`);
   console.log(`boards   ${canvasesDir}`);
-  // `--open`: the browser, once the port answers. The Homebrew launcher passes it, since
-  // it runs the server in the foreground for a person at a terminal; `sp-canvas start`
-  // opens the browser itself, after deciding whether there is a person to open it for.
-  if (process.argv.includes("--open")) {
-    spawn(process.platform === "darwin" ? "open" : "xdg-open", [url], {
-      stdio: "ignore",
-      detached: true,
-    }).unref();
-  }
 });
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, () => {

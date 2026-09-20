@@ -299,7 +299,7 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
         try:
             with_env(env, lambda: C.cmd_clean(None))
         except SystemExit as e:
-            assert port in str(e) and "sp-canvas stop" in str(e), e
+            assert port in str(e) and "sp stop" in str(e), e
         else:
             assert False, f"clean must refuse while a canvas runs on {port}"
         assert (sp_home / "cache/1.4.2/dist/server.mjs").is_file()
