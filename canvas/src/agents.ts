@@ -10,7 +10,7 @@
  * the preamble as a flag of its own and the message as one stream-json line, and writes where
  * it likes with its permission prompts off. Codex has no system-prompt flag, so the preamble
  * goes ahead of the message in the prompt itself, plain text on stdin; its sandbox writes the
- * working directory only, so the boards folder is named to it, since `sp-canvas --canvases` can
+ * working directory only, so the boards folder is named to it, since `sp --canvases` can
  * put that anywhere. Model and effort are a flag apiece on claude and a flag and a config
  * override on codex, and both are optional on both: nothing is sent unless the composer has
  * picked something, so the CLI's own configuration keeps deciding until the user says otherwise.
@@ -242,7 +242,7 @@ export const AGENTS: AgentDef[] = [
     ],
     efforts: ["low", "medium", "high", "xhigh", "max"],
     missing:
-      "claude is not on PATH. Install Claude Code, or start sp-canvas from a shell where `claude` runs.",
+      "claude is not on PATH. Install Claude Code, or run `sp start` from a shell where `claude` runs.",
   },
   {
     id: "codex",
@@ -326,6 +326,6 @@ export const AGENTS: AgentDef[] = [
       },
     },
     missing:
-      "codex is not on PATH. Install the Codex CLI, or start sp-canvas from a shell where `codex` runs.",
+      "codex is not on PATH. Install the Codex CLI, or run `sp start` from a shell where `codex` runs.",
   },
 ];

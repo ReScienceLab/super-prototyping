@@ -1,11 +1,11 @@
 {
   "name": "prototyping-canvas",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.4.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && bun build server/main.ts --target=node --format=esm --outfile dist/server.mjs",
     "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview"

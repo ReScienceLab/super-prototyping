@@ -10,7 +10,7 @@ import {
   TldrawUiInput,
   type TLUiDialogProps,
 } from "tldraw";
-import { canvasesDir } from "virtual:canvases";
+import { canvasIndex } from "./canvasIndex";
 import { canvasSlug } from "./boardStatusEdit";
 import { cloneCanvas } from "./canvasLibrary";
 import { urlForSlug } from "./canvasUrl";
@@ -25,9 +25,8 @@ export function CloneCanvasDialog({ slug, onClose }: TLUiDialogProps & { slug: s
   const [error, setError] = useState("");
   const [cloning, setCloning] = useState(false);
   const folder = canvasSlug(name);
-  // Empty in a production build, which does not ship the build machine's paths, so this falls
-  // back to what the no-boards notice uses and the sentence still says where boards live.
-  const dir = canvasesDir || "mockups/canvases";
+  // Only ever shown when served, and then the index names the directory the server reads.
+  const dir = canvasIndex().canvasesDir;
 
   const clone = () => {
     if (!folder || cloning) return;

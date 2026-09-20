@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Self-check for how the launcher finds the plugin: where each product's install
-lands, which cached release it picks, and when it says the plugin and the toolkit
-have drifted apart.
+"""Self-check for the launcher: where each product's install lands, which cached
+release it picks, when it says the plugin and the toolkit have drifted apart, which
+app it serves and where it is allowed to write.
 
     python3 tools/test_sp_canvas.py
 """
-import json, os, sys, tempfile
+import json, os, sys, tempfile, time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -114,9 +114,336 @@ def test_each_products_install_location_is_searched():
         assert with_home(home, lambda: C.resolve_root()) == checkout.resolve(), root
 
 
+def test_a_checkout_wins_over_the_installed_app():
+    """The app is the last resort: someone with it installed who is also standing in
+    their own checkout must get the checkout. `_is_canvas_app` is narrowed to the two
+    paths under test, so a real plugin install on the machine running this test, this
+    repo's own, say, cannot shadow either one and decide the test instead.
+    """
+    checkout = Path(tempfile.mkdtemp()).resolve()
+    C.subprocess.run(["git", "init", "-q"], cwd=checkout, check=True)
+    app = Path(tempfile.mkdtemp()).resolve()
+    home = Path(tempfile.mkdtemp())
+    real_cwd, real_app, real_is_app = os.getcwd(), C.APP_BUNDLE_PLUGIN, C._is_canvas_app
+    os.chdir(checkout)
+    C.APP_BUNDLE_PLUGIN = app
+    C._is_canvas_app = lambda root: root.resolve() in (checkout, app)
+    try:
+        found = with_home(home, lambda: with_env(
+            {"SUPER_PROTOTYPING_ROOT": None}, C.resolve_root))
+    finally:
+        os.chdir(real_cwd)
+        C.APP_BUNDLE_PLUGIN, C._is_canvas_app = real_app, real_is_app
+    assert found == checkout
+
+
+def with_env(vars, fn):
+    """Run fn with these environment variables set (None: unset), then put them back."""
+    saved = {k: os.environ.get(k) for k in vars}
+    for k, v in vars.items():
+        if v is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = str(v)
+    try:
+        return fn()
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+
+def on_platform(name, fn):
+    real = sys.platform
+    sys.platform = name
+    try:
+        return fn()
+    finally:
+        sys.platform = real
+
+
+UNSET = {"SUPER_PROTOTYPING_HOME": None, "XDG_CACHE_HOME": None, "XDG_STATE_HOME": None}
+
+
+def test_the_two_directories_follow_xdg_on_both_unixes_and_one_home_over_both():
+    """Where the downloaded app and the pidfiles go: uv's answer, not platformdirs'. The same
+    pair on macOS as on Linux, and nothing created until something is written."""
+    home = Path(tempfile.mkdtemp())
+    dirs = lambda: with_home(home, lambda: with_env(UNSET, C._dirs))
+    for platform in ("darwin", "linux"):
+        cache, state = on_platform(platform, dirs)
+        assert cache == home / ".cache/super-prototyping", platform
+        assert state == home / ".local/state/super-prototyping", platform
+    assert not (home / ".cache").exists() and not (home / ".local").exists()
+    pidfile = on_platform("darwin", lambda: with_home(home, lambda: with_env(UNSET, lambda: C._pidfile(5173))))
+    assert pidfile == home / ".local/state/super-prototyping/canvas-5173.pid"
+    assert not pidfile.parent.exists()
+    # The XDG variables move each half on its own.
+    cache, state = on_platform("linux", lambda: with_home(home, lambda: with_env(
+        dict(UNSET, XDG_CACHE_HOME="/c", XDG_STATE_HOME="/s"), C._dirs)))
+    assert (cache, state) == (Path("/c/super-prototyping"), Path("/s/super-prototyping"))
+    # SUPER_PROTOTYPING_HOME puts both under one root, and wins over them.
+    cache, state = on_platform("linux", lambda: with_home(home, lambda: with_env(
+        dict(UNSET, SUPER_PROTOTYPING_HOME="~/sp", XDG_CACHE_HOME="/c"), C._dirs)))
+    assert (cache, state) == (home / "sp/cache", home / "sp/state")
+
+
+def canvas_bundle(files=("dist/server.mjs", "dist/index.html")):
+    """The bytes release.yml attaches: a gzipped tar with one top-level `dist/`."""
+    import io, tarfile
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        for name in files:
+            data = f"// {name}\n".encode()
+            info = tarfile.TarInfo(name)
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+    return buf.getvalue()
+
+
+def with_release(answer, fn):
+    """Run fn with the release download answering `answer`: bytes to serve, or an exception
+    to raise. Returns (result, urls asked for)."""
+    import contextlib
+    urls = []
+
+    def urlopen(url, timeout=None):
+        urls.append(url)
+        if isinstance(answer, BaseException):
+            raise answer
+        return contextlib.closing(type("R", (), {"read": lambda self: answer, "close": lambda self: None})())
+
+    real = C.urllib.request.urlopen
+    C.urllib.request.urlopen = urlopen
+    try:
+        return fn(), urls
+    finally:
+        C.urllib.request.urlopen = real
+
+
+def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bundle():
+    """A developer's checkout serves its build; an install runs the bundle its release
+    attached, fetched once into the cache and never fetched again while it is there."""
+    sp_home = Path(tempfile.mkdtemp())
+    env = dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home))
+
+    def dist(root, version):
+        """`_dist` of a plugin root whose manifest says `version`."""
+        (root / ".claude-plugin/plugin.json").write_text(json.dumps({"version": version}))
+        return with_env(env, lambda: C._dist(root))
+
+    # node_modules marks a checkout being worked on: its own dist, even with a release known.
+    dev = canvas_app_at(plugin_root("1.4.2"))
+    (dev / "canvas/node_modules").mkdir()
+    (dev / "canvas/src").mkdir()
+    (dev / "canvas/dist").mkdir()
+    (dev / "canvas/dist/server.mjs").write_text("")
+    now = time.time()
+    os.utime(dev / "canvas/package.json", (now - 10, now - 10))
+    assert dist(dev, "1.4.2") == dev / "canvas/dist"
+
+    # The desktop app's bundled tree: a dist and no sources. Served as it is, though its
+    # package.json was copied in after the bundle was built, and never rebuilt: nothing to
+    # rebuild it from.
+    bundled = canvas_app_at(plugin_root("1.4.2"))
+    (bundled / "canvas/dist").mkdir()
+    (bundled / "canvas/dist/server.mjs").write_text("")
+    os.utime(bundled / "canvas/dist/server.mjs", (now - 10, now - 10))
+    which = C.shutil.which
+    C.shutil.which = lambda name: None  # a wrong turn here would look for bun
+    try:
+        assert dist(bundled, "1.4.2") == bundled / "canvas/dist"
+    finally:
+        C.shutil.which = which
+
+    # A bare install with a version: the bundle. Fetched from the tag's release asset, into
+    # one folder per version, whole — no temporary directory left beside it.
+    install = canvas_app_at(plugin_root("1.4.2"))
+    (got, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.4.2"))
+    assert got == sp_home / "cache/1.4.2/dist"
+    assert urls == [f"https://github.com/{C.REPO}/releases/download/{C.TAG_PREFIX}1.4.2/canvas-dist.tgz"]
+    assert (got / "server.mjs").is_file() and (got / "index.html").is_file()
+    assert [p.name for p in (sp_home / "cache").iterdir()] == ["1.4.2"]
+    # A second `start` that raced this one and lost its rename ends on the same answer.
+    real_rename = C.os.rename
+
+    def rename_after_the_other(src, dst):
+        (Path(dst) / "dist").mkdir(parents=True)
+        (Path(dst) / "dist/server.mjs").write_text("")
+        real_rename(src, dst)
+
+    C.os.rename = rename_after_the_other
+    try:
+        (raced, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.4.3"))
+    finally:
+        C.os.rename = real_rename
+    assert raced == sp_home / "cache/1.4.3/dist" and len(urls) == 1
+    assert sorted(p.name for p in (sp_home / "cache").iterdir()) == ["1.4.2", "1.4.3"]
+    # Cached: no request the second time. A newer toolkit fetches its own.
+    (again, urls) = with_release(AssertionError("no"), lambda: dist(install, "1.4.2"))
+    assert again == got and urls == []
+    (newer, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.5.0"))
+    assert newer == sp_home / "cache/1.5.0/dist" and len(urls) == 1
+    # The version is the manifest's, spelled as the tag is. The installed toolkit would say
+    # 1.5.0rc1 for this release, and no tag is spelled that way.
+    (rc, urls) = with_release(canvas_bundle(), lambda: with_toolkit("1.5.0rc1", lambda: dist(install, "1.5.0-rc.1")))
+    assert rc == sp_home / "cache/1.5.0-rc.1/dist"
+    assert urls == [f"https://github.com/{C.REPO}/releases/download/{C.TAG_PREFIX}1.5.0-rc.1/canvas-dist.tgz"]
+
+    # No release to fetch: say so, with the URL that failed, and leave the cache as it was.
+    try:
+        with_release(C.urllib.request.URLError("no network"), lambda: dist(install, "1.6.0"))
+    except SystemExit as e:
+        assert "1.6.0/canvas-dist.tgz" in str(e) and "no network" in str(e)
+    else:
+        assert False, "a failed download must exit loudly"
+    assert not (sp_home / "cache/1.6.0").exists()
+    # A release with no bundle attached is a 404, not a network problem: every release before
+    # bundles shipped is one, so a plugin behind the toolkit is told to move the plugin up.
+    missing = lambda: C.urllib.error.HTTPError(url="", code=404, msg="Not Found", hdrs=None, fp=None)
+    try:
+        with_release(missing(), lambda: with_toolkit("1.6.0", lambda: dist(install, "1.4.1")))
+    except SystemExit as e:
+        assert "1.4.1 has no canvas app attached" in str(e) and "/plugin update" in str(e), e
+        assert "network" not in str(e)
+    else:
+        assert False, "a missing bundle must exit loudly"
+    # A plugin ahead of the toolkit, or level with it, is a release whose attach step failed:
+    # updating the plugin would not help, building would.
+    try:
+        with_release(missing(), lambda: with_toolkit("1.4.1", lambda: dist(install, "1.6.0")))
+    except SystemExit as e:
+        assert "1.6.0 has no canvas app attached" in str(e) and "bun run build" in str(e), e
+    else:
+        assert False, "a missing bundle must exit loudly"
+
+
+def test_the_boards_are_the_flag_then_the_variable_then_the_projects_mockups_canvases():
+    boards = lambda arg, env, project, **kw: with_env(
+        dict(UNSET, **env), lambda: C._canvases_dir(arg, Path(project), **kw))
+    assert boards(None, {}, "/p") == Path("/p/mockups/canvases")
+    assert boards(None, {}, ".") == Path.cwd() / "mockups/canvases"
+    assert boards(None, {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/v")
+    assert boards("/f", {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/f")
+    # A project named on the command line beats the variable: an agent spawned by one canvas
+    # inherits that canvas's variable, and its `sp start <other>` must serve the other.
+    assert boards(None, {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p", named=True) == Path("/p/mockups/canvases")
+    assert boards("/f", {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p", named=True) == Path("/f")
+    assert C.parser().parse_args(["start", "~/app"]).project == "~/app"
+    assert C.parser().parse_args(["start"]).project is None
+
+
+def test_the_port_is_the_flag_then_sp_canvas_port_then_the_default():
+    import contextlib, io
+    port = lambda argv, env: with_env({"SP_CANVAS_PORT": env}, lambda: C.parser().parse_args(argv).port)
+    assert port(["status"], None) == C.DEFAULT_PORT
+    assert port(["status"], "6001") == 6001
+    assert port(["status", "--port", "6002"], "6001") == 6002
+    try:
+        with contextlib.redirect_stderr(io.StringIO()):
+            port(["status"], "canvas")
+    except SystemExit:
+        pass
+    else:
+        assert False, "a bad SP_CANVAS_PORT must be rejected the way a bad --port is"
+
+
+def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
+    sp_home = Path(tempfile.mkdtemp())
+    env = dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home))
+    (sp_home / "cache/1.4.2/dist").mkdir(parents=True)
+    (sp_home / "cache/1.4.2/dist/server.mjs").write_text("")
+    (sp_home / "state").mkdir()
+    (sp_home / "state/canvas-5173.pid").write_text("4242\n")
+    (sp_home / "state/canvas-5174.pid").write_text("not a pid\n")  # skipped, not fatal
+    (sp_home / "state/canvas-backup.pid").write_text("4242\n")  # not a port; debris, not fatal
+    sessions = ["main\n"]  # what `tmux list-sessions` answers
+    real = C._is_our_server, C.subprocess.run, C.shutil.which
+
+    def refuses(port):
+        try:
+            with_env(env, lambda: C.cmd_clean(None))
+        except SystemExit as e:
+            assert port in str(e) and "sp stop" in str(e), e
+        else:
+            assert False, f"clean must refuse while a canvas runs on {port}"
+        assert (sp_home / "cache/1.4.2/dist/server.mjs").is_file()
+
+    try:
+        C.subprocess.run = lambda *a, **k: type("R", (), {"stdout": sessions[0]})()
+        C.shutil.which = lambda name, *a, **k: "/usr/bin/tmux"
+        # A background canvas is known by its pidfile ...
+        C._is_our_server = lambda pid, port: (pid, port) == (4242, "5173")
+        refuses("5173")
+        # ... and one in tmux, which wrote no pidfile, by its session.
+        C._is_our_server = lambda pid, port: False
+        sessions[0] = "canvas-5180\nmain\n"
+        refuses("5180")
+        # Someone else's session is not ours whatever its name holds.
+        sessions[0] = "notes canvas-9999\nmain\n"
+        with_env(env, lambda: C.cmd_clean(None))
+        assert not (sp_home / "cache").exists() and not (sp_home / "state").exists()
+        with_env(env, lambda: C.cmd_clean(None))  # a second time is not an error
+    finally:
+        C._is_our_server, C.subprocess.run, C.shutil.which = real
+
+
+def test_without_ps_the_liveness_check_refuses_to_guess():
+    """A pidfile and no `ps` (Windows, a slim container): `stop` must not SIGTERM a stranger
+    and `clean` must not delete under a live server, so neither answer is given."""
+    try:
+        with_env({"PATH": ""}, lambda: C._is_our_server(4242, "5173"))
+    except SystemExit as e:
+        assert "ps" in str(e) and "4242" in str(e), e
+    else:
+        assert False, "must not answer without ps"
+
+
+def test_the_app_is_built_when_dist_is_missing_or_older_than_a_source():
+    """`start` runs one built file. An install from git has none, and a checkout that was
+    edited has one from before the edit; both must build, and an up-to-date one must not."""
+    app = Path(tempfile.mkdtemp())
+    (app / "src").mkdir()
+    (app / "src/App.tsx").write_text("")
+    (app / "vite.config.ts").write_text("")
+    assert C._needs_build(app)
+    (app / "dist").mkdir()
+    (app / "dist/server.mjs").write_text("")
+    now = time.time()
+    for f in ("src/App.tsx", "vite.config.ts"):
+        os.utime(app / f, (now - 10, now - 10))
+    os.utime(app / "dist/server.mjs", (now, now))
+    assert not C._needs_build(app)
+    # The build's own output and an installed dependency are not sources.
+    (app / "node_modules/x").mkdir(parents=True)
+    for f in ("dist/index.html", "node_modules/x/index.js"):
+        (app / f).write_text("")
+        os.utime(app / f, (now + 10, now + 10))
+    assert not C._needs_build(app)
+    # An entry page and a `public/` file are, as much as anything under `src/`.
+    for f in ("src/App.tsx", "index.html", "public/favicon.ico"):
+        (app / f).parent.mkdir(exist_ok=True)
+        (app / f).write_text("")
+        os.utime(app / f, (now + 10, now + 10))
+        assert C._needs_build(app), f
+        os.utime(app / f, (now - 10, now - 10))
+
+
 def test_the_tag_prefix_matches_the_one_the_release_actually_cuts():
     spec = json.loads((Path(__file__).resolve().parent.parent / ".version-bump.json").read_text())
     assert C.TAG_PREFIX == spec["tagPrefix"]
+
+
+def test_the_bundle_fetched_is_the_one_the_release_workflow_attaches():
+    """Two files spell the asset: release.yml uploads it, _dist downloads it and
+    expects one top-level `dist/` inside. Neither may move without the other."""
+    workflow = (Path(__file__).resolve().parent.parent / ".github/workflows/release.yml").read_text()
+    assert 'tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist' in workflow
+    assert 'gh release upload "super-prototyping--v$VERSION" "$RUNNER_TEMP/canvas-dist.tgz"' in workflow
+    import inspect
+    assert "/canvas-dist.tgz" in inspect.getsource(C._dist)
 
 
 def test_the_newest_cached_release_wins_and_a_prerelease_ranks_below_it():
