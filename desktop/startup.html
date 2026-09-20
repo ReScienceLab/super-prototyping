@@ -30,9 +30,12 @@
     font: 14px/1.5 "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     color: var(--fg);
-    /* The picture under a half-black wash, dark enough for the text on it to keep its contrast. */
-    background: linear-gradient(rgb(0 0 0 / 0.5) 0 0), url("background.jpg") center / cover var(--bg);
+    /* The picture is a 720px blue-noise dither, scaled up with hard pixels so the stipple stays
+       a stipple, under a half-black wash dark enough for the text on it to keep its contrast. */
+    background: linear-gradient(rgb(0 0 0 / 0.5) 0 0), url("background.png") center / cover var(--bg);
+    image-rendering: pixelated;
   }
+  img { image-rendering: auto; } /* it inherits, and an icon is not a dither */
   header {
     display: flex;
     align-items: center;
