@@ -135,7 +135,7 @@ say "  /plugin install super-prototyping@super-prototyping"
 
 if [ "$tools_ok" = 0 ]; then
   say ""
-  say "! the toolkit did not install. The skills call refkit, artgen and sp-canvas by"
+  say "! the toolkit did not install. The skills call refkit, artgen and sp by"
   say "  name, so they will not run until it does."
   exit 1
 fi

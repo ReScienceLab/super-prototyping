@@ -46,7 +46,7 @@ with a caveat in the label.
 1. **Look at a finished one.** The plugin ships twelve. List them and print
    one's rows:
    ```bash
-   KIT="$(sp-canvas root)"
+   KIT="$(sp root)"
    ls "$KIT"/mockups/canvases/*/assets/brand/manifest.json
    python3 -c 'import json,sys
    for r in json.load(open(sys.argv[1])): print(len(r["images"]), r["title"])' \

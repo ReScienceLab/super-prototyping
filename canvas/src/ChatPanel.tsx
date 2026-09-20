@@ -1,8 +1,8 @@
 /**
- * The chat panel: a message to Claude Code or Codex, run in the user's project by the dev server,
- * and what it did, drawn as it happens. Dev server only — App.tsx mounts it under
- * import.meta.env.DEV, since a hosted build has no /__sp/agent endpoints and no process behind
- * them.
+ * The chat panel: a message to Claude Code or Codex, run in the user's project by the server,
+ * and what it did, drawn as it happens. Served only — App.tsx mounts it when the index says a
+ * server is behind /__sp, since a hosted build has no /__sp/agent endpoints and no process
+ * behind them.
  *
  * The panel keeps the ids of its runs in sessionStorage and follows every one again after the
  * reload a board write causes, from event zero: the transcript is rebuilt, not saved, since the

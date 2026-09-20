@@ -30,6 +30,7 @@ import {
   type CommentUser,
 } from "./canvasComments";
 import { CanvasCta } from "./canvasCta";
+import { canvasIndex } from "./canvasIndex";
 import { hasBrandMaterial } from "./canvasLibrary";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
 import {
@@ -148,9 +149,9 @@ export const canvasChromeComponents: TLComponents = {
    * The slot holds the chat panel's switch instead. It is the leftmost thing in the top bar,
    * against the window's left edge, which is where the switch for the panel on that edge belongs.
    * In the panel's own header it would disappear along with the panel and need a second control
-   * to undo it. Dev only, like the panel itself.
+   * to undo it. Served only, like the panel itself.
    */
-  MainMenu: import.meta.env.DEV
+  MainMenu: canvasIndex().served
     ? () => {
         const chrome = useContext(CanvasChromeContext);
         return (
@@ -285,7 +286,7 @@ export const canvasChromeComponents: TLComponents = {
           />
           {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
               a page someone added by hand. */}
-          {import.meta.env.DEV && slug && slug !== WELCOME_PAGE_SLUG && (
+          {canvasIndex().served && slug && slug !== WELCOME_PAGE_SLUG && (
             <TldrawUiMenuItem
               id="clone"
               label="Clone this canvas"
@@ -388,7 +389,7 @@ export const canvasChromeComponents: TLComponents = {
           resolveAuthor={resolveAuthor}
         />
         {/* Dev only, like the panel they hand things to. */}
-        {import.meta.env.DEV && <CanvasAttachButtons />}
+        {canvasIndex().served && <CanvasAttachButtons />}
         {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
             next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}

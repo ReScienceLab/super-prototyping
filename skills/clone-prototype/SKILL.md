@@ -27,7 +27,11 @@ PATH; `shoot` additionally needs Google Chrome.
 refkit --help
 ```
 
-Not found? The plugin cannot install it. Once per machine:
+Not on PATH, or `sp --version` prints something lower than the version this
+skill shipped with? The plugin cannot install it. Leave a higher version
+alone, because reinstalling over it would be a downgrade, and the tag may not
+even exist. Once per machine, adding `--force` to reinstall over a lower
+version:
 
 ```bash
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
@@ -58,7 +62,7 @@ Worked examples and the folder skeleton ship with the plugin, which is
 installed outside your project. Address them through the kit root:
 
 ```bash
-KIT="$(sp-canvas root)"
+KIT="$(sp root)"
 ls "$KIT/mockups/canvases"
 ```
 

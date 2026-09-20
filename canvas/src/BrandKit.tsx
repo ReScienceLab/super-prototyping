@@ -84,8 +84,8 @@ export function BrandKit({ slug }: { slug: string }) {
     <main>
       <div className="topbar">
         {/* Back to the canvas this kit was collected for, wearing the app's own mark rather
-            than a product's: the row reads left to right as this app, these products, these
-            two asks. */}
+            than a product's: the row reads left to right as this app, these products, this
+            one ask. */}
         <a className="chip home" href={canvasPageUrl(slug)}>
           <img src={`${import.meta.env.BASE_URL}favicon-32.png`} alt="" />
           <span>Super Prototyping</span>

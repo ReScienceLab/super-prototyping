@@ -30,6 +30,7 @@ import {
   TextTitle,
 } from "./geistIcons";
 import { CanvasChromeContext } from "./canvasChrome";
+import { canvasIndex } from "./canvasIndex";
 import {
   installInspectorClicks,
   type InspectorTarget,
@@ -117,8 +118,8 @@ const UNDO_MS = 10_000;
  * It is the only place a status can be changed: the coloured tab above a board out on the canvas
  * is a read-only echo of the same value in layout.json.
  *
- * `import.meta.env.DEV` is the whole of the read-only rule. Writing means editing layout.json
- * through the dev server, and a built canvas is static files on a host with no repo behind them,
+ * Whether the index is served is the whole of the read-only rule. Writing means editing
+ * layout.json through the server, and a hosted canvas is static files with no repo behind them,
  * so there it is a badge and nothing more.
  */
 function BoardStatus({ path }: { path: string }) {
@@ -189,7 +190,7 @@ function BoardStatus({ path }: { path: string }) {
 
   // Away from the dev server there is no file to write a status back to, so the badge is only a
   // label — but it keeps the wrapper, which is what the menu and the Undo hang off.
-  if (!import.meta.env.DEV) {
+  if (!canvasIndex().served) {
     return (
       <div className="sp-status-wrap">
         <span className={`sp-status sp-status--${status}`}>{badge}</span>
