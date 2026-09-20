@@ -1,5 +1,5 @@
 /**
- * The canvas as a macOS app: this process starts `dist/server.mjs` the way `sp-canvas start`
+ * The canvas as a macOS app: this process starts `dist/server.mjs` the way `sp start`
  * does, on the loopback, and opens one window on it. Nothing here re-implements the server.
  * Bundled to `dist/main.mjs` by `bun run build`; electron-builder wraps that and the built
  * canvas into the .app.
@@ -27,7 +27,7 @@ const home = os.homedir();
 // lookup below and every child, the server and what it spawns, see the same one.
 process.env.PATH = augmentedPath(process.env, home);
 // Electron's profile (IndexedDB holds the canvas document) goes beside the CLI's pidfile and
-// log, not in ~/Library, so `sp-canvas paths` names every file this writes and `clean` removes it.
+// log, not in ~/Library, so `sp paths` names every file this writes and `clean` removes it.
 app.setPath("userData", path.join(stateDir(process.env, home), "desktop"));
 app.setName("Super Prototyping");
 
@@ -76,7 +76,7 @@ async function main() {
   // absence is the first-launch state: say what to install and where it was looked for, then
   // open the boards anyway; the agent and screenshot buttons find out on their own.
   if (!env.SUPER_PROTOTYPING_ROOT) {
-    const spCanvas = findOnPath("sp-canvas", process.env.PATH!);
+    const spCanvas = findOnPath("sp", process.env.PATH!);
     if (!spCanvas) {
       const { response } = await dialog.showMessageBox({
         type: "warning",
@@ -94,7 +94,7 @@ async function main() {
         execFile(spCanvas, ["root"], { cwd: os.tmpdir(), timeout: 10_000 }, (err, out, stderr) => {
           if (!err) return resolve(out.trim());
           // Its stderr already lists every place it looked.
-          dialog.showErrorBox("sp-canvas root failed", stderr || String(err));
+          dialog.showErrorBox("sp root failed", stderr || String(err));
           resolve(undefined);
         }),
       );

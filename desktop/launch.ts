@@ -17,7 +17,7 @@ export function untilde(p: string, home: string) {
 
 /**
  * `<state>/super-prototyping`, exactly as `_dirs()` in tools/sp_canvas.py computes it, so the
- * shell's own files sit beside the CLI's pidfile and log and `sp-canvas clean` removes both.
+ * shell's own files sit beside the CLI's pidfile and log and `sp clean` removes both.
  */
 export function stateDir(env: NodeJS.ProcessEnv, home: string) {
   if (env.SUPER_PROTOTYPING_HOME) return path.join(untilde(env.SUPER_PROTOTYPING_HOME, home), "state");
@@ -26,7 +26,7 @@ export function stateDir(env: NodeJS.ProcessEnv, home: string) {
 
 /**
  * Where user-installed CLIs live when the login shell is not around to say. A GUI app on macOS
- * starts with `/usr/bin:/bin:/usr/sbin:/sbin`, so `uv`, `sp-canvas`, `claude` and `codex` are
+ * starts with `/usr/bin:/bin:/usr/sbin:/sbin`, so `uv`, `sp`, `claude` and `codex` are
  * all invisible without these. The dialog that says "not found" lists the same directories.
  */
 export function toolchainBins(home: string) {
@@ -66,7 +66,7 @@ export function installCommand(version: string) {
 export function missingToolkitMessage(opts: { uv: boolean; version: string; bins: string[] }) {
   return [
     opts.uv
-      ? "The super-prototyping toolkit (sp-canvas, refkit) is not installed. Install it with:"
+      ? "The super-prototyping toolkit (sp, refkit) is not installed. Install it with:"
       : "uv is not installed, so neither is the super-prototyping toolkit. Install uv from " +
         "https://docs.astral.sh/uv/ and then the toolkit with:",
     "",

@@ -1,6 +1,6 @@
 # The canvas ships as a macOS app, around the localhost server
 
-2026-09-19. Issue #111 asked for a window around the canvas that `sp-canvas
+2026-09-19. Issue #111 asked for a window around the canvas that `sp
 start` serves, for the person who does not live in a terminal, and said to
 ship a dmg only if people asked. The maintainer decided the dmg is worth doing
 now. This note records which shell was picked and what the app has to keep in
@@ -33,7 +33,7 @@ not weigh against opening a terminal.
   `~/.local/state/super-prototyping` default resolve by the rule in
   `sp_canvas.py`, and Electron's own profile goes under `<state>/desktop`
   rather than `~/Library/Application Support`. Nothing migrates and
-  `sp-canvas clean` removes it. No App Sandbox, because the app reads boards
+  `sp clean` removes it. No App Sandbox, because the app reads boards
   from whichever project directory the user picks.
 - **The port.** `--port`, then `SP_CANVAS_PORT`, then 5173. The canvas
   document lives in IndexedDB under the origin, so a stable port is what keeps
@@ -43,8 +43,8 @@ not weigh against opening a terminal.
   server racing the first: Electron loses a utility process's early output
   when a window is being created as it starts, so the app never opens its
   window before its own server answers.
-- **The plugin root.** The app asks `sp-canvas root` for it, the value
-  `sp-canvas start` passes, so an agent the canvas spawns is pointed at the
+- **The plugin root.** The app asks `sp root` for it, the value
+  `sp start` passes, so an agent the canvas spawns is pointed at the
   installed skills. The toolkit is not in the dmg: it is Python, `uv tool
   install` is its installer on every product, and a second copy would be a
   second version to drift. When `uv` or the toolkit is missing the app says so
@@ -62,7 +62,7 @@ not weigh against opening a terminal.
   picker.
 - **A universal binary, a cask, a version-skew message.** Two dmgs from one
   runner; a cask once there is a signed release to point one at; and the
-  toolkit version check stays in `sp-canvas start`, the command that fetches a
+  toolkit version check stays in `sp start`, the command that fetches a
   bundle by version. The app runs the bundle it was built with.
 - **A retrying notarisation hook.** electron-builder's own `notarize: true`
   runs `notarytool submit --wait` and `stapler staple`. OpenDesign's wrapper

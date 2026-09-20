@@ -10,7 +10,7 @@ test("untilde expands only the current user's leading tilde", () => {
   expect(stateDir({ SUPER_PROTOTYPING_HOME: "~/sp" }, "/Users/u")).toBe("/Users/u/sp/state");
 });
 
-test("stateDir mirrors sp-canvas _dirs()", () => {
+test("stateDir mirrors sp _dirs()", () => {
   expect(stateDir({}, "/Users/a")).toBe("/Users/a/.local/state/super-prototyping");
   expect(stateDir({ XDG_STATE_HOME: "/x" }, "/Users/a")).toBe("/x/super-prototyping");
   expect(stateDir({ SUPER_PROTOTYPING_HOME: "/h", XDG_STATE_HOME: "/x" }, "/Users/a")).toBe("/h/state");
