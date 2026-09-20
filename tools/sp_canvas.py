@@ -602,15 +602,13 @@ def cmd_clean(a):
     # background one is found by its pidfile and nothing else, so removing that would leave
     # a server `stop` cannot see.
     live = []
-    # The per-port name read back, so a rename in `_session` cannot leave `clean` blind. It
-    # holds no regex metacharacter, so the pattern is the name with the port as a group.
-    ports = re.compile(_session(r"(\d+)") + "$")
     if shutil.which("tmux"):
         out = subprocess.run(["tmux", "list-sessions", "-F", "#{session_name}"],
                              capture_output=True, text=True).stdout
-        live += [m.group(1) for m in map(ports.match, out.split()) if m]
-    for pidfile in state.glob(_pidfile("*").name):
-        port = ports.match(pidfile.stem).group(1)
+        # Whole lines: a session name may hold a space, and `notes canvas-9999` is not ours.
+        live += re.findall(r"^canvas-(\d+)$", out, re.M)
+    for pidfile in state.glob("canvas-*.pid"):
+        port = pidfile.stem.removeprefix("canvas-")
         pid = _pid_in(pidfile)
         if pid is not None and _is_our_server(pid, port):
             live.append(port)

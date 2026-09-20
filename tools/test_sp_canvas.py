@@ -334,6 +334,7 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
     (sp_home / "state").mkdir()
     (sp_home / "state/canvas-5173.pid").write_text("4242\n")
     (sp_home / "state/canvas-5174.pid").write_text("not a pid\n")  # skipped, not fatal
+    (sp_home / "state/canvas-backup.pid").write_text("4242\n")  # not a port; debris, not fatal
     sessions = ["main\n"]  # what `tmux list-sessions` answers
     real = C._is_our_server, C.subprocess.run, C.shutil.which
 
@@ -356,7 +357,8 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
         C._is_our_server = lambda pid, port: False
         sessions[0] = "canvas-5180\nmain\n"
         refuses("5180")
-        sessions[0] = "main\n"
+        # Someone else's session is not ours whatever its name holds.
+        sessions[0] = "notes canvas-9999\nmain\n"
         with_env(env, lambda: C.cmd_clean(None))
         assert not (sp_home / "cache").exists() and not (sp_home / "state").exists()
         with_env(env, lambda: C.cmd_clean(None))  # a second time is not an error
