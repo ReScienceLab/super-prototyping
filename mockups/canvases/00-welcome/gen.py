@@ -30,8 +30,9 @@ BANNER_H = W // 4       # the banner crop's own 4:1 aspect, so nothing stretches
 H = BANNER_H + 281      # 281 is what the header, the heading and the skill card need,
                         # 263 of it content and 18 of slack under the card
 
-BANNER_W = 2304         # the source's full width; past this there is no more detail
-BANNER_CROP = (0, 72, 2304, 648)   # 4:1 out of the 3:1 source, trimming dead black
+# 4:1 out of the 3:1 source, at its full width. The sky is plain black with a few stars, so the
+# crop only has to keep every star and sit the lettering a little above the middle.
+BANNER_CROP = (0, 170, 3456, 1034)
 MARK_PX = 96            # 2x the 48px display size
 
 # What the lede had when the header still held the star button's 260px slot, kept so its
@@ -48,9 +49,7 @@ def uri(image, fmt, **opts):
 
 def banner_uri():
     im = Image.open(os.path.join(ASSETS, "banner.webp")).convert("RGB").crop(BANNER_CROP)
-    h = round(im.height * BANNER_W / im.width)
-    return uri(im.resize((BANNER_W, h), Image.LANCZOS), "JPEG", quality=88,
-               optimize=True, progressive=False)
+    return uri(im, "JPEG", quality=88, optimize=True, progressive=False)
 
 
 def mark_uri():
@@ -58,13 +57,13 @@ def mark_uri():
     return uri(im.resize((MARK_PX, MARK_PX), Image.LANCZOS), "PNG", optimize=True)
 
 
-# The banner is white line work on black, so the board is too. The ramp below
+# The banner is glowing line work on a black sky, so the board is black too. The ramp below
 # is spaced for legibility at this size rather than borrowed from a palette.
 TOKENS = f""":root{{
   --w-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
   --w-mono:ui-monospace,Menlo,"SF Mono",monospace;
 
-  --w-ground:#08080A;
+  --w-ground:#000000;   /* the banner's own sky, so the strip ends without a line */
   --w-panel:#111115;
   --w-edge:#24242C;
   --w-ink:#F4F4F6;
@@ -98,8 +97,8 @@ body{{width:{W}px;height:{H}px;overflow:hidden;
   background:var(--w-ground);color:var(--w-ink);
   font-family:var(--w-font);-webkit-font-smoothing:antialiased}}
 
-/* Full bleed. The art is line work on black and the board's ground is black,
-   so the strip has no edge to frame. */
+/* Full bleed. The art's sky is black and the board's ground is black, so the strip has no
+   edge to frame. */
 .banner{{display:block;width:{W}px;height:var(--w-banner-h)}}
 
 main{{padding:var(--w-pad)}}
@@ -118,9 +117,9 @@ h1{{font:700 24px/28px var(--w-font);letter-spacing:-.3px}}
 h2{{font:600 10px/13px var(--w-font);letter-spacing:1.3px;text-transform:uppercase;
   color:var(--w-dim);padding-bottom:12px}}
 
-/* The one skill on the board, so it is the full width. Everything on this page is
-   white line work on black and the card keeps to that: no colour. The moving light on
-   this canvas belongs to the two CTAs pinned top-right, and only to them. */
+/* The one skill on the board, so it is the full width. The card is white on black with
+   no colour: the colour on this page is the banner's. The moving light on this canvas
+   belongs to the button pinned top-right, and only to it. */
 .skill{{display:flex;align-items:center;gap:30px;
   padding:34px 36px;border-radius:14px;
   background:linear-gradient(180deg,#17171C,#0C0C10);
