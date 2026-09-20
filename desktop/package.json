@@ -24,6 +24,7 @@
     "appId": "com.rescience.super-prototyping",
     "productName": "Super Prototyping",
     "artifactName": "Super-Prototyping-${version}-${arch}.${ext}",
+    "publish": null,
     "directories": {
       "output": "dist/out"
     },
