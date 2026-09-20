@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Emit the welcome board. Artboards are output, never source: edit this file,
-not the HTML. Sources are this folder's assets/banner.jpg and the repo's own assets/icon.png.
+not the HTML. Sources are the repo's own assets/banner.webp and assets/icon.png.
 
 Only /clone-prototype is on the board. The other two skills were a three-up
 row here and are not shown for now, so the one people are meant to run first
@@ -48,7 +48,7 @@ def uri(image, fmt, **opts):
 
 
 def banner_uri():
-    im = Image.open(os.path.join(OUT, "assets", "banner.jpg")).convert("RGB").crop(BANNER_CROP)
+    im = Image.open(os.path.join(ASSETS, "banner.webp")).convert("RGB").crop(BANNER_CROP)
     return uri(im, "JPEG", quality=88, optimize=True, progressive=False)
 
 
