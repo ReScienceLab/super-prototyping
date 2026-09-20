@@ -30,9 +30,9 @@ BANNER_H = W // 4       # the banner crop's own 4:1 aspect, so nothing stretches
 H = BANNER_H + 281      # 281 is what the header, the heading and the skill card need,
                         # 263 of it content and 18 of slack under the card
 
-# 4:1 out of the 3:1 source, at its full width. The art fades to black at every edge, and the
-# crop ends on the bottom fade, so the strip meets the board's ground without a seam.
-BANNER_CROP = (0, 150, 2000, 650)
+# 4:1 out of the 3:1 source, at its full width. The sky is plain black with a few stars, so the
+# crop only has to keep every star and sit the lettering a little above the middle.
+BANNER_CROP = (0, 170, 3456, 1034)
 MARK_PX = 96            # 2x the 48px display size
 
 # What the lede had when the header still held the star button's 260px slot, kept so its
@@ -57,14 +57,13 @@ def mark_uri():
     return uri(im.resize((MARK_PX, MARK_PX), Image.LANCZOS), "PNG", optimize=True)
 
 
-# The banner is glowing line work on a night sky that fades to black, so the board is black
-# too. The ramp below
+# The banner is glowing line work on a black sky, so the board is black too. The ramp below
 # is spaced for legibility at this size rather than borrowed from a palette.
 TOKENS = f""":root{{
   --w-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
   --w-mono:ui-monospace,Menlo,"SF Mono",monospace;
 
-  --w-ground:#08080A;
+  --w-ground:#000000;   /* the banner's own sky, so the strip ends without a line */
   --w-panel:#111115;
   --w-edge:#24242C;
   --w-ink:#F4F4F6;
@@ -98,8 +97,8 @@ body{{width:{W}px;height:{H}px;overflow:hidden;
   background:var(--w-ground);color:var(--w-ink);
   font-family:var(--w-font);-webkit-font-smoothing:antialiased}}
 
-/* Full bleed. The art fades to black at its edges and the board's ground is black,
-   so the strip has no edge to frame. */
+/* Full bleed. The art's sky is black and the board's ground is black, so the strip has no
+   edge to frame. */
 .banner{{display:block;width:{W}px;height:var(--w-banner-h)}}
 
 main{{padding:var(--w-pad)}}
