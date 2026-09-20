@@ -317,6 +317,11 @@ def _dist(root: Path) -> Path:
     file the cache check looks for cannot be there without the rest.
     """
     app = root / "canvas"
+    # A dist with no sources beside it is an install's, Homebrew's: the app as shipped, with
+    # nothing to rebuild it from. The mtime check below would take its package.json, unpacked
+    # after the bundle was built, as an edit.
+    if (app / "dist/server.mjs").is_file() and not (app / "src").is_dir():
+        return app / "dist"
     version = _plugin_version(root)
     if not version or (app / "node_modules").is_dir() or (app / "dist/server.mjs").is_file():
         if _needs_build(app):

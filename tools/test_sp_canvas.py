@@ -219,11 +219,25 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     # node_modules marks a checkout being worked on: its own dist, even with a release known.
     dev = canvas_app_at(plugin_root("1.4.2"))
     (dev / "canvas/node_modules").mkdir()
+    (dev / "canvas/src").mkdir()
     (dev / "canvas/dist").mkdir()
     (dev / "canvas/dist/server.mjs").write_text("")
     now = time.time()
     os.utime(dev / "canvas/package.json", (now - 10, now - 10))
     assert dist(dev, "1.4.2") == dev / "canvas/dist"
+
+    # Homebrew's tree: a dist and no sources. Served as it is, though its package.json was
+    # unpacked after the bundle was built, and never rebuilt: nothing to rebuild it from.
+    brew = canvas_app_at(plugin_root("1.4.2"))
+    (brew / "canvas/dist").mkdir()
+    (brew / "canvas/dist/server.mjs").write_text("")
+    os.utime(brew / "canvas/dist/server.mjs", (now - 10, now - 10))
+    which = C.shutil.which
+    C.shutil.which = lambda name: None  # a wrong turn here would look for bun
+    try:
+        assert dist(brew, "1.4.2") == brew / "canvas/dist"
+    finally:
+        C.shutil.which = which
 
     # A bare install with a version: the bundle. Fetched from the tag's release asset, into
     # one folder per version, whole — no temporary directory left beside it.
