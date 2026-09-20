@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """sp, the launcher for the tldraw board canvas.
 
-  start    serve the canvas against a folder of boards, print its address
+  start    serve the canvas for a project, the current directory or the one named,
+           and print its address
   stop     kill the one on that port, and only that one
   status   say whether it is up, and on what
   root     print the plugin root it resolved (-v: where it looked, and the
@@ -14,8 +15,8 @@ project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
 boards stay in your project. This joins the two, so an upgrade can replace the
 app without touching a single board you have authored.
 
-Boards default to ./mockups/canvases under the current directory. Override with
---canvases or PROTOTYPING_CANVASES_DIR. The plugin is found by search;
+Boards default to mockups/canvases under the project. Override with --canvases or
+PROTOTYPING_CANVASES_DIR. The plugin is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer. The app served is
 the canvas built for the plugin's release, fetched once into
 ~/.cache/super-prototyping/<version>/; a checkout with node_modules serves its own
@@ -266,8 +267,8 @@ def resolve_root(verbose=False):
 
 # --- the server --------------------------------------------------------------
 
-def _canvases_dir(arg):
-    raw = arg or os.environ.get("PROTOTYPING_CANVASES_DIR") or "mockups/canvases"
+def _canvases_dir(arg, project=Path()):
+    raw = arg or os.environ.get("PROTOTYPING_CANVASES_DIR") or project / "mockups/canvases"
     return Path(raw).expanduser().resolve()
 
 
@@ -365,7 +366,13 @@ def _dist(root: Path) -> Path:
 
 def cmd_start(a):
     root = resolve_root()
-    boards = _canvases_dir(a.canvases)
+    # The project is the directory named, else the one this is run from — the one the boards
+    # default under. The canvas's chat panel runs Claude Code in it; without it the panel's
+    # endpoints answer 503.
+    project = Path(a.project or ".").expanduser().resolve()
+    if not project.is_dir():
+        raise SystemExit(f"error: {project} is not a directory")
+    boards = _canvases_dir(a.canvases, project)
 
     if not boards.is_dir():
         print(f"note: {boards} does not exist yet — the canvas will open empty.")
@@ -392,9 +399,6 @@ def cmd_start(a):
     if not runtime:
         raise SystemExit("error: neither node nor bun is on PATH to run the canvas server")
 
-    # The project is the directory this is run from — the same one the boards default under.
-    # The canvas's chat panel runs Claude Code in it; without it the panel's endpoints answer 503.
-    project = Path.cwd().resolve()
     # Resolved once, here, and handed down: the server passes them on to every agent it
     # spawns, and it derives none itself — the bundle it runs may sit in the cache directory
     # with no checkout above it, and the root is where the skill it points the agent at is.
@@ -614,10 +618,11 @@ def parser():
                              help=f"default SP_CANVAS_PORT, then {DEFAULT_PORT}")
         if canvases:
             sub.add_argument("--canvases", help="folder of board folders "
-                                                "(default ./mockups/canvases)")
+                                                "(default: mockups/canvases under the project)")
         return sub
 
-    add("start", cmd_start)
+    add("start", cmd_start).add_argument(
+        "project", nargs="?", help="the project directory (default: the current one)")
     add("stop", cmd_stop, canvases=False)
     add("status", cmd_status)
     root = add("root", cmd_root, ports=False, canvases=False)

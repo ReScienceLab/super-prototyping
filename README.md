@@ -76,11 +76,12 @@ With Homebrew, on macOS or Linux, it is two lines:
 
 ```bash
 brew install ReScienceLab/tap/super-prototyping
-cd my-project && sp start
+sp start ~/my-project
 ```
 
-`sp start` serves `./mockups/canvases` at http://127.0.0.1:5173, opens the
-browser and returns; `sp stop` stops it. The formula installs the skills, the
+`sp start DIR`, from anywhere, serves `DIR/mockups/canvases` at
+http://127.0.0.1:5173, opens the browser and returns; with no DIR, the
+current directory's. `sp stop` stops it. The formula installs the skills, the
 board template, the prebuilt canvas app and `sp` under Homebrew's prefix, with
 node as its only dependency; the worked example boards stay on the hosted
 canvas. The canvas's chat panel points the agent at the skills there, and the
@@ -205,13 +206,14 @@ is in there to copy from too.
 ## Run the canvas
 
 ```bash
-sp start
+sp start              # this project
+sp start ~/my-app     # any project, from anywhere
 ```
 
 On first run it downloads the canvas app built for your version of the
 plugin into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
-against `./mockups/canvases` with node or bun, opens the browser, and prints
-the address. `--canvases DIR` points it somewhere else, `--port N` (or
+against the project's `mockups/canvases` with node or bun, opens the browser,
+and prints the address. `--canvases DIR` points it at another boards folder, `--port N` (or
 `SP_CANVAS_PORT`) moves it, `sp status` and `sp stop` do what
 they say. `sp paths` lists the two directories it writes, and
 `sp clean` removes them.

@@ -39,7 +39,9 @@ Everything below is on `main` and reaches no install until a version is cut.
   `SP_CANVAS_PORT`. The old `~/.super-prototyping-canvas-<port>.pid` and
   `.log` files in your home are not read any more; delete them.
 - `sp-canvas` is now `sp`: `sp start`, `sp stop`, `sp root`. Re-run the
-  `uv tool install` line with `--force` to get it.
+  `uv tool install` line with `--force` to get it. `sp start <dir>` names the
+  project from anywhere; with no argument it is the current directory, as
+  before.
 - A Homebrew tap. `brew install ReScienceLab/tap/super-prototyping` installs
   the skills, the board template, the prebuilt canvas app and `sp`, with node
   as the only dependency: `cd my-project && sp start`. The rest of the toolkit

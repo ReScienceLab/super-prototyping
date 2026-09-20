@@ -21,7 +21,7 @@ plugin replaces the app and never touches a board you wrote.
 sp start
 ```
 
-Not found? `sp` installs separately from the plugin, which cannot run
+From elsewhere, name the project: `sp start <dir>`. Not found? `sp` installs separately from the plugin, which cannot run
 an installer of its own: `uv tool install
 "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
 
