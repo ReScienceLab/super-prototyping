@@ -21,12 +21,18 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-- The macOS app's dmgs build in the release again. v1.5.0's never got attached:
-  the step that builds them holds a GitHub token to upload them with, and
-  electron-builder takes a token as a request to write an auto-update feed,
-  then crashed looking for the repository from `desktop/`. The app has no
-  updater, because Homebrew upgrades it, so the build now says it publishes
-  nothing.
+## v1.5.1
+
+2026-09-20. The first release with the macOS app attached. v1.5.0 tagged and
+shipped the plugin and the toolkit, but its dmgs were never uploaded and the
+Homebrew cask was never written, so v1.5.0's notes below are what is new and
+this release is the one to install. Nothing else changed.
+
+- **The macOS app's dmgs build in the release again.** The step that builds
+  them holds a GitHub token to upload them with, and electron-builder takes a
+  token as a request to write an auto-update feed, then crashed looking for
+  the repository from `desktop/`. The app has no updater, because Homebrew
+  upgrades it, so the build now says it publishes nothing.
 
 ## v1.5.0
 
