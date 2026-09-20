@@ -65,11 +65,11 @@ spelling would need to differ per product, which defeats one `SKILL.md` for
 all of them.
 
 So `tools/` became a Python package, `super-prototyping-tools`, exporting
-`refkit`, `artgen` and `sp-canvas` as console entry points. A skill says
+`refkit`, `artgen` and `sp` as console entry points. A skill says
 `refkit grid ...` with no path in it, and that one spelling is correct
 everywhere.
 
-`sp-canvas root` closes the remaining gap: a skill that needs the *kit* (the
+`sp root` closes the remaining gap: a skill that needs the *kit* (the
 folder template, a worked example) asks for it. It searches
 `SUPER_PROTOTYPING_ROOT`, then the `installPath` Claude Code records in
 `~/.claude/plugins/installed_plugins.json`, then
@@ -77,7 +77,7 @@ folder template, a worked example) asks for it. It searches
 mtime: two directories can share one, and then the older release wins at
 random), then the per-product skill symlinks, then the current git checkout —
 validating each candidate by reading `canvas/package.json`. It prints only the
-path on stdout so `KIT="$(sp-canvas root)"` works; the search trace goes to
+path on stdout so `KIT="$(sp root)"` works; the search trace goes to
 stderr behind `-v`.
 
 ## What the layout looks like now

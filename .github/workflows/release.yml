@@ -11,6 +11,9 @@ name: Release
 #      the second half: it tags super-prototyping--v<version>, cuts the
 #      GitHub Release from the matching RELEASE-NOTES.md section, and attaches
 #      the canvas, built without the example boards, as canvas-dist.tgz.
+#      Re-running a run whose attach step failed does that last part again for
+#      the tag already cut. A macOS runner then adds the app, a dmg per
+#      architecture, and writes the Homebrew tap's cask to name those two dmgs.
 #
 # Nothing tags a commit that is not on main, and the second half only acts when
 # the version actually changed in that push: the tag ruleset forbids moving a
@@ -135,6 +138,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      fresh: ${{ steps.v.outputs.fresh }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -148,6 +154,7 @@ jobs:
         id: v
         env:
           BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           read_version() { python3 -c 'import json,sys;print(json.load(sys.stdin)["version"])'; }
@@ -183,14 +190,32 @@ jobs:
             echo "the version did not move forward ($before to $version), so this is not a release"
             fresh=false
           elif git rev-parse -q --verify "refs/tags/super-prototyping--v$version" > /dev/null; then
-            echo "super-prototyping--v$version already exists, so there is nothing to do"
+            echo "super-prototyping--v$version already exists, so this push cuts nothing"
             fresh=false
           else
             echo "this push released $version"
           fi
 
+          # A release whose bundle step failed has a tag and a release and no
+          # canvas-dist.tgz. The tag cannot be cut again, but the asset can, so
+          # re-running the failed run takes just that half: the repair is one click,
+          # not `gh release upload` by hand.
+          # Only the run at the commit the tag names, which is what a re-run is: a later
+          # push would build the bundle from another tree, and a revert restores an
+          # older version whose release is not this push's to touch.
+          attach=$fresh
+          tagged=$(git rev-parse -q --verify "refs/tags/super-prototyping--v$version^{commit}" || true)
+          if [ "$fresh" = false ] && [ "$tagged" = "$GITHUB_SHA" ]; then
+            assets=$(gh release view "super-prototyping--v$version" --json assets --jq '.assets[].name' 2> /dev/null || true)
+            if ! grep -qx canvas-dist.tgz <<< "$assets"; then
+              echo "super-prototyping--v$version is cut here but has no canvas-dist.tgz, so this run attaches it"
+              attach=true
+            fi
+          fi
+
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "fresh=$fresh" >> "$GITHUB_OUTPUT"
+          echo "attach=$attach" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v7
         if: steps.v.outputs.fresh == 'true'
@@ -256,19 +281,20 @@ jobs:
           fi
 
       - uses: oven-sh/setup-bun@v2
-        if: steps.v.outputs.fresh == 'true'
+        if: steps.v.outputs.attach == 'true'
 
-      # The canvas, built once here so that an install does not have to: `sp-canvas
-      # start` builds it from source today and needs Bun on the user's machine for it,
-      # and the localhost app (#108) and the Homebrew formula (#109) fetch this bundle
-      # instead. The example boards stay out, because an install shows the user's
-      # boards and not this repo's; PROTOTYPING_CANVASES_DIR is the same knob
-      # `sp-canvas start` sets, and an empty directory builds an empty canvas. After
-      # the release rather than before it, because nothing consumes the bundle yet:
-      # a failure here is a missing asset, which `gh release upload` by hand adds to
-      # a release that is already cut, not a version that never shipped.
+      # The canvas, built once here so that an install does not have to: `sp
+      # start` fetches this bundle for the plugin's version on first start (#108), by
+      # this asset name under this tag. The example boards stay out, because an
+      # install shows the user's boards and not this repo's;
+      # PROTOTYPING_CANVASES_DIR is the same knob `sp start` sets,
+      # and an empty directory builds an empty canvas. After the release rather than
+      # before it: the tag is pushed by now and the ruleset forbids moving it, so a
+      # build failure must not leave a tag with no release behind it. A failure here
+      # is a missing asset, and every `sp start` on this version stops and prints
+      # the URL it wanted until re-running this run attaches it (`attach` above).
       - name: Attach the canvas, built without the example boards
-        if: steps.v.outputs.fresh == 'true'
+        if: steps.v.outputs.attach == 'true'
         working-directory: canvas
         env:
           GH_TOKEN: ${{ github.token }}
@@ -278,3 +304,138 @@ jobs:
           PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
           tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist
           gh release upload "super-prototyping--v$VERSION" "$RUNNER_TEMP/canvas-dist.tgz"
+
+  # The macOS app (#111) is the canvas built exactly as above, wrapped in Electron
+  # by desktop/, one dmg per architecture. It has its own runner, because signing
+  # and notarising need macOS. It runs after `tag` for the same reason the bundle
+  # is attached last, so a failure here is a missing asset. `gh release upload`
+  # by hand adds that asset, and the commands below are the list to run. Signing
+  # turns on when the secrets are present and stays off otherwise, so a fork or a
+  # checkout without them builds an unsigned dmg, which Gatekeeper refuses until
+  # the `xattr` line in README's Install section clears its quarantine. That line
+  # goes once the secrets are set. The secrets are listed by name, and their
+  # values are nowhere in this repo:
+  #
+  #   MAC_CERT_P12        Developer ID Application certificate, a .p12, base64
+  #   MAC_CERT_PASSWORD   the password that .p12 was exported with
+  #   APPLE_API_KEY_P8    App Store Connect API key, the .p8, base64
+  #   APPLE_API_KEY_ID    that key's id
+  #   APPLE_API_ISSUER    that key's issuer id
+  #
+  # electron-builder signs when CSC_LINK holds the certificate and notarises when
+  # the three APPLE_API_* variables are set. Notarising is
+  # `xcrun notarytool submit --wait`, then `xcrun stapler staple`, through
+  # @electron/notarize.
+  dmg:
+    name: Attach the macOS app
+    needs: tag
+    if: needs.tag.outputs.fresh == 'true'
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+
+      # The example boards stay out of the canvas build, as above. The app ships
+      # mockups/canvases itself, as the read-only examples its server shows
+      # (extraResources in desktop/package.json), and a second copy under dist/board
+      # would double the dmg.
+      - name: Build the canvas, without the example boards
+        working-directory: canvas
+        run: |
+          bun install --frozen-lockfile
+          PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
+
+      - name: Build, sign, notarise and attach the dmgs
+        working-directory: desktop
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.tag.outputs.version }}
+          MAC_CERT_P12: ${{ secrets.MAC_CERT_P12 }}
+          MAC_CERT_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          set -euo pipefail
+          if [ -n "$MAC_CERT_P12" ]; then
+            # A certificate without the notarisation key would ship a signed dmg
+            # that Gatekeeper still refuses, so it is all five secrets or none.
+            : "${MAC_CERT_PASSWORD:?}" "${APPLE_API_KEY_P8:?}" "${APPLE_API_KEY_ID:?}" "${APPLE_API_ISSUER:?}"
+            printf '%s' "$APPLE_API_KEY_P8" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+            export CSC_LINK="$MAC_CERT_P12" CSC_KEY_PASSWORD="$MAC_CERT_PASSWORD" APPLE_API_KEY="$RUNNER_TEMP/AuthKey.p8"
+          else
+            echo "::warning::MAC_CERT_P12 is not set, so the dmgs are unsigned"
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+          fi
+          bun install --frozen-lockfile
+          bun run build
+          bunx electron-builder --mac dmg --arm64 --x64 --publish never
+          gh release upload "super-prototyping--v$VERSION" dist/out/*.dmg
+
+      # Homebrew installs the app through this cask and nothing else, and the cask
+      # names the two dmgs just uploaded, so `brew install --cask` and the release
+      # page hand over the same file. The cask is written whole from here, so the tap
+      # is pure output and its text lives in this one place. Stable releases only: the
+      # cask is what `brew install` hands everyone, so naming a prerelease would ship
+      # the rc to every user. Not gated on signing: an unsigned dmg is
+      # quarantined the same whether a browser or Homebrew downloaded it.
+      # HOMEBREW_TAP_TOKEN is a fine-grained token with contents write on
+      # ReScienceLab/homebrew-tap and nothing else; the org disallows deploy keys,
+      # which would have been narrower still. Re-running does not repair a failed
+      # push, because the upload above refuses an asset that is already there:
+      # `shasum -a 256` the two released dmgs and put the version and both checksums
+      # into the tap's cask by hand.
+      - uses: actions/checkout@v7
+        if: ${{ !contains(needs.tag.outputs.version, '-') }}
+        with:
+          repository: ReScienceLab/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: tap
+
+      - name: Write the Homebrew cask for this release
+        if: ${{ !contains(needs.tag.outputs.version, '-') }}
+        working-directory: tap
+        env:
+          VERSION: ${{ needs.tag.outputs.version }}
+        run: |
+          set -euo pipefail
+          arm=$(shasum -a 256 "../desktop/dist/out/Super-Prototyping-$VERSION-arm64.dmg" | cut -d' ' -f1)
+          intel=$(shasum -a 256 "../desktop/dist/out/Super-Prototyping-$VERSION-x64.dmg" | cut -d' ' -f1)
+          mkdir -p Casks
+          # Unquoted, so the shell fills in the version and the two checksums. Ruby's
+          # `#{version}` and `#{arch}` hold no `$` and arrive as written.
+          cat > Casks/super-prototyping.rb <<RUBY
+          cask "super-prototyping" do
+            arch arm: "arm64", intel: "x64"
+
+            version "$VERSION"
+            sha256 arm:   "$arm",
+                   intel: "$intel"
+
+            url "https://github.com/ReScienceLab/super-prototyping/releases/download/super-prototyping--v#{version}/Super-Prototyping-#{version}-#{arch}.dmg"
+            name "Super Prototyping"
+            desc "Prototyping canvas and skills for coding agents"
+            homepage "https://github.com/ReScienceLab/super-prototyping"
+
+            depends_on macos: :ventura
+
+            app "Super Prototyping.app"
+
+            zap trash: [
+              "~/.cache/super-prototyping",
+              "~/.local/state/super-prototyping",
+              "~/Library/Preferences/com.rescience.super-prototyping.plist",
+            ]
+          end
+          RUBY
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "the cask already names $VERSION with these checksums"
+            exit 0
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Casks/super-prototyping.rb
+          git commit -m "super-prototyping $VERSION"
+          git push

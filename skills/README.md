@@ -22,7 +22,7 @@ Rules for editing one:
   a top-level `.md` as a skill when it carries frontmatter with a
   `description`, so adding one here would install a fifth skill.
 - **Never write a path to this repo.** A skill runs inside someone else's
-  project. Call the tools by name (`refkit`, `artgen`, `sp-canvas`), and when
+  project. Call the tools by name (`refkit`, `artgen`, `sp`), and when
   a skill needs a file that ships with the plugin, reach it through
-  `KIT="$(sp-canvas root)"`. `git rev-parse --show-toplevel` finds the user's
+  `KIT="$(sp root)"`. `git rev-parse --show-toplevel` finds the user's
   repo, not this one.

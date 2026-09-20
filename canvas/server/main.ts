@@ -1,7 +1,7 @@
 /**
  * The canvas as a localhost app: the built `dist` served as static files, with the same
  * `/__sp` and `/board` server in front of it that the Vite dev server mounts. Bundled to
- * `dist/server.mjs` by `bun run build`, so `sp-canvas start` runs one file with node or bun
+ * `dist/server.mjs` by `bun run build`, so `sp start` runs one file with node or bun
  * and no dev toolchain. Usage: `node dist/server.mjs --port 5173`.
  */
 import fs from "node:fs";
@@ -9,17 +9,28 @@ import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSpServer } from "./sp.ts";
+import { refresh } from "./skills.ts";
 
-// This file runs from `canvas/dist/`, two levels below the checkout. Derived rather than
-// passed in, so a checkout found by `sp-canvas root` needs nothing else to name itself.
 const dist = fileURLToPath(new URL(".", import.meta.url)).replace(/\/$/, "");
-const repoRoot = path.resolve(dist, "../..");
+// The plugin root: where the skill an agent is pointed at lives, and whose boards a checkout
+// serves by default. `sp start` resolves it and passes it, because the bundle a
+// release attaches runs from ~/.cache/super-prototyping/<version>/dist with no checkout
+// above it. Derived only for `node dist/server.mjs` run by hand inside a checkout, where
+// this file sits two levels below it.
+const repoRoot = process.env.SUPER_PROTOTYPING_ROOT
+  ? path.resolve(process.env.SUPER_PROTOTYPING_ROOT)
+  : path.resolve(dist, "../..");
 const canvasesDir = path.resolve(
   process.env.PROTOTYPING_CANVASES_DIR ||
     path.join(repoRoot, "mockups/canvases"),
 );
 const projectDir = process.env.PROTOTYPING_PROJECT_DIR
   ? path.resolve(process.env.PROTOTYPING_PROJECT_DIR)
+  : null;
+// Read-only canvases shown beside the project's own. The desktop app sets this to the examples it
+// ships. `sp start` does not, and shows a project's boards alone.
+const examplesDir = process.env.PROTOTYPING_EXAMPLES_DIR
+  ? path.resolve(process.env.PROTOTYPING_EXAMPLES_DIR)
   : null;
 
 const portArg = process.argv.indexOf("--port");
@@ -78,7 +89,12 @@ function serveStatic(req: http.IncomingMessage, res: http.ServerResponse) {
   }
 }
 
-const sp = createSpServer({ canvasesDir, projectDir, repoRoot });
+// Bring any marked skill copies in the project up to this tree's version before anything else
+// touches it. The app and `sp start` both run this file, so this is the one place a stale copy gets
+// caught. It prints nothing, because the signal is `git diff`, not a log line.
+refresh(projectDir, repoRoot);
+
+const sp = createSpServer({ canvasesDir, examplesDir, projectDir, repoRoot });
 const server = http.createServer((req, res) =>
   sp.handle(req, res, () => serveStatic(req, res)),
 );

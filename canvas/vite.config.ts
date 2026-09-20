@@ -30,7 +30,7 @@ const canvasesDir = path.resolve(
  * The user's project, for the agent behind the chat panel to run in. It is their project the
  * agent works on — the boards are one folder inside it, and a prompt about a screen reaches for
  * the code around it — so neither the boards directory nor this checkout would do as its cwd.
- * `sp-canvas start` sets it to the directory it is started from, the same one the boards default
+ * `sp start` sets it to the directory it is started from, the same one the boards default
  * under. Unset, the agent endpoints answer 503 by name and the rest of the server is unaffected.
  */
 const projectDir = process.env.PROTOTYPING_PROJECT_DIR
@@ -154,7 +154,7 @@ function canvasesSource(): Plugin {
     },
 
     configureServer(server) {
-      const sp = createSpServer({ canvasesDir, projectDir, repoRoot });
+      const sp = createSpServer({ canvasesDir, examplesDir: null, projectDir, repoRoot });
       server.middlewares.use((req, res, next) => sp.handle(req, res, next));
       server.httpServer?.once("close", sp.close);
     },

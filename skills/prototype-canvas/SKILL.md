@@ -2,7 +2,7 @@
 name: prototype-canvas
 description: Start and operate the local tldraw design canvas that shows HTML artboards. Start the canvas app against a project's board folders, add or switch boards, drive shapes through the bounded window.snapCanvas bridge, and act on annotated screenshots of the canvas. Use when asked to open/launch the canvas, put a mockup on the canvas, annotate or draw on it, fix overlapping frames after a layout.json edit, or respond to a screenshot of the canvas with notes drawn on it.
 license: Apache-2.0
-compatibility: Requires the sp-canvas command from super-prototyping-tools, node or bun to run the canvas, and bun to build it once. A modern browser to view the canvas.
+compatibility: Requires the sp command from super-prototyping-tools, node or bun to run the canvas, and network access on first start to fetch it. A modern browser to view the canvas.
 ---
 
 # Prototype canvas
@@ -12,36 +12,54 @@ A local tldraw app that discovers every `.html` file under
 to edit and no code change needed to add a board.
 
 The app ships with this plugin and is installed outside your project. Your
-boards stay in your project. `sp-canvas` joins the two, so upgrading the
+boards stay in your project. `sp` joins the two, so upgrading the
 plugin replaces the app and never touches a board you wrote.
 
 ## Start
 
 ```bash
-sp-canvas start
+sp start
 ```
 
-Not found? `sp-canvas` installs separately from the plugin, which cannot run
-an installer of its own: `uv tool install
-"git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
+Inside the Super Prototyping app, the canvas is already serving on
+127.0.0.1:5173. `sp start` is for a terminal that does not have the app
+open, and it refuses a port that already answers rather than reusing it.
 
-That is the whole thing. It finds the bundled app, builds it on first run,
-serves it on 127.0.0.1:5173, waits for the port to actually bind, and prints
-the address. Started from a terminal it also opens the browser; from an
-agent's shell it only prints.
+From elsewhere, name the project: `sp start <dir>`. Not on PATH, or
+`sp --version` prints something lower than the version this skill shipped
+with? `sp` installs separately from the plugin, which cannot run an installer
+of its own: `uv tool install
+"git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`,
+adding `--force` to reinstall over a lower version. Leave a higher version
+alone, because reinstalling over it would be a downgrade, and the tag may not
+even exist.
 
-- **Boards** default to `./mockups/canvases` under the current directory.
+That is the whole thing. On first run it fetches the canvas app built for
+its version into `~/.cache/super-prototyping/<version>/`, then serves it on
+127.0.0.1:5173 with node or bun, waits for the port to actually bind, and
+prints the address. Started from a terminal it also opens the browser; from
+an agent's shell it only prints. A checkout being worked on serves its own
+`canvas/dist` instead, rebuilt with bun when a source is newer.
+
+- **Boards** default to `mockups/canvases` under the project: the directory
+  named on `sp start <dir>`, else the current one.
   Point somewhere else with `--canvases DIR` or `PROTOTYPING_CANVASES_DIR`.
-- **Port** with `--port N`. A port that already answers is never reused: it
-  may be another project's canvas, so `start` refuses rather than showing you
-  the wrong boards.
+- **Port** with `--port N`, or `SP_CANVAS_PORT` for a machine that always
+  uses another one. A port that already answers is never reused: it may be
+  another project's canvas, so `start` refuses rather than showing you the
+  wrong boards.
 - **Two projects can run two canvases.** Everything is keyed by port — the
   session name, the log, the pidfile — so a second `start` on a free port
   leaves the first one alone. `stop` and `status` take `--port` for the same
   reason, and `stop` only ever kills the canvas it started.
-- `sp-canvas root` prints which copy of the app it found — and with `-v`,
+- `sp root` prints which copy of the plugin it found — and with `-v`,
   everywhere it looked. The first thing to run when the canvas is not what
   you expected.
+- **It writes two directories and nothing else**: that cache, and
+  `~/.local/state/super-prototyping/` for its pidfile and log, the same on
+  macOS as on Linux.
+  `SUPER_PROTOTYPING_HOME` moves both under one root. `sp paths`
+  prints them and every variable in use; `sp clean` removes them.
 - Deep-link a page with `?canvas=<slug>`, e.g.
   `http://127.0.0.1:5173/?canvas=notion-ios`, and one board of it with
   `#<file>` after that, e.g. `?canvas=notion-ios#02-search-ask-ai`: it opens
@@ -134,7 +152,7 @@ Do not build an annotation-to-agent protocol. The screenshot is the bridge.
 
 ## The chat panel
 
-The canvas has a panel on the left when it runs from `sp-canvas start`: a
+The canvas has a panel on the left when it runs from `sp start`: a
 message to Claude Code or Codex — the mark on the header picks — run in the
 project, Claude with its permission prompts off and Codex in its workspace
 sandbox, and what it did as it happens. The panel names the canvas that is
@@ -146,7 +164,7 @@ still holds.
 
 Each message is a fresh `claude -p` or `codex exec` with no memory of the
 last, so repeat what matters. A server started by hand needs `PROTOTYPING_PROJECT_DIR` set to the
-project, or the panel says it cannot run; `sp-canvas start` sets it.
+project, or the panel says it cannot run; `sp start` sets it.
 
 ## State and persistence
 
@@ -157,11 +175,11 @@ Ordinary layout drift is what refresh is for, not a persistence-key bump.
 
 ## Working on the canvas app itself
 
-Only when changing the app, not when using it. `sp-canvas root` prints the
+Only when changing the app, not when using it. `sp root` prints the
 checkout to work in.
 
 ```bash
-cd "$(sp-canvas root)/canvas"
+cd "$(sp root)/canvas"
 bun run lint && bun run test && bun run build
 ```
 
@@ -171,7 +189,7 @@ opens on the board you click; Force refresh rebuilds a board cleanly.
 
 Everything the canvas needs a server for lives in `canvas/server/`: `sp.ts`
 answers `/__sp` and `/board`, the Vite dev server mounts it for working on the
-app, and `main.ts` mounts it in front of `dist` as the server `sp-canvas start`
+app, and `main.ts` mounts it in front of `dist` as the server `sp start`
 runs. Board discovery is `boards.ts`, served as `/__sp/index.json` and fetched
 by the page before it loads, not an `import.meta.glob`. Bump
 `PERSISTENCE_KEY` **only** when a change would leave existing documents

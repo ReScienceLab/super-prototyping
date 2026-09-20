@@ -21,7 +21,7 @@ dependencies = [
 [project.scripts]
 refkit = "refkit:main"
 artgen = "artgen:main"
-sp-canvas = "sp_canvas:main"
+sp = "sp_canvas:main"
 
 [project.urls]
 Homepage = "https://prototyping.rescience.com"

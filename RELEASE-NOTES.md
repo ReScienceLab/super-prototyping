@@ -15,20 +15,78 @@ has been shown.
 Update with `/plugin update super-prototyping` (Claude Code), or the equivalent
 for your product, which README's install table lists. Then move the toolkit with
 the `uv tool install` line in the README. The plugin and the
-toolkit carry the same version; `sp-canvas start` says so when they drift.
+toolkit carry the same version; `sp start` says so when they drift.
 
 ## Unreleased
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-- `sp-canvas start` now serves the built canvas from one file,
-  `canvas/dist/server.mjs`, with node or bun, instead of running Vite's dev
-  server. It builds the app in place on first start and after an update (bun
-  is still needed for that), opens the browser when started from a terminal,
-  and keeps its pidfile and log in the platform's state directory rather than
-  in your home. Everything the canvas could do before — status, comments,
-  clone, the chat panel, reload on rewrite — works the same; the app just no
-  longer needs a dev toolchain running to do it.
+- The canvas's top-right corner holds one button now, Star on GitHub. Try
+  SnapAction is gone, from the canvas and from the brand pages.
+- `sp start` now runs the canvas as a small localhost app instead of
+  Vite's dev server. On first start it downloads the canvas built for the
+  plugin's version from that release (`canvas-dist.tgz`) into
+  `~/.cache/super-prototyping/<version>/` and runs it with node or bun, so an
+  install needs no bun and no build. A checkout with `canvas/node_modules`
+  still serves its own build, rebuilt when a source is newer. It opens the
+  browser when started from a terminal. Everything the canvas could do before
+  — status, comments, clone, the chat panel, reload on rewrite — works the
+  same.
+- The launcher writes two directories and nothing else: that cache, and
+  `~/.local/state/super-prototyping/` for its pidfile and log, the same on
+  macOS as on Linux. `SUPER_PROTOTYPING_HOME` moves both under one root. Two new
+  commands: `sp paths` prints them and every variable in use, and
+  `sp clean` removes them. The port can also come from
+  `SP_CANVAS_PORT`. The old `~/.super-prototyping-canvas-<port>.pid` and
+  `.log` files in your home are not read any more; delete them.
+- `sp-canvas` is now `sp`: `sp start`, `sp stop`, `sp root`. Re-run the
+  `uv tool install` line with `--force` to get it. `sp start <dir>` names the
+  project from anywhere; with no argument it is the current directory, as
+  before.
+- A macOS app. Every release attaches `Super-Prototyping-<version>-arm64.dmg`
+  and `-x64.dmg`. `brew install --cask ReScienceLab/tap/super-prototyping`
+  installs that same dmg, and `brew upgrade` follows each stable release. It
+  is the canvas `sp start` serves, in a window, for a
+  project you pick when it opens or name after `--args`. It uses the same port
+  and the same `~/.local/state` directory as the command line. Closing the
+  window stops the server and any agent it was running. The app has its own
+  icon, the three tiles on black, cut to macOS's icon shape.
+- On launch the app asks which agent you will work with, Claude Code or Codex.
+  Each card shows its icon and whether the agent was found on this machine,
+  and its tooltip says what that rests on: a binary on PATH, a config
+  directory under home, or an app bundle. An agent that was not found cannot
+  be picked, and its card links to where to get it. The page is one glass
+  panel on a night sky, its three steps numbered down the left, with the
+  project name and a link to star the repo on GitHub. As its second
+  step, it asks for a project, either an existing folder or a new one, and
+  lists the projects already in `Documents/Super Prototyping` in a dropdown
+  you can search by name, last edited first, each with an icon, its name, its folder and when it was last edited. The icon is the
+  `icon.png` of the project's first canvas that has one, and a folder until then. A new one takes a third step, its name, and
+  nothing else. It goes in `Documents/Super Prototyping` with
+  `mockups/canvases` in it, and opens on the Start here canvas with every
+  example canvas under it. The examples ship in the app and are shown
+  read-only beside the project's own canvases. Cloning one copies it into the
+  project, and that copy is yours to change. When a name is already taken, the
+  page says so under the field, with a link to open that project instead. The
+  agent you picked gets the bundled skills copied into that project, into its
+  own skills directory. Each copy has a version marker in its frontmatter and
+  its `uv tool install` line pinned to a tag of that version, e.g.
+  `super-prototyping@super-prototyping--v1.5.0`. Once the canvas is up it says
+  what the install did, in a toast at its bottom right. Every later open refreshes,
+  in place, a marked copy that is behind the app's own version. It never
+  touches a same-named folder with no marker, which is yours, and never
+  recreates a copy you deleted. `sp start` from a terminal refreshes the same
+  way, since it runs the same server. The endpoints behind both are
+  `GET /__sp/skills`, which lists the marked copies a project already has, and
+  `POST /__sp/skills` with `{"dirs": [...]}`, which writes them. The app no
+  longer detects or mentions the toolkit itself, because the skill text tells
+  the agent to install it, pinned to match.
+  `open -a "Super Prototyping" --args <dir>` skips the window and installs
+  nothing.
+- `sp root`, and everything built on it, also checks
+  `/Applications/Super Prototyping.app/Contents/Resources/plugin`. It is tried
+  last, after your own checkout, so someone with the app installed who runs it
+  from their own checkout still gets the checkout.
 
 ## v1.4.1
 
