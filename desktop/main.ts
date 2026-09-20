@@ -164,7 +164,11 @@ async function main() {
       win.loadFile(path.join(app.getAppPath(), "startup.html"), {
         query: {
           agents: JSON.stringify(rows),
-          projects: JSON.stringify(listProjects(projectsDir)),
+          // Where a project is: the folder it sits in, with ~ for home. The name is the card's
+          // title already, and a full path would be cut off before it got to the name.
+          projects: JSON.stringify(
+            listProjects(projectsDir).map((p) => ({ name: p.name, where: path.dirname(p.dir).replace(home, "~"), at: p.at })),
+          ),
         },
       });
     }));

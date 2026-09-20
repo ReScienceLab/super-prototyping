@@ -32,14 +32,21 @@ test("findOnPath finds a file and only a file", () => {
   expect(findOnPath("no-such-binary-xyz", "/bin")).toBeNull();
 });
 
-test("listProjects names the folders in the root, newest first, and skips files and dot folders", () => {
+test("listProjects gives the folders in the root, last edited first, and skips files and dot folders", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "sp-projects-"));
   for (const [name, at] of [["old", 1000], ["new", 3000], ["mid", 2000], [".hidden", 4000]] as const) {
     fs.mkdirSync(path.join(root, name));
     fs.utimesSync(path.join(root, name), at, at);
   }
   fs.writeFileSync(path.join(root, "notes.txt"), "");
-  expect(listProjects(root)).toEqual(["new", "mid", "old"]);
+  expect(listProjects(root).map((p) => p.name)).toEqual(["new", "mid", "old"]);
+  // A board rewritten inside a canvas folder is an edit, though no folder's own time moved.
+  const board = path.join(root, "old/mockups/canvases/app/01-home.html");
+  fs.mkdirSync(path.dirname(board), { recursive: true });
+  fs.writeFileSync(board, "");
+  fs.utimesSync(board, 5000, 5000);
+  for (const dir of ["old/mockups/canvases/app", "old/mockups/canvases", "old/mockups", "old"]) fs.utimesSync(path.join(root, dir), 1000, 1000);
+  expect(listProjects(root)[0]).toEqual({ name: "old", dir: path.join(root, "old"), at: 5000_000 });
   expect(listProjects(path.join(root, "missing"))).toEqual([]);
   fs.rmSync(root, { recursive: true });
 });

@@ -51,18 +51,25 @@ export function findOnPath(name: string, PATH: string) {
 }
 
 /**
- * The projects the startup page lists: the folders directly in `root`, the newest change first.
- * It is read from disk each launch and never stored, so a deleted project is simply not there. A
+ * The projects the startup page lists: the folders directly in `root`, the last edited first. It
+ * is read from disk each launch and never stored, so a deleted project is simply not there. A
  * `root` nobody has made yet is the first run, and has none.
+ *
+ * A board rewritten in place moves its own time and not its folder's, so "last edited" is the
+ * newest of the project folder, its canvas folders and the files directly in those. It does not
+ * go deeper, because an `assets/` folder can hold thousands of files.
  */
 export function listProjects(root: string) {
-  if (!fs.existsSync(root)) return [];
-  return fs
-    .readdirSync(root, { withFileTypes: true })
-    .filter((e) => e.isDirectory() && !e.name.startsWith("."))
-    .map((e) => ({ name: e.name, at: fs.statSync(path.join(root, e.name)).mtimeMs }))
-    .sort((a, b) => b.at - a.at)
-    .map((p) => p.name);
+  const inside = (dir: string) =>
+    fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: true }).map((e) => ({ e, at: path.join(dir, e.name) })) : [];
+  return inside(root)
+    .filter(({ e }) => e.isDirectory() && !e.name.startsWith("."))
+    .map(({ e, at: dir }) => {
+      const canvases = inside(path.join(dir, "mockups/canvases"));
+      const paths = [dir, ...canvases.map((c) => c.at), ...canvases.flatMap((c) => (c.e.isDirectory() ? inside(c.at).map((f) => f.at) : []))];
+      return { name: e.name, dir, at: Math.max(...paths.map((p) => fs.statSync(p).mtimeMs)) };
+    })
+    .sort((a, b) => b.at - a.at);
 }
 
 /**

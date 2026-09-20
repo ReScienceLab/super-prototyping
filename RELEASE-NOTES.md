@@ -57,9 +57,10 @@ Everything below is on `main` and reaches no install until a version is cut.
   Each card shows its icon and whether the agent was found on this machine,
   and its tooltip says what that rests on: a binary on PATH, a config
   directory under home, or an app bundle. The page is in Vercel's Geist look,
-  with the project name, a link to star the repo on GitHub, and an artwork
-  down its left side. As its second step, it asks for a project, either an
-  existing folder or a new one. A new one takes a third step, its name, and
+  with the project name and a link to star the repo on GitHub. As its second
+  step, it asks for a project, either an existing folder or a new one, and
+  shows the projects already in `Documents/Super Prototyping` as cards, last
+  edited first, each with its name, its folder and when it was last edited. A new one takes a third step, its name, and
   nothing else. It goes in `Documents/Super Prototyping` with
   `mockups/canvases` in it, and opens on the Start here canvas with every
   example canvas under it. The examples ship in the app and are shown
