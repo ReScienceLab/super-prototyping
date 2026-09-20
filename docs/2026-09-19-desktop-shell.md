@@ -61,7 +61,7 @@ not weigh against opening a terminal.
 - **Remembering anything.** No last project, no window position, no
   configuration file: the command line has none and the app is not where one
   starts. `open -a "Super Prototyping" --args /path/to/project` skips the
-  startup window.
+  startup page.
 - **A universal binary, a cask, a version-skew dialog.** Two dmgs from one
   runner; a cask once there is a signed release to point one at; and no
   dialog comparing the app's version against the toolkit's — the pinned

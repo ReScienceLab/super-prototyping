@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { app, BrowserWindow, dialog, ipcMain, shell, utilityProcess } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell, utilityProcess } from "electron";
 import type { IpcMainEvent } from "electron";
 import {
   AGENTS,
@@ -17,7 +17,6 @@ import {
   freePort,
   parseArgs,
   portAnswers,
-  skillDirsFor,
   stateDir,
   untilde,
   waitForPort,
@@ -40,7 +39,7 @@ const pluginRoot = app.isPackaged
   : path.resolve(import.meta.dirname, "../..");
 
 // `open -a "Super Prototyping" --args --port 5173 /path/to/project`, and nothing else. A project
-// named here skips the startup window, and with it the skills install.
+// named here skips the startup page, and with it the skills install.
 const { port: portArg, dir: argDir } = parseArgs(process.argv.slice(app.isPackaged ? 1 : 2));
 
 let server: Electron.UtilityProcess | null = null;
@@ -56,14 +55,19 @@ app.on("window-all-closed", () => app.quit());
 async function main() {
   await app.whenReady();
 
-  // The first window, before any project: the agents this machine seems to have, each with what
-  // that rests on — a binary on PATH, a directory under home, an app bundle — so a wrong guess is
-  // visible and can be unchecked, then a project to open or to create. The window is hidden once
-  // a project is chosen, not closed, until the canvas is up: closing the last window quits the
-  // app, which is also what closing this one by hand means.
+  // The first page, before any project: which one agent to work with, each row with what its
+  // presence on this machine rests on — a binary on PATH, a directory under home, an app bundle —
+  // so a wrong guess is visible, then a project to open or to create. It is a page in the one
+  // window, at the canvas's size, and stays up until the canvas replaces it; closing it quits.
+  const win = new BrowserWindow({
+    width: 1440,
+    height: 900,
+    title: "Super Prototyping",
+    backgroundColor: nativeTheme.shouldUseDarkColors ? "#1e1e1e" : "#ffffff",
+    webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
+  });
   let project = argDir;
-  let ids: string[] = [];
-  let startupWindow: BrowserWindow | undefined;
+  let agent: string | undefined;
   if (project === undefined) {
     const PATH = process.env.PATH!;
     const found = detectAgents({
@@ -73,27 +77,17 @@ async function main() {
         fs.existsSync(path.join("/Applications", name)) ||
         fs.existsSync(path.join(home, "Applications", name)),
     });
-    // Each row's icon is LobeHub's brand SVG from icons/, inlined rather than linked so the mono
-    // ones, drawn in currentColor, follow the text colour in dark mode. Factory Droid has none.
-    const rows = AGENTS.map((a) => {
-      const icon = path.join(app.getAppPath(), "icons", `${a.id}.svg`);
-      return {
-        id: a.id,
-        name: a.name,
-        found: found[a.id],
-        icon: fs.existsSync(icon) ? fs.readFileSync(icon, "utf8") : "",
-      };
-    });
-    const win = new BrowserWindow({
-      width: 560,
-      height: 720,
-      resizable: false,
-      title: "Super Prototyping",
-      webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
-    });
-    startupWindow = win;
-    ({ project, ids } = await new Promise<{ project: string; ids: string[] }>((resolve) => {
-      const onChoose = async (_event: IpcMainEvent, action: "open" | "create", chosen: string[]) => {
+    // Each row's icon is the product's SVG from icons/, inlined rather than linked so the mono
+    // ones, drawn in currentColor, follow the text colour in dark mode.
+    const rows = AGENTS.map((a) => ({
+      id: a.id,
+      name: a.name,
+      recommended: a.recommended,
+      found: found[a.id],
+      icon: fs.readFileSync(path.join(app.getAppPath(), "icons", `${a.id}.svg`), "utf8"),
+    }));
+    ({ project, agent } = await new Promise<{ project: string; agent: string }>((resolve) => {
+      const onChoose = async (_event: IpcMainEvent, action: "open" | "create", chosen: string) => {
         // Either panel is a sheet on this window, so a second click cannot land while one is up.
         let dir: string | undefined;
         if (action === "open") {
@@ -131,8 +125,7 @@ async function main() {
         }
         if (dir === undefined) return; // cancelled: the window is still there, nothing was written
         ipcMain.removeListener("startup:choose", onChoose);
-        win.hide();
-        resolve({ project: dir, ids: chosen });
+        resolve({ project: dir, agent: chosen });
       };
       ipcMain.on("startup:choose", onChoose);
       win.loadFile(path.join(app.getAppPath(), "startup.html"), {
@@ -207,26 +200,26 @@ async function main() {
     return app.exit(1);
   }
 
-  if (ids.length > 0) {
+  if (agent !== undefined) {
+    const row = AGENTS.find((a) => a.id === agent)!; // the page's rows came from this table
     const res = await fetch(`http://127.0.0.1:${port}/__sp/skills`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ dirs: skillDirsFor(ids) }),
+      body: JSON.stringify({ dirs: [row.dir] }),
     });
     if (!res.ok) throw new Error(`Installing skills failed: ${await res.text()}`);
     const { written, skipped } = (await res.json()) as { written: string[]; skipped: string[] };
     // Nothing written and nothing skipped is a project that already had every copy at this
     // version — the same answer as last launch — and a launch like that says nothing, the
-    // agents' notes included: those were shown when the copies landed.
+    // agent's note included: that was shown when the copies landed.
     if (written.length > 0 || skipped.length > 0) {
-      const notes = AGENTS.filter((a) => ids.includes(a.id) && a.note).map((a) => `${a.name}: ${a.note}`);
       await dialog.showMessageBox({
         type: "info",
         message: "Skills installed",
         detail: [
           written.length ? `Installed: ${written.join(", ")}` : "",
           skipped.length ? `Already present, left alone: ${skipped.join(", ")}` : "",
-          ...notes,
+          row.note ? `${row.name}: ${row.note}` : "",
         ]
           .filter(Boolean)
           .join("\n"),
@@ -234,9 +227,8 @@ async function main() {
     }
   }
 
-  const win = new BrowserWindow({ width: 1440, height: 900, title: "Super Prototyping" });
-  // The canvas is the only page this window shows. Anything off the loopback, the Figma
-  // plugin link and the like, is for the browser.
+  // The canvas is the only page this window shows from here on. Anything off the loopback, the
+  // Figma plugin link and the like, is for the browser.
   const isOurs = (url: string) => url.startsWith(`http://127.0.0.1:${port}/`);
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (isOurs(url)) return { action: "allow" };
@@ -249,7 +241,6 @@ async function main() {
     shell.openExternal(url);
   });
   await win.loadURL(`http://127.0.0.1:${port}/`);
-  startupWindow?.close();
 }
 
 // Electron neither exits nor says anything on a rejection in the main process; without this,

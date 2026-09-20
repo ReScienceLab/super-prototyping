@@ -1,6 +1,8 @@
-The SVGs in this folder are LobeHub's brand icons, copied from @lobehub/icons-static-svg 1.95.0
-(https://github.com/lobehub/lobe-icons), one per row of AGENTS in ../launch.ts and named by that
-row's id. The logos themselves belong to their products. The set is MIT licensed:
+The SVGs in this folder are one per row of AGENTS in ../launch.ts, named by that row's id. All
+but one are LobeHub's brand icons, copied from @lobehub/icons-static-svg 1.95.0
+(https://github.com/lobehub/lobe-icons); factory-droid.svg is Factory's own mark, taken from the
+logo on factory.com and fitted to the same 24-unit box, since LobeHub's set has none. The logos
+themselves belong to their products. LobeHub's set is MIT licensed:
 
 MIT License
 

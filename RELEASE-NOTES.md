@@ -52,14 +52,15 @@ Everything below is on `main` and reaches no install until a version is cut.
   and `-x64.dmg`: the canvas `sp start` serves, in a window, for a
   project you pick when it opens or name after `--args`. It uses the same
   port and the same `~/.local/state` directory as the command line. Closing
-  the window stops the server and any agent it was running.
-- On launch the app opens on the agents it finds on this machine — a binary
-  on PATH, a config directory under home, an app bundle, each row with its
-  icon and saying which — pre-checked and correctable, and then asks for a
-  project: an
-  existing folder, or a new one it creates with `mockups/canvases` and the
-  template canvas in it. Each checked agent gets the bundled skills copied
-  into that project, into its own skills directory, and each copy lands with
+  the window stops the server and any agent it was running. The app carries
+  its own icon, the three tiles on black, cut to macOS's icon shape.
+- On launch the app asks which agent you will work with — Claude Code and
+  Codex first as the recommended pair, then the ones it finds on this
+  machine, each row with its icon and saying what it found: a binary on
+  PATH, a config directory under home, an app bundle — and then asks for a
+  project: an existing folder, or a new one it creates with
+  `mockups/canvases` and the template canvas in it. The agent you picked
+  gets the bundled skills copied into that project, into its own skills directory, and each copy lands with
   a version marker in its frontmatter and its `uv tool install` line pinned
   to a tag of that version, e.g. `super-prototyping@super-prototyping--v1.5.0`.
   Every later open refreshes a marked copy that is behind the app's own

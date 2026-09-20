@@ -34,7 +34,7 @@ need a different spelling per product.
 `desktop/` is the macOS app: Electron around that same `dist/server.mjs`,
 forked as a utility process and shown in a window. `main.ts` is the app,
 `launch.ts` the helpers `bun test` checks, and `icons/` one SVG per `AGENTS`
-row for the startup window, LobeHub's brand icons under their MIT notice.
+row for the startup page, LobeHub's brand icons under their MIT notice.
 The release workflow builds it on a macOS runner and attaches a dmg per
 architecture; `docs/2026-09-19-desktop-shell.md` is why Electron, and what
 the app keeps in step with `sp`.

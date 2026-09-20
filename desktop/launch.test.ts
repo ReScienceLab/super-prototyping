@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import net from "node:net";
-import { augmentedPath, detectAgents, findOnPath, freePort, parseArgs, portAnswers, skillDirsFor, stateDir, untilde, waitForPort } from "./launch.ts";
+import { augmentedPath, detectAgents, findOnPath, freePort, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
 
 test("untilde expands only the current user's leading tilde", () => {
   expect(untilde("~/sp", "/Users/u")).toBe("/Users/u/sp");
@@ -46,11 +46,6 @@ test("detectAgents reports, per agent, what it found: a binary, a home directory
   // Cursor's CLI is "agent", which is also Grok CLI's name, so it is not in Cursor's row.
   expect(detectAgents(probe({ bins: ["agent"] }))["cursor"]).toEqual([]);
   expect(Object.values(detectAgents(probe({}))).every((found) => found.length === 0)).toBe(true);
-});
-
-test("skillDirsFor returns the sorted, deduped directories for the chosen agents", () => {
-  expect(skillDirsFor(["claude-code", "codex"])).toEqual([".agents/skills", ".claude/skills"]);
-  expect(skillDirsFor(["codex", "devin"])).toEqual([".agents/skills"]);
 });
 
 test("waitForPort resolves once a listener appears, rejects on timeout or abort", async () => {

@@ -97,8 +97,10 @@ export function freePort() {
 export type Agent = {
   id: string;
   name: string;
-  /** Project-relative, matches /^\.[\w-]+\/skills$/: what the startup window's checkbox writes to. */
+  /** Project-relative, matches /^\.[\w-]+\/skills$/: what choosing this row on the startup page writes to. */
   dir: string;
+  /** Listed first on the startup page, tagged as the pair to reach for. */
+  recommended?: true;
   /** Executable names that count as "installed" when any is found on PATH. */
   bins: string[];
   /** Config directories, relative to home, that count the same way. */
@@ -119,6 +121,7 @@ export const AGENTS: Agent[] = [
   {
     id: "claude-code",
     name: "Claude Code",
+    recommended: true,
     dir: ".claude/skills",
     bins: ["claude"],
     homeDirs: [".claude"],
@@ -128,6 +131,7 @@ export const AGENTS: Agent[] = [
   {
     id: "codex",
     name: "Codex",
+    recommended: true,
     dir: ".agents/skills",
     bins: ["codex"],
     homeDirs: [".codex"],
@@ -285,7 +289,7 @@ export const AGENTS: Agent[] = [
 ];
 
 /**
- * What each agent's presence on this machine rests on, in the words the startup window shows
+ * What each agent's presence on this machine rests on, in the words the startup page shows
  * beside its row: a binary on PATH, a config directory under home, a macOS app. An empty list
  * is an agent not found. Nothing here writes anything.
  */
@@ -306,7 +310,3 @@ export function detectAgents(probe: {
 }
 
 /** The sorted, deduped skills directories the chosen agents read from. */
-export function skillDirsFor(ids: string[]): string[] {
-  const dirs = AGENTS.filter((a) => ids.includes(a.id)).map((a) => a.dir);
-  return [...new Set(dirs)].sort();
-}

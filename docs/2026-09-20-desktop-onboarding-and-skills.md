@@ -20,7 +20,7 @@ job shrinks to one window: which agents are here, then which project.
 |---|---|
 | The app no longer detects, installs or mentions the toolkit | Each of the three skills already says "not on PATH? `uv tool install …`", so an agent reading one installs it unprompted. The toolkit dialog and the `sp root` call in `main.ts` go, and `launch.ts`'s `installCommand` and `missingToolkitMessage` (and their tests) go with them. |
 | The copy-and-refresh logic lives in `canvas/server`, not in Python and not only in Electron | `dist/server.mjs` is the one piece of code the app and the CLI both run. Putting it in Electron alone would save a file but leave CLI users with no refresh; putting it in the Python toolkit would split it from the skills it copies, which live in this tree. |
-| The server does not know what an agent is | It takes a list of project-relative directories to write into and nothing else; refresh only looks for the marker. The agent table, the detection heuristics and the startup window's rows are all in the app's `launch.ts`, already covered by `bun test`. |
+| The server does not know what an agent is | It takes a list of project-relative directories to write into and nothing else; refresh only looks for the marker. The agent table, the detection heuristics and the startup page's rows are all in the app's `launch.ts`, already covered by `bun test`. |
 | Copy the skills, never symlink into the `.app` bundle | Kiro does not follow a symlinked skill directory; eight more products are simply unresearched; a `/Applications/…` path committed to a repo is guaranteed to dangle for a teammate or a cloud agent; and uninstalling the app would leave every link broken. |
 | One agent writes to exactly one directory | Claude Code and Cline do not read `.agents/skills`, so it cannot be the only target; writing an agent's skills to two directories doubles the diff, and three products that share `.agents/skills` each handle a duplicate a different way — one warns, one picks a copy at random, one lists the skill twice. |
 | The default target is `.agents/skills`; five products are the exception | Everything that reads `.agents/skills` unconditionally gets it, and a multi-select union usually collapses to one or two directories. The five that do not read it — Claude Code, Cline, CodeBuddy, Kiro, and Trae, which needs a manual project setting turned on first — get their own. |
@@ -32,8 +32,8 @@ job shrinks to one window: which agents are here, then which project.
 | A marked folder is a build artifact: the whole folder is replaced on upgrade, never diffed | Wanting a customized copy means copying it under a different name; removing the marker means we stop touching it. |
 | A same-named, unmarked folder is left alone | It is the user's own file. The install reports it as left alone; refresh says nothing and skips it every time. This repo's own `.claude/skills` and `.agents/skills` are exactly this case — symlinks to the unmarked source in `skills/`. |
 | No "skills updated" dialog | `git diff` is the signal. |
-| No configuration file in the home directory | Already the rule for this plugin. Which agent was chosen is recorded by which project directories exist; switching agents means deleting a directory. The app remembers nothing else — not the last project, not the last answer: the startup window asks again on every launch, pre-checked by detection, and since installing is idempotent the same answer again writes nothing, while one more checked box adds that agent's directory. |
-| The startup window comes before the project, every launch | The first thing on screen is what the app found on this machine, with room to correct it — not a folder panel. The window lists the agents with their evidence, then offers open-or-create. `open -a … --args <dir>` skips it, for a scripted launch, and installs nothing. |
+| No configuration file in the home directory | Already the rule for this plugin. Which agent was chosen is recorded by which project directories exist; switching agents means deleting a directory. The app remembers nothing else — not the last project, not the last answer: the startup page asks again on every launch, defaulting to what detection found, and since installing is idempotent the same answer again writes nothing, while a different answer adds that agent's directory. |
+| The startup page comes before the project, every launch, and picks one agent | The first thing on screen is which agent to work with — not a folder panel. Claude Code and Codex lead as the recommended pair, then the agents found on this machine, each with its evidence, and the first found one starts selected. One agent, not a set: a project is worked on with one agent at a time, and a second is one more launch, which the idempotent install makes free. It is a page in the app's one window, at the canvas's size, and the canvas replaces it; then open-or-create. `open -a … --args <dir>` skips it, for a scripted launch, and installs nothing. |
 | Creating a project seeds `mockups/canvases/templates` | An empty folder opens on an empty canvas. The template canvas is already in the bundled tree, so a new project gets the same boards this repo starts a folder from, and the window has something to show. |
 
 ## Which directory each agent gets
@@ -69,9 +69,9 @@ A pure function in `launch.ts` is handed three probes — is this binary on
 PATH, does this directory exist under home, is this `.app` in
 `/Applications` or `~/Applications` — and returns, per agent, what it found
 in those words: `claude on PATH`, `~/.codex`, `Cursor.app`. The startup
-window shows that beside each row, checks every row with something in it
-and puts those first; a row with nothing says "not found" and stays
-unchecked. It runs on every launch, before a project is named: the machine
+page shows that beside each row, puts the recommended pair first and then
+every row with something in it, and starts on the first of those; a row
+with nothing says "not found". It runs on every launch, before a project is named: the machine
 can change between launches, the answer is cheap, and installing the same
 answer again writes nothing.
 
@@ -138,23 +138,23 @@ lowest there is, since the marker being present at all means it is ours to
 overwrite. Equal, higher, unmarked, or missing: left alone, silently —
 refresh never prints and never asks, and it never adds a skill, because a
 folder someone deleted on purpose has to stay deleted and refresh cannot
-tell that from one never installed. The startup window's install is where a
-skill the tree gained since arrives: the same checked box, next launch. Versions compare as versions, not as strings, so
+tell that from one never installed. The startup page's install is where a
+skill the tree gained since arrives: the same choice, next launch. Versions compare as versions, not as strings, so
 `1.5.0-rc.1 < 1.5.0 < 1.6.0`.
 
 `GET /__sp/skills` and `POST /__sp/skills` (project-relative directories in,
 which ones were written versus skipped for already having an unmarked
 folder, out) are the app's only way to trigger a copy outside of that
-automatic refresh — the startup window's checked rows become that POST once
-the server is up. There is no menu item for later: the window comes back on
-the next launch, and one more checked box then adds that agent's directory.
+automatic refresh — the startup page's chosen agent becomes that POST once
+the server is up. There is no menu item for later: the page comes back on
+the next launch, and a different choice then adds that agent's directory.
 
 ## What was deliberately left out
 
 - Any toolkit detection, install prompt or version check inside the app.
   The skill text carries that now.
 - A menu item to install skills later, and a record of which projects were
-  already asked. The startup window comes back on every launch, pre-checked
+  already asked. The startup page comes back on every launch, defaulting
   the same way, and the same answer again writes nothing — so there is
   nothing to remember and nothing to reopen.
 - Detecting that a user edited a copy, by hash or otherwise. The answer,
@@ -176,7 +176,7 @@ the next launch, and one more checked box then adds that agent's directory.
 
 ## Open questions
 
-- **How many rows the startup window actually shows.** It shows all 21 researched
+- **How many rows the startup page actually shows.** It shows all 21 researched
   agents today. The other shape is six — the ones this repo already ships an
   install command for (Claude Code, Codex, CodeBuddy, Hermes, Pi, Trae) —
   plus one row reading "something else, using `.agents/skills`". Same code
