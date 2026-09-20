@@ -154,7 +154,7 @@ function canvasesSource(): Plugin {
     },
 
     configureServer(server) {
-      const sp = createSpServer({ canvasesDir, projectDir, repoRoot });
+      const sp = createSpServer({ canvasesDir, examplesDir: null, projectDir, repoRoot });
       server.middlewares.use((req, res, next) => sp.handle(req, res, next));
       server.httpServer?.once("close", sp.close);
     },

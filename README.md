@@ -110,7 +110,8 @@ attaches `Super-Prototyping-<version>-<arch>.dmg`, the canvas in a window for
 macOS, needing no terminal and no bun. It opens asking which agent you will
 work with, Claude Code or Codex, then asks you to open a project, or to
 name a new one, which goes in `Documents/Super Prototyping`, and shows that
-project's `mockups/canvases`; the agent you
+project's `mockups/canvases` with the example canvases beside them, read-only
+until you clone one into the project; the agent you
 picked gets the skills copied into it, each copy marked with the app's
 version and refreshed upward on later opens. The
 toolkit below is not the app's concern: the skills tell whichever agent you

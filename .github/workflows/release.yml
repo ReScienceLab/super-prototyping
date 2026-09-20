@@ -357,6 +357,9 @@ jobs:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
 
+      # Out of the canvas build, as above: the app ships mockups/canvases itself, as
+      # the read-only examples its server shows (extraResources in desktop/package.json),
+      # and a second copy under dist/board would double the dmg.
       - name: Build the canvas, without the example boards
         working-directory: canvas
         run: |

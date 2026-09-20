@@ -55,12 +55,26 @@ type Handler = (
 export function createSpServer(options: {
   /** The boards directory. Created if missing, watched for the server's lifetime. */
   canvasesDir: string;
+  /**
+   * Canvases shown beside the project's own and never written to: the examples the desktop app
+   * ships. Null for none, which is `sp start` and the dev server.
+   */
+  examplesDir: string | null;
   /** The project the chat panel's agent works in, or null when nothing set one. */
   projectDir: string | null;
   /** This plugin's checkout, for the skill the agent is pointed at. */
   repoRoot: string;
 }) {
-  const { canvasesDir, projectDir, repoRoot } = options;
+  const { canvasesDir, examplesDir, projectDir, repoRoot } = options;
+
+  // A canvas's folder: the project's own, else the example of that name. A folder of the
+  // project's shadows an example whole, which is what cloning one under its own name would mean.
+  const folderOf = (slug: string) => {
+    const own = path.join(canvasesDir, slug);
+    return examplesDir === null || fs.existsSync(own) ? own : path.join(examplesDir, slug);
+  };
+  const isExample = (slug: string) => folderOf(slug) !== path.join(canvasesDir, slug);
+  const READ_ONLY = "an example canvas is read-only: clone it to have one of your own";
 
   // The same mount-and-strip routing connect gives the dev server: a handler mounted at a
   // prefix sees `req.url` relative to it, and `next()` hands the request on with the url put
@@ -113,14 +127,16 @@ export function createSpServer(options: {
     if (req.method !== "GET") return next();
     res.setHeader("Content-Type", "application/json");
     res.setHeader("Cache-Control", "no-store");
-    res.end(
-      JSON.stringify(
-        boardIndex(canvasesDir, {
-          served: true,
-          canvasesNamespace: canvasesNamespace(canvasesDir, repoRoot),
-        }),
-      ),
-    );
+    const how = { served: true, canvasesNamespace: canvasesNamespace(canvasesDir, repoRoot) };
+    const index = boardIndex(canvasesDir, how);
+    if (examplesDir !== null) {
+      // One list in slug order, as one directory's scan is, so Start here still comes first.
+      index.boards = [
+        ...index.boards,
+        ...boardIndex(examplesDir, how).boards.filter((b) => isExample(b.slug)),
+      ].sort((a, b) => (a.slug < b.slug ? -1 : 1));
+    }
+    res.end(JSON.stringify(index));
   });
 
   // Copying this plugin's skills into the project, and reporting what is there. Both need a
@@ -216,7 +232,7 @@ export function createSpServer(options: {
       return send(404, "not a board"); // a broken escape is not a board
     }
     const parts = rel.split("/").filter(Boolean);
-    const file = path.join(canvasesDir, ...parts);
+    const file = path.join(folderOf(parts[0] ?? ""), ...parts.slice(1));
     const type =
       parts.length === 2 && parts[1].endsWith(".html")
         ? "text/html; charset=utf-8"
@@ -230,7 +246,7 @@ export function createSpServer(options: {
     // normalised — `..` is the obvious one, a separator inside a segment the platform one.
     if (
       !type ||
-      !file.startsWith(canvasesDir + path.sep) ||
+      ![canvasesDir, examplesDir].some((dir) => dir !== null && file.startsWith(dir + path.sep)) ||
       !fs.statSync(file, { throwIfNoEntry: false })?.isFile()
     ) {
       return send(404, "not a board");
@@ -267,7 +283,7 @@ export function createSpServer(options: {
     const size = ["w", "h"].map((key) => Number(query.get(key)));
     if (!size.every((n) => Number.isInteger(n) && n > 0 && n <= 4000))
       return send(400, "bad artboard size");
-    const board = path.join(canvasesDir, ...parts);
+    const board = path.join(folderOf(parts[0]), parts[1]);
     if (!fs.statSync(board, { throwIfNoEntry: false })?.isFile())
       return send(404, "no such board");
     // A folder per canvas and per size, because refkit names its output after the board's
@@ -345,6 +361,7 @@ export function createSpServer(options: {
         }
         if (!BOARD_STATUSES.includes(status))
           return send(400, "bad status");
+        if (isExample(slug)) return send(403, READ_ONLY);
         const layoutPath = path.join(canvasesDir, slug, "layout.json");
         const before = fs.readFileSync(layoutPath, "utf8");
         const after = withBoardStatus(before, file, status);
@@ -392,6 +409,7 @@ export function createSpServer(options: {
         const { slug, file } = JSON.parse(body || "{}");
         // The slug lands in a filesystem path, so it is checked before it is joined.
         if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad board name");
+        if (isExample(slug)) return send(403, READ_ONLY);
         const folder = path.join(canvasesDir, slug);
         if (
           !fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()
@@ -438,7 +456,7 @@ export function createSpServer(options: {
         if (!SAFE_NAME.test(slug ?? "") || !SAFE_NAME.test(target)) {
           return send(400, "bad canvas name");
         }
-        const from = path.join(canvasesDir, slug);
+        const from = folderOf(slug); // an example too: cloning is how one becomes the project's
         const to = path.join(canvasesDir, target);
         // The welcome page is drawn by the app and has no folder, so this is also what
         // stops it being cloned into one.
@@ -753,8 +771,11 @@ export function createSpServer(options: {
             `You are working in the user's project at ${project}, from the chat panel of the ` +
               "super-prototyping canvas they have open.",
             `Their boards are the folders under ${canvasesDir}, one per canvas page.`,
+            examplesDir !== null &&
+              `The canvas also shows the examples under ${examplesDir}. Those are the app's and ` +
+                `read-only: to change one, copy its folder into ${canvasesDir} first.`,
             canvas &&
-              `They are looking at the canvas "${canvas}", whose folder is ${path.join(canvasesDir, canvas)}.`,
+              `They are looking at the canvas "${canvas}", whose folder is ${folderOf(canvas)}.`,
             `Before touching a board folder, read ${repoRoot}/skills/prototype-canvas/SKILL.md, ` +
               "the prototype-canvas skill of the super-prototyping plugin: one folder is one canvas " +
               "page, one .html file in it is one board, layout.json places them, and the open canvas " +

@@ -35,7 +35,9 @@ need a different spelling per product.
 forked as a utility process and shown in a window. `main.ts` is the app,
 `launch.ts` the helpers `bun test` checks, and `icons/` one SVG per `AGENTS`
 row, LobeHub's brand icons under their MIT notice; the startup page offers
-the two rows flagged `offered`.
+the two rows flagged `offered`. It ships `mockups/canvases` whole and passes it
+as `PROTOTYPING_EXAMPLES_DIR`, which the server shows read-only beside a
+project's own boards; `sp start` sets no such thing.
 The release workflow builds it on a macOS runner and attaches a dmg per
 architecture; `docs/2026-09-19-desktop-shell.md` is why Electron, and what
 the app keeps in step with `sp`.

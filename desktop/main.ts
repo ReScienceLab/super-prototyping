@@ -139,18 +139,11 @@ async function main() {
                   taken: true,
                 };
               }
-              // A folder with `mockups/canvases` in it, seeded with two canvases the plugin
-              // ships: Start here, which is what the bare address opens and so what the window
-              // shows first, with a card on it for the other, the template a first canvas is
-              // copied from.
+              // A folder with `mockups/canvases` in it and nothing else: what the window opens
+              // on, Start here and the examples, is the app's and shown beside the project's own
+              // (PROTOTYPING_EXAMPLES_DIR below), so there is nothing to copy in.
               try {
-                for (const slug of ["00-welcome", "templates"]) {
-                  fs.cpSync(
-                    path.join(pluginRoot, "mockups/canvases", slug),
-                    path.join(dir, "mockups/canvases", slug),
-                    { recursive: true },
-                  );
-                }
+                fs.mkdirSync(path.join(dir, "mockups/canvases"), { recursive: true });
               } catch (e) {
                 // A Documents that cannot be written to: nothing a new name fixes, so say which.
                 return { message: `That folder could not be made: ${(e as Error).message}` };
@@ -178,6 +171,9 @@ async function main() {
     // An env value already set wins, the way the CLI's own lookup works: a developer pointing
     // the packaged app at a checkout.
     SUPER_PROTOTYPING_ROOT: untilde(process.env.SUPER_PROTOTYPING_ROOT || pluginRoot, home),
+    // Every canvas this repo has, shipped in the app and shown read-only beside the project's
+    // own: a new project opens on Start here with the examples under it, not on nothing.
+    PROTOTYPING_EXAMPLES_DIR: path.join(pluginRoot, "mockups/canvases"),
   };
 
   // `--port`, then SP_CANVAS_PORT, then 5173: the CLI's precedence. The canvas document lives

@@ -25,7 +25,9 @@ endpoints again in Rust, which is the duplication the rule forbids. Electron
 has Node built in, so the server runs as a `utilityProcess` of the app: one
 runtime, no sidecar, one place the port comes from. The cost is a dmg of about
 130 MB per architecture instead of about 10, which the people this is for will
-not weigh against opening a terminal.
+not weigh against opening a terminal. (The example canvases the app ships since
+are most of what the dmg weighs now;
+`docs/2026-09-20-desktop-onboarding-and-skills.md` has that decision.)
 
 ## What it shares with the command line, on purpose
 

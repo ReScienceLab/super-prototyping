@@ -32,8 +32,22 @@
       { "from": "../plugin.json", "to": "plugin/plugin.json" },
       { "from": "../canvas/package.json", "to": "plugin/canvas/package.json" },
       { "from": "../canvas/dist", "to": "plugin/canvas/dist" },
-      { "from": "../mockups/canvases/00-welcome", "to": "plugin/mockups/canvases/00-welcome" },
-      { "from": "../mockups/canvases/templates", "to": "plugin/mockups/canvases/templates" }
+      {
+        "from": "../mockups/canvases",
+        "to": "plugin/mockups/canvases",
+        "filter": [
+          "**/*",
+          "!**/scratch/**",
+          "!**/__pycache__/**",
+          "!**/assets/refs/**",
+          "!**/refassets.json",
+          "!**/walkassets.json",
+          "!**/w[0-9]-*.html",
+          "!**/ref-*.html",
+          "spotify-ios/ref-*.html",
+          "grok-ios/ref-14-grok-bot-sheet.html"
+        ]
+      }
     ],
     "asar": true,
     "npmRebuild": false,

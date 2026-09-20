@@ -62,8 +62,10 @@ Everything below is on `main` and reaches no install until a version is cut.
   down its left side. Next, as its second step, it asks for a project: an
   existing folder, or a new one. A new one takes a third step, its name,
   and nothing else: it goes in `Documents/Super Prototyping` with
-  `mockups/canvases` in it, and opens on the Start here canvas with the
-  template canvas beside it. A name already taken is said under the field,
+  `mockups/canvases` in it, and opens on the Start here canvas with every
+  example canvas under it. The examples ship in the app and are shown
+  read-only beside the project's own canvases: cloning one copies it into
+  the project, and that copy is yours to change. A name already taken is said under the field,
   with a link to open that project instead. The agent you picked gets the bundled skills copied into that project, into its own skills directory, and each copy lands with
   a version marker in its frontmatter and its `uv tool install` line pinned
   to a tag of that version, e.g. `super-prototyping@super-prototyping--v1.5.0`.
