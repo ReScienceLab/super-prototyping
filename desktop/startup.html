@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <title>Super Prototyping</title>
 <style>
-  /* One dark glass panel floating on the aurora, in Geist: soft corners, white-on-glass fills
-     in place of borders, grey second-line text, and orange as the only colour. */
+  /* One glass panel floating on the night sky: a serif headline over Geist, soft corners,
+     white-on-glass fills in place of borders, and white as the only accent. */
   :root {
     color-scheme: dark;
     --bg: #000000;
@@ -13,12 +13,12 @@
     --fg-dim: #8e8e96;
     --border: rgb(255 255 255 / 0.08);
     --border-hover: rgb(255 255 255 / 0.25);
-    --panel: rgb(16 16 22 / 0.8);
+    --panel: rgb(140 170 220 / 0.1);
     --surface: rgb(255 255 255 / 0.06);
     --hover: rgb(255 255 255 / 0.12);
-    --accent: #ff7a4a;
-    --accent-fg: #2a1208;
-    --accent-hover: #ff9066;
+    --accent: #ffffff;
+    --accent-fg: #0a0f1c;
+    --accent-hover: rgb(255 255 255 / 0.85);
     --ring: var(--accent);
   }
   * { box-sizing: border-box; }
@@ -60,7 +60,7 @@
   /* Three steps, one section each: the agent, the project, and, for a new project, its name. */
   section { display: flex; flex-direction: column; align-items: center; padding: 40px 48px; border-radius: 28px; background: var(--panel); }
   section[hidden] { display: none; }
-  h1 { margin: 0 0 8px; font-size: 26px; font-weight: 500; letter-spacing: -0.02em; }
+  h1 { margin: 0 0 8px; font: 400 38px/1.15 "Times New Roman", serif; letter-spacing: -0.03em; }
   #step-project h1 { margin-bottom: 32px; }
   #step-project .cards { margin-bottom: 0; }
   p.sub { margin: 0 0 32px; max-width: 540px; color: var(--fg-dim); text-align: center; }
@@ -145,7 +145,7 @@
     transition: border-color 0.15s, background 0.15s;
   }
   .card:hover { border-color: var(--border-hover); background: var(--hover); }
-  li:has(input:checked) > .card { border-color: var(--accent); }
+  li:has(input:checked) > .card { border-color: var(--border-hover); background: var(--hover); }
   li:has(input:focus-visible) > .card, .card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
 </style>
 </head>
