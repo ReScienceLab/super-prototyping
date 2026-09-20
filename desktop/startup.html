@@ -99,11 +99,11 @@
   body:has(#step-name:not([hidden])) #progress li:nth-child(2) .num::after { content: "✓"; font-size: 12px; }
   .content { flex: 1; min-width: 0; padding: 48px 56px; display: flex; flex-direction: column; }
   /* Three steps, one section each: the agent, the project, and, for a new project, its name.
-     Each fills the content pane, its headline at the top so it sits in one place on every step,
-     and its actions pinned to the bottom. */
+     Each fills the content pane and pins its actions to the bottom with the rest of the
+     vertical space centering the step's own content above it. */
   section { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   section[hidden] { display: none; }
-  .body { flex: 1; min-height: 0; }
+  .body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
   h1 { margin: 0 0 16px; font: 400 38px/1.15 "Times New Roman", serif; letter-spacing: -0.03em; }
   p.sub { margin: 0 0 24px; max-width: 460px; color: var(--fg-dim); }
   code { font: 13px/1 "Geist Mono", ui-monospace, Menlo, monospace; padding: 2px 5px; border-radius: 6px; background: var(--surface); }
@@ -147,7 +147,7 @@
   #projects { position: relative; width: 536px; margin: 24px 0 0; }
   #projects label { display: block; margin: 0 0 12px; font-size: 13px; color: var(--fg-dim); }
   #project-search { width: 100%; }
-  #project-list { display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; max-height: 176px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border-hover) transparent; padding: 4px; border: 1px solid var(--border-hover); border-radius: 12px; background: #10141d; }
+  #project-list { display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; max-height: 188px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border-hover) transparent; padding: 4px; border: 1px solid var(--border-hover); border-radius: 12px; background: #10141d; }
   #projects:focus-within #project-list:has(.card:not([hidden])) { display: block; }
   #project-list .card { flex-direction: row; align-items: center; gap: 12px; width: 100%; padding: 8px 12px; border: 0; border-radius: 8px; background: none; }
   #project-list .card[hidden] { display: none; }
