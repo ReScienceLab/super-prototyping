@@ -28,8 +28,8 @@ import tempfile, time, urllib.error, urllib.request, webbrowser
 from pathlib import Path
 
 DEFAULT_PORT = 5173
-# The identifier every directory below is named by. Fixed, so a later cask's `zap` or a
-# desktop shell's data directory points at the same folders and nothing migrates.
+# The identifier every directory below is named by. Fixed, so the cask's `zap` and the
+# desktop app's data directory point at the same folders and nothing migrates.
 APP = "super-prototyping"
 REPO = "ReScienceLab/super-prototyping"
 # The packaged desktop app's bundled tree. It is a module constant, not inlined
@@ -152,12 +152,6 @@ def _candidates():
         link = Path(root).expanduser() / "prototype-canvas"
         if link.is_symlink():
             yield f"{label} skill link", link.resolve().parent.parent
-
-    # Homebrew installs the plugin tree under the formula's opt link (#109). After every
-    # agent-side install: those hold the skills the agent already loads, and the chat panel
-    # points the agent at whichever tree is picked here.
-    for prefix in ("/opt/homebrew", "/usr/local", "/home/linuxbrew/.linuxbrew"):
-        yield "Homebrew", Path(prefix) / "opt/super-prototyping/libexec/plugin"
 
     # A checkout you are standing in comes before the app, because someone with the app
     # installed who is also standing in their own checkout must get the checkout.
@@ -346,8 +340,8 @@ def _dist(root: Path) -> Path:
     version = _plugin_version(root)
     if own or (app / "node_modules").is_dir() or not version:
         # Rebuilt only where there are sources to rebuild from. A dist with none beside it
-        # is an install's, Homebrew's: the app as shipped, and the mtime check would take
-        # its package.json, unpacked after the bundle was built, as an edit.
+        # is the desktop app's bundled tree: the canvas as shipped, and the mtime check would
+        # take its package.json, copied in after the bundle was built, as an edit.
         if (app / "src").is_dir() and _needs_build(app):
             if not shutil.which("bun"):
                 raise SystemExit("error: bun is needed to build the canvas app from its "

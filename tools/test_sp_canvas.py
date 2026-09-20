@@ -117,8 +117,8 @@ def test_each_products_install_location_is_searched():
 def test_a_checkout_wins_over_the_installed_app():
     """The app is the last resort: someone with it installed who is also standing in
     their own checkout must get the checkout. `_is_canvas_app` is narrowed to the two
-    paths under test, so a real Homebrew or plugin install on the machine running this
-    test — this repo's own, say — cannot shadow either one and decide the test instead.
+    paths under test, so a real plugin install on the machine running this test, this
+    repo's own, say, cannot shadow either one and decide the test instead.
     """
     checkout = Path(tempfile.mkdtemp()).resolve()
     C.subprocess.run(["git", "init", "-q"], cwd=checkout, check=True)
@@ -244,16 +244,17 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     os.utime(dev / "canvas/package.json", (now - 10, now - 10))
     assert dist(dev, "1.4.2") == dev / "canvas/dist"
 
-    # Homebrew's tree: a dist and no sources. Served as it is, though its package.json was
-    # unpacked after the bundle was built, and never rebuilt: nothing to rebuild it from.
-    brew = canvas_app_at(plugin_root("1.4.2"))
-    (brew / "canvas/dist").mkdir()
-    (brew / "canvas/dist/server.mjs").write_text("")
-    os.utime(brew / "canvas/dist/server.mjs", (now - 10, now - 10))
+    # The desktop app's bundled tree: a dist and no sources. Served as it is, though its
+    # package.json was copied in after the bundle was built, and never rebuilt: nothing to
+    # rebuild it from.
+    bundled = canvas_app_at(plugin_root("1.4.2"))
+    (bundled / "canvas/dist").mkdir()
+    (bundled / "canvas/dist/server.mjs").write_text("")
+    os.utime(bundled / "canvas/dist/server.mjs", (now - 10, now - 10))
     which = C.shutil.which
     C.shutil.which = lambda name: None  # a wrong turn here would look for bun
     try:
-        assert dist(brew, "1.4.2") == brew / "canvas/dist"
+        assert dist(bundled, "1.4.2") == bundled / "canvas/dist"
     finally:
         C.shutil.which = which
 

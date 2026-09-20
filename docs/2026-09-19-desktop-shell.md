@@ -47,7 +47,7 @@ shipped since then are most of what the dmg weighs now, and
   app never opens its window before its own server answers.
 - **The plugin root.** The app does not ask for it. It is built with one
   inside it, `Contents/Resources/plugin`, the same skills-plus-canvas tree a
-  Homebrew or product install has. `SUPER_PROTOTYPING_ROOT` points the server
+  product install has. `SUPER_PROTOTYPING_ROOT` points the server
   at it, so an agent the canvas spawns is pointed at the same skills the app
   just installed into the project. An env value already set still wins, for a
   developer pointing the packaged app at a checkout. The toolkit is not in the
@@ -64,8 +64,9 @@ shipped since then are most of what the dmg weighs now, and
   and no configuration file. The command line has none and the app is not
   where one starts. `open -a "Super Prototyping" --args /path/to/project`
   skips the startup page.
-- **A universal binary, a cask, a version-skew dialog.** One runner builds two
-  dmgs. A cask waits until there is a signed release to point one at. No
+- **A universal binary, a version-skew dialog.** One runner builds two
+  dmgs, and the Homebrew cask names those same two
+  (`docs/2026-09-19-standalone-app-and-install.md`). No
   dialog compares the app's version against the toolkit's, because the pinned
   `uv tool install` URL the app writes into each skill it copies is what keeps
   the two in step now. The next day's note has the detail. `sp start`'s own
