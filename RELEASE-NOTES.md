@@ -32,8 +32,7 @@ Everything below is on `main` and reaches no install until a version is cut.
   same.
 - The launcher writes two directories and nothing else: that cache, and
   `~/.local/state/super-prototyping/` for its pidfile and log, the same on
-  macOS as on Linux, `%LOCALAPPDATA%\super-prototyping\{cache,state}\` on
-  Windows. `SUPER_PROTOTYPING_HOME` moves both under one root. Two new
+  macOS as on Linux. `SUPER_PROTOTYPING_HOME` moves both under one root. Two new
   commands: `sp paths` prints them and every variable in use, and
   `sp clean` removes them. The port can also come from
   `SP_CANVAS_PORT`. The old `~/.super-prototyping-canvas-<port>.pid` and

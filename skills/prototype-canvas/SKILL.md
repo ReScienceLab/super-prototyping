@@ -41,7 +41,8 @@ prints the address. Started from a terminal it also opens the browser; from
 an agent's shell it only prints. A checkout being worked on serves its own
 `canvas/dist` instead, rebuilt with bun when a source is newer.
 
-- **Boards** default to `./mockups/canvases` under the current directory.
+- **Boards** default to `mockups/canvases` under the project: the directory
+  named on `sp start <dir>`, else the current one.
   Point somewhere else with `--canvases DIR` or `PROTOTYPING_CANVASES_DIR`.
 - **Port** with `--port N`, or `SP_CANVAS_PORT` for a machine that always
   uses another one. A port that already answers is never reused: it may be
@@ -55,8 +56,8 @@ an agent's shell it only prints. A checkout being worked on serves its own
   everywhere it looked. The first thing to run when the canvas is not what
   you expected.
 - **It writes two directories and nothing else**: that cache, and
-  `~/.local/state/super-prototyping/` for its pidfile and log (the same on
-  macOS as on Linux; `%LOCALAPPDATA%\super-prototyping\` on Windows).
+  `~/.local/state/super-prototyping/` for its pidfile and log, the same on
+  macOS as on Linux.
   `SUPER_PROTOTYPING_HOME` moves both under one root. `sp paths`
   prints them and every variable in use; `sp clean` removes them.
 - Deep-link a page with `?canvas=<slug>`, e.g.

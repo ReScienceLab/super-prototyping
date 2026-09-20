@@ -9,9 +9,11 @@ name: Release
 #      manifest with scripts/bump-version.sh, and opens a release PR.
 #   2. Merging that PR changes .claude-plugin/plugin.json on main, which fires
 #      the second half: it tags super-prototyping--v<version>, cuts the
-#      GitHub Release from the matching RELEASE-NOTES.md section, and attaches
-#      the canvas, built without the example boards, as canvas-dist.tgz. A
-#      macOS runner then adds the app, a dmg per architecture.
+#      GitHub Release from the matching RELEASE-NOTES.md section, attaches
+#      the canvas, built without the example boards, as canvas-dist.tgz, and
+#      points the Homebrew tap's formula at it. Re-running a run whose attach
+#      or tap step failed does that last part again for the tag already cut.
+#      A macOS runner then adds the app, a dmg per architecture.
 #
 # Nothing tags a commit that is not on main, and the second half only acts when
 # the version actually changed in that push: the tag ruleset forbids moving a
@@ -152,6 +154,7 @@ jobs:
         id: v
         env:
           BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           read_version() { python3 -c 'import json,sys;print(json.load(sys.stdin)["version"])'; }
@@ -187,14 +190,38 @@ jobs:
             echo "the version did not move forward ($before to $version), so this is not a release"
             fresh=false
           elif git rev-parse -q --verify "refs/tags/super-prototyping--v$version" > /dev/null; then
-            echo "super-prototyping--v$version already exists, so there is nothing to do"
+            echo "super-prototyping--v$version already exists, so this push cuts nothing"
             fresh=false
           else
             echo "this push released $version"
           fi
 
+          # A release whose bundle step failed has a tag and a release and no
+          # canvas-dist.tgz; one whose tap push failed has the bundle and a formula
+          # that does not name it. The tag cannot be cut again, but the asset and the
+          # tap can, so re-running the failed run takes just that half: the repair is
+          # one click, not `gh release upload` by hand and a tap edit nothing documents.
+          # Only the run at the commit the tag names, which is what a re-run is: a later
+          # push would build the bundle from another tree, and a revert restores an
+          # older version whose release is not this push's to touch.
+          attach=$fresh
+          tap=$fresh
+          tagged=$(git rev-parse -q --verify "refs/tags/super-prototyping--v$version^{commit}" || true)
+          if [ "$fresh" = false ] && [ "$tagged" = "$GITHUB_SHA" ]; then
+            tap=true
+            assets=$(gh release view "super-prototyping--v$version" --json assets --jq '.assets[].name' 2> /dev/null || true)
+            if grep -qx canvas-dist.tgz <<< "$assets"; then
+              echo "super-prototyping--v$version is cut here with its canvas-dist.tgz, so this run only checks the tap"
+            else
+              echo "super-prototyping--v$version is cut here but has no canvas-dist.tgz, so this run attaches it"
+              attach=true
+            fi
+          fi
+
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "fresh=$fresh" >> "$GITHUB_OUTPUT"
+          echo "attach=$attach" >> "$GITHUB_OUTPUT"
+          echo "tap=$tap" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v7
         if: steps.v.outputs.fresh == 'true'
@@ -260,7 +287,7 @@ jobs:
           fi
 
       - uses: oven-sh/setup-bun@v2
-        if: steps.v.outputs.fresh == 'true'
+        if: steps.v.outputs.attach == 'true'
 
       # The canvas, built once here so that an install does not have to: `sp
       # start` fetches this bundle for the plugin's version on first start (#108), by
@@ -270,11 +297,10 @@ jobs:
       # and an empty directory builds an empty canvas. After the release rather than
       # before it: the tag is pushed by now and the ruleset forbids moving it, so a
       # build failure must not leave a tag with no release behind it. A failure here
-      # is a missing asset, which `gh release upload` by hand adds to a release that
-      # is already cut; until it is there, every `sp start` on this version
-      # stops and prints the URL it wanted.
+      # is a missing asset, and every `sp start` on this version stops and prints
+      # the URL it wanted until re-running this run attaches it (`attach` above).
       - name: Attach the canvas, built without the example boards
-        if: steps.v.outputs.fresh == 'true'
+        if: steps.v.outputs.attach == 'true'
         working-directory: canvas
         env:
           GH_TOKEN: ${{ github.token }}
@@ -288,24 +314,31 @@ jobs:
       # The tap's formula names one release: the source tarball of its tag and the
       # bundle just attached, each with its sha256 (#109). Rewritten here and pushed to
       # the tap's main, since the tap holds nothing a review would catch that `brew
-      # install` does not. HOMEBREW_TAP_TOKEN is a fine-grained token with contents
-      # write on ReScienceLab/homebrew-tap and nothing else; the org disallows deploy
-      # keys, which would have been narrower still.
+      # install` does not. Stable releases only: the formula is what `brew install`
+      # hands everyone, and its livecheck already ignores a prerelease tag, so pointing
+      # it at one would ship the rc to every user while telling them it is not the
+      # latest. HOMEBREW_TAP_TOKEN is a fine-grained token with contents write on
+      # ReScienceLab/homebrew-tap and nothing else; the org disallows deploy keys,
+      # which would have been narrower still. A re-run that built no bundle fetches the
+      # one attached, for its checksum; the rewrite is a no-op when the formula already
+      # names this release.
       - uses: actions/checkout@v7
-        if: steps.v.outputs.fresh == 'true'
+        if: steps.v.outputs.tap == 'true' && !contains(steps.v.outputs.version, '-')
         with:
           repository: ReScienceLab/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           path: tap
 
       - name: Point the Homebrew formula at this release
-        if: steps.v.outputs.fresh == 'true'
+        if: steps.v.outputs.tap == 'true' && !contains(steps.v.outputs.version, '-')
         working-directory: tap
         env:
+          GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.v.outputs.version }}
         run: |
           set -euo pipefail
           source=$(curl -fsSL "https://github.com/${{ github.repository }}/archive/refs/tags/super-prototyping--v$VERSION.tar.gz" | sha256sum | cut -d' ' -f1)
+          [ -f "$RUNNER_TEMP/canvas-dist.tgz" ] || gh release download "super-prototyping--v$VERSION" -R "${{ github.repository }}" -p canvas-dist.tgz -D "$RUNNER_TEMP"
           canvas=$(sha256sum "$RUNNER_TEMP/canvas-dist.tgz" | cut -d' ' -f1)
           python3 - "$VERSION" "$source" "$canvas" <<'PY'
           import re, sys
@@ -323,6 +356,10 @@ jobs:
           text = re.sub(r'(sha256 ")[0-9a-f]{64}', lambda m: m.group(1) + next(shas), text)
           open(path, "w").write(text)
           PY
+          if git diff --quiet; then
+            echo "the formula already names $VERSION with these checksums"
+            exit 0
+          fi
           git config user.name  'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -am "super-prototyping $VERSION"
