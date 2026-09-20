@@ -144,7 +144,7 @@ def on_platform(name, fn):
 UNSET = {"SUPER_PROTOTYPING_HOME": None, "XDG_CACHE_HOME": None, "XDG_STATE_HOME": None}
 
 
-def test_the_two_directories_follow_xdg_on_unix_localappdata_on_windows_and_one_home_over_both():
+def test_the_two_directories_follow_xdg_on_both_unixes_and_one_home_over_both():
     """Where the downloaded app and the pidfiles go: uv's answer, not platformdirs'. The same
     pair on macOS as on Linux, and nothing created until something is written."""
     home = Path(tempfile.mkdtemp())
@@ -165,11 +165,6 @@ def test_the_two_directories_follow_xdg_on_unix_localappdata_on_windows_and_one_
     cache, state = on_platform("linux", lambda: with_home(home, lambda: with_env(
         dict(UNSET, SUPER_PROTOTYPING_HOME="~/sp", XDG_CACHE_HOME="/c"), C._dirs)))
     assert (cache, state) == (home / "sp/cache", home / "sp/state")
-    # Windows: %LOCALAPPDATA%, machine-local, both halves under the one folder.
-    cache, state = on_platform("win32", lambda: with_home(home, lambda: with_env(
-        dict(UNSET, LOCALAPPDATA=str(home / "AppData/Local")), C._dirs)))
-    assert cache == home / "AppData/Local/super-prototyping/cache"
-    assert state == home / "AppData/Local/super-prototyping/state"
 
 
 def canvas_bundle(files=("dist/server.mjs", "dist/index.html")):

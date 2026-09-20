@@ -52,17 +52,16 @@ def _dirs():
 
     The XDG pair on macOS as on Linux, following uv, gh and bat rather than platformdirs'
     ~/Library: the people running this have ~/.cache/uv already, and one convention across
-    the two Unixes is one to document and one to remove. %LOCALAPPDATA% on Windows, which is
-    machine-local and never roams. SUPER_PROTOTYPING_HOME puts both under one root, the way
-    CODEX_HOME and CLAUDE_CONFIG_DIR do. Nothing is created here: a directory appears at the
-    first write into it, as the spec asks, so `status` on a fresh machine leaves no trace.
+    the two Unixes is one to document and one to remove. No Windows branch until the
+    launcher runs there: `stop` and `clean` need `ps` and process groups, so a path for it
+    would only promise a start that cannot be stopped. SUPER_PROTOTYPING_HOME puts both
+    under one root, the way CODEX_HOME and CLAUDE_CONFIG_DIR do. Nothing is created here: a
+    directory appears at the first write into it, as the spec asks, so `status` on a fresh
+    machine leaves no trace.
     """
     home = os.environ.get("SUPER_PROTOTYPING_HOME")
     if home:
         root = Path(home).expanduser()
-        return root / "cache", root / "state"
-    if sys.platform == "win32":
-        root = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData/Local") / APP
         return root / "cache", root / "state"
     def xdg(var, default):
         return Path(os.environ.get(var) or Path.home() / default) / APP
@@ -589,9 +588,8 @@ def cmd_paths(a):
     print(f"cache  {cache}")
     print(f"state  {state}")
     print()
-    moves = ("LOCALAPPDATA",) if sys.platform == "win32" else ("XDG_CACHE_HOME", "XDG_STATE_HOME")
-    for var in ("SUPER_PROTOTYPING_HOME", *moves, "SP_CANVAS_PORT", "PROTOTYPING_CANVASES_DIR",
-                "SUPER_PROTOTYPING_ROOT"):
+    for var in ("SUPER_PROTOTYPING_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME", "SP_CANVAS_PORT",
+                "PROTOTYPING_CANVASES_DIR", "SUPER_PROTOTYPING_ROOT"):
         print(f"{var:<25} {os.environ.get(var) or '(unset)'}")
 
 

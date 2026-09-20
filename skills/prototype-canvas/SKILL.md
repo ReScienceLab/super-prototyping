@@ -47,8 +47,8 @@ an agent's shell it only prints. A checkout being worked on serves its own
   everywhere it looked. The first thing to run when the canvas is not what
   you expected.
 - **It writes two directories and nothing else**: that cache, and
-  `~/.local/state/super-prototyping/` for its pidfile and log (the same on
-  macOS as on Linux; `%LOCALAPPDATA%\super-prototyping\` on Windows).
+  `~/.local/state/super-prototyping/` for its pidfile and log, the same on
+  macOS as on Linux.
   `SUPER_PROTOTYPING_HOME` moves both under one root. `sp paths`
   prints them and every variable in use; `sp clean` removes them.
 - Deep-link a page with `?canvas=<slug>`, e.g.
