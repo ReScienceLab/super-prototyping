@@ -58,12 +58,17 @@ Everything below is on `main` and reaches no install until a version is cut.
   Codex, each card with its icon and whether it was found on this machine;
   what that rests on — a binary on PATH, a config directory under home, an
   app bundle — is the card's tooltip. The page is in Vercel's Geist look,
-  with the project name and a link to star the repo on GitHub. Then it asks
-  for a project: an existing folder, or a new one it creates with
-  `mockups/canvases` and the template canvas in it. The agent you picked
+  with the project name, a link to star the repo on GitHub, and an artwork
+  down its left side. Next, as its second step, it asks for a project: an
+  existing folder, or a new one. A
+  new one takes a third step, its name, and nothing else: it goes in
+  `Documents/Super Prototyping` with `mockups/canvases` and the template
+  canvas in it, and a name already taken is said under the field, with a
+  link to open that project instead. The agent you picked
   gets the bundled skills copied into that project, into its own skills directory, and each copy lands with
   a version marker in its frontmatter and its `uv tool install` line pinned
   to a tag of that version, e.g. `super-prototyping@super-prototyping--v1.5.0`.
+  Once the canvas is up it says what landed, in a toast at its bottom right.
   Every later open refreshes a marked copy that is behind the app's own
   version, in place, and never touches a same-named folder with no marker —
   that one is yours — nor recreates a copy you deleted. `sp start` from a

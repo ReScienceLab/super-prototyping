@@ -33,15 +33,22 @@
     }
   }
   * { box-sizing: border-box; }
+  /* The artwork down the left at full height, the header and the steps in the column beside it. */
   body {
     margin: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 40% 1fr;
+    grid-template-rows: auto 1fr;
     font: 14px/1.5 "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     color: var(--fg);
     background: var(--bg);
+  }
+  .art { grid-row: 1 / 3; width: 100%; height: 100vh; object-fit: cover; border-right: 1px solid var(--border); }
+  @media (max-width: 960px) {
+    body { grid-template-columns: 1fr; }
+    .art { display: none; }
   }
   header {
     display: flex;
@@ -54,42 +61,53 @@
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
   .brand img { width: 24px; height: 24px; }
   main {
-    flex: 1;
+    min-height: 0;
+    overflow: auto;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 40px 24px;
   }
+  /* Three steps, one section each: the agent, the project, and, for a new project, its name. */
+  section { display: flex; flex-direction: column; align-items: center; }
+  section[hidden] { display: none; }
+  .step { margin: 0 0 12px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-dim); }
   h1 { margin: 0 0 8px; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
-  p.sub { margin: 0 0 32px; color: var(--fg-dim); text-align: center; }
-  ul {
+  p.sub { margin: 0 0 32px; max-width: 540px; color: var(--fg-dim); text-align: center; }
+  code { font: 13px/1 "Geist Mono", ui-monospace, Menlo, monospace; padding: 2px 5px; border: 1px solid var(--border); border-radius: 4px; }
+  .cards {
     list-style: none;
     margin: 0 0 32px;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(2, 240px);
+    grid-template-columns: repeat(2, 260px);
     gap: 16px;
   }
   li { position: relative; }
   /* The card is the control; the radio stays for the keyboard and the checked state. */
-  input { position: absolute; opacity: 0; width: 0; height: 0; }
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 20px;
+  input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+  form { margin: 0 0 32px; }
+  input[type="text"] {
+    font: inherit;
+    width: 360px;
+    height: 40px;
+    padding: 0 12px;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--fg);
+    transition: border-color 0.15s;
   }
-  label:hover { border-color: var(--border-hover); background: var(--hover); }
-  li:has(input:checked) > label { border-color: var(--fg); }
-  li:has(input:focus-visible) > label { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
+  input[type="text"]:hover { border-color: var(--border-hover); }
+  input[type="text"]:focus { outline: none; border-color: var(--fg-dim); box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
   .icon { width: 32px; height: 32px; font-size: 32px; display: inline-flex; align-items: center; margin-bottom: 8px; }
   .name { font-weight: 500; }
   .status { color: var(--fg-dim); font-size: 13px; }
+  /* What main.ts said about the name, under the field, with the way out as a link in it. */
+  #note { width: 360px; margin: 12px 0 0; color: var(--fg-dim); font-size: 13px; }
+  #note button { all: unset; color: var(--fg); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  #note button[hidden] { display: none; }
+  #note button:focus-visible { border-radius: 2px; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
   .actions { display: flex; gap: 12px; }
   button, a.button {
     font: inherit;
@@ -112,9 +130,28 @@
   button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
   a.button { height: 32px; padding: 0 12px; font-size: 13px; }
   a.button svg { width: 16px; height: 16px; fill: currentColor; }
+  .card {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--fg);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .card:hover { border-color: var(--border-hover); background: var(--hover); }
+  li:has(input:checked) > .card { border-color: var(--fg); }
+  li:has(input:focus-visible) > .card, .card:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
 </style>
 </head>
 <body>
+  <img class="art" src="startup-art.jpg" alt="">
   <header>
     <!-- The app icon at 48px, inlined: the 1024px original is a build input, not shipped. -->
     <div class="brand"><img src="data:image/png;base64,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" alt="" />Super Prototyping</div>
@@ -122,13 +159,49 @@
     <a class="button" href="https://github.com/ReScienceLab/super-prototyping"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Star on GitHub</a>
   </header>
   <main>
-    <h1>Which agent will you work with?</h1>
-    <p class="sub">It gets the super-prototyping skills copied into the project you open or create next.</p>
-    <ul id="list"></ul>
-    <div class="actions">
-      <button id="create" type="button">Create a new project…</button>
-      <button id="open" class="primary" type="button">Open a project…</button>
-    </div>
+    <section id="step-agent">
+      <p class="step">Step 1 of 3</p>
+      <h1>Which agent will you work with?</h1>
+      <p class="sub">It gets the super-prototyping skills copied into your project.</p>
+      <ul id="list" class="cards"></ul>
+      <div class="actions">
+        <button id="next" class="primary" type="button">Next</button>
+      </div>
+    </section>
+    <section id="step-project" hidden>
+      <p class="step">Step 2 of 3</p>
+      <h1>Set up a project</h1>
+      <p class="sub">A project is a folder with <code>mockups/canvases</code> in it. The canvas shows the boards there, and <span id="agent-name"></span> gets the skills copied in.</p>
+      <!-- The two glyphs are Lucide's folder-plus and folder-open (ISC), in currentColor. -->
+      <div class="cards">
+        <button id="create" class="card" type="button">
+          <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span>
+          <span class="name">Create a new project</span>
+          <span class="status">Just give it a name. It goes in Documents/Super Prototyping with the template canvas in it.</span>
+        </button>
+        <button id="open" class="card" type="button">
+          <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg></span>
+          <span class="name">Open an existing project</span>
+          <span class="status">Any folder you have. The canvas shows its mockups/canvases, empty until a board lands there.</span>
+        </button>
+      </div>
+      <div class="actions">
+        <button id="back" type="button">Back</button>
+      </div>
+    </section>
+    <section id="step-name" hidden>
+      <p class="step">Step 3 of 3</p>
+      <h1>Name your project</h1>
+      <p class="sub">It goes in <code>Documents/Super Prototyping</code> as a folder with <code>mockups/canvases</code> and the template canvas in it, ready for a first board.</p>
+      <form id="name-form">
+        <input id="project-name" type="text" placeholder="My app" aria-label="Project name" autocomplete="off" spellcheck="false" aria-describedby="note" required>
+        <p id="note" role="status" hidden><span id="note-text"></span> <button id="open-it" type="button">Open it instead</button></p>
+      </form>
+      <div class="actions">
+        <button id="back-name" type="button">Back</button>
+        <button class="primary" type="submit" form="name-form">Create</button>
+      </div>
+    </section>
   </main>
   <script>
     var agents = JSON.parse(new URLSearchParams(location.search).get("agents") || "[]");
@@ -138,6 +211,7 @@
     agents.forEach(function (agent) {
       var li = document.createElement("li");
       var label = document.createElement("label");
+      label.className = "card";
       // What detection rests on — a binary on PATH, a directory under home, an app bundle — is
       // the card's tooltip, so a wrong guess can still be checked without the row carrying it.
       label.title = agent.found.join(" · ");
@@ -162,11 +236,44 @@
       li.appendChild(label);
       list.appendChild(li);
     });
-    function choose(action) {
-      window.startup.choose(action, list.querySelector("input:checked").value);
-    }
-    document.getElementById("create").addEventListener("click", function () { choose("create"); });
-    document.getElementById("open").addEventListener("click", function () { choose("open"); });
+    var chosen = function () { return list.querySelector("input:checked").value; };
+    var stepAgent = document.getElementById("step-agent");
+    var stepProject = document.getElementById("step-project");
+    document.getElementById("next").addEventListener("click", function () {
+      document.getElementById("agent-name").textContent = agents.find(function (a) { return a.id === chosen(); }).name;
+      stepAgent.hidden = true;
+      stepProject.hidden = false;
+    });
+    document.getElementById("back").addEventListener("click", function () {
+      stepProject.hidden = true;
+      stepAgent.hidden = false;
+    });
+    var stepName = document.getElementById("step-name");
+    var nameInput = document.getElementById("project-name");
+    document.getElementById("create").addEventListener("click", function () {
+      stepProject.hidden = true;
+      stepName.hidden = false;
+      nameInput.focus();
+    });
+    document.getElementById("back-name").addEventListener("click", function () {
+      stepName.hidden = true;
+      stepProject.hidden = false;
+    });
+    document.getElementById("name-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      window.startup.choose("create", chosen(), nameInput.value.trim()).then(function (said) {
+        if (!said) return;
+        document.getElementById("note-text").textContent = said.message;
+        openIt.hidden = !said.taken;
+        note.hidden = false;
+        nameInput.select();
+      });
+    });
+    var note = document.getElementById("note");
+    var openIt = document.getElementById("open-it");
+    nameInput.addEventListener("input", function () { note.hidden = true; });
+    openIt.addEventListener("click", function () { window.startup.choose("open", chosen(), nameInput.value.trim()); });
+    document.getElementById("open").addEventListener("click", function () { window.startup.choose("open", chosen()); });
   </script>
 </body>
 </html>

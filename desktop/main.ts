@@ -8,7 +8,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell, utilityProcess } from "electron";
-import type { IpcMainEvent } from "electron";
+import type { IpcMainInvokeEvent } from "electron";
 import {
   AGENTS,
   augmentedPath,
@@ -101,47 +101,64 @@ async function main() {
       icon: fs.readFileSync(path.join(app.getAppPath(), "icons", `${a.id}.svg`), "utf8"),
     }));
     ({ project, agent } = await new Promise<{ project: string; agent: string }>((resolve) => {
-      const onChoose = async (_event: IpcMainEvent, action: "open" | "create", chosen: string) => {
-        // Either panel is a sheet on this window, so a second click cannot land while one is up.
-        let dir: string | undefined;
-        if (action === "open") {
-          const opened = await dialog.showOpenDialog(win, {
-            title: "Open a project",
-            message: "Choose the project whose mockups/canvases the canvas should show.",
-            properties: ["openDirectory", "createDirectory"],
-          });
-          dir = opened.filePaths[0];
-        } else {
-          // A new project is a folder with `mockups/canvases` in it, seeded with the template
-          // canvas the plugin ships, so the window opens on boards rather than on nothing.
-          const saved = await dialog.showSaveDialog(win, {
-            title: "Create a project",
-            nameFieldLabel: "Project folder",
-            defaultPath: path.join(app.getPath("documents"), "my-prototype"),
-            buttonLabel: "Create",
-            showsTagField: false,
-          });
-          dir = saved.canceled ? undefined : saved.filePath;
-          if (dir !== undefined) {
-            try {
-              fs.mkdirSync(path.join(dir, "mockups/canvases"), { recursive: true });
-              fs.cpSync(
-                path.join(pluginRoot, "mockups/canvases/templates"),
-                path.join(dir, "mockups/canvases/templates"),
-                { recursive: true },
-              );
-            } catch (e) {
-              // The panel lets a name land on an existing file, or somewhere unwritable.
-              dialog.showErrorBox("Couldn't create the project", String(e));
-              return;
+      // What the page gets back is nothing when the project opened (or the open panel was
+      // cancelled), and otherwise what to say under its name field. It is said there, where the
+      // user is, with the way out, rather than as a native alert with an error's text in it.
+      ipcMain.handle(
+        "startup:choose",
+        async (
+          _event: IpcMainInvokeEvent,
+          action: "open" | "create",
+          chosen: string,
+          name = "",
+        ) => {
+          let dir: string | undefined;
+          if (action === "open" && name === "") {
+            // The open panel is a sheet on this window, so a second click cannot land while it is
+            // up; creating is synchronous.
+            const opened = await dialog.showOpenDialog(win, {
+              title: "Open a project",
+              message: "Choose the project whose mockups/canvases the canvas should show.",
+              properties: ["openDirectory", "createDirectory"],
+            });
+            dir = opened.filePaths[0];
+          } else {
+            // A new project needs only a name, as in Screen Studio: it goes under Documents, so
+            // there is no place to pick. The page's `required` lets a name of spaces through, and
+            // knows nothing of folders.
+            if (name === "") return { message: "Give the project a name first." };
+            if (name.startsWith(".") || path.basename(name) !== name) {
+              return { message: "A name cannot start with a dot or have a slash in it." };
+            }
+            dir = path.join(app.getPath("documents"), "Super Prototyping", name);
+            // "open" with a name is the page's "Open it instead", for a name found taken here.
+            if (action === "create") {
+              if (fs.existsSync(dir)) {
+                return {
+                  message: `You already have a project called “${name}”. Try another name.`,
+                  taken: true,
+                };
+              }
+              // A folder with `mockups/canvases` in it, seeded with the template canvas the
+              // plugin ships, so the window opens on boards rather than on nothing.
+              try {
+                fs.mkdirSync(path.join(dir, "mockups/canvases"), { recursive: true });
+                fs.cpSync(
+                  path.join(pluginRoot, "mockups/canvases/templates"),
+                  path.join(dir, "mockups/canvases/templates"),
+                  { recursive: true },
+                );
+              } catch (e) {
+                // A Documents that cannot be written to: nothing a new name fixes, so say which.
+                return { message: `That folder could not be made: ${(e as Error).message}` };
+              }
             }
           }
-        }
-        if (dir === undefined) return; // cancelled: the window is still there, nothing was written
-        ipcMain.removeListener("startup:choose", onChoose);
-        resolve({ project: dir, agent: chosen });
-      };
-      ipcMain.on("startup:choose", onChoose);
+          if (dir === undefined) return; // cancelled: the window is still there, nothing written
+          ipcMain.removeHandler("startup:choose");
+          resolve({ project: dir, agent: chosen });
+        },
+      );
       win.loadFile(path.join(app.getAppPath(), "startup.html"), {
         query: { agents: JSON.stringify(rows) },
       });
@@ -214,6 +231,7 @@ async function main() {
     return app.exit(1);
   }
 
+  let notice = "";
   if (agent !== undefined) {
     const row = AGENTS.find((a) => a.id === agent)!; // the page's rows came from this table
     const res = await fetch(`http://127.0.0.1:${port}/__sp/skills`, {
@@ -227,21 +245,26 @@ async function main() {
     // version — the same answer as last launch — and a launch like that says nothing, the
     // agent's note included: that was shown when the copies landed.
     if (written.length > 0 || skipped.length > 0) {
-      await dialog.showMessageBox({
-        type: "info",
-        message: "Skills installed",
-        detail: [
-          written.length ? `Installed: ${written.join(", ")}` : "",
-          skipped.length ? `Already present, left alone: ${skipped.join(", ")}` : "",
-          row.note ? `${row.name}: ${row.note}` : "",
+      // Said by the canvas, as a toast at its bottom right once it is up, rather than by a
+      // native alert here, which would be a modal in front of a startup page about to be
+      // replaced. The copies are all under the one directory asked for, so it is named once
+      // and each copy by its own name.
+      const names = (paths: string[]) => paths.map((p) => path.posix.basename(p)).join(", ");
+      const toast = {
+        title: `Skills installed for ${row.name}`,
+        description: [
+          written.length ? `Into ${row.dir}: ${names(written)}.` : "",
+          skipped.length ? `Already there, left alone: ${names(skipped)}.` : "",
+          row.note ?? "",
         ]
           .filter(Boolean)
-          .join("\n"),
-      });
+          .join(" "),
+      };
+      notice = `?toast=${encodeURIComponent(JSON.stringify(toast))}`;
     }
   }
 
-  await win.loadURL(`http://127.0.0.1:${port}/`);
+  await win.loadURL(`http://127.0.0.1:${port}/${notice}`);
 }
 
 // Electron neither exits nor says anything on a rejection in the main process; without this,

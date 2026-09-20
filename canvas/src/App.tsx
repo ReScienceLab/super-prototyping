@@ -28,8 +28,10 @@ import {
   type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
+  type TLUiToast,
   useEditor,
   useLocalStore,
+  useToasts,
 } from "tldraw";
 import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
@@ -269,6 +271,32 @@ function AgentBridge() {
 function LockedLinkClicks() {
   const editor = useEditor();
   useEffect(() => installLockedLinkClicks(editor), [editor]);
+  return null;
+}
+
+/**
+ * What the app that opened this page has to say once it is up — the desktop
+ * shell's "skills installed", after it copied them into the project — as a
+ * toast at the bottom right, where tldraw puts them, rather than a native
+ * alert in front of a window still showing the startup page. It rides in as
+ * `?toast=<json>` and is taken out of the address at once, so a reload, or a
+ * link copied from the bar, does not carry it.
+ */
+function LaunchToast() {
+  const { addToast } = useToasts();
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const raw = url.searchParams.get("toast");
+    if (raw === null) return;
+    url.searchParams.delete("toast");
+    window.history.replaceState(null, "", url.href);
+    // The address is typed by hand too, and a throw here would take tldraw's whole UI down
+    // with it: a toast that is not JSON is no toast.
+    try {
+      const toast = JSON.parse(raw) as Pick<TLUiToast, "title" | "description">;
+      addToast({ severity: "success", ...toast });
+    } catch {}
+  }, [addToast]);
   return null;
 }
 
@@ -1414,6 +1442,7 @@ export default function App() {
           >
             <AgentBridge />
             <LockedLinkClicks />
+            <LaunchToast />
             <InspectorClicks
               onPick={onPick}
               onDismiss={onCloseInspector}
