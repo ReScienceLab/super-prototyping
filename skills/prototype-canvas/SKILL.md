@@ -32,7 +32,8 @@ prints the address. Started from a terminal it also opens the browser; from
 an agent's shell it only prints. A checkout being worked on serves its own
 `canvas/dist` instead, rebuilt with bun when a source is newer.
 
-- **Boards** default to `./mockups/canvases` under the current directory.
+- **Boards** default to `mockups/canvases` under the project: the directory
+  named on `sp start <dir>`, else the current one.
   Point somewhere else with `--canvases DIR` or `PROTOTYPING_CANVASES_DIR`.
 - **Port** with `--port N`, or `SP_CANVAS_PORT` for a machine that always
   uses another one. A port that already answers is never reused: it may be

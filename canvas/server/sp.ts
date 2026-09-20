@@ -598,7 +598,7 @@ export function createSpServer(options: {
       return send(
         503,
         "PROTOTYPING_PROJECT_DIR is not set, so there is no project for the agent to work in. " +
-          "`sp start` sets it to the directory it is started from.",
+          "`sp start <dir>` sets it to the project directory, the current one when none is named.",
       );
     }
     if (req.method === "POST" && url.pathname === "/run") {
