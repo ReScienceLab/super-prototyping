@@ -114,6 +114,29 @@ def test_each_products_install_location_is_searched():
         assert with_home(home, lambda: C.resolve_root()) == checkout.resolve(), root
 
 
+def test_a_checkout_wins_over_the_installed_app():
+    """The app is the last resort: someone with it installed who is also standing in
+    their own checkout must get the checkout. `_is_canvas_app` is narrowed to the two
+    paths under test, so a real Homebrew or plugin install on the machine running this
+    test — this repo's own, say — cannot shadow either one and decide the test instead.
+    """
+    checkout = Path(tempfile.mkdtemp()).resolve()
+    C.subprocess.run(["git", "init", "-q"], cwd=checkout, check=True)
+    app = Path(tempfile.mkdtemp()).resolve()
+    home = Path(tempfile.mkdtemp())
+    real_cwd, real_app, real_is_app = os.getcwd(), C.APP_BUNDLE_PLUGIN, C._is_canvas_app
+    os.chdir(checkout)
+    C.APP_BUNDLE_PLUGIN = app
+    C._is_canvas_app = lambda root: root.resolve() in (checkout, app)
+    try:
+        found = with_home(home, lambda: with_env(
+            {"SUPER_PROTOTYPING_ROOT": None}, C.resolve_root))
+    finally:
+        os.chdir(real_cwd)
+        C.APP_BUNDLE_PLUGIN, C._is_canvas_app = real_app, real_is_app
+    assert found == checkout
+
+
 def with_env(vars, fn):
     """Run fn with these environment variables set (None: unset), then put them back."""
     saved = {k: os.environ.get(k) for k in vars}

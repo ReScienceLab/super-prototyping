@@ -8,5 +8,5 @@
     "strict": true,
     "types": ["node"]
   },
-  "files": ["main.ts", "launch.ts"]
+  "files": ["main.ts", "launch.ts", "preload.ts"]
 }

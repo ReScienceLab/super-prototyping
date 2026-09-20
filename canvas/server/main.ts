@@ -9,6 +9,7 @@ import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSpServer } from "./sp.ts";
+import { refresh } from "./skills.ts";
 
 const dist = fileURLToPath(new URL(".", import.meta.url)).replace(/\/$/, "");
 // The plugin root: where the skill an agent is pointed at lives, and whose boards a checkout
@@ -82,6 +83,11 @@ function serveStatic(req: http.IncomingMessage, res: http.ServerResponse) {
     send(404, path.join(dist, "404.html"), "no-cache");
   }
 }
+
+// Bring any marked skill copies in the project up to this tree's version before anything else
+// touches it — the app and `sp start` both land here, so this is the one place a stale copy
+// gets caught. Silent: the signal is `git diff`, not a log line.
+refresh(projectDir, repoRoot);
 
 const sp = createSpServer({ canvasesDir, projectDir, repoRoot });
 const server = http.createServer((req, res) =>

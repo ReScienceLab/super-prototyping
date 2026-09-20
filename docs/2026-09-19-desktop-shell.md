@@ -43,16 +43,18 @@ not weigh against opening a terminal.
   server racing the first: Electron loses a utility process's early output
   when a window is being created as it starts, so the app never opens its
   window before its own server answers.
-- **The plugin root.** The app asks `sp root` for it, the value
-  `sp start` passes, so an agent the canvas spawns is pointed at the
-  installed skills. The toolkit is not in the dmg: it is Python, `uv tool
-  install` is its installer on every product, and a second copy would be a
-  second version to drift. When `uv` or the toolkit is missing the app says so
-  once, with the install line and the directories it looked in, and opens the
-  canvas anyway. A GUI app does not inherit the shell's PATH, so
-  `~/.local/bin`, `~/.bun/bin`, `/opt/homebrew/bin`, `~/.cargo/bin` and
-  `/usr/local/bin` are appended to it first, and the server and every agent it
-  spawns inherit the result.
+- **The plugin root.** The app does not ask for it; it is built with one
+  inside it, `Contents/Resources/plugin`, the same skills-plus-canvas tree a
+  Homebrew or product install has, and `SUPER_PROTOTYPING_ROOT` points the
+  server at it so an agent the canvas spawns is pointed at the same skills
+  the app just installed into the project (an env value already set still
+  wins, for a developer pointing the packaged app at a checkout). The toolkit
+  is not in the dmg and the app no longer mentions it: `uv tool install` is
+  its installer on every product, and the skills the app installs tell the
+  agent to run it, pinned to the app's own version. A GUI app does not
+  inherit the shell's PATH, so `~/.local/bin`, `~/.bun/bin`,
+  `/opt/homebrew/bin`, `~/.cargo/bin` and `/usr/local/bin` are appended to it
+  first, and the server and every agent it spawns inherit the result.
 
 ## What was deliberately left out
 
@@ -60,10 +62,13 @@ not weigh against opening a terminal.
   configuration file: the command line has none and the app is not where one
   starts. `open -a "Super Prototyping" --args /path/to/project` skips the
   picker.
-- **A universal binary, a cask, a version-skew message.** Two dmgs from one
-  runner; a cask once there is a signed release to point one at; and the
-  toolkit version check stays in `sp start`, the command that fetches a
-  bundle by version. The app runs the bundle it was built with.
+- **A universal binary, a cask, a version-skew dialog.** Two dmgs from one
+  runner; a cask once there is a signed release to point one at; and no
+  dialog comparing the app's version against the toolkit's — the pinned
+  `uv tool install` URL the app writes into each skill it copies is what
+  keeps the two in step now, detailed in the next day's note. `sp start`'s
+  own skew note still covers a terminal user who mixes an old toolkit with a
+  newer plugin checkout.
 - **A retrying notarisation hook.** electron-builder's own `notarize: true`
   runs `notarytool submit --wait` and `stapler staple`. OpenDesign's wrapper
   answers a failure this pipeline has not had.

@@ -51,10 +51,27 @@ Everything below is on `main` and reaches no install until a version is cut.
 - A macOS app. Every release attaches `Super-Prototyping-<version>-arm64.dmg`
   and `-x64.dmg`: the canvas `sp start` serves, in a window, for a
   project you pick when it opens or name after `--args`. It uses the same
-  port, the same `~/.local/state` directory and the same toolkit as the
-  command line, and says so on first launch when `uv` or the toolkit is
-  missing, with the install line to run. Closing the window stops the server
-  and any agent it was running.
+  port and the same `~/.local/state` directory as the command line. Closing
+  the window stops the server and any agent it was running.
+- On a project's first open the app copies its bundled skills into it: pick
+  an agent, or several, from a short list, and each skill lands with a
+  version marker in its frontmatter and its `uv tool install` line pinned to
+  a tag of that version, e.g. `super-prototyping@super-prototyping--v1.5.0`.
+  Every later open refreshes a marked copy that is behind the app's own
+  version, in place, and never touches a same-named folder with no marker —
+  that one is yours. The picker comes up once per project; skipping it is
+  remembered in `onboarded.json` under the state directory `sp clean`
+  removes, and File › Install skills… brings it back. `sp start` from a
+  terminal refreshes the same way, since it runs the same server; the
+  endpoints behind both are `GET /__sp/skills`, which lists the marked
+  copies a project already has, and `POST /__sp/skills` with
+  `{"dirs": [...]}`, which writes them. The app no longer detects or
+  mentions the toolkit itself: the skill text tells the agent to install it,
+  pinned to match.
+- `sp root`, and everything built on it, also checks
+  `/Applications/Super Prototyping.app/Contents/Resources/plugin`, tried
+  last, after your own checkout: someone with the app installed who is
+  standing in their own checkout still gets the checkout.
 
 ## v1.4.1
 

@@ -1,6 +1,6 @@
 /**
  * The parts of the shell that do not need Electron: where the CLI keeps its state, which
- * directories a GUI app has to add to PATH, and what to say when the toolkit is not there.
+ * directories a GUI app has to add to PATH, and which agent reads skills from where.
  * Kept apart from main.ts so `bun test` covers them without an Electron process.
  */
 import fs from "node:fs";
@@ -27,22 +27,18 @@ export function stateDir(env: NodeJS.ProcessEnv, home: string) {
 /**
  * Where user-installed CLIs live when the login shell is not around to say. A GUI app on macOS
  * starts with `/usr/bin:/bin:/usr/sbin:/sbin`, so `uv`, `sp`, `claude` and `codex` are
- * all invisible without these. The dialog that says "not found" lists the same directories.
+ * all invisible without these.
  */
-export function toolchainBins(home: string) {
-  return [
+export function augmentedPath(env: NodeJS.ProcessEnv, home: string) {
+  const have = (env.PATH ?? "").split(path.delimiter).filter(Boolean);
+  const bins = [
     path.join(home, ".local/bin"),
     path.join(home, ".bun/bin"),
     "/opt/homebrew/bin",
     path.join(home, ".cargo/bin"),
     "/usr/local/bin",
   ];
-}
-
-export function augmentedPath(env: NodeJS.ProcessEnv, home: string) {
-  const have = (env.PATH ?? "").split(path.delimiter).filter(Boolean);
-  const add = toolchainBins(home).filter((d) => !have.includes(d));
-  return [...have, ...add].join(path.delimiter);
+  return [...have, ...bins.filter((d) => !have.includes(d))].join(path.delimiter);
 }
 
 /** The first `name` on `PATH` that is a file, or null. What `which` does, without a shell. */
@@ -52,31 +48,6 @@ export function findOnPath(name: string, PATH: string) {
     if (dir && fs.statSync(file, { throwIfNoEntry: false })?.isFile()) return file;
   }
   return null;
-}
-
-/** The toolkit of the same release as this app. A tarball, so it needs no git on the machine. */
-export function installCommand(version: string) {
-  return (
-    `uv tool install "super-prototyping-tools @ https://github.com/ReScienceLab/super-prototyping/` +
-    `archive/refs/tags/super-prototyping--v${version}.tar.gz#subdirectory=tools"`
-  );
-}
-
-/** The first-launch message: what is missing, the one line that installs it, where it was sought. */
-export function missingToolkitMessage(opts: { uv: boolean; version: string; bins: string[] }) {
-  return [
-    opts.uv
-      ? "The super-prototyping toolkit (sp, refkit) is not installed. Install it with:"
-      : "uv is not installed, so neither is the super-prototyping toolkit. Install uv from " +
-        "https://docs.astral.sh/uv/ and then the toolkit with:",
-    "",
-    installCommand(opts.version),
-    "",
-    "The canvas still opens and shows the boards; the agent and screenshot features need the toolkit.",
-    "",
-    "Looked for it on PATH and in:",
-    ...opts.bins.map((d) => `  ${d}`),
-  ].join("\n");
 }
 
 /**
@@ -121,4 +92,217 @@ export function freePort() {
       srv.close(() => resolve(port));
     });
   });
+}
+
+export type Agent = {
+  id: string;
+  name: string;
+  /** Project-relative, matches /^\.[\w-]+\/skills$/: what the picker's checkbox writes to. */
+  dir: string;
+  /** Executable names that count as "installed" when any is found on PATH. */
+  bins: string[];
+  /** Config directories, relative to home, that count the same way. */
+  homeDirs: string[];
+  /** A macOS app bundle name under /Applications or ~/Applications, if one exists. */
+  app?: string;
+  /** Shown once after install, alongside this agent's name, when it has something to say. */
+  note?: string;
+};
+
+/**
+ * One row per agent from the research behind docs/2026-09-20-desktop-onboarding-and-skills.md.
+ * `.agents/skills` is the directory several agents read unconditionally, so it is the default;
+ * the five exceptions here (Claude Code, Cline, CodeBuddy, Kiro, Trae) never read it at all, so
+ * each gets its own directory instead of a second copy nobody asked for.
+ */
+export const AGENTS: Agent[] = [
+  {
+    id: "claude-code",
+    name: "Claude Code",
+    dir: ".claude/skills",
+    bins: ["claude"],
+    homeDirs: [".claude"],
+    app: "Claude.app",
+    note: "A user-level ~/.claude/skills folder with the same name overrides the project one.",
+  },
+  {
+    id: "codex",
+    name: "Codex",
+    dir: ".agents/skills",
+    bins: ["codex"],
+    homeDirs: [".codex"],
+  },
+  {
+    id: "cursor",
+    name: "Cursor",
+    dir: ".agents/skills",
+    bins: ["cursor"],
+    homeDirs: [".cursor"],
+    app: "Cursor.app",
+    note: 'Its CLI binary is named "agent", which also names Grok\'s CLI, so detection does not use it.',
+  },
+  {
+    id: "devin",
+    name: "Devin",
+    dir: ".agents/skills",
+    bins: ["devin"],
+    homeDirs: [".config/devin"],
+    app: "Devin.app",
+    note: 'Cloud Devin likely only sees committed files; its docs only say "indexed repos".',
+  },
+  {
+    id: "gemini-cli",
+    name: "Gemini CLI",
+    dir: ".agents/skills",
+    bins: ["gemini"],
+    homeDirs: [".gemini"],
+    note: "The project must be marked trusted first.",
+  },
+  {
+    id: "github-copilot",
+    name: "GitHub Copilot",
+    dir: ".agents/skills",
+    bins: ["copilot"],
+    homeDirs: [".copilot"],
+  },
+  {
+    id: "opencode",
+    name: "OpenCode",
+    dir: ".agents/skills",
+    bins: ["opencode"],
+    homeDirs: [".config/opencode"],
+  },
+  {
+    id: "amp",
+    name: "Amp",
+    dir: ".agents/skills",
+    bins: ["amp"],
+    homeDirs: [".config/amp"],
+    app: "Amp.app",
+    note: "User-level copies in three directories override the project one; Orbs only sees committed files.",
+  },
+  {
+    id: "cline",
+    name: "Cline",
+    dir: ".cline/skills",
+    bins: ["cline"],
+    homeDirs: [".cline"],
+    app: "Cline.app",
+    note: "A global copy with the same name overrides the project one.",
+  },
+  {
+    id: "roo-code",
+    name: "Roo Code",
+    dir: ".agents/skills",
+    bins: ["roo"],
+    homeDirs: [".roo"],
+  },
+  {
+    id: "kilo-code",
+    name: "Kilo Code",
+    dir: ".agents/skills",
+    bins: ["kilo"],
+    homeDirs: [".kilo"],
+  },
+  {
+    id: "hermes",
+    name: "Hermes",
+    dir: ".agents/skills",
+    bins: ["hermes"],
+    homeDirs: [".hermes"],
+    note: "The project must be a git repo, and needs one `hermes skills trust` run.",
+  },
+  {
+    id: "pi",
+    name: "Pi",
+    dir: ".agents/skills",
+    bins: ["pi"],
+    homeDirs: [".pi/agent"],
+    note: "The project must be marked trusted first.",
+  },
+  {
+    id: "goose",
+    name: "Goose",
+    dir: ".agents/skills",
+    bins: ["goose"],
+    homeDirs: [".config/goose"],
+    app: "Goose.app",
+  },
+  {
+    id: "factory-droid",
+    name: "Factory Droid",
+    dir: ".agents/skills",
+    bins: ["droid"],
+    homeDirs: [".factory"],
+  },
+  {
+    id: "junie",
+    name: "Junie",
+    dir: ".agents/skills",
+    bins: ["junie"],
+    homeDirs: [".junie"],
+    note: "The project must be marked trusted first.",
+  },
+  {
+    id: "antigravity",
+    name: "Antigravity",
+    dir: ".agents/skills",
+    bins: ["agy"],
+    homeDirs: [".gemini/config"],
+    app: "Antigravity.app",
+  },
+  {
+    id: "qwen-code",
+    name: "Qwen Code",
+    dir: ".agents/skills",
+    bins: ["qwen"],
+    homeDirs: [".qwen"],
+  },
+  {
+    id: "trae",
+    name: "Trae",
+    dir: ".trae/skills",
+    bins: [],
+    homeDirs: [".trae", ".trae-cn"],
+    note: "Only .trae/skills is written; turning on .agents/skills needs a manual toggle in project settings.",
+  },
+  {
+    id: "codebuddy",
+    name: "CodeBuddy",
+    dir: ".codebuddy/skills",
+    bins: ["codebuddy", "cbc"],
+    homeDirs: [".codebuddy"],
+    note: "Not installed on this machine; detection follows its documentation.",
+  },
+  {
+    id: "kiro",
+    name: "Kiro",
+    dir: ".kiro/skills",
+    bins: ["kiro-cli"],
+    homeDirs: [".kiro"],
+    note: "Not installed on this machine; skill names with underscores are silently dropped, but none of ours have one.",
+  },
+];
+
+/**
+ * Which agents look installed: a binary on PATH, a config directory under home, or a macOS app,
+ * any of the three. The picker pre-checks these; nothing here writes anything.
+ */
+export function detectAgents(probe: {
+  bin(name: string): boolean;
+  dir(relToHome: string): boolean;
+  app(name: string): boolean;
+}): string[] {
+  return AGENTS.filter(
+    (a) =>
+      a.bins.some((b) => probe.bin(b)) ||
+      a.homeDirs.some((d) => probe.dir(d)) ||
+      (a.app !== undefined && probe.app(a.app)),
+  ).map((a) => a.id);
+}
+
+/** The sorted, deduped skills directories the chosen agents read from. */
+export function skillDirsFor(ids: string[]): string[] {
+  const dirs = AGENTS.filter((a) => ids.includes(a.id)).map((a) => a.dir);
+  return [...new Set(dirs)].sort();
 }

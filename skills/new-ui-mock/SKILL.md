@@ -15,9 +15,12 @@ Everything renders on the canvas from `mockups/canvases/<slug>/`; see
 folder and `layout.json` rules.
 
 The plugin ships the template folder and every worked example. `sp`
-and `refkit` are separate — the plugin cannot run an installer of its own, so
-if they are not on PATH: `uv tool install
-"git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
+and `refkit` are separate — the plugin cannot run an installer of its own.
+Not on PATH, or `sp --version` prints something lower than the version this
+skill shipped with (never higher — that would be a downgrade, and the tag
+may not even exist)? `uv tool install
+"git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`,
+adding `--force` to reinstall over a lower version.
 `sp root` then prints where the plugin landed:
 
 ```bash

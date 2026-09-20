@@ -108,8 +108,11 @@ once per machine.
 [release](https://github.com/ReScienceLab/super-prototyping/releases) also
 attaches `Super-Prototyping-<version>-<arch>.dmg`, the canvas in a window for
 macOS: it asks for a project, shows that project's `mockups/canvases`, and
-needs no terminal and no bun. The skills still need the toolkit below; the app
-says so on first launch when it is missing.
+needs no terminal and no bun. On a project's first open it copies the skills
+into it, into whichever agent's directory you pick from a short list, each
+copy marked with the app's version and refreshed upward on later opens. The
+toolkit below is not the app's concern: the skills tell whichever agent you
+run to install it the first time one calls for `refkit`, `artgen` or `sp`.
 
 Then the toolkit, whichever product you came from:
 

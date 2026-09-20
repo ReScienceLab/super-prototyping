@@ -27,7 +27,10 @@ PATH; `shoot` additionally needs Google Chrome.
 refkit --help
 ```
 
-Not found? The plugin cannot install it. Once per machine:
+Not on PATH, or `sp --version` prints something lower than the version this
+skill shipped with (never higher — that would be a downgrade, and the tag
+may not even exist)? The plugin cannot install it. Once per machine, adding
+`--force` to reinstall over a lower version:
 
 ```bash
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"

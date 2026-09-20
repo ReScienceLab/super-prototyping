@@ -18,7 +18,7 @@ loads the same tree an install does.
 Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
 `/__sp/index.json` by `canvas/server/sp.ts` and written into `dist` by the
 build — not an `import.meta.glob`, because a glob pattern is a build-time
-literal and could only ever read one hard-coded directory. `sp-canvas start`
+literal and could only ever read one hard-coded directory. `sp start`
 runs the built app, `dist/server.mjs`: the release's `canvas-dist.tgz`
 fetched into `~/.cache/super-prototyping/<version>/` for an install, or this
 checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
@@ -26,7 +26,7 @@ checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
 
 `tools/` is a Python package, `super-prototyping-tools`. It installs `refkit`
 (measure, shoot, diff, check tokens), `artgen` (the rare asset that has to be
-drawn) and `sp-canvas` (start the canvas against a project's boards) as
+drawn) and `sp` (start the canvas against a project's boards) as
 commands on PATH. The skills invoke them by name, never by path: no agent
 product exposes its plugin root to a shell, so a path-based invocation would
 need a different spelling per product.
@@ -36,7 +36,7 @@ forked as a utility process and shown in a window. `main.ts` is the app and
 `launch.ts` the helpers `bun test` checks. The release workflow builds it on a
 macOS runner and attaches a dmg per architecture;
 `docs/2026-09-19-desktop-shell.md` is why Electron, and what the app keeps in
-step with `sp-canvas`.
+step with `sp`.
 
 `.claude-plugin/`, `.codex-plugin/` and `.codebuddy-plugin/` are the per-product
 manifests, and the root `plugin.json` is the portable Agent Plugins v1 one that

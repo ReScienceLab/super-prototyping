@@ -6,7 +6,7 @@
   "type": "module",
   "main": "dist/main.mjs",
   "scripts": {
-    "build": "tsc --noEmit && bun build main.ts --target=node --format=esm --external electron --outfile dist/main.mjs",
+    "build": "tsc --noEmit && bun build main.ts --target=node --format=esm --external electron --outfile dist/main.mjs && bun build preload.ts --target=node --format=cjs --external electron --outfile dist/preload.cjs",
     "start": "bun run build && electron .",
     "test": "bun test",
     "dist": "bun run build && electron-builder --mac dmg --publish never"
@@ -23,8 +23,17 @@
     "productName": "Super Prototyping",
     "artifactName": "Super-Prototyping-${version}-${arch}.${ext}",
     "directories": { "output": "dist/out" },
-    "files": ["dist/main.mjs"],
-    "extraResources": [{ "from": "../canvas/dist", "to": "dist" }],
+    "files": ["dist/main.mjs", "dist/preload.cjs", "onboarding.html"],
+    "extraResources": [
+      { "from": "../skills", "to": "plugin/skills" },
+      { "from": "../.claude-plugin", "to": "plugin/.claude-plugin" },
+      { "from": "../.codex-plugin", "to": "plugin/.codex-plugin" },
+      { "from": "../.codebuddy-plugin", "to": "plugin/.codebuddy-plugin" },
+      { "from": "../plugin.json", "to": "plugin/plugin.json" },
+      { "from": "../canvas/package.json", "to": "plugin/canvas/package.json" },
+      { "from": "../canvas/dist", "to": "plugin/canvas/dist" },
+      { "from": "../mockups/canvases/templates", "to": "plugin/mockups/canvases/templates" }
+    ],
     "asar": true,
     "npmRebuild": false,
     "mac": {

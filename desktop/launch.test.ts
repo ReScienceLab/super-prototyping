@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import net from "node:net";
-import { augmentedPath, findOnPath, freePort, missingToolkitMessage, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
+import { augmentedPath, detectAgents, findOnPath, freePort, parseArgs, portAnswers, skillDirsFor, stateDir, untilde, waitForPort } from "./launch.ts";
 
 test("untilde expands only the current user's leading tilde", () => {
   expect(untilde("~/sp", "/Users/u")).toBe("/Users/u/sp");
@@ -29,13 +29,23 @@ test("findOnPath finds a file and only a file", () => {
   expect(findOnPath("no-such-binary-xyz", "/bin")).toBeNull();
 });
 
-test("missingToolkitMessage names uv when it is the missing piece", () => {
-  const bins = ["/Users/a/.local/bin"];
-  expect(missingToolkitMessage({ uv: true, version: "1.4.1", bins })).toContain(
-    'uv tool install "super-prototyping-tools @ https://github.com/ReScienceLab/super-prototyping/archive/refs/tags/super-prototyping--v1.4.1.tar.gz#subdirectory=tools"',
-  );
-  expect(missingToolkitMessage({ uv: false, version: "1.4.1", bins })).toStartWith("uv is not installed");
-  expect(missingToolkitMessage({ uv: true, version: "1.4.1", bins })).toEndWith("  /Users/a/.local/bin");
+test("detectAgents matches on binary, home directory, or app, any one of the three", () => {
+  const probe = (opts: { bins?: string[]; dirs?: string[]; apps?: string[] }) => ({
+    bin: (name: string) => (opts.bins ?? []).includes(name),
+    dir: (rel: string) => (opts.dirs ?? []).includes(rel),
+    app: (name: string) => (opts.apps ?? []).includes(name),
+  });
+  expect(detectAgents(probe({ bins: ["claude"] }))).toEqual(["claude-code"]);
+  expect(detectAgents(probe({ dirs: [".codex"] }))).toEqual(["codex"]);
+  expect(detectAgents(probe({ apps: ["Devin.app"] }))).toEqual(["devin"]);
+  // Cursor's CLI is "cursor", not "agent" (Grok CLI's name), so this must not detect Cursor.
+  expect(detectAgents(probe({ bins: ["agent"] }))).toEqual([]);
+  expect(detectAgents(probe({}))).toEqual([]);
+});
+
+test("skillDirsFor returns the sorted, deduped directories for the chosen agents", () => {
+  expect(skillDirsFor(["claude-code", "codex"])).toEqual([".agents/skills", ".claude/skills"]);
+  expect(skillDirsFor(["codex", "devin"])).toEqual([".agents/skills"]);
 });
 
 test("waitForPort resolves once a listener appears, rejects on timeout or abort", async () => {

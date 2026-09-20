@@ -13,6 +13,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { IMAGE_MIME, boardIndex, canvasesNamespace } from "./boards.ts";
+import { installSkills, installedSkills, pluginVersion } from "./skills.ts";
 import {
   BOARD_STATUSES,
   SAFE_NAME,
@@ -120,6 +121,64 @@ export function createSpServer(options: {
         }),
       ),
     );
+  });
+
+  // Copying this plugin's skills into the project, and reporting what is there. Both need a
+  // project to write into or list, the same 503 the agent routes below give for the same
+  // reason; the copying itself lives in skills.ts, shared with the refresh main.ts runs at
+  // startup, so this is only the two endpoints' framing.
+  route("/__sp/skills", (req, res, next) => {
+    const send = (code: number, message: string) => {
+      res.statusCode = code;
+      res.end(message);
+    };
+    if (req.method === "GET") {
+      if (!projectDir) {
+        return send(
+          503,
+          "PROTOTYPING_PROJECT_DIR is not set, so there is no project to list skills in.",
+        );
+      }
+      try {
+        res.setHeader("content-type", "application/json");
+        return send(
+          200,
+          JSON.stringify({
+            version: pluginVersion(repoRoot),
+            installed: installedSkills(projectDir),
+          }),
+        );
+      } catch (error) {
+        return send(500, String(error));
+      }
+    }
+    if (req.method !== "POST") return next();
+    if (!projectDir) {
+      return send(
+        503,
+        "PROTOTYPING_PROJECT_DIR is not set, so there is nowhere to install skills into.",
+      );
+    }
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      try {
+        const { dirs } = JSON.parse(body || "{}");
+        if (!Array.isArray(dirs) || !dirs.every((d) => typeof d === "string"))
+          return send(400, "bad dirs");
+        res.setHeader("content-type", "application/json");
+        send(200, JSON.stringify(installSkills(repoRoot, projectDir, dirs)));
+      } catch (error) {
+        // installSkills throws this one message for a dir that fails its pattern — the only
+        // input error it can find, everything else about a write going wrong is a 500.
+        send(
+          error instanceof Error && error.message.startsWith("bad skill dir")
+            ? 400
+            : 500,
+          String(error),
+        );
+      }
+    });
   });
 
   route("/__sp/events", (req, res, next) => {
