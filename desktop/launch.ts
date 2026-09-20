@@ -51,6 +51,21 @@ export function findOnPath(name: string, PATH: string) {
 }
 
 /**
+ * The projects the startup page lists: the folders directly in `root`, the newest change first.
+ * It is read from disk each launch and never stored, so a deleted project is simply not there. A
+ * `root` nobody has made yet is the first run, and has none.
+ */
+export function listProjects(root: string) {
+  if (!fs.existsSync(root)) return [];
+  return fs
+    .readdirSync(root, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && !e.name.startsWith("."))
+    .map((e) => ({ name: e.name, at: fs.statSync(path.join(root, e.name)).mtimeMs }))
+    .sort((a, b) => b.at - a.at)
+    .map((p) => p.name);
+}
+
+/**
  * `--port N` and one project directory, in either order, from
  * `open -a "Super Prototyping" --args ...`. Anything else that starts with a dash (Finder's
  * `-psn_…`, a flag this app does not know) is ignored.

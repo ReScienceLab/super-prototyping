@@ -108,6 +108,13 @@
   #note button { all: unset; color: var(--fg); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   #note button[hidden] { display: none; }
   #note button:focus-visible { border-radius: 2px; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
+  /* The folders already in Documents/Super Prototyping, as wide as the two cards. The list scrolls
+     in itself, so a long one does not push Back off a short window, and its padding keeps a row's
+     focus ring from being clipped. */
+  #projects { width: 536px; margin: 0 0 32px; }
+  #project-list { max-height: 216px; overflow-y: auto; padding: 4px; margin: -4px; }
+  #project-list button { display: block; width: 100%; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #project-list button + button { margin-top: 8px; }
   .actions { display: flex; gap: 12px; }
   button, a.button {
     font: inherit;
@@ -184,6 +191,10 @@
           <span class="name">Open an existing project</span>
           <span class="status">Any folder you have. The canvas shows its mockups/canvases, empty until a board is added there.</span>
         </button>
+      </div>
+      <div id="projects" hidden>
+        <p class="step">Your projects</p>
+        <div id="project-list"></div>
       </div>
       <div class="actions">
         <button id="back" type="button">Back</button>
@@ -275,6 +286,18 @@
     nameInput.addEventListener("input", function () { note.hidden = true; });
     openIt.addEventListener("click", function () { window.startup.choose("open", chosen(), nameInput.value.trim()); });
     document.getElementById("open").addEventListener("click", function () { window.startup.choose("open", chosen()); });
+    // The folders in Documents/Super Prototyping, newest first, as main.ts read them at launch. A
+    // row makes the same call as "Open it instead" with its own name, so main.ts needs no handler
+    // for it. With no folders the block stays hidden and the step looks as it did without it.
+    var projects = JSON.parse(new URLSearchParams(location.search).get("projects"));
+    document.getElementById("projects").hidden = projects.length === 0;
+    projects.forEach(function (name) {
+      var row = document.createElement("button");
+      row.type = "button";
+      row.textContent = name; // a folder's name is whatever the user typed, so never innerHTML
+      row.addEventListener("click", function () { window.startup.choose("open", chosen(), name); });
+      document.getElementById("project-list").appendChild(row);
+    });
   </script>
 </body>
 </html>

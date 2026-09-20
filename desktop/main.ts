@@ -15,6 +15,7 @@ import {
   detectAgents,
   findOnPath,
   freePort,
+  listProjects,
   parseArgs,
   portAnswers,
   stateDir,
@@ -101,6 +102,9 @@ async function main() {
       found: found[a.id],
       icon: fs.readFileSync(path.join(app.getAppPath(), "icons", `${a.id}.svg`), "utf8"),
     }));
+    // Where every new project goes, which makes the folder the list of them. The page's second
+    // step shows it as it is on disk now, so the app still stores nothing about a project.
+    const projectsDir = path.join(app.getPath("documents"), "Super Prototyping");
     ({ project, agent } = await new Promise<{ project: string; agent: string }>((resolve) => {
       // What the page gets back is nothing when the project opened (or the open panel was
       // cancelled), and otherwise what to say under its name field. It is said there, where the
@@ -131,8 +135,9 @@ async function main() {
             if (name.startsWith(".") || path.basename(name) !== name) {
               return { message: "A name cannot start with a dot or have a slash in it." };
             }
-            dir = path.join(app.getPath("documents"), "Super Prototyping", name);
-            // "open" with a name is the page's "Open it instead", for a name found taken here.
+            dir = path.join(projectsDir, name);
+            // "open" with a name is the page's "Open it instead", for a name found taken here, and
+            // a row of its project list.
             if (action === "create") {
               if (fs.existsSync(dir)) {
                 return {
@@ -157,7 +162,10 @@ async function main() {
         },
       );
       win.loadFile(path.join(app.getAppPath(), "startup.html"), {
-        query: { agents: JSON.stringify(rows) },
+        query: {
+          agents: JSON.stringify(rows),
+          projects: JSON.stringify(listProjects(projectsDir)),
+        },
       });
     }));
   }

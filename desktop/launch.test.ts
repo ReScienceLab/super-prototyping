@@ -1,6 +1,9 @@
 import { expect, test } from "bun:test";
+import fs from "node:fs";
 import net from "node:net";
-import { augmentedPath, detectAgents, findOnPath, freePort, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
+import os from "node:os";
+import path from "node:path";
+import { augmentedPath, detectAgents, findOnPath, freePort, listProjects, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
 
 test("untilde expands only the current user's leading tilde", () => {
   expect(untilde("~/sp", "/Users/u")).toBe("/Users/u/sp");
@@ -27,6 +30,18 @@ test("augmentedPath appends the tool directories once", () => {
 test("findOnPath finds a file and only a file", () => {
   expect(findOnPath("ls", "/nope:/bin")).toBe("/bin/ls");
   expect(findOnPath("no-such-binary-xyz", "/bin")).toBeNull();
+});
+
+test("listProjects names the folders in the root, newest first, and skips files and dot folders", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "sp-projects-"));
+  for (const [name, at] of [["old", 1000], ["new", 3000], ["mid", 2000], [".hidden", 4000]] as const) {
+    fs.mkdirSync(path.join(root, name));
+    fs.utimesSync(path.join(root, name), at, at);
+  }
+  fs.writeFileSync(path.join(root, "notes.txt"), "");
+  expect(listProjects(root)).toEqual(["new", "mid", "old"]);
+  expect(listProjects(path.join(root, "missing"))).toEqual([]);
+  fs.rmSync(root, { recursive: true });
 });
 
 test("detectAgents reports, per agent, what it found: a binary, a home directory, an app", () => {
