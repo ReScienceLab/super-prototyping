@@ -295,6 +295,7 @@ describe("compareVersions", () => {
     expect(compareVersions("1.5.0-rc.1", "1.5.0")).toBeLessThan(0);
     expect(compareVersions("1.5.0", "1.6.0")).toBeLessThan(0);
     expect(compareVersions("1.6.0", "1.5.0-rc.1")).toBeGreaterThan(0);
+    expect(compareVersions("1.5.0-rc.9", "1.5.0-rc.10")).toBeLessThan(0);
   });
 
   it("treats an unparsable version as the lowest", () => {

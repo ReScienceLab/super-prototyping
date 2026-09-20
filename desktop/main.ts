@@ -57,6 +57,26 @@ app.on("window-all-closed", () => app.quit());
 async function main() {
   await app.whenReady();
 
+  // The startup page and then the canvas are the only pages this app shows. Anything off the
+  // loopback, such as the page's GitHub link or the canvas's Figma plugin link, is for the browser.
+  // `port` is set once a project is chosen, and nothing of ours is linked before then. It is set on
+  // every page the app makes and not on the window's alone, because the canvas opens its sheet and
+  // brand pages as windows of their own, and their outside links are for the browser too.
+  let port = 0;
+  const isOurs = (url: string) => url.startsWith(`http://127.0.0.1:${port}/`);
+  app.on("web-contents-created", (_event, contents) => {
+    contents.setWindowOpenHandler(({ url }) => {
+      if (isOurs(url)) return { action: "allow" };
+      shell.openExternal(url);
+      return { action: "deny" };
+    });
+    contents.on("will-navigate", (event, url) => {
+      if (isOurs(url)) return;
+      event.preventDefault();
+      shell.openExternal(url);
+    });
+  });
+
   // The first page, before any project, asks which one agent to work with. Each row shows what its
   // presence on this machine rests on, which is a binary on PATH, a directory under home or an app
   // bundle, so a wrong guess is visible. Then it asks for a project to open or to create. It is a
@@ -68,21 +88,6 @@ async function main() {
     title: "Super Prototyping",
     backgroundColor: nativeTheme.shouldUseDarkColors ? "#000000" : "#ffffff",
     webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
-  });
-  // The startup page and then the canvas are the only pages this window shows. Anything off the
-  // loopback, such as the page's GitHub link or the canvas's Figma plugin link, is for the browser.
-  // `port` is set once a project is chosen, and nothing of ours is linked before then.
-  let port = 0;
-  const isOurs = (url: string) => url.startsWith(`http://127.0.0.1:${port}/`);
-  win.webContents.setWindowOpenHandler(({ url }) => {
-    if (isOurs(url)) return { action: "allow" };
-    shell.openExternal(url);
-    return { action: "deny" };
-  });
-  win.webContents.on("will-navigate", (event, url) => {
-    if (isOurs(url)) return;
-    event.preventDefault();
-    shell.openExternal(url);
   });
   let project = argDir;
   let agent: string | undefined;

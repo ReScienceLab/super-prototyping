@@ -48,7 +48,7 @@ export function compareVersions(a: string, b: string): number {
   }
   if (pa.pre === pb.pre) return 0;
   if (pa.pre === null || pb.pre === null) return pa.pre === null ? 1 : -1;
-  return pa.pre < pb.pre ? -1 : pa.pre > pb.pre ? 1 : 0;
+  return pa.pre.localeCompare(pb.pre, undefined, { numeric: true }); // rc.9 is below rc.10
 }
 
 /** The version in the marker this module wrote into a `SKILL.md`, or null if it was never ours. */
