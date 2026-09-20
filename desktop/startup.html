@@ -4,33 +4,20 @@
 <meta charset="utf-8" />
 <title>Super Prototyping</title>
 <style>
-  /* Vercel's Geist look: black or white, one neutral ramp, hairline borders, 6px and 8px radii,
-     and a primary button that inverts rather than colours. */
+  /* Vercel's Geist look, dark like the canvas: one neutral ramp, hairline borders, 6px and 8px
+     radii, and a primary button that inverts rather than colours. */
   :root {
-    color-scheme: light dark;
-    --bg: #ffffff;
-    --fg: #171717;
-    --fg-dim: #666666;
-    --border: #eaeaea;
-    --border-hover: #999999;
-    --hover: #fafafa;
-    --accent: #171717;
-    --accent-fg: #ffffff;
-    --accent-hover: #383838;
+    color-scheme: dark;
+    --bg: #000000;
+    --fg: #ededed;
+    --fg-dim: #a1a1a1;
+    --border: #333333;
+    --border-hover: #666666;
+    --hover: #1a1a1a;
+    --accent: #ededed;
+    --accent-fg: #0a0a0a;
+    --accent-hover: #cccccc;
     --ring: #0070f3;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #000000;
-      --fg: #ededed;
-      --fg-dim: #a1a1a1;
-      --border: #333333;
-      --border-hover: #666666;
-      --hover: #1a1a1a;
-      --accent: #ededed;
-      --accent-fg: #0a0a0a;
-      --accent-hover: #cccccc;
-    }
   }
   * { box-sizing: border-box; }
   body {
@@ -41,7 +28,8 @@
     font: 14px/1.5 "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     color: var(--fg);
-    background: var(--bg);
+    /* The picture at a little under full strength: the black laid over it is what shows through. */
+    background: linear-gradient(rgb(0 0 0 / 0.3) 0 0), url("background.jpg") center / cover var(--bg);
   }
   header {
     display: flex;

@@ -8,7 +8,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell, utilityProcess } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, shell, utilityProcess } from "electron";
 import type { IpcMainInvokeEvent } from "electron";
 import {
   AGENTS,
@@ -86,7 +86,7 @@ async function main() {
     width: 1440,
     height: 900,
     title: "Super Prototyping",
-    backgroundColor: nativeTheme.shouldUseDarkColors ? "#000000" : "#ffffff",
+    backgroundColor: "#000000",
     webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
   });
   let project = argDir;
