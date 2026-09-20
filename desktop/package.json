@@ -32,6 +32,7 @@
       { "from": "../plugin.json", "to": "plugin/plugin.json" },
       { "from": "../canvas/package.json", "to": "plugin/canvas/package.json" },
       { "from": "../canvas/dist", "to": "plugin/canvas/dist" },
+      { "from": "../mockups/canvases/00-welcome", "to": "plugin/mockups/canvases/00-welcome" },
       { "from": "../mockups/canvases/templates", "to": "plugin/mockups/canvases/templates" }
     ],
     "asar": true,

@@ -139,15 +139,18 @@ async function main() {
                   taken: true,
                 };
               }
-              // A folder with `mockups/canvases` in it, seeded with the template canvas the
-              // plugin ships, so the window opens on boards rather than on nothing.
+              // A folder with `mockups/canvases` in it, seeded with two canvases the plugin
+              // ships: Start here, which is what the bare address opens and so what the window
+              // shows first, with a card on it for the other, the template a first canvas is
+              // copied from.
               try {
-                fs.mkdirSync(path.join(dir, "mockups/canvases"), { recursive: true });
-                fs.cpSync(
-                  path.join(pluginRoot, "mockups/canvases/templates"),
-                  path.join(dir, "mockups/canvases/templates"),
-                  { recursive: true },
-                );
+                for (const slug of ["00-welcome", "templates"]) {
+                  fs.cpSync(
+                    path.join(pluginRoot, "mockups/canvases", slug),
+                    path.join(dir, "mockups/canvases", slug),
+                    { recursive: true },
+                  );
+                }
               } catch (e) {
                 // A Documents that cannot be written to: nothing a new name fixes, so say which.
                 return { message: `That folder could not be made: ${(e as Error).message}` };
