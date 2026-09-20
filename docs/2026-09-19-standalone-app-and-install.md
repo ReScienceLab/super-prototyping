@@ -269,9 +269,17 @@ core only after a licence read says tldraw clears it, and after `refkit`
 discovers a browser rather than assuming one.
 
 **How the formula looks.** `depends_on "node"` and nothing else. It installs
-the `skills/` tree, the four manifests, `canvas/package.json` and the canvas
-bundle attached to the GitHub Release, which comes in as a `resource` with its
+the `skills/` tree, the four manifests, the board template under
+`mockups/canvases/templates` (the skills copy it to start a board; the worked
+examples, 150MB, stay out), `canvas/package.json` and the canvas bundle
+attached to the GitHub Release, which comes in as a `resource` with its
 sha256, so the formula depends on no JavaScript toolchain and builds nothing.
+It writes one launcher, `bin/super-prototyping`: eight lines of shell that
+export the three variables `sp-canvas start` would and exec node on
+`server.mjs --open`, so `brew install` ends in one command to run and nothing
+to install first. The server's `--open` flag exists for it. `sp-canvas start`,
+the detached form with `stop`, `status` and the bundle download, stays in the
+toolkit, which the agent installs the first time a skill calls for it.
 No Python either: the Homebrew pattern for it (`python@3.x`, a `resource` per
 dependency, `virtualenv_install_with_resources`) would make `brew install`
 pull numpy, and with it openblas and gcc, half a gigabyte for a toolkit the

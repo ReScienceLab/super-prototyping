@@ -39,10 +39,12 @@ Everything below is on `main` and reaches no install until a version is cut.
   `SP_CANVAS_PORT`. The old `~/.super-prototyping-canvas-<port>.pid` and
   `.log` files in your home are not read any more; delete them.
 - A Homebrew tap. `brew install ReScienceLab/tap/super-prototyping` installs
-  the skills and the prebuilt canvas app with node as the only dependency, and
-  `sp-canvas` finds that install on its own. The toolkit stays the
-  `uv tool install` line, which the agent runs when a skill needs it. Each
-  release points the formula at itself.
+  the skills, the board template and the prebuilt canvas app with node as the
+  only dependency, and `super-prototyping` in a project directory serves
+  `./mockups/canvases` and opens the browser. The toolkit is not part of it:
+  the agent runs the `uv tool install` line when a skill needs it, and
+  `sp-canvas` finds the Homebrew install on its own. Each release points the
+  formula at itself.
 
 
 ## v1.4.1

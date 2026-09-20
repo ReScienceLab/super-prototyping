@@ -93,11 +93,14 @@ uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirect
 ```
 
 **Homebrew.** `brew install ReScienceLab/tap/super-prototyping` installs the
-skills and the prebuilt canvas app under Homebrew's prefix, with node as its
-only dependency, and `sp-canvas` finds that tree by itself. The canvas's chat
-panel points the agent at the skills there; for the skills in a terminal
-session too, install the plugin from the table. The toolkit is still the
-`uv tool install` line.
+skills, the board template and the prebuilt canvas app under Homebrew's
+prefix, with node as its only dependency, and one command: `super-prototyping`
+in a project directory serves `./mockups/canvases`, opens the browser, and
+stops on Ctrl-C. Nothing to install first. The canvas's chat panel points the
+agent at the skills there, and the agent installs the toolkit itself the first
+time a skill calls for it; `sp-canvas` then finds the Homebrew tree on its own.
+The worked example boards are not included; they are on the hosted canvas. For
+the skills in a terminal session too, install the plugin from the table.
 
 One skills tree, a thin manifest per product, so a skill is never forked to be
 ported: `.claude-plugin/` for Claude Code, `.codex-plugin/` plus the
