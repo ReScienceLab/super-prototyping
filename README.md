@@ -72,9 +72,27 @@ six "Ask AI" screens are on the same board.*
 
 ## Install
 
-It installs in two halves, in every product. The **plugin** holds the three
-skills and the canvas app, and comes from your product's own install command.
-The **toolkit** the skills call by name is one more command, once per machine.
+With Homebrew, on macOS or Linux, it is two lines:
+
+```bash
+brew install ReScienceLab/tap/super-prototyping
+sp start ~/my-project
+```
+
+`sp start DIR`, from anywhere, serves `DIR/mockups/canvases` at
+http://127.0.0.1:5173, opens the browser and returns; with no DIR, the
+current directory's. `sp stop` stops it. The formula installs the skills, the
+board template, the prebuilt canvas app and `sp` under Homebrew's prefix, with
+node as its only dependency; the worked example boards stay on the hosted
+canvas. The canvas's chat panel points the agent at the skills there, and the
+agent installs the toolkit below itself the first time a skill calls for
+`refkit` or `artgen`; the `sp` it brings is the same one. For the skills in a
+terminal session too, install the plugin from the table.
+
+Without Homebrew, it installs in two halves, in every product. The **plugin**
+holds the three skills and the canvas app, and comes from your product's own
+install command. The **toolkit** the skills call by name is one more command,
+once per machine.
 
 | Your agent | Install the plugin |
 |---|---|
@@ -99,13 +117,6 @@ Then the toolkit, whichever product you came from:
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
 ```
 
-**Homebrew.** `brew install ReScienceLab/tap/super-prototyping` installs the
-skills and the prebuilt canvas app under Homebrew's prefix, with node as its
-only dependency, and `sp-canvas` finds that tree by itself. The canvas's chat
-panel points the agent at the skills there; for the skills in a terminal
-session too, install the plugin from the table. The toolkit is still the
-`uv tool install` line.
-
 One skills tree, a thin manifest per product, so a skill is never forked to be
 ported: `.claude-plugin/` for Claude Code, `.codex-plugin/` plus the
 `.agents/plugins/marketplace.json` catalogue for Codex, `.codebuddy-plugin/` for
@@ -119,7 +130,7 @@ no manifest at all.
 update super-prototyping`, `npx skills update`, and for Pi another `pi install`
 naming the new tag, since Pi pins the ref you gave it and never moves it on its
 own. Re-run the `uv tool install` line with `--force` to move the toolkit too.
-Both halves carry the same version, and `sp-canvas start` prints the line to run
+Both halves carry the same version, and `sp start` prints the line to run
 when they drift apart. To hold the toolkit at a release rather than at the
 default branch, name that release's tag. They are listed under
 [Releases](https://github.com/ReScienceLab/super-prototyping/releases):
@@ -181,7 +192,7 @@ finds (`~/.codex/skills`, `~/.codebuddy/skills`, `~/.hermes/skills`,
 `~/.pi/agent/skills`, `~/.trae/skills`, `~/.trae-cn/skills`). The skills are
 links, not copies, so `git pull` in that checkout updates every product at once.
 The toolkit is a copy, so re-run the script after a pull to move `refkit`,
-`artgen` and `sp-canvas` with it. `--list` shows what it would do and changes
+`artgen` and `sp` with it. `--list` shows what it would do and changes
 nothing. What it cannot give you is a version. A linked checkout is whatever you
 last pulled, where a marketplace install is a release.
 
@@ -192,26 +203,27 @@ skills to keep in step:
 
 ```bash
 mkdir -p my-product-design/mockups/canvases && cd my-product-design
-cp -r "$(sp-canvas root)/mockups/canvases/templates" mockups/canvases/<slug>
+cp -r "$(sp root)/mockups/canvases/templates" mockups/canvases/<slug>
 python3 mockups/canvases/<slug>/gen.py
 ```
 
-`sp-canvas root` prints wherever the plugin landed. Every worked example above
+`sp root` prints wherever the plugin landed. Every worked example above
 is in there to copy from too.
 
 ## Run the canvas
 
 ```bash
-sp-canvas start
+sp start              # this project
+sp start ~/my-app     # any project, from anywhere
 ```
 
 On first run it downloads the canvas app built for your version of the
 plugin into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
-against `./mockups/canvases` with node or bun, opens the browser, and prints
-the address. `--canvases DIR` points it somewhere else, `--port N` (or
-`SP_CANVAS_PORT`) moves it, `sp-canvas status` and `sp-canvas stop` do what
-they say. `sp-canvas paths` lists the two directories it writes, and
-`sp-canvas clean` removes them.
+against the project's `mockups/canvases` with node or bun, opens the browser,
+and prints the address. `--canvases DIR` points it at another boards folder, `--port N` (or
+`SP_CANVAS_PORT`) moves it, `sp status` and `sp stop` do what
+they say. `sp paths` lists the two directories it writes, and
+`sp clean` removes them.
 
 Deep-link a page with `?canvas=<slug>`, and one board of it with
 `?canvas=<slug>#<file>`: it opens in the inspector with the camera on it, and
@@ -270,7 +282,7 @@ captions.
 
 ## Toolkit
 
-`refkit`, `artgen` and `sp-canvas` install together as
+`refkit`, `artgen` and `sp` install together as
 `super-prototyping-tools`. `shoot` additionally needs Google Chrome.
 
 ```bash

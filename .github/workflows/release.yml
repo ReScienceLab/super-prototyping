@@ -262,16 +262,16 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         if: steps.v.outputs.fresh == 'true'
 
-      # The canvas, built once here so that an install does not have to: `sp-canvas
+      # The canvas, built once here so that an install does not have to: `sp
       # start` fetches this bundle for the plugin's version on first start (#108), by
       # this asset name under this tag, and the Homebrew formula (#109) will too. The
       # example boards stay out, because an install shows the user's boards and not
-      # this repo's; PROTOTYPING_CANVASES_DIR is the same knob `sp-canvas start` sets,
+      # this repo's; PROTOTYPING_CANVASES_DIR is the same knob `sp start` sets,
       # and an empty directory builds an empty canvas. After the release rather than
       # before it: the tag is pushed by now and the ruleset forbids moving it, so a
       # build failure must not leave a tag with no release behind it. A failure here
       # is a missing asset, which `gh release upload` by hand adds to a release that
-      # is already cut; until it is there, every `sp-canvas start` on this version
+      # is already cut; until it is there, every `sp start` on this version
       # stops and prints the URL it wanted.
       - name: Attach the canvas, built without the example boards
         if: steps.v.outputs.fresh == 'true'

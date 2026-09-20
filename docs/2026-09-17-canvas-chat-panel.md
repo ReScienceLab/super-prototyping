@@ -54,7 +54,7 @@ serving into the page, storing and comparing, to learn the same fact the browser
 
 In the user's project — never the boards directory (a prompt about a screen reaches for the code
 around it) and never the plugin checkout (`repoRoot` in `vite.config.ts` is the plugin, not the
-user's work). `sp-canvas start` passes the directory it is started from as
+user's work). `sp start` passes the directory it is started from as
 `PROTOTYPING_PROJECT_DIR`, the same one the boards default under. A server started without it
 answers the agent endpoints with 503 naming the variable, and serves everything else as before.
 
@@ -106,7 +106,7 @@ it said. Stopping the running one is the way to start another, which is what the
 already for.
 
 And when the server goes, they go: `start_new_session=True` makes it the leader of its own
-process group, so `sp-canvas stop` signals the group rather than the pid, and the agents it
+process group, so `sp stop` signals the group rather than the pid, and the agents it
 spawned do not outlive the canvas that started them. The tmux path already did this — a pane
 takes its whole group down with it.
 
@@ -140,7 +140,7 @@ differ in and none of the rest: a table, not a registry, and a third agent is a 
 The two differ in more than argv. Claude Code takes the preamble as a flag and the message as
 one stream-json line; Codex has no system-prompt flag, so the preamble goes ahead of the message
 in the prompt itself, plain text on stdin. Claude writes wherever it likes with its prompts off;
-Codex in `workspace-write` writes only its working directory, and `sp-canvas --canvases` can put
+Codex in `workspace-write` writes only its working directory, and `sp --canvases` can put
 the boards anywhere, so the boards folder is named to it with `--add-dir`. And Codex asks the
 API for a reasoning summary only when told to — Open Design measured a turn with 516 reasoning
 tokens and no reasoning item — so `model_reasoning_summary="detailed"` is on the argv, and that

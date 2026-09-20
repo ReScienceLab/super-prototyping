@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""sp-canvas, the launcher for the tldraw board canvas.
+"""sp, the launcher for the tldraw board canvas.
 
-  start    serve the canvas against a folder of boards, print its address
+  start    serve the canvas for a project, the current directory or the one named,
+           and print its address
   stop     kill the one on that port, and only that one
   status   say whether it is up, and on what
   root     print the plugin root it resolved (-v: where it looked, and the
@@ -14,8 +15,8 @@ project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
 boards stay in your project. This joins the two, so an upgrade can replace the
 app without touching a single board you have authored.
 
-Boards default to ./mockups/canvases under the current directory. Override with
---canvases or PROTOTYPING_CANVASES_DIR. The plugin is found by search;
+Boards default to mockups/canvases under the project. Override with --canvases or
+PROTOTYPING_CANVASES_DIR. The plugin is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer. The app served is
 the canvas built for the plugin's release, fetched once into
 ~/.cache/super-prototyping/<version>/; a checkout with node_modules serves its own
@@ -266,8 +267,8 @@ def resolve_root(verbose=False):
 
 # --- the server --------------------------------------------------------------
 
-def _canvases_dir(arg):
-    raw = arg or os.environ.get("PROTOTYPING_CANVASES_DIR") or "mockups/canvases"
+def _canvases_dir(arg, project=Path()):
+    raw = arg or os.environ.get("PROTOTYPING_CANVASES_DIR") or project / "mockups/canvases"
     return Path(raw).expanduser().resolve()
 
 
@@ -312,11 +313,16 @@ def _dist(root: Path) -> Path:
 
     The tarball is the one release.yml attaches to every release: one top-level `dist/`
     holding the built app and `server.mjs`. One directory per version, so a new release
-    fetches its own and the old one waits for `sp-canvas clean`. A version directory is whole
+    fetches its own and the old one waits for `sp clean`. A version directory is whole
     or absent, never half: it is unpacked beside its name and renamed into place, so the one
     file the cache check looks for cannot be there without the rest.
     """
     app = root / "canvas"
+    # A dist with no sources beside it is an install's, Homebrew's: the app as shipped, with
+    # nothing to rebuild it from. The mtime check below would take its package.json, unpacked
+    # after the bundle was built, as an edit.
+    if (app / "dist/server.mjs").is_file() and not (app / "src").is_dir():
+        return app / "dist"
     version = _plugin_version(root)
     if not version or (app / "node_modules").is_dir() or (app / "dist/server.mjs").is_file():
         if _needs_build(app):
@@ -341,7 +347,7 @@ def _dist(root: Path) -> Path:
         raise SystemExit(
             f"error: could not download the canvas app for {version}\n  {url}\n  {e}\n"
             f"Try again once the network is back. A checkout with bun builds it instead:\n"
-            f'  cd "$(sp-canvas root)/canvas" && bun install && bun run build')
+            f'  cd "$(sp root)/canvas" && bun install && bun run build')
     cache.parent.mkdir(parents=True, exist_ok=True)
     work = tempfile.mkdtemp(prefix=f"{version}.", dir=cache.parent)
     with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as tar:
@@ -360,7 +366,13 @@ def _dist(root: Path) -> Path:
 
 def cmd_start(a):
     root = resolve_root()
-    boards = _canvases_dir(a.canvases)
+    # The project is the directory named, else the one this is run from — the one the boards
+    # default under. The canvas's chat panel runs Claude Code in it; without it the panel's
+    # endpoints answer 503.
+    project = Path(a.project or ".").expanduser().resolve()
+    if not project.is_dir():
+        raise SystemExit(f"error: {project} is not a directory")
+    boards = _canvases_dir(a.canvases, project)
 
     if not boards.is_dir():
         print(f"note: {boards} does not exist yet — the canvas will open empty.")
@@ -376,7 +388,7 @@ def cmd_start(a):
         raise SystemExit(
             f"error: port {a.port} is already answering. It may be another checkout's\n"
             f"canvas, so this will not reuse it. Pass --port with a free one, or run\n"
-            f"`sp-canvas stop` if it is this one."
+            f"`sp stop` if it is this one."
         )
 
     # The canvas is a built app served by one file, `dist/server.mjs`: the release's own
@@ -387,9 +399,6 @@ def cmd_start(a):
     if not runtime:
         raise SystemExit("error: neither node nor bun is on PATH to run the canvas server")
 
-    # The project is the directory this is run from — the same one the boards default under.
-    # The canvas's chat panel runs Claude Code in it; without it the panel's endpoints answer 503.
-    project = Path.cwd().resolve()
     # Resolved once, here, and handed down: the server passes them on to every agent it
     # spawns, and it derives none itself — the bundle it runs may sit in the cache directory
     # with no checkout above it, and the root is where the skill it points the agent at is.
@@ -535,11 +544,11 @@ def cmd_status(a):
 
 
 def cmd_root(a):
-    """Just the path, so it can be captured: KIT="$(sp-canvas root)"."""
+    """Just the path, so it can be captured: KIT="$(sp root)"."""
     root = resolve_root(verbose=a.verbose)
     print(root)
     if a.verbose:
-        # On stderr, like the search itself, so `$(sp-canvas root -v)` is still the path.
+        # On stderr, like the search itself, so `$(sp root -v)` is still the path.
         print(f"  plugin  {_plugin_version(root) or 'unversioned (a checkout)'}", file=sys.stderr)
         print(f"  toolkit {_toolkit_version() or 'dev (running from a source checkout)'}",
               file=sys.stderr)
@@ -581,7 +590,7 @@ def cmd_clean(a):
             live.append(port)
     if live:
         raise SystemExit(f"error: a canvas is still running on port {', '.join(live)}. "
-                         f"Run `sp-canvas stop --port {live[0]}` first.")
+                         f"Run `sp stop --port {live[0]}` first.")
     for d in (cache, state):
         if d.is_dir():
             shutil.rmtree(d)
@@ -592,10 +601,10 @@ def cmd_clean(a):
 
 def parser():
     p = argparse.ArgumentParser(
-        prog="sp-canvas", description=__doc__,
+        prog="sp", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--version", action="version",
-                   version=f"sp-canvas {_toolkit_version() or 'dev (running from a source checkout)'}")
+                   version=f"sp {_toolkit_version() or 'dev (running from a source checkout)'}")
     s = p.add_subparsers(dest="cmd", required=True)
 
     def add(name, fn, ports=True, canvases=True):
@@ -609,10 +618,11 @@ def parser():
                              help=f"default SP_CANVAS_PORT, then {DEFAULT_PORT}")
         if canvases:
             sub.add_argument("--canvases", help="folder of board folders "
-                                                "(default ./mockups/canvases)")
+                                                "(default: mockups/canvases under the project)")
         return sub
 
-    add("start", cmd_start)
+    add("start", cmd_start).add_argument(
+        "project", nargs="?", help="the project directory (default: the current one)")
     add("stop", cmd_stop, canvases=False)
     add("status", cmd_status)
     root = add("root", cmd_root, ports=False, canvases=False)

@@ -1,7 +1,7 @@
 /**
  * The canvas as a localhost app: the built `dist` served as static files, with the same
  * `/__sp` and `/board` server in front of it that the Vite dev server mounts. Bundled to
- * `dist/server.mjs` by `bun run build`, so `sp-canvas start` runs one file with node or bun
+ * `dist/server.mjs` by `bun run build`, so `sp start` runs one file with node or bun
  * and no dev toolchain. Usage: `node dist/server.mjs --port 5173`.
  */
 import fs from "node:fs";
@@ -12,7 +12,7 @@ import { createSpServer } from "./sp.ts";
 
 const dist = fileURLToPath(new URL(".", import.meta.url)).replace(/\/$/, "");
 // The plugin root: where the skill an agent is pointed at lives, and whose boards a checkout
-// serves by default. `sp-canvas start` resolves it and passes it, because the bundle a
+// serves by default. `sp start` resolves it and passes it, because the bundle a
 // release attaches runs from ~/.cache/super-prototyping/<version>/dist with no checkout
 // above it. Derived only for `node dist/server.mjs` run by hand inside a checkout, where
 // this file sits two levels below it.

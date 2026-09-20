@@ -58,7 +58,7 @@ Worked examples and the folder skeleton ship with the plugin, which is
 installed outside your project. Address them through the kit root:
 
 ```bash
-KIT="$(sp-canvas root)"
+KIT="$(sp root)"
 ls "$KIT/mockups/canvases"
 ```
 

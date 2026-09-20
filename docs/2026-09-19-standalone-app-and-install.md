@@ -18,11 +18,11 @@ The install is two commands, from README's table. The plugin (the `skills/`
 tree plus the whole checkout, 151 MB full or 6.7 MB sparse) lands in each
 product's own plugin cache. The toolkit lands wherever `uv tool install` puts
 its venvs, from a `git+https://…@tag#subdirectory=tools` URL, and shims
-`refkit`, `artgen` and `sp-canvas` onto PATH. Its runtime dependencies are
+`refkit`, `artgen` and `sp` onto PATH. Its runtime dependencies are
 Pillow and numpy only. `refkit shoot` and `diff` call Chrome at a hard-coded
 macOS path (`tools/refkit.py:45`).
 
-`sp-canvas start` (`tools/sp_canvas.py:243-338`) does not serve anything
+`sp start` (`tools/sp_canvas.py:243-338`) does not serve anything
 itself. It searches for a checkout of the app across every product's plugin
 cache, or `SUPER_PROTOTYPING_ROOT`, or the current git repo, recognising one by
 `canvas/package.json` naming `prototyping-canvas`. It then requires Bun, runs
@@ -87,7 +87,7 @@ codebase that means:
   make them when the bundle is built, not when it is served.
 - **A server process.** The `/__sp` handlers are TypeScript and spawn
   processes, so the natural host is a small Node or Bun script bundled with
-  `dist`. Rewriting them in Python inside `sp-canvas` would keep the install to
+  `dist`. Rewriting them in Python inside `sp` would keep the install to
   one runtime but means porting 533 lines of agent streaming that has tests in
   TypeScript. Not worth it first; revisit if the Bun requirement proves to be
   the thing that stops people.
@@ -99,7 +99,7 @@ loopback.
 
 ## Three shapes, and the pick
 
-**A localhost app, served by `sp-canvas`.** The list above, then
+**A localhost app, served by `sp`.** The list above, then
 `webbrowser.open()` in `cmd_start`. Everything in `src/` stays. The Bun
 requirement moves from the user's machine to CI. This is the pick: it is the
 prerequisite for every packaging channel below and the smallest diff that
@@ -159,7 +159,7 @@ nearly verbatim:
   `~/.bun/bin`, `/opt/homebrew/bin`, `%APPDATA%\npm` and twenty more to PATH,
   because an app launched from the Dock or a `.desktop` file inherits a PATH
   without any of them. When nothing resolves, the searched directories are
-  shown to the user as a diagnostic. Not needed while `sp-canvas` starts from
+  shown to the user as a diagnostic. Not needed while `sp` starts from
   a shell; needed the moment a desktop shell or `open -a` exists.
 - **One data-directory contract.** `OD_DATA_DIR` is resolved once, every
   other path derives from it, and subprocesses receive it back. Their
@@ -236,7 +236,7 @@ second login, and three products show that adding one costs users.
 
 The habit we fail is the first-run path. Today it is: install the plugin in
 one product, `uv tool install` from a git URL, have Bun on PATH, have tmux or
-accept a detached process, run `sp-canvas start`, then open a URL by hand.
+accept a detached process, run `sp start`, then open a URL by hand.
 Pencil's is `npm install -g @pencil.dev/cli`; tldraw offline's is
 `brew install --cask`. That gap, not any feature, is what stops out-of-the-box
 use, and it is what the sequence below closes: a prebuilt bundle so Bun is
@@ -244,7 +244,7 @@ not needed, one package that installs both halves, and a browser that opens
 itself.
 
 **Cross-platform, honestly.** The toolkit has only ever run on macOS. `refkit`
-calls Chrome at a fixed `/Applications` path, `sp-canvas` prefers tmux, and
+calls Chrome at a fixed `/Applications` path, `sp` prefers tmux, and
 the agent endpoint spawns `claude` the POSIX way, which on Windows means the
 `.cmd` shim problem OpenDesign solved. Linux is a small step: browser
 discovery in `refkit` and nothing else. Windows is a real one, and the
@@ -269,9 +269,17 @@ core only after a licence read says tldraw clears it, and after `refkit`
 discovers a browser rather than assuming one.
 
 **How the formula looks.** `depends_on "node"` and nothing else. It installs
-the `skills/` tree, the four manifests, `canvas/package.json` and the canvas
-bundle attached to the GitHub Release, which comes in as a `resource` with its
-sha256, so the formula depends on no JavaScript toolchain and builds nothing.
+the `skills/` tree, the four manifests, the board template under
+`mockups/canvases/templates` (the skills copy it to start a board; the worked
+examples, 150MB, stay out), `canvas/package.json`, `tools/sp_canvas.py` and
+the canvas bundle attached to the GitHub Release, which comes in as a
+`resource` with its sha256, so the formula depends on no JavaScript toolchain
+and builds nothing. Its one command, `bin/sp`, is three lines of shell: the
+plugin tree in `SUPER_PROTOTYPING_ROOT`, Homebrew's node on PATH, and
+`python3` on `sp_canvas.py`, which is standard library only and runs on the
+interpreter macOS's Command Line Tools ship, which Homebrew requires anyway.
+So `brew install` ends in `sp start` with nothing to install first, and the
+`sp` the agent's toolkit later puts on PATH is the same file.
 No Python either: the Homebrew pattern for it (`python@3.x`, a `resource` per
 dependency, `virtualenv_install_with_resources`) would make `brew install`
 pull numpy, and with it openblas and gcc, half a gigabyte for a toolkit the
@@ -286,7 +294,7 @@ own url and sha256 and not the resource's. The formula lives at
 **Other channels, by effort.** Publishing `super-prototyping-tools` to PyPI
 with trusted publishing is the smallest lift of all, since `pyproject.toml`
 already declares the scripts, and it gives `uv tool install` and `pipx` a
-version rather than a git URL. It only helps `sp-canvas` once the canvas
+version rather than a git URL. It only helps `sp` once the canvas
 bundle ships inside the wheel or is fetched by tag. `npm i -g` would make the
 canvas the entry point, but `canvas/package.json` is private with no `bin`, and
 it would split one install across two ecosystems. `scripts/install-skills.sh`
@@ -298,7 +306,7 @@ single static binary would mean rewriting both halves; out of scope.
 under `~/.cache/super-prototyping/`, never into a formula's Cellar path,
 which Homebrew treats as immutable. The section on home-directory files
 below has the full decision and its sources. Keep the plugin-versus-toolkit skew check
-at `sp-canvas start`; a formula that installs both halves at one version
+at `sp start`; a formula that installs both halves at one version
 removes the drift the two-command install has today. Give `refkit` browser
 discovery, since a packaged tool that only works with Chrome at one macOS path
 will be the first bug report from Linux.
@@ -398,8 +406,8 @@ more. Browser storage keeps only conveniences: chat history, the queue, the
 last board.
 
 Two commands come with this, modelled on `uv cache dir` and
-`uv cache clean`: `sp-canvas paths` prints every directory and variable in
-use, and `sp-canvas clean` removes the cache and state directories. The
+`uv cache clean`: `sp paths` prints every directory and variable in
+use, and `sp clean` removes the cache and state directories. The
 formula gets a `caveats` line naming them, because a formula cannot `zap`.
 The identifier `super-prototyping` is fixed now, so a later cask's `zap` and
 a later Tauri `identifier` point at the same folders and nothing migrates.
@@ -416,7 +424,7 @@ a later Tauri `identifier` point at the same folders and nothing migrates.
 3. **Make the canvas a localhost app.** The runtime board index, the SSE
    channel, the capability probe, thumbnails at build time, and a small
    server script bundled into `dist` that serves it and answers `/__sp`.
-   `sp-canvas start` fetches the bundle for its version into the cache dir,
+   `sp start` fetches the bundle for its version into the cache dir,
    or uses the checkout's `dist` when there is one, starts the server and
    opens the browser. The dev server stays for working on the canvas itself.
    This is the one step with design in it, and it deserves its own note.
@@ -436,5 +444,5 @@ Steps 1 and 2 are a day and change no behaviour. Step 3 is the work, and it
 is bounded: the server logic already lives in tested modules, and the diff is
 the glue around them plus the board index. Steps 3 and 4 together turn the
 first run into `brew install ReScienceLab/tap/super-prototyping` followed by
-`sp-canvas start`, which is the shape every low-friction product in the
+`sp start`, which is the shape every low-friction product in the
 survey has.

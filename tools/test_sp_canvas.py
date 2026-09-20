@@ -219,11 +219,25 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     # node_modules marks a checkout being worked on: its own dist, even with a release known.
     dev = canvas_app_at(plugin_root("1.4.2"))
     (dev / "canvas/node_modules").mkdir()
+    (dev / "canvas/src").mkdir()
     (dev / "canvas/dist").mkdir()
     (dev / "canvas/dist/server.mjs").write_text("")
     now = time.time()
     os.utime(dev / "canvas/package.json", (now - 10, now - 10))
     assert dist(dev, "1.4.2") == dev / "canvas/dist"
+
+    # Homebrew's tree: a dist and no sources. Served as it is, though its package.json was
+    # unpacked after the bundle was built, and never rebuilt: nothing to rebuild it from.
+    brew = canvas_app_at(plugin_root("1.4.2"))
+    (brew / "canvas/dist").mkdir()
+    (brew / "canvas/dist/server.mjs").write_text("")
+    os.utime(brew / "canvas/dist/server.mjs", (now - 10, now - 10))
+    which = C.shutil.which
+    C.shutil.which = lambda name: None  # a wrong turn here would look for bun
+    try:
+        assert dist(brew, "1.4.2") == brew / "canvas/dist"
+    finally:
+        C.shutil.which = which
 
     # A bare install with a version: the bundle. Fetched from the tag's release asset, into
     # one folder per version, whole — no temporary directory left beside it.
@@ -269,6 +283,17 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     assert not (sp_home / "cache/1.6.0").exists()
 
 
+def test_the_boards_are_the_flag_then_the_variable_then_the_projects_mockups_canvases():
+    boards = lambda arg, env, project: with_env(
+        dict(UNSET, **env), lambda: C._canvases_dir(arg, Path(project)))
+    assert boards(None, {}, "/p") == Path("/p/mockups/canvases")
+    assert boards(None, {}, ".") == Path.cwd() / "mockups/canvases"
+    assert boards(None, {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/v")
+    assert boards("/f", {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/f")
+    assert C.parser().parse_args(["start", "~/app"]).project == "~/app"
+    assert C.parser().parse_args(["start"]).project is None
+
+
 def test_the_port_is_the_flag_then_sp_canvas_port_then_the_default():
     import contextlib, io
     port = lambda argv, env: with_env({"SP_CANVAS_PORT": env}, lambda: C.parser().parse_args(argv).port)
@@ -299,7 +324,7 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
         try:
             with_env(env, lambda: C.cmd_clean(None))
         except SystemExit as e:
-            assert port in str(e) and "sp-canvas stop" in str(e), e
+            assert port in str(e) and "sp stop" in str(e), e
         else:
             assert False, f"clean must refuse while a canvas runs on {port}"
         assert (sp_home / "cache/1.4.2/dist/server.mjs").is_file()

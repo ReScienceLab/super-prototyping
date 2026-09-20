@@ -211,7 +211,7 @@ skills are read by agents and whose canvas app is built on the user's machine.
    Say that in the README next to `/plugin install`, and keep
    `--force` for the unpinned form. The two halves of the install then carry
    the same number, which is what `bump-version.sh` was always for.
-5. **Make skew visible.** `sp-canvas root` already finds the installed plugin;
+5. **Make skew visible.** `sp root` already finds the installed plugin;
    have it compare that plugin's `plugin.json` version against
    `importlib.metadata.version("super-prototyping-tools")` and print one line
    when they differ. A user who updated the plugin and forgot the toolkit
