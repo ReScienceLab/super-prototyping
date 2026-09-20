@@ -29,18 +29,23 @@ test("findOnPath finds a file and only a file", () => {
   expect(findOnPath("no-such-binary-xyz", "/bin")).toBeNull();
 });
 
-test("detectAgents matches on binary, home directory, or app, any one of the three", () => {
+test("detectAgents reports, per agent, what it found: a binary, a home directory, an app", () => {
   const probe = (opts: { bins?: string[]; dirs?: string[]; apps?: string[] }) => ({
     bin: (name: string) => (opts.bins ?? []).includes(name),
     dir: (rel: string) => (opts.dirs ?? []).includes(rel),
     app: (name: string) => (opts.apps ?? []).includes(name),
   });
-  expect(detectAgents(probe({ bins: ["claude"] }))).toEqual(["claude-code"]);
-  expect(detectAgents(probe({ dirs: [".codex"] }))).toEqual(["codex"]);
-  expect(detectAgents(probe({ apps: ["Devin.app"] }))).toEqual(["devin"]);
-  // Cursor's CLI is "cursor", not "agent" (Grok CLI's name), so this must not detect Cursor.
-  expect(detectAgents(probe({ bins: ["agent"] }))).toEqual([]);
-  expect(detectAgents(probe({}))).toEqual([]);
+  expect(detectAgents(probe({ bins: ["claude"] }))["claude-code"]).toEqual(["claude on PATH"]);
+  expect(detectAgents(probe({ dirs: [".codex"] }))["codex"]).toEqual(["~/.codex"]);
+  expect(detectAgents(probe({ apps: ["Devin.app"] }))["devin"]).toEqual(["Devin.app"]);
+  expect(detectAgents(probe({ bins: ["claude"], dirs: [".claude"], apps: ["Claude.app"] }))["claude-code"]).toEqual([
+    "claude on PATH",
+    "~/.claude",
+    "Claude.app",
+  ]);
+  // Cursor's CLI is "agent", which is also Grok CLI's name, so it is not in Cursor's row.
+  expect(detectAgents(probe({ bins: ["agent"] }))["cursor"]).toEqual([]);
+  expect(Object.values(detectAgents(probe({}))).every((found) => found.length === 0)).toBe(true);
 });
 
 test("skillDirsFor returns the sorted, deduped directories for the chosen agents", () => {

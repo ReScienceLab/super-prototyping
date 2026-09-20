@@ -108,6 +108,24 @@ describe("installSkills", () => {
     expect(after.equals(before)).toBe(true);
   });
 
+  it("rewrites a marked copy below the tree's version and leaves one at or above it alone", () => {
+    installSkills(root, project, [".claude/skills"]);
+    const skillMdPath = path.join(project, ".claude/skills/alpha/SKILL.md");
+    fs.writeFileSync(
+      skillMdPath,
+      fs.readFileSync(skillMdPath, "utf8").replace("version: 1.5.0", "version: 9.9.9"),
+    );
+    expect(installSkills(root, project, [".claude/skills"]).written).toEqual([]);
+    expect(fs.readFileSync(skillMdPath, "utf8")).toContain("version: 9.9.9");
+
+    setVersion(root, "10.0.0");
+    expect(installSkills(root, project, [".claude/skills"]).written.sort()).toEqual([
+      ".claude/skills/alpha",
+      ".claude/skills/beta",
+    ]);
+    expect(fs.readFileSync(skillMdPath, "utf8")).toContain("version: 10.0.0");
+  });
+
   it("gives two dirs identical content", () => {
     installSkills(root, project, [".claude/skills", ".agents/skills"]);
     const a = fs.readFileSync(
@@ -237,6 +255,17 @@ describe("refresh", () => {
         "utf8",
       ),
     ).toBe("notes for alpha, v1\n");
+  });
+
+  it("leaves a deleted copy deleted", () => {
+    installSkills(root, project, [".claude/skills"]);
+    fs.rmSync(path.join(project, ".claude/skills/beta"), { recursive: true });
+    setVersion(root, "9.9.9");
+    refresh(project, root);
+    expect(fs.existsSync(path.join(project, ".claude/skills/beta"))).toBe(false);
+    expect(fs.readFileSync(path.join(project, ".claude/skills/alpha/SKILL.md"), "utf8")).toContain(
+      "version: 9.9.9",
+    );
   });
 
   it("does nothing given no project", () => {

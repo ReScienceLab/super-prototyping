@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Install skills</title>
+<title>Super Prototyping</title>
 <style>
   :root {
     color-scheme: light dark;
@@ -57,6 +57,7 @@
     cursor: pointer;
   }
   label:hover { background: var(--hover); }
+  .found { margin-left: auto; color: var(--fg-dim); font-size: 12px; text-align: right; }
   .actions {
     display: flex;
     justify-content: flex-end;
@@ -76,15 +77,17 @@
 </style>
 </head>
 <body>
-  <h1>Install skills</h1>
-  <p class="sub">Choose which agents get the super-prototyping skills in this project.</p>
+  <h1>Agents on this machine</h1>
+  <p class="sub">Each checked agent gets the super-prototyping skills copied into the project you open or create next. Uncheck anything this got wrong.</p>
   <ul id="list"></ul>
   <div class="actions">
-    <button id="skip" type="button">Skip</button>
-    <button id="install" class="primary" type="button">Install</button>
+    <button id="create" type="button">Create a new project…</button>
+    <button id="open" class="primary" type="button">Open a project…</button>
   </div>
   <script>
     var agents = JSON.parse(new URLSearchParams(location.search).get("agents") || "[]");
+    // Found ones first: what the machine has is the top of the list, not scattered through it.
+    agents.sort(function (a, b) { return (b.found.length > 0) - (a.found.length > 0); });
     var list = document.getElementById("list");
     agents.forEach(function (agent) {
       var li = document.createElement("li");
@@ -92,19 +95,22 @@
       var input = document.createElement("input");
       input.type = "checkbox";
       input.value = agent.id;
-      input.checked = !!agent.checked;
+      input.checked = agent.found.length > 0;
       label.appendChild(input);
       label.appendChild(document.createTextNode(agent.name));
+      var found = document.createElement("span");
+      found.className = "found";
+      found.textContent = agent.found.length ? agent.found.join(" · ") : "not found";
+      label.appendChild(found);
       li.appendChild(label);
       list.appendChild(li);
     });
-    document.getElementById("skip").addEventListener("click", function () {
-      window.onboarding.submit([]);
-    });
-    document.getElementById("install").addEventListener("click", function () {
+    function choose(action) {
       var checked = list.querySelectorAll("input:checked");
-      window.onboarding.submit(Array.prototype.map.call(checked, function (el) { return el.value; }));
-    });
+      window.startup.choose(action, Array.prototype.map.call(checked, function (el) { return el.value; }));
+    }
+    document.getElementById("create").addEventListener("click", function () { choose("create"); });
+    document.getElementById("open").addEventListener("click", function () { choose("open"); });
   </script>
 </body>
 </html>

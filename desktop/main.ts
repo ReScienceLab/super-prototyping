@@ -7,15 +7,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import {
-  app,
-  BrowserWindow,
-  dialog,
-  ipcMain,
-  Menu,
-  shell,
-  utilityProcess,
-} from "electron";
+import { app, BrowserWindow, dialog, ipcMain, shell, utilityProcess } from "electron";
 import type { IpcMainEvent } from "electron";
 import {
   AGENTS,
@@ -37,19 +29,18 @@ const home = os.homedir();
 process.env.PATH = augmentedPath(process.env, home);
 // Electron's profile (IndexedDB holds the canvas document) goes beside the CLI's pidfile and
 // log, not in ~/Library, so `sp paths` names every file this writes and `clean` removes it.
-const desktopStateDir = path.join(stateDir(process.env, home), "desktop");
-app.setPath("userData", desktopStateDir);
-// Which projects the onboarding picker has already been shown for, offered or skipped, so a
-// project someone skipped does not reopen it on every later launch; "Install skills…" in the
-// menu is the deliberate way back in.
-const onboardedFile = path.join(desktopStateDir, "onboarded.json");
+app.setPath("userData", path.join(stateDir(process.env, home), "desktop"));
 app.setName("Super Prototyping");
 
-const serverPath = app.isPackaged
-  ? path.join(process.resourcesPath, "plugin/canvas/dist/server.mjs")
-  : path.resolve(import.meta.dirname, "../../canvas/dist/server.mjs");
+// The plugin tree this app runs from: the skills, the built canvas and its server, the template
+// canvas. Packaged, the copy extraResources (package.json) puts beside the app; unpackaged, the
+// checkout this file was bundled from.
+const pluginRoot = app.isPackaged
+  ? path.join(process.resourcesPath, "plugin")
+  : path.resolve(import.meta.dirname, "../..");
 
-// `open -a "Super Prototyping" --args --port 5173 /path/to/project`, and nothing else.
+// `open -a "Super Prototyping" --args --port 5173 /path/to/project`, and nothing else. A project
+// named here skips the startup window, and with it the skills install.
 const { port: portArg, dir: argDir } = parseArgs(process.argv.slice(app.isPackaged ? 1 : 2));
 
 let server: Electron.UtilityProcess | null = null;
@@ -62,103 +53,83 @@ app.on("will-quit", () => {
 // project open, so closing the window is quitting.
 app.on("window-all-closed", () => app.quit());
 
-/**
- * The onboarding picker and the menu's "Install skills…" both funnel through here: detect what
- * looks installed, show the checklist, and POST what was chosen. An empty selection — Skip, or
- * the window closed without submitting — does nothing; there is nothing to undo.
- */
-async function openSkillsPicker(port: number) {
-  const PATH = process.env.PATH!;
-  const detected = new Set(
-    detectAgents({
+async function main() {
+  await app.whenReady();
+
+  // The first window, before any project: the agents this machine seems to have, each with what
+  // that rests on — a binary on PATH, a directory under home, an app bundle — so a wrong guess is
+  // visible and can be unchecked, then a project to open or to create. The window is hidden once
+  // a project is chosen, not closed, until the canvas is up: closing the last window quits the
+  // app, which is also what closing this one by hand means.
+  let project = argDir;
+  let ids: string[] = [];
+  let startupWindow: BrowserWindow | undefined;
+  if (project === undefined) {
+    const PATH = process.env.PATH!;
+    const found = detectAgents({
       bin: (name) => findOnPath(name, PATH) !== null,
       dir: (rel) => fs.existsSync(path.join(home, rel)),
       app: (name) =>
         fs.existsSync(path.join("/Applications", name)) ||
         fs.existsSync(path.join(home, "Applications", name)),
-    }),
-  );
-  const rows = AGENTS.map((a) => ({
-    id: a.id,
-    name: a.name,
-    checked: detected.has(a.id),
-  }));
-
-  const appDir = app.getAppPath();
-  const ids = await new Promise<string[]>((resolve) => {
-    const picker = new BrowserWindow({
-      width: 520,
-      height: 640,
+    });
+    const rows = AGENTS.map((a) => ({ id: a.id, name: a.name, found: found[a.id] }));
+    const win = new BrowserWindow({
+      width: 560,
+      height: 720,
       resizable: false,
-      title: "Install skills",
-      webPreferences: { preload: path.join(appDir, "dist/preload.cjs") },
+      title: "Super Prototyping",
+      webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
     });
-    // "skills:submit" is one shared channel for every open picker (the menu's "Install
-    // skills…" can open a second one while the first-run picker above is still up), so every
-    // listener sees every window's submit; only the one whose sender is this picker may act on
-    // it, and it must stay registered with `on`, not `once`, until then, or another window's
-    // submit would consume and remove it first.
-    const onSubmit = (event: IpcMainEvent, submitted: string[]) => {
-      if (event.sender !== picker.webContents) return;
-      ipcMain.removeListener("skills:submit", onSubmit);
-      picker.close();
-      resolve(submitted);
-    };
-    ipcMain.on("skills:submit", onSubmit);
-    // Closing the picker without submitting is Skip; the listener above would otherwise wait
-    // forever for an event this window will never send.
-    picker.on("closed", () => {
-      ipcMain.removeListener("skills:submit", onSubmit);
-      resolve([]);
-    });
-    picker.loadFile(path.join(appDir, "onboarding.html"), {
-      query: { agents: JSON.stringify(rows) },
-    });
-  });
-  if (ids.length === 0) return;
-
-  const res = await fetch(`http://127.0.0.1:${port}/__sp/skills`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ dirs: skillDirsFor(ids) }),
-  });
-  const { written, skipped } = (await res.json()) as {
-    written: string[];
-    skipped: string[];
-  };
-  const notes = AGENTS.filter((a) => ids.includes(a.id) && a.note).map(
-    (a) => `${a.name}: ${a.note}`,
-  );
-  if (written.length === 0 && skipped.length === 0 && notes.length === 0)
-    return;
-  await dialog.showMessageBox({
-    type: "info",
-    message: "Skills installed",
-    detail: [
-      written.length ? `Installed: ${written.join(", ")}` : "",
-      skipped.length
-        ? `Already present, left alone: ${skipped.join(", ")}`
-        : "",
-      ...notes,
-    ]
-      .filter(Boolean)
-      .join("\n"),
-  });
-}
-
-async function main() {
-  await app.whenReady();
-
-  const project =
-    argDir ??
-    (
-      await dialog.showOpenDialog({
-        title: "Open a project",
-        message: "Choose the project whose mockups/canvases the canvas should show.",
-        properties: ["openDirectory", "createDirectory"],
-      })
-    ).filePaths[0];
-  if (!project) return app.exit(0);
+    startupWindow = win;
+    ({ project, ids } = await new Promise<{ project: string; ids: string[] }>((resolve) => {
+      const onChoose = async (_event: IpcMainEvent, action: "open" | "create", chosen: string[]) => {
+        // Either panel is a sheet on this window, so a second click cannot land while one is up.
+        let dir: string | undefined;
+        if (action === "open") {
+          const opened = await dialog.showOpenDialog(win, {
+            title: "Open a project",
+            message: "Choose the project whose mockups/canvases the canvas should show.",
+            properties: ["openDirectory", "createDirectory"],
+          });
+          dir = opened.filePaths[0];
+        } else {
+          // A new project is a folder with `mockups/canvases` in it, seeded with the template
+          // canvas the plugin ships, so the window opens on boards rather than on nothing.
+          const saved = await dialog.showSaveDialog(win, {
+            title: "Create a project",
+            nameFieldLabel: "Project folder",
+            defaultPath: path.join(app.getPath("documents"), "my-prototype"),
+            buttonLabel: "Create",
+            showsTagField: false,
+          });
+          dir = saved.canceled ? undefined : saved.filePath;
+          if (dir !== undefined) {
+            try {
+              fs.mkdirSync(path.join(dir, "mockups/canvases"), { recursive: true });
+              fs.cpSync(
+                path.join(pluginRoot, "mockups/canvases/templates"),
+                path.join(dir, "mockups/canvases/templates"),
+                { recursive: true },
+              );
+            } catch (e) {
+              // The panel lets a name land on an existing file, or somewhere unwritable.
+              dialog.showErrorBox("Couldn't create the project", String(e));
+              return;
+            }
+          }
+        }
+        if (dir === undefined) return; // cancelled: the window is still there, nothing was written
+        ipcMain.removeListener("startup:choose", onChoose);
+        win.hide();
+        resolve({ project: dir, ids: chosen });
+      };
+      ipcMain.on("startup:choose", onChoose);
+      win.loadFile(path.join(app.getAppPath(), "startup.html"), {
+        query: { agents: JSON.stringify(rows) },
+      });
+    }));
+  }
 
   const env: NodeJS.ProcessEnv = {
     ...process.env,
@@ -167,14 +138,10 @@ async function main() {
       project,
       untilde(process.env.PROTOTYPING_CANVASES_DIR || "mockups/canvases", home),
     ),
+    // An env value already set wins, the way the CLI's own lookup works: a developer pointing
+    // the packaged app at a checkout.
+    SUPER_PROTOTYPING_ROOT: untilde(process.env.SUPER_PROTOTYPING_ROOT || pluginRoot, home),
   };
-  if (env.SUPER_PROTOTYPING_ROOT) {
-    env.SUPER_PROTOTYPING_ROOT = untilde(env.SUPER_PROTOTYPING_ROOT, home);
-  } else if (app.isPackaged) {
-    // The tree extraResources copies beside dist/server.mjs (package.json). An env value
-    // already set wins, the way the CLI's own SUPER_PROTOTYPING_ROOT lookup works.
-    env.SUPER_PROTOTYPING_ROOT = path.join(process.resourcesPath, "plugin");
-  }
 
   // `--port`, then SP_CANVAS_PORT, then 5173: the CLI's precedence. The canvas document lives
   // in IndexedDB under the origin, so a stable port is what keeps it from one launch to the
@@ -198,7 +165,7 @@ async function main() {
 
   let output = "";
   const exited = new AbortController();
-  server = utilityProcess.fork(serverPath, ["--port", String(port)], {
+  server = utilityProcess.fork(path.join(pluginRoot, "canvas/dist/server.mjs"), ["--port", String(port)], {
     env,
     cwd: project,
     stdio: "pipe",
@@ -230,49 +197,34 @@ async function main() {
     return app.exit(1);
   }
 
-  // "Install skills…" reruns the same picker against this project and port, no restart needed.
-  Menu.setApplicationMenu(
-    Menu.buildFromTemplate([
-      { role: "appMenu" },
-      {
-        label: "File",
-        submenu: [
-          {
-            label: "Install skills…",
-            click: () => {
-              openSkillsPicker(port).catch((e) =>
-                dialog.showErrorBox("Install skills failed", String(e)),
-              );
-            },
-          },
-        ],
-      },
-      { role: "editMenu" },
-      { role: "viewMenu" },
-      { role: "windowMenu" },
-    ]),
-  );
-
-  const { installed } = (await fetch(
-    `http://127.0.0.1:${port}/__sp/skills`,
-  ).then((r) => r.json())) as { installed: unknown[] };
-  let offered: string[] = [];
-  try {
-    offered = JSON.parse(fs.readFileSync(onboardedFile, "utf8"));
-  } catch {
-    // No file yet: this app has never offered the picker for any project.
-  }
-  if (installed.length === 0 && !offered.includes(project)) {
-    await openSkillsPicker(port);
-    fs.mkdirSync(desktopStateDir, { recursive: true });
-    fs.writeFileSync(onboardedFile, JSON.stringify([...offered, project]));
+  if (ids.length > 0) {
+    const res = await fetch(`http://127.0.0.1:${port}/__sp/skills`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ dirs: skillDirsFor(ids) }),
+    });
+    if (!res.ok) throw new Error(`Installing skills failed: ${await res.text()}`);
+    const { written, skipped } = (await res.json()) as { written: string[]; skipped: string[] };
+    // Nothing written and nothing skipped is a project that already had every copy at this
+    // version — the same answer as last launch — and a launch like that says nothing, the
+    // agents' notes included: those were shown when the copies landed.
+    if (written.length > 0 || skipped.length > 0) {
+      const notes = AGENTS.filter((a) => ids.includes(a.id) && a.note).map((a) => `${a.name}: ${a.note}`);
+      await dialog.showMessageBox({
+        type: "info",
+        message: "Skills installed",
+        detail: [
+          written.length ? `Installed: ${written.join(", ")}` : "",
+          skipped.length ? `Already present, left alone: ${skipped.join(", ")}` : "",
+          ...notes,
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      });
+    }
   }
 
-  const win = new BrowserWindow({
-    width: 1440,
-    height: 900,
-    title: "Super Prototyping",
-  });
+  const win = new BrowserWindow({ width: 1440, height: 900, title: "Super Prototyping" });
   // The canvas is the only page this window shows. Anything off the loopback, the Figma
   // plugin link and the like, is for the browser.
   const isOurs = (url: string) => url.startsWith(`http://127.0.0.1:${port}/`);
@@ -287,11 +239,15 @@ async function main() {
     shell.openExternal(url);
   });
   await win.loadURL(`http://127.0.0.1:${port}/`);
+  startupWindow?.close();
 }
 
 // Electron neither exits nor says anything on a rejection in the main process; without this,
-// a failure before the window exists is an app in the Dock with nothing to show.
+// a failure before the window exists is an app in the Dock with nothing to show. `app.exit`
+// skips will-quit, so the server, if it got as far as starting, is killed here.
 main().catch((e) => {
+  quitting = true;
+  server?.kill();
   dialog.showErrorBox("Super Prototyping failed to start", String(e));
   app.exit(1);
 });

@@ -97,7 +97,7 @@ export function freePort() {
 export type Agent = {
   id: string;
   name: string;
-  /** Project-relative, matches /^\.[\w-]+\/skills$/: what the picker's checkbox writes to. */
+  /** Project-relative, matches /^\.[\w-]+\/skills$/: what the startup window's checkbox writes to. */
   dir: string;
   /** Executable names that count as "installed" when any is found on PATH. */
   bins: string[];
@@ -285,20 +285,24 @@ export const AGENTS: Agent[] = [
 ];
 
 /**
- * Which agents look installed: a binary on PATH, a config directory under home, or a macOS app,
- * any of the three. The picker pre-checks these; nothing here writes anything.
+ * What each agent's presence on this machine rests on, in the words the startup window shows
+ * beside its row: a binary on PATH, a config directory under home, a macOS app. An empty list
+ * is an agent not found. Nothing here writes anything.
  */
 export function detectAgents(probe: {
   bin(name: string): boolean;
   dir(relToHome: string): boolean;
   app(name: string): boolean;
-}): string[] {
-  return AGENTS.filter(
-    (a) =>
-      a.bins.some((b) => probe.bin(b)) ||
-      a.homeDirs.some((d) => probe.dir(d)) ||
-      (a.app !== undefined && probe.app(a.app)),
-  ).map((a) => a.id);
+}): Record<string, string[]> {
+  const found: Record<string, string[]> = {};
+  for (const a of AGENTS) {
+    found[a.id] = [
+      ...a.bins.filter((b) => probe.bin(b)).map((b) => `${b} on PATH`),
+      ...a.homeDirs.filter((d) => probe.dir(d)).map((d) => `~/${d}`),
+      ...(a.app !== undefined && probe.app(a.app) ? [a.app] : []),
+    ];
+  }
+  return found;
 }
 
 /** The sorted, deduped skills directories the chosen agents read from. */

@@ -12,7 +12,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-/** A project-relative skill directory, as the picker in the app collects them. */
+/** A project-relative skill directory. */
 const SKILL_DIR = /^\.[\w-]+\/skills$/;
 
 /** Frontmatter at the very top of the file only — a block starting anywhere else is prose. */
@@ -93,7 +93,7 @@ function writeCopy(root: string, name: string, destDir: string, version: string)
 export function installedSkills(projectDir: string): { dir: string; name: string; version: string }[] {
   const found: { dir: string; name: string; version: string }[] = [];
   for (const top of fs.readdirSync(projectDir, { withFileTypes: true })) {
-    if (!top.isDirectory() || !top.name.startsWith(".")) continue;
+    if (!top.isDirectory() || !SKILL_DIR.test(`${top.name}/skills`)) continue;
     const skillsDir = path.join(projectDir, top.name, "skills");
     if (!fs.statSync(skillsDir, { throwIfNoEntry: false })?.isDirectory()) continue;
     for (const skill of fs.readdirSync(skillsDir, { withFileTypes: true })) {
@@ -107,9 +107,10 @@ export function installedSkills(projectDir: string): { dir: string; name: string
 
 /**
  * Writes every skill in `<root>/skills` into each of `dirs`, marked and pinned to `root`'s
- * version. A destination that already holds a marked copy is replaced whole; one that exists
- * without a marker is the user's own file and is left alone, reported back as skipped rather
- * than written.
+ * version. A destination that already holds a marked copy is replaced whole when that copy is
+ * older, and left alone when it is at the tree's version or past it — someone else's newer
+ * commit is never undone, and the same answer on every launch writes nothing. One that exists
+ * without a marker is the user's own file, left alone and reported back as skipped.
  */
 export function installSkills(
   root: string,
@@ -133,9 +134,13 @@ export function installSkills(
   for (const dir of dirs) {
     for (const name of names) {
       const destDir = path.join(projectDir, dir, name);
-      if (fs.existsSync(destDir) && !markedVersion(path.join(destDir, "SKILL.md"))) {
-        skipped.push(`${dir}/${name}`);
-        continue;
+      if (fs.existsSync(destDir)) {
+        const existing = markedVersion(path.join(destDir, "SKILL.md"));
+        if (existing === null) {
+          skipped.push(`${dir}/${name}`);
+          continue;
+        }
+        if (compareVersions(existing, version) >= 0) continue;
       }
       writeCopy(root, name, destDir, version);
       written.push(`${dir}/${name}`);
@@ -146,11 +151,11 @@ export function installSkills(
 
 /**
  * Brings every marked copy in a project up to the tree's version, called once when a server
- * starts. Only-up compares against `installSkills`'s always-overwrite: a copy already at or
- * ahead of the tree (someone else's newer commit) is left alone, so two people on different
- * versions of the app never fight over whose copy wins. `projectDir` is null when the server
- * was started with no project — `node dist/server.mjs` run by hand — and there is then nothing
- * to refresh.
+ * starts. Only the copies that are there: a copy at or ahead of the tree (someone else's newer
+ * commit) is left alone, and so is a skill that is missing — a folder someone deleted on
+ * purpose must stay deleted, and refresh cannot tell that from one never installed. `projectDir`
+ * is null when the server was started with no project — `node dist/server.mjs` run by hand —
+ * and there is then nothing to refresh.
  */
 export function refresh(projectDir: string | null, root: string): void {
   if (projectDir === null) return;
