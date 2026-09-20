@@ -414,11 +414,12 @@ def cmd_start(a):
 
     # The canvas is a built app served by one file, `dist/server.mjs`: the release's own
     # bundle, fetched once, or the checkout's build. Either way it is plain ESM, so node
-    # where there is one and bun otherwise runs it.
-    dist = _dist(root)
+    # where there is one and bun otherwise runs it. Checked before the fetch: a machine
+    # with neither should hear so before it downloads an app it cannot run.
     runtime = shutil.which("node") and "node" or shutil.which("bun")
     if not runtime:
         raise SystemExit("error: neither node nor bun is on PATH to run the canvas server")
+    dist = _dist(root)
 
     # Resolved once, here, and handed down: the server passes them on to every agent it
     # spawns, and it derives none itself — the bundle it runs may sit in the cache directory
