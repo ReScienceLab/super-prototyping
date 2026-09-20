@@ -49,8 +49,10 @@ Everything below is on `main` and reaches no install until a version is cut.
   is the canvas `sp start` serves, in a window, for a
   project you pick when it opens or name after `--args`. It uses the same port
   and the same `~/.local/state` directory as the command line. Closing the
-  window stops the server and any agent it was running. The app has its own
-  icon, the three tiles on black, cut to macOS's icon shape.
+  window stops the server and any agent it was running. A link that leaves the
+  canvas opens in your browser if it is a web address, and does nothing
+  otherwise. The app has its own icon, the three tiles on black, cut to macOS's
+  icon shape.
 - On launch the app asks which agent you will work with, Claude Code or Codex.
   Each card shows its icon and whether the agent was found on this machine,
   and its tooltip says what that rests on: a binary on PATH, a config

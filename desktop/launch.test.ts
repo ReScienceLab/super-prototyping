@@ -3,7 +3,7 @@ import fs from "node:fs";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
-import { augmentedPath, detectAgents, findOnPath, freePort, listProjects, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
+import { augmentedPath, detectAgents, findOnPath, freePort, isWeb, listProjects, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
 
 test("untilde expands only the current user's leading tilde", () => {
   expect(untilde("~/sp", "/Users/u")).toBe("/Users/u/sp");
@@ -11,6 +11,15 @@ test("untilde expands only the current user's leading tilde", () => {
   expect(untilde("~other/sp", "/Users/u")).toBe("~other/sp");
   expect(untilde("/abs/~", "/Users/u")).toBe("/abs/~");
   expect(stateDir({ SUPER_PROTOTYPING_HOME: "~/sp" }, "/Users/u")).toBe("/Users/u/sp/state");
+});
+
+test("isWeb lets only http and https out to the browser", () => {
+  expect(isWeb("https://github.com/ReScienceLab/super-prototyping")).toBe(true);
+  expect(isWeb("HTTP://example.com/")).toBe(true);
+  expect(isWeb("file:///Applications/Calculator.app")).toBe(false);
+  expect(isWeb("smb://host/share")).toBe(false);
+  expect(isWeb("javascript:alert(1)")).toBe(false);
+  expect(isWeb("https-but-not://x")).toBe(false);
 });
 
 test("stateDir mirrors sp _dirs()", () => {

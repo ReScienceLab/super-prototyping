@@ -16,6 +16,7 @@ import {
   detectAgents,
   findOnPath,
   freePort,
+  isWeb,
   listProjects,
   parseArgs,
   portAnswers,
@@ -58,7 +59,8 @@ async function main() {
   await app.whenReady();
 
   // The startup page and then the canvas are the only pages this app shows. Anything off the
-  // loopback, such as the page's GitHub link or the canvas's Figma plugin link, is for the browser.
+  // loopback, such as the page's GitHub link or the canvas's Figma plugin link, is for the browser
+  // if it is a web address, and goes nowhere if it is not.
   // `port` is set once a project is chosen, and nothing of ours is linked before then. It is set on
   // every page the app makes and not on the window's alone, because the canvas opens its sheet and
   // brand pages as windows of their own, and their outside links are for the browser too.
@@ -67,13 +69,13 @@ async function main() {
   app.on("web-contents-created", (_event, contents) => {
     contents.setWindowOpenHandler(({ url }) => {
       if (isOurs(url)) return { action: "allow" };
-      shell.openExternal(url);
+      if (isWeb(url)) shell.openExternal(url);
       return { action: "deny" };
     });
     contents.on("will-navigate", (event, url) => {
       if (isOurs(url)) return;
       event.preventDefault();
-      shell.openExternal(url);
+      if (isWeb(url)) shell.openExternal(url);
     });
   });
 

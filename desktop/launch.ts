@@ -16,6 +16,14 @@ export function untilde(p: string, home: string) {
 }
 
 /**
+ * A link the browser should get. A board's script or a `layout.json` link can name any scheme, and
+ * the OS opens a `file:` URL or another app's own scheme without asking, so only the web goes out.
+ */
+export function isWeb(url: string) {
+  return /^https?:\/\//i.test(url);
+}
+
+/**
  * `<state>/super-prototyping`, exactly as `_dirs()` in tools/sp_canvas.py computes it, so the
  * shell's own files sit beside the CLI's pidfile and log and `sp clean` removes both.
  */
