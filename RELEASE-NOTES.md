@@ -52,11 +52,13 @@ Everything below is on `main` and reaches no install until a version is cut.
 - On launch the app asks which agent you will work with, Claude Code or Codex.
   Each card shows its icon and whether the agent was found on this machine,
   and its tooltip says what that rests on: a binary on PATH, a config
-  directory under home, or an app bundle. The page is in Vercel's Geist look,
-  with the project name and a link to star the repo on GitHub. As its second
+  directory under home, or an app bundle. An agent that was not found cannot
+  be picked, and its card links to where to get it. The page is one glass
+  panel on a night sky, its three steps numbered down the left, with the
+  project name and a link to star the repo on GitHub. As its second
   step, it asks for a project, either an existing folder or a new one, and
-  shows the projects already in `Documents/Super Prototyping` as cards, last
-  edited first, each with an icon, its name, its folder and when it was last edited. The icon is the
+  lists the projects already in `Documents/Super Prototyping` in a dropdown
+  you can search by name, last edited first, each with an icon, its name, its folder and when it was last edited. The icon is the
   `icon.png` of the project's first canvas that has one, and a folder until then. A new one takes a third step, its name, and
   nothing else. It goes in `Documents/Super Prototyping` with
   `mockups/canvases` in it, and opens on the Start here canvas with every
