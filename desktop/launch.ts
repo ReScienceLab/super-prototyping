@@ -51,6 +51,32 @@ export function findOnPath(name: string, PATH: string) {
 }
 
 /**
+ * The projects the startup page lists: the folders directly in `root`, the last edited first. It
+ * is read from disk each launch and never stored, so a deleted project is simply not there. A
+ * `root` nobody has made yet is the first run, and has none.
+ *
+ * A board rewritten in place moves its own time and not its folder's, so "last edited" is the
+ * newest of the project folder, its canvas folders and the files directly in those. It does not
+ * go deeper, because an `assets/` folder can hold thousands of files.
+ *
+ * `icon` is the `icon.png` of the first canvas that has one, which is the app the project is a
+ * prototype of. A project that has cloned nothing yet has none, and the page draws a folder.
+ */
+export function listProjects(root: string) {
+  const inside = (dir: string) =>
+    fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: true }).map((e) => ({ e, at: path.join(dir, e.name) })) : [];
+  return inside(root)
+    .filter(({ e }) => e.isDirectory() && !e.name.startsWith("."))
+    .map(({ e, at: dir }) => {
+      const canvases = inside(path.join(dir, "mockups/canvases"));
+      const paths = [dir, ...canvases.map((c) => c.at), ...canvases.flatMap((c) => (c.e.isDirectory() ? inside(c.at).map((f) => f.at) : []))];
+      const icon = canvases.map((c) => path.join(c.at, "icon.png")).find((p) => fs.existsSync(p));
+      return { name: e.name, dir, icon, at: Math.max(...paths.map((p) => fs.statSync(p).mtimeMs)) };
+    })
+    .sort((a, b) => b.at - a.at);
+}
+
+/**
  * `--port N` and one project directory, in either order, from
  * `open -a "Super Prototyping" --args ...`. Anything else that starts with a dash (Finder's
  * `-psn_…`, a flag this app does not know) is ignored.
