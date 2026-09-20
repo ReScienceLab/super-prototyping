@@ -72,9 +72,26 @@ six "Ask AI" screens are on the same board.*
 
 ## Install
 
-It installs in two halves, in every product. The **plugin** holds the three
-skills and the canvas app, and comes from your product's own install command.
-The **toolkit** the skills call by name is one more command, once per machine.
+With Homebrew, on macOS or Linux, it is two lines:
+
+```bash
+brew install ReScienceLab/tap/super-prototyping
+cd my-project && sp
+```
+
+`sp` (or `super-prototyping`, the same command) serves `./mockups/canvases`
+at http://127.0.0.1:5173, opens the browser, and stops on Ctrl-C. The formula
+installs the skills, the board template and the prebuilt canvas app under
+Homebrew's prefix, with node as its only dependency; the worked example boards
+stay on the hosted canvas. The canvas's chat panel points the agent at the
+skills there, and the agent installs the toolkit below itself the first time a
+skill calls for it. For the skills in a terminal session too, install the
+plugin from the table.
+
+Without Homebrew, it installs in two halves, in every product. The **plugin**
+holds the three skills and the canvas app, and comes from your product's own
+install command. The **toolkit** the skills call by name is one more command,
+once per machine.
 
 | Your agent | Install the plugin |
 |---|---|
@@ -91,16 +108,6 @@ Then the toolkit, whichever product you came from:
 ```bash
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
 ```
-
-**Homebrew.** `brew install ReScienceLab/tap/super-prototyping` installs the
-skills, the board template and the prebuilt canvas app under Homebrew's
-prefix, with node as its only dependency, and one command: `super-prototyping`
-in a project directory serves `./mockups/canvases`, opens the browser, and
-stops on Ctrl-C. Nothing to install first. The canvas's chat panel points the
-agent at the skills there, and the agent installs the toolkit itself the first
-time a skill calls for it; `sp-canvas` then finds the Homebrew tree on its own.
-The worked example boards are not included; they are on the hosted canvas. For
-the skills in a terminal session too, install the plugin from the table.
 
 One skills tree, a thin manifest per product, so a skill is never forked to be
 ported: `.claude-plugin/` for Claude Code, `.codex-plugin/` plus the

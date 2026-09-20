@@ -40,8 +40,8 @@ Everything below is on `main` and reaches no install until a version is cut.
   `.log` files in your home are not read any more; delete them.
 - A Homebrew tap. `brew install ReScienceLab/tap/super-prototyping` installs
   the skills, the board template and the prebuilt canvas app with node as the
-  only dependency, and `super-prototyping` in a project directory serves
-  `./mockups/canvases` and opens the browser. The toolkit is not part of it:
+  only dependency, and `sp` (or `super-prototyping`) in a project directory
+  serves `./mockups/canvases` and opens the browser. The toolkit is not part of it:
   the agent runs the `uv tool install` line when a skill needs it, and
   `sp-canvas` finds the Homebrew install on its own. Each release points the
   formula at itself.

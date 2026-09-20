@@ -274,7 +274,8 @@ the `skills/` tree, the four manifests, the board template under
 examples, 150MB, stay out), `canvas/package.json` and the canvas bundle
 attached to the GitHub Release, which comes in as a `resource` with its
 sha256, so the formula depends on no JavaScript toolchain and builds nothing.
-It writes one launcher, `bin/super-prototyping`: eight lines of shell that
+It writes one launcher, `bin/super-prototyping`, with `bin/sp` linked to it
+for typing: eight lines of shell that
 export the three variables `sp-canvas start` would and exec node on
 `server.mjs --open`, so `brew install` ends in one command to run and nothing
 to install first. The server's `--open` flag exists for it. `sp-canvas start`,
