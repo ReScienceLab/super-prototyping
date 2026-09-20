@@ -4,89 +4,126 @@
 <meta charset="utf-8" />
 <title>Super Prototyping</title>
 <style>
+  /* Vercel's Geist look: black or white, one neutral ramp, hairline borders, 6px and 8px radii,
+     and a primary button that inverts rather than colours. */
   :root {
     color-scheme: light dark;
-    --fg: #1a1a1a;
-    --fg-dim: #6b6b6b;
     --bg: #ffffff;
-    --border: #d8d8d8;
-    --hover: #f2f2f2;
-    --accent: #2563eb;
+    --fg: #171717;
+    --fg-dim: #666666;
+    --border: #eaeaea;
+    --border-hover: #999999;
+    --hover: #fafafa;
+    --accent: #171717;
     --accent-fg: #ffffff;
+    --accent-hover: #383838;
+    --ring: #0070f3;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --fg: #ececec;
-      --fg-dim: #9a9a9a;
-      --bg: #1e1e1e;
-      --border: #3a3a3a;
-      --hover: #2a2a2a;
-      --accent: #4d8dff;
-      --accent-fg: #0b0b0b;
+      --bg: #000000;
+      --fg: #ededed;
+      --fg-dim: #a1a1a1;
+      --border: #333333;
+      --border-hover: #666666;
+      --hover: #1a1a1a;
+      --accent: #ededed;
+      --accent-fg: #0a0a0a;
+      --accent-hover: #cccccc;
     }
   }
   * { box-sizing: border-box; }
-  /* The page sits in the canvas's own window, so the content is a centred column with the
-     rows two abreast, not a list down a tall narrow one. */
   body {
     margin: 0;
-    padding: 40px;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
+    flex-direction: column;
+    font: 14px/1.5 "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--fg);
+    background: var(--bg);
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+  .brand img { width: 24px; height: 24px; }
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color: var(--fg);
-    background: var(--bg);
+    padding: 40px 24px;
   }
-  main { width: 100%; max-width: 880px; max-height: 100%; display: flex; flex-direction: column; }
-  h1 { font-size: 15px; margin: 0 0 4px; }
-  p.sub { margin: 0 0 14px; color: var(--fg-dim); }
+  h1 { margin: 0 0 8px; font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+  p.sub { margin: 0 0 32px; color: var(--fg-dim); text-align: center; }
   ul {
     list-style: none;
-    margin: 0;
+    margin: 0 0 32px;
     padding: 0;
-    min-height: 0;
-    overflow-y: auto;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 12px;
+    grid-template-columns: repeat(2, 240px);
+    gap: 16px;
   }
-  li { border: 1px solid var(--border); border-radius: 6px; }
+  li { position: relative; }
+  /* The card is the control; the radio stays for the keyboard and the checked state. */
+  input { position: absolute; opacity: 0; width: 0; height: 0; }
   label {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    cursor: pointer;
-  }
-  label:hover { background: var(--hover); border-radius: 6px; }
-  .icon { width: 18px; height: 18px; font-size: 18px; display: inline-flex; align-items: center; flex: none; }
-  .found { margin-left: auto; color: var(--fg-dim); font-size: 12px; text-align: right; }
-  .name { white-space: nowrap; }
-  li:has(input:checked) { border-color: var(--accent); }
-  .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 16px;
-  }
-  button {
-    font: inherit;
-    padding: 6px 14px;
-    border-radius: 6px;
+    flex-direction: column;
+    gap: 4px;
+    padding: 20px;
     border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  label:hover { border-color: var(--border-hover); background: var(--hover); }
+  li:has(input:checked) > label { border-color: var(--fg); }
+  li:has(input:focus-visible) > label { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring); }
+  .icon { width: 32px; height: 32px; font-size: 32px; display: inline-flex; align-items: center; margin-bottom: 8px; }
+  .name { font-weight: 500; }
+  .status { color: var(--fg-dim); font-size: 13px; }
+  .actions { display: flex; gap: 12px; }
+  button, a.button {
+    font: inherit;
+    font-weight: 500;
+    height: 40px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
     background: var(--bg);
     color: var(--fg);
+    text-decoration: none;
     cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
   }
+  button:hover, a.button:hover { border-color: var(--border-hover); background: var(--hover); }
   button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  a.button { height: 32px; padding: 0 12px; font-size: 13px; }
+  a.button svg { width: 16px; height: 16px; fill: currentColor; }
 </style>
 </head>
 <body>
+  <header>
+    <!-- The app icon at 48px, inlined: the 1024px original is a build input, not shipped. -->
+    <div class="brand"><img src="data:image/png;base64,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" alt="" />Super Prototyping</div>
+    <!-- GitHub's mark, Octicons' mark-github (MIT). A link off the loopback opens in the browser. -->
+    <a class="button" href="https://github.com/ReScienceLab/super-prototyping"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Star on GitHub</a>
+  </header>
   <main>
     <h1>Which agent will you work with?</h1>
-    <p class="sub">It gets the super-prototyping skills copied into the project you open or create next. Each row says what was found of it on this machine.</p>
+    <p class="sub">It gets the super-prototyping skills copied into the project you open or create next.</p>
     <ul id="list"></ul>
     <div class="actions">
       <button id="create" type="button">Create a new project…</button>
@@ -101,6 +138,9 @@
     agents.forEach(function (agent) {
       var li = document.createElement("li");
       var label = document.createElement("label");
+      // What detection rests on — a binary on PATH, a directory under home, an app bundle — is
+      // the card's tooltip, so a wrong guess can still be checked without the row carrying it.
+      label.title = agent.found.join(" · ");
       var input = document.createElement("input");
       input.type = "radio";
       input.name = "agent";
@@ -115,10 +155,10 @@
       name.className = "name";
       name.textContent = agent.name;
       label.appendChild(name);
-      var found = document.createElement("span");
-      found.className = "found";
-      found.textContent = agent.found.length ? agent.found.join(" · ") : "not found";
-      label.appendChild(found);
+      var status = document.createElement("span");
+      status.className = "status";
+      status.textContent = agent.found.length ? "Found on this machine" : "Not found";
+      label.appendChild(status);
       li.appendChild(label);
       list.appendChild(li);
     });

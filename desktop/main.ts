@@ -63,8 +63,23 @@ async function main() {
     width: 1440,
     height: 900,
     title: "Super Prototyping",
-    backgroundColor: nativeTheme.shouldUseDarkColors ? "#1e1e1e" : "#ffffff",
+    backgroundColor: nativeTheme.shouldUseDarkColors ? "#000000" : "#ffffff",
     webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
+  });
+  // The startup page and then the canvas are the only pages this window shows. Anything off the
+  // loopback — the page's GitHub link, the canvas's Figma plugin link and the like — is for the
+  // browser. `port` is set once a project is chosen; nothing of ours is linked before then.
+  let port = 0;
+  const isOurs = (url: string) => url.startsWith(`http://127.0.0.1:${port}/`);
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (isOurs(url)) return { action: "allow" };
+    shell.openExternal(url);
+    return { action: "deny" };
+  });
+  win.webContents.on("will-navigate", (event, url) => {
+    if (isOurs(url)) return;
+    event.preventDefault();
+    shell.openExternal(url);
   });
   let project = argDir;
   let agent: string | undefined;
@@ -151,7 +166,7 @@ async function main() {
   // that was asked for and is taken is an error, not a second server racing the first: the
   // window must not open before this app's own server is up, because Electron loses a utility
   // process's early output when a window is being created as it starts.
-  let port = portArg ?? Number(process.env.SP_CANVAS_PORT || 0);
+  port = portArg ?? Number(process.env.SP_CANVAS_PORT || 0);
   if (!Number.isInteger(port) || port < 0 || port > 65535) {
     dialog.showErrorBox("Bad port", "--port and SP_CANVAS_PORT take a port number, 1 to 65535.");
     return app.exit(1);
@@ -226,19 +241,6 @@ async function main() {
     }
   }
 
-  // The canvas is the only page this window shows from here on. Anything off the loopback, the
-  // Figma plugin link and the like, is for the browser.
-  const isOurs = (url: string) => url.startsWith(`http://127.0.0.1:${port}/`);
-  win.webContents.setWindowOpenHandler(({ url }) => {
-    if (isOurs(url)) return { action: "allow" };
-    shell.openExternal(url);
-    return { action: "deny" };
-  });
-  win.webContents.on("will-navigate", (event, url) => {
-    if (isOurs(url)) return;
-    event.preventDefault();
-    shell.openExternal(url);
-  });
   await win.loadURL(`http://127.0.0.1:${port}/`);
 }
 

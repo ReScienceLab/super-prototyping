@@ -33,7 +33,7 @@ job shrinks to one window: which agents are here, then which project.
 | A same-named, unmarked folder is left alone | It is the user's own file. The install reports it as left alone; refresh says nothing and skips it every time. This repo's own `.claude/skills` and `.agents/skills` are exactly this case — symlinks to the unmarked source in `skills/`. |
 | No "skills updated" dialog | `git diff` is the signal. |
 | No configuration file in the home directory | Already the rule for this plugin. Which agent was chosen is recorded by which project directories exist; switching agents means deleting a directory. The app remembers nothing else — not the last project, not the last answer: the startup page asks again on every launch, defaulting to what detection found, and since installing is idempotent the same answer again writes nothing, while a different answer adds that agent's directory. |
-| The startup page comes before the project, every launch, and picks one agent | The first thing on screen is which agent to work with — not a folder panel. Two rows, Claude Code and Codex, each with its evidence, and the first found one starts selected; the other researched agents stay in the table, unoffered, until one is asked for. One agent, not a set: a project is worked on with one agent at a time, and a second is one more launch, which the idempotent install makes free. It is a page in the app's one window, at the canvas's size, and the canvas replaces it; then open-or-create. `open -a … --args <dir>` skips it, for a scripted launch, and installs nothing. |
+| The startup page comes before the project, every launch, and picks one agent | The first thing on screen is which agent to work with — not a folder panel. Two cards, Claude Code and Codex, each saying whether it was found and carrying the evidence as its tooltip, and the first found one starts selected; the other researched agents stay in the table, unoffered, until one is asked for. One agent, not a set: a project is worked on with one agent at a time, and a second is one more launch, which the idempotent install makes free. It is a page in the app's one window, at the canvas's size, and the canvas replaces it; then open-or-create. `open -a … --args <dir>` skips it, for a scripted launch, and installs nothing. |
 | Creating a project seeds `mockups/canvases/templates` | An empty folder opens on an empty canvas. The template canvas is already in the bundled tree, so a new project gets the same boards this repo starts a folder from, and the window has something to show. |
 
 ## Which directory each agent gets
@@ -69,8 +69,9 @@ A pure function in `launch.ts` is handed three probes — is this binary on
 PATH, does this directory exist under home, is this `.app` in
 `/Applications` or `~/Applications` — and returns, per agent, what it found
 in those words: `claude on PATH`, `~/.codex`, `Cursor.app`. The startup
-page shows that beside each of its two rows and starts on the first with
-something in it; a row with nothing says "not found". It runs on every launch, before a project is named: the machine
+page says "Found on this machine" or "Not found" on each of its two cards,
+keeps those words as the card's tooltip, and starts on the first card with
+something in it. It runs on every launch, before a project is named: the machine
 can change between launches, the answer is cheap, and installing the same
 answer again writes nothing.
 

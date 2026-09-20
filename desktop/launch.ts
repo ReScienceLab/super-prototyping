@@ -289,9 +289,9 @@ export const AGENTS: Agent[] = [
 ];
 
 /**
- * What each agent's presence on this machine rests on, in the words the startup page shows
- * beside its row: a binary on PATH, a config directory under home, a macOS app. An empty list
- * is an agent not found. Nothing here writes anything.
+ * What each agent's presence on this machine rests on, in the words the startup page keeps as
+ * its card's tooltip: a binary on PATH, a config directory under home, a macOS app. An empty
+ * list is an agent not found. Nothing here writes anything.
  */
 export function detectAgents(probe: {
   bin(name: string): boolean;

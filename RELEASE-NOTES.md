@@ -55,9 +55,11 @@ Everything below is on `main` and reaches no install until a version is cut.
   the window stops the server and any agent it was running. The app carries
   its own icon, the three tiles on black, cut to macOS's icon shape.
 - On launch the app asks which agent you will work with, Claude Code or
-  Codex, each row with its icon and saying what it found of it on this
-  machine: a binary on PATH, a config directory under home, an app bundle.
-  Then it asks for a project: an existing folder, or a new one it creates with
+  Codex, each card with its icon and whether it was found on this machine;
+  what that rests on — a binary on PATH, a config directory under home, an
+  app bundle — is the card's tooltip. The page is in Vercel's Geist look,
+  with the project name and a link to star the repo on GitHub. Then it asks
+  for a project: an existing folder, or a new one it creates with
   `mockups/canvases` and the template canvas in it. The agent you picked
   gets the bundled skills copied into that project, into its own skills directory, and each copy lands with
   a version marker in its frontmatter and its `uv tool install` line pinned
