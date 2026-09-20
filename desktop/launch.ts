@@ -25,9 +25,9 @@ export function stateDir(env: NodeJS.ProcessEnv, home: string) {
 }
 
 /**
- * Where user-installed CLIs live when the login shell is not around to say. A GUI app on macOS
- * starts with `/usr/bin:/bin:/usr/sbin:/sbin`, so `uv`, `sp`, `claude` and `codex` are
- * all invisible without these.
+ * The directories user-installed CLIs go in, which a login shell would have put on PATH. A GUI app
+ * on macOS starts with `/usr/bin:/bin:/usr/sbin:/sbin`, so `uv`, `sp`, `claude` and `codex` are all
+ * invisible without these.
  */
 export function augmentedPath(env: NodeJS.ProcessEnv, home: string) {
   const have = (env.PATH ?? "").split(path.delimiter).filter(Boolean);

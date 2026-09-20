@@ -177,12 +177,12 @@
         <button id="create" class="card" type="button">
           <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span>
           <span class="name">Create a new project</span>
-          <span class="status">Just give it a name. It goes in Documents/Super Prototyping and opens on Start here, with the examples.</span>
+          <span class="status">Give it a name. It goes in Documents/Super Prototyping and opens on Start here, with the examples.</span>
         </button>
         <button id="open" class="card" type="button">
           <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg></span>
           <span class="name">Open an existing project</span>
-          <span class="status">Any folder you have. The canvas shows its mockups/canvases, empty until a board lands there.</span>
+          <span class="status">Any folder you have. The canvas shows its mockups/canvases, empty until a board is added there.</span>
         </button>
       </div>
       <div class="actions">
@@ -212,8 +212,9 @@
       var li = document.createElement("li");
       var label = document.createElement("label");
       label.className = "card";
-      // What detection rests on — a binary on PATH, a directory under home, an app bundle — is
-      // the card's tooltip, so a wrong guess can still be checked without the row carrying it.
+      // What detection rests on, which is a binary on PATH, a directory under home or an app
+      // bundle, is the card's tooltip, so a wrong guess can still be checked without the row
+      // showing it.
       label.title = agent.found.join(" · ");
       var input = document.createElement("input");
       input.type = "radio";

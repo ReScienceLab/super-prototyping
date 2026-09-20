@@ -49,41 +49,43 @@ Everything below is on `main` and reaches no install until a version is cut.
   needs `refkit` or `artgen`, and the `sp` that brings is the same one. Each
   release points the formula at itself.
 - A macOS app. Every release attaches `Super-Prototyping-<version>-arm64.dmg`
-  and `-x64.dmg`: the canvas `sp start` serves, in a window, for a
-  project you pick when it opens or name after `--args`. It uses the same
-  port and the same `~/.local/state` directory as the command line. Closing
-  the window stops the server and any agent it was running. The app carries
-  its own icon, the three tiles on black, cut to macOS's icon shape.
-- On launch the app asks which agent you will work with, Claude Code or
-  Codex, each card with its icon and whether it was found on this machine;
-  what that rests on — a binary on PATH, a config directory under home, an
-  app bundle — is the card's tooltip. The page is in Vercel's Geist look,
+  and `-x64.dmg`. It is the canvas `sp start` serves, in a window, for a
+  project you pick when it opens or name after `--args`. It uses the same port
+  and the same `~/.local/state` directory as the command line. Closing the
+  window stops the server and any agent it was running. The app has its own
+  icon, the three tiles on black, cut to macOS's icon shape.
+- On launch the app asks which agent you will work with, Claude Code or Codex.
+  Each card shows its icon and whether the agent was found on this machine,
+  and its tooltip says what that rests on: a binary on PATH, a config
+  directory under home, or an app bundle. The page is in Vercel's Geist look,
   with the project name, a link to star the repo on GitHub, and an artwork
-  down its left side. Next, as its second step, it asks for a project: an
-  existing folder, or a new one. A new one takes a third step, its name,
-  and nothing else: it goes in `Documents/Super Prototyping` with
+  down its left side. As its second step, it asks for a project, either an
+  existing folder or a new one. A new one takes a third step, its name, and
+  nothing else. It goes in `Documents/Super Prototyping` with
   `mockups/canvases` in it, and opens on the Start here canvas with every
   example canvas under it. The examples ship in the app and are shown
-  read-only beside the project's own canvases: cloning one copies it into
-  the project, and that copy is yours to change. A name already taken is said under the field,
-  with a link to open that project instead. The agent you picked gets the bundled skills copied into that project, into its own skills directory, and each copy lands with
-  a version marker in its frontmatter and its `uv tool install` line pinned
-  to a tag of that version, e.g. `super-prototyping@super-prototyping--v1.5.0`.
-  Once the canvas is up it says what landed, in a toast at its bottom right.
-  Every later open refreshes a marked copy that is behind the app's own
-  version, in place, and never touches a same-named folder with no marker —
-  that one is yours — nor recreates a copy you deleted. `sp start` from a
-  terminal refreshes the same way, since it runs the same server; the
-  endpoints behind both are `GET /__sp/skills`, which lists the marked
-  copies a project already has, and `POST /__sp/skills` with
-  `{"dirs": [...]}`, which writes them. The app no longer detects or
-  mentions the toolkit itself: the skill text tells the agent to install it,
-  pinned to match. `open -a "Super Prototyping" --args <dir>` skips the
-  window and installs nothing.
+  read-only beside the project's own canvases. Cloning one copies it into the
+  project, and that copy is yours to change. When a name is already taken, the
+  page says so under the field, with a link to open that project instead. The
+  agent you picked gets the bundled skills copied into that project, into its
+  own skills directory. Each copy has a version marker in its frontmatter and
+  its `uv tool install` line pinned to a tag of that version, e.g.
+  `super-prototyping@super-prototyping--v1.5.0`. Once the canvas is up it says
+  what the install did, in a toast at its bottom right. Every later open refreshes,
+  in place, a marked copy that is behind the app's own version. It never
+  touches a same-named folder with no marker, which is yours, and never
+  recreates a copy you deleted. `sp start` from a terminal refreshes the same
+  way, since it runs the same server. The endpoints behind both are
+  `GET /__sp/skills`, which lists the marked copies a project already has, and
+  `POST /__sp/skills` with `{"dirs": [...]}`, which writes them. The app no
+  longer detects or mentions the toolkit itself, because the skill text tells
+  the agent to install it, pinned to match.
+  `open -a "Super Prototyping" --args <dir>` skips the window and installs
+  nothing.
 - `sp root`, and everything built on it, also checks
-  `/Applications/Super Prototyping.app/Contents/Resources/plugin`, tried
-  last, after your own checkout: someone with the app installed who is
-  standing in their own checkout still gets the checkout.
+  `/Applications/Super Prototyping.app/Contents/Resources/plugin`. It is tried
+  last, after your own checkout, so someone with the app installed who runs it
+  from their own checkout still gets the checkout.
 
 ## v1.4.1
 

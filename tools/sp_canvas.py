@@ -31,8 +31,8 @@ DEFAULT_PORT = 5173
 # desktop shell's data directory points at the same folders and nothing migrates.
 APP = "super-prototyping"
 REPO = "ReScienceLab/super-prototyping"
-# The packaged desktop app's bundled tree. A module constant, not inlined into
-# _candidates, so a test can patch it without touching a real /Applications.
+# The packaged desktop app's bundled tree. It is a module constant, not inlined
+# into _candidates, so a test can patch it without touching a real /Applications.
 APP_BUNDLE_PLUGIN = Path("/Applications/Super Prototyping.app/Contents/Resources/plugin")
 
 # Per-port names, because two projects run two canvases. A fixed session name meant
@@ -150,8 +150,8 @@ def _candidates():
     for prefix in ("/opt/homebrew", "/usr/local", "/home/linuxbrew/.linuxbrew"):
         yield "Homebrew", Path(prefix) / "opt/super-prototyping/libexec/plugin"
 
-    # A checkout you are standing in, before the app: someone with the app installed who is
-    # also standing in their own checkout must get the checkout.
+    # A checkout you are standing in comes before the app, because someone with the app
+    # installed who is also standing in their own checkout must get the checkout.
     try:
         top = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],

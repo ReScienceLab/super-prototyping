@@ -56,8 +56,8 @@ export function createSpServer(options: {
   /** The boards directory. Created if missing, watched for the server's lifetime. */
   canvasesDir: string;
   /**
-   * Canvases shown beside the project's own and never written to: the examples the desktop app
-   * ships. Null for none, which is `sp start` and the dev server.
+   * Canvases shown beside the project's own and never written to, which are the examples the
+   * desktop app ships. Null for none, which is `sp start` and the dev server.
    */
   examplesDir: string | null;
   /** The project the chat panel's agent works in, or null when nothing set one. */
@@ -67,11 +67,18 @@ export function createSpServer(options: {
 }) {
   const { canvasesDir, examplesDir, projectDir, repoRoot } = options;
 
-  // A canvas's folder: the project's own, else the example of that name. A folder of the
-  // project's shadows an example whole, which is what cloning one under its own name would mean.
+  // A canvas's folder is the project's own, else the example of that name. The project's own
+  // is what the scan in boards.ts calls a canvas, a folder with a board in it, so a folder the
+  // project has only begun under an example's name does not hide the example. A name that is
+  // in neither place gets the project's path, and the routes answer it as they always did.
   const folderOf = (slug: string) => {
     const own = path.join(canvasesDir, slug);
-    return examplesDir === null || fs.existsSync(own) ? own : path.join(examplesDir, slug);
+    if (examplesDir === null) return own;
+    const hasBoard =
+      fs.statSync(own, { throwIfNoEntry: false })?.isDirectory() &&
+      fs.readdirSync(own).some((f) => !f.startsWith(".") && f.endsWith(".html"));
+    const example = path.join(examplesDir, slug);
+    return !hasBoard && fs.existsSync(example) ? example : own;
   };
   const isExample = (slug: string) => folderOf(slug) !== path.join(canvasesDir, slug);
   const READ_ONLY = "an example canvas is read-only: clone it to have one of your own";
@@ -139,10 +146,10 @@ export function createSpServer(options: {
     res.end(JSON.stringify(index));
   });
 
-  // Copying this plugin's skills into the project, and reporting what is there. Both need a
-  // project to write into or list, the same 503 the agent routes below give for the same
-  // reason; the copying itself lives in skills.ts, shared with the refresh main.ts runs at
-  // startup, so this is only the two endpoints' framing.
+  // Copying this plugin's skills into the project, and reporting what is there. Both need a project
+  // to write into or list, and answer the same 503 the agent routes below give for the same reason.
+  // The copying itself is in skills.ts, shared with the refresh main.ts runs at startup, so this is
+  // only the two endpoints' request handling.
   route("/__sp/skills", (req, res, next) => {
     const send = (code: number, message: string) => {
       res.statusCode = code;
@@ -185,8 +192,8 @@ export function createSpServer(options: {
         res.setHeader("content-type", "application/json");
         send(200, JSON.stringify(installSkills(repoRoot, projectDir, dirs)));
       } catch (error) {
-        // installSkills throws this one message for a dir that fails its pattern — the only
-        // input error it can find, everything else about a write going wrong is a 500.
+        // installSkills throws this one message for a dir that fails its pattern. That is the only
+        // input error it can find, and everything else about a write going wrong is a 500.
         send(
           error instanceof Error && error.message.startsWith("bad skill dir")
             ? 400
@@ -456,7 +463,7 @@ export function createSpServer(options: {
         if (!SAFE_NAME.test(slug ?? "") || !SAFE_NAME.test(target)) {
           return send(400, "bad canvas name");
         }
-        const from = folderOf(slug); // an example too: cloning is how one becomes the project's
+        const from = folderOf(slug); // an example too, since cloning makes one the project's
         const to = path.join(canvasesDir, target);
         // The welcome page is drawn by the app and has no folder, so this is also what
         // stops it being cloned into one.
@@ -775,7 +782,12 @@ export function createSpServer(options: {
               `The canvas also shows the examples under ${examplesDir}. Those are the app's and ` +
                 `read-only: to change one, copy its folder into ${canvasesDir} first.`,
             canvas &&
-              `They are looking at the canvas "${canvas}", whose folder is ${folderOf(canvas)}.`,
+              (isExample(canvas)
+                ? `They are looking at the example canvas "${canvas}", which is read-only at ` +
+                  `${folderOf(canvas)}. Write nothing under that folder. If they ask for a ` +
+                  `change to it, copy it into ${canvasesDir} and change the copy.`
+                : `They are looking at the canvas "${canvas}", whose folder is ` +
+                  `${folderOf(canvas)}.`),
             `Before touching a board folder, read ${repoRoot}/skills/prototype-canvas/SKILL.md, ` +
               "the prototype-canvas skill of the super-prototyping plugin: one folder is one canvas " +
               "page, one .html file in it is one board, layout.json places them, and the open canvas " +
@@ -1149,9 +1161,9 @@ export function createSpServer(options: {
       watcher?.close();
       for (const page of pages) page.end();
       pages.clear();
-      // The agent is this server's child and no one else's: a SIGTERM to the server alone,
-      // which is how the macOS app stops it, would otherwise leave the agent editing the
-      // project with nobody watching. The same kill the Stop button sends.
+      // The agent is this server's child and no one else's. A SIGTERM to the server alone, which is
+      // how the macOS app stops it, would otherwise leave the agent editing the project with nobody
+      // watching. This is the same kill the Stop button sends.
       for (const run of runs.values()) if (!ended(run)) run.child.kill();
     },
   };

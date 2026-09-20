@@ -28,9 +28,10 @@ refkit --help
 ```
 
 Not on PATH, or `sp --version` prints something lower than the version this
-skill shipped with (never higher — that would be a downgrade, and the tag
-may not even exist)? The plugin cannot install it. Once per machine, adding
-`--force` to reinstall over a lower version:
+skill shipped with? The plugin cannot install it. Leave a higher version
+alone, because reinstalling over it would be a downgrade, and the tag may not
+even exist. Once per machine, adding `--force` to reinstall over a lower
+version:
 
 ```bash
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"

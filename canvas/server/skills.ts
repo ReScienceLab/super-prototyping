@@ -4,10 +4,10 @@
  * A copy is a whole `skills/<name>` folder written under a project-relative dot directory
  * (`.claude/skills`, `.agents/skills`, …), with two things changed in its `SKILL.md`: a
  * `metadata` marker recording which tree and version wrote it, and the toolkit install line
- * pinned to that version's tag. The marker is what makes a copy ours — anything without it is
- * the user's own file, in a folder that happens to share a skill's name, and is never touched.
- * A marked copy is a generated file: an upgrade overwrites the whole folder rather than
- * diffing it, and a customization survives only by dropping the marker (see `docs/`).
+ * pinned to that version's tag. The marker is what makes a copy ours. Anything without it is the
+ * user's own file, in a folder that happens to share a skill's name, and is never touched. A marked
+ * copy is a generated file, so an upgrade overwrites the whole folder rather than diffing it, and a
+ * customization survives only by dropping the marker (see `docs/`).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -15,7 +15,7 @@ import path from "node:path";
 /** A project-relative skill directory. */
 const SKILL_DIR = /^\.[\w-]+\/skills$/;
 
-/** Frontmatter at the very top of the file only — a block starting anywhere else is prose. */
+/** Frontmatter at the very top of the file only. A block starting anywhere else is prose. */
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/;
 
 const PIN_TARGET = "super-prototyping#subdirectory=tools";
@@ -32,7 +32,7 @@ export function pluginVersion(root: string): string {
 /**
  * Semver-ish ordering, negative/zero/positive like `Array#sort`'s comparator. A prerelease
  * sorts below its release (`1.5.0-rc.1 < 1.5.0`), and a version this cannot parse sorts below
- * every real one — a marker in that shape is still a marker, and refresh's job is to bring it
+ * every real one. A marker in that shape is still a marker, and refresh's job is to bring it
  * forward, not to leave it alone because it cannot be read.
  */
 export function compareVersions(a: string, b: string): number {
@@ -108,9 +108,9 @@ export function installedSkills(projectDir: string): { dir: string; name: string
 /**
  * Writes every skill in `<root>/skills` into each of `dirs`, marked and pinned to `root`'s
  * version. A destination that already holds a marked copy is replaced whole when that copy is
- * older, and left alone when it is at the tree's version or past it — someone else's newer
- * commit is never undone, and the same answer on every launch writes nothing. One that exists
- * without a marker is the user's own file, left alone and reported back as skipped.
+ * older, and left alone when it is at the tree's version or past it, so someone else's newer commit
+ * is never undone, and the same answer on every launch writes nothing. One that exists without a
+ * marker is the user's own file, left alone and reported back as skipped.
  */
 export function installSkills(
   root: string,
@@ -118,7 +118,7 @@ export function installSkills(
   dirs: string[],
 ): { written: string[]; skipped: string[] } {
   for (const dir of dirs) {
-    // Checked up front, before anything is written: a bad dir among several good ones should
+    // Checked up front, before anything is written, so that a bad dir among several good ones does
     // not leave the good ones half done.
     if (!SKILL_DIR.test(dir)) throw new Error(`bad skill dir: ${dir}`);
   }
@@ -151,10 +151,10 @@ export function installSkills(
 
 /**
  * Brings every marked copy in a project up to the tree's version, called once when a server
- * starts. Only the copies that are there: a copy at or ahead of the tree (someone else's newer
- * commit) is left alone, and so is a skill that is missing — a folder someone deleted on
- * purpose must stay deleted, and refresh cannot tell that from one never installed. `projectDir`
- * is null when the server was started with no project — `node dist/server.mjs` run by hand —
+ * starts. It touches only the copies that are there. A copy at or ahead of the tree (someone else's
+ * newer commit) is left alone, and so is a skill that is missing, because a folder someone deleted
+ * on purpose must stay deleted, and refresh cannot tell that from one never installed. `projectDir`
+ * is null when the server was started with no project, which is `node dist/server.mjs` run by hand,
  * and there is then nothing to refresh.
  */
 export function refresh(projectDir: string | null, root: string): void {

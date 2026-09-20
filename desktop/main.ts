@@ -1,6 +1,6 @@
 /**
- * The canvas as a macOS app: this process starts `dist/server.mjs` the way `sp start`
- * does, on the loopback, and opens one window on it. Nothing here re-implements the server.
+ * The canvas as a macOS app. This process starts `dist/server.mjs` the way `sp start` does, on the
+ * loopback, and opens one window on it. Nothing here re-implements the server.
  * Bundled to `dist/main.mjs` by `bun run build`; electron-builder wraps that and the built
  * canvas into the .app.
  */
@@ -32,8 +32,8 @@ app.setPath("userData", path.join(stateDir(process.env, home), "desktop"));
 app.setName("Super Prototyping");
 
 // The plugin tree this app runs from: the skills, the built canvas and its server, the template
-// canvas. Packaged, the copy extraResources (package.json) puts beside the app; unpackaged, the
-// checkout this file was bundled from.
+// canvas. Packaged, it is the copy extraResources (package.json) puts beside the app. Unpackaged,
+// it is the checkout this file was bundled from.
 const pluginRoot = app.isPackaged
   ? path.join(process.resourcesPath, "plugin")
   : path.resolve(import.meta.dirname, "../..");
@@ -55,10 +55,11 @@ app.on("window-all-closed", () => app.quit());
 async function main() {
   await app.whenReady();
 
-  // The first page, before any project: which one agent to work with, each row with what its
-  // presence on this machine rests on — a binary on PATH, a directory under home, an app bundle —
-  // so a wrong guess is visible, then a project to open or to create. It is a page in the one
-  // window, at the canvas's size, and stays up until the canvas replaces it; closing it quits.
+  // The first page, before any project, asks which one agent to work with. Each row shows what its
+  // presence on this machine rests on, which is a binary on PATH, a directory under home or an app
+  // bundle, so a wrong guess is visible. Then it asks for a project to open or to create. It is a
+  // page in the one window, at the canvas's size, and stays up until the canvas replaces it.
+  // Closing it quits.
   const win = new BrowserWindow({
     width: 1440,
     height: 900,
@@ -67,8 +68,8 @@ async function main() {
     webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
   });
   // The startup page and then the canvas are the only pages this window shows. Anything off the
-  // loopback — the page's GitHub link, the canvas's Figma plugin link and the like — is for the
-  // browser. `port` is set once a project is chosen; nothing of ours is linked before then.
+  // loopback, such as the page's GitHub link or the canvas's Figma plugin link, is for the browser.
+  // `port` is set once a project is chosen, and nothing of ours is linked before then.
   let port = 0;
   const isOurs = (url: string) => url.startsWith(`http://127.0.0.1:${port}/`);
   win.webContents.setWindowOpenHandler(({ url }) => {
@@ -123,7 +124,7 @@ async function main() {
             });
             dir = opened.filePaths[0];
           } else {
-            // A new project needs only a name, as in Screen Studio: it goes under Documents, so
+            // A new project needs only a name, as in Screen Studio. It goes under Documents, so
             // there is no place to pick. The page's `required` lets a name of spaces through, and
             // knows nothing of folders.
             if (name === "") return { message: "Give the project a name first." };
@@ -139,13 +140,13 @@ async function main() {
                   taken: true,
                 };
               }
-              // A folder with `mockups/canvases` in it and nothing else: what the window opens
-              // on, Start here and the examples, is the app's and shown beside the project's own
+              // A folder with `mockups/canvases` in it and nothing else. What the window opens on,
+              // Start here and the examples, is the app's and shown beside the project's own
               // (PROTOTYPING_EXAMPLES_DIR below), so there is nothing to copy in.
               try {
                 fs.mkdirSync(path.join(dir, "mockups/canvases"), { recursive: true });
               } catch (e) {
-                // A Documents that cannot be written to: nothing a new name fixes, so say which.
+                // A new name does not fix an unwritable Documents, so say what failed.
                 return { message: `That folder could not be made: ${(e as Error).message}` };
               }
             }
@@ -168,18 +169,18 @@ async function main() {
       project,
       untilde(process.env.PROTOTYPING_CANVASES_DIR || "mockups/canvases", home),
     ),
-    // An env value already set wins, the way the CLI's own lookup works: a developer pointing
+    // An env value already set wins, the way the CLI's own lookup works, for a developer pointing
     // the packaged app at a checkout.
     SUPER_PROTOTYPING_ROOT: untilde(process.env.SUPER_PROTOTYPING_ROOT || pluginRoot, home),
-    // Every canvas this repo has, shipped in the app and shown read-only beside the project's
-    // own: a new project opens on Start here with the examples under it, not on nothing.
+    // Every canvas this repo has, shipped in the app and shown read-only beside the project's own,
+    // so a new project opens on Start here with the examples under it, not on nothing.
     PROTOTYPING_EXAMPLES_DIR: path.join(pluginRoot, "mockups/canvases"),
   };
 
-  // `--port`, then SP_CANVAS_PORT, then 5173: the CLI's precedence. The canvas document lives
-  // in IndexedDB under the origin, so a stable port is what keeps it from one launch to the
-  // next; a free one only when 5173 already answers, which is a canvas the CLI started. A port
-  // that was asked for and is taken is an error, not a second server racing the first: the
+  // `--port`, then SP_CANVAS_PORT, then 5173, which is the CLI's precedence. The canvas document is
+  // stored in IndexedDB under the origin, so a stable port is what keeps it from one launch to the
+  // next. A free port is used only when 5173 already answers, which is a canvas the CLI started. A
+  // port that was asked for and is taken is an error, not a second server racing the first. The
   // window must not open before this app's own server is up, because Electron loses a utility
   // process's early output when a window is being created as it starts.
   port = portArg ?? Number(process.env.SP_CANVAS_PORT || 0);
@@ -240,9 +241,9 @@ async function main() {
     });
     if (!res.ok) throw new Error(`Installing skills failed: ${await res.text()}`);
     const { written, skipped } = (await res.json()) as { written: string[]; skipped: string[] };
-    // Nothing written and nothing skipped is a project that already had every copy at this
-    // version — the same answer as last launch — and a launch like that says nothing, the
-    // agent's note included: that was shown when the copies landed.
+    // Nothing written and nothing skipped is a project that already had every copy at this version,
+    // the same answer as last launch. A launch like that says nothing, the agent's note included,
+    // because that was shown when the copies were first written.
     if (written.length > 0 || skipped.length > 0) {
       // Said by the canvas, as a toast at its bottom right once it is up, rather than by a
       // native alert here, which would be a modal in front of a startup page about to be

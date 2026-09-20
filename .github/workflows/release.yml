@@ -328,14 +328,15 @@ jobs:
           git commit -am "super-prototyping $VERSION"
           git push
 
-  # The macOS app (#111): the canvas built exactly as above, wrapped in Electron
-  # by desktop/, one dmg per architecture. Its own runner, because signing and
-  # notarising need macOS; after `tag` for the same reason the bundle is attached
-  # last, so a failure here is a missing asset, which `gh release upload` by hand
-  # adds, and the commands below are the list to run. Signing turns on when the
-  # secrets are present and stays off otherwise, so a fork or a checkout without
-  # them builds an unsigned dmg, which Gatekeeper refuses until right-click →
-  # Open. The secrets, by name; their values live nowhere in this repo:
+  # The macOS app (#111) is the canvas built exactly as above, wrapped in Electron
+  # by desktop/, one dmg per architecture. It has its own runner, because signing
+  # and notarising need macOS. It runs after `tag` for the same reason the bundle
+  # is attached last, so a failure here is a missing asset. `gh release upload`
+  # by hand adds that asset, and the commands below are the list to run. Signing
+  # turns on when the secrets are present and stays off otherwise, so a fork or a
+  # checkout without them builds an unsigned dmg, which Gatekeeper refuses until
+  # you right-click it and choose Open. The secrets are listed by name, and their
+  # values are nowhere in this repo:
   #
   #   MAC_CERT_P12        Developer ID Application certificate, a .p12, base64
   #   MAC_CERT_PASSWORD   the password that .p12 was exported with
@@ -344,8 +345,9 @@ jobs:
   #   APPLE_API_ISSUER    that key's issuer id
   #
   # electron-builder signs when CSC_LINK holds the certificate and notarises when
-  # the three APPLE_API_* variables are set: `xcrun notarytool submit --wait`,
-  # then `xcrun stapler staple`, through @electron/notarize.
+  # the three APPLE_API_* variables are set. Notarising is
+  # `xcrun notarytool submit --wait`, then `xcrun stapler staple`, through
+  # @electron/notarize.
   dmg:
     name: Attach the macOS app
     needs: tag
@@ -357,9 +359,10 @@ jobs:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
 
-      # Out of the canvas build, as above: the app ships mockups/canvases itself, as
-      # the read-only examples its server shows (extraResources in desktop/package.json),
-      # and a second copy under dist/board would double the dmg.
+      # The example boards stay out of the canvas build, as above. The app ships
+      # mockups/canvases itself, as the read-only examples its server shows
+      # (extraResources in desktop/package.json), and a second copy under dist/board
+      # would double the dmg.
       - name: Build the canvas, without the example boards
         working-directory: canvas
         run: |
@@ -380,7 +383,7 @@ jobs:
           set -euo pipefail
           if [ -n "$MAC_CERT_P12" ]; then
             # A certificate without the notarisation key would ship a signed dmg
-            # that Gatekeeper still refuses: all five secrets, or none.
+            # that Gatekeeper still refuses, so it is all five secrets or none.
             : "${MAC_CERT_PASSWORD:?}" "${APPLE_API_KEY_P8:?}" "${APPLE_API_KEY_ID:?}" "${APPLE_API_ISSUER:?}"
             printf '%s' "$APPLE_API_KEY_P8" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
             export CSC_LINK="$MAC_CERT_P12" CSC_KEY_PASSWORD="$MAC_CERT_PASSWORD" APPLE_API_KEY="$RUNNER_TEMP/AuthKey.p8"
