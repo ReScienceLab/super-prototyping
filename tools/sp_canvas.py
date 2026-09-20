@@ -70,11 +70,20 @@ def _dirs():
 
 
 def _pidfile(port):
-    return _dirs()[1] / f"canvas-{port}.pid"
+    return _dirs()[1] / f"{_session(port)}.pid"
 
 
 def _logfile(port):
-    return _dirs()[1] / f"canvas-{port}.log"
+    return _dirs()[1] / f"{_session(port)}.log"
+
+
+def _pid_in(pidfile):
+    """The pid a pidfile holds, or None for one that holds something else and is only fit
+    to drop. The one reader, for `stop` and `clean` to agree on."""
+    try:
+        return int(pidfile.read_text().strip())
+    except ValueError:
+        return None
 
 
 # --- finding the canvas app --------------------------------------------------
@@ -123,7 +132,7 @@ def _candidates():
     for label, pattern in (
         ("Hermes plugin", ".hermes/plugins/super-prototyping"),
         ("Hermes plugin", ".hermes/plugins/*/super-prototyping"),
-        ("Pi git package", ".pi/agent/git/*/ReScienceLab/super-prototyping"),
+        ("Pi git package", f".pi/agent/git/*/{REPO}"),
     ):
         for path in sorted(glob.glob(str(Path.home() / pattern))):
             yield label, Path(path)
@@ -528,10 +537,7 @@ def cmd_stop(a):
 
     pidfile = _pidfile(a.port)
     if pidfile.exists():
-        try:
-            pid = int(pidfile.read_text().strip())
-        except ValueError:
-            pid = None    # unreadable pidfile; the only thing to do is drop it
+        pid = _pid_in(pidfile)
         if pid is None or not _is_our_server(pid, a.port):
             if pid is not None:
                 print(f"note: pid {pid} is not this canvas any more — left alone, "
@@ -598,17 +604,17 @@ def cmd_clean(a):
     # background one is found by its pidfile and nothing else, so removing that would leave
     # a server `stop` cannot see.
     live = []
+    # The per-port name read back, so a rename in `_session` cannot leave `clean` blind. It
+    # holds no regex metacharacter, so the pattern is the name with the port as a group.
+    ports = re.compile(_session(r"(\d+)") + "$")
     if shutil.which("tmux"):
         out = subprocess.run(["tmux", "list-sessions", "-F", "#{session_name}"],
                              capture_output=True, text=True).stdout
-        live += re.findall(r"^canvas-(\d+)$", out, re.M)
-    for pidfile in state.glob("canvas-*.pid"):
-        port = pidfile.stem.removeprefix("canvas-")
-        try:
-            pid = int(pidfile.read_text().strip())
-        except ValueError:
-            continue
-        if _is_our_server(pid, port):
+        live += [m.group(1) for m in map(ports.match, out.split()) if m]
+    for pidfile in state.glob(_pidfile("*").name):
+        port = ports.match(pidfile.stem).group(1)
+        pid = _pid_in(pidfile)
+        if pid is not None and _is_our_server(pid, port):
             live.append(port)
     if live:
         raise SystemExit(f"error: a canvas is still running on port {', '.join(live)}. "
