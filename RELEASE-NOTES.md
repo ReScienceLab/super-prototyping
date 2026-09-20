@@ -21,6 +21,8 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- The canvas's top-right corner holds one button now, Star on GitHub. Try
+  SnapAction is gone, from the canvas and from the brand pages.
 - `sp start` now runs the canvas as a small localhost app instead of
   Vite's dev server. On first start it downloads the canvas built for the
   plugin's version from that release (`canvas-dist.tgz`) into
@@ -41,13 +43,50 @@ Everything below is on `main` and reaches no install until a version is cut.
   `uv tool install` line with `--force` to get it. `sp start <dir>` names the
   project from anywhere; with no argument it is the current directory, as
   before.
-- A Homebrew tap. `brew install ReScienceLab/tap/super-prototyping` installs
-  the skills, the board template, the prebuilt canvas app and `sp`, with node
-  as the only dependency: `cd my-project && sp start`. The rest of the toolkit
-  is not part of it. The agent runs the `uv tool install` line when a skill
-  needs `refkit` or `artgen`, and the `sp` that brings is the same one. Each
-  release points the formula at itself.
-
+- A macOS app. Every release attaches `Super-Prototyping-<version>-arm64.dmg`
+  and `-x64.dmg`. `brew install --cask ReScienceLab/tap/super-prototyping`
+  installs that same dmg, and `brew upgrade` follows each stable release. It
+  is the canvas `sp start` serves, in a window, for a
+  project you pick when it opens or name after `--args`. It uses the same port
+  and the same `~/.local/state` directory as the command line. Closing the
+  window stops the server and any agent it was running. The app has its own
+  icon, the three tiles on black, cut to macOS's icon shape.
+- On launch the app asks which agent you will work with, Claude Code or Codex.
+  Each card shows its icon and whether the agent was found on this machine,
+  and its tooltip says what that rests on: a binary on PATH, a config
+  directory under home, or an app bundle. An agent that was not found cannot
+  be picked, and its card links to where to get it. The page is one glass
+  panel on a night sky, its three steps numbered down the left, with the
+  project name and a link to star the repo on GitHub. As its second
+  step, it asks for a project, either an existing folder or a new one, and
+  lists the projects already in `Documents/Super Prototyping` in a dropdown
+  you can search by name, last edited first, each with an icon, its name, its folder and when it was last edited. The icon is the
+  `icon.png` of the project's first canvas that has one, and a folder until then. A new one takes a third step, its name, and
+  nothing else. It goes in `Documents/Super Prototyping` with
+  `mockups/canvases` in it, and opens on the Start here canvas with every
+  example canvas under it. The examples ship in the app and are shown
+  read-only beside the project's own canvases. Cloning one copies it into the
+  project, and that copy is yours to change. When a name is already taken, the
+  page says so under the field, with a link to open that project instead. The
+  agent you picked gets the bundled skills copied into that project, into its
+  own skills directory. Each copy has a version marker in its frontmatter and
+  its `uv tool install` line pinned to a tag of that version, e.g.
+  `super-prototyping@super-prototyping--v1.5.0`. Once the canvas is up it says
+  what the install did, in a toast at its bottom right. Every later open refreshes,
+  in place, a marked copy that is behind the app's own version. It never
+  touches a same-named folder with no marker, which is yours, and never
+  recreates a copy you deleted. `sp start` from a terminal refreshes the same
+  way, since it runs the same server. The endpoints behind both are
+  `GET /__sp/skills`, which lists the marked copies a project already has, and
+  `POST /__sp/skills` with `{"dirs": [...]}`, which writes them. The app no
+  longer detects or mentions the toolkit itself, because the skill text tells
+  the agent to install it, pinned to match.
+  `open -a "Super Prototyping" --args <dir>` skips the window and installs
+  nothing.
+- `sp root`, and everything built on it, also checks
+  `/Applications/Super Prototyping.app/Contents/Resources/plugin`. It is tried
+  last, after your own checkout, so someone with the app installed who runs it
+  from their own checkout still gets the checkout.
 
 ## v1.4.1
 

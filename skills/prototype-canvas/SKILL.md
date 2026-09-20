@@ -21,9 +21,18 @@ plugin replaces the app and never touches a board you wrote.
 sp start
 ```
 
-From elsewhere, name the project: `sp start <dir>`. Not found? `sp` installs separately from the plugin, which cannot run
-an installer of its own: `uv tool install
-"git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`.
+Inside the Super Prototyping app, the canvas is already serving on
+127.0.0.1:5173. `sp start` is for a terminal that does not have the app
+open, and it refuses a port that already answers rather than reusing it.
+
+From elsewhere, name the project: `sp start <dir>`. Not on PATH, or
+`sp --version` prints something lower than the version this skill shipped
+with? `sp` installs separately from the plugin, which cannot run an installer
+of its own: `uv tool install
+"git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`,
+adding `--force` to reinstall over a lower version. Leave a higher version
+alone, because reinstalling over it would be a downgrade, and the tag may not
+even exist.
 
 That is the whole thing. On first run it fetches the canvas app built for
 its version into `~/.cache/super-prototyping/<version>/`, then serves it on

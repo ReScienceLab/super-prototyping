@@ -63,16 +63,18 @@ with a `README.md` that says what was measured and what was excluded.
 Everything under `.github/`:
 
 - `workflows/validate.yml`: the gates, on every pull request — the manifests
-  agree and validate, the canvas lints, tests and builds, and the toolkit's
-  tests pass. Run the same commands locally from the root README.
+  agree and validate, the canvas lints, tests and builds, the macOS app tests
+  and builds, and the toolkit's tests pass. Run the same commands locally from the root README.
 - `workflows/release.yml`: dispatch it with a version and it opens the release
   PR; merging that PR tags `super-prototyping--v<version>`, cuts the GitHub
   Release from the matching `RELEASE-NOTES.md` section, and attaches
-  `canvas-dist.tgz`, the canvas built without the example boards. It is in two
+  `canvas-dist.tgz`, the canvas built without the example boards. A macOS
+  runner then attaches the two `Super-Prototyping-<version>-<arch>.dmg` files,
+  signed and notarised when the secrets the job names are set. It is in two
   halves because branch protection means CI cannot push to `main`.
 - `CODEOWNERS`: who is asked to review pull requests, by path.
-- `dependabot.yml`: weekly dependency updates for `canvas/` (bun) and for any
-  GitHub Actions workflows.
+- `dependabot.yml`: weekly dependency updates for `canvas/` and `desktop/`
+  (bun) and for any GitHub Actions workflows.
 - `pull_request_template.md`: the checklist every pull request starts with.
 - `ISSUE_TEMPLATE/`: bug and feature forms, plus links to private
   vulnerability reporting and the hosted canvas.
@@ -115,7 +117,7 @@ release calls a command from the other.
    `## Unreleased` above it. The tag job reads exactly that heading.
 5. Merge. The push to `main` tags `super-prototyping--v<version>` through
    `claude plugin tag`, cuts the GitHub Release from that notes section, and
-   attaches `canvas-dist.tgz` to it.
+   attaches `canvas-dist.tgz` and the two dmgs to it.
 
 **Then check the release exists**, because everything downstream keys off the
 tag: the tag on the Releases page, `/plugin update super-prototyping` in Claude
@@ -135,7 +137,10 @@ The bundle is attached last, after the release is cut, so a failure there leaves
 the release whole. To add it by hand: in `canvas/`, run `bun run build` with
 `PROTOTYPING_CANVASES_DIR` pointing at an empty directory, then
 `tar -czf canvas-dist.tgz dist`, then
-`gh release upload super-prototyping--v<version> canvas-dist.tgz`.
+`gh release upload super-prototyping--v<version> canvas-dist.tgz`. The dmgs
+can be added by hand the same way. The `dmg` job in `release.yml` is the list
+of commands, and `CSC_IDENTITY_AUTO_DISCOVERY=false` in place of the signing
+variables builds them unsigned.
 The whole thing is doable by hand too. Run `scripts/bump-version.sh <version>`,
 open a pull request, then `claude plugin tag . --push -m 'super-prototyping %s'`
 after it merges; the workflow is that sequence with the gates in front of it.

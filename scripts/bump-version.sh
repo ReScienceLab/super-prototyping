@@ -5,10 +5,10 @@
 #   scripts/bump-version.sh 1.1.0
 #   scripts/bump-version.sh --check          # verify every file already agrees
 #
-# A plugin's version lives in eight places (see .version-bump.json): the
+# A plugin's version lives in nine places (see .version-bump.json): the
 # portable manifest at the root, the Claude Code manifest, twice inside the
-# marketplace catalogue, the Codex and CodeBuddy manifests, the canvas app, and
-# the Python toolkit. Bumping them by hand is how a release ends up
+# marketplace catalogue, the Codex and CodeBuddy manifests, the canvas app, the
+# macOS app, and the Python toolkit. Bumping them by hand is how a release ends up
 # half-versioned, with `/plugin update` reporting one number and `refkit
 # --version` another. This is the only supported way to change them.
 #

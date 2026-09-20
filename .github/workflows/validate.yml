@@ -98,6 +98,26 @@ jobs:
       - run: bun run test
       - run: bun run build
 
+  desktop:
+    name: macOS app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: desktop
+    env:
+      # Types and the bundler are all these need; the Electron binary is for release.yml.
+      ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install --frozen-lockfile
+      - run: bun run test
+      - run: bun run build
+
   tools:
     name: Toolkit
     runs-on: ubuntu-latest

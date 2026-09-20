@@ -72,27 +72,38 @@ six "Ask AI" screens are on the same board.*
 
 ## Install
 
-With Homebrew, on macOS or Linux, it is two lines:
+On macOS, Homebrew installs the app:
 
 ```bash
-brew install ReScienceLab/tap/super-prototyping
-sp start ~/my-project
+brew install --cask ReScienceLab/tap/super-prototyping
 ```
 
-`sp start DIR`, from anywhere, serves `DIR/mockups/canvases` at
-http://127.0.0.1:5173, opens the browser and returns; with no DIR, the
-current directory's. `sp stop` stops it. The formula installs the skills, the
-board template, the prebuilt canvas app and `sp` under Homebrew's prefix, with
-node as its only dependency; the worked example boards stay on the hosted
-canvas. The canvas's chat panel points the agent at the skills there, and the
-agent installs the toolkit below itself the first time a skill calls for
-`refkit` or `artgen`; the `sp` it brings is the same one. For the skills in a
-terminal session too, install the plugin from the table.
+Then open Super Prototyping. The cask installs the same
+`Super-Prototyping-<version>-<arch>.dmg` every
+[release](https://github.com/ReScienceLab/super-prototyping/releases)
+attaches, so downloading that instead gives the same app. Until the releases
+are signed, macOS refuses the first open from either route, and this allows
+it:
 
-Without Homebrew, it installs in two halves, in every product. The **plugin**
-holds the three skills and the canvas app, and comes from your product's own
-install command. The **toolkit** the skills call by name is one more command,
-once per machine.
+```bash
+xattr -dr com.apple.quarantine "/Applications/Super Prototyping.app"
+```
+
+The app is the canvas in a window, and it needs no terminal and no bun. It
+opens by asking which agent you will work with, Claude Code or Codex, then
+asks you to open a project or to name a new one, which goes in
+`Documents/Super Prototyping`. It shows that project's `mockups/canvases` with
+the example canvases beside them, read-only until you clone one into the
+project. The agent you picked gets the skills copied into the project, each
+copy marked with the app's version and refreshed on a later open when it is
+behind the app's version. The app does not install the toolkit below. The
+skills tell whichever agent you run to install it the first time one calls for
+`refkit`, `artgen` or `sp`.
+
+Without the app, on any platform, it installs in two halves, in every product.
+The **plugin** holds the three skills and the canvas app, and comes from your
+product's own install command. The **toolkit** the skills call by name is one
+more command, once per machine.
 
 | Your agent | Install the plugin |
 |---|---|
@@ -109,6 +120,9 @@ Then the toolkit, whichever product you came from:
 ```bash
 uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
 ```
+
+It puts `refkit`, `artgen` and `sp` on PATH, and `sp start` is how the canvas
+runs in a browser: see [Run the canvas](#run-the-canvas).
 
 One skills tree, a thin manifest per product, so a skill is never forked to be
 ported: `.claude-plugin/` for Claude Code, `.codex-plugin/` plus the
@@ -299,6 +313,7 @@ refkit --version                                  # which release you are on
 cd canvas && bun run lint && bun run test && bun run build
 uv run --with pillow --with numpy python tools/test_refkit.py
 uv run python tools/test_sp_canvas.py
+(cd desktop && bun install && bun test && bun run build)   # the macOS app
 scripts/bump-version.sh --check      # every manifest agrees on one version
 claude plugin validate . --strict    # and the manifests are what they claim
 ```
