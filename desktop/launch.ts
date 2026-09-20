@@ -99,8 +99,8 @@ export type Agent = {
   name: string;
   /** Project-relative, matches /^\.[\w-]+\/skills$/: what choosing this row on the startup page writes to. */
   dir: string;
-  /** Listed first on the startup page, tagged as the pair to reach for. */
-  recommended?: true;
+  /** Offered on the startup page. The other rows are detection research, not offered yet. */
+  offered?: true;
   /** Executable names that count as "installed" when any is found on PATH. */
   bins: string[];
   /** Config directories, relative to home, that count the same way. */
@@ -121,7 +121,7 @@ export const AGENTS: Agent[] = [
   {
     id: "claude-code",
     name: "Claude Code",
-    recommended: true,
+    offered: true,
     dir: ".claude/skills",
     bins: ["claude"],
     homeDirs: [".claude"],
@@ -131,7 +131,7 @@ export const AGENTS: Agent[] = [
   {
     id: "codex",
     name: "Codex",
-    recommended: true,
+    offered: true,
     dir: ".agents/skills",
     bins: ["codex"],
     homeDirs: [".codex"],

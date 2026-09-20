@@ -79,10 +79,9 @@ async function main() {
     });
     // Each row's icon is the product's SVG from icons/, inlined rather than linked so the mono
     // ones, drawn in currentColor, follow the text colour in dark mode.
-    const rows = AGENTS.map((a) => ({
+    const rows = AGENTS.filter((a) => a.offered).map((a) => ({
       id: a.id,
       name: a.name,
-      recommended: a.recommended,
       found: found[a.id],
       icon: fs.readFileSync(path.join(app.getAppPath(), "icons", `${a.id}.svg`), "utf8"),
     }));

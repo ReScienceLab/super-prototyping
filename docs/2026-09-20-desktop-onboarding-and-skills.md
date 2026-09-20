@@ -33,7 +33,7 @@ job shrinks to one window: which agents are here, then which project.
 | A same-named, unmarked folder is left alone | It is the user's own file. The install reports it as left alone; refresh says nothing and skips it every time. This repo's own `.claude/skills` and `.agents/skills` are exactly this case — symlinks to the unmarked source in `skills/`. |
 | No "skills updated" dialog | `git diff` is the signal. |
 | No configuration file in the home directory | Already the rule for this plugin. Which agent was chosen is recorded by which project directories exist; switching agents means deleting a directory. The app remembers nothing else — not the last project, not the last answer: the startup page asks again on every launch, defaulting to what detection found, and since installing is idempotent the same answer again writes nothing, while a different answer adds that agent's directory. |
-| The startup page comes before the project, every launch, and picks one agent | The first thing on screen is which agent to work with — not a folder panel. Claude Code and Codex lead as the recommended pair, then the agents found on this machine, each with its evidence, and the first found one starts selected. One agent, not a set: a project is worked on with one agent at a time, and a second is one more launch, which the idempotent install makes free. It is a page in the app's one window, at the canvas's size, and the canvas replaces it; then open-or-create. `open -a … --args <dir>` skips it, for a scripted launch, and installs nothing. |
+| The startup page comes before the project, every launch, and picks one agent | The first thing on screen is which agent to work with — not a folder panel. Two rows, Claude Code and Codex, each with its evidence, and the first found one starts selected; the other researched agents stay in the table, unoffered, until one is asked for. One agent, not a set: a project is worked on with one agent at a time, and a second is one more launch, which the idempotent install makes free. It is a page in the app's one window, at the canvas's size, and the canvas replaces it; then open-or-create. `open -a … --args <dir>` skips it, for a scripted launch, and installs nothing. |
 | Creating a project seeds `mockups/canvases/templates` | An empty folder opens on an empty canvas. The template canvas is already in the bundled tree, so a new project gets the same boards this repo starts a folder from, and the window has something to show. |
 
 ## Which directory each agent gets
@@ -69,9 +69,8 @@ A pure function in `launch.ts` is handed three probes — is this binary on
 PATH, does this directory exist under home, is this `.app` in
 `/Applications` or `~/Applications` — and returns, per agent, what it found
 in those words: `claude on PATH`, `~/.codex`, `Cursor.app`. The startup
-page shows that beside each row, puts the recommended pair first and then
-every row with something in it, and starts on the first of those; a row
-with nothing says "not found". It runs on every launch, before a project is named: the machine
+page shows that beside each of its two rows and starts on the first with
+something in it; a row with nothing says "not found". It runs on every launch, before a project is named: the machine
 can change between launches, the answer is cheap, and installing the same
 answer again writes nothing.
 
@@ -99,8 +98,9 @@ answer again writes nothing.
 | CodeBuddy | `codebuddy`, `cbc` | `~/.codebuddy` | | not installed on the machine this was researched on; detection follows its docs |
 | Kiro | `kiro-cli` | `~/.kiro` | not used: its installer adds one, but the bundle name is unconfirmed | not installed either; a skill whose name has an underscore is dropped silently — none of ours does |
 
-All 21 rows trace to a cited source in the underlying research. The count
-itself is the first open question below.
+All 21 rows trace to a cited source in the underlying research. Two are
+offered on the startup page; the rest is what detection knows, kept for the
+day a row is asked for, which is one flag on it.
 
 ## The marker
 
@@ -176,12 +176,11 @@ the next launch, and a different choice then adds that agent's directory.
 
 ## Open questions
 
-- **How many rows the startup page actually shows.** It shows all 21 researched
-  agents today. The other shape is six — the ones this repo already ships an
-  install command for (Claude Code, Codex, CodeBuddy, Hermes, Pi, Trae) —
+- **Whether the startup page grows past two rows.** It offers Claude Code
+  and Codex; the table behind it has 21. The other shape is the six this
+  repo ships an install command for (adding CodeBuddy, Hermes, Pi, Trae)
   plus one row reading "something else, using `.agents/skills`". Same code
-  either way; the difference is list length versus detection coverage,
-  and it is a data change, not a mechanism change, whichever way it lands.
+  either way, and a data change, not a mechanism change, whichever way it lands.
 - **Whether any other product's parser rejects `metadata` in the
   frontmatter.** Claude Code and Codex do not: a marked fixture, installed
   for real, was invoked by the first and listed by the second next to an

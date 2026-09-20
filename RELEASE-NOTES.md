@@ -54,11 +54,10 @@ Everything below is on `main` and reaches no install until a version is cut.
   port and the same `~/.local/state` directory as the command line. Closing
   the window stops the server and any agent it was running. The app carries
   its own icon, the three tiles on black, cut to macOS's icon shape.
-- On launch the app asks which agent you will work with — Claude Code and
-  Codex first as the recommended pair, then the ones it finds on this
-  machine, each row with its icon and saying what it found: a binary on
-  PATH, a config directory under home, an app bundle — and then asks for a
-  project: an existing folder, or a new one it creates with
+- On launch the app asks which agent you will work with, Claude Code or
+  Codex, each row with its icon and saying what it found of it on this
+  machine: a binary on PATH, a config directory under home, an app bundle.
+  Then it asks for a project: an existing folder, or a new one it creates with
   `mockups/canvases` and the template canvas in it. The agent you picked
   gets the bundled skills copied into that project, into its own skills directory, and each copy lands with
   a version marker in its frontmatter and its `uv tool install` line pinned

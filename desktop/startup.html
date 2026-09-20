@@ -63,8 +63,7 @@
   label:hover { background: var(--hover); border-radius: 6px; }
   .icon { width: 18px; height: 18px; font-size: 18px; display: inline-flex; align-items: center; flex: none; }
   .found { margin-left: auto; color: var(--fg-dim); font-size: 12px; text-align: right; }
-  .name, .tag { white-space: nowrap; }
-  .tag { font-size: 11px; color: var(--accent); border: 1px solid currentColor; border-radius: 4px; padding: 0 5px; }
+  .name { white-space: nowrap; }
   li:has(input:checked) { border-color: var(--accent); }
   .actions {
     display: flex;
@@ -96,11 +95,7 @@
   </main>
   <script>
     var agents = JSON.parse(new URLSearchParams(location.search).get("agents") || "[]");
-    // The recommended pair first, then what the machine has, then the rest; the first row with
-    // something found starts selected, so the default is a recommended agent whenever one is here.
-    agents.sort(function (a, b) {
-      return (!!b.recommended - !!a.recommended) || ((b.found.length > 0) - (a.found.length > 0));
-    });
+    // The first row with something found starts selected.
     var initial = agents.find(function (a) { return a.found.length > 0; }) || agents[0];
     var list = document.getElementById("list");
     agents.forEach(function (agent) {
@@ -120,12 +115,6 @@
       name.className = "name";
       name.textContent = agent.name;
       label.appendChild(name);
-      if (agent.recommended) {
-        var tag = document.createElement("span");
-        tag.className = "tag";
-        tag.textContent = "Recommended";
-        label.appendChild(tag);
-      }
       var found = document.createElement("span");
       found.className = "found";
       found.textContent = agent.found.length ? agent.found.join(" · ") : "not found";
