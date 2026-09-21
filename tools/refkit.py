@@ -38,11 +38,18 @@ coordinate comes back in the same unit you asked in.
 Needs: pillow, numpy. Chrome only for `shoot`.
 Self-check: python3 tools/test_refkit.py (from a checkout; not shipped in the wheel)
 """
-import argparse, contextlib, glob, io, json, math, os, re, subprocess, sys, tempfile
+import argparse, contextlib, glob, io, json, math, os, pathlib, re, subprocess, sys, tempfile
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+# Chrome where its installer puts it. On Windows that is one of three folders, and Edge, which
+# ships with Windows and takes the same flags, stands in when Chrome is not there.
+CHROME = next(filter(os.path.isfile, (
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    *(os.path.join(os.environ.get(root, ""), app)
+      for app in (r"Google\Chrome\Application\chrome.exe", r"Microsoft\Edge\Application\msedge.exe")
+      for root in ("PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA")),
+)), "Google Chrome")
 PHONE_FRAME = "1D191A"          # the shared artboard phone frame's bezel colour
 PHONE_RADIUS = 52               # .phone border-radius, in design pt
 
@@ -530,7 +537,7 @@ def _render(html, png, scale, w, h):
     subprocess.run([CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
                     f"--force-device-scale-factor={scale}",
                     f"--window-size={w},{h}", f"--screenshot={png}",
-                    "file://" + os.path.abspath(html)],
+                    pathlib.Path(html).resolve().as_uri()],
                    check=True, capture_output=True)
 
 
@@ -576,7 +583,7 @@ document.title="RK:"+Math.max(document.documentElement.scrollHeight,
         with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(src + probe)
         out = subprocess.run([CHROME, "--headless", "--disable-gpu", "--dump-dom",
-                              f"--window-size={w},{h}", "file://" + tmp],
+                              f"--window-size={w},{h}", pathlib.Path(tmp).as_uri()],
                              capture_output=True, text=True).stdout
     finally:
         os.remove(tmp)
