@@ -41,9 +41,14 @@ and passes it as `PROTOTYPING_EXAMPLES_DIR`, which the server shows read-only
 beside a project's own boards. `sp start` does not set that variable. The
 release workflow builds the app on a macOS runner and attaches a dmg per
 architecture, signed and notarised, then on a Windows runner and attaches an
-unsigned installer. `docs/2026-09-19-desktop-shell.md` says why Electron, and
-what the app keeps in step with `sp`, and
-`docs/2026-09-21-windows-app-unsigned.md` why the installer is not signed.
+unsigned installer. The app updates itself with `electron-updater`, which
+`bun build` inlines into `dist/main.mjs`, so it is a devDependency and the app
+still ships no `node_modules`. The feed is the release itself: each job also
+attaches the files an update is made from, and `latest-mac.yml` or `latest.yml`
+last. `docs/2026-09-19-desktop-shell.md` says why Electron, and
+what the app keeps in step with `sp`,
+`docs/2026-09-21-windows-app-unsigned.md` why the installer is not signed, and
+`docs/2026-09-21-auto-update.md` why the updater is this one.
 
 `.claude-plugin/`, `.codex-plugin/` and `.codebuddy-plugin/` are the per-product
 manifests, and the root `plugin.json` is the portable Agent Plugins v1 one that

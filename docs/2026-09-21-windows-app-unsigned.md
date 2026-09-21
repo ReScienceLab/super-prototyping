@@ -23,7 +23,11 @@ gets past it. Open source has no exemption from that, and no free pass either.
 
 Either is a change to the `nsis` job in `.github/workflows/release.yml` and
 nothing else. Revisit when someone reports the warning as the reason they did
-not install.
+not install, or when `electron-updater` stops updating unsigned builds. The
+pinned version skips the signature check for an app with no publisher name, and
+electron-builder's main branch already plans for a later major to refuse
+instead, which is why the version in `desktop/package.json` is exact
+(`docs/2026-09-21-auto-update.md`).
 
 ## What was taken from other apps
 

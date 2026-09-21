@@ -71,7 +71,9 @@ Everything under `.github/`:
   `canvas-dist.tgz`, the canvas built without the example boards. A macOS
   runner then attaches the two `Super-Prototyping-<version>-<arch>.dmg` files,
   signed and notarised when the secrets the job names are set, and a Windows
-  runner attaches `Super-Prototyping-<version>-x64.exe`, unsigned. It is in two
+  runner attaches `Super-Prototyping-<version>-x64.exe`, unsigned. Each also
+  attaches what an installed app updates itself from: the macOS zips, the
+  blockmaps, and last the feed, `latest-mac.yml` or `latest.yml`. It is in two
   halves because branch protection means CI cannot push to `main`.
 - `CODEOWNERS`: who is asked to review pull requests, by path.
 - `dependabot.yml`: weekly dependency updates for `canvas/` and `desktop/`
@@ -142,7 +144,8 @@ the release whole. To add it by hand: in `canvas/`, run `bun run build` with
 can be added by hand the same way. The `dmg` job in `release.yml` is the list
 of commands, and `CSC_IDENTITY_AUTO_DISCOVERY=false` in place of the signing
 variables builds them unsigned. The Windows installer is the `nsis` job's
-commands, run on Windows.
+commands, run on Windows. Attach `latest-mac.yml` and `latest.yml` after the
+files they name: an installed app reads them to update itself.
 The whole thing is doable by hand too. Run `scripts/bump-version.sh <version>`,
 open a pull request, then `claude plugin tag . --push -m 'super-prototyping %s'`
 after it merges; the workflow is that sequence with the gates in front of it.

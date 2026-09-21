@@ -11,6 +11,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { app, BrowserWindow, dialog, ipcMain, shell, utilityProcess } from "electron";
 import type { IpcMainInvokeEvent } from "electron";
+import { autoUpdater } from "electron-updater";
 import {
   AGENTS,
   augmentedPath,
@@ -101,6 +102,24 @@ async function main() {
     autoHideMenuBar: true,
     webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
   });
+
+  // The app updates itself from the GitHub release. A newer one downloads in the background, and
+  // this dialog is all the user sees of it; "Later" installs it when the app quits. A check that
+  // fails says nothing: being offline, or asking in the minutes between a release and its
+  // installers being attached, is not something the user can act on. Nothing happens unpackaged.
+  autoUpdater.on("update-downloaded", async ({ version }) => {
+    const { response } = await dialog.showMessageBox(win, {
+      message: `Super Prototyping ${version} is ready.`,
+      detail: "Restart to install it now, or it installs the next time you quit.",
+      buttons: ["Restart Now", "Later"],
+      cancelId: 1, // Esc is "Later": without this it answers 0, which is "Restart Now".
+    });
+    if (response === 0) autoUpdater.quitAndInstall();
+  });
+  autoUpdater
+    .checkForUpdates()
+    .then((check) => check?.downloadPromise)
+    .catch(() => {});
   let project = argDir;
   let agent: string | undefined;
   if (project === undefined) {
