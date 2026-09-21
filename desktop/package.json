@@ -14,7 +14,7 @@
   "devDependencies": {
     "@types/node": "26",
     "electron": "44.4.3",
-    "electron-builder": "26.15.3",
+    "electron-builder": "26.16.1",
     "typescript": "7"
   },
   "trustedDependencies": [
