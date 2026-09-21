@@ -21,6 +21,10 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **The chat panel runs Claude Code and Codex on Windows.** An npm-installed
+  `claude` or `codex` is a `.cmd` file there, which the canvas could not start,
+  and Stop left the agent running. Both work now, from `sp start` as well.
+
 ## v1.5.2
 
 2026-09-21. The macOS app is signed and notarised. Nothing else changed, so
