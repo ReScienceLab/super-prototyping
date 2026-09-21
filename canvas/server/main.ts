@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 import { createSpServer } from "./sp.ts";
 import { refresh } from "./skills.ts";
 
-const dist = fileURLToPath(new URL(".", import.meta.url)).replace(/\/$/, "");
+const dist = path.dirname(fileURLToPath(import.meta.url));
 // The plugin root: where the skill an agent is pointed at lives, and whose boards a checkout
 // serves by default. `sp start` resolves it and passes it, because the bundle a
 // release attaches runs from ~/.cache/super-prototyping/<version>/dist with no checkout

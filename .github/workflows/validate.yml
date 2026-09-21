@@ -115,6 +115,13 @@ jobs:
 
       - run: bun install --frozen-lockfile
       - run: bun run test
+      # The tests never start the built server, and on Windows it once answered 404 for its own pages.
+      - name: The built server serves its front page
+        shell: bash
+        run: |
+          PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
+          node dist/server.mjs --port 5199 &
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:5199/ | grep -q 'id="root"'
 
   desktop:
     name: macOS app
