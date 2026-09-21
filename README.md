@@ -91,7 +91,8 @@ choose **More info**, then **Run anyway**.
 
 From then on the app updates itself. On launch it looks for a newer release,
 downloads it in the background and asks once to restart; **Later** installs it
-when you quit. v1.5.3 and earlier do not, so update those once by hand, with
+when you quit. The startup page shows the version beside the app's name, and a
+click on it checks again. v1.5.3 and earlier do not, so update those once by hand, with
 `brew upgrade --cask super-prototyping` or the new installer.
 
 The app is the canvas in a window, and it needs no terminal and no bun. It
