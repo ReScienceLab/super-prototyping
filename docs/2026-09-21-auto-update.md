@@ -103,9 +103,9 @@ No server, no new secret, no change to tags or to `claude plugin tag`.
   marks this fail-open path deprecated and says a future major will refuse
   instead. So: electron-updater stays pinned, and "the updater refuses
   unsigned builds" becomes a trigger in the unsigned-installer doc.
-- **No SmartScreen on update, expected but not yet seen.** SmartScreen fires
-  on the Mark of the Web that a browser adds. electron-updater's download has
-  none. Confirm on the Windows PC.
+- **No SmartScreen on update.** SmartScreen fires on the Mark of the Web that
+  a browser adds. electron-updater's download has none, and none appeared on
+  the Windows PC, nor a UAC prompt.
 - **macOS updates only from a real install.** Run from the mounted dmg, or
   translocated because it was never moved to `/Applications`, Squirrel.Mac
   fails without telling the user. A cask install is never in that state.
@@ -134,10 +134,14 @@ No server, no new secret, no change to tags or to `claude plugin tag`.
   1.5.3 (515 MB each, 24,649 blocks). 55 blocks differ, 1.15 MB, 0.22% of the
   file. That pair differs only in app code and version strings, so it is the
   floor: a release that changes the canvas bundle fetches those few MB too, and
-  one that moves Electron fetches Electron. The mac zip is not measured, since
-  no release has one yet. Step 5 below records the bytes the updater really
-  fetches. The costs are a second copy of the
-  package on disk, and about 1 GB more assets per release for the two mac zips.
+  one that moves Electron fetches Electron. The rehearsal below then counted
+  what the updater really fetched between two builds of one commit: 2.3 MB on
+  Windows, two blockmaps included, in 7 range requests, and 51 MB on macOS in
+  about 1,550, a tenth of the zip, because a zip carries a timestamp in front
+  of every file and the examples are thousands of small files. The costs are
+  disk and release assets. The updater's cache keeps the last package and the
+  pending one, about 1 GB at its peak on either platform, and each release
+  carries about 1 GB more for the two mac zips.
   Trimming the examples is still the way to make the first install smaller.
 
 ## Order of work, and how each step is checked
@@ -149,15 +153,19 @@ One PR for `desktop/` and the workflow. It touches nothing under `canvas/`.
    `GH_TOKEN` set**, mac unsigned. Pass means: no `createUpdateInfoTasks`
    crash, and `dist/out` holds the zips, the blockmaps, `latest-mac.yml` and
    `latest.yml`, and `app-update.yml` is inside the app's resources.
-3. Install the rehearsal exe on the Windows PC: it starts, serves the canvas,
-   and shows no dialog, because 1.5.3's release has no `latest.yml`.
+3. The whole update, before anything is released. The rehearsal builds the
+   commit twice, as 1.5.98 and 1.5.99, signed on macOS with the release job's
+   certificate. 1.5.98 is installed and started as built: it asks GitHub, gets
+   the 404 of a release with no feed, and shows no dialog. Then its
+   `app-update.yml` is pointed at a static server holding the 1.5.99 files, the
+   one edit the test makes. Pass means: the dialog appears, Restart Now brings
+   up 1.5.99, and Later brings it up after a quit. Done on the Windows PC and
+   on a Mac, 2026-09-21, and recorded on #142: Windows installs in about 30
+   seconds and relaunches, macOS in under 10, and the replaced mac app still
+   passes `codesign --verify --deep --strict`.
 4. Merge, release **1.6.0** (minor: an app feature).
-5. Straight after, the test that matters. Build the same commit with
-   `-c.extraMetadata.version=1.5.99`, signed on macOS through a rehearsal
-   workflow that borrows the release job's signing environment. On the Windows
-   PC and on a Mac, with the app in `/Applications`: the dialog appears,
-   Restart Now brings up 1.6.0, no SmartScreen. Again with Later: quit,
-   reopen, 1.6.0. Record both on #142.
+5. Straight after, the one thing step 3 could not see, GitHub as the feed:
+   install the rehearsal's 1.5.99 and let it find 1.6.0 by itself.
 6. If step 5 fails, 1.6.0 installs cannot fix themselves, so the repair ships
    as 1.6.1 with a line in its notes asking for one manual update.
 
