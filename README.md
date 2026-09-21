@@ -23,7 +23,7 @@ registry, no build step and no design tool.
 
 ## Five worked examples
 
-Five of the fourteen app folders in `mockups/canvases/`. That folder's own
+Five of the app folders in `mockups/canvases/`. That folder's own
 `README.md` lists them all. Each is a real `clone-prototype` run, rebuilt
 from measured samples with the evidence recorded for every token. Open any
 of them with `?canvas=<slug>`, and one board of it with
@@ -81,13 +81,8 @@ brew install --cask ReScienceLab/tap/super-prototyping
 Then open Super Prototyping. The cask installs the same
 `Super-Prototyping-<version>-<arch>.dmg` every
 [release](https://github.com/ReScienceLab/super-prototyping/releases)
-attaches, so downloading that instead gives the same app. Until the releases
-are signed, macOS refuses the first open from either route, and this allows
-it:
-
-```bash
-xattr -dr com.apple.quarantine "/Applications/Super Prototyping.app"
-```
+attaches, so downloading that instead gives the same app, signed and notarised
+from v1.5.2 on.
 
 The app is the canvas in a window, and it needs no terminal and no bun. It
 opens by asking which agent you will work with, Claude Code or Codex, then
@@ -146,8 +141,8 @@ default branch, name that release's tag. They are listed under
 uv tool install --force "git+https://github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>#subdirectory=tools"
 ```
 
-**A smaller install.** The full one is about 151 MB, because this repo is also
-the workspace whose fourteen worked example boards the skills read, and a
+**A smaller install.** The full one is about 430 MB, because this repo is also
+the workspace whose worked example boards the skills read, and a
 marketplace install downloads the repo and then copies its worktree into the
 plugin cache. If you only want the canvas and the toolkit, declare the
 marketplace in `~/.claude/settings.json` with `sparsePaths` and Claude Code
@@ -168,7 +163,7 @@ clones just those directories, cone mode:
 }
 ```
 
-Measured at 6.7 MB installed, against 151 MB. Add
+Measured at 6.7 MB installed, against about 430 MB. Add
 `mockups/canvases/duolingo-ios` to that list to keep the one example
 `clone-prototype` reads most, or drop the key entirely to get everything.
 
