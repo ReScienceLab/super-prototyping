@@ -107,6 +107,8 @@ async function main() {
   // this dialog is all the user sees of it; "Later" installs it when the app quits. A check that
   // fails says nothing: being offline, or asking in the minutes between a release and its
   // installers being attached, is not something the user can act on. Nothing happens unpackaged.
+  // The startup page shows the version, and a click on it checks again. That check was asked
+  // for, so it is answered either way, in the words the page puts beside the version.
   autoUpdater.on("update-downloaded", async ({ version }) => {
     const { response } = await dialog.showMessageBox(win, {
       message: `Super Prototyping ${version} is ready.`,
@@ -116,10 +118,16 @@ async function main() {
     });
     if (response === 0) autoUpdater.quitAndInstall();
   });
-  autoUpdater
-    .checkForUpdates()
-    .then((check) => check?.downloadPromise)
-    .catch(() => {});
+  const checkForUpdates = () =>
+    autoUpdater.checkForUpdates().then(
+      (check) => {
+        check?.downloadPromise?.catch(() => {});
+        return check?.isUpdateAvailable ? `${check.updateInfo.version} available` : "Up to date";
+      },
+      () => "Could not check",
+    );
+  checkForUpdates();
+  ipcMain.handle("startup:check", checkForUpdates);
   let project = argDir;
   let agent: string | undefined;
   if (project === undefined) {
@@ -201,6 +209,7 @@ async function main() {
       );
       win.loadFile(path.join(app.getAppPath(), "startup.html"), {
         query: {
+          version: app.getVersion(),
           agents: JSON.stringify(rows),
           // Where a project is: the folder it sits in, with ~ for home. The name is the card's
           // title already, and a full path would be cut off before it got to the name.
