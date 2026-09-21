@@ -117,12 +117,22 @@ No server, no new secret, no change to tags or to `claude plugin tag`.
   and reinstalls the same version: wasteful, harmless. VS Code, Slack,
   Discord, Signal, Obsidian and GitHub Desktop all ship exactly this: a pinned
   `version` and `sha256`, plus `auto_updates true`.
-- **Every update is about 515 MB.** Blockmap diffing runs on the compressed
-  archive, and whether it saves anything when 420 MB of the package is
-  unchanged example boards is unproven. Upload the blockmaps, measure two
-  releases, promise nothing. The real lever is trimming the examples, which
-  is its own piece of work. The two mac zips also add about 1 GB of assets to
-  each release.
+- **Update size.** Unchanged files are not meant to be downloaded again, and
+  the build is already shaped for that. electron-builder packs the Windows app
+  as a non-solid 7z (`-ms=off`; its source says "solid compression leads to a
+  lot of changed blocks"), and a zip compresses each file on its own, so an
+  example board that did not change is the same bytes in both releases. The
+  updater compares the two releases' blockmaps and fetches only the blocks it
+  does not already hold, by range request. It needs the previous file on disk.
+  On Windows the installer already keeps a copy of itself
+  (`%LOCALAPPDATA%\super-prototyping-desktop-updater\installer.exe`, 491 MB on
+  the test PC with 1.5.3). On macOS the updater keeps `update.zip` only once it
+  has updated, so a Mac's first update is the full zip and later ones are
+  differential. If a differential download fails, it falls back to the full
+  file. None of this is measured on our package yet: step 5 below records the
+  bytes fetched from the updater's log. The costs are a second copy of the
+  package on disk, and about 1 GB more assets per release for the two mac zips.
+  Trimming the examples is still the way to make the first install smaller.
 
 ## Order of work, and how each step is checked
 
