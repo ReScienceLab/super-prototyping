@@ -19,7 +19,7 @@ gets past it. Open source has no exemption from that, and no free pass either.
   of roles and MFA.
 - **Azure Artifact Signing** is $9.99 a month and shows the lab's own name. It
   needs a paid Azure subscription. electron-builder supports it through
-  `win.azureSignOptions`.
+  `win.azureSignOptions`, under its former name, Trusted Signing.
 
 Either is a change to the `nsis` job in `.github/workflows/release.yml` and
 nothing else. Revisit when someone reports the warning as the reason they did
