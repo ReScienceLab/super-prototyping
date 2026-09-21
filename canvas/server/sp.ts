@@ -1046,8 +1046,11 @@ export function createSpServer(options: {
       return;
     }
     if (match[2] === "cancel" && req.method === "POST") {
-      run.stopped = true;
-      stop(run.child);
+      // A Stop that arrives after the run ended finds a pid Windows may have handed on.
+      if (!ended(run)) {
+        run.stopped = true;
+        stop(run.child);
+      }
       return send(200, "");
     }
     next();
