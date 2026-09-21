@@ -2,7 +2,8 @@
   "name": "super-prototyping-desktop",
   "private": true,
   "version": "1.5.2",
-  "description": "The super-prototyping canvas as a macOS app",
+  "description": "The super-prototyping canvas as a desktop app",
+  "author": "ReScience Lab",
   "type": "module",
   "main": "dist/main.mjs",
   "scripts": {

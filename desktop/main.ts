@@ -97,6 +97,8 @@ async function main() {
     height: 900,
     title: "Super Prototyping",
     backgroundColor: "#000000",
+    // Windows draws the menu as a white strip across a black app. Alt still shows it.
+    autoHideMenuBar: true,
     webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
   });
   let project = argDir;

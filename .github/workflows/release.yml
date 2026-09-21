@@ -478,4 +478,8 @@ jobs:
           bun install --frozen-lockfile
           bun run build
           bunx electron-builder --win nsis --x64 --publish never
+          # The installer is what people run, and nothing else starts it before they do.
+          MSYS_NO_PATHCONV=1 dist/out/*.exe /S
+          "$LOCALAPPDATA/Programs/super-prototyping-desktop/Super Prototyping.exe" --port 5199 "$(mktemp -d)" &
+          curl --retry 60 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:5199/ | grep -q 'id="root"'
           gh release upload "super-prototyping--v$VERSION" dist/out/*.exe
