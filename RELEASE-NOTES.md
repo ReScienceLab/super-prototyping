@@ -32,9 +32,10 @@ Everything below is on `main` and reaches no install until a version is cut.
 - **`refkit shoot` works on Windows.** It finds Chrome where the Windows
   installer puts it, and uses Edge when Chrome is not there. Before, it only
   knew the macOS path.
-- **A new board folder's generator writes UTF-8 everywhere.** On a Windows
-  whose code page is not UTF-8, the template `gen.py` wrote boards in that code
-  page, so Chinese text or an emoji came out garbled or stopped the run.
+- **A new board folder's generator writes the same bytes on Windows.** The
+  template `gen.py` wrote boards in the Windows code page, so Chinese text or
+  an emoji came out garbled or stopped the run, and with CRLF line endings, so
+  regenerating marked every board as changed.
 
 ## v1.5.2
 
