@@ -42,8 +42,10 @@
   }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
   .brand img { width: 24px; height: 24px; }
-  /* The version, and a click on it checks for a newer one. Quiet until hovered: a fact, not a step. */
-  #version { height: 24px; padding: 0 6px; font-size: 12px; font-weight: 400; color: var(--fg-dim); background: none; border-color: transparent; }
+  /* The version, and a click on it checks for a newer one. Plain text that brightens under the
+     pointer, with no pill round it: a fact, not a step. */
+  #version { height: auto; padding: 0; border: 0; background: none; font-size: 12px; font-weight: 400; color: var(--fg-dim); }
+  #version:hover { color: var(--fg); }
   main {
     min-height: 0;
     overflow: auto;
