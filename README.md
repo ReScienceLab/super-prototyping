@@ -84,6 +84,11 @@ Then open Super Prototyping. The cask installs the same
 attaches, so downloading that instead gives the same app, signed and notarised
 from v1.5.2 on.
 
+On Windows, releases after v1.5.2 attach `Super-Prototyping-<version>-x64.exe`.
+It installs for the current user and asks for no administrator. It is not
+signed, so the first time it runs Windows says "Windows protected your PC":
+choose **More info**, then **Run anyway**.
+
 The app is the canvas in a window, and it needs no terminal and no bun. It
 opens by asking which agent you will work with, Claude Code or Codex, then
 asks you to open a project or to name a new one, which goes in

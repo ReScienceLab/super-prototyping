@@ -14,6 +14,7 @@ name: Release
 #      Re-running a run whose attach step failed does that last part again for
 #      the tag already cut. A macOS runner then adds the app, a dmg per
 #      architecture, and writes the Homebrew tap's cask to name those two dmgs.
+#      A Windows runner adds the same app as an installer.
 #
 # Nothing tags a commit that is not on main, and the second half only acts when
 # the version actually changed in that push: the tag ruleset forbids moving a
@@ -438,3 +439,43 @@ jobs:
           git add Casks/super-prototyping.rb
           git commit -m "super-prototyping $VERSION"
           git push
+
+  # The Windows app is that same canvas in that same shell, as one NSIS installer
+  # for x64 that installs for the current user and asks for no administrator. It
+  # is built on Windows for the reason the dmg is built on macOS: the platform's
+  # own tools make its installer. It is not signed
+  # (docs/2026-09-21-windows-app-unsigned.md), so SmartScreen warns the first time
+  # it is run. Like the dmgs it is attached after the release exists, so a failure
+  # here is a missing asset, and the commands below add it by hand.
+  nsis:
+    name: Attach the Windows app
+    needs: tag
+    if: needs.tag.outputs.fresh == 'true'
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Build the canvas, without the example boards
+        working-directory: canvas
+        run: |
+          bun install --frozen-lockfile
+          PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
+
+      - name: Build and attach the installer
+        working-directory: desktop
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.tag.outputs.version }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: |
+          set -euo pipefail
+          bun install --frozen-lockfile
+          bun run build
+          bunx electron-builder --win nsis --x64 --publish never
+          gh release upload "super-prototyping--v$VERSION" dist/out/*.exe

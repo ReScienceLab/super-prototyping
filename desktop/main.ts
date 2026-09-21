@@ -1,9 +1,10 @@
 /**
- * The canvas as a macOS app. This process starts `dist/server.mjs` the way `sp start` does, on the
+ * The canvas as a desktop app, for macOS and Windows. This process starts `dist/server.mjs` the way `sp start` does, on the
  * loopback, and opens one window on it. Nothing here re-implements the server.
  * Bundled to `dist/main.mjs` by `bun run build`; electron-builder wraps that and the built
  * canvas into the .app.
  */
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -47,9 +48,16 @@ const { port: portArg, dir: argDir } = parseArgs(process.argv.slice(app.isPackag
 
 let server: Electron.UtilityProcess | null = null;
 let quitting = false;
+// The server passes a SIGTERM on to the agent it is running. Windows has no signal for it to
+// catch, so there the whole tree is ended from here, or the agent would go on editing the project.
+function stopServer() {
+  if (process.platform === "win32" && server?.pid)
+    spawnSync("taskkill", ["/pid", `${server.pid}`, "/t", "/f"]);
+  else server?.kill();
+}
 app.on("will-quit", () => {
   quitting = true;
-  server?.kill();
+  stopServer();
 });
 // One window is the app. macOS convention would keep it in the dock; the server holds the
 // project open, so closing the window is quitting.
@@ -252,7 +260,7 @@ async function main() {
   } catch (e) {
     if (exited.signal.aborted) return; // the exit handler has already said why
     quitting = true;
-    server.kill();
+    stopServer();
     dialog.showErrorBox(String(e), output || "(no output)");
     return app.exit(1);
   }
@@ -298,7 +306,7 @@ async function main() {
 // skips will-quit, so the server, if it got as far as starting, is killed here.
 main().catch((e) => {
   quitting = true;
-  server?.kill();
+  stopServer();
   dialog.showErrorBox("Super Prototyping failed to start", String(e));
   app.exit(1);
 });
