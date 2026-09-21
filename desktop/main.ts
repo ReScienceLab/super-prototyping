@@ -121,8 +121,9 @@ async function main() {
   const checkForUpdates = () =>
     autoUpdater.checkForUpdates().then(
       (check) => {
-        check?.downloadPromise?.catch(() => {});
-        return check?.isUpdateAvailable ? `${check.updateInfo.version} available` : "Up to date";
+        if (!check) return "Could not check"; // unpackaged: the updater is off and asked nobody
+        check.downloadPromise?.catch(() => {});
+        return check.isUpdateAvailable ? `${check.updateInfo.version} available` : "Up to date";
       },
       () => "Could not check",
     );
