@@ -536,8 +536,8 @@ so there is nothing to restart. If `?canvas=<slug>` opens the wrong page
 anyway — right URL, no error — the folder holds no `.html` file yet, and an
 empty folder is not a board.
 
-```bash
-open "http://127.0.0.1:<port>/?canvas=<slug>"
+```
+http://127.0.0.1:<port>/?canvas=<slug>
 ```
 
 `#<file>` after that opens one board in the inspector, with the camera on
