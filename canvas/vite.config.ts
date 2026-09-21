@@ -9,10 +9,7 @@ import { THUMB_EDGE, boardIndex } from "./server/boards.ts";
 import { createSpServer } from "./server/sp.ts";
 
 // Repo root — vite.config.ts sits in canvas/, one level below it.
-const repoRoot = fileURLToPath(new URL("..", import.meta.url)).replace(
-  /\/$/,
-  "",
-);
+const repoRoot = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 /**
  * Where the boards live. Defaults to this checkout's own folder, so the repo and the hosted
  * build behave exactly as they always have with no environment set.
