@@ -96,13 +96,14 @@ No server, no new secret, no change to tags or to `claude plugin tag`.
   for the first version with the updater have to say so.
 - **Windows updates are not signature-checked.** `NsisUpdater` verifies
   Authenticode only when `app-update.yml` carries a `publisherName`, which an
-  unsigned build never has, so today it skips the check with a warning. The
+  unsigned build never has, so today it skips the check. The
   download is still HTTPS from GitHub and matched against the sha512 in
   `latest.yml`, so it is as trustworthy as the release page, which is what
-  the unsigned installer already asks of people. electron-builder's source
-  marks this fail-open path deprecated and says a future major will refuse
-  instead. So: electron-updater stays pinned, and "the updater refuses
-  unsigned builds" becomes a trigger in the unsigned-installer doc.
+  the unsigned installer already asks of people. electron-builder's main
+  branch, not the pinned release, marks this fail-open path deprecated and
+  says a future major will refuse instead. So: electron-updater stays pinned,
+  and "the updater refuses unsigned builds" becomes a trigger in the
+  unsigned-installer doc.
 - **No SmartScreen on update.** SmartScreen fires on the Mark of the Web that
   a browser adds. electron-updater's download has none, and none appeared on
   the Windows PC, nor a UAC prompt.

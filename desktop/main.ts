@@ -112,6 +112,7 @@ async function main() {
       message: `Super Prototyping ${version} is ready.`,
       detail: "Restart to install it now, or it installs the next time you quit.",
       buttons: ["Restart Now", "Later"],
+      cancelId: 1, // Esc is "Later": without this it answers 0, which is "Restart Now".
     });
     if (response === 0) autoUpdater.quitAndInstall();
   });
