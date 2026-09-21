@@ -21,6 +21,12 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.5.2
+
+2026-09-21. The macOS app is signed and notarised. Nothing else changed, so
+this is for anyone who installed the app, or put it off because of the
+warning. `brew upgrade --cask super-prototyping` moves an install to it.
+
 - **The macOS app opens without the `xattr` step.** The dmgs are signed by
   ReScience Lab Inc. and notarised by Apple, so macOS no longer says the app
   "is damaged and can't be opened", from Homebrew or from a downloaded dmg.
