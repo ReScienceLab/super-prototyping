@@ -192,7 +192,7 @@ def page(title, body, extra_css=""):
 
 
 def write(name, html):
-    (OUT / (name + ".html")).write_text(html)
+    (OUT / (name + ".html")).write_text(html, encoding="utf-8", newline="\n")
     print(name, len(html))
 
 
@@ -462,6 +462,6 @@ LAYOUT = {
   {"title": "Device shells: " + m + " art, 393 x 852 pt window",
    "files": [{"file": n, "label": l} for n, l, _, _ in row]} for m, row in SHELLS],
 }
-(OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2) + "\n")
+(OUT / "layout.json").write_text(json.dumps(LAYOUT, indent=2) + "\n", encoding="utf-8", newline="\n")
 print("layout.json", len(LAYOUT["rows"]), "rows")
 print("\nnext: refkit tokens", OUT)

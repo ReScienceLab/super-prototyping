@@ -1,0 +1,3 @@
+# A Windows checkout would otherwise turn every line ending into CRLF: the Windows installer
+# shipped its skills and templates that way, and a shell script checked out there does not run.
+* text=auto eol=lf
