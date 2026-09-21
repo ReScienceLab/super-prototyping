@@ -311,10 +311,9 @@ jobs:
   # is attached last, so a failure here is a missing asset. `gh release upload`
   # by hand adds that asset, and the commands below are the list to run. Signing
   # turns on when the secrets are present and stays off otherwise, so a fork or a
-  # checkout without them builds an unsigned dmg, which Gatekeeper refuses until
-  # the `xattr` line in README's Install section clears its quarantine. That line
-  # goes once the secrets are set. The secrets are listed by name, and their
-  # values are nowhere in this repo:
+  # checkout without them builds an unsigned dmg, which macOS calls damaged until
+  # `xattr -dr com.apple.quarantine` clears it from the installed app. The secrets
+  # are listed by name, and their values are nowhere in this repo:
   #
   #   MAC_CERT_P12        Developer ID Application certificate, a .p12, base64
   #   MAC_CERT_PASSWORD   the password that .p12 was exported with

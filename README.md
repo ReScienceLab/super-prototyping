@@ -78,18 +78,13 @@ On macOS, Homebrew installs the app:
 brew install --cask ReScienceLab/tap/super-prototyping
 ```
 
-The cask installs the same `Super-Prototyping-<version>-<arch>.dmg` every
+Then open Super Prototyping. The cask installs the same
+`Super-Prototyping-<version>-<arch>.dmg` every
 [release](https://github.com/ReScienceLab/super-prototyping/releases)
-attaches, so downloading that instead gives the same app. The releases are not
-signed yet, so from either route run this before the first open. Without it
-macOS says the app "is damaged and can't be opened" and offers to move it to
-the Trash. It is not damaged: that is what macOS says of any unsigned download.
+attaches, so downloading that instead gives the same app, signed and notarised
+from v1.5.2 on.
 
-```bash
-xattr -dr com.apple.quarantine "/Applications/Super Prototyping.app"
-```
-
-Then open Super Prototyping. The app is the canvas in a window, and it needs no terminal and no bun. It
+The app is the canvas in a window, and it needs no terminal and no bun. It
 opens by asking which agent you will work with, Claude Code or Codex, then
 asks you to open a project or to name a new one, which goes in
 `Documents/Super Prototyping`. It shows that project's `mockups/canvases` with
