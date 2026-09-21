@@ -290,7 +290,8 @@ captions.
 ## Toolkit
 
 `refkit`, `artgen` and `sp` install together as
-`super-prototyping-tools`. `shoot` additionally needs Google Chrome.
+`super-prototyping-tools`. `shoot` additionally needs Google Chrome; on
+Windows, Edge will do.
 
 ```bash
 refkit grid ref.png -o grid.png --zoom 3          # overlay to read by eye

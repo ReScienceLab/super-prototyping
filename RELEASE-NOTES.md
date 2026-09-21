@@ -29,6 +29,9 @@ Everything below is on `main` and reaches no install until a version is cut.
 - **The chat panel runs Claude Code and Codex on Windows.** An npm-installed
   `claude` or `codex` is a `.cmd` file there, which the canvas could not start,
   and Stop left the agent running. Both work now, from `sp start` as well.
+- **`refkit shoot` works on Windows.** It finds Chrome where the Windows
+  installer puts it, and uses Edge when Chrome is not there. Before, it only
+  knew the macOS path.
 
 ## v1.5.2
 
