@@ -21,6 +21,15 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **The app updates itself.** On launch it looks for a newer release, downloads
+  it in the background, and then asks once: **Restart Now**, or **Later**, which
+  installs it when you quit. Only what changed is downloaded, so the example
+  boards are not fetched again: a few MB on Windows and about 50 MB on macOS,
+  where the first update after a dmg install is still the whole app. Offline,
+  it says nothing. A Homebrew install updates this way too. Installs of v1.5.3 and
+  earlier have no updater, so they need one last manual update:
+  `brew upgrade --cask super-prototyping`, or the new installer on Windows.
+
 ## v1.5.3
 
 2026-09-21. Windows: there is an app for it, and the chat panel, `refkit shoot`

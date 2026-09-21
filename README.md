@@ -89,6 +89,11 @@ It installs for the current user and asks for no administrator. It is not
 signed, so the first time it runs Windows says "Windows protected your PC":
 choose **More info**, then **Run anyway**.
 
+From then on the app updates itself. On launch it looks for a newer release,
+downloads it in the background and asks once to restart; **Later** installs it
+when you quit. v1.5.3 and earlier do not, so update those once by hand, with
+`brew upgrade --cask super-prototyping` or the new installer.
+
 The app is the canvas in a window, and it needs no terminal and no bun. It
 opens by asking which agent you will work with, Claude Code or Codex, then
 asks you to open a project or to name a new one, which goes in
