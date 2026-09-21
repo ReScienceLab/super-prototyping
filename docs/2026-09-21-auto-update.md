@@ -150,9 +150,10 @@ One PR for `desktop/` and the workflow. It touches nothing under `canvas/`.
 
 1. Make the changes. `bunx tsc --noEmit`, `bun test`.
 2. A throwaway rehearsal workflow on the branch builds both platforms **with
-   `GH_TOKEN` set**, the mac one signed but not notarised. Pass means: no `createUpdateInfoTasks`
-   crash, and `dist/out` holds the zips, the blockmaps, `latest-mac.yml` and
-   `latest.yml`, and `app-update.yml` is inside the app's resources.
+   `GH_TOKEN` set**, the mac one signed but not notarised. Pass means: no
+   `createUpdateInfoTasks` crash, and `dist/out` holds the zips, the
+   blockmaps, `latest-mac.yml` and `latest.yml`, and `app-update.yml` is
+   inside the app's resources.
 3. The whole update, before anything is released. The rehearsal builds the
    commit twice, as 1.5.98 and 1.5.99, signed on macOS with the release job's
    certificate. 1.5.98 is installed and started as built: it asks GitHub, gets
