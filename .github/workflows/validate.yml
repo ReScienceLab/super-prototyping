@@ -98,6 +98,24 @@ jobs:
       - run: bun run test
       - run: bun run build
 
+  # The server starts an agent through cmd.exe on Windows and nowhere else
+  # (canvas/server/command.ts), so the test of that only runs here.
+  canvas-windows:
+    name: Canvas on Windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: canvas
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install --frozen-lockfile
+      - run: bun run test
+
   desktop:
     name: macOS app
     runs-on: ubuntu-latest

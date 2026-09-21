@@ -13,6 +13,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { IMAGE_MIME, boardIndex, canvasesNamespace } from "./boards.ts";
+import { command, stop } from "./command.ts";
 import { installSkills, installedSkills, pluginVersion } from "./skills.ts";
 import {
   BOARD_STATUSES,
@@ -515,6 +516,8 @@ export function createSpServer(options: {
       images: AgentImage[];
       /** The pictures its tools handed back, in arrival order; `shot/<k>` is one-based. */
       shots: { type: string; data: Buffer }[];
+      /** The Stop button was pressed. Windows ends a run by exit code 1, which says nothing. */
+      stopped: boolean;
     }
   >();
   // Which agents are installed: `bin --version` once each, for the server's lifetime, so
@@ -524,13 +527,14 @@ export function createSpServer(options: {
   const installed = (def: AgentDef) => {
     let probe = probes.get(def.id);
     if (!probe) {
+      const c = command(def.bin, ["--version"]);
       probe = new Promise((done) =>
         // From the temp dir: a CLI that reads project config from its cwd on `--version`
         // would otherwise fail the probe over the project's settings, not its absence.
         execFile(
-          def.bin,
-          ["--version"],
-          { timeout: 10_000, cwd: os.tmpdir() },
+          c.file,
+          c.args,
+          { ...c.options, timeout: 10_000, cwd: os.tmpdir() },
           (error) => done(!error),
         ),
       );
@@ -587,11 +591,13 @@ export function createSpServer(options: {
   const askFor = (def: AgentDef) => {
     let ask = asked.get(def.id);
     if (!ask) {
+      const c = command(def.bin, def.commandsProbe!.args);
       ask = new Promise<string[]>((done) =>
         execFile(
-          def.bin,
-          def.commandsProbe!.args,
+          c.file,
+          c.args,
           {
+            ...c.options,
             cwd: projectDir ?? undefined,
             timeout: 30_000,
             maxBuffer: 8 << 20,
@@ -796,7 +802,9 @@ export function createSpServer(options: {
               "<sp-title>three to six words naming what was asked</sp-title>, then go on as usual.",
           ]
             .filter(Boolean)
-            .join("\n");
+            // One line: claude takes this as an argument, and through a .cmd shim on Windows an
+            // argument cannot hold a newline (command.ts).
+            .join(" ");
           // The run's id names the folder, and the image's number and media type name the
           // file in it, so what the browser called the file stays a caption: a slash or a
           // `..` in that name is text in the prompt and reaches no path here.
@@ -818,23 +826,25 @@ export function createSpServer(options: {
               return { ...i, path: file };
             },
           );
+          const c = command(
+            def.bin,
+            def.args({
+              preamble,
+              boards: canvasesDir,
+              model,
+              effort,
+              imagesDir,
+            }),
+          );
           const run = Object.assign(newRun(id), {
-            child: spawn(
-              def.bin,
-              def.args({
-                preamble,
-                boards: canvasesDir,
-                model,
-                effort,
-                imagesDir,
-              }),
-              {
-                cwd: project,
-                env: process.env,
-              },
-            ),
+            child: spawn(c.file, c.args, {
+              ...c.options,
+              cwd: project,
+              env: process.env,
+            }),
             images: held,
             shots: [] as { type: string; data: Buffer }[],
+            stopped: false,
           });
           runs.set(run.id, run);
           // The agent, the prompt, its first line as the title until the model gives one, and
@@ -915,7 +925,7 @@ export function createSpServer(options: {
                 }
               }
             } catch (error) {
-              run.child.kill();
+              stop(run.child);
               finish(`unreadable output from ${def.bin}: ${error}`);
             }
           };
@@ -944,7 +954,7 @@ export function createSpServer(options: {
             // `claude` is a launcher around the real process: a SIGTERM to it comes back as
             // exit 143, not as a signal. Harmless for codex, which dies by the signal.
             finish(
-              signal || code === 143
+              signal || code === 143 || run.stopped
                 ? "stopped"
                 : `${def.bin} exited with code ${code}` +
                     (tail ? `\n${tail}` : "") +
@@ -1036,7 +1046,11 @@ export function createSpServer(options: {
       return;
     }
     if (match[2] === "cancel" && req.method === "POST") {
-      run.child.kill();
+      // A Stop that arrives after the run ended finds a pid Windows may have handed on.
+      if (!ended(run)) {
+        run.stopped = true;
+        stop(run.child);
+      }
       return send(200, "");
     }
     next();
@@ -1164,7 +1178,7 @@ export function createSpServer(options: {
       // The agent is this server's child and no one else's. A SIGTERM to the server alone, which is
       // how the macOS app stops it, would otherwise leave the agent editing the project with nobody
       // watching. This is the same kill the Stop button sends.
-      for (const run of runs.values()) if (!ended(run)) run.child.kill();
+      for (const run of runs.values()) if (!ended(run)) stop(run.child);
     },
   };
 }
