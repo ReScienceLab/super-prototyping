@@ -129,8 +129,14 @@ No server, no new secret, no change to tags or to `claude plugin tag`.
   the test PC with 1.5.3). On macOS the updater keeps `update.zip` only once it
   has updated, so a Mac's first update is the full zip and later ones are
   differential. If a differential download fails, it falls back to the full
-  file. None of this is measured on our package yet: step 5 below records the
-  bytes fetched from the updater's log. The costs are a second copy of the
+  file. Measured on Windows, offline: electron-builder's own `buildBlockMap`
+  run over two real installers, the #140 rehearsal build and the released
+  1.5.3 (515 MB each, 24,649 blocks). 55 blocks differ, 1.15 MB, 0.22% of the
+  file. That pair differs only in app code and version strings, so it is the
+  floor: a release that changes the canvas bundle fetches those few MB too, and
+  one that moves Electron fetches Electron. The mac zip is not measured, since
+  no release has one yet. Step 5 below records the bytes the updater really
+  fetches. The costs are a second copy of the
   package on disk, and about 1 GB more assets per release for the two mac zips.
   Trimming the examples is still the way to make the first install smaller.
 
