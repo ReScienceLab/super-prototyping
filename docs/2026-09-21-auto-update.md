@@ -88,8 +88,9 @@ No server, no new secret, no change to tags or to `claude plugin tag`.
 - **The release is public before its assets are.** The tag job cuts the
   release, and the apps arrive 10 to 20 minutes later. An app that checks in
   that window gets a 404 for `latest.yml`. That is the `catch` above. The
-  `nsis` job's own smoke test hits the same 404 on every release, which makes
-  it a standing check that a failed update check is silent.
+  `nsis` job's own smoke test starts the app inside that window on every
+  release, so the path is exercised each time, though the test would not
+  notice a stray dialog.
 - **Installs up to 1.5.3 have no updater.** They need one last manual update,
   `brew upgrade --cask super-prototyping` or the installer. The release notes
   for the first version with the updater have to say so.
