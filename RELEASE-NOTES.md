@@ -21,6 +21,13 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **The macOS app opens without the `xattr` step.** The dmgs are signed by
+  ReScience Lab Inc. and notarised by Apple, so macOS no longer says the app
+  "is damaged and can't be opened", from Homebrew or from a downloaded dmg.
+  The signing was wired in v1.5.0 and had never run. Its first run stopped
+  inside electron-builder 26.15.3, which gives `security` the wrong password
+  on a macOS 26 runner, so the app now builds with 26.16.1, which has the fix.
+
 ## v1.5.1
 
 2026-09-20. The first release with the macOS app attached. v1.5.0 tagged and
