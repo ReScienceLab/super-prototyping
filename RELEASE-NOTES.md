@@ -21,6 +21,11 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.5.3
+
+2026-09-21. Windows: there is an app for it, and the chat panel, `refkit shoot`
+and a new board folder's generator now work there. Nothing changed on macOS.
+
 - **There is a Windows app.** Each release attaches
   `Super-Prototyping-<version>-x64.exe`, the same app as the macOS one. It
   installs for the current user with no administrator prompt. It is not signed,
