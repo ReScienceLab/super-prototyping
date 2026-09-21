@@ -16,6 +16,7 @@
     "@types/node": "26",
     "electron": "44.4.3",
     "electron-builder": "26.16.1",
+    "electron-updater": "6.8.9",
     "typescript": "7"
   },
   "trustedDependencies": [
@@ -25,7 +26,7 @@
     "appId": "com.rescience.super-prototyping",
     "productName": "Super Prototyping",
     "artifactName": "Super-Prototyping-${version}-${arch}.${ext}",
-    "publish": null,
+    "publish": { "provider": "github", "owner": "ReScienceLab", "repo": "super-prototyping" },
     "directories": {
       "output": "dist/out"
     },
@@ -85,7 +86,7 @@
     "asar": true,
     "npmRebuild": false,
     "mac": {
-      "target": "dmg",
+      "target": ["dmg", "zip"],
       "category": "public.app-category.developer-tools",
       "icon": "icon.png",
       "hardenedRuntime": true,

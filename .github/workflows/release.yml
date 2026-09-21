@@ -371,8 +371,12 @@ jobs:
           fi
           bun install --frozen-lockfile
           bun run build
-          bunx electron-builder --mac dmg --arm64 --x64 --publish never
-          gh release upload "super-prototyping--v$VERSION" dist/out/*.dmg
+          bunx electron-builder --mac dmg zip --arm64 --x64 --publish never
+          # The zips are what an installed app updates itself from. latest-mac.yml is
+          # the feed that names them, so it goes up last: an app that reads it must
+          # find every file it lists.
+          gh release upload "super-prototyping--v$VERSION" dist/out/*.dmg dist/out/*.zip dist/out/*.zip.blockmap
+          gh release upload "super-prototyping--v$VERSION" dist/out/latest-mac.yml
 
       # Homebrew installs the app through this cask and nothing else, and the cask
       # names the two dmgs just uploaded, so `brew install --cask` and the release
@@ -419,6 +423,7 @@ jobs:
             desc "Prototyping canvas and skills for coding agents"
             homepage "https://github.com/ReScienceLab/super-prototyping"
 
+            auto_updates true
             depends_on macos: :ventura
 
             app "Super Prototyping.app"
@@ -482,4 +487,6 @@ jobs:
           MSYS_NO_PATHCONV=1 dist/out/*.exe /S
           "$LOCALAPPDATA/Programs/super-prototyping-desktop/Super Prototyping.exe" --port 5199 "$(mktemp -d)" &
           curl --retry 60 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:5199/ | grep -q 'id="root"'
-          gh release upload "super-prototyping--v$VERSION" dist/out/*.exe
+          # latest.yml is the feed an installed app updates itself from. Last, as on macOS.
+          gh release upload "super-prototyping--v$VERSION" dist/out/*.exe dist/out/*.exe.blockmap
+          gh release upload "super-prototyping--v$VERSION" dist/out/latest.yml
