@@ -21,6 +21,11 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **There is a Windows app.** Each release attaches
+  `Super-Prototyping-<version>-x64.exe`, the same app as the macOS one. It
+  installs for the current user with no administrator prompt. It is not signed,
+  so the first run shows "Windows protected your PC": choose More info, then
+  Run anyway.
 - **The chat panel runs Claude Code and Codex on Windows.** An npm-installed
   `claude` or `codex` is a `.cmd` file there, which the canvas could not start,
   and Stop left the agent running. Both work now, from `sp start` as well.

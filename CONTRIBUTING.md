@@ -70,7 +70,8 @@ Everything under `.github/`:
   Release from the matching `RELEASE-NOTES.md` section, and attaches
   `canvas-dist.tgz`, the canvas built without the example boards. A macOS
   runner then attaches the two `Super-Prototyping-<version>-<arch>.dmg` files,
-  signed and notarised when the secrets the job names are set. It is in two
+  signed and notarised when the secrets the job names are set, and a Windows
+  runner attaches `Super-Prototyping-<version>-x64.exe`, unsigned. It is in two
   halves because branch protection means CI cannot push to `main`.
 - `CODEOWNERS`: who is asked to review pull requests, by path.
 - `dependabot.yml`: weekly dependency updates for `canvas/` and `desktop/`
@@ -117,7 +118,7 @@ release calls a command from the other.
    `## Unreleased` above it. The tag job reads exactly that heading.
 5. Merge. The push to `main` tags `super-prototyping--v<version>` through
    `claude plugin tag`, cuts the GitHub Release from that notes section, and
-   attaches `canvas-dist.tgz` and the two dmgs to it.
+   attaches `canvas-dist.tgz`, the two dmgs and the Windows installer to it.
 
 **Then check the release exists**, because everything downstream keys off the
 tag: the tag on the Releases page, `/plugin update super-prototyping` in Claude
@@ -140,7 +141,8 @@ the release whole. To add it by hand: in `canvas/`, run `bun run build` with
 `gh release upload super-prototyping--v<version> canvas-dist.tgz`. The dmgs
 can be added by hand the same way. The `dmg` job in `release.yml` is the list
 of commands, and `CSC_IDENTITY_AUTO_DISCOVERY=false` in place of the signing
-variables builds them unsigned.
+variables builds them unsigned. The Windows installer is the `nsis` job's
+commands, run on Windows.
 The whole thing is doable by hand too. Run `scripts/bump-version.sh <version>`,
 open a pull request, then `claude plugin tag . --push -m 'super-prototyping %s'`
 after it merges; the workflow is that sequence with the gates in front of it.

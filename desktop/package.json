@@ -90,6 +90,10 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "notarize": true
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png"
     }
   }
 }
