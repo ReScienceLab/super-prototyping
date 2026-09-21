@@ -40,7 +40,8 @@ Once per machine, and from a checkout instead if you are working on the tools:
 `uv tool install /path/to/super-prototyping/tools` (or `pipx install`).
 
 This pulls `pillow` and `numpy`, which were previously an undocumented
-prerequisite. `refkit shoot` additionally needs Google Chrome.
+prerequisite. `refkit shoot` additionally needs Google Chrome; on Windows,
+Edge will do.
 
 `scripts/install-skills.sh` at the repo root does this for you, alongside
 linking the skills into the non-Claude agent products.

@@ -21,7 +21,7 @@ e.g. `notion-ios`.
 Toolkit: `refkit` (grid / sample / bands / bbox / scan / hairline / font /
 shoot / diff / blend / tokens / batch / ink / crops / key / montage), plus
 `artgen` for the rare asset that has to be drawn. Both are commands on your
-PATH; `shoot` additionally needs Google Chrome.
+PATH; `shoot` additionally needs Google Chrome (on Windows, Edge will do).
 
 ```bash
 refkit --help
