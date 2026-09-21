@@ -3,9 +3,11 @@ import {
   canvasPageUrl,
   sheetPageUrl,
   WELCOME_PAGE_SLUG,
+  tabFromUrl,
   targetFromUrl,
   slugFromUrl,
   urlForSlug,
+  urlForTab,
 } from "./canvasUrl";
 
 // The address is what people paste to each other, so both directions have to agree: the URL a
@@ -73,6 +75,61 @@ describe("canvas URLs", () => {
     expect(slugFromUrl(root + sheetPageUrl("luma-ios").slice(1))).toBe(
       "luma-ios",
     );
+  });
+
+  it("reads the tab in front, which is a canvas unless a kit says otherwise", () => {
+    expect(tabFromUrl(root)).toEqual({
+      kind: "canvas",
+      slug: WELCOME_PAGE_SLUG,
+    });
+    expect(tabFromUrl(root + "?canvas=luma-ios")).toEqual({
+      kind: "canvas",
+      slug: "luma-ios",
+    });
+    expect(tabFromUrl(root + "?brand=luma-ios")).toEqual({
+      kind: "brand",
+      slug: "luma-ios",
+    });
+    // A `brand` with nothing after it is the index of every kit, not a missing one.
+    expect(tabFromUrl(root + "?brand=")).toEqual({ kind: "brand", slug: "" });
+  });
+
+  it("writes one tab at a time, so the address never names two", () => {
+    const canvas = { kind: "canvas", slug: "luma-ios" } as const;
+    const kit = { kind: "brand", slug: "grok-ios" } as const;
+    expect(urlForTab(root, canvas, "03-event")).toBe(
+      root + "?canvas=luma-ios#03-event",
+    );
+    // The kit takes the canvas parameter with it, and the board too: a kit has no board.
+    expect(urlForTab(root + "?canvas=luma-ios#03-event", kit)).toBe(
+      root + "?brand=grok-ios",
+    );
+    expect(urlForTab(root + "?brand=grok-ios", canvas)).toBe(
+      root + "?canvas=luma-ios",
+    );
+    expect(urlForTab(root + "?brand=grok-ios", { kind: "brand", slug: "" })).toBe(
+      root + "?brand=",
+    );
+    // Start here is the bare address on a canvas tab, the way it is without tabs at all.
+    expect(
+      urlForTab(root + "?brand=grok-ios", {
+        kind: "canvas",
+        slug: WELCOME_PAGE_SLUG,
+      }),
+    ).toBe(root);
+  });
+
+  it("round-trips every tab it can write", () => {
+    for (const tab of [
+      { kind: "canvas", slug: "luma-ios" },
+      { kind: "canvas", slug: WELCOME_PAGE_SLUG },
+      { kind: "brand", slug: "grok-ios" },
+      { kind: "brand", slug: "" },
+    ] as const) {
+      expect(tabFromUrl(urlForTab(root + "?brand=notion-ios", tab))).toEqual(
+        tab,
+      );
+    }
   });
 
   it("round-trips and keeps unrelated parameters", () => {
