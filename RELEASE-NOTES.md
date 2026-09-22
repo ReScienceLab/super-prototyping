@@ -26,8 +26,9 @@ Everything below is on `main` and reaches no install until a version is cut.
   with none: open an example, or close every tab, and nothing is made or
   reopened for you. Each card shows the
   screens of its canvas: a phone cropped to its screen, a wider board whole.
-  Open one, or start a new project from the same page.
-  The Home button on the canvas's top bar goes back to it.
+  Open one, or start a new project from the same page. With none yet, a dashed
+  card sits under Projects where your first one will be, and a click on it
+  starts that project. The Home button on the canvas's top bar goes back to it.
 
 - **The first launch asks one question, over the app.** It no longer asks for
   a project before you see anything. It opens on the home page, with no project

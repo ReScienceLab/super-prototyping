@@ -19,7 +19,7 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import { canvasPageUrl } from "./canvasUrl";
-import { FolderPlus, LogoDiscord, LogoGithub } from "./geistIcons";
+import { FolderPlus, LogoDiscord, LogoGithub, Plus } from "./geistIcons";
 import { FOUNDATIONS_ROW } from "./sheetLayout";
 
 type Sort = "edited" | "name" | "boards";
@@ -314,6 +314,20 @@ export function HomePage(props: {
             />
           );
         })}
+        {/* Before the first project, its outline where it will be, which makes it. */}
+        {projects.length === 0 && props.newProject && (
+          <button
+            className="home-file home-file--new"
+            type="button"
+            onClick={props.newProject}
+          >
+            <i>
+              <Plus />
+            </i>
+            <span>New project</span>
+            <small>Your projects will show up here</small>
+          </button>
+        )}
       </div>
       {examples.length > 0 && (
         <>

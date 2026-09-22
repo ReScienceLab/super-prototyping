@@ -205,6 +205,38 @@ button.home-tile i {
   font-size: 13px;
   line-height: 18px;
 }
+/* Before the first project, a card's outline and a card's height: the stage, the foot, the borders. */
+.home-file--new {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 4px;
+  height: 295px;
+  border-style: dashed;
+  border-color: var(--ds-gray-500);
+  cursor: pointer;
+}
+.home-file--new:hover {
+  background: var(--ds-gray-100);
+}
+.home-file--new i {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: var(--ds-gray-1000);
+  color: var(--ds-background-100);
+}
+.home-file--new span {
+  font-weight: 500;
+}
+.home-file--new small {
+  color: var(--ds-gray-900);
+  font-size: 13px;
+  line-height: 18px;
+}
 
 /* New project: a name. */
 /* `margin: auto` is the browser's own centring of a modal, which Tailwind's preflight zeroes. */
@@ -367,7 +399,8 @@ button.home-tile i {
 }
 
 /* Last, and under the page's class, so it outranks every ring and hover above it. */
-:is(.home-main, .home-dialog, .onboarding) :is(a, button, select, input):focus-visible,
+:is(.home-main, .home-dialog, .onboarding)
+  :is(a, button, select, input):focus-visible,
 .onboarding label:has(:focus-visible) {
   outline: none;
   box-shadow: var(--ds-focus-ring);
