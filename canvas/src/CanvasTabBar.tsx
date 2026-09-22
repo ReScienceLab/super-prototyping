@@ -100,7 +100,7 @@ export function CanvasTabBar(props: {
   goTo: (tab: ProjectTab) => void;
   /** Takes these off the bar, landing on a neighbour when the one in front goes. */
   closeTabs: (tabs: ProjectTab[]) => void;
-  /** Loads the canvas in front again, and nothing else. */
+  /** Loads what is in front again, and nothing else: the canvas, or home's list of projects. */
   reload: () => void;
   /** The server's, which a hosted build has none of. */
   newProject?: () => void;
@@ -108,7 +108,7 @@ export function CanvasTabBar(props: {
 }) {
   const { tabs, goTo } = props;
   const active = props.active && tabKey(props.active);
-  const [target, setTarget] = useState<ProjectTab | null>(null);
+  const [target, setTarget] = useState<ProjectTab | "home" | null>(null);
   const menu = useRef<HTMLDivElement>(null);
 
   return (
@@ -118,6 +118,9 @@ export function CanvasTabBar(props: {
       <button
         type="button"
         className="sp-head-x sp-topbar-home"
+        onContextMenu={(event) =>
+          openMenu(event, menu, () => setTarget("home"))
+        }
         aria-current={active ? undefined : "page"}
         title="Home"
         onClick={props.onHome}
@@ -156,7 +159,36 @@ export function CanvasTabBar(props: {
         role="menu"
         onClickCapture={(event) => event.currentTarget.hidePopover()}
       >
-        {target && (
+        {target === "home" && (
+          <>
+            <button
+              type="button"
+              role="menuitem"
+              className="sp-menu-row"
+              onClick={() =>
+                navigator.clipboard.writeText(
+                  new URL(
+                    canvasIndex().served ? "/home.html" : "home.html",
+                    location.href,
+                  ).href,
+                )
+              }
+            >
+              Copy link
+            </button>
+            {!active && (
+              <button
+                type="button"
+                role="menuitem"
+                className="sp-menu-row"
+                onClick={props.reload}
+              >
+                Reload
+              </button>
+            )}
+          </>
+        )}
+        {target && target !== "home" && (
           <>
             <button
               type="button"

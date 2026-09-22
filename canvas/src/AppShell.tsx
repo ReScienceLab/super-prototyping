@@ -203,7 +203,9 @@ export function AppShell() {
         onHome={() => setHome(true)}
         goTo={goTo}
         closeTabs={closeTabs}
-        reload={() => frame.current!.contentWindow!.location.reload()}
+        reload={() =>
+          home ? listProjects() : frame.current!.contentWindow!.location.reload()
+        }
         newProject={served ? newProject : undefined}
       >
         {/* Dev server and app only: the panel talks to /__sp/agent, which a hosted build has no

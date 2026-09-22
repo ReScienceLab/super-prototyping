@@ -37,7 +37,9 @@ Everything below is on `main` and reaches no install until a version is cut.
   An example has only Open and Copy link.
 
 - **Right-click a tab** to copy its link, reload the canvas in front, show a
-  project's folder, or close it, the other tabs, or all of them.
+  project's folder, or close it, the other tabs, or all of them. Home has Copy
+  link and Reload. The browser's own right-click menu no longer shows over the
+  app, except in a text field, where it keeps Paste and spelling.
 
 - **The first launch asks one question, over the app.** It no longer asks for
   a project before you see anything. It opens on the home page, with no project

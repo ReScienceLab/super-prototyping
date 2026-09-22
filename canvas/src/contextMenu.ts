@@ -30,6 +30,22 @@ export function openMenu(
   window.addEventListener("pointerup", () => setTimeout(show), { once: true });
 }
 
+/**
+ * Keeps the browser's own menu off a page of the app, which has its own where a right-click
+ * means something. A text field keeps it, for its spelling and its Paste. The listener is the
+ * document's, so it runs after React's, and after tldraw has opened the canvas's menu.
+ */
+export function noBrowserMenu() {
+  document.addEventListener("contextmenu", (event) => {
+    if (
+      !(event.target as Element).closest(
+        "input, textarea, [contenteditable]:not([contenteditable=false])",
+      )
+    )
+      event.preventDefault();
+  });
+}
+
 /** Asks the server to do something to a project's folder (canvas/server/projects.ts). */
 export async function askServer(action: "reveal" | "delete", name: string) {
   const res = await fetch(
