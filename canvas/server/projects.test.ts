@@ -104,10 +104,26 @@ it("serves every project at its own address and makes new ones", async () => {
       "welcome",
     );
     const listed = JSON.parse((await ask("/__sp/projects.json")).text);
-    expect(listed.map((p: any) => [p.name, p.url])).toEqual([
-      ["elsewhere", "/p/elsewhere/"],
-      ["alpha", "/p/alpha/"],
+    expect(listed.map((p: any) => [p.name, p.url, p.path])).toEqual([
+      ["elsewhere", "/p/elsewhere/", path.join(tmp, "elsewhere")],
+      ["alpha", "/p/alpha/", path.join(tmp, "projects/alpha")],
     ]);
+    // A card's menu names a project the server has. Moving one to the Trash and showing one in
+    // Finder are the OS's, and are not driven here.
+    expect(
+      (await ask("/__sp/projects/delete", { name: "nowhere" })).status,
+    ).toBe(404);
+    expect((await ask("/__sp/projects/reveal", {})).status).toBe(404);
+    expect(
+      (
+        await ask(
+          "/__sp/projects/delete",
+          { name: "alpha" },
+          { "sec-fetch-site": "cross-site" },
+        )
+      ).status,
+    ).toBe(403);
+    expect(fs.existsSync(path.join(tmp, "projects/alpha"))).toBe(true);
 
     // A new project, then opened. It gets no skills: the agent's are in its own folder.
     const made = await ask("/__sp/projects", { name: " beta " });

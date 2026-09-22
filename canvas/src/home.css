@@ -405,3 +405,33 @@ button.home-tile i {
   outline: none;
   box-shadow: var(--ds-focus-ring);
 }
+
+/* A card's right-click menu, placed at the pointer by HomePage.tsx. What is here is the reset a
+   popover needs and the menu's skin; `--sp-hover` because `.sp-menu-row` (index.css) wants it and
+   it is defined on the panels, which this menu is not inside. */
+.home-menu {
+  --sp-hover: var(--ds-gray-100);
+  position: fixed;
+  inset: auto;
+  min-width: 180px;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--ds-gray-400);
+  border-radius: 8px;
+  background: var(--ds-background-100);
+  color: var(--ds-gray-1000);
+  box-shadow: var(--ds-shadow-menu);
+}
+.home-menu hr {
+  margin: 4px 0;
+  border: 0;
+  border-top: 1px solid var(--ds-gray-400);
+}
+.home-menu__danger {
+  color: var(--ds-red-900);
+}
+.home-menu .sp-menu-row:disabled {
+  background: none;
+  color: var(--ds-gray-700);
+  cursor: default;
+}

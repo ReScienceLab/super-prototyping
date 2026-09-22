@@ -31,6 +31,11 @@ Everything below is on `main` and reaches no install until a version is cut.
   card sits under Projects where your first one will be, and a click on it
   starts that project. The Home button on the canvas's top bar goes back to it.
 
+- **Right-click a card on the home page** to open it, copy its link, show its
+  folder in Finder or Explorer, or delete it. Delete moves the folder to the
+  Trash, where you can put it back, and asks first with the folder's path in
+  full. An example has only Open and Copy link.
+
 - **The first launch asks one question, over the app.** It no longer asks for
   a project before you see anything. It opens on the home page, with no project
   made for you, and asks over it which agent you will work with. Skip it and it

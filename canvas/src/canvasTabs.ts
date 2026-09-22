@@ -66,6 +66,8 @@ export interface Project {
   name: string;
   /** Its pages' address from the root: `/p/<name>/`. */
   url: string;
+  /** Its folder, which a card's Delete names before it moves it to the Trash. */
+  path: string;
   updated: number;
   canvases: ProjectCanvas[];
 }

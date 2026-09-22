@@ -72,6 +72,70 @@ function pickFolder() {
 }
 
 /**
+ * Shows a folder in the OS's file manager, selected in the folder it is in. Rejects with ENOENT
+ * on a Linux without xdg-open, which can only open the folder around it.
+ */
+function reveal(dir: string) {
+  const [file, args] =
+    process.platform === "darwin"
+      ? ["open", ["-R", dir]]
+      : process.platform === "win32"
+        ? ["explorer", ["/select,", dir]]
+        : ["xdg-open", [path.dirname(dir)]];
+  return new Promise<void>((resolve, reject) => {
+    // Explorer exits 1 when it has shown the folder, so only a missing command is a failure.
+    execFile(file, args, (error) =>
+      error && (error as NodeJS.ErrnoException).code === "ENOENT"
+        ? reject(error)
+        : resolve(),
+    );
+  });
+}
+
+/**
+ * Moves a folder to the Trash, or the Recycle Bin, where the user can put it back. macOS goes
+ * through Foundation rather than Finder, which would ask for permission to be scripted; Windows
+ * gets the path through the environment, so no quoting of it can go wrong.
+ */
+function trash(dir: string) {
+  const [file, args] =
+    process.platform === "darwin"
+      ? [
+          "osascript",
+          [
+            "-l",
+            "JavaScript",
+            "-e",
+            'function run(argv) { ObjC.import("Foundation"); if (!$.NSFileManager.defaultManager' +
+              ".trashItemAtURLResultingItemURLError($.NSURL.fileURLWithPath(argv[0]), null, null))" +
+              ' throw new Error("it could not be moved to the Trash") }',
+            dir,
+          ],
+        ]
+      : process.platform === "win32"
+        ? [
+            "powershell",
+            [
+              "-NoProfile",
+              "-Command",
+              "Add-Type -AssemblyName Microsoft.VisualBasic; " +
+                "[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory(" +
+                "$env:SP_TRASH, 'OnlyErrorDialogs', 'SendToRecycleBin')",
+            ],
+          ]
+        : ["gio", ["trash", dir]];
+  return new Promise<void>((resolve, reject) => {
+    execFile(
+      file,
+      args,
+      { env: { ...process.env, SP_TRASH: dir } },
+      (error, _stdout, stderr) =>
+        error ? reject(new Error(stderr.trim() || error.message)) : resolve(),
+    );
+  });
+}
+
+/**
  * Moves a project's boards, once, from where they used to be, `mockups/canvases`, to
  * `canvases`, and removes `mockups` if that left nothing in it but the `.DS_Store` Finder leaves
  * in any folder it has shown. A project that has both is left alone, because which one is
@@ -195,7 +259,7 @@ export function createProjectsServer(options: {
     }
     if (pathname.startsWith("/__sp/agent/"))
       return agent.handle(req, res, next);
-    if (pathname === "/__sp/projects" || pathname === "/__sp/projects/open") {
+    if (/^\/__sp\/projects(\/(open|reveal|delete))?$/.test(pathname)) {
       if (req.method !== "POST") return next();
       const send = (code: number, message: string) => {
         res.statusCode = code;
@@ -210,6 +274,32 @@ export function createProjectsServer(options: {
           parsed = JSON.parse(body || "{}");
         } catch {
           return send(400, "bad json");
+        }
+        // A home page card's menu, which names the project it was opened on.
+        if (
+          pathname === "/__sp/projects/reveal" ||
+          pathname === "/__sp/projects/delete"
+        ) {
+          const dir =
+            typeof parsed.name === "string"
+              ? projects().get(parsed.name)
+              : undefined;
+          if (dir === undefined) return send(404, "no such project");
+          if (pathname === "/__sp/projects/reveal")
+            return reveal(dir).then(
+              () => send(204, ""),
+              () =>
+                send(501, "This machine has no file manager to show it in."),
+            );
+          // Its server goes first: Windows will not move a folder that is being watched. A project
+          // asked for again, after a move that failed, gets a new one.
+          sps.get(dir)?.close();
+          sps.delete(dir);
+          return trash(dir).then(
+            () => send(204, ""),
+            (error: Error) =>
+              send(500, `“${parsed.name}” is still there: ${error.message}`),
+          );
         }
         if (pathname === "/__sp/projects/open") {
           return pickFolder().then(
