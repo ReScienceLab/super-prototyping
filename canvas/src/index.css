@@ -704,43 +704,6 @@ input.canvas-clone-name:focus {
   color: var(--ds-gray-1000);
 }
 
-/* The projects under the bar's "+", a native popover the way the chat panel's menus are, which
-   gets the top layer and light dismiss for free. The "+" slides along the bar as tabs open, so
-   the menu's top and near edge come from its button's own box. What is left here is the reset a
-   popover needs and the menu's skin. The two names because `.sp-menu-row` below wants them, and
-   they are defined on `.sp-panel`, which this menu is not inside. */
-.sp-tab-picker {
-  --sp-hover: var(--ds-gray-100);
-  --sp-text-2: var(--ds-gray-700);
-  position: fixed;
-  inset: auto;
-  width: max-content;
-  min-width: 180px;
-  max-width: 300px;
-  max-height: 60vh;
-  overflow-y: auto;
-  margin: 0;
-  padding: 4px;
-  border: 1px solid var(--ds-gray-400);
-  border-radius: 8px;
-  background: var(--ds-background-100);
-  color: var(--ds-gray-1000);
-  box-shadow: var(--ds-shadow-menu);
-}
-
-.sp-tab-picker-name {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/* Projects, then Examples, in the "+" menu. */
-.sp-menu-head {
-  margin: 0;
-  padding: 8px 8px 4px;
-  color: var(--ds-gray-900);
-}
-
 /* Dividers. The hit area is wider than the line, which is the whole reason for ::after. */
 .sp-grip {
   position: relative;
@@ -954,9 +917,8 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   box-shadow: var(--ds-shadow-menu);
 }
 
-/* Its own reset rather than the panel's (`.sp-panel button`), because the projects menu is a menu
-   of these on the bar, which is outside every panel, and a button with the platform's own ground
-   and border on it is not a menu row. */
+/* A menu's row. It resets its button itself rather than leaning on `.sp-panel button`, so a row
+   reads the same in whichever menu it is. */
 .sp-menu-row {
   display: flex;
   align-items: center;

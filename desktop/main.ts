@@ -253,11 +253,12 @@ async function main() {
 
   // The onboarding's answer: the agent the chat panel will run. Its skills go into the project the
   // window is on now; every project the page makes or opens after sends the panel's agent itself.
+  // The answer is kept only once the skills are in, so a failed install asks again next launch.
   ipcMain.handle("startup:agent", async (_event, agent: string) => {
-    Object.assign(last, { agent, version: app.getVersion() });
-    fs.writeFileSync(lastFile, JSON.stringify(last));
     const res = await post(new URL("__sp/skills", win.webContents.getURL()).pathname, { agent });
     if (!res.ok) throw new Error(`Installing skills failed: ${await res.text()}`);
+    Object.assign(last, { agent, version: app.getVersion() });
+    fs.writeFileSync(lastFile, JSON.stringify(last));
   });
 
   await startServer();

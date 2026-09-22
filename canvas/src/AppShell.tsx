@@ -200,7 +200,6 @@ export function AppShell() {
     <div className="canvas-shell">
       <CanvasTabBar
         tabs={tabs}
-        projects={projects}
         active={home ? null : (shown?.tab ?? null)}
         onHome={() => setHome(true)}
         goTo={goTo}

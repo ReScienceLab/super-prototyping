@@ -168,14 +168,14 @@ clones just those directories, cone mode:
         "source": "github",
         "repo": "ReScienceLab/super-prototyping",
         "sparsePaths": [".claude-plugin", "skills", "canvas", "tools",
-                        "canvases/templates"]
+                        "canvases/templates", "canvases/00-welcome"]
       }
     }
   }
 }
 ```
 
-Measured at 6.7 MB installed, against about 430 MB. Add
+About 7 MB installed, against about 430 MB. Add
 `canvases/duolingo-ios` to that list to keep the one example
 `clone-prototype` reads most, or drop the key entirely to get everything.
 
