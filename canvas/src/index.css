@@ -283,8 +283,8 @@ input.canvas-clone-name:focus {
 }
 
 /* What one tab shows. Positioned, because a kit is an overlay and the editor has to stay laid
-   out underneath it: tldraw measures its viewport from that element, and one taken out of the
-   flow comes back at 0x0 with its camera lost. */
+   out underneath it, since tldraw measures its viewport from that element, and one taken out of
+   the flow comes back at zero by zero with its camera lost. */
 .canvas-stage {
   position: relative;
   flex: 1 1 auto;
@@ -383,7 +383,7 @@ input.canvas-clone-name:focus {
 }
 
 /* A brand kit as a tab: the same page brand.html serves, over the canvas instead of in a window
-   of its own. It scrolls itself, because it is a web page inside an app that does not scroll —
+   of its own. It scrolls itself, because it is a web page inside an app that does not scroll.
    `html, body, #root` up top are pinned at 100% with the overflow off. */
 .canvas-brand-tab {
   position: absolute;
@@ -558,7 +558,7 @@ input.canvas-clone-name:focus {
 /* The Agent button, first in the bar on the canvas and the home page alike, over the panel it
    puts out and away (ChatPanel.tsx). A toggle, not a tab, so it is drawn as one: an icon button
    inset in the bar rather than a cell of it, and pressed while the panel is out, in the chip the
-   rail's pressed button wears — never the page's ground, which is how the tab in front says so. */
+   rail's pressed button has, never the page's ground, which is how the tab in front says so. */
 .sp-agent-toggle {
   display: grid;
   flex: none;
@@ -607,15 +607,15 @@ input.canvas-clone-name:focus {
   color: var(--ds-gray-1000);
 }
 
-/* The tabs, and only the tabs, scroll: the "+" is outside this box, so it stays put however many
+/* The tabs, and only the tabs, scroll. The "+" is outside this box, so it stays put however many
    are open. `0 1 auto` rather than `1 1 auto`, so the "+" sits against the last tab. */
 .sp-topbar-tabs {
   display: flex;
   flex: 0 1 auto;
   min-width: 0;
   overflow-x: auto;
-  /* No scrollbar: it would draw on the hairline. The row is scrolled by the trackpad, or by the
-     tab that scrolls itself into view when it comes forward from somewhere else. */
+  /* No scrollbar, which would draw on the hairline. The trackpad scrolls the row, or the tab that
+     scrolls itself into view when it comes forward from somewhere else. */
   scrollbar-width: none;
 }
 
@@ -704,11 +704,11 @@ input.canvas-clone-name:focus {
   color: var(--ds-gray-1000);
 }
 
-/* The projects under the bar's "+", a native popover the way the chat panel's menus are: the top
-   layer and light dismiss for free. The "+" slides along the bar as tabs open, so the menu's top
-   and near edge are set from its button's own box. What is left here is the reset a popover needs
-   and the menu's skin. The two names because `.sp-menu-row` below wants them, and they are
-   defined on `.sp-panel`, which this menu is not inside. */
+/* The projects under the bar's "+", a native popover the way the chat panel's menus are, which
+   gets the top layer and light dismiss for free. The "+" slides along the bar as tabs open, so
+   the menu's top and near edge come from its button's own box. What is left here is the reset a
+   popover needs and the menu's skin. The two names because `.sp-menu-row` below wants them, and
+   they are defined on `.sp-panel`, which this menu is not inside. */
 .sp-tab-picker {
   --sp-hover: var(--ds-gray-100);
   --sp-text-2: var(--ds-gray-700);
@@ -954,8 +954,8 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   box-shadow: var(--ds-shadow-menu);
 }
 
-/* Its own reset rather than the panel's (`.sp-panel button`): the canvas picker is a menu of
-   these on the bar, which is outside every panel, and a button with the platform's own ground
+/* Its own reset rather than the panel's (`.sp-panel button`), because the projects menu is a menu
+   of these on the bar, which is outside every panel, and a button with the platform's own ground
    and border on it is not a menu row. */
 .sp-menu-row {
   display: flex;
@@ -2259,11 +2259,11 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   display: none;
 }
 
-/* The history list, the model and effort menus and the agent menu, native popovers: the top
-   layer and light dismiss for free. The panel's geometry is fixed — at the window's left edge,
-   360 wide, a 40px header under the 40px bar — so they are placed by those numbers rather than by
-   anchor positioning, which not every browser has yet: under the header, and the agent menu
-   under the bar's first button, which opens it. */
+/* The history list, the model and effort menus and the agent menu, native popovers, which get
+   the top layer and light dismiss for free. The panel's geometry is fixed, at the window's left
+   edge, 360 wide, a 40px header under the 40px bar, so this places them by those numbers rather
+   than by anchor positioning, which not every browser has yet: under the header, and the agent
+   menu under the bar's first button, which opens it. */
 .sp-chat-history,
 .sp-chat-agents,
 .sp-chat-picker {

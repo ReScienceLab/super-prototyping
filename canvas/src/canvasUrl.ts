@@ -16,8 +16,8 @@ const BRAND_PARAM = "brand";
 
 /**
  * What one tab shows: a canvas page, by the folder slug its tldraw page is stamped with, or a
- * brand kit — that folder's, or the index of every kit when the slug is empty. The two kinds
- * are what the bar holds and what the address names, so they are spelled here.
+ * brand kit, which is that folder's, or the index of every kit when the slug is empty. The two
+ * kinds are what the bar holds and what the address names, so they are spelled here.
  */
 export type CanvasTab =
   | { kind: "canvas"; slug: string }
@@ -71,7 +71,7 @@ export function brandPageUrl(slug?: string) {
 
 /**
  * The window and the canvas in it (AppShell.tsx). The window's address is the one people see,
- * share and reload — a project's `./?canvas=…#board`, or its `home.html` — and the canvas is
+ * share and reload, a project's `./?canvas=…#board` or its `home.html`, and the canvas is
  * canvas.html beside it, in a frame, so one becomes the other by swapping the file.
  */
 export function frameUrl(href: string) {

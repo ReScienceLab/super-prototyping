@@ -67,7 +67,7 @@ export interface Project {
 
 /**
  * The tab a project opens as: the one on the bar already, or a new one on its most recently
- * edited canvas, wearing the icon of the most recent that has one. A project with no canvas yet
+ * edited canvas, with the icon of the most recent that has one. A project with no canvas yet
  * opens on Start here.
  */
 export function tabOfProject(
@@ -101,7 +101,7 @@ export function tabOfExample(slug: string, open: ProjectTab[]): ProjectTab {
   );
 }
 
-/** An example this server has, as against a canvas of the project's own. Start here is neither. */
+/** An example this server has, rather than a canvas of the project's own. Start here is neither. */
 export function isExample(slug: string) {
   return (
     slug !== WELCOME_PAGE_SLUG &&
@@ -109,7 +109,7 @@ export function isExample(slug: string) {
   );
 }
 
-/** The project's own canvases, in the index's order: the ones the canvas picker offers. */
+/** The project's own canvases, in the index's order: the ones the canvas strip shows. */
 export function ownCanvases() {
   return readCanvasLibrary()
     .map((files) => files[0].pageSlug)
@@ -123,7 +123,7 @@ export function projectUrl() {
 
 /**
  * The tab a view belongs to: an example's, for an example or its kit, and this project's for
- * anything else — its canvases, their kits, Start here and the index of every kit.
+ * anything else: its canvases, their kits, Start here and the index of every kit.
  */
 export function tabFor(view: CanvasTab): ProjectTab {
   if (isExample(view.slug)) return { kind: "example", slug: view.slug, view };
@@ -136,7 +136,7 @@ export function tabFor(view: CanvasTab): ProjectTab {
   return { ...tabOfProject(here, []), view };
 }
 
-/** Whether a tab opens in the canvas loaded, as against being another project's to load. */
+/** Whether a tab opens in the canvas loaded, rather than being another project's to load. */
 export function isHere(tab: ProjectTab) {
   return tab.kind === "example" || tab.url === projectUrl();
 }
@@ -159,22 +159,12 @@ export function projectTabIcon(tab: ProjectTab) {
 }
 
 /**
- * A view's label, for the canvas picker. A canvas wears its page name with the shelf taken off,
- * the way the brand pages do — every example carries the same "(example)" prefix, and in a menu
- * of them that is twelve characters of nothing repeated down it.
- */
-export function tabLabel(tab: CanvasTab) {
-  if (tab.kind === "canvas") return shortName(tab.slug);
-  return tab.slug ? `${shortName(tab.slug)} brand` : "Brand kits";
-}
-
-/**
- * Whether there is still something behind a tab. Folders come and go between visits — a clone
- * made, a folder renamed, a project opened on the port another one was on — and a restored tab
- * for one that is gone would be a chip that opens nothing.
+ * Whether there is still something behind a tab. Folders come and go between visits: a clone is
+ * made, a folder renamed, a project opened on the port another one was on. A restored tab for
+ * one that is gone would be a chip that opens nothing.
  *
- * A canvas is checked against the library rather than against the boards directory, because the
- * library is what becomes tldraw pages: a folder holding no board at all is a folder with
+ * This checks a canvas against the library rather than against the boards directory, because
+ * the library is what becomes tldraw pages. A folder holding no board at all is a folder with
  * nothing to switch to.
  */
 export function tabExists(tab: CanvasTab) {
@@ -185,7 +175,7 @@ export function tabExists(tab: CanvasTab) {
 
 /**
  * The tab something actually opens, which is not always the one it named. A kit is named by the
- * folder whose material it shows, and a folder that collected none has no kit of its own — that
+ * folder whose material it shows, and a folder that collected none has no kit of its own. That
  * address is the index of every kit, which is the page brand.html serves for it too. A canvas
  * the library has never heard of is a link to a folder that has since gone, and lands on Start
  * here, the one page that is always there.
@@ -206,9 +196,9 @@ export function resolveTab(tab: CanvasTab): CanvasTab {
 const OPEN_KEY = "sp-project-tabs";
 
 /**
- * The tabs this browser left open, in the order they were left. An example this server no longer
- * has is dropped. A project is kept until the list of projects says it has gone (AppShell.tsx),
- * since another project's folder is not something this page can see.
+ * The tabs this browser left open, in the order they were left. This drops an example this
+ * server no longer has, and keeps a project until the list of projects says it has gone
+ * (AppShell.tsx), since another project's folder is not something this page can see.
  */
 export function readOpenTabs(): ProjectTab[] {
   let stored: unknown;
@@ -244,9 +234,9 @@ export function writeOpenTabs(open: ProjectTab[]) {
 }
 
 /**
- * The click handler for a link that is also a tab. Every one of these — the shelf of kits on a
- * kit, the cards on the kit index and on the home page — points at a real address, and takes
- * the plain left click to open a tab instead. A modified click is left alone, so ⌘-click,
+ * The click handler for a link that is also a tab. Every one of these, the shelf of kits on a
+ * kit and the cards on the kit index and on the home page, points at a real address, and takes
+ * the plain left click to open a tab instead. It leaves a modified click alone, so ⌘-click,
  * middle click and copy-link still reach the page itself.
  */
 export function openInTab<T>(open: (tab: T) => void, tab: T) {

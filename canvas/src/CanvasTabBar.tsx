@@ -11,7 +11,7 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import type { CanvasTab } from "./canvasUrl";
-import { Check, Cross, FolderPlus, Home, Layers, Plus } from "./geistIcons";
+import { Check, Cross, FolderPlus, Home, Plus } from "./geistIcons";
 
 /**
  * The bar across the top of the window: the agent's button, which AppShell.tsx hands in as
@@ -19,18 +19,18 @@ import { Check, Cross, FolderPlus, Home, Layers, Plus } from "./geistIcons";
  * The project's own canvases and the way into Figma are on the strip under it (CanvasStrip.tsx),
  * inside the canvas's frame.
  *
- * It is the window's, not the canvas's, so switching to another project — another page, loaded
- * into the frame — leaves it where it is, with the agent's panel beside it. It is not tldraw's
- * either, which held the same row once: `MenuPanel: null` in canvasChrome.tsx is the other half
- * of this file.
+ * It is the window's, not the canvas's, so switching to another project, which is another page
+ * loaded into the frame, leaves it where it is, with the agent's panel beside it. It is not
+ * tldraw's either, which held the same row once. `MenuPanel: null` in canvasChrome.tsx is the
+ * other half of this file.
  */
 
 const PROJECTS_ID = "sp-tab-picker";
 
 /**
  * A menu under the button that opens it. A popover is in the top layer, which no ancestor can
- * position it against, and anchor positioning is not in every browser this runs in yet, so it
- * is placed by hand, on the click rather than on `toggle`, which fires a frame after it is drawn.
+ * position it against, and anchor positioning is not in every browser this runs in yet. So this
+ * places it by hand, on the click rather than on `toggle`, which fires a frame after it is drawn.
  * It hangs off whichever of the button's edges is nearer the window's, so a "+" pushed far along
  * the bar still opens a menu that is on the screen.
  */
@@ -53,9 +53,6 @@ function placeUnder(
 export function ViewIcon({ view }: { view: CanvasTab }) {
   const icon = view.kind === "canvas" ? canvasIconUrl(view.slug) : undefined;
   if (icon) return <img className="sp-tabchip-icon" src={icon} alt="" />;
-  // A kit has no app icon of its own — it is the page about the icon — so it wears the stack of
-  // sheets that the button opening it wears.
-  if (view.kind === "brand") return <Layers className="sp-tabchip-icon" />;
   return null;
 }
 
@@ -97,8 +94,8 @@ function TabChip({
   const chip = useRef<HTMLButtonElement>(null);
   const icon = projectTabIcon(tab);
   const label = projectTabLabel(tab);
-  // The bar scrolls once the tabs outrun it, so a tab brought forward from somewhere else — a
-  // card on the home page, a link on a board, the address on load — has to scroll itself into view.
+  // The bar scrolls once the tabs outrun it, so a tab brought forward from somewhere else, a card
+  // on the home page, a link on a board or the address on load, has to scroll itself into view.
   useEffect(() => {
     if (active) {
       chip.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -179,7 +176,7 @@ export function CanvasTabBar(props: {
           className="sp-head-x"
           popoverTarget={PROJECTS_ID}
           title="New or another project"
-          // Under the bar, not under the button: hung off the button's own box it would cover
+          // Under the bar, not under the button. Hung off the button's own box, it would cover
           // the four pixels of bar below it, hairline and all.
           onClick={(event) =>
             placeUnder(
@@ -193,8 +190,8 @@ export function CanvasTabBar(props: {
         </button>
       )}
       {/* Every project and every example rather than only the shut ones, so the list does not
-          change shape under the pointer — picking one already open brings its tab forward,
-          which is what its chip would have done. */}
+          change shape under the pointer. Picking one already open brings its tab forward, which
+          is what its chip would have done. */}
       <div
         id={PROJECTS_ID}
         popover="auto"

@@ -243,7 +243,7 @@ export function boardIndex(
           return {
             slug,
             html,
-            /** When a board in it was last written, in ms: the home page's "edited" line. */
+            /** When a board in it was last written, in ms, for the home page's "edited" line. */
             updated: Math.max(0, ...html.map((f) => fs.statSync(path.join(folder, f)).mtimeMs)),
             layout: readJson(path.join(folder, "layout.json")),
             icon: fs.existsSync(path.join(folder, "icon.png")),

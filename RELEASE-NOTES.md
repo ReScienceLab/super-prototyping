@@ -41,7 +41,7 @@ Everything below is on `main` and reaches no install until a version is cut.
 - **One agent for the whole app.** The agent panel stays down the left on the
   home page and on every project, with the same conversation and one history
   for every project, each run named by the project it ran in. The button at the
-  start of the bar shows and hides it, and wears the mark of Claude Code or
+  start of the bar shows and hides it, and shows the mark of Claude Code or
   Codex, whichever the next message goes to. Right-click it to switch.
 
 - **Switching tabs keeps what you typed.** The bar and the agent panel belong

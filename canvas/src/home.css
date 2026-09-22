@@ -60,13 +60,13 @@ a {
   box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
   color: var(--ds-gray-1000);
 }
-/* The one action among the doors out, in Geist's primary: the ground and the ink swapped. */
+/* The one action among the links out, in Geist's primary, the ground and the ink swapped. */
 button.home-tile i {
   background: var(--ds-gray-1000);
   box-shadow: none;
   color: var(--ds-background-100);
 }
-/* Discord's door in Discord's blurple, the colour its square is known by. */
+/* Discord's tile in Discord's blurple, the colour its square is known by. */
 .home-tile[href^="https://discord"] i {
   background: #5865f2;
   box-shadow: none;
