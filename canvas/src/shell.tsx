@@ -10,12 +10,13 @@ import "./home.css";
 import { loadCanvasIndex } from "./canvasIndex";
 import { frameUrl } from "./canvasUrl";
 
-// The window (AppShell.tsx), at a project's address and at its home.html: the entry that loads no
+// The window (AppShell.tsx), at a project's address and at its home.html. This entry loads no
 // tldraw, since the canvas is a page of its own in a frame of this one.
 //
 // A link inside that frame to one of these addresses would put a second window inside the
 // first; the canvas at that address is what it meant. Otherwise the index first, as main.tsx
-// does: the window reads it at module scope, for the tab its address names and the examples.
+// does, since the window reads it at module scope, for the tab its address names and the
+// examples.
 if (window.parent !== window) location.replace(frameUrl(location.href));
 else
   loadCanvasIndex(false)

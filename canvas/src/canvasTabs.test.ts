@@ -109,7 +109,7 @@ describe("a tab is a project", () => {
     });
   });
 
-  it("wears the page's short name, and says which kind of tab it is", () => {
+  it("labels a canvas by its page's short name, and says which kind of tab it is", () => {
     expect(tabLabel({ kind: "canvas", slug: canvas })).toBe(shortName(canvas));
     expect(tabLabel({ kind: "brand", slug: kit })).toBe(
       `${shortName(kit)} brand`,
@@ -157,8 +157,8 @@ describe("what is behind a tab", () => {
 describe("the tabs a browser left open", () => {
   beforeEach(() => localStorage.clear());
 
-  // Written through `writeOpenTabs` rather than under a key spelled out here, so the pair is
-  // tested and not the spelling. The key itself is per boards directory, like the document.
+  // Written through `writeOpenTabs` rather than under a key spelled out here, so the test covers
+  // the pair and not the spelling. The key itself is per boards directory, like the document.
   const storageKey = () => {
     writeOpenTabs([]);
     return Object.keys(localStorage)[0];

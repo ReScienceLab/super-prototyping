@@ -9,21 +9,22 @@ import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
 import { LogoFigma, Plus } from "./geistIcons";
 
 /**
- * The project's canvases, across the top of the project under the bar's tab for it: tabs of the
- * second level, drawn as Geist's Tabs are — a name, underlined when it is the one in front —
- * so they do not read as more of the bar's cells above them. An example is one canvas.
+ * The project's canvases, across the top of the project under the bar's tab for it. They are
+ * tabs of the second level, drawn as Geist's Tabs are, a name underlined when it is the one in
+ * front, so they do not read as more of the bar's cells above them. An example is one canvas.
  *
- * After them, the way to another: the agent's panel, with the message begun, since a canvas is
- * the agent's work. An example is the app's and takes none, and a build has no agent.
+ * After them, the "+" is the way to another. It puts the agent's panel out with the message
+ * begun, since a canvas is the agent's work. An example is the app's and takes none, and a build
+ * has no agent.
  *
- * At the far end, the one place a canvas goes from here: Figma.
+ * At the far end is Export to Figma, the one place a canvas goes from here.
  */
 export function CanvasStrip() {
   const { activeTab, openTab } = useContext(CanvasChromeContext);
   const tab = tabFor(activeTab);
   const canvases = tab.kind === "example" ? [tab.slug] : ownCanvases();
   const here = activeTab.kind === "canvas" ? activeTab.slug : undefined;
-  // A kit is named by the canvas whose material it shows, so it exports that canvas; only the
+  // A kit's slug names the canvas whose material it shows, so it exports that canvas; only the
   // index of every kit has no canvas behind it, and no Figma button.
   const slug = activeTab.slug;
 
@@ -63,8 +64,8 @@ export function CanvasStrip() {
           <Plus />
         </button>
       )}
-      {/* An anchor, not a button: the sheet is a page of its own, and the page that walks
-          through the import, so ⌘-click and copy-link have to work on it. */}
+      {/* An anchor, not a button, because the sheet is a page of its own, and the page that
+          walks through the import, so ⌘-click and copy-link have to work on it. */}
       {slug && (
         <a
           className="sp-canvas-tabs-figma"
@@ -72,7 +73,7 @@ export function CanvasStrip() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Export to Figma"
-          title="Export to Figma — every board on this canvas as one web page, and how to bring it into Figma"
+          title="Export to Figma. Every board on this canvas as one web page, and how to bring it into Figma"
         >
           <LogoFigma />
         </a>

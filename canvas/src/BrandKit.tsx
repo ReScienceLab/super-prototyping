@@ -64,10 +64,10 @@ function sourceLabel(source: string | undefined) {
  * of asset on every surface, and an avatar that disagrees with the other avatars shows up as a
  * break in the column rather than as something to go looking for.
  *
- * `open` is what makes it a tab: given it, every link out of this page that stays inside the app
+ * `open` is what makes it a tab. Given it, every link out of this page that stays inside the app
  * opens a tab instead of navigating, because navigating would reload the app and take the agent
- * panel's conversation with it. The way back to the canvas goes too — that is the tab bar's job
- * now, and a chip for it here would be the one link that did reload.
+ * panel's conversation with it. The way back to the canvas goes too, since that is the tab bar's
+ * job now, and a chip for it here would be the one link that did reload.
  */
 export function BrandKit({
   slug,
@@ -113,7 +113,7 @@ export function BrandKit({
               title={shortName(page)}
               aria-current={page === slug ? "page" : undefined}
               // One tab per kit, the rule everywhere else in the bar, rather than this tab
-              // becoming the kit it was pointed at: the chip you came from stays where it was,
+              // becoming the kit it was pointed at. The chip you came from stays where it was,
               // and its close button is right there when you are done with it.
               onClick={open && openInTab(open, { kind: "brand", slug: page })}
               // Named on both pages of the switch, so the filled pill travels from the chip you

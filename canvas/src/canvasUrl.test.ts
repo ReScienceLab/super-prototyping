@@ -117,7 +117,7 @@ describe("canvas URLs", () => {
     expect(urlForTab(root, canvas, "03-event")).toBe(
       root + "?canvas=luma-ios#03-event",
     );
-    // The kit takes the canvas parameter with it, and the board too: a kit has no board.
+    // The kit takes the canvas parameter with it, and the board too, since a kit has no board.
     expect(urlForTab(root + "?canvas=luma-ios#03-event", kit)).toBe(
       root + "?brand=grok-ios",
     );

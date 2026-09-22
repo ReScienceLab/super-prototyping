@@ -34,7 +34,7 @@ const nameOf = (c: Canvas) => (c.layout?.name ?? humanize(c.slug)).replace(/^\(e
  * (sheetLayout.ts): the layout's rows, Foundations left out, then whatever no row placed. Read off
  * the index entry rather than the library, because another project's canvases are not in this
  * page's index. A board at the default artboard size is a phone, cropped to the folder's cover box
- * the way the welcome cards crop it; one that declared its own size is shown whole.
+ * the way the welcome cards crop it; one that declared its own size shows whole.
  */
 function screensOf(c: Canvas, url: (file: string) => string) {
   const names = c.html.map((f) => f.replace(/\.html$/, ""));
@@ -148,7 +148,7 @@ function Card(props: {
 /**
  * What the window shows under Home (AppShell.tsx), and what the desktop app opens on after the
  * first launch: every project as a card, and the examples as projects of one canvas each. Drawn
- * after Figma's home: a row of tiles for a new project and the community's two doors, a line of
+ * after Figma's home: a row of tiles for a new project and the two community links, a line of
  * totals, then the cards. The bar above it and the agent's panel beside it are the window's.
  *
  * Most projects are one canvas worked on for as long as the project lasts, so that card shows the

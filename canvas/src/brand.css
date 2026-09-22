@@ -229,9 +229,9 @@
     grid-template-columns: repeat(min(var(--cols), 2), minmax(0, 1fr));
   }
 }
-/* Under the page's class, like the ground above it: the canvas app draws figures of its own, in
-   the chat panel's attachment tiles and the inspector's asset view, and a bare `figure` rule
-   here would reach them once this sheet is loaded alongside index.css. */
+/* Under the page's class, like the ground above it, because the canvas app draws figures of its
+   own, in the chat panel's attachment tiles and the inspector's asset view, and a bare `figure`
+   rule here would reach them once this sheet is loaded alongside index.css. */
 .brand-page figure {
   margin: 0;
 }

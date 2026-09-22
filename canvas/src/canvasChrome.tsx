@@ -62,8 +62,9 @@ export const CanvasChromeContext = createContext({
   /** Whether the inspector is docked at all, over a board or over a piece of brand material. */
   inspectorOpen: false,
   /**
-   * The view in front — a canvas, which is a tldraw page, or a kit, which is an overlay over the
-   * whole editor — and the way to show another of this project's. Held by App, which owns both.
+   * The view in front and the way to show another of this project's. A view is a canvas, which is
+   * a tldraw page, or a kit, which is an overlay over the whole editor. Held by App, which owns
+   * both.
    */
   activeTab: HOME_TAB,
   openTab: (_view: CanvasTab) => {},
@@ -130,22 +131,22 @@ export const canvasUiOverrides: TLUiOverrides = {
 
 export const canvasChromeComponents: TLComponents = {
   /**
-   * tldraw's whole top-left bar is gone, and CanvasTabBar.tsx is what stands where it stood.
-   * `MenuPanel` is the strip itself — the main menu, the page menu, and the quick actions and
-   * actions menu beside them — so one null takes all four, and nothing below has to say again
-   * that it is not drawn.
+   * tldraw's whole top-left bar is gone, and CanvasTabBar.tsx is drawn where it was. `MenuPanel`
+   * is the strip itself: the main menu, the page menu, and the quick actions and actions menu
+   * beside them. So one null takes all four, and nothing below has to say again that it is not
+   * drawn.
    *
    * Each of the four for its own reason. The main menu was either somewhere better already,
    * since cut, copy, paste and undo are on the keyboard and in the context menu, or it was
-   * about editing a document nobody here owns: these boards are written from files by a
-   * generator, so embedding a video in one, uploading media to one, or picking a language for
-   * the app that renders it are eight submenus deep in settings for something that cannot be
-   * edited from this side anyway. The page menu named the same folders the bar's chips name
-   * now, and the rest of what it offered — rename, duplicate, delete a page — acts on pages a
-   * folder generates and the next load would put straight back. Quick actions and the actions
-   * menu were shape editing: undo, redo, delete, duplicate and the overflow of aligns,
-   * distributes and reorders. The actions stay on the keyboard and the right button; six
-   * buttons for nudging a board crowd out the row of tabs the bar is for.
+   * about editing a document nobody here owns. A generator writes these boards from files, so
+   * embedding a video in one, uploading media to one, or picking a language for the app that
+   * renders it are eight submenus deep in settings for something that cannot be edited from
+   * this side anyway. The page menu named the same folders the bar's chips name now, and the
+   * rest of what it offered, rename, duplicate and delete a page, acts on pages a folder
+   * generates and the next load would put straight back. Quick actions and the actions menu
+   * were shape editing: undo, redo, delete, duplicate and the overflow of aligns, distributes
+   * and reorders. The actions stay on the keyboard and the right button; six buttons for
+   * nudging a board crowd out the row of tabs the bar is for.
    *
    * What the bar took over with them: the chat panel's switch, which the main menu held, and
    * the two chips that name where a page goes next, Figma and the brand kit, which the actions

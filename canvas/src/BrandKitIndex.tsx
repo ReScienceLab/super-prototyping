@@ -54,7 +54,7 @@ function preview(slug: string) {
  * thing worth seeing first is that thirteen products were collected the same way, so they can be
  * read against each other. So the card is a preview and not a link — the pictures are the label.
  *
- * `open` is the same switch it is on BrandKit: given it, this is a tab of the canvas app and the
+ * `open` is the same switch it is on BrandKit. Given it, this is a tab of the canvas app and the
  * cards open tabs rather than navigating away from it.
  */
 export function BrandKitIndex({

@@ -92,8 +92,8 @@ async function main() {
   // browser if it is a web address, and goes nowhere if it is not. It is set on every page the app
   // makes and not on the window's alone, because the canvas opens its brand pages as windows of
   // their own, and their outside links are for the browser too. The sheet is ours but goes to the
-  // browser as well: it is the page html.to.design captures into Figma, and that is a browser
-  // extension, which a window of this app does not have.
+  // browser as well, since it is the page html.to.design captures into Figma, and that is a
+  // browser extension, which a window of this app does not have.
   const isOurs = (url: string) => url.startsWith(`${origin}/`);
   app.on("web-contents-created", (_event, contents) => {
     contents.setWindowOpenHandler(({ url }) => {
@@ -152,18 +152,18 @@ async function main() {
   // Where every new project goes, which makes the folder the list of them. The startup page and
   // the home page both show it as it is on disk now.
   const projectsDir = path.join(app.getPath("documents"), "Super Prototyping");
-  // All the app remembers: the agent chosen on the startup page, which the projects opened later
-  // get the skills of, the project open last, which the next launch starts its server on so the
-  // home page opens with it running, and the version that was running then. Written once a
-  // project opens, so a missing file is a first launch and gets the startup page, and so does
-  // the first launch of a new major version. A project opened from a tab or a home page card is a
-  // link, which this never hears about, so the last one is the last one opened through here.
+  // All the app remembers: the agent chosen on the startup page, the project open last and the
+  // version that was running then. Every project opened later gets that agent's skills, and the
+  // next launch opens the home page under that project. Written once a project opens, so a
+  // missing file is a first launch and gets the startup page, and so does the first launch of a
+  // new major version. A project opened from a tab or a home page card is a link, which this
+  // never hears about, so the last one is the last one opened through here.
   const lastFile = path.join(app.getPath("userData"), "last.json");
   const last: { agent?: string; project?: string; version?: string } = fs.existsSync(lastFile)
     ? JSON.parse(fs.readFileSync(lastFile, "utf8"))
     : {};
 
-  // One server for the app's whole run, on `port`, for every project: each is a path of its own
+  // One server for the app's whole run, on `port`, for every project. Each is a path of its own
   // (`/p/<name>/`), so another project is another tab, not another server. It starts before any
   // page loads, the startup page included, and stops only when the app quits.
   async function startServer() {
@@ -216,13 +216,14 @@ async function main() {
     }
   }
 
-  // A project opened, from the startup page, the home page or the command line: its address on the
-  // server, its agent's skills, then `then`, the page to land on under that address, its canvas
-  // ("") or the home page. The server names a folder from outside the projects directory when it is
-  // first asked for it here, over its parent port, which nothing but this app can write to
-  // (canvas/server/main.ts); one ask at a time, as `opening` and the launch keep it. What comes
-  // back is the page's address, for the window to load, or for the app's own window to load into
-  // the frame its canvas is in (canvas/src/AppShell.tsx).
+  // Opens a project, from the startup page, the home page or the command line. It asks the server
+  // for the project's address, installs its agent's skills, and returns the address of `then`,
+  // the page to land on under it, which is its canvas ("") or the home page. The server names a
+  // folder from outside the projects directory when it is first asked for it here, over its
+  // parent port, which nothing but this app can write to (canvas/server/main.ts). It takes one
+  // ask at a time, which `opening` and the launch keep to. The window loads the address that
+  // comes back, or the app's own window loads it into the frame its canvas is in
+  // (canvas/src/AppShell.tsx).
   async function openProject(dir: string, agent: string | undefined, then: "" | "home.html") {
     const answer = new Promise<{ address?: string; error?: string }>((resolve) =>
       server!.once("message", resolve),
@@ -267,13 +268,13 @@ async function main() {
     return url.href;
   }
 
-  // The one channel back from the startup page and the app's window (preload.ts). The startup page
-  // is replaced by the project; the app's window is answered with the project's address and
-  // loads it into its frame itself, so the bar and the agent's panel, with whatever is typed in
-  // it, stay. Otherwise a page gets back nothing when the open panel was cancelled, and what to
-  // say under its name field when the name will not do. It is said there, where the user is, with
-  // the way out, rather than as a native alert with an error's text in it. The app's window names
-  // no agent, and gets the one the startup page chose.
+  // The one channel back from the startup page and the app's window (preload.ts). This replaces
+  // the startup page with the project, and answers the app's window with the project's address,
+  // which it loads into its frame itself, so the bar and the agent's panel, with whatever is
+  // typed in it, stay. Otherwise a page gets back nothing when the open panel was cancelled, and
+  // what to say under its name field when the name will not do. The page says it there, where
+  // the user is, with the way out, rather than as a native alert with an error's text in it. The
+  // app's window names no agent, and gets the one the startup page chose.
   let opening = false;
   ipcMain.handle(
     "startup:choose",
@@ -359,9 +360,10 @@ async function main() {
     site: a.site,
     icon: fs.readFileSync(path.join(app.getAppPath(), "icons", `${a.id}.svg`), "utf8"),
   }));
-  // A card's icon is read out of Documents, which on a first launch waits on macOS's privacy
-  // prompt, so the page can still be loading when a project is picked past it. The project's page
-  // replacing it then rejects this load, which is the page doing its job, not a failure.
+  // The startup page reads a card's icon out of Documents, which on a first launch waits on
+  // macOS's privacy prompt, so the page can still be loading when a project is picked past it.
+  // The project's page replacing it then rejects this load, which is the page doing its job, not
+  // a failure.
   win
     .loadFile(path.join(app.getAppPath(), "startup.html"), {
       query: {

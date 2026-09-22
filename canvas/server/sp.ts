@@ -53,8 +53,8 @@ type Handler = (
   next: () => void,
 ) => void;
 
-// The agent's runs, one list for every project this process serves rather than one per server:
-// the chat panel and its history are the app's, not a project's, so a conversation goes on
+// The agent's runs, one list for every project this process serves rather than one per server.
+// The chat panel and its history are the app's, not a project's, so a conversation goes on
 // across the tabs and a message can reach into any project. The routes below are each
 // project's, and a run started from one is served from all of them.
 const runs = new Map<
@@ -153,7 +153,8 @@ export function createSpServer(options: {
     res.end("cross-site request");
   });
 
-  // This project's name, as the tab bar and the home page call it: its address's, else its folder's.
+  // This project's name, as the tab bar and the home page call it. That is the name its address
+  // carries, else its folder's name.
   const projectName = () =>
     projectDir === null
       ? null
@@ -848,7 +849,7 @@ export function createSpServer(options: {
             `You are working in the user's project at ${project}, from the chat panel of the ` +
               "super-prototyping canvas they have open.",
             others.length > 0 &&
-              `The conversation is not this project's alone: they may refer to their other ` +
+              `The conversation is not this project's alone, so they may refer to their other ` +
                 `projects, which are ${others.join(", ")}.`,
             `Their boards are the folders under ${canvasesDir}, one per canvas page.`,
             examplesDir !== null &&
@@ -1040,7 +1041,7 @@ export function createSpServer(options: {
       return;
     }
     if (req.method === "GET" && url.pathname === "/runs") {
-      // Newest first, every project's, and in memory only: a restarted server lists nothing,
+      // Newest first, every project's, and in memory only. A restarted server lists nothing,
       // which is consistent with it holding every run's events and nothing else holding any.
       res.setHeader("content-type", "application/json");
       return send(

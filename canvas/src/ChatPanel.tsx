@@ -2,23 +2,23 @@
  * The chat panel: a message to Claude Code or Codex, run in the user's project by the server,
  * and what it did, drawn as it happens. The app's, not a project's: fixed down the left of the
  * window, under the tab bar, beside the home page and every project's canvas alike, and mounted
- * once by the window (AppShell.tsx), which no tab switch and no board write reloads — only the
- * canvas's frame is — so what is typed in it stays through both. Served only — mounted when the
- * index says a server is behind /__sp, since a hosted build has no /__sp/agent endpoints and no
- * process behind them.
+ * once by the window (AppShell.tsx). No tab switch and no board write reloads the window, only
+ * the canvas's frame, so what is typed in it stays through both. Served only. The window mounts
+ * it when the index says a server is behind /__sp, since a hosted build has no /__sp/agent
+ * endpoints and no process behind them.
  *
  * The panel keeps the ids of its runs in sessionStorage and follows every one again after the
- * window itself is reloaded, from event zero: the transcript is rebuilt, not saved, since the
+ * window itself is reloaded, from event zero. The transcript is rebuilt, not saved, since the
  * server has the whole run (chatTransport.ts). One run at a time — two agents editing one project
  * would race each other — so Send is Stop while one is going.
  *
  * The header names the conversation, with the model's own title once it has given one. The
- * agent the next message goes to is the button at the start of the tab bar, which wears its mark:
- * a click puts the panel out or away, hidden rather than unmounted so it keeps following whatever
- * is running, and a right-click opens a menu of the agents the server found on PATH. The choice
- * lives in localStorage and travels with the message, and each turn and history row carries the
- * mark of the agent that ran it, which the run's start event says. The clock lists the runs the
- * server still holds, every project's, each under the project it was sent from.
+ * agent the next message goes to is the button at the start of the tab bar, which shows its
+ * mark. A click puts the panel out or away, hidden rather than unmounted so it keeps following
+ * whatever is running, and a right-click opens a menu of the agents the server found on PATH.
+ * The choice lives in localStorage and travels with the message, and each turn and history row
+ * carries the mark of the agent that ran it, which the run's start event says. The clock lists
+ * the runs the server still holds, every project's, each under the project it was sent from.
  *
  * Images are attached by number. The icon under the box, a paste, or a drop puts a
  * screenshot in the tray above it as #1, #2, #3; clicking a tile drops that number into the
@@ -66,7 +66,7 @@ import { Check, ClockRewind, Image, Plus } from "./geistIcons";
 import { renderMarkdown } from "./markdown";
 import { rasterizeSvg } from "./svgRaster";
 
-// The conversation is the app's, not a project's: every project's server holds every run
+// The conversation is the app's, not a project's. Every project's server holds every run
 // (server/sp.ts), so a tab switched to another project picks the same one up.
 const RUNS_KEY = "sp-chat-runs";
 const QUEUE_KEY = "sp-chat-queue";
@@ -78,12 +78,12 @@ const OPEN_KEY = "sp-chat-open";
 
 /**
  * What the canvas hands the chat panel when the button is pressed (canvasAttach.tsx): a picture
- * to attach to the message, or the reason none was. A board comes over as a picture too — the
- * file's own name is what says which board it is, and the panel shows it under the tile. And the
- * start of a message, from the strip's "+" (CanvasStrip.tsx): a canvas is only ever the agent's
- * work, since a folder with no boards in it is not one.
+ * to attach to the message, or the reason none was. A board comes over as a picture too. The
+ * file's own name says which board it is, and the panel shows it under the tile. And the start
+ * of a message, from the strip's "+" (CanvasStrip.tsx), because a canvas is only ever the
+ * agent's work, and a folder with no boards in it is not one.
  *
- * On `window`, because the panel is a sibling of `<Tldraw>` and the button renders inside it —
+ * On `window`, because the panel is a sibling of `<Tldraw>` and the button renders inside it,
  * the same arrangement, and the same answer, as ASK_COMMENT_USER (canvasChrome.tsx). Here rather
  * than beside the button, so the home page, which has the panel and no canvas, has no tldraw.
  */
@@ -97,8 +97,9 @@ export type CanvasAttachDetail =
 /**
  * Whether the panel is out and which agent the next message goes to, and the ways to say so. The
  * app's, like the conversation, and shown on the tab bar's first button as well as in the panel,
- * so held by the page that draws both: one of each for the home page and every tab, remembered
- * across reloads. Out until first put away, since talking to the agent is what the app is for.
+ * so held by the page that draws both. There is one of each for the home page and every tab,
+ * remembered across reloads. Out until first put away, since talking to the agent is what the
+ * app is for.
  */
 // oxlint-disable-next-line react/only-export-components
 export function useChat() {
@@ -150,9 +151,9 @@ export function AgentButton({ chat }: { chat: Chat }) {
         event.preventDefault();
         const menu = document.getElementById("sp-chat-agents")!;
         // macOS asks for the menu on the press, and the release after it is a click outside a
-        // menu opened then, which shuts it; so with a button still down, it opens once that is
-        // let go, after the release has been handled. Windows asks on the release, and the Menu
-        // key with no button down at all.
+        // menu opened then, which shuts it. So with a button still down, the menu opens once that
+        // is let go, after the browser has handled the release. Windows asks on the release, and
+        // the Menu key with no button down at all.
         if (event.buttons === 0) return menu.showPopover();
         window.addEventListener(
           "pointerup",
@@ -236,7 +237,7 @@ interface Attached {
 
 /**
  * `canvas` is the one in front, which the message names to the agent; the home page has none.
- * Shut is hidden, not unmounted, so the panel keeps following a run and comes back to it.
+ * A shut panel is hidden, not unmounted, so it keeps following a run and comes back to it.
  */
 export function ChatPanel(props: { canvas?: string; chat: Chat }) {
   const { canvas } = props;
@@ -665,7 +666,7 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
       // A message cannot be written into a panel that is away.
       props.chat.show(true);
       if (detail.kind === "error") return setSendError(detail.message);
-      // Over nothing the user wrote: a message they had begun stays theirs to finish.
+      // Over nothing the user wrote, since a message they had begun stays theirs to finish.
       if (detail.kind === "draft") {
         return draft.trim() ? composer.current?.focus() : fill(detail.text);
       }

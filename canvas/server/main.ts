@@ -99,8 +99,9 @@ function serveStatic(req: http.IncomingMessage, res: http.ServerResponse) {
 }
 
 // Every project by the name its address carries: the folders in the projects directory, and the
-// folders the app opened from anywhere else, which are named when they are opened. One of those
-// deleted while the app runs is dropped, since every page lists the projects and reads each one.
+// folders the app opened from anywhere else, which the parent port below names as they are opened.
+// This drops one of those deleted while the app runs, since every page lists the projects and
+// reads each one.
 const opened = new Map<string, string>();
 function projects() {
   const all = new Map([...opened].filter(([, dir]) => fs.existsSync(dir)));
@@ -133,8 +134,8 @@ function spFor(dir: string | null, canvases: string) {
 
 /**
  * A folder's path, from the desktop app before it opens a project, answered with the address it
- * is served at: a folder outside the projects directory has no name here until then. It is named
- * after itself, numbered past any project already called that. The path comes over the parent
+ * is served at. A folder outside the projects directory has no name here until then. This names
+ * it after itself, numbered past any project already called that. The path comes over the parent
  * port of Electron's utility process, which only the app that started this server holds, and not
  * over HTTP, where any page or process on the machine could have added any folder to what this
  * serves. `sp start` runs under node, which has no parent port, and opens nothing.

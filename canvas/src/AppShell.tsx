@@ -54,9 +54,9 @@ const opened = location.pathname.endsWith("/home.html")
  * The window: the bar across the top, the agent's panel down the left, and beside it the home
  * page or the canvas of the tab in front. The canvas is a frame, and the only thing a tab switch
  * reloads, because a project is its own pages at its own address and its canvas reads that
- * project's index once, as it loads. Everything the frame is not — the bar, the panel with the
- * message half-typed in it and the run it is following — belongs to the window and outlives
- * every project the frame loads, so the conversation is one across all of them.
+ * project's index once, as it loads. Everything the frame is not belongs to the window and
+ * outlives every project the frame loads: the bar, and the panel with the message half-typed in
+ * it and the run it is following. So the conversation is one across all of them.
  *
  * The frame loads a project's canvas.html; the window's address is that page's, with the file
  * taken off (canvasUrl.ts), so what is copied or reloaded is what a person would type. The
@@ -72,8 +72,8 @@ export function AppShell() {
   /** What the canvas last said it has in front, and its address; null before one has loaded. */
   const [shown, setShown] = useState(opened);
   /**
-   * The bar: the projects and examples this browser left open, plus the one the address is in —
-   * that one is in front, so it is open by definition, even on a link someone was sent.
+   * The bar: the projects and examples this browser left open, plus the one the address is in.
+   * That one is in front, so it is open by definition, even on a link someone was sent.
    */
   const [tabs, setTabs] = useState(() =>
     opened ? withTab(readOpenTabs(), opened.tab) : readOpenTabs(),
@@ -98,8 +98,8 @@ export function AppShell() {
     writeOpenTabs(tabs);
   }, [tabs]);
 
-  // One writer for the address, from what is in front. Replaced rather than pushed: the frame's
-  // own changes are already entries in the window's history, which Back walks.
+  // One writer for the address, from what is in front. It replaces rather than pushes, since the
+  // frame's own changes are already entries in the window's history, which Back walks.
   useEffect(() => {
     const href =
       home || !shown
@@ -110,9 +110,9 @@ export function AppShell() {
 
   // The projects, fetched again each time home opens or closes, since that is where one was
   // made, renamed or edited since; and with them the one thing about another project this window
-  // can learn, that it has gone since its tab was left open. Each is named by its path from the
-  // root, since the window's address moves from project to project and a path relative to the
-  // one it was asked from would not.
+  // can learn, that it has gone since its tab was left open. This keeps each one's address as
+  // its path from the root, since the window's address moves from project to project and a path
+  // relative to the one it was asked from would not.
   useEffect(() => {
     if (!canvasIndex().served) return;
     const base = new URL(import.meta.env.BASE_URL, location.href);
@@ -140,7 +140,10 @@ export function AppShell() {
     frame.current!.src = frameUrl(href);
   };
 
-  /** A chip, a row of the "+" menu, a card: in the canvas loaded when it is that project's. */
+  /**
+   * A chip, a row of the "+" menu or a card. The canvas loaded brings the tab forward when it is
+   * that project's; otherwise the frame loads that project's canvas.
+   */
   const goTo = (tab: ProjectTab) => {
     if (!frame.current!.contentWindow!.spCanvas?.goTo(tab)) load(tabUrl(tab));
     setHome(false);
@@ -164,7 +167,7 @@ export function AppShell() {
     setHome(true);
   };
 
-  /** The app opened or made a project: its canvas, in the frame; or it said why not. */
+  /** The app opened or made a project, whose canvas goes in the frame, or it said why not. */
   const chose = (answer: { url: string } | { message: string } | undefined) => {
     if (answer && "url" in answer) {
       dialog.current!.close();
@@ -228,7 +231,7 @@ export function AppShell() {
           )}
         </div>
       </div>
-      {/* A new project needs only a name, as on the startup page: it goes in Documents, and the
+      {/* A new project needs only a name, as on the startup page. It goes in Documents, and the
           app answers here when the name will not do. */}
       <dialog ref={dialog} className="home-dialog">
         <form
