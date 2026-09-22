@@ -132,7 +132,7 @@ export function useChat() {
   };
 }
 
-type Chat = ReturnType<typeof useChat>;
+export type Chat = ReturnType<typeof useChat>;
 
 /**
  * The agent's button, first in the tab bar and over the panel it puts out and away, in the mark
@@ -199,19 +199,20 @@ const tokens = (n: number) =>
 /** Each agent's mark, by the id the server names it with. */
 const MARKS = { claude: ClaudeMark, codex: CodexMark };
 
-function Mark({ agent, size }: { agent: AgentId; size?: number }) {
+export function Mark({ agent, size }: { agent: AgentId; size?: number }) {
   const Agent = MARKS[agent];
   return <Agent size={size} />;
 }
 
 /** One entry of GET /__sp/agent/agents. */
-interface AgentRow {
+export interface AgentRow {
   id: AgentId;
   name: string;
   available: boolean;
   models: AgentModel[];
   efforts: string[];
   missing: string;
+  site: string;
 }
 
 /** A message sent while a run was on, held for the next one. */

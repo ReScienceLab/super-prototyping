@@ -5,34 +5,20 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import sharp from "sharp";
 import { defineConfig, type Plugin } from "vitest/config";
-import { THUMB_EDGE, boardIndex } from "./server/boards.ts";
-import { createSpServer } from "./server/sp.ts";
+import { CANVASES, THUMB_EDGE, boardIndex } from "./server/boards.ts";
+import { createProjectsServer, projectsDirFromEnv } from "./server/projects.ts";
 
 // Repo root — vite.config.ts sits in canvas/, one level below it.
 const repoRoot = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 /**
- * Where the boards live. Defaults to this checkout's own folder, so the repo and the hosted
- * build behave exactly as they always have with no environment set.
- *
- * The canvas app ships inside the plugin, which is installed outside the user's project, while
- * their boards stay in their project. `PROTOTYPING_CANVASES_DIR` is what joins the two — the
- * plugin holds the code, the user holds the data, and an upgrade replaces one without touching
- * the other.
+ * The boards a build embeds, for the hosted canvas: this checkout's own, or an empty folder
+ * for the bundle a release attaches, which serves a project's boards at request time and needs
+ * none of its own. Build only: a served canvas reads every project's boards from the project
+ * (server/projects.ts), and this variable is not read there.
  */
 const canvasesDir = path.resolve(
-  process.env.PROTOTYPING_CANVASES_DIR ||
-    path.resolve(repoRoot, "mockups/canvases"),
+  process.env.PROTOTYPING_CANVASES_DIR || path.resolve(repoRoot, CANVASES),
 );
-/**
- * The user's project, for the agent behind the chat panel to run in. It is their project the
- * agent works on — the boards are one folder inside it, and a prompt about a screen reaches for
- * the code around it — so neither the boards directory nor this checkout would do as its cwd.
- * `sp start` sets it to the directory it is started from, the same one the boards default
- * under. Unset, the agent endpoints answer 503 by name and the rest of the server is unaffected.
- */
-const projectDir = process.env.PROTOTYPING_PROJECT_DIR
-  ? path.resolve(process.env.PROTOTYPING_PROJECT_DIR)
-  : null;
 
 const thumbsDir = fileURLToPath(
   new URL("node_modules/.cache/brand-thumbs/", import.meta.url),
@@ -100,13 +86,14 @@ async function brandThumb(file: string): Promise<string | undefined> {
 
 /**
  * The boards, as the canvas reads them: an index at `/__sp/index.json` and the files under
- * `/board/<slug>/`. The dev server answers both from `server/sp.ts`, the same module the built
- * app's own server (`server/main.ts`) runs, so a board folder is read at request time and the
- * canvas has no dev-only feature. A build emits the same index and files once, as static
- * output, for the hosted canvas: it reads a fixed set of boards and can write nothing.
+ * `/board/<slug>/`. The dev server answers both from `server/projects.ts`, the same module the
+ * built app's own server (`server/main.ts`) runs, every project at `/p/<name>/` with this
+ * checkout opened as one of them, so a board folder is read at request time and the canvas has
+ * no dev-only feature. A build emits the same index and files once, as static output, for the
+ * hosted canvas: it reads a fixed set of boards and can write nothing.
  *
  * Not an `import.meta.glob`: a glob pattern is a build-time literal and could only ever read
- * one hard-coded directory, and the boards live wherever PROTOTYPING_CANVASES_DIR says.
+ * one hard-coded directory, and the boards live in whichever project is being served.
  */
 function canvasesSource(): Plugin {
   return {
@@ -151,23 +138,27 @@ function canvasesSource(): Plugin {
     },
 
     configureServer(server) {
-      const sp = createSpServer({
-        canvasesDir,
-        examplesDir: null,
-        projects: () => new Map(),
-        projectDir,
+      const projects = createProjectsServer({
+        projectsDir: projectsDirFromEnv(),
         repoRoot,
       });
-      server.middlewares.use((req, res, next) => sp.handle(req, res, next));
-      server.httpServer?.once("close", sp.close);
+      // This checkout is the project the dev server opens on, so `bun run dev` shows its boards.
+      projects.open(repoRoot);
+      server.middlewares.use((req, res, next) =>
+        projects.handle(req, res, next),
+      );
+      server.httpServer?.once("close", projects.close);
     },
   };
 }
 
 export default defineConfig({
-  // Relative, so the same build serves a project at `/` for `sp start` and at `/p/<name>/` in the
-  // desktop app, where one server has every project (server/main.ts).
+  // Relative, so the same build serves every project at its own `/p/<name>/` (server/projects.ts).
   base: "./",
+  // The dev server resolves that base to `/`, which would send every fetch a page under
+  // `/p/<name>/` makes to the server's root. Pinned to what the build gets, so a page fetches
+  // from its own address under Vite too.
+  define: { "import.meta.env.BASE_URL": '"./"' },
   plugins: [react(), tailwindcss(), canvasesSource()],
   // What shadcn/ui writes its imports as, and what its CLI expects to find.
   resolve: { alias: { "@": fileURLToPath(new URL("src", import.meta.url)) } },

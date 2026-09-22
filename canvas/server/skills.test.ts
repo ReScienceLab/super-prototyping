@@ -113,16 +113,19 @@ describe("installSkills", () => {
     const skillMdPath = path.join(project, ".claude/skills/alpha/SKILL.md");
     fs.writeFileSync(
       skillMdPath,
-      fs.readFileSync(skillMdPath, "utf8").replace("version: 1.5.0", "version: 9.9.9"),
+      fs
+        .readFileSync(skillMdPath, "utf8")
+        .replace("version: 1.5.0", "version: 9.9.9"),
     );
-    expect(installSkills(root, project, [".claude/skills"]).written).toEqual([]);
+    expect(installSkills(root, project, [".claude/skills"]).written).toEqual(
+      [],
+    );
     expect(fs.readFileSync(skillMdPath, "utf8")).toContain("version: 9.9.9");
 
     setVersion(root, "10.0.0");
-    expect(installSkills(root, project, [".claude/skills"]).written.sort()).toEqual([
-      ".claude/skills/alpha",
-      ".claude/skills/beta",
-    ]);
+    expect(
+      installSkills(root, project, [".claude/skills"]).written.sort(),
+    ).toEqual([".claude/skills/alpha", ".claude/skills/beta"]);
     expect(fs.readFileSync(skillMdPath, "utf8")).toContain("version: 10.0.0");
   });
 
@@ -155,7 +158,9 @@ describe("installSkills", () => {
       path.join(project, ".claude/skills/alpha/SKILL.md"),
       "utf8",
     );
-    expect(untouched).toBe("---\nname: alpha\ndescription: mine\n---\nmy own notes\n");
+    expect(untouched).toBe(
+      "---\nname: alpha\ndescription: mine\n---\nmy own notes\n",
+    );
 
     setVersion(root, "9.9.9");
     refresh(project, root);
@@ -231,13 +236,12 @@ describe("refresh", () => {
 
   it("leaves a copy marked higher than the tree alone", () => {
     installSkills(root, project, [".claude/skills"]);
-    const skillMdPath = path.join(
-      project,
-      ".claude/skills/alpha/SKILL.md",
-    );
+    const skillMdPath = path.join(project, ".claude/skills/alpha/SKILL.md");
     fs.writeFileSync(
       skillMdPath,
-      fs.readFileSync(skillMdPath, "utf8").replace("version: 1.5.0", "version: 9.9.9"),
+      fs
+        .readFileSync(skillMdPath, "utf8")
+        .replace("version: 1.5.0", "version: 9.9.9"),
     );
     const before = fs.readFileSync(skillMdPath);
     // The source changes too, so a wrongly-triggered overwrite would be visible.
@@ -262,14 +266,15 @@ describe("refresh", () => {
     fs.rmSync(path.join(project, ".claude/skills/beta"), { recursive: true });
     setVersion(root, "9.9.9");
     refresh(project, root);
-    expect(fs.existsSync(path.join(project, ".claude/skills/beta"))).toBe(false);
-    expect(fs.readFileSync(path.join(project, ".claude/skills/alpha/SKILL.md"), "utf8")).toContain(
-      "version: 9.9.9",
+    expect(fs.existsSync(path.join(project, ".claude/skills/beta"))).toBe(
+      false,
     );
-  });
-
-  it("does nothing given no project", () => {
-    expect(() => refresh(null, "/no/such/plugin/root")).not.toThrow();
+    expect(
+      fs.readFileSync(
+        path.join(project, ".claude/skills/alpha/SKILL.md"),
+        "utf8",
+      ),
+    ).toContain("version: 9.9.9");
   });
 });
 
@@ -277,9 +282,7 @@ describe("installedSkills", () => {
   it("lists only the marked copies, by dir/name/version", () => {
     installSkills(root, project, [".claude/skills", ".agents/skills"]);
     const list = installedSkills(project);
-    expect(
-      list.map((s) => `${s.dir}/${s.name}@${s.version}`).sort(),
-    ).toEqual(
+    expect(list.map((s) => `${s.dir}/${s.name}@${s.version}`).sort()).toEqual(
       [
         ".agents/skills/alpha@1.5.0",
         ".agents/skills/beta@1.5.0",

@@ -320,19 +320,11 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
         assert False, "a missing bundle must exit loudly"
 
 
-def test_the_boards_are_the_flag_then_the_variable_then_the_projects_mockups_canvases():
-    boards = lambda arg, env, project, **kw: with_env(
-        dict(UNSET, **env), lambda: C._canvases_dir(arg, Path(project), **kw))
-    assert boards(None, {}, "/p") == Path("/p/mockups/canvases")
-    assert boards(None, {}, ".") == Path.cwd() / "mockups/canvases"
-    assert boards(None, {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/v")
-    assert boards("/f", {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p") == Path("/f")
-    # A project named on the command line beats the variable: an agent spawned by one canvas
-    # inherits that canvas's variable, and its `sp start <other>` must serve the other.
-    assert boards(None, {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p", named=True) == Path("/p/mockups/canvases")
-    assert boards("/f", {"PROTOTYPING_CANVASES_DIR": "/v"}, "/p", named=True) == Path("/f")
+def test_the_project_is_the_argument_then_the_current_directory_and_its_boards_are_under_it():
     assert C.parser().parse_args(["start", "~/app"]).project == "~/app"
     assert C.parser().parse_args(["start"]).project is None
+    # The one place the server reads them from, so the two spellings must agree.
+    assert C.CANVASES == "canvases"
 
 
 def test_the_port_is_the_flag_then_sp_canvas_port_then_the_default():

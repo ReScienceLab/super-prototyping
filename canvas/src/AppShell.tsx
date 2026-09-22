@@ -12,28 +12,18 @@ import {
   type Project,
   type ProjectTab,
 } from "./canvasTabs";
-import {
-  WELCOME_PAGE_SLUG,
-  frameUrl,
-  tabFromUrl,
-  windowUrl,
-} from "./canvasUrl";
+import { frameUrl, tabFromUrl, windowUrl } from "./canvasUrl";
 import { AgentButton, ChatPanel, useChat } from "./ChatPanel";
 import { HomePage } from "./HomePage";
+import { Onboarding } from "./Onboarding";
 
 declare global {
   interface Window {
-    /**
-     * The desktop app's way to open a project (desktop/preload.ts), absent in a browser, which
-     * has only the project its server was started on. It answers with the project's address,
-     * for this window to load into its frame, or with what to say under the name field.
-     */
+    /** The desktop app's own (desktop/preload.ts), absent in a browser: the onboarding's answer
+     *  and its update check, both about the app and not the project. */
     startup?: {
-      choose(
-        action: "open" | "create",
-        agent: string,
-        name?: string,
-      ): Promise<{ url: string } | { message: string } | undefined>;
+      agent(id: string): Promise<void>;
+      check(): Promise<string>;
     };
     /** The window's side of the frame (here): what the canvas has in front, at what address. */
     spShell?: { shown(tab: ProjectTab, href: string): void };
@@ -49,6 +39,10 @@ declare global {
 const opened = location.pathname.endsWith("/home.html")
   ? null
   : { tab: tabFor(tabFromUrl(location.href)), href: frameUrl(location.href) };
+
+/** The app's version when it asks for the onboarding (desktop/main.ts), read before the address
+ *  is rewritten, so a reload does not ask again. */
+const onboarding = new URLSearchParams(location.search).get("onboarding");
 
 /**
  * The window: the bar across the top, the agent's panel down the left, and beside it the home
@@ -167,21 +161,39 @@ export function AppShell() {
     setHome(true);
   };
 
-  /** The app opened or made a project, whose canvas goes in the frame, or it said why not. */
-  const chose = (answer: { url: string } | { message: string } | undefined) => {
-    if (answer && "url" in answer) {
-      dialog.current!.close();
-      return load(answer.url);
-    }
-    setSaid(answer?.message ?? "");
+  /**
+   * Makes a project or opens a folder, the server's two requests (canvas/server/projects.ts), a
+   * browser tab's and the app's alike. The chat panel's agent goes along, so the project gets its
+   * skills. The server answers the project's address, whose canvas goes in the frame; nothing
+   * when the folder picker was cancelled; or what to say under the name field.
+   */
+  const choose = async (path: string, name?: string) => {
+    const res = await fetch(new URL(path, location.origin), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name, agent: chat.agent }),
+    });
+    if (res.status === 204) return;
+    if (!res.ok) return setSaid(await res.text());
+    dialog.current!.close();
+    const { url } = (await res.json()) as { url: string };
+    load(new URL(url, location.origin).href);
   };
   const newProject = () => {
     setSaid("");
     dialog.current!.querySelector("form")!.reset();
     dialog.current!.showModal();
   };
-  const openFolder = async () =>
-    chose(await window.startup!.choose("open", ""));
+  // The picker is the OS's, over whatever is in front, and the request waits on it; a second
+  // click meanwhile would stack a second picker.
+  const picking = useRef(false);
+  const openFolder = async () => {
+    if (picking.current) return;
+    picking.current = true;
+    await choose("/__sp/projects/open").finally(() => (picking.current = false));
+  };
+  // A hosted build has no server to make a project on.
+  const served = canvasIndex().served;
 
   const view = shown?.tab.view;
   return (
@@ -193,7 +205,7 @@ export function AppShell() {
         onHome={() => setHome(true)}
         goTo={goTo}
         closeTab={closeTab}
-        newProject={window.startup && newProject}
+        newProject={served ? newProject : undefined}
       >
         {/* Dev server and app only: the panel talks to /__sp/agent, which a hosted build has no
             process behind. */}
@@ -202,11 +214,10 @@ export function AppShell() {
       <div className="canvas-body">
         {canvasIndex().served && (
           <ChatPanel
-            // Start here is drawn by the app and has no folder, so it is no canvas to the agent,
-            // and neither is home. A kit is named by the canvas whose material it shows.
-            canvas={
-              home || view?.slug === WELCOME_PAGE_SLUG ? undefined : view?.slug
-            }
+            // Home is no canvas to the agent; neither, being empty, is the project's own view
+            // with none in front (HOME_TAB) or the index of every kit. A kit is named by the
+            // canvas whose material it shows.
+            canvas={home ? undefined : view?.slug}
             chat={chat}
           />
         )}
@@ -225,14 +236,14 @@ export function AppShell() {
               projects={projects}
               tabs={tabs}
               goTo={goTo}
-              newProject={window.startup && newProject}
-              openFolder={window.startup && openFolder}
+              newProject={served ? newProject : undefined}
+              openFolder={served ? openFolder : undefined}
             />
           )}
         </div>
       </div>
-      {/* A new project needs only a name, as on the startup page. It goes in Documents, and the
-          app answers here when the name will not do. */}
+      {/* A new project needs only a name. It goes in the projects folder, and the server answers
+          here when the name will not do. */}
       <dialog ref={dialog} className="home-dialog">
         <form
           onSubmit={async (event) => {
@@ -240,7 +251,7 @@ export function AppShell() {
             const name = new FormData(event.currentTarget).get(
               "name",
             ) as string;
-            chose(await window.startup!.choose("create", "", name.trim()));
+            await choose("/__sp/projects", name);
           }}
         >
           <h2>New project</h2>
@@ -254,6 +265,7 @@ export function AppShell() {
           </div>
         </form>
       </dialog>
+      {onboarding !== null && <Onboarding chat={chat} version={onboarding} />}
     </div>
   );
 }

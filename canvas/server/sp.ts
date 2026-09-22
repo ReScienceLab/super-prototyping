@@ -2,9 +2,9 @@
  * Everything the canvas needs a server for, mounted under `/__sp` and `/board`: the board
  * index and the board files, a board's status and comments written back into its folder, a
  * cloned canvas, screenshots, the agent behind the chat panel, and the watcher that tells the
- * open page when a board changed. The Vite dev server mounts it as middleware
- * (vite.config.ts) and the built app's own server (main.ts) mounts it in front of `dist`, so
- * the two run the same code and there is no dev-only feature.
+ * open page when a board changed. One of these per project, mounted at `/p/<name>/` by
+ * projects.ts under the Vite dev server (vite.config.ts) and the built app's own server
+ * (main.ts) alike, so the two run the same code and there is no dev-only feature.
  */
 import { execFile, spawn, type ChildProcess } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -12,9 +12,14 @@ import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import path from "node:path";
-import { IMAGE_MIME, boardIndex, canvasesNamespace } from "./boards.ts";
+import {
+  CANVASES,
+  IMAGE_MIME,
+  boardIndex,
+  canvasesNamespace,
+} from "./boards.ts";
 import { command, stop } from "./command.ts";
-import { installSkills, installedSkills, pluginVersion } from "./skills.ts";
+import { installFor, installedSkills, pluginVersion } from "./skills.ts";
 import {
   BOARD_STATUSES,
   SAFE_NAME,
@@ -42,6 +47,7 @@ import {
   MAX_IMAGE_BYTES,
   MAX_IMAGES,
   type AgentDef,
+  type AgentId,
   type AgentImage,
   type AgentModel,
 } from "../src/agents.ts";
@@ -70,21 +76,31 @@ const runs = new Map<
   }
 >();
 
+/**
+ * Whether a request came from a page of this server's own, or from no page at all. Everything
+ * that writes is refused otherwise. A server on a known loopback port is reachable from every page
+ * the user has open, and a cross-origin POST still runs, CORS only hides the reply, so the check is
+ * the browser's own account of where the request came from. A page cannot forge it: Sec-Fetch-*
+ * are forbidden header names. Absent means the caller was not a browser, which is curl, and curl
+ * is not the attack.
+ */
+export function sameOrigin(req: IncomingMessage) {
+  const site = req.headers["sec-fetch-site"];
+  return site === undefined || site === "same-origin" || site === "none";
+}
+
 export function createSpServer(options: {
   /** The boards directory. Created if missing, watched for the server's lifetime. */
   canvasesDir: string;
-  /**
-   * Canvases shown beside the project's own and never written to, which are the examples the
-   * desktop app ships. Null for none, which is `sp start` and the dev server.
-   */
-  examplesDir: string | null;
+  /** Canvases shown beside the project's own and never written to: the examples the plugin ships. */
+  examplesDir: string;
   /**
    * Every project the home page and the tab bar list, by the name its address carries, which is
-   * `../<name>/` from this one's pages. Empty but for this one outside the desktop app.
+   * `../<name>/` from this one's pages.
    */
   projects: () => Map<string, string>;
-  /** The project the chat panel's agent works in, or null when nothing set one. */
-  projectDir: string | null;
+  /** The project: what the chat panel's agent works in and the skills are installed into. */
+  projectDir: string;
   /** This plugin's checkout, for the skill the agent is pointed at. */
   repoRoot: string;
 }) {
@@ -96,15 +112,18 @@ export function createSpServer(options: {
   // in neither place gets the project's path, and the routes answer it as they always did.
   const folderOf = (slug: string) => {
     const own = path.join(canvasesDir, slug);
-    if (examplesDir === null) return own;
     const hasBoard =
       fs.statSync(own, { throwIfNoEntry: false })?.isDirectory() &&
-      fs.readdirSync(own).some((f) => !f.startsWith(".") && f.endsWith(".html"));
+      fs
+        .readdirSync(own)
+        .some((f) => !f.startsWith(".") && f.endsWith(".html"));
     const example = path.join(examplesDir, slug);
     return !hasBoard && fs.existsSync(example) ? example : own;
   };
-  const isExample = (slug: string) => folderOf(slug) !== path.join(canvasesDir, slug);
-  const READ_ONLY = "an example canvas is read-only: clone it to have one of your own";
+  const isExample = (slug: string) =>
+    folderOf(slug) !== path.join(canvasesDir, slug);
+  const READ_ONLY =
+    "an example canvas is read-only: clone it to have one of your own";
 
   // The same mount-and-strip routing connect gives the dev server: a handler mounted at a
   // prefix sees `req.url` relative to it, and `next()` hands the request on with the url put
@@ -119,7 +138,8 @@ export function createSpServer(options: {
       const entry = routes[i++];
       if (!entry) return next();
       const [prefix, fn] = entry;
-      if (pathname !== prefix && !pathname.startsWith(prefix + "/")) return run();
+      if (pathname !== prefix && !pathname.startsWith(prefix + "/"))
+        return run();
       req.url = url.slice(prefix.length) || "/";
       fn(req, res, () => {
         req.url = url;
@@ -140,15 +160,9 @@ export function createSpServer(options: {
   };
 
   // Everything under /__sp writes something: a board's status, a comment, a cloned canvas, an
-  // agent holding bypassPermissions in the project. A server on a known loopback port is
-  // reachable from every page the user has open — a cross-origin POST still runs, CORS only
-  // hides the reply — so the check is the browser's own account of where the request came
-  // from. A page cannot forge it: Sec-Fetch-* are forbidden header names. Absent means the
-  // caller was not a browser, which is curl, and curl is not the attack.
+  // agent holding bypassPermissions in the project.
   route("/__sp", (req, res, next) => {
-    const site = req.headers["sec-fetch-site"];
-    if (site === undefined || site === "same-origin" || site === "none")
-      return next();
+    if (sameOrigin(req)) return next();
     res.statusCode = 403;
     res.end("cross-site request");
   });
@@ -156,23 +170,24 @@ export function createSpServer(options: {
   // This project's name, as the tab bar and the home page call it. That is the name its address
   // carries, else its folder's name.
   const projectName = () =>
-    projectDir === null
-      ? null
-      : ([...projects()].find(([, dir]) => dir === projectDir)?.[0] ??
-        path.basename(projectDir));
+    [...projects()].find(([, dir]) => dir === projectDir)?.[0] ??
+    path.basename(projectDir);
 
   route("/__sp/index.json", (req, res, next) => {
     if (req.method !== "GET") return next();
     res.setHeader("Content-Type", "application/json");
     res.setHeader("Cache-Control", "no-store");
-    const how = { served: true, canvasesNamespace: canvasesNamespace(canvasesDir, repoRoot) };
+    const how = {
+      served: true,
+      canvasesNamespace: canvasesNamespace(canvasesDir, repoRoot),
+    };
     const index = boardIndex(canvasesDir, how);
     // One list in slug order, as one directory's scan is, so Start here still comes first. An
     // example says so, which is what puts it on a tab of its own rather than in the project's.
     const boards = [
       ...index.boards,
-      ...(examplesDir === null ? [] : boardIndex(examplesDir, how).boards)
-        .filter((b) => isExample(b.slug))
+      ...boardIndex(examplesDir, how)
+        .boards.filter((b) => isExample(b.slug))
         .map((b) => ({ ...b, example: true })),
     ].sort((a, b) => (a.slug < b.slug ? -1 : 1));
     res.end(JSON.stringify({ ...index, boards, project: projectName() }));
@@ -186,8 +201,7 @@ export function createSpServer(options: {
   route("/__sp/projects.json", (req, res, next) => {
     if (req.method !== "GET") return next();
     const all = projects();
-    const name = projectName();
-    if (name !== null && projectDir !== null) all.set(name, projectDir);
+    all.set(projectName(), projectDir);
     const how = { served: true, canvasesNamespace: "" };
     res.setHeader("Content-Type", "application/json");
     res.setHeader("Cache-Control", "no-store");
@@ -196,7 +210,7 @@ export function createSpServer(options: {
         [...all].map(([name, dir]) => {
           const current = dir === projectDir;
           const canvases = boardIndex(
-            current ? canvasesDir : path.join(dir, "mockups/canvases"),
+            current ? canvasesDir : path.join(dir, CANVASES),
             how,
           ).boards.map(({ slug, html, updated, layout, icon }) => ({
             slug,
@@ -221,22 +235,15 @@ export function createSpServer(options: {
     );
   });
 
-  // Copying this plugin's skills into the project, and reporting what is there. Both need a project
-  // to write into or list, and answer the same 503 the agent routes below give for the same reason.
-  // The copying itself is in skills.ts, shared with the refresh main.ts runs at startup, so this is
-  // only the two endpoints' request handling.
+  // Copying one agent's skills into the project, and reporting what is there. The copying itself
+  // is in skills.ts, shared with the refresh projects.ts runs when a project is first served and
+  // with the install a new project gets, so this is only the two endpoints' request handling.
   route("/__sp/skills", (req, res, next) => {
     const send = (code: number, message: string) => {
       res.statusCode = code;
       res.end(message);
     };
     if (req.method === "GET") {
-      if (!projectDir) {
-        return send(
-          503,
-          "PROTOTYPING_PROJECT_DIR is not set, so there is no project to list skills in.",
-        );
-      }
       try {
         res.setHeader("content-type", "application/json");
         return send(
@@ -251,30 +258,20 @@ export function createSpServer(options: {
       }
     }
     if (req.method !== "POST") return next();
-    if (!projectDir) {
-      return send(
-        503,
-        "PROTOTYPING_PROJECT_DIR is not set, so there is nowhere to install skills into.",
-      );
-    }
     let body = "";
     req.on("data", (chunk) => (body += chunk));
     req.on("end", () => {
       try {
-        const { dirs } = JSON.parse(body || "{}");
-        if (!Array.isArray(dirs) || !dirs.every((d) => typeof d === "string"))
-          return send(400, "bad dirs");
+        const { agent } = JSON.parse(body || "{}");
+        if (!AGENTS.some((a) => a.id === agent))
+          return send(400, "unknown agent");
         res.setHeader("content-type", "application/json");
-        send(200, JSON.stringify(installSkills(repoRoot, projectDir, dirs)));
-      } catch (error) {
-        // installSkills throws this one message for a dir that fails its pattern. That is the only
-        // input error it can find, and everything else about a write going wrong is a 500.
         send(
-          error instanceof Error && error.message.startsWith("bad skill dir")
-            ? 400
-            : 500,
-          String(error),
+          200,
+          JSON.stringify(installFor(repoRoot, projectDir, agent as AgentId)),
         );
+      } catch (error) {
+        send(500, String(error));
       }
     });
   });
@@ -328,7 +325,9 @@ export function createSpServer(options: {
     // normalised — `..` is the obvious one, a separator inside a segment the platform one.
     if (
       !type ||
-      ![canvasesDir, examplesDir].some((dir) => dir !== null && file.startsWith(dir + path.sep)) ||
+      ![canvasesDir, examplesDir].some((dir) =>
+        file.startsWith(dir + path.sep),
+      ) ||
       !fs.statSync(file, { throwIfNoEntry: false })?.isFile()
     ) {
       return send(404, "not a board");
@@ -389,16 +388,7 @@ export function createSpServer(options: {
     const done = () => fs.rmSync(work, { recursive: true, force: true });
     execFile(
       "refkit",
-      [
-        "shoot",
-        board,
-        "-o",
-        work,
-        "--w",
-        `${size[0]}`,
-        "--h",
-        `${size[1]}`,
-      ],
+      ["shoot", board, "-o", work, "--w", `${size[0]}`, "--h", `${size[1]}`],
       { timeout: 120_000 },
       (error) => {
         if (fs.existsSync(drawn)) {
@@ -441,8 +431,7 @@ export function createSpServer(options: {
         if (!SAFE_NAME.test(slug ?? "") || !SAFE_NAME.test(file ?? "")) {
           return send(400, "bad board name");
         }
-        if (!BOARD_STATUSES.includes(status))
-          return send(400, "bad status");
+        if (!BOARD_STATUSES.includes(status)) return send(400, "bad status");
         if (isExample(slug)) return send(403, READ_ONLY);
         const layoutPath = path.join(canvasesDir, slug, "layout.json");
         const before = fs.readFileSync(layoutPath, "utf8");
@@ -493,9 +482,7 @@ export function createSpServer(options: {
         if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad board name");
         if (isExample(slug)) return send(403, READ_ONLY);
         const folder = path.join(canvasesDir, slug);
-        if (
-          !fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()
-        ) {
+        if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) {
           return send(404, `no canvas folder named ${slug}`);
         }
         const target = path.join(folder, "comments.json");
@@ -619,9 +606,7 @@ export function createSpServer(options: {
       if (def.modelsFile) {
         try {
           const file = path.join(os.homedir(), def.modelsFile.path);
-          list = def.modelsFile.read(
-            JSON.parse(fs.readFileSync(file, "utf8")),
-          );
+          list = def.modelsFile.read(JSON.parse(fs.readFileSync(file, "utf8")));
         } catch {
           // No cache yet, or one this cannot read: the table's list stands, which for an
           // agent that keeps its own is empty, leaving the composer its default alone.
@@ -660,7 +645,7 @@ export function createSpServer(options: {
           c.args,
           {
             ...c.options,
-            cwd: projectDir ?? undefined,
+            cwd: projectDir,
             timeout: 30_000,
             maxBuffer: 8 << 20,
           },
@@ -717,9 +702,7 @@ export function createSpServer(options: {
     const url = new URL(req.url ?? "/", "http://sp");
     if (req.method === "GET" && url.pathname === "/commands") {
       res.setHeader("content-type", "application/json");
-      const def = AGENTS.find(
-        (a) => a.id === url.searchParams.get("agent"),
-      );
+      const def = AGENTS.find((a) => a.id === url.searchParams.get("agent"));
       const known = commands.get(def?.id ?? "");
       if (known || !def?.commandsProbe) {
         send(200, JSON.stringify(known ?? []));
@@ -738,6 +721,7 @@ export function createSpServer(options: {
           models: models(def),
           efforts: def.efforts,
           missing: def.missing,
+          site: def.site,
         })),
       ).then((list) => {
         res.setHeader("content-type", "application/json");
@@ -746,13 +730,6 @@ export function createSpServer(options: {
       return;
     }
     const project = projectDir;
-    if (!project) {
-      return send(
-        503,
-        "PROTOTYPING_PROJECT_DIR is not set, so there is no project for the agent to work in. " +
-          "`sp start <dir>` sets it to the project directory, the current one when none is named.",
-      );
-    }
     if (req.method === "POST" && url.pathname === "/run") {
       // The body is no longer a sentence: attached images ride in it as base64, and it is
       // held whole in memory before anything reads it, so it is capped on the way in. Kept
@@ -852,9 +829,8 @@ export function createSpServer(options: {
               `The conversation is not this project's alone, so they may refer to their other ` +
                 `projects, which are ${others.join(", ")}.`,
             `Their boards are the folders under ${canvasesDir}, one per canvas page.`,
-            examplesDir !== null &&
-              `The canvas also shows the examples under ${examplesDir}. Those are the app's and ` +
-                `read-only: to change one, copy its folder into ${canvasesDir} first.`,
+            `The canvas also shows the examples under ${examplesDir}. Those are the app's and ` +
+              `read-only: to change one, copy its folder into ${canvasesDir} first.`,
             canvas &&
               (isExample(canvas)
                 ? `They are looking at the example canvas "${canvas}", which is read-only at ` +
@@ -880,16 +856,8 @@ export function createSpServer(options: {
           const imagesDir = images.length ? path.join(chatDir, id) : "";
           if (imagesDir) fs.mkdirSync(imagesDir, { recursive: true });
           const held: AgentImage[] = images.map(
-            (i: {
-              n: number;
-              name: string;
-              type: string;
-              data: string;
-            }) => {
-              const file = path.join(
-                imagesDir,
-                `${i.n}.${i.type.slice(6)}`,
-              );
+            (i: { n: number; name: string; type: string; data: string }) => {
+              const file = path.join(imagesDir, `${i.n}.${i.type.slice(6)}`);
               fs.writeFileSync(file, Buffer.from(i.data, "base64"));
               return { ...i, path: file };
             },
@@ -924,7 +892,7 @@ export function createSpServer(options: {
             prompt: message,
             title: message.trim().split("\n")[0].slice(0, 60),
             at: Date.now(),
-            project: projectName()!,
+            project: projectName(),
             // The numbers and the names only: the pictures are a request away, so the reload
             // that a written board causes rebuilds the strip without the bytes coming back
             // down the stream with every other event.
@@ -1093,8 +1061,7 @@ export function createSpServer(options: {
     }
     if (match[2] === "events" && req.method === "GET") {
       const after = Number(url.searchParams.get("after") ?? 0);
-      if (!Number.isInteger(after) || after < 0)
-        return send(400, "bad cursor");
+      if (!Number.isInteger(after) || after < 0) return send(400, "bad cursor");
       res.writeHead(200, {
         "content-type": "text/event-stream",
         "cache-control": "no-store",
@@ -1104,10 +1071,7 @@ export function createSpServer(options: {
         res.write(sseFrame(e));
         if (e.event === "end") res.end();
       });
-      const keepalive = setInterval(
-        () => res.write(": keepalive\n\n"),
-        25_000,
-      );
+      const keepalive = setInterval(() => res.write(": keepalive\n\n"), 25_000);
       res.on("close", () => {
         detach();
         clearInterval(keepalive);
@@ -1213,8 +1177,8 @@ export function createSpServer(options: {
 
   // The boards are watched here, directly, rather than through Vite's watcher when this
   // runs under the dev server: that one watches the app's root, and the boards are always
-  // outside it — one level up for this checkout, anywhere at all under
-  // PROTOTYPING_CANVASES_DIR. `.add()` for a path outside the root is accepted and can then
+  // outside it — one level up for this checkout, anywhere at all for another project.
+  // `.add()` for a path outside the root is accepted and can then
   // register nothing at all (issue #52), silently: no event ever arrives, and the server
   // serves the board as first read for the rest of its life however often the file is
   // rewritten. That is the one failure a design tool must not have.

@@ -15,8 +15,9 @@ project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
 boards stay in your project. This joins the two, so an upgrade can replace the
 app without touching a single board you have authored.
 
-Boards default to mockups/canvases under the project. Override with --canvases or
-PROTOTYPING_CANVASES_DIR; a project named on the command line beats the variable.
+A project's boards are canvases under it. The server serves every project
+under ~/Documents/Super Prototyping (PROTOTYPING_PROJECTS_DIR moves it) at
+/p/<name>/, the one `start` names beside them, and / goes to that one.
 The plugin is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer. The app served is
 the canvas built for the plugin's release, fetched once into
@@ -35,6 +36,8 @@ REPO = "ReScienceLab/super-prototyping"
 # The packaged desktop app's bundled tree. It is a module constant, not inlined
 # into _candidates, so a test can patch it without touching a real /Applications.
 APP_BUNDLE_PLUGIN = Path("/Applications/Super Prototyping.app/Contents/Resources/plugin")
+# A project's boards, under it: the same folder the server reads (canvas/server/boards.ts).
+CANVASES = "canvases"
 
 # Per-port names, because two projects run two canvases. A fixed session name meant
 # starting the second one killed the first, silently and with a zero exit code.
@@ -277,18 +280,6 @@ def resolve_root(verbose=False):
 
 # --- the server --------------------------------------------------------------
 
-def _canvases_dir(arg, project=Path(), named=False):
-    """The flag, else PROTOTYPING_CANVASES_DIR, else mockups/canvases under the project.
-
-    A project `named` on the command line beats the variable. `start` exports the variable
-    to the server, which hands its environment to every agent it spawns, so without this an
-    agent's `sp start <other project>` from the chat panel would serve this one's boards.
-    """
-    env = None if named else os.environ.get("PROTOTYPING_CANVASES_DIR")
-    raw = arg or env or project / "mockups/canvases"
-    return Path(raw).expanduser().resolve()
-
-
 def _port_answers(port):
     """Whether something is already listening. Nothing is assumed about what."""
     import socket
@@ -396,13 +387,21 @@ def _dist(root: Path) -> Path:
 
 def cmd_start(a):
     root = resolve_root()
-    # The project is the directory named, else the one this is run from — the one the boards
-    # default under. The canvas's chat panel runs Claude Code in it; without it the panel's
-    # endpoints answer 503.
+    # The project is the directory named, else the one this is run from. The server opens it
+    # beside every project in the projects folder, sends / to it, and runs the chat panel's
+    # agent in it.
     project = Path(a.project or ".").expanduser().resolve()
     if not project.is_dir():
         raise SystemExit(f"error: {project} is not a directory")
-    boards = _canvases_dir(a.canvases, project, named=a.project is not None)
+    boards = project / CANVASES
+    # Where the boards used to be. Moved once, as the server moves them for every project it
+    # opens, because this makes `canvases` below and the server would then find it already there.
+    old = project / "mockups" / "canvases"
+    if old.is_dir() and not boards.exists():
+        old.rename(boards)
+        print(f"moved {old} to {boards}")
+        if all(f.name == ".DS_Store" for f in old.parent.iterdir()):
+            shutil.rmtree(old.parent)
 
     if not boards.is_dir():
         print(f"note: {boards} does not exist yet — the canvas will open empty.")
@@ -430,15 +429,13 @@ def cmd_start(a):
         raise SystemExit("error: neither node nor bun is on PATH to run the canvas server")
     dist = _dist(root)
 
-    # Resolved once, here, and handed down: the server passes them on to every agent it
-    # spawns, and it derives none itself — the bundle it runs may sit in the cache directory
+    # Resolved once, here, and handed down: the server passes it on to every agent it spawns,
+    # and derives it from nothing itself — the bundle it runs may sit in the cache directory
     # with no checkout above it, and the root is where the skill it points the agent at is.
-    passed = {"PROTOTYPING_CANVASES_DIR": str(boards),
-              "PROTOTYPING_PROJECT_DIR": str(project),
-              "SUPER_PROTOTYPING_ROOT": str(root)}
+    passed = {"SUPER_PROTOTYPING_ROOT": str(root)}
     env = dict(os.environ, **passed)
     # The server binds 127.0.0.1 itself: this is a design tool, not a service.
-    cmd = [runtime, str(dist / "server.mjs"), "--port", str(a.port)]
+    cmd = [runtime, str(dist / "server.mjs"), "--port", str(a.port), "--open", str(project)]
 
     session = _session(a.port)
     if shutil.which("tmux"):
@@ -568,7 +565,6 @@ def cmd_status(a):
     if up:
         print(f"  http://127.0.0.1:{a.port}/")
     print(f"session  {_session(a.port)}")
-    print(f"boards would be {_canvases_dir(a.canvases)}")
 
 
 def cmd_root(a):
@@ -590,7 +586,7 @@ def cmd_paths(a):
     print(f"state  {state}")
     print()
     for var in ("SUPER_PROTOTYPING_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME", "SP_CANVAS_PORT",
-                "PROTOTYPING_CANVASES_DIR", "SUPER_PROTOTYPING_ROOT"):
+                "PROTOTYPING_PROJECTS_DIR", "SUPER_PROTOTYPING_ROOT"):
         print(f"{var:<25} {os.environ.get(var) or '(unset)'}")
 
 
@@ -632,7 +628,7 @@ def parser():
                    version=f"sp {_toolkit_version() or 'dev (running from a source checkout)'}")
     s = p.add_subparsers(dest="cmd", required=True)
 
-    def add(name, fn, ports=True, canvases=True):
+    def add(name, fn, ports=True):
         sub = s.add_parser(name)
         sub.set_defaults(fn=fn)
         if ports:
@@ -641,20 +637,17 @@ def parser():
             sub.add_argument("--port", type=int,
                              default=os.environ.get("SP_CANVAS_PORT") or DEFAULT_PORT,
                              help=f"default SP_CANVAS_PORT, then {DEFAULT_PORT}")
-        if canvases:
-            sub.add_argument("--canvases", help="folder of board folders "
-                                                "(default: mockups/canvases under the project)")
         return sub
 
     add("start", cmd_start).add_argument(
         "project", nargs="?", help="the project directory (default: the current one)")
-    add("stop", cmd_stop, canvases=False)
+    add("stop", cmd_stop)
     add("status", cmd_status)
-    root = add("root", cmd_root, ports=False, canvases=False)
+    root = add("root", cmd_root, ports=False)
     root.add_argument("-v", "--verbose", action="store_true",
                       help="also list every place that was searched")
-    add("paths", cmd_paths, ports=False, canvases=False)
-    add("clean", cmd_clean, ports=False, canvases=False)
+    add("paths", cmd_paths, ports=False)
+    add("clean", cmd_clean, ports=False)
     return p
 
 

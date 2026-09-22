@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { canvasIconUrl, shortName } from "./canvasLibrary";
 import { canvasIndex } from "./canvasIndex";
 import {
+  isExample,
   projectTabIcon,
   projectTabLabel,
   tabKey,
@@ -136,14 +137,14 @@ export function CanvasTabBar(props: {
   onHome: () => void;
   goTo: (tab: ProjectTab) => void;
   closeTab: (tab: ProjectTab) => void;
-  /** The app's, which can make a project; a browser has the one its server was started on. */
+  /** The server's, which a hosted build has none of. */
   newProject?: () => void;
   children?: ReactNode;
 }) {
   const { tabs, projects, goTo } = props;
   const picker = useRef<HTMLDivElement>(null);
   const active = props.active && tabKey(props.active);
-  const examples = canvasIndex().boards.filter((b) => b.example);
+  const examples = canvasIndex().boards.filter((b) => isExample(b.slug));
 
   return (
     <nav className="sp-topbar" aria-label="Open projects">

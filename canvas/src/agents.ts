@@ -10,9 +10,9 @@
  * the preamble as a flag of its own and the message as one stream-json line, and writes where
  * it likes with its permission prompts off. Codex has no system-prompt flag, so the preamble
  * goes ahead of the message in the prompt itself, plain text on stdin; its sandbox writes the
- * working directory only, so the boards folder is named to it, since `sp --canvases` can
- * put that anywhere. Model and effort are a flag apiece on claude and a flag and a config
- * override on codex, and both are optional on both: nothing is sent unless the composer has
+ * working directory only, so the boards folder is named to it, since the server is given that
+ * apart from the project (server/sp.ts). Model and effort are a flag apiece on claude and a flag
+ * and a config override on codex, and both are optional on both: nothing is sent unless the composer has
  * picked something, so the CLI's own configuration keeps deciding until the user says otherwise.
  * Not a registry: a third agent is a third literal.
  *
@@ -129,6 +129,8 @@ export interface AgentDef {
   commandsProbe?: { args: string[]; read(stdout: string): string[] };
   /** What the run says when `bin` is not on PATH; the menu says it too, greyed. */
   missing: string;
+  /** Where to get it, which the onboarding links to when it is missing. */
+  site: string;
 }
 
 /** The shape of the models codex caches from its server; only these fields are read. */
@@ -243,6 +245,7 @@ export const AGENTS: AgentDef[] = [
     efforts: ["low", "medium", "high", "xhigh", "max"],
     missing:
       "claude is not on PATH. Install Claude Code, or run `sp start` from a shell where `claude` runs.",
+    site: "https://claude.com/product/claude-code",
   },
   {
     id: "codex",
@@ -327,5 +330,6 @@ export const AGENTS: AgentDef[] = [
     },
     missing:
       "codex is not on PATH. Install the Codex CLI, or run `sp start` from a shell where `codex` runs.",
+    site: "https://openai.com/codex/",
   },
 ];

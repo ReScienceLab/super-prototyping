@@ -16,7 +16,7 @@ export default function setup(project: TestProject) {
   const repoRoot = fileURLToPath(new URL("..", import.meta.url));
   project.provide(
     "canvasIndex",
-    boardIndex(path.join(repoRoot, "mockups/canvases"), {
+    boardIndex(path.join(repoRoot, "canvases"), {
       served: false,
       canvasesNamespace: "",
     }),

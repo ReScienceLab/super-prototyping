@@ -20,10 +20,16 @@ import { WELCOME_PAGE_SLUG, urlForTab, type CanvasTab } from "./canvasUrl";
  */
 
 /**
- * Start here, what the bare address opens and where a link to a folder that has gone lands. It
- * is the view of a project with no canvas yet.
+ * A project's view with no canvas of its own in front: what its bare address opens, the view of
+ * a project with no canvas yet, and where a link to a folder that has gone lands. It shows Start
+ * here's page, but it is not Start here's view: that is an example like any other, on a tab of
+ * its own at `?canvas=00-welcome`, and this is the project's, under its tab. Empty the way the
+ * index of every kit is `{ kind: "brand", slug: "" }`.
  */
-export const HOME_TAB: CanvasTab = { kind: "canvas", slug: WELCOME_PAGE_SLUG };
+export const HOME_TAB: CanvasTab = { kind: "canvas", slug: "" };
+
+/** The tldraw page a canvas view shows: its folder's, or Start here's for HOME_TAB. */
+export const pageOf = (view: CanvasTab) => view.slug || WELCOME_PAGE_SLUG;
 
 export type ProjectTab =
   | {
@@ -68,7 +74,7 @@ export interface Project {
 /**
  * The tab a project opens as: the one on the bar already, or a new one on its most recently
  * edited canvas, with the icon of the most recent that has one. A project with no canvas yet
- * opens on Start here.
+ * opens on HOME_TAB, its own view of Start here's page.
  */
 export function tabOfProject(
   p: Pick<Project, "name" | "url"> & {
@@ -86,7 +92,7 @@ export function tabOfProject(
     url,
     name: p.name,
     icon: iconed ? `${url}board/${encodeURI(iconed.slug)}/icon.png` : null,
-    view: { kind: "canvas", slug: recent[0]?.slug ?? WELCOME_PAGE_SLUG },
+    view: recent[0] ? { kind: "canvas", slug: recent[0].slug } : HOME_TAB,
   };
 }
 
@@ -101,15 +107,16 @@ export function tabOfExample(slug: string, open: ProjectTab[]): ProjectTab {
   );
 }
 
-/** An example this server has, rather than a canvas of the project's own. Start here is neither. */
+/**
+ * An example this server has, rather than a canvas of the project's own. Start here is one, the
+ * first, and its view is `?canvas=00-welcome`; the bare address is the project's (HOME_TAB).
+ */
 export function isExample(slug: string) {
-  return (
-    slug !== WELCOME_PAGE_SLUG &&
-    canvasIndex().boards.some((b) => b.slug === slug && b.example)
-  );
+  return canvasIndex().boards.some((b) => b.slug === slug && b.example);
 }
 
-/** The project's own canvases, in the index's order: the ones the canvas strip shows. */
+/** The project's own canvases, in the index's order: the ones the canvas strip shows. Start
+ *  here is never one, flagged as an example or not, since the project's view of it is HOME_TAB. */
 export function ownCanvases() {
   return readCanvasLibrary()
     .map((files) => files[0].pageSlug)
@@ -123,7 +130,7 @@ export function projectUrl() {
 
 /**
  * The tab a view belongs to: an example's, for an example or its kit, and this project's for
- * anything else: its canvases, their kits, Start here and the index of every kit.
+ * anything else: its canvases, their kits, HOME_TAB and the index of every kit.
  */
 export function tabFor(view: CanvasTab): ProjectTab {
   if (isExample(view.slug)) return { kind: "example", slug: view.slug, view };
@@ -170,15 +177,15 @@ export function projectTabIcon(tab: ProjectTab) {
 export function tabExists(tab: CanvasTab) {
   if (tab.kind === "brand")
     return tab.slug === "" || hasBrandMaterial(tab.slug);
-  return readCanvasLibrary().some((files) => files[0].pageSlug === tab.slug);
+  return readCanvasLibrary().some((files) => files[0].pageSlug === pageOf(tab));
 }
 
 /**
  * The tab something actually opens, which is not always the one it named. A kit is named by the
  * folder whose material it shows, and a folder that collected none has no kit of its own. That
  * address is the index of every kit, which is the page brand.html serves for it too. A canvas
- * the library has never heard of is a link to a folder that has since gone, and lands on Start
- * here, the one page that is always there.
+ * the library has never heard of is a link to a folder that has since gone, and lands on the
+ * project's own view of Start here, the one page that is always there.
  */
 export function resolveTab(tab: CanvasTab): CanvasTab {
   if (tab.kind === "brand") {

@@ -34,7 +34,7 @@ number of retries.
 
 ```bash
 artgen \
-    --art  mockups/canvases/<slug>/assets/art \
+    --art  canvases/<slug>/assets/art \
     --out  gen/ \
     03-char 08-avatar 02-char 06-char 07-freeze 01-duo \
     --cols 3 --cell 1024 --quality high --sup 3

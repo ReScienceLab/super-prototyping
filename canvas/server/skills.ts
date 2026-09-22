@@ -11,9 +11,24 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { AGENTS, type AgentId } from "../src/agents.ts";
 
 /** A project-relative skill directory. */
 const SKILL_DIR = /^\.[\w-]+\/skills$/;
+
+/**
+ * Where each agent the chat panel runs reads a project's skills from, and what to say once the
+ * copies are written. Codex reads `.agents/skills`, which most agents share; Claude Code does not
+ * read it, so it gets its own. docs/2026-09-20-desktop-onboarding-and-skills.md has the directory
+ * and the caveats for nineteen more, for when the panel runs a third.
+ */
+export const AGENT_SKILLS: Record<AgentId, { dir: string; note?: string }> = {
+  claude: {
+    dir: ".claude/skills",
+    note: "A user-level ~/.claude/skills folder with the same name overrides the project one.",
+  },
+  codex: { dir: ".agents/skills" },
+};
 
 /** Frontmatter at the very top of the file only. A block starting anywhere else is prose. */
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/;
@@ -22,7 +37,9 @@ const PIN_TARGET = "super-prototyping#subdirectory=tools";
 
 /** `<root>/.claude-plugin/plugin.json`'s `version`, the number a copy is marked and pinned with. */
 export function pluginVersion(root: string): string {
-  const manifest = JSON.parse(fs.readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"));
+  const manifest = JSON.parse(
+    fs.readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"),
+  );
   if (typeof manifest.version !== "string" || !manifest.version) {
     throw new Error(`${root}/.claude-plugin/plugin.json has no version`);
   }
@@ -38,7 +55,9 @@ export function pluginVersion(root: string): string {
 export function compareVersions(a: string, b: string): number {
   const parse = (v: string) => {
     const m = /^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/.exec(v);
-    return m ? { major: +m[1], minor: +m[2], patch: +m[3], pre: m[4] ?? null } : null;
+    return m
+      ? { major: +m[1], minor: +m[2], patch: +m[3], pre: m[4] ?? null }
+      : null;
   };
   const pa = parse(a);
   const pb = parse(b);
@@ -61,7 +80,11 @@ function markedVersion(skillMd: string): string | null {
   }
   const fm = FRONTMATTER.exec(content)?.[1];
   if (!fm) return null;
-  return /metadata:\r?\n\s*managed-by:\s*super-prototyping\r?\n\s*version:\s*(\S+)/.exec(fm)?.[1] ?? null;
+  return (
+    /metadata:\r?\n\s*managed-by:\s*super-prototyping\r?\n\s*version:\s*(\S+)/.exec(
+      fm,
+    )?.[1] ?? null
+  );
 }
 
 /**
@@ -71,7 +94,12 @@ function markedVersion(skillMd: string): string | null {
  * read; the pin is a plain substring swap wherever the install line mentions this repo, which
  * today is once, in the body.
  */
-function writeCopy(root: string, name: string, destDir: string, version: string): void {
+function writeCopy(
+  root: string,
+  name: string,
+  destDir: string,
+  version: string,
+): void {
   fs.rmSync(destDir, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(destDir), { recursive: true });
   fs.cpSync(path.join(root, "skills", name), destDir, { recursive: true });
@@ -85,21 +113,30 @@ function writeCopy(root: string, name: string, destDir: string, version: string)
     content.slice(m[0].length);
   fs.writeFileSync(
     skillMd,
-    marked.replaceAll(PIN_TARGET, `super-prototyping@super-prototyping--v${version}#subdirectory=tools`),
+    marked.replaceAll(
+      PIN_TARGET,
+      `super-prototyping@super-prototyping--v${version}#subdirectory=tools`,
+    ),
   );
 }
 
 /** Every marked copy under a project's dot directories: `<project>/<dot dir>/skills/<name>/SKILL.md`. */
-export function installedSkills(projectDir: string): { dir: string; name: string; version: string }[] {
+export function installedSkills(
+  projectDir: string,
+): { dir: string; name: string; version: string }[] {
   const found: { dir: string; name: string; version: string }[] = [];
   for (const top of fs.readdirSync(projectDir, { withFileTypes: true })) {
     if (!top.isDirectory() || !SKILL_DIR.test(`${top.name}/skills`)) continue;
     const skillsDir = path.join(projectDir, top.name, "skills");
-    if (!fs.statSync(skillsDir, { throwIfNoEntry: false })?.isDirectory()) continue;
+    if (!fs.statSync(skillsDir, { throwIfNoEntry: false })?.isDirectory())
+      continue;
     for (const skill of fs.readdirSync(skillsDir, { withFileTypes: true })) {
       if (!skill.isDirectory()) continue;
-      const version = markedVersion(path.join(skillsDir, skill.name, "SKILL.md"));
-      if (version) found.push({ dir: `${top.name}/skills`, name: skill.name, version });
+      const version = markedVersion(
+        path.join(skillsDir, skill.name, "SKILL.md"),
+      );
+      if (version)
+        found.push({ dir: `${top.name}/skills`, name: skill.name, version });
     }
   }
   return found;
@@ -126,7 +163,11 @@ export function installSkills(
   const skillsRoot = path.join(root, "skills");
   const names = fs
     .readdirSync(skillsRoot, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && fs.existsSync(path.join(skillsRoot, d.name, "SKILL.md")))
+    .filter(
+      (d) =>
+        d.isDirectory() &&
+        fs.existsSync(path.join(skillsRoot, d.name, "SKILL.md")),
+    )
     .map((d) => d.name);
 
   const written: string[] = [];
@@ -150,18 +191,54 @@ export function installSkills(
 }
 
 /**
- * Brings every marked copy in a project up to the tree's version, called once when a server
- * starts. It touches only the copies that are there. A copy at or ahead of the tree (someone else's
- * newer commit) is left alone, and so is a skill that is missing, because a folder someone deleted
- * on purpose must stay deleted, and refresh cannot tell that from one never installed. `projectDir`
- * is null when the server was started with no project, which is `node dist/server.mjs` run by hand,
- * and there is then nothing to refresh.
+ * Installs one agent's skills into a project, and says what that did as the toast the canvas
+ * shows once when the project opens. Nothing written and nothing skipped is a project that
+ * already had every copy at this version, which is every project opened a second time, and gets
+ * no toast: that was said when the copies were first written. The copies are all under the one
+ * directory, so it is named once and each copy by its own name.
  */
-export function refresh(projectDir: string | null, root: string): void {
-  if (projectDir === null) return;
+export function installFor(
+  root: string,
+  projectDir: string,
+  agent: AgentId,
+): {
+  written: string[];
+  skipped: string[];
+  toast?: { title: string; description: string };
+} {
+  const { dir, note } = AGENT_SKILLS[agent];
+  const { written, skipped } = installSkills(root, projectDir, [dir]);
+  if (written.length === 0 && skipped.length === 0) return { written, skipped };
+  const names = (paths: string[]) =>
+    paths.map((p) => path.posix.basename(p)).join(", ");
+  const toast = {
+    title: `Skills installed for ${AGENTS.find((a) => a.id === agent)!.name}`,
+    description: [
+      written.length ? `Into ${dir}: ${names(written)}.` : "",
+      skipped.length ? `Already there, left alone: ${names(skipped)}.` : "",
+      note ?? "",
+    ]
+      .filter(Boolean)
+      .join(" "),
+  };
+  return { written, skipped, toast };
+}
+
+/**
+ * Brings every marked copy in a project up to the tree's version, called once when a project is
+ * first served. It touches only the copies that are there. A copy at or ahead of the tree (someone
+ * else's newer commit) is left alone, and so is a skill that is missing, because a folder someone
+ * deleted on purpose must stay deleted, and refresh cannot tell that from one never installed.
+ */
+export function refresh(projectDir: string, root: string): void {
   const version = pluginVersion(root);
   for (const copy of installedSkills(projectDir)) {
     if (compareVersions(copy.version, version) >= 0) continue;
-    writeCopy(root, copy.name, path.join(projectDir, copy.dir, copy.name), version);
+    writeCopy(
+      root,
+      copy.name,
+      path.join(projectDir, copy.dir, copy.name),
+      version,
+    );
   }
 }

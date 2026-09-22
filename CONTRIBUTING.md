@@ -12,7 +12,7 @@ git clone https://github.com/ReScienceLab/super-prototyping.git
 cd super-prototyping/canvas && bun install --frozen-lockfile && bun run dev
 ```
 
-The viewer discovers `mockups/canvases/*/*.html` on its own. There is no
+The viewer discovers `canvases/*/*.html` on its own. There is no
 registry to edit and no build step per board.
 
 ## Making a change
@@ -50,7 +50,7 @@ registry to edit and no build step per board.
 ## Adding an example canvas
 
 ```bash
-cp -r mockups/canvases/templates mockups/canvases/<slug>
+cp -r canvases/templates canvases/<slug>
 ```
 
 Then run the `clone-prototype` skill (measured from your own captures) or

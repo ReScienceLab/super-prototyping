@@ -3,7 +3,7 @@ import fs from "node:fs";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
-import { augmentedPath, detectAgents, findOnPath, freePort, isWeb, listProjects, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
+import { augmentedPath, freePort, isWeb, listProjects, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
 
 test("untilde expands only the current user's leading tilde", () => {
   expect(untilde("~/sp", "/Users/u")).toBe("/Users/u/sp");
@@ -36,11 +36,6 @@ test("augmentedPath appends the tool directories once", () => {
   ]);
 });
 
-test("findOnPath finds a file and only a file", () => {
-  expect(findOnPath("ls", "/nope:/bin")).toBe("/bin/ls");
-  expect(findOnPath("no-such-binary-xyz", "/bin")).toBeNull();
-});
-
 test("listProjects gives the folders in the root, last edited first, and skips files and dot folders", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "sp-projects-"));
   for (const [name, at] of [["old", 1000], ["new", 3000], ["mid", 2000], [".hidden", 4000]] as const) {
@@ -50,37 +45,14 @@ test("listProjects gives the folders in the root, last edited first, and skips f
   fs.writeFileSync(path.join(root, "notes.txt"), "");
   expect(listProjects(root).map((p) => p.name)).toEqual(["new", "mid", "old"]);
   // A board rewritten inside a canvas folder is an edit, though no folder's own time moved.
-  const board = path.join(root, "old/mockups/canvases/app/01-home.html");
+  const board = path.join(root, "old/canvases/app/01-home.html");
   fs.mkdirSync(path.dirname(board), { recursive: true });
   fs.writeFileSync(board, "");
   fs.utimesSync(board, 5000, 5000);
-  const icon = path.join(root, "old/mockups/canvases/app/icon.png");
-  fs.writeFileSync(icon, "");
-  fs.utimesSync(icon, 4000, 4000);
-  for (const dir of ["old/mockups/canvases/app", "old/mockups/canvases", "old/mockups", "old"]) fs.utimesSync(path.join(root, dir), 1000, 1000);
-  expect(listProjects(root)[0]).toEqual({ name: "old", dir: path.join(root, "old"), icon, at: 5000_000 });
-  expect(listProjects(root)[1].icon).toBeUndefined();
+  for (const dir of ["old/canvases/app", "old/canvases", "old"]) fs.utimesSync(path.join(root, dir), 1000, 1000);
+  expect(listProjects(root)[0]).toEqual({ name: "old", dir: path.join(root, "old"), at: 5000_000 });
   expect(listProjects(path.join(root, "missing"))).toEqual([]);
   fs.rmSync(root, { recursive: true });
-});
-
-test("detectAgents reports, per agent, what it found: a binary, a home directory, an app", () => {
-  const probe = (opts: { bins?: string[]; dirs?: string[]; apps?: string[] }) => ({
-    bin: (name: string) => (opts.bins ?? []).includes(name),
-    dir: (rel: string) => (opts.dirs ?? []).includes(rel),
-    app: (name: string) => (opts.apps ?? []).includes(name),
-  });
-  expect(detectAgents(probe({ bins: ["claude"] }))["claude-code"]).toEqual(["claude on PATH"]);
-  expect(detectAgents(probe({ dirs: [".codex"] }))["codex"]).toEqual(["~/.codex"]);
-  expect(detectAgents(probe({ apps: ["Devin.app"] }))["devin"]).toEqual(["Devin.app"]);
-  expect(detectAgents(probe({ bins: ["claude"], dirs: [".claude"], apps: ["Claude.app"] }))["claude-code"]).toEqual([
-    "claude on PATH",
-    "~/.claude",
-    "Claude.app",
-  ]);
-  // Cursor's CLI is "agent", which is also Grok CLI's name, so it is not in Cursor's row.
-  expect(detectAgents(probe({ bins: ["agent"] }))["cursor"]).toEqual([]);
-  expect(Object.values(detectAgents(probe({}))).every((found) => found.length === 0)).toBe(true);
 });
 
 test("waitForPort resolves once a listener appears, rejects on timeout or abort", async () => {

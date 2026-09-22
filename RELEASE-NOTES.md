@@ -23,9 +23,14 @@ Everything below is on `main` and reaches no install until a version is cut.
 
 - **The app opens on a home page.** After the first launch, the desktop app
   opens on every project you have, each card showing the screens of its canvas,
-  with the examples below. Open one, or start a new project from the same page.
-  The Home button on the canvas's top bar goes back to it. The startup page,
-  which asks for an agent and a project, comes back only after a major update.
+  a phone cropped to its screen and a wider board whole, with the examples
+  below. Open one, or start a new project from the same page.
+  The Home button on the canvas's top bar goes back to it.
+
+- **The app starts in the app.** The first launch no longer asks for a project
+  before you see anything. It opens on the home page, with a first project
+  already made, and asks over it which agent you will work with. Skip it and it
+  asks again next launch. It comes back once after a major update.
 
 - **A tab is a project.** The bar across the top holds one tab per project you
   have open, examples included, and each comes back on the canvas you left it
@@ -54,9 +59,26 @@ Everything below is on `main` and reaches no install until a version is cut.
   serves every project from it, so opening another project or switching tabs no
   longer restarts anything.
 
-- **Start here closes like any other tab.** Close it, or close every tab, and
-  the canvas goes back to the home page. It is among the examples there and in
-  the + menu.
+- **`sp start` is that same server.** It serves every project under
+  `~/Documents/Super Prototyping` at `/p/<name>/`, as the app does, with the
+  project it was given beside them and its address going there, and shows the
+  plugin's examples beside each project's boards. New project and Open folder
+  are the server's own, so the app and a browser tab get the same ones.
+  `--canvases` and `PROTOTYPING_CANVASES_DIR` are gone: a project's boards are
+  its `canvases` folder, and `PROTOTYPING_PROJECTS_DIR` moves the projects
+  folder.
+
+- **A project's boards moved up a level.** They are in `<project>/canvases`
+  now, not `<project>/mockups/canvases`. A project that still has the old
+  folder has it moved the first time it is opened, by `sp start`, the app or a
+  browser tab, and an emptied `mockups` goes with it. A project that has both is
+  left as it is, for you to merge.
+
+- **Start here is the first example.** It is the first card under Examples on
+  the home page and the first row of the + menu, and opens on a tab of its own,
+  labelled Start here, like every other example. A project with no canvas yet
+  still opens on the same page, under its own name. Close that tab, or every
+  tab, and the canvas goes back to the home page.
 
 - **The app updates itself.** On launch it looks for a newer release, downloads
   it in the background, and then asks once: **Restart Now**, or **Later**, which
@@ -66,8 +88,8 @@ Everything below is on `main` and reaches no install until a version is cut.
   it says nothing. A Homebrew install updates this way too. Installs of v1.5.3 and
   earlier have no updater, so they need one last manual update:
   `brew upgrade --cask super-prototyping`, or the new installer on Windows.
-- **The app says which version it is.** The startup page shows it beside the
-  app's name. Click it to check for an update there and then: it answers **Up to
+- **The app says which version it is.** The first launch's welcome shows it
+  at its foot. Click it to check for an update there and then: it answers **Up to
   date**, that a newer version is available, which then downloads and asks as
   usual, or **Could not check**.
 

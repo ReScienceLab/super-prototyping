@@ -31,12 +31,14 @@ it("shows the examples read-only beside the project's canvases", async () => {
     canvasesDir,
     examplesDir: path.join(tmp, "examples"),
     projects: () => new Map(),
-    projectDir: null,
+    projectDir: tmp,
     repoRoot: tmp,
   });
   try {
     const index = JSON.parse((await ask("/__sp/index.json")).text);
-    expect(index.boards.map((b: any) => [b.slug, b.layout.name, b.example])).toEqual([
+    expect(
+      index.boards.map((b: any) => [b.slug, b.layout.name, b.example]),
+    ).toEqual([
       ["an-example", "example", true],
       ["begun", "example", true],
       ["shadowed", "mine", undefined],
@@ -45,20 +47,28 @@ it("shows the examples read-only beside the project's canvases", async () => {
     expect((await ask("/board/shadowed/01-a.html")).text).toBe("mine");
 
     const status = { file: "01-a", status: "outdated" };
-    expect((await ask("/__sp/board-status", { slug: "an-example", ...status })).status).toBe(403);
-    expect((await ask("/__sp/board-status", { slug: "shadowed", ...status })).status).toBe(200);
+    expect(
+      (await ask("/__sp/board-status", { slug: "an-example", ...status }))
+        .status,
+    ).toBe(403);
+    expect(
+      (await ask("/__sp/board-status", { slug: "shadowed", ...status })).status,
+    ).toBe(200);
     // A name in neither place is not an example, and gets the answer it got before.
-    expect((await ask("/__sp/board-status", { slug: "nowhere", ...status })).status).not.toBe(403);
+    expect(
+      (await ask("/__sp/board-status", { slug: "nowhere", ...status })).status,
+    ).not.toBe(403);
     const comment = { slug: "an-example", file: { records: [{}] } };
     expect((await ask("/__sp/comments", comment)).status).toBe(403);
 
     const clone = { slug: "an-example", name: "Mine now" };
     expect((await ask("/__sp/clone-canvas", clone)).status).toBe(200);
-    expect(fs.readFileSync(path.join(canvasesDir, "mine-now/01-a.html"), "utf8")).toBe("example");
-    expect(fs.readdirSync(path.join(tmp, "examples/an-example")).sort()).toEqual([
-      "01-a.html",
-      "layout.json",
-    ]);
+    expect(
+      fs.readFileSync(path.join(canvasesDir, "mine-now/01-a.html"), "utf8"),
+    ).toBe("example");
+    expect(
+      fs.readdirSync(path.join(tmp, "examples/an-example")).sort(),
+    ).toEqual(["01-a.html", "layout.json"]);
   } finally {
     close();
     fs.rmSync(tmp, { recursive: true, force: true });
@@ -73,12 +83,13 @@ it("lists the projects", async () => {
     fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
     fs.writeFileSync(path.join(tmp, rel), text);
   };
-  write("projects/alpha/mockups/canvases/one/01-a.html", "alpha one");
+  write("projects/alpha/canvases/one/01-a.html", "alpha one");
   fs.mkdirSync(path.join(tmp, "projects/empty"));
-  write("elsewhere/mockups/canvases/mine/01-a.html", "mine");
+  write("elsewhere/canvases/mine/01-a.html", "mine");
+  fs.mkdirSync(path.join(tmp, "examples"));
   const { ask, close } = await serve({
-    canvasesDir: path.join(tmp, "elsewhere/mockups/canvases"),
-    examplesDir: null,
+    canvasesDir: path.join(tmp, "elsewhere/canvases"),
+    examplesDir: path.join(tmp, "examples"),
     projects: () =>
       new Map([
         ["alpha", path.join(tmp, "projects/alpha")],
@@ -90,13 +101,20 @@ it("lists the projects", async () => {
   try {
     const projects = JSON.parse((await ask("/__sp/projects.json")).text);
     expect(
-      projects.map((p: any) => [p.name, p.current, p.url, p.canvases.map((c: any) => c.slug)]),
+      projects.map((p: any) => [
+        p.name,
+        p.current,
+        p.url,
+        p.canvases.map((c: any) => c.slug),
+      ]),
     ).toEqual([
       ["alpha", false, "../alpha/", ["one"]],
       ["a b", false, "../a%20b/", []],
       ["elsewhere", true, "./", ["mine"]],
     ]);
-    expect(JSON.parse((await ask("/__sp/index.json")).text).project).toBe("elsewhere");
+    expect(JSON.parse((await ask("/__sp/index.json")).text).project).toBe(
+      "elsewhere",
+    );
   } finally {
     close();
     fs.rmSync(tmp, { recursive: true, force: true });
@@ -113,11 +131,14 @@ async function serve(options: Parameters<typeof createSpServer>[0]) {
   const { port } = server.address() as AddressInfo;
   const ask = (url: string, body?: object) =>
     new Promise<{ status: number; text: string }>((done) => {
-      const req = http.request({ port, path: url, method: body ? "POST" : "GET" }, (res) => {
-        let text = "";
-        res.on("data", (chunk) => (text += chunk));
-        res.on("end", () => done({ status: res.statusCode!, text }));
-      });
+      const req = http.request(
+        { port, path: url, method: body ? "POST" : "GET" },
+        (res) => {
+          let text = "";
+          res.on("data", (chunk) => (text += chunk));
+          res.on("end", () => done({ status: res.statusCode!, text }));
+        },
+      );
       req.end(body && JSON.stringify(body));
     });
   const close = () => {

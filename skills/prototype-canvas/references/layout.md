@@ -1,8 +1,7 @@
 # Board folders, layout.json, and the artboard constraints
 
-One subfolder per board under the boards directory (`./mockups/canvases` by
-default, or wherever `PROTOTYPING_CANVASES_DIR` points). Drop `.html` files in
-and nothing else needs changing:
+One subfolder per board under the project's boards directory,
+`canvases`. Drop `.html` files in and nothing else needs changing:
 
 - Each folder becomes one tldraw page, named after the folder
   (`kebab-case` → `Title Case`). Folders sort numerically and the page menu
@@ -167,7 +166,7 @@ its output, plus any asset JSON it reads** (base64 `data:` URIs for bitmaps).
 `gen.py` resolves every path relative to `__file__`, so from anywhere:
 
 ```bash
-python3 mockups/canvases/<slug>/gen.py
+python3 canvases/<slug>/gen.py
 ```
 
 regenerates the folder in place, byte-identical. A folder whose boards cannot

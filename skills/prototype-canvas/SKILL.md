@@ -8,7 +8,7 @@ compatibility: Requires the sp command from super-prototyping-tools, node or bun
 # Prototype canvas
 
 A local tldraw app that discovers every `.html` file under
-`mockups/canvases/<slug>/` and renders it as a shape. There is no shape map
+`canvases/<slug>/` and renders it as a shape. There is no shape map
 to edit and no code change needed to add a board.
 
 The app ships with this plugin and is installed outside your project. Your
@@ -41,9 +41,10 @@ prints the address. Started from a terminal it also opens the browser; from
 an agent's shell it only prints. A checkout being worked on serves its own
 `canvas/dist` instead, rebuilt with bun when a source is newer.
 
-- **Boards** default to `mockups/canvases` under the project: the directory
-  named on `sp start <dir>`, else the current one.
-  Point somewhere else with `--canvases DIR` or `PROTOTYPING_CANVASES_DIR`.
+- **Boards** are `canvases` under the project: the directory named on
+  `sp start <dir>`, else the current one. The address printed goes to that
+  project; every project under `~/Documents/Super Prototyping`
+  (`PROTOTYPING_PROJECTS_DIR`) is served beside it at `/p/<name>/`.
 - **Port** with `--port N`, or `SP_CANVAS_PORT` for a machine that always
   uses another one. A port that already answers is never reused: it may be
   another project's canvas, so `start` refuses rather than showing you the
@@ -163,8 +164,8 @@ runs across the reload, and its history button lists the runs the server
 still holds.
 
 Each message is a fresh `claude -p` or `codex exec` with no memory of the
-last, so repeat what matters. A server started by hand needs `PROTOTYPING_PROJECT_DIR` set to the
-project, or the panel says it cannot run; `sp start` sets it.
+last, so repeat what matters. It runs in the project the page is of, the `/p/<name>/` in the
+address.
 
 ## State and persistence
 
@@ -188,9 +189,10 @@ headings and captions; the frames stay independently selectable; the inspector
 opens on the board you click; Force refresh rebuilds a board cleanly.
 
 Everything the canvas needs a server for lives in `canvas/server/`: `sp.ts`
-answers `/__sp` and `/board`, the Vite dev server mounts it for working on the
-app, and `main.ts` mounts it in front of `dist` as the server `sp start`
-runs. Board discovery is `boards.ts`, served as `/__sp/index.json` and fetched
+answers `/__sp` and `/board` for one project, `projects.ts` mounts one of it
+per project at `/p/<name>/` and makes or opens projects, the Vite dev server
+mounts that for working on the app, and `main.ts` mounts it in front of `dist`
+as the server `sp start` and the app run. Board discovery is `boards.ts`, served as `/__sp/index.json` and fetched
 by the page before it loads, not an `import.meta.glob`. Bump
 `PERSISTENCE_KEY` **only** when a change would leave existing documents
 inconsistent with the code, such as a shape's props changing shape; a bump

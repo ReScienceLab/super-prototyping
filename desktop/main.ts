@@ -9,15 +9,17 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
-import { app, BrowserWindow, dialog, ipcMain, shell, utilityProcess } from "electron";
-import type { IpcMainInvokeEvent } from "electron";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  shell,
+  utilityProcess,
+} from "electron";
 import { autoUpdater } from "electron-updater";
 import {
-  AGENTS,
   augmentedPath,
-  detectAgents,
-  findOnPath,
   freePort,
   isWeb,
   listProjects,
@@ -29,8 +31,8 @@ import {
 } from "./launch.ts";
 
 const home = os.homedir();
-// A GUI app starts without the login shell's PATH. Set on this process, so agent detection
-// below and every child, the server and what it spawns, see the same one.
+// A GUI app starts without the login shell's PATH. Set on this process, so every child, the
+// server and the agent it spawns, sees the same one.
 process.env.PATH = augmentedPath(process.env, home);
 // Electron's profile (IndexedDB holds the canvas document) goes beside the CLI's pidfile and
 // log, not in ~/Library, so `sp paths` names every file this writes and `clean` removes it.
@@ -45,8 +47,10 @@ const pluginRoot = app.isPackaged
   : path.resolve(import.meta.dirname, "../..");
 
 // `open -a "Super Prototyping" --args --port 5173 /path/to/project`, and nothing else. A project
-// named here skips the startup page and the home page, and with them the skills install.
-const { port: portArg, dir: argDir } = parseArgs(process.argv.slice(app.isPackaged ? 1 : 2));
+// named here skips the home page and the onboarding.
+const { port: portArg, dir: argDir } = parseArgs(
+  process.argv.slice(app.isPackaged ? 1 : 2),
+);
 
 let server: Electron.UtilityProcess | null = null;
 let quitting = false;
@@ -74,7 +78,10 @@ async function main() {
   // port that was asked for and is taken is an error, not a second server racing the first.
   let port = portArg ?? Number(process.env.SP_CANVAS_PORT || 0);
   if (!Number.isInteger(port) || port < 0 || port > 65535) {
-    dialog.showErrorBox("Bad port", "--port and SP_CANVAS_PORT take a port number, 1 to 65535.");
+    dialog.showErrorBox(
+      "Bad port",
+      "--port and SP_CANVAS_PORT take a port number, 1 to 65535.",
+    );
     return app.exit(1);
   }
   if (port && (await portAnswers(port))) {
@@ -87,7 +94,7 @@ async function main() {
   if (!port) port = (await portAnswers(5173)) ? await freePort() : 5173;
   const origin = `http://127.0.0.1:${port}`;
 
-  // The startup page, the home page and the canvas are the only pages this app shows. Anything off
+  // The home page and the canvas are the only pages this app shows. Anything off
   // the loopback, such as the page's GitHub link or the canvas's Figma plugin link, is for the
   // browser if it is a web address, and goes nowhere if it is not. It is set on every page the app
   // makes and not on the window's alone, because the canvas opens its brand pages as windows of
@@ -97,7 +104,8 @@ async function main() {
   const isOurs = (url: string) => url.startsWith(`${origin}/`);
   app.on("web-contents-created", (_event, contents) => {
     contents.setWindowOpenHandler(({ url }) => {
-      if (isOurs(url) && !new URL(url).pathname.endsWith("/sheet.html")) return { action: "allow" };
+      if (isOurs(url) && !new URL(url).pathname.endsWith("/sheet.html"))
+        return { action: "allow" };
       if (isWeb(url)) shell.openExternal(url);
       return { action: "deny" };
     });
@@ -108,11 +116,8 @@ async function main() {
     });
   });
 
-  // The first launch's first page asks which one agent to work with. Each row shows what its
-  // presence on this machine rests on, which is a binary on PATH, a directory under home or an app
-  // bundle, so a wrong guess is visible. Then it asks for a project to open or to create. It is a
-  // page in the one window, at the canvas's size, and stays up until the canvas replaces it.
-  // Closing it quits. Every launch after that opens on the home page, which lists the projects.
+  // Every launch opens on the home page, which lists the projects. The first launch, and the
+  // first of a new major version, asks over it which agent to work with (canvas/src/Onboarding.tsx).
   const win = new BrowserWindow({
     width: 1440,
     height: 900,
@@ -120,19 +125,22 @@ async function main() {
     backgroundColor: "#000000",
     // Windows draws the menu as a white strip across a black app. Alt still shows it.
     autoHideMenuBar: true,
-    webPreferences: { preload: path.join(app.getAppPath(), "dist/preload.cjs") },
+    webPreferences: {
+      preload: path.join(app.getAppPath(), "dist/preload.cjs"),
+    },
   });
 
   // The app updates itself from the GitHub release. A newer one downloads in the background, and
   // this dialog is all the user sees of it; "Later" installs it when the app quits. A check that
   // fails says nothing: being offline, or asking in the minutes between a release and its
   // installers being attached, is not something the user can act on. Nothing happens unpackaged.
-  // The startup page shows the version, and a click on it checks again. That check was asked
+  // The onboarding shows the version, and a click on it checks again. That check was asked
   // for, so it is answered either way, in the words the page puts beside the version.
   autoUpdater.on("update-downloaded", async ({ version }) => {
     const { response } = await dialog.showMessageBox(win, {
       message: `Super Prototyping ${version} is ready.`,
-      detail: "Restart to install it now, or it installs the next time you quit.",
+      detail:
+        "Restart to install it now, or it installs the next time you quit.",
       buttons: ["Restart Now", "Later"],
       cancelId: 1, // Esc is "Later": without this it answers 0, which is "Restart Now".
     });
@@ -143,39 +151,41 @@ async function main() {
       (check) => {
         if (!check) return "Could not check"; // unpackaged: the updater is off and asked nobody
         check.downloadPromise?.catch(() => {});
-        return check.isUpdateAvailable ? `${check.updateInfo.version} available` : "Up to date";
+        return check.isUpdateAvailable
+          ? `${check.updateInfo.version} available`
+          : "Up to date";
       },
       () => "Could not check",
     );
   checkForUpdates();
   ipcMain.handle("startup:check", checkForUpdates);
-  // Where every new project goes, which makes the folder the list of them. The startup page and
-  // the home page both show it as it is on disk now.
+  // Where every new project goes, which makes the folder the list of them. The server lists it and
+  // makes a project in it, so it is handed over (PROTOTYPING_PROJECTS_DIR below); here it is only
+  // where the launch looks for the newest project.
   const projectsDir = path.join(app.getPath("documents"), "Super Prototyping");
-  // All the app remembers: the agent chosen on the startup page, the project open last and the
-  // version that was running then. Every project opened later gets that agent's skills, and the
-  // next launch opens the home page under that project. Written once a project opens, so a
-  // missing file is a first launch and gets the startup page, and so does the first launch of a
-  // new major version. A project opened from a tab or a home page card is a link, which this
-  // never hears about, so the last one is the last one opened through here.
+  // All the app remembers: the agent the onboarding chose and the version that was running when
+  // it did. No agent, or one chosen under another major version, gets the onboarding again, which
+  // is also what skipping it leaves. Which project was open last is not kept: the page opens
+  // projects through the server, which this never hears about, so the launch opens the newest.
   const lastFile = path.join(app.getPath("userData"), "last.json");
-  const last: { agent?: string; project?: string; version?: string } = fs.existsSync(lastFile)
+  const last: { agent?: string; version?: string } = fs.existsSync(lastFile)
     ? JSON.parse(fs.readFileSync(lastFile, "utf8"))
     : {};
 
   // One server for the app's whole run, on `port`, for every project. Each is a path of its own
   // (`/p/<name>/`), so another project is another tab, not another server. It starts before any
-  // page loads, the startup page included, and stops only when the app quits.
+  // page loads, and stops only when the app quits.
   async function startServer() {
     const env: NodeJS.ProcessEnv = {
       ...process.env,
       // An env value already set wins, the way the CLI's own lookup works, for a developer pointing
       // the packaged app at a checkout.
-      SUPER_PROTOTYPING_ROOT: untilde(process.env.SUPER_PROTOTYPING_ROOT || pluginRoot, home),
-      // Every canvas this repo has, shipped in the app and shown read-only beside the project's own,
-      // so a new project opens on Start here with the examples under it, not on nothing.
-      PROTOTYPING_EXAMPLES_DIR: path.join(pluginRoot, "mockups/canvases"),
-      // Every project under it is served at `/p/<name>/`, and listed on the home page.
+      SUPER_PROTOTYPING_ROOT: untilde(
+        process.env.SUPER_PROTOTYPING_ROOT || pluginRoot,
+        home,
+      ),
+      // Every project under it is served at `/p/<name>/`, and listed on the home page. The server's
+      // own default is the same folder; this is Electron's word for where Documents is.
       PROTOTYPING_PROJECTS_DIR: projectsDir,
     };
 
@@ -199,7 +209,10 @@ async function main() {
       server = null;
       // A server that stops while the window is up has nothing left to show. The reason is in
       // what it printed, and that goes in the box, not to a log the user would have to find.
-      dialog.showErrorBox(`The canvas server exited (code ${code})`, output || "(no output)");
+      dialog.showErrorBox(
+        `The canvas server exited (code ${code})`,
+        output || "(no output)",
+      );
       app.exit(1);
     });
 
@@ -216,178 +229,63 @@ async function main() {
     }
   }
 
-  // Opens a project, from the startup page, the home page or the command line. It asks the server
-  // for the project's address, installs its agent's skills, and returns the address of `then`,
-  // the page to land on under it, which is its canvas ("") or the home page. The server names a
-  // folder from outside the projects directory when it is first asked for it here, over its
-  // parent port, which nothing but this app can write to (canvas/server/main.ts). It takes one
-  // ask at a time, which `opening` and the launch keep to. The window loads the address that
-  // comes back, or the app's own window loads it into the frame its canvas is in
-  // (canvas/src/AppShell.tsx).
-  async function openProject(dir: string, agent: string | undefined, then: "" | "home.html") {
+  // Opens a folder as a project, for the launch: the one from the command line, or the newest.
+  // The server answers with the project's address, and names a folder from outside the projects
+  // directory when it is first asked for here, over its parent port, which nothing but this app
+  // can write to (canvas/server/main.ts). It takes one ask at a time, which the launch keeps to.
+  async function openProject(dir: string) {
     const answer = new Promise<{ address?: string; error?: string }>((resolve) =>
       server!.once("message", resolve),
     );
     server!.postMessage(dir);
-    const { address: base, error } = await answer;
-    if (base === undefined) throw new Error(`Opening ${dir} failed: ${error}`);
-    const url = new URL(base + then, origin);
-    if (agent !== undefined) {
-      const row = AGENTS.find((a) => a.id === agent)!; // the page's rows came from this table
-      const res = await fetch(`${origin}${base}__sp/skills`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ dirs: [row.dir] }),
-      });
-      if (!res.ok) throw new Error(`Installing skills failed: ${await res.text()}`);
-      const { written, skipped } = (await res.json()) as { written: string[]; skipped: string[] };
-      // Nothing written and nothing skipped is a project that already had every copy at this
-      // version, which is every project opened a second time. That says nothing, the agent's note
-      // included, because that was shown when the copies were first written.
-      if (written.length > 0 || skipped.length > 0) {
-        // Said by the canvas, as a toast at its bottom right once it is up, rather than by a
-        // native alert here, which would be a modal in front of a page about to be replaced. The
-        // copies are all under the one directory asked for, so it is named once and each copy by
-        // its own name.
-        const names = (paths: string[]) => paths.map((p) => path.posix.basename(p)).join(", ");
-        const toast = {
-          title: `Skills installed for ${row.name}`,
-          description: [
-            written.length ? `Into ${row.dir}: ${names(written)}.` : "",
-            skipped.length ? `Already there, left alone: ${names(skipped)}.` : "",
-            row.note ?? "",
-          ]
-            .filter(Boolean)
-            .join(" "),
-        };
-        url.searchParams.set("toast", JSON.stringify(toast));
-      }
-    }
-    Object.assign(last, { agent: agent ?? last.agent, project: dir, version: app.getVersion() });
-    fs.writeFileSync(lastFile, JSON.stringify(last));
-    return url.href;
+    const { address, error } = await answer;
+    if (address === undefined) throw new Error(`Opening ${dir} failed: ${error}`);
+    return origin + address;
   }
+  // A request to the server, as a page of its own would make it. Node's fetch sends no
+  // Sec-Fetch-Site header, which the server takes for a caller that is not a browser.
+  const post = (pathname: string, body: unknown) =>
+    fetch(origin + pathname, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-  // The one channel back from the startup page and the app's window (preload.ts). This replaces
-  // the startup page with the project, and answers the app's window with the project's address,
-  // which it loads into its frame itself, so the bar and the agent's panel, with whatever is
-  // typed in it, stay. Otherwise a page gets back nothing when the open panel was cancelled, and
-  // what to say under its name field when the name will not do. The page says it there, where
-  // the user is, with the way out, rather than as a native alert with an error's text in it. The
-  // app's window names no agent, and gets the one the startup page chose.
-  let opening = false;
-  ipcMain.handle(
-    "startup:choose",
-    async (event: IpcMainInvokeEvent, action: "open" | "create", chosen: string, name = "") => {
-      if (opening) return; // a second click while the first is still installing skills
-      let dir: string | undefined;
-      if (action === "open" && name === "") {
-        // The open panel is a sheet on this window, so a second click cannot land while it is
-        // up; creating is synchronous.
-        const opened = await dialog.showOpenDialog(win, {
-          title: "Open a project",
-          message: "Choose the project whose mockups/canvases the canvas should show.",
-          properties: ["openDirectory", "createDirectory"],
-        });
-        dir = opened.filePaths[0];
-      } else {
-        // A new project needs only a name, as in Screen Studio. It goes under Documents, so
-        // there is no place to pick. The page's `required` lets a name of spaces through, and
-        // knows nothing of folders.
-        if (name === "") return { message: "Give the project a name first." };
-        if (name.startsWith(".") || path.basename(name) !== name) {
-          return { message: "A name cannot start with a dot or have a slash in it." };
-        }
-        dir = path.join(projectsDir, name);
-        // "open" with a name is the startup page's "Open it instead", for a name found taken
-        // here, and a project card on either page.
-        if (action === "create") {
-          if (fs.existsSync(dir)) {
-            return {
-              message: `You already have a project called “${name}”. Try another name.`,
-              taken: true,
-            };
-          }
-          // A folder with `mockups/canvases` in it and nothing else. What the window opens on,
-          // Start here and the examples, is the app's and shown beside the project's own
-          // (PROTOTYPING_EXAMPLES_DIR above), so there is nothing to copy in.
-          try {
-            fs.mkdirSync(path.join(dir, "mockups/canvases"), { recursive: true });
-          } catch (e) {
-            // A new name does not fix an unwritable Documents, so say what failed.
-            return { message: `That folder could not be made: ${(e as Error).message}` };
-          }
-        }
-      }
-      if (dir === undefined) return; // cancelled: the window is still there, nothing written
-      opening = true;
-      const url = await openProject(dir, chosen || last.agent, "").catch(fail);
-      opening = false;
-      if (isOurs(event.sender.getURL())) return { url };
-      await win.loadURL(url!);
-    },
-  );
+  // The onboarding's answer: the agent the chat panel will run. Its skills go into the project the
+  // window is on now; every project the page makes or opens after sends the panel's agent itself.
+  ipcMain.handle("startup:agent", async (_event, agent: string) => {
+    Object.assign(last, { agent, version: app.getVersion() });
+    fs.writeFileSync(lastFile, JSON.stringify(last));
+    const res = await post(new URL("__sp/skills", win.webContents.getURL()).pathname, { agent });
+    if (!res.ok) throw new Error(`Installing skills failed: ${await res.text()}`);
+  });
 
   await startServer();
-  if (argDir !== undefined) return win.loadURL(await openProject(argDir, undefined, ""));
-  // The project the home page opens under: the one open last, or the newest if that one has gone.
-  // None at all is a first launch however many launches came before.
-  const resume = [last.project, listProjects(projectsDir)[0]?.dir].find(
-    (dir) => dir !== undefined && fs.existsSync(dir),
-  );
+  if (argDir !== undefined) return win.loadURL(await openProject(argDir));
+  // The project the home page opens under: the newest, or a new one on a first launch, since every
+  // page is a project's and the agent needs one to run in. It is an empty folder under Documents,
+  // as "New project" makes, and made the same way.
+  const newest = listProjects(projectsDir)[0]?.dir;
+  let address: string;
+  if (newest !== undefined) address = await openProject(newest);
+  else {
+    const res = await post("/__sp/projects", { name: "My first project" });
+    if (!res.ok) throw new Error(`Making the first project failed: ${await res.text()}`);
+    address = origin + ((await res.json()) as { url: string }).url;
+  }
+  const url = new URL("home.html", address);
   const major = (version?: string) => version?.split(".")[0];
   if (
-    last.agent !== undefined &&
-    resume !== undefined &&
-    major(last.version) === major(app.getVersion())
+    last.agent === undefined ||
+    major(last.version) !== major(app.getVersion())
   )
-    return win.loadURL(await openProject(resume, undefined, "home.html"));
-
-  const PATH = process.env.PATH!;
-  const found = detectAgents({
-    bin: (name) => findOnPath(name, PATH) !== null,
-    dir: (rel) => fs.existsSync(path.join(home, rel)),
-    app: (name) =>
-      fs.existsSync(path.join("/Applications", name)) ||
-      fs.existsSync(path.join(home, "Applications", name)),
-  });
-  // Each row's icon is the product's SVG from icons/, inlined rather than linked so the mono
-  // ones, drawn in currentColor, follow the text colour in dark mode.
-  const rows = AGENTS.filter((a) => a.offered).map((a) => ({
-    id: a.id,
-    name: a.name,
-    found: found[a.id],
-    site: a.site,
-    icon: fs.readFileSync(path.join(app.getAppPath(), "icons", `${a.id}.svg`), "utf8"),
-  }));
-  // The startup page reads a card's icon out of Documents, which on a first launch waits on
-  // macOS's privacy prompt, so the page can still be loading when a project is picked past it.
-  // The project's page replacing it then rejects this load, which is the page doing its job, not
-  // a failure.
-  win
-    .loadFile(path.join(app.getAppPath(), "startup.html"), {
-      query: {
-        version: app.getVersion(),
-        agents: JSON.stringify(rows),
-        // Where a project is: the folder it sits in, with ~ for home. The name is the card's
-        // title already, and a full path would be cut off before it got to the name.
-        projects: JSON.stringify(
-          listProjects(projectsDir).map((p) => ({
-            name: p.name,
-            where: path.dirname(p.dir).replace(home, "~"),
-            at: p.at,
-            icon: p.icon && pathToFileURL(p.icon).href,
-          })),
-        ),
-      },
-    })
-    .catch((e) => opening || fail(e));
+    url.searchParams.set("onboarding", app.getVersion());
+  await win.loadURL(url.href);
 }
 
 // Electron neither exits nor says anything on a rejection in the main process; without this,
 // a failure before the window exists is an app in the Dock with nothing to show. `app.exit`
-// skips will-quit, so the server, if it got as far as starting, is killed here. Opening a
-// project from a page fails the same way, since it is the same start.
+// skips will-quit, so the server, if it got as far as starting, is killed here.
 function fail(e: unknown) {
   quitting = true;
   stopServer();

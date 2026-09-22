@@ -9,6 +9,7 @@ import {
   humanize,
 } from "./canvasLibrary";
 import {
+  isExample,
   openInTab,
   tabOfExample,
   tabOfProject,
@@ -25,16 +26,22 @@ type Sort = "edited" | "name" | "boards";
 type Screen = ReturnType<typeof screensOf>[number];
 
 const THUMB = { w: 72, h: 156 };
+/** The stage's gap between screens (home.css). */
+const GAP = 12;
+/** A board that is not a phone shows in its own shape, at most three phones and their gaps wide. */
+const WIDE = 3 * THUMB.w + 2 * GAP;
 
 /** What a card calls a canvas: its layout's name without the "(example)" shelf, as tabs do. */
-const nameOf = (c: Canvas) => (c.layout?.name ?? humanize(c.slug)).replace(/^\(example\)\s*/, "");
+const nameOf = (c: Canvas) =>
+  (c.layout?.name ?? humanize(c.slug)).replace(/^\(example\)\s*/, "");
 
 /**
  * A canvas's screens for a card, the cover first and the rest in the order the sheet reads them
  * (sheetLayout.ts): the layout's rows, Foundations left out, then whatever no row placed. Read off
  * the index entry rather than the library, because another project's canvases are not in this
  * page's index. A board at the default artboard size is a phone, cropped to the folder's cover box
- * the way the welcome cards crop it; one that declared its own size shows whole.
+ * the way the welcome cards crop it; one that declared its own size, a web page or a product
+ * strip, shows whole, in its own shape, since a phone's crop of it would show a sliver.
  */
 function screensOf(c: Canvas, url: (file: string) => string) {
   const names = c.html.map((f) => f.replace(/\.html$/, ""));
@@ -46,25 +53,34 @@ function screensOf(c: Canvas, url: (file: string) => string) {
       const declared = typeof entry === "string" ? { file: entry } : entry;
       if (!names.includes(declared.file) || placed.has(declared.file)) continue;
       placed.add(declared.file);
-      if (declared.w && declared.h) sizes.set(declared.file, { w: declared.w, h: declared.h });
+      if (declared.w && declared.h)
+        sizes.set(declared.file, { w: declared.w, h: declared.h });
       if (row.title !== FOUNDATIONS_ROW) order.push(declared.file);
     }
   }
   order.push(...names.filter((n) => !placed.has(n)));
   const cover =
-    names.find((n) => n === c.layout?.cover) ?? names.find((n) => !n.startsWith("00")) ?? names[0];
+    names.find((n) => n === c.layout?.cover) ??
+    names.find((n) => !n.startsWith("00")) ??
+    names[0];
   return [cover, ...order.filter((n) => n !== cover)].map((name) => {
     const { w, h } = sizes.get(name) ?? CANVAS_FILE_DEFAULT_SIZE;
-    const phone = w === CANVAS_FILE_DEFAULT_SIZE.w && h === CANVAS_FILE_DEFAULT_SIZE.h;
+    const phone =
+      w === CANVAS_FILE_DEFAULT_SIZE.w && h === CANVAS_FILE_DEFAULT_SIZE.h;
+    const fit = Math.min(WIDE / w, THUMB.h / h);
+    const box = phone
+      ? THUMB
+      : { w: Math.round(w * fit), h: Math.round(h * fit) };
     return {
       src: url(`${name}.html`),
       caption: humanize(name),
       w,
       h,
+      box,
       ...fitCover(
         phone ? (c.layout?.coverBox ?? DEFAULT_COVER_BOX) : [0, 0, w, h],
-        THUMB.w,
-        THUMB.h,
+        box.w,
+        box.h,
       ),
     };
   });
@@ -74,7 +90,8 @@ function screensOf(c: Canvas, url: (file: string) => string) {
 const fileUrl = (p: Project, slug: string) => (file: string) =>
   `${p.url}board/${encodeURI(slug)}/${encodeURI(file)}`;
 
-const boardsIn = (canvases: Canvas[]) => canvases.reduce((n, c) => n + c.html.length, 0);
+const boardsIn = (canvases: Canvas[]) =>
+  canvases.reduce((n, c) => n + c.html.length, 0);
 const plural = (n: number, one: string) => `${n} ${one}${n === 1 ? "" : "s"}`;
 
 const relative = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
@@ -91,7 +108,8 @@ const STEPS: [Intl.RelativeTimeFormatUnit, number][] = [
 function ago(ms: number) {
   const diff = ms - Date.now();
   for (const [unit, size] of STEPS)
-    if (Math.abs(diff) >= size) return relative.format(Math.round(diff / size), unit);
+    if (Math.abs(diff) >= size)
+      return relative.format(Math.round(diff / size), unit);
   return "just now";
 }
 
@@ -108,13 +126,22 @@ function Card(props: {
   sub: string;
   count: string;
 }) {
+  // As many as fit where four phones do, so a card with a wide board shows fewer screens rather
+  // than a row that the stage, which centres it (home.css), would clip at both ends.
+  const fitting: Screen[] = [];
+  let room = 4 * (THUMB.w + GAP);
+  for (const s of props.screens) {
+    room -= s.box.w + GAP;
+    if (room < 0) break;
+    fitting.push(s);
+  }
   return (
     <a className="home-file" href={props.href} onClick={props.onClick}>
       <div className="home-file__thumb">
         {/* A frame per screen, lazy so a page of forty cards fetches only the ones scrolled to,
             and sandboxed because a thumbnail has nothing to run. */}
-        {props.screens.slice(0, 4).map((s) => (
-          <div key={s.src} style={{ width: THUMB.w, height: THUMB.h }}>
+        {fitting.map((s) => (
+          <div key={s.src} style={{ width: s.box.w, height: s.box.h }}>
             <iframe
               src={s.src}
               title={s.caption}
@@ -159,7 +186,7 @@ export function HomePage(props: {
   projects: Project[];
   tabs: ProjectTab[];
   goTo: (tab: ProjectTab) => void;
-  /** The app's, which can make a project and open a folder; a browser has its one project. */
+  /** The server's, which a hosted build has none of. */
   newProject?: () => void;
   openFolder?: () => void;
 }) {
@@ -171,11 +198,16 @@ export function HomePage(props: {
     sort === "name"
       ? projects.toSorted((a, b) => a.name.localeCompare(b.name))
       : sort === "boards"
-        ? projects.toSorted((a, b) => boardsIn(b.canvases) - boardsIn(a.canvases))
+        ? projects.toSorted(
+            (a, b) => boardsIn(b.canvases) - boardsIn(a.canvases),
+          )
         : byEdit(projects);
-  // The app's examples, which every project's server has. A build has no projects, and every
-  // canvas in it is one of this repo's examples.
-  const examples = canvasIndex().boards.filter((b) => b.example || !canvasIndex().served);
+  // The app's examples, which every project's server has, Start here first: its card opens it
+  // on a tab of its own (canvasTabs.ts), not on the project this window is on. A build has no
+  // projects, and every canvas in it is one of this repo's examples.
+  const examples = canvasIndex().boards.filter(
+    (b) => isExample(b.slug) || !canvasIndex().served,
+  );
   const canvases = projects.flatMap((p) => p.canvases);
   const updated = Math.max(0, ...projects.map((p) => p.updated));
 
@@ -223,8 +255,10 @@ export function HomePage(props: {
       {/* Nothing to total before there is a project, and no last edit to date. */}
       {projects.length > 0 && (
         <p className="home-line">
-          <b>{projects.length}</b> {projects.length === 1 ? "project" : "projects"} ·{" "}
-          <b>{canvases.length}</b> {canvases.length === 1 ? "canvas" : "canvases"} ·{" "}
+          <b>{projects.length}</b>{" "}
+          {projects.length === 1 ? "project" : "projects"} ·{" "}
+          <b>{canvases.length}</b>{" "}
+          {canvases.length === 1 ? "canvas" : "canvases"} ·{" "}
           <b>{boardsIn(canvases)}</b> boards · last edited {ago(updated)}
         </p>
       )}
@@ -237,7 +271,10 @@ export function HomePage(props: {
                 Open folder…
               </button>
             )}
-            <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as Sort)}
+            >
               <option value="edited">Last edited</option>
               <option value="name">Alphabetical</option>
               <option value="boards">Most boards</option>
