@@ -1408,8 +1408,8 @@ export default function App() {
   );
 
   /**
-   * From a chip, a row of the picker, a card on the welcome page or a link on a board. Brings
-   * the tab forward, and with it the page that is what a canvas tab shows.
+   * From a chip, a row of the bar's "+" menu, a card on the welcome page or a link on a board.
+   * Brings the tab forward, and with it the page that is what a canvas tab shows.
    *
    * Before the editor has mounted there is no page to set, since the bar renders as soon as the
    * app does, and tldraw takes a moment. Nothing is lost, because `showTab` has already written

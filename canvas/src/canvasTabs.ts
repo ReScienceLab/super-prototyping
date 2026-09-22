@@ -109,7 +109,7 @@ export function isExample(slug: string) {
   );
 }
 
-/** The project's own canvases, in the index's order: the ones the canvas picker offers. */
+/** The project's own canvases, in the index's order: the ones the canvas strip shows. */
 export function ownCanvases() {
   return readCanvasLibrary()
     .map((files) => files[0].pageSlug)
@@ -156,16 +156,6 @@ export function projectTabIcon(tab: ProjectTab) {
   return tab.kind === "project"
     ? (tab.icon ?? undefined)
     : canvasIconUrl(tab.slug);
-}
-
-/**
- * A view's label, for the canvas picker. A canvas's label is its page name with the shelf taken
- * off, the way the brand pages do. Every example carries the same "(example)" prefix, and in a
- * menu of them that is twelve characters of nothing repeated down it.
- */
-export function tabLabel(tab: CanvasTab) {
-  if (tab.kind === "canvas") return shortName(tab.slug);
-  return tab.slug ? `${shortName(tab.slug)} brand` : "Brand kits";
 }
 
 /**

@@ -11,7 +11,7 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import type { CanvasTab } from "./canvasUrl";
-import { Check, Cross, FolderPlus, Home, Layers, Plus } from "./geistIcons";
+import { Check, Cross, FolderPlus, Home, Plus } from "./geistIcons";
 
 /**
  * The bar across the top of the window: the agent's button, which AppShell.tsx hands in as
@@ -53,9 +53,6 @@ function placeUnder(
 export function ViewIcon({ view }: { view: CanvasTab }) {
   const icon = view.kind === "canvas" ? canvasIconUrl(view.slug) : undefined;
   if (icon) return <img className="sp-tabchip-icon" src={icon} alt="" />;
-  // A kit has no app icon of its own, since it is the page about the icon, so it shows the stack
-  // of sheets that the button opening it shows.
-  if (view.kind === "brand") return <Layers className="sp-tabchip-icon" />;
   return null;
 }
 

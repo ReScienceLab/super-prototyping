@@ -177,10 +177,11 @@ export default defineConfig({
     // is a megabyte on its own and a warning nobody can act on is noise.
     chunkSizeWarningLimit: 4_000,
     rollupOptions: {
-      // Four pages: the canvas, the sheet that shows one canvas page's boards at full size,
-      // the brand page that shows the same page's brand material, and the home page that lists
-      // every canvas. Each is its own entry rather than a route inside the canvas so that
-      // reading one as a web page does not download tldraw to do it.
+      // Five pages. `index` and `home` are the window (shell.tsx), at a project's address and
+      // at its home page, which lists every project. `canvas` is the canvas in the window's
+      // frame, `sheet` one canvas page's boards at full size, and `brand` the same page's brand
+      // material. Each is its own entry rather than a route inside the canvas, so reading one
+      // as a web page does not download tldraw to do it.
       input: {
         index: "index.html",
         home: "home.html",

@@ -954,7 +954,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   box-shadow: var(--ds-shadow-menu);
 }
 
-/* Its own reset rather than the panel's (`.sp-panel button`), because the canvas picker is a menu
+/* Its own reset rather than the panel's (`.sp-panel button`), because the projects menu is a menu
    of these on the bar, which is outside every panel, and a button with the platform's own ground
    and border on it is not a menu row. */
 .sp-menu-row {

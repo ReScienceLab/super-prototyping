@@ -153,7 +153,7 @@ function Card(props: {
  *
  * Most projects are one canvas worked on for as long as the project lasts, so that card shows the
  * canvas's own screens. A project of several, iterations or styles explored side by side, shows
- * each one's cover. Either opens the project as a tab, where the canvas picker lists the rest.
+ * each one's cover. Either opens the project as a tab, where the canvas strip lists the rest.
  */
 export function HomePage(props: {
   projects: Project[];

@@ -141,18 +141,18 @@ export const canvasChromeComponents: TLComponents = {
    * about editing a document nobody here owns. A generator writes these boards from files, so
    * embedding a video in one, uploading media to one, or picking a language for the app that
    * renders it are eight submenus deep in settings for something that cannot be edited from
-   * this side anyway. The page menu named the same folders the bar's chips name now, and the
+   * this side anyway. The page menu named the same folders the strip's tabs name now, and the
    * rest of what it offered, rename, duplicate and delete a page, acts on pages a folder
    * generates and the next load would put straight back. Quick actions and the actions menu
    * were shape editing: undo, redo, delete, duplicate and the overflow of aligns, distributes
    * and reorders. The actions stay on the keyboard and the right button; six buttons for
    * nudging a board crowd out the row of tabs the bar is for.
    *
-   * What the bar took over with them: the chat panel's switch, which the main menu held, and
-   * the two chips that name where a page goes next, Figma and the brand kit, which the actions
-   * menu held. They are in CanvasTabBar.tsx unchanged. Commenting, cloning and force-relayout
-   * were in this row once too and are on the right button now (ContextMenu below), where the
-   * pointer is already on the thing they act on.
+   * Where the rest went: the chat panel's switch, which the main menu held, is the Agent button
+   * at the start of the bar (ChatPanel.tsx), and Figma, which the actions menu held, is Export
+   * to Figma at the end of the canvas strip (CanvasStrip.tsx). Commenting, cloning and
+   * force-relayout were in this row once too and are on the right button now (ContextMenu
+   * below), where the pointer is already on the thing they act on.
    */
   MenuPanel: null,
   /**
