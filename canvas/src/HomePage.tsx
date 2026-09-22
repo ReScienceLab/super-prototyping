@@ -1,10 +1,4 @@
-import {
-  useRef,
-  useState,
-  type MouseEvent,
-  type MouseEventHandler,
-} from "react";
-import { flushSync } from "react-dom";
+import { useRef, useState, type MouseEventHandler } from "react";
 import { canvasIndex } from "./canvasIndex";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
@@ -25,6 +19,7 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import { canvasPageUrl } from "./canvasUrl";
+import { askServer, openMenu, REVEAL, TRASH } from "./contextMenu";
 import { FolderPlus, LogoDiscord, LogoGithub, Plus } from "./geistIcons";
 import { FOUNDATIONS_ROW } from "./sheetLayout";
 
@@ -241,38 +236,10 @@ export function HomePage(props: {
   const canvases = projects.flatMap((p) => p.canvases);
   const updated = Math.max(0, ...projects.map((p) => p.updated));
 
-  /**
-   * The menu, at the pointer, for the card right-clicked. Its rows are rendered for that card
-   * before it is measured, and it is kept on the screen by sliding it back from the window's
-   * right and bottom edges.
-   */
-  const showMenu = (at: Target) => (event: MouseEvent) => {
-    event.preventDefault();
-    flushSync(() => setTarget(at));
-    const el = menu.current!;
-    const show = () => {
-      el.showPopover();
-      el.style.left = `${Math.min(event.clientX, innerWidth - el.offsetWidth - 8)}px`;
-      el.style.top = `${Math.min(event.clientY, innerHeight - el.offsetHeight - 8)}px`;
-    };
-    // On the release when a button is down, for the reason the agent's menu is (AgentButton).
-    if (event.buttons === 0) return show();
-    window.addEventListener("pointerup", () => setTimeout(show), {
-      once: true,
-    });
-  };
-  /** Asks the server to do something to a project's folder (canvas/server/projects.ts). */
-  const ask = async (action: "reveal" | "delete", p: Project) => {
-    const res = await fetch(
-      new URL(`/__sp/projects/${action}`, location.origin),
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name: p.name }),
-      },
-    );
-    if (!res.ok) alert(await res.text());
-  };
+  const showMenu =
+    (at: Target): MouseEventHandler =>
+    (event) =>
+      openMenu(event, menu, () => setTarget(at));
 
   return (
     <main className="home-main">
@@ -425,7 +392,7 @@ export function HomePage(props: {
       <div
         ref={menu}
         popover="auto"
-        className="home-menu"
+        className="sp-context-menu"
         role="menu"
         onClickCapture={(event) => event.currentTarget.hidePopover()}
       >
@@ -439,6 +406,7 @@ export function HomePage(props: {
             >
               Open
             </button>
+            <hr />
             <button
               type="button"
               role="menuitem"
@@ -457,17 +425,15 @@ export function HomePage(props: {
                   type="button"
                   role="menuitem"
                   className="sp-menu-row"
-                  onClick={() => ask("reveal", target.project!)}
+                  onClick={() => askServer("reveal", target.project!.name)}
                 >
-                  {/Mac/.test(navigator.userAgent)
-                    ? "Show in Finder"
-                    : "Open file location"}
+                  {REVEAL}
                 </button>
                 <hr />
                 <button
                   type="button"
                   role="menuitem"
-                  className="sp-menu-row home-menu__danger"
+                  className="sp-menu-row sp-context-menu__danger"
                   onClick={async () => {
                     const p = target.project!;
                     if (
@@ -476,11 +442,11 @@ export function HomePage(props: {
                       )
                     )
                       return;
-                    await ask("delete", p);
+                    await askServer("delete", p.name);
                     props.reload();
                   }}
                 >
-                  Delete…
+                  {TRASH}
                 </button>
               </>
             )}
