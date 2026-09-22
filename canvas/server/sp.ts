@@ -79,10 +79,10 @@ const runs = new Map<
 /**
  * Whether a request came from a page of this server's own, or from no page at all. Everything
  * that writes is refused otherwise. A server on a known loopback port is reachable from every page
- * the user has open, and a cross-origin POST still runs, CORS only hides the reply, so the check is
- * the browser's own account of where the request came from. A page cannot forge it: Sec-Fetch-*
- * are forbidden header names. Absent means the caller was not a browser, which is curl, and curl
- * is not the attack.
+ * the user has open, and a cross-origin POST still runs there, since CORS only hides the reply. So
+ * the check is the browser's own account of where the request came from. A page cannot forge it,
+ * because Sec-Fetch-* are forbidden header names. Absent means the caller was not a browser, which
+ * is curl, and curl is not the attack.
  */
 export function sameOrigin(req: IncomingMessage) {
   const site = req.headers["sec-fetch-site"];
@@ -1177,7 +1177,7 @@ export function createSpServer(options: {
 
   // The boards are watched here, directly, rather than through Vite's watcher when this
   // runs under the dev server: that one watches the app's root, and the boards are always
-  // outside it — one level up for this checkout, anywhere at all for another project.
+  // outside it, one level up for this checkout and anywhere at all for another project.
   // `.add()` for a path outside the root is accepted and can then
   // register nothing at all (issue #52), silently: no event ever arrives, and the server
   // serves the board as first read for the rest of its life however often the file is

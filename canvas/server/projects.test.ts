@@ -7,7 +7,7 @@ import { expect, it } from "vitest";
 import { createProjectsServer } from "./projects.ts";
 
 // One server for every project: `/` goes to the one opened, each is at `/p/<name>/`, and a page
-// of the server's own can make one. The folder picker is the OS's and is not driven here.
+// of the server's own can make one. The folder picker is the OS's, and this test does not drive it.
 it("serves every project at its own address and makes new ones", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-projects-server-"));
   const write = (rel: string, text: string) => {

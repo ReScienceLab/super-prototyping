@@ -22,9 +22,9 @@ import { WELCOME_PAGE_SLUG, urlForTab, type CanvasTab } from "./canvasUrl";
 /**
  * A project's view with no canvas of its own in front: what its bare address opens, the view of
  * a project with no canvas yet, and where a link to a folder that has gone lands. It shows Start
- * here's page, but it is not Start here's view: that is an example like any other, on a tab of
- * its own at `?canvas=00-welcome`, and this is the project's, under its tab. Empty the way the
- * index of every kit is `{ kind: "brand", slug: "" }`.
+ * here's page, but it is not Start here's view. That one is an example like any other, on a tab
+ * of its own at `?canvas=00-welcome`, and this one is the project's, under its tab. Its slug is
+ * empty the way the index of every kit's is, `{ kind: "brand", slug: "" }`.
  */
 export const HOME_TAB: CanvasTab = { kind: "canvas", slug: "" };
 
@@ -109,7 +109,7 @@ export function tabOfExample(slug: string, open: ProjectTab[]): ProjectTab {
 
 /**
  * An example this server has, rather than a canvas of the project's own. Start here is one, the
- * first, and its view is `?canvas=00-welcome`; the bare address is the project's (HOME_TAB).
+ * first, and its view is `?canvas=00-welcome`. The bare address is the project's (HOME_TAB).
  */
 export function isExample(slug: string) {
   return canvasIndex().boards.some((b) => b.slug === slug && b.example);

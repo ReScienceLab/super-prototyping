@@ -160,13 +160,13 @@ async function main() {
   checkForUpdates();
   ipcMain.handle("startup:check", checkForUpdates);
   // Where every new project goes, which makes the folder the list of them. The server lists it and
-  // makes a project in it, so it is handed over (PROTOTYPING_PROJECTS_DIR below); here it is only
+  // makes a project in it, so this hands it over (PROTOTYPING_PROJECTS_DIR below). Here it is only
   // where the launch looks for the newest project.
   const projectsDir = path.join(app.getPath("documents"), "Super Prototyping");
   // All the app remembers: the agent the onboarding chose and the version that was running when
   // it did. No agent, or one chosen under another major version, gets the onboarding again, which
-  // is also what skipping it leaves. Which project was open last is not kept: the page opens
-  // projects through the server, which this never hears about, so the launch opens the newest.
+  // is also what skipping it leaves. The project open last is not kept. The page opens projects
+  // through the server, which this never hears about, so the launch opens the newest.
   const lastFile = path.join(app.getPath("userData"), "last.json");
   const last: { agent?: string; version?: string } = fs.existsSync(lastFile)
     ? JSON.parse(fs.readFileSync(lastFile, "utf8"))
@@ -185,7 +185,7 @@ async function main() {
         home,
       ),
       // Every project under it is served at `/p/<name>/`, and listed on the home page. The server's
-      // own default is the same folder; this is Electron's word for where Documents is.
+      // own default is the same folder. This is Electron's word for where Documents is.
       PROTOTYPING_PROJECTS_DIR: projectsDir,
     };
 
@@ -252,7 +252,8 @@ async function main() {
     });
 
   // The onboarding's answer: the agent the chat panel will run. Its skills go into the project the
-  // window is on now; every project the page makes or opens after sends the panel's agent itself.
+  // window is on now. Every project the page makes or opens after that sends the panel's agent
+  // itself.
   // The answer is kept only once the skills are in, so a failed install asks again next launch.
   ipcMain.handle("startup:agent", async (_event, agent: string) => {
     const res = await post(new URL("__sp/skills", win.webContents.getURL()).pathname, { agent });

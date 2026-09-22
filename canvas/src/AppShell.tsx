@@ -184,7 +184,7 @@ export function AppShell() {
     dialog.current!.querySelector("form")!.reset();
     dialog.current!.showModal();
   };
-  // The picker is the OS's, over whatever is in front, and the request waits on it; a second
+  // The picker is the OS's, over whatever is in front, and the request waits on it. A second
   // click meanwhile would stack a second picker.
   const picking = useRef(false);
   const openFolder = async () => {
@@ -213,9 +213,9 @@ export function AppShell() {
       <div className="canvas-body">
         {canvasIndex().served && (
           <ChatPanel
-            // Home is no canvas to the agent; neither, being empty, is the project's own view
-            // with none in front (HOME_TAB) or the index of every kit. A kit is named by the
-            // canvas whose material it shows.
+            // Home is no canvas to the agent. Neither is the project's own view with no canvas
+            // in front (HOME_TAB), nor the index of every kit, since both have an empty slug. A
+            // kit is named by the canvas whose material it shows.
             canvas={home ? undefined : view?.slug}
             chat={chat}
           />

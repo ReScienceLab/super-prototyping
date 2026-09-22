@@ -317,7 +317,7 @@ const shellQuote = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`;
 
 /**
  * What a project with no boards yet sees, which is otherwise an empty grey grid with no way to
- * tell a misdirected canvas from an empty one. The directory is the whole point of the notice:
+ * tell a misdirected canvas from an empty one. The directory is the whole point of the notice.
  * It is the project's `canvases` folder, which the server knows and the page otherwise does not.
  *
  * The library is a build-time constant, so this is a plain check rather than a subscription; the
@@ -1164,7 +1164,7 @@ function applyCanvasFromUrl(
     open(tab);
     return false;
   }
-  // The folder whose page the address shows, which for the bare address is Start here's: the
+  // The folder whose page the address shows, which for the bare address is Start here's. The
   // board or picture the hash names is one of that folder's.
   const slug = pageOf(tab);
   const page = editor.getPages().find((c) => c.meta.canvasSlug === slug);
@@ -1266,7 +1266,7 @@ function installCanvasUrlSync(
       first = false;
       return;
     }
-    // The page of the tab already in front is that tab arriving, not a change of tab: a tab
+    // The page of the tab already in front is that tab arriving, not a change of tab. A tab
     // brought forward sets its page after it is in front, and the page of the project's own
     // view with no canvas is Start here's, which is also an example's (canvasTabs.ts).
     if (typeof slug !== "string" || slug === pageOf(tab.active())) return;

@@ -3,8 +3,8 @@
  * any folder opened from elsewhere, which is named here as it is opened. The desktop app, `sp
  * start` and the Vite dev server all serve this way, so a tab on another project is a link and
  * not a server started for it, and a page behaves the same in a browser as in the app. Making
- * a project and opening a folder are requests here too, for the same reason: what the app's
- * window can do, a browser tab on the same server can do.
+ * a project and opening a folder are requests here too, for the same reason, so that a browser
+ * tab on the same server can do what the app's window can.
  */
 import { execFile } from "node:child_process";
 import fs from "node:fs";
@@ -18,11 +18,11 @@ import { createSpServer, sameOrigin } from "./sp.ts";
 
 /**
  * The folder every project is in, and where a new one goes. The desktop app's is Electron's
- * `app.getPath("documents")` plus the app's name, and this is that path wherever Documents is the
- * home folder's.
- * ponytail: a Documents folder that OneDrive or a Windows Known Folder redirected elsewhere is not
- * found here, and the app and `sp start` then serve two different lists. Ask the OS for the real
- * one when that comes up. `PROTOTYPING_PROJECTS_DIR` moves it in the meantime.
+ * `app.getPath("documents")` plus the app's name, and this is the same path as long as Documents
+ * is `~/Documents`.
+ * ponytail: this does not find a Documents folder that OneDrive or a Windows Known Folder
+ * redirected elsewhere, so the app and `sp start` then serve two different lists. Ask the OS for
+ * the real one when that comes up. `PROTOTYPING_PROJECTS_DIR` moves it in the meantime.
  */
 export function projectsDirFromEnv() {
   return path.resolve(
@@ -62,7 +62,7 @@ function pickFolder() {
           ];
   return new Promise<string | undefined>((resolve, reject) => {
     execFile(file, args, (error, stdout) => {
-      // A cancel is a non-zero exit with nothing on stdout, from all three; that is not an error.
+      // A cancel is a non-zero exit with nothing on stdout, from all three. That is not an error.
       if (error && (error as NodeJS.ErrnoException).code === "ENOENT")
         return reject(error);
       resolve(stdout.trim() || undefined);
@@ -71,10 +71,10 @@ function pickFolder() {
 }
 
 /**
- * Moves a project's boards from where they used to be, `mockups/canvases`, to `canvases`,
- * once, and takes `mockups` away if that left nothing in it but the `.DS_Store` Finder leaves in
- * any folder it has shown. A project that has both is left alone, because which one is current
- * is the user's to say.
+ * Moves a project's boards, once, from where they used to be, `mockups/canvases`, to
+ * `canvases`, and removes `mockups` if that left nothing in it but the `.DS_Store` Finder leaves
+ * in any folder it has shown. A project that has both is left alone, because which one is
+ * current is the user's to say.
  */
 function moveOldBoards(dir: string) {
   const old = path.join(dir, "mockups", "canvases");
@@ -152,11 +152,11 @@ export function createProjectsServer(options: {
     return (last = `/p/${encodeURIComponent(name)}/`);
   };
 
-  // The answer to a project made or a folder picked: it is opened, `agent`'s skills go into it
-  // when the request named one, the way the app did for every project it opened, and the answer
-  // is the project's address from the server's root, for the page to load into its frame. What
-  // the install did is said by the canvas as a toast once it is up, carried in the address as
-  // `?toast=`, since the page that asked is about to be replaced by the project's.
+  // The answer to a project made or a folder picked. The project is opened, `agent`'s skills go
+  // into it when the request named one, the way the app did for every project it opened, and the
+  // answer is the project's address from the server's root, for the page to load into its frame.
+  // The canvas says what the install did, as a toast once it is up. The address carries that as
+  // `?toast=`, since the project's page is about to replace the page that asked.
   const reply = (
     res: ServerResponse,
     dir: string,
@@ -229,8 +229,8 @@ export function createProjectsServer(options: {
           );
         }
         // A new project needs only a name, as in Screen Studio. It goes under the projects folder,
-        // so there is no place to pick. The same checks the app's dialog made: the field's
-        // `required` lets a name of spaces through, and knows nothing of folders.
+        // so there is no place to pick. These are the checks the app's dialog made, since the
+        // field's `required` lets a name of spaces through and knows nothing of folders.
         const name = typeof parsed.name === "string" ? parsed.name.trim() : "";
         if (name === "") return send(400, "Give the project a name first.");
         if (name.startsWith(".") || path.basename(name) !== name)

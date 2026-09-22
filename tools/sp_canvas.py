@@ -15,9 +15,9 @@ project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
 boards stay in your project. This joins the two, so an upgrade can replace the
 app without touching a single board you have authored.
 
-A project's boards are canvases under it. The server serves every project
-under ~/Documents/Super Prototyping (PROTOTYPING_PROJECTS_DIR moves it) at
-/p/<name>/, the one `start` names beside them, and / goes to that one.
+A project's boards are the canvases folder under it. The server serves every
+project under ~/Documents/Super Prototyping (PROTOTYPING_PROJECTS_DIR moves it)
+at /p/<name>/, with the one `start` names beside them, and / goes to that one.
 The plugin is found by search;
 SUPER_PROTOTYPING_ROOT skips the search when you know the answer. The app served is
 the canvas built for the plugin's release, fetched once into
@@ -394,8 +394,9 @@ def cmd_start(a):
     if not project.is_dir():
         raise SystemExit(f"error: {project} is not a directory")
     boards = project / CANVASES
-    # Where the boards used to be. Moved once, as the server moves them for every project it
-    # opens, because this makes `canvases` below and the server would then find it already there.
+    # Where the boards used to be. Moved here, as the server moves them for every project it
+    # opens, because `canvases` is made below and the server would then find it already there
+    # and leave the old one where it is.
     old = project / "mockups" / "canvases"
     if old.is_dir() and not boards.exists():
         old.rename(boards)
@@ -430,8 +431,9 @@ def cmd_start(a):
     dist = _dist(root)
 
     # Resolved once, here, and handed down: the server passes it on to every agent it spawns,
-    # and derives it from nothing itself — the bundle it runs may sit in the cache directory
-    # with no checkout above it, and the root is where the skill it points the agent at is.
+    # and derives it from nothing itself, because the bundle it runs may sit in the cache
+    # directory with no checkout above it, and the root is where the skill it points the agent
+    # at is.
     passed = {"SUPER_PROTOTYPING_ROOT": str(root)}
     env = dict(os.environ, **passed)
     # The server binds 127.0.0.1 itself: this is a design tool, not a service.

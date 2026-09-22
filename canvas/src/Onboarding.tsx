@@ -3,7 +3,7 @@ import { Mark, type AgentRow, type Chat } from "./ChatPanel";
 
 /**
  * The desktop app's first launch, and the first of each major version: the one question it asks,
- * which agent to work with, over the window it will be answered in, so what the app is is in view
+ * which agent to work with, over the window it will be answered in, so the app itself is in view
  * behind it. desktop/main.ts puts `?onboarding=<version>` on the address for it. The answer is the
  * agent the panel runs, and the app copies that agent's skills into this project and every one
  * opened after it. Skipping leaves nothing written, so the next launch asks again.

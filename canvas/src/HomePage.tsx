@@ -126,8 +126,8 @@ function Card(props: {
   sub: string;
   count: string;
 }) {
-  // As many as fit where four phones do, so a card with a wide board shows fewer screens rather
-  // than a row that the stage, which centres it (home.css), would clip at both ends.
+  // As many as fit where four phones do. A card with a wide board then shows fewer screens,
+  // rather than a row the stage would clip at both ends, since the stage centres it (home.css).
   const fitting: Screen[] = [];
   let room = 4 * (THUMB.w + GAP);
   for (const s of props.screens) {
@@ -202,7 +202,7 @@ export function HomePage(props: {
             (a, b) => boardsIn(b.canvases) - boardsIn(a.canvases),
           )
         : byEdit(projects);
-  // The app's examples, which every project's server has, Start here first: its card opens it
+  // The app's examples, which every project's server has, Start here first. Its card opens it
   // on a tab of its own (canvasTabs.ts), not on the project this window is on. A build has no
   // projects, and every canvas in it is one of this repo's examples.
   const examples = canvasIndex().boards.filter(
