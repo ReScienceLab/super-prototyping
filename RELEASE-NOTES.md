@@ -21,6 +21,43 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **The app opens on a home page.** After the first launch, the desktop app
+  opens on every project you have, each card showing the screens of its canvas,
+  with the examples below. Open one, or start a new project from the same page.
+  The Home button on the canvas's top bar goes back to it. The startup page,
+  which asks for an agent and a project, comes back only after a major update.
+
+- **A tab is a project.** The bar across the top holds one tab per project you
+  have open, examples included, and each comes back on the canvas you left it
+  on. The + at the end of the bar starts a new project, or opens another.
+
+- **A project's canvases are tabs under its tab.** A second row under the bar
+  lists the project's canvases, the one in front underlined. Its + asks the
+  agent for another. Export to Figma moved from the top bar to the Figma mark at
+  the row's far end, and in the desktop app it opens in your browser, where the
+  html.to.design extension can capture it. The top bar's Brand kit button is
+  gone.
+
+- **One agent for the whole app.** The agent panel stays down the left on the
+  home page and on every project, with the same conversation and one history
+  for every project, each run named by the project it ran in. The button at the
+  start of the bar shows and hides it, and wears the mark of Claude Code or
+  Codex, whichever the next message goes to. Right-click it to switch.
+
+- **Switching tabs keeps what you typed.** The bar and the agent panel belong
+  to the window, and a project's canvas loads beside them, so switching
+  projects, going home, opening a project, or a board the agent writes reloads
+  only the canvas. A half-typed message, its pictures and the run being
+  followed stay as they were, with no flash.
+
+- **One server for every project.** The app starts its canvas server once and
+  serves every project from it, so opening another project or switching tabs no
+  longer restarts anything.
+
+- **Start here closes like any other tab.** Close it, or close every tab, and
+  the canvas goes back to the home page. It is among the examples there and in
+  the + menu.
+
 - **The app updates itself.** On launch it looks for a newer release, downloads
   it in the background, and then asks once: **Restart Now**, or **Later**, which
   installs it when you quit. Only what changed is downloaded, so the example
