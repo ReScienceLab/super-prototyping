@@ -22,7 +22,6 @@ import {
   augmentedPath,
   freePort,
   isWeb,
-  listProjects,
   parseArgs,
   portAnswers,
   stateDir,
@@ -116,8 +115,9 @@ async function main() {
     });
   });
 
-  // Every launch opens on the home page, which lists the projects. The first launch, and the
-  // first of a new major version, asks over it which agent to work with (canvas/src/Onboarding.tsx).
+  // Every launch opens on the home page, which is no project's and lists them all, however many
+  // there are, none included. The first launch, and the first of a new major version, asks over it
+  // which agent to work with (canvas/src/Onboarding.tsx).
   const win = new BrowserWindow({
     width: 1440,
     height: 900,
@@ -160,13 +160,11 @@ async function main() {
   checkForUpdates();
   ipcMain.handle("startup:check", checkForUpdates);
   // Where every new project goes, which makes the folder the list of them. The server lists it and
-  // makes a project in it, so this hands it over (PROTOTYPING_PROJECTS_DIR below). Here it is only
-  // where the launch looks for the newest project.
+  // makes a project in it, so this hands it over (PROTOTYPING_PROJECTS_DIR below).
   const projectsDir = path.join(app.getPath("documents"), "Super Prototyping");
   // All the app remembers: the agent the onboarding chose and the version that was running when
   // it did. No agent, or one chosen under another major version, gets the onboarding again, which
-  // is also what skipping it leaves. The project open last is not kept. The page opens projects
-  // through the server, which this never hears about, so the launch opens the newest.
+  // is also what skipping it leaves. No project is kept: the launch opens none.
   const lastFile = path.join(app.getPath("userData"), "last.json");
   const last: { agent?: string; version?: string } = fs.existsSync(lastFile)
     ? JSON.parse(fs.readFileSync(lastFile, "utf8"))
@@ -229,10 +227,10 @@ async function main() {
     }
   }
 
-  // Opens a folder as a project, for the launch: the one from the command line, or the newest.
-  // The server answers with the project's address, and names a folder from outside the projects
-  // directory when it is first asked for here, over its parent port, which nothing but this app
-  // can write to (canvas/server/main.ts). It takes one ask at a time, which the launch keeps to.
+  // Opens a folder as a project, for the launch: the one from the command line. The server answers
+  // with the project's address, and names a folder from outside the projects directory when it is
+  // first asked for here, over its parent port, which nothing but this app can write to
+  // (canvas/server/main.ts).
   async function openProject(dir: string) {
     const answer = new Promise<{ address?: string; error?: string }>((resolve) =>
       server!.once("message", resolve),
@@ -242,40 +240,17 @@ async function main() {
     if (address === undefined) throw new Error(`Opening ${dir} failed: ${error}`);
     return origin + address;
   }
-  // A request to the server, as a page of its own would make it. Node's fetch sends no
-  // Sec-Fetch-Site header, which the server takes for a caller that is not a browser.
-  const post = (pathname: string, body: unknown) =>
-    fetch(origin + pathname, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-  // The onboarding's answer: the agent the chat panel will run. Its skills go into the project the
-  // window is on now. Every project the page makes or opens after that sends the panel's agent
-  // itself.
-  // The answer is kept only once the skills are in, so a failed install asks again next launch.
-  ipcMain.handle("startup:agent", async (_event, agent: string) => {
-    const res = await post(new URL("__sp/skills", win.webContents.getURL()).pathname, { agent });
-    if (!res.ok) throw new Error(`Installing skills failed: ${await res.text()}`);
+  // The onboarding's answer: the agent the chat panel will run. It is given over the home page,
+  // which is no project's, so no skills go anywhere now. Every project the page makes or opens
+  // after it sends the panel's agent, and gets that agent's skills then.
+  ipcMain.handle("startup:agent", (_event, agent: string) => {
     Object.assign(last, { agent, version: app.getVersion() });
     fs.writeFileSync(lastFile, JSON.stringify(last));
   });
 
   await startServer();
   if (argDir !== undefined) return win.loadURL(await openProject(argDir));
-  // The project the home page opens under: the newest, or a new one on a first launch, since every
-  // page is a project's and the agent needs one to run in. It is an empty folder under Documents,
-  // as "New project" makes, and made the same way.
-  const newest = listProjects(projectsDir)[0]?.dir;
-  let address: string;
-  if (newest !== undefined) address = await openProject(newest);
-  else {
-    const res = await post("/__sp/projects", { name: "My first project" });
-    if (!res.ok) throw new Error(`Making the first project failed: ${await res.text()}`);
-    address = origin + ((await res.json()) as { url: string }).url;
-  }
-  const url = new URL("home.html", address);
+  const url = new URL("/home.html", origin);
   const major = (version?: string) => version?.split(".")[0];
   if (
     last.agent === undefined ||

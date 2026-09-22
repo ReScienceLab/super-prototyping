@@ -37,9 +37,9 @@ need a different spelling per product.
 `desktop/` is the desktop app, for macOS and Windows: Electron around that
 same `dist/server.mjs`, forked as a utility process and shown in a window.
 `main.ts` is the app,
-`launch.ts` holds the helpers `bun test` checks. The app opens on the home page
-of a project, and on a first launch `canvas/src/Onboarding.tsx` asks over it
-which agent to work with. The app ships `canvases` whole, under the
+`launch.ts` holds the helpers `bun test` checks. The app opens on the home page,
+which is no project's and lists them all, and on a first launch
+`canvas/src/Onboarding.tsx` asks over it which agent to work with. The app ships `canvases` whole, under the
 plugin root it hands the server, which is where the examples come from under
 `sp start` too. The
 release workflow builds the app on a macOS runner and attaches a dmg per

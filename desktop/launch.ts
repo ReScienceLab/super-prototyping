@@ -1,9 +1,8 @@
 /**
- * The parts of the shell that do not need Electron: where the CLI keeps its state, which
- * directories a GUI app has to add to PATH, and which project is the newest.
+ * The parts of the shell that do not need Electron: where the CLI keeps its state, and which
+ * directories a GUI app has to add to PATH.
  * Kept apart from main.ts so `bun test` covers them without an Electron process.
  */
-import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
 
@@ -53,42 +52,6 @@ export function augmentedPath(env: NodeJS.ProcessEnv, home: string) {
   return [...have, ...bins.filter((d) => !have.includes(d))].join(
     path.delimiter,
   );
-}
-
-/**
- * The folders directly in `root`, the last edited first, for the launch to open the newest. It is
- * read from disk each launch and never stored, so a deleted project is simply not there. A `root`
- * nobody has made yet is the first run, and has none.
- *
- * A board rewritten in place moves its own time and not its folder's, so "last edited" is the
- * newest of the project folder, its canvas folders and the files directly in those. It does not
- * go deeper, because an `assets/` folder can hold thousands of files.
- */
-export function listProjects(root: string) {
-  const inside = (dir: string) =>
-    fs.existsSync(dir)
-      ? fs
-          .readdirSync(dir, { withFileTypes: true })
-          .map((e) => ({ e, at: path.join(dir, e.name) }))
-      : [];
-  return inside(root)
-    .filter(({ e }) => e.isDirectory() && !e.name.startsWith("."))
-    .map(({ e, at: dir }) => {
-      const canvases = inside(path.join(dir, "canvases"));
-      const paths = [
-        dir,
-        ...canvases.map((c) => c.at),
-        ...canvases.flatMap((c) =>
-          c.e.isDirectory() ? inside(c.at).map((f) => f.at) : [],
-        ),
-      ];
-      return {
-        name: e.name,
-        dir,
-        at: Math.max(...paths.map((p) => fs.statSync(p).mtimeMs)),
-      };
-    })
-    .sort((a, b) => b.at - a.at);
 }
 
 /**

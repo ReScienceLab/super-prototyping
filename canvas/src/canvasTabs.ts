@@ -16,7 +16,8 @@ import { WELCOME_PAGE_SLUG, urlForTab, type CanvasTab } from "./canvasUrl";
  * A project is its own pages at an address of their own (`/p/<name>/` in the desktop app), all
  * from one server. The bar is the window's and the canvas is a frame in it (AppShell.tsx), so a
  * tab on another project loads that project's canvas into the frame and the bar stays. Every
- * project's server has the examples, so an example's tab opens over whichever project is loaded.
+ * project's server has the examples, so an example's tab opens over whichever project is loaded,
+ * and over the server's root when none is.
  */
 
 /**
@@ -63,9 +64,7 @@ export type ProjectCanvas = Pick<
 /** A project as `/__sp/projects.json` lists it: a folder, and the canvases in it. */
 export interface Project {
   name: string;
-  /** The one this page is of. */
-  current: boolean;
-  /** Its pages, relative to this one's: `./` for this project, `../<name>/` for another. */
+  /** Its pages' address from the root: `/p/<name>/`. */
   url: string;
   updated: number;
   canvases: ProjectCanvas[];

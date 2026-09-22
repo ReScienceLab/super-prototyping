@@ -55,10 +55,11 @@ const onboarding = new URLSearchParams(location.search).get("onboarding");
  * The frame loads a project's canvas.html; the window's address is that page's, with the file
  * taken off (canvasUrl.ts), so what is copied or reloaded is what a person would type. The
  * agent's panel posts to `__sp/agent` relative to that address, which is how a message goes to
- * the project in front. Two calls cross the frame, one each way, both plain properties of the
- * other window since the two share an origin: the canvas says what it has in front
- * (`spShell.shown`), and a chip asks it to bring a tab forward (`spCanvas.goTo`), which it
- * declines for another project's, whose canvas the frame then loads instead.
+ * the project in front. Home and an example with no project loaded are at the server's root,
+ * which has no project, so there a message is refused. Two calls cross the frame, one each way,
+ * both plain properties of the other window since the two share an origin: the canvas says what
+ * it has in front (`spShell.shown`), and a chip asks it to bring a tab forward (`spCanvas.goTo`),
+ * which it declines for another project's, whose canvas the frame then loads instead.
  */
 export function AppShell() {
   const chat = useChat();
@@ -93,32 +94,26 @@ export function AppShell() {
   }, [tabs]);
 
   // One writer for the address, from what is in front. It replaces rather than pushes, since the
-  // frame's own changes are already entries in the window's history, which Back walks.
+  // frame's own changes are already entries in the window's history, which Back walks. Home is
+  // the server's, at its root, and no project's; a hosted build's is beside its other pages.
   useEffect(() => {
     const href =
       home || !shown
-        ? new URL("home.html", location.href).href
+        ? new URL(canvasIndex().served ? "/home.html" : "home.html", location.href).href
         : windowUrl(shown.href);
     if (href !== location.href) history.replaceState(null, "", href);
   }, [home, shown]);
 
   // The projects, fetched again each time home opens or closes, since that is where one was
   // made, renamed or edited since; and with them the one thing about another project this window
-  // can learn, that it has gone since its tab was left open. This keeps each one's address as
-  // its path from the root, since the window's address moves from project to project and a path
-  // relative to the one it was asked from would not.
+  // can learn, that it has gone since its tab was left open.
   useEffect(() => {
     if (!canvasIndex().served) return;
-    const base = new URL(import.meta.env.BASE_URL, location.href);
-    void fetch(new URL("__sp/projects.json", base))
+    void fetch("/__sp/projects.json")
       .then((response) => response.json())
       .then((list: Project[]) => {
-        const all = list.map((p) => ({
-          ...p,
-          url: new URL(p.url, base).pathname,
-        }));
-        setProjects(all);
-        const known = new Set(all.map((p) => p.url));
+        setProjects(list);
+        const known = new Set(list.map((p) => p.url));
         setTabs((tabs) =>
           tabs.filter(
             (tab) =>

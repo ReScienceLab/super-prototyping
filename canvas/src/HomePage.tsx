@@ -262,7 +262,8 @@ export function HomePage(props: {
           <b>{boardsIn(canvases)}</b> boards · last edited {ago(updated)}
         </p>
       )}
-      {projects.length > 0 && (
+      {/* With none yet, the bar is still where a folder is opened from, and nothing to sort. */}
+      {(projects.length > 0 || props.openFolder) && (
         <div className="home-bar">
           <h2>Projects</h2>
           <div>
@@ -271,14 +272,16 @@ export function HomePage(props: {
                 Open folder…
               </button>
             )}
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as Sort)}
-            >
-              <option value="edited">Last edited</option>
-              <option value="name">Alphabetical</option>
-              <option value="boards">Most boards</option>
-            </select>
+            {projects.length > 0 && (
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as Sort)}
+              >
+                <option value="edited">Last edited</option>
+                <option value="name">Alphabetical</option>
+                <option value="boards">Most boards</option>
+              </select>
+            )}
           </div>
         </div>
       )}

@@ -19,7 +19,6 @@ import {
   canvasesNamespace,
 } from "./boards.ts";
 import { command, stop } from "./command.ts";
-import { installFor, installedSkills, pluginVersion } from "./skills.ts";
 import {
   BOARD_STATUSES,
   SAFE_NAME,
@@ -47,7 +46,6 @@ import {
   MAX_IMAGE_BYTES,
   MAX_IMAGES,
   type AgentDef,
-  type AgentId,
   type AgentImage,
   type AgentModel,
 } from "../src/agents.ts";
@@ -90,17 +88,23 @@ export function sameOrigin(req: IncomingMessage) {
 }
 
 export function createSpServer(options: {
-  /** The boards directory. Created if missing, watched for the server's lifetime. */
+  /**
+   * The boards directory. Created if missing, watched for the server's lifetime. At the server's
+   * root, which has no project, it is the examples directory.
+   */
   canvasesDir: string;
   /** Canvases shown beside the project's own and never written to: the examples the plugin ships. */
   examplesDir: string;
   /**
    * Every project the home page and the tab bar list, by the name its address carries, which is
-   * `../<name>/` from this one's pages.
+   * `/p/<name>/`.
    */
   projects: () => Map<string, string>;
-  /** The project: what the chat panel's agent works in and the skills are installed into. */
-  projectDir: string;
+  /**
+   * The project: what the chat panel's agent works in. None at the server's root (projects.ts),
+   * which has the home page and the examples, and nothing of its own to write to.
+   */
+  projectDir?: string;
   /** This plugin's checkout, for the skill the agent is pointed at. */
   repoRoot: string;
 }) {
@@ -121,6 +125,7 @@ export function createSpServer(options: {
     return !hasBoard && fs.existsSync(example) ? example : own;
   };
   const isExample = (slug: string) =>
+    projectDir === undefined ||
     folderOf(slug) !== path.join(canvasesDir, slug);
   const READ_ONLY =
     "an example canvas is read-only: clone it to have one of your own";
@@ -167,11 +172,10 @@ export function createSpServer(options: {
     res.end("cross-site request");
   });
 
-  // This project's name, as the tab bar and the home page call it. That is the name its address
-  // carries, else its folder's name.
+  // This project's name, as the tab bar and the home page call it, which is the name its address
+  // carries. None at the root.
   const projectName = () =>
-    [...projects()].find(([, dir]) => dir === projectDir)?.[0] ??
-    path.basename(projectDir);
+    [...projects()].find(([, dir]) => dir === projectDir)?.[0];
 
   route("/__sp/index.json", (req, res, next) => {
     if (req.method !== "GET") return next();
@@ -185,7 +189,7 @@ export function createSpServer(options: {
     // One list in slug order, as one directory's scan is, so Start here still comes first. An
     // example says so, which is what puts it on a tab of its own rather than in the project's.
     const boards = [
-      ...index.boards,
+      ...index.boards.filter((b) => !isExample(b.slug)),
       ...boardIndex(examplesDir, how)
         .boards.filter((b) => isExample(b.slug))
         .map((b) => ({ ...b, example: true })),
@@ -193,36 +197,30 @@ export function createSpServer(options: {
     res.end(JSON.stringify({ ...index, boards, project: projectName() }));
   });
 
-  // The projects the home page and the tab bar list: every one the server knows, and this one.
-  // Each is its canvases as the index has them, less what a card never reads, and the address of
-  // its pages from this one's.
+  // The projects the home page and the tab bar list: every one the server knows. Each is its
+  // canvases as the index has them, less what a card never reads, and the address of its pages.
   // ponytail: boardIndex also hashes every project's assets, which only the canvas reads. Split
   // the scan if a home page with many projects gets slow to open.
   route("/__sp/projects.json", (req, res, next) => {
     if (req.method !== "GET") return next();
-    const all = projects();
-    all.set(projectName(), projectDir);
     const how = { served: true, canvasesNamespace: "" };
     res.setHeader("Content-Type", "application/json");
     res.setHeader("Cache-Control", "no-store");
     res.end(
       JSON.stringify(
-        [...all].map(([name, dir]) => {
-          const current = dir === projectDir;
-          const canvases = boardIndex(
-            current ? canvasesDir : path.join(dir, CANVASES),
-            how,
-          ).boards.map(({ slug, html, updated, layout, icon }) => ({
-            slug,
-            html,
-            updated,
-            layout,
-            icon,
-          }));
+        [...projects()].map(([name, dir]) => {
+          const canvases = boardIndex(path.join(dir, CANVASES), how).boards.map(
+            ({ slug, html, updated, layout, icon }) => ({
+              slug,
+              html,
+              updated,
+              layout,
+              icon,
+            }),
+          );
           return {
             name,
-            current,
-            url: current ? "./" : `../${encodeURIComponent(name)}/`,
+            url: `/p/${encodeURIComponent(name)}/`,
             // A project with no board yet was last edited when it was made.
             updated: Math.max(
               fs.statSync(dir).mtimeMs,
@@ -233,47 +231,6 @@ export function createSpServer(options: {
         }),
       ),
     );
-  });
-
-  // Copying one agent's skills into the project, and reporting what is there. The copying itself
-  // is in skills.ts, shared with the refresh projects.ts runs when a project is first served and
-  // with the install a new project gets, so this is only the two endpoints' request handling.
-  route("/__sp/skills", (req, res, next) => {
-    const send = (code: number, message: string) => {
-      res.statusCode = code;
-      res.end(message);
-    };
-    if (req.method === "GET") {
-      try {
-        res.setHeader("content-type", "application/json");
-        return send(
-          200,
-          JSON.stringify({
-            version: pluginVersion(repoRoot),
-            installed: installedSkills(projectDir),
-          }),
-        );
-      } catch (error) {
-        return send(500, String(error));
-      }
-    }
-    if (req.method !== "POST") return next();
-    let body = "";
-    req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
-      try {
-        const { agent } = JSON.parse(body || "{}");
-        if (!AGENTS.some((a) => a.id === agent))
-          return send(400, "unknown agent");
-        res.setHeader("content-type", "application/json");
-        send(
-          200,
-          JSON.stringify(installFor(repoRoot, projectDir, agent as AgentId)),
-        );
-      } catch (error) {
-        send(500, String(error));
-      }
-    });
   });
 
   route("/__sp/events", (req, res, next) => {
@@ -525,6 +482,9 @@ export function createSpServer(options: {
         if (!SAFE_NAME.test(slug ?? "") || !SAFE_NAME.test(target)) {
           return send(400, "bad canvas name");
         }
+        // The root's canvases are the examples, and a copy is for a project to have.
+        if (projectDir === undefined)
+          return send(409, "Open a project to copy this canvas into.");
         const from = folderOf(slug); // an example too, since cloning makes one the project's
         const to = path.join(canvasesDir, target);
         // The welcome page is drawn by the app and has no folder, so this is also what
@@ -731,6 +691,10 @@ export function createSpServer(options: {
     }
     const project = projectDir;
     if (req.method === "POST" && url.pathname === "/run") {
+      // The root has no project to run it in, and a run with no folder of its own would be in the
+      // server's, which for the desktop app is the home folder.
+      if (project === undefined)
+        return send(409, "Open a project first. The agent works in one.");
       // The body is no longer a sentence: attached images ride in it as base64, and it is
       // held whole in memory before anything reads it, so it is capped on the way in. Kept
       // as bytes and decoded once at the end: a character split across two chunks decodes

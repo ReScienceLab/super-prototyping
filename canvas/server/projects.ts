@@ -4,7 +4,8 @@
  * start` and the Vite dev server all serve this way, so a tab on another project is a link and
  * not a server started for it, and a page behaves the same in a browser as in the app. Making
  * a project and opening a folder are requests here too, for the same reason, so that a browser
- * tab on the same server can do what the app's window can.
+ * tab on the same server can do what the app's window can. The root is no project's: it has the
+ * home page, at `/home.html`, and the examples, so the app works with no project at all.
  */
 import { execFile } from "node:child_process";
 import fs from "node:fs";
@@ -132,6 +133,15 @@ export function createProjectsServer(options: {
     return sp;
   };
 
+  // The root's own /__sp server. Its canvases are the examples, every one read-only, and it has no
+  // project for the agent to work in.
+  const root = createSpServer({
+    canvasesDir: examplesDir,
+    examplesDir,
+    projects,
+    repoRoot,
+  });
+
   // The address of the project opened last, which is where `/` goes: what `sp start` opened, or
   // the folder the app was given, so a link to the server's root lands on a project's page.
   let last: string | undefined;
@@ -183,15 +193,11 @@ export function createProjectsServer(options: {
   ) => {
     const url = req.url ?? "/";
     const [pathname, query = ""] = url.split(/\?(.*)/s);
-    if (pathname === "/") {
-      if (last === undefined) {
-        res.statusCode = 404;
-        return res.end(
-          "No project is open. Start with `sp start <dir>`, or open one at /p/<name>/.",
-        );
-      }
+    // With nothing opened, the bare root is the home page, and the root with a query is the
+    // window on an example (canvasTabs.ts), which the root's server serves as any project's does.
+    if (pathname === "/" && (last !== undefined || query === "")) {
       res.statusCode = 302;
-      res.setHeader("Location", last + (query && `?${query}`));
+      res.setHeader("Location", (last ?? "/home.html") + (query && `?${query}`));
       return res.end();
     }
     if (pathname === "/__sp/projects" || pathname === "/__sp/projects/open") {
@@ -263,7 +269,7 @@ export function createProjectsServer(options: {
     // `/p/<name>/<rest>`: <rest> is what the project's server and the app's pages see, so each
     // project's pages are the same pages at an address of their own.
     const [, name, rest] = /^\/p\/([^/?#]*)(\/.*)$/.exec(url) ?? [];
-    if (rest === undefined) return next();
+    if (rest === undefined) return root.handle(req, res, next);
     let dir: string | undefined;
     try {
       dir = projects().get(decodeURIComponent(name));
@@ -281,6 +287,7 @@ export function createProjectsServer(options: {
     handle,
     open,
     close() {
+      root.close();
       for (const sp of sps.values()) sp.close();
     },
   };

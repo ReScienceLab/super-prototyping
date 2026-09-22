@@ -6,8 +6,9 @@ import path from "node:path";
 import { expect, it } from "vitest";
 import { createProjectsServer } from "./projects.ts";
 
-// One server for every project: `/` goes to the one opened, each is at `/p/<name>/`, and a page
-// of the server's own can make one. The folder picker is the OS's, and this test does not drive it.
+// One server for every project: `/` goes to the one opened, else home, each is at `/p/<name>/`, the
+// root has the examples and no project, and a page of the server's own can make one. The folder
+// picker is the OS's, and this test does not drive it.
 it("serves every project at its own address and makes new ones", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-projects-server-"));
   const write = (rel: string, text: string) => {
@@ -62,7 +63,19 @@ it("serves every project at its own address and makes new ones", async () => {
       req.end(body && JSON.stringify(body));
     });
   try {
-    expect((await ask("/?canvas=x")).status).toBe(404); // nothing opened yet
+    // Nothing opened yet: the root is home, and the examples' window.
+    expect(await ask("/")).toMatchObject({ status: 302, location: "/home.html" });
+    expect((await ask("/?canvas=00-welcome")).text).toBe("static /?canvas=00-welcome");
+    const rootIndex = JSON.parse((await ask("/__sp/index.json")).text);
+    expect(rootIndex.project).toBeUndefined();
+    expect(rootIndex.boards.map((b: any) => [b.slug, b.example])).toEqual([
+      ["00-welcome", true],
+    ]);
+    expect((await ask("/board/00-welcome/01-a.html")).text).toBe("welcome");
+    const copy = { slug: "00-welcome", name: "Mine" };
+    expect((await ask("/__sp/clone-canvas", copy)).status).toBe(409);
+    expect(fs.readdirSync(path.join(tmp, "root/canvases"))).toEqual(["00-welcome"]);
+    expect((await ask("/__sp/agent/run", { message: "hi" })).status).toBe(409);
 
     expect(projects.open(path.join(tmp, "elsewhere"))).toBe("/p/elsewhere/");
     expect(fs.existsSync(path.join(tmp, "elsewhere/canvases/mine"))).toBe(true);
@@ -78,10 +91,10 @@ it("serves every project at its own address and makes new ones", async () => {
     expect((await ask("/p/alpha/board/00-welcome/01-a.html")).text).toBe(
       "welcome",
     );
-    const listed = JSON.parse((await ask("/p/alpha/__sp/projects.json")).text);
+    const listed = JSON.parse((await ask("/__sp/projects.json")).text);
     expect(listed.map((p: any) => [p.name, p.url])).toEqual([
-      ["elsewhere", "../elsewhere/"],
-      ["alpha", "./"],
+      ["elsewhere", "/p/elsewhere/"],
+      ["alpha", "/p/alpha/"],
     ]);
 
     // A new project, with the skills of the agent named, then opened.

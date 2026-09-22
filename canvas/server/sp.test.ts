@@ -75,8 +75,8 @@ it("shows the examples read-only beside the project's canvases", async () => {
   }
 });
 
-// The home page and the tab bar list every project the server knows and the one open, each at the
-// address of its pages from this one's.
+// The home page and the tab bar list every project the server knows, each at the address of its
+// pages.
 it("lists the projects", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-projects-"));
   const write = (rel: string, text: string) => {
@@ -94,6 +94,7 @@ it("lists the projects", async () => {
       new Map([
         ["alpha", path.join(tmp, "projects/alpha")],
         ["a b", path.join(tmp, "projects/empty")],
+        ["elsewhere", path.join(tmp, "elsewhere")],
       ]),
     projectDir: path.join(tmp, "elsewhere"),
     repoRoot: tmp,
@@ -103,14 +104,13 @@ it("lists the projects", async () => {
     expect(
       projects.map((p: any) => [
         p.name,
-        p.current,
         p.url,
         p.canvases.map((c: any) => c.slug),
       ]),
     ).toEqual([
-      ["alpha", false, "../alpha/", ["one"]],
-      ["a b", false, "../a%20b/", []],
-      ["elsewhere", true, "./", ["mine"]],
+      ["alpha", "/p/alpha/", ["one"]],
+      ["a b", "/p/a%20b/", []],
+      ["elsewhere", "/p/elsewhere/", ["mine"]],
     ]);
     expect(JSON.parse((await ask("/__sp/index.json")).text).project).toBe(
       "elsewhere",

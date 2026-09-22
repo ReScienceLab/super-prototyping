@@ -5,8 +5,9 @@ import { Mark, type AgentRow, type Chat } from "./ChatPanel";
  * The desktop app's first launch, and the first of each major version: the one question it asks,
  * which agent to work with, over the window it will be answered in, so the app itself is in view
  * behind it. desktop/main.ts puts `?onboarding=<version>` on the address for it. The answer is the
- * agent the panel runs, and the app copies that agent's skills into this project and every one
- * opened after it. Skipping leaves nothing written, so the next launch asks again.
+ * agent the panel runs, whose skills every project made or opened after it gets. It is asked over
+ * the home page, which is no project's, so it installs nothing itself. Skipping leaves nothing
+ * written, so the next launch asks again.
  */
 export function Onboarding({ chat, version }: { chat: Chat; version: string }) {
   const dialog = useRef<HTMLDialogElement>(null);

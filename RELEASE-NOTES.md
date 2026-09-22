@@ -21,15 +21,17 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-- **The app opens on a home page.** After the first launch, the desktop app
-  opens on every project you have, with the examples below. Each card shows the
+- **The app opens on a home page.** The desktop app opens on every project you
+  have, with the examples below. The page is no project's, so the app works
+  with none: open an example, or close every tab, and nothing is made or
+  reopened for you. Each card shows the
   screens of its canvas: a phone cropped to its screen, a wider board whole.
   Open one, or start a new project from the same page.
   The Home button on the canvas's top bar goes back to it.
 
 - **The first launch asks one question, over the app.** It no longer asks for
-  a project before you see anything. It opens on the home page, with a first
-  project already made, and asks over it which agent you will work with. Skip it and it
+  a project before you see anything. It opens on the home page, with no project
+  made for you, and asks over it which agent you will work with. Skip it and it
   asks again next launch. It comes back once after a major update.
 
 - **A tab is a project.** The bar across the top holds one tab per project you

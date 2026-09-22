@@ -16,8 +16,11 @@ the older one, kept because nothing had removed it.
 the folder is named and served the same way, opened by `--open <dir>` on the command line or,
 for the app, over the utility process's parent port, and it stays listed while its folder
 exists. `/` goes to the project opened last, with the query string kept, so `sp start`'s
-printed address and its deep links still work. With nothing opened, `/` is a 404 that says how
-to open one. The examples are always `<plugin root>/canvases`, which every install has, because
+printed address and its deep links still work. With nothing opened, `/` is the home page,
+`/home.html`. The root is no project's: it has a `createSpServer` of its own with no project,
+whose canvases are the examples, so the home page, the list of projects and an example's window
+work with none at all. There, every canvas is read-only, and copying one or messaging the agent
+is refused. The examples are always `<plugin root>/canvases`, which every install has, because
 the plugin is the whole repository and the app ships the folder under its plugin root.
 
 `sp start [dir]` runs exactly that, with `--open` for the directory named or the current one,
@@ -43,8 +46,9 @@ port is for what only the app can know: the folder on its command line, and the 
 at launch.
 
 `last.json` keeps the agent and the version, not the project last opened. The page opens
-projects through the server, which the app never hears about, so the launch opens the newest
-project in the folder, or makes a first one through the same endpoint when there is none.
+projects through the server, which the app never hears about, so the launch opens none: it opens
+the home page, however many projects the folder holds, as Figma opens on its file browser. Only a
+folder on the command line opens a project.
 
 ## A project's boards are its `canvases`
 
