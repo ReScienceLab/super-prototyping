@@ -30,6 +30,10 @@ const THUMB = { w: 72, h: 156 };
 const GAP = 12;
 /** A board that is not a phone shows in its own shape, at most three phones and their gaps wide. */
 const WIDE = 3 * THUMB.w + 2 * GAP;
+/** The stage's height (home.css), which a cover that is not a phone fills as far as it can. */
+const STAGE_H = 233;
+/** How wide such a cover may get before the narrower cards in the grid would clip it. */
+const WIDE_COVER = 5 * THUMB.w + 4 * GAP;
 
 /** What a card calls a canvas: its layout's name without the "(example)" shelf, as tabs do. */
 const nameOf = (c: Canvas) =>
@@ -63,11 +67,18 @@ function screensOf(c: Canvas, url: (file: string) => string) {
     names.find((n) => n === c.layout?.cover) ??
     names.find((n) => !n.startsWith("00")) ??
     names[0];
-  return [cover, ...order.filter((n) => n !== cover)].map((name) => {
+  return [cover, ...order.filter((n) => n !== cover)].map((name, i) => {
     const { w, h } = sizes.get(name) ?? CANVAS_FILE_DEFAULT_SIZE;
     const phone =
       w === CANVAS_FILE_DEFAULT_SIZE.w && h === CANVAS_FILE_DEFAULT_SIZE.h;
-    const fit = Math.min(WIDE / w, THUMB.h / h);
+    // A cover that is not a phone has the stage to itself, so it takes the height of it, up to
+    // the width the narrower cards can hold whole: a banner reads as a banner, not as a strip
+    // floating in the middle. A wide board further along a row stays in the row, at the width
+    // the phones beside it leave.
+    const fit =
+      !phone && i === 0
+        ? Math.min(WIDE_COVER / w, STAGE_H / h)
+        : Math.min(WIDE / w, THUMB.h / h);
     const box = phone
       ? THUMB
       : { w: Math.round(w * fit), h: Math.round(h * fit) };
@@ -126,13 +137,14 @@ function Card(props: {
   sub: string;
   count: string;
 }) {
-  // As many as fit where four phones do. A card with a wide board then shows fewer screens,
-  // rather than a row the stage would clip at both ends, since the stage centres it (home.css).
+  // As many as fit where four phones do, the cover always among them. A card with a wide board
+  // then shows fewer screens, rather than a row the stage would clip at both ends, since the
+  // stage centres it (home.css); a wide cover is the stage, and shows alone.
   const fitting: Screen[] = [];
   let room = 4 * (THUMB.w + GAP);
   for (const s of props.screens) {
     room -= s.box.w + GAP;
-    if (room < 0) break;
+    if (room < 0 && fitting.length) break;
     fitting.push(s);
   }
   return (
