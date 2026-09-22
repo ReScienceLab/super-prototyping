@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
 import { rasterSize } from "./svgRaster";
 
@@ -25,6 +24,11 @@ describe("rasterSize", () => {
   it("reads the root's own size, not a child's", () => {
     const svg = '<svg viewBox="0 0 10 20"><rect width="999" height="1"/></svg>';
     expect(rasterSize(svg, unmeasured)).toEqual({ w: 512, h: 1024 });
+  });
+
+  it("does not read a stroke-width as the width", () => {
+    const svg = '<svg stroke-width="2" viewBox="0 0 24 12"/>';
+    expect(rasterSize(svg, unmeasured)).toEqual({ w: 1024, h: 512 });
   });
 
   it("falls back to what the browser measured when the markup states nothing", () => {
