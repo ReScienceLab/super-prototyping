@@ -47,10 +47,24 @@ Everything below is on `main` and reaches no install until a version is cut.
   gone.
 
 - **One agent for the whole app.** The agent panel stays down the left on the
-  home page and on every project, with the same conversation and one history
-  for every project, each run named by the project it ran in. The button at the
+  home page and on every project, with the same conversation. The button at the
   start of the bar shows and hides it, and shows the mark of Claude Code or
   Codex, whichever the next message goes to. Right-click it to switch.
+
+- **The agent remembers the conversation.** Each message carries on from the
+  ones before it, until New session starts another. It works on the home page
+  with no project open, and on whichever project is in front when you send, so
+  one conversation can move between projects. History lists your sessions, with
+  the projects each worked on, and picking one carries it on. Switching between
+  Claude Code and Codex starts a new session.
+
+- **The agent has a folder of its own, and projects get no skills.** It runs in
+  `.workspaces/<session>` under the projects folder, where it gets the plugin's
+  skills, and writes boards into the project in front. Making or opening a
+  project no longer copies skills into it, and the toast that said so is gone.
+  Copies an earlier version put in a project are left alone and no longer
+  updated; delete them if you like. `sp paths` names the folder, and `sp clean`
+  leaves it alone. Claude Code needs 2.1.275 or later.
 
 - **Switching tabs keeps what you typed.** The bar and the agent panel belong
   to the window, and a project's canvas loads beside them, so switching

@@ -54,12 +54,12 @@ const onboarding = new URLSearchParams(location.search).get("onboarding");
  *
  * The frame loads a project's canvas.html; the window's address is that page's, with the file
  * taken off (canvasUrl.ts), so what is copied or reloaded is what a person would type. The
- * agent's panel posts to `__sp/agent` relative to that address, which is how a message goes to
- * the project in front. Home and an example with no project loaded are at the server's root,
- * which has no project, so there a message is refused. Two calls cross the frame, one each way,
- * both plain properties of the other window since the two share an origin: the canvas says what
- * it has in front (`spShell.shown`), and a chip asks it to bring a tab forward (`spCanvas.goTo`),
- * which it declines for another project's, whose canvas the frame then loads instead.
+ * agent's panel posts to the server's one `/__sp/agent`, naming the project in front if there is
+ * one: home and an example have none, and a message there works on no project. Two calls cross
+ * the frame, one each way, both plain properties of the other window since the two share an
+ * origin: the canvas says what it has in front (`spShell.shown`), and a chip asks it to bring a
+ * tab forward (`spCanvas.goTo`), which it declines for another project's, whose canvas the frame
+ * then loads instead.
  */
 export function AppShell() {
   const chat = useChat();
@@ -158,15 +158,15 @@ export function AppShell() {
 
   /**
    * Makes a project or opens a folder, the server's two requests (canvas/server/projects.ts), a
-   * browser tab's and the app's alike. The chat panel's agent goes along, so the project gets its
-   * skills. The server answers the project's address, whose canvas goes in the frame; nothing
-   * when the folder picker was cancelled; or what to say under the name field.
+   * browser tab's and the app's alike. The server answers the project's address, whose canvas
+   * goes in the frame; nothing when the folder picker was cancelled; or what to say under the
+   * name field.
    */
   const choose = async (path: string, name?: string) => {
     const res = await fetch(new URL(path, location.origin), {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name, agent: chat.agent }),
+      body: JSON.stringify({ name }),
     });
     if (res.status === 204) return;
     if (!res.ok) return setSaid(await res.text());
@@ -211,7 +211,8 @@ export function AppShell() {
             // Home is no canvas to the agent. Neither is the project's own view with no canvas
             // in front (HOME_TAB), nor the index of every kit, since both have an empty slug. A
             // kit is named by the canvas whose material it shows.
-            canvas={home ? undefined : view?.slug}
+            canvas={(!home && view?.slug) || undefined}
+            project={home || shown?.tab.kind !== "project" ? undefined : shown.tab.name}
             chat={chat}
           />
         )}

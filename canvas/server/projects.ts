@@ -5,16 +5,16 @@
  * not a server started for it, and a page behaves the same in a browser as in the app. Making
  * a project and opening a folder are requests here too, for the same reason, so that a browser
  * tab on the same server can do what the app's window can. The root is no project's: it has the
- * home page, at `/home.html`, and the examples, so the app works with no project at all.
+ * home page, at `/home.html`, the examples, and the agent behind the chat panel, at
+ * `/__sp/agent`, so the app works with no project at all.
  */
 import { execFile } from "node:child_process";
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import path from "node:path";
-import type { AgentId } from "../src/agents.ts";
+import { createAgentServer } from "./agent.ts";
 import { CANVASES } from "./boards.ts";
-import { AGENT_SKILLS, installFor, refresh } from "./skills.ts";
 import { createSpServer, sameOrigin } from "./sp.ts";
 
 /**
@@ -113,15 +113,11 @@ export function createProjectsServer(options: {
   };
 
   // One /__sp server per project, made the first time the project is asked for and kept: its own
-  // boards watched, its own agent, its own event streams.
+  // boards watched, its own event streams.
   const sps = new Map<string, ReturnType<typeof createSpServer>>();
   const spFor = (dir: string) => {
     let sp = sps.get(dir);
     if (sp) return sp;
-    // Bring any marked skill copies in the project up to this tree's version before anything else
-    // touches it. Every way of serving a project runs this, so this is the one place a stale copy
-    // gets caught. It prints nothing, because the signal is `git diff`, not a log line.
-    refresh(dir, repoRoot);
     sp = createSpServer({
       canvasesDir: path.join(dir, CANVASES),
       examplesDir,
@@ -133,13 +129,21 @@ export function createProjectsServer(options: {
     return sp;
   };
 
-  // The root's own /__sp server. Its canvases are the examples, every one read-only, and it has no
-  // project for the agent to work in.
+  // The root's own /__sp server. Its canvases are the examples, every one read-only.
   const root = createSpServer({
     canvasesDir: examplesDir,
     examplesDir,
     projects,
     repoRoot,
+  });
+
+  // The agent, once for the whole server: its sessions and the skills they read are kept in a dot
+  // folder of the projects directory, which the list above skips.
+  const agent = createAgentServer({
+    examplesDir,
+    projects,
+    repoRoot,
+    workspaces: path.join(projectsDir, ".workspaces"),
   });
 
   // The address of the project opened last, which is where `/` goes: what `sp start` opened, or
@@ -162,24 +166,13 @@ export function createProjectsServer(options: {
     return (last = `/p/${encodeURIComponent(name)}/`);
   };
 
-  // The answer to a project made or a folder picked. The project is opened, `agent`'s skills go
-  // into it when the request named one, the way the app did for every project it opened, and the
-  // answer is the project's address from the server's root, for the page to load into its frame.
-  // The canvas says what the install did, as a toast once it is up. The address carries that as
-  // `?toast=`, since the project's page is about to replace the page that asked.
-  const reply = (
-    res: ServerResponse,
-    dir: string,
-    agent: AgentId | undefined,
-  ) => {
+  // The answer to a project made or a folder picked: the project is opened, and the answer is its
+  // address from the server's root, for the page to load into its frame.
+  const reply = (res: ServerResponse, dir: string) => {
     try {
-      const url = new URL(open(dir), "http://sp");
-      if (agent !== undefined) {
-        const { toast } = installFor(repoRoot, dir, agent);
-        if (toast) url.searchParams.set("toast", JSON.stringify(toast));
-      }
+      const url = open(dir);
       res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ url: url.pathname + url.search }));
+      res.end(JSON.stringify({ url }));
     } catch (error) {
       res.statusCode = 500;
       res.end(String(error));
@@ -200,6 +193,8 @@ export function createProjectsServer(options: {
       res.setHeader("Location", (last ?? "/home.html") + (query && `?${query}`));
       return res.end();
     }
+    if (pathname.startsWith("/__sp/agent/"))
+      return agent.handle(req, res, next);
     if (pathname === "/__sp/projects" || pathname === "/__sp/projects/open") {
       if (req.method !== "POST") return next();
       const send = (code: number, message: string) => {
@@ -210,22 +205,18 @@ export function createProjectsServer(options: {
       let body = "";
       req.on("data", (chunk) => (body += chunk));
       req.on("end", () => {
-        let parsed: { name?: unknown; agent?: unknown };
+        let parsed: { name?: unknown };
         try {
           parsed = JSON.parse(body || "{}");
         } catch {
           return send(400, "bad json");
         }
-        const agent =
-          parsed.agent === undefined ? undefined : String(parsed.agent);
-        if (agent !== undefined && !Object.hasOwn(AGENT_SKILLS, agent))
-          return send(400, "unknown agent");
         if (pathname === "/__sp/projects/open") {
           return pickFolder().then(
             (dir) =>
               dir === undefined
                 ? send(204, "")
-                : reply(res, dir, agent as AgentId),
+                : reply(res, dir),
             () =>
               send(
                 501,
@@ -262,7 +253,7 @@ export function createProjectsServer(options: {
             `That folder could not be made: ${(e as Error).message}`,
           );
         }
-        reply(res, dir, agent as AgentId);
+        reply(res, dir);
       });
       return;
     }
@@ -287,6 +278,7 @@ export function createProjectsServer(options: {
     handle,
     open,
     close() {
+      agent.close();
       root.close();
       for (const sp of sps.values()) sp.close();
     },

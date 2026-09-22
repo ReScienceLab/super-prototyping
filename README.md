@@ -96,13 +96,14 @@ checks again. v1.5.3 and earlier do not, so update those once by hand, with
 `brew upgrade --cask super-prototyping` or the new installer.
 
 The app is the canvas in a window, and it needs no terminal and no bun. It
-opens straight onto its home page, with a first project already made in
-`Documents/Super Prototyping`, and asks over it which agent you will work
-with, Claude Code or Codex. New projects are made from the home page or the +
-on the tab bar, and each shows its `canvases` with the example canvases
-beside them, read-only until you clone one into the project. The agent you
-picked gets the skills copied into every project you open, each copy marked
-with the app's version and refreshed on a later open when it is behind the
+opens straight onto its home page, which is no project's, and asks over it
+which agent you will work with, Claude Code or Codex. New projects are made in
+`Documents/Super Prototyping` from the home page or the + on the tab bar, and
+each shows its `canvases` with the example canvases beside them, read-only
+until you clone one into the project. The agent works in the panel on the
+left, with or without a project open, and remembers the conversation until you
+start a new one. It runs in a folder of its own under
+`Documents/Super Prototyping/.workspaces`, which holds the skills, kept at the
 app's version. The app does not install the toolkit below. The
 skills tell whichever agent you run to install it the first time one calls for
 `refkit`, `artgen` or `sp`.

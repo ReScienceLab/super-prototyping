@@ -86,7 +86,7 @@ describe('followRun', () => {
     const seen: number[] = []
     await followRun('r', 0, (f) => seen.push(f.id), new AbortController().signal)
     expect(seen).toEqual([1, 2])
-    const events = `${import.meta.env.BASE_URL}__sp/agent/run/r/events`
+    const events = '/__sp/agent/run/r/events'
     expect(urls).toEqual([`${events}?after=0`, `${events}?after=1`])
   })
 

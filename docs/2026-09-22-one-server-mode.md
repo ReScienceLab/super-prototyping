@@ -38,10 +38,9 @@ not have them. They are now two endpoints under the same-origin guard every writ
 `POST /__sp/projects` with a name makes `<projects dir>/<name>/canvases`, with the checks the
 app's dialog made. `POST /__sp/projects/open` shows the OS's own folder picker, `osascript` on
 macOS, PowerShell on Windows and `zenity` on Linux, and answers 501 with what to do when there
-is none. Both take the agent to install skills for, and answer the project's
-address with the toast that names the copies in its query, as opening a project always did.
-What the app did to a project when it opened one, the skills refresh and the install, is the
-server's too. The page sends both itself, in the app as in a browser, and the app's parent
+is none. Both answer the project's address. They installed the chat agent's skills into the
+project too, until the agent moved out of projects (`2026-09-22-agent-workspace.md`). The page
+sends both itself, in the app as in a browser, and the app's parent
 port is for what only the app can know: the folder on its command line, and the project to open
 at launch.
 

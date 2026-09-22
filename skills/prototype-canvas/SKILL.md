@@ -153,19 +153,20 @@ Do not build an annotation-to-agent protocol. The screenshot is the bridge.
 
 ## The chat panel
 
-The canvas has a panel on the left when it runs from `sp start`: a
-message to Claude Code or Codex — the mark on the header picks — run in the
-project, Claude with its permission prompts off and Codex in its workspace
-sandbox, and what it did as it happens. The panel names the canvas that is
-open and tells the agent, and points the agent at this skill before it
-touches a board folder. A
-board it rewrites reloads the canvas as any rewrite does; the panel keeps its
-runs across the reload, and its history button lists the runs the server
-still holds.
+The canvas has a panel on the left when it runs from `sp start` or the app: a
+message to Claude Code or Codex — the mark on the header picks — Claude with
+its permission prompts off and Codex in its workspace sandbox, and what it did
+as it happens. The panel names the project and the canvas in front and tells
+the agent, and points the agent at this skill before it touches a board
+folder. A board it rewrites reloads the canvas as any rewrite does; the panel
+keeps its runs across the reload.
 
-Each message is a fresh `claude -p` or `codex exec` with no memory of the
-last, so repeat what matters. It runs in the project the page is of, the `/p/<name>/` in the
-address.
+A conversation is a session the agent resumes on every message, so it
+remembers the ones before until New session starts another, and its history
+button lists the sessions to carry one on. The agent runs in the session's own
+folder, `.workspaces/<id>` under the projects folder, with the project in
+front, if there is one, as a folder it may write: boards go in that project's
+`canvases`, not in the working directory.
 
 ## State and persistence
 

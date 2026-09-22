@@ -2289,9 +2289,6 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   background: var(--sp-accent);
 }
 
-.sp-chat-history-row[data-status="failed"] .sp-chat-history-title {
-  color: var(--sp-danger);
-}
 
 /* The agent menu: the inspector's rows, grown to fit a second line under a CLI that was not
    found on PATH, saying what to do. Such a row is greyed and takes no click. */

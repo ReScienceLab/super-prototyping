@@ -21,7 +21,7 @@ thing a new user sees is the app they are about to use.
 | One question, the agent | It is the one thing the app cannot default. There is no email and no account, because there is no backend to send them to yet. When there is, a field goes in this modal. |
 | The chat panel's agents, not the app's own table | The modal lists what `GET __sp/agent/agents` answers, which is what the panel can run, and whether each answers `--version` on this machine. The app's own PATH, home directory and `.app` detection, the nineteen researched agents and their icons are gone. |
 | Answering writes the agent and the version | `last.json` gets `version` only from the onboarding's answer, so Skip, Esc or quitting leaves the next launch asking again. The answer also sets the panel's agent (`sp-chat-agent`). |
-| The answer installs no skills | There is no project behind the modal to install them into, so `startup:agent` only records the agent. The panel's agent goes with every New project and Open folder after it, and that project gets its skills then. A project already in the folder, opened from the home page, gets only the refresh of the copies it has. `POST /p/<name>/__sp/skills` is gone. |
+| The answer installs no skills | `startup:agent` only records the agent. The agent gets the skills in its own folder when it first runs, and no project gets a copy (`2026-09-22-agent-workspace.md`). `POST /p/<name>/__sp/skills` is gone. |
 | The version and the update check moved with it | They were on the startup page. The modal shows them at its foot, in the app only. |
 
 `open -a "Super Prototyping" --args <dir>` still opens that project's canvas and skips all of it.

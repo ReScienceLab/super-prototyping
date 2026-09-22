@@ -80,9 +80,6 @@ export function frameUrl(href: string) {
 export function windowUrl(href: string) {
   const url = new URL(href);
   url.pathname = url.pathname.replace(/canvas\.html$/, "");
-  // The toast the app opens a project with is said once, by the canvas; kept on the window's
-  // address, a reload would say it again.
-  url.searchParams.delete("toast");
   return url.href;
 }
 

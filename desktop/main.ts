@@ -240,9 +240,9 @@ async function main() {
     if (address === undefined) throw new Error(`Opening ${dir} failed: ${error}`);
     return origin + address;
   }
-  // The onboarding's answer: the agent the chat panel will run. It is given over the home page,
-  // which is no project's, so no skills go anywhere now. Every project the page makes or opens
-  // after it sends the panel's agent, and gets that agent's skills then.
+  // The onboarding's answer: the agent the chat panel will run, remembered for the next launch.
+  // Nothing is installed now: the agent gets its skills in its own folder when it first runs
+  // (canvas/server/agent.ts).
   ipcMain.handle("startup:agent", (_event, agent: string) => {
     Object.assign(last, { agent, version: app.getVersion() });
     fs.writeFileSync(lastFile, JSON.stringify(last));

@@ -2,12 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import {
-  compareVersions,
-  installSkills,
-  installedSkills,
-  refresh,
-} from "./skills.ts";
+import { compareVersions, installSkills } from "./skills.ts";
 
 const PIN = "super-prototyping#subdirectory=tools";
 
@@ -142,7 +137,7 @@ describe("installSkills", () => {
     expect(a).toBe(b);
   });
 
-  it("skips an existing unmarked folder and reports it, and leaves it alone on refresh", () => {
+  it("skips an existing unmarked folder and reports it, and leaves it alone on an upgrade", () => {
     // The user's own folder, named like a real skill but never written by us.
     fs.mkdirSync(path.join(project, ".claude/skills/alpha"), {
       recursive: true,
@@ -163,7 +158,7 @@ describe("installSkills", () => {
     );
 
     setVersion(root, "9.9.9");
-    refresh(project, root);
+    installSkills(root, project, [".claude/skills"]);
     expect(
       fs.readFileSync(
         path.join(project, ".claude/skills/alpha/SKILL.md"),
@@ -198,14 +193,14 @@ describe("installSkills", () => {
     ).toBe(true);
 
     setVersion(root, "9.9.9");
-    refresh(project, root);
+    installSkills(root, project, [".claude/skills"]);
     expect(
       fs.readFileSync(path.join(root, "skills/alpha/SKILL.md")).equals(before),
     ).toBe(true);
   });
 });
 
-describe("refresh", () => {
+describe("installSkills over an earlier install", () => {
   it("overwrites a copy older than the tree and updates its marker", () => {
     installSkills(root, project, [".claude/skills"]);
     // The tree moves on: a new version, and a real change inside the skill.
@@ -215,7 +210,7 @@ describe("refresh", () => {
       "notes for alpha, v2\n",
     );
 
-    refresh(project, root);
+    installSkills(root, project, [".claude/skills"]);
 
     const copy = fs.readFileSync(
       path.join(project, ".claude/skills/alpha/SKILL.md"),
@@ -250,7 +245,7 @@ describe("refresh", () => {
       "notes for alpha, v2\n",
     );
 
-    refresh(project, root); // tree is still 1.5.0
+    installSkills(root, project, [".claude/skills"]); // the tree is still 1.5.0
 
     expect(fs.readFileSync(skillMdPath).equals(before)).toBe(true);
     expect(
@@ -259,37 +254,6 @@ describe("refresh", () => {
         "utf8",
       ),
     ).toBe("notes for alpha, v1\n");
-  });
-
-  it("leaves a deleted copy deleted", () => {
-    installSkills(root, project, [".claude/skills"]);
-    fs.rmSync(path.join(project, ".claude/skills/beta"), { recursive: true });
-    setVersion(root, "9.9.9");
-    refresh(project, root);
-    expect(fs.existsSync(path.join(project, ".claude/skills/beta"))).toBe(
-      false,
-    );
-    expect(
-      fs.readFileSync(
-        path.join(project, ".claude/skills/alpha/SKILL.md"),
-        "utf8",
-      ),
-    ).toContain("version: 9.9.9");
-  });
-});
-
-describe("installedSkills", () => {
-  it("lists only the marked copies, by dir/name/version", () => {
-    installSkills(root, project, [".claude/skills", ".agents/skills"]);
-    const list = installedSkills(project);
-    expect(list.map((s) => `${s.dir}/${s.name}@${s.version}`).sort()).toEqual(
-      [
-        ".agents/skills/alpha@1.5.0",
-        ".agents/skills/beta@1.5.0",
-        ".claude/skills/alpha@1.5.0",
-        ".claude/skills/beta@1.5.0",
-      ].sort(),
-    );
   });
 });
 

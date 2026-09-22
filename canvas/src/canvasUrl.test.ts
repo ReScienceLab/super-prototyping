@@ -96,10 +96,6 @@ describe("canvas URLs", () => {
     expect(windowUrl(at + "canvas.html?canvas=luma-ios#03-event")).toBe(
       at + "?canvas=luma-ios#03-event",
     );
-    // The toast is the canvas's to say once, not the window's to say on every reload.
-    expect(windowUrl(at + "canvas.html?toast=%7B%7D&canvas=a")).toBe(
-      at + "?canvas=a",
-    );
   });
 
   it("reads the tab in front, which is a canvas unless a kit says otherwise", () => {

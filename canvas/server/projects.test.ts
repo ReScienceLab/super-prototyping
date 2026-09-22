@@ -75,7 +75,19 @@ it("serves every project at its own address and makes new ones", async () => {
     const copy = { slug: "00-welcome", name: "Mine" };
     expect((await ask("/__sp/clone-canvas", copy)).status).toBe(409);
     expect(fs.readdirSync(path.join(tmp, "root/canvases"))).toEqual(["00-welcome"]);
-    expect((await ask("/__sp/agent/run", { message: "hi" })).status).toBe(409);
+    // The agent is no project's, and is at the root once. Nothing is written before it first runs.
+    const sessions = await ask("/__sp/agent/sessions");
+    expect(sessions).toMatchObject({ status: 200, text: "[]" });
+    const run = (body: object) => ask("/__sp/agent/run", { message: "hi", ...body });
+    expect((await run({ project: "nowhere" })).status).toBe(404);
+    expect((await run({ session: "00000000-0000-4000-8000-000000000000" })).status).toBe(404);
+    expect((await run({ session: "../x" })).status).toBe(404);
+    expect(
+      (await ask("/__sp/agent/run", { message: "hi" }, { "sec-fetch-site": "cross-site" }))
+        .status,
+    ).toBe(403);
+    expect((await ask("/p/alpha/__sp/agent/sessions")).text).toBe("static /__sp/agent/sessions");
+    expect(fs.existsSync(path.join(tmp, "projects/.workspaces"))).toBe(false);
 
     expect(projects.open(path.join(tmp, "elsewhere"))).toBe("/p/elsewhere/");
     expect(fs.existsSync(path.join(tmp, "elsewhere/canvases/mine"))).toBe(true);
@@ -97,27 +109,18 @@ it("serves every project at its own address and makes new ones", async () => {
       ["alpha", "/p/alpha/"],
     ]);
 
-    // A new project, with the skills of the agent named, then opened.
-    const made = await ask("/__sp/projects", {
-      name: " beta ",
-      agent: "claude",
-    });
+    // A new project, then opened. It gets no skills: the agent's are in its own folder.
+    const made = await ask("/__sp/projects", { name: " beta " });
     expect(made.status).toBe(200);
-    const { url } = JSON.parse(made.text);
-    expect(url).toMatch(/^\/p\/beta\/\?toast=/);
+    expect(JSON.parse(made.text)).toEqual({ url: "/p/beta/" });
     expect(
       fs.existsSync(path.join(tmp, "projects/beta/canvases")),
     ).toBe(true);
-    expect(fs.existsSync(path.join(tmp, "projects/beta/.claude/skills"))).toBe(
-      true,
-    );
+    expect(fs.existsSync(path.join(tmp, "projects/beta/.claude"))).toBe(false);
     expect((await ask("/p/beta/__sp/index.json")).status).toBe(200);
     expect((await ask("/__sp/projects", { name: "beta" })).status).toBe(409);
     expect((await ask("/__sp/projects", { name: "  " })).status).toBe(400);
     expect((await ask("/__sp/projects", { name: "a/b" })).status).toBe(400);
-    expect(
-      (await ask("/__sp/projects", { name: "gamma", agent: "nope" })).status,
-    ).toBe(400);
     expect(fs.existsSync(path.join(tmp, "projects/gamma"))).toBe(false);
     expect(
       (

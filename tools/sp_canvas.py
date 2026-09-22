@@ -7,8 +7,9 @@
   status   say whether it is up, and on what
   root     print the plugin root it resolved (-v: where it looked, and the
            release each half is on)
-  paths    print the two directories this writes, and the variables that move them
-  clean    remove them: every downloaded app, pidfile and log
+  paths    print the two directories this writes, the chat agent's, and the
+           variables that move them
+  clean    remove the two: every downloaded app, pidfile and log
 
 The canvas app ships inside the plugin, which is installed outside your
 project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
@@ -582,10 +583,15 @@ def cmd_root(a):
 
 def cmd_paths(a):
     """Every directory this writes and every variable that moves one, so they can be named in
-    an uninstall note and removed by `clean`. `uv cache dir`, for two directories."""
+    an uninstall note and removed by `clean`. `uv cache dir`, for two directories. The server
+    it starts writes a third, the chat agent's sessions (canvas/server/agent.ts), which `clean`
+    leaves alone: they are the user's conversations, not a download."""
     cache, state = _dirs()
+    projects = (os.environ.get("PROTOTYPING_PROJECTS_DIR")
+                or Path.home() / "Documents/Super Prototyping")
     print(f"cache  {cache}")
     print(f"state  {state}")
+    print(f"agent  {Path(projects) / '.workspaces'}")
     print()
     for var in ("SUPER_PROTOTYPING_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME", "SP_CANVAS_PORT",
                 "PROTOTYPING_PROJECTS_DIR", "SUPER_PROTOTYPING_ROOT"):

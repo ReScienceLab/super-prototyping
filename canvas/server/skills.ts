@@ -1,7 +1,9 @@
 /**
- * Copying the plugin's skills into a project, and keeping copies there current.
+ * Copying the plugin's skills to where the chat panel's agent finds them, and keeping the copy
+ * current. That is once for every session, in `<projects dir>/.workspaces`, above each session's
+ * own folder (agent.ts), and never into a project.
  *
- * A copy is a whole `skills/<name>` folder written under a project-relative dot directory
+ * A copy is a whole `skills/<name>` folder written under a relative dot directory
  * (`.claude/skills`, `.agents/skills`, …), with two things changed in its `SKILL.md`: a
  * `metadata` marker recording which tree and version wrote it, and the toolkit install line
  * pinned to that version's tag. The marker is what makes a copy ours. Anything without it is the
@@ -11,23 +13,20 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { AGENTS, type AgentId } from "../src/agents.ts";
+import type { AgentId } from "../src/agents.ts";
 
-/** A project-relative skill directory. */
+/** A relative skill directory. */
 const SKILL_DIR = /^\.[\w-]+\/skills$/;
 
 /**
- * Where each agent the chat panel runs reads a project's skills from, and what to say once the
- * copies are written. Codex reads `.agents/skills`, which most agents share; Claude Code does not
- * read it, so it gets its own. docs/2026-09-20-desktop-onboarding-and-skills.md has the directory
- * and the caveats for nineteen more, for when the panel runs a third.
+ * Where each agent the chat panel runs reads skills from, relative to its working directory.
+ * Codex reads `.agents/skills`, which most agents share; Claude Code does not read it, so it gets
+ * its own. docs/2026-09-20-desktop-onboarding-and-skills.md has the directory and the caveats for
+ * nineteen more, for when the panel runs a third.
  */
-export const AGENT_SKILLS: Record<AgentId, { dir: string; note?: string }> = {
-  claude: {
-    dir: ".claude/skills",
-    note: "A user-level ~/.claude/skills folder with the same name overrides the project one.",
-  },
-  codex: { dir: ".agents/skills" },
+export const AGENT_SKILLS: Record<AgentId, string> = {
+  claude: ".claude/skills",
+  codex: ".agents/skills",
 };
 
 /** Frontmatter at the very top of the file only. A block starting anywhere else is prose. */
@@ -49,7 +48,7 @@ export function pluginVersion(root: string): string {
 /**
  * Semver-ish ordering, negative/zero/positive like `Array#sort`'s comparator. A prerelease
  * sorts below its release (`1.5.0-rc.1 < 1.5.0`), and a version this cannot parse sorts below
- * every real one. A marker in that shape is still a marker, and refresh's job is to bring it
+ * every real one. A marker in that shape is still a marker, and an install's job is to bring it
  * forward, not to leave it alone because it cannot be read.
  */
 export function compareVersions(a: string, b: string): number {
@@ -120,38 +119,16 @@ function writeCopy(
   );
 }
 
-/** Every marked copy under a project's dot directories: `<project>/<dot dir>/skills/<name>/SKILL.md`. */
-export function installedSkills(
-  projectDir: string,
-): { dir: string; name: string; version: string }[] {
-  const found: { dir: string; name: string; version: string }[] = [];
-  for (const top of fs.readdirSync(projectDir, { withFileTypes: true })) {
-    if (!top.isDirectory() || !SKILL_DIR.test(`${top.name}/skills`)) continue;
-    const skillsDir = path.join(projectDir, top.name, "skills");
-    if (!fs.statSync(skillsDir, { throwIfNoEntry: false })?.isDirectory())
-      continue;
-    for (const skill of fs.readdirSync(skillsDir, { withFileTypes: true })) {
-      if (!skill.isDirectory()) continue;
-      const version = markedVersion(
-        path.join(skillsDir, skill.name, "SKILL.md"),
-      );
-      if (version)
-        found.push({ dir: `${top.name}/skills`, name: skill.name, version });
-    }
-  }
-  return found;
-}
-
 /**
  * Writes every skill in `<root>/skills` into each of `dirs`, marked and pinned to `root`'s
  * version. A destination that already holds a marked copy is replaced whole when that copy is
- * older, and left alone when it is at the tree's version or past it, so someone else's newer commit
- * is never undone, and the same answer on every launch writes nothing. One that exists without a
+ * older, and left alone when it is at the tree's version or past it, so a newer app's copy is never
+ * undone, and every run after the first writes nothing. One that exists without a
  * marker is the user's own file, left alone and reported back as skipped.
  */
 export function installSkills(
   root: string,
-  projectDir: string,
+  into: string,
   dirs: string[],
 ): { written: string[]; skipped: string[] } {
   for (const dir of dirs) {
@@ -174,7 +151,7 @@ export function installSkills(
   const skipped: string[] = [];
   for (const dir of dirs) {
     for (const name of names) {
-      const destDir = path.join(projectDir, dir, name);
+      const destDir = path.join(into, dir, name);
       if (fs.existsSync(destDir)) {
         const existing = markedVersion(path.join(destDir, "SKILL.md"));
         if (existing === null) {
@@ -188,57 +165,4 @@ export function installSkills(
     }
   }
   return { written, skipped };
-}
-
-/**
- * Installs one agent's skills into a project, and says what that did as the toast the canvas
- * shows once when the project opens. Nothing written and nothing skipped is a project that
- * already had every copy at this version, which is every project opened a second time, and gets
- * no toast: that was said when the copies were first written. The copies are all under the one
- * directory, so it is named once and each copy by its own name.
- */
-export function installFor(
-  root: string,
-  projectDir: string,
-  agent: AgentId,
-): {
-  written: string[];
-  skipped: string[];
-  toast?: { title: string; description: string };
-} {
-  const { dir, note } = AGENT_SKILLS[agent];
-  const { written, skipped } = installSkills(root, projectDir, [dir]);
-  if (written.length === 0 && skipped.length === 0) return { written, skipped };
-  const names = (paths: string[]) =>
-    paths.map((p) => path.posix.basename(p)).join(", ");
-  const toast = {
-    title: `Skills installed for ${AGENTS.find((a) => a.id === agent)!.name}`,
-    description: [
-      written.length ? `Into ${dir}: ${names(written)}.` : "",
-      skipped.length ? `Already there, left alone: ${names(skipped)}.` : "",
-      note ?? "",
-    ]
-      .filter(Boolean)
-      .join(" "),
-  };
-  return { written, skipped, toast };
-}
-
-/**
- * Brings every marked copy in a project up to the tree's version, called once when a project is
- * first served. It touches only the copies that are there. A copy at or ahead of the tree (someone
- * else's newer commit) is left alone, and so is a skill that is missing, because a folder someone
- * deleted on purpose must stay deleted, and refresh cannot tell that from one never installed.
- */
-export function refresh(projectDir: string, root: string): void {
-  const version = pluginVersion(root);
-  for (const copy of installedSkills(projectDir)) {
-    if (compareVersions(copy.version, version) >= 0) continue;
-    writeCopy(
-      root,
-      copy.name,
-      path.join(projectDir, copy.dir, copy.name),
-      version,
-    );
-  }
 }
