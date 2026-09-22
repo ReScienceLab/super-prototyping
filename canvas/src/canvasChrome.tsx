@@ -20,7 +20,10 @@ import {
   CommentTool,
   commentToolOverrides,
 } from "@tldraw/commenting";
-import { CanvasAttachButtons } from "./canvasAttach";
+import {
+  CanvasAttachButtons,
+  CanvasSelectionAttachButton,
+} from "./canvasAttach";
 import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
 import {
@@ -121,10 +124,26 @@ export const canvasCommentTools = [
  * hook to pin the scheme with; if one arrives, it is the single mechanism to move to.
  */
 export const canvasUiOverrides: TLUiOverrides = {
-  ...commentToolOverrides,
   actions(_editor, actions) {
     delete actions["toggle-dark-mode"];
     return actions;
+  },
+  /**
+   * Select and comment are the only modes left reachable — not just off the toolbar (`Toolbar:
+   * null` below), off the keyboard too. `useTools()` is what both the toolbar and
+   * `useKeyboardShortcuts` draw their entries from, so a tool missing here has no `kbd` left to
+   * fire: this is the one table both paths read, and the boards on this canvas are read, not
+   * drawn on, so draw, the geo shapes, arrow, line, frame, text, note, the asset picker, laser and
+   * eraser have nothing to be reached for. Before this, a stray keypress on the canvas — "d" or
+   * "b" for the draw tool chief among the reports — dropped the user into one of them with no
+   * toolbar left to show what had changed or a click back to select from. Comment survives: its
+   * own accidental-press case is already handled below (`InFrontOfTheCanvas` drops back to select
+   * when its name dialog closes empty), and it is a deliberate feature, not a drawing tool.
+   */
+  tools(editor, tools, helpers) {
+    const { select, comment } =
+      commentToolOverrides.tools?.(editor, tools, helpers) ?? tools;
+    return { select, comment };
   },
 };
 
@@ -291,6 +310,7 @@ export const canvasChromeComponents: TLComponents = {
         />
         {/* Dev only, like the panel they hand things to. */}
         {canvasIndex().served && <CanvasAttachButtons />}
+        {canvasIndex().served && <CanvasSelectionAttachButton />}
         {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
             next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}

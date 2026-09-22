@@ -1520,6 +1520,13 @@ export default function App() {
                 shapeUtils={shapeUtils}
                 tools={canvasCommentTools}
                 overrides={canvasUiOverrides}
+                // Every board and picture is locked (below, and the library's own placement) so a
+                // pan can't drag one and a click opens the inspector instead of tldraw's own
+                // selection — but by default tldraw also drops locked shapes from a marquee drag
+                // entirely, which is the one thing this option turns back on. The lock itself is
+                // what keeps them from moving: `updateShapes` skips a locked shape's own partial
+                // regardless of this flag, so a selected board still can't be dragged or resized.
+                options={{ selectLockedShapes: true }}
                 licenseKey={TLDRAW_LICENSE_KEY}
                 onMount={handleMount}
               >

@@ -3,6 +3,7 @@ import {
   useEditor,
   usePassThroughWheelEvents,
   useValue,
+  type Editor,
   type TLEventInfo,
   type TLImageShape,
 } from "tldraw";
@@ -23,6 +24,50 @@ import {
 interface Board {
   shape: CanvasFileShape;
   path: string;
+}
+
+/** To the agent's panel, which is the window's, outside the canvas's frame (AppShell.tsx). */
+const dispatchAttach = (detail: CanvasAttachDetail) =>
+  window.parent.dispatchEvent(new CustomEvent(CANVAS_ATTACH, { detail }));
+
+/**
+ * A board or a picture, turned into the file the chat attaches. A board is a page in an
+ * `<iframe>`, so the server draws it first (`/__sp/shoot`, vite.config.ts) and it goes over under
+ * its own `<slug>/<file>.html`; a picture already on the canvas is read back out of the asset its
+ * shape points at. Shared by the single-shape button below and the selection's
+ * (`CanvasSelectionAttachButton`), which differ only in how many targets they call this for.
+ */
+async function attachDetail(
+  editor: Editor,
+  target: InspectorTarget,
+): Promise<CanvasAttachDetail> {
+  if (target.type === CANVAS_FILE_SHAPE_TYPE) {
+    const shape = target as CanvasFileShape;
+    const ref = canvasBoardRef(shape.props.path);
+    if (!ref) throw new Error("that board has no file behind it");
+    const path = `${ref.slug}/${ref.file}`;
+    const shot = await fetch(
+      `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(path)}` +
+        `&w=${Math.round(shape.props.w)}&h=${Math.round(shape.props.h)}`,
+    );
+    if (!shot.ok) throw new Error(await shot.text());
+    const png = await shot.blob();
+    return { kind: "image", file: new File([png], path, { type: png.type }) };
+  }
+  const shape = target as TLImageShape;
+  const asset = shape.props.assetId
+    ? editor.getAsset(shape.props.assetId)
+    : undefined;
+  if (asset?.type !== "image" || !asset.props.src) {
+    throw new Error("that picture has no file behind it");
+  }
+  const bytes = await (await fetch(asset.props.src)).blob();
+  return {
+    kind: "image",
+    file: new File([bytes], asset.props.name || "image.png", {
+      type: bytes.type,
+    }),
+  };
 }
 
 /**
@@ -51,6 +96,16 @@ export function CanvasAttachButtons() {
   // minimap, a comment pin — and it steps aside for anything in here that really does scroll.
   const bar = useRef<HTMLDivElement>(null);
   usePassThroughWheelEvents(bar);
+
+  // A selection already has its own "+" for the whole group, at the selection's own corner
+  // (CanvasSelectionAttachButton below) — including a selection of one. Hovering the rightmost
+  // shape in a multi-selection would otherwise show this one too, at that shape's own corner,
+  // a second button beside the group's.
+  const hasSelection = useValue(
+    "attach buttons selection gate",
+    () => editor.getSelectedShapeIds().length > 0,
+    [editor],
+  );
 
   useEffect(() => {
     const follow = (info: TLEventInfo) => {
@@ -108,7 +163,7 @@ export function CanvasAttachButtons() {
     [editor, target],
   );
 
-  if (!target || !corner) return null;
+  if (!target || !corner || hasSelection) return null;
   // The path a board's shape carries is the module path the generated index keys it by; the
   // server, the layout and the agent all know it as <slug>/<file>.html (canvasLibrary.ts).
   const ref =
@@ -119,58 +174,18 @@ export function CanvasAttachButtons() {
     ? { shape: target as CanvasFileShape, path: `${ref.slug}/${ref.file}` }
     : null;
 
-  const hand = (detail: CanvasAttachDetail) => {
-    // To the agent's panel, which is the window's, outside the canvas's frame (AppShell.tsx).
-    window.parent.dispatchEvent(new CustomEvent(CANVAS_ATTACH, { detail }));
-  };
-
-  const failed = (error: unknown) =>
-    hand({ kind: "error", message: String(error) });
-
-  /**
-   * A board as a picture. It is a page in an `<iframe>`, so the server is what can draw it.
-   *
-   * The picture keeps the board's own path for a name: the panel shows that under the tile and
-   * hands it to the agent beside the picture's number, so naming it for the board is how the
-   * message says which mockup this is without a word being typed.
-   */
-  const shoot = async ({ shape, path }: Board) => {
-    pinned.current = true;
-    setShooting(true);
+  // A board takes seconds to shoot, so the hover is pinned and the button spins while it does; a
+  // picture already on the canvas is read back out of its asset, fast enough to need neither.
+  const add = async () => {
+    if (board) pinned.current = true;
+    if (board) setShooting(true);
     try {
-      const shot = await fetch(
-        `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(path)}` +
-          `&w=${Math.round(shape.props.w)}&h=${Math.round(shape.props.h)}`,
-      );
-      if (!shot.ok) throw new Error(await shot.text());
-      const png = await shot.blob();
-      hand({ kind: "image", file: new File([png], path, { type: png.type }) });
+      dispatchAttach(await attachDetail(editor, target));
     } catch (error) {
-      failed(error);
+      dispatchAttach({ kind: "error", message: String(error) });
     } finally {
       pinned.current = false;
       setShooting(false);
-    }
-  };
-
-  /** A picture already on the canvas, read back out of the asset the shape points at. */
-  const attachImage = async (shape: TLImageShape) => {
-    const asset = shape.props.assetId
-      ? editor.getAsset(shape.props.assetId)
-      : undefined;
-    if (asset?.type !== "image" || !asset.props.src) {
-      return failed("that picture has no file behind it");
-    }
-    try {
-      const bytes = await (await fetch(asset.props.src)).blob();
-      hand({
-        kind: "image",
-        file: new File([bytes], asset.props.name || "image.png", {
-          type: bytes.type,
-        }),
-      });
-    } catch (error) {
-      failed(error);
     }
   };
 
@@ -194,9 +209,89 @@ export function CanvasAttachButtons() {
             : "Attach this picture to the chat"
         }
         disabled={shooting}
-        onClick={() =>
-          board ? void shoot(board) : void attachImage(target as TLImageShape)
+        onClick={() => void add()}
+      >
+        {shooting ? <span className="sp-chat-spin" /> : <Plus />}
+      </button>
+    </div>
+  );
+}
+
+/**
+ * **+** in the top-right corner of the current selection's bounding box, once dragging a box
+ * around the canvas has settled on one or more boards and pictures — adds every one of them to
+ * the chat in a single click, in the order tldraw reports the selection.
+ *
+ * This is the same button as `CanvasAttachButtons`, anchored to the selection instead of to
+ * whatever is under the pointer, because drawing tools are gone from this canvas (canvasChrome.tsx)
+ * and a drag on empty canvas is always tldraw's own marquee select.
+ */
+export function CanvasSelectionAttachButton() {
+  const editor = useEditor();
+  const [shooting, setShooting] = useState(false);
+
+  const bar = useRef<HTMLDivElement>(null);
+  usePassThroughWheelEvents(bar);
+
+  const corner = useValue(
+    "selection attach corner",
+    () => {
+      if (
+        editor.getCurrentToolId() !== "select" ||
+        // Not while the marquee itself is still growing: the button would otherwise chase the
+        // drag around the screen, and "once an area is selected" means once it has settled.
+        editor.isIn("select.brushing") ||
+        editor.menus.hasAnyOpenMenus()
+      ) {
+        return null;
+      }
+      const targets = editor
+        .getSelectedShapes()
+        .map(asCanvasTarget)
+        .filter((t): t is InspectorTarget => t !== undefined);
+      if (targets.length === 0) return null;
+      const bounds = editor.getSelectionPageBounds();
+      return bounds
+        ? editor.pageToViewport({ x: bounds.maxX, y: bounds.minY })
+        : null;
+    },
+    [editor],
+  );
+
+  if (!corner) return null;
+
+  const addSelection = async () => {
+    const targets = editor
+      .getSelectedShapes()
+      .map(asCanvasTarget)
+      .filter((t): t is InspectorTarget => t !== undefined);
+    setShooting(true);
+    try {
+      for (const target of targets) {
+        try {
+          dispatchAttach(await attachDetail(editor, target));
+        } catch (error) {
+          dispatchAttach({ kind: "error", message: String(error) });
         }
+      }
+    } finally {
+      setShooting(false);
+    }
+  };
+
+  return (
+    <div
+      ref={bar}
+      className="sp-attach"
+      style={{ left: corner.x, top: corner.y }}
+    >
+      <button
+        type="button"
+        className="sp-attach-btn"
+        aria-label="Add the selection to the chat"
+        title="Add the selected boards and pictures to the chat"
+        disabled={shooting}
+        onClick={() => void addSelection()}
       >
         {shooting ? <span className="sp-chat-spin" /> : <Plus />}
       </button>
