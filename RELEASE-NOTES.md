@@ -66,6 +66,10 @@ Everything below is on `main` and reaches no install until a version is cut.
   it says nothing. A Homebrew install updates this way too. Installs of v1.5.3 and
   earlier have no updater, so they need one last manual update:
   `brew upgrade --cask super-prototyping`, or the new installer on Windows.
+- **The app says which version it is.** The startup page shows it beside the
+  app's name. Click it to check for an update there and then: it answers **Up to
+  date**, that a newer version is available, which then downloads and asks as
+  usual, or **Could not check**.
 
 ## v1.5.3
 
