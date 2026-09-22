@@ -132,39 +132,38 @@ function spFor(dir: string | null, canvases: string) {
 }
 
 /**
- * `POST /__sp/open` with a folder's path answers the address it is served at. The desktop app asks
- * before it opens a project, because a folder outside the projects directory has no name here until
- * then. It names it after itself, numbered past any project already called that. Only the app
- * asks: a browser says where its request came from, and the app's fetch says nothing.
+ * A folder's path, from the desktop app before it opens a project, answered with the address it
+ * is served at: a folder outside the projects directory has no name here until then. It is named
+ * after itself, numbered past any project already called that. The path comes over the parent
+ * port of Electron's utility process, which only the app that started this server holds, and not
+ * over HTTP, where any page or process on the machine could have added any folder to what this
+ * serves. `sp start` runs under node, which has no parent port, and opens nothing.
  */
-function open(req: http.IncomingMessage, res: http.ServerResponse) {
-  if (req.method !== "POST" || req.headers["sec-fetch-site"] !== undefined) {
-    res.statusCode = 403;
-    return res.end("only the desktop app opens a project");
+const parentPort = (
+  process as NodeJS.Process & {
+    parentPort?: {
+      on(event: "message", listener: (message: { data: string }) => void): void;
+      postMessage(message: { address: string } | { error: string }): void;
+    };
   }
-  let body = "";
-  req.on("data", (chunk) => (body += chunk));
-  req.on("end", () => {
-    const dir = path.resolve(body);
-    if (!fs.statSync(dir, { throwIfNoEntry: false })?.isDirectory()) {
-      res.statusCode = 404;
-      return res.end(`${dir} is not a folder`);
-    }
-    const all = projects();
-    let name = [...all].find(([, had]) => had === dir)?.[0];
-    if (name === undefined) {
-      name = path.basename(dir);
-      for (let n = 2; all.has(name); n++) name = `${path.basename(dir)} ${n}`;
-      opened.set(name, dir);
-    }
-    res.end(`/p/${encodeURIComponent(name)}/`);
-  });
-}
+).parentPort;
+parentPort?.on("message", ({ data }) => {
+  const dir = path.resolve(data);
+  if (!fs.statSync(dir, { throwIfNoEntry: false })?.isDirectory())
+    return parentPort.postMessage({ error: `${dir} is not a folder` });
+  const all = projects();
+  let name = [...all].find(([, had]) => had === dir)?.[0];
+  if (name === undefined) {
+    name = path.basename(dir);
+    for (let n = 2; all.has(name); n++) name = `${path.basename(dir)} ${n}`;
+    opened.set(name, dir);
+  }
+  parentPort.postMessage({ address: `/p/${encodeURIComponent(name)}/` });
+});
 
 const server = http.createServer((req, res) => {
   if (projectsDir === null)
     return spFor(projectDir, canvasesDir).handle(req, res, () => serveStatic(req, res));
-  if (req.url === "/__sp/open") return open(req, res);
   // `/p/<name>/<rest>`: <rest> is what the project's server and the built app see, so each
   // project's pages are the same pages at an address of their own.
   const [, name, rest] = /^\/p\/([^/?#]*)(\/.*)$/.exec(req.url ?? "") ?? [];

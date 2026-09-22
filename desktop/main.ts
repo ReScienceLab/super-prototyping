@@ -219,12 +219,17 @@ async function main() {
   // A project opened, from the startup page, the home page or the command line: its address on the
   // server, its agent's skills, then `then`, the page to land on under that address, its canvas
   // ("") or the home page. The server names a folder from outside the projects directory when it is
-  // first asked for it here. What comes back is the page's address, for the window to load, or
-  // for the app's own window to load into the frame its canvas is in (canvas/src/AppShell.tsx).
+  // first asked for it here, over its parent port, which nothing but this app can write to
+  // (canvas/server/main.ts); one ask at a time, as `opening` and the launch keep it. What comes
+  // back is the page's address, for the window to load, or for the app's own window to load into
+  // the frame its canvas is in (canvas/src/AppShell.tsx).
   async function openProject(dir: string, agent: string | undefined, then: "" | "home.html") {
-    const at = await fetch(`${origin}/__sp/open`, { method: "POST", body: dir });
-    if (!at.ok) throw new Error(`Opening ${dir} failed: ${await at.text()}`);
-    const base = await at.text();
+    const answer = new Promise<{ address?: string; error?: string }>((resolve) =>
+      server!.once("message", resolve),
+    );
+    server!.postMessage(dir);
+    const { address: base, error } = await answer;
+    if (base === undefined) throw new Error(`Opening ${dir} failed: ${error}`);
     const url = new URL(base + then, origin);
     if (agent !== undefined) {
       const row = AGENTS.find((a) => a.id === agent)!; // the page's rows came from this table
