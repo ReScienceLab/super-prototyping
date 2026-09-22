@@ -44,11 +44,11 @@ describe('sseFrame', () => {
 describe('runSummary', () => {
   it('reads the history entry off the events', () => {
     const run = newRun('r')
-    emit(run, 'start', { kind: 'start', agent: 'claude', prompt: 'say hi', title: 'say hi', at: 5 })
-    expect(runSummary(run)).toEqual({ id: 'r', agent: 'claude', title: 'say hi', startedAt: 5, status: 'running' })
+    emit(run, 'start', { kind: 'start', agent: 'claude', prompt: 'say hi', title: 'say hi', at: 5, project: 'p' })
+    expect(runSummary(run)).toEqual({ id: 'r', agent: 'claude', title: 'say hi', startedAt: 5, project: 'p', status: 'running' })
     emit(run, 'title', { kind: 'title', title: 'Greeting Exchange' })
     emit(run, 'end', { kind: 'end', ok: false, message: 'stopped' })
-    expect(runSummary(run)).toEqual({ id: 'r', agent: 'claude', title: 'Greeting Exchange', startedAt: 5, status: 'failed' })
+    expect(runSummary(run)).toEqual({ id: 'r', agent: 'claude', title: 'Greeting Exchange', startedAt: 5, project: 'p', status: 'failed' })
     expect(() => runSummary(newRun('x'))).toThrow('no start event')
   })
 })

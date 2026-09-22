@@ -9,20 +9,14 @@ import {
 } from "tldraw";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
+  DEFAULT_COVER_BOX,
   canvasIconUrl,
+  fitCover,
   readCanvasLayout,
   useCanvasFileHtml,
 } from "./canvasLibrary";
 
 export const CANVAS_LINK_SHAPE_TYPE = "canvas-link" as const;
-
-/**
- * The phone frame in a 478 x 980 artboard, `[x, y, w, h]`, which every folder here draws at the
- * same place; a folder whose cover is not a phone overrides it with `coverBox` in its layout.json.
- * A card crops to this rather than showing the whole board, so what it shows is the mockup and
- * not the artboard margin around it.
- */
-const DEFAULT_COVER_BOX: [number, number, number, number] = [46, 24, 393, 852];
 
 /**
  * The case the cropped board is fitted into, mockups/canvases/templates own phone: a 393 x 852
@@ -72,24 +66,6 @@ const MUTED = "#7C7C86";
 const GROUND = "#111115";
 const EDGE = "1px solid #26262C";
 const FONT = "var(--sp-sans)";
-
-/**
- * Places a board behind the shell's screen so the `[x, y, w, h]` box fills it and sits centred:
- * scaled by whichever axis binds, so the crop can lose a little of the box but never leave a gap.
- */
-// oxlint-disable-next-line react/only-export-components
-export function fitCover(
-  [x, y, bw, bh]: [number, number, number, number],
-  w: number,
-  h: number,
-) {
-  const scale = Math.max(w / bw, h / bh);
-  return {
-    scale,
-    left: w / 2 - (x + bw / 2) * scale,
-    top: h / 2 - (y + bh / 2) * scale,
-  };
-}
 
 // oxlint-disable-next-line react/only-export-components
 function CanvasLink({ shape }: { shape: CanvasLinkShape }) {

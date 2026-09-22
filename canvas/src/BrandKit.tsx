@@ -9,7 +9,6 @@ import {
 } from "./canvasLibrary";
 import { brandPageUrl, canvasPageUrl, type CanvasTab } from "./canvasUrl";
 import { openInTab } from "./canvasTabs";
-import { CanvasCta } from "./canvasCta";
 
 /**
  * How many columns a row gets, and the shape of its cards, from the pictures actually in it.
@@ -145,7 +144,6 @@ export function BrandKit({
             </a>
           ))}
         </nav>
-        <CanvasCta />
       </div>
       {rows.map((row) => (
         <section

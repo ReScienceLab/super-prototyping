@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import type { MouseEvent as ReactMouseEvent } from "react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { canvasIndex } from "./canvasIndex";
 import {
   brandMaterialSlugs,
   hasBrandMaterial,
@@ -12,11 +13,14 @@ import {
   openInTab,
   readOpenTabs,
   resolveTab,
-  sameTab,
   tabExists,
+  tabFor,
   tabKey,
   tabLabel,
+  tabOfProject,
+  withTab,
   writeOpenTabs,
+  type ProjectTab,
 } from "./canvasTabs";
 import { WELCOME_PAGE_SLUG, type CanvasTab } from "./canvasUrl";
 
@@ -27,19 +31,82 @@ const canvas = slugs.find((slug) => slug !== WELCOME_PAGE_SLUG)!;
 const kit = brandMaterialSlugs()[0];
 const noKit = slugs.find((slug) => !hasBrandMaterial(slug))!;
 
-describe("a tab's name and identity", () => {
-  it("identifies a tab by its kind and its folder", () => {
-    expect(tabKey({ kind: "canvas", slug: "luma-ios" })).toBe(
-      "canvas:luma-ios",
+const project = (url: string, view: CanvasTab = HOME_TAB): ProjectTab => ({
+  kind: "project",
+  url,
+  name: url,
+  icon: null,
+  view,
+});
+
+/** One of this checkout's folders, flagged the way the desktop app's server flags an example. */
+function asExample(slug: string) {
+  const board = canvasIndex().boards.find((b) => b.slug === slug)!;
+  board.example = true;
+  return () => delete board.example;
+}
+
+describe("a tab is a project", () => {
+  let unflag = () => false;
+  afterEach(() => unflag());
+
+  it("identifies a project by its address and an example by its folder, not by the view", () => {
+    expect(tabKey(project("/p/a/"))).toBe("project:/p/a/");
+    expect(tabKey(project("/p/a/", { kind: "brand", slug: kit }))).toBe(
+      "project:/p/a/",
     );
-    // The two kinds of the same folder are two tabs, which is the whole reason for the kind.
-    expect(tabKey({ kind: "brand", slug: "luma-ios" })).toBe("brand:luma-ios");
-    expect(
-      sameTab({ kind: "canvas", slug: "a" }, { kind: "brand", slug: "a" }),
-    ).toBe(false);
-    expect(
-      sameTab({ kind: "canvas", slug: "a" }, { kind: "canvas", slug: "a" }),
-    ).toBe(true);
+    expect(tabKey({ kind: "example", slug: "a", view: HOME_TAB })).toBe(
+      "example:a",
+    );
+  });
+
+  it("puts every view of this project's under its one tab, and an example's under its own", () => {
+    expect(tabFor({ kind: "canvas", slug: canvas })).toMatchObject({
+      kind: "project",
+      url: "/",
+      view: { kind: "canvas", slug: canvas },
+    });
+    expect(tabFor(HOME_TAB)).toMatchObject({ kind: "project", url: "/" });
+    unflag = asExample(canvas);
+    const brand: CanvasTab = { kind: "brand", slug: canvas };
+    expect(tabFor(brand)).toEqual({
+      kind: "example",
+      slug: canvas,
+      view: brand,
+    });
+  });
+
+  it("keeps a tab's place on the bar and takes the view it now has in front", () => {
+    const a = project("/p/a/");
+    const b = project("/p/b/");
+    const moved = project("/p/a/", { kind: "canvas", slug: canvas });
+    expect(withTab([a, b], moved)).toEqual([moved, b]);
+    expect(withTab([a], b)).toEqual([a, b]);
+  });
+
+  it("opens a project on its latest canvas, with the latest icon, or where it was left", () => {
+    const p = {
+      name: "Shop",
+      url: "../shop/",
+      canvases: [
+        { slug: "old", updated: 1, icon: true },
+        { slug: "new", updated: 3, icon: false },
+        { slug: "mid", updated: 2, icon: true },
+      ],
+    };
+    expect(tabOfProject(p, [])).toEqual({
+      kind: "project",
+      url: "/shop/",
+      name: "Shop",
+      icon: "/shop/board/mid/icon.png",
+      view: { kind: "canvas", slug: "new" },
+    });
+    const left = project("/shop/", { kind: "brand", slug: "mid" });
+    expect(tabOfProject(p, [left])).toBe(left);
+    expect(tabOfProject({ ...p, canvases: [] }, [])).toMatchObject({
+      icon: null,
+      view: HOME_TAB,
+    });
   });
 
   it("wears the page's short name, and says which kind of tab it is", () => {
@@ -97,33 +164,44 @@ describe("the tabs a browser left open", () => {
     return Object.keys(localStorage)[0];
   };
 
-  it("comes back in the order it was left, Start here excluded", () => {
-    const open: CanvasTab[] = [
-      { kind: "canvas", slug: canvas },
-      { kind: "brand", slug: kit },
+  it("comes back in the order it was left", () => {
+    const unflag = asExample(canvas);
+    const open: ProjectTab[] = [
+      project("/p/b/", { kind: "brand", slug: kit }),
+      { kind: "example", slug: canvas, view: { kind: "canvas", slug: canvas } },
+      project("/p/a/"),
     ];
-    writeOpenTabs([HOME_TAB, ...open]);
+    writeOpenTabs(open);
     expect(readOpenTabs()).toEqual(open);
+    unflag();
   });
 
-  it("drops a folder that has gone since the last visit", () => {
+  it("drops an example this server no longer has, and keeps another project's tab", () => {
     writeOpenTabs([
-      { kind: "canvas", slug: "no-such-folder" },
-      { kind: "brand", slug: noKit },
-      { kind: "canvas", slug: canvas },
+      { kind: "example", slug: canvas, view: HOME_TAB },
+      project("/p/elsewhere/"),
     ]);
-    expect(readOpenTabs()).toEqual([{ kind: "canvas", slug: canvas }]);
+    expect(readOpenTabs()).toEqual([project("/p/elsewhere/")]);
   });
 
-  it("opens one tab per thing, however often it was written", () => {
-    const tab: CanvasTab = { kind: "canvas", slug: canvas };
-    writeOpenTabs([tab, tab]);
-    expect(readOpenTabs()).toEqual([tab]);
+  it("opens one tab per project, however often it was written", () => {
+    writeOpenTabs([
+      project("/p/a/"),
+      project("/p/a/", { kind: "canvas", slug: canvas }),
+    ]);
+    expect(readOpenTabs()).toEqual([project("/p/a/")]);
   });
 
   it("starts empty rather than throwing on anything it did not write", () => {
     const key = storageKey();
-    for (const junk of ["", "{}", "[1,2]", '["canvas"]', "not json"]) {
+    for (const junk of [
+      "",
+      "{}",
+      "[1,2]",
+      '["canvas"]',
+      '[{"kind":"canvas","slug":"a"}]',
+      "not json",
+    ]) {
       localStorage.setItem(key, junk);
       expect(readOpenTabs()).toEqual([]);
     }

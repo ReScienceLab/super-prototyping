@@ -29,16 +29,10 @@ import {
   resolveAuthor,
   type CommentUser,
 } from "./canvasComments";
-import { CanvasCta } from "./canvasCta";
 import { canvasIndex } from "./canvasIndex";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
 import { HOME_TAB } from "./canvasTabs";
-import {
-  Copy,
-  Cross,
-  Message,
-  RefreshCounterClockwise,
-} from "./geistIcons";
+import { Copy, Cross, Message, RefreshCounterClockwise } from "./geistIcons";
 import { WELCOME_PAGE_SLUG, type CanvasTab } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
@@ -68,20 +62,11 @@ export const CanvasChromeContext = createContext({
   /** Whether the inspector is docked at all, over a board or over a piece of brand material. */
   inspectorOpen: false,
   /**
-   * Whether the chat panel is shut, and the switch for it. Held by App, because the button that
-   * works it is in the canvas's top bar and the panel it works on is the bar's sibling.
+   * The view in front — a canvas, which is a tldraw page, or a kit, which is an overlay over the
+   * whole editor — and the way to show another of this project's. Held by App, which owns both.
    */
-  chatCollapsed: false,
-  toggleChat: () => {},
-  /**
-   * The bar above the canvas (CanvasTabBar.tsx): what is open besides Start here, which of them
-   * is in front, and the two things a chip does. Held by App, because a canvas tab is a tldraw
-   * page and a brand tab is an overlay over the whole editor, and App owns both.
-   */
-  tabs: [] as CanvasTab[],
   activeTab: HOME_TAB,
-  openTab: (_tab: CanvasTab) => {},
-  closeTab: (_tab: CanvasTab) => {},
+  openTab: (_view: CanvasTab) => {},
   /** Hands that board's frame to the panel, which reads its report and posts the selection back. */
   setInspectorFrame: (_frame: HTMLIFrameElement | null) => {},
 });
@@ -169,19 +154,6 @@ export const canvasChromeComponents: TLComponents = {
    * pointer is already on the thing they act on.
    */
   MenuPanel: null,
-  /**
-   * The two CTAs, pinned to the viewport's top-right corner rather than drawn on the welcome
-   * board, so they are there on every page and do not scroll away with the canvas. `SharePanel`
-   * is tldraw's own slot for exactly this: it renders in `.tlui-layout__top__right`, above the
-   * style panel, which is where a tldraw app puts its share and account controls.
-   *
-   * The inspector docks into the same row and narrows the canvas under it, which would slide the
-   * pair left and clip it. They are an invitation, not a tool, so the one that goes is them.
-   */
-  SharePanel: () => {
-    if (useContext(CanvasChromeContext).inspectorOpen) return null;
-    return <CanvasCta />;
-  },
   /**
    * The right button carries everything the top bar does not: commenting, the clone and the
    * relayout. The bottom toolbar is gone (Toolbar below) because a canvas of boards is read, not

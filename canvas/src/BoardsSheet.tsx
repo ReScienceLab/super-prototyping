@@ -10,7 +10,7 @@ const H2D_PLUGIN = "https://www.figma.com/community/plugin/1159123024924461424/h
 
 /**
  * One canvas page's boards, each at its own size, in one scrolling document. The page behind
- * `sheet.html?canvas=<slug>`, which the canvas's top bar links to.
+ * `sheet.html?canvas=<slug>`, which the Figma button on the canvas's rail links to.
  *
  * Each board is an iframe pointed at that board's own address rather than inlined, because a
  * board is a whole document — its own doctype, its own reset, its own fonts — and forty of them

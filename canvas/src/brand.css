@@ -55,8 +55,8 @@
 }
 
 /* ---------------------------------------------------------------- switch ---- */
-/* Two rows across the top of the page: the way back to the canvas and the same two CTAs the
-   canvas pins to its own top-right corner, then the shelf under them at full width. The shelf is
+/* Two rows across the top of the page: the way back to the canvas, then the shelf under it at
+   full width. The shelf is
    thirteen products wide and wants the whole line; sharing one with the pills left it a slot. */
 .topbar {
   display: flex;
@@ -64,9 +64,6 @@
   align-items: center;
   gap: 6px 10px;
   padding: 10px 16px 8px 23px;
-}
-.topbar .canvas-cta-group {
-  margin: 0 0 0 auto;
 }
 /* The other examples, as a shelf of app icons above everything. One scrolling row rather than a
    wrapping block: the strip is navigation, and navigation that changes height as the window

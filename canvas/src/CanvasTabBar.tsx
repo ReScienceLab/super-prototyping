@@ -1,41 +1,86 @@
-import { useContext, useEffect, useRef } from "react";
-import { CanvasChromeContext } from "./canvasChrome";
-import {
-  canvasIconUrl,
-  hasBrandMaterial,
-  readCanvasLibrary,
-  shortName,
-} from "./canvasLibrary";
+import { useEffect, useRef, type ReactNode } from "react";
+import { canvasIconUrl, shortName } from "./canvasLibrary";
 import { canvasIndex } from "./canvasIndex";
-import { HOME_TAB, openInTab, sameTab, tabKey, tabLabel } from "./canvasTabs";
 import {
-  WELCOME_PAGE_SLUG,
-  brandPageUrl,
-  sheetPageUrl,
-  type CanvasTab,
-} from "./canvasUrl";
-import { Cross, Layers, LogoFigma, Plus, SidebarLeft } from "./geistIcons";
+  projectTabIcon,
+  projectTabLabel,
+  tabKey,
+  tabOfExample,
+  tabOfProject,
+  type Project,
+  type ProjectTab,
+} from "./canvasTabs";
+import type { CanvasTab } from "./canvasUrl";
+import { Check, Cross, FolderPlus, Home, Layers, Plus } from "./geistIcons";
 
 /**
- * The bar across the top of the canvas area: the chat panel's switch, one chip per open canvas
- * or brand kit, the "+" that opens another, and the two places the canvas in front goes next.
+ * The bar across the top of the window: the agent's button, which AppShell.tsx hands in as
+ * `children`, then Home, one chip per open project or example, and the "+" that opens another.
+ * The project's own canvases and the way into Figma are on the strip under it (CanvasStrip.tsx),
+ * inside the canvas's frame.
  *
- * It is the app's own bar, not tldraw's, which held the same row until now. A brand kit is a
- * web page rather than a tldraw page, so what a tab switches to is not always inside
- * `<Tldraw>` — and a bar inside it would be covered by the kit its own button opened.
- * `MenuPanel: null` in canvasChrome.tsx is the other half of this file.
+ * It is the window's, not the canvas's, so switching to another project — another page, loaded
+ * into the frame — leaves it where it is, with the agent's panel beside it. It is not tldraw's
+ * either, which held the same row once: `MenuPanel: null` in canvasChrome.tsx is the other half
+ * of this file.
  */
 
-const PICKER_ID = "sp-tab-picker";
+const PROJECTS_ID = "sp-tab-picker";
 
-/** A folder's app icon, or the room one would have taken, so every label starts on one column. */
-function TabIcon({ tab }: { tab: CanvasTab }) {
-  const icon = tab.kind === "canvas" ? canvasIconUrl(tab.slug) : undefined;
+/**
+ * A menu under the button that opens it. A popover is in the top layer, which no ancestor can
+ * position it against, and anchor positioning is not in every browser this runs in yet, so it
+ * is placed by hand, on the click rather than on `toggle`, which fires a frame after it is drawn.
+ * It hangs off whichever of the button's edges is nearer the window's, so a "+" pushed far along
+ * the bar still opens a menu that is on the screen.
+ */
+function placeUnder(
+  menu: HTMLElement | null,
+  button: HTMLElement,
+  top: number,
+) {
+  if (!menu) return;
+  const box = button.getBoundingClientRect();
+  const near = box.left < window.innerWidth / 2;
+  menu.style.top = `${Math.round(top) + 4}px`;
+  menu.style.left = near ? `${Math.round(box.left)}px` : "auto";
+  menu.style.right = near
+    ? "auto"
+    : `${Math.round(window.innerWidth - box.right)}px`;
+}
+
+/** A folder's app icon. One without is its label alone, with no gap. */
+export function ViewIcon({ view }: { view: CanvasTab }) {
+  const icon = view.kind === "canvas" ? canvasIconUrl(view.slug) : undefined;
   if (icon) return <img className="sp-tabchip-icon" src={icon} alt="" />;
   // A kit has no app icon of its own — it is the page about the icon — so it wears the stack of
   // sheets that the button opening it wears.
-  if (tab.kind === "brand") return <Layers className="sp-tabchip-icon" />;
-  return <span className="sp-tabchip-icon" />;
+  if (view.kind === "brand") return <Layers className="sp-tabchip-icon" />;
+  return null;
+}
+
+/** A row of the projects menu; it shuts the menu it is in before it goes anywhere. */
+function MenuRow(props: {
+  icon: ReactNode;
+  label: string;
+  current: boolean;
+  onPick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      className="sp-menu-row"
+      onClick={(event) => {
+        event.currentTarget.parentElement!.hidePopover();
+        props.onPick();
+      }}
+    >
+      {props.icon}
+      <span className="sp-tab-picker-name">{props.label}</span>
+      {props.current && <Check className="sp-menu-ck" />}
+    </button>
+  );
 }
 
 function TabChip({
@@ -44,14 +89,16 @@ function TabChip({
   onOpen,
   onClose,
 }: {
-  tab: CanvasTab;
+  tab: ProjectTab;
   active: boolean;
   onOpen: () => void;
-  onClose?: () => void;
+  onClose: () => void;
 }) {
   const chip = useRef<HTMLButtonElement>(null);
+  const icon = projectTabIcon(tab);
+  const label = projectTabLabel(tab);
   // The bar scrolls once the tabs outrun it, so a tab brought forward from somewhere else — a
-  // card on Start here, a link on a board, the address on load — has to scroll itself into view.
+  // card on the home page, a link on a board, the address on load — has to scroll itself into view.
   useEffect(() => {
     if (active) {
       chip.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -66,167 +113,135 @@ function TabChip({
         className="sp-tabchip-open"
         // The bar is a row of what is open and the chip in front is the current page of it.
         aria-current={active ? "page" : undefined}
-        title={tabLabel(tab)}
+        title={label}
         onClick={onOpen}
       >
-        <TabIcon tab={tab} />
-        <span className="sp-tabchip-name">{tabLabel(tab)}</span>
+        {icon && <img className="sp-tabchip-icon" src={icon} alt="" />}
+        <span className="sp-tabchip-name">{label}</span>
       </button>
-      {onClose && (
-        <button
-          type="button"
-          className="sp-tabchip-close"
-          title={`Close ${tabLabel(tab)}`}
-          onClick={onClose}
-        >
-          <Cross />
-        </button>
-      )}
+      <button
+        type="button"
+        className="sp-tabchip-close"
+        title={`Close ${label}`}
+        onClick={onClose}
+      >
+        <Cross />
+      </button>
     </span>
   );
 }
 
-export function CanvasTabBar() {
-  const chrome = useContext(CanvasChromeContext);
+export function CanvasTabBar(props: {
+  tabs: ProjectTab[];
+  projects: Project[];
+  /** The tab in front, or none while Home is. */
+  active: ProjectTab | null;
+  onHome: () => void;
+  goTo: (tab: ProjectTab) => void;
+  closeTab: (tab: ProjectTab) => void;
+  /** The app's, which can make a project; a browser has the one its server was started on. */
+  newProject?: () => void;
+  children?: ReactNode;
+}) {
+  const { tabs, projects, goTo } = props;
   const picker = useRef<HTMLDivElement>(null);
-  const { tabs, activeTab, openTab, closeTab } = chrome;
-  const slug = activeTab.kind === "canvas" ? activeTab.slug : undefined;
-  // Undefined on a page that collected no material — Start here, a folder someone has only just
-  // started — and the button then opens the index of every page that did.
-  const brandSlug = slug && hasBrandMaterial(slug) ? slug : undefined;
+  const active = props.active && tabKey(props.active);
+  const examples = canvasIndex().boards.filter((b) => b.example);
 
   return (
-    <nav className="sp-topbar" aria-label="Open canvases">
-      {/* Dev server only, like the panel it works. The leftmost thing in the bar, against the
-          window's left edge, which is where the switch for the panel on that edge belongs; in
-          the panel's own header it would disappear along with the panel. */}
-      {canvasIndex().served && (
-        <button
-          type="button"
-          className="sp-head-x"
-          title={
-            chrome.chatCollapsed
-              ? "Open the chat panel"
-              : "Collapse the chat panel"
-          }
-          onClick={chrome.toggleChat}
-        >
-          <SidebarLeft />
-        </button>
-      )}
+    <nav className="sp-topbar" aria-label="Open projects">
+      {props.children}
+      {/* Where the projects are, first, the way Figma's strip starts with its house. */}
+      <button
+        type="button"
+        className="sp-head-x sp-topbar-home"
+        aria-current={active ? undefined : "page"}
+        title="Home"
+        onClick={props.onHome}
+      >
+        <Home />
+      </button>
       <div className="sp-topbar-tabs">
-        {[HOME_TAB, ...tabs].map((tab) => (
+        {tabs.map((tab) => (
           <TabChip
             key={tabKey(tab)}
             tab={tab}
-            active={sameTab(tab, activeTab)}
-            onOpen={() => openTab(tab)}
-            // Start here is where a close lands, so it is the one chip with no close of its own.
-            onClose={sameTab(tab, HOME_TAB) ? undefined : () => closeTab(tab)}
+            active={tabKey(tab) === active}
+            onOpen={() => goTo(tab)}
+            onClose={() => props.closeTab(tab)}
           />
         ))}
       </div>
-      <button
-        type="button"
-        className="sp-head-x"
-        popoverTarget={PICKER_ID}
-        title="Open another canvas"
-        // A popover is in the top layer, which no ancestor can position it against, and anchor
-        // positioning is not in every browser this runs in yet. So the menu is placed by hand,
-        // here rather than on `toggle`, which fires a frame after it is already drawn.
-        //
-        // Under the bar, not under the button: hung off the button's own box it would cover the
-        // four pixels of bar below it, hairline and all. Along the bar it follows the button,
-        // which slides as tabs open, and it hangs off whichever of its edges is nearer the
-        // window's, so a "+" pushed far along still opens a menu that is on the screen.
-        onClick={(event) => {
-          const menu = picker.current;
-          if (!menu) return;
-          const plus = event.currentTarget.getBoundingClientRect();
-          const bar = event.currentTarget.parentElement!.getBoundingClientRect();
-          const near = plus.left < window.innerWidth / 2;
-          menu.style.top = `${Math.round(bar.bottom) + 4}px`;
-          menu.style.left = near ? `${Math.round(plus.left)}px` : "auto";
-          menu.style.right = near
-            ? "auto"
-            : `${Math.round(window.innerWidth - plus.right)}px`;
-        }}
-      >
-        <Plus />
-      </button>
-      {/* A native popover, the way the chat panel's menus use one: the top layer and light
-          dismiss for free. It lists every canvas rather than only the shut ones, so the list
-          does not change shape under the pointer — picking one already open brings its tab
-          forward, which is what its chip would have done. Start here is left out: it is the one
-          chip that is always on the bar. */}
+      {/* Nothing to offer in a build, which has one project and no examples beside it. */}
+      {(projects.length > 0 || examples.length > 0) && (
+        <button
+          type="button"
+          className="sp-head-x"
+          popoverTarget={PROJECTS_ID}
+          title="New or another project"
+          // Under the bar, not under the button: hung off the button's own box it would cover
+          // the four pixels of bar below it, hairline and all.
+          onClick={(event) =>
+            placeUnder(
+              picker.current,
+              event.currentTarget,
+              event.currentTarget.parentElement!.getBoundingClientRect().bottom,
+            )
+          }
+        >
+          <Plus />
+        </button>
+      )}
+      {/* Every project and every example rather than only the shut ones, so the list does not
+          change shape under the pointer — picking one already open brings its tab forward,
+          which is what its chip would have done. */}
       <div
-        id={PICKER_ID}
+        id={PROJECTS_ID}
         popover="auto"
         className="sp-tab-picker"
         role="menu"
         ref={picker}
       >
-        {readCanvasLibrary()
-          .map((files) => files[0].pageSlug)
-          .filter((pageSlug) => pageSlug !== WELCOME_PAGE_SLUG)
-          .map((pageSlug) => {
-            const tab: CanvasTab = { kind: "canvas", slug: pageSlug };
+        {props.newProject && (
+          <MenuRow
+            icon={<FolderPlus className="sp-tabchip-icon" />}
+            label="New project…"
+            current={false}
+            onPick={props.newProject}
+          />
+        )}
+        {projects.length > 0 && <p className="sp-menu-head">Projects</p>}
+        {projects
+          .toSorted((a, b) => b.updated - a.updated)
+          .map((p) => {
+            const tab = tabOfProject(p, tabs);
+            const icon = projectTabIcon(tab);
             return (
-              <button
-                key={pageSlug}
-                type="button"
-                role="menuitem"
-                className="sp-menu-row"
-                onClick={() => {
-                  picker.current?.hidePopover();
-                  openTab(tab);
-                }}
-              >
-                <TabIcon tab={tab} />
-                <span className="sp-tab-picker-name">{shortName(pageSlug)}</span>
-              </button>
+              <MenuRow
+                key={tabKey(tab)}
+                icon={
+                  icon && <img className="sp-tabchip-icon" src={icon} alt="" />
+                }
+                label={p.name}
+                current={tabKey(tab) === active}
+                onPick={() => goTo(tab)}
+              />
             );
           })}
+        {examples.length > 0 && <p className="sp-menu-head">Examples</p>}
+        {examples.map((b) => {
+          const tab = tabOfExample(b.slug, tabs);
+          return (
+            <MenuRow
+              key={b.slug}
+              icon={<ViewIcon view={{ kind: "canvas", slug: b.slug }} />}
+              label={shortName(b.slug)}
+              current={tabKey(tab) === active}
+              onPick={() => goTo(tab)}
+            />
+          );
+        })}
       </div>
-      {/* An anchor wearing the bar's button, not a button: this is a link to another page of the
-          app, so ⌘-click, middle click and copy-link all have to work on it. Named for where the
-          boards are going rather than for what the click does — an external-link arrow is a true
-          description of it that tells nobody it is the way into Figma, which is what people are
-          here to do with a mockup. */}
-      {slug && (
-        <a
-          className="tlui-button sp-figma"
-          href={sheetPageUrl(slug)}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Open every board on this page as one web page — the page an importer such as html.to.design reads into Figma"
-        >
-          <LogoFigma />
-          <span className="sp-figma__label">Export to Figma</span>
-        </a>
-      )}
-      {/* The second destination, next to the first: the pictures a product publishes of itself.
-          It opens a tab now rather than a browser tab or a second app window, and stays an
-          anchor for the reason the one above is one — brand.html is still a page of its own, so
-          a ⌘-click should still reach it. Only the plain left click is taken over. */}
-      {slug && (
-        <a
-          className="tlui-button sp-brand"
-          href={brandPageUrl(brandSlug)}
-          title={
-            brandSlug
-              ? "Open the brand kit collected for this page — the logos, social profiles, store listings and advertising this product publishes"
-              : "Open the brand kits — the logos, social profiles, store listings and advertising these products publish, one kit per example"
-          }
-          onClick={openInTab(openTab, { kind: "brand", slug: brandSlug ?? "" })}
-        >
-          {/* A stack of sheets. Under 720px the label goes and the mark is the whole button, so
-              it has to carry "brand kit" alone, and Geist's one picture frame says "images",
-              which is every other button that ever held one. A kit is the stack. */}
-          <Layers />
-          <span className="sp-brand__label">Brand kit</span>
-        </a>
-      )}
     </nav>
   );
 }

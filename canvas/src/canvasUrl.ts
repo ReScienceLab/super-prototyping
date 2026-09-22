@@ -70,6 +70,26 @@ export function brandPageUrl(slug?: string) {
 }
 
 /**
+ * The window and the canvas in it (AppShell.tsx). The window's address is the one people see,
+ * share and reload — a project's `./?canvas=…#board`, or its `home.html` — and the canvas is
+ * canvas.html beside it, in a frame, so one becomes the other by swapping the file.
+ */
+export function frameUrl(href: string) {
+  const url = new URL(href);
+  url.pathname = url.pathname.replace(/[^/]*$/, "canvas.html");
+  return url.href;
+}
+
+export function windowUrl(href: string) {
+  const url = new URL(href);
+  url.pathname = url.pathname.replace(/canvas\.html$/, "");
+  // The toast the app opens a project with is said once, by the canvas; kept on the window's
+  // address, a reload would say it again.
+  url.searchParams.delete("toast");
+  return url.href;
+}
+
+/**
  * The address for a page slug and, if one is open, a board or picture of it, built on `href` so
  * the origin, path and other parameters stay.
  *

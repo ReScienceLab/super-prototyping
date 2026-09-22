@@ -28,7 +28,7 @@ describe('applyFrame', () => {
   it('takes the prompt and a first title from the start event, and the model\'s over it', () => {
     let turn = applyFrame(
       { runId: 'r', prompt: '', blocks: [] },
-      frame(1, { kind: 'start', agent: 'claude', prompt: 'say hi\nplease', title: 'say hi', at: 5 }),
+      frame(1, { kind: 'start', agent: 'claude', prompt: 'say hi\nplease', title: 'say hi', at: 5, project: 'p' }),
     )
     expect(turn).toMatchObject({ prompt: 'say hi\nplease', title: 'say hi' })
     turn = applyFrame(turn, frame(2, { kind: 'title', title: 'Greeting Exchange' }))
@@ -44,6 +44,7 @@ describe('applyFrame', () => {
         prompt: 'fix #1',
         title: 'fix #1',
         at: 5,
+        project: 'p',
         images: [{ n: 1, name: 'a.png' }],
       }),
     )
@@ -85,7 +86,8 @@ describe('followRun', () => {
     const seen: number[] = []
     await followRun('r', 0, (f) => seen.push(f.id), new AbortController().signal)
     expect(seen).toEqual([1, 2])
-    expect(urls).toEqual(['/__sp/agent/run/r/events?after=0', '/__sp/agent/run/r/events?after=1'])
+    const events = `${import.meta.env.BASE_URL}__sp/agent/run/r/events`
+    expect(urls).toEqual([`${events}?after=0`, `${events}?after=1`])
   })
 
   it('reports a run the server does not know without retrying', async () => {

@@ -43,14 +43,8 @@ import {
   urlForTab,
   type CanvasTab,
 } from "./canvasUrl";
-import {
-  HOME_TAB,
-  readOpenTabs,
-  resolveTab,
-  sameTab,
-  writeOpenTabs,
-} from "./canvasTabs";
-import { CanvasTabBar } from "./CanvasTabBar";
+import { isHere, resolveTab, tabFor } from "./canvasTabs";
+import { CanvasStrip } from "./CanvasStrip";
 // The kits render inside the canvas as well as under brand.html, so their sheet is loaded here
 // too. Statically: it is a few kilobytes against tldraw's megabyte, and a tab that had to wait
 // for a chunk would be the one thing on the bar that opens slowly.
@@ -67,7 +61,6 @@ import {
   InspectorPanel,
   type CanvasImagePick,
 } from "./InspectorPanel";
-import { ChatPanel } from "./ChatPanel";
 import type { InspectorTarget } from "./inspectorClicks";
 import {
   CANVAS_STATUS_BANNER_GAP,
@@ -95,6 +88,7 @@ import {
   canvasImageKey,
   canvasImageRef,
   canvasImageUrl,
+  coverFile,
   readCanvasImage,
   readCanvasLayout,
   readCanvasLibrary,
@@ -757,8 +751,8 @@ function layoutWelcomeExtras(
     (files) => files[0].pageSlug !== WELCOME_PAGE_SLUG,
   );
 
-  // The repo CTA used to be a shape parked in the welcome board's header. It is chrome now
-  // (canvasChrome.tsx, SharePanel), so a canvas saved before that still has to lose its copy.
+  // The repo CTA used to be a shape parked in the welcome board's header, and is gone now, so a
+  // canvas saved before that still has to lose its copy.
   const starId = linkShapeId("star");
   if (editor.getShape(starId)) deleteLibraryShapes(editor, [starId]);
   if (!targets.length) return;
@@ -838,11 +832,7 @@ function layoutWelcomeExtras(
     if (!group.targets.length) continue;
     const contentY = top + LIBRARY_HEADING_HEIGHT;
     const cards = group.targets.map((files, index) => {
-      const named = readCanvasLayout(files[0].pageSlug)?.cover;
-      const cover =
-        files.find((file) => file.fileName === named) ??
-        files.find((file) => !file.fileName.startsWith("00")) ??
-        files[0];
+      const cover = coverFile(files);
       return {
         id: linkShapeId(files[0].pageSlug),
         type: CANVAS_LINK_SHAPE_TYPE,
@@ -1243,6 +1233,8 @@ function installCanvasUrlSync(
         ? open.name
         : undefined;
     const href = urlForTab(window.location.href, active, named);
+    // The window shows this address as its own, and the bar the tab it is on (AppShell.tsx).
+    window.parent.spShell!.shown(tabFor(active), href);
     if (href === window.location.href) return;
     if (push && !applying) window.history.pushState(null, "", href);
     else window.history.replaceState(null, "", href);
@@ -1305,8 +1297,6 @@ function initializeCanvas(editor: Editor) {
 /** Distance from the viewport's edge to the board the address named, in screen px. */
 const BOARD_ZOOM_INSET = 80;
 
-const CHAT_COLLAPSED_KEY = "sp-chat-collapsed";
-
 export default function App() {
   /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
   const [inspecting, setInspecting] = useState<CanvasLibraryFile | null>(null);
@@ -1316,17 +1306,6 @@ export default function App() {
   const [commentUser, setCommentUser] = useState(readCommentUser);
   /** State rather than a ref: the inspector panel renders outside `<Tldraw>` and needs it. */
   const [editor, setEditor] = useState<Editor | null>(null);
-  /** Whether the chat panel is shut. Here rather than in the panel, because the button that works
-   * it sits in the canvas's top bar, which is the panel's sibling, not its child. Remembered
-   * across reloads, because it is a preference about this window, not about any one board. */
-  const [chatCollapsed, setChatCollapsed] = useState(() => {
-    try {
-      return localStorage.getItem(CHAT_COLLAPSED_KEY) === "true";
-    } catch {
-      // Storage unavailable (private mode, blocked cookies), so the panel starts open.
-      return false;
-    }
-  });
   /**
    * The tab in front. State rather than something derived from the tldraw page, because a brand
    * kit is a tab with no page of its own: it covers the editor, which stays on whichever canvas
@@ -1335,18 +1314,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<CanvasTab>(() =>
     resolveTab(tabFromUrl(window.location.href)),
   );
-  /**
-   * The rest of the bar, Start here excluded because it is always the first chip. What this
-   * browser left open, plus the tab the address names — that one is in front, so it is open by
-   * definition, even on a link someone was sent or the first visit after a folder was cloned.
-   */
-  const [tabs, setTabs] = useState<CanvasTab[]>(() => {
-    const open = readOpenTabs();
-    return sameTab(activeTab, HOME_TAB) ||
-      open.some((had) => sameTab(had, activeTab))
-      ? open
-      : [...open, activeTab];
-  });
   const store = useLocalStore(storeOptions);
   /** What the inspector has open, spelled the way the address spells it: a board by file name,
    * a picture by its path inside the folder, each with the page it belongs to. For the address
@@ -1360,13 +1327,6 @@ export default function App() {
   const zoomTo = useRef<TLShapeId | null>(null);
   /** That board's frame on the canvas: the panel reads its report and posts its selection there. */
   const inspectorFrame = useRef<HTMLIFrameElement | null>(null);
-
-  // The bar comes back on the next visit, the way the document behind it does. Written from
-  // the state rather than by each of the three things that change it, so there is one place the
-  // stored list can disagree with the bar: none.
-  useEffect(() => {
-    writeOpenTabs(tabs);
-  }, [tabs]);
 
   // A layout.json edit moves boards: a row reserves the height of a status tab for all of its
   // boards, so a status appearing or disappearing reflows the row. Creation is idempotent and
@@ -1424,8 +1384,9 @@ export default function App() {
   );
 
   /**
-   * Brings a tab forward: opens a chip for it if it has none, marks it the one in front, and
-   * puts it in the address. Everything a tab is except the tldraw page, which `openTab` adds.
+   * Brings a tab forward: marks it the one in front and puts it in the address, which the window
+   * mirrors and takes the bar's chip from. Everything a tab is except the tldraw page, which
+   * `openTab` adds.
    *
    * Split in two because the address sync captures this one when the editor mounts and holds it
    * for the life of that editor, so it has to be a function whose behaviour does not depend on
@@ -1437,11 +1398,6 @@ export default function App() {
       // A kit covers the canvas whole, and the inspector left open beside it would be a dock
       // onto a board of a page that is no longer in front.
       if (open.kind === "brand") show(null, false);
-      setTabs((tabs) =>
-        sameTab(open, HOME_TAB) || tabs.some((had) => sameTab(had, open))
-          ? tabs
-          : [...tabs, open],
-      );
       active.current = open;
       setActiveTab(open);
       writeUrl.current(true);
@@ -1464,18 +1420,19 @@ export default function App() {
     if (page) editor.setCurrentPage(page.id);
   };
 
-  /**
-   * Takes a chip off the bar. Closing one that is not in front changes nothing else; closing the
-   * one in front lands on the chip to its right, else the one to its left — which for the last
-   * canvas tab is Start here, and is why that one has no close of its own.
-   */
-  const closeTab = (tab: CanvasTab) => {
-    const bar = [HOME_TAB, ...tabs];
-    const at = bar.findIndex((had) => sameTab(had, tab));
-    setTabs(tabs.filter((had) => !sameTab(had, tab)));
-    if (!sameTab(tab, activeTab)) return;
-    openTab(bar[at + 1] ?? bar[at - 1]);
-  };
+  // A chip on the window's bar (AppShell.tsx): its view, here when the tab is this project or an
+  // example, which every project's server has. Another project's is declined, and the window
+  // loads that project's canvas into the frame instead. Every render, since `openTab` closes over
+  // the editor, which arrives after the first.
+  useEffect(() => {
+    window.spCanvas = {
+      goTo(tab) {
+        if (!isHere(tab)) return false;
+        openTab(tab.view);
+        return true;
+      },
+    };
+  });
 
   // The camera goes to what the address named, after the inspector has taken its share of the
   // window: a layout effect, so the panel is in the DOM, and the viewport measured here because
@@ -1536,33 +1493,19 @@ export default function App() {
         inspectBoard: onPick,
         inspectingPath: inspecting?.path ?? null,
         inspectorOpen: Boolean(inspecting || inspectingImage),
-        tabs,
         activeTab,
         openTab,
-        closeTab,
-        chatCollapsed,
-        toggleChat: () => {
-          try {
-            localStorage.setItem(CHAT_COLLAPSED_KEY, String(!chatCollapsed));
-          } catch {
-            // Storage unavailable (private mode, blocked cookies), so the choice lasts until a reload.
-          }
-          setChatCollapsed(!chatCollapsed);
-        },
         setInspectorFrame: (frame: HTMLIFrameElement | null) => {
           inspectorFrame.current = frame;
         },
       }}
     >
-      <div className="canvas-shell">
-        {/* Dev server only: the panel talks to /__sp/agent, which a hosted build has no process behind. */}
-        {canvasIndex().served && <ChatPanel />}
-        {/* The bar and what is under it. One column, so the bar is the app's own — above the
-            editor rather than inside it, and stopping at the chat panel's edge, which is what
-            keeps one conversation across every tab. */}
-        <div className="canvas-stage">
-          <CanvasTabBar />
-          <div className="canvas-stage__body">
+      {/* The project's side of the window: its canvases across the top, then the canvas. The bar
+          above and the agent's panel beside are the window's (AppShell.tsx), outside this frame. */}
+      <div className="canvas-project">
+        <CanvasStrip />
+        <div className="canvas-work">
+          <div className="canvas-stage">
             <main
               className="tldraw__editor"
               aria-label="Prototype design canvas"
@@ -1597,10 +1540,7 @@ export default function App() {
                 tabs rather than reloading the app out from under the conversation. Keyed by the
                 kit, so switching to another starts at the top of it the way a page would. */}
             {activeTab.kind === "brand" && (
-              <div
-                className="brand-page canvas-brand-tab"
-                key={activeTab.slug}
-              >
+              <div className="brand-page canvas-brand-tab" key={activeTab.slug}>
                 {activeTab.slug ? (
                   <BrandKit slug={activeTab.slug} open={openTab} />
                 ) : (
@@ -1609,25 +1549,25 @@ export default function App() {
               </div>
             )}
           </div>
+          {inspecting ? (
+            // Keyed by path: a different board is a fresh panel, with its own selection and
+            // report, rather than one that resets its state in an effect.
+            <InspectorPanel
+              key={inspecting.path}
+              path={inspecting.path}
+              name={inspecting.title}
+              size={boardSize(inspecting)}
+              frame={inspectorFrame}
+              onClose={onCloseInspector}
+            />
+          ) : inspectingImage ? (
+            <ImagePanel
+              key={inspectingImage.shapeId}
+              pick={inspectingImage}
+              onClose={onCloseInspector}
+            />
+          ) : null}
         </div>
-        {inspecting ? (
-          // Keyed by path: a different board is a fresh panel, with its own selection and
-          // report, rather than one that resets its state in an effect.
-          <InspectorPanel
-            key={inspecting.path}
-            path={inspecting.path}
-            name={inspecting.title}
-            size={boardSize(inspecting)}
-            frame={inspectorFrame}
-            onClose={onCloseInspector}
-          />
-        ) : inspectingImage ? (
-          <ImagePanel
-            key={inspectingImage.shapeId}
-            pick={inspectingImage}
-            onClose={onCloseInspector}
-          />
-        ) : null}
       </div>
     </CanvasChromeContext.Provider>
   );

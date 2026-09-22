@@ -53,6 +53,23 @@ type Handler = (
   next: () => void,
 ) => void;
 
+// The agent's runs, one list for every project this process serves rather than one per server:
+// the chat panel and its history are the app's, not a project's, so a conversation goes on
+// across the tabs and a message can reach into any project. The routes below are each
+// project's, and a run started from one is served from all of them.
+const runs = new Map<
+  string,
+  Run & {
+    child: ChildProcess;
+    /** What the composer attached, as `image/<n>` serves it and codex's stdin needs it. */
+    images: AgentImage[];
+    /** The pictures its tools handed back, in arrival order; `shot/<k>` is one-based. */
+    shots: { type: string; data: Buffer }[];
+    /** The Stop button was pressed. Windows ends a run by exit code 1, which says nothing. */
+    stopped: boolean;
+  }
+>();
+
 export function createSpServer(options: {
   /** The boards directory. Created if missing, watched for the server's lifetime. */
   canvasesDir: string;
@@ -61,12 +78,17 @@ export function createSpServer(options: {
    * desktop app ships. Null for none, which is `sp start` and the dev server.
    */
   examplesDir: string | null;
+  /**
+   * Every project the home page and the tab bar list, by the name its address carries, which is
+   * `../<name>/` from this one's pages. Empty but for this one outside the desktop app.
+   */
+  projects: () => Map<string, string>;
   /** The project the chat panel's agent works in, or null when nothing set one. */
   projectDir: string | null;
   /** This plugin's checkout, for the skill the agent is pointed at. */
   repoRoot: string;
 }) {
-  const { canvasesDir, examplesDir, projectDir, repoRoot } = options;
+  const { canvasesDir, examplesDir, projects, projectDir, repoRoot } = options;
 
   // A canvas's folder is the project's own, else the example of that name. The project's own
   // is what the scan in boards.ts calls a canvas, a folder with a board in it, so a folder the
@@ -131,20 +153,71 @@ export function createSpServer(options: {
     res.end("cross-site request");
   });
 
+  // This project's name, as the tab bar and the home page call it: its address's, else its folder's.
+  const projectName = () =>
+    projectDir === null
+      ? null
+      : ([...projects()].find(([, dir]) => dir === projectDir)?.[0] ??
+        path.basename(projectDir));
+
   route("/__sp/index.json", (req, res, next) => {
     if (req.method !== "GET") return next();
     res.setHeader("Content-Type", "application/json");
     res.setHeader("Cache-Control", "no-store");
     const how = { served: true, canvasesNamespace: canvasesNamespace(canvasesDir, repoRoot) };
     const index = boardIndex(canvasesDir, how);
-    if (examplesDir !== null) {
-      // One list in slug order, as one directory's scan is, so Start here still comes first.
-      index.boards = [
-        ...index.boards,
-        ...boardIndex(examplesDir, how).boards.filter((b) => isExample(b.slug)),
-      ].sort((a, b) => (a.slug < b.slug ? -1 : 1));
-    }
-    res.end(JSON.stringify(index));
+    // One list in slug order, as one directory's scan is, so Start here still comes first. An
+    // example says so, which is what puts it on a tab of its own rather than in the project's.
+    const boards = [
+      ...index.boards,
+      ...(examplesDir === null ? [] : boardIndex(examplesDir, how).boards)
+        .filter((b) => isExample(b.slug))
+        .map((b) => ({ ...b, example: true })),
+    ].sort((a, b) => (a.slug < b.slug ? -1 : 1));
+    res.end(JSON.stringify({ ...index, boards, project: projectName() }));
+  });
+
+  // The projects the home page and the tab bar list: every one the server knows, and this one.
+  // Each is its canvases as the index has them, less what a card never reads, and the address of
+  // its pages from this one's.
+  // ponytail: boardIndex also hashes every project's assets, which only the canvas reads. Split
+  // the scan if a home page with many projects gets slow to open.
+  route("/__sp/projects.json", (req, res, next) => {
+    if (req.method !== "GET") return next();
+    const all = projects();
+    const name = projectName();
+    if (name !== null && projectDir !== null) all.set(name, projectDir);
+    const how = { served: true, canvasesNamespace: "" };
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Cache-Control", "no-store");
+    res.end(
+      JSON.stringify(
+        [...all].map(([name, dir]) => {
+          const current = dir === projectDir;
+          const canvases = boardIndex(
+            current ? canvasesDir : path.join(dir, "mockups/canvases"),
+            how,
+          ).boards.map(({ slug, html, updated, layout, icon }) => ({
+            slug,
+            html,
+            updated,
+            layout,
+            icon,
+          }));
+          return {
+            name,
+            current,
+            url: current ? "./" : `../${encodeURIComponent(name)}/`,
+            // A project with no board yet was last edited when it was made.
+            updated: Math.max(
+              fs.statSync(dir).mtimeMs,
+              ...canvases.map((c) => c.updated),
+            ),
+            canvases,
+          };
+        }),
+      ),
+    );
   });
 
   // Copying this plugin's skills into the project, and reporting what is there. Both need a project
@@ -508,18 +581,6 @@ export function createSpServer(options: {
   //
   // No reload broadcast from here: a board the agent writes reaches the page through the
   // watcher like anyone else's, and anything else it writes is not the canvas's business.
-  const runs = new Map<
-    string,
-    Run & {
-      child: ChildProcess;
-      /** What the composer attached, as `image/<n>` serves it and codex's stdin needs it. */
-      images: AgentImage[];
-      /** The pictures its tools handed back, in arrival order; `shot/<k>` is one-based. */
-      shots: { type: string; data: Buffer }[];
-      /** The Stop button was pressed. Windows ends a run by exit code 1, which says nothing. */
-      stopped: boolean;
-    }
-  >();
   // Which agents are installed: `bin --version` once each, for the server's lifetime, so
   // the menu greys out one that is missing and says what to do, rather than letting the
   // first message find out.
@@ -759,12 +820,10 @@ export function createSpServer(options: {
             );
           // One agent at a time, and only the server can say so: the composer's own guard is
           // React state, which a second tab, a reload, or a cleared view does not share. Two
-          // agents in one project overwrite each other's boards.
+          // agents in one project overwrite each other's boards, and with one conversation for
+          // every project, one at a time is across all of them.
           if ([...runs.values()].some((r) => !ended(r))) {
-            return send(
-              409,
-              "an agent is already running in this project. Stop it first.",
-            );
+            return send(409, "an agent is already running. Stop it first.");
           }
           const def = AGENTS.find((a) => a.id === agent);
           if (!def) return send(400, "unknown agent");
@@ -780,9 +839,17 @@ export function createSpServer(options: {
           // The slug lands in a path in the prompt, so it is checked like the others.
           if (canvas !== undefined && !SAFE_NAME.test(canvas))
             return send(400, "bad canvas name");
+          // ponytail: every project by name and path, one clause each; name only the folder
+          // they live in if someone keeps enough projects for this to crowd the prompt.
+          const others = [...projects()]
+            .filter(([, dir]) => dir !== project)
+            .map(([name, dir]) => `"${name}" at ${dir}`);
           const preamble = [
             `You are working in the user's project at ${project}, from the chat panel of the ` +
               "super-prototyping canvas they have open.",
+            others.length > 0 &&
+              `The conversation is not this project's alone: they may refer to their other ` +
+                `projects, which are ${others.join(", ")}.`,
             `Their boards are the folders under ${canvasesDir}, one per canvas page.`,
             examplesDir !== null &&
               `The canvas also shows the examples under ${examplesDir}. Those are the app's and ` +
@@ -856,6 +923,7 @@ export function createSpServer(options: {
             prompt: message,
             title: message.trim().split("\n")[0].slice(0, 60),
             at: Date.now(),
+            project: projectName()!,
             // The numbers and the names only: the pictures are a request away, so the reload
             // that a written board causes rebuilds the strip without the bytes coming back
             // down the stream with every other event.
@@ -972,8 +1040,8 @@ export function createSpServer(options: {
       return;
     }
     if (req.method === "GET" && url.pathname === "/runs") {
-      // Newest first, and in memory only: a restarted server lists nothing, which is
-      // consistent with it holding every run's events and nothing else holding any.
+      // Newest first, every project's, and in memory only: a restarted server lists nothing,
+      // which is consistent with it holding every run's events and nothing else holding any.
       res.setHeader("content-type", "application/json");
       return send(
         200,
@@ -1175,9 +1243,9 @@ export function createSpServer(options: {
       watcher?.close();
       for (const page of pages) page.end();
       pages.clear();
-      // The agent is this server's child and no one else's. A SIGTERM to the server alone, which is
+      // The agent is this process's child and no one else's. A SIGTERM to the server alone, which is
       // how the macOS app stops it, would otherwise leave the agent editing the project with nobody
-      // watching. This is the same kill the Stop button sends.
+      // watching. This is the same kill the Stop button sends, and every project's run is one.
       for (const run of runs.values()) if (!ended(run)) stop(run.child);
     },
   };

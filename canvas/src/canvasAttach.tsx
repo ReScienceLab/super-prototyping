@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useEditor,
   usePassThroughWheelEvents,
@@ -6,11 +6,11 @@ import {
   type TLEventInfo,
   type TLImageShape,
 } from "tldraw";
-import { CanvasChromeContext } from "./canvasChrome";
 import {
   CANVAS_FILE_SHAPE_TYPE,
   type CanvasFileShape,
 } from "./CanvasFileShapeUtil";
+import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
 import { canvasBoardRef } from "./canvasLibrary";
 import { Plus } from "./geistIcons";
 import {
@@ -18,19 +18,6 @@ import {
   shapeUnderPointer,
   type InspectorTarget,
 } from "./inspectorClicks";
-
-/**
- * What the canvas hands the chat panel when the button is pressed: a picture to attach to the
- * message, or the reason none was. A board comes over as a picture too — the file's own name is
- * what says which board it is, and the panel shows it under the tile.
- *
- * On `window`, because the panel is a sibling of `<Tldraw>` and this renders inside it — the same
- * arrangement, and the same answer, as ASK_COMMENT_USER (canvasChrome.tsx).
- */
-export const CANVAS_ATTACH = "sp:canvas-attach";
-
-export type CanvasAttachDetail =
-  { kind: "image"; file: File } | { kind: "error"; message: string };
 
 /** A board, and the `<slug>/<file>.html` the server and the agent know it as. */
 interface Board {
@@ -50,7 +37,6 @@ interface Board {
  * button that moved out from under the pointer as it arrived would flicker away.
  */
 export function CanvasAttachButtons() {
-  const chrome = useContext(CanvasChromeContext);
   const editor = useEditor();
   const [target, setTarget] = useState<InspectorTarget | null>(null);
   const [shooting, setShooting] = useState(false);
@@ -134,9 +120,8 @@ export function CanvasAttachButtons() {
     : null;
 
   const hand = (detail: CanvasAttachDetail) => {
-    // A message cannot be written into a panel that is shut.
-    if (chrome.chatCollapsed) chrome.toggleChat();
-    window.dispatchEvent(new CustomEvent(CANVAS_ATTACH, { detail }));
+    // To the agent's panel, which is the window's, outside the canvas's frame (AppShell.tsx).
+    window.parent.dispatchEvent(new CustomEvent(CANVAS_ATTACH, { detail }));
   };
 
   const failed = (error: unknown) =>
@@ -154,7 +139,7 @@ export function CanvasAttachButtons() {
     setShooting(true);
     try {
       const shot = await fetch(
-        `/__sp/shoot?path=${encodeURIComponent(path)}` +
+        `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(path)}` +
           `&w=${Math.round(shape.props.w)}&h=${Math.round(shape.props.h)}`,
       );
       if (!shot.ok) throw new Error(await shot.text());

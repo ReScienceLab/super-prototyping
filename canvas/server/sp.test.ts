@@ -27,33 +27,19 @@ it("shows the examples read-only beside the project's canvases", async () => {
   fs.mkdirSync(path.join(tmp, "project/begun"));
 
   const canvasesDir = path.join(tmp, "project");
-  const sp = createSpServer({
+  const { ask, close } = await serve({
     canvasesDir,
     examplesDir: path.join(tmp, "examples"),
+    projects: () => new Map(),
     projectDir: null,
     repoRoot: tmp,
   });
-  const server = http.createServer((req, res) =>
-    sp.handle(req, res, () => res.writeHead(404).end()),
-  );
-  await new Promise<void>((done) => server.listen(0, "127.0.0.1", done));
-  // Not `fetch`, because vitest.setup.ts replaces it with one that reads boards off the disk.
-  const { port } = server.address() as AddressInfo;
-  const ask = (url: string, body?: object) =>
-    new Promise<{ status: number; text: string }>((done) => {
-      const req = http.request({ port, path: url, method: body ? "POST" : "GET" }, (res) => {
-        let text = "";
-        res.on("data", (chunk) => (text += chunk));
-        res.on("end", () => done({ status: res.statusCode!, text }));
-      });
-      req.end(body && JSON.stringify(body));
-    });
   try {
     const index = JSON.parse((await ask("/__sp/index.json")).text);
-    expect(index.boards.map((b: any) => [b.slug, b.layout.name])).toEqual([
-      ["an-example", "example"],
-      ["begun", "example"],
-      ["shadowed", "mine"],
+    expect(index.boards.map((b: any) => [b.slug, b.layout.name, b.example])).toEqual([
+      ["an-example", "example", true],
+      ["begun", "example", true],
+      ["shadowed", "mine", undefined],
     ]);
     expect((await ask("/board/an-example/01-a.html")).text).toBe("example");
     expect((await ask("/board/shadowed/01-a.html")).text).toBe("mine");
@@ -74,9 +60,70 @@ it("shows the examples read-only beside the project's canvases", async () => {
       "layout.json",
     ]);
   } finally {
-    sp.close();
-    server.close();
-    server.closeAllConnections();
+    close();
     fs.rmSync(tmp, { recursive: true, force: true });
   }
 });
+
+// The home page and the tab bar list every project the server knows and the one open, each at the
+// address of its pages from this one's.
+it("lists the projects", async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-projects-"));
+  const write = (rel: string, text: string) => {
+    fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
+    fs.writeFileSync(path.join(tmp, rel), text);
+  };
+  write("projects/alpha/mockups/canvases/one/01-a.html", "alpha one");
+  fs.mkdirSync(path.join(tmp, "projects/empty"));
+  write("elsewhere/mockups/canvases/mine/01-a.html", "mine");
+  const { ask, close } = await serve({
+    canvasesDir: path.join(tmp, "elsewhere/mockups/canvases"),
+    examplesDir: null,
+    projects: () =>
+      new Map([
+        ["alpha", path.join(tmp, "projects/alpha")],
+        ["a b", path.join(tmp, "projects/empty")],
+      ]),
+    projectDir: path.join(tmp, "elsewhere"),
+    repoRoot: tmp,
+  });
+  try {
+    const projects = JSON.parse((await ask("/__sp/projects.json")).text);
+    expect(
+      projects.map((p: any) => [p.name, p.current, p.url, p.canvases.map((c: any) => c.slug)]),
+    ).toEqual([
+      ["alpha", false, "../alpha/", ["one"]],
+      ["a b", false, "../a%20b/", []],
+      ["elsewhere", true, "./", ["mine"]],
+    ]);
+    expect(JSON.parse((await ask("/__sp/index.json")).text).project).toBe("elsewhere");
+  } finally {
+    close();
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+async function serve(options: Parameters<typeof createSpServer>[0]) {
+  const sp = createSpServer(options);
+  const server = http.createServer((req, res) =>
+    sp.handle(req, res, () => res.writeHead(404).end()),
+  );
+  await new Promise<void>((done) => server.listen(0, "127.0.0.1", done));
+  // Not `fetch`, because vitest.setup.ts replaces it with one that reads boards off the disk.
+  const { port } = server.address() as AddressInfo;
+  const ask = (url: string, body?: object) =>
+    new Promise<{ status: number; text: string }>((done) => {
+      const req = http.request({ port, path: url, method: body ? "POST" : "GET" }, (res) => {
+        let text = "";
+        res.on("data", (chunk) => (text += chunk));
+        res.on("end", () => done({ status: res.statusCode!, text }));
+      });
+      req.end(body && JSON.stringify(body));
+    });
+  const close = () => {
+    sp.close();
+    server.close();
+    server.closeAllConnections();
+  };
+  return { ask, close };
+}

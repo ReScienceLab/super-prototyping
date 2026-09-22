@@ -252,28 +252,134 @@ input.canvas-clone-name:focus {
  */
 .canvas-shell {
   display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
 }
 
-/* The canvas area: the bar across the top of it, and everything the bar switches between. A
-   column, so the bar is the full width of that area and none of the chat panel's — the panel is
-   the project's and the tabs are the canvas's, which is the whole reason the bar is here rather
-   than in the window's own chrome, where every tab would have come with a panel of its own. */
-.canvas-shell > .canvas-stage {
+/* Everything under the bar, which is the whole window's: the agent's panel, which is the app's,
+   and the project whose tab is in front. */
+.canvas-body {
   display: flex;
   flex: 1 1 auto;
-  flex-direction: column;
+  min-height: 0;
+}
+
+/* Beside the panel: the canvas's frame, with home over it when Home is in front. The frame stays
+   laid out underneath (AppShell.tsx), so it keeps its size and the camera inside it. */
+.canvas-window {
+  position: relative;
+  flex: 1 1 auto;
   min-width: 0;
+}
+
+.canvas-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--ds-background-100);
 }
 
 /* What one tab shows. Positioned, because a kit is an overlay and the editor has to stay laid
    out underneath it: tldraw measures its viewport from that element, and one taken out of the
    flow comes back at 0x0 with its camera lost. */
-.canvas-stage__body {
+.canvas-stage {
   position: relative;
   flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The tab's project, the whole of the canvas's frame: its canvases across the top
+   (CanvasStrip.tsx), then the canvas and the inspector side by side under them. */
+.canvas-project {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.canvas-work {
+  display: flex;
+  flex: 1 1 auto;
   min-height: 0;
+}
+
+/* The project's canvases, tabs of the second level, drawn as Geist's Tabs are: a name on the
+   page's ground, underlined when it is the one in front, rather than a cell like the bar's. */
+.sp-canvas-tabs {
+  display: flex;
+  flex: none;
+  align-items: stretch;
+  gap: 4px;
+  height: 40px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--ds-gray-alpha-400);
+  background: var(--ds-background-100);
+  font: 400 13px/16px var(--sp-sans);
+  user-select: none;
+}
+
+.sp-canvas-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  color: var(--ds-gray-900);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sp-canvas-tab:hover {
+  color: var(--ds-gray-1000);
+}
+
+.sp-canvas-tab[aria-current="page"] {
+  box-shadow: inset 0 -2px 0 var(--ds-gray-1000);
+  color: var(--ds-gray-1000);
+}
+
+.sp-canvas-tabs-none {
+  align-self: center;
+  padding: 0 8px;
+  color: var(--ds-gray-700);
+}
+
+/* "+", after the last canvas. */
+.sp-canvas-tabs-new {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--ds-gray-900);
+  cursor: pointer;
+}
+
+.sp-canvas-tabs-new:hover {
+  background: var(--ds-gray-100);
+  color: var(--ds-gray-1000);
+}
+
+/* At the far end, where Figma keeps what leaves the file. */
+.sp-canvas-tabs-figma {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  border-radius: 6px;
+}
+
+.sp-canvas-tabs-figma:hover {
+  background: var(--ds-gray-100);
 }
 
 /* A brand kit as a tab: the same page brand.html serves, over the canvas instead of in a window
@@ -287,7 +393,9 @@ input.canvas-clone-name:focus {
 }
 
 
-.sp-panel {
+/* The panels' palette and type, which the agent menu shares from outside the chat panel. */
+.sp-panel,
+.sp-chat-agents {
   --sp-bg: var(--ds-background-100);
   --sp-line: var(--ds-gray-400);
   --sp-text: var(--ds-gray-1000);
@@ -298,11 +406,6 @@ input.canvas-clone-name:focus {
   --sp-accent: var(--ds-blue-700);
   --sp-warn: var(--ds-amber-900);
   --sp-danger: var(--ds-red-900);
-  display: flex;
-  flex: 0 0 auto;
-  height: 100%;
-  border-left: 1px solid var(--sp-line);
-  background: var(--sp-bg);
   color: var(--sp-text);
   font: 400 12px/16px var(--sp-sans);
   letter-spacing: -0.01em;
@@ -314,6 +417,14 @@ input.canvas-clone-name:focus {
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   user-select: none;
+}
+
+.sp-panel {
+  display: flex;
+  flex: 0 0 auto;
+  height: 100%;
+  border-left: 1px solid var(--sp-line);
+  background: var(--sp-bg);
 }
 
 .sp-panel button {
@@ -429,90 +540,120 @@ input.canvas-clone-name:focus {
   height: 16px;
 }
 
-/* The bar above the canvas (CanvasTabBar.tsx): the chat panel's switch, one chip per open tab,
-   the "+" that opens another, and the two chips that name where the canvas in front goes next.
-
-   It is on the ground everything else here is on. tldraw's own bar stood here until the tabs
-   did, raised to --tl-color-low — a grey block in the corner of a black canvas, which is the
-   same two-apps-in-one-window the token remap above was for. Geist has one default ground and
-   this is not the rare case for a second; what separates the bar from the canvas is the hairline
-   under it, the way the chat panel's does.
-
-   It takes the panel's type, which is what makes the two halves of this 40px row one row rather
-   than two things that happen to be the same height. The panel sets that on `.sp-panel`, and
-   resets its own buttons there too; the bar is not in it, so each button here carries its own. */
+/* The bar above the canvas (CanvasTabBar.tsx): Home, one tab per open project, and the "+" that
+   opens another. Drawn after Figma's desktop strip: a raised row of cells split by hairlines,
+   with the tab in front on the canvas's own ground, so it reads as the top of the page under it.
+   The bar is not inside `.sp-panel`, so each button here carries its own type and reset. */
 .sp-topbar {
   display: flex;
   flex: none;
-  align-items: center;
-  gap: 2px;
   height: 40px;
-  padding: 0 6px;
   border-bottom: 1px solid var(--ds-gray-alpha-400);
-  background: var(--ds-background-100);
+  background: var(--ds-gray-100);
   font: 400 12px/16px var(--sp-sans);
   letter-spacing: -0.01em;
   user-select: none;
 }
 
-/* The tabs, and only the tabs, scroll: the "+" and the two chips are outside this box, so they
-   stay put however many are open. `0 1 auto` rather than `1 1 auto`, so the row stays packed to
-   the left the way the bar it replaced was, and the chips sit against the last tab rather than
-   against the far side of the window. */
-.sp-topbar-tabs {
-  display: flex;
-  flex: 0 1 auto;
-  align-items: center;
-  gap: 2px;
-  min-width: 0;
-  overflow-x: auto;
-  /* No bar under the chips: it would draw on the hairline. The row is scrolled by the trackpad,
-     or by the chip that scrolls itself into view when a tab comes forward from somewhere else. */
-  scrollbar-width: none;
-}
-
-/* One tab. A chip rather than a notched folder tab: the bar is on the canvas's own ground, not
-   a raised strip, so there is no second surface for a tab to be cut out of — and what the row
-   has to say at a glance is which of these is in front, which a filled pill says and an outline
-   does not. */
-.sp-tabchip {
-  display: flex;
+/* The Agent button, first in the bar on the canvas and the home page alike, over the panel it
+   puts out and away (ChatPanel.tsx). A toggle, not a tab, so it is drawn as one: an icon button
+   inset in the bar rather than a cell of it, and pressed while the panel is out, in the chip the
+   rail's pressed button wears — never the page's ground, which is how the tab in front says so. */
+.sp-agent-toggle {
+  display: grid;
   flex: none;
-  align-items: center;
-  gap: 5px;
+  place-items: center;
+  width: 28px;
   height: 28px;
-  padding: 0 6px;
-  border-radius: 8px;
+  margin: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
   color: var(--ds-gray-900);
+  cursor: pointer;
 }
 
-.sp-tabchip:hover {
-  background: var(--ds-gray-100);
+.sp-agent-toggle:hover {
+  background: var(--ds-gray-200);
+  color: var(--ds-gray-1000);
 }
 
-/* The one in front wears Geist's secondary button, the same treatment as the two chips further
-   along the bar: "the tab you are on" and "the thing to press" are the same kind of emphasis. */
-.sp-tabchip[data-active] {
+.sp-agent-toggle[aria-pressed="true"] {
   background: var(--ds-gray-200);
   box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
   color: var(--ds-gray-1000);
 }
 
+/* Where the tabs begin: the hairline between the button and Home, which is a tab. */
+.sp-agent-toggle + * {
+  border-left: 1px solid var(--ds-gray-alpha-400);
+}
+
+/* Home and "+", a square cell each, the bar's full height. */
+.sp-topbar > .sp-head-x {
+  width: 40px;
+  height: auto;
+  border-radius: 0;
+}
+
+.sp-topbar-home {
+  border-right: 1px solid var(--ds-gray-alpha-400);
+}
+
+/* Home is a tab too, and in front the way a chip is, on the page's ground. */
+.sp-topbar-home[aria-current="page"] {
+  background: var(--ds-background-100);
+  color: var(--ds-gray-1000);
+}
+
+/* The tabs, and only the tabs, scroll: the "+" is outside this box, so it stays put however many
+   are open. `0 1 auto` rather than `1 1 auto`, so the "+" sits against the last tab. */
+.sp-topbar-tabs {
+  display: flex;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  /* No scrollbar: it would draw on the hairline. The row is scrolled by the trackpad, or by the
+     tab that scrolls itself into view when it comes forward from somewhere else. */
+  scrollbar-width: none;
+}
+
+/* One tab, one width, as Figma's are, so the row does not shift as names change. A name longer
+   than its cell fades out under where the close appears, rather than ending in an ellipsis. */
+.sp-tabchip {
+  position: relative;
+  display: flex;
+  flex: none;
+  width: 160px;
+  border-right: 1px solid var(--ds-gray-alpha-400);
+  color: var(--ds-gray-900);
+}
+
+.sp-tabchip:hover {
+  color: var(--ds-gray-1000);
+}
+
+.sp-tabchip[data-active] {
+  background: var(--ds-background-100);
+  color: var(--ds-gray-1000);
+}
+
 .sp-tabchip-open {
   display: flex;
+  flex: 1;
   align-items: center;
   gap: 7px;
-  height: 100%;
-  padding: 0;
+  min-width: 0;
+  padding: 0 12px;
   border: 0;
   background: none;
   color: inherit;
-  font-weight: 500;
+  font: inherit;
   cursor: pointer;
 }
 
-/* A folder's app icon, or the room one would have taken, so every label starts on one column.
-   Square and drawn to its own edges, so it is cropped rather than letterboxed. */
+/* A folder's app icon. Square and drawn to its own edges, so it is cropped rather than letterboxed. */
 .sp-tabchip-icon {
   flex: none;
   width: 16px;
@@ -521,19 +662,24 @@ input.canvas-clone-name:focus {
   object-fit: cover;
 }
 
+/* The cell's width rather than the name's, so the fade is at the cell's end and a short name is
+   left whole. */
 .sp-tabchip-name {
-  max-width: 140px;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  text-align: left;
+  mask-image: linear-gradient(to right, #000 75%, transparent);
 }
 
-/* Out of the way until it is wanted, but holding its place: a row of crosses is a row of things
-   to press, and the thing to press is the tab. Shown on the chip under the pointer and on the
-   one in front, which are the two a close is ever aimed at. */
+/* Over the end of the name, and only on the tab under the pointer and the one in front, which are
+   the two a close is ever aimed at. */
 .sp-tabchip-close {
+  position: absolute;
+  top: 50%;
+  right: 8px;
   display: flex;
-  flex: none;
   align-items: center;
   justify-content: center;
   width: 18px;
@@ -543,6 +689,7 @@ input.canvas-clone-name:focus {
   border-radius: 4px;
   background: none;
   color: inherit;
+  translate: 0 -50%;
   visibility: hidden;
   cursor: pointer;
 }
@@ -557,14 +704,14 @@ input.canvas-clone-name:focus {
   color: var(--ds-gray-1000);
 }
 
-/* The canvas picker, a native popover the way the chat panel's menus are: the top layer and
-   light dismiss for free. Where those can be placed by the panel's fixed geometry, this one
-   hangs off a button that slides along the bar as tabs open, so CanvasTabBar.tsx sets its top
-   and its near edge from that button's own box. What is left here is the reset a popover needs
-   and the menu's skin. `--sp-hover` because `.sp-menu-row` below wants it, and the name is
+/* The projects under the bar's "+", a native popover the way the chat panel's menus are: the top
+   layer and light dismiss for free. The "+" slides along the bar as tabs open, so the menu's top
+   and near edge are set from its button's own box. What is left here is the reset a popover needs
+   and the menu's skin. The two names because `.sp-menu-row` below wants them, and they are
    defined on `.sp-panel`, which this menu is not inside. */
 .sp-tab-picker {
   --sp-hover: var(--ds-gray-100);
+  --sp-text-2: var(--ds-gray-700);
   position: fixed;
   inset: auto;
   width: max-content;
@@ -587,62 +734,11 @@ input.canvas-clone-name:focus {
   text-overflow: ellipsis;
 }
 
-/*
- * The two controls in the bar that name a destination instead of an action, so they are the ones
- * wider than an icon and carrying a logo: reading the boards into Figma is what people do with a
- * mockup next, and an external-link arrow among five grey glyphs said nothing about that. They
- * keep the bar's height and its type; what they do not keep is the bar's grey, because a control
- * nobody notices is the same as no control.
- *
- * Still tldraw's button class, though the bar around them is no longer tldraw's: that class is
- * unscoped, it is the geometry these two rules were written against, and the alternative is a
- * second copy of it under another name.
- */
-.tlui-button.sp-figma,
-.tlui-button.sp-brand {
-  /* Never squeezed. A flex row shrinks every item it can, and these two shrink badly: the logo
-     goes first, then the label, and a chip of neither is a white stub. The tabs are what gives
-     instead — that row shrinks to nothing and scrolls, which is what a row of tabs is for. */
-  flex: none;
-  width: auto;
-  /* Inset in the bar's 40px rather than filling it: at full height the white block reads as a
-     gap in the bar, and at 30 it reads as a chip sitting in one. */
-  height: 30px;
-  min-height: 0;
-  align-self: center;
-  gap: 7px;
-  /* Tighter on the mark's side than the label's: the logo already carries its own margin. */
-  padding: 0 11px 0 9px;
-  margin-left: 3px;
-  border-radius: 8px;
-  /* The page's own ground against the bar's raised grey, with a hairline. That is Geist's
-     secondary button, and what makes it read as the one thing to press here. Full-strength ink,
-     because the bar's own glyphs are muted and a muted label on a chip reads as disabled. */
-  background: var(--ds-background-100);
-  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
-  color: var(--ds-gray-1000);
-  font-weight: 500;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.tlui-button.sp-figma:hover,
-.tlui-button.sp-brand:hover {
-  background: var(--ds-gray-100);
-}
-
-/* On a phone the tabs have already given up what room they can; the mark alone still says
-   Figma, and the stack of sheets is the same mark the kit's own tab wears. */
-@media (max-width: 720px) {
-  .sp-figma__label,
-  .sp-brand__label {
-    display: none;
-  }
-
-  .tlui-button.sp-figma,
-  .tlui-button.sp-brand {
-    padding: 0 9px;
-  }
+/* Projects, then Examples, in the "+" menu. */
+.sp-menu-head {
+  margin: 0;
+  padding: 8px 8px 4px;
+  color: var(--ds-gray-900);
 }
 
 /* Dividers. The hit area is wider than the line, which is the whole reason for ::after. */
@@ -916,9 +1012,9 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   white-space: nowrap;
 }
 
-/* One icon button, wherever it sits. The chat panel's header and the bar above the canvas are
-   one 40px row across the window, so a glyph on the left of the divider and a glyph on the right
-   of it have to be the same grey and answer the pointer the same way. They were two: the panel
+/* One icon button, wherever it sits. The bar across the window and the chat panel's header under
+   it are the same 40px rows, so a glyph in one and a glyph in the other have to be the same grey
+   and answer the pointer the same way. They were two: the panel
    drew its own at gray-700 over a solid ground, and tldraw drew its own at gray-900 over a
    translucent one, four pixels wider, painted on an inset ::after. Geist's is the one kept:
    muted at rest, full ink on a gray-100 ground. The bar is the app's own now, so this is the
@@ -2156,22 +2252,23 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   color: #ffffff;
 }
 
-/* Collapsed: gone, with nothing left behind. The button that brings it back is in the canvas's
-   own top-left corner now, so a rail here would be a second one. Hidden, not unmounted, so the
-   panel keeps following whatever is running and comes back to it mid-stream. */
+/* Collapsed: gone, with nothing left behind. The button that brings it back is the Agent button
+   above it, first in the tab bar. Hidden, not unmounted, so the panel keeps following whatever is
+   running and comes back to it mid-stream. */
 .sp-chat-collapsed {
   display: none;
 }
 
-/* The history list and the agent menu, native popovers: the top layer and light dismiss for
-   free. The panel's geometry is fixed — the viewport's left edge, 360 wide, a 40px header — so
-   both are placed under the header by those numbers rather than by anchor positioning, which not
-   every browser has yet. */
+/* The history list, the model and effort menus and the agent menu, native popovers: the top
+   layer and light dismiss for free. The panel's geometry is fixed — at the window's left edge,
+   360 wide, a 40px header under the 40px bar — so they are placed by those numbers rather than by
+   anchor positioning, which not every browser has yet: under the header, and the agent menu
+   under the bar's first button, which opens it. */
 .sp-chat-history,
 .sp-chat-agents,
 .sp-chat-picker {
   position: fixed;
-  inset: 44px auto auto 8px;
+  inset: 84px auto auto 8px;
   margin: 0;
   padding: 4px;
   border: 1px solid var(--sp-line);
@@ -2239,6 +2336,7 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 /* As wide as its rows, which is narrow with both agents installed; the ceiling is for the one
    that is missing, whose row carries a sentence about installing it. */
 .sp-chat-agents {
+  inset: 44px auto auto 6px;
   width: max-content;
   min-width: 140px;
   max-width: 280px;

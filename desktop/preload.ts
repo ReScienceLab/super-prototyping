@@ -1,9 +1,10 @@
 /**
- * The startup page's only channel back to main.ts: open or create a project, which agent was
- * chosen, and a new project's name; "open" with a name is the project of that name under
- * Documents. It resolves to nothing, or to what to say under the name field when a project could
- * not be made. The window is sandboxed (Electron's default), so the page cannot reach `ipcRenderer`
- * itself. Bundled to CommonJS by package.json's build script, because a sandboxed preload cannot
+ * The startup page's and the app window's only channel back to main.ts: open or create a project,
+ * which agent was chosen (empty in the app's window, for the one chosen before) and a project's
+ * name; "open" with a name is the project of that name under Documents. It resolves to nothing,
+ * to what to say under the name field when a project could not be made, or, for the app's
+ * window, to the address of the project it opened. The window is sandboxed (Electron's default),
+ * so the page cannot reach `ipcRenderer` itself. Bundled to CommonJS by package.json's build script, because a sandboxed preload cannot
  * use ESM imports.
  */
 import { contextBridge, ipcRenderer } from "electron";

@@ -1,8 +1,8 @@
 /*
  * The design system, and the only file that holds it. Every page the canvas serves imports this
- * one, index.css for the canvas and brand.css for the brand pages, so there is a single scale
- * behind all of them rather than a palette per entry point. Tailwind and shadcn/ui read it
- * through the `@theme` block at the bottom.
+ * one, index.css for the canvas, brand.css for the brand pages and home.css for the home page, so
+ * there is a single scale behind all of them rather than a palette per entry point. Tailwind and
+ * shadcn/ui read it through the `@theme` block at the bottom.
  *
  * Tailwind's utilities land in `layer(utilities)` and its preflight in `layer(base)`, and an
  * unlayered rule beats a layered one whatever its specificity, so every hand-written rule in
@@ -53,6 +53,9 @@
   --ds-gray-200: light-dark(oklch(0.94 0 0), oklch(0.239 0 0));
   --ds-gray-300: light-dark(oklch(0.925 0 0), oklch(0.281 0 0));
   --ds-gray-400: light-dark(oklch(0.937 0 0), oklch(0.301 0 0));
+  /* Geist's hover border, one step past 400's resting one. The home page's cards are the first
+     thing here with a border that answers the pointer. */
+  --ds-gray-500: light-dark(oklch(0.836 0 0), oklch(0.39 0 0));
   --ds-gray-700: light-dark(oklch(0.65 0 0), oklch(0.65 0 0));
   --ds-gray-900: light-dark(oklch(0.42 0 0), oklch(0.706 0 0));
   --ds-gray-1000: light-dark(oklch(0.205 0 0), oklch(0.946 0 0));

@@ -13,7 +13,6 @@ import {
   type CanvasTab,
 } from "./canvasUrl";
 import { openInTab } from "./canvasTabs";
-import { CanvasCta } from "./canvasCta";
 
 /** How many pictures a card shows. Four fits one row at every width the grid goes down to. */
 const PREVIEW = 4;
@@ -71,15 +70,14 @@ export function BrandKitIndex({
 
   return (
     <main>
-      <div className="topbar">
-        {!open && (
+      {!open && (
+        <div className="topbar">
           <a className="chip home" href={canvasPageUrl(WELCOME_PAGE_SLUG)}>
             <img src={`${import.meta.env.BASE_URL}favicon-32.png`} alt="" />
             <span>Super Prototyping</span>
           </a>
-        )}
-        <CanvasCta />
-      </div>
+        </div>
+      )}
       <header className="head">
         <div>
           <h1>Brand kits</h1>

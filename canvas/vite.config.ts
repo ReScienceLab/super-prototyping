@@ -151,7 +151,13 @@ function canvasesSource(): Plugin {
     },
 
     configureServer(server) {
-      const sp = createSpServer({ canvasesDir, examplesDir: null, projectDir, repoRoot });
+      const sp = createSpServer({
+        canvasesDir,
+        examplesDir: null,
+        projects: () => new Map(),
+        projectDir,
+        repoRoot,
+      });
       server.middlewares.use((req, res, next) => sp.handle(req, res, next));
       server.httpServer?.once("close", sp.close);
     },
@@ -159,6 +165,9 @@ function canvasesSource(): Plugin {
 }
 
 export default defineConfig({
+  // Relative, so the same build serves a project at `/` for `sp start` and at `/p/<name>/` in the
+  // desktop app, where one server has every project (server/main.ts).
+  base: "./",
   plugins: [react(), tailwindcss(), canvasesSource()],
   // What shadcn/ui writes its imports as, and what its CLI expects to find.
   resolve: { alias: { "@": fileURLToPath(new URL("src", import.meta.url)) } },
@@ -168,11 +177,17 @@ export default defineConfig({
     // is a megabyte on its own and a warning nobody can act on is noise.
     chunkSizeWarningLimit: 4_000,
     rollupOptions: {
-      // Three pages: the canvas, the sheet that shows one canvas page's boards at full size,
-      // and the brand page that shows the same page's brand material. Each is its own entry
-      // rather than a route inside the canvas so that reading one as a web page does not
-      // download tldraw to do it.
-      input: { index: "index.html", sheet: "sheet.html", brand: "brand.html" },
+      // Four pages: the canvas, the sheet that shows one canvas page's boards at full size,
+      // the brand page that shows the same page's brand material, and the home page that lists
+      // every canvas. Each is its own entry rather than a route inside the canvas so that
+      // reading one as a web page does not download tldraw to do it.
+      input: {
+        index: "index.html",
+        home: "home.html",
+        canvas: "canvas.html",
+        sheet: "sheet.html",
+        brand: "brand.html",
+      },
     },
   },
   test: {

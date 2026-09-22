@@ -57,6 +57,7 @@ export interface RunSummary {
   agent: AgentId;
   title: string;
   startedAt: number;
+  project: string;
   status: "running" | "done" | "failed";
 }
 
@@ -77,6 +78,7 @@ export function runSummary(run: Run): RunSummary {
     agent: start.agent,
     title: titled?.title ?? start.title,
     startedAt: start.at,
+    project: start.project,
     status: last.kind !== "end" ? "running" : last.ok ? "done" : "failed",
   };
 }

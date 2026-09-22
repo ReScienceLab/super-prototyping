@@ -235,13 +235,16 @@ export function boardIndex(
           // listed as a board and its request would answer 404, leaving a permanently blank shape.
           const isFile = (name: string) =>
             fs.statSync(path.join(folder, name), { throwIfNoEntry: false })?.isFile() ?? false;
+          const html = names
+            // dot-files for the same reason the dot-folders above are skipped.
+            .filter((f) => !f.startsWith(".") && f.endsWith(".html") && isFile(f))
+            .filter((f) => urlSafe(f, "board"))
+            .sort();
           return {
             slug,
-            html: names
-              // dot-files for the same reason the dot-folders above are skipped.
-              .filter((f) => !f.startsWith(".") && f.endsWith(".html") && isFile(f))
-              .filter((f) => urlSafe(f, "board"))
-              .sort(),
+            html,
+            /** When a board in it was last written, in ms: the home page's "edited" line. */
+            updated: Math.max(0, ...html.map((f) => fs.statSync(path.join(folder, f)).mtimeMs)),
             layout: readJson(path.join(folder, "layout.json")),
             icon: fs.existsSync(path.join(folder, "icon.png")),
             brand: brandImages(folder),

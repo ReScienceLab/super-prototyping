@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canvasPageUrl,
+  frameUrl,
   sheetPageUrl,
   WELCOME_PAGE_SLUG,
   tabFromUrl,
@@ -8,6 +9,7 @@ import {
   slugFromUrl,
   urlForSlug,
   urlForTab,
+  windowUrl,
 } from "./canvasUrl";
 
 // The address is what people paste to each other, so both directions have to agree: the URL a
@@ -74,6 +76,21 @@ describe("canvas URLs", () => {
     expect(sheetPageUrl("luma-ios")).toBe("/sheet.html?canvas=luma-ios");
     expect(slugFromUrl(root + sheetPageUrl("luma-ios").slice(1))).toBe(
       "luma-ios",
+    );
+  });
+
+  it("puts the canvas in the window's frame by swapping the file, and back", () => {
+    const at = "http://127.0.0.1:5173/p/Speak%20For%20You/";
+    expect(frameUrl(at + "?canvas=luma-ios#03-event")).toBe(
+      at + "canvas.html?canvas=luma-ios#03-event",
+    );
+    expect(frameUrl(at + "home.html")).toBe(at + "canvas.html");
+    expect(windowUrl(at + "canvas.html?canvas=luma-ios#03-event")).toBe(
+      at + "?canvas=luma-ios#03-event",
+    );
+    // The toast is the canvas's to say once, not the window's to say on every reload.
+    expect(windowUrl(at + "canvas.html?toast=%7B%7D&canvas=a")).toBe(
+      at + "?canvas=a",
     );
   });
 
