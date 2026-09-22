@@ -63,3 +63,5 @@ const mac = /Mac/.test(navigator.userAgent);
 /** Each OS's own words for showing a folder in its file manager, and for binning it. */
 export const REVEAL = mac ? "Show in Finder" : "Open file location";
 export const TRASH = mac ? "Move to Trash…" : "Delete…";
+/** Where it goes, in the question asked before it does. */
+export const TRASH_PLACE = mac ? "the Trash" : "the Recycle Bin";

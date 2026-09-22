@@ -19,7 +19,7 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import { canvasPageUrl } from "./canvasUrl";
-import { askServer, openMenu, REVEAL, TRASH } from "./contextMenu";
+import { askServer, openMenu, REVEAL, TRASH, TRASH_PLACE } from "./contextMenu";
 import { FolderPlus, LogoDiscord, LogoGithub, Plus } from "./geistIcons";
 import { FOUNDATIONS_ROW } from "./sheetLayout";
 
@@ -438,7 +438,8 @@ export function HomePage(props: {
                     const p = target.project!;
                     if (
                       !confirm(
-                        `Move “${p.name}” to the Trash?\n\n${p.path}\n\nEverything in that folder goes with it.`,
+                        `Move “${p.name}” to ${TRASH_PLACE}?\n\n${p.path}\n\n` +
+                          "Everything in that folder goes with it.",
                       )
                     )
                       return;
