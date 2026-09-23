@@ -19,6 +19,27 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.6.1
+
+2026-09-23. A project can start from a PRD, and every project now lives in one
+folder.
+
+- **Define the product before drawing it.** A project's `PRD.md` is a tab
+  before its canvases, shown rendered, with a switch at the end of the canvas
+  strip to edit its text. Leaving the tab or pressing ⌘S saves it, and a save
+  that would overwrite a newer version from the agent is refused instead.
+  New project offers to start with the new `define-product` skill, which
+  interviews you and writes the PRD. Every example now has one too.
+- **Every project lives in `~/Documents/Super Prototyping`.** Open Folder is
+  gone, and `sp start` and `sp open` no longer take a folder: they open the
+  home page, where you create projects. Deleting a project can only ever reach
+  a folder the app made. Move a project you kept elsewhere into that folder
+  to see it.
+- **Copy a link** to a project, an example, its PRD or a canvas from the
+  right-click menu of its tab or card. Opening a project's link lands on its
+  first canvas.
+- The hosted demo at `prototyping.rescience.com/demo/` opens on the home page.
+
 ## v1.6.0
 
 2026-09-23. The app is the only install. It opens on a home page with a tab
