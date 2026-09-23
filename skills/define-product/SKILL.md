@@ -65,6 +65,7 @@ Why this over what they do now. The one thing it must do well.
 
 ## Scope
 **In:** the few things the first version does.
+
 **Out:** what it deliberately does not, and why. Non-goals prevent more
 scope creep than goals do.
 

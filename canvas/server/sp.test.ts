@@ -124,12 +124,15 @@ it("lists the projects", async () => {
 });
 
 // A project's documents are the Markdown files at its root that the server names, for now its
-// PRD.md; other Markdown there, the canvases' own, and a folder by the name are not.
+// PRD.md; other Markdown there and a folder by the name are not. A canvas folder's are its own,
+// which is where an example's come from.
 it("lists a project's documents", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-docs-"));
   const projectDir = path.join(tmp, "mine");
   fs.mkdirSync(path.join(projectDir, "canvases/a"), { recursive: true });
-  fs.mkdirSync(path.join(projectDir, "canvases/a/PRD.md"), { recursive: true });
+  fs.writeFileSync(path.join(projectDir, "canvases/a/01-a.html"), "");
+  fs.writeFileSync(path.join(projectDir, "canvases/a/PRD.md"), "# A");
+  fs.mkdirSync(path.join(projectDir, "PRD.md"));
   fs.writeFileSync(path.join(projectDir, "README.md"), "no");
   fs.mkdirSync(path.join(tmp, "examples"));
   const { ask, close } = await serve({
@@ -139,10 +142,12 @@ it("lists a project's documents", async () => {
     projectDir,
     repoRoot: tmp,
   });
-  const docs = async () =>
-    JSON.parse((await ask("/__sp/index.json")).text).docs;
+  const index = async () => JSON.parse((await ask("/__sp/index.json")).text);
+  const docs = async () => (await index()).docs;
   try {
     expect(await docs()).toEqual([]);
+    expect((await index()).boards[0].docs).toEqual([{ name: "PRD.md", text: "# A" }]);
+    fs.rmdirSync(path.join(projectDir, "PRD.md"));
     fs.writeFileSync(path.join(projectDir, "PRD.md"), "# Why");
     expect(await docs()).toEqual([{ name: "PRD.md", text: "# Why" }]);
   } finally {

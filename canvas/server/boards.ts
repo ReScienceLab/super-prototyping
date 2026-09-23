@@ -13,6 +13,21 @@ import { svgSignature } from "../src/svgSignature.ts";
  */
 export const CANVASES = "canvases";
 
+/**
+ * A project's documents: the Markdown files at its root, beside its canvases, that the canvas
+ * shows as tabs before them, in this order. For now only the PRD the define-product skill writes
+ * with the user. An example is a project of one canvas, so its folder is its root and its
+ * documents are read from there. The page renders any Markdown file named here, so another is
+ * one more name.
+ */
+export const DOCS = ["PRD.md"];
+
+export function readDocs(dir: string) {
+  return DOCS.filter((name) =>
+    fs.statSync(path.join(dir, name), { throwIfNoEntry: false })?.isFile(),
+  ).map((name) => ({ name, text: fs.readFileSync(path.join(dir, name), "utf8") }));
+}
+
 /** The image types a board folder can hold, and what each is served as. */
 export const IMAGE_MIME: Record<string, string> = {
   ".png": "image/png",
@@ -287,6 +302,7 @@ export function boardIndex(
             thumbs: [] as string[],
             assets: assetIndex(folder),
             comments: readJson(path.join(folder, "comments.json")),
+            docs: readDocs(folder),
           };
         })
         .filter(

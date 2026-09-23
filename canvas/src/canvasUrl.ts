@@ -11,7 +11,8 @@
 // kit. Its own parameter rather than a second value of `canvas=`, because the two name
 // different things of the same folder and a kit has no board to hang a hash off.
 //
-// A Markdown file at the project's root open in a tab is `?doc=<file name>`, `?doc=PRD.md`.
+// A Markdown file at the project's root open in a tab is `?doc=<file name>`, `?doc=PRD.md`, and
+// one of an example's is `?doc=<example>/<file name>`, `?doc=spotify-ios/PRD.md`.
 
 export const WELCOME_PAGE_SLUG = "00-welcome";
 

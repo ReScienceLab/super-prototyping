@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { CanvasChromeContext } from "./canvasChrome";
 import { shortName } from "./canvasLibrary";
-import { ownCanvases, pageOf, tabFor } from "./canvasTabs";
+import { docsOf, ownCanvases, pageOf, tabFor } from "./canvasTabs";
 import { canvasIndex } from "./canvasIndex";
 import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
@@ -11,7 +11,7 @@ import { LogoFigma, Plus } from "./geistIcons";
 
 /**
  * The project's canvases, across the top of the project under the bar's tab for it, after its
- * documents: for now its PRD.md, when it has one. They are tabs of the second level,
+ * documents: for now its PRD.md, when it has one, and an example's own. They are tabs of the second level,
  * drawn as Geist's Tabs are, a name underlined when it is the one in front, so they do not read
  * as more of the bar's cells above them. An example is one canvas.
  *
@@ -29,26 +29,26 @@ export function CanvasStrip() {
   const here = activeTab.kind === "canvas" ? activeTab.slug : undefined;
   // A kit's slug names the canvas whose material it shows, so it exports that canvas; only the
   // index of every kit has no canvas behind it, and no Figma button.
-  const slug = activeTab.slug;
+  // A document is no canvas, and has none.
+  const slug = activeTab.kind === "doc" ? undefined : activeTab.slug;
   // Keyed by the page, so the project's home, which shows Start here's, shares its ground.
   const page = activeTab.kind === "canvas" ? pageOf(activeTab) : undefined;
   const ground = useGround(editor, page);
 
   return (
     <nav className="sp-canvas-tabs" aria-label="Canvases">
-      {tab.kind !== "example" &&
-        canvasIndex().docs?.map(({ name }) => (
-          <button
-            key={name}
-            type="button"
-            className="sp-canvas-tab"
-            aria-current={activeTab.kind === "doc" && activeTab.slug === name ? "page" : undefined}
-            title={name}
-            onClick={() => openTab({ kind: "doc", slug: name })}
-          >
-            {name.replace(/\.md$/i, "")}
-          </button>
-        ))}
+      {docsOf(tab).map(({ name, slug }) => (
+        <button
+          key={slug}
+          type="button"
+          className="sp-canvas-tab"
+          aria-current={activeTab.kind === "doc" && activeTab.slug === slug ? "page" : undefined}
+          title={name}
+          onClick={() => openTab({ kind: "doc", slug })}
+        >
+          {name.replace(/\.md$/i, "")}
+        </button>
+      ))}
       {canvases.length === 0 && (
         <span className="sp-canvas-tabs-none">
           No canvases yet. Ask the agent for one.

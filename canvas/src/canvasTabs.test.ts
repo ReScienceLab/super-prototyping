@@ -9,6 +9,7 @@ import {
 } from "./canvasLibrary";
 import {
   HOME_TAB,
+  docsOf,
   openInTab,
   pageOf,
   readOpenTabs,
@@ -73,6 +74,27 @@ describe("a tab is a project", () => {
       slug: canvas,
       view: brand,
     });
+  });
+
+  it("gives a project and an example each their own documents", () => {
+    const board = canvasIndex().boards.find((b) => b.slug === canvas)!;
+    const had = { project: canvasIndex().docs, board: board.docs };
+    canvasIndex().docs = [{ name: "PRD.md", text: "# Mine" }];
+    board.docs = [{ name: "PRD.md", text: "# Theirs" }];
+    unflag = () => {
+      canvasIndex().docs = had.project;
+      board.docs = had.board;
+      return delete board.example;
+    };
+    board.example = true;
+    const example = tabFor({ kind: "canvas", slug: canvas });
+    expect(docsOf(example)).toEqual([{ name: "PRD.md", slug: `${canvas}/PRD.md` }]);
+    expect(docsOf(tabFor(HOME_TAB))).toEqual([{ name: "PRD.md", slug: "PRD.md" }]);
+    const theirs: CanvasTab = { kind: "doc", slug: `${canvas}/PRD.md` };
+    expect(tabFor(theirs)).toEqual({ kind: "example", slug: canvas, view: theirs });
+    expect(tabFor({ kind: "doc", slug: "PRD.md" })).toMatchObject({ kind: "project" });
+    expect(resolveTab(theirs)).toEqual(theirs);
+    expect(resolveTab({ kind: "doc", slug: `${canvas}/Gone.md` })).toEqual(HOME_TAB);
   });
 
   it("keeps Start here's own tab apart from the project's view of its page", () => {

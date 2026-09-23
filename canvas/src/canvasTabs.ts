@@ -128,9 +128,28 @@ export function ownCanvases() {
     .filter((slug) => slug !== WELCOME_PAGE_SLUG && !isExample(slug));
 }
 
-/** A document at the project's root, by file name, as the index has it. */
-export function readDoc(name: string) {
-  return canvasIndex().docs?.find((doc) => doc.name === name)?.text;
+/**
+ * A document view's slug is its file name for one of the project's, and `<example>/<file name>`
+ * for one of an example's, which is the only kind of canvas whose documents have a tab.
+ */
+const docOwner = (slug: string) => (slug.includes("/") ? slug.split("/")[0] : undefined);
+
+/** The documents a tab shows, as the views that open them, each with its file name. */
+export function docsOf(tab: ProjectTab) {
+  if (tab.kind === "project")
+    return (canvasIndex().docs ?? []).map(({ name }) => ({ name, slug: name }));
+  const board = canvasIndex().boards.find((b) => b.slug === tab.slug);
+  return (board?.docs ?? []).map(({ name }) => ({ name, slug: `${tab.slug}/${name}` }));
+}
+
+/** A document's text, by its view's slug, as the index has it. */
+export function readDoc(slug: string) {
+  const owner = docOwner(slug);
+  const docs =
+    owner === undefined
+      ? canvasIndex().docs
+      : canvasIndex().boards.find((b) => b.slug === owner)?.docs;
+  return docs?.find((doc) => (owner ? `${owner}/${doc.name}` : doc.name) === slug)?.text;
 }
 
 /** The address this page's project is under, which is the build's base resolved against it. */
@@ -143,7 +162,8 @@ export function projectUrl() {
  * anything else: its canvases, their kits, HOME_TAB and the index of every kit.
  */
 export function tabFor(view: CanvasTab): ProjectTab {
-  if (isExample(view.slug)) return { kind: "example", slug: view.slug, view };
+  const owner = view.kind === "doc" ? docOwner(view.slug) : view.slug;
+  if (owner !== undefined && isExample(owner)) return { kind: "example", slug: owner, view };
   const here = {
     // Unnamed only where no project was set: the dev server, and the hosted canvas.
     name: canvasIndex().project ?? "Canvases",

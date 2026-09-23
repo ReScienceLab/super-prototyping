@@ -47,6 +47,11 @@ squircle; the ones here came from the App Store's own artwork
 Apple's system apps, out of `apple-icons/assets/`. Each carries its source in
 a PNG `Source` text chunk. A folder with no `icon.png` simply shows none.
 
+Every product folder carries a `PRD.md`, written to the `define-product`
+skill's template, which its example tab shows before the canvas: the worked
+example of what that skill produces. Its Screens table is the folder's own
+boards, so a board added or renamed is a row to change there too.
+
 ## Generators in this repo
 
 `notion-ios` and `raycast-ios` are finished boards whose generators were never

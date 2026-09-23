@@ -90,6 +90,8 @@ Rules inside a canvas folder:
   output. Edit the generator and re-run, never the HTML.
 - Commit `layout.json`, `icon.png` and `assets/`. `gen.py` inlines the
   images in `assets/` as `data:` URIs.
+- Commit `PRD.md`, the product the folder prototypes, to the `define-product`
+  skill's template. Its Screens table lists the folder's boards.
 - Commit `probes.json` and `crops.json`. They are the measurement evidence
   behind the tokens.
 - Commit `assets.json` where a folder has one (three do). It is a

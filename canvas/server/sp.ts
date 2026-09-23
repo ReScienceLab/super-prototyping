@@ -15,8 +15,10 @@ import os from "node:os";
 import path from "node:path";
 import {
   CANVASES,
+  DOCS,
   IMAGE_MIME,
   boardIndex,
+  readDocs,
   canvasesNamespace,
   readJson,
 } from "./boards.ts";
@@ -69,18 +71,6 @@ export function folderOf(
 /** The project's own settings, beside its canvases: for now only which cover it chose. */
 const PROJECT_JSON = "project.json";
 
-/**
- * A project's documents: the Markdown files at its root, beside its canvases, that the canvas
- * shows as tabs before them, in this order. For now only the PRD the define-product skill writes
- * with the user. The page renders any Markdown file named here, so another is one more name.
- */
-const DOCS = ["PRD.md"];
-
-function readDocs(dir: string) {
-  return DOCS.filter((name) =>
-    fs.statSync(path.join(dir, name), { throwIfNoEntry: false })?.isFile(),
-  ).map((name) => ({ name, text: fs.readFileSync(path.join(dir, name), "utf8") }));
-}
 
 /** A project's project.json, or nothing in it when it has none or it does not parse. */
 const readProjectJson = (dir: string) =>
