@@ -270,6 +270,23 @@ export function createSpServer(options: {
   // screenshot, and a page in an `<iframe>` cannot be read into a canvas from the browser
   // side. `refkit shoot` draws it — this repo's own renderer, on PATH beside the CLIs the
   // panel spawns — so the picture is the one the rest of the toolkit measures and diffs.
+  // A selection of boards is asked for all at once, and each shot is a headless Chrome: at most
+  // this many at a time, the rest waiting their turn in the order they came.
+  const SHOTS_AT_ONCE = 4;
+  let shooting = 0;
+  const waiting: (() => void)[] = [];
+  const shotSlot = () =>
+    new Promise<void>((go) => {
+      if (shooting < SHOTS_AT_ONCE) {
+        shooting++;
+        go();
+      } else waiting.push(go);
+    });
+  const shotDone = () => {
+    const next = waiting.shift();
+    if (next) next();
+    else shooting--;
+  };
   route("/__sp/shoot", (req, res, next) => {
     if (req.method !== "GET") return next();
     const send = (code: number, message: string) => {
@@ -315,33 +332,38 @@ export function createSpServer(options: {
     // Drawn somewhere else and moved into place when it is whole: the cached name appears at
     // the instant refkit creates the file, so a second request during the seconds it takes to
     // write would otherwise find a newer mtime and serve half a picture.
-    const work = fs.mkdtempSync(path.join(os.tmpdir(), "sp-shot-"));
-    const drawn = path.join(work, path.basename(png));
-    const done = () => fs.rmSync(work, { recursive: true, force: true });
-    execFile(
-      "refkit",
-      ["shoot", board, "-o", work, "--w", `${size[0]}`, "--h", `${size[1]}`],
-      { timeout: 120_000 },
-      (error) => {
-        if (fs.existsSync(drawn)) {
-          fs.mkdirSync(out, { recursive: true });
-          fs.renameSync(drawn, png);
+    void shotSlot().then(() => {
+      const work = fs.mkdtempSync(path.join(os.tmpdir(), "sp-shot-"));
+      const drawn = path.join(work, path.basename(png));
+      const done = () => {
+        fs.rmSync(work, { recursive: true, force: true });
+        shotDone();
+      };
+      execFile(
+        "refkit",
+        ["shoot", board, "-o", work, "--w", `${size[0]}`, "--h", `${size[1]}`],
+        { timeout: 120_000 },
+        (error) => {
+          if (fs.existsSync(drawn)) {
+            fs.mkdirSync(out, { recursive: true });
+            fs.renameSync(drawn, png);
+            done();
+            return serve();
+          }
           done();
-          return serve();
-        }
-        done();
-        // refkit is this plugin's own toolkit, installed by `uv tool install`; a canvas
-        // started some other way can be running without it, and Chrome is its own ask.
-        send(
-          (error as NodeJS.ErrnoException | null)?.code === "ENOENT"
-            ? 503
-            : 500,
-          error
-            ? `could not render the board: ${error.message}`
-            : "refkit wrote no image",
-        );
-      },
-    );
+          // refkit is this plugin's own toolkit, installed by `uv tool install`; a canvas
+          // started some other way can be running without it, and Chrome is its own ask.
+          send(
+            (error as NodeJS.ErrnoException | null)?.code === "ENOENT"
+              ? 503
+              : 500,
+            error
+              ? `could not render the board: ${error.message}`
+              : "refkit wrote no image",
+          );
+        },
+      );
+    });
   });
 
   // The inspector's status badge, writing back. Only the dev server can do this: a built

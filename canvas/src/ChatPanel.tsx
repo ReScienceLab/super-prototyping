@@ -599,10 +599,18 @@ export function ChatPanel(props: {
   // numbered; the second then waits, and reads a tray the first has finished with.
   const adds = useRef(Promise.resolve());
 
+  // The boards being drawn, by name, so a picture that arrives for one whose tile is gone is dropped.
+  const awaiting = useRef(new Set<string>());
+
   const addImages = (list: FileList | File[] | null, cite = false) =>
     (adds.current = adds.current
       .then(async () => {
-        const given = [...(list ?? [])];
+        // A board whose tile was removed while it was being drawn is not wanted any more.
+        const given = [...(list ?? [])].filter(
+          (f) =>
+            !awaiting.current.delete(f.name) ||
+            tray.current.some((t) => t.state && t.name === f.name),
+        );
         const taken = given.filter((f) => ATTACH_TYPES.includes(f.type));
         // A file the agent could not look at is refused here rather than by the server, and said:
         // the file dialog offers only these, but a drop, a paste and the canvas hand over anything.
@@ -708,9 +716,6 @@ export function ChatPanel(props: {
         setSendError(`could not attach that: ${String(error)}`),
       ));
 
-  // The boards being drawn, by name, so a picture that arrives for one whose tile is gone is dropped.
-  const awaiting = useRef(new Set<string>());
-
   /**
    * A board's tile and number, put up the moment it is asked for, with the picture to follow.
    * Asked for again — a second press, or a retry after it failed — it keeps the tile it has.
@@ -759,36 +764,40 @@ export function ChatPanel(props: {
       const detail = (event as CustomEvent<CanvasAttachDetail>).detail;
       // A message cannot be written into a panel that is away.
       props.chat.show(true);
-      if (detail.kind === "pending") return wait(detail.name);
+      // In line with the adds, so a board's number comes after a picture asked for before it
+      // that is still being read.
+      if (detail.kind === "pending") {
+        adds.current = adds.current.then(() => wait(detail.name));
+        return;
+      }
       if (detail.kind === "error") {
-        if (detail.name) awaiting.current.delete(detail.name);
-        setAttached(
-          (tray.current = tray.current.map((t) =>
-            t.state && t.name === detail.name ? { ...t, state: "failed" } : t,
-          )),
-        );
-        for (const chip of composer.current?.querySelectorAll(
-          ".sp-chat-ref-pending",
-        ) ?? [])
-          if (chip.getAttribute("title") === detail.name)
-            chip.classList.replace("sp-chat-ref-pending", "sp-chat-ref-failed");
+        adds.current = adds.current.then(() => fail(detail.name));
         return setSendError(detail.message);
       }
       // Over nothing the user wrote, since a message they had begun stays theirs to finish.
       if (detail.kind === "draft") {
         return draft.trim() ? composer.current?.focus() : fill(detail.text);
       }
-      // A board whose tile was removed while it was being drawn is not wanted any more.
-      if (
-        awaiting.current.delete(detail.file.name) &&
-        !tray.current.some((t) => t.state && t.name === detail.file.name)
-      )
-        return;
       void addImages([detail.file], true);
     };
     window.addEventListener(CANVAS_ATTACH, take);
     return () => window.removeEventListener(CANVAS_ATTACH, take);
   });
+
+  /** A board that could not be drawn: its tile and its chips go amber, to be asked for again. */
+  const fail = (name?: string) => {
+    if (name) awaiting.current.delete(name);
+    setAttached(
+      (tray.current = tray.current.map((t) =>
+        t.state && t.name === name ? { ...t, state: "failed" } : t,
+      )),
+    );
+    for (const chip of composer.current?.querySelectorAll(
+      ".sp-chat-ref-pending",
+    ) ?? [])
+      if (chip.getAttribute("title") === name)
+        chip.classList.replace("sp-chat-ref-pending", "sp-chat-ref-failed");
+  };
 
   // The tile goes; the chips that named it stay where they were written, struck through and
   // without their picture. A sentence is not rewritten because what it pointed at was removed.

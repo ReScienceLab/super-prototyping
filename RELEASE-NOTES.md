@@ -24,7 +24,9 @@ Everything below is on `main` and reaches no install until a version is cut.
 - **A board added to the chat shows up at once.** Its tile and its number
   appear the moment you press + or paste its link, shimmering while the board
   is drawn, and the picture fills in when it is ready. Send waits for it. A
-  board that cannot be drawn turns amber; press its + again to retry.
+  board that cannot be drawn turns amber; press its + again to retry. Several
+  boards added together are drawn side by side, four at a time, so three take
+  about as long as one.
 - **Copy a link to anything on the canvas.** Right-click a board, a picture or
   a card and pick *Copy link*, or select it and press ⌘C (Ctrl+C): it opens
   the canvas on that thing. With several selected, it copies one link a line. Paste them into the agent's box and they

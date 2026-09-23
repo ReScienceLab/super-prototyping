@@ -31,60 +31,75 @@ const dispatchAttach = (detail: CanvasAttachDetail) =>
   window.parent.dispatchEvent(new CustomEvent(CANVAS_ATTACH, { detail }));
 
 /**
- * A board or a picture, handed to the chat as the file it attaches. A board is a page in an
+ * A board or a picture, turned into the file the chat attaches. A board is a page in an
  * `<iframe>`, so the server draws it first (`/__sp/shoot`, vite.config.ts) and it goes over under
- * its own `<slug>/<file>.html` — said to be coming before the seconds that takes, so its tile is
- * up at once; a picture already on the canvas is read back out of the asset its shape points at.
- * Shared by the single-shape button below and `attachToChat`, which the selection's button and a
- * pasted link go through.
+ * its own `<slug>/<file>.html`; a picture already on the canvas is read back out of the asset its
+ * shape points at.
  */
-async function attach(editor: Editor, target: InspectorTarget) {
-  let name: string | undefined;
-  try {
-    if (target.type === CANVAS_FILE_SHAPE_TYPE) {
-      const shape = target as CanvasFileShape;
-      const ref = canvasBoardRef(shape.props.path);
-      if (!ref) throw new Error("that board has no file behind it");
-      name = `${ref.slug}/${ref.file}`;
-      dispatchAttach({ kind: "pending", name });
-      const shot = await fetch(
-        `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(name)}` +
-          `&w=${Math.round(shape.props.w)}&h=${Math.round(shape.props.h)}`,
-      );
-      if (!shot.ok) throw new Error(await shot.text());
-      const png = await shot.blob();
-      return dispatchAttach({
-        kind: "image",
-        file: new File([png], name, { type: png.type }),
-      });
-    }
-    const shape = target as TLImageShape;
-    const asset = shape.props.assetId
-      ? editor.getAsset(shape.props.assetId)
-      : undefined;
-    if (asset?.type !== "image" || !asset.props.src) {
-      throw new Error("that picture has no file behind it");
-    }
-    const bytes = await (await fetch(asset.props.src)).blob();
-    dispatchAttach({
-      kind: "image",
-      file: new File([bytes], asset.props.name || "image.png", {
-        type: bytes.type,
-      }),
-    });
-  } catch (error) {
-    dispatchAttach({ kind: "error", message: String(error), name });
+async function attachDetail(
+  editor: Editor,
+  target: InspectorTarget,
+  name: string | undefined,
+): Promise<CanvasAttachDetail> {
+  if (target.type === CANVAS_FILE_SHAPE_TYPE) {
+    const shape = target as CanvasFileShape;
+    if (!name) throw new Error("that board has no file behind it");
+    const shot = await fetch(
+      `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(name)}` +
+        `&w=${Math.round(shape.props.w)}&h=${Math.round(shape.props.h)}`,
+    );
+    if (!shot.ok) throw new Error(await shot.text());
+    const png = await shot.blob();
+    return { kind: "image", file: new File([png], name, { type: png.type }) };
   }
+  const shape = target as TLImageShape;
+  const asset = shape.props.assetId
+    ? editor.getAsset(shape.props.assetId)
+    : undefined;
+  if (asset?.type !== "image" || !asset.props.src) {
+    throw new Error("that picture has no file behind it");
+  }
+  const bytes = await (await fetch(asset.props.src)).blob();
+  return {
+    kind: "image",
+    file: new File([bytes], asset.props.name || "image.png", {
+      type: bytes.type,
+    }),
+  };
 }
 
 /**
- * The boards and pictures pasted links named (spCanvas.attach, App.tsx), handed to the chat the
- * way their **+** would hand them, so the links land in the sentence as those shapes' chips. One
- * at a time, like the selection's button below, so the chips come in the order of the links.
+ * A board or a picture, handed to the chat. A board says it is coming before the seconds its
+ * drawing takes, synchronously, so its tile and its number are up at once and in the order it
+ * was asked for. Shared by the single-shape button below and `attachToChat`.
+ */
+function attach(editor: Editor, target: InspectorTarget) {
+  const ref =
+    target.type === CANVAS_FILE_SHAPE_TYPE
+      ? canvasBoardRef(target.props.path)
+      : undefined;
+  const name = ref && `${ref.slug}/${ref.file}`;
+  if (name) dispatchAttach({ kind: "pending", name });
+  return attachDetail(editor, target, name).then(dispatchAttach, (error) =>
+    dispatchAttach({ kind: "error", message: String(error), name }),
+  );
+}
+
+/**
+ * The boards and pictures a selection's button or pasted links named (spCanvas.attach, App.tsx),
+ * handed to the chat the way their **+** would hand them. Every board is drawn at once (the
+ * server takes a few at a time); a picture is read in moments and waited for, so each chip still
+ * lands where its shape was in the selection.
  */
 // oxlint-disable-next-line react/only-export-components
 export async function attachToChat(editor: Editor, targets: InspectorTarget[]) {
-  for (const target of targets) await attach(editor, target);
+  const boards: Promise<unknown>[] = [];
+  for (const target of targets) {
+    const job = attach(editor, target);
+    if (target.type === CANVAS_FILE_SHAPE_TYPE) boards.push(job);
+    else await job;
+  }
+  await Promise.all(boards);
 }
 
 /**
