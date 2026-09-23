@@ -1,15 +1,15 @@
 # Notion (iOS)
 
-> For someone taking notes, tracking tasks and asking questions about their own workspace, Notion is the one iOS app where search, an AI chat and a meeting's own summary sit together, a database can pull from more than one data source, and switching accounts or upgrading to Plus & AI happens without leaving what you were doing.
+> For someone taking notes, tracking tasks and asking questions about their own workspace, Notion is the one iOS app where search and an AI chat sit together, so a question about your own content doesn't need leaving what you were doing to answer it.
 
 ## Problem
 Someone taking notes and tracking tasks in Notion today has to search manually across pages to answer a question about their own content, instead of asking it directly. Someone who keeps more than one Notion account (work and personal, say) or wants Notion AI has to leave whatever they were doing to switch accounts or upgrade.
 
 ## Users
-- **Primary: someone searching their workspace and asking Notion AI a question.** From the search entry point, into a chat conversation.
-- **Secondary: someone reading a meeting's page.** Its recording lockup and AI-generated summary.
-- **Secondary: someone managing a database's data sources.** Adding one, and seeing the database (a to-do table) reflect it.
-- **Secondary: someone signing into an additional account, or deciding whether to buy Plus & AI.**
+- Primary: someone searching their workspace and asking Notion AI a question. From the search entry point, into a chat conversation.
+- Secondary: someone reading a meeting's page. Its recording lockup and AI-generated summary.
+- Secondary: someone managing a database's data sources. Adding one, and seeing the database (a to-do table) reflect it.
+- Secondary: someone signing into an additional account, or deciding whether to buy Plus & AI.
 
 ## Value
 Search and Ask AI live in one entry point, so a question about your own notes doesn't need a separate assistant. A to-do table can pull from more than one data source without leaving the table. Adding an account and upgrading to Plus & AI are in-app sheets, not a separate flow.
@@ -17,10 +17,10 @@ Search and Ask AI live in one entry point, so a question about your own notes do
 ## Scope
 **In:** the search entry point with its Ask AI option and one AI chat conversation; one meeting page with its AI summary; a date sheet and a share-settings sheet; the add/manage-data-source flow for a to-do table (list, add form, list with the new source, the resulting table); adding a second account (provider list, email, code); the Plus & Notion AI purchase sheet (monthly, yearly, success).
 
-**Out:** creating a page or database from scratch, editing block content beyond what's shown, workspace-wide settings, notifications, collaboration or comments, signing out — none of these are among the boards here.
+**Out:** creating a page or database from scratch, editing block content beyond what's shown, workspace-wide settings, notifications, collaboration or comments, signing out.
 
 ## Success
-Observable signs it works: someone using Ask AI gets an answer grounded in their own page rather than backing out to search manually; someone adding a data source reaches the to-do table using it without getting stuck on the picker; someone reaches Purchase success rather than abandoning the sheet at the price step.
+Someone using Ask AI gets an answer grounded in their own page rather than backing out to search manually; someone adding a data source reaches the to-do table using it without getting stuck on the picker; someone reaches Purchase success rather than abandoning the sheet at the price step.
 
 ## Screens
 | Screen | Purpose | States |
@@ -47,9 +47,9 @@ Observable signs it works: someone using Ask AI gets an answer grounded in their
 Search / Ask AI → tapping Ask AI opens Notion AI chat. The meeting page's date field opens Date sheet; its share icon opens Share settings sheet. Manage data sources → New data source → Manage data sources, two (source added) → To do list with a table, which reads from those sources. Add an account → Work email → Email typed → Verification code → Code typed. Plan sheet (monthly or yearly) → choosing a plan leads to Purchase success.
 
 ## Open questions
-- 🔴 What the Notion AI chat answer looks like beyond the first reply. Not shown past one exchange.
-- 🔴 What happens right after Purchase success — return to wherever the paywall was opened from, or somewhere else. Not shown.
-- 🔴 Whether "Manage data sources, two" is reached only via New data source, or is also editable directly (rename, remove). Not shown.
+- What the Notion AI chat answer looks like beyond the first reply. Not shown past one exchange.
+- What happens right after Purchase success — return to wherever the paywall was opened from, or somewhere else.
+- Whether "Manage data sources, two" is reached only via New data source, or is also editable directly (rename, remove).
 
 ## Riskiest assumptions
 1. Users trust an AI chat answer about their own notes over reading the source page themselves. Cheapest test: watch whether test users tap Ask AI or a plain search result first, given the same question.

@@ -1,6 +1,6 @@
 ---
 name: define-product
-description: Work out with the user what their product is before anything is drawn, and write it down as PRD.md at the root of their project, where the canvas shows it as a tab. An interview, not a template fill -- one or two questions at a time with lettered options, problem before solution, gaps marked TBD rather than invented -- ending in a short PRD whose screen inventory new-ui-mock designs from. Use when a user starts a new product or project, says they have an idea, asks for a PRD, spec or product brief, or asks for screens when nobody has said who they are for or what problem they solve.
+description: Work out with the user what their product is before anything is drawn, and write it down as PRD.md at the root of their project, where the canvas shows it as a tab, ending in a short PRD whose screen inventory new-ui-mock designs from. Use when a user starts a new product or project, says they have an idea, asks for a PRD, spec or product brief, or asks for screens when nobody has said who they are for or what problem they solve.
 license: Apache-2.0
 metadata:
   managed-by: super-prototyping
@@ -37,7 +37,7 @@ idea is invented content that reads like decisions.
 - Then the solution: the one thing it must do well, and what it will not do.
 - Then success: how anyone would know it worked, as something observable.
 - Push back once on a vague answer ("everyone", "it's faster", "an AI
-  that...") with a sharper question. Twice is interrogation; write TBD.
+  that...") with a sharper question. Do not push back twice; write TBD.
 - Stop when every section in §2 is 🟢 or explicitly 🔴 TBD. For most ideas
   that is five to eight exchanges. Do not drag it out to be thorough.
 
@@ -48,7 +48,7 @@ answer lands, so the tab is the conversation's running state.
 
 ## 2. What PRD.md holds
 
-Short. One screen of reading beats five; nobody rereads a long one.
+Keep it to one screen of reading.
 
 ```markdown
 # <Product name>
@@ -62,16 +62,15 @@ The person, the moment, what they do today, what it costs them.
 Primary user, and anyone secondary. What each one is trying to get done.
 
 ## Value
-Why this over what they do now. The one thing it must do well.
+*Why this over what they do now, and the one thing it must do well.*
 
 ## Scope
 **In:** the few things the first version does.
 
-**Out:** what it deliberately does not, and why. Non-goals prevent more
-scope creep than goals do.
+**Out:** what it deliberately does not, and why.
 
 ## Success
-Observable signs it worked: a behaviour, a number, a thing a user says.
+*Observable signs it worked: a behaviour, a number, a thing a user says.*
 
 ## Screens
 | Screen | Purpose | States |
@@ -81,7 +80,7 @@ Observable signs it worked: a behaviour, a number, a thing a user says.
 The flows between them, one line each.
 
 ## Open questions
-- 🔴 ... (TBD, who decides)
+- ... (TBD, who decides)
 
 ## Riskiest assumptions
 1. ... and the cheapest way to test it.
@@ -92,18 +91,17 @@ Keep a status line per section while it is being written (🟢 settled,
 🔴 with a plausible guess: a TBD is honest and tells the user what is left
 to decide, a guess gets built.
 
-**Screens** is the bridge to the canvas. Each row is a board `new-ui-mock`
-can make, and **States** are the unhappy states it must design too: empty,
-loading, error, the longest plausible content.
+The Screens table is what new-ui-mock designs from. Each row is a board
+`new-ui-mock` can make, and **States** are the unhappy states it must design
+too: empty, loading, error, the longest plausible content.
 
 ---
 
 ## 3. Close it out
 
-1. **Red-team it.** Name the three assumptions that would sink the product
-   if they were wrong, and for each the cheapest test. Write them under
-   *Riskiest assumptions*. Keep it short and specific; this is the section
-   that saves the most time.
+1. **Red-team it.** Name the assumptions that would sink the product if
+   wrong, and the cheapest test of each. Write them under *Riskiest
+   assumptions*. Keep it short and specific.
 2. Read the one-sentence summary back to the user and ask if it is right.
 3. Offer the next step: mock the first screen from the Screens table with
    `new-ui-mock`, or clone a reference app with `clone-prototype` when the
@@ -113,7 +111,7 @@ loading, error, the longest plausible content.
 
 ## Revisiting it
 
-The PRD is a living file, not a sign-off. When a design decision on the
-canvas changes scope, a screen or an answer, update PRD.md in the same turn
-and say what changed. When the user asks for screens and a PRD.md exists,
-read it first: its users, copy and states ground the mock.
+When a design decision on the canvas changes scope, a screen or an answer,
+update PRD.md in the same turn and say what changed. When the user asks for
+screens and a PRD.md exists, read it first: its users, copy and states
+ground the mock.

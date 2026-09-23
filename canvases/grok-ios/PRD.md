@@ -6,7 +6,8 @@
 Someone wants quick access to Grok without opening the app first — a Home Screen widget — or wants to talk to it rather than type. Along the way the app also has to move that person through a Terms update, a subscription pitch, and an unrelated bot product, without losing them before they reach Home.
 
 ## Users
-Primary: a new or existing Grok user setting up the Home Screen widget, deciding on SuperGrok, and using voice mode. Secondary: an existing user working through a required Terms-of-Service update and being introduced to Grok Bot along the way.
+- Primary: a new or existing Grok user setting up the Home Screen widget, deciding on SuperGrok, and using voice mode.
+- Secondary: an existing user working through a required Terms-of-Service update and being introduced to Grok Bot along the way.
 
 ## Value
 Grok reachable in one tap from the Home Screen, a voice mode presented as a companion rather than a plain waveform, and app-wide settings and account controls in one place.
@@ -33,14 +34,14 @@ Someone who opens Voice settings understands the recording state and how to stop
 | Introducing Grok Bot | Announcement sheet over the Terms page | shown |
 | App Store, Grok Bot | Store listing for the Grok Bot product | default |
 
-The widget guide leads to the system Home Screen widget. Signing in or an app update surfaces the Terms update, which can lead into signing out (loading) or on to the Introducing Grok Bot sheet and its App Store listing; declining or completing either returns to SuperGrok home. From SuperGrok home, opening voice mode reaches Voice settings, and the composer's voice picker reaches Voice selection. Settings is reachable independently and scrolls through its three captured positions.
+The widget guide leads to the system Home Screen widget. Signing in or an app update shows the Terms update, which can lead into signing out (loading) or on to the Introducing Grok Bot sheet and its App Store listing; declining or completing either returns to SuperGrok home. From SuperGrok home, opening voice mode reaches Voice settings, and the composer's voice picker reaches Voice selection. Settings is reachable independently and scrolls through its three captured positions.
 
 ## Open questions
-- 🔴 What happens after "Upgrade to Access" on the Grok Bot sheet — an in-app screen or an external link? (not shown)
-- 🔴 What does SuperGrok home look like for someone who declines the paywall? (not shown)
-- 🔴 What's above and below the three captured Settings scroll positions? (partially shown)
+- What happens after "Upgrade to Access" on the Grok Bot sheet — an in-app screen or an external link? (not shown)
+- What does SuperGrok home look like for someone who declines the paywall? (not shown)
+- What's above and below the three captured Settings scroll positions? (partially shown)
 
 ## Riskiest assumptions
-1. The two-step guide is enough to get someone to actually add the Home Screen widget, without a stronger in-app nudge. Cheapest test: a moderated walkthrough measuring who reaches "Add Widget."
+1. The two-step guide is enough to get someone to add the Home Screen widget, without a stronger in-app nudge. Cheapest test: a moderated walkthrough measuring who reaches "Add Widget."
 2. The 3D voice companion makes voice mode feel more engaging rather than reading as decorative and battery-heavy. Cheapest test: a short reaction test comparing voice mode with and without the companion visual.
 3. Sequencing a Terms update and a Grok Bot upsell back-to-back, before Home, doesn't push people to abandon. Cheapest test: a funnel test measuring drop-off across that sequence with a small cohort.

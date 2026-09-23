@@ -6,9 +6,9 @@
 Someone wants to find or relive a photo they took. On iOS, Photos is the only place to do that — there's no OS-level alternative — so its grid, its update messaging and its permission asks are the entire experience of "open my pictures."
 
 ## Users
-- **Primary: someone browsing or hunting for a specific photo.** All Photos.
-- **Secondary: someone who just updated the app.** Shown What's New.
-- **Secondary: a first-run user** deciding whether to allow notifications.
+- Primary: someone browsing or hunting for a specific photo. All Photos.
+- Secondary: someone who just updated the app. Shown What's New.
+- Secondary: a first-run user deciding whether to allow notifications.
 
 ## Value
 Every photo in one scrollable grid, with update messaging and permission asks layered over it rather than blocking it.
@@ -16,10 +16,10 @@ Every photo in one scrollable grid, with update messaging and permission asks la
 ## Scope
 **In:** the All Photos grid, the What's New sheet, the Notifications permission prompt.
 
-**Out:** individual photo viewing or editing, albums, search, sharing, Memories/For You curation, iCloud sync status — none of these are among the three boards here.
+**Out:** individual photo viewing or editing, albums, search, sharing, Memories/For You curation, iCloud sync status.
 
 ## Success
-Observable signs it works: someone lands on All Photos and can locate a recent photo without extra taps; What's New gets dismissed (read or skipped) without blocking the grid; the notifications prompt gets answered rather than stalling the app.
+Someone lands on All Photos and can locate a recent photo without extra taps; What's New gets dismissed (read or skipped) without blocking the grid; the notifications prompt gets answered rather than stalling the app.
 
 ## Screens
 | Screen | Purpose | States |
@@ -31,8 +31,8 @@ Observable signs it works: someone lands on All Photos and can locate a recent p
 The app opens to All Photos. On first run after an update, What's New appears over it; dismissing returns to All Photos. The Notifications prompt can appear over All Photos independently of What's New.
 
 ## Open questions
-- 🔴 What All Photos looks like with zero photos. Not shown.
-- 🔴 Whether What's New and the Notifications prompt can queue in the same session, and in what order. Not shown.
+- What All Photos looks like with zero photos.
+- Whether What's New and the Notifications prompt can queue in the same session, and in what order.
 
 ## Riskiest assumptions
 1. People read What's New rather than reflexively dismissing it. Cheapest test: show the board and time how long before someone taps away.

@@ -6,7 +6,8 @@
 Someone wants to learn a language but loses momentum without a routine — life gets in the way, a day is missed, the habit breaks. Duolingo's path, streaks, and interruption sheets exist to catch that moment before it becomes quitting.
 
 ## Users
-Primary: a learner working through the path lesson by lesson, day by day. Secondary: the same learner at a moment of risk — about to lose a streak, or seeing where they stand in their league — who the app is trying to keep engaged.
+- Primary: a learner working through the path lesson by lesson, day by day.
+- Secondary: the same learner at a moment of risk — about to lose a streak, or seeing where they stand in their league — who the app is trying to keep engaged.
 
 ## Value
 A single visible path shows progress and what's next; short interruption sheets (streak freeze, league promotion) step in at the moments most likely to cost retention, rather than leaving the learner to notice on their own.
@@ -29,12 +30,12 @@ Someone facing a locked section either keeps going on the unlocked path or succe
 | Streak freeze | Sheet offering to protect a streak | open |
 | League promotion | Sheet announcing a league promotion | open |
 
-The path is the hub: finishing a section leads to Section complete, which returns to the path at the next, locked section (Up next). The path's own divider can surface the Jump here tooltip. Streak freeze and League promotion are sheets that interrupt the path at their own trigger moments (not shown).
+The path is the hub: finishing a section leads to Section complete, which returns to the path at the next, locked section (Up next). The path's own divider can show the Jump here tooltip. Streak freeze and League promotion are sheets that interrupt the path at their own trigger moments (not shown).
 
 ## Open questions
-- 🔴 What triggers Streak freeze and League promotion — a schedule, a specific risk condition? (not shown)
-- 🔴 What's on the tab bar below the path (practice, leaderboard, profile)? (not in this set)
-- 🔴 Is Jump here the only way past a locked section, or can it be reached another way? (not fully shown)
+- What triggers Streak freeze and League promotion — a schedule, a specific risk condition? (not shown)
+- What's on the tab bar below the path (practice, leaderboard, profile)? (not in this set)
+- Is Jump here the only way past a locked section, or can it be reached another way? (not fully shown)
 
 ## Riskiest assumptions
 1. Path colors are read as distinct topics or units rather than arbitrary decoration. Cheapest test: a short card sort — show the three colors and ask what differs.

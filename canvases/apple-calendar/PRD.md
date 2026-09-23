@@ -6,10 +6,10 @@
 Someone glances at their phone to know what's next, plans around it, adds a new event, or joins a video call attached to one. Without a native calendar this is scattered across a paper planner, a messaging thread, or a different app per piece of the day.
 
 ## Users
-- **Primary: someone checking or planning their own day.** Today and Month.
-- **Secondary: someone scheduling something new.** New Event.
-- **Secondary: someone joining a call tied to an event.** Event details' video call.
-- **Secondary: a first-run or just-updated user.** Granting location/notification permissions, reading What's New.
+- Primary: someone checking or planning their own day. Today and Month.
+- Secondary: someone scheduling something new. New Event.
+- Secondary: someone joining a call tied to an event. Event details' video call.
+- Secondary: a first-run or just-updated user. Granting location/notification permissions, reading What's New.
 
 ## Value
 One glance shows the day, one tap adds an event, and permissions (location, notifications) are asked for only when the feature that needs them is used, not up front.
@@ -17,10 +17,10 @@ One glance shows the day, one tap adds an event, and permissions (location, noti
 ## Scope
 **In:** today's agenda with events and empty, the month grid, creating a new event, viewing an event's details, joining a video call from an event, granting location and notification permissions, the What's New sheet — each in light and dark appearance.
 
-**Out:** multi-calendar management and settings, an invitee/contacts picker, recurring-event editing, a week view, search across events — none of these are among the nine boards here.
+**Out:** multi-calendar management and settings, an invitee/contacts picker, recurring-event editing, a week view, search across events.
 
 ## Success
-Observable signs it works: someone opens Today and can say what's next without extra taps; New Event gets saved rather than abandoned mid-form; the video call join control on Event details gets tapped rather than overlooked.
+Someone opens Today and can say what's next without extra taps; New Event gets saved rather than abandoned mid-form; the video call join control on Event details gets tapped rather than overlooked.
 
 ## Screens
 | Screen | Purpose | States |
@@ -38,9 +38,9 @@ Observable signs it works: someone opens Today and can say what's next without e
 Today is the landing screen; Month is a peer view of the same data. Today → New Event (add) → saved, back to Today. Today or Month → an event → Event details, which shows a video-call join control when the event has one. First run or post-update → What's New over Today; the first use of a location- or notification-dependent feature → the matching permission prompt.
 
 ## Open questions
-- 🔴 What happens right after New Event is saved — confirmation, or a silent return to Today? Not shown.
-- 🔴 What the validation/error state looks like when New Event is saved with required fields missing. Not mocked.
-- 🔴 Whether a week view is ever offered alongside Today and Month. Not in these boards.
+- What happens right after New Event is saved — confirmation, or a silent return to Today?
+- What the validation/error state looks like when New Event is saved with required fields missing.
+- Whether a week view is ever offered alongside Today and Month. Not in these boards.
 
 ## Riskiest assumptions
 1. People want Month as a peer tab to Today rather than nested under it. Cheapest test: tree-test the two entry points with a handful of users.

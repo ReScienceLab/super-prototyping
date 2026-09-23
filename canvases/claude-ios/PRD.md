@@ -6,7 +6,8 @@
 A person wants an answer, a document explained, or a photo interpreted, right now, without switching to a laptop. Typing a long question on a phone is slow, so voice and attachments are how the app shortens that gap.
 
 ## Users
-Primary: someone typing or speaking a question to Claude and reading or hearing the answer. Secondary: someone who arrives with something already in hand — a PDF or a photo — and wants Claude to work from it rather than from a description typed out by hand.
+- Primary: someone typing or speaking a question to Claude and reading or hearing the answer.
+- Secondary: someone who arrives with something already in hand — a PDF or a photo — and wants Claude to work from it rather than from a description typed out by hand.
 
 ## Value
 Ask by typing or by voice, hand over a file or photo instead of retyping its contents, and get answers as reusable artifacts rather than only as chat text.
@@ -29,12 +30,12 @@ Someone finishing a voice turn can say when Claude was listening versus answerin
 | File attachment | Asking about an attached document | attached, sent, answered |
 | Photo attachment | Asking about an attached photo | attached, typed, answered |
 
-Home's composer, once something is typed, moves through sent to a streaming answer. The microphone opens Voice instead. The attachment icon opens Add to Chat, which leads into the file or photo flow. An answer can surface an Artifact card.
+Home's composer, once something is typed, moves through sent to a streaming answer. The microphone opens Voice instead. The attachment icon opens Add to Chat, which leads into the file or photo flow. An answer can show an Artifact card.
 
 ## Open questions
-- 🔴 What ends or resumes a voice session after the interrupt state? (not shown)
-- 🔴 Is there a settings or account area, and how does someone reach it? (not in this set)
-- 🔴 What does a failed upload, a network error, or a refused answer look like? (not mocked)
+- What ends or resumes a voice session after the interrupt state? (not shown)
+- Is there a settings or account area, and how does someone reach it? (not in this set)
+- What does a failed upload, a network error, or a refused answer look like? (not mocked)
 
 ## Riskiest assumptions
 1. Voice mode's listening/interrupt visuals communicate turn-taking clearly enough that people know when to speak versus wait. Cheapest test: show a few people the three voice states out of context and ask them to describe what's happening in each.
