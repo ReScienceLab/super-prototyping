@@ -3,6 +3,7 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { expect, it } from "vitest";
 import { createSpServer } from "./sp.ts";
 
@@ -153,15 +154,59 @@ it("keeps a project's cover", async () => {
       box: [0, 0, 478, 980],
     });
     const chosen = { path: "a/01-a.html", box: [10, 20, 30, 40] };
-    expect((await ask("/__sp/project-cover", { cover: chosen })).status).toBe(204);
+    expect((await ask("/__sp/project-cover", { cover: chosen })).status).toBe(
+      204,
+    );
     expect(await cover()).toEqual({ ...chosen, w: 478, h: 980, chosen: true });
     for (const path of ["a/nope.html", "../mine/canvases/a/01-a.html"])
-      expect((await ask("/__sp/project-cover", { cover: { path } })).status).toBe(400);
-    expect((await ask("/__sp/project-cover", { cover: null })).status).toBe(204);
+      expect(
+        (await ask("/__sp/project-cover", { cover: { path } })).status,
+      ).toBe(400);
+    expect((await ask("/__sp/project-cover", { cover: null })).status).toBe(
+      204,
+    );
     expect(fs.existsSync(path.join(projectDir, "project.json"))).toBe(false);
     expect((await cover()).path).toBe("b/01-home.html");
     fs.writeFileSync(path.join(projectDir, "project.json"), "[]");
-    expect((await ask("/__sp/project-cover", { cover: chosen })).status).toBe(409);
+    expect((await ask("/__sp/project-cover", { cover: chosen })).status).toBe(
+      409,
+    );
+  } finally {
+    close();
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+// A file the agent linked as `file:///…`, served from inside the project and nowhere else.
+it("serves the project's own files by their absolute path", async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-file-"));
+  const projectDir = path.join(tmp, "project");
+  fs.mkdirSync(path.join(projectDir, "web/variants"), { recursive: true });
+  fs.writeFileSync(path.join(projectDir, "web/variants/a glow.html"), "glow");
+  fs.writeFileSync(path.join(tmp, "secret.html"), "secret");
+  const { ask, close } = await serve({
+    canvasesDir: path.join(projectDir, "canvases"),
+    examplesDir: path.join(tmp, "examples"),
+    projects: () => new Map(),
+    projectDir,
+    repoRoot: tmp,
+  });
+  try {
+    // The address the chat panel makes of a file: link, `/C:/…` on Windows (markdown.ts).
+    const at = (file: string) => `/file${pathToFileURL(file).pathname}`;
+    expect(
+      await ask(at(path.join(projectDir, "web/variants/a glow.html"))),
+    ).toEqual({
+      status: 200,
+      text: "glow",
+    });
+    expect((await ask(at(path.join(tmp, "secret.html")))).status).toBe(404);
+    // A junction is the link Windows makes without admin rights, and a symlink elsewhere.
+    fs.symlinkSync(tmp, path.join(projectDir, "web/out"), "junction");
+    expect(
+      (await ask(at(path.join(projectDir, "web/out/secret.html")))).status,
+    ).toBe(404);
+    expect((await ask(`${at(projectDir)}/../secret.html`)).status).toBe(404);
   } finally {
     close();
     fs.rmSync(tmp, { recursive: true, force: true });

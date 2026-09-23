@@ -278,6 +278,56 @@ export function createSpServer(options: {
     fs.createReadStream(file).pipe(res);
   });
 
+  // A file of the project's by its absolute path, which is how an agent links what it made:
+  // `file:///…/web/variants/a.html`. A page served over http cannot follow a file: link, so the
+  // chat panel points it here (markdown.ts). The address keeps the path's folders, so the page's
+  // own relative stylesheets and images come through this route too. Nothing outside the project,
+  // symlinks included. Not under /__sp: what it serves runs sandboxed, in an origin of its own, so
+  // a page an agent made (or cloned) cannot drive the agent and write endpoints as the canvas can,
+  // and that origin's requests for its own stylesheets would fail the guard there.
+  const FILE_MIME: Record<string, string> = {
+    ...IMAGE_MIME,
+    ".html": "text/html; charset=utf-8",
+    ".htm": "text/html; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".mjs": "text/javascript; charset=utf-8",
+    ".json": "application/json",
+    ".md": "text/plain; charset=utf-8",
+    ".txt": "text/plain; charset=utf-8",
+    ".pdf": "application/pdf",
+    ".woff2": "font/woff2",
+    ".woff": "font/woff",
+    ".mp4": "video/mp4",
+  };
+  route("/file", (req, res, next) => {
+    if (req.method !== "GET" || !projectDir) return next();
+    let rel: string;
+    try {
+      rel = decodeURIComponent((req.url ?? "").split(/[?#]/)[0]);
+    } catch {
+      return next();
+    }
+    // `file:///C:/x` has the path `/C:/x`; the drive is the start of it on Windows.
+    const file = path.resolve(rel.replace(/^\/(?=[A-Za-z]:)/, ""));
+    const type = FILE_MIME[path.extname(file).toLowerCase()];
+    if (
+      !type ||
+      !fs.statSync(file, { throwIfNoEntry: false })?.isFile() ||
+      !fs.realpathSync(file).startsWith(fs.realpathSync(projectDir) + path.sep)
+    ) {
+      res.statusCode = 404;
+      return res.end("not a file of this project");
+    }
+    res.setHeader("Content-Type", type);
+    res.setHeader(
+      "Content-Security-Policy",
+      "sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads",
+    );
+    res.setHeader("Cache-Control", "no-store");
+    fs.createReadStream(file).pipe(res);
+  });
+
   // A board as a picture, for the chat panel: an agent takes a mockup the way it takes a
   // screenshot, and a page in an `<iframe>` cannot be read into a canvas from the browser
   // side. `refkit shoot` draws it — this repo's own renderer, on PATH beside the CLIs the
@@ -444,7 +494,9 @@ export function createSpServer(options: {
         if (isExample(slug)) return send(403, READ_ONLY);
         const layoutPath = path.join(canvasesDir, slug, "layout.json");
         // layout.json is optional: a folder of boards alone gets one holding just the ground.
-        const before = fs.existsSync(layoutPath) ? fs.readFileSync(layoutPath, "utf8") : "{}\n";
+        const before = fs.existsSync(layoutPath)
+          ? fs.readFileSync(layoutPath, "utf8")
+          : "{}\n";
         const after = withLayoutKey(before, "ground", ground);
         if (after !== before) {
           fs.writeFileSync(layoutPath, after);

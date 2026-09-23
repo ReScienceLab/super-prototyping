@@ -8,9 +8,21 @@
  * text (docs/2026-09-17-canvas-chat-panel.md).
  */
 import DOMPurify from "dompurify";
-import { marked } from "marked";
+import { Marked } from "marked";
 import remend from "remend";
 
+// The agent links what it made as `file:///…`, which DOMPurify drops and an http page could not
+// follow anyway. Relative to the project's page, `file/<path>` is the project's server
+// handing that file over (server/sp.ts), and a path outside the project is a 404 there.
+const md = new Marked({
+  walkTokens(token) {
+    if (token.type === "link" && /^file:\/\//i.test(token.href)) {
+      const url = new URL(token.href);
+      token.href = `file${url.pathname}${url.search}${url.hash}`;
+    }
+  },
+});
+
 export function renderMarkdown(text: string): string {
-  return DOMPurify.sanitize(marked.parse(remend(text), { async: false }));
+  return DOMPurify.sanitize(md.parse(remend(text), { async: false }));
 }

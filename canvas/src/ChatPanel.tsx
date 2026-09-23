@@ -1287,6 +1287,14 @@ export function ChatPanel(props: {
                   <div
                     key={i}
                     className="sp-chat-md"
+                    // A link opens beside the canvas rather than in place of it: in a browser a
+                    // tab, in the app a window, or the browser for a web address (desktop/main.ts).
+                    onClick={(e) => {
+                      const a = (e.target as Element).closest("a[href]");
+                      if (!(a instanceof HTMLAnchorElement)) return;
+                      e.preventDefault();
+                      window.open(a.href, "_blank", "noreferrer");
+                    }}
                     // Sanitized in markdown.ts; nothing else reaches this attribute.
                     dangerouslySetInnerHTML={{ __html: renderMarkdown(b.text) }}
                   />
