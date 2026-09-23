@@ -6,8 +6,8 @@ import {
   readCanvasLayout,
   shortName,
 } from "./canvasLibrary";
-import { WELCOME_PAGE_SLUG, brandPageUrl, canvasPageUrl } from "./canvasUrl";
-import { CanvasCta } from "./canvasCta";
+import { brandPageUrl, type CanvasTab } from "./canvasUrl";
+import { openInTab } from "./canvasTabs";
 
 /** How many pictures a card shows. Four fits one row at every width the grid goes down to. */
 const PREVIEW = 4;
@@ -48,8 +48,11 @@ function preview(slug: string) {
  * A kit is one product, and landing straight in one answers a question nobody asked yet: the
  * thing worth seeing first is that thirteen products were collected the same way, so they can be
  * read against each other. So the card is a preview and not a link — the pictures are the label.
+ *
+ * `open` is the same switch it is on BrandKit. Given it, this is a tab of the canvas app and the
+ * cards open tabs rather than navigating away from it.
  */
-export function BrandKitIndex() {
+export function BrandKitIndex({ open }: { open?: (tab: CanvasTab) => void }) {
   const pages = brandMaterialSlugs().map((slug) => ({
     slug,
     ...preview(slug),
@@ -58,13 +61,15 @@ export function BrandKitIndex() {
 
   return (
     <main>
-      <div className="topbar">
-        <a className="chip home" href={canvasPageUrl(WELCOME_PAGE_SLUG)}>
-          <img src={`${import.meta.env.BASE_URL}favicon-32.png`} alt="" />
-          <span>Super Prototyping</span>
-        </a>
-        <CanvasCta />
-      </div>
+      {!open && (
+        <div className="topbar">
+          {/* The canvas at its bare address, on the project's own view (canvasTabs.ts). */}
+          <a className="chip home" href={import.meta.env.BASE_URL}>
+            <img src={`${import.meta.env.BASE_URL}favicon-32.png`} alt="" />
+            <span>Super Prototyping</span>
+          </a>
+        </div>
+      )}
       <header className="head">
         <div>
           <h1>Brand kits</h1>
@@ -87,7 +92,14 @@ export function BrandKitIndex() {
       </header>
       <section className="band index">
         {pages.map((page) => (
-          <a className="product" key={page.slug} href={brandPageUrl(page.slug)}>
+          <a
+            className="product"
+            key={page.slug}
+            href={brandPageUrl(page.slug)}
+            onClick={
+              open && openInTab(open, { kind: "brand", slug: page.slug })
+            }
+          >
             <div className="product__head">
               <img
                 className="product__icon"

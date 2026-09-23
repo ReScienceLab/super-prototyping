@@ -35,12 +35,13 @@ export function rasterSize(
   markup: string,
   natural: { w: number; h: number },
 ): { w: number; h: number } {
-  // Malformed markup parses to a <parsererror> document, whose attributes are all absent: that
-  // falls through to `natural` on its own, so there is nothing here to catch.
-  const root = new DOMParser().parseFromString(
-    markup,
-    "image/svg+xml",
-  ).documentElement;
+  // The root's start tag, read with a pattern rather than a DOMParser, which code scanning reports
+  // as the file's text reinterpreted as markup; three attributes of one tag are all this needs. A
+  // file with no whole `<svg …>` tag states nothing and falls through to `natural`. The space
+  // before the name is what keeps `stroke-width` from reading as `width`.
+  const tag = /<svg\b[^>]*>/.exec(markup)?.[0] ?? "";
+  const attr = (name: string) =>
+    new RegExp(`\\s${name}\\s*=\\s*(["'])(.*?)\\1`).exec(tag)?.[2] ?? null;
   const px = (raw: string | null) => {
     const n = Number.parseFloat(raw ?? "");
     // A percentage or an em is a size relative to a box this has no business inventing.
@@ -48,9 +49,9 @@ export function rasterSize(
       ? n
       : 0;
   };
-  const box = (root.getAttribute("viewBox") ?? "").split(/[\s,]+/).map(Number);
-  const side = (attr: string, i: number, fallback: number) =>
-    px(root.getAttribute(attr)) ||
+  const box = (attr("viewBox") ?? "").split(/[\s,]+/).map(Number);
+  const side = (name: string, i: number, fallback: number) =>
+    px(attr(name)) ||
     (Number.isFinite(box[i]) && box[i]! > 0 ? box[i]! : 0) ||
     fallback;
   const w = side("width", 2, natural.w);

@@ -6,8 +6,8 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // HTML file in it becomes one shape. Add or edit files there; nothing here needs to change.
 //
 // Everything here reads the index the page fetched from `/__sp/index.json` before it imported
-// this module (canvasIndex.ts): the server scans PROTOTYPING_CANVASES_DIR per request, a build
-// wrote it once for this repo's own mockups/canvases. It was a module generated at build time
+// this module (canvasIndex.ts): the server scans the project's `canvases` per request, a build
+// wrote it once for this repo's own canvases. It was a module generated at build time
 // until the canvas became a served app, and `import.meta.glob` calls before that: a glob
 // pattern is a string literal resolved at build time, so it could only ever read one
 // hard-coded directory, never the boards of whoever installed it.
@@ -29,7 +29,7 @@ const board = (slug: string) => boards().find((b) => b.slug === slug);
  * only an encoding decodeURI reverses survives the round trip. That is also why `#` and `?` in
  * a name cannot be encoded away at all, and are dropped at scan time instead.
  */
-const boardFileUrl = (slug: string, file: string) =>
+export const boardFileUrl = (slug: string, file: string) =>
   `${import.meta.env.BASE_URL}board/${encodeURI(slug)}/${encodeURI(file)}`;
 
 /**
@@ -176,6 +176,45 @@ export interface CanvasLayoutConfig {
  */
 export const CANVAS_FILE_DEFAULT_SIZE = { w: 478, h: 980 } as const;
 
+/**
+ * The phone frame in a 478 x 980 artboard, `[x, y, w, h]`, which every folder here draws at the
+ * same place; a folder whose cover is not a phone overrides it with `coverBox` in its layout.json.
+ * A card crops to this rather than showing the whole board, so what it shows is the mockup and
+ * not the artboard margin around it.
+ */
+export const DEFAULT_COVER_BOX: [number, number, number, number] = [46, 24, 393, 852];
+
+/**
+ * Places a board behind the shell's screen so the `[x, y, w, h]` box fills it and sits centred:
+ * scaled by whichever axis binds, so the crop can lose a little of the box but never leave a gap.
+ */
+export function fitCover(
+  [x, y, bw, bh]: [number, number, number, number],
+  w: number,
+  h: number,
+) {
+  const scale = Math.max(w / bw, h / bh);
+  return {
+    scale,
+    left: w / 2 - (x + bw / 2) * scale,
+    top: h / 2 - (y + bh / 2) * scale,
+  };
+}
+
+/**
+ * The board that stands in for a folder on the welcome page and the home page: the one its
+ * layout.json names, else its first screen rather than its 00- board, which is a token sheet on
+ * every example and would make the cards look alike.
+ */
+export function coverFile(files: CanvasLibraryFile[]) {
+  const named = readCanvasLayout(files[0].pageSlug)?.cover;
+  return (
+    files.find((file) => file.fileName === named) ??
+    files.find((file) => !file.fileName.startsWith("00")) ??
+    files[0]
+  );
+}
+
 export function humanize(slug: string) {
   return slug
     .replace(/[-_]+/g, " ")
@@ -255,7 +294,7 @@ export async function writeBoardStatus(
 ) {
   const file = parse(path);
   if (!file) return false;
-  const response = await fetch("/__sp/board-status", {
+  const response = await fetch(`${import.meta.env.BASE_URL}__sp/board-status`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ slug: file.pageSlug, file: file.fileName, status }),
@@ -271,7 +310,7 @@ export async function writeBoardStatus(
  * Dev server only, like writeBoardStatus and for the same reason.
  */
 export async function cloneCanvas(slug: string, name: string) {
-  const response = await fetch("/__sp/clone-canvas", {
+  const response = await fetch(`${import.meta.env.BASE_URL}__sp/clone-canvas`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ slug, name }),

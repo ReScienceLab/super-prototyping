@@ -1,16 +1,15 @@
 /**
- * The startup page's only channel back to main.ts: open or create a project, which agent was
- * chosen, and a new project's name; "open" with a name is the project of that name under
- * Documents. It resolves to nothing, or to what to say under the name field when a project could
- * not be made. `check` is a click on the page's version: it looks for an update and resolves to
- * what to say beside the version. The window is sandboxed (Electron's default), so the page cannot reach `ipcRenderer`
- * itself. Bundled to CommonJS by package.json's build script, because a sandboxed preload cannot
- * use ESM imports.
+ * The app window's only channel back to main.ts, for what is the app's and not the project's.
+ * Making a project and opening a folder are the server's, which the page asks itself.
+ * `agent` is the onboarding's answer, remembered for the next launch. `check` is a click on the
+ * onboarding's version. It looks for an update and resolves to what to say beside the version.
+ * The window is sandboxed (Electron's default), so the page cannot reach `ipcRenderer` itself.
+ * Bundled to CommonJS by package.json's build script, because a sandboxed preload cannot use ESM
+ * imports.
  */
 import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("startup", {
-  choose: (action: "open" | "create", agent: string, name?: string) =>
-    ipcRenderer.invoke("startup:choose", action, agent, name),
+  agent: (id: string) => ipcRenderer.invoke("startup:agent", id),
   check: () => ipcRenderer.invoke("startup:check"),
 });

@@ -13,7 +13,7 @@ back to a measurement, not to a guess that "looks about right". The one
 thing built out of order is Phase 5's reference row: it needs no
 measurement, so it goes up first (see Phase 5).
 
-Output lands in `mockups/canvases/<slug>/` and the canvas picks it up
+Output lands in `canvases/<slug>/` and the canvas picks it up
 automatically. The `prototype-canvas` skill covers how folders become tldraw
 pages and how `layout.json` rows work. Name the folder for the source,
 e.g. `notion-ios`.
@@ -40,7 +40,7 @@ uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirect
 **Before Phase 1, check the project ignores what a run produces**, once per
 project: a run writes third-party captures into `ref-*.html` and
 `assets/refs/`, and committing those is hard to undo. Work in
-`mockups/canvases/<slug>/scratch/`. Each rule is checked on its own, and the
+`canvases/<slug>/scratch/`. Each rule is checked on its own, and the
 `**/` matters — a pattern with a slash in the middle only matches at the root:
 
 ```bash
@@ -55,7 +55,7 @@ without a directory writes into whatever the current directory happens to be,
 which is the user's project root as often as not:
 
 ```bash
-B=mockups/canvases/<slug>
+B=canvases/<slug>
 ```
 
 Worked examples and the folder skeleton ship with the plugin, which is
@@ -63,7 +63,7 @@ installed outside your project. Address them through the kit root:
 
 ```bash
 KIT="$(sp root)"
-ls "$KIT/mockups/canvases"
+ls "$KIT/canvases"
 ```
 
 A folder this skill names but that listing does not show means the plugin was
@@ -201,12 +201,12 @@ Cover, in this order, with a short prefix per app (`--n-` for Notion):
 - spacing and geometry constants: gutters, row height, tap target, status
   bar, sheet top inset
 
-`$KIT/mockups/canvases/luma-ios/` is a complete run to copy from: 19 boards (a
+`$KIT/canvases/luma-ios/` is a complete run to copy from: 19 boards (a
 token board, two evidence boards, 8 screens, 8 references), a four-row
 `layout.json`, a committed `gen.py`, and per-screen mean deltas of 3.47 to
 4.50 levels against the captures.
 
-`$KIT/mockups/canvases/duolingo-ios/` is the second complete run, and the one
+`$KIT/canvases/duolingo-ios/` is the second complete run, and the one
 to read when the screens are mostly illustration: 58 tokens, 8 screens, 128
 pieces of art, and per-screen mean deltas of 1.32 to 2.93, the best
 screenshot-sourced numbers in the repo. Every picture on it is a crop of the
@@ -217,7 +217,7 @@ ratio is not SF Pro's, and two defects that produced no error message. Board
 loses to.
 
 Start from the skeleton rather than a finished board: `mkdir -p
-mockups/canvases && cp -r "$KIT/mockups/canvases/templates" "$B"`. Its
+canvases && cp -r "$KIT/canvases/templates" "$B"`. Its
 `gen.py` builds the `:root` block *and* the evidence table from one `TOKENS`
 list, so a value cannot drift from the evidence behind it and a token cannot
 ship without one. Change `NAME` and the prefix, then replace every
@@ -227,7 +227,7 @@ Build the token board as the **first generated artboard** of the folder (the
 reference row is already up). It is the contract. When a screen looks wrong
 later, this is what you check it against.
 
-Once the screens exist, `refkit tokens mockups/canvases/<slug>` enforces the two
+Once the screens exist, `refkit tokens canvases/<slug>` enforces the two
 invariants this phase rests on: that every board inlines the *same* `:root`, and
 that nothing references a token that does not exist, in CSS or in the evidence
 table. Run it before you call the board done; a `--x-scrim-3` in an evidence row
@@ -241,12 +241,12 @@ When the evidence table outgrows the 478 × 980 box, split it onto its own
 ## Phase 3: one generator, N artboards
 
 Write **one** script that emits every `.html` file, and commit it with the
-boards it produces: `mockups/canvases/<slug>/gen.py`, plus its asset JSON,
+boards it produces: `canvases/<slug>/gen.py`, plus its asset JSON,
 resolving paths relative to `__file__` so
-`python3 mockups/canvases/<slug>/gen.py` regenerates the folder in place
-(`$KIT/mockups/canvases/templates/gen.py` is the skeleton,
-`$KIT/mockups/canvases/luma-ios/gen.py` a finished one, and
-`$KIT/mockups/canvases/duolingo-ios/gen.py` a finished one that also cuts and
+`python3 canvases/<slug>/gen.py` regenerates the folder in place
+(`$KIT/canvases/templates/gen.py` is the skeleton,
+`$KIT/canvases/luma-ios/gen.py` a finished one, and
+`$KIT/canvases/duolingo-ios/gen.py` a finished one that also cuts and
 places its own artwork from a `crops.json`). Do not hand-edit the
 artboards afterwards; edit the generator and re-run. That is what keeps
 eight files consistent through a dozen correction passes, and it only
@@ -550,8 +550,8 @@ it: `?canvas=<slug>#03-home` is the link to give for one screen.
 A board nobody can audit in six months is not finished, and the canvas shows
 pixels rather than reasoning. Three files, all of them small:
 
-**`mockups/canvases/<slug>/README.md`.** Copy the shape from
-`$KIT/mockups/canvases/apple-settings/README.md`.
+**`canvases/<slug>/README.md`.** Copy the shape from
+`$KIT/canvases/apple-settings/README.md`.
 
 [`references/documenting.md`](references/documenting.md) lists what it has to
 carry past a list of screens: the delta table, every substitution and its
@@ -573,8 +573,8 @@ that the others do not.
 Then check the run is reproducible from what you committed:
 
 ```bash
-python3 mockups/canvases/<slug>/gen.py            # byte-identical, no scratch dir
-refkit tokens mockups/canvases/<slug>
+python3 canvases/<slug>/gen.py            # byte-identical, no scratch dir
+refkit tokens canvases/<slug>
 ```
 
 ---

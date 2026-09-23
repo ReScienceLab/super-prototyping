@@ -19,18 +19,22 @@ scratch/
 # Phase 5 reference boards embed third-party app captures from Mobbin's library,
 # which this repo does not redistribute. They stay local; regenerate them per the
 # clone-prototype skill.
-mockups/canvases/*/ref-*.html
-mockups/canvases/*/refassets.json
-mockups/canvases/*/assets/refs/
+canvases/*/ref-*.html
+canvases/*/refassets.json
+canvases/*/assets/refs/
 # spotify-ios is the exception: prototyping.rescience.com is built from the checkout, so
 # its captures sit under the replicas on the hosted page only as committed boards.
-!mockups/canvases/spotify-ios/ref-*.html
+!canvases/spotify-ios/ref-*.html
 # grok-ios shows one capture on the hosted page, under board 14, by request: a native
 # screenshot, not a Mobbin one, parked where the replica can be compared against it.
-!mockups/canvases/grok-ios/ref-14-grok-bot-sheet.html
+!canvases/grok-ios/ref-14-grok-bot-sheet.html
 # Same rule for the walkthrough row and its crops: they show the capture itself.
-mockups/canvases/*/w[0-9]-*.html
-mockups/canvases/*/walkassets.json
+canvases/*/w[0-9]-*.html
+canvases/*/walkassets.json
+# Where the boards were until 2026-09-22. A checkout from before then keeps the captures
+# ignored above there after a pull, since git moves only tracked files. Move them into
+# canvases/; this keeps them out of a commit until then.
+/mockups/
 __pycache__/
 
 # git worktrees created by agent sessions

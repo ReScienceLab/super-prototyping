@@ -401,7 +401,7 @@ export function installCanvasComments(editor: Editor) {
       written.set(slug, body);
       const file = body ? (JSON.parse(body) as CommentsFile) : null;
       if (canvasIndex().served) {
-        void fetch("/__sp/comments", {
+        void fetch(`${import.meta.env.BASE_URL}__sp/comments`, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ slug, file }),

@@ -25,7 +25,7 @@ schema, the verification script and the gen.py rule.
 ## What you are producing
 
 ```
-mockups/canvases/<slug>/
+canvases/<slug>/
   assets/brand/
     manifest.json          the source of record: rows, in canonical order
     identity/  social/  stores/  ads/  press/
@@ -47,10 +47,10 @@ with a caveat in the label.
    one's rows:
    ```bash
    KIT="$(sp root)"
-   ls "$KIT"/mockups/canvases/*/assets/brand/manifest.json
+   ls "$KIT"/canvases/*/assets/brand/manifest.json
    python3 -c 'import json,sys
    for r in json.load(open(sys.argv[1])): print(len(r["images"]), r["title"])' \
-     "$KIT/mockups/canvases/claude-ios/assets/brand/manifest.json"
+     "$KIT/canvases/claude-ios/assets/brand/manifest.json"
    ```
 2. **The company's own brand or press kit.** Full-resolution logos, the type
    and the colour values come from here, so check it first. See

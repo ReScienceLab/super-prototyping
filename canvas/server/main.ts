@@ -1,42 +1,37 @@
 /**
- * The canvas as a localhost app: the built `dist` served as static files, with the same
- * `/__sp` and `/board` server in front of it that the Vite dev server mounts. Bundled to
- * `dist/server.mjs` by `bun run build`, so `sp start` runs one file with node or bun
- * and no dev toolchain. Usage: `node dist/server.mjs --port 5173`.
+ * The canvas as a localhost app: the built `dist` served as static files, with every project's
+ * `/__sp` and `/board` server in front of it (projects.ts), the same one the Vite dev server
+ * mounts. Bundled to `dist/server.mjs` by `bun run build`, so `sp start` runs one file with node
+ * or bun and no dev toolchain. Usage: `node dist/server.mjs --port 5173 --open <project>`.
+ *
+ * Every folder in the projects directory is served at `/p/<name>/`, with the examples beside
+ * it. `--open` serves one more folder, from anywhere, which is what `sp start` opens, and `/`
+ * redirects to it. The desktop app runs this same file and opens its folders over the parent
+ * port instead.
  */
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createSpServer } from "./sp.ts";
-import { refresh } from "./skills.ts";
+import { createProjectsServer, projectsDirFromEnv } from "./projects.ts";
 
 const dist = path.dirname(fileURLToPath(import.meta.url));
-// The plugin root: where the skill an agent is pointed at lives, and whose boards a checkout
-// serves by default. `sp start` resolves it and passes it, because the bundle a
-// release attaches runs from ~/.cache/super-prototyping/<version>/dist with no checkout
-// above it. Derived only for `node dist/server.mjs` run by hand inside a checkout, where
-// this file sits two levels below it.
+// The plugin root: where the skill an agent is pointed at lives, and whose canvases are the
+// examples. `sp start` resolves it and passes it, because the bundle a release attaches runs from
+// ~/.cache/super-prototyping/<version>/dist with no checkout above it. Derived only for
+// `node dist/server.mjs` run by hand inside a checkout, where this file sits two levels below it.
 const repoRoot = process.env.SUPER_PROTOTYPING_ROOT
   ? path.resolve(process.env.SUPER_PROTOTYPING_ROOT)
   : path.resolve(dist, "../..");
-const canvasesDir = path.resolve(
-  process.env.PROTOTYPING_CANVASES_DIR ||
-    path.join(repoRoot, "mockups/canvases"),
-);
-const projectDir = process.env.PROTOTYPING_PROJECT_DIR
-  ? path.resolve(process.env.PROTOTYPING_PROJECT_DIR)
-  : null;
-// Read-only canvases shown beside the project's own. The desktop app sets this to the examples it
-// ships. `sp start` does not, and shows a project's boards alone.
-const examplesDir = process.env.PROTOTYPING_EXAMPLES_DIR
-  ? path.resolve(process.env.PROTOTYPING_EXAMPLES_DIR)
-  : null;
+const projectsDir = projectsDirFromEnv();
 
-const portArg = process.argv.indexOf("--port");
-const port = portArg === -1 ? 5173 : Number(process.argv[portArg + 1]);
+const arg = (flag: string) => {
+  const at = process.argv.indexOf(flag);
+  return at === -1 ? undefined : process.argv[at + 1];
+};
+const port = Number(arg("--port") ?? 5173);
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
-  throw new Error(`--port needs a port number, got ${process.argv[portArg + 1]}`);
+  throw new Error(`--port needs a port number, got ${arg("--port")}`);
 }
 
 const TYPES: Record<string, string> = {
@@ -89,20 +84,40 @@ function serveStatic(req: http.IncomingMessage, res: http.ServerResponse) {
   }
 }
 
-// Bring any marked skill copies in the project up to this tree's version before anything else
-// touches it. The app and `sp start` both run this file, so this is the one place a stale copy gets
-// caught. It prints nothing, because the signal is `git diff`, not a log line.
-refresh(projectDir, repoRoot);
+const projects = createProjectsServer({ projectsDir, repoRoot });
+// Before the port is taken, so a folder that is not there fails the start rather than a server.
+const openArg = arg("--open");
+if (openArg !== undefined) projects.open(openArg);
 
-const sp = createSpServer({ canvasesDir, examplesDir, projectDir, repoRoot });
+/**
+ * A folder's path, from the desktop app before it opens a project, answered with the address it
+ * is served at. The path comes over the parent port of Electron's utility process, which only the
+ * app that started this server holds. `sp start` runs under node, which has no parent port.
+ */
+const parentPort = (
+  process as NodeJS.Process & {
+    parentPort?: {
+      on(event: "message", listener: (message: { data: string }) => void): void;
+      postMessage(message: { address: string } | { error: string }): void;
+    };
+  }
+).parentPort;
+parentPort?.on("message", ({ data }) => {
+  try {
+    parentPort.postMessage({ address: projects.open(data) });
+  } catch (error) {
+    parentPort.postMessage({ error: String(error) });
+  }
+});
+
 const server = http.createServer((req, res) =>
-  sp.handle(req, res, () => serveStatic(req, res)),
+  projects.handle(req, res, () => serveStatic(req, res)),
 );
-server.once("close", sp.close);
+server.once("close", projects.close);
 // Loopback only. This is a local design tool, not a service to expose.
 server.listen(port, "127.0.0.1", () => {
   console.log(`canvas   http://127.0.0.1:${port}/`);
-  console.log(`boards   ${canvasesDir}`);
+  console.log(`projects ${projectsDir}`);
 });
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, () => {

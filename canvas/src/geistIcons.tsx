@@ -20,11 +20,16 @@ import {
   Cross as GCross,
   Eye as GEye,
   EyeOff as GEyeOff,
+  File as GFile,
+  FolderPlus as GFolderPlus,
   Fullscreen as GFullscreen,
+  Home as GHome,
   Image as GImage,
   Layers as GLayers,
   Layout as GLayout,
+  LogoDiscord as GLogoDiscord,
   LogoFigma as GLogoFigma,
+  LogoGithub as GLogoGithub,
   Message as GMessage,
   Pen as GPen,
   Plus as GPlus,
@@ -48,12 +53,17 @@ export const Copy = at16(GCopy);
 export const Cross = at16(GCross);
 export const Eye = at16(GEye);
 export const EyeOff = at16(GEyeOff);
+export const File = at16(GFile);
+export const FolderPlus = at16(GFolderPlus);
 export const Fullscreen = at16(GFullscreen);
+export const Home = at16(GHome);
 export const Image = at16(GImage);
 export const Layers = at16(GLayers);
 export const Layout = at16(GLayout);
+export const LogoDiscord = at16(GLogoDiscord);
 /** Figma's mark, in Geist's own transcription of it, still in Figma's five colours. */
 export const LogoFigma = at16(GLogoFigma);
+export const LogoGithub = at16(GLogoGithub);
 export const Message = at16(GMessage);
 export const Pen = at16(GPen);
 export const Plus = at16(GPlus);

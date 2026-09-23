@@ -20,7 +20,10 @@ import {
   CommentTool,
   commentToolOverrides,
 } from "@tldraw/commenting";
-import { CanvasAttachButtons } from "./canvasAttach";
+import {
+  CanvasAttachButtons,
+  CanvasSelectionAttachButton,
+} from "./canvasAttach";
 import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
 import {
@@ -29,20 +32,11 @@ import {
   resolveAuthor,
   type CommentUser,
 } from "./canvasComments";
-import { CanvasCta } from "./canvasCta";
 import { canvasIndex } from "./canvasIndex";
-import { hasBrandMaterial } from "./canvasLibrary";
 import type { CanvasFileShape } from "./CanvasFileShapeUtil";
-import {
-  Copy,
-  Cross,
-  Layers,
-  LogoFigma,
-  Message,
-  RefreshCounterClockwise,
-  SidebarLeft,
-} from "./geistIcons";
-import { WELCOME_PAGE_SLUG, brandPageUrl, sheetPageUrl } from "./canvasUrl";
+import { HOME_TAB } from "./canvasTabs";
+import { Copy, Cross, Message, RefreshCounterClockwise } from "./geistIcons";
+import { WELCOME_PAGE_SLUG, type CanvasTab } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
 const COMMENT_USER_DIALOG = "comment-user";
@@ -71,11 +65,12 @@ export const CanvasChromeContext = createContext({
   /** Whether the inspector is docked at all, over a board or over a piece of brand material. */
   inspectorOpen: false,
   /**
-   * Whether the chat panel is shut, and the switch for it. Held by App, because the button that
-   * works it is in the canvas's top bar and the panel it works on is the bar's sibling.
+   * The view in front and the way to show another of this project's. A view is a canvas, which is
+   * a tldraw page, or a kit, which is an overlay over the whole editor. Held by App, which owns
+   * both.
    */
-  chatCollapsed: false,
-  toggleChat: () => {},
+  activeTab: HOME_TAB,
+  openTab: (_view: CanvasTab) => {},
   /** Hands that board's frame to the panel, which reads its report and posts the selection back. */
   setInspectorFrame: (_frame: HTMLIFrameElement | null) => {},
 });
@@ -126,138 +121,64 @@ export const canvasCommentTools = [
  * the theme, and this takes away the one way left of leaving it. Deleting the action is enough
  * because the shortcut table and the shortcuts dialog both draw from this map — the dialog's
  * item renders nothing for an action that is not there — and the colour-scheme menu lives only
- * in tldraw's main menu, which `MainMenu` below replaces. This tldraw exports no user-preference
+ * in tldraw's main menu, which `MenuPanel` below takes away. This tldraw exports no user-preference
  * hook to pin the scheme with; if one arrives, it is the single mechanism to move to.
  */
 export const canvasUiOverrides: TLUiOverrides = {
-  ...commentToolOverrides,
   actions(_editor, actions) {
     delete actions["toggle-dark-mode"];
     return actions;
+  },
+  /**
+   * Select and comment are the only modes left reachable — not just off the toolbar (`Toolbar:
+   * null` below), off the keyboard too. `useTools()` is what both the toolbar and
+   * `useKeyboardShortcuts` draw their entries from, so a tool missing here has no `kbd` left to
+   * fire: this is the one table both paths read, and the boards on this canvas are read, not
+   * drawn on, so draw, the geo shapes, arrow, line, frame, text, note, the asset picker, laser and
+   * eraser have nothing to be reached for. Before this, a stray keypress on the canvas — "d" or
+   * "b" for the draw tool chief among the reports — dropped the user into one of them with no
+   * toolbar left to show what had changed or a click back to select from. Comment survives: its
+   * own accidental-press case is already handled below (`InFrontOfTheCanvas` drops back to select
+   * when its name dialog closes empty), and it is a deliberate feature, not a drawing tool.
+   */
+  tools(editor, tools, helpers) {
+    const { select, comment } =
+      commentToolOverrides.tools?.(editor, tools, helpers) ?? tools;
+    return { select, comment };
   },
 };
 
 export const canvasChromeComponents: TLComponents = {
   /**
-   * tldraw's own menu is gone. Everything in it is either somewhere better already, since the
-   * app's export controls are in the bar beside it and cut, copy, paste and undo are on the
-   * keyboard and in the context menu, or it is about editing a document nobody here owns. These
-   * boards are written from files by a generator, so embedding a video in one, uploading media
-   * to one, or picking a language for the app that renders it are eight submenus deep in
-   * settings for something that cannot be edited from this side anyway.
+   * tldraw's whole top-left bar is gone, and CanvasTabBar.tsx is drawn where it was. `MenuPanel`
+   * is the strip itself: the main menu, the page menu, and the quick actions and actions menu
+   * beside them. So one null takes all four, and nothing below has to say again that it is not
+   * drawn.
    *
-   * The slot holds the chat panel's switch instead. It is the leftmost thing in the top bar,
-   * against the window's left edge, which is where the switch for the panel on that edge belongs.
-   * In the panel's own header it would disappear along with the panel and need a second control
-   * to undo it. Served only, like the panel itself.
-   */
-  MainMenu: canvasIndex().served
-    ? () => {
-        const chrome = useContext(CanvasChromeContext);
-        return (
-          <TldrawUiButton
-            type="icon"
-            title={
-              chrome.chatCollapsed
-                ? "Open the chat panel"
-                : "Collapse the chat panel"
-            }
-            onClick={chrome.toggleChat}
-          >
-            <TldrawUiButtonIcon icon={<SidebarLeft />} />
-          </TldrawUiButton>
-        );
-      }
-    : null,
-  /**
-   * The two CTAs, pinned to the viewport's top-right corner rather than drawn on the welcome
-   * board, so they are there on every page and do not scroll away with the canvas. `SharePanel`
-   * is tldraw's own slot for exactly this: it renders in `.tlui-layout__top__right`, above the
-   * style panel, which is where a tldraw app puts its share and account controls.
+   * Each of the four for its own reason. The main menu was either somewhere better already,
+   * since cut, copy, paste and undo are on the keyboard and in the context menu, or it was
+   * about editing a document nobody here owns. A generator writes these boards from files, so
+   * embedding a video in one, uploading media to one, or picking a language for the app that
+   * renders it are eight submenus deep in settings for something that cannot be edited from
+   * this side anyway. The page menu named the same folders the strip's tabs name now, and the
+   * rest of what it offered, rename, duplicate and delete a page, acts on pages a folder
+   * generates and the next load would put straight back. Quick actions and the actions menu
+   * were shape editing: undo, redo, delete, duplicate and the overflow of aligns, distributes
+   * and reorders. The actions stay on the keyboard and the right button; six buttons for
+   * nudging a board crowd out the row of tabs the bar is for.
    *
-   * The inspector docks into the same row and narrows the canvas under it, which would slide the
-   * pair left and clip it. They are an invitation, not a tool, so the one that goes is them.
+   * Where the rest went: the chat panel's switch, which the main menu held, is the Agent button
+   * at the start of the bar (ChatPanel.tsx), and Figma, which the actions menu held, is Export
+   * to Figma at the end of the canvas strip (CanvasStrip.tsx). Commenting, cloning and
+   * force-relayout were in this row once too and are on the right button now (ContextMenu
+   * below), where the pointer is already on the thing they act on.
    */
-  SharePanel: () => {
-    if (useContext(CanvasChromeContext).inspectorOpen) return null;
-    return <CanvasCta />;
-  },
-  /**
-   * Shape editing is gone from the top bar: undo, redo, delete and duplicate (QuickActions
-   * below) and the overflow of aligns, distributes and reorders that `DefaultActionsMenu`
-   * opens. These shapes are boards written from files, so six buttons for nudging them crowd
-   * out the two the bar is for. The actions stay — the keyboard and the context menu have them.
-   *
-   * What is left is the two places a board goes next, and nothing else. Comment, clone and
-   * force-relayout were here too and are on the right button now (ContextMenu below). They act on
-   * whatever is under the cursor, or on the whole page, which is where a right-click already
-   * points. A top bar of two destinations reads at a glance, and one of five does not.
-   */
-  ActionsMenu: () => {
-    const editor = useEditor();
-    const slug = useValue(
-      "canvas slug",
-      () => editor.getCurrentPage().meta.canvasSlug as string | undefined,
-      [editor],
-    );
-    // Undefined on a page that collected no material — the welcome page, a folder someone has
-    // only just started — and the button then opens the index of every page that did.
-    const brandSlug = slug && hasBrandMaterial(slug) ? slug : undefined;
-
-    return (
-      <>
-        {/* An anchor wearing the toolbar's button, not a button: this is a link to another page
-            of the app, so ⌘-click, middle click and copy-link all have to work on it.
-            Named for where the boards are going rather than for what the click does — an
-            external-link arrow is a true description of it that tells nobody it is the way
-            into Figma, which is what people are here to do with a mockup. */}
-        {slug && (
-          <a
-            className="tlui-button sp-figma"
-            href={sheetPageUrl(slug)}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Open every board on this page as one web page — the page an importer such as html.to.design reads into Figma"
-          >
-            <LogoFigma />
-            <span className="sp-figma__label">Export to Figma</span>
-          </a>
-        )}
-        {/* The second destination, next to the first: the pictures a product publishes of
-            itself. They are collected per page, so a page that collected none — the welcome
-            page, a folder someone has only just started — still gets the button and opens the
-            index of the ones that did. Every page has somewhere to go. */}
-        {slug && (
-          <a
-            className="tlui-button sp-brand"
-            href={brandPageUrl(brandSlug)}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={
-              brandSlug
-                ? "Open the brand kit collected for this page — the logos, social profiles, store listings and advertising this product publishes"
-                : "Open the brand kits — the logos, social profiles, store listings and advertising these products publish, one kit per example"
-            }
-          >
-            {/* A stack of sheets. Under 720px the label goes and the mark is the whole button,
-                so it has to carry "brand kit" alone, and Geist's one picture frame says
-                "images", which is every other button that ever held one. A kit is the stack. */}
-            <Layers />
-            <span className="sp-brand__label">Brand kit</span>
-          </a>
-        )}
-      </>
-    );
-  },
-  /** The undo, redo, delete and duplicate cluster, gone with the rest of the shape editing, since
-   *  these boards are written from files. The comment button stood here alone for a while, and is
-   *  on the right button with the other two now. */
-  QuickActions: null,
+  MenuPanel: null,
   /**
    * The right button carries everything the top bar does not: commenting, the clone and the
    * relayout. The bottom toolbar is gone (Toolbar below) because a canvas of boards is read, not
    * drawn on, and all three of these act on what is under the cursor or on the page it is on,
-   * which is what a right-click has already picked out. The top bar keeps the two links out.
+   * which is what a right-click has already picked out. The bar above keeps the tabs.
    */
   ContextMenu: (props) => {
     const chrome = useContext(CanvasChromeContext);
@@ -390,6 +311,7 @@ export const canvasChromeComponents: TLComponents = {
         />
         {/* Dev only, like the panel they hand things to. */}
         {canvasIndex().served && <CanvasAttachButtons />}
+        {canvasIndex().served && <CanvasSelectionAttachButton />}
         {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
             next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}

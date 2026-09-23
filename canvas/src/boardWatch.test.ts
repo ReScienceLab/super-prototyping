@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { boardChangeKind, boardSetSignature, boardSlug } from './boardWatch'
 
-const DIR = '/project/mockups/canvases'
+const DIR = '/project/canvases'
 const kind = (file: string) => boardChangeKind(DIR, `${DIR}/${file}`)
 
 describe('boardChangeKind', () => {
@@ -37,11 +37,11 @@ describe('boardChangeKind', () => {
   it('claims nothing outside the boards directory', () => {
     expect(boardChangeKind(DIR, '/project/src/App.tsx')).toBeNull()
     // A sibling whose name starts with the same characters is not inside it.
-    expect(boardChangeKind(DIR, '/project/mockups/canvases-old/demo/a.html')).toBeNull()
+    expect(boardChangeKind(DIR, '/project/canvases-old/demo/a.html')).toBeNull()
   })
 
   it('reads a Windows path the way it reads a POSIX one', () => {
-    const dir = 'C:\\project\\mockups\\canvases'
+    const dir = 'C:\\project\\canvases'
     expect(boardChangeKind(dir, `${dir}\\demo\\a.html`)).toBe('board')
     expect(boardSlug(dir, `${dir}\\demo\\layout.json`)).toBe('demo')
   })

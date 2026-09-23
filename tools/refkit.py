@@ -547,7 +547,7 @@ def _overflow(html, w, h, clip_ok=()):
 
     The probe measures a copy of the board with a reporter script appended;
     the script is display:none so it cannot move what it reports, and the copy
-    lives in a temp dir so a transient file never appears under mockups/. Do
+    lives in a temp dir so a transient file never appears under canvases/. Do
     not do this with a pixel probe: a card's box-shadow tail paints ~60px below
     its own bottom edge and reads as overflow that is not there.
 

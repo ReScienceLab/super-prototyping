@@ -10,7 +10,9 @@
     <title>Brand</title>
     <meta name="robots" content="noindex" />
   </head>
-  <body>
+  <!-- The kit's own ground, ink and box model (brand.css). On the element rather than on
+       `:root`, because the same markup is also a tab inside the dark canvas app. -->
+  <body class="brand-page">
     <div id="root"></div>
     <script type="module" src="/src/brand.tsx"></script>
   </body>

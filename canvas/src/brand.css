@@ -18,18 +18,17 @@
 @view-transition {
   navigation: auto;
 }
-:root {
+/* The whole page, on one class rather than on `:root` and `body`. The same markup is also a tab
+   inside the canvas app, whose document is dark and whose `:root` and `body` belong to
+   index.css; a light `color-scheme` and this ground set there would repaint the app around it.
+   brand.html puts the class on its `<body>`, so that page is unchanged. */
+.brand-page {
   color-scheme: light;
   --ground: #f3f4f1;
   --ink: #292e2e;
   --sub: #6f7573;
   --hair: #dddedb;
   --card: #ffffff;
-}
-* {
-  box-sizing: border-box;
-}
-body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
@@ -40,6 +39,10 @@ body {
     Roboto,
     sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+.brand-page,
+.brand-page * {
+  box-sizing: border-box;
 }
 /* Sections run edge to edge and are separated by one hairline, so the page reads as a stack of
    bands rather than as floating groups. The inner padding is what keeps content off the edge. */
@@ -52,8 +55,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- switch ---- */
-/* Two rows across the top of the page: the way back to the canvas and the same two CTAs the
-   canvas pins to its own top-right corner, then the shelf under them at full width. The shelf is
+/* Two rows across the top of the page: the way back to the canvas, then the shelf under it at
+   full width. The shelf is
    thirteen products wide and wants the whole line; sharing one with the pills left it a slot. */
 .topbar {
   display: flex;
@@ -61,9 +64,6 @@ body {
   align-items: center;
   gap: 6px 10px;
   padding: 10px 16px 8px 23px;
-}
-.topbar .canvas-cta-group {
-  margin: 0 0 0 auto;
 }
 /* The other examples, as a shelf of app icons above everything. One scrolling row rather than a
    wrapping block: the strip is navigation, and navigation that changes height as the window
@@ -229,7 +229,10 @@ body {
     grid-template-columns: repeat(min(var(--cols), 2), minmax(0, 1fr));
   }
 }
-figure {
+/* Under the page's class, like the ground above it, because the canvas app draws figures of its
+   own, in the chat panel's attachment tiles and the inspector's asset view, and a bare `figure`
+   rule here would reach them once this sheet is loaded alongside index.css. */
+.brand-page figure {
   margin: 0;
 }
 /* The card is the only thing with a border and a radius, and the picture fills it: no inner
@@ -255,7 +258,7 @@ figure {
   height: auto;
   object-fit: contain;
 }
-figcaption {
+.brand-page figcaption {
   margin-top: 10px;
   font-size: 13px;
   line-height: 1.35;

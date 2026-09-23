@@ -1,21 +1,28 @@
 /**
- * The chat panel: a message to Claude Code or Codex, run in the user's project by the server,
- * and what it did, drawn as it happens. Served only — App.tsx mounts it when the index says a
- * server is behind /__sp, since a hosted build has no /__sp/agent endpoints and no process
- * behind them.
+ * The chat panel: a message to Claude Code or Codex, run by the server on the project in front,
+ * and what it did, drawn as it happens. The app's, not a project's: fixed down the left of the
+ * window, under the tab bar, beside the home page and every project's canvas alike, and mounted
+ * once by the window (AppShell.tsx). No tab switch and no board write reloads the window, only
+ * the canvas's frame, so what is typed in it stays through both. Served only. The window mounts
+ * it when the index says a server is behind /__sp, since a hosted build has no /__sp/agent
+ * endpoints and no process behind them.
  *
- * The panel keeps the ids of its runs in sessionStorage and follows every one again after the
- * reload a board write causes, from event zero: the transcript is rebuilt, not saved, since the
- * server has the whole run (chatTransport.ts). One run at a time — two agents editing one project
- * would race each other — so Send is Stop while one is going.
+ * A conversation is a session: the agent resumes it on every message, so it remembers the ones
+ * before, and each message says which project is in front, so one session can go from project to
+ * project, or start on the home page with none (server/agent.ts). New session starts another. The
+ * panel keeps the session and the ids of its runs in sessionStorage, and follows every run again
+ * after the window itself is reloaded, from event zero. The transcript is rebuilt, not saved,
+ * since the server has the whole run (chatTransport.ts). One run at a time — two agents editing
+ * one project would race each other — so Send is Stop while one is going.
  *
- * The header names the conversation, with the model's own title once it has given one, behind
- * the mark of the agent the next message goes to. The mark is the switch: it opens a menu of the
- * agents the server found on PATH, the choice lives in localStorage and travels with the
- * message, and each turn and history row carries the mark of the agent that ran it, which the
- * run's start event says. The clock lists the runs the server still holds, and the panel icon
- * folds the panel to a rail — the mark, which opens it again — that keeps following whatever is
- * running.
+ * The header names the conversation, with the model's own title once it has given one. The
+ * agent the next message goes to is the button at the start of the tab bar, which shows its
+ * mark. A click puts the panel out or away, hidden rather than unmounted so it keeps following
+ * whatever is running, and a right-click opens a menu of the agents the server found on PATH.
+ * The choice lives in localStorage and travels with the message, and each turn and history row
+ * carries the mark of the agent that ran it, which the run's start event says. A session is one
+ * agent's, so choosing the other starts a new one. The clock lists the sessions, each with the
+ * projects it worked on, and picking one resumes it.
  *
  * Images are attached by number. The icon under the box, a paste, or a drop puts a
  * screenshot in the tray above it as #1, #2, #3; clicking a tile drops that number into the
@@ -41,23 +48,20 @@
  * CLI's own configuration decides until the user says otherwise, and both are per agent — a
  * codex model means nothing to claude — and kept in localStorage beside the agent itself. The
  * server serves the lists (agents.ts): claude's models are its aliases, codex's are the ones
- * its own picker draws, read from the list it caches. The token count is the last turn's, not
- * the conversation's, because every message is its own process with no memory of the last.
+ * its own picker draws, read from the list it caches. The token count is the last turn's, which
+ * holds as much of the session as the agent carried into it.
  */
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
-import { useValue } from "tldraw";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
   ATTACH_TYPES,
   MAX_IMAGE_BYTES,
   MAX_IMAGES,
   SVG_TYPE,
+  AGENTS,
   type AgentId,
   type AgentModel,
 } from "./agents";
-import type { RunSummary } from "./agentRun";
-import { CANVAS_ATTACH, type CanvasAttachDetail } from "./canvasAttach";
-import { CanvasChromeContext } from "./canvasChrome";
-import { WELCOME_PAGE_SLUG } from "./canvasUrl";
+import type { Session } from "./agentRun";
 import { namedPictures, readDraft, slashWord } from "./chatDraft";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
@@ -66,12 +70,109 @@ import { Check, ClockRewind, Image, Plus } from "./geistIcons";
 import { renderMarkdown } from "./markdown";
 import { rasterizeSvg } from "./svgRaster";
 
+// The conversation is the app's, not a project's, and so is the one server that runs it
+// (server/agent.ts), so a tab switched to another project carries on with the same one.
+const SESSION_KEY = "sp-chat-session";
 const RUNS_KEY = "sp-chat-runs";
 const QUEUE_KEY = "sp-chat-queue";
 const SENT_KEY = "sp-chat-sent";
 const AGENT_KEY = "sp-chat-agent";
 const CHOICE_KEY = "sp-chat-choice";
 const COMMANDS_KEY = "sp-chat-commands";
+const OPEN_KEY = "sp-chat-open";
+
+/**
+ * What the canvas hands the chat panel when the button is pressed (canvasAttach.tsx): a picture
+ * to attach to the message, or the reason none was. A board comes over as a picture too. The
+ * file's own name says which board it is, and the panel shows it under the tile. And the start
+ * of a message, from the strip's "+" (CanvasStrip.tsx), because a canvas is only ever the
+ * agent's work, and a folder with no boards in it is not one.
+ *
+ * On `window`, because the panel is a sibling of `<Tldraw>` and the button renders inside it,
+ * the same arrangement, and the same answer, as ASK_COMMENT_USER (canvasChrome.tsx). Here rather
+ * than beside the button, so the home page, which has the panel and no canvas, has no tldraw.
+ */
+export const CANVAS_ATTACH = "sp:canvas-attach";
+
+export type CanvasAttachDetail =
+  | { kind: "image"; file: File }
+  | { kind: "error"; message: string }
+  | { kind: "draft"; text: string };
+
+/**
+ * Whether the panel is out and which agent the next message goes to, and the ways to say so. The
+ * app's, like the conversation, and shown on the tab bar's first button as well as in the panel,
+ * so held by the page that draws both. There is one of each for the home page and every tab,
+ * remembered across reloads. Out until first put away, since talking to the agent is what the
+ * app is for.
+ */
+// oxlint-disable-next-line react/only-export-components
+export function useChat() {
+  const [agent, setAgent] = useState<AgentId>(() => {
+    const stored = localStorage.getItem(AGENT_KEY);
+    return stored && stored in MARKS ? (stored as AgentId) : "claude";
+  });
+  const [open, setOpen] = useState(() => {
+    try {
+      return localStorage.getItem(OPEN_KEY) !== "false";
+    } catch {
+      return true;
+    }
+  });
+  return {
+    open,
+    show(next: boolean) {
+      try {
+        localStorage.setItem(OPEN_KEY, String(next));
+      } catch {
+        // Storage unavailable (private mode, blocked cookies), so the choice lasts until a reload.
+      }
+      setOpen(next);
+    },
+    agent,
+    choose(id: AgentId) {
+      localStorage.setItem(AGENT_KEY, id);
+      setAgent(id);
+    },
+  };
+}
+
+export type Chat = ReturnType<typeof useChat>;
+
+/**
+ * The agent's button, first in the tab bar and over the panel it puts out and away, in the mark
+ * of the agent the panel talks to. A right-click is the menu of agents, which is not in the panel,
+ * since the panel may be away.
+ */
+export function AgentButton({ chat }: { chat: Chat }) {
+  const name = AGENTS.find((a) => a.id === chat.agent)!.name;
+  return (
+    <button
+      type="button"
+      className="sp-agent-toggle"
+      aria-pressed={chat.open}
+      onClick={() => chat.show(!chat.open)}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        const menu = document.getElementById("sp-chat-agents")!;
+        // macOS asks for the menu on the press, and the release after it is a click outside a
+        // menu opened then, which shuts it. So with a button still down, the menu opens once that
+        // is let go, after the browser has handled the release. Windows asks on the release, and
+        // the Menu key with no button down at all.
+        if (event.buttons === 0) return menu.showPopover();
+        window.addEventListener(
+          "pointerup",
+          () => setTimeout(() => menu.showPopover()),
+          { once: true },
+        );
+      }}
+      aria-label={name}
+      title={`${chat.open ? "Hide" : "Show"} ${name} · Right-click to switch agents`}
+    >
+      <Mark agent={chat.agent} />
+    </button>
+  );
+}
 
 /**
  * The commands this browser was last told each agent had. The palette has to open on the slash
@@ -103,19 +204,20 @@ const tokens = (n: number) =>
 /** Each agent's mark, by the id the server names it with. */
 const MARKS = { claude: ClaudeMark, codex: CodexMark };
 
-function Mark({ agent, size }: { agent: AgentId; size?: number }) {
+export function Mark({ agent, size }: { agent: AgentId; size?: number }) {
   const Agent = MARKS[agent];
   return <Agent size={size} />;
 }
 
 /** One entry of GET /__sp/agent/agents. */
-interface AgentRow {
+export interface AgentRow {
   id: AgentId;
   name: string;
   available: boolean;
   models: AgentModel[];
   efforts: string[];
   missing: string;
+  site: string;
 }
 
 /** A message sent while a run was on, held for the next one. */
@@ -139,24 +241,28 @@ interface Attached {
   url: string;
 }
 
-export function ChatPanel() {
-  const { editor, chatCollapsed } = useContext(CanvasChromeContext);
-  const slug = useValue(
-    "canvas slug",
-    () => editor?.getCurrentPage().meta.canvasSlug as string | undefined,
-    [editor],
-  );
-  // The welcome page is drawn by the app and has no folder, so it is no canvas to the agent.
-  const canvas = slug && slug !== WELCOME_PAGE_SLUG ? slug : undefined;
+/**
+ * `canvas` is the one in front, which the message names to the agent; the home page has none.
+ * `project` is the project in front, by the name its address carries; none on the home page or
+ * an example. A shut panel is hidden, not unmounted, so it keeps following a run and comes back
+ * to it.
+ */
+export function ChatPanel(props: {
+  canvas?: string;
+  project?: string;
+  chat: Chat;
+}) {
+  const { canvas, project } = props;
+  const { open, agent } = props.chat;
   const [turns, setTurns] = useState<Turn[]>(() =>
     (JSON.parse(sessionStorage.getItem(RUNS_KEY) ?? "[]") as string[]).map(
       turnFor,
     ),
   );
-  const [agent, setAgent] = useState<AgentId>(() => {
-    const stored = localStorage.getItem(AGENT_KEY);
-    return stored && stored in MARKS ? (stored as AgentId) : "claude";
-  });
+  // The session the next message goes on; null until the first message starts one.
+  const [session, setSession] = useState<{ id: string; title: string } | null>(
+    () => JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? "null"),
+  );
   const [agents, setAgents] = useState<AgentRow[]>([]);
   // What each agent is to be run with, by agent id, since neither's models mean anything to the
   // other. A key missing, or naming something the agent no longer offers, is the CLI's default.
@@ -169,7 +275,9 @@ export function ChatPanel() {
       return {};
     }
   });
-  const [history, setHistory] = useState<RunSummary[]>([]);
+  const [history, setHistory] = useState<(Session & { running: boolean })[]>(
+    [],
+  );
   // The agent's own slash commands, and where the keyboard is in them. Opens on what this browser
   // remembers, then on what the server says: asked for at mount and again on the way into a slash
   // word, since the server learns them off the runs it pumps and the list grows as the panel is
@@ -190,9 +298,8 @@ export function ChatPanel() {
   // running.
   const [sending, setSending] = useState(false);
   // Messages sent while an agent was running, to go one at a time as each run ends — the server
-  // takes one run at a time. In sessionStorage like the runs, because a run that writes a board
-  // reloads the page, which is exactly when the message typed during it would otherwise be
-  // lost.
+  // takes one run at a time. In sessionStorage like the runs, so a reload of the window does
+  // not lose them.
   const [queued, setQueued] = useState<Queued[]>(() =>
     JSON.parse(sessionStorage.getItem(QUEUE_KEY) ?? "[]"),
   );
@@ -245,7 +352,7 @@ export function ChatPanel() {
   useEffect(() => {
     abort.current = new AbortController();
     for (const t of turns) follow(t.runId);
-    void fetch("/__sp/agent/agents")
+    void fetch(`/__sp/agent/agents`)
       .then(async (res) =>
         res.ok ? setAgents(await res.json()) : setSendError(await res.text()),
       )
@@ -258,9 +365,10 @@ export function ChatPanel() {
 
   useEffect(() => {
     sessionStorage.setItem(RUNS_KEY, JSON.stringify(turns.map((t) => t.runId)));
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
     // Also on reopening: a hidden log has no scroll height to have been scrolled to.
     log.current?.scrollTo(0, log.current.scrollHeight);
-  }, [turns, chatCollapsed]);
+  }, [turns, open, session]);
 
   const running = turns.find((t) => !t.end);
 
@@ -274,7 +382,7 @@ export function ChatPanel() {
   }, [queued]);
   // The id until the server's list arrives, a moment after mount.
   const nameOf = (id: AgentId) => agents.find((a) => a.id === id)?.name ?? id;
-  const title = turns[0]?.title ?? nameOf(agent);
+  const title = turns[0]?.title ?? session?.title ?? nameOf(agent);
 
   const row = agents.find((a) => a.id === agent);
   const choice = choices[agent] ?? {};
@@ -574,7 +682,13 @@ export function ChatPanel() {
   useEffect(() => {
     const take = (event: Event) => {
       const detail = (event as CustomEvent<CanvasAttachDetail>).detail;
+      // A message cannot be written into a panel that is away.
+      props.chat.show(true);
       if (detail.kind === "error") return setSendError(detail.message);
+      // Over nothing the user wrote, since a message they had begun stays theirs to finish.
+      if (detail.kind === "draft") {
+        return draft.trim() ? composer.current?.focus() : fill(detail.text);
+      }
       void addImages([detail.file], true);
     };
     window.addEventListener(CANVAS_ATTACH, take);
@@ -633,12 +747,14 @@ export function ChatPanel() {
     setSendError(null);
     setSending(true);
     try {
-      const res = await fetch("/__sp/agent/run", {
+      const res = await fetch(`/__sp/agent/run`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           message,
           canvas,
+          project,
+          session: session?.id,
           agent,
           model,
           effort,
@@ -654,7 +770,8 @@ export function ChatPanel() {
         setSendError(await res.text());
         return false;
       }
-      const { runId } = await res.json();
+      const { runId, session: on } = await res.json();
+      setSession(on);
       const images = attached.map(({ n, name }) => ({ n, name }));
       setTurns((ts) => [
         ...ts,
@@ -730,24 +847,19 @@ export function ChatPanel() {
   }, [typing === undefined, agent]);
 
   const switchTo = (id: AgentId) => {
-    localStorage.setItem(AGENT_KEY, id);
-    setAgent(id);
+    props.chat.choose(id);
     // The other agent's commands are not this one's, and the ask above lands seconds later.
     setCommands(remembered()[id] ?? []);
   };
 
-  const choose = (id: AgentId) => {
-    agentMenu.current?.hidePopover();
-    switchTo(id);
-  };
-
   const newSession = () => {
-    // Runs are independent of each other already, so what this clears is the log in front of the
-    // user: the next message starts a conversation with nothing above it. A run still going keeps
-    // going and stays in History — stopping one is what the Stop button is for.
+    // The next message starts a session the agent has no memory of, with nothing above it in the
+    // log. A run still going keeps going and its session stays in History — stopping one is what
+    // the Stop button is for.
     abort.current.abort();
     abort.current = new AbortController();
     setTurns([]);
+    setSession(null);
     composer.current?.replaceChildren();
     setDraft("");
     setAttached([]);
@@ -756,9 +868,16 @@ export function ChatPanel() {
     composer.current?.focus();
   };
 
+  // A session is one agent's conversation, which the other cannot resume.
+  const choose = (id: AgentId) => {
+    agentMenu.current?.hidePopover();
+    if (id !== agent) newSession();
+    switchTo(id);
+  };
+
   const openHistory = async () => {
     try {
-      const res = await fetch("/__sp/agent/runs");
+      const res = await fetch("/__sp/agent/sessions");
       if (!res.ok) return setSendError(await res.text());
       setHistory(await res.json());
     } catch (error) {
@@ -766,61 +885,629 @@ export function ChatPanel() {
     }
   };
 
-  const pick = (runId: string, ran: AgentId) => {
+  const pick = (picked: Session) => {
     historyList.current?.hidePopover();
-    // Opening a conversation picks the agent that held it: the header mark, the model and effort
-    // under the composer, and where the next message goes all mean the run on screen, not
+    // Opening a session picks the agent that held it: the header mark, the model and effort
+    // under the composer, and where the next message goes all mean the session on screen, not
     // whatever was selected before it was opened.
-    switchTo(ran);
-    // The picked run may be one already on screen, and two follows of one run draw it twice.
+    switchTo(picked.agent);
+    // The picked session may be the one on screen, and two follows of one run draw it twice.
     abort.current.abort();
     abort.current = new AbortController();
-    setTurns([turnFor(runId)]);
-    follow(runId);
+    setSession({ id: picked.id, title: picked.title });
+    // Its turns, as far as the server still holds them: a run it has forgotten drops out of the
+    // log (follow), though the agent still remembers it.
+    setTurns(picked.runs.map(turnFor));
+    for (const id of picked.runs) follow(id);
   };
 
   return (
-    <aside
-      className={
-        chatCollapsed
-          ? "sp-panel sp-chat sp-chat-collapsed"
-          : "sp-panel sp-chat"
-      }
-      aria-label="Agent chat"
-    >
-      <header className="sp-head">
-        <button
-          type="button"
-          className="sp-head-x"
-          popoverTarget="sp-chat-agents"
-          aria-label="Choose the agent"
-          title={nameOf(agent)}
+    <>
+      <aside
+        className={
+          open ? "sp-panel sp-chat" : "sp-panel sp-chat sp-chat-collapsed"
+        }
+        aria-label="Agent chat"
+      >
+        <header className="sp-head">
+          <span className="sp-head-name" title={title}>
+            {title}
+          </span>
+          <button
+            type="button"
+            className="sp-head-x"
+            onClick={newSession}
+            aria-label="New session"
+            title="New session"
+          >
+            <Plus />
+          </button>
+          <button
+            type="button"
+            className="sp-head-x"
+            popoverTarget="sp-chat-history"
+            onClick={() => void openHistory()}
+            aria-label="History"
+            title="History"
+          >
+            <ClockRewind />
+          </button>
+        </header>
+        <div
+          id="sp-chat-models"
+          popover="auto"
+          className="sp-chat-picker"
+          role="menu"
+          ref={modelMenu}
         >
-          <Mark agent={agent} />
-        </button>
-        <span className="sp-head-name" title={title}>
-          {title}
-        </span>
-        <button
-          type="button"
-          className="sp-head-x"
-          onClick={newSession}
-          aria-label="New session"
-          title="New session"
+          {[{ id: "", name: "Default" }, ...(row?.models ?? [])].map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              role="menuitemradio"
+              aria-checked={m.id === model}
+              className="sp-menu-row"
+              onClick={() => {
+                modelMenu.current?.hidePopover();
+                prefer({ model: m.id });
+              }}
+            >
+              <span className="sp-chat-picker-name">
+                {m.name}
+                {!m.id && <small>Whatever {nameOf(agent)} is set to use</small>}
+              </span>
+              {m.id === model && <Check className="sp-menu-ck" />}
+            </button>
+          ))}
+        </div>
+        <div
+          id="sp-chat-efforts"
+          popover="auto"
+          className="sp-chat-picker sp-chat-efforts"
+          ref={effortMenu}
         >
-          <Plus />
-        </button>
-        <button
-          type="button"
-          className="sp-head-x"
-          popoverTarget="sp-chat-history"
-          onClick={() => void openHistory()}
-          aria-label="History"
-          title="History"
+          <button
+            type="button"
+            role="menuitemradio"
+            aria-checked={!effort}
+            className="sp-menu-row"
+            onClick={() => {
+              effortMenu.current?.hidePopover();
+              prefer({ effort: "" });
+            }}
+          >
+            <span className="sp-chat-picker-name">
+              Default
+              <small>Whatever {nameOf(agent)} is set to use</small>
+            </span>
+            {!effort && <Check className="sp-menu-ck" />}
+          </button>
+          <input
+            type="range"
+            min={0}
+            max={Math.max(0, efforts.length - 1)}
+            step={1}
+            value={slider}
+            list="sp-chat-effort-stops"
+            aria-label="Reasoning effort"
+            aria-valuetext={effortName(efforts[slider] ?? "")}
+            onChange={(e) =>
+              prefer({ effort: efforts[Number(e.target.value)] })
+            }
+          />
+          {/* Native tick marks: one per level, so the track shows how many there are. */}
+          <datalist id="sp-chat-effort-stops">
+            {efforts.map((e) => (
+              <option
+                key={e}
+                value={efforts.indexOf(e)}
+                label={effortName(e)}
+              />
+            ))}
+          </datalist>
+          <p className="sp-chat-efforts-ends">
+            <span>Faster</span>
+            <span>Smarter</span>
+          </p>
+        </div>
+        <div
+          id="sp-chat-history"
+          popover="auto"
+          className="sp-chat-history"
+          ref={historyList}
         >
-          <ClockRewind />
-        </button>
-      </header>
+          {history.length === 0 ? (
+            <p className="sp-chat-dim">No sessions yet</p>
+          ) : (
+            history.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className="sp-chat-history-row"
+                data-status={s.running ? "running" : undefined}
+                onClick={() => pick(s)}
+              >
+                <span className="sp-chat-mark" title={nameOf(s.agent)}>
+                  <Mark agent={s.agent} size={12} />
+                </span>
+                <span className="sp-chat-history-title">{s.title}</span>
+                <span className="sp-chat-dim">
+                  {s.projects.map((p) => p.split(/[\\/]/).pop()).join(", ") ||
+                    "No project"}{" "}
+                  ·{" "}
+                  {new Date(s.updated).toLocaleString([], {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </button>
+            ))
+          )}
+        </div>
+        <div className="sp-chat-log" ref={log}>
+          {turns.length === 0 && !session && (
+            <p className="sp-chat-empty">
+              Runs Claude Code with its permission prompts off, or Codex in its
+              workspace sandbox, on the project in front — the same trust as
+              running either in a terminal there. Right-click the mark at the
+              top left to pick which. Ask for a board, a change to one, or about
+              the code behind one.
+            </p>
+          )}
+          {turns.length === 0 && session && (
+            <p className="sp-chat-empty">
+              {nameOf(agent)} remembers this session, but the server no longer
+              holds its turns to show. The next message carries on from where it
+              left off.
+            </p>
+          )}
+          {turns.map((t) => (
+            <article key={t.runId} className="sp-chat-turn">
+              {/* A run the server has forgotten — it keeps the newest twenty, and a restart
+                keeps none — replays as an error with no prompt to put above it. */}
+              {/* What was said, with the command and every reference drawn as they were written,
+                and the pictures themselves under it: full height, never cropped, one scroller
+                whatever their shapes. The bytes come back from the run rather than out of the
+                event, so this survives a reload of the window. */}
+              {t.prompt && (
+                <div className="sp-chat-you">
+                  <span className="sp-chat-say">
+                    {t.prompt.split(/(^\/\S+|#\d+)/).map((piece, i) =>
+                      i === 1 && piece.startsWith("/") ? (
+                        <span key={i} className="sp-chat-cmd">
+                          {piece}
+                        </span>
+                      ) : /^#\d+$/.test(piece) &&
+                        t.images?.some(
+                          (g) => g.n === Number(piece.slice(1)),
+                        ) ? (
+                        <span key={i} className="sp-chat-ref">
+                          <img
+                            src={`/__sp/agent/run/${t.runId}/image/${piece.slice(1)}`}
+                            alt=""
+                          />
+                          {piece}
+                        </span>
+                      ) : (
+                        piece
+                      ),
+                    )}
+                  </span>
+                  {t.images && t.images.length > 0 && (
+                    <span className="sp-chat-strip">
+                      {t.images.map((g) => (
+                        <a
+                          key={g.n}
+                          className="sp-chat-shot"
+                          href={`/__sp/agent/run/${t.runId}/image/${g.n}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={g.name}
+                        >
+                          <img
+                            src={`/__sp/agent/run/${t.runId}/image/${g.n}`}
+                            alt={g.name}
+                          />
+                          <span className="sp-chat-num">#{g.n}</span>
+                        </a>
+                      ))}
+                    </span>
+                  )}
+                </div>
+              )}
+              {t.agent && (
+                <span className="sp-chat-mark" title={nameOf(t.agent)}>
+                  <Mark agent={t.agent} size={12} />
+                </span>
+              )}
+              {t.blocks.map((b, i) =>
+                b.kind === "text" ? (
+                  <div
+                    key={i}
+                    className="sp-chat-md"
+                    // Sanitized in markdown.ts; nothing else reaches this attribute.
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(b.text) }}
+                  />
+                ) : b.kind === "thinking" ? (
+                  <p key={i} className="sp-chat-tool">
+                    <b>Thinking</b>
+                  </p>
+                ) : (
+                  // What the call drew, under the line that made it: a grid, a crop, a screenshot
+                  // the agent read back. Same strip as the sent message's, so a picture looks the
+                  // same whichever end of the conversation put it there.
+                  <Fragment key={b.id}>
+                    <p className="sp-chat-tool" data-ok={b.ok}>
+                      <b>{b.name}</b>
+                      <span>{b.detail}</span>
+                    </p>
+                    {b.shots && b.shots.length > 0 && (
+                      <span className="sp-chat-strip">
+                        {b.shots.map((s) =>
+                          "k" in s ? (
+                            <a
+                              key={s.k}
+                              className="sp-chat-shot"
+                              href={`/__sp/agent/run/${t.runId}/shot/${s.k}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={b.detail}
+                            >
+                              <img
+                                src={`/__sp/agent/run/${t.runId}/shot/${s.k}`}
+                                alt={b.detail}
+                              />
+                            </a>
+                          ) : null,
+                        )}
+                      </span>
+                    )}
+                  </Fragment>
+                ),
+              )}
+              {!t.end ? (
+                <p className="sp-chat-dim">Working…</p>
+              ) : t.end.ok ? null : (
+                <p className="sp-chat-error">{t.end.message}</p>
+              )}
+            </article>
+          ))}
+          {/* What is waiting for the run above to end: the bubble each will be, faded, with a way
+            out. Editing one is taking it out and typing it again. */}
+          {queued.map((q, i) => (
+            <div key={i} className="sp-chat-you sp-chat-queued">
+              <span className="sp-chat-say">
+                {q.message}
+                {q.images.length > 0 &&
+                  ` (${q.images.length} ${q.images.length === 1 ? "image" : "images"})`}
+              </span>
+              <button
+                type="button"
+                className="sp-chat-unqueue"
+                aria-label="Remove queued message"
+                title="Remove"
+                onClick={() => setQueued((qs) => qs.filter((_, j) => j !== i))}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+        {/* What is attached, in the order it arrived. The tile is a crop — it only has to say which
+          image this is — and clicking it writes that number into the sentence. */}
+        {attached.length > 0 && (
+          <>
+            <p className="sp-chat-hint">
+              Attached — click a tile to put its number in the message
+            </p>
+            <div className="sp-chat-tray">
+              {attached.map((i) => (
+                <figure key={i.n} className="sp-chat-tile">
+                  <button
+                    type="button"
+                    className="sp-chat-thumb"
+                    onClick={() => insertAtCaret(chipFor(i))}
+                    title={`Write #${i.n} into the message`}
+                  >
+                    <img src={i.url} alt={i.name} />
+                    <span className="sp-chat-num">#{i.n}</span>
+                  </button>
+                  <span
+                    className="sp-chat-x"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Remove image #${i.n}`}
+                    onClick={() => detach(i.n)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        detach(i.n);
+                      }
+                    }}
+                  >
+                    ✕
+                  </span>
+                  {/* The tile is 76px and the caption is what says which of them this is, so a
+                    board shows the board and not the canvas it is in — a path ellipsised from
+                    the right is the same dozen characters on every tile in the folder. The whole
+                    of it is still the tooltip, the alt text and what the agent is handed. */}
+                  <figcaption className="sp-chat-name" title={i.name}>
+                    {i.name.split("/").pop()}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </>
+        )}
+        <form
+          className="sp-chat-composer"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void send();
+          }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault();
+            void addImages(e.dataTransfer.files);
+          }}
+        >
+          {/* Uncontrolled on purpose: React renders it empty and never touches it again, so it
+            cannot move the caret out from under someone mid-word. The box is the truth and
+            `draft` is the reading of it (chatDraft.ts). */}
+          <div
+            ref={composer}
+            className="sp-chat-draft"
+            contentEditable
+            suppressContentEditableWarning
+            role="textbox"
+            aria-multiline="true"
+            aria-label={`Message to ${nameOf(agent)}`}
+            data-placeholder={
+              running
+                ? "Working… Enter queues a message"
+                : "Type / for commands"
+            }
+            // For the placeholder: typed into and then emptied, the box keeps a lone <br>, which
+            // is not `:empty` to CSS, and a box that looks blank is one that says nothing.
+            data-empty={draft.trim() ? undefined : ""}
+            onInput={(e) => {
+              const box = e.currentTarget;
+              badgeCommand(box);
+              const text = readDraft(box);
+              setDraft(text);
+              setSlashAt(0);
+              // A recalled line edited is the box's own again; the arrows move the caret from here.
+              setBack(-1);
+              // Every edit, since a chip is deleted like any other character.
+              syncRefs(box);
+              // Escape closes the palette for the word it was typed in; the next one opens again.
+              if (slashWord(text) === undefined) setSlashOff(false);
+            }}
+            onPaste={(e) => {
+              e.preventDefault();
+              if (e.clipboardData.files.length)
+                return void addImages(e.clipboardData.files, true);
+              // The text and not the markup that came with it: the box holds the chips it made
+              // itself and nothing else. execCommand because it is the only insert that native
+              // undo still knows about.
+              document.execCommand(
+                "insertText",
+                false,
+                e.clipboardData.getData("text/plain"),
+              );
+            }}
+            onKeyDown={(e) => {
+              // Enter inside an IME composition picks the candidate; it is the editor's, not ours.
+              // Safari reports the confirming Enter after the composition has ended, with the
+              // legacy 229 as its only mark.
+              if (e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229)
+                return;
+              if (matches.length > 0) {
+                if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                  e.preventDefault();
+                  const step = e.key === "ArrowDown" ? 1 : matches.length - 1;
+                  return setSlashAt(
+                    (i) =>
+                      (Math.min(i, matches.length - 1) + step) % matches.length,
+                  );
+                }
+                if (e.key === "Enter" || e.key === "Tab") {
+                  e.preventDefault();
+                  return pickCommand(matches[at]!);
+                }
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  return setSlashOff(true);
+                }
+              }
+              // The arrows walk what was sent, as a terminal's do, but only from an empty box or
+              // once already walking: in a draft with lines of its own they move the caret. Down
+              // past the newest line is the empty box again.
+              if (
+                (e.key === "ArrowUp" || e.key === "ArrowDown") &&
+                (back >= 0 || !draft)
+              ) {
+                const to =
+                  e.key === "ArrowUp"
+                    ? Math.min(back + 1, sent.length - 1)
+                    : back - 1;
+                if (to === back) return;
+                e.preventDefault();
+                setBack(to);
+                return fill(to < 0 ? "" : sent[sent.length - 1 - to]!);
+              }
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                void send();
+              }
+            }}
+          />
+          {/* Above the box, where the caret is. The agent runs the command itself — the panel only
+            says which ones there are, and Enter takes the highlighted one. */}
+          {matches.length > 0 && (
+            <div
+              className="sp-chat-slash"
+              role="listbox"
+              aria-label="Slash commands"
+            >
+              {matches.map((c, i) => (
+                <button
+                  key={c}
+                  // The list scrolls, so the row the arrow keys land on has to bring itself into
+                  // view; "nearest" does nothing when it already is.
+                  ref={(el) => {
+                    if (i === at) el?.scrollIntoView({ block: "nearest" });
+                  }}
+                  type="button"
+                  role="option"
+                  aria-selected={i === at}
+                  className={
+                    i === at ? "sp-menu-row sp-chat-slash-on" : "sp-menu-row"
+                  }
+                  onMouseEnter={() => setSlashAt(i)}
+                  onClick={() => pickCommand(c)}
+                >
+                  /{c}
+                </button>
+              ))}
+            </div>
+          )}
+          {/* One control, inside the box: the arrow the box invites, the square while it is busy. */}
+          {running ? (
+            <button
+              type="button"
+              className="sp-chat-submit"
+              aria-label="Stop the agent"
+              title="Stop"
+              onClick={() =>
+                void fetch(`/__sp/agent/run/${running.runId}/cancel`, {
+                  method: "POST",
+                })
+              }
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                aria-hidden="true"
+              >
+                <rect
+                  x="4"
+                  y="4"
+                  width="6"
+                  height="6"
+                  rx="1.5"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="sp-chat-submit"
+              disabled={!draft.trim() || sending}
+              aria-label="Send"
+              title="Send — Enter"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M11.5 3v4.5H3.5" />
+                <path d="M6 5 3.5 7.5 6 10" />
+              </svg>
+            </button>
+          )}
+        </form>
+        {sendError && (
+          <p className="sp-chat-error sp-chat-send-error">{sendError}</p>
+        )}
+        <div className="sp-chat-bar">
+          <button
+            type="button"
+            className="sp-chat-attach"
+            onClick={() => files.current?.click()}
+            aria-label="Attach images"
+            title="Attach images — or paste, or drop them into the box"
+          >
+            <Image />
+          </button>
+          <input
+            ref={files}
+            type="file"
+            accept={ATTACH_TYPES.join(",")}
+            multiple
+            hidden
+            onChange={(e) => {
+              void addImages(e.target.files);
+              // Cleared, or picking the same file twice in a row fires no change the second time.
+              e.target.value = "";
+            }}
+          />
+          <span
+            className="sp-chat-perm"
+            title={
+              "Tool calls are not asked about: the process runs with bypassPermissions, the same " +
+              "trust as running the CLI in a terminal. The panel cannot switch it."
+            }
+          >
+            Bypass permissions
+          </span>
+          {row && row.models.length > 0 && (
+            <button
+              type="button"
+              className="sp-chat-chip"
+              popoverTarget="sp-chat-models"
+              title={`The model ${nameOf(agent)} runs`}
+            >
+              {picked ? (
+                picked.name
+              ) : (
+                <span className="sp-chat-dim">Model</span>
+              )}
+            </button>
+          )}
+          {efforts.length > 0 && (
+            <button
+              type="button"
+              className="sp-chat-chip"
+              popoverTarget="sp-chat-efforts"
+              title="How hard the model thinks before answering"
+            >
+              {effort ? (
+                effortName(effort)
+              ) : (
+                <span className="sp-chat-dim">Effort</span>
+              )}
+            </button>
+          )}
+          {usage && (
+            <span
+              className="sp-chat-ctx"
+              title={
+                "Context the last message used: the prompt and the answer, and as much of the " +
+                "session before them as the agent carried into it."
+              }
+            >
+              {tokens(usage.used)}
+              {limit ? ` / ${tokens(limit)}` : ""}
+            </span>
+          )}
+          {running && (
+            <span className="sp-chat-spin" role="status" aria-label="Working" />
+          )}
+        </div>
+      </aside>
+      {/* Beside the panel rather than in it, where the panel being away would hide it with it. */}
       <div
         id="sp-chat-agents"
         popover="auto"
@@ -847,548 +1534,6 @@ export function ChatPanel() {
           </button>
         ))}
       </div>
-      <div
-        id="sp-chat-models"
-        popover="auto"
-        className="sp-chat-picker"
-        role="menu"
-        ref={modelMenu}
-      >
-        {[{ id: "", name: "Default" }, ...(row?.models ?? [])].map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            role="menuitemradio"
-            aria-checked={m.id === model}
-            className="sp-menu-row"
-            onClick={() => {
-              modelMenu.current?.hidePopover();
-              prefer({ model: m.id });
-            }}
-          >
-            <span className="sp-chat-picker-name">
-              {m.name}
-              {!m.id && <small>Whatever {nameOf(agent)} is set to use</small>}
-            </span>
-            {m.id === model && <Check className="sp-menu-ck" />}
-          </button>
-        ))}
-      </div>
-      <div
-        id="sp-chat-efforts"
-        popover="auto"
-        className="sp-chat-picker sp-chat-efforts"
-        ref={effortMenu}
-      >
-        <button
-          type="button"
-          role="menuitemradio"
-          aria-checked={!effort}
-          className="sp-menu-row"
-          onClick={() => {
-            effortMenu.current?.hidePopover();
-            prefer({ effort: "" });
-          }}
-        >
-          <span className="sp-chat-picker-name">
-            Default
-            <small>Whatever {nameOf(agent)} is set to use</small>
-          </span>
-          {!effort && <Check className="sp-menu-ck" />}
-        </button>
-        <input
-          type="range"
-          min={0}
-          max={Math.max(0, efforts.length - 1)}
-          step={1}
-          value={slider}
-          list="sp-chat-effort-stops"
-          aria-label="Reasoning effort"
-          aria-valuetext={effortName(efforts[slider] ?? "")}
-          onChange={(e) => prefer({ effort: efforts[Number(e.target.value)] })}
-        />
-        {/* Native tick marks: one per level, so the track shows how many there are. */}
-        <datalist id="sp-chat-effort-stops">
-          {efforts.map((e) => (
-            <option key={e} value={efforts.indexOf(e)} label={effortName(e)} />
-          ))}
-        </datalist>
-        <p className="sp-chat-efforts-ends">
-          <span>Faster</span>
-          <span>Smarter</span>
-        </p>
-      </div>
-      <div
-        id="sp-chat-history"
-        popover="auto"
-        className="sp-chat-history"
-        ref={historyList}
-      >
-        {history.length === 0 ? (
-          <p className="sp-chat-dim">No runs yet</p>
-        ) : (
-          history.map((r) => (
-            <button
-              key={r.id}
-              type="button"
-              className="sp-chat-history-row"
-              data-status={r.status}
-              onClick={() => pick(r.id, r.agent)}
-            >
-              <span className="sp-chat-mark" title={nameOf(r.agent)}>
-                <Mark agent={r.agent} size={12} />
-              </span>
-              <span className="sp-chat-history-title">{r.title}</span>
-              <span className="sp-chat-dim">
-                {new Date(r.startedAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </button>
-          ))
-        )}
-      </div>
-      <div className="sp-chat-log" ref={log}>
-        {turns.length === 0 && (
-          <p className="sp-chat-empty">
-            Runs Claude Code with its permission prompts off, or Codex in its
-            workspace sandbox, in your project — the same trust as running
-            either in a terminal there. The mark above picks which. Ask for a
-            board, a change to one, or about the code behind one.
-          </p>
-        )}
-        {turns.map((t) => (
-          <article key={t.runId} className="sp-chat-turn">
-            {/* A run the server has forgotten — it keeps the newest twenty, and a restart
-                keeps none — replays as an error with no prompt to put above it. */}
-            {/* What was said, with the command and every reference drawn as they were written,
-                and the pictures themselves under it: full height, never cropped, one scroller
-                whatever their shapes. The bytes come back from the run rather than out of the
-                event, so this survives the reload a written board causes. */}
-            {t.prompt && (
-              <div className="sp-chat-you">
-                <span className="sp-chat-say">
-                  {t.prompt.split(/(^\/\S+|#\d+)/).map((piece, i) =>
-                    i === 1 && piece.startsWith("/") ? (
-                      <span key={i} className="sp-chat-cmd">
-                        {piece}
-                      </span>
-                    ) : /^#\d+$/.test(piece) &&
-                      t.images?.some((g) => g.n === Number(piece.slice(1))) ? (
-                      <span key={i} className="sp-chat-ref">
-                        <img
-                          src={`/__sp/agent/run/${t.runId}/image/${piece.slice(1)}`}
-                          alt=""
-                        />
-                        {piece}
-                      </span>
-                    ) : (
-                      piece
-                    ),
-                  )}
-                </span>
-                {t.images && t.images.length > 0 && (
-                  <span className="sp-chat-strip">
-                    {t.images.map((g) => (
-                      <a
-                        key={g.n}
-                        className="sp-chat-shot"
-                        href={`/__sp/agent/run/${t.runId}/image/${g.n}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        title={g.name}
-                      >
-                        <img
-                          src={`/__sp/agent/run/${t.runId}/image/${g.n}`}
-                          alt={g.name}
-                        />
-                        <span className="sp-chat-num">#{g.n}</span>
-                      </a>
-                    ))}
-                  </span>
-                )}
-              </div>
-            )}
-            {t.agent && (
-              <span className="sp-chat-mark" title={nameOf(t.agent)}>
-                <Mark agent={t.agent} size={12} />
-              </span>
-            )}
-            {t.blocks.map((b, i) =>
-              b.kind === "text" ? (
-                <div
-                  key={i}
-                  className="sp-chat-md"
-                  // Sanitized in markdown.ts; nothing else reaches this attribute.
-                  dangerouslySetInnerHTML={{ __html: renderMarkdown(b.text) }}
-                />
-              ) : b.kind === "thinking" ? (
-                <p key={i} className="sp-chat-tool">
-                  <b>Thinking</b>
-                </p>
-              ) : (
-                // What the call drew, under the line that made it: a grid, a crop, a screenshot
-                // the agent read back. Same strip as the sent message's, so a picture looks the
-                // same whichever end of the conversation put it there.
-                <Fragment key={b.id}>
-                  <p className="sp-chat-tool" data-ok={b.ok}>
-                    <b>{b.name}</b>
-                    <span>{b.detail}</span>
-                  </p>
-                  {b.shots && b.shots.length > 0 && (
-                    <span className="sp-chat-strip">
-                      {b.shots.map((s) =>
-                        "k" in s ? (
-                          <a
-                            key={s.k}
-                            className="sp-chat-shot"
-                            href={`/__sp/agent/run/${t.runId}/shot/${s.k}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            title={b.detail}
-                          >
-                            <img
-                              src={`/__sp/agent/run/${t.runId}/shot/${s.k}`}
-                              alt={b.detail}
-                            />
-                          </a>
-                        ) : null,
-                      )}
-                    </span>
-                  )}
-                </Fragment>
-              ),
-            )}
-            {!t.end ? (
-              <p className="sp-chat-dim">Working…</p>
-            ) : t.end.ok ? null : (
-              <p className="sp-chat-error">{t.end.message}</p>
-            )}
-          </article>
-        ))}
-        {/* What is waiting for the run above to end: the bubble each will be, faded, with a way
-            out. Editing one is taking it out and typing it again. */}
-        {queued.map((q, i) => (
-          <div key={i} className="sp-chat-you sp-chat-queued">
-            <span className="sp-chat-say">
-              {q.message}
-              {q.images.length > 0 &&
-                ` (${q.images.length} ${q.images.length === 1 ? "image" : "images"})`}
-            </span>
-            <button
-              type="button"
-              className="sp-chat-unqueue"
-              aria-label="Remove queued message"
-              title="Remove"
-              onClick={() => setQueued((qs) => qs.filter((_, j) => j !== i))}
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-      </div>
-      {/* What is attached, in the order it arrived. The tile is a crop — it only has to say which
-          image this is — and clicking it writes that number into the sentence. */}
-      {attached.length > 0 && (
-        <>
-          <p className="sp-chat-hint">
-            Attached — click a tile to put its number in the message
-          </p>
-          <div className="sp-chat-tray">
-            {attached.map((i) => (
-              <figure key={i.n} className="sp-chat-tile">
-                <button
-                  type="button"
-                  className="sp-chat-thumb"
-                  onClick={() => insertAtCaret(chipFor(i))}
-                  title={`Write #${i.n} into the message`}
-                >
-                  <img src={i.url} alt={i.name} />
-                  <span className="sp-chat-num">#{i.n}</span>
-                </button>
-                <span
-                  className="sp-chat-x"
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Remove image #${i.n}`}
-                  onClick={() => detach(i.n)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      detach(i.n);
-                    }
-                  }}
-                >
-                  ✕
-                </span>
-                {/* The tile is 76px and the caption is what says which of them this is, so a
-                    board shows the board and not the canvas it is in — a path ellipsised from
-                    the right is the same dozen characters on every tile in the folder. The whole
-                    of it is still the tooltip, the alt text and what the agent is handed. */}
-                <figcaption className="sp-chat-name" title={i.name}>
-                  {i.name.split("/").pop()}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </>
-      )}
-      <form
-        className="sp-chat-composer"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void send();
-        }}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault();
-          void addImages(e.dataTransfer.files);
-        }}
-      >
-        {/* Uncontrolled on purpose: React renders it empty and never touches it again, so it
-            cannot move the caret out from under someone mid-word. The box is the truth and
-            `draft` is the reading of it (chatDraft.ts). */}
-        <div
-          ref={composer}
-          className="sp-chat-draft"
-          contentEditable
-          suppressContentEditableWarning
-          role="textbox"
-          aria-multiline="true"
-          aria-label={`Message to ${nameOf(agent)}`}
-          data-placeholder={
-            running ? "Working… Enter queues a message" : "Type / for commands"
-          }
-          // For the placeholder: typed into and then emptied, the box keeps a lone <br>, which
-          // is not `:empty` to CSS, and a box that looks blank is one that says nothing.
-          data-empty={draft.trim() ? undefined : ""}
-          onInput={(e) => {
-            const box = e.currentTarget;
-            badgeCommand(box);
-            const text = readDraft(box);
-            setDraft(text);
-            setSlashAt(0);
-            // A recalled line edited is the box's own again; the arrows move the caret from here.
-            setBack(-1);
-            // Every edit, since a chip is deleted like any other character.
-            syncRefs(box);
-            // Escape closes the palette for the word it was typed in; the next one opens again.
-            if (slashWord(text) === undefined) setSlashOff(false);
-          }}
-          onPaste={(e) => {
-            e.preventDefault();
-            if (e.clipboardData.files.length)
-              return void addImages(e.clipboardData.files, true);
-            // The text and not the markup that came with it: the box holds the chips it made
-            // itself and nothing else. execCommand because it is the only insert that native
-            // undo still knows about.
-            document.execCommand(
-              "insertText",
-              false,
-              e.clipboardData.getData("text/plain"),
-            );
-          }}
-          onKeyDown={(e) => {
-            // Enter inside an IME composition picks the candidate; it is the editor's, not ours.
-            // Safari reports the confirming Enter after the composition has ended, with the
-            // legacy 229 as its only mark.
-            if (e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229)
-              return;
-            if (matches.length > 0) {
-              if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-                e.preventDefault();
-                const step = e.key === "ArrowDown" ? 1 : matches.length - 1;
-                return setSlashAt(
-                  (i) =>
-                    (Math.min(i, matches.length - 1) + step) % matches.length,
-                );
-              }
-              if (e.key === "Enter" || e.key === "Tab") {
-                e.preventDefault();
-                return pickCommand(matches[at]!);
-              }
-              if (e.key === "Escape") {
-                e.preventDefault();
-                return setSlashOff(true);
-              }
-            }
-            // The arrows walk what was sent, as a terminal's do, but only from an empty box or
-            // once already walking: in a draft with lines of its own they move the caret. Down
-            // past the newest line is the empty box again.
-            if (
-              (e.key === "ArrowUp" || e.key === "ArrowDown") &&
-              (back >= 0 || !draft)
-            ) {
-              const to =
-                e.key === "ArrowUp"
-                  ? Math.min(back + 1, sent.length - 1)
-                  : back - 1;
-              if (to === back) return;
-              e.preventDefault();
-              setBack(to);
-              return fill(to < 0 ? "" : sent[sent.length - 1 - to]!);
-            }
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              void send();
-            }
-          }}
-        />
-        {/* Above the box, where the caret is. The agent runs the command itself — the panel only
-            says which ones there are, and Enter takes the highlighted one. */}
-        {matches.length > 0 && (
-          <div
-            className="sp-chat-slash"
-            role="listbox"
-            aria-label="Slash commands"
-          >
-            {matches.map((c, i) => (
-              <button
-                key={c}
-                // The list scrolls, so the row the arrow keys land on has to bring itself into
-                // view; "nearest" does nothing when it already is.
-                ref={(el) => {
-                  if (i === at) el?.scrollIntoView({ block: "nearest" });
-                }}
-                type="button"
-                role="option"
-                aria-selected={i === at}
-                className={
-                  i === at ? "sp-menu-row sp-chat-slash-on" : "sp-menu-row"
-                }
-                onMouseEnter={() => setSlashAt(i)}
-                onClick={() => pickCommand(c)}
-              >
-                /{c}
-              </button>
-            ))}
-          </div>
-        )}
-        {/* One control, inside the box: the arrow the box invites, the square while it is busy. */}
-        {running ? (
-          <button
-            type="button"
-            className="sp-chat-submit"
-            aria-label="Stop the agent"
-            title="Stop"
-            onClick={() =>
-              void fetch(`/__sp/agent/run/${running.runId}/cancel`, {
-                method: "POST",
-              })
-            }
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-              <rect
-                x="4"
-                y="4"
-                width="6"
-                height="6"
-                rx="1.5"
-                fill="currentColor"
-              />
-            </svg>
-          </button>
-        ) : (
-          <button
-            type="submit"
-            className="sp-chat-submit"
-            disabled={!draft.trim() || sending}
-            aria-label="Send"
-            title="Send — Enter"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M11.5 3v4.5H3.5" />
-              <path d="M6 5 3.5 7.5 6 10" />
-            </svg>
-          </button>
-        )}
-      </form>
-      {sendError && (
-        <p className="sp-chat-error sp-chat-send-error">{sendError}</p>
-      )}
-      <div className="sp-chat-bar">
-        <button
-          type="button"
-          className="sp-chat-attach"
-          onClick={() => files.current?.click()}
-          aria-label="Attach images"
-          title="Attach images — or paste, or drop them into the box"
-        >
-          <Image />
-        </button>
-        <input
-          ref={files}
-          type="file"
-          accept={ATTACH_TYPES.join(",")}
-          multiple
-          hidden
-          onChange={(e) => {
-            void addImages(e.target.files);
-            // Cleared, or picking the same file twice in a row fires no change the second time.
-            e.target.value = "";
-          }}
-        />
-        <span
-          className="sp-chat-perm"
-          title={
-            "Tool calls are not asked about: the process runs with bypassPermissions, the same " +
-            "trust as running the CLI in a terminal of this project. The panel cannot switch it."
-          }
-        >
-          Bypass permissions
-        </span>
-        {row && row.models.length > 0 && (
-          <button
-            type="button"
-            className="sp-chat-chip"
-            popoverTarget="sp-chat-models"
-            title={`The model ${nameOf(agent)} runs`}
-          >
-            {picked ? picked.name : <span className="sp-chat-dim">Model</span>}
-          </button>
-        )}
-        {efforts.length > 0 && (
-          <button
-            type="button"
-            className="sp-chat-chip"
-            popoverTarget="sp-chat-efforts"
-            title="How hard the model thinks before answering"
-          >
-            {effort ? (
-              effortName(effort)
-            ) : (
-              <span className="sp-chat-dim">Effort</span>
-            )}
-          </button>
-        )}
-        {usage && (
-          <span
-            className="sp-chat-ctx"
-            title={
-              "Context the last message used, prompt and answer together. Every message is its " +
-              "own run with no memory of the one before, so this is that message, not the " +
-              "conversation."
-            }
-          >
-            {tokens(usage.used)}
-            {limit ? ` / ${tokens(limit)}` : ""}
-          </span>
-        )}
-        {running && (
-          <span className="sp-chat-spin" role="status" aria-label="Working" />
-        )}
-      </div>
-    </aside>
+    </>
   );
 }

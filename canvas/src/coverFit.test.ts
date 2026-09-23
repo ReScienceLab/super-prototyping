@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { CANVAS_LINK_CARD_SIZE, fitCover } from './CanvasLinkShapeUtil'
+import { CANVAS_LINK_CARD_SIZE } from './CanvasLinkShapeUtil'
+import { fitCover } from './canvasLibrary'
 
 // The one thing the card must never do is leave a gap: the board's cover box has to land over
 // every pixel of the shell's screen, whichever axis binds and whatever box the folder declares.

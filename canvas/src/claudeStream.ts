@@ -41,6 +41,8 @@ export type ChatEvent =
       prompt: string;
       title: string;
       at: number;
+      /** The project it was sent from, by name; none from the home page or an example. */
+      project?: string;
       /**
        * What the composer attached, by the number the message refers to. The picture itself is a
        * request away (`/run/<id>/image/<n>`), so a reload — which is how a written board reaches

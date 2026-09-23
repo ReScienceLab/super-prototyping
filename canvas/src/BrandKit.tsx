@@ -7,8 +7,8 @@ import {
   readCanvasLayout,
   shortName,
 } from "./canvasLibrary";
-import { brandPageUrl, canvasPageUrl } from "./canvasUrl";
-import { CanvasCta } from "./canvasCta";
+import { brandPageUrl, canvasPageUrl, type CanvasTab } from "./canvasUrl";
+import { openInTab } from "./canvasTabs";
 
 /**
  * How many columns a row gets, and the shape of its cards, from the pictures actually in it.
@@ -55,15 +55,27 @@ function sourceLabel(source: string | undefined) {
 }
 
 /**
- * One canvas page's brand material as a web page. The page behind `brand.html?canvas=<slug>`.
+ * One canvas page's brand material as a web page. The page behind `brand.html?canvas=<slug>`,
+ * and the same markup inside the canvas app when a tab holds this kit.
  *
  * Same rows, captions and order as the canvas draws: layout.json's `images` rows are the one
  * source and this is the second thing rendered from them. The rows are surfaces — the constants
  * first, then one row per place the brand appears — so a column down the page is the same kind
  * of asset on every surface, and an avatar that disagrees with the other avatars shows up as a
  * break in the column rather than as something to go looking for.
+ *
+ * `open` is what makes it a tab. Given it, every link out of this page that stays inside the app
+ * opens a tab instead of navigating, because navigating would reload the app and take the agent
+ * panel's conversation with it. The way back to the canvas goes too, since that is the tab bar's
+ * job now, and a chip for it here would be the one link that did reload.
  */
-export function BrandKit({ slug }: { slug: string }) {
+export function BrandKit({
+  slug,
+  open,
+}: {
+  slug: string;
+  open?: (tab: CanvasTab) => void;
+}) {
   const rows = (readCanvasLayout(slug)?.rows ?? []).flatMap((row) => {
     const images = (row.images ?? []).flatMap((image) => {
       const src = canvasImageUrl(slug, image.file);
@@ -86,10 +98,12 @@ export function BrandKit({ slug }: { slug: string }) {
         {/* Back to the canvas this kit was collected for, wearing the app's own mark rather
             than a product's: the row reads left to right as this app, these products, this
             one ask. */}
-        <a className="chip home" href={canvasPageUrl(slug)}>
-          <img src={`${import.meta.env.BASE_URL}favicon-32.png`} alt="" />
-          <span>Super Prototyping</span>
-        </a>
+        {!open && (
+          <a className="chip home" href={canvasPageUrl(slug)}>
+            <img src={`${import.meta.env.BASE_URL}favicon-32.png`} alt="" />
+            <span>Super Prototyping</span>
+          </a>
+        )}
         <nav className="switch" aria-label="Brand kit for the other examples">
           {pages.map((page) => (
             <a
@@ -98,6 +112,10 @@ export function BrandKit({ slug }: { slug: string }) {
               href={brandPageUrl(page)}
               title={shortName(page)}
               aria-current={page === slug ? "page" : undefined}
+              // One tab per kit, the rule everywhere else in the bar, rather than this tab
+              // becoming the kit it was pointed at. The chip you came from stays where it was,
+              // and its close button is right there when you are done with it.
+              onClick={open && openInTab(open, { kind: "brand", slug: page })}
               // Named on both pages of the switch, so the filled pill travels from the chip you
               // left to the chip you landed on rather than blinking across the shelf.
               style={
@@ -126,7 +144,6 @@ export function BrandKit({ slug }: { slug: string }) {
             </a>
           ))}
         </nav>
-        <CanvasCta />
       </div>
       {rows.map((row) => (
         <section

@@ -1,17 +1,32 @@
 // The address of what is on screen. A page is `?canvas=<slug>`, the canvases/<slug> folder
-// name; the welcome page is the bare URL, so the way in stays the shortest link there is. One
-// thing of that page is the hash: `#<file>` for the board canvases/<slug>/<file>.html, and
-// `#assets/brand/<...>` for a picture, which is that file's path inside the folder. A board is
-// one file at the folder's root and every picture is under assets/brand, so one hash names
-// either without ambiguity. Anything else in the query string is left alone.
+// name, Start here's included. The bare URL names no page: it is a project's own view with no
+// canvas of its in front, which shows Start here (HOME_TAB, canvasTabs.ts), so the way in stays
+// the shortest link there is. One thing of a page is the hash: `#<file>` for the board
+// canvases/<slug>/<file>.html, and `#assets/brand/<...>` for a picture, which is that file's
+// path inside the folder. A board is one file at the folder's root and every picture is under
+// assets/brand, so one hash names either without ambiguity. Anything else in the query string
+// is left alone.
+//
+// A brand kit open in a tab is `?brand=<slug>` instead, and `?brand=` for the index of every
+// kit. Its own parameter rather than a second value of `canvas=`, because the two name
+// different things of the same folder and a kit has no board to hang a hash off.
 
 export const WELCOME_PAGE_SLUG = "00-welcome";
 
 const CANVAS_PARAM = "canvas";
+const BRAND_PARAM = "brand";
 
-/** The page slug an address opens: its `canvas` parameter, else the welcome page. */
+/**
+ * What one tab shows: a canvas page, by the folder slug its tldraw page is stamped with, or a
+ * brand kit, which is that folder's, or the index of every kit when the slug is empty. The two
+ * kinds are what the bar holds and what the address names, so they are spelled here.
+ */
+export type CanvasTab =
+  { kind: "canvas"; slug: string } | { kind: "brand"; slug: string };
+
+/** The page slug an address opens: its `canvas` parameter, else none, which is the bare address. */
 export function slugFromUrl(href: string) {
-  return new URL(href).searchParams.get(CANVAS_PARAM) ?? WELCOME_PAGE_SLUG;
+  return new URL(href).searchParams.get(CANVAS_PARAM) ?? "";
 }
 
 /**
@@ -37,11 +52,7 @@ export function targetFromUrl(href: string) {
  * rather than on the current address, which is one of the others.
  */
 export function canvasPageUrl(slug: string) {
-  const query =
-    slug === WELCOME_PAGE_SLUG
-      ? ""
-      : `?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
-  return `${import.meta.env.BASE_URL}${query}`;
+  return `${import.meta.env.BASE_URL}?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
 }
 
 export function sheetPageUrl(slug: string) {
@@ -56,6 +67,23 @@ export function brandPageUrl(slug?: string) {
 }
 
 /**
+ * The window and the canvas in it (AppShell.tsx). The window's address is the one people see,
+ * share and reload, a project's `./?canvas=…#board` or its `home.html`, and the canvas is
+ * canvas.html beside it, in a frame, so one becomes the other by swapping the file.
+ */
+export function frameUrl(href: string) {
+  const url = new URL(href);
+  url.pathname = url.pathname.replace(/[^/]*$/, "canvas.html");
+  return url.href;
+}
+
+export function windowUrl(href: string) {
+  const url = new URL(href);
+  url.pathname = url.pathname.replace(/canvas\.html$/, "");
+  return url.href;
+}
+
+/**
  * The address for a page slug and, if one is open, a board or picture of it, built on `href` so
  * the origin, path and other parameters stay.
  *
@@ -65,8 +93,29 @@ export function brandPageUrl(slug?: string) {
  */
 export function urlForSlug(href: string, slug: string, target?: string) {
   const url = new URL(href);
-  if (slug === WELCOME_PAGE_SLUG) url.searchParams.delete(CANVAS_PARAM);
-  else url.searchParams.set(CANVAS_PARAM, slug);
+  // A canvas page and a brand kit are two tabs, and the address names the one in front.
+  url.searchParams.delete(BRAND_PARAM);
+  if (slug) url.searchParams.set(CANVAS_PARAM, slug);
+  else url.searchParams.delete(CANVAS_PARAM);
   url.hash = target ? target.split("/").map(encodeURIComponent).join("/") : "";
+  return url.href;
+}
+
+/** The tab an address opens: a brand kit when it carries `brand`, else the canvas page. */
+export function tabFromUrl(href: string): CanvasTab {
+  const brand = new URL(href).searchParams.get(BRAND_PARAM);
+  return brand === null
+    ? { kind: "canvas", slug: slugFromUrl(href) }
+    : { kind: "brand", slug: brand };
+}
+
+/** The address for a tab, and for the board or picture open on it when it is a canvas. */
+export function urlForTab(href: string, tab: CanvasTab, target?: string) {
+  if (tab.kind === "canvas") return urlForSlug(href, tab.slug, target);
+  const url = new URL(href);
+  url.searchParams.delete(CANVAS_PARAM);
+  // Empty is the index of every kit, which is the tab a page that collected none opens.
+  url.searchParams.set(BRAND_PARAM, tab.slug);
+  url.hash = "";
   return url.href;
 }

@@ -9,6 +9,8 @@ export interface IndexBoard {
   slug: string;
   /** The board files, `01-home.html`, sorted. */
   html: string[];
+  /** When a board file in the folder was last written, in ms since the epoch. */
+  updated: number;
   /** The folder's layout.json, parsed, when it has one. */
   layout?: CanvasLayoutConfig;
   /** Whether the folder has an icon.png. */
@@ -21,6 +23,8 @@ export interface IndexBoard {
   assets: Record<string, { name: string; bytes: number }>;
   /** The folder's comments.json, when it has one. */
   comments?: CommentsFile;
+  /** One of the examples the desktop app shows beside the project's own, read-only. */
+  example?: true;
 }
 
 export interface CanvasIndex {
@@ -36,6 +40,8 @@ export interface CanvasIndex {
   /** Longest edge of a brand image's variant. */
   thumbEdge: number;
   boards: IndexBoard[];
+  /** The project's name, where one was set; absent from a build. */
+  project?: string | null;
 }
 
 let index: CanvasIndex | undefined;
@@ -66,13 +72,17 @@ export const LAYOUT_CHANGED = "sp:layout";
  * than leaving the page to hear about the write from the file watcher, which answers a settled
  * batch and would have the badge lag the click; the watcher sends the same message for a
  * layout.json edited by hand, so a status set twice over lands twice, identically.
+ *
+ * `live = false` skips the listening, for the home page. Each stream holds one of the six
+ * connections a browser keeps to a host over HTTP/1.1, so six open pages that listen leave a
+ * seventh unable to fetch its own scripts, and a list of canvases has no viewport to keep.
  */
-export async function loadCanvasIndex() {
+export async function loadCanvasIndex(live = true) {
   const url = `${import.meta.env.BASE_URL}__sp/index.json`;
   const response = await fetch(url);
   if (!response.ok) throw new Error(`${url}: ${response.status}`);
   installCanvasIndex(await response.json());
-  if (!canvasIndex().served) return;
+  if (!live || !canvasIndex().served) return;
   const events = new EventSource(`${import.meta.env.BASE_URL}__sp/events`);
   events.addEventListener("reload", () => window.location.reload());
   events.addEventListener("layout", (event) => {

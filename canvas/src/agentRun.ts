@@ -10,10 +10,9 @@
  *
  * A turn is some kilobytes of text and the server forgets old runs, so nothing here bounds one.
  * Kept free of node APIs so it can be tested without a dev server, the way boardStatusEdit.ts is;
- * the process itself lives in vite.config.ts.
+ * the process itself lives in server/agent.ts.
  */
 import type { AgentId } from "./agents.ts";
-import type { ChatEvent } from "./claudeStream.ts";
 
 export interface RunEvent {
   id: number;
@@ -52,31 +51,21 @@ export function attach(run: Run, cursor: number, sink: (e: RunEvent) => void): (
 export const sseFrame = (e: RunEvent) =>
   `id: ${e.id}\nevent: ${e.event}\ndata: ${JSON.stringify(e.data)}\n\n`;
 
-export interface RunSummary {
+/**
+ * A conversation with the agent, as its record keeps it at `<projects dir>/.workspaces/<id>.json`
+ * beside the folder it runs in (server/agent.ts). The history lists these.
+ */
+export interface Session {
   id: string;
   agent: AgentId;
+  /** What the agent calls it, to resume it by: Claude Code's session id, Codex's thread id. Null
+   *  until a run has said. */
+  resume: string | null;
   title: string;
-  startedAt: number;
-  status: "running" | "done" | "failed";
-}
-
-/**
- * What the history list shows of a run, read off its events rather than kept beside them: the
- * `start` event has the agent, the prompt's title and the time, a `title` event the model's, and
- * the `end` event how it went. The server writes `start` first on every run, so a run without one is a
- * bug here, not a case.
- */
-export function runSummary(run: Run): RunSummary {
-  const events = run.events.map((e) => e.data as ChatEvent);
-  const start = events[0];
-  if (start?.kind !== "start") throw new Error(`run ${run.id} has no start event`);
-  const titled = events.find((e): e is Extract<ChatEvent, { kind: "title" }> => e.kind === "title");
-  const last = events.at(-1)!;
-  return {
-    id: run.id,
-    agent: start.agent,
-    title: titled?.title ?? start.title,
-    startedAt: start.at,
-    status: last.kind !== "end" ? "running" : last.ok ? "done" : "failed",
-  };
+  created: number;
+  updated: number;
+  /** The folders of the projects its messages were sent from, first to last. */
+  projects: string[];
+  /** Its runs, oldest first, which the server holds the newest twenty of while it is up. */
+  runs: string[];
 }

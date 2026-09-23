@@ -23,7 +23,7 @@ import {
  * beside the screens, so the page an importer reads should not offer it. Its boards are still
  * marked placed, or they would come back under "Everything else".
  */
-const FOUNDATIONS_ROW = "Foundations";
+export const FOUNDATIONS_ROW = "Foundations";
 
 /** A board on the sheet: where its page is, what to call it, and how big it is. */
 export interface SheetBoard {

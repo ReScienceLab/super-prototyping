@@ -18,12 +18,12 @@ samples it region by region, writes one measured token block, generates every
 board from a single `gen.py`, then re-renders those boards and diffs them
 against the capture until the numbers hold. `new-ui-mock` does the same for
 screens that have no reference to measure. Both write `.html` files into
-`mockups/canvases/<board>/`, and the canvas picks them up as shapes with no
+`canvases/<board>/`, and the canvas picks them up as shapes with no
 registry, no build step and no design tool.
 
 ## Five worked examples
 
-Five of the app folders in `mockups/canvases/`. That folder's own
+Five of the app folders in `canvases/`. That folder's own
 `README.md` lists them all. Each is a real `clone-prototype` run, rebuilt
 from measured samples with the evidence recorded for every token. Open any
 of them with `?canvas=<slug>`, and one board of it with
@@ -32,7 +32,7 @@ the board in the inspector, so the URL in the bar is always the link to share.
 
 ### `duolingo-ios`, eight screens that are mostly picture
 
-[![duolingo-ios](assets/workflow/case-duolingo.webp)](mockups/canvases/duolingo-ios/README.md)
+[![duolingo-ios](assets/workflow/case-duolingo.webp)](canvases/duolingo-ios/README.md)
 
 *Replica on top, its source capture directly below it. The captures are
 cropped to the same 393 × 852 screen and masked to the same 52pt corner
@@ -41,7 +41,7 @@ path and the two modal sheets.*
 
 ### `luma-ios`, twelve screens and the process behind them
 
-[![luma-ios](assets/workflow/case-luma.webp)](mockups/canvases/luma-ios/)
+[![luma-ios](assets/workflow/case-luma.webp)](canvases/luma-ios/)
 
 *Six of the twelve. The replica draws a Dynamic Island the capture does not
 have: the source composites it out, the iOS frame spec draws it, and this run
@@ -49,14 +49,14 @@ keeps the frame and excludes the top 56pt from its numbers.*
 
 ### `notion-ios`, eighteen screens
 
-[![notion-ios](assets/workflow/case-notion.webp)](mockups/canvases/notion-ios/README.md)
+[![notion-ios](assets/workflow/case-notion.webp)](canvases/notion-ios/README.md)
 
 *Replica on top, its source capture directly below it. @3x captures, same
 crop and same scale.*
 
 ### `claude-ios`, fifteen screens across four flows
 
-[![claude-ios](assets/workflow/case-claude.webp)](mockups/canvases/claude-ios/README.md)
+[![claude-ios](assets/workflow/case-claude.webp)](canvases/claude-ios/README.md)
 
 *Six of the fifteen. Home, a streaming answer, voice mode, an artifact card,
 the Add to Chat sheet and a photo answer. The serif answer column is set in
@@ -64,7 +64,7 @@ Georgia standing in for Tiempos, matched on cap height and about 11% wider.*
 
 ### `raycast-ios`, eleven screens across three flows
 
-[![raycast-ios](assets/workflow/case-raycast.webp)](mockups/canvases/raycast-ios/README.md)
+[![raycast-ios](assets/workflow/case-raycast.webp)](canvases/raycast-ios/README.md)
 
 *Replica on top, source capture directly below it. Same crop, same scale, so
 the two rows line up pixel for pixel. The Models sheet and Presets flows; the
@@ -91,18 +91,20 @@ choose **More info**, then **Run anyway**.
 
 From then on the app updates itself. On launch it looks for a newer release,
 downloads it in the background and asks once to restart; **Later** installs it
-when you quit. The startup page shows the version beside the app's name, and a
-click on it checks again. v1.5.3 and earlier do not, so update those once by hand, with
+when you quit. The first launch's welcome shows the version, and a click on it
+checks again. v1.5.3 and earlier do not, so update those once by hand, with
 `brew upgrade --cask super-prototyping` or the new installer.
 
 The app is the canvas in a window, and it needs no terminal and no bun. It
-opens by asking which agent you will work with, Claude Code or Codex, then
-asks you to open a project or to name a new one, which goes in
-`Documents/Super Prototyping`. It shows that project's `mockups/canvases` with
-the example canvases beside them, read-only until you clone one into the
-project. The agent you picked gets the skills copied into the project, each
-copy marked with the app's version and refreshed on a later open when it is
-behind the app's version. The app does not install the toolkit below. The
+opens straight onto its home page, which is no project's, and asks over it
+which agent you will work with, Claude Code or Codex. New projects are made in
+`Documents/Super Prototyping` from the home page or the + on the tab bar, and
+each shows its `canvases` with the example canvases beside them, read-only
+until you clone one into the project. The agent works in the panel on the
+left, with or without a project open, and remembers the conversation until you
+start a new one. It runs in a folder of its own under
+`Documents/Super Prototyping/.workspaces`, which holds the skills, kept at the
+app's version. The app does not install the toolkit below. The
 skills tell whichever agent you run to install it the first time one calls for
 `refkit`, `artgen` or `sp`.
 
@@ -167,15 +169,15 @@ clones just those directories, cone mode:
         "source": "github",
         "repo": "ReScienceLab/super-prototyping",
         "sparsePaths": [".claude-plugin", "skills", "canvas", "tools",
-                        "mockups/canvases/templates"]
+                        "canvases/templates", "canvases/00-welcome"]
       }
     }
   }
 }
 ```
 
-Measured at 6.7 MB installed, against about 430 MB. Add
-`mockups/canvases/duolingo-ios` to that list to keep the one example
+About 7 MB installed, against about 430 MB. Add
+`canvases/duolingo-ios` to that list to keep the one example
 `clone-prototype` reads most, or drop the key entirely to get everything.
 
 **Per product, the parts worth knowing.** `codex plugin marketplace upgrade`
@@ -215,9 +217,9 @@ Your project holds boards and nothing else — no canvas app, no toolkit, no
 skills to keep in step:
 
 ```bash
-mkdir -p my-product-design/mockups/canvases && cd my-product-design
-cp -r "$(sp root)/mockups/canvases/templates" mockups/canvases/<slug>
-python3 mockups/canvases/<slug>/gen.py
+mkdir -p my-product-design/canvases && cd my-product-design
+cp -r "$(sp root)/canvases/templates" canvases/<slug>
+python3 canvases/<slug>/gen.py
 ```
 
 `sp root` prints wherever the plugin landed. Every worked example above
@@ -232,9 +234,11 @@ sp start ~/my-app     # any project, from anywhere
 
 On first run it downloads the canvas app built for your version of the
 plugin into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
-against the project's `mockups/canvases` with node or bun, opens the browser,
-and prints the address. `--canvases DIR` points it at another boards folder, `--port N` (or
-`SP_CANVAS_PORT`) moves it, `sp status` and `sp stop` do what
+against the project's `canvases` with node or bun, opens the browser,
+and prints the address. Every project under `~/Documents/Super Prototyping` is
+served beside it at `/p/<name>/`, the same way the app serves them;
+`PROTOTYPING_PROJECTS_DIR` moves that folder. `--port N` (or
+`SP_CANVAS_PORT`) moves the port, `sp status` and `sp stop` do what
 they say. `sp paths` lists the two directories it writes, and
 `sp clean` removes them.
 
@@ -307,10 +311,10 @@ refkit scan ref.png col 196 380 410 --pt 3        # colour runs -> exact edge
 refkit hairline ref.png 40 200 300 204 --bg FFFFFF --scale 0.7634
 refkit font ref.png 17 139 79 152 Libraries --pt 3 \
     --fonts ./brand-fonts                         # name the type face
-refkit shoot mockups/canvases/my-app/*.html -o mine \
+refkit shoot canvases/my-app/*.html -o mine \
     --scale 3 --crop-phone --check-overflow       # render, de-frame, fail if clipped
 refkit diff mine/01.png ref.png --pt 3 -o d.png   # side by side + numbers
-refkit tokens mockups/canvases/my-app             # one :root, no undefined var()
+refkit tokens canvases/my-app             # one :root, no undefined var()
 refkit --version                                  # which release you are on
 ```
 

@@ -7,10 +7,17 @@ import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
 import './index.css'
 import { loadCanvasIndex } from './canvasIndex'
+import { windowUrl } from './canvasUrl'
+import { noBrowserMenu } from './contextMenu'
 
+noBrowserMenu()
+
+// The canvas is a frame in the window (AppShell.tsx), which holds the bar and the agent's panel.
+// Opened on its own, it goes to that window at this address, which is what was meant.
+if (window.parent === window) location.replace(windowUrl(location.href))
 // The index first, then the app: everything under src reads the index at module scope or during
 // render, and a dynamic import is what keeps it from being evaluated before the fetch lands.
-loadCanvasIndex()
+else loadCanvasIndex()
   .then(async () => {
     const { default: App } = await import('./App.tsx')
     createRoot(document.getElementById('root')!).render(

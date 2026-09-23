@@ -1,5 +1,9 @@
 # The app copies skills into the project; the toolkit installs itself
 
+> Superseded in part, 2026-09-22: the chat's agent runs in a folder of its own and gets the
+> skills there, so projects get no copy and nothing refreshes one. See
+> `2026-09-22-agent-workspace.md`. The toolkit half below still holds.
+
 2026-09-20, following on from the desktop shell in #111 (PR #116). The dmg
 gives a project no skills at all. A marketplace install gets `skills/` for
 free and a dmg does not, so the app itself has to put them there. This note
