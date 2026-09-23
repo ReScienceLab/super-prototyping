@@ -327,6 +327,10 @@ export function ChatPanel(props: {
   const [cued, setCued] = useState(false);
   const abort = useRef(new AbortController());
   const log = useRef<HTMLDivElement>(null);
+  /** Whether the log follows what arrives. Scrolling up to read stops it, so new output no longer
+   *  yanks the reader back down; the arrow, or scrolling back to the end, starts it again. */
+  const pinned = useRef(true);
+  const [atEnd, setAtEnd] = useState(true);
   const composer = useRef<HTMLDivElement>(null);
   const files = useRef<HTMLInputElement>(null);
   const historyList = useRef<HTMLDivElement>(null);
@@ -378,7 +382,7 @@ export function ChatPanel(props: {
     sessionStorage.setItem(RUNS_KEY, JSON.stringify(turns.map((t) => t.runId)));
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
     // Also on reopening: a hidden log has no scroll height to have been scrolled to.
-    log.current?.scrollTo(0, log.current.scrollHeight);
+    if (pinned.current) log.current?.scrollTo(0, log.current.scrollHeight);
   }, [turns, open, session]);
 
   const running = turns.find((t) => !t.end);
@@ -916,6 +920,7 @@ export function ChatPanel(props: {
       const { runId, session: on } = await res.json();
       setSession(on);
       const images = attached.map(({ n, name }) => ({ n, name }));
+      pinned.current = true;
       setTurns((ts) => [
         ...ts,
         { ...turnFor(runId), prompt: message, agent, images },
@@ -1001,6 +1006,7 @@ export function ChatPanel(props: {
     // the Stop button is for.
     abort.current.abort();
     abort.current = new AbortController();
+    pinned.current = true;
     setTurns([]);
     setSession(null);
     composer.current?.replaceChildren();
@@ -1040,6 +1046,7 @@ export function ChatPanel(props: {
     setSession({ id: picked.id, title: picked.title });
     // Its turns, as far as the server still holds them: a run it has forgotten drops out of the
     // log (follow), though the agent still remembers it.
+    pinned.current = true;
     setTurns(picked.runs.map(turnFor));
     for (const id of picked.runs) follow(id);
   };
@@ -1189,7 +1196,17 @@ export function ChatPanel(props: {
             ))
           )}
         </div>
-        <div className="sp-chat-log" ref={log}>
+        <div
+          className="sp-chat-log"
+          ref={log}
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            // A few pixels short still counts: zoom leaves scrollTop fractional.
+            pinned.current =
+              el.scrollHeight - el.scrollTop - el.clientHeight < 8;
+            setAtEnd(pinned.current);
+          }}
+        >
           {turns.length === 0 && !session && (
             <p className="sp-chat-empty">
               Runs Claude Code with its permission prompts off, or Codex in its
@@ -1337,6 +1354,34 @@ export function ChatPanel(props: {
               </button>
             </div>
           ))}
+          {!atEnd && (
+            <button
+              type="button"
+              className="sp-chat-to-end"
+              aria-label="Scroll to latest"
+              title="Scroll to latest"
+              onClick={() =>
+                log.current?.scrollTo({
+                  top: log.current.scrollHeight,
+                  behavior: "smooth",
+                })
+              }
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 5.5 7 8.5 10 5.5" />
+              </svg>
+            </button>
+          )}
         </div>
         {/* What is attached, in the order it arrived. The tile is a crop — it only has to say which
           image this is — and clicking it writes that number into the sentence. */}
