@@ -14,6 +14,8 @@ async function save(slug: string, next: string) {
   if (next === readDoc(slug)) return true;
   const response = await fetch(`${import.meta.env.BASE_URL}__sp/doc`, {
     method: "POST",
+    // Outlives the page, for the save as another project's canvas replaces this one (DocTab).
+    keepalive: true,
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ name: slug, text: next }),
   });
@@ -69,18 +71,27 @@ export function DocModeSwitch({ slug }: { slug: string }) {
  * A Markdown file as a tab, over the canvas the way a kit is: read, it is the chat panel's
  * markdown, sanitized the same way, at a document's size; edited, it is the file's own text.
  * The agent rewriting the file changes what Read shows without a reload (canvasIndex.ts), and
- * leaves a draft being edited alone.
+ * leaves a draft being edited alone. Leaving the tab saves the draft: for another tab here, as
+ * it closes, and for another project, whose canvas replaces this page, as the page goes. A draft
+ * that will not save is kept, and is there to edit again on coming back.
  */
 export function DocTab({ slug }: { slug: string }) {
   const [, redraw] = useReducer((n: number) => n + 1, 0);
   useEffect(() => {
-    window.addEventListener(DOCS_CHANGED, redraw);
-    return () => {
-      window.removeEventListener(DOCS_CHANGED, redraw);
+    const leave = () => {
+      const text = draft.get();
       draft.set(undefined);
       saveError.set(undefined);
+      if (text !== undefined) void save(slug, text).then((saved) => saved || draft.set(text));
     };
-  }, []);
+    window.addEventListener(DOCS_CHANGED, redraw);
+    window.addEventListener("pagehide", leave);
+    return () => {
+      window.removeEventListener(DOCS_CHANGED, redraw);
+      window.removeEventListener("pagehide", leave);
+      leave();
+    };
+  }, [slug]);
   const text = useValue("doc draft", () => draft.get(), []);
   const error = useValue("doc save error", () => saveError.get(), []);
 
