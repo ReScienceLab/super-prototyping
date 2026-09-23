@@ -442,35 +442,54 @@ button {
   line-height: 20px;
 }
 
-/* Read and Edit, a document's controls at the strip's far end (DocTab.tsx). */
+/* Reading or editing, a document's control at the strip's far end (DocTab.tsx): a switch between
+   the eye and the pen, whichever is on the lit one. */
 .sp-canvas-tabs-mode {
   display: flex;
   align-self: center;
-  gap: 2px;
-  margin-left: auto;
-  padding: 2px;
-  border: 1px solid var(--ds-gray-alpha-400);
-  border-radius: 8px;
-}
-
-.sp-canvas-tabs-mode button {
-  display: flex;
   align-items: center;
   gap: 6px;
-  height: 22px;
-  padding: 0 10px;
+  margin-left: auto;
+  padding: 0 4px;
   border: 0;
-  border-radius: 6px;
   background: none;
   color: var(--ds-gray-900);
-  font: inherit;
   cursor: pointer;
 }
 
-.sp-canvas-tabs-mode button:hover,
-.sp-canvas-tabs-mode button[aria-pressed="true"] {
-  background: var(--ds-gray-100);
+.sp-canvas-tabs-mode[aria-checked="false"] svg:first-child,
+.sp-canvas-tabs-mode[aria-checked="true"] svg:last-child {
   color: var(--ds-gray-1000);
+}
+
+.sp-canvas-tabs-mode-track {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--ds-gray-400);
+  transition: background 0.15s;
+}
+
+.sp-canvas-tabs-mode-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ds-gray-1000);
+  transition: transform 0.15s;
+}
+
+.sp-canvas-tabs-mode[aria-checked="true"] .sp-canvas-tabs-mode-track {
+  background: var(--ds-blue-700);
+}
+
+.sp-canvas-tabs-mode[aria-checked="true"] .sp-canvas-tabs-mode-track::after {
+  transform: translateX(12px);
+  background: #fff;
 }
 
 .canvas-doc-error {

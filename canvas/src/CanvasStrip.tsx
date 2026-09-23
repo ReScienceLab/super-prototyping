@@ -21,7 +21,7 @@ import { FileText, LogoFigma, Plus } from "./geistIcons";
  * has no agent.
  *
  * At the far end are the controls of the tab in front: a canvas's ground colour, then Export to
- * Figma, the one place a canvas goes from here; a document's Read and Edit.
+ * Figma, the one place a canvas goes from here; a document's switch between reading and editing.
  */
 export function CanvasStrip() {
   const { activeTab, openTab, editor } = useContext(CanvasChromeContext);

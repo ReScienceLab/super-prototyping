@@ -29,35 +29,31 @@ async function save(slug: string, next: string) {
 }
 
 /**
- * Read and Edit, for the document in front, at the end of the canvas strip (CanvasStrip.tsx)
+ * A switch between reading and editing the document in front, at the end of the canvas strip (CanvasStrip.tsx)
  * where a canvas has its own controls. Only a project's own document, in an app with a server to
- * write it, has one: an example's is the app's. Leaving Edit saves, and so does ⌘S.
+ * write it, has one: an example's is the app's. Switching back to reading saves, and so does ⌘S.
  */
 export function DocModeSwitch({ slug }: { slug: string }) {
   const editing = useValue("doc editing", () => draft.get() !== undefined, []);
   if (!canvasIndex().served || slug.includes("/")) return null;
   return (
-    <div className="sp-canvas-tabs-mode" role="group" aria-label="Mode">
-      <button
-        type="button"
-        aria-pressed={!editing}
-        onClick={async () => {
-          const text = draft.get();
-          if (text === undefined || (await save(slug, text))) draft.set(undefined);
-        }}
-      >
-        <Eye />
-        Read
-      </button>
-      <button
-        type="button"
-        aria-pressed={editing}
-        onClick={() => editing || draft.set(readDoc(slug) ?? "")}
-      >
-        <Pen />
-        Edit
-      </button>
-    </div>
+    <button
+      type="button"
+      role="switch"
+      className="sp-canvas-tabs-mode"
+      aria-checked={editing}
+      aria-label="Edit"
+      title={editing ? "Editing. Switch off to save and read" : "Reading. Switch on to edit"}
+      onClick={async () => {
+        const text = draft.get();
+        if (text === undefined) draft.set(readDoc(slug) ?? "");
+        else if (await save(slug, text)) draft.set(undefined);
+      }}
+    >
+      <Eye />
+      <span className="sp-canvas-tabs-mode-track" />
+      <Pen />
+    </button>
   );
 }
 
