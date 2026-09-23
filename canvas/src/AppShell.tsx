@@ -287,7 +287,12 @@ export function AppShell() {
           <input name="name" placeholder="Project name" autoFocus required />
           <label className="home-dialog-check">
             <input type="checkbox" name="define" defaultChecked />
-            Define the product with the agent
+            <span>
+              Define the product with the agent
+              <small>
+                Runs the <code>define-product</code> skill in the agent panel
+              </small>
+            </span>
           </label>
           {said && <p>{said}</p>}
           <div>

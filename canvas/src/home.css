@@ -274,15 +274,25 @@ button.home-tile i {
 /* Starts the agent on PRD.md once the project opens (AppShell.tsx). */
 .home-dialog-check {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   margin-top: 12px;
   color: var(--ds-gray-900);
   font-size: 14px;
   cursor: pointer;
 }
+.home-dialog-check small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ds-gray-700);
+  font-size: 13px;
+}
+.home-dialog-check code {
+  font: 12px var(--font-mono);
+  color: var(--ds-gray-900);
+}
 .home-dialog-check input {
-  margin: 0;
+  margin: 3px 0 0;
   accent-color: var(--ds-gray-1000);
 }
 .home-dialog p {
