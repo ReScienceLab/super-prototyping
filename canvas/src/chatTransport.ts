@@ -150,7 +150,7 @@ export async function followRun(
     let timer = setTimeout(() => idle.abort(), IDLE_MS);
     try {
       const res = await fetch(
-        `${import.meta.env.BASE_URL}__sp/agent/run/${runId}/events?after=${cursor}`,
+        `/__sp/agent/run/${runId}/events?after=${cursor}`,
         {
           signal: AbortSignal.any([signal, idle.signal]),
         },

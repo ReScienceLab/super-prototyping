@@ -6,12 +6,7 @@ import {
   readCanvasLayout,
   shortName,
 } from "./canvasLibrary";
-import {
-  WELCOME_PAGE_SLUG,
-  brandPageUrl,
-  canvasPageUrl,
-  type CanvasTab,
-} from "./canvasUrl";
+import { brandPageUrl, type CanvasTab } from "./canvasUrl";
 import { openInTab } from "./canvasTabs";
 
 /** How many pictures a card shows. Four fits one row at every width the grid goes down to. */
@@ -57,11 +52,7 @@ function preview(slug: string) {
  * `open` is the same switch it is on BrandKit. Given it, this is a tab of the canvas app and the
  * cards open tabs rather than navigating away from it.
  */
-export function BrandKitIndex({
-  open,
-}: {
-  open?: (tab: CanvasTab) => void;
-}) {
+export function BrandKitIndex({ open }: { open?: (tab: CanvasTab) => void }) {
   const pages = brandMaterialSlugs().map((slug) => ({
     slug,
     ...preview(slug),
@@ -72,7 +63,8 @@ export function BrandKitIndex({
     <main>
       {!open && (
         <div className="topbar">
-          <a className="chip home" href={canvasPageUrl(WELCOME_PAGE_SLUG)}>
+          {/* The canvas at its bare address, on the project's own view (canvasTabs.ts). */}
+          <a className="chip home" href={import.meta.env.BASE_URL}>
             <img src={`${import.meta.env.BASE_URL}favicon-32.png`} alt="" />
             <span>Super Prototyping</span>
           </a>
@@ -104,7 +96,9 @@ export function BrandKitIndex({
             className="product"
             key={page.slug}
             href={brandPageUrl(page.slug)}
-            onClick={open && openInTab(open, { kind: "brand", slug: page.slug })}
+            onClick={
+              open && openInTab(open, { kind: "brand", slug: page.slug })
+            }
           >
             <div className="product__head">
               <img

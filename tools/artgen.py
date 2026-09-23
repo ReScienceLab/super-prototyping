@@ -12,7 +12,7 @@ the model is upscaling in place rather than composing. Every cell then returns a
 scale 1.00 with an offset of a pixel or less, so there is nothing left to
 register, and the same six assets score 2.2 to 6.9.
 
-    artgen --art mockups/canvases/<slug>/assets/art \
+    artgen --art canvases/<slug>/assets/art \
         --out gen 03-char 08-avatar 02-char 06-char 07-freeze 01-duo
 
 Repeat --sheet to score several returns and keep, per asset, whichever grid drew

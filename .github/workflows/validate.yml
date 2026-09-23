@@ -120,8 +120,8 @@ jobs:
         shell: bash
         run: |
           PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
-          node dist/server.mjs --port 5199 &
-          curl --retry 10 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:5199/ | grep -q 'id="root"'
+          PROTOTYPING_PROJECTS_DIR="$(mktemp -d)" node dist/server.mjs --port 5199 --open "$(mktemp -d)" &
+          curl --retry 10 --retry-connrefused --retry-delay 1 -fsSL http://127.0.0.1:5199/ | grep -q 'id="root"'
 
   desktop:
     name: macOS app

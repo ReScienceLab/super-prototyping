@@ -19,7 +19,7 @@ import {
 export const CANVAS_LINK_SHAPE_TYPE = "canvas-link" as const;
 
 /**
- * The case the cropped board is fitted into, mockups/canvases/templates own phone: a 393 x 852
+ * The case the cropped board is fitted into, canvases/templates own phone: a 393 x 852
  * screen at radius 52, wearing the same two-ring bezel every board here draws. The card supplies
  * it rather than the board, so eleven folders that each drew their phone a little differently
  * come out as one device at one size.

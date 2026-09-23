@@ -12,17 +12,20 @@ Code, shipped to every install:
 `.claude/skills/` and `.agents/skills/` are symlinks to it, so this checkout
 loads the same tree an install does.
 
-`canvas/` is the tldraw viewer, built with Bun and Vite. It discovers
-`<boards dir>/*/*.html` one level deep, where the boards dir is
-`PROTOTYPING_CANVASES_DIR` and falls back to this repo's `mockups/canvases`.
-Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
+`canvas/` is the tldraw viewer, built with Bun and Vite. Its server serves
+every project under `~/Documents/Super Prototyping` (`PROTOTYPING_PROJECTS_DIR`
+moves it) at `/p/<name>/`, plus the one `sp start` or the app opened, with this
+repo's `canvases` as the examples shown beside each project's own. A
+project's boards are its `canvases`, discovered as `*/*.html` one level
+deep. Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
 `/__sp/index.json` by `canvas/server/sp.ts` and written into `dist` by the
 build — not an `import.meta.glob`, because a glob pattern is a build-time
 literal and could only ever read one hard-coded directory. `sp start`
 runs the built app, `dist/server.mjs`: the release's `canvas-dist.tgz`
 fetched into `~/.cache/super-prototyping/<version>/` for an install, or this
 checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
-`dev` script mounts the same server module under Vite for working on the app.
+`dev` script mounts the same server under Vite, with this checkout open as the
+project, for working on the app.
 
 `tools/` is a Python package, `super-prototyping-tools`. It installs `refkit`
 (measure, shoot, diff, check tokens), `artgen` (the rare asset that has to be
@@ -34,11 +37,11 @@ need a different spelling per product.
 `desktop/` is the desktop app, for macOS and Windows: Electron around that
 same `dist/server.mjs`, forked as a utility process and shown in a window.
 `main.ts` is the app,
-`launch.ts` holds the helpers `bun test` checks, and `icons/` has one SVG per
-`AGENTS` row, LobeHub's brand icons under their MIT notice. The startup page
-offers the two rows flagged `offered`. The app ships `mockups/canvases` whole
-and passes it as `PROTOTYPING_EXAMPLES_DIR`, which the server shows read-only
-beside a project's own boards. `sp start` does not set that variable. The
+`launch.ts` holds the helpers `bun test` checks. The app opens on the home page,
+which is no project's and lists them all, and on a first launch
+`canvas/src/Onboarding.tsx` asks over it which agent to work with. The app ships `canvases` whole, under the
+plugin root it hands the server, which is where the examples come from under
+`sp start` too. The
 release workflow builds the app on a macOS runner and attaches a dmg per
 architecture, signed and notarised, then on a Windows runner and attaches an
 unsigned installer. The app updates itself with `electron-updater`, which
@@ -60,11 +63,11 @@ run it with `--check` before releasing.
 
 Data, this repo's own:
 
-`mockups/canvases/<slug>/` is one folder per app canvas. The conventions and
+`canvases/<slug>/` is one folder per app canvas. The conventions and
 the `layout.json` schema are in `skills/prototype-canvas/references/layout.md`,
 which is the copy that ships inside the plugin and therefore the one to edit;
-`mockups/canvases/README.md` covers only what is true of this repo. Start a
-new folder with `cp -r mockups/canvases/templates mockups/canvases/<slug>`.
+`canvases/README.md` covers only what is true of this repo. Start a
+new folder with `cp -r canvases/templates canvases/<slug>`.
 
 Rules inside a canvas folder:
 

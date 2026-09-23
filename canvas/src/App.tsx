@@ -28,10 +28,8 @@ import {
   type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
-  type TLUiToast,
   useEditor,
   useLocalStore,
-  useToasts,
 } from "tldraw";
 import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
@@ -43,7 +41,7 @@ import {
   urlForTab,
   type CanvasTab,
 } from "./canvasUrl";
-import { isHere, resolveTab, tabFor } from "./canvasTabs";
+import { isHere, pageOf, resolveTab, tabFor } from "./canvasTabs";
 import { CanvasStrip } from "./CanvasStrip";
 // The kits render inside the canvas as well as under brand.html, so this file imports their
 // sheet too, and statically, because it is a few kilobytes against tldraw's megabyte, and a tab
@@ -284,32 +282,6 @@ function LockedLinkClicks() {
 }
 
 /**
- * What the app that opened this page has to say once it is up — the desktop
- * shell's "skills installed", after it copied them into the project — as a
- * toast at the bottom right, where tldraw puts them, rather than a native
- * alert in front of a window still showing the startup page. It rides in as
- * `?toast=<json>` and is taken out of the address at once, so a reload, or a
- * link copied from the bar, does not carry it.
- */
-function LaunchToast() {
-  const { addToast } = useToasts();
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    const raw = url.searchParams.get("toast");
-    if (raw === null) return;
-    url.searchParams.delete("toast");
-    window.history.replaceState(null, "", url.href);
-    // The address is typed by hand too, and a throw here would take tldraw's whole UI down
-    // with it: a toast that is not JSON is no toast.
-    try {
-      const toast = JSON.parse(raw) as Pick<TLUiToast, "title" | "description">;
-      addToast({ severity: "success", ...toast });
-    } catch {}
-  }, [addToast]);
-  return null;
-}
-
-/**
  * A path as a single shell word. A boards directory is chosen by whoever ran `sp`, so it
  * can hold a space, and the command below is meant to be copied and run as it stands.
  */
@@ -317,9 +289,8 @@ const shellQuote = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`;
 
 /**
  * What a project with no boards yet sees, which is otherwise an empty grey grid with no way to
- * tell a misdirected canvas from an empty one. The directory is the whole point of the notice:
- * `sp start` resolves it from --canvases, PROTOTYPING_CANVASES_DIR or the current
- * directory, and until now the answer only existed in the dev server's environment.
+ * tell a misdirected canvas from an empty one. The directory is the whole point of the notice.
+ * It is the project's `canvases` folder, which the server knows and the page otherwise does not.
  *
  * The library is a build-time constant, so this is a plain check rather than a subscription; the
  * dev server full-reloads the page when the first board folder appears.
@@ -329,7 +300,7 @@ function EmptyLibraryNotice() {
   // Empty in a production build, which does not ship the build machine's paths. The notice still
   // has something worth saying without it, so it degrades rather than disappearing.
   const { canvasesDir } = canvasIndex();
-  const target = canvasesDir || "mockups/canvases";
+  const target = canvasesDir || "canvases";
   return (
     <div className="canvas-empty" role="status">
       <h1 className="canvas-empty__title">No boards here yet</h1>
@@ -349,7 +320,7 @@ function EmptyLibraryNotice() {
         yourself:
       </p>
       <pre className="canvas-empty__cmd">
-        {`mkdir -p ${shellQuote(target)}\ncp -r "$(sp root)/mockups/canvases/templates" \\\n  ${shellQuote(`${target}/my-app`)}`}
+        {`mkdir -p ${shellQuote(target)}\ncp -r "$(sp root)/canvases/templates" \\\n  ${shellQuote(`${target}/my-app`)}`}
       </pre>
     </div>
   );
@@ -922,7 +893,7 @@ function layoutWelcomeExtras(
 }
 
 /**
- * One tldraw page per mockups/canvases/<slug> folder, one shape per HTML file in it. If that
+ * One tldraw page per canvases/<slug> folder, one shape per HTML file in it. If that
  * folder has a layout.json alongside its HTML files, its rows are laid out top-to-bottom in the
  * declared order; see CanvasLayoutConfig in canvasLibrary.ts. Anything not covered by a row
  * still appears, in a fallback grid below, so a file can never be silently hidden.
@@ -1165,14 +1136,19 @@ function applyCanvasFromUrl(
     open(tab);
     return false;
   }
-  const slug = tab.slug;
+  // The folder whose page the address shows, which for the bare address is Start here's. The
+  // board or picture the hash names is one of that folder's.
+  const slug = pageOf(tab);
   const page = editor.getPages().find((c) => c.meta.canvasSlug === slug);
   if (page) editor.setCurrentPage(page.id);
-  // The tab is the page landed on rather than the one asked for, because an address naming a
-  // folder that has since gone leaves tldraw on whichever page it persisted, and a chip for that
-  // folder would be one that opens nothing. `write` then corrects the address to match.
+  // The tab is the one asked for when its page is there, since the bare address and Start
+  // here's own are two views of the same page (canvasTabs.ts) and the page alone cannot say
+  // which. Otherwise it is the page landed on, because an address naming a folder that has
+  // since gone leaves tldraw on whichever page it persisted, and a chip for that folder would
+  // be one that opens nothing. `write` then corrects the address to match.
   const here = editor.getCurrentPage().meta.canvasSlug;
-  if (typeof here === "string") open({ kind: "canvas", slug: here });
+  if (page) open(tab);
+  else if (typeof here === "string") open({ kind: "canvas", slug: here });
   const named = targetFromUrl(window.location.href);
   const file =
     readCanvasLibrary()
@@ -1231,7 +1207,7 @@ function installCanvasUrlSync(
     const active = tab.active();
     const open = opened();
     const named =
-      active.kind === "canvas" && open?.slug === active.slug
+      active.kind === "canvas" && open?.slug === pageOf(active)
         ? open.name
         : undefined;
     const href = urlForTab(window.location.href, active, named);
@@ -1262,7 +1238,11 @@ function installCanvasUrlSync(
       first = false;
       return;
     }
-    if (typeof slug === "string") tab.open({ kind: "canvas", slug });
+    // The page of the tab already in front is that tab arriving, not a change of tab. A tab
+    // brought forward sets its page after it is in front, and the page of the project's own
+    // view with no canvas is Start here's, which is also an example's (canvasTabs.ts).
+    if (typeof slug !== "string" || slug === pageOf(tab.active())) return;
+    tab.open({ kind: "canvas", slug });
   });
   window.addEventListener("popstate", apply);
   return {
@@ -1418,7 +1398,9 @@ export default function App() {
   const openTab = (tab: CanvasTab) => {
     showTab(tab);
     if (!editor || tab.kind !== "canvas") return;
-    const page = editor.getPages().find((c) => c.meta.canvasSlug === tab.slug);
+    const page = editor
+      .getPages()
+      .find((c) => c.meta.canvasSlug === pageOf(tab));
     if (page) editor.setCurrentPage(page.id);
   };
 
@@ -1535,7 +1517,6 @@ export default function App() {
               >
                 <AgentBridge />
                 <LockedLinkClicks />
-                <LaunchToast />
                 <InspectorClicks
                   onPick={onPick}
                   onDismiss={onCloseInspector}

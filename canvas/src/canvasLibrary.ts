@@ -6,8 +6,8 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // HTML file in it becomes one shape. Add or edit files there; nothing here needs to change.
 //
 // Everything here reads the index the page fetched from `/__sp/index.json` before it imported
-// this module (canvasIndex.ts): the server scans PROTOTYPING_CANVASES_DIR per request, a build
-// wrote it once for this repo's own mockups/canvases. It was a module generated at build time
+// this module (canvasIndex.ts): the server scans the project's `canvases` per request, a build
+// wrote it once for this repo's own canvases. It was a module generated at build time
 // until the canvas became a served app, and `import.meta.glob` calls before that: a glob
 // pattern is a string literal resolved at build time, so it could only ever read one
 // hard-coded directory, never the boards of whoever installed it.
