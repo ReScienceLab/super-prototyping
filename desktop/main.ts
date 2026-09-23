@@ -5,7 +5,7 @@
  * Bundled to `dist/main.mjs` by `bun run build`; electron-builder wraps that and the built
  * canvas into the .app.
  */
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -19,9 +19,13 @@ import {
 } from "electron";
 import { autoUpdater } from "electron-updater";
 import {
+  allowInCodex,
   augmentedPath,
+  dataDir,
+  ensurePathInRc,
   freePort,
   isWeb,
+  linkInstall,
   parseArgs,
   portAnswers,
   stateDir,
@@ -46,10 +50,24 @@ const pluginRoot = app.isPackaged
   : path.resolve(import.meta.dirname, "../..");
 
 // `open -a "Super Prototyping" --args --port 5173 /path/to/project`, and nothing else. A project
-// named here skips the home page and the onboarding.
-const { port: portArg, dir: argDir } = parseArgs(
-  process.argv.slice(app.isPackaged ? 1 : 2),
-);
+// named here skips the home page and the onboarding. `--upgrade` is `sp upgrade`.
+const argvOf = (argv: string[]) => parseArgs(argv.slice(app.isPackaged ? 1 : 2));
+const { port: portArg, dir: argDir, upgrade: upgradeArg } = argvOf(process.argv);
+
+// One app. A second launch, which is how `sp open` and `sp upgrade` reach a running one
+// (`open -n` — without it macOS only focuses the app and drops the arguments), hands its arguments
+// to this one over `second-instance` and exits.
+if (!app.requestSingleInstanceLock()) app.exit(0);
+
+// What the CLI reads to find this app and hear about an update, beside its own pidfiles and logs:
+// `app.json` while the app runs, `update.json` after every check. tools/sp_canvas.py reads both.
+const state = stateDir(process.env, home);
+const appFile = path.join(state, "app.json");
+const updateFile = path.join(state, "update.json");
+const writeJson = (file: string, value: object) => {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(value));
+};
 
 let server: Electron.UtilityProcess | null = null;
 let quitting = false;
@@ -63,6 +81,7 @@ function stopServer() {
 app.on("will-quit", () => {
   quitting = true;
   stopServer();
+  fs.rmSync(appFile, { force: true });
 });
 // One window is the app. macOS convention would keep it in the dock; the server holds the
 // projects open, so closing the window is quitting.
@@ -136,7 +155,10 @@ async function main() {
   // installers being attached, is not something the user can act on. Nothing happens unpackaged.
   // The onboarding shows the version, and a click on it checks again. That check was asked
   // for, so it is answered either way, in the words the page puts beside the version.
-  autoUpdater.on("update-downloaded", async ({ version }) => {
+  // `sp upgrade` asks for the same dialog again when the update is already down.
+  let downloaded: string | undefined;
+  const askToRestart = async (version: string) => {
+    win.show();
     const { response } = await dialog.showMessageBox(win, {
       message: `Super Prototyping ${version} is ready.`,
       detail:
@@ -145,18 +167,40 @@ async function main() {
       cancelId: 1, // Esc is "Later": without this it answers 0, which is "Restart Now".
     });
     if (response === 0) autoUpdater.quitAndInstall();
+  };
+  // Every check's outcome goes in update.json, which is where the CLI's notice comes from. The
+  // updater only checks while the app runs, so `checkedAt` says how old the answer is.
+  // A failed check is recorded too, with its reason, so `sp upgrade` can say so instead of
+  // waiting for an answer that never comes.
+  const record = (available: string | null, error?: string) =>
+    writeJson(updateFile, {
+      current: app.getVersion(),
+      available,
+      downloaded: downloaded ?? null,
+      error: error ?? null,
+      checkedAt: new Date().toISOString(),
+    });
+  autoUpdater.on("update-downloaded", ({ version }) => {
+    downloaded = version;
+    record(version);
+    return askToRestart(version);
   });
   const checkForUpdates = () =>
     autoUpdater.checkForUpdates().then(
       (check) => {
         if (!check) return "Could not check"; // unpackaged: the updater is off and asked nobody
         check.downloadPromise?.catch(() => {});
+        record(check.isUpdateAvailable ? check.updateInfo.version : null);
         return check.isUpdateAvailable
           ? `${check.updateInfo.version} available`
           : "Up to date";
       },
-      () => "Could not check",
+      (e) => {
+        record(null, String(e));
+        return "Could not check";
+      },
     );
+  const upgrade = () => (downloaded ? askToRestart(downloaded) : checkForUpdates());
   checkForUpdates();
   ipcMain.handle("startup:check", checkForUpdates);
   // Where every new project goes, which makes the folder the list of them. The server lists it and
@@ -249,6 +293,16 @@ async function main() {
   });
 
   await startServer();
+  writeJson(appFile, { port, pid: process.pid, version: app.getVersion() });
+  linkIntoMachine();
+  app.on("second-instance", async (_event, argv) => {
+    const { dir, upgrade: wantsUpgrade } = argvOf(argv);
+    if (win.isMinimized()) win.restore();
+    win.focus();
+    if (wantsUpgrade) upgrade();
+    if (dir !== undefined) win.loadURL(await openProject(dir)).catch(fail);
+  });
+  if (upgradeArg) upgrade();
   if (argDir !== undefined) return win.loadURL(await openProject(argDir));
   const url = new URL("/home.html", origin);
   const major = (version?: string) => version?.split(".")[0];
@@ -258,6 +312,54 @@ async function main() {
   )
     url.searchParams.set("onboarding", app.getVersion());
   await win.loadURL(url.href);
+}
+
+/**
+ * The skills, the commands and the Codex rule, linked through `current` at this app on every
+ * launch (launch.ts). Only a packaged app: a checkout is a developer's, and an app run from its dmg
+ * (`/Volumes`) or from Gatekeeper's translocated copy would leave links that dangle once it is
+ * gone. A failure is logged and the app goes on: the canvas works without them.
+ */
+function linkIntoMachine() {
+  if (
+    !app.isPackaged ||
+    pluginRoot.startsWith("/Volumes/") ||
+    pluginRoot.includes("/AppTranslocation/")
+  )
+    return;
+  try {
+    for (const change of linkInstall(pluginRoot, home)) console.log(change);
+    if (process.platform === "win32") installCommands();
+    else {
+      const rc = ensurePathInRc(home, process.env.SHELL ?? "");
+      if (rc) console.log(`added ~/.local/bin to PATH in ${rc}`);
+    }
+    const allowed = allowInCodex(home);
+    if (allowed.length) console.log(`allowed ${allowed.join(", ")} in Codex`);
+  } catch (e) {
+    console.error(`linking into the machine failed: ${e}`);
+  }
+}
+
+/**
+ * Windows's sp, refkit and artgen: `.exe`s in ~/.local/bin, which Git Bash, PowerShell and cmd all
+ * run by name, from `uv tool install`. Editable through `current`, so an update's code runs at once;
+ * reinstalled when the version changes, so its dependencies do too. uv's own installer put
+ * ~/.local/bin on the user's PATH. No uv yet: the next launch tries again.
+ */
+function installCommands() {
+  const done = path.join(dataDir(home), "tools-version");
+  if (fs.existsSync(done) && fs.readFileSync(done, "utf8") === app.getVersion())
+    return;
+  const tools = path.join(dataDir(home), "current", "tools");
+  const uv = spawn("uv", ["tool", "install", "--force", "--editable", tools], {
+    stdio: "inherit",
+  });
+  uv.on("error", (e) => console.error(`installing the commands failed: ${e}`));
+  uv.on("exit", (code) => {
+    if (code === 0) fs.writeFileSync(done, app.getVersion());
+    else console.error(`uv tool install exited ${code}`);
+  });
 }
 
 // Electron neither exits nor says anything on a rejection in the main process; without this,

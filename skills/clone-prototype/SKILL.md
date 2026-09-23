@@ -2,7 +2,9 @@
 name: clone-prototype
 description: Clone a real app's screens as pixel-accurate, self-contained HTML artboards on the prototype canvas. Overlay a grid on the reference and sample colours visually, derive one measured design-token block, generate one HTML file per screen from a single script, verify by re-rendering, and park the reference underneath its mockup. Use when asked to 100% copy / clone an app's UI, rebuild screens from screenshots or Mobbin, extract a design system from reference images, or check a mockup against its reference.
 license: Apache-2.0
-compatibility: Requires the refkit and artgen commands from super-prototyping-tools, plus Google Chrome for the shoot subcommand. Reference captures are supplied by you; nothing is fetched.
+compatibility: Requires the refkit and artgen commands, which the Super Prototyping app puts on PATH (prototype-canvas's scripts/install.sh or install.ps1), plus Google Chrome for the shoot subcommand. Reference captures are supplied by you; nothing is fetched.
+metadata:
+  managed-by: super-prototyping
 ---
 
 # Clone prototype
@@ -27,15 +29,9 @@ PATH; `shoot` additionally needs Google Chrome (on Windows, Edge will do).
 refkit --help
 ```
 
-Not on PATH, or `sp --version` prints something lower than the version this
-skill shipped with? The plugin cannot install it. Leave a higher version
-alone, because reinstalling over it would be a downgrade, and the tag may not
-even exist. Once per machine, adding `--force` to reinstall over a lower
-version:
-
-```bash
-uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
-```
+`sp`, `refkit` or `artgen` not found? Run `sh <prototype-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
+and follow that skill's `references/install.md`. A `[super-prototyping:notice]`
+line on their stderr carries its own rule: finish the step, then do what it says.
 
 **Before Phase 1, check the project ignores what a run produces**, once per
 project: a run writes third-party captures into `ref-*.html` and
@@ -58,7 +54,7 @@ which is the user's project root as often as not:
 B=canvases/<slug>
 ```
 
-Worked examples and the folder skeleton ship with the plugin, which is
+Worked examples and the folder skeleton ship with the app, which is
 installed outside your project. Address them through the kit root:
 
 ```bash
@@ -66,9 +62,9 @@ KIT="$(sp root)"
 ls "$KIT/canvases"
 ```
 
-A folder this skill names but that listing does not show means the plugin was
-installed sparsely, which is supported. Work from `templates` and carry on;
-nothing here needs an example to be present.
+A folder this skill names but that listing does not show is not shipped
+with this release. Work from `templates` and carry on; nothing here needs an
+example to be present.
 
 ---
 

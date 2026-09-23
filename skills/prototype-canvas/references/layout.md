@@ -9,8 +9,8 @@ One subfolder per board under the project's boards directory,
   `order` in `layout.json` moves a folder without renaming it.
 - Each `.html` file in it becomes one shape on that page.
 - Files sort numerically by name, so prefix them `00-`, `01-`, `02-` …
-- Discovery is the `prototyping-canvases` plugin in the app's
-  `vite.config.ts`, which scans the boards directory and generates the index.
+- Discovery is `boardIndex()` in the app's `canvas/server/boards.ts`, which
+  scans the boards directory and serves the index.
 
 Two things the scanner will not do. A folder or file whose name contains `#`
 or `?` is skipped with a warning: both are URL punctuation, no encoding

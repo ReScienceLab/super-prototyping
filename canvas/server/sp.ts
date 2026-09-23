@@ -369,8 +369,8 @@ export function createSpServer(options: {
             return serve();
           }
           done();
-          // refkit is this plugin's own toolkit, installed by `uv tool install`; a canvas
-          // started some other way can be running without it, and Chrome is its own ask.
+          // refkit is linked onto PATH by the app; a canvas started some other way can be
+          // running without it, and Chrome is its own ask.
           send(
             (error as NodeJS.ErrnoException | null)?.code === "ENOENT"
               ? 503

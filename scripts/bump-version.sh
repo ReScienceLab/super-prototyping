@@ -5,12 +5,11 @@
 #   scripts/bump-version.sh 1.1.0
 #   scripts/bump-version.sh --check          # verify every file already agrees
 #
-# A plugin's version lives in nine places (see .version-bump.json): the
-# portable manifest at the root, the Claude Code manifest, twice inside the
-# marketplace catalogue, the Codex and CodeBuddy manifests, the canvas app, the
-# macOS app, and the Python toolkit. Bumping them by hand is how a release ends up
-# half-versioned, with `/plugin update` reporting one number and `refkit
-# --version` another. This is the only supported way to change them.
+# The version lives in three places (see .version-bump.json): the canvas app,
+# whose package.json is the one the skills and `sp` read, the desktop app, and
+# the Python toolkit. Bumping them by hand is how a release ends up
+# half-versioned, with the app reporting one number and `refkit --version`
+# another. This is the only supported way to change them.
 #
 set -euo pipefail
 
@@ -27,7 +26,7 @@ if [ "$1" = "--check" ]; then
 else
   MODE=set
   VERSION="$1"
-  # Semver, because Claude Code resolves plugin dependency ranges against these.
+  # Semver, because the updater and the release tag compare versions that way.
   if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
     echo "error: '$VERSION' is not a semver version (want e.g. 1.2.0)" >&2
     exit 2
@@ -74,8 +73,7 @@ def write_toml_version(text, parts, value):
 
 # Read every file before writing any of them. A bump that stops halfway leaves the
 # tree half-versioned, which is the one state this script exists to make impossible.
-# Keyed by path, because the marketplace catalogue holds two of these fields and one
-# read per field would mean each write starting from the text before the other's.
+# Keyed by path, so a file holding two of these fields is read and written once.
 seen, failures, planned = {}, [], {}
 
 for entry in spec["files"]:
@@ -84,7 +82,7 @@ for entry in spec["files"]:
     label = f'{entry["path"]}:{entry["field"]}'
 
     if not path.exists():
-        # A listed file that is not there means the manifest was renamed or deleted and
+        # A listed file that is not there means it was renamed or deleted and
         # .version-bump.json was not updated. Failing here is the whole point: otherwise
         # --check reports "all N files agree" while quietly checking N-1 of them.
         print(f"  ! {label} — file missing")
@@ -140,7 +138,10 @@ if mode == "check":
 else:
     print(f"\nbumped {len(seen)} files to {version}")
     # The tag is not cut here: .github/workflows/release.yml cuts it once the bump
-    # is on main, with `claude plugin tag` re-checking these same files first.
+    # is on main, re-checking these same files first.
     print(f"next: commit as 'release {version}' and open a PR — merging it tags "
           f"{spec['tagPrefix']}{version}")
 PY
+
+# The shims run the toolkit `--frozen` from tools/uv.lock, which names the toolkit's own version.
+[ "$MODE" = check ] || uv lock --quiet --project "$ROOT/tools"

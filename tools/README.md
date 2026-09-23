@@ -11,15 +11,15 @@ Three command-line tools, packaged so the skills can call them by name.
   chroma-keys it off its ground, and fits it to the measured box.
 - **`sp`** — serves the tldraw canvas against a project's board
   folders, fetching the build for its version on first run, and stops it
-  again. `sp root` prints which copy of the plugin it found,
-  `sp paths` where it writes, `sp clean` removes that.
+  again, and `sp open` and `sp upgrade` hand a project or an update to
+  the app. `sp root` prints which tree it found, `sp paths` where it
+  writes, `sp clean` removes that.
 
 ## Why these are installed, not called by path
 
-The skills that use them ship inside a plugin, and a plugin is installed
-outside the user's repository. `python3 "$(git rev-parse --show-toplevel)/tools/refkit.py"`
+The skills that use them are installed outside the user's repository. `python3 "$(git rev-parse --show-toplevel)/tools/refkit.py"`
 resolves to the *user's* git root, where there is no `tools/`. No agent
-product exposes its plugin root as a shell variable that Claude Code, Codex,
+product exposes a skill's install root as a shell variable that Claude Code, Codex,
 CodeBuddy, Hermes, Pi and Trae agree on, so a path-based invocation would need
 a spelling per product and would still break outside a git repository.
 
@@ -32,24 +32,27 @@ refkit grid capture.png -o grid.png --zoom 3
 
 ## Install
 
-```bash
-uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
-```
+The app installs them. On Windows it runs `uv tool install --editable` on this
+folder once per version, which puts `sp.exe`, `refkit.exe` and `artgen.exe`
+in `~\.local\bin`. It ships this folder, and on every macOS launch links
+`~/.local/bin/{sp,refkit,artgen}` to `bin/sp`, through
+`~/.local/share/super-prototyping/current`. `bin/sp` is one shim: it runs the
+command it was called as with
+`uv run --frozen --no-dev --project` this folder, in an environment under
+`~/.cache/super-prototyping/venv`. The toolkit is installed there editable, so
+what runs is always the code in this tree, and `pillow` and `numpy` are
+installed once, from `uv.lock`. It needs [uv](https://docs.astral.sh/uv/) and
+says so when it is missing.
 
-Once per machine, and from a checkout instead if you are working on the tools:
-`uv tool install /path/to/super-prototyping/tools` (or `pipx install`).
+Working on the tools, run them from the checkout's root the same way:
+`uv run --project tools refkit --help`.
 
-This pulls `pillow` and `numpy`, which were previously an undocumented
-prerequisite. `refkit shoot` additionally needs Google Chrome; on Windows,
-Edge will do.
-
-`scripts/install-skills.sh` at the repo root does this for you, alongside
-linking the skills into the non-Claude agent products.
+`refkit shoot` additionally needs Google Chrome; on Windows, Edge will do.
 
 Check what you have:
 
 ```bash
-refkit --version      # the plugin release this toolkit came from
+refkit --version      # the release this toolkit came from
 ```
 
 A source checkout reports `dev` rather than a release number.

@@ -1,13 +1,13 @@
 name: Release
 
-# A release is a version string, because the version is the cache key both
-# Claude Code and Codex compare against an install: merging to main ships
-# nothing until the number moves. This runs in two halves, because the "Protect
+# A release is a version string, because the version is what the app's updater
+# compares against the one installed: merging to main ships nothing until the
+# number moves. This runs in two halves, because the "Protect
 # main" ruleset requires a pull request and no actor bypasses it.
 #
 #   1. Dispatch this workflow with a version. It runs the gates, bumps every
-#      manifest with scripts/bump-version.sh, and opens a release PR.
-#   2. Merging that PR changes .claude-plugin/plugin.json on main, which fires
+#      file with scripts/bump-version.sh, and opens a release PR.
+#   2. Merging that PR changes canvas/package.json on main, which fires
 #      the second half: it tags super-prototyping--v<version>, cuts the
 #      GitHub Release from the matching RELEASE-NOTES.md section, and attaches
 #      the canvas, built without the example boards, as canvas-dist.tgz.
@@ -18,7 +18,7 @@ name: Release
 #
 # Nothing tags a commit that is not on main, and the second half only acts when
 # the version actually changed in that push: the tag ruleset forbids moving a
-# tag, and an edit to plugin.json that is not a release must not cut one.
+# tag, and an edit to package.json that is not a release must not cut one.
 #
 # Two settings this depends on, neither of them a file in the repo: "Allow
 # GitHub Actions to create and approve pull requests" must be on, or the first
@@ -27,7 +27,7 @@ name: Release
 # PR shows no Validate run until a person pushes to it, which step 4 of the
 # release asks for anyway. Either way it is covered: `gates` ran on the commit
 # being released, the bump touches only version strings, and the tag job
-# re-checks every manifest before `claude plugin tag` runs.
+# re-checks every version before it tags.
 
 on:
   workflow_dispatch:
@@ -39,7 +39,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.claude-plugin/plugin.json'
+      - 'canvas/package.json'
 
 permissions:
   contents: read
@@ -68,7 +68,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Bump every manifest
+      - name: Bump every version
         env:
           VERSION: ${{ inputs.version }}
         run: |
@@ -82,7 +82,7 @@ jobs:
         run: |
           set -euo pipefail
           if git diff --quiet; then
-            echo "::error::every manifest is already at $VERSION, so there is nothing to release"
+            echo "::error::every version is already $VERSION, so there is nothing to release"
             exit 1
           fi
           git config user.name  'github-actions[bot]'
@@ -122,8 +122,8 @@ jobs:
           Release from the \`## v$VERSION\` section of \`RELEASE-NOTES.md\`, so write
           that section before merging if it is not in yet.
 
-          Users are on the old version until this merges: the version string is the
-          cache key \`/plugin update\` and \`codex plugin marketplace upgrade\` compare.
+          Users are on the old version until this merges: the version string is what
+          the app's updater compares.
           BODY
           )" || {
             echo "::error::could not open the PR. The branch release/$VERSION is pushed, so nothing is lost. Open it by hand at https://github.com/${{ github.repository }}/compare/main...release/$VERSION, and check that Settings → Actions → General → 'Allow GitHub Actions to create and approve pull requests' is on."
@@ -147,7 +147,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # The trigger only says plugin.json was touched, which any edit does. A
+      # The trigger only says package.json was touched, which any edit does. A
       # release is the narrower thing: the version *changed* in this push, and no
       # tag names it yet. Renaming a field or adding a keyword must not cut a
       # release of whatever version happens to be sitting in the file.
@@ -174,14 +174,14 @@ jobs:
               return rel + ((0, tuple(int(n) for n in re.findall(r"\d+", pre))) if pre else (1, ()))
           sys.exit(0 if key(sys.argv[2]) > key(sys.argv[1]) else 1)' "$1" "$2"
           }
-          version=$(read_version < .claude-plugin/plugin.json)
+          version=$(read_version < canvas/package.json)
           fresh=true
 
-          if ! git cat-file -e "$BEFORE:.claude-plugin/plugin.json" 2> /dev/null; then
-            echo "no plugin.json at $BEFORE, so there is nothing to compare against and nothing to tag"
+          if ! git cat-file -e "$BEFORE:canvas/package.json" 2> /dev/null; then
+            echo "no canvas/package.json at $BEFORE, so there is nothing to compare against and nothing to tag"
             fresh=false
-          elif before=$(git show "$BEFORE:.claude-plugin/plugin.json" | read_version); [ "$before" = "$version" ]; then
-            echo "plugin.json changed but the version did not ($version), so this is not a release"
+          elif before=$(git show "$BEFORE:canvas/package.json" | read_version); [ "$before" = "$version" ]; then
+            echo "canvas/package.json changed but the version did not ($version), so this is not a release"
             fresh=false
           elif ! newer "$before" "$version"; then
             # Reverting the release PR restores the old number on a tree that still
@@ -218,36 +218,21 @@ jobs:
           echo "fresh=$fresh" >> "$GITHUB_OUTPUT"
           echo "attach=$attach" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-node@v7
-        if: steps.v.outputs.fresh == 'true'
-        with:
-          node-version: "22"
-
-      - name: Install Claude Code
-        if: steps.v.outputs.fresh == 'true'
-        # Unpinned, so the version that tagged a release is worth having in the log:
-        # the tag format and what --strict rejects are both its to change.
-        run: |
-          npm install -g @anthropic-ai/claude-code
-          claude --version
-
-      # `claude plugin tag` reads .claude-plugin/plugin.json and the marketplace entry
-      # and nothing else, so without this the root, Codex, CodeBuddy and pyproject
-      # versions are unchecked at the moment of tagging: exactly the half-versioned
-      # release scripts/bump-version.sh exists to prevent.
-      - name: Every manifest still agrees
+      # The trigger read one file; the desktop app and the toolkit must agree with
+      # it at the moment of tagging, or the release is half-versioned.
+      - name: Every version still agrees
         if: steps.v.outputs.fresh == 'true'
         run: scripts/bump-version.sh --check
 
-      # `claude plugin tag` is the tool's own spelling of this repo's tag: it
-      # validates the plugin, checks plugin.json and the marketplace entry agree on
-      # the version, and refuses a dirty tree.
       - name: Tag
         if: steps.v.outputs.fresh == 'true'
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
         run: |
           git config user.name  'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          claude plugin tag . --push -m 'super-prototyping %s'
+          git tag -a "super-prototyping--v$VERSION" -m "super-prototyping $VERSION"
+          git push origin "super-prototyping--v$VERSION"
 
       - name: Cut the GitHub Release
         if: steps.v.outputs.fresh == 'true'
@@ -285,7 +270,7 @@ jobs:
         if: steps.v.outputs.attach == 'true'
 
       # The canvas, built once here so that an install does not have to: `sp
-      # start` fetches this bundle for the plugin's version on first start (#108), by
+      # start` fetches this bundle for a checkout's version on first start (#108), by
       # this asset name under this tag. The example boards stay out, because an
       # install shows the user's boards and not this repo's;
       # PROTOTYPING_CANVASES_DIR is the build's knob for the index it writes

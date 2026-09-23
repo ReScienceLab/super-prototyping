@@ -1,8 +1,8 @@
 # super-prototyping: directory guide
 
-This repo is two things at once: **a plugin you install into other projects**,
-and **a workspace whose own boards are that plugin's worked examples**. The
-split matters for every change here. The plugin ships *code*; a user's project
+This repo is two things at once: **an app and skills you use on other projects**,
+and **a workspace whose own boards are their worked examples**. The
+split matters for every change here. The app ships *code*; a user's project
 holds only *data*.
 
 Code, shipped to every install:
@@ -31,7 +31,7 @@ project, for working on the app.
 (measure, shoot, diff, check tokens), `artgen` (the rare asset that has to be
 drawn) and `sp` (start the canvas against a project's boards) as
 commands on PATH. The skills invoke them by name, never by path: no agent
-product exposes its plugin root to a shell, so a path-based invocation would
+product exposes a skill's install root to a shell, so a path-based invocation would
 need a different spelling per product.
 
 `desktop/` is the desktop app, for macOS and Windows: Electron around that
@@ -40,7 +40,7 @@ same `dist/server.mjs`, forked as a utility process and shown in a window.
 `launch.ts` holds the helpers `bun test` checks. The app opens on the home page,
 which is no project's and lists them all, and on a first launch
 `canvas/src/Onboarding.tsx` asks over it which agent to work with. The app ships `canvases` whole, under the
-plugin root it hands the server, which is where the examples come from under
+tree it hands the server, which is where the examples come from under
 `sp start` too. The
 release workflow builds the app on a macOS runner and attaches a dmg per
 architecture, signed and notarised, then on a Windows runner and attaches an
@@ -53,11 +53,16 @@ what the app keeps in step with `sp`,
 `docs/2026-09-21-windows-app-unsigned.md` why the installer is not signed, and
 `docs/2026-09-21-auto-update.md` why the updater is this one.
 
-`.claude-plugin/`, `.codex-plugin/` and `.codebuddy-plugin/` are the per-product
-manifests, and the root `plugin.json` is the portable Agent Plugins v1 one that
-Hermes reads. All four describe the same `skills/` tree — a manifest per
-product, never a skill per product. `scripts/install-skills.sh` links the skills
-into products that read a skills directory instead.
+The app is the only install. It ships `skills/`, `tools/` and the built
+canvas, and on every launch links them into the machine through
+`~/.local/share/super-prototyping/current` (`desktop/launch.ts`): the skills
+into each agent home that exists, and `sp`, `refkit` and `artgen` onto
+`~/.local/bin` as links to `tools/bin/sp`, one shim that runs the bundled
+toolkit with `uv run`; on Windows the commands are a `uv tool install` of the
+bundled toolkit instead, and the links are junctions. There are no
+plugin manifests. An agent that has only the skills installs the app with
+`skills/prototype-canvas/scripts/install.sh`, or `install.ps1` on Windows.
+The version the skills and `sp` read is `canvas/package.json`'s.
 `scripts/bump-version.sh` moves every version in `.version-bump.json` at once;
 run it with `--check` before releasing.
 
@@ -65,7 +70,7 @@ Data, this repo's own:
 
 `canvases/<slug>/` is one folder per app canvas. The conventions and
 the `layout.json` schema are in `skills/prototype-canvas/references/layout.md`,
-which is the copy that ships inside the plugin and therefore the one to edit;
+which is the copy that ships inside the app and therefore the one to edit;
 `canvases/README.md` covers only what is true of this repo. Start a
 new folder with `cp -r canvases/templates canvases/<slug>`.
 

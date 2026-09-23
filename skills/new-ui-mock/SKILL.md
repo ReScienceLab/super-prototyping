@@ -2,7 +2,9 @@
 name: new-ui-mock
 description: Design a new screen, flow or component as a self-contained HTML artboard on the prototype canvas, built from the board's existing design tokens rather than invented values. Covers picking or extending the token block, generating a row of screens from one script, iterating against annotated screenshots, and verifying by rendering. Use when asked to mock up a new screen or feature, design variants/proposals to compare, extend an existing board with more states, or turn a spec into artboards.
 license: Apache-2.0
-compatibility: Requires python3 and the refkit command from super-prototyping-tools. Google Chrome for refkit shoot.
+compatibility: Requires python3 and the refkit command, which the Super Prototyping app puts on PATH (prototype-canvas's scripts/install.sh or install.ps1). Google Chrome for refkit shoot.
+metadata:
+  managed-by: super-prototyping
 ---
 
 # New UI mock
@@ -14,15 +16,11 @@ Everything renders on the canvas from `canvases/<slug>/`; see
 `prototype-canvas` for running it, and its `references/layout.md` for the
 folder and `layout.json` rules.
 
-The plugin ships the template folder and every worked example. `sp`
-and `refkit` are separate — the plugin cannot run an installer of its own.
-Not on PATH, or `sp --version` prints something lower than the version this
-skill shipped with? Run `uv tool install
-"git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"`,
-adding `--force` to reinstall over a lower version. Leave a higher version
-alone, because reinstalling over it would be a downgrade, and the tag may not
-even exist.
-`sp root` then prints where the plugin landed:
+The app ships the template folder and every worked example, and `sp root`
+prints where. `sp`, `refkit` or `artgen` not found? Run `sh <prototype-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
+and follow that skill's `references/install.md`. A `[super-prototyping:notice]`
+line on their stderr carries its own rule: finish the step, then do what it says.
+
 
 ```bash
 KIT="$(sp root)"

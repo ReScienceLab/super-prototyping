@@ -4,9 +4,9 @@
  * own folder (agent.ts), and never into a project.
  *
  * A copy is a whole `skills/<name>` folder written under a relative dot directory
- * (`.claude/skills`, `.agents/skills`, …), with two things changed in its `SKILL.md`: a
- * `metadata` marker recording which tree and version wrote it, and the toolkit install line
- * pinned to that version's tag. The marker is what makes a copy ours. Anything without it is the
+ * (`.claude/skills`, `.agents/skills`, …), with one thing changed in its `SKILL.md`: the
+ * version of the tree that wrote it, added under the `managed-by: super-prototyping` marker every
+ * skill ships with. The marker is what makes a copy ours. Anything without it is the
  * user's own file, in a folder that happens to share a skill's name, and is never touched. A marked
  * copy is a generated file, so an upgrade overwrites the whole folder rather than diffing it, and a
  * customization survives only by dropping the marker (see `docs/`).
@@ -32,17 +32,21 @@ export const AGENT_SKILLS: Record<AgentId, string> = {
 /** Frontmatter at the very top of the file only. A block starting anywhere else is prose. */
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/;
 
-const PIN_TARGET = "super-prototyping#subdirectory=tools";
+/** The marker line in every shipped `SKILL.md`'s `metadata`, which a copy's version goes under. */
+const MARKER = /^(\s*)managed-by:\s*super-prototyping\s*$/m;
 
-/** `<root>/.claude-plugin/plugin.json`'s `version`, the number a copy is marked and pinned with. */
-export function pluginVersion(root: string): string {
-  const manifest = JSON.parse(
-    fs.readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8"),
+/**
+ * `<root>/canvas/package.json`'s `version`, the number a copy is marked with. That file ships in
+ * the app and every checkout alike, and .version-bump.json moves it with the release.
+ */
+export function treeVersion(root: string): string {
+  const pkg = JSON.parse(
+    fs.readFileSync(path.join(root, "canvas/package.json"), "utf8"),
   );
-  if (typeof manifest.version !== "string" || !manifest.version) {
-    throw new Error(`${root}/.claude-plugin/plugin.json has no version`);
+  if (typeof pkg.version !== "string" || !pkg.version) {
+    throw new Error(`${root}/canvas/package.json has no version`);
   }
-  return manifest.version;
+  return pkg.version;
 }
 
 /**
@@ -87,11 +91,8 @@ function markedVersion(skillMd: string): string | null {
 }
 
 /**
- * Writes `<root>/skills/<name>` over `destDir`, whatever was there first, then marks and pins
- * the copy's `SKILL.md`. The marker goes in as the last lines of the existing frontmatter
- * block, after `name` and `description` and everything else a parser already knows how to
- * read; the pin is a plain substring swap wherever the install line mentions this repo, which
- * today is once, in the body.
+ * Writes `<root>/skills/<name>` over `destDir`, whatever was there first, then puts `version`
+ * under the marker in the copy's frontmatter.
  */
 function writeCopy(
   root: string,
@@ -105,23 +106,17 @@ function writeCopy(
   const skillMd = path.join(destDir, "SKILL.md");
   const content = fs.readFileSync(skillMd, "utf8");
   const m = FRONTMATTER.exec(content);
-  if (!m) throw new Error(`${skillMd} has no frontmatter to mark`);
-  const marked =
-    content.slice(0, m.index) +
-    `---\n${m[1]}\nmetadata:\n  managed-by: super-prototyping\n  version: ${version}\n---\n` +
-    content.slice(m[0].length);
+  if (!m || !MARKER.test(m[1]))
+    throw new Error(`${skillMd} has no managed-by marker to version`);
+  const fm = m[1].replace(MARKER, (line, indent) => `${line}\n${indent}version: ${version}`);
   fs.writeFileSync(
     skillMd,
-    marked.replaceAll(
-      PIN_TARGET,
-      `super-prototyping@super-prototyping--v${version}#subdirectory=tools`,
-    ),
+    content.slice(0, m.index) + `---\n${fm}\n---\n` + content.slice(m[0].length),
   );
 }
 
 /**
- * Writes every skill in `<root>/skills` into each of `dirs`, marked and pinned to `root`'s
- * version. A destination that already holds a marked copy is replaced whole when that copy is
+ * Writes every skill in `<root>/skills` into each of `dirs`, marked with `root`'s version. A destination that already holds a marked copy is replaced whole when that copy is
  * older, and left alone when it is at the tree's version or past it, so a newer app's copy is never
  * undone, and every run after the first writes nothing. One that exists without a
  * marker is the user's own file, left alone and reported back as skipped.
@@ -136,7 +131,7 @@ export function installSkills(
     // not leave the good ones half done.
     if (!SKILL_DIR.test(dir)) throw new Error(`bad skill dir: ${dir}`);
   }
-  const version = pluginVersion(root);
+  const version = treeVersion(root);
   const skillsRoot = path.join(root, "skills");
   const names = fs
     .readdirSync(skillsRoot, { withFileTypes: true })

@@ -1,7 +1,7 @@
 # Release notes
 
 Written for the person deciding whether to update, so it says what changed for
-someone using the plugin, not what changed in the tree. One `## v<version>`
+someone using the app, not what changed in the tree. One `## v<version>`
 section per release: `.github/workflows/release.yml` reads the section matching
 the version being tagged and makes it the GitHub Release body.
 
@@ -12,14 +12,21 @@ A `## v<version>` section is finished once its tag exists: the GitHub Release
 was cut from that text, so editing the file afterwards changes nothing anyone
 has been shown.
 
-Update with `/plugin update super-prototyping` (Claude Code), or the equivalent
-for your product, which README's install table lists. Then move the toolkit with
-the `uv tool install` line in the README. The plugin and the
-toolkit carry the same version; `sp start` says so when they drift.
+The app updates itself, and `sp upgrade` installs an update from a terminal.
+The app, its skills and the toolkit carry one version.
 
 ## Unreleased
 
 Everything below is on `main` and reaches no install until a version is cut.
+
+- **The app is the only install.** There is no plugin to add any more. On
+  macOS every launch puts `sp`, `refkit` and `artgen` on your PATH and links
+  the skills into Claude Code, Codex, Hermes and Factory, so updating the app
+  updates all of them. `sp uninstall` takes them back out. If you installed the
+  plugin, remove it with `/plugin uninstall super-prototyping` (or your product's
+  equivalent) and the toolkit with `uv tool uninstall super-prototyping-tools`.
+  An agent with only the skills installs the app with the prototype-canvas
+  skill's `scripts/install.sh`.
 
 - **A canvas has its own background colour.** Right-click the canvas for
   Background (dark grey, black, light grey, white or a colour of your own), or

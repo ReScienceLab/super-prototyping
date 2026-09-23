@@ -190,6 +190,8 @@ def render(keyed, size, s, dx, dy, sup=1):
 
 
 def main():
+    import atexit, sp_canvas
+    atexit.register(sp_canvas.notice)  # on stderr, after the output, however this exits
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("ids", nargs="*")
     p.add_argument("--art", help="the folder of measured crops to redraw")
