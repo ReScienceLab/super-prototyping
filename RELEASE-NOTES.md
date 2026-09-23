@@ -35,6 +35,9 @@ Everything below is on `main` and reaches no install until a version is cut.
   use the swatch at the end of the canvas strip. The colour is saved in the
   canvas's `layout.json`, so it travels with the folder. The default ground is
   now dark grey, and Start here's is black.
+- **Boards no longer carry a status.** The Exploring, Outdated and Live badge
+  is gone from the inspector, and no bar is drawn above a board. A `status`
+  left in a `layout.json` is ignored.
 - **A past conversation shows its turns again after an update.** Opening one
   from History used to show an empty panel once the app had restarted, which
   every update does. Each turn is now saved as it happens, pictures included,

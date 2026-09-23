@@ -18,7 +18,7 @@ import { CANVASES } from "./boards.ts";
 import { command, stop } from "./command.ts";
 import { AGENT_SKILLS, installSkills } from "./skills.ts";
 import { folderOf, sameOrigin } from "./sp.ts";
-import { SAFE_NAME } from "../src/boardStatusEdit.ts";
+import { SAFE_NAME } from "../src/layoutEdit.ts";
 import {
   attach,
   emit,
