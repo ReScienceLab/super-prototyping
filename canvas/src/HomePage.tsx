@@ -1,13 +1,12 @@
-import { useRef, useState, type MouseEventHandler } from "react";
-import { canvasIndex } from "./canvasIndex";
 import {
-  CANVAS_FILE_DEFAULT_SIZE,
-  DEFAULT_COVER_BOX,
-  boardFileUrl,
-  canvasIconUrl,
-  fitCover,
-  humanize,
-} from "./canvasLibrary";
+  useLayoutEffect,
+  useRef,
+  useState,
+  type MouseEventHandler,
+} from "react";
+import { canvasIndex } from "./canvasIndex";
+import { canvasIconUrl, humanize } from "./canvasLibrary";
+import { fitCover, projectCover, type Cover } from "./cover";
 import {
   isExample,
   openInTab,
@@ -19,90 +18,26 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import { canvasPageUrl } from "./canvasUrl";
-import { askServer, openMenu, REVEAL, TRASH, TRASH_PLACE } from "./contextMenu";
+import {
+  askServer,
+  openMenu,
+  REVEAL,
+  setProjectCover,
+  TRASH,
+  TRASH_PLACE,
+} from "./contextMenu";
 import { FolderPlus, LogoDiscord, LogoGithub, Plus } from "./geistIcons";
-import { FOUNDATIONS_ROW } from "./sheetLayout";
 
 type Sort = "edited" | "name" | "boards";
 /** A card's right-click: the address it links to, the tab it opens, and its project if it is one. */
 type Target = { href: string; tab: ProjectTab; project?: Project };
-type Screen = ReturnType<typeof screensOf>[number];
 
-const THUMB = { w: 72, h: 156 };
-/** The stage's gap between screens (home.css). */
-const GAP = 12;
-/** A board that is not a phone shows in its own shape, at most three phones and their gaps wide. */
-const WIDE = 3 * THUMB.w + 2 * GAP;
-/** The stage's height (home.css), which a cover that is not a phone fills as far as it can. */
+/** The stage's height (home.css), which a cover fills. */
 const STAGE_H = 233;
-/** How wide such a cover may get before the narrower cards in the grid would clip it. */
-const WIDE_COVER = 5 * THUMB.w + 4 * GAP;
 
 /** What a card calls a canvas: its layout's name without the "(example)" shelf, as tabs do. */
 const nameOf = (c: Canvas) =>
   (c.layout?.name ?? humanize(c.slug)).replace(/^\(example\)\s*/, "");
-
-/**
- * A canvas's screens for a card, the cover first and the rest in the order the sheet reads them
- * (sheetLayout.ts): the layout's rows, Foundations left out, then whatever no row placed. Read off
- * the index entry rather than the library, because another project's canvases are not in this
- * page's index. A board at the default artboard size is a phone, cropped to the folder's cover box
- * the way the welcome cards crop it; one that declared its own size, a web page or a product
- * strip, shows whole, in its own shape, since a phone's crop of it would show a sliver.
- */
-function screensOf(c: Canvas, url: (file: string) => string) {
-  const names = c.html.map((f) => f.replace(/\.html$/, ""));
-  const placed = new Set<string>();
-  const sizes = new Map<string, { w: number; h: number }>();
-  const order: string[] = [];
-  for (const row of c.layout?.rows ?? []) {
-    for (const entry of row.files ?? []) {
-      const declared = typeof entry === "string" ? { file: entry } : entry;
-      if (!names.includes(declared.file) || placed.has(declared.file)) continue;
-      placed.add(declared.file);
-      if (declared.w && declared.h)
-        sizes.set(declared.file, { w: declared.w, h: declared.h });
-      if (row.title !== FOUNDATIONS_ROW) order.push(declared.file);
-    }
-  }
-  order.push(...names.filter((n) => !placed.has(n)));
-  const cover =
-    names.find((n) => n === c.layout?.cover) ??
-    names.find((n) => !n.startsWith("00")) ??
-    names[0];
-  return [cover, ...order.filter((n) => n !== cover)].map((name, i) => {
-    const { w, h } = sizes.get(name) ?? CANVAS_FILE_DEFAULT_SIZE;
-    const phone =
-      w === CANVAS_FILE_DEFAULT_SIZE.w && h === CANVAS_FILE_DEFAULT_SIZE.h;
-    // A cover that is not a phone has the stage to itself, so it takes the height of it, up to
-    // the width the narrower cards can hold whole: a banner reads as a banner, not as a strip
-    // floating in the middle. A wide board further along a row stays in the row, at the width
-    // the phones beside it leave.
-    const fit =
-      !phone && i === 0
-        ? Math.min(WIDE_COVER / w, STAGE_H / h)
-        : Math.min(WIDE / w, THUMB.h / h);
-    const box = phone
-      ? THUMB
-      : { w: Math.round(w * fit), h: Math.round(h * fit) };
-    return {
-      src: url(`${name}.html`),
-      caption: humanize(name),
-      w,
-      h,
-      box,
-      ...fitCover(
-        phone ? (c.layout?.coverBox ?? DEFAULT_COVER_BOX) : [0, 0, w, h],
-        box.w,
-        box.h,
-      ),
-    };
-  });
-}
-
-/** A file in one of a project's canvases, under that project's own address. */
-const fileUrl = (p: Project, slug: string) => (file: string) =>
-  `${p.url}board/${encodeURI(slug)}/${encodeURI(file)}`;
 
 const boardsIn = (canvases: Canvas[]) =>
   canvases.reduce((n, c) => n + c.html.length, 0);
@@ -128,29 +63,53 @@ function ago(ms: number) {
 }
 
 /**
- * A file card as Figma draws one: its first screens side by side on a grey stage. A link to its
- * tab's address, which a plain click opens as the tab instead.
+ * A file card as Figma draws one: its cover on a grey stage. A link to its tab's address, which a
+ * plain click opens as the tab instead.
+ *
+ * The cover is a picture of the board, `/__sp/shoot`'s, which the server draws once per edit, so
+ * a page of forty cards is forty images rather than forty documents. Where there is nothing to
+ * draw it, a build with no server or a machine without refkit, it is the board itself in a frame,
+ * sandboxed because a thumbnail has nothing to run.
  */
 function Card(props: {
   href: string;
   onClick: MouseEventHandler<HTMLAnchorElement>;
   onContextMenu: MouseEventHandler<HTMLAnchorElement>;
-  screens: Screen[];
+  cover?: Cover;
+  /** The address its files are under: the project's, or this page's for an example. */
+  base: string;
+  /** When it was last edited, so a board written since is shot again. */
+  updated: number;
   icon?: string;
   name: string;
   sub: string;
   count: string;
 }) {
-  // As many as fit where four phones do, the cover always among them. A card with a wide board
-  // then shows fewer screens, rather than a row the stage would clip at both ends, since the
-  // stage centres it (home.css); a wide cover is the stage, and shows alone.
-  const fitting: Screen[] = [];
-  let room = 4 * (THUMB.w + GAP);
-  for (const s of props.screens) {
-    room -= s.box.w + GAP;
-    if (room < 0 && fitting.length) break;
-    fitting.push(s);
-  }
+  const { cover, base } = props;
+  const stage = useRef<HTMLDivElement>(null);
+  const [stageW, setStageW] = useState(0);
+  const [live, setLive] = useState(!canvasIndex().served);
+  // The grid's columns stretch, so the stage's width is the card's and only known once laid out.
+  useLayoutEffect(() => {
+    const observer = new ResizeObserver(([entry]) =>
+      setStageW(entry.contentRect.width),
+    );
+    observer.observe(stage.current!);
+    return () => observer.disconnect();
+  }, []);
+  // The cover fills the stage: an element chosen as cover centred in it, a whole board from its
+  // top, the way a page is read. Clamped so the board is under every pixel of the stage.
+  const fit = cover && stageW > 0 && fitCover(cover.box, stageW, STAGE_H);
+  const [x, y, w, h] = cover?.box ?? [];
+  const whole = cover && x === 0 && y === 0 && w === cover.w && h === cover.h;
+  const place = fit && {
+    left: Math.min(0, Math.max(fit.left, stageW - cover.w * fit.scale)),
+    top: !whole
+      ? Math.min(0, Math.max(fit.top, STAGE_H - cover.h * fit.scale))
+      : 0,
+  };
+  const file = cover && `${base}board/${encodeURI(cover.path)}`;
+  const board = cover?.path.endsWith(".html");
   return (
     <a
       className="home-file"
@@ -158,28 +117,43 @@ function Card(props: {
       onClick={props.onClick}
       onContextMenu={props.onContextMenu}
     >
-      <div className="home-file__thumb">
-        {/* A frame per screen, lazy so a page of forty cards fetches only the ones scrolled to,
-            and sandboxed because a thumbnail has nothing to run. */}
-        {fitting.map((s) => (
-          <div key={s.src} style={{ width: s.box.w, height: s.box.h }}>
+      <div className="home-file__thumb" ref={stage}>
+        {cover &&
+          fit &&
+          place &&
+          (board && live ? (
             <iframe
-              src={s.src}
-              title={s.caption}
+              src={file}
+              title={props.name}
               loading="lazy"
               sandbox=""
               tabIndex={-1}
               aria-hidden
               style={{
-                left: s.left,
-                top: s.top,
-                width: s.w,
-                height: s.h,
-                transform: `scale(${s.scale})`,
+                ...place,
+                width: cover.w,
+                height: cover.h,
+                transform: `scale(${fit.scale})`,
               }}
             />
-          </div>
-        ))}
+          ) : (
+            <img
+              src={
+                board
+                  ? `${base}__sp/shoot?path=${encodeURIComponent(cover.path)}` +
+                    `&w=${cover.w}&h=${cover.h}&v=${props.updated}`
+                  : file
+              }
+              alt=""
+              loading="lazy"
+              onError={board ? () => setLive(true) : undefined}
+              style={{
+                ...place,
+                width: cover.w * fit.scale,
+                height: cover.h * fit.scale,
+              }}
+            />
+          ))}
       </div>
       <div className="home-file__foot">
         {props.icon ? <img src={props.icon} alt="" /> : <span />}
@@ -199,9 +173,8 @@ function Card(props: {
  * after Figma's home: a row of tiles for a new project and the two community links, a line of
  * totals, then the cards. The bar above it and the agent's panel beside it are the window's.
  *
- * Most projects are one canvas worked on for as long as the project lasts, so that card shows the
- * canvas's own screens. A project of several, iterations or styles explored side by side, shows
- * each one's cover. Either opens the project as a tab, where the canvas strip lists the rest.
+ * A project's card shows its one cover: the one chosen from the canvas's right button, else its
+ * first canvas's (cover.ts). It opens the project as a tab, where the canvas strip lists the rest.
  */
 export function HomePage(props: {
   projects: Project[];
@@ -210,7 +183,7 @@ export function HomePage(props: {
   /** The server's, which a hosted build has none of. */
   newProject?: () => void;
   openFolder?: () => void;
-  /** Lists the projects again, after one is deleted. */
+  /** Lists the projects again, after one is deleted or its cover reset. */
   reload: () => void;
 }) {
   const { projects, tabs } = props;
@@ -319,7 +292,6 @@ export function HomePage(props: {
         {shown.map((p) => {
           const recent = byEdit(p.canvases);
           const iconed = recent.find((c) => c.icon);
-          // One canvas is the canvas, and its screens; several are each one's cover.
           const one = recent.length === 1 ? recent[0] : undefined;
           // The tab it has on the bar, where it was left, or a new one on its latest canvas.
           const tab = tabOfProject(p, tabs);
@@ -329,12 +301,12 @@ export function HomePage(props: {
               href={tabUrl(tab)}
               onClick={openInTab(props.goTo, tab)}
               onContextMenu={showMenu({ href: tabUrl(tab), tab, project: p })}
-              screens={
-                one
-                  ? screensOf(one, fileUrl(p, one.slug))
-                  : recent.map((c) => screensOf(c, fileUrl(p, c.slug))[0])
+              cover={p.cover}
+              base={p.url}
+              updated={p.updated}
+              icon={
+                iconed && `${p.url}board/${encodeURI(iconed.slug)}/icon.png`
               }
-              icon={iconed && fileUrl(p, iconed.slug)("icon.png")}
               name={p.name}
               sub={`Edited ${ago(p.updated)}`}
               count={
@@ -375,7 +347,9 @@ export function HomePage(props: {
                   href: canvasPageUrl(c.slug),
                   tab: tabOfExample(c.slug, tabs),
                 })}
-                screens={screensOf(c, (file) => boardFileUrl(c.slug, file))}
+                cover={projectCover([c])}
+                base={import.meta.env.BASE_URL}
+                updated={c.updated}
                 icon={canvasIconUrl(c.slug)}
                 name={nameOf(c)}
                 sub="Example"
@@ -429,6 +403,20 @@ export function HomePage(props: {
                 >
                   {REVEAL}
                 </button>
+                {/* Back to the first canvas's, once one was chosen from the canvas. */}
+                {target.project.cover?.chosen && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="sp-menu-row"
+                    onClick={async () => {
+                      if (await setProjectCover(target.project!.url, null))
+                        props.reload();
+                    }}
+                  >
+                    Reset cover
+                  </button>
+                )}
                 <hr />
                 <button
                   type="button"

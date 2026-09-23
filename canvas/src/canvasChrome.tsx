@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
+  ConversionsMenuGroup,
   DefaultContextMenu,
-  DefaultContextMenuContent,
+  SelectAllMenuItem,
   TldrawUiButton,
   TldrawUiButtonIcon,
   type Editor,
@@ -13,6 +14,7 @@ import {
   useDialogs,
   useEditor,
   useEditorPortalHost,
+  useToasts,
   useValue,
 } from "tldraw";
 import {
@@ -24,7 +26,6 @@ import {
   CanvasAttachButtons,
   CanvasSelectionAttachButton,
 } from "./canvasAttach";
-import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
 import {
   linkedBoard,
@@ -33,10 +34,31 @@ import {
   type CommentUser,
 } from "./canvasComments";
 import { canvasIndex } from "./canvasIndex";
-import type { CanvasFileShape } from "./CanvasFileShapeUtil";
-import { HOME_TAB } from "./canvasTabs";
-import { Copy, Cross, Message, RefreshCounterClockwise } from "./geistIcons";
-import { WELCOME_PAGE_SLUG, type CanvasTab } from "./canvasUrl";
+import {
+  CANVAS_FILE_SHAPE_TYPE,
+  type CanvasFileShape,
+} from "./CanvasFileShapeUtil";
+import {
+  CANVAS_LINK_SHAPE_TYPE,
+  type CanvasLinkShape,
+} from "./CanvasLinkShapeUtil";
+import {
+  canvasBoardRef,
+  canvasImageRef,
+  readCanvasLibrary,
+} from "./canvasLibrary";
+import { HOME_TAB, isExample, projectUrl } from "./canvasTabs";
+import { setProjectCover } from "./contextMenu";
+import { pointedElement } from "./cover";
+import {
+  Copy,
+  Cross,
+  Image,
+  Message,
+  RefreshCounterClockwise,
+} from "./geistIcons";
+import { asCanvasTarget, shapeUnderPointer } from "./inspectorClicks";
+import { urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
 const COMMENT_USER_DIALOG = "comment-user";
@@ -148,6 +170,30 @@ export const canvasUiOverrides: TLUiOverrides = {
   },
 };
 
+/**
+ * The address of each selected shape, the one the window shows when it is open: a board or
+ * picture by its hash (canvasUrl.ts), a card by where it goes. In the order tldraw reports the
+ * selection, which is the order a paste of them attaches in (ChatPanel.tsx). A shape with no
+ * address, a heading say, has none to add.
+ */
+function selectionLinks(editor: Editor) {
+  const here = windowUrl(window.location.href);
+  return editor.getSelectedShapes().flatMap((shape) => {
+    if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
+      const file = readCanvasLibrary()
+        .flat()
+        .find((c) => c.path === (shape as CanvasFileShape).props.path);
+      return file ? [urlForSlug(here, file.pageSlug, file.fileName)] : [];
+    }
+    if (shape.type === CANVAS_LINK_SHAPE_TYPE) {
+      const { url, page } = (shape as CanvasLinkShape).props;
+      return url ? [url] : page ? [urlForSlug(here, page)] : [];
+    }
+    const ref = canvasImageRef(shape.id);
+    return ref ? [urlForSlug(here, ref.slug, ref.file)] : [];
+  });
+}
+
 export const canvasChromeComponents: TLComponents = {
   /**
    * tldraw's whole top-left bar is gone, and CanvasTabBar.tsx is drawn where it was. `MenuPanel`
@@ -169,13 +215,13 @@ export const canvasChromeComponents: TLComponents = {
    *
    * Where the rest went: the chat panel's switch, which the main menu held, is the Agent button
    * at the start of the bar (ChatPanel.tsx), and Figma, which the actions menu held, is Export
-   * to Figma at the end of the canvas strip (CanvasStrip.tsx). Commenting, cloning and
+   * to Figma at the end of the canvas strip (CanvasStrip.tsx). Commenting and
    * force-relayout were in this row once too and are on the right button now (ContextMenu
    * below), where the pointer is already on the thing they act on.
    */
   MenuPanel: null,
   /**
-   * The right button carries everything the top bar does not: commenting, the clone and the
+   * The right button carries everything the top bar does not: commenting, a shape's link and the
    * relayout. The bottom toolbar is gone (Toolbar below) because a canvas of boards is read, not
    * drawn on, and all three of these act on what is under the cursor or on the page it is on,
    * which is what a right-click has already picked out. The bar above keeps the tabs.
@@ -183,12 +229,50 @@ export const canvasChromeComponents: TLComponents = {
   ContextMenu: (props) => {
     const chrome = useContext(CanvasChromeContext);
     const editor = useEditor();
-    const { addDialog } = useDialogs();
-    const slug = useValue(
-      "canvas slug",
-      () => editor.getCurrentPage().meta.canvasSlug as string | undefined,
-      [editor],
-    );
+    const links = useValue("shape links", () => selectionLinks(editor), [
+      editor,
+    ]);
+
+    // ⌘C, this row's shortcut, arrives as the document's copy event rather than as a key: tldraw
+    // leaves copy to the browser's own event and listens for it on the document, so this listens
+    // first, in the capture phase, and keeps it from tldraw only when there is a link to copy.
+    // tldraw's copy is its own shapes as JSON, for pasting into another tldraw, which a canvas
+    // rebuilt from layout.json has no use for. A focus elsewhere, an input in the inspector say,
+    // is that field's copy and not the canvas's.
+    useEffect(() => {
+      const copy = (event: ClipboardEvent) => {
+        if (
+          !editor.getInstanceState().isFocused ||
+          editor.menus.hasAnyOpenMenus()
+        )
+          return;
+        const links = selectionLinks(editor);
+        if (!links.length || !event.clipboardData) return;
+        event.clipboardData.setData("text/plain", links.join("\n"));
+        event.preventDefault();
+        event.stopPropagation();
+      };
+      document.addEventListener("copy", copy, true);
+      return () => document.removeEventListener("copy", copy, true);
+    }, [editor]);
+
+    // "Set as cover", over a board, a brand image, or an element on the board the inspector has
+    // open, which keeps the element in view and the board around it. The project has one cover,
+    // so this replaces the last; its home card's menu puts the default back. Read as the menu
+    // opens, so it is what the right-click was over. Not on an example, which is read-only.
+    const { addToast } = useToasts();
+    const over = asCanvasTarget(shapeUnderPointer(editor));
+    const board =
+      over?.type === CANVAS_FILE_SHAPE_TYPE
+        ? canvasBoardRef((over as CanvasFileShape).props.path)
+        : undefined;
+    const cover = canvasIndex().project
+      ? (board ?? (over && canvasImageRef(over.id)))
+      : undefined;
+    const element =
+      board && pointedElement.current?.path === (over as CanvasFileShape).props.path
+        ? pointedElement.current.box
+        : undefined;
 
     return (
       <DefaultContextMenu {...props}>
@@ -205,19 +289,24 @@ export const canvasChromeComponents: TLComponents = {
               editor.setCurrentTool("comment");
             }}
           />
-          {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
-              a page someone added by hand. */}
-          {canvasIndex().served && slug && slug !== WELCOME_PAGE_SLUG && (
+          {links.length > 0 && (
             <TldrawUiMenuItem
-              id="clone"
-              label="Clone this canvas"
+              id="copy-link"
+              label={links.length > 1 ? `Copy ${links.length} links` : "Copy link"}
               icon={<Copy />}
-              onSelect={() => {
-                addDialog({
-                  component: (dialog) => (
-                    <CloneCanvasDialog {...dialog} slug={slug} />
-                  ),
-                });
+              kbd="cmd+c,ctrl+c"
+              onSelect={() => void navigator.clipboard.writeText(links.join("\n"))}
+            />
+          )}
+          {cover && !isExample(cover.slug) && (
+            <TldrawUiMenuItem
+              id="set-cover"
+              label={element ? "Set element as cover" : "Set as cover"}
+              icon={<Image />}
+              onSelect={async () => {
+                const path = `${cover.slug}/${cover.file}`;
+                if (await setProjectCover(projectUrl(), { path, box: element }))
+                  addToast({ title: "Project cover set", severity: "success" });
               }}
             />
           )}
@@ -228,7 +317,15 @@ export const canvasChromeComponents: TLComponents = {
             onSelect={chrome.relayoutLibrary}
           />
         </TldrawUiMenuGroup>
-        <DefaultContextMenuContent />
+        {/* tldraw's items one at a time, not its groups: this canvas is read, and every shape on
+            it is locked and rebuilt from layout.json, so only what works on a locked shape is
+            here. A group would bring Cut, Delete and Duplicate, greyed out on every shape here,
+            and Paste, which drops shapes the next load removes; and whatever tldraw adds to it.
+            Its Copy is Copy link above, which ⌘C is. */}
+        <ConversionsMenuGroup />
+        <TldrawUiMenuGroup id="select-all">
+          <SelectAllMenuItem />
+        </TldrawUiMenuGroup>
       </DefaultContextMenu>
     );
   },

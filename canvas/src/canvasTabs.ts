@@ -1,5 +1,6 @@
 import type { MouseEvent } from "react";
 import { canvasIndex, type IndexBoard } from "./canvasIndex";
+import type { Cover } from "./cover";
 import {
   canvasIconUrl,
   hasBrandMaterial,
@@ -70,6 +71,8 @@ export interface Project {
   path: string;
   updated: number;
   canvases: ProjectCanvas[];
+  /** What its card shows (cover.ts); none before it has a canvas. */
+  cover?: Cover;
 }
 
 /**

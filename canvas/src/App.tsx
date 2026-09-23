@@ -38,6 +38,7 @@ import {
   WELCOME_PAGE_SLUG,
   targetFromUrl,
   tabFromUrl,
+  windowUrl,
   urlForTab,
   type CanvasTab,
 } from "./canvasUrl";
@@ -59,7 +60,8 @@ import {
   InspectorPanel,
   type CanvasImagePick,
 } from "./InspectorPanel";
-import type { InspectorTarget } from "./inspectorClicks";
+import { asCanvasTarget, type InspectorTarget } from "./inspectorClicks";
+import { attachToChat } from "./canvasAttach";
 import {
   CANVAS_STATUS_BANNER_GAP,
   CANVAS_STATUS_BANNER_HEIGHT,
@@ -1130,6 +1132,8 @@ function applyCanvasFromUrl(
   },
 ) {
   const tab = tabFromUrl(window.location.href);
+  // Read before `open`, which writes the address from the inspector, and that is still empty.
+  const named = targetFromUrl(window.location.href);
   // A kit is an overlay over the whole editor rather than a page of it, so there is no page to
   // set and no board under the hash to go looking for. `open` shuts the inspector for it.
   if (tab.kind === "brand") {
@@ -1149,7 +1153,6 @@ function applyCanvasFromUrl(
   const here = editor.getCurrentPage().meta.canvasSlug;
   if (page) open(tab);
   else if (typeof here === "string") open({ kind: "canvas", slug: here });
-  const named = targetFromUrl(window.location.href);
   const file =
     readCanvasLibrary()
       .flat()
@@ -1413,6 +1416,32 @@ export default function App() {
       goTo(tab) {
         if (!isHere(tab)) return false;
         openTab(tab.view);
+        return true;
+      },
+      // Links Copy link made (canvasChrome.tsx), pasted into the chat: the boards and pictures
+      // their hashes name, as the chips their + would have put there. All of them or none, so a
+      // paste is never half chips and half text. Only this project's: another's link names its
+      // folders, which this canvas may have one of the same name as.
+      attach(hrefs) {
+        if (!editor) return false;
+        const here = new URL(windowUrl(window.location.href));
+        const targets = hrefs.map((href) => {
+          if (!URL.canParse(href)) return undefined;
+          const url = new URL(href);
+          if (url.origin !== here.origin || url.pathname !== here.pathname)
+            return undefined;
+          const tab = tabFromUrl(href);
+          const name = targetFromUrl(href);
+          if (tab.kind !== "canvas" || !name) return undefined;
+          const file = readCanvasLibrary()
+            .flat()
+            .find((c) => c.pageSlug === tab.slug && c.fileName === name);
+          return asCanvasTarget(
+            editor.getShape(file ? fileShapeId(file) : imageShapeId(tab.slug, name)),
+          );
+        });
+        if (!targets.every(Boolean)) return false;
+        void attachToChat(editor, targets as InspectorTarget[]);
         return true;
       },
     };

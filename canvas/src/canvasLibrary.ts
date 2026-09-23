@@ -17,6 +17,12 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // which a phone should not download to look at one page). Layouts and icons come with the
 // index because they are read during render.
 import { canvasIndex } from "./canvasIndex";
+import { coverBoard, inStripOrder } from "./cover";
+export {
+  CANVAS_FILE_DEFAULT_SIZE,
+  DEFAULT_COVER_BOX,
+  fitCover,
+} from "./cover";
 export { LAYOUT_CHANGED } from "./canvasIndex";
 
 const boards = () => canvasIndex().boards;
@@ -169,50 +175,16 @@ export interface CanvasLayoutConfig {
 }
 
 /**
- * The artboard a board is drawn at unless its layout entry says otherwise. Matches the v1.14+
- * phone mockups' own canvas: .phone{430x932} + body{padding:24px}. Here rather than with the
- * shape that draws it, because the sheet page needs the size too and must not import tldraw to
- * read one pair of numbers.
- */
-export const CANVAS_FILE_DEFAULT_SIZE = { w: 478, h: 980 } as const;
-
-/**
- * The phone frame in a 478 x 980 artboard, `[x, y, w, h]`, which every folder here draws at the
- * same place; a folder whose cover is not a phone overrides it with `coverBox` in its layout.json.
- * A card crops to this rather than showing the whole board, so what it shows is the mockup and
- * not the artboard margin around it.
- */
-export const DEFAULT_COVER_BOX: [number, number, number, number] = [46, 24, 393, 852];
-
-/**
- * Places a board behind the shell's screen so the `[x, y, w, h]` box fills it and sits centred:
- * scaled by whichever axis binds, so the crop can lose a little of the box but never leave a gap.
- */
-export function fitCover(
-  [x, y, bw, bh]: [number, number, number, number],
-  w: number,
-  h: number,
-) {
-  const scale = Math.max(w / bw, h / bh);
-  return {
-    scale,
-    left: w / 2 - (x + bw / 2) * scale,
-    top: h / 2 - (y + bh / 2) * scale,
-  };
-}
-
-/**
  * The board that stands in for a folder on the welcome page and the home page: the one its
  * layout.json names, else its first screen rather than its 00- board, which is a token sheet on
  * every example and would make the cards look alike.
  */
 export function coverFile(files: CanvasLibraryFile[]) {
-  const named = readCanvasLayout(files[0].pageSlug)?.cover;
-  return (
-    files.find((file) => file.fileName === named) ??
-    files.find((file) => !file.fileName.startsWith("00")) ??
-    files[0]
+  const name = coverBoard(
+    files.map((file) => file.fileName),
+    readCanvasLayout(files[0].pageSlug),
   );
+  return files.find((file) => file.fileName === name)!;
 }
 
 export function humanize(slug: string) {
@@ -300,24 +272,6 @@ export async function writeBoardStatus(
     body: JSON.stringify({ slug: file.pageSlug, file: file.fileName, status }),
   });
   return response.ok;
-}
-
-/**
- * Copies a canvas folder under a new name, through the dev server (vite.config.ts), and answers
- * the slug it ended up with. The typed name is what the page is called, the slug is what the
- * folder is called, and only the server knows the second one is free.
- *
- * Dev server only, like writeBoardStatus and for the same reason.
- */
-export async function cloneCanvas(slug: string, name: string) {
-  const response = await fetch(`${import.meta.env.BASE_URL}__sp/clone-canvas`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ slug, name }),
-  });
-  const body = await response.text();
-  if (!response.ok) throw new Error(body);
-  return JSON.parse(body).slug as string;
 }
 
 /**
@@ -542,14 +496,12 @@ export function readCanvasLibrary(): CanvasLibraryFile[][] {
       a.fileName.localeCompare(b.fileName, undefined, { numeric: true }),
     );
   }
-  // numeric: true so 02- sorts before 10-, and v1.9 before v1.13. Then `order`: sort is
-  // stable, so it only moves the folders that ask to be moved.
-  const rank = (slug: string) =>
-    slug === WELCOME_PAGE_SLUG
-      ? -Infinity
-      : (readCanvasLayout(slug)?.order ?? 0);
-  return [...byPage.entries()]
-    .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
-    .sort(([a], [b]) => rank(a) - rank(b))
-    .map(([, files]) => files);
+  return inStripOrder(
+    [...byPage.entries()],
+    ([slug]) => slug,
+    ([slug]) =>
+      slug === WELCOME_PAGE_SLUG
+        ? -Infinity
+        : (readCanvasLayout(slug)?.order ?? 0),
+  ).map(([, files]) => files);
 }

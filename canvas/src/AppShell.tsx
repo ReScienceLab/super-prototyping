@@ -27,8 +27,9 @@ declare global {
     };
     /** The window's side of the frame (here): what the canvas has in front, at what address. */
     spShell?: { shown(tab: ProjectTab, href: string): void };
-    /** The canvas's side (App.tsx): brings a tab forward, or says it is another project's. */
-    spCanvas?: { goTo(tab: ProjectTab): boolean };
+    /** The canvas's side (App.tsx): brings a tab forward, or says it is another project's; and
+     *  attaches the boards and pictures pasted links name, or says one of them names none. */
+    spCanvas?: { goTo(tab: ProjectTab): boolean; attach(hrefs: string[]): boolean };
   }
 }
 

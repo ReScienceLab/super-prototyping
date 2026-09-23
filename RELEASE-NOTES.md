@@ -21,15 +21,32 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **A board added to the chat shows up at once.** Its tile and its number
+  appear the moment you press + or paste its link, shimmering while the board
+  is drawn, and the picture fills in when it is ready. Send waits for it. A
+  board that cannot be drawn turns amber; press its + again to retry. Several
+  boards added together are drawn side by side, four at a time, so three take
+  about as long as one.
+- **Copy a link to anything on the canvas.** Right-click a board, a picture or
+  a card and pick *Copy link*, or select it and press ⌘C (Ctrl+C): it opens
+  the canvas on that thing. With several selected, it copies one link a line. Paste them into the agent's box and they
+  become those things' chips, the same ones their + adds. The menu lost *Clone this canvas*, *Edit* and *Arrange*: a board is
+  laid out from its folder, so none of them stuck.
 - **The app opens on a home page.** The desktop app opens on every project you
   have, with the examples below. The page is no project's, so the app works
   with none: open an example, or close every tab, and nothing is made or
   reopened for you. Each card shows the
-  screens of its canvas: a phone cropped to its screen, a wider board whole and
-  as tall as the phones on the other cards.
+  project's cover.
   Open one, or start a new project from the same page. With none yet, a dashed
   card sits under Projects where your first one will be, and a click on it
   starts that project. The Home button on the canvas's top bar goes back to it.
+
+- **A project has a cover.** Its card on the home page shows its first
+  canvas's first screen, captured the way the canvas draws it, until you pick
+  another: right-click a board or an image on the canvas and choose Set as
+  cover, or right-click an element on a board the inspector has open to keep
+  that element in view. Setting a new one replaces the last, and Reset cover on
+  the card's right-click menu goes back to the first canvas.
 
 - **Right-click a card on the home page** to open it, copy its link, show its
   folder in Finder or Explorer, or move it to the Trash (Delete, on Windows),
