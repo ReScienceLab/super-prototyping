@@ -356,6 +356,36 @@ button {
   border-radius: 6px;
 }
 
+/* The ground's swatch, whose native picker is the whole control. It starts the strip's far end. */
+.sp-canvas-tabs-ground {
+  align-self: center;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  border-radius: 6px;
+  border: 1px solid var(--ds-gray-alpha-400);
+  background: var(--tl-color-background, var(--ds-background-100));
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.sp-canvas-tabs-ground input {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.sp-canvas-tabs-ground + .sp-canvas-tabs-figma {
+  margin-left: 4px;
+}
+
+/* On a light ground the dark theme's near-white headings and captions vanish. tldraw writes a
+   text shape's colour inline, hence the !important. */
+.tl-container[data-ground="light"] .tl-text-shape-label__inner {
+  color: oklch(0.205 0 0) !important;
+}
+
 .sp-canvas-tabs-figma:hover {
   background: var(--ds-gray-100);
 }
