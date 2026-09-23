@@ -3,6 +3,7 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { expect, it } from "vitest";
 import { createSpServer } from "./sp.ts";
 
@@ -191,7 +192,8 @@ it("serves the project's own files by their absolute path", async () => {
     repoRoot: tmp,
   });
   try {
-    const at = (file: string) => `/__sp/file${encodeURI(file)}`;
+    // The address the chat panel makes of a file: link, `/C:/…` on Windows (markdown.ts).
+    const at = (file: string) => `/__sp/file${pathToFileURL(file).pathname}`;
     expect(
       await ask(at(path.join(projectDir, "web/variants/a glow.html"))),
     ).toEqual({
@@ -199,10 +201,7 @@ it("serves the project's own files by their absolute path", async () => {
       text: "glow",
     });
     expect((await ask(at(path.join(tmp, "secret.html")))).status).toBe(404);
-    expect(
-      (await ask(at(path.join(projectDir, "web/variants/../../secret.html"))))
-        .status,
-    ).toBe(404);
+    expect((await ask(`${at(projectDir)}/../secret.html`)).status).toBe(404);
   } finally {
     close();
     fs.rmSync(tmp, { recursive: true, force: true });
