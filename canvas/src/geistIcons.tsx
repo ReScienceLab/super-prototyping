@@ -21,6 +21,7 @@ import {
   Eye as GEye,
   EyeOff as GEyeOff,
   File as GFile,
+  FileText as GFileText,
   FolderPlus as GFolderPlus,
   Fullscreen as GFullscreen,
   Home as GHome,
@@ -54,6 +55,7 @@ export const Cross = at16(GCross);
 export const Eye = at16(GEye);
 export const EyeOff = at16(GEyeOff);
 export const File = at16(GFile);
+export const FileText = at16(GFileText);
 export const FolderPlus = at16(GFolderPlus);
 export const Fullscreen = at16(GFullscreen);
 export const Home = at16(GHome);

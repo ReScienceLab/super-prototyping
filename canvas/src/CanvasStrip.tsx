@@ -8,7 +8,7 @@ import { ViewIcon } from "./CanvasTabBar";
 import { sheetPageUrl } from "./canvasUrl";
 import { DocModeSwitch } from "./DocTab";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
-import { LogoFigma, Plus } from "./geistIcons";
+import { FileText, LogoFigma, Plus } from "./geistIcons";
 
 /**
  * The project's canvases, across the top of the project under the bar's tab for it, after its
@@ -47,6 +47,7 @@ export function CanvasStrip() {
           title={name}
           onClick={() => openTab({ kind: "doc", slug })}
         >
+          <FileText />
           {name.replace(/\.md$/i, "")}
         </button>
       ))}

@@ -2,6 +2,7 @@ import { useEffect, useReducer } from "react";
 import { atom, useValue } from "tldraw";
 import { canvasIndex, DOCS_CHANGED } from "./canvasIndex";
 import { readDoc } from "./canvasTabs";
+import { Eye, Pen } from "./geistIcons";
 import { renderMarkdown } from "./markdown";
 
 // The text being edited on the open document's tab, or undefined while it is read, and why the
@@ -45,6 +46,7 @@ export function DocModeSwitch({ slug }: { slug: string }) {
           if (text === undefined || (await save(slug, text))) draft.set(undefined);
         }}
       >
+        <Eye />
         Read
       </button>
       <button
@@ -52,6 +54,7 @@ export function DocModeSwitch({ slug }: { slug: string }) {
         aria-pressed={editing}
         onClick={() => editing || draft.set(readDoc(slug) ?? "")}
       >
+        <Pen />
         Edit
       </button>
     </div>

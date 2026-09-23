@@ -454,6 +454,9 @@ button {
 }
 
 .sp-canvas-tabs-mode button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   height: 22px;
   padding: 0 10px;
   border: 0;
