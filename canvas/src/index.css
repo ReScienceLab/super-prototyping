@@ -457,6 +457,11 @@ button {
   cursor: pointer;
 }
 
+.sp-canvas-tabs-mode:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .sp-canvas-tabs-mode[aria-checked="false"] svg:first-child,
 .sp-canvas-tabs-mode[aria-checked="true"] svg:last-child {
   color: var(--ds-gray-1000);

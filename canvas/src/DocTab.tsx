@@ -31,11 +31,16 @@ async function save(slug: string, next: string) {
 /**
  * A switch between reading and editing the document in front, at the end of the canvas strip (CanvasStrip.tsx)
  * where a canvas has its own controls. Only a project's own document, in an app with a server to
- * write it, has one: an example's is the app's. Switching back to reading saves, and so does ⌘S.
+ * write it, can switch: an example's is the app's, and its switch is shown off, saying why.
+ * Switching back to reading saves, and so does ⌘S.
  */
 export function DocModeSwitch({ slug }: { slug: string }) {
   const editing = useValue("doc editing", () => draft.get() !== undefined, []);
-  if (!canvasIndex().served || slug.includes("/")) return null;
+  const readOnly = !canvasIndex().served
+    ? "Read only here: this build has no server to save to"
+    : slug.includes("/")
+      ? "Read only: an example's documents are the app's"
+      : undefined;
   return (
     <button
       type="button"
@@ -43,7 +48,10 @@ export function DocModeSwitch({ slug }: { slug: string }) {
       className="sp-canvas-tabs-mode"
       aria-checked={editing}
       aria-label="Edit"
-      title={editing ? "Editing. Switch off to save and read" : "Reading. Switch on to edit"}
+      disabled={readOnly !== undefined}
+      title={
+        readOnly ?? (editing ? "Editing. Switch off to save and read" : "Reading. Switch on to edit")
+      }
       onClick={async () => {
         const text = draft.get();
         if (text === undefined) draft.set(readDoc(slug) ?? "");
