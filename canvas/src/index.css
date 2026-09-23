@@ -2123,6 +2123,24 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   border-color: var(--sp-accent);
 }
 
+/* The strip's "+" puts half a sentence in the box and the caret at the end of it
+   (CanvasStrip.tsx, ChatPanel.tsx). A panel sliding out beside the canvas is easy to read as
+   something having appeared rather than as something to finish, so the box rings once in the
+   colour it already wears while focused, and the ring fades. The class comes off when the
+   animation ends, so the next "+" rings again. */
+.sp-chat-cued {
+  animation: sp-chat-cue 1.2s ease-out;
+}
+
+@keyframes sp-chat-cue {
+  from {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--sp-accent) 45%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+
 /* The draft is a contenteditable rather than a textarea: a reference to an image is a thumbnail
    inside the sentence, and a textarea holds characters and nothing else. Which is also why the
    badge is now the element it always looked like, and no longer a pill painted behind the text. */

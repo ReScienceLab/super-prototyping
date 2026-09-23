@@ -70,8 +70,10 @@ Everything below is on `main` and reaches no install until a version is cut.
 
 - **A project's canvases are tabs under its tab.** A second row under the bar
   lists the project's canvases, the one in front underlined. Its + asks the
-  agent for another. Export to Figma moved from the top bar to the Figma mark at
-  the row's far end, and in the desktop app it opens in your browser, where the
+  agent for another: the panel comes out with the message begun, the box rings
+  once, and the cursor waits at the end of it for you to say what the canvas is
+  of. Export to Figma moved from the top bar to the Figma mark at the row's far
+  end, and in the desktop app it opens in your browser, where the
   html.to.design extension can capture it. The top bar's Brand kit button is
   gone.
 
