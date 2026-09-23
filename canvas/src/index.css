@@ -2577,3 +2577,13 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
     animation: none;
   }
 }
+
+/* A shape the agent added that the reader has not pointed at yet: the focus ring plus a blue
+   halo. canvasChrome.tsx adds the class and takes it off on the first pointer over it. Divided
+   by tldraw's zoom, so the ring is as thick on screen with the page fitted as close up. */
+.tl-shape.sp-fresh {
+  box-shadow:
+    0 0 0 calc(2px / var(--tl-zoom)) var(--ds-focus),
+    0 0 calc(24px / var(--tl-zoom)) calc(6px / var(--tl-zoom))
+      color-mix(in oklab, var(--ds-focus) 60%, transparent);
+}

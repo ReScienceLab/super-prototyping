@@ -1,13 +1,25 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import {
+  atom,
+  type Atom,
   ConversionsMenuGroup,
   DefaultContextMenu,
+  DefaultShapeWrapper,
   SelectAllMenuItem,
   TldrawUiButton,
   TldrawUiButtonIcon,
   type Editor,
   type TLComponents,
+  type TLEventInfo,
+  type TLShapeId,
+  type TLShapeWrapperProps,
   type TLUiOverrides,
   TldrawUiMenuGroup,
   TldrawUiMenuCheckboxItem,
@@ -197,7 +209,65 @@ function selectionLinks(editor: Editor) {
   });
 }
 
+/**
+ * Shapes the agent added that the reader has not pointed at yet. Kept in the tab's
+ * sessionStorage, because the agent writing its next board reloads the canvas, and one board
+ * should not lose its ring to the one after it. Keyed by path: every project is this origin.
+ * Read on first use rather than at import, which the tests do with no window.
+ */
+let freshAtom: Atom<ReadonlySet<TLShapeId>> | undefined;
+const freshKey = () => `sp-fresh:${location.pathname}`;
+const freshShapes = () =>
+  (freshAtom ??= atom(
+    "fresh shapes",
+    new Set(JSON.parse(sessionStorage.getItem(freshKey()) ?? "[]")),
+  ));
+
+function setFresh(fresh: ReadonlySet<TLShapeId>) {
+  freshShapes().set(fresh);
+  sessionStorage.setItem(freshKey(), JSON.stringify([...fresh]));
+}
+
+/** Rings `ids` in blue until the pointer passes over each, so the reader sees what just arrived. */
+export function markFresh(ids: TLShapeId[]) {
+  if (ids.length) setFresh(new Set([...freshShapes().get(), ...ids]));
+}
+
 export const canvasChromeComponents: TLComponents = {
+  /**
+   * tldraw's own element around each shape, with a class while the shape is fresh. The ring
+   * and its fade are CSS (`.sp-fresh` in index.css), so nothing runs per frame. The same
+   * wrapper draws the shape's background layer, which is left alone.
+   */
+  ShapeWrapper: forwardRef<HTMLDivElement, TLShapeWrapperProps>(
+    function ShapeWrapper(props, ref) {
+      const editor = useEditor();
+      const { id } = props.shape;
+      const fresh = useValue(
+        "fresh shape",
+        () => !props.isBackground && freshShapes().get().has(id),
+        [props.isBackground, id],
+      );
+      // tldraw never hovers a locked shape, and every library shape is locked, so the pointer is
+      // tested here the way the inspector tests it. Only while this shape is still ringed.
+      useEffect(() => {
+        if (!fresh) return;
+        const seen = (info: TLEventInfo) => {
+          if (info.name !== "pointer_move" || shapeUnderPointer(editor)?.id !== id) return;
+          setFresh(new Set([...freshShapes().get()].filter((other) => other !== id)));
+        };
+        editor.on("event", seen);
+        return () => void editor.off("event", seen);
+      }, [editor, fresh, id]);
+      return (
+        <DefaultShapeWrapper
+          ref={ref}
+          {...props}
+          className={fresh ? `${props.className ?? ""} sp-fresh` : props.className}
+        />
+      );
+    },
+  ),
   /**
    * tldraw's whole top-left bar is gone, and CanvasTabBar.tsx is drawn where it was. `MenuPanel`
    * is the strip itself: the main menu, the page menu, and the quick actions and actions menu
