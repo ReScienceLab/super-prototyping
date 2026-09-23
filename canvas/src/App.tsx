@@ -895,9 +895,9 @@ function layoutWelcomeExtras(
  * refresh, and everything on the canvas being new is not news.
  */
 function initializeCanvasLibrary(editor: Editor) {
+  // An empty library still runs the pass: the last board removed has to take its shapes and
+  // its page with it, which the prune below does for every page the loop did not fill.
   const library = readCanvasLibrary();
-  if (!library.length) return;
-
   const before = new Set(
     editor
       .getPages()
