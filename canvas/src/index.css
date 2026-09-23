@@ -442,6 +442,65 @@ button {
   line-height: 20px;
 }
 
+/* Read and Edit, at the tab's top right, and staying there while the page scrolls. */
+.canvas-doc-mode {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  float: right;
+  display: flex;
+  gap: 2px;
+  margin-top: -28px;
+  padding: 2px;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px;
+  background: var(--ds-background-100);
+}
+
+.canvas-doc-mode button {
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
+  color: var(--sp-text-2);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.canvas-doc-mode button:hover,
+.canvas-doc-mode button[aria-pressed="true"] {
+  background: var(--ds-gray-100);
+  color: var(--ds-gray-1000);
+}
+
+.canvas-doc-error {
+  max-width: 720px;
+  margin: 0 auto 12px;
+  color: var(--ds-red-900);
+}
+
+/* The file as it is, at the rendered text's measure. */
+.canvas-doc-source {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 720px;
+  min-height: calc(100% - 8px);
+  margin: 0 auto;
+  padding: 12px;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px;
+  background: var(--sp-field);
+  color: inherit;
+  font: 400 13px/20px var(--sp-mono);
+  resize: none;
+  field-sizing: content;
+  outline: none;
+}
+
+.canvas-doc-source:focus {
+  border-color: var(--ds-gray-600);
+}
+
 /* The panels' palette and type, which the agent menu shares from outside the chat panel. */
 .sp-panel,
 .sp-chat-agents {

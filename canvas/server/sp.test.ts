@@ -150,6 +150,12 @@ it("lists a project's documents", async () => {
     fs.rmdirSync(path.join(projectDir, "PRD.md"));
     fs.writeFileSync(path.join(projectDir, "PRD.md"), "# Why");
     expect(await docs()).toEqual([{ name: "PRD.md", text: "# Why" }]);
+    // Its tab writes it back, and only a name the index lists.
+    expect((await ask("/__sp/doc", { name: "PRD.md", text: "# How" })).status).toBe(204);
+    expect(await docs()).toEqual([{ name: "PRD.md", text: "# How" }]);
+    expect((await ask("/__sp/doc", { name: "README.md", text: "x" })).status).toBe(400);
+    expect((await ask("/__sp/doc", { name: "../PRD.md", text: "x" })).status).toBe(400);
+    expect(fs.readFileSync(path.join(projectDir, "README.md"), "utf8")).toBe("no");
   } finally {
     close();
     fs.rmSync(tmp, { recursive: true, force: true });

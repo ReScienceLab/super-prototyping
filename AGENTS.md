@@ -22,7 +22,8 @@ deep. Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON a
 build — not an `import.meta.glob`, because a glob pattern is a build-time
 literal and could only ever read one hard-coded directory. The same index
 carries a project's documents, for now only the `PRD.md` at its root, each a
-read-only tab before its canvases (`DOCS` in `sp.ts`). `sp start`
+tab before its canvases that reads it rendered or edits its text (`DOCS` in
+`boards.ts`, `DocTab.tsx`). `sp start`
 runs the built app, `dist/server.mjs`: the release's `canvas-dist.tgz`
 fetched into `~/.cache/super-prototyping/<version>/` for an install, or this
 checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's

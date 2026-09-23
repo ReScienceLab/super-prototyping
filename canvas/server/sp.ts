@@ -130,11 +130,12 @@ export function createSpServer(options: {
   };
 
   // The open pages, for the watcher and the write endpoints to talk to. One event stream per
-  // page; `reload` is answered with a full reload and `layout` with the new layout.json for
-  // one board, handed over live because a reload to change one word would throw away the
-  // tldraw viewport and the open panel. canvasIndex.ts listens.
+  // page; `reload` is answered with a full reload, `layout` with the new layout.json for
+  // one board and `docs` with the project's documents, handed over live because a reload to
+  // change one word would throw away the tldraw viewport, the open panel and a document being
+  // edited. canvasIndex.ts listens.
   const pages = new Set<ServerResponse>();
-  const broadcast = (event: "reload" | "layout", data: unknown) => {
+  const broadcast = (event: "reload" | "layout" | "docs", data: unknown) => {
     const frame = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const page of pages) page.write(frame);
   };
@@ -577,6 +578,35 @@ export function createSpServer(options: {
     });
   });
 
+  // A project document, written from its tab's editor. Only a name the index lists, so the file
+  // lands beside the boards and nowhere else; an example's are the app's, and have no endpoint.
+  route("/__sp/doc", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      if (projectDir === undefined) return send(409, "Open a project to write its documents.");
+      let name: unknown, text: unknown;
+      try {
+        ({ name, text } = JSON.parse(body || "{}"));
+      } catch {
+        return send(400, "bad json");
+      }
+      if (typeof name !== "string" || !DOCS.includes(name)) return send(400, "not a document");
+      if (typeof text !== "string") return send(400, "no text");
+      try {
+        fs.writeFileSync(path.join(projectDir, name), text);
+      } catch (error) {
+        return send(500, String(error));
+      }
+      send(204, "");
+    });
+  });
+
   // Cloning a canvas, from the button in the top bar: the folder copied whole under the name
   // the dialog asked for. Dev server only, like the ground write and for the same reason. A
   // built canvas is static files with no folder behind them.
@@ -746,16 +776,23 @@ export function createSpServer(options: {
   }
 
   // The documents are the project's, beside the boards directory rather than in it, so they have
-  // a watch of their own: the project folder, not recursively, for those names. One
-  // written is a reload, which is what brings its tab in or out and the tab's text up to date,
-  // batched the way a board's writes are. Not at the root, which has no project.
+  // a watch of their own: the project folder, not recursively, for those names, batched the way
+  // a board's writes are. One made or deleted is a reload, which brings its tab in or out; one
+  // rewritten is handed to the page as it is, text and all. Not at the root, which has no project.
   let docWatcher: fs.FSWatcher | undefined;
   let docBatch: ReturnType<typeof setTimeout> | undefined;
   if (projectDir !== undefined) {
+    let names = readDocs(projectDir).map((doc) => doc.name).join();
     docWatcher = fs.watch(projectDir, (_event, name) => {
       if (!name || !DOCS.includes(name.toString())) return;
       clearTimeout(docBatch);
-      docBatch = setTimeout(rebuild, 120);
+      docBatch = setTimeout(() => {
+        const docs = readDocs(projectDir);
+        const now = docs.map((doc) => doc.name).join();
+        if (now === names) return broadcast("docs", docs);
+        names = now;
+        rebuild();
+      }, 120);
       docBatch.unref?.();
     });
     docWatcher.on("error", (error) => {

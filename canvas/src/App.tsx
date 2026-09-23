@@ -44,11 +44,12 @@ import {
   urlForTab,
   type CanvasTab,
 } from "./canvasUrl";
-import { isHere, pageOf, readDoc, resolveTab, tabFor } from "./canvasTabs";
+import { isHere, pageOf, resolveTab, tabFor } from "./canvasTabs";
 import { CanvasStrip } from "./CanvasStrip";
 // The kits render inside the canvas as well as under brand.html, so this file imports their
 // sheet too, and statically, because it is a few kilobytes against tldraw's megabyte, and a tab
 // that had to wait for a chunk would be the one thing on the bar that opens slowly.
+import { DocTab } from "./DocTab";
 import { BrandKit } from "./BrandKit";
 import { BrandKitIndex } from "./BrandKitIndex";
 import "./brand.css";
@@ -89,7 +90,6 @@ import {
   readCanvasLibrary,
 } from "./canvasLibrary";
 import { canvasIndex } from "./canvasIndex";
-import { renderMarkdown } from "./markdown";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasChromeContext,
@@ -1559,20 +1559,9 @@ export default function App() {
                 of in a window of their own, and given `openTab` so the links inside them open
                 tabs rather than reloading the app out from under the conversation. Keyed by the
                 kit, so switching to another starts at the top of it the way a page would. */}
-            {/* A Markdown file of the project's as a tab, over the canvas the way a kit is: the
-                chat panel's markdown, sanitized the same way, at a document's size. Read only;
-                the agent or an editor writes it, and the watcher reloads the page onto the new
-                version. Keyed by the file, so switching to another starts at the top of it. */}
-            {activeTab.kind === "doc" && (
-              <div className="canvas-doc-tab" key={activeTab.slug}>
-                <article
-                  className="sp-chat-md"
-                  dangerouslySetInnerHTML={{
-                    __html: renderMarkdown(readDoc(activeTab.slug) ?? ""),
-                  }}
-                />
-              </div>
-            )}
+            {/* A Markdown file as a tab (DocTab.tsx). Keyed by the file, so switching to another
+                starts at the top of it, and in Read. */}
+            {activeTab.kind === "doc" && <DocTab slug={activeTab.slug} key={activeTab.slug} />}
             {activeTab.kind === "brand" && (
               <div className="brand-page canvas-brand-tab" key={activeTab.slug}>
                 {activeTab.slug ? (

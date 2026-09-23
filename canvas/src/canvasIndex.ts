@@ -77,6 +77,8 @@ export function canvasIndex(): CanvasIndex {
  * Between them, that is everything a layout.json change can move.
  */
 export const LAYOUT_CHANGED = "sp:layout";
+/** Fired on `window` when the project's documents have been rewritten. */
+export const DOCS_CHANGED = "sp:docs";
 
 /**
  * Fetches the index, and when a server wrote it, listens to that server: `reload` for a board
@@ -99,6 +101,10 @@ export async function loadCanvasIndex(live = true) {
   if (!live || !canvasIndex().served) return;
   const events = new EventSource(`${import.meta.env.BASE_URL}__sp/events`);
   events.addEventListener("reload", () => window.location.reload());
+  events.addEventListener("docs", (event) => {
+    canvasIndex().docs = JSON.parse(event.data);
+    window.dispatchEvent(new Event(DOCS_CHANGED));
+  });
   events.addEventListener("layout", (event) => {
     const { slug, layout } = JSON.parse(event.data);
     const board = canvasIndex().boards.find((b) => b.slug === slug);

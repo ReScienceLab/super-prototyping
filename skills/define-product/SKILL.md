@@ -11,8 +11,9 @@ metadata:
 Before a screen, one page that says what the product is for. It is a
 conversation with the user, and the page is its record: `PRD.md` at the
 root of their project, beside `canvases/`. The canvas shows it as a tab
-before the project's canvases and reloads it when it is rewritten, so the
-user watches it fill in.
+before the project's canvases and updates it when it is rewritten, so the
+user watches it fill in. The user can edit it on that tab too, so read the
+file again before rewriting it.
 
 It is optional. Offer it when someone starts from an idea; never make it a
 gate. A user who wants screens now gets screens, and the PRD can come later.
