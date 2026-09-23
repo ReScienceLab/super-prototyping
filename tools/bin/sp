@@ -1,0 +1,21 @@
+#!/bin/sh
+# sp, refkit and artgen, run from the toolkit beside this file. The app links
+# ~/.local/bin/{sp,refkit,artgen} here through ~/.local/share/super-prototyping/current
+# (desktop/launch.ts), so the name it was called by is the command.
+#
+# `uv run --project` installs the toolkit editable into an environment under the cache, so what
+# runs is always the code in this tree: `uvx --from <dir>` keeps reusing its first build of a
+# local directory, however the files under it change. --frozen reads uv.lock without writing it,
+# since the tree inside the app is read-only.
+set -e
+# Plain readlink: `-f` is missing before macOS 12.3. The app's links are absolute.
+target=$(readlink "$0" || printf '%s' "$0")
+root=$(cd "$(dirname "$target")/../.." && pwd -P)
+command -v uv >/dev/null || {
+  echo "$(basename "$0"): needs uv. Install it: curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
+  exit 127
+}
+cache=${SUPER_PROTOTYPING_HOME:+$SUPER_PROTOTYPING_HOME/cache}
+cache=${cache:-${XDG_CACHE_HOME:-$HOME/.cache}/super-prototyping}
+UV_PROJECT_ENVIRONMENT=$cache/venv \
+  exec uv run --quiet --frozen --no-dev --project "$root/tools" "$(basename "$0")" "$@"

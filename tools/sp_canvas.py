@@ -1,29 +1,26 @@
 #!/usr/bin/env python3
-"""sp, the launcher for the tldraw board canvas.
+"""sp, the Super Prototyping command line.
 
-  start    serve the canvas for a project, the current directory or the one named,
-           and print its address
-  stop     kill the one on that port, and only that one
-  status   say whether it is up, and on what
-  root     print the plugin root it resolved (-v: where it looked, and the
-           release each half is on)
-  paths    print the two directories this writes, the chat agent's, and the
-           variables that move them
-  clean    remove the two: every downloaded app, pidfile and log
+  open      open a project in the app, the current directory or the one named
+  upgrade   have the app check for an update and install it
+  start     serve the canvas for a project without the app, and print its address
+  stop      kill the one `start` ran on that port, and only that one
+  status    say whether a canvas is up, and on what
+  root      print the tree the canvas and the skills come from (-v: where it looked)
+  paths     print the directories this writes, the chat agent's, and the
+            variables that move them
+  clean     remove every downloaded canvas, pidfile and log
+  uninstall remove the links the app made: commands, skills, PATH line, Codex rule
 
-The canvas app ships inside the plugin, which is installed outside your
-project — under ~/.claude/plugins/cache, or wherever you cloned the repo. Your
-boards stay in your project. This joins the two, so an upgrade can replace the
-app without touching a single board you have authored.
+The app is the only install. Every launch links sp, refkit and
+artgen onto ~/.local/bin and the skills into each agent's skills directory,
+through ~/.local/share/super-prototyping/current, which points at the app
+(desktop/launch.ts). Your boards stay in your project, in its canvases folder.
 
-A project's boards are the canvases folder under it. The server serves every
-project under ~/Documents/Super Prototyping (PROTOTYPING_PROJECTS_DIR moves it)
-at /p/<name>/, with the one `start` names beside them, and / goes to that one.
-The plugin is found by search;
-SUPER_PROTOTYPING_ROOT skips the search when you know the answer. The app served is
-the canvas built for the plugin's release, fetched once into
-~/.cache/super-prototyping/<version>/; a checkout with node_modules serves its own
-canvas/dist. The port is --port or SP_CANVAS_PORT. Nothing is read from a file.
+The server serves every project under ~/Documents/Super Prototyping
+(PROTOTYPING_PROJECTS_DIR moves it) at /p/<name>/, with the one `open` or
+`start` names beside them. SUPER_PROTOTYPING_ROOT names the tree to use; the
+commands the app links set it. The port is --port or SP_CANVAS_PORT.
 """
 import argparse, glob, io, json, os, re, shlex, shutil, signal, subprocess, sys, tarfile
 import tempfile, time, urllib.error, urllib.request, webbrowser
@@ -34,9 +31,17 @@ DEFAULT_PORT = 5173
 # desktop app's data directory point at the same folders and nothing migrates.
 APP = "super-prototyping"
 REPO = "ReScienceLab/super-prototyping"
-# The packaged desktop app's bundled tree. It is a module constant, not inlined
-# into _candidates, so a test can patch it without touching a real /Applications.
-APP_BUNDLE_PLUGIN = Path("/Applications/Super Prototyping.app/Contents/Resources/plugin")
+# Where install.sh or install.ps1 puts the app, in the order it tries them. A module constant so
+# a test can patch it without touching a real /Applications.
+APP_BUNDLES = ([Path(os.environ.get("LOCALAPPDATA", "")) /
+                "Programs/super-prototyping-desktop/Super Prototyping.exe"] if os.name == "nt" else
+               [Path("/Applications/Super Prototyping.app"),
+                Path.home() / "Applications/Super Prototyping.app"])
+# The link every launch of the app repoints at its own tree (desktop/launch.ts dataDir).
+CURRENT = Path.home() / ".local/share/super-prototyping/current"
+# Prefix of the line notice() prints when the app has found a newer release. The line
+# carries its own rule for acting on it.
+NOTICE = "[super-prototyping:notice]"
 # A project's boards, under it: the same folder the server reads (canvas/server/boards.ts).
 CANVASES = "canvases"
 
@@ -95,67 +100,10 @@ def _pid_in(pidfile):
 # --- finding the canvas app --------------------------------------------------
 
 def _candidates():
-    """Every place a canvas app could be, most explicit first.
-
-    Yields (label, path). No product exposes its plugin root to a shell in a way
-    Claude Code, Codex, CodeBuddy, Hermes, Pi and Trae agree on, so the app is
-    found rather than addressed.
-    """
+    """Every place the tree could be, most explicit first. Yields (label, path)."""
     env = os.environ.get("SUPER_PROTOTYPING_ROOT")
     if env:
         yield "SUPER_PROTOTYPING_ROOT", Path(env).expanduser()
-
-    # Claude Code records where it put each plugin. That is authoritative, so read it before
-    # guessing from the cache layout.
-    manifest = Path.home() / ".claude/plugins/installed_plugins.json"
-    try:
-        entries = json.loads(manifest.read_text()).get("plugins", {})
-        for key, installs in entries.items():
-            if key.split("@")[0] != "super-prototyping":
-                continue
-            for install in installs:
-                if install.get("installPath"):
-                    yield "Claude Code plugin manifest", Path(install["installPath"])
-    except (OSError, ValueError, AttributeError):
-        pass
-
-    # Failing that, the cache holds one directory per installed version, and old ones are not
-    # cleaned up. Sort by version, not by mtime: two directories can share an mtime, and then
-    # mtime order is arbitrary and can hand back the older release. Codex and CodeBuddy cache
-    # the same way under their own homes, so the same pick works for all three.
-    for label, pattern in (
-        ("Claude Code plugin cache", ".claude/plugins/cache/*/super-prototyping/*"),
-        ("Codex plugin cache",       ".codex/plugins/cache/*/super-prototyping/*"),
-        ("CodeBuddy plugin cache",   ".codebuddy/plugins/cache/*/super-prototyping/*"),
-    ):
-        found = glob.glob(str(Path.home() / pattern))
-        for path in sorted(found, key=lambda p: _version_key(Path(p).name), reverse=True):
-            yield label, Path(path)
-
-    # Hermes and Pi clone the repo whole rather than keeping a copy per version: Hermes into
-    # its plugins directory, flat or one category level deep, Pi into a git package keyed by
-    # host and repo path.
-    for label, pattern in (
-        ("Hermes plugin", ".hermes/plugins/super-prototyping"),
-        ("Hermes plugin", ".hermes/plugins/*/super-prototyping"),
-        ("Pi git package", f".pi/agent/git/*/{REPO}"),
-    ):
-        for path in sorted(glob.glob(str(Path.home() / pattern))):
-            yield label, Path(path)
-
-    # Everything else holds a symlink per skill, pointing back into the checkout:
-    # <root>/skills/prototype-canvas -> up two levels is <root>.
-    for label, root in (
-        ("Codex CLI", "~/.codex/skills"),
-        ("CodeBuddy", "~/.codebuddy/skills"),
-        ("Hermes", "~/.hermes/skills"),
-        ("Pi", "~/.pi/agent/skills"),
-        ("Trae", "~/.trae/skills"),
-        ("Trae CN", "~/.trae-cn/skills"),
-    ):
-        link = Path(root).expanduser() / "prototype-canvas"
-        if link.is_symlink():
-            yield f"{label} skill link", link.resolve().parent.parent
 
     # A checkout you are standing in comes before the app, because someone with the app
     # installed who is also standing in their own checkout must get the checkout.
@@ -169,8 +117,16 @@ def _candidates():
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
 
-    # Finally, the packaged desktop app's own bundled copy.
-    yield "Super Prototyping app", APP_BUNDLE_PLUGIN
+    yield "the app's current link", CURRENT
+    for bundle in APP_BUNDLES:
+        yield "Super Prototyping app", _plugin_of(bundle)
+
+
+def _plugin_of(bundle):
+    """The tree inside the app: electron-builder's resources folder, then the plugin."""
+    if bundle.suffix == ".exe":
+        return bundle.parent / "resources/plugin"
+    return bundle / "Contents/Resources/plugin"
 
 
 def _version_key(name: str):
@@ -195,8 +151,8 @@ def _version_key(name: str):
     return release + ((0, tuple(int(n) for n in re.findall(r"\d+", pre))) if pre else (1, ()))
 
 
-# The release tag this repo cuts, and what `claude plugin tag` produces. Kept in step with
-# .version-bump.json, because the note below hands the user a URL built from it.
+# The release tag this repo cuts. Kept in step with .version-bump.json, because the canvas
+# download below is a URL built from it.
 TAG_PREFIX = "super-prototyping--v"
 
 
@@ -209,40 +165,13 @@ def _toolkit_version():
         return None
 
 
-def _plugin_version(root: Path):
-    """The version of the plugin the canvas app came out of, or None if it has no manifest."""
+def _tree_version(root: Path):
+    """The release the tree is, from `canvas/package.json`, which ships in the app and every
+    checkout alike. None when it has none."""
     try:
-        return json.loads((root / ".claude-plugin/plugin.json").read_text()).get("version")
+        return json.loads((root / "canvas/package.json").read_text()).get("version")
     except (OSError, ValueError, AttributeError):
         return None
-
-
-def skew(root: Path):
-    """(plugin, toolkit) when the two halves disagree on the release, else None.
-
-    They install separately — `/plugin install` for the skills and the canvas, `uv tool
-    install` for refkit, artgen and this — so updating one and forgetting the other is the
-    ordinary mistake. Unchecked it surfaces much later, as a skill calling a flag this
-    refkit does not have. An unknown version on either side is not a disagreement: a
-    checkout has no release number to compare.
-    """
-    plugin, toolkit = _plugin_version(root), _toolkit_version()
-    if not (plugin and toolkit):
-        return None
-    # Compared as versions, not as strings: see _version_key on the two spellings.
-    return (plugin, toolkit) if _version_key(plugin) != _version_key(toolkit) else None
-
-
-def skew_fix(plugin, toolkit):
-    """The one command that closes the gap, whichever half is behind.
-
-    Which way round matters: telling someone whose toolkit is ahead to `uv tool install`
-    the plugin's older tag is a downgrade, and to a tag that need not even exist yet.
-    """
-    if _version_key(toolkit) > _version_key(plugin):
-        return ("/plugin update super-prototyping   (Claude Code; or codex plugin add, "
-                "codebuddy plugin install, hermes plugins update, npx skills update)")
-    return f'uv tool install --force "git+https://github.com/{REPO}@{TAG_PREFIX}{plugin}#subdirectory=tools"'
 
 
 def _is_canvas_app(root: Path) -> bool:
@@ -254,7 +183,7 @@ def _is_canvas_app(root: Path) -> bool:
 
 
 def resolve_root(verbose=False):
-    """The plugin root holding canvas/, or exit with everywhere that was tried."""
+    """The tree holding canvas/, or exit with everywhere that was tried."""
     looked = []
     for label, path in _candidates():
         looked.append((label, path, _is_canvas_app(path)))
@@ -270,9 +199,10 @@ def resolve_root(verbose=False):
         for lbl, p, _ in looked:
             print(f"  · {lbl}: {p}", file=sys.stderr)
     else:
-        print("  (nothing to look at — no plugin install and no checkout)", file=sys.stderr)
+        print("  (nothing to look at, no app and no checkout)", file=sys.stderr)
     print(
-        "\nFix by installing the plugin, or point at a checkout directly:\n"
+        "\nFix by installing the app, which the prototype-canvas skill's scripts/install.sh\n"
+        "does, or point at a checkout directly:\n"
         "  export SUPER_PROTOTYPING_ROOT=/path/to/super-prototyping",
         file=sys.stderr,
     )
@@ -310,16 +240,13 @@ def _needs_build(app: Path) -> bool:
 
 def _dist(root: Path) -> Path:
     """The `dist/` to serve, holding `server.mjs`: the checkout's own when it is being worked
-    on, else the canvas built for the plugin's release, from the cache or downloaded into it.
+    on or shipped in the app, else the canvas built for the tree's release, from the cache or
+    downloaded into it.
 
     A checkout with `node_modules`, or with a dist already built, is a developer's: it serves
     what is on disk, rebuilt when a source is newer, and this is the one path that still
-    needs bun. A plugin install is a bare checkout of a tag, so the bundle that release
-    attached is the app it should run, and nothing but node or bun is needed to run it. The
-    version is the manifest's, not the toolkit's: the manifest is what `claude plugin tag`
-    tagged, spelled as the tag is, where the installed toolkit reports PEP 440's `1.5.0rc1`
-    for the tag's `1.5.0-rc.1`. A fresh clone has a manifest too, so it is served the release
-    it names until `bun install` marks it as being worked on.
+    needs bun. A fresh clone is served the release its `canvas/package.json` names, spelled
+    as the tag is, until `bun install` marks it as being worked on.
 
     The tarball is the one release.yml attaches to every release: one top-level `dist/`
     holding the built app and `server.mjs`. One directory per version, so a new release
@@ -329,7 +256,7 @@ def _dist(root: Path) -> Path:
     """
     app = root / "canvas"
     own = (app / "dist/server.mjs").is_file()
-    version = _plugin_version(root)
+    version = _tree_version(root)
     if own or (app / "node_modules").is_dir() or not version:
         # Rebuilt only where there are sources to rebuild from. A dist with none beside it
         # is the desktop app's bundled tree: the canvas as shipped, and the mtime check would
@@ -356,17 +283,7 @@ def _dist(root: Path) -> Path:
         build = ('A checkout with bun builds it instead:\n'
                  '  cd "$(sp root)/canvas" && bun install && bun run build')
         if isinstance(e, urllib.error.HTTPError) and e.code == 404:
-            # The release is there and the bundle is not: every release before bundles
-            # shipped, or one whose attach step failed. The first is a plugin behind the
-            # toolkit, which the skew note after a successful start would have said.
-            versions = skew(root)
-            if versions and _version_key(versions[1]) > _version_key(versions[0]):
-                plugin, toolkit = versions
-                fix = (f"The plugin is {plugin} and the toolkit {toolkit}. Move the plugin up:\n"
-                       f"      {skew_fix(plugin, toolkit)}")
-            else:
-                fix = build
-            raise SystemExit(f"error: release {version} has no canvas app attached\n  {url}\n{fix}")
+            raise SystemExit(f"error: release {version} has no canvas app attached\n  {url}\n{build}")
         raise SystemExit(
             f"error: could not download the canvas app for {version}\n  {url}\n  {e}\n"
             f"Try again once the network is back. {build}")
@@ -416,6 +333,10 @@ def cmd_start(a):
         raise SystemExit(f"error: cannot create the boards directory {boards}\n  {e}")
 
     if _port_answers(a.port):
+        app = _running_app()
+        if app and app["port"] == a.port:
+            raise SystemExit(f"error: port {a.port} is the app's canvas. Open the project in "
+                             f"it instead:\n  sp open {shlex.quote(str(project))}")
         raise SystemExit(
             f"error: port {a.port} is already answering. It may be another checkout's\n"
             f"canvas, so this will not reuse it. Pass --port with a free one, or run\n"
@@ -493,12 +414,6 @@ def cmd_start(a):
     print(f"app      {dist}")
     print(f"running  {how}")
 
-    versions = skew(root)
-    if versions:
-        plugin, toolkit = versions
-        print(f"\nnote: the plugin is {plugin}, the toolkit is {toolkit}. "
-              f"Move the older one up:\n      {skew_fix(*versions)}")
-
     print(f"\nDeep-link a page with ?canvas=<slug>, one board of it with #<file>, "
           f"e.g. http://127.0.0.1:{a.port}/?canvas=notion-ios#01-splash")
 
@@ -558,11 +473,19 @@ def cmd_stop(a):
 
     if not stopped:
         print(f"no canvas of ours was running on port {a.port}")
-        if _port_answers(a.port):
+        app = _running_app()
+        if app and app["port"] == a.port:
+            print(f"  (the app is serving {a.port}; quit the app to stop it)")
+        elif _port_answers(a.port):
             print(f"  (something else is answering on {a.port} — left alone)")
 
 
 def cmd_status(a):
+    app = _running_app()
+    if app:
+        print(f"app      {app['version']}, pid {app['pid']}, http://127.0.0.1:{app['port']}/")
+    else:
+        print("app      not running")
     up = _port_answers(a.port)
     print(f"port {a.port}: {'answering' if up else 'silent'}")
     if up:
@@ -576,7 +499,7 @@ def cmd_root(a):
     print(root)
     if a.verbose:
         # On stderr, like the search itself, so `$(sp root -v)` is still the path.
-        print(f"  plugin  {_plugin_version(root) or 'unversioned (a checkout)'}", file=sys.stderr)
+        print(f"  tree    {_tree_version(root) or 'unversioned'}", file=sys.stderr)
         print(f"  toolkit {_toolkit_version() or 'dev (running from a source checkout)'}",
               file=sys.stderr)
 
@@ -599,8 +522,9 @@ def cmd_paths(a):
 
 
 def cmd_clean(a):
-    """Remove both directories: every downloaded app, pidfile and log. The next `start`
-    downloads again. `uv cache clean`, for two directories."""
+    """Remove every downloaded canvas, and the pidfiles and logs `start` wrote. The next
+    `start` downloads again. Only `start`'s own files in the state directory: the app keeps
+    its window, its update check and the canvas document (IndexedDB) there too."""
     cache, state = _dirs()
     # Never from under a running canvas: it reads its files off this disk on every request.
     # One in tmux wrote no pidfile and is found by its session, as `stop` finds it; a
@@ -620,17 +544,193 @@ def cmd_clean(a):
     if live:
         raise SystemExit(f"error: a canvas is still running on port {', '.join(live)}. "
                          f"Run `sp stop --port {live[0]}` first.")
-    for d in (cache, state):
-        if d.is_dir():
-            shutil.rmtree(d)
-            print(f"removed  {d}")
-        else:
-            print(f"absent   {d}")
+    if cache.is_dir():
+        shutil.rmtree(cache)
+        print(f"removed  {cache}")
+    else:
+        print(f"absent   {cache}")
+    for f in sorted(state.glob("canvas-*")):
+        f.unlink()
+        print(f"removed  {f}")
+
+
+# --- the app -----------------------------------------------------------------
+
+def _state_json(name):
+    """One of the files the app writes beside `start`'s own (desktop/main.ts), or None."""
+    try:
+        return json.loads((_dirs()[1] / name).read_text())
+    except (OSError, ValueError):
+        return None
+
+
+def _running_app():
+    """`app.json` while the app that wrote it still runs: {port, pid, version}. A file left by
+    an app that crashed names a pid that is gone, or someone else's by now."""
+    app = _state_json("app.json")
+    if not app:
+        return None
+    ps = (["tasklist", "/fi", f"pid eq {app['pid']}", "/nh"] if os.name == "nt" else
+          ["ps", "-o", "command=", "-p", str(app["pid"])])
+    out = subprocess.run(ps, capture_output=True, text=True).stdout
+    return app if "Super Prototyping" in out else None
+
+
+def _app_bundle():
+    """The .app (or .exe) to hand a project or an upgrade to: the one the tree is inside, else
+    the one install.sh or install.ps1 put in place."""
+    root = resolve_root()
+    real = root.resolve()
+    if real.parent.parent.name == "Contents" and real.parents[2].suffix == ".app":
+        return real.parents[2]
+    for bundle in APP_BUNDLES:
+        if bundle.exists():
+            return bundle
+    script = "install.ps1" if os.name == "nt" else "install.sh"
+    raise SystemExit(
+        "error: the Super Prototyping app is not installed. Install it with\n"
+        f"  {root / 'skills/prototype-canvas/scripts' / script}")
+
+
+def _launch(*args):
+    """Hand the app arguments. `-n` starts a second instance, which passes them to the
+    running one and exits; a plain `open -a` would only bring it to the front. On Windows every
+    start is a new instance already."""
+    if os.name == "nt":
+        os.startfile(_app_bundle(), arguments=subprocess.list2cmdline(args))
+    else:
+        subprocess.run(["open", "-n", "-a", str(_app_bundle()), "--args", *args], check=True)
+
+
+def cmd_open(a):
+    project = Path(a.project or ".").expanduser().resolve()
+    if not project.is_dir():
+        raise SystemExit(f"error: {project} is not a directory")
+    _launch(str(project))
+    for _ in range(120):
+        app = _running_app()
+        if app:
+            print(f"canvas   http://127.0.0.1:{app['port']}/")
+            print(f"project  {project}")
+            print(f"boards   {project / CANVASES}")
+            return
+        time.sleep(0.25)
+    raise SystemExit("error: the app did not start in 30s. Open it from Applications to see why.")
+
+
+def cmd_upgrade(a):
+    """Ask the app to check now, then report what it found. The app downloads an update on
+    its own and asks the user to restart into it, so this waits only for the answer."""
+    before = (_state_json("update.json") or {}).get("checkedAt")
+    _launch("--upgrade")
+    for _ in range(240):
+        update = _state_json("update.json")
+        if update and update.get("checkedAt") != before:
+            break
+        time.sleep(0.25)
+    else:
+        raise SystemExit("error: the app did not answer in 60s. Is it running? Try `sp open`, "
+                         "then `sp upgrade` again.")
+    if update.get("error"):
+        raise SystemExit("error: the app could not check for an update: "
+                         + update["error"].splitlines()[0])
+    if update["downloaded"]:
+        print(f"Super Prototyping {update['downloaded']} is downloaded. The app is asking the "
+              f"user to restart into it; tell them to click Restart Now.")
+    elif update["available"]:
+        print(f"Super Prototyping {update['available']} is downloading. The app asks the user "
+              f"to restart once it is down.")
+    else:
+        print(f"Super Prototyping {update['current']} is up to date.")
+
+
+def cmd_uninstall(a):
+    """Undo what the app links into the machine, and nothing it did not make: links that
+    resolve through `current`, and the exact lines it appended. The app itself, and the
+    directories `sp paths` lists, are left for the user."""
+    home = Path.home()
+    links = [d for h in (".claude", ".agents", ".hermes", ".factory")
+             for d in (home / h / "skills").glob("*")]
+    if os.name != "nt":
+        links += [home / ".local/bin" / c for c in ("sp", "refkit", "artgen")]
+    for link in links:
+        if _points_into(link, CURRENT):
+            _unlink(link)
+            print(f"removed  {link}")
+    # The two lines desktop/launch.ts ensurePathInRc appends, exactly.
+    added = ("\n# Added by Super Prototyping: sp, refkit and artgen live here.\n"
+             'export PATH="$HOME/.local/bin:$PATH"\n')
+    for rc in (".zshrc", ".bash_profile"):
+        _drop_lines(home / rc, lambda text: text.replace(added, ""))
+    _drop_lines(home / ".codex/rules/default.rules", lambda text: re.sub(
+        r'^prefix_rule\(pattern=\["(sp|refkit|artgen)"\], decision="allow"\)\n', "", text,
+        flags=re.M))
+    if _points_into(CURRENT, None):
+        _unlink(CURRENT)
+        print(f"removed  {CURRENT}")
+    # Or a reinstall of the same version would skip `uv tool install` (desktop/main.ts).
+    (CURRENT.parent / "tools-version").unlink(missing_ok=True)
+    if os.name == "nt":
+        print("\nThe commands are a uv tool, which cannot remove itself while it runs. Next:\n"
+              "  uv tool uninstall super-prototyping-tools\n"
+              "The app links the skills again on its next launch: uninstall Super Prototyping "
+              "from Settings > Apps too. Your projects and `sp paths` are left alone.")
+    else:
+        print("\nThe app links all of it again on its next launch: move Super Prototyping.app "
+              "to the Trash too. Your projects and `sp paths` are left alone.")
+
+
+def _points_into(link, base):
+    """Whether `link` is a symlink or junction, into `base` when one is given. A junction reads
+    back with Windows's `\\\\?\\` prefix."""
+    try:
+        target = Path(os.readlink(link).removeprefix("\\\\?\\"))
+    except OSError:
+        return False
+    return base is None or target.is_relative_to(base)
+
+
+def _unlink(link):
+    """A junction, or a Windows link to a directory, goes with rmdir, which leaves its target."""
+    os.rmdir(link) if os.name == "nt" else link.unlink()
+
+
+def _drop_lines(file, edit):
+    try:
+        text = file.read_text()
+    except OSError:
+        return
+    if edit(text) != text:
+        file.write_text(edit(text))
+        print(f"edited   {file}")
+
+
+def notice():
+    """One line on stderr when the app has found a newer release, carrying the rule for what
+    to do about it, so an agent that reads it needs nothing else. ego-browser's notice, for
+    the same reason: the agent is who runs these commands, and the one who can act on it."""
+    update = _state_json("update.json")
+    if not update:
+        return
+    newer = update.get("downloaded") or update.get("available")
+    if newer and _version_key(newer) > _version_key(update["current"]):
+        print(f"{NOTICE} Super Prototyping {newer} is available (this is {update['current']}). "
+              f"Finish the current step, then run `sp upgrade` and tell the user what it says.",
+              file=sys.stderr)
+
+
+AGENT_HELP = """\
+For agents:
+  sp open [dir]   the way to show the user a project's boards. Prints the address.
+  sp upgrade      when a [super-prototyping:notice] line says a release is available.
+  sp start [dir]  only where the app cannot run (CI, Linux, a remote box).
+Exit status is non-zero on every failure, with the reason on stderr.
+"""
 
 
 def parser():
     p = argparse.ArgumentParser(
-        prog="sp", description=__doc__,
+        prog="sp", description=__doc__, epilog=AGENT_HELP,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--version", action="version",
                    version=f"sp {_toolkit_version() or 'dev (running from a source checkout)'}")
@@ -647,6 +747,10 @@ def parser():
                              help=f"default SP_CANVAS_PORT, then {DEFAULT_PORT}")
         return sub
 
+    add("open", cmd_open, ports=False).add_argument(
+        "project", nargs="?", help="the project directory (default: the current one)")
+    add("upgrade", cmd_upgrade, ports=False)
+    add("uninstall", cmd_uninstall, ports=False)
     add("start", cmd_start).add_argument(
         "project", nargs="?", help="the project directory (default: the current one)")
     add("stop", cmd_stop)
@@ -660,7 +764,13 @@ def parser():
 
 
 def main():
+    if os.name == "nt":  # an agent's pipe there is cp1252, which has no ✓
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
     a = parser().parse_args()
+    if a.fn is not cmd_upgrade:
+        import atexit
+        atexit.register(notice)  # on stderr, after the output, however this exits
     a.fn(a)
 
 

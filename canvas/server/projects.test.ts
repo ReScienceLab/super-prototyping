@@ -16,10 +16,13 @@ it("serves every project at its own address and makes new ones", async () => {
     fs.writeFileSync(path.join(tmp, rel), text);
   };
   write(
-    "root/.claude-plugin/plugin.json",
+    "root/canvas/package.json",
     JSON.stringify({ version: "1.0.0" }),
   );
-  write("root/skills/alpha/SKILL.md", "---\nname: alpha\n---\nAlpha.\n");
+  write(
+    "root/skills/alpha/SKILL.md",
+    "---\nname: alpha\nmetadata:\n  managed-by: super-prototyping\n---\nAlpha.\n",
+  );
   write("root/canvases/00-welcome/01-a.html", "welcome");
   // Both projects keep their boards where they used to be, which the server moves to `canvases`.
   write("projects/alpha/mockups/canvases/one/01-a.html", "alpha one");

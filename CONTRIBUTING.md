@@ -44,7 +44,7 @@ registry to edit and no build step per board.
 - **Viewer changes** in `canvas/` need `bun run lint`, `bun run test` and
   `bun run build` to pass. Once `bun install` has run, `sp start` rebuilds
   `canvas/dist` when a source is newer than it, so a checkout being edited
-  serves what is on disk; before that it serves the release the manifest names.
+  serves what is on disk; before that it serves the release `canvas/package.json` names.
   Add a test next to the module you touched.
 
 ## Adding an example canvas
@@ -62,8 +62,8 @@ with a `README.md` that says what was measured and what was excluded.
 
 Everything under `.github/`:
 
-- `workflows/validate.yml`: the gates, on every pull request — the manifests
-  agree and validate, the canvas lints, tests and builds, the macOS app tests
+- `workflows/validate.yml`: the gates, on every pull request. The versions
+  agree, the canvas lints, tests and builds, the macOS app tests
   and builds, and the toolkit's tests pass. Run the same commands locally from the root README.
 - `workflows/release.yml`: dispatch it with a version and it opens the release
   PR; merging that PR tags `super-prototyping--v<version>`, cuts the GitHub
@@ -90,18 +90,16 @@ place of the root README on the repository page.
 
 ## Cutting a release
 
-A merge to `main` reaches nobody. Every product resolves this plugin's version
-from its manifest and caches the install under it, Claude Code at
-`~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` and Codex and
-CodeBuddy at their own equivalents, so an install only moves when the version
-does. The version is the cache key, not bookkeeping.
-`docs/2026-09-09-plugin-release-mechanism.md` is the long form of why.
+A merge to `main` reaches nobody. The app updates itself from the latest
+release, and every skill and command it links follows it, so an install only
+moves when the version does. The version is what the updater compares, not
+bookkeeping.
 
 **What the number means.** Semver, read from the user's side. Patch: a fix that
 changes no instruction a skill gives. Minor: a new skill, a new `refkit`
 subcommand, a canvas feature. Major: a board, `layout.json` or command-line
-change that makes an existing project's folders wrong. The plugin and the
-toolkit share one number and are released together, because a skill from one
+change that makes an existing project's folders wrong. The app, the canvas and
+the toolkit share one number and are released together, because a skill from one
 release calls a command from the other.
 
 **The steps.**
@@ -118,14 +116,12 @@ release calls a command from the other.
    requires a pull request and nothing bypasses it.
 4. On that PR, rename `## Unreleased` to `## v<version>` and open a fresh empty
    `## Unreleased` above it. The tag job reads exactly that heading.
-5. Merge. The push to `main` tags `super-prototyping--v<version>` through
-   `claude plugin tag`, cuts the GitHub Release from that notes section, and
+5. Merge. The push to `main` tags `super-prototyping--v<version>`, cuts the GitHub Release from that notes section, and
    attaches `canvas-dist.tgz`, the two dmgs and the Windows installer to it.
 
 **Then check the release exists**, because everything downstream keys off the
-tag: the tag on the Releases page, `/plugin update super-prototyping` in Claude
-Code, and `uv tool install --force
-"git+https://github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>#subdirectory=tools"`.
+tag: the tag on the Releases page, and `sp upgrade` on a machine with the app,
+which should offer the new version.
 
 **When a step fails.** The tag job runs only when the push moved the version
 forward and no tag names it yet, so a re-run, an unrelated push to `main`, and
@@ -147,8 +143,8 @@ variables builds them unsigned. The Windows installer is the `nsis` job's
 commands, run on Windows. Attach `latest-mac.yml` and `latest.yml` after the
 files they name: an installed app reads them to update itself.
 The whole thing is doable by hand too. Run `scripts/bump-version.sh <version>`,
-open a pull request, then `claude plugin tag . --push -m 'super-prototyping %s'`
-after it merges; the workflow is that sequence with the gates in front of it.
+open a pull request, then tag the merge `super-prototyping--v<version>` and push
+the tag; the workflow is that sequence with the gates in front of it.
 
 ## Decisions
 

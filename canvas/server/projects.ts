@@ -159,7 +159,7 @@ function moveOldBoards(dir: string) {
 export function createProjectsServer(options: {
   /** Where every project is listed from, and where `POST /__sp/projects` makes one. */
   projectsDir: string;
-  /** This plugin's checkout, whose own canvases are the examples shown beside every project's. */
+  /** The tree the app or a checkout holds, whose own canvases are the examples shown beside every project's. */
   repoRoot: string;
 }) {
   const { projectsDir, repoRoot } = options;
@@ -337,7 +337,7 @@ export function createProjectsServer(options: {
           );
         try {
           // A folder with the boards folder in it and nothing else. What the window opens on, Start
-          // here and the examples, is the plugin's and shown beside the project's own, so there is
+          // here and the examples, is the tree's and shown beside the project's own, so there is
           // nothing to copy in.
           fs.mkdirSync(path.join(dir, CANVASES), { recursive: true });
         } catch (e) {

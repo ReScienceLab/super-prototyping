@@ -3,6 +3,8 @@ name: brand-kit
 description: Collect a product's official brand and promotional material and put it on its prototype canvas as image rows, one row per surface. Covers the company's own brand kit, the App Store, Google Play and Microsoft Store listings, verified social accounts, the newsroom and the marketing site; writing assets/brand/manifest.json with real pixel sizes, a source and a provenance on every file; wiring the folder's generator to read it; and verifying every file before it is listed. Use when asked to add branding, brand material, a brand kit, logos, app-store screenshots, ads or press photography to a canvas, or to build a brand kit for a product.
 license: Apache-2.0
 compatibility: Requires python3, curl, and the file and sips commands (macOS). Network access to the company's own sites and to the app stores. Social post collection needs whatever API or skill you already have for X, Instagram, TikTok, YouTube and LinkedIn; without one, collect the surfaces that do not need it and say so.
+metadata:
+  managed-by: super-prototyping
 ---
 
 # Brand kit
@@ -43,7 +45,7 @@ so a picture that needs to be its own shape has to live here.
 verification. A file that fails is deleted; it does not get a manifest entry
 with a caveat in the label.
 
-1. **Look at a finished one.** The plugin ships twelve. List them and print
+1. **Look at a finished one.** The app ships twelve. List them and print
    one's rows:
    ```bash
    KIT="$(sp root)"
@@ -52,6 +54,9 @@ with a caveat in the label.
    for r in json.load(open(sys.argv[1])): print(len(r["images"]), r["title"])' \
      "$KIT/canvases/claude-ios/assets/brand/manifest.json"
    ```
+   `sp` not found? Run `sh <prototype-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`) and
+   follow that skill's `references/install.md`. A `[super-prototyping:notice]`
+   line on its stderr carries its own rule: finish the step, then do what it says.
 2. **The company's own brand or press kit.** Full-resolution logos, the type
    and the colour values come from here, so check it first. See
    `references/sources.md`.

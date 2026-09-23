@@ -1,9 +1,12 @@
 # skills
 
-The four skills this plugin ships, one directory each, in the Agent Skills
+The four skills the app ships and links into each agent, one directory each, in the Agent Skills
 format (`SKILL.md` with YAML frontmatter, plus `references/` loaded on
 demand). This is the real directory; `.claude/skills/` and `.agents/skills/`
 are symlinks to it, so this checkout loads exactly what an install does.
+Every `SKILL.md` carries `metadata: managed-by: super-prototyping` in its
+frontmatter. It is how the app and the chat panel tell a copy of theirs from
+a user's own folder of the same name, so keep it.
 
 | Skill | Use it for |
 |---|---|
@@ -23,6 +26,6 @@ Rules for editing one:
   `description`, so adding one here would install a fifth skill.
 - **Never write a path to this repo.** A skill runs inside someone else's
   project. Call the tools by name (`refkit`, `artgen`, `sp`), and when
-  a skill needs a file that ships with the plugin, reach it through
+  a skill needs a file that ships with the app, reach it through
   `KIT="$(sp root)"`. `git rev-parse --show-toplevel` finds the user's
   repo, not this one.

@@ -4,28 +4,22 @@ import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { compareVersions, installSkills } from "./skills.ts";
 
-const PIN = "super-prototyping#subdirectory=tools";
-
 function skillMd(name: string) {
   return `---
 name: ${name}
 description: The ${name} skill, for testing.
 license: Apache-2.0
+metadata:
+  managed-by: super-prototyping
 ---
 
 # ${name}
-
-Install with:
-
-\`\`\`
-uv tool install "git+https://github.com/ReScienceLab/${PIN}"
-\`\`\`
 `;
 }
 
-/** A fake plugin tree: a version and a few skills, each with a SKILL.md and one other file. */
+/** A fake tree: a version and a few skills, each with a SKILL.md and one other file. */
 function makeRoot(root: string, version: string, names: string[]) {
-  fs.mkdirSync(path.join(root, ".claude-plugin"), { recursive: true });
+  fs.mkdirSync(path.join(root, "canvas"), { recursive: true });
   setVersion(root, version);
   for (const name of names) {
     const dir = path.join(root, "skills", name);
@@ -37,8 +31,8 @@ function makeRoot(root: string, version: string, names: string[]) {
 
 function setVersion(root: string, version: string) {
   fs.writeFileSync(
-    path.join(root, ".claude-plugin/plugin.json"),
-    JSON.stringify({ name: "super-prototyping", version }),
+    path.join(root, "canvas/package.json"),
+    JSON.stringify({ name: "prototyping-canvas", version }),
   );
 }
 
@@ -57,7 +51,7 @@ afterEach(() => {
 });
 
 describe("installSkills", () => {
-  it("writes marked, pinned copies and leaves the source untouched", () => {
+  it("writes versioned copies and leaves the source untouched", () => {
     const result = installSkills(root, project, [".claude/skills"]);
     expect(result.written.sort()).toEqual([
       ".claude/skills/alpha",
@@ -72,9 +66,6 @@ describe("installSkills", () => {
     expect(copy).toContain(
       "metadata:\n  managed-by: super-prototyping\n  version: 1.5.0",
     );
-    expect(copy).toContain(
-      "super-prototyping@super-prototyping--v1.5.0#subdirectory=tools",
-    );
     // The other file in the folder rode along: a copy is the whole skill, not just its SKILL.md.
     expect(
       fs.readFileSync(
@@ -87,8 +78,7 @@ describe("installSkills", () => {
       path.join(root, "skills/alpha/SKILL.md"),
       "utf8",
     );
-    expect(source).not.toContain("managed-by: super-prototyping");
-    expect(source).toContain(PIN);
+    expect(source).not.toContain("version:");
   });
 
   it("is byte-identical on a second install", () => {
@@ -217,9 +207,6 @@ describe("installSkills over an earlier install", () => {
       "utf8",
     );
     expect(copy).toContain("version: 1.6.0");
-    expect(copy).toContain(
-      "super-prototyping@super-prototyping--v1.6.0#subdirectory=tools",
-    );
     // The whole folder was replaced, not just the marker rewritten.
     expect(
       fs.readFileSync(
@@ -275,8 +262,30 @@ describe("compareVersions", () => {
   });
 });
 
-describe("marker placement", () => {
-  it("sits inside the frontmatter, after name and description", () => {
+describe("marker", () => {
+  it("is required: a shipped SKILL.md without it is a packaging mistake, not a user's file", () => {
+    fs.writeFileSync(
+      path.join(root, "skills/alpha/SKILL.md"),
+      "---\nname: alpha\ndescription: x\n---\n",
+    );
+    expect(() => installSkills(root, project, [".claude/skills"])).toThrow(
+      /managed-by/,
+    );
+  });
+
+  it("ships in every real skill", () => {
+    const skills = path.resolve(import.meta.dirname, "../../skills");
+    for (const name of fs
+      .readdirSync(skills, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name)) {
+      expect(
+        fs.readFileSync(path.join(skills, name, "SKILL.md"), "utf8"),
+      ).toMatch(/^---\n[\s\S]*?\nmetadata:\n  managed-by: super-prototyping\n[\s\S]*?---\n/);
+    }
+  });
+
+  it("gets the version under it, inside the frontmatter, after name and description", () => {
     installSkills(root, project, [".claude/skills"]);
     const content = fs.readFileSync(
       path.join(project, ".claude/skills/alpha/SKILL.md"),

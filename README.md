@@ -2,17 +2,17 @@
 
 # super-prototyping
 
-An agent plugin for rebuilding and designing product UI as **self-contained
-HTML artboards on a local tldraw canvas**, with the measuring toolkit and the
-agent skills that drive the work. Install it into any project; your boards stay
-in your project and the plugin upgrades around them.
+An app and a set of agent skills for rebuilding and designing product UI as
+**self-contained HTML artboards on a local tldraw canvas**, with the measuring
+toolkit the skills drive. Your boards stay in your project, and the app
+upgrades around them.
 
 The point of it is a replica you can defend. Every colour and every metric on a
 cloned board traces back to a measurement of the source capture, and the
 capture itself is parked on the canvas directly under the replica, so the two
 are one glance apart rather than one memory apart.
 
-How you use it: install the plugin, start the canvas, then hand Claude Code
+How you use it: install the app, open the canvas, then hand Claude Code
 your screenshots and ask for the `clone-prototype` skill. It grids the capture,
 samples it region by region, writes one measured token block, generates every
 board from a single `gen.py`, then re-renders those boards and diffs them
@@ -104,112 +104,27 @@ until you clone one into the project. The agent works in the panel on the
 left, with or without a project open, and remembers the conversation until you
 start a new one. It runs in a folder of its own under
 `Documents/Super Prototyping/.workspaces`, which holds the skills, kept at the
-app's version. The app does not install the toolkit below. The
-skills tell whichever agent you run to install it the first time one calls for
-`refkit`, `artgen` or `sp`.
+app's version.
 
-Without the app, on any platform, it installs in two halves, in every product.
-The **plugin** holds the three skills and the canvas app, and comes from your
-product's own install command. The **toolkit** the skills call by name is one
-more command, once per machine.
+The app is also the whole install for an agent outside it. On macOS, every
+launch links `sp`, `refkit` and `artgen` onto `~/.local/bin`, adds that to
+your shell's PATH once, and links the skills into `~/.claude/skills`,
+`~/.agents/skills` (Codex and the agents that share it), `~/.hermes/skills`
+and `~/.factory/skills`, wherever that agent is installed. Every link goes
+through `~/.local/share/super-prototyping/current`, which the app points at
+itself on each launch, so an update moves the skills and the commands with it.
+With Codex installed it also lets Codex run the three commands without asking,
+as a `prefix_rule` in `~/.codex/rules/default.rules`. The commands run the
+toolkit inside the app with [uv](https://docs.astral.sh/uv/). On Windows the
+app links the skills the same way, as junctions, and runs `uv tool install`
+on its toolkit, which puts the commands in `~\.local\bin`; uv's own installer
+already put that directory on PATH. `sp uninstall` takes all of it back.
 
-| Your agent | Install the plugin |
-|---|---|
-| **Claude Code** | `/plugin marketplace add ReScienceLab/super-prototyping`<br>`/plugin install super-prototyping@super-prototyping` |
-| **Codex** | `codex plugin marketplace add ReScienceLab/super-prototyping`<br>`codex plugin add super-prototyping@super-prototyping` |
-| **WorkBuddy / CodeBuddy** | `codebuddy plugin marketplace add ReScienceLab/super-prototyping`<br>`codebuddy plugin install super-prototyping --scope user` |
-| **Hermes** | `hermes plugins install ReScienceLab/super-prototyping --enable` |
-| **Pi** | `pi install git:github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>` |
-| **Trae**, and anything else that reads `SKILL.md` | `npx skills add ReScienceLab/super-prototyping` |
-| Any of those except Claude Code, from a clone you control | `scripts/install-skills.sh` |
-
-Then the toolkit, whichever product you came from:
-
-```bash
-uv tool install "git+https://github.com/ReScienceLab/super-prototyping#subdirectory=tools"
-```
-
-It puts `refkit`, `artgen` and `sp` on PATH, and `sp start` is how the canvas
-runs in a browser: see [Run the canvas](#run-the-canvas).
-
-One skills tree, a thin manifest per product, so a skill is never forked to be
-ported: `.claude-plugin/` for Claude Code, `.codex-plugin/` plus the
-`.agents/plugins/marketplace.json` catalogue for Codex, `.codebuddy-plugin/` for
-WorkBuddy, and a root `plugin.json` in the portable
-[Agent Plugins v1](https://agent-plugins.org/specification) format, which is what
-Hermes installs. Pi and `npx skills` read `skills/*/SKILL.md` directly and need
-no manifest at all.
-
-`/plugin update super-prototyping` picks up a new release. The others are
-`codex plugin add` again, `codebuddy plugin install` again, `hermes plugins
-update super-prototyping`, `npx skills update`, and for Pi another `pi install`
-naming the new tag, since Pi pins the ref you gave it and never moves it on its
-own. Re-run the `uv tool install` line with `--force` to move the toolkit too.
-Both halves carry the same version, and `sp start` prints the line to run
-when they drift apart. To hold the toolkit at a release rather than at the
-default branch, name that release's tag. They are listed under
-[Releases](https://github.com/ReScienceLab/super-prototyping/releases):
-
-```bash
-uv tool install --force "git+https://github.com/ReScienceLab/super-prototyping@super-prototyping--v<version>#subdirectory=tools"
-```
-
-**A smaller install.** The full one is about 430 MB, because this repo is also
-the workspace whose worked example boards the skills read, and a
-marketplace install downloads the repo and then copies its worktree into the
-plugin cache. If you only want the canvas and the toolkit, declare the
-marketplace in `~/.claude/settings.json` with `sparsePaths` and Claude Code
-clones just those directories, cone mode:
-
-```json
-{
-  "extraKnownMarketplaces": {
-    "super-prototyping": {
-      "source": {
-        "source": "github",
-        "repo": "ReScienceLab/super-prototyping",
-        "sparsePaths": [".claude-plugin", "skills", "canvas", "tools",
-                        "canvases/templates", "canvases/00-welcome"]
-      }
-    }
-  }
-}
-```
-
-About 7 MB installed, against about 430 MB. Add
-`canvases/duolingo-ios` to that list to keep the one example
-`clone-prototype` reads most, or drop the key entirely to get everything.
-
-**Per product, the parts worth knowing.** `codex plugin marketplace upgrade`
-refreshes the catalogue before `codex plugin add` moves you to the new version.
-Codex has the sparse field too, spelled `--sparse`, but as of 0.145 a plugin
-cannot be installed from a marketplace added with it. The install re-clones the
-sparse snapshot and git cannot read the objects that were left out, so the small
-install above is Claude Code's for now. Hermes leaves an installed plugin
-disabled until you say otherwise, which is what `--enable` is for; it also takes
-this repo as a skill tap (`hermes skills tap add
-ReScienceLab/super-prototyping`) if you want the skills without the plugin. Pi
-pins whatever ref you install, so name a release tag rather than a branch. `npx
-skills add` asks which agents and whether to install globally, and knows Trae,
-Trae CN, CodeBuddy, Hermes, Pi and Codex by name; `-a trae -g` answers both
-questions up front.
-
-**No install command, or you want one checkout behind all of them.** Clone
-once, then link:
-
-```bash
-git clone https://github.com/ReScienceLab/super-prototyping.git ~/.super-prototyping
-~/.super-prototyping/scripts/install-skills.sh
-```
-
-It installs the toolkit and symlinks `skills/*` into every product skill root it
-finds (`~/.codex/skills`, `~/.codebuddy/skills`, `~/.hermes/skills`,
-`~/.pi/agent/skills`, `~/.trae/skills`, `~/.trae-cn/skills`). The skills are
-links, not copies, so `git pull` in that checkout updates every product at once.
-The toolkit is a copy, so re-run the script after a pull to move `refkit`,
-`artgen` and `sp` with it. `--list` shows what it would do and changes
-nothing. What it cannot give you is a version. A linked checkout is whatever you
-last pulled, where a marketplace install is a release.
+An agent that has the skills and not the app installs it itself: the
+`prototype-canvas` skill's `scripts/install.sh` downloads the app into
+`/Applications` (or `~/Applications`) and opens it. When the app has found a
+newer release, every command prints a `[super-prototyping:notice]` line on
+stderr, and `sp upgrade` has the app install it.
 
 ## Start a project
 
@@ -222,18 +137,20 @@ cp -r "$(sp root)/canvases/templates" canvases/<slug>
 python3 canvases/<slug>/gen.py
 ```
 
-`sp root` prints wherever the plugin landed. Every worked example above
+`sp root` prints the tree inside the app. Every worked example above
 is in there to copy from too.
 
 ## Run the canvas
 
 ```bash
-sp start              # this project
-sp start ~/my-app     # any project, from anywhere
+sp open               # this project, in the app
+sp open ~/my-app      # any project, from anywhere
+sp start ~/my-app     # the same canvas in a browser, without the app
 ```
 
-On first run it downloads the canvas app built for your version of the
-plugin into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
+`sp open` hands the project to the app, starting it if it is not running, and
+prints the address. `sp start` is for where the app cannot run. From a checkout
+without a build, it downloads the canvas built for that version into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
 against the project's `canvases` with node or bun, opens the browser,
 and prints the address. Every project under `~/Documents/Super Prototyping` is
 served beside it at `/p/<name>/`, the same way the app serves them;
@@ -318,24 +235,22 @@ refkit tokens canvases/my-app             # one :root, no undefined var()
 refkit --version                                  # which release you are on
 ```
 
-## Working on the plugin itself
+## Working on it
 
 ```bash
 cd canvas && bun run lint && bun run test && bun run build
 uv run --with pillow --with numpy python tools/test_refkit.py
 uv run python tools/test_sp_canvas.py
 (cd desktop && bun install && bun test && bun run build)   # the macOS app
-scripts/bump-version.sh --check      # every manifest agrees on one version
-claude plugin validate . --strict    # and the manifests are what they claim
+scripts/bump-version.sh --check      # every file agrees on one version
 ```
 
 The **Validate** workflow runs all of that on every pull request.
 
-**Releasing.** The version is not bookkeeping: it is the cache key that
-`/plugin update` and `codex plugin marketplace upgrade` compare against an
-install, so commits on main reach nobody until it moves. Dispatch the
+**Releasing.** The version is not bookkeeping: it is what the app's updater
+compares against an install, so commits on main reach nobody until it moves. Dispatch the
 **Release** workflow with the new version — it runs the gates, moves every
-manifest with `scripts/bump-version.sh`, and opens a release PR, because
+version with `scripts/bump-version.sh`, and opens a release PR, because
 "Protect main" wants a pull request and nothing bypasses it. Write that
 version's section in `RELEASE-NOTES.md`, then merge: the tag
 `super-prototyping--v<version>` and the GitHub Release follow from the merge.

@@ -1268,11 +1268,10 @@ def _region_args(sub, pt=True):
 
 
 def _version():
-    """The installed plugin's version, or "dev" when run straight from a checkout.
+    """The toolkit's version, or "dev" when run straight from a checkout.
 
-    Skills are shipped inside a versioned plugin, so `refkit --version` is what
-    settles "which release is actually on this machine" when a skill and the
-    toolkit disagree.
+    `refkit --version` is what settles "which release is on this machine"
+    when a skill seems to expect something else.
     """
     try:
         from importlib.metadata import PackageNotFoundError, version
@@ -1456,6 +1455,8 @@ def _parser():
 
 
 def main():
+    import atexit, sp_canvas
+    atexit.register(sp_canvas.notice)  # on stderr, after the output, however this exits
     a = _parser().parse_args()
     a.fn(a)
 

@@ -1,6 +1,9 @@
 import { expect, test } from "bun:test";
 import net from "node:net";
-import { augmentedPath, freePort, isWeb, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { allowInCodex, augmentedPath, ensurePathInRc, freePort, isWeb, linkInstall, parseArgs, portAnswers, stateDir, untilde, waitForPort } from "./launch.ts";
 
 test("untilde expands only the current user's leading tilde", () => {
   expect(untilde("~/sp", "/Users/u")).toBe("/Users/u/sp");
@@ -46,9 +49,79 @@ test("waitForPort resolves once a listener appears, rejects on timeout or abort"
   srv.close();
 });
 
-test("parseArgs takes --port and a directory in either order and skips other flags", () => {
-  expect(parseArgs(["/p"])).toEqual({ port: undefined, dir: "/p" });
-  expect(parseArgs(["--port", "5195", "/p"])).toEqual({ port: 5195, dir: "/p" });
-  expect(parseArgs(["/p", "--port", "5195"])).toEqual({ port: 5195, dir: "/p" });
-  expect(parseArgs(["-psn_0_1", "--port"])).toEqual({ port: NaN, dir: undefined });
+test("parseArgs takes --port, --upgrade and a directory in any order and skips other flags", () => {
+  expect(parseArgs(["/p"])).toEqual({ port: undefined, dir: "/p", upgrade: false });
+  expect(parseArgs(["--port", "5195", "/p"])).toEqual({ port: 5195, dir: "/p", upgrade: false });
+  expect(parseArgs(["/p", "--port", "5195"])).toEqual({ port: 5195, dir: "/p", upgrade: false });
+  expect(parseArgs(["-psn_0_1", "--port"])).toEqual({ port: NaN, dir: undefined, upgrade: false });
+  expect(parseArgs(["--upgrade"])).toEqual({ port: undefined, dir: undefined, upgrade: true });
+});
+
+const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), "sp-launch-"));
+
+test("linkInstall links through current, repoints it, and replaces only our own copies", () => {
+  const home = tmp();
+  const app = (name: string) => {
+    const root = path.join(home, name);
+    for (const skill of ["alpha", "beta"]) fs.mkdirSync(path.join(root, "skills", skill), { recursive: true });
+    return root;
+  };
+  const first = app("A.app");
+  fs.mkdirSync(path.join(home, ".claude/skills/alpha"), { recursive: true });
+  fs.writeFileSync(path.join(home, ".claude/skills/alpha/SKILL.md"), "---\nname: alpha\nmetadata:\n  managed-by: super-prototyping\n---\n");
+  fs.mkdirSync(path.join(home, ".claude/skills/beta"));
+  fs.writeFileSync(path.join(home, ".claude/skills/beta/SKILL.md"), "---\nname: beta\n---\nmine\n");
+  const current = path.join(home, ".local/share/super-prototyping/current");
+  fs.mkdirSync(path.join(home, ".local/bin"), { recursive: true });
+  fs.symlinkSync("/usr/bin/true", path.join(home, ".local/bin/artgen")); // another tool's
+
+  const changes = linkInstall(first, home);
+  expect(fs.readlinkSync(current)).toBe(first);
+  expect(fs.readlinkSync(path.join(home, ".local/bin/sp"))).toBe(path.join(current, "tools/bin/sp"));
+  expect(fs.readlinkSync(path.join(home, ".local/bin/refkit"))).toBe(path.join(current, "tools/bin/sp"));
+  expect(fs.readlinkSync(path.join(home, ".claude/skills/alpha"))).toBe(path.join(current, "skills/alpha"));
+  expect(fs.lstatSync(path.join(home, ".claude/skills/beta")).isSymbolicLink()).toBe(false); // the user's
+  expect(fs.existsSync(path.join(home, ".agents"))).toBe(false); // no such agent here
+  expect(changes).toContain(`kept ${path.join(home, ".claude/skills/beta")}`);
+  expect(fs.readlinkSync(path.join(home, ".local/bin/artgen"))).toBe("/usr/bin/true");
+
+  // The app moved: only `current` changes, and a second launch changes nothing.
+  const moved = app("B.app");
+  expect(linkInstall(moved, home)).toEqual([
+    `linked ${current}`,
+    `kept ${path.join(home, ".local/bin/artgen")}`,
+    `kept ${path.join(home, ".claude/skills/beta")}`,
+  ]);
+  expect(fs.readlinkSync(current)).toBe(moved);
+
+  // Windows: no command links, since `uv tool install` makes those.
+  const win = tmp();
+  fs.mkdirSync(path.join(win, ".claude"));
+  fs.mkdirSync(path.join(win, ".codex"));
+  linkInstall(app("C.app"), win, "win32");
+  expect(fs.existsSync(path.join(win, ".local/bin"))).toBe(false);
+  expect(fs.existsSync(path.join(win, ".claude/skills/alpha"))).toBe(true);
+  expect(fs.existsSync(path.join(win, ".agents/skills/alpha"))).toBe(true); // Codex, by ~/.codex
+});
+
+test("ensurePathInRc appends once, and not when the rc already puts ~/.local/bin on PATH", () => {
+  const home = tmp();
+  expect(ensurePathInRc(home, "/bin/fish")).toBeNull();
+  expect(ensurePathInRc(home, "/bin/zsh")).toBe(path.join(home, ".zshrc"));
+  expect(ensurePathInRc(home, "/bin/zsh")).toBeNull();
+  fs.writeFileSync(path.join(home, ".bash_profile"), 'export PATH="$HOME/.local/bin:$PATH"\n');
+  expect(ensurePathInRc(home, "/usr/local/bin/bash")).toBeNull();
+  fs.writeFileSync(path.join(home, ".bash_profile"), '# export PATH="$HOME/.local/bin:$PATH"\n');
+  expect(ensurePathInRc(home, "/usr/local/bin/bash")).toBe(path.join(home, ".bash_profile"));
+});
+
+test("allowInCodex adds only the missing rules, and only where Codex is", () => {
+  const home = tmp();
+  expect(allowInCodex(home)).toEqual([]);
+  fs.mkdirSync(path.join(home, ".codex/rules"), { recursive: true });
+  const rules = path.join(home, ".codex/rules/default.rules");
+  fs.writeFileSync(rules, 'prefix_rule(pattern=["sp"], decision="allow")');
+  expect(allowInCodex(home)).toEqual(["refkit", "artgen"]);
+  expect(allowInCodex(home)).toEqual([]);
+  expect(fs.readFileSync(rules, "utf8").split("\n").filter(Boolean)).toHaveLength(3);
 });

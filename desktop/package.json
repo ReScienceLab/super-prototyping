@@ -40,20 +40,16 @@
         "to": "plugin/skills"
       },
       {
-        "from": "../.claude-plugin",
-        "to": "plugin/.claude-plugin"
-      },
-      {
-        "from": "../.codex-plugin",
-        "to": "plugin/.codex-plugin"
-      },
-      {
-        "from": "../.codebuddy-plugin",
-        "to": "plugin/.codebuddy-plugin"
-      },
-      {
-        "from": "../plugin.json",
-        "to": "plugin/plugin.json"
+        "from": "../tools",
+        "to": "plugin/tools",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/.pytest_cache/**",
+          "!**/*.egg-info/**",
+          "!.venv/**",
+          "!test_*.py"
+        ]
       },
       {
         "from": "../canvas/package.json",

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Self-check for the launcher: where each product's install lands, which cached
-release it picks, when it says the plugin and the toolkit have drifted apart, which
-app it serves and where it is allowed to write.
+"""Self-check for the launcher: where it finds the tree, which cached release it picks,
+which app it serves, where it is allowed to write, what it says when the app has an
+update, and what `uninstall` takes back.
 
     python3 tools/test_sp_canvas.py
 """
@@ -13,55 +13,16 @@ import sp_canvas as C
 
 
 def plugin_root(version):
-    """A directory that looks like an installed plugin, at `version` or with no manifest."""
+    """A tree holding the canvas app, at `version` or with none."""
     root = Path(tempfile.mkdtemp())
-    if version is not None:
-        (root / ".claude-plugin").mkdir()
-        (root / ".claude-plugin/plugin.json").write_text(
-            json.dumps({"name": "super-prototyping", "version": version}))
+    (root / "canvas").mkdir()
+    (root / "canvas/package.json").write_text(json.dumps(
+        {"name": "prototyping-canvas", **({"version": version} if version else {})}))
     return root
 
 
-def with_toolkit(version, fn):
-    """Run fn with `_toolkit_version` answering `version`, then put the real one back."""
-    real = C._toolkit_version
-    C._toolkit_version = lambda: version
-    try:
-        return fn()
-    finally:
-        C._toolkit_version = real
-
-
-def test_skew_is_only_reported_when_both_halves_name_a_release():
-    root = plugin_root("1.1.0")
-    assert with_toolkit("1.0.0", lambda: C.skew(root)) == ("1.1.0", "1.0.0")
-    assert with_toolkit("1.1.0", lambda: C.skew(root)) is None
-    # A source checkout has no installed toolkit version, and a plugin root without a
-    # manifest has no release either. Neither is a disagreement worth a note.
-    assert with_toolkit(None, lambda: C.skew(root)) is None
-    assert with_toolkit("1.1.0", lambda: C.skew(plugin_root(None))) is None
-
-
-def test_a_prerelease_does_not_report_drift_against_itself():
-    # The manifests carry semver and the built wheel carries PEP 440, so one release
-    # is spelled two ways. Compared as strings, every prerelease install would open
-    # with a note telling the user to reinstall what they already have.
-    root = plugin_root("1.1.0-rc.1")
-    assert with_toolkit("1.1.0rc1", lambda: C.skew(root)) is None
-    assert with_toolkit("1.1.0", lambda: C.skew(root)) == ("1.1.0-rc.1", "1.1.0")
-
-
-def test_the_fix_moves_whichever_half_is_behind():
-    # The plugin is ahead: pin the toolkit to the plugin's tag.
-    fix = C.skew_fix("1.1.0", "1.0.0")
-    assert "uv tool install" in fix and f"{C.TAG_PREFIX}1.1.0" in fix
-    # The toolkit is ahead, which the uv line would *downgrade* — and to a tag that need
-    # not exist. Update the plugin instead.
-    assert "/plugin update" in C.skew_fix("1.0.0", "1.1.0")
-
-
 def canvas_app_at(root: Path):
-    """Make `root` look like a plugin holding the canvas app."""
+    """Make `root` look like a tree holding the canvas app."""
     (root / "canvas").mkdir(parents=True)
     (root / "canvas/package.json").write_text(json.dumps({"name": "prototyping-canvas"}))
     return root
@@ -83,35 +44,27 @@ def with_home(home, fn):
         os.environ["HOME"] = real_env
 
 
-def test_each_products_install_location_is_searched():
-    """One install per product, found where that product actually puts it.
-
-    Six products install this plugin and no two agree on where it lands, so a launcher
-    that only knows Claude Code's cache prints "could not find the canvas app" to
-    everyone else — with the app sitting on their disk.
-    """
-    homes = {
-        ".claude/plugins/cache/super-prototyping/super-prototyping/1.0.0": "Claude Code",
-        ".codex/plugins/cache/super-prototyping/super-prototyping/1.0.0": "Codex",
-        ".codebuddy/plugins/cache/super-prototyping/super-prototyping/1.0.0": "CodeBuddy",
-        ".hermes/plugins/super-prototyping": "Hermes",
-        ".pi/agent/git/github.com/ReScienceLab/super-prototyping": "Pi",
-    }
-    for where, product in homes.items():
-        home = Path(tempfile.mkdtemp())
-        canvas_app_at(home / where)
-        found = with_home(home, lambda: C.resolve_root())
-        assert found == home / where, f"{product}: found {found}"
-
-    # And the products that hold a symlink per skill instead of an install.
-    for root in (".codebuddy/skills", ".trae/skills", ".trae-cn/skills"):
-        home = Path(tempfile.mkdtemp())
-        checkout = canvas_app_at(home / "checkout")
-        (checkout / "skills/prototype-canvas").mkdir(parents=True)
-        (home / root).mkdir(parents=True)
-        (home / root / "prototype-canvas").symlink_to(checkout / "skills/prototype-canvas")
-        # Resolved, because following the link is how the checkout was found.
-        assert with_home(home, lambda: C.resolve_root()) == checkout.resolve(), root
+def test_the_app_is_found_through_its_link_then_where_install_sh_puts_it():
+    """SUPER_PROTOTYPING_ROOT first; without it, `current`, then
+    the app in /Applications or ~/Applications."""
+    home = Path(tempfile.mkdtemp()).resolve()
+    user_app = canvas_app_at(home / "Applications/Super Prototyping.app/Contents/Resources/plugin")
+    real = C.CURRENT, C.APP_BUNDLES
+    C.APP_BUNDLES = [home / "missing.app", home / "Applications/Super Prototyping.app"]
+    C.CURRENT = home / ".local/share/super-prototyping/current"
+    find = lambda: with_home(home, lambda: with_env({"SUPER_PROTOTYPING_ROOT": None}, lambda: (
+        os.chdir(home), C.resolve_root())[1]))
+    cwd = os.getcwd()
+    try:
+        assert find() == user_app
+        other = canvas_app_at(home / "elsewhere")
+        C.CURRENT.parent.mkdir(parents=True)
+        C.CURRENT.symlink_to(other)
+        assert find() == C.CURRENT
+        assert with_env({"SUPER_PROTOTYPING_ROOT": str(user_app)}, C.resolve_root) == user_app
+    finally:
+        os.chdir(cwd)
+        C.CURRENT, C.APP_BUNDLES = real
 
 
 def test_a_checkout_wins_over_the_installed_app():
@@ -124,16 +77,16 @@ def test_a_checkout_wins_over_the_installed_app():
     C.subprocess.run(["git", "init", "-q"], cwd=checkout, check=True)
     app = Path(tempfile.mkdtemp()).resolve()
     home = Path(tempfile.mkdtemp())
-    real_cwd, real_app, real_is_app = os.getcwd(), C.APP_BUNDLE_PLUGIN, C._is_canvas_app
+    real_cwd, real_app, real_is_app = os.getcwd(), C.APP_BUNDLES, C._is_canvas_app
     os.chdir(checkout)
-    C.APP_BUNDLE_PLUGIN = app
-    C._is_canvas_app = lambda root: root.resolve() in (checkout, app)
+    C.APP_BUNDLES = [app]
+    C._is_canvas_app = lambda root: root.resolve() in (checkout, app / "Contents/Resources/plugin")
     try:
         found = with_home(home, lambda: with_env(
             {"SUPER_PROTOTYPING_ROOT": None}, C.resolve_root))
     finally:
         os.chdir(real_cwd)
-        C.APP_BUNDLE_PLUGIN, C._is_canvas_app = real_app, real_is_app
+        C.APP_BUNDLES, C._is_canvas_app = real_app, real_is_app
     assert found == checkout
 
 
@@ -230,24 +183,24 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     env = dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home))
 
     def dist(root, version):
-        """`_dist` of a plugin root whose manifest says `version`."""
-        (root / ".claude-plugin/plugin.json").write_text(json.dumps({"version": version}))
+        """`_dist` of a tree whose canvas/package.json says `version`."""
+        (root / "canvas/package.json").write_text(json.dumps({"version": version}))
+        os.utime(root / "canvas/package.json", (1, 1))  # not an edit a checkout would rebuild for
         return with_env(env, lambda: C._dist(root))
 
     # node_modules marks a checkout being worked on: its own dist, even with a release known.
-    dev = canvas_app_at(plugin_root("1.4.2"))
+    dev = plugin_root("1.4.2")
     (dev / "canvas/node_modules").mkdir()
     (dev / "canvas/src").mkdir()
     (dev / "canvas/dist").mkdir()
     (dev / "canvas/dist/server.mjs").write_text("")
     now = time.time()
-    os.utime(dev / "canvas/package.json", (now - 10, now - 10))
     assert dist(dev, "1.4.2") == dev / "canvas/dist"
 
     # The desktop app's bundled tree: a dist and no sources. Served as it is, though its
     # package.json was copied in after the bundle was built, and never rebuilt: nothing to
     # rebuild it from.
-    bundled = canvas_app_at(plugin_root("1.4.2"))
+    bundled = plugin_root("1.4.2")
     (bundled / "canvas/dist").mkdir()
     (bundled / "canvas/dist/server.mjs").write_text("")
     os.utime(bundled / "canvas/dist/server.mjs", (now - 10, now - 10))
@@ -260,7 +213,7 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
 
     # A bare install with a version: the bundle. Fetched from the tag's release asset, into
     # one folder per version, whole — no temporary directory left beside it.
-    install = canvas_app_at(plugin_root("1.4.2"))
+    install = plugin_root("1.4.2")
     (got, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.4.2"))
     assert got == sp_home / "cache/1.4.2/dist"
     assert urls == [f"https://github.com/{C.REPO}/releases/download/{C.TAG_PREFIX}1.4.2/canvas-dist.tgz"]
@@ -281,14 +234,13 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
         C.os.rename = real_rename
     assert raced == sp_home / "cache/1.4.3/dist" and len(urls) == 1
     assert sorted(p.name for p in (sp_home / "cache").iterdir()) == ["1.4.2", "1.4.3"]
-    # Cached: no request the second time. A newer toolkit fetches its own.
+    # Cached: no request the second time. A newer release fetches its own.
     (again, urls) = with_release(AssertionError("no"), lambda: dist(install, "1.4.2"))
     assert again == got and urls == []
     (newer, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.5.0"))
     assert newer == sp_home / "cache/1.5.0/dist" and len(urls) == 1
-    # The version is the manifest's, spelled as the tag is. The installed toolkit would say
-    # 1.5.0rc1 for this release, and no tag is spelled that way.
-    (rc, urls) = with_release(canvas_bundle(), lambda: with_toolkit("1.5.0rc1", lambda: dist(install, "1.5.0-rc.1")))
+    # The version is package.json's, spelled as the tag is.
+    (rc, urls) = with_release(canvas_bundle(), lambda: dist(install, "1.5.0-rc.1"))
     assert rc == sp_home / "cache/1.5.0-rc.1/dist"
     assert urls == [f"https://github.com/{C.REPO}/releases/download/{C.TAG_PREFIX}1.5.0-rc.1/canvas-dist.tgz"]
 
@@ -300,25 +252,15 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     else:
         assert False, "a failed download must exit loudly"
     assert not (sp_home / "cache/1.6.0").exists()
-    # A release with no bundle attached is a 404, not a network problem: every release before
-    # bundles shipped is one, so a plugin behind the toolkit is told to move the plugin up.
-    missing = lambda: C.urllib.error.HTTPError(url="", code=404, msg="Not Found", hdrs=None, fp=None)
+    # A release with no bundle attached is a 404, not a network problem: building is the way.
+    missing = C.urllib.error.HTTPError(url="", code=404, msg="Not Found", hdrs=None, fp=None)
     try:
-        with_release(missing(), lambda: with_toolkit("1.6.0", lambda: dist(install, "1.4.1")))
+        with_release(missing, lambda: dist(install, "1.6.0"))
     except SystemExit as e:
-        assert "1.4.1 has no canvas app attached" in str(e) and "/plugin update" in str(e), e
+        assert "1.6.0 has no canvas app attached" in str(e) and "bun run build" in str(e), e
         assert "network" not in str(e)
     else:
         assert False, "a missing bundle must exit loudly"
-    # A plugin ahead of the toolkit, or level with it, is a release whose attach step failed:
-    # updating the plugin would not help, building would.
-    try:
-        with_release(missing(), lambda: with_toolkit("1.4.1", lambda: dist(install, "1.6.0")))
-    except SystemExit as e:
-        assert "1.6.0 has no canvas app attached" in str(e) and "bun run build" in str(e), e
-    else:
-        assert False, "a missing bundle must exit loudly"
-
 
 def test_the_project_is_the_argument_then_the_current_directory_and_its_boards_are_under_it():
     assert C.parser().parse_args(["start", "~/app"]).project == "~/app"
@@ -342,7 +284,7 @@ def test_the_port_is_the_flag_then_sp_canvas_port_then_the_default():
         assert False, "a bad SP_CANVAS_PORT must be rejected the way a bad --port is"
 
 
-def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
+def test_clean_removes_the_cache_and_starts_files_but_not_from_under_a_running_canvas():
     sp_home = Path(tempfile.mkdtemp())
     env = dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home))
     (sp_home / "cache/1.4.2/dist").mkdir(parents=True)
@@ -351,6 +293,7 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
     (sp_home / "state/canvas-5173.pid").write_text("4242\n")
     (sp_home / "state/canvas-5174.pid").write_text("not a pid\n")  # skipped, not fatal
     (sp_home / "state/canvas-backup.pid").write_text("4242\n")  # not a port; debris, not fatal
+    (sp_home / "state/desktop").mkdir()  # the app's: the canvas document lives in here
     sessions = ["main\n"]  # what `tmux list-sessions` answers
     real = C._is_our_server, C.subprocess.run, C.shutil.which
 
@@ -376,10 +319,68 @@ def test_clean_removes_both_directories_but_not_from_under_a_running_canvas():
         # Someone else's session is not ours whatever its name holds.
         sessions[0] = "notes canvas-9999\nmain\n"
         with_env(env, lambda: C.cmd_clean(None))
-        assert not (sp_home / "cache").exists() and not (sp_home / "state").exists()
+        assert not (sp_home / "cache").exists()
+        assert [p.name for p in (sp_home / "state").iterdir()] == ["desktop"]
         with_env(env, lambda: C.cmd_clean(None))  # a second time is not an error
     finally:
         C._is_our_server, C.subprocess.run, C.shutil.which = real
+
+
+def test_the_notice_names_a_newer_release_and_what_to_do_about_it():
+    import contextlib, io
+    sp_home = Path(tempfile.mkdtemp())
+    (sp_home / "state").mkdir()
+    update = sp_home / "state/update.json"
+
+    def said(record):
+        if record is not None:
+            update.write_text(json.dumps(record))
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            with_env(dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home)), C.notice)
+        return err.getvalue()
+
+    assert said(None) == ""  # the app never checked
+    record = {"current": "1.5.3", "available": None, "downloaded": None, "checkedAt": "x"}
+    assert said(record) == ""
+    line = said(dict(record, available="1.6.0"))
+    assert line.startswith(C.NOTICE) and "1.6.0" in line and "sp upgrade" in line
+    # Not an older one: the app reports what its feed has, and a feed can lag a local build.
+    assert said(dict(record, available="1.5.2")) == ""
+
+
+def test_uninstall_takes_back_only_what_the_app_made():
+    home = Path(tempfile.mkdtemp())
+    current = home / ".local/share/super-prototyping/current"
+    current.parent.mkdir(parents=True)
+    current.symlink_to(home)
+    (home / ".local/bin").mkdir()
+    (home / ".local/bin/sp").symlink_to(current / "tools/bin/sp")
+    (home / ".local/bin/refkit").write_text("someone else's")
+    (home / ".claude/skills").mkdir(parents=True)
+    (home / ".claude/skills/new-ui-mock").symlink_to(current / "skills/new-ui-mock")
+    (home / ".claude/skills/mine").symlink_to(home)
+    (home / ".zshrc").write_text('alias x=y\n\n# Added by Super Prototyping: sp, refkit and '
+                                 'artgen live here.\nexport PATH="$HOME/.local/bin:$PATH"\n')
+    (home / ".codex/rules").mkdir(parents=True)
+    (home / ".codex/rules/default.rules").write_text(
+        'prefix_rule(pattern=["ego-browser"], decision="allow")\n'
+        'prefix_rule(pattern=["sp"], decision="allow")\n')
+    real = C.CURRENT
+    C.CURRENT = current
+    try:
+        import contextlib, io
+        with contextlib.redirect_stdout(io.StringIO()):
+            with_home(home, lambda: C.cmd_uninstall(None))
+    finally:
+        C.CURRENT = real
+    assert not current.is_symlink() and not (home / ".local/bin/sp").is_symlink()
+    assert (home / ".local/bin/refkit").read_text() == "someone else's"
+    assert not (home / ".claude/skills/new-ui-mock").is_symlink()
+    assert (home / ".claude/skills/mine").is_symlink()
+    assert (home / ".zshrc").read_text() == "alias x=y\n"
+    assert (home / ".codex/rules/default.rules").read_text() == \
+        'prefix_rule(pattern=["ego-browser"], decision="allow")\n'
 
 
 def test_without_ps_the_liveness_check_refuses_to_guess():
