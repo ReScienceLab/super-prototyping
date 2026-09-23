@@ -261,9 +261,10 @@ export function HomePage(props: {
           <b>{boardsIn(canvases)}</b> boards · last edited {ago(updated)}
         </p>
       )}
-      {projects.length > 0 && (
-        <div className="home-bar">
-          <h2>Projects</h2>
+      <div className="home-bar">
+        <h2>Projects</h2>
+        {/* Nothing to sort before there are two. */}
+        {projects.length > 1 && (
           <div>
             <select
               value={sort}
@@ -274,8 +275,8 @@ export function HomePage(props: {
               <option value="boards">Most boards</option>
             </select>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <div className="home-grid">
         {shown.map((p) => {
           const recent = byEdit(p.canvases);
