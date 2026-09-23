@@ -1,8 +1,9 @@
 import { useContext } from "react";
 import { CanvasChromeContext } from "./canvasChrome";
 import { shortName } from "./canvasLibrary";
-import { ownCanvases, tabFor } from "./canvasTabs";
+import { ownCanvases, pageOf, tabFor } from "./canvasTabs";
 import { canvasIndex } from "./canvasIndex";
+import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { sheetPageUrl } from "./canvasUrl";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
@@ -17,16 +18,20 @@ import { LogoFigma, Plus } from "./geistIcons";
  * begun, since a canvas is the agent's work. An example is the app's and takes none, and a build
  * has no agent.
  *
- * At the far end is Export to Figma, the one place a canvas goes from here.
+ * At the far end is the canvas's ground colour, then Export to Figma, the one place a canvas goes
+ * from here.
  */
 export function CanvasStrip() {
-  const { activeTab, openTab } = useContext(CanvasChromeContext);
+  const { activeTab, openTab, editor } = useContext(CanvasChromeContext);
   const tab = tabFor(activeTab);
   const canvases = tab.kind === "example" ? [tab.slug] : ownCanvases();
   const here = activeTab.kind === "canvas" ? activeTab.slug : undefined;
   // A kit's slug names the canvas whose material it shows, so it exports that canvas; only the
   // index of every kit has no canvas behind it, and no Figma button.
   const slug = activeTab.slug;
+  // Keyed by the page, so the project's home, which shows Start here's, shares its ground.
+  const page = activeTab.kind === "canvas" ? pageOf(activeTab) : undefined;
+  const ground = useGround(editor, page);
 
   return (
     <nav className="sp-canvas-tabs" aria-label="Canvases">
@@ -63,6 +68,20 @@ export function CanvasStrip() {
         >
           <Plus />
         </button>
+      )}
+      {page && groundEditable(page) && (
+        <label
+          className="sp-canvas-tabs-ground"
+          title="Canvas background"
+          style={{ background: ground }}
+        >
+          <input
+            type="color"
+            aria-label="Canvas background"
+            value={ground}
+            onChange={(e) => editor && setGround(editor, page, e.target.value)}
+          />
+        </label>
       )}
       {/* An anchor, not a button, because the sheet is a page of its own, and the page that
           walks through the import, so ⌘-click and copy-link have to work on it. */}

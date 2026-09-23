@@ -171,6 +171,11 @@ export interface CanvasLayoutConfig {
    * would be 70 chances to leave one board saying something else.
    */
   status?: CanvasBoardStatus;
+  /**
+   * The canvas's ground, a `#rrggbb` the boards sit on. Without one it is the theme's dark grey.
+   * Set from the canvas's Background menu, which writes it here.
+   */
+  ground?: string;
   rows: CanvasLayoutRow[];
 }
 

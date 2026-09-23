@@ -50,17 +50,14 @@ button {
 }
 
 /*
- * The canvas ground, on the same token as the panels beside it. tldraw's own dark ground is
- * hsl(240 5% 6.5%), a shade off black and a shade off them, which reads as two apps in one
- * window, the thing asking for tldraw's dark theme was meant to stop. Geist has one default
- * ground: "in most instances, you should use Background 1", and Background 2 "sparingly when a
- * subtle background differentiation is needed". A rail next to a canvas is not that case. The
- * panel's own 1px border is what separates them.
+ * The canvas ground, a dark grey rather than the panels' near black, so the boards sit on a
+ * surface of their own and a dark app's screens keep their edges. A canvas can have its own
+ * (canvasGround.ts), which is why the value is repeated there as the swatch's default.
  */
 /* Two classes, because the value it replaces is set on `.tl-theme__dark` and one class would
    only win on import order. */
 .tl-container.tl-theme__dark {
-  --tl-color-background: var(--ds-background-100);
+  --tl-color-background: #2b2b2b;
   /* The rest of the theme, for the same reason and by the same route. tldraw draws its menus,
      its page list, its tooltips and its toolbar from these variables, so pointing them at the
      scale is the whole re-skin. No component CSS is touched, which is what keeps it from
@@ -354,6 +351,36 @@ button {
   height: 28px;
   margin-left: auto;
   border-radius: 6px;
+}
+
+/* The ground's swatch, whose native picker is the whole control. It starts the strip's far end. */
+.sp-canvas-tabs-ground {
+  align-self: center;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  border-radius: 6px;
+  border: 1px solid var(--ds-gray-alpha-400);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.sp-canvas-tabs-ground input {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.sp-canvas-tabs-ground + .sp-canvas-tabs-figma {
+  margin-left: 4px;
+}
+
+/* On a light ground the dark theme's near-white headings and captions vanish. tldraw writes a
+   text shape's colour inline, hence the !important, and the match on that inline value: only
+   the default colour (black, #f2f2f2 in the dark theme) flips, so an agent's red text stays red. */
+.tl-container[data-ground="light"] .tl-text-shape-label__inner[style*="color: rgb(242, 242, 242)"] {
+  color: oklch(0.205 0 0) !important;
 }
 
 .sp-canvas-tabs-figma:hover {

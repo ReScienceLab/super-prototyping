@@ -10,7 +10,9 @@ import {
   type TLComponents,
   type TLUiOverrides,
   TldrawUiMenuGroup,
+  TldrawUiMenuCheckboxItem,
   TldrawUiMenuItem,
+  TldrawUiMenuSubmenu,
   useDialogs,
   useEditor,
   useEditorPortalHost,
@@ -27,6 +29,7 @@ import {
   CanvasSelectionAttachButton,
 } from "./canvasAttach";
 import { CommentUserDialog } from "./CommentUserDialog";
+import { GROUNDS, groundEditable, groundOf, setGround } from "./canvasGround";
 import {
   linkedBoard,
   readCommentUser,
@@ -47,7 +50,7 @@ import {
   canvasImageRef,
   readCanvasLibrary,
 } from "./canvasLibrary";
-import { HOME_TAB, isExample, projectUrl } from "./canvasTabs";
+import { HOME_TAB, isExample, pageOf, projectUrl } from "./canvasTabs";
 import { setProjectCover } from "./contextMenu";
 import { pointedElement } from "./cover";
 import {
@@ -274,6 +277,10 @@ export const canvasChromeComponents: TLComponents = {
         ? pointedElement.current.box
         : undefined;
 
+    // The canvas's ground, the strip's swatch as presets. Custom opens that swatch's picker.
+    const page = chrome.activeTab.kind === "canvas" ? pageOf(chrome.activeTab) : undefined;
+    const ground = page ? groundOf(page) : undefined;
+
     return (
       <DefaultContextMenu {...props}>
         <TldrawUiMenuGroup id="canvas">
@@ -317,6 +324,31 @@ export const canvasChromeComponents: TLComponents = {
             onSelect={chrome.relayoutLibrary}
           />
         </TldrawUiMenuGroup>
+        {page && groundEditable(page) && (
+          <TldrawUiMenuGroup id="ground">
+            <TldrawUiMenuSubmenu id="ground" label="Background">
+              {GROUNDS.map(([label, color]) => (
+                <TldrawUiMenuCheckboxItem
+                  key={color}
+                  id={`ground-${color}`}
+                  label={label}
+                  checked={ground === color}
+                  onSelect={() => setGround(editor, page, color)}
+                />
+              ))}
+              <TldrawUiMenuCheckboxItem
+                id="ground-custom"
+                label="Custom…"
+                checked={!GROUNDS.some(([, color]) => color === ground)}
+                onSelect={() =>
+                  document
+                    .querySelector<HTMLInputElement>(".sp-canvas-tabs-ground input")
+                    ?.showPicker()
+                }
+              />
+            </TldrawUiMenuSubmenu>
+          </TldrawUiMenuGroup>
+        )}
         {/* tldraw's items one at a time, not its groups: this canvas is read, and every shape on
             it is locked and rebuilt from layout.json, so only what works on a locked shape is
             here. A group would bring Cut, Delete and Duplicate, greyed out on every shape here,

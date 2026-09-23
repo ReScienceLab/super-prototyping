@@ -89,17 +89,18 @@ export const canvasSlug = (name: string) =>
     .replace(/^[-.]+|[-.]+$/g, "");
 
 /**
- * layout.json with the page's `name` set, edited as text for the same reason withBoardStatus is:
- * a clone starts as a copy of a hand-formatted file, and only the key that names it should read
- * differently afterwards.
+ * layout.json with one top-level string key set, or taken out when `value` is null: the page's
+ * `name` from a clone, its `ground` from the canvas's Background menu. Edited as text for the same
+ * reason withBoardStatus is: a hand-formatted file should only read differently at the key that
+ * changed.
  *
- * The scan is for the `name` sitting directly inside the outermost object, not for the first one
+ * The scan is for the key sitting directly inside the outermost object, not for the first one
  * the file happens to contain: rows carry `title`, `label` and `url` strings of their own, and a
  * blind replace could land in one of those instead.
  */
-export function withCanvasName(source: string, name: string) {
-  const value = JSON.stringify(name);
-  const KEY = /^"name"\s*:\s*"(?:[^"\\]|\\.)*"/;
+export function withLayoutKey(source: string, key: string, value: string | null) {
+  const json = JSON.stringify(value);
+  const KEY = new RegExp(`^"${key}"\\s*:\\s*"(?:[^"\\\\]|\\\\.)*"`);
   for (let i = 0, depth = 0; i < source.length; i++) {
     const char = source[i];
     if (char === "{" || char === "[") depth++;
@@ -107,21 +108,26 @@ export function withCanvasName(source: string, name: string) {
     else if (char === '"') {
       const match = depth === 1 ? KEY.exec(source.slice(i)) : null;
       if (match) {
-        return (
-          source.slice(0, i) + `"name": ${value}` + source.slice(i + match[0].length)
-        );
+        const end = i + match[0].length;
+        if (value !== null) return source.slice(0, i) + `"${key}": ${json}` + source.slice(end);
+        // Out with the whitespace before it and one comma: the one after it, else the one
+        // before, which is what a last key leaves behind.
+        const head = source.slice(0, i);
+        const after = /^\s*,/.exec(source.slice(end));
+        if (after) return head.trimEnd() + source.slice(end + after[0].length);
+        return head.replace(/,\s*$/, "") + source.slice(end);
       }
       // Past the string, so its contents are never mistaken for structure or for the key.
       while (++i < source.length && source[i] !== '"') if (source[i] === "\\") i++;
     }
   }
-  // A layout that named nothing, so the page was going by its humanized slug. Write the key at
-  // the front, where a layout that has one puts it.
+  if (value === null) return source;
+  // A layout without the key. Write it at the front, where a layout that has one puts it.
   const empty = /^\s*\{\s*\}\s*$/.test(source);
   const at = source.indexOf("{");
   if (at < 0) return source;
   // Spliced rather than `replace`: a replacement string reads `$&` and friends as patterns, and
   // a canvas can be named anything.
-  const key = empty ? `\n  "name": ${value}\n` : `\n  "name": ${value},`;
-  return source.slice(0, at + 1) + key + source.slice(at + 1);
+  const line = empty ? `\n  "${key}": ${json}\n` : `\n  "${key}": ${json},`;
+  return source.slice(0, at + 1) + line + source.slice(at + 1);
 }
