@@ -97,6 +97,22 @@ describe("a tab is a project", () => {
     expect(resolveTab({ kind: "doc", slug: `${canvas}/Gone.md` })).toEqual(HOME_TAB);
   });
 
+  it("shows the documents of the canvas in front where there is no project", () => {
+    const board = canvasIndex().boards.find((b) => b.slug === canvas)!;
+    const had = { project: canvasIndex().docs, board: board.docs };
+    canvasIndex().docs = undefined;
+    board.docs = [{ name: "PRD.md", text: "# Theirs" }];
+    unflag = () => {
+      canvasIndex().docs = had.project;
+      board.docs = had.board;
+      return true;
+    };
+    const doc = [{ name: "PRD.md", slug: `${canvas}/PRD.md` }];
+    expect(docsOf(tabFor({ kind: "canvas", slug: canvas }))).toEqual(doc);
+    expect(docsOf(tabFor({ kind: "doc", slug: `${canvas}/PRD.md` }))).toEqual(doc);
+    expect(docsOf(tabFor(HOME_TAB))).toEqual([]);
+  });
+
   it("keeps Start here's own tab apart from the project's view of its page", () => {
     // The app ships Start here with the examples, so its server flags it as one. Its own view
     // is then an example's tab, and the bare view, which shows the same page for a project with
