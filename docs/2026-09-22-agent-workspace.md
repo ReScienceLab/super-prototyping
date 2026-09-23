@@ -23,6 +23,7 @@ root, `/__sp/agent`, beside `/__sp/projects`, and no longer under each project.
   <id>/                    a session's working directory, made at its first run
     .claude/skills         a link to the copy above (.agents/skills for Codex)
   <id>.json                {id, agent, resume, title, created, updated, projects, runs}
+  .runs/<run id>/          events.jsonl, and image-<n>.<ext> / shot-<k>.<ext>
 ```
 
 `projects()` skips dot folders, so `.workspaces` is never listed as a project.
@@ -38,7 +39,7 @@ root, `/__sp/agent`, beside `/__sp/projects`, and no longer under each project.
 | The resume id is read from the agent's output | Claude's `init` event carries `session_id` and Codex's `thread.started` carries `thread_id` (`AgentDef.session`). The first turn passes no id of its own. Later turns pass `--resume <id>` or `exec resume <id>`. `claude -c` and `codex resume --last` are never used: with several sessions in the same parent they would pick whichever ran last. |
 | The record is written with a temporary file and a rename, and held in memory while the server runs | A reader never sees half a file, and two quick turns of one session update one object instead of racing on a stale copy from disk. `GET /__sp/agent/sessions` lists every record, newest first, and says which one has a run going. It replaces `GET /__sp/agent/runs`. |
 | A session is one agent's | A Claude session cannot be resumed by Codex. The server answers 409 to a message for the other agent, and the panel starts a new session when the agent is switched. |
-| Picking a session in History resumes it | The next message carries on where it left off. Its turns are shown again as far as the server still holds their runs, the newest twenty since it started. The transcript is not saved or replayed: after a restart the panel says the agent remembers the session but has no turns to show. |
+| Picking a session in History resumes it | The next message carries on where it left off. Its turns are shown again. Each run is written to `.workspaces/.runs/<run id>/` as it goes: its events appended one JSON line at a time, and its pictures beside them (`image-<n>`, `shot-<k>`). The server holds the newest twenty in memory and replays any other from that folder, so a restart, which every update is, loses nothing. A run the server died in the middle of replays with an end saying so. It is the app's own copy rather than a read of Claude Code's or Codex's transcript, as Open Design and Hermes Agent do it: those files are the CLIs' own, change shape between releases, and hold no attachment by the number the message used. Sessions from before this was written show no turns. |
 | The skills are one copy in `.workspaces`, linked into each session's folder | Claude Code finds skills in a parent of its working directory. Codex looks only in its working directory and a git repo's root, and a session's folder is neither under a repo nor holding the skills, so each folder gets a link. It is a junction on Windows, which needs no privilege to make. The copy is brought up to the plugin's version on every run, with the marker and the rules `skills.ts` had for projects. Copying into each session would leave a stale copy per conversation. |
 | Nothing is written before the first message | A GET, the onboarding's answer and the server's start write nothing to the projects folder. `.workspaces` appears when a message is first sent. |
 | Projects get no skills, and New project and Open folder take no agent | The skills live with the agent now. The per-project install and its refresh are gone, with `agent` in the `POST /__sp/projects` body and the toast that named the copies. Copies an earlier version put in a project are left where they are: they are the user's files now, and nothing reads them. |
@@ -48,6 +49,7 @@ root, `/__sp/agent`, beside `/__sp/projects`, and no longer under each project.
 
 - **Nothing is ever pruned.** Every session keeps its folder and its record.
   They are small, a link and a JSON file, unless the agent leaves files there.
+  A run's folder under `.runs` holds its pictures, and is the one that grows.
   When that matters, the place to add it is History: deleting a session from the
   list removes `<id>/` and `<id>.json`, through a `DELETE /__sp/agent/sessions/<id>`
   that refuses the session with a run going.

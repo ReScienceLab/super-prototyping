@@ -345,8 +345,8 @@ export function ChatPanel(props: {
       signal,
     ).catch((error) => {
       if (signal.aborted) return;
-      // A run the server no longer has — it keeps the newest twenty, and a restart keeps none —
-      // replays as a failure before a single frame. There is no conversation left to put an
+      // A run the server has no record of — one from before it kept runs on disk — replays as a
+      // failure before a single frame. There is no conversation left to put an
       // error under, so the turn goes with it rather than standing in the log as an id.
       setTurns((ts) =>
         ts.flatMap((t) =>
@@ -1201,15 +1201,15 @@ export function ChatPanel(props: {
           )}
           {turns.length === 0 && session && (
             <p className="sp-chat-empty">
-              {nameOf(agent)} remembers this session, but the server no longer
-              holds its turns to show. The next message carries on from where it
-              left off.
+              {nameOf(agent)} remembers this session, but its turns ran before
+              the app kept them, so there are none to show. The next message
+              carries on from where it left off.
             </p>
           )}
           {turns.map((t) => (
             <article key={t.runId} className="sp-chat-turn">
-              {/* A run the server has forgotten — it keeps the newest twenty, and a restart
-                keeps none — replays as an error with no prompt to put above it. */}
+              {/* A run the server has no record of — one from before runs were kept on disk —
+                replays as an error with no prompt to put above it. */}
               {/* What was said, with the command and every reference drawn as they were written,
                 and the pictures themselves under it: full height, never cropped, one scroller
                 whatever their shapes. The bytes come back from the run rather than out of the
