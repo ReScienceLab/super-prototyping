@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
 import type { Editor } from "tldraw";
-import { WELCOME_PAGE_SLUG } from "./canvasUrl";
+import { canvasIndex, LAYOUT_CHANGED } from "./canvasIndex";
+import { readCanvasLayout } from "./canvasLibrary";
+import { isExample } from "./canvasTabs";
 
 /**
- * A canvas's ground colour, this viewer's own and per tldraw page, a light app's boards being easier to
- * judge on light. Picked from the strip's swatch (CanvasStrip.tsx) or the right button's
- * Background menu (canvasChrome.tsx); the event keeps the swatch showing a pick from the menu.
+ * A canvas's ground colour, its layout.json `ground`, so it is the canvas's and goes wherever the
+ * folder goes. Picked from the strip's swatch (CanvasStrip.tsx) or the right button's Background
+ * menu (canvasChrome.tsx), and written by the dev server (server/sp.ts), which hands the edited
+ * layout back to every open page.
  */
-const KEY = "sp-canvas-ground:";
-const CHANGE = "sp-canvas-ground";
 
-/** The theme's own ground (index.css), which a canvas has until it is given another. */
+/** The theme's own ground (index.css), which a canvas has until its layout names another. */
 export const DEFAULT_GROUND = "#2b2b2b";
-
-/** Start here is the app's front door, and its covers read best on pure black. */
-const PAGE_DEFAULTS: Record<string, string> = { [WELCOME_PAGE_SLUG]: "#000000" };
 
 /** The right button's presets. */
 export const GROUNDS = [
@@ -24,26 +22,55 @@ export const GROUNDS = [
   ["White", "#ffffff"],
 ] as const;
 
+/** Picks not yet back from the server as a layout, which then speaks for them. */
+const picked = new Map<string, string>();
+const PICKED = "sp:ground-picked";
+window.addEventListener(LAYOUT_CHANGED, () => picked.clear());
+
 /** A tldraw page's ground, by its slug (canvasTabs.ts `pageOf`). */
 export function groundOf(page: string) {
-  return localStorage.getItem(KEY + page) ?? PAGE_DEFAULTS[page] ?? DEFAULT_GROUND;
+  return picked.get(page) ?? readCanvasLayout(page)?.ground ?? DEFAULT_GROUND;
 }
 
+/** Whether this page's ground can be changed: only a served canvas of the project's own. */
+export const groundEditable = (page: string) => canvasIndex().served && !isExample(page);
+
+let pending: ReturnType<typeof setTimeout> | undefined;
+
+/**
+ * Painted at once, written a moment later: the swatch's picker fires on every step of a drag,
+ * and only where it comes to rest belongs in the file.
+ */
 export function setGround(editor: Editor, page: string, color: string) {
-  localStorage.setItem(KEY + page, color);
+  picked.set(page, color);
   paintGround(editor.getContainer(), color);
-  window.dispatchEvent(new Event(CHANGE));
+  window.dispatchEvent(new Event(PICKED));
+  clearTimeout(pending);
+  pending = setTimeout(() => {
+    void fetch(`${import.meta.env.BASE_URL}__sp/canvas-ground`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ slug: page, ground: color === DEFAULT_GROUND ? null : color }),
+    });
+  }, 300);
 }
 
-/** The ground of the page in front, painted on the editor as the page changes. */
+/** The ground of the page in front, painted on the editor as the page or its layout changes. */
 export function useGround(editor: Editor | null, page: string | undefined) {
   const [ground, set] = useState(DEFAULT_GROUND);
   useEffect(() => {
-    const read = () => set(page ? groundOf(page) : DEFAULT_GROUND);
+    const read = () => {
+      const color = page ? groundOf(page) : DEFAULT_GROUND;
+      set(color);
+      if (editor) paintGround(editor.getContainer(), color);
+    };
     read();
-    if (editor) paintGround(editor.getContainer(), page ? groundOf(page) : DEFAULT_GROUND);
-    window.addEventListener(CHANGE, read);
-    return () => window.removeEventListener(CHANGE, read);
+    window.addEventListener(LAYOUT_CHANGED, read);
+    window.addEventListener(PICKED, read);
+    return () => {
+      window.removeEventListener(LAYOUT_CHANGED, read);
+      window.removeEventListener(PICKED, read);
+    };
   }, [editor, page]);
   return ground;
 }

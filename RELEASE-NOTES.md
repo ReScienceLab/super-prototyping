@@ -21,6 +21,11 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **A canvas has its own background colour.** Right-click the canvas for
+  Background (dark grey, black, light grey, white or a colour of your own), or
+  use the swatch at the end of the canvas strip. The colour is saved in the
+  canvas's `layout.json`, so it travels with the folder. The default ground is
+  now dark grey, and Start here's is black.
 - **A board added to the chat shows up at once.** Its tile and its number
   appear the moment you press + or paste its link, shimmering while the board
   is drawn, and the picture fills in when it is ready. Send waits for it. A

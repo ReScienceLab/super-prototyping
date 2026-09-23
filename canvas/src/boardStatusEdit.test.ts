@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { canvasSlug, withBoardStatus, withCanvasName } from './boardStatusEdit'
+import { canvasSlug, withBoardStatus, withLayoutKey } from './boardStatusEdit'
+
+const withCanvasName = (source: string, name: string) => withLayoutKey(source, 'name', name)
 
 /** A layout shaped like the ones in the wild: bare names, objects, and a folder default. */
 const LAYOUT = `{
@@ -155,5 +157,28 @@ describe('withCanvasName', () => {
     const after = withCanvasName(LAYOUT, 'Cloned')
     expect(JSON.parse(after)).toEqual({ ...JSON.parse(LAYOUT), name: 'Cloned' })
     expect(without(after, '  "name": "Cloned",')).toBe(LAYOUT)
+  })
+})
+
+describe('withLayoutKey', () => {
+  it('sets, replaces and takes out a ground, leaving the rest of the file as it was', () => {
+    const set = withLayoutKey(LAYOUT, 'ground', '#000000')
+    expect(JSON.parse(set).ground).toBe('#000000')
+    const replaced = withLayoutKey(set, 'ground', '#f2f2f2')
+    expect(replaced).toBe(set.replace('#000000', '#f2f2f2'))
+    expect(withLayoutKey(replaced, 'ground', null)).toBe(LAYOUT)
+  })
+
+  it('takes out a last key and one that shares a line with others', () => {
+    expect(withLayoutKey(`{\n  "rows": [],\n  "ground": "#fff"\n}\n`, 'ground', null)).toBe(
+      `{\n  "rows": []\n}\n`,
+    )
+    expect(withLayoutKey(`{ "ground": "#fff", "rows": [] }`, 'ground', null)).toBe(
+      `{ "rows": [] }`,
+    )
+  })
+
+  it('leaves a layout without the key alone when taking it out', () => {
+    expect(withLayoutKey(PLAIN, 'ground', null)).toBe(PLAIN)
   })
 })

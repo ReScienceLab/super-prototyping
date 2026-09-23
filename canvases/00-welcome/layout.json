@@ -1,5 +1,6 @@
 {
   "name": "Start here",
+  "ground": "#000000",
   "rows": [
     {
       "title": "super-prototyping",

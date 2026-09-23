@@ -81,6 +81,10 @@ out top to bottom:
   crops to the mockup rather than framing it in artboard margin. Declare one
   for a phone drawn somewhere else, or a cover that is not a phone at all:
   `[0, 0, 478, 980]`.
+- `ground` is the colour the canvas's boards sit on, a `"#rrggbb"`. Without
+  it the canvas is dark grey (`#2b2b2b`). The canvas's right-click menu and
+  the swatch at the end of its strip write it, so there is no reason to edit
+  it by hand. On a light ground the row titles and captions turn dark.
 
 A project's own cover, when someone chose one on the canvas, is in
 `project.json` at the project's root, beside `canvases/`, and nowhere else:

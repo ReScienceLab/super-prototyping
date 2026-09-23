@@ -3,7 +3,7 @@ import { CanvasChromeContext } from "./canvasChrome";
 import { shortName } from "./canvasLibrary";
 import { ownCanvases, pageOf, tabFor } from "./canvasTabs";
 import { canvasIndex } from "./canvasIndex";
-import { setGround, useGround } from "./canvasGround";
+import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { sheetPageUrl } from "./canvasUrl";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
@@ -69,7 +69,7 @@ export function CanvasStrip() {
           <Plus />
         </button>
       )}
-      {page && (
+      {page && groundEditable(page) && (
         <label
           className="sp-canvas-tabs-ground"
           title="Canvas background"

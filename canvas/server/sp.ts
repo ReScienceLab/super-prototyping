@@ -25,7 +25,7 @@ import {
   SAFE_NAME,
   canvasSlug,
   withBoardStatus,
-  withCanvasName,
+  withLayoutKey,
 } from "../src/boardStatusEdit.ts";
 import {
   boardChangeKind,
@@ -424,6 +424,38 @@ export function createSpServer(options: {
     });
   });
 
+  // The canvas's ground, from its Background menu and swatch, into its layout.json. Null takes
+  // the key out, which is the theme's own ground.
+  route("/__sp/canvas-ground", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      try {
+        const { slug, ground } = JSON.parse(body || "{}");
+        if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
+        if (ground !== null && !/^#[0-9a-f]{6}$/i.test(ground ?? "")) {
+          return send(400, "bad colour");
+        }
+        if (isExample(slug)) return send(403, READ_ONLY);
+        const layoutPath = path.join(canvasesDir, slug, "layout.json");
+        const before = fs.readFileSync(layoutPath, "utf8");
+        const after = withLayoutKey(before, "ground", ground);
+        if (after !== before) {
+          fs.writeFileSync(layoutPath, after);
+          broadcast("layout", { slug, layout: JSON.parse(after) });
+        }
+        send(200, "ok");
+      } catch (error) {
+        send(500, String(error));
+      }
+    });
+  });
+
   // The boards are watched at the bottom of this hook. Create the folder first: watching a
   // path that does not exist registers nothing, and a brand new project is exactly the case
   // where the first board folder appears while the server is already up.
@@ -570,7 +602,7 @@ export function createSpServer(options: {
           // fresh one that does nothing but carry the name.
           before === null
             ? JSON.stringify({ name }, null, 2) + "\n"
-            : withCanvasName(before, name),
+            : withLayoutKey(before, "name", name),
         );
         // No reload broadcast: the page that asked is about to navigate to the clone, and a
         // reload racing that navigation would land it back on the canvas it copied.

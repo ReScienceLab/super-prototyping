@@ -29,7 +29,7 @@ import {
   CanvasSelectionAttachButton,
 } from "./canvasAttach";
 import { CommentUserDialog } from "./CommentUserDialog";
-import { GROUNDS, groundOf, setGround } from "./canvasGround";
+import { GROUNDS, groundEditable, groundOf, setGround } from "./canvasGround";
 import {
   linkedBoard,
   readCommentUser,
@@ -324,7 +324,7 @@ export const canvasChromeComponents: TLComponents = {
             onSelect={chrome.relayoutLibrary}
           />
         </TldrawUiMenuGroup>
-        {page && (
+        {page && groundEditable(page) && (
           <TldrawUiMenuGroup id="ground">
             <TldrawUiMenuSubmenu id="ground" label="Background">
               {GROUNDS.map(([label, color]) => (
