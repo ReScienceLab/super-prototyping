@@ -24,7 +24,9 @@ import {
   type TLPageId,
   type TLAsset,
   type TLAssetStore,
+  type TLCreateShapePartial,
   type TLImageShape,
+  type TLShapePartial,
   type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
@@ -72,7 +74,6 @@ import {
   CANVAS_LINK_BUTTON_SIZE,
   CANVAS_LINK_CARD_SIZE,
   CANVAS_LINK_SHAPE_TYPE,
-  type CanvasLinkShape,
   CanvasLinkShapeUtil,
   installLockedLinkClicks,
 } from "./CanvasLinkShapeUtil";
@@ -100,6 +101,7 @@ import {
   canvasChromeComponents,
   canvasUiOverrides,
   canvasCommentTools,
+  markFresh,
 } from "./canvasChrome";
 
 /**
@@ -328,9 +330,32 @@ function EmptyLibraryNotice() {
   );
 }
 
+/**
+ * Puts library shapes where the layout says they go: creates the ones not on the canvas yet,
+ * moves and refreshes the rest, and records every id in `placed`, so that the pass can sweep up
+ * whatever it did not place (a board renamed or removed, a status tab taken away).
+ *
+ * The update is what keeps a new board from landing on top of an old one. A board inserted
+ * mid-row takes the x of the board after it, and only moving that board makes room. It works on
+ * locked shapes only because initializeCanvasLibrary runs the pass with `ignoreShapeLock`;
+ * outside it, tldraw's `updateShapes` drops a locked shape's partial without a word.
+ */
+function placeShapes(
+  editor: Editor,
+  placed: Set<TLShapeId>,
+  shapes: (TLCreateShapePartial & { id: TLShapeId })[],
+) {
+  for (const shape of shapes) placed.add(shape.id);
+  const missing = shapes.filter((shape) => !editor.getShape(shape.id));
+  if (missing.length) editor.createShapes(missing);
+  const present = shapes.filter((shape) => !missing.includes(shape));
+  if (present.length) editor.updateShapes(present as TLShapePartial[]);
+}
+
 /** Creates the text shape if it isn't there yet, otherwise only refreshes its copy. */
 function createAnnotation(
   editor: Editor,
+  placed: Set<TLShapeId>,
   annotation: {
     id: string;
     text: string;
@@ -345,6 +370,7 @@ function createAnnotation(
 ) {
   const id = createShapeId(annotation.id);
   if (!annotation.text) return;
+  placed.add(id);
 
   const existing = editor.getShape<TLTextShape>(id);
   if (existing?.type === "text") {
@@ -396,9 +422,8 @@ function columnX(index: number) {
 
 /**
  * Lays out one row of canvas-file shapes left-to-right starting at `rowTop`, with a heading
- * above it and a per-shape caption below it. Idempotent: only shapes that aren't on the canvas
- * yet get created, so a reload never moves work the user has repositioned by hand. Returns the
- * y to start the next row at.
+ * above it and a per-shape caption below it. Idempotent: a board already on the canvas is moved
+ * to where the row now puts it rather than created again. Returns the y to start the next row at.
  *
  * Every row starts at x = 0 and uses the same column pitch, so item N of one row always sits
  * directly above item N of the next. That alignment lets you read a reference row
@@ -406,6 +431,7 @@ function columnX(index: number) {
  */
 function layoutRow(
   editor: Editor,
+  placed: Set<TLShapeId>,
   page: { id: TLPageId },
   rowFiles: CanvasLibraryFile[],
   rowTop: number,
@@ -428,53 +454,44 @@ function layoutRow(
     ? CANVAS_STATUS_BANNER_HEIGHT + CANVAS_STATUS_BANNER_GAP
     : 0;
   const contentY = (bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT) + statusH;
-  const missing = rowFiles.filter(
-    (file) => !editor.getShape(fileShapeId(file)),
+  placeShapes(
+    editor,
+    placed,
+    rowFiles.map((file, index) => ({
+      id: fileShapeId(file),
+      type: CANVAS_FILE_SHAPE_TYPE,
+      parentId: page.id,
+      x: rowX(index),
+      y: contentY,
+      isLocked: true,
+      props: {
+        ...size,
+        name: file.title,
+        path: file.path,
+      },
+    })),
   );
-  if (missing.length) {
-    editor.createShapes(
-      missing.map((file) => ({
-        id: fileShapeId(file),
-        type: CANVAS_FILE_SHAPE_TYPE,
-        parentId: page.id,
-        x: rowX(rowFiles.indexOf(file)),
-        y: contentY,
-        isLocked: true,
-        props: {
-          ...size,
-          name: file.title,
-          path: file.path,
-        },
-      })),
-    );
-  }
 
-  // Idempotent like the boards above: only tabs not on the canvas yet are created, so a
-  // reload never moves one. A status changed in layout.json lands on the next force refresh.
-  const missingBanners = rowFiles.filter(
-    (file, index) =>
-      rowStatuses[index] && !editor.getShape(statusBannerShapeId(file)),
-  );
-  if (missingBanners.length) {
-    editor.createShapes(
-      missingBanners.map((file) => {
-        const index = rowFiles.indexOf(file);
-        return {
+  // A board whose status was cleared has no tab placed here, and the pass sweeps its old one.
+  placeShapes(
+    editor,
+    placed,
+    rowFiles.flatMap((file, index) => {
+      const status = rowStatuses[index];
+      if (!status) return [];
+      return [
+        {
           id: statusBannerShapeId(file),
           type: CANVAS_STATUS_BANNER_SHAPE_TYPE,
           parentId: page.id,
           x: rowX(index),
           y: contentY - statusH,
           isLocked: true,
-          props: {
-            w: size.w,
-            h: CANVAS_STATUS_BANNER_HEIGHT,
-            status: rowStatuses[index]!,
-          },
-        };
-      }),
-    );
-  }
+          props: { w: size.w, h: CANVAS_STATUS_BANNER_HEIGHT, status },
+        },
+      ];
+    }),
+  );
 
   if (bare) return contentY + size.h + LIBRARY_GAP;
 
@@ -484,30 +501,27 @@ function layoutRow(
   const linksH = links.length
     ? CANVAS_LINK_BUTTON_SIZE.h + LIBRARY_LABEL_GAP
     : 0;
-  const missingLinks = links
-    .map((link, index) => ({ link, index }))
-    .filter(({ link }) => !editor.getShape(linkShapeId(link.url)));
-  if (missingLinks.length) {
-    editor.createShapes(
-      missingLinks.map(({ link, index }) => ({
-        id: linkShapeId(link.url),
-        type: CANVAS_LINK_SHAPE_TYPE,
-        parentId: page.id,
-        x: index * (CANVAS_LINK_BUTTON_SIZE.w + LIBRARY_LABEL_GAP),
-        y: linksY,
-        isLocked: true,
-        props: {
-          ...CANVAS_LINK_BUTTON_SIZE,
-          label: link.label,
-          page: "",
-          path: "",
-          url: link.url,
-        },
-      })),
-    );
-  }
+  placeShapes(
+    editor,
+    placed,
+    links.map((link, index) => ({
+      id: linkShapeId(link.url),
+      type: CANVAS_LINK_SHAPE_TYPE,
+      parentId: page.id,
+      x: index * (CANVAS_LINK_BUTTON_SIZE.w + LIBRARY_LABEL_GAP),
+      y: linksY,
+      isLocked: true,
+      props: {
+        ...CANVAS_LINK_BUTTON_SIZE,
+        label: link.label,
+        page: "",
+        path: "",
+        url: link.url,
+      },
+    })),
+  );
 
-  createAnnotation(editor, {
+  createAnnotation(editor, placed, {
     id: `canvas-row-heading:${page.id}:${heading}`,
     text: heading,
     x: 0,
@@ -518,7 +532,7 @@ function layoutRow(
   });
 
   rowFiles.forEach((file, index) => {
-    createAnnotation(editor, {
+    createAnnotation(editor, placed, {
       id: `canvas-file-label:${file.path}`,
       text: caption(file, index),
       x: rowX(index),
@@ -577,13 +591,14 @@ function imageAssetId(pageSlug: string, file: string): TLAsset["id"] {
  */
 function layoutImageRow(
   editor: Editor,
+  placed: Set<TLShapeId>,
   page: { id: TLPageId },
   pageSlug: string,
   images: CanvasLayoutImage[],
   rowTop: number,
   heading: string,
 ) {
-  const placed = images.flatMap((image) => {
+  const fitted = images.flatMap((image) => {
     const src = canvasImageUrl(pageSlug, image.file);
     // A layout naming a file nobody committed draws nothing, rather than an empty box with a
     // caption under it that reads as a missing asset.
@@ -598,15 +613,15 @@ function layoutImageRow(
       },
     ];
   });
-  if (!placed.length) return rowTop;
+  if (!fitted.length) return rowTop;
 
-  const bandH = Math.max(...placed.map((entry) => entry.h));
+  const bandH = Math.max(...fitted.map((entry) => entry.h));
   const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
 
   // The asset holds the URL and the real pixel size; the shape holds the size it draws at and
   // points at the asset by id. Created first, because a shape whose assetId resolves to nothing
   // renders as a broken placeholder until something fills it in.
-  const assets = placed.map((entry) => ({
+  const assets = fitted.map((entry) => ({
     id: imageAssetId(pageSlug, entry.image.file),
     typeName: "asset" as const,
     type: "image" as const,
@@ -643,37 +658,32 @@ function layoutImageRow(
   // Each picture starts where the last one ended, so a row of mixed proportions has one gap
   // between neighbours rather than a column pitch set by its widest member.
   let x = 0;
-  const xs = placed.map((entry) => {
+  const xs = fitted.map((entry) => {
     const at = x;
     x += entry.w + LIBRARY_GAP;
     return at;
   });
 
-  const missing = placed
-    .map((entry, index) => ({ entry, index }))
-    .filter(
-      ({ entry }) => !editor.getShape(imageShapeId(pageSlug, entry.image.file)),
-    );
-  if (missing.length) {
-    editor.createShapes(
-      missing.map(({ entry, index }) => ({
-        id: imageShapeId(pageSlug, entry.image.file),
-        type: "image",
-        parentId: page.id,
-        x: xs[index],
-        y: contentY + (bandH - entry.h) / 2,
-        isLocked: true,
-        props: {
-          w: entry.w,
-          h: entry.h,
-          assetId: imageAssetId(pageSlug, entry.image.file),
-          altText: entry.image.label,
-        },
-      })),
-    );
-  }
+  placeShapes(
+    editor,
+    placed,
+    fitted.map((entry, index) => ({
+      id: imageShapeId(pageSlug, entry.image.file),
+      type: "image",
+      parentId: page.id,
+      x: xs[index],
+      y: contentY + (bandH - entry.h) / 2,
+      isLocked: true,
+      props: {
+        w: entry.w,
+        h: entry.h,
+        assetId: imageAssetId(pageSlug, entry.image.file),
+        altText: entry.image.label,
+      },
+    })),
+  );
 
-  createAnnotation(editor, {
+  createAnnotation(editor, placed, {
     id: `canvas-row-heading:${page.id}:${heading}`,
     text: heading,
     x: 0,
@@ -684,8 +694,8 @@ function layoutImageRow(
   });
 
   const captionY = contentY + bandH + LIBRARY_LABEL_GAP;
-  placed.forEach((entry, index) => {
-    createAnnotation(editor, {
+  fitted.forEach((entry, index) => {
+    createAnnotation(editor, placed, {
       id: `canvas-file-label:${pageSlug}/${entry.image.file}`,
       text: entry.image.label,
       x: xs[index],
@@ -716,6 +726,7 @@ function linkShapeId(name: string) {
  */
 function layoutWelcomeExtras(
   editor: Editor,
+  placed: Set<TLShapeId>,
   page: { id: TLPageId },
   library: CanvasLibraryFile[][],
   rowTop: number,
@@ -723,19 +734,14 @@ function layoutWelcomeExtras(
   const targets = library.filter(
     (files) => files[0].pageSlug !== WELCOME_PAGE_SLUG,
   );
-
-  // The repo CTA used to be a shape parked in the welcome board's header, and is gone now, so a
-  // canvas saved before that still has to lose its copy.
-  const starId = linkShapeId("star");
-  if (editor.getShape(starId)) deleteLibraryShapes(editor, [starId]);
   if (!targets.length) return;
 
   // Four rows, because twenty-one cards in one row read as a list of twenty-one unrelated
   // things. Two rows of cloned apps split by what the app is for, then Apple's own, then the
   // empty template on its own: it is the one card that is not an app to look at but a folder
   // to copy, and a row of one says that where a seat at the end of the Apple row did not. A
-  // card's id is its slug, so a folder that changes row moves on the next force refresh
-  // rather than turning into a second card.
+  // card's id is its slug, so a folder that changes row moves rather than turning into a
+  // second card.
   //
   // Both orders are by hand rather than alphabetical, which wedged Duolingo between Claude and
   // Grok. A slug named in neither list still shows, at the end of the first row, so a new
@@ -786,16 +792,10 @@ function layoutWelcomeExtras(
     { title: "The empty folder to copy to start your own", targets: inRow(3) },
   ];
 
-  // Headings are keyed by row, not by their own text: keyed by text, renaming one left the old
-  // shape sitting on the canvas next to the new one. Anything else here is such a straggler.
+  // Headings are keyed by row, not by their own text, so renaming one updates it in place.
   const headings = groups.map(
     (_, index) => `canvas-row-heading:${page.id}:${index}`,
   );
-  const kept = new Set(headings.map((id) => createShapeId(id)));
-  const orphans = [...editor.getPageShapeIds(page.id)].filter(
-    (id) => id.startsWith("shape:canvas-row-heading:") && !kept.has(id),
-  );
-  deleteLibraryShapes(editor, orphans);
 
   const cardX = (index: number) =>
     index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
@@ -804,53 +804,34 @@ function layoutWelcomeExtras(
   for (const [index, group] of groups.entries()) {
     if (!group.targets.length) continue;
     const contentY = top + LIBRARY_HEADING_HEIGHT;
-    const cards = group.targets.map((files, index) => {
-      const cover = coverFile(files);
-      return {
-        id: linkShapeId(files[0].pageSlug),
-        type: CANVAS_LINK_SHAPE_TYPE,
-        parentId: page.id,
-        x: cardX(index),
-        y: contentY,
-        isLocked: true,
-        props: {
-          ...CANVAS_LINK_CARD_SIZE,
-          label: files[0].pageName,
-          page: files[0].pageSlug,
-          path: cover.path,
-          url: "",
-        },
-      };
-    });
-    const missing = cards.filter((card) => !editor.getShape(card.id));
-    if (missing.length) editor.createShapes(missing);
-
     // A card that is already there is laid out again anyway, position included: the row it
     // belongs to, the label, the cover its layout.json names and the card size this build
     // draws are all computed here, and a stale one of those would show on the card and
     // nowhere else. The caption under it moves with it, so the two cannot disagree.
-    for (const card of cards) {
-      const shape = editor.getShape<CanvasLinkShape>(card.id);
-      const stale =
-        shape &&
-        (shape.x !== card.x ||
-          shape.y !== card.y ||
-          (["label", "path", "w", "h"] as const).some(
-            (key) => shape.props[key] !== card.props[key],
-          ));
-      if (stale) {
-        editor.updateShape({
-          id: card.id,
-          type: card.type,
-          x: card.x,
-          y: card.y,
+    placeShapes(
+      editor,
+      placed,
+      group.targets.map((files, index) => {
+        const cover = coverFile(files);
+        return {
+          id: linkShapeId(files[0].pageSlug),
+          type: CANVAS_LINK_SHAPE_TYPE,
+          parentId: page.id,
+          x: cardX(index),
+          y: contentY,
           isLocked: true,
-          props: { ...card.props },
-        });
-      }
-    }
+          props: {
+            ...CANVAS_LINK_CARD_SIZE,
+            label: files[0].pageName,
+            page: files[0].pageSlug,
+            path: cover.path,
+            url: "",
+          },
+        };
+      }),
+    );
 
-    createAnnotation(editor, {
+    createAnnotation(editor, placed, {
       id: headings[index],
       text: group.title,
       x: 0,
@@ -870,7 +851,7 @@ function layoutWelcomeExtras(
     // The card is the device alone, so the caption under it carries the name as well as the
     // count; it is the only place either of them is written on this page.
     group.targets.forEach((files, index) => {
-      createAnnotation(editor, {
+      createAnnotation(editor, placed, {
         id: `canvas-file-label:${files[0].pageSlug}`,
         text: `${files[0].pageName}\n${files.length} board${
           files.length === 1 ? "" : "s"
@@ -903,83 +884,102 @@ function layoutWelcomeExtras(
  * A page is tied to its folder by the slug stamped in page.meta, not by its name, so renaming a
  * folder's layout.json `name` renames the page someone already has open (annotations and all)
  * instead of building a second one beside it.
+ *
+ * Every pass reconciles: what the layout places is created or moved into place, and any library
+ * shape it did not place is deleted, so the canvas always matches the folder, a board added
+ * mid-row or renamed included. One transaction, so the reader never sees a frame in between,
+ * kept out of the undo stack, so Cmd-Z after an agent run undoes the reader's own last edit.
+ *
+ * The boards it had to create glow for a few seconds (the ShapeWrapper in canvasChrome.tsx),
+ * unless there were no library shapes at all before it: that is a first load, or the force
+ * refresh, and everything on the canvas being new is not news.
  */
 function initializeCanvasLibrary(editor: Editor) {
   const library = readCanvasLibrary();
   if (!library.length) return;
 
-  const libraryPages = new Set<TLPageId>();
+  const before = new Set(
+    editor
+      .getPages()
+      .flatMap((page) => [...editor.getPageShapeIds(page.id)])
+      .filter(isLibraryShapeId),
+  );
+  const placed = new Set<TLShapeId>();
+  editor.run(
+    () => {
+      const libraryPages = new Set<TLPageId>();
 
-  for (const files of library) {
-    const { pageSlug, pageName } = files[0];
-    const bySlug = () =>
-      editor.getPages().find((c) => c.meta.canvasSlug === pageSlug);
-    let page =
-      bySlug() ??
-      editor.getPages().find((c) => c.name === pageName && !c.meta.canvasSlug);
-    if (!page) {
-      editor.createPage({ name: pageName, meta: { canvasSlug: pageSlug } });
-      page = bySlug();
-    }
-    if (!page) continue;
-    if (page.meta.canvasSlug !== pageSlug) {
-      editor.updatePage({
-        id: page.id,
-        meta: { ...page.meta, canvasSlug: pageSlug },
-      });
-    }
-    if (page.name !== pageName) editor.renamePage(page.id, pageName);
-    libraryPages.add(page.id);
+      for (const files of library) {
+        const { pageSlug, pageName } = files[0];
+        const bySlug = () =>
+          editor.getPages().find((c) => c.meta.canvasSlug === pageSlug);
+        let page =
+          bySlug() ??
+          editor
+            .getPages()
+            .find((c) => c.name === pageName && !c.meta.canvasSlug);
+        if (!page) {
+          editor.createPage({ name: pageName, meta: { canvasSlug: pageSlug } });
+          page = bySlug();
+        }
+        if (!page) continue;
+        if (page.meta.canvasSlug !== pageSlug) {
+          editor.updatePage({
+            id: page.id,
+            meta: { ...page.meta, canvasSlug: pageSlug },
+          });
+        }
+        if (page.name !== pageName) editor.renamePage(page.id, pageName);
+        libraryPages.add(page.id);
 
-    const placed = new Set<string>();
-    let rowTop = 0;
+        /** Board files a row has taken, so the fallback grid below gets only the rest. */
+        const inRows = new Set<string>();
+        let rowTop = 0;
 
-    for (const row of readCanvasLayout(files[0].pageSlug)?.rows ?? []) {
-      if (row.images?.length) {
-        rowTop = layoutImageRow(
+        for (const row of readCanvasLayout(files[0].pageSlug)?.rows ?? []) {
+          if (row.images?.length) {
+            rowTop = layoutImageRow(
+              editor,
+              placed,
+              page,
+              pageSlug,
+              row.images,
+              rowTop,
+              row.title,
+            );
+            continue;
+          }
+          const rowFiles: { file: CanvasLibraryFile; label?: string }[] = [];
+          for (const entry of row.files ?? []) {
+            const fileName = typeof entry === "string" ? entry : entry.file;
+            const label = typeof entry === "string" ? undefined : entry.label;
+            const file = files.find(
+              (c) => c.fileName === fileName && !inRows.has(c.path),
+            );
+            if (file) rowFiles.push({ file, label });
+          }
+          if (!rowFiles.length) continue;
+          rowFiles.forEach(({ file }) => inRows.add(file.path));
+          rowTop = layoutRow(
+            editor,
+            placed,
+            page,
+            rowFiles.map((entry) => entry.file),
+            rowTop,
+            row.title,
+            (file, index) => {
+              const caption = rowFiles[index].label ?? file.title;
+              return row.numbered ? `${index + 1} · ${caption}` : caption;
+            },
+            row.links,
+          );
+        }
+
+        const leftover = files.filter((file) => !inRows.has(file.path));
+        placeShapes(
           editor,
-          page,
-          pageSlug,
-          row.images,
-          rowTop,
-          row.title,
-        );
-        continue;
-      }
-      const rowFiles: { file: CanvasLibraryFile; label?: string }[] = [];
-      for (const entry of row.files ?? []) {
-        const fileName = typeof entry === "string" ? entry : entry.file;
-        const label = typeof entry === "string" ? undefined : entry.label;
-        const file = files.find(
-          (c) => c.fileName === fileName && !placed.has(c.path),
-        );
-        if (file) rowFiles.push({ file, label });
-      }
-      if (!rowFiles.length) continue;
-      rowFiles.forEach(({ file }) => placed.add(file.path));
-      rowTop = layoutRow(
-        editor,
-        page,
-        rowFiles.map((entry) => entry.file),
-        rowTop,
-        row.title,
-        (file, index) => {
-          const caption = rowFiles[index].label ?? file.title;
-          return row.numbered ? `${index + 1} · ${caption}` : caption;
-        },
-        row.links,
-      );
-    }
-
-    const leftover = files.filter((file) => !placed.has(file.path));
-    const missingLeftover = leftover.filter(
-      (file) => !editor.getShape(fileShapeId(file)),
-    );
-    if (missingLeftover.length) {
-      editor.createShapes(
-        missingLeftover.map((file) => {
-          const index = leftover.indexOf(file);
-          return {
+          placed,
+          leftover.map((file, index) => ({
             id: fileShapeId(file),
             type: CANVAS_FILE_SHAPE_TYPE,
             parentId: page.id,
@@ -994,20 +994,46 @@ function initializeCanvasLibrary(editor: Editor) {
               name: file.title,
               path: file.path,
             },
-          };
-        }),
-      );
-    }
+          })),
+        );
 
-    if (files[0].pageSlug === WELCOME_PAGE_SLUG) {
-      layoutWelcomeExtras(editor, page, library, rowTop);
-    }
+        if (files[0].pageSlug === WELCOME_PAGE_SLUG) {
+          layoutWelcomeExtras(editor, placed, page, library, rowTop);
+        }
+      }
+
+      // What the pass did not place is what the folder no longer has: a board renamed or removed,
+      // a status cleared, a heading retitled. Left, it would sit under or over what replaced it.
+      for (const pageId of libraryPages) {
+        editor.deleteShapes(
+          [...editor.getPageShapeIds(pageId)].filter(
+            (id) => isLibraryShapeId(id) && !placed.has(id),
+          ),
+        );
+      }
+      lockLibraryShapes(editor);
+      pruneEmptyOrphanPages(editor, libraryPages);
+      orderPagesByLibrary(editor, libraryPages);
+    },
+    { history: "ignore", ignoreShapeLock: true },
+  );
+  if (before.size) {
+    markFresh(
+      [...placed].filter(
+        (id) =>
+          !before.has(id) &&
+          FRESH_SHAPE_PREFIXES.some((prefix) => id.startsWith(prefix)),
+      ),
+    );
   }
-
-  lockLibraryShapes(editor);
-  pruneEmptyOrphanPages(editor, libraryPages);
-  orderPagesByLibrary(editor, libraryPages);
 }
+
+/** What counts as new content when it arrives: a board, a picture, a card. Not its caption. */
+const FRESH_SHAPE_PREFIXES = [
+  "shape:canvas-file:",
+  "shape:canvas-image:",
+  "shape:canvas-link:",
+];
 
 /**
  * Locks every library shape that is not locked yet. New ones are created locked; this is for
@@ -1092,22 +1118,24 @@ function drawnOn(editor: Editor, pageId: TLPageId) {
 }
 
 /**
- * Deletes every shape the library placed (row shapes, headings, captions, and the fallback
- * grid) on every page, then rebuilds them from the current file list and layout.json.
- *
- * Creation is idempotent. It fills in what's missing but never moves a shape that's already
- * there, so editing layout.json (inserting a file at the front of a row, say) leaves the old
- * shapes at their old positions while the new ones land on top of them. This is the force
- * refresh that clears that drift. Hand-drawn shapes and notes are untouched.
+ * The force refresh: deletes every shape the library placed on every page, then builds them all
+ * again from the current file list and layout.json. Every load and every layout change already
+ * reconciles, so this is only the way out for a persisted document that has drifted in some way
+ * the reconcile does not model. Hand-drawn shapes and notes are untouched.
  */
 function relayoutCanvasLibrary(editor: Editor) {
-  for (const page of editor.getPages()) {
-    deleteLibraryShapes(
-      editor,
-      [...editor.getPageShapeIds(page.id)].filter(isLibraryShapeId),
-    );
-  }
-  initializeCanvasLibrary(editor);
+  editor.run(
+    () => {
+      for (const page of editor.getPages()) {
+        deleteLibraryShapes(
+          editor,
+          [...editor.getPageShapeIds(page.id)].filter(isLibraryShapeId),
+        );
+      }
+      initializeCanvasLibrary(editor);
+    },
+    { history: "ignore" },
+  );
 }
 
 /**
@@ -1314,12 +1342,11 @@ export default function App() {
   const inspectorFrame = useRef<HTMLIFrameElement | null>(null);
 
   // A layout.json edit moves boards: a row reserves the height of a status tab for all of its
-  // boards, so a status appearing or disappearing reflows the row. Creation is idempotent and
-  // never moves a shape that is already there, so only the force refresh catches up. This is
-  // what the status control used to get from a full page reload.
+  // boards, so a status appearing or disappearing reflows the row. The pass reconciles, so the
+  // boards that stay keep their shapes and only what moved is touched.
   useEffect(() => {
     if (!editor) return;
-    const relayout = () => relayoutCanvasLibrary(editor);
+    const relayout = () => initializeCanvasLibrary(editor);
     window.addEventListener(LAYOUT_CHANGED, relayout);
     return () => window.removeEventListener(LAYOUT_CHANGED, relayout);
   }, [editor]);
@@ -1486,8 +1513,17 @@ export default function App() {
       },
     );
     writeUrl.current = sync.write;
-    // The address names one of them, or the whole page is the view.
-    if (!sync.apply()) requestAnimationFrame(() => editor.zoomToFit());
+    // The address names one of them, or the whole page is the view. Not on a reload, which is
+    // mostly the server's answer to a board the agent just wrote: tldraw has already put back
+    // this tab's camera, and fitting the page would throw away where the reader was looking.
+    const reloaded =
+      (
+        performance.getEntriesByType("navigation")[0] as
+          | PerformanceNavigationTiming
+          | undefined
+      )?.type === "reload";
+    if (!sync.apply() && !reloaded)
+      requestAnimationFrame(() => editor.zoomToFit());
     return () => {
       disposeComments();
       sync.uninstall();

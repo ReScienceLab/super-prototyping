@@ -1,13 +1,23 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import {
+  atom,
   ConversionsMenuGroup,
   DefaultContextMenu,
+  DefaultShapeWrapper,
   SelectAllMenuItem,
   TldrawUiButton,
   TldrawUiButtonIcon,
   type Editor,
   type TLComponents,
+  type TLShapeId,
+  type TLShapeWrapperProps,
   type TLUiOverrides,
   TldrawUiMenuGroup,
   TldrawUiMenuItem,
@@ -194,7 +204,44 @@ function selectionLinks(editor: Editor) {
   });
 }
 
+/** Shapes the last layout pass created, glowing until their five seconds are up. */
+const freshShapes = atom<ReadonlySet<TLShapeId>>("fresh shapes", new Set());
+
+/** Rings `ids` in blue for five seconds, so the reader sees what the agent just added. */
+export function markFresh(ids: TLShapeId[]) {
+  if (!ids.length) return;
+  freshShapes.update((fresh) => new Set([...fresh, ...ids]));
+  setTimeout(
+    () =>
+      freshShapes.update(
+        (fresh) => new Set([...fresh].filter((id) => !ids.includes(id))),
+      ),
+    5000,
+  );
+}
+
 export const canvasChromeComponents: TLComponents = {
+  /**
+   * tldraw's own element around each shape, with a class while the shape is fresh. The ring
+   * and its fade are CSS (`.sp-fresh` in index.css), so nothing runs per frame. The same
+   * wrapper draws the shape's background layer, which is left alone.
+   */
+  ShapeWrapper: forwardRef<HTMLDivElement, TLShapeWrapperProps>(
+    function ShapeWrapper(props, ref) {
+      const fresh = useValue(
+        "fresh shape",
+        () => !props.isBackground && freshShapes.get().has(props.shape.id),
+        [props.isBackground, props.shape.id],
+      );
+      return (
+        <DefaultShapeWrapper
+          ref={ref}
+          {...props}
+          className={fresh ? `${props.className ?? ""} sp-fresh` : props.className}
+        />
+      );
+    },
+  ),
   /**
    * tldraw's whole top-left bar is gone, and CanvasTabBar.tsx is drawn where it was. `MenuPanel`
    * is the strip itself: the main menu, the page menu, and the quick actions and actions menu
