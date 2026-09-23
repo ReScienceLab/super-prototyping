@@ -199,9 +199,7 @@ export function AppShell() {
       new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, {
         detail: {
           kind: "send",
-          text:
-            "Use the define-product skill: help me work out what this product is, and write " +
-            "PRD.md as we go.",
+          text: "/define-product Help me work out what this product is, and write PRD.md as we go.",
         },
       }),
     );
@@ -288,10 +286,7 @@ export function AppShell() {
           <label className="home-dialog-check">
             <input type="checkbox" name="define" defaultChecked />
             <span>
-              Define the product with the agent
-              <small>
-                Runs the <code>define-product</code> skill in the agent panel
-              </small>
+              Define the product with the agent <code>/define-product</code>
             </span>
           </label>
           {said && <p>{said}</p>}

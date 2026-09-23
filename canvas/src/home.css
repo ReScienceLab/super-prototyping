@@ -235,7 +235,7 @@ button.home-tile i {
 /* New project: a name. */
 /* `margin: auto` is the browser's own centring of a modal, which Tailwind's preflight zeroes. */
 .home-dialog {
-  width: 400px;
+  width: min(440px, calc(100vw - 32px));
   margin: auto;
   padding: 24px;
   border: 0;
@@ -274,25 +274,23 @@ button.home-tile i {
 /* Starts the agent on PRD.md once the project opens (AppShell.tsx). */
 .home-dialog-check {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   margin-top: 12px;
   color: var(--ds-gray-900);
   font-size: 14px;
   cursor: pointer;
 }
-.home-dialog-check small {
-  display: block;
-  margin-top: 2px;
-  color: var(--ds-gray-700);
-  font-size: 13px;
-}
 .home-dialog-check code {
+  padding: 2px 6px;
+  border-radius: 9999px;
+  background: var(--ds-gray-200);
+  color: var(--ds-gray-1000);
   font: 12px var(--font-mono);
-  color: var(--ds-gray-900);
+  white-space: nowrap;
 }
 .home-dialog-check input {
-  margin: 3px 0 0;
+  margin: 0;
   accent-color: var(--ds-gray-1000);
 }
 .home-dialog p {
