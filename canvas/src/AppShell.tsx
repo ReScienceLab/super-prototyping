@@ -271,11 +271,12 @@ export function AppShell() {
           onSubmit={async (event) => {
             event.preventDefault();
             const form = new FormData(event.currentTarget);
-            await create(form.get("name") as string, form.has("define"));
+            await create(form.get("project") as string, form.has("define"));
           }}
         >
           <h2>New project</h2>
-          <input name="name" placeholder="Project name" autoFocus required />
+          {/* Not "name", which browsers fill with the person's own, and no history of past entries. */}
+          <input name="project" placeholder="Project name" autoComplete="off" autoFocus required />
           <label className="home-dialog-check">
             <input type="checkbox" name="define" defaultChecked />
             <span>
