@@ -106,6 +106,7 @@ export interface SpGroup {
 export interface SpReady {
   type: "sp:ready";
   nodes: SpNode[];
+  /** The root, where the nodes' boxes are measured from, in the board's own px. */
   size: SpBox;
   assets: SpAsset[];
   tokens: SpToken[];
@@ -401,7 +402,8 @@ function countUses(){if(tokenMs>=0)return;var t0=performance.now();
   tokenMs=Math.round(performance.now()-t0);}
 
 function send(){measure();countUses();
-  parent.postMessage({type:'sp:ready',nodes:nodes,size:box(root),assets:assets,tokens:T.tokens,groups:T.groups,ms:tokenMs},'*');}
+  var o=root.getBoundingClientRect();
+  parent.postMessage({type:'sp:ready',nodes:nodes,size:{x:+(o.left+scrollX).toFixed(2),y:+(o.top+scrollY).toFixed(2),w:+o.width.toFixed(2),h:+o.height.toFixed(2)},assets:assets,tokens:T.tokens,groups:T.groups,ms:tokenMs},'*');}
 var queued=false;
 function schedule(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;send();});}
 /* Three chances, because each one alone has a hole: 'load' waits for the images, the frame after
