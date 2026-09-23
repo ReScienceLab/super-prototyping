@@ -19,6 +19,11 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.6.0
+
+2026-09-23. The app is the only install. It opens on a home page with a tab
+per project, keeps one agent conversation across them, and updates itself.
+
 - **The app is the only install.** There is no plugin to add any more. On
   macOS and Windows every launch puts `sp`, `refkit` and `artgen` on your PATH
   and links the skills into Claude Code, Codex, Hermes and Factory, so updating
@@ -38,6 +43,16 @@ Everything below is on `main` and reaches no install until a version is cut.
 - **Boards no longer carry a status.** The Exploring, Outdated and Live badge
   is gone from the inspector, and no bar is drawn above a board. A `status`
   left in a `layout.json` is ignored.
+- **Drag a box around boards to add them all to the chat.** A + at the
+  selection's corner adds every board and picture in it at once. The canvas
+  keeps only its select and comment tools, so a stray key no longer drops you
+  into a drawing tool.
+- **The chat stays where you scrolled.** Reading back no longer jumps to the
+  bottom when the agent writes more. A ↓ button takes you to the latest, and
+  sending a message follows it again.
+- **A file the agent links in the chat opens.** Its links to pages it made in
+  the project used to do nothing. They open in a new window now, with the
+  page's own styles and images, and only files inside the project are served.
 - **A past conversation shows its turns again after an update.** Opening one
   from History used to show an empty panel once the app had restarted, which
   every update does. Each turn is now saved as it happens, pictures included,
