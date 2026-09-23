@@ -123,6 +123,47 @@ it("lists the projects", async () => {
   }
 });
 
+// A project's documents are the Markdown files at its root that the server names, for now its
+// PRD.md; other Markdown there and a folder by the name are not. A canvas folder's are its own,
+// which is where an example's come from.
+it("lists a project's documents", async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-docs-"));
+  const projectDir = path.join(tmp, "mine");
+  fs.mkdirSync(path.join(projectDir, "canvases/a"), { recursive: true });
+  fs.writeFileSync(path.join(projectDir, "canvases/a/01-a.html"), "");
+  fs.writeFileSync(path.join(projectDir, "canvases/a/PRD.md"), "# A");
+  fs.mkdirSync(path.join(projectDir, "PRD.md"));
+  fs.writeFileSync(path.join(projectDir, "README.md"), "no");
+  fs.mkdirSync(path.join(tmp, "examples"));
+  const { ask, close } = await serve({
+    canvasesDir: path.join(projectDir, "canvases"),
+    examplesDir: path.join(tmp, "examples"),
+    projects: () => new Map([["mine", projectDir]]),
+    projectDir,
+    repoRoot: tmp,
+  });
+  const index = async () => JSON.parse((await ask("/__sp/index.json")).text);
+  const docs = async () => (await index()).docs;
+  try {
+    expect(await docs()).toEqual([]);
+    expect((await index()).boards[0].docs).toEqual([{ name: "PRD.md", text: "# A" }]);
+    fs.rmdirSync(path.join(projectDir, "PRD.md"));
+    fs.writeFileSync(path.join(projectDir, "PRD.md"), "# Why");
+    expect(await docs()).toEqual([{ name: "PRD.md", text: "# Why" }]);
+    // Its tab writes it back, and only a name the index lists, and not over a rewrite since the
+    // edit began.
+    expect((await ask("/__sp/doc", { name: "PRD.md", text: "# How", base: "# A" })).status).toBe(409);
+    expect((await ask("/__sp/doc", { name: "PRD.md", text: "# How", base: "# Why" })).status).toBe(204);
+    expect(await docs()).toEqual([{ name: "PRD.md", text: "# How" }]);
+    expect((await ask("/__sp/doc", { name: "README.md", text: "x", base: "no" })).status).toBe(400);
+    expect((await ask("/__sp/doc", { name: "../PRD.md", text: "x" })).status).toBe(400);
+    expect(fs.readFileSync(path.join(projectDir, "README.md"), "utf8")).toBe("no");
+  } finally {
+    close();
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
 // A project's cover is its first canvas's first screen, whole, until one is chosen; the choice is a
 // path in project.json, and taking it back deletes the file.
 it("keeps a project's cover", async () => {

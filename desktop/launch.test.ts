@@ -49,12 +49,11 @@ test("waitForPort resolves once a listener appears, rejects on timeout or abort"
   srv.close();
 });
 
-test("parseArgs takes --port, --upgrade and a directory in any order and skips other flags", () => {
-  expect(parseArgs(["/p"])).toEqual({ port: undefined, dir: "/p", upgrade: false });
-  expect(parseArgs(["--port", "5195", "/p"])).toEqual({ port: 5195, dir: "/p", upgrade: false });
-  expect(parseArgs(["/p", "--port", "5195"])).toEqual({ port: 5195, dir: "/p", upgrade: false });
-  expect(parseArgs(["-psn_0_1", "--port"])).toEqual({ port: NaN, dir: undefined, upgrade: false });
-  expect(parseArgs(["--upgrade"])).toEqual({ port: undefined, dir: undefined, upgrade: true });
+test("parseArgs takes --port and --upgrade in any order and skips anything else", () => {
+  expect(parseArgs(["/p"])).toEqual({ port: undefined, upgrade: false });
+  expect(parseArgs(["/p", "--port", "5195"])).toEqual({ port: 5195, upgrade: false });
+  expect(parseArgs(["-psn_0_1", "--port"])).toEqual({ port: NaN, upgrade: false });
+  expect(parseArgs(["--upgrade"])).toEqual({ port: undefined, upgrade: true });
 });
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), "sp-launch-"));

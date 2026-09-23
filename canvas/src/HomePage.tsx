@@ -182,7 +182,6 @@ export function HomePage(props: {
   goTo: (tab: ProjectTab) => void;
   /** The server's, which a hosted build has none of. */
   newProject?: () => void;
-  openFolder?: () => void;
   /** Lists the projects again, after one is deleted or its cover reset. */
   reload: () => void;
 }) {
@@ -201,11 +200,8 @@ export function HomePage(props: {
           )
         : byEdit(projects);
   // The app's examples, which every project's server has, Start here first. Its card opens it
-  // on a tab of its own (canvasTabs.ts), not on the project this window is on. A build has no
-  // projects, and every canvas in it is one of this repo's examples.
-  const examples = canvasIndex().boards.filter(
-    (b) => isExample(b.slug) || !canvasIndex().served,
-  );
+  // on a tab of its own (canvasTabs.ts), not on the project this window is on.
+  const examples = canvasIndex().boards.filter((b) => isExample(b.slug));
   const canvases = projects.flatMap((p) => p.canvases);
   const updated = Math.max(0, ...projects.map((p) => p.updated));
 
@@ -265,29 +261,22 @@ export function HomePage(props: {
           <b>{boardsIn(canvases)}</b> boards · last edited {ago(updated)}
         </p>
       )}
-      {/* With none yet, the bar is still where a folder is opened from, and nothing to sort. */}
-      {(projects.length > 0 || props.openFolder) && (
-        <div className="home-bar">
-          <h2>Projects</h2>
+      <div className="home-bar">
+        <h2>Projects</h2>
+        {/* Nothing to sort before there are two. */}
+        {projects.length > 1 && (
           <div>
-            {props.openFolder && (
-              <button type="button" onClick={props.openFolder}>
-                Open folder…
-              </button>
-            )}
-            {projects.length > 0 && (
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value as Sort)}
-              >
-                <option value="edited">Last edited</option>
-                <option value="name">Alphabetical</option>
-                <option value="boards">Most boards</option>
-              </select>
-            )}
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as Sort)}
+            >
+              <option value="edited">Last edited</option>
+              <option value="name">Alphabetical</option>
+              <option value="boards">Most boards</option>
+            </select>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <div className="home-grid">
         {shown.map((p) => {
           const recent = byEdit(p.canvases);
@@ -300,7 +289,8 @@ export function HomePage(props: {
               key={p.name}
               href={tabUrl(tab)}
               onClick={openInTab(props.goTo, tab)}
-              onContextMenu={showMenu({ href: tabUrl(tab), tab, project: p })}
+              // Its bare address, which opens its first canvas (resolveTab).
+              onContextMenu={showMenu({ href: p.url, tab, project: p })}
               cover={p.cover}
               base={p.url}
               updated={p.updated}

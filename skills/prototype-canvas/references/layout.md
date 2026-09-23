@@ -38,6 +38,11 @@ Drop the app's own icon in the folder as `icon.png` and the welcome card wears
 it, tilted, on the device's bottom-left corner. 256 × 256, transparent outside
 the iOS squircle. A folder with no `icon.png` simply shows none.
 
+A folder shown as an example can carry its own `PRD.md`, written to the
+`define-product` skill's template. Its tab shows it before the canvas. A
+project keeps its PRD at its root instead, beside `canvases/`, and one
+inside a folder of its own is not shown.
+
 ## layout.json
 
 Optional, one per folder. It groups the board's files into labelled rows laid

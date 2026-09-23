@@ -56,15 +56,14 @@ export function augmentedPath(env: NodeJS.ProcessEnv, home: string) {
 }
 
 /**
- * `--port N`, `--upgrade` and one project directory, in any order, from
- * `open -n -a "Super Prototyping" --args ...` (sp open, sp upgrade). Anything else that starts
- * with a dash (Finder's `-psn_…`, a flag this app does not know) is ignored.
+ * `--port N` and `--upgrade`, in any order, from `open -n -a "Super Prototyping" --args ...`
+ * (sp open, sp upgrade). Anything else (Finder's `-psn_…`, a flag this app does not know, a
+ * folder an older `sp open` still names) is ignored.
  */
 export function parseArgs(argv: string[]) {
   const at = argv.indexOf("--port");
   return {
     port: at < 0 ? undefined : Number(argv[at + 1]),
-    dir: argv.find((a, i) => !a.startsWith("-") && (at < 0 || i !== at + 1)),
     upgrade: argv.includes("--upgrade"),
   };
 }

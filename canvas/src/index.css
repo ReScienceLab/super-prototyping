@@ -390,11 +390,136 @@ button {
 /* A brand kit as a tab: the same page brand.html serves, over the canvas instead of in a window
    of its own. It scrolls itself, because it is a web page inside an app that does not scroll.
    `html, body, #root` up top are pinned at 100% with the overflow off. */
-.canvas-brand-tab {
+.canvas-brand-tab,
+.canvas-doc-tab {
   position: absolute;
   inset: 0;
   z-index: 1;
   overflow: auto;
+}
+
+/* A Markdown file of the project's as a tab (App.tsx): the chat panel's markdown, given the
+   palette the panel would have given it and set at a document's measure and size. */
+.canvas-doc-tab {
+  --sp-field: var(--ds-background-200);
+  --sp-line: var(--ds-gray-400);
+  --sp-text-2: var(--ds-gray-700);
+  --sp-accent: var(--ds-blue-700);
+  padding: 40px 16px 80px;
+  background: var(--ds-background-100);
+  color: var(--ds-gray-1000);
+  font: 400 14px/22px var(--sp-sans);
+}
+
+.canvas-doc-tab .sp-chat-md {
+  max-width: 720px;
+  margin: 0 auto;
+  gap: 12px;
+  line-height: 22px;
+}
+
+.canvas-doc-tab .sp-chat-md h1 {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.canvas-doc-tab .sp-chat-md h2 {
+  margin-top: 12px;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.canvas-doc-tab .sp-chat-md h3 {
+  font-size: 15px;
+}
+
+.canvas-doc-tab .sp-chat-md code {
+  font-size: 12px;
+}
+
+.canvas-doc-tab .sp-chat-md table {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* Reading or editing, a document's control at the strip's far end (DocTab.tsx): a switch between
+   the eye and the pen; the current mode's icon is lit. */
+.sp-canvas-tabs-mode {
+  display: flex;
+  align-self: center;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--ds-gray-900);
+  cursor: pointer;
+}
+
+.sp-canvas-tabs-mode:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sp-canvas-tabs-mode[aria-checked="false"] svg:first-child,
+.sp-canvas-tabs-mode[aria-checked="true"] svg:last-child {
+  color: var(--ds-gray-1000);
+}
+
+.sp-canvas-tabs-mode-track {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--ds-gray-400);
+  transition: background 0.15s;
+}
+
+.sp-canvas-tabs-mode-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ds-gray-1000);
+  transition: transform 0.15s;
+}
+
+.sp-canvas-tabs-mode[aria-checked="true"] .sp-canvas-tabs-mode-track {
+  background: var(--ds-blue-700);
+}
+
+.sp-canvas-tabs-mode[aria-checked="true"] .sp-canvas-tabs-mode-track::after {
+  transform: translateX(12px);
+  background: #fff;
+}
+
+.canvas-doc-error {
+  max-width: 720px;
+  margin: 0 auto 12px;
+  color: var(--ds-red-900);
+}
+
+/* The file as it is, in the rendered text's place and type, so switching moves nothing but the
+   markup. */
+.canvas-doc-source {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 720px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  resize: none;
+  field-sizing: content;
+  outline: none;
 }
 
 /* The panels' palette and type, which the agent menu shares from outside the chat panel. */

@@ -25,6 +25,15 @@ export interface IndexBoard {
   comments?: CommentsFile;
   /** One of the examples the desktop app shows beside the project's own, read-only. */
   example?: true;
+  /** The folder's documents, as `CanvasIndex.docs` are the project's: the ones an example's
+   *  tab shows, since an example is a project of one canvas. */
+  docs: IndexDoc[];
+}
+
+/** A Markdown file shown as a tab of its own. */
+export interface IndexDoc {
+  name: string;
+  text: string;
 }
 
 export interface CanvasIndex {
@@ -42,6 +51,11 @@ export interface CanvasIndex {
   boards: IndexBoard[];
   /** The project's name, where one was set; absent from a build. */
   project?: string | null;
+  /**
+   * The Markdown files at the project's root the server shows, for now its PRD.md: one tab
+   * each, before its canvases. Absent from a build and at the server's root, which have no project.
+   */
+  docs?: IndexDoc[];
 }
 
 let index: CanvasIndex | undefined;
@@ -63,6 +77,8 @@ export function canvasIndex(): CanvasIndex {
  * Between them, that is everything a layout.json change can move.
  */
 export const LAYOUT_CHANGED = "sp:layout";
+/** Fired on `window` when the project's documents have been rewritten. */
+export const DOCS_CHANGED = "sp:docs";
 
 /**
  * Fetches the index, and when a server wrote it, listens to that server: `reload` for a board
@@ -85,6 +101,10 @@ export async function loadCanvasIndex(live = true) {
   if (!live || !canvasIndex().served) return;
   const events = new EventSource(`${import.meta.env.BASE_URL}__sp/events`);
   events.addEventListener("reload", () => window.location.reload());
+  events.addEventListener("docs", (event) => {
+    canvasIndex().docs = JSON.parse(event.data);
+    window.dispatchEvent(new Event(DOCS_CHANGED));
+  });
   events.addEventListener("layout", (event) => {
     const { slug, layout } = JSON.parse(event.data);
     const board = canvasIndex().boards.find((b) => b.slug === slug);

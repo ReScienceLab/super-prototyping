@@ -27,7 +27,7 @@ it("serves every project at its own address and makes new ones", async () => {
   // Both projects keep their boards where they used to be, which the server moves to `canvases`.
   write("projects/alpha/mockups/canvases/one/01-a.html", "alpha one");
   write("projects/alpha/mockups/.DS_Store", ""); // Finder's, which is no reason to keep the folder
-  write("elsewhere/mockups/canvases/mine/01-a.html", "mine");
+  write("elsewhere/canvases/mine/01-a.html", "mine");
 
   const projects = createProjectsServer({
     projectsDir: path.join(tmp, "projects"),
@@ -115,14 +115,8 @@ it("serves every project at its own address and makes new ones", async () => {
     fs.rmSync(path.join(tmp, "projects/.workspaces"), { recursive: true });
     expect((await ask("/__sp/agent/run/gone-run/events")).status).toBe(404);
 
-    expect(projects.open(path.join(tmp, "elsewhere"))).toBe("/p/elsewhere/");
-    expect(fs.existsSync(path.join(tmp, "elsewhere/canvases/mine"))).toBe(true);
-    expect(await ask("/?canvas=x")).toMatchObject({
-      status: 302,
-      location: "/p/elsewhere/?canvas=x",
-    });
-    expect((await ask("/p/elsewhere/")).text).toBe("static /");
-    expect((await ask("/p/elsewhere/board/mine/01-a.html")).text).toBe("mine");
+    // A folder outside the projects directory is never a project.
+    expect((await ask("/p/elsewhere/")).status).toBe(404);
     expect((await ask("/p/alpha/board/one/01-a.html")).text).toBe("alpha one");
     expect((await ask("/p/nowhere/")).status).toBe(404);
     // The examples come from the plugin root, beside every project's own.
@@ -131,7 +125,6 @@ it("serves every project at its own address and makes new ones", async () => {
     );
     const listed = JSON.parse((await ask("/__sp/projects.json")).text);
     expect(listed.map((p: any) => [p.name, p.url, p.path])).toEqual([
-      ["elsewhere", "/p/elsewhere/", path.join(tmp, "elsewhere")],
       ["alpha", "/p/alpha/", path.join(tmp, "projects/alpha")],
     ]);
     // A card's menu names a project the server has. Moving one to the Trash and showing one in

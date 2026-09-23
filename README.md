@@ -143,18 +143,19 @@ is in there to copy from too.
 ## Run the canvas
 
 ```bash
-sp open               # this project, in the app
-sp open ~/my-app      # any project, from anywhere
-sp start ~/my-app     # the same canvas in a browser, without the app
+sp open               # the app, on its home page
+sp start              # the same canvas in a browser, without the app
 ```
 
-`sp open` hands the project to the app, starting it if it is not running, and
-prints the address. `sp start` is for where the app cannot run. From a checkout
-without a build, it downloads the canvas built for that version into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
-against the project's `canvases` with node or bun, opens the browser,
-and prints the address. Every project under `~/Documents/Super Prototyping` is
-served beside it at `/p/<name>/`, the same way the app serves them;
-`PROTOTYPING_PROJECTS_DIR` moves that folder. `--port N` (or
+Every project is a folder under `~/Documents/Super Prototyping`, made from the
+home page's New project, and served at `/p/<name>/`;
+`PROTOTYPING_PROJECTS_DIR` moves that folder. No folder elsewhere is ever
+opened as a project, so a project's Delete cannot trash code you did not make
+there. `sp open` starts the app if it is not running and prints the address.
+`sp start` is for where the app cannot run. From a checkout without a build,
+it downloads the canvas built for that version into
+`~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173 with node or
+bun, opens the browser, and prints the address. `--port N` (or
 `SP_CANVAS_PORT`) moves the port, `sp status` and `sp stop` do what
 they say. `sp paths` lists the two directories it writes, and
 `sp clean` removes them.
@@ -167,7 +168,7 @@ folder added after boot appears on its own.
 
 ## The workflow
 
-Four skills, in `skills/` (which `.claude/skills/` and `.agents/skills/`
+Five skills, in `skills/` (which `.claude/skills/` and `.agents/skills/`
 symlink to, so this checkout loads what an install does):
 
 | Skill | Use it for |
@@ -175,6 +176,7 @@ symlink to, so this checkout loads what an install does):
 | **clone-prototype** | Copying a real app's screens. Grid the reference, sample colours *visually*, name the type face, derive one measured token block, generate the artboards, verify by re-rendering, park the reference underneath. |
 | **new-ui-mock** | Designing new screens with no reference, built on existing tokens, including the empty/loading/error states and side-by-side proposals. |
 | **prototype-canvas** | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
+| **define-product** | Working out what the product is before anything is drawn: an interview, one or two questions at a time, problem before solution, gaps left TBD rather than invented. It writes the project's `PRD.md`, which the canvas shows as the first tab, with the screen inventory new-ui-mock designs from. |
 | **brand-kit** | Collecting a product's own brand and promotional material -- the company's own brand or press kit, store listings, verified social accounts, the newsroom -- and turning it into the image rows of a canvas folder, each asset carrying its source and whether the company published it. |
 
 The rule the whole thing is built around: **every colour and every metric in

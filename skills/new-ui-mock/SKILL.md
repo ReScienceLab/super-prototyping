@@ -69,6 +69,9 @@ in every file) or the screen is wrong.
 
 Readers take the copy, numbers and states in a mockup as product decisions.
 
+- Read the project's `PRD.md` first when it has one (the `define-product`
+  skill writes it). Its users, scope and Screens table, with the states of
+  each screen, are the brief.
 - Take strings from the real source when it exists: localization files,
   existing screens, the spec. Never from imagination.
 - Use real assets over hand-drawn approximations: the actual icon, the actual

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """sp, the Super Prototyping command line.
 
-  open      open a project in the app, the current directory or the one named
+  open      open the app on its home page, starting it if it is not running
   upgrade   have the app check for an update and install it
-  start     serve the canvas for a project without the app, and print its address
+  start     serve the canvas without the app, and print its address
   stop      kill the one `start` ran on that port, and only that one
   status    say whether a canvas is up, and on what
   root      print the tree the canvas and the skills come from (-v: where it looked)
@@ -15,12 +15,13 @@
 The app is the only install. Every launch links sp, refkit and
 artgen onto ~/.local/bin and the skills into each agent's skills directory,
 through ~/.local/share/super-prototyping/current, which points at the app
-(desktop/launch.ts). Your boards stay in your project, in its canvases folder.
+(desktop/launch.ts).
 
-The server serves every project under ~/Documents/Super Prototyping
-(PROTOTYPING_PROJECTS_DIR moves it) at /p/<name>/, with the one `open` or
-`start` names beside them. SUPER_PROTOTYPING_ROOT names the tree to use; the
-commands the app links set it. The port is --port or SP_CANVAS_PORT.
+A project is a folder under ~/Documents/Super Prototyping
+(PROTOTYPING_PROJECTS_DIR moves it), its boards in its canvases folder, served
+at /p/<name>/. No folder anywhere else is ever a project. SUPER_PROTOTYPING_ROOT
+names the tree to use; the commands the app links set it. The port is --port
+or SP_CANVAS_PORT.
 """
 import argparse, glob, io, json, os, re, shlex, shutil, signal, subprocess, sys, tarfile
 import tempfile, time, urllib.error, urllib.request, webbrowser
@@ -42,8 +43,6 @@ CURRENT = Path.home() / ".local/share/super-prototyping/current"
 # Prefix of the line notice() prints when the app has found a newer release. The line
 # carries its own rule for acting on it.
 NOTICE = "[super-prototyping:notice]"
-# A project's boards, under it: the same folder the server reads (canvas/server/boards.ts).
-CANVASES = "canvases"
 
 # Per-port names, because two projects run two canvases. A fixed session name meant
 # starting the second one killed the first, silently and with a zero exit code.
@@ -305,38 +304,11 @@ def _dist(root: Path) -> Path:
 
 def cmd_start(a):
     root = resolve_root()
-    # The project is the directory named, else the one this is run from. The server opens it
-    # beside every project in the projects folder, sends / to it, and runs the chat panel's
-    # agent in it.
-    project = Path(a.project or ".").expanduser().resolve()
-    if not project.is_dir():
-        raise SystemExit(f"error: {project} is not a directory")
-    boards = project / CANVASES
-    # Where the boards used to be. Moved here, as the server moves them for every project it
-    # opens, because `canvases` is made below and the server would then find it already there
-    # and leave the old one where it is.
-    old = project / "mockups" / "canvases"
-    if old.is_dir() and not boards.exists():
-        old.rename(boards)
-        print(f"moved {old} to {boards}")
-        if all(f.name == ".DS_Store" for f in old.parent.iterdir()):
-            shutil.rmtree(old.parent)
-
-    if not boards.is_dir():
-        print(f"note: {boards} does not exist yet — the canvas will open empty.")
-        print("      Start a board with the clone-prototype or new-ui-mock skill.")
-    # Create it here rather than leaving it to the server. The server creates it too (it has
-    # to watch it), but a failure there is a stack trace inside a tmux pane that has already gone.
-    try:
-        boards.mkdir(parents=True, exist_ok=True)
-    except OSError as e:
-        raise SystemExit(f"error: cannot create the boards directory {boards}\n  {e}")
-
     if _port_answers(a.port):
         app = _running_app()
         if app and app["port"] == a.port:
-            raise SystemExit(f"error: port {a.port} is the app's canvas. Open the project in "
-                             f"it instead:\n  sp open {shlex.quote(str(project))}")
+            raise SystemExit(f"error: port {a.port} is the app's canvas. Open it instead:\n"
+                             f"  sp open")
         raise SystemExit(
             f"error: port {a.port} is already answering. It may be another checkout's\n"
             f"canvas, so this will not reuse it. Pass --port with a free one, or run\n"
@@ -359,7 +331,7 @@ def cmd_start(a):
     passed = {"SUPER_PROTOTYPING_ROOT": str(root)}
     env = dict(os.environ, **passed)
     # The server binds 127.0.0.1 itself: this is a design tool, not a service.
-    cmd = [runtime, str(dist / "server.mjs"), "--port", str(a.port), "--open", str(project)]
+    cmd = [runtime, str(dist / "server.mjs"), "--port", str(a.port)]
 
     session = _session(a.port)
     if shutil.which("tmux"):
@@ -409,13 +381,12 @@ def cmd_start(a):
     if sys.stdout.isatty():
         webbrowser.open(url)
     print(f"canvas   {url}")
-    print(f"boards   {boards}")
-    print(f"project  {project}")
+    print(f"projects {_projects_dir()}")
     print(f"app      {dist}")
     print(f"running  {how}")
 
     print(f"\nDeep-link a page with ?canvas=<slug>, one board of it with #<file>, "
-          f"e.g. http://127.0.0.1:{a.port}/?canvas=notion-ios#01-splash")
+          f"e.g. http://127.0.0.1:{a.port}/p/<name>/?canvas=<slug>#01-splash")
 
 
 def _is_our_server(pid, port):
@@ -504,17 +475,21 @@ def cmd_root(a):
               file=sys.stderr)
 
 
+def _projects_dir():
+    """Where every project is, the only place one can be (canvas/server/projects.ts)."""
+    return Path(os.environ.get("PROTOTYPING_PROJECTS_DIR")
+                or Path.home() / "Documents/Super Prototyping")
+
+
 def cmd_paths(a):
     """Every directory this writes and every variable that moves one, so they can be named in
     an uninstall note and removed by `clean`. `uv cache dir`, for two directories. The server
     it starts writes a third, the chat agent's sessions (canvas/server/agent.ts), which `clean`
     leaves alone: they are the user's conversations, not a download."""
     cache, state = _dirs()
-    projects = (os.environ.get("PROTOTYPING_PROJECTS_DIR")
-                or Path.home() / "Documents/Super Prototyping")
     print(f"cache  {cache}")
     print(f"state  {state}")
-    print(f"agent  {Path(projects) / '.workspaces'}")
+    print(f"agent  {_projects_dir() / '.workspaces'}")
     print()
     for var in ("SUPER_PROTOTYPING_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME", "SP_CANVAS_PORT",
                 "PROTOTYPING_PROJECTS_DIR", "SUPER_PROTOTYPING_ROOT"):
@@ -577,7 +552,7 @@ def _running_app():
 
 
 def _app_bundle():
-    """The .app (or .exe) to hand a project or an upgrade to: the one the tree is inside, else
+    """The .app (or .exe) to start, or hand an upgrade to: the one the tree is inside, else
     the one install.sh or install.ps1 put in place."""
     root = resolve_root()
     real = root.resolve()
@@ -603,16 +578,12 @@ def _launch(*args):
 
 
 def cmd_open(a):
-    project = Path(a.project or ".").expanduser().resolve()
-    if not project.is_dir():
-        raise SystemExit(f"error: {project} is not a directory")
-    _launch(str(project))
+    _launch()
     for _ in range(120):
         app = _running_app()
         if app:
             print(f"canvas   http://127.0.0.1:{app['port']}/")
-            print(f"project  {project}")
-            print(f"boards   {project / CANVASES}")
+            print(f"projects {_projects_dir()}")
             return
         time.sleep(0.25)
     raise SystemExit("error: the app did not start in 30s. Open it from Applications to see why.")
@@ -721,9 +692,10 @@ def notice():
 
 AGENT_HELP = """\
 For agents:
-  sp open [dir]   the way to show the user a project's boards. Prints the address.
+  sp open         the way to show the user the canvas. Prints the address and the
+                  projects folder; a project's boards are at /p/<name>/.
   sp upgrade      when a [super-prototyping:notice] line says a release is available.
-  sp start [dir]  only where the app cannot run (CI, Linux, a remote box).
+  sp start        only where the app cannot run (CI, Linux, a remote box).
 Exit status is non-zero on every failure, with the reason on stderr.
 """
 
@@ -747,12 +719,10 @@ def parser():
                              help=f"default SP_CANVAS_PORT, then {DEFAULT_PORT}")
         return sub
 
-    add("open", cmd_open, ports=False).add_argument(
-        "project", nargs="?", help="the project directory (default: the current one)")
+    add("open", cmd_open, ports=False)
     add("upgrade", cmd_upgrade, ports=False)
     add("uninstall", cmd_uninstall, ports=False)
-    add("start", cmd_start).add_argument(
-        "project", nargs="?", help="the project directory (default: the current one)")
+    add("start", cmd_start)
     add("stop", cmd_stop)
     add("status", cmd_status)
     root = add("root", cmd_root, ports=False)

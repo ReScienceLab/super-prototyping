@@ -7,25 +7,30 @@ holds only *data*.
 
 Code, shipped to every install:
 
-`skills/` holds `clone-prototype`, `new-ui-mock`, `prototype-canvas` and
-`brand-kit`.
+`skills/` holds `clone-prototype`, `new-ui-mock`, `prototype-canvas`,
+`define-product` and `brand-kit`.
 `.claude/skills/` and `.agents/skills/` are symlinks to it, so this checkout
 loads the same tree an install does.
 
 `canvas/` is the tldraw viewer, built with Bun and Vite. Its server serves
 every project under `~/Documents/Super Prototyping` (`PROTOTYPING_PROJECTS_DIR`
-moves it) at `/p/<name>/`, plus the one `sp start` or the app opened, with this
-repo's `canvases` as the examples shown beside each project's own. A
+moves it) at `/p/<name>/`, and no folder anywhere else, with this repo's
+`canvases` as the examples shown beside each project's own.
+`docs/2026-09-23-projects-folder-only.md` says why. A
 project's boards are its `canvases`, discovered as `*/*.html` one level
 deep. Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
 `/__sp/index.json` by `canvas/server/sp.ts` and written into `dist` by the
 build — not an `import.meta.glob`, because a glob pattern is a build-time
-literal and could only ever read one hard-coded directory. `sp start`
+literal and could only ever read one hard-coded directory. The same index
+carries a project's documents, for now only the `PRD.md` at its root. Each
+is a tab before the canvases, shown rendered or as editable text (`DOCS` in
+`boards.ts`, `DocTab.tsx`). `sp start`
 runs the built app, `dist/server.mjs`: the release's `canvas-dist.tgz`
 fetched into `~/.cache/super-prototyping/<version>/` for an install, or this
 checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
-`dev` script mounts the same server under Vite, with this checkout open as the
-project, for working on the app.
+`dev` script mounts the same server under Vite, for working on the app. It opens
+on the home page with no project, as the app does: this checkout's canvases are
+the examples there, not a project of their own.
 
 The hosted canvas is that build on Cloudflare Pages, and it lives at
 `prototyping.rescience.com/demo/` now: the root is the download page, whose
@@ -88,6 +93,8 @@ Rules inside a canvas folder:
   output. Edit the generator and re-run, never the HTML.
 - Commit `layout.json`, `icon.png` and `assets/`. `gen.py` inlines the
   images in `assets/` as `data:` URIs.
+- Commit `PRD.md`, the product the folder prototypes, to the `define-product`
+  skill's template. Its Screens table lists the folder's boards.
 - Commit `probes.json` and `crops.json`. They are the measurement evidence
   behind the tokens.
 - Commit `assets.json` where a folder has one (three do). It is a

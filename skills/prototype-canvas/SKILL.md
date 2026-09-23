@@ -13,20 +13,27 @@ A local tldraw app that discovers every `.html` file under
 `canvases/<slug>/` and renders it as a shape. There is no shape map
 to edit and no code change needed to add a board.
 
-The app is installed outside your project and your boards stay in it, so
-upgrading the app never touches a board you wrote. Every launch of the app
+A project is a folder under `~/Documents/Super Prototyping`
+(`PROTOTYPING_PROJECTS_DIR` moves it), and its boards are in that folder's
+`canvases`. No folder anywhere else is ever a project, so deleting one from
+the app can only ever trash what was made there. Working in another
+repository, write the boards to
+`~/Documents/Super Prototyping/<project>/canvases/<slug>/`, not to the repo.
+The app is installed outside every project, so upgrading it never touches a
+board you wrote. Every launch of the app
 puts `sp`, `refkit` and `artgen` on PATH and links these skills into each
 agent's skills directory.
 
 ## Start
 
 ```bash
-sp open            # the current directory; or: sp open <dir>
+sp open
 ```
 
-That opens the project in the Super Prototyping app, starting the app if it
-is not running, and prints the canvas address. It is the way to show the user
-the canvas.
+That opens the Super Prototyping app on its home page, starting it if it is
+not running, and prints the canvas address and the projects folder. It is the
+way to show the user the canvas. A project's boards are at
+`<address>p/<project>/`.
 
 `sp` not found? Run `sh <this skill's dir>/scripts/install.sh` (Windows:
 `powershell -ExecutionPolicy Bypass -File <this skill's dir>/scripts/install.ps1`).
@@ -47,15 +54,13 @@ checkout being worked on serves its own `canvas/dist` instead, rebuilt with
 bun when a source is newer. It refuses a port that already answers rather
 than reusing it, and says so when that port is the app's.
 
-- **Boards** are `canvases` under the project: the directory named on
-  `sp open <dir>` or `sp start <dir>`, else the current one. The address printed goes to that
-  project; every project under `~/Documents/Super Prototyping`
-  (`PROTOTYPING_PROJECTS_DIR`) is served beside it at `/p/<name>/`.
+- **Boards** are `canvases` under a project in the projects folder, each
+  project served at `/p/<name>/`. The address printed is the home page.
 - **Port** with `--port N`, or `SP_CANVAS_PORT` for a machine that always
   uses another one. A port that already answers is never reused: it may be
   another project's canvas, so `start` refuses rather than showing you the
   wrong boards.
-- **Two projects under `sp start` can run two canvases.** The session name,
+- **Two `sp start`s on two ports can run two canvases.** The session name,
   the log and the pidfile are all keyed by port, so a second `start` on a
   free port leaves the first one alone. `stop` and `status` take `--port` for the same
   reason, and `stop` only ever kills the canvas it started.

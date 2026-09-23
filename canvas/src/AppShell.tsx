@@ -13,7 +13,13 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import { frameUrl, tabFromUrl, windowUrl } from "./canvasUrl";
-import { AgentButton, ChatPanel, useChat } from "./ChatPanel";
+import {
+  AgentButton,
+  CANVAS_ATTACH,
+  ChatPanel,
+  useChat,
+  type CanvasAttachDetail,
+} from "./ChatPanel";
 import { HomePage } from "./HomePage";
 import { Onboarding } from "./Onboarding";
 
@@ -37,11 +43,15 @@ declare global {
  * What the window's address opened on: the home page, or a view of this project's, whose tab is
  * worked out here from the address until the canvas has loaded and said which it landed on.
  * The hosted build is on Cloudflare Pages, which answers `home.html` with a 308 to `home`, so
- * the home page is either.
+ * the home page is either. A build has no project, only examples, so its bare address is home,
+ * but not its index of kits, `?brand=`, which is the same project view with an empty slug too.
  */
-const opened = /\/home(\.html)?$/.test(location.pathname)
-  ? null
-  : { tab: tabFor(tabFromUrl(location.href)), href: frameUrl(location.href) };
+const openedTab = tabFor(tabFromUrl(location.href));
+const opened =
+  /\/home(\.html)?$/.test(location.pathname) ||
+  (!canvasIndex().served && openedTab.kind === "project" && openedTab.view.kind === "canvas")
+    ? null
+    : { tab: openedTab, href: frameUrl(location.href) };
 
 /** The app's version when it asks for the onboarding (desktop/main.ts), read before the address
  *  is rewritten, so a reload does not ask again. */
@@ -73,9 +83,11 @@ export function AppShell() {
    * The bar: the projects and examples this browser left open, plus the one the address is in.
    * That one is in front, so it is open by definition, even on a link someone was sent.
    */
-  const [tabs, setTabs] = useState(() =>
-    opened ? withTab(readOpenTabs(), opened.tab) : readOpenTabs(),
-  );
+  const [tabs, setTabs] = useState(() => {
+    // A build has no project, so a tab left from before it had only examples is gone.
+    const open = readOpenTabs().filter((tab) => canvasIndex().served || tab.kind === "example");
+    return opened ? withTab(open, opened.tab) : open;
+  });
   /** Every project there is, for the "+" menu and the home page; empty until the server says. */
   const [projects, setProjects] = useState<Project[]>([]);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -98,11 +110,11 @@ export function AppShell() {
 
   // One writer for the address, from what is in front. It replaces rather than pushes, since the
   // frame's own changes are already entries in the window's history, which Back walks. Home is
-  // the server's, at its root, and no project's; a hosted build's is beside its other pages.
+  // the server's, at its root, and no project's; a hosted build's is its bare address.
   useEffect(() => {
     const href =
       home || !shown
-        ? new URL(canvasIndex().served ? "/home.html" : "home.html", location.href).href
+        ? new URL(canvasIndex().served ? "/home.html" : "./", location.href).href
         : windowUrl(shown.href);
     if (href !== location.href) history.replaceState(null, "", href);
   }, [home, shown]);
@@ -164,35 +176,41 @@ export function AppShell() {
   };
 
   /**
-   * Makes a project or opens a folder, the server's two requests (canvas/server/projects.ts), a
-   * browser tab's and the app's alike. The server answers the project's address, whose canvas
-   * goes in the frame; nothing when the folder picker was cancelled; or what to say under the
-   * name field.
+   * Makes a project, in the projects folder (canvas/server/projects.ts), a browser tab's request
+   * and the app's alike. The server answers the project's address, whose canvas goes in the
+   * frame, or what to say under the name field.
    */
-  const choose = async (path: string, name?: string) => {
-    const res = await fetch(new URL(path, location.origin), {
+  const create = async (name: string, define: boolean) => {
+    const res = await fetch(new URL("/__sp/projects", location.origin), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ name }),
     });
-    if (res.status === 204) return;
     if (!res.ok) return setSaid(await res.text());
     dialog.current!.close();
     const { url } = (await res.json()) as { url: string };
+    if (define) defining.current = url;
     load(new URL(url, location.origin).href);
   };
+  // A project made to be defined first (skills/define-product). /define-product is sent once
+  // that project is in front; earlier it would go to whichever project is in front now.
+  const defining = useRef<string>(undefined);
+  useEffect(() => {
+    if (shown?.tab.kind !== "project" || shown.tab.url !== defining.current) return;
+    defining.current = undefined;
+    window.dispatchEvent(
+      new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, {
+        detail: {
+          kind: "send",
+          text: "/define-product Help me work out what this product is, and write PRD.md as we go.",
+        },
+      }),
+    );
+  }, [shown]);
   const newProject = () => {
     setSaid("");
     dialog.current!.querySelector("form")!.reset();
     dialog.current!.showModal();
-  };
-  // The picker is the OS's, over whatever is in front, and the request waits on it. A second
-  // click meanwhile would stack a second picker.
-  const picking = useRef(false);
-  const openFolder = async () => {
-    if (picking.current) return;
-    picking.current = true;
-    await choose("/__sp/projects/open").finally(() => (picking.current = false));
   };
   // A hosted build has no server to make a project on.
   const served = canvasIndex().served;
@@ -220,8 +238,8 @@ export function AppShell() {
           <ChatPanel
             // Home is no canvas to the agent. Neither is the project's own view with no canvas
             // in front (HOME_TAB), nor the index of every kit, since both have an empty slug. A
-            // kit is named by the canvas whose material it shows.
-            canvas={(!home && view?.slug) || undefined}
+            // kit is named by the canvas whose material it shows. A document is no canvas either.
+            canvas={(!home && view?.kind !== "doc" && view?.slug) || undefined}
             project={home || shown?.tab.kind !== "project" ? undefined : shown.tab.name}
             chat={chat}
           />
@@ -242,7 +260,6 @@ export function AppShell() {
               tabs={tabs}
               goTo={goTo}
               newProject={served ? newProject : undefined}
-              openFolder={served ? openFolder : undefined}
               reload={listProjects}
             />
           )}
@@ -254,14 +271,19 @@ export function AppShell() {
         <form
           onSubmit={async (event) => {
             event.preventDefault();
-            const name = new FormData(event.currentTarget).get(
-              "name",
-            ) as string;
-            await choose("/__sp/projects", name);
+            const form = new FormData(event.currentTarget);
+            await create(form.get("project") as string, form.has("define"));
           }}
         >
           <h2>New project</h2>
-          <input name="name" placeholder="Project name" autoFocus required />
+          {/* Not "name", which browsers fill with the person's own, and no history of past entries. */}
+          <input name="project" placeholder="Project name" autoComplete="off" autoFocus required />
+          <label className="home-dialog-check">
+            <input type="checkbox" name="define" defaultChecked />
+            <span>
+              Define the product with the agent <code>/define-product</code>
+            </span>
+          </label>
           {said && <p>{said}</p>}
           <div>
             <button type="button" onClick={() => dialog.current!.close()}>

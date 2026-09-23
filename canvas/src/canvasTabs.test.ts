@@ -9,7 +9,9 @@ import {
 } from "./canvasLibrary";
 import {
   HOME_TAB,
+  docsOf,
   openInTab,
+  ownCanvases,
   pageOf,
   readOpenTabs,
   resolveTab,
@@ -73,6 +75,27 @@ describe("a tab is a project", () => {
       slug: canvas,
       view: brand,
     });
+  });
+
+  it("gives a project and an example each their own documents", () => {
+    const board = canvasIndex().boards.find((b) => b.slug === canvas)!;
+    const had = { project: canvasIndex().docs, board: board.docs };
+    canvasIndex().docs = [{ name: "PRD.md", text: "# Mine" }];
+    board.docs = [{ name: "PRD.md", text: "# Theirs" }];
+    unflag = () => {
+      canvasIndex().docs = had.project;
+      board.docs = had.board;
+      return delete board.example;
+    };
+    board.example = true;
+    const example = tabFor({ kind: "canvas", slug: canvas });
+    expect(docsOf(example)).toEqual([{ name: "PRD.md", slug: `${canvas}/PRD.md` }]);
+    expect(docsOf(tabFor(HOME_TAB))).toEqual([{ name: "PRD.md", slug: "PRD.md" }]);
+    const theirs: CanvasTab = { kind: "doc", slug: `${canvas}/PRD.md` };
+    expect(tabFor(theirs)).toEqual({ kind: "example", slug: canvas, view: theirs });
+    expect(tabFor({ kind: "doc", slug: "PRD.md" })).toMatchObject({ kind: "project" });
+    expect(resolveTab(theirs)).toEqual(theirs);
+    expect(resolveTab({ kind: "doc", slug: `${canvas}/Gone.md` })).toEqual(resolveTab(HOME_TAB));
   });
 
   it("keeps Start here's own tab apart from the project's view of its page", () => {
@@ -153,10 +176,10 @@ describe("what is behind a tab", () => {
     });
   });
 
-  it("sends a canvas that has gone to Start here", () => {
-    expect(resolveTab({ kind: "canvas", slug: "no-such-folder" })).toEqual(
-      HOME_TAB,
-    );
+  it("opens a bare address, and a canvas that has gone, on the first canvas", () => {
+    const first: CanvasTab = { kind: "canvas", slug: ownCanvases()[0] };
+    expect(resolveTab(HOME_TAB)).toEqual(first);
+    expect(resolveTab({ kind: "canvas", slug: "no-such-folder" })).toEqual(first);
     expect(resolveTab({ kind: "canvas", slug: canvas })).toEqual({
       kind: "canvas",
       slug: canvas,

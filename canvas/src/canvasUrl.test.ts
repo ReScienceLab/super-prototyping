@@ -142,6 +142,15 @@ describe("canvas URLs", () => {
     expect(
       urlForTab(root + "?brand=grok-ios", { kind: "canvas", slug: "" }),
     ).toBe(root);
+    // A document is the project's, so it takes the canvas, the kit and the board with it.
+    const doc = { kind: "doc", slug: "PRD.md" } as const;
+    expect(urlForTab(root + "?canvas=luma-ios#03-event", doc)).toBe(
+      root + "?doc=PRD.md",
+    );
+    expect(urlForTab(root + "?doc=PRD.md", kit)).toBe(root + "?brand=grok-ios");
+    expect(urlForTab(root + "?doc=PRD.md", canvas)).toBe(
+      root + "?canvas=luma-ios",
+    );
   });
 
   it("round-trips every tab it can write", () => {
@@ -151,6 +160,8 @@ describe("canvas URLs", () => {
       { kind: "canvas", slug: "" },
       { kind: "brand", slug: "grok-ios" },
       { kind: "brand", slug: "" },
+      { kind: "doc", slug: "PRD.md" },
+      { kind: "doc", slug: "Research notes.md" },
     ] as const) {
       expect(tabFromUrl(urlForTab(root + "?brand=notion-ios", tab))).toEqual(
         tab,
