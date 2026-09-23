@@ -50,7 +50,7 @@ import {
   canvasImageRef,
   readCanvasLibrary,
 } from "./canvasLibrary";
-import { HOME_TAB, isExample, projectUrl } from "./canvasTabs";
+import { HOME_TAB, isExample, pageOf, projectUrl } from "./canvasTabs";
 import { setProjectCover } from "./contextMenu";
 import { pointedElement } from "./cover";
 import {
@@ -278,8 +278,8 @@ export const canvasChromeComponents: TLComponents = {
         : undefined;
 
     // The canvas's ground, the strip's swatch as presets. Custom opens that swatch's picker.
-    const here = chrome.activeTab.kind === "canvas" ? chrome.activeTab.slug : undefined;
-    const ground = here ? groundOf(here) : null;
+    const page = chrome.activeTab.kind === "canvas" ? pageOf(chrome.activeTab) : undefined;
+    const ground = page ? groundOf(page) : undefined;
 
     return (
       <DefaultContextMenu {...props}>
@@ -324,28 +324,22 @@ export const canvasChromeComponents: TLComponents = {
             onSelect={chrome.relayoutLibrary}
           />
         </TldrawUiMenuGroup>
-        {here && (
+        {page && (
           <TldrawUiMenuGroup id="ground">
             <TldrawUiMenuSubmenu id="ground" label="Background">
-              <TldrawUiMenuCheckboxItem
-                id="ground-default"
-                label="Dark grey (default)"
-                checked={!ground}
-                onSelect={() => setGround(editor, here, null)}
-              />
               {GROUNDS.map(([label, color]) => (
                 <TldrawUiMenuCheckboxItem
                   key={color}
                   id={`ground-${color}`}
                   label={label}
                   checked={ground === color}
-                  onSelect={() => setGround(editor, here, color)}
+                  onSelect={() => setGround(editor, page, color)}
                 />
               ))}
               <TldrawUiMenuCheckboxItem
                 id="ground-custom"
                 label="Custom…"
-                checked={!!ground && !GROUNDS.some(([, color]) => color === ground)}
+                checked={!GROUNDS.some(([, color]) => color === ground)}
                 onSelect={() =>
                   document
                     .querySelector<HTMLInputElement>(".sp-canvas-tabs-ground input")

@@ -1,9 +1,9 @@
 import { useContext } from "react";
 import { CanvasChromeContext } from "./canvasChrome";
 import { shortName } from "./canvasLibrary";
-import { ownCanvases, tabFor } from "./canvasTabs";
+import { ownCanvases, pageOf, tabFor } from "./canvasTabs";
 import { canvasIndex } from "./canvasIndex";
-import { DEFAULT_GROUND, setGround, useGround } from "./canvasGround";
+import { setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { sheetPageUrl } from "./canvasUrl";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
@@ -29,7 +29,9 @@ export function CanvasStrip() {
   // A kit's slug names the canvas whose material it shows, so it exports that canvas; only the
   // index of every kit has no canvas behind it, and no Figma button.
   const slug = activeTab.slug;
-  const ground = useGround(editor, here);
+  // Keyed by the page, so the project's home, which shows Start here's, shares its ground.
+  const page = activeTab.kind === "canvas" ? pageOf(activeTab) : undefined;
+  const ground = useGround(editor, page);
 
   return (
     <nav className="sp-canvas-tabs" aria-label="Canvases">
@@ -67,17 +69,17 @@ export function CanvasStrip() {
           <Plus />
         </button>
       )}
-      {here && (
+      {page && (
         <label
           className="sp-canvas-tabs-ground"
           title="Canvas background"
-          style={ground ? { background: ground } : undefined}
+          style={{ background: ground }}
         >
           <input
             type="color"
             aria-label="Canvas background"
-            value={ground ?? DEFAULT_GROUND}
-            onChange={(e) => editor && here && setGround(editor, here, e.target.value)}
+            value={ground}
+            onChange={(e) => editor && setGround(editor, page, e.target.value)}
           />
         </label>
       )}
