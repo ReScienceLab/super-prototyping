@@ -87,7 +87,8 @@ const OPEN_KEY = "sp-chat-open";
  * to attach to the message, or the reason none was. A board comes over as a picture too. The
  * file's own name says which board it is, and the panel shows it under the tile. And the start
  * of a message, from the strip's "+" (CanvasStrip.tsx), because a canvas is only ever the
- * agent's work, and a folder with no boards in it is not one.
+ * agent's work, and a folder with no boards in it is not one. And a whole message, sent as it is,
+ * from the new-project dialog (AppShell.tsx), which starts the agent defining the product.
  *
  * A board comes as `board`: its name and where the server draws it. Drawing takes seconds, so the
  * panel puts its tile and its number up at once and asks for the drawing itself — from here and
@@ -103,7 +104,8 @@ export type CanvasAttachDetail =
   | { kind: "board"; name: string; src: string }
   | { kind: "image"; file: File }
   | { kind: "error"; message: string }
-  | { kind: "draft"; text: string };
+  | { kind: "draft"; text: string }
+  | { kind: "send"; text: string };
 
 /**
  * Whether the panel is out and which agent the next message goes to, and the ways to say so. The
@@ -803,6 +805,12 @@ export function ChatPanel(props: {
         return;
       }
       if (detail.kind === "error") return setSendError(detail.message);
+      if (detail.kind === "send") {
+        const message = { message: detail.text, images: [] };
+        if (running) setQueued((q) => [...q, message]);
+        else void post(message);
+        return;
+      }
       // Half a sentence, from the strip's "+", which is only any use if the reader sees they are
       // being asked to finish it: the caret goes to the end of it and the box rings once (the
       // cue below). Over nothing the user wrote, since a message they had begun stays theirs to

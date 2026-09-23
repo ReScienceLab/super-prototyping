@@ -13,7 +13,13 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import { frameUrl, tabFromUrl, windowUrl } from "./canvasUrl";
-import { AgentButton, ChatPanel, useChat } from "./ChatPanel";
+import {
+  AgentButton,
+  CANVAS_ATTACH,
+  ChatPanel,
+  useChat,
+  type CanvasAttachDetail,
+} from "./ChatPanel";
 import { HomePage } from "./HomePage";
 import { Onboarding } from "./Onboarding";
 
@@ -169,7 +175,7 @@ export function AppShell() {
    * goes in the frame; nothing when the folder picker was cancelled; or what to say under the
    * name field.
    */
-  const choose = async (path: string, name?: string) => {
+  const choose = async (path: string, name?: string, define = false) => {
     const res = await fetch(new URL(path, location.origin), {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -179,8 +185,27 @@ export function AppShell() {
     if (!res.ok) return setSaid(await res.text());
     dialog.current!.close();
     const { url } = (await res.json()) as { url: string };
+    if (define) defining.current = url;
     load(new URL(url, location.origin).href);
   };
+  // A project made to be defined first: its address, until it is the one in front, when the
+  // agent is asked to start (skills/define-product). Not before, since a message goes to the
+  // project in front, and the frame takes a moment to load it.
+  const defining = useRef<string>(undefined);
+  useEffect(() => {
+    if (shown?.tab.kind !== "project" || shown.tab.url !== defining.current) return;
+    defining.current = undefined;
+    window.dispatchEvent(
+      new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, {
+        detail: {
+          kind: "send",
+          text:
+            "Use the define-product skill: help me work out what this product is, and write " +
+            "PRD.md as we go.",
+        },
+      }),
+    );
+  }, [shown]);
   const newProject = () => {
     setSaid("");
     dialog.current!.querySelector("form")!.reset();
@@ -254,14 +279,16 @@ export function AppShell() {
         <form
           onSubmit={async (event) => {
             event.preventDefault();
-            const name = new FormData(event.currentTarget).get(
-              "name",
-            ) as string;
-            await choose("/__sp/projects", name);
+            const form = new FormData(event.currentTarget);
+            await choose("/__sp/projects", form.get("name") as string, form.has("define"));
           }}
         >
           <h2>New project</h2>
           <input name="name" placeholder="Project name" autoFocus required />
+          <label className="home-dialog-check">
+            <input type="checkbox" name="define" defaultChecked />
+            Define the product with the agent
+          </label>
           {said && <p>{said}</p>}
           <div>
             <button type="button" onClick={() => dialog.current!.close()}>

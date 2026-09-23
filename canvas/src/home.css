@@ -254,7 +254,7 @@ button.home-tile i {
   font-weight: 600;
   letter-spacing: -0.02em;
 }
-.home-dialog input {
+.home-dialog input:not([type="checkbox"]) {
   width: 100%;
   height: 40px;
   padding: 0 12px;
@@ -268,8 +268,22 @@ button.home-tile i {
 .home-dialog input::placeholder {
   color: var(--ds-gray-700);
 }
-.home-dialog input:hover {
+.home-dialog input:not([type="checkbox"]):hover {
   box-shadow: inset 0 0 0 1px var(--ds-gray-500);
+}
+/* Starts the agent on PRD.md once the project opens (AppShell.tsx). */
+.home-dialog-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--ds-gray-900);
+  font-size: 14px;
+  cursor: pointer;
+}
+.home-dialog-check input {
+  margin: 0;
+  accent-color: var(--ds-gray-1000);
 }
 .home-dialog p {
   margin: 8px 0 0;
