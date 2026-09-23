@@ -38,6 +38,7 @@ import {
   WELCOME_PAGE_SLUG,
   targetFromUrl,
   tabFromUrl,
+  windowUrl,
   urlForTab,
   type CanvasTab,
 } from "./canvasUrl";
@@ -1419,11 +1420,16 @@ export default function App() {
       },
       // Links Copy link made (canvasChrome.tsx), pasted into the chat: the boards and pictures
       // their hashes name, as the chips their + would have put there. All of them or none, so a
-      // paste is never half chips and half text.
+      // paste is never half chips and half text. Only this project's: another's link names its
+      // folders, which this canvas may have one of the same name as.
       attach(hrefs) {
         if (!editor) return false;
+        const here = new URL(windowUrl(window.location.href));
         const targets = hrefs.map((href) => {
           if (!URL.canParse(href)) return undefined;
+          const url = new URL(href);
+          if (url.origin !== here.origin || url.pathname !== here.pathname)
+            return undefined;
           const tab = tabFromUrl(href);
           const name = targetFromUrl(href);
           if (tab.kind !== "canvas" || !name) return undefined;
