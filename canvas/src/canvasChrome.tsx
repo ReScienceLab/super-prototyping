@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   ConversionsMenuGroup,
-  CopyMenuItem,
   DefaultContextMenu,
   SelectAllMenuItem,
   TldrawUiButton,
@@ -157,6 +156,30 @@ export const canvasUiOverrides: TLUiOverrides = {
   },
 };
 
+/**
+ * The address of each selected shape, the one the window shows when it is open: a board or
+ * picture by its hash (canvasUrl.ts), a card by where it goes. In the order tldraw reports the
+ * selection, which is the order a paste of them attaches in (ChatPanel.tsx). A shape with no
+ * address, a heading say, has none to add.
+ */
+function selectionLinks(editor: Editor) {
+  const here = windowUrl(window.location.href);
+  return editor.getSelectedShapes().flatMap((shape) => {
+    if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
+      const file = readCanvasLibrary()
+        .flat()
+        .find((c) => c.path === (shape as CanvasFileShape).props.path);
+      return file ? [urlForSlug(here, file.pageSlug, file.fileName)] : [];
+    }
+    if (shape.type === CANVAS_LINK_SHAPE_TYPE) {
+      const { url, page } = (shape as CanvasLinkShape).props;
+      return url ? [url] : page ? [urlForSlug(here, page)] : [];
+    }
+    const ref = canvasImageRef(shape.id);
+    return ref ? [urlForSlug(here, ref.slug, ref.file)] : [];
+  });
+}
+
 export const canvasChromeComponents: TLComponents = {
   /**
    * tldraw's whole top-left bar is gone, and CanvasTabBar.tsx is drawn where it was. `MenuPanel`
@@ -192,30 +215,32 @@ export const canvasChromeComponents: TLComponents = {
   ContextMenu: (props) => {
     const chrome = useContext(CanvasChromeContext);
     const editor = useEditor();
-    // The address of each selected shape, the one the window shows when it is open: a board or
-    // picture by its hash (canvasUrl.ts), a card by where it goes. One a line, in the order tldraw
-    // reports the selection, which is the order a paste attaches them in (ChatPanel.tsx).
-    const links = useValue(
-      "shape links",
-      () => {
-        const here = windowUrl(window.location.href);
-        return editor.getSelectedShapes().flatMap((shape) => {
-          if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
-            const file = readCanvasLibrary()
-              .flat()
-              .find((c) => c.path === (shape as CanvasFileShape).props.path);
-            return file ? [urlForSlug(here, file.pageSlug, file.fileName)] : [];
-          }
-          if (shape.type === CANVAS_LINK_SHAPE_TYPE) {
-            const { url, page } = (shape as CanvasLinkShape).props;
-            return url ? [url] : page ? [urlForSlug(here, page)] : [];
-          }
-          const ref = canvasImageRef(shape.id);
-          return ref ? [urlForSlug(here, ref.slug, ref.file)] : [];
-        });
-      },
-      [editor],
-    );
+    const links = useValue("shape links", () => selectionLinks(editor), [
+      editor,
+    ]);
+
+    // ⌘C, this row's shortcut, arrives as the document's copy event rather than as a key: tldraw
+    // leaves copy to the browser's own event and listens for it on the document, so this listens
+    // first, in the capture phase, and keeps it from tldraw only when there is a link to copy.
+    // tldraw's copy is its own shapes as JSON, for pasting into another tldraw, which a canvas
+    // rebuilt from layout.json has no use for. A focus elsewhere, an input in the inspector say,
+    // is that field's copy and not the canvas's.
+    useEffect(() => {
+      const copy = (event: ClipboardEvent) => {
+        if (
+          !editor.getInstanceState().isFocused ||
+          editor.menus.hasAnyOpenMenus()
+        )
+          return;
+        const links = selectionLinks(editor);
+        if (!links.length || !event.clipboardData) return;
+        event.clipboardData.setData("text/plain", links.join("\n"));
+        event.preventDefault();
+        event.stopPropagation();
+      };
+      document.addEventListener("copy", copy, true);
+      return () => document.removeEventListener("copy", copy, true);
+    }, [editor]);
 
     return (
       <DefaultContextMenu {...props}>
@@ -237,6 +262,7 @@ export const canvasChromeComponents: TLComponents = {
               id="copy-link"
               label={links.length > 1 ? `Copy ${links.length} links` : "Copy link"}
               icon={<Copy />}
+              kbd="cmd+c,ctrl+c"
               onSelect={() => void navigator.clipboard.writeText(links.join("\n"))}
             />
           )}
@@ -250,10 +276,8 @@ export const canvasChromeComponents: TLComponents = {
         {/* tldraw's items one at a time, not its groups: this canvas is read, and every shape on
             it is locked and rebuilt from layout.json, so only what works on a locked shape is
             here. A group would bring Cut, Delete and Duplicate, greyed out on every shape here,
-            and Paste, which drops shapes the next load removes; and whatever tldraw adds to it. */}
-        <TldrawUiMenuGroup id="clipboard">
-          <CopyMenuItem />
-        </TldrawUiMenuGroup>
+            and Paste, which drops shapes the next load removes; and whatever tldraw adds to it.
+            Its Copy is Copy link above, which ⌘C is. */}
         <ConversionsMenuGroup />
         <TldrawUiMenuGroup id="select-all">
           <SelectAllMenuItem />
