@@ -143,18 +143,19 @@ is in there to copy from too.
 ## Run the canvas
 
 ```bash
-sp open               # this project, in the app
-sp open ~/my-app      # any project, from anywhere
-sp start ~/my-app     # the same canvas in a browser, without the app
+sp open               # the app, on its home page
+sp start              # the same canvas in a browser, without the app
 ```
 
-`sp open` hands the project to the app, starting it if it is not running, and
-prints the address. `sp start` is for where the app cannot run. From a checkout
-without a build, it downloads the canvas built for that version into `~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173
-against the project's `canvases` with node or bun, opens the browser,
-and prints the address. Every project under `~/Documents/Super Prototyping` is
-served beside it at `/p/<name>/`, the same way the app serves them;
-`PROTOTYPING_PROJECTS_DIR` moves that folder. `--port N` (or
+Every project is a folder under `~/Documents/Super Prototyping`, made from the
+home page's New project, and served at `/p/<name>/`;
+`PROTOTYPING_PROJECTS_DIR` moves that folder. No folder elsewhere is ever
+opened as a project, so a project's Delete cannot trash code you did not make
+there. `sp open` starts the app if it is not running and prints the address.
+`sp start` is for where the app cannot run. From a checkout without a build,
+it downloads the canvas built for that version into
+`~/.cache/super-prototyping/`, then serves it on 127.0.0.1:5173 with node or
+bun, opens the browser, and prints the address. `--port N` (or
 `SP_CANVAS_PORT`) moves the port, `sp status` and `sp stop` do what
 they say. `sp paths` lists the two directories it writes, and
 `sp clean` removes them.

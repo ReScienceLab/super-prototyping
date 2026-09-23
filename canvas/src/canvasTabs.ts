@@ -37,7 +37,7 @@ export const pageOf = (view: CanvasTab) => view.slug || WELCOME_PAGE_SLUG;
 export type ProjectTab =
   | {
       kind: "project";
-      /** The address its pages are under, from the root: `/p/<name>/`, or `/` for `sp start`. */
+      /** The address its pages are under, from the root: `/p/<name>/`. */
       url: string;
       name: string;
       icon: string | null;

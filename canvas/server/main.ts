@@ -2,12 +2,11 @@
  * The canvas as a localhost app: the built `dist` served as static files, with every project's
  * `/__sp` and `/board` server in front of it (projects.ts), the same one the Vite dev server
  * mounts. Bundled to `dist/server.mjs` by `bun run build`, so `sp start` runs one file with node
- * or bun and no dev toolchain. Usage: `node dist/server.mjs --port 5173 --open <project>`.
+ * or bun and no dev toolchain. Usage: `node dist/server.mjs --port 5173`.
  *
  * Every folder in the projects directory is served at `/p/<name>/`, with the examples beside
- * it. `--open` serves one more folder, from anywhere, which is what `sp start` opens, and `/`
- * redirects to it. The desktop app runs this same file and opens its folders over the parent
- * port instead.
+ * it, and no other folder: `/` is the home page, where a project is made. The desktop app runs
+ * this same file.
  */
 import fs from "node:fs";
 import http from "node:http";
@@ -85,30 +84,6 @@ function serveStatic(req: http.IncomingMessage, res: http.ServerResponse) {
 }
 
 const projects = createProjectsServer({ projectsDir, repoRoot });
-// Before the port is taken, so a folder that is not there fails the start rather than a server.
-const openArg = arg("--open");
-if (openArg !== undefined) projects.open(openArg);
-
-/**
- * A folder's path, from the desktop app before it opens a project, answered with the address it
- * is served at. The path comes over the parent port of Electron's utility process, which only the
- * app that started this server holds. `sp start` runs under node, which has no parent port.
- */
-const parentPort = (
-  process as NodeJS.Process & {
-    parentPort?: {
-      on(event: "message", listener: (message: { data: string }) => void): void;
-      postMessage(message: { address: string } | { error: string }): void;
-    };
-  }
-).parentPort;
-parentPort?.on("message", ({ data }) => {
-  try {
-    parentPort.postMessage({ address: projects.open(data) });
-  } catch (error) {
-    parentPort.postMessage({ error: String(error) });
-  }
-});
 
 const server = http.createServer((req, res) =>
   projects.handle(req, res, () => serveStatic(req, res)),

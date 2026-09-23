@@ -14,8 +14,9 @@ loads the same tree an install does.
 
 `canvas/` is the tldraw viewer, built with Bun and Vite. Its server serves
 every project under `~/Documents/Super Prototyping` (`PROTOTYPING_PROJECTS_DIR`
-moves it) at `/p/<name>/`, plus the one `sp start` or the app opened, with this
-repo's `canvases` as the examples shown beside each project's own. A
+moves it) at `/p/<name>/`, and no folder anywhere else, with this repo's
+`canvases` as the examples shown beside each project's own.
+`docs/2026-09-23-projects-folder-only.md` says why. A
 project's boards are its `canvases`, discovered as `*/*.html` one level
 deep. Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
 `/__sp/index.json` by `canvas/server/sp.ts` and written into `dist` by the
@@ -27,8 +28,9 @@ tab before its canvases that reads it rendered or edits its text (`DOCS` in
 runs the built app, `dist/server.mjs`: the release's `canvas-dist.tgz`
 fetched into `~/.cache/super-prototyping/<version>/` for an install, or this
 checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
-`dev` script mounts the same server under Vite, with this checkout open as the
-project, for working on the app.
+`dev` script mounts the same server under Vite, for working on the app. It opens
+on the home page with no project, as the app does: this checkout's canvases are
+the examples there, not a project of their own.
 
 The hosted canvas is that build on Cloudflare Pages, and it lives at
 `prototyping.rescience.com/demo/` now: the root is the download page, whose

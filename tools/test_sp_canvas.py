@@ -262,13 +262,6 @@ def test_the_app_served_is_the_checkouts_own_when_worked_on_else_the_releases_bu
     else:
         assert False, "a missing bundle must exit loudly"
 
-def test_the_project_is_the_argument_then_the_current_directory_and_its_boards_are_under_it():
-    assert C.parser().parse_args(["start", "~/app"]).project == "~/app"
-    assert C.parser().parse_args(["start"]).project is None
-    # The one place the server reads them from, so the two spellings must agree.
-    assert C.CANVASES == "canvases"
-
-
 def test_the_port_is_the_flag_then_sp_canvas_port_then_the_default():
     import contextlib, io
     port = lambda argv, env: with_env({"SP_CANVAS_PORT": env}, lambda: C.parser().parse_args(argv).port)

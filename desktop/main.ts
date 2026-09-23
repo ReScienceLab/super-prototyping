@@ -49,10 +49,11 @@ const pluginRoot = app.isPackaged
   ? path.join(process.resourcesPath, "plugin")
   : path.resolve(import.meta.dirname, "../..");
 
-// `open -a "Super Prototyping" --args --port 5173 /path/to/project`, and nothing else. A project
-// named here skips the home page and the onboarding. `--upgrade` is `sp upgrade`.
+// `open -a "Super Prototyping" --args --port 5173`, and nothing else: no folder, since a project
+// is only ever one in the projects folder (docs/2026-09-23-projects-folder-only.md). `--upgrade`
+// is `sp upgrade`.
 const argvOf = (argv: string[]) => parseArgs(argv.slice(app.isPackaged ? 1 : 2));
-const { port: portArg, dir: argDir, upgrade: upgradeArg } = argvOf(process.argv);
+const { port: portArg, upgrade: upgradeArg } = argvOf(process.argv);
 
 // One app. A second launch, which is how `sp open` and `sp upgrade` reach a running one
 // (`open -n`; without it macOS only focuses the app and drops the arguments), hands its arguments
@@ -278,19 +279,6 @@ async function main() {
     }
   }
 
-  // Opens a folder as a project, for the launch: the one from the command line. The server answers
-  // with the project's address, and names a folder from outside the projects directory when it is
-  // first asked for here, over its parent port, which nothing but this app can write to
-  // (canvas/server/main.ts).
-  async function openProject(dir: string) {
-    const answer = new Promise<{ address?: string; error?: string }>((resolve) =>
-      server!.once("message", resolve),
-    );
-    server!.postMessage(dir);
-    const { address, error } = await answer;
-    if (address === undefined) throw new Error(`Opening ${dir} failed: ${error}`);
-    return origin + address;
-  }
   // The onboarding's answer: the agent the chat panel will run, remembered for the next launch.
   // Nothing is installed now: the agent gets its skills in its own folder when it first runs
   // (canvas/server/agent.ts).
@@ -300,21 +288,19 @@ async function main() {
   });
 
   // Heard from before the server is up: Electron drops a `second-instance` nothing listens for, and
-  // `sp open` during a launch would then report a project the window never opens.
+  // `sp upgrade` during a launch would then do nothing.
   const serverUp = startServer();
   app.on("second-instance", async (_event, argv) => {
-    const { dir, upgrade: wantsUpgrade } = argvOf(argv);
+    const { upgrade: wantsUpgrade } = argvOf(argv);
     if (win.isMinimized()) win.restore();
     win.focus();
     await serverUp;
     if (wantsUpgrade) upgrade();
-    if (dir !== undefined) win.loadURL(await openProject(dir)).catch(fail);
   });
   await serverUp;
   writeJson(appFile, { port, pid: process.pid, version: app.getVersion() });
   linkIntoMachine();
   if (upgradeArg) upgrade();
-  if (argDir !== undefined) return win.loadURL(await openProject(argDir));
   const url = new URL("/home.html", origin);
   const major = (version?: string) => version?.split(".")[0];
   if (

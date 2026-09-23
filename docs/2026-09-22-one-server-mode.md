@@ -69,3 +69,6 @@ ignores a second click while its picker is up. Electron's `app.getPath("document
 Documents folder that OneDrive or a Known Folder redirect has moved, and the server's
 `~/Documents` does not, so under the app the two agree only because the app passes its answer
 down.
+
+Superseded 2026-09-23 by `2026-09-23-projects-folder-only.md`: nothing outside the projects
+folder is opened, and `/` is always the home page.

@@ -1,10 +1,11 @@
 /**
  * Every project on one server, each at `/p/<name>/`: the folders in the projects directory, and
- * any folder opened from elsewhere, which is named here as it is opened. The desktop app, `sp
- * start` and the Vite dev server all serve this way, so a tab on another project is a link and
- * not a server started for it, and a page behaves the same in a browser as in the app. Making
- * a project and opening a folder are requests here too, for the same reason, so that a browser
- * tab on the same server can do what the app's window can. The root is no project's: it has the
+ * only those. No folder elsewhere is ever a project, so a project's Delete cannot trash code the
+ * user did not make here (docs/2026-09-23-projects-folder-only.md). The desktop app, `sp start`
+ * and the Vite dev server all serve this way, so a tab on another project is a link and not a
+ * server started for it, and a page behaves the same in a browser as in the app. Making a
+ * project is a request here too, for the same reason, so that a browser tab on the same server
+ * can do what the app's window can. The root is no project's: it has the
  * home page, at `/home.html`, the examples, and the agent behind the chat panel, at
  * `/__sp/agent`, so the app works with no project at all.
  */
@@ -30,45 +31,6 @@ export function projectsDirFromEnv() {
     process.env.PROTOTYPING_PROJECTS_DIR ||
       path.join(os.homedir(), "Documents", "Super Prototyping"),
   );
-}
-
-/**
- * The OS's own folder picker, answering the folder's path, or nothing when the user cancelled.
- * Rejects with ENOENT when the machine has no picker to show, which is a Linux without zenity.
- * This is a server process with no window of its own, so on macOS the dialog comes up over
- * whatever is in front, which is the browser or the app that asked.
- */
-function pickFolder() {
-  const [file, args] =
-    process.platform === "darwin"
-      ? [
-          "osascript",
-          ["-e", 'POSIX path of (choose folder with prompt "Open a project")'],
-        ]
-      : process.platform === "win32"
-        ? [
-            "powershell",
-            [
-              "-NoProfile",
-              "-Command",
-              "Add-Type -AssemblyName System.Windows.Forms; " +
-                "$d = New-Object System.Windows.Forms.FolderBrowserDialog; " +
-                '$d.Description = "Open a project"; ' +
-                "if ($d.ShowDialog() -eq 'OK') { $d.SelectedPath }",
-            ],
-          ]
-        : [
-            "zenity",
-            ["--file-selection", "--directory", "--title=Open a project"],
-          ];
-  return new Promise<string | undefined>((resolve, reject) => {
-    execFile(file, args, (error, stdout) => {
-      // A cancel is a non-zero exit with nothing on stdout, from all three. That is not an error.
-      if (error && (error as NodeJS.ErrnoException).code === "ENOENT")
-        return reject(error);
-      resolve(stdout.trim() || undefined);
-    });
-  });
 }
 
 /**
@@ -168,12 +130,10 @@ export function createProjectsServer(options: {
     for (const e of fs.readdirSync(projectsDir, { withFileTypes: true }))
       if (e.isDirectory()) moveOldBoards(path.join(projectsDir, e.name));
 
-  // Every project by the name its address carries: the folders in the projects directory, and
-  // the folders opened from anywhere else, which `open` names as they come. This drops one of
-  // those deleted while the server runs, since every page lists the projects and reads each one.
-  const opened = new Map<string, string>();
+  // Every project by the name its address carries: the folders in the projects directory, and no
+  // folder anywhere else, so deleting one can only ever trash a folder the user made here.
   const projects = () => {
-    const all = new Map([...opened].filter(([, dir]) => fs.existsSync(dir)));
+    const all = new Map<string, string>();
     if (fs.existsSync(projectsDir))
       for (const e of fs.readdirSync(projectsDir, { withFileTypes: true }))
         if (e.isDirectory() && !e.name.startsWith("."))
@@ -215,39 +175,6 @@ export function createProjectsServer(options: {
     workspaces: path.join(projectsDir, ".workspaces"),
   });
 
-  // The address of the project opened last, which is where `/` goes: what `sp start` opened, or
-  // the folder the app was given, so a link to the server's root lands on a project's page.
-  let last: string | undefined;
-  const open = (dir: string) => {
-    dir = path.resolve(dir);
-    if (!fs.statSync(dir, { throwIfNoEntry: false })?.isDirectory())
-      throw new Error(`${dir} is not a folder`);
-    moveOldBoards(dir);
-    const all = projects();
-    let name = [...all].find(([, had]) => had === dir)?.[0];
-    if (name === undefined) {
-      // A folder outside the projects directory has no name until now. It is named after itself,
-      // numbered past any project already called that.
-      name = path.basename(dir);
-      for (let n = 2; all.has(name); n++) name = `${path.basename(dir)} ${n}`;
-      opened.set(name, dir);
-    }
-    return (last = `/p/${encodeURIComponent(name)}/`);
-  };
-
-  // The answer to a project made or a folder picked: the project is opened, and the answer is its
-  // address from the server's root, for the page to load into its frame.
-  const reply = (res: ServerResponse, dir: string) => {
-    try {
-      const url = open(dir);
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ url }));
-    } catch (error) {
-      res.statusCode = 500;
-      res.end(String(error));
-    }
-  };
-
   const handle = (
     req: IncomingMessage,
     res: ServerResponse,
@@ -255,16 +182,16 @@ export function createProjectsServer(options: {
   ) => {
     const url = req.url ?? "/";
     const [pathname, query = ""] = url.split(/\?(.*)/s);
-    // With nothing opened, the bare root is the home page, and the root with a query is the
-    // window on an example (canvasTabs.ts), which the root's server serves as any project's does.
-    if (pathname === "/" && (last !== undefined || query === "")) {
+    // The bare root is the home page, and the root with a query is the window on an example
+    // (canvasTabs.ts), which the root's server serves as any project's does.
+    if (pathname === "/" && query === "") {
       res.statusCode = 302;
-      res.setHeader("Location", (last ?? "/home.html") + (query && `?${query}`));
+      res.setHeader("Location", "/home.html");
       return res.end();
     }
     if (pathname.startsWith("/__sp/agent/"))
       return agent.handle(req, res, next);
-    if (/^\/__sp\/projects(\/(open|reveal|delete))?$/.test(pathname)) {
+    if (/^\/__sp\/projects(\/(reveal|delete))?$/.test(pathname)) {
       if (req.method !== "POST") return next();
       const send = (code: number, message: string) => {
         res.statusCode = code;
@@ -305,20 +232,6 @@ export function createProjectsServer(options: {
               send(500, `“${parsed.name}” is still there: ${error.message}`),
           );
         }
-        if (pathname === "/__sp/projects/open") {
-          return pickFolder().then(
-            (dir) =>
-              dir === undefined
-                ? send(204, "")
-                : reply(res, dir),
-            () =>
-              send(
-                501,
-                "This machine has no folder picker to show. On Linux, install zenity, or " +
-                  "put the project under the projects folder and open it from the home page.",
-              ),
-          );
-        }
         // A new project needs only a name, as in Screen Studio. It goes under the projects folder,
         // so there is no place to pick. These are the checks the app's dialog made, since the
         // field's `required` lets a name of spaces through and knows nothing of folders.
@@ -347,7 +260,8 @@ export function createProjectsServer(options: {
             `That folder could not be made: ${(e as Error).message}`,
           );
         }
-        reply(res, dir);
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ url: `/p/${encodeURIComponent(name)}/` }));
       });
       return;
     }
@@ -370,7 +284,6 @@ export function createProjectsServer(options: {
 
   return {
     handle,
-    open,
     close() {
       agent.close();
       root.close();

@@ -38,7 +38,7 @@ commands run the toolkit with `uv run`, so they need uv.
    is a step on the way, not the task.
 
 On Linux or a remote box there is no app. There, work from a checkout of the
-repo with `sp start`.
+repo with `sp start`, which serves the same projects folder.
 
 ## The notice
 

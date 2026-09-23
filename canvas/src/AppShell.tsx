@@ -175,18 +175,16 @@ export function AppShell() {
   };
 
   /**
-   * Makes a project or opens a folder, the server's two requests (canvas/server/projects.ts), a
-   * browser tab's and the app's alike. The server answers the project's address, whose canvas
-   * goes in the frame; nothing when the folder picker was cancelled; or what to say under the
-   * name field.
+   * Makes a project, in the projects folder (canvas/server/projects.ts), a browser tab's request
+   * and the app's alike. The server answers the project's address, whose canvas goes in the
+   * frame, or what to say under the name field.
    */
-  const choose = async (path: string, name?: string, define = false) => {
-    const res = await fetch(new URL(path, location.origin), {
+  const create = async (name: string, define: boolean) => {
+    const res = await fetch(new URL("/__sp/projects", location.origin), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ name }),
     });
-    if (res.status === 204) return;
     if (!res.ok) return setSaid(await res.text());
     dialog.current!.close();
     const { url } = (await res.json()) as { url: string };
@@ -213,14 +211,6 @@ export function AppShell() {
     setSaid("");
     dialog.current!.querySelector("form")!.reset();
     dialog.current!.showModal();
-  };
-  // The picker is the OS's, over whatever is in front, and the request waits on it. A second
-  // click meanwhile would stack a second picker.
-  const picking = useRef(false);
-  const openFolder = async () => {
-    if (picking.current) return;
-    picking.current = true;
-    await choose("/__sp/projects/open").finally(() => (picking.current = false));
   };
   // A hosted build has no server to make a project on.
   const served = canvasIndex().served;
@@ -270,7 +260,6 @@ export function AppShell() {
               tabs={tabs}
               goTo={goTo}
               newProject={served ? newProject : undefined}
-              openFolder={served ? openFolder : undefined}
               reload={listProjects}
             />
           )}
@@ -283,7 +272,7 @@ export function AppShell() {
           onSubmit={async (event) => {
             event.preventDefault();
             const form = new FormData(event.currentTarget);
-            await choose("/__sp/projects", form.get("name") as string, form.has("define"));
+            await create(form.get("name") as string, form.has("define"));
           }}
         >
           <h2>New project</h2>

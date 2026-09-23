@@ -182,7 +182,6 @@ export function HomePage(props: {
   goTo: (tab: ProjectTab) => void;
   /** The server's, which a hosted build has none of. */
   newProject?: () => void;
-  openFolder?: () => void;
   /** Lists the projects again, after one is deleted or its cover reset. */
   reload: () => void;
 }) {
@@ -262,26 +261,18 @@ export function HomePage(props: {
           <b>{boardsIn(canvases)}</b> boards · last edited {ago(updated)}
         </p>
       )}
-      {/* With none yet, the bar is still where a folder is opened from, and nothing to sort. */}
-      {(projects.length > 0 || props.openFolder) && (
+      {projects.length > 0 && (
         <div className="home-bar">
           <h2>Projects</h2>
           <div>
-            {props.openFolder && (
-              <button type="button" onClick={props.openFolder}>
-                Open folder…
-              </button>
-            )}
-            {projects.length > 0 && (
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value as Sort)}
-              >
-                <option value="edited">Last edited</option>
-                <option value="name">Alphabetical</option>
-                <option value="boards">Most boards</option>
-              </select>
-            )}
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as Sort)}
+            >
+              <option value="edited">Last edited</option>
+              <option value="name">Alphabetical</option>
+              <option value="boards">Most boards</option>
+            </select>
           </div>
         </div>
       )}
