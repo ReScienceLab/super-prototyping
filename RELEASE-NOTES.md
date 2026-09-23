@@ -21,6 +21,11 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **A new board lands in its place and glows.** When the agent adds a board
+  in the middle of a row, the boards after it move over to make room instead
+  of the new one landing on top of them, and one that is removed or renamed
+  leaves no copy behind. No force refresh needed, and the view stays where you
+  were looking. Whatever just arrived gets a blue ring for five seconds.
 - **A board added to the chat shows up at once.** Its tile and its number
   appear the moment you press + or paste its link, shimmering while the board
   is drawn, and the picture fills in when it is ready. Send waits for it. A
