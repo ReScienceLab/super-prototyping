@@ -25,7 +25,6 @@ export const GROUNDS = [
 /** Picks not yet back from the server as a layout, which then speaks for them. */
 const picked = new Map<string, string>();
 const PICKED = "sp:ground-picked";
-window.addEventListener(LAYOUT_CHANGED, () => picked.clear());
 
 /** A tldraw page's ground, by its slug (canvasTabs.ts `pageOf`). */
 export function groundOf(page: string) {
@@ -64,11 +63,15 @@ export function useGround(editor: Editor | null, page: string | undefined) {
       set(color);
       if (editor) paintGround(editor.getContainer(), color);
     };
+    const landed = () => {
+      picked.clear();
+      read();
+    };
     read();
-    window.addEventListener(LAYOUT_CHANGED, read);
+    window.addEventListener(LAYOUT_CHANGED, landed);
     window.addEventListener(PICKED, read);
     return () => {
-      window.removeEventListener(LAYOUT_CHANGED, read);
+      window.removeEventListener(LAYOUT_CHANGED, landed);
       window.removeEventListener(PICKED, read);
     };
   }, [editor, page]);
