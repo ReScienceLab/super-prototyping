@@ -2551,29 +2551,12 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   }
 }
 
-/* A shape the agent just added: the focus ring plus a blue halo, held for 3.5 s and faded over
-   the last 1.5 s. canvasChrome.tsx adds the class and takes it off after the 5 s. */
+/* A shape the agent added that the reader has not pointed at yet: the focus ring plus a blue
+   halo. canvasChrome.tsx adds the class and takes it off on the first pointer over it. Divided
+   by tldraw's zoom, so the ring is as thick on screen with the page fitted as close up. */
 .tl-shape.sp-fresh {
-  animation: sp-fresh 5s ease-out forwards;
-}
-
-@keyframes sp-fresh {
-  0%,
-  70% {
-    box-shadow:
-      0 0 0 2px var(--ds-focus),
-      0 0 32px 8px color-mix(in oklab, var(--ds-focus) 55%, transparent);
-  }
-  100% {
-    box-shadow:
-      0 0 0 2px transparent,
-      0 0 32px 8px transparent;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tl-shape.sp-fresh {
-    animation: none;
-    box-shadow: 0 0 0 2px var(--ds-focus);
-  }
+  box-shadow:
+    0 0 0 calc(2px / var(--tl-zoom)) var(--ds-focus),
+    0 0 calc(24px / var(--tl-zoom)) calc(6px / var(--tl-zoom))
+      color-mix(in oklab, var(--ds-focus) 60%, transparent);
 }

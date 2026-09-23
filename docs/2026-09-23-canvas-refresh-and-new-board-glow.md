@@ -240,13 +240,21 @@ out to need it to stay readable.
   each page's camera on a reload; it was our `zoomToFit()` that threw it
   away. `handleMount` now skips the fit when the navigation type is
   `reload`. No `sessionStorage`.
-- **Glow as planned,** in `canvasChrome.tsx` (`markFresh`, the
-  `ShapeWrapper`) and `index.css`. Fresh means a new `canvas-file`,
-  `canvas-image` or `canvas-link` shape, and nothing glows when the store
-  had no library shapes before the pass. The ring is drawn in page space,
-  so it thins out when the page is zoomed far out.
+- **The glow lasts until the reader points at it,** not five seconds, on
+  review of the first build: a board that lands while the reader is looking
+  elsewhere, or on another page, should still say it is new when they get
+  there. `canvasChrome.tsx` keeps the fresh ids in the tab's sessionStorage,
+  since the agent's next board reloads the canvas, and the `ShapeWrapper`
+  drops a shape's id on the first pointer move over it. tldraw never hovers
+  a locked shape, so that test is `shapeUnderPointer`, the inspector's. The
+  ring is divided by `--tl-zoom`, so it is as thick on screen with the whole
+  page fitted as close up; the first build's ring thinned out to nothing.
+  Fresh still means a new `canvas-file`, `canvas-image` or `canvas-link`
+  shape, and nothing rings when the store had no library shapes before the
+  pass. With no animation left, reduced motion needs nothing of its own.
 - **Checked by hand in the browser:** a board inserted at the front of a row
-  glows, the three after it shift right, the camera stays, the ring is gone
-  at 5 s; deleting it closes the row up. No vitest: the layout functions
+  rings, the three after it shift right, and the camera stays; the ring is
+  still there after 11 s and after a reload, and goes on the first pointer
+  over the board; deleting the board closes the row up. No vitest: the layout functions
   need a live `Editor`, and pulling the math out was not needed to keep the
   reconcile readable.

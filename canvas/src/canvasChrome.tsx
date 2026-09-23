@@ -8,6 +8,7 @@ import {
 import { createPortal } from "react-dom";
 import {
   atom,
+  type Atom,
   ConversionsMenuGroup,
   DefaultContextMenu,
   DefaultShapeWrapper,
@@ -16,6 +17,7 @@ import {
   TldrawUiButtonIcon,
   type Editor,
   type TLComponents,
+  type TLEventInfo,
   type TLShapeId,
   type TLShapeWrapperProps,
   type TLUiOverrides,
@@ -204,20 +206,28 @@ function selectionLinks(editor: Editor) {
   });
 }
 
-/** Shapes the last layout pass created, glowing until their five seconds are up. */
-const freshShapes = atom<ReadonlySet<TLShapeId>>("fresh shapes", new Set());
+/**
+ * Shapes the agent added that the reader has not pointed at yet. Kept in the tab's
+ * sessionStorage, because the agent writing its next board reloads the canvas, and one board
+ * should not lose its ring to the one after it. Keyed by path: every project is this origin.
+ * Read on first use rather than at import, which the tests do with no window.
+ */
+let freshAtom: Atom<ReadonlySet<TLShapeId>> | undefined;
+const freshKey = () => `sp-fresh:${location.pathname}`;
+const freshShapes = () =>
+  (freshAtom ??= atom(
+    "fresh shapes",
+    new Set(JSON.parse(sessionStorage.getItem(freshKey()) ?? "[]")),
+  ));
 
-/** Rings `ids` in blue for five seconds, so the reader sees what the agent just added. */
+function setFresh(fresh: ReadonlySet<TLShapeId>) {
+  freshShapes().set(fresh);
+  sessionStorage.setItem(freshKey(), JSON.stringify([...fresh]));
+}
+
+/** Rings `ids` in blue until the pointer passes over each, so the reader sees what just arrived. */
 export function markFresh(ids: TLShapeId[]) {
-  if (!ids.length) return;
-  freshShapes.update((fresh) => new Set([...fresh, ...ids]));
-  setTimeout(
-    () =>
-      freshShapes.update(
-        (fresh) => new Set([...fresh].filter((id) => !ids.includes(id))),
-      ),
-    5000,
-  );
+  if (ids.length) setFresh(new Set([...freshShapes().get(), ...ids]));
 }
 
 export const canvasChromeComponents: TLComponents = {
@@ -228,11 +238,24 @@ export const canvasChromeComponents: TLComponents = {
    */
   ShapeWrapper: forwardRef<HTMLDivElement, TLShapeWrapperProps>(
     function ShapeWrapper(props, ref) {
+      const editor = useEditor();
+      const { id } = props.shape;
       const fresh = useValue(
         "fresh shape",
-        () => !props.isBackground && freshShapes.get().has(props.shape.id),
-        [props.isBackground, props.shape.id],
+        () => !props.isBackground && freshShapes().get().has(id),
+        [props.isBackground, id],
       );
+      // tldraw never hovers a locked shape, and every library shape is locked, so the pointer is
+      // tested here the way the inspector tests it. Only while this shape is still ringed.
+      useEffect(() => {
+        if (!fresh) return;
+        const seen = (info: TLEventInfo) => {
+          if (info.name !== "pointer_move" || shapeUnderPointer(editor)?.id !== id) return;
+          setFresh(new Set([...freshShapes().get()].filter((other) => other !== id)));
+        };
+        editor.on("event", seen);
+        return () => void editor.off("event", seen);
+      }, [editor, fresh, id]);
       return (
         <DefaultShapeWrapper
           ref={ref}

@@ -890,7 +890,7 @@ function layoutWelcomeExtras(
  * mid-row or renamed included. One transaction, so the reader never sees a frame in between,
  * kept out of the undo stack, so Cmd-Z after an agent run undoes the reader's own last edit.
  *
- * The boards it had to create glow for a few seconds (the ShapeWrapper in canvasChrome.tsx),
+ * The boards it had to create glow until the reader points at them (canvasChrome.tsx),
  * unless there were no library shapes at all before it: that is a first load, or the force
  * refresh, and everything on the canvas being new is not news.
  */
