@@ -27,6 +27,14 @@ checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
 `dev` script mounts the same server under Vite, with this checkout open as the
 project, for working on the app.
 
+The hosted canvas is that build on Cloudflare Pages, and it lives at
+`prototyping.rescience.com/demo/` now: the root is the download page, whose
+repo is `ReScienceLab/super-prototyping-landing`, and its Worker passes
+`/demo/*` through to the Pages deploy. Nothing here deploys it — the Pages
+project builds this repo on its own — so the move is only the addresses in
+this checkout. `docs/2026-09-23-landing-page.md` says why the page is a
+separate repo and why the canvas is proxied rather than redirected.
+
 `tools/` is a Python package, `super-prototyping-tools`. It installs `refkit`
 (measure, shoot, diff, check tokens), `artgen` (the rare asset that has to be
 drawn) and `sp` (start the canvas against a project's boards) as

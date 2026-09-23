@@ -22,7 +22,7 @@ scratch/
 canvases/*/ref-*.html
 canvases/*/refassets.json
 canvases/*/assets/refs/
-# spotify-ios is the exception: prototyping.rescience.com is built from the checkout, so
+# spotify-ios is the exception: the hosted canvas is built from the checkout, so
 # its captures sit under the replicas on the hosted page only as committed boards.
 !canvases/spotify-ios/ref-*.html
 # grok-ios shows one capture on the hosted page, under board 14, by request: a native
