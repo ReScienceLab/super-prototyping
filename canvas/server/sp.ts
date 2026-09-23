@@ -281,7 +281,10 @@ export function createSpServer(options: {
   // A file of the project's by its absolute path, which is how an agent links what it made:
   // `file:///…/web/variants/a.html`. A page served over http cannot follow a file: link, so the
   // chat panel points it here (markdown.ts). The address keeps the path's folders, so the page's
-  // own relative stylesheets and images come through this route too. Nothing outside the project.
+  // own relative stylesheets and images come through this route too. Nothing outside the project,
+  // symlinks included. Not under /__sp: what it serves runs sandboxed, in an origin of its own, so
+  // a page an agent made (or cloned) cannot drive the agent and write endpoints as the canvas can,
+  // and that origin's requests for its own stylesheets would fail the guard there.
   const FILE_MIME: Record<string, string> = {
     ...IMAGE_MIME,
     ".html": "text/html; charset=utf-8",
@@ -297,7 +300,7 @@ export function createSpServer(options: {
     ".woff": "font/woff",
     ".mp4": "video/mp4",
   };
-  route("/__sp/file", (req, res, next) => {
+  route("/file", (req, res, next) => {
     if (req.method !== "GET" || !projectDir) return next();
     let rel: string;
     try {
@@ -310,13 +313,17 @@ export function createSpServer(options: {
     const type = FILE_MIME[path.extname(file).toLowerCase()];
     if (
       !type ||
-      !file.startsWith(path.resolve(projectDir) + path.sep) ||
-      !fs.statSync(file, { throwIfNoEntry: false })?.isFile()
+      !fs.statSync(file, { throwIfNoEntry: false })?.isFile() ||
+      !fs.realpathSync(file).startsWith(fs.realpathSync(projectDir) + path.sep)
     ) {
       res.statusCode = 404;
       return res.end("not a file of this project");
     }
     res.setHeader("Content-Type", type);
+    res.setHeader(
+      "Content-Security-Policy",
+      "sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads",
+    );
     res.setHeader("Cache-Control", "no-store");
     fs.createReadStream(file).pipe(res);
   });

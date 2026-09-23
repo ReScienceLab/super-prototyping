@@ -34,9 +34,9 @@ describe("renderMarkdown", () => {
 
   it("points the agent's file: links at the project's server", () => {
     const html = renderMarkdown(
-      "[a](file:///Users/me/My%20Site/web/a.html) [b](https://x.dev)",
+      "[a](file:///Users/me/My%20Site/web/a.html?v=2#top) [b](https://x.dev)",
     );
-    expect(html).toContain('href="__sp/file/Users/me/My%20Site/web/a.html"');
+    expect(html).toContain('href="file/Users/me/My%20Site/web/a.html?v=2#top"');
     expect(html).toContain('href="https://x.dev"');
   });
 });

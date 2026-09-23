@@ -193,7 +193,7 @@ it("serves the project's own files by their absolute path", async () => {
   });
   try {
     // The address the chat panel makes of a file: link, `/C:/…` on Windows (markdown.ts).
-    const at = (file: string) => `/__sp/file${pathToFileURL(file).pathname}`;
+    const at = (file: string) => `/file${pathToFileURL(file).pathname}`;
     expect(
       await ask(at(path.join(projectDir, "web/variants/a glow.html"))),
     ).toEqual({
@@ -201,6 +201,11 @@ it("serves the project's own files by their absolute path", async () => {
       text: "glow",
     });
     expect((await ask(at(path.join(tmp, "secret.html")))).status).toBe(404);
+    // A junction is the link Windows makes without admin rights, and a symlink elsewhere.
+    fs.symlinkSync(tmp, path.join(projectDir, "web/out"), "junction");
+    expect(
+      (await ask(at(path.join(projectDir, "web/out/secret.html")))).status,
+    ).toBe(404);
     expect((await ask(`${at(projectDir)}/../secret.html`)).status).toBe(404);
   } finally {
     close();
