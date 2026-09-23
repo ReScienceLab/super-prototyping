@@ -52,6 +52,7 @@
  * holds as much of the session as the agent carried into it.
  */
 import { Fragment, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   ATTACH_TYPES,
   MAX_IMAGE_BYTES,
@@ -314,6 +315,9 @@ export function ChatPanel(props: {
   // Arrival order, and it never goes back: see the numbers in the note above.
   const nextN = useRef(1);
   const [sendError, setSendError] = useState<string | null>(null);
+  /** Whether the composer is ringing, to say a half-written message is waiting in it. Off again
+   *  when the ring has faded, so the next one rings too. */
+  const [cued, setCued] = useState(false);
   const abort = useRef(new AbortController());
   const log = useRef<HTMLDivElement>(null);
   const composer = useRef<HTMLDivElement>(null);
@@ -682,12 +686,23 @@ export function ChatPanel(props: {
   useEffect(() => {
     const take = (event: Event) => {
       const detail = (event as CustomEvent<CanvasAttachDetail>).detail;
-      // A message cannot be written into a panel that is away.
-      props.chat.show(true);
+      // A message cannot be written into a panel that is away. Flushed, because a panel that was
+      // away is `display: none` (.sp-chat-collapsed) until this render lands, and focus inside a
+      // hidden box puts the caret nowhere.
+      flushSync(() => props.chat.show(true));
       if (detail.kind === "error") return setSendError(detail.message);
-      // Over nothing the user wrote, since a message they had begun stays theirs to finish.
+      // Half a sentence, from the strip's "+", which is only any use if the reader sees they are
+      // being asked to finish it: the caret goes to the end of it and the box rings once (the
+      // cue below). Over nothing the user wrote, since a message they had begun stays theirs to
+      // finish — that one is focused where it is rather than refilled.
       if (detail.kind === "draft") {
-        return draft.trim() ? composer.current?.focus() : fill(detail.text);
+        const box = composer.current!;
+        if (draft.trim()) {
+          box.focus();
+          caretAt(box, box.childNodes.length);
+        } else fill(detail.text);
+        setCued(true);
+        return;
       }
       void addImages([detail.file], true);
     };
@@ -1242,7 +1257,12 @@ export function ChatPanel(props: {
           </>
         )}
         <form
-          className="sp-chat-composer"
+          className={
+            cued ? "sp-chat-composer sp-chat-cued" : "sp-chat-composer"
+          }
+          // The one animation that ends in here, so nothing else can take the ring off early:
+          // the spinner beside Send runs forever.
+          onAnimationEnd={() => setCued(false)}
           onSubmit={(e) => {
             e.preventDefault();
             void send();
