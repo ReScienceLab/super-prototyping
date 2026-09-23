@@ -9,7 +9,7 @@
  * Either way the answer is a slice of the same array, which is why an id is just a position.
  *
  * A turn is some kilobytes of text and the server forgets old runs, so nothing here bounds one.
- * Kept free of node APIs so it can be tested without a dev server, the way boardStatusEdit.ts is;
+ * Kept free of node APIs so it can be tested without a dev server, the way layoutEdit.ts is;
  * the process itself lives in server/agent.ts.
  */
 import type { AgentId } from "./agents.ts";

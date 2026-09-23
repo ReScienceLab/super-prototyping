@@ -47,17 +47,18 @@ it("shows the examples read-only beside the project's canvases", async () => {
     expect((await ask("/board/an-example/01-a.html")).text).toBe("example");
     expect((await ask("/board/shadowed/01-a.html")).text).toBe("mine");
 
-    const status = { file: "01-a", status: "outdated" };
+    const ground = { ground: "#000000" };
     expect(
-      (await ask("/__sp/board-status", { slug: "an-example", ...status }))
+      (await ask("/__sp/canvas-ground", { slug: "an-example", ...ground }))
         .status,
     ).toBe(403);
     expect(
-      (await ask("/__sp/board-status", { slug: "shadowed", ...status })).status,
+      (await ask("/__sp/canvas-ground", { slug: "shadowed", ...ground }))
+        .status,
     ).toBe(200);
     // A name in neither place is not an example, and gets the answer it got before.
     expect(
-      (await ask("/__sp/board-status", { slug: "nowhere", ...status })).status,
+      (await ask("/__sp/canvas-ground", { slug: "nowhere", ...ground })).status,
     ).not.toBe(403);
     const comment = { slug: "an-example", file: { records: [{}] } };
     expect((await ask("/__sp/comments", comment)).status).toBe(403);

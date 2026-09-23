@@ -16,7 +16,6 @@ import {
 import { BoardComments } from "./InspectorComments";
 import {
   Box,
-  Check,
   ChevronDownSmall,
   ChevronRightSmall,
   Cross,
@@ -26,28 +25,20 @@ import {
   Image,
   Layout,
   Pen,
-  RefreshCounterClockwise,
   TextTitle,
 } from "./geistIcons";
 import { CanvasChromeContext } from "./canvasChrome";
-import { canvasIndex } from "./canvasIndex";
 import { pointedElement } from "./cover";
 import {
   installInspectorClicks,
   type InspectorTarget,
 } from "./inspectorClicks";
 import {
-  BOARD_STATUSES,
-  BOARD_STATUS_LABEL,
-  LAYOUT_CHANGED,
-  type CanvasBoardStatus,
   type CanvasLayoutImage,
   boardPageUrl,
-  boardStatusForPath,
   canvasImageThumbUrl,
   canvasImageUrl,
   readCanvasAssetNames,
-  writeBoardStatus,
 } from "./canvasLibrary";
 import {
   type SpBinding,
@@ -108,155 +99,6 @@ function useStickyPanelState<T>(key: string, initial: T) {
     }
   }, [key, value]);
   return [value, setValue] as const;
-}
-
-/** How long the Undo beside the badge stays up after a status has been written. */
-const UNDO_MS = 10_000;
-
-/**
- * The board's status, in the panel's header, where the badge is also the control that sets it.
- *
- * It is the only place a status can be changed: the coloured tab above a board out on the canvas
- * is a read-only echo of the same value in layout.json.
- *
- * Whether the index is served is the whole of the read-only rule. Writing means editing
- * layout.json through the server, and a hosted canvas is static files with no repo behind them,
- * so there it is a badge and nothing more.
- */
-function BoardStatus({ path }: { path: string }) {
-  const [status, setStatus] = useState(() => boardStatusForPath(path));
-  const [open, setOpen] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const [undo, setUndo] = useState<{ back: CanvasBoardStatus } | null>(null);
-
-  // Anywhere outside closes it, including the board: the preview is an iframe, so a click that
-  // lands in it never reaches this document as a pointerdown, but it does take the window's
-  // focus, which is what `blur` catches.
-  useEffect(() => {
-    if (!open) return;
-    const close = () => setOpen(false);
-    window.addEventListener("pointerdown", close);
-    window.addEventListener("blur", close);
-    return () => {
-      window.removeEventListener("pointerdown", close);
-      window.removeEventListener("blur", close);
-    };
-  }, [open]);
-
-  // The file, edited from anywhere: this control, an agent, or the editor it is open in. The
-  // badge reads it back rather than trusting what it last set, so the two cannot disagree.
-  useEffect(() => {
-    const reread = () => setStatus(boardStatusForPath(path));
-    window.addEventListener(LAYOUT_CHANGED, reread);
-    return () => window.removeEventListener(LAYOUT_CHANGED, reread);
-  }, [path]);
-
-  // The offer expires. A stale Undo next to a badge someone has since stopped looking at is a
-  // trap: it would write a status back over whatever the file says by then.
-  useEffect(() => {
-    if (!undo) return;
-    const timer = setTimeout(() => setUndo(null), UNDO_MS);
-    return () => clearTimeout(timer);
-  }, [undo]);
-
-  const pick = async (next: CanvasBoardStatus) => {
-    setOpen(false);
-    if (next === status) return;
-    const previous = status;
-    // Optimistic, so the badge answers the click at once rather than at the end of a round trip
-    // through the file. The write comes back over HMR and the effect above confirms it, or the
-    // failure notice below says it never landed.
-    setStatus(next);
-    const ok = await writeBoardStatus(path, next);
-    setFailed(!ok);
-    // A status click edits a file in the user's repo, and nothing else on the canvas undoes it,
-    // because tldraw's history knows only about shapes. So the way back is offered here, briefly,
-    // rather than left to be typed back into layout.json by hand.
-    setUndo(ok ? { back: previous } : null);
-  };
-
-  const revert = async () => {
-    if (!undo) return;
-    setUndo(null);
-    setStatus(undo.back);
-    setFailed(!(await writeBoardStatus(path, undo.back)));
-  };
-
-  const badge = (
-    <>
-      <i className="sp-status-dot" />
-      {BOARD_STATUS_LABEL[status]}
-    </>
-  );
-
-  // Away from the dev server there is no file to write a status back to, so the badge is only a
-  // label — but it keeps the wrapper, which is what the menu and the Undo hang off.
-  if (!canvasIndex().served) {
-    return (
-      <div className="sp-status-wrap">
-        <span className={`sp-status sp-status--${status}`}>{badge}</span>
-      </div>
-    );
-  }
-
-  return (
-    // The menu is dismissed by any pointerdown on the window, so the control has to keep its own
-    // out of that. Otherwise opening it closes it in the same gesture.
-    <div
-      className="sp-status-wrap"
-      onPointerDown={(event) => event.stopPropagation()}
-    >
-      <button
-        type="button"
-        className={`sp-status sp-status--${status}`}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        title={`Status: ${BOARD_STATUS_LABEL[status]}. Click to change`}
-        onClick={() => setOpen((v) => !v)}
-      >
-        {badge}
-        <ChevronDownSmall className="sp-status-chev" />
-      </button>
-      {open ? (
-        <div className="sp-menu" role="menu">
-          {BOARD_STATUSES.map((option) => (
-            <button
-              key={option}
-              type="button"
-              role="menuitemradio"
-              aria-checked={option === status}
-              className="sp-menu-row"
-              onClick={() => pick(option)}
-            >
-              <i className={`sp-status-dot sp-status--${option}`} />
-              {BOARD_STATUS_LABEL[option]}
-              {option === status ? (
-                <Check className="sp-menu-ck" />
-              ) : null}
-            </button>
-          ))}
-          <div className="sp-menu-foot">
-            Writes{" "}
-            <code>{`${/canvases\/([^/]+)\//.exec(path)?.[1] ?? ""}/layout.json`}</code>
-          </div>
-        </div>
-      ) : null}
-      {undo ? (
-        <button
-          type="button"
-          className="sp-status-undo"
-          title={`Back to ${BOARD_STATUS_LABEL[undo.back]}`}
-          onClick={revert}
-        >
-          <RefreshCounterClockwise />
-          Undo
-        </button>
-      ) : null}
-      {failed ? (
-        <span className="sp-status-err">layout.json not written</span>
-      ) : null}
-    </div>
-  );
 }
 
 /**
@@ -490,7 +332,10 @@ export function InspectorPanel({
     const i = hov ?? sel;
     const box = data && i !== null && i > 0 ? data.nodes[i]?.box : null;
     pointedElement.current = box
-      ? { path, box: [box.x + data!.size.x, box.y + data!.size.y, box.w, box.h] }
+      ? {
+          path,
+          box: [box.x + data!.size.x, box.y + data!.size.y, box.w, box.h],
+        }
       : null;
     return () => {
       pointedElement.current = null;
@@ -562,7 +407,6 @@ export function InspectorPanel({
               ? `${fmt(data.size.w)} × ${fmt(data.size.h)}`
               : "reading board…"}
           </span>
-          <BoardStatus path={path} />
           {/*
             The board as an ordinary web page, in a tab of its own: on the canvas it is drawn at
             whatever the camera says, so that is where type is read and a flow is tapped through.

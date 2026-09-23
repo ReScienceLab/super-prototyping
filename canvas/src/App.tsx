@@ -64,12 +64,7 @@ import {
 } from "./InspectorPanel";
 import { asCanvasTarget, type InspectorTarget } from "./inspectorClicks";
 import { attachToChat } from "./canvasAttach";
-import {
-  CANVAS_STATUS_BANNER_GAP,
-  CANVAS_STATUS_BANNER_HEIGHT,
-  CANVAS_STATUS_BANNER_SHAPE_TYPE,
-  CanvasStatusBannerShapeUtil,
-} from "./CanvasStatusBannerShapeUtil";
+import { CanvasStatusBannerShapeUtil } from "./CanvasStatusBannerShapeUtil";
 import {
   CANVAS_LINK_BUTTON_SIZE,
   CANVAS_LINK_CARD_SIZE,
@@ -84,7 +79,6 @@ import {
   type CanvasLibraryFile,
   LAYOUT_CHANGED,
   BRAND_THUMB_EDGE,
-  boardTabStatusForPath,
   brandThumbForSrc,
   canvasImageKey,
   canvasImageRef,
@@ -259,6 +253,7 @@ const LIBRARY_SHAPE_PREFIXES = [
   "shape:canvas-row-heading:",
   "shape:canvas-file-label:",
   "shape:canvas-link:",
+  // Placed by no pass any more; listed so the sweep clears any a browser still holds.
   "shape:canvas-status-banner:",
 ];
 
@@ -333,7 +328,7 @@ function EmptyLibraryNotice() {
 /**
  * Puts library shapes where the layout says they go: creates the ones not on the canvas yet,
  * moves and refreshes the rest, and records every id in `placed`, so that the pass can sweep up
- * whatever it did not place (a board renamed or removed, a status tab taken away).
+ * whatever it did not place (a board renamed or removed, a heading retitled).
  *
  * The update is what keeps a new board from landing on top of an old one. A board inserted
  * mid-row takes the x of the board after it, and only moving that board makes room. It works on
@@ -411,11 +406,6 @@ function fileShapeId(file: CanvasLibraryFile) {
   return createShapeId(`canvas-file:${file.path}`);
 }
 
-/** The status tab above this board, when it has one. */
-function statusBannerShapeId(file: CanvasLibraryFile) {
-  return createShapeId(`canvas-status-banner:${file.path}`);
-}
-
 function columnX(index: number) {
   return index * (CANVAS_FILE_DEFAULT_SIZE.w + LIBRARY_GAP);
 }
@@ -446,14 +436,7 @@ function layoutRow(
   // The welcome board carries its own title and its own caption, so it gets neither.
   const bare = rowFiles[0].pageSlug === WELCOME_PAGE_SLUG;
   const rowX = (index: number) => index * (size.w + LIBRARY_GAP);
-  // A status tab sits above its board, not inside it, so the row reserves the height once for
-  // all of its boards. Reserving per row rather than per board keeps item N of one row aligned
-  // with item N of the next even where only one board in the row carries a tab.
-  const rowStatuses = rowFiles.map((file) => boardTabStatusForPath(file.path));
-  const statusH = rowStatuses.some(Boolean)
-    ? CANVAS_STATUS_BANNER_HEIGHT + CANVAS_STATUS_BANNER_GAP
-    : 0;
-  const contentY = (bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT) + statusH;
+  const contentY = bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT;
   placeShapes(
     editor,
     placed,
@@ -470,27 +453,6 @@ function layoutRow(
         path: file.path,
       },
     })),
-  );
-
-  // A board whose status was cleared has no tab placed here, and the pass sweeps its old one.
-  placeShapes(
-    editor,
-    placed,
-    rowFiles.flatMap((file, index) => {
-      const status = rowStatuses[index];
-      if (!status) return [];
-      return [
-        {
-          id: statusBannerShapeId(file),
-          type: CANVAS_STATUS_BANNER_SHAPE_TYPE,
-          parentId: page.id,
-          x: rowX(index),
-          y: contentY - statusH,
-          isLocked: true,
-          props: { w: size.w, h: CANVAS_STATUS_BANNER_HEIGHT, status },
-        },
-      ];
-    }),
   );
 
   if (bare) return contentY + size.h + LIBRARY_GAP;
@@ -1003,7 +965,7 @@ function initializeCanvasLibrary(editor: Editor) {
       }
 
       // What the pass did not place is what the folder no longer has: a board renamed or removed,
-      // a status cleared, a heading retitled. Left, it would sit under or over what replaced it.
+      // a heading retitled. Left, it would sit under or over what replaced it.
       for (const pageId of libraryPages) {
         editor.deleteShapes(
           [...editor.getPageShapeIds(pageId)].filter(
@@ -1341,9 +1303,9 @@ export default function App() {
   /** That board's frame on the canvas: the panel reads its report and posts its selection there. */
   const inspectorFrame = useRef<HTMLIFrameElement | null>(null);
 
-  // A layout.json edit moves boards: a row reserves the height of a status tab for all of its
-  // boards, so a status appearing or disappearing reflows the row. The pass reconciles, so the
-  // boards that stay keep their shapes and only what moved is touched.
+  // A layout.json edit moves boards: a row reordered, a label changed, a size override added.
+  // The pass reconciles, so the boards that stay keep their shapes and only what moved is
+  // touched.
   useEffect(() => {
     if (!editor) return;
     const relayout = () => initializeCanvasLibrary(editor);

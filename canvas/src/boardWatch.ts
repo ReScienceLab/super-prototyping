@@ -1,7 +1,7 @@
 /**
  * What a write under the boards directory means, and what the set of boards looks like right now.
  *
- * They live here rather than in vite.config.ts, like the write helpers in boardStatusEdit.ts, so
+ * They live here rather than in vite.config.ts, like the write helpers in layoutEdit.ts, so
  * they can be tested as what they are — a path classifier and a directory listing — without
  * standing a dev server up around them.
  *

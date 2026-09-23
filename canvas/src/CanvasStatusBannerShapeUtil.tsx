@@ -1,40 +1,13 @@
-import {
-  BaseBoxShapeUtil,
-  HTMLContainer,
-  T,
-  type RecordProps,
-  type TLShape,
-} from "tldraw";
-
-import type { CanvasBoardStatus } from "./canvasLibrary";
+import { BaseBoxShapeUtil, T, type RecordProps, type TLShape } from "tldraw";
 
 export const CANVAS_STATUS_BANNER_SHAPE_TYPE = "canvas-status-banner" as const;
 
 /**
- * The tab's own height, and the gap it leaves above the board. Together they are the space a
- * row reserves above its boards when anything in it carries a status, which is why they are
- * one number as far as the layout is concerned.
+ * The tab a board's status used to be drawn as, above the board. The status feature is gone,
+ * so the layout places none of these. The type stays registered only because a browser's
+ * IndexedDB can still hold one, and a store that meets an unknown shape type does not load;
+ * the layout's sweep deletes any it finds, since it placed none.
  */
-export const CANVAS_STATUS_BANNER_HEIGHT = 110;
-export const CANVAS_STATUS_BANNER_GAP = 24;
-
-/**
- * A board's maturity, drawn as a tab above it. `live` is the default and draws nothing: most
- * boards on a shipped page are live, and a tab on every one of them would say nothing while
- * costing 134px of every row.
- *
- * Geist's solid badge colours, not its subtle ones. The inspector's badge can be a tinted pill
- * because it sits at 100% next to one board; this is read across a page zoomed out to 34%,
- * where a pale fill and a dark rule collapse into the same grey smudge.
- */
-const STATUS_STYLE: Record<
-  Exclude<CanvasBoardStatus, "live">,
-  { label: string; fill: string; ink: string }
-> = {
-  exploring: { label: "EXPLORING", fill: "var(--ds-amber-700)", ink: "#171717" },
-  outdated: { label: "OUTDATED", fill: "#4D4D4D", ink: "#FFFFFF" },
-};
-
 declare module "tldraw" {
   export interface TLGlobalShapePropsMap {
     [CANVAS_STATUS_BANNER_SHAPE_TYPE]: {
@@ -58,48 +31,14 @@ export class CanvasStatusBannerShapeUtil extends BaseBoxShapeUtil<CanvasStatusBa
   };
 
   override getDefaultProps(): CanvasStatusBannerShape["props"] {
-    return {
-      w: 478,
-      h: CANVAS_STATUS_BANNER_HEIGHT,
-      status: "exploring",
-    };
+    return { w: 0, h: 0, status: "" };
   }
 
-  override canResize() {
-    return false;
+  override component() {
+    return null;
   }
 
-  override component(shape: CanvasStatusBannerShape) {
-    const style =
-      STATUS_STYLE[shape.props.status as keyof typeof STATUS_STYLE] ??
-      STATUS_STYLE.exploring;
-    return (
-      <HTMLContainer
-        style={{
-          width: shape.props.w,
-          height: shape.props.h,
-          background: style.fill,
-          color: style.ink,
-          font: `800 42px/${shape.props.h}px var(--sp-sans)`,
-          letterSpacing: ".14em",
-          textAlign: "center",
-        }}
-      >
-        {style.label}
-      </HTMLContainer>
-    );
-  }
-
-  override getIndicatorPath(shape: CanvasStatusBannerShape) {
-    const path = new Path2D();
-    path.rect(0, 0, shape.props.w, shape.props.h);
-    return path;
-  }
-
-  override getText(shape: CanvasStatusBannerShape) {
-    return (
-      STATUS_STYLE[shape.props.status as keyof typeof STATUS_STYLE]?.label ??
-      shape.props.status
-    );
+  override getIndicatorPath() {
+    return new Path2D();
   }
 }
