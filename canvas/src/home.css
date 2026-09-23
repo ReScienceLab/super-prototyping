@@ -142,7 +142,7 @@ button.home-tile i {
   padding: 0 32px 48px;
 }
 
-/* A canvas as a card: its first screens side by side on a stage one step up from the ground. */
+/* A project as a card: its cover on a stage one step up from the ground. */
 .home-file {
   border: 1px solid var(--ds-gray-alpha-400);
   border-radius: 12px;
@@ -155,7 +155,6 @@ button.home-tile i {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
   height: 233px;
   background: var(--ds-gray-100);
 }
@@ -172,6 +171,10 @@ button.home-tile i {
   border: 0;
   transform-origin: 0 0;
   pointer-events: none;
+}
+.home-file__thumb img {
+  position: absolute;
+  max-width: none;
 }
 .home-file__foot {
   display: flex;

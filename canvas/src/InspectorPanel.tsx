@@ -31,6 +31,7 @@ import {
 } from "./geistIcons";
 import { CanvasChromeContext } from "./canvasChrome";
 import { canvasIndex } from "./canvasIndex";
+import { pointedElement } from "./cover";
 import {
   installInspectorClicks,
   type InspectorTarget,
@@ -482,6 +483,19 @@ export function InspectorPanel({
       "*",
     );
   }, [hov, frame]);
+
+  // The element a right-click here would make the project's cover: the one hovered, else the one
+  // picked, moved from the root's px into the board's. The root itself is the board, no crop.
+  useEffect(() => {
+    const i = hov ?? sel;
+    const box = data && i !== null && i > 0 ? data.nodes[i]?.box : null;
+    pointedElement.current = box
+      ? { path, box: [box.x + data!.size.x, box.y + data!.size.y, box.w, box.h] }
+      : null;
+    return () => {
+      pointedElement.current = null;
+    };
+  }, [data, hov, sel, path]);
 
   // `data` again: a board that scrolled out of view and came back is a fresh document, with
   // every layer visible on it.

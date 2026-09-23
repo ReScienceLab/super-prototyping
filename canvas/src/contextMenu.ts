@@ -1,5 +1,6 @@
 import type { MouseEvent, RefObject } from "react";
 import { flushSync } from "react-dom";
+import type { ChosenCover } from "./cover";
 
 /**
  * The right-click menus of the home page's cards (HomePage.tsx) and the bar's tabs
@@ -57,6 +58,20 @@ export async function askServer(action: "reveal" | "delete", name: string) {
     },
   );
   if (!res.ok) alert(await res.text());
+}
+
+/**
+ * Sets the cover of the project whose pages are at `base`, or puts back its default with `null`
+ * (canvas/server/sp.ts). Says so when the server would not, and answers whether it did.
+ */
+export async function setProjectCover(base: string, cover: ChosenCover | null) {
+  const res = await fetch(`${base}__sp/project-cover`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ cover }),
+  });
+  if (!res.ok) alert(await res.text());
+  return res.ok;
 }
 
 const mac = /Mac/.test(navigator.userAgent);

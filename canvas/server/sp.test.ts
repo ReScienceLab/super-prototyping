@@ -121,6 +121,51 @@ it("lists the projects", async () => {
   }
 });
 
+// A project's cover is its first canvas's first screen until one is chosen; the choice is a
+// path in project.json, and taking it back deletes the file.
+it("keeps a project's cover", async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-cover-"));
+  const write = (rel: string, text: string) => {
+    fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
+    fs.writeFileSync(path.join(tmp, rel), text);
+  };
+  write("mine/canvases/a/01-a.html", "");
+  write("mine/canvases/b/00-tokens.html", "");
+  write("mine/canvases/b/01-home.html", "");
+  // `order` puts b first, and its 00- board is a token sheet the cover skips.
+  write("mine/canvases/b/layout.json", JSON.stringify({ order: -1 }));
+  fs.mkdirSync(path.join(tmp, "examples"));
+  const projectDir = path.join(tmp, "mine");
+  const { ask, close } = await serve({
+    canvasesDir: path.join(projectDir, "canvases"),
+    examplesDir: path.join(tmp, "examples"),
+    projects: () => new Map([["mine", projectDir]]),
+    projectDir,
+    repoRoot: tmp,
+  });
+  const cover = async () =>
+    JSON.parse((await ask("/__sp/projects.json")).text)[0].cover;
+  try {
+    expect(await cover()).toEqual({
+      path: "b/01-home.html",
+      w: 478,
+      h: 980,
+      box: [46, 24, 393, 852],
+    });
+    const chosen = { path: "a/01-a.html", box: [10, 20, 30, 40] };
+    expect((await ask("/__sp/project-cover", { cover: chosen })).status).toBe(204);
+    expect(await cover()).toEqual({ ...chosen, w: 478, h: 980, chosen: true });
+    for (const path of ["a/nope.html", "../mine/canvases/a/01-a.html"])
+      expect((await ask("/__sp/project-cover", { cover: { path } })).status).toBe(400);
+    expect((await ask("/__sp/project-cover", { cover: null })).status).toBe(204);
+    expect(fs.existsSync(path.join(projectDir, "project.json"))).toBe(false);
+    expect((await cover()).path).toBe("b/01-home.html");
+  } finally {
+    close();
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
 async function serve(options: Parameters<typeof createSpServer>[0]) {
   const sp = createSpServer(options);
   const server = http.createServer((req, res) =>
