@@ -92,8 +92,9 @@ A project's own cover, when someone chose one on the canvas, is in
 `path` is a board, or an image in a folder's image rows
 (`<slug>/assets/brand/<file>`). `box` is the part to keep in view, in the
 file's px, and is left out for the whole board. Without the file, or with a
-path that has since gone, the cover is the first canvas's own: its `cover`
-board cropped to its `coverBox`, first by `order` then slug. The canvas's
+path that has since gone, the cover is the first canvas's `cover` board,
+whole, the first canvas being first by `order` then slug. A card fills its
+frame with it from the top; an element chosen as cover is centred instead. The canvas's
 right-click menu writes the file and the home card's Reset cover deletes it,
 so there is no reason to edit it by hand.
 - `files` entries are file names **without** `.html`, either bare (the

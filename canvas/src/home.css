@@ -142,7 +142,7 @@ button.home-tile i {
   padding: 0 32px 48px;
 }
 
-/* A project as a card: its cover on a stage one step up from the ground. */
+/* A project as a card: its cover filling the stage above its name. */
 .home-file {
   border: 1px solid var(--ds-gray-alpha-400);
   border-radius: 12px;
@@ -152,19 +152,10 @@ button.home-tile i {
   border-color: var(--ds-gray-500);
 }
 .home-file__thumb {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  overflow: hidden;
   height: 233px;
   background: var(--ds-gray-100);
-}
-.home-file__thumb > div {
-  position: relative;
-  flex: none;
-  overflow: hidden;
-  border-radius: 9px;
-  background: #fff;
-  box-shadow: 0 0 0 1px var(--ds-gray-alpha-400);
 }
 .home-file__thumb iframe {
   position: absolute;

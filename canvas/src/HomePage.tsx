@@ -6,12 +6,7 @@ import {
 } from "react";
 import { canvasIndex } from "./canvasIndex";
 import { canvasIconUrl, humanize } from "./canvasLibrary";
-import {
-  coverFrame,
-  fitCover,
-  projectCover,
-  type Cover,
-} from "./cover";
+import { fitCover, projectCover, type Cover } from "./cover";
 import {
   isExample,
   openInTab,
@@ -37,9 +32,8 @@ type Sort = "edited" | "name" | "boards";
 /** A card's right-click: the address it links to, the tab it opens, and its project if it is one. */
 type Target = { href: string; tab: ProjectTab; project?: Project };
 
-/** The stage's height (home.css), and the room a cover leaves around it there. */
+/** The stage's height (home.css), which a cover fills. */
 const STAGE_H = 233;
-const STAGE_PAD = 16;
 
 /** What a card calls a canvas: its layout's name without the "(example)" shelf, as tabs do. */
 const nameOf = (c: Canvas) =>
@@ -103,11 +97,15 @@ function Card(props: {
     observer.observe(stage.current!);
     return () => observer.disconnect();
   }, []);
-  const frame =
-    cover &&
-    stageW > 0 &&
-    coverFrame(cover.box, stageW - 2 * STAGE_PAD, STAGE_H - 2 * STAGE_PAD);
-  const fit = frame && fitCover(cover.box, frame.w, frame.h);
+  // The cover fills the stage: an element chosen as cover centred in it, the rest from the
+  // board's top, the way a page is read. Clamped so the board is under every pixel of the stage.
+  const fit = cover && stageW > 0 && fitCover(cover.box, stageW, STAGE_H);
+  const place = fit && {
+    left: Math.min(0, Math.max(fit.left, stageW - cover.w * fit.scale)),
+    top: cover.chosen
+      ? Math.min(0, Math.max(fit.top, STAGE_H - cover.h * fit.scale))
+      : 0,
+  };
   const file = cover && `${base}board/${encodeURI(cover.path)}`;
   const board = cover?.path.endsWith(".html");
   return (
@@ -118,45 +116,42 @@ function Card(props: {
       onContextMenu={props.onContextMenu}
     >
       <div className="home-file__thumb" ref={stage}>
-        {cover && frame && fit && (
-          <div style={{ width: frame.w, height: frame.h }}>
-            {board && live ? (
-              <iframe
-                src={file}
-                title={props.name}
-                loading="lazy"
-                sandbox=""
-                tabIndex={-1}
-                aria-hidden
-                style={{
-                  left: fit.left,
-                  top: fit.top,
-                  width: cover.w,
-                  height: cover.h,
-                  transform: `scale(${fit.scale})`,
-                }}
-              />
-            ) : (
-              <img
-                src={
-                  board
-                    ? `${base}__sp/shoot?path=${encodeURIComponent(cover.path)}` +
-                      `&w=${cover.w}&h=${cover.h}&v=${props.updated}`
-                    : file
-                }
-                alt=""
-                loading="lazy"
-                onError={board ? () => setLive(true) : undefined}
-                style={{
-                  left: fit.left,
-                  top: fit.top,
-                  width: cover.w * fit.scale,
-                  height: cover.h * fit.scale,
-                }}
-              />
-            )}
-          </div>
-        )}
+        {cover &&
+          fit &&
+          place &&
+          (board && live ? (
+            <iframe
+              src={file}
+              title={props.name}
+              loading="lazy"
+              sandbox=""
+              tabIndex={-1}
+              aria-hidden
+              style={{
+                ...place,
+                width: cover.w,
+                height: cover.h,
+                transform: `scale(${fit.scale})`,
+              }}
+            />
+          ) : (
+            <img
+              src={
+                board
+                  ? `${base}__sp/shoot?path=${encodeURIComponent(cover.path)}` +
+                    `&w=${cover.w}&h=${cover.h}&v=${props.updated}`
+                  : file
+              }
+              alt=""
+              loading="lazy"
+              onError={board ? () => setLive(true) : undefined}
+              style={{
+                ...place,
+                width: cover.w * fit.scale,
+                height: cover.h * fit.scale,
+              }}
+            />
+          ))}
       </div>
       <div className="home-file__foot">
         {props.icon ? <img src={props.icon} alt="" /> : <span />}
@@ -307,7 +302,9 @@ export function HomePage(props: {
               cover={p.cover}
               base={p.url}
               updated={p.updated}
-              icon={iconed && `${p.url}board/${encodeURI(iconed.slug)}/icon.png`}
+              icon={
+                iconed && `${p.url}board/${encodeURI(iconed.slug)}/icon.png`
+              }
               name={p.name}
               sub={`Edited ${ago(p.updated)}`}
               count={

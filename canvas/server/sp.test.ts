@@ -121,7 +121,7 @@ it("lists the projects", async () => {
   }
 });
 
-// A project's cover is its first canvas's first screen until one is chosen; the choice is a
+// A project's cover is its first canvas's first screen, whole, until one is chosen; the choice is a
 // path in project.json, and taking it back deletes the file.
 it("keeps a project's cover", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-cover-"));
@@ -150,7 +150,7 @@ it("keeps a project's cover", async () => {
       path: "b/01-home.html",
       w: 478,
       h: 980,
-      box: [46, 24, 393, 852],
+      box: [0, 0, 478, 980],
     });
     const chosen = { path: "a/01-a.html", box: [10, 20, 30, 40] };
     expect((await ask("/__sp/project-cover", { cover: chosen })).status).toBe(204);

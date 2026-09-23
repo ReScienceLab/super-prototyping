@@ -50,20 +50,6 @@ export function fitCover([x, y, bw, bh]: Box, w: number, h: number) {
 }
 
 /**
- * The frame a cover gets on a stage of `w` x `h`: the box whole, then grown by up to
- * `COVER_CROP` past that, which a crop takes back off the long side, and never past the stage.
- * A cover near the stage's shape fills it, and a phone keeps its status bar and its home
- * indicator, standing on the stage rather than cut to a slice of it.
- */
-export function coverFrame([, , bw, bh]: Box, w: number, h: number) {
-  const whole = Math.min(w / bw, h / bh);
-  const scale = Math.min(Math.max(w / bw, h / bh), whole * COVER_CROP);
-  return { w: Math.min(w, bw * scale), h: Math.min(h, bh * scale) };
-}
-/** ponytail: one ratio for every shape of cover. Tune it here if phones read too cropped. */
-const COVER_CROP = 1.1;
-
-/**
  * The board that stands in for a folder: the one its layout.json names, else its first screen
  * rather than its 00- board, which is a token sheet on every example and would make the covers
  * look alike. `names` are the folder's board files without `.html`, sorted.
@@ -117,9 +103,8 @@ const layoutOf = (c: CoverCanvas) => c.layout as CoverLayout | undefined;
 
 /**
  * A project's cover. The one its project.json chose, when that file is still one of its canvases'
- * boards or listed images; otherwise the first canvas's own cover, which is also what a project
- * with no project.json has. A phone board keeps to its folder's phone frame, anything else shows
- * whole. Undefined for a project with no canvas yet.
+ * boards or listed images; otherwise the first canvas's own cover board, whole, which is also what a
+ * project with no project.json has. Undefined for a project with no canvas yet.
  */
 export function projectCover(
   canvases: CoverCanvas[],
@@ -165,17 +150,10 @@ function boardCover(canvas: CoverCanvas, name: string, box?: Box): Cover {
     for (const entry of row.files ?? [])
       if (typeof entry !== "string" && entry.file === name && entry.w && entry.h)
         size = { w: entry.w, h: entry.h };
-  const phone =
-    size.w === CANVAS_FILE_DEFAULT_SIZE.w &&
-    size.h === CANVAS_FILE_DEFAULT_SIZE.h;
   return {
     path: `${canvas.slug}/${name}.html`,
     ...size,
-    box:
-      box ??
-      (phone
-        ? (layout?.coverBox ?? DEFAULT_COVER_BOX)
-        : [0, 0, size.w, size.h]),
+    box: box ?? [0, 0, size.w, size.h],
   };
 }
 

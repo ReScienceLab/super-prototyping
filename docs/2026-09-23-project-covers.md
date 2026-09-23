@@ -9,7 +9,7 @@ whatever someone right-clicked on the canvas and set as cover.
 Only a choice is stored, in `<project>/project.json`:
 `{ "cover": { "path": "<slug>/<file>", "box"?: [x, y, w, h] } }`. The default is never written
 down. It is worked out from what is already there, the first canvas in strip order and that
-folder's `cover` and `coverBox` in `layout.json`, so it cannot fall out of step with them. A
+folder's `cover` in `layout.json`, so it cannot fall out of step with them. A
 choice whose file has gone falls back to the default rather than showing a hole.
 
 No pixels are stored. A saved PNG would be a second copy of the board that goes stale with every
@@ -32,6 +32,8 @@ the project's canvases.
 
 ## Cropping
 
-A cover keeps its whole `box` and may grow up to 10% past fitting it, the crop taking the rest
-off the long side, so a phone keeps its status bar and home indicator and a wide board fills the
-card. An element chosen as cover is that `box`, so the crop centres on it with the board around.
+A cover fills its card, as a Figma thumbnail does, rather than standing a phone on a stage. The
+default is the whole board, not the phone frame `coverBox` crops the welcome page's cards to, and
+is read from the top, so a phone shows its first screenful and a wide board most of itself. A
+chosen element is the `box`, and the fill centres on it instead, clamped so the board is under
+every pixel of the card.
