@@ -103,24 +103,6 @@ export function createAgentServer(options: {
     fs.writeFileSync(file, data);
     return file;
   };
-  const kept = (id: string) => {
-    const dir = keptOf(id);
-    if (!fs.existsSync(dir)) return undefined;
-    const run = newRun(id);
-    run.events = fs
-      .readFileSync(path.join(dir, "events.jsonl"), "utf8")
-      .split("\n")
-      .filter(Boolean)
-      .map((line) => JSON.parse(line));
-    // The server went down mid-run and took the agent with it.
-    if (!ended(run))
-      emit(run, "end", {
-        kind: "end",
-        ok: false,
-        message: "The app quit before this turn finished.",
-      });
-    return run;
-  };
 
   // Which agents are installed: `bin --version` once each, for the server's lifetime, so
   // the menu greys out one that is missing and says what to do, rather than letting the
@@ -672,7 +654,22 @@ export function createAgentServer(options: {
     // A run this server started, or one it or an earlier server kept on disk. The id names a
     // folder, and the pattern above lets through no separator and no dot.
     const live = runs.get(match[1]);
-    const run = live ?? kept(match[1]);
+    let run = live;
+    if (!run && fs.existsSync(keptOf(match[1]))) {
+      run = newRun(match[1]);
+      run.events = fs
+        .readFileSync(path.join(keptOf(match[1]), "events.jsonl"), "utf8")
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line));
+      // The server went down mid-run and took the agent with it.
+      if (!ended(run))
+        emit(run, "end", {
+          kind: "end",
+          ok: false,
+          message: "The app quit before this turn finished.",
+        });
+    }
     if (!run) return send(404, "no such run");
     if (
       req.method === "GET" &&
