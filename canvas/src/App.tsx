@@ -1417,21 +1417,25 @@ export default function App() {
         openTab(tab.view);
         return true;
       },
-      // A link Copy link made (canvasChrome.tsx), pasted into the chat: the board or picture its
-      // hash names, as the chip its + would have put there. Anything else stays text.
-      attach(href) {
-        if (!editor || !URL.canParse(href)) return false;
-        const tab = tabFromUrl(href);
-        const name = targetFromUrl(href);
-        if (tab.kind !== "canvas" || !name) return false;
-        const file = readCanvasLibrary()
-          .flat()
-          .find((c) => c.pageSlug === tab.slug && c.fileName === name);
-        const target = asCanvasTarget(
-          editor.getShape(file ? fileShapeId(file) : imageShapeId(tab.slug, name)),
-        );
-        if (!target) return false;
-        attachToChat(editor, target);
+      // Links Copy link made (canvasChrome.tsx), pasted into the chat: the boards and pictures
+      // their hashes name, as the chips their + would have put there. All of them or none, so a
+      // paste is never half chips and half text.
+      attach(hrefs) {
+        if (!editor) return false;
+        const targets = hrefs.map((href) => {
+          if (!URL.canParse(href)) return undefined;
+          const tab = tabFromUrl(href);
+          const name = targetFromUrl(href);
+          if (tab.kind !== "canvas" || !name) return undefined;
+          const file = readCanvasLibrary()
+            .flat()
+            .find((c) => c.pageSlug === tab.slug && c.fileName === name);
+          return asCanvasTarget(
+            editor.getShape(file ? fileShapeId(file) : imageShapeId(tab.slug, name)),
+          );
+        });
+        if (!targets.every(Boolean)) return false;
+        void attachToChat(editor, targets as InspectorTarget[]);
         return true;
       },
     };

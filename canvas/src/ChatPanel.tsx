@@ -1290,11 +1290,14 @@ export function ChatPanel(props: {
               if (e.clipboardData.files.length)
                 return void addImages(e.clipboardData.files, true);
               const text = e.clipboardData.getData("text/plain");
-              // A link to a board or picture of the canvas in the frame is that shape's chip.
+              // Links to boards and pictures of the canvas in the frame, one a line, are those
+              // shapes' chips.
+              const links = text.split(/\s+/).filter(Boolean);
               if (
+                links.length &&
                 document
                   .querySelector<HTMLIFrameElement>(".canvas-frame")
-                  ?.contentWindow?.spCanvas?.attach(text.trim())
+                  ?.contentWindow?.spCanvas?.attach(links)
               )
                 return;
               // The text and not the markup that came with it: the box holds the chips it made

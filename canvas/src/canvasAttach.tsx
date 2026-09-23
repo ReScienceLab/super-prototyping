@@ -34,8 +34,8 @@ const dispatchAttach = (detail: CanvasAttachDetail) =>
  * A board or a picture, turned into the file the chat attaches. A board is a page in an
  * `<iframe>`, so the server draws it first (`/__sp/shoot`, vite.config.ts) and it goes over under
  * its own `<slug>/<file>.html`; a picture already on the canvas is read back out of the asset its
- * shape points at. Shared by the single-shape button below and the selection's
- * (`CanvasSelectionAttachButton`), which differ only in how many targets they call this for.
+ * shape points at. Shared by the single-shape button below and `attachToChat`, which the
+ * selection's button and a pasted link go through.
  */
 async function attachDetail(
   editor: Editor,
@@ -71,14 +71,19 @@ async function attachDetail(
 }
 
 /**
- * A board or picture a pasted link named (spCanvas.attach, App.tsx), handed to the chat the way
- * its **+** would hand it, so the link lands in the sentence as that shape's chip.
+ * The boards and pictures pasted links named (spCanvas.attach, App.tsx), handed to the chat the
+ * way their **+** would hand them, so the links land in the sentence as those shapes' chips. One
+ * at a time, like the selection's button below, so the chips come in the order of the links.
  */
 // oxlint-disable-next-line react/only-export-components
-export function attachToChat(editor: Editor, target: InspectorTarget) {
-  attachDetail(editor, target).then(dispatchAttach, (error) =>
-    dispatchAttach({ kind: "error", message: String(error) }),
-  );
+export async function attachToChat(editor: Editor, targets: InspectorTarget[]) {
+  for (const target of targets) {
+    try {
+      dispatchAttach(await attachDetail(editor, target));
+    } catch (error) {
+      dispatchAttach({ kind: "error", message: String(error) });
+    }
+  }
 }
 
 /**
@@ -278,13 +283,7 @@ export function CanvasSelectionAttachButton() {
       .filter((t): t is InspectorTarget => t !== undefined);
     setShooting(true);
     try {
-      for (const target of targets) {
-        try {
-          dispatchAttach(await attachDetail(editor, target));
-        } catch (error) {
-          dispatchAttach({ kind: "error", message: String(error) });
-        }
-      }
+      await attachToChat(editor, targets);
     } finally {
       setShooting(false);
     }

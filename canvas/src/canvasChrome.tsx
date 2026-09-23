@@ -192,25 +192,27 @@ export const canvasChromeComponents: TLComponents = {
   ContextMenu: (props) => {
     const chrome = useContext(CanvasChromeContext);
     const editor = useEditor();
-    // The address of the one shape right-clicked, the one the window shows when it is open: a
-    // board or picture by its hash (canvasUrl.ts), a card by where it goes.
-    const link = useValue(
-      "shape link",
+    // The address of each selected shape, the one the window shows when it is open: a board or
+    // picture by its hash (canvasUrl.ts), a card by where it goes. One a line, in the order tldraw
+    // reports the selection, which is the order a paste attaches them in (ChatPanel.tsx).
+    const links = useValue(
+      "shape links",
       () => {
-        const shape = editor.getOnlySelectedShape();
         const here = windowUrl(window.location.href);
-        if (shape?.type === CANVAS_FILE_SHAPE_TYPE) {
-          const file = readCanvasLibrary()
-            .flat()
-            .find((c) => c.path === (shape as CanvasFileShape).props.path);
-          return file && urlForSlug(here, file.pageSlug, file.fileName);
-        }
-        if (shape?.type === CANVAS_LINK_SHAPE_TYPE) {
-          const { url, page } = (shape as CanvasLinkShape).props;
-          return url || (page ? urlForSlug(here, page) : undefined);
-        }
-        const ref = shape && canvasImageRef(shape.id);
-        return ref && urlForSlug(here, ref.slug, ref.file);
+        return editor.getSelectedShapes().flatMap((shape) => {
+          if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
+            const file = readCanvasLibrary()
+              .flat()
+              .find((c) => c.path === (shape as CanvasFileShape).props.path);
+            return file ? [urlForSlug(here, file.pageSlug, file.fileName)] : [];
+          }
+          if (shape.type === CANVAS_LINK_SHAPE_TYPE) {
+            const { url, page } = (shape as CanvasLinkShape).props;
+            return url ? [url] : page ? [urlForSlug(here, page)] : [];
+          }
+          const ref = canvasImageRef(shape.id);
+          return ref ? [urlForSlug(here, ref.slug, ref.file)] : [];
+        });
       },
       [editor],
     );
@@ -230,12 +232,12 @@ export const canvasChromeComponents: TLComponents = {
               editor.setCurrentTool("comment");
             }}
           />
-          {link && (
+          {links.length > 0 && (
             <TldrawUiMenuItem
               id="copy-link"
-              label="Copy link"
+              label={links.length > 1 ? `Copy ${links.length} links` : "Copy link"}
               icon={<Copy />}
-              onSelect={() => void navigator.clipboard.writeText(link)}
+              onSelect={() => void navigator.clipboard.writeText(links.join("\n"))}
             />
           )}
           <TldrawUiMenuItem
