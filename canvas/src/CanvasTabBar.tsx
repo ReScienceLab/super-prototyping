@@ -195,8 +195,15 @@ export function CanvasTabBar(props: {
               role="menuitem"
               className="sp-menu-row"
               onClick={() =>
+                // The project's bare address, which opens its first canvas, not the view left in
+                // front; an example is one canvas.
                 navigator.clipboard.writeText(
-                  new URL(tabUrl(target), location.href).href,
+                  new URL(
+                    target.kind === "project"
+                      ? target.url
+                      : tabUrl({ ...target, view: { kind: "canvas", slug: target.slug } }),
+                    location.href,
+                  ).href,
                 )
               }
             >

@@ -297,7 +297,8 @@ export function HomePage(props: {
               key={p.name}
               href={tabUrl(tab)}
               onClick={openInTab(props.goTo, tab)}
-              onContextMenu={showMenu({ href: tabUrl(tab), tab, project: p })}
+              // Its bare address, which opens its first canvas (resolveTab).
+              onContextMenu={showMenu({ href: p.url, tab, project: p })}
               cover={p.cover}
               base={p.url}
               updated={p.updated}

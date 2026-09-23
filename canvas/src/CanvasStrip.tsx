@@ -1,11 +1,12 @@
-import { useContext } from "react";
+import { useContext, useRef, useState } from "react";
 import { CanvasChromeContext } from "./canvasChrome";
 import { shortName } from "./canvasLibrary";
-import { docsOf, ownCanvases, pageOf, tabFor } from "./canvasTabs";
+import { docsOf, ownCanvases, pageOf, tabFor, tabUrl } from "./canvasTabs";
 import { canvasIndex } from "./canvasIndex";
 import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
-import { sheetPageUrl } from "./canvasUrl";
+import { sheetPageUrl, type CanvasTab } from "./canvasUrl";
+import { openMenu } from "./contextMenu";
 import { DocModeSwitch } from "./DocTab";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
 import { FileText, LogoFigma, Plus } from "./geistIcons";
@@ -35,6 +36,8 @@ export function CanvasStrip() {
   // Keyed by the page, so the project's home, which shows Start here's, shares its ground.
   const page = activeTab.kind === "canvas" ? pageOf(activeTab) : undefined;
   const ground = useGround(editor, page);
+  const [target, setTarget] = useState<CanvasTab | null>(null);
+  const menu = useRef<HTMLDivElement>(null);
 
   return (
     <nav className="sp-canvas-tabs" aria-label="Canvases">
@@ -46,6 +49,7 @@ export function CanvasStrip() {
           aria-current={activeTab.kind === "doc" && activeTab.slug === slug ? "page" : undefined}
           title={name}
           onClick={() => openTab({ kind: "doc", slug })}
+          onContextMenu={(event) => openMenu(event, menu, () => setTarget({ kind: "doc", slug }))}
         >
           <FileText />
           {name.replace(/\.md$/i, "")}
@@ -63,6 +67,9 @@ export function CanvasStrip() {
           className="sp-canvas-tab"
           aria-current={canvas === here ? "page" : undefined}
           onClick={() => openTab({ kind: "canvas", slug: canvas })}
+          onContextMenu={(event) =>
+            openMenu(event, menu, () => setTarget({ kind: "canvas", slug: canvas }))
+          }
         >
           <ViewIcon view={{ kind: "canvas", slug: canvas }} />
           {shortName(canvas)}
@@ -114,6 +121,27 @@ export function CanvasStrip() {
           <LogoFigma />
         </a>
       )}
+      {/* The window's address for the tab, the one the bar's chip copies with this view in front. */}
+      <div
+        ref={menu}
+        popover="auto"
+        className="sp-context-menu"
+        role="menu"
+        onClickCapture={(event) => event.currentTarget.hidePopover()}
+      >
+        <button
+          type="button"
+          role="menuitem"
+          className="sp-menu-row"
+          onClick={() =>
+            navigator.clipboard.writeText(
+              new URL(tabUrl({ ...tab, view: target! }), location.href).href,
+            )
+          }
+        >
+          Copy link
+        </button>
+      </div>
     </nav>
   );
 }

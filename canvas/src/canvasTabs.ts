@@ -215,18 +215,24 @@ export function tabExists(tab: CanvasTab) {
  * The tab something actually opens, which is not always the one it named. A kit is named by the
  * folder whose material it shows, and a folder that collected none has no kit of its own. That
  * address is the index of every kit, which is the page brand.html serves for it too. A canvas
- * the library has never heard of is a link to a folder that has since gone, and lands on the
- * project's own view of Start here, the one page that is always there. So does a document
- * that has gone.
+ * the library has never heard of is a link to a folder that has since gone. It lands where the
+ * project's bare address does, and so does a document that has gone: on the project's first
+ * canvas, else its first document, else its own view of Start here, the one page always there.
  */
 export function resolveTab(tab: CanvasTab): CanvasTab {
-  if (tab.kind === "doc") return tabExists(tab) ? tab : HOME_TAB;
+  if (tab === HOME_TAB || (tab.kind === "canvas" && !tab.slug)) {
+    const canvas = ownCanvases()[0];
+    const doc = canvasIndex().docs?.[0];
+    if (canvas) return { kind: "canvas", slug: canvas };
+    return doc ? { kind: "doc", slug: doc.name } : HOME_TAB;
+  }
+  if (tab.kind === "doc") return tabExists(tab) ? tab : resolveTab(HOME_TAB);
   if (tab.kind === "brand") {
     return tab.slug && !hasBrandMaterial(tab.slug)
       ? { kind: "brand", slug: "" }
       : tab;
   }
-  return tabExists(tab) ? tab : HOME_TAB;
+  return tabExists(tab) ? tab : resolveTab(HOME_TAB);
 }
 
 /**

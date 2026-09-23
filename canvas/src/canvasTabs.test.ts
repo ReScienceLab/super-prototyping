@@ -11,6 +11,7 @@ import {
   HOME_TAB,
   docsOf,
   openInTab,
+  ownCanvases,
   pageOf,
   readOpenTabs,
   resolveTab,
@@ -94,7 +95,7 @@ describe("a tab is a project", () => {
     expect(tabFor(theirs)).toEqual({ kind: "example", slug: canvas, view: theirs });
     expect(tabFor({ kind: "doc", slug: "PRD.md" })).toMatchObject({ kind: "project" });
     expect(resolveTab(theirs)).toEqual(theirs);
-    expect(resolveTab({ kind: "doc", slug: `${canvas}/Gone.md` })).toEqual(HOME_TAB);
+    expect(resolveTab({ kind: "doc", slug: `${canvas}/Gone.md` })).toEqual(resolveTab(HOME_TAB));
   });
 
   it("keeps Start here's own tab apart from the project's view of its page", () => {
@@ -175,10 +176,10 @@ describe("what is behind a tab", () => {
     });
   });
 
-  it("sends a canvas that has gone to Start here", () => {
-    expect(resolveTab({ kind: "canvas", slug: "no-such-folder" })).toEqual(
-      HOME_TAB,
-    );
+  it("opens a bare address, and a canvas that has gone, on the first canvas", () => {
+    const first: CanvasTab = { kind: "canvas", slug: ownCanvases()[0] };
+    expect(resolveTab(HOME_TAB)).toEqual(first);
+    expect(resolveTab({ kind: "canvas", slug: "no-such-folder" })).toEqual(first);
     expect(resolveTab({ kind: "canvas", slug: canvas })).toEqual({
       kind: "canvas",
       slug: canvas,
