@@ -99,7 +99,7 @@ export function createSpServer(options: {
 }) {
   const { canvasesDir, examplesDir, projects, projectDir, repoRoot } = options;
 
-  // This checkout opened as a project (the dev server) has the examples for its canvases, and
+  // This checkout opened as a project (Open folder, `sp start`) has the examples for its canvases, and
   // each is still a project of its own there, not one of the checkout's.
   const isExample = (slug: string) =>
     projectDir === undefined ||

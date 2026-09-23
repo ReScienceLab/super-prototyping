@@ -87,8 +87,8 @@ async function brandThumb(file: string): Promise<string | undefined> {
 /**
  * The boards, as the canvas reads them: an index at `/__sp/index.json` and the files under
  * `/board/<slug>/`. The dev server answers both from `server/projects.ts`, the same module the
- * built app's own server (`server/main.ts`) runs, every project at `/p/<name>/` with this
- * checkout opened as one of them, so a board folder is read at request time and the canvas has
+ * built app's own server (`server/main.ts`) runs, every project at `/p/<name>/` and this
+ * checkout's canvases as the examples, so a board folder is read at request time and the canvas has
  * no dev-only feature. A build emits the same index and files once, as static output, for the
  * hosted canvas: it reads a fixed set of boards and can write nothing.
  *
@@ -147,8 +147,6 @@ function canvasesSource(): Plugin {
         projectsDir: projectsDirFromEnv(),
         repoRoot,
       });
-      // This checkout is the project the dev server opens on, so `bun run dev` shows its boards.
-      projects.open(repoRoot);
       server.middlewares.use((req, res, next) =>
         projects.handle(req, res, next),
       );
