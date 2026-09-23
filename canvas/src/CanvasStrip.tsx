@@ -6,6 +6,7 @@ import { canvasIndex } from "./canvasIndex";
 import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { sheetPageUrl } from "./canvasUrl";
+import { DocModeSwitch } from "./DocTab";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
 import { LogoFigma, Plus } from "./geistIcons";
 
@@ -19,8 +20,8 @@ import { LogoFigma, Plus } from "./geistIcons";
  * begun, since a canvas is the agent's work. An example is the app's and takes none, and a build
  * has no agent.
  *
- * At the far end is the canvas's ground colour, then Export to Figma, the one place a canvas goes
- * from here.
+ * At the far end are the controls of the tab in front: a canvas's ground colour, then Export to
+ * Figma, the one place a canvas goes from here; a document's Read and Edit.
  */
 export function CanvasStrip() {
   const { activeTab, openTab, editor } = useContext(CanvasChromeContext);
@@ -83,6 +84,7 @@ export function CanvasStrip() {
           <Plus />
         </button>
       )}
+      {activeTab.kind === "doc" && <DocModeSwitch slug={activeTab.slug} />}
       {page && groundEditable(page) && (
         <label
           className="sp-canvas-tabs-ground"

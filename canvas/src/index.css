@@ -442,32 +442,30 @@ button {
   line-height: 20px;
 }
 
-/* Read and Edit, at the tab's top right, and staying there while the page scrolls. */
-.canvas-doc-mode {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  float: right;
+/* Read and Edit, a document's controls at the strip's far end (DocTab.tsx). */
+.sp-canvas-tabs-mode {
   display: flex;
+  align-self: center;
   gap: 2px;
-  margin-top: -28px;
+  margin-left: auto;
   padding: 2px;
-  border: 1px solid var(--sp-line);
+  border: 1px solid var(--ds-gray-alpha-400);
   border-radius: 8px;
-  background: var(--ds-background-100);
 }
 
-.canvas-doc-mode button {
-  height: 24px;
+.sp-canvas-tabs-mode button {
+  height: 22px;
   padding: 0 10px;
+  border: 0;
   border-radius: 6px;
-  color: var(--sp-text-2);
-  font-weight: 500;
+  background: none;
+  color: var(--ds-gray-900);
+  font: inherit;
   cursor: pointer;
 }
 
-.canvas-doc-mode button:hover,
-.canvas-doc-mode button[aria-pressed="true"] {
+.sp-canvas-tabs-mode button:hover,
+.sp-canvas-tabs-mode button[aria-pressed="true"] {
   background: var(--ds-gray-100);
   color: var(--ds-gray-1000);
 }
