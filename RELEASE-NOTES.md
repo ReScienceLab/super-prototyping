@@ -156,6 +156,10 @@ Everything below is on `main` and reaches no install until a version is cut.
   at its foot. Click it to check for an update there and then: it answers **Up to
   date**, that a newer version is available, which then downloads and asks as
   usual, or **Could not check**.
+- **The online canvas has moved to
+  [prototyping.rescience.com/demo](https://prototyping.rescience.com/demo/).**
+  The domain itself is now a page about Super Prototyping, with the downloads
+  on it. Links to a board written before the move still open it.
 
 ## v1.5.3
 

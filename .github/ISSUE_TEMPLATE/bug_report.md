@@ -11,7 +11,7 @@ labels: bug
 ## Where
 
 - Canvas or skill: <!-- e.g. canvases/luma-ios, clone-prototype -->
-- Hosted (prototyping.rescience.com) or local dev server:
+- Hosted (prototyping.rescience.com/demo/) or local dev server:
 - Browser / device / OS:
 
 ## How to reproduce
