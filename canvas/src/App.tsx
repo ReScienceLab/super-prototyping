@@ -1122,7 +1122,8 @@ function applyCanvasFromUrl(
     image: (pick: CanvasImagePick) => void;
   },
 ) {
-  const tab = tabFromUrl(window.location.href);
+  // Resolved first, so the bare address sets the page of the canvas it lands on, not Start here's.
+  const tab = resolveTab(tabFromUrl(window.location.href));
   // Read before `open`, which writes the address from the inspector, and that is still empty.
   const named = targetFromUrl(window.location.href);
   // A kit or a document is an overlay over the whole editor rather than a page of it, so there

@@ -590,16 +590,20 @@ export function createSpServer(options: {
         res.end(message);
       };
       if (projectDir === undefined) return send(409, "Open a project to write its documents.");
-      let name: unknown, text: unknown;
+      let name: unknown, text: unknown, base: unknown;
       try {
-        ({ name, text } = JSON.parse(body || "{}"));
+        ({ name, text, base } = JSON.parse(body || "{}"));
       } catch {
         return send(400, "bad json");
       }
       if (typeof name !== "string" || !DOCS.includes(name)) return send(400, "not a document");
-      if (typeof text !== "string") return send(400, "no text");
+      if (typeof text !== "string" || typeof base !== "string") return send(400, "no text");
+      const file = path.join(projectDir, name);
+      // The text the edit began from, so a rewrite since, an agent's, is not overwritten unseen.
       try {
-        fs.writeFileSync(path.join(projectDir, name), text);
+        if (fs.readFileSync(file, "utf8") !== base)
+          return send(409, `${name} changed since you began editing. Copy your text, then reopen it.`);
+        fs.writeFileSync(file, text);
       } catch (error) {
         return send(500, String(error));
       }
@@ -778,7 +782,7 @@ export function createSpServer(options: {
   // The documents are the project's, beside the boards directory rather than in it, so they have
   // a watch of their own: the project folder, not recursively, for those names, batched the way
   // a board's writes are. One made or deleted is a reload, which brings its tab in or out; one
-  // rewritten is handed to the page as it is, text and all. Not at the root, which has no project.
+  // rewritten is sent to the page with its text. Skipped at the root, which has no project.
   let docWatcher: fs.FSWatcher | undefined;
   let docBatch: ReturnType<typeof setTimeout> | undefined;
   if (projectDir !== undefined) {

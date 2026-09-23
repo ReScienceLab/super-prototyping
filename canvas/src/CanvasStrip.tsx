@@ -121,7 +121,7 @@ export function CanvasStrip() {
           <LogoFigma />
         </a>
       )}
-      {/* The window's address for the tab, the one the bar's chip copies with this view in front. */}
+      {/* Right-click menu: Copy link copies the window's address for that view. */}
       <div
         ref={menu}
         popover="auto"

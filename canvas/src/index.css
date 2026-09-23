@@ -443,7 +443,7 @@ button {
 }
 
 /* Reading or editing, a document's control at the strip's far end (DocTab.tsx): a switch between
-   the eye and the pen, whichever is on the lit one. */
+   the eye and the pen; the current mode's icon is lit. */
 .sp-canvas-tabs-mode {
   display: flex;
   align-self: center;

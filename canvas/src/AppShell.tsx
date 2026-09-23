@@ -191,9 +191,8 @@ export function AppShell() {
     if (define) defining.current = url;
     load(new URL(url, location.origin).href);
   };
-  // A project made to be defined first: its address, until it is the one in front, when the
-  // agent is asked to start (skills/define-product). Not before, since a message goes to the
-  // project in front, and the frame takes a moment to load it.
+  // A project made to be defined first (skills/define-product). /define-product is sent once
+  // that project is in front; earlier it would go to whichever project is in front now.
   const defining = useRef<string>(undefined);
   useEffect(() => {
     if (shown?.tab.kind !== "project" || shown.tab.url !== defining.current) return;
