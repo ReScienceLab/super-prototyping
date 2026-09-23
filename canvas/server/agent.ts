@@ -654,7 +654,7 @@ export function createAgentServer(options: {
     // A run this server started, or one it or an earlier server kept on disk. The id names a
     // folder, and the pattern above lets through no separator and no dot.
     const live = runs.get(match[1]);
-    let run = live;
+    let run: Run | undefined = live;
     if (!run && fs.existsSync(keptOf(match[1]))) {
       run = newRun(match[1]);
       run.events = fs
