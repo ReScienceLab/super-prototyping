@@ -1817,6 +1817,30 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   user-select: text;
 }
 
+/* Down to the newest output, while the reader is scrolled up in the log. Sticky rather than
+   absolute, so it rides the log's bottom edge without a wrapper to position against. */
+.sp-chat-to-end {
+  position: sticky;
+  bottom: 0;
+  align-self: center;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-top: auto;
+  border: 1px solid var(--sp-line);
+  border-radius: 50%;
+  background: var(--sp-bg);
+  color: var(--sp-text-2);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+}
+
+.sp-chat-to-end:hover {
+  color: var(--sp-text);
+}
+
 .sp-chat-log p {
   margin: 0;
 }
