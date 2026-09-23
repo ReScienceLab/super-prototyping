@@ -36,8 +36,10 @@ declare global {
 /**
  * What the window's address opened on: the home page, or a view of this project's, whose tab is
  * worked out here from the address until the canvas has loaded and said which it landed on.
+ * The hosted build is on Cloudflare Pages, which answers `home.html` with a 308 to `home`, so
+ * the home page is either.
  */
-const opened = location.pathname.endsWith("/home.html")
+const opened = /\/home(\.html)?$/.test(location.pathname)
   ? null
   : { tab: tabFor(tabFromUrl(location.href)), href: frameUrl(location.href) };
 
