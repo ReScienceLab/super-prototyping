@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
-  ClipboardMenuGroup,
   ConversionsMenuGroup,
+  CopyMenuItem,
   DefaultContextMenu,
   SelectAllMenuItem,
   TldrawUiButton,
@@ -245,11 +245,13 @@ export const canvasChromeComponents: TLComponents = {
             onSelect={chrome.relayoutLibrary}
           />
         </TldrawUiMenuGroup>
-        {/* tldraw's own content (DefaultContextMenuContent), hand-picked: its component is the
-            one place to drop a submenu, since an override removes actions, not rows. Edit and
-            Arrange are left out because a board is laid out from layout.json and neither sticks;
-            Reorder and Move to page only act on unlocked shapes, and every shape here is locked. */}
-        <ClipboardMenuGroup />
+        {/* tldraw's items one at a time, not its groups: this canvas is read, and every shape on
+            it is locked and rebuilt from layout.json, so only what works on a locked shape is
+            here. A group would bring Cut, Delete and Duplicate, greyed out on every shape here,
+            and Paste, which drops shapes the next load removes; and whatever tldraw adds to it. */}
+        <TldrawUiMenuGroup id="clipboard">
+          <CopyMenuItem />
+        </TldrawUiMenuGroup>
         <ConversionsMenuGroup />
         <TldrawUiMenuGroup id="select-all">
           <SelectAllMenuItem />
