@@ -1,7 +1,7 @@
 {
   "name": "super-prototyping-desktop",
   "private": true,
-  "version": "1.5.3",
+  "version": "1.6.0",
   "description": "The super-prototyping canvas as a desktop app",
   "author": "ReScience Lab",
   "type": "module",
@@ -26,7 +26,11 @@
     "appId": "com.rescience.super-prototyping",
     "productName": "Super Prototyping",
     "artifactName": "Super-Prototyping-${version}-${arch}.${ext}",
-    "publish": { "provider": "github", "owner": "ReScienceLab", "repo": "super-prototyping" },
+    "publish": {
+      "provider": "github",
+      "owner": "ReScienceLab",
+      "repo": "super-prototyping"
+    },
     "directories": {
       "output": "dist/out"
     },
@@ -79,7 +83,10 @@
     "asar": true,
     "npmRebuild": false,
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "category": "public.app-category.developer-tools",
       "icon": "icon.png",
       "hardenedRuntime": true,
