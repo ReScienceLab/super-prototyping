@@ -88,6 +88,10 @@ const OPEN_KEY = "sp-chat-open";
  * of a message, from the strip's "+" (CanvasStrip.tsx), because a canvas is only ever the
  * agent's work, and a folder with no boards in it is not one.
  *
+ * A board comes as `board`: its name and where the server draws it. Drawing takes seconds, so the
+ * panel puts its tile and its number up at once and asks for the drawing itself — from here and
+ * not from the canvas's frame, which a reload or a change of tab would take the answer away with.
+ *
  * On `window`, because the panel is a sibling of `<Tldraw>` and the button renders inside it,
  * the same arrangement, and the same answer, as ASK_COMMENT_USER (canvasChrome.tsx). Here rather
  * than beside the button, so the home page, which has the panel and no canvas, has no tldraw.
@@ -95,6 +99,7 @@ const OPEN_KEY = "sp-chat-open";
 export const CANVAS_ATTACH = "sp:canvas-attach";
 
 export type CanvasAttachDetail =
+  | { kind: "board"; name: string; src: string }
   | { kind: "image"; file: File }
   | { kind: "error"; message: string }
   | { kind: "draft"; text: string };
@@ -239,6 +244,8 @@ interface Attached {
   /** The reader's `data:` URL, drawn as-is by the tile and the chip; `send` posts what follows
    *  the comma. */
   url: string;
+  /** A board still being drawn, with no `url` yet, or one whose drawing failed. */
+  state?: "pending" | "failed";
 }
 
 /**
@@ -490,7 +497,9 @@ export function ChatPanel(props: {
     chip.dataset.ref = String(i.n);
     chip.title = i.name;
     const thumb = document.createElement("img");
-    thumb.src = i.url;
+    // A board still being drawn has no picture yet; the thumb shimmers until addImages fills it.
+    if (i.url) thumb.src = i.url;
+    else chip.classList.add("sp-chat-ref-pending");
     thumb.alt = "";
     chip.append(thumb, `#${i.n}`);
     return chip;
@@ -590,10 +599,18 @@ export function ChatPanel(props: {
   // numbered; the second then waits, and reads a tray the first has finished with.
   const adds = useRef(Promise.resolve());
 
+  // The boards being drawn, by name, so a picture that arrives for one whose tile is gone is dropped.
+  const awaiting = useRef(new Set<string>());
+
   const addImages = (list: FileList | File[] | null, cite = false) =>
     (adds.current = adds.current
       .then(async () => {
         const given = [...(list ?? [])];
+        // A board refused here is not coming after all, so its tile says so rather than waiting.
+        const refuse = (message: string) => {
+          for (const f of given) if (awaiting.current.has(f.name)) fail(f.name);
+          setSendError(message);
+        };
         const taken = given.filter((f) => ATTACH_TYPES.includes(f.type));
         // A file the agent could not look at is refused here rather than by the server, and said:
         // the file dialog offers only these, but a drop, a paste and the canvas hand over anything.
@@ -608,7 +625,7 @@ export function ChatPanel(props: {
         // that is what a drawing has to hold in memory too.
         const tooBig = `those are too large to attach; keep them under about ${MAX_IMAGE_BYTES / 1_000_000} MB together`;
         if (taken.reduce((n, f) => n + f.size, 0) > MAX_IMAGE_BYTES)
-          return setSendError(tooBig);
+          return refuse(tooBig);
         // A vector is drawn into a PNG here, at the one door every attachment comes through —
         // the picker, a paste, a drop, and the + on a canvas shape, which hands its asset over
         // with whatever type the asset has. Past this line everything is an IMAGE_TYPE, so the
@@ -622,24 +639,35 @@ export function ChatPanel(props: {
         // were picked rather than the order the reads came back in, so three files chosen at
         // once are #1, #2, #3 as they appear in the dialog.
         const urls = await Promise.all(picked.map(readFile));
-        const read = picked.map((file, i) => ({ file, url: urls[i]! }));
+        // A board's picture goes into the tile put up for it while it was being drawn, and a
+        // board whose tile was removed meanwhile — up to this line, reads included — is dropped.
+        const waiting = (file: File) =>
+          tray.current.find((t) => t.state && t.name === file.name);
+        const read = picked
+          .map((file, i) => ({ file, url: urls[i]! }))
+          .filter(
+            ({ file }) => !awaiting.current.has(file.name) || waiting(file),
+          );
         const novel = read.filter(
-          ({ url }, i) =>
+          ({ file, url }, i) =>
+            !waiting(file) &&
             !tray.current.some((t) => t.url === url) &&
             read.findIndex((r) => r.url === url) === i,
         );
         // Both limits are the server's (agents.ts), said here before anything is sent, and over
         // the whole tray, since the server sees the whole tray and not this pick.
         if (tray.current.length + novel.length > MAX_IMAGES)
-          return setSendError(
+          return refuse(
             `that is too many to attach; keep it to ${MAX_IMAGES} images`,
           );
-        const size = novel.reduce((n, r) => n + r.file.size, 0);
+        const size = read
+          .filter((r) => novel.includes(r) || waiting(r.file))
+          .reduce((n, r) => n + r.file.size, 0);
         if (
           tray.current.reduce((n, i) => n + i.size, 0) + size >
           MAX_IMAGE_BYTES
         )
-          return setSendError(tooBig);
+          return refuse(tooBig);
         const fresh: Attached[] = novel.map(({ file, url }) => ({
           n: nextN.current++,
           name: file.name,
@@ -647,14 +675,35 @@ export function ChatPanel(props: {
           size: file.size,
           url,
         }));
+        const filled = tray.current.map((t) => {
+          const r = t.state && read.find((r) => r.file.name === t.name);
+          return r
+            ? {
+                n: t.n,
+                name: t.name,
+                type: r.file.type,
+                size: r.file.size,
+                url: r.url,
+              }
+            : t;
+        });
+        for (const t of filled)
+          if (!tray.current.includes(t))
+            for (const thumb of composer.current?.querySelectorAll<HTMLImageElement>(
+              `.sp-chat-ref-pending[data-ref="${t.n}"] img`,
+            ) ?? []) {
+              thumb.src = t.url;
+              thumb.parentElement!.classList.remove("sp-chat-ref-pending");
+            }
+        for (const { file } of read) awaiting.current.delete(file.name);
         const said = read.map(
           ({ url }) =>
-            tray.current.find((t) => t.url === url) ??
+            filled.find((t) => t.url === url) ??
             fresh.find((f) => f.url === url)!,
         );
         // Written to the ref as well as set, so the add queued behind this one reads this tray
         // rather than the one React has not rendered yet.
-        tray.current = [...tray.current, ...fresh].sort((x, y) => x.n - y.n);
+        tray.current = [...filled, ...fresh].sort((x, y) => x.n - y.n);
         setAttached(tray.current);
         // Numbered into the sentence where the caret already is, so the picture the writer has
         // just put there is named without a second click on the tile that has appeared above —
@@ -669,9 +718,60 @@ export function ChatPanel(props: {
             if (!namedPictures(box).includes(image.n))
               insertAtCaret(chipFor(image));
       })
-      .catch((error) =>
-        setSendError(`could not attach that: ${String(error)}`),
-      ));
+      .catch((error) => {
+        for (const f of list ?? [])
+          if (awaiting.current.has(f.name)) fail(f.name);
+        setSendError(`could not attach that: ${String(error)}`);
+      }));
+
+  /**
+   * A board, from the canvas: its tile and its number up the moment it is asked for, and its
+   * drawing asked of the server, to land in that tile. Asked for again it keeps the tile it has —
+   * one already there or on its way is only named again, and one that failed is drawn again.
+   */
+  const addBoard = (name: string, src: string) => {
+    let tile = tray.current.find((t) => t.name === name);
+    if (!tile && tray.current.length >= MAX_IMAGES)
+      return setSendError(
+        `that is too many to attach; keep it to ${MAX_IMAGES} images`,
+      );
+    const draw = !tile || tile.state === "failed";
+    if (tile?.state === "failed") {
+      tile = { ...tile, state: "pending" };
+      for (const chip of composer.current?.querySelectorAll(
+        `.sp-chat-ref-failed[data-ref="${tile.n}"]`,
+      ) ?? [])
+        chip.classList.replace("sp-chat-ref-failed", "sp-chat-ref-pending");
+    }
+    tile ??= {
+      n: nextN.current++,
+      name,
+      type: "",
+      size: 0,
+      url: "",
+      state: "pending",
+    };
+    const next = tile;
+    tray.current = [...tray.current.filter((t) => t.n !== next.n), next].sort(
+      (x, y) => x.n - y.n,
+    );
+    setAttached(tray.current);
+    const box = composer.current;
+    if (box && !namedPictures(box).includes(next.n))
+      insertAtCaret(chipFor(next));
+    if (!draw) return;
+    awaiting.current.add(name);
+    fetch(src)
+      .then(async (shot) => {
+        if (!shot.ok) throw new Error(await shot.text());
+        const png = await shot.blob();
+        void addImages([new File([png], name, { type: png.type })], true);
+      })
+      .catch((error) => {
+        adds.current = adds.current.then(() => fail(name));
+        setSendError(String(error));
+      });
+  };
 
   // What the buttons on a canvas shape hand over (canvasAttach.tsx): a picture, attached and named
   // in the sentence, or the reason there is none. A mockup arrives as a picture of itself, called
@@ -684,6 +784,14 @@ export function ChatPanel(props: {
       const detail = (event as CustomEvent<CanvasAttachDetail>).detail;
       // A message cannot be written into a panel that is away.
       props.chat.show(true);
+      // In line with the adds, so a board's number comes after a picture asked for before it
+      // that is still being read.
+      if (detail.kind === "board") {
+        adds.current = adds.current.then(() =>
+          addBoard(detail.name, detail.src),
+        );
+        return;
+      }
       if (detail.kind === "error") return setSendError(detail.message);
       // Over nothing the user wrote, since a message they had begun stays theirs to finish.
       if (detail.kind === "draft") {
@@ -694,6 +802,21 @@ export function ChatPanel(props: {
     window.addEventListener(CANVAS_ATTACH, take);
     return () => window.removeEventListener(CANVAS_ATTACH, take);
   });
+
+  /** A board that could not be drawn: its tile and its chips go amber, to be asked for again. */
+  const fail = (name: string) => {
+    awaiting.current.delete(name);
+    setAttached(
+      (tray.current = tray.current.map((t) =>
+        t.state && t.name === name ? { ...t, state: "failed" } : t,
+      )),
+    );
+    for (const chip of composer.current?.querySelectorAll(
+      ".sp-chat-ref-pending",
+    ) ?? [])
+      if (chip.getAttribute("title") === name)
+        chip.classList.replace("sp-chat-ref-pending", "sp-chat-ref-failed");
+  };
 
   // The tile goes; the chips that named it stay where they were written, struck through and
   // without their picture. A sentence is not rewritten because what it pointed at was removed.
@@ -741,6 +864,11 @@ export function ChatPanel(props: {
     // after this would read them as gone and take the next message's pictures with them.
     named.current = [];
   };
+
+  // A message goes with its pictures, so not while a board is still being drawn or failed to be.
+  const pending = attached.filter((i) => i.state === "pending").length;
+  const failed = attached.filter((i) => i.state === "failed").length;
+  const unready = pending + failed > 0;
 
   /** One message to the server as a run; false when it was refused or never answered. */
   const post = async ({ message, images: attached }: Queued) => {
@@ -791,7 +919,7 @@ export function ChatPanel(props: {
 
   const send = async () => {
     const message = draft.trim();
-    if (!message || sending) return;
+    if (!message || sending || unready) return;
     // Sending clears the draft without passing through onInput, so an Escape that closed the
     // palette for this word has to be forgotten here too, or the next word never opens one.
     setSlashOff(false);
@@ -1200,18 +1328,33 @@ export function ChatPanel(props: {
         {attached.length > 0 && (
           <>
             <p className="sp-chat-hint">
-              Attached — click a tile to put its number in the message
+              {pending
+                ? `Preparing ${pending} image${pending > 1 ? "s" : ""}…`
+                : failed
+                  ? "A board could not be drawn — press its + again, or remove it to send"
+                  : "Attached — click a tile to put its number in the message"}
             </p>
             <div className="sp-chat-tray">
               {attached.map((i) => (
-                <figure key={i.n} className="sp-chat-tile">
+                <figure
+                  key={i.n}
+                  className={`sp-chat-tile${i.state ? ` sp-chat-tile-${i.state}` : ""}`}
+                >
                   <button
                     type="button"
                     className="sp-chat-thumb"
                     onClick={() => insertAtCaret(chipFor(i))}
-                    title={`Write #${i.n} into the message`}
+                    title={
+                      i.state === "failed"
+                        ? "Could not draw this board — press its + to try again"
+                        : `Write #${i.n} into the message`
+                    }
                   >
-                    <img src={i.url} alt={i.name} />
+                    {i.url ? (
+                      <img src={i.url} alt={i.name} />
+                    ) : (
+                      <span className="sp-chat-wait" />
+                    )}
                     <span className="sp-chat-num">#{i.n}</span>
                   </button>
                   <span
@@ -1414,7 +1557,7 @@ export function ChatPanel(props: {
             <button
               type="submit"
               className="sp-chat-submit"
-              disabled={!draft.trim() || sending}
+              disabled={!draft.trim() || sending || unready}
               aria-label="Send"
               title="Send — Enter"
             >

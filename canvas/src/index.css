@@ -70,17 +70,29 @@ button {
   /* Read as `inset 0 0 0 1px` inside all three --tl-shadow-*, which is where Geist puts the 1px
      ring that separates a black menu from a black canvas. */
   --tl-color-panel-contrast: var(--ds-gray-alpha-400);
-  --tl-color-panel-overlay: color-mix(in oklab, var(--ds-background-100) 82%, transparent);
+  --tl-color-panel-overlay: color-mix(
+    in oklab,
+    var(--ds-background-100) 82%,
+    transparent
+  );
   --tl-color-low: var(--ds-gray-100);
   --tl-color-low-border: var(--ds-gray-400);
   --tl-color-divider: var(--ds-gray-400);
   /* Hover, pressed and hint grounds. tldraw states them as white at 2% to 10%, which is what
      the alpha greys are. */
-  --tl-color-muted-0: color-mix(in oklab, var(--ds-gray-alpha-400) 25%, transparent);
+  --tl-color-muted-0: color-mix(
+    in oklab,
+    var(--ds-gray-alpha-400) 25%,
+    transparent
+  );
   --tl-color-muted-1: var(--ds-gray-alpha-300);
   --tl-color-muted-2: var(--ds-gray-alpha-400);
   --tl-color-hint: var(--ds-gray-alpha-400);
-  --tl-color-overlay: color-mix(in oklab, var(--ds-background-100) 50%, transparent);
+  --tl-color-overlay: color-mix(
+    in oklab,
+    var(--ds-background-100) 50%,
+    transparent
+  );
   --tl-color-selected: var(--ds-blue-700);
   /* White on the accent, not the ground token. blue-700 is one colour in both halves, so the
      ground token would turn the label on a selected row black under a light theme. */
@@ -98,7 +110,11 @@ button {
   --tl-color-warning: var(--ds-amber-700);
   --tl-color-danger: var(--ds-red-900);
   --tl-color-selection-stroke: var(--ds-blue-700);
-  --tl-color-selection-fill: color-mix(in oklab, var(--ds-blue-700) 20%, transparent);
+  --tl-color-selection-fill: color-mix(
+    in oklab,
+    var(--ds-blue-700) 20%,
+    transparent
+  );
 }
 
 /* The comment cursor while a click here would attach the note to the mockup under it: the same
@@ -354,7 +370,6 @@ button {
   overflow: auto;
 }
 
-
 /* The panels' palette and type, which the agent menu shares from outside the chat panel. */
 .sp-panel,
 .sp-chat-agents {
@@ -373,7 +388,10 @@ button {
   letter-spacing: -0.01em;
   /* After the shorthand, which resets all four. Geist ships with contextual alternates off and
      ss11 on; that pair is what gives its `a` and its numerals the shapes Vercel draws. */
-  font-feature-settings: "rlig" 1, "calt" 0, "ss11" 1;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 0,
+    "ss11" 1;
   font-variant-numeric: tabular-nums;
   font-kerning: normal;
   font-optical-sizing: auto;
@@ -441,10 +459,24 @@ button {
      the photo thumbs take. These are grounds for the board's own artwork, and artwork that
      inverted with the panel could not be checked. */
   background-image:
-    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%),
-    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%);
+    linear-gradient(
+      45deg,
+      #eeeeee 25%,
+      transparent 25%,
+      transparent 75%,
+      #eeeeee 75%
+    ),
+    linear-gradient(
+      45deg,
+      #eeeeee 25%,
+      transparent 25%,
+      transparent 75%,
+      #eeeeee 75%
+    );
   background-size: 12px 12px;
-  background-position: 0 0, 6px 6px;
+  background-position:
+    0 0,
+    6px 6px;
   background-origin: content-box;
   background-clip: content-box;
 }
@@ -773,7 +805,8 @@ button {
   font: inherit;
   font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--ds-background-100) 66%, transparent);
+  box-shadow: 0 0 0 1px
+    color-mix(in oklab, var(--ds-background-100) 66%, transparent);
   transition: background 0.12s ease;
 }
 
@@ -798,7 +831,8 @@ button {
   color: var(--fg);
   font-weight: 500;
   /* Against a board that may be any colour at all, not a drop shadow. */
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--ds-background-100) 66%, transparent);
+  box-shadow: 0 0 0 1px
+    color-mix(in oklab, var(--ds-background-100) 66%, transparent);
   transition: background 0.12s ease;
 }
 
@@ -1396,10 +1430,24 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 .sp-th.svg {
   background-color: #fff;
   background-image:
-    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%),
-    linear-gradient(45deg, #eeeeee 25%, transparent 25%, transparent 75%, #eeeeee 75%);
+    linear-gradient(
+      45deg,
+      #eeeeee 25%,
+      transparent 25%,
+      transparent 75%,
+      #eeeeee 75%
+    ),
+    linear-gradient(
+      45deg,
+      #eeeeee 25%,
+      transparent 25%,
+      transparent 75%,
+      #eeeeee 75%
+    );
   background-size: 8px 8px;
-  background-position: 0 0, 4px 4px;
+  background-position:
+    0 0,
+    4px 4px;
 }
 
 .sp-asset-n {
@@ -1713,19 +1761,9 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   cursor: pointer;
 }
 
-.sp-attach-btn:hover:not(:disabled) {
+.sp-attach-btn:hover {
   color: var(--ds-gray-1000);
   background: var(--ds-gray-100);
-}
-
-.sp-attach-btn:disabled {
-  cursor: default;
-}
-
-/* The panel's spinner, out here where the panel's own variables are not. */
-.sp-attach-btn .sp-chat-spin {
-  border-color: var(--ds-gray-400);
-  border-top-color: var(--ds-blue-700);
 }
 
 /* ---- The chat panel (ChatPanel.tsx) ------------------------------------------------ */
@@ -2136,6 +2174,56 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   object-position: top;
 }
 
+/* A board still being drawn: its tile and its chip hold its place, shimmering, until the picture
+   lands. A failed one goes amber, like a chip whose picture is gone. */
+.sp-chat-wait,
+.sp-chat-ref-pending img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+      100deg,
+      transparent 30%,
+      var(--ds-gray-alpha-300) 50%,
+      transparent 70%
+    )
+    0 0 / 200% 100% var(--ds-gray-200);
+  animation: sp-chat-shimmer 1.2s linear infinite;
+}
+
+.sp-chat-ref-pending img {
+  width: 12px;
+  height: 12px;
+}
+
+.sp-chat-tile-failed .sp-chat-thumb {
+  border-color: var(--ds-amber-400);
+}
+
+.sp-chat-ref-failed {
+  background: var(--ds-amber-100);
+  box-shadow: inset 0 0 0 1px var(--ds-amber-400);
+  color: var(--ds-amber-900);
+}
+
+.sp-chat-ref-failed img {
+  display: none;
+}
+
+.sp-chat-tile-failed .sp-chat-wait {
+  animation: none;
+  background: var(--ds-amber-100);
+}
+
+@keyframes sp-chat-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
 /* The picture it named is gone, and the sentence is not rewritten for it. */
 .sp-chat-ref-gone {
   padding: 0 5px;
@@ -2280,7 +2368,6 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
   border-radius: 50%;
   background: var(--sp-accent);
 }
-
 
 /* The agent menu: the inspector's rows, grown to fit a second line under a CLI that was not
    found on PATH, saying what to do. Such a row is greyed and takes no click. */
@@ -2438,5 +2525,10 @@ button.sp-status[aria-expanded="true"] .sp-status-chev {
 @media (prefers-reduced-motion: reduce) {
   .sp-chat-spin {
     animation-duration: 3s;
+  }
+
+  .sp-chat-wait,
+  .sp-chat-ref-pending img {
+    animation: none;
   }
 }

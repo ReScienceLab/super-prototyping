@@ -20,70 +20,60 @@ import {
   type InspectorTarget,
 } from "./inspectorClicks";
 
-/** A board, and the `<slug>/<file>.html` the server and the agent know it as. */
-interface Board {
-  shape: CanvasFileShape;
-  path: string;
-}
-
 /** To the agent's panel, which is the window's, outside the canvas's frame (AppShell.tsx). */
 const dispatchAttach = (detail: CanvasAttachDetail) =>
   window.parent.dispatchEvent(new CustomEvent(CANVAS_ATTACH, { detail }));
 
 /**
- * A board or a picture, turned into the file the chat attaches. A board is a page in an
- * `<iframe>`, so the server draws it first (`/__sp/shoot`, vite.config.ts) and it goes over under
- * its own `<slug>/<file>.html`; a picture already on the canvas is read back out of the asset its
- * shape points at. Shared by the single-shape button below and `attachToChat`, which the
- * selection's button and a pasted link go through.
+ * A board or a picture, handed to the chat. A board is a page in an `<iframe>`, so the server
+ * draws it first (`/__sp/shoot`, server/sp.ts) and it goes over under its own
+ * `<slug>/<file>.html`. The panel asks for that drawing itself, from the window, so a canvas that
+ * reloads or changes tab while it is being drawn does not take the answer with it; all this frame
+ * says is which board, at what size. A picture already on the canvas is read back out of the
+ * asset its shape points at.
  */
-async function attachDetail(
-  editor: Editor,
-  target: InspectorTarget,
-): Promise<CanvasAttachDetail> {
-  if (target.type === CANVAS_FILE_SHAPE_TYPE) {
-    const shape = target as CanvasFileShape;
-    const ref = canvasBoardRef(shape.props.path);
-    if (!ref) throw new Error("that board has no file behind it");
-    const path = `${ref.slug}/${ref.file}`;
-    const shot = await fetch(
-      `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(path)}` +
-        `&w=${Math.round(shape.props.w)}&h=${Math.round(shape.props.h)}`,
-    );
-    if (!shot.ok) throw new Error(await shot.text());
-    const png = await shot.blob();
-    return { kind: "image", file: new File([png], path, { type: png.type }) };
+async function attach(editor: Editor, target: InspectorTarget) {
+  try {
+    if (target.type === CANVAS_FILE_SHAPE_TYPE) {
+      const { w, h, path } = (target as CanvasFileShape).props;
+      const ref = canvasBoardRef(path);
+      if (!ref) throw new Error("that board has no file behind it");
+      const name = `${ref.slug}/${ref.file}`;
+      const src = new URL(
+        `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(name)}` +
+          `&w=${Math.round(w)}&h=${Math.round(h)}`,
+        window.location.href,
+      ).href;
+      return dispatchAttach({ kind: "board", name, src });
+    }
+    const shape = target as TLImageShape;
+    const asset = shape.props.assetId
+      ? editor.getAsset(shape.props.assetId)
+      : undefined;
+    if (asset?.type !== "image" || !asset.props.src) {
+      throw new Error("that picture has no file behind it");
+    }
+    const bytes = await (await fetch(asset.props.src)).blob();
+    dispatchAttach({
+      kind: "image",
+      file: new File([bytes], asset.props.name || "image.png", {
+        type: bytes.type,
+      }),
+    });
+  } catch (error) {
+    dispatchAttach({ kind: "error", message: String(error) });
   }
-  const shape = target as TLImageShape;
-  const asset = shape.props.assetId
-    ? editor.getAsset(shape.props.assetId)
-    : undefined;
-  if (asset?.type !== "image" || !asset.props.src) {
-    throw new Error("that picture has no file behind it");
-  }
-  const bytes = await (await fetch(asset.props.src)).blob();
-  return {
-    kind: "image",
-    file: new File([bytes], asset.props.name || "image.png", {
-      type: bytes.type,
-    }),
-  };
 }
 
 /**
- * The boards and pictures pasted links named (spCanvas.attach, App.tsx), handed to the chat the
- * way their **+** would hand them, so the links land in the sentence as those shapes' chips. One
- * at a time, like the selection's button below, so the chips come in the order of the links.
+ * The boards and pictures a selection's button or pasted links named (spCanvas.attach, App.tsx),
+ * handed to the chat the way their **+** would hand them, one after another so the chips come in
+ * the selection's order. A board is only announced here, so this is over in moments however many
+ * there are; the panel draws them side by side (the server takes a few at a time).
  */
 // oxlint-disable-next-line react/only-export-components
 export async function attachToChat(editor: Editor, targets: InspectorTarget[]) {
-  for (const target of targets) {
-    try {
-      dispatchAttach(await attachDetail(editor, target));
-    } catch (error) {
-      dispatchAttach({ kind: "error", message: String(error) });
-    }
-  }
+  for (const target of targets) await attach(editor, target);
 }
 
 /**
@@ -100,10 +90,6 @@ export async function attachToChat(editor: Editor, targets: InspectorTarget[]) {
 export function CanvasAttachButtons() {
   const editor = useEditor();
   const [target, setTarget] = useState<InspectorTarget | null>(null);
-  const [shooting, setShooting] = useState(false);
-  // Drawing a board takes seconds, and the pointer moves on: the hover is pinned while it does,
-  // so the button is still there to finish and to say if it failed.
-  const pinned = useRef(false);
 
   // Two fingers on the trackpad over these buttons is still a pan. This layer is a sibling of
   // .tl-canvas rather than a child of it, and the wheel is listened for on the canvas itself, so a
@@ -125,7 +111,6 @@ export function CanvasAttachButtons() {
 
   useEffect(() => {
     const follow = (info: TLEventInfo) => {
-      if (pinned.current) return;
       if (info.type !== "pointer" || info.name !== "pointer_move") return;
       // Reaching for the buttons is not a move to another shape. They are small and a board drawn
       // small is smaller: zoomed out, the bar hangs over the board next door, and following the
@@ -152,9 +137,7 @@ export function CanvasAttachButtons() {
     };
     // No pointer_move says the pointer left for the chat panel or the top bar, and buttons left
     // standing on a mockup out here would read as part of it.
-    const leave = () => {
-      if (!pinned.current) setTarget(null);
-    };
+    const leave = () => setTarget(null);
     const container = editor.getContainer();
     editor.on("event", follow);
     container.addEventListener("pointerleave", leave);
@@ -186,24 +169,7 @@ export function CanvasAttachButtons() {
     target.type === CANVAS_FILE_SHAPE_TYPE
       ? canvasBoardRef(target.props.path)
       : undefined;
-  const board: Board | null = ref
-    ? { shape: target as CanvasFileShape, path: `${ref.slug}/${ref.file}` }
-    : null;
-
-  // A board takes seconds to shoot, so the hover is pinned and the button spins while it does; a
-  // picture already on the canvas is read back out of its asset, fast enough to need neither.
-  const add = async () => {
-    if (board) pinned.current = true;
-    if (board) setShooting(true);
-    try {
-      dispatchAttach(await attachDetail(editor, target));
-    } catch (error) {
-      dispatchAttach({ kind: "error", message: String(error) });
-    } finally {
-      pinned.current = false;
-      setShooting(false);
-    }
-  };
+  const board = ref && `${ref.slug}/${ref.file}`;
 
   return (
     <div
@@ -220,14 +186,11 @@ export function CanvasAttachButtons() {
             : "Attach this picture to the chat"
         }
         title={
-          board
-            ? `Add ${board.path} to the chat`
-            : "Attach this picture to the chat"
+          board ? `Add ${board} to the chat` : "Attach this picture to the chat"
         }
-        disabled={shooting}
-        onClick={() => void add()}
+        onClick={() => void attach(editor, target)}
       >
-        {shooting ? <span className="sp-chat-spin" /> : <Plus />}
+        <Plus />
       </button>
     </div>
   );
@@ -244,7 +207,6 @@ export function CanvasAttachButtons() {
  */
 export function CanvasSelectionAttachButton() {
   const editor = useEditor();
-  const [shooting, setShooting] = useState(false);
 
   const bar = useRef<HTMLDivElement>(null);
   usePassThroughWheelEvents(bar);
@@ -276,19 +238,6 @@ export function CanvasSelectionAttachButton() {
 
   if (!corner) return null;
 
-  const addSelection = async () => {
-    const targets = editor
-      .getSelectedShapes()
-      .map(asCanvasTarget)
-      .filter((t): t is InspectorTarget => t !== undefined);
-    setShooting(true);
-    try {
-      await attachToChat(editor, targets);
-    } finally {
-      setShooting(false);
-    }
-  };
-
   return (
     <div
       ref={bar}
@@ -300,10 +249,17 @@ export function CanvasSelectionAttachButton() {
         className="sp-attach-btn"
         aria-label="Add the selection to the chat"
         title="Add the selected boards and pictures to the chat"
-        disabled={shooting}
-        onClick={() => void addSelection()}
+        onClick={() =>
+          void attachToChat(
+            editor,
+            editor
+              .getSelectedShapes()
+              .map(asCanvasTarget)
+              .filter((t): t is InspectorTarget => t !== undefined),
+          )
+        }
       >
-        {shooting ? <span className="sp-chat-spin" /> : <Plus />}
+        <Plus />
       </button>
     </div>
   );
