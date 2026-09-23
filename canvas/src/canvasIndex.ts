@@ -43,8 +43,8 @@ export interface CanvasIndex {
   /** The project's name, where one was set; absent from a build. */
   project?: string | null;
   /**
-   * The Markdown files at the project's root, PRD.md first and the rest by name: one tab each,
-   * before its canvases. Absent from a build and at the server's root, which have no project.
+   * The Markdown files at the project's root the server shows, for now its PRD.md: one tab
+   * each, before its canvases. Absent from a build and at the server's root, which have no project.
    */
   docs?: { name: string; text: string }[];
 }

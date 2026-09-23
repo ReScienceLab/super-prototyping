@@ -436,8 +436,8 @@ export function createAgentServer(options: {
               "page, one .html file in it is one board, layout.json places them, and the open canvas " +
               "reloads by itself when a board is rewritten.",
             dir !== undefined &&
-              `The Markdown files at the root of ${dir} are tabs of the canvas, PRD.md ` +
-                "first: what the product is for. When they start from an idea, or ask for screens " +
+              `${path.join(dir, "PRD.md")}, when there is one, is a tab of the canvas: ` +
+                "what the product is for. When they start from an idea, or ask for screens " +
                 "with no PRD.md there, offer to define the product with them first, following " +
                 `${repoRoot}/skills/define-product/SKILL.md; never insist. When it exists, read it ` +
                 "before designing.",

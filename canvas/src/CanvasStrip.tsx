@@ -11,7 +11,7 @@ import { LogoFigma, Plus } from "./geistIcons";
 
 /**
  * The project's canvases, across the top of the project under the bar's tab for it, after its
- * documents: the Markdown files at its root, PRD.md first. They are tabs of the second level,
+ * documents: for now its PRD.md, when it has one. They are tabs of the second level,
  * drawn as Geist's Tabs are, a name underlined when it is the one in front, so they do not read
  * as more of the bar's cells above them. An example is one canvas.
  *

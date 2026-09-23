@@ -70,23 +70,16 @@ export function folderOf(
 const PROJECT_JSON = "project.json";
 
 /**
- * A project's documents are the Markdown files at its root, beside its canvases: the PRD the
- * define-product skill writes with the user, and whatever else is written down there. Each is a
- * tab before the canvases, PRD.md first as what the project is for, and the rest by name.
+ * A project's documents: the Markdown files at its root, beside its canvases, that the canvas
+ * shows as tabs before them, in this order. For now only the PRD the define-product skill writes
+ * with the user. The page renders any Markdown file named here, so another is one more name.
  */
-const isDoc = (name: string) => /\.md$/i.test(name);
+const DOCS = ["PRD.md"];
 
 function readDocs(dir: string) {
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && isDoc(entry.name))
-    .map(({ name }) => ({
-      name,
-      text: fs.readFileSync(path.join(dir, name), "utf8"),
-    }))
-    .sort((a, b) =>
-      a.name === "PRD.md" ? -1 : b.name === "PRD.md" ? 1 : a.name.localeCompare(b.name),
-    );
+  return DOCS.filter((name) =>
+    fs.statSync(path.join(dir, name), { throwIfNoEntry: false })?.isFile(),
+  ).map((name) => ({ name, text: fs.readFileSync(path.join(dir, name), "utf8") }));
 }
 
 /** A project's project.json, or nothing in it when it has none or it does not parse. */
@@ -763,14 +756,14 @@ export function createSpServer(options: {
   }
 
   // The documents are the project's, beside the boards directory rather than in it, so they have
-  // a watch of their own: the project folder, not recursively, for its Markdown files. One
+  // a watch of their own: the project folder, not recursively, for those names. One
   // written is a reload, which is what brings its tab in or out and the tab's text up to date,
   // batched the way a board's writes are. Not at the root, which has no project.
   let docWatcher: fs.FSWatcher | undefined;
   let docBatch: ReturnType<typeof setTimeout> | undefined;
   if (projectDir !== undefined) {
     docWatcher = fs.watch(projectDir, (_event, name) => {
-      if (!name || !isDoc(name.toString())) return;
+      if (!name || !DOCS.includes(name.toString())) return;
       clearTimeout(docBatch);
       docBatch = setTimeout(rebuild, 120);
       docBatch.unref?.();
