@@ -8,6 +8,9 @@ import '@fontsource-variable/geist-mono'
 import './index.css'
 import { loadCanvasIndex } from './canvasIndex'
 import { windowUrl } from './canvasUrl'
+import { noBrowserMenu } from './contextMenu'
+
+noBrowserMenu()
 
 // The canvas is a frame in the window (AppShell.tsx), which holds the bar and the agent's panel.
 // Opened on its own, it goes to that window at this address, which is what was meant.

@@ -105,9 +105,9 @@ export function AppShell() {
   }, [home, shown]);
 
   // The projects, fetched again each time home opens or closes, since that is where one was
-  // made, renamed or edited since; and with them the one thing about another project this window
-  // can learn, that it has gone since its tab was left open.
-  useEffect(() => {
+  // made, renamed or edited since, and when home deletes one; and with them the one thing about
+  // another project this window can learn, that it has gone since its tab was left open.
+  const listProjects = () => {
     if (!canvasIndex().served) return;
     void fetch("/__sp/projects.json")
       .then((response) => response.json())
@@ -121,7 +121,8 @@ export function AppShell() {
           ),
         );
       });
-  }, [home]);
+  };
+  useEffect(listProjects, [home]);
 
   /** Loads a project's canvas at an address of the window's into the frame. */
   const load = (href: string) => {
@@ -139,17 +140,20 @@ export function AppShell() {
   };
 
   /**
-   * Takes a chip off the bar. Closing one that is not in front changes nothing else; closing the
-   * one in front lands on the chip to its right, else the one to its left. Closing the last one
-   * goes home, the way closing Figma's last file does, and empties the frame, so a board written
-   * while home is up cannot reload that project's canvas and put its tab back.
+   * Takes chips off the bar: one, the others, or all of them. Closing ones that are not in front
+   * changes nothing else; closing the one in front lands on the nearest chip left to its right,
+   * else to its left. Closing the last one goes home, the way closing Figma's last file does, and
+   * empties the frame, so a board written while home is up cannot reload that project's canvas
+   * and put its tab back.
    */
-  const closeTab = (tab: ProjectTab) => {
-    const at = tabs.findIndex((had) => tabKey(had) === tabKey(tab));
-    const rest = tabs.toSpliced(at, 1);
+  const closeTabs = (closing: ProjectTab[]) => {
+    const gone = new Set(closing.map(tabKey));
+    const rest = tabs.filter((tab) => !gone.has(tabKey(tab)));
     setTabs(rest);
-    if (home || !shown || tabKey(tab) !== tabKey(shown.tab)) return;
-    const next = rest[at] ?? rest[at - 1];
+    if (home || !shown || !gone.has(tabKey(shown.tab))) return;
+    const at = tabs.findIndex((tab) => tabKey(tab) === tabKey(shown.tab));
+    const before = tabs.slice(0, at).filter((tab) => !gone.has(tabKey(tab)));
+    const next = rest[before.length] ?? rest[before.length - 1];
     if (next) return goTo(next);
     frame.current!.src = "about:blank";
     setShown(null);
@@ -198,7 +202,10 @@ export function AppShell() {
         active={home ? null : (shown?.tab ?? null)}
         onHome={() => setHome(true)}
         goTo={goTo}
-        closeTab={closeTab}
+        closeTabs={closeTabs}
+        reload={() =>
+          home ? listProjects() : frame.current!.contentWindow!.location.reload()
+        }
         newProject={served ? newProject : undefined}
       >
         {/* Dev server and app only: the panel talks to /__sp/agent, which a hosted build has no
@@ -233,6 +240,7 @@ export function AppShell() {
               goTo={goTo}
               newProject={served ? newProject : undefined}
               openFolder={served ? openFolder : undefined}
+              reload={listProjects}
             />
           )}
         </div>

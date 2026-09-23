@@ -189,6 +189,7 @@ export function createSpServer(options: {
           return {
             name,
             url: `/p/${encodeURIComponent(name)}/`,
+            path: dir,
             // A project with no board yet was last edited when it was made.
             updated: Math.max(
               fs.statSync(dir).mtimeMs,

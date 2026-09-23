@@ -1,4 +1,4 @@
-import { useState, type MouseEventHandler } from "react";
+import { useRef, useState, type MouseEventHandler } from "react";
 import { canvasIndex } from "./canvasIndex";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
@@ -19,10 +19,13 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import { canvasPageUrl } from "./canvasUrl";
+import { askServer, openMenu, REVEAL, TRASH, TRASH_PLACE } from "./contextMenu";
 import { FolderPlus, LogoDiscord, LogoGithub, Plus } from "./geistIcons";
 import { FOUNDATIONS_ROW } from "./sheetLayout";
 
 type Sort = "edited" | "name" | "boards";
+/** A card's right-click: the address it links to, the tab it opens, and its project if it is one. */
+type Target = { href: string; tab: ProjectTab; project?: Project };
 type Screen = ReturnType<typeof screensOf>[number];
 
 const THUMB = { w: 72, h: 156 };
@@ -131,6 +134,7 @@ function ago(ms: number) {
 function Card(props: {
   href: string;
   onClick: MouseEventHandler<HTMLAnchorElement>;
+  onContextMenu: MouseEventHandler<HTMLAnchorElement>;
   screens: Screen[];
   icon?: string;
   name: string;
@@ -148,7 +152,12 @@ function Card(props: {
     fitting.push(s);
   }
   return (
-    <a className="home-file" href={props.href} onClick={props.onClick}>
+    <a
+      className="home-file"
+      href={props.href}
+      onClick={props.onClick}
+      onContextMenu={props.onContextMenu}
+    >
       <div className="home-file__thumb">
         {/* A frame per screen, lazy so a page of forty cards fetches only the ones scrolled to,
             and sandboxed because a thumbnail has nothing to run. */}
@@ -201,9 +210,13 @@ export function HomePage(props: {
   /** The server's, which a hosted build has none of. */
   newProject?: () => void;
   openFolder?: () => void;
+  /** Lists the projects again, after one is deleted. */
+  reload: () => void;
 }) {
   const { projects, tabs } = props;
   const [sort, setSort] = useState<Sort>("edited");
+  const [target, setTarget] = useState<Target>();
+  const menu = useRef<HTMLDivElement>(null);
   const byEdit = <T extends { updated: number }>(list: T[]) =>
     list.toSorted((a, b) => b.updated - a.updated);
   const shown =
@@ -222,6 +235,11 @@ export function HomePage(props: {
   );
   const canvases = projects.flatMap((p) => p.canvases);
   const updated = Math.max(0, ...projects.map((p) => p.updated));
+
+  const showMenu =
+    (at: Target): MouseEventHandler =>
+    (event) =>
+      openMenu(event, menu, () => setTarget(at));
 
   return (
     <main className="home-main">
@@ -310,6 +328,7 @@ export function HomePage(props: {
               key={p.name}
               href={tabUrl(tab)}
               onClick={openInTab(props.goTo, tab)}
+              onContextMenu={showMenu({ href: tabUrl(tab), tab, project: p })}
               screens={
                 one
                   ? screensOf(one, fileUrl(p, one.slug))
@@ -352,6 +371,10 @@ export function HomePage(props: {
                 key={c.slug}
                 href={canvasPageUrl(c.slug)}
                 onClick={openInTab(props.goTo, tabOfExample(c.slug, tabs))}
+                onContextMenu={showMenu({
+                  href: canvasPageUrl(c.slug),
+                  tab: tabOfExample(c.slug, tabs),
+                })}
                 screens={screensOf(c, (file) => boardFileUrl(c.slug, file))}
                 icon={canvasIconUrl(c.slug)}
                 name={nameOf(c)}
@@ -362,6 +385,75 @@ export function HomePage(props: {
           </div>
         </>
       )}
+      {/* One menu for every card, a native popover like the chat panel's: the top layer, and a
+          click outside or Esc to shut it. A pick shuts it before the row's own click runs, so the
+          Trash's confirm is not drawn over it. An example is the plugin's, so it has no folder of
+          the user's to show or delete. */}
+      <div
+        ref={menu}
+        popover="auto"
+        className="sp-context-menu"
+        role="menu"
+        onClickCapture={(event) => event.currentTarget.hidePopover()}
+      >
+        {target && (
+          <>
+            <button
+              type="button"
+              role="menuitem"
+              className="sp-menu-row"
+              onClick={() => props.goTo(target.tab)}
+            >
+              Open
+            </button>
+            <hr />
+            <button
+              type="button"
+              role="menuitem"
+              className="sp-menu-row"
+              onClick={() =>
+                navigator.clipboard.writeText(
+                  new URL(target.href, location.href).href,
+                )
+              }
+            >
+              Copy link
+            </button>
+            {target.project && (
+              <>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="sp-menu-row"
+                  onClick={() => askServer("reveal", target.project!.name)}
+                >
+                  {REVEAL}
+                </button>
+                <hr />
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="sp-menu-row sp-context-menu__danger"
+                  onClick={async () => {
+                    const p = target.project!;
+                    if (
+                      !confirm(
+                        `Move “${p.name}” to ${TRASH_PLACE}?\n\n${p.path}\n\n` +
+                          "Everything in that folder goes with it.",
+                      )
+                    )
+                      return;
+                    await askServer("delete", p.name);
+                    props.reload();
+                  }}
+                >
+                  {TRASH}
+                </button>
+              </>
+            )}
+          </>
+        )}
+      </div>
     </main>
   );
 }
