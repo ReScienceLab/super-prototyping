@@ -4,8 +4,6 @@ import {
   ClipboardMenuGroup,
   ConversionsMenuGroup,
   DefaultContextMenu,
-  MoveToPageMenu,
-  ReorderMenuSubmenu,
   SelectAllMenuItem,
   TldrawUiButton,
   TldrawUiButtonIcon,
@@ -247,13 +245,10 @@ export const canvasChromeComponents: TLComponents = {
             onSelect={chrome.relayoutLibrary}
           />
         </TldrawUiMenuGroup>
-        {/* tldraw's own content (DefaultContextMenuContent) less Edit and Arrange: the boards are
-            laid out from layout.json, so flipping, aligning or grouping one is undone by the next
-            load, and the rest of Edit is the clipboard group below again. */}
-        <TldrawUiMenuGroup id="modify">
-          <ReorderMenuSubmenu />
-          <MoveToPageMenu />
-        </TldrawUiMenuGroup>
+        {/* tldraw's own content (DefaultContextMenuContent), hand-picked: its component is the
+            one place to drop a submenu, since an override removes actions, not rows. Edit and
+            Arrange are left out because a board is laid out from layout.json and neither sticks;
+            Reorder and Move to page only act on unlocked shapes, and every shape here is locked. */}
         <ClipboardMenuGroup />
         <ConversionsMenuGroup />
         <TldrawUiMenuGroup id="select-all">
