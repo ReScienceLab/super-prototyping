@@ -1,30 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { CanvasChromeContext } from "./canvasChrome";
 import { shortName } from "./canvasLibrary";
 import { ownCanvases, tabFor } from "./canvasTabs";
 import { canvasIndex } from "./canvasIndex";
+import { DEFAULT_GROUND, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { sheetPageUrl } from "./canvasUrl";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
 import { LogoFigma, Plus } from "./geistIcons";
-
-const GROUND_KEY = "sp-canvas-ground:";
-
-/**
- * The ground on the editor's container, where an inline value beats the theme's (index.css). A
- * light one is flagged too, because tldraw's dark theme draws every heading and caption near
- * white, and index.css turns them dark on it.
- */
-function paintGround(container: HTMLElement, color: string | null) {
-  if (!color) {
-    container.style.removeProperty("--tl-color-background");
-    delete container.dataset.ground;
-    return;
-  }
-  container.style.setProperty("--tl-color-background", color);
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16));
-  container.dataset.ground = 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "light" : "dark";
-}
 
 /**
  * The project's canvases, across the top of the project under the bar's tab for it. They are
@@ -46,20 +29,7 @@ export function CanvasStrip() {
   // A kit's slug names the canvas whose material it shows, so it exports that canvas; only the
   // index of every kit has no canvas behind it, and no Figma button.
   const slug = activeTab.slug;
-  const [ground, setGround] = useState<string | null>(null);
-
-  // A viewer's own ground per canvas, a light app's boards being easier to judge on light.
-  useEffect(() => {
-    const color = here ? localStorage.getItem(GROUND_KEY + here) : null;
-    setGround(color);
-    if (editor) paintGround(editor.getContainer(), color);
-  }, [editor, here]);
-
-  function pickGround(color: string) {
-    localStorage.setItem(GROUND_KEY + here, color);
-    setGround(color);
-    if (editor) paintGround(editor.getContainer(), color);
-  }
+  const ground = useGround(editor, here);
 
   return (
     <nav className="sp-canvas-tabs" aria-label="Canvases">
@@ -106,8 +76,8 @@ export function CanvasStrip() {
           <input
             type="color"
             aria-label="Canvas background"
-            value={ground ?? "#000000"}
-            onChange={(e) => pickGround(e.target.value)}
+            value={ground ?? DEFAULT_GROUND}
+            onChange={(e) => editor && here && setGround(editor, here, e.target.value)}
           />
         </label>
       )}
