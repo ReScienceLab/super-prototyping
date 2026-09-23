@@ -181,4 +181,8 @@ describe('withLayoutKey', () => {
   it('leaves a layout without the key alone when taking it out', () => {
     expect(withLayoutKey(PLAIN, 'ground', null)).toBe(PLAIN)
   })
+
+  it('gives an empty layout, the one the server starts a missing file from, its first key', () => {
+    expect(withLayoutKey('{}\n', 'ground', '#ffffff')).toBe('{\n  "ground": "#ffffff"\n}\n')
+  })
 })

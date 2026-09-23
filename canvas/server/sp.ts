@@ -443,7 +443,8 @@ export function createSpServer(options: {
         }
         if (isExample(slug)) return send(403, READ_ONLY);
         const layoutPath = path.join(canvasesDir, slug, "layout.json");
-        const before = fs.readFileSync(layoutPath, "utf8");
+        // layout.json is optional: a folder of boards alone gets one holding just the ground.
+        const before = fs.existsSync(layoutPath) ? fs.readFileSync(layoutPath, "utf8") : "{}\n";
         const after = withLayoutKey(before, "ground", ground);
         if (after !== before) {
           fs.writeFileSync(layoutPath, after);

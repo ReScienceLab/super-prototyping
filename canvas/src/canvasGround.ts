@@ -34,7 +34,7 @@ export function groundOf(page: string) {
 /** Whether this page's ground can be changed: only a served canvas of the project's own. */
 export const groundEditable = (page: string) => canvasIndex().served && !isExample(page);
 
-let pending: ReturnType<typeof setTimeout> | undefined;
+const pending = new Map<string, ReturnType<typeof setTimeout>>();
 
 /**
  * Painted at once, written a moment later: the swatch's picker fires on every step of a drag,
@@ -44,14 +44,15 @@ export function setGround(editor: Editor, page: string, color: string) {
   picked.set(page, color);
   paintGround(editor.getContainer(), color);
   window.dispatchEvent(new Event(PICKED));
-  clearTimeout(pending);
-  pending = setTimeout(() => {
+  clearTimeout(pending.get(page));
+  pending.set(page, setTimeout(() => {
+    pending.delete(page);
     void fetch(`${import.meta.env.BASE_URL}__sp/canvas-ground`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ slug: page, ground: color === DEFAULT_GROUND ? null : color }),
     });
-  }, 300);
+  }, 300));
 }
 
 /** The ground of the page in front, painted on the editor as the page or its layout changes. */

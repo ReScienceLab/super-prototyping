@@ -377,8 +377,9 @@ button {
 }
 
 /* On a light ground the dark theme's near-white headings and captions vanish. tldraw writes a
-   text shape's colour inline, hence the !important. */
-.tl-container[data-ground="light"] .tl-text-shape-label__inner {
+   text shape's colour inline, hence the !important, and the match on that inline value: only
+   the default colour (black, #f2f2f2 in the dark theme) flips, so an agent's red text stays red. */
+.tl-container[data-ground="light"] .tl-text-shape-label__inner[style*="color: rgb(242, 242, 242)"] {
   color: oklch(0.205 0 0) !important;
 }
 
