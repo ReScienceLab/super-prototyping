@@ -88,6 +88,29 @@ it("serves every project at its own address and makes new ones", async () => {
     ).toBe(403);
     expect((await ask("/p/alpha/__sp/agent/sessions")).text).toBe("static /__sp/agent/sessions");
     expect(fs.existsSync(path.join(tmp, "projects/.workspaces"))).toBe(false);
+    // A run an earlier server kept replays after a restart, pictures and all. One it died in the
+    // middle of replays with the end it never wrote.
+    write(
+      "projects/.workspaces/.runs/old-run/events.jsonl",
+      JSON.stringify({
+        id: 1,
+        event: "start",
+        data: { kind: "start", prompt: "hi" },
+      }) + "\n",
+    );
+    write("projects/.workspaces/.runs/old-run/image-1.png", "hi");
+    write("projects/.workspaces/.runs/old-run/shot-1.jpeg", "yo");
+    const replay = await ask("/__sp/agent/run/old-run/events");
+    expect(replay.text).toContain(
+      'event: start\ndata: {"kind":"start","prompt":"hi"}',
+    );
+    expect(replay.text).toContain("The app quit before this turn finished.");
+    const image = await ask("/__sp/agent/run/old-run/image/1");
+    expect(image.text).toBe("hi");
+    expect((await ask("/__sp/agent/run/old-run/shot/1")).text).toBe("yo");
+    expect((await ask("/__sp/agent/run/old-run/shot/2")).status).toBe(404);
+    fs.rmSync(path.join(tmp, "projects/.workspaces"), { recursive: true });
+    expect((await ask("/__sp/agent/run/gone-run/events")).status).toBe(404);
 
     expect(projects.open(path.join(tmp, "elsewhere"))).toBe("/p/elsewhere/");
     expect(fs.existsSync(path.join(tmp, "elsewhere/canvases/mine"))).toBe(true);
