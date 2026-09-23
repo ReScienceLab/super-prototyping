@@ -59,7 +59,8 @@ import {
   InspectorPanel,
   type CanvasImagePick,
 } from "./InspectorPanel";
-import type { InspectorTarget } from "./inspectorClicks";
+import { asCanvasTarget, type InspectorTarget } from "./inspectorClicks";
+import { attachToChat } from "./canvasAttach";
 import {
   CANVAS_STATUS_BANNER_GAP,
   CANVAS_STATUS_BANNER_HEIGHT,
@@ -1130,6 +1131,8 @@ function applyCanvasFromUrl(
   },
 ) {
   const tab = tabFromUrl(window.location.href);
+  // Read before `open`, which writes the address from the inspector, and that is still empty.
+  const named = targetFromUrl(window.location.href);
   // A kit is an overlay over the whole editor rather than a page of it, so there is no page to
   // set and no board under the hash to go looking for. `open` shuts the inspector for it.
   if (tab.kind === "brand") {
@@ -1149,7 +1152,6 @@ function applyCanvasFromUrl(
   const here = editor.getCurrentPage().meta.canvasSlug;
   if (page) open(tab);
   else if (typeof here === "string") open({ kind: "canvas", slug: here });
-  const named = targetFromUrl(window.location.href);
   const file =
     readCanvasLibrary()
       .flat()
@@ -1413,6 +1415,23 @@ export default function App() {
       goTo(tab) {
         if (!isHere(tab)) return false;
         openTab(tab.view);
+        return true;
+      },
+      // A link Copy link made (canvasChrome.tsx), pasted into the chat: the board or picture its
+      // hash names, as the chip its + would have put there. Anything else stays text.
+      attach(href) {
+        if (!editor || !URL.canParse(href)) return false;
+        const tab = tabFromUrl(href);
+        const name = targetFromUrl(href);
+        if (tab.kind !== "canvas" || !name) return false;
+        const file = readCanvasLibrary()
+          .flat()
+          .find((c) => c.pageSlug === tab.slug && c.fileName === name);
+        const target = asCanvasTarget(
+          editor.getShape(file ? fileShapeId(file) : imageShapeId(tab.slug, name)),
+        );
+        if (!target) return false;
+        attachToChat(editor, target);
         return true;
       },
     };

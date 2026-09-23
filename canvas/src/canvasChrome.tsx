@@ -1,8 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
+  ClipboardMenuGroup,
+  ConversionsMenuGroup,
   DefaultContextMenu,
-  DefaultContextMenuContent,
+  MoveToPageMenu,
+  ReorderMenuSubmenu,
+  SelectAllMenuItem,
   TldrawUiButton,
   TldrawUiButtonIcon,
   type Editor,
@@ -24,7 +28,6 @@ import {
   CanvasAttachButtons,
   CanvasSelectionAttachButton,
 } from "./canvasAttach";
-import { CloneCanvasDialog } from "./CloneCanvasDialog";
 import { CommentUserDialog } from "./CommentUserDialog";
 import {
   linkedBoard,
@@ -33,10 +36,18 @@ import {
   type CommentUser,
 } from "./canvasComments";
 import { canvasIndex } from "./canvasIndex";
-import type { CanvasFileShape } from "./CanvasFileShapeUtil";
+import {
+  CANVAS_FILE_SHAPE_TYPE,
+  type CanvasFileShape,
+} from "./CanvasFileShapeUtil";
+import {
+  CANVAS_LINK_SHAPE_TYPE,
+  type CanvasLinkShape,
+} from "./CanvasLinkShapeUtil";
+import { canvasImageRef, readCanvasLibrary } from "./canvasLibrary";
 import { HOME_TAB } from "./canvasTabs";
 import { Copy, Cross, Message, RefreshCounterClockwise } from "./geistIcons";
-import { WELCOME_PAGE_SLUG, type CanvasTab } from "./canvasUrl";
+import { urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
 const COMMENT_USER_DIALOG = "comment-user";
@@ -169,13 +180,13 @@ export const canvasChromeComponents: TLComponents = {
    *
    * Where the rest went: the chat panel's switch, which the main menu held, is the Agent button
    * at the start of the bar (ChatPanel.tsx), and Figma, which the actions menu held, is Export
-   * to Figma at the end of the canvas strip (CanvasStrip.tsx). Commenting, cloning and
+   * to Figma at the end of the canvas strip (CanvasStrip.tsx). Commenting and
    * force-relayout were in this row once too and are on the right button now (ContextMenu
    * below), where the pointer is already on the thing they act on.
    */
   MenuPanel: null,
   /**
-   * The right button carries everything the top bar does not: commenting, the clone and the
+   * The right button carries everything the top bar does not: commenting, a shape's link and the
    * relayout. The bottom toolbar is gone (Toolbar below) because a canvas of boards is read, not
    * drawn on, and all three of these act on what is under the cursor or on the page it is on,
    * which is what a right-click has already picked out. The bar above keeps the tabs.
@@ -183,10 +194,26 @@ export const canvasChromeComponents: TLComponents = {
   ContextMenu: (props) => {
     const chrome = useContext(CanvasChromeContext);
     const editor = useEditor();
-    const { addDialog } = useDialogs();
-    const slug = useValue(
-      "canvas slug",
-      () => editor.getCurrentPage().meta.canvasSlug as string | undefined,
+    // The address of the one shape right-clicked, the one the window shows when it is open: a
+    // board or picture by its hash (canvasUrl.ts), a card by where it goes.
+    const link = useValue(
+      "shape link",
+      () => {
+        const shape = editor.getOnlySelectedShape();
+        const here = windowUrl(window.location.href);
+        if (shape?.type === CANVAS_FILE_SHAPE_TYPE) {
+          const file = readCanvasLibrary()
+            .flat()
+            .find((c) => c.path === (shape as CanvasFileShape).props.path);
+          return file && urlForSlug(here, file.pageSlug, file.fileName);
+        }
+        if (shape?.type === CANVAS_LINK_SHAPE_TYPE) {
+          const { url, page } = (shape as CanvasLinkShape).props;
+          return url || (page ? urlForSlug(here, page) : undefined);
+        }
+        const ref = shape && canvasImageRef(shape.id);
+        return ref && urlForSlug(here, ref.slug, ref.file);
+      },
       [editor],
     );
 
@@ -205,20 +232,12 @@ export const canvasChromeComponents: TLComponents = {
               editor.setCurrentTool("comment");
             }}
           />
-          {/* Nothing to copy on the welcome page, which the app draws and no folder backs, or on
-              a page someone added by hand. */}
-          {canvasIndex().served && slug && slug !== WELCOME_PAGE_SLUG && (
+          {link && (
             <TldrawUiMenuItem
-              id="clone"
-              label="Clone this canvas"
+              id="copy-link"
+              label="Copy link"
               icon={<Copy />}
-              onSelect={() => {
-                addDialog({
-                  component: (dialog) => (
-                    <CloneCanvasDialog {...dialog} slug={slug} />
-                  ),
-                });
-              }}
+              onSelect={() => void navigator.clipboard.writeText(link)}
             />
           )}
           <TldrawUiMenuItem
@@ -228,7 +247,18 @@ export const canvasChromeComponents: TLComponents = {
             onSelect={chrome.relayoutLibrary}
           />
         </TldrawUiMenuGroup>
-        <DefaultContextMenuContent />
+        {/* tldraw's own content (DefaultContextMenuContent) less Edit and Arrange: the boards are
+            laid out from layout.json, so flipping, aligning or grouping one is undone by the next
+            load, and the rest of Edit is the clipboard group below again. */}
+        <TldrawUiMenuGroup id="modify">
+          <ReorderMenuSubmenu />
+          <MoveToPageMenu />
+        </TldrawUiMenuGroup>
+        <ClipboardMenuGroup />
+        <ConversionsMenuGroup />
+        <TldrawUiMenuGroup id="select-all">
+          <SelectAllMenuItem />
+        </TldrawUiMenuGroup>
       </DefaultContextMenu>
     );
   },

@@ -21,6 +21,11 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **Copy a link to anything on the canvas.** Right-click a board, a picture or
+  a card and pick *Copy link*: it opens the canvas on that thing. Paste it
+  into the agent's box and it becomes that thing's chip, the same one its +
+  adds. The menu lost *Clone this canvas*, *Edit* and *Arrange*: a board is
+  laid out from its folder, so none of them stuck.
 - **The app opens on a home page.** The desktop app opens on every project you
   have, with the examples below. The page is no project's, so the app works
   with none: open an example, or close every tab, and nothing is made or

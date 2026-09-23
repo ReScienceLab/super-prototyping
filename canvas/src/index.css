@@ -101,22 +101,6 @@ button {
   --tl-color-selection-fill: color-mix(in oklab, var(--ds-blue-700) 20%, transparent);
 }
 
-/*
- * The name field in the clone dialog (CloneCanvasDialog.tsx). tldraw's input is chromeless, since
- * everywhere it ships, the row or menu around it already draws the edge. A dialog body draws
- * none, so an unstyled field reads as a line of placeholder text rather than somewhere to type.
- */
-/* Tag-qualified so it outranks .tlui-input, which zeroes the border and the left padding. */
-input.canvas-clone-name {
-  padding-left: var(--tl-space-4);
-  border: 1px solid var(--tl-color-low-border);
-  border-radius: var(--tl-radius-2);
-}
-
-input.canvas-clone-name:focus {
-  border-color: var(--tl-color-selected);
-}
-
 /* The comment cursor while a click here would attach the note to the mockup under it: the same
    bubble tldraw ships, filled with the selection blue instead of white. The attribute is set by
    installCommentTargetHint in canvasComments.ts, and the variable is otherwise only read while
@@ -154,28 +138,6 @@ input.canvas-clone-name:focus {
 /* The half of the sentence that decides whether someone types a name at all. */
 .canvas-clone-hint strong {
   color: var(--tl-color-text-1);
-}
-
-/* The path is what the hint is for, since cloning writes a folder into the project, so it is set
-   apart from the sentence introducing it rather than running on from it. */
-.canvas-clone-path {
-  display: block;
-  margin-top: 4px;
-  padding: 5px 7px;
-  border-radius: var(--tl-radius-1);
-  background: var(--tl-color-muted-2);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  /* An absolute path is longer than the dialog is wide, and it is only useful unabbreviated. */
-  overflow-wrap: anywhere;
-}
-
-.canvas-clone-path b {
-  color: var(--tl-color-text-1);
-}
-
-.canvas-clone-hint__error {
-  margin-top: 4px;
-  color: var(--tl-color-warning);
 }
 
 /*

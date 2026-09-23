@@ -303,24 +303,6 @@ export async function writeBoardStatus(
 }
 
 /**
- * Copies a canvas folder under a new name, through the dev server (vite.config.ts), and answers
- * the slug it ended up with. The typed name is what the page is called, the slug is what the
- * folder is called, and only the server knows the second one is free.
- *
- * Dev server only, like writeBoardStatus and for the same reason.
- */
-export async function cloneCanvas(slug: string, name: string) {
-  const response = await fetch(`${import.meta.env.BASE_URL}__sp/clone-canvas`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ slug, name }),
-  });
-  const body = await response.text();
-  if (!response.ok) throw new Error(body);
-  return JSON.parse(body).slug as string;
-}
-
-/**
  * Appended to every board. A wheel event whose target is inside an iframe never reaches the
  * parent document, so tldraw's own fix for this — preventDefault on the wheel that reaches its
  * container, in useGestureEvents — never runs, and the browser turns the horizontal part of a

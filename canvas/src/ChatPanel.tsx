@@ -1289,14 +1289,18 @@ export function ChatPanel(props: {
               e.preventDefault();
               if (e.clipboardData.files.length)
                 return void addImages(e.clipboardData.files, true);
+              const text = e.clipboardData.getData("text/plain");
+              // A link to a board or picture of the canvas in the frame is that shape's chip.
+              if (
+                document
+                  .querySelector<HTMLIFrameElement>(".canvas-frame")
+                  ?.contentWindow?.spCanvas?.attach(text.trim())
+              )
+                return;
               // The text and not the markup that came with it: the box holds the chips it made
               // itself and nothing else. execCommand because it is the only insert that native
               // undo still knows about.
-              document.execCommand(
-                "insertText",
-                false,
-                e.clipboardData.getData("text/plain"),
-              );
+              document.execCommand("insertText", false, text);
             }}
             onKeyDown={(e) => {
               // Enter inside an IME composition picks the candidate; it is the editor's, not ours.

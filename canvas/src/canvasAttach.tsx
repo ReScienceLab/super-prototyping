@@ -71,6 +71,17 @@ async function attachDetail(
 }
 
 /**
+ * A board or picture a pasted link named (spCanvas.attach, App.tsx), handed to the chat the way
+ * its **+** would hand it, so the link lands in the sentence as that shape's chip.
+ */
+// oxlint-disable-next-line react/only-export-components
+export function attachToChat(editor: Editor, target: InspectorTarget) {
+  attachDetail(editor, target).then(dispatchAttach, (error) =>
+    dispatchAttach({ kind: "error", message: String(error) }),
+  );
+}
+
+/**
  * **+** in a shape's top-right corner while the pointer is over it, which adds that shape to the
  * chat. A picture goes over as itself; a board is a page in an `<iframe>`, so the server draws it
  * first (`/__sp/shoot`, vite.config.ts) and it goes over under its own `<slug>/<file>.html` —
