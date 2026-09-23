@@ -55,7 +55,7 @@ const argvOf = (argv: string[]) => parseArgs(argv.slice(app.isPackaged ? 1 : 2))
 const { port: portArg, dir: argDir, upgrade: upgradeArg } = argvOf(process.argv);
 
 // One app. A second launch, which is how `sp open` and `sp upgrade` reach a running one
-// (`open -n` — without it macOS only focuses the app and drops the arguments), hands its arguments
+// (`open -n`; without it macOS only focuses the app and drops the arguments), hands its arguments
 // to this one over `second-instance` and exits.
 if (!app.requestSingleInstanceLock()) app.exit(0);
 
@@ -356,7 +356,7 @@ function linkIntoMachine() {
  * Windows's sp, refkit and artgen: `.exe`s in ~/.local/bin, which Git Bash, PowerShell and cmd all
  * run by name, from `uv tool install`. Editable through `current`, so an update's code runs at once;
  * reinstalled when the version changes, so its dependencies do too. uv's own installer put
- * ~/.local/bin on the user's PATH. No uv yet: the next launch tries again.
+ * ~/.local/bin on the user's PATH. When uv is missing, the next launch tries again.
  */
 function installCommands() {
   const done = path.join(dataDir(home), "tools-version");

@@ -52,12 +52,12 @@ A second pass looked at the details:
   goes in front of the user before the question (`clearing-state.md`).
 - **`install.sh` is idempotent.** It looks in `/Applications` and
   `~/Applications`, counts an app as installed only if it holds a working
-  CLI, just opens it when it is already there, and installs to
+  CLI, opens it when it is already there, and installs to
   `~/Applications` before asking for sudo. `install.md` gives the `PATH`
   fix, waits for the user on GUI steps, and ends with "return to the
   original task".
-- **The stable link is repointed on every launch**
-  (`MaybeSetupAgentsOnStartup`), and at the version that is running. An
+- **It repoints the stable link on every launch**
+  (`MaybeSetupAgentsOnStartup`), at the version that is running. An
   existing link is replaced only when `readlink` differs, a missing one is
   created, and a real file is left alone.
 - **It checks the user's shell.** It appends
@@ -72,10 +72,10 @@ A second pass looked at the details:
   have accumulated.
 - **It finds the running app by IPC, not by port.** The CLI talks to a named
   Mojo server, and says "restart the app" when the app is older than the CLI.
-- **What it gets wrong:** no uninstall, so deleting the app leaves dangling
+- **What it gets wrong.** No uninstall, so deleting the app leaves dangling
   links in seven places. There is no URL scheme either, which supports
   `open -a --args` over registering a protocol.
-- **Nothing to copy:** `learnings/` has per-site manifests, but no skill
+- **Nothing to copy.** `learnings/` has per-site manifests, but no skill
   text or help ever mentions it. Our per-canvas README already does that
   job.
 
@@ -126,13 +126,13 @@ Each step ships on its own.
   the files under it change, where `uv run --project` installs the toolkit
   editable, so what runs is always the tree's code. Verified against a
   read-only copy: uv writes only to its cache and that environment.
-- On **every** launch, point `~/.local/share/super-prototyping/current` at
+- On every launch, point `~/.local/share/super-prototyping/current` at
   `process.resourcesPath/plugin`. Every other link goes through `current`:
-  - `~/.local/bin/{sp,refkit,artgen}` → `current/bin/*`
-  - `<agent home>/skills/<name>` → `current/skills/<name>`
+  - `~/.local/bin/{sp,refkit,artgen}` link to `current/bin/*`
+  - `<agent home>/skills/<name>` links to `current/skills/<name>`
 
-  Then a moved app, or a second copy in `~/Applications`, heals on its next
-  launch. Skip all of this when running from `/Volumes/*` or an
+  Then a moved app, or a second copy in `~/Applications`, has working links
+  again after its next launch. Skip all of this when running from `/Volumes/*` or an
   `AppTranslocation` path, where the links would dangle after the DMG is
   ejected.
 - The link rule is ego's:
@@ -183,8 +183,8 @@ Each step ships on its own.
   and never goes to the network itself.
 - The file records `checkedAt`: electron-updater checks only while the app
   runs, unlike ego's background updater, so it can be one session stale.
-- When a newer version is recorded, `sp`, `refkit` and `artgen` print, **to
-  stderr**, a notice that carries its own rule:
+- When a newer version is recorded, `sp`, `refkit` and `artgen` print, to
+  stderr, a notice that carries its own rule:
   `[super-prototyping:notice] Super Prototyping x.y.z is available (current
   a.b.c). Finish the current task, then ask the user before running sp
   upgrade; re-read the skill afterward.` Stdout must stay clean, because

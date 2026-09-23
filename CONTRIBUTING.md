@@ -62,7 +62,7 @@ with a `README.md` that says what was measured and what was excluded.
 
 Everything under `.github/`:
 
-- `workflows/validate.yml`: the gates, on every pull request — the versions
+- `workflows/validate.yml`: the gates, on every pull request. The versions
   agree, the canvas lints, tests and builds, the macOS app tests
   and builds, and the toolkit's tests pass. Run the same commands locally from the root README.
 - `workflows/release.yml`: dispatch it with a version and it opens the release

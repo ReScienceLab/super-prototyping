@@ -1270,8 +1270,8 @@ def _region_args(sub, pt=True):
 def _version():
     """The toolkit's version, or "dev" when run straight from a checkout.
 
-    `refkit --version` is what settles "which release is actually on this
-    machine" when a skill seems to expect something else.
+    `refkit --version` is what settles "which release is on this machine"
+    when a skill seems to expect something else.
     """
     try:
         from importlib.metadata import PackageNotFoundError, version

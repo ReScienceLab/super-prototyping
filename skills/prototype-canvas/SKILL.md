@@ -29,8 +29,8 @@ is not running, and prints the canvas address. It is the way to show the user
 the canvas.
 
 `sp` not found? Run `sh <this skill's dir>/scripts/install.sh` (Windows:
-`powershell -ExecutionPolicy Bypass -File <this skill's dir>/scripts/install.ps1`), which
-installs the app and uv and opens the app, which links `sp`; then follow
+`powershell -ExecutionPolicy Bypass -File <this skill's dir>/scripts/install.ps1`).
+It installs uv and the app and opens the app, which links `sp`. Then follow
 `references/install.md` to put it on this shell's PATH and go back to the
 task.
 
@@ -55,12 +55,12 @@ than reusing it, and says so when that port is the app's.
   uses another one. A port that already answers is never reused: it may be
   another project's canvas, so `start` refuses rather than showing you the
   wrong boards.
-- **Two projects under `sp start` can run two canvases.** Everything is keyed by port — the
-  session name, the log, the pidfile — so a second `start` on a free port
-  leaves the first one alone. `stop` and `status` take `--port` for the same
+- **Two projects under `sp start` can run two canvases.** The session name,
+  the log and the pidfile are all keyed by port, so a second `start` on a
+  free port leaves the first one alone. `stop` and `status` take `--port` for the same
   reason, and `stop` only ever kills the canvas it started.
-- `sp root` prints which tree it found, the app's or a checkout's — and with
-  `-v`, everywhere it looked. The first thing to run when the canvas is not
+- `sp root` prints which tree it found, the app's or a checkout's, and with
+  `-v` everywhere it looked. The first thing to run when the canvas is not
   what you expected. `sp status` says whether the app is running, and on
   which port.
 - **It writes two directories**: that cache, and

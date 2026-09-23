@@ -4,7 +4,7 @@ Read this when `sp`, `refkit` or `artgen` is not found, when one of them
 prints a `[super-prototyping:notice]` line, or when the user asks to upgrade
 or uninstall.
 
-Super Prototyping reaches a machine as one thing, the app (macOS or Windows). Every launch
+Super Prototyping installs as one thing, the app (macOS or Windows). Every launch
 of it links the three commands into `~/.local/bin` and these skills into
 `~/.claude/skills`, `~/.agents/skills`, `~/.hermes/skills` and
 `~/.factory/skills` (each only where that directory's agent home exists), all
@@ -14,8 +14,8 @@ commands run the toolkit with `uv run`, so they need uv.
 
 ## Not found
 
-1. Run the installer. It is safe to run again: an app already in
-   `/Applications` or `~/Applications` is opened, not downloaded again.
+1. Run the installer. It is safe to run again: it opens an app already in
+   `/Applications` or `~/Applications` instead of downloading one.
    ```bash
    sh <this skill's dir>/scripts/install.sh
    # Windows, from Git Bash or PowerShell:
@@ -50,7 +50,7 @@ Any of the three commands may end with one line on stderr:
 
 The app checks for updates while it runs and writes what it found to
 `~/.local/state/super-prototyping/update.json`; the commands read that file,
-so the notice costs nothing and needs no network. Do what the line says, at
+so the notice needs no network. Do what the line says, at
 the next break in the work: never mid-step, and never instead of the user's
 task.
 

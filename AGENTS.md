@@ -55,11 +55,11 @@ what the app keeps in step with `sp`,
 
 The app is the only install. It ships `skills/`, `tools/` and the built
 canvas, and on every launch links them into the machine through
-`~/.local/share/super-prototyping/current` (`desktop/launch.ts`): the skills
-into each agent home that exists, and `sp`, `refkit` and `artgen` onto
+`~/.local/share/super-prototyping/current` (`desktop/launch.ts`). The skills
+go into each agent home that exists. `sp`, `refkit` and `artgen` go onto
 `~/.local/bin` as links to `tools/bin/sp`, one shim that runs the bundled
-toolkit with `uv run`; on Windows the commands are a `uv tool install` of the
-bundled toolkit instead, and the links are junctions. There are no
+toolkit with `uv run`. On Windows the links are junctions and the commands
+are a `uv tool install` of the bundled toolkit instead. There are no
 plugin manifests. An agent that has only the skills installs the app with
 `skills/prototype-canvas/scripts/install.sh`, or `install.ps1` on Windows.
 The version the skills and `sp` read is `canvas/package.json`'s.

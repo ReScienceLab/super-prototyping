@@ -12,7 +12,7 @@
   clean     remove every downloaded canvas, pidfile and log
   uninstall remove the links the app made: commands, skills, PATH line, Codex rule
 
-The app is how Super Prototyping is installed. Every launch links sp, refkit and
+The app is the only install. Every launch links sp, refkit and
 artgen onto ~/.local/bin and the skills into each agent's skills directory,
 through ~/.local/share/super-prototyping/current, which points at the app
 (desktop/launch.ts). Your boards stay in your project, in its canvases folder.
@@ -39,7 +39,8 @@ APP_BUNDLES = ([Path(os.environ.get("LOCALAPPDATA", "")) /
                 Path.home() / "Applications/Super Prototyping.app"])
 # The link every launch of the app repoints at its own tree (desktop/launch.ts dataDir).
 CURRENT = Path.home() / ".local/share/super-prototyping/current"
-# Everything that says so is ours to relay: a notice carries the rule for acting on it.
+# Prefix of the line notice() prints when the app has found a newer release. The line
+# carries its own rule for acting on it.
 NOTICE = "[super-prototyping:notice]"
 # A project's boards, under it: the same folder the server reads (canvas/server/boards.ts).
 CANVASES = "canvases"
@@ -198,7 +199,7 @@ def resolve_root(verbose=False):
         for lbl, p, _ in looked:
             print(f"  · {lbl}: {p}", file=sys.stderr)
     else:
-        print("  (nothing to look at — no app and no checkout)", file=sys.stderr)
+        print("  (nothing to look at, no app and no checkout)", file=sys.stderr)
     print(
         "\nFix by installing the app, which the prototype-canvas skill's scripts/install.sh\n"
         "does, or point at a checkout directly:\n"
@@ -474,7 +475,7 @@ def cmd_stop(a):
         print(f"no canvas of ours was running on port {a.port}")
         app = _running_app()
         if app and app["port"] == a.port:
-            print(f"  (the app is serving {a.port} — quit the app to stop it)")
+            print(f"  (the app is serving {a.port}; quit the app to stop it)")
         elif _port_answers(a.port):
             print(f"  (something else is answering on {a.port} — left alone)")
 

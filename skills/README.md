@@ -5,7 +5,7 @@ format (`SKILL.md` with YAML frontmatter, plus `references/` loaded on
 demand). This is the real directory; `.claude/skills/` and `.agents/skills/`
 are symlinks to it, so this checkout loads exactly what an install does.
 Every `SKILL.md` carries `metadata: managed-by: super-prototyping` in its
-frontmatter: it is how the app and the chat panel tell a copy of theirs from
+frontmatter. It is how the app and the chat panel tell a copy of theirs from
 a user's own folder of the same name, so keep it.
 
 | Skill | Use it for |

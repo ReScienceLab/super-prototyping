@@ -70,9 +70,9 @@ export function parseArgs(argv: string[]) {
 }
 
 /**
- * Where every link the app makes points through. `current` is repointed at the running app on
- * each launch, so a moved app, or a second copy in ~/Applications, heals on its next start, and
- * `sp uninstall` finds everything ours by what resolves through here. ego lite's
+ * Where every link the app makes points through. Each launch points `current` at the running
+ * app, so a moved app, or a second copy in ~/Applications, has working links again after its
+ * next start, and `sp uninstall` finds everything ours by what resolves through here. ego lite's
  * `~/.local/share/ego/active_version_dir`, for the same reasons.
  */
 export function dataDir(home: string) {
@@ -192,7 +192,7 @@ export function ensurePathInRc(home: string, shell: string) {
 
 /**
  * Lets Codex run the three commands without asking each time, as ego lite does for its own. Only
- * when Codex is installed, and only the lines that are missing, which ego lite forgets to check.
+ * when Codex is installed, and only the lines that are missing; ego lite appends without checking.
  */
 export function allowInCodex(home: string) {
   if (!fs.existsSync(path.join(home, ".codex"))) return [];

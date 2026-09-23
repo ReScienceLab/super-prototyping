@@ -32,22 +32,21 @@ refkit grid capture.png -o grid.png --zoom 3
 
 ## Install
 
-The app installs them. On Windows it runs `uv tool install --editable` on this
-folder once per version, which puts `sp.exe`, `refkit.exe` and `artgen.exe`
-in `~\.local\bin`. It ships this folder, and on every macOS launch links
+The app ships this folder and installs them. On every macOS launch it links
 `~/.local/bin/{sp,refkit,artgen}` to `bin/sp`, through
 `~/.local/share/super-prototyping/current`. `bin/sp` is one shim: it runs the
-command it was called as with
-`uv run --frozen --no-dev --project` this folder, in an environment under
-`~/.cache/super-prototyping/venv`. The toolkit is installed there editable, so
-what runs is always the code in this tree, and `pillow` and `numpy` are
-installed once, from `uv.lock`. It needs [uv](https://docs.astral.sh/uv/) and
-says so when it is missing.
+command it was called as with `uv run --frozen --no-dev --project` this
+folder, in an environment under `~/.cache/super-prototyping/venv`. uv installs
+the toolkit there editable, so what runs is always the code in this tree, and
+installs `pillow` and `numpy` once, from `uv.lock`. On Windows the app runs
+`uv tool install --editable` on this folder once per version instead, which
+puts `sp.exe`, `refkit.exe` and `artgen.exe` in `~\.local\bin`. Either way it
+needs [uv](https://docs.astral.sh/uv/) and says so when it is missing.
 
 Working on the tools, run them from the checkout's root the same way:
 `uv run --project tools refkit --help`.
 
-`refkit shoot` additionally needs Google Chrome; on Windows, Edge will do.
+`refkit shoot` also needs Google Chrome; on Windows, Edge will do.
 
 Check what you have:
 

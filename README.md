@@ -116,9 +116,9 @@ itself on each launch, so an update moves the skills and the commands with it.
 With Codex installed it also lets Codex run the three commands without asking,
 as a `prefix_rule` in `~/.codex/rules/default.rules`. The commands run the
 toolkit inside the app with [uv](https://docs.astral.sh/uv/). On Windows the
-skills are linked the same way, as junctions, and the commands are a
-`uv tool install` of the app's toolkit into `~\.local\bin`, which uv's own
-installer put on PATH. `sp uninstall` takes all of it back.
+app links the skills the same way, as junctions, and runs `uv tool install`
+on its toolkit, which puts the commands in `~\.local\bin`; uv's own installer
+already put that directory on PATH. `sp uninstall` takes all of it back.
 
 An agent that has the skills and not the app installs it itself: the
 `prototype-canvas` skill's `scripts/install.sh` downloads the app into
