@@ -85,7 +85,7 @@ export const COMMANDS = ["sp", "refkit", "artgen"];
 
 /**
  * The agent homes whose `skills/` the app links into, when the home exists. Codex reads
- * `~/.agents/skills`, so it has no entry of its own.
+ * `~/.agents/skills`, so it has no entry of its own, and `~/.codex` counts for `~/.agents`.
  */
 export const AGENT_HOMES = [".claude", ".agents", ".hermes", ".factory"];
 
@@ -153,7 +153,8 @@ export function linkInstall(
     .filter((d) => d.isDirectory())
     .map((d) => d.name);
   for (const agentHome of AGENT_HOMES) {
-    if (!fs.existsSync(path.join(home, agentHome))) continue;
+    const installed = [agentHome, ...(agentHome === ".agents" ? [".codex"] : [])];
+    if (!installed.some((h) => fs.existsSync(path.join(home, h)))) continue;
     for (const name of skills) {
       const at = path.join(home, agentHome, "skills", name);
       note(at, link(path.join(current, "skills", name), at, isOurCopy));

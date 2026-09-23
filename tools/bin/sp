@@ -8,8 +8,9 @@
 # local directory, however the files under it change. --frozen reads uv.lock without writing it,
 # since the tree inside the app is read-only.
 set -e
-self=$(readlink -f "$0")
-root=$(dirname "$(dirname "$(dirname "$self")")")
+# Plain readlink: `-f` is missing before macOS 12.3. The app's links are absolute.
+target=$(readlink "$0" || printf '%s' "$0")
+root=$(cd "$(dirname "$target")/../.." && pwd -P)
 command -v uv >/dev/null || {
   echo "$(basename "$0"): needs uv. Install it: curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
   exit 127

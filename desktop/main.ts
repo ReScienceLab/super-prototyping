@@ -200,7 +200,12 @@ async function main() {
         return "Could not check";
       },
     );
-  const upgrade = () => (downloaded ? askToRestart(downloaded) : checkForUpdates());
+  // Recorded again before the dialog, so `sp upgrade`, which waits for a new `checkedAt`, hears it.
+  const upgrade = () => {
+    if (!downloaded) return checkForUpdates();
+    record(downloaded);
+    return askToRestart(downloaded);
+  };
   checkForUpdates();
   ipcMain.handle("startup:check", checkForUpdates);
   // Where every new project goes, which makes the folder the list of them. The server lists it and

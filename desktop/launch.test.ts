@@ -90,9 +90,11 @@ test("linkInstall links through current, repoints it, and replaces only our own 
   // Windows: no command links, since `uv tool install` makes those.
   const win = tmp();
   fs.mkdirSync(path.join(win, ".claude"));
+  fs.mkdirSync(path.join(win, ".codex"));
   linkInstall(app("C.app"), win, "win32");
   expect(fs.existsSync(path.join(win, ".local/bin"))).toBe(false);
   expect(fs.existsSync(path.join(win, ".claude/skills/alpha"))).toBe(true);
+  expect(fs.existsSync(path.join(win, ".agents/skills/alpha"))).toBe(true); // Codex, by ~/.codex
 });
 
 test("ensurePathInRc appends once, and not when the rc already puts ~/.local/bin on PATH", () => {
