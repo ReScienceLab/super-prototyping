@@ -1,6 +1,6 @@
 /**
  * Everything the canvas needs a server for, mounted under `/__sp` and `/board`: the board
- * index and the board files, a board's status and comments written back into its folder, a
+ * index and the board files, comments and the ground written back into its folder, a
  * cloned canvas, screenshots, and the watcher that tells the open page when a board changed.
  * One of these per project, mounted at `/p/<name>/` by projects.ts under the Vite dev server
  * (vite.config.ts) and the built app's own server (main.ts) alike, so the two run the same code
@@ -20,13 +20,7 @@ import {
   canvasesNamespace,
   readJson,
 } from "./boards.ts";
-import {
-  BOARD_STATUSES,
-  SAFE_NAME,
-  canvasSlug,
-  withBoardStatus,
-  withLayoutKey,
-} from "../src/boardStatusEdit.ts";
+import { SAFE_NAME, canvasSlug, withLayoutKey } from "../src/layoutEdit.ts";
 import {
   boardChangeKind,
   boardSetSignature,
@@ -132,7 +126,7 @@ export function createSpServer(options: {
     run();
   };
 
-  // The open pages, for the watcher and the status endpoint to talk to. One event stream per
+  // The open pages, for the watcher and the write endpoints to talk to. One event stream per
   // page; `reload` is answered with a full reload and `layout` with the new layout.json for
   // one board, handed over live because a reload to change one word would throw away the
   // tldraw viewport and the open panel. canvasIndex.ts listens.
@@ -142,7 +136,7 @@ export function createSpServer(options: {
     for (const page of pages) page.write(frame);
   };
 
-  // Everything under /__sp writes something: a board's status, a comment, a cloned canvas, an
+  // Everything under /__sp writes something: a comment, a canvas's ground, a cloned canvas, an
   // agent holding bypassPermissions in the project.
   route("/__sp", (req, res, next) => {
     if (sameOrigin(req)) return next();
@@ -434,48 +428,9 @@ export function createSpServer(options: {
     });
   });
 
-  // The inspector's status badge, writing back. Only the dev server can do this: a built
-  // canvas is static files on a host with no repo behind them, which is why the badge is
-  // not a button there.
-  route("/__sp/board-status", (req, res, next) => {
-    if (req.method !== "POST") return next();
-    let body = "";
-    req.on("data", (chunk) => (body += chunk));
-    req.on("end", () => {
-      const send = (code: number, message: string) => {
-        res.statusCode = code;
-        res.end(message);
-      };
-      try {
-        const { slug, file, status } = JSON.parse(body || "{}");
-        // The two names land in a filesystem path, so they are checked before they are
-        // joined, not after: a `slug` of "../.." would otherwise write outside the boards.
-        if (!SAFE_NAME.test(slug ?? "") || !SAFE_NAME.test(file ?? "")) {
-          return send(400, "bad board name");
-        }
-        if (!BOARD_STATUSES.includes(status)) return send(400, "bad status");
-        if (isExample(slug)) return send(403, READ_ONLY);
-        const layoutPath = path.join(canvasesDir, slug, "layout.json");
-        const before = fs.readFileSync(layoutPath, "utf8");
-        const after = withBoardStatus(before, file, status);
-        if (after === null) return send(404, "board is not in layout.json");
-        if (after !== before) {
-          fs.writeFileSync(layoutPath, after);
-          // Hand the edited layout to the page directly rather than leaving it to hear about
-          // its own write from the watcher, which answers a batch and not a keystroke: a
-          // badge that lags a fifth of a second behind the click reads as a badge that did
-          // not take. canvasLibrary.ts listens.
-          broadcast("layout", { slug, layout: JSON.parse(after) });
-        }
-        send(200, "ok");
-      } catch (error) {
-        send(500, String(error));
-      }
-    });
-  });
-
   // The canvas's ground, from its Background menu and swatch, into its layout.json. Null takes
-  // the key out, which is the theme's own ground.
+  // the key out, which is the theme's own ground. Only the dev server can do this: a built
+  // canvas is static files on a host with no repo behind them.
   route("/__sp/canvas-ground", (req, res, next) => {
     if (req.method !== "POST") return next();
     let body = "";
@@ -487,6 +442,8 @@ export function createSpServer(options: {
       };
       try {
         const { slug, ground } = JSON.parse(body || "{}");
+        // The name lands in a filesystem path, so it is checked before it is joined, not
+        // after: a `slug` of "../.." would otherwise write outside the boards.
         if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
         if (ground !== null && !/^#[0-9a-f]{6}$/i.test(ground ?? "")) {
           return send(400, "bad colour");
@@ -500,6 +457,10 @@ export function createSpServer(options: {
         const after = withLayoutKey(before, "ground", ground);
         if (after !== before) {
           fs.writeFileSync(layoutPath, after);
+          // Hand the edited layout to the page directly rather than leaving it to hear about
+          // its own write from the watcher, which answers a batch and not a keystroke: a
+          // ground that lags a fifth of a second behind the click reads as one that did not
+          // take. canvasIndex.ts listens.
           broadcast("layout", { slug, layout: JSON.parse(after) });
         }
         send(200, "ok");
@@ -613,7 +574,7 @@ export function createSpServer(options: {
   });
 
   // Cloning a canvas, from the button in the top bar: the folder copied whole under the name
-  // the dialog asked for. Dev server only, like the status write and for the same reason. A
+  // the dialog asked for. Dev server only, like the ground write and for the same reason. A
   // built canvas is static files with no folder behind them.
   route("/__sp/clone-canvas", (req, res, next) => {
     if (req.method !== "POST") return next();
@@ -717,9 +678,9 @@ export function createSpServer(options: {
       }
     }
     for (const file of layouts) {
-      // The same message the status endpoint sends, for the same reason: a layout.json is
+      // The same message the ground endpoint sends, for the same reason: a layout.json is
       // read on every render, and a reload to change one word would throw away the tldraw
-      // viewport and the open panel. canvasLibrary.ts listens.
+      // viewport and the open panel. canvasIndex.ts listens.
       try {
         const layout = JSON.parse(fs.readFileSync(file, "utf8"));
         broadcast("layout", { slug: boardSlug(canvasesDir, file), layout });

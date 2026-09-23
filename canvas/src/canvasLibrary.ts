@@ -18,11 +18,7 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // index because they are read during render.
 import { canvasIndex } from "./canvasIndex";
 import { coverBoard, inStripOrder } from "./cover";
-export {
-  CANVAS_FILE_DEFAULT_SIZE,
-  DEFAULT_COVER_BOX,
-  fitCover,
-} from "./cover";
+export { CANVAS_FILE_DEFAULT_SIZE, DEFAULT_COVER_BOX, fitCover } from "./cover";
 export { LAYOUT_CHANGED } from "./canvasIndex";
 
 const boards = () => canvasIndex().boards;
@@ -55,39 +51,10 @@ export interface CanvasLibraryFile {
 }
 
 /**
- * How far along a board is. `live` is the default, the version being shipped, and it is the
- * one status that draws no tab on the canvas: most boards on a finished page
- * are live, and a tab on every one of them would say nothing while costing 134px of every
- * row. The other two draw a coloured tab above the board.
- *
- * It is a tldraw shape the layout places, not markup in the board, so a board keeps no record
- * of its own status and survives being regenerated when that status changes.
- */
-export type CanvasBoardStatus = "exploring" | "outdated" | "live";
-
-/** The default: what a board is when neither its entry nor its folder says otherwise. */
-export const DEFAULT_BOARD_STATUS: CanvasBoardStatus = "live";
-
-/** Title Case for the badge and the menu, per Geist's own Badge copy rule. */
-export const BOARD_STATUS_LABEL: Record<CanvasBoardStatus, string> = {
-  exploring: "Exploring",
-  outdated: "Outdated",
-  live: "Live",
-};
-
-/** In menu order: what you are exploring, what it replaced, what shipped. */
-export const BOARD_STATUSES = Object.keys(
-  BOARD_STATUS_LABEL,
-) as CanvasBoardStatus[];
-
-/**
  * A row's file, either by name alone (uses that file's humanized title) or with a label
  * override. `w`/`h` override the 478 x 980 artboard for a board that is not phone-shaped,
  * a landscape banner say; a row is laid out at its first file's size, so give every file
  * in the row the same one.
- *
- * `status` overrides the folder's own `status` for this one board, including back to
- * `live` to drop a tab the folder would otherwise give it.
  */
 export type CanvasLayoutFileEntry =
   | string
@@ -96,7 +63,6 @@ export type CanvasLayoutFileEntry =
       label?: string;
       w?: number;
       h?: number;
-      status?: CanvasBoardStatus;
     };
 
 /** A button under a row that opens an address in a new tab. */
@@ -166,12 +132,6 @@ export interface CanvasLayoutConfig {
    */
   coverBox?: [number, number, number, number];
   /**
-   * The status every board in this folder has unless its own entry says otherwise: the
-   * useful default on a folder that is one round of exploration, where saying it 70 times
-   * would be 70 chances to leave one board saying something else.
-   */
-  status?: CanvasBoardStatus;
-  /**
    * The canvas's ground, a `#rrggbb` the boards sit on. Without one it is the theme's dark grey.
    * Set from the canvas's Background menu, which writes it here.
    */
@@ -225,58 +185,6 @@ function parse(path: string): CanvasLibraryFile | null {
     fileName,
     title: humanize(fileName),
   };
-}
-
-/**
- * A board's status: its own entry's in layout.json, else its folder's, else `live`. Read from
- * the layout by file name the same way the artboard size override is, so the board itself
- * carries no record of it.
- */
-export function boardStatusForPath(path: string): CanvasBoardStatus {
-  const file = parse(path);
-  if (!file) return DEFAULT_BOARD_STATUS;
-  const layout = readCanvasLayout(file.pageSlug);
-  let status = layout?.status;
-  for (const row of layout?.rows ?? []) {
-    for (const entry of row.files ?? []) {
-      if (typeof entry === "string" || entry.file !== file.fileName) continue;
-      if (entry.status) status = entry.status;
-    }
-  }
-  return status ?? DEFAULT_BOARD_STATUS;
-}
-
-/**
- * The status a tab is drawn for, or undefined for the ones that draw none. `live` is the
- * default and the majority, so it draws nothing on the canvas and shows only in the inspector,
- * where there is one board on screen and the badge is also the control that changes it.
- */
-export function boardTabStatusForPath(path: string) {
-  const status = boardStatusForPath(path);
-  return status === DEFAULT_BOARD_STATUS ? undefined : status;
-}
-
-/**
- * Writes a board's status into its folder's layout.json, through the dev server (vite.config.ts).
- * The server edits the one entry as text rather than reparsing the file, so hand formatting and
- * key order survive; it then sends the edited layout back over HMR (`sp:board-status`, below), and
- * the canvas repaints without a reload.
- *
- * Only the dev server can write. A built canvas is static files on a host with no repo behind
- * them, which is why the badge is not a button there.
- */
-export async function writeBoardStatus(
-  path: string,
-  status: CanvasBoardStatus,
-) {
-  const file = parse(path);
-  if (!file) return false;
-  const response = await fetch(`${import.meta.env.BASE_URL}__sp/board-status`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ slug: file.pageSlug, file: file.fileName, status }),
-  });
-  return response.ok;
 }
 
 /**
