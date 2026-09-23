@@ -31,43 +31,50 @@ const dispatchAttach = (detail: CanvasAttachDetail) =>
   window.parent.dispatchEvent(new CustomEvent(CANVAS_ATTACH, { detail }));
 
 /**
- * A board or a picture, turned into the file the chat attaches. A board is a page in an
+ * A board or a picture, handed to the chat as the file it attaches. A board is a page in an
  * `<iframe>`, so the server draws it first (`/__sp/shoot`, vite.config.ts) and it goes over under
- * its own `<slug>/<file>.html`; a picture already on the canvas is read back out of the asset its
- * shape points at. Shared by the single-shape button below and `attachToChat`, which the
- * selection's button and a pasted link go through.
+ * its own `<slug>/<file>.html` — said to be coming before the seconds that takes, so its tile is
+ * up at once; a picture already on the canvas is read back out of the asset its shape points at.
+ * Shared by the single-shape button below and `attachToChat`, which the selection's button and a
+ * pasted link go through.
  */
-async function attachDetail(
-  editor: Editor,
-  target: InspectorTarget,
-): Promise<CanvasAttachDetail> {
-  if (target.type === CANVAS_FILE_SHAPE_TYPE) {
-    const shape = target as CanvasFileShape;
-    const ref = canvasBoardRef(shape.props.path);
-    if (!ref) throw new Error("that board has no file behind it");
-    const path = `${ref.slug}/${ref.file}`;
-    const shot = await fetch(
-      `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(path)}` +
-        `&w=${Math.round(shape.props.w)}&h=${Math.round(shape.props.h)}`,
-    );
-    if (!shot.ok) throw new Error(await shot.text());
-    const png = await shot.blob();
-    return { kind: "image", file: new File([png], path, { type: png.type }) };
+async function attach(editor: Editor, target: InspectorTarget) {
+  let name: string | undefined;
+  try {
+    if (target.type === CANVAS_FILE_SHAPE_TYPE) {
+      const shape = target as CanvasFileShape;
+      const ref = canvasBoardRef(shape.props.path);
+      if (!ref) throw new Error("that board has no file behind it");
+      name = `${ref.slug}/${ref.file}`;
+      dispatchAttach({ kind: "pending", name });
+      const shot = await fetch(
+        `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(name)}` +
+          `&w=${Math.round(shape.props.w)}&h=${Math.round(shape.props.h)}`,
+      );
+      if (!shot.ok) throw new Error(await shot.text());
+      const png = await shot.blob();
+      return dispatchAttach({
+        kind: "image",
+        file: new File([png], name, { type: png.type }),
+      });
+    }
+    const shape = target as TLImageShape;
+    const asset = shape.props.assetId
+      ? editor.getAsset(shape.props.assetId)
+      : undefined;
+    if (asset?.type !== "image" || !asset.props.src) {
+      throw new Error("that picture has no file behind it");
+    }
+    const bytes = await (await fetch(asset.props.src)).blob();
+    dispatchAttach({
+      kind: "image",
+      file: new File([bytes], asset.props.name || "image.png", {
+        type: bytes.type,
+      }),
+    });
+  } catch (error) {
+    dispatchAttach({ kind: "error", message: String(error), name });
   }
-  const shape = target as TLImageShape;
-  const asset = shape.props.assetId
-    ? editor.getAsset(shape.props.assetId)
-    : undefined;
-  if (asset?.type !== "image" || !asset.props.src) {
-    throw new Error("that picture has no file behind it");
-  }
-  const bytes = await (await fetch(asset.props.src)).blob();
-  return {
-    kind: "image",
-    file: new File([bytes], asset.props.name || "image.png", {
-      type: bytes.type,
-    }),
-  };
 }
 
 /**
@@ -77,13 +84,7 @@ async function attachDetail(
  */
 // oxlint-disable-next-line react/only-export-components
 export async function attachToChat(editor: Editor, targets: InspectorTarget[]) {
-  for (const target of targets) {
-    try {
-      dispatchAttach(await attachDetail(editor, target));
-    } catch (error) {
-      dispatchAttach({ kind: "error", message: String(error) });
-    }
-  }
+  for (const target of targets) await attach(editor, target);
 }
 
 /**
@@ -196,9 +197,7 @@ export function CanvasAttachButtons() {
     if (board) pinned.current = true;
     if (board) setShooting(true);
     try {
-      dispatchAttach(await attachDetail(editor, target));
-    } catch (error) {
-      dispatchAttach({ kind: "error", message: String(error) });
+      await attach(editor, target);
     } finally {
       pinned.current = false;
       setShooting(false);
