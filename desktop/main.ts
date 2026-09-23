@@ -75,7 +75,9 @@ let quitting = false;
 // catch, so there the whole tree is ended from here, or the agent would go on editing the project.
 function stopServer() {
   if (process.platform === "win32" && server?.pid)
-    spawnSync("taskkill", ["/pid", `${server.pid}`, "/t", "/f"]);
+    spawnSync("taskkill", ["/pid", `${server.pid}`, "/t", "/f"], {
+      windowsHide: true,
+    });
   else server?.kill();
 }
 app.on("will-quit", () => {
@@ -297,16 +299,20 @@ async function main() {
     fs.writeFileSync(lastFile, JSON.stringify(last));
   });
 
-  await startServer();
-  writeJson(appFile, { port, pid: process.pid, version: app.getVersion() });
-  linkIntoMachine();
+  // Heard from before the server is up: Electron drops a `second-instance` nothing listens for, and
+  // `sp open` during a launch would then report a project the window never opens.
+  const serverUp = startServer();
   app.on("second-instance", async (_event, argv) => {
     const { dir, upgrade: wantsUpgrade } = argvOf(argv);
     if (win.isMinimized()) win.restore();
     win.focus();
+    await serverUp;
     if (wantsUpgrade) upgrade();
     if (dir !== undefined) win.loadURL(await openProject(dir)).catch(fail);
   });
+  await serverUp;
+  writeJson(appFile, { port, pid: process.pid, version: app.getVersion() });
+  linkIntoMachine();
   if (upgradeArg) upgrade();
   if (argDir !== undefined) return win.loadURL(await openProject(argDir));
   const url = new URL("/home.html", origin);
@@ -359,6 +365,7 @@ function installCommands() {
   const tools = path.join(dataDir(home), "current", "tools");
   const uv = spawn("uv", ["tool", "install", "--force", "--editable", tools], {
     stdio: "inherit",
+    windowsHide: true,
   });
   uv.on("error", (e) => console.error(`installing the commands failed: ${e}`));
   uv.on("exit", (code) => {

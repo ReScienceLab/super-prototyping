@@ -667,6 +667,8 @@ def cmd_uninstall(a):
     if _points_into(CURRENT, None):
         _unlink(CURRENT)
         print(f"removed  {CURRENT}")
+    # Or a reinstall of the same version would skip `uv tool install` (desktop/main.ts).
+    (CURRENT.parent / "tools-version").unlink(missing_ok=True)
     if os.name == "nt":
         print("\nThe commands are a uv tool, which cannot remove itself while it runs. Next:\n"
               "  uv tool uninstall super-prototyping-tools\n"

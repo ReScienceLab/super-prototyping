@@ -17,5 +17,5 @@ command -v uv >/dev/null || {
 }
 cache=${SUPER_PROTOTYPING_HOME:+$SUPER_PROTOTYPING_HOME/cache}
 cache=${cache:-${XDG_CACHE_HOME:-$HOME/.cache}/super-prototyping}
-SUPER_PROTOTYPING_ROOT=$root UV_PROJECT_ENVIRONMENT=$cache/venv \
+UV_PROJECT_ENVIRONMENT=$cache/venv \
   exec uv run --quiet --frozen --no-dev --project "$root/tools" "$(basename "$0")" "$@"

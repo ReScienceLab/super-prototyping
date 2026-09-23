@@ -102,8 +102,10 @@ export function isOurCopy(dir: string) {
 }
 
 /**
- * Points `at` at `target`, by ego lite's rule: a link pointing elsewhere is repointed, a missing
- * one is made, and anything else is left alone unless `ours` says it is a copy we may replace.
+ * Points `at` at `target`, by ego lite's rule: a missing link is made, and anything else is left
+ * alone unless it is ours to replace: a link into a super-prototyping path (`current`, or the
+ * `uv tool install` of the toolkit this replaces), or whatever `ours` accepts. `sp` is a common
+ * name, and another tool's link to it is kept and reported.
  */
 export function link(
   target: string,
@@ -113,8 +115,9 @@ export function link(
   const st = fs.lstatSync(at, { throwIfNoEntry: false });
   // A junction reads as a link too, and back with a trailing separator, hence the resolve.
   if (st?.isSymbolicLink()) {
-    if (path.resolve(fs.readlinkSync(at)) === path.resolve(target))
-      return "same";
+    const old = fs.readlinkSync(at);
+    if (path.resolve(old) === path.resolve(target)) return "same";
+    if (!old.includes("super-prototyping") && !ours(at)) return "kept";
     fs.unlinkSync(at);
   } else if (st) {
     if (!ours(at)) return "kept";
@@ -143,7 +146,7 @@ export function linkInstall(
   const note = (at: string, result: ReturnType<typeof link>) => {
     if (result !== "same") changes.push(`${result} ${at}`);
   };
-  note(current, link(pluginRoot, current));
+  note(current, link(pluginRoot, current, () => true));
   for (const cmd of platform === "win32" ? [] : COMMANDS) {
     const at = path.join(home, ".local/bin", cmd);
     note(at, link(path.join(current, "tools/bin/sp"), at));

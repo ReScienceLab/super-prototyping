@@ -72,6 +72,8 @@ test("linkInstall links through current, repoints it, and replaces only our own 
   fs.mkdirSync(path.join(home, ".claude/skills/beta"));
   fs.writeFileSync(path.join(home, ".claude/skills/beta/SKILL.md"), "---\nname: beta\n---\nmine\n");
   const current = path.join(home, ".local/share/super-prototyping/current");
+  fs.mkdirSync(path.join(home, ".local/bin"), { recursive: true });
+  fs.symlinkSync("/usr/bin/true", path.join(home, ".local/bin/artgen")); // another tool's
 
   const changes = linkInstall(first, home);
   expect(fs.readlinkSync(current)).toBe(first);
@@ -81,10 +83,15 @@ test("linkInstall links through current, repoints it, and replaces only our own 
   expect(fs.lstatSync(path.join(home, ".claude/skills/beta")).isSymbolicLink()).toBe(false); // the user's
   expect(fs.existsSync(path.join(home, ".agents"))).toBe(false); // no such agent here
   expect(changes).toContain(`kept ${path.join(home, ".claude/skills/beta")}`);
+  expect(fs.readlinkSync(path.join(home, ".local/bin/artgen"))).toBe("/usr/bin/true");
 
   // The app moved: only `current` changes, and a second launch changes nothing.
   const moved = app("B.app");
-  expect(linkInstall(moved, home)).toEqual([`linked ${current}`, `kept ${path.join(home, ".claude/skills/beta")}`]);
+  expect(linkInstall(moved, home)).toEqual([
+    `linked ${current}`,
+    `kept ${path.join(home, ".local/bin/artgen")}`,
+    `kept ${path.join(home, ".claude/skills/beta")}`,
+  ]);
   expect(fs.readlinkSync(current)).toBe(moved);
 
   // Windows: no command links, since `uv tool install` makes those.

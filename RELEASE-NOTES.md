@@ -25,7 +25,8 @@ Everything below is on `main` and reaches no install until a version is cut.
   the app updates all of them. `sp uninstall` takes them back out. If you
   installed the plugin, remove it with `/plugin uninstall super-prototyping`
   (or your product's equivalent). On macOS, also remove the old toolkit with
-  `uv tool uninstall super-prototyping-tools`; on Windows the app replaces it.
+  `uv tool uninstall super-prototyping-tools` before opening the new app (or
+  open it again afterwards); on Windows the app replaces it.
   An agent with only the skills installs the app with the prototype-canvas
   skill's `scripts/install.sh`, or `install.ps1` on Windows.
 

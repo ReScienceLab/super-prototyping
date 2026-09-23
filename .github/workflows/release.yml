@@ -68,6 +68,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # bump-version.sh relocks tools/uv.lock, which the shims run --frozen.
+      - uses: astral-sh/setup-uv@v7
+
       - name: Bump every version
         env:
           VERSION: ${{ inputs.version }}

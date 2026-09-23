@@ -45,7 +45,7 @@ def with_home(home, fn):
 
 
 def test_the_app_is_found_through_its_link_then_where_install_sh_puts_it():
-    """The commands the app links set SUPER_PROTOTYPING_ROOT; without it, `current`, then
+    """SUPER_PROTOTYPING_ROOT first; without it, `current`, then
     the app in /Applications or ~/Applications."""
     home = Path(tempfile.mkdtemp()).resolve()
     user_app = canvas_app_at(home / "Applications/Super Prototyping.app/Contents/Resources/plugin")
