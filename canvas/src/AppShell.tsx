@@ -43,11 +43,14 @@ declare global {
  * What the window's address opened on: the home page, or a view of this project's, whose tab is
  * worked out here from the address until the canvas has loaded and said which it landed on.
  * The hosted build is on Cloudflare Pages, which answers `home.html` with a 308 to `home`, so
- * the home page is either.
+ * the home page is either. A build has no project, only examples, so its bare address is home.
  */
-const opened = /\/home(\.html)?$/.test(location.pathname)
-  ? null
-  : { tab: tabFor(tabFromUrl(location.href)), href: frameUrl(location.href) };
+const openedTab = tabFor(tabFromUrl(location.href));
+const opened =
+  /\/home(\.html)?$/.test(location.pathname) ||
+  (!canvasIndex().served && openedTab.kind === "project")
+    ? null
+    : { tab: openedTab, href: frameUrl(location.href) };
 
 /** The app's version when it asks for the onboarding (desktop/main.ts), read before the address
  *  is rewritten, so a reload does not ask again. */
@@ -79,9 +82,11 @@ export function AppShell() {
    * The bar: the projects and examples this browser left open, plus the one the address is in.
    * That one is in front, so it is open by definition, even on a link someone was sent.
    */
-  const [tabs, setTabs] = useState(() =>
-    opened ? withTab(readOpenTabs(), opened.tab) : readOpenTabs(),
-  );
+  const [tabs, setTabs] = useState(() => {
+    // A build has no project, so a tab left from before it had only examples is gone.
+    const open = readOpenTabs().filter((tab) => canvasIndex().served || tab.kind === "example");
+    return opened ? withTab(open, opened.tab) : open;
+  });
   /** Every project there is, for the "+" menu and the home page; empty until the server says. */
   const [projects, setProjects] = useState<Project[]>([]);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -104,11 +109,11 @@ export function AppShell() {
 
   // One writer for the address, from what is in front. It replaces rather than pushes, since the
   // frame's own changes are already entries in the window's history, which Back walks. Home is
-  // the server's, at its root, and no project's; a hosted build's is beside its other pages.
+  // the server's, at its root, and no project's; a hosted build's is its bare address.
   useEffect(() => {
     const href =
       home || !shown
-        ? new URL(canvasIndex().served ? "/home.html" : "home.html", location.href).href
+        ? new URL(canvasIndex().served ? "/home.html" : "./", location.href).href
         : windowUrl(shown.href);
     if (href !== location.href) history.replaceState(null, "", href);
   }, [home, shown]);

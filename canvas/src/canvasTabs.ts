@@ -129,28 +129,17 @@ export function ownCanvases() {
 }
 
 /**
- * A document view's slug is its file name for one of the project's, and `<canvas>/<file name>`
- * for one of a canvas's own: an example's, or, where there is no project, the one in front.
+ * A document view's slug is its file name for one of the project's, and `<example>/<file name>`
+ * for one of an example's, which is the only kind of canvas whose documents have a tab.
  */
 const docOwner = (slug: string) => (slug.includes("/") ? slug.split("/")[0] : undefined);
 
-/**
- * The documents a tab shows, as the views that open them, each with its file name. Without a
- * project, in the hosted build or the server's root, the project tab's canvases are the examples
- * themselves, so it shows the documents of the one in front.
- */
+/** The documents a tab shows, as the views that open them, each with its file name. */
 export function docsOf(tab: ProjectTab) {
-  const { docs } = canvasIndex();
-  if (tab.kind === "project" && docs)
-    return docs.map(({ name }) => ({ name, slug: name }));
-  const owner =
-    tab.kind === "example"
-      ? tab.slug
-      : tab.view.kind === "doc"
-        ? docOwner(tab.view.slug)
-        : tab.view.slug;
-  const board = canvasIndex().boards.find((b) => b.slug === owner);
-  return (board?.docs ?? []).map(({ name }) => ({ name, slug: `${owner}/${name}` }));
+  if (tab.kind === "project")
+    return (canvasIndex().docs ?? []).map(({ name }) => ({ name, slug: name }));
+  const board = canvasIndex().boards.find((b) => b.slug === tab.slug);
+  return (board?.docs ?? []).map(({ name }) => ({ name, slug: `${tab.slug}/${name}` }));
 }
 
 /** A document's text, by its view's slug, as the index has it. */

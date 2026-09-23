@@ -133,7 +133,12 @@ function canvasesSource(): Plugin {
       this.emitFile({
         type: "asset",
         fileName: "__sp/index.json",
-        source: JSON.stringify(index),
+        // Every canvas a build has is one of this repo's examples, each a project of its own, as
+        // the server marks them (server/sp.ts).
+        source: JSON.stringify({
+          ...index,
+          boards: index.boards.map((b) => ({ ...b, example: true })),
+        }),
       });
     },
 

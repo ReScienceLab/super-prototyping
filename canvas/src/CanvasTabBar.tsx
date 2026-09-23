@@ -168,7 +168,7 @@ export function CanvasTabBar(props: {
               onClick={() =>
                 navigator.clipboard.writeText(
                   new URL(
-                    canvasIndex().served ? "/home.html" : "home.html",
+                    canvasIndex().served ? "/home.html" : "./",
                     location.href,
                   ).href,
                 )

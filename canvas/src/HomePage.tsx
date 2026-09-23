@@ -201,11 +201,8 @@ export function HomePage(props: {
           )
         : byEdit(projects);
   // The app's examples, which every project's server has, Start here first. Its card opens it
-  // on a tab of its own (canvasTabs.ts), not on the project this window is on. A build has no
-  // projects, and every canvas in it is one of this repo's examples.
-  const examples = canvasIndex().boards.filter(
-    (b) => isExample(b.slug) || !canvasIndex().served,
-  );
+  // on a tab of its own (canvasTabs.ts), not on the project this window is on.
+  const examples = canvasIndex().boards.filter((b) => isExample(b.slug));
   const canvases = projects.flatMap((p) => p.canvases);
   const updated = Math.max(0, ...projects.map((p) => p.updated));
 
