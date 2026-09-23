@@ -390,11 +390,56 @@ button {
 /* A brand kit as a tab: the same page brand.html serves, over the canvas instead of in a window
    of its own. It scrolls itself, because it is a web page inside an app that does not scroll.
    `html, body, #root` up top are pinned at 100% with the overflow off. */
-.canvas-brand-tab {
+.canvas-brand-tab,
+.canvas-doc-tab {
   position: absolute;
   inset: 0;
   z-index: 1;
   overflow: auto;
+}
+
+/* A Markdown file of the project's as a tab (App.tsx): the chat panel's markdown, given the
+   palette the panel would have given it and set at a document's measure and size. */
+.canvas-doc-tab {
+  --sp-field: var(--ds-background-200);
+  --sp-line: var(--ds-gray-400);
+  --sp-text-2: var(--ds-gray-700);
+  --sp-accent: var(--ds-blue-700);
+  padding: 40px 16px 80px;
+  background: var(--ds-background-100);
+  color: var(--ds-gray-1000);
+  font: 400 14px/22px var(--sp-sans);
+}
+
+.canvas-doc-tab .sp-chat-md {
+  max-width: 720px;
+  margin: 0 auto;
+  gap: 12px;
+  line-height: 22px;
+}
+
+.canvas-doc-tab .sp-chat-md h1 {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.canvas-doc-tab .sp-chat-md h2 {
+  margin-top: 12px;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.canvas-doc-tab .sp-chat-md h3 {
+  font-size: 15px;
+}
+
+.canvas-doc-tab .sp-chat-md code {
+  font-size: 12px;
+}
+
+.canvas-doc-tab .sp-chat-md table {
+  font-size: 13px;
+  line-height: 20px;
 }
 
 /* The panels' palette and type, which the agent menu shares from outside the chat panel. */

@@ -220,8 +220,8 @@ export function AppShell() {
           <ChatPanel
             // Home is no canvas to the agent. Neither is the project's own view with no canvas
             // in front (HOME_TAB), nor the index of every kit, since both have an empty slug. A
-            // kit is named by the canvas whose material it shows.
-            canvas={(!home && view?.slug) || undefined}
+            // kit is named by the canvas whose material it shows. A document is no canvas either.
+            canvas={(!home && view?.kind !== "doc" && view?.slug) || undefined}
             project={home || shown?.tab.kind !== "project" ? undefined : shown.tab.name}
             chat={chat}
           />

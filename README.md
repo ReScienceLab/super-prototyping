@@ -167,7 +167,7 @@ folder added after boot appears on its own.
 
 ## The workflow
 
-Four skills, in `skills/` (which `.claude/skills/` and `.agents/skills/`
+Five skills, in `skills/` (which `.claude/skills/` and `.agents/skills/`
 symlink to, so this checkout loads what an install does):
 
 | Skill | Use it for |
@@ -175,6 +175,7 @@ symlink to, so this checkout loads what an install does):
 | **clone-prototype** | Copying a real app's screens. Grid the reference, sample colours *visually*, name the type face, derive one measured token block, generate the artboards, verify by re-rendering, park the reference underneath. |
 | **new-ui-mock** | Designing new screens with no reference, built on existing tokens, including the empty/loading/error states and side-by-side proposals. |
 | **prototype-canvas** | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
+| **define-product** | Working out what the product is before anything is drawn: an interview, one or two questions at a time, problem before solution, gaps left TBD rather than invented. It writes the project's `PRD.md`, which the canvas shows as the first tab, with the screen inventory new-ui-mock designs from. |
 | **brand-kit** | Collecting a product's own brand and promotional material -- the company's own brand or press kit, store listings, verified social accounts, the newsroom -- and turning it into the image rows of a canvas folder, each asset carrying its source and whether the company published it. |
 
 The rule the whole thing is built around: **every colour and every metric in

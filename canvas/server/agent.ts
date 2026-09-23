@@ -435,6 +435,12 @@ export function createAgentServer(options: {
               "the prototype-canvas skill of the super-prototyping plugin: one folder is one canvas " +
               "page, one .html file in it is one board, layout.json places them, and the open canvas " +
               "reloads by itself when a board is rewritten.",
+            dir !== undefined &&
+              `The Markdown files at the root of ${dir} are tabs of the canvas, PRD.md ` +
+                "first: what the product is for. When they start from an idea, or ask for screens " +
+                "with no PRD.md there, offer to define the product with them first, following " +
+                `${repoRoot}/skills/define-product/SKILL.md; never insist. When it exists, read it ` +
+                "before designing.",
             // On the turn that starts the session only. A resumed one has its title.
             record.resume === null &&
               "Open your first reply with a title for this conversation on a line of its own, " +

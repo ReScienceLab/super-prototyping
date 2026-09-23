@@ -44,7 +44,7 @@ import {
   urlForTab,
   type CanvasTab,
 } from "./canvasUrl";
-import { isHere, pageOf, resolveTab, tabFor } from "./canvasTabs";
+import { isHere, pageOf, readDoc, resolveTab, tabFor } from "./canvasTabs";
 import { CanvasStrip } from "./CanvasStrip";
 // The kits render inside the canvas as well as under brand.html, so this file imports their
 // sheet too, and statically, because it is a few kilobytes against tldraw's megabyte, and a tab
@@ -89,6 +89,7 @@ import {
   readCanvasLibrary,
 } from "./canvasLibrary";
 import { canvasIndex } from "./canvasIndex";
+import { renderMarkdown } from "./markdown";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasChromeContext,
@@ -1124,9 +1125,10 @@ function applyCanvasFromUrl(
   const tab = tabFromUrl(window.location.href);
   // Read before `open`, which writes the address from the inspector, and that is still empty.
   const named = targetFromUrl(window.location.href);
-  // A kit is an overlay over the whole editor rather than a page of it, so there is no page to
-  // set and no board under the hash to go looking for. `open` shuts the inspector for it.
-  if (tab.kind === "brand") {
+  // A kit or a document is an overlay over the whole editor rather than a page of it, so there
+  // is no page to set and no board under the hash to go looking for. `open` shuts the inspector
+  // for it.
+  if (tab.kind !== "canvas") {
     open(tab);
     return false;
   }
@@ -1369,9 +1371,9 @@ export default function App() {
   const showTab = useCallback(
     (tab: CanvasTab) => {
       const open = resolveTab(tab);
-      // A kit covers the canvas whole, and the inspector left open beside it would be a dock
-      // onto a board of a page that is no longer in front.
-      if (open.kind === "brand") show(null, false);
+      // A kit or a document covers the canvas whole, and the inspector left open beside it would
+      // be a dock onto a board of a page that is no longer in front.
+      if (open.kind !== "canvas") show(null, false);
       active.current = open;
       setActiveTab(open);
       writeUrl.current(true);
@@ -1524,7 +1526,7 @@ export default function App() {
               // viewport from this element, and one taken out of the layout comes back at zero
               // by zero with its camera lost. Inert instead, so nothing underneath takes a click
               // or the focus.
-              inert={activeTab.kind === "brand"}
+              inert={activeTab.kind !== "canvas"}
             >
               <Tldraw
                 components={canvasChromeComponents}
@@ -1557,6 +1559,20 @@ export default function App() {
                 of in a window of their own, and given `openTab` so the links inside them open
                 tabs rather than reloading the app out from under the conversation. Keyed by the
                 kit, so switching to another starts at the top of it the way a page would. */}
+            {/* A Markdown file of the project's as a tab, over the canvas the way a kit is: the
+                chat panel's markdown, sanitized the same way, at a document's size. Read only;
+                the agent or an editor writes it, and the watcher reloads the page onto the new
+                version. Keyed by the file, so switching to another starts at the top of it. */}
+            {activeTab.kind === "doc" && (
+              <div className="canvas-doc-tab" key={activeTab.slug}>
+                <article
+                  className="sp-chat-md"
+                  dangerouslySetInnerHTML={{
+                    __html: renderMarkdown(readDoc(activeTab.slug) ?? ""),
+                  }}
+                />
+              </div>
+            )}
             {activeTab.kind === "brand" && (
               <div className="brand-page canvas-brand-tab" key={activeTab.slug}>
                 {activeTab.slug ? (

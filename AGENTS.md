@@ -7,8 +7,8 @@ holds only *data*.
 
 Code, shipped to every install:
 
-`skills/` holds `clone-prototype`, `new-ui-mock`, `prototype-canvas` and
-`brand-kit`.
+`skills/` holds `clone-prototype`, `new-ui-mock`, `prototype-canvas`,
+`define-product` and `brand-kit`.
 `.claude/skills/` and `.agents/skills/` are symlinks to it, so this checkout
 loads the same tree an install does.
 
@@ -20,7 +20,9 @@ project's boards are its `canvases`, discovered as `*/*.html` one level
 deep. Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
 `/__sp/index.json` by `canvas/server/sp.ts` and written into `dist` by the
 build — not an `import.meta.glob`, because a glob pattern is a build-time
-literal and could only ever read one hard-coded directory. `sp start`
+literal and could only ever read one hard-coded directory. The same index
+carries a project's documents, the `*.md` files at its root with `PRD.md`
+first, each a read-only tab before its canvases. `sp start`
 runs the built app, `dist/server.mjs`: the release's `canvas-dist.tgz`
 fetched into `~/.cache/super-prototyping/<version>/` for an install, or this
 checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's

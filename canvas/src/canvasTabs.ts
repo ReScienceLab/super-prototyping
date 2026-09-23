@@ -12,7 +12,8 @@ import { WELCOME_PAGE_SLUG, urlForTab, type CanvasTab } from "./canvasUrl";
 /**
  * The tabs on the bar, and what each one shows. A tab is a project, or an example, which is a
  * project of one canvas. What a tab has in front is a view (`CanvasTab`, canvasUrl.ts): one of
- * its canvases, or a brand kit. The address names the view; this is the rest of the bar.
+ * its canvases, a brand kit, or one of its documents. The address names the view; this is the
+ * rest of the bar.
  *
  * A project is its own pages at an address of their own (`/p/<name>/` in the desktop app), all
  * from one server. The bar is the window's and the canvas is a frame in it (AppShell.tsx), so a
@@ -127,6 +128,11 @@ export function ownCanvases() {
     .filter((slug) => slug !== WELCOME_PAGE_SLUG && !isExample(slug));
 }
 
+/** A document at the project's root, by file name, as the index has it. */
+export function readDoc(name: string) {
+  return canvasIndex().docs?.find((doc) => doc.name === name)?.text;
+}
+
 /** The address this page's project is under, which is the build's base resolved against it. */
 export function projectUrl() {
   return new URL(import.meta.env.BASE_URL, window.location.href).pathname;
@@ -179,6 +185,7 @@ export function projectTabIcon(tab: ProjectTab) {
  * nothing to switch to.
  */
 export function tabExists(tab: CanvasTab) {
+  if (tab.kind === "doc") return readDoc(tab.slug) !== undefined;
   if (tab.kind === "brand")
     return tab.slug === "" || hasBrandMaterial(tab.slug);
   return readCanvasLibrary().some((files) => files[0].pageSlug === pageOf(tab));
@@ -189,9 +196,11 @@ export function tabExists(tab: CanvasTab) {
  * folder whose material it shows, and a folder that collected none has no kit of its own. That
  * address is the index of every kit, which is the page brand.html serves for it too. A canvas
  * the library has never heard of is a link to a folder that has since gone, and lands on the
- * project's own view of Start here, the one page that is always there.
+ * project's own view of Start here, the one page that is always there. So does a document
+ * that has gone.
  */
 export function resolveTab(tab: CanvasTab): CanvasTab {
+  if (tab.kind === "doc") return tabExists(tab) ? tab : HOME_TAB;
   if (tab.kind === "brand") {
     return tab.slug && !hasBrandMaterial(tab.slug)
       ? { kind: "brand", slug: "" }
@@ -224,7 +233,7 @@ export function readOpenTabs(): ProjectTab[] {
   for (const tab of stored as ProjectTab[]) {
     const view = tab?.view;
     if (
-      (view?.kind !== "canvas" && view?.kind !== "brand") ||
+      (view?.kind !== "canvas" && view?.kind !== "brand" && view?.kind !== "doc") ||
       typeof view.slug !== "string" ||
       !(tab.kind === "project"
         ? typeof tab.url === "string" && typeof tab.name === "string"

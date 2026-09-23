@@ -10,19 +10,25 @@
 // A brand kit open in a tab is `?brand=<slug>` instead, and `?brand=` for the index of every
 // kit. Its own parameter rather than a second value of `canvas=`, because the two name
 // different things of the same folder and a kit has no board to hang a hash off.
+//
+// A Markdown file at the project's root open in a tab is `?doc=<file name>`, `?doc=PRD.md`.
 
 export const WELCOME_PAGE_SLUG = "00-welcome";
 
 const CANVAS_PARAM = "canvas";
 const BRAND_PARAM = "brand";
+const DOC_PARAM = "doc";
 
 /**
  * What one tab shows: a canvas page, by the folder slug its tldraw page is stamped with, or a
- * brand kit, which is that folder's, or the index of every kit when the slug is empty. The two
- * kinds are what the bar holds and what the address names, so they are spelled here.
+ * brand kit, which is that folder's, or the index of every kit when the slug is empty, or a
+ * Markdown document at the project's root, by its file name. The kinds are what the bar holds
+ * and what the address names, so they are spelled here.
  */
 export type CanvasTab =
-  { kind: "canvas"; slug: string } | { kind: "brand"; slug: string };
+  | { kind: "canvas"; slug: string }
+  | { kind: "brand"; slug: string }
+  | { kind: "doc"; slug: string };
 
 /** The page slug an address opens: its `canvas` parameter, else none, which is the bare address. */
 export function slugFromUrl(href: string) {
@@ -93,17 +99,22 @@ export function windowUrl(href: string) {
  */
 export function urlForSlug(href: string, slug: string, target?: string) {
   const url = new URL(href);
-  // A canvas page and a brand kit are two tabs, and the address names the one in front.
+  // A canvas page, a brand kit and a document are tabs, and the address names the one in front.
   url.searchParams.delete(BRAND_PARAM);
+  url.searchParams.delete(DOC_PARAM);
   if (slug) url.searchParams.set(CANVAS_PARAM, slug);
   else url.searchParams.delete(CANVAS_PARAM);
   url.hash = target ? target.split("/").map(encodeURIComponent).join("/") : "";
   return url.href;
 }
 
-/** The tab an address opens: a brand kit when it carries `brand`, else the canvas page. */
+/** The tab an address opens: a document when it carries `doc`, a brand kit when it carries
+ *  `brand`, else the canvas page. */
 export function tabFromUrl(href: string): CanvasTab {
-  const brand = new URL(href).searchParams.get(BRAND_PARAM);
+  const params = new URL(href).searchParams;
+  const doc = params.get(DOC_PARAM);
+  if (doc !== null) return { kind: "doc", slug: doc };
+  const brand = params.get(BRAND_PARAM);
   return brand === null
     ? { kind: "canvas", slug: slugFromUrl(href) }
     : { kind: "brand", slug: brand };
@@ -114,8 +125,14 @@ export function urlForTab(href: string, tab: CanvasTab, target?: string) {
   if (tab.kind === "canvas") return urlForSlug(href, tab.slug, target);
   const url = new URL(href);
   url.searchParams.delete(CANVAS_PARAM);
+  url.hash = "";
+  if (tab.kind === "doc") {
+    url.searchParams.delete(BRAND_PARAM);
+    url.searchParams.set(DOC_PARAM, tab.slug);
+    return url.href;
+  }
+  url.searchParams.delete(DOC_PARAM);
   // Empty is the index of every kit, which is the tab a page that collected none opens.
   url.searchParams.set(BRAND_PARAM, tab.slug);
-  url.hash = "";
   return url.href;
 }

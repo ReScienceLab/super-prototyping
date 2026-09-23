@@ -123,6 +123,38 @@ it("lists the projects", async () => {
   }
 });
 
+// A project's documents are the Markdown files at its root, PRD.md first; the canvases' own
+// Markdown and anything that only ends in .md are not.
+it("lists a project's documents", async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-docs-"));
+  const projectDir = path.join(tmp, "mine");
+  fs.mkdirSync(path.join(projectDir, "canvases/a"), { recursive: true });
+  fs.mkdirSync(path.join(projectDir, "notes.md"));
+  fs.writeFileSync(path.join(projectDir, "canvases/a/README.md"), "no");
+  fs.mkdirSync(path.join(tmp, "examples"));
+  const { ask, close } = await serve({
+    canvasesDir: path.join(projectDir, "canvases"),
+    examplesDir: path.join(tmp, "examples"),
+    projects: () => new Map([["mine", projectDir]]),
+    projectDir,
+    repoRoot: tmp,
+  });
+  const docs = async () =>
+    JSON.parse((await ask("/__sp/index.json")).text).docs;
+  try {
+    expect(await docs()).toEqual([]);
+    fs.writeFileSync(path.join(projectDir, "Aside.md"), "# Aside");
+    fs.writeFileSync(path.join(projectDir, "PRD.md"), "# Why");
+    expect(await docs()).toEqual([
+      { name: "PRD.md", text: "# Why" },
+      { name: "Aside.md", text: "# Aside" },
+    ]);
+  } finally {
+    close();
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
 // A project's cover is its first canvas's first screen, whole, until one is chosen; the choice is a
 // path in project.json, and taking it back deletes the file.
 it("keeps a project's cover", async () => {

@@ -10,9 +10,10 @@ import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
 import { LogoFigma, Plus } from "./geistIcons";
 
 /**
- * The project's canvases, across the top of the project under the bar's tab for it. They are
- * tabs of the second level, drawn as Geist's Tabs are, a name underlined when it is the one in
- * front, so they do not read as more of the bar's cells above them. An example is one canvas.
+ * The project's canvases, across the top of the project under the bar's tab for it, after its
+ * documents: the Markdown files at its root, PRD.md first. They are tabs of the second level,
+ * drawn as Geist's Tabs are, a name underlined when it is the one in front, so they do not read
+ * as more of the bar's cells above them. An example is one canvas.
  *
  * After them, the "+" is the way to another. It puts the agent's panel out with the message
  * begun, since a canvas is the agent's work. An example is the app's and takes none, and a build
@@ -35,6 +36,19 @@ export function CanvasStrip() {
 
   return (
     <nav className="sp-canvas-tabs" aria-label="Canvases">
+      {tab.kind !== "example" &&
+        canvasIndex().docs?.map(({ name }) => (
+          <button
+            key={name}
+            type="button"
+            className="sp-canvas-tab"
+            aria-current={activeTab.kind === "doc" && activeTab.slug === name ? "page" : undefined}
+            title={name}
+            onClick={() => openTab({ kind: "doc", slug: name })}
+          >
+            {name.replace(/\.md$/i, "")}
+          </button>
+        ))}
       {canvases.length === 0 && (
         <span className="sp-canvas-tabs-none">
           No canvases yet. Ask the agent for one.
