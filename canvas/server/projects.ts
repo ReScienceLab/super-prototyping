@@ -72,8 +72,9 @@ function pickFolder() {
 }
 
 /**
- * Shows a folder in the OS's file manager, selected in the folder it is in. Rejects with ENOENT
- * on a Linux without xdg-open, which can only open the folder around it.
+ * Shows a folder in the OS's file manager, selected in the folder it is in. Rejects when the
+ * folder was not shown: on a Linux without xdg-open, or with one that has no file manager to
+ * hand the folder around it to.
  */
 function reveal(dir: string) {
   const [file, args] =
@@ -83,11 +84,15 @@ function reveal(dir: string) {
         ? ["explorer", ["/select,", dir]]
         : ["xdg-open", [path.dirname(dir)]];
   return new Promise<void>((resolve, reject) => {
-    // Explorer exits 1 when it has shown the folder, so only a missing command is a failure.
+    // Explorer exits 1 when it has shown the folder, so there only a missing command is a
+    // failure. `open` and `xdg-open` mean their exit codes, and a non-zero one from them is the
+    // only sign that nothing came up.
     execFile(file, args, (error) =>
-      error && (error as NodeJS.ErrnoException).code === "ENOENT"
-        ? reject(error)
-        : resolve(),
+      !error ||
+      (process.platform === "win32" &&
+        (error as NodeJS.ErrnoException).code !== "ENOENT")
+        ? resolve()
+        : reject(error),
     );
   });
 }
@@ -288,8 +293,7 @@ export function createProjectsServer(options: {
           if (pathname === "/__sp/projects/reveal")
             return reveal(dir).then(
               () => send(204, ""),
-              () =>
-                send(501, "This machine has no file manager to show it in."),
+              () => send(501, "No file manager here could show that folder."),
             );
           // Its server goes first: Windows will not move a folder that is being watched. A project
           // asked for again, after a move that failed, gets a new one.
