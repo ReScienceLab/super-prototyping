@@ -43,12 +43,13 @@ declare global {
  * What the window's address opened on: the home page, or a view of this project's, whose tab is
  * worked out here from the address until the canvas has loaded and said which it landed on.
  * The hosted build is on Cloudflare Pages, which answers `home.html` with a 308 to `home`, so
- * the home page is either. A build has no project, only examples, so its bare address is home.
+ * the home page is either. A build has no project, only examples, so its bare address is home,
+ * but not its index of kits, `?brand=`, which is the same project view with an empty slug too.
  */
 const openedTab = tabFor(tabFromUrl(location.href));
 const opened =
   /\/home(\.html)?$/.test(location.pathname) ||
-  (!canvasIndex().served && openedTab.kind === "project")
+  (!canvasIndex().served && openedTab.kind === "project" && openedTab.view.kind === "canvas")
     ? null
     : { tab: openedTab, href: frameUrl(location.href) };
 

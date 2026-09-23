@@ -99,7 +99,8 @@ export function DocTab({ slug }: { slug: string }) {
       const d = draftOf(slug);
       draft.set(undefined);
       saveError.set(undefined);
-      if (d) void save(d, keepalive).then((saved) => saved || draft.set(d));
+      // Kept on failure, unless it has been reopened and edited again since.
+      if (d) void save(d, keepalive).then((saved) => saved || draft.get() || draft.set(d));
     };
     const hide = () => leave(true);
     window.addEventListener(DOCS_CHANGED, redraw);
@@ -133,8 +134,12 @@ export function DocTab({ slug }: { slug: string }) {
             if ((e.metaKey || e.ctrlKey) && e.key === "s") {
               e.preventDefault();
               const d = draftOf(slug)!;
-              // Saved, the file is the text now, and the next save checks against it.
-              void save(d).then((saved) => saved && draft.set({ ...d, base: d.text }));
+              // Saved, the file is the text now, and the next save checks against it. The text
+              // stays the current one, which may have been typed on while this was in flight.
+              void save(d).then((saved) => {
+                const now = draftOf(slug);
+                if (saved && now) draft.set({ ...now, base: d.text });
+              });
             }
           }}
         />

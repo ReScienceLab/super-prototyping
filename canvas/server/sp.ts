@@ -200,10 +200,11 @@ export function createSpServer(options: {
             name,
             url: `/p/${encodeURIComponent(name)}/`,
             path: dir,
-            // A project with no board yet was last edited when it was made.
+            // A project with no board yet was last edited when it was made. Its documents count.
             updated: Math.max(
               fs.statSync(dir).mtimeMs,
               ...canvases.map((c) => c.updated),
+              ...DOCS.map((doc) => fs.statSync(path.join(dir, doc), { throwIfNoEntry: false })?.mtimeMs ?? 0),
             ),
             canvases,
             cover: projectCover(boards, readProjectJson(dir).cover),
