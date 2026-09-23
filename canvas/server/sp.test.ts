@@ -160,6 +160,8 @@ it("keeps a project's cover", async () => {
     expect((await ask("/__sp/project-cover", { cover: null })).status).toBe(204);
     expect(fs.existsSync(path.join(projectDir, "project.json"))).toBe(false);
     expect((await cover()).path).toBe("b/01-home.html");
+    fs.writeFileSync(path.join(projectDir, "project.json"), "[]");
+    expect((await ask("/__sp/project-cover", { cover: chosen })).status).toBe(409);
   } finally {
     close();
     fs.rmSync(tmp, { recursive: true, force: true });

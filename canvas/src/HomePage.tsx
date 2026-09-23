@@ -97,12 +97,14 @@ function Card(props: {
     observer.observe(stage.current!);
     return () => observer.disconnect();
   }, []);
-  // The cover fills the stage: an element chosen as cover centred in it, the rest from the
-  // board's top, the way a page is read. Clamped so the board is under every pixel of the stage.
+  // The cover fills the stage: an element chosen as cover centred in it, a whole board from its
+  // top, the way a page is read. Clamped so the board is under every pixel of the stage.
   const fit = cover && stageW > 0 && fitCover(cover.box, stageW, STAGE_H);
+  const [x, y, w, h] = cover?.box ?? [];
+  const whole = cover && x === 0 && y === 0 && w === cover.w && h === cover.h;
   const place = fit && {
     left: Math.min(0, Math.max(fit.left, stageW - cover.w * fit.scale)),
-    top: cover.chosen
+    top: !whole
       ? Math.min(0, Math.max(fit.top, STAGE_H - cover.h * fit.scale))
       : 0,
   };

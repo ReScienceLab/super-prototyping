@@ -98,7 +98,12 @@ export interface Cover {
 }
 
 /** A canvas as the index lists it, whose layout the server has only as parsed JSON. */
-type CoverCanvas = { slug: string; html: string[]; layout?: unknown };
+type CoverCanvas = {
+  slug: string;
+  html: string[];
+  brand: string[];
+  layout?: unknown;
+};
 const layoutOf = (c: CoverCanvas) => c.layout as CoverLayout | undefined;
 
 /**
@@ -122,9 +127,10 @@ export function projectCover(
         ...boardCover(canvas, file.replace(/\.html$/, ""), box),
         chosen: true,
       };
+    // Listed in a row and still on disk: a row outlives the file it names.
     for (const row of layoutOf(canvas)?.rows ?? [])
       for (const image of row.images ?? [])
-        if (image.file === file)
+        if (image.file === file && canvas.brand.includes(file))
           return {
             path: chosen.path,
             w: image.w,
@@ -148,7 +154,12 @@ function boardCover(canvas: CoverCanvas, name: string, box?: Box): Cover {
   let size: { w: number; h: number } = CANVAS_FILE_DEFAULT_SIZE;
   for (const row of layout?.rows ?? [])
     for (const entry of row.files ?? [])
-      if (typeof entry !== "string" && entry.file === name && entry.w && entry.h)
+      if (
+        typeof entry !== "string" &&
+        entry.file === name &&
+        entry.w &&
+        entry.h
+      )
         size = { w: entry.w, h: entry.h };
   return {
     path: `${canvas.slug}/${name}.html`,

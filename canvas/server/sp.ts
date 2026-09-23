@@ -187,7 +187,8 @@ export function createSpServer(options: {
     res.end(
       JSON.stringify(
         [...projects()].map(([name, dir]) => {
-          const canvases = boardIndex(path.join(dir, CANVASES), how).boards.map(
+          const { boards } = boardIndex(path.join(dir, CANVASES), how);
+          const canvases = boards.map(
             ({ slug, html, updated, layout, icon }) => ({
               slug,
               html,
@@ -206,7 +207,7 @@ export function createSpServer(options: {
               ...canvases.map((c) => c.updated),
             ),
             canvases,
-            cover: projectCover(canvases, readProjectJson(dir).cover),
+            cover: projectCover(boards, readProjectJson(dir).cover),
           };
         }),
       ),
@@ -500,6 +501,9 @@ export function createSpServer(options: {
       }
       const file = path.join(projectDir, PROJECT_JSON);
       const json = readProjectJson(projectDir);
+      // Hand-edited, so it can be any JSON; only an object has a key to set.
+      if (typeof json !== "object" || Array.isArray(json))
+        return send(409, `${PROJECT_JSON} is not a JSON object`);
       if (cover === null) delete json.cover;
       else {
         const box = validBox(cover?.box);
