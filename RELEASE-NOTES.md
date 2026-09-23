@@ -20,13 +20,14 @@ The app, its skills and the toolkit carry one version.
 Everything below is on `main` and reaches no install until a version is cut.
 
 - **The app is the only install.** There is no plugin to add any more. On
-  macOS every launch puts `sp`, `refkit` and `artgen` on your PATH and links
-  the skills into Claude Code, Codex, Hermes and Factory, so updating the app
-  updates all of them. `sp uninstall` takes them back out. If you installed the
-  plugin, remove it with `/plugin uninstall super-prototyping` (or your product's
-  equivalent) and the toolkit with `uv tool uninstall super-prototyping-tools`.
+  macOS and Windows every launch puts `sp`, `refkit` and `artgen` on your PATH
+  and links the skills into Claude Code, Codex, Hermes and Factory, so updating
+  the app updates all of them. `sp uninstall` takes them back out. If you
+  installed the plugin, remove it with `/plugin uninstall super-prototyping`
+  (or your product's equivalent). On macOS, also remove the old toolkit with
+  `uv tool uninstall super-prototyping-tools`; on Windows the app replaces it.
   An agent with only the skills installs the app with the prototype-canvas
-  skill's `scripts/install.sh`.
+  skill's `scripts/install.sh`, or `install.ps1` on Windows.
 
 - **A canvas has its own background colour.** Right-click the canvas for
   Background (dark grey, black, light grey, white or a colour of your own), or
