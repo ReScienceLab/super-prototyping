@@ -1,5 +1,5 @@
 /**
- * The chat panel: a message to Claude Code or Codex, run in the user's project by the server,
+ * The chat panel: a message to Claude Code or Codex, run by the server on the project in front,
  * and what it did, drawn as it happens. The app's, not a project's: fixed down the left of the
  * window, under the tab bar, beside the home page and every project's canvas alike, and mounted
  * once by the window (AppShell.tsx). No tab switch and no board write reloads the window, only
@@ -7,18 +7,22 @@
  * it when the index says a server is behind /__sp, since a hosted build has no /__sp/agent
  * endpoints and no process behind them.
  *
- * The panel keeps the ids of its runs in sessionStorage and follows every one again after the
- * window itself is reloaded, from event zero. The transcript is rebuilt, not saved, since the
- * server has the whole run (chatTransport.ts). One run at a time — two agents editing one project
- * would race each other — so Send is Stop while one is going.
+ * A conversation is a session: the agent resumes it on every message, so it remembers the ones
+ * before, and each message says which project is in front, so one session can go from project to
+ * project, or start on the home page with none (server/agent.ts). New session starts another. The
+ * panel keeps the session and the ids of its runs in sessionStorage, and follows every run again
+ * after the window itself is reloaded, from event zero. The transcript is rebuilt, not saved,
+ * since the server has the whole run (chatTransport.ts). One run at a time — two agents editing
+ * one project would race each other — so Send is Stop while one is going.
  *
  * The header names the conversation, with the model's own title once it has given one. The
  * agent the next message goes to is the button at the start of the tab bar, which shows its
  * mark. A click puts the panel out or away, hidden rather than unmounted so it keeps following
  * whatever is running, and a right-click opens a menu of the agents the server found on PATH.
  * The choice lives in localStorage and travels with the message, and each turn and history row
- * carries the mark of the agent that ran it, which the run's start event says. The clock lists
- * the runs the server still holds, every project's, each under the project it was sent from.
+ * carries the mark of the agent that ran it, which the run's start event says. A session is one
+ * agent's, so choosing the other starts a new one. The clock lists the sessions, each with the
+ * projects it worked on, and picking one resumes it.
  *
  * Images are attached by number. The icon under the box, a paste, or a drop puts a
  * screenshot in the tray above it as #1, #2, #3; clicking a tile drops that number into the
@@ -44,8 +48,8 @@
  * CLI's own configuration decides until the user says otherwise, and both are per agent — a
  * codex model means nothing to claude — and kept in localStorage beside the agent itself. The
  * server serves the lists (agents.ts): claude's models are its aliases, codex's are the ones
- * its own picker draws, read from the list it caches. The token count is the last turn's, not
- * the conversation's, because every message is its own process with no memory of the last.
+ * its own picker draws, read from the list it caches. The token count is the last turn's, which
+ * holds as much of the session as the agent carried into it.
  */
 import { Fragment, useEffect, useRef, useState } from "react";
 import {
@@ -57,7 +61,7 @@ import {
   type AgentId,
   type AgentModel,
 } from "./agents";
-import type { RunSummary } from "./agentRun";
+import type { Session } from "./agentRun";
 import { namedPictures, readDraft, slashWord } from "./chatDraft";
 import { applyFrame, followRun, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
@@ -66,8 +70,9 @@ import { Check, ClockRewind, Image, Plus } from "./geistIcons";
 import { renderMarkdown } from "./markdown";
 import { rasterizeSvg } from "./svgRaster";
 
-// The conversation is the app's, not a project's. Every project's server holds every run
-// (server/sp.ts), so a tab switched to another project picks the same one up.
+// The conversation is the app's, not a project's, and so is the one server that runs it
+// (server/agent.ts), so a tab switched to another project carries on with the same one.
+const SESSION_KEY = "sp-chat-session";
 const RUNS_KEY = "sp-chat-runs";
 const QUEUE_KEY = "sp-chat-queue";
 const SENT_KEY = "sp-chat-sent";
@@ -132,7 +137,7 @@ export function useChat() {
   };
 }
 
-type Chat = ReturnType<typeof useChat>;
+export type Chat = ReturnType<typeof useChat>;
 
 /**
  * The agent's button, first in the tab bar and over the panel it puts out and away, in the mark
@@ -199,19 +204,20 @@ const tokens = (n: number) =>
 /** Each agent's mark, by the id the server names it with. */
 const MARKS = { claude: ClaudeMark, codex: CodexMark };
 
-function Mark({ agent, size }: { agent: AgentId; size?: number }) {
+export function Mark({ agent, size }: { agent: AgentId; size?: number }) {
   const Agent = MARKS[agent];
   return <Agent size={size} />;
 }
 
 /** One entry of GET /__sp/agent/agents. */
-interface AgentRow {
+export interface AgentRow {
   id: AgentId;
   name: string;
   available: boolean;
   models: AgentModel[];
   efforts: string[];
   missing: string;
+  site: string;
 }
 
 /** A message sent while a run was on, held for the next one. */
@@ -237,15 +243,25 @@ interface Attached {
 
 /**
  * `canvas` is the one in front, which the message names to the agent; the home page has none.
- * A shut panel is hidden, not unmounted, so it keeps following a run and comes back to it.
+ * `project` is the project in front, by the name its address carries; none on the home page or
+ * an example. A shut panel is hidden, not unmounted, so it keeps following a run and comes back
+ * to it.
  */
-export function ChatPanel(props: { canvas?: string; chat: Chat }) {
-  const { canvas } = props;
+export function ChatPanel(props: {
+  canvas?: string;
+  project?: string;
+  chat: Chat;
+}) {
+  const { canvas, project } = props;
   const { open, agent } = props.chat;
   const [turns, setTurns] = useState<Turn[]>(() =>
     (JSON.parse(sessionStorage.getItem(RUNS_KEY) ?? "[]") as string[]).map(
       turnFor,
     ),
+  );
+  // The session the next message goes on; null until the first message starts one.
+  const [session, setSession] = useState<{ id: string; title: string } | null>(
+    () => JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? "null"),
   );
   const [agents, setAgents] = useState<AgentRow[]>([]);
   // What each agent is to be run with, by agent id, since neither's models mean anything to the
@@ -259,7 +275,9 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
       return {};
     }
   });
-  const [history, setHistory] = useState<RunSummary[]>([]);
+  const [history, setHistory] = useState<(Session & { running: boolean })[]>(
+    [],
+  );
   // The agent's own slash commands, and where the keyboard is in them. Opens on what this browser
   // remembers, then on what the server says: asked for at mount and again on the way into a slash
   // word, since the server learns them off the runs it pumps and the list grows as the panel is
@@ -334,7 +352,7 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
   useEffect(() => {
     abort.current = new AbortController();
     for (const t of turns) follow(t.runId);
-    void fetch(`${import.meta.env.BASE_URL}__sp/agent/agents`)
+    void fetch(`/__sp/agent/agents`)
       .then(async (res) =>
         res.ok ? setAgents(await res.json()) : setSendError(await res.text()),
       )
@@ -347,9 +365,10 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
 
   useEffect(() => {
     sessionStorage.setItem(RUNS_KEY, JSON.stringify(turns.map((t) => t.runId)));
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
     // Also on reopening: a hidden log has no scroll height to have been scrolled to.
     log.current?.scrollTo(0, log.current.scrollHeight);
-  }, [turns, open]);
+  }, [turns, open, session]);
 
   const running = turns.find((t) => !t.end);
 
@@ -363,7 +382,7 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
   }, [queued]);
   // The id until the server's list arrives, a moment after mount.
   const nameOf = (id: AgentId) => agents.find((a) => a.id === id)?.name ?? id;
-  const title = turns[0]?.title ?? nameOf(agent);
+  const title = turns[0]?.title ?? session?.title ?? nameOf(agent);
 
   const row = agents.find((a) => a.id === agent);
   const choice = choices[agent] ?? {};
@@ -728,12 +747,14 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
     setSendError(null);
     setSending(true);
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}__sp/agent/run`, {
+      const res = await fetch(`/__sp/agent/run`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           message,
           canvas,
+          project,
+          session: session?.id,
           agent,
           model,
           effort,
@@ -749,7 +770,8 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
         setSendError(await res.text());
         return false;
       }
-      const { runId } = await res.json();
+      const { runId, session: on } = await res.json();
+      setSession(on);
       const images = attached.map(({ n, name }) => ({ n, name }));
       setTurns((ts) => [
         ...ts,
@@ -808,7 +830,7 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
   // answer is never kept: a server that has just restarted has forgotten what it told this panel,
   // which is not the same as the agent having no commands.
   useEffect(() => {
-    void fetch(`${import.meta.env.BASE_URL}__sp/agent/commands?agent=${agent}`)
+    void fetch(`/__sp/agent/commands?agent=${agent}`)
       .then(async (res) => {
         const list = (res.ok ? await res.json() : []) as string[];
         if (!list.length) return;
@@ -830,18 +852,14 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
     setCommands(remembered()[id] ?? []);
   };
 
-  const choose = (id: AgentId) => {
-    agentMenu.current?.hidePopover();
-    switchTo(id);
-  };
-
   const newSession = () => {
-    // Runs are independent of each other already, so what this clears is the log in front of the
-    // user: the next message starts a conversation with nothing above it. A run still going keeps
-    // going and stays in History — stopping one is what the Stop button is for.
+    // The next message starts a session the agent has no memory of, with nothing above it in the
+    // log. A run still going keeps going and its session stays in History — stopping one is what
+    // the Stop button is for.
     abort.current.abort();
     abort.current = new AbortController();
     setTurns([]);
+    setSession(null);
     composer.current?.replaceChildren();
     setDraft("");
     setAttached([]);
@@ -850,9 +868,16 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
     composer.current?.focus();
   };
 
+  // A session is one agent's conversation, which the other cannot resume.
+  const choose = (id: AgentId) => {
+    agentMenu.current?.hidePopover();
+    if (id !== agent) newSession();
+    switchTo(id);
+  };
+
   const openHistory = async () => {
     try {
-      const res = await fetch(`${import.meta.env.BASE_URL}__sp/agent/runs`);
+      const res = await fetch("/__sp/agent/sessions");
       if (!res.ok) return setSendError(await res.text());
       setHistory(await res.json());
     } catch (error) {
@@ -860,17 +885,20 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
     }
   };
 
-  const pick = (runId: string, ran: AgentId) => {
+  const pick = (picked: Session) => {
     historyList.current?.hidePopover();
-    // Opening a conversation picks the agent that held it: the header mark, the model and effort
-    // under the composer, and where the next message goes all mean the run on screen, not
+    // Opening a session picks the agent that held it: the header mark, the model and effort
+    // under the composer, and where the next message goes all mean the session on screen, not
     // whatever was selected before it was opened.
-    switchTo(ran);
-    // The picked run may be one already on screen, and two follows of one run draw it twice.
+    switchTo(picked.agent);
+    // The picked session may be the one on screen, and two follows of one run draw it twice.
     abort.current.abort();
     abort.current = new AbortController();
-    setTurns([turnFor(runId)]);
-    follow(runId);
+    setSession({ id: picked.id, title: picked.title });
+    // Its turns, as far as the server still holds them: a run it has forgotten drops out of the
+    // log (follow), though the agent still remembers it.
+    setTurns(picked.runs.map(turnFor));
+    for (const id of picked.runs) follow(id);
   };
 
   return (
@@ -989,23 +1017,27 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
           ref={historyList}
         >
           {history.length === 0 ? (
-            <p className="sp-chat-dim">No runs yet</p>
+            <p className="sp-chat-dim">No sessions yet</p>
           ) : (
-            history.map((r) => (
+            history.map((s) => (
               <button
-                key={r.id}
+                key={s.id}
                 type="button"
                 className="sp-chat-history-row"
-                data-status={r.status}
-                onClick={() => pick(r.id, r.agent)}
+                data-status={s.running ? "running" : undefined}
+                onClick={() => pick(s)}
               >
-                <span className="sp-chat-mark" title={nameOf(r.agent)}>
-                  <Mark agent={r.agent} size={12} />
+                <span className="sp-chat-mark" title={nameOf(s.agent)}>
+                  <Mark agent={s.agent} size={12} />
                 </span>
-                <span className="sp-chat-history-title">{r.title}</span>
+                <span className="sp-chat-history-title">{s.title}</span>
                 <span className="sp-chat-dim">
-                  {r.project} ·{" "}
-                  {new Date(r.startedAt).toLocaleTimeString([], {
+                  {s.projects.map((p) => p.split(/[\\/]/).pop()).join(", ") ||
+                    "No project"}{" "}
+                  ·{" "}
+                  {new Date(s.updated).toLocaleString([], {
+                    month: "short",
+                    day: "numeric",
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
@@ -1015,13 +1047,20 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
           )}
         </div>
         <div className="sp-chat-log" ref={log}>
-          {turns.length === 0 && (
+          {turns.length === 0 && !session && (
             <p className="sp-chat-empty">
               Runs Claude Code with its permission prompts off, or Codex in its
-              workspace sandbox, in your project — the same trust as running
-              either in a terminal there. Right-click the mark at the top left
-              to pick which. Ask for a board, a change to one, or about the code
-              behind one.
+              workspace sandbox, on the project in front — the same trust as
+              running either in a terminal there. Right-click the mark at the
+              top left to pick which. Ask for a board, a change to one, or about
+              the code behind one.
+            </p>
+          )}
+          {turns.length === 0 && session && (
+            <p className="sp-chat-empty">
+              {nameOf(agent)} remembers this session, but the server no longer
+              holds its turns to show. The next message carries on from where it
+              left off.
             </p>
           )}
           {turns.map((t) => (
@@ -1046,7 +1085,7 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
                         ) ? (
                         <span key={i} className="sp-chat-ref">
                           <img
-                            src={`${import.meta.env.BASE_URL}__sp/agent/run/${t.runId}/image/${piece.slice(1)}`}
+                            src={`/__sp/agent/run/${t.runId}/image/${piece.slice(1)}`}
                             alt=""
                           />
                           {piece}
@@ -1062,13 +1101,13 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
                         <a
                           key={g.n}
                           className="sp-chat-shot"
-                          href={`${import.meta.env.BASE_URL}__sp/agent/run/${t.runId}/image/${g.n}`}
+                          href={`/__sp/agent/run/${t.runId}/image/${g.n}`}
                           target="_blank"
                           rel="noreferrer"
                           title={g.name}
                         >
                           <img
-                            src={`${import.meta.env.BASE_URL}__sp/agent/run/${t.runId}/image/${g.n}`}
+                            src={`/__sp/agent/run/${t.runId}/image/${g.n}`}
                             alt={g.name}
                           />
                           <span className="sp-chat-num">#{g.n}</span>
@@ -1111,13 +1150,13 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
                             <a
                               key={s.k}
                               className="sp-chat-shot"
-                              href={`${import.meta.env.BASE_URL}__sp/agent/run/${t.runId}/shot/${s.k}`}
+                              href={`/__sp/agent/run/${t.runId}/shot/${s.k}`}
                               target="_blank"
                               rel="noreferrer"
                               title={b.detail}
                             >
                               <img
-                                src={`${import.meta.env.BASE_URL}__sp/agent/run/${t.runId}/shot/${s.k}`}
+                                src={`/__sp/agent/run/${t.runId}/shot/${s.k}`}
                                 alt={b.detail}
                               />
                             </a>
@@ -1343,12 +1382,9 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
               aria-label="Stop the agent"
               title="Stop"
               onClick={() =>
-                void fetch(
-                  `${import.meta.env.BASE_URL}__sp/agent/run/${running.runId}/cancel`,
-                  {
-                    method: "POST",
-                  },
-                )
+                void fetch(`/__sp/agent/run/${running.runId}/cancel`, {
+                  method: "POST",
+                })
               }
             >
               <svg
@@ -1421,7 +1457,7 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
             className="sp-chat-perm"
             title={
               "Tool calls are not asked about: the process runs with bypassPermissions, the same " +
-              "trust as running the CLI in a terminal of this project. The panel cannot switch it."
+              "trust as running the CLI in a terminal. The panel cannot switch it."
             }
           >
             Bypass permissions
@@ -1458,9 +1494,8 @@ export function ChatPanel(props: { canvas?: string; chat: Chat }) {
             <span
               className="sp-chat-ctx"
               title={
-                "Context the last message used, prompt and answer together. Every message is its " +
-                "own run with no memory of the one before, so this is that message, not the " +
-                "conversation."
+                "Context the last message used: the prompt and the answer, and as much of the " +
+                "session before them as the agent carried into it."
               }
             >
               {tokens(usage.used)}

@@ -7,6 +7,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { svgSignature } from "../src/svgSignature.ts";
 
+/**
+ * A project's boards: this folder under it, one subfolder per canvas. The same folder under the
+ * plugin root is the examples every project is shown beside its own.
+ */
+export const CANVASES = "canvases";
+
 /** The image types a board folder can hold, and what each is served as. */
 export const IMAGE_MIME: Record<string, string> = {
   ".png": "image/png",
@@ -51,7 +57,10 @@ interface AssetName {
  * size and mtime. The index is built on every request for it, and this repo's own boards hold
  * 300 MB of assets: hashing them once is a second, a stat each is nothing.
  */
-const hashed = new Map<string, { stamp: string; keys: [string, AssetName][] }>();
+const hashed = new Map<
+  string,
+  { stamp: string; keys: [string, AssetName][] }
+>();
 function keysOf(file: string, read: (buf: Buffer) => [string, AssetName][]) {
   const stat = fs.statSync(file);
   const stamp = `${stat.size}:${stat.mtimeMs}`;
@@ -96,14 +105,20 @@ function assetIndex(folder: string): Record<string, AssetName> {
       keysOf(p, (buf) => {
         const payload = buf.toString("base64");
         const named = { ...name, bytes: buf.length };
-        const keys: [string, AssetName][] = [[`${payload.length}:${fnv1a(payload)}`, named]];
+        const keys: [string, AssetName][] = [
+          [`${payload.length}:${fnv1a(payload)}`, named],
+        ];
         if (e.name.toLowerCase().endsWith(".svg"))
-          keys.push([`svg:${fnv1a(svgSignature(buf.toString("utf8")))}`, named]);
+          keys.push([
+            `svg:${fnv1a(svgSignature(buf.toString("utf8")))}`,
+            named,
+          ]);
         return keys;
       }).forEach(add);
     }
   };
-  for (const sub of ["assets", "assets-dark"]) walk(path.join(folder, sub), `${sub}/`);
+  for (const sub of ["assets", "assets-dark"])
+    walk(path.join(folder, sub), `${sub}/`);
   const json = path.join(folder, "assets.json");
   if (fs.existsSync(json)) {
     keysOf(json, (buf) => {
@@ -114,10 +129,17 @@ function assetIndex(folder: string): Record<string, AssetName> {
           for (const [key, v] of Object.entries(map)) {
             if (typeof v !== "string" || !v.startsWith("data:")) continue;
             const payload = v.slice(v.indexOf(",") + 1);
-            const pad = payload.endsWith("==") ? 2 : payload.endsWith("=") ? 1 : 0;
+            const pad = payload.endsWith("==")
+              ? 2
+              : payload.endsWith("=")
+                ? 1
+                : 0;
             keys.push([
               `${payload.length}:${fnv1a(payload)}`,
-              { name: `assets.json#${key}`, bytes: Math.floor((payload.length * 3) / 4) - pad },
+              {
+                name: `assets.json#${key}`,
+                bytes: Math.floor((payload.length * 3) / 4) - pad,
+              },
             ]);
           }
         }
@@ -138,7 +160,9 @@ function assetIndex(folder: string): Record<string, AssetName> {
  */
 function urlSafe(name: string, what: string) {
   if (!/[#?]/.test(name)) return true;
-  console.warn(`[canvases] skipping ${what} "${name}": # and ? cannot appear in a board's name`);
+  console.warn(
+    `[canvases] skipping ${what} "${name}": # and ? cannot appear in a board's name`,
+  );
   return false;
 }
 
@@ -159,7 +183,10 @@ function brandImages(folder: string): string[] {
     for (const e of entries) {
       if (e.name.startsWith(".")) continue;
       if (e.isDirectory()) walk(path.join(dir, e.name), `${rel}${e.name}/`);
-      else if (path.extname(e.name).toLowerCase() in IMAGE_MIME && urlSafe(e.name, "brand image"))
+      else if (
+        path.extname(e.name).toLowerCase() in IMAGE_MIME &&
+        urlSafe(e.name, "brand image")
+      )
         out.push(rel + e.name);
     }
   };
@@ -191,11 +218,12 @@ function readJson(file: string): unknown {
  * the document they already have. Anything else gets its own namespace.
  */
 export function canvasesNamespace(canvasesDir: string, repoRoot: string) {
-  if (canvasesDir === path.resolve(repoRoot, "mockups/canvases")) return "";
+  if (canvasesDir === path.resolve(repoRoot, CANVASES)) return "";
   // djb2 over the path. It only has to be stable and short — this is a namespace, not a digest,
   // and a collision would need two board directories to hash alike on one machine.
   let h = 5381;
-  for (let i = 0; i < canvasesDir.length; i++) h = ((h * 33) ^ canvasesDir.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < canvasesDir.length; i++)
+    h = ((h * 33) ^ canvasesDir.charCodeAt(i)) >>> 0;
   return `:${h.toString(36)}`;
 }
 
@@ -224,7 +252,8 @@ export function boardIndex(
           const folder = path.join(canvasesDir, slug);
           // `throwIfNoEntry: false` because a dangling symlink here used to throw out of the
           // scan, and then *every* board 500s rather than the one bad entry being skipped.
-          if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) return null;
+          if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory())
+            return null;
           let names: string[];
           try {
             names = fs.readdirSync(folder);
@@ -234,17 +263,24 @@ export function boardIndex(
           // Must resolve to a real file. A *directory* named `foo.html` would otherwise be
           // listed as a board and its request would answer 404, leaving a permanently blank shape.
           const isFile = (name: string) =>
-            fs.statSync(path.join(folder, name), { throwIfNoEntry: false })?.isFile() ?? false;
+            fs
+              .statSync(path.join(folder, name), { throwIfNoEntry: false })
+              ?.isFile() ?? false;
           const html = names
             // dot-files for the same reason the dot-folders above are skipped.
-            .filter((f) => !f.startsWith(".") && f.endsWith(".html") && isFile(f))
+            .filter(
+              (f) => !f.startsWith(".") && f.endsWith(".html") && isFile(f),
+            )
             .filter((f) => urlSafe(f, "board"))
             .sort();
           return {
             slug,
             html,
             /** When a board in it was last written, in ms, for the home page's "edited" line. */
-            updated: Math.max(0, ...html.map((f) => fs.statSync(path.join(folder, f)).mtimeMs)),
+            updated: Math.max(
+              0,
+              ...html.map((f) => fs.statSync(path.join(folder, f)).mtimeMs),
+            ),
             layout: readJson(path.join(folder, "layout.json")),
             icon: fs.existsSync(path.join(folder, "icon.png")),
             brand: brandImages(folder),
@@ -253,7 +289,9 @@ export function boardIndex(
             comments: readJson(path.join(folder, "comments.json")),
           };
         })
-        .filter((b): b is NonNullable<typeof b> => b !== null && b.html.length > 0);
+        .filter(
+          (b): b is NonNullable<typeof b> => b !== null && b.html.length > 0,
+        );
   return {
     served: options.served,
     // Empty unless served: the hosted bundle is public, and this is the build machine's

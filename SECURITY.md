@@ -18,7 +18,7 @@ unless you prefer otherwise.
 
 - The `canvas/` viewer (the code behind https://prototyping.rescience.com).
 - The measuring tools in `tools/` and the agent skills in `skills/`.
-- The generators (`gen.py`) and boards under `mockups/canvases/`.
+- The generators (`gen.py`) and boards under `canvases/`.
 
 Boards render inside sandboxed `<iframe srcdoc>` shapes. A report that shows a
 board escaping that sandbox, reading another origin, or executing code in the

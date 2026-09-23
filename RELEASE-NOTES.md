@@ -21,15 +21,35 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-- **The app opens on a home page.** After the first launch, the desktop app
-  opens on every project you have, each card showing the screens of its canvas,
-  with the examples below. Open one, or start a new project from the same page.
-  The Home button on the canvas's top bar goes back to it. The startup page,
-  which asks for an agent and a project, comes back only after a major update.
+- **The app opens on a home page.** The desktop app opens on every project you
+  have, with the examples below. The page is no project's, so the app works
+  with none: open an example, or close every tab, and nothing is made or
+  reopened for you. Each card shows the
+  screens of its canvas: a phone cropped to its screen, a wider board whole and
+  as tall as the phones on the other cards.
+  Open one, or start a new project from the same page. With none yet, a dashed
+  card sits under Projects where your first one will be, and a click on it
+  starts that project. The Home button on the canvas's top bar goes back to it.
+
+- **Right-click a card on the home page** to open it, copy its link, show its
+  folder in Finder or Explorer, or move it to the Trash (Delete, on Windows),
+  where you can put it back. That asks first, with the folder's path in full.
+  An example has only Open and Copy link.
+
+- **Right-click a tab** to copy its link, reload the canvas in front, show a
+  project's folder, or close it, the other tabs, or all of them. Home has Copy
+  link and Reload. The browser's own right-click menu no longer shows over the
+  app, except in a text field, where it keeps Paste and spelling.
+
+- **The first launch asks one question, over the app.** It no longer asks for
+  a project before you see anything. It opens on the home page, with no project
+  made for you, and asks over it which agent you will work with. Skip it and it
+  asks again next launch. It comes back once after a major update.
 
 - **A tab is a project.** The bar across the top holds one tab per project you
   have open, examples included, and each comes back on the canvas you left it
-  on. The + at the end of the bar starts a new project, or opens another.
+  on. The + at the end of the bar starts a new project. Open another from the
+  home page.
 
 - **A project's canvases are tabs under its tab.** A second row under the bar
   lists the project's canvases, the one in front underlined. Its + asks the
@@ -39,10 +59,24 @@ Everything below is on `main` and reaches no install until a version is cut.
   gone.
 
 - **One agent for the whole app.** The agent panel stays down the left on the
-  home page and on every project, with the same conversation and one history
-  for every project, each run named by the project it ran in. The button at the
+  home page and on every project, with the same conversation. The button at the
   start of the bar shows and hides it, and shows the mark of Claude Code or
   Codex, whichever the next message goes to. Right-click it to switch.
+
+- **The agent remembers the conversation.** Each message carries on from the
+  ones before it, until New session starts another. It works on the home page
+  with no project open, and on whichever project is in front when you send, so
+  one conversation can move between projects. History lists your sessions, with
+  the projects each worked on, and picking one carries it on. Switching between
+  Claude Code and Codex starts a new session.
+
+- **The agent has a folder of its own, and projects get no skills.** It runs in
+  `.workspaces/<session>` under the projects folder, where it gets the plugin's
+  skills, and writes boards into the project in front. Making or opening a
+  project no longer copies skills into it, and the toast that said so is gone.
+  Copies an earlier version put in a project are left alone and no longer
+  updated; delete them if you like. `sp paths` names the folder, and `sp clean`
+  leaves it alone. Claude Code needs 2.1.275 or later.
 
 - **Switching tabs keeps what you typed.** The bar and the agent panel belong
   to the window, and a project's canvas loads beside them, so switching
@@ -54,9 +88,26 @@ Everything below is on `main` and reaches no install until a version is cut.
   serves every project from it, so opening another project or switching tabs no
   longer restarts anything.
 
-- **Start here closes like any other tab.** Close it, or close every tab, and
-  the canvas goes back to the home page. It is among the examples there and in
-  the + menu.
+- **`sp start` is that same server.** It serves every project under
+  `~/Documents/Super Prototyping` at `/p/<name>/`, as the app does, and the
+  project it was given beside them, which is where its address goes. The
+  plugin's examples show beside each project's boards. New project and Open
+  folder are the server's own, so the app and a browser tab get the same ones.
+  `--canvases` is gone, and the server no longer reads
+  `PROTOTYPING_CANVASES_DIR`. A project's boards are its `canvases` folder, and
+  `PROTOTYPING_PROJECTS_DIR` moves the projects folder.
+
+- **A project's boards moved up a level.** They are in `<project>/canvases`
+  now, not `<project>/mockups/canvases`. The first time `sp start`, the app or
+  a browser tab opens a project that still has the old folder, it moves the
+  folder, and an emptied `mockups` goes with it. A project that has both is
+  left as it is, for you to merge.
+
+- **Start here is the first example.** It is the first card under Examples on
+  the home page, and opens on a tab of its own, labelled Start here, like every
+  other example. A project with no canvas yet
+  still opens on the same page, under its own name. Close that tab, or every
+  tab, and the canvas goes back to the home page.
 
 - **The app updates itself.** On launch it looks for a newer release, downloads
   it in the background, and then asks once: **Restart Now**, or **Later**, which
@@ -66,8 +117,8 @@ Everything below is on `main` and reaches no install until a version is cut.
   it says nothing. A Homebrew install updates this way too. Installs of v1.5.3 and
   earlier have no updater, so they need one last manual update:
   `brew upgrade --cask super-prototyping`, or the new installer on Windows.
-- **The app says which version it is.** The startup page shows it beside the
-  app's name. Click it to check for an update there and then: it answers **Up to
+- **The app says which version it is.** The first launch's welcome shows it
+  at its foot. Click it to check for an update there and then: it answers **Up to
   date**, that a newer version is available, which then downloads and asks as
   usual, or **Could not check**.
 

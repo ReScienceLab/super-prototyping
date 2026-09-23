@@ -1,9 +1,11 @@
 // The address of what is on screen. A page is `?canvas=<slug>`, the canvases/<slug> folder
-// name; the welcome page is the bare URL, so the way in stays the shortest link there is. One
-// thing of that page is the hash: `#<file>` for the board canvases/<slug>/<file>.html, and
-// `#assets/brand/<...>` for a picture, which is that file's path inside the folder. A board is
-// one file at the folder's root and every picture is under assets/brand, so one hash names
-// either without ambiguity. Anything else in the query string is left alone.
+// name, Start here's included. The bare URL names no page: it is a project's own view with no
+// canvas of its in front, which shows Start here (HOME_TAB, canvasTabs.ts), so the way in stays
+// the shortest link there is. One thing of a page is the hash: `#<file>` for the board
+// canvases/<slug>/<file>.html, and `#assets/brand/<...>` for a picture, which is that file's
+// path inside the folder. A board is one file at the folder's root and every picture is under
+// assets/brand, so one hash names either without ambiguity. Anything else in the query string
+// is left alone.
 //
 // A brand kit open in a tab is `?brand=<slug>` instead, and `?brand=` for the index of every
 // kit. Its own parameter rather than a second value of `canvas=`, because the two name
@@ -20,12 +22,11 @@ const BRAND_PARAM = "brand";
  * kinds are what the bar holds and what the address names, so they are spelled here.
  */
 export type CanvasTab =
-  | { kind: "canvas"; slug: string }
-  | { kind: "brand"; slug: string };
+  { kind: "canvas"; slug: string } | { kind: "brand"; slug: string };
 
-/** The page slug an address opens: its `canvas` parameter, else the welcome page. */
+/** The page slug an address opens: its `canvas` parameter, else none, which is the bare address. */
 export function slugFromUrl(href: string) {
-  return new URL(href).searchParams.get(CANVAS_PARAM) ?? WELCOME_PAGE_SLUG;
+  return new URL(href).searchParams.get(CANVAS_PARAM) ?? "";
 }
 
 /**
@@ -51,11 +52,7 @@ export function targetFromUrl(href: string) {
  * rather than on the current address, which is one of the others.
  */
 export function canvasPageUrl(slug: string) {
-  const query =
-    slug === WELCOME_PAGE_SLUG
-      ? ""
-      : `?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
-  return `${import.meta.env.BASE_URL}${query}`;
+  return `${import.meta.env.BASE_URL}?${CANVAS_PARAM}=${encodeURIComponent(slug)}`;
 }
 
 export function sheetPageUrl(slug: string) {
@@ -83,9 +80,6 @@ export function frameUrl(href: string) {
 export function windowUrl(href: string) {
   const url = new URL(href);
   url.pathname = url.pathname.replace(/canvas\.html$/, "");
-  // The toast the app opens a project with is said once, by the canvas; kept on the window's
-  // address, a reload would say it again.
-  url.searchParams.delete("toast");
   return url.href;
 }
 
@@ -101,8 +95,8 @@ export function urlForSlug(href: string, slug: string, target?: string) {
   const url = new URL(href);
   // A canvas page and a brand kit are two tabs, and the address names the one in front.
   url.searchParams.delete(BRAND_PARAM);
-  if (slug === WELCOME_PAGE_SLUG) url.searchParams.delete(CANVAS_PARAM);
-  else url.searchParams.set(CANVAS_PARAM, slug);
+  if (slug) url.searchParams.set(CANVAS_PARAM, slug);
+  else url.searchParams.delete(CANVAS_PARAM);
   url.hash = target ? target.split("/").map(encodeURIComponent).join("/") : "";
   return url.href;
 }

@@ -5,10 +5,11 @@ import cache from "./fixtures/codex-0.154.0-models-cache.json";
 const def = (id: string) => AGENTS.find((a) => a.id === id)!;
 const spec = {
   preamble: "P",
-  boards: "/boards",
+  project: "/proj",
   model: "",
   effort: "",
   imagesDir: "",
+  resume: "",
 };
 
 describe("AGENTS", () => {
@@ -78,8 +79,36 @@ describe("AGENTS", () => {
       "P\n\n[Image #1] /tmp/sp-chat-r/1.png\n[Image #4] /tmp/sp-chat-r/4.jpeg\n\nborrow #4 for #1",
     );
     expect(def("codex").args({ ...spec, imagesDir: "/tmp/sp-chat-r" })).toEqual(
-      expect.arrayContaining(["--add-dir", "/tmp/sp-chat-r"]),
+      expect.arrayContaining([
+        "-c",
+        'sandbox_workspace_write.writable_roots=["/proj","/tmp/sp-chat-r"]',
+      ]),
     );
+  });
+
+  // A session is what the agent called it on its first turn, and every later turn resumes that.
+  it("reads the session off the first turn and resumes it on the next", () => {
+    expect(
+      def("claude").session(
+        '{"type":"system","subtype":"init","session_id":"c-1","slash_commands":[]}',
+      ),
+    ).toBe("c-1");
+    expect(def("claude").session('{"type":"assistant"}')).toBeNull();
+    expect(
+      def("codex").session('{"type":"thread.started","thread_id":"x-1"}'),
+    ).toBe("x-1");
+    expect(def("codex").session('{"type":"turn.started"}')).toBeNull();
+
+    expect(def("claude").args(spec)).not.toContain("--resume");
+    expect(def("claude").args({ ...spec, resume: "c-1" })).toEqual(
+      expect.arrayContaining(["--resume", "c-1", "--add-dir", "/proj"]),
+    );
+    expect(def("codex").args(spec).slice(0, 2)).toEqual(["exec", "--json"]);
+    const codex = def("codex").args({ ...spec, resume: "x-1" });
+    expect(codex.slice(0, 3)).toEqual(["exec", "resume", "x-1"]);
+    // `exec resume` reads stdin only when told to, and takes no `--sandbox`.
+    expect(codex.at(-1)).toBe("-");
+    expect(codex).not.toContain("--sandbox");
   });
 
   // Attaching nothing writes what it always wrote, byte for byte.
@@ -88,7 +117,9 @@ describe("AGENTS", () => {
       "hi",
     );
     expect(def("codex").stdin("hi", "P", [])).toBe("P\n\nhi");
-    expect(def("codex").args(spec)).not.toContain("/tmp/sp-chat-r");
+    expect(def("codex").args(spec)).toContain(
+      'sandbox_workspace_write.writable_roots=["/proj"]',
+    );
   });
 
   // The fixture is ~/.codex/models_cache.json as codex 0.154.0 wrote it, with the fields this

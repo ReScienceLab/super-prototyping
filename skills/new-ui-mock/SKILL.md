@@ -10,7 +10,7 @@ compatibility: Requires python3 and the refkit command from super-prototyping-to
 For work with **no reference screenshot to copy**. If there is one, use
 `clone-prototype` instead. Measurement beats invention every time.
 
-Everything renders on the canvas from `mockups/canvases/<slug>/`; see
+Everything renders on the canvas from `canvases/<slug>/`; see
 `prototype-canvas` for running it, and its `references/layout.md` for the
 folder and `layout.json` rules.
 
@@ -26,9 +26,9 @@ even exist.
 
 ```bash
 KIT="$(sp root)"
-mkdir -p mockups/canvases                       # first board in a project
-B=mockups/canvases/<slug>
-cp -r "$KIT/mockups/canvases/templates" "$B"
+mkdir -p canvases                       # first board in a project
+B=canvases/<slug>
+cp -r "$KIT/canvases/templates" "$B"
 python3 "$B/gen.py"
 ```
 

@@ -9,7 +9,7 @@ installCanvasIndex(inject("canvasIndex"));
 // read off this checkout's own boards. Anything else is a fetch the test did not mean to make.
 // Resolved from the cwd, which vitest sets to canvas/: under jsdom `import.meta.url` is not a
 // file URL.
-const canvasesDir = path.resolve("../mockups/canvases");
+const canvasesDir = path.resolve("../canvases");
 globalThis.fetch = async (input) => {
   const url = String(input);
   const match = /^\/board\/(.+)$/.exec(url);

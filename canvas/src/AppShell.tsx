@@ -12,28 +12,18 @@ import {
   type Project,
   type ProjectTab,
 } from "./canvasTabs";
-import {
-  WELCOME_PAGE_SLUG,
-  frameUrl,
-  tabFromUrl,
-  windowUrl,
-} from "./canvasUrl";
+import { frameUrl, tabFromUrl, windowUrl } from "./canvasUrl";
 import { AgentButton, ChatPanel, useChat } from "./ChatPanel";
 import { HomePage } from "./HomePage";
+import { Onboarding } from "./Onboarding";
 
 declare global {
   interface Window {
-    /**
-     * The desktop app's way to open a project (desktop/preload.ts), absent in a browser, which
-     * has only the project its server was started on. It answers with the project's address,
-     * for this window to load into its frame, or with what to say under the name field.
-     */
+    /** The desktop app's own (desktop/preload.ts), absent in a browser: the onboarding's answer
+     *  and its update check, both about the app and not the project. */
     startup?: {
-      choose(
-        action: "open" | "create",
-        agent: string,
-        name?: string,
-      ): Promise<{ url: string } | { message: string } | undefined>;
+      agent(id: string): Promise<void>;
+      check(): Promise<string>;
     };
     /** The window's side of the frame (here): what the canvas has in front, at what address. */
     spShell?: { shown(tab: ProjectTab, href: string): void };
@@ -50,6 +40,10 @@ const opened = location.pathname.endsWith("/home.html")
   ? null
   : { tab: tabFor(tabFromUrl(location.href)), href: frameUrl(location.href) };
 
+/** The app's version when it asks for the onboarding (desktop/main.ts), read before the address
+ *  is rewritten, so a reload does not ask again. */
+const onboarding = new URLSearchParams(location.search).get("onboarding");
+
 /**
  * The window: the bar across the top, the agent's panel down the left, and beside it the home
  * page or the canvas of the tab in front. The canvas is a frame, and the only thing a tab switch
@@ -60,11 +54,12 @@ const opened = location.pathname.endsWith("/home.html")
  *
  * The frame loads a project's canvas.html; the window's address is that page's, with the file
  * taken off (canvasUrl.ts), so what is copied or reloaded is what a person would type. The
- * agent's panel posts to `__sp/agent` relative to that address, which is how a message goes to
- * the project in front. Two calls cross the frame, one each way, both plain properties of the
- * other window since the two share an origin: the canvas says what it has in front
- * (`spShell.shown`), and a chip asks it to bring a tab forward (`spCanvas.goTo`), which it
- * declines for another project's, whose canvas the frame then loads instead.
+ * agent's panel posts to the server's one `/__sp/agent`, naming the project in front if there is
+ * one: home and an example have none, and a message there works on no project. Two calls cross
+ * the frame, one each way, both plain properties of the other window since the two share an
+ * origin: the canvas says what it has in front (`spShell.shown`), and a chip asks it to bring a
+ * tab forward (`spCanvas.goTo`), which it declines for another project's, whose canvas the frame
+ * then loads instead.
  */
 export function AppShell() {
   const chat = useChat();
@@ -99,32 +94,26 @@ export function AppShell() {
   }, [tabs]);
 
   // One writer for the address, from what is in front. It replaces rather than pushes, since the
-  // frame's own changes are already entries in the window's history, which Back walks.
+  // frame's own changes are already entries in the window's history, which Back walks. Home is
+  // the server's, at its root, and no project's; a hosted build's is beside its other pages.
   useEffect(() => {
     const href =
       home || !shown
-        ? new URL("home.html", location.href).href
+        ? new URL(canvasIndex().served ? "/home.html" : "home.html", location.href).href
         : windowUrl(shown.href);
     if (href !== location.href) history.replaceState(null, "", href);
   }, [home, shown]);
 
   // The projects, fetched again each time home opens or closes, since that is where one was
-  // made, renamed or edited since; and with them the one thing about another project this window
-  // can learn, that it has gone since its tab was left open. This keeps each one's address as
-  // its path from the root, since the window's address moves from project to project and a path
-  // relative to the one it was asked from would not.
-  useEffect(() => {
+  // made, renamed or edited since, and when home deletes one; and with them the one thing about
+  // another project this window can learn, that it has gone since its tab was left open.
+  const listProjects = () => {
     if (!canvasIndex().served) return;
-    const base = new URL(import.meta.env.BASE_URL, location.href);
-    void fetch(new URL("__sp/projects.json", base))
+    void fetch("/__sp/projects.json")
       .then((response) => response.json())
       .then((list: Project[]) => {
-        const all = list.map((p) => ({
-          ...p,
-          url: new URL(p.url, base).pathname,
-        }));
-        setProjects(all);
-        const known = new Set(all.map((p) => p.url));
+        setProjects(list);
+        const known = new Set(list.map((p) => p.url));
         setTabs((tabs) =>
           tabs.filter(
             (tab) =>
@@ -132,7 +121,8 @@ export function AppShell() {
           ),
         );
       });
-  }, [home]);
+  };
+  useEffect(listProjects, [home]);
 
   /** Loads a project's canvas at an address of the window's into the frame. */
   const load = (href: string) => {
@@ -150,50 +140,73 @@ export function AppShell() {
   };
 
   /**
-   * Takes a chip off the bar. Closing one that is not in front changes nothing else; closing the
-   * one in front lands on the chip to its right, else the one to its left. Closing the last one
-   * goes home, the way closing Figma's last file does, and empties the frame, so a board written
-   * while home is up cannot reload that project's canvas and put its tab back.
+   * Takes chips off the bar: one, the others, or all of them. Closing ones that are not in front
+   * changes nothing else; closing the one in front lands on the nearest chip left to its right,
+   * else to its left. Closing the last one goes home, the way closing Figma's last file does, and
+   * empties the frame, so a board written while home is up cannot reload that project's canvas
+   * and put its tab back.
    */
-  const closeTab = (tab: ProjectTab) => {
-    const at = tabs.findIndex((had) => tabKey(had) === tabKey(tab));
-    const rest = tabs.toSpliced(at, 1);
+  const closeTabs = (closing: ProjectTab[]) => {
+    const gone = new Set(closing.map(tabKey));
+    const rest = tabs.filter((tab) => !gone.has(tabKey(tab)));
     setTabs(rest);
-    if (home || !shown || tabKey(tab) !== tabKey(shown.tab)) return;
-    const next = rest[at] ?? rest[at - 1];
+    if (home || !shown || !gone.has(tabKey(shown.tab))) return;
+    const at = tabs.findIndex((tab) => tabKey(tab) === tabKey(shown.tab));
+    const before = tabs.slice(0, at).filter((tab) => !gone.has(tabKey(tab)));
+    const next = rest[before.length] ?? rest[before.length - 1];
     if (next) return goTo(next);
     frame.current!.src = "about:blank";
     setShown(null);
     setHome(true);
   };
 
-  /** The app opened or made a project, whose canvas goes in the frame, or it said why not. */
-  const chose = (answer: { url: string } | { message: string } | undefined) => {
-    if (answer && "url" in answer) {
-      dialog.current!.close();
-      return load(answer.url);
-    }
-    setSaid(answer?.message ?? "");
+  /**
+   * Makes a project or opens a folder, the server's two requests (canvas/server/projects.ts), a
+   * browser tab's and the app's alike. The server answers the project's address, whose canvas
+   * goes in the frame; nothing when the folder picker was cancelled; or what to say under the
+   * name field.
+   */
+  const choose = async (path: string, name?: string) => {
+    const res = await fetch(new URL(path, location.origin), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    if (res.status === 204) return;
+    if (!res.ok) return setSaid(await res.text());
+    dialog.current!.close();
+    const { url } = (await res.json()) as { url: string };
+    load(new URL(url, location.origin).href);
   };
   const newProject = () => {
     setSaid("");
     dialog.current!.querySelector("form")!.reset();
     dialog.current!.showModal();
   };
-  const openFolder = async () =>
-    chose(await window.startup!.choose("open", ""));
+  // The picker is the OS's, over whatever is in front, and the request waits on it. A second
+  // click meanwhile would stack a second picker.
+  const picking = useRef(false);
+  const openFolder = async () => {
+    if (picking.current) return;
+    picking.current = true;
+    await choose("/__sp/projects/open").finally(() => (picking.current = false));
+  };
+  // A hosted build has no server to make a project on.
+  const served = canvasIndex().served;
 
   const view = shown?.tab.view;
   return (
     <div className="canvas-shell">
       <CanvasTabBar
         tabs={tabs}
-        projects={projects}
         active={home ? null : (shown?.tab ?? null)}
         onHome={() => setHome(true)}
         goTo={goTo}
-        closeTab={closeTab}
-        newProject={window.startup && newProject}
+        closeTabs={closeTabs}
+        reload={() =>
+          home ? listProjects() : frame.current!.contentWindow!.location.reload()
+        }
+        newProject={served ? newProject : undefined}
       >
         {/* Dev server and app only: the panel talks to /__sp/agent, which a hosted build has no
             process behind. */}
@@ -202,11 +215,11 @@ export function AppShell() {
       <div className="canvas-body">
         {canvasIndex().served && (
           <ChatPanel
-            // Start here is drawn by the app and has no folder, so it is no canvas to the agent,
-            // and neither is home. A kit is named by the canvas whose material it shows.
-            canvas={
-              home || view?.slug === WELCOME_PAGE_SLUG ? undefined : view?.slug
-            }
+            // Home is no canvas to the agent. Neither is the project's own view with no canvas
+            // in front (HOME_TAB), nor the index of every kit, since both have an empty slug. A
+            // kit is named by the canvas whose material it shows.
+            canvas={(!home && view?.slug) || undefined}
+            project={home || shown?.tab.kind !== "project" ? undefined : shown.tab.name}
             chat={chat}
           />
         )}
@@ -225,14 +238,15 @@ export function AppShell() {
               projects={projects}
               tabs={tabs}
               goTo={goTo}
-              newProject={window.startup && newProject}
-              openFolder={window.startup && openFolder}
+              newProject={served ? newProject : undefined}
+              openFolder={served ? openFolder : undefined}
+              reload={listProjects}
             />
           )}
         </div>
       </div>
-      {/* A new project needs only a name, as on the startup page. It goes in Documents, and the
-          app answers here when the name will not do. */}
+      {/* A new project needs only a name. It goes in the projects folder, and the server answers
+          here when the name will not do. */}
       <dialog ref={dialog} className="home-dialog">
         <form
           onSubmit={async (event) => {
@@ -240,7 +254,7 @@ export function AppShell() {
             const name = new FormData(event.currentTarget).get(
               "name",
             ) as string;
-            chose(await window.startup!.choose("create", "", name.trim()));
+            await choose("/__sp/projects", name);
           }}
         >
           <h2>New project</h2>
@@ -254,6 +268,7 @@ export function AppShell() {
           </div>
         </form>
       </dialog>
+      {onboarding !== null && <Onboarding chat={chat} version={onboarding} />}
     </div>
   );
 }

@@ -1,25 +1,26 @@
 /**
  * The agents the chat panel can talk to, one object literal each: what to spawn, how the
  * preamble and the message reach it, how the model and the reasoning effort chosen in the
- * composer become flags, and how to read what it writes back. The dev server looks the spawn up
- * here by the id the panel sends, and everything after the spawn — the run, its events, the
- * stream to the page — is the same for both (vite.config.ts, agentRun.ts).
+ * composer become flags, how to read what it writes back, and what it calls the session the
+ * next turn resumes. The server looks the spawn up here by the id the panel sends, and
+ * everything after the spawn — the run, its events, the stream to the page — is the same for
+ * both (server/agent.ts, agentRun.ts).
  *
  * A table, after Open Design's `RuntimeAgentDef`, which has this shape for twenty-eight CLIs
  * over one shared engine; here it has the fields the two genuinely differ in. Claude Code takes
  * the preamble as a flag of its own and the message as one stream-json line, and writes where
  * it likes with its permission prompts off. Codex has no system-prompt flag, so the preamble
  * goes ahead of the message in the prompt itself, plain text on stdin; its sandbox writes the
- * working directory only, so the boards folder is named to it, since `sp --canvases` can
- * put that anywhere. Model and effort are a flag apiece on claude and a flag and a config
- * override on codex, and both are optional on both: nothing is sent unless the composer has
- * picked something, so the CLI's own configuration keeps deciding until the user says otherwise.
+ * working directory only, which is the session's folder, so the project is named to it as a
+ * writable root. Model and effort are a flag apiece on claude and a flag and a config override
+ * on codex, and both are optional on both: nothing is sent unless the composer has picked
+ * something, so the CLI's own configuration keeps deciding until the user says otherwise.
  * Not a registry: a third agent is a third literal.
  *
  * Kept free of node APIs so the parsers it points at stay testable, and the page can import the
  * id type without the server. `modelsFile` is how an agent that keeps its own list of models
  * says so without reading it here: a path under the home directory, and a pure function over
- * the parsed JSON. The server reads the file (vite.config.ts); this stays a table.
+ * the parsed JSON. The server reads the file (server/agent.ts); this stays a table.
  */
 import { chatEventsFromLine, type ChatEvent } from "./claudeStream.ts";
 import { codexEventsFromLine } from "./codexStream.ts";
@@ -28,7 +29,7 @@ export type AgentId = "claude" | "codex";
 
 /**
  * What a message can carry, said once for the composer and the server (ChatPanel.tsx,
- * vite.config.ts): the four types the CLIs read as images — not "anything image/", since an SVG
+ * server/agent.ts): the four types the CLIs read as images — not "anything image/", since an SVG
  * is a document that can carry a script, and the server serves a picture back on its own
  * origin — at most twenty of them, and under 24 MB of file together, which is the 48 MB body
  * the server takes once base64 has made them a third larger. The composer refuses at the
@@ -84,11 +85,14 @@ export interface AgentImage {
 /** What the composer chose, handed to `args`. An empty string means the CLI decides. */
 export interface RunSpec {
   preamble: string;
-  boards: string;
+  /** The folder of the project the message was sent from, or empty from none. */
+  project: string;
   model: string;
   effort: string;
   /** Where this run's images were written, or empty when it has none. */
   imagesDir: string;
+  /** What the agent called the session on its first turn, or empty on that turn. */
+  resume: string;
 }
 
 export interface AgentDef {
@@ -100,6 +104,8 @@ export interface AgentDef {
   /** Everything written to the process's stdin, which is then closed. */
   stdin(message: string, preamble: string, images: AgentImage[]): string;
   events(line: string): ChatEvent[];
+  /** The agent's id for the session, off the one line that carries it; null off every other. */
+  session(line: string): string | null;
   /** The models to offer when the agent keeps no list of its own. */
   models: AgentModel[];
   /** The reasoning efforts to offer, fastest first, for a model that names none itself. */
@@ -129,6 +135,8 @@ export interface AgentDef {
   commandsProbe?: { args: string[]; read(stdout: string): string[] };
   /** What the run says when `bin` is not on PATH; the menu says it too, greyed. */
   missing: string;
+  /** Where to get it, which the onboarding links to when it is missing. */
+  site: string;
 }
 
 /** The shape of the models codex caches from its server; only these fields are read. */
@@ -162,7 +170,7 @@ export const AGENTS: AgentDef[] = [
     id: "claude",
     name: "Claude Code",
     bin: "claude",
-    args: ({ preamble, model, effort }) => [
+    args: ({ preamble, project, model, effort, resume }) => [
       "-p",
       "--input-format",
       "stream-json",
@@ -176,6 +184,13 @@ export const AGENTS: AgentDef[] = [
       "bypassPermissions",
       "--append-system-prompt",
       preamble,
+      // A resumed session keeps the system prompt of its first turn unless told not to, and the
+      // preamble says which project is in front, which changes from turn to turn.
+      "--system-prompt-snapshot",
+      "off",
+      ...(resume ? ["--resume", resume] : []),
+      // The session's folder is the working directory; the project is the folder it works on.
+      ...(project ? ["--add-dir", project] : []),
       ...(model ? ["--model", model] : []),
       ...(effort ? ["--effort", effort] : []),
     ],
@@ -200,6 +215,17 @@ export const AGENTS: AgentDef[] = [
       );
     },
     events: chatEventsFromLine,
+    // The init frame names the session, the same id on every turn of it.
+    session: (line) => {
+      const frame = JSON.parse(line) as {
+        type?: string;
+        subtype?: string;
+        session_id?: string;
+      };
+      return frame.type === "system" && frame.subtype === "init"
+        ? (frame.session_id ?? null)
+        : null;
+    },
     // `claude -p` runs a slash command sent as the message text, the same as the terminal does:
     // a command, a skill, a plugin's command. Codex has neither — `codex exec` hands `/foo` to
     // the model as the five characters it is — so it defines none of this.
@@ -243,27 +269,28 @@ export const AGENTS: AgentDef[] = [
     efforts: ["low", "medium", "high", "xhigh", "max"],
     missing:
       "claude is not on PATH. Install Claude Code, or run `sp start` from a shell where `claude` runs.",
+    site: "https://claude.com/product/claude-code",
   },
   {
     id: "codex",
     name: "Codex",
     bin: "codex",
-    args: ({ boards, model, effort, imagesDir }) => [
+    args: ({ project, model, effort, imagesDir, resume }) => [
       "exec",
+      ...(resume ? ["resume", resume] : []),
       "--json",
       "--skip-git-repo-check",
-      // Codex's own sandbox, and the nearest it has to claude's mode above: the project, the
-      // boards, /tmp, and the network.
-      "--sandbox",
-      "workspace-write",
+      // Codex's own sandbox, and the nearest it has to claude's mode above: the session's
+      // folder, the project, /tmp, and the network. Config keys rather than `--sandbox` and
+      // `--add-dir`, which `exec resume` does not take. The images are a root too, since the
+      // server wrote them under the system temp directory, and whether the sandbox reaches that
+      // on its own is a per-platform question.
+      "-c",
+      'sandbox_mode="workspace-write"',
       "-c",
       "sandbox_workspace_write.network_access=true",
-      "--add-dir",
-      boards,
-      // And this run's images, which the server wrote under the system temp directory: whether
-      // the sandbox reaches that on its own is a per-platform question, and naming it is two
-      // words instead of an answer.
-      ...(imagesDir ? ["--add-dir", imagesDir] : []),
+      "-c",
+      `sandbox_workspace_write.writable_roots=${JSON.stringify([project, imagesDir].filter(Boolean))}`,
       // Codex asks the API for a reasoning summary only when told to; without this the stream
       // carries no reasoning item at all on a turn that provably reasoned (Open Design measured
       // 516 reasoning tokens and no item). The summary is what becomes the thinking marker.
@@ -273,6 +300,8 @@ export const AGENTS: AgentDef[] = [
       // No flag of its own: effort is a config key, and codex takes no opinion on the value at
       // startup — a level the model does not have fails on the API's answer, in the turn.
       ...(effort ? ["-c", `model_reasoning_effort="${effort}"`] : []),
+      // The prompt is on stdin, which `exec` reads by default and `exec resume` only when told.
+      "-",
     ],
     // Codex takes a prompt and nothing else, so an image is a path it is told to open rather
     // than bytes handed over; with none attached this is the preamble and the message it was.
@@ -285,6 +314,11 @@ export const AGENTS: AgentDef[] = [
         .filter(Boolean)
         .join("\n\n"),
     events: codexEventsFromLine,
+    // The first line of every turn, the same thread on each.
+    session: (line) => {
+      const frame = JSON.parse(line) as { type?: string; thread_id?: string };
+      return frame.type === "thread.started" ? (frame.thread_id ?? null) : null;
+    },
     // Codex's models come from its server and change between releases, so nothing is listed
     // here: the cache below is the same list its own picker draws, and an empty one leaves the
     // composer with the default alone, which is what the CLI would have used anyway.
@@ -327,5 +361,6 @@ export const AGENTS: AgentDef[] = [
     },
     missing:
       "codex is not on PATH. Install the Codex CLI, or run `sp start` from a shell where `codex` runs.",
+    site: "https://openai.com/codex/",
   },
 ];

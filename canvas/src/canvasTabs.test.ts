@@ -10,6 +10,7 @@ import {
 import {
   HOME_TAB,
   openInTab,
+  pageOf,
   readOpenTabs,
   resolveTab,
   tabExists,
@@ -74,6 +75,23 @@ describe("a tab is a project", () => {
     });
   });
 
+  it("keeps Start here's own tab apart from the project's view of its page", () => {
+    // The app ships Start here with the examples, so its server flags it as one. Its own view
+    // is then an example's tab, and the bare view, which shows the same page for a project with
+    // no canvas yet, is still the project's: the two are told apart by the view, not the page.
+    unflag = asExample(WELCOME_PAGE_SLUG);
+    const own: CanvasTab = { kind: "canvas", slug: WELCOME_PAGE_SLUG };
+    expect(tabFor(own)).toEqual({
+      kind: "example",
+      slug: WELCOME_PAGE_SLUG,
+      view: own,
+    });
+    expect(tabFor(HOME_TAB)).toMatchObject({ kind: "project", url: "/" });
+    expect(pageOf(HOME_TAB)).toBe(WELCOME_PAGE_SLUG);
+    expect(pageOf(own)).toBe(WELCOME_PAGE_SLUG);
+    expect(pageOf({ kind: "canvas", slug: canvas })).toBe(canvas);
+  });
+
   it("keeps a tab's place on the bar and takes the view it now has in front", () => {
     const a = project("/p/a/");
     const b = project("/p/b/");
@@ -106,13 +124,14 @@ describe("a tab is a project", () => {
       view: HOME_TAB,
     });
   });
-
 });
 
 describe("what is behind a tab", () => {
   it("knows a folder the library has from one it does not", () => {
     expect(tabExists({ kind: "canvas", slug: canvas })).toBe(true);
+    // The project's own view is there as long as Start here's page is, which it shows.
     expect(tabExists(HOME_TAB)).toBe(true);
+    expect(tabExists({ kind: "canvas", slug: WELCOME_PAGE_SLUG })).toBe(true);
     expect(tabExists({ kind: "canvas", slug: "no-such-folder" })).toBe(false);
   });
 
@@ -157,15 +176,22 @@ describe("the tabs a browser left open", () => {
   };
 
   it("comes back in the order it was left", () => {
-    const unflag = asExample(canvas);
+    const unflag = [asExample(canvas), asExample(WELCOME_PAGE_SLUG)];
+    // Start here's tab among them: a reload on it has to come back to it, not to the project's
+    // view of the same page.
     const open: ProjectTab[] = [
       project("/p/b/", { kind: "brand", slug: kit }),
       { kind: "example", slug: canvas, view: { kind: "canvas", slug: canvas } },
+      {
+        kind: "example",
+        slug: WELCOME_PAGE_SLUG,
+        view: { kind: "canvas", slug: WELCOME_PAGE_SLUG },
+      },
       project("/p/a/"),
     ];
     writeOpenTabs(open);
     expect(readOpenTabs()).toEqual(open);
-    unflag();
+    for (const undo of unflag) undo();
   });
 
   it("drops an example this server no longer has, and keeps another project's tab", () => {
@@ -206,9 +232,10 @@ describe("a link that is also a tab", () => {
 
   const open = (event: MouseEvent, tab: CanvasTab) => {
     const opened: CanvasTab[] = [];
-    openInTab((tab) => opened.push(tab), tab)(
-      event as unknown as ReactMouseEvent<HTMLAnchorElement>,
-    );
+    openInTab(
+      (tab) => opened.push(tab),
+      tab,
+    )(event as unknown as ReactMouseEvent<HTMLAnchorElement>);
     return opened;
   };
 

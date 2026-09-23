@@ -9,6 +9,9 @@ import "./index.css";
 import "./home.css";
 import { loadCanvasIndex } from "./canvasIndex";
 import { frameUrl } from "./canvasUrl";
+import { noBrowserMenu } from "./contextMenu";
+
+noBrowserMenu();
 
 // The window (AppShell.tsx), at a project's address and at its home.html. This entry loads no
 // tldraw, since the canvas is a page of its own in a frame of this one.

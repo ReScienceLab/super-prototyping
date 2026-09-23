@@ -32,10 +32,7 @@
     },
     "files": [
       "dist/main.mjs",
-      "dist/preload.cjs",
-      "startup.html",
-      "background.jpg",
-      "icons/**"
+      "dist/preload.cjs"
     ],
     "extraResources": [
       {
@@ -67,8 +64,8 @@
         "to": "plugin/canvas/dist"
       },
       {
-        "from": "../mockups/canvases",
-        "to": "plugin/mockups/canvases",
+        "from": "../canvases",
+        "to": "plugin/canvases",
         "filter": [
           "**/*",
           "!**/scratch/**",
