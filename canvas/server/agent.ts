@@ -52,7 +52,8 @@ export function createAgentServer(options: {
   const { examplesDir, projects, repoRoot, workspaces } = options;
   // One process per message — Claude Code or Codex, by the panel's choice, looked up in
   // agents.ts — its output kept here and streamed to the page. The runs are held in memory, the
-  // newest twenty, for the panel to follow and for the history to say which session is running.
+  // newest twenty, for the panel to follow and for the history to say which session is running,
+  // and each is written to disk as it goes (`say`, below) for History after a restart.
   //
   // Two steps rather than one streaming response: the agent's work is a board written to
   // disk, and the project's watcher (sp.ts) answers that with a full reload, so a stream bound
@@ -62,10 +63,6 @@ export function createAgentServer(options: {
     string,
     Run & {
       child: ChildProcess;
-      /** What the composer attached, as `image/<n>` serves it and codex's stdin needs it. */
-      images: AgentImage[];
-      /** The pictures its tools handed back, in arrival order; `shot/<k>` is one-based. */
-      shots: { type: string; data: Buffer }[];
       /** The Stop button was pressed. Windows ends a run by exit code 1, which says nothing. */
       stopped: boolean;
     }
@@ -88,6 +85,41 @@ export function createAgentServer(options: {
     const file = recordOf(session.id);
     fs.writeFileSync(`${file}.tmp`, JSON.stringify(session, null, 2) + "\n");
     fs.renameSync(`${file}.tmp`, file);
+  };
+  // Every run is also kept on disk as it goes, in `.runs/<run id>/`: its events one JSON line
+  // each, appended as they are emitted, and the pictures beside them, `image-<n>.<ext>` for what
+  // was attached and `shot-<k>.<ext>` for what its tools drew. That is what History replays once
+  // memory no longer has the run: after a restart, which every update is, or after the twenty
+  // above have moved on. The panel's own copy, not the agent's transcript: Claude Code's and
+  // Codex's files are theirs, change shape between releases, and hold no attachments by number.
+  const keptOf = (id: string) => path.join(workspaces, ".runs", id);
+  const say = (run: Run, event: string, data: unknown) =>
+    fs.appendFileSync(
+      path.join(keptOf(run.id), "events.jsonl"),
+      JSON.stringify(emit(run, event, data)) + "\n",
+    );
+  const picture = (id: string, name: string, type: string, data: Buffer) => {
+    const file = path.join(keptOf(id), `${name}.${type.slice(6)}`);
+    fs.writeFileSync(file, data);
+    return file;
+  };
+  const kept = (id: string) => {
+    const dir = keptOf(id);
+    if (!fs.existsSync(dir)) return undefined;
+    const run = newRun(id);
+    run.events = fs
+      .readFileSync(path.join(dir, "events.jsonl"), "utf8")
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => JSON.parse(line));
+    // The server went down mid-run and took the agent with it.
+    if (!ended(run))
+      emit(run, "end", {
+        kind: "end",
+        ok: false,
+        message: "The app quit before this turn finished.",
+      });
+    return run;
   };
 
   // Which agents are installed: `bin --version` once each, for the server's lifetime, so
@@ -190,33 +222,6 @@ export function createAgentServer(options: {
     }
     return ask;
   };
-  // Attached images go to disk for an agent that takes files (agents.ts), for as long as
-  // that agent runs: a run's folder goes when its child closes, since the page is served
-  // the bytes the run holds and nothing else reads the files. The folders sit under one per
-  // server, named by its pid and made private here rather than at a path anyone on a shared
-  // tmp could have put a folder or a link at first; a Vite restart is a second one for the
-  // same pid. At start the folders of servers that were killed rather than closed go too: a
-  // pid nothing answers on is a server that is gone. Not on the server's own close — Vite
-  // restarts by building the new server, same pid, before it closes the old, and Ctrl+C
-  // never closes it at all.
-  const chatDir = fs.mkdtempSync(
-    path.join(os.tmpdir(), `sp-chat-${process.pid}-`),
-  );
-  for (const name of fs.readdirSync(os.tmpdir())) {
-    const pid = Number(/^sp-chat-(\d+)-/.exec(name)?.[1]);
-    if (!pid || pid === process.pid) continue;
-    try {
-      process.kill(pid, 0);
-    } catch (error) {
-      // Gone (ESRCH), as against alive and another user's (EPERM) on a host whose tmp is
-      // shared: that one is a running canvas, and not this server's to remove. A dead
-      // one that was another user's is not removable either, and is left.
-      if ((error as NodeJS.ErrnoException).code !== "ESRCH") continue;
-      try {
-        fs.rmSync(path.join(os.tmpdir(), name), { recursive: true });
-      } catch {}
-    }
-  }
   const handle = (
     req: IncomingMessage,
     res: ServerResponse,
@@ -461,15 +466,21 @@ export function createAgentServer(options: {
           // The run's id names the folder, and the image's number and media type name the
           // file in it, so what the browser called the file stays a caption: a slash or a
           // `..` in that name is text in the prompt and reaches no path here.
+          // They are kept in the run's folder, which is also where an agent that takes files
+          // rather than bytes (agents.ts) is pointed to read them.
           const id = randomUUID();
-          const imagesDir = images.length ? path.join(chatDir, id) : "";
-          if (imagesDir) fs.mkdirSync(imagesDir, { recursive: true });
+          fs.mkdirSync(keptOf(id), { recursive: true });
+          const imagesDir = images.length ? keptOf(id) : "";
           const held: AgentImage[] = images.map(
-            (i: { n: number; name: string; type: string; data: string }) => {
-              const file = path.join(imagesDir, `${i.n}.${i.type.slice(6)}`);
-              fs.writeFileSync(file, Buffer.from(i.data, "base64"));
-              return { ...i, path: file };
-            },
+            (i: { n: number; name: string; type: string; data: string }) => ({
+              ...i,
+              path: picture(
+                id,
+                `image-${i.n}`,
+                i.type,
+                Buffer.from(i.data, "base64"),
+              ),
+            }),
           );
           const c = command(
             def.bin,
@@ -488,8 +499,6 @@ export function createAgentServer(options: {
               cwd,
               env: process.env,
             }),
-            images: held,
-            shots: [] as { type: string; data: Buffer }[],
             stopped: false,
           });
           runs.set(run.id, run);
@@ -499,7 +508,7 @@ export function createAgentServer(options: {
           // The agent, the prompt, its first line as the title until the model gives one, and
           // the time: the first event, so a replay from zero rebuilds the whole turn with the
           // right mark on it.
-          emit(run, "start", {
+          say(run, "start", {
             kind: "start",
             agent: def.id,
             prompt: message,
@@ -521,13 +530,14 @@ export function createAgentServer(options: {
           }
           const finish = (message: string) => {
             if (!ended(run))
-              emit(run, "end", { kind: "end", ok: false, message });
+              say(run, "end", { kind: "end", ok: false, message });
           };
           let stderr = "";
           run.child.stderr
             .setEncoding("utf8")
             .on("data", (chunk: string) => (stderr += chunk));
           let pending = "";
+          let shots = 0;
           const lift = titleFilter();
           // Codex reports what a turn used but never how much there was; the model list it
           // caches says, and this is the one place that knows which model was picked.
@@ -543,18 +553,15 @@ export function createAgentServer(options: {
               for (const line of lines) {
                 if (line.trim()) {
                   harvest(def, line, record);
-                  // A picture a tool handed back is kept here and the event keeps the number
-                  // to ask for it by, for the reason the composer's attachments are: every
-                  // reload rebuilds the transcript from event zero, and a page of grids would
-                  // come back down the stream on each one. The media type is the agent's
-                  // word, and goes out as a header.
-                  // ponytail: held in memory for the run's life, so a turn that reads a
-                  // hundred full-page grids grows by them; give the run a folder if one ever
-                  // does.
+                  // A picture a tool handed back goes in the run's folder and the event keeps
+                  // the number to ask for it by, for the reason the composer's attachments
+                  // are: every reload rebuilds the transcript from event zero, and a page of
+                  // grids would come back down the stream on each one. The media type is the
+                  // agent's word, and goes out as a header.
                   for (const e of def.events(line))
                     for (const t of lift(e)) {
                       if (t.kind === "title") record.title = t.title;
-                      emit(
+                      say(
                         run,
                         t.kind,
                         t.kind === "tool_done" && t.shots
@@ -562,13 +569,15 @@ export function createAgentServer(options: {
                               ...t,
                               shots: t.shots.map((s) => {
                                 if (!("data" in s)) return s;
-                                run.shots.push({
-                                  type: IMAGE_TYPES.includes(s.type)
+                                picture(
+                                  run.id,
+                                  `shot-${++shots}`,
+                                  IMAGE_TYPES.includes(s.type)
                                     ? s.type
                                     : "image/png",
-                                  data: Buffer.from(s.data, "base64"),
-                                });
-                                return { k: run.shots.length };
+                                  Buffer.from(s.data, "base64"),
+                                );
+                                return { k: shots };
                               }),
                             }
                           : sized(t),
@@ -589,12 +598,9 @@ export function createAgentServer(options: {
           // the prompt is written; the exit below reports that, and the write error is noise.
           run.child.stdin.on("error", () => {});
           run.child.stdin.end(def.stdin(message, preamble, held));
-          // The files were for this child; the page is served the bytes the run holds. And the
-          // record, with what the run said: how to resume it, and the model's title. On both,
+          // The record, with what the run said: how to resume it, and the model's title. On both,
           // since a child that could not be spawned never closes.
           const settle = () => {
-            if (imagesDir)
-              fs.rmSync(imagesDir, { recursive: true, force: true });
             record.updated = Date.now();
             save(record);
           };
@@ -663,42 +669,39 @@ export function createAgentServer(options: {
         url.pathname,
       );
     if (!match) return next();
-    const run = runs.get(match[1]);
+    // A run this server started, or one it or an earlier server kept on disk. The id names a
+    // folder, and the pattern above lets through no separator and no dot.
+    const live = runs.get(match[1]);
+    const run = live ?? kept(match[1]);
     if (!run) return send(404, "no such run");
-    if (req.method === "GET" && match[2].startsWith("image/")) {
+    if (
+      req.method === "GET" &&
+      match[2] !== "events" &&
+      match[2] !== "cancel"
+    ) {
+      // What was attached (`image/<n>`) or what a tool drew (`shot/<k>`), off the run's folder.
       // Served back rather than replayed: the page rebuilds a turn from event zero after
       // every reload, and the strip asks for its pictures again instead of the stream
       // carrying them each time. `send` writes strings, so these go out on their own.
       //
-      // The strip also links each one to open in a tab, and the type is the browser's word,
-      // so an attached SVG would open as a document of this origin — where its script can
-      // POST /run and start an agent in the project, asked by no one. `sandbox` opens it in
-      // an opaque origin with no script instead, which a PNG or a JPEG in a tab never
-      // notices, and `nosniff` keeps a type the browser does not know from being guessed
-      // into HTML. Neither touches the same bytes drawn as an <img>.
-      const img = run.images.find((i) => i.n === Number(match[2].slice(6)));
-      if (!img) return send(404, "no such image");
+      // The strip also links each one to open in a tab, and the type is the browser's word
+      // or the agent's, so an attached SVG would open as a document of this origin — where
+      // its script can POST /run and start an agent in the project, asked by no one.
+      // `sandbox` opens it in an opaque origin with no script instead, which a PNG or a JPEG
+      // in a tab never notices, and `nosniff` keeps a type the browser does not know from
+      // being guessed into HTML. Neither touches the same bytes drawn as an <img>.
+      const [kind, n] = match[2].split("/");
+      const file = fs
+        .readdirSync(keptOf(run.id))
+        .find((f) => f.startsWith(`${kind}-${Number(n)}.`));
+      if (!file) return send(404, `no such ${kind}`);
       res.writeHead(200, {
-        "content-type": img.type,
+        "content-type": `image/${path.extname(file).slice(1)}`,
         "content-security-policy": "sandbox",
         "x-content-type-options": "nosniff",
         "cache-control": "no-store",
       });
-      return res.end(Buffer.from(img.data, "base64"));
-    }
-    if (req.method === "GET" && match[2].startsWith("shot/")) {
-      // The other direction: what a tool drew, kept in the run rather than on disk, since
-      // nothing but this page ever has to open it. Linked to open in a tab the same way, and
-      // the type is the agent's word rather than the browser's, so the same two headers.
-      const shot = run.shots[Number(match[2].slice(5)) - 1];
-      if (!shot) return send(404, "no such shot");
-      res.writeHead(200, {
-        "content-type": shot.type,
-        "content-security-policy": "sandbox",
-        "x-content-type-options": "nosniff",
-        "cache-control": "no-store",
-      });
-      return res.end(shot.data);
+      return res.end(fs.readFileSync(path.join(keptOf(run.id), file)));
     }
     if (match[2] === "events" && req.method === "GET") {
       const after = Number(url.searchParams.get("after") ?? 0);
@@ -721,9 +724,9 @@ export function createAgentServer(options: {
     }
     if (match[2] === "cancel" && req.method === "POST") {
       // A Stop that arrives after the run ended finds a pid Windows may have handed on.
-      if (!ended(run)) {
-        run.stopped = true;
-        stop(run.child);
+      if (live && !ended(live)) {
+        live.stopped = true;
+        stop(live.child);
       }
       return send(200, "");
     }

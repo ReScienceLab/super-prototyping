@@ -89,7 +89,7 @@ export interface RunSpec {
   project: string;
   model: string;
   effort: string;
-  /** Where this run's images were written, or empty when it has none. */
+  /** The run's folder, where its images are kept, or empty when it has none. */
   imagesDir: string;
   /** What the agent called the session on its first turn, or empty on that turn. */
   resume: string;
@@ -282,9 +282,9 @@ export const AGENTS: AgentDef[] = [
       "--skip-git-repo-check",
       // Codex's own sandbox, and the nearest it has to claude's mode above: the session's
       // folder, the project, /tmp, and the network. Config keys rather than `--sandbox` and
-      // `--add-dir`, which `exec resume` does not take. The images are a root too, since the
-      // server wrote them under the system temp directory, and whether the sandbox reaches that
-      // on its own is a per-platform question.
+      // `--add-dir`, which `exec resume` does not take. The images are a root too: the server
+      // keeps them outside both, in the run's folder, and whether the sandbox reads a folder
+      // it was not given is a per-platform question.
       "-c",
       'sandbox_mode="workspace-write"',
       "-c",

@@ -21,6 +21,11 @@ toolkit carry the same version; `sp start` says so when they drift.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **A past conversation shows its turns again after an update.** Opening one
+  from History used to show an empty panel once the app had restarted, which
+  every update does. Each turn is now saved as it happens, pictures included,
+  so the conversation reads as it did. Turns from before this version were
+  never saved and stay blank; the agent still remembers them.
 - **A board added to the chat shows up at once.** Its tile and its number
   appear the moment you press + or paste its link, shimmering while the board
   is drawn, and the picture fills in when it is ready. Send waits for it. A

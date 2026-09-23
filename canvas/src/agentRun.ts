@@ -66,6 +66,7 @@ export interface Session {
   updated: number;
   /** The folders of the projects its messages were sent from, first to last. */
   projects: string[];
-  /** Its runs, oldest first, which the server holds the newest twenty of while it is up. */
+  /** Its runs, oldest first: the newest twenty in the server's memory, and every one on disk
+   *  under `.workspaces/.runs`, which is what History replays after a restart. */
   runs: string[];
 }
