@@ -14,6 +14,7 @@ import {
   useDialogs,
   useEditor,
   useEditorPortalHost,
+  useToasts,
   useValue,
 } from "tldraw";
 import {
@@ -41,9 +42,22 @@ import {
   CANVAS_LINK_SHAPE_TYPE,
   type CanvasLinkShape,
 } from "./CanvasLinkShapeUtil";
-import { canvasImageRef, readCanvasLibrary } from "./canvasLibrary";
-import { HOME_TAB } from "./canvasTabs";
-import { Copy, Cross, Message, RefreshCounterClockwise } from "./geistIcons";
+import {
+  canvasBoardRef,
+  canvasImageRef,
+  readCanvasLibrary,
+} from "./canvasLibrary";
+import { HOME_TAB, isExample, projectUrl } from "./canvasTabs";
+import { setProjectCover } from "./contextMenu";
+import { pointedElement } from "./cover";
+import {
+  Copy,
+  Cross,
+  Image,
+  Message,
+  RefreshCounterClockwise,
+} from "./geistIcons";
+import { asCanvasTarget, shapeUnderPointer } from "./inspectorClicks";
 import { urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
@@ -242,6 +256,24 @@ export const canvasChromeComponents: TLComponents = {
       return () => document.removeEventListener("copy", copy, true);
     }, [editor]);
 
+    // "Set as cover", over a board, a brand image, or an element on the board the inspector has
+    // open, which keeps the element in view and the board around it. The project has one cover,
+    // so this replaces the last; its home card's menu puts the default back. Read as the menu
+    // opens, so it is what the right-click was over. Not on an example, which is read-only.
+    const { addToast } = useToasts();
+    const over = asCanvasTarget(shapeUnderPointer(editor));
+    const board =
+      over?.type === CANVAS_FILE_SHAPE_TYPE
+        ? canvasBoardRef((over as CanvasFileShape).props.path)
+        : undefined;
+    const cover = canvasIndex().project
+      ? (board ?? (over && canvasImageRef(over.id)))
+      : undefined;
+    const element =
+      board && pointedElement.current?.path === (over as CanvasFileShape).props.path
+        ? pointedElement.current.box
+        : undefined;
+
     return (
       <DefaultContextMenu {...props}>
         <TldrawUiMenuGroup id="canvas">
@@ -264,6 +296,18 @@ export const canvasChromeComponents: TLComponents = {
               icon={<Copy />}
               kbd="cmd+c,ctrl+c"
               onSelect={() => void navigator.clipboard.writeText(links.join("\n"))}
+            />
+          )}
+          {cover && !isExample(cover.slug) && (
+            <TldrawUiMenuItem
+              id="set-cover"
+              label={element ? "Set element as cover" : "Set as cover"}
+              icon={<Image />}
+              onSelect={async () => {
+                const path = `${cover.slug}/${cover.file}`;
+                if (await setProjectCover(projectUrl(), { path, box: element }))
+                  addToast({ title: "Project cover set", severity: "success" });
+              }}
             />
           )}
           <TldrawUiMenuItem

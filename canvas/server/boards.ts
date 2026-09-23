@@ -195,7 +195,7 @@ function brandImages(folder: string): string[] {
 }
 
 /** A folder's JSON file parsed, or undefined for none; a corrupt one is warned about and skipped. */
-function readJson(file: string): unknown {
+export function readJson(file: string): unknown {
   if (!fs.existsSync(file)) return undefined;
   try {
     return JSON.parse(fs.readFileSync(file, "utf8"));

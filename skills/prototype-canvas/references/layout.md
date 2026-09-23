@@ -68,7 +68,8 @@ out top to bottom:
   "Notion Ios". Set it when the humanized name reads wrong. A page is tied to
   its folder, not to its name, so changing it renames the page you already
   have open rather than starting a second one.
-- `cover` names the board that stands in for the folder on the welcome page,
+- `cover` names the board that stands in for the folder on the welcome page
+  and, for a project's first canvas, on the project's card on the home page,
   e.g. `"00-launch-light"`. Without one the card shows the first board that is
   not a `00-` sheet — the right guess for most folders, and the wrong one
   where the front door is a `00-` board.
@@ -80,6 +81,22 @@ out top to bottom:
   crops to the mockup rather than framing it in artboard margin. Declare one
   for a phone drawn somewhere else, or a cover that is not a phone at all:
   `[0, 0, 478, 980]`.
+
+A project's own cover, when someone chose one on the canvas, is in
+`project.json` at the project's root, beside `canvases/`, and nowhere else:
+
+```json
+{ "cover": { "path": "<slug>/<board>.html", "box": [x, y, w, h] } }
+```
+
+`path` is a board, or an image in a folder's image rows
+(`<slug>/assets/brand/<file>`). `box` is the part to keep in view, in the
+file's px, and is left out for the whole board. Without the file, or with a
+path that has since gone, the cover is the first canvas's `cover` board,
+whole, the first canvas being first by `order` then slug. A card fills its
+frame with it from the top; an element chosen as cover is centred instead. The canvas's
+right-click menu writes the file and the home card's Reset cover deletes it,
+so there is no reason to edit it by hand.
 - `files` entries are file names **without** `.html`, either bare (the
   humanized file name becomes the caption) or `{ "file", "label" }`.
 - `numbered: true` prefixes each caption with its 1-based position. Never

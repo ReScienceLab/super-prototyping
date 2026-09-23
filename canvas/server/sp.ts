@@ -8,6 +8,7 @@
  * mounted once beside them (agent.ts).
  */
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
@@ -17,6 +18,7 @@ import {
   IMAGE_MIME,
   boardIndex,
   canvasesNamespace,
+  readJson,
 } from "./boards.ts";
 import {
   BOARD_STATUSES,
@@ -30,6 +32,7 @@ import {
   boardSetSignature,
   boardSlug,
 } from "../src/boardWatch.ts";
+import { projectCover, validBox, type ChosenCover } from "../src/cover.ts";
 
 type Handler = (
   req: IncomingMessage,
@@ -68,6 +71,13 @@ export function folderOf(
   const example = path.join(examplesDir, slug);
   return !hasBoard && fs.existsSync(example) ? example : own;
 }
+
+/** The project's own settings, beside its canvases: for now only which cover it chose. */
+const PROJECT_JSON = "project.json";
+
+/** A project's project.json, or nothing in it when it has none or it does not parse. */
+const readProjectJson = (dir: string) =>
+  (readJson(path.join(dir, PROJECT_JSON)) ?? {}) as { cover?: ChosenCover };
 
 export function createSpServer(options: {
   /**
@@ -177,7 +187,8 @@ export function createSpServer(options: {
     res.end(
       JSON.stringify(
         [...projects()].map(([name, dir]) => {
-          const canvases = boardIndex(path.join(dir, CANVASES), how).boards.map(
+          const { boards } = boardIndex(path.join(dir, CANVASES), how);
+          const canvases = boards.map(
             ({ slug, html, updated, layout, icon }) => ({
               slug,
               html,
@@ -196,6 +207,7 @@ export function createSpServer(options: {
               ...canvases.map((c) => c.updated),
             ),
             canvases,
+            cover: projectCover(boards, readProjectJson(dir).cover),
           };
         }),
       ),
@@ -316,9 +328,15 @@ export function createSpServer(options: {
     );
     if (!fs.statSync(board, { throwIfNoEntry: false })?.isFile())
       return send(404, "no such board");
-    // A folder per canvas and per size, because refkit names its output after the board's
-    // own basename and two canvases can each hold an `03-home.html`.
-    const out = path.join(os.tmpdir(), "sp-shot", parts[0], size.join("x"));
+    // A folder per canvas folder on disk and per size, because refkit names its output after
+    // the board's own basename, two canvases can each hold an `03-home.html`, and two projects
+    // can each have a canvas of the same name, which the home page's covers shoot side by side.
+    const out = path.join(
+      os.tmpdir(),
+      "sp-shot",
+      createHash("sha1").update(path.dirname(board)).digest("hex").slice(0, 16),
+      size.join("x"),
+    );
     const png = path.join(out, parts[1].replace(/\.html$/, ".png"));
     const serve = () => {
       res.setHeader("content-type", "image/png");
@@ -457,6 +475,55 @@ export function createSpServer(options: {
       } catch (error) {
         send(500, String(error));
       }
+    });
+  });
+
+  // The project's cover, from the canvas's right button: a board, an element on one, or a brand
+  // image. One per project, so a new one replaces the last, and `null` puts back the default,
+  // which is the first canvas's own cover (cover.ts). Only a file the project's own canvases
+  // hold is taken, which is also what keeps the path inside them.
+  route("/__sp/project-cover", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      if (projectDir === undefined)
+        return send(409, "Open a project to give it a cover.");
+      let cover: ChosenCover | null;
+      try {
+        ({ cover } = JSON.parse(body || "{}"));
+      } catch {
+        return send(400, "bad json");
+      }
+      const file = path.join(projectDir, PROJECT_JSON);
+      const json = readProjectJson(projectDir);
+      // Hand-edited, so it can be any JSON; only an object has a key to set.
+      if (typeof json !== "object" || Array.isArray(json))
+        return send(409, `${PROJECT_JSON} is not a JSON object`);
+      if (cover === null) delete json.cover;
+      else {
+        const box = validBox(cover?.box);
+        const chosen = { path: String(cover?.path), ...(box && { box }) };
+        const { boards } = boardIndex(canvasesDir, {
+          served: true,
+          canvasesNamespace: "",
+        });
+        if (projectCover(boards, chosen)?.path !== chosen.path)
+          return send(400, "not a board or image of this project's");
+        json.cover = chosen;
+      }
+      try {
+        if (Object.keys(json).length)
+          fs.writeFileSync(file, JSON.stringify(json, null, 2) + "\n");
+        else fs.rmSync(file, { force: true });
+      } catch (error) {
+        return send(500, String(error));
+      }
+      send(204, "");
     });
   });
 
