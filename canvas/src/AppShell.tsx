@@ -213,10 +213,8 @@ export function AppShell() {
     const first = [
       name.trim() === "" &&
         `name this project: write a short name for it as {"name": "…"} in project.json at the project's root (if you cannot tell yet what it is, make that your first question to me)`,
-      // With define-product, no board before the product is worked out, as that skill says.
-      start.mode === "build" && start.define
-        ? `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json, so it opens on my screen, and no board in it until PRD.md says what the product is`
-        : `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json and a first board, so it opens on my screen`,
+      // Empty: the skill says when a board is due, after the product or the measurements.
+      `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json, so it opens on my screen, and no board in it until the work reaches one`,
     ].filter(Boolean);
     const [skill, ask] =
       start.mode === "clone"

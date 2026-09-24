@@ -408,6 +408,9 @@ export function createSpServer(options: {
   // page, which from files/ would run in the canvas's own origin.
   const CANVAS_FILE_MIME: Record<string, string> = {
     ...IMAGE_MIME,
+    // What else tldraw pastes as an image (DEFAULT_SUPPORTED_IMAGE_TYPES).
+    ".apng": "image/apng",
+    ".avif": "image/avif",
     ".mp4": FILE_MIME[".mp4"],
     ".webm": FILE_MIME[".webm"],
     ".mov": FILE_MIME[".mov"],
