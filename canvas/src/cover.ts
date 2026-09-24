@@ -140,7 +140,7 @@ export function projectCover(
           };
   }
   const first = inStripOrder(
-    canvases,
+    canvases.filter((c) => c.html.length),
     (c) => c.slug,
     (c) => layoutOf(c)?.order ?? 0,
   )[0];

@@ -211,36 +211,56 @@ export function hasCanvasFile(path: string) {
   return boardPageUrl(path) !== undefined;
 }
 
-/** Fetches a board's HTML once and caches it; resolves undefined for a path that is not a board. */
-export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
+/**
+ * Fetches a board's HTML once and caches it; resolves undefined for a path that is not a board.
+ * `again` fetches a board rewritten on disk, keeping the old HTML in the cache until the new one
+ * is in, so its shape never goes blank in between.
+ */
+export function loadCanvasFileHtml(path: string, again = false): Promise<string | undefined> {
   const cached = canvasFileHtml.get(path);
-  if (cached !== undefined) return Promise.resolve(cached);
+  if (cached !== undefined && !again) return Promise.resolve(cached);
   const url = boardPageUrl(path);
   if (!url) return Promise.resolve(undefined);
-  let load = canvasFileLoads.get(path);
-  if (!load) {
+  const pending = canvasFileLoads.get(path);
+  if (pending && !again) return pending;
+  // A rewrite heard while a fetch is out fetches again after it, so the newer bytes land last.
+  const load = (pending ?? Promise.resolve())
+    .then(() => fetch(url))
     // A board that 404s has to reject rather than resolve with the server's error page: the
     // canvas would put that page in the frame and call it the board.
-    load = fetch(url)
-      .then((r) => {
-        if (!r.ok) throw new Error(`${url}: ${r.status}`);
-        return r.text();
-      })
-      .then((html) => {
-        const board = html + NO_OVERSCROLL;
-        canvasFileHtml.set(path, board);
-        return board;
-      })
-      // A fetch can fail — a board deleted between discovery and first render, a server
-      // restart mid-flight. Without this the rejected promise stays in the map and
-      // the shape is blank for good, because every later call hands back the same rejection.
-      .catch(() => undefined)
-      .finally(() => {
-        canvasFileLoads.delete(path);
-      });
-    canvasFileLoads.set(path, load);
-  }
+    .then((r) => {
+      if (!r.ok) throw new Error(`${url}: ${r.status}`);
+      return r.text();
+    })
+    .then((html) => {
+      const board = html + NO_OVERSCROLL;
+      canvasFileHtml.set(path, board);
+      window.dispatchEvent(new CustomEvent(BOARD_HTML, { detail: path }));
+      return board;
+    })
+    // A fetch can fail — a board deleted between discovery and first render, a server
+    // restart mid-flight. Without this the rejected promise stays in the map and
+    // the shape is blank for good, because every later call hands back the same rejection.
+    .catch(() => undefined)
+    .finally(() => {
+      if (canvasFileLoads.get(path) === load) canvasFileLoads.delete(path);
+    });
+  canvasFileLoads.set(path, load);
   return load;
+}
+
+/** On the window with a board's path once its HTML is in the cache, first time or again. */
+const BOARD_HTML = "sp:board-html";
+
+/**
+ * Fetches again the boards rewritten on disk, `<slug>/<file>.html` each: every one fetched or
+ * being fetched, not only those on the page in front. One on a page not mounted when it was
+ * rewritten would otherwise show its old HTML from the cache on the way back.
+ */
+export function refetchBoards(rewritten: string[]) {
+  for (const path of new Set([...canvasFileHtml.keys(), ...canvasFileLoads.keys()]))
+    if (rewritten.some((file) => path.endsWith(`canvases/${file}`)))
+      void loadCanvasFileHtml(path, true);
 }
 
 /**
@@ -269,14 +289,12 @@ export function boardPageUrl(path: string): string | undefined {
 export function useCanvasFileHtml(path: string): string | undefined {
   const [, rerender] = useReducer((n: number) => n + 1, 0);
   useEffect(() => {
-    if (canvasFileHtml.has(path)) return;
-    let live = true;
-    loadCanvasFileHtml(path).then(() => {
-      if (live) rerender();
-    });
-    return () => {
-      live = false;
+    const loaded = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === path) rerender();
     };
+    window.addEventListener(BOARD_HTML, loaded);
+    if (!canvasFileHtml.has(path)) void loadCanvasFileHtml(path);
+    return () => window.removeEventListener(BOARD_HTML, loaded);
   }, [path]);
   return canvasFileHtml.get(path);
 }
@@ -392,29 +410,48 @@ export function brandThumbForSrc(src: string) {
   return thumbBySrc.get(src);
 }
 
-/** Every discovered board, grouped by page and sorted by filename within it. */
-export function readCanvasLibrary(): CanvasLibraryFile[][] {
-  const byPage = new Map<string, CanvasLibraryFile[]>();
-  for (const b of boards()) {
-    for (const html of b.html) {
-      const file = parse(boardKey(b.slug, html));
-      if (!file) continue;
-      const list = byPage.get(file.pageSlug) ?? [];
-      list.push(file);
-      byPage.set(file.pageSlug, list);
-    }
-  }
-  for (const list of byPage.values()) {
-    list.sort((a, b) =>
-      a.fileName.localeCompare(b.fileName, undefined, { numeric: true }),
-    );
-  }
+/**
+ * Every canvas folder, with its boards sorted by filename. A folder can have none yet: one made
+ * with the canvas strip's "+" is a page to draw on until the agent or the reader adds a board.
+ */
+export function readCanvasLibrary(): { slug: string; files: CanvasLibraryFile[] }[] {
+  const canvases = boards().map((b) => ({
+    slug: b.slug,
+    files: b.html
+      .map((html) => parse(boardKey(b.slug, html)))
+      .filter((file): file is CanvasLibraryFile => file !== null)
+      .sort((a, b) =>
+        a.fileName.localeCompare(b.fileName, undefined, { numeric: true }),
+      ),
+  }));
   return inStripOrder(
-    [...byPage.entries()],
-    ([slug]) => slug,
-    ([slug]) =>
-      slug === WELCOME_PAGE_SLUG
+    canvases,
+    (c) => c.slug,
+    (c) =>
+      c.slug === WELCOME_PAGE_SLUG
         ? -Infinity
-        : (readCanvasLayout(slug)?.order ?? 0),
-  ).map(([, files]) => files);
+        : (readCanvasLayout(c.slug)?.order ?? 0),
+  );
+}
+
+/**
+ * Id prefixes of everything the library places: boards, row headings, captions, and the cards
+ * and buttons that open things. They are all created locked, and `lockLibraryShapes` locks any
+ * that a browser persisted before that was so. Locked, a shape cannot be selected, so a reader
+ * who means to pinch or scroll cannot drag a board out of its row by accident; the camera is the
+ * only thing that moves. The layout is declared in layout.json, so a board is never repositioned
+ * by hand anyway. Anything a person draws on top stays unlocked and editable.
+ */
+const LIBRARY_SHAPE_PREFIXES = [
+  "shape:canvas-file:",
+  "shape:canvas-image:",
+  "shape:canvas-row-heading:",
+  "shape:canvas-file-label:",
+  "shape:canvas-link:",
+  // Placed by no pass any more; listed so the sweep clears any a browser still holds.
+  "shape:canvas-status-banner:",
+];
+
+export function isLibraryShapeId(id: string) {
+  return LIBRARY_SHAPE_PREFIXES.some((prefix) => id.startsWith(prefix));
 }

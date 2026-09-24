@@ -26,6 +26,7 @@ import {
   newRun,
   sseFrame,
   type Run,
+  type RunEvent,
   type Session,
 } from "../src/agentRun.ts";
 import {
@@ -56,9 +57,11 @@ export function createAgentServer(options: {
   // and each is written to disk as it goes (`say`, below) for History after a restart.
   //
   // Two steps rather than one streaming response: the agent's work is a board written to
-  // disk, and the project's watcher (sp.ts) answers that with a full reload, so a stream bound
-  // to the fetch that started the run would die exactly when the run succeeds. The page comes
+  // disk, and the project's watcher (sp.ts) used to answer that with a full reload, and a
+  // canvas.json written from outside still does, so a stream bound to the fetch that started
+  // the run could die exactly when the run succeeds. The page comes
   // back with the run's id and reads its events from wherever it left off (agentRun.ts).
+  const QUIT = "The app quit before this turn finished.";
   const runs = new Map<
     string,
     Run & {
@@ -159,12 +162,17 @@ export function createAgentServer(options: {
   // never take a run down with it.
   const commands = new Map<string, string[]>();
   // The same frame, and Codex's first, also say what the agent calls the session, which the next
-  // turn resumes it by.
+  // turn resumes it by. Saved the moment it is known rather than when the run closes: an app that
+  // quits mid-run never gets there, and Continue on an interrupted first turn would then start a
+  // conversation with no memory of it.
   const harvest = (def: AgentDef, line: string, session: Session) => {
     try {
       const list = def.commands?.(line);
       if (list) commands.set(def.id, list);
-      session.resume ??= def.session(line);
+      if (session.resume === null) {
+        session.resume = def.session(line);
+        if (session.resume !== null) save(session);
+      }
     } catch {
       // Not the line that carries them.
     }
@@ -434,7 +442,7 @@ export function createAgentServer(options: {
             `Before touching a board folder, read ${repoRoot}/skills/prototype-canvas/SKILL.md, ` +
               "the prototype-canvas skill of the super-prototyping plugin: one folder is one canvas " +
               "page, one .html file in it is one board, layout.json places them, and the open canvas " +
-              "reloads by itself when a board is rewritten.",
+              "shows a rewritten board by itself, without a reload, while the user keeps working on it.",
             dir !== undefined &&
               `${path.join(dir, "PRD.md")}, when there is one, is a tab of the canvas ` +
                 "and says what the product is for. When they start from an idea, or ask for screens " +
@@ -516,9 +524,9 @@ export function createAgentServer(options: {
               runs.delete(oldId);
             }
           }
-          const finish = (message: string) => {
+          const finish = (message: string, interrupted?: true) => {
             if (!ended(run))
-              say(run, "end", { kind: "end", ok: false, message });
+              say(run, "end", { kind: "end", ok: false, message, interrupted });
           };
           let stderr = "";
           run.child.stderr
@@ -600,16 +608,17 @@ export function createAgentServer(options: {
             settle();
             if (ended(run)) return;
             const tail = stderr.trim().split("\n").slice(-5).join("\n");
-            // `claude` is a launcher around the real process: a SIGTERM to it comes back as
-            // exit 143, not as a signal. Harmless for codex, which dies by the signal.
+            // Stopped only when the person pressed Stop. Anything else that ends the CLI before its
+            // result frame, a crash or a kill from outside, cut the turn off, and the panel offers
+            // to continue it. The app quitting is `close()` below, which ends the run first.
+            if (run.stopped) return finish("stopped");
             finish(
-              signal || code === 143 || run.stopped
-                ? "stopped"
-                : `${def.bin} exited with code ${code}` +
-                    (tail ? `\n${tail}` : "") +
-                    (def.id === "claude" && /unknown option/i.test(stderr)
-                      ? "\nThe panel needs Claude Code 2.1.275 or newer."
-                      : ""),
+              (signal ? `${def.bin} was killed (${signal})` : `${def.bin} exited with code ${code}`) +
+                (tail ? `\n${tail}` : "") +
+                (def.id === "claude" && /unknown option/i.test(stderr)
+                  ? "\nThe panel needs Claude Code 2.1.275 or newer."
+                  : ""),
+              true,
             );
           });
           res.setHeader("content-type", "application/json");
@@ -628,7 +637,10 @@ export function createAgentServer(options: {
     }
     if (req.method === "GET" && url.pathname === "/sessions") {
       // Every session there is, newest first, off the records, so a restarted server still lists
-      // them. Whether one is running is this process's to say.
+      // them. Whether one is running is this process's to say. Interrupted: its last run was
+      // cut off, which the panel reopens on after a relaunch to offer Continue. A run with no end
+      // on disk was taken down with the server; one whose end says so was ended by the quit or
+      // lost its CLI.
       const ids = fs.existsSync(workspaces)
         ? fs
             .readdirSync(workspaces)
@@ -642,13 +654,34 @@ export function createAgentServer(options: {
           ids
             .map(load)
             .sort((a, b) => b.updated - a.updated)
-            .map((s) => ({
-              ...s,
-              running: s.runs.some((id) => {
+            .map((s) => {
+              const running = s.runs.some((id) => {
                 const run = runs.get(id);
                 return run !== undefined && !ended(run);
-              }),
-            })),
+              });
+              const last = s.runs.at(-1);
+              // ponytail: reads each session's last run whole for its last line; read the tail
+              // alone if a History list gets slow.
+              // A run from before runs were kept on disk has no file.
+              const file = last && path.join(keptOf(last), "events.jsonl");
+              const tail =
+                !file || running || !fs.existsSync(file)
+                  ? undefined
+                  : fs
+                      .readFileSync(file, "utf8")
+                      .trimEnd()
+                      .split("\n")
+                      .at(-1);
+              const end = tail && (JSON.parse(tail) as RunEvent);
+              return {
+                ...s,
+                running,
+                interrupted:
+                  !!end &&
+                  (end.event !== "end" ||
+                    (end.data as { interrupted?: boolean }).interrupted === true),
+              };
+            }),
         ),
       );
     }
@@ -670,11 +703,7 @@ export function createAgentServer(options: {
         .map((line) => JSON.parse(line));
       // The server went down mid-run and took the agent with it.
       if (!ended(run))
-        emit(run, "end", {
-          kind: "end",
-          ok: false,
-          message: "The app quit before this turn finished.",
-        });
+        emit(run, "end", { kind: "end", ok: false, message: QUIT, interrupted: true });
     }
     if (!run) return send(404, "no such run");
     if (
@@ -742,7 +771,13 @@ export function createAgentServer(options: {
       // The agent is this process's child and no one else's. A SIGTERM to the server alone, which is
       // how the macOS app stops it, would otherwise leave the agent editing the project with nobody
       // watching. This is the same kill the Stop button sends.
-      for (const run of runs.values()) if (!ended(run)) stop(run.child);
+      // Ended here, before the kill, so the turn reads as cut off by the quit rather than
+      // stopped by the person, whichever of the child's exit and this process's comes first.
+      for (const run of runs.values())
+        if (!ended(run)) {
+          say(run, "end", { kind: "end", ok: false, message: QUIT, interrupted: true });
+          stop(run.child);
+        }
     },
   };
 }

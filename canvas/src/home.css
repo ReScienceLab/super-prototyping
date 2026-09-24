@@ -232,29 +232,119 @@ button.home-tile i {
   line-height: 18px;
 }
 
-/* New project: a name. */
+/* New project (NewProjectDialog.tsx): the ways to start down the side, the form beside them. */
 /* `margin: auto` is the browser's own centring of a modal, which Tailwind's preflight zeroes. */
 .home-dialog {
-  width: min(440px, calc(100vw - 32px));
+  width: min(760px, calc(100vw - 32px));
   margin: auto;
-  padding: 24px;
+  padding: 0;
   border: 0;
   border-radius: 12px;
   background: var(--ds-background-100);
   box-shadow: var(--ds-shadow-menu);
   color: var(--ds-gray-1000);
+  overflow: hidden;
 }
 .home-dialog::backdrop {
   background: rgb(0 0 0 / 0.6);
 }
-.home-dialog h2 {
-  margin: 0 0 16px;
-  font-size: 20px;
-  line-height: 28px;
+/* One size for both modes, whatever is dropped: the thumbnails scroll inside the drop zone. */
+.home-dialog form {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  height: min(520px, calc(100vh - 32px));
+}
+@media (max-width: 600px) {
+  .home-dialog form {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    height: auto;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+  .new-project-modes {
+    border-right: 0;
+    border-bottom: 1px solid var(--ds-gray-400);
+  }
+}
+.new-project-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 12px;
+  border-right: 1px solid var(--ds-gray-400);
+  background: var(--ds-background-200);
+}
+.new-project-modes h2 {
+  margin: 0 8px 8px;
+  font-size: 16px;
+  line-height: 24px;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
-.home-dialog input:not([type="checkbox"]) {
+.new-project-modes [role="tablist"] {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.home-dialog .new-project-modes button {
+  height: auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: none;
+  box-shadow: none;
+  text-align: left;
+}
+.home-dialog .new-project-modes button[aria-selected="true"] {
+  background: var(--ds-gray-100);
+}
+.new-project-modes b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+.new-project-modes small {
+  display: block;
+  margin: 2px 0 0 24px;
+  color: var(--ds-gray-700);
+  font: 400 12px/16px var(--sp-sans);
+}
+.new-project-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 24px;
+}
+.new-project-main [role="tabpanel"] {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.new-project-main h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.new-project-lede {
+  margin: 0 0 20px;
+  color: var(--ds-gray-700);
+}
+.new-project-main label:not(.home-dialog-check) span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ds-gray-900);
+  font-size: 13px;
+}
+.new-project-main label span small {
+  margin-left: 4px;
+  color: var(--ds-gray-700);
+}
+.home-dialog :is(input:not([type="checkbox"]), textarea) {
   width: 100%;
   height: 40px;
   padding: 0 12px;
@@ -265,23 +355,117 @@ button.home-tile i {
   color: inherit;
   font: inherit;
 }
-.home-dialog input::placeholder {
+.home-dialog :is(input, textarea)::placeholder {
   color: var(--ds-gray-700);
 }
-.home-dialog input:not([type="checkbox"]):hover {
+.home-dialog :is(input:not([type="checkbox"]), textarea):hover {
   box-shadow: inset 0 0 0 1px var(--ds-gray-500);
+}
+/* The idea takes the room the drop zone has in Clone, so the dialog is the same size. */
+.new-project-idea {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 16px;
+}
+.home-dialog .new-project-idea textarea {
+  flex: 1;
+  min-height: 72px;
+  padding: 10px 12px;
+  resize: none;
+  line-height: 20px;
+}
+.new-project-said {
+  margin: 8px 0 0;
+  color: var(--ds-red-900);
+  font-size: 13px;
+}
+/* Where references land. The whole dialog takes the drop; this is what says so. */
+.new-project-drop {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+  margin-top: 16px;
+  padding: 24px 16px;
+  border: 1px dashed var(--ds-gray-500);
+  border-radius: 8px;
+  background: var(--ds-background-200);
+  color: var(--ds-gray-700);
+  text-align: center;
+}
+.new-project-drop[data-over] {
+  border-color: var(--ds-blue-900);
+  background: var(--ds-blue-100);
+}
+.new-project-drop strong {
+  color: var(--ds-gray-1000);
+  font-weight: 500;
+}
+.new-project-drop-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
+  border-radius: 20px;
+  background: var(--ds-gray-100);
+  color: var(--ds-gray-1000);
+}
+.new-project-drop ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  min-height: 0;
+  margin: 0 0 8px;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.new-project-drop li {
+  position: relative;
+  width: 64px;
+  height: 112px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--ds-gray-100);
+  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
+}
+.new-project-drop :is(img, video) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.home-dialog .new-project-drop li button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.7);
+  box-shadow: none;
+  color: #fff;
 }
 /* Starts the agent on PRD.md once the project opens (AppShell.tsx). */
 .home-dialog-check {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 16px;
   color: var(--ds-gray-900);
   font-size: 14px;
   cursor: pointer;
 }
-.home-dialog-check code {
+.home-dialog code {
   padding: 2px 6px;
   border-radius: 9999px;
   background: var(--ds-gray-200);
@@ -293,16 +477,17 @@ button.home-tile i {
   margin: 0;
   accent-color: var(--ds-gray-1000);
 }
-.home-dialog p {
-  margin: 8px 0 0;
-  color: var(--ds-red-900);
-  font-size: 13px;
-}
-.home-dialog div {
+.new-project-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 24px;
+}
+.new-project-actions span {
+  margin-right: auto;
+  color: var(--ds-gray-700);
+  font-size: 13px;
 }
 /* Geist's primary: the ground and the ink swapped. */
 :is(.home-dialog, .onboarding) button[type="submit"] {

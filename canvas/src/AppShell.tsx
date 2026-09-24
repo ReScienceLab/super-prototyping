@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { canvasIndex } from "./canvasIndex";
 import { CanvasTabBar } from "./CanvasTabBar";
 import {
@@ -19,8 +19,10 @@ import {
   ChatPanel,
   useChat,
   type CanvasAttachDetail,
+  type Working,
 } from "./ChatPanel";
 import { HomePage } from "./HomePage";
+import { NewProjectDialog, type NewProjectStart } from "./NewProjectDialog";
 import { Onboarding } from "./Onboarding";
 
 declare global {
@@ -32,7 +34,12 @@ declare global {
       check(): Promise<string>;
     };
     /** The window's side of the frame (here): what the canvas has in front, at what address. */
-    spShell?: { shown(tab: ProjectTab, href: string): void };
+    spShell?: {
+      shown(tab: ProjectTab, href: string): void;
+      /** What the panel's running turn is writing to; `sp:working` on this window when it
+       *  changes. The canvas's strip dots those tabs. */
+      working: Working;
+    };
     /** The canvas's side (App.tsx): brings a tab forward, or says it is another project's; and
      *  attaches the boards and pictures pasted links name, or says one of them names none. */
     spCanvas?: { goTo(tab: ProjectTab): boolean; attach(hrefs: string[]): boolean };
@@ -93,15 +100,24 @@ export function AppShell() {
   const frame = useRef<HTMLIFrameElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const [said, setSaid] = useState("");
+  const [working, setWorking] = useState<Working>({ slugs: [] });
 
-  useEffect(() => {
+  // Before paint, not after: the frame below reads `working` as it renders, and a passive effect
+  // could still be waiting when it does.
+  useLayoutEffect(() => {
     window.spShell = {
       shown(tab, href) {
         setShown({ tab, href });
         setTabs((tabs) => withTab(tabs, tab));
       },
+      working: { slugs: [] },
     };
   }, []);
+
+  useEffect(() => {
+    window.spShell!.working = working;
+    window.dispatchEvent(new Event("sp:working"));
+  }, [working]);
 
   // The bar comes back on the next visit, the way the document behind it does.
   useEffect(() => {
@@ -177,34 +193,84 @@ export function AppShell() {
 
   /**
    * Makes a project, in the projects folder (canvas/server/projects.ts), a browser tab's request
-   * and the app's alike. The server answers the project's address, whose canvas goes in the
-   * frame, or what to say under the name field.
+   * and the app's alike, then copies in the references a clone starts from. The server answers
+   * the project's address, whose canvas goes in the frame, or what to say under the name field.
    */
-  const create = async (name: string, define: boolean) => {
+  const create = async (name: string, start: NewProjectStart) => {
     const res = await fetch(new URL("/__sp/projects", location.origin), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ name }),
     });
     if (!res.ok) return setSaid(await res.text());
+    // The server's name, which is the one typed, or an "Untitled" when none was.
+    const made = (await res.json()) as { name: string; url: string };
+    const { url } = made;
+    // The project is made by now, so a file that will not copy is reported and left out, and the
+    // project opens on the rest: trying again would only be told the name is taken.
+    const names: string[] = [];
+    const failed: string[] = [];
+    if (start.mode === "clone")
+      for (const file of start.files) {
+        const query = new URLSearchParams({ name: made.name, file: file.name });
+        try {
+          const up = await fetch(new URL(`/__sp/projects/ref?${query}`, location.origin), {
+            method: "POST",
+            body: file,
+          });
+          if (up.ok) names.push(`refs/${file.name}`);
+          else failed.push(`${file.name}: ${await up.text()}`);
+        } catch (error) {
+          failed.push(`${file.name}: ${error}`);
+        }
+      }
+    if (failed.length > 0)
+      alert(`The project was made, but these could not be copied into it:\n\n${failed.join("\n")}`);
     dialog.current!.close();
-    const { url } = (await res.json()) as { url: string };
-    if (define) defining.current = url;
+    // Before anything else its agent names the project, when it was left unnamed, into its
+    // project.json, which the bar and the home page show it by (server/sp.ts). Then it makes and
+    // names the first canvas, which the blank view the project opens on gives way to (App.tsx).
+    // The skill's command still opens the message, since only there is it one.
+    const first = [
+      name.trim() === "" &&
+        `name this project: write a short name for it as {"name": "…"} in project.json at the project's root (if you cannot tell yet what it is, make that your first question to me)`,
+      // Empty: the skill says when a board is due, after the product or the measurements.
+      `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json, so it opens on my screen, and no board in it until the work reaches one`,
+    ].filter(Boolean);
+    const [skill, ask] =
+      start.mode === "clone"
+        ? [
+            "/clone-prototype",
+            names.length > 0
+              ? `Clone the app in these references, in the project: ${names.join(", ")}.`
+              : "Ask me which app to clone, and for screenshots or a screen recording of it.",
+          ]
+        : start.define
+          ? ["/define-product", "Help me work out what this product is, and write PRD.md as we go."]
+          : ["", "Ask me what this project is."];
+    // What they said about the idea, in their words, for the agent to start from rather than ask.
+    const idea =
+      start.mode === "build" && start.idea
+        ? ` Here is the idea in my own words, as it came to mind. Start from it, and ask about what it leaves open rather than what it already says:\n\n${start.idea.replace(/^/gm, "> ")}`
+        : "";
+    starting.current = {
+      url,
+      text: [skill, `Before anything else, ${first.join(", then ")}. Then: ${ask}${idea}`]
+        .filter(Boolean)
+        .join(" "),
+    };
     load(new URL(url, location.origin).href);
   };
-  // A project made to be defined first (skills/define-product). /define-product is sent once
-  // that project is in front; earlier it would go to whichever project is in front now.
-  const defining = useRef<string>(undefined);
+  // A project made to start on a skill: clone-prototype on its references, or define-product.
+  // The message is sent once that project is in front; earlier it would go to whichever project
+  // is in front now.
+  const starting = useRef<{ url: string; text: string }>(undefined);
   useEffect(() => {
-    if (shown?.tab.kind !== "project" || shown.tab.url !== defining.current) return;
-    defining.current = undefined;
+    if (shown?.tab.kind !== "project" || shown.tab.url !== starting.current?.url) return;
+    const { text } = starting.current;
+    starting.current = undefined;
     window.dispatchEvent(
-      new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, {
-        detail: {
-          kind: "send",
-          text: "/define-product Help me work out what this product is, and write PRD.md as we go.",
-        },
-      }),
+      new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, { detail: { kind: "send", text } }),
     );
   }, [shown]);
   const newProject = () => {
@@ -221,6 +287,7 @@ export function AppShell() {
       <CanvasTabBar
         tabs={tabs}
         active={home ? null : (shown?.tab ?? null)}
+        working={working}
         onHome={() => setHome(true)}
         goTo={goTo}
         closeTabs={closeTabs}
@@ -242,6 +309,7 @@ export function AppShell() {
             canvas={(!home && view?.kind !== "doc" && view?.slug) || undefined}
             project={home || shown?.tab.kind !== "project" ? undefined : shown.tab.name}
             chat={chat}
+            onWorking={setWorking}
           />
         )}
         <div className="canvas-window">
@@ -265,34 +333,7 @@ export function AppShell() {
           )}
         </div>
       </div>
-      {/* A new project needs only a name. It goes in the projects folder, and the server answers
-          here when the name will not do. */}
-      <dialog ref={dialog} className="home-dialog">
-        <form
-          onSubmit={async (event) => {
-            event.preventDefault();
-            const form = new FormData(event.currentTarget);
-            await create(form.get("project") as string, form.has("define"));
-          }}
-        >
-          <h2>New project</h2>
-          {/* Not "name", which browsers fill with the person's own, and no history of past entries. */}
-          <input name="project" placeholder="Project name" autoComplete="off" autoFocus required />
-          <label className="home-dialog-check">
-            <input type="checkbox" name="define" defaultChecked />
-            <span>
-              Define the product with the agent <code>/define-product</code>
-            </span>
-          </label>
-          {said && <p>{said}</p>}
-          <div>
-            <button type="button" onClick={() => dialog.current!.close()}>
-              Cancel
-            </button>
-            <button type="submit">Create</button>
-          </div>
-        </form>
-      </dialog>
+      <NewProjectDialog dialog={dialog} said={said} create={create} />
       {onboarding !== null && <Onboarding chat={chat} version={onboarding} />}
     </div>
   );

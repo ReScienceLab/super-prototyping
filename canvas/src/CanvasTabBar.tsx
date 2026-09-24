@@ -15,6 +15,7 @@ import {
   type ProjectTab,
 } from "./canvasTabs";
 import type { CanvasTab } from "./canvasUrl";
+import type { Working } from "./ChatPanel";
 import { askServer, openMenu, REVEAL } from "./contextMenu";
 import { Cross, Home, Plus } from "./geistIcons";
 
@@ -41,12 +42,14 @@ export function ViewIcon({ view }: { view: CanvasTab }) {
 function TabChip({
   tab,
   active,
+  working,
   onOpen,
   onClose,
   onMenu,
 }: {
   tab: ProjectTab;
   active: boolean;
+  working: boolean;
   onOpen: () => void;
   onClose: () => void;
   onMenu: MouseEventHandler;
@@ -66,6 +69,7 @@ function TabChip({
     <span
       className="sp-tabchip"
       data-active={active || undefined}
+      data-working={working || undefined}
       onContextMenu={onMenu}
     >
       <button
@@ -96,6 +100,8 @@ export function CanvasTabBar(props: {
   tabs: ProjectTab[];
   /** The tab in front, or none while Home is. */
   active: ProjectTab | null;
+  /** What the agent is writing to: a project behind the one in front has a sheen cross its name while it is. */
+  working: Working;
   onHome: () => void;
   goTo: (tab: ProjectTab) => void;
   /** Takes these off the bar, landing on a neighbour when the one in front goes. */
@@ -133,6 +139,12 @@ export function CanvasTabBar(props: {
             key={tabKey(tab)}
             tab={tab}
             active={tabKey(tab) === active}
+            working={
+              tabKey(tab) !== active &&
+              tab.kind === "project" &&
+              tab.name === props.working.project &&
+              props.working.slugs.length > 0
+            }
             onOpen={() => goTo(tab)}
             onClose={() => props.closeTabs([tab])}
             onMenu={(event) => openMenu(event, menu, () => setTarget(tab))}

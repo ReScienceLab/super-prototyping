@@ -64,7 +64,7 @@ import {
 } from "./agents";
 import type { Session } from "./agentRun";
 import { namedPictures, readDraft, slashWord } from "./chatDraft";
-import { applyFrame, followRun, type Turn } from "./chatTransport";
+import { applyFrame, followRun, writingTo, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
 import { Check, ClockRewind, Image, Plus } from "./geistIcons";
@@ -75,6 +75,8 @@ import { rasterizeSvg } from "./svgRaster";
 // (server/agent.ts), so a tab switched to another project carries on with the same one.
 const SESSION_KEY = "sp-chat-session";
 const RUNS_KEY = "sp-chat-runs";
+/** The canvas folders a running turn is writing to, by slug, in the project it was sent from. */
+export type Working = { project?: string; slugs: string[] };
 const QUEUE_KEY = "sp-chat-queue";
 const SENT_KEY = "sp-chat-sent";
 const AGENT_KEY = "sp-chat-agent";
@@ -232,6 +234,8 @@ export interface AgentRow {
 interface Queued {
   message: string;
   images: Attached[];
+  /** The project it goes to, when not the one open: Continue's, which is the interrupted turn's. */
+  project?: string;
 }
 
 /** A turn with nothing in it yet: the run's events, from `start` on, fill in the rest. */
@@ -261,6 +265,9 @@ export function ChatPanel(props: {
   canvas?: string;
   project?: string;
   chat: Chat;
+  /** The canvases the running turn has written to, and its project: what the window glows
+   *  around. Empty once it ends, however it ends. */
+  onWorking?: (working: Working) => void;
 }) {
   const { canvas, project } = props;
   const { open, agent } = props.chat;
@@ -285,7 +292,9 @@ export function ChatPanel(props: {
       return {};
     }
   });
-  const [history, setHistory] = useState<(Session & { running: boolean })[]>(
+  const [history, setHistory] = useState<
+    (Session & { running: boolean; interrupted: boolean })[]
+  >(
     [],
   );
   // The agent's own slash commands, and where the keyboard is in them. Opens on what this browser
@@ -369,6 +378,15 @@ export function ChatPanel(props: {
   useEffect(() => {
     abort.current = new AbortController();
     for (const t of turns) follow(t.runId);
+    // An empty panel after a relaunch, since sessionStorage goes with the window, opens on the
+    // conversation the quit cut off, so its Continue is the first thing in view.
+    if (!turns.length)
+      void fetch("/__sp/agent/sessions")
+        .then(async (res) => {
+          const [newest] = res.ok ? await res.json() : [];
+          if (newest?.interrupted) pick(newest);
+        })
+        .catch(() => {});
     void fetch(`/__sp/agent/agents`)
       .then(async (res) =>
         res.ok ? setAgents(await res.json()) : setSendError(await res.text()),
@@ -388,6 +406,14 @@ export function ChatPanel(props: {
   }, [turns, open, session]);
 
   const running = turns.find((t) => !t.end);
+  const working: Working = {
+    project: running?.project,
+    slugs: running ? writingTo(running.blocks) : [],
+  };
+  const workingKey = JSON.stringify(working);
+  // By value: `working` is a new object every render.
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => props.onWorking?.(working), [workingKey]);
 
   useEffect(() => {
     try {
@@ -898,7 +924,10 @@ export function ChatPanel(props: {
   const unready = pending + failed > 0;
 
   /** One message to the server as a run; false when it was refused or never answered. */
-  const post = async ({ message, images: attached }: Queued) => {
+  const post = async (queued: Queued) => {
+    const { message, images: attached } = queued;
+    // Present and undefined is the home page's, which has no project.
+    const to = "project" in queued ? queued.project : project;
     setSendError(null);
     setSending(true);
     try {
@@ -907,8 +936,9 @@ export function ChatPanel(props: {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           message,
-          canvas,
-          project,
+          // The open canvas means nothing to another project's turn.
+          canvas: to === project ? canvas : undefined,
+          project: to,
           session: session?.id,
           agent,
           model,
@@ -1345,7 +1375,35 @@ export function ChatPanel(props: {
               )}
               {!t.end ? (
                 <p className="sp-chat-dim">Working…</p>
-              ) : t.end.ok ? null : (
+              ) : t.end.ok ? null : t.end.interrupted ? (
+                <div className="sp-chat-interrupted">
+                  <p>
+                    <strong>Interrupted.</strong> {t.end.message} What it
+                    changed so far is on disk.
+                  </p>
+                  {/* The newest turn only, and gone once anything is sent after it. */}
+                  {t === turns.at(-1) && !running && (
+                    <button
+                      type="button"
+                      disabled={sending}
+                      onClick={() =>
+                        // The session is resumed, so the agent has its own record of what it had
+                        // done, and in the turn's project, whatever is open now. A turn that
+                        // showed nothing never got as far as the agent naming its session, whose
+                        // first line comes before anything shown, so it is asked again instead.
+                        // ponytail: asked again without its pictures, fetch them from the run if that bites.
+                        void post({
+                          message: t.blocks.length ? "continue" : t.prompt,
+                          images: [],
+                          project: t.project,
+                        })
+                      }
+                    >
+                      Continue
+                    </button>
+                  )}
+                </div>
+              ) : (
                 <p className="sp-chat-error">{t.end.message}</p>
               )}
             </article>

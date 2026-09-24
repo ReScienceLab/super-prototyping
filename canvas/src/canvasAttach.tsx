@@ -6,19 +6,25 @@ import {
   type Editor,
   type TLEventInfo,
   type TLImageShape,
+  type TLShape,
 } from "tldraw";
 import {
   CANVAS_FILE_SHAPE_TYPE,
   type CanvasFileShape,
 } from "./CanvasFileShapeUtil";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
+import { personsShape, personsShapeName } from "./canvasContent";
 import { canvasBoardRef } from "./canvasLibrary";
 import { Plus } from "./geistIcons";
 import {
   asCanvasTarget,
   shapeUnderPointer,
-  type InspectorTarget,
 } from "./inspectorClicks";
+
+/** A board, a picture the library placed, or anything the person put on a project canvas: what
+ *  the **+** answers for. The inspector answers only for the first two (asCanvasTarget). */
+const addable = (editor: Editor, shape: TLShape | undefined): TLShape | null =>
+  asCanvasTarget(shape) ?? (personsShape(editor, shape) ? shape! : null);
 
 /** To the agent's panel, which is the window's, outside the canvas's frame (AppShell.tsx). */
 const dispatchAttach = (detail: CanvasAttachDetail) =>
@@ -32,8 +38,19 @@ const dispatchAttach = (detail: CanvasAttachDetail) =>
  * says is which board, at what size. A picture already on the canvas is read back out of the
  * asset its shape points at.
  */
-async function attach(editor: Editor, target: InspectorTarget) {
+async function attach(editor: Editor, target: TLShape) {
   try {
+    // One of the person's own: whatever it is, the agent gets a picture of it, named by where it
+    // reads the thing itself (canvasContent.ts).
+    const slug = personsShape(editor, target);
+    if (slug) {
+      const { blob } = await editor.toImage([target.id], { format: "png" });
+      return dispatchAttach({
+        kind: "board",
+        name: personsShapeName(editor, target, slug),
+        src: URL.createObjectURL(blob),
+      });
+    }
     if (target.type === CANVAS_FILE_SHAPE_TYPE) {
       const { w, h, path } = (target as CanvasFileShape).props;
       const ref = canvasBoardRef(path);
@@ -72,7 +89,7 @@ async function attach(editor: Editor, target: InspectorTarget) {
  * there are; the panel draws them side by side (the server takes a few at a time).
  */
 // oxlint-disable-next-line react/only-export-components
-export async function attachToChat(editor: Editor, targets: InspectorTarget[]) {
+export async function attachToChat(editor: Editor, targets: TLShape[]) {
   for (const target of targets) await attach(editor, target);
 }
 
@@ -89,7 +106,7 @@ export async function attachToChat(editor: Editor, targets: InspectorTarget[]) {
  */
 export function CanvasAttachButtons() {
   const editor = useEditor();
-  const [target, setTarget] = useState<InspectorTarget | null>(null);
+  const [target, setTarget] = useState<TLShape | null>(null);
 
   // Two fingers on the trackpad over these buttons is still a pan. This layer is a sibling of
   // .tl-canvas rather than a child of it, and the wheel is listened for on the canvas itself, so a
@@ -131,7 +148,7 @@ export function CanvasAttachButtons() {
         editor.getCurrentToolId() === "select" &&
           !editor.inputs.getIsDragging() &&
           !editor.menus.hasAnyOpenMenus()
-          ? (asCanvasTarget(shapeUnderPointer(editor)) ?? null)
+          ? addable(editor, shapeUnderPointer(editor))
           : null,
       );
     };
@@ -170,6 +187,7 @@ export function CanvasAttachButtons() {
       ? canvasBoardRef(target.props.path)
       : undefined;
   const board = ref && `${ref.slug}/${ref.file}`;
+  const own = personsShape(editor, target);
 
   return (
     <div
@@ -183,10 +201,16 @@ export function CanvasAttachButtons() {
         aria-label={
           board
             ? "Add this board to the chat"
-            : "Attach this picture to the chat"
+            : own
+              ? "Add this to the chat"
+              : "Attach this picture to the chat"
         }
         title={
-          board ? `Add ${board} to the chat` : "Attach this picture to the chat"
+          board
+            ? `Add ${board} to the chat`
+            : own
+              ? `Add ${personsShapeName(editor, target, own)} to the chat`
+              : "Attach this picture to the chat"
         }
         onClick={() => void attach(editor, target)}
       >
@@ -223,11 +247,8 @@ export function CanvasSelectionAttachButton() {
       ) {
         return null;
       }
-      const targets = editor
-        .getSelectedShapes()
-        .map(asCanvasTarget)
-        .filter((t): t is InspectorTarget => t !== undefined);
-      if (targets.length === 0) return null;
+      if (!editor.getSelectedShapes().some((s) => addable(editor, s)))
+        return null;
       const bounds = editor.getSelectionPageBounds();
       return bounds
         ? editor.pageToViewport({ x: bounds.maxX, y: bounds.minY })
@@ -254,8 +275,8 @@ export function CanvasSelectionAttachButton() {
             editor,
             editor
               .getSelectedShapes()
-              .map(asCanvasTarget)
-              .filter((t): t is InspectorTarget => t !== undefined),
+              .map((s) => addable(editor, s))
+              .filter((t): t is TLShape => t !== null),
           )
         }
       >

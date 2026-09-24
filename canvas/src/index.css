@@ -257,6 +257,94 @@ button {
   background: var(--ds-background-100);
 }
 
+/* The agent is writing to the canvas in front (AppShell.tsx): after Chromium's actor overlay,
+   the one Ego Lite draws round a tab its agent drives. A steady 1.5px ring, and a haze at the
+   edges that fades out and back every four seconds. Over the frame and never in its way, so the
+   person keeps drawing under it. */
+.agent-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1.5px #1b6ef3;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.agent-glow[data-on] {
+  opacity: 1;
+}
+
+.agent-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 18px 3px #4c8df6;
+  animation: agent-glow-pulse 4s ease-in-out infinite;
+}
+
+@keyframes agent-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  33.33%,
+  66.66% {
+    opacity: 0;
+  }
+}
+
+/* Every canvas it is writing to, in the strip, and a project behind the one in front, in the
+   bar: the name in its own colour, crossed by a sheen with a white core between two cooler
+   blue-grey bands. Both layers are clipped to the letters, so the tab keeps its shape and icon;
+   only the fill is taken off, so `currentColor` is still the name's. */
+.sp-canvas-tab[data-working],
+.sp-tabchip[data-working] .sp-tabchip-name {
+  -webkit-text-fill-color: transparent;
+  background:
+    linear-gradient(
+        105deg,
+        transparent 36%,
+        #aebdd2 43%,
+        #fff 48%,
+        #7d91b0 51%,
+        #e8eff9 55%,
+        transparent 62%
+      )
+      no-repeat,
+    linear-gradient(currentColor, currentColor);
+  background-size:
+    250% 100%,
+    100% 100%;
+  background-clip: text;
+  animation: agent-tab-sheen 2.4s ease-in-out infinite;
+}
+
+@keyframes agent-tab-sheen {
+  0%,
+  35% {
+    background-position:
+      150% 0,
+      0 0;
+  }
+  100% {
+    background-position:
+      -50% 0,
+      0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-glow::after {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .sp-canvas-tab[data-working],
+  .sp-tabchip[data-working] .sp-tabchip-name {
+    animation: none;
+  }
+}
+
 /* What one tab shows. Positioned, because a kit is an overlay and the editor has to stay laid
    out underneath it, since tldraw measures its viewport from that element, and one taken out of
    the flow comes back at zero by zero with its camera lost. */
@@ -317,10 +405,21 @@ button {
   color: var(--ds-gray-1000);
 }
 
-.sp-canvas-tabs-none {
+/* A tab's name being typed, in place of its label: the same text, with a field's ring. */
+.sp-canvas-tab-name {
   align-self: center;
-  padding: 0 8px;
-  color: var(--ds-gray-700);
+  padding: 2px 4px;
+  margin: 0 -4px;
+  border: 0;
+  border-radius: 4px;
+  outline: 1px solid var(--ds-gray-alpha-400);
+  background: var(--ds-background-100);
+  color: inherit;
+  font: inherit;
+}
+
+.sp-canvas-tab-name:focus {
+  outline: 2px solid var(--ds-blue-700);
 }
 
 /* "+", after the last canvas. */
@@ -396,6 +495,13 @@ button {
   inset: 0;
   z-index: 1;
   overflow: auto;
+}
+
+.canvas-blank {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--ds-background-100);
 }
 
 /* A Markdown file of the project's as a tab (App.tsx): the chat panel's markdown, given the
@@ -2037,6 +2143,39 @@ button {
   overflow-wrap: anywhere;
 }
 
+/* A turn the app's quit or a dead CLI cut off, and its Continue button. */
+.sp-chat-interrupted {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px;
+}
+
+.sp-chat-interrupted p {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sp-chat-interrupted button {
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  background: var(--sp-accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sp-chat-interrupted button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .sp-chat-send-error {
   margin: 0;
   padding: 0 12px 8px;
@@ -2569,11 +2708,82 @@ button {
 }
 
 /* A shape the agent added that the reader has not pointed at yet: the focus ring plus a blue
-   halo. canvasChrome.tsx adds the class and takes it off on the first pointer over it. Divided
-   by tldraw's zoom, so the ring is as thick on screen with the page fitted as close up. */
+   halo, or a green one below for a board it rewrote. canvasChrome.tsx adds the class and takes
+   it off on the first pointer over it. Divided by tldraw's zoom, so the ring is as thick on
+   screen with the page fitted as close up. */
 .tl-shape.sp-fresh {
   box-shadow:
     0 0 0 calc(2px / var(--tl-zoom)) var(--ds-focus),
     0 0 calc(24px / var(--tl-zoom)) calc(6px / var(--tl-zoom))
       color-mix(in oklab, var(--ds-focus) 60%, transparent);
+}
+
+/* A board the agent rewrote in place: the same ring in green, so an update reads apart from an
+   arrival. */
+.tl-shape.sp-fresh[data-fresh="updated"] {
+  --ds-focus: light-dark(#1a9338, #3dbe5c);
+}
+
+/* Asked before a folder is binned (confirmTrash, contextMenu.ts), on the canvas and the home
+   page alike. `margin: auto` is the browser's own centring of a modal, which Tailwind zeroes. */
+.sp-confirm {
+  width: min(440px, calc(100vw - 32px));
+  margin: auto;
+  padding: 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--ds-background-100);
+  box-shadow: var(--ds-shadow-menu);
+  color: var(--ds-gray-1000);
+  font: 400 14px/20px var(--sp-sans);
+}
+.sp-confirm::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+.sp-confirm h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+.sp-confirm code {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--ds-gray-100);
+  color: var(--ds-gray-900);
+  font: 12px/18px var(--sp-mono);
+  overflow-wrap: anywhere;
+}
+.sp-confirm p {
+  margin: 12px 0 0;
+  color: var(--ds-gray-900);
+}
+.sp-confirm form {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+.sp-confirm button {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--ds-background-100);
+  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
+  color: var(--ds-gray-1000);
+  font: 500 14px/20px var(--sp-sans);
+  cursor: pointer;
+}
+.sp-confirm button:hover {
+  background: var(--ds-gray-100);
+}
+.sp-confirm button.sp-confirm-danger {
+  background: var(--ds-red-900);
+  box-shadow: none;
+  color: #fff;
+}
+.sp-confirm button.sp-confirm-danger:hover {
+  background: color-mix(in oklab, var(--ds-red-900) 88%, black);
 }

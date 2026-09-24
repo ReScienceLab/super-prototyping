@@ -300,11 +300,20 @@ export function boardIndex(
             thumbs: [] as string[],
             assets: assetIndex(folder),
             comments: readJson(path.join(folder, "comments.json")),
+            // null for a canvas.json that is there but will not parse, after a merge left half
+            // done, say. The page must not take that for no file and write over it
+            // (canvasContent.ts).
+            content: fs.existsSync(path.join(folder, "canvas.json"))
+              ? (readJson(path.join(folder, "canvas.json")) ?? null)
+              : undefined,
             docs: readDocs(folder),
           };
         })
         .filter(
-          (b): b is NonNullable<typeof b> => b !== null && b.html.length > 0,
+          // A folder with no board yet is a canvas once it has a layout.json, which is what the
+          // canvas strip's "+" makes (sp.ts, /__sp/new-canvas).
+          (b): b is NonNullable<typeof b> =>
+            b !== null && (b.html.length > 0 || b.layout !== undefined),
         );
   return {
     served: options.served,

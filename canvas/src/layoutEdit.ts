@@ -4,8 +4,9 @@
  * are, pure string edits, without standing a dev server up around them.
  */
 
-/** A slug or file name that is safe to join into a path: no separators, no dots of its own. */
-export const SAFE_NAME = /^[\w.-]+$/;
+/** A slug or file name that is safe to join into a path: no separators, and no leading dot, so
+ *  never `.` or `..`, which would name the folder itself or the one above it. */
+export const SAFE_NAME = /^(?!\.)[\w.-]+$/;
 
 /**
  * The folder name a typed canvas name becomes. ASCII only: a slug is also the `?canvas=`

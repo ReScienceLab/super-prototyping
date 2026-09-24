@@ -27,7 +27,7 @@ import { WELCOME_PAGE_SLUG, type CanvasTab } from "./canvasUrl";
 
 // This checkout's own boards, through the index the page fetches: the tabs are named after
 // folders, so the test asks the library which folders there are rather than naming any.
-const slugs = readCanvasLibrary().map((files) => files[0].pageSlug);
+const slugs = readCanvasLibrary().map((c) => c.slug);
 const canvas = slugs.find((slug) => slug !== WELCOME_PAGE_SLUG)!;
 const kit = brandMaterialSlugs()[0];
 const noKit = slugs.find((slug) => !hasBrandMaterial(slug))!;

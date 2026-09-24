@@ -1,4 +1,5 @@
 import type { CommentsFile } from "./canvasComments";
+import type { ContentFile } from "./canvasContent";
 import type { CanvasLayoutConfig } from "./canvasLibrary";
 
 /**
@@ -23,6 +24,9 @@ export interface IndexBoard {
   assets: Record<string, { name: string; bytes: number }>;
   /** The folder's comments.json, when it has one. */
   comments?: CommentsFile;
+  /** The folder's canvas.json, what a person put on the canvas, when it has one; null when the
+   *  file is there but not JSON, which the page leaves alone. */
+  content?: ContentFile | null;
   /** One of the examples the desktop app shows beside the project's own, read-only. */
   example?: true;
   /** The folder's documents, as `CanvasIndex.docs` are the project's: the ones an example's
@@ -51,6 +55,8 @@ export interface CanvasIndex {
   boards: IndexBoard[];
   /** The project's name, where one was set; absent from a build. */
   project?: string | null;
+  /** The name it is shown by, from its project.json, when that is not its folder's. */
+  title?: string;
   /**
    * The Markdown files at the project's root the server shows, for now its PRD.md: one tab
    * each, before its canvases. Absent from a build and at the server's root, which have no project.
@@ -59,6 +65,13 @@ export interface CanvasIndex {
 }
 
 let index: CanvasIndex | undefined;
+
+/** This page, to the server, so a save it hears about can be told from its own (canvasContent.ts). */
+export const PAGE_ID = crypto.randomUUID();
+/** The canvases whose canvas.json another window saved, which the page is reloading onto. Its own
+ *  save of one on the way out would put the older copy back over it, and reload that window in
+ *  turn; the others it saves as usual (canvasContent.ts). */
+export const fileWins = new Set<string>();
 
 /** Hands the page its index. The entries call `loadCanvasIndex`; the tests call this directly. */
 export function installCanvasIndex(next: CanvasIndex) {
@@ -77,12 +90,18 @@ export function canvasIndex(): CanvasIndex {
  * Between them, that is everything a layout.json change can move.
  */
 export const LAYOUT_CHANGED = "sp:layout";
+/**
+ * Fired on `window` with the boards rewritten underneath the page, `<slug>/<file>.html` each, once
+ * the index that lists them has been installed. Each shape showing one fetches it again
+ * (canvasLibrary.ts).
+ */
+export const BOARDS_CHANGED = "sp:boards";
 /** Fired on `window` when the project's documents have been rewritten. */
 export const DOCS_CHANGED = "sp:docs";
 
 /**
- * Fetches the index, and when a server wrote it, listens to that server: `reload` for a board
- * written or the set of boards changed, `layout` for one board's layout.json, handed over live
+ * Fetches the index, and when a server wrote it, listens to that server: `index` for a board
+ * written or the set of boards changed, `layout` for one board's layout.json, both handed over live
  * rather than reloaded because a reload to change one word would throw away the tldraw
  * viewport and the open panel. The status endpoint sends the layout it has just written rather
  * than leaving the page to hear about the write from the file watcher, which answers a settled
@@ -101,6 +120,22 @@ export async function loadCanvasIndex(live = true) {
   if (!live || !canvasIndex().served) return;
   const events = new EventSource(`${import.meta.env.BASE_URL}__sp/events`);
   events.addEventListener("reload", () => window.location.reload());
+  // A board added, removed or rewritten, taken in without a reload: the person may be drawing
+  // on the canvas while the agent writes. Laying the canvas out again adds and removes the
+  // boards' shapes and leaves the person's alone (App.tsx).
+  events.addEventListener("index", (event) => {
+    const { index: next, rewritten } = JSON.parse(event.data);
+    installCanvasIndex(next);
+    window.dispatchEvent(new CustomEvent<string[]>(BOARDS_CHANGED, { detail: rewritten }));
+    window.dispatchEvent(new Event(LAYOUT_CHANGED));
+  });
+  // A canvas saved by another window: the file wins on load, as for an edit made outside.
+  events.addEventListener("content", (event) => {
+    const { slug, by } = JSON.parse(event.data);
+    if (by === PAGE_ID) return;
+    fileWins.add(slug);
+    window.location.reload();
+  });
   events.addEventListener("docs", (event) => {
     canvasIndex().docs = JSON.parse(event.data);
     window.dispatchEvent(new Event(DOCS_CHANGED));

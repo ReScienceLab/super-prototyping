@@ -13,6 +13,7 @@ import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import path from "node:path";
+import { pipeline } from "node:stream/promises";
 import {
   CANVASES,
   DOCS,
@@ -51,9 +52,9 @@ export function sameOrigin(req: IncomingMessage) {
 
 /**
  * A canvas's folder: the project's own, else the example of that name. The project's own is what
- * the scan in boards.ts calls a canvas, a folder with a board in it, so a folder the project has
- * only begun under an example's name does not hide the example. A name that is in neither place
- * gets the project's path, and the routes answer it as they always did.
+ * the scan in boards.ts calls a canvas, a folder with a board or a layout.json in it, so a folder
+ * the project has only begun under an example's name does not hide the example. A name that is
+ * in neither place gets the project's path, and the routes answer it as they always did.
  */
 export function folderOf(
   canvasesDir: string,
@@ -61,20 +62,98 @@ export function folderOf(
   slug: string,
 ) {
   const own = path.join(canvasesDir, slug);
-  const hasBoard =
+  const isCanvas =
     fs.statSync(own, { throwIfNoEntry: false })?.isDirectory() &&
-    fs.readdirSync(own).some((f) => !f.startsWith(".") && f.endsWith(".html"));
+    fs
+      .readdirSync(own)
+      .some((f) => f === "layout.json" || (!f.startsWith(".") && f.endsWith(".html")));
   const example = path.join(examplesDir, slug);
-  return !hasBoard && fs.existsSync(example) ? example : own;
+  return !isCanvas && fs.existsSync(example) ? example : own;
 }
 
-/** The project's own settings, beside its canvases: for now only which cover it chose. */
+/**
+ * The project's own settings, beside its canvases: which cover it chose, and the name it is shown
+ * by when that is not its folder's. A project made without a name is an "Untitled" folder whose
+ * agent writes `name` here (AppShell.tsx), since renaming the folder would move every address the
+ * open tab and the chat hold.
+ */
 const PROJECT_JSON = "project.json";
 
+/**
+ * Shows a folder in the OS's file manager, selected in the folder it is in. Rejects when the
+ * folder was not shown: on a Linux without xdg-open, or with one that has no file manager to
+ * hand the folder around it to.
+ */
+export function reveal(dir: string) {
+  const [file, args] =
+    process.platform === "darwin"
+      ? ["open", ["-R", dir]]
+      : process.platform === "win32"
+        ? ["explorer", ["/select,", dir]]
+        : ["xdg-open", [path.dirname(dir)]];
+  return new Promise<void>((resolve, reject) => {
+    // Explorer exits 1 when it has shown the folder, so there only a missing command is a
+    // failure. `open` and `xdg-open` mean their exit codes, and a non-zero one from them is the
+    // only sign that nothing came up.
+    execFile(file, args, (error) =>
+      !error ||
+      (process.platform === "win32" &&
+        (error as NodeJS.ErrnoException).code !== "ENOENT")
+        ? resolve()
+        : reject(error),
+    );
+  });
+}
+
+/**
+ * Moves a folder to the Trash, or the Recycle Bin, where the user can put it back. macOS goes
+ * through Foundation rather than Finder, which would ask for permission to be scripted; Windows
+ * gets the path through the environment, so no quoting of it can go wrong.
+ */
+export function trash(dir: string) {
+  const [file, args] =
+    process.platform === "darwin"
+      ? [
+          "osascript",
+          [
+            "-l",
+            "JavaScript",
+            "-e",
+            'function run(argv) { ObjC.import("Foundation"); if (!$.NSFileManager.defaultManager' +
+              ".trashItemAtURLResultingItemURLError($.NSURL.fileURLWithPath(argv[0]), null, null))" +
+              ' throw new Error("it could not be moved to the Trash") }',
+            dir,
+          ],
+        ]
+      : process.platform === "win32"
+        ? [
+            "powershell",
+            [
+              "-NoProfile",
+              "-Command",
+              "Add-Type -AssemblyName Microsoft.VisualBasic; " +
+                "[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory(" +
+                "$env:SP_TRASH, 'OnlyErrorDialogs', 'SendToRecycleBin')",
+            ],
+          ]
+        : ["gio", ["trash", dir]];
+  return new Promise<void>((resolve, reject) => {
+    execFile(
+      file,
+      args,
+      { env: { ...process.env, SP_TRASH: dir } },
+      (error, _stdout, stderr) =>
+        error ? reject(new Error(stderr.trim() || error.message)) : resolve(),
+    );
+  });
+}
 
 /** A project's project.json, or nothing in it when it has none or it does not parse. */
 const readProjectJson = (dir: string) =>
-  (readJson(path.join(dir, PROJECT_JSON)) ?? {}) as { cover?: ChosenCover };
+  (readJson(path.join(dir, PROJECT_JSON)) ?? {}) as {
+    cover?: ChosenCover;
+    name?: string;
+  };
 
 export function createSpServer(options: {
   /**
@@ -130,12 +209,16 @@ export function createSpServer(options: {
   };
 
   // The open pages, for the watcher and the write endpoints to talk to. One event stream per
-  // page; `reload` is answered with a full reload, `layout` with the new layout.json for
+  // page; `reload` is answered with a full reload, `index` with the new board index and the
+  // boards rewritten, `layout` with the new layout.json for
   // one board and `docs` with the project's documents, handed over live because a reload to
   // change one word would throw away the tldraw viewport, the open panel and a document being
   // edited. canvasIndex.ts listens.
   const pages = new Set<ServerResponse>();
-  const broadcast = (event: "reload" | "layout" | "docs", data: unknown) => {
+  const broadcast = (
+    event: "reload" | "index" | "layout" | "docs" | "content",
+    data: unknown,
+  ) => {
     const frame = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const page of pages) page.write(frame);
   };
@@ -153,10 +236,9 @@ export function createSpServer(options: {
   const projectName = () =>
     [...projects()].find(([, dir]) => dir === projectDir)?.[0];
 
-  route("/__sp/index.json", (req, res, next) => {
-    if (req.method !== "GET") return next();
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "no-store");
+  // What `/__sp/index.json` answers, and what the watcher hands an open page when a board is
+  // added, removed or rewritten, so the page takes it in without a reload.
+  const pageIndex = () => {
     const how = {
       served: true,
       canvasesNamespace: canvasesNamespace(canvasesDir, repoRoot),
@@ -171,7 +253,15 @@ export function createSpServer(options: {
         .map((b) => ({ ...b, example: true })),
     ].sort((a, b) => (a.slug < b.slug ? -1 : 1));
     const docs = projectDir === undefined ? undefined : readDocs(projectDir);
-    res.end(JSON.stringify({ ...index, boards, project: projectName(), docs }));
+    const title = projectDir === undefined ? undefined : readProjectJson(projectDir).name;
+    return { ...index, boards, project: projectName(), title, docs };
+  };
+
+  route("/__sp/index.json", (req, res, next) => {
+    if (req.method !== "GET") return next();
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Cache-Control", "no-store");
+    res.end(JSON.stringify(pageIndex()));
   });
 
   // The projects the home page and the tab bar list: every one the server knows. Each is its
@@ -187,6 +277,7 @@ export function createSpServer(options: {
       JSON.stringify(
         [...projects()].map(([name, dir]) => {
           const { boards } = boardIndex(path.join(dir, CANVASES), how);
+          const json = readProjectJson(dir);
           const canvases = boards.map(
             ({ slug, html, updated, layout, icon }) => ({
               slug,
@@ -207,7 +298,8 @@ export function createSpServer(options: {
               ...DOCS.map((doc) => fs.statSync(path.join(dir, doc), { throwIfNoEntry: false })?.mtimeMs ?? 0),
             ),
             canvases,
-            cover: projectCover(boards, readProjectJson(dir).cover),
+            cover: projectCover(boards, json.cover),
+            title: json.name,
           };
         }),
       ),
@@ -260,8 +352,10 @@ export function createSpServer(options: {
           ? "image/png"
           : parts.length >= 4 && parts[1] === "assets" && parts[2] === "brand"
             ? IMAGE_MIME[path.extname(parts[parts.length - 1]).toLowerCase()]
-            : undefined;
-    // Those three shapes and nothing else. The names go into a filesystem path, so a
+            : parts.length === 3 && parts[1] === "files"
+              ? CANVAS_FILE_MIME[path.extname(parts[2]).toLowerCase()]
+              : undefined;
+    // Those four shapes and nothing else. The names go into a filesystem path, so a
     // request that could climb out of the boards directory is refused rather than
     // normalised — `..` is the obvious one, a separator inside a segment the platform one.
     if (
@@ -275,6 +369,24 @@ export function createSpServer(options: {
     }
     res.setHeader("Content-Type", type);
     res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Accept-Ranges", "bytes");
+    // A byte range, which is how a video seeks: a pasted one can be a gigabyte, and without it
+    // the player would have to read up to the point it was asked to jump to.
+    const size = fs.statSync(file).size;
+    const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? "");
+    if (range && (range[1] || range[2])) {
+      const start = range[1] ? Number(range[1]) : Math.max(0, size - Number(range[2]));
+      const end = range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+      if (start > end) {
+        res.setHeader("Content-Range", `bytes */${size}`);
+        return send(416, "range not satisfiable");
+      }
+      res.statusCode = 206;
+      res.setHeader("Content-Range", `bytes ${start}-${end}/${size}`);
+      res.setHeader("Content-Length", end - start + 1);
+      return fs.createReadStream(file, { start, end }).pipe(res);
+    }
+    res.setHeader("Content-Length", size);
     fs.createReadStream(file).pipe(res);
   });
 
@@ -299,6 +411,19 @@ export function createSpServer(options: {
     ".woff2": "font/woff2",
     ".woff": "font/woff",
     ".mp4": "video/mp4",
+    ".webm": "video/webm",
+    ".mov": "video/quicktime",
+  };
+  // What a canvas's files/ takes and serves: the pictures and videos tldraw pastes, and never a
+  // page, which from files/ would run in the canvas's own origin.
+  const CANVAS_FILE_MIME: Record<string, string> = {
+    ...IMAGE_MIME,
+    // What else tldraw pastes as an image (DEFAULT_SUPPORTED_IMAGE_TYPES).
+    ".apng": "image/apng",
+    ".avif": "image/avif",
+    ".mp4": FILE_MIME[".mp4"],
+    ".webm": FILE_MIME[".webm"],
+    ".mov": FILE_MIME[".mov"],
   };
   route("/file", (req, res, next) => {
     if (req.method !== "GET" || !projectDir) return next();
@@ -434,9 +559,24 @@ export function createSpServer(options: {
     });
   });
 
-  // The canvas's ground, from its Background menu and swatch, into its layout.json. Null takes
-  // the key out, which is the theme's own ground. Only the dev server can do this: a built
-  // canvas is static files on a host with no repo behind them.
+  // One top-level string key of a canvas's layout.json, edited in place (layoutEdit.ts) and
+  // handed to the page directly rather than left to the watcher, which answers a batch and not
+  // a keystroke. canvasIndex.ts listens. Only the dev server can do this: a built canvas is
+  // static files on a host with no repo behind them.
+  const setLayoutKey = (slug: string, key: string, value: string | null) => {
+    const layoutPath = path.join(canvasesDir, slug, "layout.json");
+    // layout.json is optional: a folder of boards alone gets one holding just this key.
+    const before = fs.existsSync(layoutPath)
+      ? fs.readFileSync(layoutPath, "utf8")
+      : "{}\n";
+    const after = withLayoutKey(before, key, value);
+    if (after === before) return;
+    fs.writeFileSync(layoutPath, after);
+    broadcast("layout", { slug, layout: JSON.parse(after) });
+  };
+
+  // The canvas's ground, from its Background menu and swatch (canvasGround.ts). Null takes the
+  // key out, which is the theme's own ground.
   route("/__sp/canvas-ground", (req, res, next) => {
     if (req.method !== "POST") return next();
     let body = "";
@@ -455,24 +595,74 @@ export function createSpServer(options: {
           return send(400, "bad colour");
         }
         if (isExample(slug)) return send(403, READ_ONLY);
-        const layoutPath = path.join(canvasesDir, slug, "layout.json");
-        // layout.json is optional: a folder of boards alone gets one holding just the ground.
-        const before = fs.existsSync(layoutPath)
-          ? fs.readFileSync(layoutPath, "utf8")
-          : "{}\n";
-        const after = withLayoutKey(before, "ground", ground);
-        if (after !== before) {
-          fs.writeFileSync(layoutPath, after);
-          // Hand the edited layout to the page directly rather than leaving it to hear about
-          // its own write from the watcher, which answers a batch and not a keystroke: a
-          // ground that lags a fifth of a second behind the click reads as one that did not
-          // take. canvasIndex.ts listens.
-          broadcast("layout", { slug, layout: JSON.parse(after) });
-        }
+        setLayoutKey(slug, "ground", ground);
         send(200, "ok");
       } catch (error) {
         send(500, String(error));
       }
+    });
+  });
+
+  // The name a canvas's tab shows, typed into the tab (CanvasStrip.tsx). Only layout.json's
+  // `name`: the folder keeps its slug, since the slug is the address every link to it holds.
+  route("/__sp/canvas-name", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      try {
+        const { slug, name } = JSON.parse(body || "{}");
+        if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
+        if (typeof name !== "string" || !name.trim()) return send(400, "empty name");
+        if (isExample(slug)) return send(403, READ_ONLY);
+        if (!fs.existsSync(path.join(canvasesDir, slug)))
+          return send(404, `no canvas folder named ${slug}`);
+        setLayoutKey(slug, "name", name.trim());
+        send(200, "ok");
+      } catch (error) {
+        send(500, String(error));
+      }
+    });
+  });
+
+  // A canvas tab's menu (CanvasStrip.tsx): its folder shown in the file manager, or moved to the
+  // Trash, where it can be put back, after the page has asked. Never an example's.
+  route("/__sp/canvas-folder", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      let parsed: { slug?: unknown; action?: unknown };
+      try {
+        parsed = JSON.parse(body || "{}");
+      } catch {
+        return send(400, "bad json");
+      }
+      const { slug, action } = parsed;
+      if (typeof slug !== "string" || !SAFE_NAME.test(slug))
+        return send(400, "bad canvas name");
+      const folder = path.join(canvasesDir, slug);
+      if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory())
+        return send(404, `no canvas folder named ${slug}`);
+      if (action === "reveal")
+        return reveal(folder).then(
+          () => send(204, ""),
+          () => send(501, "No file manager here could show that folder."),
+        );
+      if (action !== "delete") return send(400, "reveal or delete");
+      if (isExample(slug)) return send(403, READ_ONLY);
+      trash(folder).then(
+        () => send(204, ""),
+        (error: Error) => send(500, `“${slug}” is still there: ${error.message}`),
+      );
     });
   });
 
@@ -481,10 +671,9 @@ export function createSpServer(options: {
   // where the first board folder appears while the server is already up.
   fs.mkdirSync(canvasesDir, { recursive: true });
 
-  // A change to the set of boards, or to a board: the page reloads, and its next request
-  // for the index scans the directory again. Whoever asks for that request is the
-  // caller's business: the watcher reloads the open page, while the clone endpoint below
-  // leaves it to the navigation it answers with.
+  // The page reloads, and its next request for the index scans the directory again. The
+  // watcher asks for it only for a canvas.json written from outside; the clone endpoint
+  // below leaves it to the navigation it answers with.
   const rebuild = () => broadcast("reload", {});
 
   // Canvas comments, written back into the board folder so they travel with it in Git.
@@ -528,6 +717,93 @@ export function createSpServer(options: {
         send(500, String(error));
       }
     });
+  });
+
+  // What a person put on a canvas, as tldraw records (canvasContent.ts), into its folder as
+  // canvas.json, the way comments.json is written. The bytes are remembered so the watcher can
+  // tell this write from one made outside, which reloads the page onto the file.
+  const wroteContent = new Map<string, string>();
+  // The last write taken from each page for each canvas, by its number (canvasContent.ts).
+  const contentSeq = new Map<string, number>();
+  route("/__sp/canvas-content", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      try {
+        const { slug, file, by, seq } = JSON.parse(body || "{}");
+        if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
+        if (isExample(slug)) return send(403, READ_ONLY);
+        const folder = path.join(canvasesDir, slug);
+        if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) {
+          return send(404, `no canvas folder named ${slug}`);
+        }
+        // An older write from the same page, overtaken on the way here, is already superseded.
+        const from = `${by} ${slug}`;
+        if (seq <= (contentSeq.get(from) ?? 0)) return send(200, "ok");
+        contentSeq.set(from, seq);
+        const target = path.join(folder, "canvas.json");
+        // An emptied canvas keeps its file, with no records, unlike the last comment: no file is
+        // what a page that has never saved sees, and it keeps and writes back what the browser
+        // held, so everything deleted last would come back with the next window that loads.
+        const text = JSON.stringify(file, null, 2) + "\n";
+        wroteContent.set(target, text);
+        // Written beside it and renamed over it, so a write cut off leaves the last whole file,
+        // which is the one the next load takes. The watcher ignores the .part.
+        fs.writeFileSync(`${target}.part`, text);
+        fs.renameSync(`${target}.part`, target);
+        // Every other page on the project reloads onto it (canvasIndex.ts), since the watcher
+        // below takes this write for the saving page's own.
+        broadcast("content", { slug, by });
+        send(200, "ok");
+      } catch (error) {
+        send(500, String(error));
+      }
+    });
+  });
+
+  // A file pasted or dropped onto a canvas (the asset store, canvasContent.ts), into the
+  // folder's files/, under the asset's own id. Never overwritten: an id names one file.
+  route("/__sp/canvas-file", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    const send = (code: number, message: string) => {
+      res.statusCode = code;
+      res.end(message);
+    };
+    const params = new URL(req.url ?? "", "http://x").searchParams;
+    const slug = params.get("slug") ?? "";
+    const name = params.get("name") ?? "";
+    // Both land in a filesystem path, so they are checked before they are joined.
+    if (!SAFE_NAME.test(slug) || !SAFE_NAME.test(name))
+      return send(400, "bad file name");
+    if (!(path.extname(name).toLowerCase() in CANVAS_FILE_MIME))
+      return send(415, `not a kind of file the canvas serves: ${name}`);
+    if (isExample(slug)) return send(403, READ_ONLY);
+    const folder = path.join(canvasesDir, slug);
+    if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory())
+      return send(404, `no canvas folder named ${slug}`);
+    // Streamed to disk, not gathered in memory: a pasted video can be a gigabyte. Written beside
+    // its name and renamed once whole, so a paste cut off halfway leaves no file that looks done.
+    const target = path.join(folder, "files", name);
+    if (fs.existsSync(target)) {
+      req.resume();
+      return send(200, "ok");
+    }
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    const partial = `${target}.part`;
+    pipeline(req, fs.createWriteStream(partial))
+      .then(() => {
+        fs.renameSync(partial, target);
+        send(200, "ok");
+      })
+      .catch((error) => {
+        fs.rmSync(partial, { force: true });
+        send(500, String(error));
+      });
   });
 
   // The project's cover, from the canvas's right button: a board, an element on one, or a brand
@@ -667,6 +943,46 @@ export function createSpServer(options: {
     });
   });
 
+  // The strip's "+" (CanvasStrip.tsx): an empty canvas, a folder holding only a layout.json
+  // that names it "Untitled", which is what makes a folder with no boards a canvas
+  // (boards.ts). The first free of untitled, untitled-2, ….
+  route("/__sp/new-canvas", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    const send = (code: number, message: string) => {
+      res.statusCode = code;
+      res.end(message);
+    };
+    if (projectDir === undefined)
+      return send(409, "Open a project to make a canvas in.");
+    let slug = "untitled";
+    for (let n = 2; fs.existsSync(path.join(canvasesDir, slug)); n++)
+      slug = `untitled-${n}`;
+    // Last in the strip, which sorts by slug and then by `order` (cover.ts, inStripOrder): one
+    // past the highest the project has, or "untitled" would land before every canvas after it
+    // in the alphabet.
+    const order =
+      Math.max(
+        0,
+        ...list(canvasesDir).map(
+          (had) =>
+            (readJson(path.join(canvasesDir, had, "layout.json")) as
+              | { order?: number }
+              | undefined)?.order ?? 0,
+        ),
+      ) + 1;
+    fs.mkdirSync(path.join(canvasesDir, slug));
+    fs.writeFileSync(
+      path.join(canvasesDir, slug, "layout.json"),
+      JSON.stringify({ name: "Untitled", order }, null, 2) + "\n",
+    );
+    // The set of canvases changed, which only a reload shows, and the page that asked reloads
+    // itself onto the new one. Taken off the watcher, whose reload could land before the page
+    // had read the answer and so on the canvas it was on.
+    signature = boardSetSignature(canvasesDir, list);
+    res.setHeader("content-type", "application/json");
+    send(200, JSON.stringify({ slug }));
+  });
+
   const list = (dir: string) => {
     try {
       return fs.readdirSync(dir);
@@ -675,40 +991,74 @@ export function createSpServer(options: {
     }
   };
   let signature = boardSetSignature(canvasesDir, list);
+  // What each board held when last seen, by `<slug>/<file>.html`. A generator writes every
+  // board on each run, and only the ones whose bytes changed are news to the page, which rings
+  // them as updated (App.tsx). A board seen for the first time is new, not updated, and the
+  // index says so on its own.
+  const boardKey = (file: string) =>
+    path.relative(canvasesDir, file).split(path.sep).join("/").normalize("NFC");
+  const boardHash = (file: string) =>
+    createHash("sha1").update(fs.readFileSync(file)).digest("hex");
+  const boardHashes = new Map<string, string>();
+  for (const slug of list(canvasesDir))
+    for (const name of list(path.join(canvasesDir, slug)))
+      if (name.endsWith(".html")) {
+        const file = path.join(canvasesDir, slug, name);
+        boardHashes.set(boardKey(file), boardHash(file));
+      }
 
   /**
    * One settled batch of writes, answered once.
    *
-   * The set of boards first, because a board added, removed or renamed makes the generated
-   * index wrong about which boards exist, and a reload is the only thing that fixes that.
-   * Otherwise the batch is read file by file, and a board is reloaded while a layout is
-   * handed over live — the distinction the canvas has always drawn, now drawn for a write
-   * from anywhere rather than only for one the endpoints made themselves.
+   * Boards are handed over live, never with a reload: a person may be drawing on the canvas
+   * while the agent writes, and a reload throws away the stroke in progress, the text being
+   * typed and the last half second of edits canvas.json has not saved yet. A board added,
+   * removed or rewritten, or an image under `assets/`, sends the page the whole index again,
+   * with the boards to fetch afresh; the page lays itself out from it (canvasIndex.ts). What
+   * only a reload shows is canvas.json written from outside, whose file wins on load.
    */
   const settle = (files: string[]) => {
     const now = boardSetSignature(canvasesDir, list);
-    if (now !== signature) {
-      signature = now;
-      rebuild();
-      return;
-    }
+    let fresh = now !== signature;
+    signature = now;
     let reload = false;
+    /** `<slug>/<file>.html` of each board whose content changed, for the page to fetch again. */
+    const rewritten: string[] = [];
     const layouts = new Set<string>();
     for (const file of files) {
       switch (boardChangeKind(canvasesDir, file)) {
-        case "board":
-          // A reload rather than a live update: the page keeps every board it has fetched in
-          // a Map (canvasLibrary.ts). The tldraw document is in IndexedDB and survives the
-          // reload; the viewport is what it costs, which is why only a board edit spends it.
-          reload = true;
+        case "board": {
+          const key = boardKey(file);
+          const was = boardHashes.get(key);
+          if (!fs.existsSync(file)) {
+            boardHashes.delete(key);
+            break;
+          }
+          const now = boardHash(file);
+          boardHashes.set(key, now);
+          if (now === was) break;
+          if (was) rewritten.push(key);
+          fresh = true;
           break;
+        }
         case "assets":
           // An image edited in place keeps its name and changes its hash, so the index that
-          // names a board's images by content is stale until the reload fetches it again.
-          reload = true;
+          // names a board's images by content is stale until it is sent again.
+          fresh = true;
           break;
         case "layout":
           layouts.add(file);
+          break;
+        case "content":
+          // Written by the endpoint above on every save, which the page already holds. Anything
+          // else, such as a pull, a hand edit or another window, reloads, and the file wins on load.
+          if (
+            (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "") !==
+            wroteContent.get(file)
+          )
+            reload = true;
+          // Heard once: the same bytes put back later, by a checkout say, are someone else's.
+          wroteContent.delete(file);
           break;
         case "comments":
           // No reload: comments.json is written by the endpoint above on every post, and the
@@ -728,11 +1078,12 @@ export function createSpServer(options: {
         // the layout it has until then.
       }
     }
-    if (reload) rebuild();
+    if (reload) return rebuild();
+    if (fresh) broadcast("index", { index: pageIndex(), rewritten });
   };
 
   // A generator writes a folder of boards over a second or two, and a save can arrive as
-  // more than one event. Batched on the trailing edge, so a run answers with one reload
+  // more than one event. Batched on the trailing edge, so a run answers with one index
   // once it is done rather than one per file while it is still writing.
   const queued = new Set<string>();
   let batch: ReturnType<typeof setTimeout> | undefined;
@@ -748,7 +1099,7 @@ export function createSpServer(options: {
         console.error(`[canvases] ${error}`);
       }
     }, 120);
-    // Never a reason to hold the process open: a pending reload for a server on its way down
+    // Never a reason to hold the process open: a pending broadcast for a server on its way down
     // has nobody left to send it to.
     batch.unref?.();
   };
@@ -783,15 +1134,22 @@ export function createSpServer(options: {
   // The documents are the project's, beside the boards directory rather than in it, so they have
   // a watch of their own: the project folder, not recursively, for those names, batched the way
   // a board's writes are. One made or deleted is a reload, which brings its tab in or out; one
-  // rewritten is sent to the page with its text. Skipped at the root, which has no project.
+  // rewritten is sent to the page with its text. project.json is watched with them for its name,
+  // which the agent writes into a project made without one (AppShell.tsx): a new one is a reload,
+  // which brings it to the tab. Skipped at the root, which has no project.
   let docWatcher: fs.FSWatcher | undefined;
   let docBatch: ReturnType<typeof setTimeout> | undefined;
   if (projectDir !== undefined) {
     let names = readDocs(projectDir).map((doc) => doc.name).join();
+    let title = readProjectJson(projectDir).name;
     docWatcher = fs.watch(projectDir, (_event, name) => {
-      if (!name || !DOCS.includes(name.toString())) return;
+      if (!name || ![...DOCS, PROJECT_JSON].includes(name.toString())) return;
       clearTimeout(docBatch);
       docBatch = setTimeout(() => {
+        if (readProjectJson(projectDir).name !== title) {
+          title = readProjectJson(projectDir).name;
+          return rebuild();
+        }
         const docs = readDocs(projectDir);
         const now = docs.map((doc) => doc.name).join();
         if (now === names) return broadcast("docs", docs);

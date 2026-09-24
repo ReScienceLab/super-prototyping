@@ -39,7 +39,10 @@ export type ProjectTab =
       kind: "project";
       /** The address its pages are under, from the root: `/p/<name>/`. */
       url: string;
+      /** Its folder's, which the server knows it by. */
       name: string;
+      /** The name it is shown by, when its project.json has one (server/sp.ts). */
+      title?: string;
       icon: string | null;
       /** What it had in front when it was left, which is where coming back to it lands. */
       view: CanvasTab;
@@ -74,6 +77,8 @@ export interface Project {
   canvases: ProjectCanvas[];
   /** What its card shows (cover.ts); none before it has a canvas. */
   cover?: Cover;
+  /** The name it is shown by, when its project.json has one. */
+  title?: string;
 }
 
 /**
@@ -82,7 +87,7 @@ export interface Project {
  * opens on HOME_TAB, its own view of Start here's page.
  */
 export function tabOfProject(
-  p: Pick<Project, "name" | "url"> & {
+  p: Pick<Project, "name" | "url" | "title"> & {
     canvases: Pick<ProjectCanvas, "slug" | "updated" | "icon">[];
   },
   open: ProjectTab[],
@@ -96,6 +101,7 @@ export function tabOfProject(
     kind: "project",
     url,
     name: p.name,
+    title: p.title,
     icon: iconed ? `${url}board/${encodeURI(iconed.slug)}/icon.png` : null,
     view: recent[0] ? { kind: "canvas", slug: recent[0].slug } : HOME_TAB,
   };
@@ -124,7 +130,7 @@ export function isExample(slug: string) {
  *  here is never one, flagged as an example or not, since the project's view of it is HOME_TAB. */
 export function ownCanvases() {
   return readCanvasLibrary()
-    .map((files) => files[0].pageSlug)
+    .map((c) => c.slug)
     .filter((slug) => slug !== WELCOME_PAGE_SLUG && !isExample(slug));
 }
 
@@ -167,6 +173,7 @@ export function tabFor(view: CanvasTab): ProjectTab {
   const here = {
     // Unnamed only where no project was set: the dev server, and the hosted canvas.
     name: canvasIndex().project ?? "Canvases",
+    title: canvasIndex().title,
     url: projectUrl(),
     canvases: canvasIndex().boards.filter((b) => !b.example),
   };
@@ -186,7 +193,7 @@ export function tabUrl(tab: ProjectTab) {
 
 /** The chip's label: a project's name, an example's page name. */
 export function projectTabLabel(tab: ProjectTab) {
-  return tab.kind === "project" ? tab.name : shortName(tab.slug);
+  return tab.kind === "project" ? (tab.title ?? tab.name) : shortName(tab.slug);
 }
 
 export function projectTabIcon(tab: ProjectTab) {
@@ -208,7 +215,7 @@ export function tabExists(tab: CanvasTab) {
   if (tab.kind === "doc") return readDoc(tab.slug) !== undefined;
   if (tab.kind === "brand")
     return tab.slug === "" || hasBrandMaterial(tab.slug);
-  return readCanvasLibrary().some((files) => files[0].pageSlug === pageOf(tab));
+  return readCanvasLibrary().some((c) => c.slug === pageOf(tab));
 }
 
 /**
