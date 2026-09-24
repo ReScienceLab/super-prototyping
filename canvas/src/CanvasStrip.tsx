@@ -18,8 +18,8 @@ import { FileText, LogoFigma, Plus } from "./geistIcons";
  *
  * After them, the "+" makes another, empty and called Untitled, and reloads onto it with its
  * name up for typing in its tab; double-clicking a tab types a new one later. The name is
- * layout.json's, and the folder keeps its slug. An example is the app's and takes none, and a
- * build has no server to make one.
+ * layout.json's, and the folder keeps its slug. An example is the app's, so it has no "+" and
+ * no renaming, and a build has no server to make a canvas.
  *
  * At the far end are the controls of the tab in front: a canvas's ground colour, then Export to
  * Figma, the one place a canvas goes from here; a document's switch between reading and editing.

@@ -232,7 +232,7 @@ export function AppShell() {
     // What they said about the idea, in their words, for the agent to start from rather than ask.
     const idea =
       start.mode === "build" && start.idea
-        ? ` Here is the idea in my own words, as it came to mind — start from it, and ask about what it leaves open rather than what it already says:\n\n${start.idea.replace(/^/gm, "> ")}`
+        ? ` Here is the idea in my own words, as it came to mind. Start from it, and ask about what it leaves open rather than what it already says:\n\n${start.idea.replace(/^/gm, "> ")}`
         : "";
     starting.current = {
       url,

@@ -45,7 +45,7 @@ const FILES_SRC = new RegExp(
   `^${import.meta.env.BASE_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}board/([^/]+)/files/`,
 );
 
-/** Slug -> page for the project's own canvases, the ones whose folder a person's content goes in.
+/** The page of each of the project's own canvases, by slug: the ones whose folder a person's content goes in.
  *  None on the hosted build, which has no folder to write to. */
 function projectPages(editor: Editor) {
   const pages = new Map<string, TLPageId>();

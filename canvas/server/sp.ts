@@ -1005,7 +1005,7 @@ export function createSpServer(options: {
           break;
         case "content":
           // Written by the endpoint above on every save, which the page already holds. Anything
-          // else — a pull, a hand edit, another window — reloads, and the file wins on load.
+          // else, such as a pull, a hand edit or another window, reloads, and the file wins on load.
           if (
             (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "") !==
             wroteContent.get(file)
