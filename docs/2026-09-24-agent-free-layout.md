@@ -100,6 +100,20 @@ Images and video keep their proportions and a board resizes freely, Shift keepin
 proportions, as tldraw does by default. Resizing an image freely would need a gesture of its own:
 tldraw reads `isAspectRatioLocked` once when a drag starts, and Shift and Alt are taken.
 
+## Orange for what cannot move
+
+With the agent's shapes movable and the layout's not, a selection says which it is: a shape of
+the layout's, still locked, is outlined orange (`--ds-amber-900`), and anything that moves keeps
+tldraw's blue. The selection box goes orange only when the whole selection is the layout's, since
+a mixed one still moves the rest. Hovering outlines nothing orange: boards cover most of the
+canvas.
+
+tldraw has one selection colour, from its theme, and draws no outline for a locked shape, so
+`lockedIndicator.ts` subclasses the two overlays that draw a selection. The outline is drawn on
+top of tldraw's own. The box is tldraw's, drawn through a context whose every stroke colour comes
+out orange, because the helpers that set it are private. Both lean on how tldraw 5 draws, so
+recheck them on an upgrade; `lockedIndicator.test.ts` fails if either stops drawing orange.
+
 ## A board in a shot
 
 `CanvasFileShapeUtil` had no `toSvg`, so a board in `editor.toImage` came out blank: it is an

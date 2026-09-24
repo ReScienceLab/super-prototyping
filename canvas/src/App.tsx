@@ -96,6 +96,7 @@ import {
   refetchBoards,
 } from "./canvasLibrary";
 import { BOARDS_CHANGED, canvasIndex } from "./canvasIndex";
+import { lockedOverlayUtils } from "./lockedIndicator";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasLinkPaste,
@@ -1610,6 +1611,7 @@ export default function App() {
                 components={canvasChromeComponents}
                 store={store}
                 shapeUtils={shapeUtils}
+                overlayUtils={lockedOverlayUtils}
                 tools={canvasCommentTools}
                 overrides={canvasUiOverrides}
                 // Every board and picture is locked (below, and the library's own placement) so a
