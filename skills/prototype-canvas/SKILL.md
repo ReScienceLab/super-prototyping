@@ -165,10 +165,6 @@ what you create (`meta.by: "agent"`) and locks it. `update` and `delete`
 refuse anything without that stamp, and there is no undo, since undo would
 reach the person's own edits.
 
-The person can keep drawing while you work: a rewritten board swaps in under
-them without a reload. So before adding a row to `layout.json`, read
-`canvas.json` and place the row clear of their shapes, never on top of them.
-
 Never let bridge commands inject arbitrary JavaScript, never load untrusted
 HTML into a board, and never add `allow-same-origin` to the artboard iframe.
 

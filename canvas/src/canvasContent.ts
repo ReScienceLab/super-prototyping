@@ -202,7 +202,7 @@ export function installCanvasContent(editor: Editor) {
     clearTimeout(pending);
     pending = undefined;
     for (const [slug, pageId] of projectPages(editor)) {
-      if (broken.has(slug)) continue;
+      if (broken.has(slug) || fileWins.has(slug)) continue;
       if (!seen.has(slug)) {
         editor.store.mergeRemoteChanges(() => take(slug, pageId));
         continue;
@@ -242,7 +242,6 @@ export function installCanvasContent(editor: Editor) {
   // A save still waiting, or sent and not answered, which leaving the page may cancel: sent
   // again, numbered after the one it repeats.
   const leave = () => {
-    if (fileWins) return;
     for (const slug of unanswered) written.delete(slug);
     flush(true);
   };
