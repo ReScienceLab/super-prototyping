@@ -480,8 +480,8 @@ function buildGeneric(
   return partial
 }
 
-/** A board always gets a fresh id. Any other shape may keep the caller's, so a later arrow can
- *  name it, but never one in the library's id space, which is what marks layout content. */
+/** A shape may keep the caller's id, so a later arrow can name it, but never one in the library's
+ *  id space, which is what marks layout content. */
 async function buildCreate(
   editor: Editor,
   pageId: TLPageId,
@@ -494,7 +494,7 @@ async function buildCreate(
   const x = num(raw.x, 'x')
   const y = num(raw.y, 'y')
   let id: TLShapeId
-  if (type === CANVAS_FILE_SHAPE_TYPE || raw.id === undefined) {
+  if (raw.id === undefined) {
     id = createShapeId()
   } else {
     if (typeof raw.id !== 'string' || !raw.id.startsWith('shape:'))

@@ -132,7 +132,7 @@ describe('create', () => {
     expect(editor.getPageShapeIds(pageId).size).toBe(before)
   })
 
-  it('places a board from the library at a fresh id, and says the layout changed', async () => {
+  it('places a board from the library, not at its layout id, and says the layout changed', async () => {
     let changed = false
     const onChange = () => (changed = true)
     window.addEventListener(LAYOUT_CHANGED, onChange)
@@ -142,6 +142,9 @@ describe('create', () => {
     expect((editor.getShape(id)!.props as { path: string }).path).toBe(entry.path)
     expect(tl.createShapeId(`canvas-file:${entry.path}`)).not.toBe(id)
     expect(changed).toBe(true)
+    expect(await create({ id: 'shape:summary', type: 'canvas-file', x: 0, y: 1400, board })).toEqual(
+      ['shape:summary'],
+    )
     expect(
       await run('create', { shapes: [{ type: 'canvas-file', x: 0, y: 0, board: 'nope.html' }] }),
     ).toMatchObject({ error: 'bad_command' })
