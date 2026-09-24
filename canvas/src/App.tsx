@@ -82,6 +82,7 @@ import {
   type CanvasLibraryFile,
   LAYOUT_CHANGED,
   BRAND_THUMB_EDGE,
+  boardSize,
   brandThumbForSrc,
   canvasImageKey,
   canvasImageRef,
@@ -98,9 +99,13 @@ import { BOARDS_CHANGED, canvasIndex } from "./canvasIndex";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasLinkPaste,
+  agentBoardPaths,
+  boardShapeId,
   canvasAssetStore,
+  contentTaken,
   installCanvasContent,
   personsShape,
+  projectPages,
 } from "./canvasContent";
 import {
   CanvasChromeContext,
@@ -231,20 +236,6 @@ try {
 }
 
 /** The onboarding folder. Sorts first, and the bare URL opens it. */
-
-/**
- * The artboard box, which is 478 x 980 unless the folder's layout.json declares its own `w`/`h`
- * for that file, as 00-welcome does for its landscape strip.
- */
-function boardSize(file: CanvasLibraryFile) {
-  for (const row of readCanvasLayout(file.pageSlug)?.rows ?? []) {
-    for (const entry of row.files ?? []) {
-      if (typeof entry === "string" || entry.file !== file.fileName) continue;
-      if (entry.w && entry.h) return { w: entry.w, h: entry.h };
-    }
-  }
-  return CANVAS_FILE_DEFAULT_SIZE;
-}
 
 const LIBRARY_COLUMNS = 3;
 const LIBRARY_GAP = 80;
@@ -945,7 +936,24 @@ function initializeCanvasLibrary(editor: Editor) {
           );
         }
 
-        const leftover = files.filter((file) => !inRows.has(file.path));
+        // A board the agent already placed on this page (a random, non-library shape id) must
+        // not show twice. Read the live store once the slug's canvas.json has been taken; before
+        // that (this pass runs first) its records are only in the index.
+        const agentPaths = contentTaken(pageSlug)
+          ? agentBoardPaths(
+              [...editor.getPageShapeIds(page.id)].map((id) =>
+                editor.getShape(id)!,
+              ),
+            )
+          : agentBoardPaths(
+              (
+                canvasIndex().boards.find((b) => b.slug === pageSlug)?.content
+                  ?.records ?? []
+              ).filter((r): r is TLShape => r.typeName === "shape"),
+            );
+        const leftover = files.filter(
+          (file) => !inRows.has(file.path) && !agentPaths.has(file.path),
+        );
         placeShapes(
           editor,
           placed,
@@ -1481,7 +1489,15 @@ export default function App() {
             .flatMap((c) => c.files)
             .find((c) => c.pageSlug === tab.slug && c.fileName === name);
           return asCanvasTarget(
-            editor.getShape(file ? fileShapeId(file) : imageShapeId(tab.slug, name)),
+            editor.getShape(
+              file
+                ? boardShapeId(
+                    editor,
+                    file.path,
+                    projectPages(editor).get(tab.slug),
+                  )
+                : imageShapeId(tab.slug, name),
+            ),
           );
         });
         if (!targets.every(Boolean)) return false;
@@ -1522,7 +1538,13 @@ export default function App() {
       () => opened.current,
       {
         board: (file) => {
-          zoomTo.current = file ? fileShapeId(file) : null;
+          zoomTo.current = file
+            ? boardShapeId(
+                editor,
+                file.path,
+                projectPages(editor).get(file.pageSlug),
+              )
+            : null;
           show(file, false);
         },
         image: (pick) => {

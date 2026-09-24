@@ -1,8 +1,7 @@
 /// <reference types="vite/client" />
 
 interface SnapCanvasApi {
-  describe(): unknown
-  dispatch(command: unknown): unknown
+  dispatch(slug: string, command: unknown): Promise<unknown>
 }
 
 interface Window {

@@ -1,186 +1,825 @@
-import type { Editor, TLShapeId, TLShapePartial } from 'tldraw'
+import {
+  AssetRecordType,
+  Box,
+  MediaHelpers,
+  T,
+  createShapeId,
+  getArrowBindings,
+  renderPlaintextFromRichText,
+  toRichText,
+  type Editor,
+  type TLArrowShape,
+  type TLAsset,
+  type TLPageId,
+  type TLRichText,
+  type TLShape,
+  type TLShapeId,
+  type TLShapePartial,
+} from 'tldraw'
+import { personsShapeName, projectPages, readyForAgentWrite } from './canvasContent'
+import {
+  boardFileUrl,
+  boardSize,
+  canvasBoardRef,
+  isLibraryShapeId,
+  readCanvasLibrary,
+} from './canvasLibrary'
+import { CANVAS_FILE_SHAPE_TYPE } from './CanvasFileShapeUtil'
+import { LAYOUT_CHANGED } from './canvasIndex'
+import { SAFE_NAME } from './layoutEdit'
 
 const MAX_SHAPES_PER_COMMAND = 100
-const ALLOWED_SHAPE_TYPES = new Set([
+const CREATE_TYPES = new Set([
   'arrow',
-  'draw',
   'frame',
   'geo',
-  'highlight',
-  'html-mockup',
-  'html-preview',
   'line',
-  'mark',
   'note',
   'text',
+  'image',
+  'video',
+  CANVAS_FILE_SHAPE_TYPE,
 ])
+const TEXT_RICH_TYPES = new Set(['text', 'note', 'geo', 'arrow'])
 
-type CanvasCommand =
-  | { op: 'get' }
-  | { op: 'create'; shapes: TLShapePartial[] }
-  | { op: 'update'; shapes: TLShapePartial[] }
-  | { op: 'delete'; ids: TLShapeId[] }
-  | { op: 'select'; ids: TLShapeId[] }
-  | { op: 'zoom'; ids?: TLShapeId[] }
+// A loose shape for the partials this file builds: fighting TLShapePartial's per-type
+// discriminated union for a value assembled from a caller's JSON buys nothing, so this is cast
+// to it once at each editor.createShapes/updateShapes call instead.
+interface RawPartial {
+  id: TLShapeId
+  type: string
+  parentId?: TLPageId | TLShapeId
+  x?: number
+  y?: number
+  rotation?: number
+  opacity?: number
+  isLocked?: boolean
+  props?: Record<string, unknown>
+  meta?: Record<string, unknown>
+}
+
+class BridgeError extends Error {
+  code: string
+  data?: Record<string, unknown>
+  constructor(code: string, message: string, data?: Record<string, unknown>) {
+    super(message)
+    this.code = code
+    this.data = data
+  }
+}
+
+/** Typed to return `never` so `if (bad) fail(...)` reads like a `throw` to the type checker,
+ *  and the code after it can assume the good case. */
+function fail(code: string, message: string, data?: Record<string, unknown>): never {
+  throw new BridgeError(code, message, data)
+}
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
+
+function num(value: unknown, field: string): number {
+  if (typeof value !== 'number' || !Number.isFinite(value))
+    fail('bad_command', `${field} must be a finite number`)
+  return value
+}
+
+function oneOf<V extends string>(value: unknown, allowed: readonly V[], field: string): V {
+  if (typeof value !== 'string' || !(allowed as readonly string[]).includes(value))
+    fail('bad_command', `${field} must be one of ${allowed.join(', ')}`)
+  return value as V
+}
 
 function parseIds(value: unknown): TLShapeId[] {
   if (
     !Array.isArray(value) ||
     value.length > MAX_SHAPES_PER_COMMAND ||
     !value.every((id) => typeof id === 'string' && id.startsWith('shape:'))
-  ) {
-    throw new Error(`ids must contain at most ${MAX_SHAPES_PER_COMMAND} tldraw shape IDs`)
-  }
-  return value as TLShapeId[]
+  )
+    fail('bad_command', `ids must contain at most ${MAX_SHAPES_PER_COMMAND} tldraw shape IDs`)
+  return value
 }
 
-function parseShapes(value: unknown, requireId: boolean): TLShapePartial[] {
-  if (!Array.isArray(value) || value.length === 0 || value.length > MAX_SHAPES_PER_COMMAND) {
-    throw new Error(`shapes must contain 1-${MAX_SHAPES_PER_COMMAND} entries`)
-  }
-
-  for (const shape of value) {
-    if (!isRecord(shape) || typeof shape.type !== 'string' || !ALLOWED_SHAPE_TYPES.has(shape.type)) {
-      throw new Error('shape type is not allowed')
-    }
-    if (requireId && (typeof shape.id !== 'string' || !shape.id.startsWith('shape:'))) {
-      throw new Error('updated shapes require a tldraw shape ID')
-    }
-    for (const key of ['x', 'y', 'rotation', 'opacity']) {
-      if (shape[key] !== undefined && (typeof shape[key] !== 'number' || !Number.isFinite(shape[key]))) {
-        throw new Error(`${key} must be a finite number`)
-      }
-    }
-  }
-
-  return value as TLShapePartial[]
+/** Drops the fields only the bridge itself may set, from a caller-supplied meta. */
+function stripMeta(meta: unknown): Record<string, unknown> {
+  if (!isRecord(meta)) return {}
+  const { by: _by, placed: _placed, ...rest } = meta
+  return rest
 }
 
-export function parseCanvasCommand(value: unknown): CanvasCommand {
-  if (!isRecord(value) || typeof value.op !== 'string') {
-    throw new Error('command must be an object with an op')
-  }
+/** The `text:` sugar create/update accept: rich text for the types that have it, a plain name
+ *  for a frame. */
+function textProps(type: string, text: string): Record<string, unknown> {
+  return type === 'frame' ? { name: text } : { richText: toRichText(text) }
+}
 
-  switch (value.op) {
-    case 'get':
-      return { op: value.op }
-    case 'create':
-      return { op: value.op, shapes: parseShapes(value.shapes, false) }
-    case 'update':
-      return { op: value.op, shapes: parseShapes(value.shapes, true) }
-    case 'delete':
-    case 'select':
-      return { op: value.op, ids: parseIds(value.ids) }
-    case 'zoom':
-      return { op: value.op, ids: value.ids === undefined ? undefined : parseIds(value.ids) }
-    default:
-      throw new Error(`unsupported canvas op: ${value.op}`)
+const MIME_BY_EXT: Record<string, string> = {
+  png: 'image/png',
+  apng: 'image/apng',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  avif: 'image/avif',
+  svg: 'image/svg+xml',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mov: 'video/quicktime',
+}
+
+function guessMime(name: string): string {
+  const ext = name.split('.').pop()?.toLowerCase()
+  const mime = ext && MIME_BY_EXT[ext]
+  if (!mime) fail('bad_command', `${name} has a file extension the bridge does not recognize`)
+  return mime
+}
+
+interface Bounds {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+function bounds(editor: Editor, shape: TLShape | TLShapeId): Bounds {
+  const box = editor.getShapePageBounds(shape)!
+  return { x: Math.round(box.x), y: Math.round(box.y), w: Math.round(box.w), h: Math.round(box.h) }
+}
+
+function closeEnough(a: Bounds, b: Bounds): boolean {
+  return (
+    Math.abs(a.x - b.x) <= 1 &&
+    Math.abs(a.y - b.y) <= 1 &&
+    Math.abs(a.w - b.w) <= 1 &&
+    Math.abs(a.h - b.h) <= 1
+  )
+}
+
+/** Whether a shape's page bounds still match where the agent last placed it: a shape it has
+ *  never placed (no `placed` yet) counts as untouched, the safe default. */
+function untouched(editor: Editor, shape: TLShape): boolean {
+  const placed = (shape.meta as { placed?: Bounds }).placed
+  return !placed || closeEnough(bounds(editor, shape), placed)
+}
+
+function isFullyBoundArrow(editor: Editor, shape: TLShape): boolean {
+  if (shape.type !== 'arrow') return false
+  const b = getArrowBindings(editor, shape as TLArrowShape)
+  return !!b.start && !!b.end
+}
+
+/** `x`/`y`/`rotation`/`props.w`/`props.h` are the fields the optimistic check guards; text and
+ *  style changes are not. */
+function touchesGeometry(partial: RawPartial): boolean {
+  return (
+    partial.x !== undefined ||
+    partial.y !== undefined ||
+    partial.rotation !== undefined ||
+    (!!partial.props && ('w' in partial.props || 'h' in partial.props))
+  )
+}
+
+/** Whether an agent shape has a descendant the agent did not put there — the person dragged
+ *  their own shape into it — which moving or deleting it would disturb. */
+function holdsPersonsShapes(editor: Editor, id: TLShapeId): boolean {
+  for (const descendantId of editor.getShapeAndDescendantIds([id])) {
+    if (descendantId === id) continue
+    const shape = editor.getShape(descendantId)
+    if (shape && shape.meta.by !== 'agent') return true
+  }
+  return false
+}
+
+/** `ids` and every agent-owned shape nested under them: what a maintenance pass over `ids`
+ *  (create, update, a layout op, framing) refreshes `meta.placed` for. */
+function agentDescendantsAndSelf(editor: Editor, ids: TLShapeId[]): TLShapeId[] {
+  return [...editor.getShapeAndDescendantIds(ids)].filter(
+    (id) => editor.getShape(id)?.meta.by === 'agent',
+  )
+}
+
+/** Refreshes `meta.placed` to the current page bounds for every agent shape in `ids`. The one
+ *  place that stamps it, so create's initial stamp and every op's maintenance pass agree. Every
+ *  caller already narrows `ids` to shapes it just confirmed exist and are agent-owned (created
+ *  this call, or filtered through `agentDescendantsAndSelf`), so there is nothing left to guard. */
+function place(editor: Editor, ids: TLShapeId[]) {
+  const partials = ids.map((id) => {
+    const shape = editor.getShape(id)!
+    return { id: shape.id, type: shape.type, meta: { ...shape.meta, placed: bounds(editor, shape) } }
+  })
+  editor.updateShapes(partials as unknown as TLShapePartial[])
+}
+
+function writeGuard(slug: string, pageId: TLPageId) {
+  if (!readyForAgentWrite(slug, pageId))
+    fail(
+      'not_writable',
+      `${slug}'s canvas.json is not ready for the bridge to write: it did not parse, or another window's save is about to load onto it`,
+    )
+}
+
+function onPage(editor: Editor, pageId: TLPageId, id: TLShapeId): TLShape {
+  const shape = editor.getShape(id)
+  if (!shape || editor.getAncestorPageId(shape) !== pageId)
+    fail('bad_command', `${id} does not exist on this canvas`)
+  return shape
+}
+
+function guardOwnership(editor: Editor, ids: TLShapeId[]) {
+  for (const id of ids) {
+    const shape = editor.getShape(id)
+    if (shape?.meta.by !== 'agent')
+      fail('not_agents', `${id} is not the agent's to change; add a shape beside it instead`, { id })
+    // `editor.run(..., { ignoreShapeLock: true })` is what lets every op below write an agent
+    // shape at all; without this check that same flag would let it write straight through a lock
+    // the person set on their own initiative too.
+    if (shape.isLocked) fail('locked', `${id} is locked; ask the person to unlock it first`, { id })
   }
 }
 
-function getCanvasState(editor: Editor) {
+function guardNotHoldingPersonsShapes(editor: Editor, ids: TLShapeId[]) {
+  for (const id of ids)
+    if (holdsPersonsShapes(editor, id))
+      fail('holds_persons_shapes', `${id} holds a shape of the person's; ask them to move it first`, {
+        id,
+      })
+}
+
+/** The "person's move wins" check: every id in `ids` must still be where the agent last
+ *  placed it, unless `force`. A fully-bound arrow is exempt — its bounds follow its two ends. */
+function guardGeometry(editor: Editor, ids: TLShapeId[], force: boolean) {
+  if (force) return
+  const bad = ids
+    .map((id) => editor.getShape(id)!)
+    .filter((shape) => !isFullyBoundArrow(editor, shape) && !untouched(editor, shape))
+  if (bad.length)
+    fail('moved_by_person', 'the person moved this since the agent last placed it', {
+      shapes: bad.map((shape) => ({ id: shape.id, now: bounds(editor, shape) })),
+    })
+}
+
+/** A layout op or a move writes each shape's x/y in turn, so a shape and its own container in
+ *  one command would move the child twice. */
+function guardNoNesting(editor: Editor, ids: TLShapeId[]) {
+  for (const id of ids)
+    for (const other of ids)
+      if (id !== other && editor.hasAncestor(id, other))
+        fail('bad_command', `${id} is inside ${other}; target one or the other, not both`)
+}
+
+// ---- get ----
+
+function shapeOwner(shape: TLShape): 'layout' | 'agent' | 'person' {
+  return isLibraryShapeId(shape.id) ? 'layout' : shape.meta.by === 'agent' ? 'agent' : 'person'
+}
+
+/** A canvas-file names itself by its board file, for a layout board and an agent-placed one
+ *  alike; a decorative library shape (a row heading, a link button) has no name — it is not a
+ *  record in canvas.json, and `personsShapeName` would invent a misleading one. */
+function shapeName(editor: Editor, shape: TLShape, slug: string): string | undefined {
+  if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
+    const ref = canvasBoardRef((shape.props as { path: string }).path)
+    return ref && `${ref.slug}/${ref.file}`
+  }
+  if (isLibraryShapeId(shape.id)) return undefined
+  return personsShapeName(editor, shape, slug)
+}
+
+function shapeText(editor: Editor, shape: TLShape): string | undefined {
+  if (shape.type === 'frame') return (shape.props as { name: string }).name
+  if (!TEXT_RICH_TYPES.has(shape.type)) return undefined
+  const richText = (shape.props as { richText?: TLRichText }).richText
+  return richText ? renderPlaintextFromRichText(editor, richText) : undefined
+}
+
+function getView(editor: Editor, pageId: TLPageId, slug: string) {
+  const shapes = [...editor.getPageShapeIds(pageId)].map((id) => editor.getShape(id)!)
+  const arrows = shapes
+    .filter((shape) => shape.type === 'arrow')
+    .map((shape) => {
+      const b = getArrowBindings(editor, shape as TLArrowShape)
+      return { id: shape.id, from: b.start?.toId, to: b.end?.toId }
+    })
   return {
-    camera: editor.getCamera(),
-    viewport: editor.getViewportScreenBounds(),
-    selectedShapeIds: editor.getSelectedShapeIds(),
-    shapes: editor.getCurrentPageShapesSorted().map((shape) => {
-      const bounds = editor.getShapePageBounds(shape)
+    canvas: slug,
+    shapes: shapes.map((shape) => {
+      const name = shapeName(editor, shape, slug)
+      const text = shapeText(editor, shape)
       return {
-        ...shape,
-        bounds: bounds
-          ? { x: bounds.x, y: bounds.y, w: bounds.w, h: bounds.h }
-          : null,
+        id: shape.id,
+        type: shape.type,
+        owner: shapeOwner(shape),
+        ...bounds(editor, shape),
+        ...(shape.parentId.startsWith('shape:') ? { parent: shape.parentId } : {}),
+        ...(name !== undefined ? { name } : {}),
+        ...(text !== undefined ? { text } : {}),
       }
     }),
+    arrows,
   }
 }
 
-/** Refuses a command that would touch a shape the agent did not make through this bridge. */
-function agentsOnly(editor: Editor, ids: TLShapeId[]) {
-  for (const id of ids) {
-    if (editor.getShape(id)?.meta.by !== 'agent') {
-      throw new Error(`${id} is not the agent's to change; add a shape beside it instead`)
+// ---- create ----
+
+interface BuiltCreate {
+  partial: RawPartial
+  bind?: (editor: Editor) => void
+  asset?: TLAsset
+}
+
+function buildBoard(
+  pageId: TLPageId,
+  slug: string,
+  id: TLShapeId,
+  x: number,
+  y: number,
+  raw: Record<string, unknown>,
+): RawPartial {
+  if (typeof raw.board !== 'string') fail('bad_command', 'a board needs board: "<fileName>.html"')
+  const entry = readCanvasLibrary()
+    .find((c) => c.slug === slug)
+    ?.files.find((f) => `${f.fileName}.html` === raw.board)
+  if (!entry) fail('bad_command', `${raw.board} is not a board in ${slug}`)
+  const size = boardSize(entry)
+  return {
+    id,
+    type: CANVAS_FILE_SHAPE_TYPE,
+    parentId: pageId,
+    x,
+    y,
+    isLocked: false,
+    props: {
+      w: typeof raw.w === 'number' ? raw.w : size.w,
+      h: typeof raw.h === 'number' ? raw.h : size.h,
+      name: entry.title,
+      path: entry.path,
+    },
+    meta: { ...stripMeta(raw.meta), by: 'agent' },
+  }
+}
+
+async function buildMedia(
+  pageId: TLPageId,
+  slug: string,
+  id: TLShapeId,
+  x: number,
+  y: number,
+  kind: 'image' | 'video',
+  raw: Record<string, unknown>,
+): Promise<BuiltCreate> {
+  if (
+    typeof raw.src !== 'string' ||
+    !raw.src.startsWith('files/') ||
+    !SAFE_NAME.test(raw.src.slice('files/'.length))
+  )
+    fail('bad_command', 'src must be "files/<name>", a file already uploaded to this canvas')
+  const name = raw.src.slice('files/'.length)
+  const url = boardFileUrl(slug, 'files/') + name
+  let w = typeof raw.w === 'number' ? raw.w : undefined
+  let h = typeof raw.h === 'number' ? raw.h : undefined
+  if (w === undefined || h === undefined) {
+    let natural: { w: number; h: number }
+    try {
+      const res = await fetch(url)
+      if (!res.ok) fail('bad_command', `${raw.src} could not be read (${res.status})`)
+      const blob = await res.blob()
+      natural =
+        kind === 'image' ? await MediaHelpers.getImageSize(blob) : await MediaHelpers.getVideoSize(blob)
+    } catch (error) {
+      if (error instanceof BridgeError) throw error
+      // A network failure or a file that is not a decodable image/video lands here — turned into
+      // the bridge's own JSON contract rather than a rejected dispatch promise.
+      fail('bad_command', `${raw.src} could not be read as ${kind === 'image' ? 'an image' : 'a video'}`)
     }
+    if (w === undefined && h === undefined) {
+      w = natural.w
+      h = natural.h
+    } else if (w === undefined) w = (h! * natural.w) / natural.h
+    else h = (w * natural.h) / natural.w
+  }
+  const asset = AssetRecordType.create({
+    id: AssetRecordType.createId(),
+    type: kind,
+    // Every branch above leaves both set; TS just can't see it through the reassignment.
+    props: { w: w!, h: h!, name, isAnimated: false, mimeType: guessMime(name), src: url },
+  }) as TLAsset
+  return {
+    partial: {
+      id,
+      type: kind,
+      parentId: pageId,
+      x,
+      y,
+      isLocked: false,
+      props: { w, h, assetId: asset.id },
+      meta: { ...stripMeta(raw.meta), by: 'agent' },
+    },
+    asset,
+  }
+}
+
+function buildArrowSugar(
+  editor: Editor,
+  pageId: TLPageId,
+  id: TLShapeId,
+  x: number,
+  y: number,
+  raw: Record<string, unknown>,
+): BuiltCreate {
+  const from = raw.from as TLShapeId
+  const to = raw.to as TLShapeId
+  for (const end of [from, to]) {
+    if (isLibraryShapeId(end))
+      fail('bad_command', `${end} is part of the layout; an arrow cannot bind to it`)
+    const endShape = onPage(editor, pageId, end)
+    if (!editor.canBindShapes({ fromShape: 'arrow', toShape: endShape.type, binding: 'arrow' }))
+      fail('bad_command', `an arrow cannot bind to a ${endShape.type}`)
+  }
+  // The from/to sugar only adds the two bindings below; every other create field (opacity,
+  // rotation, props, text) is the same arrow-create field an arrow made without it would get, so
+  // building the partial is buildGeneric's job here too.
+  return {
+    partial: buildGeneric(pageId, id, x, y, 'arrow', raw),
+    bind: (editor) =>
+      editor.createBindings([
+        {
+          type: 'arrow',
+          fromId: id,
+          toId: from,
+          props: { terminal: 'start', normalizedAnchor: { x: 0.5, y: 0.5 }, isExact: false, isPrecise: false },
+        },
+        {
+          type: 'arrow',
+          fromId: id,
+          toId: to,
+          props: { terminal: 'end', normalizedAnchor: { x: 0.5, y: 0.5 }, isExact: false, isPrecise: false },
+        },
+      ]),
+  }
+}
+
+function buildGeneric(
+  pageId: TLPageId,
+  id: TLShapeId,
+  x: number,
+  y: number,
+  type: string,
+  raw: Record<string, unknown>,
+): RawPartial {
+  // w/h belong under props for every type built here; board/image/video are the only ones that
+  // take a top-level w/h, and they never reach this builder.
+  if (raw.w !== undefined || raw.h !== undefined)
+    fail('bad_command', 'w/h go under props, not at the top level')
+  const partial: RawPartial = { id, type, parentId: pageId, x, y, isLocked: false }
+  if (raw.rotation !== undefined) partial.rotation = num(raw.rotation, 'rotation')
+  if (raw.opacity !== undefined) partial.opacity = num(raw.opacity, 'opacity')
+  const props = { ...(isRecord(raw.props) ? raw.props : {}) }
+  if (typeof raw.text === 'string') Object.assign(props, textProps(type, raw.text))
+  if (Object.keys(props).length) partial.props = props
+  partial.meta = { ...stripMeta(raw.meta), by: 'agent' }
+  return partial
+}
+
+/** A board always gets a fresh id. Any other shape may keep the caller's, so a later arrow can
+ *  name it, but never one in the library's id space, which is what marks layout content. */
+async function buildCreate(
+  editor: Editor,
+  pageId: TLPageId,
+  slug: string,
+  raw: unknown,
+): Promise<BuiltCreate> {
+  if (!isRecord(raw) || typeof raw.type !== 'string' || !CREATE_TYPES.has(raw.type))
+    fail('bad_command', 'shape type is not allowed')
+  const type = raw.type
+  const x = num(raw.x, 'x')
+  const y = num(raw.y, 'y')
+  let id: TLShapeId
+  if (type === CANVAS_FILE_SHAPE_TYPE || raw.id === undefined) {
+    id = createShapeId()
+  } else {
+    if (typeof raw.id !== 'string' || !raw.id.startsWith('shape:'))
+      fail('bad_command', 'id must be a shape: id')
+    if (isLibraryShapeId(raw.id as TLShapeId))
+      fail('bad_command', `${raw.id} is part of the layout; choose a different id`)
+    id = raw.id as TLShapeId
+  }
+  if (type === CANVAS_FILE_SHAPE_TYPE) return { partial: buildBoard(pageId, slug, id, x, y, raw) }
+  if (type === 'image' || type === 'video') return buildMedia(pageId, slug, id, x, y, type, raw)
+  if (type === 'arrow' && (raw.from !== undefined || raw.to !== undefined)) {
+    if (typeof raw.from !== 'string' || typeof raw.to !== 'string')
+      fail('bad_command', 'an arrow needs both from and to, or neither')
+    return buildArrowSugar(editor, pageId, id, x, y, raw)
+  }
+  return { partial: buildGeneric(pageId, id, x, y, type, raw) }
+}
+
+/** createShapes fills unset styles and opacity from whatever the person last picked; an agent's
+ *  shape gets its type's defaults instead. */
+function pinCreateDefaults(editor: Editor, partial: RawPartial): RawPartial {
+  const defaults = editor.getShapeUtil(partial.type as TLShape['type']).getDefaultProps() as Record<
+    string,
+    unknown
+  >
+  return { ...partial, opacity: partial.opacity ?? 1, props: { ...defaults, ...partial.props } }
+}
+
+async function createOp(editor: Editor, pageId: TLPageId, slug: string, input: unknown) {
+  writeGuard(slug, pageId)
+  if (!isRecord(input) || !Array.isArray(input.shapes) || !input.shapes.length)
+    fail('bad_command', 'create needs a non-empty shapes array')
+  if (input.shapes.length > MAX_SHAPES_PER_COMMAND)
+    fail('bad_command', `at most ${MAX_SHAPES_PER_COMMAND} shapes`)
+  // Everything is built and checked before anything is written, ids against the batch too.
+  const built = await Promise.all(input.shapes.map((raw) => buildCreate(editor, pageId, slug, raw)))
+  const seenInBatch = new Set<TLShapeId>()
+  for (const { partial } of built) {
+    if (editor.getShape(partial.id) || seenInBatch.has(partial.id))
+      fail('exists', `${partial.id} exists; update it instead`, { id: partial.id })
+    seenInBatch.add(partial.id)
+  }
+
+  const ids: TLShapeId[] = []
+  editor.run(
+    () => {
+      for (const item of built) {
+        if (item.asset) editor.createAssets([item.asset])
+        editor.createShapes([pinCreateDefaults(editor, item.partial) as unknown as TLShapePartial])
+        ids.push(item.partial.id)
+        item.bind?.(editor)
+      }
+      place(editor, ids)
+    },
+    { history: 'ignore', ignoreShapeLock: true },
+  )
+  if (built.some((item) => item.partial.type === CANVAS_FILE_SHAPE_TYPE))
+    window.dispatchEvent(new Event(LAYOUT_CHANGED))
+  return { created: ids }
+}
+
+// ---- update ----
+
+function resolveUpdateTarget(editor: Editor, pageId: TLPageId, raw: unknown) {
+  if (!isRecord(raw) || typeof raw.id !== 'string' || !raw.id.startsWith('shape:'))
+    fail('bad_command', 'updated shapes need a shape: id')
+  const shape = onPage(editor, pageId, raw.id as TLShapeId)
+  if (typeof raw.type !== 'string' || raw.type !== shape.type)
+    fail('bad_command', `${raw.id} is a ${shape.type}, not ${raw.type}`)
+  const partial: RawPartial = { id: shape.id, type: shape.type }
+  // x/y are the page-space bounds corner `get` reports, which is not the shape's origin once it
+  // is rotated or framed: move the origin by the same delta, then into the parent's space.
+  if (raw.x !== undefined || raw.y !== undefined) {
+    const box = editor.getShapePageBounds(shape)!
+    const dx = raw.x !== undefined ? num(raw.x, 'x') - box.x : 0
+    const dy = raw.y !== undefined ? num(raw.y, 'y') - box.y : 0
+    const origin = editor.getShapePageTransform(shape)!.point()
+    const local = editor.getPointInParentSpace(shape, { x: origin.x + dx, y: origin.y + dy })
+    if (raw.x !== undefined) partial.x = local.x
+    if (raw.y !== undefined) partial.y = local.y
+  }
+  if (raw.rotation !== undefined) partial.rotation = num(raw.rotation, 'rotation')
+  if (raw.opacity !== undefined) partial.opacity = num(raw.opacity, 'opacity')
+  const props = { ...(isRecord(raw.props) ? raw.props : {}) }
+  if (typeof raw.text === 'string') Object.assign(props, textProps(shape.type, raw.text))
+  // A board's path is what makes it that board — its `assets/`, its comment threads, its id in
+  // canvas.json all key off it. Changing it in place would silently turn one board into another
+  // rather than the delete-and-create it actually is.
+  if (shape.type === CANVAS_FILE_SHAPE_TYPE && 'path' in props)
+    fail('bad_command', 'path cannot be changed by an update; delete and create instead')
+  if (Object.keys(props).length) partial.props = props
+  if (raw.meta !== undefined) partial.meta = stripMeta(raw.meta)
+  return { shape, partial }
+}
+
+async function updateOp(editor: Editor, pageId: TLPageId, slug: string, input: unknown) {
+  writeGuard(slug, pageId)
+  if (!isRecord(input) || !Array.isArray(input.shapes) || !input.shapes.length)
+    fail('bad_command', 'update needs a non-empty shapes array')
+  if (input.shapes.length > MAX_SHAPES_PER_COMMAND)
+    fail('bad_command', `at most ${MAX_SHAPES_PER_COMMAND} shapes`)
+  const targets = input.shapes.map((raw) => resolveUpdateTarget(editor, pageId, raw))
+  const ids = targets.map((t) => t.shape.id)
+  const force = input.force === true
+  const moving = targets.filter((t) => touchesGeometry(t.partial)).map((t) => t.shape.id)
+
+  guardOwnership(editor, ids)
+  // Only a geometry change disturbs a person's shape nested in an agent frame; a text or style
+  // update does not move anything, so it does not need this check.
+  guardNotHoldingPersonsShapes(editor, moving)
+  guardNoNesting(editor, moving)
+  guardGeometry(editor, moving, force)
+
+  // Snapshotted before the write: a shape already moved by the person keeps its old `placed`
+  // (the protection stays live) even though this update is about to change its bounds again.
+  const affected = agentDescendantsAndSelf(editor, ids)
+  const keep = force ? affected : affected.filter((id) => untouched(editor, editor.getShape(id)!))
+
+  editor.run(
+    () => {
+      editor.updateShapes(
+        targets.map(
+          (t) =>
+            ({
+              ...t.partial,
+              meta: { ...t.shape.meta, ...(t.partial.meta ?? {}), by: 'agent' },
+            }) as unknown as TLShapePartial,
+        ),
+      )
+      place(editor, keep)
+    },
+    { history: 'ignore', ignoreShapeLock: true },
+  )
+  return { updated: ids }
+}
+
+// ---- delete ----
+
+function deleteOp(editor: Editor, pageId: TLPageId, slug: string, input: unknown) {
+  writeGuard(slug, pageId)
+  const ids = parseIds(isRecord(input) ? input.ids : undefined)
+  if (!ids.length) fail('bad_command', 'delete needs at least one id')
+  for (const id of ids) onPage(editor, pageId, id)
+  guardOwnership(editor, ids)
+  guardNotHoldingPersonsShapes(editor, ids)
+
+  // Descendant-inclusive: deleting a frame that holds a board deletes that board too, and its
+  // comment threads need the same loosening a direct delete of it would get.
+  const boards = [...editor.getShapeAndDescendantIds(ids)].filter(
+    (id) => editor.getShape(id)?.type === CANVAS_FILE_SHAPE_TYPE,
+  )
+  editor.run(() => editor.deleteShapes(ids), { history: 'ignore', ignoreShapeLock: true })
+  if (boards.length) window.dispatchEvent(new Event(LAYOUT_CHANGED))
+  return { deleted: ids }
+}
+
+// ---- align / distribute / stack / pack ----
+
+const ALIGN_OPS = ['bottom', 'center-horizontal', 'center-vertical', 'center', 'left', 'right', 'top'] as const
+const AXIS_OPS = ['horizontal', 'vertical'] as const
+
+function layoutOp(
+  editor: Editor,
+  pageId: TLPageId,
+  slug: string,
+  op: 'align' | 'distribute' | 'stack' | 'pack',
+  input: unknown,
+) {
+  writeGuard(slug, pageId)
+  const ids = parseIds(isRecord(input) ? input.ids : undefined)
+  // tldraw's own distributeShapes silently does nothing below 3 shapes — there is no middle
+  // shape to distribute between the two ends.
+  const min = op === 'distribute' ? 3 : 2
+  if (ids.length < min) fail('bad_command', `${op} needs at least ${min} ids`)
+  for (const id of ids) onPage(editor, pageId, id)
+  guardNoNesting(editor, ids)
+  const force = isRecord(input) && input.force === true
+  const gap = isRecord(input) && input.gap !== undefined ? num(input.gap, 'gap') : undefined
+  const operation = isRecord(input) ? input.operation : undefined
+  // Resolved before any guard or write, not inline in the editor.run below: a bad `operation`
+  // must fail the whole command before anything is touched, same as every other bad field.
+  const align = op === 'align' ? oneOf(operation, ALIGN_OPS, 'operation') : undefined
+  const axis = op === 'distribute' || op === 'stack' ? oneOf(operation, AXIS_OPS, 'operation') : undefined
+  // tldraw's own stackShapes treats a gap of exactly 0 as "keep the shapes' existing gap", not
+  // "touching" — not what an agent asking for a stacked gap of 0 means.
+  if (op === 'stack' && gap === 0)
+    fail(
+      'bad_command',
+      'a stack gap of 0 keeps the shapes\' existing gap in tldraw; omit gap to use the default (editor.options.adjacentShapeMargin)',
+    )
+
+  guardOwnership(editor, ids)
+  guardNotHoldingPersonsShapes(editor, ids)
+  guardGeometry(editor, ids, force)
+
+  const affected = agentDescendantsAndSelf(editor, ids)
+  const keep = force ? affected : affected.filter((id) => untouched(editor, editor.getShape(id)!))
+
+  editor.run(
+    () => {
+      if (op === 'pack') editor.packShapes(ids, gap)
+      else if (op === 'align') editor.alignShapes(ids, align!)
+      else if (op === 'distribute') editor.distributeShapes(ids, axis!)
+      else editor.stackShapes(ids, axis!, gap)
+      place(editor, keep)
+    },
+    { history: 'ignore', ignoreShapeLock: true },
+  )
+  return { ids }
+}
+
+// ---- frame ----
+
+function frameOp(editor: Editor, pageId: TLPageId, slug: string, input: unknown) {
+  writeGuard(slug, pageId)
+  const ids = parseIds(isRecord(input) ? input.ids : undefined)
+  if (!ids.length) fail('bad_command', 'frame needs at least one id')
+  for (const id of ids) onPage(editor, pageId, id)
+  // Reparenting recalculates local x/y so page bounds do not move (confirmed against tldraw),
+  // so there is nothing for the optimistic check to protect and no reason to refuse a frame
+  // whose contents already hold one of the person's shapes. reparentShapes also computes every
+  // shape's original page transform up front, so framing one id into another already in `ids`
+  // needs no guardNoNesting the way layoutOp and updateOp do.
+  guardOwnership(editor, ids)
+
+  const padding = isRecord(input) && input.padding !== undefined ? num(input.padding, 'padding') : 32
+  const name = isRecord(input) && typeof input.name === 'string' ? input.name : undefined
+  const box = Box.Common(ids.map((id) => editor.getShapePageBounds(id)!))
+  const frameId = createShapeId()
+
+  editor.run(
+    () => {
+      editor.createShapes([
+        pinCreateDefaults(editor, {
+          id: frameId,
+          type: 'frame',
+          parentId: pageId,
+          x: box.x - padding,
+          y: box.y - padding,
+          props: { w: box.w + padding * 2, h: box.h + padding * 2, ...(name ? { name } : {}) },
+          meta: { by: 'agent' },
+        }) as unknown as TLShapePartial,
+      ])
+      editor.reparentShapes(ids, frameId)
+      place(editor, [frameId])
+    },
+    { history: 'ignore', ignoreShapeLock: true },
+  )
+  return { frame: frameId }
+}
+
+// ---- select / zoom ----
+
+function selectOp(editor: Editor, pageId: TLPageId, input: unknown) {
+  if (editor.getCurrentPageId() !== pageId)
+    fail('not_current_page', 'select only works on the canvas open in front of the person')
+  // No ids, same as zoom below, means "nothing", not "refused" — select is how an agent clears
+  // the person's selection too.
+  const ids = isRecord(input) && input.ids !== undefined ? parseIds(input.ids) : []
+  for (const id of ids) onPage(editor, pageId, id)
+  editor.select(...ids)
+  return { selected: ids }
+}
+
+function zoomOp(editor: Editor, pageId: TLPageId, input: unknown) {
+  if (editor.getCurrentPageId() !== pageId)
+    fail('not_current_page', 'zoom only works on the canvas open in front of the person')
+  const ids = isRecord(input) && input.ids !== undefined ? parseIds(input.ids) : undefined
+  if (ids?.length) {
+    for (const id of ids) onPage(editor, pageId, id)
+    // Bounds computed directly rather than through editor.select + zoomToSelection, which would
+    // leave the person's own selection changed by an op that is meant to only move the camera.
+    editor.zoomToBounds(Box.Common(ids.map((id) => editor.getShapePageBounds(id)!)))
+  } else {
+    editor.zoomToFit()
+  }
+  return {}
+}
+
+// ---- entry point ----
+
+/** Runs one command against a project canvas's page. Every write goes through
+ *  `editor.run(fn, { history: 'ignore', ignoreShapeLock: true })`: the agent's changes do not
+ *  enter the person's undo stack, and never trip a lock meant to keep the person's pointer off
+ *  a library shape. */
+export async function dispatch(editor: Editor, slug: string, input: unknown) {
+  try {
+    const pageId = projectPages(editor).get(slug)
+    if (!pageId) fail('not_writable', `${slug} is not a project canvas the bridge can write to`)
+    if (!isRecord(input) || typeof input.op !== 'string')
+      fail('bad_command', 'command must be an object with an op')
+    switch (input.op) {
+      case 'get':
+        return getView(editor, pageId, slug)
+      case 'create':
+        return await createOp(editor, pageId, slug, input)
+      case 'update':
+        return await updateOp(editor, pageId, slug, input)
+      case 'delete':
+        return deleteOp(editor, pageId, slug, input)
+      case 'align':
+      case 'distribute':
+      case 'stack':
+      case 'pack':
+        return layoutOp(editor, pageId, slug, input.op, input)
+      case 'frame':
+        return frameOp(editor, pageId, slug, input)
+      case 'select':
+        return selectOp(editor, pageId, input)
+      case 'zoom':
+        return zoomOp(editor, pageId, input)
+      default:
+        fail('bad_command', `unsupported canvas op: ${input.op}`)
+    }
+  } catch (error) {
+    if (error instanceof BridgeError) return { error: error.code, message: error.message, ...error.data }
+    // tldraw's own schema validation (e.g. a shape's props failing its type, or the pre-checks
+    // above calling schema.types.shape.validate directly) throws this synchronously; caught here
+    // and turned into the same JSON contract rather than rejecting the dispatch promise.
+    if (error instanceof T.ValidationError) return { error: 'bad_command', message: error.message }
+    throw error
   }
 }
 
 export function installAgentBridge(editor: Editor) {
-  const api = {
-    describe: () => ({
-      allowedShapeTypes: [...ALLOWED_SHAPE_TYPES],
-      commandExamples: [
-        { op: 'get' },
-        { op: 'create', shapes: [{ type: 'text', x: 80, y: 80, props: {} }] },
-        { op: 'update', shapes: [{ id: 'shape:example', type: 'text', x: 120 }] },
-        { op: 'delete', ids: ['shape:example'] },
-        { op: 'select', ids: ['shape:example'] },
-        { op: 'zoom', ids: ['shape:example'] },
-        { op: 'zoom' },
-      ],
-    }),
-    dispatch: (input: unknown) => {
-      const command = parseCanvasCommand(input)
-
-      switch (command.op) {
-        case 'get':
-          break
-        // The agent's shapes are stamped and locked: the person can read them and copy them, not
-        // edit them, and the agent may change only what carries its stamp. What the person put
-        // on the canvas is answered by adding beside it (docs/2026-09-24-canvas-content-on-disk.md).
-        case 'create':
-          // A new id only: one that exists would replace that shape, the person's included.
-          for (const { id } of command.shapes)
-            if (id && editor.getShape(id)) throw new Error(`${id} exists; update it instead`)
-          editor.markHistoryStoppingPoint('agent:create')
-          editor.createShapes(
-            command.shapes.map((shape) => ({
-              ...shape,
-              isLocked: true,
-              meta: { ...shape.meta, by: 'agent' },
-            })),
-          )
-          break
-        case 'update':
-          agentsOnly(editor, command.shapes.map((shape) => shape.id))
-          editor.markHistoryStoppingPoint('agent:update')
-          // Still the agent's and still locked, whatever the update says.
-          editor.run(
-            () =>
-              editor.updateShapes(
-                command.shapes.map((shape) => ({
-                  ...shape,
-                  isLocked: true,
-                  meta: { ...shape.meta, by: 'agent' },
-                })),
-              ),
-            { ignoreShapeLock: true },
-          )
-          break
-        case 'delete':
-          agentsOnly(editor, command.ids)
-          editor.markHistoryStoppingPoint('agent:delete')
-          editor.run(() => editor.deleteShapes(command.ids), { ignoreShapeLock: true })
-          break
-        case 'select':
-          editor.select(...command.ids)
-          break
-        case 'zoom':
-          if (command.ids?.length) {
-            editor.select(...command.ids)
-            editor.zoomToSelection()
-          } else {
-            editor.zoomToFit()
-          }
-          break
-      }
-
-      return getCanvasState(editor)
-    },
-  }
-
+  const api = { dispatch: (slug: string, command: unknown) => dispatch(editor, slug, command) }
   window.snapCanvas = api
   return () => {
     if (window.snapCanvas === api) delete window.snapCanvas

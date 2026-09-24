@@ -40,17 +40,8 @@ const dispatchAttach = (detail: CanvasAttachDetail) =>
  */
 async function attach(editor: Editor, target: TLShape) {
   try {
-    // One of the person's own: whatever it is, the agent gets a picture of it, named by where it
-    // reads the thing itself (canvasContent.ts).
-    const slug = personsShape(editor, target);
-    if (slug) {
-      const { blob } = await editor.toImage([target.id], { format: "png" });
-      return dispatchAttach({
-        kind: "board",
-        name: personsShapeName(editor, target, slug),
-        src: URL.createObjectURL(blob),
-      });
-    }
+    // A board, whoever placed it, before the check below that an agent-placed one also passes:
+    // `toImage` of a board comes back blank, so the server shoots it.
     if (target.type === CANVAS_FILE_SHAPE_TYPE) {
       const { w, h, path } = (target as CanvasFileShape).props;
       const ref = canvasBoardRef(path);
@@ -62,6 +53,17 @@ async function attach(editor: Editor, target: TLShape) {
         window.location.href,
       ).href;
       return dispatchAttach({ kind: "board", name, src });
+    }
+    // One of the person's own: whatever it is, the agent gets a picture of it, named by where it
+    // reads the thing itself (canvasContent.ts).
+    const slug = personsShape(editor, target);
+    if (slug) {
+      const { blob } = await editor.toImage([target.id], { format: "png" });
+      return dispatchAttach({
+        kind: "board",
+        name: personsShapeName(editor, target, slug),
+        src: URL.createObjectURL(blob),
+      });
     }
     const shape = target as TLImageShape;
     const asset = shape.props.assetId
