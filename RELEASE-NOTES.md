@@ -19,6 +19,12 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- Updates download only what changed. An app that has updated before fetches a
+  few megabytes, not the whole 520 MB, since the examples it already has are no
+  longer fetched again.
+- A failed update download is no longer silent. `sp upgrade` says it failed and
+  why, and the app tries again every four hours while it is open.
+
 ## v1.6.1
 
 2026-09-23. A project can start from a PRD, and every project now lives in one

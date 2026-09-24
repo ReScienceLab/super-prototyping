@@ -602,17 +602,19 @@ def cmd_upgrade(a):
     else:
         raise SystemExit("error: the app did not answer in 60s. Is it running? Try `sp open`, "
                          "then `sp upgrade` again.")
-    if update.get("error") and not update["available"]:
-        raise SystemExit("error: the app could not check for an update: "
-                         + update["error"].splitlines()[0])
+    if update.get("error"):
+        # With a version, the check found it and its download failed; without one, the check did.
+        what = f"download {update['available']}" if update["available"] else "check for an update"
+        raise SystemExit(f"error: the app could not {what}: {update['error'].splitlines()[0]}\n"
+                         "Run `sp upgrade` again to retry.")
     if update["downloaded"]:
         print(f"Super Prototyping {update['downloaded']} is downloaded. The app is asking the "
               f"user to restart into it; tell them to click Restart Now.")
     elif update["available"]:
-        # A download that failed is tried again by this check, and the failure is said, so a
-        # slow or dropped connection is not mistaken for a download still on its way.
-        failed = update.get("error") or (
-            before.get("available") == update["available"] and before.get("error"))
+        # update.json holds only the latest record, so this check's has already replaced the one
+        # saying the last download failed. The same app after the same version is a retry.
+        failed = (before.get("available") == update["available"]
+                  and before.get("current") == update["current"] and before.get("error"))
         again = f" again; the last try failed: {failed.splitlines()[0]}" if failed else ""
         print(f"Super Prototyping {update['available']} is downloading{again}. The app asks the "
               f"user to restart once it is down.")
