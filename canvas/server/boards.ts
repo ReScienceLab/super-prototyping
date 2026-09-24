@@ -300,7 +300,11 @@ export function boardIndex(
             thumbs: [] as string[],
             assets: assetIndex(folder),
             comments: readJson(path.join(folder, "comments.json")),
-            content: readJson(path.join(folder, "canvas.json")),
+            // null for a canvas.json that is there but unreadable, a merge left half done say:
+            // the page must not take it for none and write over it (canvasContent.ts).
+            content: fs.existsSync(path.join(folder, "canvas.json"))
+              ? (readJson(path.join(folder, "canvas.json")) ?? null)
+              : undefined,
             docs: readDocs(folder),
           };
         })

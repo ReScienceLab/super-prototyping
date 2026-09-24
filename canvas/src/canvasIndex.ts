@@ -25,7 +25,8 @@ export interface IndexBoard {
   /** The folder's comments.json, when it has one. */
   comments?: CommentsFile;
   /** The folder's canvas.json, what a person put on the canvas, when it has one. */
-  content?: ContentFile;
+  /** null when the file is there but not JSON, which the page leaves alone. */
+  content?: ContentFile | null;
   /** One of the examples the desktop app shows beside the project's own, read-only. */
   example?: true;
   /** The folder's documents, as `CanvasIndex.docs` are the project's: the ones an example's

@@ -145,6 +145,15 @@ export function installCanvasContent(editor: Editor) {
   mounted = editor;
   const pages = projectPages(editor);
   const written = new Map<string, string>();
+  // A canvas.json that would not parse is neither loaded nor written over, and said so.
+  for (const slug of pages.keys())
+    if (canvasIndex().boards.find((b) => b.slug === slug)?.content === null) {
+      pages.delete(slug);
+      alert(
+        `canvases/${slug}/canvas.json is not valid JSON, so what is on that canvas is not being ` +
+          "saved. Fix or remove the file, then reload.",
+      );
+    }
 
   editor.store.mergeRemoteChanges(() => {
     for (const [slug, pageId] of pages) {
@@ -178,6 +187,8 @@ export function installCanvasContent(editor: Editor) {
   // it sent, and the next change sends the page again. `leaving` is the page going away with a
   // save still waiting, and keepalive lets that write outlive the page.
   let seq = 0;
+  // What was sent and not yet answered, by canvas, so a page going away sends it again.
+  const unanswered = new Set<string>();
   // ponytail: keepalive caps a body at 64 KB, so a bigger page's last half second is still lost.
   const flush = (leaving = false) => {
     clearTimeout(pending);
@@ -187,6 +198,7 @@ export function installCanvasContent(editor: Editor) {
       const body = file.records.length ? JSON.stringify(file) : "";
       if (written.get(slug) === body) continue;
       written.set(slug, body);
+      unanswered.add(slug);
       void fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -195,6 +207,7 @@ export function installCanvasContent(editor: Editor) {
       })
         .then(async (res) => {
           if (!res.ok) throw new Error(await res.text());
+          if (written.get(slug) === body) unanswered.delete(slug);
         })
         .catch((error) => {
           console.error(`canvas ${slug} was not saved:`, error);
@@ -213,7 +226,12 @@ export function installCanvasContent(editor: Editor) {
     },
     { source: "user", scope: "document" },
   );
-  const leave = () => pending && flush(true);
+  // A save still waiting, or sent and not answered, which leaving the page may cancel: sent
+  // again, numbered after the one it repeats.
+  const leave = () => {
+    for (const slug of unanswered) written.delete(slug);
+    flush(true);
+  };
   window.addEventListener("pagehide", leave);
   return () => {
     dispose();
