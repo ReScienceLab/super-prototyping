@@ -77,11 +77,6 @@ const SESSION_KEY = "sp-chat-session";
 const RUNS_KEY = "sp-chat-runs";
 /** The canvas folders a running turn is writing to, by slug, in the project it was sent from. */
 export type Working = { project?: string; slugs: string[] };
-/** What Continue sends on an interrupted turn's session, which the agent resumes with its own
- *  record of what it had done. */
-const CONTINUE =
-  "You were interrupted before finishing the last turn. Check what is already on disk, " +
-  "then carry on from where you stopped.";
 const QUEUE_KEY = "sp-chat-queue";
 const SENT_KEY = "sp-chat-sent";
 const AGENT_KEY = "sp-chat-agent";
@@ -1386,7 +1381,8 @@ export function ChatPanel(props: {
                       type="button"
                       disabled={sending}
                       onClick={() =>
-                        void post({ message: CONTINUE, images: [] })
+                        // The session is resumed, so the agent has its own record of what it had done.
+                        void post({ message: "continue", images: [] })
                       }
                     >
                       Continue

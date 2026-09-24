@@ -53,7 +53,7 @@ export function CanvasStrip() {
     };
   }, []);
   // The canvases the agent is writing to in this project, which the window keeps (AppShell.tsx);
-  // the one in front glows there, and every one of them has a dot here.
+  // the one in front glows there, and a sheen crosses the name of every one of them here.
   const working = window.parent.spShell!.working;
   const busy = working.project === canvasIndex().project ? working.slugs : [];
   // A canvas just made is the one to be on, once the editor is there to show its page.

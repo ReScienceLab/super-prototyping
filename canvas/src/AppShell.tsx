@@ -280,14 +280,6 @@ export function AppShell() {
   const served = canvasIndex().served;
 
   const view = shown?.tab.view;
-  // The agent is writing to the canvas in front. Only a glow: the canvas under it takes the
-  // person's pointer and keys as ever, and the boards land in it live (canvasLibrary.ts).
-  const glowing =
-    !home &&
-    shown?.tab.kind === "project" &&
-    shown.tab.name === working.project &&
-    view?.kind === "canvas" &&
-    working.slugs.includes(view.slug);
   return (
     <div className="canvas-shell">
       <CanvasTabBar
@@ -328,7 +320,6 @@ export function AppShell() {
             src={opened?.href}
             style={home ? { visibility: "hidden" } : undefined}
           />
-          <div className="agent-glow" data-on={glowing || undefined} aria-hidden />
           {home && (
             <HomePage
               projects={projects}

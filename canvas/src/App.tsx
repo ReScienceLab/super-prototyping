@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useReducer,
   useRef,
   useState,
 } from "react";
@@ -92,7 +93,7 @@ import {
   isLibraryShapeId,
   readCanvasLibrary,
 } from "./canvasLibrary";
-import { canvasIndex } from "./canvasIndex";
+import { BOARDS_CHANGED, canvasIndex } from "./canvasIndex";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
   CanvasLinkPaste,
@@ -283,6 +284,23 @@ const shellQuote = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`;
  * The library is a build-time constant, so this is a plain check rather than a subscription; the
  * dev server full-reloads the page when the first board folder appears.
  */
+/**
+ * The agent is writing to the canvas in front (AppShell.tsx keeps what it writes to). Only a
+ * glow, over the canvas and not the strip above it: the canvas under it takes the person's
+ * pointer and keys as ever, and the boards land in it live (canvasLibrary.ts). Its own
+ * component, so a turn's progress re-renders this and not the editor.
+ */
+function AgentGlow({ slug }: { slug: string | undefined }) {
+  const [, rerender] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => {
+    window.parent.addEventListener("sp:working", rerender);
+    return () => window.parent.removeEventListener("sp:working", rerender);
+  }, []);
+  const working = window.parent.spShell!.working;
+  const on = !!slug && working.project === canvasIndex().project && working.slugs.includes(slug);
+  return <div className="agent-glow" data-on={on || undefined} aria-hidden />;
+}
+
 function EmptyLibraryNotice() {
   if (readCanvasLibrary().length) return null;
   // Empty in a production build, which does not ship the build machine's paths. The notice still
@@ -975,6 +993,7 @@ function initializeCanvasLibrary(editor: Editor) {
           !before.has(id) &&
           FRESH_SHAPE_PREFIXES.some((prefix) => id.startsWith(prefix)),
       ),
+      "new",
     );
   }
 }
@@ -1318,6 +1337,24 @@ export default function App() {
     return () => window.removeEventListener(LAYOUT_CHANGED, relayout);
   }, [editor]);
 
+  // A board rewritten in place is news as much as a new one: it rings green, where a new one
+  // rings blue, until the pointer passes over it (canvasChrome.tsx). The server lists only the
+  // boards whose bytes changed, not every one a generator wrote out again (sp.ts).
+  useEffect(() => {
+    const changed = (event: Event) => {
+      const rewritten = (event as CustomEvent<string[]>).detail;
+      markFresh(
+        readCanvasLibrary()
+          .flatMap((canvas) => canvas.files)
+          .filter((file) => rewritten.some((board) => file.path.endsWith(`canvases/${board}`)))
+          .map(fileShapeId),
+        "updated",
+      );
+    };
+    window.addEventListener(BOARDS_CHANGED, changed);
+    return () => window.removeEventListener(BOARDS_CHANGED, changed);
+  }, []);
+
   /**
    * Opens a board in the inspector, or closes it. A pick or a close is a new address; applying
    * an address is not, and passes `push: false`.
@@ -1570,6 +1607,7 @@ export default function App() {
                 <EmptyLibraryNotice />
               </Tldraw>
             </main>
+            <AgentGlow slug={activeTab.kind === "canvas" ? activeTab.slug : undefined} />
             {/* The kit as a tab: the same components brand.html renders, over the canvas instead
                 of in a window of their own, and given `openTab` so the links inside them open
                 tabs rather than reloading the app out from under the conversation. Keyed by the

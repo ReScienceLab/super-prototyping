@@ -71,6 +71,21 @@ describe('writingTo', () => {
     ]
     expect(writingTo(blocks)).toEqual(['home', 'cart', 'menu', 'orders'])
   })
+
+  it('counts a shell write by redirect, in-place edit or Python, and not a read', () => {
+    const dir = '"/Users/a/Documents/Super Prototyping/app/canvases/untitled"'
+    const cases: [string, boolean][] = [
+      [`cd ${dir}; cat > logo.html <<'EOF'\n<html>\nEOF`, true],
+      [`cd ${dir}; sed -i '' 's/a/b/' logo.html`, true],
+      [`cd ${dir}; python3 -c "import json;json.dump(d,open(p,'w'))"`, true],
+      [`mkdir -p ${dir}`, true],
+      [`cd ${dir}; cat layout.json 2>/dev/null; ls 2>&1 | head`, false],
+      [`cd ${dir}; python3 -c "import json;print(json.load(open('canvas.json')))"`, false],
+      [`cd ${dir}; grep -rl logo . > /dev/null`, false],
+    ]
+    for (const [command, writes] of cases)
+      expect(writingTo([tool('Bash', command)]), command).toEqual(writes ? ['untitled'] : [])
+  })
 })
 
 describe('sseFrames', () => {

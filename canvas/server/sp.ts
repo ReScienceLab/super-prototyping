@@ -992,6 +992,21 @@ export function createSpServer(options: {
     }
   };
   let signature = boardSetSignature(canvasesDir, list);
+  // What each board held when last seen, by `<slug>/<file>.html`. A generator writes every
+  // board on each run, and only the ones whose bytes changed are news to the page, which rings
+  // them as updated (App.tsx). A board seen for the first time is new, not updated, and the
+  // index says so on its own.
+  const boardKey = (file: string) =>
+    path.relative(canvasesDir, file).split(path.sep).join("/").normalize("NFC");
+  const boardHash = (file: string) =>
+    createHash("sha1").update(fs.readFileSync(file)).digest("hex");
+  const boardHashes = new Map<string, string>();
+  for (const slug of list(canvasesDir))
+    for (const name of list(path.join(canvasesDir, slug)))
+      if (name.endsWith(".html")) {
+        const file = path.join(canvasesDir, slug, name);
+        boardHashes.set(boardKey(file), boardHash(file));
+      }
 
   /**
    * One settled batch of writes, answered once.
@@ -1008,15 +1023,25 @@ export function createSpServer(options: {
     let fresh = now !== signature;
     signature = now;
     let reload = false;
-    /** `<slug>/<file>.html` of each board rewritten, for the page to fetch again. */
+    /** `<slug>/<file>.html` of each board whose content changed, for the page to fetch again. */
     const rewritten: string[] = [];
     const layouts = new Set<string>();
     for (const file of files) {
       switch (boardChangeKind(canvasesDir, file)) {
-        case "board":
-          rewritten.push(path.relative(canvasesDir, file).split(path.sep).join("/"));
+        case "board": {
+          const key = boardKey(file);
+          const was = boardHashes.get(key);
+          if (!fs.existsSync(file)) {
+            boardHashes.delete(key);
+            break;
+          }
+          const now = boardHash(file);
+          boardHashes.set(key, now);
+          if (now === was) break;
+          if (was) rewritten.push(key);
           fresh = true;
           break;
+        }
         case "assets":
           // An image edited in place keeps its name and changes its hash, so the index that
           // names a board's images by content is stale until it is sent again.

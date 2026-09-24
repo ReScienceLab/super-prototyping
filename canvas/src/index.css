@@ -265,7 +265,7 @@ button {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  box-shadow: inset 0 0 0 3px #1b6ef3;
+  box-shadow: inset 0 0 0 1.5px #1b6ef3;
   opacity: 0;
   transition: opacity 400ms ease;
 }
@@ -278,7 +278,7 @@ button {
   content: "";
   position: absolute;
   inset: 0;
-  box-shadow: inset 0 0 35px 12px #4c8df6;
+  box-shadow: inset 0 0 18px 3px #4c8df6;
   animation: agent-glow-pulse 4s ease-in-out infinite;
 }
 
@@ -293,22 +293,43 @@ button {
   }
 }
 
-/* The other canvases it is writing to, in the strip, and a project behind the one in front, in
-   the bar: a dot in the same blue, breathing with the glow. */
-.sp-canvas-tab[data-working]::after,
-.sp-tabchip[data-working] .sp-tabchip-open::before {
-  content: "";
-  flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #1b6ef3;
-  animation: agent-dot-pulse 2s ease-in-out infinite;
+/* Every canvas it is writing to, in the strip, and a project behind the one in front, in the
+   bar: the name in its own colour, crossed by a sheen that catches the light like metal, a
+   bright core between cooler steel edges. Both layers are clipped to the letters, so the tab
+   keeps its shape and icon; only the fill is taken off, so `currentColor` is still the name's. */
+.sp-canvas-tab[data-working],
+.sp-tabchip[data-working] .sp-tabchip-name {
+  -webkit-text-fill-color: transparent;
+  background:
+    linear-gradient(
+        105deg,
+        transparent 36%,
+        #aebdd2 43%,
+        #fff 48%,
+        #7d91b0 51%,
+        #e8eff9 55%,
+        transparent 62%
+      )
+      no-repeat,
+    linear-gradient(currentColor, currentColor);
+  background-size:
+    250% 100%,
+    100% 100%;
+  background-clip: text;
+  animation: agent-tab-sheen 2.4s ease-in-out infinite;
 }
 
-@keyframes agent-dot-pulse {
-  50% {
-    opacity: 0.3;
+@keyframes agent-tab-sheen {
+  0%,
+  35% {
+    background-position:
+      150% 0,
+      0 0;
+  }
+  100% {
+    background-position:
+      -50% 0,
+      0 0;
   }
 }
 
@@ -318,8 +339,8 @@ button {
     opacity: 0.6;
   }
 
-  .sp-canvas-tab[data-working]::after,
-  .sp-tabchip[data-working] .sp-tabchip-open::before {
+  .sp-canvas-tab[data-working],
+  .sp-tabchip[data-working] .sp-tabchip-name {
     animation: none;
   }
 }
@@ -2687,11 +2708,18 @@ button {
 }
 
 /* A shape the agent added that the reader has not pointed at yet: the focus ring plus a blue
-   halo. canvasChrome.tsx adds the class and takes it off on the first pointer over it. Divided
-   by tldraw's zoom, so the ring is as thick on screen with the page fitted as close up. */
+   halo, or a green one below for a board it rewrote. canvasChrome.tsx adds the class and takes
+   it off on the first pointer over it. Divided by tldraw's zoom, so the ring is as thick on
+   screen with the page fitted as close up. */
 .tl-shape.sp-fresh {
   box-shadow:
     0 0 0 calc(2px / var(--tl-zoom)) var(--ds-focus),
     0 0 calc(24px / var(--tl-zoom)) calc(6px / var(--tl-zoom))
       color-mix(in oklab, var(--ds-focus) 60%, transparent);
+}
+
+/* A board the agent rewrote in place: the same ring in green, so an update reads apart from an
+   arrival. */
+.tl-shape.sp-fresh[data-fresh="updated"] {
+  --ds-focus: light-dark(#1a9338, #3dbe5c);
 }

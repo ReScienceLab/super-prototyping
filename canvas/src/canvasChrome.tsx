@@ -214,32 +214,35 @@ function selectionLinks(editor: Editor) {
 }
 
 /**
- * Shapes the agent added that the reader has not pointed at yet. Kept in the tab's
+ * Shapes the agent added or rewrote that the reader has not pointed at yet, and which of the
+ * two, since a new board rings blue and a rewritten one green. Kept in the tab's
  * sessionStorage, because the agent writing its next board reloads the canvas, and one board
  * should not lose its ring to the one after it. Keyed by path: every project is this origin.
  * Read on first use rather than at import, which the tests do with no window.
  */
-let freshAtom: Atom<ReadonlySet<TLShapeId>> | undefined;
-const freshKey = () => `sp-fresh:${location.pathname}`;
+type Fresh = "new" | "updated";
+let freshAtom: Atom<ReadonlyMap<TLShapeId, Fresh>> | undefined;
+// "2": the key once held a bare list of ids, which a tab open across the change still has.
+const freshKey = () => `sp-fresh2:${location.pathname}`;
 const freshShapes = () =>
   (freshAtom ??= atom(
     "fresh shapes",
-    new Set(JSON.parse(sessionStorage.getItem(freshKey()) ?? "[]")),
+    new Map(JSON.parse(sessionStorage.getItem(freshKey()) ?? "[]")),
   ));
 
-function setFresh(fresh: ReadonlySet<TLShapeId>) {
+function setFresh(fresh: ReadonlyMap<TLShapeId, Fresh>) {
   freshShapes().set(fresh);
   sessionStorage.setItem(freshKey(), JSON.stringify([...fresh]));
 }
 
-/** Rings `ids` in blue until the pointer passes over each, so the reader sees what just arrived. */
-export function markFresh(ids: TLShapeId[]) {
-  if (ids.length) setFresh(new Set([...freshShapes().get(), ...ids]));
+/** Rings `ids` until the pointer passes over each, so the reader sees what just arrived or changed. */
+export function markFresh(ids: TLShapeId[], kind: Fresh) {
+  if (ids.length) setFresh(new Map([...freshShapes().get(), ...ids.map((id) => [id, kind] as const)]));
 }
 
 export const canvasChromeComponents: TLComponents = {
   /**
-   * tldraw's own element around each shape, with a class while the shape is fresh. The ring
+   * tldraw's own element around each shape, with a class while the shape is fresh, and which kind in `data-fresh`. The ring
    * and its fade are CSS (`.sp-fresh` in index.css), so nothing runs per frame. The same
    * wrapper draws the shape's background layer, which is left alone.
    */
@@ -249,7 +252,7 @@ export const canvasChromeComponents: TLComponents = {
       const { id } = props.shape;
       const fresh = useValue(
         "fresh shape",
-        () => !props.isBackground && freshShapes().get().has(id),
+        () => (props.isBackground ? undefined : freshShapes().get().get(id)),
         [props.isBackground, id],
       );
       // tldraw never hovers a locked shape, and every library shape is locked, so the pointer is
@@ -258,7 +261,9 @@ export const canvasChromeComponents: TLComponents = {
         if (!fresh) return;
         const seen = (info: TLEventInfo) => {
           if (info.name !== "pointer_move" || shapeUnderPointer(editor)?.id !== id) return;
-          setFresh(new Set([...freshShapes().get()].filter((other) => other !== id)));
+          const rest = new Map(freshShapes().get());
+          rest.delete(id);
+          setFresh(rest);
         };
         editor.on("event", seen);
         return () => void editor.off("event", seen);
@@ -268,6 +273,7 @@ export const canvasChromeComponents: TLComponents = {
           ref={ref}
           {...props}
           className={fresh ? `${props.className ?? ""} sp-fresh` : props.className}
+          data-fresh={fresh}
         />
       );
     },

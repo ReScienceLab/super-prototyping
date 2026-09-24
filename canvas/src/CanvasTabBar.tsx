@@ -100,7 +100,7 @@ export function CanvasTabBar(props: {
   tabs: ProjectTab[];
   /** The tab in front, or none while Home is. */
   active: ProjectTab | null;
-  /** What the agent is writing to: a project behind the one in front gets a dot while it is. */
+  /** What the agent is writing to: a project behind the one in front has a sheen cross its name while it is. */
   working: Working;
   onHome: () => void;
   goTo: (tab: ProjectTab) => void;

@@ -112,17 +112,23 @@ export function applyFrame(turn: Turn, frame: Frame): Turn {
 
 /**
  * The canvas folders a turn has written to, by slug: what the canvas glows around while the turn
- * runs. A write is a file edit under `canvases/<slug>/`, or a command that runs a generator
- * there; a read, a listing or a screenshot is not, so looking around lights nothing. Off the tool
- * lines alone, which the panel already has, rather than a marker the agent has to remember.
+ * runs. A write is a file edit under `canvases/<slug>/`, or a command naming that folder that
+ * writes: a generator, a redirect into a file, an in-place edit, a copy, a Python write. A read, a
+ * listing or a screenshot is not, so looking around lights nothing. Off the tool lines alone,
+ * which the panel already has, rather than a marker the agent has to remember.
  */
+// ponytail: a pattern over the command's text, so a `>` in a comparison lights a canvas the
+// command also names; watch the folder's files per run if that gets in the way.
+const SHELL_WRITE =
+  /(?:^|[^\d&>=-])>>?\s*(?!\/dev\/null|&)\S|\bsed\s+-i|\btee\b|\b(?:cp|mv|rm|mkdir|touch)\s|gen\.py|open\([^)]*,\s*['"][wa]|\.write_(?:text|bytes)\(|json\.dump\(/;
+
 export function writingTo(blocks: Block[]): string[] {
   const slugs = new Set<string>();
   for (const b of blocks) {
     if (b.kind !== "tool") continue;
     // Claude Code's Bash and Codex's Shell; Codex's file changes arrive as Edit (codexStream.ts).
     const writes = /^(Bash|Shell)$/.test(b.name)
-      ? b.detail.includes("gen.py")
+      ? SHELL_WRITE.test(b.detail)
       : /^(Write|Edit|MultiEdit|NotebookEdit)$/.test(b.name);
     if (!writes) continue;
     for (const m of b.detail.matchAll(/\bcanvases[\\/]([^\\/\s"'`;&|]+)/g))
