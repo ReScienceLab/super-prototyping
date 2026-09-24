@@ -211,36 +211,56 @@ export function hasCanvasFile(path: string) {
   return boardPageUrl(path) !== undefined;
 }
 
-/** Fetches a board's HTML once and caches it; resolves undefined for a path that is not a board. */
-export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
+/**
+ * Fetches a board's HTML once and caches it; resolves undefined for a path that is not a board.
+ * `again` fetches a board rewritten on disk, keeping the old HTML in the cache until the new one
+ * is in, so its shape never goes blank in between.
+ */
+export function loadCanvasFileHtml(path: string, again = false): Promise<string | undefined> {
   const cached = canvasFileHtml.get(path);
-  if (cached !== undefined) return Promise.resolve(cached);
+  if (cached !== undefined && !again) return Promise.resolve(cached);
   const url = boardPageUrl(path);
   if (!url) return Promise.resolve(undefined);
-  let load = canvasFileLoads.get(path);
-  if (!load) {
+  const pending = canvasFileLoads.get(path);
+  if (pending && !again) return pending;
+  // A rewrite heard while a fetch is out fetches again after it, so the newer bytes land last.
+  const load = (pending ?? Promise.resolve())
+    .then(() => fetch(url))
     // A board that 404s has to reject rather than resolve with the server's error page: the
     // canvas would put that page in the frame and call it the board.
-    load = fetch(url)
-      .then((r) => {
-        if (!r.ok) throw new Error(`${url}: ${r.status}`);
-        return r.text();
-      })
-      .then((html) => {
-        const board = html + NO_OVERSCROLL;
-        canvasFileHtml.set(path, board);
-        return board;
-      })
-      // A fetch can fail — a board deleted between discovery and first render, a server
-      // restart mid-flight. Without this the rejected promise stays in the map and
-      // the shape is blank for good, because every later call hands back the same rejection.
-      .catch(() => undefined)
-      .finally(() => {
-        canvasFileLoads.delete(path);
-      });
-    canvasFileLoads.set(path, load);
-  }
+    .then((r) => {
+      if (!r.ok) throw new Error(`${url}: ${r.status}`);
+      return r.text();
+    })
+    .then((html) => {
+      const board = html + NO_OVERSCROLL;
+      canvasFileHtml.set(path, board);
+      window.dispatchEvent(new CustomEvent(BOARD_HTML, { detail: path }));
+      return board;
+    })
+    // A fetch can fail — a board deleted between discovery and first render, a server
+    // restart mid-flight. Without this the rejected promise stays in the map and
+    // the shape is blank for good, because every later call hands back the same rejection.
+    .catch(() => undefined)
+    .finally(() => {
+      if (canvasFileLoads.get(path) === load) canvasFileLoads.delete(path);
+    });
+  canvasFileLoads.set(path, load);
   return load;
+}
+
+/** On the window with a board's path once its HTML is in the cache, first time or again. */
+const BOARD_HTML = "sp:board-html";
+
+/**
+ * Fetches again the boards rewritten on disk, `<slug>/<file>.html` each: every one fetched or
+ * being fetched, not only those on the page in front. One on a page not mounted when it was
+ * rewritten would otherwise show its old HTML from the cache on the way back.
+ */
+export function refetchBoards(rewritten: string[]) {
+  for (const path of new Set([...canvasFileHtml.keys(), ...canvasFileLoads.keys()]))
+    if (rewritten.some((file) => path.endsWith(`canvases/${file}`)))
+      void loadCanvasFileHtml(path, true);
 }
 
 /**
@@ -269,14 +289,12 @@ export function boardPageUrl(path: string): string | undefined {
 export function useCanvasFileHtml(path: string): string | undefined {
   const [, rerender] = useReducer((n: number) => n + 1, 0);
   useEffect(() => {
-    if (canvasFileHtml.has(path)) return;
-    let live = true;
-    loadCanvasFileHtml(path).then(() => {
-      if (live) rerender();
-    });
-    return () => {
-      live = false;
+    const loaded = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === path) rerender();
     };
+    window.addEventListener(BOARD_HTML, loaded);
+    if (!canvasFileHtml.has(path)) void loadCanvasFileHtml(path);
+    return () => window.removeEventListener(BOARD_HTML, loaded);
   }, [path]);
   return canvasFileHtml.get(path);
 }

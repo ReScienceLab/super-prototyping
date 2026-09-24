@@ -78,5 +78,45 @@ const mac = /Mac/.test(navigator.userAgent);
 /** Each OS's own words for showing a folder in its file manager, and for binning it. */
 export const REVEAL = mac ? "Show in Finder" : "Open file location";
 export const TRASH = mac ? "Move to Trash…" : "Delete…";
-/** Where it goes, in the question asked before it does. */
-export const TRASH_PLACE = mac ? "the Trash" : "the Recycle Bin";
+
+/**
+ * Asked before a folder is binned, in a dialog of the page's own rather than the browser's
+ * confirm(), which heads itself with the address and cannot be styled. The browser's <dialog>
+ * already traps focus and closes on Escape. Answers whether to go ahead.
+ */
+export function confirmTrash(name: string, folder: string, goes: string) {
+  // The window's, not the canvas frame's, so it sits in the middle of the whole window and its
+  // backdrop covers the chat as well. The window loads the same stylesheet (shell.tsx).
+  const doc = window.top!.document;
+  const dialog = doc.createElement("dialog");
+  dialog.className = "sp-confirm";
+  const h2 = doc.createElement("h2");
+  h2.textContent = `Move “${name}” to ${mac ? "the Trash" : "the Recycle Bin"}?`;
+  const path = doc.createElement("code");
+  path.textContent = folder;
+  const p = doc.createElement("p");
+  p.textContent = goes;
+  const form = doc.createElement("form");
+  form.method = "dialog";
+  const cancel = doc.createElement("button");
+  cancel.value = "cancel";
+  cancel.textContent = "Cancel";
+  const bin = doc.createElement("button");
+  bin.value = "trash";
+  bin.textContent = mac ? "Move to Trash" : "Delete";
+  bin.className = "sp-confirm-danger";
+  form.append(cancel, bin);
+  dialog.append(h2, path, p, form);
+  doc.body.append(dialog);
+  dialog.showModal();
+  // A click on the backdrop lands on the dialog itself, outside its box: the same as Cancel.
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  return new Promise<boolean>((resolve) =>
+    dialog.addEventListener("close", () => {
+      dialog.remove();
+      resolve(dialog.returnValue === "trash");
+    }),
+  );
+}

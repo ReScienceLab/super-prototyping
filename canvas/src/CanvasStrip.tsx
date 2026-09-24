@@ -6,7 +6,7 @@ import { canvasIndex, LAYOUT_CHANGED } from "./canvasIndex";
 import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { sheetPageUrl, type CanvasTab } from "./canvasUrl";
-import { openMenu, REVEAL, TRASH, TRASH_PLACE } from "./contextMenu";
+import { confirmTrash, openMenu, REVEAL, TRASH } from "./contextMenu";
 import { DocModeSwitch } from "./DocTab";
 import { FileText, LogoFigma, Plus } from "./geistIcons";
 
@@ -46,8 +46,16 @@ export function CanvasStrip() {
   const [, relabel] = useReducer((n: number) => n + 1, 0);
   useEffect(() => {
     window.addEventListener(LAYOUT_CHANGED, relabel);
-    return () => window.removeEventListener(LAYOUT_CHANGED, relabel);
+    window.parent.addEventListener("sp:working", relabel);
+    return () => {
+      window.removeEventListener(LAYOUT_CHANGED, relabel);
+      window.parent.removeEventListener("sp:working", relabel);
+    };
   }, []);
+  // The canvases the agent is writing to in this project, which the window keeps (AppShell.tsx);
+  // the one in front glows there, and a sheen crosses the name of every one of them here.
+  const working = window.parent.spShell!.working;
+  const busy = working.project === canvasIndex().project ? working.slugs : [];
   // A canvas just made is the one to be on, once the editor is there to show its page.
   const made = useRef(renaming);
   useEffect(() => {
@@ -118,6 +126,7 @@ export function CanvasStrip() {
           type="button"
           className="sp-canvas-tab"
           aria-current={canvas === here ? "page" : undefined}
+          data-working={busy.includes(canvas) || undefined}
           onClick={() => openTab({ kind: "canvas", slug: canvas })}
           onDoubleClick={() =>
             tab.kind !== "example" && canvasIndex().served && setRenaming(canvas)
@@ -213,13 +222,16 @@ export function CanvasStrip() {
               type="button"
               role="menuitem"
               className="sp-menu-row sp-context-menu__danger"
-              onClick={() =>
-                confirm(
-                  `Move “${shortName(target.slug)}” to ${TRASH_PLACE}?\n\n` +
-                    `${canvasIndex().canvasesDir}/${target.slug}\n\n` +
+              onClick={async () => {
+                if (
+                  await confirmTrash(
+                    shortName(target.slug),
+                    `${canvasIndex().canvasesDir}/${target.slug}`,
                     "Its boards and everything pasted on it go with it.",
-                ) && folder(target.slug, "delete")
-              }
+                  )
+                )
+                  void folder(target.slug, "delete");
+              }}
             >
               {TRASH}
             </button>

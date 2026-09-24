@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import {
   brandMaterialSlugs,
   canvasBoardRef,
@@ -34,6 +34,9 @@ describe("readCanvasLibrary", () => {
 });
 
 describe("loadCanvasFileHtml", () => {
+  // Where a loaded board is announced to the shapes showing it.
+  beforeAll(() => vi.stubGlobal("window", new EventTarget()));
+
   it("fills the cache useCanvasFileHtml reads from, and leaves non-boards out of it", async () => {
     const path = readCanvasLibrary()[0].files[0].path;
     expect(canvasFileHtml.has(path)).toBe(false);

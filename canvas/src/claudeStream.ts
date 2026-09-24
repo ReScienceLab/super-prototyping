@@ -61,7 +61,9 @@ export type ChatEvent =
    * on its own and the panel keeps whichever it has been told.
    */
   | { kind: "usage"; used?: number; window?: number }
-  | { kind: "end"; ok: boolean; message?: string };
+  /** `interrupted`: cut off before it finished, by the app quitting or the CLI dying, rather
+   *  than failed or stopped. The panel offers to continue it. */
+  | { kind: "end"; ok: boolean; message?: string; interrupted?: boolean };
 
 /**
  * A picture a tool handed back: the grid refkit draws over a reference, a crop, a screenshot —

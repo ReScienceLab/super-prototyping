@@ -209,12 +209,16 @@ export function createSpServer(options: {
   };
 
   // The open pages, for the watcher and the write endpoints to talk to. One event stream per
-  // page; `reload` is answered with a full reload, `layout` with the new layout.json for
+  // page; `reload` is answered with a full reload, `index` with the new board index and the
+  // boards rewritten, `layout` with the new layout.json for
   // one board and `docs` with the project's documents, handed over live because a reload to
   // change one word would throw away the tldraw viewport, the open panel and a document being
   // edited. canvasIndex.ts listens.
   const pages = new Set<ServerResponse>();
-  const broadcast = (event: "reload" | "layout" | "docs" | "content", data: unknown) => {
+  const broadcast = (
+    event: "reload" | "index" | "layout" | "docs" | "content",
+    data: unknown,
+  ) => {
     const frame = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const page of pages) page.write(frame);
   };
@@ -232,10 +236,9 @@ export function createSpServer(options: {
   const projectName = () =>
     [...projects()].find(([, dir]) => dir === projectDir)?.[0];
 
-  route("/__sp/index.json", (req, res, next) => {
-    if (req.method !== "GET") return next();
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "no-store");
+  // What `/__sp/index.json` answers, and what the watcher hands an open page when a board is
+  // added, removed or rewritten, so the page takes it in without a reload.
+  const pageIndex = () => {
     const how = {
       served: true,
       canvasesNamespace: canvasesNamespace(canvasesDir, repoRoot),
@@ -251,7 +254,14 @@ export function createSpServer(options: {
     ].sort((a, b) => (a.slug < b.slug ? -1 : 1));
     const docs = projectDir === undefined ? undefined : readDocs(projectDir);
     const title = projectDir === undefined ? undefined : readProjectJson(projectDir).name;
-    res.end(JSON.stringify({ ...index, boards, project: projectName(), title, docs }));
+    return { ...index, boards, project: projectName(), title, docs };
+  };
+
+  route("/__sp/index.json", (req, res, next) => {
+    if (req.method !== "GET") return next();
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Cache-Control", "no-store");
+    res.end(JSON.stringify(pageIndex()));
   });
 
   // The projects the home page and the tab bar list: every one the server knows. Each is its
@@ -662,10 +672,9 @@ export function createSpServer(options: {
   // where the first board folder appears while the server is already up.
   fs.mkdirSync(canvasesDir, { recursive: true });
 
-  // A change to the set of boards, or to a board: the page reloads, and its next request
-  // for the index scans the directory again. Whoever asks for that request is the
-  // caller's business: the watcher reloads the open page, while the clone endpoint below
-  // leaves it to the navigation it answers with.
+  // The page reloads, and its next request for the index scans the directory again. The
+  // watcher asks for it only for a canvas.json written from outside; the clone endpoint
+  // below leaves it to the navigation it answers with.
   const rebuild = () => broadcast("reload", {});
 
   // Canvas comments, written back into the board folder so they travel with it in Git.
@@ -739,15 +748,15 @@ export function createSpServer(options: {
         if (seq <= (contentSeq.get(from) ?? 0)) return send(200, "ok");
         contentSeq.set(from, seq);
         const target = path.join(folder, "canvas.json");
-        // An emptied canvas leaves no file behind, as the last comment does.
-        const text = file?.records?.length ? JSON.stringify(file, null, 2) + "\n" : "";
+        // An emptied canvas keeps its file, with no records, unlike the last comment: no file is
+        // what a page that has never saved sees, and it keeps and writes back what the browser
+        // held, so everything deleted last would come back with the next window that loads.
+        const text = JSON.stringify(file, null, 2) + "\n";
         wroteContent.set(target, text);
         // Written beside it and renamed over it, so a write cut off leaves the last whole file,
         // which is the one the next load takes. The watcher ignores the .part.
-        if (text) {
-          fs.writeFileSync(`${target}.part`, text);
-          fs.renameSync(`${target}.part`, target);
-        } else fs.rmSync(target, { force: true });
+        fs.writeFileSync(`${target}.part`, text);
+        fs.renameSync(`${target}.part`, target);
         // Every other page on the project reloads onto it (canvasIndex.ts), since the watcher
         // below takes this write for the saving page's own.
         broadcast("content", { slug, by });
@@ -983,37 +992,60 @@ export function createSpServer(options: {
     }
   };
   let signature = boardSetSignature(canvasesDir, list);
+  // What each board held when last seen, by `<slug>/<file>.html`. A generator writes every
+  // board on each run, and only the ones whose bytes changed are news to the page, which rings
+  // them as updated (App.tsx). A board seen for the first time is new, not updated, and the
+  // index says so on its own.
+  const boardKey = (file: string) =>
+    path.relative(canvasesDir, file).split(path.sep).join("/").normalize("NFC");
+  const boardHash = (file: string) =>
+    createHash("sha1").update(fs.readFileSync(file)).digest("hex");
+  const boardHashes = new Map<string, string>();
+  for (const slug of list(canvasesDir))
+    for (const name of list(path.join(canvasesDir, slug)))
+      if (name.endsWith(".html")) {
+        const file = path.join(canvasesDir, slug, name);
+        boardHashes.set(boardKey(file), boardHash(file));
+      }
 
   /**
    * One settled batch of writes, answered once.
    *
-   * The set of boards first, because a board added, removed or renamed makes the generated
-   * index wrong about which boards exist, and a reload is the only thing that fixes that.
-   * Otherwise the batch is read file by file, and a board is reloaded while a layout is
-   * handed over live — the distinction the canvas has always drawn, now drawn for a write
-   * from anywhere rather than only for one the endpoints made themselves.
+   * Boards are handed over live, never with a reload: a person may be drawing on the canvas
+   * while the agent writes, and a reload throws away the stroke in progress, the text being
+   * typed and the last half second of edits canvas.json has not saved yet. A board added,
+   * removed or rewritten, or an image under `assets/`, sends the page the whole index again,
+   * with the boards to fetch afresh; the page lays itself out from it (canvasIndex.ts). What
+   * only a reload shows is canvas.json written from outside, whose file wins on load.
    */
   const settle = (files: string[]) => {
     const now = boardSetSignature(canvasesDir, list);
-    if (now !== signature) {
-      signature = now;
-      rebuild();
-      return;
-    }
+    let fresh = now !== signature;
+    signature = now;
     let reload = false;
+    /** `<slug>/<file>.html` of each board whose content changed, for the page to fetch again. */
+    const rewritten: string[] = [];
     const layouts = new Set<string>();
     for (const file of files) {
       switch (boardChangeKind(canvasesDir, file)) {
-        case "board":
-          // A reload rather than a live update: the page keeps every board it has fetched in
-          // a Map (canvasLibrary.ts). The tldraw document is in IndexedDB and survives the
-          // reload; the viewport is what it costs, which is why only a board edit spends it.
-          reload = true;
+        case "board": {
+          const key = boardKey(file);
+          const was = boardHashes.get(key);
+          if (!fs.existsSync(file)) {
+            boardHashes.delete(key);
+            break;
+          }
+          const now = boardHash(file);
+          boardHashes.set(key, now);
+          if (now === was) break;
+          if (was) rewritten.push(key);
+          fresh = true;
           break;
+        }
         case "assets":
           // An image edited in place keeps its name and changes its hash, so the index that
-          // names a board's images by content is stale until the reload fetches it again.
-          reload = true;
+          // names a board's images by content is stale until it is sent again.
+          fresh = true;
           break;
         case "layout":
           layouts.add(file);
@@ -1047,11 +1079,12 @@ export function createSpServer(options: {
         // the layout it has until then.
       }
     }
-    if (reload) rebuild();
+    if (reload) return rebuild();
+    if (fresh) broadcast("index", { index: pageIndex(), rewritten });
   };
 
   // A generator writes a folder of boards over a second or two, and a save can arrive as
-  // more than one event. Batched on the trailing edge, so a run answers with one reload
+  // more than one event. Batched on the trailing edge, so a run answers with one index
   // once it is done rather than one per file while it is still writing.
   const queued = new Set<string>();
   let batch: ReturnType<typeof setTimeout> | undefined;
@@ -1067,7 +1100,7 @@ export function createSpServer(options: {
         console.error(`[canvases] ${error}`);
       }
     }, 120);
-    // Never a reason to hold the process open: a pending reload for a server on its way down
+    // Never a reason to hold the process open: a pending broadcast for a server on its way down
     // has nobody left to send it to.
     batch.unref?.();
   };

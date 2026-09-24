@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { sseFrame } from './agentRun'
-import { applyFrame, followRun, sseFrames, type Frame, type Turn } from './chatTransport'
+import { applyFrame, followRun, sseFrames, writingTo, type Block, type Frame, type Turn } from './chatTransport'
 import type { ChatEvent } from './claudeStream'
 
 const frame = (id: number, data: ChatEvent): Frame => ({ id, event: data.kind, data })
@@ -54,6 +54,37 @@ describe('applyFrame', () => {
     expect(turn.blocks).toEqual([
       { kind: 'tool', id: 't1', name: 'Bash', detail: 'refkit shoot', ok: true, shots: [{ k: 1 }] },
     ])
+  })
+})
+
+describe('writingTo', () => {
+  const tool = (name: string, detail: string): Block => ({ kind: 'tool', id: detail, name, detail })
+
+  it('names the canvases a turn wrote to, and not the ones it only looked at', () => {
+    const blocks = [
+      tool('Read', '/p/shop/canvases/cart/01-cart.html'),
+      tool('Bash', 'ls /p/shop/canvases/checkout'),
+      tool('Write', '/p/shop/canvases/home/gen.py'),
+      tool('Bash', 'cd /p/shop/canvases/cart && python3 gen.py'),
+      tool('Edit', '/p/shop/canvases/home/layout.json, /p/shop/canvases/menu/gen.py'),
+      tool('Shell', 'python3 C:\\p\\shop\\canvases\\orders\\gen.py'),
+    ]
+    expect(writingTo(blocks)).toEqual(['home', 'cart', 'menu', 'orders'])
+  })
+
+  it('counts a shell write by redirect, in-place edit or Python, and not a read', () => {
+    const dir = '"/Users/a/Documents/Super Prototyping/app/canvases/untitled"'
+    const cases: [string, boolean][] = [
+      [`cd ${dir}; cat > logo.html <<'EOF'\n<html>\nEOF`, true],
+      [`cd ${dir}; sed -i '' 's/a/b/' logo.html`, true],
+      [`cd ${dir}; python3 -c "import json;json.dump(d,open(p,'w'))"`, true],
+      [`mkdir -p ${dir}`, true],
+      [`cd ${dir}; cat layout.json 2>/dev/null; ls 2>&1 | head`, false],
+      [`cd ${dir}; python3 -c "import json;print(json.load(open('canvas.json')))"`, false],
+      [`cd ${dir}; grep -rl logo . > /dev/null`, false],
+    ]
+    for (const [command, writes] of cases)
+      expect(writingTo([tool('Bash', command)]), command).toEqual(writes ? ['untitled'] : [])
   })
 })
 

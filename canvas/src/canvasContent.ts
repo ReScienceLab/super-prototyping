@@ -18,7 +18,7 @@ import {
   type TLShapeId,
   type VecLike,
 } from "tldraw";
-import { canvasIndex, PAGE_ID } from "./canvasIndex";
+import { canvasIndex, fileWins, PAGE_ID } from "./canvasIndex";
 import {
   boardFileUrl,
   canvasImageKey,
@@ -143,45 +143,53 @@ let mounted: Editor | undefined;
  */
 export function installCanvasContent(editor: Editor) {
   mounted = editor;
-  const pages = projectPages(editor);
   const written = new Map<string, string>();
   // A canvas.json that would not parse is neither loaded nor written over, and said so.
-  for (const slug of pages.keys())
-    if (canvasIndex().boards.find((b) => b.slug === slug)?.content === null) {
-      pages.delete(slug);
+  const broken = new Set<string>();
+  const seen = new Set<string>();
+  // A page's file, taken over what this browser had the first time the page is seen: here, or
+  // in a flush once a live index has added its canvas (canvasIndex.ts), maybe with a file already.
+  const take = (slug: string, pageId: TLPageId) => {
+    seen.add(slug);
+    const file = canvasIndex().boards.find((b) => b.slug === slug)?.content;
+    if (file === null) {
+      broken.add(slug);
       alert(
         `canvases/${slug}/canvas.json is not valid JSON, so what is on that canvas is not being ` +
           "saved. Fix or remove the file, then reload.",
       );
+      return;
     }
-
+    if (!file) {
+      written.set(slug, "");
+      return;
+    }
+    const wanted = storeRecords(editor, file, pageId, slug);
+    const kept = new Set<string>(
+      [...editor.getPageShapeIds(pageId)].filter(isLibraryShapeId),
+    );
+    for (const record of wanted) if (record.typeName === "shape") kept.add(record.id);
+    const had = pageFile(editor, pageId, slug).records;
+    editor.store.remove(had.map((record) => record.id));
+    // A binding to something no longer there, a board taken out of layout.json say, goes.
+    editor.store.put(
+      wanted.filter(
+        (record) =>
+          record.typeName !== "binding" ||
+          (kept.has(record.fromId) && kept.has(record.toId)),
+      ),
+    );
+    // Spelled as flush spells it, so a file emptied of records loads as nothing to save.
+    const loaded = pageFile(editor, pageId, slug);
+    written.set(slug, loaded.records.length ? JSON.stringify(loaded) : "");
+  };
   editor.store.mergeRemoteChanges(() => {
-    for (const [slug, pageId] of pages) {
-      const file = canvasIndex().boards.find((b) => b.slug === slug)?.content;
-      if (!file) {
-        written.set(slug, "");
-        continue;
-      }
-      const wanted = storeRecords(editor, file, pageId, slug);
-      const kept = new Set<string>(
-        [...editor.getPageShapeIds(pageId)].filter(isLibraryShapeId),
-      );
-      for (const record of wanted) if (record.typeName === "shape") kept.add(record.id);
-      const had = pageFile(editor, pageId, slug).records;
-      editor.store.remove(had.map((record) => record.id));
-      // A binding to something no longer there, a board taken out of layout.json say, goes.
-      editor.store.put(
-        wanted.filter(
-          (record) =>
-            record.typeName !== "binding" ||
-            (kept.has(record.fromId) && kept.has(record.toId)),
-        ),
-      );
-      written.set(slug, JSON.stringify(pageFile(editor, pageId, slug)));
-    }
+    for (const [slug, pageId] of projectPages(editor)) take(slug, pageId);
   });
 
   let pending: ReturnType<typeof setTimeout> | undefined;
+  // The pages are read again on every pass: a canvas the agent adds arrives without a reload
+  // (canvasIndex.ts), and what a person puts on it has to be saved too.
   // Each write is numbered, and the server drops one older than the last it took from this page,
   // so writes that land out of order leave the newest on disk. A write that fails forgets what
   // it sent, and the next change sends the page again. `leaving` is the page going away with a
@@ -193,16 +201,21 @@ export function installCanvasContent(editor: Editor) {
   const flush = (leaving = false) => {
     clearTimeout(pending);
     pending = undefined;
-    for (const [slug, pageId] of pages) {
+    for (const [slug, pageId] of projectPages(editor)) {
+      if (broken.has(slug) || fileWins.has(slug)) continue;
+      if (!seen.has(slug)) {
+        editor.store.mergeRemoteChanges(() => take(slug, pageId));
+        continue;
+      }
       const file = pageFile(editor, pageId, slug);
       const body = file.records.length ? JSON.stringify(file) : "";
-      if (written.get(slug) === body) continue;
+      if ((written.get(slug) ?? "") === body) continue;
       written.set(slug, body);
       unanswered.add(slug);
       void fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ slug, file: body ? file : null, by: PAGE_ID, seq: ++seq }),
+        body: JSON.stringify({ slug, file, by: PAGE_ID, seq: ++seq }),
         keepalive: leaving,
       })
         .then(async (res) => {
