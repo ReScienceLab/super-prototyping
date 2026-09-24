@@ -1,6 +1,7 @@
 import {
   AssetRecordType,
   Box,
+  FileHelpers,
   MediaHelpers,
   T,
   createShapeId,
@@ -16,7 +17,7 @@ import {
   type TLShapeId,
   type TLShapePartial,
 } from 'tldraw'
-import { personsShapeName, projectPages, readyForAgentWrite } from './canvasContent'
+import { personsShapeName, projectPages, readyForAgentWrite, saveNow } from './canvasContent'
 import {
   boardFileUrl,
   boardSize,
@@ -25,7 +26,7 @@ import {
   readCanvasLibrary,
 } from './canvasLibrary'
 import { CANVAS_FILE_SHAPE_TYPE } from './CanvasFileShapeUtil'
-import { LAYOUT_CHANGED } from './canvasIndex'
+import { LAYOUT_CHANGED, takeAgentCommands } from './canvasIndex'
 import { SAFE_NAME } from './layoutEdit'
 
 const MAX_SHAPES_PER_COMMAND = 100
@@ -773,6 +774,24 @@ function zoomOp(editor: Editor, pageId: TLPageId, input: unknown) {
   return {}
 }
 
+/** A PNG of the page open in front of the person, of `ids` or of everything on it, as base64:
+ *  `sp canvas shot` writes it to a file for the agent to look at. */
+async function shotOp(editor: Editor, pageId: TLPageId, input: unknown) {
+  if (editor.getCurrentPageId() !== pageId)
+    fail('not_current_page', 'shot only works on the canvas open in front of the person')
+  const ids = isRecord(input) && input.ids !== undefined ? parseIds(input.ids) : undefined
+  for (const id of ids ?? []) onPage(editor, pageId, id)
+  const shapes = ids?.length ? ids : [...editor.getCurrentPageShapeIds()]
+  if (!shapes.length) fail('bad_command', 'there is nothing on this canvas to shoot')
+  const { blob, width, height } = await editor.toImage(shapes, {
+    padding: 32,
+    pixelRatio: 1,
+    background: true,
+  })
+  const url = await FileHelpers.blobToDataUrl(blob)
+  return { png: url.slice(url.indexOf(',') + 1), width, height }
+}
+
 // ---- entry point ----
 
 /** Runs one command against a project canvas's page. Every write goes through
@@ -805,6 +824,8 @@ export async function dispatch(editor: Editor, slug: string, input: unknown) {
         return selectOp(editor, pageId, input)
       case 'zoom':
         return zoomOp(editor, pageId, input)
+      case 'shot':
+        return await shotOp(editor, pageId, input)
       default:
         fail('bad_command', `unsupported canvas op: ${input.op}`)
     }
@@ -818,10 +839,25 @@ export async function dispatch(editor: Editor, slug: string, input: unknown) {
   }
 }
 
+/** Runs the commands `sp canvas` sends this page (server/sp.ts), and answers each once what it
+ *  wrote is on disk, so the agent is told a placement landed only when it did. */
 export function installAgentBridge(editor: Editor) {
-  const api = { dispatch: (slug: string, command: unknown) => dispatch(editor, slug, command) }
-  window.snapCanvas = api
-  return () => {
-    if (window.snapCanvas === api) delete window.snapCanvas
-  }
+  return takeAgentCommands(async ({ id, slug, command }) => {
+    let reply
+    try {
+      const result = await dispatch(editor, slug, command)
+      if ('error' in result) reply = { id, ok: false, error: result }
+      else {
+        await saveNow(slug)
+        reply = { id, ok: true, result }
+      }
+    } catch (error) {
+      reply = { id, ok: false, error: { error: 'failed', message: String(error) } }
+    }
+    await fetch(`${import.meta.env.BASE_URL}__sp/canvas-reply`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(reply),
+    })
+  })
 }

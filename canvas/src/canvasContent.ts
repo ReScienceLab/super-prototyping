@@ -177,6 +177,16 @@ const written = new Map<string, string>();
 // A canvas.json that would not parse is neither loaded nor written over, and said so.
 const broken = new Set<string>();
 const seen = new Set<string>();
+// Each canvas's last write, which rejects when it did not land, for saveNow.
+const inflight = new Map<string, Promise<void>>();
+let flushNow: (() => void) | undefined;
+
+/** Writes a canvas's page now rather than after the usual pause, and settles once the server has
+ *  it: the agent bridge answers a command only then, so what `sp canvas` reports is on disk. */
+export function saveNow(slug: string): Promise<void> {
+  flushNow!();
+  return inflight.get(slug) ?? Promise.resolve();
+}
 
 /** A page's file, taken over what this browser had the first time the page is seen: here, or
  *  in a flush once a live index has added its canvas (canvasIndex.ts), maybe with a file already. */
@@ -244,6 +254,7 @@ export function installCanvasContent(editor: Editor) {
   written.clear();
   broken.clear();
   seen.clear();
+  inflight.clear();
   editor.store.mergeRemoteChanges(() => {
     for (const [slug, pageId] of projectPages(editor)) take(slug, pageId);
   });
@@ -273,22 +284,23 @@ export function installCanvasContent(editor: Editor) {
       if ((written.get(slug) ?? "") === body) continue;
       written.set(slug, body);
       unanswered.add(slug);
-      void fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
+      const sent = fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ slug, file, by: PAGE_ID, seq: ++seq }),
         keepalive: leaving,
-      })
-        .then(async (res) => {
-          if (!res.ok) throw new Error(await res.text());
-          if (written.get(slug) === body) unanswered.delete(slug);
-        })
-        .catch((error) => {
-          console.error(`canvas ${slug} was not saved:`, error);
-          if (written.get(slug) === body) written.delete(slug);
-        });
+      }).then(async (res) => {
+        if (!res.ok) throw new Error(await res.text());
+        if (written.get(slug) === body) unanswered.delete(slug);
+      });
+      inflight.set(slug, sent);
+      sent.catch((error) => {
+        console.error(`canvas ${slug} was not saved:`, error);
+        if (written.get(slug) === body) written.delete(slug);
+      });
     }
   };
+  flushNow = flush;
   flush();
 
   // Every document change is a candidate: a person's shape, an asset landing, a binding. flush
@@ -312,6 +324,7 @@ export function installCanvasContent(editor: Editor) {
     window.removeEventListener("pagehide", leave);
     clearTimeout(pending);
     mounted = undefined;
+    flushNow = undefined;
   };
 }
 

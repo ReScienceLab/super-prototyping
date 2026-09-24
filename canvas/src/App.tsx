@@ -1618,7 +1618,11 @@ export default function App() {
                 // entirely, which is the one thing this option turns back on. The lock itself is
                 // what keeps them from moving: `updateShapes` skips a locked shape's own partial
                 // regardless of this flag, so a selected board still can't be dragged or resized.
-                options={{ selectLockedShapes: true }}
+                // An export waits up to `maxExportDelayMs` for every shape's picture, and past it
+                // leaves all of them out, not just the late one. A board's is drawn by the server
+                // (CanvasFileShapeUtil.tsx), seconds each when it has changed, so it gets the
+                // server's own 120 s for a shot rather than tldraw's 5.
+                options={{ selectLockedShapes: true, maxExportDelayMs: 120_000 }}
                 // No cap where a server is behind the page: a pasted file streams into the
                 // canvas's files/ (canvasContent.ts), so a gigabyte video is as fine as a
                 // screenshot. The hosted build inlines into the browser, so it keeps tldraw's 10 MB.

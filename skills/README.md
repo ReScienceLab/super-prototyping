@@ -12,7 +12,7 @@ a user's own folder of the same name, so keep it.
 |---|---|
 | `clone-prototype` | Copying a real app's screens: grid the reference, sample colours visually, name the type face, derive one measured token block, generate the artboards, verify by re-rendering, park the reference underneath. |
 | `new-ui-mock` | Designing new screens with no reference, built on existing tokens. |
-| `prototype-canvas` | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
+| `prototype-canvas` | Running and operating the canvas: boards, `layout.json`, placing boards, images and video anywhere on a canvas with `sp canvas`, annotated-screenshot review, the force-refresh. |
 | `define-product` | Interviewing the user about what their product is for, and writing it down as the project's `PRD.md`, which the canvas shows as a tab. |
 | `brand-kit` | Collecting a product's own brand and promotional material -- press kit, store listings, social, newsroom -- and turning it into the `images` rows of a canvas folder. |
 

@@ -42,8 +42,8 @@ separate repo and why the canvas is proxied rather than redirected.
 
 `tools/` is a Python package, `super-prototyping-tools`. It installs `refkit`
 (measure, shoot, diff, check tokens), `artgen` (the rare asset that has to be
-drawn) and `sp` (start the canvas against a project's boards) as
-commands on PATH. The skills invoke them by name, never by path: no agent
+drawn) and `sp` (start the canvas against a project's boards, and place
+things on an open canvas with `sp canvas`) as commands on PATH. The skills invoke them by name, never by path: no agent
 product exposes a skill's install root to a shell, so a path-based invocation would
 need a different spelling per product.
 

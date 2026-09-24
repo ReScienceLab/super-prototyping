@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { Editor, TLArrowShape, TLAssetId, TLPageId, TLShapeId } from 'tldraw'
-import { LAYOUT_CHANGED, canvasIndex, installCanvasIndex } from './canvasIndex'
+import { LAYOUT_CHANGED, canvasIndex, installCanvasIndex, loadCanvasIndex } from './canvasIndex'
 import { readCanvasLibrary } from './canvasLibrary'
 import { WELCOME_PAGE_SLUG } from './canvasUrl'
 
@@ -373,6 +373,67 @@ describe('get', () => {
       text: 'hello',
     })
     expect(view.shapes.find((s) => s.id === theirs)).toMatchObject({ owner: 'person' })
+  })
+})
+
+describe('sp canvas', () => {
+  it('runs a command that came before the bridge, and answers once it is saved', async () => {
+    const realFetch = globalThis.fetch
+    const listeners: Record<string, (event: { data: string }) => void> = {}
+    globalThis.EventSource = class {
+      addEventListener(type: string, fn: (event: { data: string }) => void) {
+        listeners[type] = fn
+      }
+    } as unknown as typeof EventSource
+    const sent: { route: string; body: any }[] = []
+    let status = 200
+    let replied: (body: any) => void = () => {}
+    globalThis.fetch = async (input, init) => {
+      const route = String(input).split('__sp/')[1]
+      if (route === 'index.json') return new Response(JSON.stringify(canvasIndex()))
+      const body = JSON.parse(String(init!.body))
+      sent.push({ route, body })
+      if (route === 'canvas-reply') replied(body)
+      return new Response(route === 'canvas-content' && status !== 200 ? 'disk full' : 'ok', {
+        status: route === 'canvas-content' ? status : 200,
+      })
+    }
+    const send = (id: string, command: unknown) =>
+      listeners.command({ data: JSON.stringify({ id, slug, command }) })
+    const reply = () => new Promise<any>((done) => (replied = done))
+    let dispose = () => {}
+    try {
+      await loadCanvasIndex(true, true)
+      const first = reply()
+      send('c1', { op: 'create', shapes: [geo(0, 4200)] })
+      dispose = bridge.installAgentBridge(editor)
+      const answer = await first
+      expect(answer).toMatchObject({ id: 'c1', ok: true })
+      const [id] = answer.result.created
+      const saved = sent.findIndex(
+        (s) => s.route === 'canvas-content' && s.body.file.records.some((r: any) => r.id === id),
+      )
+      expect(saved).toBeGreaterThan(-1)
+      expect(saved).toBeLessThan(sent.findIndex((s) => s.route === 'canvas-reply'))
+
+      // A save the server refused is a failure, not a placement.
+      status = 500
+      const second = reply()
+      send('c2', { op: 'create', shapes: [geo(40, 4200)] })
+      expect(await second).toMatchObject({
+        id: 'c2',
+        ok: false,
+        error: { error: 'failed', message: expect.stringContaining('disk full') },
+      })
+      // The bridge's own refusal is answered as it is.
+      const third = reply()
+      send('c3', { op: 'nope' })
+      expect(await third).toMatchObject({ id: 'c3', ok: false, error: { error: 'bad_command' } })
+    } finally {
+      dispose()
+      globalThis.fetch = realFetch
+      delete (globalThis as { EventSource?: unknown }).EventSource
+    }
   })
 })
 

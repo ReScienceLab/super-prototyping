@@ -493,7 +493,13 @@ export function createAgentServer(options: {
             child: spawn(c.file, c.args, {
               ...c.options,
               cwd,
-              env: process.env,
+              // `sp canvas` reads both: the project in front, none from the home page, and this
+              // server's port.
+              env: {
+                ...process.env,
+                SP_PROJECT: project,
+                SP_CANVAS_PORT: String(req.socket.localPort),
+              },
             }),
             stopped: false,
           });
