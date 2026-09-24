@@ -748,15 +748,15 @@ export function createSpServer(options: {
         if (seq <= (contentSeq.get(from) ?? 0)) return send(200, "ok");
         contentSeq.set(from, seq);
         const target = path.join(folder, "canvas.json");
-        // An emptied canvas leaves no file behind, as the last comment does.
-        const text = file?.records?.length ? JSON.stringify(file, null, 2) + "\n" : "";
+        // An emptied canvas keeps its file, with no records, unlike the last comment: no file is
+        // what a page that has never saved sees, and it keeps and writes back what the browser
+        // held, so everything deleted last would come back with the next window that loads.
+        const text = JSON.stringify(file, null, 2) + "\n";
         wroteContent.set(target, text);
         // Written beside it and renamed over it, so a write cut off leaves the last whole file,
         // which is the one the next load takes. The watcher ignores the .part.
-        if (text) {
-          fs.writeFileSync(`${target}.part`, text);
-          fs.renameSync(`${target}.part`, target);
-        } else fs.rmSync(target, { force: true });
+        fs.writeFileSync(`${target}.part`, text);
+        fs.renameSync(`${target}.part`, target);
         // Every other page on the project reloads onto it (canvasIndex.ts), since the watcher
         // below takes this write for the saving page's own.
         broadcast("content", { slug, by });

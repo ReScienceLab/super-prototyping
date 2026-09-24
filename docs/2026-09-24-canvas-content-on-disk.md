@@ -91,8 +91,9 @@ This is the pattern `canvasComments.ts` already uses.
   on it is written out, and nothing is lost.
 - **Save:** `store.listen(…, { source: 'user', scope: 'document' })`, debounced by 500 ms. Each
   project page is serialized, and a page whose body changed is posted to
-  `POST __sp/canvas-content { slug, file }`. An emptied page removes the file. The page is the
-  only writer, and the agent's bridge edits go through the same store and the same debounce, so
+  `POST __sp/canvas-content { slug, file }`. An emptied page keeps the file with no records:
+  no file means a page never saved, whose browser copy is written out, so removing it would
+  bring back what was deleted in every other window. The page is the only writer, and the agent's bridge edits go through the same store and the same debounce, so
   the person's writes and the agent's writes cannot race each other.
 - **Edits from outside** (`git pull`, a hand edit, another window): the watcher classes
   `canvas.json` as `"content"` and reloads the page, and the file wins on the reload. The server

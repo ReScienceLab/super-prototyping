@@ -68,6 +68,9 @@ let index: CanvasIndex | undefined;
 
 /** This page, to the server, so a save it hears about can be told from its own (canvasContent.ts). */
 export const PAGE_ID = crypto.randomUUID();
+/** Set as the page reloads onto a canvas.json another window saved. Its own save on the way out
+ *  would put the older copy back over it, and reload that window in turn (canvasContent.ts). */
+export let fileWins = false;
 
 /** Hands the page its index. The entries call `loadCanvasIndex`; the tests call this directly. */
 export function installCanvasIndex(next: CanvasIndex) {
@@ -127,7 +130,9 @@ export async function loadCanvasIndex(live = true) {
   });
   // A canvas saved by another window: the file wins on load, as for an edit made outside.
   events.addEventListener("content", (event) => {
-    if (JSON.parse(event.data).by !== PAGE_ID) window.location.reload();
+    if (JSON.parse(event.data).by === PAGE_ID) return;
+    fileWins = true;
+    window.location.reload();
   });
   events.addEventListener("docs", (event) => {
     canvasIndex().docs = JSON.parse(event.data);

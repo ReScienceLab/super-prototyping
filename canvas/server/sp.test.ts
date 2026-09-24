@@ -99,7 +99,7 @@ it("shows the examples read-only beside the project's canvases", async () => {
     ).toEqual([1, 2]);
 
     // What a person puts on it: files into files/, served back from /board, and the records
-    // into canvas.json, which an emptied page removes.
+    // into canvas.json, which an emptied page keeps with no records.
     const file = "/__sp/canvas-file?slug=untitled&name=asset-1.png";
     expect((await ask(file, {})).status).toBe(200);
     expect((await ask("/board/untitled/files/asset-1.png")).text).toBe("{}");
@@ -124,7 +124,7 @@ it("shows the examples read-only beside the project's canvases", async () => {
       ).content.records,
     ).toEqual([{ id: "shape:a" }]);
     await ask("/__sp/canvas-content", content([]));
-    expect(fs.existsSync(saved)).toBe(false);
+    expect(JSON.parse(fs.readFileSync(saved, "utf8")).records).toEqual([]);
     // A page's older write that lands after its newer one is dropped.
     const numbered = (id: string, seq: number) => ({ ...content([{ id }]), by: "p", seq });
     await ask("/__sp/canvas-content", numbered("shape:new", 2));

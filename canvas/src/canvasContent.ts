@@ -18,7 +18,7 @@ import {
   type TLShapeId,
   type VecLike,
 } from "tldraw";
-import { canvasIndex, PAGE_ID } from "./canvasIndex";
+import { canvasIndex, fileWins, PAGE_ID } from "./canvasIndex";
 import {
   boardFileUrl,
   canvasImageKey,
@@ -177,7 +177,9 @@ export function installCanvasContent(editor: Editor) {
             (kept.has(record.fromId) && kept.has(record.toId)),
         ),
       );
-      written.set(slug, JSON.stringify(pageFile(editor, pageId, slug)));
+      // Spelled as flush spells it, so a file emptied of records loads as nothing to save.
+      const loaded = pageFile(editor, pageId, slug);
+      written.set(slug, loaded.records.length ? JSON.stringify(loaded) : "");
     }
   });
 
@@ -204,7 +206,7 @@ export function installCanvasContent(editor: Editor) {
       void fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ slug, file: body ? file : null, by: PAGE_ID, seq: ++seq }),
+        body: JSON.stringify({ slug, file, by: PAGE_ID, seq: ++seq }),
         keepalive: leaving,
       })
         .then(async (res) => {
@@ -231,6 +233,7 @@ export function installCanvasContent(editor: Editor) {
   // A save still waiting, or sent and not answered, which leaving the page may cancel: sent
   // again, numbered after the one it repeats.
   const leave = () => {
+    if (fileWins) return;
     for (const slug of unanswered) written.delete(slug);
     flush(true);
   };
