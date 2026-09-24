@@ -16,6 +16,7 @@ import {
   ChevronDownSmall as GChevronDownSmall,
   ChevronRightSmall as GChevronRightSmall,
   ClockRewind as GClockRewind,
+  CloudUpload as GCloudUpload,
   Copy as GCopy,
   Cross as GCross,
   Eye as GEye,
@@ -36,6 +37,7 @@ import {
   Plus as GPlus,
   RefreshCounterClockwise as GRefreshCounterClockwise,
   SidebarLeft as GSidebarLeft,
+  Sparkles as GSparkles,
   TextTitle as GTextTitle,
 } from "geist-icons";
 
@@ -50,6 +52,7 @@ export const Check = at16(GCheck);
 export const ChevronDownSmall = at16(GChevronDownSmall);
 export const ChevronRightSmall = at16(GChevronRightSmall);
 export const ClockRewind = at16(GClockRewind);
+export const CloudUpload = at16(GCloudUpload);
 export const Copy = at16(GCopy);
 export const Cross = at16(GCross);
 export const Eye = at16(GEye);
@@ -71,4 +74,5 @@ export const Pen = at16(GPen);
 export const Plus = at16(GPlus);
 export const RefreshCounterClockwise = at16(GRefreshCounterClockwise);
 export const SidebarLeft = at16(GSidebarLeft);
+export const Sparkles = at16(GSparkles);
 export const TextTitle = at16(GTextTitle);

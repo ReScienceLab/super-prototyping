@@ -191,6 +191,37 @@ export function createProjectsServer(options: {
     }
     if (pathname.startsWith("/__sp/agent/"))
       return agent.handle(req, res, next);
+    // A reference a new clone starts from, dropped on the New project dialog
+    // (NewProjectDialog.tsx): the request's body, written as it arrives into the project's
+    // `refs`, which is what the first message to the agent names. A screen recording can be
+    // hundreds of MB, so it is streamed rather than read into memory.
+    if (pathname === "/__sp/projects/ref") {
+      if (req.method !== "POST") return next();
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      if (!sameOrigin(req)) return send(403, "cross-site request");
+      const params = new URLSearchParams(query);
+      const dir = projects().get(params.get("name") ?? "");
+      if (dir === undefined) return send(404, "no such project");
+      const file = params.get("file") ?? "";
+      if (file === "" || file.startsWith(".") || path.basename(file) !== file)
+        return send(
+          400,
+          "A file name cannot start with a dot or have a slash in it.",
+        );
+      const refs = path.join(dir, "refs");
+      fs.mkdirSync(refs, { recursive: true });
+      // `wx`, so a reference already there is never written over.
+      const out = fs.createWriteStream(path.join(refs, file), { flags: "wx" });
+      out.on("error", (error: NodeJS.ErrnoException) =>
+        send(error.code === "EEXIST" ? 409 : 500, error.message),
+      );
+      out.on("finish", () => send(204, ""));
+      req.pipe(out);
+      return;
+    }
     if (/^\/__sp\/projects(\/(reveal|delete))?$/.test(pathname)) {
       if (req.method !== "POST") return next();
       const send = (code: number, message: string) => {

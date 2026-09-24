@@ -15,10 +15,7 @@ it("serves every project at its own address and makes new ones", async () => {
     fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
     fs.writeFileSync(path.join(tmp, rel), text);
   };
-  write(
-    "root/canvas/package.json",
-    JSON.stringify({ version: "1.0.0" }),
-  );
+  write("root/canvas/package.json", JSON.stringify({ version: "1.0.0" }));
   write(
     "root/skills/alpha/SKILL.md",
     "---\nname: alpha\nmetadata:\n  managed-by: super-prototyping\n---\nAlpha.\n",
@@ -38,7 +35,9 @@ it("serves every project at its own address and makes new ones", async () => {
       res.writeHead(200).end(`static ${req.url}`),
     ),
   );
-  expect(fs.existsSync(path.join(tmp, "projects/alpha/canvases/one"))).toBe(true);
+  expect(fs.existsSync(path.join(tmp, "projects/alpha/canvases/one"))).toBe(
+    true,
+  );
   expect(fs.existsSync(path.join(tmp, "projects/alpha/mockups"))).toBe(false);
   await new Promise<void>((done) => server.listen(0, "127.0.0.1", done));
   const { port } = server.address() as AddressInfo;
@@ -67,8 +66,13 @@ it("serves every project at its own address and makes new ones", async () => {
     });
   try {
     // Nothing opened yet: the root is home, and the examples' window.
-    expect(await ask("/")).toMatchObject({ status: 302, location: "/home.html" });
-    expect((await ask("/?canvas=00-welcome")).text).toBe("static /?canvas=00-welcome");
+    expect(await ask("/")).toMatchObject({
+      status: 302,
+      location: "/home.html",
+    });
+    expect((await ask("/?canvas=00-welcome")).text).toBe(
+      "static /?canvas=00-welcome",
+    );
     const rootIndex = JSON.parse((await ask("/__sp/index.json")).text);
     expect(rootIndex.project).toBeUndefined();
     expect(rootIndex.boards.map((b: any) => [b.slug, b.example])).toEqual([
@@ -77,19 +81,31 @@ it("serves every project at its own address and makes new ones", async () => {
     expect((await ask("/board/00-welcome/01-a.html")).text).toBe("welcome");
     const copy = { slug: "00-welcome", name: "Mine" };
     expect((await ask("/__sp/clone-canvas", copy)).status).toBe(409);
-    expect(fs.readdirSync(path.join(tmp, "root/canvases"))).toEqual(["00-welcome"]);
+    expect(fs.readdirSync(path.join(tmp, "root/canvases"))).toEqual([
+      "00-welcome",
+    ]);
     // The agent is no project's, and is at the root once. Nothing is written before it first runs.
     const sessions = await ask("/__sp/agent/sessions");
     expect(sessions).toMatchObject({ status: 200, text: "[]" });
-    const run = (body: object) => ask("/__sp/agent/run", { message: "hi", ...body });
+    const run = (body: object) =>
+      ask("/__sp/agent/run", { message: "hi", ...body });
     expect((await run({ project: "nowhere" })).status).toBe(404);
-    expect((await run({ session: "00000000-0000-4000-8000-000000000000" })).status).toBe(404);
+    expect(
+      (await run({ session: "00000000-0000-4000-8000-000000000000" })).status,
+    ).toBe(404);
     expect((await run({ session: "../x" })).status).toBe(404);
     expect(
-      (await ask("/__sp/agent/run", { message: "hi" }, { "sec-fetch-site": "cross-site" }))
-        .status,
+      (
+        await ask(
+          "/__sp/agent/run",
+          { message: "hi" },
+          { "sec-fetch-site": "cross-site" },
+        )
+      ).status,
     ).toBe(403);
-    expect((await ask("/p/alpha/__sp/agent/sessions")).text).toBe("static /__sp/agent/sessions");
+    expect((await ask("/p/alpha/__sp/agent/sessions")).text).toBe(
+      "static /__sp/agent/sessions",
+    );
     expect(fs.existsSync(path.join(tmp, "projects/.workspaces"))).toBe(false);
     // A run an earlier server kept replays after a restart, pictures and all. One it died in the
     // middle of replays with the end it never wrote.
@@ -148,14 +164,26 @@ it("serves every project at its own address and makes new ones", async () => {
     const made = await ask("/__sp/projects", { name: " beta " });
     expect(made.status).toBe(200);
     expect(JSON.parse(made.text)).toEqual({ url: "/p/beta/" });
-    expect(
-      fs.existsSync(path.join(tmp, "projects/beta/canvases")),
-    ).toBe(true);
+    expect(fs.existsSync(path.join(tmp, "projects/beta/canvases"))).toBe(true);
     expect(fs.existsSync(path.join(tmp, "projects/beta/.claude"))).toBe(false);
     expect((await ask("/p/beta/__sp/index.json")).status).toBe(200);
     expect((await ask("/__sp/projects", { name: "beta" })).status).toBe(409);
     expect((await ask("/__sp/projects", { name: "  " })).status).toBe(400);
     expect((await ask("/__sp/projects", { name: "a/b" })).status).toBe(400);
+
+    // A reference for a clone: into the project's `refs`, once, and only under a plain name.
+    const ref = "/__sp/projects/ref?name=beta&file=home.png";
+    expect((await ask(ref, { png: 1 })).status).toBe(204);
+    expect(
+      fs.readFileSync(path.join(tmp, "projects/beta/refs/home.png"), "utf8"),
+    ).toBe('{"png":1}');
+    expect((await ask(ref, { png: 2 })).status).toBe(409);
+    expect(
+      (await ask("/__sp/projects/ref?name=beta&file=../x.png", {})).status,
+    ).toBe(400);
+    expect(
+      (await ask("/__sp/projects/ref?name=nope&file=x.png", {})).status,
+    ).toBe(404);
     expect(fs.existsSync(path.join(tmp, "projects/gamma"))).toBe(false);
     expect(
       (

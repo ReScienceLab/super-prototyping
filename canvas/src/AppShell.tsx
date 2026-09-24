@@ -21,6 +21,7 @@ import {
   type CanvasAttachDetail,
 } from "./ChatPanel";
 import { HomePage } from "./HomePage";
+import { NewProjectDialog, type NewProjectStart } from "./NewProjectDialog";
 import { Onboarding } from "./Onboarding";
 
 declare global {
@@ -177,34 +178,59 @@ export function AppShell() {
 
   /**
    * Makes a project, in the projects folder (canvas/server/projects.ts), a browser tab's request
-   * and the app's alike. The server answers the project's address, whose canvas goes in the
-   * frame, or what to say under the name field.
+   * and the app's alike, then copies in the references a clone starts from. The server answers
+   * the project's address, whose canvas goes in the frame, or what to say under the name field.
    */
-  const create = async (name: string, define: boolean) => {
+  const create = async (name: string, start: NewProjectStart) => {
     const res = await fetch(new URL("/__sp/projects", location.origin), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ name }),
     });
     if (!res.ok) return setSaid(await res.text());
-    dialog.current!.close();
     const { url } = (await res.json()) as { url: string };
-    if (define) defining.current = url;
+    if (start.mode === "clone")
+      for (const file of start.files) {
+        const query = new URLSearchParams({ name: name.trim(), file: file.name });
+        const up = await fetch(new URL(`/__sp/projects/ref?${query}`, location.origin), {
+          method: "POST",
+          body: file,
+        });
+        // The project is made by now, so trying again would only be told the name is taken.
+        if (!up.ok)
+          return setSaid(
+            `The project was made, but ${file.name} could not be copied into it: ${await up.text()}`,
+          );
+      }
+    dialog.current!.close();
+    const names = start.mode === "clone" ? start.files.map((f) => `refs/${f.name}`) : [];
+    starting.current =
+      start.mode === "clone"
+        ? {
+            url,
+            text:
+              names.length > 0
+                ? `/clone-prototype Clone the app in these references, in the project: ${names.join(", ")}.`
+                : "/clone-prototype Ask me which app to clone, and for screenshots or a screen recording of it.",
+          }
+        : start.define
+          ? {
+              url,
+              text: "/define-product Help me work out what this product is, and write PRD.md as we go.",
+            }
+          : undefined;
     load(new URL(url, location.origin).href);
   };
-  // A project made to be defined first (skills/define-product). /define-product is sent once
-  // that project is in front; earlier it would go to whichever project is in front now.
-  const defining = useRef<string>(undefined);
+  // A project made to start on a skill: clone-prototype on its references, or define-product.
+  // The message is sent once that project is in front; earlier it would go to whichever project
+  // is in front now.
+  const starting = useRef<{ url: string; text: string }>(undefined);
   useEffect(() => {
-    if (shown?.tab.kind !== "project" || shown.tab.url !== defining.current) return;
-    defining.current = undefined;
+    if (shown?.tab.kind !== "project" || shown.tab.url !== starting.current?.url) return;
+    const { text } = starting.current;
+    starting.current = undefined;
     window.dispatchEvent(
-      new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, {
-        detail: {
-          kind: "send",
-          text: "/define-product Help me work out what this product is, and write PRD.md as we go.",
-        },
-      }),
+      new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, { detail: { kind: "send", text } }),
     );
   }, [shown]);
   const newProject = () => {
@@ -265,34 +291,7 @@ export function AppShell() {
           )}
         </div>
       </div>
-      {/* A new project needs only a name. It goes in the projects folder, and the server answers
-          here when the name will not do. */}
-      <dialog ref={dialog} className="home-dialog">
-        <form
-          onSubmit={async (event) => {
-            event.preventDefault();
-            const form = new FormData(event.currentTarget);
-            await create(form.get("project") as string, form.has("define"));
-          }}
-        >
-          <h2>New project</h2>
-          {/* Not "name", which browsers fill with the person's own, and no history of past entries. */}
-          <input name="project" placeholder="Project name" autoComplete="off" autoFocus required />
-          <label className="home-dialog-check">
-            <input type="checkbox" name="define" defaultChecked />
-            <span>
-              Define the product with the agent <code>/define-product</code>
-            </span>
-          </label>
-          {said && <p>{said}</p>}
-          <div>
-            <button type="button" onClick={() => dialog.current!.close()}>
-              Cancel
-            </button>
-            <button type="submit">Create</button>
-          </div>
-        </form>
-      </dialog>
+      <NewProjectDialog dialog={dialog} said={said} create={create} />
       {onboarding !== null && <Onboarding chat={chat} version={onboarding} />}
     </div>
   );
