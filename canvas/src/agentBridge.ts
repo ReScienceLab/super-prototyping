@@ -606,9 +606,10 @@ function resolveUpdateTarget(editor: Editor, pageId: TLPageId, raw: unknown) {
     const dx = raw.x !== undefined ? num(raw.x, 'x') - box.x : 0
     const dy = raw.y !== undefined ? num(raw.y, 'y') - box.y : 0
     const origin = editor.getShapePageTransform(shape)!.point()
+    // Both, even when one was asked for: in a turned frame, a move along page x changes both.
     const local = editor.getPointInParentSpace(shape, { x: origin.x + dx, y: origin.y + dy })
-    if (raw.x !== undefined) partial.x = local.x
-    if (raw.y !== undefined) partial.y = local.y
+    partial.x = local.x
+    partial.y = local.y
   }
   if (raw.rotation !== undefined) partial.rotation = num(raw.rotation, 'rotation')
   if (raw.opacity !== undefined) partial.opacity = num(raw.opacity, 'opacity')
@@ -876,6 +877,8 @@ export async function dispatch(editor: Editor, slug: string, input: unknown) {
   }
 }
 
+const READS = new Set(['get', 'select', 'zoom', 'shot'])
+
 /** Runs the commands `sp canvas` sends this page (server/sp.ts), and answers each once what it
  *  wrote is on disk, so the agent is told a placement landed only when it did. */
 export function installAgentBridge(editor: Editor) {
@@ -885,7 +888,8 @@ export function installAgentBridge(editor: Editor) {
       const result = await dispatch(editor, slug, command)
       if ('error' in result) reply = { id, ok: false, error: result }
       else {
-        await saveNow(slug)
+        // A read writes nothing, so a save still pending from an earlier command is not its to fail.
+        if (!READS.has((command as { op: string }).op)) await saveNow(slug)
         reply = { id, ok: true, result }
       }
     } catch (error) {

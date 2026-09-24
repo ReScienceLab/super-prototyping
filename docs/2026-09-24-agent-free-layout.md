@@ -113,7 +113,9 @@ With the agent's shapes movable and the layout's not, a selection says which it 
 the layout's, still locked, is outlined orange (`--ds-amber-900`), and anything that moves keeps
 tldraw's blue. The selection box goes orange only when the whole selection is the layout's, since
 a mixed one still moves the rest. Hovering outlines nothing orange: boards cover most of the
-canvas.
+canvas. Several of the layout's selected together still show tldraw's handles, as any locked
+selection of more than one does under `selectLockedShapes`; they do nothing. Hiding them would
+mean drawing the box without tldraw.
 
 tldraw has one selection colour, from its theme, and draws no outline for a locked shape, so
 `lockedIndicator.ts` subclasses the two overlays that draw a selection. The outline is drawn on

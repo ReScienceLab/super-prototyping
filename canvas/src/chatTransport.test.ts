@@ -98,9 +98,14 @@ describe('writingTo', () => {
       [`sp canvas create \\\n  --canvas untitled \\\n  '{"shapes": []}'`, true],
       [`sp canvas --canvas untitled select '{"text": "create"}'`, false],
       [`sp canvas create --canvas untitled --project other '{"shapes": []}'`, false],
+      [`sp canvas get --canvas untitled && sp canvas pack --canvas untitled '{"ids": []}'`, true],
+      [`sp canvas create '{"shapes": [{"text": "--canvas demo"}]}' --canvas untitled`, true],
     ]
     for (const [command, writes] of cases)
       expect(writingTo([tool('Bash', command)]), command).toEqual(writes ? ['untitled'] : [])
+    expect(
+      writingTo([tool('Bash', `sp canvas create --canvas a '{}'; sp canvas delete --canvas b '{}'`)]),
+    ).toEqual(['a', 'b'])
   })
 })
 

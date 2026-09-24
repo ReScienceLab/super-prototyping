@@ -849,7 +849,11 @@ export function createSpServer(options: {
       }
       if (typeof slug !== "string" || !SAFE_NAME.test(slug))
         return send(400, "bad canvas name");
-      if (isExample(slug)) return send(403, READ_ONLY);
+      try {
+        if (isExample(slug)) return send(403, READ_ONLY);
+      } catch (error) {
+        return send(500, String(error));
+      }
       const go = () => {
         const id = randomUUID();
         const page = [...bridges].at(-1)!;
@@ -872,11 +876,13 @@ export function createSpServer(options: {
         clearTimeout(timer);
         go();
       };
+      // Named now: the folder can be renamed in the 10 s, and then it names nothing.
+      const name = projectName();
       const timer = setTimeout(() => {
         waitingForPage.splice(waitingForPage.indexOf(wait), 1);
         send(
           409,
-          `No canvas of project "${projectName()}" is open, and only an open one can place ` +
+          `No canvas of project "${name}" is open, and only an open one can place ` +
             "things on it. Ask the person to open the project in Super Prototyping (from a " +
             "terminal: `sp open`, then the project), then run this again.",
         );

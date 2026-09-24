@@ -730,6 +730,8 @@ def _canvas_post(url, data, headers):
 def _upload(a, file):
     """A local image or video into the canvas folder's files/, named by its bytes so the same
     file placed twice is one file there, and the `src` the page places it by."""
+    if not isinstance(file, str) or not file:
+        raise SystemExit(f'error: a shape\'s "file" is a path, not {json.dumps(file)}')
     path = Path(file).expanduser()
     try:
         digest = hashlib.sha256()
@@ -771,8 +773,11 @@ def cmd_canvas(a):
     result = json.loads(_canvas_post(_canvas_url(a, "canvas"), body,
                                      {"Content-Type": "application/json"}))
     if a.op == "shot":
-        Path(a.output).parent.mkdir(parents=True, exist_ok=True)
-        Path(a.output).write_bytes(base64.b64decode(result.pop("png")))
+        try:
+            Path(a.output).parent.mkdir(parents=True, exist_ok=True)
+            Path(a.output).write_bytes(base64.b64decode(result.pop("png")))
+        except OSError as e:
+            raise SystemExit(f"error: {a.output}: {e.strerror}")
         result["path"] = str(Path(a.output).resolve())
     print(json.dumps(result, indent=2))
 

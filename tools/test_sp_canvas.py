@@ -325,6 +325,24 @@ def test_sp_canvas_uploads_a_local_file_then_places_it_by_src():
             assert "array" in str(e)
         else:
             assert False, "shapes that are not a list must be an error, not a traceback"
+        a = args(["canvas", "create", "--canvas", "home", '{"shapes": [{"type": "image", "file": null}]}'],
+                 {"SP_PROJECT": "shop"})
+        try:
+            C.cmd_canvas(a)
+        except SystemExit as e:
+            assert '"file" is a path' in str(e)
+        else:
+            assert False, "a file that is not a path must be an error, not a traceback"
+        # The page's refusal reaches the agent as the JSON it is; any other failure is an error.
+        refusal = '{"error": "moved_by_person"}'
+        for code, said in ((422, refusal), (500, f"error: {refusal}")):
+            try:
+                with_release(C.urllib.error.HTTPError("u", code, "", {}, io.BytesIO(refusal.encode())),
+                             lambda: real[0]("http://127.0.0.1:1/p/shop/__sp/canvas", b"", {}))
+            except SystemExit as e:
+                assert str(e) == said
+            else:
+                assert False, "a refusal must exit"
         # A shot goes where -o says, the folder made if it is not there yet.
         C._canvas_post = lambda url, data, headers: b'{"png": "cG5n"}'
         shot = Path(tempfile.mkdtemp()) / "scratch" / "canvas.png"
@@ -332,6 +350,13 @@ def test_sp_canvas_uploads_a_local_file_then_places_it_by_src():
         with contextlib.redirect_stdout(io.StringIO()):
             C.cmd_canvas(a)
         assert shot.read_bytes() == b"png"
+        a = args(["canvas", "shot", "--canvas", "home", "-o", str(shot.parent)], {"SP_PROJECT": "shop"})
+        try:
+            C.cmd_canvas(a)
+        except SystemExit as e:
+            assert str(e).startswith(f"error: {shot.parent}")
+        else:
+            assert False, "a shot onto a folder must be an error, not a traceback"
     finally:
         C._canvas_post, C._running_app = real
 

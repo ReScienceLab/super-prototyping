@@ -47,9 +47,11 @@ async function attach(editor: Editor, target: TLShape) {
       const ref = canvasBoardRef(path);
       if (!ref) throw new Error("that board has no file behind it");
       const name = `${ref.slug}/${ref.file}`;
+      // At most 4000 a side, as CanvasFileShapeUtil's toSvg draws one.
+      const scale = Math.min(1, 4000 / Math.max(w, h));
       const src = new URL(
         `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(name)}` +
-          `&w=${Math.round(w)}&h=${Math.round(h)}`,
+          `&w=${Math.max(1, Math.round(w * scale))}&h=${Math.max(1, Math.round(h * scale))}`,
         window.location.href,
       ).href;
       return dispatchAttach({ kind: "board", name, src });

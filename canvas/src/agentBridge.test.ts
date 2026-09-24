@@ -263,6 +263,16 @@ describe('update', () => {
     const box = editor.getShapePageBounds(rotated)!
     await run('update', { shapes: [{ id: rotated, type: 'geo', x: box.x + 20 }] })
     expect(editor.getShapePageTransform(rotated)!.point().x).toBeCloseTo(origin.x + 20)
+
+    // In a turned frame, a move along page x alone moves the shape along page x alone.
+    const [turned] = await create(geo(1000, 1300))
+    const { frame } = (await run('frame', { ids: [turned] })) as { frame: TLShapeId }
+    await run('update', { shapes: [{ id: frame, type: 'frame', rotation: Math.PI / 4 }] })
+    const before = editor.getShapePageBounds(turned)!
+    await run('update', { shapes: [{ id: turned, type: 'geo', x: before.x + 100 }] })
+    const after = editor.getShapePageBounds(turned)!
+    expect(after.x).toBeCloseTo(before.x + 100)
+    expect(after.y).toBeCloseTo(before.y)
   })
 
   it('refuses a batch holding both a shape and its frame', async () => {
@@ -378,6 +388,19 @@ describe('frame and layout', () => {
       error: 'bad_command',
     })
   })
+
+  it('stacks and packs, and refuses a stack gap of 0', async () => {
+    const [a, b] = await create(geo(0, 3400), geo(200, 3450))
+    expect(await run('stack', { ids: [a, b], operation: 'horizontal', gap: 8 })).toEqual({
+      ids: [a, b],
+    })
+    expect(editor.getShapePageBounds(b)!.x).toBe(28)
+    expect(await run('update', { shapes: [{ id: b, type: 'geo', x: 60 }] })).toEqual({ updated: [b] })
+    expect(await run('pack', { ids: [a, b], gap: 4 })).toEqual({ ids: [a, b] })
+    expect(await run('stack', { ids: [a, b], operation: 'vertical', gap: 0 })).toMatchObject({
+      error: 'bad_command',
+    })
+  })
 })
 
 describe('select and zoom', () => {
@@ -387,6 +410,7 @@ describe('select and zoom', () => {
     try {
       expect(await run('select', { ids: [] })).toMatchObject({ error: 'not_current_page' })
       expect(await run('zoom')).toMatchObject({ error: 'not_current_page' })
+      expect(await run('shot')).toMatchObject({ error: 'not_current_page' })
     } finally {
       directWrite(() => editor.setCurrentPage(pageId))
     }
@@ -464,6 +488,10 @@ describe('sp canvas', () => {
         ok: false,
         error: { error: 'failed', message: expect.stringContaining('disk full') },
       })
+      // A read saves nothing, so that failed save is not its to answer for.
+      const read = reply()
+      send('r1', { op: 'get' })
+      expect(await read).toMatchObject({ id: 'r1', ok: true })
       // The bridge's own refusal is answered as it is.
       const third = reply()
       send('c3', { op: 'nope' })
