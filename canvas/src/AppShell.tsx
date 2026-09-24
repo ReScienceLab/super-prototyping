@@ -19,6 +19,7 @@ import {
   ChatPanel,
   useChat,
   type CanvasAttachDetail,
+  type Working,
 } from "./ChatPanel";
 import { HomePage } from "./HomePage";
 import { NewProjectDialog, type NewProjectStart } from "./NewProjectDialog";
@@ -33,7 +34,12 @@ declare global {
       check(): Promise<string>;
     };
     /** The window's side of the frame (here): what the canvas has in front, at what address. */
-    spShell?: { shown(tab: ProjectTab, href: string): void };
+    spShell?: {
+      shown(tab: ProjectTab, href: string): void;
+      /** What the panel's running turn is writing to; `sp:working` on this window when it
+       *  changes. The canvas's strip dots those tabs. */
+      working: Working;
+    };
     /** The canvas's side (App.tsx): brings a tab forward, or says it is another project's; and
      *  attaches the boards and pictures pasted links name, or says one of them names none. */
     spCanvas?: { goTo(tab: ProjectTab): boolean; attach(hrefs: string[]): boolean };
@@ -94,6 +100,7 @@ export function AppShell() {
   const frame = useRef<HTMLIFrameElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const [said, setSaid] = useState("");
+  const [working, setWorking] = useState<Working>({ slugs: [] });
 
   useEffect(() => {
     window.spShell = {
@@ -101,8 +108,14 @@ export function AppShell() {
         setShown({ tab, href });
         setTabs((tabs) => withTab(tabs, tab));
       },
+      working: { slugs: [] },
     };
   }, []);
+
+  useEffect(() => {
+    window.spShell!.working = working;
+    window.dispatchEvent(new Event("sp:working"));
+  }, [working]);
 
   // The bar comes back on the next visit, the way the document behind it does.
   useEffect(() => {
@@ -260,11 +273,20 @@ export function AppShell() {
   const served = canvasIndex().served;
 
   const view = shown?.tab.view;
+  // The agent is writing to the canvas in front. Only a glow: the canvas under it takes the
+  // person's pointer and keys as ever, and the boards land in it live (canvasLibrary.ts).
+  const glowing =
+    !home &&
+    shown?.tab.kind === "project" &&
+    shown.tab.name === working.project &&
+    view?.kind === "canvas" &&
+    working.slugs.includes(view.slug);
   return (
     <div className="canvas-shell">
       <CanvasTabBar
         tabs={tabs}
         active={home ? null : (shown?.tab ?? null)}
+        working={working}
         onHome={() => setHome(true)}
         goTo={goTo}
         closeTabs={closeTabs}
@@ -286,6 +308,7 @@ export function AppShell() {
             canvas={(!home && view?.kind !== "doc" && view?.slug) || undefined}
             project={home || shown?.tab.kind !== "project" ? undefined : shown.tab.name}
             chat={chat}
+            onWorking={setWorking}
           />
         )}
         <div className="canvas-window">
@@ -298,6 +321,7 @@ export function AppShell() {
             src={opened?.href}
             style={home ? { visibility: "hidden" } : undefined}
           />
+          <div className="agent-glow" data-on={glowing || undefined} aria-hidden />
           {home && (
             <HomePage
               projects={projects}

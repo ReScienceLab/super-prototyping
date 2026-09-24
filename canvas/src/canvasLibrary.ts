@@ -16,7 +16,7 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // welcome page pulls a dozen covers rather than every board (the full set is 25 MB of HTML,
 // which a phone should not download to look at one page). Layouts and icons come with the
 // index because they are read during render.
-import { canvasIndex } from "./canvasIndex";
+import { BOARDS_CHANGED, canvasIndex } from "./canvasIndex";
 import { coverBoard, inStripOrder } from "./cover";
 export { CANVAS_FILE_DEFAULT_SIZE, DEFAULT_COVER_BOX, fitCover } from "./cover";
 export { LAYOUT_CHANGED } from "./canvasIndex";
@@ -211,10 +211,14 @@ export function hasCanvasFile(path: string) {
   return boardPageUrl(path) !== undefined;
 }
 
-/** Fetches a board's HTML once and caches it; resolves undefined for a path that is not a board. */
-export function loadCanvasFileHtml(path: string): Promise<string | undefined> {
+/**
+ * Fetches a board's HTML once and caches it; resolves undefined for a path that is not a board.
+ * `again` fetches a board rewritten on disk, keeping the old HTML in the cache until the new one
+ * is in, so its shape never goes blank in between.
+ */
+export function loadCanvasFileHtml(path: string, again = false): Promise<string | undefined> {
   const cached = canvasFileHtml.get(path);
-  if (cached !== undefined) return Promise.resolve(cached);
+  if (cached !== undefined && !again) return Promise.resolve(cached);
   const url = boardPageUrl(path);
   if (!url) return Promise.resolve(undefined);
   let load = canvasFileLoads.get(path);
@@ -269,13 +273,20 @@ export function boardPageUrl(path: string): string | undefined {
 export function useCanvasFileHtml(path: string): string | undefined {
   const [, rerender] = useReducer((n: number) => n + 1, 0);
   useEffect(() => {
-    if (canvasFileHtml.has(path)) return;
     let live = true;
-    loadCanvasFileHtml(path).then(() => {
-      if (live) rerender();
-    });
+    const load = (again: boolean) =>
+      loadCanvasFileHtml(path, again).then(() => {
+        if (live) rerender();
+      });
+    if (!canvasFileHtml.has(path)) void load(false);
+    const changed = (event: Event) => {
+      const rewritten = (event as CustomEvent<string[]>).detail;
+      if (rewritten.some((file) => path.endsWith(`canvases/${file}`))) void load(true);
+    };
+    window.addEventListener(BOARDS_CHANGED, changed);
     return () => {
       live = false;
+      window.removeEventListener(BOARDS_CHANGED, changed);
     };
   }, [path]);
   return canvasFileHtml.get(path);

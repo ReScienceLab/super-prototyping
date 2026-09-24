@@ -46,8 +46,16 @@ export function CanvasStrip() {
   const [, relabel] = useReducer((n: number) => n + 1, 0);
   useEffect(() => {
     window.addEventListener(LAYOUT_CHANGED, relabel);
-    return () => window.removeEventListener(LAYOUT_CHANGED, relabel);
+    window.parent.addEventListener("sp:working", relabel);
+    return () => {
+      window.removeEventListener(LAYOUT_CHANGED, relabel);
+      window.parent.removeEventListener("sp:working", relabel);
+    };
   }, []);
+  // The canvases the agent is writing to in this project, which the window keeps (AppShell.tsx);
+  // the one in front glows there, and every one of them has a dot here.
+  const working = window.parent.spShell!.working;
+  const busy = working.project === canvasIndex().project ? working.slugs : [];
   // A canvas just made is the one to be on, once the editor is there to show its page.
   const made = useRef(renaming);
   useEffect(() => {
@@ -118,6 +126,7 @@ export function CanvasStrip() {
           type="button"
           className="sp-canvas-tab"
           aria-current={canvas === here ? "page" : undefined}
+          data-working={busy.includes(canvas) || undefined}
           onClick={() => openTab({ kind: "canvas", slug: canvas })}
           onDoubleClick={() => tab.kind !== "example" && setRenaming(canvas)}
           onContextMenu={(event) =>

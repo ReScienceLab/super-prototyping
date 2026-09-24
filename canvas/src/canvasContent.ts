@@ -173,21 +173,32 @@ export function installCanvasContent(editor: Editor) {
   });
 
   let pending: ReturnType<typeof setTimeout> | undefined;
-  const flush = () => {
+  // The pages are read again on every pass: a canvas the agent adds arrives without a reload
+  // (canvasIndex.ts), and what a person puts on it has to be saved too.
+  const flush = (unloading = false) => {
     pending = undefined;
-    for (const [slug, pageId] of pages) {
+    for (const [slug, pageId] of projectPages(editor)) {
       const file = pageFile(editor, pageId, slug);
       const body = file.records.length ? JSON.stringify(file) : "";
-      if (written.get(slug) === body) continue;
+      if ((written.get(slug) ?? "") === body) continue;
       written.set(slug, body);
       void fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ slug, file: body ? file : null }),
+        // Outlives the page. The browser caps a keepalive body at 64 KB and refuses a bigger
+        // one; ponytail: a canvas past that loses its last half second on a reload, as before.
+        keepalive: unloading,
       });
     }
   };
   flush();
+  // A reload still happens for canvas.json written from outside, and quitting is one too. The
+  // edits of the last half second, still waiting on the debounce, go first.
+  const unload = () => {
+    if (pending !== undefined) flush(true);
+  };
+  window.addEventListener("pagehide", unload);
 
   // Every document change is a candidate: a person's shape, an asset landing, a binding. flush
   // compares bodies, so a change to the library's own shapes writes nothing.
@@ -201,6 +212,7 @@ export function installCanvasContent(editor: Editor) {
   return () => {
     dispose();
     clearTimeout(pending);
+    window.removeEventListener("pagehide", unload);
     mounted = undefined;
   };
 }

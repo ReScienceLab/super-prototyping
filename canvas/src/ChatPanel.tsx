@@ -64,7 +64,7 @@ import {
 } from "./agents";
 import type { Session } from "./agentRun";
 import { namedPictures, readDraft, slashWord } from "./chatDraft";
-import { applyFrame, followRun, type Turn } from "./chatTransport";
+import { applyFrame, followRun, writingTo, type Turn } from "./chatTransport";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
 import { Check, ClockRewind, Image, Plus } from "./geistIcons";
@@ -75,6 +75,13 @@ import { rasterizeSvg } from "./svgRaster";
 // (server/agent.ts), so a tab switched to another project carries on with the same one.
 const SESSION_KEY = "sp-chat-session";
 const RUNS_KEY = "sp-chat-runs";
+/** The canvas folders a running turn is writing to, by slug, in the project it was sent from. */
+export type Working = { project?: string; slugs: string[] };
+/** What Continue sends on an interrupted turn's session, which the agent resumes with its own
+ *  record of what it had done. */
+const CONTINUE =
+  "You were interrupted before finishing the last turn. Check what is already on disk, " +
+  "then carry on from where you stopped.";
 const QUEUE_KEY = "sp-chat-queue";
 const SENT_KEY = "sp-chat-sent";
 const AGENT_KEY = "sp-chat-agent";
@@ -261,6 +268,9 @@ export function ChatPanel(props: {
   canvas?: string;
   project?: string;
   chat: Chat;
+  /** The canvases the running turn has written to, and its project: what the window glows
+   *  around. Empty once it ends, however it ends. */
+  onWorking?: (working: Working) => void;
 }) {
   const { canvas, project } = props;
   const { open, agent } = props.chat;
@@ -285,7 +295,9 @@ export function ChatPanel(props: {
       return {};
     }
   });
-  const [history, setHistory] = useState<(Session & { running: boolean })[]>(
+  const [history, setHistory] = useState<
+    (Session & { running: boolean; interrupted: boolean })[]
+  >(
     [],
   );
   // The agent's own slash commands, and where the keyboard is in them. Opens on what this browser
@@ -369,6 +381,15 @@ export function ChatPanel(props: {
   useEffect(() => {
     abort.current = new AbortController();
     for (const t of turns) follow(t.runId);
+    // An empty panel after a relaunch — sessionStorage goes with the window — opens on the
+    // conversation the quit cut off, so its Continue is the first thing in view.
+    if (!turns.length)
+      void fetch("/__sp/agent/sessions")
+        .then(async (res) => {
+          const [newest] = res.ok ? await res.json() : [];
+          if (newest?.interrupted) pick(newest);
+        })
+        .catch(() => {});
     void fetch(`/__sp/agent/agents`)
       .then(async (res) =>
         res.ok ? setAgents(await res.json()) : setSendError(await res.text()),
@@ -388,6 +409,14 @@ export function ChatPanel(props: {
   }, [turns, open, session]);
 
   const running = turns.find((t) => !t.end);
+  const working: Working = {
+    project: running?.project,
+    slugs: running ? writingTo(running.blocks) : [],
+  };
+  const workingKey = JSON.stringify(working);
+  // By value: `working` is a new object every render.
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => props.onWorking?.(working), [workingKey]);
 
   useEffect(() => {
     try {
@@ -1345,7 +1374,26 @@ export function ChatPanel(props: {
               )}
               {!t.end ? (
                 <p className="sp-chat-dim">Working…</p>
-              ) : t.end.ok ? null : (
+              ) : t.end.ok ? null : t.end.interrupted ? (
+                <div className="sp-chat-interrupted">
+                  <p>
+                    <strong>Interrupted.</strong> {t.end.message} What it
+                    changed so far is on disk.
+                  </p>
+                  {/* The newest turn only, and gone once anything is sent after it. */}
+                  {t === turns.at(-1) && !running && (
+                    <button
+                      type="button"
+                      disabled={sending}
+                      onClick={() =>
+                        void post({ message: CONTINUE, images: [] })
+                      }
+                    >
+                      Continue
+                    </button>
+                  )}
+                </div>
+              ) : (
                 <p className="sp-chat-error">{t.end.message}</p>
               )}
             </article>

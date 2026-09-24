@@ -100,8 +100,9 @@ pointed at the wrong one look identical otherwise.
 
 **A folder created after boot appears on its own.** The server watches the
 boards directory and rebuilds its index when a board folder or file is added
-or removed. Rewriting a board reloads the page onto the new version, so a
-generator can be re-run with the canvas open. If a `?canvas=<slug>` link still
+or removed. Rewriting a board swaps the new version in without reloading the
+page, so a generator can be re-run with the canvas open while the person
+keeps drawing on it. If a `?canvas=<slug>` link still
 matches no page, the folder has no `.html` file in it yet — an empty folder is
 not a board.
 
@@ -123,7 +124,7 @@ leaves the old shape at its old position, overlapping the new one. Force
 refresh deletes every `canvas-file` / `canvas-row-heading` /
 `canvas-file-label` shape on all pages and rebuilds them from the current
 files. Content-only edits to a placed file do **not**
-need it: the server reloads the canvas onto the rewritten board.
+need it: the canvas swaps the rewritten board in by itself.
 
 ## Drive the canvas
 
@@ -164,6 +165,10 @@ what you create (`meta.by: "agent"`) and locks it. `update` and `delete`
 refuse anything without that stamp, and there is no undo, since undo would
 reach the person's own edits.
 
+The person can keep drawing while you work: a rewritten board swaps in under
+them without a reload. So before adding a row to `layout.json`, read
+`canvas.json` and place the row clear of their shapes, never on top of them.
+
 Never let bridge commands inject arbitrary JavaScript, never load untrusted
 HTML into a board, and never add `allow-same-origin` to the artboard iframe.
 
@@ -177,7 +182,7 @@ tools or any image annotator.
    it as ("box 2: tighten the card gap") before touching anything.
 2. Read the surrounding UI and the HTML source before editing.
 3. Make the smallest source change that satisfies it.
-4. Let the canvas reload, then verify the same region visually.
+4. Let the canvas pick up the board, then verify the same region visually.
 
 Do not build an annotation-to-agent protocol. The screenshot is the bridge.
 
@@ -188,8 +193,8 @@ message to Claude Code or Codex — the mark on the header picks — Claude with
 its permission prompts off and Codex in its workspace sandbox, and what it did
 as it happens. The panel names the project and the canvas in front and tells
 the agent, and points the agent at this skill before it touches a board
-folder. A board it rewrites reloads the canvas as any rewrite does; the panel
-keeps its runs across the reload.
+folder. A board it rewrites appears in place as any rewrite does, without
+reloading the page.
 
 A conversation is a session the agent resumes on every message, so it
 remembers the ones before until New session starts another, and its history

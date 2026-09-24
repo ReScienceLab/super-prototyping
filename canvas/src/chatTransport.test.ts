@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { sseFrame } from './agentRun'
-import { applyFrame, followRun, sseFrames, type Frame, type Turn } from './chatTransport'
+import { applyFrame, followRun, sseFrames, writingTo, type Block, type Frame, type Turn } from './chatTransport'
 import type { ChatEvent } from './claudeStream'
 
 const frame = (id: number, data: ChatEvent): Frame => ({ id, event: data.kind, data })
@@ -54,6 +54,22 @@ describe('applyFrame', () => {
     expect(turn.blocks).toEqual([
       { kind: 'tool', id: 't1', name: 'Bash', detail: 'refkit shoot', ok: true, shots: [{ k: 1 }] },
     ])
+  })
+})
+
+describe('writingTo', () => {
+  const tool = (name: string, detail: string): Block => ({ kind: 'tool', id: detail, name, detail })
+
+  it('names the canvases a turn wrote to, and not the ones it only looked at', () => {
+    const blocks = [
+      tool('Read', '/p/shop/canvases/cart/01-cart.html'),
+      tool('Bash', 'ls /p/shop/canvases/checkout'),
+      tool('Write', '/p/shop/canvases/home/gen.py'),
+      tool('Bash', 'cd /p/shop/canvases/cart && python3 gen.py'),
+      tool('Edit', '/p/shop/canvases/home/layout.json, /p/shop/canvases/menu/gen.py'),
+      tool('Shell', 'python3 C:\\p\\shop\\canvases\\orders\\gen.py'),
+    ]
+    expect(writingTo(blocks)).toEqual(['home', 'cart', 'menu', 'orders'])
   })
 })
 

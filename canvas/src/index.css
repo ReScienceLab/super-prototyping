@@ -257,6 +257,73 @@ button {
   background: var(--ds-background-100);
 }
 
+/* The agent is writing to the canvas in front (AppShell.tsx): Chromium's actor overlay, the
+   one Ego Lite draws round a tab its agent drives, a steady 3px ring and a haze that breathes in
+   from the edges every four seconds. Over the frame and never in its way, so the person keeps
+   drawing under it. */
+.agent-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 3px #1b6ef3;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.agent-glow[data-on] {
+  opacity: 1;
+}
+
+.agent-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 35px 12px #4c8df6;
+  animation: agent-glow-pulse 4s ease-in-out infinite;
+}
+
+@keyframes agent-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  33.33%,
+  66.66% {
+    opacity: 0;
+  }
+}
+
+/* The other canvases it is writing to, in the strip, and a project behind the one in front, in
+   the bar: a dot in the same blue, breathing with the glow. */
+.sp-canvas-tab[data-working]::after,
+.sp-tabchip[data-working] .sp-tabchip-open::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1b6ef3;
+  animation: agent-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes agent-dot-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-glow::after {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .sp-canvas-tab[data-working]::after,
+  .sp-tabchip[data-working] .sp-tabchip-open::before {
+    animation: none;
+  }
+}
+
 /* What one tab shows. Positioned, because a kit is an overlay and the editor has to stay laid
    out underneath it, since tldraw measures its viewport from that element, and one taken out of
    the flow comes back at zero by zero with its camera lost. */
@@ -2053,6 +2120,39 @@ button {
 .sp-chat-error {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/* A turn the app's quit or a dead CLI cut off, with the one way on. */
+.sp-chat-interrupted {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--sp-line);
+  border-radius: 8px;
+}
+
+.sp-chat-interrupted p {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sp-chat-interrupted button {
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  background: var(--sp-accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sp-chat-interrupted button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .sp-chat-send-error {
