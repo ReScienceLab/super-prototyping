@@ -19,11 +19,11 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-- Updates download only what changed. An app that has updated before fetches a
-  few megabytes, not the whole 520 MB, since the examples it already has are no
-  longer fetched again.
-- A failed update download is no longer silent. `sp upgrade` says it failed and
-  why, and the app tries again every four hours while it is open.
+## v1.6.2
+
+2026-09-24. Start a project from an app or an idea, keep what you paste on a
+canvas in the project, and see where the agent is working.
+
 - **Start a project by cloning an app or from an idea.** New project asks which.
   Clone takes screenshots and screen recordings, dropped or browsed for, and
   starts the agent on them. Build takes the idea in your own words, and the name
@@ -40,6 +40,11 @@ Everything below is on `main` and reaches no install until a version is cut.
   and its tab shimmers. A board it adds rings blue and one it changes rings
   green until you point at it. An interrupted turn has **Continue**, which
   picks up where it stopped, in the project it was working on.
+- Updates download only what changed. An app that has updated before fetches a
+  few megabytes, not the whole 520 MB, since the examples it already has are no
+  longer fetched again.
+- A failed update download is no longer silent. `sp upgrade` says it failed and
+  why, and the app tries again every four hours while it is open.
 - Deleting something you pasted keeps it deleted, even with the same canvas
   open in two windows.
 
