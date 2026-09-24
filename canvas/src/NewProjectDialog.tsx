@@ -9,9 +9,6 @@ export type NewProjectStart =
 
 type Picked = { file: File; url: string };
 
-/** Pictures and recordings, which is what clone-prototype measures from. */
-const isReference = (file: File) => /^(image|video)\//.test(file.type);
-
 /**
  * The New project dialog: an optional name, and which of two ways the project starts, listed
  * down the side so a third has somewhere to go. Clone takes screenshots and screen recordings,
@@ -35,8 +32,11 @@ export function NewProjectDialog({
   const [over, setOver] = useState(false);
   const [busy, setBusy] = useState(false);
   const browse = useRef<HTMLInputElement>(null);
-  // Held here, since each tab's panel has the field and only the one in front is mounted.
+  // Held here, since only the panel in front is mounted: each has the name field, and a look
+  // at Clone must not lose the idea typed under Build.
   const [name, setName] = useState("");
+  const [idea, setIdea] = useState("");
+  const [define, setDefine] = useState(true);
 
   const nameField = (
     <>
@@ -60,7 +60,8 @@ export function NewProjectDialog({
   // By name, so the same file dropped twice is there once, and the server can write each under
   // its own name without two of them colliding.
   const add = (list: FileList | null) => {
-    const files = [...(list ?? [])].filter(isReference);
+    // Pictures and recordings, which is what clone-prototype measures from.
+    const files = [...(list ?? [])].filter((file) => /^(image|video)\//.test(file.type));
     if (files.length === 0) return;
     setMode("clone");
     setPicked((had) => {
@@ -88,6 +89,8 @@ export function NewProjectDialog({
         setPicked([]);
         setOver(false);
         setName("");
+        setIdea("");
+        setDefine(true);
       }}
       // The whole dialog takes a drop, not only the zone, since a file let go a little outside it
       // would otherwise be opened by the browser in place of the page.
@@ -114,17 +117,12 @@ export function NewProjectDialog({
         <form
           onSubmit={async (event) => {
             event.preventDefault();
-            const form = new FormData(event.currentTarget);
             setBusy(true);
             await create(
               name,
               mode === "clone"
                 ? { mode, files: picked.map((p) => p.file) }
-                : {
-                    mode,
-                    define: form.has("define"),
-                    idea: (form.get("idea") as string).trim(),
-                  },
+                : { mode, define, idea: idea.trim() },
             );
             setBusy(false);
           }}
@@ -216,12 +214,17 @@ export function NewProjectDialog({
                   What's the idea? <small>Optional</small>
                 </span>
                 <textarea
-                  name="idea"
+                  value={idea}
+                  onChange={(event) => setIdea(event.currentTarget.value)}
                   placeholder="Say whatever comes to mind: who it's for, what bugs you about how it's done now, an app it should feel like, a screen you can already picture…"
                 />
               </label>
               <label className="home-dialog-check">
-                <input type="checkbox" name="define" defaultChecked />
+                <input
+                  type="checkbox"
+                  checked={define}
+                  onChange={(event) => setDefine(event.currentTarget.checked)}
+                />
                 <span>
                   Define the product with the agent <code>/define-product</code>
                 </span>

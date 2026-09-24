@@ -226,7 +226,10 @@ export function AppShell() {
     const first = [
       name.trim() === "" &&
         `name this project: write a short name for it as {"name": "…"} in project.json at the project's root (if you cannot tell yet what it is, make that your first question to me)`,
-      `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json and a first board, so it opens on my screen`,
+      // With define-product, no board before the product is worked out, as that skill says.
+      start.mode === "build" && start.define
+        ? `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json, so it opens on my screen, and no board in it until PRD.md says what the product is`
+        : `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json and a first board, so it opens on my screen`,
     ].filter(Boolean);
     const [skill, ask] =
       start.mode === "clone"
@@ -242,7 +245,7 @@ export function AppShell() {
     // What they said about the idea, in their words, for the agent to start from rather than ask.
     const idea =
       start.mode === "build" && start.idea
-        ? ` Here is the idea in my own words, as it came to mind — start from it, and ask about what it leaves open rather than what it already says:\n\n${start.idea.replace(/^/gm, "> ")}`
+        ? ` Here is the idea in my own words, as it came to mind. Start from it, and ask about what it leaves open rather than what it already says:\n\n${start.idea.replace(/^/gm, "> ")}`
         : "";
     starting.current = {
       url,

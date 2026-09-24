@@ -1198,10 +1198,16 @@ function installCanvasUrlSync(
   const write = (push: boolean) => {
     const active = tab.active();
     const open = opened();
+    // Else one of the person's shapes when it alone is selected, as its link opens it.
+    const selected = editor.getOnlySelectedShape();
     const named =
-      active.kind === "canvas" && open?.slug === pageOf(active)
-        ? open.name
-        : undefined;
+      active.kind !== "canvas"
+        ? undefined
+        : open?.slug === pageOf(active)
+          ? open.name
+          : selected && personsShape(editor, selected)
+            ? selected.id
+            : undefined;
     const href = urlForTab(window.location.href, active, named);
     // The window shows this address as its own, and the bar the tab it is on (AppShell.tsx).
     window.parent.spShell!.shown(tabFor(active), href);

@@ -213,7 +213,10 @@ export function createSpServer(options: {
   // change one word would throw away the tldraw viewport, the open panel and a document being
   // edited. canvasIndex.ts listens.
   const pages = new Set<ServerResponse>();
-  const broadcast = (event: "reload" | "index" | "layout" | "docs", data: unknown) => {
+  const broadcast = (
+    event: "reload" | "index" | "layout" | "docs" | "content",
+    data: unknown,
+  ) => {
     const frame = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const page of pages) page.write(frame);
   };
@@ -726,7 +729,7 @@ export function createSpServer(options: {
         res.end(message);
       };
       try {
-        const { slug, file } = JSON.parse(body || "{}");
+        const { slug, file, by } = JSON.parse(body || "{}");
         if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
         if (isExample(slug)) return send(403, READ_ONLY);
         const folder = path.join(canvasesDir, slug);
@@ -739,6 +742,9 @@ export function createSpServer(options: {
         wroteContent.set(target, text);
         if (text) fs.writeFileSync(target, text);
         else fs.rmSync(target, { force: true });
+        // Every other page on the project reloads onto it (canvasIndex.ts), since the watcher
+        // below takes this write for the saving page's own.
+        broadcast("content", { slug, by });
         send(200, "ok");
       } catch (error) {
         send(500, String(error));
@@ -1006,7 +1012,7 @@ export function createSpServer(options: {
           break;
         case "content":
           // Written by the endpoint above on every save, which the page already holds. Anything
-          // else — a pull, a hand edit, another window — reloads, and the file wins on load.
+          // else, such as a pull, a hand edit or another window, reloads, and the file wins on load.
           if (
             (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "") !==
             wroteContent.get(file)

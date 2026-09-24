@@ -21,7 +21,7 @@ can be read, versioned, copied, and later served from someone else's machine.
    it does today. Pasting that link onto the canvas makes an image the person owns. For a board,
    the server draws it first, the same drawing the chat gets. An image is what tldraw edits:
    move, resize, crop, rotate, draw over. A board's HTML was never editable on the canvas, and
-   the copy does not pretend otherwise.
+   the copy is not HTML.
 4. **The agent reads everything and changes only its own.** It reads the person's content from
    the folder. It does not move, edit or delete that content. To answer a sketch, it adds
    something beside it.
@@ -123,7 +123,7 @@ tldraw calls a pasted URL `url` content. One handler sits in front of tldraw's d
 - A link to one of this project's boards or pictures becomes an image the person owns, as in
   rule 3. The bytes go through the asset store above as a dropped file would, via
   `putExternalContent({ type: 'files' })`.
-- A link to one of the person's own shapes duplicates it (`getContentFromCurrentPage` →
+- A link to one of the person's own shapes duplicates it (`getContentFromCurrentPage`, then
   `putContentOntoCurrentPage`). This is needed because ⌘C copies a link rather than tldraw's
   JSON, so without it, copy and paste of the person's own content would stop working.
 - Anything else goes to tldraw's default, which makes a bookmark.
@@ -147,8 +147,8 @@ tldraw calls a pasted URL `url` content. One handler sits in front of tldraw's d
   `update` and `delete` refuse any id without that stamp. The agent's bridge shapes are saved in
   `canvas.json` like everything else, and the stamp tells them apart.
 - Files are not guarded. A deny rule for Claude Code's `Edit` tool would not stop its `Write`
-  tool or a shell, and other agents have no such rule. The skill is the rule, and Git is the
-  safety net.
+  tool or a shell, and other agents have no such rule. The skill states the rule, and Git can
+  restore what an agent changes anyway.
 
 ## A new canvas from "+"
 
@@ -174,7 +174,7 @@ Nothing here assumes one browser on one machine:
   `new-canvas`, `canvas-name`), and `sameOrigin` guards each one today. An authenticated server
   puts its check at that same boundary, and the page does not change.
 - **Live multi-user editing** is tldraw's `TLSocketRoom`, one per page, with a storage adapter
-  that reads and writes this same `canvas.json`. The file format is the contract, and the
+  that reads and writes this same `canvas.json`. The file format stays fixed, and the
   transport can change without touching it. That is also where last-write-wins between two
   writers ends. Until then it is the same as `comments.json`.
 
@@ -196,7 +196,7 @@ Nothing here assumes one browser on one machine:
   copy endpoint are cut. `comments.json` shows last-write-wins plus a reload is enough here.
 - `--disallowedTools` is cut, because it covers `Edit` only and not `Write` or a shell.
 - A copied board was to be an unlocked board that could not be edited inside. It is now an image,
-  which tldraw fully edits, and which needs no second kind of board shape.
+  which tldraw can edit, and which needs no second kind of board shape.
 - `drawing.json` and `drawing/` are renamed, since drawing tools are off and the names read as ink.
 - One file per owner was proposed and not taken: the page is the only writer, so there is no race
   for it to remove.

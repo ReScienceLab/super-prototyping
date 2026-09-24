@@ -18,7 +18,7 @@ import {
   type TLShapeId,
   type VecLike,
 } from "tldraw";
-import { canvasIndex } from "./canvasIndex";
+import { canvasIndex, PAGE_ID } from "./canvasIndex";
 import {
   boardFileUrl,
   canvasImageKey,
@@ -45,7 +45,7 @@ const FILES_SRC = new RegExp(
   `^${import.meta.env.BASE_URL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}board/([^/]+)/files/`,
 );
 
-/** Slug -> page for the project's own canvases, the ones whose folder a person's content goes in.
+/** The page of each of the project's own canvases, by slug: the ones whose folder a person's content goes in.
  *  None on the hosted build, which has no folder to write to. */
 function projectPages(editor: Editor) {
   const pages = new Map<string, TLPageId>();
@@ -175,44 +175,59 @@ export function installCanvasContent(editor: Editor) {
   let pending: ReturnType<typeof setTimeout> | undefined;
   // The pages are read again on every pass: a canvas the agent adds arrives without a reload
   // (canvasIndex.ts), and what a person puts on it has to be saved too.
-  const flush = (unloading = false) => {
+  // One write at a time per canvas, so an older body can never land after a newer one. A write
+  // that fails forgets what it sent, and the next change sends the page again.
+  const saving = new Map<string, Promise<void>>();
+  // `leaving` is the page going away with a save still waiting: the write is sent at once, and
+  // keepalive lets it outlive the page.
+  // ponytail: keepalive caps a body at 64 KB, so a bigger page's last half second is still lost.
+  const flush = (leaving = false) => {
+    clearTimeout(pending);
     pending = undefined;
     for (const [slug, pageId] of projectPages(editor)) {
       const file = pageFile(editor, pageId, slug);
       const body = file.records.length ? JSON.stringify(file) : "";
       if ((written.get(slug) ?? "") === body) continue;
       written.set(slug, body);
-      void fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ slug, file: body ? file : null }),
-        // Outlives the page. The browser caps a keepalive body at 64 KB and refuses a bigger
-        // one; ponytail: a canvas past that loses its last half second on a reload, as before.
-        keepalive: unloading,
-      });
+      const post = () =>
+        fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ slug, file: body ? file : null, by: PAGE_ID }),
+          keepalive: leaving,
+        }).then(async (res) => {
+          if (!res.ok) throw new Error(await res.text());
+        });
+      if (leaving) {
+        void post();
+        continue;
+      }
+      saving.set(
+        slug,
+        (saving.get(slug) ?? Promise.resolve()).then(post).catch((error) => {
+          console.error(`canvas ${slug} was not saved:`, error);
+          if (written.get(slug) === body) written.delete(slug);
+        }),
+      );
     }
   };
   flush();
-  // A reload still happens for canvas.json written from outside, and quitting is one too. The
-  // edits of the last half second, still waiting on the debounce, go first.
-  const unload = () => {
-    if (pending !== undefined) flush(true);
-  };
-  window.addEventListener("pagehide", unload);
 
   // Every document change is a candidate: a person's shape, an asset landing, a binding. flush
   // compares bodies, so a change to the library's own shapes writes nothing.
   const dispose = editor.store.listen(
     () => {
       clearTimeout(pending);
-      pending = setTimeout(flush, 500);
+      pending = setTimeout(() => flush(), 500);
     },
     { source: "user", scope: "document" },
   );
+  const leave = () => pending && flush(true);
+  window.addEventListener("pagehide", leave);
   return () => {
     dispose();
+    window.removeEventListener("pagehide", leave);
     clearTimeout(pending);
-    window.removeEventListener("pagehide", unload);
     mounted = undefined;
   };
 }
@@ -256,8 +271,12 @@ async function fromLinks(editor: Editor, text: string, point?: VecLike) {
     if (url.origin !== here.origin || url.pathname !== here.pathname) return undefined;
     if (tab.kind !== "canvas" || !named) return undefined;
     if (named.startsWith("shape:")) {
+      // tldraw copies only from the page in front, so one on another canvas pastes as a link.
       const shape = editor.getShape(named as TLShapeId);
-      return personsShape(editor, shape) ? { shape: shape! } : undefined;
+      return personsShape(editor, shape) &&
+        editor.getAncestorPageId(shape) === editor.getCurrentPageId()
+        ? { shape: shape! }
+        : undefined;
     }
     const board = readCanvasLibrary()
       .flatMap((c) => c.files)
