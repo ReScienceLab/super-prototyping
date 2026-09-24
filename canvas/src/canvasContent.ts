@@ -18,7 +18,7 @@ import {
   type TLShapeId,
   type VecLike,
 } from "tldraw";
-import { canvasIndex } from "./canvasIndex";
+import { canvasIndex, PAGE_ID } from "./canvasIndex";
 import {
   boardFileUrl,
   canvasImageKey,
@@ -176,7 +176,11 @@ export function installCanvasContent(editor: Editor) {
   // One write at a time per canvas, so an older body can never land after a newer one. A write
   // that fails forgets what it sent, and the next change sends the page again.
   const saving = new Map<string, Promise<void>>();
-  const flush = () => {
+  // `leaving` is the page going away with a save still waiting: the write is sent at once, and
+  // keepalive lets it outlive the page.
+  // ponytail: keepalive caps a body at 64 KB, so a bigger page's last half second is still lost.
+  const flush = (leaving = false) => {
+    clearTimeout(pending);
     pending = undefined;
     for (const [slug, pageId] of pages) {
       const file = pageFile(editor, pageId, slug);
@@ -187,10 +191,15 @@ export function installCanvasContent(editor: Editor) {
         fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ slug, file: body ? file : null }),
+          body: JSON.stringify({ slug, file: body ? file : null, by: PAGE_ID }),
+          keepalive: leaving,
         }).then(async (res) => {
           if (!res.ok) throw new Error(await res.text());
         });
+      if (leaving) {
+        void post();
+        continue;
+      }
       saving.set(
         slug,
         (saving.get(slug) ?? Promise.resolve()).then(post).catch((error) => {
@@ -207,12 +216,15 @@ export function installCanvasContent(editor: Editor) {
   const dispose = editor.store.listen(
     () => {
       clearTimeout(pending);
-      pending = setTimeout(flush, 500);
+      pending = setTimeout(() => flush(), 500);
     },
     { source: "user", scope: "document" },
   );
+  const leave = () => pending && flush(true);
+  window.addEventListener("pagehide", leave);
   return () => {
     dispose();
+    window.removeEventListener("pagehide", leave);
     clearTimeout(pending);
     mounted = undefined;
   };
