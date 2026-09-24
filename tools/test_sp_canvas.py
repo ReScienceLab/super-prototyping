@@ -342,6 +342,26 @@ def test_the_notice_names_a_newer_release_and_what_to_do_about_it():
     assert said(dict(record, available="1.5.2")) == ""
 
 
+def test_upgrade_says_a_failed_download_is_being_tried_again():
+    import contextlib, io
+    sp_home = Path(tempfile.mkdtemp())
+    (sp_home / "state").mkdir()
+    update = sp_home / "state/update.json"
+    record = {"current": "1.6.0", "available": "1.6.1", "downloaded": None, "error": None}
+    update.write_text(json.dumps(dict(record, error="Error: net::ERR_CONNECTION_CLOSED\n  at x",
+                                      checkedAt="before")))
+    real = C._launch
+    C._launch = lambda *_: update.write_text(json.dumps(dict(record, checkedAt="after")))
+    try:
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            with_env(dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home)), lambda: C.cmd_upgrade(None))
+    finally:
+        C._launch = real
+    assert "1.6.1 is downloading again; the last try failed: Error: net::ERR_CONNECTION_CLOSED." \
+        in out.getvalue(), out.getvalue()
+
+
 def test_uninstall_takes_back_only_what_the_app_made():
     home = Path(tempfile.mkdtemp())
     current = home / ".local/share/super-prototyping/current"

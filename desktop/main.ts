@@ -192,7 +192,9 @@ async function main() {
     autoUpdater.checkForUpdates().then(
       (check) => {
         if (!check) return "Could not check"; // unpackaged: the updater is off and asked nobody
-        check.downloadPromise?.catch(() => {});
+        // A download that fails is recorded with its reason, which the next `sp upgrade` reports
+        // instead of saying again that the update is downloading.
+        check.downloadPromise?.catch((e) => record(check.updateInfo.version, String(e)));
         record(check.isUpdateAvailable ? check.updateInfo.version : null);
         return check.isUpdateAvailable
           ? `${check.updateInfo.version} available`
