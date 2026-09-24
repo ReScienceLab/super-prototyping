@@ -35,13 +35,20 @@ The first idea was to lock the canvas while the agent works on it. It is the wro
   multiplayer is optimistic: the server orders changes and a client rebases.
 
 So it is optimistic here too. The page runs one command at a time, and **the person's move wins**:
-each shape carries `meta.placed`, its page bounds after the agent last wrote it. An update or a
-layout op that would move or resize a shape whose bounds no longer match is refused with
-`moved_by_person` and the bounds it has now. The agent reads the canvas again and plans around
-it. `force` skips the check, for when the person asks for a shape to be put back.
+each shape carries `meta.placed`, where the agent last left it. An update or a layout op that
+would move or resize a shape no longer there is refused with `moved_by_person` and the bounds it
+has now. The agent reads the canvas again and plans around it. `force` skips the check, for when
+the person asks for a shape to be put back.
 
-- **Page bounds, not `x`/`y`.** Framing a shape rewrites its `x`/`y` into the frame's space and
-  leaves its page bounds alone, so a check on `x`/`y` would call every framed shape moved.
+- **Moved means moved itself.** `placed` holds the shape's page bounds and rotation, and its
+  pose in its parent: parent, `x`, `y`, rotation and size. It counts as moved only when neither
+  matches. Dragging the frame it is in keeps the second, so the agent can still arrange the
+  keyframes in a frame the person moved. Reparenting it where it stands keeps the first: the
+  agent's `frame`, or the person grouping it or shrinking a frame off it. Moving, resizing or
+  turning the shape itself changes both. Page bounds alone called every shape in a dragged
+  frame moved; the pose alone, every shape reparented in place. The rotation catches a half
+  turn, which leaves the bounds as they were. `frame` stamps what it frames again, in the
+  frame, or its first drag would count as a move of each.
 - **A shape the person has moved keeps its old `placed`** through any later write of the agent's
   that is not `force`d, so the check stays armed. An arrow bound at both ends is never checked:
   its bounds follow its ends, not the person.

@@ -110,7 +110,7 @@ describe('create', () => {
     const shape = editor.getShape(id)!
     expect(shape.isLocked).toBe(false)
     expect(shape.parentId).toBe(pageId)
-    expect(shape.meta).toEqual({ by: 'agent', note: 'kept', placed: { x: 10, y: 10, w: 20, h: 20 } })
+    expect(shape.meta).toMatchObject({ by: 'agent', note: 'kept', placed: { x: 10, y: 10, w: 20, h: 20 } })
   })
 
   it('does not pick up the style the person last chose', async () => {
@@ -321,6 +321,42 @@ describe('frame and layout', () => {
     expect(editor.getShapePageBounds(frame)).toMatchObject({ x: -10, y: 2990, w: 140, h: 90 })
     expect(editor.getShapePageBounds(a)).toMatchObject({ x: 0, y: 3000 })
     expect(await run('update', { shapes: [{ id: a, type: 'geo', x: 5 }] })).toEqual({ updated: [a] })
+  })
+
+  it('lets the shapes in a frame the person dragged through, and not the frame', async () => {
+    const [a, b] = await create(geo(0, 3400), geo(100, 3400))
+    const { frame } = (await run('frame', { ids: [a, b] })) as { frame: TLShapeId }
+    directWrite(() => editor.updateShapes([{ id: frame, type: 'frame', x: 500 }]))
+    expect(editor.getShapePageBounds(a)!.x).toBe(532)
+    expect(await run('update', { shapes: [{ id: a, type: 'geo', x: 540 }] })).toEqual({ updated: [a] })
+    expect(await run('update', { shapes: [{ id: frame, type: 'frame', x: 0 }] })).toMatchObject({
+      error: 'moved_by_person',
+    })
+    // A shape the person moved inside the frame is theirs to have moved.
+    dragTo(b, 20, 20)
+    expect(await run('update', { shapes: [{ id: b, type: 'geo', x: 600 }] })).toMatchObject({
+      error: 'moved_by_person',
+    })
+  })
+
+  it('counts a move into another frame, to the same place in it, as a move', async () => {
+    const [a, b] = await create(geo(0, 3600), geo(400, 3600))
+    const { frame: first } = (await run('frame', { ids: [a] })) as { frame: TLShapeId }
+    const { frame: second } = (await run('frame', { ids: [b] })) as { frame: TLShapeId }
+    const { x, y } = editor.getShape(a)!
+    directWrite(() => editor.updateShapes([{ id: a, type: 'geo', parentId: second, x, y }]))
+    expect(editor.getShape(a)!.parentId).not.toBe(first)
+    expect(await run('update', { shapes: [{ id: a, type: 'geo', x: 0 }] })).toMatchObject({
+      error: 'moved_by_person',
+    })
+  })
+
+  it('counts a turn in place as a move', async () => {
+    const [a] = await create(geo(0, 3500))
+    directWrite(() => editor.rotateShapesBy([a], Math.PI))
+    expect(await run('update', { shapes: [{ id: a, type: 'geo', x: 50 }] })).toMatchObject({
+      error: 'moved_by_person',
+    })
   })
 
   it('aligns, and checks every shape first', async () => {

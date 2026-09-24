@@ -155,11 +155,45 @@ function closeEnough(a: Bounds, b: Bounds): boolean {
   )
 }
 
-/** Whether a shape's page bounds still match where the agent last placed it: a shape it has
- *  never placed (no `placed` yet) counts as untouched, the safe default. */
+/** Where the agent last left a shape, twice over: on the page, and in its parent. Moving the
+ *  frame it is in keeps the second; reparenting it where it stands (framing, grouping, a frame
+ *  shrunk off it) keeps the first; the person moving or resizing the shape itself changes both. */
+interface Placed extends Bounds {
+  r: number
+  in: Bounds & { parent: string; r: number }
+}
+
+/** Radians to three places, so `meta` stays plain JSON and a float's noise is not a move. */
+const angle = (r: number) => Math.round(r * 1000) / 1000
+
+function pose(editor: Editor, shape: TLShape): Placed {
+  const own = editor.getShapeGeometry(shape).bounds
+  return {
+    ...bounds(editor, shape),
+    r: angle(editor.getShapePageTransform(shape).rotation()),
+    in: {
+      parent: shape.parentId,
+      x: Math.round(shape.x),
+      y: Math.round(shape.y),
+      w: Math.round(own.w),
+      h: Math.round(own.h),
+      r: angle(shape.rotation),
+    },
+  }
+}
+
+/** Whether a shape is still where the agent last placed it, on the page or in its parent: a shape
+ *  it has never placed (no `placed` yet) counts as untouched, the safe default. */
 function untouched(editor: Editor, shape: TLShape): boolean {
-  const placed = (shape.meta as { placed?: Bounds }).placed
-  return !placed || closeEnough(bounds(editor, shape), placed)
+  const placed = (shape.meta as { placed?: Placed }).placed
+  if (!placed) return true
+  const now = pose(editor, shape)
+  return (
+    (closeEnough(now, placed) && Math.abs(now.r - placed.r) < 0.01) ||
+    (now.in.parent === placed.in.parent &&
+      closeEnough(now.in, placed.in) &&
+      Math.abs(now.in.r - placed.in.r) < 0.01)
+  )
 }
 
 function isFullyBoundArrow(editor: Editor, shape: TLShape): boolean {
@@ -198,14 +232,14 @@ function agentDescendantsAndSelf(editor: Editor, ids: TLShapeId[]): TLShapeId[] 
   )
 }
 
-/** Refreshes `meta.placed` to the current page bounds for every agent shape in `ids`. The one
+/** Refreshes `meta.placed` to where every agent shape in `ids` is now. The one
  *  place that stamps it, so create's initial stamp and every op's maintenance pass agree. Every
  *  caller already narrows `ids` to shapes it just confirmed exist and are agent-owned (created
  *  this call, or filtered through `agentDescendantsAndSelf`), so there is nothing left to guard. */
 function place(editor: Editor, ids: TLShapeId[]) {
   const partials = ids.map((id) => {
     const shape = editor.getShape(id)!
-    return { id: shape.id, type: shape.type, meta: { ...shape.meta, placed: bounds(editor, shape) } }
+    return { id: shape.id, type: shape.type, meta: { ...shape.meta, placed: pose(editor, shape) } }
   })
   editor.updateShapes(partials as unknown as TLShapePartial[])
 }
@@ -714,11 +748,14 @@ function frameOp(editor: Editor, pageId: TLPageId, slug: string, input: unknown)
   if (!ids.length) fail('bad_command', 'frame needs at least one id')
   for (const id of ids) onPage(editor, pageId, id)
   // Reparenting recalculates local x/y so page bounds do not move (confirmed against tldraw),
-  // so there is nothing for the optimistic check to protect and no reason to refuse a frame
-  // whose contents already hold one of the person's shapes. reparentShapes also computes every
-  // shape's original page transform up front, so framing one id into another already in `ids`
-  // needs no guardNoNesting the way layoutOp and updateOp do.
+  // so nothing moves for the optimistic check to refuse, nor a frame whose contents already hold
+  // one of the person's shapes. What does change is each shape's place in its parent, so the
+  // untouched ones are stamped again, in the frame, or the person dragging the frame would read
+  // as having moved every one. A shape the person moved keeps its old stamp. reparentShapes also
+  // computes every shape's original page transform up front, so framing one id into another
+  // already in `ids` needs no guardNoNesting the way layoutOp and updateOp do.
   guardOwnership(editor, ids)
+  const keep = ids.filter((id) => untouched(editor, editor.getShape(id)!))
 
   const padding = isRecord(input) && input.padding !== undefined ? num(input.padding, 'padding') : 32
   const name = isRecord(input) && typeof input.name === 'string' ? input.name : undefined
@@ -739,7 +776,7 @@ function frameOp(editor: Editor, pageId: TLPageId, slug: string, input: unknown)
         }) as unknown as TLShapePartial,
       ])
       editor.reparentShapes(ids, frameId)
-      place(editor, [frameId])
+      place(editor, [frameId, ...keep])
     },
     { history: 'ignore', ignoreShapeLock: true },
   )

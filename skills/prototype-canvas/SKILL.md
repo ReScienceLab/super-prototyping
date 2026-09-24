@@ -186,7 +186,8 @@ resize too: images and video keep their proportions, a board stretches freely
 (Shift keeps them). Content `layout.json` places stays locked. **When the
 person has moved a shape of yours, theirs is the last word**: an update or a
 layout op that would move it again fails with `moved_by_person`, listing each
-shape's bounds `now`. Run `get` again and plan around where they put it.
+shape's bounds `now`. Run `get` again and plan around where they put it. A
+shape that only went along with the frame the person dragged has not moved.
 `"force": true` overrides it; use it only when the person asked for the shape
 to be put back.
 
