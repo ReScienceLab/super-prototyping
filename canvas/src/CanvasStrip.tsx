@@ -6,7 +6,7 @@ import { canvasIndex, LAYOUT_CHANGED } from "./canvasIndex";
 import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { sheetPageUrl, type CanvasTab } from "./canvasUrl";
-import { openMenu, REVEAL, TRASH, TRASH_PLACE } from "./contextMenu";
+import { confirmTrash, openMenu, REVEAL, TRASH } from "./contextMenu";
 import { DocModeSwitch } from "./DocTab";
 import { FileText, LogoFigma, Plus } from "./geistIcons";
 
@@ -220,13 +220,16 @@ export function CanvasStrip() {
               type="button"
               role="menuitem"
               className="sp-menu-row sp-context-menu__danger"
-              onClick={() =>
-                confirm(
-                  `Move “${shortName(target.slug)}” to ${TRASH_PLACE}?\n\n` +
-                    `${canvasIndex().canvasesDir}/${target.slug}\n\n` +
+              onClick={async () => {
+                if (
+                  await confirmTrash(
+                    shortName(target.slug),
+                    `${canvasIndex().canvasesDir}/${target.slug}`,
                     "Its boards and everything pasted on it go with it.",
-                ) && folder(target.slug, "delete")
-              }
+                  )
+                )
+                  void folder(target.slug, "delete");
+              }}
             >
               {TRASH}
             </button>

@@ -20,11 +20,11 @@ import {
 import { canvasPageUrl } from "./canvasUrl";
 import {
   askServer,
+  confirmTrash,
   openMenu,
   REVEAL,
   setProjectCover,
   TRASH,
-  TRASH_PLACE,
 } from "./contextMenu";
 import { FolderPlus, LogoDiscord, LogoGithub, Plus } from "./geistIcons";
 
@@ -415,10 +415,11 @@ export function HomePage(props: {
                   onClick={async () => {
                     const p = target.project!;
                     if (
-                      !confirm(
-                        `Move “${p.name}” to ${TRASH_PLACE}?\n\n${p.path}\n\n` +
-                          "Everything in that folder goes with it.",
-                      )
+                      !(await confirmTrash(
+                        p.name,
+                        p.path,
+                        "Everything in that folder goes with it.",
+                      ))
                     )
                       return;
                     await askServer("delete", p.name);

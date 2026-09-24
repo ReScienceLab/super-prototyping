@@ -2723,3 +2723,67 @@ button {
 .tl-shape.sp-fresh[data-fresh="updated"] {
   --ds-focus: light-dark(#1a9338, #3dbe5c);
 }
+
+/* Asked before a folder is binned (confirmTrash, contextMenu.ts), on the canvas and the home
+   page alike. `margin: auto` is the browser's own centring of a modal, which Tailwind zeroes. */
+.sp-confirm {
+  width: min(440px, calc(100vw - 32px));
+  margin: auto;
+  padding: 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--ds-background-100);
+  box-shadow: var(--ds-shadow-menu);
+  color: var(--ds-gray-1000);
+  font: 400 14px/20px var(--sp-sans);
+}
+.sp-confirm::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+.sp-confirm h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+.sp-confirm code {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--ds-gray-100);
+  color: var(--ds-gray-900);
+  font: 12px/18px var(--sp-mono);
+  overflow-wrap: anywhere;
+}
+.sp-confirm p {
+  margin: 12px 0 0;
+  color: var(--ds-gray-900);
+}
+.sp-confirm form {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+.sp-confirm button {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--ds-background-100);
+  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
+  color: var(--ds-gray-1000);
+  font: 500 14px/20px var(--sp-sans);
+  cursor: pointer;
+}
+.sp-confirm button:hover {
+  background: var(--ds-gray-100);
+}
+.sp-confirm button.sp-confirm-danger {
+  background: var(--ds-red-900);
+  box-shadow: none;
+  color: #fff;
+}
+.sp-confirm button.sp-confirm-danger:hover {
+  background: color-mix(in oklab, var(--ds-red-900) 88%, black);
+}
