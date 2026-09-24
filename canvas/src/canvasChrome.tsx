@@ -36,6 +36,7 @@ import {
   CommentTool,
   commentToolOverrides,
 } from "@tldraw/commenting";
+import { personsShape } from "./canvasContent";
 import {
   CanvasAttachButtons,
   CanvasSelectionAttachButton,
@@ -196,7 +197,7 @@ function selectionLinks(editor: Editor) {
   return editor.getSelectedShapes().flatMap((shape) => {
     if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
       const file = readCanvasLibrary()
-        .flat()
+        .flatMap((c) => c.files)
         .find((c) => c.path === (shape as CanvasFileShape).props.path);
       return file ? [urlForSlug(here, file.pageSlug, file.fileName)] : [];
     }
@@ -205,7 +206,10 @@ function selectionLinks(editor: Editor) {
       return url ? [url] : page ? [urlForSlug(here, page)] : [];
     }
     const ref = canvasImageRef(shape.id);
-    return ref ? [urlForSlug(here, ref.slug, ref.file)] : [];
+    if (ref) return [urlForSlug(here, ref.slug, ref.file)];
+    // One of the person's own, by its id, which pastes back as a copy of it (canvasContent.ts).
+    const own = personsShape(editor, shape);
+    return own ? [urlForSlug(here, own, shape.id)] : [];
   });
 }
 

@@ -163,12 +163,18 @@ it("serves every project at its own address and makes new ones", async () => {
     // A new project, then opened. It gets no skills: the agent's are in its own folder.
     const made = await ask("/__sp/projects", { name: " beta " });
     expect(made.status).toBe(200);
-    expect(JSON.parse(made.text)).toEqual({ url: "/p/beta/" });
+    expect(JSON.parse(made.text)).toEqual({ name: "beta", url: "/p/beta/" });
     expect(fs.existsSync(path.join(tmp, "projects/beta/canvases"))).toBe(true);
     expect(fs.existsSync(path.join(tmp, "projects/beta/.claude"))).toBe(false);
     expect((await ask("/p/beta/__sp/index.json")).status).toBe(200);
     expect((await ask("/__sp/projects", { name: "beta" })).status).toBe(409);
-    expect((await ask("/__sp/projects", { name: "  " })).status).toBe(400);
+    // No name: the first free "Untitled", which its agent names in project.json.
+    for (const url of ["/p/Untitled/", "/p/Untitled%202/"])
+      expect(JSON.parse((await ask("/__sp/projects", { name: "  " })).text).url).toBe(url);
+    write("projects/Untitled/project.json", JSON.stringify({ name: "Gamma" }));
+    const titled = JSON.parse((await ask("/__sp/projects.json")).text);
+    expect(titled.find((p: any) => p.name === "Untitled").title).toBe("Gamma");
+    expect(JSON.parse((await ask("/p/Untitled/__sp/index.json")).text).title).toBe("Gamma");
     expect((await ask("/__sp/projects", { name: "a/b" })).status).toBe(400);
 
     // A reference for a clone: into the project's `refs`, once, and only under a plain name.

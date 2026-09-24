@@ -392,29 +392,48 @@ export function brandThumbForSrc(src: string) {
   return thumbBySrc.get(src);
 }
 
-/** Every discovered board, grouped by page and sorted by filename within it. */
-export function readCanvasLibrary(): CanvasLibraryFile[][] {
-  const byPage = new Map<string, CanvasLibraryFile[]>();
-  for (const b of boards()) {
-    for (const html of b.html) {
-      const file = parse(boardKey(b.slug, html));
-      if (!file) continue;
-      const list = byPage.get(file.pageSlug) ?? [];
-      list.push(file);
-      byPage.set(file.pageSlug, list);
-    }
-  }
-  for (const list of byPage.values()) {
-    list.sort((a, b) =>
-      a.fileName.localeCompare(b.fileName, undefined, { numeric: true }),
-    );
-  }
+/**
+ * Every canvas folder, with its boards sorted by filename. A folder can have none yet: one made
+ * with the canvas strip's "+" is a page to draw on until the agent or the reader adds a board.
+ */
+export function readCanvasLibrary(): { slug: string; files: CanvasLibraryFile[] }[] {
+  const canvases = boards().map((b) => ({
+    slug: b.slug,
+    files: b.html
+      .map((html) => parse(boardKey(b.slug, html)))
+      .filter((file): file is CanvasLibraryFile => file !== null)
+      .sort((a, b) =>
+        a.fileName.localeCompare(b.fileName, undefined, { numeric: true }),
+      ),
+  }));
   return inStripOrder(
-    [...byPage.entries()],
-    ([slug]) => slug,
-    ([slug]) =>
-      slug === WELCOME_PAGE_SLUG
+    canvases,
+    (c) => c.slug,
+    (c) =>
+      c.slug === WELCOME_PAGE_SLUG
         ? -Infinity
-        : (readCanvasLayout(slug)?.order ?? 0),
-  ).map(([, files]) => files);
+        : (readCanvasLayout(c.slug)?.order ?? 0),
+  );
+}
+
+/**
+ * Id prefixes of everything the library places: boards, row headings, captions, and the cards
+ * and buttons that open things. They are all created locked, and `lockLibraryShapes` locks any
+ * that a browser persisted before that was so. Locked, a shape cannot be selected, so a reader
+ * who means to pinch or scroll cannot drag a board out of its row by accident; the camera is the
+ * only thing that moves. The layout is declared in layout.json, so a board is never repositioned
+ * by hand anyway. Anything a person draws on top stays unlocked and editable.
+ */
+const LIBRARY_SHAPE_PREFIXES = [
+  "shape:canvas-file:",
+  "shape:canvas-image:",
+  "shape:canvas-row-heading:",
+  "shape:canvas-file-label:",
+  "shape:canvas-link:",
+  // Placed by no pass any more; listed so the sweep clears any a browser still holds.
+  "shape:canvas-status-banner:",
+];
+
+export function isLibraryShapeId(id: string) {
+  return LIBRARY_SHAPE_PREFIXES.some((prefix) => id.startsWith(prefix));
 }

@@ -188,10 +188,12 @@ export function AppShell() {
       body: JSON.stringify({ name }),
     });
     if (!res.ok) return setSaid(await res.text());
-    const { url } = (await res.json()) as { url: string };
+    // The server's name, which is the one typed, or an "Untitled" when none was.
+    const made = (await res.json()) as { name: string; url: string };
+    const { url } = made;
     if (start.mode === "clone")
       for (const file of start.files) {
-        const query = new URLSearchParams({ name: name.trim(), file: file.name });
+        const query = new URLSearchParams({ name: made.name, file: file.name });
         const up = await fetch(new URL(`/__sp/projects/ref?${query}`, location.origin), {
           method: "POST",
           body: file,
@@ -204,21 +206,37 @@ export function AppShell() {
       }
     dialog.current!.close();
     const names = start.mode === "clone" ? start.files.map((f) => `refs/${f.name}`) : [];
-    starting.current =
+    // Before anything else its agent names the project, when it was left unnamed, into its
+    // project.json, which the bar and the home page show it by (server/sp.ts), and makes and
+    // names its first canvas, which the blank view it opens on then gives way to (App.tsx). The
+    // skill's command still opens the message, since only there is it one.
+    const first = [
+      name.trim() === "" &&
+        `name this project: write a short name for it as {"name": "…"} in project.json at the project's root (if you cannot tell yet what it is, make that your first question to me)`,
+      `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json and a first board, so it opens on my screen`,
+    ].filter(Boolean);
+    const [skill, ask] =
       start.mode === "clone"
-        ? {
-            url,
-            text:
-              names.length > 0
-                ? `/clone-prototype Clone the app in these references, in the project: ${names.join(", ")}.`
-                : "/clone-prototype Ask me which app to clone, and for screenshots or a screen recording of it.",
-          }
+        ? [
+            "/clone-prototype",
+            names.length > 0
+              ? `Clone the app in these references, in the project: ${names.join(", ")}.`
+              : "Ask me which app to clone, and for screenshots or a screen recording of it.",
+          ]
         : start.define
-          ? {
-              url,
-              text: "/define-product Help me work out what this product is, and write PRD.md as we go.",
-            }
-          : undefined;
+          ? ["/define-product", "Help me work out what this product is, and write PRD.md as we go."]
+          : ["", "Ask me what this project is."];
+    // What they said about the idea, in their words, for the agent to start from rather than ask.
+    const idea =
+      start.mode === "build" && start.idea
+        ? ` Here is the idea in my own words, as it came to mind — start from it, and ask about what it leaves open rather than what it already says:\n\n${start.idea.replace(/^/gm, "> ")}`
+        : "";
+    starting.current = {
+      url,
+      text: [skill, `Before anything else, ${first.join(", then ")}. Then: ${ask}${idea}`]
+        .filter(Boolean)
+        .join(" "),
+    };
     load(new URL(url, location.origin).href);
   };
   // A project made to start on a skill: clone-prototype on its references, or define-product.

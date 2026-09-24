@@ -1,4 +1,5 @@
 import type { CommentsFile } from "./canvasComments";
+import type { ContentFile } from "./canvasContent";
 import type { CanvasLayoutConfig } from "./canvasLibrary";
 
 /**
@@ -23,6 +24,8 @@ export interface IndexBoard {
   assets: Record<string, { name: string; bytes: number }>;
   /** The folder's comments.json, when it has one. */
   comments?: CommentsFile;
+  /** The folder's canvas.json, what a person put on the canvas, when it has one. */
+  content?: ContentFile;
   /** One of the examples the desktop app shows beside the project's own, read-only. */
   example?: true;
   /** The folder's documents, as `CanvasIndex.docs` are the project's: the ones an example's
@@ -51,6 +54,8 @@ export interface CanvasIndex {
   boards: IndexBoard[];
   /** The project's name, where one was set; absent from a build. */
   project?: string | null;
+  /** The name it is shown by, from its project.json, when that is not its folder's. */
+  title?: string;
   /**
    * The Markdown files at the project's root the server shows, for now its PRD.md: one tab
    * each, before its canvases. Absent from a build and at the server's root, which have no project.

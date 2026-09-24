@@ -15,7 +15,7 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 
 describe("readCanvasLibrary", () => {
   it("puts the welcome page first, then `order`, then slug order", () => {
-    const slugs = readCanvasLibrary().map((files) => files[0].pageSlug);
+    const slugs = readCanvasLibrary().map((c) => c.slug);
     expect(slugs[0]).toBe(WELCOME_PAGE_SLUG);
     // Three folders declare an order: snapaction-ios at -1 ahead of the alphabet,
     // apple-icons at 1 and templates at 2 behind it. Sorting the rest by the same
@@ -35,7 +35,7 @@ describe("readCanvasLibrary", () => {
 
 describe("loadCanvasFileHtml", () => {
   it("fills the cache useCanvasFileHtml reads from, and leaves non-boards out of it", async () => {
-    const path = readCanvasLibrary()[0][0].path;
+    const path = readCanvasLibrary()[0].files[0].path;
     expect(canvasFileHtml.has(path)).toBe(false);
     const html = await loadCanvasFileHtml(path);
     expect(html).toContain("<");
@@ -51,7 +51,7 @@ describe("loadCanvasFileHtml", () => {
   it("ends every board with the tag that stops the browser back gesture", async () => {
     // A wheel inside an iframe never reaches tldraw, so a board that does not stop overscroll
     // in its own document turns a two-finger pan over it into a back navigation.
-    const path = readCanvasLibrary()[1][0].path;
+    const path = readCanvasLibrary()[1].files[0].path;
     const html = await loadCanvasFileHtml(path);
     expect(html).toMatch(/<style>html\{overscroll-behavior:none\}<\/style>$/);
   });
@@ -63,7 +63,7 @@ describe("images rows", () => {
     // mistyped path or a missing w/h leaves a gap in the published evidence and says nothing
     // about it. This is where that gets said: the two conditions, checked in one place.
     const slugs = [
-      ...new Set(readCanvasLibrary().map((files) => files[0].pageSlug)),
+      ...new Set(readCanvasLibrary().map((c) => c.slug)),
     ];
     const broken = slugs.flatMap((slug) =>
       (readCanvasLayout(slug)?.rows ?? []).flatMap((row) =>
@@ -116,7 +116,7 @@ describe("canvasBoardRef", () => {
   it("names a board the way the server and the agent know it", () => {
     // A board's shape carries the module path the generated index keys it by, which is neither
     // what /__sp/shoot takes nor what a sentence in the chat panel should say.
-    const board = readCanvasLibrary()[1][0];
+    const board = readCanvasLibrary()[1].files[0];
     expect(board.path).not.toBe(`${board.pageSlug}/${board.fileName}.html`);
     expect(canvasBoardRef(board.path)).toEqual({
       slug: board.pageSlug,

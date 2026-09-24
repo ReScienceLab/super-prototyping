@@ -1,14 +1,13 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useReducer, useRef, useState } from "react";
 import { CanvasChromeContext } from "./canvasChrome";
 import { shortName } from "./canvasLibrary";
 import { docsOf, ownCanvases, pageOf, tabFor, tabUrl } from "./canvasTabs";
-import { canvasIndex } from "./canvasIndex";
+import { canvasIndex, LAYOUT_CHANGED } from "./canvasIndex";
 import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { sheetPageUrl, type CanvasTab } from "./canvasUrl";
-import { openMenu } from "./contextMenu";
+import { openMenu, REVEAL, TRASH, TRASH_PLACE } from "./contextMenu";
 import { DocModeSwitch } from "./DocTab";
-import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
 import { FileText, LogoFigma, Plus } from "./geistIcons";
 
 /**
@@ -17,13 +16,17 @@ import { FileText, LogoFigma, Plus } from "./geistIcons";
  * drawn as Geist's Tabs are, a name underlined when it is the one in front, so they do not read
  * as more of the bar's cells above them. An example is one canvas.
  *
- * After them, the "+" is the way to another. It puts the agent's panel out with the message
- * begun, since a canvas is the agent's work. An example is the app's and takes none, and a build
- * has no agent.
+ * After them, the "+" makes another, empty and called Untitled, and reloads onto it with its
+ * name up for typing in its tab; double-clicking a tab types a new one later. The name is
+ * layout.json's, and the folder keeps its slug. An example is the app's and takes none, and a
+ * build has no server to make one.
  *
  * At the far end are the controls of the tab in front: a canvas's ground colour, then Export to
  * Figma, the one place a canvas goes from here; a document's switch between reading and editing.
  */
+/** The canvas whose tab is up for renaming, kept across the reload that brings a new one in. */
+const RENAME_KEY = "sp:rename-canvas";
+
 export function CanvasStrip() {
   const { activeTab, openTab, editor } = useContext(CanvasChromeContext);
   const tab = tabFor(activeTab);
@@ -38,6 +41,39 @@ export function CanvasStrip() {
   const ground = useGround(editor, page);
   const [target, setTarget] = useState<CanvasTab | null>(null);
   const menu = useRef<HTMLDivElement>(null);
+  const [renaming, setRenaming] = useState(() => sessionStorage.getItem(RENAME_KEY));
+  // A name typed lands as a layout change, which the tab reads through the index.
+  const [, relabel] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => {
+    window.addEventListener(LAYOUT_CHANGED, relabel);
+    return () => window.removeEventListener(LAYOUT_CHANGED, relabel);
+  }, []);
+  // A canvas just made is the one to be on, once the editor is there to show its page.
+  const made = useRef(renaming);
+  useEffect(() => {
+    if (editor && made.current) openTab({ kind: "canvas", slug: made.current });
+    if (editor) made.current = null;
+  }, [editor, openTab]);
+  const own = target?.kind === "canvas" && tab.kind !== "example" && canvasIndex().served;
+  const folder = async (canvas: string, action: "reveal" | "delete") => {
+    const response = await fetch(`${import.meta.env.BASE_URL}__sp/canvas-folder`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ slug: canvas, action }),
+    });
+    if (!response.ok) return alert(await response.text());
+    if (action === "delete") window.location.reload();
+  };
+  const rename = (canvas: string, name: string) => {
+    sessionStorage.removeItem(RENAME_KEY);
+    setRenaming(null);
+    if (!name.trim() || name.trim() === shortName(canvas)) return;
+    void fetch(`${import.meta.env.BASE_URL}__sp/canvas-name`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ slug: canvas, name }),
+    });
+  };
 
   return (
     <nav className="sp-canvas-tabs" aria-label="Canvases">
@@ -55,18 +91,35 @@ export function CanvasStrip() {
           {name.replace(/\.md$/i, "")}
         </button>
       ))}
-      {canvases.length === 0 && (
-        <span className="sp-canvas-tabs-none">
-          No canvases yet. Ask the agent for one.
-        </span>
-      )}
-      {canvases.map((canvas) => (
+      {canvases.map((canvas) =>
+        canvas === renaming ? (
+          <label key={canvas} className="sp-canvas-tab" aria-current="page">
+            <ViewIcon view={{ kind: "canvas", slug: canvas }} />
+            <input
+              className="sp-canvas-tab-name"
+              aria-label="Canvas name"
+              defaultValue={shortName(canvas)}
+              size={Math.max(shortName(canvas).length, 8)}
+              autoFocus
+              onFocus={(event) => event.currentTarget.select()}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") event.currentTarget.blur();
+                if (event.key === "Escape") {
+                  event.currentTarget.value = shortName(canvas);
+                  event.currentTarget.blur();
+                }
+              }}
+              onBlur={(event) => rename(canvas, event.currentTarget.value)}
+            />
+          </label>
+        ) : (
         <button
           key={canvas}
           type="button"
           className="sp-canvas-tab"
           aria-current={canvas === here ? "page" : undefined}
           onClick={() => openTab({ kind: "canvas", slug: canvas })}
+          onDoubleClick={() => tab.kind !== "example" && setRenaming(canvas)}
           onContextMenu={(event) =>
             openMenu(event, menu, () => setTarget({ kind: "canvas", slug: canvas }))
           }
@@ -74,20 +127,21 @@ export function CanvasStrip() {
           <ViewIcon view={{ kind: "canvas", slug: canvas }} />
           {shortName(canvas)}
         </button>
-      ))}
+        ),
+      )}
       {tab.kind !== "example" && canvasIndex().served && (
         <button
           type="button"
           className="sp-canvas-tabs-new"
           title="New canvas"
-          // To the agent's panel, which is the window's, outside this frame (AppShell.tsx).
-          onClick={() =>
-            window.parent.dispatchEvent(
-              new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, {
-                detail: { kind: "draft", text: "Make a new canvas for " },
-              }),
-            )
-          }
+          onClick={async () => {
+            const response = await fetch(`${import.meta.env.BASE_URL}__sp/new-canvas`, {
+              method: "POST",
+            });
+            if (!response.ok) throw new Error(await response.text());
+            sessionStorage.setItem(RENAME_KEY, (await response.json()).slug);
+            window.location.reload();
+          }}
         >
           <Plus />
         </button>
@@ -121,7 +175,8 @@ export function CanvasStrip() {
           <LogoFigma />
         </a>
       )}
-      {/* Right-click menu: Copy link copies the window's address for that view. */}
+      {/* Right-click menu: Copy link copies the window's address for that view. A canvas of the
+          project's own also shows its folder, or bins it after asking. */}
       <div
         ref={menu}
         popover="auto"
@@ -141,6 +196,33 @@ export function CanvasStrip() {
         >
           Copy link
         </button>
+        {own && (
+          <>
+            <button
+              type="button"
+              role="menuitem"
+              className="sp-menu-row"
+              onClick={() => folder(target.slug, "reveal")}
+            >
+              {REVEAL}
+            </button>
+            <hr />
+            <button
+              type="button"
+              role="menuitem"
+              className="sp-menu-row sp-context-menu__danger"
+              onClick={() =>
+                confirm(
+                  `Move “${shortName(target.slug)}” to ${TRASH_PLACE}?\n\n` +
+                    `${canvasIndex().canvasesDir}/${target.slug}\n\n` +
+                    "Its boards and everything pasted on it go with it.",
+                ) && folder(target.slug, "delete")
+              }
+            >
+              {TRASH}
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );

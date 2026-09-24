@@ -31,7 +31,7 @@ const BOARD_FILES = /^[^/]+\/[^/]+$/;
 export function boardChangeKind(
   canvasesDir: string,
   file: string,
-): "board" | "layout" | "assets" | "comments" | null {
+): "board" | "layout" | "assets" | "comments" | "content" | null {
   const dir = slashes(canvasesDir).replace(/\/$/, "");
   const full = slashes(file);
   if (!full.startsWith(dir + "/")) return null;
@@ -47,6 +47,7 @@ export function boardChangeKind(
   if (name.endsWith(".html")) return "board";
   if (name === "layout.json") return "layout";
   if (name === "comments.json") return "comments";
+  if (name === "canvas.json") return "content";
   if (name === "assets.json" || name === "icon.png") return "assets";
   return null;
 }

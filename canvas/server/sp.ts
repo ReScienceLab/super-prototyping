@@ -13,6 +13,7 @@ import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import path from "node:path";
+import { pipeline } from "node:stream/promises";
 import {
   CANVASES,
   DOCS,
@@ -68,13 +69,89 @@ export function folderOf(
   return !hasBoard && fs.existsSync(example) ? example : own;
 }
 
-/** The project's own settings, beside its canvases: for now only which cover it chose. */
+/**
+ * The project's own settings, beside its canvases: which cover it chose, and the name it is shown
+ * by when that is not its folder's. A project made without a name is an "Untitled" folder whose
+ * agent writes `name` here (AppShell.tsx), since renaming the folder would move every address the
+ * open tab and the chat hold.
+ */
 const PROJECT_JSON = "project.json";
 
+/**
+ * Shows a folder in the OS's file manager, selected in the folder it is in. Rejects when the
+ * folder was not shown: on a Linux without xdg-open, or with one that has no file manager to
+ * hand the folder around it to.
+ */
+export function reveal(dir: string) {
+  const [file, args] =
+    process.platform === "darwin"
+      ? ["open", ["-R", dir]]
+      : process.platform === "win32"
+        ? ["explorer", ["/select,", dir]]
+        : ["xdg-open", [path.dirname(dir)]];
+  return new Promise<void>((resolve, reject) => {
+    // Explorer exits 1 when it has shown the folder, so there only a missing command is a
+    // failure. `open` and `xdg-open` mean their exit codes, and a non-zero one from them is the
+    // only sign that nothing came up.
+    execFile(file, args, (error) =>
+      !error ||
+      (process.platform === "win32" &&
+        (error as NodeJS.ErrnoException).code !== "ENOENT")
+        ? resolve()
+        : reject(error),
+    );
+  });
+}
+
+/**
+ * Moves a folder to the Trash, or the Recycle Bin, where the user can put it back. macOS goes
+ * through Foundation rather than Finder, which would ask for permission to be scripted; Windows
+ * gets the path through the environment, so no quoting of it can go wrong.
+ */
+export function trash(dir: string) {
+  const [file, args] =
+    process.platform === "darwin"
+      ? [
+          "osascript",
+          [
+            "-l",
+            "JavaScript",
+            "-e",
+            'function run(argv) { ObjC.import("Foundation"); if (!$.NSFileManager.defaultManager' +
+              ".trashItemAtURLResultingItemURLError($.NSURL.fileURLWithPath(argv[0]), null, null))" +
+              ' throw new Error("it could not be moved to the Trash") }',
+            dir,
+          ],
+        ]
+      : process.platform === "win32"
+        ? [
+            "powershell",
+            [
+              "-NoProfile",
+              "-Command",
+              "Add-Type -AssemblyName Microsoft.VisualBasic; " +
+                "[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory(" +
+                "$env:SP_TRASH, 'OnlyErrorDialogs', 'SendToRecycleBin')",
+            ],
+          ]
+        : ["gio", ["trash", dir]];
+  return new Promise<void>((resolve, reject) => {
+    execFile(
+      file,
+      args,
+      { env: { ...process.env, SP_TRASH: dir } },
+      (error, _stdout, stderr) =>
+        error ? reject(new Error(stderr.trim() || error.message)) : resolve(),
+    );
+  });
+}
 
 /** A project's project.json, or nothing in it when it has none or it does not parse. */
 const readProjectJson = (dir: string) =>
-  (readJson(path.join(dir, PROJECT_JSON)) ?? {}) as { cover?: ChosenCover };
+  (readJson(path.join(dir, PROJECT_JSON)) ?? {}) as {
+    cover?: ChosenCover;
+    name?: string;
+  };
 
 export function createSpServer(options: {
   /**
@@ -171,7 +248,8 @@ export function createSpServer(options: {
         .map((b) => ({ ...b, example: true })),
     ].sort((a, b) => (a.slug < b.slug ? -1 : 1));
     const docs = projectDir === undefined ? undefined : readDocs(projectDir);
-    res.end(JSON.stringify({ ...index, boards, project: projectName(), docs }));
+    const title = projectDir === undefined ? undefined : readProjectJson(projectDir).name;
+    res.end(JSON.stringify({ ...index, boards, project: projectName(), title, docs }));
   });
 
   // The projects the home page and the tab bar list: every one the server knows. Each is its
@@ -187,6 +265,7 @@ export function createSpServer(options: {
       JSON.stringify(
         [...projects()].map(([name, dir]) => {
           const { boards } = boardIndex(path.join(dir, CANVASES), how);
+          const json = readProjectJson(dir);
           const canvases = boards.map(
             ({ slug, html, updated, layout, icon }) => ({
               slug,
@@ -207,7 +286,8 @@ export function createSpServer(options: {
               ...DOCS.map((doc) => fs.statSync(path.join(dir, doc), { throwIfNoEntry: false })?.mtimeMs ?? 0),
             ),
             canvases,
-            cover: projectCover(boards, readProjectJson(dir).cover),
+            cover: projectCover(boards, json.cover),
+            title: json.name,
           };
         }),
       ),
@@ -260,8 +340,10 @@ export function createSpServer(options: {
           ? "image/png"
           : parts.length >= 4 && parts[1] === "assets" && parts[2] === "brand"
             ? IMAGE_MIME[path.extname(parts[parts.length - 1]).toLowerCase()]
-            : undefined;
-    // Those three shapes and nothing else. The names go into a filesystem path, so a
+            : parts.length === 3 && parts[1] === "files"
+              ? CANVAS_FILE_MIME[path.extname(parts[2]).toLowerCase()]
+              : undefined;
+    // Those four shapes and nothing else. The names go into a filesystem path, so a
     // request that could climb out of the boards directory is refused rather than
     // normalised — `..` is the obvious one, a separator inside a segment the platform one.
     if (
@@ -275,6 +357,24 @@ export function createSpServer(options: {
     }
     res.setHeader("Content-Type", type);
     res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Accept-Ranges", "bytes");
+    // A byte range, which is how a video seeks: a pasted one can be a gigabyte, and without it
+    // the player would have to read up to the point it was asked to jump to.
+    const size = fs.statSync(file).size;
+    const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? "");
+    if (range && (range[1] || range[2])) {
+      const start = range[1] ? Number(range[1]) : Math.max(0, size - Number(range[2]));
+      const end = range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+      if (start > end) {
+        res.setHeader("Content-Range", `bytes */${size}`);
+        return send(416, "range not satisfiable");
+      }
+      res.statusCode = 206;
+      res.setHeader("Content-Range", `bytes ${start}-${end}/${size}`);
+      res.setHeader("Content-Length", end - start + 1);
+      return fs.createReadStream(file, { start, end }).pipe(res);
+    }
+    res.setHeader("Content-Length", size);
     fs.createReadStream(file).pipe(res);
   });
 
@@ -299,6 +399,16 @@ export function createSpServer(options: {
     ".woff2": "font/woff2",
     ".woff": "font/woff",
     ".mp4": "video/mp4",
+    ".webm": "video/webm",
+    ".mov": "video/quicktime",
+  };
+  // What a canvas's files/ takes and serves: the pictures and videos tldraw pastes, and never a
+  // page, which from files/ would run in the canvas's own origin.
+  const CANVAS_FILE_MIME: Record<string, string> = {
+    ...IMAGE_MIME,
+    ".mp4": FILE_MIME[".mp4"],
+    ".webm": FILE_MIME[".webm"],
+    ".mov": FILE_MIME[".mov"],
   };
   route("/file", (req, res, next) => {
     if (req.method !== "GET" || !projectDir) return next();
@@ -437,6 +547,22 @@ export function createSpServer(options: {
   // The canvas's ground, from its Background menu and swatch, into its layout.json. Null takes
   // the key out, which is the theme's own ground. Only the dev server can do this: a built
   // canvas is static files on a host with no repo behind them.
+  // One top-level string key of a canvas's layout.json, edited in place (layoutEdit.ts) and
+  // handed to the page directly rather than left to the watcher, which answers a batch and not
+  // a keystroke. canvasIndex.ts listens.
+  const setLayoutKey = (slug: string, key: string, value: string | null) => {
+    const layoutPath = path.join(canvasesDir, slug, "layout.json");
+    // layout.json is optional: a folder of boards alone gets one holding just this key.
+    const before = fs.existsSync(layoutPath)
+      ? fs.readFileSync(layoutPath, "utf8")
+      : "{}\n";
+    const after = withLayoutKey(before, key, value);
+    if (after === before) return;
+    fs.writeFileSync(layoutPath, after);
+    broadcast("layout", { slug, layout: JSON.parse(after) });
+  };
+
+  // The canvas's ground colour (canvasGround.ts), or null for the default.
   route("/__sp/canvas-ground", (req, res, next) => {
     if (req.method !== "POST") return next();
     let body = "";
@@ -455,24 +581,74 @@ export function createSpServer(options: {
           return send(400, "bad colour");
         }
         if (isExample(slug)) return send(403, READ_ONLY);
-        const layoutPath = path.join(canvasesDir, slug, "layout.json");
-        // layout.json is optional: a folder of boards alone gets one holding just the ground.
-        const before = fs.existsSync(layoutPath)
-          ? fs.readFileSync(layoutPath, "utf8")
-          : "{}\n";
-        const after = withLayoutKey(before, "ground", ground);
-        if (after !== before) {
-          fs.writeFileSync(layoutPath, after);
-          // Hand the edited layout to the page directly rather than leaving it to hear about
-          // its own write from the watcher, which answers a batch and not a keystroke: a
-          // ground that lags a fifth of a second behind the click reads as one that did not
-          // take. canvasIndex.ts listens.
-          broadcast("layout", { slug, layout: JSON.parse(after) });
-        }
+        setLayoutKey(slug, "ground", ground);
         send(200, "ok");
       } catch (error) {
         send(500, String(error));
       }
+    });
+  });
+
+  // The name a canvas's tab shows, typed into the tab (CanvasStrip.tsx). Only layout.json's
+  // `name`: the folder keeps its slug, since the slug is the address every link to it holds.
+  route("/__sp/canvas-name", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      try {
+        const { slug, name } = JSON.parse(body || "{}");
+        if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
+        if (typeof name !== "string" || !name.trim()) return send(400, "empty name");
+        if (isExample(slug)) return send(403, READ_ONLY);
+        if (!fs.existsSync(path.join(canvasesDir, slug)))
+          return send(404, `no canvas folder named ${slug}`);
+        setLayoutKey(slug, "name", name.trim());
+        send(200, "ok");
+      } catch (error) {
+        send(500, String(error));
+      }
+    });
+  });
+
+  // A canvas tab's menu (CanvasStrip.tsx): its folder shown in the file manager, or moved to the
+  // Trash, where it can be put back, after the page has asked. Never an example's.
+  route("/__sp/canvas-folder", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      let parsed: { slug?: unknown; action?: unknown };
+      try {
+        parsed = JSON.parse(body || "{}");
+      } catch {
+        return send(400, "bad json");
+      }
+      const { slug, action } = parsed;
+      if (typeof slug !== "string" || !SAFE_NAME.test(slug))
+        return send(400, "bad canvas name");
+      const folder = path.join(canvasesDir, slug);
+      if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory())
+        return send(404, `no canvas folder named ${slug}`);
+      if (action === "reveal")
+        return reveal(folder).then(
+          () => send(204, ""),
+          () => send(501, "No file manager here could show that folder."),
+        );
+      if (action !== "delete") return send(400, "reveal or delete");
+      if (isExample(slug)) return send(403, READ_ONLY);
+      trash(folder).then(
+        () => send(204, ""),
+        (error: Error) => send(500, `“${slug}” is still there: ${error.message}`),
+      );
     });
   });
 
@@ -528,6 +704,80 @@ export function createSpServer(options: {
         send(500, String(error));
       }
     });
+  });
+
+  // What a person put on a canvas, as tldraw records (canvasContent.ts), into its folder as
+  // canvas.json, the way comments.json is written. The bytes are remembered so the watcher can
+  // tell this write from one made outside, which reloads the page onto the file.
+  const wroteContent = new Map<string, string>();
+  route("/__sp/canvas-content", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      try {
+        const { slug, file } = JSON.parse(body || "{}");
+        if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
+        if (isExample(slug)) return send(403, READ_ONLY);
+        const folder = path.join(canvasesDir, slug);
+        if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) {
+          return send(404, `no canvas folder named ${slug}`);
+        }
+        const target = path.join(folder, "canvas.json");
+        // An emptied canvas leaves no file behind, as the last comment does.
+        const text = file?.records?.length ? JSON.stringify(file, null, 2) + "\n" : "";
+        wroteContent.set(target, text);
+        if (text) fs.writeFileSync(target, text);
+        else fs.rmSync(target, { force: true });
+        send(200, "ok");
+      } catch (error) {
+        send(500, String(error));
+      }
+    });
+  });
+
+  // A file pasted or dropped onto a canvas (the asset store, canvasContent.ts), into the
+  // folder's files/, under the asset's own id. Never overwritten: an id names one file.
+  route("/__sp/canvas-file", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    const send = (code: number, message: string) => {
+      res.statusCode = code;
+      res.end(message);
+    };
+    const params = new URL(req.url ?? "", "http://x").searchParams;
+    const slug = params.get("slug") ?? "";
+    const name = params.get("name") ?? "";
+    // Both land in a filesystem path, so they are checked before they are joined.
+    if (!SAFE_NAME.test(slug) || !SAFE_NAME.test(name))
+      return send(400, "bad file name");
+    if (!(path.extname(name).toLowerCase() in CANVAS_FILE_MIME))
+      return send(415, `not a kind of file the canvas serves: ${name}`);
+    if (isExample(slug)) return send(403, READ_ONLY);
+    const folder = path.join(canvasesDir, slug);
+    if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory())
+      return send(404, `no canvas folder named ${slug}`);
+    // Streamed to disk, not gathered in memory: a pasted video can be a gigabyte. Written beside
+    // its name and renamed once whole, so a paste cut off halfway leaves no file that looks done.
+    const target = path.join(folder, "files", name);
+    if (fs.existsSync(target)) {
+      req.resume();
+      return send(200, "ok");
+    }
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    const partial = `${target}.part`;
+    pipeline(req, fs.createWriteStream(partial))
+      .then(() => {
+        fs.renameSync(partial, target);
+        send(200, "ok");
+      })
+      .catch((error) => {
+        fs.rmSync(partial, { force: true });
+        send(500, String(error));
+      });
   });
 
   // The project's cover, from the canvas's right button: a board, an element on one, or a brand
@@ -667,6 +917,46 @@ export function createSpServer(options: {
     });
   });
 
+  // The strip's "+" (CanvasStrip.tsx): an empty canvas, a folder holding only a layout.json
+  // that names it "Untitled", which is what makes a folder with no boards a canvas
+  // (boards.ts). The first free of untitled, untitled-2, ….
+  route("/__sp/new-canvas", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    const send = (code: number, message: string) => {
+      res.statusCode = code;
+      res.end(message);
+    };
+    if (projectDir === undefined)
+      return send(409, "Open a project to make a canvas in.");
+    let slug = "untitled";
+    for (let n = 2; fs.existsSync(path.join(canvasesDir, slug)); n++)
+      slug = `untitled-${n}`;
+    // Last in the strip, which sorts by slug and then by `order` (cover.ts, inStripOrder): one
+    // past the highest the project has, or "untitled" would land before every canvas after it
+    // in the alphabet.
+    const order =
+      Math.max(
+        0,
+        ...list(canvasesDir).map(
+          (had) =>
+            (readJson(path.join(canvasesDir, had, "layout.json")) as
+              | { order?: number }
+              | undefined)?.order ?? 0,
+        ),
+      ) + 1;
+    fs.mkdirSync(path.join(canvasesDir, slug));
+    fs.writeFileSync(
+      path.join(canvasesDir, slug, "layout.json"),
+      JSON.stringify({ name: "Untitled", order }, null, 2) + "\n",
+    );
+    // The set of canvases changed, which only a reload shows, and the page that asked reloads
+    // itself onto the new one. Taken off the watcher, whose reload could land before the page
+    // had read the answer and so on the canvas it was on.
+    signature = boardSetSignature(canvasesDir, list);
+    res.setHeader("content-type", "application/json");
+    send(200, JSON.stringify({ slug }));
+  });
+
   const list = (dir: string) => {
     try {
       return fs.readdirSync(dir);
@@ -709,6 +999,15 @@ export function createSpServer(options: {
           break;
         case "layout":
           layouts.add(file);
+          break;
+        case "content":
+          // Written by the endpoint above on every save, which the page already holds. Anything
+          // else — a pull, a hand edit, another window — reloads, and the file wins on load.
+          if (
+            (fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "") !==
+            wroteContent.get(file)
+          )
+            reload = true;
           break;
         case "comments":
           // No reload: comments.json is written by the endpoint above on every post, and the
@@ -783,15 +1082,22 @@ export function createSpServer(options: {
   // The documents are the project's, beside the boards directory rather than in it, so they have
   // a watch of their own: the project folder, not recursively, for those names, batched the way
   // a board's writes are. One made or deleted is a reload, which brings its tab in or out; one
-  // rewritten is sent to the page with its text. Skipped at the root, which has no project.
+  // rewritten is sent to the page with its text. project.json is watched with them for its name,
+  // which the agent writes into a project made without one (AppShell.tsx): a new one is a reload,
+  // which brings it to the tab. Skipped at the root, which has no project.
   let docWatcher: fs.FSWatcher | undefined;
   let docBatch: ReturnType<typeof setTimeout> | undefined;
   if (projectDir !== undefined) {
     let names = readDocs(projectDir).map((doc) => doc.name).join();
+    let title = readProjectJson(projectDir).name;
     docWatcher = fs.watch(projectDir, (_event, name) => {
-      if (!name || !DOCS.includes(name.toString())) return;
+      if (!name || ![...DOCS, PROJECT_JSON].includes(name.toString())) return;
       clearTimeout(docBatch);
       docBatch = setTimeout(() => {
+        if (readProjectJson(projectDir).name !== title) {
+          title = readProjectJson(projectDir).name;
+          return rebuild();
+        }
         const docs = readDocs(projectDir);
         const now = docs.map((doc) => doc.name).join();
         if (now === names) return broadcast("docs", docs);

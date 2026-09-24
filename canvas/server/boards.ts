@@ -300,11 +300,15 @@ export function boardIndex(
             thumbs: [] as string[],
             assets: assetIndex(folder),
             comments: readJson(path.join(folder, "comments.json")),
+            content: readJson(path.join(folder, "canvas.json")),
             docs: readDocs(folder),
           };
         })
         .filter(
-          (b): b is NonNullable<typeof b> => b !== null && b.html.length > 0,
+          // A folder with no board yet is a canvas once it has a layout.json, which is what the
+          // canvas strip's "+" makes (sp.ts, /__sp/new-canvas).
+          (b): b is NonNullable<typeof b> =>
+            b !== null && (b.html.length > 0 || b.layout !== undefined),
         );
   return {
     served: options.served,

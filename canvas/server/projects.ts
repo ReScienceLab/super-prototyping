@@ -9,14 +9,13 @@
  * home page, at `/home.html`, the examples, and the agent behind the chat panel, at
  * `/__sp/agent`, so the app works with no project at all.
  */
-import { execFile } from "node:child_process";
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { createAgentServer } from "./agent.ts";
 import { CANVASES } from "./boards.ts";
-import { createSpServer, sameOrigin } from "./sp.ts";
+import { createSpServer, reveal, sameOrigin, trash } from "./sp.ts";
 
 /**
  * The folder every project is in, and where a new one goes. The desktop app's is Electron's
@@ -31,75 +30,6 @@ export function projectsDirFromEnv() {
     process.env.PROTOTYPING_PROJECTS_DIR ||
       path.join(os.homedir(), "Documents", "Super Prototyping"),
   );
-}
-
-/**
- * Shows a folder in the OS's file manager, selected in the folder it is in. Rejects when the
- * folder was not shown: on a Linux without xdg-open, or with one that has no file manager to
- * hand the folder around it to.
- */
-function reveal(dir: string) {
-  const [file, args] =
-    process.platform === "darwin"
-      ? ["open", ["-R", dir]]
-      : process.platform === "win32"
-        ? ["explorer", ["/select,", dir]]
-        : ["xdg-open", [path.dirname(dir)]];
-  return new Promise<void>((resolve, reject) => {
-    // Explorer exits 1 when it has shown the folder, so there only a missing command is a
-    // failure. `open` and `xdg-open` mean their exit codes, and a non-zero one from them is the
-    // only sign that nothing came up.
-    execFile(file, args, (error) =>
-      !error ||
-      (process.platform === "win32" &&
-        (error as NodeJS.ErrnoException).code !== "ENOENT")
-        ? resolve()
-        : reject(error),
-    );
-  });
-}
-
-/**
- * Moves a folder to the Trash, or the Recycle Bin, where the user can put it back. macOS goes
- * through Foundation rather than Finder, which would ask for permission to be scripted; Windows
- * gets the path through the environment, so no quoting of it can go wrong.
- */
-function trash(dir: string) {
-  const [file, args] =
-    process.platform === "darwin"
-      ? [
-          "osascript",
-          [
-            "-l",
-            "JavaScript",
-            "-e",
-            'function run(argv) { ObjC.import("Foundation"); if (!$.NSFileManager.defaultManager' +
-              ".trashItemAtURLResultingItemURLError($.NSURL.fileURLWithPath(argv[0]), null, null))" +
-              ' throw new Error("it could not be moved to the Trash") }',
-            dir,
-          ],
-        ]
-      : process.platform === "win32"
-        ? [
-            "powershell",
-            [
-              "-NoProfile",
-              "-Command",
-              "Add-Type -AssemblyName Microsoft.VisualBasic; " +
-                "[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory(" +
-                "$env:SP_TRASH, 'OnlyErrorDialogs', 'SendToRecycleBin')",
-            ],
-          ]
-        : ["gio", ["trash", dir]];
-  return new Promise<void>((resolve, reject) => {
-    execFile(
-      file,
-      args,
-      { env: { ...process.env, SP_TRASH: dir } },
-      (error, _stdout, stderr) =>
-        error ? reject(new Error(stderr.trim() || error.message)) : resolve(),
-    );
-  });
 }
 
 /**
@@ -263,11 +193,15 @@ export function createProjectsServer(options: {
               send(500, `“${parsed.name}” is still there: ${error.message}`),
           );
         }
-        // A new project needs only a name, as in Screen Studio. It goes under the projects folder,
-        // so there is no place to pick. These are the checks the app's dialog made, since the
-        // field's `required` lets a name of spaces through and knows nothing of folders.
-        const name = typeof parsed.name === "string" ? parsed.name.trim() : "";
-        if (name === "") return send(400, "Give the project a name first.");
+        // A new project needs nothing, not even a name: without one it is the first free
+        // "Untitled", and its agent names it (sp.ts, PROJECT_JSON). It goes under the projects
+        // folder, so there is no place to pick. The checks are the ones the dialog cannot make.
+        let name = typeof parsed.name === "string" ? parsed.name.trim() : "";
+        if (name === "") {
+          name = "Untitled";
+          for (let n = 2; fs.existsSync(path.join(projectsDir, name)); n++)
+            name = `Untitled ${n}`;
+        }
         if (name.startsWith(".") || path.basename(name) !== name)
           return send(
             400,
@@ -292,7 +226,9 @@ export function createProjectsServer(options: {
           );
         }
         res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ url: `/p/${encodeURIComponent(name)}/` }));
+        res.end(
+          JSON.stringify({ name, url: `/p/${encodeURIComponent(name)}/` }),
+        );
       });
       return;
     }

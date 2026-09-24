@@ -297,7 +297,7 @@ export function HomePage(props: {
               icon={
                 iconed && `${p.url}board/${encodeURI(iconed.slug)}/icon.png`
               }
-              name={p.name}
+              name={p.title ?? p.name}
               sub={`Edited ${ago(p.updated)}`}
               count={
                 one

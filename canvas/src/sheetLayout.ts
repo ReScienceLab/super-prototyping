@@ -47,7 +47,7 @@ export interface SheetRow {
  */
 export function sheetRows(slug: string): SheetRow[] {
   const files: CanvasLibraryFile[] =
-    readCanvasLibrary().find((page) => page[0].pageSlug === slug) ?? [];
+    readCanvasLibrary().find((c) => c.slug === slug)?.files ?? [];
   const rows: SheetRow[] = [];
   const placed = new Set<string>();
 

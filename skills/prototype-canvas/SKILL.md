@@ -140,12 +140,29 @@ window.snapCanvas.dispatch({ op: 'create', shapes: [{
 }]})
 window.snapCanvas.dispatch({ op: 'select', ids: ['shape:example'] })
 window.snapCanvas.dispatch({ op: 'zoom',   ids: ['shape:example'] })
-window.snapCanvas.dispatch({ op: 'undo' })
 ```
 
 Call `describe()` before generating commands, and use the ids and bounds that
 `get` returns. Never guess screen coordinates. Batch related shape changes
 into one dispatch.
+
+## What the person put on the canvas
+
+Anything that is not a board or a `layout.json` picture or card is the
+person's: what they pasted or dropped. It is saved in the canvas folder:
+
+- `canvas.json`: tldraw records (shapes, bindings, assets), sorted by id. A
+  shape at the page's root has no `parentId`.
+- `files/`: the files those records point at, by asset id. An asset's `src`
+  is relative to the canvas folder (`./files/<name>`).
+
+Read them to see what the person put there. A chip or a link named
+`<slug>/canvas.json#<shape-id>` points at one record, and one named
+`<slug>/files/<file>` points at one file. **Never edit either.** To answer a
+sketch or a note, add a board or a bridge shape beside it. The bridge stamps
+what you create (`meta.by: "agent"`) and locks it. `update` and `delete`
+refuse anything without that stamp, and there is no undo, since undo would
+reach the person's own edits.
 
 Never let bridge commands inject arbitrary JavaScript, never load untrusted
 HTML into a board, and never add `allow-same-origin` to the artboard iframe.

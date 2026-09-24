@@ -71,6 +71,68 @@ it("shows the examples read-only beside the project's canvases", async () => {
     expect(
       fs.readdirSync(path.join(tmp, "examples/an-example")).sort(),
     ).toEqual(["01-a.html", "layout.json"]);
+
+    // The strip's "+": an empty canvas each time, named in its tab afterwards.
+    expect(JSON.parse((await ask("/__sp/new-canvas", {})).text).slug).toBe(
+      "untitled",
+    );
+    expect(JSON.parse((await ask("/__sp/new-canvas", {})).text).slug).toBe(
+      "untitled-2",
+    );
+    const named = { slug: "untitled", name: "Onboarding" };
+    expect((await ask("/__sp/canvas-name", named)).status).toBe(200);
+    expect(
+      (await ask("/__sp/canvas-name", { slug: "an-example", name: "x" }))
+        .status,
+    ).toBe(403);
+    const made = JSON.parse((await ask("/__sp/index.json")).text).boards;
+    expect(
+      made
+        .filter((b: any) => b.slug.startsWith("untitled"))
+        .map((b: any) => b.layout.name),
+    ).toEqual(["Onboarding", "Untitled"]);
+    // Each after the last, whatever its name sorts as.
+    expect(
+      made
+        .filter((b: any) => b.slug.startsWith("untitled"))
+        .map((b: any) => b.layout.order),
+    ).toEqual([1, 2]);
+
+    // What a person puts on it: files into files/, served back from /board, and the records
+    // into canvas.json, which an emptied page removes.
+    const file = "/__sp/canvas-file?slug=untitled&name=asset-1.png";
+    expect((await ask(file, {})).status).toBe(200);
+    expect((await ask("/board/untitled/files/asset-1.png")).text).toBe("{}");
+    expect((await ask(file.replace(".png", ".html"), {})).status).toBe(415);
+    expect((await ask(file.replace("untitled", "an-example"), {})).status).toBe(
+      403,
+    );
+    const content = (records: object[]) => ({
+      slug: "untitled",
+      file: { tldraw: {}, records },
+    });
+    const saved = path.join(canvasesDir, "untitled/canvas.json");
+    expect(
+      (await ask("/__sp/canvas-content", content([{ id: "shape:a" }]))).status,
+    ).toBe(200);
+    expect(JSON.parse(fs.readFileSync(saved, "utf8")).records).toEqual([
+      { id: "shape:a" },
+    ]);
+    expect(
+      JSON.parse((await ask("/__sp/index.json")).text).boards.find(
+        (b: any) => b.slug === "untitled",
+      ).content.records,
+    ).toEqual([{ id: "shape:a" }]);
+    await ask("/__sp/canvas-content", content([]));
+    expect(fs.existsSync(saved)).toBe(false);
+
+    // A canvas's folder is binned by name, never one that climbs out, and never an example's.
+    const bin = (slug: string) =>
+      ask("/__sp/canvas-folder", { slug, action: "delete" });
+    expect((await bin("..")).status).toBe(400);
+    expect((await bin("gone")).status).toBe(404);
+    expect((await bin("an-example")).status).toBe(404);
+    expect((await bin("begun")).status).toBe(403);
   } finally {
     close();
     fs.rmSync(tmp, { recursive: true, force: true });
@@ -146,18 +208,33 @@ it("lists a project's documents", async () => {
   const docs = async () => (await index()).docs;
   try {
     expect(await docs()).toEqual([]);
-    expect((await index()).boards[0].docs).toEqual([{ name: "PRD.md", text: "# A" }]);
+    expect((await index()).boards[0].docs).toEqual([
+      { name: "PRD.md", text: "# A" },
+    ]);
     fs.rmdirSync(path.join(projectDir, "PRD.md"));
     fs.writeFileSync(path.join(projectDir, "PRD.md"), "# Why");
     expect(await docs()).toEqual([{ name: "PRD.md", text: "# Why" }]);
     // Its tab writes it back, and only a name the index lists, and not over a rewrite since the
     // edit began.
-    expect((await ask("/__sp/doc", { name: "PRD.md", text: "# How", base: "# A" })).status).toBe(409);
-    expect((await ask("/__sp/doc", { name: "PRD.md", text: "# How", base: "# Why" })).status).toBe(204);
+    expect(
+      (await ask("/__sp/doc", { name: "PRD.md", text: "# How", base: "# A" }))
+        .status,
+    ).toBe(409);
+    expect(
+      (await ask("/__sp/doc", { name: "PRD.md", text: "# How", base: "# Why" }))
+        .status,
+    ).toBe(204);
     expect(await docs()).toEqual([{ name: "PRD.md", text: "# How" }]);
-    expect((await ask("/__sp/doc", { name: "README.md", text: "x", base: "no" })).status).toBe(400);
-    expect((await ask("/__sp/doc", { name: "../PRD.md", text: "x" })).status).toBe(400);
-    expect(fs.readFileSync(path.join(projectDir, "README.md"), "utf8")).toBe("no");
+    expect(
+      (await ask("/__sp/doc", { name: "README.md", text: "x", base: "no" }))
+        .status,
+    ).toBe(400);
+    expect(
+      (await ask("/__sp/doc", { name: "../PRD.md", text: "x" })).status,
+    ).toBe(400);
+    expect(fs.readFileSync(path.join(projectDir, "README.md"), "utf8")).toBe(
+      "no",
+    );
   } finally {
     close();
     fs.rmSync(tmp, { recursive: true, force: true });

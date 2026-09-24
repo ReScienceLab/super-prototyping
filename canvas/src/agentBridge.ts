@@ -22,8 +22,6 @@ type CanvasCommand =
   | { op: 'delete'; ids: TLShapeId[] }
   | { op: 'select'; ids: TLShapeId[] }
   | { op: 'zoom'; ids?: TLShapeId[] }
-  | { op: 'undo' }
-  | { op: 'redo' }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -68,8 +66,6 @@ export function parseCanvasCommand(value: unknown): CanvasCommand {
 
   switch (value.op) {
     case 'get':
-    case 'undo':
-    case 'redo':
       return { op: value.op }
     case 'create':
       return { op: value.op, shapes: parseShapes(value.shapes, false) }
@@ -102,6 +98,15 @@ function getCanvasState(editor: Editor) {
   }
 }
 
+/** Refuses a command that would touch a shape the agent did not make through this bridge. */
+function agentsOnly(editor: Editor, ids: TLShapeId[]) {
+  for (const id of ids) {
+    if (editor.getShape(id)?.meta.by !== 'agent') {
+      throw new Error(`${id} is not the agent's to change; add a shape beside it instead`)
+    }
+  }
+}
+
 export function installAgentBridge(editor: Editor) {
   const api = {
     describe: () => ({
@@ -114,8 +119,6 @@ export function installAgentBridge(editor: Editor) {
         { op: 'select', ids: ['shape:example'] },
         { op: 'zoom', ids: ['shape:example'] },
         { op: 'zoom' },
-        { op: 'undo' },
-        { op: 'redo' },
       ],
     }),
     dispatch: (input: unknown) => {
@@ -124,17 +127,28 @@ export function installAgentBridge(editor: Editor) {
       switch (command.op) {
         case 'get':
           break
+        // The agent's shapes are stamped and locked: the person can read them and copy them, not
+        // edit them, and the agent may change only what carries its stamp. What the person put
+        // on the canvas is answered by adding beside it (docs/2026-09-24-canvas-content-on-disk.md).
         case 'create':
           editor.markHistoryStoppingPoint('agent:create')
-          editor.createShapes(command.shapes)
+          editor.createShapes(
+            command.shapes.map((shape) => ({
+              ...shape,
+              isLocked: true,
+              meta: { ...shape.meta, by: 'agent' },
+            })),
+          )
           break
         case 'update':
+          agentsOnly(editor, command.shapes.map((shape) => shape.id))
           editor.markHistoryStoppingPoint('agent:update')
-          editor.updateShapes(command.shapes)
+          editor.run(() => editor.updateShapes(command.shapes), { ignoreShapeLock: true })
           break
         case 'delete':
+          agentsOnly(editor, command.ids)
           editor.markHistoryStoppingPoint('agent:delete')
-          editor.deleteShapes(command.ids)
+          editor.run(() => editor.deleteShapes(command.ids), { ignoreShapeLock: true })
           break
         case 'select':
           editor.select(...command.ids)
@@ -146,12 +160,6 @@ export function installAgentBridge(editor: Editor) {
           } else {
             editor.zoomToFit()
           }
-          break
-        case 'undo':
-          editor.undo()
-          break
-        case 'redo':
-          editor.redo()
           break
       }
 

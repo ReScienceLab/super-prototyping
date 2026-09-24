@@ -317,10 +317,21 @@ button {
   color: var(--ds-gray-1000);
 }
 
-.sp-canvas-tabs-none {
+/* A tab's name being typed, in place of its label: the same text, with a field's ring. */
+.sp-canvas-tab-name {
   align-self: center;
-  padding: 0 8px;
-  color: var(--ds-gray-700);
+  padding: 2px 4px;
+  margin: 0 -4px;
+  border: 0;
+  border-radius: 4px;
+  outline: 1px solid var(--ds-gray-alpha-400);
+  background: var(--ds-background-100);
+  color: inherit;
+  font: inherit;
+}
+
+.sp-canvas-tab-name:focus {
+  outline: 2px solid var(--ds-blue-700);
 }
 
 /* "+", after the last canvas. */
@@ -396,6 +407,13 @@ button {
   inset: 0;
   z-index: 1;
   overflow: auto;
+}
+
+.canvas-blank {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--ds-background-100);
 }
 
 /* A Markdown file of the project's as a tab (App.tsx): the chat panel's markdown, given the

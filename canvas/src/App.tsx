@@ -27,6 +27,7 @@ import {
   type TLCreateShapePartial,
   type TLImageShape,
   type TLShapePartial,
+  type TLShape,
   type TLShapeId,
   type TLDefaultColorStyle,
   type TLTextShape,
@@ -44,7 +45,7 @@ import {
   urlForTab,
   type CanvasTab,
 } from "./canvasUrl";
-import { isHere, pageOf, resolveTab, tabFor } from "./canvasTabs";
+import { isHere, ownCanvases, pageOf, resolveTab, tabFor } from "./canvasTabs";
 import { CanvasStrip } from "./CanvasStrip";
 // The kits render inside the canvas as well as under brand.html, so this file imports their
 // sheet too, and statically, because it is a few kilobytes against tldraw's megabyte, and a tab
@@ -87,10 +88,18 @@ import {
   coverFile,
   readCanvasImage,
   readCanvasLayout,
+  pageNameFor,
+  isLibraryShapeId,
   readCanvasLibrary,
 } from "./canvasLibrary";
 import { canvasIndex } from "./canvasIndex";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
+import {
+  CanvasLinkPaste,
+  canvasAssetStore,
+  installCanvasContent,
+  personsShape,
+} from "./canvasContent";
 import {
   CanvasChromeContext,
   canvasChromeComponents,
@@ -177,6 +186,7 @@ const storeOptions = {
   records: commentSchemaRecords,
   assets: {
     ...inlineBase64AssetStore,
+    ...canvasAssetStore,
     /**
      * Draw the brand images at the size the screen is actually showing them. Zoomed to fit,
      * a page of them is a wall of thumbnails, and fetching the full-size file for each one is
@@ -239,28 +249,6 @@ const LIBRARY_GAP = 80;
 const LIBRARY_LABEL_GAP = 12;
 const LIBRARY_LABEL_HEIGHT = 28;
 const LIBRARY_HEADING_HEIGHT = 44;
-
-/**
- * Id prefixes of everything the library places: boards, row headings, captions, and the cards
- * and buttons that open things. They are all created locked, and `lockLibraryShapes` locks any
- * that a browser persisted before that was so. Locked, a shape cannot be selected, so a reader
- * who means to pinch or scroll cannot drag a board out of its row by accident; the camera is the
- * only thing that moves. The layout is declared in layout.json, so a board is never repositioned
- * by hand anyway. Anything a person draws on top stays unlocked and editable.
- */
-const LIBRARY_SHAPE_PREFIXES = [
-  "shape:canvas-file:",
-  "shape:canvas-image:",
-  "shape:canvas-row-heading:",
-  "shape:canvas-file-label:",
-  "shape:canvas-link:",
-  // Placed by no pass any more; listed so the sweep clears any a browser still holds.
-  "shape:canvas-status-banner:",
-];
-
-function isLibraryShapeId(id: string) {
-  return LIBRARY_SHAPE_PREFIXES.some((prefix) => id.startsWith(prefix));
-}
 
 /** Deletes library shapes, which are locked and would otherwise be skipped by `deleteShapes`. */
 function deleteLibraryShapes(editor: Editor, ids: TLShapeId[]) {
@@ -691,12 +679,12 @@ function layoutWelcomeExtras(
   editor: Editor,
   placed: Set<TLShapeId>,
   page: { id: TLPageId },
-  library: CanvasLibraryFile[][],
+  library: ReturnType<typeof readCanvasLibrary>,
   rowTop: number,
 ) {
-  const targets = library.filter(
-    (files) => files[0].pageSlug !== WELCOME_PAGE_SLUG,
-  );
+  const targets = library
+    .map((c) => c.files)
+    .filter((files) => files.length && files[0].pageSlug !== WELCOME_PAGE_SLUG);
   if (!targets.length) return;
 
   // Four rows, because twenty-one cards in one row read as a list of twenty-one unrelated
@@ -872,8 +860,8 @@ function initializeCanvasLibrary(editor: Editor) {
     () => {
       const libraryPages = new Set<TLPageId>();
 
-      for (const files of library) {
-        const { pageSlug, pageName } = files[0];
+      for (const { slug: pageSlug, files } of library) {
+        const pageName = pageNameFor(pageSlug);
         const bySlug = () =>
           editor.getPages().find((c) => c.meta.canvasSlug === pageSlug);
         let page =
@@ -899,7 +887,7 @@ function initializeCanvasLibrary(editor: Editor) {
         const inRows = new Set<string>();
         let rowTop = 0;
 
-        for (const row of readCanvasLayout(files[0].pageSlug)?.rows ?? []) {
+        for (const row of readCanvasLayout(pageSlug)?.rows ?? []) {
           if (row.images?.length) {
             rowTop = layoutImageRow(
               editor,
@@ -960,7 +948,7 @@ function initializeCanvasLibrary(editor: Editor) {
           })),
         );
 
-        if (files[0].pageSlug === WELCOME_PAGE_SLUG) {
+        if (pageSlug === WELCOME_PAGE_SLUG) {
           layoutWelcomeExtras(editor, placed, page, library, rowTop);
         }
       }
@@ -1146,9 +1134,17 @@ function applyCanvasFromUrl(
   const here = editor.getCurrentPage().meta.canvasSlug;
   if (page) open(tab);
   else if (typeof here === "string") open({ kind: "canvas", slug: here });
+  // One of the person's own shapes, by id (canvasContent.ts): selected, and the camera on it.
+  const own = named?.startsWith("shape:") && editor.getShape(named as TLShapeId);
+  if (own) {
+    show.board(null);
+    editor.select(own);
+    requestAnimationFrame(() => editor.zoomToSelection({ animation: { duration: 0 } }));
+    return true;
+  }
   const file =
     readCanvasLibrary()
-      .flat()
+      .flatMap((c) => c.files)
       .find((c) => c.pageSlug === slug && c.fileName === named) ?? null;
   // Then a picture of this page, which the address names by its path inside the folder. Every
   // one of them is under assets/brand and a board is one file at the folder's root, so the two
@@ -1346,7 +1342,7 @@ export default function App() {
     (shape: InspectorTarget) => {
       if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
         const file = readCanvasLibrary()
-          .flat()
+          .flatMap((c) => c.files)
           .find((c) => c.path === shape.props.path);
         if (file) show(file, true);
         return;
@@ -1425,15 +1421,19 @@ export default function App() {
           const tab = tabFromUrl(href);
           const name = targetFromUrl(href);
           if (tab.kind !== "canvas" || !name) return undefined;
+          if (name.startsWith("shape:")) {
+            const shape = editor.getShape(name as TLShapeId);
+            return personsShape(editor, shape) ? shape : undefined;
+          }
           const file = readCanvasLibrary()
-            .flat()
+            .flatMap((c) => c.files)
             .find((c) => c.pageSlug === tab.slug && c.fileName === name);
           return asCanvasTarget(
             editor.getShape(file ? fileShapeId(file) : imageShapeId(tab.slug, name)),
           );
         });
         if (!targets.every(Boolean)) return false;
-        void attachToChat(editor, targets as InspectorTarget[]);
+        void attachToChat(editor, targets as TLShape[]);
         return true;
       },
     };
@@ -1460,7 +1460,9 @@ export default function App() {
     // looks like two apps in one window, and the ground is most of the window.
     editor.user.updateUserPreferences({ colorScheme: "dark" });
     initializeCanvas(editor);
-    // After the library, which is what creates the pages the comments are keyed to.
+    // After the library, which is what creates the pages both are keyed to, and content first,
+    // since a comment can be pinned to a shape the person put there.
+    const disposeContent = installCanvasContent(editor);
     const disposeComments = installCanvasComments(editor);
     const sync = installCanvasUrlSync(
       editor,
@@ -1490,6 +1492,7 @@ export default function App() {
     if (!sync.apply() && !reloaded)
       requestAnimationFrame(() => editor.zoomToFit());
     return () => {
+      disposeContent();
       disposeComments();
       sync.uninstall();
     };
@@ -1542,10 +1545,15 @@ export default function App() {
                 // what keeps them from moving: `updateShapes` skips a locked shape's own partial
                 // regardless of this flag, so a selected board still can't be dragged or resized.
                 options={{ selectLockedShapes: true }}
+                // No cap where a server is behind the page: a pasted file streams into the
+                // canvas's files/ (canvasContent.ts), so a gigabyte video is as fine as a
+                // screenshot. The hosted build inlines into the browser, so it keeps tldraw's 10 MB.
+                maxAssetSize={canvasIndex().served ? Infinity : undefined}
                 licenseKey={TLDRAW_LICENSE_KEY}
                 onMount={handleMount}
               >
                 <AgentBridge />
+                <CanvasLinkPaste />
                 <LockedLinkClicks />
                 <InspectorClicks
                   onPick={onPick}
@@ -1563,6 +1571,13 @@ export default function App() {
             {/* A Markdown file as a tab (DocTab.tsx). Keyed by the file, so switching to another
                 starts at the top of it, and in Read. */}
             {activeTab.kind === "doc" && <DocTab slug={activeTab.slug} key={activeTab.slug} />}
+            {/* A project with no canvas yet: blank, rather than Start here's page, which its
+                bare address would show. Its agent makes and names the first one
+                (AppShell.tsx), and the reload that brings it lands there (resolveTab). */}
+            {activeTab.kind === "canvas" &&
+              !activeTab.slug &&
+              canvasIndex().project &&
+              ownCanvases().length === 0 && <div className="canvas-blank" />}
             {activeTab.kind === "brand" && (
               <div className="brand-page canvas-brand-tab" key={activeTab.slug}>
                 {activeTab.slug ? (
