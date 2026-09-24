@@ -146,7 +146,18 @@ export function installAgentBridge(editor: Editor) {
         case 'update':
           agentsOnly(editor, command.shapes.map((shape) => shape.id))
           editor.markHistoryStoppingPoint('agent:update')
-          editor.run(() => editor.updateShapes(command.shapes), { ignoreShapeLock: true })
+          // Still the agent's and still locked, whatever the update says.
+          editor.run(
+            () =>
+              editor.updateShapes(
+                command.shapes.map((shape) => ({
+                  ...shape,
+                  isLocked: true,
+                  meta: { ...shape.meta, by: 'agent' },
+                })),
+              ),
+            { ignoreShapeLock: true },
+          )
           break
         case 'delete':
           agentsOnly(editor, command.ids)
