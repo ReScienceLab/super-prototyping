@@ -323,6 +323,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+        # The whole history: desktop/stamp.mjs dates each shipped file by its last commit.
+        with:
+          fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
 
       # The example boards stay out of the canvas build, as above. The app ships
@@ -452,6 +455,9 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v7
+        # The whole history: desktop/stamp.mjs dates each shipped file by its last commit.
+        with:
+          fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
 
       - name: Build the canvas, without the example boards

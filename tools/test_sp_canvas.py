@@ -342,6 +342,38 @@ def test_the_notice_names_a_newer_release_and_what_to_do_about_it():
     assert said(dict(record, available="1.5.2")) == ""
 
 
+def test_upgrade_tells_a_failed_download_from_a_retried_one():
+    import contextlib, io
+    sp_home = Path(tempfile.mkdtemp())
+    (sp_home / "state").mkdir()
+    update = sp_home / "state/update.json"
+    ok = {"current": "1.6.0", "available": "1.6.1", "downloaded": None, "error": None}
+    failed = dict(ok, error="Error: net::ERR_CONNECTION_CLOSED\n  at x")
+
+    def upgrade(before, after):
+        update.write_text(json.dumps(dict(before, checkedAt="before")))
+        real = C._launch
+        C._launch = lambda *_: update.write_text(json.dumps(dict(after, checkedAt="after")))
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                with_env(dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home)), lambda: C.cmd_upgrade(None))
+        except SystemExit as e:
+            return str(e)
+        finally:
+            C._launch = real
+        return out.getvalue()
+
+    # The last try failed and this check started another.
+    assert "1.6.1 is downloading again; the last try failed: Error: net::ERR_CONNECTION_CLOSED." \
+        in upgrade(failed, ok)
+    # This check's download failed before the command read it: nothing is downloading.
+    said = upgrade(ok, failed)
+    assert said.startswith("error: the app could not download 1.6.1: Error: net::"), said
+    # A failure from before the app last updated is not this one's.
+    assert "again" not in upgrade(dict(failed, current="1.5.9"), ok)
+
+
 def test_uninstall_takes_back_only_what_the_app_made():
     home = Path(tempfile.mkdtemp())
     current = home / ".local/share/super-prototyping/current"

@@ -592,25 +592,32 @@ def cmd_open(a):
 def cmd_upgrade(a):
     """Ask the app to check now, then report what it found. The app downloads an update on
     its own and asks the user to restart into it, so this waits only for the answer."""
-    before = (_state_json("update.json") or {}).get("checkedAt")
+    before = _state_json("update.json") or {}
     _launch("--upgrade")
     for _ in range(240):
         update = _state_json("update.json")
-        if update and update.get("checkedAt") != before:
+        if update and update.get("checkedAt") != before.get("checkedAt"):
             break
         time.sleep(0.25)
     else:
         raise SystemExit("error: the app did not answer in 60s. Is it running? Try `sp open`, "
                          "then `sp upgrade` again.")
     if update.get("error"):
-        raise SystemExit("error: the app could not check for an update: "
-                         + update["error"].splitlines()[0])
+        # With a version, the check found it and its download failed; without one, the check did.
+        what = f"download {update['available']}" if update["available"] else "check for an update"
+        raise SystemExit(f"error: the app could not {what}: {update['error'].splitlines()[0]}\n"
+                         "Run `sp upgrade` again to retry.")
     if update["downloaded"]:
         print(f"Super Prototyping {update['downloaded']} is downloaded. The app is asking the "
               f"user to restart into it; tell them to click Restart Now.")
     elif update["available"]:
-        print(f"Super Prototyping {update['available']} is downloading. The app asks the user "
-              f"to restart once it is down.")
+        # update.json holds only the latest record, so this check's has already replaced the one
+        # saying the last download failed. The same app after the same version is a retry.
+        failed = (before.get("available") == update["available"]
+                  and before.get("current") == update["current"] and before.get("error"))
+        again = f" again; the last try failed: {failed.splitlines()[0]}" if failed else ""
+        print(f"Super Prototyping {update['available']} is downloading{again}. The app asks the "
+              f"user to restart once it is down.")
     else:
         print(f"Super Prototyping {update['current']} is up to date.")
 

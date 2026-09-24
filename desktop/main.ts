@@ -192,7 +192,9 @@ async function main() {
     autoUpdater.checkForUpdates().then(
       (check) => {
         if (!check) return "Could not check"; // unpackaged: the updater is off and asked nobody
-        check.downloadPromise?.catch(() => {});
+        // update.json is all `sp upgrade` can see, and nothing retries a failed download before
+        // the next check, so the failure goes there too, or the CLI would call it downloading.
+        check.downloadPromise?.catch((e) => record(check.updateInfo.version, String(e)));
         record(check.isUpdateAvailable ? check.updateInfo.version : null);
         return check.isUpdateAvailable
           ? `${check.updateInfo.version} available`
@@ -210,6 +212,9 @@ async function main() {
     return askToRestart(downloaded);
   };
   checkForUpdates();
+  // Again every few hours while the app runs, which also retries a download that failed. Not
+  // once one is down: each check would bring the dialog up again.
+  setInterval(() => downloaded || checkForUpdates(), 4 * 60 * 60 * 1000);
   ipcMain.handle("startup:check", checkForUpdates);
   // Where every new project goes, which makes the folder the list of them. The server lists it and
   // makes a project in it, so this hands it over (PROTOTYPING_PROJECTS_DIR below).
