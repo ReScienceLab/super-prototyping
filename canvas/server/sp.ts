@@ -710,6 +710,8 @@ export function createSpServer(options: {
   // canvas.json, the way comments.json is written. The bytes are remembered so the watcher can
   // tell this write from one made outside, which reloads the page onto the file.
   const wroteContent = new Map<string, string>();
+  // The last write taken from each page for each canvas, by its number (canvasContent.ts).
+  const contentSeq = new Map<string, number>();
   route("/__sp/canvas-content", (req, res, next) => {
     if (req.method !== "POST") return next();
     let body = "";
@@ -720,13 +722,17 @@ export function createSpServer(options: {
         res.end(message);
       };
       try {
-        const { slug, file, by } = JSON.parse(body || "{}");
+        const { slug, file, by, seq } = JSON.parse(body || "{}");
         if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
         if (isExample(slug)) return send(403, READ_ONLY);
         const folder = path.join(canvasesDir, slug);
         if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) {
           return send(404, `no canvas folder named ${slug}`);
         }
+        // An older write from the same page, overtaken on the way here, is already superseded.
+        const from = `${by} ${slug}`;
+        if (seq <= (contentSeq.get(from) ?? 0)) return send(200, "ok");
+        contentSeq.set(from, seq);
         const target = path.join(folder, "canvas.json");
         // An emptied canvas leaves no file behind, as the last comment does.
         const text = file?.records?.length ? JSON.stringify(file, null, 2) + "\n" : "";
@@ -1011,6 +1017,8 @@ export function createSpServer(options: {
             wroteContent.get(file)
           )
             reload = true;
+          // Heard once: the same bytes put back later, by a checkout say, are someone else's.
+          wroteContent.delete(file);
           break;
         case "comments":
           // No reload: comments.json is written by the endpoint above on every post, and the

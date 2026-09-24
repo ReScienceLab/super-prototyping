@@ -125,6 +125,11 @@ it("shows the examples read-only beside the project's canvases", async () => {
     ).toEqual([{ id: "shape:a" }]);
     await ask("/__sp/canvas-content", content([]));
     expect(fs.existsSync(saved)).toBe(false);
+    // A page's older write that lands after its newer one is dropped.
+    const numbered = (id: string, seq: number) => ({ ...content([{ id }]), by: "p", seq });
+    await ask("/__sp/canvas-content", numbered("shape:new", 2));
+    await ask("/__sp/canvas-content", numbered("shape:old", 1));
+    expect(JSON.parse(fs.readFileSync(saved, "utf8")).records).toEqual([{ id: "shape:new" }]);
 
     // A canvas's folder is binned by name, never one that climbs out, and never an example's.
     const bin = (slug: string) =>

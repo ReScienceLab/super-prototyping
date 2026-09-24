@@ -13,6 +13,7 @@ import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import path from "node:path";
+import { pipeline } from "node:stream/promises";
 import { createAgentServer } from "./agent.ts";
 import { CANVASES } from "./boards.ts";
 import { createSpServer, reveal, sameOrigin, trash } from "./sp.ts";
@@ -143,13 +144,23 @@ export function createProjectsServer(options: {
         );
       const refs = path.join(dir, "refs");
       fs.mkdirSync(refs, { recursive: true });
-      // `wx`, so a reference already there is never written over.
-      const out = fs.createWriteStream(path.join(refs, file), { flags: "wx" });
-      out.on("error", (error: NodeJS.ErrnoException) =>
-        send(error.code === "EEXIST" ? 409 : 500, error.message),
-      );
-      out.on("finish", () => send(204, ""));
-      req.pipe(out);
+      // A reference already there is never written over. The rest is written beside its name
+      // and renamed once whole, so an upload cut off leaves nothing a retry would be refused by.
+      const target = path.join(refs, file);
+      if (fs.existsSync(target)) {
+        req.resume();
+        return send(409, `${file} is already in refs`);
+      }
+      const partial = `${target}.part`;
+      pipeline(req, fs.createWriteStream(partial))
+        .then(() => {
+          fs.renameSync(partial, target);
+          send(204, "");
+        })
+        .catch((error) => {
+          fs.rmSync(partial, { force: true });
+          send(500, String(error));
+        });
       return;
     }
     if (/^\/__sp\/projects(\/(reveal|delete))?$/.test(pathname)) {
