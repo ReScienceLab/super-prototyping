@@ -36,6 +36,12 @@ Everything below is on `main` and reaches no install until a version is cut.
 - **Make a canvas yourself.** The **+** after the canvas tabs adds an empty one
   and lets you name it. Double-click a tab to rename it, and right-click it to
   show its folder or move it to the Trash.
+- **See where the agent is working.** The canvas it is writing to glows blue,
+  and its tab shimmers. A board it adds rings blue and one it changes rings
+  green until you point at it. An interrupted turn has **Continue**, which
+  picks up where it stopped, in the project it was working on.
+- Deleting something you pasted keeps it deleted, even with the same canvas
+  open in two windows.
 
 ## v1.6.1
 

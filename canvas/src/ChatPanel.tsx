@@ -234,6 +234,8 @@ export interface AgentRow {
 interface Queued {
   message: string;
   images: Attached[];
+  /** The project it goes to, when not the one open: Continue's, which is the interrupted turn's. */
+  project?: string;
 }
 
 /** A turn with nothing in it yet: the run's events, from `start` on, fill in the rest. */
@@ -922,7 +924,10 @@ export function ChatPanel(props: {
   const unready = pending + failed > 0;
 
   /** One message to the server as a run; false when it was refused or never answered. */
-  const post = async ({ message, images: attached }: Queued) => {
+  const post = async (queued: Queued) => {
+    const { message, images: attached } = queued;
+    // Present and undefined is the home page's, which has no project.
+    const to = "project" in queued ? queued.project : project;
     setSendError(null);
     setSending(true);
     try {
@@ -931,8 +936,9 @@ export function ChatPanel(props: {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           message,
-          canvas,
-          project,
+          // The open canvas means nothing to another project's turn.
+          canvas: to === project ? canvas : undefined,
+          project: to,
           session: session?.id,
           agent,
           model,
@@ -1381,8 +1387,16 @@ export function ChatPanel(props: {
                       type="button"
                       disabled={sending}
                       onClick={() =>
-                        // The session is resumed, so the agent has its own record of what it had done.
-                        void post({ message: "continue", images: [] })
+                        // The session is resumed, so the agent has its own record of what it had
+                        // done, and in the turn's project, whatever is open now. A turn that
+                        // showed nothing never got as far as the agent naming its session, whose
+                        // first line comes before anything shown, so it is asked again instead.
+                        // ponytail: asked again without its pictures, fetch them from the run if that bites.
+                        void post({
+                          message: t.blocks.length ? "continue" : t.prompt,
+                          images: [],
+                          project: t.project,
+                        })
                       }
                     >
                       Continue

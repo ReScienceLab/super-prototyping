@@ -143,44 +143,48 @@ let mounted: Editor | undefined;
  */
 export function installCanvasContent(editor: Editor) {
   mounted = editor;
-  const pages = projectPages(editor);
   const written = new Map<string, string>();
   // A canvas.json that would not parse is neither loaded nor written over, and said so.
-  for (const slug of pages.keys())
-    if (canvasIndex().boards.find((b) => b.slug === slug)?.content === null) {
-      pages.delete(slug);
+  const broken = new Set<string>();
+  const seen = new Set<string>();
+  // A page's file, taken over what this browser had the first time the page is seen: here, or
+  // in a flush once a live index has added its canvas (canvasIndex.ts), maybe with a file already.
+  const take = (slug: string, pageId: TLPageId) => {
+    seen.add(slug);
+    const file = canvasIndex().boards.find((b) => b.slug === slug)?.content;
+    if (file === null) {
+      broken.add(slug);
       alert(
         `canvases/${slug}/canvas.json is not valid JSON, so what is on that canvas is not being ` +
           "saved. Fix or remove the file, then reload.",
       );
+      return;
     }
-
+    if (!file) {
+      written.set(slug, "");
+      return;
+    }
+    const wanted = storeRecords(editor, file, pageId, slug);
+    const kept = new Set<string>(
+      [...editor.getPageShapeIds(pageId)].filter(isLibraryShapeId),
+    );
+    for (const record of wanted) if (record.typeName === "shape") kept.add(record.id);
+    const had = pageFile(editor, pageId, slug).records;
+    editor.store.remove(had.map((record) => record.id));
+    // A binding to something no longer there, a board taken out of layout.json say, goes.
+    editor.store.put(
+      wanted.filter(
+        (record) =>
+          record.typeName !== "binding" ||
+          (kept.has(record.fromId) && kept.has(record.toId)),
+      ),
+    );
+    // Spelled as flush spells it, so a file emptied of records loads as nothing to save.
+    const loaded = pageFile(editor, pageId, slug);
+    written.set(slug, loaded.records.length ? JSON.stringify(loaded) : "");
+  };
   editor.store.mergeRemoteChanges(() => {
-    for (const [slug, pageId] of pages) {
-      const file = canvasIndex().boards.find((b) => b.slug === slug)?.content;
-      if (!file) {
-        written.set(slug, "");
-        continue;
-      }
-      const wanted = storeRecords(editor, file, pageId, slug);
-      const kept = new Set<string>(
-        [...editor.getPageShapeIds(pageId)].filter(isLibraryShapeId),
-      );
-      for (const record of wanted) if (record.typeName === "shape") kept.add(record.id);
-      const had = pageFile(editor, pageId, slug).records;
-      editor.store.remove(had.map((record) => record.id));
-      // A binding to something no longer there, a board taken out of layout.json say, goes.
-      editor.store.put(
-        wanted.filter(
-          (record) =>
-            record.typeName !== "binding" ||
-            (kept.has(record.fromId) && kept.has(record.toId)),
-        ),
-      );
-      // Spelled as flush spells it, so a file emptied of records loads as nothing to save.
-      const loaded = pageFile(editor, pageId, slug);
-      written.set(slug, loaded.records.length ? JSON.stringify(loaded) : "");
-    }
+    for (const [slug, pageId] of projectPages(editor)) take(slug, pageId);
   });
 
   let pending: ReturnType<typeof setTimeout> | undefined;
@@ -198,6 +202,11 @@ export function installCanvasContent(editor: Editor) {
     clearTimeout(pending);
     pending = undefined;
     for (const [slug, pageId] of projectPages(editor)) {
+      if (broken.has(slug)) continue;
+      if (!seen.has(slug)) {
+        editor.store.mergeRemoteChanges(() => take(slug, pageId));
+        continue;
+      }
       const file = pageFile(editor, pageId, slug);
       const body = file.records.length ? JSON.stringify(file) : "";
       if ((written.get(slug) ?? "") === body) continue;

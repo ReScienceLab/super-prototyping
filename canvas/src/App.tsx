@@ -92,6 +92,7 @@ import {
   pageNameFor,
   isLibraryShapeId,
   readCanvasLibrary,
+  refetchBoards,
 } from "./canvasLibrary";
 import { BOARDS_CHANGED, canvasIndex } from "./canvasIndex";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
@@ -1327,22 +1328,13 @@ export default function App() {
   /** That board's frame on the canvas: the panel reads its report and posts its selection there. */
   const inspectorFrame = useRef<HTMLIFrameElement | null>(null);
 
-  // A layout.json edit moves boards: a row reordered, a label changed, a size override added.
-  // The pass reconciles, so the boards that stay keep their shapes and only what moved is
-  // touched.
-  useEffect(() => {
-    if (!editor) return;
-    const relayout = () => initializeCanvasLibrary(editor);
-    window.addEventListener(LAYOUT_CHANGED, relayout);
-    return () => window.removeEventListener(LAYOUT_CHANGED, relayout);
-  }, [editor]);
-
   // A board rewritten in place is news as much as a new one: it rings green, where a new one
   // rings blue, until the pointer passes over it (canvasChrome.tsx). The server lists only the
   // boards whose bytes changed, not every one a generator wrote out again (sp.ts).
   useEffect(() => {
     const changed = (event: Event) => {
       const rewritten = (event as CustomEvent<string[]>).detail;
+      refetchBoards(rewritten);
       markFresh(
         readCanvasLibrary()
           .flatMap((canvas) => canvas.files)
@@ -1437,6 +1429,23 @@ export default function App() {
       .find((c) => c.meta.canvasSlug === pageOf(tab));
     if (page) editor.setCurrentPage(page.id);
   };
+
+  // A layout.json edit moves boards: a row reordered, a label changed, a size override added.
+  // The pass reconciles, so the boards that stay keep their shapes and only what moved is
+  // touched.
+  useEffect(() => {
+    if (!editor) return;
+    const relayout = () => {
+      initializeCanvasLibrary(editor);
+      // A project's first canvas lands in front of the blank that stood in for it, and a canvas
+      // whose folder went hands over to the one the bare address opens (resolveTab).
+      const next = resolveTab(active.current);
+      if (next !== active.current) openTab(next);
+    };
+    window.addEventListener(LAYOUT_CHANGED, relayout);
+    return () => window.removeEventListener(LAYOUT_CHANGED, relayout);
+  // oxlint-disable-next-line react-hooks/exhaustive-deps -- openTab is new each render and reads only editor
+  }, [editor]);
 
   // A chip on the window's bar (AppShell.tsx) opens its view here when the tab is this project
   // or an example, which every project's server has. This declines another project's, and the
@@ -1617,7 +1626,7 @@ export default function App() {
             {activeTab.kind === "doc" && <DocTab slug={activeTab.slug} key={activeTab.slug} />}
             {/* A project with no canvas yet: blank, rather than Start here's page, which its
                 bare address would show. Its agent makes and names the first one
-                (AppShell.tsx), and the reload that brings it lands there (resolveTab). */}
+                (AppShell.tsx), and the index that brings it lands there (resolveTab). */}
             {activeTab.kind === "canvas" &&
               !activeTab.slug &&
               canvasIndex().project &&

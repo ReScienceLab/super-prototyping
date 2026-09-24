@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { canvasIndex } from "./canvasIndex";
 import { CanvasTabBar } from "./CanvasTabBar";
 import {
@@ -102,7 +102,9 @@ export function AppShell() {
   const [said, setSaid] = useState("");
   const [working, setWorking] = useState<Working>({ slugs: [] });
 
-  useEffect(() => {
+  // Before paint, not after: the frame below reads `working` as it renders, and a passive effect
+  // could still be waiting when it does.
+  useLayoutEffect(() => {
     window.spShell = {
       shown(tab, href) {
         setShown({ tab, href });
