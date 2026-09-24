@@ -228,9 +228,9 @@ export function AppShell() {
       alert(`The project was made, but these could not be copied into it:\n\n${failed.join("\n")}`);
     dialog.current!.close();
     // Before anything else its agent names the project, when it was left unnamed, into its
-    // project.json, which the bar and the home page show it by (server/sp.ts), and makes and
-    // names its first canvas, which the blank view it opens on then gives way to (App.tsx). The
-    // skill's command still opens the message, since only there is it one.
+    // project.json, which the bar and the home page show it by (server/sp.ts). Then it makes and
+    // names the first canvas, which the blank view the project opens on gives way to (App.tsx).
+    // The skill's command still opens the message, since only there is it one.
     const first = [
       name.trim() === "" &&
         `name this project: write a short name for it as {"name": "…"} in project.json at the project's root (if you cannot tell yet what it is, make that your first question to me)`,

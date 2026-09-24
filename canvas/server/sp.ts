@@ -53,8 +53,8 @@ export function sameOrigin(req: IncomingMessage) {
 /**
  * A canvas's folder: the project's own, else the example of that name. The project's own is what
  * the scan in boards.ts calls a canvas, a folder with a board or a layout.json in it, so a folder
- * the project has only begun under an example's name does not hide the example. A name that is in neither place
- * gets the project's path, and the routes answer it as they always did.
+ * the project has only begun under an example's name does not hide the example. A name that is
+ * in neither place gets the project's path, and the routes answer it as they always did.
  */
 export function folderOf(
   canvasesDir: string,
@@ -559,12 +559,10 @@ export function createSpServer(options: {
     });
   });
 
-  // The canvas's ground, from its Background menu and swatch, into its layout.json. Null takes
-  // the key out, which is the theme's own ground. Only the dev server can do this: a built
-  // canvas is static files on a host with no repo behind them.
   // One top-level string key of a canvas's layout.json, edited in place (layoutEdit.ts) and
   // handed to the page directly rather than left to the watcher, which answers a batch and not
-  // a keystroke. canvasIndex.ts listens.
+  // a keystroke. canvasIndex.ts listens. Only the dev server can do this: a built canvas is
+  // static files on a host with no repo behind them.
   const setLayoutKey = (slug: string, key: string, value: string | null) => {
     const layoutPath = path.join(canvasesDir, slug, "layout.json");
     // layout.json is optional: a folder of boards alone gets one holding just this key.
@@ -577,7 +575,8 @@ export function createSpServer(options: {
     broadcast("layout", { slug, layout: JSON.parse(after) });
   };
 
-  // The canvas's ground colour (canvasGround.ts), or null for the default.
+  // The canvas's ground, from its Background menu and swatch (canvasGround.ts). Null takes the
+  // key out, which is the theme's own ground.
   route("/__sp/canvas-ground", (req, res, next) => {
     if (req.method !== "POST") return next();
     let body = "";

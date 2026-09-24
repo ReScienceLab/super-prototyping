@@ -24,8 +24,8 @@ export interface IndexBoard {
   assets: Record<string, { name: string; bytes: number }>;
   /** The folder's comments.json, when it has one. */
   comments?: CommentsFile;
-  /** The folder's canvas.json, what a person put on the canvas, when it has one. */
-  /** null when the file is there but not JSON, which the page leaves alone. */
+  /** The folder's canvas.json, what a person put on the canvas, when it has one; null when the
+   *  file is there but not JSON, which the page leaves alone. */
   content?: ContentFile | null;
   /** One of the examples the desktop app shows beside the project's own, read-only. */
   example?: true;

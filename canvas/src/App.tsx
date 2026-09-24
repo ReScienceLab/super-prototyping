@@ -278,14 +278,6 @@ function LockedLinkClicks() {
 const shellQuote = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`;
 
 /**
- * What a project with no boards yet sees, which is otherwise an empty grey grid with no way to
- * tell a misdirected canvas from an empty one. The directory is the whole point of the notice.
- * It is the project's `canvases` folder, which the server knows and the page otherwise does not.
- *
- * The library is a build-time constant, so this is a plain check rather than a subscription; the
- * dev server full-reloads the page when the first board folder appears.
- */
-/**
  * The agent is writing to the canvas in front (AppShell.tsx keeps what it writes to). Only a
  * glow, over the canvas and not the strip above it: the canvas under it takes the person's
  * pointer and keys as ever, and the boards land in it live (canvasLibrary.ts). Its own
@@ -302,6 +294,14 @@ function AgentGlow({ slug }: { slug: string | undefined }) {
   return <div className="agent-glow" data-on={on || undefined} aria-hidden />;
 }
 
+/**
+ * What a project with no boards yet sees, which is otherwise an empty grey grid with no way to
+ * tell a misdirected canvas from an empty one. The directory is the whole point of the notice.
+ * It is the project's `canvases` folder, which the server knows and the page otherwise does not.
+ *
+ * The library is a build-time constant, so this is a plain check rather than a subscription; the
+ * dev server full-reloads the page when the first board folder appears.
+ */
 function EmptyLibraryNotice() {
   if (readCanvasLibrary().length) return null;
   // Empty in a production build, which does not ship the build machine's paths. The notice still

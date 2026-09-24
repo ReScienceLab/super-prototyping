@@ -257,10 +257,10 @@ button {
   background: var(--ds-background-100);
 }
 
-/* The agent is writing to the canvas in front (AppShell.tsx): Chromium's actor overlay, the
-   one Ego Lite draws round a tab its agent drives, a steady 3px ring and a haze that breathes in
-   from the edges every four seconds. Over the frame and never in its way, so the person keeps
-   drawing under it. */
+/* The agent is writing to the canvas in front (AppShell.tsx): after Chromium's actor overlay,
+   the one Ego Lite draws round a tab its agent drives. A steady 1.5px ring, and a haze at the
+   edges that fades out and back every four seconds. Over the frame and never in its way, so the
+   person keeps drawing under it. */
 .agent-glow {
   position: absolute;
   inset: 0;
@@ -294,9 +294,9 @@ button {
 }
 
 /* Every canvas it is writing to, in the strip, and a project behind the one in front, in the
-   bar: the name in its own colour, crossed by a sheen that catches the light like metal, a
-   bright core between cooler steel edges. Both layers are clipped to the letters, so the tab
-   keeps its shape and icon; only the fill is taken off, so `currentColor` is still the name's. */
+   bar: the name in its own colour, crossed by a sheen with a white core between two cooler
+   blue-grey bands. Both layers are clipped to the letters, so the tab keeps its shape and icon;
+   only the fill is taken off, so `currentColor` is still the name's. */
 .sp-canvas-tab[data-working],
 .sp-tabchip[data-working] .sp-tabchip-name {
   -webkit-text-fill-color: transparent;
@@ -2143,7 +2143,7 @@ button {
   overflow-wrap: anywhere;
 }
 
-/* A turn the app's quit or a dead CLI cut off, with the one way on. */
+/* A turn the app's quit or a dead CLI cut off, and its Continue button. */
 .sp-chat-interrupted {
   display: flex;
   flex-direction: column;

@@ -144,7 +144,7 @@ export function createProjectsServer(options: {
         );
       const refs = path.join(dir, "refs");
       fs.mkdirSync(refs, { recursive: true });
-      // A reference already there is never written over. The rest is written beside its name
+      // A reference already there is never written over. A new one is written beside its name
       // and renamed once whole, so an upload cut off leaves nothing a retry would be refused by.
       const target = path.join(refs, file);
       if (fs.existsSync(target)) {

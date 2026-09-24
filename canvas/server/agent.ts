@@ -609,7 +609,7 @@ export function createAgentServer(options: {
             if (ended(run)) return;
             const tail = stderr.trim().split("\n").slice(-5).join("\n");
             // Stopped only when the person pressed Stop. Anything else that ends the CLI before its
-            // result frame — a crash, a kill from outside — cut the turn off, and the panel offers
+            // result frame, a crash or a kill from outside, cut the turn off, and the panel offers
             // to continue it. The app quitting is `close()` below, which ends the run first.
             if (run.stopped) return finish("stopped");
             finish(

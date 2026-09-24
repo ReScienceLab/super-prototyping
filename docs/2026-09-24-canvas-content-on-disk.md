@@ -61,16 +61,16 @@ what lets an empty canvas exist.
 }
 ```
 
-- **`tldraw`** is `store.schema.serialize()`. On load, records go through
+- `tldraw` is `store.schema.serialize()`. On load, records go through
   `schema.migrateStoreSnapshot`, so a file written today still opens after a tldraw upgrade.
-- **`records`** are the page's shapes that are not library shapes, the bindings from them, and
+- `records` are the page's shapes that are not library shapes, the bindings from them, and
   the assets they use. They are sorted by id and written as two-space JSON with a trailing
   newline, so a Git diff moves line by line, as with `comments.json`.
 - **A shape at the page's root has no `parentId`.** Page ids are minted per browser, so the folder
   is the page. The field is put back before the record reaches the store, the way
   `comments.json` does with `pageId`. The file never holds a made-up value: tldraw's validator
   accepts only `page:…` or `shape:…`. A shape inside another shape keeps its `shape:…` parent.
-- **An asset's `src` is relative to the canvas folder:** `./files/<name>`, or
+- **An asset's `src` is relative to the canvas folder.** It is `./files/<name>`, or
   `../<other-slug>/files/<name>` for a file pasted from another canvas. It is never a data URI,
   which would put megabytes in a diff, and never an absolute URL, which would tie the file to one
   host. In the store it is `./board/<slug>/files/<name>`, the address the server serves it at
@@ -83,22 +83,23 @@ what lets an empty canvas exist.
 
 This is the pattern `canvasComments.ts` already uses.
 
-- **Load: the file wins.** For each of the project's pages that has a `canvas.json`, its
+- **On load the file wins.** For each of the project's pages that has a `canvas.json`, its
   non-library shapes, bindings and assets are replaced with the file's, inside
   `store.mergeRemoteChanges`. That keeps the load off the undo stack and out of the save
   listener. Examples, the welcome page and the hosted build keep the browser's copy, as today.
-- **Migration:** a page with no file yet is saved on the first pass. Whatever this browser had
-  on it is written out, and nothing is lost.
-- **Save:** `store.listen(…, { source: 'user', scope: 'document' })`, debounced by 500 ms. Each
-  project page is serialized, and a page whose body changed is posted to
+- **A page with no file yet is saved on the first pass.** The page writes out whatever this
+  browser had on it, and nothing is lost.
+- **Every change is saved.** `store.listen(…, { source: 'user', scope: 'document' })`, debounced
+  by 500 ms, serializes each project page, and one whose body changed is posted to
   `POST __sp/canvas-content { slug, file }`. An emptied page keeps the file with no records:
   no file means a page never saved, whose browser copy is written out, so removing it would
-  bring back what was deleted in every other window. The page is the only writer, and the agent's bridge edits go through the same store and the same debounce, so
-  the person's writes and the agent's writes cannot race each other.
-- **Edits from outside** (`git pull`, a hand edit, another window): the watcher classes
-  `canvas.json` as `"content"` and reloads the page, and the file wins on the reload. The server
-  remembers the bytes it last wrote, so the page's own save is not echoed back as a reload.
-  Between two windows the last write wins, as with `comments.json`.
+  bring back what was deleted in every other window. The page is the only writer, and the
+  agent's bridge edits go through the same store and the same debounce, so the person's writes
+  and the agent's writes cannot race each other.
+- **An edit from outside reloads the page.** When a `git pull`, a hand edit or another window
+  writes `canvas.json`, the watcher classes it as `"content"` and reloads, and the file wins on
+  the reload. The server remembers the bytes it last wrote, so the page's own save is not echoed
+  back as a reload. Between two windows the last write wins, as with `comments.json`.
 
 ## Pasted files
 
@@ -131,13 +132,13 @@ tldraw calls a pasted URL `url` content. One handler sits in front of tldraw's d
 
 ## Add to chat, and links
 
-- **The hover + and the selection +** answer for the person's shapes as well as for boards and
-  pictures. The inspector does not: a click on a person's shape still selects it.
-- **What the chat gets** for a person's shape is a picture of it (`editor.toImage`), sent as
+- **The hover + and the selection + answer for a person's shape.** They already do for a board or
+  a picture. The inspector does not: a click on a person's shape still selects it.
+- **The chat gets a picture of the shape.** `editor.toImage` draws it, and it is sent as
   `{ kind: "board", name, src }`, where `name` is where the agent reads it:
   `<slug>/files/<file>` for a pasted file, `<slug>/canvas.json#<shape-id>` for anything else.
-- **Links:** a person's shape is addressed by the canvas's address with `#<shape-id>`. ⌘C copies
-  it, pasting it into the chat attaches it, and opening it zooms to the shape.
+- **A person's shape has a link.** It is the canvas's address with `#<shape-id>`. ⌘C copies it,
+  pasting it into the chat attaches it, and opening it zooms to the shape.
 
 ## The agent: reads everything, changes its own
 
@@ -171,21 +172,21 @@ Nothing here assumes one browser on one machine:
 - **All state is files in the project folder, and every reference in them is relative.** A
   project can be copied, committed, cloned or served elsewhere and open the same. The browser
   keeps only per-viewer state: camera, open panel, the comment handle.
-- **Every write is an HTTP call under the project's base URL** (`canvas-content`, `canvas-file`,
-  `new-canvas`, `canvas-name`), and `sameOrigin` guards each one today. An authenticated server
-  puts its check at that same boundary, and the page does not change.
-- **Live multi-user editing** is tldraw's `TLSocketRoom`, one per page, with a storage adapter
+- **Every write is an HTTP call under the project's base URL.** There are four, `canvas-content`,
+  `canvas-file`, `new-canvas` and `canvas-name`, and `sameOrigin` guards each one today. An
+  authenticated server puts its check at that same boundary, and the page does not change.
+- **Live multi-user editing is tldraw's `TLSocketRoom`.** One per page, with a storage adapter
   that reads and writes this same `canvas.json`. The file format stays fixed, and the
   transport can change without touching it. That is also where last-write-wins between two
   writers ends. Until then it is the same as `comments.json`.
 
 ## Not in this change
 
-- **Drawing tools and the style panel stay off** (`Toolbar: null`, `StylePanel: null`). Paste and
-  direct manipulation are the scope. A drawn shape would be saved like a pasted one, so turning
-  the tools on later needs nothing from this design.
-- **IndexedDB stays** as the store's local copy. With every document record of a project page now
-  on disk, dropping it for session-only state is a later simplification.
+- **Drawing tools and the style panel stay off.** `Toolbar` and `StylePanel` are still `null`.
+  Paste and direct manipulation are the scope. A drawn shape would be saved like a pasted one, so
+  turning the tools on later needs nothing from this design.
+- **IndexedDB stays as the store's local copy.** With every document record of a project page
+  now on disk, dropping it for session-only state is a later simplification.
 
 ## What the review changed
 

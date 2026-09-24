@@ -242,9 +242,9 @@ export function markFresh(ids: TLShapeId[], kind: Fresh) {
 
 export const canvasChromeComponents: TLComponents = {
   /**
-   * tldraw's own element around each shape, with a class while the shape is fresh, and which kind in `data-fresh`. The ring
-   * and its fade are CSS (`.sp-fresh` in index.css), so nothing runs per frame. The same
-   * wrapper draws the shape's background layer, which is left alone.
+   * tldraw's own element around each shape, with a class while the shape is fresh and which kind
+   * in `data-fresh`. The ring and its fade are CSS (`.sp-fresh` in index.css), so nothing runs
+   * per frame. The same wrapper draws the shape's background layer, which is left alone.
    */
   ShapeWrapper: forwardRef<HTMLDivElement, TLShapeWrapperProps>(
     function ShapeWrapper(props, ref) {

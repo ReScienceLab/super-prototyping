@@ -378,7 +378,7 @@ export function ChatPanel(props: {
   useEffect(() => {
     abort.current = new AbortController();
     for (const t of turns) follow(t.runId);
-    // An empty panel after a relaunch — sessionStorage goes with the window — opens on the
+    // An empty panel after a relaunch, since sessionStorage goes with the window, opens on the
     // conversation the quit cut off, so its Continue is the first thing in view.
     if (!turns.length)
       void fetch("/__sp/agent/sessions")
