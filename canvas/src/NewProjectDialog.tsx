@@ -83,6 +83,8 @@ export function NewProjectDialog({
     <dialog
       ref={dialog}
       className="home-dialog"
+      // Once Create is pressed the project is being made, so Escape and Cancel wait for it.
+      onCancel={(event) => busy && event.preventDefault()}
       // Closed by Cancel, Escape or a project made: the next one starts with nothing dropped.
       onClose={() => {
         for (const p of picked) URL.revokeObjectURL(p.url);
@@ -237,7 +239,7 @@ export function NewProjectDialog({
               {mode === "clone" && (
                 <span>You can add more later in the chat</span>
               )}
-              <button type="button" onClick={() => dialog.current!.close()}>
+              <button type="button" disabled={busy} onClick={() => dialog.current!.close()}>
                 Cancel
               </button>
               <button type="submit" disabled={busy}>

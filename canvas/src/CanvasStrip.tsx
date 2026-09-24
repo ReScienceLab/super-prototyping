@@ -119,7 +119,9 @@ export function CanvasStrip() {
           className="sp-canvas-tab"
           aria-current={canvas === here ? "page" : undefined}
           onClick={() => openTab({ kind: "canvas", slug: canvas })}
-          onDoubleClick={() => tab.kind !== "example" && setRenaming(canvas)}
+          onDoubleClick={() =>
+            tab.kind !== "example" && canvasIndex().served && setRenaming(canvas)
+          }
           onContextMenu={(event) =>
             openMenu(event, menu, () => setTarget({ kind: "canvas", slug: canvas }))
           }
