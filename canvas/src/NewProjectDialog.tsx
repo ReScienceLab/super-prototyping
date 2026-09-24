@@ -118,13 +118,16 @@ export function NewProjectDialog({
           onSubmit={async (event) => {
             event.preventDefault();
             setBusy(true);
-            await create(
-              name,
-              mode === "clone"
-                ? { mode, files: picked.map((p) => p.file) }
-                : { mode, define, idea: idea.trim() },
-            );
-            setBusy(false);
+            try {
+              await create(
+                name,
+                mode === "clone"
+                  ? { mode, files: picked.map((p) => p.file) }
+                  : { mode, define, idea: idea.trim() },
+              );
+            } finally {
+              setBusy(false);
+            }
           }}
         >
           <nav className="new-project-modes">

@@ -52,8 +52,8 @@ export function sameOrigin(req: IncomingMessage) {
 
 /**
  * A canvas's folder: the project's own, else the example of that name. The project's own is what
- * the scan in boards.ts calls a canvas, a folder with a board in it, so a folder the project has
- * only begun under an example's name does not hide the example. A name that is in neither place
+ * the scan in boards.ts calls a canvas, a folder with a board or a layout.json in it, so a folder
+ * the project has only begun under an example's name does not hide the example. A name that is in neither place
  * gets the project's path, and the routes answer it as they always did.
  */
 export function folderOf(
@@ -62,11 +62,13 @@ export function folderOf(
   slug: string,
 ) {
   const own = path.join(canvasesDir, slug);
-  const hasBoard =
+  const isCanvas =
     fs.statSync(own, { throwIfNoEntry: false })?.isDirectory() &&
-    fs.readdirSync(own).some((f) => !f.startsWith(".") && f.endsWith(".html"));
+    fs
+      .readdirSync(own)
+      .some((f) => f === "layout.json" || (!f.startsWith(".") && f.endsWith(".html")));
   const example = path.join(examplesDir, slug);
-  return !hasBoard && fs.existsSync(example) ? example : own;
+  return !isCanvas && fs.existsSync(example) ? example : own;
 }
 
 /**
@@ -416,6 +418,9 @@ export function createSpServer(options: {
   // page, which from files/ would run in the canvas's own origin.
   const CANVAS_FILE_MIME: Record<string, string> = {
     ...IMAGE_MIME,
+    // What else tldraw pastes as an image (DEFAULT_SUPPORTED_IMAGE_TYPES).
+    ".apng": "image/apng",
+    ".avif": "image/avif",
     ".mp4": FILE_MIME[".mp4"],
     ".webm": FILE_MIME[".webm"],
     ".mov": FILE_MIME[".mov"],
@@ -719,6 +724,8 @@ export function createSpServer(options: {
   // canvas.json, the way comments.json is written. The bytes are remembered so the watcher can
   // tell this write from one made outside, which reloads the page onto the file.
   const wroteContent = new Map<string, string>();
+  // The last write taken from each page for each canvas, by its number (canvasContent.ts).
+  const contentSeq = new Map<string, number>();
   route("/__sp/canvas-content", (req, res, next) => {
     if (req.method !== "POST") return next();
     let body = "";
@@ -729,19 +736,27 @@ export function createSpServer(options: {
         res.end(message);
       };
       try {
-        const { slug, file, by } = JSON.parse(body || "{}");
+        const { slug, file, by, seq } = JSON.parse(body || "{}");
         if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
         if (isExample(slug)) return send(403, READ_ONLY);
         const folder = path.join(canvasesDir, slug);
         if (!fs.statSync(folder, { throwIfNoEntry: false })?.isDirectory()) {
           return send(404, `no canvas folder named ${slug}`);
         }
+        // An older write from the same page, overtaken on the way here, is already superseded.
+        const from = `${by} ${slug}`;
+        if (seq <= (contentSeq.get(from) ?? 0)) return send(200, "ok");
+        contentSeq.set(from, seq);
         const target = path.join(folder, "canvas.json");
         // An emptied canvas leaves no file behind, as the last comment does.
         const text = file?.records?.length ? JSON.stringify(file, null, 2) + "\n" : "";
         wroteContent.set(target, text);
-        if (text) fs.writeFileSync(target, text);
-        else fs.rmSync(target, { force: true });
+        // Written beside it and renamed over it, so a write cut off leaves the last whole file,
+        // which is the one the next load takes. The watcher ignores the .part.
+        if (text) {
+          fs.writeFileSync(`${target}.part`, text);
+          fs.renameSync(`${target}.part`, target);
+        } else fs.rmSync(target, { force: true });
         // Every other page on the project reloads onto it (canvasIndex.ts), since the watcher
         // below takes this write for the saving page's own.
         broadcast("content", { slug, by });
@@ -1018,6 +1033,8 @@ export function createSpServer(options: {
             wroteContent.get(file)
           )
             reload = true;
+          // Heard once: the same bytes put back later, by a checkout say, are someone else's.
+          wroteContent.delete(file);
           break;
         case "comments":
           // No reload: comments.json is written by the endpoint above on every post, and the

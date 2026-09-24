@@ -131,6 +131,9 @@ export function installAgentBridge(editor: Editor) {
         // edit them, and the agent may change only what carries its stamp. What the person put
         // on the canvas is answered by adding beside it (docs/2026-09-24-canvas-content-on-disk.md).
         case 'create':
+          // A new id only: one that exists would replace that shape, the person's included.
+          for (const { id } of command.shapes)
+            if (id && editor.getShape(id)) throw new Error(`${id} exists; update it instead`)
           editor.markHistoryStoppingPoint('agent:create')
           editor.createShapes(
             command.shapes.map((shape) => ({
@@ -143,7 +146,18 @@ export function installAgentBridge(editor: Editor) {
         case 'update':
           agentsOnly(editor, command.shapes.map((shape) => shape.id))
           editor.markHistoryStoppingPoint('agent:update')
-          editor.run(() => editor.updateShapes(command.shapes), { ignoreShapeLock: true })
+          // Still the agent's and still locked, whatever the update says.
+          editor.run(
+            () =>
+              editor.updateShapes(
+                command.shapes.map((shape) => ({
+                  ...shape,
+                  isLocked: true,
+                  meta: { ...shape.meta, by: 'agent' },
+                })),
+              ),
+            { ignoreShapeLock: true },
+          )
           break
         case 'delete':
           agentsOnly(editor, command.ids)

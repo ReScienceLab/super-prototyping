@@ -125,6 +125,16 @@ it("shows the examples read-only beside the project's canvases", async () => {
     ).toEqual([{ id: "shape:a" }]);
     await ask("/__sp/canvas-content", content([]));
     expect(fs.existsSync(saved)).toBe(false);
+    // A page's older write that lands after its newer one is dropped.
+    const numbered = (id: string, seq: number) => ({ ...content([{ id }]), by: "p", seq });
+    await ask("/__sp/canvas-content", numbered("shape:new", 2));
+    await ask("/__sp/canvas-content", numbered("shape:old", 1));
+    expect(JSON.parse(fs.readFileSync(saved, "utf8")).records).toEqual([{ id: "shape:new" }]);
+    // One that will not parse is sent as null, which the page leaves alone.
+    fs.writeFileSync(saved, "{");
+    const reread = JSON.parse((await ask("/__sp/index.json")).text);
+    expect(reread.boards.find((b: any) => b.slug === "untitled").content).toBe(null);
+
 
     // A canvas's folder is binned by name, never one that climbs out, and never an example's.
     const bin = (slug: string) =>
@@ -133,6 +143,10 @@ it("shows the examples read-only beside the project's canvases", async () => {
     expect((await bin("gone")).status).toBe(404);
     expect((await bin("an-example")).status).toBe(404);
     expect((await bin("begun")).status).toBe(403);
+
+    // A folder the project began under an example's name is its own once it has a layout.json.
+    fs.writeFileSync(path.join(canvasesDir, "begun/layout.json"), "{}");
+    expect((await ask("/__sp/canvas-content", { ...content([]), slug: "begun" })).status).toBe(200);
   } finally {
     close();
     fs.rmSync(tmp, { recursive: true, force: true });

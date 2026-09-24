@@ -204,21 +204,27 @@ export function AppShell() {
     // The server's name, which is the one typed, or an "Untitled" when none was.
     const made = (await res.json()) as { name: string; url: string };
     const { url } = made;
+    // The project is made by now, so a file that will not copy is reported and left out, and the
+    // project opens on the rest: trying again would only be told the name is taken.
+    const names: string[] = [];
+    const failed: string[] = [];
     if (start.mode === "clone")
       for (const file of start.files) {
         const query = new URLSearchParams({ name: made.name, file: file.name });
-        const up = await fetch(new URL(`/__sp/projects/ref?${query}`, location.origin), {
-          method: "POST",
-          body: file,
-        });
-        // The project is made by now, so trying again would only be told the name is taken.
-        if (!up.ok)
-          return setSaid(
-            `The project was made, but ${file.name} could not be copied into it: ${await up.text()}`,
-          );
+        try {
+          const up = await fetch(new URL(`/__sp/projects/ref?${query}`, location.origin), {
+            method: "POST",
+            body: file,
+          });
+          if (up.ok) names.push(`refs/${file.name}`);
+          else failed.push(`${file.name}: ${await up.text()}`);
+        } catch (error) {
+          failed.push(`${file.name}: ${error}`);
+        }
       }
+    if (failed.length > 0)
+      alert(`The project was made, but these could not be copied into it:\n\n${failed.join("\n")}`);
     dialog.current!.close();
-    const names = start.mode === "clone" ? start.files.map((f) => `refs/${f.name}`) : [];
     // Before anything else its agent names the project, when it was left unnamed, into its
     // project.json, which the bar and the home page show it by (server/sp.ts), and makes and
     // names its first canvas, which the blank view it opens on then gives way to (App.tsx). The
@@ -226,10 +232,8 @@ export function AppShell() {
     const first = [
       name.trim() === "" &&
         `name this project: write a short name for it as {"name": "…"} in project.json at the project's root (if you cannot tell yet what it is, make that your first question to me)`,
-      // With define-product, no board before the product is worked out, as that skill says.
-      start.mode === "build" && start.define
-        ? `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json, so it opens on my screen, and no board in it until PRD.md says what the product is`
-        : `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json and a first board, so it opens on my screen`,
+      // Empty: the skill says when a board is due, after the product or the measurements.
+      `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json, so it opens on my screen, and no board in it until the work reaches one`,
     ].filter(Boolean);
     const [skill, ask] =
       start.mode === "clone"
