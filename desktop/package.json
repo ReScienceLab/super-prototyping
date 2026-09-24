@@ -81,6 +81,7 @@
       }
     ],
     "asar": true,
+    "afterPack": "./stamp.mjs",
     "npmRebuild": false,
     "mac": {
       "target": [
