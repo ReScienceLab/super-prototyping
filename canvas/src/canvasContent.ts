@@ -173,6 +173,9 @@ export function installCanvasContent(editor: Editor) {
   });
 
   let pending: ReturnType<typeof setTimeout> | undefined;
+  // One write at a time per canvas, so an older body can never land after a newer one. A write
+  // that fails forgets what it sent, and the next change sends the page again.
+  const saving = new Map<string, Promise<void>>();
   const flush = () => {
     pending = undefined;
     for (const [slug, pageId] of pages) {
@@ -180,11 +183,21 @@ export function installCanvasContent(editor: Editor) {
       const body = file.records.length ? JSON.stringify(file) : "";
       if (written.get(slug) === body) continue;
       written.set(slug, body);
-      void fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ slug, file: body ? file : null }),
-      });
+      const post = () =>
+        fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ slug, file: body ? file : null }),
+        }).then(async (res) => {
+          if (!res.ok) throw new Error(await res.text());
+        });
+      saving.set(
+        slug,
+        (saving.get(slug) ?? Promise.resolve()).then(post).catch((error) => {
+          console.error(`canvas ${slug} was not saved:`, error);
+          if (written.get(slug) === body) written.delete(slug);
+        }),
+      );
     }
   };
   flush();
@@ -244,8 +257,12 @@ async function fromLinks(editor: Editor, text: string, point?: VecLike) {
     if (url.origin !== here.origin || url.pathname !== here.pathname) return undefined;
     if (tab.kind !== "canvas" || !named) return undefined;
     if (named.startsWith("shape:")) {
+      // tldraw copies only from the page in front, so one on another canvas pastes as a link.
       const shape = editor.getShape(named as TLShapeId);
-      return personsShape(editor, shape) ? { shape: shape! } : undefined;
+      return personsShape(editor, shape) &&
+        editor.getAncestorPageId(shape) === editor.getCurrentPageId()
+        ? { shape: shape! }
+        : undefined;
     }
     const board = readCanvasLibrary()
       .flatMap((c) => c.files)
