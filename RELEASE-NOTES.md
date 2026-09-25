@@ -19,6 +19,11 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.6.3
+
+2026-09-25. Let the agent lay things out on your canvas, film a prototype, and
+call every skill by an `sp-` name.
+
 - **The agent can put things anywhere on a canvas.** Ask it to lay out
   screenshots, video, notes or a board beside what you pasted, framed and
   joined by arrows, and it places them on the canvas you have open, glowing
@@ -27,6 +32,8 @@ Everything below is on `main` and reaches no install until a version is cut.
   The layout's own boards stay locked, and are outlined orange when selected so
   you can tell them apart.
 - **A board shows up in an exported image.** It used to come out blank.
+- **A project with no icon shows none on the home page**, instead of a broken
+  image.
 - **A new skill films the prototype.** `sp-create-video` turns a board into a
   live-action clip of someone using the product -- an office, a lift, a walk
   down a corridor -- with your interface on the phone rather than a redrawn
