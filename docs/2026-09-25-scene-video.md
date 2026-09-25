@@ -22,8 +22,13 @@ phase is building an animated board rather than writing a prompt.
 
 The reference video is board 19, `19-purchase-sheet-motion.html`: the same
 `gen.py`, one CSS timeline, the flow playing. `scripts/frames.mjs` scrubs it
-frame by frame through CDP — animations paused, `animation-delay: -Ts` —
-because a screen recorder drops frames under load and never says so.
+frame by frame through CDP, because a screen recorder drops frames under load
+and never says so. The session did that with a negative `animation-delay`; the
+script uses `getAnimations()` and sets each `currentTime` instead. A delay
+applied to an animation that is already paused moves it from wherever the
+pause landed, which is wall-clock, so the same board rendered twice came back
+different, and a pseudo-element's animation was missed entirely. Set the time
+and two runs are identical to the byte.
 
 ## Ark, not fal, and not Replicate
 

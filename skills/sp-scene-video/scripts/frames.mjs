@@ -5,18 +5,19 @@
 //
 // (bun runs it too. `sp` picks node where there is one and bun otherwise; so does this.)
 //
-// There is no screen recorder here on purpose. Every frame is a still: the board's
-// animations are paused, and `animation-delay: -Ts` on every element scrubs the whole
-// timeline to T. So a frame is exact, reproducible, and as slow to render as it needs
-// to be -- a recorder would drop frames under load and there would be no way to tell.
+// There is no screen recorder here on purpose. Every frame is a still: every animation in
+// the document is paused and its `currentTime` set to T, so a frame is exact, reproducible
+// to the byte, and as slow to render as it needs to be -- a recorder would drop frames under
+// load and there would be no way to tell.
 //
 // --selector clips to one element, the phone, and everything outside it comes out
 // transparent, which is what the compositor wants. --opaque keeps the page background.
 // --knots re-times the board onto a plate: [[plate_t, board_t], ...], linear between
 // knots, so a hold in one is a hold in the other. Frames land as f0000.png, f0001.png …
 import { spawn } from 'node:child_process'
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const args = process.argv.slice(2)
@@ -36,13 +37,20 @@ const boardTime = t => {
   return a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0])
 }
 
-const CHROME = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+// Chrome where its installer puts it, the same list refkit uses (tools/refkit.py CHROME): on
+// Windows one of three folders, with Edge standing in, and otherwise whatever PATH has. CHROME
+// overrides all of it.
+const CHROME = process.env.CHROME || [
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  ...['Google\\Chrome\\Application\\chrome.exe', 'Microsoft\\Edge\\Application\\msedge.exe'].flatMap(
+    app => ['PROGRAMFILES', 'PROGRAMFILES(X86)', 'LOCALAPPDATA'].map(root => join(process.env[root] ?? '', app))),
+].find(existsSync) || (process.platform === 'win32' ? 'chrome.exe' : 'google-chrome')
 const port = 9422 + (process.pid % 200)          // not 9333: something else on this machine listens there
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 rmSync(outDir, { recursive: true, force: true })
 mkdirSync(outDir, { recursive: true })
 const chrome = spawn(CHROME, ['--headless=new', `--remote-debugging-port=${port}`,
-  `--user-data-dir=/tmp/sp-frames-${process.pid}`, '--no-first-run', '--hide-scrollbars',
+  `--user-data-dir=${join(tmpdir(), 'sp-frames-' + process.pid)}`, '--no-first-run', '--hide-scrollbars',
   '--allow-file-access-from-files', 'about:blank'], { stdio: 'ignore' })
 
 let targets
@@ -51,7 +59,7 @@ for (let i = 0; i < 50; i++) {
   await sleep(200)
 }
 const page = targets?.find(t => t.type === 'page')
-if (!page) { chrome.kill(); throw new Error('Chrome never opened a debugging port') }
+if (!page) { chrome.kill(); throw new Error(`Chrome never opened a debugging port (${CHROME}) -- set CHROME to its path`) }
 const ws = new WebSocket(page.webSocketDebuggerUrl)
 await new Promise(r => { ws.onopen = r })
 let id = 0
@@ -77,7 +85,6 @@ if (!opaque) await send('Emulation.setDefaultBackgroundColorOverride', { color: 
 await send('Page.navigate', { url: pathToFileURL(resolve(board)).href })
 await sleep(1500)
 await evaluate(`(() => {
-  const s = document.createElement('style'); s.id = 'sp-scrub'; document.head.appendChild(s)
   ${opaque ? '' : `const b = document.createElement('style')
   b.textContent = 'html,body{background:transparent!important;margin:0}'; document.head.appendChild(b)`}
   return document.fonts.ready.then(() => 'ok')
@@ -94,10 +101,12 @@ console.log('clip', clip)
 const n = Math.round(fps * seconds)
 for (let i = 0; i < n; i++) {
   const t = boardTime(i / fps).toFixed(4)
-  // One style rule scrubs every animation on the board at once, and two rAFs make sure it painted.
+  // Every animation in the document, pseudo-elements included, held at exactly t. Not a CSS
+  // rule: `animation-delay` on an already-paused animation moves it from where the pause
+  // happened, which is wall-clock, so two runs of this script disagreed. Two rAFs make sure
+  // the new time painted before the frame is taken.
   await evaluate(`(() => {
-    document.getElementById('sp-scrub').textContent =
-      '${selector} *{animation-play-state:paused!important;animation-delay:-${t}s!important}'
+    for (const a of document.getAnimations()) { a.pause(); a.currentTime = ${(t * 1000).toFixed(1)} }
     return new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r('painted'))))
   })()`)
   const { data } = await send('Page.captureScreenshot', { format: 'png', clip, captureBeyondViewport: true })

@@ -45,7 +45,7 @@ plus the locked-POV block, both of them, and the negative list.
 ```bash
 python3 "$KIT/skills/sp-scene-video/scripts/ark.py" \
   --prompt-file plate.txt --image screen-green-markers.png --image framing.png \
-  --res 720p --dur 10 --tag plate -o out
+  --key-file "$V/.ark_key" --res 720p --dur 10 --tag plate -o "$V/out"
 ```
 
 A second reference image showing the framing you want — the phone at the size

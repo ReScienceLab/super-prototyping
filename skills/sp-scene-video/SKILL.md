@@ -75,7 +75,7 @@ other board. Then frames, then an mp4:
 node "$KIT/skills/sp-scene-video/scripts/frames.mjs" "$B/19-flow-motion.html" \
   --fps 24 --seconds 10 -o "$V/out/ui" --scale 3          # bun runs it too
 ffmpeg -y -framerate 24 -i "$V/out/ui/f%04d.png" -c:v libx264 -crf 16 \
-  -pix_fmt yuv420p "$V/out/mockup.mp4"
+  -vf "crop=trunc(iw/2)*2:trunc(ih/2)*2" -pix_fmt yuv420p "$V/out/mockup.mp4"
 ffmpeg -y -i "$V/out/mockup.mp4" -ss 6 -frames:v 1 "$V/ref-phone-hd.png"
 ```
 
@@ -114,7 +114,7 @@ Ark fetches the video from there; it refuses an inline one.
 
 ```bash
 python3 "$KIT/skills/sp-scene-video/scripts/ark.py" \
-  --prompt-file "$V/prompt.txt" --video "$U/mockup.mp4" \
+  --prompt-file "$V/prompt.txt" --video "$U/mockup.mp4" --key-file "$V/.ark_key" \
   --image "$V/ref-phone-hd.png" --res 720p --dur 10 --tag walk -o "$V/out"
 ```
 

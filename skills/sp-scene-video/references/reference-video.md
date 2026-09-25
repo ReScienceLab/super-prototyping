@@ -34,11 +34,15 @@ B=canvases/<slug>; V="$B/scratch/video"; mkdir -p "$V/out"
 node "$KIT/skills/sp-scene-video/scripts/frames.mjs" "$B/19-flow-motion.html" \
   --fps 24 --seconds 10 -o "$V/out/ui" --scale 3
 ffmpeg -y -framerate 24 -i "$V/out/ui/f%04d.png" -c:v libx264 -crf 16 \
-  -pix_fmt yuv420p "$V/out/mockup.mp4"
+  -vf "crop=trunc(iw/2)*2:trunc(ih/2)*2" -pix_fmt yuv420p "$V/out/mockup.mp4"
 ```
 
-`frames.mjs` pauses the board's animations and scrubs them frame by frame with
-a negative `animation-delay`, so each frame is exact rather than recorded.
+`frames.mjs` pauses every animation in the board and sets its `currentTime`
+frame by frame, so each frame is exact rather than recorded, and the same
+board twice is the same bytes twice. The
+crop is there because the standard 393 pt phone comes out 1179 px wide at
+`--scale 3`, and H.264 will not take an odd dimension in `yuv420p`; it takes
+the one column off rather than padding a black line on.
 Outside `.phone` it writes transparent pixels, which is what `composite.py`
 wants; for a reference video, `-pix_fmt yuv420p` flattens that to black and
 the model treats it as a dark surround.

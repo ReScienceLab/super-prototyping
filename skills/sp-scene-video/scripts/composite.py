@@ -45,6 +45,7 @@ def biggest(mask):
 
 
 def quad_from_mask(mask):
+    if mask is None: return None                 # no green in the frame at all: the phone is away
     cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     c = max(cnts, key=cv2.contourArea)
     hull = cv2.convexHull(c)
@@ -122,6 +123,8 @@ def main():
         screen, ref_area = biggest(chroma(ref))
         quad = quad_from_mask(screen)
         if quad is not None: break
+    else:
+        sys.exit("no frame from %d on shows four screen edges: check the key colour, or --ref" % a.ref)
     print("ref frame", r, file=sys.stderr)
     H0 = cv2.getPerspectiveTransform(SRC, quad)
     mk = markers_in(ref, quad)

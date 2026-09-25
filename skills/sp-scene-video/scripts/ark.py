@@ -13,7 +13,7 @@ the current directory, chmod 600). It is never printed, and neither is the
 request body unless you ask for --dry.
 
 Writes `<tag>-N.mp4` and `<tag>-N.json` into the output directory, numbered
-after whatever is already there, so two takes never overwrite each other. The
+past the highest N already there, so two takes never overwrite each other. The
 JSON carries the prompt and the task's own record: seed, usage, duration. That
 is the only account of what produced a clip, and a take is worth real money, so
 it is written before anything else is printed.
@@ -21,7 +21,7 @@ it is written before anything else is printed.
 Stdlib only: a generation runs for minutes and the poll must outlive a flaky
 network, not a dependency install.
 """
-import argparse, base64, json, mimetypes, os, sys, time, urllib.error, urllib.request
+import argparse, base64, json, mimetypes, os, re, sys, time, urllib.error, urllib.request
 from pathlib import Path
 
 BASE = "https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks"
@@ -88,7 +88,12 @@ def main():
         a.key_file.read_text().strip() if a.key_file.is_file() else
         sys.exit("no key: set ARK_API_KEY or put it in %s (chmod 600)" % a.key_file))
     a.out.mkdir(parents=True, exist_ok=True)
-    n = 1 + len(list(a.out.glob(a.tag + "-*.mp4")))
+    # The highest number already used, not how many there are: a gap in the series, from a take
+    # deleted or one that failed after its JSON was written, would otherwise take a number back
+    # and overwrite the record of a clip that cost money.
+    used = [int(m[1]) for f in a.out.glob(a.tag + "-*")
+            if (m := re.fullmatch(re.escape(a.tag) + r"-(\d+)", f.stem))]
+    n = 1 + max(used, default=0)
 
     t0 = time.time()
     tid = call("POST", BASE, key, body)["id"]
@@ -111,7 +116,8 @@ def main():
               "prompt": prompt,
               "images": [str(p) for p in a.image], "video": a.video,
               "result": st, "seconds": round(time.time() - t0)}
-    (a.out / ("%s-%d.json" % (a.tag, n))).write_text(json.dumps(record, ensure_ascii=False, indent=1))
+    (a.out / ("%s-%d.json" % (a.tag, n))).write_text(
+        json.dumps(record, ensure_ascii=False, indent=1), encoding="utf-8")
     mp4 = a.out / ("%s-%d.mp4" % (a.tag, n))
     urllib.request.urlretrieve(st["content"]["video_url"], mp4)
     print("wrote", mp4, "seed", st.get("seed"), "usage", st.get("usage"), "in", record["seconds"], "s")
