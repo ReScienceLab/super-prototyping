@@ -376,9 +376,12 @@ export function AppShell() {
             style={home ? { visibility: "hidden" } : undefined}
           />
           {page === "community" && (
-            <CommunityPage
-              openExample={(slug) => goTo(tabOfExample(slug, tabs))}
-            />
+            // The home page's scrolling layer: the window is the viewport's height and clips.
+            <div className="home-main">
+              <CommunityPage
+                openExample={(slug) => goTo(tabOfExample(slug, tabs))}
+              />
+            </div>
           )}
           {page === "home" && (
             <HomePage
