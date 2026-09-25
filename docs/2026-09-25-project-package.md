@@ -138,6 +138,14 @@ This stands alone and ships first. It protects local users today.
   - A project with a `format` above the app's is refused when opened, local or not, with a
     message to update the app. An older app that opened it would half-understand it, and its
     next save could lose what it did not understand.
+  - **`format` goes up rarely, only when an older app would misread the project.** Adding
+    something is not that:
+    - The app ignores files it does not know, and never deletes them.
+    - It ignores JSON keys it does not know, and writes them back unchanged. A write goes
+      through `withLayoutKey`, or reads the file and sets one key, as `project.json`'s cover
+      does, so this already holds.
+    - A new kind of content, a new key or a new file is therefore still format 1. Only a
+      change to what an existing thing means raises it.
 - **`id`: a UUID, minted when New project makes the project** (`POST /__sp/projects` in
   `projects.ts`).
   - A project made earlier gets one from its first `sp pack`. Nothing is written on a GET, the
@@ -159,53 +167,52 @@ copies what passes into `<dir>`, as a folder: a PR adds a folder, so a zip has n
   drift is accepted until import in the app needs the same rules in TypeScript, which is the
   second case that would justify sharing them.
 
-**What goes in.** Everything else is left out and listed in the report, so the author sees
-what was dropped.
+**What goes in.** A project's content is open-ended: boards today, and later videos, notes,
+decks, or kinds of content nobody has made yet. So the package is defined by where things
+sit, not by what they are:
 
-```
-project.json            required
-PRD.md
-canvases/<slug>/
-  NN-*.html             boards; not ref-*.html
-  layout.json
-  icon.png
-  canvas.json
-  files/<name>          only files a canvas.json record points at (see check 4)
-  assets/**             not assets/refs/**
-  assets-dark/**
-  gen.py  README.md  assets.json
-```
+- **At the root**, only `project.json` (required), the Markdown documents (`*.md`), and
+  `canvases/`. Everything else there is left out: that is where agents leave tools, web
+  builds and loose drafts.
+- **Inside `canvases/<slug>/`, everything ships,** whatever its type, except the list below.
+  A new kind of content goes into a canvas folder and ships with no change to `sp pack` or to
+  `format`. `files/` ships whole, not only what a record points at. That keeps content that
+  something other than `canvas.json` refers to, now or later, and it also keeps a file one
+  canvas uses from another's folder.
 
-Only `project.json` is required. Everything else in the list ships if it is there. A project
-can be a clone of an app, an interface someone designed, or a phone mockup, and a folder with
-nothing but boards is a whole project.
+A folder with nothing but boards is a whole project, and so is one with nothing but a video.
 
-Always out:
-- `scratch/`, `ref-*`, `assets/refs/` and the root `refs/`;
+Left out anywhere, and listed in the report so the author sees it:
+- `scratch/`, `ref-*`, `assets/refs/` and the root `refs/`: work in progress, and captures of
+  other people's products;
 - dot files and dot folders;
-- anything else at the root;
 - `comments.json`;
-- `probes.json` and `crops.json`. They are the clone skill's measurement evidence, which
-  supports a claim of fidelity to someone else's app. They are not part of the work, and most
+- `probes.json` and `crops.json`. These are the clone skill's measurement evidence. They
+  support a claim of fidelity to someone else's app, are not part of the work, and most
   projects have none.
+
+This is a list of exclusions, where the surveys favoured a list of inclusions. The trade is
+deliberate. An inclusion list leaks nothing, but it drops every new kind of content until
+someone edits it. The exclusions here are few and known, and the checks below are what keep a
+package safe, not the file types.
 
 **Checks.** Each check fails the pack; none warns and carries on:
 
 1. `project.json` parses and is an object, with a known `format` and a UUID `id`.
-2. Every JSON file in the list parses.
+2. Every JSON file this app defines (`project.json`, `layout.json`, `canvas.json`) parses.
+   Other files are content, and are not read.
 3. No symlinks. No path escapes the project after resolution.
-4. **Every reference resolves to a file in the package.** That means `canvas.json` asset `src`s,
-   `layout.json` file entries, and the `project.json` cover.
-   - References are collected across every canvas before anything is copied.
-   - A file is shipped where it lives: `sandwich-video/files/logo-servicenow.png` ships under
-     `sandwich-video/` because `kasra-design` points at it, even if nothing in `sandwich-video`
-     does.
+4. **Every reference the app makes resolves to a file in the package:** `canvas.json` asset
+   `src`s, `layout.json` file entries, and the `project.json` cover. A new kind of reference
+   gets its check when the app starts making it.
 5. `links[].url` in `layout.json` is `http:` or `https:`.
 6. Names contain no `#` or `?`, do not start with a dot, and are NFC. macOS stores them
    decomposed, and other systems do not re-normalise.
-7. Size: each file at most 50 MB, and the whole at most 200 MB. That sits between Blender
-   (100–200 MB) and CodePen (15 MB media). Video is what hits it, and a project whose value is
-   gigabytes of video shares a link, not a package.
+7. **Size: each file at most 50 MB, the whole at most 200 MB.**
+   - GitHub refuses files over 100 MB and warns from 50 MB, so 50 MB per file is the most a
+     PR can carry.
+   - That is a few minutes of 1080p video. A longer video goes on the canvas as a link to
+     where it is hosted, which the canvas already supports.
 
 Minting a missing `id` is the only write `sp pack` makes to the project.
 
@@ -265,8 +272,7 @@ packing a single canvas.
 
 - **Cross-canvas files.** A file one canvas points at inside another's `files/` would have
   been dropped, or would have failed the pack. The real case is `kasra-design` pointing at
-  `sandwich-video`. References are now collected project-wide, and each file ships where it
-  lives.
+  `sandwich-video`. `files/` now ships whole, which also settles this case.
 - **Phase 0 now covers the hosted build.** It serves boards as static files and never runs the
   server route, so it gets a `_headers` rule. It also covers SVG and `layout.json` links, which
   run in app code and not in an iframe.
