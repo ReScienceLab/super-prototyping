@@ -1,6 +1,6 @@
 # skills
 
-The five skills the app ships and links into each agent, one directory each, in the Agent Skills
+The six skills the app ships and links into each agent, one directory each, in the Agent Skills
 format (`SKILL.md` with YAML frontmatter, plus `references/` loaded on
 demand). This is the real directory; `.claude/skills/` and `.agents/skills/`
 are symlinks to it, so this checkout loads exactly what an install does.
@@ -15,6 +15,7 @@ a user's own folder of the same name, so keep it.
 | `prototype-canvas` | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
 | `define-product` | Interviewing the user about what their product is for, and writing it down as the project's `PRD.md`, which the canvas shows as a tab. |
 | `brand-kit` | Collecting a product's own brand and promotional material -- press kit, store listings, social, newsroom -- and turning it into the `images` rows of a canvas folder. |
+| `sp-scene-video` | Filming a board: a live-action clip of someone using the product, with the interface kept pixel-exact. The motion board, the reference video, Seedance 2.5 on Ark, and the green-plate composite. |
 
 Rules for editing one:
 

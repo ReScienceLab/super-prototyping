@@ -19,6 +19,12 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **A new skill films the prototype.** `sp-scene-video` turns a board into a
+  live-action clip of someone using the product -- an office, a lift, a walk
+  down a corridor -- with your interface on the phone rather than a redrawn
+  imitation of it. It needs a 火山方舟 (Volcengine Ark) key of your own, and
+  each take costs a few yuan, so it shoots one and shows you before going on.
+
 ## v1.6.2
 
 2026-09-24. Start a project from an app or an idea, keep what you paste on a

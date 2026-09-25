@@ -168,7 +168,7 @@ folder added after boot appears on its own.
 
 ## The workflow
 
-Five skills, in `skills/` (which `.claude/skills/` and `.agents/skills/`
+Six skills, in `skills/` (which `.claude/skills/` and `.agents/skills/`
 symlink to, so this checkout loads what an install does):
 
 | Skill | Use it for |
@@ -178,6 +178,7 @@ symlink to, so this checkout loads what an install does):
 | **prototype-canvas** | Running and operating the canvas: boards, `layout.json`, the `window.snapCanvas` bridge, annotated-screenshot review, the force-refresh. |
 | **define-product** | Working out what the product is before anything is drawn: an interview, one or two questions at a time, problem before solution, gaps left TBD rather than invented. It writes the project's `PRD.md`, which the canvas shows as the first tab, with the screen inventory new-ui-mock designs from. |
 | **brand-kit** | Collecting a product's own brand and promotional material -- the company's own brand or press kit, store listings, verified social accounts, the newsroom -- and turning it into the image rows of a canvas folder, each asset carrying its source and whether the company published it. |
+| **sp-scene-video** | Filming the prototype: a live-action clip of a real person using it, in an office or a lift or on the street, with the interface kept pixel-exact rather than redrawn. An animated board becomes the reference video a generative model has to keep; a green plate and a corner-pin composite are there for when it will not. |
 
 The rule the whole thing is built around: **every colour and every metric in
 a cloned artboard traces to a measurement.** Grid the reference image, look
