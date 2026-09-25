@@ -439,15 +439,15 @@ export function createAgentServer(options: {
                     : ` If they ask for a change to it, copy it into ${boards} and change ` +
                       "the copy.")
                 : `They are looking at the canvas "${canvas}", whose folder is ${folder}.`),
-            `Before touching a board folder, read ${repoRoot}/skills/prototype-canvas/SKILL.md, ` +
-              "the prototype-canvas skill of the super-prototyping plugin: one folder is one canvas " +
+            `Before touching a board folder, read ${repoRoot}/skills/sp-prototype-canvas/SKILL.md, ` +
+              "the sp-prototype-canvas skill of the super-prototyping plugin: one folder is one canvas " +
               "page, one .html file in it is one board, layout.json places them, and the open canvas " +
               "shows a rewritten board by itself, without a reload, while the user keeps working on it.",
             dir !== undefined &&
               `${path.join(dir, "PRD.md")}, when there is one, is a tab of the canvas ` +
                 "and says what the product is for. When they start from an idea, or ask for screens " +
                 "with no PRD.md there, offer to define the product with them first, following " +
-                `${repoRoot}/skills/define-product/SKILL.md; never insist. When it exists, read it ` +
+                `${repoRoot}/skills/sp-define-product/SKILL.md; never insist. When it exists, read it ` +
                 "before designing.",
             // On the turn that starts the session only. A resumed one has its title.
             record.resume === null &&

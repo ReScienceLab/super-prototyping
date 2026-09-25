@@ -1,6 +1,6 @@
 # Third-party brand marks
 
-Loaded from `clone-prototype` when a screen you are cloning carries someone
+Loaded from `sp-clone-prototype` when a screen you are cloning carries someone
 else's logo. Do not redraw these by hand.
 
 ## Where they come from

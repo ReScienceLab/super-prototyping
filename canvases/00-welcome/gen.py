@@ -2,7 +2,7 @@
 """Emit the welcome board. Artboards are output, never source: edit this file,
 not the HTML. Sources are the repo's own assets/banner.webp and assets/icon.png.
 
-Only /clone-prototype is on the board. The other two skills were a three-up
+Only /sp-clone-prototype is on the board. The other two skills were a three-up
 row here and are not shown for now, so the one people are meant to run first
 has the whole width to itself.
 
@@ -152,7 +152,7 @@ code{{font:400 12.5px/20px var(--w-mono);color:var(--w-ink)}}
 
   <h2>Start with this skill</h2>
   <div class="skill">
-    <b>/clone-prototype</b>
+    <b>/sp-clone-prototype</b>
     <span>Copy a real app's screens. Grid the capture, sample it by eye, name the type face,
     then generate.</span>
   </div>

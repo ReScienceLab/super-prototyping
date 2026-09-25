@@ -18,7 +18,7 @@ register, and the same six assets score 2.2 to 6.9.
 Repeat --sheet to score several returns and keep, per asset, whichever grid drew
 it best. A crop still scores 0 by construction, so this is for the assets a
 capture does not contain, and for making the ones it does contain resolution
-independent. See the clone-prototype skill's references/generating.md.
+independent. See the sp-clone-prototype skill's references/generating.md.
 """
 import argparse
 import json

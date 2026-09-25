@@ -103,6 +103,30 @@ test("linkInstall links through current, repoints it, and replaces only our own 
   expect(fs.existsSync(path.join(win, ".agents/skills/alpha"))).toBe(true); // Codex, by ~/.codex
 });
 
+test("linkInstall takes out the links a renamed skill left dangling, and only those", () => {
+  const home = tmp();
+  const root = path.join(home, "A.app");
+  for (const skill of ["sp-alpha", "sp-beta"]) fs.mkdirSync(path.join(root, "skills", skill), { recursive: true });
+  const current = path.join(home, ".local/share/super-prototyping/current");
+  const skills = path.join(home, ".claude/skills");
+  fs.mkdirSync(skills, { recursive: true });
+  // What the release before the rename left: our links, under the old names.
+  for (const old of ["alpha", "beta"])
+    fs.symlinkSync(path.join(current, "skills", old), path.join(skills, old));
+  // Not ours: a link the user made to a skill of their own, and one of theirs that is broken.
+  fs.mkdirSync(path.join(home, "mine/gamma"), { recursive: true });
+  fs.symlinkSync(path.join(home, "mine/gamma"), path.join(skills, "gamma"));
+  fs.symlinkSync(path.join(home, "mine/delta"), path.join(skills, "delta"));
+
+  const changes = linkInstall(root, home);
+  expect(changes).toContain(`removed ${path.join(skills, "alpha")}`);
+  expect(changes).toContain(`removed ${path.join(skills, "beta")}`);
+  expect(fs.readdirSync(skills).sort()).toEqual(["delta", "gamma", "sp-alpha", "sp-beta"]);
+  expect(fs.readlinkSync(path.join(skills, "sp-alpha"))).toBe(path.join(current, "skills/sp-alpha"));
+  // A second launch has nothing left to take out.
+  expect(linkInstall(root, home).some((c) => c.startsWith("removed "))).toBe(false);
+});
+
 test("ensurePathInRc appends once, and not when the rc already puts ~/.local/bin on PATH", () => {
   const home = tmp();
   expect(ensurePathInRc(home, "/bin/fish")).toBeNull();

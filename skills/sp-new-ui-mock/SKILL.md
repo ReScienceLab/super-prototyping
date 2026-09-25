@@ -1,8 +1,8 @@
 ---
-name: new-ui-mock
+name: sp-new-ui-mock
 description: Design a new screen, flow or component as a self-contained HTML artboard on the prototype canvas, built from the board's existing design tokens rather than invented values. Covers picking or extending the token block, generating a row of screens from one script, iterating against annotated screenshots, and verifying by rendering. Use when asked to mock up a new screen or feature, design variants/proposals to compare, extend an existing board with more states, or turn a spec into artboards.
 license: Apache-2.0
-compatibility: Requires python3 and the refkit command, which the Super Prototyping app puts on PATH (prototype-canvas's scripts/install.sh or install.ps1). Google Chrome for refkit shoot.
+compatibility: Requires python3 and the refkit command, which the Super Prototyping app puts on PATH (sp-prototype-canvas's scripts/install.sh or install.ps1). Google Chrome for refkit shoot.
 metadata:
   managed-by: super-prototyping
 ---
@@ -10,14 +10,14 @@ metadata:
 # New UI mock
 
 For work with **no reference screenshot to copy**. If there is one, use
-`clone-prototype` instead. Measurement beats invention every time.
+`sp-clone-prototype` instead. Measurement beats invention every time.
 
 Everything renders on the canvas from `canvases/<slug>/`; see
-`prototype-canvas` for running it, and its `references/layout.md` for the
+`sp-prototype-canvas` for running it, and its `references/layout.md` for the
 folder and `layout.json` rules.
 
 The app ships the template folder and every worked example, and `sp root`
-prints where. `sp`, `refkit` or `artgen` not found? Run `sh <prototype-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
+prints where. `sp`, `refkit` or `artgen` not found? Run `sh <sp-prototype-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
 and follow that skill's `references/install.md`. A `[super-prototyping:notice]`
 line on their stderr carries its own rule: finish the step, then do what it says.
 
@@ -51,7 +51,7 @@ Never invent a palette when the product already has one.
 - **Extending an existing board?** Reuse its `00-design-tokens.html` block
   verbatim. Copy it byte-identically into the new file; a sandboxed iframe
   has no shared stylesheet.
-- **Cloning a real app's look?** Stop and run `clone-prototype` Phase 1 and
+- **Cloning a real app's look?** Stop and run `sp-clone-prototype` Phase 1 and
   Phase 2 first; come back with a measured token block.
 - **Genuinely new product, nothing to measure?** Copy the shipped template
   folder, change `NAME` and the prefix, and pick deliberately: a
@@ -69,7 +69,7 @@ in every file) or the screen is wrong.
 
 Readers take the copy, numbers and states in a mockup as product decisions.
 
-- Read the project's `PRD.md` first when it has one (the `define-product`
+- Read the project's `PRD.md` first when it has one (the `sp-define-product`
   skill writes it). Its users, scope and Screens table, with the states of
   each screen, are the brief.
 - Take strings from the real source when it exists: localization files,

@@ -1,6 +1,6 @@
 # luma-ios
 
-A complete six-phase `clone-prototype` run of the Luma iOS app, and the
+A complete six-phase `sp-clone-prototype` run of the Luma iOS app, and the
 model to copy. 35 boards in four rows. Foundations first, with the design
 tokens, four evidence boards, the process board and the pipeline board.
 Then 12 replica screens, a 4-board walkthrough of one page, and 12 source

@@ -79,7 +79,7 @@ cropped:
 
 The status bar is shared chrome across every board in the repo, and a
 per-capture copy is the drift the rule exists to stop.
-`skills/clone-prototype/SKILL.md` says so.
+`skills/sp-clone-prototype/SKILL.md` says so.
 
 ## Where the pictures come from
 

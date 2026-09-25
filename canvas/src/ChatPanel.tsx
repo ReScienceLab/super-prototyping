@@ -450,7 +450,7 @@ export function ChatPanel(props: {
     usage?.window ?? newest.find((t) => t.usage?.window)?.usage?.window;
 
   // The palette is open while the draft ends in an unfinished word starting with a slash: "/cl"
-  // and "fix the header /cl", not "/clone-prototype the app", since an argument means the
+  // and "fix the header /cl", not "/sp-clone-prototype the app", since an argument means the
   // command has been chosen. The end of the draft rather than the caret, which is where typing
   // leaves it.
   const typing = slashWord(draft);

@@ -1,7 +1,7 @@
 # Contributing
 
 Thanks for helping. This file covers the mechanics; `CLAUDE.md` and
-`skills/prototype-canvas/references/layout.md` cover the conventions inside a
+`skills/sp-prototype-canvas/references/layout.md` cover the conventions inside a
 canvas folder in detail, and the pull request template repeats the ones that
 matter most.
 
@@ -36,7 +36,7 @@ registry to edit and no build step per board.
 - **Scratch output goes in `scratch/`** inside the folder, never in the repo
   root or a dot directory.
 - **Every canvas folder has a `README.md`**, carrying the evidence
-  `skills/clone-prototype/references/documenting.md` asks for. Elsewhere a new
+  `skills/sp-clone-prototype/references/documenting.md` asks for. Elsewhere a new
   document needs a reader who would go looking for it. **No folder has its own
   `.gitignore`.**
 - **A user-visible change adds its line** to `## Unreleased` in
@@ -53,8 +53,8 @@ registry to edit and no build step per board.
 cp -r canvases/templates canvases/<slug>
 ```
 
-Then run the `clone-prototype` skill (measured from your own captures) or
-`new-ui-mock` (no reference). A new example should reproduce screens you have
+Then run the `sp-clone-prototype` skill (measured from your own captures) or
+`sp-new-ui-mock` (no reference). A new example should reproduce screens you have
 the right to capture, record the measurements behind every token, and ship
 with a `README.md` that says what was measured and what was excluded.
 

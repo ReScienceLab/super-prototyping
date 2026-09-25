@@ -161,6 +161,21 @@ export function linkInstall(
       const at = path.join(home, agentHome, "skills", name);
       note(at, link(path.join(current, "skills", name), at, isOurCopy));
     }
+    // A skill a release renames or drops leaves its old link behind, pointing into a
+    // `current/skills/<name>` that is no longer there, and the agent shows it as a broken
+    // skill. Ours to remove, by the same rule `sp uninstall` uses: a link into `current`,
+    // now resolving to nothing. Anything the user put there is left as it is.
+    const dir = path.join(home, agentHome, "skills");
+    for (const name of fs.readdirSync(dir)) {
+      const at = path.join(dir, name);
+      const st = fs.lstatSync(at, { throwIfNoEntry: false });
+      if (!st?.isSymbolicLink() || fs.existsSync(at)) continue;
+      // A junction reads back with Windows's `\\?\` prefix, as `_points_into` in sp_canvas.py notes.
+      const target = path.resolve(fs.readlinkSync(at).replace(/^\\\\\?\\/, ""));
+      if (!target.startsWith(path.join(current, "skills") + path.sep)) continue;
+      fs.unlinkSync(at);
+      changes.push(`removed ${at}`);
+    }
   }
   return changes;
 }

@@ -1,5 +1,5 @@
 ---
-name: prototype-canvas
+name: sp-prototype-canvas
 description: Start and operate the local tldraw design canvas that shows HTML artboards. Start the canvas app against a project's board folders, add or switch boards, drive shapes through the bounded window.snapCanvas bridge, and act on annotated screenshots of the canvas. Use when asked to open/launch the canvas, put a mockup on the canvas, annotate or draw on it, fix overlapping frames after a layout.json edit, or respond to a screenshot of the canvas with notes drawn on it.
 license: Apache-2.0
 compatibility: Requires the Super Prototyping app (macOS or Windows), which puts the sp command on PATH, and uv, which sp runs with. scripts/install.sh (install.ps1 on Windows) installs both. Where the app cannot run, sp start needs node or bun and a modern browser.

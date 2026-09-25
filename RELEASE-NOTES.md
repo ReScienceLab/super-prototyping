@@ -24,6 +24,12 @@ Everything below is on `main` and reaches no install until a version is cut.
   down a corridor -- with your interface on the phone rather than a redrawn
   imitation of it. It needs a 火山方舟 (Volcengine Ark) key of your own, and
   each take costs a few yuan, so it shoots one and shows you before going on.
+- **Every skill is now named `sp-`.** `/clone-prototype` is
+  `/sp-clone-prototype`, and the same for `sp-new-ui-mock`,
+  `sp-prototype-canvas`, `sp-define-product` and `sp-brand-kit`. The names were
+  common words that collided with skills of your own; the prefix says which are
+  this app's. The app takes out the links under the old names on its next
+  launch, so ask for the new name.
 
 ## v1.6.2
 

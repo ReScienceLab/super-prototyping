@@ -1,7 +1,7 @@
 # Canvases
 
 This repo's own boards, one subfolder each. The folder conventions are in
-[`skills/prototype-canvas/references/layout.md`](../../skills/prototype-canvas/references/layout.md):
+[`skills/sp-prototype-canvas/references/layout.md`](../../skills/sp-prototype-canvas/references/layout.md):
 how a folder becomes a page, `layout.json` field by field, the constraints
 every artboard renders under, and why the generator ships beside its output.
 That file is the copy that ships inside the plugin and has to stand alone on a
@@ -47,7 +47,7 @@ squircle; the ones here came from the App Store's own artwork
 Apple's system apps, out of `apple-icons/assets/`. Each carries its source in
 a PNG `Source` text chunk. A folder with no `icon.png` simply shows none.
 
-Every product folder carries a `PRD.md`, written to the `define-product`
+Every product folder carries a `PRD.md`, written to the `sp-define-product`
 skill's template. Its example tab shows it before the canvas, the worked
 example of what that skill produces. Its Screens table is the folder's own
 boards, so a board added or renamed is a row to change there too.

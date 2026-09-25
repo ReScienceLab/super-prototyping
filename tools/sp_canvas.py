@@ -200,7 +200,7 @@ def resolve_root(verbose=False):
     else:
         print("  (nothing to look at, no app and no checkout)", file=sys.stderr)
     print(
-        "\nFix by installing the app, which the prototype-canvas skill's scripts/install.sh\n"
+        "\nFix by installing the app, which the sp-prototype-canvas skill's scripts/install.sh\n"
         "does, or point at a checkout directly:\n"
         "  export SUPER_PROTOTYPING_ROOT=/path/to/super-prototyping",
         file=sys.stderr,
@@ -564,7 +564,7 @@ def _app_bundle():
     script = "install.ps1" if os.name == "nt" else "install.sh"
     raise SystemExit(
         "error: the Super Prototyping app is not installed. Install it with\n"
-        f"  {root / 'skills/prototype-canvas/scripts' / script}")
+        f"  {root / 'skills/sp-prototype-canvas/scripts' / script}")
 
 
 def _launch(*args):

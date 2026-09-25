@@ -12,8 +12,8 @@ type Picked = { file: File; url: string };
 /**
  * The New project dialog: an optional name, and which of two ways the project starts, listed
  * down the side so a third has somewhere to go. Clone takes screenshots and screen recordings,
- * dropped anywhere on the dialog or browsed for, and hands them to the clone-prototype skill.
- * Build is the dialog as it was, a name and the offer of define-product. The modes are Radix's
+ * dropped anywhere on the dialog or browsed for, and hands them to the sp-clone-prototype skill.
+ * Build is the dialog as it was, a name and the offer of sp-define-product. The modes are Radix's
  * tabs, for their keys and roles; the dialog is the browser's, which already traps focus and
  * closes on Escape. It is one size for both, so switching moves nothing (home.css).
  */
@@ -60,7 +60,7 @@ export function NewProjectDialog({
   // By name, so the same file dropped twice is there once, and the server can write each under
   // its own name without two of them colliding.
   const add = (list: FileList | null) => {
-    // Pictures and recordings, which is what clone-prototype measures from.
+    // Pictures and recordings, which is what sp-clone-prototype measures from.
     const files = [...(list ?? [])].filter((file) => /^(image|video)\//.test(file.type));
     if (files.length === 0) return;
     setMode("clone");
@@ -156,7 +156,7 @@ export function NewProjectDialog({
               <h3>Clone an app</h3>
               <p className="new-project-lede">
                 The agent measures what you drop and rebuilds it as boards with{" "}
-                <code>/clone-prototype</code>.
+                <code>/sp-clone-prototype</code>.
               </p>
               {nameField}
               <div className="new-project-drop" data-over={over || undefined}>
@@ -231,7 +231,7 @@ export function NewProjectDialog({
                   onChange={(event) => setDefine(event.currentTarget.checked)}
                 />
                 <span>
-                  Define the product with the agent <code>/define-product</code>
+                  Define the product with the agent <code>/sp-define-product</code>
                 </span>
               </label>
             </Tabs.Content>

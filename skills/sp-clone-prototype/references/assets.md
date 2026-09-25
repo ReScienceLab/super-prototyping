@@ -1,6 +1,6 @@
 # Artwork: cropping, and the one case for generating
 
-Loaded from Phase 3 of `clone-prototype`. Read it when a screen carries
+Loaded from Phase 3 of `sp-clone-prototype`. Read it when a screen carries
 illustration, photography, a mascot, a chart or any other picture you cannot
 build out of CSS and inline SVG.
 

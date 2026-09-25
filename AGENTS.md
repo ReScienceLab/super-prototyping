@@ -7,8 +7,8 @@ holds only *data*.
 
 Code, shipped to every install:
 
-`skills/` holds `clone-prototype`, `new-ui-mock`, `prototype-canvas`,
-`define-product`, `brand-kit` and `sp-scene-video`.
+`skills/` holds `sp-clone-prototype`, `sp-new-ui-mock`, `sp-prototype-canvas`,
+`sp-define-product`, `sp-brand-kit` and `sp-scene-video`.
 `.claude/skills/` and `.agents/skills/` are symlinks to it, so this checkout
 loads the same tree an install does.
 
@@ -74,7 +74,7 @@ go into each agent home that exists. `sp`, `refkit` and `artgen` go onto
 toolkit with `uv run`. On Windows the links are junctions and the commands
 are a `uv tool install` of the bundled toolkit instead. There are no
 plugin manifests. An agent that has only the skills installs the app with
-`skills/prototype-canvas/scripts/install.sh`, or `install.ps1` on Windows.
+`skills/sp-prototype-canvas/scripts/install.sh`, or `install.ps1` on Windows.
 The version the skills and `sp` read is `canvas/package.json`'s.
 `scripts/bump-version.sh` moves every version in `.version-bump.json` at once;
 run it with `--check` before releasing.
@@ -82,7 +82,7 @@ run it with `--check` before releasing.
 Data, this repo's own:
 
 `canvases/<slug>/` is one folder per app canvas. The conventions and
-the `layout.json` schema are in `skills/prototype-canvas/references/layout.md`,
+the `layout.json` schema are in `skills/sp-prototype-canvas/references/layout.md`,
 which is the copy that ships inside the app and therefore the one to edit;
 `canvases/README.md` covers only what is true of this repo. Start a
 new folder with `cp -r canvases/templates canvases/<slug>`.
@@ -93,7 +93,7 @@ Rules inside a canvas folder:
   output. Edit the generator and re-run, never the HTML.
 - Commit `layout.json`, `icon.png` and `assets/`. `gen.py` inlines the
   images in `assets/` as `data:` URIs.
-- Commit `PRD.md`, the product the folder prototypes, to the `define-product`
+- Commit `PRD.md`, the product the folder prototypes, to the `sp-define-product`
   skill's template. Its Screens table lists the folder's boards.
 - Commit `probes.json` and `crops.json`. They are the measurement evidence
   behind the tokens.
@@ -106,14 +106,14 @@ Rules inside a canvas folder:
   hands it back as a vector asset.
 - Never commit `ref-*.html` or `assets/refs/`. They hold third-party
   captures, the root `.gitignore` already excludes them, and the
-  clone-prototype skill rebuilds them. `spotify-ios` is the exception: its
+  sp-clone-prototype skill rebuilds them. `spotify-ios` is the exception: its
   five `ref-*` boards are committed so the hosted canvas shows them. So is
   `grok-ios/ref-14-grok-bot-sheet.html`, a native screenshot kept under
   board 14 for comparison on request.
 - Put everything else a run makes in `scratch/`. The root `.gitignore`
   ignores it at any depth. Do not use the repo root or a dot directory.
 - Give every canvas folder a `README.md`: it carries the evidence, and
-  `skills/clone-prototype/references/documenting.md` says what has to be in
+  `skills/sp-clone-prototype/references/documenting.md` says what has to be in
   it. Elsewhere, add a document only when someone would otherwise go looking
   for one. Do not give any folder a `.gitignore`, and note that `.github/`
   gets no README either: GitHub would show it instead of the root one, so its

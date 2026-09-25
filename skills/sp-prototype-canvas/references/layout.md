@@ -39,7 +39,7 @@ it, tilted, on the device's bottom-left corner. 256 × 256, transparent outside
 the iOS squircle. A folder with no `icon.png` simply shows none.
 
 A folder shown as an example can carry its own `PRD.md`, written to the
-`define-product` skill's template. Its tab shows it before the canvas. A
+`sp-define-product` skill's template. Its tab shows it before the canvas. A
 project keeps its PRD at its root instead, beside `canvases/`, and one
 inside a folder of its own is not shown.
 
@@ -127,7 +127,7 @@ so there is no reason to edit it by hand.
   pixel size, not the size it draws at, and the row scales every image to a
   common band from them. A folder with any such row gets a **Brand kit**
   button in the toolbar and a page of its own at `brand.html?canvas=<slug>`.
-  The `brand-kit` skill is how those rows get filled.
+  The `sp-brand-kit` skill is how those rows get filled.
 
 After editing `layout.json`, right-click the canvas and choose **Force
 refresh**. Shape creation is idempotent (it never moves a shape that already

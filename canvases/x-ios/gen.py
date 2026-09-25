@@ -756,7 +756,7 @@ NAV = [("home-fill", 29.25, 782.37, 20.19, 21.07), ("search", 108.11, 783.08, 19
 # carries what that costs against the capture.
 POST = """Launching super-prototyping: clone any app's UI as plain HTML artboards \
 on a <a>@tldraw</a> canvas.
-Run /clone-prototype on your screenshots; every color and metric traces to a \
+Run /sp-clone-prototype on your screenshots; every color and metric traces to a \
 measurement. No design tool, no build step.
 <a>prototyping.rescience.com</a>
 <a>github.com/ReScienceLab/s…</a>"""

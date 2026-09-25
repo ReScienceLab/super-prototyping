@@ -26,9 +26,9 @@ describe("readDraft", () => {
   it("reads the command badge as the word it draws", () => {
     expect(
       readDraft(
-        box('<span class="sp-chat-cmd">/clone-prototype</span> the sheet'),
+        box('<span class="sp-chat-cmd">/sp-clone-prototype</span> the sheet'),
       ),
-    ).toBe("/clone-prototype the sheet");
+    ).toBe("/sp-clone-prototype the sheet");
   });
 
   // Shift+Enter makes a break; paste makes a block. Both are one newline.
@@ -80,7 +80,7 @@ it("the palette's word is the slash word the draft ends in, wherever it starts",
   expect(slashWord("/cl")).toBe("cl");
   expect(slashWord("fix the header /cl")).toBe("cl");
   expect(slashWord("fix the header\n/cl")).toBe("cl");
-  expect(slashWord("/clone-prototype the app")).toBeUndefined();
+  expect(slashWord("/sp-clone-prototype the app")).toBeUndefined();
   expect(slashWord("a/b")).toBeUndefined();
   expect(slashWord("")).toBeUndefined();
 });
