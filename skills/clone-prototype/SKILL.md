@@ -468,9 +468,10 @@ four wedges quietly add a level or two to every number you publish. `diff`
 writes the
 side-by-side **and** prints the numbers behind it. With `--regions` (inline
 `{"name": [x0,y0,x1,y1]}`, or a file you write once and reuse for the run) it
-tables mine-vs-ref per region with a Δ column; with no regions it ranks the
-bands where the two disagree most, which is how you find a defect you have not
-thought to look for yet.
+tables mine-vs-ref per region with a Δ column; a key starting with `_` is a
+comment, as it is in a probe, so the file can carry the note that says what
+each box is. With no regions it ranks the bands where the two disagree most,
+which is how you find a defect you have not thought to look for yet.
 
 Then read the side-by-side image, in this order:
 

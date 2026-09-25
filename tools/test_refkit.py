@@ -4,7 +4,7 @@ return a plausible wrong number. Synthesises its own images; needs no captures.
 
     python3 tools/test_refkit.py
 """
-import os, sys, tempfile
+import argparse, contextlib, io, os, sys, tempfile
 import numpy as np
 from PIL import Image
 
@@ -317,6 +317,24 @@ def test_refit_prefers_one_cubic_to_a_pile_of_anchors():
     arch = R._bezier(ctrl, t)
     out, _ = R._refit_svg(_traced(np.vstack([arch, arch[::-1] + [0, 1.5]])), _opts())
     assert out.count("C") <= 4, out       # the trace had 400 linetos
+
+
+def test_diff_regions_skips_a_commented_key():
+    """A region file is hand-written and carries notes, as a probes.json does.
+    Before the skip, a note was unpacked as four coordinates and the table
+    crashed halfway through."""
+    d = tempfile.mkdtemp()
+    for name, level in (("mine.png", 0x80), ("ref.png", 0x84)):
+        img(np.full((20, 20, 3), level)).save(os.path.join(d, name))
+    a = argparse.Namespace(
+        mine=os.path.join(d, "mine.png"), ref=os.path.join(d, "ref.png"),
+        out="", pt=None, tol=3, gap=8, height=520,
+        regions='{"_note": "x 0..10 is the left half", "left": [0, 0, 10, 20]}')
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        R.cmd_diff(a)
+    out = buf.getvalue()
+    assert "_note" not in out and "left" in out, out
 
 
 if __name__ == "__main__":
