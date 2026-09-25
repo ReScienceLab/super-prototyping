@@ -64,7 +64,7 @@ at the size and position it has to come back at, scores 3.96**, because the
 model then upscales in place rather than composing. Board `00e-art-gen`
 carries the six pairs, the four independent runs behind them and the icon
 result that failed. `tools/artgen.py` reruns the whole thing;
-`.claude/skills/clone-prototype/references/generating.md` is the writeup.
+`.claude/skills/sp-clone-prototype/references/generating.md` is the writeup.
 
 Three things worth carrying out of it:
 

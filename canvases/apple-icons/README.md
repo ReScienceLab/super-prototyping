@@ -2,7 +2,7 @@
 
 The 43 native app icons Apple ships with iOS 26 and macOS Tahoe 26, in both
 the default and the dark appearance, tiled five across on nothing at all.
-This is not a `clone-prototype` run: nothing here was sampled off a capture,
+This is not a `sp-clone-prototype` run: nothing here was sampled off a capture,
 because the icons are the real art rather than a redraw of it.
 
 Open it with `?canvas=apple-icons`.

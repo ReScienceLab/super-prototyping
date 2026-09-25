@@ -18,7 +18,7 @@ scratch/
 
 # Phase 5 reference boards embed third-party app captures from Mobbin's library,
 # which this repo does not redistribute. They stay local; regenerate them per the
-# clone-prototype skill.
+# sp-clone-prototype skill.
 canvases/*/ref-*.html
 canvases/*/refassets.json
 canvases/*/assets/refs/

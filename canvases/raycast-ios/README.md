@@ -1,6 +1,6 @@
 # Raycast iOS: Ask AI, models & presets
 
-A `clone-prototype` run over eleven Raycast iOS screens in three flows: the Ask
+A `sp-clone-prototype` run over eleven Raycast iOS screens in three flows: the Ask
 AI conversation (select a note, type a prompt, watch the answer stream in, act
 on it), the Models bottom sheet, and the Presets picker. Two foundation boards
 plus eleven replicas, every colour and metric traced to a sample off the

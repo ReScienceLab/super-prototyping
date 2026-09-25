@@ -15,7 +15,7 @@ export const CANVASES = "canvases";
 
 /**
  * A project's documents: the Markdown files at its root, beside its canvases, that the canvas
- * shows as tabs before them, in this order. For now only the PRD the define-product skill writes
+ * shows as tabs before them, in this order. For now only the PRD the sp-define-product skill writes
  * with the user. An example is a project of one canvas, so its folder is its root and its
  * documents are read from there. */
 export const DOCS = ["PRD.md"];

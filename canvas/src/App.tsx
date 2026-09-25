@@ -317,8 +317,8 @@ function EmptyLibraryNotice() {
         one appears here on its own the moment it is written — no restart.
       </p>
       <p className="canvas-empty__body">
-        Ask for a board with the <strong>clone-prototype</strong> or{" "}
-        <strong>new-ui-mock</strong> skill, or copy the folder skeleton
+        Ask for a board with the <strong>sp-clone-prototype</strong> or{" "}
+        <strong>sp-new-ui-mock</strong> skill, or copy the folder skeleton
         yourself:
       </p>
       <pre className="canvas-empty__cmd">

@@ -1,6 +1,6 @@
 ---
-name: define-product
-description: Work out with the user what their product is before anything is drawn, and write it down as PRD.md at the root of their project, where the canvas shows it as a tab, ending in a short PRD whose screen inventory new-ui-mock designs from. Use when a user starts a new product or project, says they have an idea, asks for a PRD, spec or product brief, or asks for screens when nobody has said who they are for or what problem they solve.
+name: sp-define-product
+description: Work out with the user what their product is before anything is drawn, and write it down as PRD.md at the root of their project, where the canvas shows it as a tab, ending in a short PRD whose screen inventory sp-new-ui-mock designs from. Use when a user starts a new product or project, says they have an idea, asks for a PRD, spec or product brief, or asks for screens when nobody has said who they are for or what problem they solve.
 license: Apache-2.0
 metadata:
   managed-by: super-prototyping
@@ -91,8 +91,8 @@ Keep a status line per section while it is being written (🟢 settled,
 🔴 with a plausible guess: a TBD is honest and tells the user what is left
 to decide, a guess gets built.
 
-The Screens table is what new-ui-mock designs from. Each row is a board
-`new-ui-mock` can make, and **States** are the unhappy states it must design
+The Screens table is what sp-new-ui-mock designs from. Each row is a board
+`sp-new-ui-mock` can make, and **States** are the unhappy states it must design
 too: empty, loading, error, the longest plausible content.
 
 ---
@@ -104,7 +104,7 @@ too: empty, loading, error, the longest plausible content.
    assumptions*. Keep it short and specific.
 2. Read the one-sentence summary back to the user and ask if it is right.
 3. Offer the next step: mock the first screen from the Screens table with
-   `new-ui-mock`, or clone a reference app with `clone-prototype` when the
+   `sp-new-ui-mock`, or clone a reference app with `sp-clone-prototype` when the
    user named one as "like X".
 
 ---

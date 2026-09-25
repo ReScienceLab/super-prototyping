@@ -1,6 +1,6 @@
 # Comparing a render against its capture
 
-The depth behind Phase 4 of `clone-prototype`, for once the side-by-side is
+The depth behind Phase 4 of `sp-clone-prototype`, for once the side-by-side is
 rendering and the obvious defects are gone. Subtracting the images to find
 what a side-by-side hides, fitting the values no pixel holds, knowing when to
 stop, and parallelising the looking without parallelising the editing.

@@ -10,7 +10,7 @@ labels: bug
 
 ## Where
 
-- Canvas or skill: <!-- e.g. canvases/luma-ios, clone-prototype -->
+- Canvas or skill: <!-- e.g. canvases/luma-ios, sp-clone-prototype -->
 - Hosted (prototyping.rescience.com/demo/) or local dev server:
 - Browser / device / OS:
 

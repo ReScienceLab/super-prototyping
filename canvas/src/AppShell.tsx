@@ -240,13 +240,13 @@ export function AppShell() {
     const [skill, ask] =
       start.mode === "clone"
         ? [
-            "/clone-prototype",
+            "/sp-clone-prototype",
             names.length > 0
               ? `Clone the app in these references, in the project: ${names.join(", ")}.`
               : "Ask me which app to clone, and for screenshots or a screen recording of it.",
           ]
         : start.define
-          ? ["/define-product", "Help me work out what this product is, and write PRD.md as we go."]
+          ? ["/sp-define-product", "Help me work out what this product is, and write PRD.md as we go."]
           : ["", "Ask me what this project is."];
     // What they said about the idea, in their words, for the agent to start from rather than ask.
     const idea =
@@ -261,7 +261,7 @@ export function AppShell() {
     };
     load(new URL(url, location.origin).href);
   };
-  // A project made to start on a skill: clone-prototype on its references, or define-product.
+  // A project made to start on a skill: sp-clone-prototype on its references, or sp-define-product.
   // The message is sent once that project is in front; earlier it would go to whichever project
   // is in front now.
   const starting = useRef<{ url: string; text: string }>(undefined);

@@ -1,6 +1,6 @@
 # Glyphs: from a trace to artwork
 
-Phase 3 of `clone-prototype` loads this file once you have traced the glyphs.
+Phase 3 of `sp-clone-prototype` loads this file once you have traced the glyphs.
 Read it when a board draws a traced glyph large enough to look at: a tab bar, a
 search field, a toolbar, a 24 pt icon on a 402 pt frame.
 

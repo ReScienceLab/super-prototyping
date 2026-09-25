@@ -12,7 +12,7 @@ That emits the four boards every run produces, wired together and already
 passing `refkit tokens`: design tokens, an evidence table, one phone screen
 and one parked reference. The parked reference is `ref-01-screen.html`. Your
 project's root `.gitignore` needs a `ref-*.html` rule to keep it out of git,
-and the intro to clone-prototype and new-ui-mock adds one. Tokens and the
+and the intro to sp-clone-prototype and sp-new-ui-mock adds one. Tokens and the
 evidence table come from one list in `gen.py`, so they cannot drift apart.
 Replace every placeholder with a value you measured.
 

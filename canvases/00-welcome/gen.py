@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Emit the welcome board. Artboards are output, never source: edit this file,
-not the HTML. Sources are the repo's own assets/banner.webp and assets/icon.png.
+not the HTML. Sources are this folder's own assets/banner.webp and
+assets/icon.png, as every canvas folder's are: the repo's assets/ is the
+README's and the landing page's, and changing a banner there once silently
+changed this board's art.
 
-Only /clone-prototype is on the board. The other two skills were a three-up
+Only /sp-clone-prototype is on the board. The other two skills were a three-up
 row here and are not shown for now, so the one people are meant to run first
 has the whole width to itself.
 
@@ -21,7 +24,7 @@ import base64, io, os
 from PIL import Image
 
 OUT = os.path.dirname(os.path.abspath(__file__))
-ASSETS = os.path.join(OUT, "..", "..", "..", "assets")
+ASSETS = os.path.join(OUT, "assets")
 REPO = "github.com/ReScienceLab/super-prototyping"
 
 CARDS = 7               # one example card per canvases folder, minus this one
@@ -152,7 +155,7 @@ code{{font:400 12.5px/20px var(--w-mono);color:var(--w-ink)}}
 
   <h2>Start with this skill</h2>
   <div class="skill">
-    <b>/clone-prototype</b>
+    <b>/sp-clone-prototype</b>
     <span>Copy a real app's screens. Grid the capture, sample it by eye, name the type face,
     then generate.</span>
   </div>
@@ -165,6 +168,7 @@ code{{font:400 12.5px/20px var(--w-mono);color:var(--w-ink)}}
 
 LAYOUT = """{
   "name": "Start here",
+  "ground": "#000000",
   "rows": [
     {
       "title": "super-prototyping",

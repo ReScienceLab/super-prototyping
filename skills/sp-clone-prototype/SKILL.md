@@ -1,8 +1,8 @@
 ---
-name: clone-prototype
+name: sp-clone-prototype
 description: Clone a real app's screens as pixel-accurate, self-contained HTML artboards on the prototype canvas. Overlay a grid on the reference and sample colours visually, derive one measured design-token block, generate one HTML file per screen from a single script, verify by re-rendering, and park the reference underneath its mockup. Use when asked to 100% copy / clone an app's UI, rebuild screens from screenshots or Mobbin, extract a design system from reference images, or check a mockup against its reference.
 license: Apache-2.0
-compatibility: Requires the refkit and artgen commands, which the Super Prototyping app puts on PATH (prototype-canvas's scripts/install.sh or install.ps1), plus Google Chrome for the shoot subcommand. Reference captures are supplied by you; nothing is fetched.
+compatibility: Requires the refkit and artgen commands, which the Super Prototyping app puts on PATH (sp-canvas's scripts/install.sh or install.ps1), plus Google Chrome for the shoot subcommand. Reference captures are supplied by you; nothing is fetched.
 metadata:
   managed-by: super-prototyping
 ---
@@ -15,10 +15,9 @@ back to a measurement, not to a guess that "looks about right". The one
 thing built out of order is Phase 5's reference row: it needs no
 measurement, so it goes up first (see Phase 5).
 
-Output lands in `canvases/<slug>/` and the canvas picks it up
-automatically. The `prototype-canvas` skill covers how folders become tldraw
-pages and how `layout.json` rows work. Name the folder for the source,
-e.g. `notion-ios`.
+Output lands in `canvases/<slug>/` and the canvas picks it up automatically.
+The `sp-canvas` skill covers how folders become tldraw pages and how
+`layout.json` rows work. Name the folder for the source, e.g. `notion-ios`.
 
 Toolkit: `refkit` (grid / sample / bands / bbox / scan / hairline / font /
 shoot / diff / blend / tokens / batch / ink / crops / key / montage), plus
@@ -29,7 +28,7 @@ PATH; `shoot` additionally needs Google Chrome (on Windows, Edge will do).
 refkit --help
 ```
 
-`sp`, `refkit` or `artgen` not found? Run `sh <prototype-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
+`sp`, `refkit` or `artgen` not found? Run `sh <sp-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
 and follow that skill's `references/install.md`. A `[super-prototyping:notice]`
 line on their stderr carries its own rule: finish the step, then do what it says.
 
@@ -259,7 +258,7 @@ def page(title, extra_css, body): ...          # TOKENS + BASE + extra_css + bod
 def write(name, html): ...
 ```
 
-Hard constraints from the canvas renderer (also in `prototype-canvas`'s
+Hard constraints from the canvas renderer (also in `sp-canvas`'s
 `references/layout.md`):
 
 - **Fully self-contained.** The iframe is `sandbox=""`. No external CSS,

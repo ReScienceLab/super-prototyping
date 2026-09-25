@@ -1,6 +1,6 @@
 # Naming the type face
 
-Loaded from Phase 1 of `clone-prototype`. Read it when `refkit font` has
+Loaded from Phase 1 of `sp-clone-prototype`. Read it when `refkit font` has
 given you a ranking and you have to decide what it actually proved.
 
 ## What `font` does

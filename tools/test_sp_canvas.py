@@ -474,7 +474,7 @@ def test_uninstall_takes_back_only_what_the_app_made():
     (home / ".local/bin/sp").symlink_to(current / "tools/bin/sp")
     (home / ".local/bin/refkit").write_text("someone else's")
     (home / ".claude/skills").mkdir(parents=True)
-    (home / ".claude/skills/new-ui-mock").symlink_to(current / "skills/new-ui-mock")
+    (home / ".claude/skills/sp-new-ui-mock").symlink_to(current / "skills/sp-new-ui-mock")
     (home / ".claude/skills/mine").symlink_to(home)
     (home / ".zshrc").write_text('alias x=y\n\n# Added by Super Prototyping: sp, refkit and '
                                  'artgen live here.\nexport PATH="$HOME/.local/bin:$PATH"\n')
@@ -492,7 +492,7 @@ def test_uninstall_takes_back_only_what_the_app_made():
         C.CURRENT = real
     assert not current.is_symlink() and not (home / ".local/bin/sp").is_symlink()
     assert (home / ".local/bin/refkit").read_text() == "someone else's"
-    assert not (home / ".claude/skills/new-ui-mock").is_symlink()
+    assert not (home / ".claude/skills/sp-new-ui-mock").is_symlink()
     assert (home / ".claude/skills/mine").is_symlink()
     assert (home / ".zshrc").read_text() == "alias x=y\n"
     assert (home / ".codex/rules/default.rules").read_text() == \

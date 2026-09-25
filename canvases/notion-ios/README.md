@@ -1,6 +1,6 @@
 # Notion iOS, a worked example
 
-A real run of the `clone-prototype` skill, kept as the reference for what a
+A real run of the `sp-clone-prototype` skill, kept as the reference for what a
 finished board looks like. One measured token block plus eighteen replica
 screens, every colour and metric traced to a sample off the source capture.
 
@@ -255,7 +255,7 @@ and the rest are exact.
 
 ## The reference row is not checked in
 
-Phase 5 of `clone-prototype` parks each source capture in its own
+Phase 5 of `sp-clone-prototype` parks each source capture in its own
 `ref-NN-<slug>.html` and adds a third `layout.json` row listing them **in the
 same order as the replica row**, so item N lands directly under item N and
 the two can be read against each other.

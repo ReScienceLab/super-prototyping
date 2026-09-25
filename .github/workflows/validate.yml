@@ -110,4 +110,5 @@ jobs:
 
       # The skills call these by name, so a syntax error in one is a broken install
       # rather than a broken test.
-      - run: uv run python -m compileall -q tools
+      - run: uv run python -m compileall -q tools skills
+      - run: node --check skills/sp-create-video/scripts/frames.mjs
