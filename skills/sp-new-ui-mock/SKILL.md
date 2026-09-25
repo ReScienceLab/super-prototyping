@@ -2,7 +2,7 @@
 name: sp-new-ui-mock
 description: Design a new screen, flow or component as a self-contained HTML artboard on the prototype canvas, built from the board's existing design tokens rather than invented values. Covers picking or extending the token block, generating a row of screens from one script, iterating against annotated screenshots, and verifying by rendering. Use when asked to mock up a new screen or feature, design variants/proposals to compare, extend an existing board with more states, or turn a spec into artboards.
 license: Apache-2.0
-compatibility: Requires python3 and the refkit command, which the Super Prototyping app puts on PATH (sp-prototype-canvas's scripts/install.sh or install.ps1). Google Chrome for refkit shoot.
+compatibility: Requires python3 and the refkit command, which the Super Prototyping app puts on PATH (sp-canvas's scripts/install.sh or install.ps1). Google Chrome for refkit shoot.
 metadata:
   managed-by: super-prototyping
 ---
@@ -12,12 +12,12 @@ metadata:
 For work with **no reference screenshot to copy**. If there is one, use
 `sp-clone-prototype` instead. Measurement beats invention every time.
 
-Everything renders on the canvas from `canvases/<slug>/`; see
-`sp-prototype-canvas` for running it, and its `references/layout.md` for the
-folder and `layout.json` rules.
+Everything renders on the canvas from `canvases/<slug>/`; see `sp-canvas` for
+running it, and its `references/layout.md` for the folder and `layout.json`
+rules.
 
 The app ships the template folder and every worked example, and `sp root`
-prints where. `sp`, `refkit` or `artgen` not found? Run `sh <sp-prototype-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
+prints where. `sp`, `refkit` or `artgen` not found? Run `sh <sp-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
 and follow that skill's `references/install.md`. A `[super-prototyping:notice]`
 line on their stderr carries its own rule: finish the step, then do what it says.
 

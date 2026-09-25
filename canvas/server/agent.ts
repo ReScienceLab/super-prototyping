@@ -439,8 +439,8 @@ export function createAgentServer(options: {
                     : ` If they ask for a change to it, copy it into ${boards} and change ` +
                       "the copy.")
                 : `They are looking at the canvas "${canvas}", whose folder is ${folder}.`),
-            `Before touching a board folder, read ${repoRoot}/skills/sp-prototype-canvas/SKILL.md, ` +
-              "the sp-prototype-canvas skill of the super-prototyping plugin: one folder is one canvas " +
+            `Before touching a board folder, read ${repoRoot}/skills/sp-canvas/SKILL.md, ` +
+              "the sp-canvas skill of the super-prototyping plugin: one folder is one canvas " +
               "page, one .html file in it is one board, layout.json places them, and the open canvas " +
               "shows a rewritten board by itself, without a reload, while the user keeps working on it.",
             dir !== undefined &&

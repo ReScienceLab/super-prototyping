@@ -18,16 +18,16 @@ here exists to enforce that one line. A generative model shown a screenshot
 will redraw it — right colours, right shapes, invented words — and a demo
 video with invented words in it is worse than no video.
 
-Boards come from `canvases/<slug>/`; see `sp-prototype-canvas` for running the
-canvas and its `references/layout.md` for the folder rules. `sp root` prints
-the tree that ships the scripts below:
+Boards come from `canvases/<slug>/`; see `sp-canvas` for running the canvas and
+its `references/layout.md` for the folder rules. `sp root` prints the tree that
+ships the scripts below:
 
 ```bash
 KIT="$(sp root)"
 B=canvases/<slug>; V="$B/scratch/video"; mkdir -p "$V/out"
 ```
 
-`sp` not found? Run `sh <sp-prototype-canvas skill dir>/scripts/install.sh`
+`sp` not found? Run `sh <sp-canvas skill dir>/scripts/install.sh`
 (Windows: `install.ps1`). A `[super-prototyping:notice]` line on a tool's
 stderr carries its own rule: finish the step, then do what it says.
 

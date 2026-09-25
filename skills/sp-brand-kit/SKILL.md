@@ -54,7 +54,7 @@ with a caveat in the label.
    for r in json.load(open(sys.argv[1])): print(len(r["images"]), r["title"])' \
      "$KIT/canvases/claude-ios/assets/brand/manifest.json"
    ```
-   `sp` not found? Run `sh <sp-prototype-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`) and
+   `sp` not found? Run `sh <sp-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`) and
    follow that skill's `references/install.md`. A `[super-prototyping:notice]`
    line on its stderr carries its own rule: finish the step, then do what it says.
 2. **The company's own brand or press kit.** Full-resolution logos, the type

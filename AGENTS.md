@@ -7,7 +7,7 @@ holds only *data*.
 
 Code, shipped to every install:
 
-`skills/` holds `sp-clone-prototype`, `sp-new-ui-mock`, `sp-prototype-canvas`,
+`skills/` holds `sp-clone-prototype`, `sp-new-ui-mock`, `sp-canvas`,
 `sp-define-product`, `sp-brand-kit` and `sp-scene-video`.
 `.claude/skills/` and `.agents/skills/` are symlinks to it, so this checkout
 loads the same tree an install does.
@@ -66,26 +66,26 @@ what the app keeps in step with `sp`,
 `docs/2026-09-21-windows-app-unsigned.md` why the installer is not signed, and
 `docs/2026-09-21-auto-update.md` why the updater is this one.
 
-The app is the only install. It ships `skills/`, `tools/` and the built
-canvas, and on every launch links them into the machine through
-`~/.local/share/super-prototyping/current` (`desktop/launch.ts`). The skills
-go into each agent home that exists. `sp`, `refkit` and `artgen` go onto
+The app is the only install. It ships `skills/`, `tools/` and the built canvas,
+and on every launch links them into the machine through
+`~/.local/share/super-prototyping/current` (`desktop/launch.ts`). The skills go
+into each agent home that exists. `sp`, `refkit` and `artgen` go onto
 `~/.local/bin` as links to `tools/bin/sp`, one shim that runs the bundled
-toolkit with `uv run`. On Windows the links are junctions and the commands
-are a `uv tool install` of the bundled toolkit instead. There are no
-plugin manifests. An agent that has only the skills installs the app with
-`skills/sp-prototype-canvas/scripts/install.sh`, or `install.ps1` on Windows.
-The version the skills and `sp` read is `canvas/package.json`'s.
-`scripts/bump-version.sh` moves every version in `.version-bump.json` at once;
-run it with `--check` before releasing.
+toolkit with `uv run`. On Windows the links are junctions and the commands are
+a `uv tool install` of the bundled toolkit instead. There are no plugin
+manifests. An agent that has only the skills installs the app with
+`skills/sp-canvas/scripts/install.sh`, or `install.ps1` on Windows. The version
+the skills and `sp` read is `canvas/package.json`'s. `scripts/bump-version.sh`
+moves every version in `.version-bump.json` at once; run it with `--check`
+before releasing.
 
 Data, this repo's own:
 
-`canvases/<slug>/` is one folder per app canvas. The conventions and
-the `layout.json` schema are in `skills/sp-prototype-canvas/references/layout.md`,
-which is the copy that ships inside the app and therefore the one to edit;
-`canvases/README.md` covers only what is true of this repo. Start a
-new folder with `cp -r canvases/templates canvases/<slug>`.
+`canvases/<slug>/` is one folder per app canvas. The conventions and the
+`layout.json` schema are in `skills/sp-canvas/references/layout.md`, which is
+the copy that ships inside the app and therefore the one to edit;
+`canvases/README.md` covers only what is true of this repo. Start a new folder
+with `cp -r canvases/templates canvases/<slug>`.
 
 Rules inside a canvas folder:
 

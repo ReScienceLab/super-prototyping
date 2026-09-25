@@ -121,7 +121,7 @@ on its toolkit, which puts the commands in `~\.local\bin`; uv's own installer
 already put that directory on PATH. `sp uninstall` takes all of it back.
 
 An agent that has the skills and not the app installs it itself: the
-`sp-prototype-canvas` skill's `scripts/install.sh` downloads the app into
+`sp-canvas` skill's `scripts/install.sh` downloads the app into
 `/Applications` (or `~/Applications`) and opens it. When the app has found a
 newer release, every command prints a `[super-prototyping:notice]` line on
 stderr, and `sp upgrade` has the app install it.
@@ -175,7 +175,7 @@ symlink to, so this checkout loads what an install does):
 |---|---|
 | **sp-clone-prototype** | Copying a real app's screens. Grid the reference, sample colours *visually*, name the type face, derive one measured token block, generate the artboards, verify by re-rendering, park the reference underneath. |
 | **sp-new-ui-mock** | Designing new screens with no reference, built on existing tokens, including the empty/loading/error states and side-by-side proposals. |
-| **sp-prototype-canvas** | Running and operating the canvas: boards, `layout.json`, placing boards, images and video anywhere on a canvas with `sp canvas`, annotated-screenshot review, the force-refresh. |
+| **sp-canvas** | Running and operating the canvas: boards, `layout.json`, placing boards, images and video anywhere on a canvas with `sp canvas`, annotated-screenshot review, the force-refresh. |
 | **sp-define-product** | Working out what the product is before anything is drawn: an interview, one or two questions at a time, problem before solution, gaps left TBD rather than invented. It writes the project's `PRD.md`, which the canvas shows as the first tab, with the screen inventory sp-new-ui-mock designs from. |
 | **sp-brand-kit** | Collecting a product's own brand and promotional material -- the company's own brand or press kit, store listings, verified social accounts, the newsroom -- and turning it into the image rows of a canvas folder, each asset carrying its source and whether the company published it. |
 | **sp-scene-video** | Filming the prototype: a live-action clip of a real person using it, in an office or a lift or on the street, with the interface kept pixel-exact rather than redrawn. An animated board becomes the reference video a generative model has to keep; a green plate and a corner-pin composite are there for when it will not. |
@@ -214,7 +214,7 @@ Boards render in `<iframe srcDoc sandbox="">`:
 - iPhone frame is 393 × 852 pt at 1pt = 1px (54px status bar, 125 × 36
   Dynamic Island, 139 × 5 home indicator).
 
-See `skills/sp-prototype-canvas/references/layout.md` for `layout.json` rows and
+See `skills/sp-canvas/references/layout.md` for `layout.json` rows and
 captions.
 
 ## Toolkit

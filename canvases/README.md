@@ -1,7 +1,7 @@
 # Canvases
 
 This repo's own boards, one subfolder each. The folder conventions are in
-[`skills/sp-prototype-canvas/references/layout.md`](../../skills/sp-prototype-canvas/references/layout.md):
+[`skills/sp-canvas/references/layout.md`](../../skills/sp-canvas/references/layout.md):
 how a folder becomes a page, `layout.json` field by field, the constraints
 every artboard renders under, and why the generator ships beside its output.
 That file is the copy that ships inside the plugin and has to stand alone on a

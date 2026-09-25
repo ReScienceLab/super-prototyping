@@ -201,7 +201,7 @@ def resolve_root(verbose=False):
     else:
         print("  (nothing to look at, no app and no checkout)", file=sys.stderr)
     print(
-        "\nFix by installing the app, which the sp-prototype-canvas skill's scripts/install.sh\n"
+        "\nFix by installing the app, which the sp-canvas skill's scripts/install.sh\n"
         "does, or point at a checkout directly:\n"
         "  export SUPER_PROTOTYPING_ROOT=/path/to/super-prototyping",
         file=sys.stderr,
@@ -565,7 +565,7 @@ def _app_bundle():
     script = "install.ps1" if os.name == "nt" else "install.sh"
     raise SystemExit(
         "error: the Super Prototyping app is not installed. Install it with\n"
-        f"  {root / 'skills/sp-prototype-canvas/scripts' / script}")
+        f"  {root / 'skills/sp-canvas/scripts' / script}")
 
 
 def _launch(*args):
@@ -790,7 +790,7 @@ For agents:
   sp start        only where the app cannot run (CI, Linux, a remote box).
   sp canvas <op> --canvas <slug> [JSON | -]
                   read, place and arrange shapes, images, video and boards on a canvas
-                  open in the app. The sp-prototype-canvas skill has the ops and their JSON.
+                  open in the app. The sp-canvas skill has the ops and their JSON.
 Exit status is non-zero on every failure, with the reason on stderr.
 """
 

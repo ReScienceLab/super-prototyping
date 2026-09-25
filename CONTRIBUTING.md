@@ -1,9 +1,9 @@
 # Contributing
 
 Thanks for helping. This file covers the mechanics; `CLAUDE.md` and
-`skills/sp-prototype-canvas/references/layout.md` cover the conventions inside a
-canvas folder in detail, and the pull request template repeats the ones that
-matter most.
+`skills/sp-canvas/references/layout.md` cover the conventions inside a canvas
+folder in detail, and the pull request template repeats the ones that matter
+most.
 
 ## Setup
 
