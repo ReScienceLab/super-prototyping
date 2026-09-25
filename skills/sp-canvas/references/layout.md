@@ -89,22 +89,6 @@ out top to bottom:
   it the canvas is dark grey (`#2b2b2b`). The canvas's right-click menu and
   the swatch at the end of its strip write it, so there is no reason to edit
   it by hand. On a light ground the row titles and captions turn dark.
-
-A project's own cover, when someone chose one on the canvas, is in
-`project.json` at the project's root, beside `canvases/`, and nowhere else:
-
-```json
-{ "cover": { "path": "<slug>/<board>.html", "box": [x, y, w, h] } }
-```
-
-`path` is a board, or an image in a folder's image rows
-(`<slug>/assets/brand/<file>`). `box` is the part to keep in view, in the
-file's px, and is left out for the whole board. Without the file, or with a
-path that has since gone, the cover is the first canvas's `cover` board,
-whole, the first canvas being first by `order` then slug. A card fills its
-frame with it from the top; an element chosen as cover is centred instead. The canvas's
-right-click menu writes the file and the home card's Reset cover deletes it,
-so there is no reason to edit it by hand.
 - `files` entries are file names **without** `.html`, either bare (the
   humanized file name becomes the caption) or `{ "file", "label" }`.
 - `numbered: true` prefixes each caption with its 1-based position. Never
@@ -132,6 +116,63 @@ so there is no reason to edit it by hand.
 After editing `layout.json`, right-click the canvas and choose **Force
 refresh**. Shape creation is idempotent (it never moves a shape that already
 exists), so reordering a row needs that refresh to take effect.
+
+## The project folder and project.json
+
+A project is the unit that is shared: `sp pack` makes a package of one
+whole project, never a single canvas. Its root holds only these:
+
+```
+<project>/
+  project.json      what the project is
+  *.md              its documents, PRD.md first
+  canvases/<slug>/  one folder per canvas, anything inside
+  refs/             what a clone started from, never packaged
+```
+
+Nothing else goes at the root. Put what a run makes in `<slug>/scratch/` and
+third-party captures in `<slug>/assets/refs/` or `refs/`. None of the three
+goes into a package,
+and nor do dotfiles, `ref-*` boards, `comments.json`, `probes.json` or
+`crops.json`. Everything else under `canvases/` does, video and notes included,
+so a new kind of content needs no change to the package.
+
+`project.json`:
+
+```json
+{
+  "format": 1,
+  "id": "3f0c8a0e-7a51-4d0b-9a57-2f7f1a1d5c9e",
+  "name": "Kasra",
+  "cover": { "path": "<slug>/<board>.html", "box": [x, y, w, h] }
+}
+```
+
+- `format` is the layout of the whole folder. Without one it is 1. It goes up
+  only when an app that reads 1 would misread the folder, and an app refuses
+  to open a format newer than it knows. A new file or key needs no new format:
+  one the app does not know is ignored and kept.
+- `id` is a UUID, made with the project, or by the first `sp pack` of an
+  older one. It stays when the folder is renamed, and is what the community
+  knows the project by. Never change it or copy it into another project.
+- `name` is the title shown for the project, which the agent sets; the
+  folder name when there is none.
+
+A project's own cover, when someone chose one on the canvas, is `cover`
+there and nowhere else:
+
+```json
+{ "cover": { "path": "<slug>/<board>.html", "box": [x, y, w, h] } }
+```
+
+`path` is a board, or an image in a folder's image rows
+(`<slug>/assets/brand/<file>`). `box` is the part to keep in view, in the
+file's px, and is left out for the whole board. Without the file, or with a
+path that has since gone, the cover is the first canvas's `cover` board,
+whole, the first canvas being first by `order` then slug. A card fills its
+frame with it from the top; an element chosen as cover is centred instead. The canvas's
+right-click menu writes the file and the home card's Reset cover deletes it,
+so there is no reason to edit it by hand.
 
 ## Constraints on every artboard
 

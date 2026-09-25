@@ -563,6 +563,77 @@ def test_the_newest_cached_release_wins_and_a_prerelease_ranks_below_it():
     assert C._version_key("not-a-version") == (-1,)
 
 
+def test_pack_ships_the_project_by_place_and_refuses_what_would_break_it():
+    project = Path(tempfile.mkdtemp()) / "mine"
+    def write(rel, text="x"):
+        (project / rel).parent.mkdir(parents=True, exist_ok=True)
+        (project / rel).write_text(text)
+    write("PRD.md")
+    write("tools/build.sh")                       # an agent's, at the root
+    write("refs/home.png")
+    write("canvases/app/01-home.html")
+    write("canvases/app/ref-01-home.html")
+    write("canvases/app/assets/refs/cap.png")
+    write("canvases/app/scratch/shot.png")
+    write("canvases/app/comments.json", "{}")
+    write("canvases/app/probes.json", "{}")
+    write("canvases/app/.cache/x")
+    write("canvases/app/talk.mp4")                # a kind of content nothing names yet
+    write("canvases/app/files/logo.png")
+    write("canvases/other/files/shared.png")
+    write("canvases/app/layout.json", json.dumps({"rows": [
+        {"files": ["01-home", "ref-01-home"], "links": [{"url": "https://example.com"}]}]}))
+    write("canvases/app/canvas.json", json.dumps({"records": [
+        {"typeName": "asset", "props": {"src": "./files/logo.png"}},
+        {"typeName": "asset", "props": {"src": "../other/files/shared.png"}},
+        {"typeName": "asset", "props": {"src": "data:image/png;base64,AA"}}]}))
+    pj, ship, out, problems = C._pack(project)
+    assert problems == [] and pj == {}
+    assert sorted(r.as_posix() for r, _ in ship) == [
+        "PRD.md", "canvases/app/01-home.html", "canvases/app/canvas.json",
+        "canvases/app/files/logo.png", "canvases/app/layout.json", "canvases/app/talk.mp4",
+        "canvases/other/files/shared.png"]
+    assert {r.as_posix() for r in out} >= {"tools", "refs", "canvases/app/scratch",
+                                           "canvases/app/probes.json", "canvases/app/.cache"}
+
+    # --check writes nothing, not even the id it lacks; -o mints it, then copies.
+    args = lambda **kw: type("A", (), {"project": str(project), "check": False,
+                                       "output": None, **kw})
+    try:
+        C.cmd_pack(args(check=True))
+        raise AssertionError("a project with no id passed --check")
+    except SystemExit as e:
+        assert "no id" in str(e)
+    assert not (project / "project.json").exists()
+    dest = project.parent / "pkg"
+    real, C._thumbnail = C._thumbnail, lambda p, pj, png: png.write_text("png")
+    try:
+        C.cmd_pack(args(output=str(dest)))
+    finally:
+        C._thumbnail = real
+    minted = json.loads((project / "project.json").read_text())["id"]
+    assert C.UUID.match(minted)
+    assert json.loads((dest / "project.json").read_text())["id"] == minted
+    assert (dest / "thumbnail.png").exists() and (dest / "canvases/app/talk.mp4").exists()
+    assert not (dest / "refs").exists() and not (dest / "canvases/app/scratch").exists()
+    C.cmd_pack(args(check=True))                  # and now it passes
+
+    # What would break it, each refused.
+    write("canvases/app/canvas.json", json.dumps({"records": [
+        {"typeName": "asset", "props": {"src": "./files/gone.png"}}]}))
+    write("canvases/app/layout.json", json.dumps({"rows": [
+        {"links": [{"url": "javascript:alert(1)"}]}]}))
+    write("canvases/app/a#b.html")
+    os.symlink("/etc/hosts", project / "canvases/app/hosts")
+    write("project.json", json.dumps({"format": 2, "id": minted}))
+    (project / "canvases/app/big.mp4").write_bytes(b"")
+    os.truncate(project / "canvases/app/big.mp4", C.PACK_FILE_CAP + 1)
+    problems = C._pack(project)[3]
+    for needle in ("files/gone.png", "javascript:", "a#b.html", "hosts: is a symlink",
+                   "format 2", "big.mp4"):
+        assert any(needle in p for p in problems), (needle, problems)
+
+
 if __name__ == "__main__":
     fns = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in fns:

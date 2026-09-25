@@ -117,6 +117,13 @@ one shape. Switch with the page menu at the top-left; do not build a separate
 switcher. `references/layout.md` has the `layout.json` schema, the caption
 rules, and the 478 × 980 / sandbox constraints every artboard lives under.
 
+**Write nothing at the project's root** but its documents (`*.md`) and
+`project.json`: work goes in a canvas folder, and what a run makes in that
+folder's `scratch/`. A project is what gets shared, and `sp pack` packages
+the root's `canvases/` and documents and nothing else there. Keep
+`project.json`'s `id` and `format` as they are. The layout is
+`references/layout.md`, under "The project folder".
+
 **After editing `layout.json`, right-click the canvas and choose Force
 refresh.** Shape creation is idempotent. It fills in what is missing but never
 moves a shape that already exists, so inserting or reordering a row entry

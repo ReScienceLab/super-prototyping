@@ -11,6 +11,7 @@
   paths     print the directories this writes, the chat agent's, and the
             variables that move them
   clean     remove every downloaded canvas, pidfile and log
+  pack      check a project as a package to share (--check), or copy it out (-o)
   uninstall remove the links the app made: commands, skills, PATH line, Codex rule
 
 The app is the only install. Every launch links sp, refkit and
@@ -25,7 +26,8 @@ names the tree to use; the commands the app links set it. The port is --port
 or SP_CANVAS_PORT.
 """
 import argparse, base64, glob, hashlib, io, json, os, re, shlex, shutil, signal, subprocess
-import sys, tarfile, tempfile, time, urllib.error, urllib.parse, urllib.request, webbrowser
+import sys, tarfile, tempfile, time, unicodedata, urllib.error, urllib.parse, urllib.request, uuid
+import webbrowser
 from pathlib import Path
 
 DEFAULT_PORT = 5173
@@ -530,6 +532,261 @@ def cmd_clean(a):
         print(f"removed  {f}")
 
 
+# --- sp pack -----------------------------------------------------------------
+# A project as it is shared: the whole folder less what is left out below, by where a file
+# sits and not by what it is, so a kind of content nobody has made yet ships unchanged.
+# docs/2026-09-25-project-package.md has the why, and skills/sp-canvas/references/layout.md
+# the layout. The rules for references and covers repeat canvas/server and canvas/src/cover.ts.
+
+PACK_FILE_CAP = 50 << 20   # GitHub warns at 50 MB and refuses a file over 100 MB
+PACK_TOTAL_CAP = 200 << 20
+PROJECT_FORMAT = 1
+THUMBNAIL = (1600, 1000)
+UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+
+
+def _left_out(rel: Path) -> bool:
+    """Whether a path under canvases/ stays out of the package: work in progress, captures of
+    other people's products, review threads, measurement evidence and anything hidden."""
+    parts = rel.parts
+    return (any(p.startswith(".") or p == "scratch" for p in parts)
+            or parts[-1].startswith("ref-")
+            or parts[1:3] == ("assets", "refs")
+            or parts[-1] in ("comments.json", "probes.json", "crops.json"))
+
+
+def _pack(project: Path):
+    """-> (project.json, [(rel, size)] shipped, [rel] left out, [problem])."""
+    ship, out, problems = [], [], []
+
+    def json_of(rel):
+        try:
+            return json.loads((project / rel).read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            problems.append(f"{rel}: does not parse ({e})")
+
+    def add(rel):
+        if (project / rel).is_symlink():
+            return problems.append(f"{rel}: is a symlink")
+        for part in rel.parts:
+            if "#" in part or "?" in part:
+                problems.append(f"{rel}: # and ? are not allowed in a name")
+            elif not unicodedata.is_normalized("NFC", part):
+                problems.append(f"{rel}: the name is not NFC")
+        size = (project / rel).stat().st_size
+        if size > PACK_FILE_CAP:
+            problems.append(f"{rel}: {size >> 20} MB, over the {PACK_FILE_CAP >> 20} MB a file "
+                            "can be. Link a long video from where it is hosted.")
+        ship.append((rel, size))
+
+    for e in sorted(project.iterdir()):
+        rel = Path(e.name)
+        if e.name == "project.json" or (e.name.endswith(".md") and e.is_file()
+                                         and not e.name.startswith(".")):
+            add(rel)
+        elif e.name != "canvases":
+            out.append(rel)
+    canvases = project / "canvases"
+    if canvases.is_symlink():
+        problems.append("canvases: is a symlink")
+    elif canvases.is_dir():
+        for top, dirs, files in os.walk(canvases):
+            base = Path(top).relative_to(canvases)
+            for d in list(dirs):
+                if _left_out(base / d):
+                    out.append(Path("canvases") / base / d)
+                    dirs.remove(d)
+                elif (Path(top) / d).is_symlink():
+                    problems.append(f"{Path('canvases') / base / d}: is a symlink")
+                    dirs.remove(d)
+            dirs.sort()
+            for f in sorted(files):
+                rel = Path("canvases") / base / f
+                if base == Path("."):
+                    out.append(rel)  # a loose file beside the canvas folders is no canvas's
+                elif _left_out(base / f):
+                    out.append(rel)
+                else:
+                    add(rel)
+    total = sum(size for _, size in ship)
+    if total > PACK_TOTAL_CAP:
+        problems.append(f"{total >> 20} MB in all, over the {PACK_TOTAL_CAP >> 20} MB a "
+                        "package can be")
+
+    shipped = {rel.as_posix() for rel, _ in ship}
+    # A project with none is format 1 with no id yet, which -o gives it.
+    pj = json_of("project.json") if "project.json" in shipped else {}
+    if pj is not None and not isinstance(pj, dict):
+        problems.append("project.json: is not a JSON object")
+    elif pj is not None:
+        if pj.get("format", 1) != PROJECT_FORMAT:
+            problems.append(f"project.json: format {pj['format']!r} is not one this sp knows")
+        if "id" in pj and not (isinstance(pj["id"], str) and UUID.match(pj["id"])):
+            problems.append("project.json: id is not a UUID")
+
+    def resolves(src_folder, ref, what):
+        """A reference the app makes, relative to a canvas folder, has to be a shipped file."""
+        target = os.path.normpath(f"canvases/{src_folder}/{ref}").replace(os.sep, "/")
+        # One left out on purpose, a reference row's capture say, the app shows as missing.
+        left_out = target.startswith("canvases/") and _left_out(Path(target).relative_to("canvases"))
+        if target not in shipped and not left_out:
+            problems.append(f"canvases/{src_folder}: {what} {ref} is not in the package")
+
+    for slug in sorted({Path(r).parts[1] for r in shipped if r.startswith("canvases/")}):
+        try:
+            if f"canvases/{slug}/layout.json" in shipped:
+                layout = json_of(f"canvases/{slug}/layout.json")
+                if not isinstance(layout, dict):
+                    if layout is not None:
+                        problems.append(f"canvases/{slug}/layout.json: is not a JSON object")
+                    layout = {}
+                if isinstance(layout.get("cover"), str):
+                    resolves(slug, layout["cover"] + ".html", "cover")
+                for row in layout.get("rows") or []:
+                    for entry in row.get("files") or []:
+                        name = entry if isinstance(entry, str) else entry.get("file")
+                        resolves(slug, f"{name}.html", "board")
+                    for image in row.get("images") or []:
+                        resolves(slug, image.get("file"), "image")
+                    for link in row.get("links") or []:
+                        if not re.match(r"^https?://", str(link.get("url")), re.I):
+                            problems.append(f"canvases/{slug}/layout.json: link "
+                                            f"{link.get('url')!r} is not a web address")
+            if f"canvases/{slug}/canvas.json" in shipped:
+                content = json_of(f"canvases/{slug}/canvas.json")
+                for record in (content or {}).get("records") or []:
+                    src = record.get("props", {}).get("src") if record.get("typeName") == "asset" else None
+                    # A relative src is a file the canvas keeps; data: and web addresses are not files.
+                    if isinstance(src, str) and src.startswith(("./", "../")):
+                        resolves(slug, src, "file")
+        except (AttributeError, TypeError):
+            problems.append(f"canvases/{slug}: layout.json or canvas.json is not in the shape "
+                            "the app writes")
+    if isinstance(pj, dict) and isinstance(pj.get("cover"), dict):
+        path = pj["cover"].get("path")
+        if f"canvases/{path}" not in shipped:
+            problems.append(f"project.json: cover {path!r} is not in the package")
+    return pj, ship, out, problems
+
+
+def _cover(project: Path, pj: dict):
+    """-> (file, box, ground) of the project's cover, as canvas/src/cover.ts projectCover finds
+    it: the one project.json chose, else the first canvas's cover board, whole."""
+    def layout_of(folder):
+        try:
+            layout = json.loads((folder / "layout.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}
+        return layout if isinstance(layout, dict) else {}
+
+    def size_of(layout, name):
+        for row in layout.get("rows") or []:
+            for entry in row.get("files") or []:
+                if isinstance(entry, dict) and entry.get("file") == name and entry.get("w"):
+                    return entry["w"], entry["h"]
+        return 478, 980  # CANVAS_FILE_DEFAULT_SIZE
+
+    canvases = project / "canvases"
+    chosen = pj.get("cover") if isinstance(pj.get("cover"), dict) else {}
+    if chosen.get("path"):
+        file = canvases / chosen["path"]
+        layout = layout_of(canvases / Path(chosen["path"]).parts[0])
+        box = chosen.get("box")
+        if file.suffix == ".html":
+            w, h = size_of(layout, file.stem)
+            return file, box or [0, 0, w, h], (w, h), layout.get("ground")
+        return file, box, None, layout.get("ground")
+    folders = [d for d in canvases.iterdir() if d.is_dir() and any(d.glob("*.html"))]
+    def numeric(s):
+        return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", s)]
+    folders.sort(key=lambda d: numeric(d.name))
+    folders.sort(key=lambda d: layout_of(d).get("order", 0))
+    if not folders:
+        return None
+    layout = layout_of(folders[0])
+    names = sorted((f.stem for f in folders[0].glob("*.html")), key=numeric)
+    name = next((n for n in names if n == layout.get("cover")),
+                next((n for n in names if not n.startswith("00")), names[0]))
+    w, h = size_of(layout, name)
+    return folders[0] / f"{name}.html", [0, 0, w, h], (w, h), layout.get("ground")
+
+
+def _thumbnail(project: Path, pj: dict, png: Path):
+    """The cover, whole, centred on the canvas's ground at 1600 x 1000: what the community page
+    shows for the package without running a board."""
+    from PIL import Image
+    found = _cover(project, pj)
+    if found is None:
+        raise SystemExit("error: the project has no board to make a thumbnail of")
+    file, box, size, ground = found
+    scale = 2
+    if size is None:
+        im = Image.open(file).convert("RGBA")
+    else:
+        import refkit
+        with tempfile.TemporaryDirectory() as tmp:
+            shot = Path(tmp) / "cover.png"
+            # Transparent where the board paints nothing, as the canvas shows it.
+            subprocess.run([refkit.CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
+                            "--default-background-color=00000000",
+                            f"--force-device-scale-factor={scale}", f"--window-size={size[0]},{size[1]}",
+                            f"--screenshot={shot}", file.resolve().as_uri()],
+                           check=True, capture_output=True)
+            im = Image.open(shot).convert("RGBA")
+        box = [v * scale for v in box]
+    if box:
+        x, y, w, h = box
+        im = im.crop((round(x), round(y), round(x + w), round(y + h)))
+    tw, th = THUMBNAIL
+    pad = 80
+    k = min((tw - 2 * pad) / im.width, (th - 2 * pad) / im.height)
+    im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
+    ground = ground if isinstance(ground, str) and re.match(r"^#[0-9a-fA-F]{6}$", ground) else "#2b2b2b"
+    out = Image.new("RGBA", THUMBNAIL, ground)
+    out.alpha_composite(im, ((tw - im.width) // 2, (th - im.height) // 2))
+    out.convert("RGB").save(png)
+
+
+def cmd_pack(a):
+    """Check a project as a package, and with -o copy it out, with a thumbnail of its cover.
+    Minting a missing id is the only write to the project."""
+    project = Path(a.project).expanduser()
+    if not project.is_dir():
+        project = _projects_dir() / a.project
+    if not project.is_dir():
+        raise SystemExit(f"error: no project at {a.project}, nor in {_projects_dir()}")
+    project = project.resolve()
+    pj, ship, out, problems = _pack(project)
+    for rel in out:
+        print(f"left out  {rel.as_posix()}")
+    for p in problems:
+        print(f"problem   {p}", file=sys.stderr)
+    if problems:
+        raise SystemExit(f"error: {len(problems)} problem(s), nothing written")
+    if "id" not in pj:
+        if a.check:
+            raise SystemExit("error: project.json has no id yet. `sp pack -o` gives it one.")
+        pj["id"] = str(uuid.uuid4())
+        text = json.dumps(pj, indent=2) + "\n"
+        (project / "project.json").write_text(text, encoding="utf-8")
+        ship = [(rel, size) for rel, size in ship if rel != Path("project.json")]
+        ship.insert(0, (Path("project.json"), len(text.encode())))
+        print(f"id        {pj['id']}, written to project.json")
+    total = sum(size for _, size in ship)
+    print(f"{len(ship)} files, {total / (1 << 20):.1f} MB, id {pj['id']}")
+    if a.check:
+        return
+    dest = Path(a.output).expanduser()
+    if dest.exists() and any(dest.iterdir()):
+        raise SystemExit(f"error: {dest} is not empty. Remove it first.")
+    dest.mkdir(parents=True, exist_ok=True)
+    _thumbnail(project, pj, dest / "thumbnail.png")
+    for rel, _ in ship:
+        (dest / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(project / rel, dest / rel)
+    print(f"packed    {dest}")
+
+
 # --- the app -----------------------------------------------------------------
 
 def _state_json(name):
@@ -791,6 +1048,9 @@ For agents:
   sp canvas <op> --canvas <slug> [JSON | -]
                   read, place and arrange shapes, images, video and boards on a canvas
                   open in the app. The sp-canvas skill has the ops and their JSON.
+  sp pack <project> --check | -o <dir>
+                  when the user wants to share a project: what goes in, what is left
+                  out, and what would break it.
 Exit status is non-zero on every failure, with the reason on stderr.
 """
 
@@ -835,6 +1095,11 @@ def parser():
                         help="default SP_CANVAS_PORT, then the running app's")
     canvas.add_argument("-o", "--output", help="where shot writes its PNG")
     add("clean", cmd_clean, ports=False)
+    pack = add("pack", cmd_pack, ports=False)
+    pack.add_argument("project", help="a project's folder, or its name under the projects folder")
+    how = pack.add_mutually_exclusive_group(required=True)
+    how.add_argument("--check", action="store_true", help="check it and write nothing")
+    how.add_argument("-o", "--output", metavar="DIR", help="an empty folder to copy it into")
     return p
 
 
