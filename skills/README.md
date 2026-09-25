@@ -15,7 +15,7 @@ a user's own folder of the same name, so keep it.
 | `sp-canvas` | Running and operating the canvas: boards, `layout.json`, placing boards, images and video anywhere on a canvas with `sp canvas`, annotated-screenshot review, the force-refresh. |
 | `sp-define-product` | Interviewing the user about what their product is for, and writing it down as the project's `PRD.md`, which the canvas shows as a tab. |
 | `sp-brand-kit` | Collecting a product's own brand and promotional material -- press kit, store listings, social, newsroom -- and turning it into the `images` rows of a canvas folder. |
-| `sp-scene-video` | Filming a board: a live-action clip of someone using the product, with the interface kept pixel-exact. The motion board, the reference video, Seedance 2.5 on Ark, and the green-plate composite. |
+| `sp-create-video` | Filming a board: a live-action clip of someone using the product, with the interface kept pixel-exact. The motion board, the reference video, Seedance 2.5 on Ark, and the green-plate composite. |
 
 Rules for editing one:
 

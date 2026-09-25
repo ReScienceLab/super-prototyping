@@ -3,7 +3,7 @@
 //   node frames.mjs <board.html> [--fps 24] [--seconds 10] [-o out/ui] [--scale 3]
 //                   [--selector .phone] [--opaque] [--knots '[[0,0],[1,1]]']
 //
-// (bun runs it too. `sp` picks node where there is one and bun otherwise; so does this.)
+// Node 22 or later, for its built-in WebSocket; bun runs it too.
 //
 // There is no screen recorder here on purpose. Every frame is a still: every animation in
 // the document is paused and its `currentTime` set to T, so a frame is exact, reproducible
@@ -49,9 +49,13 @@ const port = 9422 + (process.pid % 200)          // not 9333: something else on 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 rmSync(outDir, { recursive: true, force: true })
 mkdirSync(outDir, { recursive: true })
+const profile = join(tmpdir(), 'sp-frames-' + process.pid)
 const chrome = spawn(CHROME, ['--headless=new', `--remote-debugging-port=${port}`,
-  `--user-data-dir=${join(tmpdir(), 'sp-frames-' + process.pid)}`, '--no-first-run', '--hide-scrollbars',
+  `--user-data-dir=${profile}`, '--no-first-run', '--hide-scrollbars',
   '--allow-file-access-from-files', 'about:blank'], { stdio: 'ignore' })
+// Runs on a throw as well as at the end: Node does not take a child with it, so otherwise any
+// error left Chrome running and its profile on disk.
+process.on('exit', () => { chrome.kill(); rmSync(profile, { recursive: true, force: true }) })
 
 let targets
 for (let i = 0; i < 50; i++) {
@@ -59,7 +63,7 @@ for (let i = 0; i < 50; i++) {
   await sleep(200)
 }
 const page = targets?.find(t => t.type === 'page')
-if (!page) { chrome.kill(); throw new Error(`Chrome never opened a debugging port (${CHROME}) -- set CHROME to its path`) }
+if (!page) throw new Error(`Chrome never opened a debugging port (${CHROME}) -- set CHROME to its path`)
 const ws = new WebSocket(page.webSocketDebuggerUrl)
 await new Promise(r => { ws.onopen = r })
 let id = 0
@@ -108,7 +112,7 @@ const clip = await evaluate(`(() => {
   const r = el.getBoundingClientRect()
   return { x: r.x, y: r.y, width: r.width, height: r.height, scale: 1 }
 })()`)
-if (!clip) { ws.close(); chrome.kill(); throw new Error(`no ${selector} on the board -- pass --selector`) }
+if (!clip) throw new Error(`no ${selector} on the board -- pass --selector`)
 console.log('clip', clip)
 
 const n = Math.round(fps * seconds)
@@ -118,5 +122,5 @@ for (let i = 0; i < n; i++) {
   writeFileSync(`${outDir}/f${String(i).padStart(4, '0')}.png`, Buffer.from(data, 'base64'))
   if (i % 48 === 0) console.log('frame', i, 'of', n)
 }
-ws.close(); chrome.kill()
+ws.close()
 console.log('wrote', n, 'frames to', outDir)

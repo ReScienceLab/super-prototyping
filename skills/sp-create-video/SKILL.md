@@ -1,20 +1,20 @@
 ---
-name: sp-scene-video
-description: Film a prototype. Turn a canvas board into a live-action clip of a real person using the product -- in an office, a lift, on the street -- with the interface itself kept pixel-exact rather than redrawn. Covers the animated motion board, rendering it to a reference video, generating the take with Seedance 2.5 on 火山方舟 (Volcengine Ark), the prompt patterns that hold a screen verbatim and keep subtitles out, reviewing a take frame by frame, and the green-plate composite for when the model will not hold the interface. Use when asked for a demo video, a launch or marketing clip, a video mockup, an app-in-the-wild or UGC-style shot, or any video of a prototype being used by a person.
+name: sp-create-video
+description: Film a prototype. Turn a canvas board into a live-action clip of a real person using the product -- in an office, a lift, on the street -- with the interface itself kept pixel-exact rather than redrawn. Covers the animated motion board, rendering it to a reference video, generating the take with Seedance 2.5 on BytePlus ModelArk or Volcengine Ark, the prompt patterns that hold a screen verbatim and keep subtitles out, reviewing a take frame by frame, and the green-plate composite for when the model will not hold the interface. Use when asked for a demo video, a launch or marketing clip, a video mockup, an app-in-the-wild or UGC-style shot, or any video of a prototype being used by a person.
 license: Apache-2.0
-compatibility: Requires python3, ffmpeg, Google Chrome, and node or bun, plus a 火山方舟 (Volcengine Ark) API key with Doubao-Seedance-2.5 enabled -- an account with 企业实名认证. The green-plate composite additionally needs uv, which fetches opencv on demand.
+compatibility: Requires python3, ffmpeg, Google Chrome, and node 22+ or bun, plus an API key for BytePlus ModelArk or, in China, Volcengine Ark. The green-plate composite additionally needs uv, which fetches opencv on demand.
 metadata:
   managed-by: super-prototyping
 ---
 
-# Scene video
+# Create video
 
 A board shows the product. This puts the product in the world: someone in an
 office takes out their phone, your screens are on it, their thumb moves the
-flow along, the room sounds like a room.
+flow along, and the audio is the room's own sound.
 
-**The model paints the world. It never paints the interface.** Every technique
-here exists to enforce that one line. A generative model shown a screenshot
+**The model generates the scene and must not generate the interface.** Every
+step below keeps the interface out of its hands. A generative model shown a screenshot
 will redraw it — right colours, right shapes, invented words — and a demo
 video with invented words in it is worse than no video.
 
@@ -40,15 +40,17 @@ proper is the motion board, because it is a board.
 
 ## Spending rule
 
-Every take is the user's money: roughly ¥11 at 720p/10s, ¥74 at 1080p/15s,
-minutes each. Before the first submission say what you are about to shoot,
+Every take is the user's money: roughly $2 or ¥11 at 720p/10s, several times
+that at 1080p/15s, minutes each. Before the first submission say what you are about to shoot,
 at what resolution, and how many takes you expect. Then shoot **one**, show
 it, and ask. Never loop takes unattended, and never re-submit a failed one
 without saying what you changed.
 
 The key lives in `$V/.ark_key` (chmod 600, never printed, never echoed into a
-log) or in `ARK_API_KEY`. If there is no key yet, stop and ask: the account
-needs 企业实名认证 and a balance, which is the user's to do.
+log) or in `ARK_API_KEY`. If there is no key yet, stop and ask the user for one.
+Ark is ByteDance's model API, sold as BytePlus ModelArk outside China and
+Volcengine Ark inside it. A key works only where it was issued: `ark.py` calls
+ModelArk, and takes `--region cn` for a Volcengine key.
 
 ---
 
@@ -72,16 +74,15 @@ in the canvas folder, one CSS timeline, emitted by the same `gen.py` as every
 other board. Then frames, then an mp4:
 
 ```bash
-node "$KIT/skills/sp-scene-video/scripts/frames.mjs" "$B/19-flow-motion.html" \
+node "$KIT/skills/sp-create-video/scripts/frames.mjs" "$B/19-flow-motion.html" \
   --fps 24 --seconds 10 -o "$V/out/ui" --scale 3          # bun runs it too
 ffmpeg -y -framerate 24 -i "$V/out/ui/f%04d.png" -c:v libx264 -crf 16 \
   -vf "crop=trunc(iw/2)*2:trunc(ih/2)*2" -pix_fmt yuv420p "$V/out/mockup.mp4"
 ffmpeg -y -i "$V/out/mockup.mp4" -ss 6 -frames:v 1 "$V/ref-phone-hd.png"
 ```
 
-The still is the second half of the trick: a reference video carries the
-motion, a full-resolution frame of it carries the sharpness, and a take given
-both comes back readable instead of merely correct.
+Send both. The video carries the motion, the still the sharpness; with the
+video alone the screen text comes back correct but soft.
 
 Watch `mockup.mp4` before going further. Pacing that feels fine scrubbing a
 board often turns out to be twice too fast in real time, and every later step
@@ -95,8 +96,8 @@ URI is refused), and what a take costs. Read it before the first take.
 
 ## 3. Write the prompt
 
-Into `$V/prompt.txt`, in Chinese, four blocks: 画质与风格, 场景与人物,
-屏幕契约, 声音与负面清单. The middle one is the product; the last one is why
+Into `$V/prompt.txt`, four blocks: look and style, scene and person, screen
+contract, sound and negative list. The second is the product; the last one is why
 the clip has no subtitles, no music and no voice-over.
 
 **`references/prompting.md`** — the four blocks, the screen contract that
@@ -113,7 +114,7 @@ writing a prompt, and again after any take comes back wrong.
 Ark fetches the video from there; it refuses an inline one.
 
 ```bash
-python3 "$KIT/skills/sp-scene-video/scripts/ark.py" \
+python3 "$KIT/skills/sp-create-video/scripts/ark.py" \
   --prompt-file "$V/prompt.txt" --video "$U/mockup.mp4" --key-file "$V/.ark_key" \
   --image "$V/ref-phone-hd.png" --res 720p --dur 10 --tag walk -o "$V/out"
 ```
@@ -154,8 +155,7 @@ it to anyone:
 - Does the audio have music or a voice in it? There should be a room.
 
 Report what you saw, including the seed and what the take cost. A take that
-fails the first question is not a draft to polish — it is the wrong route, and
-the answer is step 1 again.
+fails the first question is on the wrong route. Go back to step 1.
 
 ---
 

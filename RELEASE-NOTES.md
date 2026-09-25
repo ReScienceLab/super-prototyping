@@ -27,11 +27,11 @@ Everything below is on `main` and reaches no install until a version is cut.
   The layout's own boards stay locked, and are outlined orange when selected so
   you can tell them apart.
 - **A board shows up in an exported image.** It used to come out blank.
-- **A new skill films the prototype.** `sp-scene-video` turns a board into a
+- **A new skill films the prototype.** `sp-create-video` turns a board into a
   live-action clip of someone using the product -- an office, a lift, a walk
   down a corridor -- with your interface on the phone rather than a redrawn
-  imitation of it. It needs a 火山方舟 (Volcengine Ark) key of your own, and
-  each take costs a few yuan, so it shoots one and shows you before going on.
+  imitation of it. It needs a BytePlus ModelArk API key of your own (Volcengine Ark in China),
+  and each take costs a couple of dollars, so it shoots one and shows you before going on.
 - **Every skill is now named `sp-`.** `/clone-prototype` is
   `/sp-clone-prototype`, and the same for `sp-new-ui-mock`, `sp-define-product`
   and `sp-brand-kit`. `/prototype-canvas` is `/sp-canvas`, shorter as well as

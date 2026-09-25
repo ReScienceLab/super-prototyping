@@ -3,9 +3,9 @@
 The rescue route. Reach for it only when the reference video has been tried
 and the model still will not hold the interface: on a green plate the screen
 is not generated at all, so the pixels are exactly yours. The price is a day
-of tracking work and a clip that can still betray itself at the thumb's edge.
+of tracking work and a green fringe that can still show at the thumb's edge.
 
-The trade, honestly: reference video gives a believable world and a screen
+The trade: reference video gives a believable world and a screen
 that is *nearly* verbatim. A composite gives a perfect screen and a world that
 has to hold still enough to key. Shoot the plate locked.
 
@@ -43,13 +43,13 @@ The wording that works is in `references/prompting.md` — the green-plate block
 plus the locked-POV block, both of them, and the negative list.
 
 ```bash
-python3 "$KIT/skills/sp-scene-video/scripts/ark.py" \
+python3 "$KIT/skills/sp-create-video/scripts/ark.py" \
   --prompt-file plate.txt --image screen-green-markers.png --image framing.png \
   --key-file "$V/.ark_key" --res 720p --dur 10 --tag plate -o "$V/out"
 ```
 
 A second reference image showing the framing you want — the phone at the size
-and position it should hold — is worth its place: "锁死在画面正中" lands much
+and position it should hold — is worth its place: "locked to the centre of the frame" lands much
 harder with a picture of what that means.
 
 Check the plate before compositing: the screen has to be green edge to edge,
@@ -61,7 +61,7 @@ fight.
 
 ```bash
 uv run --with opencv-python-headless --with numpy \
-  "$KIT/skills/sp-scene-video/scripts/composite.py" \
+  "$KIT/skills/sp-create-video/scripts/composite.py" \
   out/plate-1.mp4 out/ui out/scene.mp4 --lock --stabilize
 ```
 

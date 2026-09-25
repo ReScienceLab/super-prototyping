@@ -3,7 +3,7 @@
 2026-09-25. The five shipped skills were `clone-prototype`, `new-ui-mock`,
 `prototype-canvas`, `define-product` and `brand-kit`. They are now
 `sp-clone-prototype`, `sp-new-ui-mock`, `sp-canvas`, `sp-define-product` and
-`sp-brand-kit`, and `sp-scene-video` ships with the prefix from its first
+`sp-brand-kit`, and `sp-create-video` ships with the prefix from its first
 commit. This note is why, and what the rename has to carry with it.
 
 ## Why
@@ -22,9 +22,8 @@ The prefix also reads in the one place a user types a skill name. `/brand-kit`
 says nothing about where it came from; `/sp-brand-kit` names the app.
 
 One name lost a word as well as gaining the prefix. `sp-prototype-canvas`
-spends its first half on something nothing here is not — every board on the
-canvas is a prototype — and the skill is mostly the `sp canvas` command, which
-is what the app already calls it. `sp-canvas`, then.
+repeats itself, since everything on the canvas is a prototype. The skill is
+mostly the `sp canvas` command, so `sp-canvas`.
 
 Two alternatives were not taken. Nesting under one `super-prototyping/`
 directory is not a thing the format supports: Claude Code and Codex both read

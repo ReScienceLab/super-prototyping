@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""Seedance 2.5 on 火山方舟 (Volcengine Ark): submit one take, poll it, download the mp4.
+"""Seedance 2.5 on Ark: submit one take, poll it, download the mp4.
 
     python3 ark.py --prompt-file prompt.txt [--image ref.png ...] [--video URL] \
-        [--res 720p] [--dur 10] [--tag walk] [-o out]
+        [--res 720p] [--dur 10] [--tag walk] [-o out] [--region intl|cn]
+
+Ark is ByteDance's model API, sold as BytePlus ModelArk outside China (`intl`,
+the default) and as Volcengine Ark inside it (`cn`). The two take the same
+request; a key works only in the region that issued it, and the model has a
+different id in each.
 
 Reference images go inline as base64. A reference *video* does not: Ark rejects
 a data: URI on `video_url`, so `--video` takes a URL Ark's servers can fetch
@@ -16,7 +21,7 @@ Writes `<tag>-N.mp4` and `<tag>-N.json` into the output directory, numbered
 past the highest N already there, so two takes never overwrite each other. The
 JSON carries the prompt and the task's own record: seed, usage, duration. That
 is the only account of what produced a clip, and a take is worth real money, so
-it is written before anything else is printed.
+it is written before the mp4 is fetched: a failed download still leaves it.
 
 Stdlib only: a generation runs for minutes and the poll must outlive a flaky
 network, not a dependency install.
@@ -24,8 +29,12 @@ network, not a dependency install.
 import argparse, base64, json, mimetypes, os, re, sys, time, urllib.error, urllib.request
 from pathlib import Path
 
-BASE = "https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks"
-MODEL = "doubao-seedance-2-5-260628"     # Doubao-Seedance-2.5, 开通 it in 方舟 → 模型广场 first
+REGIONS = {  # region: (task endpoint, Seedance 2.5 model id)
+    "intl": ("https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks",
+             "dreamina-seedance-2-5-260628"),
+    "cn": ("https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks",
+           "doubao-seedance-2-5-260628"),
+}
 
 
 def data_uri(p: Path) -> str:
@@ -55,14 +64,16 @@ def main():
     ap.add_argument("--prompt-file", type=Path, help="the prompt, as a file (keep it beside the take)")
     ap.add_argument("--prompt", help="the prompt inline, for a one-liner")
     ap.add_argument("--image", type=Path, action="append", default=[], metavar="PNG",
-                    help="reference image, inline; repeat in the order the prompt calls 图片1, 图片2 …")
+                    help="reference image, inline; repeat in the order the prompt calls image 1, image 2 …")
     ap.add_argument("--video", metavar="URL", help="reference video Ark can fetch; the take is built around it")
     ap.add_argument("--res", default="720p", choices=["480p", "720p", "1080p"])
     ap.add_argument("--ratio", default="16:9")
     ap.add_argument("--dur", type=int, default=10, help="seconds: 5, 10 or 15")
     ap.add_argument("--seed", type=int, help="repeat a take you liked, or vary one you did not")
     ap.add_argument("--no-audio", action="store_true", help="skip the generated ambience")
-    ap.add_argument("--model", default=MODEL)
+    ap.add_argument("--region", default="intl", choices=list(REGIONS),
+                    help="intl: BytePlus ModelArk; cn: Volcengine Ark. The key decides which")
+    ap.add_argument("--model", help="override the region's Seedance 2.5 id")
     ap.add_argument("--key-file", type=Path, default=Path(".ark_key"))
     ap.add_argument("--tag", default="take", help="output basename; takes are numbered within it")
     ap.add_argument("-o", "--out", type=Path, default=Path("out"))
@@ -78,7 +89,8 @@ def main():
         content.append({"type": "image_url", "image_url": {"url": data_uri(p)}, "role": "reference_image"})
     if a.video:
         content.append({"type": "video_url", "video_url": {"url": a.video}, "role": "reference_video"})
-    body = {"model": a.model, "content": content, "generate_audio": not a.no_audio,
+    base, model = REGIONS[a.region]
+    body = {"model": a.model or model, "content": content, "generate_audio": not a.no_audio,
             "ratio": a.ratio, "resolution": a.res, "duration": a.dur, "watermark": False}
     if a.seed is not None:
         body["seed"] = a.seed
@@ -87,6 +99,7 @@ def main():
         elide = lambda c: c if c["type"] == "text" else {
             **c, c["type"]: {"url": "<%s, %d B inline>" % (c[c["type"]]["url"][:20], len(c[c["type"]]["url"]))
                              if c[c["type"]]["url"].startswith("data:") else c[c["type"]]["url"]}}
+        print("POST", base)
         print(json.dumps(dict(body, content=[elide(c) for c in content]), ensure_ascii=False, indent=1))
         return
 
@@ -103,14 +116,14 @@ def main():
 
     t0 = time.time()
     try:
-        tid = call("POST", BASE, key, body)["id"]
+        tid = call("POST", base, key, body)["id"]
     except urllib.error.HTTPError as e:   # nothing is running yet, so a busy server is just a no
         sys.exit("HTTP %s submitting the take: %s" % (e.code, e.read().decode()[:800]))
     print("task", tid, file=sys.stderr)
     while True:
         time.sleep(10)
         try:
-            st = call("GET", BASE + "/" + tid, key)
+            st = call("GET", base + "/" + tid, key)
         except (urllib.error.URLError, TimeoutError, OSError) as e:
             # A dropped poll must never abandon a paid task: the id is the only handle on it. A
             # 429 or a 5xx arrives here too, raised by `call` for this reason.
@@ -122,7 +135,7 @@ def main():
     if st.get("status") != "succeeded":
         sys.exit(json.dumps(st, ensure_ascii=False)[:1500])
 
-    record = {"request": {k: v for k, v in body.items() if k != "content"},
+    record = {"region": a.region, "request": {k: v for k, v in body.items() if k != "content"},
               "prompt": prompt,
               "images": [str(p) for p in a.image], "video": a.video,
               "result": st, "seconds": round(time.time() - t0)}

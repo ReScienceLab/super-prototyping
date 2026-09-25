@@ -113,7 +113,7 @@ def main():
     SRC = src_quad(ui[0])
     cap = cv2.VideoCapture(a.plate)
     fps = cap.get(cv2.CAP_PROP_FPS); W = int(cap.get(3)); H = int(cap.get(4))
-    frames = []
+    frames = []     # ponytail: whole plate in RAM, ~0.65 GB at 720p/10s; stream it if 1080p runs out
     while True:
         ok, f = cap.read()
         if not ok: break

@@ -31,7 +31,7 @@ timeline, so scrubbing it is deterministic:
 ```bash
 KIT="$(sp root)"
 B=canvases/<slug>; V="$B/scratch/video"; mkdir -p "$V/out"
-node "$KIT/skills/sp-scene-video/scripts/frames.mjs" "$B/19-flow-motion.html" \
+node "$KIT/skills/sp-create-video/scripts/frames.mjs" "$B/19-flow-motion.html" \
   --fps 24 --seconds 10 -o "$V/out/ui" --scale 3
 ffmpeg -y -framerate 24 -i "$V/out/ui/f%04d.png" -c:v libx264 -crf 16 \
   -vf "crop=trunc(iw/2)*2:trunc(ih/2)*2" -pix_fmt yuv420p "$V/out/mockup.mp4"
@@ -47,8 +47,9 @@ Outside `.phone` it writes transparent pixels, which is what `composite.py`
 wants; for a reference video, `-pix_fmt yuv420p` flattens that to black and
 the model treats it as a dark surround.
 
-The frames are 9:16 and the take is 16:9. Say so in the prompt — 必须原封不动
-地放在 16:9 画面的正中央，竖直握持，手机高度约占画面高度的 85% — and send a
+The frames are 9:16 and the take is 16:9. Say so in the prompt ("placed unchanged in
+the centre of the 16:9 frame, held upright, the phone about 85% of the frame's
+height") and send a
 full-resolution still as a reference image too, or the screen comes back
 readable but soft.
 
@@ -61,7 +62,7 @@ holding the board still while the hand travels.
 
 Ark rejects a `data:` URI on `video_url`; the reference video has to be a URL
 its servers can reach. Nothing here is on the public internet, so this is the
-step that bites.
+step that fails most often.
 
 **Ask the user first.** This uploads an unreleased interface to a third-party
 edge. It is their product and their call — say which service, and wait.
@@ -76,7 +77,7 @@ sleep 8; U="$(grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' /tmp/sp-serve/tun
 curl -sI "$U/mockup.mp4" | head -1        # 200, or do not submit
 ```
 
-Two things that cost an evening here, both worth knowing before you start:
+Two causes of a `530`, both worth knowing before you start:
 
 - **The tunnel must run outside the agent's sandbox.** Inside it, it cannot
   reach Cloudflare's edge and every request comes back `530`.
@@ -94,8 +95,12 @@ A tunnel left up is a public copy of the product.
 
 ## 4. What a take costs
 
-Observed on 火山方舟, September 2026, audio on, watermark off. A reference
-video roughly doubles the bill, and 1080p roughly doubles it again.
+Observed on Volcengine Ark (`--region cn`), September 2026, audio on,
+watermark off. A reference video roughly doubles the bill, and 1080p roughly
+doubles it again. The token counts should hold on BytePlus ModelArk too; its
+list price is $10.70 per million tokens for a take without a reference video,
+about $2.30 for the first row, and a take with one is billed at the rate on
+ModelArk's pricing page. No take has been shot on ModelArk yet.
 
 | Take | tokens | ≈ ¥ | wall clock |
 |---|---|---|---|

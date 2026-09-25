@@ -8,7 +8,7 @@ holds only *data*.
 Code, shipped to every install:
 
 `skills/` holds `sp-clone-prototype`, `sp-new-ui-mock`, `sp-canvas`,
-`sp-define-product`, `sp-brand-kit` and `sp-scene-video`.
+`sp-define-product`, `sp-brand-kit` and `sp-create-video`.
 `.claude/skills/` and `.agents/skills/` are symlinks to it, so this checkout
 loads the same tree an install does.
 

@@ -3,22 +3,22 @@
 2026-09-25. Over 10 and 11 September a session on `notion-purchase-motion`
 tried to put the cloned Notion purchase sheet into a real scene: a person in
 an office, the phone in their hand, the flow playing on it. Thirteen paid
-takes later it worked. `skills/sp-scene-video` is that session, kept.
+takes later it worked. `skills/sp-create-video` is that session, kept.
 
 ## The model will redraw an interface it is only shown
 
 The first take sent the three replica screens as reference images and asked
 for them back pixel for pixel. What came back was a convincing office, a
 convincing phone, and a purchase sheet that was *nearly* the one we drew:
-right layout, right blue, invented words. No amount of 不要自行发明任何界面
-changed that. A model given pictures of a UI composes a UI.
+right layout, right blue, invented words. No amount of "do not invent any
+interface" changed that. A model given pictures of a UI composes a UI.
 
 What changed it was giving it a **video** of the interface instead, as
 `reference_video`, with the prompt saying the screen is the one thing that
-must survive untouched — 每一帧内容、文字、颜色、动画节奏都必须和参考视频
-完全相同，不要重新绘制. Then it kept the pixels and painted a room around
-them. That inversion is the skill's whole thesis, and why the skill's first
-phase is building an animated board rather than writing a prompt.
+must survive untouched: every frame's content, text, colour and timing
+identical to the reference video, not redrawn. Then it kept the pixels and painted a room around
+them. That is why the skill's first phase is building an animated board, not
+writing a prompt.
 
 The reference video is board 19, `19-purchase-sheet-motion.html`: the same
 `gen.py`, one CSS timeline, the flow playing. `scripts/frames.mjs` scrubs it
@@ -34,14 +34,19 @@ and two runs are identical to the byte.
 
 fal.ai was first: a key, a payment, a working `make.py`. It never produced a
 clip. Replicate listed `bytedance/seedance-2.5` at $0.9676 per second of
-output. 火山方舟 is ByteDance's own API for its own model, and after 企业实名
-认证 a 720p ten-second take with audio cost about ¥11.
+output. Volcengine Ark is ByteDance's own API for its own model, and a 720p
+ten-second take with audio cost about ¥11.
 
 So the shipped script talks to Ark and only Ark. A provider flag for a path
 that has never returned a video would be untested code in every install, and
-`ark.py` is 120 lines precisely because it does one thing. The cost of that
-choice is real: the skill needs a PRC company to sign up. That is written in
-its `compatibility` line rather than worked around.
+`ark.py` does one thing.
+
+Ark is sold under two names: Volcengine Ark in China, where the session ran,
+and BytePlus ModelArk everywhere else, with the same request at a different
+host and a different model id. A Volcengine key needs a mainland account,
+which most users of this app do not have, so `ark.py` defaults to ModelArk and
+takes `--region cn` for the other. The ModelArk route has not been shot yet:
+its endpoint answers, and its model id comes from BytePlus's own docs.
 
 ## The green plate is kept, as the rescue route
 
@@ -60,7 +65,7 @@ verbatim. It ships as the fallback because it costs a day and constrains the
 shot to a locked camera. It is run through `uv run --with
 opencv-python-headless`, so the toolkit keeps its two dependencies.
 
-## Two things that cost an evening
+## Two causes of a `530`, and a lost poll
 
 Ark refuses a `data:` URI on `video_url`, so the reference video needs a URL
 its servers can fetch. A `cloudflared` quick tunnel does it, but it returned
@@ -70,7 +75,7 @@ Pinning `--protocol http2 --edge <ip>:7844` fixed it. Both are in
 `references/reference-video.md` next to a `curl` check, because submitting a
 take against an unreachable video still costs money.
 
-And a poll that dies is not a task that died. An SSL timeout killed the runner
+A failed poll is not a failed task. An SSL timeout killed the runner
 mid-generation and the clip had to be fetched by task id afterwards. `ark.py`
 now retries the poll and prints the id first.
 

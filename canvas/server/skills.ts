@@ -120,7 +120,8 @@ function writeCopy(
  * older, and left alone when it is at the tree's version or past it, so a newer app's copy is never
  * undone, and every run after the first writes nothing. One that exists without a
  * marker is the user's own file, left alone and reported back as skipped. A marked copy under a
- * name this tree no longer ships is one a release renamed or dropped, and is removed.
+ * name this tree no longer ships is one a release renamed or dropped, and is removed, unless it
+ * is newer than the tree.
  */
 export function installSkills(
   root: string,
@@ -148,13 +149,15 @@ export function installSkills(
   const removed: string[] = [];
   for (const dir of dirs) {
     // A skill a release renames or drops leaves its copy here, still marked, still listed by the
-    // agent, and now telling it about paths the tree no longer has. Ours to take out, by the same
-    // thing that makes a copy ours: the marker. A folder of the user's own has none and stays.
+    // agent, and now telling it about paths the tree no longer has. Removed here, by the marker that
+    // makes a copy ours. A folder of the user's own has none and stays.
     // (`linkInstall` in desktop/launch.ts does the same for the links in an agent's home.)
     const at = path.join(into, dir);
     for (const name of fs.existsSync(at) ? fs.readdirSync(at) : []) {
       if (names.includes(name)) continue;
-      if (markedVersion(path.join(at, name, "SKILL.md")) === null) continue;
+      const marked = markedVersion(path.join(at, name, "SKILL.md"));
+      // A newer app's skill this older tree has not heard of yet is not a dropped one.
+      if (marked === null || compareVersions(marked, version) > 0) continue;
       fs.rmSync(path.join(at, name), { recursive: true, force: true });
       removed.push(`${dir}/${name}`);
     }

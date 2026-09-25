@@ -15,7 +15,6 @@ which is what the canvas reads. After adding a folder, raise `CARDS` in
 python3 canvases/00-welcome/gen.py
 ```
 
-The art is the folder's own, as every canvas folder's is: `assets/banner.webp`,
-which `gen.py` crops 4:1 and inlines, and `assets/icon.png` for the mark in the
-header. The repo's own `assets/` is the README's and the landing page's, and
-this board stopped reading it when a new banner landed there.
+`assets/banner.webp` and `assets/icon.png` are this folder's; `gen.py` crops
+the banner 4:1 and inlines both. The repo-root `assets/` belongs to the README
+and the landing page, and this board no longer reads it.
