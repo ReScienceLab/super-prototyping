@@ -295,7 +295,7 @@ def test_sp_canvas_uploads_a_local_file_then_places_it_by_src():
                 json.dumps({"shapes": [{"type": "image", "file": str(image), "x": 0, "y": 0}]})]
         env = {"SP_PROJECT": "shop", "SP_CANVAS_PORT": None}
         with contextlib.redirect_stdout(io.StringIO()) as out:
-            with_env(env, lambda: C.cmd_canvas(C.parser().parse_args(argv)))
+            with_env(env, lambda: C.cmd_canvas(C.parse_args(argv)))
         assert json.loads(out.getvalue()) == {"created": ["shape:a"]}
         name = hashlib.sha256(image.read_bytes()).hexdigest()[:16] + ".png"
         assert sent[0] == (f"http://127.0.0.1:6100/p/shop/__sp/canvas-file?slug=home&name={name}",
@@ -303,7 +303,14 @@ def test_sp_canvas_uploads_a_local_file_then_places_it_by_src():
         assert sent[1][0] == "http://127.0.0.1:6100/p/shop/__sp/canvas"
         assert json.loads(sent[1][1]) == {"slug": "home", "command": {
             "op": "create", "shapes": [{"type": "image", "x": 0, "y": 0, "src": f"files/{name}"}]}}
-        args = lambda argv, env: with_env(env, lambda: C.parser().parse_args(argv))
+        args = lambda argv, env: with_env(env, lambda: C.parse_args(argv))
+        assert args(["canvas", "update", "--canvas", "home", "-"], {}).command == "-"
+        try:
+            args(["canvas", "get", "--canvas", "home", "{}", "{}"], {})
+        except SystemExit as e:
+            assert e.code == 2
+        else:
+            assert False, "a second body must be refused, not dropped"
         a = args(["canvas", "get", "--canvas", "home", "--project", "cafe", "--port", "6200"],
                  {"SP_PROJECT": "shop", "SP_CANVAS_PORT": "6300"})
         assert C._canvas_url(a, "canvas") == "http://127.0.0.1:6200/p/cafe/__sp/canvas"

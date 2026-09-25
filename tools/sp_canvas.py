@@ -838,11 +838,25 @@ def parser():
     return p
 
 
+def parse_args(argv=None):
+    """`parser().parse_args`, but for `sp canvas`'s JSON: argparse before Python 3.12.7 (Ubuntu
+    24.04's is 3.12.3) leaves an optional positional after an option over, so `sp canvas create
+    --canvas x '{…}'` would be refused as an unrecognized argument."""
+    p = parser()
+    a, rest = p.parse_known_args(argv)
+    if (a.cmd == "canvas" and a.command is None and len(rest) == 1
+            and (rest[0] == "-" or not rest[0].startswith("-"))):
+        a.command, rest = rest[0], []
+    if rest:
+        p.error(f"unrecognized arguments: {' '.join(rest)}")
+    return a
+
+
 def main():
     if os.name == "nt":  # an agent's pipe there is cp1252, which has no ✓
         sys.stdout.reconfigure(encoding="utf-8")
         sys.stderr.reconfigure(encoding="utf-8")
-    a = parser().parse_args()
+    a = parse_args()
     if a.fn is not cmd_upgrade:
         import atexit
         atexit.register(notice)  # on stderr, after the output, however this exits
