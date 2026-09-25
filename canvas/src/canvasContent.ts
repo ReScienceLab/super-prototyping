@@ -19,6 +19,7 @@ import {
   type VecLike,
 } from "tldraw";
 import { canvasIndex, fileWins, PAGE_ID } from "./canvasIndex";
+import { CANVAS_FILE_SHAPE_TYPE } from "./CanvasFileShapeUtil";
 import {
   boardFileUrl,
   canvasImageKey,
@@ -47,7 +48,7 @@ const FILES_SRC = new RegExp(
 
 /** The page of each of the project's own canvases, by slug: the ones whose folder a person's content goes in.
  *  None on the hosted build, which has no folder to write to. */
-function projectPages(editor: Editor) {
+export function projectPages(editor: Editor) {
   const pages = new Map<string, TLPageId>();
   if (!canvasIndex().served) return pages;
   const own = new Set(ownCanvases());
@@ -76,6 +77,44 @@ export function personsShapeName(editor: Editor, shape: TLShape, slug: string) {
   return match
     ? `${match[1]}/files/${src!.slice(match[0].length)}`
     : `${slug}/canvas.json#${shape.id}`;
+}
+
+/**
+ * The board paths an agent has already placed among `shapes`: a fallback grid must not also show
+ * them. `shapes` is either the live store's (once canvasContent has taken the slug's file) or
+ * canvas.json's own records straight from the index (before that, when the store does not hold
+ * what the file will load in yet) — both are shaped alike, so one scan does either.
+ */
+export function agentBoardPaths(
+  shapes: Iterable<{ type: string; meta?: unknown; props: unknown }>,
+): Set<string> {
+  const paths = new Set<string>();
+  for (const shape of shapes) {
+    if (shape.type !== CANVAS_FILE_SHAPE_TYPE) continue;
+    if ((shape.meta as { by?: string } | undefined)?.by !== "agent") continue;
+    paths.add((shape.props as { path: string }).path);
+  }
+  return paths;
+}
+
+/** A board's own shape on a page: the library's fixed id, or — since the bridge can place one at
+ *  an id of its own (agentBridge.ts) — whichever `canvas-file` shape at that path the page
+ *  actually holds instead. Falls back to the fixed id with no page to search, which is right for
+ *  a page not among the project's own: nothing but the library ever places a shape there. */
+export function boardShapeId(
+  editor: Editor,
+  path: string,
+  pageId: TLPageId | undefined,
+): TLShapeId {
+  const fixed = createShapeId(`canvas-file:${path}`);
+  if (!pageId || editor.getShape(fixed)) return fixed;
+  return (
+    [...editor.getPageShapeIds(pageId)].find(
+      (id) =>
+        (editor.getShape(id)?.props as { path?: string } | undefined)?.path ===
+        path,
+    ) ?? fixed
+  );
 }
 
 /** A page's records as the file holds them, sorted by id so a diff moves line by line. */
@@ -134,6 +173,79 @@ function storeRecords(editor: Editor, file: ContentFile, pageId: TLPageId, slug:
 }
 
 let mounted: Editor | undefined;
+const written = new Map<string, string>();
+// A canvas.json that would not parse is neither loaded nor written over, and said so.
+const broken = new Set<string>();
+const seen = new Set<string>();
+// Each canvas's last write, which rejects when it did not land, for saveNow.
+const inflight = new Map<string, Promise<void>>();
+let flushNow: (() => void) | undefined;
+
+/** Writes a canvas's page now rather than after the usual pause, and settles once the server has
+ *  it: the agent bridge answers a command only then, so what `sp canvas` reports is on disk. */
+export function saveNow(slug: string): Promise<void> {
+  // Another window's save reached this one while a command waited on a file, and flush skips a
+  // canvas the reload will take from disk: what the command made will not be on it.
+  if (fileWins.has(slug))
+    return Promise.reject(new Error(`${slug} is reloading onto another window's save; run sp canvas get`));
+  flushNow!();
+  return inflight.get(slug) ?? Promise.resolve();
+}
+
+/** A page's file, taken over what this browser had the first time the page is seen: here, or
+ *  in a flush once a live index has added its canvas (canvasIndex.ts), maybe with a file already. */
+function take(slug: string, pageId: TLPageId) {
+  const editor = mounted!;
+  seen.add(slug);
+  const file = canvasIndex().boards.find((b) => b.slug === slug)?.content;
+  if (file === null) {
+    broken.add(slug);
+    alert(
+      `canvases/${slug}/canvas.json is not valid JSON, so what is on that canvas is not being ` +
+        "saved. Fix or remove the file, then reload.",
+    );
+    return;
+  }
+  if (!file) {
+    written.set(slug, "");
+    return;
+  }
+  const wanted = storeRecords(editor, file, pageId, slug);
+  const kept = new Set<string>(
+    [...editor.getPageShapeIds(pageId)].filter(isLibraryShapeId),
+  );
+  for (const record of wanted) if (record.typeName === "shape") kept.add(record.id);
+  const had = pageFile(editor, pageId, slug).records;
+  editor.store.remove(had.map((record) => record.id));
+  // A binding to something no longer there, a board taken out of layout.json say, goes.
+  editor.store.put(
+    wanted.filter(
+      (record) =>
+        record.typeName !== "binding" ||
+        (kept.has(record.fromId) && kept.has(record.toId)),
+    ),
+  );
+  // Spelled as flush spells it, so a file emptied of records loads as nothing to save.
+  const loaded = pageFile(editor, pageId, slug);
+  written.set(slug, loaded.records.length ? JSON.stringify(loaded) : "");
+}
+
+/** Whether a slug's canvas.json has already been taken over what the browser had: the fallback
+ *  grid (App.tsx) reads the live store for an agent's boards only once this is true, the index's
+ *  own content before that. False for a slug installCanvasContent has never run for. */
+export function contentTaken(slug: string): boolean {
+  return seen.has(slug);
+}
+
+/** Loads a slug's file first if nothing has, so a write lands on top of it rather than being
+ *  overwritten once a lagging `take` finally runs. False when the bridge must not write: the
+ *  file did not parse, or another window's save is about to reload this page onto it. */
+export function readyForAgentWrite(slug: string, pageId: TLPageId): boolean {
+  if (broken.has(slug) || fileWins.has(slug)) return false;
+  if (!seen.has(slug))
+    mounted!.store.mergeRemoteChanges(() => take(slug, pageId));
+  return !broken.has(slug);
+}
 
 /**
  * Load each project canvas's canvas.json over what this browser had, and write the page back to
@@ -143,46 +255,10 @@ let mounted: Editor | undefined;
  */
 export function installCanvasContent(editor: Editor) {
   mounted = editor;
-  const written = new Map<string, string>();
-  // A canvas.json that would not parse is neither loaded nor written over, and said so.
-  const broken = new Set<string>();
-  const seen = new Set<string>();
-  // A page's file, taken over what this browser had the first time the page is seen: here, or
-  // in a flush once a live index has added its canvas (canvasIndex.ts), maybe with a file already.
-  const take = (slug: string, pageId: TLPageId) => {
-    seen.add(slug);
-    const file = canvasIndex().boards.find((b) => b.slug === slug)?.content;
-    if (file === null) {
-      broken.add(slug);
-      alert(
-        `canvases/${slug}/canvas.json is not valid JSON, so what is on that canvas is not being ` +
-          "saved. Fix or remove the file, then reload.",
-      );
-      return;
-    }
-    if (!file) {
-      written.set(slug, "");
-      return;
-    }
-    const wanted = storeRecords(editor, file, pageId, slug);
-    const kept = new Set<string>(
-      [...editor.getPageShapeIds(pageId)].filter(isLibraryShapeId),
-    );
-    for (const record of wanted) if (record.typeName === "shape") kept.add(record.id);
-    const had = pageFile(editor, pageId, slug).records;
-    editor.store.remove(had.map((record) => record.id));
-    // A binding to something no longer there, a board taken out of layout.json say, goes.
-    editor.store.put(
-      wanted.filter(
-        (record) =>
-          record.typeName !== "binding" ||
-          (kept.has(record.fromId) && kept.has(record.toId)),
-      ),
-    );
-    // Spelled as flush spells it, so a file emptied of records loads as nothing to save.
-    const loaded = pageFile(editor, pageId, slug);
-    written.set(slug, loaded.records.length ? JSON.stringify(loaded) : "");
-  };
+  written.clear();
+  broken.clear();
+  seen.clear();
+  inflight.clear();
   editor.store.mergeRemoteChanges(() => {
     for (const [slug, pageId] of projectPages(editor)) take(slug, pageId);
   });
@@ -212,22 +288,23 @@ export function installCanvasContent(editor: Editor) {
       if ((written.get(slug) ?? "") === body) continue;
       written.set(slug, body);
       unanswered.add(slug);
-      void fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
+      const sent = fetch(`${import.meta.env.BASE_URL}__sp/canvas-content`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ slug, file, by: PAGE_ID, seq: ++seq }),
         keepalive: leaving,
-      })
-        .then(async (res) => {
-          if (!res.ok) throw new Error(await res.text());
-          if (written.get(slug) === body) unanswered.delete(slug);
-        })
-        .catch((error) => {
-          console.error(`canvas ${slug} was not saved:`, error);
-          if (written.get(slug) === body) written.delete(slug);
-        });
+      }).then(async (res) => {
+        if (!res.ok) throw new Error(await res.text());
+        if (written.get(slug) === body) unanswered.delete(slug);
+      });
+      inflight.set(slug, sent);
+      sent.catch((error) => {
+        console.error(`canvas ${slug} was not saved:`, error);
+        if (written.get(slug) === body) written.delete(slug);
+      });
     }
   };
+  flushNow = flush;
   flush();
 
   // Every document change is a candidate: a person's shape, an asset landing, a binding. flush
@@ -251,6 +328,7 @@ export function installCanvasContent(editor: Editor) {
     window.removeEventListener("pagehide", leave);
     clearTimeout(pending);
     mounted = undefined;
+    flushNow = undefined;
   };
 }
 
@@ -304,7 +382,9 @@ async function fromLinks(editor: Editor, text: string, point?: VecLike) {
       .flatMap((c) => c.files)
       .find((c) => c.pageSlug === tab.slug && c.fileName === named);
     const shape = editor.getShape(
-      createShapeId(board ? `canvas-file:${board.path}` : canvasImageKey(tab.slug, named)),
+      board
+        ? boardShapeId(editor, board.path, projectPages(editor).get(tab.slug))
+        : createShapeId(canvasImageKey(tab.slug, named)),
     );
     return shape ? { board: board && `${tab.slug}/${board.fileName}.html`, shape } : undefined;
   });

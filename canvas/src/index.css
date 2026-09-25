@@ -106,7 +106,6 @@ button {
   --tl-color-info: var(--ds-blue-700);
   --tl-color-warning: var(--ds-amber-700);
   --tl-color-danger: var(--ds-red-900);
-  --tl-color-selection-stroke: var(--ds-blue-700);
   --tl-color-selection-fill: color-mix(
     in oklab,
     var(--ds-blue-700) 20%,

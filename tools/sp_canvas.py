@@ -6,6 +6,7 @@
   start     serve the canvas without the app, and print its address
   stop      kill the one `start` ran on that port, and only that one
   status    say whether a canvas is up, and on what
+  canvas    read, place and arrange what is on a canvas in the open app
   root      print the tree the canvas and the skills come from (-v: where it looked)
   paths     print the directories this writes, the chat agent's, and the
             variables that move them
@@ -23,8 +24,8 @@ at /p/<name>/. No folder anywhere else is ever a project. SUPER_PROTOTYPING_ROOT
 names the tree to use; the commands the app links set it. The port is --port
 or SP_CANVAS_PORT.
 """
-import argparse, glob, io, json, os, re, shlex, shutil, signal, subprocess, sys, tarfile
-import tempfile, time, urllib.error, urllib.request, webbrowser
+import argparse, base64, glob, hashlib, io, json, os, re, shlex, shutil, signal, subprocess
+import sys, tarfile, tempfile, time, urllib.error, urllib.parse, urllib.request, webbrowser
 from pathlib import Path
 
 DEFAULT_PORT = 5173
@@ -697,12 +698,99 @@ def notice():
               file=sys.stderr)
 
 
+# --- sp canvas -----------------------------------------------------------------
+
+CANVAS_OPS = ("get", "create", "update", "delete", "align", "distribute", "stack", "pack",
+              "frame", "select", "zoom", "shot")
+
+
+def _canvas_url(a, route, **query):
+    """A route of the project's server, on the port the flag or SP_CANVAS_PORT names, else the
+    running app's, which is not 5173 when something else held that port."""
+    port = a.port or (_running_app() or {}).get("port") or DEFAULT_PORT
+    query = f"?{urllib.parse.urlencode(query)}" if query else ""
+    return f"http://127.0.0.1:{port}/p/{urllib.parse.quote(a.project)}/__sp/{route}{query}"
+
+
+def _canvas_post(url, data, headers):
+    try:
+        with urllib.request.urlopen(urllib.request.Request(
+                url, data=data, headers=headers, method="POST"), timeout=180) as res:
+            return res.read()
+    except urllib.error.HTTPError as e:
+        # The page's own refusal is JSON, {error, message, ...}, left whole for the agent to read.
+        body = e.read().decode()
+        raise SystemExit(body if e.code == 422 else f"error: {body or e.code}")
+    except (urllib.error.URLError, TimeoutError) as e:
+        # A timeout once connected is a bare TimeoutError, not wrapped as a URLError.
+        raise SystemExit(f"error: no canvas answers at {url.split('/p/')[0]} "
+                         f"({getattr(e, 'reason', e)}). `sp open` starts the app.")
+
+
+def _upload(a, file):
+    """A local image or video into the canvas folder's files/, named by its bytes so the same
+    file placed twice is one file there, and the `src` the page places it by."""
+    if not isinstance(file, str) or not file:
+        raise SystemExit(f'error: a shape\'s "file" is a path, not {json.dumps(file)}')
+    path = Path(file).expanduser()
+    try:
+        digest = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                digest.update(chunk)
+        name = digest.hexdigest()[:16] + path.suffix.lower()
+        with open(path, "rb") as f:
+            _canvas_post(_canvas_url(a, "canvas-file", slug=a.canvas, name=name), f,
+                         {"Content-Length": str(path.stat().st_size)})
+    except OSError as e:
+        raise SystemExit(f"error: {file}: {e.strerror}")
+    return f"files/{name}"
+
+
+def cmd_canvas(a):
+    """One command for the canvas page open in the app, which runs it and answers once what it
+    wrote is saved (canvas/src/agentBridge.ts). The page is the only writer: with none open, the
+    server says so rather than writing canvas.json behind it."""
+    if not a.project:
+        raise SystemExit("error: which project? Pass --project <name>, the name in its address "
+                         "(/p/<name>/).")
+    try:
+        command = json.loads(sys.stdin.read() if a.command == "-" else a.command or "{}")
+    except ValueError as e:
+        raise SystemExit(f"error: the command is not JSON: {e}")
+    if not isinstance(command, dict):
+        raise SystemExit("error: the command is a JSON object")
+    if a.op == "shot" and not a.output:
+        raise SystemExit("error: shot writes a PNG: name it with -o <file>.png")
+    shapes = command.get("shapes", [])
+    if not isinstance(shapes, list):
+        raise SystemExit('error: "shapes" is a JSON array of shapes')
+    # A shape's `file` is a path on this machine, which the page cannot read.
+    for shape in shapes:
+        if isinstance(shape, dict) and "file" in shape:
+            shape["src"] = _upload(a, shape.pop("file"))
+    body = json.dumps({"slug": a.canvas, "command": {**command, "op": a.op}}).encode()
+    result = json.loads(_canvas_post(_canvas_url(a, "canvas"), body,
+                                     {"Content-Type": "application/json"}))
+    if a.op == "shot":
+        try:
+            Path(a.output).parent.mkdir(parents=True, exist_ok=True)
+            Path(a.output).write_bytes(base64.b64decode(result.pop("png")))
+        except OSError as e:
+            raise SystemExit(f"error: {a.output}: {e.strerror}")
+        result["path"] = str(Path(a.output).resolve())
+    print(json.dumps(result, indent=2))
+
+
 AGENT_HELP = """\
 For agents:
   sp open         the way to show the user the canvas. Prints the address and the
                   projects folder; a project's boards are at /p/<name>/.
   sp upgrade      when a [super-prototyping:notice] line says a release is available.
   sp start        only where the app cannot run (CI, Linux, a remote box).
+  sp canvas <op> --canvas <slug> [JSON | -]
+                  read, place and arrange shapes, images, video and boards on a canvas
+                  open in the app. The sp-prototype-canvas skill has the ops and their JSON.
 Exit status is non-zero on every failure, with the reason on stderr.
 """
 
@@ -736,15 +824,39 @@ def parser():
     root.add_argument("-v", "--verbose", action="store_true",
                       help="also list every place that was searched")
     add("paths", cmd_paths, ports=False)
+    canvas = add("canvas", cmd_canvas, ports=False)
+    canvas.add_argument("op", choices=CANVAS_OPS)
+    canvas.add_argument("command", nargs="?", metavar="JSON",
+                        help="the op's arguments as a JSON object, or - to read them from stdin")
+    canvas.add_argument("--canvas", required=True, help="the canvas's folder name")
+    canvas.add_argument("--project", default=os.environ.get("SP_PROJECT"),
+                        help="default SP_PROJECT, which the chat panel's agent has")
+    canvas.add_argument("--port", type=int, default=os.environ.get("SP_CANVAS_PORT") or None,
+                        help="default SP_CANVAS_PORT, then the running app's")
+    canvas.add_argument("-o", "--output", help="where shot writes its PNG")
     add("clean", cmd_clean, ports=False)
     return p
+
+
+def parse_args(argv=None):
+    """`parser().parse_args`, but for `sp canvas`'s JSON: argparse before Python 3.12.7 (Ubuntu
+    24.04's is 3.12.3) leaves an optional positional after an option over, so `sp canvas create
+    --canvas x '{…}'` would be refused as an unrecognized argument."""
+    p = parser()
+    a, rest = p.parse_known_args(argv)
+    if (a.cmd == "canvas" and a.command is None and len(rest) == 1
+            and (rest[0] == "-" or not rest[0].startswith("-"))):
+        a.command, rest = rest[0], []
+    if rest:
+        p.error(f"unrecognized arguments: {' '.join(rest)}")
+    return a
 
 
 def main():
     if os.name == "nt":  # an agent's pipe there is cp1252, which has no ✓
         sys.stdout.reconfigure(encoding="utf-8")
         sys.stderr.reconfigure(encoding="utf-8")
-    a = parser().parse_args()
+    a = parse_args()
     if a.fn is not cmd_upgrade:
         import atexit
         atexit.register(notice)  # on stderr, after the output, however this exits
