@@ -543,6 +543,7 @@ PACK_TOTAL_CAP = 200 << 20
 PROJECT_FORMAT = 1
 THUMBNAIL = (1600, 1000)
 UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+LOGIN = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$")  # a GitHub login
 
 
 def _left_out(rel: Path) -> bool:
@@ -623,6 +624,12 @@ def _pack(project: Path):
             problems.append(f"project.json: format {pj['format']!r} is not one this sp knows")
         if "id" in pj and not (isinstance(pj["id"], str) and UUID.match(pj["id"])):
             problems.append("project.json: id is not a UUID")
+        if "author" in pj and not (isinstance(pj["author"], str) and LOGIN.match(pj["author"])):
+            problems.append("project.json: author is not a GitHub login")
+        people = pj.get("contributors", [])
+        if not (isinstance(people, list)
+                and all(isinstance(c, str) and LOGIN.match(c) for c in people)):
+            problems.append("project.json: contributors is not a list of GitHub logins")
 
     def resolves(src_folder, ref, what):
         """A reference the app makes, relative to a canvas folder, has to be a shipped file."""
@@ -749,7 +756,7 @@ def _thumbnail(project: Path, pj: dict, png: Path):
 
 def cmd_pack(a):
     """Check a project as a package, and with -o copy it out, with a thumbnail of its cover.
-    Minting a missing id is the only write to the project."""
+    Filling in a missing id and author is the only write to the project."""
     project = Path(a.project).expanduser()
     if not project.is_dir():
         project = _projects_dir() / a.project
@@ -763,15 +770,34 @@ def cmd_pack(a):
         print(f"problem   {p}", file=sys.stderr)
     if problems:
         raise SystemExit(f"error: {len(problems)} problem(s), nothing written")
+    if a.check and "id" not in pj:
+        raise SystemExit("error: project.json has no id yet. `sp pack -o` gives it one.")
+    if a.check and "author" not in pj:
+        raise SystemExit("error: project.json has no author. `sp pack -o` sets it to the GitHub "
+                         "login gh is signed in as, or set \"author\" to yours.")
+    filled = {}
+    if "author" not in pj:
+        # The community repo's CI holds the author to whoever opens the pull request.
+        try:
+            gh = subprocess.run(["gh", "api", "user", "--jq", ".login"],
+                                capture_output=True, text=True, timeout=30)
+        except (OSError, subprocess.TimeoutExpired):
+            gh = None
+        login = gh.stdout.strip() if gh and gh.returncode == 0 else ""
+        if not LOGIN.match(login):
+            raise SystemExit("error: project.json has no author, and gh is not signed in. Set "
+                             "\"author\" to your GitHub login, or run `gh auth login`.")
+        filled["author"] = login
     if "id" not in pj:
-        if a.check:
-            raise SystemExit("error: project.json has no id yet. `sp pack -o` gives it one.")
-        pj["id"] = str(uuid.uuid4())
+        filled["id"] = str(uuid.uuid4())
+    if filled:
+        pj.update(filled)
         text = json.dumps(pj, indent=2) + "\n"
         (project / "project.json").write_text(text, encoding="utf-8")
         ship = [(rel, size) for rel, size in ship if rel != Path("project.json")]
         ship.insert(0, (Path("project.json"), len(text.encode())))
-        print(f"id        {pj['id']}, written to project.json")
+        for key, value in filled.items():
+            print(f"{key:<9} {value}, written to project.json")
     total = sum(size for _, size in ship)
     print(f"{len(ship)} files, {total / (1 << 20):.1f} MB, id {pj['id']}")
     if a.check:

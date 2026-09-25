@@ -596,7 +596,8 @@ def test_pack_ships_the_project_by_place_and_refuses_what_would_break_it():
     assert {r.as_posix() for r in out} >= {"tools", "refs", "canvases/app/scratch",
                                            "canvases/app/probes.json", "canvases/app/.cache"}
 
-    # --check writes nothing, not even the id it lacks; -o mints it, then copies.
+    # --check writes nothing, not even the id it lacks; -o mints it, takes the author from gh,
+    # then copies.
     args = lambda **kw: type("A", (), {"project": str(project), "check": False,
                                        "output": None, **kw})
     try:
@@ -607,12 +608,22 @@ def test_pack_ships_the_project_by_place_and_refuses_what_would_break_it():
     assert not (project / "project.json").exists()
     dest = project.parent / "pkg"
     real, C._thumbnail = C._thumbnail, lambda p, pj, png: png.write_text("png")
+    run = C.subprocess.run
+    C.subprocess.run = lambda cmd, **kw: type("R", (), {"returncode": 1, "stdout": ""})
+    try:
+        C.cmd_pack(args(output=str(dest)))
+        raise AssertionError("-o packed a project with no author and no gh")
+    except SystemExit as e:
+        assert "no author" in str(e)
+    assert not (project / "project.json").exists() and not dest.exists()
+    C.subprocess.run = lambda cmd, **kw: type("R", (), {"returncode": 0, "stdout": "octocat\n"})
     try:
         C.cmd_pack(args(output=str(dest)))
     finally:
-        C._thumbnail = real
+        C._thumbnail, C.subprocess.run = real, run
     minted = json.loads((project / "project.json").read_text())["id"]
     assert C.UUID.match(minted)
+    assert json.loads((dest / "project.json").read_text())["author"] == "octocat"
     assert json.loads((dest / "project.json").read_text())["id"] == minted
     assert (dest / "thumbnail.png").exists() and (dest / "canvases/app/talk.mp4").exists()
     assert not (dest / "refs").exists() and not (dest / "canvases/app/scratch").exists()
@@ -625,12 +636,13 @@ def test_pack_ships_the_project_by_place_and_refuses_what_would_break_it():
         {"links": [{"url": "javascript:alert(1)"}]}]}))
     write("canvases/app/a#b.html")
     os.symlink("/etc/hosts", project / "canvases/app/hosts")
-    write("project.json", json.dumps({"format": 2, "id": minted}))
+    write("project.json", json.dumps({"format": 2, "id": minted, "author": "-bad",
+                                      "contributors": "hubot"}))
     (project / "canvases/app/big.mp4").write_bytes(b"")
     os.truncate(project / "canvases/app/big.mp4", C.PACK_FILE_CAP + 1)
     problems = C._pack(project)[3]
     for needle in ("files/gone.png", "javascript:", "a#b.html", "hosts: is a symlink",
-                   "format 2", "big.mp4"):
+                   "format 2", "big.mp4", "author is not", "contributors is not"):
         assert any(needle in p for p in problems), (needle, problems)
 
 

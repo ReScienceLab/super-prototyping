@@ -122,7 +122,8 @@ rules, and the 478 × 980 / sandbox constraints every artboard lives under.
 folder's `scratch/`. A project is what gets shared, and `sp pack` packages
 the root's `canvases/` and documents and nothing else there. Keep
 `project.json`'s `id` and `format` as they are. The layout is
-`references/layout.md`, under "The project folder".
+`references/layout.md`, under "The project folder". Share one with the
+community only when asked, as it says under "Sharing a project".
 
 **After editing `layout.json`, right-click the canvas and choose Force
 refresh.** Shape creation is idempotent. It fills in what is missing but never

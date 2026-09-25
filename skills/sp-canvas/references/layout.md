@@ -144,6 +144,8 @@ so a new kind of content needs no change to the package.
   "format": 1,
   "id": "3f0c8a0e-7a51-4d0b-9a57-2f7f1a1d5c9e",
   "name": "Kasra",
+  "author": "octocat",
+  "contributors": ["hubot"],
   "cover": { "path": "<slug>/<board>.html", "box": [x, y, w, h] }
 }
 ```
@@ -157,6 +159,11 @@ so a new kind of content needs no change to the package.
   knows the project by. Never change it or copy it into another project.
 - `name` is the title shown for the project, which the agent sets; the
   folder name when there is none.
+- `author` is the GitHub login of whoever made the project, and
+  `contributors` the logins of anyone who has changed it since. The first
+  `sp pack -o` sets `author` to the login `gh` is signed in as. The community
+  repo holds them to whoever opens the pull request, so never set someone
+  else's.
 
 A project's own cover, when someone chose one on the canvas, is `cover`
 there and nowhere else:
@@ -173,6 +180,27 @@ whole, the first canvas being first by `order` then slug. A card fills its
 frame with it from the top; an element chosen as cover is centred instead. The canvas's
 right-click menu writes the file and the home card's Reset cover deletes it,
 so there is no reason to edit it by hand.
+
+### Sharing a project
+
+The community is the GitHub repo `ReScienceLab/super-prototyping-community`:
+one `projects/<id>/` folder per project, added by pull request. Share a
+project only when the person asks, and ask them first whether everything in
+it is theirs to share. The repo is CC BY 4.0, with MIT for code such as
+`gen.py`.
+
+1. Run `sp pack <project> --check` and fix what it reports.
+2. Run `gh repo fork ReScienceLab/super-prototyping-community --clone`.
+3. Run `sp pack <project> -o <project>/canvases/<slug>/scratch/package`. It
+   prints the project's `id`.
+4. Move that folder to `projects/<id>` in the clone, replacing the one there
+   if the project was shared before.
+5. Commit on a branch, then open the pull request with `gh pr create`.
+
+The repo's CI refuses a new project whose `author` did not open the pull
+request. It also refuses a change by anyone who is neither the `author` nor
+already in `contributors`, unless that same pull request adds them to
+`contributors`.
 
 ## Constraints on every artboard
 
