@@ -569,6 +569,9 @@ def _pack(project: Path):
     def add(rel):
         if (project / rel).is_symlink():
             return problems.append(f"{rel}: is a symlink")
+        # A Windows junction is no symlink to is_symlink() and os.walk goes through it.
+        if not (project / rel).resolve().is_relative_to(project.resolve()):
+            return problems.append(f"{rel}: is outside the project")
         for part in rel.parts:
             if "#" in part or "?" in part:
                 problems.append(f"{rel}: # and ? are not allowed in a name")
@@ -701,6 +704,13 @@ def _cover(project: Path, pj: dict):
         box = chosen.get("box")
         if file.suffix == ".html":
             w, h = size_of(layout, file.stem)
+            return file, box or [0, 0, w, h], (w, h), layout.get("ground")
+        if file.suffix.lower() == ".svg":
+            # Pillow reads no SVG, so Chrome draws it, at the size its row gives it.
+            rel = Path(*Path(chosen["path"]).parts[1:]).as_posix()
+            w, h = next((i["w"], i["h"]) for row in layout.get("rows") or []
+                        for i in row.get("images") or []
+                        if isinstance(i, dict) and i.get("file") == rel)
             return file, box or [0, 0, w, h], (w, h), layout.get("ground")
         return file, box, None, layout.get("ground")
     folders = [d for d in canvases.iterdir() if d.is_dir() and any(d.glob("*.html"))]

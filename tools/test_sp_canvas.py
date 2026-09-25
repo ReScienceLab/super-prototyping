@@ -644,6 +644,13 @@ def test_pack_ships_the_project_by_place_and_refuses_what_would_break_it():
     for needle in ("files/gone.png", "javascript:", "a#b.html", "hosts: is a symlink",
                    "format 2", "big.mp4", "author is not", "contributors is not"):
         assert any(needle in p for p in problems), (needle, problems)
+    # A Windows junction: a link is_symlink() does not see. Still refused, by where it leads.
+    is_symlink, C.Path.is_symlink = C.Path.is_symlink, lambda self: False
+    try:
+        problems = C._pack(project)[3]
+    finally:
+        C.Path.is_symlink = is_symlink
+    assert any("hosts: is outside the project" in p for p in problems), problems
 
 
 if __name__ == "__main__":

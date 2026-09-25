@@ -44,7 +44,10 @@ declare global {
     };
     /** The canvas's side (App.tsx): brings a tab forward, or says it is another project's; and
      *  attaches the boards and pictures pasted links name, or says one of them names none. */
-    spCanvas?: { goTo(tab: ProjectTab): boolean; attach(hrefs: string[]): boolean };
+    spCanvas?: {
+      goTo(tab: ProjectTab): boolean;
+      attach(hrefs: string[]): boolean;
+    };
   }
 }
 
@@ -58,7 +61,9 @@ declare global {
 const openedTab = tabFor(tabFromUrl(location.href));
 const opened =
   /\/home(\.html)?$/.test(location.pathname) ||
-  (!canvasIndex().served && openedTab.kind === "project" && openedTab.view.kind === "canvas")
+  (!canvasIndex().served &&
+    openedTab.kind === "project" &&
+    openedTab.view.kind === "canvas")
     ? null
     : { tab: openedTab, href: frameUrl(location.href) };
 
@@ -103,7 +108,9 @@ export function AppShell() {
    */
   const [tabs, setTabs] = useState(() => {
     // A build has no project, so a tab left from before it had only examples is gone.
-    const open = readOpenTabs().filter((tab) => canvasIndex().served || tab.kind === "example");
+    const open = readOpenTabs().filter(
+      (tab) => canvasIndex().served || tab.kind === "example",
+    );
     return opened ? withTab(open, opened.tab) : open;
   });
   /** Every project there is, for the "+" menu and the home page; empty until the server says. */
@@ -141,7 +148,8 @@ export function AppShell() {
   useEffect(() => {
     const href =
       home || !shown
-        ? new URL(canvasIndex().served ? "/home.html" : "./", location.href).href
+        ? new URL(canvasIndex().served ? "/home.html" : "./", location.href)
+            .href
         : windowUrl(shown.href);
     if (href !== location.href) history.replaceState(null, "", href);
   }, [home, shown]);
@@ -225,10 +233,13 @@ export function AppShell() {
       for (const file of start.files) {
         const query = new URLSearchParams({ name: made.name, file: file.name });
         try {
-          const up = await fetch(new URL(`/__sp/projects/ref?${query}`, location.origin), {
-            method: "POST",
-            body: file,
-          });
+          const up = await fetch(
+            new URL(`/__sp/projects/ref?${query}`, location.origin),
+            {
+              method: "POST",
+              body: file,
+            },
+          );
           if (up.ok) names.push(`refs/${file.name}`);
           else failed.push(`${file.name}: ${await up.text()}`);
         } catch (error) {
@@ -236,7 +247,9 @@ export function AppShell() {
         }
       }
     if (failed.length > 0)
-      alert(`The project was made, but these could not be copied into it:\n\n${failed.join("\n")}`);
+      alert(
+        `The project was made, but these could not be copied into it:\n\n${failed.join("\n")}`,
+      );
     dialog.current!.close();
     // Before anything else its agent names the project, when it was left unnamed, into its
     // project.json, which the bar and the home page show it by (server/sp.ts). Then it makes and
@@ -244,7 +257,7 @@ export function AppShell() {
     // The skill's command still opens the message, since only there is it one.
     const first = [
       name.trim() === "" &&
-        `name this project: write a short name for it as {"name": "…"} in project.json at the project's root (if you cannot tell yet what it is, make that your first question to me)`,
+        `name this project: add a short name for it as "name" to project.json at the project's root, keeping the keys already there (if you cannot tell yet what it is, make that your first question to me)`,
       // Empty: the skill says when a board is due, after the product or the measurements.
       `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json, so it opens on my screen, and no board in it until the work reaches one`,
     ].filter(Boolean);
@@ -257,7 +270,10 @@ export function AppShell() {
               : "Ask me which app to clone, and for screenshots or a screen recording of it.",
           ]
         : start.define
-          ? ["/sp-define-product", "Help me work out what this product is, and write PRD.md as we go."]
+          ? [
+              "/sp-define-product",
+              "Help me work out what this product is, and write PRD.md as we go.",
+            ]
           : ["", "Ask me what this project is."];
     // What they said about the idea, in their words, for the agent to start from rather than ask.
     const idea =
@@ -266,7 +282,10 @@ export function AppShell() {
         : "";
     starting.current = {
       url,
-      text: [skill, `Before anything else, ${first.join(", then ")}. Then: ${ask}${idea}`]
+      text: [
+        skill,
+        `Before anything else, ${first.join(", then ")}. Then: ${ask}${idea}`,
+      ]
         .filter(Boolean)
         .join(" "),
     };
@@ -277,11 +296,17 @@ export function AppShell() {
   // is in front now.
   const starting = useRef<{ url: string; text: string }>(undefined);
   useEffect(() => {
-    if (shown?.tab.kind !== "project" || shown.tab.url !== starting.current?.url) return;
+    if (
+      shown?.tab.kind !== "project" ||
+      shown.tab.url !== starting.current?.url
+    )
+      return;
     const { text } = starting.current;
     starting.current = undefined;
     window.dispatchEvent(
-      new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, { detail: { kind: "send", text } }),
+      new CustomEvent<CanvasAttachDetail>(CANVAS_ATTACH, {
+        detail: { kind: "send", text },
+      }),
     );
   }, [shown]);
   const newProject = () => {
@@ -333,7 +358,9 @@ export function AppShell() {
             // in front (HOME_TAB), nor the index of every kit, since both have an empty slug. A
             // kit is named by the canvas whose material it shows. A document is no canvas either.
             canvas={(!home && view?.kind !== "doc" && view?.slug) || undefined}
-            project={home || shown?.tab.kind !== "project" ? undefined : shown.tab.name}
+            project={
+              home || shown?.tab.kind !== "project" ? undefined : shown.tab.name
+            }
             chat={chat}
             onWorking={setWorking}
           />
