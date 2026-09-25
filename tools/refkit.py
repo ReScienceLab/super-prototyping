@@ -647,6 +647,11 @@ def cmd_diff(a):
                 else json.load(open(a.regions)))
         print(f"{'region':<22} {'mine':<9} {'ref':<9} {'Δmax':>5}")
         for name, box in rows.items():
+            # A leading underscore is a comment, as it is in a probes.json. The
+            # region files a run keeps are hand-written and carry notes, and a
+            # note read as four coordinates is a crash mid-table.
+            if name.startswith("_"):
+                continue
             x0, y0, x1, y1 = [int(round(v * k)) for v in box]
             mh, _, _ = _fill(mine[y0:y1, x0:x1])
             rh, _, _ = _fill(ref[y0:y1, x0:x1])
@@ -1374,7 +1379,7 @@ def _parser():
     d.add_argument("mine"); d.add_argument("ref")
     d.add_argument("-o", "--out", required=True,
                    help="side-by-side png; -o '' to skip writing one")
-    d.add_argument("--regions", help='{"name": [x0,y0,x1,y1], ...} inline, or a .json path')
+    d.add_argument("--regions", help='{"name": [x0,y0,x1,y1], ...} inline, or a .json path; a key starting with _ is a comment')
     d.add_argument("--pt", type=float, default=None)
     d.add_argument("--height", type=int, default=520)
     d.add_argument("--gap", type=int, default=8)

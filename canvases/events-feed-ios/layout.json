@@ -1,0 +1,96 @@
+{
+  "name": "(example) Events Feed",
+  "cover": "01-feed-top",
+  "coverBox": [
+    46,
+    24,
+    440,
+    956
+  ],
+  "ground": "#d9d6d7",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens",
+          "w": 532,
+          "h": 1004
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence",
+          "w": 532,
+          "h": 1004
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence",
+          "w": 532,
+          "h": 1004
+        }
+      ]
+    },
+    {
+      "title": "Screens: one feed, four scroll offsets",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-feed-top",
+          "label": "Feed, top",
+          "w": 532,
+          "h": 1004
+        },
+        {
+          "file": "02-life-lately",
+          "label": "Life Lately",
+          "w": 532,
+          "h": 1004
+        },
+        {
+          "file": "03-rooftop",
+          "label": "Rooftop Jazz",
+          "w": 532,
+          "h": 1004
+        },
+        {
+          "file": "04-friendsgiving",
+          "label": "Friendsgiving",
+          "w": 532,
+          "h": 1004
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: captures",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-feed-top",
+          "label": "Feed, top",
+          "w": 532,
+          "h": 1004
+        },
+        {
+          "file": "ref-02-life-lately",
+          "label": "Life Lately",
+          "w": 532,
+          "h": 1004
+        },
+        {
+          "file": "ref-03-rooftop",
+          "label": "Rooftop Jazz",
+          "w": 532,
+          "h": 1004
+        },
+        {
+          "file": "ref-04-friendsgiving",
+          "label": "Friendsgiving",
+          "w": 532,
+          "h": 1004
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stepwise, iOS - Evidence 2/2</title>
+<style>
+:root{
+  /* Font */
+  --sw-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --sw-bg:#F4F0EB;
+  --sw-card:#FEFEFE;
+  --sw-sheet:#F0EEEF;
+  --sw-well:#F8F5F9;
+  --sw-chip:#EEEAE6;
+  --sw-bar:rgba(255,255,255,.85);
+  --sw-scrim:rgba(0,0,0,.20);
+
+  /* Line */
+  --sw-hairline:#F1F1F1;
+  --sw-dash:#AEAAA5;
+  --sw-grabber:#B6B3B6;
+
+  /* Ink */
+  --sw-ink:#000000;
+  --sw-ink-2:#888888;
+  --sw-ink-3:#BBBBBB;
+  --sw-ink-inv:#FFFFFF;
+
+  /* Accent */
+  --sw-green:#2DB150;
+  --sw-pro-a:#D736A9;
+  --sw-pro-b:#FADEF5;
+
+  /* Radius */
+  --sw-r-tile:20.5px;
+  --sw-r-pro:23.5px;
+  --sw-r-list:25.5px;
+  --sw-r-sheet:33.5px;
+  --sw-r-icon:9px;
+  --sw-r-pill:999px;
+  --sw-r-phone:52px;
+
+  /* Type */
+  --sw-t-title:700 27px/27px var(--sw-font);
+  --sw-t-name:700 22px/22px var(--sw-font);
+  --sw-t-pill:800 19px/19px var(--sw-font);
+  --sw-t-tile:600 15px/15px var(--sw-font);
+  --sw-t-row:500 15px/15px var(--sw-font);
+  --sw-t-note:500 13px/13px var(--sw-font);
+  --sw-t-sub:400 13px/13px var(--sw-font);
+  --sw-t-time:590 17px/22px var(--sw-font);
+
+  /* Metrics */
+  --sw-w:393px;
+  --sw-h:852px;
+  --sw-status:54px;
+  --sw-gutter:20.7px;
+  --sw-tile:170px;
+  --sw-row:56px;
+  --sw-av:92.7px;
+  --sw-av-x:112.18px;
+  --sw-av-y:108.78px;
+  --sw-hero:117.5px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sw-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--sw-w);height:var(--sw-h);
+  border-radius:var(--sw-r-phone);overflow:hidden;background:var(--sw-bg);color:var(--sw-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--sw-w);height:var(--sw-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--sw-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--sw-bg);color:var(--sw-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 15px/19px var(--sw-font);margin-bottom:2px}
+header p{font:400 9.5px/13px var(--sw-font);color:#6E6C6A;margin-bottom:12px}
+h2{font:600 9px/12px var(--sw-font);letter-spacing:.8px;text-transform:uppercase;
+  color:#6E6C6A;margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid #E6E2DD}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:#6E6C6A;font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:46px;height:30px;background:var(--sw-card);border:1px solid #CFCBC6}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--sw-font);
+  color:#6E6C6A;font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;
+  padding-bottom:3px;margin-bottom:3px;border-bottom:1px solid #E6E2DD}
+.tr span{white-space:nowrap}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:#6E6C6A;
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:#6E6C6A}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid #E6E2DD;font:400 8.5px/11px var(--sw-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:#B0308E}
+td.v{color:#6E6C6A;max-width:132px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:#4A4846}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 2/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--sw-r-icon</td><td class="v">9px</td><td class="e">the row-1 app thumbnail, 35.7 x 34.8: the corner is 4.0 in at dy 1.6</td></tr><tr><td class="t">--sw-r-pill</td><td class="v">999px</td><td class="e">the toggle, its knob, the tab bar and the tab bar's selected chip are all exactly half their height: 14.3 / 11.9 / 31.25 / 27.0</td></tr><tr><td class="t">--sw-r-phone</td><td class="v">52px</td><td class="e">p2 col 30 leaves the sheet at y 847.4; a 52pt circular corner predicts 847.1. That is the stand-in for the iPhone's 55pt continuous corner, and refkit --crop-phone masks the same 52</td></tr><tr><td class="t">--sw-t-title</td><td class="v">700 27px/27px var(--sw-font)</td><td class="e">p2 "Pick your vibe": cap 19.3, x-height 14.9 (0.772 of cap, the same ratio as VB), ink 172.3 wide. SF Pro Display bold sets it 3.3% wide at matched cap</td></tr><tr><td class="t">--sw-t-name</td><td class="v">700 22px/22px var(--sw-font)</td><td class="e">p1 "VB": cap 15.9, ink 27.7 wide, i-stem/cap 0.207. SF Pro Display bold is 5.7% wide at matched cap, so 22 rather than the cap-matched 22.3</td></tr><tr><td class="t">--sw-t-pill</td><td class="v">800 19px/19px var(--sw-font)</td><td class="e">p1 "Pro" inside the pill, black core only (--dark 40..128 all agree): 29.6 x 14.1, so cap 14.1 and a heavier weight than anything else on the screen. 19px sets that string 29.8 wide against 19.98px for a matched cap, and width is the error that shows: the outline is 1.45pt of white either side</td></tr><tr><td class="t">--sw-t-tile</td><td class="v">600 15px/15px var(--sw-font)</td><td class="e">p1 "3 apps added" 95.7 wide and "10,000 steps" 91.5, digits 10.9 tall, stems 1.8-2.1 = w590-650</td></tr><tr><td class="t">--sw-t-row</td><td class="v">500 15px/15px var(--sw-font)</td><td class="e">p1 "Movement nudges" 125.5 wide, cap 10.9, x-height 8.4, b-stem 1.5-1.7 = w460-510</td></tr><tr><td class="t">--sw-t-note</td><td class="v">500 13px/13px var(--sw-font)</td><td class="e">p1 "Daily target" 70.1 wide, cap 8.4</td></tr><tr><td class="t">--sw-t-sub</td><td class="v">400 13px/13px var(--sw-font)</td><td class="e">p1 "Manage subscription" 125.1 wide, cap 8.8</td></tr><tr><td class="t">--sw-t-time</td><td class="v">590 17px/22px var(--sw-font)</td><td class="e">iOS status bar clock, from templates/gen.py unchanged</td></tr><tr><td class="t">--sw-w</td><td class="v">393px</td><td class="e">iPhone 15/16 logical width</td></tr><tr><td class="t">--sw-h</td><td class="v">852px</td><td class="e">iPhone 15/16 logical height</td></tr><tr><td class="t">--sw-status</td><td class="v">54px</td><td class="e">iOS status bar, Dynamic Island devices</td></tr><tr><td class="t">--sw-gutter</td><td class="v">20.7px</td><td class="e">the corner fits put all three cards' left edge at 20.8-21.1 and the row scans put their right edge at 372.6-372.8; 20.7 splits it</td></tr><tr><td class="t">--sw-tile</td><td class="v">170px</td><td class="e">p1 tiles: 20.7-190.7 and 202.6-372.6 across, 266.9-437.0 down. They are square</td></tr><tr><td class="t">--sw-row</td><td class="v">56px</td><td class="e">p1 dividers at 646.9 / 708.6 / 763.9: the text-only rows are 55.3 and 56.3. The toggle row is 61.7 and the thumbnail row 74.8, both content-driven</td></tr><tr><td class="t">--sw-av</td><td class="v">92.7px</td><td class="e">p2 grid circles across row 409.6: 38.2-130.9, 150.2-243.1, 262.4-355.3. Down column 84.5 they measure 93.4, the same 0.7% the capture's own aspect is out by</td></tr><tr><td class="t">--sw-av-x</td><td class="v">112.18px</td><td class="e">p2 column centres 84.55 / 196.65 / 308.85</td></tr><tr><td class="t">--sw-av-y</td><td class="v">108.78px</td><td class="e">p2 row centres 409.45 / 518.20 / 627.10 / 735.80</td></tr><tr><td class="t">--sw-hero</td><td class="v">117.5px</td><td class="e">p1 profile circle 138.6-254.9 x 80.2-197.3 at a bright-250 threshold, which runs about 1pt tight against the corner fits; centre (196.75, 138.75)</td></tr></table></div>
+</body>
+</html>

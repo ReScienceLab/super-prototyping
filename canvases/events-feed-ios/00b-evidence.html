@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Events Feed - Evidence 1/2</title>
+<style>
+:root{
+  /* Font */
+  --e-font:ui-rounded,"SF Pro Rounded","SF Pro Text",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --e-ground:#EAE8E9;
+  --e-circle:#FDFDFD;
+  --e-pill:#F3EFF5;
+  --e-add:#F9EAF4;
+  --e-tile-rim:#FDFCFC;
+  --e-fab:rgba(38,38,38,.64);
+  --e-badge:#16151A;
+
+  /* Ink */
+  --e-ink:#121014;
+  --e-ink-2:#737075;
+  --e-ink-3:#979399;
+  --e-ink-foot:#59545E;
+  --e-ink-search:#211F23;
+  --e-ink-pill:#211D23;
+  --e-ink-kebab:#1E1C1D;
+  --e-ink-inv:#F7F5F6;
+
+  /* Accent */
+  --e-pin:#8543CF;
+  --e-dash:#9F5D80;
+  --e-ring:#982E69;
+
+  /* Radius */
+  --e-r-pill:999px;
+  --e-r-add:28px;
+  --e-r-tile:20px;
+  --e-r-phone:52px;
+
+  /* Type */
+  --e-t-title:700 24px/29px var(--e-font);
+  --e-t-sub:400 14px/19px var(--e-font);
+  --e-t-meta:400 12px/16px var(--e-font);
+  --e-t-pill:600 12px/16px var(--e-font);
+  --e-t-foot:400 14.5px/19px var(--e-font);
+  --e-t-search:400 17px/22px var(--e-font);
+  --e-t-story:400 12px/16px var(--e-font);
+  --e-t-fab:600 15px/20px var(--e-font);
+  --e-t-time:590 17px/22px var(--e-font);
+
+  /* Metrics */
+  --e-w:440px;
+  --e-h:956px;
+  --e-status:62px;
+  --e-gutter:21px;
+  --e-hdr-btn:38.7px;
+  --e-avatar:34.6px;
+  --e-story-d:72.6px;
+  --e-story-p:85.7px;
+  --e-tile-w:90.1px;
+  --e-tile-p:79.2px;
+  --e-tile-h:117.7px;
+  --e-add-w:99.6px;
+  --e-add-h:122.4px;
+  --e-fab-w:201.3px;
+  --e-fab-h:51.9px;
+  --e-fab-btm:54px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--e-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--e-w);height:var(--e-h);
+  border-radius:var(--e-r-phone);overflow:hidden;background:var(--e-ground);color:var(--e-ink);
+  transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--e-w);height:var(--e-status);z-index:9}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--e-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:9}
+body{padding:0;background:var(--e-ground);color:var(--e-ink)}
+.sheet{width:532px;height:1004px;padding:22px;overflow:hidden}
+h1{font:600 17px/22px var(--e-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--e-font);color:var(--e-ink-3);margin-bottom:13px}
+h2{font:600 9px/12px var(--e-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--e-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid rgba(29,25,26,.12)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--e-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:46px;height:26px;background:var(--e-pill);border:1px solid rgba(29,25,26,.14)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--e-font);
+  color:var(--e-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid rgba(29,25,26,.08)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--e-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 8.6px/12.4px ui-monospace,Menlo,monospace;color:var(--e-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid rgba(29,25,26,.08);font:400 8.5px/11px var(--e-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:#8543CF;white-space:nowrap}
+td.v{color:var(--e-ink-2);max-width:120px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+td.e{color:var(--e-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 1/2</h1><p>One row per token. A token with no evidence is a guess. The frame names are the captures in assets/refs/, which this folder does not commit.</p></header><table class="ev"><tr><td class="t">--e-font</td><td class="v">ui-rounded,"SF Pro Rounded","SF Pro Text",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font on the exact 23.3 pt ink box of "Beach Party", camA: SF Pro Rounded 0.833, margin 0.062 over SF Compact Rounded</td></tr><tr><td class="t">--e-ground</td><td class="v">#EAE8E9</td><td class="e">flat-fill census, 100.0 % of 75184 px, camA a155; identical on cam0 and camB, so the three cameras share one colour space and no conversion pass is needed</td></tr><tr><td class="t">--e-circle</td><td class="v">#FDFDFD</td><td class="e">flat-fill census 99.8 %, inside the search circle, camA a155</td></tr><tr><td class="t">--e-pill</td><td class="v">#F3EFF5</td><td class="e">flat-fill census 82.3 % of the location-pill interior, cam0 p1; camA a067 agrees</td></tr><tr><td class="t">--e-add</td><td class="v">#F9EAF4</td><td class="e">flat-fill census 96.4 %, add-photo tile interior, camA a067</td></tr><tr><td class="t">--e-tile-rim</td><td class="v">#FDFCFC</td><td class="e">the rim each photo tile carries, brightest 2 % of its left rim, cam0 p1; the rim is 1.0 pt wide and camB never resolves it to white -- see README</td></tr><tr><td class="t">--e-fab</td><td class="v">rgba(38,38,38,.64)</td><td class="e">the pill reads #6C6C6C over the #EAE8E9 ground and #5B5A5D over the blurred title behind it, cam0 p1; one alpha fits both, 0.64 on a neutral #262626</td></tr><tr><td class="t">--e-badge</td><td class="v">#16151A</td><td class="e">per-pixel mode of the Your-story plus badge, cam0 p1</td></tr><tr><td class="t">--e-ink</td><td class="v">#121014</td><td class="e">ink core darkest 2 %, "Beach Party", camA a067; "Life Lately" on a155 gives #120F14</td></tr><tr><td class="t">--e-ink-2</td><td class="v">#737075</td><td class="e">ink core darkest 2 %, card subtitle, camA a067 and a155 agree to one level; the story labels read #706D71 on cam0</td></tr><tr><td class="t">--e-ink-3</td><td class="v">#979399</td><td class="e">ink core darkest 2 %, "In 2 Days" meta row, camA a067</td></tr><tr><td class="t">--e-ink-foot</td><td class="v">#59545E</td><td class="e">ink core darkest 2 %, footer glyph and label, camA a155</td></tr><tr><td class="t">--e-ink-search</td><td class="v">#211F23</td><td class="e">ink core darkest 2 %, "What’s your next event?", camA a155</td></tr><tr><td class="t">--e-ink-pill</td><td class="v">#211D23</td><td class="e">ink core darkest 2 %, "Takwa Bay Beach", camA a067</td></tr><tr><td class="t">--e-ink-kebab</td><td class="v">#1E1C1D</td><td class="e">ink core darkest 2 %, the 3.5 x 13.8 pt kebab beside a card title, cam0 p1</td></tr><tr><td class="t">--e-ink-inv</td><td class="v">#F7F5F6</td><td class="e">ink core brightest 2 %, the floating pill's label, cam0 p1</td></tr><tr><td class="t">--e-pin</td><td class="v">#8543CF</td><td class="e">per-pixel mode of the 816 px pin window, camA a067; a 1 pt glyph has no flat core</td></tr><tr><td class="t">--e-dash</td><td class="v">#9F5D80</td><td class="e">ink core darkest 3 % along the left dash run, camA a067; the edge run gives #AB6288</td></tr><tr><td class="t">--e-ring</td><td class="v">#982E69</td><td class="e">four points around two story rings, cam0 p1: #932D6E #982F69 #9F2D66 #97386B, a 6-level spread, so the ring is one colour and not a gradient</td></tr><tr><td class="t">--e-r-pill</td><td class="v">999px</td><td class="e">by construction, not measured</td></tr><tr><td class="t">--e-r-add</td><td class="v">28px</td><td class="e">corner sweep of the dashed add tile, cam0 p1</td></tr><tr><td class="t">--e-r-tile</td><td class="v">20px</td><td class="e">corner sweep of a photo tile, camA a176</td></tr><tr><td class="t">--e-r-phone</td><td class="v">52px</td><td class="e">circular stand-in for the continuous display corner, matching --crop-phone's mask</td></tr><tr><td class="t">--e-t-title</td><td class="v">700 24px/29px var(--e-font)</td><td class="e">ink 22.1 pt on "Beach Party" and 22.9 on "Life Lately", cam0 p1; cap+descender is 0.927 em, so 24 px. The 126.6 and 107.2 pt ink widths hold it</td></tr></table></div>
+</body>
+</html>

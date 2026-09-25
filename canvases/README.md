@@ -489,6 +489,43 @@ declares a box other than the default 478 x 980.
   boxes are cropped and no art is generated; 22 icons are SVGs traced against
   the captures, one of them a 37-segment watermark. The fourteen `ref-*` boards
   are gitignored, so a fresh clone has 18.
+- `events-feed-ios/`: the run to read when the source is a screen recording
+  rather than screenshots. Eleven boards from 8.2 s of 2560 x 1698 video of an
+  unnamed events-feed concept, in three rows: a token board and two evidence
+  boards for 48 tokens, four screens that are one scrolling feed at four
+  offsets, and the four source frames column-for-column underneath. No frame
+  holds the whole screen sharply, because the camera zooms and pans over a
+  phone that never moves, so the run solves the screen's edges per frame,
+  finds three static camera setups at 1.45, 3.61 and 3.78 px/pt, and
+  `probes.json` carries all three with each probe naming its own scale. Mean
+  absolute delta against the captures is 7.29-11.56 levels (of 255) with the
+  photographic regions masked and 13.22-20.96 with them in: the photo stacks
+  and the avatars are original gradient art drawn from each region's measured
+  colours, because the source's photographs belong to whoever made the
+  recording. Its `README.md` records the recording's own noise floor, 1.14-1.69
+  levels between two frames of the same static shot, the header glass solved
+  off the one flat backdrop a scroll position happened to put behind it, and
+  the 1 pt photo rim that `box-sizing:border-box` had been eating. The phone is
+  a 440 x 956 iPhone 17 Pro Max, which does not fit the default artboard, so
+  every board declares 532 x 1004. The four `ref-*` boards are gitignored, so a
+  fresh clone has 7.
+- `stepwise-ios/`: the second run from a screen recording, and the one to read
+  when every illustration in the source is someone else's original art. Seven
+  boards from a 9.9 s, 2160 x 2160 recording of an iOS app called Stepwise, in
+  three rows: a token board and two evidence boards for 43 tokens, two screens
+  (a profile, and the "Pick your vibe" avatar sheet over it), and the
+  recording's own frame under each. Mean absolute delta against those frames is
+  3.38 and 1.51 levels (of 255) once the substituted regions are cut, 7.24 and
+  21.27 whole. All twelve faces are this repo's own characters, because the
+  source's are its designer's; what was measured and matched is the system
+  around them, a 2.78 pt line on a 92.7 pt disc, the ink box, the pale ground
+  and the grid pitch, and the two art regions cost 72.54 and 41.65, stated
+  rather than hidden in a total. Its `README.md` records the capture scale that
+  does not close to itself (2.38185 px/pt across against 2.36819 down, on a
+  frame whose 2.157 aspect belongs to no shipping iPhone), the typeface it
+  declines to name and the 1.4-3.2% width bill that costs on the black weights,
+  and the top 69.93 pt of the sheet screen that the recording does not contain.
+  The two `ref-*` boards are gitignored, so a fresh clone has 5.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

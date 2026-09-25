@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stepwise, iOS - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --sw-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --sw-bg:#F4F0EB;
+  --sw-card:#FEFEFE;
+  --sw-sheet:#F0EEEF;
+  --sw-well:#F8F5F9;
+  --sw-chip:#EEEAE6;
+  --sw-bar:rgba(255,255,255,.85);
+  --sw-scrim:rgba(0,0,0,.20);
+
+  /* Line */
+  --sw-hairline:#F1F1F1;
+  --sw-dash:#AEAAA5;
+  --sw-grabber:#B6B3B6;
+
+  /* Ink */
+  --sw-ink:#000000;
+  --sw-ink-2:#888888;
+  --sw-ink-3:#BBBBBB;
+  --sw-ink-inv:#FFFFFF;
+
+  /* Accent */
+  --sw-green:#2DB150;
+  --sw-pro-a:#D736A9;
+  --sw-pro-b:#FADEF5;
+
+  /* Radius */
+  --sw-r-tile:20.5px;
+  --sw-r-pro:23.5px;
+  --sw-r-list:25.5px;
+  --sw-r-sheet:33.5px;
+  --sw-r-icon:9px;
+  --sw-r-pill:999px;
+  --sw-r-phone:52px;
+
+  /* Type */
+  --sw-t-title:700 27px/27px var(--sw-font);
+  --sw-t-name:700 22px/22px var(--sw-font);
+  --sw-t-pill:800 19px/19px var(--sw-font);
+  --sw-t-tile:600 15px/15px var(--sw-font);
+  --sw-t-row:500 15px/15px var(--sw-font);
+  --sw-t-note:500 13px/13px var(--sw-font);
+  --sw-t-sub:400 13px/13px var(--sw-font);
+  --sw-t-time:590 17px/22px var(--sw-font);
+
+  /* Metrics */
+  --sw-w:393px;
+  --sw-h:852px;
+  --sw-status:54px;
+  --sw-gutter:20.7px;
+  --sw-tile:170px;
+  --sw-row:56px;
+  --sw-av:92.7px;
+  --sw-av-x:112.18px;
+  --sw-av-y:108.78px;
+  --sw-hero:117.5px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sw-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--sw-w);height:var(--sw-h);
+  border-radius:var(--sw-r-phone);overflow:hidden;background:var(--sw-bg);color:var(--sw-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--sw-w);height:var(--sw-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--sw-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--sw-bg);color:var(--sw-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 15px/19px var(--sw-font);margin-bottom:2px}
+header p{font:400 9.5px/13px var(--sw-font);color:#6E6C6A;margin-bottom:12px}
+h2{font:600 9px/12px var(--sw-font);letter-spacing:.8px;text-transform:uppercase;
+  color:#6E6C6A;margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid #E6E2DD}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:#6E6C6A;font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:46px;height:30px;background:var(--sw-card);border:1px solid #CFCBC6}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--sw-font);
+  color:#6E6C6A;font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;
+  padding-bottom:3px;margin-bottom:3px;border-bottom:1px solid #E6E2DD}
+.tr span{white-space:nowrap}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:#6E6C6A;
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:#6E6C6A}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid #E6E2DD;font:400 8.5px/11px var(--sw-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:#B0308E}
+td.v{color:#6E6C6A;max-width:132px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:#4A4846}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Stepwise, iOS</h1><p>Every value is measured off assets/refs/p1.png at 2.381679 px/pt or p2.png at 2.745547 px/pt. The evidence boards carry the probe behind each one, and probes.json replays them.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--sw-bg)"></div><b>--sw-bg</b><i>#F4F0EB</i></div><div class="sw"><div class="chip" style="background:var(--sw-card)"></div><b>--sw-card</b><i>#FEFEFE</i></div><div class="sw"><div class="chip" style="background:var(--sw-sheet)"></div><b>--sw-sheet</b><i>#F0EEEF</i></div><div class="sw"><div class="chip" style="background:var(--sw-well)"></div><b>--sw-well</b><i>#F8F5F9</i></div><div class="sw"><div class="chip" style="background:var(--sw-chip)"></div><b>--sw-chip</b><i>#EEEAE6</i></div><div class="sw"><div class="chip" style="background:var(--sw-bar)"></div><b>--sw-bar</b><i>rgba(255,255,255,.85)</i></div><div class="sw"><div class="chip" style="background:var(--sw-scrim)"></div><b>--sw-scrim</b><i>rgba(0,0,0,.20)</i></div><div class="sw"><div class="chip" style="background:var(--sw-hairline)"></div><b>--sw-hairline</b><i>#F1F1F1</i></div><div class="sw"><div class="chip" style="background:var(--sw-dash)"></div><b>--sw-dash</b><i>#AEAAA5</i></div><div class="sw"><div class="chip" style="background:var(--sw-grabber)"></div><b>--sw-grabber</b><i>#B6B3B6</i></div><div class="sw"><div class="chip" style="background:var(--sw-ink)"></div><b>--sw-ink</b><i>#000000</i></div><div class="sw"><div class="chip" style="background:var(--sw-ink-2)"></div><b>--sw-ink-2</b><i>#888888</i></div><div class="sw"><div class="chip" style="background:var(--sw-ink-3)"></div><b>--sw-ink-3</b><i>#BBBBBB</i></div><div class="sw"><div class="chip" style="background:var(--sw-ink-inv)"></div><b>--sw-ink-inv</b><i>#FFFFFF</i></div><div class="sw"><div class="chip" style="background:var(--sw-green)"></div><b>--sw-green</b><i>#2DB150</i></div><div class="sw"><div class="chip" style="background:var(--sw-pro-a)"></div><b>--sw-pro-a</b><i>#D736A9</i></div><div class="sw"><div class="chip" style="background:var(--sw-pro-b)"></div><b>--sw-pro-b</b><i>#FADEF5</i></div></div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:20.5px"></div><em>20.5px</em></div><div><div class="rb" style="border-radius:23.5px"></div><em>23.5px</em></div><div><div class="rb" style="border-radius:25.5px"></div><em>25.5px</em></div><div><div class="rb" style="border-radius:33.5px"></div><em>33.5px</em></div><div><div class="rb" style="border-radius:9px"></div><em>9px</em></div></div><h2>Type</h2><div class="tr"><span style="font:var(--sw-t-title)">Grumpy wizards</span><em>--sw-t-title &middot; 700 27px/27px</em></div><div class="tr"><span style="font:var(--sw-t-name)">Grumpy wizards</span><em>--sw-t-name &middot; 700 22px/22px</em></div><div class="tr"><span style="font:var(--sw-t-pill)">Grumpy wizards</span><em>--sw-t-pill &middot; 800 19px/19px</em></div><div class="tr"><span style="font:var(--sw-t-tile)">Grumpy wizards</span><em>--sw-t-tile &middot; 600 15px/15px</em></div><div class="tr"><span style="font:var(--sw-t-row)">Grumpy wizards</span><em>--sw-t-row &middot; 500 15px/15px</em></div><div class="tr"><span style="font:var(--sw-t-note)">Grumpy wizards</span><em>--sw-t-note &middot; 500 13px/13px</em></div><div class="tr"><span style="font:var(--sw-t-sub)">Grumpy wizards</span><em>--sw-t-sub &middot; 400 13px/13px</em></div><div class="tr"><span style="font:var(--sw-t-time)">Grumpy wizards</span><em>--sw-t-time &middot; 590 17px/22px</em></div><h2>Metrics</h2><div class="met">--sw-w: 393px<br>--sw-h: 852px<br>--sw-status: 54px<br>--sw-gutter: 20.7px<br>--sw-tile: 170px<br>--sw-row: 56px<br>--sw-av: 92.7px<br>--sw-av-x: 112.18px<br>--sw-av-y: 108.78px<br>--sw-hero: 117.5px</div></div>
+</body>
+</html>

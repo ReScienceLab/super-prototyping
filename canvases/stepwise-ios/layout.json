@@ -1,0 +1,50 @@
+{
+  "name": "(example) Stepwise, iOS",
+  "rows": [
+    {
+      "title": "Foundations",
+      "files": [
+        {
+          "file": "00-design-tokens",
+          "label": "Design tokens"
+        },
+        {
+          "file": "00b-evidence",
+          "label": "Evidence"
+        },
+        {
+          "file": "00c-evidence",
+          "label": "Evidence"
+        }
+      ]
+    },
+    {
+      "title": "Stepwise iOS replica screens",
+      "numbered": true,
+      "files": [
+        {
+          "file": "01-profile",
+          "label": "Profile"
+        },
+        {
+          "file": "02-pick-your-vibe",
+          "label": "Pick your vibe"
+        }
+      ]
+    },
+    {
+      "title": "Source of truth: recording frames",
+      "numbered": true,
+      "files": [
+        {
+          "file": "ref-01-profile",
+          "label": "Profile"
+        },
+        {
+          "file": "ref-02-pick-your-vibe",
+          "label": "Pick your vibe"
+        }
+      ]
+    }
+  ]
+}
