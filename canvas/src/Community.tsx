@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type ComponentType,
-} from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import "./community.css";
 import { canvasIndex } from "./canvasIndex";
 import { canvasIconUrl, shortName } from "./canvasLibrary";
@@ -24,7 +19,7 @@ import {
   Globe,
   GridSquare,
   Link,
-  LogoDiscord,
+  LogoGithub,
   MagnifyingGlass,
   PhoneDevice,
   Window,
@@ -38,17 +33,22 @@ import { CoverPicture, useWidth } from "./HomePage";
  * where a project opens as the demo canvas. Drawn after the `web/community` page of the Super
  * Prototyping Site project.
  *
- * What it lists, until the community repo has its index (docs/2026-09-25-project-package.md,
- * Phase 3), is this app's examples: the ones that clone an app, which are the ones with its icon.
- * They are this repo's, so their author is its organisation, and every one is an iPhone app.
+ * It lists the projects shared to the community repo, from its index.json
+ * (docs/2026-09-25-project-package.md, Phase 3), then this app's examples: the ones that clone an
+ * app, which are the ones with its icon. A shared project opens on GitHub until the app can
+ * import one; an example opens here.
  */
 
 /** Where the examples are public, for a link worth sending: the app's own address is localhost. */
 const DEMO = "https://superproto.dev/demo/";
 /** Who made the examples. A project in the community repo names its own (project.json). */
 const EXAMPLES_BY = "ReScienceLab";
-const DISCORD = "https://discord.gg/2DEZFFKx7k";
-const ISSUES = "https://github.com/ReScienceLab/super-prototyping/issues/new";
+const COMMUNITY = "https://github.com/ReScienceLab/super-prototyping-community";
+const SHARE = `${COMMUNITY}#share-a-project`;
+const TAKEDOWN = `${COMMUNITY}/issues/new?template=takedown.yml`;
+/** Where the repo's files are served from, index.json among them. */
+const RAW =
+  "https://raw.githubusercontent.com/ReScienceLab/super-prototyping-community/main/";
 
 type Family = "iphone" | "android" | "mac" | "windows" | "hardware" | "web";
 const FAMILIES: [Family | "all", string, ComponentType][] = [
@@ -98,18 +98,55 @@ const COLLECTIONS = [
 ];
 
 interface Entry {
+  /** An example's slug, or a shared project's id. */
   slug: string;
   name: string;
   boards: number;
   family: Family;
-  cover: Cover;
   updated: number;
   author: string;
-  /** What the thumbnail sits on: the layout's `ground`, else the canvas's. */
-  ground: string;
+  contributors: string[];
+  icon?: string;
+  /** An example's cover, drawn live, and the ground it sits on: the layout's, else the canvas's. */
+  cover?: Cover;
+  ground?: string;
+  /** A shared project's thumbnail.png, and its folder on GitHub. */
+  thumbnail?: string;
+  source?: string;
 }
 
-function entries(): Entry[] {
+/** index.json, as the community repo's CI writes it (.github/community.py there). */
+interface Index {
+  projects: {
+    id: string;
+    name: string;
+    author: { login: string };
+    contributors: { login: string }[];
+    boards: number;
+    device: string;
+    thumbnail: string;
+    icon: string | null;
+    updated: string;
+  }[];
+}
+
+const shared = (index: Index): Entry[] =>
+  index.projects.map((p) => ({
+    slug: p.id,
+    name: p.name,
+    boards: p.boards,
+    family: FAMILIES.some(([k]) => k === p.device)
+      ? (p.device as Family)
+      : "web",
+    updated: Date.parse(p.updated),
+    author: p.author.login,
+    contributors: p.contributors.map((c) => c.login),
+    icon: p.icon ? RAW + p.icon : undefined,
+    thumbnail: RAW + p.thumbnail,
+    source: `${COMMUNITY}/tree/main/projects/${p.id}`,
+  }));
+
+function examples(): Entry[] {
   return canvasIndex()
     .boards.filter((b) => b.example && b.icon)
     .map((b) => {
@@ -127,6 +164,8 @@ function entries(): Entry[] {
         cover,
         updated: b.updated,
         author: EXAMPLES_BY,
+        contributors: [],
+        icon: canvasIconUrl(b.slug),
         ground: /^#[0-9a-f]{6}$/i.test(String(b.layout?.ground))
           ? String(b.layout!.ground)
           : "#2b2b2b",
@@ -137,20 +176,27 @@ function entries(): Entry[] {
 const plural = (n: number) => `${n} board${n === 1 ? "" : "s"}`;
 const avatar = (login: string) => `https://github.com/${login}.png?size=64`;
 
-/**
- * A project's thumbnail, as `sp pack` draws the package's thumbnail.png (tools/sp_canvas.py):
- * its cover whole, centred on the canvas's ground in a 16:10 frame. Drawn here from the cover
- * until the community repo's packages carry the file.
- */
+/** A project's thumbnail: a shared one's thumbnail.png, or an example's drawn the same way. */
 function Thumb({ entry }: { entry: Entry }) {
+  return entry.thumbnail ? (
+    <div className="cm-thumb">
+      <img className="cm-png" src={entry.thumbnail} alt="" loading="lazy" />
+    </div>
+  ) : (
+    <Drawn entry={entry} />
+  );
+}
+
+/**
+ * An example's thumbnail, drawn as `sp pack` draws a package's thumbnail.png
+ * (tools/sp_canvas.py): its cover whole, centred on the canvas's ground in a 16:10 frame.
+ */
+function Drawn({ entry }: { entry: Entry }) {
   const [frame, width] = useWidth();
-  const { cover } = entry;
+  const cover = entry.cover!;
   const [, , w, h] = cover.box;
   const pad = width * 0.05;
-  const scale = Math.min(
-    (width - 2 * pad) / w,
-    (width * 0.625 - 2 * pad) / h,
-  );
+  const scale = Math.min((width - 2 * pad) / w, (width * 0.625 - 2 * pad) / h);
   const fit = fitCover(cover.box, w * scale, h * scale);
   return (
     <div className="cm-thumb" ref={frame} style={{ background: entry.ground }}>
@@ -181,7 +227,7 @@ function Card({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
           <Thumb entry={entry} />
         </div>
         <div className="cm-cap">
-          <img className="cm-appicon" src={canvasIconUrl(entry.slug)} alt="" />
+          {entry.icon && <img className="cm-appicon" src={entry.icon} alt="" />}
           <span className="cm-capname">
             <b>{entry.name}</b>
             <span className="cm-mono">{plural(entry.boards)}</span>
@@ -207,7 +253,7 @@ export function CommunityPage({
 }: {
   openExample?: (slug: string) => void;
 }) {
-  const [all] = useState(entries);
+  const [all, setAll] = useState(examples);
   const [family, setFamily] = useState<Family | "all">("all");
   const [collection, setCollection] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -254,6 +300,14 @@ export function CommunityPage({
     };
     addEventListener("keydown", onKey);
     return () => removeEventListener("keydown", onKey);
+  }, []);
+
+  // Offline, or with GitHub down, the page lists the examples alone.
+  useEffect(() => {
+    fetch(`${RAW}index.json`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((index: Index) => setAll([...shared(index), ...examples()]))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -384,7 +438,7 @@ export function CommunityPage({
                 </p>
                 <a
                   className="cm-btn cm-btn--solid cm-btn--md"
-                  href={DISCORD}
+                  href={SHARE}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -427,23 +481,23 @@ export function CommunityPage({
       <section className="cm-submit">
         <div className="cm-subl">
           <div className="cm-subicon">
-            <LogoDiscord />
+            <LogoGithub />
           </div>
           <div>
             <b>Share what you made</b>
             <span>
-              Post your project in Discord; sharing it here by pull request
-              comes next.
+              Ask your agent to share a project to the community. It opens a
+              pull request, and it shows up here once merged.
             </span>
           </div>
         </div>
         <a
           className="cm-btn cm-btn--solid cm-btn--md"
-          href={DISCORD}
+          href={SHARE}
           target="_blank"
           rel="noopener noreferrer"
         >
-          Join Discord <ArrowRight />
+          How to share <ArrowRight />
         </a>
       </section>
 
@@ -451,7 +505,7 @@ export function CommunityPage({
         <span>
           Not affiliated with the companies whose apps are shown here. To have
           one removed,{" "}
-          <a href={ISSUES} target="_blank" rel="noopener noreferrer">
+          <a href={TAKEDOWN} target="_blank" rel="noopener noreferrer">
             open an issue
           </a>
           .
@@ -478,7 +532,7 @@ export function CommunityPage({
             </div>
             <div className="cm-info">
               <div className="cm-head">
-                <img src={canvasIconUrl(open.slug)} alt="" />
+                {open.icon && <img src={open.icon} alt="" />}
                 <div>
                   <h3 id="cm-dlg-title">{open.name}</h3>
                   <a
@@ -490,6 +544,18 @@ export function CommunityPage({
                     <img src={avatar(open.author)} alt="" />
                     {open.author}
                   </a>
+                  {open.contributors.map((c) => (
+                    <a
+                      key={c}
+                      className="cm-by"
+                      href={`https://github.com/${c}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={c}
+                    >
+                      <img src={avatar(c)} alt={c} />
+                    </a>
+                  ))}
                 </div>
               </div>
               <div className="cm-stats">
@@ -521,26 +587,38 @@ export function CommunityPage({
                 </>
               )}
               <div className="cm-actions">
-                <a
-                  className="cm-btn cm-btn--solid cm-btn--md"
-                  href={canvasPageUrl(open.slug)}
-                  onClick={
-                    openExample &&
-                    openInTab((slug: string) => {
-                      setOpen(null);
-                      openExample(slug);
-                    }, open.slug)
-                  }
-                >
-                  Open <ArrowRight />
-                </a>
+                {open.source ? (
+                  <a
+                    className="cm-btn cm-btn--solid cm-btn--md"
+                    href={open.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <LogoGithub /> View on GitHub
+                  </a>
+                ) : (
+                  <a
+                    className="cm-btn cm-btn--solid cm-btn--md"
+                    href={canvasPageUrl(open.slug)}
+                    onClick={
+                      openExample &&
+                      openInTab((slug: string) => {
+                        setOpen(null);
+                        openExample(slug);
+                      }, open.slug)
+                    }
+                  >
+                    Open <ArrowRight />
+                  </a>
+                )}
                 <button
                   type="button"
                   className="cm-btn cm-btn--ghost cm-btn--md"
                   onClick={() =>
                     navigator.clipboard
                       .writeText(
-                        `${DEMO}?canvas=${encodeURIComponent(open.slug)}`,
+                        open.source ??
+                          `${DEMO}?canvas=${encodeURIComponent(open.slug)}`,
                       )
                       .then(() => setCopied(open.slug))
                   }

@@ -181,6 +181,12 @@
   outline-offset: 4px;
   border-radius: 12px;
 }
+.cm-png {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .cm-cover {
   position: relative;
   overflow: hidden;

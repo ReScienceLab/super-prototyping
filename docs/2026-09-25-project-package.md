@@ -1,8 +1,8 @@
 # A project is the unit people share
 
 2026-09-25. Reviewed by two adversarial passes (correctness and security against the code;
-scope against the rules in CLAUDE.md). What they changed is at the end. Phases 0 to 2 are
-built; Phase 3 waits for the community repo. "What building it found" says where the build
+scope against the rules in CLAUDE.md). What they changed is at the end. Phases 0 to 3 are
+built; Phase 3's repo is ReScienceLab/super-prototyping-community. "What building it found" says where the build
 went past the plan.
 
 Whatever someone shares, on the community page or anywhere else, is packed and uploaded as a
@@ -227,13 +227,19 @@ Minting a missing `id` is the only write `sp pack` makes to the project.
 
 ### Phase 3: community submission by PR
 
-The shape comes from excalidraw-libraries. Details wait for the first hand-submitted project.
+The shape comes from excalidraw-libraries. The repo is
+[ReScienceLab/super-prototyping-community](https://github.com/ReScienceLab/super-prototyping-community);
+its `.github/community.py` is the check and the index, standard library only.
 
 - **A community repo** holds `projects/<id>/`, the output of `sp pack -o`, and an
   `index.json` with one entry per project.
 - **CI runs `sp pack --check`** on each changed project and checks that each `id` is either
   new or already at that same path. A person reviews what passes, for quality. The review is
   curation and promises nothing about safety; Phase 0 does that.
+  - The workflow runs on `pull_request_target` with read-only permissions: the base branch's
+    script checks the PR's files, and nothing from the PR is ever run.
+  - It installs `sp` from this repo at `vars.SP_REF`, else `main`. `SP_REF` names this
+    branch until `sp pack` reaches `main`; delete the variable then.
 - **Every project names its people, and CI holds the names to the PR.** This is the Raycast
   Store's model, the gallery closest to ours: its `package.json` names `author` and
   `contributors` by handle, and its CI refuses an author it cannot tie to the submitter's
@@ -257,9 +263,11 @@ The shape comes from excalidraw-libraries. Details wait for the first hand-submi
     in, and otherwise tells the person to set it. `--check` reports a missing `author` as a
     problem, like a missing `id`.
   - Links to a person's site or Twitter, which Excalidraw carries, wait until someone asks.
-- **The site** (`super-prototyping-landing`) builds `/community` from `index.json`. It shows
-  covers as images and never frames a board. A card shows the author's avatar and login, and
-  the contributors' avatars beside them.
+- **The community page** (`canvas/src/Community.tsx`) reads `index.json` from the repo's raw
+  files and lists those projects before the examples. It shows each `thumbnail.png` as an
+  image and never frames a board. A card shows the author's avatar and login, and the
+  contributors' avatars beside them. A shared project opens on GitHub until import exists.
+  The app shows the page as a tab; the site serves the hosted build's page at `/community`.
 
 ## Later
 
@@ -299,23 +307,18 @@ packing a single canvas.
   - A font file inside the package counts against the caps like anything else.
 - **The community repo stays small, so it is an ordinary GitHub repo.** Its CI is a GitHub
   Actions workflow in that repo, owned by this project's maintainers. It runs `sp pack --check`,
-  checks that `thumbnail.png` is the cover `sp pack` would draw now, and fails a PR over the
-  caps. Its size is looked at again
-  if the repo passes 1 GB.
-
-## Open questions
-
-1. **Licence and takedown.** What licence a submission is under, and how something is taken
-   down, are the product's to decide. Recommended: one licence for the whole repo, CC BY 4.0
-   for the work and MIT for the code in it such as `gen.py`, so no project needs a `license`
-   key. The PR template has the submitter confirm the work is theirs to share, and says the
-   licence covers only their own work, not the brands a clone copies. Takedown is an issue
-   template and an email, answered within 7 days, beside GitHub's own DMCA process.
-
-2. **Renaming a project.** Whether renaming a project in the app renames its folder, or only
-   sets `name`. The `id` makes either safe for sharing. Recommended: only `name`. The folder is
-   the address agents, links and git history hold, and in the community repo a moved folder
-   reads as one project deleted and another added.
+  checks that `thumbnail.png` is a 1600 × 1000 PNG, and fails a PR over the caps. It does not
+  check that the thumbnail is the cover `sp pack` would draw now: Chrome draws it a few pixels
+  differently on each machine, so a byte match would fail honest PRs. Its size is looked at
+  again if the repo passes 1 GB.
+- **Licence and takedown.** One licence for the whole repo, CC BY 4.0 for the work and MIT for
+  the code in it such as `gen.py`, so no project needs a `license` key. The PR template has the
+  submitter confirm the work is theirs to share, and says the licence covers only their own
+  work, not the brands a clone copies. Takedown is an issue template and an email, answered
+  within 7 days, beside GitHub's own DMCA process.
+- **Renaming a project sets only `name`,** when the app gets a rename. The folder is the
+  address agents, links and git history hold, and in the community repo a moved folder reads
+  as one project deleted and another added.
 
 ## What building it found
 
