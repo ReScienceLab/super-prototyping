@@ -156,7 +156,7 @@ function Card(props: {
           ))}
       </div>
       <div className="home-file__foot">
-        {props.icon ? <img src={props.icon} alt="" /> : <span />}
+        {props.icon && <img src={props.icon} alt="" />}
         <div>
           <b>{props.name}</b>
           <small>{props.sub}</small>
@@ -340,7 +340,7 @@ export function HomePage(props: {
                 cover={projectCover([c])}
                 base={import.meta.env.BASE_URL}
                 updated={c.updated}
-                icon={canvasIconUrl(c.slug)}
+                icon={c.icon ? canvasIconUrl(c.slug) : undefined}
                 name={nameOf(c)}
                 sub="Example"
                 count={plural(c.html.length, "board")}

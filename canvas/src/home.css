@@ -175,8 +175,7 @@ button.home-tile i {
   padding: 0 16px;
   border-top: 1px solid var(--ds-gray-alpha-400);
 }
-.home-file__foot img,
-.home-file__foot > span {
+.home-file__foot img {
   flex: none;
   width: 24px;
   height: 24px;
