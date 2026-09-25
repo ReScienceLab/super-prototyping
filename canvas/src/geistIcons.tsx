@@ -39,6 +39,16 @@ import {
   SidebarLeft as GSidebarLeft,
   Sparkles as GSparkles,
   TextTitle as GTextTitle,
+  ArrowRight as GArrowRight,
+  DesktopDevice as GDesktopDevice,
+  DeviceAlternate as GDeviceAlternate,
+  Globe as GGlobe,
+  GridSquare as GGridSquare,
+  Link as GLink,
+  MagnifyingGlass as GMagnifyingGlass,
+  PhoneDevice as GPhoneDevice,
+  Users as GUsers,
+  Window as GWindow,
 } from "geist-icons";
 
 type IconProps = ComponentProps<typeof GCheck>;
@@ -76,3 +86,13 @@ export const RefreshCounterClockwise = at16(GRefreshCounterClockwise);
 export const SidebarLeft = at16(GSidebarLeft);
 export const Sparkles = at16(GSparkles);
 export const TextTitle = at16(GTextTitle);
+export const ArrowRight = at16(GArrowRight);
+export const DesktopDevice = at16(GDesktopDevice);
+export const DeviceAlternate = at16(GDeviceAlternate);
+export const Globe = at16(GGlobe);
+export const GridSquare = at16(GGridSquare);
+export const Link = at16(GLink);
+export const MagnifyingGlass = at16(GMagnifyingGlass);
+export const PhoneDevice = at16(GPhoneDevice);
+export const Users = at16(GUsers);
+export const Window = at16(GWindow);

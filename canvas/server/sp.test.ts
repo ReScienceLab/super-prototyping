@@ -469,7 +469,7 @@ async function serve(options: Parameters<typeof createSpServer>[0]) {
     const answered = new Promise<{
       status: number;
       text: string;
-      csp?: string;
+      csp?: string | string[];
     }>((done) => {
       req = http.request(
         { port, path: url, method: body ? "POST" : "GET" },

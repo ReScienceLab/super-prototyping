@@ -6,6 +6,7 @@ import {
   readOpenTabs,
   tabFor,
   tabKey,
+  tabOfExample,
   tabUrl,
   withTab,
   writeOpenTabs,
@@ -21,6 +22,7 @@ import {
   type CanvasAttachDetail,
   type Working,
 } from "./ChatPanel";
+import { CommunityPage } from "./Community";
 import { HomePage } from "./HomePage";
 import { NewProjectDialog, type NewProjectStart } from "./NewProjectDialog";
 import { Onboarding } from "./Onboarding";
@@ -83,7 +85,16 @@ const onboarding = new URLSearchParams(location.search).get("onboarding");
  */
 export function AppShell() {
   const chat = useChat();
-  const [home, setHome] = useState(opened === null);
+  /** What is over the frame, if anything: home, or the community (Community.tsx). */
+  const [page, setPage] = useState<"home" | "community" | null>(
+    opened === null ? "home" : null,
+  );
+  /** Whether the frame is behind a page, so no project's canvas is in front. */
+  const home = page !== null;
+  const setHome = (on: boolean) => setPage(on ? "home" : null);
+  /** Whether the community has its chip on the bar. */
+  // ponytail: not among the tabs kept for the next visit; keep it in writeOpenTabs if missed.
+  const [community, setCommunity] = useState(false);
   /** What the canvas last said it has in front, and its address; null before one has loaded. */
   const [shown, setShown] = useState(opened);
   /**
@@ -289,10 +300,25 @@ export function AppShell() {
         active={home ? null : (shown?.tab ?? null)}
         working={working}
         onHome={() => setHome(true)}
+        community={
+          community
+            ? {
+                active: page === "community",
+                open: () => setPage("community"),
+                // Closing it in front goes home, where it was opened from.
+                close: () => {
+                  setCommunity(false);
+                  if (page === "community") setHome(true);
+                },
+              }
+            : undefined
+        }
         goTo={goTo}
         closeTabs={closeTabs}
         reload={() =>
-          home ? listProjects() : frame.current!.contentWindow!.location.reload()
+          page === "home"
+            ? listProjects()
+            : page === null && frame.current!.contentWindow!.location.reload()
         }
         newProject={served ? newProject : undefined}
       >
@@ -322,8 +348,17 @@ export function AppShell() {
             src={opened?.href}
             style={home ? { visibility: "hidden" } : undefined}
           />
-          {home && (
+          {page === "community" && (
+            <CommunityPage
+              openExample={(slug) => goTo(tabOfExample(slug, tabs))}
+            />
+          )}
+          {page === "home" && (
             <HomePage
+              openCommunity={() => {
+                setCommunity(true);
+                setPage("community");
+              }}
               projects={projects}
               tabs={tabs}
               goTo={goTo}

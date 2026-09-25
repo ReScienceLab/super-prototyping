@@ -26,7 +26,7 @@ import {
   setProjectCover,
   TRASH,
 } from "./contextMenu";
-import { FolderPlus, LogoDiscord, LogoGithub, Plus } from "./geistIcons";
+import { FolderPlus, LogoDiscord, LogoGithub, Plus, Users } from "./geistIcons";
 
 type Sort = "edited" | "name" | "boards";
 /** A card's right-click: the address it links to, the tab it opens, and its project if it is one. */
@@ -63,13 +63,75 @@ function ago(ms: number) {
 }
 
 /**
+ * A cover at `scale`, placed at `place` in its stage. A board is a picture of it, `/__sp/shoot`'s,
+ * which the server draws once per edit, so a page of forty cards is forty images rather than forty
+ * documents. Where there is nothing to draw it, a build with no server or a machine without refkit,
+ * it is the board itself in a frame, sandboxed because a thumbnail has nothing to run. An image is
+ * the file itself.
+ */
+export function CoverPicture(props: {
+  cover: Cover;
+  /** The address its files are under: the project's, or this page's for an example. */
+  base: string;
+  /** When it was last edited, so a board written since is shot again. */
+  updated: number;
+  title: string;
+  scale: number;
+  place: { left: number; top: number };
+}) {
+  const { cover, base, scale, place } = props;
+  const [live, setLive] = useState(!canvasIndex().served);
+  const file = `${base}board/${encodeURI(cover.path)}`;
+  const board = cover.path.endsWith(".html");
+  return board && live ? (
+    <iframe
+      src={file}
+      title={props.title}
+      loading="lazy"
+      sandbox=""
+      tabIndex={-1}
+      aria-hidden
+      style={{
+        ...place,
+        width: cover.w,
+        height: cover.h,
+        transform: `scale(${scale})`,
+      }}
+    />
+  ) : (
+    <img
+      src={
+        board
+          ? `${base}__sp/shoot?path=${encodeURIComponent(cover.path)}` +
+            `&w=${cover.w}&h=${cover.h}&v=${props.updated}`
+          : file
+      }
+      alt=""
+      loading="lazy"
+      onError={board ? () => setLive(true) : undefined}
+      style={{ ...place, width: cover.w * scale, height: cover.h * scale }}
+    />
+  );
+}
+
+/** A stage's width, which a grid's stretching columns set and only layout knows. */
+// oxlint-disable-next-line react/only-export-components
+export function useWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  useLayoutEffect(() => {
+    const observer = new ResizeObserver(([entry]) =>
+      setWidth(entry.contentRect.width),
+    );
+    observer.observe(ref.current!);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, width] as const;
+}
+
+/**
  * A file card as Figma draws one: its cover on a grey stage. A link to its tab's address, which a
  * plain click opens as the tab instead.
- *
- * The cover is a picture of the board, `/__sp/shoot`'s, which the server draws once per edit, so
- * a page of forty cards is forty images rather than forty documents. Where there is nothing to
- * draw it, a build with no server or a machine without refkit, it is the board itself in a frame,
- * sandboxed because a thumbnail has nothing to run.
  */
 function Card(props: {
   href: string;
@@ -85,18 +147,8 @@ function Card(props: {
   sub: string;
   count: string;
 }) {
-  const { cover, base } = props;
-  const stage = useRef<HTMLDivElement>(null);
-  const [stageW, setStageW] = useState(0);
-  const [live, setLive] = useState(!canvasIndex().served);
-  // The grid's columns stretch, so the stage's width is the card's and only known once laid out.
-  useLayoutEffect(() => {
-    const observer = new ResizeObserver(([entry]) =>
-      setStageW(entry.contentRect.width),
-    );
-    observer.observe(stage.current!);
-    return () => observer.disconnect();
-  }, []);
+  const { cover } = props;
+  const [stage, stageW] = useWidth();
   // The cover fills the stage: an element chosen as cover centred in it, a whole board from its
   // top, the way a page is read. Clamped so the board is under every pixel of the stage.
   const fit = cover && stageW > 0 && fitCover(cover.box, stageW, STAGE_H);
@@ -108,8 +160,6 @@ function Card(props: {
       ? Math.min(0, Math.max(fit.top, STAGE_H - cover.h * fit.scale))
       : 0,
   };
-  const file = cover && `${base}board/${encodeURI(cover.path)}`;
-  const board = cover?.path.endsWith(".html");
   return (
     <a
       className="home-file"
@@ -118,42 +168,16 @@ function Card(props: {
       onContextMenu={props.onContextMenu}
     >
       <div className="home-file__thumb" ref={stage}>
-        {cover &&
-          fit &&
-          place &&
-          (board && live ? (
-            <iframe
-              src={file}
-              title={props.name}
-              loading="lazy"
-              sandbox=""
-              tabIndex={-1}
-              aria-hidden
-              style={{
-                ...place,
-                width: cover.w,
-                height: cover.h,
-                transform: `scale(${fit.scale})`,
-              }}
-            />
-          ) : (
-            <img
-              src={
-                board
-                  ? `${base}__sp/shoot?path=${encodeURIComponent(cover.path)}` +
-                    `&w=${cover.w}&h=${cover.h}&v=${props.updated}`
-                  : file
-              }
-              alt=""
-              loading="lazy"
-              onError={board ? () => setLive(true) : undefined}
-              style={{
-                ...place,
-                width: cover.w * fit.scale,
-                height: cover.h * fit.scale,
-              }}
-            />
-          ))}
+        {cover && fit && place && (
+          <CoverPicture
+            cover={cover}
+            base={props.base}
+            updated={props.updated}
+            title={props.name}
+            scale={fit.scale}
+            place={place}
+          />
+        )}
       </div>
       <div className="home-file__foot">
         {props.icon && <img src={props.icon} alt="" />}
@@ -184,6 +208,8 @@ export function HomePage(props: {
   newProject?: () => void;
   /** Lists the projects again, after one is deleted or its cover reset. */
   reload: () => void;
+  /** Brings the Community tab forward (Community.tsx). */
+  openCommunity: () => void;
 }) {
   const { projects, tabs } = props;
   const [sort, setSort] = useState<Sort>("edited");
@@ -226,6 +252,17 @@ export function HomePage(props: {
             <small>A folder of canvases for your next app</small>
           </button>
         )}
+        <button
+          className="home-tile home-tile--community"
+          type="button"
+          onClick={props.openCommunity}
+        >
+          <i>
+            <Users />
+          </i>
+          <span>Community</span>
+          <small>Browse app clones people made, and open one</small>
+        </button>
         <a
           className="home-tile"
           href="https://discord.gg/2DEZFFKx7k"
