@@ -1,0 +1,3 @@
+# Cloudflare Pages: a board runs in an origin of its own, as server/sp.ts serves it (SANDBOX).
+/board/*
+  Content-Security-Policy: sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads

@@ -51,6 +51,15 @@ export function sameOrigin(req: IncomingMessage) {
 }
 
 /**
+ * What a board, or any page a project holds, runs under when it is opened at its own address: an
+ * origin of its own, so its script cannot reach the canvas's storage or its write endpoints, whose
+ * guard sees it as cross-site. A board is a project's, and a project can be someone else's.
+ * `public/_headers` gives the hosted build's `/board/*` the same.
+ */
+const SANDBOX =
+  "sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads";
+
+/**
  * A canvas's folder: the project's own, else the example of that name. The project's own is what
  * the scan in boards.ts calls a canvas, a folder with a board or a layout.json in it, so a folder
  * the project has only begun under an example's name does not hide the example. A name that is
@@ -390,6 +399,7 @@ export function createSpServer(options: {
       return send(404, "not a board");
     }
     res.setHeader("Content-Type", type);
+    res.setHeader("Content-Security-Policy", SANDBOX);
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Accept-Ranges", "bytes");
     // A byte range, which is how a video seeks: a pasted one can be a gigabyte, and without it
@@ -467,10 +477,7 @@ export function createSpServer(options: {
       return res.end("not a file of this project");
     }
     res.setHeader("Content-Type", type);
-    res.setHeader(
-      "Content-Security-Policy",
-      "sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads",
-    );
+    res.setHeader("Content-Security-Policy", SANDBOX);
     res.setHeader("Cache-Control", "no-store");
     fs.createReadStream(file).pipe(res);
   });

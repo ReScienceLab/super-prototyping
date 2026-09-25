@@ -11,11 +11,12 @@
  */
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import { createAgentServer } from "./agent.ts";
-import { CANVASES } from "./boards.ts";
+import { CANVASES, readJson } from "./boards.ts";
 import { createSpServer, reveal, sameOrigin, trash } from "./sp.ts";
 
 /**
@@ -47,6 +48,29 @@ function moveOldBoards(dir: string) {
   console.log(`moved ${old} to ${boards}`);
   if (fs.readdirSync(path.dirname(old)).every((f) => f === ".DS_Store"))
     fs.rmSync(path.dirname(old), { recursive: true });
+}
+
+/**
+ * The newest `project.json` format this app reads. It goes up only when an app that reads this one
+ * would misread a project of the next; a file or key it does not know is ignored and kept, so
+ * adding one needs no new format. A project with none is format 1.
+ */
+const PROJECT_FORMAT = 1;
+
+/** Whether a Host header names this machine by an address or by localhost, which no DNS can move. */
+export function loopbackHost(host: string | undefined) {
+  if (!host) return false;
+  let hostname: string;
+  try {
+    hostname = new URL(`http://${host}`).hostname;
+  } catch {
+    return false;
+  }
+  return (
+    net.isIP(hostname.replace(/^\[(.*)\]$/, "$1")) !== 0 ||
+    hostname === "localhost" ||
+    hostname.endsWith(".localhost")
+  );
 }
 
 export function createProjectsServer(options: {
@@ -111,6 +135,14 @@ export function createProjectsServer(options: {
     res: ServerResponse,
     next: () => void,
   ) => {
+    // Asked for by an address, not a name that could be anyone's. A site can point its own name at
+    // 127.0.0.1 once its page is open (DNS rebinding), and then it is same-origin with this server
+    // and every guard here waves it through. The browser still sends the name it asked for as
+    // Host, so a name other than localhost is refused.
+    if (!loopbackHost(req.headers.host)) {
+      res.statusCode = 403;
+      return res.end("This server answers only to localhost or an IP address.");
+    }
     const url = req.url ?? "/";
     const [pathname, query = ""] = url.split(/\?(.*)/s);
     // The bare root is the home page, and the root with a query is the window on an example
@@ -229,6 +261,11 @@ export function createProjectsServer(options: {
           // here and the examples, is the tree's and shown beside the project's own, so there is
           // nothing to copy in.
           fs.mkdirSync(path.join(dir, CANVASES), { recursive: true });
+          // Its id is what a package of it is known by, whatever the folder is renamed to.
+          fs.writeFileSync(
+            path.join(dir, "project.json"),
+            `${JSON.stringify({ format: PROJECT_FORMAT, id: crypto.randomUUID() }, null, 2)}\n`,
+          );
         } catch (e) {
           // A new name does not fix an unwritable Documents, so say what failed.
           return send(
@@ -254,6 +291,14 @@ export function createProjectsServer(options: {
     if (dir === undefined) {
       res.statusCode = 404;
       return res.end("no such project");
+    }
+    // Made by a newer app, which may keep it in a way this one would misread, and then write back.
+    const format = (readJson(path.join(dir, "project.json")) as { format?: unknown })?.format;
+    if (typeof format === "number" && format > PROJECT_FORMAT) {
+      res.statusCode = 409;
+      return res.end(
+        `“${decodeURIComponent(name)}” was made by a newer Super Prototyping. Update the app to open it.`,
+      );
     }
     // The url stays stripped for `next`, which is the static app or Vite serving the page.
     req.url = rest;
