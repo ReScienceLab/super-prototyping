@@ -1,7 +1,9 @@
 # A project is the unit people share
 
-2026-09-25. A plan, not yet built. Reviewed by two adversarial passes (correctness and security
-against the code; scope against the rules in CLAUDE.md). What they changed is at the end.
+2026-09-25. Reviewed by two adversarial passes (correctness and security against the code;
+scope against the rules in CLAUDE.md). What they changed is at the end. Phases 0 to 2 are
+built; Phase 3 waits for the community repo. "What building it found" says where the build
+went past the plan.
 
 Whatever someone shares, on the community page or anywhere else, is packed and uploaded as a
 whole project. Nothing smaller is shared: a canvas that should travel alone is a project with
@@ -248,6 +250,13 @@ The shape comes from excalidraw-libraries. Details wait for the first hand-submi
 
 A zip (`sp pack -o x.zip`) arrives with it, when something first hands out a download.
 
+**The examples move to the community repo.** The app ships every example in `canvases/`
+inside every install: 411 MB as one project, twice the package cap. Once the community repo
+takes projects, each example becomes a project there and the app downloads the ones a person
+opens, so an install carries only the welcome canvas. Not now: it needs import first, and the
+examples need a `project.json` each. `luma-ios` would not pass `sp pack` today: its layout
+names four `w*-` walkthrough captures that are gitignored.
+
 Not planned: accounts, signing, hosting projects on superproto.dev, live collaboration, and
 packing a single canvas.
 
@@ -274,6 +283,32 @@ packing a single canvas.
 
 1. **Licence and takedown.** What licence a submission is under, and how something is taken
    down, are the product's to decide.
+
+2. **Renaming a project.** Whether renaming a project in the app renames its folder, or only
+   sets `name`. The `id` makes either safe for sharing.
+
+## What building it found
+
+- **DNS rebinding.** Nothing checked the Host header, so a site that points its own name at
+  127.0.0.1 was same-origin with the app and passed `sameOrigin()`, `/__sp/agent/run`
+  included. `projects.ts` now answers only to an IP address, `localhost` or `*.localhost`, in
+  front of every route. It is part of Phase 0 because it is the same boundary: a page from
+  elsewhere must not drive the app.
+- **All of `/board` is sandboxed,** not only `.html` and `.svg`. The header does nothing to an
+  image or a video, and one rule is less to get wrong than a list of types.
+- **A missing `project.json` is a format-1 project with no id,** as Phase 1 says, so `sp pack`
+  writes one rather than failing. A project made before today has none.
+- **A reference to a file left out on purpose passes.** Clone layouts name their `ref-*` rows,
+  and the app already shows a missing board as missing.
+- **The thumbnail is the cover whole, centred on the canvas's ground,** not cropped to fill
+  the frame as a home card is: 1600 × 1000 crops a phone to its top third.
+- **On real projects:** every one made today has no `id` yet. "Launch Video Studios" has
+  twelve videos over 50 MB, up to 538 MB, and "Super Prototyping Site" is 509 MB in all.
+  Both would have to link their videos from where they are hosted. The caps stand.
+- **The sandbox checked by hand** on the dev server: a board still renders at its own address.
+  A Host of `rebound.example` gets 403 and `localhost` gets 200. The sheet page's board frames
+  came out blank in headless Chrome with the header and without it, so that is the screenshot,
+  not the sandbox. A real browser should still open the sheet once before release.
 
 ## What the review changed
 
