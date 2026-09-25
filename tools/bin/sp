@@ -17,5 +17,7 @@ command -v uv >/dev/null || {
 }
 cache=${SUPER_PROTOTYPING_HOME:+$SUPER_PROTOTYPING_HOME/cache}
 cache=${cache:-${XDG_CACHE_HOME:-$HOME/.cache}/super-prototyping}
-UV_PROJECT_ENVIRONMENT=$cache/venv \
+# Python's bytecode goes to the cache too: written beside the sources it lands inside the app,
+# which then no longer matches its signature.
+UV_PROJECT_ENVIRONMENT=$cache/venv PYTHONPYCACHEPREFIX=$cache/pycache \
   exec uv run --quiet --frozen --no-dev --project "$root/tools" "$(basename "$0")" "$@"
