@@ -509,6 +509,23 @@ declares a box other than the default 478 x 980.
   a 440 x 956 iPhone 17 Pro Max, which does not fit the default artboard, so
   every board declares 532 x 1004. The four `ref-*` boards are gitignored, so a
   fresh clone has 7.
+- `stepwise-ios/`: the second run from a screen recording, and the one to read
+  when every illustration in the source is someone else's original art. Seven
+  boards from a 9.9 s, 2160 x 2160 recording of an iOS app called Stepwise, in
+  three rows: a token board and two evidence boards for 43 tokens, two screens
+  (a profile, and the "Pick your vibe" avatar sheet over it), and the
+  recording's own frame under each. Mean absolute delta against those frames is
+  3.38 and 1.51 levels (of 255) once the substituted regions are cut, 7.24 and
+  21.27 whole. All twelve faces are this repo's own characters, because the
+  source's are its designer's; what was measured and matched is the system
+  around them, a 2.78 pt line on a 92.7 pt disc, the ink box, the pale ground
+  and the grid pitch, and the two art regions cost 72.54 and 41.65, stated
+  rather than hidden in a total. Its `README.md` records the capture scale that
+  does not close to itself (2.38185 px/pt across against 2.36819 down, on a
+  frame whose 2.157 aspect belongs to no shipping iPhone), the typeface it
+  declines to name and the 1.4-3.2% width bill that costs on the black weights,
+  and the top 69.93 pt of the sheet screen that the recording does not contain.
+  The two `ref-*` boards are gitignored, so a fresh clone has 5.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so

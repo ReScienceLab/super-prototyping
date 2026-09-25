@@ -840,7 +840,6 @@ for _name, _html in ref_boards():
 WH = {"w": 532, "h": 1004}
 LAYOUT = {
  "name": PAGE_NAME,
- "order": 3,
  "cover": "01-feed-top",
  "coverBox": [46, 24, 440, 956],
  "ground": "#d9d6d7",

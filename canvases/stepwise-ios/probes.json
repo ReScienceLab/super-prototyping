@@ -1,0 +1,951 @@
+[
+ {
+  "id": "bg",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   378,
+   700,
+   390,
+   840
+  ],
+  "only": "flat",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "page ground right of every card, x 378-390: the gutter is 20.7pt wide and the tab bar ends at x 291.3, so nothing else is in it",
+  "_head": "Phase 1's measurements, replayable. Boxes are design pt on a 393x852 phone. The two references sit at DIFFERENT capture scales, because the recording's camera zooms in as the sheet opens: p1.png is 936x2029 at 2.381679 px/pt and p2.png is 1079x2339 at 2.745547 px/pt, and every probe carries its own \"pt\" so the command line's --pt is never what decides. p2's top 69.93pt is off the top of the video and is padded with the flat dimmed ground: no probe reads above y 70 on p2, and the delta table excludes that band. refkit batch applies one --pt to the reference and to the render alike, so the render has to be on the reference's own grid before it is probed: each row's \"mine\" names cap-<board>.png, which scratch/fit.py writes into scratch/mine beside refkit shoot's raw 3x output, at 936x2029 and 1079x2339 with the phone's 52pt corners masked the same way in both. Pointing --against at the raw shots instead reads every box at the wrong scale and errors a dozen probes. The twelve grid faces, the profile head and the two app icons are this repo's own art, not the source's, so no probe measures their ink: the probes near them read the white circle and the pale ground they sit in, which ARE measured. 'only: ink' is the mean of the darkest few percent, 'only: flat' the flat-neighbour census, 'only: all' the mode of a core-only crop. On a bbox, 'dark N' keeps pixels darker than N and 'bright N' keeps pixels lighter."
+ },
+ {
+  "id": "card",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   358,
+   160,
+   396
+  ],
+  "only": "flat",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the left tile's blank band, below the app-icon stack (ends y 350.5) and above 3 apps added (cap top 405.6)"
+ },
+ {
+  "id": "well",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   222,
+   303,
+   232,
+   332
+  ],
+  "only": "flat",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the pale disc behind the footprints: it runs 219.75-274.25 and the glyph ink starts at 235.5"
+ },
+ {
+  "id": "chip",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   258,
+   790,
+   285,
+   812
+  ],
+  "only": "flat",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the selected tab's pill, right of the person glyph (ends x 252.3) and inside the pill's right edge at 286.7"
+ },
+ {
+  "id": "bar",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   108,
+   785,
+   138,
+   818
+  ],
+  "only": "flat",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the tab bar's own material, left of the house glyph (starts x 140.7): reads #FEFCF8, which is .85 white over what is under it"
+ },
+ {
+  "id": "hero-fill",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   180,
+   83,
+   214,
+   88
+  ],
+  "only": "flat",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the profile circle above its face ink, which starts at y 89; the circle's top is 80.2"
+ },
+ {
+  "id": "scrim",
+  "img": "assets/refs/p2.png",
+  "cmd": "sample",
+  "box": [
+   20,
+   200,
+   120,
+   250
+  ],
+  "only": "flat",
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "the dimmed page ground between the status bar and the sheet top at 270: #C3BFBC over #F4F0EB solves rgba(0,0,0,.20)"
+ },
+ {
+  "id": "scrim-white",
+  "img": "assets/refs/p2.png",
+  "cmd": "sample",
+  "box": [
+   141,
+   128,
+   148,
+   152
+  ],
+  "only": "flat",
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "the same scrim over white: inside the profile circle, left of its face ink; #CDCACE over #FEFEFE solves .20 again"
+ },
+ {
+  "id": "sheet",
+  "img": "assets/refs/p2.png",
+  "cmd": "sample",
+  "box": [
+   30,
+   340,
+   360,
+   358
+  ],
+  "only": "flat",
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "the sheet between its title (descends to 333.6) and the first avatar row (top 363.1)"
+ },
+ {
+  "id": "avatar-fill",
+  "img": "assets/refs/p2.png",
+  "cmd": "sample",
+  "box": [
+   300,
+   367,
+   318,
+   374
+  ],
+  "only": "flat",
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "grid circle 3 (centre 308.85, 409.45, d 92.7) just inside its top: the white this repo's own faces are drawn on"
+ },
+ {
+  "id": "grabber",
+  "img": "assets/refs/p2.png",
+  "cmd": "sample",
+  "box": [
+   181,
+   275,
+   212,
+   278
+  ],
+  "only": "all",
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "the sheet grabber core, 35.0 x 5.1 at (179.2, 274.3); too small for a flat census, so the mode of the core"
+ },
+ {
+  "id": "green",
+  "img": "assets/refs/p2.png",
+  "cmd": "sample",
+  "box": [
+   338,
+   440,
+   352,
+   452
+  ],
+  "only": "all",
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "the selected check disc, d 22.58 at (344.92, 446.18); core only, the white tick is the minority"
+ },
+ {
+  "id": "ink",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   182,
+   217,
+   211,
+   233
+  ],
+  "only": "ink",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "VB, the largest black ink on 01"
+ },
+ {
+  "id": "ink-2",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   220,
+   381,
+   291,
+   394
+  ],
+  "only": "ink",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "\"Daily target\", the muted tile label"
+ },
+ {
+  "id": "ink-2b",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   106,
+   495,
+   232,
+   509
+  ],
+  "only": "ink",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "\"Manage subscription\", the other muted string: #8A898A against Daily target's #878787, so one token at #888888"
+ },
+ {
+  "id": "ink-3",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   346,
+   729,
+   355,
+   743
+  ],
+  "only": "ink",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the About row's chevron, the lightest ink on the screen"
+ },
+ {
+  "id": "dash",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   181,
+   238.5,
+   212,
+   241.5
+  ],
+  "only": "ink",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the dashed rule under VB, 6 dashes over 29.8pt; refkit hairline returns the page ground here because a dashed rule dilutes the coverage sum, so this is the ink mean"
+ },
+ {
+  "id": "divider-run",
+  "img": "assets/refs/p1.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 250,
+  "range": [
+   640,
+   830
+  ],
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "col 250 down the list card, clear of the labels (longest ends x 205.7), the toggle (starts 293.2) and the chevrons: the dividers dip to about #F1F1F1 at y 646.9 / 708.6 / 763.9 / 820.1 on #FEFEFE. refkit hairline could not solve them -- it returns the ground at band widths 2, 5 and 6 -- so the run minimum is the evidence"
+ },
+ {
+  "id": "pro-ramp",
+  "img": "assets/refs/p1.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 42,
+  "range": [
+   470,
+   516
+  ],
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the Pro pill's vertical gradient down col 42, left of the word's white outline (starts x 49.9): #D736A9 at the 474.9 top to #FADEF5 at the 511.4 foot, a straight line in all three channels"
+ },
+ {
+  "id": "stack-ramp",
+  "img": "assets/refs/p1.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 81,
+  "range": [
+   290,
+   352
+  ],
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the front app tile's vertical gradient down its own centre column: five stops at .12 / .36 / .47 / .73 / .89 of 294.5-348.3. This repo draws those stops on a plain rounded square, never the source's app mark"
+ },
+ {
+  "id": "well-edge",
+  "img": "assets/refs/p1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 317,
+  "range": [
+   210,
+   234
+  ],
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "row 317 into the pale disc's left edge at 219.75; it runs to 274.25, d 54.5, and is too low-contrast for a luminance bbox. The window stops at 234 because the glyph ink starts at 235.5"
+ },
+ {
+  "id": "tabbar-edge",
+  "img": "assets/refs/p1.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 801.5,
+  "range": [
+   95,
+   120
+  ],
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "row 801.5 into the floating tab bar's left edge at 102.3; the bar runs to 291.3 and the selected chip 193.0-286.7"
+ },
+ {
+  "id": "list-top",
+  "img": "assets/refs/p1.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 200,
+  "range": [
+   566,
+   582
+  ],
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "col 200 through the list card's top edge at 572.1"
+ },
+ {
+  "id": "fade-floor",
+  "img": "assets/refs/p1.png",
+  "cmd": "sample",
+  "box": [
+   24,
+   812,
+   36,
+   840
+  ],
+  "only": "flat",
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "where the list card's scroll fade lands: it is #FEFEFE down to y 762.7, ramps, and holds #F6F2EF over the #F4F0EB ground from about y 805 to the bottom of the screen. That is 0.18 coverage, not zero, which is why the Privacy Policy row is still legible"
+ },
+ {
+  "id": "sheet-top",
+  "img": "assets/refs/p2.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 120,
+  "range": [
+   258,
+   280
+  ],
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "col 120 through the sheet's top edge: scrim #C3BFBC to 266.4, a 3pt halo, then the #F0EEEF fill from 269.7"
+ },
+ {
+  "id": "sheet-left",
+  "img": "assets/refs/p2.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 400,
+  "range": [
+   4,
+   16
+  ],
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "row 400 through the sheet's left edge at 9.0, so a 9pt side margin. The window starts at 4 to clear the display corner"
+ },
+ {
+  "id": "sheet-foot",
+  "img": "assets/refs/p2.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 120,
+  "range": [
+   838,
+   852
+  ],
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "col 120 through the sheet's bottom edge at 845.8, so a 6.2pt bottom margin"
+ },
+ {
+  "id": "av-gap-row",
+  "img": "assets/refs/p2.png",
+  "cmd": "scan",
+  "axis": "row",
+  "at": 409.45,
+  "range": [
+   124,
+   140
+  ],
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "row 409.45 out of grid circle 1 into the gap: white to 130.9, then sheet, and circle 2 starts again at 150.2. Circle 1's centre is 84.55 and its radius 46.35, so the column pitch is 112.18. The window starts at 124 because a face's ink reaches about 122: this reads the circle, never the art"
+ },
+ {
+  "id": "av-gap-col",
+  "img": "assets/refs/p2.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 55,
+  "range": [
+   440,
+   470
+  ],
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "col 55 down the gap between grid rows 1 and 2: the chord leaves circle 1 at 445.1 and enters circle 2 at 482.5, which puts the row centres 108.78 apart"
+ },
+ {
+  "id": "phone-corner",
+  "img": "assets/refs/p2.png",
+  "cmd": "scan",
+  "axis": "col",
+  "at": 30,
+  "range": [
+   835,
+   852
+  ],
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "col 30 through the bottom-left display corner: the sheet gives way at 847.4, and a 52pt circular corner predicts 847.1. That is the stand-in for the iPhone's 55pt continuous corner, and refkit --crop-phone masks the same 52"
+ },
+ {
+  "id": "hero",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   130,
+   74,
+   264,
+   204
+  ],
+  "bright": 250,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the profile circle: 138.6-254.9 x 80.2-197.3 at this threshold, which runs about 1pt tight against the corner fits; centre (196.75, 138.75)"
+ },
+ {
+  "id": "name",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   175,
+   212,
+   220,
+   238
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "VB: 27.7 x 15.9, cap 16.0 -> 22px/700. SF Pro Display bold sets it 5.7% wide at matched cap, so 22 and not the cap-matched 22.3"
+ },
+ {
+  "id": "dash-box",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   175,
+   236,
+   220,
+   245
+  ],
+  "dark": 200,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the dashed rule: 29.8 x 1.3 at (181.8, 239.3), centred on 196.7 like the circle"
+ },
+ {
+  "id": "shuffle",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   229,
+   172,
+   251,
+   192
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the shuffle glyph inside its badge: 15.5 x 13.0 at (232.2, 175.9)"
+ },
+ {
+  "id": "tile-l",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   260,
+   199,
+   444
+  ],
+  "bright": 250,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the left tile: 20.7-190.7 x 266.9-437.0, so 170 square"
+ },
+ {
+  "id": "tile-r",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   197,
+   260,
+   382,
+   444
+  ],
+  "bright": 250,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the right tile: 202.6-372.6, the same 170 square; the gap between the two is 11.9 and the gutter 20.7"
+ },
+ {
+  "id": "stack",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   30,
+   285,
+   136,
+   356
+  ],
+  "dark": 220,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the app-icon stack: 43.8-119.9 x 292.5-350.5. This repo draws three plain rounded squares into that box"
+ },
+ {
+  "id": "foot",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   230,
+   300,
+   266,
+   340
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the footprints glyph: 23.1 x 28.6 at (235.5, 303.1), on a pale disc centred (247.0, 317.2)"
+ },
+ {
+  "id": "daily",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   215,
+   378,
+   300,
+   398
+  ],
+  "dark": 180,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "\"Daily target\": 70.1 wide, cap 8.4 -> 13px/500"
+ },
+ {
+  "id": "apps",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   30,
+   398,
+   140,
+   422
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "\"3 apps added\": 95.7 wide, digit 10.9 -> 15px/600"
+ },
+ {
+  "id": "steps",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   214,
+   398,
+   318,
+   422
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "\"10,000 steps\": 91.5 wide, same size and weight"
+ },
+ {
+  "id": "procard",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   10,
+   444,
+   382,
+   542
+  ],
+  "bright": 250,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the Pro card: 20.7-372.6 x 449.4-537.9, h 88.5, and a 23.5 radius where the tiles have 20.5"
+ },
+ {
+  "id": "propill",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   30,
+   468,
+   100,
+   518
+  ],
+  "dark": 240,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the Pro pill: 55.0 x 36.5 at (38.6, 474.9). Its corners are not one radius: about 18 / 4 / 17 / 17 clockwise from top-left"
+ },
+ {
+  "id": "pro-h",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   472,
+   260,
+   492
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "\"You're a Pro member\": 144.0 wide, cap 10.9 -> 15px/600. SF Pro sets it about 3% wide, which is the type bill this screen pays"
+ },
+ {
+  "id": "pro-sub",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   493,
+   240,
+   512
+  ],
+  "dark": 180,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "\"Manage subscription\": 125.1 wide, cap 8.8 -> 13px/400"
+ },
+ {
+  "id": "pro-chev",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   340,
+   483,
+   362,
+   504
+  ],
+  "dark": 200,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the Pro card's chevron: 347.2-354.4 x 487.9-499.6"
+ },
+ {
+  "id": "thumb",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   28,
+   590,
+   80,
+   638
+  ],
+  "dark": 245,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the row-1 app thumbnail: 35.7 x 34.8 at (35.3, 595.4), corner 4.0 in at dy 1.6 so radius about 9. This repo draws its own mark in the measured ground"
+ },
+ {
+  "id": "row-label",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   70,
+   725,
+   200,
+   750
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "\"About Stepwise\" on row 3: cap top 730.6, cap 10.9, x-height 8.4 -> 15px/500, and the label column starts at x 79.8"
+ },
+ {
+  "id": "toggle",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   285,
+   658,
+   362,
+   698
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the ON toggle: 63.4 x 28.6 at (293.2, 663.2), r 14.3"
+ },
+ {
+  "id": "knob",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   300,
+   664,
+   360,
+   692
+  ],
+  "bright": 250,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the toggle knob: a 36.1 x 23.8 PILL, not a circle, inset 2.6 top and foot and 2.5 from the right"
+ },
+ {
+  "id": "chev",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   340,
+   726,
+   360,
+   748
+  ],
+  "dark": 200,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the About row's chevron: right edge 354.0, 12.2 tall"
+ },
+ {
+  "id": "walk",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   36,
+   660,
+   70,
+   694
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the movement glyph: 23.1 x 22.3 at (41.1, 665.9)"
+ },
+ {
+  "id": "info",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   38,
+   722,
+   68,
+   752
+  ],
+  "dark": 180,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the about glyph: 19.3 square at (43.2, 726.2)"
+ },
+ {
+  "id": "bell",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   36,
+   772,
+   72,
+   812
+  ],
+  "dark": 240,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the notifications glyph, already under the scroll fade: 43.7-61.7 x 783.1-802.8 at a threshold the fade lets through, so this is the visible ink and may run 1-2pt small"
+ },
+ {
+  "id": "house",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   137,
+   786,
+   171,
+   818
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the home tab glyph: 140.7-166.3 x 788.5-813.7"
+ },
+ {
+  "id": "person",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   224,
+   786,
+   256,
+   818
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the profile tab glyph: 227.6-252.3 x 788.9-814.1, solid with white hatch strokes"
+ },
+ {
+  "id": "time",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   28,
+   14,
+   74,
+   40
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the status-bar clock: ink 38.2-70.5 x 20.2-32.8, centred on 54.35. templates/gen.py centres it on 71.2, so gen.py narrows that one box and leaves the rest of the shared status bar alone"
+ },
+ {
+  "id": "moon",
+  "img": "assets/refs/p1.png",
+  "cmd": "bbox",
+  "box": [
+   72,
+   14,
+   96,
+   40
+  ],
+  "dark": 128,
+  "mine": "cap-01-profile.png",
+  "pt": 2.381679,
+  "_": "the Focus crescent beside the clock: 76.8-90.3 x 19.7-33.2, 6.3 right of the clock's ink"
+ },
+ {
+  "id": "grab-box",
+  "img": "assets/refs/p2.png",
+  "cmd": "bbox",
+  "box": [
+   172,
+   271,
+   222,
+   284
+  ],
+  "dark": 210,
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "the grabber: 35.0 x 5.1 at (179.2, 274.3), centred on 196.7. The window starts at 271 because the scrim above the sheet is darker than any threshold that finds the grabber"
+ },
+ {
+  "id": "title",
+  "img": "assets/refs/p2.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   300,
+   295,
+   338
+  ],
+  "dark": 128,
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "\"Pick your vibe\": 172.3 wide, cap 19.3, x-height 14.9 (x/cap 0.772, the same ratio as VB) -> 27px/700"
+ },
+ {
+  "id": "w-pick",
+  "img": "assets/refs/p2.png",
+  "cmd": "bbox",
+  "box": [
+   100,
+   303,
+   166,
+   338
+  ],
+  "dark": 140,
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "word 1 of the title. refkit bands --axis cols is the right tool and refkit batch cannot express it -- axis is reserved for scan -- so the three words are three boxes"
+ },
+ {
+  "id": "w-your",
+  "img": "assets/refs/p2.png",
+  "cmd": "bbox",
+  "box": [
+   166,
+   303,
+   228,
+   338
+  ],
+  "dark": 140,
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "word 2 of the title, descender included"
+ },
+ {
+  "id": "w-vibe",
+  "img": "assets/refs/p2.png",
+  "cmd": "bbox",
+  "box": [
+   228,
+   303,
+   292,
+   338
+  ],
+  "dark": 140,
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "word 3 of the title. refkit font calls SF Pro on Pick (0.912, margin 0.061), the only instance on either screen big enough to call"
+ },
+ {
+  "id": "check",
+  "img": "assets/refs/p2.png",
+  "cmd": "bbox",
+  "box": [
+   328,
+   430,
+   362,
+   462
+  ],
+  "dark": 200,
+  "mine": "cap-02-pick-your-vibe.png",
+  "pt": 2.745547,
+  "_": "the selected badge on grid item 3: d 22.58 centred (344.92, 446.18)"
+ }
+]

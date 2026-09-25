@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stepwise, iOS - Evidence 1/2</title>
+<style>
+:root{
+  /* Font */
+  --sw-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --sw-bg:#F4F0EB;
+  --sw-card:#FEFEFE;
+  --sw-sheet:#F0EEEF;
+  --sw-well:#F8F5F9;
+  --sw-chip:#EEEAE6;
+  --sw-bar:rgba(255,255,255,.85);
+  --sw-scrim:rgba(0,0,0,.20);
+
+  /* Line */
+  --sw-hairline:#F1F1F1;
+  --sw-dash:#AEAAA5;
+  --sw-grabber:#B6B3B6;
+
+  /* Ink */
+  --sw-ink:#000000;
+  --sw-ink-2:#888888;
+  --sw-ink-3:#BBBBBB;
+  --sw-ink-inv:#FFFFFF;
+
+  /* Accent */
+  --sw-green:#2DB150;
+  --sw-pro-a:#D736A9;
+  --sw-pro-b:#FADEF5;
+
+  /* Radius */
+  --sw-r-tile:20.5px;
+  --sw-r-pro:23.5px;
+  --sw-r-list:25.5px;
+  --sw-r-sheet:33.5px;
+  --sw-r-icon:9px;
+  --sw-r-pill:999px;
+  --sw-r-phone:52px;
+
+  /* Type */
+  --sw-t-title:700 27px/27px var(--sw-font);
+  --sw-t-name:700 22px/22px var(--sw-font);
+  --sw-t-pill:800 19px/19px var(--sw-font);
+  --sw-t-tile:600 15px/15px var(--sw-font);
+  --sw-t-row:500 15px/15px var(--sw-font);
+  --sw-t-note:500 13px/13px var(--sw-font);
+  --sw-t-sub:400 13px/13px var(--sw-font);
+  --sw-t-time:590 17px/22px var(--sw-font);
+
+  /* Metrics */
+  --sw-w:393px;
+  --sw-h:852px;
+  --sw-status:54px;
+  --sw-gutter:20.7px;
+  --sw-tile:170px;
+  --sw-row:56px;
+  --sw-av:92.7px;
+  --sw-av-x:112.18px;
+  --sw-av-y:108.78px;
+  --sw-hero:117.5px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sw-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--sw-w);height:var(--sw-h);
+  border-radius:var(--sw-r-phone);overflow:hidden;background:var(--sw-bg);color:var(--sw-ink);transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--sw-w);height:var(--sw-status);z-index:6}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--sw-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+/* iOS picks the indicator colour against the wallpaper: measure it per screen */
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:6}
+body{padding:0;background:var(--sw-bg);color:var(--sw-ink)}
+.sheet{width:478px;height:980px;padding:20px;overflow:hidden}
+h1{font:600 15px/19px var(--sw-font);margin-bottom:2px}
+header p{font:400 9.5px/13px var(--sw-font);color:#6E6C6A;margin-bottom:12px}
+h2{font:600 9px/12px var(--sw-font);letter-spacing:.8px;text-transform:uppercase;
+  color:#6E6C6A;margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid #E6E2DD}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:#6E6C6A;font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:46px;height:30px;background:var(--sw-card);border:1px solid #CFCBC6}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--sw-font);
+  color:#6E6C6A;font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;
+  padding-bottom:3px;margin-bottom:3px;border-bottom:1px solid #E6E2DD}
+.tr span{white-space:nowrap}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:#6E6C6A;
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 9px/13px ui-monospace,Menlo,monospace;color:#6E6C6A}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid #E6E2DD;font:400 8.5px/11px var(--sw-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace;white-space:nowrap}
+td.t{color:#B0308E}
+td.v{color:#6E6C6A;max-width:132px;overflow:hidden;text-overflow:ellipsis}
+td.e{color:#4A4846}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Evidence 1/2</h1><p>One row per token. A token with no evidence is a guess.</p></header><table class="ev"><tr><td class="t">--sw-font</td><td class="v">-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif</td><td class="e">refkit font on "Pick", the largest word: call SF Pro, 0.912, margin 0.061. At 15pt it is a no call (SF Pro .78 / Compact .75 / Rounded .75), so the call rests on one instance. The bill for that, measured ref/mine with refkit bbox on nine strings: the black weights set 1.4-3.2% narrow in the source than the stand-in does -- "You're a Pro member" 144.0/148.6 = 0.969, "About Stepwise" 106.6/109.2 = 0.976, "VB" 27.7/28.1 = 0.986 -- while the 13pt grey text and the 27pt title are within 0.4% ("Manage subscription" 1.003, "Pick your vibe" 172.3/172.3 = 1.000). So the residual in the list and the Pro card is type width, not layout</td></tr><tr><td class="t">--sw-bg</td><td class="v">#F4F0EB</td><td class="e">flat census, page ground right of the cards, p1 x 378-390 y 700-840: #F4F0EB 32%, the rest within 3 levels (video compression, not a gradient)</td></tr><tr><td class="t">--sw-card</td><td class="v">#FEFEFE</td><td class="e">flat census inside the left tile, p1 x 30-160 y 358-396: 100% flat</td></tr><tr><td class="t">--sw-sheet</td><td class="v">#F0EEEF</td><td class="e">flat census inside the sheet, p2 x 30-360 y 340-358: 100% flat</td></tr><tr><td class="t">--sw-well</td><td class="v">#F8F5F9</td><td class="e">flat census, the pale disc behind the footprints, p1 x 222-232 y 303-332: 100% flat</td></tr><tr><td class="t">--sw-chip</td><td class="v">#EEEAE6</td><td class="e">flat census, the selected tab's pill, p1 x 258-285 y 790-812: #EEEAE5 54%, #EEEAE7 45%</td></tr><tr><td class="t">--sw-bar</td><td class="v">rgba(255,255,255,.85)</td><td class="e">the tab bar reads #FEFCF9 over the #F5F1EC below it; .85 white solves it to within 3 levels. It is a material, not a fill: the faded row text shows through</td></tr><tr><td class="t">--sw-scrim</td><td class="v">rgba(0,0,0,.20)</td><td class="e">p2 #C3BFBC over #F4F0EB and #CDCACE over #FEFEFE: both solve .20</td></tr><tr><td class="t">--sw-hairline</td><td class="v">#F1F1F1</td><td class="e">list divider, p1 col 320: #FEFEFE to y646.3, #F4F4F4 / #F1F1F1 / #F6F6F6 over 1.3pt, back to #FDFDFD. refkit hairline returns the ground at band widths 2, 5 and 6, so this is the run minimum, not a coverage solve</td></tr><tr><td class="t">--sw-dash</td><td class="v">#AEAAA5</td><td class="e">ink mean of the dashed rule under VB, p1 x 181-212 y 238.5-241.5; the coverage solve fails on a dashed rule for the same reason</td></tr><tr><td class="t">--sw-grabber</td><td class="v">#B6B3B6</td><td class="e">mode of the sheet grabber core, p2 x 181-212 y 275-278: 56%</td></tr><tr><td class="t">--sw-ink</td><td class="v">#000000</td><td class="e">ink core of VB, p1 x 182-211 y 217-233: the darkest 2% is #000000</td></tr><tr><td class="t">--sw-ink-2</td><td class="v">#888888</td><td class="e">"Daily target" #878787 and "Manage subscription" #8A898A: one token</td></tr><tr><td class="t">--sw-ink-3</td><td class="v">#BBBBBB</td><td class="e">ink core of the About row's chevron, p1 x 348-353 y 733-740</td></tr><tr><td class="t">--sw-ink-inv</td><td class="v">#FFFFFF</td><td class="e">the toggle knob, p1 x 319-353 y 677: #FFFFFF flat</td></tr><tr><td class="t">--sw-green</td><td class="v">#2DB150</td><td class="e">mode of the check disc core, p2 x 338-352 y 440-452: 87%</td></tr><tr><td class="t">--sw-pro-a</td><td class="v">#D736A9</td><td class="e">the Pro pill's ramp, p1 col 66: #DB49B2 at y479.0 and #F6CCED at y507.2, a straight line in all three channels, extrapolated to the pill top 474.9</td></tr><tr><td class="t">--sw-pro-b</td><td class="v">#FADEF5</td><td class="e">the same line extrapolated to the pill foot 511.4</td></tr><tr><td class="t">--sw-r-tile</td><td class="v">20.5px</td><td class="e">joint (x0,y0,r) least-squares fit on the 50%-crossing of both tiles' top-left corners, p1: 20.75 and 20.25, rms 0.21 and 0.23pt</td></tr><tr><td class="t">--sw-r-pro</td><td class="v">23.5px</td><td class="e">the same fit on the Pro card, p1 corner (21.1, 449.4): rms 0.22pt. The source really does use three different card radii</td></tr><tr><td class="t">--sw-r-list</td><td class="v">25.5px</td><td class="e">the same fit on the list card, p1 corner (21.0, 572.1): rms 0.21pt</td></tr><tr><td class="t">--sw-r-sheet</td><td class="v">33.5px</td><td class="e">the same fit on the sheet, p2 corner (9.0, 270.0): rms 0.18pt</td></tr></table></div>
+</body>
+</html>
