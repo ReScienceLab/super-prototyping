@@ -24,7 +24,7 @@ artgen = "artgen:main"
 sp = "sp_canvas:main"
 
 [project.urls]
-Homepage = "https://prototyping.rescience.com"
+Homepage = "https://superproto.dev"
 Repository = "https://github.com/ReScienceLab/super-prototyping"
 
 [tool.hatch.build.targets.wheel]

@@ -33,7 +33,7 @@ on the home page with no project, as the app does: this checkout's canvases are
 the examples there, not a project of their own.
 
 The hosted canvas is that build on Cloudflare Pages, and it lives at
-`prototyping.rescience.com/demo/` now: the root is the download page, whose
+`superproto.dev/demo/` now: the root is the download page, whose
 repo is `ReScienceLab/super-prototyping-landing`, and its Worker passes
 `/demo/*` through to the Pages deploy. Nothing here deploys it — the Pages
 project builds this repo on its own — so the move is only the addresses in
