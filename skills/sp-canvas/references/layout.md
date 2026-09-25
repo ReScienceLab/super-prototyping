@@ -38,6 +38,11 @@ Drop the app's own icon in the folder as `icon.png` and the welcome card wears
 it, tilted, on the device's bottom-left corner. 256 × 256, transparent outside
 the iOS squircle. A folder with no `icon.png` simply shows none.
 
+`thumbnail.png` is the folder's card on the community page and its link
+preview: 2400 × 1260, drawn by `sp thumbnail <slug>` from the cover board and
+the row after it, with the name and `icon.png`. Draw it again after the cover
+or the name changes.
+
 A folder shown as an example can carry its own `PRD.md`, written to the
 `sp-define-product` skill's template. Its tab shows it before the canvas. A
 project keeps its PRD at its root instead, beside `canvases/`, and one
@@ -189,7 +194,8 @@ project only when the person asks, and ask them first whether everything in
 it is theirs to share. The repo is CC BY 4.0, with MIT for code such as
 `gen.py`.
 
-1. Run `sp pack <project> --check` and fix what it reports.
+1. Run `sp pack <project> --check` and fix what it reports, except a missing
+   `id` or `author`, which step 3 fills in.
 2. Run `gh repo fork ReScienceLab/super-prototyping-community --clone`.
 3. Run `sp pack <project> -o <project>/canvases/<slug>/scratch/package`. It
    prints the project's `id`.

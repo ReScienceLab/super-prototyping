@@ -121,6 +121,8 @@ function canvasesSource(): Plugin {
           emit(file, fs.readFileSync(path.join(folder, file)));
         if (board.icon)
           emit("icon.png", fs.readFileSync(path.join(folder, "icon.png")));
+        if (board.thumbnail)
+          emit("thumbnail.png", fs.readFileSync(path.join(folder, "thumbnail.png")));
         for (const file of board.brand) {
           emit(file, fs.readFileSync(path.join(folder, file)));
           const thumb = await brandThumb(path.join(folder, file));

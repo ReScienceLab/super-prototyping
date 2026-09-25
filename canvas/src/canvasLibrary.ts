@@ -349,6 +349,11 @@ export function canvasIconUrl(pageSlug: string) {
   return board(pageSlug)?.icon ? boardFileUrl(pageSlug, "icon.png") : undefined;
 }
 
+/** This folder's thumbnail.png: its cover as `sp thumbnail` draws it, 1200 x 630 twice over. */
+export function canvasThumbnailUrl(pageSlug: string) {
+  return board(pageSlug)?.thumbnail ? boardFileUrl(pageSlug, "thumbnail.png") : undefined;
+}
+
 /** A folder's brand image by its path inside the folder, e.g. `assets/brand/social/x-banner.jpg`. */
 export function canvasImageUrl(pageSlug: string, file: string) {
   return board(pageSlug)?.brand.includes(file)

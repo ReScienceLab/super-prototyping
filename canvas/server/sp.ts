@@ -358,7 +358,7 @@ export function createSpServer(options: {
   // A board folder's files, at the addresses the index hands the page: `<slug>/<file>.html`
   // is a board as a web page, which the canvas's two "open as a web page" buttons point at;
   // `<slug>/icon.png` and `<slug>/assets/brand/**` are the images a page places as shapes
-  // of their own. The build emits the same paths as files; here they are read off the
+  // of their own, and `<slug>/thumbnail.png` the one the community page shows for it. The build emits the same paths as files; here they are read off the
   // boards directory per request, so a reload shows the current version.
   route("/board", (req, res) => {
     const send = (code: number, message: string) => {
@@ -379,7 +379,7 @@ export function createSpServer(options: {
     const type =
       parts.length === 2 && parts[1].endsWith(".html")
         ? "text/html; charset=utf-8"
-        : parts.length === 2 && parts[1] === "icon.png"
+        : parts.length === 2 && ["icon.png", "thumbnail.png"].includes(parts[1])
           ? "image/png"
           : parts.length >= 4 && parts[1] === "assets" && parts[2] === "brand"
             ? IMAGE_MIME[path.extname(parts[parts.length - 1]).toLowerCase()]

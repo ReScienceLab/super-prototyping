@@ -165,7 +165,8 @@ This stands alone and ships first. It protects local users today.
 `sp pack <project> --check` validates and writes nothing. `sp pack <project> -o <dir>` also
 copies what passes into `<dir>`, as a folder: a PR adds a folder, so a zip has no reader yet.
 - **`-o` also writes `thumbnail.png` at the package's root.** It is the project's cover, drawn
-  with `refkit shoot` at 1600×1000.
+  with headless Chrome at 2400×1260, an Open Graph image's 1200×630 twice over, so the same
+  file is the project's card and its link preview.
   - It is Figma's `thumbnail.png` and Sketch's `previews/preview.png`: a package can be
     browsed without the app, and the community page reads its card straight from it.
   - It exists only in the package. In the project the cover stays a path, as
@@ -307,7 +308,7 @@ packing a single canvas.
   - A font file inside the package counts against the caps like anything else.
 - **The community repo stays small, so it is an ordinary GitHub repo.** Its CI is a GitHub
   Actions workflow in that repo, owned by this project's maintainers. It runs `sp pack --check`,
-  checks that `thumbnail.png` is a 1600 × 1000 PNG, and fails a PR over the caps. It does not
+  checks that `thumbnail.png` is a 2400 × 1260 PNG, and fails a PR over the caps. It does not
   check that the thumbnail is the cover `sp pack` would draw now: Chrome draws it a few pixels
   differently on each machine, so a byte match would fail honest PRs. Its size is looked at
   again if the repo passes 1 GB.
@@ -333,8 +334,15 @@ packing a single canvas.
   writes one rather than failing. A project made before today has none.
 - **A reference to a file left out on purpose passes.** Clone layouts name their `ref-*` rows,
   and the app already shows a missing board as missing.
-- **The thumbnail is the cover whole, centred on the canvas's ground,** not cropped to fill
-  the frame as a home card is: 1600 × 1000 crops a phone to its top third.
+- **The thumbnail is set like a book's cover,** on the canvas's ground: a spine down the
+  left edge, the app's `icon.png` where the canvas has one, the project's name in a serif and
+  its board count, and to the right the cover board whole with the boards as tall after it in
+  its row, as many as fit. Cropping to fill the frame, as a home card does, cuts a phone to its
+  top third. A per-project coloured backdrop was tried and dropped: the ground is what the
+  canvas already chose.
+- **Every example has a `thumbnail.png` too,** drawn by `sp thumbnail <canvas>...` the same
+  way, and committed. The community page shows only thumbnails, at the image's own 1200:630
+  ratio, so an example without one is not listed.
 - **On real projects:** every one made today has no `id` yet. "Launch Video Studios" has
   twelve videos over 50 MB, up to 538 MB, and "Super Prototyping Site" is 509 MB in all.
   Both would have to link their videos from where they are hosted. The caps stand.

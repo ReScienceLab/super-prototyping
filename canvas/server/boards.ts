@@ -296,6 +296,7 @@ export function boardIndex(
             ),
             layout: readJson(path.join(folder, "layout.json")),
             icon: fs.existsSync(path.join(folder, "icon.png")),
+            thumbnail: fs.existsSync(path.join(folder, "thumbnail.png")),
             brand: brandImages(folder),
             thumbs: [] as string[],
             assets: assetIndex(folder),

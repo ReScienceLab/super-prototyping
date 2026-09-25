@@ -16,6 +16,8 @@ export interface IndexBoard {
   layout?: CanvasLayoutConfig;
   /** Whether the folder has an icon.png. */
   icon: boolean;
+  /** Whether the folder has a thumbnail.png, which `sp thumbnail` draws. */
+  thumbnail: boolean;
   /** Brand images by path inside the folder, `assets/brand/logo.png`. */
   brand: string[];
   /** The brand images the build generated a smaller variant for; empty when served. */

@@ -69,7 +69,7 @@ function ago(ms: number) {
  * it is the board itself in a frame, sandboxed because a thumbnail has nothing to run. An image is
  * the file itself.
  */
-export function CoverPicture(props: {
+function CoverPicture(props: {
   cover: Cover;
   /** The address its files are under: the project's, or this page's for an example. */
   base: string;
@@ -116,7 +116,7 @@ export function CoverPicture(props: {
 
 /** A stage's width, which a grid's stretching columns set and only layout knows. */
 // oxlint-disable-next-line react/only-export-components
-export function useWidth() {
+function useWidth() {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   useLayoutEffect(() => {

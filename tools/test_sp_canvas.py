@@ -607,7 +607,7 @@ def test_pack_ships_the_project_by_place_and_refuses_what_would_break_it():
         assert "no id" in str(e)
     assert not (project / "project.json").exists()
     dest = project.parent / "pkg"
-    real, C._thumbnail = C._thumbnail, lambda p, pj, png: png.write_text("png")
+    real, C._thumbnail = C._thumbnail, lambda found, png, title, boards: png.write_text("png")
     run = C.subprocess.run
     C.subprocess.run = lambda cmd, **kw: type("R", (), {"returncode": 1, "stdout": ""})
     try:
@@ -651,6 +651,22 @@ def test_pack_ships_the_project_by_place_and_refuses_what_would_break_it():
     finally:
         C.Path.is_symlink = is_symlink
     assert any("hosts: is outside the project" in p for p in problems), problems
+
+
+def test_the_thumbnail_is_the_cover_and_the_boards_as_tall_after_it_in_its_row():
+    folder = Path(tempfile.mkdtemp()) / "app"
+    folder.mkdir()
+    for name in ("00-tokens", "01-home", "02-feed", "03-wide", "04-more", "05-other"):
+        (folder / f"{name}.html").write_text("x")
+    (folder / "layout.json").write_text(json.dumps({"cover": "02-feed", "ground": "#101010", "rows": [
+        {"files": ["00-tokens"]},
+        {"files": ["01-home", "02-feed", {"file": "03-wide", "w": 1440, "h": 900}, "04-more",
+                   "gone"]},
+        {"files": ["05-other"]}]}))
+    items, ground = C._canvas_cover(folder)
+    # From the cover on, then round to the row's start; not the wide one, nor one never written.
+    assert [f.stem for f, _, _ in items] == ["02-feed", "04-more", "01-home"]
+    assert items[0][1:] == ([0, 0, 478, 980], (478, 980)) and ground == folder
 
 
 if __name__ == "__main__":

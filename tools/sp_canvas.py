@@ -541,7 +541,7 @@ def cmd_clean(a):
 PACK_FILE_CAP = 50 << 20   # GitHub warns at 50 MB and refuses a file over 100 MB
 PACK_TOTAL_CAP = 200 << 20
 PROJECT_FORMAT = 1
-THUMBNAIL = (1600, 1000)
+THUMBNAIL = (2400, 1260)   # an Open Graph image's 1200 x 630, twice over
 UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 LOGIN = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$")  # a GitHub login
 
@@ -672,96 +672,207 @@ def _pack(project: Path):
         except (AttributeError, TypeError):
             problems.append(f"canvases/{slug}: layout.json or canvas.json is not in the shape "
                             "the app writes")
+    if not any(re.match(r"^canvases/[^/]+/[^/]+\.html$", r) for r in shipped):
+        problems.append("canvases: the project has no board")
     if isinstance(pj, dict) and isinstance(pj.get("cover"), dict):
-        path = pj["cover"].get("path")
+        path, box = pj["cover"].get("path"), pj["cover"].get("box")
         if f"canvases/{path}" not in shipped:
             problems.append(f"project.json: cover {path!r} is not in the package")
+        elif str(path).lower().endswith(".svg") and _svg_size(project / "canvases", path) is None:
+            problems.append(f"project.json: cover {path!r} is in no row of its canvas's layout.json, "
+                            "which gives an SVG its size")
+        if box is not None and not (isinstance(box, list) and len(box) == 4
+                                    and all(isinstance(v, (int, float)) for v in box)
+                                    and box[2] > 0 and box[3] > 0):
+            problems.append("project.json: cover box is not [x, y, w, h]")
     return pj, ship, out, problems
 
 
+def _layout_of(folder: Path) -> dict:
+    try:
+        layout = json.loads((folder / "layout.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return layout if isinstance(layout, dict) else {}
+
+
+def _svg_size(canvases: Path, path: str):
+    """(w, h) its images row gives an SVG under canvases/, or None. Pillow reads no SVG."""
+    folder, rel = Path(path).parts[0], Path(*Path(path).parts[1:]).as_posix()
+    return next(((i["w"], i["h"]) for row in _layout_of(canvases / folder).get("rows") or []
+                 for i in row.get("images") or []
+                 if isinstance(i, dict) and i.get("file") == rel), None)
+
+
 def _cover(project: Path, pj: dict):
-    """-> (file, box, ground) of the project's cover, as canvas/src/cover.ts projectCover finds
-    it: the one project.json chose, else the first canvas's cover board, whole."""
-    def layout_of(folder):
-        try:
-            layout = json.loads((folder / "layout.json").read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            return {}
-        return layout if isinstance(layout, dict) else {}
-
-    def size_of(layout, name):
-        for row in layout.get("rows") or []:
-            for entry in row.get("files") or []:
-                if isinstance(entry, dict) and entry.get("file") == name and entry.get("w"):
-                    return entry["w"], entry["h"]
-        return 478, 980  # CANVAS_FILE_DEFAULT_SIZE
-
+    """-> ([(file, box, size)], its canvas's folder) of the project's cover, as canvas/src/cover.ts
+    projectCover finds it: the one project.json chose, else the first canvas's cover board and
+    the ones after it in its row."""
     canvases = project / "canvases"
     chosen = pj.get("cover") if isinstance(pj.get("cover"), dict) else {}
     if chosen.get("path"):
         file = canvases / chosen["path"]
-        layout = layout_of(canvases / Path(chosen["path"]).parts[0])
+        folder = canvases / Path(chosen["path"]).parts[0]
+        layout = _layout_of(folder)
         box = chosen.get("box")
         if file.suffix == ".html":
-            w, h = size_of(layout, file.stem)
-            return file, box or [0, 0, w, h], (w, h), layout.get("ground")
-        if file.suffix.lower() == ".svg":
-            # Pillow reads no SVG, so Chrome draws it, at the size its row gives it.
-            rel = Path(*Path(chosen["path"]).parts[1:]).as_posix()
-            w, h = next((i["w"], i["h"]) for row in layout.get("rows") or []
-                        for i in row.get("images") or []
-                        if isinstance(i, dict) and i.get("file") == rel)
-            return file, box or [0, 0, w, h], (w, h), layout.get("ground")
-        return file, box, None, layout.get("ground")
+            w, h = _board_size(layout, file.stem)
+        elif file.suffix.lower() == ".svg":
+            w, h = _svg_size(canvases, chosen["path"])
+        else:
+            return [(file, box, None)], folder
+        return [(file, box or [0, 0, w, h], (w, h))], folder
     folders = [d for d in canvases.iterdir() if d.is_dir() and any(d.glob("*.html"))]
-    def numeric(s):
-        return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", s)]
-    folders.sort(key=lambda d: numeric(d.name))
-    folders.sort(key=lambda d: layout_of(d).get("order", 0))
-    if not folders:
-        return None
-    layout = layout_of(folders[0])
-    names = sorted((f.stem for f in folders[0].glob("*.html")), key=numeric)
+    folders.sort(key=lambda d: _numeric(d.name))
+    folders.sort(key=lambda d: _layout_of(d).get("order", 0))
+    return _canvas_cover(folders[0])
+
+
+def _numeric(s):
+    return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", s)]
+
+
+def _board_size(layout, name):
+    for row in layout.get("rows") or []:
+        for entry in row.get("files") or []:
+            if isinstance(entry, dict) and entry.get("file") == name and entry.get("w"):
+                return entry["w"], entry["h"]
+    return 478, 980  # CANVAS_FILE_DEFAULT_SIZE
+
+
+def _canvas_cover(folder: Path):
+    """One canvas folder's cover board, whole, then the boards after it in its row that are as
+    tall, which the thumbnail sets beside it while they fit: layout.json's cover, else its
+    first board that is not a 00- one."""
+    layout = _layout_of(folder)
+    names = sorted((f.stem for f in folder.glob("*.html")), key=_numeric)
     name = next((n for n in names if n == layout.get("cover")),
                 next((n for n in names if not n.startswith("00")), names[0]))
-    w, h = size_of(layout, name)
-    return folders[0] / f"{name}.html", [0, 0, w, h], (w, h), layout.get("ground")
+    row = next((r for r in (_row_names(r) for r in layout.get("rows") or []) if name in r), [name])
+    after = row[row.index(name):] + row[:row.index(name)]
+    h = _board_size(layout, name)[1]
+    return [(folder / f"{n}.html", [0, 0, *_board_size(layout, n)], _board_size(layout, n))
+            for n in after if n in names and _board_size(layout, n)[1] == h], folder
 
 
-def _thumbnail(project: Path, pj: dict, png: Path):
-    """The cover, whole, centred on the canvas's ground at 1600 x 1000: what the community page
-    shows for the package without running a board."""
+def _row_names(row):
+    return [e.get("file") if isinstance(e, dict) else e for e in row.get("files") or []]
+
+
+def _shot(file: Path, box, size, tmp: str, scale: int):
+    """One cover image, cropped to its box, at `scale`."""
     from PIL import Image
-    found = _cover(project, pj)
-    if found is None:
-        raise SystemExit("error: the project has no board to make a thumbnail of")
-    file, box, size, ground = found
-    scale = 2
     if size is None:
         im = Image.open(file).convert("RGBA")
     else:
         import refkit
-        with tempfile.TemporaryDirectory() as tmp:
-            shot = Path(tmp) / "cover.png"
-            # Transparent where the board paints nothing, as the canvas shows it.
-            subprocess.run([refkit.CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
-                            "--default-background-color=00000000",
-                            f"--force-device-scale-factor={scale}", f"--window-size={size[0]},{size[1]}",
-                            f"--screenshot={shot}", file.resolve().as_uri()],
-                           check=True, capture_output=True)
-            im = Image.open(shot).convert("RGBA")
+        shot, page = Path(tmp) / f"{file.stem}.png", file.resolve().as_uri()
+        if file.suffix.lower() == ".svg":
+            # Filling its row's box, as the canvas draws it, not at its own width and height.
+            page = Path(tmp) / f"{file.stem}.html"
+            page.write_text(f'<body style="margin:0"><img src="{file.resolve().as_uri()}" '
+                            f'style="display:block;width:{size[0]}px;height:{size[1]}px">')
+            page = page.as_uri()
+        # Transparent where the board paints nothing, as the canvas shows it.
+        subprocess.run([refkit.CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
+                        "--allow-file-access-from-files", "--default-background-color=00000000",
+                        f"--force-device-scale-factor={scale}", f"--window-size={size[0]},{size[1]}",
+                        f"--screenshot={shot}", page],
+                       check=True, capture_output=True)
+        im = Image.open(shot).convert("RGBA")
         box = [v * scale for v in box]
     if box:
         x, y, w, h = box
         im = im.crop((round(x), round(y), round(x + w), round(y + h)))
-    tw, th = THUMBNAIL
-    pad = 80
-    k = min((tw - 2 * pad) / im.width, (th - 2 * pad) / im.height)
-    im = im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
+    return im
+
+
+def _canvas_name(folder: Path) -> str:
+    """What the app calls a canvas: layout.json's name less the examples' "(example) ", else the
+    folder's name, humanized (canvas/src/canvasLibrary.ts shortName)."""
+    name = _layout_of(folder).get("name")
+    if isinstance(name, str) and name.strip():
+        return re.sub(r"^\(example\)\s*", "", name)
+    return re.sub(r"[-_]+", " ", folder.name).strip().title()
+
+
+def _thumbnail(found, png: Path, title: str, boards: int):
+    """A book's cover at THUMBNAIL, on the canvas's ground: the project's name set as a title
+    down the left beside a spine, under the app's icon where the canvas has one, and its cover
+    to the right, each image whole and side by side
+    at one height, as many as fit. What the community page shows for a project without running
+    a board, and its Open Graph image as it is."""
+    import html
+    from PIL import Image
+    items, folder = found
+    ground = _layout_of(folder).get("ground")
     ground = ground if isinstance(ground, str) and re.match(r"^#[0-9a-fA-F]{6}$", ground) else "#2b2b2b"
-    out = Image.new("RGBA", THUMBNAIL, ground)
-    out.alpha_composite(im, ((tw - im.width) // 2, (th - im.height) // 2))
-    out.convert("RGB").save(png)
+    r, g, b = (int(ground[i:i + 2], 16) for i in (1, 3, 5))
+    ink = "#15130f" if 0.2126 * r + 0.7152 * g + 0.0722 * b > 140 else "#f4efe6"
+    scale = 2
+    tw, th = THUMBNAIL[0] // scale, THUMBNAIL[1] // scale  # CSS px
+    left, text, pad, gap = 84, 400, 52, 24                 # the spine's margin, the title's column
+    room = (tw - left - text - 40 - 64) * scale, (th - 2 * pad) * scale
+    ims = []
+    with tempfile.TemporaryDirectory() as tmp:
+        for file, box, size in items:
+            im = _shot(file, box, size, tmp, scale)
+            w = round(im.width * room[1] / im.height)
+            if ims and sum(i.width + gap * scale for i in ims) + w > room[0]:
+                break
+            ims.append(im.resize((w, room[1]), Image.LANCZOS))
+        if ims[0].width > room[0]:  # one wider than the room, a web page's, fits its width
+            ims = [ims[0].resize((room[0], max(1, round(ims[0].height * room[0] / ims[0].width))),
+                                 Image.LANCZOS)]
+        strip = Image.new("RGBA", (sum(i.width for i in ims) + gap * scale * (len(ims) - 1),
+                                   max(i.height for i in ims)), (0, 0, 0, 0))
+        x = 0
+        for im in ims:
+            strip.alpha_composite(im, (x, (strip.height - im.height) // 2))
+            x += im.width + gap * scale
+        strip.save(Path(tmp) / "cover.png")
+        icon = folder / "icon.png"
+        icon = f'<img class="icon" src="{icon.resolve().as_uri()}" alt="">' if icon.is_file() else ""
+        page = Path(tmp) / "thumbnail.html"
+        page.write_text(f"""<!doctype html><meta charset="utf-8"><style>
+body {{ margin: 0; width: {tw}px; height: {th}px; overflow: hidden; background: {ground};
+  color: {ink}; font-family: "Iowan Old Style", "New York", Georgia, "Times New Roman", serif;
+  display: flex; align-items: center; }}
+.spine {{ position: absolute; inset: 0 auto 0 0; width: 30px; background: rgb(0 0 0 / 0.22);
+  box-shadow: inset -1px 0 rgb(255 255 255 / 0.08), 1px 0 rgb(0 0 0 / 0.25); }}
+.text {{ position: absolute; left: {left}px; top: {pad + 12}px; bottom: {pad + 12}px;
+  width: {text}px; display: flex; flex-direction: column; justify-content: space-between; }}
+.imprint {{ font: 500 13px/1 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  letter-spacing: 0.28em; text-transform: uppercase; opacity: 0.55; }}
+h1 {{ margin: 0; font-size: {64 if len(title) < 16 else 54}px; line-height: 1.04; font-weight: 400;
+  letter-spacing: -0.01em; text-wrap: balance; }}
+.rule {{ width: 56px; height: 2px; background: currentColor; opacity: 0.5; margin: 26px 0 16px; }}
+.sub {{ font-size: 22px; font-style: italic; opacity: 0.7; }}
+.icon {{ display: block; width: 88px; height: 88px; border-radius: 22.5%; margin-bottom: 30px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 0 0 1px rgb(255 255 255 / 0.06); }}
+.cover {{ position: absolute; right: 64px; top: 50%; transform: translateY(-50%);
+  width: {strip.width / scale}px; height: {strip.height / scale}px; }}
+</style><div class="spine"></div>
+<div class="text"><div class="imprint">Super Prototyping</div>
+<div>{icon}<h1>{html.escape(title)}</h1><div class="rule"></div>
+<div class="sub">{boards} board{"" if boards == 1 else "s"}</div></div></div>
+<img class="cover" src="cover.png" alt="">""", encoding="utf-8")
+        import refkit
+        subprocess.run([refkit.CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
+                        "--allow-file-access-from-files", f"--force-device-scale-factor={scale}",
+                        f"--window-size={tw},{th}", f"--screenshot={png.resolve()}", page.as_uri()],
+                       check=True, capture_output=True)
+    Image.open(png).convert("RGB").save(png, optimize=True)
+
+
+def cmd_thumbnail(a):
+    """Draw each canvas folder's thumbnail.png, as `sp pack -o` draws a project's."""
+    for folder in map(Path, a.folders):
+        if not any(folder.glob("*.html")):
+            raise SystemExit(f"error: {folder} has no board")
+        _thumbnail(_canvas_cover(folder), folder / "thumbnail.png", _canvas_name(folder),
+                   len(list(folder.glob("*.html"))))
+        print(f"drew      {folder / 'thumbnail.png'}")
 
 
 def cmd_pack(a):
@@ -816,7 +927,8 @@ def cmd_pack(a):
     if dest.exists() and any(dest.iterdir()):
         raise SystemExit(f"error: {dest} is not empty. Remove it first.")
     dest.mkdir(parents=True, exist_ok=True)
-    _thumbnail(project, pj, dest / "thumbnail.png")
+    _thumbnail(_cover(project, pj), dest / "thumbnail.png", pj.get("name") or project.name,
+               sum(1 for r, _ in ship if re.match(r"^canvases/[^/]+/[^/]+\.html$", r.as_posix())))
     for rel, _ in ship:
         (dest / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(project / rel, dest / rel)
@@ -1087,6 +1199,8 @@ For agents:
   sp pack <project> --check | -o <dir>
                   when the user wants to share a project: what goes in, what is left
                   out, and what would break it.
+  sp thumbnail <canvas>...
+                  redraw a canvas folder's thumbnail.png after its cover or name changes.
 Exit status is non-zero on every failure, with the reason on stderr.
 """
 
@@ -1136,6 +1250,8 @@ def parser():
     how = pack.add_mutually_exclusive_group(required=True)
     how.add_argument("--check", action="store_true", help="check it and write nothing")
     how.add_argument("-o", "--output", metavar="DIR", help="an empty folder to copy it into")
+    thumb = add("thumbnail", cmd_thumbnail, ports=False)
+    thumb.add_argument("folders", nargs="+", metavar="CANVAS", help="a canvas's folder")
     return p
 
 

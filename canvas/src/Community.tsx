@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import "./community.css";
 import { canvasIndex } from "./canvasIndex";
-import { canvasIconUrl, shortName } from "./canvasLibrary";
+import {
+  canvasIconUrl,
+  canvasThumbnailUrl,
+  shortName,
+} from "./canvasLibrary";
 import { openInTab } from "./canvasTabs";
 import { canvasPageUrl } from "./canvasUrl";
-import {
-  CANVAS_FILE_DEFAULT_SIZE,
-  fitCover,
-  projectCover,
-  type Cover,
-} from "./cover";
+import { CANVAS_FILE_DEFAULT_SIZE, projectCover } from "./cover";
 import {
   ArrowRight,
   Box,
@@ -24,7 +23,6 @@ import {
   PhoneDevice,
   Window,
 } from "./geistIcons";
-import { CoverPicture, useWidth } from "./HomePage";
 
 /**
  * The community: projects people made, to browse and open. The same page is a tab in the app
@@ -107,11 +105,9 @@ interface Entry {
   author: string;
   contributors: string[];
   icon?: string;
-  /** An example's cover, drawn live, and the ground it sits on: the layout's, else the canvas's. */
-  cover?: Cover;
-  ground?: string;
-  /** A shared project's thumbnail.png, and its folder on GitHub. */
-  thumbnail?: string;
+  /** Its thumbnail.png, as `sp pack -o` or `sp thumbnail` drew it. */
+  thumbnail: string;
+  /** A shared project's folder on GitHub. */
   source?: string;
 }
 
@@ -148,7 +144,7 @@ const shared = (index: Index): Entry[] =>
 
 function examples(): Entry[] {
   return canvasIndex()
-    .boards.filter((b) => b.example && b.icon)
+    .boards.filter((b) => b.example && b.icon && b.thumbnail)
     .map((b) => {
       const cover = projectCover([b])!;
       return {
@@ -161,14 +157,11 @@ function examples(): Entry[] {
           cover.h === CANVAS_FILE_DEFAULT_SIZE.h
             ? "iphone"
             : "web",
-        cover,
+        thumbnail: canvasThumbnailUrl(b.slug)!,
         updated: b.updated,
         author: EXAMPLES_BY,
         contributors: [],
         icon: canvasIconUrl(b.slug),
-        ground: /^#[0-9a-f]{6}$/i.test(String(b.layout?.ground))
-          ? String(b.layout!.ground)
-          : "#2b2b2b",
       };
     });
 }
@@ -176,45 +169,11 @@ function examples(): Entry[] {
 const plural = (n: number) => `${n} board${n === 1 ? "" : "s"}`;
 const avatar = (login: string) => `https://github.com/${login}.png?size=64`;
 
-/** A project's thumbnail: a shared one's thumbnail.png, or an example's drawn the same way. */
+/** A project's thumbnail.png, at the Open Graph image's 1200:630 it is drawn at. */
 function Thumb({ entry }: { entry: Entry }) {
-  return entry.thumbnail ? (
+  return (
     <div className="cm-thumb">
       <img className="cm-png" src={entry.thumbnail} alt="" loading="lazy" />
-    </div>
-  ) : (
-    <Drawn entry={entry} />
-  );
-}
-
-/**
- * An example's thumbnail, drawn as `sp pack` draws a package's thumbnail.png
- * (tools/sp_canvas.py): its cover whole, centred on the canvas's ground in a 16:10 frame.
- */
-function Drawn({ entry }: { entry: Entry }) {
-  const [frame, width] = useWidth();
-  const cover = entry.cover!;
-  const [, , w, h] = cover.box;
-  const pad = width * 0.05;
-  const scale = Math.min((width - 2 * pad) / w, (width * 0.625 - 2 * pad) / h);
-  const fit = fitCover(cover.box, w * scale, h * scale);
-  return (
-    <div className="cm-thumb" ref={frame} style={{ background: entry.ground }}>
-      {width > 0 && (
-        <div
-          className="cm-cover"
-          style={{ width: w * scale, height: h * scale }}
-        >
-          <CoverPicture
-            cover={cover}
-            base={import.meta.env.BASE_URL}
-            updated={entry.updated}
-            title={entry.name}
-            scale={fit.scale}
-            place={{ left: fit.left, top: fit.top }}
-          />
-        </div>
-      )}
     </div>
   );
 }
