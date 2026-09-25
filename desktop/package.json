@@ -1,7 +1,7 @@
 {
   "name": "super-prototyping-desktop",
   "private": true,
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "The super-prototyping canvas as a desktop app",
   "author": "ReScience Lab",
   "type": "module",
