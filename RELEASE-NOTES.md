@@ -19,6 +19,9 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **`sp`, `refkit` and `artgen` no longer write into the app.** Python's cache
+  files went inside it, which broke the app's signature check.
+
 ## v1.6.3
 
 2026-09-25. Let the agent lay things out on your canvas, film a prototype, and
