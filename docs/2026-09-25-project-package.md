@@ -177,7 +177,7 @@ canvases/<slug>/
 ```
 
 Always out: `scratch/`, `ref-*`, `assets/refs/`, the root `refs/`, dot files and dot folders,
-anything else at the root, and `comments.json` (open question 2).
+anything else at the root, and `comments.json`.
 
 **Checks.** Each check fails the pack; none warns and carries on:
 
@@ -228,20 +228,28 @@ A zip (`sp pack -o x.zip`) arrives with it, when something first hands out a dow
 Not planned: accounts, signing, hosting projects on superproto.dev, live collaboration, and
 packing a single canvas.
 
+## Decided
+
+- **`gen.py` ships.** It is the canvas's source of truth, and a remix without it can only be
+  hand-edited. It is code, but the app never runs it. Import tells the agent whose code it is,
+  so the agent asks before running it.
+- **`comments.json` does not ship.** Review threads can hold names and private remarks, and a
+  package shares the work, not its review.
+- **Boards may load anything from the network, fonts above all.** A board may inline its fonts
+  or load them from any CDN, and the network is not closed with `connect-src` or `font-src`.
+  - All a board could send out is what someone types into the board itself.
+  - The opaque origin keeps the app, its files and the agent out of reach, and that is the
+    boundary.
+  - A font file inside the package counts against the caps like anything else.
+- **The community repo stays small, so it is an ordinary GitHub repo.** Its CI is a GitHub
+  Actions workflow in that repo, owned by this project's maintainers. It runs `sp pack --check`,
+  renders covers with `refkit shoot`, and fails a PR over the caps. Its size is looked at again
+  if the repo passes 1 GB.
+
 ## Open questions
 
-1. **Does `gen.py` ship?** The recommendation is yes.
-   - For: it is the canvas's source of truth, and a remix without it can only be hand-edited.
-   - Against: it is code. The app never runs it, and import tells the agent whose it is.
-2. **Does `comments.json` ship?** The recommendation is no: review threads can hold names and
-   private remarks.
-3. **Should boards get `connect-src 'none'` too**, so a board cannot send what is typed into it
-   anywhere? Boards inline their images, so fonts are the one thing to check.
-4. **The community repo's upkeep:**
-   - how big it may grow before it needs another home;
-   - who owns its CI (Phase 3 renders covers with headless Chrome);
-   - what licence a submission is under, and who says so;
-   - how something is taken down.
+1. **Licence and takedown.** What licence a submission is under, and how something is taken
+   down, are the product's to decide.
 
 ## What the review changed
 
