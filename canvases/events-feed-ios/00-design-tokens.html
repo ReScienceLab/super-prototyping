@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Events Feed - Design Tokens</title>
+<style>
+:root{
+  /* Font */
+  --e-font:ui-rounded,"SF Pro Rounded","SF Pro Text",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  /* Surface */
+  --e-ground:#EAE8E9;
+  --e-circle:#FDFDFD;
+  --e-pill:#F3EFF5;
+  --e-add:#F9EAF4;
+  --e-tile-rim:#FDFCFC;
+  --e-fab:rgba(38,38,38,.64);
+  --e-badge:#16151A;
+
+  /* Ink */
+  --e-ink:#121014;
+  --e-ink-2:#737075;
+  --e-ink-3:#979399;
+  --e-ink-foot:#59545E;
+  --e-ink-search:#211F23;
+  --e-ink-pill:#211D23;
+  --e-ink-kebab:#1E1C1D;
+  --e-ink-inv:#F7F5F6;
+
+  /* Accent */
+  --e-pin:#8543CF;
+  --e-dash:#9F5D80;
+  --e-ring:#982E69;
+
+  /* Radius */
+  --e-r-pill:999px;
+  --e-r-add:28px;
+  --e-r-tile:20px;
+  --e-r-phone:52px;
+
+  /* Type */
+  --e-t-title:700 24px/29px var(--e-font);
+  --e-t-sub:400 14px/19px var(--e-font);
+  --e-t-meta:400 12px/16px var(--e-font);
+  --e-t-pill:600 12px/16px var(--e-font);
+  --e-t-foot:400 14.5px/19px var(--e-font);
+  --e-t-search:400 17px/22px var(--e-font);
+  --e-t-story:400 12px/16px var(--e-font);
+  --e-t-fab:600 15px/20px var(--e-font);
+  --e-t-time:590 17px/22px var(--e-font);
+
+  /* Metrics */
+  --e-w:440px;
+  --e-h:956px;
+  --e-status:62px;
+  --e-gutter:21px;
+  --e-hdr-btn:38.7px;
+  --e-avatar:34.6px;
+  --e-story-d:72.6px;
+  --e-story-p:85.7px;
+  --e-tile-w:90.1px;
+  --e-tile-p:79.2px;
+  --e-tile-h:117.7px;
+  --e-add-w:99.6px;
+  --e-add-h:122.4px;
+  --e-fab-w:201.3px;
+  --e-fab-h:51.9px;
+  --e-fab-btm:54px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--e-font);-webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;padding:24px}
+.phone{position:relative;flex:none;width:var(--e-w);height:var(--e-h);
+  border-radius:var(--e-r-phone);overflow:hidden;background:var(--e-ground);color:var(--e-ink);
+  transform:translateZ(0);
+  box-shadow:0 0 0 11px #1D191A,0 0 0 12.5px #3A3735,0 24px 60px rgba(29,25,26,.28)}
+.sb{position:absolute;left:0;top:0;width:var(--e-w);height:var(--e-status);z-index:9}
+.sb .time{position:absolute;left:0;top:18.2px;width:142.4px;text-align:center;font:var(--e-t-time)}
+.sb .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:125px;height:36px;border-radius:20px;background:#000}
+.sb svg{position:absolute;display:block;fill:currentColor}
+.home{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:139px;height:5px;border-radius:3px;background:currentColor;z-index:9}
+body{padding:0;background:var(--e-ground);color:var(--e-ink)}
+.sheet{width:532px;height:1004px;padding:22px;overflow:hidden}
+h1{font:600 17px/22px var(--e-font);margin-bottom:2px}
+header p{font:400 11px/15px var(--e-font);color:var(--e-ink-3);margin-bottom:13px}
+h2{font:600 9px/12px var(--e-font);letter-spacing:.8px;text-transform:uppercase;
+  color:var(--e-ink-3);margin:12px 0 5px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sw .chip{height:26px;border-radius:6px;border:1px solid rgba(29,25,26,.12)}
+.sw b{display:block;margin-top:3px;font:600 8.5px/11px ui-monospace,Menlo,monospace}
+.sw i{display:block;font:400 8px/11px ui-monospace,Menlo,monospace;
+  color:var(--e-ink-3);font-style:normal;word-break:break-all}
+.rad{display:flex;gap:9px}
+.rb{width:46px;height:26px;background:var(--e-pill);border:1px solid rgba(29,25,26,.14)}
+.rad em{display:block;margin-top:2px;font:400 8.5px/11px var(--e-font);
+  color:var(--e-ink-3);font-style:normal;text-align:center}
+.tr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding-bottom:2px;border-bottom:1px solid rgba(29,25,26,.08)}
+.tr span{white-space:nowrap;overflow:hidden}
+.tr em{font:400 8px/11px ui-monospace,Menlo,monospace;color:var(--e-ink-3);
+  font-style:normal;white-space:nowrap;flex:none}
+.met{font:400 8.6px/12.4px ui-monospace,Menlo,monospace;color:var(--e-ink-2)}
+table.ev{width:100%;border-collapse:collapse}
+table.ev td{vertical-align:top;padding:2.5px 6px 2.5px 0;
+  border-bottom:1px solid rgba(29,25,26,.08);font:400 8.5px/11px var(--e-font)}
+td.t,td.v{font-family:ui-monospace,Menlo,monospace}
+td.t{color:#8543CF;white-space:nowrap}
+td.v{color:var(--e-ink-2);max-width:120px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+td.e{color:var(--e-ink-3)}</style>
+</head>
+<body>
+<div class="sheet"><header><h1>Events Feed &mdash; design tokens</h1><p>48 tokens. Every value is measured on a named frame at a named scale, and the evidence boards carry the measurement behind each one.</p></header><h2>Colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:var(--e-ground)"></div><b>--e-ground</b><i>#EAE8E9</i></div><div class="sw"><div class="chip" style="background:var(--e-circle)"></div><b>--e-circle</b><i>#FDFDFD</i></div><div class="sw"><div class="chip" style="background:var(--e-pill)"></div><b>--e-pill</b><i>#F3EFF5</i></div><div class="sw"><div class="chip" style="background:var(--e-add)"></div><b>--e-add</b><i>#F9EAF4</i></div><div class="sw"><div class="chip" style="background:var(--e-tile-rim)"></div><b>--e-tile-rim</b><i>#FDFCFC</i></div><div class="sw"><div class="chip" style="background:var(--e-fab)"></div><b>--e-fab</b><i>rgba(38,38,38,.64)</i></div><div class="sw"><div class="chip" style="background:var(--e-badge)"></div><b>--e-badge</b><i>#16151A</i></div><div class="sw"><div class="chip" style="background:var(--e-ink)"></div><b>--e-ink</b><i>#121014</i></div><div class="sw"><div class="chip" style="background:var(--e-ink-2)"></div><b>--e-ink-2</b><i>#737075</i></div><div class="sw"><div class="chip" style="background:var(--e-ink-3)"></div><b>--e-ink-3</b><i>#979399</i></div><div class="sw"><div class="chip" style="background:var(--e-ink-foot)"></div><b>--e-ink-foot</b><i>#59545E</i></div><div class="sw"><div class="chip" style="background:var(--e-ink-search)"></div><b>--e-ink-search</b><i>#211F23</i></div><div class="sw"><div class="chip" style="background:var(--e-ink-pill)"></div><b>--e-ink-pill</b><i>#211D23</i></div><div class="sw"><div class="chip" style="background:var(--e-ink-kebab)"></div><b>--e-ink-kebab</b><i>#1E1C1D</i></div><div class="sw"><div class="chip" style="background:var(--e-ink-inv)"></div><b>--e-ink-inv</b><i>#F7F5F6</i></div><div class="sw"><div class="chip" style="background:var(--e-pin)"></div><b>--e-pin</b><i>#8543CF</i></div><div class="sw"><div class="chip" style="background:var(--e-dash)"></div><b>--e-dash</b><i>#9F5D80</i></div><div class="sw"><div class="chip" style="background:var(--e-ring)"></div><b>--e-ring</b><i>#982E69</i></div></div><h2>Radius</h2><div class="rad"><div><div class="rb" style="border-radius:999px"></div><em>999px</em></div><div><div class="rb" style="border-radius:28px"></div><em>28px</em></div><div><div class="rb" style="border-radius:20px"></div><em>20px</em></div></div><h2>Type &mdash; SF Pro Rounded</h2><div class="tr"><span style="font:var(--e-t-title)">Weekend with family</span><em>--e-t-title &middot; 700 24px/29px</em></div><div class="tr"><span style="font:var(--e-t-sub)">Weekend with family</span><em>--e-t-sub &middot; 400 14px/19px</em></div><div class="tr"><span style="font:var(--e-t-meta)">Weekend with family</span><em>--e-t-meta &middot; 400 12px/16px</em></div><div class="tr"><span style="font:var(--e-t-pill)">Weekend with family</span><em>--e-t-pill &middot; 600 12px/16px</em></div><div class="tr"><span style="font:var(--e-t-foot)">Weekend with family</span><em>--e-t-foot &middot; 400 14.5px/19px</em></div><div class="tr"><span style="font:var(--e-t-search)">Weekend with family</span><em>--e-t-search &middot; 400 17px/22px</em></div><div class="tr"><span style="font:var(--e-t-story)">Weekend with family</span><em>--e-t-story &middot; 400 12px/16px</em></div><div class="tr"><span style="font:var(--e-t-fab)">Weekend with family</span><em>--e-t-fab &middot; 600 15px/20px</em></div><div class="tr"><span style="font:var(--e-t-time)">Weekend with family</span><em>--e-t-time &middot; 590 17px/22px</em></div><h2>Metrics</h2><div class="met">--e-w: 440px<br>--e-h: 956px<br>--e-status: 62px<br>--e-gutter: 21px<br>--e-hdr-btn: 38.7px<br>--e-avatar: 34.6px<br>--e-story-d: 72.6px<br>--e-story-p: 85.7px<br>--e-tile-w: 90.1px<br>--e-tile-p: 79.2px<br>--e-tile-h: 117.7px<br>--e-add-w: 99.6px<br>--e-add-h: 122.4px<br>--e-fab-w: 201.3px<br>--e-fab-h: 51.9px<br>--e-fab-btm: 54px</div></div>
+</body>
+</html>

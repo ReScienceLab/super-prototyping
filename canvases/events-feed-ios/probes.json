@@ -1,0 +1,510 @@
+[
+ {
+  "id": "ground",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "sample",
+  "box": [
+   30,
+   240,
+   400,
+   262
+  ],
+  "mine": "p1.png",
+  "_": "p1 the empty band between the story labels (ink ends 232) and the first card title (cap 269.8): no element crosses it, so the census is the page",
+  "_head": "The measurements behind this folder's tokens, replayable. The source is a screen recording whose camera zooms and pans, so there is no one capture and no one scale: each probe names its own `pt`. p1 is cam0, a frame the camera holds the whole 440 x 956 screen in, at 1.4455 px/pt, and its boxes are screen pt. a155 is camA at 3.7818 px/pt, holding screen pt 0..410, so its boxes are screen pt too. b310 and b360 are camB at 3.6114 px/pt, holding screen pt 519.6..956, so THEIR BOXES ARE SCREEN PT MINUS 519.6 -- the capture's own origin. The captures are third-party and assets/refs/ is not committed, so rebuild them before replaying: cut the frames out of the recording, then cut each to the screen at the geometry in gen.py's header. --against wants a directory holding the four boards rendered with --crop-phone --phone-size 440x956 and then resampled to each capture's own pixel size and window; scratch/fit.py does that, and every probe names its file there. The photo stacks, the story avatars and the header avatar are original art rather than the source's pictures, so the probes over them measure geometry only and never colour."
+ },
+ {
+  "id": "circle-fill",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "sample",
+  "box": [
+   338,
+   82,
+   362,
+   106
+  ],
+  "mine": "p1.png",
+  "_": "p1 inside the search circle, 8 pt in from a 38.7 pt disc, clear of its edge and of the magnifier's 17 pt glyph"
+ },
+ {
+  "id": "hdr-avatar",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   14,
+   70,
+   62,
+   118
+  ],
+  "dark": 200,
+  "mine": "p1.png",
+  "_": "p1 the header avatar, alone in its window: the search placeholder starts at 64.3 and the gutter is empty to its left. Geometry only -- the fill is this folder's own art"
+ },
+ {
+  "id": "hdr-search-btn",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   322,
+   66,
+   378,
+   122
+  ],
+  "bright": 246,
+  "mine": "p1.png",
+  "_": "p1 the search circle at #FDFDFD on the #EAE8E9 ground, whose max channel is 234, so 246 cuts between them; the bell's disc starts at 380.5"
+ },
+ {
+  "id": "hdr-bell-btn",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   372,
+   66,
+   428,
+   122
+  ],
+  "bright": 246,
+  "mine": "p1.png",
+  "_": "p1 the bell circle, the last thing on the row: its right edge at 419.2 is the 20.8 gutter inset again"
+ },
+ {
+  "id": "search-placeholder",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   58,
+   76,
+   250,
+   102
+  ],
+  "dark": 150,
+  "mine": "p1.png",
+  "_": "p1 the placeholder line only: the avatar ends at 54.7 and the search circle starts at 330.7, so nothing else is in the window"
+ },
+ {
+  "id": "story-ring-1",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   100,
+   132,
+   188,
+   220
+  ],
+  "dark": 200,
+  "mine": "p1.png",
+  "_": "p1 Bryan's ringed circle, the second of five at an 85.7 pitch: the window is one pitch wide and centred on it, and the labels start at cap 220.7"
+ },
+ {
+  "id": "story-label-bryan",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   116,
+   212,
+   172,
+   238
+  ],
+  "dark": 160,
+  "mine": "p1.png",
+  "_": "p1 the word Bryan, below its own circle and clear of Your story's label to the left and Beach's to the right"
+ },
+ {
+  "id": "card1-title",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   14,
+   260,
+   220,
+   298
+  ],
+  "dark": 120,
+  "mine": "p1.png",
+  "_": "p1 Beach Party: the window stops at 220, well left of the kebab at 403.3, and above the subtitle's cap at 301.6"
+ },
+ {
+  "id": "card1-sub",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   14,
+   298,
+   260,
+   320
+  ],
+  "dark": 190,
+  "mine": "p1.png",
+  "_": "p1 the subtitle line only, between the title's descenders and the meta row's cap at 326.5"
+ },
+ {
+  "id": "card1-meta",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   14,
+   320,
+   140,
+   344
+  ],
+  "dark": 205,
+  "mine": "p1.png",
+  "_": "p1 the words In 2 Days and Aug 28: the window stops at 140, left of the location pill's left edge at 147.4"
+ },
+ {
+  "id": "card1-pill",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   138,
+   318,
+   292,
+   358
+  ],
+  "bright": 240,
+  "mine": "p1.png",
+  "_": "p1 the location pill. Its #F3EFF5 is only nine levels over the ground, so 240 is the cut that finds the pill and not its white glow -- 246 returns the glow, 157.0..265.7, and looks just as plausible"
+ },
+ {
+  "id": "ring-colour",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "sample",
+  "box": [
+   106,
+   168,
+   112,
+   184
+  ],
+  "only": "ink",
+  "mine": "p1.png",
+  "_": "p1 a 6 x 16 slice of Bryan's ring at its widest, half way down the circle, where the band is 5.7 pt thick and nothing else is within 20 pt"
+ },
+ {
+  "id": "fab-fill",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "sample",
+  "box": [
+   302,
+   864,
+   318,
+   888
+  ],
+  "only": "flat",
+  "mine": "p1.png",
+  "_": "p1 inside the floating pill, right of the label's last letter at 295.8 and left of its 321.0 edge, so the census is the translucent fill over ground"
+ },
+ {
+  "id": "kebab",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   396,
+   262,
+   414,
+   292
+  ],
+  "dark": 200,
+  "mine": "p1.png",
+  "_": "p1 the first card's kebab. A wider window catches the title, whose ink ends 180 pt to its left, and reports a box 200 pt across"
+ },
+ {
+  "id": "add-tile",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   12,
+   358,
+   130,
+   496
+  ],
+  "bright": 240,
+  "mine": "p1.png",
+  "_": "p1 the dashed add-photo tile: its #F9EAF4 interior is brighter than the ground, and the window clears the meta row above and the footer below"
+ },
+ {
+  "id": "add-fill",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "sample",
+  "box": [
+   40,
+   390,
+   100,
+   460
+  ],
+  "mine": "p1.png",
+  "_": "p1 inside the add tile, 20 pt in from every edge, so neither the dashed border nor the plus glyph is in the window"
+ },
+ {
+  "id": "card1-foot",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   14,
+   500,
+   38,
+   528
+  ],
+  "dark": 170,
+  "mine": "p1.png",
+  "_": "p1 the comment bubble and nothing else. The window stops at 38 because the 34 beside it starts at 43.0, and a window to 44 catches its 3 and reports a 22.8 pt glyph"
+ },
+ {
+  "id": "card2-title",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   14,
+   562,
+   200,
+   600
+  ],
+  "dark": 120,
+  "mine": "p1.png",
+  "_": "p1 Life Lately, the second card's title; the window stops short of the kebab and above the subtitle"
+ },
+ {
+  "id": "card2-stack",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   14,
+   650,
+   364,
+   790
+  ],
+  "dark": 200,
+  "mine": "p1.png",
+  "_": "p1 the four-tile photo stack, by the dark inside its white rims. Not by the rims: at --bright 242 the recording's compression has eaten enough of them that the box comes back 155.7 x 96.9, a plausible-looking number for a stack that is really 327.9 across. Geometry only -- the tiles hold this folder's own art, so this probe compares the box and never the colour"
+ },
+ {
+  "id": "fab",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "bbox",
+  "box": [
+   100,
+   840,
+   340,
+   914
+  ],
+  "dark": 130,
+  "mine": "p1.png",
+  "_": "p1 the floating pill. 130 rather than 200: a looser cut catches the blurred Rooftop title showing through behind it and reports x0 60.2"
+ },
+ {
+  "id": "fab-label",
+  "img": "assets/refs/p1.png",
+  "pt": 1.4455,
+  "cmd": "sample",
+  "box": [
+   174,
+   862,
+   300,
+   890
+  ],
+  "only": "ink",
+  "bright": true,
+  "mine": "p1.png",
+  "_": "p1 the pill's label, light on dark, so the ink core is the bright percentile; the window starts after the plus glyph at 29.1"
+ },
+ {
+  "id": "a-ground",
+  "img": "assets/refs/a155.png",
+  "pt": 3.7818,
+  "cmd": "sample",
+  "box": [
+   30,
+   196,
+   400,
+   228
+  ],
+  "mine": "a155.png",
+  "_": "a155 the gap between the first card's footer (ink ends ~186) and Life Lately's title (cap 234.3) at this scroll: empty ground, four px to the pt"
+ },
+ {
+  "id": "a-search-ink",
+  "img": "assets/refs/a155.png",
+  "pt": 3.7818,
+  "cmd": "sample",
+  "box": [
+   64,
+   78,
+   242,
+   100
+  ],
+  "only": "ink",
+  "mine": "a155.png",
+  "_": "a155 the placeholder's ink core. The header does not scroll, so it reads the same here as on p1, at 2.6x the resolution"
+ },
+ {
+  "id": "a-title-ink",
+  "img": "assets/refs/a155.png",
+  "pt": 3.7818,
+  "cmd": "sample",
+  "box": [
+   22,
+   236,
+   128,
+   252
+  ],
+  "only": "ink",
+  "mine": "a155.png",
+  "_": "a155 Life Lately's ink core, cap to baseline only, so no descender and no antialiased halo is averaged in"
+ },
+ {
+  "id": "a-sub-ink",
+  "img": "assets/refs/a155.png",
+  "pt": 3.7818,
+  "cmd": "sample",
+  "box": [
+   22,
+   267,
+   220,
+   280
+  ],
+  "only": "ink",
+  "mine": "a155.png",
+  "_": "a155 the subtitle's ink core on the same card, 15 pt below the title's baseline"
+ },
+ {
+  "id": "a-foot-ink",
+  "img": "assets/refs/a155.png",
+  "pt": 3.7818,
+  "cmd": "sample",
+  "box": [
+   20,
+   172,
+   130,
+   186
+  ],
+  "only": "ink",
+  "mine": "a155.png",
+  "_": "a155 the first card's footer row: glyphs and numerals, one colour"
+ },
+ {
+  "id": "b-ll-foot",
+  "img": "assets/refs/b360.png",
+  "pt": 3.6114,
+  "cmd": "bbox",
+  "box": [
+   14,
+   12,
+   180,
+   42
+  ],
+  "dark": 170,
+  "mine": "b360.png",
+  "_": "b360 Life Lately's footer at scroll 257.8, screen 539.0, capture 19.4: the row this board's offset was solved from"
+ },
+ {
+  "id": "b-rooftop-title",
+  "img": "assets/refs/b360.png",
+  "pt": 3.6114,
+  "cmd": "bbox",
+  "box": [
+   14,
+   76,
+   240,
+   116
+  ],
+  "dark": 120,
+  "mine": "b360.png",
+  "_": "b360 Rooftop Jazz Night, one card advance below that footer"
+ },
+ {
+  "id": "b-rooftop-stack",
+  "img": "assets/refs/b360.png",
+  "pt": 3.6114,
+  "cmd": "bbox",
+  "box": [
+   14,
+   176,
+   290,
+   312
+  ],
+  "dark": 200,
+  "mine": "b360.png",
+  "_": "b360 the three-tile stack, by its rims. Three tiles span 248.7 against four tiles' 327.9, and that pair is what solves the 90.3 tile and the 79.2 pitch. Geometry only"
+ },
+ {
+  "id": "b-fab-360",
+  "img": "assets/refs/b360.png",
+  "pt": 3.6114,
+  "cmd": "bbox",
+  "box": [
+   100,
+   320,
+   340,
+   394
+  ],
+  "dark": 130,
+  "mine": "b360.png",
+  "_": "b360 the floating pill again, on a second camera: it must land where cam0 puts it, or the camB geometry is wrong and every offset above it with it"
+ },
+ {
+  "id": "b-card4-title",
+  "img": "assets/refs/b310.png",
+  "pt": 3.6114,
+  "cmd": "bbox",
+  "box": [
+   14,
+   100,
+   220,
+   140
+  ],
+  "dark": 120,
+  "mine": "b310.png",
+  "_": "b310 Friendsgiving at scroll 532.8, two card advances below the Rooftop footer this board's offset was solved from"
+ },
+ {
+  "id": "b-card4-pill",
+  "img": "assets/refs/b310.png",
+  "pt": 3.6114,
+  "cmd": "bbox",
+  "box": [
+   120,
+   160,
+   320,
+   196
+  ],
+  "bright": 240,
+  "mine": "b310.png",
+  "_": "b310 the Tolu's Place pill: the window starts at 120, right of where the In 3 Weeks / Sep 19 meta text ends"
+ },
+ {
+  "id": "b-fab-310",
+  "img": "assets/refs/b310.png",
+  "pt": 3.6114,
+  "cmd": "bbox",
+  "box": [
+   104,
+   328,
+   336,
+   396
+  ],
+  "dark": 130,
+  "mine": "b310.png",
+  "_": "b310 the pill on the deepest scroll: it is fixed, so it is the one element every board shares and the cheapest check that a board did not slide. The window starts at 328 rather than 320 because Friendsgiving's photo stack ends at 326.1, and eight pt of it is enough to widen the box to 220.7"
+ }
+]

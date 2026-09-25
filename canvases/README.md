@@ -489,6 +489,26 @@ declares a box other than the default 478 x 980.
   boxes are cropped and no art is generated; 22 icons are SVGs traced against
   the captures, one of them a 37-segment watermark. The fourteen `ref-*` boards
   are gitignored, so a fresh clone has 18.
+- `events-feed-ios/`: the run to read when the source is a screen recording
+  rather than screenshots. Eleven boards from 8.2 s of 2560 x 1698 video of an
+  unnamed events-feed concept, in three rows: a token board and two evidence
+  boards for 48 tokens, four screens that are one scrolling feed at four
+  offsets, and the four source frames column-for-column underneath. No frame
+  holds the whole screen sharply, because the camera zooms and pans over a
+  phone that never moves, so the run solves the screen's edges per frame,
+  finds three static camera setups at 1.45, 3.61 and 3.78 px/pt, and
+  `probes.json` carries all three with each probe naming its own scale. Mean
+  absolute delta against the captures is 7.29-11.56 levels (of 255) with the
+  photographic regions masked and 13.22-20.96 with them in: the photo stacks
+  and the avatars are original gradient art drawn from each region's measured
+  colours, because the source's photographs belong to whoever made the
+  recording. Its `README.md` records the recording's own noise floor, 1.14-1.69
+  levels between two frames of the same static shot, the header glass solved
+  off the one flat backdrop a scroll position happened to put behind it, and
+  the 1 pt photo rim that `box-sizing:border-box` had been eating. The phone is
+  a 440 x 956 iPhone 17 Pro Max, which does not fit the default artboard, so
+  every board declares 532 x 1004. The four `ref-*` boards are gitignored, so a
+  fresh clone has 7.
 - `templates/`: the starting point, not a finished board. The four boards
   every run produces (design tokens, evidence, one phone screen, one parked
   reference) with placeholder values, generated from one list of tokens so
