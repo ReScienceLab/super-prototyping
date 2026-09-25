@@ -161,6 +161,12 @@ This stands alone and ships first. It protects local users today.
 
 `sp pack <project> --check` validates and writes nothing. `sp pack <project> -o <dir>` also
 copies what passes into `<dir>`, as a folder: a PR adds a folder, so a zip has no reader yet.
+- **`-o` also writes `thumbnail.png` at the package's root.** It is the project's cover, drawn
+  with `refkit shoot` at 1600×1000.
+  - It is Figma's `thumbnail.png` and Sketch's `previews/preview.png`: a package can be
+    browsed without the app, and the community page reads its card straight from it.
+  - It exists only in the package. In the project the cover stays a path, as
+    `2026-09-23-project-covers.md` decided, because a stored picture goes stale.
 - It lives in `tools/sp_canvas.py` beside the other subcommands, because CI and the agent both
   already run `sp`.
 - The rules it applies partly repeat `boardIndex` and `cover.ts`, in a second language. That
@@ -260,7 +266,8 @@ packing a single canvas.
   - A font file inside the package counts against the caps like anything else.
 - **The community repo stays small, so it is an ordinary GitHub repo.** Its CI is a GitHub
   Actions workflow in that repo, owned by this project's maintainers. It runs `sp pack --check`,
-  renders covers with `refkit shoot`, and fails a PR over the caps. Its size is looked at again
+  checks that `thumbnail.png` is the cover `sp pack` would draw now, and fails a PR over the
+  caps. Its size is looked at again
   if the repo passes 1 GB.
 
 ## Open questions
