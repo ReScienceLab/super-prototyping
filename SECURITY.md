@@ -16,7 +16,7 @@ unless you prefer otherwise.
 
 ## Scope
 
-- The `canvas/` viewer (the code behind https://prototyping.rescience.com/demo/).
+- The `canvas/` viewer (the code behind https://superproto.dev/demo/).
 - The measuring tools in `tools/` and the agent skills in `skills/`.
 - The generators (`gen.py`) and boards under `canvases/`.
 

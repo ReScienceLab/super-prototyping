@@ -758,7 +758,7 @@ POST = """Launching super-prototyping: clone any app's UI as plain HTML artboard
 on a <a>@tldraw</a> canvas.
 Run /sp-clone-prototype on your screenshots; every color and metric traces to a \
 measurement. No design tool, no build step.
-<a>prototyping.rescience.com</a>
+<a>superproto.dev</a>
 <a>github.com/ReScienceLab/s…</a>"""
 # One run, not four. The capture's four boxes fix where the row starts and the
 # two ink gaps inside it, 3.67 within a pair and 10.67 between them; the

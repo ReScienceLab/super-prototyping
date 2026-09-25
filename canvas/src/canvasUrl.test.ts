@@ -19,7 +19,7 @@ describe("canvas URLs", () => {
   // The hosted canvas sits under a path, not at the root: the landing page took the
   // domain. Every address below is built on it, so the tests fail if anything here
   // ever writes an address from the root instead.
-  const root = "https://prototyping.rescience.com/demo/";
+  const root = "https://superproto.dev/demo/";
 
   it("reads a page slug, and none from the bare address", () => {
     expect(slugFromUrl(root + "?canvas=luma-ios")).toBe("luma-ios");
