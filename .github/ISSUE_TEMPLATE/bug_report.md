@@ -11,7 +11,7 @@ labels: bug
 ## Where
 
 - Canvas or skill: <!-- e.g. canvases/luma-ios, sp-clone-prototype -->
-- Hosted (superproto.dev/demo/) or local dev server:
+- Hosted (superproto.dev/p/...) or local dev server:
 - Browser / device / OS:
 
 ## How to reproduce

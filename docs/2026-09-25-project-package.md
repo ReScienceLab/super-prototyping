@@ -109,7 +109,7 @@ This stands alone and ships first. It protects local users today.
   need nothing.
 - **The hosted build.** `vite.config.ts` writes boards into `dist/board/` as static files, and
   Cloudflare Pages runs no server. A `canvas/public/_headers` rule gives `/board/*` the same
-  header. It matters there too: the demo is proxied under `superproto.dev/demo/`, so the
+  header. It matters there too: the canvas is proxied under `superproto.dev/p/<id>/`, so the
   landing page and the committed `ref-*` captures share its origin.
 - **Links.** `CanvasLinkShapeUtil.tsx:273` passes `layout.json`'s `links[].url` to
   `window.open` in the app's own frame. It opens only `http:` and `https:`.

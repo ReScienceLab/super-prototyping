@@ -5,7 +5,7 @@ import {
   type MouseEventHandler,
   type ReactNode,
 } from "react";
-import { canvasIndex } from "./canvasIndex";
+import { canvasIndex, homeUrl } from "./canvasIndex";
 import { canvasIconUrl } from "./canvasLibrary";
 import {
   projectTabIcon,
@@ -204,12 +204,7 @@ export function CanvasTabBar(props: {
               role="menuitem"
               className="sp-menu-row"
               onClick={() =>
-                navigator.clipboard.writeText(
-                  new URL(
-                    canvasIndex().served ? "/home.html" : "./",
-                    location.href,
-                  ).href,
-                )
+                navigator.clipboard.writeText(homeUrl())
               }
             >
               Copy link

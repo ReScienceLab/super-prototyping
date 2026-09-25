@@ -32,13 +32,16 @@ checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
 on the home page with no project, as the app does: this checkout's canvases are
 the examples there, not a project of their own.
 
-The hosted canvas is that build on Cloudflare Pages, and it lives at
-`superproto.dev/demo/` now: the root is the download page, whose
-repo is `ReScienceLab/super-prototyping-landing`, and its Worker passes
-`/demo/*` through to the Pages deploy. Nothing here deploys it — the Pages
-project builds this repo on its own — so the move is only the addresses in
-this checkout. `docs/2026-09-23-landing-page.md` says why the page is a
-separate repo and why the canvas is proxied rather than redirected.
+The hosted canvas is that build on Cloudflare Pages. The root of
+`superproto.dev` is the download page, whose repo is
+`ReScienceLab/super-prototyping-landing`, and its Worker serves every example
+and every project shared to the community read-only at `superproto.dev/p/<id>`,
+from the Pages deploy. The build writes each one's index under `p/<id>/`, and
+fetches the community's projects only on Pages (`CF_PAGES`). Nothing here
+deploys it — the Pages project builds this repo on its own.
+`docs/2026-09-23-landing-page.md` says why the page is a separate repo and why
+the canvas is proxied rather than redirected, and
+`docs/2026-09-25-project-urls.md` why a project's address is `/p/<id>/<name>`.
 
 `tools/` is a Python package, `super-prototyping-tools`. It installs `refkit`
 (measure, shoot, diff, check tokens), `artgen` (the rare asset that has to be

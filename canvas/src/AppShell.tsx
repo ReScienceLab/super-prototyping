@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { canvasIndex } from "./canvasIndex";
+import { canvasIndex, homeUrl } from "./canvasIndex";
 import { CanvasTabBar } from "./CanvasTabBar";
 import {
   isHere,
@@ -62,10 +62,25 @@ const openedTab = tabFor(tabFromUrl(location.href));
 const opened =
   /\/home(\.html)?$/.test(location.pathname) ||
   (!canvasIndex().served &&
+    !canvasIndex().project &&
     openedTab.kind === "project" &&
     openedTab.view.kind === "canvas")
     ? null
     : { tab: openedTab, href: frameUrl(location.href) };
+
+/**
+ * A hosted project's address keeps the name it was opened with, `/p/<id>/<name>`, as Figma's
+ * file links do: the name is for people reading the link and nothing looks it up, so the canvas
+ * addresses the project by `/p/<id>/` and this puts the name back.
+ */
+const openedName = canvasIndex().served
+  ? undefined
+  : location.pathname.match(/\/p\/[^/]+\/([^/.]+)$/)?.[1];
+const named = (href: string) => {
+  const url = new URL(href);
+  if (openedName && url.pathname.endsWith("/")) url.pathname += openedName;
+  return url.href;
+};
 
 /** The app's version when it asks for the onboarding (desktop/main.ts), read before the address
  *  is rewritten, so a reload does not ask again. */
@@ -91,9 +106,14 @@ const onboarding = new URLSearchParams(location.search).get("onboarding");
 export function AppShell() {
   const chat = useChat();
   /** What is over the frame, if anything: home, or the community (Community.tsx). */
-  const [page, setPage] = useState<"home" | "community" | null>(
+  const [page, setPageHere] = useState<"home" | "community" | null>(
     opened === null ? "home" : null,
   );
+  /** A hosted project's home and community are the site's own community page, a page away. */
+  const setPage = (page: "home" | "community" | null) =>
+    page && !canvasIndex().served && canvasIndex().project
+      ? location.assign(homeUrl())
+      : setPageHere(page);
   /** Whether the frame is behind a page, so no project's canvas is in front. */
   const home = page !== null;
   const setHome = (on: boolean) => setPage(on ? "home" : null);
@@ -146,11 +166,7 @@ export function AppShell() {
   // frame's own changes are already entries in the window's history, which Back walks. Home is
   // the server's, at its root, and no project's; a hosted build's is its bare address.
   useEffect(() => {
-    const href =
-      home || !shown
-        ? new URL(canvasIndex().served ? "/home.html" : "./", location.href)
-            .href
-        : windowUrl(shown.href);
+    const href = home || !shown ? homeUrl() : named(windowUrl(shown.href));
     if (href !== location.href) history.replaceState(null, "", href);
   }, [home, shown]);
 
