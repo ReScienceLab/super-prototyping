@@ -121,6 +121,8 @@ function canvasesSource(): Plugin {
           emit(file, fs.readFileSync(path.join(folder, file)));
         if (board.icon)
           emit("icon.png", fs.readFileSync(path.join(folder, "icon.png")));
+        if (board.thumbnail)
+          emit("thumbnail.png", fs.readFileSync(path.join(folder, "thumbnail.png")));
         for (const file of board.brand) {
           emit(file, fs.readFileSync(path.join(folder, file)));
           const thumb = await brandThumb(path.join(folder, file));
@@ -171,10 +173,11 @@ export default defineConfig({
     // is a megabyte on its own and a warning nobody can act on is noise.
     chunkSizeWarningLimit: 4_000,
     rollupOptions: {
-      // Five pages. `index` and `home` are the window (shell.tsx), at a project's address and
+      // Six pages. `index` and `home` are the window (shell.tsx), at a project's address and
       // at its home page, which lists every project. `canvas` is the canvas in the window's
       // frame, `sheet` one canvas page's boards at full size, and `brand` the same page's brand
-      // material. Each is its own entry rather than a route inside the canvas, so reading one
+      // material, and `community` the community page as the site serves it (communitySite.tsx).
+      // Each is its own entry rather than a route inside the canvas, so reading one
       // as a web page does not download tldraw to do it.
       input: {
         index: "index.html",
@@ -182,6 +185,7 @@ export default defineConfig({
         canvas: "canvas.html",
         sheet: "sheet.html",
         brand: "brand.html",
+        community: "community.html",
       },
     },
   },

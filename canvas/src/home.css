@@ -61,7 +61,7 @@ a {
   color: var(--ds-gray-1000);
 }
 /* The one action among the links out, in Geist's primary, the ground and the ink swapped. */
-button.home-tile i {
+button.home-tile:not(.home-tile--community) i {
   background: var(--ds-gray-1000);
   box-shadow: none;
   color: var(--ds-background-100);

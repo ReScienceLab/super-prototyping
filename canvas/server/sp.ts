@@ -51,6 +51,15 @@ export function sameOrigin(req: IncomingMessage) {
 }
 
 /**
+ * What a board, or any page a project holds, runs under when it is opened at its own address: an
+ * origin of its own, so its script cannot reach the canvas's storage or its write endpoints, whose
+ * guard sees it as cross-site. A board is a project's, and a project can be someone else's.
+ * `public/_headers` gives the hosted build's `/board/*` the same.
+ */
+const SANDBOX =
+  "sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads";
+
+/**
  * A canvas's folder: the project's own, else the example of that name. The project's own is what
  * the scan in boards.ts calls a canvas, a folder with a board or a layout.json in it, so a folder
  * the project has only begun under an example's name does not hide the example. A name that is
@@ -349,7 +358,7 @@ export function createSpServer(options: {
   // A board folder's files, at the addresses the index hands the page: `<slug>/<file>.html`
   // is a board as a web page, which the canvas's two "open as a web page" buttons point at;
   // `<slug>/icon.png` and `<slug>/assets/brand/**` are the images a page places as shapes
-  // of their own. The build emits the same paths as files; here they are read off the
+  // of their own, and `<slug>/thumbnail.png` the one the community page shows for it. The build emits the same paths as files; here they are read off the
   // boards directory per request, so a reload shows the current version.
   route("/board", (req, res) => {
     const send = (code: number, message: string) => {
@@ -370,7 +379,7 @@ export function createSpServer(options: {
     const type =
       parts.length === 2 && parts[1].endsWith(".html")
         ? "text/html; charset=utf-8"
-        : parts.length === 2 && parts[1] === "icon.png"
+        : parts.length === 2 && ["icon.png", "thumbnail.png"].includes(parts[1])
           ? "image/png"
           : parts.length >= 4 && parts[1] === "assets" && parts[2] === "brand"
             ? IMAGE_MIME[path.extname(parts[parts.length - 1]).toLowerCase()]
@@ -390,6 +399,7 @@ export function createSpServer(options: {
       return send(404, "not a board");
     }
     res.setHeader("Content-Type", type);
+    res.setHeader("Content-Security-Policy", SANDBOX);
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Accept-Ranges", "bytes");
     // A byte range, which is how a video seeks: a pasted one can be a gigabyte, and without it
@@ -467,10 +477,7 @@ export function createSpServer(options: {
       return res.end("not a file of this project");
     }
     res.setHeader("Content-Type", type);
-    res.setHeader(
-      "Content-Security-Policy",
-      "sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads",
-    );
+    res.setHeader("Content-Security-Policy", SANDBOX);
     res.setHeader("Cache-Control", "no-store");
     fs.createReadStream(file).pipe(res);
   });

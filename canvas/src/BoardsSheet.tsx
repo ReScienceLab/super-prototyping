@@ -6,7 +6,8 @@ import { brandPageUrl, canvasPageUrl } from "./canvasUrl";
 /** The extension that reads a page, and the Figma plugin that the extension can hand off to. */
 const H2D_EXTENSION =
   "https://chromewebstore.google.com/detail/htmltodesign/ldnheaepmnmbjjjahokphckbpgciiaed";
-const H2D_PLUGIN = "https://www.figma.com/community/plugin/1159123024924461424/html-to-design";
+const H2D_PLUGIN =
+  "https://www.figma.com/community/plugin/1159123024924461424/html-to-design";
 
 /**
  * One canvas page's boards, each at its own size, in one scrolling document. The page behind
@@ -14,8 +15,8 @@ const H2D_PLUGIN = "https://www.figma.com/community/plugin/1159123024924461424/h
  *
  * Each board is an iframe pointed at that board's own address rather than inlined, because a
  * board is a whole document — its own doctype, its own reset, its own fonts — and forty of them
- * flattened into one would be forty stylesheets fighting. The frames are same-origin, so a board
- * behaves here exactly as it does in a tab of its own.
+ * flattened into one would be forty stylesheets fighting. The server sandboxes each in an origin
+ * of its own (sp.ts, SANDBOX), so a board behaves here exactly as it does in a tab of its own.
  */
 export function BoardsSheet({ slug }: { slug: string }) {
   const rows = sheetRows(slug);
@@ -47,10 +48,11 @@ export function BoardsSheet({ slug }: { slug: string }) {
         <div className="howto__body">
           <ol>
             <li>
-              <b>Install the browser extension.</b> The extension rather than the Figma plugin
-              alone, because the plugin fetches a public address from Figma's servers and a
-              canvas on localhost is not one — the extension reads the page from inside the
-              browser that already has it open.
+              <b>Install the browser extension.</b> The extension rather than
+              the Figma plugin alone, because the plugin fetches a public
+              address from Figma's servers and a canvas on localhost is not one
+              — the extension reads the page from inside the browser that
+              already has it open.
               {/* The one thing on this page that has to be done before anything else works, so
                   it is a button and not the third link in a paragraph. */}
               <a
@@ -75,7 +77,9 @@ export function BoardsSheet({ slug }: { slug: string }) {
                 </svg>
                 <span>
                   Add html.to.design to your browser
-                  <small>Free · Chrome, Edge, Brave, Arc and other Chromium browsers</small>
+                  <small>
+                    Free · Chrome, Edge, Brave, Arc and other Chromium browsers
+                  </small>
                 </span>
                 <span className="install__arrow" aria-hidden>
                   &#8599;
@@ -83,16 +87,18 @@ export function BoardsSheet({ slug }: { slug: string }) {
               </a>
             </li>
             <li>
-              <b>Capture this page.</b> Click the extension's icon while this tab is in front,
-              leave the viewport on <i>Browser</i>, and press <i>Capture Current Page</i>. It
-              reads every board below at the size it ships at, rather than the zoomed-out
-              thumbnail the canvas shows.
+              <b>Capture this page.</b> Click the extension's icon while this
+              tab is in front, leave the viewport on <i>Browser</i>, and press{" "}
+              <i>Capture Current Page</i>. It reads every board below at the
+              size it ships at, rather than the zoomed-out thumbnail the canvas
+              shows.
             </li>
             <li>
-              <b>Paste it into Figma.</b> Pick <i>Copy to clipboard</i> and press ⌘V in a Figma
-              file; that route needs no plugin at all. The plugin is for the other two routes —
-              sending the capture straight over, or opening a saved <code>.h2d</code> file.
-              Either way the boards arrive as editable layers, not as images.
+              <b>Paste it into Figma.</b> Pick <i>Copy to clipboard</i> and
+              press ⌘V in a Figma file; that route needs no plugin at all. The
+              plugin is for the other two routes — sending the capture straight
+              over, or opening a saved <code>.h2d</code> file. Either way the
+              boards arrive as editable layers, not as images.
               <a
                 className="install install--plugin"
                 href={H2D_PLUGIN}

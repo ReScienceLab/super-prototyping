@@ -46,6 +46,9 @@ it("shows the examples read-only beside the project's canvases", async () => {
     ]);
     expect((await ask("/board/an-example/01-a.html")).text).toBe("example");
     expect((await ask("/board/shadowed/01-a.html")).text).toBe("mine");
+    // Opened at its own address, a board runs in an origin of its own, not the canvas's.
+    const board = await ask("/board/shadowed/01-a.html");
+    expect(board.csp).toMatch(/^sandbox allow-scripts /);
 
     const ground = { ground: "#000000" };
     expect(
@@ -342,6 +345,7 @@ it("serves the project's own files by their absolute path", async () => {
     ).toEqual({
       status: 200,
       text: "glow",
+      csp: expect.stringMatching(/^sandbox allow-scripts /),
     });
     expect((await ask(at(path.join(tmp, "secret.html")))).status).toBe(404);
     // A junction is the link Windows makes without admin rights, and a symlink elsewhere.
@@ -406,7 +410,10 @@ it("hands a canvas command to the open canvas page and its answer back", async (
     sheet.close();
 
     // A shell cancelled while its command waited: the command is not run for nobody.
-    const cancelled = ask("/__sp/canvas", { slug: "home", command: { op: "delete" } });
+    const cancelled = ask("/__sp/canvas", {
+      slug: "home",
+      command: { op: "delete" },
+    });
     await waiting();
     cancelled.drop();
     // Sent before the page opens, which is a reload: it goes to the page once it does.
@@ -459,13 +466,23 @@ async function serve(options: Parameters<typeof createSpServer>[0]) {
   // `drop` is the caller going away before the answer, as a cancelled shell does.
   const ask = (url: string, body?: object) => {
     let req!: http.ClientRequest;
-    const answered = new Promise<{ status: number; text: string }>((done) => {
+    const answered = new Promise<{
+      status: number;
+      text: string;
+      csp?: string | string[];
+    }>((done) => {
       req = http.request(
         { port, path: url, method: body ? "POST" : "GET" },
         (res) => {
           let text = "";
           res.on("data", (chunk) => (text += chunk));
-          res.on("end", () => done({ status: res.statusCode!, text }));
+          res.on("end", () =>
+            done({
+              status: res.statusCode!,
+              text,
+              csp: res.headers["content-security-policy"],
+            }),
+          );
         },
       );
       req.on("error", () => {});

@@ -91,7 +91,8 @@ Rules inside a canvas folder:
 
 - `gen.py` is the only source of truth. The `NN-*.html` boards are its
   output. Edit the generator and re-run, never the HTML.
-- Commit `layout.json`, `icon.png` and `assets/`. `gen.py` inlines the
+- Commit `layout.json`, `icon.png`, `thumbnail.png` (drawn by `sp thumbnail`)
+  and `assets/`. `gen.py` inlines the
   images in `assets/` as `data:` URIs.
 - Commit `PRD.md`, the product the folder prototypes, to the `sp-define-product`
   skill's template. Its Screens table lists the folder's boards.

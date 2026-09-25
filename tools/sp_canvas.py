@@ -11,6 +11,7 @@
   paths     print the directories this writes, the chat agent's, and the
             variables that move them
   clean     remove every downloaded canvas, pidfile and log
+  pack      check a project as a package to share (--check), or copy it out (-o)
   uninstall remove the links the app made: commands, skills, PATH line, Codex rule
 
 The app is the only install. Every launch links sp, refkit and
@@ -25,7 +26,8 @@ names the tree to use; the commands the app links set it. The port is --port
 or SP_CANVAS_PORT.
 """
 import argparse, base64, glob, hashlib, io, json, os, re, shlex, shutil, signal, subprocess
-import sys, tarfile, tempfile, time, urllib.error, urllib.parse, urllib.request, webbrowser
+import sys, tarfile, tempfile, time, unicodedata, urllib.error, urllib.parse, urllib.request, uuid
+import webbrowser
 from pathlib import Path
 
 DEFAULT_PORT = 5173
@@ -530,6 +532,409 @@ def cmd_clean(a):
         print(f"removed  {f}")
 
 
+# --- sp pack -----------------------------------------------------------------
+# A project as it is shared: the whole folder less what is left out below, by where a file
+# sits and not by what it is, so a kind of content nobody has made yet ships unchanged.
+# docs/2026-09-25-project-package.md has the why, and skills/sp-canvas/references/layout.md
+# the layout. The rules for references and covers repeat canvas/server and canvas/src/cover.ts.
+
+PACK_FILE_CAP = 50 << 20   # GitHub warns at 50 MB and refuses a file over 100 MB
+PACK_TOTAL_CAP = 200 << 20
+PROJECT_FORMAT = 1
+THUMBNAIL = (2400, 1260)   # an Open Graph image's 1200 x 630, twice over
+UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+LOGIN = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$")  # a GitHub login
+
+
+def _left_out(rel: Path) -> bool:
+    """Whether a path under canvases/ stays out of the package: work in progress, captures of
+    other people's products, review threads, measurement evidence and anything hidden."""
+    parts = rel.parts
+    return (any(p.startswith(".") or p == "scratch" for p in parts)
+            or parts[-1].startswith("ref-")
+            or parts[1:3] == ("assets", "refs")
+            or parts[-1] in ("comments.json", "probes.json", "crops.json"))
+
+
+def _pack(project: Path):
+    """-> (project.json, [(rel, size)] shipped, [rel] left out, [problem])."""
+    ship, out, problems = [], [], []
+
+    def json_of(rel):
+        try:
+            return json.loads((project / rel).read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            problems.append(f"{rel}: does not parse ({e})")
+
+    def add(rel):
+        if (project / rel).is_symlink():
+            return problems.append(f"{rel}: is a symlink")
+        # A Windows junction is no symlink to is_symlink() and os.walk goes through it.
+        if not (project / rel).resolve().is_relative_to(project.resolve()):
+            return problems.append(f"{rel}: is outside the project")
+        for part in rel.parts:
+            if "#" in part or "?" in part:
+                problems.append(f"{rel}: # and ? are not allowed in a name")
+            elif not unicodedata.is_normalized("NFC", part):
+                problems.append(f"{rel}: the name is not NFC")
+        size = (project / rel).stat().st_size
+        if size > PACK_FILE_CAP:
+            problems.append(f"{rel}: {size >> 20} MB, over the {PACK_FILE_CAP >> 20} MB a file "
+                            "can be. Link a long video from where it is hosted.")
+        ship.append((rel, size))
+
+    for e in sorted(project.iterdir()):
+        rel = Path(e.name)
+        if e.name == "project.json" or (e.name.endswith(".md") and e.is_file()
+                                         and not e.name.startswith(".")):
+            add(rel)
+        elif e.name != "canvases":
+            out.append(rel)
+    canvases = project / "canvases"
+    if canvases.is_symlink():
+        problems.append("canvases: is a symlink")
+    elif canvases.is_dir():
+        for top, dirs, files in os.walk(canvases):
+            base = Path(top).relative_to(canvases)
+            for d in list(dirs):
+                if _left_out(base / d):
+                    out.append(Path("canvases") / base / d)
+                    dirs.remove(d)
+                elif (Path(top) / d).is_symlink():
+                    problems.append(f"{Path('canvases') / base / d}: is a symlink")
+                    dirs.remove(d)
+            dirs.sort()
+            for f in sorted(files):
+                rel = Path("canvases") / base / f
+                if base == Path("."):
+                    out.append(rel)  # a loose file beside the canvas folders is no canvas's
+                elif _left_out(base / f):
+                    out.append(rel)
+                else:
+                    add(rel)
+    total = sum(size for _, size in ship)
+    if total > PACK_TOTAL_CAP:
+        problems.append(f"{total >> 20} MB in all, over the {PACK_TOTAL_CAP >> 20} MB a "
+                        "package can be")
+
+    shipped = {rel.as_posix() for rel, _ in ship}
+    # A project with none is format 1 with no id yet, which -o gives it.
+    pj = json_of("project.json") if "project.json" in shipped else {}
+    if pj is not None and not isinstance(pj, dict):
+        problems.append("project.json: is not a JSON object")
+    elif pj is not None:
+        if pj.get("format", 1) != PROJECT_FORMAT:
+            problems.append(f"project.json: format {pj['format']!r} is not one this sp knows")
+        if "id" in pj and not (isinstance(pj["id"], str) and UUID.match(pj["id"])):
+            problems.append("project.json: id is not a UUID")
+        if "author" in pj and not (isinstance(pj["author"], str) and LOGIN.match(pj["author"])):
+            problems.append("project.json: author is not a GitHub login")
+        people = pj.get("contributors", [])
+        if not (isinstance(people, list)
+                and all(isinstance(c, str) and LOGIN.match(c) for c in people)):
+            problems.append("project.json: contributors is not a list of GitHub logins")
+
+    def resolves(src_folder, ref, what):
+        """A reference the app makes, relative to a canvas folder, has to be a shipped file."""
+        target = os.path.normpath(f"canvases/{src_folder}/{ref}").replace(os.sep, "/")
+        # One left out on purpose, a reference row's capture say, the app shows as missing.
+        left_out = target.startswith("canvases/") and _left_out(Path(target).relative_to("canvases"))
+        if target not in shipped and not left_out:
+            problems.append(f"canvases/{src_folder}: {what} {ref} is not in the package")
+
+    for slug in sorted({Path(r).parts[1] for r in shipped if r.startswith("canvases/")}):
+        try:
+            if f"canvases/{slug}/layout.json" in shipped:
+                layout = json_of(f"canvases/{slug}/layout.json")
+                if not isinstance(layout, dict):
+                    if layout is not None:
+                        problems.append(f"canvases/{slug}/layout.json: is not a JSON object")
+                    layout = {}
+                if isinstance(layout.get("cover"), str):
+                    resolves(slug, layout["cover"] + ".html", "cover")
+                for row in layout.get("rows") or []:
+                    for entry in row.get("files") or []:
+                        name = entry if isinstance(entry, str) else entry.get("file")
+                        resolves(slug, f"{name}.html", "board")
+                    for image in row.get("images") or []:
+                        resolves(slug, image.get("file"), "image")
+                    for link in row.get("links") or []:
+                        if not re.match(r"^https?://", str(link.get("url")), re.I):
+                            problems.append(f"canvases/{slug}/layout.json: link "
+                                            f"{link.get('url')!r} is not a web address")
+            if f"canvases/{slug}/canvas.json" in shipped:
+                content = json_of(f"canvases/{slug}/canvas.json")
+                for record in (content or {}).get("records") or []:
+                    src = record.get("props", {}).get("src") if record.get("typeName") == "asset" else None
+                    # A relative src is a file the canvas keeps; data: and web addresses are not files.
+                    if isinstance(src, str) and src.startswith(("./", "../")):
+                        resolves(slug, src, "file")
+        except (AttributeError, TypeError):
+            problems.append(f"canvases/{slug}: layout.json or canvas.json is not in the shape "
+                            "the app writes")
+    if not any(re.match(r"^canvases/[^/]+/[^/]+\.html$", r) for r in shipped):
+        problems.append("canvases: the project has no board")
+    if isinstance(pj, dict) and isinstance(pj.get("cover"), dict):
+        path, box = pj["cover"].get("path"), pj["cover"].get("box")
+        if f"canvases/{path}" not in shipped:
+            problems.append(f"project.json: cover {path!r} is not in the package")
+        elif str(path).lower().endswith(".svg") and _svg_size(project / "canvases", path) is None:
+            problems.append(f"project.json: cover {path!r} is in no row of its canvas's layout.json, "
+                            "which gives an SVG its size")
+        if box is not None and not (isinstance(box, list) and len(box) == 4
+                                    and all(isinstance(v, (int, float)) for v in box)
+                                    and box[2] > 0 and box[3] > 0):
+            problems.append("project.json: cover box is not [x, y, w, h]")
+    return pj, ship, out, problems
+
+
+def _layout_of(folder: Path) -> dict:
+    try:
+        layout = json.loads((folder / "layout.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return layout if isinstance(layout, dict) else {}
+
+
+def _svg_size(canvases: Path, path: str):
+    """(w, h) its images row gives an SVG under canvases/, or None. Pillow reads no SVG."""
+    folder, rel = Path(path).parts[0], Path(*Path(path).parts[1:]).as_posix()
+    return next(((i["w"], i["h"]) for row in _layout_of(canvases / folder).get("rows") or []
+                 for i in row.get("images") or []
+                 if isinstance(i, dict) and i.get("file") == rel), None)
+
+
+def _cover(project: Path, pj: dict):
+    """-> ([(file, box, size)], its canvas's folder) of the project's cover, as canvas/src/cover.ts
+    projectCover finds it: the one project.json chose, else the first canvas's cover board and
+    the ones after it in its row."""
+    canvases = project / "canvases"
+    chosen = pj.get("cover") if isinstance(pj.get("cover"), dict) else {}
+    if chosen.get("path"):
+        file = canvases / chosen["path"]
+        folder = canvases / Path(chosen["path"]).parts[0]
+        layout = _layout_of(folder)
+        box = chosen.get("box")
+        if file.suffix == ".html":
+            w, h = _board_size(layout, file.stem)
+        elif file.suffix.lower() == ".svg":
+            w, h = _svg_size(canvases, chosen["path"])
+        else:
+            return [(file, box, None)], folder
+        return [(file, box or [0, 0, w, h], (w, h))], folder
+    folders = [d for d in canvases.iterdir() if d.is_dir() and any(d.glob("*.html"))]
+    folders.sort(key=lambda d: _numeric(d.name))
+    folders.sort(key=lambda d: _layout_of(d).get("order", 0))
+    return _canvas_cover(folders[0])
+
+
+def _numeric(s):
+    return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", s)]
+
+
+def _board_size(layout, name):
+    for row in layout.get("rows") or []:
+        for entry in row.get("files") or []:
+            if isinstance(entry, dict) and entry.get("file") == name and entry.get("w"):
+                return entry["w"], entry["h"]
+    return 478, 980  # CANVAS_FILE_DEFAULT_SIZE
+
+
+def _canvas_cover(folder: Path):
+    """One canvas folder's cover board, whole, then the boards after it in its row that are as
+    tall, which the thumbnail sets beside it while they fit: layout.json's cover, else its
+    first board that is not a 00- one."""
+    layout = _layout_of(folder)
+    names = sorted((f.stem for f in folder.glob("*.html")), key=_numeric)
+    name = next((n for n in names if n == layout.get("cover")),
+                next((n for n in names if not n.startswith("00")), names[0]))
+    row = next((r for r in (_row_names(r) for r in layout.get("rows") or []) if name in r), [name])
+    after = row[row.index(name):] + row[:row.index(name)]
+    h = _board_size(layout, name)[1]
+    return [(folder / f"{n}.html", [0, 0, *_board_size(layout, n)], _board_size(layout, n))
+            for n in after if n in names and _board_size(layout, n)[1] == h], folder
+
+
+def _row_names(row):
+    return [e.get("file") if isinstance(e, dict) else e for e in row.get("files") or []]
+
+
+def _shot(file: Path, box, size, tmp: str, scale: int):
+    """One cover image, cropped to its box, at `scale`."""
+    from PIL import Image
+    if size is None:
+        im = Image.open(file).convert("RGBA")
+    else:
+        import refkit
+        shot, page = Path(tmp) / f"{file.stem}.png", file.resolve().as_uri()
+        if file.suffix.lower() == ".svg":
+            # Filling its row's box, as the canvas draws it, not at its own width and height.
+            page = Path(tmp) / f"{file.stem}.html"
+            page.write_text(f'<body style="margin:0"><img src="{file.resolve().as_uri()}" '
+                            f'style="display:block;width:{size[0]}px;height:{size[1]}px">')
+            page = page.as_uri()
+        # Transparent where the board paints nothing, as the canvas shows it.
+        subprocess.run([refkit.CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
+                        "--allow-file-access-from-files", "--default-background-color=00000000",
+                        f"--force-device-scale-factor={scale}", f"--window-size={size[0]},{size[1]}",
+                        f"--screenshot={shot}", page],
+                       check=True, capture_output=True)
+        im = Image.open(shot).convert("RGBA")
+        box = [v * scale for v in box]
+    if box:
+        x, y, w, h = box
+        im = im.crop((round(x), round(y), round(x + w), round(y + h)))
+    return im
+
+
+def _canvas_name(folder: Path) -> str:
+    """What the app calls a canvas: layout.json's name less the examples' "(example) ", else the
+    folder's name, humanized (canvas/src/canvasLibrary.ts shortName)."""
+    name = _layout_of(folder).get("name")
+    if isinstance(name, str) and name.strip():
+        return re.sub(r"^\(example\)\s*", "", name)
+    return re.sub(r"[-_]+", " ", folder.name).strip().title()
+
+
+def _thumbnail(found, png: Path, title: str, boards: int):
+    """A book's cover at THUMBNAIL, on the canvas's ground: the project's name set as a title
+    down the left beside a spine, under the app's icon where the canvas has one, and its cover
+    to the right, each image whole and side by side
+    at one height, as many as fit. What the community page shows for a project without running
+    a board, and its Open Graph image as it is."""
+    import html
+    from PIL import Image
+    items, folder = found
+    ground = _layout_of(folder).get("ground")
+    ground = ground if isinstance(ground, str) and re.match(r"^#[0-9a-fA-F]{6}$", ground) else "#2b2b2b"
+    r, g, b = (int(ground[i:i + 2], 16) for i in (1, 3, 5))
+    ink = "#15130f" if 0.2126 * r + 0.7152 * g + 0.0722 * b > 140 else "#f4efe6"
+    scale = 2
+    tw, th = THUMBNAIL[0] // scale, THUMBNAIL[1] // scale  # CSS px
+    left, text, pad, gap = 84, 400, 52, 24                 # the spine's margin, the title's column
+    room = (tw - left - text - 40 - 64) * scale, (th - 2 * pad) * scale
+    ims = []
+    with tempfile.TemporaryDirectory() as tmp:
+        for file, box, size in items:
+            im = _shot(file, box, size, tmp, scale)
+            w = round(im.width * room[1] / im.height)
+            if ims and sum(i.width + gap * scale for i in ims) + w > room[0]:
+                break
+            ims.append(im.resize((w, room[1]), Image.LANCZOS))
+        if ims[0].width > room[0]:  # one wider than the room, a web page's, fits its width
+            ims = [ims[0].resize((room[0], max(1, round(ims[0].height * room[0] / ims[0].width))),
+                                 Image.LANCZOS)]
+        strip = Image.new("RGBA", (sum(i.width for i in ims) + gap * scale * (len(ims) - 1),
+                                   max(i.height for i in ims)), (0, 0, 0, 0))
+        x = 0
+        for im in ims:
+            strip.alpha_composite(im, (x, (strip.height - im.height) // 2))
+            x += im.width + gap * scale
+        strip.save(Path(tmp) / "cover.png")
+        icon = folder / "icon.png"
+        icon = f'<img class="icon" src="{icon.resolve().as_uri()}" alt="">' if icon.is_file() else ""
+        page = Path(tmp) / "thumbnail.html"
+        page.write_text(f"""<!doctype html><meta charset="utf-8"><style>
+body {{ margin: 0; width: {tw}px; height: {th}px; overflow: hidden; background: {ground};
+  color: {ink}; font-family: "Iowan Old Style", "New York", Georgia, "Times New Roman", serif;
+  display: flex; align-items: center; }}
+.spine {{ position: absolute; inset: 0 auto 0 0; width: 30px; background: rgb(0 0 0 / 0.22);
+  box-shadow: inset -1px 0 rgb(255 255 255 / 0.08), 1px 0 rgb(0 0 0 / 0.25); }}
+.text {{ position: absolute; left: {left}px; top: {pad + 12}px; bottom: {pad + 12}px;
+  width: {text}px; display: flex; flex-direction: column; justify-content: space-between; }}
+.imprint {{ font: 500 13px/1 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  letter-spacing: 0.28em; text-transform: uppercase; opacity: 0.55; }}
+h1 {{ margin: 0; font-size: {64 if len(title) < 16 else 54}px; line-height: 1.04; font-weight: 400;
+  letter-spacing: -0.01em; text-wrap: balance; }}
+.rule {{ width: 56px; height: 2px; background: currentColor; opacity: 0.5; margin: 26px 0 16px; }}
+.sub {{ font-size: 22px; font-style: italic; opacity: 0.7; }}
+.icon {{ display: block; width: 88px; height: 88px; border-radius: 22.5%; margin-bottom: 30px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 0 0 1px rgb(255 255 255 / 0.06); }}
+.cover {{ position: absolute; right: 64px; top: 50%; transform: translateY(-50%);
+  width: {strip.width / scale}px; height: {strip.height / scale}px; }}
+</style><div class="spine"></div>
+<div class="text"><div class="imprint">Super Prototyping</div>
+<div>{icon}<h1>{html.escape(title)}</h1><div class="rule"></div>
+<div class="sub">{boards} board{"" if boards == 1 else "s"}</div></div></div>
+<img class="cover" src="cover.png" alt="">""", encoding="utf-8")
+        import refkit
+        subprocess.run([refkit.CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
+                        "--allow-file-access-from-files", f"--force-device-scale-factor={scale}",
+                        f"--window-size={tw},{th}", f"--screenshot={png.resolve()}", page.as_uri()],
+                       check=True, capture_output=True)
+    Image.open(png).convert("RGB").save(png, optimize=True)
+
+
+def cmd_thumbnail(a):
+    """Draw each canvas folder's thumbnail.png, as `sp pack -o` draws a project's."""
+    for folder in map(Path, a.folders):
+        if not any(folder.glob("*.html")):
+            raise SystemExit(f"error: {folder} has no board")
+        _thumbnail(_canvas_cover(folder), folder / "thumbnail.png", _canvas_name(folder),
+                   len(list(folder.glob("*.html"))))
+        print(f"drew      {folder / 'thumbnail.png'}")
+
+
+def cmd_pack(a):
+    """Check a project as a package, and with -o copy it out, with a thumbnail of its cover.
+    Filling in a missing id and author is the only write to the project."""
+    project = Path(a.project).expanduser()
+    if not project.is_dir():
+        project = _projects_dir() / a.project
+    if not project.is_dir():
+        raise SystemExit(f"error: no project at {a.project}, nor in {_projects_dir()}")
+    project = project.resolve()
+    pj, ship, out, problems = _pack(project)
+    for rel in out:
+        print(f"left out  {rel.as_posix()}")
+    for p in problems:
+        print(f"problem   {p}", file=sys.stderr)
+    if problems:
+        raise SystemExit(f"error: {len(problems)} problem(s), nothing written")
+    if a.check and "id" not in pj:
+        raise SystemExit("error: project.json has no id yet. `sp pack -o` gives it one.")
+    if a.check and "author" not in pj:
+        raise SystemExit("error: project.json has no author. `sp pack -o` sets it to the GitHub "
+                         "login gh is signed in as, or set \"author\" to yours.")
+    filled = {}
+    if "author" not in pj:
+        # The community repo's CI holds the author to whoever opens the pull request.
+        try:
+            gh = subprocess.run(["gh", "api", "user", "--jq", ".login"],
+                                capture_output=True, text=True, timeout=30)
+        except (OSError, subprocess.TimeoutExpired):
+            gh = None
+        login = gh.stdout.strip() if gh and gh.returncode == 0 else ""
+        if not LOGIN.match(login):
+            raise SystemExit("error: project.json has no author, and gh is not signed in. Set "
+                             "\"author\" to your GitHub login, or run `gh auth login`.")
+        filled["author"] = login
+    if "id" not in pj:
+        filled["id"] = str(uuid.uuid4())
+    if filled:
+        pj.update(filled)
+        text = json.dumps(pj, indent=2) + "\n"
+        (project / "project.json").write_text(text, encoding="utf-8")
+        ship = [(rel, size) for rel, size in ship if rel != Path("project.json")]
+        ship.insert(0, (Path("project.json"), len(text.encode())))
+        for key, value in filled.items():
+            print(f"{key:<9} {value}, written to project.json")
+    total = sum(size for _, size in ship)
+    print(f"{len(ship)} files, {total / (1 << 20):.1f} MB, id {pj['id']}")
+    if a.check:
+        return
+    dest = Path(a.output).expanduser()
+    if dest.exists() and any(dest.iterdir()):
+        raise SystemExit(f"error: {dest} is not empty. Remove it first.")
+    dest.mkdir(parents=True, exist_ok=True)
+    _thumbnail(_cover(project, pj), dest / "thumbnail.png", pj.get("name") or project.name,
+               sum(1 for r, _ in ship if re.match(r"^canvases/[^/]+/[^/]+\.html$", r.as_posix())))
+    for rel, _ in ship:
+        (dest / rel).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(project / rel, dest / rel)
+    print(f"packed    {dest}")
+
+
 # --- the app -----------------------------------------------------------------
 
 def _state_json(name):
@@ -791,6 +1196,11 @@ For agents:
   sp canvas <op> --canvas <slug> [JSON | -]
                   read, place and arrange shapes, images, video and boards on a canvas
                   open in the app. The sp-canvas skill has the ops and their JSON.
+  sp pack <project> --check | -o <dir>
+                  when the user wants to share a project: what goes in, what is left
+                  out, and what would break it.
+  sp thumbnail <canvas>...
+                  redraw a canvas folder's thumbnail.png after its cover or name changes.
 Exit status is non-zero on every failure, with the reason on stderr.
 """
 
@@ -835,6 +1245,13 @@ def parser():
                         help="default SP_CANVAS_PORT, then the running app's")
     canvas.add_argument("-o", "--output", help="where shot writes its PNG")
     add("clean", cmd_clean, ports=False)
+    pack = add("pack", cmd_pack, ports=False)
+    pack.add_argument("project", help="a project's folder, or its name under the projects folder")
+    how = pack.add_mutually_exclusive_group(required=True)
+    how.add_argument("--check", action="store_true", help="check it and write nothing")
+    how.add_argument("-o", "--output", metavar="DIR", help="an empty folder to copy it into")
+    thumb = add("thumbnail", cmd_thumbnail, ports=False)
+    thumb.add_argument("folders", nargs="+", metavar="CANVAS", help="a canvas's folder")
     return p
 
 

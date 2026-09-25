@@ -65,6 +65,11 @@ it("serves every project at its own address and makes new ones", async () => {
       req.end(body && JSON.stringify(body));
     });
   try {
+    // Asked for by a name DNS could point here, a page from anywhere would be same-origin.
+    const at = (host: string) => ask("/", undefined, { host });
+    expect((await at("rebound.example")).status).toBe(403);
+    expect((await at(`[::1]:${port}`)).status).toBe(302);
+    expect((await at("app.localhost")).status).toBe(302);
     // Nothing opened yet: the root is home, and the examples' window.
     expect(await ask("/")).toMatchObject({
       status: 302,
@@ -166,15 +171,29 @@ it("serves every project at its own address and makes new ones", async () => {
     expect(JSON.parse(made.text)).toEqual({ name: "beta", url: "/p/beta/" });
     expect(fs.existsSync(path.join(tmp, "projects/beta/canvases"))).toBe(true);
     expect(fs.existsSync(path.join(tmp, "projects/beta/.claude"))).toBe(false);
+    const beta = JSON.parse(
+      fs.readFileSync(path.join(tmp, "projects/beta/project.json"), "utf8"),
+    );
+    expect(beta.format).toBe(1);
+    expect(beta.id).toMatch(/^[0-9a-f-]{36}$/);
+    // One a newer app made is not opened, since this one could misread it and write it back.
+    write("projects/delta/canvases/one/01-a.html", "delta");
+    write("projects/delta/project.json", JSON.stringify({ format: 2 }));
+    expect((await ask("/p/delta/")).status).toBe(409);
+    fs.rmSync(path.join(tmp, "projects/delta"), { recursive: true });
     expect((await ask("/p/beta/__sp/index.json")).status).toBe(200);
     expect((await ask("/__sp/projects", { name: "beta" })).status).toBe(409);
     // No name: the first free "Untitled", which its agent names in project.json.
     for (const url of ["/p/Untitled/", "/p/Untitled%202/"])
-      expect(JSON.parse((await ask("/__sp/projects", { name: "  " })).text).url).toBe(url);
+      expect(
+        JSON.parse((await ask("/__sp/projects", { name: "  " })).text).url,
+      ).toBe(url);
     write("projects/Untitled/project.json", JSON.stringify({ name: "Gamma" }));
     const titled = JSON.parse((await ask("/__sp/projects.json")).text);
     expect(titled.find((p: any) => p.name === "Untitled").title).toBe("Gamma");
-    expect(JSON.parse((await ask("/p/Untitled/__sp/index.json")).text).title).toBe("Gamma");
+    expect(
+      JSON.parse((await ask("/p/Untitled/__sp/index.json")).text).title,
+    ).toBe("Gamma");
     expect((await ask("/__sp/projects", { name: "a/b" })).status).toBe(400);
 
     // A reference for a clone: into the project's `refs`, once, and only under a plain name.

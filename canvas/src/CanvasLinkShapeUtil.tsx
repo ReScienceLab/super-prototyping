@@ -206,7 +206,8 @@ export function installLockedLinkClicks(editor: Editor) {
       hitInside: true,
       hitLocked: true,
       renderingOnly: true,
-      filter: (shape) => shape.type === CANVAS_LINK_SHAPE_TYPE && shape.isLocked,
+      filter: (shape) =>
+        shape.type === CANVAS_LINK_SHAPE_TYPE && shape.isLocked,
     }) as CanvasLinkShape | undefined;
 
   let pressed: CanvasLinkShape | undefined;
@@ -270,7 +271,10 @@ export class CanvasLinkShapeUtil extends BaseBoxShapeUtil<CanvasLinkShape> {
 
   override onClick(shape: CanvasLinkShape) {
     if (shape.props.url) {
-      window.open(shape.props.url, "_blank", "noopener,noreferrer");
+      // A web address only: a layout.json can come from someone else's project, and a
+      // `javascript:` one would run in the canvas.
+      if (/^https?:/i.test(shape.props.url))
+        window.open(shape.props.url, "_blank", "noopener,noreferrer");
       return;
     }
     const page = this.editor

@@ -17,7 +17,7 @@ import {
 import type { CanvasTab } from "./canvasUrl";
 import type { Working } from "./ChatPanel";
 import { askServer, openMenu, REVEAL } from "./contextMenu";
-import { Cross, Home, Plus } from "./geistIcons";
+import { Cross, Home, Plus, Users } from "./geistIcons";
 
 /**
  * The bar across the top of the window: the agent's button, which AppShell.tsx hands in as
@@ -103,6 +103,8 @@ export function CanvasTabBar(props: {
   /** What the agent is writing to: a project behind the one in front has a sheen cross its name while it is. */
   working: Working;
   onHome: () => void;
+  /** The community's chip, while it is open: opened from the home page, and never a project's. */
+  community?: { active: boolean; open: () => void; close: () => void };
   goTo: (tab: ProjectTab) => void;
   /** Takes these off the bar, landing on a neighbour when the one in front goes. */
   closeTabs: (tabs: ProjectTab[]) => void;
@@ -127,13 +129,37 @@ export function CanvasTabBar(props: {
         onContextMenu={(event) =>
           openMenu(event, menu, () => setTarget("home"))
         }
-        aria-current={active ? undefined : "page"}
+        aria-current={active || props.community?.active ? undefined : "page"}
         title="Home"
         onClick={props.onHome}
       >
         <Home />
       </button>
       <div className="sp-topbar-tabs">
+        {props.community && (
+          <span
+            className="sp-tabchip"
+            data-active={props.community.active || undefined}
+          >
+            <button
+              type="button"
+              className="sp-tabchip-open"
+              aria-current={props.community.active ? "page" : undefined}
+              onClick={props.community.open}
+            >
+              <Users />
+              <span className="sp-tabchip-name">Community</span>
+            </button>
+            <button
+              type="button"
+              className="sp-tabchip-close"
+              title="Close Community"
+              onClick={props.community.close}
+            >
+              <Cross />
+            </button>
+          </span>
+        )}
         {tabs.map((tab) => (
           <TabChip
             key={tabKey(tab)}
