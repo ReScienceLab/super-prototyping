@@ -107,6 +107,13 @@ describe('writingTo', () => {
       writingTo([tool('Bash', `sp canvas create --canvas a '{}'; sp canvas delete --canvas b '{}'`)]),
     ).toEqual(['a', 'b'])
   })
+
+  it('reads a line of dashes in bounded time', () => {
+    // A flag that could start with `-` read this in 2^28 ways, seconds; now it is one.
+    const start = performance.now()
+    expect(writingTo([tool('Bash', `sp canvas -${'-- ! -'.repeat(28)} --canvas untitled`)])).toEqual([])
+    expect(performance.now() - start).toBeLessThan(1000)
+  })
 })
 
 describe('sseFrames', () => {

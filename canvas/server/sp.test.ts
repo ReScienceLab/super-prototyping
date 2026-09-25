@@ -405,6 +405,10 @@ it("hands a canvas command to the open canvas page and its answer back", async (
     expect(refused.text).toContain('"shop"');
     sheet.close();
 
+    // A shell cancelled while its command waited: the command is not run for nobody.
+    const cancelled = ask("/__sp/canvas", { slug: "home", command: { op: "delete" } });
+    await waiting();
+    cancelled.drop();
     // Sent before the page opens, which is a reload: it goes to the page once it does.
     const early = ask("/__sp/canvas", get);
     await waiting();
@@ -452,9 +456,11 @@ async function serve(options: Parameters<typeof createSpServer>[0]) {
   await new Promise<void>((done) => server.listen(0, "127.0.0.1", done));
   // Not `fetch`, because vitest.setup.ts replaces it with one that reads boards off the disk.
   const { port } = server.address() as AddressInfo;
-  const ask = (url: string, body?: object) =>
-    new Promise<{ status: number; text: string }>((done) => {
-      const req = http.request(
+  // `drop` is the caller going away before the answer, as a cancelled shell does.
+  const ask = (url: string, body?: object) => {
+    let req!: http.ClientRequest;
+    const answered = new Promise<{ status: number; text: string }>((done) => {
+      req = http.request(
         { port, path: url, method: body ? "POST" : "GET" },
         (res) => {
           let text = "";
@@ -462,8 +468,11 @@ async function serve(options: Parameters<typeof createSpServer>[0]) {
           res.on("end", () => done({ status: res.statusCode!, text }));
         },
       );
+      req.on("error", () => {});
       req.end(body && JSON.stringify(body));
     });
+    return Object.assign(answered, { drop: () => req.destroy() });
+  };
   // An open page's event stream, and the `sp canvas` commands the server sends down it.
   const listen = (url: string) =>
     new Promise<{ next: () => Promise<any>; close: () => void }>((done) => {

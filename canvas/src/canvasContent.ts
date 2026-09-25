@@ -184,6 +184,10 @@ let flushNow: (() => void) | undefined;
 /** Writes a canvas's page now rather than after the usual pause, and settles once the server has
  *  it: the agent bridge answers a command only then, so what `sp canvas` reports is on disk. */
 export function saveNow(slug: string): Promise<void> {
+  // Another window's save reached this one while a command waited on a file, and flush skips a
+  // canvas the reload will take from disk: what the command made will not be on it.
+  if (fileWins.has(slug))
+    return Promise.reject(new Error(`${slug} is reloading onto another window's save; run sp canvas get`));
   flushNow!();
   return inflight.get(slug) ?? Promise.resolve();
 }

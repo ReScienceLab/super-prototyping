@@ -127,13 +127,6 @@ const MIME_BY_EXT: Record<string, string> = {
   mov: 'video/quicktime',
 }
 
-function guessMime(name: string): string {
-  const ext = name.split('.').pop()?.toLowerCase()
-  const mime = ext && MIME_BY_EXT[ext]
-  if (!mime) fail('bad_command', `${name} has a file extension the bridge does not recognize`)
-  return mime
-}
-
 interface Bounds {
   x: number
   y: number
@@ -202,14 +195,17 @@ function isFullyBoundArrow(editor: Editor, shape: TLShape): boolean {
   return !!b.start && !!b.end
 }
 
-/** `x`/`y`/`rotation`/`props.w`/`props.h` are the fields the optimistic check guards; text and
- *  style changes are not. */
+/** The props that set where a shape's outline is, across CREATE_TYPES: a resize writes w/h, or
+ *  scale and autoSize on text; a handle drag writes a line's points or an arrow's ends and bend.
+ *  These and x/y/rotation are what the optimistic check guards; text and style changes are not. */
+const GEOMETRY_PROPS = ['w', 'h', 'scale', 'autoSize', 'points', 'spline', 'start', 'end', 'bend', 'kind', 'elbowMidPoint']
+
 function touchesGeometry(partial: RawPartial): boolean {
   return (
     partial.x !== undefined ||
     partial.y !== undefined ||
     partial.rotation !== undefined ||
-    (!!partial.props && ('w' in partial.props || 'h' in partial.props))
+    GEOMETRY_PROPS.some((key) => key in (partial.props ?? {}))
   )
 }
 
@@ -303,10 +299,6 @@ function guardNoNesting(editor: Editor, ids: TLShapeId[]) {
 
 // ---- get ----
 
-function shapeOwner(shape: TLShape): 'layout' | 'agent' | 'person' {
-  return isLibraryShapeId(shape.id) ? 'layout' : shape.meta.by === 'agent' ? 'agent' : 'person'
-}
-
 /** A canvas-file names itself by its board file, for a layout board and an agent-placed one
  *  alike; a decorative library shape (a row heading, a link button) has no name — it is not a
  *  record in canvas.json, and `personsShapeName` would invent a misleading one. */
@@ -342,7 +334,7 @@ function getView(editor: Editor, pageId: TLPageId, slug: string) {
       return {
         id: shape.id,
         type: shape.type,
-        owner: shapeOwner(shape),
+        owner: isLibraryShapeId(shape.id) ? 'layout' : shape.meta.by === 'agent' ? 'agent' : 'person',
         ...bounds(editor, shape),
         ...(shape.parentId.startsWith('shape:') ? { parent: shape.parentId } : {}),
         ...(name !== undefined ? { name } : {}),
@@ -408,34 +400,32 @@ async function buildMedia(
   )
     fail('bad_command', 'src must be "files/<name>", a file already uploaded to this canvas')
   const name = raw.src.slice('files/'.length)
+  const mimeType = MIME_BY_EXT[name.split('.').pop()!.toLowerCase()]
+  if (!mimeType) fail('bad_command', `${name} has a file extension the bridge does not recognize`)
   const url = boardFileUrl(slug, 'files/') + name
-  let w = typeof raw.w === 'number' ? raw.w : undefined
-  let h = typeof raw.h === 'number' ? raw.h : undefined
-  if (w === undefined || h === undefined) {
-    let natural: { w: number; h: number }
-    try {
-      const res = await fetch(url)
-      if (!res.ok) fail('bad_command', `${raw.src} could not be read (${res.status})`)
-      const blob = await res.blob()
-      natural =
-        kind === 'image' ? await MediaHelpers.getImageSize(blob) : await MediaHelpers.getVideoSize(blob)
-    } catch (error) {
-      if (error instanceof BridgeError) throw error
-      // A network failure or a file that is not a decodable image/video lands here — turned into
-      // the bridge's own JSON contract rather than a rejected dispatch promise.
-      fail('bad_command', `${raw.src} could not be read as ${kind === 'image' ? 'an image' : 'a video'}`)
-    }
-    if (w === undefined && h === undefined) {
-      w = natural.w
-      h = natural.h
-    } else if (w === undefined) w = (h! * natural.w) / natural.h
-    else h = (w * natural.h) / natural.w
+  // Read even when both sizes are given: the upload checks only the name, so this is where a file
+  // that is missing, or is not an image or a video, is refused rather than saved as a blank one.
+  // ponytail: a video is read whole to do it; a HEAD plus decoding only to size is the upgrade.
+  let natural: { w: number; h: number }
+  try {
+    const res = await fetch(url)
+    if (!res.ok) fail('bad_command', `${raw.src} could not be read (${res.status})`)
+    const blob = await res.blob()
+    natural =
+      kind === 'image' ? await MediaHelpers.getImageSize(blob) : await MediaHelpers.getVideoSize(blob)
+  } catch (error) {
+    if (error instanceof BridgeError) throw error
+    // A network failure or a file that is not a decodable image/video lands here — turned into
+    // the bridge's own JSON contract rather than a rejected dispatch promise.
+    fail('bad_command', `${raw.src} could not be read as ${kind === 'image' ? 'an image' : 'a video'}`)
   }
+  const aspect = natural.w / natural.h
+  const w = typeof raw.w === 'number' ? raw.w : typeof raw.h === 'number' ? raw.h * aspect : natural.w
+  const h = typeof raw.h === 'number' ? raw.h : typeof raw.w === 'number' ? raw.w / aspect : natural.h
   const asset = AssetRecordType.create({
     id: AssetRecordType.createId(),
     type: kind,
-    // Every branch above leaves both set; TS just can't see it through the reassignment.
-    props: { w: w!, h: h!, name, isAnimated: false, mimeType: guessMime(name), src: url },
+    props: { w, h, name, isAnimated: false, mimeType, src: url },
   }) as TLAsset
   return {
     partial: {
@@ -882,7 +872,17 @@ const READS = new Set(['get', 'select', 'zoom', 'shot'])
 /** Runs the commands `sp canvas` sends this page (server/sp.ts), and answers each once what it
  *  wrote is on disk, so the agent is told a placement landed only when it did. */
 export function installAgentBridge(editor: Editor) {
-  return takeAgentCommands(async ({ id, slug, command }) => {
+  // One at a time, in the order sent: a create still sizing its image, or a shot still drawing,
+  // would otherwise run beside the next command, which may name a shape it has not made yet.
+  // Run on either outcome, so a reply that could not be sent is reported and the next command
+  // still runs.
+  let last = Promise.resolve()
+  return takeAgentCommands(({ id, slug, command }) => {
+    const turn = () => run(id, slug, command)
+    last = last.then(turn, turn)
+  })
+
+  async function run(id: string, slug: string, command: unknown) {
     let reply
     try {
       const result = await dispatch(editor, slug, command)
@@ -900,5 +900,5 @@ export function installAgentBridge(editor: Editor) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(reply),
     })
-  })
+  }
 }

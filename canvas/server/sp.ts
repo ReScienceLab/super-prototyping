@@ -225,7 +225,7 @@ export function createSpServer(options: {
   // The canvas pages among them (`?bridge=1`), the `sp canvas` commands waiting for one to open,
   // and the ones sent and not answered, by id.
   const bridges = new Set<ServerResponse>();
-  const waitingForPage: (() => void)[] = [];
+  const waitingForPage = new Set<() => void>();
   const asked = new Map<
     string,
     { page: ServerResponse; answer: (code: number, text: string) => void }
@@ -326,7 +326,8 @@ export function createSpServer(options: {
     // The canvas page, which runs `sp canvas` commands; a sheet or a brand kit page does not.
     if (new URL(req.url ?? "/", "http://sp").searchParams.has("bridge")) {
       bridges.add(res);
-      for (const go of waitingForPage.splice(0)) go();
+      for (const go of waitingForPage) go();
+      waitingForPage.clear();
     }
     // A comment line every 25 s, under the proxy and browser idle timeouts that would
     // otherwise drop a quiet stream and cost a reconnect.
@@ -879,7 +880,7 @@ export function createSpServer(options: {
       // Named now: the folder can be renamed in the 10 s, and then it names nothing.
       const name = projectName();
       const timer = setTimeout(() => {
-        waitingForPage.splice(waitingForPage.indexOf(wait), 1);
+        waitingForPage.delete(wait);
         send(
           409,
           `No canvas of project "${name}" is open, and only an open one can place ` +
@@ -887,7 +888,15 @@ export function createSpServer(options: {
             "terminal: `sp open`, then the project), then run this again.",
         );
       }, 10_000);
-      waitingForPage.push(wait);
+      waitingForPage.add(wait);
+      // A caller gone in the 10 s, its shell cancelled, waits for nothing, so its command is not
+      // run. `req` closes once its body is read, caller or no caller; `res` closing unsent is
+      // what says it left.
+      res.on("close", () => {
+        if (res.writableEnded) return;
+        clearTimeout(timer);
+        waitingForPage.delete(wait);
+      });
     });
   });
 

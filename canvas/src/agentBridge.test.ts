@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import type { Editor, TLArrowShape, TLAssetId, TLPageId, TLShapeId } from 'tldraw'
-import { LAYOUT_CHANGED, canvasIndex, installCanvasIndex, loadCanvasIndex } from './canvasIndex'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import type { Editor, IndexKey, TLArrowShape, TLAssetId, TLPageId, TLShapeId } from 'tldraw'
+import { LAYOUT_CHANGED, canvasIndex, fileWins, installCanvasIndex, loadCanvasIndex } from './canvasIndex'
 import { readCanvasLibrary } from './canvasLibrary'
 import { WELCOME_PAGE_SLUG } from './canvasUrl'
 
@@ -151,16 +151,27 @@ describe('create', () => {
   })
 
   it("creates an image from a file in the canvas's files/", async () => {
-    const [id] = await create({ type: 'image', x: 0, y: 1300, w: 100, h: 50, src: 'files/a.png' })
-    const shape = editor.getShape(id)!
-    expect(shape.props).toMatchObject({ w: 100, h: 50 })
-    const asset = editor.getAsset((shape.props as { assetId: TLAssetId }).assetId)!
-    expect(asset.props).toMatchObject({ src: `/board/${encodeURI(slug)}/files/a.png`, mimeType: 'image/png' })
+    const original = globalThis.fetch
+    const read = vi.fn(async () => new Response('png'))
+    globalThis.fetch = read as unknown as typeof fetch
+    const size = vi.spyOn(tl.MediaHelpers, 'getImageSize').mockResolvedValue({ w: 200, h: 100, pixelRatio: 1 })
+    try {
+      const [id] = await create({ type: 'image', x: 0, y: 1300, w: 100, h: 50, src: 'files/a.png' })
+      const shape = editor.getShape(id)!
+      expect(shape.props).toMatchObject({ w: 100, h: 50 })
+      const asset = editor.getAsset((shape.props as { assetId: TLAssetId }).assetId)!
+      expect(asset.props).toMatchObject({ src: `/board/${encodeURI(slug)}/files/a.png`, mimeType: 'image/png' })
 
-    for (const src of ['../a.png', 'files/../a.png', 'files/.a.png'])
-      expect(await run('create', { shapes: [{ type: 'image', x: 0, y: 0, w: 1, h: 1, src }] })).toMatchObject(
-        { error: 'bad_command' },
-      )
+      // Refused by its name alone, before anything is read.
+      for (const src of ['../a.png', 'files/../a.png', 'files/.a.png', 'files/a.txt'])
+        expect(await run('create', { shapes: [{ type: 'image', x: 0, y: 0, w: 1, h: 1, src }] })).toMatchObject(
+          { error: 'bad_command' },
+        )
+      expect(read).toHaveBeenCalledTimes(1)
+    } finally {
+      globalThis.fetch = original
+      size.mockRestore()
+    }
   })
 
   it('answers bad_command when a file to size cannot be read', async () => {
@@ -169,6 +180,10 @@ describe('create', () => {
     try {
       expect(
         await run('create', { shapes: [{ type: 'image', x: 0, y: 0, src: 'files/gone.png' }] }),
+      ).toMatchObject({ error: 'bad_command' })
+      // Nothing to size, and still read: a missing file is not saved as a blank picture.
+      expect(
+        await run('create', { shapes: [{ type: 'image', x: 0, y: 0, w: 100, h: 100, src: 'files/gone.png' }] }),
       ).toMatchObject({ error: 'bad_command' })
     } finally {
       globalThis.fetch = original
@@ -230,6 +245,20 @@ describe('update', () => {
       updated: [id],
     })
     expect(await run('update', { shapes: [{ id, type: 'geo', x: 20 }] })).toEqual({ updated: [id] })
+  })
+
+  it("counts a line's handle dragged as a move, and a colour change as none", async () => {
+    const points = (x: number) => ({
+      a1: { id: 'a1', index: 'a1' as IndexKey, x: 0, y: 0 },
+      a2: { id: 'a2', index: 'a2' as IndexKey, x, y: 0 },
+    })
+    const [id] = await create({ type: 'line', x: 0, y: 4600, props: { points: points(100) } })
+    directWrite(() => editor.updateShapes([{ id, type: 'line', props: { points: points(300) } }]))
+    expect(await run('update', { shapes: [{ id, type: 'line', props: { points: points(50) } }] }))
+      .toMatchObject({ error: 'moved_by_person' })
+    expect(await run('update', { shapes: [{ id, type: 'line', props: { color: 'red' } }] })).toEqual({
+      updated: [id],
+    })
   })
 
   it('lets a bound arrow through after one of its ends moved', async () => {
@@ -440,7 +469,7 @@ describe('get', () => {
 })
 
 describe('sp canvas', () => {
-  it('runs a command that came before the bridge, and answers once it is saved', async () => {
+  it('runs commands one at a time, one sent before the bridge too, and answers each once saved', async () => {
     const realFetch = globalThis.fetch
     const listeners: Record<string, (event: { data: string }) => void> = {}
     globalThis.EventSource = class {
@@ -451,8 +480,16 @@ describe('sp canvas', () => {
     const sent: { route: string; body: any }[] = []
     let status = 200
     let replied: (body: any) => void = () => {}
+    // An image's own file, read to size it: a step holds it to catch a command waiting on it.
+    let file = Promise.resolve(new Response('png'))
+    let reading = () => {}
+    const size = vi.spyOn(tl.MediaHelpers, 'getImageSize').mockResolvedValue({ w: 200, h: 100, pixelRatio: 1 })
     globalThis.fetch = async (input, init) => {
       const route = String(input).split('__sp/')[1]
+      if (route === undefined) {
+        reading()
+        return file
+      }
       if (route === 'index.json') return new Response(JSON.stringify(canvasIndex()))
       const body = JSON.parse(String(init!.body))
       sent.push({ route, body })
@@ -496,7 +533,36 @@ describe('sp canvas', () => {
       const third = reply()
       send('c3', { op: 'nope' })
       expect(await third).toMatchObject({ id: 'c3', ok: false, error: { error: 'bad_command' } })
+
+      // An update sent while a create still reads its image names the shape that create is
+      // making, and runs once it is made.
+      status = 200
+      let release = () => {}
+      file = new Promise((done) => (release = () => done(new Response('png'))))
+      const answers: any[] = []
+      replied = (body) => answers.push(body)
+      const image = 'shape:agent-image'
+      send('c4', { op: 'create', shapes: [{ id: image, type: 'image', x: 0, y: 4400, src: 'files/a.png' }] })
+      send('c5', { op: 'update', shapes: [{ id: image, type: 'image', x: 40 }] })
+      release()
+      await vi.waitFor(() => expect(answers).toHaveLength(2))
+      expect(answers).toMatchObject([{ id: 'c4', ok: true }, { id: 'c5', ok: true }])
+
+      // Another window's save came in while a create read its image: the page reloads onto that
+      // save, so what the create made is not saved, and the answer says so.
+      file = new Promise((done) => (release = () => done(new Response('png'))))
+      const fetched = new Promise<void>((done) => (reading = done))
+      const reloading = reply()
+      send('c6', { op: 'create', shapes: [{ type: 'image', x: 0, y: 4500, src: 'files/a.png' }] })
+      await fetched
+      fileWins.add(slug)
+      const before = sent.length
+      release()
+      expect(await reloading).toMatchObject({ id: 'c6', ok: false, error: { error: 'failed' } })
+      expect(sent.slice(before).filter((s) => s.route === 'canvas-content')).toEqual([])
     } finally {
+      fileWins.delete(slug)
+      size.mockRestore()
       dispose()
       globalThis.fetch = realFetch
       delete (globalThis as { EventSource?: unknown }).EventSource

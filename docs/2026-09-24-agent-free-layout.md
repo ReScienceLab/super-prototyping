@@ -68,7 +68,12 @@ canvas, as `2026-09-24-canvas-content-on-disk.md` set up.
   events and run no commands, so a canvas page asks with `?bridge=1`. The app has one canvas frame,
   so that is nearly always the only one.
 - **Answered once it is on disk.** The page answers after `saveNow(slug)`, which writes the canvas
-  now and fails if the server does not take it. A command that returned is in `canvas.json`.
+  now and fails if the server does not take it. A command that returned is in `canvas.json`. It
+  fails too when another window's save came in while it ran: the page reloads onto that save, so
+  what the command made is not what gets written.
+- **One at a time, in the order sent.** A create waits on its image's file, which it reads to size
+  it and to refuse one that is missing or is not an image; the command after it may name the shape
+  it is making.
 - **Commands before the editor.** The event stream opens before the editor mounts, and an
   `EventSource` keeps nothing it has delivered, so a command that arrives in between waits in
   `canvasIndex.ts` for the bridge.
@@ -83,7 +88,8 @@ canvas, as `2026-09-24-canvas-content-on-disk.md` set up.
 ## With no canvas open
 
 The command waits 10 s for a canvas page, which covers a reload, a Force refresh and a tab being
-opened. Then it fails with a 409 saying which project, and that the person has to open it. The
+opened. Then it fails with a 409 saying which project, and that the person has to open it. A
+command whose caller is gone by then, its shell cancelled, is dropped rather than run. The
 home page does not count as closed: the canvas frame is only hidden, and it still runs commands.
 
 What is left is a real case: the chat belongs to the app, not a project, so a conversation can
