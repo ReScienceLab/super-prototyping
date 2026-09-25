@@ -46,7 +46,7 @@ const webUrl = (entry: Entry) => {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  return `https://superproto.dev/p/${entry.slug}${entry.source && name ? `/${name}` : ""}`;
+  return `https://superproto.dev/p/${entry.slug}/${entry.source ? name : ""}`;
 };
 /** Who made the examples. A project in the community repo names its own (project.json). */
 const EXAMPLES_BY = "ReScienceLab";

@@ -48,7 +48,10 @@ function cardSizes(cols: number) {
 function sourceLabel(source: string | undefined) {
   if (!source) return undefined;
   try {
-    return { host: new URL(source).host.replace(/^www\./, ""), href: source };
+    const url = new URL(source);
+    // A shared project's layout.json is anyone's, and a `javascript:` URL parses too.
+    if (!/^https?:$/.test(url.protocol)) throw new Error("not a web page");
+    return { host: url.host.replace(/^www\./, ""), href: source };
   } catch {
     return { host: source.split(/[\s/]/)[0], href: undefined };
   }

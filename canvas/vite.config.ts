@@ -106,14 +106,19 @@ const COMMUNITY_TARBALL =
 function communityProjects() {
   if (!process.env.CF_PAGES) return [];
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "sp-community-"));
-  execFileSync("sh", [
+  // A symlink in the tree would have the build read, and publish, a file of the build
+  // machine's. The community's CI refuses one; this is for a push that went around it.
+  execFileSync("bash", [
     "-c",
-    `curl -fsSL "${COMMUNITY_TARBALL}" | tar -xz --strip-components=1 -C "${dir}"`,
+    `set -eo pipefail; curl -fsSL "${COMMUNITY_TARBALL}" | tar -xz --strip-components=1 -C "${dir}"; ! find "${dir}" -type l | grep -q .`,
   ]);
   const projects = path.join(dir, "projects");
   return fs
     .readdirSync(projects)
-    .filter((id) => /^[0-9a-f-]{36}$/.test(id))
+    // The id the site's Worker takes for a shared project's (landing repo, src/worker.js).
+    .filter((id) =>
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id),
+    )
     .map((id) => path.join(projects, id));
 }
 

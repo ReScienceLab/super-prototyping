@@ -60,7 +60,9 @@ declare global {
  */
 const openedTab = tabFor(tabFromUrl(location.href));
 const opened =
-  /\/home(\.html)?$/.test(location.pathname) ||
+  // A hosted project has no home page of its own; `/p/<id>/home` is a project named Home.
+  (!(!canvasIndex().served && canvasIndex().project) &&
+    /\/home(\.html)?$/.test(location.pathname)) ||
   (!canvasIndex().served &&
     !canvasIndex().project &&
     openedTab.kind === "project" &&

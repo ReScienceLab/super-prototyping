@@ -67,6 +67,15 @@ repo is listed at once, from its `index.json`, but its page exists only after
 the next build. A Pages deploy hook, called by the community repo's index
 workflow, closes that gap.
 
+## What the web does not show yet
+
+A shared project's own canvas, `canvas.json` and its `files/`, is not on its
+page: the hosted canvas reads no canvas content (`canvasContent.ts`), so the
+page shows the boards alone. And a project in the community repo without a
+`project.json` or `thumbnail.png` fails the Pages build, which the community's
+CI refuses to merge; one that got in some other way blocks canvas deploys until
+it is reverted.
+
 ## Next
 
 The app ships every example today. With every one of them online, it need not:
