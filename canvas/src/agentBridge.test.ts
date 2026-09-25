@@ -261,13 +261,16 @@ describe('update', () => {
     })
   })
 
-  it('lets a bound arrow through after one of its ends moved', async () => {
+  it('lets a bound arrow through after one of its ends moved, and not after the person bent it', async () => {
     const [a, b] = await create(geo(600, 800), geo(800, 800))
     const [arrow] = await create({ type: 'arrow', x: 0, y: 0, from: a, to: b })
     await run('update', { shapes: [{ id: a, type: 'geo', y: 1000 }] })
     expect(await run('update', { shapes: [{ id: arrow, type: 'arrow', rotation: 0 }] })).toEqual({
       updated: [arrow],
     })
+    directWrite(() => editor.updateShapes([{ id: arrow, type: 'arrow', props: { bend: 40 } }]))
+    expect(await run('update', { shapes: [{ id: arrow, type: 'arrow', props: { bend: 0 } }] }))
+      .toMatchObject({ error: 'moved_by_person' })
   })
 
   it('refuses to move a frame holding a shape of the person’s, but renames it', async () => {

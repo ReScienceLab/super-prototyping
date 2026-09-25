@@ -150,18 +150,33 @@ function closeEnough(a: Bounds, b: Bounds): boolean {
 
 /** Where the agent last left a shape, twice over: on the page, and in its parent. Moving the
  *  frame it is in keeps the second; reparenting it where it stands (framing, grouping, a frame
- *  shrunk off it) keeps the first; the person moving or resizing the shape itself changes both. */
+ *  shrunk off it) keeps the first; the person moving or resizing the shape itself changes both.
+ *  A fully bound arrow is the exception, below. */
 interface Placed extends Bounds {
   r: number
   in: Bounds & { parent: string; r: number }
+  arrow?: string
 }
 
 /** Radians to three places, so `meta` stays plain JSON and a float's noise is not a move. */
 const angle = (r: number) => Math.round(r * 1000) / 1000
 
+/** A fully bound arrow's own shape: its bend and where each end holds on. Its bounds follow the
+ *  two shapes it joins, so they cannot tell the person bending it from the person moving a box. */
+function boundArrow(editor: Editor, shape: TLShape): string | undefined {
+  if (shape.type !== 'arrow') return undefined
+  const { start, end } = getArrowBindings(editor, shape as TLArrowShape)
+  if (!start || !end) return undefined
+  const { bend, kind, elbowMidPoint } = (shape as TLArrowShape).props
+  const hold = (b: typeof start) => [b.toId, b.props.normalizedAnchor, b.props.isExact, b.props.isPrecise]
+  return JSON.stringify([bend, kind, elbowMidPoint, hold(start), hold(end)])
+}
+
 function pose(editor: Editor, shape: TLShape): Placed {
   const own = editor.getShapeGeometry(shape).bounds
+  const arrow = boundArrow(editor, shape)
   return {
+    ...(arrow ? { arrow } : {}),
     ...bounds(editor, shape),
     r: angle(editor.getShapePageTransform(shape).rotation()),
     in: {
@@ -181,18 +196,13 @@ function untouched(editor: Editor, shape: TLShape): boolean {
   const placed = (shape.meta as { placed?: Placed }).placed
   if (!placed) return true
   const now = pose(editor, shape)
+  if (now.arrow || placed.arrow) return now.arrow === placed.arrow
   return (
     (closeEnough(now, placed) && Math.abs(now.r - placed.r) < 0.01) ||
     (now.in.parent === placed.in.parent &&
       closeEnough(now.in, placed.in) &&
       Math.abs(now.in.r - placed.in.r) < 0.01)
   )
-}
-
-function isFullyBoundArrow(editor: Editor, shape: TLShape): boolean {
-  if (shape.type !== 'arrow') return false
-  const b = getArrowBindings(editor, shape as TLArrowShape)
-  return !!b.start && !!b.end
 }
 
 /** The props that set where a shape's outline is, across CREATE_TYPES: a resize writes w/h, or
@@ -276,12 +286,12 @@ function guardNotHoldingPersonsShapes(editor: Editor, ids: TLShapeId[]) {
 }
 
 /** The "person's move wins" check: every id in `ids` must still be where the agent last
- *  placed it, unless `force`. A fully-bound arrow is exempt — its bounds follow its two ends. */
+ *  placed it, unless `force`. */
 function guardGeometry(editor: Editor, ids: TLShapeId[], force: boolean) {
   if (force) return
   const bad = ids
     .map((id) => editor.getShape(id)!)
-    .filter((shape) => !isFullyBoundArrow(editor, shape) && !untouched(editor, shape))
+    .filter((shape) => !untouched(editor, shape))
   if (bad.length)
     fail('moved_by_person', 'the person moved this since the agent last placed it', {
       shapes: bad.map((shape) => ({ id: shape.id, now: bounds(editor, shape) })),

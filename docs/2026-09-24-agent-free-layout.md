@@ -50,8 +50,9 @@ the person asks for a shape to be put back.
   turn, which leaves the bounds as they were. `frame` stamps what it frames again, in the
   frame, or its first drag would count as a move of each.
 - **A shape the person has moved keeps its old `placed`** through any later write of the agent's
-  that is not `force`d, so the check stays armed. An arrow bound at both ends is never checked:
-  its bounds follow its ends, not the person.
+  that is not `force`d, so the check stays armed. An arrow bound at both ends is checked by its
+  own shape instead, its bend and where each end holds on: its bounds follow the shapes it joins,
+  so they would call it moved whenever the person moved one of them.
 - **Text and style changes are not checked.** They move nothing.
 - A frame of the agent's that the person has dragged one of their own shapes into is not moved or
   deleted (`holds_persons_shapes`): that would move or delete the person's shape with it.
