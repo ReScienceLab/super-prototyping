@@ -277,6 +277,97 @@ def test_the_port_is_the_flag_then_sp_canvas_port_then_the_default():
         assert False, "a bad SP_CANVAS_PORT must be rejected the way a bad --port is"
 
 
+def test_sp_canvas_uploads_a_local_file_then_places_it_by_src():
+    """The project is the flag, then SP_PROJECT; the port the flag, SP_CANVAS_PORT, then the
+    running app's. A shape's `file` goes up under a name its bytes give it and comes back as
+    `src`, and the command carries the op."""
+    import contextlib, hashlib, io
+    image = Path(tempfile.mkdtemp()) / "Frame 1.PNG"
+    image.write_bytes(b"not really a png")
+    sent = []
+    def post(url, data, headers):
+        sent.append((url, data if isinstance(data, bytes) else data.read()))
+        return b'{"created": ["shape:a"]}'
+    real = C._canvas_post, C._running_app
+    C._canvas_post, C._running_app = post, lambda: {"port": 6100}
+    try:
+        argv = ["canvas", "create", "--canvas", "home",
+                json.dumps({"shapes": [{"type": "image", "file": str(image), "x": 0, "y": 0}]})]
+        env = {"SP_PROJECT": "shop", "SP_CANVAS_PORT": None}
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            with_env(env, lambda: C.cmd_canvas(C.parse_args(argv)))
+        assert json.loads(out.getvalue()) == {"created": ["shape:a"]}
+        name = hashlib.sha256(image.read_bytes()).hexdigest()[:16] + ".png"
+        assert sent[0] == (f"http://127.0.0.1:6100/p/shop/__sp/canvas-file?slug=home&name={name}",
+                           image.read_bytes())
+        assert sent[1][0] == "http://127.0.0.1:6100/p/shop/__sp/canvas"
+        assert json.loads(sent[1][1]) == {"slug": "home", "command": {
+            "op": "create", "shapes": [{"type": "image", "x": 0, "y": 0, "src": f"files/{name}"}]}}
+        args = lambda argv, env: with_env(env, lambda: C.parse_args(argv))
+        assert args(["canvas", "update", "--canvas", "home", "-"], {}).command == "-"
+        try:
+            args(["canvas", "get", "--canvas", "home", "{}", "{}"], {})
+        except SystemExit as e:
+            assert e.code == 2
+        else:
+            assert False, "a second body must be refused, not dropped"
+        a = args(["canvas", "get", "--canvas", "home", "--project", "cafe", "--port", "6200"],
+                 {"SP_PROJECT": "shop", "SP_CANVAS_PORT": "6300"})
+        assert C._canvas_url(a, "canvas") == "http://127.0.0.1:6200/p/cafe/__sp/canvas"
+        a = args(["canvas", "get", "--canvas", "home"],
+                 {"SP_PROJECT": "Super Shop", "SP_CANVAS_PORT": "6300"})
+        assert C._canvas_url(a, "canvas") == "http://127.0.0.1:6300/p/Super%20Shop/__sp/canvas"
+        a = args(["canvas", "get", "--canvas", "home"], {"SP_PROJECT": None, "SP_CANVAS_PORT": None})
+        try:
+            C.cmd_canvas(a)
+        except SystemExit as e:
+            assert "--project" in str(e)
+        else:
+            assert False, "no project must be an error, not a guess"
+        a = args(["canvas", "create", "--canvas", "home", '{"shapes": {"type": "geo"}}'],
+                 {"SP_PROJECT": "shop"})
+        try:
+            C.cmd_canvas(a)
+        except SystemExit as e:
+            assert "array" in str(e)
+        else:
+            assert False, "shapes that are not a list must be an error, not a traceback"
+        a = args(["canvas", "create", "--canvas", "home", '{"shapes": [{"type": "image", "file": null}]}'],
+                 {"SP_PROJECT": "shop"})
+        try:
+            C.cmd_canvas(a)
+        except SystemExit as e:
+            assert '"file" is a path' in str(e)
+        else:
+            assert False, "a file that is not a path must be an error, not a traceback"
+        # The page's refusal reaches the agent as the JSON it is; any other failure is an error.
+        refusal = '{"error": "moved_by_person"}'
+        for code, said in ((422, refusal), (500, f"error: {refusal}")):
+            try:
+                with_release(C.urllib.error.HTTPError("u", code, "", {}, io.BytesIO(refusal.encode())),
+                             lambda: real[0]("http://127.0.0.1:1/p/shop/__sp/canvas", b"", {}))
+            except SystemExit as e:
+                assert str(e) == said
+            else:
+                assert False, "a refusal must exit"
+        # A shot goes where -o says, the folder made if it is not there yet.
+        C._canvas_post = lambda url, data, headers: b'{"png": "cG5n"}'
+        shot = Path(tempfile.mkdtemp()) / "scratch" / "canvas.png"
+        a = args(["canvas", "shot", "--canvas", "home", "-o", str(shot)], {"SP_PROJECT": "shop"})
+        with contextlib.redirect_stdout(io.StringIO()):
+            C.cmd_canvas(a)
+        assert shot.read_bytes() == b"png"
+        a = args(["canvas", "shot", "--canvas", "home", "-o", str(shot.parent)], {"SP_PROJECT": "shop"})
+        try:
+            C.cmd_canvas(a)
+        except SystemExit as e:
+            assert str(e).startswith(f"error: {shot.parent}")
+        else:
+            assert False, "a shot onto a folder must be an error, not a traceback"
+    finally:
+        C._canvas_post, C._running_app = real
+
+
 def test_clean_removes_the_cache_and_starts_files_but_not_from_under_a_running_canvas():
     sp_home = Path(tempfile.mkdtemp())
     env = dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home))

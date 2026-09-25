@@ -10,6 +10,7 @@ import {
 import {
   createShapeId,
   useEditor,
+  useValue,
   type TLCommentThreadId,
   type TLShapeId,
 } from "tldraw";
@@ -28,6 +29,7 @@ import {
   TextTitle,
 } from "./geistIcons";
 import { CanvasChromeContext } from "./canvasChrome";
+import { boardShapeId, projectPages } from "./canvasContent";
 import { pointedElement } from "./cover";
 import {
   installInspectorClicks,
@@ -284,10 +286,19 @@ export function InspectorPanel({
   // The comments on this board are the canvas's own, reached through the chrome context
   // because the panel renders beside `<Tldraw>` rather than under it.
   const editor = useContext(CanvasChromeContext).editor;
-  const shapeId = useMemo(() => createShapeId(`canvas-file:${path}`), [path]);
+  const slug = /canvases\/([^/]+)\//.exec(path)?.[1] ?? "";
+  // Read from the store, not memoised: the agent can place this board, at an id of its own,
+  // after the panel opens.
+  const shapeId = useValue(
+    "board shape id",
+    () =>
+      editor
+        ? boardShapeId(editor, path, projectPages(editor).get(slug))
+        : createShapeId(`canvas-file:${path}`),
+    [editor, path, slug],
+  );
   const [openThread, setOpenThread] = useState<TLCommentThreadId | null>(null);
 
-  const slug = /canvases\/([^/]+)\//.exec(path)?.[1] ?? "";
   const names = useMemo(() => readCanvasAssetNames(slug), [slug]);
 
   // `sp:ready` is fire-and-forget, so it is lost for good if it arrives before this listener is

@@ -40,6 +40,22 @@ const dispatchAttach = (detail: CanvasAttachDetail) =>
  */
 async function attach(editor: Editor, target: TLShape) {
   try {
+    // A board, whoever placed it, before the check below that an agent-placed one also passes:
+    // `toImage` of a board comes back blank, so the server shoots it.
+    if (target.type === CANVAS_FILE_SHAPE_TYPE) {
+      const { w, h, path } = (target as CanvasFileShape).props;
+      const ref = canvasBoardRef(path);
+      if (!ref) throw new Error("that board has no file behind it");
+      const name = `${ref.slug}/${ref.file}`;
+      // At most 4000 a side, as CanvasFileShapeUtil's toSvg draws one.
+      const scale = Math.min(1, 4000 / Math.max(w, h));
+      const src = new URL(
+        `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(name)}` +
+          `&w=${Math.max(1, Math.round(w * scale))}&h=${Math.max(1, Math.round(h * scale))}`,
+        window.location.href,
+      ).href;
+      return dispatchAttach({ kind: "board", name, src });
+    }
     // One of the person's own: whatever it is, the agent gets a picture of it, named by where it
     // reads the thing itself (canvasContent.ts).
     const slug = personsShape(editor, target);
@@ -50,18 +66,6 @@ async function attach(editor: Editor, target: TLShape) {
         name: personsShapeName(editor, target, slug),
         src: URL.createObjectURL(blob),
       });
-    }
-    if (target.type === CANVAS_FILE_SHAPE_TYPE) {
-      const { w, h, path } = (target as CanvasFileShape).props;
-      const ref = canvasBoardRef(path);
-      if (!ref) throw new Error("that board has no file behind it");
-      const name = `${ref.slug}/${ref.file}`;
-      const src = new URL(
-        `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(name)}` +
-          `&w=${Math.round(w)}&h=${Math.round(h)}`,
-        window.location.href,
-      ).href;
-      return dispatchAttach({ kind: "board", name, src });
     }
     const shape = target as TLImageShape;
     const asset = shape.props.assetId

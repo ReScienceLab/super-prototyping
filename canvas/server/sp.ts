@@ -8,7 +8,7 @@
  * mounted once beside them (agent.ts).
  */
 import { execFile } from "node:child_process";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
@@ -222,6 +222,14 @@ export function createSpServer(options: {
     const frame = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const page of pages) page.write(frame);
   };
+  // The canvas pages among them (`?bridge=1`), the `sp canvas` commands waiting for one to open,
+  // and the ones sent and not answered, by id.
+  const bridges = new Set<ServerResponse>();
+  const waitingForPage = new Set<() => void>();
+  const asked = new Map<
+    string,
+    { page: ServerResponse; answer: (code: number, text: string) => void }
+  >();
 
   // Everything under /__sp writes something: a comment, a canvas's ground, a cloned canvas, an
   // agent holding bypassPermissions in the project.
@@ -315,12 +323,26 @@ export function createSpServer(options: {
     });
     res.write(": open\n\n");
     pages.add(res);
+    // The canvas page, which runs `sp canvas` commands; a sheet or a brand kit page does not.
+    if (new URL(req.url ?? "/", "http://sp").searchParams.has("bridge")) {
+      bridges.add(res);
+      for (const go of waitingForPage) go();
+      waitingForPage.clear();
+    }
     // A comment line every 25 s, under the proxy and browser idle timeouts that would
     // otherwise drop a quiet stream and cost a reconnect.
     const keepalive = setInterval(() => res.write(": keepalive\n\n"), 25_000);
     res.on("close", () => {
       clearInterval(keepalive);
       pages.delete(res);
+      bridges.delete(res);
+      for (const command of asked.values())
+        if (command.page === res)
+          command.answer(
+            503,
+            "The canvas page closed before it answered. Run `sp canvas get` to see whether " +
+              "the command ran.",
+          );
     });
   });
 
@@ -804,6 +826,101 @@ export function createSpServer(options: {
         fs.rmSync(partial, { force: true });
         send(500, String(error));
       });
+  });
+
+  // `sp canvas` (tools/sp_canvas.py): a command for what is on a canvas, run by the canvas page
+  // (agentBridge.ts), since only a tldraw editor places a shape the way the page would. It goes
+  // to the page opened last and the answer comes back on /__sp/canvas-reply. With no page open it
+  // waits 10 s for one, which covers a reload, then says so: nothing here writes canvas.json
+  // behind an open page's back. docs/2026-09-24-agent-free-layout.md has why.
+  route("/__sp/canvas", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const send = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      let slug, command;
+      try {
+        ({ slug, command } = JSON.parse(body || "{}"));
+      } catch {
+        return send(400, "bad json");
+      }
+      if (typeof slug !== "string" || !SAFE_NAME.test(slug))
+        return send(400, "bad canvas name");
+      try {
+        if (isExample(slug)) return send(403, READ_ONLY);
+      } catch (error) {
+        return send(500, String(error));
+      }
+      const go = () => {
+        const id = randomUUID();
+        const page = [...bridges].at(-1)!;
+        const timer = setTimeout(
+          () => answer(504, "The canvas page did not answer in 120 s."),
+          120_000,
+        );
+        const answer = (code: number, text: string) => {
+          clearTimeout(timer);
+          asked.delete(id);
+          send(code, text);
+        };
+        asked.set(id, { page, answer });
+        page.write(
+          `event: command\ndata: ${JSON.stringify({ id, slug, command })}\n\n`,
+        );
+      };
+      if (bridges.size) return go();
+      const wait = () => {
+        clearTimeout(timer);
+        go();
+      };
+      // Named now: the folder can be renamed in the 10 s, and then it names nothing.
+      const name = projectName();
+      const timer = setTimeout(() => {
+        waitingForPage.delete(wait);
+        send(
+          409,
+          `No canvas of project "${name}" is open, and only an open one can place ` +
+            "things on it. Ask the person to open the project in Super Prototyping (from a " +
+            "terminal: `sp open`, then the project), then run this again.",
+        );
+      }, 10_000);
+      waitingForPage.add(wait);
+      // A caller gone in the 10 s, its shell cancelled, waits for nothing, so its command is not
+      // run. `req` closes once its body is read, caller or no caller; `res` closing unsent is
+      // what says it left.
+      res.on("close", () => {
+        if (res.writableEnded) return;
+        clearTimeout(timer);
+        waitingForPage.delete(wait);
+      });
+    });
+  });
+
+  route("/__sp/canvas-reply", (req, res, next) => {
+    if (req.method !== "POST") return next();
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      let reply;
+      try {
+        reply = JSON.parse(body || "{}");
+      } catch {
+        res.statusCode = 400;
+        return res.end("bad json");
+      }
+      // Gone when it has timed out, or its page closed.
+      const command = asked.get(reply?.id);
+      res.statusCode = command ? 200 : 404;
+      res.end();
+      command?.answer(
+        reply.ok ? 200 : 422,
+        JSON.stringify(reply.ok ? reply.result : reply.error),
+      );
+    });
   });
 
   // The project's cover, from the canvas's right button: a board, an element on one, or a brand

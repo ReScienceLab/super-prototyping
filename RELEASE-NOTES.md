@@ -19,6 +19,15 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **The agent can put things anywhere on a canvas.** Ask it to lay out
+  screenshots, video, notes or a board beside what you pasted, framed and
+  joined by arrows, and it places them on the canvas you have open, glowing
+  as it goes. You can move and resize what it placed. If you move something
+  of the agent's, it works around where you put it rather than moving it back.
+  The layout's own boards stay locked, and are outlined orange when selected so
+  you can tell them apart.
+- **A board shows up in an exported image.** It used to come out blank.
+
 ## v1.6.2
 
 2026-09-24. Start a project from an app or an idea, keep what you paste on a

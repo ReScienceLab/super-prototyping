@@ -13,7 +13,9 @@ can be read, versioned, copied, and later served from someone else's machine.
 
 1. **Two owners, one page.** The agent's output is boards and `layout.json`'s pictures and cards.
    `layout.json` lays it out, it is locked, and every load rebuilds it from the files. Everything
-   else on the page is the person's: whatever they pasted or dropped there.
+   else on the page is the person's: whatever they pasted or dropped there. *(Since
+   `2026-09-24-agent-free-layout.md`, the agent also places shapes of its own anywhere, through
+   the page. They are saved in `canvas.json` stamped as its, and are not locked.)*
 2. **Anything tldraw can paste can be pasted.** That covers images, videos, SVG, text, links and
    tldraw's own shapes. tldraw's default handlers decide what each becomes. What tldraw can show
    but not edit is shown and not edited.
@@ -145,8 +147,8 @@ tldraw calls a pasted URL `url` content. One handler sits in front of tldraw's d
 - The `prototype-canvas` skill says so in plain words. `canvas.json` and `files/` are the
   person's: read them to see what is on the canvas, never edit them, and answer by adding a
   board, or a shape through the bridge, beside the person's content.
-- **The bridge enforces it.** `create` stamps `meta: { by: "agent" }` and locks the shape.
-  `update` and `delete` refuse any id without that stamp. The agent's bridge shapes are saved in
+- **The bridge enforces it.** `create` stamps `meta: { by: "agent" }`. `update` and `delete`
+  refuse any id without that stamp. The agent's bridge shapes are saved in
   `canvas.json` like everything else, and the stamp tells them apart.
 - Files are not guarded. A deny rule for Claude Code's `Edit` tool would not stop its `Write`
   tool or a shell, and other agents have no such rule. The skill states the rule, and Git can

@@ -1,6 +1,6 @@
 ---
 name: prototype-canvas
-description: Start and operate the local tldraw design canvas that shows HTML artboards. Start the canvas app against a project's board folders, add or switch boards, drive shapes through the bounded window.snapCanvas bridge, and act on annotated screenshots of the canvas. Use when asked to open/launch the canvas, put a mockup on the canvas, annotate or draw on it, fix overlapping frames after a layout.json edit, or respond to a screenshot of the canvas with notes drawn on it.
+description: Start and operate the local tldraw design canvas that shows HTML artboards. Start the canvas app against a project's board folders, add or switch boards, place boards, images, video and notes anywhere on a canvas with sp canvas, and act on annotated screenshots of the canvas. Use when asked to open/launch the canvas, put a mockup, an image or a video on the canvas, annotate or draw on it, fix overlapping frames after a layout.json edit, or respond to a screenshot of the canvas with notes drawn on it.
 license: Apache-2.0
 compatibility: Requires the Super Prototyping app (macOS or Windows), which puts the sp command on PATH, and uv, which sp runs with. scripts/install.sh (install.ps1 on Windows) installs both. Where the app cannot run, sp start needs node or bun and a modern browser.
 metadata:
@@ -126,31 +126,111 @@ refresh deletes every `canvas-file` / `canvas-row-heading` /
 files. Content-only edits to a placed file do **not**
 need it: the canvas swaps the rewritten board in by itself.
 
-## Drive the canvas
+## Place things on the canvas
 
-Prefer the bounded `window.snapCanvas` bridge over mouse-coordinate
-automation or exposing tldraw's full `Editor`.
+`sp canvas` reads what is on a canvas and places shapes, images, video and
+boards anywhere on it. The project's canvas open in the app runs each command
+with tldraw's own editor and answers once the result is saved to
+`canvas.json`, so a command that returned is on disk.
 
-```js
-window.snapCanvas.describe()
-window.snapCanvas.dispatch({ op: 'get' })
-window.snapCanvas.dispatch({ op: 'create', shapes: [{
-  type: 'text', x: 80, y: 80,
-  props: { richText: { type: 'doc', content: [
-    { type: 'paragraph', content: [{ type: 'text', text: 'Note' }] }] } },
-}]})
-window.snapCanvas.dispatch({ op: 'select', ids: ['shape:example'] })
-window.snapCanvas.dispatch({ op: 'zoom',   ids: ['shape:example'] })
+```bash
+sp canvas <op> --canvas <slug> '<json>'     # - instead of the JSON reads it from stdin
 ```
 
-Call `describe()` before generating commands, and use the ids and bounds that
-`get` returns. Never guess screen coordinates. Batch related shape changes
-into one dispatch.
+The chat panel's agent already has the project and the port. From anywhere
+else, add `--project <name>`, the name in the canvas's address (`/p/<name>/`).
+A command needs the project open in the app. With none open it waits ten
+seconds for one, then fails and says so: ask the person to open the project
+(`sp open`, then the project) and run it again. Never write `canvas.json`
+yourself instead.
+
+| op | JSON | does |
+|---|---|---|
+| `get` | none | Every shape: `id`, `type`, `owner` (`layout`, `agent` or `person`), page bounds `x` `y` `w` `h`, and `parent`, `name`, `text` where it has them. `arrows` lists each arrow's `from` and `to`. |
+| `create` | `{"shapes": [...]}` | Adds shapes, below. Answers `{"created": [ids]}`. |
+| `update` | `{"shapes": [{"id", "type", ...}]}` | Changes your own shapes. `x`/`y` are the page bounds' corner, as `get` gives them. |
+| `delete` | `{"ids": [...]}` | Deletes your own shapes. |
+| `align` | `{"ids", "operation"}` | `left`, `right`, `top`, `bottom`, `center-horizontal`, `center-vertical`, `center`. |
+| `distribute` | `{"ids", "operation"}` | `horizontal` or `vertical`, three ids or more. |
+| `stack` | `{"ids", "operation", "gap"?}` | `horizontal` or `vertical`. |
+| `pack` | `{"ids", "gap"?}` | Packs them into a block. |
+| `frame` | `{"ids", "name"?, "padding"?}` | Wraps them in a new frame, 32 px of padding by default. Answers `{"frame": id}`. |
+| `select`, `zoom` | `{"ids"?}` | Selects them, or moves the view onto them. No ids: `select` clears the selection, `zoom` fits the whole canvas. The canvas in front only. |
+| `shot` | `{"ids"?}` and `-o <file>.png` | A PNG of them, or of the whole canvas. The canvas in front only. Look at it to check the result. |
+
+What `create` takes:
+
+- **Image or video**: `{"type": "image", "x", "y", "file": "<path on this machine>"}`,
+  or `"video"`. `sp` copies the file into the canvas folder's `files/` first.
+  Give `w` or `h` to scale it evenly, both to set its size, neither to keep
+  its own.
+- **Board**: `{"type": "canvas-file", "board": "<file>.html", "x", "y"}`, a
+  board of this canvas folder, at its own size unless `w` and `h` say
+  otherwise. Place only a board that no `layout.json` row lists, or it shows
+  twice. One you placed stays out of the grid of unlisted boards.
+- **Text, note, geo**: `{"type": "text", "x", "y", "text": "..."}`. Other
+  props go under `props`, never `w`/`h` at the top level.
+- **Arrow**: `{"type": "arrow", "x", "y", "from": "<id>", "to": "<id>"}`
+  binds both ends, so it follows them. It cannot bind to a layout shape.
+- An `id` of your own (`"shape:keyframes-title"`) lets a later command name
+  the shape. Every command is checked whole first: one bad shape and nothing
+  is written.
+
+Work out coordinates from `get`, never guess them. To put something beside
+a shape, start at its right edge plus 40 and check the new bounds against
+every other shape's, moving down past any it would cover. The person's own
+content is never to be covered.
+
+What you create is yours to move and to change, and the person's to move and
+resize too: images and video keep their proportions, a board stretches freely
+(Shift keeps them). Content `layout.json` places stays locked. **When the
+person has moved a shape of yours, theirs is the last word**: an update or a
+layout op that would move it again fails with `moved_by_person`, listing each
+shape's bounds `now`. Run `get` again and plan around where they put it. A
+shape that only went along with the frame the person dragged has not moved.
+`"force": true` overrides it; use it only when the person asked for the shape
+to be put back.
+
+Refusals come back as JSON on stderr with a non-zero exit, `{"error",
+"message", ...}`: `not_agents` (not yours), `moved_by_person`,
+`holds_persons_shapes` (the person dragged a shape of theirs into your
+frame), `locked` (the person locked it), `not_current_page` (the person is
+looking at another canvas), `exists`, `not_writable`, `bad_command`, and
+`failed` (the page could not save it; say so rather than retrying blindly).
+Your changes stay out of the person's undo.
+
+Six keyframes of the person's screen recording, from `$WORK/frames`, put in
+a frame beside it with an arrow from the recording:
+
+```bash
+sp canvas get --canvas video-notes
+# {"id": "shape:rec", "type": "video", "owner": "person", "x": 0, "y": 0, "w": 720, "h": 405, ...}
+sp canvas create --canvas video-notes - <<EOF
+{"shapes": [
+  {"id": "shape:k1", "type": "image", "x": 760, "y": 0, "w": 240, "file": "$WORK/frames/1.png"},
+  {"id": "shape:k2", "type": "image", "x": 760, "y": 0, "w": 240, "file": "$WORK/frames/2.png"},
+  {"id": "shape:k3", "type": "image", "x": 760, "y": 0, "w": 240, "file": "$WORK/frames/3.png"},
+  {"id": "shape:k4", "type": "image", "x": 760, "y": 0, "w": 240, "file": "$WORK/frames/4.png"},
+  {"id": "shape:k5", "type": "image", "x": 760, "y": 0, "w": 240, "file": "$WORK/frames/5.png"},
+  {"id": "shape:k6", "type": "image", "x": 760, "y": 0, "w": 240, "file": "$WORK/frames/6.png"}]}
+EOF
+K='"shape:k1", "shape:k2", "shape:k3", "shape:k4", "shape:k5", "shape:k6"'
+sp canvas pack --canvas video-notes "{\"ids\": [$K], \"gap\": 16}"
+sp canvas frame --canvas video-notes "{\"ids\": [$K], \"name\": \"Keyframes\"}"
+# {"frame": "shape:…"}
+sp canvas create --canvas video-notes '{"shapes": [{"type": "arrow", "x": 0, "y": 0,
+  "from": "shape:rec", "to": "shape:…"}]}'
+sp canvas shot --canvas video-notes -o scratch/canvas.png
+```
+
+Then `get` again and check the frame's bounds against every other shape's
+before telling the person it is done.
 
 ## What the person put on the canvas
 
 Anything that is not a board or a `layout.json` picture or card is the
-person's: what they pasted or dropped. It is saved in the canvas folder:
+person's, what they pasted or dropped, or yours, what you placed with
+`sp canvas` (`owner` in `get` says which). It is saved in the canvas folder:
 
 - `canvas.json`: tldraw records (shapes, bindings, assets), sorted by id. A
   shape at the page's root has no `parentId`.
@@ -160,12 +240,11 @@ person's: what they pasted or dropped. It is saved in the canvas folder:
 Read them to see what the person put there. A chip or a link named
 `<slug>/canvas.json#<shape-id>` points at one record, and one named
 `<slug>/files/<file>` points at one file. **Never edit either.** To answer a
-sketch or a note, add a board or a bridge shape beside it. The bridge stamps
-what you create (`meta.by: "agent"`) and locks it. `update` and `delete`
-refuse anything without that stamp, and there is no undo, since undo would
-reach the person's own edits.
+sketch or a note, place a board or a shape beside it with `sp canvas`. What
+it creates is stamped `meta.by: "agent"`, and every write refuses a shape
+without that stamp.
 
-Never let bridge commands inject arbitrary JavaScript, never load untrusted
+Never let `sp canvas` commands inject arbitrary JavaScript, never load untrusted
 HTML into a board, and never add `allow-same-origin` to the artboard iframe.
 
 ## Annotated screenshots

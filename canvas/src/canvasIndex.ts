@@ -99,6 +99,28 @@ export const BOARDS_CHANGED = "sp:boards";
 /** Fired on `window` when the project's documents have been rewritten. */
 export const DOCS_CHANGED = "sp:docs";
 
+/** A command from `sp canvas` (server/sp.ts), which the agent bridge runs and answers. */
+export interface AgentCommand {
+  id: string;
+  slug: string;
+  command: unknown;
+}
+
+// The stream opens before the editor mounts, and an EventSource keeps nothing it has delivered,
+// so a command that arrives before the bridge is installed waits here for it.
+let onCommand: ((command: AgentCommand) => void) | AgentCommand[] = [];
+
+/** Hands every `sp canvas` command, the ones already waiting first, to `run`, until the returned
+ *  function is called. */
+export function takeAgentCommands(run: (command: AgentCommand) => void) {
+  const held = Array.isArray(onCommand) ? onCommand : [];
+  onCommand = run;
+  for (const command of held) run(command);
+  return () => {
+    if (onCommand === run) onCommand = [];
+  };
+}
+
 /**
  * Fetches the index, and when a server wrote it, listens to that server: `index` for a board
  * written or the set of boards changed, `layout` for one board's layout.json, both handed over live
@@ -111,15 +133,24 @@ export const DOCS_CHANGED = "sp:docs";
  * `live = false` skips the listening, for the home page. Each stream holds one of the six
  * connections a browser keeps to a host over HTTP/1.1, so six open pages that listen leave a
  * seventh unable to fetch its own scripts, and a list of canvases has no viewport to keep.
+ *
+ * `bridge` is the canvas page, which runs the `sp canvas` commands the server sends it.
  */
-export async function loadCanvasIndex(live = true) {
+export async function loadCanvasIndex(live = true, bridge = false) {
   const url = `${import.meta.env.BASE_URL}__sp/index.json`;
   const response = await fetch(url);
   if (!response.ok) throw new Error(`${url}: ${response.status}`);
   installCanvasIndex(await response.json());
   if (!live || !canvasIndex().served) return;
-  const events = new EventSource(`${import.meta.env.BASE_URL}__sp/events`);
+  const events = new EventSource(
+    `${import.meta.env.BASE_URL}__sp/events${bridge ? "?bridge=1" : ""}`,
+  );
   events.addEventListener("reload", () => window.location.reload());
+  events.addEventListener("command", (event) => {
+    const command: AgentCommand = JSON.parse(event.data);
+    if (Array.isArray(onCommand)) onCommand.push(command);
+    else onCommand(command);
+  });
   // A board added, removed or rewritten, taken in without a reload: the person may be drawing
   // on the canvas while the agent writes. Laying the canvas out again adds and removes the
   // boards' shapes and leaves the person's alone (App.tsx).

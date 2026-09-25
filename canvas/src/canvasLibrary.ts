@@ -17,7 +17,7 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // which a phone should not download to look at one page). Layouts and icons come with the
 // index because they are read during render.
 import { canvasIndex } from "./canvasIndex";
-import { coverBoard, inStripOrder } from "./cover";
+import { CANVAS_FILE_DEFAULT_SIZE, coverBoard, inStripOrder } from "./cover";
 export { CANVAS_FILE_DEFAULT_SIZE, DEFAULT_COVER_BOX, fitCover } from "./cover";
 export { LAYOUT_CHANGED } from "./canvasIndex";
 
@@ -304,6 +304,20 @@ export function readCanvasLayout(
   pageSlug: string,
 ): CanvasLayoutConfig | undefined {
   return board(pageSlug)?.layout;
+}
+
+/**
+ * The artboard box, which is 478 x 980 unless the folder's layout.json declares its own `w`/`h`
+ * for that file, as 00-welcome does for its landscape strip.
+ */
+export function boardSize(file: CanvasLibraryFile) {
+  for (const row of readCanvasLayout(file.pageSlug)?.rows ?? []) {
+    for (const entry of row.files ?? []) {
+      if (typeof entry === "string" || entry.file !== file.fileName) continue;
+      if (entry.w && entry.h) return { w: entry.w, h: entry.h };
+    }
+  }
+  return CANVAS_FILE_DEFAULT_SIZE;
 }
 
 /** Whether this page collected any brand material: the brand page of one that did not is empty. */

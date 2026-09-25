@@ -1,6 +1,7 @@
 import { useContext, useMemo, type CSSProperties } from "react";
 import {
   BaseBoxShapeUtil,
+  FileHelpers,
   HTMLContainer,
   T,
   type RecordProps,
@@ -8,8 +9,10 @@ import {
   useIsEditing,
 } from "tldraw";
 import { CanvasChromeContext } from "./canvasChrome";
+import { canvasIndex } from "./canvasIndex";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
+  canvasBoardRef,
   hasCanvasFile,
   useCanvasFileHtml,
 } from "./canvasLibrary";
@@ -170,5 +173,28 @@ export class CanvasFileShapeUtil extends BaseBoxShapeUtil<CanvasFileShape> {
 
   override getText(shape: CanvasFileShape) {
     return shape.props.name;
+  }
+
+  // An export leaves an iframe blank, so the server draws the board (canvasAttach.tsx does the
+  // same), for `sp canvas shot` and the person's own export alike. The hosted build has no server.
+  // One that cannot be drawn is left out rather than thrown: tldraw waits on every shape's toSvg
+  // together, so a throw would blank the whole export (App.tsx has its wait).
+  override async toSvg(shape: CanvasFileShape) {
+    const ref = canvasBoardRef(shape.props.path);
+    if (!ref || !canvasIndex().served) return null;
+    const { w, h } = shape.props;
+    // The server draws at most 4000 a side; a board resized past that is drawn smaller, evenly.
+    // ponytail: smaller is a narrower viewport, so a board that lays out by width may reflow.
+    const scale = Math.min(1, 4000 / Math.max(w, h));
+    const res = await fetch(
+      `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(`${ref.slug}/${ref.file}`)}` +
+        `&w=${Math.max(1, Math.round(w * scale))}&h=${Math.max(1, Math.round(h * scale))}`,
+    );
+    if (!res.ok) {
+      console.warn(`${ref.slug}/${ref.file} could not be drawn: ${await res.text()}`);
+      return null;
+    }
+    const href = await FileHelpers.blobToDataUrl(await res.blob());
+    return <image href={href} width={w} height={h} />;
   }
 }
