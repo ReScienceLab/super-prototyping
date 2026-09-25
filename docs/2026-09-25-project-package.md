@@ -154,8 +154,9 @@ This stands alone and ships first. It protects local users today.
     rule from `2026-09-22-agent-workspace.md`.
   - The id is the project's identity for sharing only. The folder name stays the local
     address, and routing and the store's keys do not change.
-- `author`, `license` and a fork's source are not added until the community repo takes its
-  first real submission. That is the case that shows where they belong.
+- `author` and `contributors` arrive with Phase 3, whose CI is what makes them true.
+  `license` and a fork's source are not added until a real submission shows where they
+  belong.
 - `layout.md`'s section on `project.json` lists the two fields. That copy ships with the app,
   and it is the one the agent reads.
 
@@ -231,11 +232,34 @@ The shape comes from excalidraw-libraries. Details wait for the first hand-submi
 - **A community repo** holds `projects/<id>/`, the output of `sp pack -o`, and an
   `index.json` with one entry per project.
 - **CI runs `sp pack --check`** on each changed project and checks that each `id` is either
-  new or already at that same path. That is continuity of the path, not proof of who the
-  author is: there are no accounts. A person reviews what passes, for quality. The review is
+  new or already at that same path. A person reviews what passes, for quality. The review is
   curation and promises nothing about safety; Phase 0 does that.
+- **Every project names its people, and CI holds the names to the PR.** This is the Raycast
+  Store's model, the gallery closest to ours: its `package.json` names `author` and
+  `contributors` by handle, and its CI refuses an author it cannot tie to the submitter's
+  GitHub account. Excalidraw's `libraries.json` and Obsidian's registry name authors too, but
+  as unchecked text. Figma shows the publishing account and the co-creators it invites.
+  - `project.json` gains `author`, a GitHub login, and `contributors`, a list of them. The
+    names travel with the project, so the app can show them offline. Still format 1: they are
+    new keys.
+    ```json
+    { "format": 1, "id": "0b6d3c1e-…", "name": "…", "author": "octocat", "contributors": ["hubot"] }
+    ```
+  - A PR that adds a project must be opened by its `author`. A PR that changes one must be
+    opened by its `author` or a contributor; anyone else is added to `contributors` by the same
+    PR, or CI fails it. That is proof of the GitHub account, which is all the authorship a
+    GitHub repo can prove, and it is enough.
+  - On merge, CI resolves each login to its numeric GitHub user id and writes both into
+    `index.json`. A login can be renamed and the id cannot, so the index finds the person
+    after a rename and corrects the login it shows.
+  - Avatars are `https://github.com/<login>.png`. Nothing is uploaded or stored.
+  - `sp pack -o` fills a missing `author` from `gh api user --jq .login` when `gh` is signed
+    in, and otherwise tells the person to set it. `--check` reports a missing `author` as a
+    problem, like a missing `id`.
+  - Links to a person's site or Twitter, which Excalidraw carries, wait until someone asks.
 - **The site** (`super-prototyping-landing`) builds `/community` from `index.json`. It shows
-  covers as images and never frames a board.
+  covers as images and never frames a board. A card shows the author's avatar and login, and
+  the contributors' avatars beside them.
 
 ## Later
 
@@ -282,10 +306,16 @@ packing a single canvas.
 ## Open questions
 
 1. **Licence and takedown.** What licence a submission is under, and how something is taken
-   down, are the product's to decide.
+   down, are the product's to decide. Recommended: one licence for the whole repo, CC BY 4.0
+   for the work and MIT for the code in it such as `gen.py`, so no project needs a `license`
+   key. The PR template has the submitter confirm the work is theirs to share, and says the
+   licence covers only their own work, not the brands a clone copies. Takedown is an issue
+   template and an email, answered within 7 days, beside GitHub's own DMCA process.
 
 2. **Renaming a project.** Whether renaming a project in the app renames its folder, or only
-   sets `name`. The `id` makes either safe for sharing.
+   sets `name`. The `id` makes either safe for sharing. Recommended: only `name`. The folder is
+   the address agents, links and git history hold, and in the community repo a moved folder
+   reads as one project deleted and another added.
 
 ## What building it found
 
@@ -322,14 +352,16 @@ packing a single canvas.
   above: the cap counts bytes actually extracted, so a crafted archive cannot slip past it, and
   no entry may land outside the new folder.
 - **Cut until a real case asks for them:**
-  - `author`, `license` and `forkedFrom`;
+  - `author`, `license` and `forkedFrom` (`author` came back later, with `contributors` and
+    the CI check that ties them to the PR; see Phase 3);
   - the deterministic zip;
   - the zip itself;
   - `<author>/` in the community repo's path, which was the third copy of one fact;
   - the "imported" marker's exact shape.
 - **The caps are decided,** not both a check and an open question.
 - **Two things are said plainly:** the Python rules may drift from `boardIndex`, and the id
-  check in CI proves path continuity, not authorship.
+  check in CI proves path continuity, not authorship. (Authorship is now checked separately,
+  against the PR's GitHub account.)
 - **Kept against the reviews:** refusing a newer `format` on every open, including local
   ones. An older app that opened it would half-understand it and could lose data on its next
   save.
