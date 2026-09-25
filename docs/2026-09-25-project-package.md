@@ -173,11 +173,21 @@ canvases/<slug>/
   files/<name>          only files a canvas.json record points at (see check 4)
   assets/**             not assets/refs/**
   assets-dark/**
-  gen.py  README.md  probes.json  crops.json  assets.json
+  gen.py  README.md  assets.json
 ```
 
-Always out: `scratch/`, `ref-*`, `assets/refs/`, the root `refs/`, dot files and dot folders,
-anything else at the root, and `comments.json`.
+Only `project.json` is required. Everything else in the list ships if it is there. A project
+can be a clone of an app, an interface someone designed, or a phone mockup, and a folder with
+nothing but boards is a whole project.
+
+Always out:
+- `scratch/`, `ref-*`, `assets/refs/` and the root `refs/`;
+- dot files and dot folders;
+- anything else at the root;
+- `comments.json`;
+- `probes.json` and `crops.json`. They are the clone skill's measurement evidence, which
+  supports a claim of fidelity to someone else's app. They are not part of the work, and most
+  projects have none.
 
 **Checks.** Each check fails the pack; none warns and carries on:
 
