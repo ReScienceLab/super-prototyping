@@ -41,6 +41,12 @@ def call(method, url, key, body=None):
         with urllib.request.urlopen(req, timeout=120) as r:
             return json.load(r)
     except urllib.error.HTTPError as e:
+        # 429 and 5xx are Ark asking to come back, not the request being wrong. HTTPError is a
+        # URLError, so raising one lands in the poll loop's retry branch below, where a task that
+        # has already been paid for is never given up on. Every other code fails here: it will
+        # fail the same way next time.
+        if e.code == 429 or e.code >= 500:
+            raise
         sys.exit("HTTP %s: %s" % (e.code, e.read().decode()[:800]))
 
 
@@ -96,14 +102,18 @@ def main():
     n = 1 + max(used, default=0)
 
     t0 = time.time()
-    tid = call("POST", BASE, key, body)["id"]
+    try:
+        tid = call("POST", BASE, key, body)["id"]
+    except urllib.error.HTTPError as e:   # nothing is running yet, so a busy server is just a no
+        sys.exit("HTTP %s submitting the take: %s" % (e.code, e.read().decode()[:800]))
     print("task", tid, file=sys.stderr)
     while True:
         time.sleep(10)
         try:
             st = call("GET", BASE + "/" + tid, key)
         except (urllib.error.URLError, TimeoutError, OSError) as e:
-            # A dropped poll must never abandon a paid task: the id is the only handle on it.
+            # A dropped poll must never abandon a paid task: the id is the only handle on it. A
+            # 429 or a 5xx arrives here too, raised by `call` for this reason.
             print("   poll failed, retrying:", e, file=sys.stderr)
             continue
         print("  ", st.get("status"), round(time.time() - t0), "s", file=sys.stderr)

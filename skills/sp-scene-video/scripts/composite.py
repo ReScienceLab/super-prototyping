@@ -181,7 +181,9 @@ def main():
                 pts = np.vstack([np.array([p[0] for p in pairs]), SRC[:2]]); dst = np.vstack([np.array([p[1] for p in pairs]), q[:2]])
                 Hn, _ = cv2.findHomography(pts, dst, 0)
                 if Hn is not None: Hc = Hn; refined += 1
-        u = cv2.imread(str(ui[(i + a.offset) % len(ui)]), cv2.IMREAD_UNCHANGED)
+        # Clamped, not wrapped: a shift or a plate longer than the UI holds the first or last
+        # frame, where wrapping would cut back to the start of the animation mid-shot.
+        u = cv2.imread(str(ui[min(max(i + a.offset, 0), len(ui) - 1)]), cv2.IMREAD_UNCHANGED)
         warped = cv2.warpPerspective(flatten_corners(u), Hc, (W, H), flags=cv2.INTER_AREA)
         warped = (cv2.GaussianBlur(warped, (0, 0), 0.6) * 0.94).astype(np.uint8)   # match the plate's softness and exposure
         inside = np.zeros((H, W), np.uint8)

@@ -119,13 +119,14 @@ function writeCopy(
  * Writes every skill in `<root>/skills` into each of `dirs`, marked with `root`'s version. A destination that already holds a marked copy is replaced whole when that copy is
  * older, and left alone when it is at the tree's version or past it, so a newer app's copy is never
  * undone, and every run after the first writes nothing. One that exists without a
- * marker is the user's own file, left alone and reported back as skipped.
+ * marker is the user's own file, left alone and reported back as skipped. A marked copy under a
+ * name this tree no longer ships is one a release renamed or dropped, and is removed.
  */
 export function installSkills(
   root: string,
   into: string,
   dirs: string[],
-): { written: string[]; skipped: string[] } {
+): { written: string[]; skipped: string[]; removed: string[] } {
   for (const dir of dirs) {
     // Checked up front, before anything is written, so that a bad dir among several good ones does
     // not leave the good ones half done.
@@ -144,7 +145,19 @@ export function installSkills(
 
   const written: string[] = [];
   const skipped: string[] = [];
+  const removed: string[] = [];
   for (const dir of dirs) {
+    // A skill a release renames or drops leaves its copy here, still marked, still listed by the
+    // agent, and now telling it about paths the tree no longer has. Ours to take out, by the same
+    // thing that makes a copy ours: the marker. A folder of the user's own has none and stays.
+    // (`linkInstall` in desktop/launch.ts does the same for the links in an agent's home.)
+    const at = path.join(into, dir);
+    for (const name of fs.existsSync(at) ? fs.readdirSync(at) : []) {
+      if (names.includes(name)) continue;
+      if (markedVersion(path.join(at, name, "SKILL.md")) === null) continue;
+      fs.rmSync(path.join(at, name), { recursive: true, force: true });
+      removed.push(`${dir}/${name}`);
+    }
     for (const name of names) {
       const destDir = path.join(into, dir, name);
       if (fs.existsSync(destDir)) {
@@ -159,5 +172,5 @@ export function installSkills(
       written.push(`${dir}/${name}`);
     }
   }
-  return { written, skipped };
+  return { written, skipped, removed };
 }

@@ -89,6 +89,19 @@ await evaluate(`(() => {
   b.textContent = 'html,body{background:transparent!important;margin:0}'; document.head.appendChild(b)`}
   return document.fonts.ready.then(() => 'ok')
 })()`)
+// Every animation in the document, pseudo-elements included, held at exactly t. Not a CSS rule:
+// `animation-delay` on an already-paused animation moves it from where the pause happened, which
+// is wall-clock, so two runs of this script disagreed. Two rAFs make sure the new time painted
+// before the frame is taken.
+const scrub = t => evaluate(`(() => {
+  for (const a of document.getAnimations()) { a.pause(); a.currentTime = ${(t * 1000).toFixed(1)} }
+  return new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r('painted'))))
+})()`)
+
+// Measured after the first scrub, not while the board is still playing: on a board that animates
+// the phone itself the rectangle would otherwise be wherever the load happened to leave it. One
+// clip serves every frame, so a board moves what is on the phone, not the phone.
+await scrub(boardTime(0))
 const clip = await evaluate(`(() => {
   const el = document.querySelector(${JSON.stringify(selector)})
   if (!el) return null
@@ -100,15 +113,7 @@ console.log('clip', clip)
 
 const n = Math.round(fps * seconds)
 for (let i = 0; i < n; i++) {
-  const t = boardTime(i / fps).toFixed(4)
-  // Every animation in the document, pseudo-elements included, held at exactly t. Not a CSS
-  // rule: `animation-delay` on an already-paused animation moves it from where the pause
-  // happened, which is wall-clock, so two runs of this script disagreed. Two rAFs make sure
-  // the new time painted before the frame is taken.
-  await evaluate(`(() => {
-    for (const a of document.getAnimations()) { a.pause(); a.currentTime = ${(t * 1000).toFixed(1)} }
-    return new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r('painted'))))
-  })()`)
+  await scrub(boardTime(i / fps))
   const { data } = await send('Page.captureScreenshot', { format: 'png', clip, captureBeyondViewport: true })
   writeFileSync(`${outDir}/f${String(i).padStart(4, '0')}.png`, Buffer.from(data, 'base64'))
   if (i % 48 === 0) console.log('frame', i, 'of', n)

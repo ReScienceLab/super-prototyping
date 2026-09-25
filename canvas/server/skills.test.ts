@@ -157,6 +157,33 @@ describe("installSkills", () => {
     ).toBe("---\nname: alpha\ndescription: mine\n---\nmy own notes\n");
   });
 
+  it("takes out the copy a renamed skill left behind, and only a marked one", () => {
+    installSkills(root, project, [".claude/skills"]);
+    // What the tree shipped last release: a marked copy under a name it no longer has.
+    const gone = path.join(project, ".claude/skills/old-alpha");
+    fs.cpSync(path.join(project, ".claude/skills/alpha"), gone, {
+      recursive: true,
+    });
+    // And the user's own folder, under a name we have never shipped.
+    fs.mkdirSync(path.join(project, ".claude/skills/mine"), { recursive: true });
+    fs.writeFileSync(
+      path.join(project, ".claude/skills/mine/SKILL.md"),
+      "---\nname: mine\ndescription: mine\n---\nmy own notes\n",
+    );
+
+    const result = installSkills(root, project, [".claude/skills"]);
+    expect(result.removed).toEqual([".claude/skills/old-alpha"]);
+    expect(result.written).toEqual([]);
+    expect(fs.existsSync(gone)).toBe(false);
+    expect(fs.readdirSync(path.join(project, ".claude/skills")).sort()).toEqual([
+      "alpha",
+      "beta",
+      "mine",
+    ]);
+    // Nothing is left to remove on the next run.
+    expect(installSkills(root, project, [".claude/skills"]).removed).toEqual([]);
+  });
+
   it("throws on a dir that fails the pattern, before writing anything", () => {
     expect(() =>
       installSkills(root, project, [".claude/skills", "not-a-skill-dir"]),
