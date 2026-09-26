@@ -19,6 +19,11 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.7.0
+
+2026-09-26. The community projects open in the app, and the app no longer
+bundles them.
+
 - **A much smaller app.** It no longer bundles the projects it used to call
   examples, about 420 MB of it. They are community projects now, shared like
   anyone's, and downloaded only when you open one.
@@ -28,6 +33,17 @@ Everything below is on `main` and reaches no install until a version is cut.
 - **`sp duplicate <id>`** copies a community project into your projects, the
   way to change one. **`sp fetch <id>`** gives your agent a read-only copy to
   learn from; the skills use it to read a finished run.
+- **Right-click a community project** for the menu your own projects have:
+  Open, Copy link, **Duplicate to my projects**, and View on GitHub. Its tab
+  has Duplicate too.
+- **Paste a community link into the chat.** Copy a project's address from
+  superproto.dev, paste it in the app's chat, and the agent can open it and
+  read its boards. Copy link on a community project gives that public address
+  wherever the project is open.
+- **One kind of address on the web**, `superproto.dev/p/<id>/<name>`, for
+  every community project.
+- **Menus work from the keyboard.** Every right-click menu, and the model and
+  agent pickers, move with the arrow keys and close with Escape.
 - **Start here is gone.** A project with nothing in it yet opens blank.
 
 ## v1.6.4
