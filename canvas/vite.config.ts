@@ -110,7 +110,7 @@ function communityProjects() {
   // machine's. The community's CI refuses one; this is for a push that went around it.
   execFileSync("bash", [
     "-c",
-    `set -eo pipefail; curl -fsSL "${COMMUNITY_TARBALL}" | tar -xz --strip-components=1 -C "${dir}"; ! find "${dir}" -type l | grep -q .`,
+    `set -eo pipefail; curl -fsSL "${COMMUNITY_TARBALL}" | tar -xz --strip-components=1 -C "${dir}"; [ -z "$(find "${dir}" -type l)" ]`,
   ]);
   const projects = path.join(dir, "projects");
   return fs
