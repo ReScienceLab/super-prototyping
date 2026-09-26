@@ -75,8 +75,8 @@ let index: CanvasIndex | undefined;
 
 /**
  * Where home is: the server's home page, which lists every project; a hosted project's is the
- * community, which lists every public one (docs/2026-09-25-project-urls.md); and the hosted
- * examples' own bare address.
+ * community, which lists every public one (docs/2026-09-25-project-urls.md); and a build's
+ * own bare address, which is no project's.
  */
 export function homeUrl() {
   const { project } = canvasIndex();

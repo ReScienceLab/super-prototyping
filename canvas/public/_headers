@@ -1,7 +1,4 @@
-# Cloudflare Pages: a board runs in an origin of its own, as server/sp.ts serves it (SANDBOX).
-/board/*
-  Content-Security-Policy: sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads
-
-# A shared project's boards, at /p/<id>/ (vite.config.ts), are other people's HTML: the same.
+# Cloudflare Pages: a community project's boards, at /p/<id>/ (vite.config.ts), are other
+# people's HTML, so each runs in an origin of its own, as server/sp.ts serves a board (SANDBOX).
 /p/:id/board/*
   Content-Security-Policy: sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads

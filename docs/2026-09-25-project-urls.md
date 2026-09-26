@@ -44,14 +44,14 @@ maps onto it one for one:
   quietly lost them.
 - **The site's Worker** (`super-prototyping-landing`, `src/worker.js`) maps
   `/p/<id>/…` onto the Pages deploy: the window page for the project's address
-  and its name, the project's index, cover and shared boards from under
+  and its name, the project's index, cover and boards from under
   `/p/<id>/`, and every other file from the root. It asks Pages for a page's
   extensionless twin, since Pages answers `.html` with a 308 that would walk the
   browser out of `/p/`. It puts the project's cover and address in the page's
   link preview.
-- **Sandbox.** A shared project's boards are other people's HTML, served from
-  the site's origin, so `canvas/public/_headers` gives `/p/:id/board/*` the same
-  `sandbox` CSP as `/board/*`.
+- **Sandbox.** A community project's boards are other people's HTML, served
+  from the site's origin, so `canvas/public/_headers` gives `/p/:id/board/*`
+  the `sandbox` CSP the app's server gives every board.
 
 ## Old addresses
 

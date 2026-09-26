@@ -105,7 +105,7 @@ function communityProjects() {
   const projects = path.join(dir, "projects");
   return fs
     .readdirSync(projects)
-    // The id the site's Worker takes for a shared project's (landing repo, src/worker.js).
+    // A community project's id is a UUID (`sp pack`), and its address is `/p/<id>/`.
     .filter((id) =>
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id),
     )
