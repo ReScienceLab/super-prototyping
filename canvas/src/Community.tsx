@@ -1,13 +1,8 @@
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import "./community.css";
 import { canvasIndex } from "./canvasIndex";
-import {
-  canvasIconUrl,
-  canvasThumbnailUrl,
-  shortName,
-} from "./canvasLibrary";
+import { canvasIconUrl, canvasThumbnailUrl, shortName } from "./canvasLibrary";
 import { openInTab } from "./canvasTabs";
-import { canvasPageUrl } from "./canvasUrl";
 import { CANVAS_FILE_DEFAULT_SIZE, projectCover } from "./cover";
 import {
   ArrowRight,
@@ -28,17 +23,27 @@ import {
  * The community: projects people made, to browse and open. The same page is a tab in the app
  * (AppShell.tsx), where a project opens as a tab of its own, and a page of the hosted build,
  * community.html (communitySite.tsx), which the site serves at superproto.dev/community and
- * where a project opens as the demo canvas. Drawn after the `web/community` page of the Super
+ * where a project opens as its page on the site. Drawn after the `web/community` page of the Super
  * Prototyping Site project.
  *
  * It lists the projects shared to the community repo, from its index.json
  * (docs/2026-09-25-project-package.md, Phase 3), then this app's examples: the ones that clone an
- * app, which are the ones with its icon. A shared project opens on GitHub until the app can
- * import one; an example opens here.
+ * app, which are the ones with its icon. Every one opens as a read-only canvas on the site, at
+ * its own address (docs/2026-09-25-project-urls.md); an example in the app opens as its tab.
  */
 
-/** Where the examples are public, for a link worth sending: the app's own address is localhost. */
-const DEMO = "https://superproto.dev/demo/";
+/**
+ * A project's page on the site, a link worth sending: the app's own address is localhost. The
+ * id finds it and the name is for people reading the link, as in Figma's file links, so an
+ * example, whose id already is its name, has none.
+ */
+const webUrl = (entry: Entry) => {
+  const name = entry.name
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-|-$/g, "");
+  return `https://superproto.dev/p/${entry.slug}/${entry.source ? name : ""}`;
+};
 /** Who made the examples. A project in the community repo names its own (project.json). */
 const EXAMPLES_BY = "ReScienceLab";
 const COMMUNITY = "https://github.com/ReScienceLab/super-prototyping-community";
@@ -204,8 +209,8 @@ function Card({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
 }
 
 /**
- * @param openExample The app's: opens a project as its tab. Without it, as on the site, Open is
- * a link to the demo canvas.
+ * @param openExample The app's: opens an example as its tab. Without it, as on the site, and for
+ * a shared project, Open is a link to the project's page on the site.
  */
 export function CommunityPage({
   openExample,
@@ -546,26 +551,23 @@ export function CommunityPage({
                 </>
               )}
               <div className="cm-actions">
-                {open.source ? (
+                {openExample && !open.source ? (
                   <a
                     className="cm-btn cm-btn--solid cm-btn--md"
-                    href={open.source}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={webUrl(open)}
+                    onClick={openInTab((slug: string) => {
+                      setOpen(null);
+                      openExample(slug);
+                    }, open.slug)}
                   >
-                    <LogoGithub /> View on GitHub
+                    Open <ArrowRight />
                   </a>
                 ) : (
                   <a
                     className="cm-btn cm-btn--solid cm-btn--md"
-                    href={canvasPageUrl(open.slug)}
-                    onClick={
-                      openExample &&
-                      openInTab((slug: string) => {
-                        setOpen(null);
-                        openExample(slug);
-                      }, open.slug)
-                    }
+                    href={webUrl(open)}
+                    target={openExample ? "_blank" : undefined}
+                    rel="noopener noreferrer"
                   >
                     Open <ArrowRight />
                   </a>
@@ -575,15 +577,22 @@ export function CommunityPage({
                   className="cm-btn cm-btn--ghost cm-btn--md"
                   onClick={() =>
                     navigator.clipboard
-                      .writeText(
-                        open.source ??
-                          `${DEMO}?canvas=${encodeURIComponent(open.slug)}`,
-                      )
+                      .writeText(webUrl(open))
                       .then(() => setCopied(open.slug))
                   }
                 >
                   <Link /> {copied === open.slug ? "Copied" : "Copy link"}
                 </button>
+                {open.source && (
+                  <a
+                    className="cm-btn cm-btn--ghost cm-btn--md"
+                    href={open.source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <LogoGithub /> GitHub
+                  </a>
+                )}
               </div>
             </div>
             <button

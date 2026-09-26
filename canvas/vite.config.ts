@@ -1,11 +1,20 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import sharp from "sharp";
 import { defineConfig, type Plugin } from "vitest/config";
-import { CANVASES, THUMB_EDGE, boardIndex } from "./server/boards.ts";
+import {
+  CANVASES,
+  THUMB_EDGE,
+  boardIndex,
+  readDocs,
+  readJson,
+  type BoardIndex,
+} from "./server/boards.ts";
 import { createProjectsServer, projectsDirFromEnv } from "./server/projects.ts";
 
 // Repo root — vite.config.ts sits in canvas/, one level below it.
@@ -85,6 +94,35 @@ async function brandThumb(file: string): Promise<string | undefined> {
 }
 
 /**
+ * The community repo, whose shared projects the hosted canvas serves at `/p/<id>/` beside the
+ * examples (docs/2026-09-25-project-urls.md). Fetched only by the Cloudflare Pages build, which
+ * sets `CF_PAGES`: the app and `sp start` build the same canvas and have no use for other
+ * people's projects. A fetch that fails fails the deploy, rather than publish a site that
+ * quietly lost every shared project.
+ */
+const COMMUNITY_TARBALL =
+  "https://codeload.github.com/ReScienceLab/super-prototyping-community/tar.gz/main";
+
+function communityProjects() {
+  if (!process.env.CF_PAGES) return [];
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "sp-community-"));
+  // A symlink in the tree would have the build read, and publish, a file of the build
+  // machine's. The community's CI refuses one; this is for a push that went around it.
+  execFileSync("bash", [
+    "-c",
+    `set -eo pipefail; curl -fsSL "${COMMUNITY_TARBALL}" | tar -xz --strip-components=1 -C "${dir}"; [ -z "$(find "${dir}" -type l)" ]`,
+  ]);
+  const projects = path.join(dir, "projects");
+  return fs
+    .readdirSync(projects)
+    // The id the site's Worker takes for a shared project's (landing repo, src/worker.js).
+    .filter((id) =>
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id),
+    )
+    .map((id) => path.join(projects, id));
+}
+
+/**
  * The boards, as the canvas reads them: an index at `/__sp/index.json` and the files under
  * `/board/<slug>/`. The dev server answers both from `server/projects.ts`, the same module the
  * built app's own server (`server/main.ts`) runs, every project at `/p/<name>/` and this
@@ -101,37 +139,55 @@ function canvasesSource(): Plugin {
 
     async buildStart() {
       if (this.environment.mode !== "build") return;
+      const emitJson = (fileName: string, json: unknown) =>
+        this.emitFile({
+          type: "asset",
+          fileName,
+          source: JSON.stringify(json),
+        });
+      /** A canvases folder's boards, under `<prefix>board/<slug>/`. */
+      const emitBoards = async (
+        dir: string,
+        index: BoardIndex,
+        prefix = "",
+      ) => {
+        for (const board of index.boards) {
+          const folder = path.join(dir, board.slug);
+          const emit = (rel: string, source: Buffer) =>
+            this.emitFile({
+              type: "asset",
+              fileName: `${prefix}board/${board.slug}/${rel}`,
+              source,
+            });
+          // Each board verbatim, as a file of its own: it is the page the "open as a web page"
+          // buttons point at, and the canvas fetches its boards from the same files rather than
+          // from a chunk each: the HTML is 35 MB, and shipping it twice over would be the whole
+          // site again for nothing.
+          for (const file of board.html)
+            emit(file, fs.readFileSync(path.join(folder, file)));
+          if (board.icon)
+            emit("icon.png", fs.readFileSync(path.join(folder, "icon.png")));
+          if (board.thumbnail)
+            emit(
+              "thumbnail.png",
+              fs.readFileSync(path.join(folder, "thumbnail.png")),
+            );
+          for (const file of board.brand) {
+            emit(file, fs.readFileSync(path.join(folder, file)));
+            const thumb = await brandThumb(path.join(folder, file));
+            if (thumb) {
+              emit(`__thumbs/${file}.webp`, fs.readFileSync(thumb));
+              board.thumbs.push(file);
+            }
+          }
+        }
+      };
+
       const index = boardIndex(canvasesDir, {
         served: false,
         canvasesNamespace: "",
       });
-      for (const board of index.boards) {
-        const folder = path.join(canvasesDir, board.slug);
-        const emit = (rel: string, source: Buffer) =>
-          this.emitFile({
-            type: "asset",
-            fileName: `board/${board.slug}/${rel}`,
-            source,
-          });
-        // Each board verbatim, as a file of its own: it is the page the "open as a web page"
-        // buttons point at, and the canvas fetches its boards from the same files rather than
-        // from a chunk each: the HTML is 35 MB, and shipping it twice over would be the whole
-        // site again for nothing.
-        for (const file of board.html)
-          emit(file, fs.readFileSync(path.join(folder, file)));
-        if (board.icon)
-          emit("icon.png", fs.readFileSync(path.join(folder, "icon.png")));
-        if (board.thumbnail)
-          emit("thumbnail.png", fs.readFileSync(path.join(folder, "thumbnail.png")));
-        for (const file of board.brand) {
-          emit(file, fs.readFileSync(path.join(folder, file)));
-          const thumb = await brandThumb(path.join(folder, file));
-          if (thumb) {
-            emit(`__thumbs/${file}.webp`, fs.readFileSync(thumb));
-            board.thumbs.push(file);
-          }
-        }
-      }
+      await emitBoards(canvasesDir, index);
       this.emitFile({
         type: "asset",
         fileName: "__sp/index.json",
@@ -142,6 +198,43 @@ function canvasesSource(): Plugin {
           boards: index.boards.map((b) => ({ ...b, example: true })),
         }),
       });
+      // Each example is also a project of its own at `/p/<slug>/`, the address the community
+      // opens it at: an index naming it the project, with its documents as the project's. Its
+      // boards are the ones above, which the site's Worker serves it (docs/2026-09-25-project-urls.md).
+      for (const board of index.boards)
+        emitJson(`p/${board.slug}/__sp/index.json`, {
+          ...index,
+          boards: [{ ...board, docs: [] }],
+          project: board.slug,
+          title: (board.layout as { name?: string } | undefined)?.name?.replace(
+            /^\(example\)\s*/,
+            "",
+          ),
+          docs: board.docs,
+        });
+      // And each shared project at `/p/<id>/`, boards and all.
+      for (const dir of communityProjects()) {
+        const id = path.basename(dir);
+        const canvases = path.join(dir, CANVASES);
+        const shared = boardIndex(canvases, {
+          served: false,
+          canvasesNamespace: `:${id}`,
+        });
+        await emitBoards(canvases, shared, `p/${id}/`);
+        // Its cover, which the Worker puts in the page's link preview, as it does an example's.
+        this.emitFile({
+          type: "asset",
+          fileName: `p/${id}/thumbnail.png`,
+          source: fs.readFileSync(path.join(dir, "thumbnail.png")),
+        });
+        emitJson(`p/${id}/__sp/index.json`, {
+          ...shared,
+          project: id,
+          title: (readJson(path.join(dir, "project.json")) as { name?: string })
+            .name,
+          docs: readDocs(dir),
+        });
+      }
     },
 
     configureServer(server) {

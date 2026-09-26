@@ -19,6 +19,10 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **Every project in the community opens on the web.** Its **Open** shows the
+  project's canvas at `superproto.dev/p/<id>`, read-only, for the examples and
+  for projects people shared alike, and **Copy link** copies that address.
+  Old `superproto.dev/demo` links go to the same example, or to the community.
 - **`sp`, `refkit` and `artgen` no longer write into the app.** Python's cache
   files went inside it, which broke the app's signature check.
 

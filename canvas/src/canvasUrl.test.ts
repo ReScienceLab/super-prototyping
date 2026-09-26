@@ -16,10 +16,10 @@ import {
 // page writes must open that page, the URL a board writes must open that board, and a view
 // naming no page must write the bare URL back.
 describe("canvas URLs", () => {
-  // The hosted canvas sits under a path, not at the root: the landing page took the
+  // A hosted project sits under a path, not at the root: the landing page took the
   // domain. Every address below is built on it, so the tests fail if anything here
   // ever writes an address from the root instead.
-  const root = "https://superproto.dev/demo/";
+  const root = "https://superproto.dev/p/claude-ios/";
 
   it("reads a page slug, and none from the bare address", () => {
     expect(slugFromUrl(root + "?canvas=luma-ios")).toBe("luma-ios");
@@ -96,6 +96,10 @@ describe("canvas URLs", () => {
       at + "canvas.html?canvas=luma-ios#03-event",
     );
     expect(frameUrl(at + "home.html")).toBe(at + "canvas.html");
+    // A hosted project's name, after its id, is a segment the frame drops like a file.
+    expect(frameUrl(`${root}apple-settings?canvas=x`)).toBe(
+      `${root}canvas.html?canvas=x`,
+    );
     expect(windowUrl(at + "canvas.html?canvas=luma-ios#03-event")).toBe(
       at + "?canvas=luma-ios#03-event",
     );

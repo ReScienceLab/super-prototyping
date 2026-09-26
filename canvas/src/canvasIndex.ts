@@ -68,6 +68,16 @@ export interface CanvasIndex {
 
 let index: CanvasIndex | undefined;
 
+/**
+ * Where home is: the server's home page, which lists every project; a hosted project's is the
+ * community, which lists every public one (docs/2026-09-25-project-urls.md); and the hosted
+ * examples' own bare address.
+ */
+export function homeUrl() {
+  const { served, project } = canvasIndex();
+  return new URL(served ? "/home.html" : project ? "/community" : "./", location.href).href;
+}
+
 /** This page, to the server, so a save it hears about can be told from its own (canvasContent.ts). */
 export const PAGE_ID = crypto.randomUUID();
 /** The canvases whose canvas.json another window saved, which the page is reloading onto. Its own

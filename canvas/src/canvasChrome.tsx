@@ -349,8 +349,10 @@ export const canvasChromeComponents: TLComponents = {
       over?.type === CANVAS_FILE_SHAPE_TYPE
         ? canvasBoardRef((over as CanvasFileShape).props.path)
         : undefined;
-    const cover = canvasIndex().project
-      ? (board ?? (over && canvasImageRef(over.id)))
+    // The hosted build names a project too, but has nowhere to write its cover.
+    const cover =
+      canvasIndex().served && canvasIndex().project
+        ? (board ?? (over && canvasImageRef(over.id)))
       : undefined;
     const element =
       board && pointedElement.current?.path === (over as CanvasFileShape).props.path

@@ -698,7 +698,11 @@ export function ImagePanel({
 function Source({ source }: { source: string }) {
   let host: string | undefined;
   try {
-    host = new URL(source).host.replace(/^www\./, "");
+    const url = new URL(source);
+    // A shared project's layout.json is anyone's, and `javascript://host/…` has a host too.
+    host = /^https?:$/.test(url.protocol)
+      ? url.host.replace(/^www\./, "")
+      : undefined;
   } catch {
     host = undefined;
   }
