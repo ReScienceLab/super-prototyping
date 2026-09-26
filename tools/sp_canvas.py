@@ -10,7 +10,9 @@
   root      print the tree the canvas and the skills come from (-v: where it looked)
   paths     print the directories this writes, the chat agent's, and the
             variables that move them
-  clean     remove every downloaded canvas, pidfile and log
+  clean     remove every downloaded canvas and project, pidfile and log
+  fetch     print the folder of a community project, downloading it the first time
+  duplicate copy a community project into your projects, to edit it
   pack      check a project as a package to share (--check), or copy it out (-o)
   uninstall remove the links the app made: commands, skills, PATH line, Codex rule
 
@@ -291,9 +293,7 @@ def _dist(root: Path) -> Path:
             f"Try again once the network is back. {build}")
     cache.parent.mkdir(parents=True, exist_ok=True)
     work = tempfile.mkdtemp(prefix=f"{version}.", dir=cache.parent)
-    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as tar:
-        # `filter` arrived in the 2023 security releases of 3.10 and 3.11; before them, none.
-        tar.extractall(work, **({"filter": "data"} if hasattr(tarfile, "data_filter") else {}))
+    _extract(archive, work)
     try:
         os.rename(work, cache)
     except OSError:
@@ -303,6 +303,20 @@ def _dist(root: Path) -> Path:
         if not (cache / "dist/server.mjs").is_file():
             raise
     return cache / "dist"
+
+
+def _extract(archive: bytes, into: str):
+    """Unpack a .tar.gz into `into`, which `filter="data"` keeps everything inside: no absolute
+    path, no `..`, no link out of it, no device. It arrived in the 2023 security releases (3.10.12,
+    3.11.4), and an older Python is refused rather than trusted with a downloaded archive."""
+    if not hasattr(tarfile, "data_filter"):
+        raise SystemExit(f"error: Python {sys.version.split()[0]} cannot unpack a download "
+                         "safely. Update it to 3.10.12, 3.11.4 or later.")
+    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as tar:
+        # The unpacked size, which a small gzip can hide: no more than a package can be.
+        if sum(m.size for m in tar.getmembers()) > PACK_TOTAL_CAP:
+            raise SystemExit(f"error: the archive unpacks to over {PACK_TOTAL_CAP >> 20} MB")
+        tar.extractall(into, filter="data")
 
 
 def cmd_start(a):
@@ -899,13 +913,8 @@ def cmd_pack(a):
     filled = {}
     if "author" not in pj:
         # The community repo's CI holds the author to whoever opens the pull request.
-        try:
-            gh = subprocess.run(["gh", "api", "user", "--jq", ".login"],
-                                capture_output=True, text=True, timeout=30)
-        except (OSError, subprocess.TimeoutExpired):
-            gh = None
-        login = gh.stdout.strip() if gh and gh.returncode == 0 else ""
-        if not LOGIN.match(login):
+        login = _gh_login()
+        if not login:
             raise SystemExit("error: project.json has no author, and gh is not signed in. Set "
                              "\"author\" to your GitHub login, or run `gh auth login`.")
         filled["author"] = login
@@ -933,6 +942,107 @@ def cmd_pack(a):
         (dest / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(project / rel, dest / rel)
     print(f"packed    {dest}")
+
+
+def _gh_login() -> str:
+    """The GitHub login gh is signed in as, or ""."""
+    try:
+        gh = subprocess.run(["gh", "api", "user", "--jq", ".login"],
+                            capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    login = gh.stdout.strip() if gh.returncode == 0 else ""
+    return login if LOGIN.match(login) else ""
+
+
+# --- sp fetch, sp duplicate --------------------------------------------------
+# A community project on demand. The community repo's CI uploads each one, on every merge that
+# changes it, as the `archives` release's <id>.tar.gz: one folder, <id>/, as it is in the repo.
+# docs/2026-09-26-projects-on-demand.md has the why.
+
+COMMUNITY = "ReScienceLab/super-prototyping-community"
+
+
+def _download_project(pid: str, parent: Path) -> Path:
+    """Download a community project into a new temporary folder under `parent`, on the same
+    disk as where it goes, so it is renamed into place whole. -> the temporary folder, holding
+    <id>/. The caller removes it."""
+    if not UUID.match(pid):
+        raise SystemExit(f"error: {pid!r} is not a project id. A community project's is a UUID, "
+                         "the one in its superproto.dev/p/<id> address.")
+    url = f"https://github.com/{COMMUNITY}/releases/download/archives/{pid}.tar.gz"
+    try:
+        with urllib.request.urlopen(url, timeout=60) as response:
+            archive = response.read()
+    except OSError as e:
+        if isinstance(e, urllib.error.HTTPError) and e.code == 404:
+            raise SystemExit(f"error: the community has no project {pid}\n  {url}")
+        raise SystemExit(f"error: could not download project {pid}\n  {url}\n  {e}")
+    parent.mkdir(parents=True, exist_ok=True)
+    # A dot name, which the projects folder's listing skips while it is being filled.
+    work = Path(tempfile.mkdtemp(prefix=f".{pid}.", dir=parent))
+    try:
+        _extract(archive, str(work))
+        if [e.name for e in work.iterdir()] != [pid] or not (work / pid).is_dir():
+            raise SystemExit(f"error: the archive of {pid} does not hold one folder, {pid}/")
+    except BaseException:
+        shutil.rmtree(work)
+        raise
+    return work
+
+
+def cmd_fetch(a):
+    """Print the folder holding a community project, downloading it the first time. It is a
+    reference copy, for reading: its folder being there is the whole cache, and --fresh
+    replaces it with the project as it is now."""
+    cache = _dirs()[0] / "projects"
+    dest = cache / a.id
+    if a.fresh or not dest.is_dir():
+        work = _download_project(a.id, cache)
+        try:
+            if dest.is_dir():
+                shutil.rmtree(dest)
+            try:
+                os.rename(work / a.id, dest)
+            except OSError:
+                # Another fetch of the same project finished first. Anything else stays loud.
+                if not dest.is_dir():
+                    raise
+        finally:
+            shutil.rmtree(work)
+    print(dest)
+
+
+def cmd_duplicate(a):
+    """Copy a community project into the projects folder as a new project of the user's, the
+    only way to edit one. Always downloaded, never from `fetch`'s cache, so each folder has one
+    writer. It never merges into a folder: a taken name becomes "<name> 2", as a new project's
+    does (canvas/server/projects.ts). Prints the new project's name."""
+    projects = _projects_dir()
+    work = _download_project(a.id, projects)
+    try:
+        folder = work / a.id
+        pj_file = folder / "project.json"
+        pj = json.loads(pj_file.read_text(encoding="utf-8")) if pj_file.is_file() else {}
+        # A new project of the user's, crediting the one it came from, as CC BY 4.0 asks.
+        pj.update({"id": str(uuid.uuid4()), "contributors": [], "from": a.id})
+        login = _gh_login()
+        if login:
+            pj["author"] = login
+        else:
+            pj.pop("author", None)  # `sp pack -o` asks for one when it is shared
+        pj_file.write_text(json.dumps(pj, indent=2) + "\n", encoding="utf-8")
+        base = pj.get("name")
+        base = base.strip() if isinstance(base, str) else ""
+        if not base or base.startswith(".") or os.path.basename(base) != base:
+            base = "Untitled"
+        name, n = base, 2
+        while (projects / name).exists():
+            name, n = f"{base} {n}", n + 1
+        os.rename(folder, projects / name)
+    finally:
+        shutil.rmtree(work)
+    print(name)
 
 
 # --- the app -----------------------------------------------------------------
@@ -1199,6 +1309,10 @@ For agents:
   sp pack <project> --check | -o <dir>
                   when the user wants to share a project: what goes in, what is left
                   out, and what would break it.
+  sp fetch <id>   a community project's folder, to read: $(sp fetch <id>)/canvases/...
+  sp duplicate <id>
+                  when the user wants to edit a community project: copies it into their
+                  projects and prints its name.
   sp thumbnail <canvas>...
                   redraw a canvas folder's thumbnail.png after its cover or name changes.
 Exit status is non-zero on every failure, with the reason on stderr.
@@ -1250,6 +1364,11 @@ def parser():
     how = pack.add_mutually_exclusive_group(required=True)
     how.add_argument("--check", action="store_true", help="check it and write nothing")
     how.add_argument("-o", "--output", metavar="DIR", help="an empty folder to copy it into")
+    fetch = add("fetch", cmd_fetch, ports=False)
+    fetch.add_argument("id", help="a community project's id, from its superproto.dev/p/<id>")
+    fetch.add_argument("--fresh", action="store_true", help="download it again")
+    dup = add("duplicate", cmd_duplicate, ports=False)
+    dup.add_argument("id", help="a community project's id, from its superproto.dev/p/<id>")
     thumb = add("thumbnail", cmd_thumbnail, ports=False)
     thumb.add_argument("folders", nargs="+", metavar="CANVAS", help="a canvas's folder")
     return p
