@@ -1064,6 +1064,7 @@ button {
 .sp-context-menu {
   --sp-hover: var(--ds-gray-100);
   z-index: 1000;
+  outline: none;
   min-width: 180px;
   padding: 4px;
   border: 1px solid var(--ds-gray-400);
@@ -1094,6 +1095,7 @@ a.sp-menu-row {
 }
 
 .sp-menu-ck {
+  display: flex;
   flex: none;
   margin-left: auto;
   color: var(--sp-text-2);
@@ -2491,6 +2493,7 @@ a.sp-menu-row {
 .sp-chat-agents,
 .sp-chat-picker {
   z-index: 1000;
+  outline: none;
   margin: 0;
   padding: 4px;
   border: 1px solid var(--sp-line);
@@ -2578,10 +2581,6 @@ a.sp-menu-row {
   height: auto;
   min-height: 32px;
   padding: 6px 8px;
-}
-
-.sp-chat-agents .sp-menu-row[data-disabled] {
-  color: var(--sp-text-2);
 }
 
 /* A mark in its brand colour beside greyed-out text reads as the available one, and Claude's is

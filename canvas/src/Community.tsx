@@ -264,18 +264,17 @@ export function CommunityCards({
   duplicate?: Duplicate;
   limit: number;
 }) {
+  const all = useCommunity();
   return (
     <ul className="home-grid">
-      {useCommunity()
-        .slice(0, limit)
-        .map((e) => (
-          <Card
-            key={e.id}
-            entry={e}
-            onOpen={() => openInApp(e.id)}
-            menu={cardMenu(e, openInApp, duplicate)}
-          />
-        ))}
+      {all.slice(0, limit).map((e) => (
+        <Card
+          key={e.id}
+          entry={e}
+          onOpen={() => openInApp(e.id)}
+          menu={cardMenu(e, openInApp, duplicate)}
+        />
+      ))}
     </ul>
   );
 }
@@ -445,7 +444,7 @@ export function CommunityPage({
           </div>
         )}
         <Tabs.Content value={family} asChild>
-          <ul className="cm-grid" aria-live="polite">
+          <ul className="cm-grid" aria-live="polite" tabIndex={-1}>
             {shown.map((e) => (
               <Card
                 key={e.id}

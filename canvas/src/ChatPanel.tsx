@@ -1756,8 +1756,8 @@ export function ChatPanel(props: {
                             </small>
                           )}
                         </span>
-                        <DropdownMenu.ItemIndicator>
-                          <Check className="sp-menu-ck" />
+                        <DropdownMenu.ItemIndicator className="sp-menu-ck">
+                          <Check />
                         </DropdownMenu.ItemIndicator>
                       </DropdownMenu.RadioItem>
                     ))}
@@ -1812,7 +1812,11 @@ export function ChatPanel(props: {
             className="sp-chat-agents"
             align="start"
             sideOffset={4}
-            onCloseAutoFocus={(event) => event.preventDefault()}
+            // Back to the bar's button, which the stand-in can't take.
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              document.querySelector<HTMLElement>(".sp-agent-toggle")?.focus();
+            }}
           >
             <DropdownMenu.RadioGroup
               value={agent}
@@ -1830,8 +1834,8 @@ export function ChatPanel(props: {
                     {a.name}
                     {!a.available && <small>{a.missing}</small>}
                   </span>
-                  <DropdownMenu.ItemIndicator>
-                    <Check className="sp-menu-ck" />
+                  <DropdownMenu.ItemIndicator className="sp-menu-ck">
+                    <Check />
                   </DropdownMenu.ItemIndicator>
                 </DropdownMenu.RadioItem>
               ))}

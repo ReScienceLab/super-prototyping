@@ -19,7 +19,16 @@ export function RightClickMenu({
     <ContextMenu.Root>
       <ContextMenu.Trigger asChild>{children}</ContextMenu.Trigger>
       <ContextMenu.Portal>
-        <ContextMenu.Content className="sp-context-menu">
+        <ContextMenu.Content
+          className="sp-context-menu"
+          // An item that asks first (confirmTrash) opens a modal in the top window; handing focus
+          // back to the menu's owner in the canvas's frame would take it from behind that modal,
+          // where Escape no longer cancels.
+          onCloseAutoFocus={(event) => {
+            if (window.top!.document.querySelector("dialog[open]"))
+              event.preventDefault();
+          }}
+        >
           {menu}
         </ContextMenu.Content>
       </ContextMenu.Portal>
