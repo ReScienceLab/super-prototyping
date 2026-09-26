@@ -19,10 +19,10 @@ import { Plus } from "./geistIcons";
 import {
   asCanvasTarget,
   shapeUnderPointer,
-} from "./inspectorClicks";
+} from "./canvasClicks";
 
 /** A board, a picture the library placed, or anything the person put on a project canvas: what
- *  the **+** answers for. The inspector answers only for the first two (asCanvasTarget). */
+ *  the **+** answers for. The canvas answers only for the first two (asCanvasTarget). */
 const addable = (editor: Editor, shape: TLShape | undefined): TLShape | null =>
   asCanvasTarget(shape) ?? (personsShape(editor, shape) ? shape! : null);
 
@@ -146,7 +146,7 @@ export function CanvasAttachButtons() {
       ) {
         return;
       }
-      // Under the select tool only, as with the inspector: with the comment tool up a board is
+      // Under the select tool only: with the comment tool up a board is
       // something to drop a pin on. Nothing while dragging either, since that is a pan.
       setTarget(
         editor.getCurrentToolId() === "select" &&

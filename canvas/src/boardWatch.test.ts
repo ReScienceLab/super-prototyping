@@ -12,7 +12,7 @@ describe('boardChangeKind', () => {
     expect(kind('spotify-ios/canvas.json')).toBe('content')
     // A pasted file lands without reloading the page it was pasted on.
     expect(kind('spotify-ios/files/asset-1.png')).toBeNull()
-    expect(kind('spotify-ios/assets.json')).toBe('assets')
+    expect(kind('spotify-ios/assets.json')).toBeNull()
     expect(kind('spotify-ios/icon.png')).toBe('assets')
     expect(kind('spotify-ios/assets/art/hero.png')).toBe('assets')
     expect(kind('spotify-ios/assets-dark/icons/play.svg')).toBe('assets')

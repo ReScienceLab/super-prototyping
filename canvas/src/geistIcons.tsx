@@ -2,7 +2,7 @@
  * The glyphs this app uses, from Vercel's Geist icon set itself rather than a copy of it.
  * `geist-icons` publishes all 455 of them as one dependency-free ESM module, so nobody here
  * maintains a path string. Everything the canvas draws as a glyph comes through this file, which
- * is what keeps the top bar, the chat panel and the inspector on one set.
+ * is what keeps the top bar and the chat panel on one set.
  *
  * Two things are added to each, and nothing else. The size, because Geist draws on a 16 grid and
  * the package defaults its components to 20, which is the one number every call site would

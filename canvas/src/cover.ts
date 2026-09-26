@@ -178,12 +178,3 @@ export function validBox(box: unknown): Box | undefined {
     ? (box as Box)
     : undefined;
 }
-
-/**
- * The element on the board the inspector has open that is under the pointer, else the one picked,
- * as a crop of that board. InspectorPanel keeps it; the canvas's right button reads it, so "Set as
- * cover" over an element keeps that element in view (canvasChrome.tsx).
- */
-export const pointedElement: { current: { path: string; box: Box } | null } = {
-  current: null,
-};

@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useReducer,
   useRef,
   useState,
@@ -59,13 +58,7 @@ import {
   CANVAS_FILE_SHAPE_TYPE,
   CanvasFileShapeUtil,
 } from "./CanvasFileShapeUtil";
-import {
-  ImagePanel,
-  InspectorClicks,
-  InspectorPanel,
-  type CanvasImagePick,
-} from "./InspectorPanel";
-import { asCanvasTarget, type InspectorTarget } from "./inspectorClicks";
+import { asCanvasTarget, installDoubleClickZoom, zoomToFill } from "./canvasClicks";
 import { attachToChat } from "./canvasAttach";
 import { CanvasStatusBannerShapeUtil } from "./CanvasStatusBannerShapeUtil";
 import {
@@ -86,7 +79,6 @@ import {
   canvasImageKey,
   canvasImageRef,
   canvasImageUrl,
-  readCanvasImage,
   readCanvasLayout,
   pageNameFor,
   isLibraryShapeId,
@@ -116,8 +108,8 @@ import {
 
 /**
  * A picture is the whole of its box. tldraw hit-tests an image that can carry transparency against
- * its own pixels, so a mockup drawn on nothing answers nothing where it is nothing: the inspector
- * stays shut and the attach buttons never appear except over the drawing itself. Here a picture is
+ * its own pixels, so a mockup drawn on nothing answers nothing where it is nothing: a double-click
+ * does not zoom and the attach buttons never appear except over the drawing itself. Here a picture is
  * a tile in a row of tiles, and the empty part of a tile is still that tile.
  */
 class CanvasImageShapeUtil extends ImageShapeUtil {
@@ -955,44 +947,54 @@ function relayoutCanvasLibrary(editor: Editor) {
 }
 
 /**
- * Opens what the address names (canvasUrl.ts): the tab, `?canvas=<slug>` or the bare URL for the
- * project's own view and `?brand=<slug>` for a brand kit, and after the hash a board of that page,
- * `#<file>`, which opens in the inspector. So a specific round, or one board in it, can be
- * linked to or scripted against instead of relying on whichever page tldraw last persisted, and
- * the bare URL is always the way in, so keep a board open across reloads by deep-linking it, not
- * by leaving it on screen. A board the address names that is not on that page closes the
- * inspector, so what is on screen never contradicts the address. Returns the board opened, if any.
+ * The shape the hash of an address names on a page: a board by its file name, a picture by its
+ * path inside the folder, or one of the person's own shapes by id (canvasContent.ts). Every
+ * picture is under assets/brand and a board is one file at the folder's root, so the kinds of name
+ * cannot collide and the hash does not have to say which it is.
  */
-/** What the inspector has open, as the address spells it: the page it belongs to, and either a
- * board's file name or a picture's path inside that folder. */
-type CanvasAddress = { slug: string; name: string };
+function namedShape(editor: Editor, slug: string, name: string) {
+  if (name.startsWith("shape:")) return editor.getShape(name as TLShapeId);
+  const file = readCanvasLibrary()
+    .flatMap((c) => c.files)
+    .find((c) => c.pageSlug === slug && c.fileName === name);
+  return editor.getShape(
+    file
+      ? boardShapeId(editor, file.path, projectPages(editor).get(slug))
+      : imageShapeId(slug, name),
+  );
+}
 
-function applyCanvasFromUrl(
-  editor: Editor,
-  open: (tab: CanvasTab) => void,
-  show: {
-    board: (file: CanvasLibraryFile | null) => void;
-    image: (pick: CanvasImagePick) => void;
-  },
-) {
+/** The other way: how an address names the one shape selected, if it can name it. */
+function shapeName(editor: Editor, shape: TLShape | undefined) {
+  const target = asCanvasTarget(shape);
+  if (target?.type === CANVAS_FILE_SHAPE_TYPE)
+    return readCanvasLibrary()
+      .flatMap((c) => c.files)
+      .find((c) => c.path === target.props.path)?.fileName;
+  if (target) return canvasImageRef(target.id)?.file;
+  return shape && personsShape(editor, shape) ? shape.id : undefined;
+}
+
+/**
+ * Opens what the address names (canvasUrl.ts): the tab, `?canvas=<slug>` or the bare URL for the
+ * project's own view and `?brand=<slug>` for a brand kit, and after the hash a shape of that page,
+ * `#<file>`, selected with the camera filling the canvas with it. So a specific round, or one
+ * board in it, can be linked to or scripted against instead of relying on whichever page tldraw
+ * last persisted, and the bare URL is always the way in. Returns whether the hash named a shape.
+ */
+function applyCanvasFromUrl(editor: Editor, open: (tab: CanvasTab) => void) {
   // Resolved first, so the bare address sets the page of the canvas it lands on.
   const tab = resolveTab(tabFromUrl(window.location.href));
-  // Read before `open`, which writes the address from the inspector, and that is still empty.
+  // Read before `open`, which writes the address from the selection.
   const named = targetFromUrl(window.location.href);
   // A kit or a document is an overlay over the whole editor rather than a page of it, so there
-  // is no page to set and no board under the hash to go looking for. `open` shuts the inspector
-  // for it.
-  if (tab.kind !== "canvas") {
+  // is no page to set and no shape under the hash to go looking for. Nor is there for a project
+  // with nothing in it yet, which shows no page (HOME_TAB).
+  if (tab.kind !== "canvas" || !tab.slug) {
     open(tab);
     return false;
   }
-  // A project with nothing in it yet, which shows no page (HOME_TAB), so nothing to set.
-  if (!tab.slug) {
-    open(tab);
-    return false;
-  }
-  // The folder whose page the address shows. The board or picture the hash names is one of
-  // that folder's.
+  // The folder whose page the address shows. The shape the hash names is on that page.
   const slug = pageOf(tab);
   const page = editor.getPages().find((c) => c.meta.canvasSlug === slug);
   if (page) editor.setCurrentPage(page.id);
@@ -1002,46 +1004,24 @@ function applyCanvasFromUrl(
   const here = editor.getCurrentPage().meta.canvasSlug;
   if (page) open(tab);
   else if (typeof here === "string") open({ kind: "canvas", slug: here });
-  // One of the person's own shapes, by id (canvasContent.ts): selected, and the camera on it.
-  const own =
-    named?.startsWith("shape:") && editor.getShape(named as TLShapeId);
-  if (own) {
-    show.board(null);
-    editor.select(own);
-    requestAnimationFrame(() =>
-      editor.zoomToSelection({ animation: { duration: 0 } }),
-    );
-    return true;
+  const shape = named ? namedShape(editor, slug, named) : undefined;
+  if (!shape) {
+    editor.selectNone();
+    return false;
   }
-  const file =
-    readCanvasLibrary()
-      .flatMap((c) => c.files)
-      .find((c) => c.pageSlug === slug && c.fileName === named) ?? null;
-  // Then a picture of this page, which the address names by its path inside the folder. Every
-  // one of them is under assets/brand and a board is one file at the folder's root, so the two
-  // kinds of name cannot collide and the hash does not have to say which it is.
-  const found = !file && named ? readCanvasImage(slug, named) : undefined;
-  if (named && found) {
-    show.image({
-      shapeId: imageShapeId(slug, named),
-      slug,
-      file: named,
-      ...found,
-    });
-    return true;
-  }
-  show.board(file);
-  return Boolean(file);
+  // Selected now, so the address written after this names it; the camera once tldraw has
+  // measured the viewport.
+  editor.select(shape.id);
+  requestAnimationFrame(() => zoomToFill(editor, shape.id, false));
+  return true;
 }
 
 /**
  * Keeps the address on what is being looked at, so whatever is on screen can be shared by
- * copying the URL: the tab in front, and the board or picture open in the inspector when it is
- * one of that page's (an inspector left open across a page change names something of the other
- * page, which the address then leaves out). `write` derives the address from those two whenever
- * either changes, and never edits it in place, so the two writers cannot disagree. App calls
- * `write` through `tab.open` when a tab comes forward, and directly when the inspector opens or
- * closes.
+ * copying the URL: the tab in front, and the shape selected when it is the only one and the
+ * address can name it. `write` derives the address from those two whenever either changes, and
+ * never edits it in place, so the writers cannot disagree. App calls `write` through `tab.open`
+ * when a tab comes forward; the selection writes it here.
  *
  * This watches the page rather than writing from it, because the page is only one of the two
  * ways a canvas tab comes forward and the other is the bar. tldraw's own page changes, from a
@@ -1049,36 +1029,24 @@ function applyCanvasFromUrl(
  * tldraw persisted that no folder claims have no slug, and leave the bar and the address as they
  * are.
  *
- * Each change pushes a history entry, so Back returns to the previous one and, from there, to
- * its page; a popstate applies the entry it lands on. Applying an address
- * is the one time what is on screen changes without the address needing to follow, so the
- * watcher skips it and every write it provokes replaces instead of pushing, since an entry
- * there would be a second copy of the one just landed on.
+ * A change of tab pushes a history entry, so Back returns to the previous one; a change of
+ * selection replaces the entry, since it is not somewhere to go back to. A popstate applies the
+ * entry it lands on. Applying an address is the one time what is on screen changes without the
+ * address needing to follow, so the watchers skip it and every write it provokes replaces
+ * instead of pushing, since an entry there would be a second copy of the one just landed on.
  */
 function installCanvasUrlSync(
   editor: Editor,
   tab: { active: () => CanvasTab; open: (tab: CanvasTab) => void },
-  opened: () => CanvasAddress | null,
-  show: {
-    board: (file: CanvasLibraryFile | null) => void;
-    image: (pick: CanvasImagePick) => void;
-  },
 ) {
   let applying = false;
 
   const write = (push: boolean) => {
     const active = tab.active();
-    const open = opened();
-    // Else one of the person's shapes when it alone is selected, as its link opens it.
-    const selected = editor.getOnlySelectedShape();
     const named =
-      active.kind !== "canvas"
-        ? undefined
-        : open?.slug === pageOf(active)
-          ? open.name
-          : selected && personsShape(editor, selected)
-            ? selected.id
-            : undefined;
+      active.kind === "canvas"
+        ? shapeName(editor, editor.getOnlySelectedShape() ?? undefined)
+        : undefined;
     const href = urlForTab(window.location.href, active, named);
     // The window shows this address as its own, and the bar the tab it is on (AppShell.tsx).
     window.parent.spShell!.shown(tabFor(active), href);
@@ -1091,7 +1059,7 @@ function installCanvasUrlSync(
     applying = true;
     let named: boolean;
     try {
-      named = applyCanvasFromUrl(editor, tab.open, show);
+      named = applyCanvasFromUrl(editor, tab.open);
     } finally {
       applying = false;
     }
@@ -1114,12 +1082,22 @@ function installCanvasUrlSync(
     if (typeof slug !== "string" || !active || slug === active) return;
     tab.open({ kind: "canvas", slug });
   });
+  let firstSelection = true;
+  const stopSelection = react("selection in the address", () => {
+    editor.getOnlySelectedShapeId();
+    if (firstSelection || applying) {
+      firstSelection = false;
+      return;
+    }
+    write(false);
+  });
   window.addEventListener("popstate", apply);
   return {
     apply,
     write,
     uninstall: () => {
       stopSync();
+      stopSelection();
       window.removeEventListener("popstate", apply);
     },
   };
@@ -1146,17 +1124,9 @@ function initializeCanvas(editor: Editor) {
   editor.selectNone();
 }
 
-/** Distance from the viewport's edge to the board the address named, in screen px. */
-const BOARD_ZOOM_INSET = 80;
-
 export default function App() {
-  /** The board open in the inspector: click any board on the canvas to open it, Escape or × to close. */
-  const [inspecting, setInspecting] = useState<CanvasLibraryFile | null>(null);
-  /** The brand image open in the inspector instead, when a picture was the thing clicked. */
-  const [inspectingImage, setInspectingImage] =
-    useState<CanvasImagePick | null>(null);
   const [commentUser, setCommentUser] = useState(readCommentUser);
-  /** State rather than a ref: the inspector panel renders outside `<Tldraw>` and needs it. */
+  /** State rather than a ref: the chrome context hands it to parts that render outside `<Tldraw>`. */
   const [editor, setEditor] = useState<Editor | null>(null);
   /**
    * The tab in front. State rather than something derived from the tldraw page, because a brand
@@ -1167,18 +1137,10 @@ export default function App() {
     resolveTab(tabFromUrl(window.location.href)),
   );
   const store = useLocalStore(storeOptions);
-  /** What the inspector has open, spelled the way the address spells it: a board by file name,
-   * a picture by its path inside the folder, each with the page it belongs to. For the address
-   * writer, which runs outside React. */
-  const opened = useRef<CanvasAddress | null>(null);
-  /** Writes the address from the tab in front and the inspector; installed with the editor. */
+  /** Writes the address from the tab in front and the selection; installed with the editor. */
   const writeUrl = useRef<(push: boolean) => void>(() => {});
   /** The tab in front as of this call rather than as of the last render, for that writer. */
   const active = useRef(activeTab);
-  /** What the address named, for the camera to go to once the inspector is beside it. */
-  const zoomTo = useRef<TLShapeId | null>(null);
-  /** That board's frame on the canvas: the panel reads its report and posts its selection there. */
-  const inspectorFrame = useRef<HTMLIFrameElement | null>(null);
 
   // A board rewritten in place is news as much as a new one: it rings green, where a new one
   // rings blue, until the pointer passes over it (canvasChrome.tsx). The server lists only the
@@ -1202,70 +1164,20 @@ export default function App() {
   }, []);
 
   /**
-   * Opens a board in the inspector, or closes it. A pick or a close is a new address; applying
-   * an address is not, and passes `push: false`.
-   */
-  const show = useCallback((file: CanvasLibraryFile | null, push: boolean) => {
-    opened.current = file ? { slug: file.pageSlug, name: file.fileName } : null;
-    setInspecting(file);
-    // One dock, one thing in it: a board opening takes the place of a picture and the other way.
-    setInspectingImage(null);
-    if (push) {
-      zoomTo.current = null; // the reader's own pick or close, so no address is left to zoom to
-      writeUrl.current(true);
-    }
-  }, []);
-  /** The same for a picture, which has an address of its own for the same reason a board does:
-   * it is a thing on the canvas someone will want to send to someone else. */
-  const showImage = useCallback((pick: CanvasImagePick, push: boolean) => {
-    opened.current = { slug: pick.slug, name: pick.file };
-    setInspecting(null);
-    setInspectingImage(pick);
-    if (push) {
-      zoomTo.current = null;
-      writeUrl.current(true);
-    }
-  }, []);
-  const onCloseInspector = useCallback(() => show(null, true), [show]);
-  const onPick = useCallback(
-    (shape: InspectorTarget) => {
-      if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
-        const file = readCanvasLibrary()
-          .flatMap((c) => c.files)
-          .find((c) => c.path === shape.props.path);
-        if (file) show(file, true);
-        return;
-      }
-      // Brand material, addressed by the folder path its shape is keyed by.
-      const ref = canvasImageRef(shape.id);
-      const entry = ref && readCanvasImage(ref.slug, ref.file);
-      if (!ref || !entry) return;
-      showImage({ shapeId: shape.id, ...ref, ...entry }, true);
-    },
-    [show, showImage],
-  );
-
-  /**
    * Brings a tab forward. That marks it the one in front and puts it in the address, which the
    * window mirrors and takes the bar's chip from. It is everything a tab is except the tldraw
    * page, which `openTab` adds.
    *
    * Split in two because the address sync captures this one when the editor mounts and holds it
    * for the life of that editor, so it has to be a function whose behaviour does not depend on
-   * anything it closed over changing. It closes over `show` and nothing else.
+   * anything it closed over changing. It closes over nothing that does.
    */
-  const showTab = useCallback(
-    (tab: CanvasTab) => {
-      const open = resolveTab(tab);
-      // A kit or a document covers the canvas whole, and the inspector left open beside it would
-      // be a dock onto a board of a page that is no longer in front.
-      if (open.kind !== "canvas") show(null, false);
-      active.current = open;
-      setActiveTab(open);
-      writeUrl.current(true);
-    },
-    [show],
-  );
+  const showTab = useCallback((tab: CanvasTab) => {
+    const open = resolveTab(tab);
+    active.current = open;
+    setActiveTab(open);
+    writeUrl.current(true);
+  }, []);
 
   /**
    * From a chip, a row of the bar's "+" menu, or a link on a board.
@@ -1325,24 +1237,12 @@ export default function App() {
           const tab = tabFromUrl(href);
           const name = targetFromUrl(href);
           if (tab.kind !== "canvas" || !name) return undefined;
-          if (name.startsWith("shape:")) {
-            const shape = editor.getShape(name as TLShapeId);
-            return personsShape(editor, shape) ? shape : undefined;
-          }
-          const file = readCanvasLibrary()
-            .flatMap((c) => c.files)
-            .find((c) => c.pageSlug === tab.slug && c.fileName === name);
-          return asCanvasTarget(
-            editor.getShape(
-              file
-                ? boardShapeId(
-                    editor,
-                    file.path,
-                    projectPages(editor).get(tab.slug),
-                  )
-                : imageShapeId(tab.slug, name),
-            ),
-          );
+          const shape = namedShape(editor, tab.slug, name);
+          return name.startsWith("shape:")
+            ? personsShape(editor, shape)
+              ? shape
+              : undefined
+            : asCanvasTarget(shape);
         });
         if (!targets.every(Boolean)) return false;
         void attachToChat(editor, targets as TLShape[]);
@@ -1350,21 +1250,6 @@ export default function App() {
       },
     };
   });
-
-  // The camera goes to what the address named, after the inspector has taken its share of the
-  // window: a layout effect, so the panel is in the DOM, and the viewport measured here because
-  // tldraw measures it on a throttled resize observer, up to 200ms behind, which would fit the
-  // board to the canvas width the panel just took. Every `show` from an address is a fresh
-  // object, so the effect runs even for the one already open.
-  useLayoutEffect(() => {
-    const id = zoomTo.current;
-    zoomTo.current = null;
-    if (!editor || !id) return;
-    const bounds = editor.getShapePageBounds(id);
-    if (!bounds) return;
-    editor.updateViewportScreenBounds(editor.getContainer());
-    editor.zoomToBounds(bounds, { inset: BOARD_ZOOM_INSET });
-  }, [inspecting, inspectingImage, editor]);
 
   function handleMount(editor: Editor) {
     setEditor(editor);
@@ -1376,27 +1261,10 @@ export default function App() {
     // since a comment can be pinned to a shape the person put there.
     const disposeContent = installCanvasContent(editor);
     const disposeComments = installCanvasComments(editor);
-    const sync = installCanvasUrlSync(
-      editor,
-      { active: () => active.current, open: showTab },
-      () => opened.current,
-      {
-        board: (file) => {
-          zoomTo.current = file
-            ? boardShapeId(
-                editor,
-                file.path,
-                projectPages(editor).get(file.pageSlug),
-              )
-            : null;
-          show(file, false);
-        },
-        image: (pick) => {
-          zoomTo.current = pick.shapeId;
-          showImage(pick, false);
-        },
-      },
-    );
+    const sync = installCanvasUrlSync(editor, {
+      active: () => active.current,
+      open: showTab,
+    });
     writeUrl.current = sync.write;
     // The address names one of them, or the whole page is the view. Not on a reload, which is
     // mostly the server's answer to a board the agent just wrote: tldraw has already put back
@@ -1408,9 +1276,11 @@ export default function App() {
       )?.type === "reload";
     if (!sync.apply() && !reloaded)
       requestAnimationFrame(() => editor.zoomToFit());
+    const disposeZoom = installDoubleClickZoom(editor);
     return () => {
       disposeContent();
       disposeComments();
+      disposeZoom();
       sync.uninstall();
     };
   }
@@ -1424,14 +1294,8 @@ export default function App() {
         editor,
         commentUser,
         setCommentUser,
-        inspectBoard: onPick,
-        inspectingPath: inspecting?.path ?? null,
-        inspectorOpen: Boolean(inspecting || inspectingImage),
         activeTab,
         openTab,
-        setInspectorFrame: (frame: HTMLIFrameElement | null) => {
-          inspectorFrame.current = frame;
-        },
       }}
     >
       {/* The project's side of the window: its canvases across the top, then the canvas. The bar
@@ -1457,8 +1321,7 @@ export default function App() {
                 tools={canvasCommentTools}
                 overrides={canvasUiOverrides}
                 // Every board and picture is locked (below, and the library's own placement) so a
-                // pan can't drag one and a click opens the inspector instead of tldraw's own
-                // selection — but by default tldraw also drops locked shapes from a marquee drag
+                // pan can't drag one — but by default tldraw also drops locked shapes from a marquee drag
                 // entirely, which is the one thing this option turns back on. The lock itself is
                 // what keeps them from moving: `updateShapes` skips a locked shape's own partial
                 // regardless of this flag, so a selected board still can't be dragged or resized.
@@ -1480,12 +1343,6 @@ export default function App() {
                 <AgentBridge />
                 <CanvasLinkPaste />
                 <LockedLinkClicks />
-                <InspectorClicks
-                  onPick={onPick}
-                  onDismiss={onCloseInspector}
-                  inspectingPath={inspecting?.path ?? null}
-                  frame={inspectorFrame}
-                />
                 <EmptyLibraryNotice />
               </Tldraw>
             </main>
@@ -1518,24 +1375,6 @@ export default function App() {
               </div>
             )}
           </div>
-          {inspecting ? (
-            // Keyed by path: a different board is a fresh panel, with its own selection and
-            // report, rather than one that resets its state in an effect.
-            <InspectorPanel
-              key={inspecting.path}
-              path={inspecting.path}
-              name={inspecting.title}
-              size={boardSize(inspecting)}
-              frame={inspectorFrame}
-              onClose={onCloseInspector}
-            />
-          ) : inspectingImage ? (
-            <ImagePanel
-              key={inspectingImage.shapeId}
-              pick={inspectingImage}
-              onClose={onCloseInspector}
-            />
-          ) : null}
         </div>
       </div>
     </CanvasChromeContext.Provider>

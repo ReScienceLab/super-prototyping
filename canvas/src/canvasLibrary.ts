@@ -197,7 +197,7 @@ function parse(path: string): CanvasLibraryFile | null {
  *
  * Appended rather than spliced: 37 of the repo's 180 boards emit no `</body>`, and a tag put
  * before the doctype would drop the board into quirks mode. A trailing `<style>` is parsed into
- * the body, and the inspector agent skips STYLE elements, so this adds no layer.
+ * the body, so this adds no layer.
  */
 const NO_OVERSCROLL = "<style>html{overscroll-behavior:none}</style>";
 
@@ -331,16 +331,6 @@ export function brandMaterialSlugs() {
   return boards()
     .map((b) => b.slug)
     .filter((slug) => hasBrandMaterial(slug));
-}
-
-/**
- * This folder's inlined images by payload key, if it committed the files they came from: the
- * inspector's Assets tab joins a board's data: URIs against it to put a file name next to each
- * one. Undefined for a folder with no `assets/`, `assets-dark/` or `assets.json`.
- */
-export function readCanvasAssetNames(pageSlug: string) {
-  const assets = board(pageSlug)?.assets;
-  return assets && Object.keys(assets).length ? assets : undefined;
 }
 
 /** This folder's app icon, if it dropped one next to its HTML files. */

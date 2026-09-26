@@ -1,5 +1,5 @@
-/* The sheet page, sheet.html. Grey ground and grey captions, like the inspector's stage, so the
-   only thing on the page with any colour in it is the boards. */
+/* The sheet page, sheet.html. Grey ground and grey captions, so the only thing on the page with
+   any colour in it is the boards. */
 :root {
   color-scheme: light;
 }

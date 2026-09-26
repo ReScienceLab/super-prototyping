@@ -77,12 +77,11 @@ than reusing it, and says so when that port is the app's.
 - Deep-link a page with `?canvas=<slug>`, e.g.
   `http://127.0.0.1:5173/?canvas=notion-ios`, and one board of it with
   `#<file>` after that, e.g. `?canvas=notion-ios#02-search-ask-ai`: it opens
-  in the inspector with the camera on it. Give the board link when pointing
+  selected, zoomed to fill the window. Give the board link when pointing
   at one screen.
 - **Read a board as a web page.** The "Export to Figma" button in the top bar
   opens every board of the page in one scrolling document, each at its own
-  size, at `sheet.html?canvas=<slug>`; the button in the bottom right of the
-  inspector's preview opens the one board it is showing, at
+  size, at `sheet.html?canvas=<slug>`, and one board is at
   `/board/<slug>/<file>.html`. Both are ordinary addresses serving the board's
   own HTML, so they can be linked, reloaded, and read by the browser
   extensions — a Figma importer, say — that refuse to work on a generated
@@ -304,8 +303,8 @@ bun run lint && bun run test && bun run build
 ```
 
 Then, in a fresh browser session: each board page loads with its frames,
-headings and captions; the frames stay independently selectable; the inspector
-opens on the board you click; Force refresh rebuilds a board cleanly.
+headings and captions; the frames stay independently selectable; double-clicking
+a board zooms it to fill the window; Force refresh rebuilds a board cleanly.
 
 Everything the canvas needs a server for lives in `canvas/server/`: `sp.ts`
 answers `/__sp` and `/board` for one project, `projects.ts` mounts one of it

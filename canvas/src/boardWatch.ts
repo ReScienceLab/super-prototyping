@@ -22,7 +22,7 @@ const BOARD_FILES = /^[^/]+\/[^/]+$/;
  *   has to be dropped and the page reloaded.
  * - `layout`: a board folder's layout.json. Read on every render, and handed to the page over
  *   HMR rather than through a reload, which would throw the viewport away.
- * - `assets`: an image or assets.json, whose bytes are hashed into the generated index.
+ * - `assets`: an image or the icon, which the generated index lists.
  * - `comments`: comments.json, which the page that wrote it already has.
  *
  * Only one level deep, because that is what `scan()` discovers: a `scratch/draft.html` is a
@@ -48,7 +48,7 @@ export function boardChangeKind(
   if (name === "layout.json") return "layout";
   if (name === "comments.json") return "comments";
   if (name === "canvas.json") return "content";
-  if (name === "assets.json" || name === "icon.png") return "assets";
+  if (name === "icon.png") return "assets";
   return null;
 }
 
