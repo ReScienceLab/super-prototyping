@@ -324,8 +324,12 @@ export function createProjectsServer(options: {
         res.statusCode = code;
         res.end(message);
       };
-      // A dot segment, which fetch would resolve to somewhere else on the site.
-      if (/(^|\/)(\.|%2e){1,2}(\/|$)/i.test(restPath))
+      // A dot segment, which fetch would resolve to somewhere else on the site, or a backslash,
+      // which it reads as a slash.
+      if (
+        /(^|\/)(\.|%2e){1,2}(\/|$)/i.test(restPath) ||
+        restPath.includes("\\")
+      )
         return fail(400, "bad path");
       if (restPath === "/__sp/index.json" || restPath.startsWith("/board/")) {
         if (req.method !== "GET" && req.method !== "HEAD")
