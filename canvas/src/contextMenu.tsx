@@ -1,35 +1,47 @@
-import type { MouseEvent, RefObject } from "react";
-import { flushSync } from "react-dom";
+import { ContextMenu } from "radix-ui";
+import type { ReactElement, ReactNode } from "react";
 import type { ChosenCover } from "./cover";
 
 /**
- * The right-click menus of the home page's cards (HomePage.tsx) and the bar's tabs
- * (CanvasTabBar.tsx): each is one native popover, `.sp-context-menu`, whose rows are rendered
- * for what was right-clicked.
+ * The right-click menu of a home page card, a tab or a canvas (HomePage.tsx, Community.tsx,
+ * CanvasTabBar.tsx, CanvasStrip.tsx), on `children`: Radix's, which opens it at the pointer, keeps
+ * it on the screen and moves through its rows with the arrow keys. Its rows are `MenuItem`s,
+ * run from their `onSelect`, which shuts the menu after.
  */
-
-/**
- * Renders the menu's rows for what was right-clicked, then shows it at the pointer, slid back
- * from the window's right and bottom edges so it stays on the screen. The rows are rendered
- * first because they decide its size.
- */
-export function openMenu(
-  event: MouseEvent,
-  menu: RefObject<HTMLElement | null>,
-  render: () => void,
-) {
-  event.preventDefault();
-  flushSync(render);
-  const el = menu.current!;
-  const show = () => {
-    el.showPopover();
-    el.style.left = `${Math.min(event.clientX, innerWidth - el.offsetWidth - 8)}px`;
-    el.style.top = `${Math.min(event.clientY, innerHeight - el.offsetHeight - 8)}px`;
-  };
-  // On the release when a button is down, for the reason the agent's menu is (AgentButton).
-  if (event.buttons === 0) return show();
-  window.addEventListener("pointerup", () => setTimeout(show), { once: true });
+export function RightClickMenu({
+  menu,
+  children,
+}: {
+  menu: ReactNode;
+  children: ReactElement;
+}) {
+  return (
+    <ContextMenu.Root>
+      <ContextMenu.Trigger asChild>{children}</ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <ContextMenu.Content className="sp-context-menu">
+          {menu}
+        </ContextMenu.Content>
+      </ContextMenu.Portal>
+    </ContextMenu.Root>
+  );
 }
+
+export function MenuItem({
+  className,
+  ...props
+}: ContextMenu.ContextMenuItemProps) {
+  return (
+    <ContextMenu.Item
+      className={className ? `sp-menu-row ${className}` : "sp-menu-row"}
+      {...props}
+    />
+  );
+}
+
+export const MenuSeparator = () => (
+  <ContextMenu.Separator className="sp-menu-sep" />
+);
 
 /**
  * Keeps the browser's own menu off a page of the app, which has its own where a right-click

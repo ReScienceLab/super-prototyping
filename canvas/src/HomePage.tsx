@@ -3,6 +3,7 @@ import {
   useRef,
   useState,
   type MouseEventHandler,
+  type ReactNode,
 } from "react";
 import { canvasIndex } from "./canvasIndex";
 import { CommunityCards, type Duplicate, type OpenInApp } from "./Community";
@@ -18,8 +19,10 @@ import {
 import {
   askServer,
   confirmTrash,
-  openMenu,
+  MenuItem,
+  MenuSeparator,
   REVEAL,
+  RightClickMenu,
   setProjectCover,
   TRASH,
 } from "./contextMenu";
@@ -129,7 +132,8 @@ function useWidth() {
 function Card(props: {
   href: string;
   onClick: MouseEventHandler<HTMLAnchorElement>;
-  onContextMenu: MouseEventHandler<HTMLAnchorElement>;
+  /** Its right-click menu's rows. */
+  menu: ReactNode;
   cover?: Cover;
   /** The address its files are under: the project's, or this page's for an example. */
   base: string;
@@ -154,32 +158,29 @@ function Card(props: {
       : 0,
   };
   return (
-    <a
-      className="home-file"
-      href={props.href}
-      onClick={props.onClick}
-      onContextMenu={props.onContextMenu}
-    >
-      <div className="home-file__thumb" ref={stage}>
-        {cover && fit && place && (
-          <CoverPicture
-            cover={cover}
-            base={props.base}
-            updated={props.updated}
-            title={props.name}
-            scale={fit.scale}
-            place={place}
-          />
-        )}
-      </div>
-      <div className="home-file__foot">
-        {props.icon && <img src={props.icon} alt="" />}
-        <div>
-          <b>{props.name}</b>
-          <small>{props.sub}</small>
+    <RightClickMenu menu={props.menu}>
+      <a className="home-file" href={props.href} onClick={props.onClick}>
+        <div className="home-file__thumb" ref={stage}>
+          {cover && fit && place && (
+            <CoverPicture
+              cover={cover}
+              base={props.base}
+              updated={props.updated}
+              title={props.name}
+              scale={fit.scale}
+              place={place}
+            />
+          )}
         </div>
-      </div>
-    </a>
+        <div className="home-file__foot">
+          {props.icon && <img src={props.icon} alt="" />}
+          <div>
+            <b>{props.name}</b>
+            <small>{props.sub}</small>
+          </div>
+        </div>
+      </a>
+    </RightClickMenu>
   );
 }
 
@@ -207,8 +208,6 @@ export function HomePage(props: {
 }) {
   const { projects, tabs } = props;
   const [sort, setSort] = useState<Sort>("edited");
-  const [target, setTarget] = useState<Target>();
-  const menu = useRef<HTMLDivElement>(null);
   const byEdit = <T extends { updated: number }>(list: T[]) =>
     list.toSorted((a, b) => b.updated - a.updated);
   const shown =
@@ -222,10 +221,53 @@ export function HomePage(props: {
   const canvases = projects.flatMap((p) => p.canvases);
   const updated = Math.max(0, ...projects.map((p) => p.updated));
 
-  const showMenu =
-    (at: Target): MouseEventHandler =>
-    (event) =>
-      openMenu(event, menu, () => setTarget(at));
+  const menuFor = (target: Target) => (
+    <>
+      <MenuItem onSelect={() => props.goTo(target.tab)}>Open</MenuItem>
+      <MenuSeparator />
+      <MenuItem
+        onSelect={() =>
+          navigator.clipboard.writeText(
+            new URL(target.href, location.href).href,
+          )
+        }
+      >
+        Copy link
+      </MenuItem>
+      <MenuItem onSelect={() => askServer("reveal", target.project.name)}>
+        {REVEAL}
+      </MenuItem>
+      {/* Back to the first canvas's, once one was chosen from the canvas. */}
+      {target.project.cover?.chosen && (
+        <MenuItem
+          onSelect={async () => {
+            if (await setProjectCover(target.project.url, null)) props.reload();
+          }}
+        >
+          Reset cover
+        </MenuItem>
+      )}
+      <MenuSeparator />
+      <MenuItem
+        className="sp-context-menu__danger"
+        onSelect={async () => {
+          const p = target.project;
+          if (
+            !(await confirmTrash(
+              p.name,
+              p.path,
+              "Everything in that folder goes with it.",
+            ))
+          )
+            return;
+          await askServer("delete", p.name);
+          props.reload();
+        }}
+      >
+        {TRASH}
+      </MenuItem>
+    </>
+  );
 
   return (
     <main className="home-main">
@@ -318,7 +360,7 @@ export function HomePage(props: {
               href={tabUrl(tab)}
               onClick={openInTab(props.goTo, tab)}
               // Its bare address, which opens its first canvas (resolveTab).
-              onContextMenu={showMenu({ href: p.url, tab, project: p })}
+              menu={menuFor({ href: p.url, tab, project: p })}
               cover={p.cover}
               base={p.url}
               updated={p.updated}
@@ -364,85 +406,6 @@ export function HomePage(props: {
         openInApp={props.openInApp}
         duplicate={props.duplicate}
       />
-      {/* One menu for every card, a native popover like the chat panel's: the top layer, and a
-          click outside or Esc to shut it. A pick shuts it before the row's own click runs, so the
-          Trash's confirm is not drawn over it. */}
-      <div
-        ref={menu}
-        popover="auto"
-        className="sp-context-menu"
-        role="menu"
-        onClickCapture={(event) => event.currentTarget.hidePopover()}
-      >
-        {target && (
-          <>
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              onClick={() => props.goTo(target.tab)}
-            >
-              Open
-            </button>
-            <hr />
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              onClick={() =>
-                navigator.clipboard.writeText(
-                  new URL(target.href, location.href).href,
-                )
-              }
-            >
-              Copy link
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              onClick={() => askServer("reveal", target.project.name)}
-            >
-              {REVEAL}
-            </button>
-            {/* Back to the first canvas's, once one was chosen from the canvas. */}
-            {target.project.cover?.chosen && (
-              <button
-                type="button"
-                role="menuitem"
-                className="sp-menu-row"
-                onClick={async () => {
-                  if (await setProjectCover(target.project.url, null))
-                    props.reload();
-                }}
-              >
-                Reset cover
-              </button>
-            )}
-            <hr />
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row sp-context-menu__danger"
-              onClick={async () => {
-                const p = target.project;
-                if (
-                  !(await confirmTrash(
-                    p.name,
-                    p.path,
-                    "Everything in that folder goes with it.",
-                  ))
-                )
-                  return;
-                await askServer("delete", p.name);
-                props.reload();
-              }}
-            >
-              {TRASH}
-            </button>
-          </>
-        )}
-      </div>
     </main>
   );
 }

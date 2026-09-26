@@ -627,9 +627,11 @@ button {
   outline: none;
 }
 
-/* The panels' palette and type, which the agent menu shares from outside the chat panel. */
+/* The panels' palette and type, which the agent and model menus share from outside the chat
+   panel, in Radix's portal. */
 .sp-panel,
-.sp-chat-agents {
+.sp-chat-agents,
+.sp-chat-picker {
   --sp-bg: var(--ds-background-100);
   --sp-line: var(--ds-gray-400);
   --sp-text: var(--ds-gray-1000);
@@ -1056,15 +1058,13 @@ button {
   background: var(--sp-hover);
 }
 
-/* The right-click menu of a home page card or a tab, placed at the pointer by contextMenu.ts.
-   What is here is the reset a popover needs and the menu's skin; `--sp-hover` because
-   `.sp-menu-row` above wants it and it is defined on the panels, which this menu is not inside. */
+/* A right-click menu (RightClickMenu, contextMenu.tsx), which Radix places at the pointer. The
+   menu's skin; `--sp-hover` because `.sp-menu-row` above wants it and it is defined on the panels,
+   which this menu is not inside. Over the chat panel and the canvas's own chrome. */
 .sp-context-menu {
   --sp-hover: var(--ds-gray-100);
-  position: fixed;
-  inset: auto;
+  z-index: 1000;
   min-width: 180px;
-  margin: 0;
   padding: 4px;
   border: 1px solid var(--ds-gray-400);
   border-radius: 8px;
@@ -1072,18 +1072,25 @@ button {
   color: var(--ds-gray-1000);
   box-shadow: var(--ds-shadow-menu);
 }
-.sp-context-menu hr {
+.sp-menu-sep {
   margin: 4px 0;
-  border: 0;
   border-top: 1px solid var(--ds-gray-400);
 }
 .sp-context-menu__danger {
   color: var(--ds-red-900);
 }
-.sp-context-menu .sp-menu-row:disabled {
+/* Radix's items: the one the pointer or the arrow keys are on, and one that takes no pick. */
+.sp-menu-row[data-highlighted] {
+  outline: none;
+  background: var(--sp-hover);
+}
+.sp-menu-row[data-disabled] {
   background: none;
   color: var(--ds-gray-700);
   cursor: default;
+}
+a.sp-menu-row {
+  text-decoration: none;
 }
 
 .sp-menu-ck {
@@ -2474,16 +2481,16 @@ button {
   display: none;
 }
 
-/* The history list, the model and effort menus and the agent menu, native popovers, which get
-   the top layer and light dismiss for free. The panel's geometry is fixed, at the window's left
-   edge, 360 wide, a 40px header under the 40px bar, so this places them by those numbers rather
-   than by anchor positioning, which not every browser has yet: under the header, and the agent
-   menu under the bar's first button, which opens it. */
+/* The history list, the model and effort menus and the agent menu. The model and agent menus are
+   Radix's, which places them. The history list and the effort slider are native popovers, which
+   get the top layer and light dismiss for free. The panel's geometry is fixed, at the window's
+   left edge, 360 wide, a 40px header under the 40px bar, so this places those by those numbers
+   rather than by anchor positioning, which not every browser has yet: the history under the
+   header, the slider over the bar at the panel's foot. */
 .sp-chat-history,
 .sp-chat-agents,
 .sp-chat-picker {
-  position: fixed;
-  inset: 84px auto auto 8px;
+  z-index: 1000;
   margin: 0;
   padding: 4px;
   border: 1px solid var(--sp-line);
@@ -2491,6 +2498,12 @@ button {
   background: var(--sp-bg);
   color: var(--sp-text);
   box-shadow: var(--ds-shadow-menu);
+}
+
+.sp-chat-history,
+.sp-chat-efforts {
+  position: fixed;
+  inset: 84px auto auto 8px;
 }
 
 .sp-chat-history {
@@ -2546,8 +2559,16 @@ button {
    found on PATH, saying what to do. Such a row is greyed and takes no click. */
 /* As wide as its rows, which is narrow with both agents installed; the ceiling is for the one
    that is missing, whose row carries a sentence about installing it. */
+/* Where the bar's first button is, which opens the agent menu: Radix places the menu under this. */
+.sp-chat-agents-at {
+  position: fixed;
+  inset: 0 auto auto 6px;
+  width: 28px;
+  height: 40px;
+  pointer-events: none;
+}
+
 .sp-chat-agents {
-  inset: 44px auto auto 6px;
   width: max-content;
   min-width: 140px;
   max-width: 280px;
@@ -2559,18 +2580,13 @@ button {
   padding: 6px 8px;
 }
 
-.sp-chat-agents .sp-menu-row:disabled {
+.sp-chat-agents .sp-menu-row[data-disabled] {
   color: var(--sp-text-2);
-  cursor: default;
-}
-
-.sp-chat-agents .sp-menu-row:disabled:hover {
-  background: none;
 }
 
 /* A mark in its brand colour beside greyed-out text reads as the available one, and Claude's is
    a fixed terracotta rather than currentColor, so the row dims the mark itself. */
-.sp-chat-agents .sp-menu-row:disabled svg {
+.sp-chat-agents .sp-menu-row[data-disabled] svg {
   opacity: 0.45;
 }
 
@@ -2606,8 +2622,11 @@ button {
 }
 
 /* The two pickers open upward, from the bar at the panel's foot rather than the header. */
-.sp-chat-picker {
+.sp-chat-efforts {
   inset: auto auto 34px 8px;
+}
+
+.sp-chat-picker {
   width: max-content;
   min-width: 180px;
   max-width: 300px;
