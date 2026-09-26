@@ -9,7 +9,7 @@ import {
   useIsEditing,
 } from "tldraw";
 import { CanvasChromeContext } from "./canvasChrome";
-import { canvasIndex } from "./canvasIndex";
+import { local } from "./canvasIndex";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
   canvasBoardRef,
@@ -176,12 +176,13 @@ export class CanvasFileShapeUtil extends BaseBoxShapeUtil<CanvasFileShape> {
   }
 
   // An export leaves an iframe blank, so the server draws the board (canvasAttach.tsx does the
-  // same), for `sp canvas shot` and the person's own export alike. The hosted build has no server.
+  // same), for `sp canvas shot` and the person's own export alike, a community project's in the app
+  // included. The hosted build has no server.
   // One that cannot be drawn is left out rather than thrown: tldraw waits on every shape's toSvg
   // together, so a throw would blank the whole export (App.tsx has its wait).
   override async toSvg(shape: CanvasFileShape) {
     const ref = canvasBoardRef(shape.props.path);
-    if (!ref || !canvasIndex().served) return null;
+    if (!ref || !local()) return null;
     const { w, h } = shape.props;
     // The server draws at most 4000 a side; a board resized past that is drawn smaller, evenly.
     // ponytail: smaller is a narrower viewport, so a board that lays out by width may reflow.

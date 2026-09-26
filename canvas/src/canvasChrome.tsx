@@ -49,7 +49,7 @@ import {
   resolveAuthor,
   type CommentUser,
 } from "./canvasComments";
-import { canvasIndex } from "./canvasIndex";
+import { canvasIndex, local } from "./canvasIndex";
 import {
   CANVAS_FILE_SHAPE_TYPE,
   type CanvasFileShape,
@@ -522,9 +522,10 @@ export const canvasChromeComponents: TLComponents = {
           currentUserId={chrome.commentUser?.id ?? null}
           resolveAuthor={resolveAuthor}
         />
-        {/* Dev only, like the panel they hand things to. */}
-        {canvasIndex().served && <CanvasAttachButtons />}
-        {canvasIndex().served && <CanvasSelectionAttachButton />}
+        {/* In the app only, like the panel they hand things to: a community project's too,
+            whose boards its server draws as it draws the project's own (server/projects.ts). */}
+        {local() && <CanvasAttachButtons />}
+        {local() && <CanvasSelectionAttachButton />}
         {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
             next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}
