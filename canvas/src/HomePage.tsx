@@ -5,10 +5,9 @@ import {
   type MouseEventHandler,
 } from "react";
 import { canvasIndex } from "./canvasIndex";
-import { canvasIconUrl, humanize } from "./canvasLibrary";
-import { fitCover, projectCover, type Cover } from "./cover";
+import { CommunityCards } from "./Community";
+import { fitCover, type Cover } from "./cover";
 import {
-  isExample,
   openInTab,
   tabOfExample,
   tabOfProject,
@@ -17,7 +16,6 @@ import {
   type ProjectCanvas as Canvas,
   type ProjectTab,
 } from "./canvasTabs";
-import { canvasPageUrl } from "./canvasUrl";
 import {
   askServer,
   confirmTrash,
@@ -29,15 +27,11 @@ import {
 import { FolderPlus, LogoDiscord, LogoGithub, Plus, Users } from "./geistIcons";
 
 type Sort = "edited" | "name" | "boards";
-/** A card's right-click: the address it links to, the tab it opens, and its project if it is one. */
-type Target = { href: string; tab: ProjectTab; project?: Project };
+/** A card's right-click: the address it links to, the tab it opens, and its project. */
+type Target = { href: string; tab: ProjectTab; project: Project };
 
-/** The stage's height (home.css), which a cover fills. */
-const STAGE_H = 233;
-
-/** What a card calls a canvas: its layout's name without the "(example)" shelf, as tabs do. */
-const nameOf = (c: Canvas) =>
-  (c.layout?.name ?? humanize(c.slug)).replace(/^\(example\)\s*/, "");
+/** The stage's shape (home.css), which a cover fills: an Open Graph image's, as a thumbnail is drawn at. */
+const STAGE_RATIO = 630 / 1200;
 
 const boardsIn = (canvases: Canvas[]) =>
   canvases.reduce((n, c) => n + c.html.length, 0);
@@ -145,19 +139,19 @@ function Card(props: {
   icon?: string;
   name: string;
   sub: string;
-  count: string;
 }) {
   const { cover } = props;
   const [stage, stageW] = useWidth();
+  const stageH = stageW * STAGE_RATIO;
   // The cover fills the stage: an element chosen as cover centred in it, a whole board from its
   // top, the way a page is read. Clamped so the board is under every pixel of the stage.
-  const fit = cover && stageW > 0 && fitCover(cover.box, stageW, STAGE_H);
+  const fit = cover && stageW > 0 && fitCover(cover.box, stageW, stageH);
   const [x, y, w, h] = cover?.box ?? [];
   const whole = cover && x === 0 && y === 0 && w === cover.w && h === cover.h;
   const place = fit && {
     left: Math.min(0, Math.max(fit.left, stageW - cover.w * fit.scale)),
     top: !whole
-      ? Math.min(0, Math.max(fit.top, STAGE_H - cover.h * fit.scale))
+      ? Math.min(0, Math.max(fit.top, stageH - cover.h * fit.scale))
       : 0,
   };
   return (
@@ -185,7 +179,6 @@ function Card(props: {
           <b>{props.name}</b>
           <small>{props.sub}</small>
         </div>
-        <small>{props.count}</small>
       </div>
     </a>
   );
@@ -193,9 +186,8 @@ function Card(props: {
 
 /**
  * What the window shows under Home (AppShell.tsx), and what the desktop app opens on after the
- * first launch: every project as a card, and the examples as projects of one canvas each. Drawn
- * after Figma's home: a row of tiles for a new project and the two community links, a line of
- * totals, then the cards. The bar above it and the agent's panel beside it are the window's.
+ * first launch: every project as a card, then the community's latest. Drawn after Figma's home: a
+ * row of tiles for a new project and the community links, a line of totals, then the cards. The bar above it and the agent's panel beside it are the window's.
  *
  * A project's card shows its one cover: the one chosen from the canvas's right button, else its
  * first canvas's (cover.ts). It opens the project as a tab, where the canvas strip lists the rest.
@@ -225,9 +217,6 @@ export function HomePage(props: {
             (a, b) => boardsIn(b.canvases) - boardsIn(a.canvases),
           )
         : byEdit(projects);
-  // The app's examples, which every project's server has, Start here first. Its card opens it
-  // on a tab of its own (canvasTabs.ts), not on the project this window is on.
-  const examples = canvasIndex().boards.filter((b) => isExample(b.slug));
   const canvases = projects.flatMap((p) => p.canvases);
   const updated = Math.max(0, ...projects.map((p) => p.updated));
 
@@ -335,12 +324,11 @@ export function HomePage(props: {
                 iconed && `${p.url}board/${encodeURI(iconed.slug)}/icon.png`
               }
               name={p.title ?? p.name}
-              sub={`Edited ${ago(p.updated)}`}
-              count={
+              sub={`${
                 one
                   ? plural(one.html.length, "board")
                   : `${recent.length} ${recent.length === 1 ? "canvas" : "canvases"}`
-              }
+              } · ${ago(p.updated)}`}
             />
           );
         })}
@@ -359,37 +347,25 @@ export function HomePage(props: {
           </button>
         )}
       </div>
-      {examples.length > 0 && (
-        <>
-          <div className="home-bar">
-            <h2>Examples</h2>
-          </div>
-          <div className="home-grid">
-            {examples.map((c) => (
-              <Card
-                key={c.slug}
-                href={canvasPageUrl(c.slug)}
-                onClick={openInTab(props.goTo, tabOfExample(c.slug, tabs))}
-                onContextMenu={showMenu({
-                  href: canvasPageUrl(c.slug),
-                  tab: tabOfExample(c.slug, tabs),
-                })}
-                cover={projectCover([c])}
-                base={import.meta.env.BASE_URL}
-                updated={c.updated}
-                icon={c.icon ? canvasIconUrl(c.slug) : undefined}
-                name={nameOf(c)}
-                sub="Example"
-                count={plural(c.html.length, "board")}
-              />
-            ))}
-          </div>
-        </>
-      )}
+      <div className="home-bar">
+        <h2>Community</h2>
+        <div>
+          <button type="button" onClick={props.openCommunity}>
+            See all
+          </button>
+        </div>
+      </div>
+      {/* Two rows of the latest. An example opens on a tab of its own (canvasTabs.ts), not on the
+          project this window is on. */}
+      <ul className="home-grid">
+        <CommunityCards
+          limit={8}
+          openExample={(slug) => props.goTo(tabOfExample(slug, tabs))}
+        />
+      </ul>
       {/* One menu for every card, a native popover like the chat panel's: the top layer, and a
           click outside or Esc to shut it. A pick shuts it before the row's own click runs, so the
-          Trash's confirm is not drawn over it. An example is the plugin's, so it has no folder of
-          the user's to show or delete. */}
+          Trash's confirm is not drawn over it. */}
       <div
         ref={menu}
         popover="auto"
@@ -420,53 +396,49 @@ export function HomePage(props: {
             >
               Copy link
             </button>
-            {target.project && (
-              <>
-                <button
-                  type="button"
-                  role="menuitem"
-                  className="sp-menu-row"
-                  onClick={() => askServer("reveal", target.project!.name)}
-                >
-                  {REVEAL}
-                </button>
-                {/* Back to the first canvas's, once one was chosen from the canvas. */}
-                {target.project.cover?.chosen && (
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="sp-menu-row"
-                    onClick={async () => {
-                      if (await setProjectCover(target.project!.url, null))
-                        props.reload();
-                    }}
-                  >
-                    Reset cover
-                  </button>
-                )}
-                <hr />
-                <button
-                  type="button"
-                  role="menuitem"
-                  className="sp-menu-row sp-context-menu__danger"
-                  onClick={async () => {
-                    const p = target.project!;
-                    if (
-                      !(await confirmTrash(
-                        p.name,
-                        p.path,
-                        "Everything in that folder goes with it.",
-                      ))
-                    )
-                      return;
-                    await askServer("delete", p.name);
+            <button
+              type="button"
+              role="menuitem"
+              className="sp-menu-row"
+              onClick={() => askServer("reveal", target.project.name)}
+            >
+              {REVEAL}
+            </button>
+            {/* Back to the first canvas's, once one was chosen from the canvas. */}
+            {target.project.cover?.chosen && (
+              <button
+                type="button"
+                role="menuitem"
+                className="sp-menu-row"
+                onClick={async () => {
+                  if (await setProjectCover(target.project.url, null))
                     props.reload();
-                  }}
-                >
-                  {TRASH}
-                </button>
-              </>
+                }}
+              >
+                Reset cover
+              </button>
             )}
+            <hr />
+            <button
+              type="button"
+              role="menuitem"
+              className="sp-menu-row sp-context-menu__danger"
+              onClick={async () => {
+                const p = target.project;
+                if (
+                  !(await confirmTrash(
+                    p.name,
+                    p.path,
+                    "Everything in that folder goes with it.",
+                  ))
+                )
+                  return;
+                await askServer("delete", p.name);
+                props.reload();
+              }}
+            >
+              {TRASH}
+            </button>
           </>
         )}
       </div>

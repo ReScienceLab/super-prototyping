@@ -19,6 +19,15 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **A community of projects.** The home page's Community tile, and a
+  Community section under your projects, list the app clones people shared to
+  the community repo, each with a cover drawn like a book's, and the examples.
+  Ask your agent to share a project and it opens the pull request for you;
+  `sp pack` checks one first.
+- **Four projects to a row on the home page**, each cover at the shape of a
+  link preview.
+- **A board can no longer reach the app.** Every board runs sandboxed, and the
+  websites you visit can no longer reach the app's server.
 - **Every project in the community opens on the web.** Its **Open** shows the
   project's canvas at `superproto.dev/p/<id>`, read-only, for the examples and
   for projects people shared alike, and **Copy link** copies that address.
