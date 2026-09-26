@@ -19,6 +19,11 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.6.4
+
+2026-09-26. Browse and share projects in the community, and open any of them
+on the web.
+
 - **A community of projects.** The home page's Community tile, and a
   Community section under your projects, list the app clones people shared to
   the community repo, each with a cover drawn like a book's, and the examples.
