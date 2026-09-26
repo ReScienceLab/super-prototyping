@@ -58,7 +58,7 @@ maps onto it one for one:
 
 `/demo/…?canvas=<slug>` and `/demo/board/<slug>/…` first 301'd to
 `/p/<slug>/…`, and everything else under `/demo` to `/community`. On 2026-09-26,
-before 1.6.4 announced the new addresses, the redirect was removed rather than
+the morning 1.6.4 shipped, the redirect was removed rather than
 kept forever for links few people hold. Everything under `/demo` now 404s.
 
 ## A shared project appears when Pages rebuilds
