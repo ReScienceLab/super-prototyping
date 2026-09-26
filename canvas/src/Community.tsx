@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import "./community.css";
 import { canvasIndex } from "./canvasIndex";
-import {
-  canvasIconUrl,
-  canvasThumbnailUrl,
-  shortName,
-} from "./canvasLibrary";
+import { canvasIconUrl, canvasThumbnailUrl, shortName } from "./canvasLibrary";
 import { openInTab } from "./canvasTabs";
 import { CANVAS_FILE_DEFAULT_SIZE, projectCover } from "./cover";
 import {
@@ -44,7 +40,7 @@ import {
 const webUrl = (entry: Entry) => {
   const name = entry.name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
     .replace(/^-|-$/g, "");
   return `https://superproto.dev/p/${entry.slug}/${entry.source ? name : ""}`;
 };
