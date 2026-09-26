@@ -38,7 +38,7 @@ export const asCanvasTarget = (
 
 /**
  * A locked board cannot be selected, so tldraw reports a click on one as a click on the canvas
- * and the shape util's own `onClick` never runs — the same problem the welcome page's cards have,
+ * and the shape util's own `onClick` never runs — the same problem a `canvas-link` card has,
  * solved the same way (installLockedLinkClicks in CanvasLinkShapeUtil.tsx): watch the editor's
  * pointer events and call a press and a release over one board, with no drag between them, a
  * click. Returns the uninstaller.

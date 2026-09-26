@@ -1,5 +1,4 @@
 import { useEffect, useReducer } from "react";
-import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 
 // Auto-discovers the boards dropped under <canvases dir>/<slug>/*.html, one folder per board
 // (a cloned app, a feature round, a design-system sheet). Each folder becomes a tldraw page; each
@@ -12,8 +11,8 @@ import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 // pattern is a string literal resolved at build time, so it could only ever read one
 // hard-coded directory, never the boards of whoever installed it.
 //
-// Boards stay lazy — one fetch per file, the first time a shape asks for it, so opening the
-// welcome page pulls a dozen covers rather than every board (the full set is 25 MB of HTML,
+// Boards stay lazy — one fetch per file, the first time a shape asks for it, so opening a
+// page pulls its own boards rather than every board (the full set is 25 MB of HTML,
 // which a phone should not download to look at one page). Layouts and icons come with the
 // index because they are read during render.
 import { canvasIndex } from "./canvasIndex";
@@ -114,18 +113,18 @@ export interface CanvasLayoutConfig {
    */
   name?: string;
   /**
-   * Board that stands in for this folder on the welcome page, by file name,
+   * Board that stands in for this folder on the home page, by file name,
    * e.g. "00-launch-light". Without one the cover is the folder's first board
    * that is not a 00- sheet, which is a token board on most of them.
    */
   cover?: string;
   /**
-   * Where the folder sits in the page menu and the welcome row: lower first, default 0,
-   * ties keep slug order. The welcome page stays on top whatever anyone declares.
+   * Where the folder sits in the page menu: lower first, default 0,
+   * ties keep slug order.
    */
   order?: number;
   /**
-   * The part of the cover board a welcome card shows, `[x, y, w, h]` in board px.
+   * The part of the cover board a card shows, `[x, y, w, h]` in board px.
    * Default is the phone frame every folder here draws at the same place, so cards
    * crop to the mockup instead of framing it in artboard margin. Declare one for a
    * board that is not a phone, e.g. a full-bleed sheet: `[0, 0, 478, 980]`.
@@ -140,7 +139,7 @@ export interface CanvasLayoutConfig {
 }
 
 /**
- * The board that stands in for a folder on the welcome page and the home page: the one its
+ * The board that stands in for a folder on the home page: the one its
  * layout.json names, else its first screen rather than its 00- board, which is a token sheet on
  * every example and would make the cards look alike.
  */
@@ -308,7 +307,7 @@ export function readCanvasLayout(
 
 /**
  * The artboard box, which is 478 x 980 unless the folder's layout.json declares its own `w`/`h`
- * for that file, as 00-welcome does for its landscape strip.
+ * for that file.
  */
 export function boardSize(file: CanvasLibraryFile) {
   for (const row of readCanvasLayout(file.pageSlug)?.rows ?? []) {
@@ -446,10 +445,7 @@ export function readCanvasLibrary(): { slug: string; files: CanvasLibraryFile[] 
   return inStripOrder(
     canvases,
     (c) => c.slug,
-    (c) =>
-      c.slug === WELCOME_PAGE_SLUG
-        ? -Infinity
-        : (readCanvasLayout(c.slug)?.order ?? 0),
+    (c) => readCanvasLayout(c.slug)?.order ?? 0,
   );
 }
 

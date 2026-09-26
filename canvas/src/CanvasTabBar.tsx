@@ -8,6 +8,7 @@ import {
 import { canvasIndex, homeUrl } from "./canvasIndex";
 import { canvasIconUrl } from "./canvasLibrary";
 import {
+  communityId,
   projectTabIcon,
   projectTabLabel,
   tabKey,
@@ -189,7 +190,7 @@ export function CanvasTabBar(props: {
       )}
       {/* A tab's menu, after Figma's, less what a project here does not have: no pinning, groups
           or windows, and renaming is the folder's. Reload is the tab in front's, since only that
-          one is loaded. The folder is a project's; an example's is the plugin's. */}
+          one is loaded. The folder is a project's own, which a community project has none of here. */}
       <div
         ref={menu}
         popover="auto"
@@ -203,9 +204,7 @@ export function CanvasTabBar(props: {
               type="button"
               role="menuitem"
               className="sp-menu-row"
-              onClick={() =>
-                navigator.clipboard.writeText(homeUrl())
-              }
+              onClick={() => navigator.clipboard.writeText(homeUrl())}
             >
               Copy link
             </button>
@@ -229,14 +228,20 @@ export function CanvasTabBar(props: {
               className="sp-menu-row"
               onClick={() =>
                 // The project's bare address, which opens its first canvas, not the view left in
-                // front; an example is one canvas.
+                // front; an app's canvas is one canvas. A community project's is the site's, since
+                // this one is localhost.
                 navigator.clipboard.writeText(
-                  new URL(
-                    target.kind === "project"
-                      ? target.url
-                      : tabUrl({ ...target, view: { kind: "canvas", slug: target.slug } }),
-                    location.href,
-                  ).href,
+                  communityId(target) !== undefined
+                    ? `https://superproto.dev/p/${communityId(target)}`
+                    : new URL(
+                        target.kind === "project"
+                          ? target.url
+                          : tabUrl({
+                              ...target,
+                              view: { kind: "canvas", slug: target.slug },
+                            }),
+                        location.href,
+                      ).href,
                 )
               }
             >
@@ -252,16 +257,18 @@ export function CanvasTabBar(props: {
                 Reload
               </button>
             )}
-            {target.kind === "project" && canvasIndex().served && (
-              <button
-                type="button"
-                role="menuitem"
-                className="sp-menu-row"
-                onClick={() => askServer("reveal", target.name)}
-              >
-                {REVEAL}
-              </button>
-            )}
+            {target.kind === "project" &&
+              communityId(target) === undefined &&
+              canvasIndex().served && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="sp-menu-row"
+                  onClick={() => askServer("reveal", target.name)}
+                >
+                  {REVEAL}
+                </button>
+              )}
             <hr />
             <button
               type="button"

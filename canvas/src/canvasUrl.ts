@@ -1,7 +1,6 @@
 // The address of what is on screen. A page is `?canvas=<slug>`, the canvases/<slug> folder
-// name, Start here's included. The bare URL names no page: it is a project's own view with no
-// canvas of its in front, which shows Start here (HOME_TAB, canvasTabs.ts), so the way in stays
-// the shortest link there is. One thing of a page is the hash: `#<file>` for the board
+// name. The bare URL names no page: it is a project's own view with no canvas of its in front
+// (HOME_TAB, canvasTabs.ts), so the way in stays the shortest link there is. One thing of a page is the hash: `#<file>` for the board
 // canvases/<slug>/<file>.html, and `#assets/brand/<...>` for a picture, which is that file's
 // path inside the folder. A board is one file at the folder's root and every picture is under
 // assets/brand, so one hash names either without ambiguity. Anything else in the query string
@@ -13,8 +12,6 @@
 //
 // A Markdown file at the project's root open in a tab is `?doc=<file name>`, `?doc=PRD.md`, and
 // one of an example's is `?doc=<example>/<file name>`, `?doc=spotify-ios/PRD.md`.
-
-export const WELCOME_PAGE_SLUG = "00-welcome";
 
 const CANVAS_PARAM = "canvas";
 const BRAND_PARAM = "brand";

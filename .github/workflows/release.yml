@@ -329,9 +329,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
 
       # The example boards stay out of the canvas build, as above. The app ships
-      # canvases itself, as the read-only examples its server shows
-      # (extraResources in desktop/package.json), and a second copy under dist/board
-      # would double the dmg.
+      # the template itself (extraResources in desktop/package.json),
+      # and every other example is a community project it reads from the site
+      # (docs/2026-09-26-projects-on-demand.md).
       - name: Build the canvas, without the example boards
         working-directory: canvas
         run: |

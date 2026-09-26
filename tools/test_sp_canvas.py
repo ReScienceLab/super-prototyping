@@ -653,6 +653,79 @@ def test_pack_ships_the_project_by_place_and_refuses_what_would_break_it():
     assert any("hosts: is outside the project" in p for p in problems), problems
 
 
+def test_a_community_project_is_fetched_once_to_read_and_duplicated_whole_to_edit():
+    """`sp fetch` keeps one reference copy per project, `sp duplicate` makes a new project of
+    the user's beside theirs, and neither unpacks anything outside where it goes."""
+    import io, tarfile, contextlib
+    pid = "19146dc5-50a2-43a4-9fd7-9e21f7d74845"
+
+    def archive(files, pad=0):
+        buf = io.BytesIO()
+        with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+            for name, text in files.items():
+                data = text.encode()
+                info = tarfile.TarInfo(name)
+                info.size = len(data)
+                tar.addfile(info, io.BytesIO(data))
+            if pad:  # `pad` zero bytes, which gzip makes a small download of
+                info = tarfile.TarInfo(f"{pid}/big")
+                info.size = pad
+                tar.addfile(info, io.BytesIO(b"\0" * pad))
+        return buf.getvalue()
+
+    project = archive({f"{pid}/project.json": json.dumps(
+        {"format": 1, "name": "Apple Settings", "author": "someone", "id": pid,
+         "contributors": ["other"]}), f"{pid}/canvases/a/01-home.html": "v1"})
+    sp_home, docs = Path(tempfile.mkdtemp()), Path(tempfile.mkdtemp())
+    env = dict(UNSET, SUPER_PROTOTYPING_HOME=str(sp_home), PROTOTYPING_PROJECTS_DIR=str(docs))
+
+    def run(argv, answer, login="me"):
+        out, real = io.StringIO(), C._gh_login
+        C._gh_login = lambda: login
+        try:
+            with contextlib.redirect_stdout(out):
+                _, urls = with_release(answer, lambda: with_env(env, lambda: C.parse_args(argv).fn(C.parse_args(argv))))
+        finally:
+            C._gh_login = real
+        return out.getvalue().strip(), urls
+
+    # fetch: the path is the whole output; the folder being there is the cache.
+    cache = sp_home / "cache/projects"
+    path, urls = run(["fetch", pid], project)
+    assert path == str(cache / pid) and (cache / pid / "canvases/a/01-home.html").read_text() == "v1"
+    assert urls == [f"https://github.com/{C.COMMUNITY}/releases/download/archives/{pid}.tar.gz"]
+    assert run(["fetch", pid], AssertionError("cached"))[1] == []
+    newer = archive({f"{pid}/canvases/a/01-home.html": "v2"})
+    run(["fetch", pid, "--fresh"], newer)
+    assert (cache / pid / "canvases/a/01-home.html").read_text() == "v2"
+    assert [p.name for p in cache.iterdir()] == [pid]  # no temporary folder left
+
+    # duplicate: a new project of the user's, crediting the source; never over a taken name.
+    assert run(["duplicate", pid], project)[0] == "Apple Settings"
+    assert run(["duplicate", pid], project, login="")[0] == "Apple Settings 2"
+    first = json.loads((docs / "Apple Settings/project.json").read_text())
+    assert first["from"] == pid and first["id"] != pid and C.UUID.match(first["id"])
+    assert first["author"] == "me" and first["contributors"] == [] and first["name"] == "Apple Settings"
+    assert "author" not in json.loads((docs / "Apple Settings 2/project.json").read_text())
+    assert sorted(p.name for p in docs.iterdir()) == ["Apple Settings", "Apple Settings 2"]
+
+    # Refused, leaving nothing behind: not a UUID, a path out, over the cap, the wrong folder.
+    hostile = [(["fetch", "../x"], project, "not a project id"),
+               (["fetch", pid, "--fresh"], archive({f"{pid}/../../evil": "x"}), "outside"),
+               (["duplicate", pid], archive({}, pad=C.PACK_TOTAL_CAP + 1), "over"),
+               (["duplicate", pid], archive({"other/project.json": "{}"}), "one folder")]
+    for argv, answer, why in hostile:
+        try:
+            run(argv, answer)
+        except (SystemExit, tarfile.TarError) as e:
+            assert why in str(e), (why, e)
+        else:
+            assert False, why
+    assert (cache / pid / "canvases/a/01-home.html").read_text() == "v2"
+    assert sorted(p.name for p in docs.iterdir()) == ["Apple Settings", "Apple Settings 2"]
+    assert [p.name for p in cache.iterdir()] == [pid] and not (sp_home / "evil").exists()
+
+
 def test_the_thumbnail_is_the_cover_and_the_boards_as_tall_after_it_in_its_row():
     folder = Path(tempfile.mkdtemp()) / "app"
     folder.mkdir()

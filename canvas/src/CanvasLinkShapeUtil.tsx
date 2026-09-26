@@ -243,9 +243,10 @@ export function installLockedLinkClicks(editor: Editor) {
 }
 
 /**
- * A clickable card or button on the welcome page: `page` switches to another board's page,
- * `url` opens an address in a new tab. Boards themselves render in `<iframe srcDoc sandbox="">`,
- * where a link cannot navigate anything, so anything clickable has to be a shape out here.
+ * A clickable card or button, first drawn for the welcome page the app no longer has: `page`
+ * switches to another board's page, `url` opens an address in a new tab. Boards themselves render
+ * in `<iframe srcDoc sandbox="">`, where a link cannot navigate anything, so anything clickable
+ * has to be a shape out here.
  *
  * The shape is locked on the canvas (App.tsx, LIBRARY_SHAPE_PREFIXES), so clicks reach
  * `onClick` through `installLockedLinkClicks` rather than through tldraw's select tool.

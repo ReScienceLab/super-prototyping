@@ -16,40 +16,26 @@ Switch pages with the page menu at the top-left of the canvas. Deep-link a page
 with `?canvas=<slug>`, e.g. `http://127.0.0.1:5173/?canvas=notion-ios`, and one
 board of it with `#<file>` after that, e.g. `?canvas=notion-ios#02-search-ask-ai`.
 
-Every folder shipped with the repo is named `(example) …` in its `layout.json`
-and a board of your own is not, which is how the two tell apart in the page
-menu.
-
-## 00-welcome
-
-The bare URL always opens `00-welcome` ("Start here"), whichever page was
-last on screen. It carries the canvas's only clickable shapes, all
-`canvas-link` (`canvas/src/CanvasLinkShapeUtil.tsx`): one card per other
-folder, which opens that folder's page, in two rows (Apple's own apps, then
-everything else), and a button that opens the repo.
-They are shapes rather than links inside a board because boards render in a
-sandboxed iframe, where a link cannot navigate anything.
-
-The cards come from the folder list, so a new folder shows up as a card
-with no edit here. This page's own board is also the one board that is not
-phone-shaped; see below.
+Every folder here but `templates` is also a community project, its id in
+`community.json`, and that is what the app calls it. The `(example) ` its
+`layout.json` name starts with is left over from when the app bundled them,
+and the app drops it wherever it shows the name.
 
 A card is the device and nothing else: the cover board is cropped to its
 `coverBox` and fitted into one phone case the card draws itself, so folders
 that each drew their phone a little differently come out at one size, and
 the folder name and board count are the caption under it.
 
-Drop the app's own icon in the folder as `icon.png` and the card wears it,
-tilted, on the device's bottom-left corner, so a row of cards is readable as
-apps before any of the covers are. 256 x 256, transparent outside the iOS
+Drop the app's own icon in the folder as `icon.png` and the project's card
+wears it, so a row of cards is readable as apps before any of the covers are. 256 x 256, transparent outside the iOS
 squircle; the ones here came from the App Store's own artwork
 (`itunes.apple.com/lookup?id=<track id>`, `artworkUrl512`, masked) or, for
 Apple's system apps, out of `apple-icons/assets/`. Each carries its source in
 a PNG `Source` text chunk. A folder with no `icon.png` simply shows none.
 
 Every product folder carries a `PRD.md`, written to the `sp-define-product`
-skill's template. Its example tab shows it before the canvas, the worked
-example of what that skill produces. Its Screens table is the folder's own
+skill's template. Its tab shows it before the canvas, a finished
+instance of what that skill produces. Its Screens table is the folder's own
 boards, so a board added or renamed is a row to change there too.
 
 ## Generators in this repo
@@ -66,11 +52,10 @@ and `templates/` use `page(title, body, extra_css="")`. Copy whichever matches
 your source. `apple-wallet` is the folder built from more than one source: two
 modules, one per Figma file, imported by its `gen.py`.
 
-`00-welcome` is the one board here that is not phone-shaped. Its `gen.py`
-writes 2153 x 819 into `layout.json` as `w`/`h`, which is how any board
-declares a box other than the default 478 x 980.
+A board declares a box other than the default 478 x 980 with `w`/`h` on its
+entry in `layout.json`.
 
-## Examples
+## The community projects
 
 - `luma-ios/`: a complete six-phase run and the model to copy. Its 35
   boards sit in four rows: Foundations (design tokens, four evidence boards,

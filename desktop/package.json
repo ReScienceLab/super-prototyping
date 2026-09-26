@@ -67,16 +67,9 @@
         "from": "../canvases",
         "to": "plugin/canvases",
         "filter": [
-          "**/*",
+          "templates/**/*",
           "!**/scratch/**",
-          "!**/__pycache__/**",
-          "!**/assets/refs/**",
-          "!**/refassets.json",
-          "!**/walkassets.json",
-          "!**/w[0-9]-*.html",
-          "!**/ref-*.html",
-          "spotify-ios/ref-*.html",
-          "grok-ios/ref-14-grok-bot-sheet.html"
+          "!**/__pycache__/**"
         ]
       }
     ],

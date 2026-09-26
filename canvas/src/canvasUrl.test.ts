@@ -3,7 +3,6 @@ import {
   canvasPageUrl,
   frameUrl,
   sheetPageUrl,
-  WELCOME_PAGE_SLUG,
   tabFromUrl,
   targetFromUrl,
   slugFromUrl,
@@ -23,16 +22,14 @@ describe("canvas URLs", () => {
 
   it("reads a page slug, and none from the bare address", () => {
     expect(slugFromUrl(root + "?canvas=luma-ios")).toBe("luma-ios");
-    // Start here's page is named like any other; the bare address is a project's own view of
-    // it, with no canvas in front (HOME_TAB, canvasTabs.ts).
-    expect(slugFromUrl(root + "?canvas=00-welcome")).toBe(WELCOME_PAGE_SLUG);
+    // The bare address is a project's own view, with no canvas in front (HOME_TAB, canvasTabs.ts).
     expect(slugFromUrl(root)).toBe("");
     expect(slugFromUrl(root + "?other=1")).toBe("");
   });
 
   it("reads a board from the hash, and none from an address without one", () => {
     expect(targetFromUrl(root + "?canvas=luma-ios#03-event")).toBe("03-event");
-    expect(targetFromUrl(root + "#00-welcome")).toBe("00-welcome");
+    expect(targetFromUrl(root + "#03-event")).toBe("03-event");
     expect(targetFromUrl(root + "?canvas=luma-ios")).toBeUndefined();
     expect(targetFromUrl(root + "?canvas=luma-ios#")).toBeUndefined();
     expect(targetFromUrl(root + "?canvas=luma-ios#%")).toBeUndefined();
@@ -52,13 +49,10 @@ describe("canvas URLs", () => {
     }
   });
 
-  it("writes a page as ?canvas=, Start here's included, and no page as the bare URL", () => {
+  it("writes a page as ?canvas=, and no page as the bare URL", () => {
     expect(urlForSlug(root, "luma-ios")).toBe(root + "?canvas=luma-ios");
     expect(urlForSlug(root + "?canvas=luma-ios", "notion-ios")).toBe(
       root + "?canvas=notion-ios",
-    );
-    expect(urlForSlug(root + "?canvas=luma-ios", WELCOME_PAGE_SLUG)).toBe(
-      root + "?canvas=00-welcome",
     );
     expect(urlForSlug(root + "?canvas=luma-ios", "")).toBe(root);
   });
@@ -73,17 +67,10 @@ describe("canvas URLs", () => {
     expect(urlForSlug(root + "?canvas=luma-ios#03-event", "notion-ios")).toBe(
       root + "?canvas=notion-ios",
     );
-    // A board of Start here's is one of that page's, so its address names the page, and the
-    // bare address with a hash is the same board seen from the project's own view.
-    expect(urlForSlug(root, WELCOME_PAGE_SLUG, "00-welcome")).toBe(
-      root + "?canvas=00-welcome#00-welcome",
-    );
-    expect(urlForSlug(root, "", "00-welcome")).toBe(root + "#00-welcome");
   });
 
   it("links between the canvas and the sheet by swapping the file", () => {
     expect(canvasPageUrl("luma-ios")).toBe("/?canvas=luma-ios");
-    expect(canvasPageUrl(WELCOME_PAGE_SLUG)).toBe("/?canvas=00-welcome");
     expect(sheetPageUrl("luma-ios")).toBe("/sheet.html?canvas=luma-ios");
     expect(slugFromUrl(root + sheetPageUrl("luma-ios").slice(1))).toBe(
       "luma-ios",
@@ -106,13 +93,8 @@ describe("canvas URLs", () => {
   });
 
   it("reads the tab in front, which is a canvas unless a kit says otherwise", () => {
-    // The bare address is the project's own view with no canvas in front (HOME_TAB), which is
-    // not Start here's own tab, so the two must read as different views.
+    // The bare address is the project's own view with no canvas in front (HOME_TAB).
     expect(tabFromUrl(root)).toEqual({ kind: "canvas", slug: "" });
-    expect(tabFromUrl(root + "?canvas=00-welcome")).toEqual({
-      kind: "canvas",
-      slug: WELCOME_PAGE_SLUG,
-    });
     expect(tabFromUrl(root + "?canvas=luma-ios")).toEqual({
       kind: "canvas",
       slug: "luma-ios",
@@ -160,7 +142,6 @@ describe("canvas URLs", () => {
   it("round-trips every tab it can write", () => {
     for (const tab of [
       { kind: "canvas", slug: "luma-ios" },
-      { kind: "canvas", slug: WELCOME_PAGE_SLUG },
       { kind: "canvas", slug: "" },
       { kind: "brand", slug: "grok-ios" },
       { kind: "brand", slug: "" },

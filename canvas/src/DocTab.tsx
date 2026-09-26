@@ -50,7 +50,7 @@ const draftOf = (slug: string) => {
 /**
  * A switch between reading and editing the document in front, at the end of the canvas strip (CanvasStrip.tsx)
  * where a canvas has its own controls. Only a project's own document, in an app with a server to
- * write it, can switch: an example's is the app's, and its switch is disabled and its title says why.
+ * write it, can switch: the app's own canvas's are read-only, and its switch is disabled and its title says why.
  * Switching back to reading saves, and so does ⌘S.
  */
 export function DocModeSwitch({ slug }: { slug: string }) {
@@ -58,7 +58,7 @@ export function DocModeSwitch({ slug }: { slug: string }) {
   const readOnly = !canvasIndex().served
     ? "Read only here: this build has no server to save to"
     : slug.includes("/")
-      ? "Read only: an example's documents are the app's"
+      ? "Read only: these documents are the app's"
       : undefined;
   return (
     <button

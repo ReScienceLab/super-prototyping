@@ -11,16 +11,14 @@ import {
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
-import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 
 describe("readCanvasLibrary", () => {
-  it("puts the welcome page first, then `order`, then slug order", () => {
+  it("puts folders in `order`, then slug order", () => {
     const slugs = readCanvasLibrary().map((c) => c.slug);
-    expect(slugs[0]).toBe(WELCOME_PAGE_SLUG);
     // Three folders declare an order: snapaction-ios at -1 ahead of the alphabet,
     // apple-icons at 1 and templates at 2 behind it. Sorting the rest by the same
     // rule rather than naming them keeps this passing when a fourth one does.
-    const rest = slugs.slice(1);
+    const rest = slugs;
     const order = (slug: string) => readCanvasLayout(slug)?.order ?? 0;
     expect(rest).toEqual(
       [...rest].sort(

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { sheetRows } from "./sheetLayout";
-import { WELCOME_PAGE_SLUG } from "./canvasUrl";
 
 const captions = (slug: string) => sheetRows(slug).flatMap((row) => row.boards.map((b) => b.caption));
 
@@ -23,21 +22,6 @@ describe("sheetRows", () => {
     expect(boards.every((b) => b.w === 478 && b.h === 980)).toBe(true);
     expect(boards[0].src).toBe("/board/notion-ios/01-splash.html");
     expect(new Set(boards.map((b) => b.src)).size).toBe(boards.length);
-  });
-
-  it("gives a board the size its entry declares", () => {
-    // The welcome strip is the one board in the repo that is not phone-shaped.
-    const [row, ...rest] = sheetRows(WELCOME_PAGE_SLUG);
-    expect(rest).toEqual([]);
-    expect(row.title).toBe("super-prototyping");
-    expect(row.boards).toEqual([
-      {
-        src: `/board/${WELCOME_PAGE_SLUG}/00-welcome.html`,
-        caption: "What this is",
-        w: 2153,
-        h: 819,
-      },
-    ]);
   });
 
   it("has nothing to draw for a page with no boards", () => {

@@ -21,10 +21,11 @@ screens that have no reference to measure. Both write `.html` files into
 `canvases/<board>/`, and the canvas picks them up as shapes with no
 registry, no build step and no design tool.
 
-## Five worked examples
+## Five community projects
 
-Five of the app folders in `canvases/`. That folder's own
-`README.md` lists them all. Each is a real `sp-clone-prototype` run, rebuilt
+Five of the app folders in `canvases/`, each shared to the community as a
+project that opens read-only in the app. That folder's own `README.md` lists
+them all. Each is a real `sp-clone-prototype` run, rebuilt
 from measured samples with the evidence recorded for every token. Open any
 of them with `?canvas=<slug>`, and one board of it with
 `?canvas=<slug>#<file>`. The address follows whatever is open, the page and
@@ -99,8 +100,9 @@ The app is the canvas in a window, and it needs no terminal and no bun. It
 opens straight onto its home page, which is no project's, and asks over it
 which agent you will work with, Claude Code or Codex. New projects are made in
 `Documents/Super Prototyping` from the home page or the + on the tab bar, and
-each shows its `canvases` with the example canvases beside them, read-only
-until you clone one into the project. The agent works in the panel on the
+each shows its `canvases`. The home page's Community section lists the
+projects people shared, each opening read-only as a tab, and
+`sp duplicate <id>` copies one into your projects. The agent works in the panel on the
 left, with or without a project open, and remembers the conversation until you
 start a new one. It runs in a folder of its own under
 `Documents/Super Prototyping/.workspaces`, which holds the skills, kept at the
@@ -137,8 +139,8 @@ cp -r "$(sp root)/canvases/templates" canvases/<slug>
 python3 canvases/<slug>/gen.py
 ```
 
-`sp root` prints the tree inside the app. Every worked example above
-is in there to copy from too.
+`sp root` prints the tree inside the app. The community projects above are
+not in it: `sp fetch <id>` prints a folder holding a copy of one.
 
 ## Run the canvas
 

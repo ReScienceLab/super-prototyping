@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { canvasIndex, homeUrl } from "./canvasIndex";
+import { canvasIndex, homeUrl, local } from "./canvasIndex";
 import { CanvasTabBar } from "./CanvasTabBar";
 import {
+  communityId,
   isHere,
   readOpenTabs,
   tabFor,
   tabKey,
-  tabOfExample,
+  tabOfCommunity,
   tabUrl,
   withTab,
   writeOpenTabs,
@@ -22,7 +23,7 @@ import {
   type CanvasAttachDetail,
   type Working,
 } from "./ChatPanel";
-import { CommunityPage } from "./Community";
+import { CommunityPage, type OpenInApp } from "./Community";
 import { HomePage } from "./HomePage";
 import { NewProjectDialog, type NewProjectStart } from "./NewProjectDialog";
 import { Onboarding } from "./Onboarding";
@@ -61,9 +62,9 @@ declare global {
 const openedTab = tabFor(tabFromUrl(location.href));
 const opened =
   // A hosted project has no home page of its own; `/p/<id>/home` is a project named Home.
-  (!(!canvasIndex().served && canvasIndex().project) &&
+  (!(!local() && canvasIndex().project) &&
     /\/home(\.html)?$/.test(location.pathname)) ||
-  (!canvasIndex().served &&
+  (!local() &&
     !canvasIndex().project &&
     openedTab.kind === "project" &&
     openedTab.view.kind === "canvas")
@@ -113,7 +114,7 @@ export function AppShell() {
   );
   /** A hosted project's home and community are the site's own community page, a page away. */
   const setPage = (page: "home" | "community" | null) =>
-    page && !canvasIndex().served && canvasIndex().project
+    page && !local() && canvasIndex().project
       ? location.assign(homeUrl())
       : setPageHere(page);
   /** Whether the frame is behind a page, so no project's canvas is in front. */
@@ -131,7 +132,7 @@ export function AppShell() {
   const [tabs, setTabs] = useState(() => {
     // A build has no project, so a tab left from before it had only examples is gone.
     const open = readOpenTabs().filter(
-      (tab) => canvasIndex().served || tab.kind === "example",
+      (tab) => local() || tab.kind === "example",
     );
     return opened ? withTab(open, opened.tab) : open;
   });
@@ -176,7 +177,7 @@ export function AppShell() {
   // made, renamed or edited since, and when home deletes one; and with them the one thing about
   // another project this window can learn, that it has gone since its tab was left open.
   const listProjects = () => {
-    if (!canvasIndex().served) return;
+    if (!local()) return;
     void fetch("/__sp/projects.json")
       .then((response) => response.json())
       .then((list: Project[]) => {
@@ -185,7 +186,9 @@ export function AppShell() {
         setTabs((tabs) =>
           tabs.filter(
             (tab) =>
-              isHere(tab) || (tab.kind === "project" && known.has(tab.url)),
+              isHere(tab) ||
+              communityId(tab) !== undefined ||
+              (tab.kind === "project" && known.has(tab.url)),
           ),
         );
       });
@@ -206,6 +209,13 @@ export function AppShell() {
     if (!frame.current!.contentWindow!.spCanvas?.goTo(tab)) load(tabUrl(tab));
     setHome(false);
   };
+
+  /** A community project as its tab, read from the site through this server (`/c/<id>/`,
+   *  server/projects.ts). */
+  const openInApp: OpenInApp = (id) =>
+    void tabOfCommunity(id, tabs).then(goTo, (e: Error) =>
+      alert(`That project could not be opened: ${e.message}`),
+    );
 
   /**
    * Takes chips off the bar: one, the others, or all of them. Closing ones that are not in front
@@ -333,7 +343,7 @@ export function AppShell() {
     dialog.current!.showModal();
   };
   // A hosted build has no server to make a project on.
-  const served = canvasIndex().served;
+  const served = local();
 
   const view = shown?.tab.view;
   return (
@@ -367,18 +377,23 @@ export function AppShell() {
       >
         {/* Dev server and app only: the panel talks to /__sp/agent, which a hosted build has no
             process behind. */}
-        {canvasIndex().served && <AgentButton chat={chat} />}
+        {local() && <AgentButton chat={chat} />}
       </CanvasTabBar>
       <div className="canvas-body">
-        {canvasIndex().served && (
+        {local() && (
           <ChatPanel
             // Home is no canvas to the agent. Neither is the project's own view with no canvas
             // in front (HOME_TAB), nor the index of every kit, since both have an empty slug. A
             // kit is named by the canvas whose material it shows. A document is no canvas either.
             canvas={(!home && view?.kind !== "doc" && view?.slug) || undefined}
             project={
-              home || shown?.tab.kind !== "project" ? undefined : shown.tab.name
+              home ||
+              shown?.tab.kind !== "project" ||
+              communityId(shown.tab) !== undefined
+                ? undefined
+                : shown.tab.name
             }
+            community={home || !shown ? undefined : communityId(shown.tab)}
             chat={chat}
             onWorking={setWorking}
           />
@@ -396,9 +411,7 @@ export function AppShell() {
           {page === "community" && (
             // The home page's scrolling layer: the window is the viewport's height and clips.
             <div className="home-main">
-              <CommunityPage
-                openExample={(slug) => goTo(tabOfExample(slug, tabs))}
-              />
+              <CommunityPage openInApp={openInApp} />
             </div>
           )}
           {page === "home" && (
@@ -410,6 +423,7 @@ export function AppShell() {
               projects={projects}
               tabs={tabs}
               goTo={goTo}
+              openInApp={openInApp}
               newProject={served ? newProject : undefined}
               reload={listProjects}
             />

@@ -16,8 +16,7 @@ Everything renders on the canvas from `canvases/<slug>/`; see `sp-canvas` for
 running it, and its `references/layout.md` for the folder and `layout.json`
 rules.
 
-The app ships the template folder and every worked example, and `sp root`
-prints where. `sp`, `refkit` or `artgen` not found? Run `sh <sp-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
+The app ships the template folder, and `sp root` prints where. `sp`, `refkit` or `artgen` not found? Run `sh <sp-canvas skill dir>/scripts/install.sh` (Windows: `install.ps1`)
 and follow that skill's `references/install.md`. A `[super-prototyping:notice]`
 line on their stderr carries its own rule: finish the step, then do what it says.
 
