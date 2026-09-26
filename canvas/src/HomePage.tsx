@@ -5,7 +5,7 @@ import {
   type MouseEventHandler,
 } from "react";
 import { canvasIndex } from "./canvasIndex";
-import { CommunityCards, type OpenInApp } from "./Community";
+import { CommunityCards, type Duplicate, type OpenInApp } from "./Community";
 import { fitCover, type Cover } from "./cover";
 import {
   openInTab,
@@ -198,6 +198,8 @@ export function HomePage(props: {
   openInApp: OpenInApp;
   /** The server's, which a hosted build has none of. */
   newProject?: () => void;
+  /** The server's too: a community card's menu makes that project the user's. */
+  duplicate?: Duplicate;
   /** Lists the projects again, after one is deleted or its cover reset. */
   reload: () => void;
   /** Brings the Community tab forward (Community.tsx). */
@@ -357,9 +359,11 @@ export function HomePage(props: {
       </div>
       {/* Two rows of the latest. Each opens on a tab of its own (canvasTabs.ts), not on the
           project this window is on. */}
-      <ul className="home-grid">
-        <CommunityCards limit={8} openInApp={props.openInApp} />
-      </ul>
+      <CommunityCards
+        limit={8}
+        openInApp={props.openInApp}
+        duplicate={props.duplicate}
+      />
       {/* One menu for every card, a native popover like the chat panel's: the top layer, and a
           click outside or Esc to shut it. A pick shuts it before the row's own click runs, so the
           Trash's confirm is not drawn over it. */}

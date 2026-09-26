@@ -239,6 +239,30 @@ export function AppShell() {
   };
 
   /**
+   * A community project made the user's, by the server's `sp duplicate`, then opened as theirs.
+   * Its download can take a while, and nothing shows it but the tab that opens after.
+   */
+  const duplicating = useRef(new Set<string>());
+  const duplicate = async (id: string) => {
+    // Nothing shows the download, so a second pick of the same project would make a second copy.
+    if (duplicating.current.has(id)) return;
+    duplicating.current.add(id);
+    const res = await fetch(
+      new URL("/__sp/projects/duplicate", location.origin),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id }),
+      },
+    ).finally(() => duplicating.current.delete(id));
+    if (!res.ok)
+      return alert(`That project could not be duplicated: ${await res.text()}`);
+    const { url } = (await res.json()) as { url: string };
+    listProjects();
+    load(new URL(url, location.origin).href);
+  };
+
+  /**
    * Makes a project, in the projects folder (canvas/server/projects.ts), a browser tab's request
    * and the app's alike, then copies in the references a clone starts from. The server answers
    * the project's address, whose canvas goes in the frame, or what to say under the name field.
@@ -374,6 +398,7 @@ export function AppShell() {
             : page === null && frame.current!.contentWindow!.location.reload()
         }
         newProject={served ? newProject : undefined}
+        duplicate={served ? duplicate : undefined}
       >
         {/* Dev server and app only: the panel talks to /__sp/agent, which a hosted build has no
             process behind. */}
@@ -411,7 +436,10 @@ export function AppShell() {
           {page === "community" && (
             // The home page's scrolling layer: the window is the viewport's height and clips.
             <div className="home-main">
-              <CommunityPage openInApp={openInApp} />
+              <CommunityPage
+                openInApp={openInApp}
+                duplicate={served ? duplicate : undefined}
+              />
             </div>
           )}
           {page === "home" && (
@@ -425,6 +453,7 @@ export function AppShell() {
               goTo={goTo}
               openInApp={openInApp}
               newProject={served ? newProject : undefined}
+              duplicate={served ? duplicate : undefined}
               reload={listProjects}
             />
           )}

@@ -113,6 +113,8 @@ export function CanvasTabBar(props: {
   reload: () => void;
   /** The server's, which a hosted build has none of. */
   newProject?: () => void;
+  /** The server's too: makes a community project's tab a project of the user's. */
+  duplicate?: (id: string) => void;
   children?: ReactNode;
 }) {
   const { tabs, goTo } = props;
@@ -256,6 +258,16 @@ export function CanvasTabBar(props: {
                 onClick={props.reload}
               >
                 Reload
+              </button>
+            )}
+            {props.duplicate && communityId(target) !== undefined && (
+              <button
+                type="button"
+                role="menuitem"
+                className="sp-menu-row"
+                onClick={() => props.duplicate!(communityId(target)!)}
+              >
+                Duplicate to my projects
               </button>
             )}
             {target.kind === "project" &&
