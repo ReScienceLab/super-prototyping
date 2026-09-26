@@ -2,8 +2,8 @@
 
 2026-09-25. Every example and every project shared to the community opens
 read-only on the site, at `superproto.dev/p/<id>/<name>`. The community page is
-the way in, and its **Open** goes there for all of them. `/demo/` is gone; its
-old addresses redirect.
+the way in, and its **Open** goes there for all of them. `/demo/` is gone, and
+since 2026-09-26 its old addresses 404.
 
 ## The shape, after Figma
 
@@ -56,9 +56,10 @@ maps onto it one for one:
 
 ## Old addresses
 
-`/demo/…?canvas=<slug>` and `/demo/board/<slug>/…` are that example, and 301 to
-`/p/<slug>/…`. The bare `/demo/` listed the examples, which the community does
-now, so it and everything else under `/demo` 301 to `/community`.
+`/demo/…?canvas=<slug>` and `/demo/board/<slug>/…` first 301'd to
+`/p/<slug>/…`, and everything else under `/demo` to `/community`. On 2026-09-26,
+the morning 1.6.4 shipped, the redirect was removed rather than
+kept forever for links few people hold. Everything under `/demo` now 404s.
 
 ## A shared project appears when Pages rebuilds
 

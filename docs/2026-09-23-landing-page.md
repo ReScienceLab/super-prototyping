@@ -1,6 +1,6 @@
 # The domain is a download page; the canvas moves to /demo
 
-Superseded in part by `2026-09-25-project-urls.md`: the canvas is at `/p/<id>` now, and `/demo` redirects there.
+Superseded in part by `2026-09-25-project-urls.md`: the canvas is at `/p/<id>` now, and `/demo` 404s. Old root `?canvas=<slug>` links go to `/p/<slug>/`.
 
 2026-09-23. `prototyping.rescience.com` was the canvas itself. It is now the
 page that tells someone what Super Prototyping is and hands them a build, and
