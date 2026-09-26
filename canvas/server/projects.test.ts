@@ -164,6 +164,20 @@ it("serves every project at its own address and makes new ones", async () => {
       ).status,
     ).toBe(403);
     expect(fs.existsSync(path.join(tmp, "projects/alpha"))).toBe(true);
+    // Duplicating a community project is `sp duplicate`'s, which is not run here: only what the
+    // server refuses before it.
+    expect(
+      (await ask("/__sp/projects/duplicate", { id: "../alpha" })).status,
+    ).toBe(400);
+    expect(
+      (
+        await ask(
+          "/__sp/projects/duplicate",
+          { id: "19146dc5-50a2-43a4-9fd7-9e21f7d74845" },
+          { "sec-fetch-site": "cross-site" },
+        )
+      ).status,
+    ).toBe(403);
 
     // A new project, then opened. It gets no skills: the agent's are in its own folder.
     const made = await ask("/__sp/projects", { name: " beta " });

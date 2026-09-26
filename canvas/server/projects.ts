@@ -9,6 +9,7 @@
  * home page, at `/home.html`, the examples, and the agent behind the chat panel, at
  * `/__sp/agent`, so the app works with no project at all.
  */
+import { execFile } from "node:child_process";
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import net from "node:net";
@@ -26,6 +27,9 @@ import {
   shotOf,
   trash,
 } from "./sp.ts";
+
+/** A community project's id, which `sp pack` makes (tools/sp_canvas.py). */
+const COMMUNITY_ID = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
 
 /**
  * The folder every project is in, and where a new one goes. The desktop app's is Electron's
@@ -225,7 +229,7 @@ export function createProjectsServer(options: {
         });
       return;
     }
-    if (/^\/__sp\/projects(\/(reveal|delete))?$/.test(pathname)) {
+    if (/^\/__sp\/projects(\/(reveal|delete|duplicate))?$/.test(pathname)) {
       if (req.method !== "POST") return next();
       const send = (code: number, message: string) => {
         res.statusCode = code;
@@ -235,11 +239,43 @@ export function createProjectsServer(options: {
       let body = "";
       req.on("data", (chunk) => (body += chunk));
       req.on("end", () => {
-        let parsed: { name?: unknown };
+        let parsed: { name?: unknown; id?: unknown };
         try {
           parsed = JSON.parse(body || "{}");
         } catch {
           return send(400, "bad json");
+        }
+        // A community project made the user's (Community.tsx, CanvasTabBar.tsx), by `sp
+        // duplicate`, as the agent makes one: the download, the checks of the archive and a
+        // taken name are the toolkit's alone. The app links `sp` onto PATH (desktop/launch.ts).
+        if (pathname === "/__sp/projects/duplicate") {
+          if (typeof parsed.id !== "string" || !COMMUNITY_ID.test(parsed.id))
+            return send(400, "not a community project's id");
+          return execFile(
+            "sp",
+            ["duplicate", parsed.id],
+            {
+              env: { ...process.env, PROTOTYPING_PROJECTS_DIR: projectsDir },
+              timeout: 180_000,
+            },
+            (error, stdout, stderr) => {
+              if (error)
+                return send(
+                  (error as NodeJS.ErrnoException).code === "ENOENT"
+                    ? 503
+                    : 500,
+                  stderr.trim() || `could not duplicate it: ${error.message}`,
+                );
+              const name = stdout.trim();
+              res.setHeader("Content-Type", "application/json");
+              res.end(
+                JSON.stringify({
+                  name,
+                  url: `/p/${encodeURIComponent(name)}/`,
+                }),
+              );
+            },
+          );
         }
         // A home page card's menu, which names the project it was opened on.
         if (

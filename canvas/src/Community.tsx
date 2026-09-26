@@ -1,7 +1,14 @@
-import { useEffect, useRef, useState, type ComponentType } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type MouseEventHandler,
+} from "react";
 import "./community.css";
 import { openInTab } from "./canvasTabs";
 import { webUrl } from "./canvasUrl";
+import { openMenu } from "./contextMenu";
 import {
   ArrowRight,
   Box,
@@ -158,10 +165,23 @@ function Thumb({ entry }: { entry: Entry }) {
   );
 }
 
-function Card({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
+function Card({
+  entry,
+  onOpen,
+  onMenu,
+}: {
+  entry: Entry;
+  onOpen: () => void;
+  onMenu?: MouseEventHandler;
+}) {
   return (
     <li>
-      <button type="button" className="cm-card" onClick={onOpen}>
+      <button
+        type="button"
+        className="cm-card"
+        onClick={onOpen}
+        onContextMenu={onMenu}
+      >
         <div className="cm-shot">
           <Thumb entry={entry} />
         </div>
@@ -198,30 +218,124 @@ function useCommunity() {
 /** How the app opens a project of the community's, by its id: as its tab. */
 export type OpenInApp = (id: string) => void;
 
+/** How the app makes a project of the community's the user's, by its id (AppShell.tsx). */
+export type Duplicate = (id: string) => void;
+
+/**
+ * A card's right-click menu, in the app: one native popover for every card of a list, as the
+ * home page's own projects have (HomePage.tsx, contextMenu.ts). Nothing on the site, whose
+ * dialog has the same links and where the browser keeps its own menu.
+ */
+function useCardMenu(openInApp?: OpenInApp, duplicate?: Duplicate) {
+  const [target, setTarget] = useState<Entry>();
+  const menu = useRef<HTMLDivElement>(null);
+  if (!openInApp) return [undefined, null] as const;
+  const onMenu =
+    (entry: Entry): MouseEventHandler =>
+    (event) =>
+      openMenu(event, menu, () => setTarget(entry));
+  const popover = (
+    <div
+      ref={menu}
+      popover="auto"
+      className="sp-context-menu"
+      role="menu"
+      onClickCapture={(event) => event.currentTarget.hidePopover()}
+    >
+      {target && (
+        <>
+          <button
+            type="button"
+            role="menuitem"
+            className="sp-menu-row"
+            onClick={() => openInApp(target.id)}
+          >
+            Open
+          </button>
+          <hr />
+          <button
+            type="button"
+            role="menuitem"
+            className="sp-menu-row"
+            onClick={() =>
+              navigator.clipboard.writeText(webUrl(target.id, target.name))
+            }
+          >
+            Copy link
+          </button>
+          {duplicate && (
+            <button
+              type="button"
+              role="menuitem"
+              className="sp-menu-row"
+              onClick={() => duplicate(target.id)}
+            >
+              Duplicate to my projects
+            </button>
+          )}
+          <hr />
+          <a
+            role="menuitem"
+            className="sp-menu-row"
+            href={target.source}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View on GitHub
+          </a>
+        </>
+      )}
+    </div>
+  );
+  return [onMenu, popover] as const;
+}
+
 /**
  * The home page's Community section (HomePage.tsx): the latest projects as cards, each opening
  * as its tab, as it does from the community's dialog.
  */
 export function CommunityCards({
   openInApp,
+  duplicate,
   limit,
 }: {
   openInApp: OpenInApp;
+  duplicate?: Duplicate;
   limit: number;
 }) {
-  return useCommunity()
-    .slice(0, limit)
-    .map((e) => (
-      <Card key={e.id} entry={e} onOpen={() => openInApp(e.id)} />
-    ));
+  const all = useCommunity();
+  const [onMenu, menu] = useCardMenu(openInApp, duplicate);
+  return (
+    <>
+      <ul className="home-grid">
+        {all.slice(0, limit).map((e) => (
+          <Card
+            key={e.id}
+            entry={e}
+            onOpen={() => openInApp(e.id)}
+            onMenu={onMenu?.(e)}
+          />
+        ))}
+      </ul>
+      {menu}
+    </>
+  );
 }
 
 /**
  * @param openInApp The app's: opens a project as its tab. Without it, as on the site, Open is a
  * link to the project's page on the site.
  */
-export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
+export function CommunityPage({
+  openInApp,
+  duplicate,
+}: {
+  openInApp?: OpenInApp;
+  /** The app's server's, which makes the copy; neither the site nor a hosted build has one. */
+  duplicate?: Duplicate;
+}) {
   const all = useCommunity();
+  const [onMenu, menu] = useCardMenu(openInApp, duplicate);
   const [family, setFamily] = useState<Family | "all">("all");
   const [collection, setCollection] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -371,7 +485,12 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
       )}
       <ul className="cm-grid" role="tabpanel" aria-live="polite">
         {shown.map((e) => (
-          <Card key={e.id} entry={e} onOpen={() => setOpen(e)} />
+          <Card
+            key={e.id}
+            entry={e}
+            onOpen={() => setOpen(e)}
+            onMenu={onMenu?.(e)}
+          />
         ))}
         {shown.length === 0 && (
           <li className="cm-empty">
@@ -578,6 +697,18 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
                 >
                   <Link /> {copied === open.id ? "Copied" : "Copy link"}
                 </button>
+                {duplicate && (
+                  <button
+                    type="button"
+                    className="cm-btn cm-btn--ghost cm-btn--md"
+                    onClick={() => {
+                      setOpen(null);
+                      duplicate(open.id);
+                    }}
+                  >
+                    Duplicate
+                  </button>
+                )}
                 {open.source && (
                   <a
                     className="cm-btn cm-btn--ghost cm-btn--md"
@@ -601,6 +732,7 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
           </div>
         )}
       </dialog>
+      {menu}
     </div>
   );
 }
