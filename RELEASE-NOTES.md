@@ -40,8 +40,6 @@ bundles them.
   superproto.dev, paste it in the app's chat, and the agent can open it and
   read its boards. Copy link on a community project gives that public address
   wherever the project is open.
-- **Add a community project's boards to the chat** with the + on each, as you
-  would your own.
 - **One kind of address on the web**, `superproto.dev/p/<id>/<name>`, for
   every community project.
 - **Menus work from the keyboard.** Every right-click menu, and the model and
