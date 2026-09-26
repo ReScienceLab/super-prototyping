@@ -19,6 +19,11 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.7.0
+
+2026-09-26. The community projects open in the app, and the app no longer
+bundles them.
+
 - **A much smaller app.** It no longer bundles the projects it used to call
   examples, about 420 MB of it. They are community projects now, shared like
   anyone's, and downloaded only when you open one.
