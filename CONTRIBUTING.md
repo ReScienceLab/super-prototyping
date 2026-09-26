@@ -133,8 +133,7 @@ nothing is lost: open it by hand from
 `main...release/<version>`, and turn on Settings → Actions → General → "Allow
 GitHub Actions to create and approve pull requests", which is what it needed.
 The bundle is attached last, after the release is cut, so a failure there leaves
-the release whole. To add it by hand: in `canvas/`, run `bun run build` with
-`PROTOTYPING_CANVASES_DIR` pointing at an empty directory, then
+the release whole. To add it by hand: in `canvas/`, run `bun run build`, then
 `tar -czf canvas-dist.tgz dist`, then
 `gh release upload super-prototyping--v<version> canvas-dist.tgz`. The dmgs
 can be added by hand the same way. The `dmg` job in `release.yml` is the list

@@ -10,7 +10,7 @@ name: Release
 #   2. Merging that PR changes canvas/package.json on main, which fires
 #      the second half: it tags super-prototyping--v<version>, cuts the
 #      GitHub Release from the matching RELEASE-NOTES.md section, and attaches
-#      the canvas, built without the example boards, as canvas-dist.tgz.
+#      the canvas as canvas-dist.tgz.
 #      Re-running a run whose attach step failed does that last part again for
 #      the tag already cut. A macOS runner then adds the app, a dmg per
 #      architecture, and writes the Homebrew tap's cask to name those two dmgs.
@@ -274,15 +274,12 @@ jobs:
 
       # The canvas, built once here so that an install does not have to: `sp
       # start` fetches this bundle for a checkout's version on first start (#108), by
-      # this asset name under this tag. The example boards stay out, because an
-      # install shows the user's boards and not this repo's;
-      # PROTOTYPING_CANVASES_DIR is the build's knob for the index it writes
-      # into dist, and an empty directory builds an empty canvas. After the release rather than
-      # before it: the tag is pushed by now and the ruleset forbids moving it, so a
+      # this asset name under this tag. The build carries no boards of its own,
+      # since an install shows the user's. After the release rather than before it: the tag is pushed by now and the ruleset forbids moving it, so a
       # build failure must not leave a tag with no release behind it. A failure here
       # is a missing asset, and every `sp start` on this version stops and prints
       # the URL it wanted until re-running this run attaches it (`attach` above).
-      - name: Attach the canvas, built without the example boards
+      - name: Attach the canvas
         if: steps.v.outputs.attach == 'true'
         working-directory: canvas
         env:
@@ -290,7 +287,7 @@ jobs:
           VERSION: ${{ steps.v.outputs.version }}
         run: |
           bun install --frozen-lockfile
-          PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
+          bun run build
           tar -czf "$RUNNER_TEMP/canvas-dist.tgz" dist
           gh release upload "super-prototyping--v$VERSION" "$RUNNER_TEMP/canvas-dist.tgz"
 
@@ -328,15 +325,15 @@ jobs:
           fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
 
-      # The example boards stay out of the canvas build, as above. The app ships
-      # the template itself (extraResources in desktop/package.json),
-      # and every other example is a community project it reads from the site
+      # The canvas build carries no boards, as above. The app ships the template
+      # itself (extraResources in desktop/package.json), and every other example
+      # is a community project it reads from the site
       # (docs/2026-09-26-projects-on-demand.md).
-      - name: Build the canvas, without the example boards
+      - name: Build the canvas
         working-directory: canvas
         run: |
           bun install --frozen-lockfile
-          PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
+          bun run build
 
       - name: Build, sign, notarise and attach the dmgs
         working-directory: desktop
@@ -460,11 +457,11 @@ jobs:
           fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
 
-      - name: Build the canvas, without the example boards
+      - name: Build the canvas
         working-directory: canvas
         run: |
           bun install --frozen-lockfile
-          PROTOTYPING_CANVASES_DIR="$(mktemp -d)" bun run build
+          bun run build
 
       - name: Build and attach the installer
         working-directory: desktop

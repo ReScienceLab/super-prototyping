@@ -26,15 +26,14 @@ maps onto it one for one:
 - **The id finds the project; the name is for people reading the link.**
   Renaming a project breaks no link, and a link with the wrong name still
   opens. The canvas keeps the name it was opened with on the address as it
-  moves (AppShell.tsx). An example's id is its folder name, which already is a
-  name, so its address has none: `/p/claude-ios`.
+  moves (AppShell.tsx). An example once used its folder name as its id,
+  `/p/claude-ios`; since 2026-09-26 every example is a community project with
+  a UUID like any other (2026-09-26-projects-on-demand.md).
 - **One canvas, many projects.** A project's page is the one build every
   project shares; only its index differs. The build writes one per project at
   `p/<id>/__sp/index.json` (vite.config.ts), naming it the project, so the
-  window opens on it rather than on a home page. An example's boards stay where
-  they were, `board/<slug>/`, rather than a second copy per project: they are
-  384 MB. A shared project's boards are under `p/<id>/board/`, since its slugs
-  can be anyone's.
+  window opens on it rather than on a home page. A project's boards are under
+  `p/<id>/board/`, since its slugs can be anyone's.
 
 ## Where each piece lives
 
@@ -45,14 +44,14 @@ maps onto it one for one:
   quietly lost them.
 - **The site's Worker** (`super-prototyping-landing`, `src/worker.js`) maps
   `/p/<id>/…` onto the Pages deploy: the window page for the project's address
-  and its name, the project's index, cover and shared boards from under
+  and its name, the project's index, cover and boards from under
   `/p/<id>/`, and every other file from the root. It asks Pages for a page's
   extensionless twin, since Pages answers `.html` with a 308 that would walk the
   browser out of `/p/`. It puts the project's cover and address in the page's
   link preview.
-- **Sandbox.** A shared project's boards are other people's HTML, served from
-  the site's origin, so `canvas/public/_headers` gives `/p/:id/board/*` the same
-  `sandbox` CSP as `/board/*`.
+- **Sandbox.** A community project's boards are other people's HTML, served
+  from the site's origin, so `canvas/public/_headers` gives `/p/:id/board/*`
+  the `sandbox` CSP the app's server gives every board.
 
 ## Old addresses
 
