@@ -27,8 +27,9 @@ the plugin is the whole repository and the app ships the folder under its plugin
 and hands the server only `SUPER_PROTOTYPING_ROOT`. `--canvases` is gone, and the server no
 longer reads `PROTOTYPING_CANVASES_DIR`. A project's boards are its `canvases`, spelled once in
 the server (`CANVASES` in `boards.ts`) and once in `sp_canvas.py`, so moving them is one edit each.
-`PROTOTYPING_CANVASES_DIR` remains a build-time knob only, for the index the build writes into
-`dist`, which the release workflow points at an empty folder. `PROTOTYPING_PROJECT_DIR` and
+`PROTOTYPING_CANVASES_DIR` remained a build-time knob, for the index the build wrote into
+`dist`, until 2026-09-26, when the build stopped writing this repo's boards at all
+(2026-09-26-projects-on-demand.md). `PROTOTYPING_PROJECT_DIR` and
 `PROTOTYPING_EXAMPLES_DIR` are gone with the mode that needed them.
 
 ## Making and opening projects is the server's

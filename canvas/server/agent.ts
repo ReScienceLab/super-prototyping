@@ -447,6 +447,14 @@ export function createAgentServer(options: {
                 "which someone shared and is not on this machine. `sp fetch " + community + "` prints " +
                 "a folder holding a copy of it to read, and `sp duplicate " + community + "` makes it a " +
                 "new project of theirs, the only way to change it.",
+            // A link from the site, pasted into the chat, arrives as text unless it is this
+            // project's, whose boards it names become chips (App.tsx, attach).
+            "A superproto.dev/p/<id>/<name> link they paste is a community project's. `sp fetch " +
+              "'<link>'` (quoted, for its ? and #) prints the folder holding a copy of it to " +
+              "read, and in the link " +
+              "`?canvas=<slug>` is its folder canvases/<slug>, `#<file>` the board <file>.html " +
+              "in that folder, `#assets/<path>` the picture at that path in it, and " +
+              "`?doc=<file>` that file at its root.",
             community === undefined &&
               canvas &&
               (dir === undefined || folder !== path.join(boards, canvas)

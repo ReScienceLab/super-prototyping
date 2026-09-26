@@ -49,7 +49,7 @@ import {
   resolveAuthor,
   type CommentUser,
 } from "./canvasComments";
-import { canvasIndex } from "./canvasIndex";
+import { canvasIndex, local } from "./canvasIndex";
 import {
   CANVAS_FILE_SHAPE_TYPE,
   type CanvasFileShape,
@@ -74,7 +74,7 @@ import {
   RefreshCounterClockwise,
 } from "./geistIcons";
 import { asCanvasTarget, shapeUnderPointer } from "./inspectorClicks";
-import { urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
+import { shareUrl, urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
 const COMMENT_USER_DIALOG = "comment-user";
@@ -193,7 +193,9 @@ export const canvasUiOverrides: TLUiOverrides = {
  * address, a heading say, has none to add.
  */
 function selectionLinks(editor: Editor) {
-  const here = windowUrl(window.location.href);
+  // A community project's links are the site's, wherever it is open (shareUrl); a paste of one
+  // back into this canvas still finds its board (sameProject).
+  const here = shareUrl(windowUrl(window.location.href), canvasIndex().title);
   return editor.getSelectedShapes().flatMap((shape) => {
     if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
       const file = readCanvasLibrary()
@@ -520,9 +522,10 @@ export const canvasChromeComponents: TLComponents = {
           currentUserId={chrome.commentUser?.id ?? null}
           resolveAuthor={resolveAuthor}
         />
-        {/* Dev only, like the panel they hand things to. */}
-        {canvasIndex().served && <CanvasAttachButtons />}
-        {canvasIndex().served && <CanvasSelectionAttachButton />}
+        {/* In the app only, like the panel they hand things to: a community project's too,
+            whose boards its server draws as it draws the project's own (server/projects.ts). */}
+        {local() && <CanvasAttachButtons />}
+        {local() && <CanvasSelectionAttachButton />}
         {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
             next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}

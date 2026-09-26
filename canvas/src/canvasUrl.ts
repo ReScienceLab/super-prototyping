@@ -134,3 +134,52 @@ export function urlForTab(href: string, tab: CanvasTab, target?: string) {
   url.searchParams.set(BRAND_PARAM, tab.slug);
   return url.href;
 }
+
+const SITE = "https://superproto.dev";
+const ID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+
+/**
+ * A community project's address on the site, `/p/<id>/<name>`, as Figma's file links are: the
+ * id finds it and the name is for people reading the link (docs/2026-09-25-project-urls.md).
+ */
+export function webUrl(id: string, name = "") {
+  const slug = name
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-|-$/g, "");
+  return `${SITE}/p/${id}/${slug}`;
+}
+
+/**
+ * The community project an address is of, by its id: the app's `/c/<id>/`, or the site's
+ * `/p/<id>/…`. Not a `/p/` on this machine, which is a local project's folder, whatever its name.
+ */
+export function communityIdOf(href: string) {
+  const url = new URL(href);
+  const app = new RegExp(`^/c/(${ID})/`).exec(url.pathname)?.[1];
+  if (app || ["127.0.0.1", "localhost", "[::1]"].includes(url.hostname))
+    return app;
+  return new RegExp(`^/p/(${ID})(/|$)`).exec(url.pathname)?.[1];
+}
+
+/**
+ * The address to hand someone for `href`. A community project's is always the site's, with the
+ * same view and board, whether it is open there or in the app, whose address is localhost and
+ * opens nowhere else. A local project's is its own: it is on no site.
+ */
+export function shareUrl(href: string, name?: string) {
+  const id = communityIdOf(href);
+  if (!id) return href;
+  const { search, hash } = new URL(href);
+  return webUrl(id, name) + search + hash;
+}
+
+/** Whether two addresses are of one project: the same page, or the same community project
+ *  wherever each is open, so a link copied off it (shareUrl) still names this one. */
+export function sameProject(a: string, b: string) {
+  const id = communityIdOf(a);
+  if (id) return id === communityIdOf(b);
+  const x = new URL(a);
+  const y = new URL(b);
+  return x.origin === y.origin && x.pathname === y.pathname;
+}

@@ -1,6 +1,15 @@
-import { useEffect, useRef, useState, type ComponentType } from "react";
+import { Tabs } from "radix-ui";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import "./community.css";
 import { openInTab } from "./canvasTabs";
+import { webUrl } from "./canvasUrl";
+import { MenuItem, MenuSeparator, RightClickMenu } from "./contextMenu";
 import {
   ArrowRight,
   Box,
@@ -29,17 +38,6 @@ import {
  * its own address (docs/2026-09-25-project-urls.md), and in the app as its tab.
  */
 
-/**
- * A project's page on the site, a link worth sending: the app's own address is localhost. The
- * id finds it and the name is for people reading the link, as in Figma's file links.
- */
-const webUrl = (entry: Entry) => {
-  const name = entry.name
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, "-")
-    .replace(/^-|-$/g, "");
-  return `https://superproto.dev/p/${entry.id}/${name}`;
-};
 const COMMUNITY = "https://github.com/ReScienceLab/super-prototyping-community";
 const SHARE = `${COMMUNITY}#share-a-project`;
 const TAKEDOWN = `${COMMUNITY}/issues/new?template=takedown.yml`;
@@ -168,28 +166,38 @@ function Thumb({ entry }: { entry: Entry }) {
   );
 }
 
-function Card({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
+function Card({
+  entry,
+  onOpen,
+  menu,
+}: {
+  entry: Entry;
+  onOpen: () => void;
+  /** Its right-click menu's rows, in the app. */
+  menu?: ReactNode;
+}) {
+  const card = (
+    <button type="button" className="cm-card" onClick={onOpen}>
+      <div className="cm-shot">
+        <Thumb entry={entry} />
+      </div>
+      <div className="cm-cap">
+        {entry.icon && <img className="cm-appicon" src={entry.icon} alt="" />}
+        <span className="cm-capname">
+          <b>{entry.name}</b>
+          <span className="cm-mono">{plural(entry.boards)}</span>
+        </span>
+        <img
+          className="cm-avatar"
+          src={avatar(entry.author)}
+          alt=""
+          title={entry.author}
+        />
+      </div>
+    </button>
+  );
   return (
-    <li>
-      <button type="button" className="cm-card" onClick={onOpen}>
-        <div className="cm-shot">
-          <Thumb entry={entry} />
-        </div>
-        <div className="cm-cap">
-          {entry.icon && <img className="cm-appicon" src={entry.icon} alt="" />}
-          <span className="cm-capname">
-            <b>{entry.name}</b>
-            <span className="cm-mono">{plural(entry.boards)}</span>
-          </span>
-          <img
-            className="cm-avatar"
-            src={avatar(entry.author)}
-            alt=""
-            title={entry.author}
-          />
-        </div>
-      </button>
-    </li>
+    <li>{menu ? <RightClickMenu menu={menu}>{card}</RightClickMenu> : card}</li>
   );
 }
 
@@ -208,29 +216,81 @@ function useCommunity() {
 /** How the app opens a project of the community's, by its id: as its tab. */
 export type OpenInApp = (id: string) => void;
 
+/** How the app makes a project of the community's the user's, by its id (AppShell.tsx). */
+export type Duplicate = (id: string) => void;
+
+/**
+ * A card's right-click menu, in the app, as the home page's own projects have (HomePage.tsx).
+ * None on the site, whose dialog has the same links and where the browser keeps its own menu.
+ */
+function cardMenu(entry: Entry, openInApp?: OpenInApp, duplicate?: Duplicate) {
+  if (!openInApp) return undefined;
+  return (
+    <>
+      <MenuItem onSelect={() => openInApp(entry.id)}>Open</MenuItem>
+      <MenuSeparator />
+      <MenuItem
+        onSelect={() =>
+          navigator.clipboard.writeText(webUrl(entry.id, entry.name))
+        }
+      >
+        Copy link
+      </MenuItem>
+      {duplicate && (
+        <MenuItem onSelect={() => duplicate(entry.id)}>
+          Duplicate to my projects
+        </MenuItem>
+      )}
+      <MenuSeparator />
+      <MenuItem asChild>
+        <a href={entry.source} target="_blank" rel="noopener noreferrer">
+          View on GitHub
+        </a>
+      </MenuItem>
+    </>
+  );
+}
+
 /**
  * The home page's Community section (HomePage.tsx): the latest projects as cards, each opening
  * as its tab, as it does from the community's dialog.
  */
 export function CommunityCards({
   openInApp,
+  duplicate,
   limit,
 }: {
   openInApp: OpenInApp;
+  duplicate?: Duplicate;
   limit: number;
 }) {
-  return useCommunity()
-    .slice(0, limit)
-    .map((e) => (
-      <Card key={e.id} entry={e} onOpen={() => openInApp(e.id)} />
-    ));
+  const all = useCommunity();
+  return (
+    <ul className="home-grid">
+      {all.slice(0, limit).map((e) => (
+        <Card
+          key={e.id}
+          entry={e}
+          onOpen={() => openInApp(e.id)}
+          menu={cardMenu(e, openInApp, duplicate)}
+        />
+      ))}
+    </ul>
+  );
 }
 
 /**
  * @param openInApp The app's: opens a project as its tab. Without it, as on the site, Open is a
  * link to the project's page on the site.
  */
-export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
+export function CommunityPage({
+  openInApp,
+  duplicate,
+}: {
+  openInApp?: OpenInApp;
+  /** The app's server's, which makes the copy; neither the site nor a hosted build has one. */
+  duplicate?: Duplicate;
+}) {
   const all = useCommunity();
   const [family, setFamily] = useState<Family | "all">("all");
   const [collection, setCollection] = useState<string | null>(null);
@@ -341,84 +401,96 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
         </form>
       </section>
 
-      <div className="cm-tabs" role="tablist" aria-label="Device" ref={tabs}>
-        {FAMILIES.map(([key, label, Icon]) => {
-          const n =
-            key === "all"
-              ? all.length
-              : all.filter((e) => e.family === key).length;
-          return (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              className="cm-tab"
-              data-empty={n === 0 || undefined}
-              aria-selected={family === key}
-              onClick={() => setFamily(key)}
-            >
-              <Icon />
-              <span>{label}</span>
-              <i>{n}</i>
-            </button>
-          );
-        })}
-      </div>
-      {col && (
-        <div className="cm-filter">
-          <span className="cm-mono">Collection</span>
-          <span className="cm-chip">
-            {col.title}
-            <button
-              type="button"
-              aria-label="Clear collection"
-              onClick={() => setCollection(null)}
-            >
-              <Cross />
-            </button>
-          </span>
-        </div>
-      )}
-      <ul className="cm-grid" role="tabpanel" aria-live="polite">
-        {shown.map((e) => (
-          <Card key={e.id} entry={e} onOpen={() => setOpen(e)} />
-        ))}
-        {shown.length === 0 && (
-          <li className="cm-empty">
-            {needle ? (
-              <>
-                <MagnifyingGlass />
-                <h3>Nothing matches “{q.trim()}”</h3>
-                <p>Try another name, or clone it yourself and share it.</p>
-                <button
-                  type="button"
-                  className="cm-btn cm-btn--ghost cm-btn--md"
-                  onClick={() => setQ("")}
-                >
-                  Clear search
-                </button>
-              </>
-            ) : (
-              <>
-                <h3>No {familyName(family)} projects yet</h3>
-                <p>
-                  {col
-                    ? `Nothing in “${col.title}” for ${familyName(family)}.`
-                    : "Be the first to clone one and share it."}
-                </p>
-                <a
-                  className="cm-btn cm-btn--solid cm-btn--md"
-                  href={SHARE}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Share the first one <ArrowRight />
-                </a>
-              </>
-            )}
-          </li>
+      {/* Radix's tabs, for the arrow keys between them and the panel they name. Its root is no
+          box of the layout's. */}
+      <Tabs.Root
+        className="cm-tabs-root"
+        value={family}
+        onValueChange={(value) => setFamily(value as Family | "all")}
+      >
+        <Tabs.List className="cm-tabs" aria-label="Device" ref={tabs}>
+          {FAMILIES.map(([key, label, Icon]) => {
+            const n =
+              key === "all"
+                ? all.length
+                : all.filter((e) => e.family === key).length;
+            return (
+              <Tabs.Trigger
+                key={key}
+                value={key}
+                className="cm-tab"
+                data-empty={n === 0 || undefined}
+              >
+                <Icon />
+                <span>{label}</span>
+                <i>{n}</i>
+              </Tabs.Trigger>
+            );
+          })}
+        </Tabs.List>
+        {col && (
+          <div className="cm-filter">
+            <span className="cm-mono">Collection</span>
+            <span className="cm-chip">
+              {col.title}
+              <button
+                type="button"
+                aria-label="Clear collection"
+                onClick={() => setCollection(null)}
+              >
+                <Cross />
+              </button>
+            </span>
+          </div>
         )}
-      </ul>
+        <Tabs.Content value={family} asChild>
+          <ul className="cm-grid" aria-live="polite" tabIndex={-1}>
+            {shown.map((e) => (
+              <Card
+                key={e.id}
+                entry={e}
+                onOpen={() => setOpen(e)}
+                menu={cardMenu(e, openInApp, duplicate)}
+              />
+            ))}
+            {shown.length === 0 && (
+              <li className="cm-empty">
+                {needle ? (
+                  <>
+                    <MagnifyingGlass />
+                    <h3>Nothing matches “{q.trim()}”</h3>
+                    <p>Try another name, or clone it yourself and share it.</p>
+                    <button
+                      type="button"
+                      className="cm-btn cm-btn--ghost cm-btn--md"
+                      onClick={() => setQ("")}
+                    >
+                      Clear search
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <h3>No {familyName(family)} projects yet</h3>
+                    <p>
+                      {col
+                        ? `Nothing in “${col.title}” for ${familyName(family)}.`
+                        : "Be the first to clone one and share it."}
+                    </p>
+                    <a
+                      className="cm-btn cm-btn--solid cm-btn--md"
+                      href={SHARE}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Share the first one <ArrowRight />
+                    </a>
+                  </>
+                )}
+              </li>
+            )}
+          </ul>
+        </Tabs.Content>
+      </Tabs.Root>
 
       <section className="cm-section" aria-labelledby="cm-themes">
         <div className="cm-mono">Curated collections</div>
@@ -560,7 +632,7 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
                 {openInApp ? (
                   <a
                     className="cm-btn cm-btn--solid cm-btn--md"
-                    href={webUrl(open)}
+                    href={webUrl(open.id, open.name)}
                     onClick={openInTab((id: string) => {
                       setOpen(null);
                       openInApp(id);
@@ -571,7 +643,7 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
                 ) : (
                   <a
                     className="cm-btn cm-btn--solid cm-btn--md"
-                    href={webUrl(open)}
+                    href={webUrl(open.id, open.name)}
                     rel="noopener noreferrer"
                   >
                     Open <ArrowRight />
@@ -582,12 +654,24 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
                   className="cm-btn cm-btn--ghost cm-btn--md"
                   onClick={() =>
                     navigator.clipboard
-                      .writeText(webUrl(open))
+                      .writeText(webUrl(open.id, open.name))
                       .then(() => setCopied(open.id))
                   }
                 >
                   <Link /> {copied === open.id ? "Copied" : "Copy link"}
                 </button>
+                {duplicate && (
+                  <button
+                    type="button"
+                    className="cm-btn cm-btn--ghost cm-btn--md"
+                    onClick={() => {
+                      setOpen(null);
+                      duplicate(open.id);
+                    }}
+                  >
+                    Duplicate
+                  </button>
+                )}
                 {open.source && (
                   <a
                     className="cm-btn cm-btn--ghost cm-btn--md"

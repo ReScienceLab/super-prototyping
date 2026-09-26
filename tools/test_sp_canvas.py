@@ -695,6 +695,10 @@ def test_a_community_project_is_fetched_once_to_read_and_duplicated_whole_to_edi
     assert path == str(cache / pid) and (cache / pid / "canvases/a/01-home.html").read_text() == "v1"
     assert urls == [f"https://github.com/{C.COMMUNITY}/releases/download/archives/{pid}.tar.gz"]
     assert run(["fetch", pid], AssertionError("cached"))[1] == []
+    # A link to it, as the user pastes one, is the same project.
+    for link in (f"https://superproto.dev/p/{pid}/apple-settings?canvas=a#01-home",
+                 f"http://127.0.0.1:5417/c/{pid}/?canvas=a"):
+        assert run(["fetch", link], AssertionError("cached")) == (path, [])
     newer = archive({f"{pid}/canvases/a/01-home.html": "v2"})
     run(["fetch", pid, "--fresh"], newer)
     assert (cache / pid / "canvases/a/01-home.html").read_text() == "v2"
