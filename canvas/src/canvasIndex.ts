@@ -22,8 +22,6 @@ export interface IndexBoard {
   brand: string[];
   /** The brand images the build generated a smaller variant for; empty when served. */
   thumbs: string[];
-  /** `length:hash` of an inlined image's payload -> the file it came from. */
-  assets: Record<string, { name: string; bytes: number }>;
   /** The folder's comments.json, when it has one. */
   comments?: CommentsFile;
   /** The folder's canvas.json, what a person put on the canvas, when it has one; null when the
@@ -109,8 +107,7 @@ export function canvasIndex(): CanvasIndex {
 
 /**
  * Window event fired once a board's layout changed underneath the page. The canvas lays itself
- * out again on it (App.tsx) and the inspector re-reads the board's status (InspectorPanel.tsx).
- * Between them, that is everything a layout.json change can move.
+ * out again on it (App.tsx), which is everything a layout.json change can move.
  */
 export const LAYOUT_CHANGED = "sp:layout";
 /**

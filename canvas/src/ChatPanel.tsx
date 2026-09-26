@@ -97,9 +97,9 @@ const OPEN_KEY = "sp-chat-open";
  * panel puts its tile and its number up at once and asks for the drawing itself — from here and
  * not from the canvas's frame, which a reload or a change of tab would take the answer away with.
  *
- * On `window`, because the panel is a sibling of `<Tldraw>` and the button renders inside it,
- * the same arrangement, and the same answer, as ASK_COMMENT_USER (canvasChrome.tsx). Here rather
- * than beside the button, so the home page, which has the panel and no canvas, has no tldraw.
+ * On `window`, because the panel is a sibling of `<Tldraw>` and the button renders inside it.
+ * Here rather than beside the button, so the home page, which has the panel and no canvas, has
+ * no tldraw.
  */
 export const CANVAS_ATTACH = "sp:canvas-attach";
 

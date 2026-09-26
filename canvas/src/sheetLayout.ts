@@ -13,7 +13,7 @@ import {
  * The canvas is the place to read a flow; the sheet is the place to read a screen. Every board
  * is on it at its own size, in a frame of its own pointed at that board's own address, so type
  * is the size it will ship at and anything the board does on a tap still does it — which a
- * canvas at 25% cannot show and the inspector can only show one board at a time.
+ * canvas at 25% cannot show.
  */
 
 /**

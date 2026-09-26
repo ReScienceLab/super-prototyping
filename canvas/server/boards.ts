@@ -5,7 +5,6 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { svgSignature } from "../src/svgSignature.ts";
 
 /**
  * A project's boards: this folder under it, one subfolder per canvas. The same folder under the
@@ -44,126 +43,6 @@ export const IMAGE_MIME: Record<string, string> = {
  * resolve back to it, so nothing is ever shown softer than the screen can display.
  */
 export const THUMB_EDGE = 880;
-
-/**
- * FNV-1a 32 over a string's code units, base 36. The inspector's agent runs the same function
- * over the base64 payload of each data: URI inside the board, and joins on `length:hash`. A
- * plain hash rather than SHA because the agent runs in a sandboxed frame with no `crypto.subtle`
- * in every deployment, and this does 3 MB in about 12 ms.
- */
-function fnv1a(s: string) {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++)
-    h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0;
-  return h.toString(36);
-}
-
-interface AssetName {
-  /** Path inside the board folder, `assets/art/hero.png`, or `assets.json#key`. */
-  name: string;
-  /** Decoded size, i.e. the file's own byte count. */
-  bytes: number;
-}
-
-/**
- * What one asset file, or one assets.json, contributes to the index, remembered by the file's
- * size and mtime. The index is built on every request for it, and this repo's own boards hold
- * 300 MB of assets: hashing them once is a second, a stat each is nothing.
- */
-const hashed = new Map<
-  string,
-  { stamp: string; keys: [string, AssetName][] }
->();
-function keysOf(file: string, read: (buf: Buffer) => [string, AssetName][]) {
-  const stat = fs.statSync(file);
-  const stamp = `${stat.size}:${stat.mtimeMs}`;
-  let entry = hashed.get(file);
-  if (entry?.stamp !== stamp) {
-    entry = { stamp, keys: read(fs.readFileSync(file)) };
-    hashed.set(file, entry);
-  }
-  return entry.keys;
-}
-
-/**
- * `length:hash` of the base64 payload -> the source file, for every image a folder's generator
- * could have inlined: `assets/**`, `assets-dark/**` and the values of `assets.json`. `refs/` is
- * skipped because it holds third-party captures that are never committed. A generator that
- * re-encodes on the way (a PIL resize) produces bytes that match nothing here, and the
- * inspector then falls back to the image's alt text. An `.svg` file is indexed twice: by its
- * bytes like any image, and as `svg:hash` of its geometry, which is how an inline `<svg>` on a
- * board is keyed, since the generator rewrote its root tag on the way in.
- */
-function assetIndex(folder: string): Record<string, AssetName> {
-  const out: Record<string, AssetName> = {};
-  const add = ([key, name]: [string, AssetName]) => {
-    if (!(key in out)) out[key] = name;
-  };
-  const walk = (dir: string, rel: string) => {
-    let entries: fs.Dirent[];
-    try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch {
-      return;
-    }
-    for (const e of entries) {
-      if (e.name.startsWith(".")) continue;
-      const p = path.join(dir, e.name);
-      if (e.isDirectory()) {
-        if (e.name !== "refs") walk(p, `${rel}${e.name}/`);
-        continue;
-      }
-      if (!(path.extname(e.name).toLowerCase() in IMAGE_MIME)) continue;
-      const name = { name: rel + e.name, bytes: 0 };
-      keysOf(p, (buf) => {
-        const payload = buf.toString("base64");
-        const named = { ...name, bytes: buf.length };
-        const keys: [string, AssetName][] = [
-          [`${payload.length}:${fnv1a(payload)}`, named],
-        ];
-        if (e.name.toLowerCase().endsWith(".svg"))
-          keys.push([
-            `svg:${fnv1a(svgSignature(buf.toString("utf8")))}`,
-            named,
-          ]);
-        return keys;
-      }).forEach(add);
-    }
-  };
-  for (const sub of ["assets", "assets-dark"])
-    walk(path.join(folder, sub), `${sub}/`);
-  const json = path.join(folder, "assets.json");
-  if (fs.existsSync(json)) {
-    keysOf(json, (buf) => {
-      const keys: [string, AssetName][] = [];
-      try {
-        const map: unknown = JSON.parse(buf.toString("utf8"));
-        if (map && typeof map === "object") {
-          for (const [key, v] of Object.entries(map)) {
-            if (typeof v !== "string" || !v.startsWith("data:")) continue;
-            const payload = v.slice(v.indexOf(",") + 1);
-            const pad = payload.endsWith("==")
-              ? 2
-              : payload.endsWith("=")
-                ? 1
-                : 0;
-            keys.push([
-              `${payload.length}:${fnv1a(payload)}`,
-              {
-                name: `assets.json#${key}`,
-                bytes: Math.floor((payload.length * 3) / 4) - pad,
-              },
-            ]);
-          }
-        }
-      } catch {
-        // a malformed assets.json names nothing; the boards still render
-      }
-      return keys;
-    }).forEach(add);
-  }
-  return out;
-}
 
 /**
  * `#` and `?` are legal in a filename but are a fragment and a query in a URL, and no encoding
@@ -299,7 +178,6 @@ export function boardIndex(
             thumbnail: fs.existsSync(path.join(folder, "thumbnail.png")),
             brand: brandImages(folder),
             thumbs: [] as string[],
-            assets: assetIndex(folder),
             comments: readJson(path.join(folder, "comments.json")),
             // null for a canvas.json that is there but will not parse, after a merge left half
             // done, say. The page must not take that for no file and write over it

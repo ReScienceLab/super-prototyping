@@ -65,7 +65,6 @@ import {
 } from "./canvasLibrary";
 import { HOME_TAB, isExample, pageOf, projectUrl } from "./canvasTabs";
 import { setProjectCover } from "./contextMenu";
-import { pointedElement } from "./cover";
 import {
   Copy,
   Cross,
@@ -73,18 +72,10 @@ import {
   Message,
   RefreshCounterClockwise,
 } from "./geistIcons";
-import { asCanvasTarget, shapeUnderPointer } from "./inspectorClicks";
+import { asCanvasTarget, shapeUnderPointer, zoomToFill } from "./canvasClicks";
 import { shareUrl, urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
 
-/** One dialog, whether the comment tool raised it or the inspector's composer did. */
 const COMMENT_USER_DIALOG = "comment-user";
-
-/**
- * Ask for the commenter's identity from outside the tldraw UI context. `useDialogs` is only
- * available under `<Tldraw>`, and the inspector panel is a sibling of it, so the panel raises
- * this and the comments layer, which is inside, opens the one dialog there is.
- */
-export const ASK_COMMENT_USER = "sp:ask-comment-user";
 
 export const CanvasChromeContext = createContext({
   relayoutLibrary: () => {},
@@ -93,15 +84,6 @@ export const CanvasChromeContext = createContext({
   /** Who this browser comments as, or null until they have typed a name. */
   commentUser: null as CommentUser | null,
   setCommentUser: (_user: CommentUser) => {},
-  /** Open a board in the inspector, for the parts of the canvas that link to one. */
-  inspectBoard: (_board: CanvasFileShape) => {},
-  /**
-   * The board the inspector has open, by path. It is the one board on the canvas that runs the
-   * inspect agent and takes the pointer, so picking an element happens on the mockup itself.
-   */
-  inspectingPath: null as string | null,
-  /** Whether the inspector is docked at all, over a board or over a piece of brand material. */
-  inspectorOpen: false,
   /**
    * The view in front and the way to show another of this project's. A view is a canvas, which is
    * a tldraw page, or a kit, which is an overlay over the whole editor. Held by App, which owns
@@ -109,15 +91,13 @@ export const CanvasChromeContext = createContext({
    */
   activeTab: HOME_TAB,
   openTab: (_view: CanvasTab) => {},
-  /** Hands that board's frame to the panel, which reads its report and posts the selection back. */
-  setInspectorFrame: (_frame: HTMLIFrameElement | null) => {},
 });
 
 /**
  * The comment tool, plus the one thing this canvas adds to a thread: the link it carries to the
  * mockup it is about. Every comment placed on a board, or in the margin beside one, is anchored
  * to that board's shape, which is what moves the note with the mockup when a layout.json edit
- * moves it. The header shows that link, and follows it: clicking opens the board in the inspector.
+ * moves it. The header shows that link, and follows it: clicking fills the canvas with the board.
  *
  * Everywhere, built canvas included. Where the comment goes differs, a dev server writes it into
  * the board's folder and a hosted canvas keeps it in the browser (canvasComments.ts), but the tool
@@ -127,7 +107,6 @@ export const canvasCommentTools = [
   CommentTool.configure({
     components: {
       ThreadActions: ({ thread }) => {
-        const chrome = useContext(CanvasChromeContext);
         const editor = useEditor();
         const board = useValue(
           "linked board",
@@ -140,7 +119,7 @@ export const canvasCommentTools = [
           <TldrawUiButton
             type="icon"
             title={`Linked to ${board.props.name}. Click to open it`}
-            onClick={() => chrome.inspectBoard(board)}
+            onClick={() => zoomToFill(editor, board.id)}
           >
             <TldrawUiButtonIcon icon="link" />
           </TldrawUiButton>
@@ -258,7 +237,7 @@ export const canvasChromeComponents: TLComponents = {
         [props.isBackground, id],
       );
       // tldraw never hovers a locked shape, and every library shape is locked, so the pointer is
-      // tested here the way the inspector tests it. Only while this shape is still ringed.
+      // tested here with shapeUnderPointer. Only while this shape is still ringed.
       useEffect(() => {
         if (!fresh) return;
         const seen = (info: TLEventInfo) => {
@@ -322,7 +301,7 @@ export const canvasChromeComponents: TLComponents = {
     // leaves copy to the browser's own event and listens for it on the document, so this listens
     // first, in the capture phase, and keeps it from tldraw only when there is a link to copy.
     // tldraw's copy is its own shapes as JSON, for pasting into another tldraw, which a canvas
-    // rebuilt from layout.json has no use for. A focus elsewhere, an input in the inspector say,
+    // rebuilt from layout.json has no use for. A focus elsewhere, an input in the chat say,
     // is that field's copy and not the canvas's.
     useEffect(() => {
       const copy = (event: ClipboardEvent) => {
@@ -341,10 +320,9 @@ export const canvasChromeComponents: TLComponents = {
       return () => document.removeEventListener("copy", copy, true);
     }, [editor]);
 
-    // "Set as cover", over a board, a brand image, or an element on the board the inspector has
-    // open, which keeps the element in view and the board around it. The project has one cover,
-    // so this replaces the last; its home card's menu puts the default back. Read as the menu
-    // opens, so it is what the right-click was over. Not on an example, which is read-only.
+    // "Set as cover", over a board or a brand image. The project has one cover, so this replaces
+    // the last; its home card's menu puts the default back. Read as the menu opens, so it is what
+    // the right-click was over. Not on an example, which is read-only.
     const { addToast } = useToasts();
     const over = asCanvasTarget(shapeUnderPointer(editor));
     const board =
@@ -356,11 +334,6 @@ export const canvasChromeComponents: TLComponents = {
       canvasIndex().served && canvasIndex().project
         ? (board ?? (over && canvasImageRef(over.id)))
       : undefined;
-    const element =
-      board && pointedElement.current?.path === (over as CanvasFileShape).props.path
-        ? pointedElement.current.box
-        : undefined;
-
     // The canvas's ground, the strip's swatch as presets. Custom opens that swatch's picker.
     const page = chrome.activeTab.kind === "canvas" ? pageOf(chrome.activeTab) : undefined;
     const ground = page ? groundOf(page) : undefined;
@@ -392,11 +365,11 @@ export const canvasChromeComponents: TLComponents = {
           {cover && !isExample(cover.slug) && (
             <TldrawUiMenuItem
               id="set-cover"
-              label={element ? "Set element as cover" : "Set as cover"}
+              label="Set as cover"
               icon={<Image />}
               onSelect={async () => {
                 const path = `${cover.slug}/${cover.file}`;
-                if (await setProjectCover(projectUrl(), { path, box: element }))
+                if (await setProjectCover(projectUrl(), { path }))
                   addToast({ title: "Project cover set", severity: "success" });
               }}
             />
@@ -465,7 +438,6 @@ export const canvasChromeComponents: TLComponents = {
     const editor = useEditor();
     const { addDialog } = useDialogs();
     const tool = useValue("tool", () => editor.getCurrentToolId(), [editor]);
-    const setCommentUser = chrome.setCommentUser;
     const host = useEditorPortalHost();
     const [composer, setComposer] = useState<Element | null>(null);
 
@@ -500,19 +472,6 @@ export const canvasChromeComponents: TLComponents = {
         },
       });
     }, [tool, chrome, addDialog, editor]);
-
-    // The same dialog for the inspector panel's composer, which cannot open one itself.
-    useEffect(() => {
-      const ask = () =>
-        addDialog({
-          id: COMMENT_USER_DIALOG,
-          component: (dialog) => (
-            <CommentUserDialog {...dialog} onSave={setCommentUser} />
-          ),
-        });
-      window.addEventListener(ASK_COMMENT_USER, ask);
-      return () => window.removeEventListener(ASK_COMMENT_USER, ask);
-    }, [addDialog, setCommentUser]);
 
     return (
       <>

@@ -267,9 +267,7 @@ Hard constraints from the canvas renderer (also in `sp-canvas`'s
 - **Fully self-contained.** The iframe is `sandbox=""`. No external CSS,
   JS, fonts or images. Every image is a `data:` URI; icons are inline SVG.
   Keep each icon as `assets/icons/<name>.svg` and inline it through a
-  helper in `gen.py`: the canvas's inspector names an inline `<svg>` from
-  that folder by its geometry, and hands it back as a vector asset. A glyph
-  written as a literal in `gen.py` gets no name.
+  helper in `gen.py`.
 - **No page ground.** The canvas releases the frame's own opaque white
   background, so a board shows the canvas through wherever it paints nothing.
   The shared `body{}` rule in `gen.py` is where this gets broken. Leave it
@@ -538,8 +536,7 @@ empty folder is not a board.
 http://127.0.0.1:<port>/?canvas=<slug>
 ```
 
-`#<file>` after that opens one board in the inspector, with the camera on
-it: `?canvas=<slug>#03-home` is the link to give for one screen.
+`#<file>` after that opens one board, zoomed to fill the window: `?canvas=<slug>#03-home` is the link to give for one screen.
 
 ---
 

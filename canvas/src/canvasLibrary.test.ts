@@ -7,7 +7,6 @@ import {
   canvasImageRef,
   canvasImageUrl,
   loadCanvasFileHtml,
-  readCanvasImage,
   readCanvasLayout,
   readCanvasLibrary,
 } from "./canvasLibrary";
@@ -63,9 +62,7 @@ describe("images rows", () => {
     // Both the canvas and the brand kit drop an image they cannot resolve or size, so a
     // mistyped path or a missing w/h leaves a gap in the published evidence and says nothing
     // about it. This is where that gets said: the two conditions, checked in one place.
-    const slugs = [
-      ...new Set(readCanvasLibrary().map((c) => c.slug)),
-    ];
+    const slugs = [...new Set(readCanvasLibrary().map((c) => c.slug))];
     const broken = slugs.flatMap((slug) =>
       (readCanvasLayout(slug)?.rows ?? []).flatMap((row) =>
         (row.images ?? []).flatMap((image) =>
@@ -97,10 +94,6 @@ describe("canvasImageRef", () => {
         file: image.file,
       },
     );
-    expect(readCanvasImage(slug, image.file)).toEqual({
-      row: row.title,
-      image,
-    });
 
     // A brand file is `assets/brand/...`, so the slug is what is before the *first* slash.
     expect(image.file).toContain("/");

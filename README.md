@@ -29,7 +29,7 @@ them all. Each is a real `sp-clone-prototype` run, rebuilt
 from measured samples with the evidence recorded for every token. Open any
 of them with `?canvas=<slug>`, and one board of it with
 `?canvas=<slug>#<file>`. The address follows whatever is open, the page and
-the board in the inspector, so the URL in the bar is always the link to share.
+the selected board, so the URL in the bar is always the link to share.
 
 ### `duolingo-ios`, eight screens that are mostly picture
 
@@ -163,8 +163,9 @@ they say. `sp paths` lists the two directories it writes, and
 `sp clean` removes them.
 
 Deep-link a page with `?canvas=<slug>`, and one board of it with
-`?canvas=<slug>#<file>`: it opens in the inspector with the camera on it, and
-clicking any board writes that link into the address bar. Right-clicking the
+`?canvas=<slug>#<file>`: it opens selected, zoomed to fill the window, and
+clicking any board writes that link into the address bar. Double-click a
+board or an image to zoom it to fill the window. Right-clicking the
 canvas offers Force refresh; choose it after editing a `layout.json`. A board
 folder added after boot appears on its own.
 
