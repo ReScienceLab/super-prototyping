@@ -15,7 +15,7 @@ import {
   tabUrl,
   type ProjectTab,
 } from "./canvasTabs";
-import type { CanvasTab } from "./canvasUrl";
+import { shareUrl, type CanvasTab } from "./canvasUrl";
 import type { Working } from "./ChatPanel";
 import { askServer, openMenu, REVEAL } from "./contextMenu";
 import { Cross, Home, Plus, Users } from "./geistIcons";
@@ -229,19 +229,20 @@ export function CanvasTabBar(props: {
               onClick={() =>
                 // The project's bare address, which opens its first canvas, not the view left in
                 // front; an app's canvas is one canvas. A community project's is the site's, since
-                // this one is localhost.
+                // this one is localhost (shareUrl).
                 navigator.clipboard.writeText(
-                  communityId(target) !== undefined
-                    ? `https://superproto.dev/p/${communityId(target)}`
-                    : new URL(
-                        target.kind === "project"
-                          ? target.url
-                          : tabUrl({
-                              ...target,
-                              view: { kind: "canvas", slug: target.slug },
-                            }),
-                        location.href,
-                      ).href,
+                  shareUrl(
+                    new URL(
+                      target.kind === "project"
+                        ? target.url
+                        : tabUrl({
+                            ...target,
+                            view: { kind: "canvas", slug: target.slug },
+                          }),
+                      location.href,
+                    ).href,
+                    target.kind === "project" ? target.title : undefined,
+                  ),
                 )
               }
             >

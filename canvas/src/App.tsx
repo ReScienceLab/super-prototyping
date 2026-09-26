@@ -39,6 +39,7 @@ import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
 import { installAgentBridge } from "./agentBridge";
 import {
+  sameProject,
   targetFromUrl,
   tabFromUrl,
   windowUrl,
@@ -1320,9 +1321,7 @@ export default function App() {
         const here = new URL(windowUrl(window.location.href));
         const targets = hrefs.map((href) => {
           if (!URL.canParse(href)) return undefined;
-          const url = new URL(href);
-          if (url.origin !== here.origin || url.pathname !== here.pathname)
-            return undefined;
+          if (!sameProject(href, here.href)) return undefined;
           const tab = tabFromUrl(href);
           const name = targetFromUrl(href);
           if (tab.kind !== "canvas" || !name) return undefined;

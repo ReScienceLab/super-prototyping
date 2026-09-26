@@ -27,7 +27,7 @@ import {
   readCanvasLibrary,
 } from "./canvasLibrary";
 import { ownCanvases } from "./canvasTabs";
-import { tabFromUrl, targetFromUrl, windowUrl } from "./canvasUrl";
+import { sameProject, tabFromUrl, targetFromUrl, windowUrl } from "./canvasUrl";
 
 /**
  * What a person put on a canvas, as its folder's canvas.json: the page's shapes that the library
@@ -365,10 +365,9 @@ async function fromLinks(editor: Editor, text: string, point?: VecLike) {
   const links = text.trim().split("\n").map((line) => line.trim());
   const found = links.map((href) => {
     if (!URL.canParse(href)) return undefined;
-    const url = new URL(href);
     const tab = tabFromUrl(href);
     const named = targetFromUrl(href);
-    if (url.origin !== here.origin || url.pathname !== here.pathname) return undefined;
+    if (!sameProject(href, here.href)) return undefined;
     if (tab.kind !== "canvas" || !named) return undefined;
     if (named.startsWith("shape:")) {
       // tldraw copies only from the page in front, so one on another canvas pastes as a link.

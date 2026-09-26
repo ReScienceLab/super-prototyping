@@ -963,6 +963,14 @@ def _gh_login() -> str:
 COMMUNITY = "ReScienceLab/super-prototyping-community"
 
 
+def _project_id(arg: str) -> str:
+    """A community project's id, or the id in a link to it: superproto.dev/p/<id>/<name> as
+    the site and Copy link hand it out, or the app's /c/<id>/, as the user pasted it. Anything
+    else is passed on, for `_download_project` to refuse."""
+    found = re.search(r"/[pc]/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?:[/?#]|$)", arg)
+    return found[1] if found else arg
+
+
 def _download_project(pid: str, parent: Path) -> Path:
     """Download a community project into a new temporary folder under `parent`, on the same
     disk as where it goes, so it is renamed into place whole. -> the temporary folder, holding
@@ -1365,10 +1373,12 @@ def parser():
     how.add_argument("--check", action="store_true", help="check it and write nothing")
     how.add_argument("-o", "--output", metavar="DIR", help="an empty folder to copy it into")
     fetch = add("fetch", cmd_fetch, ports=False)
-    fetch.add_argument("id", help="a community project's id, from its superproto.dev/p/<id>")
+    fetch.add_argument("id", type=_project_id,
+                       help="a community project's id, or a superproto.dev/p/<id> link to it")
     fetch.add_argument("--fresh", action="store_true", help="download it again")
     dup = add("duplicate", cmd_duplicate, ports=False)
-    dup.add_argument("id", help="a community project's id, from its superproto.dev/p/<id>")
+    dup.add_argument("id", type=_project_id,
+                       help="a community project's id, or a superproto.dev/p/<id> link to it")
     thumb = add("thumbnail", cmd_thumbnail, ports=False)
     thumb.add_argument("folders", nargs="+", metavar="CANVAS", help="a canvas's folder")
     return p

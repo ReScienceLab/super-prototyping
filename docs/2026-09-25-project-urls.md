@@ -29,6 +29,12 @@ maps onto it one for one:
   moves (AppShell.tsx). An example once used its folder name as its id,
   `/p/claude-ios`; since 2026-09-26 every example is a community project with
   a UUID like any other (2026-09-26-projects-on-demand.md).
+- **A community project has one link, wherever it is open.** In the app it is
+  at `127.0.0.1:<port>/c/<id>/`, which opens nowhere else, so every Copy link
+  on it hands out the site's `superproto.dev/p/<id>/<name>` with the same view
+  and board (`shareUrl`, canvasUrl.ts), and a link off the site pasted back into
+  the app still names its boards (`sameProject`). A local project's links stay
+  its own `127.0.0.1` address: it is on no site to link to.
 - **One canvas, many projects.** A project's page is the one build every
   project shares; only its index differs. The build writes one per project at
   `p/<id>/__sp/index.json` (vite.config.ts), naming it the project, so the
