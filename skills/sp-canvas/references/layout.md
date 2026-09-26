@@ -34,8 +34,8 @@ Everything a run makes on the way (grids, shots, montages, candidate boards)
 goes in `<slug>/scratch/`, which should be gitignored at any depth, along with
 `assets/refs/` where third-party captures go.
 
-Drop the app's own icon in the folder as `icon.png` and the welcome card wears
-it, tilted, on the device's bottom-left corner. 256 × 256, transparent outside
+Drop the app's own icon in the folder as `icon.png` and the project's tab and
+card wear it. 256 × 256, transparent outside
 the iOS squircle. A folder with no `icon.png` simply shows none.
 
 `thumbnail.png` is the folder's card on the community page and its link
@@ -77,14 +77,13 @@ out top to bottom:
   "Notion Ios". Set it when the humanized name reads wrong. A page is tied to
   its folder, not to its name, so changing it renames the page you already
   have open rather than starting a second one.
-- `cover` names the board that stands in for the folder on the welcome page
-  and, for a project's first canvas, on the project's card on the home page,
+- `cover` names the board that stands in for the folder on the project's card
+  on the home page, for a project's first canvas,
   e.g. `"00-launch-light"`. Without one the card shows the first board that is
   not a `00-` sheet — the right guess for most folders, and the wrong one
   where the front door is a `00-` board.
-- `order` sorts the folder in the page menu and on the welcome page: lower
-  first, default 0, and folders that say nothing keep slug order. The welcome
-  page stays on top whatever it says.
+- `order` sorts the folder in the page menu: lower first, default 0, and
+  folders that say nothing keep slug order.
 - `coverBox` is the part of the cover board the card shows, `[x, y, w, h]` in
   board px. The default is the phone frame at `[46, 24, 393, 852]`, so a card
   crops to the mockup rather than framing it in artboard margin. Declare one

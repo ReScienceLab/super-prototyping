@@ -36,7 +36,7 @@ export function CanvasStrip() {
   // index of every kit has no canvas behind it, and no Figma button.
   // A document is no canvas, and has none.
   const slug = activeTab.kind === "doc" ? undefined : activeTab.slug;
-  // Keyed by the page, so the project's home, which shows Start here's, shares its ground.
+  // Keyed by the page. The project's own view with no canvas has none, and the default ground.
   const page = activeTab.kind === "canvas" ? pageOf(activeTab) : undefined;
   const ground = useGround(editor, page);
   const [target, setTarget] = useState<CanvasTab | null>(null);

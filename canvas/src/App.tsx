@@ -39,7 +39,6 @@ import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
 import { installAgentBridge } from "./agentBridge";
 import {
-  WELCOME_PAGE_SLUG,
   targetFromUrl,
   tabFromUrl,
   windowUrl,
@@ -70,7 +69,6 @@ import { attachToChat } from "./canvasAttach";
 import { CanvasStatusBannerShapeUtil } from "./CanvasStatusBannerShapeUtil";
 import {
   CANVAS_LINK_BUTTON_SIZE,
-  CANVAS_LINK_CARD_SIZE,
   CANVAS_LINK_SHAPE_TYPE,
   CanvasLinkShapeUtil,
   installLockedLinkClicks,
@@ -87,7 +85,6 @@ import {
   canvasImageKey,
   canvasImageRef,
   canvasImageUrl,
-  coverFile,
   readCanvasImage,
   readCanvasLayout,
   pageNameFor,
@@ -436,10 +433,8 @@ function layoutRow(
 
   // A row holds one folder's boards, so one size covers it.
   const size = boardSize(rowFiles[0]);
-  // The welcome board carries its own title and its own caption, so it gets neither.
-  const bare = rowFiles[0].pageSlug === WELCOME_PAGE_SLUG;
   const rowX = (index: number) => index * (size.w + LIBRARY_GAP);
-  const contentY = bare ? rowTop : rowTop + LIBRARY_HEADING_HEIGHT;
+  const contentY = rowTop + LIBRARY_HEADING_HEIGHT;
   placeShapes(
     editor,
     placed,
@@ -457,8 +452,6 @@ function layoutRow(
       },
     })),
   );
-
-  if (bare) return contentY + size.h + LIBRARY_GAP;
 
   // Buttons sit between the boards and their captions, so the caption stays the bottom line
   // of the row whether or not it has any.
@@ -675,171 +668,6 @@ function layoutImageRow(
   return captionY + LIBRARY_LABEL_HEIGHT + LIBRARY_GAP;
 }
 
-function linkShapeId(name: string) {
-  return createShapeId(`canvas-link:${name}`);
-}
-
-/**
- * What the welcome page carries besides its own board: a button that opens the repo, and one
- * card per other board folder that opens that folder's page. Both are shapes rather than markup
- * inside the board, because boards render in `<iframe srcDoc sandbox="">` where a link cannot
- * navigate anything.
- *
- * Cover art is the folder's first screen rather than its 00- board, which is a token sheet on
- * every example and would make five identical-looking cards. The cards sit in four rows: two
- * of example apps grouped by what the app is for, then Apple's own apps, then the template.
- */
-function layoutWelcomeExtras(
-  editor: Editor,
-  placed: Set<TLShapeId>,
-  page: { id: TLPageId },
-  library: ReturnType<typeof readCanvasLibrary>,
-  rowTop: number,
-) {
-  const targets = library
-    .map((c) => c.files)
-    .filter((files) => files.length && files[0].pageSlug !== WELCOME_PAGE_SLUG);
-  if (!targets.length) return;
-
-  // Four rows, because twenty-one cards in one row read as a list of twenty-one unrelated
-  // things. Two rows of cloned apps split by what the app is for, then Apple's own, then the
-  // empty template on its own: it is the one card that is not an app to look at but a folder
-  // to copy, and a row of one says that where a seat at the end of the Apple row did not. A
-  // card's id is its slug, so a folder that changes row moves rather than turning into a
-  // second card.
-  //
-  // Both orders are by hand rather than alphabetical, which wedged Duolingo between Claude and
-  // Grok. A slug named in neither list still shows, at the end of the first row, so a new
-  // folder is never silently dropped; the last row has no list, so it keeps library order.
-  const ROWS = [
-    [
-      "snapaction-ios",
-      "chatgpt-ios",
-      "claude-ios",
-      "grok-ios",
-      "notion-ios",
-      "raycast-ios",
-    ],
-    [
-      "luma-ios",
-      "instagram-ios",
-      "tiktok-ios",
-      "x-ios",
-      "substack-ios",
-      "spotify-ios",
-      "duolingo-ios",
-    ],
-  ];
-  const rowOf = (slug: string) => {
-    if (slug === "templates") return 3;
-    if (slug.startsWith("apple-")) return 2;
-    const found = ROWS.findIndex((row) => row.includes(slug));
-    return found === -1 ? 0 : found;
-  };
-  const inRow = (index: number) => {
-    const order = ROWS[index] ?? [];
-    const rank = (files: CanvasLibraryFile[]) => {
-      const at = order.indexOf(files[0].pageSlug);
-      return at === -1 ? order.length : at;
-    };
-    return targets
-      .filter((files) => rowOf(files[0].pageSlug) === index)
-      .sort((a, b) => rank(a) - rank(b));
-  };
-  const groups = [
-    {
-      title:
-        "Examples: AI assistants and productivity tools. Click a card to open its canvas",
-      targets: inRow(0),
-    },
-    { title: "Examples: social, media and learning apps", targets: inRow(1) },
-    { title: "Examples: Apple's own apps", targets: inRow(2) },
-    { title: "The empty folder to copy to start your own", targets: inRow(3) },
-  ];
-
-  // Headings are keyed by row, not by their own text, so renaming one updates it in place.
-  const headings = groups.map(
-    (_, index) => `canvas-row-heading:${page.id}:${index}`,
-  );
-
-  const cardX = (index: number) =>
-    index * (CANVAS_LINK_CARD_SIZE.w + LIBRARY_GAP);
-
-  let top = rowTop;
-  for (const [index, group] of groups.entries()) {
-    if (!group.targets.length) continue;
-    const contentY = top + LIBRARY_HEADING_HEIGHT;
-    // A card that is already there is laid out again anyway, position included: the row it
-    // belongs to, the label, the cover its layout.json names and the card size this build
-    // draws are all computed here, and a stale one of those would show on the card and
-    // nowhere else. The caption under it moves with it, so the two cannot disagree.
-    placeShapes(
-      editor,
-      placed,
-      group.targets.map((files, index) => {
-        const cover = coverFile(files);
-        return {
-          id: linkShapeId(files[0].pageSlug),
-          type: CANVAS_LINK_SHAPE_TYPE,
-          parentId: page.id,
-          x: cardX(index),
-          y: contentY,
-          isLocked: true,
-          props: {
-            ...CANVAS_LINK_CARD_SIZE,
-            label: files[0].pageName,
-            page: files[0].pageSlug,
-            path: cover.path,
-            url: "",
-          },
-        };
-      }),
-    );
-
-    createAnnotation(editor, placed, {
-      id: headings[index],
-      text: group.title,
-      x: 0,
-      y: top,
-      // A heading is as wide as the row it labels, so it wraps at the last card rather than
-      // running out over the canvas. Floored at three cards: the row holding only the empty
-      // template is one card wide, and a heading that narrow wraps to a word a line.
-      w: (() => {
-        const cols = Math.max(group.targets.length, 3);
-        return cols * CANVAS_LINK_CARD_SIZE.w + (cols - 1) * LIBRARY_GAP;
-      })(),
-      size: "l",
-      color: "white",
-      parentId: page.id,
-    });
-
-    // The card is the device alone, so the caption under it carries the name as well as the
-    // count; it is the only place either of them is written on this page.
-    group.targets.forEach((files, index) => {
-      createAnnotation(editor, placed, {
-        id: `canvas-file-label:${files[0].pageSlug}`,
-        text: `${files[0].pageName}\n${files.length} board${
-          files.length === 1 ? "" : "s"
-        }`,
-        x: cardX(index),
-        y: contentY + CANVAS_LINK_CARD_SIZE.h + LIBRARY_LABEL_GAP,
-        w: CANVAS_LINK_CARD_SIZE.w,
-        size: "s",
-        align: "middle",
-        color: "white",
-        parentId: page.id,
-      });
-    });
-
-    top =
-      contentY +
-      CANVAS_LINK_CARD_SIZE.h +
-      LIBRARY_LABEL_GAP +
-      LIBRARY_LABEL_HEIGHT * 2 + // the card's caption is two lines, name over count
-      LIBRARY_GAP;
-  }
-}
-
 /**
  * One tldraw page per canvases/<slug> folder, one shape per HTML file in it. If that
  * folder has a layout.json alongside its HTML files, its rows are laid out top-to-bottom in the
@@ -979,9 +807,6 @@ function initializeCanvasLibrary(editor: Editor) {
           })),
         );
 
-        if (pageSlug === WELCOME_PAGE_SLUG) {
-          layoutWelcomeExtras(editor, placed, page, library, rowTop);
-        }
       }
 
       // What the pass did not place is what the folder no longer has: a board renamed or removed,
@@ -1038,11 +863,15 @@ function lockLibraryShapes(editor: Editor) {
   if (unlocked.length) editor.updateShapes(unlocked);
 }
 
+function linkShapeId(name: string) {
+  return createShapeId(`canvas-link:${name}`);
+}
+
 /**
  * The page menu lists pages by their index, which is creation order until something sets it:
  * the menu ends up in whatever order this browser happened to build its pages in, which is not
- * the order of anything else. Sort it into the library's own order, so the menu, the welcome
- * board's row of cards and the folder listing all read the same top to bottom.
+ * the order of anything else. Sort it into the library's own order, so the menu and the folder
+ * listing read the same top to bottom.
  *
  * Pages that are not library pages keep their relative order, below the boards.
  */
@@ -1126,7 +955,7 @@ function relayoutCanvasLibrary(editor: Editor) {
 
 /**
  * Opens what the address names (canvasUrl.ts): the tab, `?canvas=<slug>` or the bare URL for the
- * welcome page and `?brand=<slug>` for a brand kit, and after the hash a board of that page,
+ * project's own view and `?brand=<slug>` for a brand kit, and after the hash a board of that page,
  * `#<file>`, which opens in the inspector. So a specific round, or one board in it, can be
  * linked to or scripted against instead of relying on whichever page tldraw last persisted, and
  * the bare URL is always the way in, so keep a board open across reloads by deep-linking it, not
@@ -1145,7 +974,7 @@ function applyCanvasFromUrl(
     image: (pick: CanvasImagePick) => void;
   },
 ) {
-  // Resolved first, so the bare address sets the page of the canvas it lands on, not Start here's.
+  // Resolved first, so the bare address sets the page of the canvas it lands on.
   const tab = resolveTab(tabFromUrl(window.location.href));
   // Read before `open`, which writes the address from the inspector, and that is still empty.
   const named = targetFromUrl(window.location.href);
@@ -1156,14 +985,17 @@ function applyCanvasFromUrl(
     open(tab);
     return false;
   }
-  // The folder whose page the address shows, which for the bare address is Start here's. The
-  // board or picture the hash names is one of that folder's.
+  // A project with nothing in it yet, which shows no page (HOME_TAB), so nothing to set.
+  if (!tab.slug) {
+    open(tab);
+    return false;
+  }
+  // The folder whose page the address shows. The board or picture the hash names is one of
+  // that folder's.
   const slug = pageOf(tab);
   const page = editor.getPages().find((c) => c.meta.canvasSlug === slug);
   if (page) editor.setCurrentPage(page.id);
-  // The tab is the one asked for when its page is there, since the bare address and Start
-  // here's own are two views of the same page (canvasTabs.ts) and the page alone cannot say
-  // which. Otherwise it is the page landed on, because an address naming a folder that has
+  // The tab is the one asked for when its page is there. Otherwise it is the page landed on, because an address naming a folder that has
   // since gone leaves tldraw on whichever page it persisted, and a chip for that folder would
   // be one that opens nothing. `write` then corrects the address to match.
   const here = editor.getCurrentPage().meta.canvasSlug;
@@ -1212,12 +1044,12 @@ function applyCanvasFromUrl(
  *
  * This watches the page rather than writing from it, because the page is only one of the two
  * ways a canvas tab comes forward and the other is the bar. tldraw's own page changes, from a
- * welcome card or a link on a board, arrive here as a page and become the tab naming it. Pages
+ * link on a board, arrive here as a page and become the tab naming it. Pages
  * tldraw persisted that no folder claims have no slug, and leave the bar and the address as they
  * are.
  *
  * Each change pushes a history entry, so Back returns to the previous one and, from there, to
- * its page and the welcome page; a popstate applies the entry it lands on. Applying an address
+ * its page; a popstate applies the entry it lands on. Applying an address
  * is the one time what is on screen changes without the address needing to follow, so the
  * watcher skips it and every write it provokes replaces instead of pushing, since an entry
  * there would be a second copy of the one just landed on.
@@ -1275,9 +1107,10 @@ function installCanvasUrlSync(
       return;
     }
     // The page of the tab already in front is that tab arriving, not a change of tab. A tab
-    // brought forward sets its page after it is in front, and the page of the project's own
-    // view with no canvas is Start here's, which is also an example's (canvasTabs.ts).
-    if (typeof slug !== "string" || slug === pageOf(tab.active())) return;
+    // brought forward sets its page after it is in front. The project's own view with no
+    // canvas shows no page, so whatever tldraw is on under it is no change of tab either.
+    const active = pageOf(tab.active());
+    if (typeof slug !== "string" || !active || slug === active) return;
     tab.open({ kind: "canvas", slug });
   });
   window.addEventListener("popstate", apply);
@@ -1434,7 +1267,7 @@ export default function App() {
   );
 
   /**
-   * From a chip, a row of the bar's "+" menu, a card on the welcome page or a link on a board.
+   * From a chip, a row of the bar's "+" menu, or a link on a board.
    * Brings the tab forward, and with it the page that is what a canvas tab shows.
    *
    * Before the editor has mounted there is no page to set, since the bar renders as soon as the
@@ -1669,8 +1502,8 @@ export default function App() {
             {activeTab.kind === "doc" && (
               <DocTab slug={activeTab.slug} key={activeTab.slug} />
             )}
-            {/* A project with no canvas yet: blank, rather than Start here's page, which its
-                bare address would show. Its agent makes and names the first one
+            {/* A project with no canvas yet: blank, rather than whichever page tldraw is on
+                under it. Its agent makes and names the first one
                 (AppShell.tsx), and the index that brings it lands there (resolveTab). */}
             {activeTab.kind === "canvas" &&
               !activeTab.slug &&

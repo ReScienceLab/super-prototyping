@@ -67,7 +67,6 @@
         "from": "../canvases",
         "to": "plugin/canvases",
         "filter": [
-          "00-welcome/**/*",
           "templates/**/*",
           "!**/scratch/**",
           "!**/__pycache__/**"

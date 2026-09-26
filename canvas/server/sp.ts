@@ -366,7 +366,7 @@ export function createSpServer(options: {
       canvasesNamespace: canvasesNamespace(canvasesDir, repoRoot),
     };
     const index = boardIndex(canvasesDir, how);
-    // One list in slug order, as one directory's scan is, so Start here still comes first. An
+    // One list in slug order, as one directory's scan is. An
     // example says so, which is what puts it on a tab of its own rather than in the project's.
     const boards = [
       ...index.boards.filter((b) => !isExample(b.slug)),
@@ -1049,8 +1049,6 @@ export function createSpServer(options: {
         // An example too, since cloning makes one the project's.
         const from = folderOf(canvasesDir, examplesDir, slug);
         const to = path.join(canvasesDir, target);
-        // The welcome page is drawn by the app and has no folder, so this is also what
-        // stops it being cloned into one.
         if (!fs.existsSync(from))
           return send(404, `no canvas folder named ${slug}`);
         if (fs.existsSync(to)) return send(409, `${target} already exists`);

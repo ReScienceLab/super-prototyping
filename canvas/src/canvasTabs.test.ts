@@ -23,12 +23,12 @@ import {
   writeOpenTabs,
   type ProjectTab,
 } from "./canvasTabs";
-import { WELCOME_PAGE_SLUG, type CanvasTab } from "./canvasUrl";
+import type { CanvasTab } from "./canvasUrl";
 
 // This checkout's own boards, through the index the page fetches: the tabs are named after
 // folders, so the test asks the library which folders there are rather than naming any.
 const slugs = readCanvasLibrary().map((c) => c.slug);
-const canvas = slugs.find((slug) => slug !== WELCOME_PAGE_SLUG)!;
+const canvas = slugs[0];
 const kit = brandMaterialSlugs()[0];
 const noKit = slugs.find((slug) => !hasBrandMaterial(slug))!;
 
@@ -98,20 +98,9 @@ describe("a tab is a project", () => {
     expect(resolveTab({ kind: "doc", slug: `${canvas}/Gone.md` })).toEqual(resolveTab(HOME_TAB));
   });
 
-  it("keeps Start here's own tab apart from the project's view of its page", () => {
-    // The app ships Start here with the examples, so its server flags it as one. Its own view
-    // is then an example's tab, and the bare view, which shows the same page for a project with
-    // no canvas yet, is still the project's: the two are told apart by the view, not the page.
-    unflag = asExample(WELCOME_PAGE_SLUG);
-    const own: CanvasTab = { kind: "canvas", slug: WELCOME_PAGE_SLUG };
-    expect(tabFor(own)).toEqual({
-      kind: "example",
-      slug: WELCOME_PAGE_SLUG,
-      view: own,
-    });
+  it("keeps the project's own view on the project's tab, showing no page", () => {
     expect(tabFor(HOME_TAB)).toMatchObject({ kind: "project", url: "/" });
-    expect(pageOf(HOME_TAB)).toBe(WELCOME_PAGE_SLUG);
-    expect(pageOf(own)).toBe(WELCOME_PAGE_SLUG);
+    expect(pageOf(HOME_TAB)).toBe("");
     expect(pageOf({ kind: "canvas", slug: canvas })).toBe(canvas);
   });
 
@@ -152,9 +141,8 @@ describe("a tab is a project", () => {
 describe("what is behind a tab", () => {
   it("knows a folder the library has from one it does not", () => {
     expect(tabExists({ kind: "canvas", slug: canvas })).toBe(true);
-    // The project's own view is there as long as Start here's page is, which it shows.
+    // The project's own view is always there: it shows no page.
     expect(tabExists(HOME_TAB)).toBe(true);
-    expect(tabExists({ kind: "canvas", slug: WELCOME_PAGE_SLUG })).toBe(true);
     expect(tabExists({ kind: "canvas", slug: "no-such-folder" })).toBe(false);
   });
 
@@ -199,17 +187,10 @@ describe("the tabs a browser left open", () => {
   };
 
   it("comes back in the order it was left", () => {
-    const unflag = [asExample(canvas), asExample(WELCOME_PAGE_SLUG)];
-    // Start here's tab among them: a reload on it has to come back to it, not to the project's
-    // view of the same page.
+    const unflag = [asExample(canvas)];
     const open: ProjectTab[] = [
       project("/p/b/", { kind: "brand", slug: kit }),
       { kind: "example", slug: canvas, view: { kind: "canvas", slug: canvas } },
-      {
-        kind: "example",
-        slug: WELCOME_PAGE_SLUG,
-        view: { kind: "canvas", slug: WELCOME_PAGE_SLUG },
-      },
       project("/p/a/"),
     ];
     writeOpenTabs(open);

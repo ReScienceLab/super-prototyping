@@ -55,9 +55,10 @@ same `dist/server.mjs`, forked as a utility process and shown in a window.
 `main.ts` is the app,
 `launch.ts` holds the helpers `bun test` checks. The app opens on the home page,
 which is no project's and lists them all, and on a first launch
-`canvas/src/Onboarding.tsx` asks over it which agent to work with. The app ships `canvases` whole, under the
-tree it hands the server, which is where the examples come from under
-`sp start` too. The
+`canvas/src/Onboarding.tsx` asks over it which agent to work with. The app ships only `canvases/templates`,
+under the tree it hands the server. Every other example is a community
+project, listed in `canvases/community.json` and opened read-only at `/c/<id>/`
+through the server; `docs/2026-09-26-projects-on-demand.md` says why. The
 release workflow builds the app on a macOS runner and attaches a dmg per
 architecture, signed and notarised, then on a Windows runner and attaches an
 unsigned installer. The app updates itself with `electron-updater`, which

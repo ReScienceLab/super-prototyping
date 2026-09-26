@@ -7,7 +7,7 @@ import {
   readCanvasLibrary,
   shortName,
 } from "./canvasLibrary";
-import { WELCOME_PAGE_SLUG, urlForTab, type CanvasTab } from "./canvasUrl";
+import { urlForTab, type CanvasTab } from "./canvasUrl";
 
 /**
  * The tabs on the bar, and what each one shows. A tab is a project, or an example, which is a
@@ -24,15 +24,14 @@ import { WELCOME_PAGE_SLUG, urlForTab, type CanvasTab } from "./canvasUrl";
 
 /**
  * A project's view with no canvas of its own in front: what its bare address opens, the view of
- * a project with no canvas yet, and where a link to a folder that has gone lands. It shows Start
- * here's page, but it is not Start here's view. That one is an example like any other, on a tab
- * of its own at `?canvas=00-welcome`, and this one is the project's, under its tab. Its slug is
- * empty the way the index of every kit's is, `{ kind: "brand", slug: "" }`.
+ * a project with no canvas yet, and where a link to a folder that has gone lands. It shows no
+ * page, only a blank (App.tsx). Its slug is empty the way the index of every kit's is,
+ * `{ kind: "brand", slug: "" }`.
  */
 export const HOME_TAB: CanvasTab = { kind: "canvas", slug: "" };
 
-/** The tldraw page a canvas view shows: its folder's, or Start here's for HOME_TAB. */
-export const pageOf = (view: CanvasTab) => view.slug || WELCOME_PAGE_SLUG;
+/** The tldraw page a canvas view shows, its folder's. HOME_TAB's is none, the empty slug. */
+export const pageOf = (view: CanvasTab) => view.slug;
 
 export type ProjectTab =
   | {
@@ -84,7 +83,7 @@ export interface Project {
 /**
  * The tab a project opens as: the one on the bar already, or a new one on its most recently
  * edited canvas, with the icon of the most recent that has one. A project with no canvas yet
- * opens on HOME_TAB, its own view of Start here's page.
+ * opens on HOME_TAB.
  */
 export function tabOfProject(
   p: Pick<Project, "name" | "url" | "title"> & {
@@ -107,20 +106,16 @@ export function tabOfProject(
   };
 }
 
-/**
- * An example this server has, rather than a canvas of the project's own. Start here is one, the
- * first, and its view is `?canvas=00-welcome`. The bare address is the project's (HOME_TAB).
- */
+/** An example this server has, rather than a canvas of the project's own. */
 export function isExample(slug: string) {
   return canvasIndex().boards.some((b) => b.slug === slug && b.example);
 }
 
-/** The project's own canvases, in the index's order: the ones the canvas strip shows. Start
- *  here is never one, flagged as an example or not, since the project's view of it is HOME_TAB. */
+/** The project's own canvases, in the index's order: the ones the canvas strip shows. */
 export function ownCanvases() {
   return readCanvasLibrary()
     .map((c) => c.slug)
-    .filter((slug) => slug !== WELCOME_PAGE_SLUG && !isExample(slug));
+    .filter((slug) => !isExample(slug));
 }
 
 /**
@@ -222,7 +217,7 @@ export function tabExists(tab: CanvasTab) {
   if (tab.kind === "doc") return readDoc(tab.slug) !== undefined;
   if (tab.kind === "brand")
     return tab.slug === "" || hasBrandMaterial(tab.slug);
-  return readCanvasLibrary().some((c) => c.slug === pageOf(tab));
+  return !tab.slug || readCanvasLibrary().some((c) => c.slug === tab.slug);
 }
 
 /**
@@ -231,7 +226,7 @@ export function tabExists(tab: CanvasTab) {
  * address is the index of every kit, which is the page brand.html serves for it too. A canvas
  * the library has never heard of is a link to a folder that has since gone. It lands where the
  * project's bare address does, and so does a document that has gone: on the project's first
- * canvas, else its first document, else its own view of Start here, the one page always there.
+ * canvas, else its first document, else HOME_TAB.
  */
 export function resolveTab(tab: CanvasTab): CanvasTab {
   if (tab === HOME_TAB || (tab.kind === "canvas" && !tab.slug)) {

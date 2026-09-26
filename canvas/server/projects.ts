@@ -268,8 +268,8 @@ export function createProjectsServer(options: {
             `You already have a project called “${name}”. Try another name.`,
           );
         try {
-          // A folder with the boards folder in it and nothing else. What the window opens on, Start
-          // here and the examples, is the tree's and shown beside the project's own, so there is
+          // A folder with the boards folder in it and nothing else. The examples are the tree's,
+          // shown beside the project's own, so there is
           // nothing to copy in.
           fs.mkdirSync(path.join(dir, CANVASES), { recursive: true });
           // Its id is what a package of it is known by, whatever the folder is renamed to.

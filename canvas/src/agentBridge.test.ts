@@ -3,7 +3,6 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import type { Editor, IndexKey, TLArrowShape, TLAssetId, TLPageId, TLShapeId } from 'tldraw'
 import { LAYOUT_CHANGED, canvasIndex, fileWins, installCanvasIndex, loadCanvasIndex } from './canvasIndex'
 import { readCanvasLibrary } from './canvasLibrary'
-import { WELCOME_PAGE_SLUG } from './canvasUrl'
 
 // jsdom has neither, and tldraw reads both at import time, so tldraw and everything that pulls it
 // in are imported dynamically in beforeAll, after these two lines have run.
@@ -20,7 +19,7 @@ globalThis.ResizeObserver ??= class {
   disconnect() {}
 } as unknown as typeof ResizeObserver
 
-const library = readCanvasLibrary().find((c) => c.slug !== WELCOME_PAGE_SLUG)!
+const library = readCanvasLibrary()[0]
 const slug = library.slug
 const board = `${library.files[0].fileName}.html`
 const originalIndex = canvasIndex()

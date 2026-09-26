@@ -20,16 +20,6 @@ Every folder shipped with the repo is named `(example) …` in its `layout.json`
 and a board of your own is not, which is how the two tell apart in the page
 menu.
 
-## 00-welcome
-
-The bare URL always opens `00-welcome` ("Start here"), whichever page was
-last on screen. It carries the canvas's only clickable shapes, all
-`canvas-link` (`canvas/src/CanvasLinkShapeUtil.tsx`): one card per other
-folder, which opens that folder's page, in two rows (Apple's own apps, then
-everything else), and a button that opens the repo.
-They are shapes rather than links inside a board because boards render in a
-sandboxed iframe, where a link cannot navigate anything.
-
 The cards come from the folder list, so a new folder shows up as a card
 with no edit here. This page's own board is also the one board that is not
 phone-shaped; see below.
@@ -66,9 +56,8 @@ and `templates/` use `page(title, body, extra_css="")`. Copy whichever matches
 your source. `apple-wallet` is the folder built from more than one source: two
 modules, one per Figma file, imported by its `gen.py`.
 
-`00-welcome` is the one board here that is not phone-shaped. Its `gen.py`
-writes 2153 x 819 into `layout.json` as `w`/`h`, which is how any board
-declares a box other than the default 478 x 980.
+A board declares a box other than the default 478 x 980 with `w`/`h` on its
+entry in `layout.json`.
 
 ## Examples
 

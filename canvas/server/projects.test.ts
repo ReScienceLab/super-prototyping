@@ -20,7 +20,7 @@ it("serves every project at its own address and makes new ones", async () => {
     "root/skills/alpha/SKILL.md",
     "---\nname: alpha\nmetadata:\n  managed-by: super-prototyping\n---\nAlpha.\n",
   );
-  write("root/canvases/00-welcome/01-a.html", "welcome");
+  write("root/canvases/templates/01-a.html", "welcome");
   // Both projects keep their boards where they used to be, which the server moves to `canvases`.
   write("projects/alpha/mockups/canvases/one/01-a.html", "alpha one");
   write("projects/alpha/mockups/.DS_Store", ""); // Finder's, which is no reason to keep the folder
@@ -75,19 +75,19 @@ it("serves every project at its own address and makes new ones", async () => {
       status: 302,
       location: "/home.html",
     });
-    expect((await ask("/?canvas=00-welcome")).text).toBe(
-      "static /?canvas=00-welcome",
+    expect((await ask("/?canvas=templates")).text).toBe(
+      "static /?canvas=templates",
     );
     const rootIndex = JSON.parse((await ask("/__sp/index.json")).text);
     expect(rootIndex.project).toBeUndefined();
     expect(rootIndex.boards.map((b: any) => [b.slug, b.example])).toEqual([
-      ["00-welcome", true],
+      ["templates", true],
     ]);
-    expect((await ask("/board/00-welcome/01-a.html")).text).toBe("welcome");
-    const copy = { slug: "00-welcome", name: "Mine" };
+    expect((await ask("/board/templates/01-a.html")).text).toBe("welcome");
+    const copy = { slug: "templates", name: "Mine" };
     expect((await ask("/__sp/clone-canvas", copy)).status).toBe(409);
     expect(fs.readdirSync(path.join(tmp, "root/canvases"))).toEqual([
-      "00-welcome",
+      "templates",
     ]);
     // The agent is no project's, and is at the root once. Nothing is written before it first runs.
     const sessions = await ask("/__sp/agent/sessions");
@@ -141,7 +141,7 @@ it("serves every project at its own address and makes new ones", async () => {
     expect((await ask("/p/alpha/board/one/01-a.html")).text).toBe("alpha one");
     expect((await ask("/p/nowhere/")).status).toBe(404);
     // The examples come from the plugin root, beside every project's own.
-    expect((await ask("/p/alpha/board/00-welcome/01-a.html")).text).toBe(
+    expect((await ask("/p/alpha/board/templates/01-a.html")).text).toBe(
       "welcome",
     );
     const listed = JSON.parse((await ask("/__sp/projects.json")).text);
