@@ -53,17 +53,16 @@ which is the user's project root as often as not:
 B=canvases/<slug>
 ```
 
-Worked examples and the folder skeleton ship with the app, which is
-installed outside your project. Address them through the kit root:
+The folder skeleton ships with the app, which is installed outside your
+project. Address it through the kit root:
 
 ```bash
 KIT="$(sp root)"
-ls "$KIT/canvases"
 ```
 
-A folder this skill names but that listing does not show is not shipped
-with this release. Work from `templates` and carry on; nothing here needs an
-example to be present.
+Worked examples are community projects, not bundled with the app: `sp fetch
+<id>` prints the folder of a read-only copy, its boards at
+`<that folder>/canvases/<slug>/`. Phase 2 and Phase 6 below name the ids.
 
 ---
 
@@ -196,12 +195,14 @@ Cover, in this order, with a short prefix per app (`--n-` for Notion):
 - spacing and geometry constants: gutters, row height, tap target, status
   bar, sheet top inset
 
-`$KIT/canvases/luma-ios/` is a complete run to copy from: 19 boards (a
-token board, two evidence boards, 8 screens, 8 references), a four-row
-`layout.json`, a committed `gen.py`, and per-screen mean deltas of 3.47 to
-4.50 levels against the captures.
+Run `sp fetch 7baec1bc-e156-4d3d-97ed-9eada3bc2971` (the luma-ios example) and
+read `canvases/luma-ios/` in the folder it prints: a complete run to copy
+from, 19 boards (a token board, two evidence boards, 8 screens, 8
+references), a four-row `layout.json`, a committed `gen.py`, and per-screen
+mean deltas of 3.47 to 4.50 levels against the captures.
 
-`$KIT/canvases/duolingo-ios/` is the second complete run, and the one
+Run `sp fetch 63bcb818-4025-4f93-90de-fa9fd71bc126` (the duolingo-ios
+example) for the second complete run, and the one
 to read when the screens are mostly illustration: 58 tokens, 8 screens, 128
 pieces of art, and per-screen mean deltas of 1.32 to 2.93, the best
 screenshot-sourced numbers in the repo. Every picture on it is a crop of the
@@ -240,8 +241,10 @@ boards it produces: `canvases/<slug>/gen.py`, plus its asset JSON,
 resolving paths relative to `__file__` so
 `python3 canvases/<slug>/gen.py` regenerates the folder in place
 (`$KIT/canvases/templates/gen.py` is the skeleton,
-`$KIT/canvases/luma-ios/gen.py` a finished one, and
-`$KIT/canvases/duolingo-ios/gen.py` a finished one that also cuts and
+`$(sp fetch 7baec1bc-e156-4d3d-97ed-9eada3bc2971)/canvases/luma-ios/gen.py` a
+finished one, and
+`$(sp fetch 63bcb818-4025-4f93-90de-fa9fd71bc126)/canvases/duolingo-ios/gen.py`
+a finished one that also cuts and
 places its own artwork from a `crops.json`). Do not hand-edit the
 artboards afterwards; edit the generator and re-run. That is what keeps
 eight files consistent through a dozen correction passes, and it only
@@ -546,7 +549,7 @@ A board nobody can audit in six months is not finished, and the canvas shows
 pixels rather than reasoning. Three files, all of them small:
 
 **`canvases/<slug>/README.md`.** Copy the shape from
-`$KIT/canvases/apple-settings/README.md`.
+`$(sp fetch 19146dc5-50a2-43a4-9fd7-9e21f7d74845)/canvases/apple-settings/README.md`.
 
 [`references/documenting.md`](references/documenting.md) lists what it has to
 carry past a list of screens: the delta table, every substitution and its
