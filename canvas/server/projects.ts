@@ -29,7 +29,9 @@ import {
 } from "./sp.ts";
 
 /** A community project's id, which `sp pack` makes (tools/sp_canvas.py). */
-const COMMUNITY_ID = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
+const UUID = "[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}";
+const COMMUNITY_ID = new RegExp(`^${UUID}$`);
+const COMMUNITY_PATH = new RegExp(`^/c/(${UUID})(/.*)$`);
 
 /**
  * The folder every project is in, and where a new one goes. The desktop app's is Electron's
@@ -259,11 +261,15 @@ export function createProjectsServer(options: {
               timeout: 180_000,
             },
             (error, stdout, stderr) => {
+              // No `sp` yet: the app links it on launch (desktop/launch.ts), which may still be running.
+              if ((error as NodeJS.ErrnoException | null)?.code === "ENOENT")
+                return send(
+                  503,
+                  "the sp command is not installed yet; try again in a moment",
+                );
               if (error)
                 return send(
-                  (error as NodeJS.ErrnoException).code === "ENOENT"
-                    ? 503
-                    : 500,
+                  500,
                   stderr.trim() || `could not duplicate it: ${error.message}`,
                 );
               const name = stdout.trim();
@@ -351,8 +357,7 @@ export function createProjectsServer(options: {
     // its index and its boards come from there. The rest is this app's own pages, and every other
     // `/__sp` route is refused: nothing here can write to it, and `sp duplicate` makes it the
     // user's to change.
-    const community =
-      /^\/c\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(\/.*)$/.exec(url);
+    const community = COMMUNITY_PATH.exec(url);
     if (community) {
       const [, id, rest] = community;
       const [restPath] = rest.split("?");

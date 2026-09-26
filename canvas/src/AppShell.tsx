@@ -242,7 +242,11 @@ export function AppShell() {
    * A community project made the user's, by the server's `sp duplicate`, then opened as theirs.
    * Its download can take a while, and nothing shows it but the tab that opens after.
    */
+  const duplicating = useRef(new Set<string>());
   const duplicate = async (id: string) => {
+    // Nothing shows the download, so a second pick of the same project would make a second copy.
+    if (duplicating.current.has(id)) return;
+    duplicating.current.add(id);
     const res = await fetch(
       new URL("/__sp/projects/duplicate", location.origin),
       {
@@ -250,7 +254,7 @@ export function AppShell() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ id }),
       },
-    );
+    ).finally(() => duplicating.current.delete(id));
     if (!res.ok)
       return alert(`That project could not be duplicated: ${await res.text()}`);
     const { url } = (await res.json()) as { url: string };
