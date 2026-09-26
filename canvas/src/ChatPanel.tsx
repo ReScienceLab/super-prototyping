@@ -51,6 +51,7 @@
  * its own picker draws, read from the list it caches. The token count is the last turn's, which
  * holds as much of the session as the agent carried into it.
  */
+import { DropdownMenu } from "radix-ui";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -129,8 +130,13 @@ export function useChat() {
       return true;
     }
   });
+  // The menu of agents: opened from the bar's button (AgentButton), drawn by the panel, which
+  // has the list.
+  const [agents, showAgents] = useState(false);
   return {
     open,
+    agents,
+    showAgents,
     show(next: boolean) {
       try {
         localStorage.setItem(OPEN_KEY, String(next));
@@ -164,17 +170,7 @@ export function AgentButton({ chat }: { chat: Chat }) {
       onClick={() => chat.show(!chat.open)}
       onContextMenu={(event) => {
         event.preventDefault();
-        const menu = document.getElementById("sp-chat-agents")!;
-        // macOS asks for the menu on the press, and the release after it is a click outside a
-        // menu opened then, which shuts it. So with a button still down, the menu opens once that
-        // is let go, after the browser has handled the release. Windows asks on the release, and
-        // the Menu key with no button down at all.
-        if (event.buttons === 0) return menu.showPopover();
-        window.addEventListener(
-          "pointerup",
-          () => setTimeout(() => menu.showPopover()),
-          { once: true },
-        );
+        chat.showAgents(true);
       }}
       aria-label={name}
       title={`${chat.open ? "Hide" : "Show"} ${name} · Right-click to switch agents`}
@@ -295,9 +291,7 @@ export function ChatPanel(props: {
   });
   const [history, setHistory] = useState<
     (Session & { running: boolean; interrupted: boolean })[]
-  >(
-    [],
-  );
+  >([]);
   // The agent's own slash commands, and where the keyboard is in them. Opens on what this browser
   // remembers, then on what the server says: asked for at mount and again on the way into a slash
   // word, since the server learns them off the runs it pumps and the list grows as the panel is
@@ -346,8 +340,6 @@ export function ChatPanel(props: {
   const composer = useRef<HTMLDivElement>(null);
   const files = useRef<HTMLInputElement>(null);
   const historyList = useRef<HTMLDivElement>(null);
-  const agentMenu = useRef<HTMLDivElement>(null);
-  const modelMenu = useRef<HTMLDivElement>(null);
   const effortMenu = useRef<HTMLDivElement>(null);
 
   const follow = (runId: string) => {
@@ -1059,7 +1051,6 @@ export function ChatPanel(props: {
 
   // A session is one agent's conversation, which the other cannot resume.
   const choose = (id: AgentId) => {
-    agentMenu.current?.hidePopover();
     if (id !== agent) newSession();
     switchTo(id);
   };
@@ -1124,33 +1115,6 @@ export function ChatPanel(props: {
           </button>
         </header>
         <div
-          id="sp-chat-models"
-          popover="auto"
-          className="sp-chat-picker"
-          role="menu"
-          ref={modelMenu}
-        >
-          {[{ id: "", name: "Default" }, ...(row?.models ?? [])].map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              role="menuitemradio"
-              aria-checked={m.id === model}
-              className="sp-menu-row"
-              onClick={() => {
-                modelMenu.current?.hidePopover();
-                prefer({ model: m.id });
-              }}
-            >
-              <span className="sp-chat-picker-name">
-                {m.name}
-                {!m.id && <small>Whatever {nameOf(agent)} is set to use</small>}
-              </span>
-              {m.id === model && <Check className="sp-menu-ck" />}
-            </button>
-          ))}
-        </div>
-        <div
           id="sp-chat-efforts"
           popover="auto"
           className="sp-chat-picker sp-chat-efforts"
@@ -1158,8 +1122,7 @@ export function ChatPanel(props: {
         >
           <button
             type="button"
-            role="menuitemradio"
-            aria-checked={!effort}
+            aria-pressed={!effort}
             className="sp-menu-row"
             onClick={() => {
               effortMenu.current?.hidePopover();
@@ -1754,18 +1717,54 @@ export function ChatPanel(props: {
             Bypass permissions
           </span>
           {row && row.models.length > 0 && (
-            <button
-              type="button"
-              className="sp-chat-chip"
-              popoverTarget="sp-chat-models"
-              title={`The model ${nameOf(agent)} runs`}
-            >
-              {picked ? (
-                picked.name
-              ) : (
-                <span className="sp-chat-dim">Model</span>
-              )}
-            </button>
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button
+                  type="button"
+                  className="sp-chat-chip"
+                  title={`The model ${nameOf(agent)} runs`}
+                >
+                  {picked ? (
+                    picked.name
+                  ) : (
+                    <span className="sp-chat-dim">Model</span>
+                  )}
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                  className="sp-chat-picker"
+                  side="top"
+                  align="start"
+                  sideOffset={4}
+                >
+                  <DropdownMenu.RadioGroup
+                    value={model}
+                    onValueChange={(id) => prefer({ model: id })}
+                  >
+                    {[{ id: "", name: "Default" }, ...row.models].map((m) => (
+                      <DropdownMenu.RadioItem
+                        key={m.id}
+                        value={m.id}
+                        className="sp-menu-row"
+                      >
+                        <span className="sp-chat-picker-name">
+                          {m.name}
+                          {!m.id && (
+                            <small>
+                              Whatever {nameOf(agent)} is set to use
+                            </small>
+                          )}
+                        </span>
+                        <DropdownMenu.ItemIndicator className="sp-menu-ck">
+                          <Check />
+                        </DropdownMenu.ItemIndicator>
+                      </DropdownMenu.RadioItem>
+                    ))}
+                  </DropdownMenu.RadioGroup>
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
           )}
           {efforts.length > 0 && (
             <button
@@ -1798,33 +1797,52 @@ export function ChatPanel(props: {
           )}
         </div>
       </aside>
-      {/* Beside the panel rather than in it, where the panel being away would hide it with it. */}
-      <div
-        id="sp-chat-agents"
-        popover="auto"
-        className="sp-chat-agents"
-        role="menu"
-        ref={agentMenu}
+      {/* Beside the panel rather than in it, where the panel being away would hide it with it.
+          Radix places a menu by an element of the menu's own, and the button that opens this one
+          is the bar's (AgentButton), so an empty one stands in for it where it is. */}
+      <DropdownMenu.Root
+        open={props.chat.agents}
+        onOpenChange={props.chat.showAgents}
       >
-        {agents.map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            role="menuitemradio"
-            aria-checked={a.id === agent}
-            className="sp-menu-row"
-            disabled={!a.available}
-            onClick={() => choose(a.id)}
+        <DropdownMenu.Trigger asChild>
+          <span className="sp-chat-agents-at" aria-hidden />
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content
+            className="sp-chat-agents"
+            align="start"
+            sideOffset={4}
+            // Back to the bar's button, which the stand-in can't take.
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              document.querySelector<HTMLElement>(".sp-agent-toggle")?.focus();
+            }}
           >
-            <Mark agent={a.id} size={14} />
-            <span className="sp-chat-agents-name">
-              {a.name}
-              {!a.available && <small>{a.missing}</small>}
-            </span>
-            {a.id === agent && <Check className="sp-menu-ck" />}
-          </button>
-        ))}
-      </div>
+            <DropdownMenu.RadioGroup
+              value={agent}
+              onValueChange={(id) => choose(id as AgentId)}
+            >
+              {agents.map((a) => (
+                <DropdownMenu.RadioItem
+                  key={a.id}
+                  value={a.id}
+                  className="sp-menu-row"
+                  disabled={!a.available}
+                >
+                  <Mark agent={a.id} size={14} />
+                  <span className="sp-chat-agents-name">
+                    {a.name}
+                    {!a.available && <small>{a.missing}</small>}
+                  </span>
+                  <DropdownMenu.ItemIndicator className="sp-menu-ck">
+                    <Check />
+                  </DropdownMenu.ItemIndicator>
+                </DropdownMenu.RadioItem>
+              ))}
+            </DropdownMenu.RadioGroup>
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
     </>
   );
 }

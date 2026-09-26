@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type MouseEventHandler,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { canvasIndex, homeUrl } from "./canvasIndex";
 import { canvasIconUrl } from "./canvasLibrary";
 import {
@@ -17,7 +11,13 @@ import {
 } from "./canvasTabs";
 import { shareUrl, type CanvasTab } from "./canvasUrl";
 import type { Working } from "./ChatPanel";
-import { askServer, openMenu, REVEAL } from "./contextMenu";
+import {
+  askServer,
+  MenuItem,
+  MenuSeparator,
+  REVEAL,
+  RightClickMenu,
+} from "./contextMenu";
 import { Cross, Home, Plus, Users } from "./geistIcons";
 
 /**
@@ -46,14 +46,14 @@ function TabChip({
   working,
   onOpen,
   onClose,
-  onMenu,
+  menu,
 }: {
   tab: ProjectTab;
   active: boolean;
   working: boolean;
   onOpen: () => void;
   onClose: () => void;
-  onMenu: MouseEventHandler;
+  menu: ReactNode;
 }) {
   const chip = useRef<HTMLButtonElement>(null);
   const icon = projectTabIcon(tab);
@@ -67,33 +67,34 @@ function TabChip({
   }, [active]);
 
   return (
-    <span
-      className="sp-tabchip"
-      data-active={active || undefined}
-      data-working={working || undefined}
-      onContextMenu={onMenu}
-    >
-      <button
-        ref={chip}
-        type="button"
-        className="sp-tabchip-open"
-        // The bar is a row of what is open and the chip in front is the current page of it.
-        aria-current={active ? "page" : undefined}
-        title={label}
-        onClick={onOpen}
+    <RightClickMenu menu={menu}>
+      <span
+        className="sp-tabchip"
+        data-active={active || undefined}
+        data-working={working || undefined}
       >
-        {icon && <img className="sp-tabchip-icon" src={icon} alt="" />}
-        <span className="sp-tabchip-name">{label}</span>
-      </button>
-      <button
-        type="button"
-        className="sp-tabchip-close"
-        title={`Close ${label}`}
-        onClick={onClose}
-      >
-        <Cross />
-      </button>
-    </span>
+        <button
+          ref={chip}
+          type="button"
+          className="sp-tabchip-open"
+          // The bar is a row of what is open and the chip in front is the current page of it.
+          aria-current={active ? "page" : undefined}
+          title={label}
+          onClick={onOpen}
+        >
+          {icon && <img className="sp-tabchip-icon" src={icon} alt="" />}
+          <span className="sp-tabchip-name">{label}</span>
+        </button>
+        <button
+          type="button"
+          className="sp-tabchip-close"
+          title={`Close ${label}`}
+          onClick={onClose}
+        >
+          <Cross />
+        </button>
+      </span>
+    </RightClickMenu>
   );
 }
 
@@ -119,25 +120,87 @@ export function CanvasTabBar(props: {
 }) {
   const { tabs, goTo } = props;
   const active = props.active && tabKey(props.active);
-  const [target, setTarget] = useState<ProjectTab | "home" | null>(null);
-  const menu = useRef<HTMLDivElement>(null);
+  // Home's right-click menu.
+  const homeMenu = (
+    <>
+      <MenuItem onSelect={() => navigator.clipboard.writeText(homeUrl())}>
+        Copy link
+      </MenuItem>
+      {!active && <MenuItem onSelect={props.reload}>Reload</MenuItem>}
+    </>
+  );
+  // A tab's menu, after Figma's, less what a project here does not have: no pinning, groups
+  // or windows, and renaming is the folder's. Reload is the tab in front's, since only that
+  // one is loaded. The folder is a project's own, which a community project has none of here.
+  const tabMenu = (target: ProjectTab) => (
+    <>
+      <MenuItem
+        onSelect={() =>
+          // The project's bare address, which opens its first canvas, not the view left in
+          // front; an app's canvas is one canvas. A community project's is the site's, since
+          // this one is localhost (shareUrl).
+          navigator.clipboard.writeText(
+            shareUrl(
+              new URL(
+                target.kind === "project"
+                  ? target.url
+                  : tabUrl({
+                      ...target,
+                      view: { kind: "canvas", slug: target.slug },
+                    }),
+                location.href,
+              ).href,
+              target.kind === "project" ? target.title : undefined,
+            ),
+          )
+        }
+      >
+        Copy link
+      </MenuItem>
+      {tabKey(target) === active && (
+        <MenuItem onSelect={props.reload}>Reload</MenuItem>
+      )}
+      {props.duplicate && communityId(target) !== undefined && (
+        <MenuItem onSelect={() => props.duplicate!(communityId(target)!)}>
+          Duplicate to my projects
+        </MenuItem>
+      )}
+      {target.kind === "project" &&
+        communityId(target) === undefined &&
+        canvasIndex().served && (
+          <MenuItem onSelect={() => askServer("reveal", target.name)}>
+            {REVEAL}
+          </MenuItem>
+        )}
+      <MenuSeparator />
+      <MenuItem onSelect={() => props.closeTabs([target])}>Close</MenuItem>
+      <MenuItem
+        disabled={tabs.length === 1}
+        onSelect={() =>
+          props.closeTabs(tabs.filter((tab) => tabKey(tab) !== tabKey(target)))
+        }
+      >
+        Close other tabs
+      </MenuItem>
+      <MenuItem onSelect={() => props.closeTabs(tabs)}>Close all tabs</MenuItem>
+    </>
+  );
 
   return (
     <nav className="sp-topbar" aria-label="Open projects">
       {props.children}
       {/* Where the projects are, first, the way Figma's strip starts with its house. */}
-      <button
-        type="button"
-        className="sp-head-x sp-topbar-home"
-        onContextMenu={(event) =>
-          openMenu(event, menu, () => setTarget("home"))
-        }
-        aria-current={active || props.community?.active ? undefined : "page"}
-        title="Home"
-        onClick={props.onHome}
-      >
-        <Home />
-      </button>
+      <RightClickMenu menu={homeMenu}>
+        <button
+          type="button"
+          className="sp-head-x sp-topbar-home"
+          aria-current={active || props.community?.active ? undefined : "page"}
+          title="Home"
+          onClick={props.onHome}
+        >
+          <Home />
+        </button>
+      </RightClickMenu>
       <div className="sp-topbar-tabs">
         {props.community && (
           <span
@@ -176,7 +239,7 @@ export function CanvasTabBar(props: {
             }
             onOpen={() => goTo(tab)}
             onClose={() => props.closeTabs([tab])}
-            onMenu={(event) => openMenu(event, menu, () => setTarget(tab))}
+            menu={tabMenu(tab)}
           />
         ))}
       </div>
@@ -190,131 +253,6 @@ export function CanvasTabBar(props: {
           <Plus />
         </button>
       )}
-      {/* A tab's menu, after Figma's, less what a project here does not have: no pinning, groups
-          or windows, and renaming is the folder's. Reload is the tab in front's, since only that
-          one is loaded. The folder is a project's own, which a community project has none of here. */}
-      <div
-        ref={menu}
-        popover="auto"
-        className="sp-context-menu"
-        role="menu"
-        onClickCapture={(event) => event.currentTarget.hidePopover()}
-      >
-        {target === "home" && (
-          <>
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              onClick={() => navigator.clipboard.writeText(homeUrl())}
-            >
-              Copy link
-            </button>
-            {!active && (
-              <button
-                type="button"
-                role="menuitem"
-                className="sp-menu-row"
-                onClick={props.reload}
-              >
-                Reload
-              </button>
-            )}
-          </>
-        )}
-        {target && target !== "home" && (
-          <>
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              onClick={() =>
-                // The project's bare address, which opens its first canvas, not the view left in
-                // front; an app's canvas is one canvas. A community project's is the site's, since
-                // this one is localhost (shareUrl).
-                navigator.clipboard.writeText(
-                  shareUrl(
-                    new URL(
-                      target.kind === "project"
-                        ? target.url
-                        : tabUrl({
-                            ...target,
-                            view: { kind: "canvas", slug: target.slug },
-                          }),
-                      location.href,
-                    ).href,
-                    target.kind === "project" ? target.title : undefined,
-                  ),
-                )
-              }
-            >
-              Copy link
-            </button>
-            {tabKey(target) === active && (
-              <button
-                type="button"
-                role="menuitem"
-                className="sp-menu-row"
-                onClick={props.reload}
-              >
-                Reload
-              </button>
-            )}
-            {props.duplicate && communityId(target) !== undefined && (
-              <button
-                type="button"
-                role="menuitem"
-                className="sp-menu-row"
-                onClick={() => props.duplicate!(communityId(target)!)}
-              >
-                Duplicate to my projects
-              </button>
-            )}
-            {target.kind === "project" &&
-              communityId(target) === undefined &&
-              canvasIndex().served && (
-                <button
-                  type="button"
-                  role="menuitem"
-                  className="sp-menu-row"
-                  onClick={() => askServer("reveal", target.name)}
-                >
-                  {REVEAL}
-                </button>
-              )}
-            <hr />
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              onClick={() => props.closeTabs([target])}
-            >
-              Close
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              disabled={tabs.length === 1}
-              onClick={() =>
-                props.closeTabs(
-                  tabs.filter((tab) => tabKey(tab) !== tabKey(target)),
-                )
-              }
-            >
-              Close other tabs
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              onClick={() => props.closeTabs(tabs)}
-            >
-              Close all tabs
-            </button>
-          </>
-        )}
-      </div>
     </nav>
   );
 }

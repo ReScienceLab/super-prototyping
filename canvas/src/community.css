@@ -77,6 +77,10 @@
   cursor: pointer;
 }
 
+/* Radix's tabs' root (Community.tsx), which holds the tabs and the grid they filter. */
+.cm-tabs-root {
+  display: contents;
+}
 .cm-tabs {
   display: flex;
   gap: 4px;

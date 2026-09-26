@@ -6,7 +6,14 @@ import { canvasIndex, LAYOUT_CHANGED } from "./canvasIndex";
 import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { shareUrl, sheetPageUrl, type CanvasTab } from "./canvasUrl";
-import { confirmTrash, openMenu, REVEAL, TRASH } from "./contextMenu";
+import {
+  confirmTrash,
+  MenuItem,
+  MenuSeparator,
+  REVEAL,
+  RightClickMenu,
+  TRASH,
+} from "./contextMenu";
 import { DocModeSwitch } from "./DocTab";
 import { FileText, LogoFigma, Plus } from "./geistIcons";
 
@@ -39,8 +46,6 @@ export function CanvasStrip() {
   // Keyed by the page. The project's own view with no canvas has none, and the default ground.
   const page = activeTab.kind === "canvas" ? pageOf(activeTab) : undefined;
   const ground = useGround(editor, page);
-  const [target, setTarget] = useState<CanvasTab | null>(null);
-  const menu = useRef<HTMLDivElement>(null);
   const [renaming, setRenaming] = useState(() => sessionStorage.getItem(RENAME_KEY));
   // A name typed lands as a layout change, which the tab reads through the index.
   const [, relabel] = useReducer((n: number) => n + 1, 0);
@@ -62,7 +67,6 @@ export function CanvasStrip() {
     if (editor && made.current) openTab({ kind: "canvas", slug: made.current });
     if (editor) made.current = null;
   }, [editor, openTab]);
-  const own = target?.kind === "canvas" && tab.kind !== "example" && canvasIndex().served;
   const folder = async (canvas: string, action: "reveal" | "delete") => {
     const response = await fetch(`${import.meta.env.BASE_URL}__sp/canvas-folder`, {
       method: "POST",
@@ -72,6 +76,45 @@ export function CanvasStrip() {
     if (!response.ok) return alert(await response.text());
     if (action === "delete") window.location.reload();
   };
+  // Right-click menu: Copy link copies the window's address for that view. A canvas of the
+  // project's own also shows its folder, or bins it after asking.
+  const menuFor = (target: CanvasTab) => (
+    <>
+      <MenuItem
+        onSelect={() =>
+          navigator.clipboard.writeText(
+            shareUrl(
+              new URL(tabUrl({ ...tab, view: target }), location.href).href,
+              canvasIndex().title,
+            ),
+          )
+        }
+      >
+        Copy link
+      </MenuItem>
+      {target.kind === "canvas" && tab.kind !== "example" && canvasIndex().served && (
+        <>
+          <MenuItem onSelect={() => folder(target.slug, "reveal")}>{REVEAL}</MenuItem>
+          <MenuSeparator />
+          <MenuItem
+            className="sp-context-menu__danger"
+            onSelect={async () => {
+              if (
+                await confirmTrash(
+                  shortName(target.slug),
+                  `${canvasIndex().canvasesDir}/${target.slug}`,
+                  "Its boards and everything pasted on it go with it.",
+                )
+              )
+                void folder(target.slug, "delete");
+            }}
+          >
+            {TRASH}
+          </MenuItem>
+        </>
+      )}
+    </>
+  );
   const rename = (canvas: string, name: string) => {
     sessionStorage.removeItem(RENAME_KEY);
     setRenaming(null);
@@ -86,18 +129,18 @@ export function CanvasStrip() {
   return (
     <nav className="sp-canvas-tabs" aria-label="Canvases">
       {docsOf(tab).map(({ name, slug }) => (
-        <button
-          key={slug}
-          type="button"
-          className="sp-canvas-tab"
-          aria-current={activeTab.kind === "doc" && activeTab.slug === slug ? "page" : undefined}
-          title={name}
-          onClick={() => openTab({ kind: "doc", slug })}
-          onContextMenu={(event) => openMenu(event, menu, () => setTarget({ kind: "doc", slug }))}
-        >
-          <FileText />
-          {name.replace(/\.md$/i, "")}
-        </button>
+        <RightClickMenu key={slug} menu={menuFor({ kind: "doc", slug })}>
+          <button
+            type="button"
+            className="sp-canvas-tab"
+            aria-current={activeTab.kind === "doc" && activeTab.slug === slug ? "page" : undefined}
+            title={name}
+            onClick={() => openTab({ kind: "doc", slug })}
+          >
+            <FileText />
+            {name.replace(/\.md$/i, "")}
+          </button>
+        </RightClickMenu>
       ))}
       {canvases.map((canvas) =>
         canvas === renaming ? (
@@ -121,23 +164,21 @@ export function CanvasStrip() {
             />
           </label>
         ) : (
-        <button
-          key={canvas}
-          type="button"
-          className="sp-canvas-tab"
-          aria-current={canvas === here ? "page" : undefined}
-          data-working={busy.includes(canvas) || undefined}
-          onClick={() => openTab({ kind: "canvas", slug: canvas })}
-          onDoubleClick={() =>
-            tab.kind !== "example" && canvasIndex().served && setRenaming(canvas)
-          }
-          onContextMenu={(event) =>
-            openMenu(event, menu, () => setTarget({ kind: "canvas", slug: canvas }))
-          }
-        >
-          <ViewIcon view={{ kind: "canvas", slug: canvas }} />
-          {shortName(canvas)}
-        </button>
+          <RightClickMenu key={canvas} menu={menuFor({ kind: "canvas", slug: canvas })}>
+            <button
+              type="button"
+              className="sp-canvas-tab"
+              aria-current={canvas === here ? "page" : undefined}
+              data-working={busy.includes(canvas) || undefined}
+              onClick={() => openTab({ kind: "canvas", slug: canvas })}
+              onDoubleClick={() =>
+                tab.kind !== "example" && canvasIndex().served && setRenaming(canvas)
+              }
+            >
+              <ViewIcon view={{ kind: "canvas", slug: canvas }} />
+              {shortName(canvas)}
+            </button>
+          </RightClickMenu>
         ),
       )}
       {tab.kind !== "example" && canvasIndex().served && (
@@ -186,61 +227,6 @@ export function CanvasStrip() {
           <LogoFigma />
         </a>
       )}
-      {/* Right-click menu: Copy link copies the window's address for that view. A canvas of the
-          project's own also shows its folder, or bins it after asking. */}
-      <div
-        ref={menu}
-        popover="auto"
-        className="sp-context-menu"
-        role="menu"
-        onClickCapture={(event) => event.currentTarget.hidePopover()}
-      >
-        <button
-          type="button"
-          role="menuitem"
-          className="sp-menu-row"
-          onClick={() =>
-            navigator.clipboard.writeText(
-              shareUrl(
-                new URL(tabUrl({ ...tab, view: target! }), location.href).href,
-                canvasIndex().title,
-              ),
-            )
-          }
-        >
-          Copy link
-        </button>
-        {own && (
-          <>
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              onClick={() => folder(target.slug, "reveal")}
-            >
-              {REVEAL}
-            </button>
-            <hr />
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row sp-context-menu__danger"
-              onClick={async () => {
-                if (
-                  await confirmTrash(
-                    shortName(target.slug),
-                    `${canvasIndex().canvasesDir}/${target.slug}`,
-                    "Its boards and everything pasted on it go with it.",
-                  )
-                )
-                  void folder(target.slug, "delete");
-              }}
-            >
-              {TRASH}
-            </button>
-          </>
-        )}
-      </div>
     </nav>
   );
 }

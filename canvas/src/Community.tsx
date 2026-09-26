@@ -1,14 +1,15 @@
+import { Tabs } from "radix-ui";
 import {
   useEffect,
   useRef,
   useState,
   type ComponentType,
-  type MouseEventHandler,
+  type ReactNode,
 } from "react";
 import "./community.css";
 import { openInTab } from "./canvasTabs";
 import { webUrl } from "./canvasUrl";
-import { openMenu } from "./contextMenu";
+import { MenuItem, MenuSeparator, RightClickMenu } from "./contextMenu";
 import {
   ArrowRight,
   Box,
@@ -168,38 +169,35 @@ function Thumb({ entry }: { entry: Entry }) {
 function Card({
   entry,
   onOpen,
-  onMenu,
+  menu,
 }: {
   entry: Entry;
   onOpen: () => void;
-  onMenu?: MouseEventHandler;
+  /** Its right-click menu's rows, in the app. */
+  menu?: ReactNode;
 }) {
+  const card = (
+    <button type="button" className="cm-card" onClick={onOpen}>
+      <div className="cm-shot">
+        <Thumb entry={entry} />
+      </div>
+      <div className="cm-cap">
+        {entry.icon && <img className="cm-appicon" src={entry.icon} alt="" />}
+        <span className="cm-capname">
+          <b>{entry.name}</b>
+          <span className="cm-mono">{plural(entry.boards)}</span>
+        </span>
+        <img
+          className="cm-avatar"
+          src={avatar(entry.author)}
+          alt=""
+          title={entry.author}
+        />
+      </div>
+    </button>
+  );
   return (
-    <li>
-      <button
-        type="button"
-        className="cm-card"
-        onClick={onOpen}
-        onContextMenu={onMenu}
-      >
-        <div className="cm-shot">
-          <Thumb entry={entry} />
-        </div>
-        <div className="cm-cap">
-          {entry.icon && <img className="cm-appicon" src={entry.icon} alt="" />}
-          <span className="cm-capname">
-            <b>{entry.name}</b>
-            <span className="cm-mono">{plural(entry.boards)}</span>
-          </span>
-          <img
-            className="cm-avatar"
-            src={avatar(entry.author)}
-            alt=""
-            title={entry.author}
-          />
-        </div>
-      </button>
-    </li>
+    <li>{menu ? <RightClickMenu menu={menu}>{card}</RightClickMenu> : card}</li>
   );
 }
 
@@ -222,72 +220,35 @@ export type OpenInApp = (id: string) => void;
 export type Duplicate = (id: string) => void;
 
 /**
- * A card's right-click menu, in the app: one native popover for every card of a list, as the
- * home page's own projects have (HomePage.tsx, contextMenu.ts). Nothing on the site, whose
- * dialog has the same links and where the browser keeps its own menu.
+ * A card's right-click menu, in the app, as the home page's own projects have (HomePage.tsx).
+ * None on the site, whose dialog has the same links and where the browser keeps its own menu.
  */
-function useCardMenu(openInApp?: OpenInApp, duplicate?: Duplicate) {
-  const [target, setTarget] = useState<Entry>();
-  const menu = useRef<HTMLDivElement>(null);
-  if (!openInApp) return [undefined, null] as const;
-  const onMenu =
-    (entry: Entry): MouseEventHandler =>
-    (event) =>
-      openMenu(event, menu, () => setTarget(entry));
-  const popover = (
-    <div
-      ref={menu}
-      popover="auto"
-      className="sp-context-menu"
-      role="menu"
-      onClickCapture={(event) => event.currentTarget.hidePopover()}
-    >
-      {target && (
-        <>
-          <button
-            type="button"
-            role="menuitem"
-            className="sp-menu-row"
-            onClick={() => openInApp(target.id)}
-          >
-            Open
-          </button>
-          <hr />
-          <button
-            type="button"
-            role="menuitem"
-            className="sp-menu-row"
-            onClick={() =>
-              navigator.clipboard.writeText(webUrl(target.id, target.name))
-            }
-          >
-            Copy link
-          </button>
-          {duplicate && (
-            <button
-              type="button"
-              role="menuitem"
-              className="sp-menu-row"
-              onClick={() => duplicate(target.id)}
-            >
-              Duplicate to my projects
-            </button>
-          )}
-          <hr />
-          <a
-            role="menuitem"
-            className="sp-menu-row"
-            href={target.source}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View on GitHub
-          </a>
-        </>
+function cardMenu(entry: Entry, openInApp?: OpenInApp, duplicate?: Duplicate) {
+  if (!openInApp) return undefined;
+  return (
+    <>
+      <MenuItem onSelect={() => openInApp(entry.id)}>Open</MenuItem>
+      <MenuSeparator />
+      <MenuItem
+        onSelect={() =>
+          navigator.clipboard.writeText(webUrl(entry.id, entry.name))
+        }
+      >
+        Copy link
+      </MenuItem>
+      {duplicate && (
+        <MenuItem onSelect={() => duplicate(entry.id)}>
+          Duplicate to my projects
+        </MenuItem>
       )}
-    </div>
+      <MenuSeparator />
+      <MenuItem asChild>
+        <a href={entry.source} target="_blank" rel="noopener noreferrer">
+          View on GitHub
+        </a>
+      </MenuItem>
+    </>
   );
-  return [onMenu, popover] as const;
 }
 
 /**
@@ -304,21 +265,17 @@ export function CommunityCards({
   limit: number;
 }) {
   const all = useCommunity();
-  const [onMenu, menu] = useCardMenu(openInApp, duplicate);
   return (
-    <>
-      <ul className="home-grid">
-        {all.slice(0, limit).map((e) => (
-          <Card
-            key={e.id}
-            entry={e}
-            onOpen={() => openInApp(e.id)}
-            onMenu={onMenu?.(e)}
-          />
-        ))}
-      </ul>
-      {menu}
-    </>
+    <ul className="home-grid">
+      {all.slice(0, limit).map((e) => (
+        <Card
+          key={e.id}
+          entry={e}
+          onOpen={() => openInApp(e.id)}
+          menu={cardMenu(e, openInApp, duplicate)}
+        />
+      ))}
+    </ul>
   );
 }
 
@@ -335,7 +292,6 @@ export function CommunityPage({
   duplicate?: Duplicate;
 }) {
   const all = useCommunity();
-  const [onMenu, menu] = useCardMenu(openInApp, duplicate);
   const [family, setFamily] = useState<Family | "all">("all");
   const [collection, setCollection] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -445,89 +401,96 @@ export function CommunityPage({
         </form>
       </section>
 
-      <div className="cm-tabs" role="tablist" aria-label="Device" ref={tabs}>
-        {FAMILIES.map(([key, label, Icon]) => {
-          const n =
-            key === "all"
-              ? all.length
-              : all.filter((e) => e.family === key).length;
-          return (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              className="cm-tab"
-              data-empty={n === 0 || undefined}
-              aria-selected={family === key}
-              onClick={() => setFamily(key)}
-            >
-              <Icon />
-              <span>{label}</span>
-              <i>{n}</i>
-            </button>
-          );
-        })}
-      </div>
-      {col && (
-        <div className="cm-filter">
-          <span className="cm-mono">Collection</span>
-          <span className="cm-chip">
-            {col.title}
-            <button
-              type="button"
-              aria-label="Clear collection"
-              onClick={() => setCollection(null)}
-            >
-              <Cross />
-            </button>
-          </span>
-        </div>
-      )}
-      <ul className="cm-grid" role="tabpanel" aria-live="polite">
-        {shown.map((e) => (
-          <Card
-            key={e.id}
-            entry={e}
-            onOpen={() => setOpen(e)}
-            onMenu={onMenu?.(e)}
-          />
-        ))}
-        {shown.length === 0 && (
-          <li className="cm-empty">
-            {needle ? (
-              <>
-                <MagnifyingGlass />
-                <h3>Nothing matches “{q.trim()}”</h3>
-                <p>Try another name, or clone it yourself and share it.</p>
-                <button
-                  type="button"
-                  className="cm-btn cm-btn--ghost cm-btn--md"
-                  onClick={() => setQ("")}
-                >
-                  Clear search
-                </button>
-              </>
-            ) : (
-              <>
-                <h3>No {familyName(family)} projects yet</h3>
-                <p>
-                  {col
-                    ? `Nothing in “${col.title}” for ${familyName(family)}.`
-                    : "Be the first to clone one and share it."}
-                </p>
-                <a
-                  className="cm-btn cm-btn--solid cm-btn--md"
-                  href={SHARE}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Share the first one <ArrowRight />
-                </a>
-              </>
-            )}
-          </li>
+      {/* Radix's tabs, for the arrow keys between them and the panel they name. Its root is no
+          box of the layout's. */}
+      <Tabs.Root
+        className="cm-tabs-root"
+        value={family}
+        onValueChange={(value) => setFamily(value as Family | "all")}
+      >
+        <Tabs.List className="cm-tabs" aria-label="Device" ref={tabs}>
+          {FAMILIES.map(([key, label, Icon]) => {
+            const n =
+              key === "all"
+                ? all.length
+                : all.filter((e) => e.family === key).length;
+            return (
+              <Tabs.Trigger
+                key={key}
+                value={key}
+                className="cm-tab"
+                data-empty={n === 0 || undefined}
+              >
+                <Icon />
+                <span>{label}</span>
+                <i>{n}</i>
+              </Tabs.Trigger>
+            );
+          })}
+        </Tabs.List>
+        {col && (
+          <div className="cm-filter">
+            <span className="cm-mono">Collection</span>
+            <span className="cm-chip">
+              {col.title}
+              <button
+                type="button"
+                aria-label="Clear collection"
+                onClick={() => setCollection(null)}
+              >
+                <Cross />
+              </button>
+            </span>
+          </div>
         )}
-      </ul>
+        <Tabs.Content value={family} asChild>
+          <ul className="cm-grid" aria-live="polite" tabIndex={-1}>
+            {shown.map((e) => (
+              <Card
+                key={e.id}
+                entry={e}
+                onOpen={() => setOpen(e)}
+                menu={cardMenu(e, openInApp, duplicate)}
+              />
+            ))}
+            {shown.length === 0 && (
+              <li className="cm-empty">
+                {needle ? (
+                  <>
+                    <MagnifyingGlass />
+                    <h3>Nothing matches “{q.trim()}”</h3>
+                    <p>Try another name, or clone it yourself and share it.</p>
+                    <button
+                      type="button"
+                      className="cm-btn cm-btn--ghost cm-btn--md"
+                      onClick={() => setQ("")}
+                    >
+                      Clear search
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <h3>No {familyName(family)} projects yet</h3>
+                    <p>
+                      {col
+                        ? `Nothing in “${col.title}” for ${familyName(family)}.`
+                        : "Be the first to clone one and share it."}
+                    </p>
+                    <a
+                      className="cm-btn cm-btn--solid cm-btn--md"
+                      href={SHARE}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Share the first one <ArrowRight />
+                    </a>
+                  </>
+                )}
+              </li>
+            )}
+          </ul>
+        </Tabs.Content>
+      </Tabs.Root>
 
       <section className="cm-section" aria-labelledby="cm-themes">
         <div className="cm-mono">Curated collections</div>
@@ -732,7 +695,6 @@ export function CommunityPage({
           </div>
         )}
       </dialog>
-      {menu}
     </div>
   );
 }
