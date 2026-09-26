@@ -46,7 +46,7 @@ verification. A file that fails is deleted; it does not get a manifest entry
 with a caveat in the label.
 
 1. **Look at a finished one.** Run `sp fetch 4a4554bb-1d8a-451a-9470-402023d1b1d2`
-   (the claude-ios example) and print its rows from the folder it prints:
+   (the claude-ios community project) and print its rows from the folder it prints:
    ```bash
    F="$(sp fetch 4a4554bb-1d8a-451a-9470-402023d1b1d2)"
    python3 -c 'import json,sys
@@ -82,7 +82,7 @@ Announcement cards · Paid advertising · Press photography
 ```
 
 Identity first, then one row per platform. Two of those titles are not
-self-evident, so to match the examples:
+self-evident, so to match the community projects:
 
 - **Art direction** is the imagery style the company itself publishes:
   illustration systems, hero art, photography treatment, character studies,
@@ -96,7 +96,7 @@ something else's material is a lie.
 
 ## How much
 
-The twelve examples run 50 to 144 assets, most between 70 and 120.
+The twelve community projects with a brand kit run 50 to 144 assets, most between 70 and 120.
 Breadth across surfaces is the point, so 4–8 posted visuals per social
 platform beats forty screenshots from one store — but a store row takes all of
 what the store has, which in those folders is 4 to 20.

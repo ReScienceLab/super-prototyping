@@ -1,7 +1,7 @@
 # super-prototyping: directory guide
 
 This repo is two things at once: **an app and skills you use on other projects**,
-and **a workspace whose own boards are their worked examples**. The
+and **a workspace whose own boards are published as community projects**. The
 split matters for every change here. The app ships *code*; a user's project
 holds only *data*.
 
@@ -15,7 +15,7 @@ loads the same tree an install does.
 `canvas/` is the tldraw viewer, built with Bun and Vite. Its server serves
 every project under `~/Documents/Super Prototyping` (`PROTOTYPING_PROJECTS_DIR`
 moves it) at `/p/<name>/`, and no folder anywhere else, with this repo's
-`canvases` as the examples shown beside each project's own.
+`canvases` as the app's own canvases shown beside each project's.
 `docs/2026-09-23-projects-folder-only.md` says why. A
 project's boards are its `canvases`, discovered as `*/*.html` one level
 deep. Discovery is `boardIndex()` in `canvas/server/boards.ts`, served as JSON at
@@ -30,12 +30,11 @@ fetched into `~/.cache/super-prototyping/<version>/` for an install, or this
 checkout's own `canvas/dist` when `canvas/node_modules` exists. The canvas's
 `dev` script mounts the same server under Vite, for working on the app. It opens
 on the home page with no project, as the app does: this checkout's canvases are
-the examples there, not a project of their own.
+the app's own there, not a project of their own.
 
 The hosted canvas is that build on Cloudflare Pages. The root of
 `superproto.dev` is the download page, whose repo is
-`ReScienceLab/super-prototyping-landing`, and its Worker serves every example
-and every project shared to the community read-only at `superproto.dev/p/<id>`,
+`ReScienceLab/super-prototyping-landing`, and its Worker serves every project shared to the community read-only at `superproto.dev/p/<id>`,
 from the Pages deploy. The build writes each one's index under `p/<id>/`, and
 fetches the community's projects only on Pages (`CF_PAGES`). Nothing here
 deploys it — the Pages project builds this repo on its own.
@@ -56,7 +55,7 @@ same `dist/server.mjs`, forked as a utility process and shown in a window.
 `launch.ts` holds the helpers `bun test` checks. The app opens on the home page,
 which is no project's and lists them all, and on a first launch
 `canvas/src/Onboarding.tsx` asks over it which agent to work with. The app ships only `canvases/templates`,
-under the tree it hands the server. Every other example is a community
+under the tree it hands the server. Every other folder here is a community
 project, listed in `canvases/community.json` and opened read-only at `/c/<id>/`
 through the server; `docs/2026-09-26-projects-on-demand.md` says why. The
 release workflow builds the app on a macOS runner and attaches a dmg per

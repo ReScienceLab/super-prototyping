@@ -430,15 +430,15 @@ export function createAgentServer(options: {
               "no project's: keep your notes and intermediate files there, and nothing the " +
               "user is meant to see.",
             dir === undefined
-              ? "No project is open: they are on the home page or looking at an example or a " +
-                "community project. A " +
+              ? "No project is open: they are on the home page or looking at a community " +
+                "project. A " +
                 "board belongs in a project, which they make or open from the home page."
               : `They are in their project at ${dir}. Its boards are the folders under ` +
                 `${boards}, one per canvas page, and a board you make goes there.`,
             others.length > 0 &&
               `They may refer to their ${dir === undefined ? "" : "other "}projects, which ` +
                 `are ${others.join(", ")}.`,
-            `The canvas also shows the examples under ${examplesDir}. Those are the app's and ` +
+            `The canvas also shows the app's own canvases under ${examplesDir}. Those are ` +
               (dir === undefined
                 ? "read-only."
                 : `read-only: to change one, copy its folder into ${boards} first.`),
@@ -450,7 +450,7 @@ export function createAgentServer(options: {
             community === undefined &&
               canvas &&
               (dir === undefined || folder !== path.join(boards, canvas)
-                ? `They are looking at the example canvas "${canvas}", which is read-only at ` +
+                ? `They are looking at the app's canvas "${canvas}", which is read-only at ` +
                   `${folder}. Write nothing under that folder.` +
                   (dir === undefined
                     ? ""

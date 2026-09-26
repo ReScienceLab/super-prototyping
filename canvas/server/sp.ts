@@ -296,7 +296,7 @@ export function createSpServer(options: {
     projectDir === undefined ||
     folderOf(canvasesDir, examplesDir, slug) !== path.join(canvasesDir, slug);
   const READ_ONLY =
-    "an example canvas is read-only: clone it to have one of your own";
+    "this canvas is the app's and read-only: clone it to have one of your own";
 
   // The same mount-and-strip routing connect gives the dev server: a handler mounted at a
   // prefix sees `req.url` relative to it, and `next()` hands the request on with the url put

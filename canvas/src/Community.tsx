@@ -24,7 +24,7 @@ import {
  * Prototyping Site project.
  *
  * It lists the projects shared to the community repo, from its index.json
- * (docs/2026-09-25-project-package.md, Phase 3), this app's examples among them
+ * (docs/2026-09-25-project-package.md, Phase 3), the ones this repo's canvases were packed into among them
  * (docs/2026-09-26-projects-on-demand.md). Every one opens as a read-only canvas on the site, at
  * its own address (docs/2026-09-25-project-urls.md), and in the app as its tab.
  */
@@ -59,7 +59,7 @@ const FAMILIES: [Family | "all", string, ComponentType][] = [
 ];
 const familyName = (f: string) => FAMILIES.find(([k]) => k === f)![1];
 
-/** Picked by hand, by project id, each named by the example it was packed from
+/** Picked by hand, by project id, each named by the canvas in this repo it was packed from
  *  (canvases/community.json). An id the index does not have is left out. */
 const COLLECTIONS = [
   {

@@ -1,7 +1,7 @@
-# Community projects on demand; the app bundles no examples
+# Community projects on demand; the app bundles none
 
-2026-09-26. The app stopped shipping the example canvases, about 420 MB of a
-735 MB app. Every example is now a community project, reached by pull request
+2026-09-26. The app stopped shipping this repo's canvases, about 420 MB of a
+735 MB app, which it called examples. Every one is now a community project, reached by pull request
 like anyone's. The app opens any community project read-only as a tab, and
 fetches or copies one only when asked.
 
@@ -64,7 +64,7 @@ concurrency leaves nothing out.
 cap `sp pack` enforces. `sp duplicate` extracts into a temporary folder and
 renames it in, so it never merges into or overwrites a project.
 
-## The examples
+## This repo's canvases
 
 `canvases/<slug>/` in this repo stays their source. `canvases/community.json`
 maps each to its community id. They reached the community in one pull
@@ -76,10 +76,10 @@ The hosted build still emits them under their old slugs, so
 
 ## Ceilings
 
-- **Cloudflare Pages deploys at most 20,000 files.** At the examples' density
+- **Cloudflare Pages deploys at most 20,000 files.** At this repo's density
   that is roughly 130 to 150 projects. Past it, the site has to serve boards
   from somewhere other than the Pages deploy, R2 being the obvious place.
 - **Every Pages build downloads the community repo**, which grew by about
-  430 MB with the examples.
+  430 MB with this repo's canvases.
 - **No offline handling** (#186): with no network, a community project does
   not open and `sp fetch` fails with the error as it is.

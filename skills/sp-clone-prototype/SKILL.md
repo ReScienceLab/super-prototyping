@@ -60,7 +60,7 @@ project. Address it through the kit root:
 KIT="$(sp root)"
 ```
 
-Worked examples are community projects, not bundled with the app: `sp fetch
+Finished runs to copy from are community projects, not bundled with the app: `sp fetch
 <id>` prints the folder of a read-only copy, its boards at
 `<that folder>/canvases/<slug>/`. Phase 2 and Phase 6 below name the ids.
 
@@ -195,14 +195,14 @@ Cover, in this order, with a short prefix per app (`--n-` for Notion):
 - spacing and geometry constants: gutters, row height, tap target, status
   bar, sheet top inset
 
-Run `sp fetch 7baec1bc-e156-4d3d-97ed-9eada3bc2971` (the luma-ios example) and
+Run `sp fetch 7baec1bc-e156-4d3d-97ed-9eada3bc2971` (the luma-ios community project) and
 read `canvases/luma-ios/` in the folder it prints: a complete run to copy
 from, 19 boards (a token board, two evidence boards, 8 screens, 8
 references), a four-row `layout.json`, a committed `gen.py`, and per-screen
 mean deltas of 3.47 to 4.50 levels against the captures.
 
 Run `sp fetch 63bcb818-4025-4f93-90de-fa9fd71bc126` (the duolingo-ios
-example) for the second complete run, and the one
+community project) for the second complete run, and the one
 to read when the screens are mostly illustration: 58 tokens, 8 screens, 128
 pieces of art, and per-screen mean deltas of 1.32 to 2.93, the best
 screenshot-sourced numbers in the repo. Every picture on it is a crop of the

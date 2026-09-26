@@ -43,7 +43,7 @@ preview: 2400 × 1260, drawn by `sp thumbnail <slug>` from the cover board and
 the row after it, with the name and `icon.png`. Draw it again after the cover
 or the name changes.
 
-A folder shown as an example can carry its own `PRD.md`, written to the
+A community project's folder can carry its own `PRD.md`, written to the
 `sp-define-product` skill's template. Its tab shows it before the canvas. A
 project keeps its PRD at its root instead, beside `canvases/`, and one
 inside a folder of its own is not shown.

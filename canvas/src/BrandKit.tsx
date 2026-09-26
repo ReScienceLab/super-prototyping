@@ -107,7 +107,7 @@ export function BrandKit({
             <span>Super Prototyping</span>
           </a>
         )}
-        <nav className="switch" aria-label="Brand kit for the other examples">
+        <nav className="switch" aria-label="Brand kit for the other canvases">
           {pages.map((page) => (
             <a
               key={page}

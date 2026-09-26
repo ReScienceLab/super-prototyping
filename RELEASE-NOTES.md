@@ -19,6 +19,17 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **A much smaller app.** It no longer bundles the projects it used to call
+  examples, about 420 MB of it. They are community projects now, shared like
+  anyone's, and downloaded only when you open one.
+- **Community projects open in the app.** A card in the Community section
+  opens that project read-only as a tab, and you can add its boards to the
+  agent panel as you would your own.
+- **`sp duplicate <id>`** copies a community project into your projects, the
+  way to change one. **`sp fetch <id>`** gives your agent a read-only copy to
+  learn from; the skills use it to read a finished run.
+- **Start here is gone.** A project with nothing in it yet opens blank.
+
 ## v1.6.4
 
 2026-09-26. Browse and share projects in the community, and open any of them
