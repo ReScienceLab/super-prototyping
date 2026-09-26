@@ -143,7 +143,7 @@ from `assets/refs/`, which is gitignored — without the refs the generator
 still rebuilds every board from the committed art.
 
 The five `ref-*` boards are committed, unlike every other folder's, so the
-hosted canvas at superproto.dev/p/spotify-ios shows each capture under its
+hosted canvas at superproto.dev/p/spotify-ios/ shows each capture under its
 replica. `assets/refs/` is not. To rebuild it from Mobbin's 1179 × 2676
 downloads, resize each to 881 wide and crop to 1909 rows (852pt, which drops
 the attribution strip): `home-05 → 01`, `home-02 → 02`, `home-03 → 03`,
