@@ -5,7 +5,7 @@ import { docsOf, ownCanvases, pageOf, tabFor, tabUrl } from "./canvasTabs";
 import { canvasIndex, LAYOUT_CHANGED } from "./canvasIndex";
 import { groundEditable, setGround, useGround } from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
-import { sheetPageUrl, type CanvasTab } from "./canvasUrl";
+import { shareUrl, sheetPageUrl, type CanvasTab } from "./canvasUrl";
 import { confirmTrash, openMenu, REVEAL, TRASH } from "./contextMenu";
 import { DocModeSwitch } from "./DocTab";
 import { FileText, LogoFigma, Plus } from "./geistIcons";
@@ -201,7 +201,10 @@ export function CanvasStrip() {
           className="sp-menu-row"
           onClick={() =>
             navigator.clipboard.writeText(
-              new URL(tabUrl({ ...tab, view: target! }), location.href).href,
+              shareUrl(
+                new URL(tabUrl({ ...tab, view: target! }), location.href).href,
+                canvasIndex().title,
+              ),
             )
           }
         >

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import "./community.css";
 import { openInTab } from "./canvasTabs";
+import { webUrl } from "./canvasUrl";
 import {
   ArrowRight,
   Box,
@@ -29,17 +30,6 @@ import {
  * its own address (docs/2026-09-25-project-urls.md), and in the app as its tab.
  */
 
-/**
- * A project's page on the site, a link worth sending: the app's own address is localhost. The
- * id finds it and the name is for people reading the link, as in Figma's file links.
- */
-const webUrl = (entry: Entry) => {
-  const name = entry.name
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, "-")
-    .replace(/^-|-$/g, "");
-  return `https://superproto.dev/p/${entry.id}/${name}`;
-};
 const COMMUNITY = "https://github.com/ReScienceLab/super-prototyping-community";
 const SHARE = `${COMMUNITY}#share-a-project`;
 const TAKEDOWN = `${COMMUNITY}/issues/new?template=takedown.yml`;
@@ -560,7 +550,7 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
                 {openInApp ? (
                   <a
                     className="cm-btn cm-btn--solid cm-btn--md"
-                    href={webUrl(open)}
+                    href={webUrl(open.id, open.name)}
                     onClick={openInTab((id: string) => {
                       setOpen(null);
                       openInApp(id);
@@ -571,7 +561,7 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
                 ) : (
                   <a
                     className="cm-btn cm-btn--solid cm-btn--md"
-                    href={webUrl(open)}
+                    href={webUrl(open.id, open.name)}
                     rel="noopener noreferrer"
                   >
                     Open <ArrowRight />
@@ -582,7 +572,7 @@ export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
                   className="cm-btn cm-btn--ghost cm-btn--md"
                   onClick={() =>
                     navigator.clipboard
-                      .writeText(webUrl(open))
+                      .writeText(webUrl(open.id, open.name))
                       .then(() => setCopied(open.id))
                   }
                 >

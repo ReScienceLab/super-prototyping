@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   canvasPageUrl,
+  communityIdOf,
+  sameProject,
+  shareUrl,
+  webUrl,
   frameUrl,
   sheetPageUrl,
   tabFromUrl,
@@ -160,5 +164,58 @@ describe("canvas URLs", () => {
     expect(targetFromUrl(href)).toBe("02-home");
     expect(new URL(href).searchParams.get("other")).toBe("1");
     expect(new URL(urlForSlug(href, "")).search).toBe("?other=1");
+  });
+});
+
+describe("community project links", () => {
+  const id = "d9021861-db8e-4f0f-8476-f55e6695c773";
+  const site = `https://superproto.dev/p/${id}/spotify-ios`;
+
+  it("names a project on the site by id, and by name for people", () => {
+    expect(webUrl(id, "Spotify iOS")).toBe(site);
+    expect(webUrl(id)).toBe(`https://superproto.dev/p/${id}/`);
+  });
+
+  it("hands out the site's address wherever a community project is open", () => {
+    const view = "?canvas=spotify-ios#03-search";
+    expect(
+      shareUrl(`http://127.0.0.1:5199/c/${id}/${view}`, "Spotify iOS"),
+    ).toBe(site + view);
+    expect(
+      shareUrl(`https://superproto.dev/p/${id}/${view}`, "Spotify iOS"),
+    ).toBe(site + view);
+  });
+
+  it("leaves a local project's address alone, even one whose folder looks like an id", () => {
+    for (const href of [
+      "http://127.0.0.1:5199/p/My%20App/?canvas=home#01-home",
+      `http://127.0.0.1:5199/p/${id}/?canvas=home`,
+    ]) {
+      expect(communityIdOf(href)).toBeUndefined();
+      expect(shareUrl(href, "x")).toBe(href);
+    }
+  });
+
+  it("takes a link off the site as this project's in the app, and not another's", () => {
+    const here = `http://127.0.0.1:5199/c/${id}/`;
+    expect(sameProject(`${site}?canvas=a#b`, here)).toBe(true);
+    expect(sameProject(`https://superproto.dev/p/${id}/?canvas=a`, here)).toBe(
+      true,
+    );
+    expect(
+      sameProject(
+        "https://superproto.dev/p/4a4554bb-1d8a-451a-9470-402023d1b1d2/x",
+        here,
+      ),
+    ).toBe(false);
+    expect(
+      sameProject(
+        "http://127.0.0.1:5199/p/a/?canvas=x",
+        "http://127.0.0.1:5199/p/a/",
+      ),
+    ).toBe(true);
+    expect(
+      sameProject("http://127.0.0.1:5199/p/a/", "http://127.0.0.1:5199/p/b/"),
+    ).toBe(false);
   });
 });

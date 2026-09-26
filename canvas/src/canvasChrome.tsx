@@ -74,7 +74,7 @@ import {
   RefreshCounterClockwise,
 } from "./geistIcons";
 import { asCanvasTarget, shapeUnderPointer } from "./inspectorClicks";
-import { urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
+import { shareUrl, urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
 const COMMENT_USER_DIALOG = "comment-user";
@@ -193,7 +193,9 @@ export const canvasUiOverrides: TLUiOverrides = {
  * address, a heading say, has none to add.
  */
 function selectionLinks(editor: Editor) {
-  const here = windowUrl(window.location.href);
+  // A community project's links are the site's, wherever it is open (shareUrl); a paste of one
+  // back into this canvas still finds its board (sameProject).
+  const here = shareUrl(windowUrl(window.location.href), canvasIndex().title);
   return editor.getSelectedShapes().flatMap((shape) => {
     if (shape.type === CANVAS_FILE_SHAPE_TYPE) {
       const file = readCanvasLibrary()
