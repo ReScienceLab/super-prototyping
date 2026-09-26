@@ -33,10 +33,10 @@ on the web.
   link preview.
 - **A board can no longer reach the app.** Every board runs sandboxed, and the
   websites you visit can no longer reach the app's server.
-- **Every project in the community opens on the web.** Its **Open** shows the
-  project's canvas at `superproto.dev/p/<id>`, read-only, for the examples and
-  for projects people shared alike, and **Copy link** copies that address.
-  Old `superproto.dev/demo` links go to the same example, or to the community.
+- **Every project in the community opens on the web.** Each has a read-only
+  canvas at `superproto.dev/p/<id>`, the examples and projects people shared
+  alike. **Copy link** copies that address, and **Open** goes there for a
+  shared project; an example still opens as a tab in the app. Old `superproto.dev/demo` links go to the same example, or to the community.
 - **`sp`, `refkit` and `artgen` no longer write into the app.** Python's cache
   files went inside it, which broke the app's signature check.
 
