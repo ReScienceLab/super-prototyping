@@ -4,7 +4,7 @@ import type { AddressInfo } from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { expect, it } from "vitest";
-import { createProjectsServer } from "./projects.ts";
+import { createProjectsServer, withoutFiles } from "./projects.ts";
 
 // One server for every project: `/` goes to the one opened, else home, each is at `/p/<name>/`, the
 // root has the examples and no project, and a page of the server's own can make one. The folder
@@ -226,4 +226,11 @@ it("serves every project at its own address and makes new ones", async () => {
     server.closeAllConnections();
     fs.rmSync(tmp, { recursive: true, force: true });
   }
+});
+
+it("keeps a community board it draws off file: addresses, after its doctype", () => {
+  expect(withoutFiles("<!DOCTYPE html><html></html>")).toMatch(
+    /^<!DOCTYPE html><meta http-equiv="Content-Security-Policy" content="default-src https: /,
+  );
+  expect(withoutFiles("<p>")).toMatch(/^<meta [^>]+><p>$/);
 });

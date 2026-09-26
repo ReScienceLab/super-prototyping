@@ -68,6 +68,25 @@ const PROJECT_FORMAT = 1;
 /** Where the community's projects are served from, each at `/p/<id>/`. */
 const SITE = "https://superproto.dev";
 
+/**
+ * Where a community board is written to be drawn: a folder of this process's own, since a shared
+ * tmpdir would let another user plant a link there for the write to follow.
+ */
+let communityShots: string | undefined;
+
+/**
+ * Headless Chrome draws the board from a `file://` address, where a board could frame or show any
+ * file on the machine, and the picture goes to the agent. This keeps every subresource off `file:`.
+ * After the doctype, which it must follow or the board renders in quirks mode.
+ */
+const NO_FILES =
+  '<meta http-equiv="Content-Security-Policy" content="default-src https: data: blob: ' +
+  "'unsafe-inline' 'unsafe-eval'\">";
+export function withoutFiles(html: string) {
+  const doctype = /^\s*<!doctype[^>]*>/i.exec(html)?.[0] ?? "";
+  return doctype + NO_FILES + html.slice(doctype.length);
+}
+
 /** Whether a Host header names this machine by an address or by localhost, which no DNS can move. */
 export function loopbackHost(host: string | undefined) {
   if (!host) return false;
@@ -330,7 +349,10 @@ export function createProjectsServer(options: {
             // Marked as a community project's, which the window shows as a tab of this app's
             // rather than a page of the site's (canvasIndex.ts, `local`).
             res.end(
-              JSON.stringify({ ...((await upstream.json()) as object), community: true }),
+              JSON.stringify({
+                ...((await upstream.json()) as object),
+                community: true,
+              }),
             );
           })
           .catch((e: Error) =>
@@ -345,9 +367,15 @@ export function createProjectsServer(options: {
         return void fetch(`${SITE}/p/${id}/board/${shot.slug}/${shot.file}`)
           .then(async (upstream) => {
             if (!upstream.ok)
-              return fail(upstream.status, `superproto.dev answered ${upstream.status}`);
-            const html = Buffer.from(await upstream.arrayBuffer());
-            const board = path.join(os.tmpdir(), "sp-community", id, shot.slug, shot.file);
+              return fail(
+                upstream.status,
+                `superproto.dev answered ${upstream.status}`,
+              );
+            const html = Buffer.from(withoutFiles(await upstream.text()));
+            communityShots ??= fs.mkdtempSync(
+              path.join(os.tmpdir(), "sp-community-"),
+            );
+            const board = path.join(communityShots, id, shot.slug, shot.file);
             fs.mkdirSync(path.dirname(board), { recursive: true });
             if (!fs.readFileSync(board, { flag: "a+" }).equals(html))
               fs.writeFileSync(board, html);

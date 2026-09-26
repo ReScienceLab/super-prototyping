@@ -56,7 +56,7 @@ same `dist/server.mjs`, forked as a utility process and shown in a window.
 which is no project's and lists them all, and on a first launch
 `canvas/src/Onboarding.tsx` asks over it which agent to work with. The app ships only `canvases/templates`,
 under the tree it hands the server. Every other folder here is a community
-project, listed in `canvases/community.json` and opened read-only at `/c/<id>/`
+project, its id in `canvases/community.json`, and opened read-only at `/c/<id>/`
 through the server; `docs/2026-09-26-projects-on-demand.md` says why. The
 release workflow builds the app on a macOS runner and attaches a dmg per
 architecture, signed and notarised, then on a Windows runner and attaches an
