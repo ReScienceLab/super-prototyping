@@ -450,7 +450,8 @@ export function createAgentServer(options: {
             // A link from the site, pasted into the chat, arrives as text unless it is this
             // project's, whose boards it names become chips (App.tsx, attach).
             "A superproto.dev/p/<id>/<name> link they paste is a community project's. `sp fetch " +
-              "<link>` prints the folder holding a copy of it to read, and in the link " +
+              "'<link>'` (quoted, for its ? and #) prints the folder holding a copy of it to " +
+              "read, and in the link " +
               "`?canvas=<slug>` is its folder canvases/<slug>, `#<file>` the board <file>.html " +
               "in that folder, `#assets/<path>` the picture at that path in it, and " +
               "`?doc=<file>` that file at its root.",
