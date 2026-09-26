@@ -64,6 +64,11 @@ export interface CanvasIndex {
    * each, before its canvases. Absent from a build and at the server's root, which have no project.
    */
   docs?: IndexDoc[];
+  /**
+   * A community project, which the app's server passes through from the site at `/c/<id>/`
+   * (server/projects.ts): read-only like the hosted canvas, but in the app's window.
+   */
+  community?: boolean;
 }
 
 let index: CanvasIndex | undefined;
@@ -74,9 +79,15 @@ let index: CanvasIndex | undefined;
  * examples' own bare address.
  */
 export function homeUrl() {
-  const { served, project } = canvasIndex();
-  return new URL(served ? "/home.html" : project ? "/community" : "./", location.href).href;
+  const { project } = canvasIndex();
+  return new URL(local() ? "/home.html" : project ? "/community" : "./", location.href).href;
 }
+
+/**
+ * Whether this page is the app's server's, which has a home page, other projects and the agent:
+ * every page but the hosted canvas's. A community project's is one, though it can write nothing.
+ */
+export const local = () => canvasIndex().served || !!canvasIndex().community;
 
 /** This page, to the server, so a save it hears about can be told from its own (canvasContent.ts). */
 export const PAGE_ID = crypto.randomUUID();

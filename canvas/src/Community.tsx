@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import "./community.css";
-import { canvasIndex } from "./canvasIndex";
-import { canvasIconUrl, canvasThumbnailUrl, shortName } from "./canvasLibrary";
 import { openInTab } from "./canvasTabs";
-import { CANVAS_FILE_DEFAULT_SIZE, projectCover } from "./cover";
 import {
   ArrowRight,
   Box,
@@ -27,25 +24,22 @@ import {
  * Prototyping Site project.
  *
  * It lists the projects shared to the community repo, from its index.json
- * (docs/2026-09-25-project-package.md, Phase 3), then this app's examples: the ones that clone an
- * app, which are the ones with its icon. Every one opens as a read-only canvas on the site, at
- * its own address (docs/2026-09-25-project-urls.md); an example in the app opens as its tab.
+ * (docs/2026-09-25-project-package.md, Phase 3), this app's examples among them
+ * (docs/2026-09-26-projects-on-demand.md). Every one opens as a read-only canvas on the site, at
+ * its own address (docs/2026-09-25-project-urls.md), and in the app as its tab.
  */
 
 /**
  * A project's page on the site, a link worth sending: the app's own address is localhost. The
- * id finds it and the name is for people reading the link, as in Figma's file links, so an
- * example, whose id already is its name, has none.
+ * id finds it and the name is for people reading the link, as in Figma's file links.
  */
 const webUrl = (entry: Entry) => {
   const name = entry.name
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, "-")
     .replace(/^-|-$/g, "");
-  return `https://superproto.dev/p/${entry.slug}/${entry.source ? name : ""}`;
+  return `https://superproto.dev/p/${entry.id}/${name}`;
 };
-/** Who made the examples. A project in the community repo names its own (project.json). */
-const EXAMPLES_BY = "ReScienceLab";
 const COMMUNITY = "https://github.com/ReScienceLab/super-prototyping-community";
 const SHARE = `${COMMUNITY}#share-a-project`;
 const TAKEDOWN = `${COMMUNITY}/issues/new?template=takedown.yml`;
@@ -65,44 +59,59 @@ const FAMILIES: [Family | "all", string, ComponentType][] = [
 ];
 const familyName = (f: string) => FAMILIES.find(([k]) => k === f)![1];
 
-/** Picked by hand. A slug this build does not have is left out. */
+/** Picked by hand, by project id, each named by the example it was packed from
+ *  (canvases/community.json). An id the index does not have is left out. */
 const COLLECTIONS = [
   {
     id: "ai",
     title: "AI assistants",
     desc: "Chat, ask, get things done.",
-    slugs: ["claude-ios", "chatgpt-ios", "perplexity-ios", "grok-ios"],
+    ids: [
+      "4a4554bb-1d8a-451a-9470-402023d1b1d2", // claude-ios
+      "9e5315d3-33ef-40aa-985a-bd5fa66eb378", // chatgpt-ios
+      "89a0e775-54d3-4fd6-87e1-befeb8cfd993", // perplexity-ios
+      "c1c44038-13e5-442f-80dc-d114252ec7df", // grok-ios
+    ],
   },
   {
     id: "social",
     title: "Social feeds",
     desc: "Scroll, post, connect.",
-    slugs: ["instagram-ios", "x-ios", "tiktok-ios", "substack-ios"],
+    ids: [
+      "71073aa4-ce79-483f-9a4b-8c26282190c3", // instagram-ios
+      "2aabfc73-0f78-4f19-b36c-82b95c12c48d", // x-ios
+      "2bd6d004-edf6-4752-ac00-bec3b94fc21f", // tiktok-ios
+      "bf02f911-1ce1-486a-8431-9f95fba882f6", // substack-ios
+    ],
   },
   {
     id: "apple",
     title: "Apple's own",
     desc: "The apps the phone comes with.",
-    slugs: [
-      "apple-wallet",
-      "apple-photos",
-      "apple-calendar",
-      "apple-settings",
-      "apple-app-store",
-      "apple-home-lock",
+    ids: [
+      "c5780fa4-c3a6-4ed7-84af-5981ce2148bb", // apple-wallet
+      "1c9ee17b-cedf-4505-b927-a1b2c8f23e8e", // apple-photos
+      "157c1beb-f17f-4b0d-acdd-f26a6ccf93cc", // apple-calendar
+      "19146dc5-50a2-43a4-9fd7-9e21f7d74845", // apple-settings
+      "6e9a9a5b-5c7e-4dac-af42-ced5ae88394f", // apple-app-store
+      "9d2fa5d9-9285-4800-afb6-42ae186cd9d0", // apple-home-lock
     ],
   },
   {
     id: "work",
     title: "Tools",
     desc: "Notes, launchers, events.",
-    slugs: ["notion-ios", "raycast-ios", "snapaction-ios", "luma-ios"],
+    ids: [
+      "4ed969cf-9650-4edf-a24e-bf9544113ab3", // notion-ios
+      "73b9bbae-0e6b-411d-90d5-c1a04a8c074b", // raycast-ios
+      "3d010975-7211-4552-8370-78f04a7fcf83", // snapaction-ios
+      "7baec1bc-e156-4d3d-97ed-9eada3bc2971", // luma-ios
+    ],
   },
 ];
 
 interface Entry {
-  /** An example's slug, or a shared project's id. */
-  slug: string;
+  id: string;
   name: string;
   boards: number;
   family: Family;
@@ -112,8 +121,8 @@ interface Entry {
   icon?: string;
   /** Its thumbnail.png, as `sp pack -o` or `sp thumbnail` drew it. */
   thumbnail: string;
-  /** A shared project's folder on GitHub. */
-  source?: string;
+  /** Its folder on GitHub. */
+  source: string;
 }
 
 /** index.json, as the community repo's CI writes it (.github/community.py there). */
@@ -133,7 +142,7 @@ interface Index {
 
 const shared = (index: Index): Entry[] =>
   index.projects.map((p) => ({
-    slug: p.id,
+    id: p.id,
     name: p.name,
     boards: p.boards,
     family: FAMILIES.some(([k]) => k === p.device)
@@ -146,30 +155,6 @@ const shared = (index: Index): Entry[] =>
     thumbnail: RAW + p.thumbnail,
     source: `${COMMUNITY}/tree/main/projects/${p.id}`,
   }));
-
-function examples(): Entry[] {
-  return canvasIndex()
-    .boards.filter((b) => b.example && b.icon && b.thumbnail)
-    .map((b) => {
-      const cover = projectCover([b])!;
-      return {
-        slug: b.slug,
-        name: shortName(b.slug),
-        boards: b.html.length,
-        // The phone artboard every clone draws on; anything wider is a page.
-        family:
-          cover.w === CANVAS_FILE_DEFAULT_SIZE.w &&
-          cover.h === CANVAS_FILE_DEFAULT_SIZE.h
-            ? "iphone"
-            : "web",
-        thumbnail: canvasThumbnailUrl(b.slug)!,
-        updated: b.updated,
-        author: EXAMPLES_BY,
-        contributors: [],
-        icon: canvasIconUrl(b.slug),
-      };
-    });
-}
 
 const plural = (n: number) => `${n} board${n === 1 ? "" : "s"}`;
 const avatar = (login: string) => `https://github.com/${login}.png?size=64`;
@@ -208,51 +193,44 @@ function Card({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
   );
 }
 
-/** Every project in the community. Offline, or with GitHub down, the examples alone. */
+/** Every project in the community. Offline, or with GitHub down, none. */
 function useCommunity() {
-  const [all, setAll] = useState(examples);
+  const [all, setAll] = useState<Entry[]>([]);
   useEffect(() => {
     fetch(`${RAW}index.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((index: Index) => setAll([...shared(index), ...examples()]))
+      .then((index: Index) => setAll(shared(index)))
       .catch(() => {});
   }, []);
   return all;
 }
 
+/** How the app opens a project of the community's, by its id: as its tab. */
+export type OpenInApp = (id: string) => void;
+
 /**
  * The home page's Community section (HomePage.tsx): the latest projects as cards, each opening
- * as it does from the community's dialog, an example as its tab and a shared project on the site.
+ * as its tab, as it does from the community's dialog.
  */
 export function CommunityCards({
-  openExample,
+  openInApp,
   limit,
 }: {
-  openExample: (slug: string) => void;
+  openInApp: OpenInApp;
   limit: number;
 }) {
   return useCommunity()
     .slice(0, limit)
     .map((e) => (
-      <Card
-        key={e.slug}
-        entry={e}
-        onOpen={() =>
-          e.source ? open(webUrl(e), "_blank", "noopener") : openExample(e.slug)
-        }
-      />
+      <Card key={e.id} entry={e} onOpen={() => openInApp(e.id)} />
     ));
 }
 
 /**
- * @param openExample The app's: opens an example as its tab. Without it, as on the site, and for
- * a shared project, Open is a link to the project's page on the site.
+ * @param openInApp The app's: opens a project as its tab. Without it, as on the site, Open is a
+ * link to the project's page on the site.
  */
-export function CommunityPage({
-  openExample,
-}: {
-  openExample?: (slug: string) => void;
-}) {
+export function CommunityPage({ openInApp }: { openInApp?: OpenInApp }) {
   const all = useCommunity();
   const [family, setFamily] = useState<Family | "all">("all");
   const [collection, setCollection] = useState<string | null>(null);
@@ -266,8 +244,8 @@ export function CommunityPage({
 
   const collections = COLLECTIONS.map((c) => ({
     ...c,
-    entries: c.slugs
-      .map((s) => all.find((e) => e.slug === s))
+    entries: c.ids
+      .map((id) => all.find((e) => e.id === id))
       .filter((e) => e !== undefined),
   })).filter((c) => c.entries.length > 0);
   const col = collections.find((c) => c.id === collection);
@@ -275,14 +253,14 @@ export function CommunityPage({
   const shown = all.filter(
     (e) =>
       (family === "all" || e.family === family) &&
-      (!col || col.slugs.includes(e.slug)) &&
+      (!col || col.ids.includes(e.id)) &&
       (!needle ||
         [
           e.name,
           e.author,
           familyName(e.family),
           ...collections
-            .filter((c) => c.slugs.includes(e.slug))
+            .filter((c) => c.ids.includes(e.id))
             .map((c) => c.title),
         ].some((t) => t.toLowerCase().includes(needle))),
   );
@@ -403,7 +381,7 @@ export function CommunityPage({
       )}
       <ul className="cm-grid" role="tabpanel" aria-live="polite">
         {shown.map((e) => (
-          <Card key={e.slug} entry={e} onOpen={() => setOpen(e)} />
+          <Card key={e.id} entry={e} onOpen={() => setOpen(e)} />
         ))}
         {shown.length === 0 && (
           <li className="cm-empty">
@@ -560,12 +538,12 @@ export function CommunityPage({
                   <b>{familyName(open.family)}</b>
                 </div>
               </div>
-              {collections.some((c) => c.slugs.includes(open.slug)) && (
+              {collections.some((c) => c.ids.includes(open.id)) && (
                 <>
                   <div className="cm-mono">In collections</div>
                   <div className="cm-tags">
                     {collections
-                      .filter((c) => c.slugs.includes(open.slug))
+                      .filter((c) => c.ids.includes(open.id))
                       .map((c) => (
                         <button
                           key={c.id}
@@ -579,14 +557,14 @@ export function CommunityPage({
                 </>
               )}
               <div className="cm-actions">
-                {openExample && !open.source ? (
+                {openInApp ? (
                   <a
                     className="cm-btn cm-btn--solid cm-btn--md"
                     href={webUrl(open)}
-                    onClick={openInTab((slug: string) => {
+                    onClick={openInTab((id: string) => {
                       setOpen(null);
-                      openExample(slug);
-                    }, open.slug)}
+                      openInApp(id);
+                    }, open.id)}
                   >
                     Open <ArrowRight />
                   </a>
@@ -594,7 +572,6 @@ export function CommunityPage({
                   <a
                     className="cm-btn cm-btn--solid cm-btn--md"
                     href={webUrl(open)}
-                    target={openExample ? "_blank" : undefined}
                     rel="noopener noreferrer"
                   >
                     Open <ArrowRight />
@@ -606,10 +583,10 @@ export function CommunityPage({
                   onClick={() =>
                     navigator.clipboard
                       .writeText(webUrl(open))
-                      .then(() => setCopied(open.slug))
+                      .then(() => setCopied(open.id))
                   }
                 >
-                  <Link /> {copied === open.slug ? "Copied" : "Copy link"}
+                  <Link /> {copied === open.id ? "Copied" : "Copy link"}
                 </button>
                 {open.source && (
                   <a

@@ -5,11 +5,10 @@ import {
   type MouseEventHandler,
 } from "react";
 import { canvasIndex } from "./canvasIndex";
-import { CommunityCards } from "./Community";
+import { CommunityCards, type OpenInApp } from "./Community";
 import { fitCover, type Cover } from "./cover";
 import {
   openInTab,
-  tabOfExample,
   tabOfProject,
   tabUrl,
   type Project,
@@ -196,6 +195,7 @@ export function HomePage(props: {
   projects: Project[];
   tabs: ProjectTab[];
   goTo: (tab: ProjectTab) => void;
+  openInApp: OpenInApp;
   /** The server's, which a hosted build has none of. */
   newProject?: () => void;
   /** Lists the projects again, after one is deleted or its cover reset. */
@@ -355,13 +355,10 @@ export function HomePage(props: {
           </button>
         </div>
       </div>
-      {/* Two rows of the latest. An example opens on a tab of its own (canvasTabs.ts), not on the
+      {/* Two rows of the latest. Each opens on a tab of its own (canvasTabs.ts), not on the
           project this window is on. */}
       <ul className="home-grid">
-        <CommunityCards
-          limit={8}
-          openExample={(slug) => props.goTo(tabOfExample(slug, tabs))}
-        />
+        <CommunityCards limit={8} openInApp={props.openInApp} />
       </ul>
       {/* One menu for every card, a native popover like the chat panel's: the top layer, and a
           click outside or Esc to shut it. A pick shuts it before the row's own click runs, so the

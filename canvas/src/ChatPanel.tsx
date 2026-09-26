@@ -258,18 +258,19 @@ interface Attached {
 /**
  * `canvas` is the one in front, which the message names to the agent; the home page has none.
  * `project` is the project in front, by the name its address carries; none on the home page or
- * an example. A shut panel is hidden, not unmounted, so it keeps following a run and comes back
+ * an example. `community` is a community project in front, by its id. A shut panel is hidden, not unmounted, so it keeps following a run and comes back
  * to it.
  */
 export function ChatPanel(props: {
   canvas?: string;
   project?: string;
+  community?: string;
   chat: Chat;
   /** The canvases the running turn has written to, and its project: what the window glows
    *  around. Empty once it ends, however it ends. */
   onWorking?: (working: Working) => void;
 }) {
-  const { canvas, project } = props;
+  const { canvas, project, community } = props;
   const { open, agent } = props.chat;
   const [turns, setTurns] = useState<Turn[]>(() =>
     (JSON.parse(sessionStorage.getItem(RUNS_KEY) ?? "[]") as string[]).map(
@@ -938,6 +939,7 @@ export function ChatPanel(props: {
           message,
           // The open canvas means nothing to another project's turn.
           canvas: to === project ? canvas : undefined,
+          community: to === project ? community : undefined,
           project: to,
           session: session?.id,
           agent,

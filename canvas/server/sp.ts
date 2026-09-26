@@ -56,7 +56,7 @@ export function sameOrigin(req: IncomingMessage) {
  * guard sees it as cross-site. A board is a project's, and a project can be someone else's.
  * `public/_headers` gives the hosted build's `/board/*` the same.
  */
-const SANDBOX =
+export const SANDBOX =
   "sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads";
 
 /**
@@ -153,6 +153,111 @@ export function trash(dir: string) {
       { env: { ...process.env, SP_TRASH: dir } },
       (error, _stdout, stderr) =>
         error ? reject(new Error(stderr.trim() || error.message)) : resolve(),
+    );
+  });
+}
+
+// A board as a picture, for the chat panel: an agent takes a mockup the way it takes a
+// screenshot, and a page in an `<iframe>` cannot be read into a canvas from the browser
+// side. `refkit shoot` draws it — this repo's own renderer, on PATH beside the CLIs the
+// panel spawns — so the picture is the one the rest of the toolkit measures and diffs.
+// A selection of boards is asked for all at once, and each shot is a headless Chrome: at most
+// this many at a time, across every project, the rest waiting their turn in the order they came.
+const SHOTS_AT_ONCE = 4;
+let shooting = 0;
+const waiting: (() => void)[] = [];
+const shotSlot = () =>
+  new Promise<void>((go) => {
+    if (shooting < SHOTS_AT_ONCE) {
+      shooting++;
+      go();
+    } else waiting.push(go);
+  });
+const shotDone = () => {
+  const next = waiting.shift();
+  if (next) next();
+  else shooting--;
+};
+
+const fail = (res: ServerResponse, code: number, message: string) => {
+  res.statusCode = code;
+  res.end(message);
+};
+
+/** `/__sp/shoot`'s query: the board and the size to draw it at, or what is wrong with them. */
+export function shotOf(req: IncomingMessage) {
+  const query = new URL(req.url ?? "/", "http://sp").searchParams;
+  const parts = (query.get("path") ?? "").split("/");
+  // <slug>/<board>.html, which is what the canvas knows a board by. Both names are joined
+  // into a filesystem path and the slug names an output folder as well, so they are
+  // checked before they are joined, the way the endpoints around this one check theirs.
+  if (
+    parts.length !== 2 ||
+    !parts.every((name) => SAFE_NAME.test(name)) ||
+    !parts[1].endsWith(".html")
+  )
+    return "bad board name";
+  // The artboard the canvas draws that board at, which is 478x980 unless its layout.json
+  // says otherwise. Both reach a command line, so both are numbers or nothing happens.
+  const size = ["w", "h"].map((key) => Number(query.get(key)));
+  if (!size.every((n) => Number.isInteger(n) && n > 0 && n <= 4000))
+    return "bad artboard size";
+  return { slug: parts[0], file: parts[1], size };
+}
+
+/** The board file at `board` as a PNG, drawn at `size` unless the last one drawn still stands. */
+export function shoot(board: string, size: number[], res: ServerResponse) {
+  // A folder per canvas folder on disk and per size, because refkit names its output after
+  // the board's own basename, two canvases can each hold an `03-home.html`, and two projects
+  // can each have a canvas of the same name, which the home page's covers shoot side by side.
+  const out = path.join(
+    os.tmpdir(),
+    "sp-shot",
+    createHash("sha1").update(path.dirname(board)).digest("hex").slice(0, 16),
+    size.join("x"),
+  );
+  const png = path.join(out, path.basename(board).replace(/\.html$/, ".png"));
+  const serve = () => {
+    res.setHeader("content-type", "image/png");
+    res.setHeader("cache-control", "no-store");
+    fs.createReadStream(png).pipe(res);
+  };
+  // Drawing one costs seconds of headless Chrome, so the last one stands until the board
+  // it is of is written again — which the generator does, and the watcher already sees.
+  const shot = fs.statSync(png, { throwIfNoEntry: false });
+  if (shot && shot.mtimeMs >= fs.statSync(board).mtimeMs) return serve();
+  // Drawn somewhere else and moved into place when it is whole: the cached name appears at
+  // the instant refkit creates the file, so a second request during the seconds it takes to
+  // write would otherwise find a newer mtime and serve half a picture.
+  void shotSlot().then(() => {
+    const work = fs.mkdtempSync(path.join(os.tmpdir(), "sp-shot-"));
+    const drawn = path.join(work, path.basename(png));
+    const done = () => {
+      fs.rmSync(work, { recursive: true, force: true });
+      shotDone();
+    };
+    execFile(
+      "refkit",
+      ["shoot", board, "-o", work, "--w", `${size[0]}`, "--h", `${size[1]}`],
+      { timeout: 120_000 },
+      (error) => {
+        if (fs.existsSync(drawn)) {
+          fs.mkdirSync(out, { recursive: true });
+          fs.renameSync(drawn, png);
+          done();
+          return serve();
+        }
+        done();
+        // refkit is linked onto PATH by the app; a canvas started some other way can be
+        // running without it, and Chrome is its own ask.
+        fail(
+          res,
+          (error as NodeJS.ErrnoException | null)?.code === "ENOENT" ? 503 : 500,
+          error
+            ? `could not render the board: ${error.message}`
+            : "refkit wrote no image",
+        );
+      },
     );
   });
 }
@@ -482,110 +587,17 @@ export function createSpServer(options: {
     fs.createReadStream(file).pipe(res);
   });
 
-  // A board as a picture, for the chat panel: an agent takes a mockup the way it takes a
-  // screenshot, and a page in an `<iframe>` cannot be read into a canvas from the browser
-  // side. `refkit shoot` draws it — this repo's own renderer, on PATH beside the CLIs the
-  // panel spawns — so the picture is the one the rest of the toolkit measures and diffs.
-  // A selection of boards is asked for all at once, and each shot is a headless Chrome: at most
-  // this many at a time, the rest waiting their turn in the order they came.
-  const SHOTS_AT_ONCE = 4;
-  let shooting = 0;
-  const waiting: (() => void)[] = [];
-  const shotSlot = () =>
-    new Promise<void>((go) => {
-      if (shooting < SHOTS_AT_ONCE) {
-        shooting++;
-        go();
-      } else waiting.push(go);
-    });
-  const shotDone = () => {
-    const next = waiting.shift();
-    if (next) next();
-    else shooting--;
-  };
   route("/__sp/shoot", (req, res, next) => {
     if (req.method !== "GET") return next();
-    const send = (code: number, message: string) => {
-      res.statusCode = code;
-      res.end(message);
-    };
-    const query = new URL(req.url ?? "/", "http://sp").searchParams;
-    const parts = (query.get("path") ?? "").split("/");
-    // <slug>/<board>.html, which is what the canvas knows a board by. Both names are joined
-    // into a filesystem path and the slug names an output folder as well, so they are
-    // checked before they are joined, the way the endpoints around this one check theirs.
-    if (
-      parts.length !== 2 ||
-      !parts.every((name) => SAFE_NAME.test(name)) ||
-      !parts[1].endsWith(".html")
-    ) {
-      return send(400, "bad board name");
-    }
-    // The artboard the canvas draws that board at, which is 478x980 unless its layout.json
-    // says otherwise. Both reach a command line, so both are numbers or nothing happens.
-    const size = ["w", "h"].map((key) => Number(query.get(key)));
-    if (!size.every((n) => Number.isInteger(n) && n > 0 && n <= 4000))
-      return send(400, "bad artboard size");
+    const shot = shotOf(req);
+    if (typeof shot === "string") return fail(res, 400, shot);
     const board = path.join(
-      folderOf(canvasesDir, examplesDir, parts[0]),
-      parts[1],
+      folderOf(canvasesDir, examplesDir, shot.slug),
+      shot.file,
     );
     if (!fs.statSync(board, { throwIfNoEntry: false })?.isFile())
-      return send(404, "no such board");
-    // A folder per canvas folder on disk and per size, because refkit names its output after
-    // the board's own basename, two canvases can each hold an `03-home.html`, and two projects
-    // can each have a canvas of the same name, which the home page's covers shoot side by side.
-    const out = path.join(
-      os.tmpdir(),
-      "sp-shot",
-      createHash("sha1").update(path.dirname(board)).digest("hex").slice(0, 16),
-      size.join("x"),
-    );
-    const png = path.join(out, parts[1].replace(/\.html$/, ".png"));
-    const serve = () => {
-      res.setHeader("content-type", "image/png");
-      res.setHeader("cache-control", "no-store");
-      fs.createReadStream(png).pipe(res);
-    };
-    // Drawing one costs seconds of headless Chrome, so the last one stands until the board
-    // it is of is written again — which the generator does, and the watcher already sees.
-    const shot = fs.statSync(png, { throwIfNoEntry: false });
-    if (shot && shot.mtimeMs >= fs.statSync(board).mtimeMs) return serve();
-    // Drawn somewhere else and moved into place when it is whole: the cached name appears at
-    // the instant refkit creates the file, so a second request during the seconds it takes to
-    // write would otherwise find a newer mtime and serve half a picture.
-    void shotSlot().then(() => {
-      const work = fs.mkdtempSync(path.join(os.tmpdir(), "sp-shot-"));
-      const drawn = path.join(work, path.basename(png));
-      const done = () => {
-        fs.rmSync(work, { recursive: true, force: true });
-        shotDone();
-      };
-      execFile(
-        "refkit",
-        ["shoot", board, "-o", work, "--w", `${size[0]}`, "--h", `${size[1]}`],
-        { timeout: 120_000 },
-        (error) => {
-          if (fs.existsSync(drawn)) {
-            fs.mkdirSync(out, { recursive: true });
-            fs.renameSync(drawn, png);
-            done();
-            return serve();
-          }
-          done();
-          // refkit is linked onto PATH by the app; a canvas started some other way can be
-          // running without it, and Chrome is its own ask.
-          send(
-            (error as NodeJS.ErrnoException | null)?.code === "ENOENT"
-              ? 503
-              : 500,
-            error
-              ? `could not render the board: ${error.message}`
-              : "refkit wrote no image",
-          );
-        },
-      );
-    });
+      return fail(res, 404, "no such board");
+    shoot(board, shot.size, res);
   });
 
   // One top-level string key of a canvas's layout.json, edited in place (layoutEdit.ts) and

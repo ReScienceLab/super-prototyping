@@ -278,6 +278,7 @@ export function createAgentServer(options: {
           const {
             message,
             canvas,
+            community,
             agent = "claude",
             model = "",
             effort = "",
@@ -344,6 +345,16 @@ export function createAgentServer(options: {
           // The slug lands in a path in the prompt, so it is checked like the others.
           if (canvas !== undefined && !SAFE_NAME.test(canvas))
             return send(400, "bad canvas name");
+          // A community project in front (`/c/<id>/`, server/projects.ts), by its id, which lands
+          // in the prompt; it is never a project here too.
+          if (
+            community !== undefined &&
+            !(
+              /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(community) &&
+              project === undefined
+            )
+          )
+            return send(400, "bad community project");
           // The project it was sent from, by the name its address carries. None from the home page
           // or an example, and then the agent has no project to write to.
           const dir =
@@ -419,7 +430,8 @@ export function createAgentServer(options: {
               "no project's: keep your notes and intermediate files there, and nothing the " +
               "user is meant to see.",
             dir === undefined
-              ? "No project is open: they are on the home page or looking at an example. A " +
+              ? "No project is open: they are on the home page or looking at an example or a " +
+                "community project. A " +
                 "board belongs in a project, which they make or open from the home page."
               : `They are in their project at ${dir}. Its boards are the folders under ` +
                 `${boards}, one per canvas page, and a board you make goes there.`,
@@ -430,7 +442,13 @@ export function createAgentServer(options: {
               (dir === undefined
                 ? "read-only."
                 : `read-only: to change one, copy its folder into ${boards} first.`),
-            canvas &&
+            community !== undefined &&
+              `They are looking at the community project ${community}${canvas ? `, on its canvas "${canvas}"` : ""}, ` +
+                "which someone shared and is not on this machine. `sp fetch " + community + "` prints " +
+                "a folder holding a copy of it to read, and `sp duplicate " + community + "` makes it a " +
+                "new project of theirs, the only way to change it.",
+            community === undefined &&
+              canvas &&
               (dir === undefined || folder !== path.join(boards, canvas)
                 ? `They are looking at the example canvas "${canvas}", which is read-only at ` +
                   `${folder}. Write nothing under that folder.` +

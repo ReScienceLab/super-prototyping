@@ -17,7 +17,15 @@ import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import { createAgentServer } from "./agent.ts";
 import { CANVASES, readJson } from "./boards.ts";
-import { createSpServer, reveal, sameOrigin, trash } from "./sp.ts";
+import {
+  createSpServer,
+  reveal,
+  SANDBOX,
+  sameOrigin,
+  shoot,
+  shotOf,
+  trash,
+} from "./sp.ts";
 
 /**
  * The folder every project is in, and where a new one goes. The desktop app's is Electron's
@@ -56,6 +64,9 @@ function moveOldBoards(dir: string) {
  * adding one needs no new format. A project with none is format 1.
  */
 const PROJECT_FORMAT = 1;
+
+/** Where the community's projects are served from, each at `/p/<id>/`. */
+const SITE = "https://superproto.dev";
 
 /** Whether a Host header names this machine by an address or by localhost, which no DNS can move. */
 export function loopbackHost(host: string | undefined) {
@@ -280,6 +291,77 @@ export function createProjectsServer(options: {
       });
       return;
     }
+    // `/c/<id>/<rest>`: a community project, read where the site serves it, so it opens as a tab
+    // like any other with nothing downloaded first (docs/2026-09-26-projects-on-demand.md). Only
+    // its index and its boards come from there. The rest is this app's own pages, and every other
+    // `/__sp` route is refused: nothing here can write to it, and `sp duplicate` makes it the
+    // user's to change.
+    const community =
+      /^\/c\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(\/.*)$/.exec(url);
+    if (community) {
+      const [, id, rest] = community;
+      const [restPath] = rest.split("?");
+      const fail = (code: number, message: string) => {
+        res.statusCode = code;
+        res.end(message);
+      };
+      // A dot segment, which fetch would resolve to somewhere else on the site.
+      if (/(^|\/)(\.|%2e){1,2}(\/|$)/i.test(restPath))
+        return fail(400, "bad path");
+      if (restPath === "/__sp/index.json" || restPath.startsWith("/board/")) {
+        if (req.method !== "GET" && req.method !== "HEAD")
+          return fail(405, "a community project is read-only");
+        return void fetch(`${SITE}/p/${id}${restPath}`)
+          .then(async (upstream) => {
+            if (!upstream.ok)
+              return fail(
+                upstream.status,
+                `superproto.dev answered ${upstream.status}`,
+              );
+            res.setHeader(
+              "Content-Type",
+              upstream.headers.get("Content-Type") ??
+                "application/octet-stream",
+            );
+            if (restPath !== "/__sp/index.json") {
+              res.setHeader("Content-Security-Policy", SANDBOX);
+              return res.end(Buffer.from(await upstream.arrayBuffer()));
+            }
+            // Marked as a community project's, which the window shows as a tab of this app's
+            // rather than a page of the site's (canvasIndex.ts, `local`).
+            res.end(
+              JSON.stringify({ ...((await upstream.json()) as object), community: true }),
+            );
+          })
+          .catch((e: Error) =>
+            fail(502, `superproto.dev could not be reached: ${e.message}`),
+          );
+      }
+      // A board for the chat panel is drawn from a file, so this one's is fetched into a folder
+      // of its own first, and written only when it changed, which is what redraws it.
+      if (restPath === "/__sp/shoot" && req.method === "GET") {
+        const shot = shotOf(req);
+        if (typeof shot === "string") return fail(400, shot);
+        return void fetch(`${SITE}/p/${id}/board/${shot.slug}/${shot.file}`)
+          .then(async (upstream) => {
+            if (!upstream.ok)
+              return fail(upstream.status, `superproto.dev answered ${upstream.status}`);
+            const html = Buffer.from(await upstream.arrayBuffer());
+            const board = path.join(os.tmpdir(), "sp-community", id, shot.slug, shot.file);
+            fs.mkdirSync(path.dirname(board), { recursive: true });
+            if (!fs.readFileSync(board, { flag: "a+" }).equals(html))
+              fs.writeFileSync(board, html);
+            shoot(board, shot.size, res);
+          })
+          .catch((e: Error) =>
+            fail(502, `superproto.dev could not be reached: ${e.message}`),
+          );
+      }
+      if (restPath.startsWith("/__sp/"))
+        return fail(405, "a community project is read-only");
+      req.url = rest;
+      return next();
+    }
     // `/p/<name>/<rest>`: <rest> is what the project's server and the app's pages see, so each
     // project's pages are the same pages at an address of their own.
     const [, name, rest] = /^\/p\/([^/?#]*)(\/.*)$/.exec(url) ?? [];
@@ -293,7 +375,9 @@ export function createProjectsServer(options: {
       return res.end("no such project");
     }
     // Made by a newer app, which may keep it in a way this one would misread, and then write back.
-    const format = (readJson(path.join(dir, "project.json")) as { format?: unknown })?.format;
+    const format = (
+      readJson(path.join(dir, "project.json")) as { format?: unknown }
+    )?.format;
     if (typeof format === "number" && format > PROJECT_FORMAT) {
       res.statusCode = 409;
       return res.end(

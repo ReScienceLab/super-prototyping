@@ -1,5 +1,5 @@
 import type { MouseEvent } from "react";
-import { canvasIndex, type IndexBoard } from "./canvasIndex";
+import { canvasIndex, type CanvasIndex, type IndexBoard } from "./canvasIndex";
 import type { Cover } from "./cover";
 import {
   canvasIconUrl,
@@ -107,17 +107,6 @@ export function tabOfProject(
   };
 }
 
-/** An example's tab: the one on the bar already, or a new one on its canvas. */
-export function tabOfExample(slug: string, open: ProjectTab[]): ProjectTab {
-  return (
-    open.find((tab) => tab.kind === "example" && tab.slug === slug) ?? {
-      kind: "example",
-      slug,
-      view: { kind: "canvas", slug },
-    }
-  );
-}
-
 /**
  * An example this server has, rather than a canvas of the project's own. Start here is one, the
  * first, and its view is `?canvas=00-welcome`. The bare address is the project's (HOME_TAB).
@@ -178,6 +167,24 @@ export function tabFor(view: CanvasTab): ProjectTab {
     canvases: canvasIndex().boards.filter((b) => !b.example),
   };
   return { ...tabOfProject(here, []), view };
+}
+
+/** A community project's id, for its tab: one at `/c/<id>/` (server/projects.ts). */
+export function communityId(tab: ProjectTab) {
+  return tab.kind === "project" ? /^\/c\/([^/]+)\/$/.exec(tab.url)?.[1] : undefined;
+}
+
+/** A community project's tab: the one on the bar already, or a new one on its first canvas,
+ *  which only its index says, so the tab is known once that has been read. */
+export async function tabOfCommunity(id: string, open: ProjectTab[]) {
+  const url = `/c/${id}/`;
+  const index: CanvasIndex = await fetch(`${url}__sp/index.json`).then((r) =>
+    r.ok ? r.json() : Promise.reject(new Error(`${r.status}`)),
+  );
+  return tabOfProject(
+    { name: id, url, title: index.title, canvases: index.boards },
+    open,
+  );
 }
 
 /** Whether a tab opens in the canvas loaded, rather than being another project's to load. */

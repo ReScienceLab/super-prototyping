@@ -1,0 +1,23 @@
+{
+  "apple-app-store": "6e9a9a5b-5c7e-4dac-af42-ced5ae88394f",
+  "apple-calendar": "157c1beb-f17f-4b0d-acdd-f26a6ccf93cc",
+  "apple-home-lock": "9d2fa5d9-9285-4800-afb6-42ae186cd9d0",
+  "apple-icons": "c457b6c6-e3c2-4c08-9275-865bf2f11b2e",
+  "apple-photos": "1c9ee17b-cedf-4505-b927-a1b2c8f23e8e",
+  "apple-settings": "19146dc5-50a2-43a4-9fd7-9e21f7d74845",
+  "apple-wallet": "c5780fa4-c3a6-4ed7-84af-5981ce2148bb",
+  "chatgpt-ios": "9e5315d3-33ef-40aa-985a-bd5fa66eb378",
+  "claude-ios": "4a4554bb-1d8a-451a-9470-402023d1b1d2",
+  "duolingo-ios": "63bcb818-4025-4f93-90de-fa9fd71bc126",
+  "grok-ios": "c1c44038-13e5-442f-80dc-d114252ec7df",
+  "instagram-ios": "71073aa4-ce79-483f-9a4b-8c26282190c3",
+  "luma-ios": "7baec1bc-e156-4d3d-97ed-9eada3bc2971",
+  "notion-ios": "4ed969cf-9650-4edf-a24e-bf9544113ab3",
+  "perplexity-ios": "89a0e775-54d3-4fd6-87e1-befeb8cfd993",
+  "raycast-ios": "73b9bbae-0e6b-411d-90d5-c1a04a8c074b",
+  "snapaction-ios": "3d010975-7211-4552-8370-78f04a7fcf83",
+  "spotify-ios": "d9021861-db8e-4f0f-8476-f55e6695c773",
+  "substack-ios": "bf02f911-1ce1-486a-8431-9f95fba882f6",
+  "tiktok-ios": "2bd6d004-edf6-4752-ac00-bec3b94fc21f",
+  "x-ios": "2aabfc73-0f78-4f19-b36c-82b95c12c48d"
+}
