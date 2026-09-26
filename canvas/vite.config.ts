@@ -19,16 +19,6 @@ import { createProjectsServer, projectsDirFromEnv } from "./server/projects.ts";
 
 // Repo root — vite.config.ts sits in canvas/, one level below it.
 const repoRoot = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
-/**
- * The boards a build embeds, for the hosted canvas: this checkout's own, or an empty folder
- * for the bundle a release attaches, which serves a project's boards at request time and needs
- * none of its own. Build only: a served canvas reads every project's boards from the project
- * (server/projects.ts), and this variable is not read there.
- */
-const canvasesDir = path.resolve(
-  process.env.PROTOTYPING_CANVASES_DIR || path.resolve(repoRoot, CANVASES),
-);
-
 const thumbsDir = fileURLToPath(
   new URL("node_modules/.cache/brand-thumbs/", import.meta.url),
 );
@@ -94,8 +84,8 @@ async function brandThumb(file: string): Promise<string | undefined> {
 }
 
 /**
- * The community repo, whose shared projects the hosted canvas serves at `/p/<id>/` beside the
- * examples (docs/2026-09-25-project-urls.md). Fetched only by the Cloudflare Pages build, which
+ * The community repo, whose projects the hosted canvas serves at `/p/<id>/`
+ * (docs/2026-09-25-project-urls.md). Fetched only by the Cloudflare Pages build, which
  * sets `CF_PAGES`: the app and `sp start` build the same canvas and have no use for other
  * people's projects. A fetch that fails fails the deploy, rather than publish a site that
  * quietly lost every shared project.
@@ -125,10 +115,10 @@ function communityProjects() {
 /**
  * The boards, as the canvas reads them: an index at `/__sp/index.json` and the files under
  * `/board/<slug>/`. The dev server answers both from `server/projects.ts`, the same module the
- * built app's own server (`server/main.ts`) runs, every project at `/p/<name>/` and this
- * checkout's canvases as the examples, so a board folder is read at request time and the canvas has
- * no dev-only feature. A build emits the same index and files once, as static output, for the
- * hosted canvas: it reads a fixed set of boards and can write nothing.
+ * built app's own server (`server/main.ts`) runs, every project at `/p/<name>/`, so a board
+ * folder is read at request time and the canvas has no dev-only feature. A build emits, as static
+ * output for the hosted canvas, an empty index of its own and each community project's index and
+ * files: it reads a fixed set of boards and can write nothing.
  *
  * Not an `import.meta.glob`: a glob pattern is a build-time literal and could only ever read
  * one hard-coded directory, and the boards live in whichever project is being served.
@@ -149,7 +139,7 @@ function canvasesSource(): Plugin {
       const emitBoards = async (
         dir: string,
         index: BoardIndex,
-        prefix = "",
+        prefix: string,
       ) => {
         for (const board of index.boards) {
           const folder = path.join(dir, board.slug);
@@ -183,36 +173,17 @@ function canvasesSource(): Plugin {
         }
       };
 
-      const index = boardIndex(canvasesDir, {
+      // No boards of its own: the app and `sp start` serve a project's at request time, and
+      // the site serves only community projects, this repo's canvases among them, each at
+      // `/p/<id>/` (docs/2026-09-26-projects-on-demand.md).
+      emitJson("__sp/index.json", {
         served: false,
+        canvasesDir: "",
         canvasesNamespace: "",
-      });
-      await emitBoards(canvasesDir, index);
-      this.emitFile({
-        type: "asset",
-        fileName: "__sp/index.json",
-        // Every canvas a build has is one of this repo's examples, each a project of its own, as
-        // the server marks them (server/sp.ts).
-        source: JSON.stringify({
-          ...index,
-          boards: index.boards.map((b) => ({ ...b, example: true })),
-        }),
-      });
-      // Each example is also a project of its own at `/p/<slug>/`, the address the community
-      // opens it at: an index naming it the project, with its documents as the project's. Its
-      // boards are the ones above, which the site's Worker serves it (docs/2026-09-25-project-urls.md).
-      for (const board of index.boards)
-        emitJson(`p/${board.slug}/__sp/index.json`, {
-          ...index,
-          boards: [{ ...board, docs: [] }],
-          project: board.slug,
-          title: (board.layout as { name?: string } | undefined)?.name?.replace(
-            /^\(example\)\s*/,
-            "",
-          ),
-          docs: board.docs,
-        });
-      // And each shared project at `/p/<id>/`, boards and all.
+        thumbEdge: THUMB_EDGE,
+        boards: [],
+      } satisfies BoardIndex);
+      // Each community project at `/p/<id>/`, boards and all.
       for (const dir of communityProjects()) {
         const id = path.basename(dir);
         const canvases = path.join(dir, CANVASES);
@@ -221,7 +192,7 @@ function canvasesSource(): Plugin {
           canvasesNamespace: `:${id}`,
         });
         await emitBoards(canvases, shared, `p/${id}/`);
-        // Its cover, which the Worker puts in the page's link preview, as it does an example's.
+        // Its cover, which the Worker puts in the page's link preview.
         this.emitFile({
           type: "asset",
           fileName: `p/${id}/thumbnail.png`,

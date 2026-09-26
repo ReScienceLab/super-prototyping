@@ -26,15 +26,14 @@ maps onto it one for one:
 - **The id finds the project; the name is for people reading the link.**
   Renaming a project breaks no link, and a link with the wrong name still
   opens. The canvas keeps the name it was opened with on the address as it
-  moves (AppShell.tsx). An example's id is its folder name, which already is a
-  name, so its address has none: `/p/claude-ios`.
+  moves (AppShell.tsx). An example once used its folder name as its id,
+  `/p/claude-ios`; since 2026-09-26 every example is a community project with
+  a UUID like any other (2026-09-26-projects-on-demand.md).
 - **One canvas, many projects.** A project's page is the one build every
   project shares; only its index differs. The build writes one per project at
   `p/<id>/__sp/index.json` (vite.config.ts), naming it the project, so the
-  window opens on it rather than on a home page. An example's boards stay where
-  they were, `board/<slug>/`, rather than a second copy per project: they are
-  384 MB. A shared project's boards are under `p/<id>/board/`, since its slugs
-  can be anyone's.
+  window opens on it rather than on a home page. A project's boards are under
+  `p/<id>/board/`, since its slugs can be anyone's.
 
 ## Where each piece lives
 

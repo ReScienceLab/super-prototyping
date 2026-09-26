@@ -71,8 +71,11 @@ maps each to its community id. They reached the community in one pull
 request, whose author is the maintainer, so the CI rule that a PR's opener is
 its author holds with no exception. The app bundles only `templates`.
 
-The hosted build still emits them under their old slugs, so
-`superproto.dev/p/claude-ios` keeps working without a redirect table.
+The site serves them as it serves every community project, at
+`/p/<id>/<name>`, and nothing else: the hosted build stopped emitting this
+repo's boards at its root and under `/p/<slug>/`, and the landing page stopped
+redirecting root `?canvas=<slug>` links. One kind of address, with no
+exceptions to carry, was worth the links it broke.
 
 ## Ceilings
 
