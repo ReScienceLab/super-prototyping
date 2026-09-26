@@ -135,11 +135,17 @@ button.home-tile:not(.home-tile--community) i {
   background: var(--ds-gray-100);
 }
 
+/* Four to a row, fewer once a quarter of the row is narrower than a card can be. */
 .home-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(min(220px, 100%), (100% - 3 * 24px) / 4), 1fr)
+  );
   gap: 24px;
+  margin: 0;
   padding: 0 32px 48px;
+  list-style: none;
 }
 
 /* A project as a card: its cover filling the stage above its name. */
@@ -154,7 +160,7 @@ button.home-tile:not(.home-tile--community) i {
 .home-file__thumb {
   position: relative;
   overflow: hidden;
-  height: 233px;
+  aspect-ratio: 1200 / 630;
   background: var(--ds-gray-100);
 }
 .home-file__thumb iframe {
@@ -194,17 +200,20 @@ button.home-tile:not(.home-tile--community) i {
   white-space: nowrap;
 }
 .home-file__foot small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--ds-gray-900);
   font-size: 13px;
   line-height: 18px;
 }
-/* Before the first project, a card's outline and a card's height: the stage, the foot, the borders. */
+/* Before the first project, a card's outline, about a card's height at four to a row. */
 .home-file--new {
   display: grid;
   place-content: center;
   justify-items: center;
   gap: 4px;
-  height: 295px;
+  min-height: 190px;
   border-style: dashed;
   border-color: var(--ds-gray-500);
   cursor: pointer;

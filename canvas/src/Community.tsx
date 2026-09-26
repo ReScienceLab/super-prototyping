@@ -208,6 +208,42 @@ function Card({ entry, onOpen }: { entry: Entry; onOpen: () => void }) {
   );
 }
 
+/** Every project in the community. Offline, or with GitHub down, the examples alone. */
+function useCommunity() {
+  const [all, setAll] = useState(examples);
+  useEffect(() => {
+    fetch(`${RAW}index.json`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((index: Index) => setAll([...shared(index), ...examples()]))
+      .catch(() => {});
+  }, []);
+  return all;
+}
+
+/**
+ * The home page's Community section (HomePage.tsx): the latest projects as cards, each opening
+ * as it does from the community's dialog, an example as its tab and a shared project on the site.
+ */
+export function CommunityCards({
+  openExample,
+  limit,
+}: {
+  openExample: (slug: string) => void;
+  limit: number;
+}) {
+  return useCommunity()
+    .slice(0, limit)
+    .map((e) => (
+      <Card
+        key={e.slug}
+        entry={e}
+        onOpen={() =>
+          e.source ? open(webUrl(e), "_blank", "noopener") : openExample(e.slug)
+        }
+      />
+    ));
+}
+
 /**
  * @param openExample The app's: opens an example as its tab. Without it, as on the site, and for
  * a shared project, Open is a link to the project's page on the site.
@@ -217,7 +253,7 @@ export function CommunityPage({
 }: {
   openExample?: (slug: string) => void;
 }) {
-  const [all, setAll] = useState(examples);
+  const all = useCommunity();
   const [family, setFamily] = useState<Family | "all">("all");
   const [collection, setCollection] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -264,14 +300,6 @@ export function CommunityPage({
     };
     addEventListener("keydown", onKey);
     return () => removeEventListener("keydown", onKey);
-  }, []);
-
-  // Offline, or with GitHub down, the page lists the examples alone.
-  useEffect(() => {
-    fetch(`${RAW}index.json`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((index: Index) => setAll([...shared(index), ...examples()]))
-      .catch(() => {});
   }, []);
 
   useEffect(() => {
