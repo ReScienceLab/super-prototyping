@@ -377,15 +377,6 @@ export function canvasImageRef(shapeId: string) {
   return match ? { slug: match[1], file: match[2] } : undefined;
 }
 
-/** What that folder's layout.json says about the file, and the row it listed it in. */
-export function readCanvasImage(pageSlug: string, file: string) {
-  for (const row of readCanvasLayout(pageSlug)?.rows ?? []) {
-    const image = row.images?.find((entry) => entry.file === file);
-    if (image) return { row: row.title, image };
-  }
-  return undefined;
-}
-
 /**
  * The same image at `BRAND_THUMB_EDGE`, when one was generated for it. This is what the brand
  * page and the canvas draw; the original is what they fall back to the moment either is asked

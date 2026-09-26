@@ -639,7 +639,6 @@ button {
   --sp-hover: var(--ds-gray-100);
   --sp-sel: var(--ds-blue-100);
   --sp-accent: var(--ds-blue-700);
-  --sp-warn: var(--ds-amber-900);
   --sp-danger: var(--ds-red-900);
   color: var(--sp-text);
   font: 400 12px/16px var(--sp-sans);

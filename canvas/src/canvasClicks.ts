@@ -58,9 +58,8 @@ export function zoomToFill(editor: Editor, id: TLShapeId, animate = true) {
 
 /**
  * A double-click on a mockup, a picture, or anything else whose double-click tldraw would not
- * spend on editing its text zooms it to fill the canvas. tldraw's own double-click would start
- * editing a board (which hands the pointer to the mockup), crop a picture, or, over a locked
- * shape, drop a new text box on the canvas, so this takes the gesture over in the select tool's
+ * spend on editing its text zooms it to fill the canvas. tldraw's own double-click would crop a
+ * picture or, over a locked shape such as a board, drop a new text box on the canvas, so this takes the gesture over in the select tool's
  * idle state, where tldraw handles it, rather than watching for it alongside. A note, a text or a
  * label still edits its text. Returns the uninstaller.
  */

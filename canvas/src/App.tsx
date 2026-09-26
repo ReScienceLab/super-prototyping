@@ -1082,13 +1082,15 @@ function installCanvasUrlSync(
     if (typeof slug !== "string" || !active || slug === active) return;
     tab.open({ kind: "canvas", slug });
   });
-  let firstSelection = true;
+  // `write` reads the selected shape's record, so this also runs as that shape is dragged or
+  // typed into. Only a different shape is a new address.
+  let selected: string | null | undefined;
   const stopSelection = react("selection in the address", () => {
-    editor.getOnlySelectedShapeId();
-    if (firstSelection || applying) {
-      firstSelection = false;
-      return;
-    }
+    const id = editor.getOnlySelectedShapeId();
+    const first = selected === undefined;
+    if (id === selected) return;
+    selected = id;
+    if (first || applying) return;
     write(false);
   });
   window.addEventListener("popstate", apply);
