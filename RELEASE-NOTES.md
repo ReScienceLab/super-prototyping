@@ -36,7 +36,7 @@ on the web.
 - **Every project in the community opens on the web.** Each has a read-only
   canvas at `superproto.dev/p/<id>`, the examples and projects people shared
   alike. **Copy link** copies that address, and **Open** goes there for a
-  shared project; an example still opens as a tab in the app. Old `superproto.dev/demo` links go to the same example, or to the community.
+  shared project; an example still opens as a tab in the app.
 - **`sp`, `refkit` and `artgen` no longer write into the app.** Python's cache
   files went inside it, which broke the app's signature check.
 
