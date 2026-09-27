@@ -117,17 +117,18 @@ export function loopbackHost(host: string | undefined) {
  */
 export function namedFolder(dir: string) {
   const { name: given } = readProjectJson(dir);
-  const name = typeof given === "string" ? given.trim() : "";
-  // Rejected on every platform, since a project is also opened on Windows once shared: there a
-  // trailing dot or space is dropped from the folder's name, and these characters and device
-  // names cannot be one.
+  // Held to what Windows allows on every platform, since a project is also opened there once
+  // shared: it drops a trailing dot or space, so they go here too, and these characters and device
+  // names cannot be a folder's.
+  const name =
+    typeof given === "string" ? given.trim().replace(/[. ]+$/, "") : "";
   if (
     !/^Untitled( \d+)?$/.test(path.basename(dir)) ||
     !name ||
     name.startsWith(".") ||
     path.basename(name) !== name ||
     // oxlint-disable-next-line no-control-regex
-    /[<>:"|?*\x00-\x1f]|[. ]$/.test(name) ||
+    /[<>:"|?*\\\x00-\x1f]/.test(name) ||
     /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i.test(name)
   )
     return undefined;

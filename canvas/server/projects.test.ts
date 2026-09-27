@@ -260,6 +260,9 @@ it("names an Untitled project's folder from its project.json", () => {
     );
     return path.join(tmp, folder);
   };
+  expect(namedFolder(project("Untitled 10", { name: "Acme Inc. " }))).toBe(
+    path.join(tmp, "Acme Inc"),
+  );
   expect(namedFolder(project("Untitled 3", { name: " Kasra " }))).toBe(
     path.join(tmp, "Kasra"),
   );
@@ -271,7 +274,7 @@ it("names an Untitled project's folder from its project.json", () => {
     namedFolder(project("Untitled 5", { name: ".hidden" })),
   ).toBeUndefined();
   for (const [folder, name] of [
-    ["Untitled 6", "Acme Inc."],
+    ["Untitled 6", "a\\b"],
     ["Untitled 7", "a: b"],
     ["Untitled 8", "CON"],
     ["Untitled 9", 42],
