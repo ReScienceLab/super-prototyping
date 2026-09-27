@@ -42,6 +42,7 @@ import {
   CanvasSelectionAttachButton,
 } from "./canvasAttach";
 import { CommentUserDialog } from "./CommentUserDialog";
+import { MagicPen } from "./magicPen";
 import { GROUNDS, groundEditable, groundOf, setGround } from "./canvasGround";
 import {
   linkedBoard,
@@ -217,7 +218,13 @@ function setFresh(fresh: ReadonlyMap<TLShapeId, Fresh>) {
 
 /** Rings `ids` until the pointer passes over each, so the reader sees what just arrived or changed. */
 export function markFresh(ids: TLShapeId[], kind: Fresh) {
-  if (ids.length) setFresh(new Map([...freshShapes().get(), ...ids.map((id) => [id, kind] as const)]));
+  if (ids.length)
+    setFresh(
+      new Map([
+        ...freshShapes().get(),
+        ...ids.map((id) => [id, kind] as const),
+      ]),
+    );
 }
 
 export const canvasChromeComponents: TLComponents = {
@@ -240,7 +247,11 @@ export const canvasChromeComponents: TLComponents = {
       useEffect(() => {
         if (!fresh) return;
         const seen = (info: TLEventInfo) => {
-          if (info.name !== "pointer_move" || shapeUnderPointer(editor)?.id !== id) return;
+          if (
+            info.name !== "pointer_move" ||
+            shapeUnderPointer(editor)?.id !== id
+          )
+            return;
           const rest = new Map(freshShapes().get());
           rest.delete(id);
           setFresh(rest);
@@ -252,7 +263,9 @@ export const canvasChromeComponents: TLComponents = {
         <DefaultShapeWrapper
           ref={ref}
           {...props}
-          className={fresh ? `${props.className ?? ""} sp-fresh` : props.className}
+          className={
+            fresh ? `${props.className ?? ""} sp-fresh` : props.className
+          }
           data-fresh={fresh}
         />
       );
@@ -332,9 +345,10 @@ export const canvasChromeComponents: TLComponents = {
     const cover =
       canvasIndex().served && canvasIndex().project
         ? (board ?? (over && canvasImageRef(over.id)))
-      : undefined;
+        : undefined;
     // The canvas's ground, the strip's swatch as presets. Custom opens that swatch's picker.
-    const page = chrome.activeTab.kind === "canvas" ? pageOf(chrome.activeTab) : undefined;
+    const page =
+      chrome.activeTab.kind === "canvas" ? pageOf(chrome.activeTab) : undefined;
     const ground = page ? groundOf(page) : undefined;
 
     return (
@@ -355,10 +369,14 @@ export const canvasChromeComponents: TLComponents = {
           {links.length > 0 && (
             <TldrawUiMenuItem
               id="copy-link"
-              label={links.length > 1 ? `Copy ${links.length} links` : "Copy link"}
+              label={
+                links.length > 1 ? `Copy ${links.length} links` : "Copy link"
+              }
               icon={<Copy />}
               kbd="cmd+c,ctrl+c"
-              onSelect={() => void navigator.clipboard.writeText(links.join("\n"))}
+              onSelect={() =>
+                void navigator.clipboard.writeText(links.join("\n"))
+              }
             />
           )}
           {cover && !isExample(cover.slug) && (
@@ -398,7 +416,9 @@ export const canvasChromeComponents: TLComponents = {
                 checked={!GROUNDS.some(([, color]) => color === ground)}
                 onSelect={() =>
                   document
-                    .querySelector<HTMLInputElement>(".sp-canvas-tabs-ground input")
+                    .querySelector<HTMLInputElement>(
+                      ".sp-canvas-tabs-ground input",
+                    )
                     ?.showPicker()
                 }
               />
@@ -484,6 +504,7 @@ export const canvasChromeComponents: TLComponents = {
             whose boards its server draws as it draws the project's own (server/projects.ts). */}
         {local() && <CanvasAttachButtons />}
         {local() && <CanvasSelectionAttachButton />}
+        {local() && <MagicPen />}
         {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
             next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}
