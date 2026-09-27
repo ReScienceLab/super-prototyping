@@ -193,7 +193,7 @@ export function AppShell() {
   // The projects, fetched again each time home opens or closes, since that is where one was
   // made, renamed or edited since, and when home deletes one; and with them the one thing about
   // another project this window can learn, that it has gone since its tab was left open.
-  const listProjects = () => {
+  function listProjects() {
     if (!local()) return;
     void fetch("/__sp/projects.json")
       .then((response) => response.json())
@@ -209,7 +209,7 @@ export function AppShell() {
           ),
         );
       });
-  };
+  }
   useEffect(listProjects, [home]);
 
   /** Loads a project's canvas at an address of the window's into the frame. */
