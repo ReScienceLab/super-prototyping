@@ -39,6 +39,8 @@ declare global {
     /** The window's side of the frame (here): what the canvas has in front, at what address. */
     spShell?: {
       shown(tab: ProjectTab, href: string): void;
+      /** A project's address changed with its folder's name, from `from` to `to`. */
+      moved(from: string, to: string): void;
       /** What the panel's running turn is writing to; `sp:working` on this window when it
        *  changes. The canvas's strip dots those tabs. */
       working: Working;
@@ -150,6 +152,20 @@ export function AppShell() {
       shown(tab, href) {
         setShown({ tab, href });
         setTabs((tabs) => withTab(tabs, tab));
+      },
+      moved(from, to) {
+        setTabs((tabs) =>
+          tabs.map((tab) =>
+            tab.kind === "project" && tab.url === from
+              ? {
+                  ...tab,
+                  url: to,
+                  name: decodeURIComponent(to.slice("/p/".length, -1)),
+                  icon: tab.icon && to + tab.icon.slice(from.length),
+                }
+              : tab,
+          ),
+        );
       },
       working: { slugs: [] },
     };
@@ -304,12 +320,13 @@ export function AppShell() {
       );
     dialog.current!.close();
     // Before anything else its agent names the project, when it was left unnamed, into its
-    // project.json, which the bar and the home page show it by (server/sp.ts). Then it makes and
+    // project.json, which the bar and the home page show it by (server/sp.ts), and which its
+    // "Untitled" folder is renamed to once that turn is over (server/projects.ts). Then it makes and
     // names the first canvas, which the blank view the project opens on gives way to (App.tsx).
     // The skill's command still opens the message, since only there is it one.
     const first = [
       name.trim() === "" &&
-        `name this project: add a short name for it as "name" to project.json at the project's root, keeping the keys already there (if you cannot tell yet what it is, make that your first question to me)`,
+        `name this project: add a short name for it as "name" to project.json at the project's root, keeping the keys already there (if you cannot tell yet what it is, make that your first question to me). Leave the folder as it is: the app renames it to that name once your turn ends`,
       // Empty: the skill says when a board is due, after the product or the measurements.
       `make the canvas the work goes in and name it: a folder under canvases/ with its "name" in layout.json, so it opens on my screen, and no board in it until the work reaches one`,
     ].filter(Boolean);

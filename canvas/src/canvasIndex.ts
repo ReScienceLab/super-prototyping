@@ -169,6 +169,15 @@ export async function loadCanvasIndex(live = true, bridge = false) {
     `${import.meta.env.BASE_URL}__sp/events${bridge ? "?bridge=1" : ""}`,
   );
   events.addEventListener("reload", () => window.location.reload());
+  // The project's folder took the name its agent gave it (server/projects.ts, `named`): the same
+  // view at the new address, in the same tab, which the window moves first.
+  events.addEventListener("moved", (event) => {
+    const { from, to } = JSON.parse(event.data) as { from: string; to: string };
+    window.parent.spShell?.moved(from, to);
+    const url = new URL(window.location.href);
+    url.pathname = to + url.pathname.slice(from.length);
+    window.location.replace(url.href);
+  });
   events.addEventListener("command", (event) => {
     const command: AgentCommand = JSON.parse(event.data);
     if (Array.isArray(onCommand)) onCommand.push(command);

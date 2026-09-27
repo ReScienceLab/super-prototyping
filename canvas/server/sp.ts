@@ -83,8 +83,8 @@ export function folderOf(
 /**
  * The project's own settings, beside its canvases: which cover it chose, and the name it is shown
  * by when that is not its folder's. A project made without a name is an "Untitled" folder whose
- * agent writes `name` here (AppShell.tsx), since renaming the folder would move every address the
- * open tab and the chat hold.
+ * agent writes `name` here (AppShell.tsx). The folder takes that name once the turn that wrote it
+ * is over (projects.ts, `named`), since during it the agent holds the folder's path.
  */
 const PROJECT_JSON = "project.json";
 
@@ -263,7 +263,7 @@ export function shoot(board: string, size: number[], res: ServerResponse) {
 }
 
 /** A project's project.json, or nothing in it when it has none or it does not parse. */
-const readProjectJson = (dir: string) =>
+export const readProjectJson = (dir: string) =>
   (readJson(path.join(dir, PROJECT_JSON)) ?? {}) as {
     cover?: ChosenCover;
     name?: string;
@@ -330,7 +330,7 @@ export function createSpServer(options: {
   // edited. canvasIndex.ts listens.
   const pages = new Set<ServerResponse>();
   const broadcast = (
-    event: "reload" | "index" | "layout" | "docs" | "content",
+    event: "reload" | "index" | "layout" | "docs" | "content" | "moved",
     data: unknown,
   ) => {
     const frame = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -1298,12 +1298,18 @@ export function createSpServer(options: {
     docWatcher.unref();
   }
 
+  const unwatch = () => {
+    watcher?.close();
+    docWatcher?.close();
+    clearTimeout(docBatch);
+  };
   return {
     handle,
-    close() {
-      watcher?.close();
-      docWatcher?.close();
-      clearTimeout(docBatch);
+    unwatch,
+    /** Ends the pages' streams, telling them first when the project has moved (projects.ts). */
+    close(moved?: { from: string; to: string }) {
+      unwatch();
+      if (moved) broadcast("moved", moved);
       for (const page of pages) page.end();
       pages.clear();
     },

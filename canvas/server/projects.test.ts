@@ -4,7 +4,7 @@ import type { AddressInfo } from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { expect, it } from "vitest";
-import { createProjectsServer, withoutFiles } from "./projects.ts";
+import { createProjectsServer, namedFolder, withoutFiles } from "./projects.ts";
 
 // One server for every project: `/` goes to the one opened, else home, each is at `/p/<name>/`, the
 // root has the examples and no project, and a page of the server's own can make one. The folder
@@ -247,4 +247,27 @@ it("keeps a community board it draws off file: addresses, after its doctype", ()
     /^<!DOCTYPE html><meta http-equiv="Content-Security-Policy" content="default-src https: /,
   );
   expect(withoutFiles("<p>")).toMatch(/^<meta [^>]+><p>$/);
+});
+
+// A project made without a name takes the one its agent writes, and only then.
+it("names an Untitled project's folder from its project.json", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-named-"));
+  const project = (folder: string, json: object) => {
+    fs.mkdirSync(path.join(tmp, folder));
+    fs.writeFileSync(
+      path.join(tmp, folder, "project.json"),
+      JSON.stringify(json),
+    );
+    return path.join(tmp, folder);
+  };
+  expect(namedFolder(project("Untitled 3", { name: " Kasra " }))).toBe(
+    path.join(tmp, "Kasra"),
+  );
+  expect(namedFolder(project("Untitled", { format: 1 }))).toBeUndefined();
+  expect(namedFolder(project("Mine", { name: "Other" }))).toBeUndefined();
+  expect(namedFolder(project("Untitled 2", { name: "Mine" }))).toBeUndefined();
+  expect(namedFolder(project("Untitled 4", { name: "a/b" }))).toBeUndefined();
+  expect(
+    namedFolder(project("Untitled 5", { name: ".hidden" })),
+  ).toBeUndefined();
 });

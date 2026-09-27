@@ -20,6 +20,7 @@ import { createAgentServer } from "./agent.ts";
 import { CANVASES, readJson } from "./boards.ts";
 import {
   createSpServer,
+  readProjectJson,
   reveal,
   SANDBOX,
   sameOrigin,
@@ -109,6 +110,24 @@ export function loopbackHost(host: string | undefined) {
   );
 }
 
+/**
+ * Where an "Untitled" project's folder goes once its agent has named it in project.json: a folder
+ * of that name beside it. Undefined for a folder the person named, a name no folder can have, and
+ * a name another project already has.
+ */
+export function namedFolder(dir: string) {
+  const name = readProjectJson(dir).name?.trim();
+  if (
+    !/^Untitled( \d+)?$/.test(path.basename(dir)) ||
+    !name ||
+    name.startsWith(".") ||
+    path.basename(name) !== name
+  )
+    return undefined;
+  const to = path.join(path.dirname(dir), name);
+  return fs.existsSync(to) ? undefined : to;
+}
+
 export function createProjectsServer(options: {
   /** Where every project is listed from, and where `POST /__sp/projects` makes one. */
   projectsDir: string;
@@ -157,10 +176,41 @@ export function createProjectsServer(options: {
     repoRoot,
   });
 
+  // A project made without a name is an "Untitled" folder until its agent writes one into
+  // project.json (AppShell.tsx). Once that turn is over, with no process holding the old path,
+  // the folder takes the name, and the pages open on it follow (canvasIndex.ts). A name no folder
+  // can have, or one another project has, leaves it where it is. A folder the person named keeps
+  // its name whatever project.json says. Answers the new folder.
+  const named = (dir: string) => {
+    const to = namedFolder(dir);
+    if (to === undefined) return undefined;
+    const name = path.basename(to);
+    // Its server goes first: Windows will not move a folder that is being watched. A page asking
+    // again, after a move that failed, gets a new one.
+    const sp = sps.get(dir);
+    sps.delete(dir);
+    sp?.unwatch();
+    try {
+      fs.renameSync(dir, to);
+    } catch (error) {
+      console.error(
+        `[projects] ${dir} could not be renamed to “${name}”: ${error}`,
+      );
+      sp?.close();
+      return undefined;
+    }
+    sp?.close({
+      from: `/p/${encodeURIComponent(path.basename(dir))}/`,
+      to: `/p/${encodeURIComponent(name)}/`,
+    });
+    return to;
+  };
+
   // The agent, once for the whole server: its sessions and the skills they read are kept in a dot
   // folder of the projects directory, which the list above skips.
   const agent = createAgentServer({
     examplesDir,
+    named,
     projects,
     repoRoot,
     workspaces: path.join(projectsDir, ".workspaces"),

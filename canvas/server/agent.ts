@@ -45,12 +45,14 @@ export function createAgentServer(options: {
   examplesDir: string;
   /** Every project by the name its address carries, `/p/<name>/`. */
   projects: () => Map<string, string>;
+  /** Moves a project the agent has just named into a folder of that name (projects.ts). */
+  named: (dir: string) => string | undefined;
   /** This plugin's checkout, whose skills the sessions are given. */
   repoRoot: string;
   /** `<projects dir>/.workspaces`: a folder per session, a record beside each, and the skills. */
   workspaces: string;
 }) {
-  const { examplesDir, projects, repoRoot, workspaces } = options;
+  const { examplesDir, named, projects, repoRoot, workspaces } = options;
   // One process per message — Claude Code or Codex, by the panel's choice, looked up in
   // agents.ts — its output kept here and streamed to the page. The runs are held in memory, the
   // newest twenty, for the panel to follow and for the history to say which session is running,
@@ -637,6 +639,19 @@ export function createAgentServer(options: {
             finish(error.code === "ENOENT" ? def.missing : String(error));
           });
           run.child.on("close", (code, signal) => {
+            // The turn that named an unnamed project is over, so its folder can take the name.
+            // Not when another turn has already started on it: the next one to end moves it.
+            if (
+              dir !== undefined &&
+              code === 0 &&
+              ![...runs.values()].some((r) => r !== run && !ended(r))
+            ) {
+              const moved = named(dir);
+              if (moved)
+                record.projects = record.projects.map((had) =>
+                  had === dir ? moved : had,
+                );
+            }
             settle();
             if (ended(run)) return;
             const tail = stderr.trim().split("\n").slice(-5).join("\n");
