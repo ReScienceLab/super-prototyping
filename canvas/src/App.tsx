@@ -59,6 +59,7 @@ import {
   CanvasFileShapeUtil,
 } from "./CanvasFileShapeUtil";
 import { asCanvasTarget, installDoubleClickZoom, zoomToFill } from "./canvasClicks";
+import { CanvasPresent } from "./CanvasPresent";
 import { attachToChat } from "./canvasAttach";
 import { CanvasStatusBannerShapeUtil } from "./CanvasStatusBannerShapeUtil";
 import {
@@ -1303,6 +1304,7 @@ export default function App() {
       {/* The project's side of the window: its canvases across the top, then the canvas. The bar
           above and the agent's panel beside are the window's (AppShell.tsx), outside this frame. */}
       <div className="canvas-project">
+        <CanvasPresent editor={editor} />
         <CanvasStrip />
         <div className="canvas-work">
           <div className="canvas-stage">

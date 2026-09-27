@@ -430,6 +430,8 @@ export function AppShell() {
             ref={frame}
             className="canvas-frame"
             title="Canvas"
+            // For a board shown full screen (CanvasPresent.tsx).
+            allow="fullscreen"
             src={opened?.href}
             style={home ? { visibility: "hidden" } : undefined}
           />

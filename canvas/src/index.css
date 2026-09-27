@@ -1965,3 +1965,30 @@ a.sp-menu-row {
 .sp-confirm button.sp-confirm-danger:hover {
   background: color-mix(in oklab, var(--ds-red-900) 88%, black);
 }
+
+/* A board or picture shown alone, full screen (CanvasPresent.tsx): on black, as Quick Look shows
+   one, and scaled to fit by the component, which knows the board's size. Always in the page, so
+   it can go full screen on the key that asks, and seen only while it is. */
+.sp-present:not(:fullscreen) {
+  display: none;
+}
+
+.sp-present {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #000;
+}
+
+.sp-present iframe {
+  flex: none;
+  border: 0;
+  /* The board's own scheme, as on the canvas (CanvasFileShapeUtil.tsx). */
+  color-scheme: light;
+}
+
+.sp-present img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
