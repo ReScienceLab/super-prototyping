@@ -154,6 +154,7 @@ export function AppShell() {
         setTabs((tabs) => withTab(tabs, tab));
       },
       moved(from, to) {
+        listProjects();
         setTabs((tabs) =>
           tabs.map((tab) =>
             tab.kind === "project" && tab.url === from

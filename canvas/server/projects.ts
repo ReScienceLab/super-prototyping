@@ -116,12 +116,19 @@ export function loopbackHost(host: string | undefined) {
  * a name another project already has.
  */
 export function namedFolder(dir: string) {
-  const name = readProjectJson(dir).name?.trim();
+  const { name: given } = readProjectJson(dir);
+  const name = typeof given === "string" ? given.trim() : "";
+  // Rejected on every platform, since a project is also opened on Windows once shared: there a
+  // trailing dot or space is dropped from the folder's name, and these characters and device
+  // names cannot be one.
   if (
     !/^Untitled( \d+)?$/.test(path.basename(dir)) ||
     !name ||
     name.startsWith(".") ||
-    path.basename(name) !== name
+    path.basename(name) !== name ||
+    // oxlint-disable-next-line no-control-regex
+    /[<>:"|?*\x00-\x1f]|[. ]$/.test(name) ||
+    /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i.test(name)
   )
     return undefined;
   const to = path.join(path.dirname(dir), name);
@@ -181,6 +188,13 @@ export function createProjectsServer(options: {
   // the folder takes the name, and the pages open on it follow (canvasIndex.ts). A name no folder
   // can have, or one another project has, leaves it where it is. A folder the person named keeps
   // its name whatever project.json says. Answers the new folder.
+  // A renamed project's old name, answered with its new folder: a page on the old address still
+  // saves its last edits there as it leaves, and a message sent as the turn ended names it.
+  const renamed = new Map<string, string>();
+  const project = (name: string) => {
+    const dir = projects().get(name) ?? renamed.get(name);
+    return dir !== undefined && fs.existsSync(dir) ? dir : undefined;
+  };
   const named = (dir: string) => {
     const to = namedFolder(dir);
     if (to === undefined) return undefined;
@@ -199,10 +213,14 @@ export function createProjectsServer(options: {
       sp?.close();
       return undefined;
     }
-    sp?.close({
+    renamed.set(path.basename(dir), to);
+    // Every open page, not only the project's: the window's tab for it moves whichever is in front.
+    const moved = {
       from: `/p/${encodeURIComponent(path.basename(dir))}/`,
       to: `/p/${encodeURIComponent(name)}/`,
-    });
+    };
+    for (const other of [root, sp, ...sps.values()]) other?.moved(moved);
+    sp?.close();
     return to;
   };
 
@@ -211,6 +229,7 @@ export function createProjectsServer(options: {
   const agent = createAgentServer({
     examplesDir,
     named,
+    project,
     projects,
     repoRoot,
     workspaces: path.join(projectsDir, ".workspaces"),
@@ -491,11 +510,21 @@ export function createProjectsServer(options: {
     if (rest === undefined) return root.handle(req, res, next);
     let dir: string | undefined;
     try {
-      dir = projects().get(decodeURIComponent(name));
+      dir = project(decodeURIComponent(name));
     } catch {} // a broken escape is no project's name
     if (dir === undefined) {
       res.statusCode = 404;
       return res.end("no such project");
+    }
+    // A page asked for by the name the project had, from a card or a link made before it moved:
+    // sent to its address now, so it opens once, under one tab.
+    if (!projects().has(decodeURIComponent(name)) && req.method === "GET") {
+      res.statusCode = 302;
+      res.setHeader(
+        "location",
+        `/p/${encodeURIComponent(path.basename(dir))}${rest}`,
+      );
+      return res.end();
     }
     // Made by a newer app, which may keep it in a way this one would misread, and then write back.
     const format = (

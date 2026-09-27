@@ -47,12 +47,14 @@ export function createAgentServer(options: {
   projects: () => Map<string, string>;
   /** Moves a project the agent has just named into a folder of that name (projects.ts). */
   named: (dir: string) => string | undefined;
+  /** A project by name, or by the name it had before `named` moved it. */
+  project: (name: string) => string | undefined;
   /** This plugin's checkout, whose skills the sessions are given. */
   repoRoot: string;
   /** `<projects dir>/.workspaces`: a folder per session, a record beside each, and the skills. */
   workspaces: string;
 }) {
-  const { examplesDir, named, projects, repoRoot, workspaces } = options;
+  const { examplesDir, named, project: projectDir, projects, repoRoot, workspaces } = options;
   // One process per message — Claude Code or Codex, by the panel's choice, looked up in
   // agents.ts — its output kept here and streamed to the page. The runs are held in memory, the
   // newest twenty, for the panel to follow and for the history to say which session is running,
@@ -360,7 +362,7 @@ export function createAgentServer(options: {
           // The project it was sent from, by the name its address carries. None from the home page
           // or an example, and then the agent has no project to write to.
           const dir =
-            project === undefined ? undefined : projects().get(project);
+            project === undefined ? undefined : projectDir(project);
           if (project !== undefined && dir === undefined)
             return send(404, "no such project");
           // The session the panel is in, or a new one. Its id names a folder and a file, so it has
@@ -525,7 +527,7 @@ export function createAgentServer(options: {
               // server's port.
               env: {
                 ...process.env,
-                SP_PROJECT: project,
+                SP_PROJECT: dir && path.basename(dir),
                 SP_CANVAS_PORT: String(req.socket.localPort),
               },
             }),
@@ -646,11 +648,16 @@ export function createAgentServer(options: {
               code === 0 &&
               ![...runs.values()].some((r) => r !== run && !ended(r))
             ) {
-              const moved = named(dir);
-              if (moved)
-                record.projects = record.projects.map((had) =>
-                  had === dir ? moved : had,
-                );
+              // Never in the way of the run ending: a throw here would leave it running for good.
+              try {
+                const moved = named(dir);
+                if (moved)
+                  record.projects = record.projects.map((had) =>
+                    had === dir ? moved : had,
+                  );
+              } catch (error) {
+                console.error(`[agent] ${dir} could not be named: ${error}`);
+              }
             }
             settle();
             if (ended(run)) return;

@@ -1306,10 +1306,10 @@ export function createSpServer(options: {
   return {
     handle,
     unwatch,
-    /** Ends the pages' streams, telling them first when the project has moved (projects.ts). */
-    close(moved?: { from: string; to: string }) {
+    /** Tells the pages a project's address changed with its folder's name (projects.ts). */
+    moved: (moved: { from: string; to: string }) => broadcast("moved", moved),
+    close() {
       unwatch();
-      if (moved) broadcast("moved", moved);
       for (const page of pages) page.end();
       pages.clear();
     },

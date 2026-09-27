@@ -17,12 +17,25 @@ these, and it is still running inside the folder it would be moving.
 
 When a turn ends cleanly and no other turn is running, `named` in
 `canvas/server/projects.ts` renames an `Untitled( N)?` folder to the
-`project.json` name. It skips a name that is empty, starts with a dot,
-contains a slash, or is already another folder's. It closes the project's
-file watchers first, because Windows won't rename a watched folder. Then it
-sends the open pages a `moved` event. The page reloads at the new address,
-and the window moves its tab first (`spShell.moved`). The session's
-`projects[]` switches to the new path, so the next message runs in it.
+`project.json` name. It skips a name that is empty, starts with a dot, or is
+already another folder's. It also skips a name that no folder can have on
+Windows (checked on every platform, since shared projects open there too).
+It closes the project's file watchers first, because Windows won't rename a
+watched folder (checked: `EPERM` while watched, fine after). Then it sends
+every open page a `moved` event. The window moves its tab
+(`spShell.moved`) whichever project is in front, and a page of the moved
+project reloads at the new address. The session's `projects[]` switches to
+the new path, so the next message runs in it.
+
+The old name stays an alias for the rest of the server's life. Several
+requests can arrive after the rename and still carry the old name:
+
+- a page's last canvas save as it unloads;
+- a message sent just as the turn ended;
+- a click on a home card drawn before the move.
+
+The alias catches these. A GET on the old name redirects to the new one, so
+the project opens in only one tab.
 
 A folder the person named themselves keeps its name, whatever `project.json`
 says. The prompt tells the agent to leave the folder alone, so it doesn't

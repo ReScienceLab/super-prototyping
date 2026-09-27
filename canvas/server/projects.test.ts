@@ -270,4 +270,11 @@ it("names an Untitled project's folder from its project.json", () => {
   expect(
     namedFolder(project("Untitled 5", { name: ".hidden" })),
   ).toBeUndefined();
+  for (const [folder, name] of [
+    ["Untitled 6", "Acme Inc."],
+    ["Untitled 7", "a: b"],
+    ["Untitled 8", "CON"],
+    ["Untitled 9", 42],
+  ] as const)
+    expect(namedFolder(project(folder, { name }))).toBeUndefined();
 });
