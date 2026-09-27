@@ -13,7 +13,7 @@ export const boardHash = (file: string) =>
 /**
  * What each board in a boards directory holds, by `<slug>/<file>.html`: a generator writes every
  * board on each run, and only the ones whose bytes changed are news. An unreadable or missing
- * folder holds none.
+ * folder holds none, and a dot-file or a folder named like a board is no board.
  */
 export function hashBoards(canvasesDir: string) {
   const list = (dir: string) => {
@@ -25,12 +25,15 @@ export function hashBoards(canvasesDir: string) {
   };
   const hashes = new Map<string, string>();
   for (const slug of list(canvasesDir))
-    for (const name of list(path.join(canvasesDir, slug)))
-      if (name.endsWith(".html"))
-        hashes.set(
-          `${slug}/${name}`.normalize("NFC"),
-          boardHash(path.join(canvasesDir, slug, name)),
-        );
+    for (const name of list(path.join(canvasesDir, slug))) {
+      const file = path.join(canvasesDir, slug, name);
+      if (
+        name.endsWith(".html") &&
+        !name.startsWith(".") &&
+        fs.statSync(file, { throwIfNoEntry: false })?.isFile()
+      )
+        hashes.set(`${slug}/${name}`.normalize("NFC"), boardHash(file));
+    }
   return hashes;
 }
 

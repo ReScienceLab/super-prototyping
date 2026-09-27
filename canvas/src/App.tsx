@@ -15,6 +15,7 @@ import {
   renderPlaintextFromRichText,
   toRichText,
   type Editor,
+  type TLPage,
   type TLPageId,
   type TLAsset,
   type TLAssetStore,
@@ -1208,13 +1209,9 @@ export default function App() {
       // (canvas.json). Its own canvas first, where the library puts it. None when it has gone
       // since the reply, deleted or renamed by a later one.
       const slug = board.split("/")[0];
-      const pages = editor
-        .getPages()
-        .sort(
-          (a, b) =>
-            Number(b.meta.canvasSlug === slug) -
-            Number(a.meta.canvasSlug === slug),
-        );
+      const own = (page: TLPage) =>
+        Number(String(page.meta.canvasSlug).normalize("NFC") === slug);
+      const pages = editor.getPages().sort((a, b) => own(b) - own(a));
       for (const page of pages)
         for (const id of editor.getPageShapeIds(page)) {
           const shape = editor.getShape(id)!;
