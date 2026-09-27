@@ -384,7 +384,12 @@ export function createProjectsServer(options: {
         let name = typeof parsed.name === "string" ? parsed.name.trim() : "";
         if (name === "") {
           name = "Untitled";
-          for (let n = 2; fs.existsSync(path.join(projectsDir, name)); n++)
+          // Nor a name a renamed project had, which still answers for it (`renamed`).
+          for (
+            let n = 2;
+            fs.existsSync(path.join(projectsDir, name)) || renamed.has(name);
+            n++
+          )
             name = `Untitled ${n}`;
         }
         if (name.startsWith(".") || path.basename(name) !== name)

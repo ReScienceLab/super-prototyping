@@ -72,6 +72,8 @@ export function createAgentServer(options: {
       child: ChildProcess;
       /** The Stop button was pressed. Windows ends a run by exit code 1, which says nothing. */
       stopped: boolean;
+      /** The project it works on, if any. */
+      dir: string | undefined;
     }
   >();
 
@@ -532,6 +534,7 @@ export function createAgentServer(options: {
               },
             }),
             stopped: false,
+            dir,
           });
           runs.set(run.id, run);
           record.runs.push(run.id);
@@ -642,11 +645,11 @@ export function createAgentServer(options: {
           });
           run.child.on("close", (code, signal) => {
             // The turn that named an unnamed project is over, so its folder can take the name.
-            // Not when another turn has already started on it: the next one to end moves it.
+            // Not when another turn has already started on it: that one moves it when it ends.
             if (
               dir !== undefined &&
               code === 0 &&
-              ![...runs.values()].some((r) => r !== run && !ended(r))
+              ![...runs.values()].some((r) => r !== run && r.dir === dir && !ended(r))
             ) {
               // Never in the way of the run ending: a throw here would leave it running for good.
               try {
