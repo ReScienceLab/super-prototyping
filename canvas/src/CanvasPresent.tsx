@@ -9,8 +9,8 @@ import { useCanvasFileHtml } from "./canvasLibrary";
 const INSET = 32;
 
 /**
- * Space on a selected board or picture shows it alone over the whole window, as Quick Look does:
- * black round the board, which is scaled to fit it. Space again, or Esc, comes back to the canvas
+ * Space on a selected board or picture shows it alone over the whole window, the window dimmed
+ * round the board, which is scaled to fit it. Space again, or Esc, comes back to the canvas
  * as it was. Inside the window rather than the browser's full screen, which on a Mac moves the
  * window to a display of its own and back, slowly.
  *

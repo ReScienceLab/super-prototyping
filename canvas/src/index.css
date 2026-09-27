@@ -1966,8 +1966,8 @@ a.sp-menu-row {
   background: color-mix(in oklab, var(--ds-red-900) 88%, black);
 }
 
-/* A board or picture shown alone over the whole window (CanvasPresent.tsx): on black, as Quick
-   Look shows one, and scaled to fit by the component, which knows the board's size. */
+/* A board or picture shown alone over the whole window (CanvasPresent.tsx): the window dimmed
+   round it, and scaled to fit by the component, which knows the board's size. */
 .sp-present {
   position: fixed;
   inset: 0;
@@ -1976,7 +1976,7 @@ a.sp-menu-row {
   place-items: center;
   overflow: hidden;
   padding: 32px;
-  background: #000;
+  background: rgb(0 0 0 / 0.75);
   animation: sp-present-in 160ms ease-out;
 }
 
