@@ -87,17 +87,18 @@ async function describeRegion(html: string, w: number, h: number, r: Region) {
 }
 
 /**
- * The magic pen. While Option is held the pointer over the canvas is a pen, and a drag across a
+ * The magic pen. A tap of Option makes the pointer over the canvas a pen, and a drag across a
  * board marks a region of it, which goes to the chat as a quote: that part of the board as a
- * picture, captioned with the board, where on it, and the elements there.
+ * picture, captioned with the board, where on it, and the elements there. One region, and the
+ * pointer is itself again; Escape or another tap puts the pen down without one.
  *
- * A layer over the whole canvas while the key is down, so tldraw never sees the drag, which under
- * Option would copy the board. The key is heard in both windows, since the focus may be in the
- * chat, and a window losing focus lets go of it.
+ * A tap is Option pressed and let go with nothing between, so Option-drag still copies a board
+ * and Option with a key is still that key. The key is heard in both windows, since the focus may
+ * be in the chat. A layer over the whole canvas while the pen is up, so tldraw never sees the drag.
  */
 export function MagicPen() {
   const editor = useEditor();
-  const [held, setHeld] = useState(false);
+  const [armed, setArmed] = useState(false);
   const [drag, setDrag] = useState<{
     board: CanvasFileShape;
     from: { x: number; y: number };
@@ -107,21 +108,28 @@ export function MagicPen() {
   usePassThroughWheelEvents(layer);
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => e.key === "Alt" && setHeld(true);
-    const up = (e: KeyboardEvent) => e.key === "Alt" && setHeld(false);
-    const away = () => setHeld(false);
+    let tap = false;
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setArmed(false);
+      if (!e.repeat) tap = e.key === "Alt";
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.key === "Alt" && tap) setArmed((a) => !a);
+      tap = false;
+    };
+    const press = () => (tap = false);
     const top = window.top!;
     const windows = top === window ? [window] : [window, top];
     for (const w of windows) {
       w.addEventListener("keydown", down, true);
       w.addEventListener("keyup", up, true);
-      w.addEventListener("blur", away);
+      w.addEventListener("pointerdown", press, true);
     }
     return () => {
       for (const w of windows) {
         w.removeEventListener("keydown", down, true);
         w.removeEventListener("keyup", up, true);
-        w.removeEventListener("blur", away);
+        w.removeEventListener("pointerdown", press, true);
       }
     };
   }, []);
@@ -185,7 +193,7 @@ export function MagicPen() {
     [editor, drag],
   );
 
-  if (!held && !drag) return null;
+  if (!armed && !drag) return null;
   return (
     <div
       ref={layer}
@@ -198,7 +206,8 @@ export function MagicPen() {
           hitLocked: true,
           renderingOnly: true,
         });
-        if (hit?.type !== CANVAS_FILE_SHAPE_TYPE) return;
+        // Off a board is a click away from the pen.
+        if (hit?.type !== CANVAS_FILE_SHAPE_TYPE) return setArmed(false);
         e.currentTarget.setPointerCapture(e.pointerId);
         setDrag({ board: hit as CanvasFileShape, from: at, to: at });
       }}
@@ -218,6 +227,7 @@ export function MagicPen() {
       onPointerUp={() => {
         if (!drag) return;
         setDrag(undefined);
+        setArmed(false);
         void finish(drag);
       }}
     >
