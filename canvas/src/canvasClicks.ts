@@ -5,7 +5,6 @@ import type {
   TLPageId,
   TLShape,
   TLShapeId,
-  VecModel,
 } from "tldraw";
 import {
   CANVAS_FILE_SHAPE_TYPE,
@@ -63,13 +62,13 @@ export function zoomToFill(editor: Editor, id: TLShapeId, animate = true) {
  * spend on editing its text zooms it to fill the canvas. tldraw's own double-click would crop a
  * picture or, over a locked shape such as a board, drop a new text box on the canvas, so this takes the gesture over in the select tool's
  * idle state, where tldraw handles it, rather than watching for it alongside. A note, a text or a
- * label still edits its text. A second double-click on the shape it last zoomed to puts the camera
- * back where it was before, on the same page. Returns the uninstaller.
+ * label still edits its text. A second double-click on the shape it last zoomed to steps back to
+ * the whole page, every shape on it in view. Returns the uninstaller.
  */
 export function installDoubleClickZoom(editor: Editor) {
   const idle = editor.getStateDescendant<StateNode>("select.idle")!;
   const own = idle.onDoubleClick!;
-  let before: { id: TLShapeId; page: TLPageId; camera: VecModel } | undefined;
+  let zoomed: { id: TLShapeId; page: TLPageId } | undefined;
   idle.onDoubleClick = (info) => {
     const hit = info.phase === "down" && shapeUnderPointer(editor);
     if (
@@ -80,14 +79,14 @@ export function installDoubleClickZoom(editor: Editor) {
         !editor.canEditShape(hit))
     ) {
       const page = editor.getCurrentPageId();
-      if (before?.id === hit.id && before.page === page) {
-        editor.setCamera(before.camera, {
+      if (zoomed?.id === hit.id && zoomed.page === page) {
+        zoomed = undefined;
+        editor.selectNone();
+        return editor.zoomToFit({
           animation: { duration: editor.options.animationMediumMs },
         });
-        before = undefined;
-        return;
       }
-      before = { id: hit.id, page, camera: editor.getCamera() };
+      zoomed = { id: hit.id, page };
       return zoomToFill(editor, hit.id);
     }
     own.call(idle, info);
