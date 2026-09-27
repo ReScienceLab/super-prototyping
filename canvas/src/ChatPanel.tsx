@@ -64,6 +64,7 @@ import {
   type AgentModel,
 } from "./agents";
 import type { Session } from "./agentRun";
+import type { MadeBoard } from "./claudeStream";
 import { namedPictures, readDraft, slashWord } from "./chatDraft";
 import { applyFrame, followRun, writingTo, type Turn } from "./chatTransport";
 import { FOCUS_BOARD } from "./canvasIndex";
@@ -252,6 +253,54 @@ interface Attached {
   url: string;
   /** A board still being drawn, with no `url` yet, or one whose drawing failed. */
   state?: "pending" | "failed";
+}
+
+/**
+ * What a reply made or changed, each a button that finds it on the canvas: blue for a new board
+ * and green for a rewritten one, as their rings are there. Folded to three rows when there are
+ * more, which a generator rewriting every board makes common.
+ */
+function MadeBoards({ made }: { made: MadeBoard[] }) {
+  const list = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [folds, setFolds] = useState(false);
+  useEffect(() => {
+    const el = list.current!;
+    const measure = () => setFolds(el.scrollHeight > el.clientHeight);
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <>
+      <div ref={list} className="sp-chat-made" data-open={open || undefined}>
+        {made.map((m) => (
+          <button
+            key={m.board}
+            type="button"
+            data-made={m.status}
+            title={`Show ${m.board} on the canvas`}
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent(FOCUS_BOARD, { detail: m.board }),
+              )
+            }
+          >
+            {humanize(m.board.split("/")[1]!.replace(/\.html$/, ""))}
+          </button>
+        ))}
+      </div>
+      {(folds || open) && (
+        <button
+          type="button"
+          className="sp-chat-made-more"
+          onClick={() => setOpen(!open)}
+        >
+          {open ? "Show less" : `Show all ${made.length}`}
+        </button>
+      )}
+    </>
+  );
 }
 
 /**
@@ -1354,26 +1403,8 @@ export function ChatPanel(props: {
                   </Fragment>
                 ),
               )}
-              {/* What the reply made or changed, each a button that finds it on the canvas: blue
-                  for a new board and green for a rewritten one, as their rings are there. */}
               {t.end?.made && t.end.made.length > 0 && (
-                <div className="sp-chat-made">
-                  {t.end.made.map((m) => (
-                    <button
-                      key={m.board}
-                      type="button"
-                      data-made={m.status}
-                      title={`Show ${m.board} on the canvas`}
-                      onClick={() =>
-                        window.dispatchEvent(
-                          new CustomEvent(FOCUS_BOARD, { detail: m.board }),
-                        )
-                      }
-                    >
-                      {humanize(m.board.split("/")[1]!.replace(/\.html$/, ""))}
-                    </button>
-                  ))}
-                </div>
+                <MadeBoards made={t.end.made} />
               )}
               {!t.end ? (
                 <p className="sp-chat-dim">Working…</p>

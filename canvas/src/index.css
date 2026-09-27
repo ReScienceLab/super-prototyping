@@ -2013,6 +2013,23 @@ a.sp-menu-row {
   margin: 6px 0;
 }
 
+/* Three rows of 24px buttons and their gaps, until opened. */
+.sp-chat-made:not([data-open]) {
+  max-height: 84px;
+  overflow: hidden;
+}
+
+.sp-chat-made-more {
+  margin-bottom: 6px;
+  color: var(--ds-gray-900);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sp-chat-made-more:hover {
+  color: var(--ds-gray-1000);
+}
+
 .sp-chat-made button {
   display: inline-flex;
   align-items: center;

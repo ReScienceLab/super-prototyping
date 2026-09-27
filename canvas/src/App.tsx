@@ -1203,13 +1203,31 @@ export default function App() {
     if (!editor) return;
     const focus = (event: Event) => {
       const board = (event as CustomEvent<string>).detail;
-      const file = readCanvasLibrary()
-        .flatMap((canvas) => canvas.files)
-        .find((f) => f.path.endsWith(`canvases/${board}`));
-      // Gone since the reply: deleted, or renamed by a later one.
-      if (!file) return;
-      openTab({ kind: "canvas", slug: file.pageSlug });
-      zoomToFill(editor, fileShapeId(file));
+      // By its path rather than the library's id: an agent places boards under ids of its own
+      // (canvas.json). Its own canvas first, where the library puts it. None when it has gone
+      // since the reply, deleted or renamed by a later one.
+      const slug = board.split("/")[0];
+      const pages = editor
+        .getPages()
+        .sort(
+          (a, b) =>
+            Number(b.meta.canvasSlug === slug) -
+            Number(a.meta.canvasSlug === slug),
+        );
+      for (const page of pages)
+        for (const id of editor.getPageShapeIds(page)) {
+          const shape = editor.getShape(id)!;
+          if (
+            shape.type === CANVAS_FILE_SHAPE_TYPE &&
+            (shape.props as { path: string }).path
+              .normalize("NFC")
+              .endsWith(`canvases/${board}`)
+          ) {
+            openTab({ kind: "canvas", slug: page.meta.canvasSlug as string });
+            zoomToFill(editor, id);
+            return;
+          }
+        }
     };
     window.parent.addEventListener(FOCUS_BOARD, focus);
     return () => window.parent.removeEventListener(FOCUS_BOARD, focus);
