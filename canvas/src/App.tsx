@@ -89,6 +89,7 @@ import {
 import { BOARDS_CHANGED, canvasIndex } from "./canvasIndex";
 import { lockedOverlayUtils } from "./lockedIndicator";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
+import { storedTheme, THEME_KEY } from "./theme";
 import {
   CanvasLinkPaste,
   agentBoardPaths,
@@ -1256,9 +1257,14 @@ export default function App() {
 
   function handleMount(editor: Editor) {
     setEditor(editor);
-    // tldraw's own dark theme, to match the panel's. A dark rail against tldraw's near-white ground
-    // looks like two apps in one window, and the ground is most of the window.
-    editor.user.updateUserPreferences({ colorScheme: "dark" });
+    // tldraw's scheme is the page's (tokens.css), or a dark rail sits against a near-white ground
+    // and the window looks like two apps. tldraw's "system" and the page's follow the same OS
+    // preference. Another page picking one reaches this one as a storage event (theme.ts).
+    editor.user.updateUserPreferences({ colorScheme: storedTheme() });
+    const scheme = (e: StorageEvent) =>
+      e.key === THEME_KEY &&
+      editor.user.updateUserPreferences({ colorScheme: storedTheme() });
+    window.addEventListener("storage", scheme);
     initializeCanvas(editor);
     // After the library, which is what creates the pages both are keyed to, and content first,
     // since a comment can be pinned to a shape the person put there.
@@ -1281,6 +1287,7 @@ export default function App() {
       requestAnimationFrame(() => editor.zoomToFit());
     const disposeZoom = installDoubleClickZoom(editor);
     return () => {
+      window.removeEventListener("storage", scheme);
       disposeContent();
       disposeComments();
       disposeZoom();
