@@ -10,7 +10,9 @@ import {
   atom,
   type Atom,
   ConversionsMenuGroup,
+  DefaultColorStyle,
   DefaultContextMenu,
+  getColorValue,
   DefaultShapeWrapper,
   SelectAllMenuItem,
   TldrawUiButton,
@@ -350,6 +352,12 @@ export const canvasChromeComponents: TLComponents = {
     const page =
       chrome.activeTab.kind === "canvas" ? pageOf(chrome.activeTab) : undefined;
     const ground = page ? groundOf(page) : undefined;
+    // The colour of what the right-click picked out that can take one: an arrow, a line, a note
+    // the agent or the person drew. A board or anything else the layout placed is locked.
+    const colourable = editor
+      .getSelectedShapes()
+      .filter((shape) => !shape.isLocked && "color" in shape.props);
+    const colours = editor.getCurrentTheme().colors[editor.getColorMode()];
 
     return (
       <DefaultContextMenu {...props}>
@@ -422,6 +430,37 @@ export const canvasChromeComponents: TLComponents = {
                     ?.showPicker()
                 }
               />
+            </TldrawUiMenuSubmenu>
+          </TldrawUiMenuGroup>
+        )}
+        {colourable.length > 0 && (
+          <TldrawUiMenuGroup id="colour">
+            <TldrawUiMenuSubmenu id="colour" label="Colour">
+              {DefaultColorStyle.values.map((color) => (
+                <TldrawUiMenuItem
+                  key={color}
+                  id={`colour-${color}`}
+                  label={
+                    color[0].toUpperCase() + color.slice(1).replace("-", " ")
+                  }
+                  iconLeft={
+                    <span
+                      className="sp-menu-swatch"
+                      style={{
+                        background: getColorValue(colours, color, "solid"),
+                      }}
+                    />
+                  }
+                  isSelected={colourable.every(
+                    (shape) => (shape.props as { color: string }).color === color,
+                  )}
+                  // tldraw leaves a locked shape as it is, so a board in the selection too is
+                  // no matter.
+                  onSelect={() => {
+                    editor.setStyleForSelectedShapes(DefaultColorStyle, color);
+                  }}
+                />
+              ))}
             </TldrawUiMenuSubmenu>
           </TldrawUiMenuGroup>
         )}

@@ -2128,3 +2128,11 @@ a.sp-menu-row {
 .sp-chat-made button[data-made="updated"] {
   --ds-focus: light-dark(#1a9338, #3dbe5c);
 }
+
+/* A colour's dot in the canvas menu's Colour row (canvasChrome.tsx). */
+.sp-menu-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+}
