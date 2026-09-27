@@ -16,10 +16,7 @@ import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
 import { personsShape, personsShapeName } from "./canvasContent";
 import { canvasBoardRef } from "./canvasLibrary";
 import { Plus } from "./geistIcons";
-import {
-  asCanvasTarget,
-  shapeUnderPointer,
-} from "./canvasClicks";
+import { asCanvasTarget, shapeUnderPointer } from "./canvasClicks";
 
 /** A board, a picture the library placed, or anything the person put on a project canvas: what
  *  the **+** answers for. The canvas answers only for the first two (asCanvasTarget). */
@@ -27,8 +24,26 @@ const addable = (editor: Editor, shape: TLShape | undefined): TLShape | null =>
   asCanvasTarget(shape) ?? (personsShape(editor, shape) ? shape! : null);
 
 /** To the agent's panel, which is the window's, outside the canvas's frame (AppShell.tsx). */
-const dispatchAttach = (detail: CanvasAttachDetail) =>
+// oxlint-disable-next-line react/only-export-components
+export const dispatchAttach = (detail: CanvasAttachDetail) =>
   window.parent.dispatchEvent(new CustomEvent(CANVAS_ATTACH, { detail }));
+
+/** A board by its `<slug>/<file>.html`, and where the server draws it. */
+// oxlint-disable-next-line react/only-export-components
+export function boardShot(board: CanvasFileShape) {
+  const { w, h, path } = board.props;
+  const ref = canvasBoardRef(path);
+  if (!ref) throw new Error("that board has no file behind it");
+  const name = `${ref.slug}/${ref.file}`;
+  // At most 4000 a side, as CanvasFileShapeUtil's toSvg draws one.
+  const scale = Math.min(1, 4000 / Math.max(w, h));
+  const src = new URL(
+    `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(name)}` +
+      `&w=${Math.max(1, Math.round(w * scale))}&h=${Math.max(1, Math.round(h * scale))}`,
+    window.location.href,
+  ).href;
+  return { name, src };
+}
 
 /**
  * A board or a picture, handed to the chat. A board is a page in an `<iframe>`, so the server
@@ -43,17 +58,7 @@ async function attach(editor: Editor, target: TLShape) {
     // A board, whoever placed it, before the check below that an agent-placed one also passes:
     // `toImage` of a board comes back blank, so the server shoots it.
     if (target.type === CANVAS_FILE_SHAPE_TYPE) {
-      const { w, h, path } = (target as CanvasFileShape).props;
-      const ref = canvasBoardRef(path);
-      if (!ref) throw new Error("that board has no file behind it");
-      const name = `${ref.slug}/${ref.file}`;
-      // At most 4000 a side, as CanvasFileShapeUtil's toSvg draws one.
-      const scale = Math.min(1, 4000 / Math.max(w, h));
-      const src = new URL(
-        `${import.meta.env.BASE_URL}__sp/shoot?path=${encodeURIComponent(name)}` +
-          `&w=${Math.max(1, Math.round(w * scale))}&h=${Math.max(1, Math.round(h * scale))}`,
-        window.location.href,
-      ).href;
+      const { name, src } = boardShot(target as CanvasFileShape);
       return dispatchAttach({ kind: "board", name, src });
     }
     // One of the person's own: whatever it is, the agent gets a picture of it, named by where it

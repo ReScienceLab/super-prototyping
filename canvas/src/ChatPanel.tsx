@@ -100,6 +100,8 @@ const OPEN_KEY = "sp-chat-open";
  * A board comes as `board`: its name and where the server draws it. Drawing takes seconds, so the
  * panel puts its tile and its number up at once and asks for the drawing itself — from here and
  * not from the canvas's frame, which a reload or a change of tab would take the answer away with.
+ * A region the magic pen marked (magicPen.tsx) comes with `crop`, the part of that drawing it is,
+ * as fractions of it: the server draws at the display's pixel ratio, which only the drawing knows.
  *
  * On `window`, because the panel is a sibling of `<Tldraw>` and the button renders inside it.
  * Here rather than beside the button, so the home page, which has the panel and no canvas, has
@@ -108,7 +110,12 @@ const OPEN_KEY = "sp-chat-open";
 export const CANVAS_ATTACH = "sp:canvas-attach";
 
 export type CanvasAttachDetail =
-  | { kind: "board"; name: string; src: string }
+  | {
+      kind: "board";
+      name: string;
+      src: string;
+      crop?: { x: number; y: number; w: number; h: number };
+    }
   | { kind: "image"; file: File }
   | { kind: "error"; message: string }
   | { kind: "draft"; text: string }
@@ -822,7 +829,11 @@ export function ChatPanel(props: {
    * drawing asked of the server, to land in that tile. Asked for again it keeps the tile it has —
    * one already there or on its way is only named again, and one that failed is drawn again.
    */
-  const addBoard = (name: string, src: string) => {
+  const addBoard = (
+    name: string,
+    src: string,
+    crop?: { x: number; y: number; w: number; h: number },
+  ) => {
     let tile = tray.current.find((t) => t.name === name);
     if (!tile && tray.current.length >= MAX_IMAGES)
       return setSendError(
@@ -857,7 +868,21 @@ export function ChatPanel(props: {
     fetch(src)
       .then(async (shot) => {
         if (!shot.ok) throw new Error(await shot.text());
-        const png = await shot.blob();
+        let png = await shot.blob();
+        if (crop) {
+          const whole = await createImageBitmap(png);
+          const [w, h] = [whole.width, whole.height];
+          const part = await createImageBitmap(
+            whole,
+            Math.round(crop.x * w),
+            Math.round(crop.y * h),
+            Math.round(crop.w * w),
+            Math.round(crop.h * h),
+          );
+          const canvas = new OffscreenCanvas(part.width, part.height);
+          canvas.getContext("2d")!.drawImage(part, 0, 0);
+          png = await canvas.convertToBlob({ type: "image/png" });
+        }
         void addImages([new File([png], name, { type: png.type })], true);
       })
       .catch((error) => {
@@ -883,7 +908,7 @@ export function ChatPanel(props: {
       // that is still being read.
       if (detail.kind === "board") {
         adds.current = adds.current.then(() =>
-          addBoard(detail.name, detail.src),
+          addBoard(detail.name, detail.src, detail.crop),
         );
         return;
       }
