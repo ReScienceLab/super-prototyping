@@ -18,7 +18,9 @@ import {
   CANVASES,
   DOCS,
   IMAGE_MIME,
+  boardHash,
   boardIndex,
+  hashBoards,
   readDocs,
   canvasesNamespace,
   readJson,
@@ -75,7 +77,10 @@ export function folderOf(
     fs.statSync(own, { throwIfNoEntry: false })?.isDirectory() &&
     fs
       .readdirSync(own)
-      .some((f) => f === "layout.json" || (!f.startsWith(".") && f.endsWith(".html")));
+      .some(
+        (f) =>
+          f === "layout.json" || (!f.startsWith(".") && f.endsWith(".html")),
+      );
   const example = path.join(examplesDir, slug);
   return !isCanvas && fs.existsSync(example) ? example : own;
 }
@@ -252,7 +257,9 @@ export function shoot(board: string, size: number[], res: ServerResponse) {
         // running without it, and Chrome is its own ask.
         fail(
           res,
-          (error as NodeJS.ErrnoException | null)?.code === "ENOENT" ? 503 : 500,
+          (error as NodeJS.ErrnoException | null)?.code === "ENOENT"
+            ? 503
+            : 500,
           error
             ? `could not render the board: ${error.message}`
             : "refkit wrote no image",
@@ -375,7 +382,8 @@ export function createSpServer(options: {
         .map((b) => ({ ...b, example: true })),
     ].sort((a, b) => (a.slug < b.slug ? -1 : 1));
     const docs = projectDir === undefined ? undefined : readDocs(projectDir);
-    const title = projectDir === undefined ? undefined : readProjectJson(projectDir).name;
+    const title =
+      projectDir === undefined ? undefined : readProjectJson(projectDir).name;
     return { ...index, boards, project: projectName(), title, docs };
   };
 
@@ -417,7 +425,11 @@ export function createSpServer(options: {
             updated: Math.max(
               fs.statSync(dir).mtimeMs,
               ...canvases.map((c) => c.updated),
-              ...DOCS.map((doc) => fs.statSync(path.join(dir, doc), { throwIfNoEntry: false })?.mtimeMs ?? 0),
+              ...DOCS.map(
+                (doc) =>
+                  fs.statSync(path.join(dir, doc), { throwIfNoEntry: false })
+                    ?.mtimeMs ?? 0,
+              ),
             ),
             canvases,
             cover: projectCover(boards, json.cover),
@@ -512,8 +524,11 @@ export function createSpServer(options: {
     const size = fs.statSync(file).size;
     const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? "");
     if (range && (range[1] || range[2])) {
-      const start = range[1] ? Number(range[1]) : Math.max(0, size - Number(range[2]));
-      const end = range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+      const start = range[1]
+        ? Number(range[1])
+        : Math.max(0, size - Number(range[2]));
+      const end =
+        range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
       if (start > end) {
         res.setHeader("Content-Range", `bytes */${size}`);
         return send(416, "range not satisfiable");
@@ -658,7 +673,8 @@ export function createSpServer(options: {
       try {
         const { slug, name } = JSON.parse(body || "{}");
         if (!SAFE_NAME.test(slug ?? "")) return send(400, "bad canvas name");
-        if (typeof name !== "string" || !name.trim()) return send(400, "empty name");
+        if (typeof name !== "string" || !name.trim())
+          return send(400, "empty name");
         if (isExample(slug)) return send(403, READ_ONLY);
         if (!fs.existsSync(path.join(canvasesDir, slug)))
           return send(404, `no canvas folder named ${slug}`);
@@ -702,7 +718,8 @@ export function createSpServer(options: {
       if (isExample(slug)) return send(403, READ_ONLY);
       trash(folder).then(
         () => send(204, ""),
-        (error: Error) => send(500, `“${slug}” is still there: ${error.message}`),
+        (error: Error) =>
+          send(500, `“${slug}” is still there: ${error.message}`),
       );
     });
   });
@@ -1002,20 +1019,26 @@ export function createSpServer(options: {
         res.statusCode = code;
         res.end(message);
       };
-      if (projectDir === undefined) return send(409, "Open a project to write its documents.");
+      if (projectDir === undefined)
+        return send(409, "Open a project to write its documents.");
       let name: unknown, text: unknown, base: unknown;
       try {
         ({ name, text, base } = JSON.parse(body || "{}"));
       } catch {
         return send(400, "bad json");
       }
-      if (typeof name !== "string" || !DOCS.includes(name)) return send(400, "not a document");
-      if (typeof text !== "string" || typeof base !== "string") return send(400, "no text");
+      if (typeof name !== "string" || !DOCS.includes(name))
+        return send(400, "not a document");
+      if (typeof text !== "string" || typeof base !== "string")
+        return send(400, "no text");
       const file = path.join(projectDir, name);
       // The text the edit began from, so a rewrite since, an agent's, is not overwritten unseen.
       try {
         if (fs.readFileSync(file, "utf8") !== base)
-          return send(409, `${name} changed since you began editing. Copy your text, then reopen it.`);
+          return send(
+            409,
+            `${name} changed since you began editing. Copy your text, then reopen it.`,
+          );
         fs.writeFileSync(file, text);
       } catch (error) {
         return send(500, String(error));
@@ -1099,9 +1122,10 @@ export function createSpServer(options: {
         0,
         ...list(canvasesDir).map(
           (had) =>
-            (readJson(path.join(canvasesDir, had, "layout.json")) as
-              | { order?: number }
-              | undefined)?.order ?? 0,
+            (
+              readJson(path.join(canvasesDir, had, "layout.json")) as
+                { order?: number } | undefined
+            )?.order ?? 0,
         ),
       ) + 1;
     fs.mkdirSync(path.join(canvasesDir, slug));
@@ -1131,15 +1155,7 @@ export function createSpServer(options: {
   // index says so on its own.
   const boardKey = (file: string) =>
     path.relative(canvasesDir, file).split(path.sep).join("/").normalize("NFC");
-  const boardHash = (file: string) =>
-    createHash("sha1").update(fs.readFileSync(file)).digest("hex");
-  const boardHashes = new Map<string, string>();
-  for (const slug of list(canvasesDir))
-    for (const name of list(path.join(canvasesDir, slug)))
-      if (name.endsWith(".html")) {
-        const file = path.join(canvasesDir, slug, name);
-        boardHashes.set(boardKey(file), boardHash(file));
-      }
+  const boardHashes = hashBoards(canvasesDir);
 
   /**
    * One settled batch of writes, answered once.
@@ -1274,7 +1290,9 @@ export function createSpServer(options: {
   let docWatcher: fs.FSWatcher | undefined;
   let docBatch: ReturnType<typeof setTimeout> | undefined;
   if (projectDir !== undefined) {
-    let names = readDocs(projectDir).map((doc) => doc.name).join();
+    let names = readDocs(projectDir)
+      .map((doc) => doc.name)
+      .join();
     let title = readProjectJson(projectDir).name;
     docWatcher = fs.watch(projectDir, (_event, name) => {
       if (!name || ![...DOCS, PROJECT_JSON].includes(name.toString())) return;

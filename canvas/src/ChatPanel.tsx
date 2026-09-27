@@ -66,6 +66,8 @@ import {
 import type { Session } from "./agentRun";
 import { namedPictures, readDraft, slashWord } from "./chatDraft";
 import { applyFrame, followRun, writingTo, type Turn } from "./chatTransport";
+import { FOCUS_BOARD } from "./canvasIndex";
+import { humanize } from "./canvasLibrary";
 import { Present } from "./CanvasPresent";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
@@ -1351,6 +1353,27 @@ export function ChatPanel(props: {
                     )}
                   </Fragment>
                 ),
+              )}
+              {/* What the reply made or changed, each a button that finds it on the canvas: blue
+                  for a new board and green for a rewritten one, as their rings are there. */}
+              {t.end?.made && t.end.made.length > 0 && (
+                <div className="sp-chat-made">
+                  {t.end.made.map((m) => (
+                    <button
+                      key={m.board}
+                      type="button"
+                      data-made={m.status}
+                      title={`Show ${m.board} on the canvas`}
+                      onClick={() =>
+                        window.dispatchEvent(
+                          new CustomEvent(FOCUS_BOARD, { detail: m.board }),
+                        )
+                      }
+                    >
+                      {humanize(m.board.split("/")[1]!.replace(/\.html$/, ""))}
+                    </button>
+                  ))}
+                </div>
               )}
               {!t.end ? (
                 <p className="sp-chat-dim">Working…</p>

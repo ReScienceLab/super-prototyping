@@ -14,7 +14,7 @@ import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import os from "node:os";
 import path from "node:path";
-import { CANVASES } from "./boards.ts";
+import { CANVASES, hashBoards } from "./boards.ts";
 import { command, stop } from "./command.ts";
 import { AGENT_SKILLS, installSkills } from "./skills.ts";
 import { folderOf, sameOrigin } from "./sp.ts";
@@ -96,11 +96,28 @@ export function createAgentServer(options: {
   // above have moved on. The panel's own copy, not the agent's transcript: Claude Code's and
   // Codex's files are theirs, change shape between releases, and hold no attachments by number.
   const keptOf = (id: string) => path.join(workspaces, ".runs", id);
-  const say = (run: Run, event: string, data: unknown) =>
+  // The boards each live run's project held as it started, so its end can say which it made
+  // or changed: the panel puts a button under the reply for each, which finds it on the canvas.
+  // Off the files rather than the tool lines, which cannot say what a generator wrote.
+  const boardsBefore = new Map<string, { dir: string; hashes: Map<string, string> }>();
+  const say = (run: Run, event: string, data: unknown) => {
+    const before = event === "end" && boardsBefore.get(run.id);
+    if (before) {
+      boardsBefore.delete(run.id);
+      const made = [...hashBoards(before.dir)]
+        .filter(([board, hash]) => before.hashes.get(board) !== hash)
+        .map(([board]) => ({
+          board,
+          status: before.hashes.has(board) ? "updated" : "new",
+        }))
+        .sort((a, b) => a.board.localeCompare(b.board));
+      data = { ...(data as object), made };
+    }
     fs.appendFileSync(
       path.join(keptOf(run.id), "events.jsonl"),
       JSON.stringify(emit(run, event, data)) + "\n",
     );
+  };
   const picture = (id: string, name: string, type: string, data: Buffer) => {
     const file = path.join(keptOf(id), `${name}.${type.slice(6)}`);
     fs.writeFileSync(file, data);
@@ -504,6 +521,7 @@ export function createAgentServer(options: {
               ),
             }),
           );
+          const hashes = hashBoards(boards);
           const c = command(
             def.bin,
             def.args({
@@ -530,6 +548,7 @@ export function createAgentServer(options: {
             stopped: false,
           });
           runs.set(run.id, run);
+          boardsBefore.set(run.id, { dir: boards, hashes });
           record.runs.push(run.id);
           record.updated = Date.now();
           save(record);

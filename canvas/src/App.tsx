@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import {
   Ellipse2d,
   ImageShapeUtil,
@@ -58,7 +52,11 @@ import {
   CANVAS_FILE_SHAPE_TYPE,
   CanvasFileShapeUtil,
 } from "./CanvasFileShapeUtil";
-import { asCanvasTarget, installDoubleClickZoom, zoomToFill } from "./canvasClicks";
+import {
+  asCanvasTarget,
+  installDoubleClickZoom,
+  zoomToFill,
+} from "./canvasClicks";
 import { CanvasPresent } from "./CanvasPresent";
 import { attachToChat } from "./canvasAttach";
 import { CanvasStatusBannerShapeUtil } from "./CanvasStatusBannerShapeUtil";
@@ -86,7 +84,7 @@ import {
   readCanvasLibrary,
   refetchBoards,
 } from "./canvasLibrary";
-import { BOARDS_CHANGED, canvasIndex } from "./canvasIndex";
+import { BOARDS_CHANGED, FOCUS_BOARD, canvasIndex } from "./canvasIndex";
 import { lockedOverlayUtils } from "./lockedIndicator";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
 import {
@@ -800,7 +798,6 @@ function initializeCanvasLibrary(editor: Editor) {
             },
           })),
         );
-
       }
 
       // What the pass did not place is what the folder no longer has: a board renamed or removed,
@@ -1198,6 +1195,25 @@ export default function App() {
       .find((c) => c.meta.canvasSlug === pageOf(tab));
     if (page) editor.setCurrentPage(page.id);
   };
+
+  // A board a reply in the chat made or changed, from the button under it: its canvas brought
+  // forward and the board fitted to it, as a double-click on it would. Heard on the window, which
+  // holds the chat.
+  useEffect(() => {
+    if (!editor) return;
+    const focus = (event: Event) => {
+      const board = (event as CustomEvent<string>).detail;
+      const file = readCanvasLibrary()
+        .flatMap((canvas) => canvas.files)
+        .find((f) => f.path.endsWith(`canvases/${board}`));
+      // Gone since the reply: deleted, or renamed by a later one.
+      if (!file) return;
+      openTab({ kind: "canvas", slug: file.pageSlug });
+      zoomToFill(editor, fileShapeId(file));
+    };
+    window.parent.addEventListener(FOCUS_BOARD, focus);
+    return () => window.parent.removeEventListener(FOCUS_BOARD, focus);
+  });
 
   // A layout.json edit moves boards: a row reordered, a label changed, a size override added.
   // The pass reconciles, so the boards that stay keep their shapes and only what moved is
