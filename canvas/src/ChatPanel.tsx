@@ -265,9 +265,10 @@ interface Attached {
 /**
  * What a reply made or changed, each a button that finds it on the canvas: blue for a new board
  * and green for a rewritten one, as their rings are there. Folded to three rows when there are
- * more, which a generator rewriting every board makes common.
+ * more, which a generator rewriting every board makes common. Off when the reply's project is not
+ * the one in front, whose canvas would not have them.
  */
-function MadeBoards({ made }: { made: MadeBoard[] }) {
+function MadeBoards({ made, away }: { made: MadeBoard[]; away: boolean }) {
   const list = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [folds, setFolds] = useState(false);
@@ -286,7 +287,12 @@ function MadeBoards({ made }: { made: MadeBoard[] }) {
             key={m.board}
             type="button"
             data-made={m.status}
-            title={`Show ${m.board} on the canvas`}
+            disabled={away}
+            title={
+              away
+                ? `${m.board} is in another project`
+                : `Show ${m.board} on the canvas`
+            }
             onClick={() =>
               window.dispatchEvent(
                 new CustomEvent(FOCUS_BOARD, { detail: m.board }),
@@ -1429,7 +1435,7 @@ export function ChatPanel(props: {
                 ),
               )}
               {t.end?.made && t.end.made.length > 0 && (
-                <MadeBoards made={t.end.made} />
+                <MadeBoards made={t.end.made} away={t.project !== project} />
               )}
               {!t.end ? (
                 <p className="sp-chat-dim">Working…</p>

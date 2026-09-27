@@ -16,6 +16,12 @@ export function ThemeSwitcher() {
   const [theme, setTheme] = useState(storedTheme);
   // The app starts on the OS's until the page says, since the pick lives in the page's storage.
   useEffect(() => window.startup?.theme(storedTheme()), []);
+  // Picked in another window of the same app, which shares the storage.
+  useEffect(() => {
+    const follow = () => setTheme(storedTheme());
+    window.addEventListener("storage", follow);
+    return () => window.removeEventListener("storage", follow);
+  }, []);
   return (
     <div className="sp-theme" role="radiogroup" aria-label="Theme">
       {CHOICES.map(([value, label, Icon]) => (
