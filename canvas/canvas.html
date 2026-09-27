@@ -2,6 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- The theme picked in the top bar (src/theme.ts), on the page before it paints,
+         and again whenever another page of the app picks one. -->
+    <script>
+      (function () {
+        function pick() {
+          var theme = "system";
+          try {
+            theme = localStorage.getItem("sp-theme") || theme;
+          } catch (e) {}
+          document.documentElement.dataset.theme = theme;
+        }
+        pick();
+        addEventListener("storage", function (e) {
+          if (e.key === "sp-theme") pick();
+        });
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Super Prototyping</title>
     <meta name="robots" content="noindex" />
