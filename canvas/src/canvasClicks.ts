@@ -2,8 +2,10 @@ import type {
   Editor,
   StateNode,
   TLImageShape,
+  TLPageId,
   TLShape,
   TLShapeId,
+  VecModel,
 } from "tldraw";
 import {
   CANVAS_FILE_SHAPE_TYPE,
@@ -61,11 +63,13 @@ export function zoomToFill(editor: Editor, id: TLShapeId, animate = true) {
  * spend on editing its text zooms it to fill the canvas. tldraw's own double-click would crop a
  * picture or, over a locked shape such as a board, drop a new text box on the canvas, so this takes the gesture over in the select tool's
  * idle state, where tldraw handles it, rather than watching for it alongside. A note, a text or a
- * label still edits its text. Returns the uninstaller.
+ * label still edits its text. A second double-click on the shape it last zoomed to puts the camera
+ * back where it was before, on the same page. Returns the uninstaller.
  */
 export function installDoubleClickZoom(editor: Editor) {
   const idle = editor.getStateDescendant<StateNode>("select.idle")!;
   const own = idle.onDoubleClick!;
+  let before: { id: TLShapeId; page: TLPageId; camera: VecModel } | undefined;
   idle.onDoubleClick = (info) => {
     const hit = info.phase === "down" && shapeUnderPointer(editor);
     if (
@@ -74,8 +78,18 @@ export function installDoubleClickZoom(editor: Editor) {
         hit.type === "image" ||
         hit.type === "video" ||
         !editor.canEditShape(hit))
-    )
+    ) {
+      const page = editor.getCurrentPageId();
+      if (before?.id === hit.id && before.page === page) {
+        editor.setCamera(before.camera, {
+          animation: { duration: editor.options.animationMediumMs },
+        });
+        before = undefined;
+        return;
+      }
+      before = { id: hit.id, page, camera: editor.getCamera() };
       return zoomToFill(editor, hit.id);
+    }
     own.call(idle, info);
   };
   return () => {
