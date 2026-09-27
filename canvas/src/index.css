@@ -1966,22 +1966,33 @@ a.sp-menu-row {
   background: color-mix(in oklab, var(--ds-red-900) 88%, black);
 }
 
-/* A board or picture shown alone, full screen (CanvasPresent.tsx): on black, as Quick Look shows
-   one, and scaled to fit by the component, which knows the board's size. Always in the page, so
-   it can go full screen on the key that asks, and seen only while it is. */
-.sp-present:not(:fullscreen) {
-  display: none;
-}
-
+/* A board or picture shown alone over the whole window (CanvasPresent.tsx): on black, as Quick
+   Look shows one, and scaled to fit by the component, which knows the board's size. */
 .sp-present {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
   display: grid;
   place-items: center;
   overflow: hidden;
+  padding: 32px;
   background: #000;
+  animation: sp-present-in 160ms ease-out;
+}
+
+@keyframes sp-present-in {
+  from {
+    opacity: 0;
+  }
 }
 
 .sp-present iframe {
-  flex: none;
+  /* Centred by hand: at its own size it can be taller than the window, and the grid would align
+     it to the top instead. */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
   border: 0;
   /* The board's own scheme, as on the canvas (CanvasFileShapeUtil.tsx). */
   color-scheme: light;

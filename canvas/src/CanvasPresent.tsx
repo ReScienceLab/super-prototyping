@@ -1,31 +1,41 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Editor } from "tldraw";
 import { asCanvasTarget, type CanvasTarget } from "./canvasClicks";
 import { CANVAS_FILE_SHAPE_TYPE } from "./CanvasFileShapeUtil";
 import { useCanvasFileHtml } from "./canvasLibrary";
 
-/** Screen px between a presented board and the display's edge. */
+/** Screen px between a presented board and the window's edge. */
 const INSET = 32;
 
 /**
- * Space on a selected board or picture shows it alone, full screen, as Quick Look does: the
- * window leaves for the whole display, black round the board, which is scaled to fit it. Space
- * again, or Esc, comes back to the canvas as it was.
+ * Space on a selected board or picture shows it alone over the whole window, as Quick Look does:
+ * black round the board, which is scaled to fit it. Space again, or Esc, comes back to the canvas
+ * as it was. Inside the window rather than the browser's full screen, which on a Mac moves the
+ * window to a display of its own and back, slowly.
  *
- * On the key going down, and taken from tldraw, so with one of them selected Space is this and not
- * the hand. It has to be then: going full screen needs the key's user activation, and by the
- * time the key comes up the canvas has spent it. For the same reason the element that goes full
- * screen is always here, and shows only while it is (index.css): one rendered after the key would
- * be too late.
+ * In the window's document, not the canvas frame's, so it covers the tab bar and the chat as well
+ * (the window loads the same stylesheet, shell.tsx). Taken from tldraw on the key going down, so
+ * with one of them selected Space is this and not the hand. Heard in both documents: clicking the
+ * shown board moves the focus out of the frame.
  */
 export function CanvasPresent({ editor }: { editor: Editor | null }) {
-  const box = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState<CanvasTarget>();
-  const [view, setView] = useState({ w: innerWidth, h: innerHeight });
+  const top = window.top!;
+  const [view, setView] = useState({ w: top.innerWidth, h: top.innerHeight });
 
   useEffect(() => {
     if (!editor) return;
     const onDown = (e: KeyboardEvent) => {
+      if (shown) {
+        if (e.code !== "Space" && e.key !== "Escape") return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.repeat) return;
+        setShown(undefined);
+        editor.focus();
+        return;
+      }
       if (e.code !== "Space" || e.repeat) return;
       const typing =
         e.target instanceof HTMLElement &&
@@ -34,35 +44,28 @@ export function CanvasPresent({ editor }: { editor: Editor | null }) {
           e.target.tagName === "TEXTAREA");
       if (typing || editor.getEditingShapeId()) return;
       const selected = editor.getSelectedShapes();
-      const target =
-        !document.fullscreenElement &&
-        selected.length === 1 &&
-        asCanvasTarget(selected[0]);
-      if (!document.fullscreenElement && !target) return;
+      const target = selected.length === 1 && asCanvasTarget(selected[0]);
+      if (!target) return;
       e.preventDefault();
       e.stopPropagation();
-      if (!target) return void document.exitFullscreen();
       setShown(target);
-      void box.current!.requestFullscreen();
     };
-    const resized = () => setView({ w: innerWidth, h: innerHeight });
-    const left = () => !document.fullscreenElement && setShown(undefined);
-    addEventListener("keydown", onDown, true);
-    addEventListener("resize", resized);
-    document.addEventListener("fullscreenchange", left);
+    const resized = () => setView({ w: top.innerWidth, h: top.innerHeight });
+    const windows = top === window ? [window] : [window, top];
+    for (const w of windows) w.addEventListener("keydown", onDown, true);
+    top.addEventListener("resize", resized);
     return () => {
-      removeEventListener("keydown", onDown, true);
-      removeEventListener("resize", resized);
-      document.removeEventListener("fullscreenchange", left);
+      for (const w of windows) w.removeEventListener("keydown", onDown, true);
+      top.removeEventListener("resize", resized);
     };
-  }, [editor]);
+  }, [editor, shown, top]);
 
-  return (
-    <div ref={box} className="sp-present">
-      {editor && shown && (
-        <Presented editor={editor} shape={shown} view={view} />
-      )}
-    </div>
+  if (!editor || !shown) return null;
+  return createPortal(
+    <div className="sp-present">
+      <Presented editor={editor} shape={shown} view={view} />
+    </div>,
+    top.document.body,
   );
 }
 
