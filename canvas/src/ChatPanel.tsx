@@ -87,8 +87,9 @@ const OPEN_KEY = "sp-chat-open";
 
 /**
  * What the canvas hands the chat panel when the button is pressed (canvasAttach.tsx): a picture
- * to attach to the message, or the reason none was. A board comes over as a picture too. The
- * file's own name says which board it is, and the panel shows it under the tile. And the start
+ * to attach to the message, or the reason none was. A board comes over as a picture too, for its
+ * tile only: the agent is handed the board's file, which its name says, and the panel shows that
+ * name under the tile. And the start
  * of a message, from the strip's "+" (CanvasStrip.tsx), because a canvas is only ever the
  * agent's work, and a folder with no boards in it is not one. And a whole message, sent as it is,
  * from the new-project dialog (AppShell.tsx), which starts the agent defining the product.
@@ -104,7 +105,8 @@ const OPEN_KEY = "sp-chat-open";
 export const CANVAS_ATTACH = "sp:canvas-attach";
 
 export type CanvasAttachDetail =
-  | { kind: "board"; name: string; src: string }
+  /** `page` for a mockup, whose drawing is only the tile's: the agent is handed its file. */
+  | { kind: "board"; name: string; src: string; page?: true }
   | { kind: "image"; file: File }
   | { kind: "error"; message: string }
   | { kind: "draft"; text: string }
@@ -249,6 +251,9 @@ interface Attached {
   url: string;
   /** A board still being drawn, with no `url` yet, or one whose drawing failed. */
   state?: "pending" | "failed";
+  /** A mockup, and the project it was attached from, which the panel may since have left: the
+   *  agent gets its file there rather than this picture of it (agents.ts). */
+  page?: { project?: string; community?: string };
 }
 
 /**
@@ -713,6 +718,7 @@ export function ChatPanel(props: {
                 type: r.file.type,
                 size: r.file.size,
                 url: r.url,
+                page: t.page,
               }
             : t;
         });
@@ -758,7 +764,7 @@ export function ChatPanel(props: {
    * drawing asked of the server, to land in that tile. Asked for again it keeps the tile it has —
    * one already there or on its way is only named again, and one that failed is drawn again.
    */
-  const addBoard = (name: string, src: string) => {
+  const addBoard = (name: string, src: string, page?: true) => {
     let tile = tray.current.find((t) => t.name === name);
     if (!tile && tray.current.length >= MAX_IMAGES)
       return setSendError(
@@ -779,6 +785,7 @@ export function ChatPanel(props: {
       size: 0,
       url: "",
       state: "pending",
+      page: page && { project, community },
     };
     const next = tile;
     tray.current = [...tray.current.filter((t) => t.n !== next.n), next].sort(
@@ -805,7 +812,8 @@ export function ChatPanel(props: {
   // What the buttons on a canvas shape hand over (canvasAttach.tsx): a picture, attached and named
   // in the sentence, or the reason there is none. A mockup arrives as a picture of itself, called
   // by its own path, so pointing at one puts the same tile and the same number in the panel that
-  // pointing at a picture does — and the path is what the tile is captioned with.
+  // pointing at a picture does — and the path is what the tile is captioned with, and all the
+  // agent is given of it.
   // No dependency list, so every render leaves a listener holding that render's `addImages` and
   // its numbering — a listener that stayed would be attaching to the draft the panel had at mount.
   useEffect(() => {
@@ -819,7 +827,7 @@ export function ChatPanel(props: {
       // that is still being read.
       if (detail.kind === "board") {
         adds.current = adds.current.then(() =>
-          addBoard(detail.name, detail.src),
+          addBoard(detail.name, detail.src, detail.page),
         );
         return;
       }
@@ -937,11 +945,12 @@ export function ChatPanel(props: {
           agent,
           model,
           effort,
-          images: attached.map(({ n, name, type, url }) => ({
+          images: attached.map(({ n, name, type, url, page }) => ({
             n,
             name,
             type,
             data: url.slice(url.indexOf(",") + 1),
+            page,
           })),
         }),
       });
