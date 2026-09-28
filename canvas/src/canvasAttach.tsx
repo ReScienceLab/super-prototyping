@@ -13,7 +13,7 @@ import {
   type CanvasFileShape,
 } from "./CanvasFileShapeUtil";
 import { CANVAS_ATTACH, type CanvasAttachDetail } from "./ChatPanel";
-import { personsShape, personsShapeName } from "./canvasContent";
+import { personsShape, personsShapeName, saveNow } from "./canvasContent";
 import { canvasBoardRef } from "./canvasLibrary";
 import { Plus } from "./geistIcons";
 import {
@@ -58,15 +58,19 @@ async function attach(editor: Editor, target: TLShape) {
     }
     // One of the person's own, drawn for the tile and named by where the agent reads the thing
     // itself (canvasContent.ts). A picture goes over as one. Anything else, such as a video, a
-    // note or a drawing, is a file the agent is pointed at, as a board is.
+    // note or a drawing, is a file the agent is pointed at, as a board is, so its canvas is
+    // saved first: a shape drawn a moment ago is otherwise still waiting out the pause before
+    // canvas.json is written.
     const slug = personsShape(editor, target);
     if (slug) {
+      const reference = target.type === "image" ? undefined : true;
+      if (reference) await saveNow(slug);
       const { blob } = await editor.toImage([target.id], { format: "png" });
       return dispatchAttach({
         kind: "board",
         name: personsShapeName(editor, target, slug),
         src: URL.createObjectURL(blob),
-        reference: target.type === "image" ? undefined : true,
+        reference,
       });
     }
     const shape = target as TLImageShape;
