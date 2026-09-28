@@ -274,6 +274,16 @@ and what you want to use it for.
 
 This repo is Apache-2.0 (see `LICENSE`), © ReScience Lab Inc.
 
+**Third-party material is not.** The community projects in `canvases/` carry
+screenshots, logos, app-store images and other brand assets of the products
+they study. Those belong to their owners, are not licensed under Apache-2.0
+here, and are included only to research and demonstrate the method. ReScience
+Lab Inc. is not affiliated with or endorsed by any of those companies. None of
+this material ships in the desktop app, which has bundled only
+`canvases/templates` since 1.7.0, or in the commercial edition. To have
+something taken down, write to
+[yilin.jing@rescience.com](mailto:yilin.jing@rescience.com).
+
 **The tldraw SDK it depends on is not.** tldraw ships under the
 [tldraw licence](https://github.com/tldraw/tldraw/blob/main/LICENSE.md): free
 to use with the tldraw watermark visible, paid business licence to remove it.
