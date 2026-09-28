@@ -57,8 +57,8 @@ async function attach(editor: Editor, target: TLShape) {
       return dispatchAttach({ kind: "board", name, src, reference: true });
     }
     // One of the person's own, drawn for the tile and named by where the agent reads the thing
-    // itself (canvasContent.ts). A picture goes over as one; anything else — a video, a note, a
-    // drawing — is a file the agent is pointed at, as a board is.
+    // itself (canvasContent.ts). A picture goes over as one. Anything else, such as a video, a
+    // note or a drawing, is a file the agent is pointed at, as a board is.
     const slug = personsShape(editor, target);
     if (slug) {
       const { blob } = await editor.toImage([target.id], { format: "png" });

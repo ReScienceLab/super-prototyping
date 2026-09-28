@@ -80,7 +80,7 @@ export interface AgentImage {
   /** Where the server wrote it, for an agent that takes files rather than bytes; gone once
    *  that agent has exited. */
   path: string;
-  /** The file behind it — a board's HTML, a video, a canvas.json record — when the picture is
+  /** The file behind it (a board's HTML, a video, a canvas.json record) when the picture is
    *  only the panel's drawing of it: the agent is pointed at the file, which is what it can read
    *  and change, and not handed the picture. */
   reference?: string;

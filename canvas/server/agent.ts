@@ -17,7 +17,7 @@ import path from "node:path";
 import { CANVASES } from "./boards.ts";
 import { command, stop } from "./command.ts";
 import { AGENT_SKILLS, installSkills } from "./skills.ts";
-import { folderOf, sameOrigin } from "./sp.ts";
+import { canvasFile, folderOf, sameOrigin } from "./sp.ts";
 import { SAFE_NAME } from "../src/layoutEdit.ts";
 import {
   attach,
@@ -511,22 +511,21 @@ export function createAgentServer(options: {
               data: string;
               reference?: { project?: string; community?: string };
             }) => {
-              // Anything but a picture — a board, a video, a note — keeps its picture for the
-              // panel, and the agent is pointed at its file, `<slug>/<path>` in the canvases of
-              // the project it was attached from, which need not be the one it is sent from. A
-              // community project's is not on this machine, so it keeps the name `sp fetch`
-              // finds it by.
-              const [slug, ...rest] = i.name.split("/");
+              // Anything but a picture (a board, a video, a note) keeps its picture for the
+              // panel, and the agent is pointed at its file, in the canvases of the project it
+              // was attached from, which need not be the one it is sent from. A community
+              // project's is not on this machine, so it keeps the name `sp fetch` finds it by.
               const ref = i.reference;
               const from = ref?.project && projects().get(ref.project);
-              const local =
+              const file =
                 ref?.community === undefined &&
-                (ref?.project === undefined || from) &&
-                SAFE_NAME.test(slug) &&
-                rest.length > 0 &&
-                rest.every(
-                  (s) => s && !s.startsWith(".") && !s.includes("\\"),
-                );
+                (ref?.project === undefined || from)
+                  ? canvasFile(
+                      from ? path.join(from, CANVASES) : examplesDir,
+                      examplesDir,
+                      i.name,
+                    )
+                  : undefined;
               return {
                 ...i,
                 path: picture(
@@ -537,18 +536,10 @@ export function createAgentServer(options: {
                 ),
                 reference:
                   ref &&
-                  (local
-                    ? path.join(
-                        folderOf(
-                          from ? path.join(from, CANVASES) : examplesDir,
-                          examplesDir,
-                          slug,
-                        ),
-                        ...rest,
-                      )
-                    : ref.community
+                  (file ??
+                    (ref.community
                       ? `${i.name} of the community project ${ref.community}`
-                      : i.name),
+                      : i.name)),
               };
             },
           );
