@@ -19,9 +19,10 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
-- **A mockup goes to the agent as its file.** Its **+** still shows a picture
-  of it in the chat, but the agent is handed the board's `.html` path rather
-  than that picture, since the file is what it reads and changes.
+- **Only pictures go to the agent as pictures.** The **+** on a board, a
+  video or a note still shows a picture of it in the chat, but the agent is
+  handed the file behind it rather than that picture, since the file is what
+  it can read and change.
 
 ## v1.7.0
 

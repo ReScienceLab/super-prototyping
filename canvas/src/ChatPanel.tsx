@@ -87,9 +87,9 @@ const OPEN_KEY = "sp-chat-open";
 
 /**
  * What the canvas hands the chat panel when the button is pressed (canvasAttach.tsx): a picture
- * to attach to the message, or the reason none was. A board comes over as a picture too, for its
- * tile only: the agent is handed the board's file, which its name says, and the panel shows that
- * name under the tile. And the start
+ * to attach to the message, or the reason none was. A board, a video or a note comes over as a
+ * picture too, for its tile only: the agent is handed the file its name says, and the panel shows
+ * that name under the tile. And the start
  * of a message, from the strip's "+" (CanvasStrip.tsx), because a canvas is only ever the
  * agent's work, and a folder with no boards in it is not one. And a whole message, sent as it is,
  * from the new-project dialog (AppShell.tsx), which starts the agent defining the product.
@@ -105,8 +105,9 @@ const OPEN_KEY = "sp-chat-open";
 export const CANVAS_ATTACH = "sp:canvas-attach";
 
 export type CanvasAttachDetail =
-  /** `page` for a mockup, whose drawing is only the tile's: the agent is handed its file. */
-  | { kind: "board"; name: string; src: string; page?: true }
+  /** `reference` for anything but a picture, whose drawing is only the tile's: the agent is
+   *  pointed at its file instead. */
+  | { kind: "board"; name: string; src: string; reference?: true }
   | { kind: "image"; file: File }
   | { kind: "error"; message: string }
   | { kind: "draft"; text: string }
@@ -251,9 +252,9 @@ interface Attached {
   url: string;
   /** A board still being drawn, with no `url` yet, or one whose drawing failed. */
   state?: "pending" | "failed";
-  /** A mockup, and the project it was attached from, which the panel may since have left: the
-   *  agent gets its file there rather than this picture of it (agents.ts). */
-  page?: { project?: string; community?: string };
+  /** Anything but a picture, and the project it was attached from, which the panel may since
+   *  have left: the agent gets its file there rather than this picture of it (agents.ts). */
+  reference?: { project?: string; community?: string };
 }
 
 /**
@@ -718,7 +719,7 @@ export function ChatPanel(props: {
                 type: r.file.type,
                 size: r.file.size,
                 url: r.url,
-                page: t.page,
+                reference: t.reference,
               }
             : t;
         });
@@ -764,7 +765,7 @@ export function ChatPanel(props: {
    * drawing asked of the server, to land in that tile. Asked for again it keeps the tile it has —
    * one already there or on its way is only named again, and one that failed is drawn again.
    */
-  const addBoard = (name: string, src: string, page?: true) => {
+  const addBoard = (name: string, src: string, reference?: true) => {
     let tile = tray.current.find((t) => t.name === name);
     if (!tile && tray.current.length >= MAX_IMAGES)
       return setSendError(
@@ -785,7 +786,7 @@ export function ChatPanel(props: {
       size: 0,
       url: "",
       state: "pending",
-      page: page && { project, community },
+      reference: reference && { project, community },
     };
     const next = tile;
     tray.current = [...tray.current.filter((t) => t.n !== next.n), next].sort(
@@ -827,7 +828,7 @@ export function ChatPanel(props: {
       // that is still being read.
       if (detail.kind === "board") {
         adds.current = adds.current.then(() =>
-          addBoard(detail.name, detail.src, detail.page),
+          addBoard(detail.name, detail.src, detail.reference),
         );
         return;
       }
@@ -945,12 +946,12 @@ export function ChatPanel(props: {
           agent,
           model,
           effort,
-          images: attached.map(({ n, name, type, url, page }) => ({
+          images: attached.map(({ n, name, type, url, reference }) => ({
             n,
             name,
             type,
             data: url.slice(url.indexOf(",") + 1),
-            page,
+            reference,
           })),
         }),
       });
