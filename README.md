@@ -262,9 +262,17 @@ version's section in `RELEASE-NOTES.md`, then merge: the tag
 The whole procedure, including what to do when a step fails, is under "Cutting a
 release" in `CONTRIBUTING.md`.
 
+## Commercial edition
+
+This repo is the open-source edition, free to use. A commercial edition is
+packaged and supported for studios and teams, from ReScience Lab Inc.
+Pricing is by conversation: write to
+[yilin.jing@rescience.com](mailto:yilin.jing@rescience.com) with your team size
+and what you want to use it for.
+
 ## Licence
 
-This repo is Apache-2.0 (see `LICENSE`).
+This repo is Apache-2.0 (see `LICENSE`), © ReScience Lab Inc.
 
 **The tldraw SDK it depends on is not.** tldraw ships under the
 [tldraw licence](https://github.com/tldraw/tldraw/blob/main/LICENSE.md): free
