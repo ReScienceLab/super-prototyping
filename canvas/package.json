@@ -15,10 +15,10 @@
     "@fontsource-variable/geist-mono": "^5.3.0",
     "@tldraw/commenting": "^5.4.2",
     "class-variance-authority": "^0.7.1",
-    "cn": "^0.3.0",
-    "dompurify": "^3.4.15",
+    "cn": "^0.4.0",
+    "dompurify": "^3.4.16",
     "geist-icons": "^1.3.0",
-    "marked": "^18.0.13",
+    "marked": "^18.0.14",
     "radix-ui": "^1.6.7",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
@@ -27,16 +27,16 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^26.6.1",
+    "@types/node": "^26.6.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "jsdom": "^30.1.0",
-    "oxlint": "^1.83.0",
+    "jsdom": "^30.1.1",
+    "oxlint": "^1.85.0",
     "sharp": "^0.35.4",
     "tailwindcss": "^4.3.3",
     "typescript": "~7.0.2",
-    "vite": "^8.3.0",
-    "vitest": "^5.0.1"
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
   }
 }
