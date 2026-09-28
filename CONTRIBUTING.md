@@ -158,6 +158,6 @@ through private vulnerability reporting; see `SECURITY.md`.
 
 By contributing you agree that your contribution is licensed under the
 Apache License 2.0, the same as the rest of the repository, and you grant
-ReScience Lab Inc. a perpetual, worldwide, royalty-free, irrevocable licence to
+ReScience Lab Inc. a perpetual, worldwide, royalty-free, irrevocable license to
 use, modify, sublicense and relicense it under any terms, including in its
 commercial editions. You confirm the contribution is yours to give.
