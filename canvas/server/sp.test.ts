@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { expect, it, vi } from "vitest";
-import { createSpServer } from "./sp.ts";
+import { canvasFile, createSpServer } from "./sp.ts";
 
 // The examples directory is listed beside the project's canvases, shadowed by a folder of the
 // project's own, refused every write, and cloned into the project.
@@ -522,3 +522,34 @@ async function serve(options: Parameters<typeof createSpServer>[0]) {
   };
   return { ask, listen, close };
 }
+
+// What a chat attachment names is a file in a canvas folder, and nothing a browser sends reaches
+// outside one.
+it("resolves an attachment's name to a file in its canvas folder", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-attach-"));
+  const own = path.join(tmp, "project");
+  const examples = path.join(tmp, "examples");
+  fs.mkdirSync(path.join(examples, "demo"), { recursive: true });
+  expect(canvasFile(own, examples, "shop/01-home.html")).toBe(
+    path.join(own, "shop", "01-home.html"),
+  );
+  expect(canvasFile(own, examples, "shop/files/clip.mp4")).toBe(
+    path.join(own, "shop", "files", "clip.mp4"),
+  );
+  expect(canvasFile(own, examples, "shop/canvas.json#shape:a1")).toBe(
+    path.join(own, "shop", "canvas.json#shape:a1"),
+  );
+  expect(canvasFile(own, examples, "demo/01-a.html")).toBe(
+    path.join(examples, "demo", "01-a.html"),
+  );
+  for (const name of [
+    "shop",
+    "../etc/passwd",
+    "shop/../../etc",
+    "shop/files/..",
+    "shop//x",
+    "shop/.env",
+    "shop/a\\..\\..\\x",
+  ])
+    expect(canvasFile(own, examples, name)).toBeUndefined();
+});

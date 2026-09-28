@@ -80,9 +80,10 @@ export interface AgentImage {
   /** Where the server wrote it, for an agent that takes files rather than bytes; gone once
    *  that agent has exited. */
   path: string;
-  /** A mockup's HTML file, when the picture is only the panel's drawing of one: the agent is
-   *  pointed at the file and not handed the picture, since the file is what it reads and edits. */
-  page?: string;
+  /** The file behind it (a board's HTML, a video, a canvas.json record) when the picture is
+   *  only the panel's drawing of it: the agent is pointed at the file, which is what it can read
+   *  and change, and not handed the picture. */
+  reference?: string;
 }
 
 /** What the composer chose, handed to `args`. An empty string means the CLI decides. */
@@ -203,8 +204,8 @@ export const AGENTS: AgentDef[] = [
     // terminal, so the number arrives as something already read rather than a local convention.
     stdin: (message, _preamble, images) => {
       const blocks = images.flatMap((i) =>
-        i.page
-          ? [{ type: "text", text: `[Image #${i.n}] ${i.page}` }]
+        i.reference
+          ? [{ type: "text", text: `[Image #${i.n}] ${i.reference}` }]
           : [
               { type: "text", text: `[Image #${i.n}] ${i.name}` },
               {
@@ -315,7 +316,7 @@ export const AGENTS: AgentDef[] = [
     stdin: (message, preamble, images) =>
       [
         preamble,
-        images.map((i) => `[Image #${i.n}] ${i.page ?? i.path}`).join("\n"),
+        images.map((i) => `[Image #${i.n}] ${i.reference ?? i.path}`).join("\n"),
         message,
       ]
         .filter(Boolean)

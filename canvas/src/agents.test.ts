@@ -94,7 +94,7 @@ describe("AGENTS", () => {
       type: "image/png",
       data: "CCC",
       path: "/tmp/sp-chat-r/2.png",
-      page: "/proj/canvases/shop/01-home.html",
+      reference: "/proj/canvases/shop/01-home.html",
     };
     expect(
       JSON.parse(def("claude").stdin("tighten #2", "P", [board])).message
