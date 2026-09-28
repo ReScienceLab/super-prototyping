@@ -54,7 +54,7 @@ async function attach(editor: Editor, target: TLShape) {
           `&w=${Math.max(1, Math.round(w * scale))}&h=${Math.max(1, Math.round(h * scale))}`,
         window.location.href,
       ).href;
-      return dispatchAttach({ kind: "board", name, src });
+      return dispatchAttach({ kind: "board", name, src, page: true });
     }
     // One of the person's own: whatever it is, the agent gets a picture of it, named by where it
     // reads the thing itself (canvasContent.ts).

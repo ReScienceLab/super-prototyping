@@ -310,6 +310,8 @@ export function createAgentServer(options: {
               !/^[A-Za-z0-9+/]*={0,2}$/.test(i.data)
             )
               return send(400, "bad image data");
+            if (i.page !== undefined && i.page !== true)
+              return send(400, "bad image page");
           }
           // The body cap above is the panel's limit in base64; a client that is not the
           // panel meets the limit itself here, in the bytes the files come out as.
@@ -493,8 +495,26 @@ export function createAgentServer(options: {
           const id = randomUUID();
           fs.mkdirSync(keptOf(id), { recursive: true });
           const imagesDir = images.length ? keptOf(id) : "";
+          // A mockup's picture is kept for the panel, and the agent is pointed at its file,
+          // `<slug>/<file>.html` in whichever canvases folder holds that slug. A community
+          // project's is not on this machine, so it keeps the name `sp fetch` finds it by.
+          const pageOf = (name: string) => {
+            const [slug, file, ...rest] = name.split("/");
+            return community === undefined &&
+              rest.length === 0 &&
+              SAFE_NAME.test(slug) &&
+              SAFE_NAME.test(file ?? "")
+              ? path.join(folderOf(boards, examplesDir, slug), file)
+              : name;
+          };
           const held: AgentImage[] = images.map(
-            (i: { n: number; name: string; type: string; data: string }) => ({
+            (i: {
+              n: number;
+              name: string;
+              type: string;
+              data: string;
+              page?: true;
+            }) => ({
               ...i,
               path: picture(
                 id,
@@ -502,6 +522,7 @@ export function createAgentServer(options: {
                 i.type,
                 Buffer.from(i.data, "base64"),
               ),
+              page: i.page && pageOf(i.name),
             }),
           );
           const c = command(

@@ -80,6 +80,9 @@ export interface AgentImage {
   /** Where the server wrote it, for an agent that takes files rather than bytes; gone once
    *  that agent has exited. */
   path: string;
+  /** A mockup's HTML file, when the picture is only the panel's drawing of one: the agent is
+   *  pointed at the file and not handed the picture, since the file is what it reads and edits. */
+  page?: string;
 }
 
 /** What the composer chose, handed to `args`. An empty string means the CLI decides. */
@@ -199,13 +202,17 @@ export const AGENTS: AgentDef[] = [
     // `[Image #2]` is the marker Claude Code writes itself when a screenshot is pasted into its
     // terminal, so the number arrives as something already read rather than a local convention.
     stdin: (message, _preamble, images) => {
-      const blocks = images.flatMap((i) => [
-        { type: "text", text: `[Image #${i.n}] ${i.name}` },
-        {
-          type: "image",
-          source: { type: "base64", media_type: i.type, data: i.data },
-        },
-      ]);
+      const blocks = images.flatMap((i) =>
+        i.page
+          ? [{ type: "text", text: `[Image #${i.n}] ${i.page}` }]
+          : [
+              { type: "text", text: `[Image #${i.n}] ${i.name}` },
+              {
+                type: "image",
+                source: { type: "base64", media_type: i.type, data: i.data },
+              },
+            ],
+      );
       const content = blocks.length
         ? [...blocks, { type: "text", text: message }]
         : message;
@@ -308,7 +315,7 @@ export const AGENTS: AgentDef[] = [
     stdin: (message, preamble, images) =>
       [
         preamble,
-        images.map((i) => `[Image #${i.n}] ${i.path}`).join("\n"),
+        images.map((i) => `[Image #${i.n}] ${i.page ?? i.path}`).join("\n"),
         message,
       ]
         .filter(Boolean)
