@@ -310,7 +310,13 @@ export function createAgentServer(options: {
               !/^[A-Za-z0-9+/]*={0,2}$/.test(i.data)
             )
               return send(400, "bad image data");
-            if (i.page !== undefined && i.page !== true)
+            if (
+              i.page !== undefined &&
+              (typeof i.page !== "object" ||
+                !["project", "community"].every(
+                  (k) => i.page[k] === undefined || typeof i.page[k] === "string",
+                ))
+            )
               return send(400, "bad image page");
           }
           // The body cap above is the panel's limit in base64; a client that is not the
@@ -495,35 +501,50 @@ export function createAgentServer(options: {
           const id = randomUUID();
           fs.mkdirSync(keptOf(id), { recursive: true });
           const imagesDir = images.length ? keptOf(id) : "";
-          // A mockup's picture is kept for the panel, and the agent is pointed at its file,
-          // `<slug>/<file>.html` in whichever canvases folder holds that slug. A community
-          // project's is not on this machine, so it keeps the name `sp fetch` finds it by.
-          const pageOf = (name: string) => {
-            const [slug, file, ...rest] = name.split("/");
-            return community === undefined &&
-              rest.length === 0 &&
-              SAFE_NAME.test(slug) &&
-              SAFE_NAME.test(file ?? "")
-              ? path.join(folderOf(boards, examplesDir, slug), file)
-              : name;
-          };
           const held: AgentImage[] = images.map(
             (i: {
               n: number;
               name: string;
               type: string;
               data: string;
-              page?: true;
-            }) => ({
-              ...i,
-              path: picture(
-                id,
-                `image-${i.n}`,
-                i.type,
-                Buffer.from(i.data, "base64"),
-              ),
-              page: i.page && pageOf(i.name),
-            }),
+              page?: { project?: string; community?: string };
+            }) => {
+              // A mockup's picture is kept for the panel, and the agent is pointed at its
+              // file, `<slug>/<file>.html` in the canvases of the project it was attached
+              // from, which need not be the one it is sent from. A community project's is not
+              // on this machine, so it keeps the name `sp fetch` finds it by.
+              const [slug, file, ...rest] = i.name.split("/");
+              const from = i.page?.project && projects().get(i.page.project);
+              const local =
+                i.page?.community === undefined &&
+                (i.page?.project === undefined || from) &&
+                rest.length === 0 &&
+                SAFE_NAME.test(slug) &&
+                SAFE_NAME.test(file ?? "");
+              return {
+                ...i,
+                path: picture(
+                  id,
+                  `image-${i.n}`,
+                  i.type,
+                  Buffer.from(i.data, "base64"),
+                ),
+                page:
+                  i.page &&
+                  (local
+                    ? path.join(
+                        folderOf(
+                          from ? path.join(from, CANVASES) : examplesDir,
+                          examplesDir,
+                          slug,
+                        ),
+                        file,
+                      )
+                    : i.page.community
+                      ? `${i.name} of the community project ${i.page.community}`
+                      : i.name),
+              };
+            },
           );
           const c = command(
             def.bin,

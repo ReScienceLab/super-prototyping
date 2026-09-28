@@ -19,6 +19,10 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+- **A mockup goes to the agent as its file.** Its **+** still shows a picture
+  of it in the chat, but the agent is handed the board's `.html` path rather
+  than that picture, since the file is what it reads and changes.
+
 ## v1.7.0
 
 2026-09-26. The community projects open in the app, and the app no longer

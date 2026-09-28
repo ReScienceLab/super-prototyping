@@ -251,8 +251,9 @@ interface Attached {
   url: string;
   /** A board still being drawn, with no `url` yet, or one whose drawing failed. */
   state?: "pending" | "failed";
-  /** A mockup: the agent gets its file rather than this picture of it (agents.ts). */
-  page?: true;
+  /** A mockup, and the project it was attached from, which the panel may since have left: the
+   *  agent gets its file there rather than this picture of it (agents.ts). */
+  page?: { project?: string; community?: string };
 }
 
 /**
@@ -784,7 +785,7 @@ export function ChatPanel(props: {
       size: 0,
       url: "",
       state: "pending",
-      page,
+      page: page && { project, community },
     };
     const next = tile;
     tray.current = [...tray.current.filter((t) => t.n !== next.n), next].sort(
