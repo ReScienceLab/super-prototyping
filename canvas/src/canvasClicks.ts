@@ -99,22 +99,41 @@ export function installDoubleClickZoom(editor: Editor) {
 /**
  * The selected board's frame never takes the pointer, so that panning, zooming and the comment
  * tool keep working over it: the canvas's pointer goes in as a board coordinate instead, for its
- * outline of the element under it (CanvasFileShapeUtil.tsx, HOVER). Returns the uninstaller.
+ * outline of the element under it (CanvasFileShapeUtil.tsx). A click on the board, once it is
+ * already selected, goes in too, which the inspect agent takes as a pick; the click that selects
+ * it picks nothing, since the frame that would hear it is only then loading. Returns the
+ * uninstaller.
  */
 export function installBoardHover(editor: Editor) {
-  const onEvent = (info: TLEventInfo) => {
-    if (info.type !== "pointer" || info.name !== "pointer_move") return;
-    const frame = document.querySelector<HTMLIFrameElement>(
-      "iframe[data-sp-hover]",
+  const frame = () =>
+    document.querySelector<HTMLIFrameElement>("iframe[data-sp-hover]");
+  const send = (at: { x: number; y: number }, click: boolean) =>
+    frame()?.contentWindow?.postMessage(
+      { type: "sp:at", x: at.x, y: at.y, click },
+      "*",
     );
-    if (!frame) return;
+  /** Where the board was pressed, when the press was on the selected board. */
+  let pressed: TLShapeId | undefined;
+  const onEvent = (info: TLEventInfo) => {
+    if (info.type !== "pointer") {
+      // Two fingers arriving, or a wheel, in the middle of a press: a zoom, not a click.
+      if (info.type === "pinch" || info.type === "wheel") pressed = undefined;
+      return;
+    }
+    const board = frame()?.dataset.spHover;
+    if (!board) return;
     const hit = shapeUnderPointer(editor);
-    const at =
-      hit?.id === frame.dataset.spHover &&
-      editor.getCurrentToolId() === "select"
-        ? editor.getPointInShapeSpace(hit, editor.inputs.getCurrentPagePoint())
-        : { x: -1, y: -1 };
-    frame.contentWindow?.postMessage({ type: "sp:at", x: at.x, y: at.y }, "*");
+    const on = hit?.id === board && editor.getCurrentToolId() === "select";
+    const at = () =>
+      editor.getPointInShapeSpace(hit!, editor.inputs.getCurrentPagePoint());
+    if (info.name === "pointer_move") send(on ? at() : { x: -1, y: -1 }, false);
+    else if (info.name === "pointer_down")
+      pressed = on && info.button === 0 ? hit!.id : undefined;
+    else if (info.name === "pointer_up") {
+      if (on && pressed === hit!.id && !editor.inputs.getIsDragging())
+        send(at(), true);
+      pressed = undefined;
+    }
   };
   editor.on("event", onEvent);
   return () => {

@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useContext, type CSSProperties } from "react";
 import {
   BaseBoxShapeUtil,
   FileHelpers,
@@ -10,6 +10,7 @@ import {
   useIsEditing,
   useValue,
 } from "tldraw";
+import { CanvasChromeContext } from "./canvasChrome";
 import { local } from "./canvasIndex";
 import {
   CANVAS_FILE_DEFAULT_SIZE,
@@ -17,6 +18,7 @@ import {
   hasCanvasFile,
   useCanvasFileHtml,
 } from "./canvasLibrary";
+import { injectAgent } from "./inspectorAgent";
 
 export const CANVAS_FILE_SHAPE_TYPE = "canvas-file" as const;
 
@@ -53,6 +55,7 @@ export type CanvasFileShape = TLShape<typeof CANVAS_FILE_SHAPE_TYPE>;
 function CanvasFile({ shape }: { shape: CanvasFileShape }) {
   const isEditing = useIsEditing(shape.id);
   const html = useCanvasFileHtml(shape.props.path);
+  const { inspectorOn, setInspectorFrame } = useContext(CanvasChromeContext);
   const editor = useEditor();
   const selected = useValue(
     "board selected",
@@ -100,13 +103,32 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
             sandbox=""
             style={{ ...frame, zIndex: isEditing ? undefined : -2 }}
           />
-          {/* The selected board outlines the element under the pointer (HOVER). It loads over the
-              board rather than into its frame: Chrome drops a second srcdoc navigation while the
-              first is pending and leaves the frame blank, and a remount reloads the mockup under
-              the click that selected it. Pixel for pixel the same board, so the swap is invisible.
+          {/* The selected board outlines the element under the pointer: with the inspector on it
+              runs the inspect agent (inspectorAgent.ts), which also picks the element clicked and
+              reports the board to the panel, and otherwise only HOVER. It loads over the board
+              rather than into its frame: Chrome drops a second srcdoc navigation while the first
+              is pending and leaves the frame blank, and a remount reloads the mockup under the
+              click that selected it. Pixel for pixel the same board, so the swap is invisible.
               `allow-scripts` and deliberately not `allow-same-origin`, which together would let
               the board reach back out into the canvas. */}
-          {selected ? (
+          {selected && inspectorOn ? (
+            <iframe
+              ref={(el) => {
+                setInspectorFrame(el);
+                return () => setInspectorFrame(null);
+              }}
+              title={shape.props.name}
+              srcDoc={injectAgent(html)}
+              sandbox="allow-scripts"
+              data-sp-hover={shape.id}
+              // The agent answers with its report; the frame's own load event may have fired
+              // before the panel was listening.
+              onLoad={(e) =>
+                e.currentTarget.contentWindow?.postMessage({ type: "sp:hello" }, "*")
+              }
+              style={{ ...frame, zIndex: isEditing ? undefined : -1 }}
+            />
+          ) : selected ? (
             <iframe
               title={shape.props.name}
               srcDoc={
