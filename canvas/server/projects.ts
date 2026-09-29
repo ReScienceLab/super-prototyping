@@ -20,6 +20,7 @@ import { createAgentServer } from "./agent.ts";
 import { CANVASES, readJson } from "./boards.ts";
 import {
   createSpServer,
+  readProjectJson,
   reveal,
   SANDBOX,
   sameOrigin,
@@ -109,6 +110,33 @@ export function loopbackHost(host: string | undefined) {
   );
 }
 
+/**
+ * Where an "Untitled" project's folder goes once its agent has named it in project.json: a folder
+ * of that name beside it. Undefined for a folder the person named, "Untitled" included, a name no
+ * folder can have, and a name another project already has.
+ */
+export function namedFolder(dir: string) {
+  const { name: given, unnamed } = readProjectJson(dir);
+  // Held to what Windows allows on every platform, since a project is also opened there once
+  // shared: it drops a trailing dot or space, so they go here too, and these characters and device
+  // names cannot be a folder's.
+  const name =
+    typeof given === "string" ? given.trim().replace(/[. ]+$/, "") : "";
+  if (
+    unnamed !== true ||
+    !/^Untitled( \d+)?$/.test(path.basename(dir)) ||
+    !name ||
+    name.startsWith(".") ||
+    path.basename(name) !== name ||
+    // oxlint-disable-next-line no-control-regex
+    /[<>:"|?*\\\x00-\x1f]/.test(name) ||
+    /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i.test(name)
+  )
+    return undefined;
+  const to = path.join(path.dirname(dir), name);
+  return fs.existsSync(to) ? undefined : to;
+}
+
 export function createProjectsServer(options: {
   /** Where every project is listed from, and where `POST /__sp/projects` makes one. */
   projectsDir: string;
@@ -157,10 +185,53 @@ export function createProjectsServer(options: {
     repoRoot,
   });
 
+  // A project made without a name is an "Untitled" folder until its agent writes one into
+  // project.json (AppShell.tsx). Once that turn is over, with no process holding the old path,
+  // the folder takes the name, and the pages open on it follow (canvasIndex.ts). A name no folder
+  // can have, or one another project has, leaves it where it is. A folder the person named keeps
+  // its name whatever project.json says. Answers the new folder.
+  // A renamed project's old name, answered with its new folder: a page on the old address still
+  // saves its last edits there as it leaves, and a message sent as the turn ended names it.
+  const renamed = new Map<string, string>();
+  const project = (name: string) => {
+    const dir = projects().get(name) ?? renamed.get(name);
+    return dir !== undefined && fs.existsSync(dir) ? dir : undefined;
+  };
+  const named = (dir: string) => {
+    const to = namedFolder(dir);
+    if (to === undefined) return undefined;
+    const name = path.basename(to);
+    // Its server goes first: Windows will not move a folder that is being watched. A page asking
+    // again, after a move that failed, gets a new one.
+    const sp = sps.get(dir);
+    sps.delete(dir);
+    sp?.unwatch();
+    try {
+      fs.renameSync(dir, to);
+    } catch (error) {
+      console.error(
+        `[projects] ${dir} could not be renamed to “${name}”: ${error}`,
+      );
+      sp?.close();
+      return undefined;
+    }
+    renamed.set(path.basename(dir), to);
+    // Every open page, not only the project's: the window's tab for it moves whichever is in front.
+    const moved = {
+      from: `/p/${encodeURIComponent(path.basename(dir))}/`,
+      to: `/p/${encodeURIComponent(name)}/`,
+    };
+    for (const other of [root, sp, ...sps.values()]) other?.moved(moved);
+    sp?.close();
+    return to;
+  };
+
   // The agent, once for the whole server: its sessions and the skills they read are kept in a dot
   // folder of the projects directory, which the list above skips.
   const agent = createAgentServer({
     examplesDir,
+    named,
+    project,
     projects,
     repoRoot,
     workspaces: path.join(projectsDir, ".workspaces"),
@@ -312,9 +383,15 @@ export function createProjectsServer(options: {
         // "Untitled", and its agent names it (sp.ts, PROJECT_JSON). It goes under the projects
         // folder, so there is no place to pick. The checks are the ones the dialog cannot make.
         let name = typeof parsed.name === "string" ? parsed.name.trim() : "";
-        if (name === "") {
+        const unnamed = name === "";
+        if (unnamed) {
           name = "Untitled";
-          for (let n = 2; fs.existsSync(path.join(projectsDir, name)); n++)
+          // Nor a name a renamed project had, which still answers for it (`renamed`).
+          for (
+            let n = 2;
+            fs.existsSync(path.join(projectsDir, name)) || renamed.has(name);
+            n++
+          )
             name = `Untitled ${n}`;
         }
         if (name.startsWith(".") || path.basename(name) !== name)
@@ -323,7 +400,8 @@ export function createProjectsServer(options: {
             "A name cannot start with a dot or have a slash in it.",
           );
         const dir = path.join(projectsDir, name);
-        if (fs.existsSync(dir))
+        // A renamed project's old name is still its own (`renamed`).
+        if (fs.existsSync(dir) || renamed.has(name))
           return send(
             409,
             `You already have a project called “${name}”. Try another name.`,
@@ -334,9 +412,10 @@ export function createProjectsServer(options: {
           // nothing to copy in.
           fs.mkdirSync(path.join(dir, CANVASES), { recursive: true });
           // Its id is what a package of it is known by, whatever the folder is renamed to.
+          // `unnamed` marks the folder as one the app named, so its agent's name can replace it.
           fs.writeFileSync(
             path.join(dir, "project.json"),
-            `${JSON.stringify({ format: PROJECT_FORMAT, id: crypto.randomUUID() }, null, 2)}\n`,
+            `${JSON.stringify({ format: PROJECT_FORMAT, id: crypto.randomUUID(), ...(unnamed && { unnamed }) }, null, 2)}\n`,
           );
         } catch (e) {
           // A new name does not fix an unwritable Documents, so say what failed.
@@ -441,11 +520,21 @@ export function createProjectsServer(options: {
     if (rest === undefined) return root.handle(req, res, next);
     let dir: string | undefined;
     try {
-      dir = projects().get(decodeURIComponent(name));
+      dir = project(decodeURIComponent(name));
     } catch {} // a broken escape is no project's name
     if (dir === undefined) {
       res.statusCode = 404;
       return res.end("no such project");
+    }
+    // A page asked for by the name the project had, from a card or a link made before it moved:
+    // sent to its address now, so it opens once, under one tab.
+    if (!projects().has(decodeURIComponent(name)) && req.method === "GET") {
+      res.statusCode = 302;
+      res.setHeader(
+        "location",
+        `/p/${encodeURIComponent(path.basename(dir))}${rest}`,
+      );
+      return res.end();
     }
     // Made by a newer app, which may keep it in a way this one would misread, and then write back.
     const format = (

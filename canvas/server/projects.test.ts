@@ -4,7 +4,7 @@ import type { AddressInfo } from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { expect, it } from "vitest";
-import { createProjectsServer, withoutFiles } from "./projects.ts";
+import { createProjectsServer, namedFolder, withoutFiles } from "./projects.ts";
 
 // One server for every project: `/` goes to the one opened, else home, each is at `/p/<name>/`, the
 // root has the examples and no project, and a page of the server's own can make one. The folder
@@ -202,6 +202,18 @@ it("serves every project at its own address and makes new ones", async () => {
       expect(
         JSON.parse((await ask("/__sp/projects", { name: "  " })).text).url,
       ).toBe(url);
+    expect(
+      JSON.parse(
+        fs.readFileSync(path.join(tmp, "projects/Untitled/project.json"), "utf8"),
+      ).unnamed,
+    ).toBe(true);
+    // Typed, "Untitled" is the person's name for it, so its folder is never renamed.
+    await ask("/__sp/projects", { name: "Untitled 9" });
+    expect(
+      JSON.parse(
+        fs.readFileSync(path.join(tmp, "projects/Untitled 9/project.json"), "utf8"),
+      ).unnamed,
+    ).toBeUndefined();
     write("projects/Untitled/project.json", JSON.stringify({ name: "Gamma" }));
     const titled = JSON.parse((await ask("/__sp/projects.json")).text);
     expect(titled.find((p: any) => p.name === "Untitled").title).toBe("Gamma");
@@ -247,4 +259,41 @@ it("keeps a community board it draws off file: addresses, after its doctype", ()
     /^<!DOCTYPE html><meta http-equiv="Content-Security-Policy" content="default-src https: /,
   );
   expect(withoutFiles("<p>")).toMatch(/^<meta [^>]+><p>$/);
+});
+
+// A project made without a name takes the one its agent writes, and only then.
+it("names an Untitled project's folder from its project.json", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sp-named-"));
+  const project = (folder: string, json: object) => {
+    fs.mkdirSync(path.join(tmp, folder));
+    fs.writeFileSync(
+      path.join(tmp, folder, "project.json"),
+      JSON.stringify({ unnamed: true, ...json }),
+    );
+    return path.join(tmp, folder);
+  };
+  expect(namedFolder(project("Untitled 10", { name: "Acme Inc. " }))).toBe(
+    path.join(tmp, "Acme Inc"),
+  );
+  expect(namedFolder(project("Untitled 3", { name: " Kasra " }))).toBe(
+    path.join(tmp, "Kasra"),
+  );
+  expect(namedFolder(project("Untitled", { format: 1 }))).toBeUndefined();
+  expect(namedFolder(project("Mine", { name: "Other" }))).toBeUndefined();
+  // An "Untitled" the person typed has no `unnamed`.
+  expect(
+    namedFolder(project("Untitled 11", { name: "Other", unnamed: undefined })),
+  ).toBeUndefined();
+  expect(namedFolder(project("Untitled 2", { name: "Mine" }))).toBeUndefined();
+  expect(namedFolder(project("Untitled 4", { name: "a/b" }))).toBeUndefined();
+  expect(
+    namedFolder(project("Untitled 5", { name: ".hidden" })),
+  ).toBeUndefined();
+  for (const [folder, name] of [
+    ["Untitled 6", "a\\b"],
+    ["Untitled 7", "a: b"],
+    ["Untitled 8", "CON"],
+    ["Untitled 9", 42],
+  ] as const)
+    expect(namedFolder(project(folder, { name }))).toBeUndefined();
 });

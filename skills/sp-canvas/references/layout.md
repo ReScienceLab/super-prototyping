@@ -163,6 +163,9 @@ so a new kind of content needs no change to the package.
   knows the project by. Never change it or copy it into another project.
 - `name` is the title shown for the project, which the agent sets; the
   folder name when there is none.
+- `unnamed` is `true` on a project made without a name. Its `Untitled`
+  folder is renamed to `name` once the agent sets it; a folder without it
+  keeps its name.
 - `author` is the GitHub login of whoever made the project, and
   `contributors` the logins of anyone who has changed it since. The first
   `sp pack -o` sets `author` to the login `gh` is signed in as. The community
