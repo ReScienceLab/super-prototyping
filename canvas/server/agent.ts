@@ -17,7 +17,7 @@ import path from "node:path";
 import { CANVASES } from "./boards.ts";
 import { command, stop } from "./command.ts";
 import { AGENT_SKILLS, installSkills } from "./skills.ts";
-import { folderOf, sameOrigin } from "./sp.ts";
+import { canvasFile, folderOf, sameOrigin } from "./sp.ts";
 import { SAFE_NAME } from "../src/layoutEdit.ts";
 import {
   attach,
@@ -316,6 +316,16 @@ export function createAgentServer(options: {
               !/^[A-Za-z0-9+/]*={0,2}$/.test(i.data)
             )
               return send(400, "bad image data");
+            if (
+              i.reference !== undefined &&
+              (typeof i.reference !== "object" ||
+                !["project", "community"].every(
+                  (k) =>
+                    i.reference[k] === undefined ||
+                    typeof i.reference[k] === "string",
+                ))
+            )
+              return send(400, "bad image reference");
           }
           // The body cap above is the panel's limit in base64; a client that is not the
           // panel meets the limit itself here, in the bytes the files come out as.
@@ -500,15 +510,44 @@ export function createAgentServer(options: {
           fs.mkdirSync(keptOf(id), { recursive: true });
           const imagesDir = images.length ? keptOf(id) : "";
           const held: AgentImage[] = images.map(
-            (i: { n: number; name: string; type: string; data: string }) => ({
-              ...i,
-              path: picture(
-                id,
-                `image-${i.n}`,
-                i.type,
-                Buffer.from(i.data, "base64"),
-              ),
-            }),
+            (i: {
+              n: number;
+              name: string;
+              type: string;
+              data: string;
+              reference?: { project?: string; community?: string };
+            }) => {
+              // Anything but a picture (a board, a video, a note) keeps its picture for the
+              // panel, and the agent is pointed at its file, in the canvases of the project it
+              // was attached from, which need not be the one it is sent from. A community
+              // project's is not on this machine, so it keeps the name `sp fetch` finds it by.
+              const ref = i.reference;
+              const from = ref?.project && projects().get(ref.project);
+              const file =
+                ref?.community === undefined &&
+                (ref?.project === undefined || from)
+                  ? canvasFile(
+                      from ? path.join(from, CANVASES) : examplesDir,
+                      examplesDir,
+                      i.name,
+                    )
+                  : undefined;
+              return {
+                ...i,
+                path: picture(
+                  id,
+                  `image-${i.n}`,
+                  i.type,
+                  Buffer.from(i.data, "base64"),
+                ),
+                reference:
+                  ref &&
+                  (file ??
+                    (ref.community
+                      ? `${i.name} of the community project ${ref.community}`
+                      : i.name)),
+              };
+            },
           );
           const c = command(
             def.bin,

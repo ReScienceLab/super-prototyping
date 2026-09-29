@@ -81,6 +81,20 @@ export function folderOf(
 }
 
 /**
+ * The file a chat attachment names as `<slug>/<path>`: a board's HTML, a file under `files/`, or
+ * `canvas.json#<shape id>`. Undefined for a name that is not one, so nothing a browser sends can
+ * point outside a canvas folder: no part may be empty, start with a dot, or hold a backslash.
+ */
+export function canvasFile(canvasesDir: string, examplesDir: string, name: string) {
+  const [slug, ...rest] = name.split("/");
+  return SAFE_NAME.test(slug) &&
+    rest.length > 0 &&
+    rest.every((s) => s && !s.startsWith(".") && !s.includes("\\"))
+    ? path.join(folderOf(canvasesDir, examplesDir, slug), ...rest)
+    : undefined;
+}
+
+/**
  * The project's own settings, beside its canvases: which cover it chose, and the name it is shown
  * by when that is not its folder's. A project made without a name is an "Untitled" folder whose
  * agent writes `name` here (AppShell.tsx). The folder takes that name once the turn that wrote it
