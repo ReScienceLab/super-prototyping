@@ -1994,6 +1994,8 @@ a.sp-menu-row {
   left: 50%;
   translate: -50% -50%;
   border: 0;
+  /* A click would focus the board's own document, which the keys that close this never leave. */
+  pointer-events: none;
   /* The board's own scheme, as on the canvas (CanvasFileShapeUtil.tsx). */
   color-scheme: light;
 }
