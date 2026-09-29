@@ -86,6 +86,28 @@ describe("AGENTS", () => {
     );
   });
 
+  // A mockup's picture is only the panel's tile: the agent is pointed at its file instead.
+  it("hands a mockup over as its file, not its picture", () => {
+    const board = {
+      n: 2,
+      name: "shop/01-home.html",
+      type: "image/png",
+      data: "CCC",
+      path: "/tmp/sp-chat-r/2.png",
+      reference: "/proj/canvases/shop/01-home.html",
+    };
+    expect(
+      JSON.parse(def("claude").stdin("tighten #2", "P", [board])).message
+        .content,
+    ).toEqual([
+      { type: "text", text: "[Image #2] /proj/canvases/shop/01-home.html" },
+      { type: "text", text: "tighten #2" },
+    ]);
+    expect(def("codex").stdin("tighten #2", "P", [board])).toBe(
+      "P\n\n[Image #2] /proj/canvases/shop/01-home.html\n\ntighten #2",
+    );
+  });
+
   // A session is what the agent called it on its first turn, and every later turn resumes that.
   it("reads the session off the first turn and resumes it on the next", () => {
     expect(

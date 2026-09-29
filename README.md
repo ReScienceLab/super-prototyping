@@ -263,12 +263,32 @@ version's section in `RELEASE-NOTES.md`, then merge: the tag
 The whole procedure, including what to do when a step fails, is under "Cutting a
 release" in `CONTRIBUTING.md`.
 
+## Commercial edition
+
+This repo is the open-source edition, free to use. A commercial edition is
+packaged and supported for studios and teams, from ReScience Lab Inc.
+Pricing is by conversation: write to
+[yilin.jing@rescience.com](mailto:yilin.jing@rescience.com) with your team size
+and what you want to use it for.
+
 ## Licence
 
-This repo is Apache-2.0 (see `LICENSE`).
+This repo is Apache-2.0 (see `LICENSE`), © ReScience Lab Inc.
+
+**Third-party material is not.** The community projects in `canvases/` carry
+screenshots, logos, app-store images and other brand assets of the products
+they study. Those belong to their owners, are not licensed under Apache-2.0
+here, and are included only to research and demonstrate the method. ReScience
+Lab Inc. is not affiliated with or endorsed by any of those companies. None of
+this material ships in the desktop app, which has bundled only
+`canvases/templates` since 1.7.0, or in the commercial edition. The one
+third-party image that does ship is the iPhone shell in `canvases/templates`,
+from a Figma Community mockup and under that file's own terms. To have
+something taken down, write to
+[yilin.jing@rescience.com](mailto:yilin.jing@rescience.com).
 
 **The tldraw SDK it depends on is not.** tldraw ships under the
 [tldraw licence](https://github.com/tldraw/tldraw/blob/main/LICENSE.md): free
-to use with the tldraw watermark visible, paid business licence to remove it.
-Apache-2.0 here covers this repo's own code only. Anyone running the canvas
-is bound by tldraw's terms, and the watermark must stay.
+in development, but any production deployment, the hosted canvas included,
+needs a licence key from tldraw. Apache-2.0 here covers this repo's own code
+only. Anyone running the canvas is bound by tldraw's terms.
