@@ -64,8 +64,11 @@ import {
   type AgentModel,
 } from "./agents";
 import type { Session } from "./agentRun";
+import type { MadeBoard } from "./claudeStream";
 import { namedPictures, readDraft, slashWord } from "./chatDraft";
 import { applyFrame, followRun, writingTo, type Turn } from "./chatTransport";
+import { FOCUS_BOARD } from "./canvasIndex";
+import { humanize } from "./canvasLibrary";
 import { Present } from "./CanvasPresent";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
@@ -256,6 +259,60 @@ interface Attached {
   /** Anything but a picture, and the project it was attached from, which the panel may since
    *  have left: the agent gets its file there rather than this picture of it (agents.ts). */
   reference?: { project?: string; community?: string };
+}
+
+/**
+ * What a reply made or changed, each a button that finds it on the canvas: blue for a new board
+ * and green for a rewritten one, as their rings are there. Folded to three rows when there are
+ * more, which a generator rewriting every board makes common. Off when the reply's project is not
+ * the one in front, whose canvas would not have them.
+ */
+function MadeBoards({ made, away }: { made: MadeBoard[]; away: boolean }) {
+  const list = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [folds, setFolds] = useState(false);
+  useEffect(() => {
+    const el = list.current!;
+    const measure = () => setFolds(el.scrollHeight > el.clientHeight);
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <>
+      <div ref={list} className="sp-chat-made" data-open={open || undefined}>
+        {made.map((m) => (
+          <button
+            key={m.board}
+            type="button"
+            data-made={m.status}
+            disabled={away}
+            title={
+              away
+                ? `${m.board} is in another project`
+                : `Show ${m.board} on the canvas`
+            }
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent(FOCUS_BOARD, { detail: m.board }),
+              )
+            }
+          >
+            {humanize(m.board.split("/")[1]!.replace(/\.html$/, ""))}
+          </button>
+        ))}
+      </div>
+      {(folds || open) && (
+        <button
+          type="button"
+          className="sp-chat-made-more"
+          onClick={() => setOpen(!open)}
+        >
+          {open ? "Show less" : `Show all ${made.length}`}
+        </button>
+      )}
+    </>
+  );
 }
 
 /**
@@ -1361,6 +1418,9 @@ export function ChatPanel(props: {
                     )}
                   </Fragment>
                 ),
+              )}
+              {t.end?.made && t.end.made.length > 0 && (
+                <MadeBoards made={t.end.made} away={t.project !== project} />
               )}
               {!t.end ? (
                 <p className="sp-chat-dim">Working…</p>

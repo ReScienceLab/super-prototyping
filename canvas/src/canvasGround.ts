@@ -11,12 +11,15 @@ import { isExample } from "./canvasTabs";
  * layout back to every open page.
  */
 
-/** The theme's own ground (index.css), which a canvas has until its layout names another. */
+/**
+ * The theme's own ground (index.css), which a canvas has until its layout names another. Its dark
+ * half; the light theme's is lighter, so the preset is named for the theme, not the colour.
+ */
 export const DEFAULT_GROUND = "#2b2b2b";
 
 /** The right button's presets. */
 export const GROUNDS = [
-  ["Dark grey", DEFAULT_GROUND],
+  ["Default", DEFAULT_GROUND],
   ["Black", "#000000"],
   ["Light grey", "#f2f2f2"],
   ["White", "#ffffff"],

@@ -46,6 +46,8 @@ import {
   GridSquare as GGridSquare,
   Link as GLink,
   MagnifyingGlass as GMagnifyingGlass,
+  Moon as GMoon,
+  Sun as GSun,
   PhoneDevice as GPhoneDevice,
   Users as GUsers,
   Window as GWindow,
@@ -93,6 +95,8 @@ export const Globe = at16(GGlobe);
 export const GridSquare = at16(GGridSquare);
 export const Link = at16(GLink);
 export const MagnifyingGlass = at16(GMagnifyingGlass);
+export const Moon = at16(GMoon);
+export const Sun = at16(GSun);
 export const PhoneDevice = at16(GPhoneDevice);
 export const Users = at16(GUsers);
 export const Window = at16(GWindow);

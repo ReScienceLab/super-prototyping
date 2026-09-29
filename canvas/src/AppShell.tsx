@@ -30,11 +30,13 @@ import { Onboarding } from "./Onboarding";
 
 declare global {
   interface Window {
-    /** The desktop app's own (desktop/preload.ts), absent in a browser: the onboarding's answer
-     *  and its update check, both about the app and not the project. */
+    /** The desktop app's own (desktop/preload.ts), absent in a browser: the onboarding's answer,
+     *  its update check and the theme, all about the app and not the project. */
     startup?: {
       agent(id: string): Promise<void>;
       check(): Promise<string>;
+      /** The top bar's theme, for the window's own title bar (ThemeSwitcher.tsx). */
+      theme(theme: string): void;
     };
     /** The window's side of the frame (here): what the canvas has in front, at what address. */
     spShell?: {

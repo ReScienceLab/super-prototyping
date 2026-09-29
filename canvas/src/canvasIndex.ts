@@ -116,6 +116,8 @@ export const LAYOUT_CHANGED = "sp:layout";
  * (canvasLibrary.ts).
  */
 export const BOARDS_CHANGED = "sp:boards";
+/** Sent on the window by the chat, with a board as `<slug>/<file>.html`, for the canvas to find. */
+export const FOCUS_BOARD = "sp:focus-board";
 /** Fired on `window` when the project's documents have been rewritten. */
 export const DOCS_CHANGED = "sp:docs";
 
