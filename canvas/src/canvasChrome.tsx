@@ -73,7 +73,7 @@ import {
   Message,
   RefreshCounterClockwise,
 } from "./geistIcons";
-import { asCanvasTarget, shapeUnderPointer } from "./inspectorClicks";
+import { asCanvasTarget, shapeUnderPointer, zoomToFill } from "./canvasClicks";
 import { shareUrl, urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
@@ -93,15 +93,13 @@ export const CanvasChromeContext = createContext({
   /** Who this browser comments as, or null until they have typed a name. */
   commentUser: null as CommentUser | null,
   setCommentUser: (_user: CommentUser) => {},
-  /** Open a board in the inspector, for the parts of the canvas that link to one. */
-  inspectBoard: (_board: CanvasFileShape) => {},
   /**
-   * The board the inspector has open, by path. It is the one board on the canvas that runs the
-   * inspect agent and takes the pointer, so picking an element happens on the mockup itself.
+   * Whether the inspector is on, which the strip's button toggles and is off until it is. While
+   * on, the panel shows the one board or picture selected, and a selected board runs the inspect
+   * agent, so picking an element happens on the mockup itself.
    */
-  inspectingPath: null as string | null,
-  /** Whether the inspector is docked at all, over a board or over a piece of brand material. */
-  inspectorOpen: false,
+  inspectorOn: false,
+  setInspectorOn: (_on: boolean) => {},
   /**
    * The view in front and the way to show another of this project's. A view is a canvas, which is
    * a tldraw page, or a kit, which is an overlay over the whole editor. Held by App, which owns
@@ -117,7 +115,7 @@ export const CanvasChromeContext = createContext({
  * The comment tool, plus the one thing this canvas adds to a thread: the link it carries to the
  * mockup it is about. Every comment placed on a board, or in the margin beside one, is anchored
  * to that board's shape, which is what moves the note with the mockup when a layout.json edit
- * moves it. The header shows that link, and follows it: clicking opens the board in the inspector.
+ * moves it. The header shows that link, and follows it: clicking fills the canvas with the board.
  *
  * Everywhere, built canvas included. Where the comment goes differs, a dev server writes it into
  * the board's folder and a hosted canvas keeps it in the browser (canvasComments.ts), but the tool
@@ -127,7 +125,6 @@ export const canvasCommentTools = [
   CommentTool.configure({
     components: {
       ThreadActions: ({ thread }) => {
-        const chrome = useContext(CanvasChromeContext);
         const editor = useEditor();
         const board = useValue(
           "linked board",
@@ -140,7 +137,7 @@ export const canvasCommentTools = [
           <TldrawUiButton
             type="icon"
             title={`Linked to ${board.props.name}. Click to open it`}
-            onClick={() => chrome.inspectBoard(board)}
+            onClick={() => zoomToFill(editor, board.id)}
           >
             <TldrawUiButtonIcon icon="link" />
           </TldrawUiButton>

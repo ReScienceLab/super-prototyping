@@ -1,4 +1,4 @@
-import { useContext, useMemo, type CSSProperties } from "react";
+import { useContext, type CSSProperties } from "react";
 import {
   BaseBoxShapeUtil,
   FileHelpers,
@@ -6,7 +6,9 @@ import {
   T,
   type RecordProps,
   type TLShape,
+  useEditor,
   useIsEditing,
+  useValue,
 } from "tldraw";
 import { CanvasChromeContext } from "./canvasChrome";
 import { local } from "./canvasIndex";
@@ -19,6 +21,22 @@ import {
 import { injectAgent } from "./inspectorAgent";
 
 export const CANVAS_FILE_SHAPE_TYPE = "canvas-file" as const;
+
+/**
+ * Outlines the element under the canvas's pointer, which installBoardHover (canvasClicks.ts)
+ * posts in board px as `sp:at`; a point off the board is (-1, -1) and clears it. A path is its
+ * icon's, so an svg outlines whole. ES5, since it runs in whatever the board is.
+ */
+const HOVER =
+  "<script>(function(){var d=document.createElement('div');" +
+  "d.style.cssText='position:fixed;pointer-events:none;z-index:2147483647;display:none;box-sizing:border-box;box-shadow:0 0 0 1px #006EFE';" +
+  "document.documentElement.appendChild(d);" +
+  "addEventListener('message',function(e){var m=e.data;if(!m||m.type!=='sp:at')return;" +
+  "var el=document.elementFromPoint(m.x,m.y);if(el&&el.closest&&el.closest('svg'))el=el.closest('svg');" +
+  "if(!el||el===document.body||el===document.documentElement){d.style.display='none';return;}" +
+  "var r=el.getBoundingClientRect(),s=d.style;s.display='block';s.left=r.left+'px';s.top=r.top+'px';s.width=r.width+'px';s.height=r.height+'px';});" +
+  "})();</" +
+  "script>";
 
 declare module "tldraw" {
   export interface TLGlobalShapePropsMap {
@@ -36,28 +54,19 @@ export type CanvasFileShape = TLShape<typeof CANVAS_FILE_SHAPE_TYPE>;
 // oxlint-disable-next-line react/only-export-components
 function CanvasFile({ shape }: { shape: CanvasFileShape }) {
   const isEditing = useIsEditing(shape.id);
-  const { inspectingPath, setInspectorFrame } = useContext(CanvasChromeContext);
   const html = useCanvasFileHtml(shape.props.path);
-
-  /**
-   * The board the inspector has open runs the agent (inspectorAgent.ts), so a click on the mockup
-   * out here picks the element under it. The panel used to load a second copy of the board to do
-   * that, which meant reading one mockup and clicking another.
-   *
-   * The frame still never takes the pointer: inspectorClicks.ts hands the agent the canvas's own
-   * pointer as a board coordinate, so panning, zooming and the comment tool go on working over
-   * the board being read.
-   */
-  const inspected = inspectingPath === shape.props.path;
-  const agentDoc = useMemo(
-    () => (html && inspected ? injectAgent(html) : null),
-    [html, inspected],
+  const { inspectorOn, setInspectorFrame } = useContext(CanvasChromeContext);
+  const editor = useEditor();
+  const selected = useValue(
+    "board selected",
+    () => editor.getOnlySelectedShapeId() === shape.id,
+    [editor, shape.id],
   );
 
-  // Behind the container, which is transparent, so the frames show through it. Safari routes a
+  // Behind the container, which is transparent, so the frame shows through it. Safari routes a
   // wheel to an iframe's own scrolling area whatever pointer-events says, so a two-finger pan
   // over a board did nothing there, and a horizontal one chained out to the browser's back
-  // gesture. Behind the container neither frame is a scroll target, and the pan reaches tldraw
+  // gesture. Behind the container the frame is no scroll target, and the pan reaches tldraw
   // wherever the cursor is. tldraw's own embed shape carries this same line:
   // <https://stackoverflow.com/a/49150908>.
   const frame: CSSProperties = {
@@ -94,31 +103,41 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
             sandbox=""
             style={{ ...frame, zIndex: isEditing ? undefined : -2 }}
           />
-          {/* The scripted board is a second document: srcdoc cannot be swapped on the frame above
-              (Chrome drops the second navigation while the first is still pending and leaves the
-              frame blank), and remounting it reloaded the mockup under the very click that opened
-              it, which is the flash. It loads over the board instead, pixel for pixel the same
-              one, so the swap is invisible — and the board underneath stays loaded, so closing
-              the inspector shows nothing either. */}
-          {agentDoc ? (
+          {/* The selected board outlines the element under the pointer: with the inspector on it
+              runs the inspect agent (inspectorAgent.ts), which also picks the element clicked and
+              reports the board to the panel, and otherwise only HOVER. It loads over the board
+              rather than into its frame: Chrome drops a second srcdoc navigation while the first
+              is pending and leaves the frame blank, and a remount reloads the mockup under the
+              click that selected it. Pixel for pixel the same board, so the swap is invisible.
+              `allow-scripts` and deliberately not `allow-same-origin`, which together would let
+              the board reach back out into the canvas. */}
+          {selected && inspectorOn ? (
             <iframe
               ref={(el) => {
                 setInspectorFrame(el);
                 return () => setInspectorFrame(null);
               }}
               title={shape.props.name}
-              srcDoc={agentDoc}
-              // `allow-scripts` and deliberately not `allow-same-origin`, which together would let
-              // the frame reach back out into the canvas.
+              srcDoc={injectAgent(html)}
               sandbox="allow-scripts"
+              data-sp-hover={shape.id}
               // The agent answers with its report; the frame's own load event may have fired
               // before the panel was listening.
               onLoad={(e) =>
-                e.currentTarget.contentWindow?.postMessage(
-                  { type: "sp:hello" },
-                  "*",
-                )
+                e.currentTarget.contentWindow?.postMessage({ type: "sp:hello" }, "*")
               }
+              style={{ ...frame, zIndex: isEditing ? undefined : -1 }}
+            />
+          ) : selected ? (
+            <iframe
+              title={shape.props.name}
+              srcDoc={
+                /<\/body>/i.test(html)
+                  ? html.replace(/<\/body>/i, (tag) => HOVER + tag)
+                  : html + HOVER
+              }
+              sandbox="allow-scripts"
+              data-sp-hover={shape.id}
               style={{ ...frame, zIndex: isEditing ? undefined : -1 }}
             />
           ) : null}

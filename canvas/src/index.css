@@ -470,7 +470,35 @@ button {
   cursor: pointer;
 }
 
-.sp-canvas-tabs-ground + .sp-canvas-tabs-figma {
+/* The inspector's switch, after the swatch when there is one, else starting the far end. */
+.sp-canvas-tabs-inspector {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--ds-gray-900);
+  cursor: pointer;
+}
+
+.sp-canvas-tabs-inspector:hover {
+  background: var(--ds-gray-100);
+  color: var(--ds-gray-1000);
+}
+
+.sp-canvas-tabs-inspector[aria-pressed="true"] {
+  background: var(--ds-gray-200);
+  color: var(--ds-gray-1000);
+}
+
+.sp-canvas-tabs-ground + .sp-canvas-tabs-figma,
+.sp-canvas-tabs-ground + .sp-canvas-tabs-inspector,
+.sp-canvas-tabs-inspector + .sp-canvas-tabs-figma {
   margin-left: 4px;
 }
 
@@ -2803,4 +2831,44 @@ a.sp-menu-row {
 }
 .sp-confirm button.sp-confirm-danger:hover {
   background: color-mix(in oklab, var(--ds-red-900) 88%, black);
+}
+
+/* A board or picture shown alone over the whole window (CanvasPresent.tsx): the window dimmed
+   round it, and scaled to fit by the component, which knows the board's size. */
+.sp-present {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 32px;
+  background: rgb(0 0 0 / 0.75);
+  animation: sp-present-in 160ms ease-out;
+}
+
+@keyframes sp-present-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.sp-present iframe {
+  /* Centred by hand: at its own size it can be taller than the window, and the grid would align
+     it to the top instead. */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  border: 0;
+  /* A click would focus the board's own document, which the keys that close this never leave. */
+  pointer-events: none;
+  /* The board's own scheme, as on the canvas (CanvasFileShapeUtil.tsx). */
+  color-scheme: light;
+}
+
+.sp-present img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }

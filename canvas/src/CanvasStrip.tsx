@@ -15,7 +15,7 @@ import {
   TRASH,
 } from "./contextMenu";
 import { DocModeSwitch } from "./DocTab";
-import { FileText, LogoFigma, Plus } from "./geistIcons";
+import { FileText, Inspect, LogoFigma, Plus } from "./geistIcons";
 
 /**
  * The project's canvases, across the top of the project under the bar's tab for it, after its
@@ -28,14 +28,16 @@ import { FileText, LogoFigma, Plus } from "./geistIcons";
  * layout.json's, and the folder keeps its slug. An example is the app's, so it has no "+" and
  * no renaming, and a build has no server to make a canvas.
  *
- * At the far end are the controls of the tab in front: a canvas's ground colour, then Export to
- * Figma, the one place a canvas goes from here; a document's switch between reading and editing.
+ * At the far end are the controls of the tab in front: a canvas's ground colour, the inspector's
+ * switch, then Export to Figma, the one place a canvas goes from here; a document's switch
+ * between reading and editing.
  */
 /** The canvas whose tab is up for renaming, kept across the reload that brings a new one in. */
 const RENAME_KEY = "sp:rename-canvas";
 
 export function CanvasStrip() {
-  const { activeTab, openTab, editor } = useContext(CanvasChromeContext);
+  const { activeTab, openTab, editor, inspectorOn, setInspectorOn } =
+    useContext(CanvasChromeContext);
   const tab = tabFor(activeTab);
   const canvases = tab.kind === "example" ? [tab.slug] : ownCanvases();
   const here = activeTab.kind === "canvas" ? activeTab.slug : undefined;
@@ -212,6 +214,18 @@ export function CanvasStrip() {
             onChange={(e) => editor && setGround(editor, page, e.target.value)}
           />
         </label>
+      )}
+      {page && (
+        <button
+          type="button"
+          className="sp-canvas-tabs-inspector"
+          aria-pressed={inspectorOn}
+          aria-label="Inspector"
+          title={inspectorOn ? "Hide the inspector" : "Inspect the selected board"}
+          onClick={() => setInspectorOn(!inspectorOn)}
+        >
+          <Inspect />
+        </button>
       )}
       {/* An anchor, not a button, because the sheet is a page of its own, and the page that
           walks through the import, so ⌘-click and copy-link have to work on it. */}
