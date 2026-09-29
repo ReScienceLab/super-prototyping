@@ -281,6 +281,7 @@ export const readProjectJson = (dir: string) =>
   (readJson(path.join(dir, PROJECT_JSON)) ?? {}) as {
     cover?: ChosenCover;
     name?: string;
+    unnamed?: boolean;
   };
 
 export function createSpServer(options: {

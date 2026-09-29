@@ -202,6 +202,18 @@ it("serves every project at its own address and makes new ones", async () => {
       expect(
         JSON.parse((await ask("/__sp/projects", { name: "  " })).text).url,
       ).toBe(url);
+    expect(
+      JSON.parse(
+        fs.readFileSync(path.join(tmp, "projects/Untitled/project.json"), "utf8"),
+      ).unnamed,
+    ).toBe(true);
+    // Typed, "Untitled" is the person's name for it, so its folder is never renamed.
+    await ask("/__sp/projects", { name: "Untitled 9" });
+    expect(
+      JSON.parse(
+        fs.readFileSync(path.join(tmp, "projects/Untitled 9/project.json"), "utf8"),
+      ).unnamed,
+    ).toBeUndefined();
     write("projects/Untitled/project.json", JSON.stringify({ name: "Gamma" }));
     const titled = JSON.parse((await ask("/__sp/projects.json")).text);
     expect(titled.find((p: any) => p.name === "Untitled").title).toBe("Gamma");
@@ -256,7 +268,7 @@ it("names an Untitled project's folder from its project.json", () => {
     fs.mkdirSync(path.join(tmp, folder));
     fs.writeFileSync(
       path.join(tmp, folder, "project.json"),
-      JSON.stringify(json),
+      JSON.stringify({ unnamed: true, ...json }),
     );
     return path.join(tmp, folder);
   };
@@ -268,6 +280,10 @@ it("names an Untitled project's folder from its project.json", () => {
   );
   expect(namedFolder(project("Untitled", { format: 1 }))).toBeUndefined();
   expect(namedFolder(project("Mine", { name: "Other" }))).toBeUndefined();
+  // An "Untitled" the person typed has no `unnamed`.
+  expect(
+    namedFolder(project("Untitled 11", { name: "Other", unnamed: undefined })),
+  ).toBeUndefined();
   expect(namedFolder(project("Untitled 2", { name: "Mine" }))).toBeUndefined();
   expect(namedFolder(project("Untitled 4", { name: "a/b" }))).toBeUndefined();
   expect(

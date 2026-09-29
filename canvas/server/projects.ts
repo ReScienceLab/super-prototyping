@@ -112,17 +112,18 @@ export function loopbackHost(host: string | undefined) {
 
 /**
  * Where an "Untitled" project's folder goes once its agent has named it in project.json: a folder
- * of that name beside it. Undefined for a folder the person named, a name no folder can have, and
- * a name another project already has.
+ * of that name beside it. Undefined for a folder the person named, "Untitled" included, a name no
+ * folder can have, and a name another project already has.
  */
 export function namedFolder(dir: string) {
-  const { name: given } = readProjectJson(dir);
+  const { name: given, unnamed } = readProjectJson(dir);
   // Held to what Windows allows on every platform, since a project is also opened there once
   // shared: it drops a trailing dot or space, so they go here too, and these characters and device
   // names cannot be a folder's.
   const name =
     typeof given === "string" ? given.trim().replace(/[. ]+$/, "") : "";
   if (
+    unnamed !== true ||
     !/^Untitled( \d+)?$/.test(path.basename(dir)) ||
     !name ||
     name.startsWith(".") ||
@@ -382,7 +383,8 @@ export function createProjectsServer(options: {
         // "Untitled", and its agent names it (sp.ts, PROJECT_JSON). It goes under the projects
         // folder, so there is no place to pick. The checks are the ones the dialog cannot make.
         let name = typeof parsed.name === "string" ? parsed.name.trim() : "";
-        if (name === "") {
+        const unnamed = name === "";
+        if (unnamed) {
           name = "Untitled";
           // Nor a name a renamed project had, which still answers for it (`renamed`).
           for (
@@ -398,7 +400,8 @@ export function createProjectsServer(options: {
             "A name cannot start with a dot or have a slash in it.",
           );
         const dir = path.join(projectsDir, name);
-        if (fs.existsSync(dir))
+        // A renamed project's old name is still its own (`renamed`).
+        if (fs.existsSync(dir) || renamed.has(name))
           return send(
             409,
             `You already have a project called “${name}”. Try another name.`,
@@ -409,9 +412,10 @@ export function createProjectsServer(options: {
           // nothing to copy in.
           fs.mkdirSync(path.join(dir, CANVASES), { recursive: true });
           // Its id is what a package of it is known by, whatever the folder is renamed to.
+          // `unnamed` marks the folder as one the app named, so its agent's name can replace it.
           fs.writeFileSync(
             path.join(dir, "project.json"),
-            `${JSON.stringify({ format: PROJECT_FORMAT, id: crypto.randomUUID() }, null, 2)}\n`,
+            `${JSON.stringify({ format: PROJECT_FORMAT, id: crypto.randomUUID(), ...(unnamed && { unnamed }) }, null, 2)}\n`,
           );
         } catch (e) {
           // A new name does not fix an unwritable Documents, so say what failed.
