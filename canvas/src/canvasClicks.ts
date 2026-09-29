@@ -1,6 +1,7 @@
 import type {
   Editor,
   StateNode,
+  TLEventInfo,
   TLImageShape,
   TLPageId,
   TLShape,
@@ -94,5 +95,31 @@ export function installDoubleClickZoom(editor: Editor) {
   };
   return () => {
     idle.onDoubleClick = own;
+  };
+}
+
+/**
+ * The selected board's frame never takes the pointer, so that panning, zooming and the comment
+ * tool keep working over it: the canvas's pointer goes in as a board coordinate instead, for its
+ * outline of the element under it (CanvasFileShapeUtil.tsx, HOVER). Returns the uninstaller.
+ */
+export function installBoardHover(editor: Editor) {
+  const onEvent = (info: TLEventInfo) => {
+    if (info.type !== "pointer" || info.name !== "pointer_move") return;
+    const frame = document.querySelector<HTMLIFrameElement>(
+      "iframe[data-sp-hover]",
+    );
+    if (!frame) return;
+    const hit = shapeUnderPointer(editor);
+    const at =
+      hit?.id === frame.dataset.spHover &&
+      editor.getCurrentToolId() === "select"
+        ? editor.getPointInShapeSpace(hit, editor.inputs.getCurrentPagePoint())
+        : { x: -1, y: -1 };
+    frame.contentWindow?.postMessage({ type: "sp:at", x: at.x, y: at.y }, "*");
+  };
+  editor.on("event", onEvent);
+  return () => {
+    editor.off("event", onEvent);
   };
 }

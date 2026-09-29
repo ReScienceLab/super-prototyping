@@ -58,7 +58,12 @@ import {
   CANVAS_FILE_SHAPE_TYPE,
   CanvasFileShapeUtil,
 } from "./CanvasFileShapeUtil";
-import { asCanvasTarget, installDoubleClickZoom, zoomToFill } from "./canvasClicks";
+import {
+  asCanvasTarget,
+  installBoardHover,
+  installDoubleClickZoom,
+  zoomToFill,
+} from "./canvasClicks";
 import { CanvasPresent } from "./CanvasPresent";
 import { attachToChat } from "./canvasAttach";
 import { CanvasStatusBannerShapeUtil } from "./CanvasStatusBannerShapeUtil";
@@ -1280,7 +1285,9 @@ export default function App() {
     if (!sync.apply() && !reloaded)
       requestAnimationFrame(() => editor.zoomToFit());
     const disposeZoom = installDoubleClickZoom(editor);
+    const disposeHover = installBoardHover(editor);
     return () => {
+      disposeHover();
       disposeContent();
       disposeComments();
       disposeZoom();

@@ -22,12 +22,14 @@ export function CanvasPresent({ editor }: { editor: Editor | null }) {
     if (!editor || shown) return;
     const onDown = (e: KeyboardEvent) => {
       if (e.code !== "Space" || e.repeat) return;
-      const typing =
+      // Space on a focused control is that control's: typing, or pressing a button.
+      const control =
         e.target instanceof HTMLElement &&
         (e.target.isContentEditable ||
-          e.target.tagName === "INPUT" ||
-          e.target.tagName === "TEXTAREA");
-      if (typing || editor.getEditingShapeId()) return;
+          e.target.closest(
+            "input, textarea, select, button, a[href], [role=button], [role=menuitem], [role=tab]",
+          ));
+      if (control || editor.getEditingShapeId()) return;
       const selected = editor.getSelectedShapes();
       const target = selected.length === 1 && asCanvasTarget(selected[0]);
       if (!target) return;

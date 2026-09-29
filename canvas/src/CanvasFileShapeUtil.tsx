@@ -6,7 +6,9 @@ import {
   T,
   type RecordProps,
   type TLShape,
+  useEditor,
   useIsEditing,
+  useValue,
 } from "tldraw";
 import { local } from "./canvasIndex";
 import {
@@ -17,6 +19,22 @@ import {
 } from "./canvasLibrary";
 
 export const CANVAS_FILE_SHAPE_TYPE = "canvas-file" as const;
+
+/**
+ * Outlines the element under the canvas's pointer, which installBoardHover (canvasClicks.ts)
+ * posts in board px as `sp:at`; a point off the board is (-1, -1) and clears it. A path is its
+ * icon's, so an svg outlines whole. ES5, since it runs in whatever the board is.
+ */
+const HOVER =
+  "<script>(function(){var d=document.createElement('div');" +
+  "d.style.cssText='position:fixed;pointer-events:none;z-index:2147483647;display:none;box-sizing:border-box;box-shadow:0 0 0 1px #006EFE';" +
+  "document.documentElement.appendChild(d);" +
+  "addEventListener('message',function(e){var m=e.data;if(!m||m.type!=='sp:at')return;" +
+  "var el=document.elementFromPoint(m.x,m.y);if(el&&el.closest&&el.closest('svg'))el=el.closest('svg');" +
+  "if(!el||el===document.body||el===document.documentElement){d.style.display='none';return;}" +
+  "var r=el.getBoundingClientRect(),s=d.style;s.display='block';s.left=r.left+'px';s.top=r.top+'px';s.width=r.width+'px';s.height=r.height+'px';});" +
+  "})();</" +
+  "script>";
 
 declare module "tldraw" {
   export interface TLGlobalShapePropsMap {
@@ -35,6 +53,12 @@ export type CanvasFileShape = TLShape<typeof CANVAS_FILE_SHAPE_TYPE>;
 function CanvasFile({ shape }: { shape: CanvasFileShape }) {
   const isEditing = useIsEditing(shape.id);
   const html = useCanvasFileHtml(shape.props.path);
+  const editor = useEditor();
+  const selected = useValue(
+    "board selected",
+    () => editor.getOnlySelectedShapeId() === shape.id,
+    [editor, shape.id],
+  );
 
   // Behind the container, which is transparent, so the frame shows through it. Safari routes a
   // wheel to an iframe's own scrolling area whatever pointer-events says, so a two-finger pan
@@ -69,12 +93,33 @@ function CanvasFile({ shape }: { shape: CanvasFileShape }) {
       }}
     >
       {html ? (
-        <iframe
-          title={shape.props.name}
-          srcDoc={html}
-          sandbox=""
-          style={{ ...frame, zIndex: isEditing ? undefined : -1 }}
-        />
+        <>
+          <iframe
+            title={shape.props.name}
+            srcDoc={html}
+            sandbox=""
+            style={{ ...frame, zIndex: isEditing ? undefined : -2 }}
+          />
+          {/* The selected board outlines the element under the pointer (HOVER). It loads over the
+              board rather than into its frame: Chrome drops a second srcdoc navigation while the
+              first is pending and leaves the frame blank, and a remount reloads the mockup under
+              the click that selected it. Pixel for pixel the same board, so the swap is invisible.
+              `allow-scripts` and deliberately not `allow-same-origin`, which together would let
+              the board reach back out into the canvas. */}
+          {selected ? (
+            <iframe
+              title={shape.props.name}
+              srcDoc={
+                /<\/body>/i.test(html)
+                  ? html.replace(/<\/body>/i, (tag) => HOVER + tag)
+                  : html + HOVER
+              }
+              sandbox="allow-scripts"
+              data-sp-hover={shape.id}
+              style={{ ...frame, zIndex: isEditing ? undefined : -1 }}
+            />
+          ) : null}
+        </>
       ) : hasCanvasFile(shape.props.path) ? null : (
         // A board that exists but is not in yet renders nothing, so the frame fills in when its
         // chunk arrives rather than flashing an error first.
