@@ -3,9 +3,40 @@
  * `/__sp/index.json`. The server scans on every request, and the build writes the same shape
  * into `dist` once. `src/canvasIndex.ts` declares the shape the client reads.
  */
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { svgSignature } from "../src/svgSignature.ts";
+
+export const boardHash = (file: string) =>
+  createHash("sha1").update(fs.readFileSync(file)).digest("hex");
+
+/**
+ * What each board in a boards directory holds, by `<slug>/<file>.html`: a generator writes every
+ * board on each run, and only the ones whose bytes changed are news. An unreadable or missing
+ * folder holds none, and a dot-file or a folder named like a board is no board.
+ */
+export function hashBoards(canvasesDir: string) {
+  const list = (dir: string) => {
+    try {
+      return fs.readdirSync(dir);
+    } catch {
+      return [];
+    }
+  };
+  const hashes = new Map<string, string>();
+  for (const slug of list(canvasesDir))
+    for (const name of list(path.join(canvasesDir, slug))) {
+      const file = path.join(canvasesDir, slug, name);
+      if (
+        name.endsWith(".html") &&
+        !name.startsWith(".") &&
+        fs.statSync(file, { throwIfNoEntry: false })?.isFile()
+      )
+        hashes.set(`${slug}/${name}`.normalize("NFC"), boardHash(file));
+    }
+  return hashes;
+}
 
 /**
  * A project's boards: this folder under it, one subfolder per canvas. The same folder under the

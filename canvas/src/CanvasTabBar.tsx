@@ -19,6 +19,7 @@ import {
   RightClickMenu,
 } from "./contextMenu";
 import { Cross, Home, Plus, Users } from "./geistIcons";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 /**
  * The bar across the top of the window: the agent's button, which AppShell.tsx hands in as
@@ -253,6 +254,7 @@ export function CanvasTabBar(props: {
           <Plus />
         </button>
       )}
+      <ThemeSwitcher />
     </nav>
   );
 }

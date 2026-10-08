@@ -10,7 +10,9 @@ import {
   atom,
   type Atom,
   ConversionsMenuGroup,
+  DefaultColorStyle,
   DefaultContextMenu,
+  getColorValue,
   DefaultShapeWrapper,
   SelectAllMenuItem,
   TldrawUiButton,
@@ -42,6 +44,7 @@ import {
   CanvasSelectionAttachButton,
 } from "./canvasAttach";
 import { CommentUserDialog } from "./CommentUserDialog";
+import { MagicPen } from "./magicPen";
 import { GROUNDS, groundEditable, groundOf, setGround } from "./canvasGround";
 import {
   linkedBoard,
@@ -73,7 +76,7 @@ import {
   Message,
   RefreshCounterClockwise,
 } from "./geistIcons";
-import { asCanvasTarget, shapeUnderPointer } from "./inspectorClicks";
+import { asCanvasTarget, shapeUnderPointer, zoomToFill } from "./canvasClicks";
 import { shareUrl, urlForSlug, windowUrl, type CanvasTab } from "./canvasUrl";
 
 /** One dialog, whether the comment tool raised it or the inspector's composer did. */
@@ -93,15 +96,13 @@ export const CanvasChromeContext = createContext({
   /** Who this browser comments as, or null until they have typed a name. */
   commentUser: null as CommentUser | null,
   setCommentUser: (_user: CommentUser) => {},
-  /** Open a board in the inspector, for the parts of the canvas that link to one. */
-  inspectBoard: (_board: CanvasFileShape) => {},
   /**
-   * The board the inspector has open, by path. It is the one board on the canvas that runs the
-   * inspect agent and takes the pointer, so picking an element happens on the mockup itself.
+   * Whether the inspector is on, which the strip's button toggles and is off until it is. While
+   * on, the panel shows the one board or picture selected, and a selected board runs the inspect
+   * agent, so picking an element happens on the mockup itself.
    */
-  inspectingPath: null as string | null,
-  /** Whether the inspector is docked at all, over a board or over a piece of brand material. */
-  inspectorOpen: false,
+  inspectorOn: false,
+  setInspectorOn: (_on: boolean) => {},
   /**
    * The view in front and the way to show another of this project's. A view is a canvas, which is
    * a tldraw page, or a kit, which is an overlay over the whole editor. Held by App, which owns
@@ -117,7 +118,7 @@ export const CanvasChromeContext = createContext({
  * The comment tool, plus the one thing this canvas adds to a thread: the link it carries to the
  * mockup it is about. Every comment placed on a board, or in the margin beside one, is anchored
  * to that board's shape, which is what moves the note with the mockup when a layout.json edit
- * moves it. The header shows that link, and follows it: clicking opens the board in the inspector.
+ * moves it. The header shows that link, and follows it: clicking fills the canvas with the board.
  *
  * Everywhere, built canvas included. Where the comment goes differs, a dev server writes it into
  * the board's folder and a hosted canvas keeps it in the browser (canvasComments.ts), but the tool
@@ -127,7 +128,6 @@ export const canvasCommentTools = [
   CommentTool.configure({
     components: {
       ThreadActions: ({ thread }) => {
-        const chrome = useContext(CanvasChromeContext);
         const editor = useEditor();
         const board = useValue(
           "linked board",
@@ -140,7 +140,7 @@ export const canvasCommentTools = [
           <TldrawUiButton
             type="icon"
             title={`Linked to ${board.props.name}. Click to open it`}
-            onClick={() => chrome.inspectBoard(board)}
+            onClick={() => zoomToFill(editor, board.id)}
           >
             <TldrawUiButtonIcon icon="link" />
           </TldrawUiButton>
@@ -152,11 +152,10 @@ export const canvasCommentTools = [
 
 /**
  * The toolbar entry for that tool, and one action fewer. tldraw keeps Cmd+/ bound to
- * `toggle-dark-mode` with its menu gone, and everything drawn here is dark only: the ground remap
- * in index.css is scoped to `.tl-theme__dark`, the welcome board's black art and the panels'
- * tokens are unconditional. A press left a near-white canvas under a black rail, and App.tsx
- * forced dark back on the next reload. One theme, so no switch: App.tsx's write at mount is
- * the theme, and this takes away the one way left of leaving it. Deleting the action is enough
+ * `toggle-dark-mode` with its menu gone. It flips only tldraw's scheme, so a press left a
+ * near-white canvas under a black rail, and it could not reach the window's. The theme is the top
+ * bar's switcher (theme.ts), which App.tsx hands tldraw, and this takes away the one
+ * way left of setting tldraw's apart from it. Deleting the action is enough
  * because the shortcut table and the shortcuts dialog both draw from this map — the dialog's
  * item renders nothing for an action that is not there — and the colour-scheme menu lives only
  * in tldraw's main menu, which `MenuPanel` below takes away. This tldraw exports no user-preference
@@ -239,7 +238,13 @@ function setFresh(fresh: ReadonlyMap<TLShapeId, Fresh>) {
 
 /** Rings `ids` until the pointer passes over each, so the reader sees what just arrived or changed. */
 export function markFresh(ids: TLShapeId[], kind: Fresh) {
-  if (ids.length) setFresh(new Map([...freshShapes().get(), ...ids.map((id) => [id, kind] as const)]));
+  if (ids.length)
+    setFresh(
+      new Map([
+        ...freshShapes().get(),
+        ...ids.map((id) => [id, kind] as const),
+      ]),
+    );
 }
 
 export const canvasChromeComponents: TLComponents = {
@@ -262,7 +267,11 @@ export const canvasChromeComponents: TLComponents = {
       useEffect(() => {
         if (!fresh) return;
         const seen = (info: TLEventInfo) => {
-          if (info.name !== "pointer_move" || shapeUnderPointer(editor)?.id !== id) return;
+          if (
+            info.name !== "pointer_move" ||
+            shapeUnderPointer(editor)?.id !== id
+          )
+            return;
           const rest = new Map(freshShapes().get());
           rest.delete(id);
           setFresh(rest);
@@ -274,7 +283,9 @@ export const canvasChromeComponents: TLComponents = {
         <DefaultShapeWrapper
           ref={ref}
           {...props}
-          className={fresh ? `${props.className ?? ""} sp-fresh` : props.className}
+          className={
+            fresh ? `${props.className ?? ""} sp-fresh` : props.className
+          }
           data-fresh={fresh}
         />
       );
@@ -355,15 +366,22 @@ export const canvasChromeComponents: TLComponents = {
     const cover =
       canvasIndex().served && canvasIndex().project
         ? (board ?? (over && canvasImageRef(over.id)))
-      : undefined;
+        : undefined;
     const element =
       board && pointedElement.current?.path === (over as CanvasFileShape).props.path
         ? pointedElement.current.box
         : undefined;
 
     // The canvas's ground, the strip's swatch as presets. Custom opens that swatch's picker.
-    const page = chrome.activeTab.kind === "canvas" ? pageOf(chrome.activeTab) : undefined;
+    const page =
+      chrome.activeTab.kind === "canvas" ? pageOf(chrome.activeTab) : undefined;
     const ground = page ? groundOf(page) : undefined;
+    // The colour of what the right-click picked out that can take one: an arrow, a line, a note
+    // the agent or the person drew. A board or anything else the layout placed is locked.
+    const colourable = editor
+      .getSelectedShapes()
+      .filter((shape) => !shape.isLocked && "color" in shape.props);
+    const colours = editor.getCurrentTheme().colors[editor.getColorMode()];
 
     return (
       <DefaultContextMenu {...props}>
@@ -383,10 +401,14 @@ export const canvasChromeComponents: TLComponents = {
           {links.length > 0 && (
             <TldrawUiMenuItem
               id="copy-link"
-              label={links.length > 1 ? `Copy ${links.length} links` : "Copy link"}
+              label={
+                links.length > 1 ? `Copy ${links.length} links` : "Copy link"
+              }
               icon={<Copy />}
               kbd="cmd+c,ctrl+c"
-              onSelect={() => void navigator.clipboard.writeText(links.join("\n"))}
+              onSelect={() =>
+                void navigator.clipboard.writeText(links.join("\n"))
+              }
             />
           )}
           {cover && !isExample(cover.slug) && (
@@ -426,10 +448,43 @@ export const canvasChromeComponents: TLComponents = {
                 checked={!GROUNDS.some(([, color]) => color === ground)}
                 onSelect={() =>
                   document
-                    .querySelector<HTMLInputElement>(".sp-canvas-tabs-ground input")
+                    .querySelector<HTMLInputElement>(
+                      ".sp-canvas-tabs-ground input",
+                    )
                     ?.showPicker()
                 }
               />
+            </TldrawUiMenuSubmenu>
+          </TldrawUiMenuGroup>
+        )}
+        {colourable.length > 0 && (
+          <TldrawUiMenuGroup id="colour">
+            <TldrawUiMenuSubmenu id="colour" label="Colour">
+              {DefaultColorStyle.values.map((color) => (
+                <TldrawUiMenuItem
+                  key={color}
+                  id={`colour-${color}`}
+                  label={
+                    color[0].toUpperCase() + color.slice(1).replace("-", " ")
+                  }
+                  iconLeft={
+                    <span
+                      className="sp-menu-swatch"
+                      style={{
+                        background: getColorValue(colours, color, "solid"),
+                      }}
+                    />
+                  }
+                  isSelected={colourable.every(
+                    (shape) => (shape.props as { color: string }).color === color,
+                  )}
+                  // tldraw leaves a locked shape as it is, so a board in the selection too is
+                  // no matter.
+                  onSelect={() => {
+                    editor.setStyleForSelectedShapes(DefaultColorStyle, color);
+                  }}
+                />
+              ))}
             </TldrawUiMenuSubmenu>
           </TldrawUiMenuGroup>
         )}
@@ -526,6 +581,7 @@ export const canvasChromeComponents: TLComponents = {
             whose boards its server draws as it draws the project's own (server/projects.ts). */}
         {local() && <CanvasAttachButtons />}
         {local() && <CanvasSelectionAttachButton />}
+        {local() && <MagicPen />}
         {/* Out of the tool as well as the bubble. Escape closes only the bubble and leaves the
             next click placing another one, which is not what an accidental comment wants. The
             draft is kept either way, so a real comment interrupted here is there next time. */}

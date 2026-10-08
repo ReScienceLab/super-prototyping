@@ -1,0 +1,142 @@
+import type {
+  Editor,
+  StateNode,
+  TLEventInfo,
+  TLImageShape,
+  TLPageId,
+  TLShape,
+  TLShapeId,
+} from "tldraw";
+import {
+  CANVAS_FILE_SHAPE_TYPE,
+  type CanvasFileShape,
+} from "./CanvasFileShapeUtil";
+import { canvasImageRef } from "./canvasLibrary";
+
+/**
+ * What the canvas answers for as a thing of the project's: a board, or a piece of brand material,
+ * which the library lays out as an ordinary tldraw image shape rather than as a board (App.tsx,
+ * layoutImageRow).
+ */
+export type CanvasTarget = CanvasFileShape | TLImageShape;
+
+/**
+ * The topmost shape under the pointer, whatever it is, locked ones included. It must *be* a board
+ * or a brand image for the canvas to answer for it (asCanvasTarget below); a `filter` here instead
+ * would search past anything drawn over one, a note or an arrow sitting on a board.
+ */
+export const shapeUnderPointer = (editor: Editor) =>
+  editor.getShapeAtPoint(editor.inputs.getCurrentPagePoint(), {
+    hitInside: true,
+    hitLocked: true,
+    renderingOnly: true,
+  });
+
+/** That shape when it is one the canvas answers for, and nothing when it is not. */
+export const asCanvasTarget = (
+  hit: TLShape | undefined,
+): CanvasTarget | undefined => {
+  if (hit?.type === CANVAS_FILE_SHAPE_TYPE) return hit as CanvasFileShape;
+  // An image the library placed, not one someone dropped on the canvas themselves: only the
+  // first has an entry in layout.json behind it.
+  return hit?.type === "image" && canvasImageRef(hit.id)
+    ? (hit as TLImageShape)
+    : undefined;
+};
+
+/** Distance from the viewport's edge to a shape zoomed to fill it, in screen px. */
+const FILL_INSET = 16;
+
+/** Selects a shape and puts the camera on it, as large as the viewport holds it. */
+export function zoomToFill(editor: Editor, id: TLShapeId, animate = true) {
+  const bounds = editor.getShapePageBounds(id);
+  if (!bounds) return;
+  editor.select(id);
+  editor.zoomToBounds(bounds, {
+    inset: FILL_INSET,
+    animation: { duration: animate ? editor.options.animationMediumMs : 0 },
+  });
+}
+
+/**
+ * A double-click on a mockup, a picture, or anything else whose double-click tldraw would not
+ * spend on editing its text zooms it to fill the canvas. tldraw's own double-click would crop a
+ * picture or, over a locked shape such as a board, drop a new text box on the canvas, so this takes the gesture over in the select tool's
+ * idle state, where tldraw handles it, rather than watching for it alongside. A note, a text or a
+ * label still edits its text. A second double-click on the shape it last zoomed to shows the whole
+ * page. Returns the uninstaller.
+ */
+export function installDoubleClickZoom(editor: Editor) {
+  const idle = editor.getStateDescendant<StateNode>("select.idle")!;
+  const own = idle.onDoubleClick!;
+  let zoomed: { id: TLShapeId; page: TLPageId } | undefined;
+  idle.onDoubleClick = (info) => {
+    const hit = info.phase === "down" && shapeUnderPointer(editor);
+    if (
+      hit &&
+      (hit.type === CANVAS_FILE_SHAPE_TYPE ||
+        hit.type === "image" ||
+        hit.type === "video" ||
+        !editor.canEditShape(hit))
+    ) {
+      const page = editor.getCurrentPageId();
+      if (zoomed?.id === hit.id && zoomed.page === page) {
+        zoomed = undefined;
+        return editor.zoomToFit({
+          animation: { duration: editor.options.animationMediumMs },
+        });
+      }
+      zoomed = { id: hit.id, page };
+      return zoomToFill(editor, hit.id);
+    }
+    own.call(idle, info);
+  };
+  return () => {
+    idle.onDoubleClick = own;
+  };
+}
+
+/**
+ * The selected board's frame never takes the pointer, so that panning, zooming and the comment
+ * tool keep working over it: the canvas's pointer goes in as a board coordinate instead, for its
+ * outline of the element under it (CanvasFileShapeUtil.tsx). A click on the board, once it is
+ * already selected, goes in too, which the inspect agent takes as a pick; the click that selects
+ * it picks nothing, since the frame that would hear it is only then loading. Returns the
+ * uninstaller.
+ */
+export function installBoardHover(editor: Editor) {
+  const frame = () =>
+    document.querySelector<HTMLIFrameElement>("iframe[data-sp-hover]");
+  const send = (at: { x: number; y: number }, click: boolean) =>
+    frame()?.contentWindow?.postMessage(
+      { type: "sp:at", x: at.x, y: at.y, click },
+      "*",
+    );
+  /** Where the board was pressed, when the press was on the selected board. */
+  let pressed: TLShapeId | undefined;
+  const onEvent = (info: TLEventInfo) => {
+    if (info.type !== "pointer") {
+      // Two fingers arriving, or a wheel, in the middle of a press: a zoom, not a click.
+      if (info.type === "pinch" || info.type === "wheel") pressed = undefined;
+      return;
+    }
+    const board = frame()?.dataset.spHover;
+    if (!board) return;
+    const hit = shapeUnderPointer(editor);
+    const on = hit?.id === board && editor.getCurrentToolId() === "select";
+    const at = () =>
+      editor.getPointInShapeSpace(hit!, editor.inputs.getCurrentPagePoint());
+    if (info.name === "pointer_move") send(on ? at() : { x: -1, y: -1 }, false);
+    else if (info.name === "pointer_down")
+      pressed = on && info.button === 0 ? hit!.id : undefined;
+    else if (info.name === "pointer_up") {
+      if (on && pressed === hit!.id && !editor.inputs.getIsDragging())
+        send(at(), true);
+      pressed = undefined;
+    }
+  };
+  editor.on("event", onEvent);
+  return () => {
+    editor.off("event", onEvent);
+  };
+}

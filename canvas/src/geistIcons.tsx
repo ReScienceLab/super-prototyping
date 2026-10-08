@@ -37,6 +37,7 @@ import {
   Plus as GPlus,
   RefreshCounterClockwise as GRefreshCounterClockwise,
   SidebarLeft as GSidebarLeft,
+  Inspect as GInspect,
   Sparkles as GSparkles,
   TextTitle as GTextTitle,
   ArrowRight as GArrowRight,
@@ -46,6 +47,8 @@ import {
   GridSquare as GGridSquare,
   Link as GLink,
   MagnifyingGlass as GMagnifyingGlass,
+  Moon as GMoon,
+  Sun as GSun,
   PhoneDevice as GPhoneDevice,
   Users as GUsers,
   Window as GWindow,
@@ -84,6 +87,7 @@ export const Pen = at16(GPen);
 export const Plus = at16(GPlus);
 export const RefreshCounterClockwise = at16(GRefreshCounterClockwise);
 export const SidebarLeft = at16(GSidebarLeft);
+export const Inspect = at16(GInspect);
 export const Sparkles = at16(GSparkles);
 export const TextTitle = at16(GTextTitle);
 export const ArrowRight = at16(GArrowRight);
@@ -93,6 +97,8 @@ export const Globe = at16(GGlobe);
 export const GridSquare = at16(GGridSquare);
 export const Link = at16(GLink);
 export const MagnifyingGlass = at16(GMagnifyingGlass);
+export const Moon = at16(GMoon);
+export const Sun = at16(GSun);
 export const PhoneDevice = at16(GPhoneDevice);
 export const Users = at16(GUsers);
 export const Window = at16(GWindow);

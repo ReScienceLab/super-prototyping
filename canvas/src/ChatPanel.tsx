@@ -64,8 +64,12 @@ import {
   type AgentModel,
 } from "./agents";
 import type { Session } from "./agentRun";
+import type { MadeBoard } from "./claudeStream";
 import { namedPictures, readDraft, slashWord } from "./chatDraft";
 import { applyFrame, followRun, writingTo, type Turn } from "./chatTransport";
+import { FOCUS_BOARD } from "./canvasIndex";
+import { humanize } from "./canvasLibrary";
+import { Present } from "./CanvasPresent";
 import { ClaudeMark } from "./ClaudeMark";
 import { CodexMark } from "./CodexMark";
 import { Check, ClockRewind, Image, Plus } from "./geistIcons";
@@ -97,17 +101,25 @@ const OPEN_KEY = "sp-chat-open";
  * A board comes as `board`: its name and where the server draws it. Drawing takes seconds, so the
  * panel puts its tile and its number up at once and asks for the drawing itself — from here and
  * not from the canvas's frame, which a reload or a change of tab would take the answer away with.
+ * A region the magic pen marked (magicPen.tsx) comes with `crop`, the part of that drawing it is,
+ * as fractions of it: the server draws at the display's pixel ratio, which only the drawing knows.
  *
- * On `window`, because the panel is a sibling of `<Tldraw>` and the button renders inside it,
- * the same arrangement, and the same answer, as ASK_COMMENT_USER (canvasChrome.tsx). Here rather
- * than beside the button, so the home page, which has the panel and no canvas, has no tldraw.
+ * On `window`, because the panel is a sibling of `<Tldraw>` and the button renders inside it.
+ * Here rather than beside the button, so the home page, which has the panel and no canvas, has
+ * no tldraw.
  */
 export const CANVAS_ATTACH = "sp:canvas-attach";
 
 export type CanvasAttachDetail =
   /** `reference` for anything but a picture, whose drawing is only the tile's: the agent is
    *  pointed at its file instead. */
-  | { kind: "board"; name: string; src: string; reference?: true }
+  | {
+      kind: "board";
+      name: string;
+      src: string;
+      crop?: { x: number; y: number; w: number; h: number };
+      reference?: true;
+    }
   | { kind: "image"; file: File }
   | { kind: "error"; message: string }
   | { kind: "draft"; text: string }
@@ -258,6 +270,60 @@ interface Attached {
 }
 
 /**
+ * What a reply made or changed, each a button that finds it on the canvas: blue for a new board
+ * and green for a rewritten one, as their rings are there. Folded to three rows when there are
+ * more, which a generator rewriting every board makes common. Off when the reply's project is not
+ * the one in front, whose canvas would not have them.
+ */
+function MadeBoards({ made, away }: { made: MadeBoard[]; away: boolean }) {
+  const list = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [folds, setFolds] = useState(false);
+  useEffect(() => {
+    const el = list.current!;
+    const measure = () => setFolds(el.scrollHeight > el.clientHeight);
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <>
+      <div ref={list} className="sp-chat-made" data-open={open || undefined}>
+        {made.map((m) => (
+          <button
+            key={m.board}
+            type="button"
+            data-made={m.status}
+            disabled={away}
+            title={
+              away
+                ? `${m.board} is in another project`
+                : `Show ${m.board} on the canvas`
+            }
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent(FOCUS_BOARD, { detail: m.board }),
+              )
+            }
+          >
+            {humanize(m.board.split("/")[1]!.replace(/\.html$/, ""))}
+          </button>
+        ))}
+      </div>
+      {(folds || open) && (
+        <button
+          type="button"
+          className="sp-chat-made-more"
+          onClick={() => setOpen(!open)}
+        >
+          {open ? "Show less" : `Show all ${made.length}`}
+        </button>
+      )}
+    </>
+  );
+}
+
+/**
  * `canvas` is the one in front, which the message names to the agent; the home page has none.
  * `project` is the project in front, by the name its address carries; none on the home page or
  * an example. `community` is a community project in front, by its id. A shut panel is hidden, not unmounted, so it keeps following a run and comes back
@@ -337,6 +403,12 @@ export function ChatPanel(props: {
   /** Whether the composer is ringing, to say a half-written message is waiting in it. Off again
    *  when the ring has faded, so the next one rings too. */
   const [cued, setCued] = useState(false);
+  /** The picture shown over the window, clicked in the conversation. */
+  const [shown, setShown] = useState<string>();
+  const show = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setShown(e.currentTarget.href);
+  };
   const abort = useRef(new AbortController());
   const log = useRef<HTMLDivElement>(null);
   /** Whether the log follows what arrives. Scrolling up to read stops it, so new output no longer
@@ -765,7 +837,12 @@ export function ChatPanel(props: {
    * drawing asked of the server, to land in that tile. Asked for again it keeps the tile it has —
    * one already there or on its way is only named again, and one that failed is drawn again.
    */
-  const addBoard = (name: string, src: string, reference?: true) => {
+  const addBoard = (
+    name: string,
+    src: string,
+    crop?: { x: number; y: number; w: number; h: number },
+    reference?: true,
+  ) => {
     let tile = tray.current.find((t) => t.name === name);
     if (!tile && tray.current.length >= MAX_IMAGES)
       return setSendError(
@@ -801,7 +878,21 @@ export function ChatPanel(props: {
     fetch(src)
       .then(async (shot) => {
         if (!shot.ok) throw new Error(await shot.text());
-        const png = await shot.blob();
+        let png = await shot.blob();
+        if (crop) {
+          const whole = await createImageBitmap(png);
+          const [w, h] = [whole.width, whole.height];
+          const part = await createImageBitmap(
+            whole,
+            Math.round(crop.x * w),
+            Math.round(crop.y * h),
+            Math.round(crop.w * w),
+            Math.round(crop.h * h),
+          );
+          const canvas = new OffscreenCanvas(part.width, part.height);
+          canvas.getContext("2d")!.drawImage(part, 0, 0);
+          png = await canvas.convertToBlob({ type: "image/png" });
+        }
         void addImages([new File([png], name, { type: png.type })], true);
       })
       .catch((error) => {
@@ -828,7 +919,7 @@ export function ChatPanel(props: {
       // that is still being read.
       if (detail.kind === "board") {
         adds.current = adds.current.then(() =>
-          addBoard(detail.name, detail.src, detail.reference),
+          addBoard(detail.name, detail.src, detail.crop, detail.reference),
         );
         return;
       }
@@ -1094,6 +1185,11 @@ export function ChatPanel(props: {
 
   return (
     <>
+      {shown && (
+        <Present close={() => setShown(undefined)}>
+          <img src={shown} alt="" />
+        </Present>
+      )}
       <aside
         className={
           open ? "sp-panel sp-chat" : "sp-panel sp-chat sp-chat-collapsed"
@@ -1277,6 +1373,7 @@ export function ChatPanel(props: {
                           href={`/__sp/agent/run/${t.runId}/image/${g.n}`}
                           target="_blank"
                           rel="noreferrer"
+                          onClick={show}
                           title={g.name}
                         >
                           <img
@@ -1334,6 +1431,7 @@ export function ChatPanel(props: {
                               href={`/__sp/agent/run/${t.runId}/shot/${s.k}`}
                               target="_blank"
                               rel="noreferrer"
+                              onClick={show}
                               title={b.detail}
                             >
                               <img
@@ -1347,6 +1445,9 @@ export function ChatPanel(props: {
                     )}
                   </Fragment>
                 ),
+              )}
+              {t.end?.made && t.end.made.length > 0 && (
+                <MadeBoards made={t.end.made} away={t.project !== project} />
               )}
               {!t.end ? (
                 <p className="sp-chat-dim">Working…</p>

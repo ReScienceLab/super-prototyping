@@ -54,10 +54,17 @@ button {
  * surface of their own and a dark app's screens keep their edges. A canvas can have its own
  * (canvasGround.ts), which is why the value is repeated there as the swatch's default.
  */
-/* Two classes, because the value it replaces is set on `.tl-theme__dark` and one class would
-   only win on import order. */
-.tl-container.tl-theme__dark {
-  --tl-color-background: #2b2b2b;
+/* Two classes, because the value it replaces is set on `.tl-theme__dark` or `.tl-theme__light`
+   and one class would only win on import order. Both themes, because every token below is a
+   `light-dark()` pair and tldraw's scheme is the same pick as the page's (App.tsx). The light
+   ground is Geist's gray-100, a step off the white of the panels and the boards. On `:root` as
+   well, for the strip's swatch (CanvasStrip.tsx), which is outside the editor. */
+:root {
+  --sp-ground: light-dark(#f2f2f2, #2b2b2b);
+}
+
+.tl-container:is(.tl-theme__dark, .tl-theme__light) {
+  --tl-color-background: var(--sp-ground);
   /* The rest of the theme, for the same reason and by the same route. tldraw draws its menus,
      its page list, its tooltips and its toolbar from these variables, so pointing them at the
      scale is the whole re-skin. No component CSS is touched, which is what keeps it from
@@ -470,7 +477,35 @@ button {
   cursor: pointer;
 }
 
-.sp-canvas-tabs-ground + .sp-canvas-tabs-figma {
+/* The inspector's switch, after the swatch when there is one, else starting the far end. */
+.sp-canvas-tabs-inspector {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--ds-gray-900);
+  cursor: pointer;
+}
+
+.sp-canvas-tabs-inspector:hover {
+  background: var(--ds-gray-100);
+  color: var(--ds-gray-1000);
+}
+
+.sp-canvas-tabs-inspector[aria-pressed="true"] {
+  background: var(--ds-gray-200);
+  color: var(--ds-gray-1000);
+}
+
+.sp-canvas-tabs-ground + .sp-canvas-tabs-figma,
+.sp-canvas-tabs-ground + .sp-canvas-tabs-inspector,
+.sp-canvas-tabs-inspector + .sp-canvas-tabs-figma {
   margin-left: 4px;
 }
 
@@ -479,6 +514,12 @@ button {
    the default colour (black, #f2f2f2 in the dark theme) flips, so an agent's red text stays red. */
 .tl-container[data-ground="light"] .tl-text-shape-label__inner[style*="color: rgb(242, 242, 242)"] {
   color: oklch(0.205 0 0) !important;
+}
+
+/* And the other way round: the light theme's near-black default (#1d1d1d) on a dark ground. */
+.tl-container.tl-theme__light[data-ground="dark"]
+  .tl-text-shape-label__inner[style*="color: rgb(29, 29, 29)"] {
+  color: #f2f2f2 !important;
 }
 
 .sp-canvas-tabs-figma:hover {
@@ -870,6 +911,47 @@ button {
   /* No scrollbar, which would draw on the hairline. The trackpad scrolls the row, or the tab that
      scrolls itself into view when it comes forward from somewhere else. */
   scrollbar-width: none;
+}
+
+/* The theme switch (ThemeSwitcher.tsx), at the bar's far end, drawn as Vercel's: a pill with a
+   hairline round it and the pick raised inside it, on the page's ground with a hairline of its
+   own. */
+.sp-theme {
+  display: flex;
+  flex: none;
+  align-self: center;
+  margin: 0 6px 0 auto;
+  padding: 1px;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
+}
+
+.sp-theme button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: none;
+  color: var(--ds-gray-900);
+  cursor: pointer;
+}
+
+.sp-theme button:hover {
+  color: var(--ds-gray-1000);
+}
+
+.sp-theme button[aria-checked="true"] {
+  background: var(--ds-background-100);
+  box-shadow: 0 0 0 1px var(--ds-gray-alpha-400);
+  color: var(--ds-gray-1000);
+}
+
+.sp-theme button:focus-visible {
+  outline: 2px solid var(--ds-focus);
+  outline-offset: 1px;
 }
 
 /* One tab, one width, as Figma's are, so the row does not shift as names change. A name longer
@@ -1847,6 +1929,22 @@ a.sp-menu-row {
    over it (canvasAttach.tsx). The layer this is drawn on takes no pointer events, so the buttons
    ask for them back. Inside the corner, not over it: a button that crossed the shape's edge would
    leave the shape as the pointer arrived, and take itself away with the hover. */
+/* The magic pen (magicPen.tsx): over the whole canvas while Option is held, and the region it
+   marks on a board. */
+.sp-pen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.sp-pen-region {
+  position: absolute;
+  border: 1.5px dashed var(--ds-focus);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ds-focus) 12%, transparent);
+}
+
 .sp-attach {
   position: absolute;
   display: flex;
@@ -2803,4 +2901,107 @@ a.sp-menu-row {
 }
 .sp-confirm button.sp-confirm-danger:hover {
   background: color-mix(in oklab, var(--ds-red-900) 88%, black);
+}
+
+/* A board or picture shown alone over the whole window (CanvasPresent.tsx): the window dimmed
+   round it, and scaled to fit by the component, which knows the board's size. */
+.sp-present {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 32px;
+  background: rgb(0 0 0 / 0.75);
+  animation: sp-present-in 160ms ease-out;
+}
+
+@keyframes sp-present-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.sp-present iframe {
+  /* Centred by hand: at its own size it can be taller than the window, and the grid would align
+     it to the top instead. */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  border: 0;
+  /* A click would focus the board's own document, which the keys that close this never leave. */
+  pointer-events: none;
+  /* The board's own scheme, as on the canvas (CanvasFileShapeUtil.tsx). */
+  color-scheme: light;
+}
+
+.sp-present img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* What a reply made or changed (ChatPanel.tsx), under it: a button per board that finds it on the
+   canvas, its dot blue for a new board and green for a rewritten one, as their rings are. */
+.sp-chat-made {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+/* Three rows of 24px buttons and their gaps, until opened. */
+.sp-chat-made:not([data-open]) {
+  max-height: 84px;
+  overflow: hidden;
+}
+
+.sp-chat-made-more {
+  margin-bottom: 6px;
+  color: var(--ds-gray-900);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sp-chat-made-more:hover {
+  color: var(--ds-gray-1000);
+}
+
+.sp-chat-made button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px var(--ds-gray-alpha-400);
+  color: var(--ds-gray-1000);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sp-chat-made button:hover {
+  background: var(--ds-gray-alpha-100);
+}
+
+.sp-chat-made button::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ds-focus);
+}
+
+.sp-chat-made button[data-made="updated"] {
+  --ds-focus: light-dark(#1a9338, #3dbe5c);
+}
+
+/* A colour's dot in the canvas menu's Colour row (canvasChrome.tsx). */
+.sp-menu-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
 }

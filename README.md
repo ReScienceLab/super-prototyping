@@ -7,6 +7,11 @@ An app and a set of agent skills for rebuilding and designing product UI as
 toolkit the skills drive. Your boards stay in your project, and the app
 upgrades around them.
 
+This repo is the open-source edition. [Mono Factory](https://monofactory.ai)
+is the commercial edition: it works out of the box, with its agents already
+set up, for anyone who would rather not configure agents themselves.
+[How the two differ](#commercial-edition).
+
 The point of it is a replica you can defend. Every colour and every metric on a
 cloned board traces back to a measurement of the source capture, and the
 capture itself is parked on the canvas directly under the replica, so the two
@@ -29,7 +34,7 @@ them all. Each is a real `sp-clone-prototype` run, rebuilt
 from measured samples with the evidence recorded for every token. Open any
 of them with `?canvas=<slug>`, and one board of it with
 `?canvas=<slug>#<file>`. The address follows whatever is open, the page and
-the board in the inspector, so the URL in the bar is always the link to share.
+the selected board, so the URL in the bar is always the link to share.
 
 ### `duolingo-ios`, eight screens that are mostly picture
 
@@ -98,7 +103,10 @@ checks again. v1.5.3 and earlier do not, so update those once by hand, with
 
 The app is the canvas in a window, and it needs no terminal and no bun. It
 opens straight onto its home page, which is no project's, and asks over it
-which agent you will work with, Claude Code or Codex. New projects are made in
+which agent you will work with, Claude Code or Codex. That agent is your own:
+you install it and sign in to it yourself.
+[Mono Factory](https://monofactory.ai), the commercial edition, comes with its
+agents set up instead. New projects are made in
 `Documents/Super Prototyping` from the home page or the + on the tab bar, and
 each shows its `canvases`. The home page's Community section lists the
 projects people shared, each opening read-only as a tab, and
@@ -163,8 +171,9 @@ they say. `sp paths` lists the two directories it writes, and
 `sp clean` removes them.
 
 Deep-link a page with `?canvas=<slug>`, and one board of it with
-`?canvas=<slug>#<file>`: it opens in the inspector with the camera on it, and
-clicking any board writes that link into the address bar. Right-clicking the
+`?canvas=<slug>#<file>`: it opens selected, zoomed to fill the window, and
+clicking any board writes that link into the address bar. Double-click a
+board or an image to zoom it to fill the window. Right-clicking the
 canvas offers Force refresh; choose it after editing a `layout.json`. A board
 folder added after boot appears on its own.
 
@@ -264,11 +273,20 @@ release" in `CONTRIBUTING.md`.
 
 ## Commercial edition
 
-This repo is the open-source edition, free to use. A commercial edition is
-packaged and supported for studios and teams, from ReScience Lab Inc.
-Pricing is by conversation: write to
-[yilin.jing@rescience.com](mailto:yilin.jing@rescience.com) with your team size
-and what you want to use it for.
+super-prototyping, this repo, is the open-source edition: free to use, and you
+bring the agent. You install Claude Code or Codex, sign in to it with your own
+account, and the app works with the one you choose.
+
+[Mono Factory](https://monofactory.ai) is the commercial edition, from
+ReScience Lab Inc. It works out of the box: its agents come set up, so there
+is nothing to install beside the app and nothing to configure. If you would
+rather not set agents up yourself, get Mono Factory instead.
+
+It is a desktop app you [download](https://monofactory.ai/download/) from its
+site and pay for as you go; the rates are on its
+[pricing page](https://monofactory.ai/pricing/). An Enterprise edition for
+teams is on the way, and [its page](https://monofactory.ai/enterprise/) says
+how to ask about it.
 
 ## Licence
 

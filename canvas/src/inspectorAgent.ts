@@ -447,7 +447,7 @@ addEventListener('message',function(e){var d=e.data;if(!d||typeof d!=='object')r
 
 /* The pointer is the canvas's, not this frame's. The board is drawn in an iframe out on the
    tldraw canvas with pointer-events off, so that panning, zooming and the comment tool keep
-   working over it, and inspectorClicks.ts posts the pointer in board pixels as sp:at. A point
+   working over it, and installBoardHover (canvasClicks.ts) posts the pointer in board pixels as sp:at. A point
    off the board comes as (-1,-1), which hits nothing and clears the hover.
    A click on a path is a click on its icon: the layers list shows the svg as one layer. */
 function nodeAt(x,y){var el=document.elementFromPoint(x,y);
