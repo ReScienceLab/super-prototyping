@@ -1929,6 +1929,22 @@ a.sp-menu-row {
    over it (canvasAttach.tsx). The layer this is drawn on takes no pointer events, so the buttons
    ask for them back. Inside the corner, not over it: a button that crossed the shape's edge would
    leave the shape as the pointer arrived, and take itself away with the hover. */
+/* The magic pen (magicPen.tsx): over the whole canvas while Option is held, and the region it
+   marks on a board. */
+.sp-pen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.sp-pen-region {
+  position: absolute;
+  border: 1.5px dashed var(--ds-focus);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ds-focus) 12%, transparent);
+}
+
 .sp-attach {
   position: absolute;
   display: flex;
@@ -2980,4 +2996,12 @@ a.sp-menu-row {
 
 .sp-chat-made button[data-made="updated"] {
   --ds-focus: light-dark(#1a9338, #3dbe5c);
+}
+
+/* A colour's dot in the canvas menu's Colour row (canvasChrome.tsx). */
+.sp-menu-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
 }
