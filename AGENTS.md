@@ -103,7 +103,11 @@ Rules inside a canvas folder:
   behind the tokens.
 - Commit `assets.json` where a folder has one (three do). It is a
   `name → data URI` map of pre-encoded images the generator inlines, not
-  evidence.
+  evidence. The canvas's inspector names a board's images by content, from
+  `assets/` first and `assets.json` second, so a re-encoded image that
+  matches neither falls back to its `alt`. It names an inline `<svg>` the
+  same way from `assets/icons/`, by its geometry rather than its bytes, and
+  hands it back as a vector asset.
 - Never commit `ref-*.html` or `assets/refs/`. They hold third-party
   captures, the root `.gitignore` already excludes them, and the
   sp-clone-prototype skill rebuilds them. `spotify-ios` is the exception: its

@@ -17,7 +17,7 @@ import path from "node:path";
 import { CANVASES, hashBoards } from "./boards.ts";
 import { command, stop } from "./command.ts";
 import { AGENT_SKILLS, installSkills } from "./skills.ts";
-import { folderOf, sameOrigin } from "./sp.ts";
+import { canvasFile, folderOf, sameOrigin } from "./sp.ts";
 import { SAFE_NAME } from "../src/layoutEdit.ts";
 import {
   attach,
@@ -45,12 +45,16 @@ export function createAgentServer(options: {
   examplesDir: string;
   /** Every project by the name its address carries, `/p/<name>/`. */
   projects: () => Map<string, string>;
+  /** Moves a project the agent has just named into a folder of that name (projects.ts). */
+  named: (dir: string) => string | undefined;
+  /** A project by name, or by the name it had before `named` moved it. */
+  project: (name: string) => string | undefined;
   /** This plugin's checkout, whose skills the sessions are given. */
   repoRoot: string;
   /** `<projects dir>/.workspaces`: a folder per session, a record beside each, and the skills. */
   workspaces: string;
 }) {
-  const { examplesDir, projects, repoRoot, workspaces } = options;
+  const { examplesDir, named, project: projectDir, projects, repoRoot, workspaces } = options;
   // One process per message — Claude Code or Codex, by the panel's choice, looked up in
   // agents.ts — its output kept here and streamed to the page. The runs are held in memory, the
   // newest twenty, for the panel to follow and for the history to say which session is running,
@@ -68,6 +72,8 @@ export function createAgentServer(options: {
       child: ChildProcess;
       /** The Stop button was pressed. Windows ends a run by exit code 1, which says nothing. */
       stopped: boolean;
+      /** The project it works on, if any. */
+      dir: string | undefined;
     }
   >();
 
@@ -327,6 +333,16 @@ export function createAgentServer(options: {
               !/^[A-Za-z0-9+/]*={0,2}$/.test(i.data)
             )
               return send(400, "bad image data");
+            if (
+              i.reference !== undefined &&
+              (typeof i.reference !== "object" ||
+                !["project", "community"].every(
+                  (k) =>
+                    i.reference[k] === undefined ||
+                    typeof i.reference[k] === "string",
+                ))
+            )
+              return send(400, "bad image reference");
           }
           // The body cap above is the panel's limit in base64; a client that is not the
           // panel meets the limit itself here, in the bytes the files come out as.
@@ -375,7 +391,7 @@ export function createAgentServer(options: {
           // The project it was sent from, by the name its address carries. None from the home page
           // or an example, and then the agent has no project to write to.
           const dir =
-            project === undefined ? undefined : projects().get(project);
+            project === undefined ? undefined : projectDir(project);
           if (project !== undefined && dir === undefined)
             return send(404, "no such project");
           // The session the panel is in, or a new one. Its id names a folder and a file, so it has
@@ -511,15 +527,44 @@ export function createAgentServer(options: {
           fs.mkdirSync(keptOf(id), { recursive: true });
           const imagesDir = images.length ? keptOf(id) : "";
           const held: AgentImage[] = images.map(
-            (i: { n: number; name: string; type: string; data: string }) => ({
-              ...i,
-              path: picture(
-                id,
-                `image-${i.n}`,
-                i.type,
-                Buffer.from(i.data, "base64"),
-              ),
-            }),
+            (i: {
+              n: number;
+              name: string;
+              type: string;
+              data: string;
+              reference?: { project?: string; community?: string };
+            }) => {
+              // Anything but a picture (a board, a video, a note) keeps its picture for the
+              // panel, and the agent is pointed at its file, in the canvases of the project it
+              // was attached from, which need not be the one it is sent from. A community
+              // project's is not on this machine, so it keeps the name `sp fetch` finds it by.
+              const ref = i.reference;
+              const from = ref?.project && projects().get(ref.project);
+              const file =
+                ref?.community === undefined &&
+                (ref?.project === undefined || from)
+                  ? canvasFile(
+                      from ? path.join(from, CANVASES) : examplesDir,
+                      examplesDir,
+                      i.name,
+                    )
+                  : undefined;
+              return {
+                ...i,
+                path: picture(
+                  id,
+                  `image-${i.n}`,
+                  i.type,
+                  Buffer.from(i.data, "base64"),
+                ),
+                reference:
+                  ref &&
+                  (file ??
+                    (ref.community
+                      ? `${i.name} of the community project ${ref.community}`
+                      : i.name)),
+              };
+            },
           );
           const hashes = hashBoards(boards);
           const c = command(
@@ -541,11 +586,12 @@ export function createAgentServer(options: {
               // server's port.
               env: {
                 ...process.env,
-                SP_PROJECT: project,
+                SP_PROJECT: dir && path.basename(dir),
                 SP_CANVAS_PORT: String(req.socket.localPort),
               },
             }),
             stopped: false,
+            dir,
           });
           runs.set(run.id, run);
           boardsBefore.set(run.id, { dir: boards, hashes });
@@ -656,6 +702,24 @@ export function createAgentServer(options: {
             finish(error.code === "ENOENT" ? def.missing : String(error));
           });
           run.child.on("close", (code, signal) => {
+            // The turn that named an unnamed project is over, so its folder can take the name.
+            // Not when another turn has already started on it: that one moves it when it ends.
+            if (
+              dir !== undefined &&
+              code === 0 &&
+              ![...runs.values()].some((r) => r !== run && r.dir === dir && !ended(r))
+            ) {
+              // Never in the way of the run ending: a throw here would leave it running for good.
+              try {
+                const moved = named(dir);
+                if (moved)
+                  record.projects = record.projects.map((had) =>
+                    had === dir ? moved : had,
+                  );
+              } catch (error) {
+                console.error(`[agent] ${dir} could not be named: ${error}`);
+              }
+            }
             settle();
             if (ended(run)) return;
             const tail = stderr.trim().split("\n").slice(-5).join("\n");
