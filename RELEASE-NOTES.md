@@ -19,10 +19,40 @@ The app, its skills and the toolkit carry one version.
 
 Everything below is on `main` and reaches no install until a version is cut.
 
+## v1.8.0
+
+2026-10-07. Mark part of a board to talk about it, jump from a reply to the
+boards it made, and read a board at full size with a double-click.
+
+- **A magic pen.** Tap Option (Alt on Windows) and the pointer becomes a pen.
+  Drag across a board to mark a region, and that part of the board goes into
+  the chat as a quote, with what is inside it named for the agent. Escape or
+  a second tap puts the pen down.
+- **Jump to what a reply made.** Under each of the agent's replies is a
+  button for every board that run made or rewrote, blue for a new one and
+  green for a rewritten one. Clicking it brings that canvas forward and fits
+  the board to the view.
+- **A double-click zooms to fill.** Double-click a board, a picture or a
+  video and it fills the window; a second double-click shows the whole page
+  again. Notes and text still edit on a double-click.
+- **Space presents the selected board** over the whole window. Space, Escape
+  or a click closes it.
+- **The inspector is behind a switch.** Clicking a board no longer opens the
+  panel on the right. A button on the canvas strip, right of the background
+  swatch, turns it on, and it then follows whichever board or picture is
+  selected. A link to one board (`?canvas=<slug>#<file>`) selects that board
+  and zooms to it.
+- **Light, dark or the system's theme**, from a switch at the right end of
+  the top bar.
+- **Colour in the right-click menu**, beside Background, for an arrow, a
+  line, a note or any other shape that takes one.
 - **Only pictures go to the agent as pictures.** The **+** on a board, a
   video or a note still shows a picture of it in the chat, but the agent is
   handed the file behind it rather than that picture, since the file is what
   it can read and change.
+- **A project started without a name takes the one its agent gives it.** Its
+  folder, `Untitled` until then, is renamed when the reply finishes, and the
+  tab and the address follow.
 
 ## v1.7.0
 
