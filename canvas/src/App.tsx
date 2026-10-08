@@ -28,6 +28,7 @@ import {
   type TLTextShape,
   useEditor,
   useLocalStore,
+  useValue,
 } from "tldraw";
 import "tldraw/tldraw.css";
 import "@tldraw/commenting/commenting.css";
@@ -55,10 +56,12 @@ import {
 } from "./CanvasFileShapeUtil";
 import {
   asCanvasTarget,
+  installBoardHover,
   installDoubleClickZoom,
   zoomToFill,
 } from "./canvasClicks";
 import { CanvasPresent } from "./CanvasPresent";
+import { ImagePanel, InspectorPanel } from "./InspectorPanel";
 import { attachToChat } from "./canvasAttach";
 import { CanvasStatusBannerShapeUtil } from "./CanvasStatusBannerShapeUtil";
 import {
@@ -79,6 +82,7 @@ import {
   canvasImageKey,
   canvasImageRef,
   canvasImageUrl,
+  readCanvasImage,
   readCanvasLayout,
   pageNameFor,
   isLibraryShapeId,
@@ -1128,6 +1132,10 @@ function initializeCanvas(editor: Editor) {
 
 export default function App() {
   const [commentUser, setCommentUser] = useState(readCommentUser);
+  /** The inspector, off until the strip's button turns it on. */
+  const [inspectorOn, setInspectorOn] = useState(false);
+  /** That selected board's frame on the canvas: the panel reads its report and posts back there. */
+  const inspectorFrame = useRef<HTMLIFrameElement | null>(null);
   /** State rather than a ref: the chrome context hands it to parts that render outside `<Tldraw>`. */
   const [editor, setEditor] = useState<Editor | null>(null);
   /**
@@ -1139,6 +1147,12 @@ export default function App() {
     resolveTab(tabFromUrl(window.location.href)),
   );
   const store = useLocalStore(storeOptions);
+  /** What the inspector shows while it is on: the one board or picture selected. */
+  const inspected = useValue(
+    "inspected",
+    () => asCanvasTarget(editor?.getOnlySelectedShape() ?? undefined),
+    [editor],
+  );
   /** Writes the address from the tab in front and the selection; installed with the editor. */
   const writeUrl = useRef<(push: boolean) => void>(() => {});
   /** The tab in front as of this call rather than as of the last render, for that writer. */
@@ -1317,8 +1331,10 @@ export default function App() {
     if (!sync.apply() && !reloaded)
       requestAnimationFrame(() => editor.zoomToFit());
     const disposeZoom = installDoubleClickZoom(editor);
+    const disposeHover = installBoardHover(editor);
     return () => {
       window.removeEventListener("storage", scheme);
+      disposeHover();
       disposeContent();
       disposeComments();
       disposeZoom();
@@ -1337,6 +1353,11 @@ export default function App() {
         setCommentUser,
         activeTab,
         openTab,
+        inspectorOn,
+        setInspectorOn,
+        setInspectorFrame: (frame: HTMLIFrameElement | null) => {
+          inspectorFrame.current = frame;
+        },
       }}
     >
       {/* The project's side of the window: its canvases across the top, then the canvas. The bar
@@ -1417,6 +1438,36 @@ export default function App() {
               </div>
             )}
           </div>
+          {inspectorOn && activeTab.kind === "canvas" && inspected && editor
+            ? (() => {
+                if (inspected.type === CANVAS_FILE_SHAPE_TYPE) {
+                  const file = readCanvasLibrary()
+                    .flatMap((c) => c.files)
+                    .find((c) => c.path === inspected.props.path);
+                  // Keyed by path: a different board is a fresh panel, with its own selection
+                  // and report, rather than one that resets its state in an effect.
+                  return file ? (
+                    <InspectorPanel
+                      key={file.path}
+                      path={file.path}
+                      name={file.title}
+                      size={boardSize(file)}
+                      frame={inspectorFrame}
+                      onClose={() => editor.selectNone()}
+                    />
+                  ) : null;
+                }
+                const ref = canvasImageRef(inspected.id);
+                const entry = ref && readCanvasImage(ref.slug, ref.file);
+                return ref && entry ? (
+                  <ImagePanel
+                    key={inspected.id}
+                    pick={{ shapeId: inspected.id, ...ref, ...entry }}
+                    onClose={() => editor.selectNone()}
+                  />
+                ) : null;
+              })()
+            : null}
         </div>
       </div>
     </CanvasChromeContext.Provider>

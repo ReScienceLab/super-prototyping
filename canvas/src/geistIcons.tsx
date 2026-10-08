@@ -2,7 +2,7 @@
  * The glyphs this app uses, from Vercel's Geist icon set itself rather than a copy of it.
  * `geist-icons` publishes all 455 of them as one dependency-free ESM module, so nobody here
  * maintains a path string. Everything the canvas draws as a glyph comes through this file, which
- * is what keeps the top bar and the chat panel on one set.
+ * is what keeps the top bar, the chat panel and the inspector on one set.
  *
  * Two things are added to each, and nothing else. The size, because Geist draws on a 16 grid and
  * the package defaults its components to 20, which is the one number every call site would
@@ -37,6 +37,7 @@ import {
   Plus as GPlus,
   RefreshCounterClockwise as GRefreshCounterClockwise,
   SidebarLeft as GSidebarLeft,
+  Inspect as GInspect,
   Sparkles as GSparkles,
   TextTitle as GTextTitle,
   ArrowRight as GArrowRight,
@@ -86,6 +87,7 @@ export const Pen = at16(GPen);
 export const Plus = at16(GPlus);
 export const RefreshCounterClockwise = at16(GRefreshCounterClockwise);
 export const SidebarLeft = at16(GSidebarLeft);
+export const Inspect = at16(GInspect);
 export const Sparkles = at16(GSparkles);
 export const TextTitle = at16(GTextTitle);
 export const ArrowRight = at16(GArrowRight);

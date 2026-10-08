@@ -1,6 +1,7 @@
 import type {
   Editor,
   StateNode,
+  TLEventInfo,
   TLImageShape,
   TLPageId,
   TLShape,
@@ -62,8 +63,8 @@ export function zoomToFill(editor: Editor, id: TLShapeId, animate = true) {
  * spend on editing its text zooms it to fill the canvas. tldraw's own double-click would crop a
  * picture or, over a locked shape such as a board, drop a new text box on the canvas, so this takes the gesture over in the select tool's
  * idle state, where tldraw handles it, rather than watching for it alongside. A note, a text or a
- * label still edits its text. A second double-click on the shape it last zoomed to steps back to
- * the whole page, every shape on it in view. Returns the uninstaller.
+ * label still edits its text. A second double-click on the shape it last zoomed to shows the whole
+ * page. Returns the uninstaller.
  */
 export function installDoubleClickZoom(editor: Editor) {
   const idle = editor.getStateDescendant<StateNode>("select.idle")!;
@@ -81,7 +82,6 @@ export function installDoubleClickZoom(editor: Editor) {
       const page = editor.getCurrentPageId();
       if (zoomed?.id === hit.id && zoomed.page === page) {
         zoomed = undefined;
-        editor.selectNone();
         return editor.zoomToFit({
           animation: { duration: editor.options.animationMediumMs },
         });
@@ -93,5 +93,50 @@ export function installDoubleClickZoom(editor: Editor) {
   };
   return () => {
     idle.onDoubleClick = own;
+  };
+}
+
+/**
+ * The selected board's frame never takes the pointer, so that panning, zooming and the comment
+ * tool keep working over it: the canvas's pointer goes in as a board coordinate instead, for its
+ * outline of the element under it (CanvasFileShapeUtil.tsx). A click on the board, once it is
+ * already selected, goes in too, which the inspect agent takes as a pick; the click that selects
+ * it picks nothing, since the frame that would hear it is only then loading. Returns the
+ * uninstaller.
+ */
+export function installBoardHover(editor: Editor) {
+  const frame = () =>
+    document.querySelector<HTMLIFrameElement>("iframe[data-sp-hover]");
+  const send = (at: { x: number; y: number }, click: boolean) =>
+    frame()?.contentWindow?.postMessage(
+      { type: "sp:at", x: at.x, y: at.y, click },
+      "*",
+    );
+  /** Where the board was pressed, when the press was on the selected board. */
+  let pressed: TLShapeId | undefined;
+  const onEvent = (info: TLEventInfo) => {
+    if (info.type !== "pointer") {
+      // Two fingers arriving, or a wheel, in the middle of a press: a zoom, not a click.
+      if (info.type === "pinch" || info.type === "wheel") pressed = undefined;
+      return;
+    }
+    const board = frame()?.dataset.spHover;
+    if (!board) return;
+    const hit = shapeUnderPointer(editor);
+    const on = hit?.id === board && editor.getCurrentToolId() === "select";
+    const at = () =>
+      editor.getPointInShapeSpace(hit!, editor.inputs.getCurrentPagePoint());
+    if (info.name === "pointer_move") send(on ? at() : { x: -1, y: -1 }, false);
+    else if (info.name === "pointer_down")
+      pressed = on && info.button === 0 ? hit!.id : undefined;
+    else if (info.name === "pointer_up") {
+      if (on && pressed === hit!.id && !editor.inputs.getIsDragging())
+        send(at(), true);
+      pressed = undefined;
+    }
+  };
+  editor.on("event", onEvent);
+  return () => {
+    editor.off("event", onEvent);
   };
 }

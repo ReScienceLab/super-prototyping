@@ -22,12 +22,14 @@ export function CanvasPresent({ editor }: { editor: Editor | null }) {
     if (!editor || shown) return;
     const onDown = (e: KeyboardEvent) => {
       if (e.code !== "Space" || e.repeat) return;
-      const typing =
+      // Space on a focused control is that control's: typing, or pressing a button.
+      const control =
         e.target instanceof HTMLElement &&
         (e.target.isContentEditable ||
-          e.target.tagName === "INPUT" ||
-          e.target.tagName === "TEXTAREA");
-      if (typing || editor.getEditingShapeId()) return;
+          e.target.closest(
+            "input, textarea, select, button, a[href], [role=button], [role=menuitem], [role=tab]",
+          ));
+      if (control || editor.getEditingShapeId()) return;
       const selected = editor.getSelectedShapes();
       const target = selected.length === 1 && asCanvasTarget(selected[0]);
       if (!target) return;
@@ -60,7 +62,7 @@ export function CanvasPresent({ editor }: { editor: Editor | null }) {
 
 /**
  * Something shown alone over the whole window, the window dimmed round it: a board or picture
- * from the canvas, or a picture in the chat. Space, Esc or a click beside it comes back to where
+ * from the canvas, or a picture in the chat. Space, Esc or a click anywhere comes back to where
  * it was. Inside the window rather than the browser's full screen, which on a Mac moves the window
  * to a display of its own and back, slowly.
  *
@@ -92,7 +94,7 @@ export function Present({
   return createPortal(
     <div
       className="sp-present"
-      onClick={(e) => e.target === e.currentTarget && close()}
+      onClick={close}
     >
       {children}
     </div>,
