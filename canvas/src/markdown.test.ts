@@ -15,6 +15,13 @@ describe("renderMarkdown", () => {
     expect(renderMarkdown("run `bun test")).toContain("<code>bun test</code>");
   });
 
+  it("draws no picture until its source has arrived whole", () => {
+    expect(renderMarkdown("see ![shot](https://x.dev/a")).not.toContain("<img");
+    expect(renderMarkdown("see ![shot](https://x.dev/a.png)")).toContain(
+      'src="https://x.dev/a.png"',
+    );
+  });
+
   it("is a table only once the delimiter row has arrived", () => {
     expect(renderMarkdown("| a | b |")).not.toContain("<table");
     expect(renderMarkdown("| a | b |\n| - | - |")).toContain("<table");
