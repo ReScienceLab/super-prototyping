@@ -37,6 +37,7 @@ import {
   Plus as GPlus,
   RefreshCounterClockwise as GRefreshCounterClockwise,
   SidebarLeft as GSidebarLeft,
+  Inspect as GInspect,
   Sparkles as GSparkles,
   TextTitle as GTextTitle,
   ArrowRight as GArrowRight,
@@ -84,6 +85,7 @@ export const Pen = at16(GPen);
 export const Plus = at16(GPlus);
 export const RefreshCounterClockwise = at16(GRefreshCounterClockwise);
 export const SidebarLeft = at16(GSidebarLeft);
+export const Inspect = at16(GInspect);
 export const Sparkles = at16(GSparkles);
 export const TextTitle = at16(GTextTitle);
 export const ArrowRight = at16(GArrowRight);

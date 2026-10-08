@@ -9,7 +9,6 @@ import {
 } from "react";
 import {
   createShapeId,
-  useEditor,
   useValue,
   type TLCommentThreadId,
   type TLShapeId,
@@ -31,10 +30,6 @@ import {
 import { CanvasChromeContext } from "./canvasChrome";
 import { boardShapeId, projectPages } from "./canvasContent";
 import { pointedElement } from "./cover";
-import {
-  installInspectorClicks,
-  type InspectorTarget,
-} from "./inspectorClicks";
 import {
   type CanvasLayoutImage,
   boardPageUrl,
@@ -227,27 +222,6 @@ function WidthGrip({
 type Tab = "inspect" | "assets" | "tokens";
 
 const fmt = (n: number) => String(Math.round(n * 100) / 100);
-/** Wiring component: lives inside <Tldraw> so it can reach the editor. */
-export function InspectorClicks({
-  onPick,
-  onDismiss,
-  inspectingPath,
-  frame,
-}: {
-  onPick: (shape: InspectorTarget) => void;
-  onDismiss: () => void;
-  inspectingPath: string | null;
-  frame: React.RefObject<HTMLIFrameElement | null>;
-}) {
-  const editor = useEditor();
-  useEffect(
-    () =>
-      installInspectorClicks(editor, onPick, onDismiss, inspectingPath, frame),
-    [editor, onPick, onDismiss, inspectingPath, frame],
-  );
-  return null;
-}
-
 export function InspectorPanel({
   path,
   name,
@@ -362,17 +336,21 @@ export function InspectorPanel({
     );
   }, [hidden, data, frame]);
 
-  // Escape clears the selection, and with nothing selected closes the panel. `defaultPrevented`
-  // skips the ones a tldraw menu or a Radix layer has already dismissed itself on.
+  // Escape clears the selection, and with nothing selected closes the panel. In the capture phase,
+  // ahead of tldraw, which would otherwise take the first Escape to deselect the board, and the
+  // panel follows that selection (App.tsx). Not while a menu is open: that Escape is the menu's.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented) return;
-      if (sel !== null) setSel(null);
-      else onClose();
+      if (editor?.menus.hasAnyOpenMenus()) return;
+      if (sel === null) return onClose();
+      event.preventDefault();
+      event.stopPropagation();
+      setSel(null);
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [sel, onClose]);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [sel, onClose, editor]);
 
   const assets = useMemo(
     () => (data ? assetRows(data.assets, names) : []),
