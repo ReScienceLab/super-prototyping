@@ -9,7 +9,7 @@
  */
 import DOMPurify from "dompurify";
 import { Marked } from "marked";
-import remend from "remend";
+import remend, { INCOMPLETE_IMAGE_PLACEHOLDER } from "remend";
 
 // The agent links what it made as `file:///…`, which DOMPurify drops and an http page could not
 // follow anyway. Relative to the project's page, `file/<path>` is the project's server
@@ -20,6 +20,11 @@ const md = new Marked({
       const url = new URL(token.href);
       token.href = `file${url.pathname}${url.search}${url.hash}`;
     }
+  },
+  // A picture a delta cut open comes out of remend under a source only Streamdown draws, which
+  // DOMPurify drops, leaving an `<img>` with none. Nothing is drawn until the rest arrives.
+  renderer: {
+    image: ({ href }) => (href === INCOMPLETE_IMAGE_PLACEHOLDER ? "" : false),
   },
 });
 
