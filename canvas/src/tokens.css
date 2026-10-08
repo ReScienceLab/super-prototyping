@@ -12,14 +12,23 @@
 @import "tailwindcss";
 
 /*
- * Tailwind's `dark:` variant, pointed at an attribute nothing here sets. The theme on these
- * pages is the `color-scheme` below, which no selector can match, and it needs none, because
- * every colour a component reads is a `light-dark()` token that switches with it. Left as the
- * attribute strategy rather than deleted so the shadcn components can keep the `dark:` classes
- * they ship with. Unpointed, they would follow the operating system's preference and paint a
- * dark button on the brand pages, which are light whatever the OS says.
+ * Tailwind's `dark:` variant, on the theme picked in the top bar (theme.ts), which sits
+ * on `<html>` as `data-theme`: dark, or system on a dark OS. The colours themselves need no
+ * variant, since every one a component reads is a `light-dark()` token that switches with the
+ * `color-scheme` below; this is for the `dark:` classes the shadcn components ship with. A page
+ * without the attribute gets none of them, which keeps a dark button off the brand pages, which
+ * are light whatever the OS says.
  */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where([data-theme="system"], [data-theme="system"] *) {
+      @slot;
+    }
+  }
+}
 
 /*
  * Tailwind leaves an undeclared border at `currentColor`, so the `border` utility on a shadcn
@@ -41,10 +50,19 @@
   controls are part of the same system.
 
   Geist publishes each step as a `light-dark()` pair, so both halves are here and
-  `color-scheme` below picks which one every token resolves to. Dark, unconditionally, because
-  it is what the canvas opens as, and a board is easier to read against a ground that is not
-  competing with it. One word here is the whole switch.
+  `color-scheme` below picks which one every token resolves to. That one word is the whole
+  switch. The window and the canvas set `data-theme` from the top bar's switcher before they
+  paint (the script in index.html, home.html and canvas.html). A page that sets none, such as
+  the community site, is dark, which is what the app was before it had a light half.
 */
+:root[data-theme="system"] {
+  color-scheme: light dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
 :root {
   color-scheme: dark;
   --ds-background-100: light-dark(oklch(1 0 0), oklch(0 0 0));

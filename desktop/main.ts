@@ -14,6 +14,7 @@ import {
   BrowserWindow,
   dialog,
   ipcMain,
+  nativeTheme,
   shell,
   utilityProcess,
 } from "electron";
@@ -144,7 +145,9 @@ async function main() {
     width: 1440,
     height: 900,
     title: "Super Prototyping",
-    backgroundColor: "#000000",
+    // What shows before the page paints: the OS's, since the page's pick is in its own storage
+    // and reaches `nativeTheme` only once it runs (startup:theme below).
+    backgroundColor: nativeTheme.shouldUseDarkColors ? "#000000" : "#ffffff",
     // Windows draws the menu as a white strip across a black app. Alt still shows it.
     autoHideMenuBar: true,
     webPreferences: {
@@ -290,6 +293,14 @@ async function main() {
   ipcMain.handle("startup:agent", (_event, agent: string) => {
     Object.assign(last, { agent, version: app.getVersion() });
     fs.writeFileSync(lastFile, JSON.stringify(last));
+  });
+
+  // The top bar's theme, for what the page cannot paint: the title bar, and on macOS the
+  // traffic lights and the menus. It also sets `prefers-color-scheme` in the page, so the page's
+  // "system" and the title bar's agree.
+  ipcMain.on("startup:theme", (_event, theme: string) => {
+    if (theme === "system" || theme === "light" || theme === "dark")
+      nativeTheme.themeSource = theme;
   });
 
   // Heard from before the server is up: Electron drops a `second-instance` nothing listens for, and

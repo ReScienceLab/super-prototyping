@@ -12,7 +12,7 @@
  * the state and the DOM.
  */
 import type { AgentId } from "./agents";
-import type { ChatEvent, Shot } from "./claudeStream";
+import type { ChatEvent, MadeBoard, Shot } from "./claudeStream";
 
 export interface Frame {
   id: number;
@@ -48,7 +48,7 @@ export interface Turn {
   /** How full the context window is, as of the turn's last call, and how big it is. */
   usage?: { used: number; window?: number };
   /** Set once the run has ended: whether it succeeded and, if not, why. */
-  end?: { ok: boolean; message?: string; interrupted?: boolean };
+  end?: { ok: boolean; message?: string; interrupted?: boolean; made?: MadeBoard[] };
 }
 
 export function applyFrame(turn: Turn, frame: Frame): Turn {
@@ -106,7 +106,10 @@ export function applyFrame(turn: Turn, frame: Frame): Turn {
         },
       };
     case "end":
-      return { ...turn, end: { ok: e.ok, message: e.message, interrupted: e.interrupted } };
+      return {
+        ...turn,
+        end: { ok: e.ok, message: e.message, interrupted: e.interrupted, made: e.made },
+      };
   }
 }
 

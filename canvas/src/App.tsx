@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import {
   Ellipse2d,
   ImageShapeUtil,
@@ -21,6 +15,7 @@ import {
   renderPlaintextFromRichText,
   toRichText,
   type Editor,
+  type TLPage,
   type TLPageId,
   type TLAsset,
   type TLAssetStore,
@@ -94,9 +89,10 @@ import {
   readCanvasLibrary,
   refetchBoards,
 } from "./canvasLibrary";
-import { BOARDS_CHANGED, canvasIndex } from "./canvasIndex";
+import { BOARDS_CHANGED, FOCUS_BOARD, canvasIndex } from "./canvasIndex";
 import { lockedOverlayUtils } from "./lockedIndicator";
 import { installCanvasComments, readCommentUser } from "./canvasComments";
+import { storedTheme, THEME_KEY } from "./theme";
 import {
   CanvasLinkPaste,
   agentBoardPaths,
@@ -808,7 +804,6 @@ function initializeCanvasLibrary(editor: Editor) {
             },
           })),
         );
-
       }
 
       // What the pass did not place is what the folder no longer has: a board renamed or removed,
@@ -1217,6 +1212,39 @@ export default function App() {
     if (page) editor.setCurrentPage(page.id);
   };
 
+  // A board a reply in the chat made or changed, from the button under it: its canvas brought
+  // forward and the board fitted to it, as a double-click on it would. Heard on the window, which
+  // holds the chat.
+  useEffect(() => {
+    if (!editor) return;
+    const focus = (event: Event) => {
+      const board = (event as CustomEvent<string>).detail;
+      // By its path rather than the library's id: an agent places boards under ids of its own
+      // (canvas.json). Its own canvas first, where the library puts it. None when it has gone
+      // since the reply, deleted or renamed by a later one.
+      const slug = board.split("/")[0];
+      const own = (page: TLPage) =>
+        Number(String(page.meta.canvasSlug).normalize("NFC") === slug);
+      const pages = editor.getPages().sort((a, b) => own(b) - own(a));
+      for (const page of pages)
+        for (const id of editor.getPageShapeIds(page)) {
+          const shape = editor.getShape(id)!;
+          if (
+            shape.type === CANVAS_FILE_SHAPE_TYPE &&
+            (shape.props as { path: string }).path
+              .normalize("NFC")
+              .endsWith(`canvases/${board}`)
+          ) {
+            openTab({ kind: "canvas", slug: page.meta.canvasSlug as string });
+            zoomToFill(editor, id);
+            return;
+          }
+        }
+    };
+    window.parent.addEventListener(FOCUS_BOARD, focus);
+    return () => window.parent.removeEventListener(FOCUS_BOARD, focus);
+  });
+
   // A layout.json edit moves boards: a row reordered, a label changed, a size override added.
   // The pass reconciles, so the boards that stay keep their shapes and only what moved is
   // touched.
@@ -1274,9 +1302,14 @@ export default function App() {
 
   function handleMount(editor: Editor) {
     setEditor(editor);
-    // tldraw's own dark theme, to match the panel's. A dark rail against tldraw's near-white ground
-    // looks like two apps in one window, and the ground is most of the window.
-    editor.user.updateUserPreferences({ colorScheme: "dark" });
+    // tldraw's scheme is the page's (tokens.css), or a dark rail sits against a near-white ground
+    // and the window looks like two apps. tldraw's "system" and the page's follow the same OS
+    // preference. Another page picking one reaches this one as a storage event (theme.ts).
+    editor.user.updateUserPreferences({ colorScheme: storedTheme() });
+    const scheme = (e: StorageEvent) =>
+      e.key === THEME_KEY &&
+      editor.user.updateUserPreferences({ colorScheme: storedTheme() });
+    window.addEventListener("storage", scheme);
     initializeCanvas(editor);
     // After the library, which is what creates the pages both are keyed to, and content first,
     // since a comment can be pinned to a shape the person put there.
@@ -1300,6 +1333,7 @@ export default function App() {
     const disposeZoom = installDoubleClickZoom(editor);
     const disposeHover = installBoardHover(editor);
     return () => {
+      window.removeEventListener("storage", scheme);
       disposeHover();
       disposeContent();
       disposeComments();

@@ -63,7 +63,20 @@ export type ChatEvent =
   | { kind: "usage"; used?: number; window?: number }
   /** `interrupted`: cut off before it finished, by the app quitting or the CLI dying, rather
    *  than failed or stopped. The panel offers to continue it. */
-  | { kind: "end"; ok: boolean; message?: string; interrupted?: boolean };
+  | {
+      kind: "end";
+      ok: boolean;
+      message?: string;
+      interrupted?: boolean;
+      /** The boards the run made or changed, which the server adds (agent.ts). */
+      made?: MadeBoard[];
+    };
+
+/** A board by `<slug>/<file>.html`, and whether the run made it or changed one there already. */
+export interface MadeBoard {
+  board: string;
+  status: "new" | "updated";
+}
 
 /**
  * A picture a tool handed back: the grid refkit draws over a reference, a crop, a screenshot —

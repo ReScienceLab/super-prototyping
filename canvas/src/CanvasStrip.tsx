@@ -3,7 +3,12 @@ import { CanvasChromeContext } from "./canvasChrome";
 import { shortName } from "./canvasLibrary";
 import { docsOf, ownCanvases, pageOf, tabFor, tabUrl } from "./canvasTabs";
 import { canvasIndex, LAYOUT_CHANGED } from "./canvasIndex";
-import { groundEditable, setGround, useGround } from "./canvasGround";
+import {
+  DEFAULT_GROUND,
+  groundEditable,
+  setGround,
+  useGround,
+} from "./canvasGround";
 import { ViewIcon } from "./CanvasTabBar";
 import { shareUrl, sheetPageUrl, type CanvasTab } from "./canvasUrl";
 import {
@@ -205,7 +210,11 @@ export function CanvasStrip() {
         <label
           className="sp-canvas-tabs-ground"
           title="Canvas background"
-          style={{ background: ground }}
+          // The theme's ground, whichever half is showing, until the canvas names its own.
+          style={{
+            background:
+              ground === DEFAULT_GROUND ? "var(--sp-ground)" : ground,
+          }}
         >
           <input
             type="color"

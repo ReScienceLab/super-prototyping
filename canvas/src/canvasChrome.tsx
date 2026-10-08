@@ -149,11 +149,10 @@ export const canvasCommentTools = [
 
 /**
  * The toolbar entry for that tool, and one action fewer. tldraw keeps Cmd+/ bound to
- * `toggle-dark-mode` with its menu gone, and everything drawn here is dark only: the ground remap
- * in index.css is scoped to `.tl-theme__dark`, the welcome board's black art and the panels'
- * tokens are unconditional. A press left a near-white canvas under a black rail, and App.tsx
- * forced dark back on the next reload. One theme, so no switch: App.tsx's write at mount is
- * the theme, and this takes away the one way left of leaving it. Deleting the action is enough
+ * `toggle-dark-mode` with its menu gone. It flips only tldraw's scheme, so a press left a
+ * near-white canvas under a black rail, and it could not reach the window's. The theme is the top
+ * bar's switcher (theme.ts), which App.tsx hands tldraw, and this takes away the one
+ * way left of setting tldraw's apart from it. Deleting the action is enough
  * because the shortcut table and the shortcuts dialog both draw from this map — the dialog's
  * item renders nothing for an action that is not there — and the colour-scheme menu lives only
  * in tldraw's main menu, which `MenuPanel` below takes away. This tldraw exports no user-preference
