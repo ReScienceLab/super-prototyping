@@ -7,7 +7,7 @@ An app and a set of agent skills for rebuilding and designing product UI as
 toolkit the skills drive. Your boards stay in your project, and the app
 upgrades around them.
 
-This repo is the open-source edition. [Mono Factory](https://monofactory.ai)
+This repo is the open-source edition. [MonoFactory](https://monofactory.ai)
 is the commercial edition: it works out of the box, with its agents already
 set up, for anyone who would rather not configure agents themselves.
 [How the two differ](#commercial-edition).
@@ -105,7 +105,7 @@ The app is the canvas in a window, and it needs no terminal and no bun. It
 opens straight onto its home page, which is no project's, and asks over it
 which agent you will work with, Claude Code or Codex. That agent is your own:
 you install it and sign in to it yourself.
-[Mono Factory](https://monofactory.ai), the commercial edition, comes with its
+[MonoFactory](https://monofactory.ai), the commercial edition, comes with its
 agents set up instead. New projects are made in
 `Documents/Super Prototyping` from the home page or the + on the tab bar, and
 each shows its `canvases`. The home page's Community section lists the
@@ -277,10 +277,10 @@ super-prototyping, this repo, is the open-source edition: free to use, and you
 bring the agent. You install Claude Code or Codex, sign in to it with your own
 account, and the app works with the one you choose.
 
-[Mono Factory](https://monofactory.ai) is the commercial edition, from
+[MonoFactory](https://monofactory.ai) is the commercial edition, from
 ReScience Lab Inc. It works out of the box: its agents come set up, so there
 is nothing to install beside the app and nothing to configure. If you would
-rather not set agents up yourself, get Mono Factory instead.
+rather not set agents up yourself, get MonoFactory instead.
 
 It is a desktop app you [download](https://monofactory.ai/download/) from its
 site and pay for as you go; the rates are on its
